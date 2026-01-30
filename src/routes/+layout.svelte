@@ -1,8 +1,17 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+	// Props
+	let { children } = $props()
 
-	let { children } = $props();
+
+	// Images
+	import favicon from '$/lib/assets/favicon.svg'
+
+
+	// Styles
+	import '$/styles/colors.css'
+	import '$/styles/bits-ui.css'
 </script>
+
 
 <svelte:head>
 	<link rel="icon" href={favicon} />

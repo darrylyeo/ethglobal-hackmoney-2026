@@ -5,5 +5,6 @@ export default defineConfig({
 	plugins: [sveltekit()],
 	test: {
 		include: ['src/lib/**/*.spec.ts'],
+		exclude: ['**/voltaire.spec.ts'],
 	},
 })

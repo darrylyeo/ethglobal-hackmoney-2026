@@ -1,6 +1,6 @@
 /// <reference lib="deno.ns" />
 import { assertEquals, assertExists } from 'jsr:@std/assert'
-import { normalizeCoin } from './coins.ts'
+import { normalizeCoin } from './coins-normalize.ts'
 
 Deno.test('coins collection normalization: returns one coin row with chainId, address, symbol, decimals', () => {
 	const row = normalizeCoin({

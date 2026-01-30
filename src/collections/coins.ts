@@ -3,13 +3,9 @@ import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { ercTokens } from '$/constants/coins'
 import type { Erc20Token } from '$/constants/coins'
 import { queryClient } from '$/lib/db/query-client'
+import { normalizeCoin } from './coins-normalize'
 
-export const normalizeCoin = (entry: Erc20Token): Erc20Token => ({
-	chainId: entry.chainId,
-	address: entry.address,
-	symbol: entry.symbol,
-	decimals: entry.decimals,
-})
+export { normalizeCoin } from './coins-normalize'
 
 export const coinsCollection = createCollection(
 	queryCollectionOptions({

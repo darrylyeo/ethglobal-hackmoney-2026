@@ -8,11 +8,12 @@ test('home page has expected h1', async ({ page }) => {
 test('bridge: get quote flow selects options and shows result or error', async ({ page }) => {
 	await page.goto('/')
 	await expect(page.getByRole('heading', { level: 1, name: 'USDC Bridge' })).toBeVisible({ timeout: 15000 })
+	await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 10_000 })
 	await page.getByLabel('From chain').click()
-	await page.getByTestId('option-Ethereum').waitFor({ state: 'attached', timeout: 5000 })
+	await page.getByTestId('option-Ethereum').waitFor({ state: 'visible', timeout: 5000 })
 	await page.getByTestId('option-Ethereum').click()
 	await page.getByLabel('To chain').click()
-	await page.getByTestId('option-OP Mainnet').waitFor({ state: 'attached', timeout: 5000 })
+	await page.getByTestId('option-OP Mainnet').waitFor({ state: 'visible', timeout: 5000 })
 	await page.getByTestId('option-OP Mainnet').click()
 	await page.getByRole('button', { name: 'Get Quote' }).click()
 	await Promise.race([

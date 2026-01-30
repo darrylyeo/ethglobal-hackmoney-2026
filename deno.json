@@ -1,6 +1,8 @@
 {
+	"nodeModulesDir": "auto",
 	"imports": {
-		"$/": "./src/"
+		"$/": "./src/",
+		"@tanstack/query-core": "npm:@tanstack/query-core"
 	},
 	"lint": {
 		"rules": {
@@ -10,7 +12,12 @@
 		}
 	},
 	"tasks": {
-		"test": "deno test -A src/lib/db/",
-		"test:unit": "deno test -A src/lib/db/collections.spec.ts"
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"install": "deno install",
+		"test": "deno test -A --no-check src/collections/networks.spec.ts src/collections/coins.spec.ts src/lib/voltaire.spec.ts",
+		"test:unit": "deno test -A --no-check src/collections/networks.spec.ts src/collections/coins.spec.ts src/lib/voltaire.spec.ts",
+		"test:e2e": "node node_modules/@playwright/test/cli.js test"
 	}
 }

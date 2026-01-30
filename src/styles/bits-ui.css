@@ -1,0 +1,52 @@
+[data-button-root] {
+	background-color: var(--color-surface-muted);
+	border-radius: 0.375rem;
+	cursor: pointer;
+
+	&[data-disabled] {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+}
+
+[data-select-trigger] {
+	background-color: var(--color-surface-muted);
+	border-radius: 0.375rem;
+	cursor: pointer;
+	min-width: var(--bits-select-anchor-width, 8rem);
+
+	&[data-disabled] {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+}
+
+[data-select-content] {
+	background-color: var(--color-surface);
+	border-radius: 0.375rem;
+	overflow: hidden;
+	width: var(--bits-select-anchor-width);
+	min-width: var(--bits-select-anchor-width);
+	max-width: var(--bits-select-anchor-width);
+}
+
+[data-select-viewport] {
+	max-height: 20rem;
+	overflow-y: auto;
+}
+
+[data-select-item] {
+	border-radius: 0.25rem;
+	cursor: pointer;
+
+	&[data-disabled] {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	&[data-highlighted] {
+		background-color: var(--color-surface-muted);
+		outline: 1px solid currentColor;
+		outline-offset: -1px;
+	}
+}
