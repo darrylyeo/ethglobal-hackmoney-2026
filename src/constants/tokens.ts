@@ -72,7 +72,7 @@ export const tokensBySymbolByChainId = (
 	Object.fromEntries(
 		Map.groupBy(tokens, (token) => token.chainId)
 			.entries()
-			.map(([chainId, arr]) => [
+			.map(([chainId, tokens]) => [
 				Number(chainId),
 				Object.fromEntries(arr.map((t) => [t.symbol, t])),
 			])
