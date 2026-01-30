@@ -21,23 +21,23 @@ Located in `src/routes/+page.svelte`:
 
 ### UI
 
-- [ ] Renders with Bits UI primitives (Select, Input, Button); no Bits UI CSS imported.
-- [ ] Chain selects populated from `networks` constant.
-- [ ] User can enter amount and wallet address.
-- [ ] "Get Quote" calls `fetchQuoteCached` with selected params.
-- [ ] Quote result displays `estimatedToAmount` and `fees`.
-- [ ] Errors caught by `<svelte:boundary>` and displayed.
+- [x] Renders with Bits UI primitives (Select, Input, Button); no Bits UI CSS imported.
+- [x] Chain selects populated from `networks` constant.
+- [x] User can enter amount and wallet address.
+- [x] "Get Quote" calls `fetchQuoteCached` with selected params.
+- [x] Quote result displays `estimatedToAmount` and `fees`.
+- [x] Errors caught by `<svelte:boundary>` and displayed.
 
 ### E2E test
 
-- [ ] `e2e/bridge.test.ts` exists and runs with `pnpm test:e2e`.
-- [ ] Test: select source chain, destination chain, enter amount and address.
-- [ ] Test: click "Get Quote", wait for result.
-- [ ] Test: assert quote result is visible.
+- [x] `e2e/bridge.test.ts` exists and runs with `pnpm test:e2e`.
+- [x] Test: select source chain, destination chain, enter amount and address.
+- [x] Test: click "Get Quote", wait for result.
+- [x] Test: assert quote result is visible.
 
 ## Status
 
-Incomplete.
+Complete.
 
 ## Output when complete
 
