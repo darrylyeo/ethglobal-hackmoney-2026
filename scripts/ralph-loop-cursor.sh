@@ -21,7 +21,13 @@ CONSTITUTION="$PROJECT_DIR/.specify/memory/constitution.md"
 
 MAX_ITERATIONS=0
 MODE="build"
-CURSOR_CMD="${CURSOR_CMD:-agent}"
+if [ -z "${CURSOR_CMD:-}" ]; then
+	if command -v cursor-agent &> /dev/null; then
+		CURSOR_CMD="cursor-agent"
+	else
+		CURSOR_CMD="agent"
+	fi
+fi
 TAIL_LINES=10
 
 RED='\033[0;31m'
@@ -46,7 +52,8 @@ Usage:
   ./scripts/ralph-loop-cursor.sh 20           # Build mode, max 20 iterations
   ./scripts/ralph-loop-cursor.sh plan          # Planning mode (one run)
 
-Requires: Cursor CLI installed and authenticated (agent -p works).
+Requires: Cursor CLI (cursor-agent or agent) installed and authenticated.
+  For headless/scripts set CURSOR_API_KEY (see docs/cli/reference/authentication).
   Install: https://cursor.com/docs/cli/installation
   Headless: https://cursor.com/docs/cli/headless
 
@@ -158,9 +165,11 @@ while true; do
 	echo -e "${BLUE}[$TIMESTAMP]${NC} Starting iteration $ITERATION"
 	echo ""
 
-	PROMPT_CONTENT=$(cat "$PROMPT_FILE")
-	CURSOR_OUTPUT=""
-	if CURSOR_OUTPUT=$("$CURSOR_CMD" -p --force --output-format text "$PROMPT_CONTENT" 2>&1 | tee "$LOG_FILE"); then
+	PROMPT_REF="Read and follow the instructions in $PROMPT_FILE. Execute one spec. Output DONE when done."
+	"$CURSOR_CMD" -p --force --output-format text --workspace "$PROJECT_DIR" "$PROMPT_REF" 2>&1 | tee "$LOG_FILE"
+	CURSOR_EXIT=${PIPESTATUS[0]}
+	CURSOR_OUTPUT=$(cat "$LOG_FILE")
+	if [ "$CURSOR_EXIT" -eq 0 ]; then
 		echo ""
 		echo -e "${GREEN}✓ Cursor execution completed${NC}"
 
