@@ -6,6 +6,13 @@
 				"-y",
 				"@sveltejs/mcp"
 			]
+		},
+		"voltaire": {
+			"command": "npx",
+			"args": [
+				"mcp-remote",
+				"https://voltaire.tevm.sh/mcp"
+			]
 		}
 	}
 }
