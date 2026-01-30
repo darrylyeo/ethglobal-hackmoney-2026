@@ -3,7 +3,12 @@
  * Chain IDs and names aligned with LI.FI / Circle USDC coverage.
  */
 
-export enum Network {
+export type Network = {
+	id: ChainId
+	name: string
+}
+
+export enum ChainId {
 	Ethereum = 1,
 	Optimism = 10,
 	Polygon = 137,
@@ -15,14 +20,45 @@ export enum Network {
 	ZkSyncEra = 324,
 }
 
-export const networks = {
-	[Network.Ethereum]: { name: 'Ethereum' },
-	[Network.Optimism]: { name: 'OP Mainnet' },
-	[Network.Polygon]: { name: 'Polygon PoS' },
-	[Network.Arbitrum]: { name: 'Arbitrum One' },
-	[Network.Avalanche]: { name: 'Avalanche C-Chain' },
-	[Network.Celo]: { name: 'Celo' },
-	[Network.Base]: { name: 'Base' },
-	[Network.Linea]: { name: 'Linea' },
-	[Network.ZkSyncEra]: { name: 'ZKsync Era' },
-} as const satisfies Record<Network, { name: string }>
+export const networks = [
+	{
+		id: ChainId.Ethereum,
+		name: 'Ethereum',
+	},
+	{
+		id: ChainId.Optimism,
+		name: 'OP Mainnet',
+	},
+	{
+		id: ChainId.Polygon,
+		name: 'Polygon PoS',
+	},
+	{
+		id: ChainId.Arbitrum,
+		name: 'Arbitrum One',
+	},
+	{
+		id: ChainId.Avalanche,
+		name: 'Avalanche C-Chain',
+	},
+	{
+		id: ChainId.Celo,
+		name: 'Celo',
+	},
+	{
+		id: ChainId.Base,
+		name: 'Base',
+	},
+	{
+		id: ChainId.Linea,
+		name: 'Linea',
+	},
+	{
+		id: ChainId.ZkSyncEra,
+		name: 'ZKsync Era',
+	},
+] as const satisfies Network[]
+
+export const networksByChainId = Object.fromEntries(
+	networks.map((n) => [n.id, n]),
+)
