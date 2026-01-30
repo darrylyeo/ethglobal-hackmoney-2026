@@ -15,6 +15,7 @@
 		"test:e2e": "playwright test"
 	},
 	"dependencies": {
+		"@tevm/voltaire": "^0.2.28",
 		"bits-ui": "^2.15.5"
 	},
 	"devDependencies": {
