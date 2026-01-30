@@ -2,7 +2,7 @@
  * Token entries per network from Circle USDC contract addresses.
  */
 
-import { Network } from './networks'
+import { ChainId } from './networks'
 
 export type Erc20Token = {
 	chainId: number
@@ -13,55 +13,55 @@ export type Erc20Token = {
 
 export const tokens = [
 	{
-		chainId: Network.Ethereum,
+		chainId: ChainId.Ethereum,
 		address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 		symbol: 'USDC',
 		decimals: 6,
 	},
 	{
-		chainId: Network.Optimism,
+		chainId: ChainId.Optimism,
 		address: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
 		symbol: 'USDC',
 		decimals: 6,
 	},
 	{
-		chainId: Network.Polygon,
+		chainId: ChainId.Polygon,
 		address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
 		symbol: 'USDC',
 		decimals: 6,
 	},
 	{
-		chainId: Network.Arbitrum,
+		chainId: ChainId.Arbitrum,
 		address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
 		symbol: 'USDC',
 		decimals: 6,
 	},
 	{
-		chainId: Network.Avalanche,
+		chainId: ChainId.Avalanche,
 		address: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
 		symbol: 'USDC',
 		decimals: 6,
 	},
 	{
-		chainId: Network.Celo,
+		chainId: ChainId.Celo,
 		address: '0xcebA9300f2b948710d2653dD7B07f33A8B32118C',
 		symbol: 'USDC',
 		decimals: 6,
 	},
 	{
-		chainId: Network.Base,
+		chainId: ChainId.Base,
 		address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
 		symbol: 'USDC',
 		decimals: 6,
 	},
 	{
-		chainId: Network.Linea,
+		chainId: ChainId.Linea,
 		address: '0x176211869cA2b568f2A7D4EE941E073a821EE1ff',
 		symbol: 'USDC',
 		decimals: 6,
 	},
 	{
-		chainId: Network.ZkSyncEra,
+		chainId: ChainId.ZkSyncEra,
 		address: '0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4',
 		symbol: 'USDC',
 		decimals: 6,
