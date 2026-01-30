@@ -95,7 +95,12 @@ When all specs appear complete, the agent will:
 ## Running Ralph
 
 ```bash
-# Claude Code / Cursor
+# Cursor CLI (headless)
+./scripts/ralph-loop-cursor.sh
+./scripts/ralph-loop-cursor.sh 20
+./scripts/ralph-loop-cursor.sh plan
+
+# Claude Code
 ./scripts/ralph-loop.sh
 
 # OpenAI Codex
