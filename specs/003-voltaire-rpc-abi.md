@@ -7,7 +7,7 @@ Use Voltaire (@tevm/voltaire) for all Ethereum RPC and ABI handling. No ethers o
 - [ ] Voltaire is used for at least one RPC call (e.g. chain ID, balance, or contract read) relevant to bridging.
 - [ ] No imports from `ethers` or `viem` in the codebase for RPC/ABI; Voltaire (or app code using it) is the only provider.
 - [ ] ABI handling (e.g. encoding/decoding for a USDC or bridge contract) uses Voltaire, not ethers/viem.
-- [ ] Vitest test(s) exist that stub or call Voltaire and assert correct RPC/ABI usage (e.g. call args, return shape).
+- [ ] Unit test(s) exist that stub or call Voltaire and assert correct RPC/ABI usage (e.g. call args, return shape).
 
 ## Status
 

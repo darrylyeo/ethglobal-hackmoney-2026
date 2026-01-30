@@ -9,7 +9,7 @@ Use:
 * TanStack DB collections to fetch and normalize data
 * Voltaire (instead of Ethers/Viem) for Ethereum RPC calls and ABI handling
 * Bits UI without CSS
-* Vitest to ensure the interface is working as expected
+* Deno test to ensure the interface is working as expected
 * USDC on all its supported chains
 
 

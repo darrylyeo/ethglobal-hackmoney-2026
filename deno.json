@@ -1,0 +1,6 @@
+{
+	"tasks": {
+		"test": "deno test -A src/lib/db/",
+		"test:unit": "deno test -A src/lib/db/collections.spec.ts"
+	}
+}

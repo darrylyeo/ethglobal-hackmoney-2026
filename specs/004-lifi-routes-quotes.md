@@ -8,7 +8,7 @@ Integrate LI.FI SDK: request routes and fetch quotes for USDC bridging across su
 - [ ] User-selectable (or test-configurable) source chain, destination chain, and amount; output is a route or quote (e.g. steps, estimated output, fees).
 - [ ] Flow aligns with LI.FI docs: route vs quote distinction respected where applicable (see project links).
 - [ ] TanStack DB or app state holds normalized route/quote data consumed by the UI or tests.
-- [ ] Vitest test(s) exist: given mock or real LI.FI response, app produces expected route/quote shape (e.g. steps, amounts).
+- [ ] Unit test(s) exist: given mock or real LI.FI response, app produces expected route/quote shape (e.g. steps, amounts).
 
 ## Status
 

@@ -1,6 +1,6 @@
 # Constitution
 
-> Minimal interface to drive the LI.FI SDK and USDC bridging across all supported chains. Uses TanStack DB for data, Voltaire for Ethereum RPC/ABIs, Bits UI without CSS, Vitest for verification, USDC on all supported chains.
+> Minimal interface to drive the LI.FI SDK and USDC bridging across all supported chains. Uses TanStack DB for data, Voltaire for Ethereum RPC/ABIs, Bits UI without CSS, Deno test for verification, USDC on all supported chains.
 
 **Version:** 1.0.0
 
@@ -56,7 +56,7 @@ Each spec has testable acceptance criteria. Only output DONE when criteria are v
 - **Data:** TanStack DB collections to fetch and normalize data
 - **Ethereum:** Voltaire (@tevm/voltaire), not ethers/viem, for RPC and ABI handling
 - **UI:** Bits UI without CSS
-- **Tests:** Vitest (unit); Playwright (e2e)
+- **Tests:** Deno test (unit); Playwright (e2e)
 - **Scope:** USDC bridging on all LI.FI / Circle supported chains
 
 References: LI.FI docs (routes, quotes, end-to-end), Circle Bridge Kit.
