@@ -25,6 +25,6 @@ test('after networks load, To chain dropdown lists Ethereum and OP Mainnet', asy
 	await page.goto('/')
 	await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 10_000 })
 	await page.getByLabel('To chain').click()
-	await expect(page.getByRole('option', { name: 'Ethereum' })).toBeVisible({ timeout: 5_000 })
-	await expect(page.getByRole('option', { name: 'OP Mainnet' })).toBeVisible({ timeout: 5_000 })
+	await expect(page.getByTestId('option-Ethereum')).toBeVisible({ timeout: 5_000 })
+	await expect(page.getByTestId('option-OP Mainnet')).toBeVisible({ timeout: 5_000 })
 })
