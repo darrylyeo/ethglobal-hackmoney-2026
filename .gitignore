@@ -1,6 +1,9 @@
 test-results
 node_modules
 
+# Ralph Wiggum
+logs/
+
 # Output
 .output
 .vercel
