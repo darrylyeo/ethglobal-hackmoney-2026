@@ -9,5 +9,6 @@ export default defineConfig({
 		timeout: 120_000,
 		reuseExistingServer: true,
 	},
-	testDir: 'e2e',
+	testDir: '.',
+	testMatch: ['e2e/**/*.test.ts', 'src/routes/**/*.test.ts'],
 })

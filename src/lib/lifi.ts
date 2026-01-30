@@ -5,11 +5,11 @@
 
 import { createConfig, getQuote } from '@lifi/sdk'
 import type { LiFiStep } from '@lifi/sdk'
-import { queryClient } from '$lib/db/query-client'
+import { queryClient } from '$/lib/db/query-client'
 import { ChainId } from '$/constants/networks'
 import { ercTokensBySymbolByChainId } from '$/constants/coins'
 
-createConfig({ integrator: 'ethglobal-hackmoney-2026' })
+createConfig({ integrator: 'ethglobal-hackmoney-26' })
 
 export type QuoteStep = {
 	fromChainId: number

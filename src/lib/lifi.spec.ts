@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { LiFiStep } from '@lifi/sdk'
-import { queryClient } from '$lib/db/query-client'
+import { queryClient } from '$/lib/db/query-client'
 import {
 	fetchQuoteCached,
 	getQuoteForUsdcBridge,

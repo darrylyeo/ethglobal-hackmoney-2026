@@ -1,6 +1,11 @@
 import { encodeFunction, decodeParameters } from '@tevm/voltaire/Abi'
 import { toBytes } from '@tevm/voltaire/Hex'
-import type { Provider } from '@tevm/voltaire/provider'
+
+export type VoltaireProvider = {
+	request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
+	on: (event: string, listener: () => void) => VoltaireProvider
+	removeListener: (event: string, listener: () => void) => VoltaireProvider
+}
 
 const ERC20_BALANCE_OF_ABI = [
 	{
@@ -14,7 +19,7 @@ const ERC20_BALANCE_OF_ABI = [
 
 const BALANCE_OF_OUTPUTS = [{ type: 'uint256' as const, name: '' }] as const
 
-export function getChainId(provider: Provider): Promise<bigint> {
+export function getChainId(provider: VoltaireProvider): Promise<bigint> {
 	return provider
 		.request({ method: 'eth_chainId', params: [] })
 		.then((res) => (typeof res === 'string' ? BigInt(res) : BigInt(res as string)))
@@ -31,7 +36,7 @@ export function decodeBalanceOfResult(hex: string): bigint {
 }
 
 export async function getErc20Balance(
-	provider: Provider,
+	provider: VoltaireProvider,
 	contractAddress: `0x${string}`,
 	accountAddress: `0x${string}`,
 ): Promise<bigint> {
@@ -47,7 +52,7 @@ export async function getErc20Balance(
 	return decodeBalanceOfResult(res)
 }
 
-export async function createHttpProvider(url: string): Promise<Provider> {
+export async function createHttpProvider(url: string): Promise<VoltaireProvider> {
 	const { HttpProvider } = await import('@tevm/voltaire/provider')
-	return new HttpProvider({ url })
+	return new HttpProvider({ url }) as VoltaireProvider
 }
