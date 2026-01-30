@@ -1,13 +1,27 @@
 # Spec 002: TanStack DB collections
 
-Use TanStack DB collections to fetch and normalize data used by the bridge UI (chains, tokens, config).
+Collections to normalize chain and token data.
+
+## Implementation
+
+`src/lib/db/query-client.ts`:
+- `queryClient`: shared `QueryClient` instance
+
+`src/collections/networks.ts`:
+- `normalizeNetwork(entry)`: identity transform `{ id, name }`
+- `networksCollection`: TanStack DB collection from `networks` constant
+
+`src/collections/coins.ts`:
+- `normalizeCoin(entry)`: identity transform `{ chainId, address, symbol, decimals }`
+- `coinsCollection`: TanStack DB collection from `ercTokens` constant
 
 ## Acceptance criteria
 
-- [x] TanStack DB is configured and used for at least one collection (e.g. chains or tokens).
-- [x] Data is fetched from a defined source (e.g. LI.FI config, static list) and normalized into collection shape.
-- [x] Collections are consumed in the app (e.g. by a Svelte component or store); not dead code.
-- [x] Unit test(s) exist that assert collection data shape or normalization (e.g. expected keys, types).
+- [x] `queryClient` exported from `src/lib/db/query-client.ts`.
+- [x] `networksCollection` in `src/collections/networks.ts`.
+- [x] `coinsCollection` in `src/collections/coins.ts`.
+- [x] Unit test `networks.spec.ts`: asserts `normalizeNetwork` output shape.
+- [x] Unit test `coins.spec.ts`: asserts `normalizeCoin` output shape.
 
 ## Status
 

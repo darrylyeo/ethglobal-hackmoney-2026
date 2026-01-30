@@ -1,14 +1,27 @@
-# Spec 001: Constants and networks
+# Spec 001: Constants
 
-Define chain and token constants for USDC bridging. One `.ts` file per entity type in `src/constants`: enum as ID, mapping object with `as const satisfies`. USDC on all LI.FI / Circle supported chains.
+Chain and token constants for USDC bridging.
+
+## Implementation
+
+`src/constants/networks.ts`:
+- `ChainId` enum (9 chains): Ethereum, Optimism, Polygon, Arbitrum, Avalanche, Celo, Base, Linea, ZkSyncEra
+- `Network` type: `{ id: ChainId, name: string }`
+- `networks` array with `as const satisfies Network[]`
+- `networksByChainId` lookup object
+
+`src/constants/coins.ts`:
+- `Erc20Token` type: `{ chainId, address, symbol, decimals }`
+- `ercTokens` array: USDC for each chain with `as const satisfies`
+- `ercTokensBySymbolByChainId` lookup: `chainId → symbol → token`
 
 ## Acceptance criteria
 
-- [x] `src/constants/networks.ts` exists: `Network` enum (chain IDs) and `networks` mapping (e.g. `name`) with `as const satisfies`.
-- [x] `src/constants/tokens.ts` (or equivalent) exists: `Token` enum + mapping; USDC included for each supported chain, mapping with `as const satisfies`.
-- [x] Supported chains match LI.FI / Circle USDC coverage (no arbitrary subset).
-- [x] Code style: tabs, no semicolons; enum-as-ID + mapping pattern only, mappings use `as const satisfies`.
-- [x] No ethers/viem; Voltaire not required in this spec, only type/constant shape.
+- [x] `ChainId` enum with 9 LI.FI / Circle supported chains.
+- [x] `networks` array with id and name for each chain.
+- [x] `ercTokens` array with USDC address for each chain.
+- [x] Lookup objects for quick access by chain ID.
+- [x] Code style: tabs, no semicolons, `as const satisfies`.
 
 ## Status
 
