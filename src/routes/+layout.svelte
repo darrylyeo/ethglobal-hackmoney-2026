@@ -11,7 +11,6 @@
 	import '$/styles/reset.css'
 	import '$/styles/colors.css'
 	import '$/styles/fonts.css'
-	import '$/styles/bits-ui.css'
 </script>
 
 
