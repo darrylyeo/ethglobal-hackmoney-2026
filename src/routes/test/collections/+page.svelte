@@ -16,10 +16,10 @@
 			.select(({ coin }) => ({ coin })),
 	)
 	const networks = $derived(
-		(networksQuery.data ?? []).map((row) => row.network ?? row.$selected?.network ?? row),
+		(networksQuery.data ?? []).map((row) => row.network),
 	)
 	const coins = $derived(
-		(coinsQuery.data ?? []).map((row) => row.coin ?? row.$selected?.coin ?? row),
+		(coinsQuery.data ?? []).map((row) => row.coin),
 	)
 </script>
 

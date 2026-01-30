@@ -16,7 +16,7 @@
 			.select(({ network }) => ({ network })),
 	)
 	const networks = $derived(
-		(networksQuery.data ?? []).map((row) => row.network ?? row.$selected?.network ?? row),
+		(networksQuery.data ?? []).map((row) => row.network),
 	)
 	const networkItems = $derived(
 		networks.map((n) => ({ value: String(n.id), label: n.name })),
