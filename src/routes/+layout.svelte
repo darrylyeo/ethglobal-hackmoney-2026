@@ -8,8 +8,8 @@
 
 
 	// Styles
-	import '$/styles/reset.css'
 	import '$/styles/colors.css'
+	import '$/styles/reset.css'
 	import '$/styles/fonts.css'
 </script>
 
