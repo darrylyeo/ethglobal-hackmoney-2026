@@ -13,9 +13,11 @@
 		q
 			.from({ network: networksCollection })
 			.orderBy(({ network }) => network.id)
-			.select(({ network }) => network),
+			.select(({ network }) => ({ network })),
 	)
-	const networks = $derived(networksQuery.data ?? [])
+	const networks = $derived(
+		(networksQuery.data ?? []).map((row) => row.network ?? row.$selected?.network ?? row),
+	)
 	const networkItems = $derived(
 		networks.map((n) => ({ value: String(n.id), label: n.name })),
 	)
@@ -106,15 +108,15 @@
 						items={networkItems}
 						name="fromChain"
 					>
-						<Select.Trigger id="from-chain">
+						<Select.Trigger id="from-chain" aria-label="From chain">
 							{networkItems.find((i) => i.value === fromChain)?.label ?? 'Select'}
 						</Select.Trigger>
 						<Select.Portal>
 							<Select.Content>
 								<Select.Viewport>
-									{#each networkItems as item (item.value)}
+									{#each networkItems as item, i (`from-${i}-${item.value}`)}
 										<Select.Item value={item.value} label={item.label}>
-											{item.label}
+											<span data-testid={`option-${item.label}`}>{item.label}</span>
 										</Select.Item>
 									{/each}
 								</Select.Viewport>
@@ -130,15 +132,15 @@
 						items={networkItems}
 						name="toChain"
 					>
-						<Select.Trigger id="to-chain">
+						<Select.Trigger id="to-chain" aria-label="To chain">
 							{networkItems.find((i) => i.value === toChain)?.label ?? 'Select'}
 						</Select.Trigger>
 						<Select.Portal>
 							<Select.Content>
 								<Select.Viewport>
-									{#each networkItems as item (item.value)}
+									{#each networkItems as item, i (`to-${i}-${item.value}`)}
 										<Select.Item value={item.value} label={item.label}>
-											{item.label}
+											<span data-testid={`option-${item.label}`}>{item.label}</span>
 										</Select.Item>
 									{/each}
 								</Select.Viewport>
