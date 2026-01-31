@@ -143,7 +143,7 @@
 				<span aria-hidden='true'>⏳</span>
 				<span id='quote-loading-status' class='sr-only'>Loading, please wait</span>
 			{/if}
-			{loading ? 'Loading…' : 'Get Quote'}
+			{loading ? 'Loading…' : 'Get Routes'}
 		</Button.Root>
 	</fieldset>
 </form>

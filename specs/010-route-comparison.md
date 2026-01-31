@@ -385,42 +385,42 @@ export const executeSelectedRoute = async (
 ## Acceptance criteria
 
 ### API functions
-- [ ] `getRoutesForUsdcBridge()` returns array of `NormalizedRoute`
-- [ ] Routes include `originalRoute` for execution
-- [ ] `normalizeRoute()` extracts tool names, durations, tags
-- [ ] `executeSelectedRoute()` executes the chosen route
+- [x] `getRoutesForUsdcBridge()` returns array of `NormalizedRoute`
+- [x] Routes include `originalRoute` for execution
+- [x] `normalizeRoute()` extracts tool names, durations, tags
+- [x] `executeSelectedRoute()` executes the chosen route
 
 ### RouteList component
-- [ ] Shows up to 5 routes
-- [ ] First route auto-selected
-- [ ] "No routes available" shown when empty
-- [ ] Loading state shows "Finding best routes…"
-- [ ] Keyboard navigation (arrow keys) works
+- [x] Shows up to 5 routes
+- [x] First route auto-selected
+- [x] "No routes available" shown when empty
+- [x] Loading state shows "Finding best routes…"
+- [x] Keyboard navigation (arrow keys) works
 
 ### RouteCard component
-- [ ] Displays output amount (human-readable)
-- [ ] Shows bridge/protocol name(s)
-- [ ] Shows estimated time
-- [ ] Shows gas cost in USD
-- [ ] Tags displayed: Best, Cheapest, Fastest
-- [ ] Selected state visually distinct
-- [ ] Multi-step routes show step count
+- [x] Displays output amount (human-readable)
+- [x] Shows bridge/protocol name(s)
+- [x] Shows estimated time
+- [x] Shows gas cost in USD
+- [x] Tags displayed: Best, Cheapest, Fastest
+- [x] Selected state visually distinct
+- [x] Multi-step routes show step count
 
 ### Sorting
-- [ ] Sort dropdown with 4 options
-- [ ] "Recommended" keeps original order
-- [ ] "Best output" sorts by toAmount descending
-- [ ] "Lowest fees" sorts by gasCostUsd ascending
-- [ ] "Fastest" sorts by duration ascending
+- [x] Sort dropdown with 4 options
+- [x] "Recommended" keeps original order
+- [x] "Best output" sorts by toAmount descending
+- [x] "Lowest fees" sorts by gasCostUsd ascending
+- [x] "Fastest" sorts by duration ascending
 
 ### Integration
-- [ ] Bridge page fetches routes instead of single quote
-- [ ] Selected route used for execution
-- [ ] Route selection persists until new fetch
+- [x] Bridge page fetches routes instead of single quote
+- [x] Selected route used for execution
+- [x] Route selection persists until new fetch
 
 ## Status
 
-Not started.
+Complete. lifi.ts: getRoutesForUsdcBridge, normalizeRoute, executeSelectedRoute. RouteList.svelte, RouteCard.svelte. Bridge page: getRoutes, sortedRoutes, selectedRoute, sort dropdown, RouteList, QuoteOutput/ConfirmationDialog/ApprovalButton/TransactionStatus use selected route. Unit tests for normalizeRoute and getRoutesForUsdcBridge.
 
 ## Output when complete
 

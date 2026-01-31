@@ -1,7 +1,6 @@
 <script lang='ts'>
 	// Types/constants
-	import type { NormalizedQuote } from '$/api/lifi'
-	import type { LiFiStep } from '@lifi/sdk'
+	import type { NormalizedRoute } from '$/api/lifi'
 	import type { WalletState } from '$/lib/wallet'
 	import type { BridgeError } from '$/lib/errors'
 	import { NetworkType } from '$/constants/networks'
@@ -13,10 +12,11 @@
 	import { networksCollection } from '$/collections/networks'
 	import { actorCoinsCollection, fetchAllBalancesForAddress } from '$/collections/actor-coins'
 	import {
-		executeQuoteWithStatus,
-		fetchQuoteCached,
+		executeSelectedRoute,
+		getRoutesForUsdcBridge,
 		getUsdcAddress,
 	} from '$/api/lifi'
+	import { Select } from 'bits-ui'
 	import { createInitialStatus } from '$/lib/tx-status'
 	import {
 		extractRouteLimits,
@@ -40,6 +40,7 @@
 	import QuoteForm from './QuoteForm.svelte'
 	import QuoteOutput from './QuoteOutput.svelte'
 	import RecipientInput from './RecipientInput.svelte'
+	import RouteList from './RouteList.svelte'
 	import TransactionStatus from './TransactionStatus.svelte'
 	import WalletProvider from './WalletProvider.svelte'
 
@@ -81,11 +82,12 @@
 	let recipient = $state<`0x${string}`>(
 		'0x0000000000000000000000000000000000000000' as `0x${string}`,
 	)
-	let quote = $state<NormalizedQuote | null>(null)
-	let quoteStep = $state<LiFiStep | null>(null)
-	let quoteError = $state<BridgeError | null>(null)
-	let quoteRetryAttempt = $state(1)
-	let quoteLoading = $state(false)
+	let routes = $state<NormalizedRoute[]>([])
+	let selectedRouteId = $state<string | null>(null)
+	let sortBy = $state<'recommended' | 'output' | 'fees' | 'speed'>('recommended')
+	let routesError = $state<BridgeError | null>(null)
+	let routesRetryAttempt = $state(1)
+	let routesLoading = $state(false)
 	let execLoading = $state(false)
 	let execError = $state<BridgeError | null>(null)
 	let execRetryAttempt = $state(1)
@@ -97,9 +99,27 @@
 	let showConfirmation = $state(false)
 	const defaultSlippage = 0.005
 
+	const sortedRoutes = $derived(
+		[...routes].sort((a, b) => {
+			switch (sortBy) {
+				case 'output':
+					return BigInt(b.toAmount) > BigInt(a.toAmount) ? 1 : -1
+				case 'fees':
+					return parseFloat(a.gasCostUsd) - parseFloat(b.gasCostUsd)
+				case 'speed':
+					return a.estimatedDurationSeconds - b.estimatedDurationSeconds
+				default:
+					return 0
+			}
+		}),
+	)
+	const selectedRoute = $derived(
+		routes.find((r) => r.id === selectedRouteId) ?? null,
+	)
 	const approvalAddress = $derived(
-		(quoteStep as { estimate?: { approvalAddress?: string } } | null)?.estimate
-			?.approvalAddress as `0x${string}` | undefined,
+		selectedRoute?.originalRoute?.steps?.[0]?.estimate?.approvalAddress as
+			| `0x${string}`
+			| undefined,
 	)
 	const needsApprovalCheck = $derived(
 		Boolean(
@@ -111,7 +131,7 @@
 	const showSendButton = $derived(!needsApprovalCheck || approvalComplete)
 
 	$effect(() => {
-		const _ = quoteStep
+		const _ = selectedRoute
 		approvalComplete = false
 	})
 
@@ -140,46 +160,40 @@
 		await fetchAllBalancesForAddress(wallet.address, chainIds)
 	}
 
-	const getQuote = async (wallet: WalletState) => {
+	const getRoutes = async (wallet: WalletState) => {
 		if (!wallet.address) return
-		quoteError = null
-		quote = null
-		quoteStep = null
-		quoteLoading = true
+		routesError = null
+		routes = []
+		selectedRouteId = null
+		routesLoading = true
 		try {
-			const result = await fetchQuoteCached({
+			const list = await getRoutesForUsdcBridge({
 				fromChain: Number(fromChain),
 				toChain: Number(toChain),
 				fromAmount: parseDecimalToSmallest(amount, 6).toString(),
 				fromAddress: wallet.address,
 				toAddress: recipient,
+				slippage: defaultSlippage,
 			})
-			quote = result.quote
-			quoteStep = result.step
+			routes = list
 		} catch (e) {
-			quoteError = isBridgeError(e) ? e : categorizeError(e)
+			routesError = isBridgeError(e) ? e : categorizeError(e)
 		} finally {
-			quoteLoading = false
+			routesLoading = false
 		}
 	}
 
 	const sendTransaction = async (wallet: WalletState) => {
-		if (!wallet.connectedDetail || !wallet.address || !quote) return
+		if (!wallet.connectedDetail || !wallet.address || !selectedRoute) return
 		execError = null
 		execTxHashes = []
 		execLoading = true
 		bridgeStatus = createInitialStatus()
 		const loadingId = toasts.loading('Submitting transaction…')
 		try {
-			const route = await executeQuoteWithStatus(
+			const route = await executeSelectedRoute(
 				wallet.connectedDetail,
-				{
-					fromChain: Number(fromChain),
-					toChain: Number(toChain),
-					fromAmount: parseDecimalToSmallest(amount, 6).toString(),
-					fromAddress: wallet.address,
-					toAddress: recipient,
-				},
+				selectedRoute,
 				(s) => {
 					bridgeStatus = s
 					const hashes = s.steps
@@ -272,12 +286,12 @@
 			{/if}
 
 			<section data-card data-column='gap-4' aria-labelledby='quote-heading'>
-				<h2 id='quote-heading'>Get quote</h2>
+				<h2 id='quote-heading'>Get routes</h2>
 				<svelte:boundary>
 					<div data-bridge-layout>
 						<div data-bridge-form data-column='gap-4'>
 							{#if !wallet.address}
-								<p>Connect a wallet to get a quote.</p>
+								<p>Connect a wallet to get routes.</p>
 							{:else if networksQuery.isLoading}
 								<p>Loading networks…</p>
 							{:else}
@@ -294,8 +308,8 @@
 									bind:amount
 									fromAddress={wallet.address}
 									balance={sourceBalance}
-									loading={quoteLoading}
-									onSubmit={() => getQuote(wallet)}
+									loading={routesLoading}
+									onSubmit={() => getRoutes(wallet)}
 								/>
 								<RecipientInput
 									walletAddress={wallet.address}
@@ -303,7 +317,7 @@
 									bind:recipient
 								/>
 							{/if}
-							{#if quoteError?.code === ErrorCode.NO_ROUTES}
+							{#if routesError?.code === ErrorCode.NO_ROUTES}
 								<div data-no-routes>
 									<p>No routes available for this transfer.</p>
 									<ul>
@@ -312,16 +326,16 @@
 										<li>Check if the bridge is operational</li>
 									</ul>
 								</div>
-							{:else if quoteError}
+							{:else if routesError}
 								<ErrorDisplay
-									error={quoteError}
-									attempt={quoteRetryAttempt}
+									error={routesError}
+									attempt={routesRetryAttempt}
 									onRetry={() => {
-										quoteRetryAttempt++
-										getQuote(wallet)
+										routesRetryAttempt++
+										getRoutes(wallet)
 									}}
 									onDismiss={() => {
-										quoteError = null
+										routesError = null
 									}}
 								/>
 							{/if}
@@ -335,8 +349,42 @@
 							{/if}
 						</div>
 						<div data-bridge-output data-column='gap-4'>
-							{#if quote}
-								{@const limits = extractRouteLimits([quote])}
+							{#if routes.length > 0}
+								<div data-column='gap-2'>
+									<label for='sort-routes' class='sr-only'>Sort routes</label>
+									<Select.Root
+										type='single'
+										bind:value={sortBy}
+										items={[
+											{ value: 'recommended', label: 'Recommended' },
+											{ value: 'output', label: 'Best output' },
+											{ value: 'fees', label: 'Lowest fees' },
+											{ value: 'speed', label: 'Fastest' },
+										]}
+									>
+										<Select.Trigger id='sort-routes' aria-label='Sort routes'>
+											Sort: {sortBy === 'recommended' ? 'Recommended' : sortBy === 'output' ? 'Best output' : sortBy === 'fees' ? 'Lowest fees' : 'Fastest'}
+										</Select.Trigger>
+										<Select.Portal>
+											<Select.Content>
+												<Select.Viewport>
+													<Select.Item value='recommended' label='Recommended'>Recommended</Select.Item>
+													<Select.Item value='output' label='Best output'>Best output</Select.Item>
+													<Select.Item value='fees' label='Lowest fees'>Lowest fees</Select.Item>
+													<Select.Item value='speed' label='Fastest'>Fastest</Select.Item>
+												</Select.Viewport>
+											</Select.Content>
+										</Select.Portal>
+									</Select.Root>
+								</div>
+								<RouteList
+									routes={sortedRoutes}
+									bind:selectedId={selectedRouteId}
+									loading={routesLoading}
+								/>
+							{/if}
+							{#if selectedRoute}
+								{@const limits = extractRouteLimits([selectedRoute])}
 								{@const minDisplay = limits.minAmount ?? USDC_MIN_AMOUNT}
 								{@const maxDisplay = limits.maxAmount ?? USDC_MAX_AMOUNT}
 								<p data-route-limits>
@@ -344,8 +392,7 @@
 									Max: {formatTokenAmount(String(maxDisplay), 6)} USDC
 								</p>
 								<QuoteOutput
-									{quote}
-									quoteStep={quoteStep}
+									route={selectedRoute}
 									connectedDetail={wallet.connectedDetail}
 									execLoading={execLoading}
 									execError={execError}
@@ -366,8 +413,7 @@
 								{#if wallet.address}
 									<ConfirmationDialog
 										bind:open={showConfirmation}
-										{quote}
-										{quoteStep}
+										route={selectedRoute}
 										fromChainId={Number(fromChain)}
 										toChainId={Number(toChain)}
 										fromAmount={parseDecimalToSmallest(amount, 6).toString()}

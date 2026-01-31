@@ -10,8 +10,9 @@ import {
 	EVM,
 	executeRoute,
 	getQuote,
+	getRoutes,
 } from '@lifi/sdk'
-import type { LiFiStep, Process, RouteExtended } from '@lifi/sdk'
+import type { LiFiStep, Process, Route, RouteExtended } from '@lifi/sdk'
 import { queryClient } from '$/lib/db/query-client'
 import { ChainId } from '$/constants/networks'
 import { ercTokensBySymbolByChainId } from '$/constants/coins'
@@ -191,7 +192,90 @@ export type QuoteParams = {
 	fromAmount: string
 	fromAddress: `0x${string}`
 	toAddress?: `0x${string}`
+	slippage?: number
 }
+
+export type NormalizedRoute = {
+	id: string
+	originalRoute: Route
+	steps: {
+		tool: string
+		toolName: string
+		type: 'bridge' | 'swap' | 'cross'
+		fromChainId: number
+		toChainId: number
+		fromAmount: string
+		toAmount: string
+	}[]
+	fromChainId: number
+	toChainId: number
+	fromAmount: string
+	toAmount: string
+	toAmountMin: string
+	gasCostUsd: string
+	estimatedDurationSeconds: number
+	tags: ('BEST' | 'CHEAPEST' | 'FASTEST' | 'RECOMMENDED')[]
+}
+
+const ROUTE_TAG_ORDER = ['RECOMMENDED', 'CHEAPEST', 'FASTEST'] as const
+
+export function normalizeRoute(route: Route): NormalizedRoute {
+	return {
+		id: route.id,
+		originalRoute: route,
+		steps: route.steps.map((step) => ({
+			tool: step.tool,
+			toolName: step.toolDetails?.name ?? step.tool,
+			type: (step.type ?? 'bridge') as 'bridge' | 'swap' | 'cross',
+			fromChainId: step.action.fromChainId,
+			toChainId: step.action.toChainId,
+			fromAmount: step.action.fromAmount ?? '0',
+			toAmount: step.estimate?.toAmount ?? step.action.fromAmount ?? '0',
+		})),
+		fromChainId: route.fromChainId,
+		toChainId: route.toChainId,
+		fromAmount: route.fromAmount,
+		toAmount: route.toAmount,
+		toAmountMin: route.toAmountMin,
+		gasCostUsd: route.gasCostUSD ?? '0',
+		estimatedDurationSeconds: route.steps.reduce(
+			(sum, s) => sum + (s.estimate?.executionDuration ?? 0),
+			0,
+		),
+		tags: (route.tags ?? []).filter((t): t is (typeof ROUTE_TAG_ORDER)[number] =>
+			ROUTE_TAG_ORDER.includes(t as (typeof ROUTE_TAG_ORDER)[number]),
+		),
+	}
+}
+
+export async function getRoutesForUsdcBridge(
+	params: QuoteParams,
+): Promise<NormalizedRoute[]> {
+	const {
+		fromChain,
+		toChain,
+		fromAmount,
+		fromAddress,
+		toAddress,
+		slippage = 0.005,
+	} = params
+	const result = await getRoutes({
+		fromChainId: fromChain,
+		toChainId: toChain,
+		fromTokenAddress: getUsdcAddress(fromChain),
+		toTokenAddress: getUsdcAddress(toChain),
+		fromAmount,
+		fromAddress,
+		toAddress: toAddress ?? fromAddress,
+		options: {
+			slippage,
+			order: 'RECOMMENDED',
+			maxPriceImpact: 0.1,
+		},
+	})
+	return result.routes.slice(0, 5).map(normalizeRoute)
+}
+
 export function getUsdcAddress(chainId: number): `0x${string}` {
 	const token = ercTokensBySymbolByChainId[chainId as ChainId]?.USDC
 	if (!token) throw new Error(`USDC not configured for chain ${chainId}`)
@@ -323,5 +407,43 @@ export async function executeQuoteWithStatus(
 			status.estimatedDurationSeconds = next.estimatedDurationSeconds
 			onStatusChange({ ...status })
 		},
+	})
+}
+
+export async function executeSelectedRoute(
+	providerDetail: ProviderDetailType,
+	route: NormalizedRoute,
+	onStatusChange?: StatusCallback,
+): Promise<RouteExtended> {
+	const provider = providerDetail.provider as {
+		request(args: { method: string; params?: unknown[] }): Promise<unknown>
+	}
+	lifiConfig.setProviders([
+		EVM({
+			getWalletClient: () =>
+				Promise.resolve(
+					createWalletClientForChain(provider, route.fromChainId),
+				),
+			switchChain: async (chainId) => {
+				await switchWalletChain(provider, chainId)
+				return createWalletClientForChain(provider, chainId)
+			},
+		}),
+	])
+	const status: BridgeStatus = {
+		overall: 'in_progress',
+		steps: [],
+	}
+	if (onStatusChange) onStatusChange({ ...status })
+	return executeRoute(route.originalRoute, {
+		updateRouteHook: onStatusChange
+			? (updatedRoute) => {
+					const next = routeToBridgeStatus(updatedRoute)
+					status.overall = next.overall
+					status.steps = next.steps
+					status.estimatedDurationSeconds = next.estimatedDurationSeconds
+					onStatusChange({ ...status })
+				}
+			: undefined,
 	})
 }

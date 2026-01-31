@@ -1,6 +1,6 @@
 <script lang='ts'>
 	// Types/constants
-	import type { NormalizedQuote } from '$/api/lifi'
+	import type { NormalizedQuote, NormalizedRoute } from '$/api/lifi'
 	import type { LiFiStep } from '@lifi/sdk'
 	import type { ProviderDetailType } from '$/lib/wallet'
 	import type { BridgeError } from '$/lib/errors'
@@ -16,8 +16,9 @@
 
 	// Props
 	let {
-		quote,
+		quote = null,
 		quoteStep = null,
+		route = null,
 		connectedDetail,
 		execLoading = false,
 		execError = null,
@@ -28,8 +29,9 @@
 		onDismissExecError,
 		onRetryExec,
 	}: {
-		quote: NormalizedQuote
+		quote?: NormalizedQuote | null
 		quoteStep?: LiFiStep | null
+		route?: NormalizedRoute | null
 		connectedDetail: ProviderDetailType | null
 		execLoading?: boolean
 		execError?: BridgeError | null
@@ -40,20 +42,34 @@
 		onDismissExecError?: () => void
 		onRetryExec?: () => void
 	} = $props()
+
+	const estimatedToAmount = $derived(
+		route?.toAmount ?? quote?.estimatedToAmount ?? '0',
+	)
+	const stepCount = $derived(route?.steps.length ?? quote?.steps.length ?? 0)
+	const fees = $derived(
+		route
+			? extractFeeBreakdown({
+					steps: route.originalRoute.steps,
+					fromAmountUSD: route.originalRoute.fromAmountUSD,
+				})
+			: quoteStep
+				? extractFeeBreakdown({
+						steps: [quoteStep],
+						fromAmountUSD: quoteStep.estimate?.fromAmountUSD,
+					})
+				: null,
+	)
 </script>
 
 <output data-column='gap-2' data-testid='quote-result' for='from-chain to-chain amount from-address'>
 	<p>
-		<strong>Estimated output:</strong> {formatTokenAmount(quote.estimatedToAmount, 6)} USDC
-		(steps: {quote.steps.length})
+		<strong>Estimated output:</strong> {formatTokenAmount(estimatedToAmount, 6)} USDC
+		(steps: {stepCount})
 	</p>
-	{#if quoteStep}
-		{@const fees = extractFeeBreakdown({
-			steps: [quoteStep],
-			fromAmountUSD: quoteStep.estimate?.fromAmountUSD,
-		})}
-		<FeeBreakdown {fees} expanded={true} />
-	{:else if quote.fees.length > 0}
+	{#if fees}
+		<FeeBreakdown fees={fees} expanded={true} />
+	{:else if quote?.fees.length > 0}
 		<p>
 			Fees: {quote.fees
 				.map((f) => {

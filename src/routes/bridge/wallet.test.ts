@@ -116,7 +116,7 @@ test.describe('WalletProvider', () => {
   })
 
   test('quote form prompts to connect wallet when not connected', async ({ page }) => {
-    await expect(page.getByText('Connect a wallet to get a quote'))
+    await expect(page.getByText('Connect a wallet to get routes'))
       .toBeVisible()
   })
 

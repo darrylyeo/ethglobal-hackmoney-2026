@@ -30,7 +30,7 @@ test('bridge: select source and destination chain, enter amount and address', as
   )
 })
 
-test('bridge: click Get Quote, wait for result, assert quote result visible', async ({ page }) => {
+test('bridge: click Get Routes, wait for result, assert quote result visible', async ({ page }) => {
   await page.goto('/bridge')
   await expect(page.getByRole('heading', { level: 1, name: 'USDC Bridge' }))
     .toBeVisible({ timeout: 15_000 })
@@ -58,7 +58,7 @@ test('bridge: click Get Quote, wait for result, assert quote result visible', as
   await page.getByLabel('From address').fill(
     '0x0000000000000000000000000000000000000001',
   )
-  await page.getByRole('button', { name: 'Get Quote' }).click()
+  await page.getByRole('button', { name: 'Get Routes' }).click()
   await expect(page.locator('[data-testid="quote-result"]')).toBeVisible({
     timeout: 15_000,
   })

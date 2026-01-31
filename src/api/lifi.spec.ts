@@ -5,9 +5,13 @@ import {
 	extractFeeBreakdown,
 	fetchQuoteCached,
 	getQuoteForUsdcBridge,
+	getRoutesForUsdcBridge,
 	type NormalizedQuote,
+	type NormalizedRoute,
 	normalizeQuote,
+	normalizeRoute,
 } from './lifi'
+import type { Route } from '@lifi/sdk'
 vi.mock('@lifi/sdk', async (importOriginal) => {
 	const actual = await importOriginal<typeof import('@lifi/sdk')>()
 	const mockStep: LiFiStep = {
@@ -33,10 +37,39 @@ vi.mock('@lifi/sdk', async (importOriginal) => {
 		tool: 'lifi',
 		includedSteps: [],
 	} as LiFiStep
+	const mockRoute: Route = {
+		id: 'route-1',
+		insurance: { state: 'NOT_INSURABLE', feeAmountUsd: '0' },
+		fromChainId: 1,
+		fromAmountUSD: '1',
+		fromAmount: '1000000',
+		fromToken: {} as Route['fromToken'],
+		toChainId: 42161,
+		toAmountUSD: '0.998',
+		toAmount: '998500',
+		toAmountMin: '993500',
+		toToken: {} as Route['toToken'],
+		gasCostUSD: '0.50',
+		steps: [
+			{
+				...mockStep,
+				toolDetails: { key: 'stargate', name: 'Stargate', logoURI: '' },
+				estimate: {
+					...mockStep.estimate,
+					executionDuration: 120,
+					toAmount: '998500',
+				},
+			} as Route['steps'][0],
+		],
+		tags: ['RECOMMENDED'],
+	}
 	return {
 		...actual,
 		createConfig: vi.fn(),
 		getQuote: vi.fn(() => Promise.resolve(mockStep)),
+		getRoutes: vi.fn(() =>
+			Promise.resolve({ routes: [mockRoute], unavailableRoutes: { filteredOut: [], failed: [] } }),
+		),
 	}
 })
 const mockLiFiStep: LiFiStep = {
@@ -134,6 +167,81 @@ describe('LI.FI routes and quotes', () => {
 		)
 		const cached = await fetchQuoteCached(params)
 		expect(cached).toStrictEqual(result)
+	})
+})
+
+describe('routes', () => {
+	it('normalizeRoute: extracts tool names, durations, tags and keeps originalRoute', () => {
+		const route = {
+			id: 'r1',
+			insurance: { state: 'NOT_INSURABLE', feeAmountUsd: '0' },
+			fromChainId: 1,
+			fromAmountUSD: '1',
+			fromAmount: '1000000',
+			fromToken: {},
+			toChainId: 10,
+			toAmountUSD: '0.99',
+			toAmount: '990000',
+			toAmountMin: '985000',
+			toToken: {},
+			gasCostUSD: '0.25',
+			steps: [
+				{
+					tool: 'stargate',
+					toolDetails: { key: 'stargate', name: 'Stargate', logoURI: '' },
+					action: {
+						fromChainId: 1,
+						toChainId: 10,
+						fromAmount: '1000000',
+						fromToken: {},
+						toToken: {},
+					},
+					estimate: {
+						toAmount: '990000',
+						executionDuration: 90,
+					},
+				},
+			] as Route['steps'],
+			tags: ['RECOMMENDED', 'CHEAPEST'],
+		} as Route
+		const out = normalizeRoute(route)
+		expect(out.id).toBe('r1')
+		expect(out.originalRoute).toBe(route)
+		expect(out.steps).toHaveLength(1)
+		expect(out.steps[0].toolName).toBe('Stargate')
+		expect(out.estimatedDurationSeconds).toBe(90)
+		expect(out.gasCostUsd).toBe('0.25')
+		expect(out.toAmount).toBe('990000')
+		expect(out.tags).toContain('RECOMMENDED')
+		expect(out.tags).toContain('CHEAPEST')
+	})
+
+	it('getRoutesForUsdcBridge: returns array of NormalizedRoute up to 5', async () => {
+		const list = await getRoutesForUsdcBridge({
+			fromChain: 1,
+			toChain: 42161,
+			fromAmount: '1000000',
+			fromAddress:
+				'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as `0x${string}`,
+			slippage: 0.005,
+		})
+		expect(Array.isArray(list)).toBe(true)
+		expect(list.length).toBeGreaterThanOrEqual(0)
+		expect(list.length).toBeLessThanOrEqual(5)
+		if (list.length > 0) {
+			const r = list[0]
+			expect(r).toMatchObject({
+				id: expect.any(String),
+				fromChainId: 1,
+				toChainId: 42161,
+				toAmount: expect.any(String),
+				gasCostUsd: expect.any(String),
+				estimatedDurationSeconds: expect.any(Number),
+			} satisfies Partial<NormalizedRoute>)
+			expect(r.originalRoute).toBeDefined()
+			expect(r.steps).toBeDefined()
+			expect(Array.isArray(r.tags)).toBe(true)
+		}
 	})
 })
 

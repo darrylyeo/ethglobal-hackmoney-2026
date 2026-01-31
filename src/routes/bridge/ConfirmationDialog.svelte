@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { NormalizedQuote } from '$/api/lifi'
+	import type { NormalizedQuote, NormalizedRoute } from '$/api/lifi'
 	import type { LiFiStep } from '@lifi/sdk'
 
 	// Functions
@@ -12,8 +12,9 @@
 	// Props
 	let {
 		open = $bindable(false),
-		quote,
+		quote = null,
 		quoteStep = null,
+		route = null,
 		fromChainId,
 		toChainId,
 		fromAmount,
@@ -24,8 +25,9 @@
 		onCancel,
 	}: {
 		open?: boolean
-		quote: NormalizedQuote
+		quote?: NormalizedQuote | null
 		quoteStep?: LiFiStep | null
+		route?: NormalizedRoute | null
 		fromChainId: number
 		toChainId: number
 		fromAmount: string
@@ -50,30 +52,42 @@
 		toAddress.toLowerCase() !== fromAddress.toLowerCase(),
 	)
 	const isHighSlippage = $derived(slippage > 0.01)
+	const estimatedToAmount = $derived(
+		route?.toAmount ?? quote?.estimatedToAmount ?? '0',
+	)
 	const fromAmountUsd = $derived(
-		quoteStep?.estimate?.fromAmountUSD ?? '0',
+		route?.originalRoute?.fromAmountUSD ??
+			quoteStep?.estimate?.fromAmountUSD ??
+			'0',
 	)
 	const isLargeAmount = $derived(parseFloat(fromAmountUsd) > 10_000)
 	const hasWarnings = $derived(
 		isDifferentRecipient || isHighSlippage || isLargeAmount,
 	)
 	const toAmountMin = $derived(
-		(
-			(BigInt(quote.estimatedToAmount) *
-				BigInt(Math.round((1 - slippage) * 1_000_000))) /
-			1_000_000n
-		).toString(),
+		route?.toAmountMin ??
+			(
+				(BigInt(estimatedToAmount) *
+					BigInt(Math.round((1 - slippage) * 1_000_000))) /
+				1_000_000n
+			).toString(),
 	)
 	const fees = $derived(
 		extractFeeBreakdown({
-			steps: quoteStep ? [quoteStep] : [],
+			steps: route?.originalRoute?.steps ?? (quoteStep ? [quoteStep] : []),
 			fromAmountUSD: fromAmountUsd,
 		}),
 	)
 	const estimatedDurationSeconds = $derived(
-		quoteStep?.estimate?.executionDuration ?? 0,
+		route?.estimatedDurationSeconds ??
+			quoteStep?.estimate?.executionDuration ??
+			0,
 	)
-	const toolNames = $derived(quoteStep?.toolDetails?.name ?? 'Bridge')
+	const toolNames = $derived(
+		route
+			? [...new Set(route.steps.map((s) => s.toolName))].join(' → ')
+			: quoteStep?.toolDetails?.name ?? 'Bridge',
+	)
 
 	// Actions
 	const handleConfirm = () => {
@@ -116,7 +130,7 @@
 				<div data-confirm-row>
 					<span>To</span>
 					<span>
-						<strong>~{formatTokenAmount(quote.estimatedToAmount, 6)} USDC</strong>
+						<strong>~{formatTokenAmount(estimatedToAmount, 6)} USDC</strong>
 						on {toChainName}
 					</span>
 				</div>
