@@ -8,9 +8,11 @@
 
 
 	// Styles
-	import '$/styles/colors.css'
 	import '$/styles/reset.css'
+	import '$/styles/colors.css'
 	import '$/styles/fonts.css'
+	import '$/styles/components.css'
+	import '$/styles/bits-ui.css'
 </script>
 
 
