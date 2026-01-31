@@ -12,6 +12,7 @@
 
 	// Components
 	import ChainIdSection from './ChainIdSection.svelte'
+	import ChainSwitchPrompt from './ChainSwitchPrompt.svelte'
 	import QuoteForm from './QuoteForm.svelte'
 	import QuoteOutput from './QuoteOutput.svelte'
 	import WalletProvider from './WalletProvider.svelte'
@@ -172,7 +173,14 @@
 					{#if quoteError}
 						<p role='alert'>{quoteError}</p>
 					{/if}
-					{#if quote}
+					{#if wallet.chainId !== null && wallet.chainId !== Number(fromChain) && wallet.connectedDetail}
+						<ChainSwitchPrompt
+							currentChainId={wallet.chainId}
+							requiredChainId={Number(fromChain)}
+							provider={wallet.connectedDetail.provider}
+							onSwitched={() => {}}
+						/>
+					{:else if quote}
 						<QuoteOutput
 							{quote}
 							connectedDetail={wallet.connectedDetail}

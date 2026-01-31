@@ -1,6 +1,7 @@
 import { createWalletClient, custom } from 'viem'
 import type { Chain, Client } from 'viem'
 import { networksByChainId } from '$/constants/networks'
+import { getChainConfig } from '$/constants/chain-configs'
 
 export type EIP1193Provider = {
 	request(args: { method: string; params?: unknown[] }): Promise<unknown>
@@ -15,9 +16,45 @@ export type WalletState = {
 	providers: ProviderDetailType[]
 	connectedDetail: ProviderDetailType | null
 	address: `0x${string}` | null
+	chainId: number | null
 	isTestnet: boolean
 	isConnecting: boolean
 	error: string | null
+}
+
+export const getWalletChainId = async (provider: EIP1193Provider): Promise<number> => {
+	const chainIdHex = (await provider.request({
+		method: 'eth_chainId',
+		params: [],
+	})) as string
+	return parseInt(chainIdHex, 16)
+}
+
+export const subscribeChainChanged = (
+	provider: EIP1193Provider,
+	callback: (chainId: number) => void,
+): (() => void) => {
+	const handler = (chainIdHex: string) => {
+		callback(parseInt(chainIdHex, 16))
+	}
+	if ('on' in provider && typeof (provider as { on?: (event: string, cb: (v: string) => void) => void }).on === 'function') {
+		(provider as { on: (event: string, cb: (v: string) => void) => void }).on('chainChanged', handler)
+		return () => {
+			if ('removeListener' in provider && typeof (provider as { removeListener?: (event: string, cb: (v: string) => void) => void }).removeListener === 'function') {
+				(provider as { removeListener: (event: string, cb: (v: string) => void) => void }).removeListener('chainChanged', handler)
+			}
+		}
+	}
+	return () => {}
+}
+
+export const addChainToWallet = async (provider: EIP1193Provider, chainId: number): Promise<void> => {
+	const chainConfig = getChainConfig(chainId)
+	if (!chainConfig) throw new Error(`Unknown chain ${chainId}`)
+	await provider.request({
+		method: 'wallet_addEthereumChain',
+		params: [chainConfig],
+	})
 }
 
 const PROVIDER_ANNOUNCE = 'eip6963:announceProvider'
@@ -81,11 +118,25 @@ export function createWalletClientForChain(provider: EIP1193Provider, chainId: n
 	})
 }
 
-export async function switchWalletChain(provider: EIP1193Provider, chainId: number): Promise<void> {
-	await provider.request({
-		method: 'wallet_switchEthereumChain',
-		params: [{ chainId: `0x${chainId.toString(16)}` }],
-	})
+export const switchWalletChain = async (provider: EIP1193Provider, chainId: number): Promise<void> => {
+	const chainIdHex = `0x${chainId.toString(16)}`
+	try {
+		await provider.request({
+			method: 'wallet_switchEthereumChain',
+			params: [{ chainId: chainIdHex }],
+		})
+	} catch (e) {
+		const err = e as { code?: number }
+		if (err.code === 4902) {
+			await addChainToWallet(provider, chainId)
+			await provider.request({
+				method: 'wallet_switchEthereumChain',
+				params: [{ chainId: chainIdHex }],
+			})
+		} else {
+			throw e
+		}
+	}
 }
 
 export function createWalletState(): WalletState {
@@ -93,6 +144,7 @@ export function createWalletState(): WalletState {
 		providers: [],
 		connectedDetail: null,
 		address: null,
+		chainId: null,
 		isTestnet: false,
 		isConnecting: false,
 		error: null,

@@ -8,7 +8,13 @@
 
 	// Functions
 	import { Button, Switch, Popover } from 'bits-ui'
-	import { connectProvider, subscribeProviders, createWalletState } from '$/lib/wallet'
+	import {
+		connectProvider,
+		subscribeProviders,
+		createWalletState,
+		getWalletChainId,
+		subscribeChainChanged,
+	} from '$/lib/wallet'
 
 	// Props
 	let {
@@ -26,6 +32,19 @@
 		if (typeof window === 'undefined') return
 		return subscribeProviders((providers) => {
 			state.providers = providers
+		})
+	})
+
+	$effect(() => {
+		if (!state.connectedDetail) {
+			state.chainId = null
+			return
+		}
+		getWalletChainId(state.connectedDetail.provider).then((id) => {
+			state.chainId = id
+		})
+		return subscribeChainChanged(state.connectedDetail.provider, (id) => {
+			state.chainId = id
 		})
 	})
 
@@ -49,6 +68,7 @@
 	const disconnect = () => {
 		state.connectedDetail = null
 		state.address = null
+		state.chainId = null
 		state.error = null
 	}
 
