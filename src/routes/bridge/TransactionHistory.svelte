@@ -39,17 +39,18 @@
 </script>
 
 {#if address}
-	<section data-tx-history aria-labelledby="tx-history-heading">
+	<section data-tx-history data-card="secondary" aria-labelledby="tx-history-heading">
 		<button
 			type="button"
 			data-tx-history-trigger
+			data-row="gap-2 align-center"
 			aria-expanded={open}
 			aria-controls="tx-history-list"
 			id="tx-history-heading"
 			onclick={() => (open = !open)}
 		>
 			Transaction history
-			<span data-tx-history-count>({list.length})</span>
+			<span data-muted>({list.length})</span>
 			{#if hasPending}
 				<span data-tx-history-pending aria-hidden="true"></span>
 			{/if}
@@ -58,16 +59,16 @@
 			<ol id="tx-history-list" data-tx-history-list>
 				{#each sorted as tx (tx.id)}
 					<li data-tx-history-item data-status={tx.status}>
-						<span data-tx-history-date>{formatDate(tx.createdAt)}</span>
+						<span data-tx-history-date data-muted>{formatDate(tx.createdAt)}</span>
 						<span data-tx-history-chains>
 							{networksByChainId[tx.fromChainId]?.name ?? tx.fromChainId}
 							→
 							{networksByChainId[tx.toChainId]?.name ?? tx.toChainId}
 						</span>
-						<span data-tx-history-amount>
+						<span data-tx-history-amount data-tabular>
 							{formatTokenAmount(tx.fromAmount, 6)} USDC
 						</span>
-						<span data-tx-history-status>
+						<span data-tx-history-status data-row="gap-1 align-center">
 							{#if tx.status === 'pending'}
 								<span data-tx-history-spinner aria-hidden="true"></span>
 								Pending
@@ -77,11 +78,12 @@
 								Failed
 							{/if}
 						</span>
-						<span data-tx-history-links>
+						<span data-tx-history-links data-row="gap-2">
 							<a
 								href={getTxUrl(tx.fromChainId, tx.sourceTxHash)}
 								target="_blank"
 								rel="noopener noreferrer"
+								data-link
 							>
 								Source
 							</a>
@@ -90,6 +92,7 @@
 									href={getTxUrl(tx.toChainId, tx.destTxHash)}
 									target="_blank"
 									rel="noopener noreferrer"
+									data-link
 								>
 									Destination
 								</a>
@@ -104,32 +107,18 @@
 
 <style>
 	[data-tx-history] {
-		margin-top: 1em;
-		border: 1px solid var(--color-border);
-		border-radius: 0.5em;
 		overflow: hidden;
 	}
 
 	[data-tx-history-trigger] {
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
 		width: 100%;
-		padding: 0.75em 1em;
 		background: var(--color-bg-page);
 		border: none;
-		font: inherit;
 		text-align: left;
-		cursor: pointer;
 	}
 
 	[data-tx-history-trigger]:hover {
 		background: var(--color-bg-hover, rgba(0, 0, 0, 0.04));
-	}
-
-	[data-tx-history-count] {
-		opacity: 0.7;
-		font-size: 0.9em;
 	}
 
 	[data-tx-history-pending],
@@ -172,45 +161,11 @@
 		border-bottom: none;
 	}
 
-	[data-tx-history-date] {
-		opacity: 0.8;
-		white-space: nowrap;
-	}
-
-	[data-tx-history-chains] {
-		opacity: 0.9;
-	}
-
-	[data-tx-history-amount] {
-		font-variant-numeric: tabular-nums;
-		font-weight: 500;
-	}
-
-	[data-tx-history-status] {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.25em;
-	}
-
 	[data-tx-history-item][data-status='completed'] [data-tx-history-status] {
 		color: var(--color-success, #22c55e);
 	}
 
 	[data-tx-history-item][data-status='failed'] [data-tx-history-status] {
 		color: var(--color-error, #ef4444);
-	}
-
-	[data-tx-history-links] {
-		display: flex;
-		gap: 0.5em;
-	}
-
-	[data-tx-history-links] a {
-		color: var(--color-link);
-		text-decoration: none;
-	}
-
-	[data-tx-history-links] a:hover {
-		text-decoration: underline;
 	}
 </style>
