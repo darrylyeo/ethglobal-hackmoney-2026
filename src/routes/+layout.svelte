@@ -6,6 +6,7 @@
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
 	import Navigation from '$/views/Navigation.svelte'
+	import ToastContainer from '$/components/ToastContainer.svelte'
 
 
 	// Images
@@ -71,8 +72,9 @@
 			</div>
 		{/snippet}
 		</Boundary>
-	</main>
-</div>
+		</main>
+		<ToastContainer position="bottom-right" />
+	</div>
 
 
 <style>

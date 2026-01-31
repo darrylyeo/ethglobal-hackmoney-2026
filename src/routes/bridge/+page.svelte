@@ -23,7 +23,9 @@
 		USDC_MIN_AMOUNT,
 		USDC_MAX_AMOUNT,
 	} from '$/constants/bridge-limits'
+	import { getTxUrl } from '$/constants/explorers'
 	import { categorizeError, ErrorCode, isBridgeError } from '$/lib/errors'
+	import { toasts } from '$/lib/toast.svelte'
 	import {
 		formatTokenAmount,
 		parseDecimalToSmallest,
@@ -167,6 +169,7 @@
 		execTxHashes = []
 		execLoading = true
 		bridgeStatus = createInitialStatus()
+		const loadingId = toasts.loading('Submitting transaction…')
 		try {
 			const route = await executeQuoteWithStatus(
 				wallet.connectedDetail,
@@ -190,8 +193,38 @@
 				.map((p) => (p as { txHash?: string }).txHash)
 				.filter((h): h is string => Boolean(h))
 			if (hashes.length > 0) execTxHashes = hashes
+			toasts.dismiss(loadingId)
+			const firstHash = hashes[0]
+			toasts.success('Bridge transaction submitted!', {
+				title: 'Success',
+				...(firstHash
+					? {
+							action: {
+								label: 'View on Explorer',
+								onClick: () =>
+									window.open(
+										getTxUrl(Number(fromChain), firstHash),
+										'_blank',
+									),
+							},
+						}
+					: {}),
+			})
 		} catch (e) {
-			execError = isBridgeError(e) ? e : categorizeError(e)
+			toasts.dismiss(loadingId)
+			const error = isBridgeError(e) ? e : categorizeError(e)
+			execError = error
+			toasts.error(error.message, {
+				title: error.title,
+				...(error.retryable
+					? {
+							action: {
+								label: 'Retry',
+								onClick: () => sendTransaction(wallet),
+							},
+						}
+					: {}),
+			})
 		} finally {
 			execLoading = false
 		}
