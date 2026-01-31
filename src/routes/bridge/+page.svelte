@@ -1,6 +1,7 @@
 <script lang='ts'>
 	// Types/constants
 	import type { NormalizedQuote } from '$/api/lifi'
+	import type { LiFiStep } from '@lifi/sdk'
 	import type { WalletState } from '$/lib/wallet'
 	import type { BridgeError } from '$/lib/errors'
 
@@ -61,6 +62,7 @@
 		'0x0000000000000000000000000000000000000000' as `0x${string}`,
 	)
 	let quote = $state<NormalizedQuote | null>(null)
+	let quoteStep = $state<LiFiStep | null>(null)
 	let quoteError = $state<BridgeError | null>(null)
 	let quoteRetryAttempt = $state(1)
 	let quoteLoading = $state(false)
@@ -81,15 +83,18 @@
 		if (!wallet.address) return
 		quoteError = null
 		quote = null
+		quoteStep = null
 		quoteLoading = true
 		try {
-			quote = await fetchQuoteCached({
+			const result = await fetchQuoteCached({
 				fromChain: Number(fromChain),
 				toChain: Number(toChain),
 				fromAmount: parseDecimalToSmallest(amount, 6).toString(),
 				fromAddress: wallet.address,
 				toAddress: recipient,
 			})
+			quote = result.quote
+			quoteStep = result.step
 		} catch (e) {
 			quoteError = isBridgeError(e) ? e : categorizeError(e)
 		} finally {
@@ -241,6 +246,7 @@
 						</p>
 						<QuoteOutput
 							{quote}
+							quoteStep={quoteStep}
 							connectedDetail={wallet.connectedDetail}
 							execLoading={execLoading}
 							execError={execError}

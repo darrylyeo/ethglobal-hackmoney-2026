@@ -1,19 +1,23 @@
 <script lang='ts'>
 	// Types/constants
 	import type { NormalizedQuote } from '$/api/lifi'
+	import type { LiFiStep } from '@lifi/sdk'
 	import type { ProviderDetailType } from '$/lib/wallet'
 	import type { BridgeError } from '$/lib/errors'
 
 	// Functions
+	import { extractFeeBreakdown } from '$/api/lifi'
 	import { Button } from 'bits-ui'
 	import { formatTokenAmount } from '$/lib/format'
 
 	// Components
 	import ErrorDisplay from './ErrorDisplay.svelte'
+	import FeeBreakdown from './FeeBreakdown.svelte'
 
 	// Props
 	let {
 		quote,
+		quoteStep = null,
 		connectedDetail,
 		execLoading = false,
 		execError = null,
@@ -24,6 +28,7 @@
 		onRetryExec,
 	}: {
 		quote: NormalizedQuote
+		quoteStep?: LiFiStep | null
 		connectedDetail: ProviderDetailType | null
 		execLoading?: boolean
 		execError?: BridgeError | null
@@ -40,7 +45,13 @@
 		<strong>Estimated output:</strong> {formatTokenAmount(quote.estimatedToAmount, 6)} USDC
 		(steps: {quote.steps.length})
 	</p>
-	{#if quote.fees.length > 0}
+	{#if quoteStep}
+		{@const fees = extractFeeBreakdown({
+			steps: [quoteStep],
+			fromAmountUSD: quoteStep.estimate?.fromAmountUSD,
+		})}
+		<FeeBreakdown {fees} expanded={true} />
+	{:else if quote.fees.length > 0}
 		<p>
 			Fees: {quote.fees
 				.map((f) => {

@@ -21,6 +21,94 @@ import {
 	switchWalletChain,
 } from '$/lib/wallet'
 createConfig({ integrator: 'ethglobal-hackmoney-26' })
+
+export type FeeBreakdown = {
+	gasCost: {
+		amount: string
+		amountUsd: string
+		token: { symbol: string; decimals: number }
+		chainId: number
+	}[]
+	protocolFees: {
+		name: string
+		amount: string
+		amountUsd: string
+		token: { symbol: string; decimals: number }
+	}[]
+	totalUsd: string
+	percentOfTransfer: number
+}
+
+type RouteLike = {
+	steps: Array<{
+		action: { fromChainId: number }
+		estimate?: {
+			gasCosts?: Array<{
+				amount?: string
+				amountUSD?: string
+				token?: { symbol?: string; decimals?: number }
+			}>
+			feeCosts?: Array<{
+				name?: string
+				amount?: string
+				amountUSD?: string
+				token?: { symbol?: string; decimals?: number }
+			}>
+			fromAmountUSD?: string
+		}
+		toolDetails?: { name?: string }
+	}>
+	fromAmount?: string
+	fromAmountUSD?: string
+}
+
+export const extractFeeBreakdown = (route: RouteLike): FeeBreakdown => {
+	const gasCost: FeeBreakdown['gasCost'] = []
+	const protocolFees: FeeBreakdown['protocolFees'] = []
+	let totalUsd = 0
+	for (const step of route.steps) {
+		if (step.estimate?.gasCosts) {
+			for (const gas of step.estimate.gasCosts) {
+				gasCost.push({
+					amount: gas.amount ?? '0',
+					amountUsd: gas.amountUSD ?? '0',
+					token: {
+						symbol: gas.token?.symbol ?? 'ETH',
+						decimals: gas.token?.decimals ?? 18,
+					},
+					chainId: step.action.fromChainId,
+				})
+				totalUsd += parseFloat(gas.amountUSD ?? '0')
+			}
+		}
+		if (step.estimate?.feeCosts) {
+			for (const fee of step.estimate.feeCosts) {
+				protocolFees.push({
+					name: fee.name ?? step.toolDetails?.name ?? 'Bridge fee',
+					amount: fee.amount ?? '0',
+					amountUsd: fee.amountUSD ?? '0',
+					token: {
+						symbol: fee.token?.symbol ?? 'USDC',
+						decimals: fee.token?.decimals ?? 6,
+					},
+				})
+				totalUsd += parseFloat(fee.amountUSD ?? '0')
+			}
+		}
+	}
+	const fromAmountUsd = parseFloat(
+		route.fromAmountUSD ?? route.steps[0]?.estimate?.fromAmountUSD ?? '0',
+	)
+	const percentOfTransfer =
+		fromAmountUsd > 0 ? (totalUsd / fromAmountUsd) * 100 : 0
+	return {
+		gasCost,
+		protocolFees,
+		totalUsd: totalUsd.toFixed(2),
+		percentOfTransfer: Math.round(percentOfTransfer * 100) / 100,
+	}
+}
+
 export type QuoteStep = {
 	fromChainId: number
 	toChainId: number
@@ -105,7 +193,7 @@ function getUsdcAddress(chainId: number): `0x${string}` {
 
 export async function getQuoteForUsdcBridge(
 	params: QuoteParams,
-): Promise<NormalizedQuote> {
+): Promise<{ quote: NormalizedQuote; step: LiFiStep }> {
 	const { fromChain, toChain, fromAmount, fromAddress, toAddress } = params
 	const step = await getQuote({
 		fromChain,
@@ -116,7 +204,7 @@ export async function getQuoteForUsdcBridge(
 		fromAddress,
 		toAddress: toAddress ?? fromAddress,
 	})
-	return normalizeQuote(step)
+	return { quote: normalizeQuote(step), step }
 }
 
 export function quoteQueryKey(
@@ -133,7 +221,7 @@ export function quoteQueryKey(
 
 export async function fetchQuoteCached(
 	params: QuoteParams,
-): Promise<NormalizedQuote> {
+): Promise<{ quote: NormalizedQuote; step: LiFiStep }> {
 	return await queryClient.fetchQuery({
 		queryKey: quoteQueryKey(params),
 		queryFn: () => getQuoteForUsdcBridge(params),
