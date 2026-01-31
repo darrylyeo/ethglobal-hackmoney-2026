@@ -305,11 +305,11 @@ h3 { font-size: var(--text-lg); }
 - [x] Navigation: hamburger on mobile, inline on tablet+
 
 ### Testing
-- [ ] Works on iPhone SE (375px)
-- [ ] Works on iPhone 14 Pro Max (430px)
-- [ ] Works on iPad (768px)
-- [ ] Works on desktop (1280px+)
-- [ ] Text readable at all sizes
+- [x] Works on iPhone SE (375px)
+- [x] Works on iPhone 14 Pro Max (430px)
+- [x] Works on iPad (768px)
+- [x] Works on desktop (1280px+)
+- [x] Text readable at all sizes
 
 ## Status
 
