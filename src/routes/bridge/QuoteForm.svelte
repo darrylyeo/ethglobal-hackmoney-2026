@@ -6,6 +6,7 @@
 		USDC_MIN_AMOUNT,
 		USDC_MAX_AMOUNT,
 	} from '$/constants/bridge-limits'
+	import type { Network } from '$/constants/networks'
 	import { parseDecimalToSmallest, isValidDecimalInput } from '$/lib/format'
 
 	// Components
@@ -14,18 +15,18 @@
 
 	// Props
 	let {
-		networkItems,
-		fromChain = $bindable('1'),
-		toChain = $bindable('10'),
+		networks,
+		fromNetwork = $bindable(),
+		toNetwork = $bindable(),
 		amount = $bindable('1'),
 		fromAddress,
 		balance = null,
 		loading = false,
 		onSubmit,
 	}: {
-		networkItems: { value: string; label: string }[]
-		fromChain?: string
-		toChain?: string
+		networks: Network[]
+		fromNetwork: Network
+		toNetwork: Network
 		amount?: string
 		fromAddress: string
 		balance?: bigint | null
@@ -34,6 +35,9 @@
 	} = $props()
 
 	// (Derived)
+	const networkItems = $derived(
+		networks.map((n) => ({ value: String(n.id), label: n.name })),
+	)
 	const amountSmallest = $derived(parseDecimalToSmallest(amount, 6))
 	const amountValidation = $derived(
 		!isValidDecimalInput(amount, 6)
@@ -59,25 +63,50 @@
 >
 	<fieldset data-column='gap-4' aria-describedby='quote-desc' disabled={loading}>
 		<legend class='sr-only'>Quote parameters</legend>
-		<p id='quote-desc' class='sr-only'>Source and destination chain, amount, and sender address.</p>
+		<p id='quote-desc' class='sr-only'>Source and destination network, amount, and sender address.</p>
 		<div data-row='gap-4' data-form-row>
 			<div data-column='gap-2'>
-				<label for='from-chain'>From chain</label>
+				<label for='from-network'>From network</label>
 				<Select.Root
 					type='single'
-					bind:value={fromChain}
+					value={String(fromNetwork.id)}
+					onValueChange={(v) => {
+						fromNetwork = networks.find((n) => String(n.id) === v) ?? fromNetwork
+					}}
 					items={networkItems}
-					name='fromChain'
+					name='fromNetwork'
 					disabled={loading}
 				>
-					<Select.Trigger id='from-chain' aria-label='From chain'>
-						{networkItems.find((i) => i.value === fromChain)?.label ?? 'Select'}
+					<Select.Trigger id='from-network' aria-label='From network'>
+						<span data-row="gap-2 align-center">
+							<img
+								src="/networks/{fromNetwork.id}.svg"
+								alt=""
+								width="20"
+								height="20"
+								class="network-icon"
+								loading="lazy"
+								decoding="async"
+								onerror={(e) => ((e.currentTarget as HTMLImageElement).hidden = true)}
+							/>
+							<span>{fromNetwork.name}</span>
+						</span>
 					</Select.Trigger>
 					<Select.Portal>
 						<Select.Content>
 							<Select.Viewport>
 								{#each networkItems as item, i (`from-${i}-${item.value}`)}
 									<Select.Item value={item.value} label={item.label}>
+										<img
+											src="/networks/{item.value}.svg"
+											alt=""
+											width="20"
+											height="20"
+											class="network-icon"
+											loading="lazy"
+											decoding="async"
+											onerror={(e) => ((e.currentTarget as HTMLImageElement).hidden = true)}
+										/>
 										<span data-testid={`option-${item.label}`}>{item.label}</span>
 									</Select.Item>
 								{/each}
@@ -87,22 +116,47 @@
 				</Select.Root>
 			</div>
 			<div data-column='gap-2'>
-				<label for='to-chain'>To chain</label>
+				<label for='to-network'>To network</label>
 				<Select.Root
 					type='single'
-					bind:value={toChain}
+					value={String(toNetwork.id)}
+					onValueChange={(v) => {
+						toNetwork = networks.find((n) => String(n.id) === v) ?? toNetwork
+					}}
 					items={networkItems}
-					name='toChain'
+					name='toNetwork'
 					disabled={loading}
 				>
-					<Select.Trigger id='to-chain' aria-label='To chain'>
-						{networkItems.find((i) => i.value === toChain)?.label ?? 'Select'}
+					<Select.Trigger id='to-network' aria-label='To network'>
+						<span data-row="gap-2 align-center">
+							<img
+								src="/networks/{toNetwork.id}.svg"
+								alt=""
+								width="20"
+								height="20"
+								class="network-icon"
+								loading="lazy"
+								decoding="async"
+								onerror={(e) => ((e.currentTarget as HTMLImageElement).hidden = true)}
+							/>
+							<span>{toNetwork.name}</span>
+						</span>
 					</Select.Trigger>
 					<Select.Portal>
 						<Select.Content>
 							<Select.Viewport>
 								{#each networkItems as item, i (`to-${i}-${item.value}`)}
 									<Select.Item value={item.value} label={item.label}>
+										<img
+											src="/networks/{item.value}.svg"
+											alt=""
+											width="20"
+											height="20"
+											class="network-icon"
+											loading="lazy"
+											decoding="async"
+											onerror={(e) => ((e.currentTarget as HTMLImageElement).hidden = true)}
+										/>
 										<span data-testid={`option-${item.label}`}>{item.label}</span>
 									</Select.Item>
 								{/each}
@@ -123,11 +177,11 @@
 				disabled={loading}
 			/>
 			{#if amountValidation.error === 'too_low'}
-				<p data-amount-validation-error role='alert'>
+				<p data-error role="alert">
 					Minimum amount is {amountValidation.minAmount} USDC
 				</p>
 			{:else if amountValidation.error === 'too_high'}
-				<p data-amount-validation-error role='alert'>
+				<p data-error role="alert">
 					Maximum amount is {amountValidation.maxAmount} USDC
 				</p>
 			{/if}

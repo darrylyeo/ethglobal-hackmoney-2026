@@ -11,8 +11,10 @@
 	// Props
 	let {
 		value = $bindable(DEFAULT_SLIPPAGE),
+		onValueChange,
 	}: {
 		value?: number
+		onValueChange?: (v: number) => void
 	} = $props()
 
 	// State
@@ -25,13 +27,17 @@
 
 	// Actions
 	const setPreset = (preset: (typeof SLIPPAGE_PRESETS)[number]) => {
-		value = preset
+		if (onValueChange) onValueChange(preset)
+		else value = preset
 		customInput = ''
 	}
 
 	const setCustom = () => {
 		const parsed = parseSlippagePercent(customInput)
-		if (parsed !== null) value = parsed
+		if (parsed !== null) {
+			if (onValueChange) onValueChange(parsed)
+			else value = parsed
+		}
 	}
 </script>
 
@@ -39,8 +45,8 @@
 	<Popover.Trigger data-slippage-trigger>
 		Slippage: {formatSlippagePercent(value)}
 	</Popover.Trigger>
-	<Popover.Content data-slippage-popover>
-		<div data-slippage-presets>
+	<Popover.Content data-slippage-popover data-column="gap-3">
+		<div data-row="gap-2">
 			{#each SLIPPAGE_PRESETS as preset (preset)}
 				<Button.Root
 					type="button"
@@ -52,7 +58,7 @@
 				</Button.Root>
 			{/each}
 		</div>
-		<div data-slippage-custom>
+		<div>
 			<input
 				type="text"
 				inputmode="decimal"
@@ -62,62 +68,19 @@
 			/>
 		</div>
 		{#if value > 0.01}
-			<p data-slippage-warning>High slippage may result in unfavorable rates</p>
+			<p data-muted>High slippage may result in unfavorable rates</p>
 		{/if}
 	</Popover.Content>
 </Popover.Root>
 
 <style>
-	[data-slippage-trigger] {
-		padding: 0.25em 0.5em;
-		border-radius: 0.25em;
-		border: 1px solid var(--color-border);
-		background: var(--color-bg-subtle);
-		cursor: pointer;
-		font-size: 0.875em;
-	}
-
-	[data-slippage-popover] {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75em;
-		min-width: 12em;
-		padding: 0.75em;
-	}
-
-	[data-slippage-presets] {
-		display: flex;
-		gap: 0.5em;
-	}
-
 	[data-slippage-preset] {
 		flex: 1;
-		padding: 0.35em 0.5em;
-		border-radius: 0.25em;
-		border: 1px solid var(--color-border);
-		background: var(--color-bg);
-		cursor: pointer;
-		font-size: 0.875em;
 	}
 
 	[data-slippage-preset][data-selected] {
 		background: var(--color-primary);
 		color: var(--color-primary-foreground);
 		border-color: var(--color-primary);
-	}
-
-	[data-slippage-custom] input {
-		width: 100%;
-		padding: 0.35em 0.5em;
-		border-radius: 0.25em;
-		border: 1px solid var(--color-border);
-		background: var(--color-bg);
-		font-size: 0.875em;
-	}
-
-	[data-slippage-warning] {
-		color: var(--color-warning, #f59e0b);
-		font-size: 0.875em;
-		margin: 0;
 	}
 </style>

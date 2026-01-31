@@ -15,8 +15,8 @@
 		quote = null,
 		quoteStep = null,
 		route = null,
-		fromChainId,
-		toChainId,
+		fromNetworkId,
+		toNetworkId,
 		fromAmount,
 		fromAddress,
 		toAddress,
@@ -28,8 +28,8 @@
 		quote?: NormalizedQuote | null
 		quoteStep?: LiFiStep | null
 		route?: NormalizedRoute | null
-		fromChainId: number
-		toChainId: number
+		fromNetworkId: number
+		toNetworkId: number
 		fromAmount: string
 		fromAddress: `0x${string}`
 		toAddress: `0x${string}`
@@ -42,11 +42,11 @@
 	let acknowledged = $state(false)
 
 	// (Derived)
-	const fromChainName = $derived(
-		networksByChainId[fromChainId]?.name ?? `Chain ${fromChainId}`,
+	const fromNetworkName = $derived(
+		networksByChainId[fromNetworkId]?.name ?? `Network ${fromNetworkId}`,
 	)
-	const toChainName = $derived(
-		networksByChainId[toChainId]?.name ?? `Chain ${toChainId}`,
+	const toNetworkName = $derived(
+		networksByChainId[toNetworkId]?.name ?? `Network ${toNetworkId}`,
 	)
 	const isDifferentRecipient = $derived(
 		toAddress.toLowerCase() !== fromAddress.toLowerCase(),
@@ -116,68 +116,53 @@
 				Review and confirm your bridge transaction details
 			</Dialog.Description>
 
-			<div data-confirm-details>
-				<div data-confirm-row>
-					<span>From</span>
-					<span>
-						<strong>{formatSmallestToDecimal(fromAmount, 6)} USDC</strong>
-						on {fromChainName}
-					</span>
-				</div>
+			<dl data-confirm-details data-card="secondary padding-3">
+				<dt data-muted>From</dt>
+				<dd>
+					<strong>{formatSmallestToDecimal(fromAmount, 6)} USDC</strong>
+					on {fromNetworkName}
+				</dd>
 
-				<div data-confirm-arrow>↓</div>
+				<dt data-confirm-arrow data-muted aria-hidden="true">↓</dt>
+				<dd aria-hidden="true"></dd>
 
-				<div data-confirm-row>
-					<span>To</span>
-					<span>
-						<strong>~{formatTokenAmount(estimatedToAmount, 6)} USDC</strong>
-						on {toChainName}
-					</span>
-				</div>
+				<dt data-muted>To</dt>
+				<dd>
+					<strong>~{formatTokenAmount(estimatedToAmount, 6)} USDC</strong>
+					on {toNetworkName}
+				</dd>
 
-				<div data-confirm-row>
-					<span>Min. received</span>
-					<span>{formatTokenAmount(toAmountMin, 6)} USDC</span>
-				</div>
+				<dt data-muted>Min. received</dt>
+				<dd>{formatTokenAmount(toAmountMin, 6)} USDC</dd>
 
-				<div data-confirm-row>
-					<span>Recipient</span>
-					<span>
-						{toAddress.slice(0, 8)}…{toAddress.slice(-6)}
-						{#if isDifferentRecipient}
-							<span data-badge="warning">Different address</span>
-						{/if}
-					</span>
-				</div>
+				<dt data-muted>Recipient</dt>
+				<dd>
+					{toAddress.slice(0, 8)}…{toAddress.slice(-6)}
+					{#if isDifferentRecipient}
+						<span data-badge="warning">Different address</span>
+					{/if}
+				</dd>
 
-				<div data-confirm-row>
-					<span>Bridge</span>
-					<span>{toolNames}</span>
-				</div>
+				<dt data-muted>Bridge</dt>
+				<dd>{toolNames}</dd>
 
-				<div data-confirm-row>
-					<span>Est. time</span>
-					<span>~{Math.ceil(estimatedDurationSeconds / 60)} min</span>
-				</div>
+				<dt data-muted>Est. time</dt>
+				<dd>~{Math.ceil(estimatedDurationSeconds / 60)} min</dd>
 
-				<div data-confirm-row>
-					<span>Slippage</span>
-					<span>
-						{(slippage * 100).toFixed(1)}%
-						{#if isHighSlippage}
-							<span data-badge="warning">High</span>
-						{/if}
-					</span>
-				</div>
+				<dt data-muted>Slippage</dt>
+				<dd>
+					{(slippage * 100).toFixed(1)}%
+					{#if isHighSlippage}
+						<span data-badge="warning">High</span>
+					{/if}
+				</dd>
 
-				<div data-confirm-row>
-					<span>Fees</span>
-					<span>~${fees.totalUsd}</span>
-				</div>
-			</div>
+				<dt data-muted>Fees</dt>
+				<dd>~${fees.totalUsd}</dd>
+			</dl>
 
 			{#if hasWarnings}
-				<div data-confirm-warnings role="alert">
+				<div data-confirm-warnings role="alert" data-column="gap-2">
 					<strong>⚠️ Please note:</strong>
 					<ul>
 						{#if isDifferentRecipient}
@@ -193,7 +178,7 @@
 				</div>
 			{/if}
 
-			<div data-confirm-acknowledge>
+			<div data-row="gap-2 align-center">
 				<Checkbox.Root bind:checked={acknowledged} id="confirm-checkbox">
 					{#snippet children({ checked })}
 						{#if checked}✓{/if}
@@ -204,7 +189,7 @@
 				</label>
 			</div>
 
-			<div data-confirm-actions>
+			<div data-row="gap-3 end">
 				<Button.Root type="button" onclick={handleCancel} data-variant="secondary">
 					Cancel
 				</Button.Root>
@@ -246,41 +231,26 @@
 	}
 
 	[data-confirm-details] {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75em;
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 0.25em 1em;
 		margin: 1em 0;
-		padding: 1em;
 		background: var(--color-bg-subtle);
-		border-radius: 0.5em;
 	}
 
-	[data-confirm-row] {
-		display: flex;
-		justify-content: space-between;
-		gap: 1em;
-	}
-
-	[data-confirm-row] > span:first-child {
-		opacity: 0.7;
+	[data-confirm-details] dt,
+	[data-confirm-details] dd {
+		margin: 0;
 	}
 
 	[data-confirm-arrow] {
+		grid-column: 1 / -1;
 		text-align: center;
 		font-size: 1.25em;
-		opacity: 0.5;
 	}
 
-	[data-badge] {
-		font-size: 0.75em;
-		padding: 0.125em 0.375em;
-		border-radius: 0.25em;
-		margin-left: 0.5em;
-	}
-
-	[data-badge="warning"] {
-		background: var(--color-warning-bg, #fef3c7);
-		color: var(--color-warning, #d97706);
+	[data-confirm-details] dd[aria-hidden="true"] {
+		display: none;
 	}
 
 	[data-confirm-warnings] {
@@ -299,18 +269,8 @@
 		margin: 0.25em 0;
 	}
 
-	[data-confirm-acknowledge] {
-		display: flex;
-		align-items: flex-start;
-		gap: 0.5em;
-		margin: 1em 0;
-		font-size: 0.875em;
-	}
-
-	[data-confirm-actions] {
-		display: flex;
-		gap: 0.75em;
-		justify-content: flex-end;
-		margin-top: 1.5em;
+	[data-badge="warning"] {
+		background: var(--color-warning-bg, #fef3c7);
+		color: var(--color-warning, #d97706);
 	}
 </style>

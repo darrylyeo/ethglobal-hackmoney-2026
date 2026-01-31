@@ -7,11 +7,11 @@
 	// Props
 	let {
 		walletAddress,
-		toChainId,
+		toNetworkId,
 		recipient = $bindable(),
 	}: {
 		walletAddress: `0x${string}`
-		toChainId: number
+		toNetworkId: number
 		recipient?: `0x${string}`
 	} = $props()
 
@@ -31,8 +31,8 @@
 	const isDifferentAddress = $derived(
 		normalized !== null && normalized.toLowerCase() !== walletAddress.toLowerCase(),
 	)
-	const chainName = $derived(
-		networksByChainId[toChainId]?.name ?? `Chain ${toChainId}`,
+	const networkName = $derived(
+		networksByChainId[toNetworkId]?.name ?? `Network ${toNetworkId}`,
 	)
 
 	// Actions
@@ -46,8 +46,8 @@
 	}
 </script>
 
-<div data-recipient-input>
-	<div data-recipient-toggle>
+<div data-recipient-input data-column="gap-2">
+	<div data-row="gap-2 align-center">
 		<Switch.Root
 			checked={useCustomRecipient}
 			onCheckedChange={toggleCustom}
@@ -59,7 +59,7 @@
 	</div>
 
 	{#if useCustomRecipient}
-		<div data-recipient-custom>
+		<div data-column="gap-2">
 			<label for="recipient-address">Recipient address</label>
 			<input
 				id="recipient-address"
@@ -71,68 +71,32 @@
 				data-invalid={customAddress && !isValid ? '' : undefined}
 			/>
 			{#if customAddress && !isValid}
-				<p data-recipient-error role="alert">Invalid address format</p>
+				<p data-error role="alert">Invalid address format</p>
 			{/if}
 		</div>
 
 		{#if isDifferentAddress && isValid}
-			<div data-recipient-warning role="alert">
+			<div data-recipient-warning data-card="secondary" data-column="gap-2" role="alert">
 				<strong>⚠️ Sending to a different address</strong>
 				<p>
-					Tokens will be sent to <code>{formatAddress(normalized ?? '')}</code> on {chainName}.
+					Tokens will be sent to <code>{formatAddress(normalized ?? '')}</code> on {networkName}.
 					Make sure you control this address.
 				</p>
 			</div>
 		{/if}
 	{:else}
-		<p data-recipient-default>
+		<p data-muted>
 			Receiving to: <code>{formatAddress(walletAddress)}</code> (your wallet)
 		</p>
 	{/if}
 </div>
 
 <style>
-	[data-recipient-toggle] {
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
-	}
-
-	[data-recipient-custom] {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5em;
-	}
-
-	[data-recipient-custom] input {
-		font-family: var(--font-mono);
-		font-size: 0.875em;
-	}
-
-	[data-recipient-custom] input[data-invalid] {
+	[data-recipient-input] input[data-invalid] {
 		border-color: var(--color-error, #ef4444);
 	}
 
-	[data-recipient-error] {
-		color: var(--color-error, #ef4444);
-		font-size: 0.875em;
-	}
-
 	[data-recipient-warning] {
-		padding: 0.75em;
 		background: var(--color-warning-bg, #fef3c7);
-		border-radius: 0.5em;
-		font-size: 0.875em;
-	}
-
-	[data-recipient-warning] code {
-		font-family: var(--font-mono);
-		background: rgba(0, 0, 0, 0.1);
-		padding: 0.125em 0.25em;
-		border-radius: 0.25em;
-	}
-
-	[data-recipient-default] code {
-		font-family: var(--font-mono);
 	}
 </style>

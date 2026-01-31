@@ -6,12 +6,12 @@
 	// Props
 	let {
 		status,
-		fromChainId,
-		toChainId,
+		fromNetworkId,
+		toNetworkId,
 	}: {
 		status: BridgeStatus
-		fromChainId: number
-		toChainId: number
+		fromNetworkId: number
+		toNetworkId: number
 	} = $props()
 
 	const steps: { key: TxStep; label: string }[] = [
@@ -64,14 +64,14 @@
 	{/if}
 </div>
 {#if status.overall !== 'idle'}
-	<div data-tx-status data-status={status.overall}>
-		<ol data-tx-steps>
+	<div data-tx-status data-status={status.overall} data-column="gap-2">
+		<ol data-tx-steps data-row="gap-2">
 			{#each steps as { key, label } (key)}
 				{@const stepStatus =
 					key === 'complete' && status.overall === 'completed'
 						? { step: key as TxStep, state: 'success' as const }
 						: getStepStatus(key)}
-				<li data-step={key} data-state={stepStatus?.state ?? 'pending'}>
+				<li data-step={key} data-state={stepStatus?.state ?? 'pending'} data-row="gap-1 align-center">
 					<span data-step-indicator>
 						{#if stepStatus?.state === 'success'}
 							✓
@@ -89,7 +89,7 @@
 							href={getTxUrl(stepStatus.chainId, stepStatus.txHash)}
 							target="_blank"
 							rel="noopener noreferrer"
-							data-tx-link
+							data-link
 						>
 							{stepStatus.txHash.slice(0, 8)}…
 						</a>
@@ -99,16 +99,16 @@
 		</ol>
 
 		{#if status.overall === 'in_progress'}
-			<p data-tx-elapsed>Elapsed: {elapsed}s</p>
+			<p data-muted>Elapsed: {elapsed}s</p>
 			{#if status.estimatedDurationSeconds}
-				<p data-tx-estimate>Est. {status.estimatedDurationSeconds}s total</p>
+				<p data-muted>Est. {status.estimatedDurationSeconds}s total</p>
 			{/if}
 		{/if}
 
 		{#if status.overall === 'failed'}
 			{@const failedStep = status.steps.find((s) => s.state === 'failed')}
 			{#if failedStep?.error}
-				<p data-tx-error role="alert">{failedStep.error}</p>
+				<p data-error role="alert">{failedStep.error}</p>
 			{/if}
 		{/if}
 
@@ -120,34 +120,25 @@
 
 <style>
 	[data-tx-steps] {
-		display: flex;
-		gap: 0.5em;
 		list-style: none;
 		padding: 0;
 	}
 
 	[data-tx-steps] li {
-		display: flex;
-		align-items: center;
-		gap: 0.25em;
 		opacity: 0.5;
 	}
 
-	[data-tx-steps] li[data-state='pending'] {
+	[data-tx-steps] li[data-state='pending'],
+	[data-tx-steps] li[data-state='success'],
+	[data-tx-steps] li[data-state='failed'] {
 		opacity: 1;
 	}
 
 	[data-tx-steps] li[data-state='success'] {
-		opacity: 1;
 		color: var(--color-success, #22c55e);
 	}
 
 	[data-tx-steps] li[data-state='failed'] {
-		opacity: 1;
-		color: var(--color-error, #ef4444);
-	}
-
-	[data-tx-error] {
 		color: var(--color-error, #ef4444);
 	}
 
