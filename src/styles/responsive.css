@@ -1,0 +1,128 @@
+:root {
+	--space-1: 0.25rem;
+	--space-2: 0.5rem;
+	--space-3: 0.75rem;
+	--space-4: 1rem;
+	--space-6: 1.5rem;
+	--space-8: 2rem;
+
+	--container-sm: 640px;
+	--container-md: 768px;
+	--container-lg: 1024px;
+	--container-xl: 1280px;
+
+	--tap-target: 44px;
+
+	--text-sm: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+	--text-base: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+	--text-lg: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+	--text-xl: clamp(1.125rem, 1rem + 0.625vw, 1.25rem);
+	--text-2xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+}
+
+body {
+	font-size: var(--text-base);
+}
+
+h1 {
+	font-size: var(--text-2xl);
+}
+
+h2 {
+	font-size: var(--text-xl);
+}
+
+h3 {
+	font-size: var(--text-lg);
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+button {
+	min-height: var(--tap-target);
+}
+
+input:not([type="checkbox"]):not([type="radio"]) {
+	font-size: 16px;
+}
+
+[data-form-row] {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+	[data-form-row] {
+		flex-direction: row;
+	}
+
+	[data-form-row] > * {
+		flex: 1;
+	}
+}
+
+main {
+	overflow-x: hidden;
+}
+
+[data-bridge-layout] {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-6);
+}
+
+@media (min-width: 768px) {
+	[data-bridge-layout] {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-8);
+	}
+
+	[data-bridge-form] {
+		grid-column: 1;
+	}
+
+	[data-bridge-output] {
+		grid-column: 2;
+	}
+
+	[data-bridge-full] {
+		grid-column: 1 / -1;
+	}
+}
+
+@media (min-width: 1024px) {
+	[data-bridge-layout] {
+		max-width: 900px;
+		margin-inline: auto;
+	}
+}
+
+[data-balances-grid] {
+	grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 640px) {
+	[data-balances-grid] {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@media (min-width: 1024px) {
+	[data-balances-grid] {
+		grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	}
+}
+
+[data-wallet-header] {
+	flex-wrap: wrap;
+	gap: var(--space-2);
+}
+
+@media (max-width: 400px) {
+	[data-wallet-header] {
+		flex-direction: column;
+		align-items: stretch;
+	}
+}

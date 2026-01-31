@@ -238,107 +238,114 @@
 			<section data-card data-column='gap-4' aria-labelledby='quote-heading'>
 				<h2 id='quote-heading'>Get quote</h2>
 				<svelte:boundary>
-					{#if !wallet.address}
-						<p>Connect a wallet to get a quote.</p>
-					{:else if networksQuery.isLoading}
-						<p>Loading networks…</p>
-					{:else}
-						{@const sourceBalance = actorCoins.find(
-							(ac) =>
-								ac.address === wallet.address &&
-								ac.chainId === Number(fromChain) &&
-								ac.coinSymbol === 'USDC',
-						)?.balance ?? null}
-						<QuoteForm
-							networkItems={filteredNetworkItems}
-							bind:fromChain
-							bind:toChain
-							bind:amount
-							fromAddress={wallet.address}
-							balance={sourceBalance}
-							loading={quoteLoading}
-							onSubmit={() => getQuote(wallet)}
-						/>
-						<RecipientInput
-							walletAddress={wallet.address}
-							toChainId={Number(toChain)}
-							bind:recipient
-						/>
-					{/if}
-					{#if quoteError?.code === ErrorCode.NO_ROUTES}
-						<div data-no-routes>
-							<p>No routes available for this transfer.</p>
-							<ul>
-								<li>Try a different amount (min ~1 USDC, max varies by route)</li>
-								<li>Try a different chain pair</li>
-								<li>Check if the bridge is operational</li>
-							</ul>
+					<div data-bridge-layout>
+						<div data-bridge-form data-column='gap-4'>
+							{#if !wallet.address}
+								<p>Connect a wallet to get a quote.</p>
+							{:else if networksQuery.isLoading}
+								<p>Loading networks…</p>
+							{:else}
+								{@const sourceBalance = actorCoins.find(
+									(ac) =>
+										ac.address === wallet.address &&
+										ac.chainId === Number(fromChain) &&
+										ac.coinSymbol === 'USDC',
+								)?.balance ?? null}
+								<QuoteForm
+									networkItems={filteredNetworkItems}
+									bind:fromChain
+									bind:toChain
+									bind:amount
+									fromAddress={wallet.address}
+									balance={sourceBalance}
+									loading={quoteLoading}
+									onSubmit={() => getQuote(wallet)}
+								/>
+								<RecipientInput
+									walletAddress={wallet.address}
+									toChainId={Number(toChain)}
+									bind:recipient
+								/>
+							{/if}
+							{#if quoteError?.code === ErrorCode.NO_ROUTES}
+								<div data-no-routes>
+									<p>No routes available for this transfer.</p>
+									<ul>
+										<li>Try a different amount (min ~1 USDC, max varies by route)</li>
+										<li>Try a different chain pair</li>
+										<li>Check if the bridge is operational</li>
+									</ul>
+								</div>
+							{:else if quoteError}
+								<ErrorDisplay
+									error={quoteError}
+									attempt={quoteRetryAttempt}
+									onRetry={() => {
+										quoteRetryAttempt++
+										getQuote(wallet)
+									}}
+									onDismiss={() => {
+										quoteError = null
+									}}
+								/>
+							{/if}
+							{#if wallet.chainId !== null && wallet.chainId !== Number(fromChain) && wallet.connectedDetail}
+								<ChainSwitchPrompt
+									currentChainId={wallet.chainId}
+									requiredChainId={Number(fromChain)}
+									provider={wallet.connectedDetail.provider}
+									onSwitched={() => {}}
+								/>
+							{/if}
 						</div>
-					{:else if quoteError}
-						<ErrorDisplay
-							error={quoteError}
-							attempt={quoteRetryAttempt}
-							onRetry={() => {
-								quoteRetryAttempt++
-								getQuote(wallet)
-							}}
-							onDismiss={() => {
-								quoteError = null
-							}}
-						/>
-					{/if}
-					{#if wallet.chainId !== null && wallet.chainId !== Number(fromChain) && wallet.connectedDetail}
-						<ChainSwitchPrompt
-							currentChainId={wallet.chainId}
-							requiredChainId={Number(fromChain)}
-							provider={wallet.connectedDetail.provider}
-							onSwitched={() => {}}
-						/>
-					{:else if quote}
-						{@const limits = extractRouteLimits([quote])}
-						{@const minDisplay = limits.minAmount ?? USDC_MIN_AMOUNT}
-						{@const maxDisplay = limits.maxAmount ?? USDC_MAX_AMOUNT}
-						<p data-route-limits>
-							Min: {formatTokenAmount(String(minDisplay), 6)} USDC
-							Max: {formatTokenAmount(String(maxDisplay), 6)} USDC
-						</p>
-						<QuoteOutput
-							{quote}
-							quoteStep={quoteStep}
-							connectedDetail={wallet.connectedDetail}
-							execLoading={execLoading}
-							execError={execError}
-							execRetryAttempt={execRetryAttempt}
-							execTxHashes={execTxHashes}
-							showSendButton={showSendButton}
-							onSendTransaction={() => sendTransaction(wallet)}
-							onDismissExecError={() => {
-								execError = null
-							}}
-							onRetryExec={() => {
-								execRetryAttempt++
-								sendTransaction(wallet)
-							}}
-						/>
-						{#if needsApprovalCheck && !approvalComplete && wallet.connectedDetail && wallet.address}
-							<ApprovalButton
-								chainId={Number(fromChain)}
-								tokenAddress={getUsdcAddress(Number(fromChain))}
-								spenderAddress={approvalAddress!}
-								amount={parseDecimalToSmallest(amount, 6)}
-								walletProvider={wallet.connectedDetail.provider}
-								walletAddress={wallet.address}
-								onApproved={() => {
-									approvalComplete = true
-								}}
-							/>
-						{/if}
-						<TransactionStatus
-							status={bridgeStatus}
-							fromChainId={Number(fromChain)}
-							toChainId={Number(toChain)}
-						/>
-					{/if}
+						<div data-bridge-output data-column='gap-4'>
+							{#if quote}
+								{@const limits = extractRouteLimits([quote])}
+								{@const minDisplay = limits.minAmount ?? USDC_MIN_AMOUNT}
+								{@const maxDisplay = limits.maxAmount ?? USDC_MAX_AMOUNT}
+								<p data-route-limits>
+									Min: {formatTokenAmount(String(minDisplay), 6)} USDC
+									Max: {formatTokenAmount(String(maxDisplay), 6)} USDC
+								</p>
+								<QuoteOutput
+									{quote}
+									quoteStep={quoteStep}
+									connectedDetail={wallet.connectedDetail}
+									execLoading={execLoading}
+									execError={execError}
+									execRetryAttempt={execRetryAttempt}
+									execTxHashes={execTxHashes}
+									showSendButton={showSendButton}
+									onSendTransaction={() => sendTransaction(wallet)}
+									onDismissExecError={() => {
+										execError = null
+									}}
+									onRetryExec={() => {
+										execRetryAttempt++
+										sendTransaction(wallet)
+									}}
+								/>
+								{#if needsApprovalCheck && !approvalComplete && wallet.connectedDetail && wallet.address}
+									<ApprovalButton
+										chainId={Number(fromChain)}
+										tokenAddress={getUsdcAddress(Number(fromChain))}
+										spenderAddress={approvalAddress!}
+										amount={parseDecimalToSmallest(amount, 6)}
+										walletProvider={wallet.connectedDetail.provider}
+										walletAddress={wallet.address}
+										onApproved={() => {
+											approvalComplete = true
+										}}
+									/>
+								{/if}
+								<TransactionStatus
+									status={bridgeStatus}
+									fromChainId={Number(fromChain)}
+									toChainId={Number(toChain)}
+								/>
+							{/if}
+						</div>
+					</div>
 
 					{#snippet failed(error, reset)}
 						<ErrorDisplay
@@ -357,9 +364,8 @@
 
 <style>
 	[data-balances-grid] {
-		display: grid
-		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr))
-		gap: 0.75em
+		display: grid;
+		gap: 0.75em;
 	}
 
 	[data-balance-item] {

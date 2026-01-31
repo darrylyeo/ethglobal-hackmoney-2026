@@ -59,7 +59,7 @@
 	<fieldset data-column='gap-4' aria-describedby='quote-desc'>
 		<legend class='sr-only'>Quote parameters</legend>
 		<p id='quote-desc' class='sr-only'>Source and destination chain, amount, and sender address.</p>
-		<div data-row='gap-4'>
+		<div data-row='gap-4' data-form-row>
 			<div data-column='gap-2'>
 				<label for='from-chain'>From chain</label>
 				<Select.Root
