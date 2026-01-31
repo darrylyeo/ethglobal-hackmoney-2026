@@ -52,8 +52,8 @@
 	}
 </script>
 
-<div data-amount-input data-error={exceedsBalance || !isValid ? true : undefined}>
-	<div data-amount-input-row>
+<div data-amount-input data-column="gap-2" data-error={exceedsBalance || !isValid ? true : undefined}>
+	<div data-amount-input-row data-row="gap-2 align-center">
 		<input
 			{id}
 			type="text"
@@ -66,39 +66,30 @@
 			oninput={handleInput}
 			placeholder="0.00"
 		/>
-		<span data-amount-symbol>{symbol}</span>
+		<span data-muted>{symbol}</span>
 	</div>
 	{#if id}
 		<p id={id + '-hint'} class="sr-only">Enter the amount of USDC to bridge</p>
 	{/if}
 	{#if balanceFormatted !== null}
-		<div data-amount-balance>
+		<div data-row="gap-2 align-center" data-muted>
 			<span>Balance: {balanceFormatted} {symbol}</span>
 			<Button.Root type="button" onclick={handleMax} {disabled}>Max</Button.Root>
 		</div>
 	{/if}
 	{#if exceedsBalance}
-		<p id={id ? id + '-error' : undefined} data-amount-error role="alert">Insufficient balance</p>
+		<p id={id ? id + '-error' : undefined} data-error role="alert">Insufficient balance</p>
 	{:else if !isValid && value !== ''}
-		<p id={id ? id + '-error' : undefined} data-amount-error role="alert">Invalid amount</p>
+		<p id={id ? id + '-error' : undefined} data-error role="alert">Invalid amount</p>
 	{/if}
 </div>
 
 <style>
-	[data-amount-input] {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5em;
-	}
-
 	[data-amount-input][data-error] [data-amount-input-row] {
 		border-color: var(--color-error, #ef4444);
 	}
 
 	[data-amount-input-row] {
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
 		border: 1px solid var(--color-border);
 		border-radius: 0.5em;
 		padding: 0.5em 0.75em;
@@ -111,25 +102,5 @@
 		border: none;
 		background: transparent;
 		font: inherit;
-	}
-
-	[data-amount-symbol] {
-		opacity: 0.7;
-		font-size: 0.875em;
-	}
-
-	[data-amount-balance] {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.5em;
-		font-size: 0.875em;
-		opacity: 0.8;
-	}
-
-	[data-amount-error] {
-		font-size: 0.875em;
-		color: var(--color-error, #ef4444);
-		margin: 0;
 	}
 </style>
