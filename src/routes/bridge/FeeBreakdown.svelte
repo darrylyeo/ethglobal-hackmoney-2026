@@ -19,52 +19,53 @@
 	let isExpanded = $state(initialExpanded)
 </script>
 
-<div data-fee-breakdown>
+<div data-fee-breakdown data-card="secondary">
 	<button
 		type="button"
 		data-fee-summary
+		data-row="gap-2 align-center"
 		onclick={() => (isExpanded = !isExpanded)}
 		aria-expanded={isExpanded}
 	>
 		<span>Total fees: ~${fees.totalUsd}</span>
-		<span data-fee-percent>({fees.percentOfTransfer}% of transfer)</span>
-		<span data-fee-toggle>{isExpanded ? '▲' : '▼'}</span>
+		<span data-muted>({fees.percentOfTransfer}% of transfer)</span>
+		<span data-row-item="wrap-end">{isExpanded ? '▲' : '▼'}</span>
 	</button>
 
 	{#if isExpanded}
-		<div data-fee-details>
+		<div data-fee-details data-column="gap-4">
 			{#if fees.gasCost.length > 0}
-				<div data-fee-section>
-					<h4>Gas fees</h4>
-					{#each fees.gasCost as gas (gas.chainId + gas.token.symbol)}
-						<div data-fee-line>
-							<span>{networksByChainId[gas.chainId]?.name ?? 'Unknown'} gas</span>
-							<span>
+				<section>
+					<h4 data-muted>Gas fees</h4>
+					<dl data-fee-list>
+						{#each fees.gasCost as gas (gas.chainId + gas.token.symbol)}
+							<dt>{networksByChainId[gas.chainId]?.name ?? 'Unknown'} gas</dt>
+							<dd>
 								{formatTokenAmount(gas.amount, gas.token.decimals)} {gas.token.symbol}
-								<span data-fee-usd>(~${gas.amountUsd})</span>
-							</span>
-						</div>
-					{/each}
-				</div>
+								<span data-muted>(~${gas.amountUsd})</span>
+							</dd>
+						{/each}
+					</dl>
+				</section>
 			{/if}
 
 			{#if fees.protocolFees.length > 0}
-				<div data-fee-section>
-					<h4>Protocol fees</h4>
-					{#each fees.protocolFees as fee (fee.name + fee.token.symbol)}
-						<div data-fee-line>
-							<span>{fee.name}</span>
-							<span>
+				<section>
+					<h4 data-muted>Protocol fees</h4>
+					<dl data-fee-list>
+						{#each fees.protocolFees as fee (fee.name + fee.token.symbol)}
+							<dt>{fee.name}</dt>
+							<dd>
 								{formatTokenAmount(fee.amount, fee.token.decimals)} {fee.token.symbol}
-								<span data-fee-usd>(~${fee.amountUsd})</span>
-							</span>
-						</div>
-					{/each}
-				</div>
+								<span data-muted>(~${fee.amountUsd})</span>
+							</dd>
+						{/each}
+					</dl>
+				</section>
 			{/if}
 
 			{#if fees.gasCost.length === 0 && fees.protocolFees.length === 0}
-				<p data-fee-none>No fee details available</p>
+				<p data-muted>No fee details available</p>
 			{/if}
 		</div>
 	{/if}
@@ -72,55 +73,29 @@
 
 <style>
 	[data-fee-breakdown] {
-		border: 1px solid var(--color-border);
-		border-radius: 0.5em;
 		overflow: hidden;
 	}
 
 	[data-fee-summary] {
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
 		width: 100%;
-		padding: 0.75em;
 		background: var(--color-bg-subtle);
 		border: none;
-		cursor: pointer;
 		text-align: left;
-	}
-
-	[data-fee-percent] {
-		opacity: 0.7;
-		font-size: 0.875em;
-	}
-
-	[data-fee-toggle] {
-		margin-left: auto;
-		font-size: 0.75em;
 	}
 
 	[data-fee-details] {
 		padding: 0.75em;
-		display: flex;
-		flex-direction: column;
-		gap: 1em;
 	}
 
-	[data-fee-section] > h4 {
-		font-size: 0.75em;
-		text-transform: uppercase;
-		opacity: 0.7;
-		margin-bottom: 0.5em;
+	[data-fee-list] {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 0.25em 1em;
+		margin: 0.25em 0 0;
 	}
 
-	[data-fee-line] {
-		display: flex;
-		justify-content: space-between;
-		font-size: 0.875em;
-	}
-
-	[data-fee-usd] {
-		opacity: 0.7;
-		font-size: 0.875em;
+	[data-fee-list] dt,
+	[data-fee-list] dd {
+		margin: 0;
 	}
 </style>
