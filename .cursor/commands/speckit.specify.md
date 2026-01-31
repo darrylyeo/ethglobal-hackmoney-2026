@@ -14,4 +14,4 @@ $ARGUMENTS
 4. Include clear acceptance criteria
 5. Add completion signal:
 
-**Output when complete:** ` DONE `
+**Output when complete:** `DONE`

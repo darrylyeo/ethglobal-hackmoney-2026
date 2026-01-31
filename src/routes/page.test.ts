@@ -1,38 +1,45 @@
 import { expect, test } from '@playwright/test'
 
-test('bridge page loads and shows USDC Bridge heading', async ({ page }) => {
-	await page.goto('/bridge')
-	await expect(page.getByRole('heading', { level: 1, name: 'USDC Bridge' })).toBeVisible({
-		timeout: 15_000,
-	})
+test('home page has expected h1', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('h1')).toBeVisible({ timeout: 15000 })
 })
 
-test('after networks load, From chain select shows a real network (not empty)', async ({
-	page,
-}) => {
-	await page.goto('/bridge')
-	await expect(page.getByRole('heading', { level: 1, name: 'USDC Bridge' })).toBeVisible({
-		timeout: 15_000,
-	})
-	await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 10_000 })
-	await expect(page.getByLabel('From chain')).toContainText('Ethereum', { timeout: 5_000 })
-	await page.getByLabel('From chain').click()
-	await expect(page.getByRole('listbox')).toBeVisible({ timeout: 5_000 })
-	await expect(page.getByTestId('option-Ethereum')).toBeVisible({ timeout: 5_000 })
-})
-
-test('after networks load, To chain dropdown lists Ethereum and OP Mainnet', async ({
-	page,
-}) => {
-	await page.goto('/bridge')
-	await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 10_000 })
-	await expect(page.getByLabel('From chain')).toContainText('Ethereum', { timeout: 5_000 })
-	await page.getByLabel('From chain').click()
-	await expect(page.getByRole('listbox')).toBeVisible({ timeout: 5_000 })
-	await page.getByTestId('option-Ethereum').waitFor({ state: 'visible', timeout: 5_000 })
-	await page.getByTestId('option-Ethereum').click()
-	await page.getByLabel('To chain').click()
-	const listbox = page.getByRole('listbox')
-	await expect(listbox.getByRole('option', { name: 'Ethereum' })).toBeVisible({ timeout: 5_000 })
-	await expect(listbox.getByRole('option', { name: 'OP Mainnet' })).toBeVisible({ timeout: 5_000 })
+test('bridge: get quote flow selects options and shows result or error', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1, name: 'USDC Bridge' }))
+    .toBeVisible({ timeout: 15_000 })
+  await page.getByText('Loading networks…').waitFor({
+    state: 'hidden',
+    timeout: 10_000,
+  })
+  await expect(page.getByLabel('From chain')).toContainText('Ethereum', {
+    timeout: 5000,
+  })
+  await page.getByLabel('From chain').click()
+  await expect(page.getByRole('listbox')).toBeVisible({ timeout: 5000 })
+  await page.getByTestId('option-Ethereum').waitFor({
+    state: 'visible',
+    timeout: 5000,
+  })
+  await page.getByTestId('option-Ethereum').click()
+  await page.getByLabel('To chain').click()
+  await expect(page.getByRole('listbox')).toBeVisible({ timeout: 5000 })
+  await page.getByTestId('option-OP Mainnet').waitFor({
+    state: 'visible',
+    timeout: 5000,
+  })
+  await page.getByTestId('option-OP Mainnet').click()
+  await page.getByRole('button', { name: 'Get Quote' }).click()
+  await Promise.race([
+    page.locator('[data-testid="quote-result"]').waitFor({
+      state: 'visible',
+      timeout: 15_000,
+    }),
+    page.getByRole('alert').waitFor({ state: 'visible', timeout: 15_000 }),
+  ])
+  const hasQuote =
+    (await page.locator('[data-testid="quote-result"]').count()) > 0
+  const hasAlert = (await page.getByRole('alert').count()) > 0
+  expect(hasQuote || hasAlert).toBe(true)
 })

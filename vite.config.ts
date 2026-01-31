@@ -1,8 +1,8 @@
-import devtoolsJson from 'vite-plugin-devtools-json'
-import { defineConfig } from 'vite'
-import { sveltekit } from '@sveltejs/kit/vite'
+import devtoolsJson from "vite-plugin-devtools-json";
+import { defineConfig } from "vite";
+import { sveltekit } from "@sveltejs/kit/vite";
 
 export default defineConfig({
-	plugins: [sveltekit(), devtoolsJson()],
-	preview: { port: 4173 },
-})
+  plugins: [sveltekit(), devtoolsJson()],
+  preview: { port: 4173 },
+});

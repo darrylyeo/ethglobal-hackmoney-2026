@@ -1,10 +1,10 @@
-import { defineConfig } from 'vitest/config'
-import { sveltekit } from '@sveltejs/kit/vite'
+import { defineConfig } from "vitest/config";
+import { sveltekit } from "@sveltejs/kit/vite";
 
 export default defineConfig({
-	plugins: [sveltekit()],
-	test: {
-		include: ['src/lib/**/*.spec.ts'],
-		exclude: ['**/voltaire.spec.ts'],
-	},
-})
+  plugins: [sveltekit()],
+  test: {
+    include: ["src/api/**/*.spec.ts", "src/lib/**/*.spec.ts"],
+    exclude: ["**/voltaire.spec.ts"],
+  },
+});

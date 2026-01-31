@@ -1,12 +1,16 @@
-/// <reference lib="deno.ns" />
+/// <reference lib='deno.ns' />
 import { assertEquals, assertExists } from 'jsr:@std/assert'
-import { normalizeNetwork } from './networks-normalize.ts'
+import { NetworkType } from '$/constants/networks'
+import { normalizeNetwork } from './networks.ts'
 
-Deno.test('networks collection normalization: returns one network row with id and name', () => {
-	const row = normalizeNetwork({ id: 1, name: 'Ethereum' })
+Deno.test('networks collection normalization: returns one network row with $id, id, name and type', () => {
+	const row = normalizeNetwork({ id: 1, name: 'Ethereum', type: NetworkType.Mainnet })
+	assertExists(row.$id)
 	assertExists(row.id)
 	assertExists(row.name)
-	assertEquals(typeof row.id, 'number')
+	assertExists(row.type)
+	assertEquals(row.$id, 1)
 	assertEquals(row.id, 1)
 	assertEquals(row.name, 'Ethereum')
+	assertEquals(row.type, NetworkType.Mainnet)
 })

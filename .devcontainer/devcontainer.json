@@ -1,17 +1,17 @@
 {
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:24",
-	"features": {
-		"ghcr.io/devcontainers-community/features/deno": {}
-	},
-	"postCreateCommand": "deno install",
-	"forwardPorts": [
-		5173
-	],
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"svelte.svelte-vscode"
-			]
-		}
-	}
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
+  "features": {
+    "ghcr.io/devcontainers-community/features/deno": {}
+  },
+  "postCreateCommand": "deno install",
+  "forwardPorts": [
+    5173
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "svelte.svelte-vscode"
+      ]
+    }
+  }
 }

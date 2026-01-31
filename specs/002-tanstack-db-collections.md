@@ -5,14 +5,18 @@ Collections to normalize chain and token data.
 ## Implementation
 
 `src/lib/db/query-client.ts`:
+
 - `queryClient`: shared `QueryClient` instance
 
 `src/collections/networks.ts`:
+
 - `normalizeNetwork(entry)`: identity transform `{ id, name }`
 - `networksCollection`: TanStack DB collection from `networks` constant
 
 `src/collections/coins.ts`:
-- `normalizeCoin(entry)`: identity transform `{ chainId, address, symbol, decimals }`
+
+- `normalizeCoin(entry)`: identity transform
+  `{ chainId, address, symbol, decimals }`
 - `coinsCollection`: TanStack DB collection from `ercTokens` constant
 
 ## Acceptance criteria
@@ -29,4 +33,4 @@ Complete.
 
 ## Output when complete
 
-` DONE `
+`DONE`

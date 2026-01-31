@@ -1,8 +1,10 @@
 # Spec 004: Bridge UI
 
-Minimal UI to fetch LI.FI USDC bridge quotes using Bits UI primitives; styling via Bits UI CSS or project CSS is allowed.
+Minimal UI to fetch LI.FI USDC bridge quotes using Bits UI primitives; styling
+via Bits UI CSS or project CSS is allowed.
 
 **References:**
+
 - https://docs.li.fi/introduction/user-flows-and-examples/end-to-end-example
 
 ## UI components
@@ -21,7 +23,8 @@ Located in `src/routes/+page.svelte`:
 
 ### UI
 
-- [x] Renders with Bits UI primitives (Select, Input, Button); Bits UI CSS or project CSS may be used.
+- [x] Renders with Bits UI primitives (Select, Input, Button); Bits UI CSS or
+      project CSS may be used.
 - [x] Chain selects populated from `networks` constant.
 - [x] User can enter amount and wallet address.
 - [x] "Get Quote" calls `fetchQuoteCached` with selected params.
@@ -41,4 +44,4 @@ Complete.
 
 ## Output when complete
 
-` DONE `
+`DONE`

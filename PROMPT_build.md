@@ -9,7 +9,7 @@ Read `.specify/memory/constitution.md` first.
 3. Implement completely
 4. Run tests, verify acceptance criteria
 5. Commit and push
-6. Output ` DONE ` when done
+6. Output `DONE` when done
 
 ## Rules
 

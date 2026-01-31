@@ -5,12 +5,15 @@ Chain and token constants for USDC bridging.
 ## Implementation
 
 `src/constants/networks.ts`:
-- `ChainId` enum (9 chains): Ethereum, Optimism, Polygon, Arbitrum, Avalanche, Celo, Base, Linea, ZkSyncEra
+
+- `ChainId` enum (9 chains): Ethereum, Optimism, Polygon, Arbitrum, Avalanche,
+  Celo, Base, Linea, ZkSyncEra
 - `Network` type: `{ id: ChainId, name: string }`
 - `networks` array with `as const satisfies Network[]`
 - `networksByChainId` lookup object
 
 `src/constants/coins.ts`:
+
 - `Erc20Token` type: `{ chainId, address, symbol, decimals }`
 - `ercTokens` array: USDC for each chain with `as const satisfies`
 - `ercTokensBySymbolByChainId` lookup: `chainId → symbol → token`
@@ -29,4 +32,4 @@ Complete.
 
 ## Output when complete
 
-` DONE `
+`DONE`

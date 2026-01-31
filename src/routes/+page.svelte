@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang='ts'>
 	// Root redirects to /bridge via +page.ts load
 </script>
 

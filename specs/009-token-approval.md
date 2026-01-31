@@ -1,0 +1,429 @@
+# Spec 009: Token approval flow
+
+ERC20 tokens require approval before a bridge contract can transfer them. This spec
+adds approval checking and prompting.
+
+**Note:** LI.FI SDK provides `getTokenApproval()` and approval info in quotes. We can
+leverage this instead of raw RPC calls for most cases.
+
+## Requirements
+
+1. **Check allowance before bridging:**
+   - Use quote's `estimate.approvalAddress` for spender
+   - Call `allowance(owner, spender)` via Voltaire
+   - Compare with transfer amount
+   - If insufficient, prompt for approval
+
+2. **Approval transaction:**
+   - Request user to approve the bridge contract
+   - Default to exact amount approval (safer)
+   - Optional: unlimited approval toggle
+   - Wait for approval tx confirmation before proceeding
+
+3. **UI flow:**
+   - Show approval status after getting quote
+   - Two-step flow: Approve → Bridge
+   - Or single "Approve & Bridge" that handles both
+   - Clear feedback during approval tx
+
+## Implementation
+
+### `src/lib/voltaire.ts` additions
+
+```typescript
+// allowance(address,address) selector: 0xdd62ed3e
+const ALLOWANCE_SELECTOR = '0xdd62ed3e'
+// approve(address,uint256) selector: 0x095ea7b3
+const APPROVE_SELECTOR = '0x095ea7b3'
+// Max uint256 for unlimited approval
+const MAX_UINT256 = 2n ** 256n - 1n
+
+export const encodeAllowanceCall = (
+  owner: `0x${string}`,
+  spender: `0x${string}`,
+): `0x${string}` => {
+  const paddedOwner = owner.slice(2).toLowerCase().padStart(64, '0')
+  const paddedSpender = spender.slice(2).toLowerCase().padStart(64, '0')
+  return `${ALLOWANCE_SELECTOR}${paddedOwner}${paddedSpender}` as `0x${string}`
+}
+
+export const getErc20Allowance = async (
+  provider: HttpProvider,
+  tokenAddress: `0x${string}`,
+  owner: `0x${string}`,
+  spender: `0x${string}`,
+): Promise<bigint> => {
+  const result = await provider.request({
+    method: 'eth_call',
+    params: [{
+      to: tokenAddress,
+      data: encodeAllowanceCall(owner, spender),
+    }, 'latest'],
+  })
+  return BigInt(result as string)
+}
+
+export const encodeApproveCall = (
+  spender: `0x${string}`,
+  amount: bigint,
+): `0x${string}` => {
+  const paddedSpender = spender.slice(2).toLowerCase().padStart(64, '0')
+  const paddedAmount = amount.toString(16).padStart(64, '0')
+  return `${APPROVE_SELECTOR}${paddedSpender}${paddedAmount}` as `0x${string}`
+}
+
+export { MAX_UINT256 }
+```
+
+### `src/lib/approval.ts`
+
+```typescript
+import type { EIP1193Provider } from './wallet'
+import { getErc20Allowance, encodeApproveCall, MAX_UINT256 } from './voltaire'
+import { rpcUrls } from '$/constants/rpc-endpoints'
+import { createHttpProvider } from './voltaire'
+
+export type ApprovalState = 'unknown' | 'checking' | 'needed' | 'approving' | 'approved' | 'error'
+
+export type ApprovalInfo = {
+  state: ApprovalState
+  currentAllowance: bigint
+  requiredAmount: bigint
+  error?: string
+}
+
+export const checkApproval = async (
+  chainId: number,
+  tokenAddress: `0x${string}`,
+  owner: `0x${string}`,
+  spender: `0x${string}`,
+  amount: bigint,
+): Promise<ApprovalInfo> => {
+  try {
+    const rpcUrl = rpcUrls[chainId]
+    if (!rpcUrl) throw new Error(`No RPC for chain ${chainId}`)
+
+    const provider = createHttpProvider(rpcUrl)
+    const allowance = await getErc20Allowance(provider, tokenAddress, owner, spender)
+
+    return {
+      state: allowance >= amount ? 'approved' : 'needed',
+      currentAllowance: allowance,
+      requiredAmount: amount,
+    }
+  } catch (e) {
+    return {
+      state: 'error',
+      currentAllowance: 0n,
+      requiredAmount: amount,
+      error: e instanceof Error ? e.message : String(e),
+    }
+  }
+}
+
+export const sendApproval = async (
+  walletProvider: EIP1193Provider,
+  chainId: number,
+  tokenAddress: `0x${string}`,
+  spender: `0x${string}`,
+  amount: bigint,
+  unlimited = false,
+): Promise<`0x${string}`> => {
+  const approveAmount = unlimited ? MAX_UINT256 : amount
+  const data = encodeApproveCall(spender, approveAmount)
+
+  const txHash = await walletProvider.request({
+    method: 'eth_sendTransaction',
+    params: [{
+      to: tokenAddress,
+      data,
+      chainId: `0x${chainId.toString(16)}`,
+    }],
+  }) as `0x${string}`
+
+  return txHash
+}
+
+export const waitForApprovalConfirmation = async (
+  chainId: number,
+  txHash: `0x${string}`,
+  maxAttempts = 60,
+  intervalMs = 2000,
+): Promise<boolean> => {
+  const rpcUrl = rpcUrls[chainId]
+  if (!rpcUrl) throw new Error(`No RPC for chain ${chainId}`)
+
+  const provider = createHttpProvider(rpcUrl)
+
+  for (let i = 0; i < maxAttempts; i++) {
+    const receipt = await provider.request({
+      method: 'eth_getTransactionReceipt',
+      params: [txHash],
+    }) as { status: string } | null
+
+    if (receipt) {
+      return receipt.status === '0x1'
+    }
+
+    await new Promise(r => setTimeout(r, intervalMs))
+  }
+
+  throw new Error('Approval confirmation timeout')
+}
+```
+
+### `src/routes/bridge/ApprovalButton.svelte`
+
+```svelte
+<script lang="ts">
+  import { Button, Switch } from 'bits-ui'
+  import Spinner from '$/components/Spinner.svelte'
+  import {
+    checkApproval,
+    sendApproval,
+    waitForApprovalConfirmation,
+    type ApprovalState,
+  } from '$/lib/approval'
+  import type { EIP1193Provider } from '$/lib/wallet'
+  import { getTxUrl } from '$/constants/explorers'
+
+  let {
+    chainId,
+    tokenAddress,
+    spenderAddress,
+    amount,
+    walletProvider,
+    walletAddress,
+    onApproved,
+  }: {
+    chainId: number
+    tokenAddress: `0x${string}`
+    spenderAddress: `0x${string}`
+    amount: bigint
+    walletProvider: EIP1193Provider
+    walletAddress: `0x${string}`
+    onApproved: () => void
+  } = $props()
+
+  let state = $state<ApprovalState>('unknown')
+  let error = $state<string | null>(null)
+  let txHash = $state<`0x${string}` | null>(null)
+  let unlimited = $state(false)
+
+  // Check approval on mount and when deps change
+  $effect(() => {
+    check()
+  })
+
+  const check = async () => {
+    state = 'checking'
+    error = null
+    const result = await checkApproval(
+      chainId,
+      tokenAddress,
+      walletAddress,
+      spenderAddress,
+      amount,
+    )
+    state = result.state
+    error = result.error ?? null
+
+    if (result.state === 'approved') {
+      onApproved()
+    }
+  }
+
+  const approve = async () => {
+    state = 'approving'
+    error = null
+    try {
+      txHash = await sendApproval(
+        walletProvider,
+        chainId,
+        tokenAddress,
+        spenderAddress,
+        amount,
+        unlimited,
+      )
+
+      const success = await waitForApprovalConfirmation(chainId, txHash)
+      if (success) {
+        state = 'approved'
+        onApproved()
+      } else {
+        state = 'error'
+        error = 'Approval transaction failed'
+      }
+    } catch (e) {
+      state = 'error'
+      error = e instanceof Error ? e.message : String(e)
+    }
+  }
+</script>
+
+<div data-approval data-state={state}>
+  {#if state === 'checking'}
+    <p><Spinner /> Checking approval…</p>
+
+  {:else if state === 'needed'}
+    <div data-approval-controls>
+      <div data-approval-toggle>
+        <Switch.Root bind:checked={unlimited}>
+          <Switch.Thumb />
+        </Switch.Root>
+        <span>Unlimited approval</span>
+      </div>
+      <Button.Root type="button" onclick={approve}>
+        Approve USDC
+      </Button.Root>
+    </div>
+
+  {:else if state === 'approving'}
+    <p><Spinner /> Approving…</p>
+    {#if txHash}
+      <a href={getTxUrl(chainId, txHash)} target="_blank" rel="noopener noreferrer">
+        View transaction
+      </a>
+    {/if}
+
+  {:else if state === 'approved'}
+    <p data-approval-success>✓ Approved</p>
+
+  {:else if state === 'error'}
+    <p data-approval-error role="alert">{error}</p>
+    <Button.Root type="button" onclick={check}>Retry</Button.Root>
+  {/if}
+</div>
+
+<style>
+  [data-approval-controls] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+  }
+
+  [data-approval-toggle] {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 0.875em;
+  }
+
+  [data-approval-success] {
+    color: var(--color-success, #22c55e);
+  }
+
+  [data-approval-error] {
+    color: var(--color-error, #ef4444);
+  }
+</style>
+```
+
+### Integration in bridge page
+
+```svelte
+<script lang="ts">
+  // After getting quote/route, extract approval info
+  const approvalAddress = $derived(
+    selectedRoute?.originalRoute.steps[0]?.estimate?.approvalAddress as `0x${string}` | undefined
+  )
+  const needsApprovalCheck = $derived(
+    approvalAddress !== undefined && selectedRoute !== null
+  )
+
+  let approvalComplete = $state(false)
+
+  // Reset approval state when route changes
+  $effect(() => {
+    if (selectedRoute) {
+      approvalComplete = false
+    }
+  })
+</script>
+
+{#if selectedRoute}
+  {#if needsApprovalCheck && !approvalComplete}
+    <ApprovalButton
+      chainId={Number(fromChain)}
+      tokenAddress={getUsdcAddress(Number(fromChain))}
+      spenderAddress={approvalAddress}
+      amount={parseDecimalToSmallest(amount, 6)}
+      walletProvider={wallet.connectedDetail.provider}
+      walletAddress={wallet.address}
+      onApproved={() => { approvalComplete = true }}
+    />
+  {:else}
+    <LoadingButton
+      type="button"
+      onclick={bridge}
+      loading={execLoading}
+      loadingText="Bridging…"
+    >
+      Bridge
+    </LoadingButton>
+  {/if}
+{/if}
+```
+
+### Unit tests (`src/lib/approval.spec.ts`)
+
+```typescript
+import { assertEquals } from '@std/assert'
+import { encodeAllowanceCall, encodeApproveCall } from './voltaire'
+
+Deno.test('encodeAllowanceCall generates correct calldata', () => {
+  const data = encodeAllowanceCall(
+    '0x1234567890123456789012345678901234567890',
+    '0xabcdef0123456789abcdef0123456789abcdef01',
+  )
+  assertEquals(data.slice(0, 10), '0xdd62ed3e')
+  assertEquals(data.length, 138) // 10 + 64 + 64
+})
+
+Deno.test('encodeApproveCall generates correct calldata', () => {
+  const data = encodeApproveCall(
+    '0xabcdef0123456789abcdef0123456789abcdef01',
+    1000000n,
+  )
+  assertEquals(data.slice(0, 10), '0x095ea7b3')
+  assertEquals(data.length, 138)
+})
+```
+
+## Acceptance criteria
+
+### Voltaire functions
+- [ ] `encodeAllowanceCall()` generates correct 4-byte selector + args
+- [ ] `getErc20Allowance()` returns current allowance as bigint
+- [ ] `encodeApproveCall()` generates correct calldata
+- [ ] Works with both exact and unlimited amounts
+
+### Approval module
+- [ ] `checkApproval()` returns correct state (needed/approved)
+- [ ] `sendApproval()` sends transaction via wallet
+- [ ] `waitForApprovalConfirmation()` polls for receipt
+- [ ] Handles errors gracefully
+
+### ApprovalButton component
+- [ ] Shows "Checking approval…" initially
+- [ ] Shows "Approve USDC" button when needed
+- [ ] Unlimited approval toggle available
+- [ ] Shows "Approving…" during transaction
+- [ ] Links to explorer during approval
+- [ ] Shows "✓ Approved" when done
+- [ ] Shows error with retry on failure
+- [ ] Calls `onApproved` callback when complete
+
+### Integration
+- [ ] Bridge page checks approval after route selection
+- [ ] Approval required before Bridge button enabled
+- [ ] Switching routes resets approval state
+- [ ] Already-approved tokens show "✓ Approved" immediately
+
+## Status
+
+Not started.
+
+## Output when complete
+
+`DONE`

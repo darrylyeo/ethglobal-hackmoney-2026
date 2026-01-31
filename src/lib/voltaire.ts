@@ -1,4 +1,10 @@
-import { encodeFunction, decodeParameters } from '@tevm/voltaire/Abi'
+/**
+ * Minimal EIP-1193-style RPC and ERC20 balanceOf helpers using @tevm/voltaire.
+ * Uses Abi/Hex subpaths only (main package and provider use bun:ffi; Deno-incompatible).
+ * Builtins available but not used here: @tevm/voltaire ERC20 (encodeBalanceOf, decodeUint256),
+ * @tevm/voltaire/provider HttpProvider (timeout, retries).
+ */
+import { decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
 import { toBytes } from '@tevm/voltaire/Hex'
 
 export type VoltaireProvider = {
@@ -16,17 +22,20 @@ const ERC20_BALANCE_OF_ABI = [
 		outputs: [{ type: 'uint256', name: '' }],
 	},
 ] as const
-
 const BALANCE_OF_OUTPUTS = [{ type: 'uint256' as const, name: '' }] as const
 
 export function getChainId(provider: VoltaireProvider): Promise<bigint> {
 	return provider
 		.request({ method: 'eth_chainId', params: [] })
-		.then((res) => (typeof res === 'string' ? BigInt(res) : BigInt(res as string)))
+		.then((
+			res,
+		) => (typeof res === 'string' ? BigInt(res) : BigInt(res as string)))
 }
 
 export function encodeBalanceOfCall(account: `0x${string}`): `0x${string}` {
-	return encodeFunction(ERC20_BALANCE_OF_ABI, 'balanceOf', [account]) as `0x${string}`
+	return encodeFunction(ERC20_BALANCE_OF_ABI, 'balanceOf', [
+		account,
+	]) as `0x${string}`
 }
 
 export function decodeBalanceOfResult(hex: string): bigint {
@@ -41,6 +50,7 @@ export async function getErc20Balance(
 	accountAddress: `0x${string}`,
 ): Promise<bigint> {
 	const data = encodeBalanceOfCall(accountAddress)
+
 	const res = await provider.request({
 		method: 'eth_call',
 		params: [
@@ -48,11 +58,27 @@ export async function getErc20Balance(
 			'latest',
 		],
 	})
-	if (typeof res !== 'string' || !res) throw new Error('eth_call returned invalid data')
+
+	if (typeof res !== 'string' || !res)
+		throw new Error('eth_call returned invalid data')
+
 	return decodeBalanceOfResult(res)
 }
 
-export async function createHttpProvider(url: string): Promise<VoltaireProvider> {
-	const { HttpProvider } = await import('@tevm/voltaire/provider')
-	return new HttpProvider({ url }) as VoltaireProvider
+export function createHttpProvider(url: string): VoltaireProvider {
+	const noop = () => ({ on: noop, removeListener: noop }) as VoltaireProvider
+	return {
+		request: async ({ method, params = [] }) => {
+			const res = await fetch(url, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+			})
+			const json = await res.json()
+			if (json.error) throw new Error(json.error.message ?? 'RPC error')
+			return json.result
+		},
+		on: noop,
+		removeListener: noop,
+	}
 }

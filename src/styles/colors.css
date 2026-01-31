@@ -1,10 +1,10 @@
 :root {
-	--color-bg: light-dark(#fff, #17191f);
-	--color-bg-page: light-dark(#efefef, #141414);
-	--color-bg-muted: light-dark(#eeeff4, #17191f);
-	--color-fg: light-dark(#222222, #efefef);
-	--color-fg-muted: light-dark(#3f4046, #b1b2b9);
-	--color-border: light-dark(#cecece, #313131);
-	--color-accent: light-dark(#e564bc, #e683c7);
-	--color-accent-bg: light-dark(#fbdcf2, #440530);
+  --color-bg: light-dark(#fff, #17191f);
+  --color-bg-page: light-dark(#efefef, #141414);
+  --color-bg-muted: light-dark(#eeeff4, #17191f);
+  --color-fg: light-dark(#222222, #efefef);
+  --color-fg-muted: light-dark(#3f4046, #b1b2b9);
+  --color-border: light-dark(#cecece, #313131);
+  --color-accent: light-dark(#e564bc, #e683c7);
+  --color-accent-bg: light-dark(#fbdcf2, #440530);
 }

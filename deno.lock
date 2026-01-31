@@ -18,6 +18,7 @@
     "npm:svelte@^5.45.6": "5.46.1_acorn@8.15.0",
     "npm:tevm@^1.0.0-next.149": "1.0.0-next.149_@tevm+ts-plugin@1.0.0-next.148__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
     "npm:typescript@^5.9.3": "5.9.3",
+    "npm:viem@^2.45.1": "2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
     "npm:vite-plugin-devtools-json@1": "1.0.0_vite@7.3.0__picomatch@4.0.3",
     "npm:vite@^7.2.6": "7.3.0_picomatch@4.0.3",
     "npm:vitest@^4.0.18": "4.0.18_vite@7.3.0__picomatch@4.0.3"
@@ -4631,7 +4632,8 @@
   },
   "workspace": {
     "dependencies": [
-      "npm:@tanstack/query-core@*"
+      "npm:@tanstack/query-core@*",
+      "npm:@tevm/voltaire@~0.2.28"
     ],
     "packageJson": {
       "dependencies": [
@@ -4649,6 +4651,7 @@
         "npm:svelte@^5.45.6",
         "npm:tevm@^1.0.0-next.149",
         "npm:typescript@^5.9.3",
+        "npm:viem@^2.45.1",
         "npm:vite-plugin-devtools-json@1",
         "npm:vite@^7.2.6",
         "npm:vitest@^4.0.18"

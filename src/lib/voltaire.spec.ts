@@ -1,4 +1,4 @@
-/// <reference lib="deno.ns" />
+/// <reference lib='deno.ns' />
 import { assertEquals } from 'jsr:@std/assert'
 import {
 	decodeBalanceOfResult,
@@ -7,7 +7,6 @@ import {
 	getErc20Balance,
 	type VoltaireProvider,
 } from './voltaire.ts'
-
 Deno.test('getChainId: calls eth_chainId and returns chain ID as bigint', async () => {
 	let requestedMethod: string | undefined
 	const provider: VoltaireProvider = {
@@ -22,7 +21,6 @@ Deno.test('getChainId: calls eth_chainId and returns chain ID as bigint', async 
 	assertEquals(requestedMethod, 'eth_chainId')
 	assertEquals(chainId, 1n)
 })
-
 Deno.test('encodeBalanceOfCall: produces balanceOf selector + encoded address', () => {
 	const account = '0x742d35Cc6634C0532925a3b844Bc454e4798e506' as `0x${string}`
 	const data = encodeBalanceOfCall(account)
@@ -30,18 +28,19 @@ Deno.test('encodeBalanceOfCall: produces balanceOf selector + encoded address', 
 	assertEquals(data.startsWith('0x70a08231'), true)
 	assertEquals(data.length >= 2 + 4 + 64, true)
 })
-
 Deno.test('decodeBalanceOfResult: decodes eth_call hex to bigint', () => {
-	const hex = '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000'
+	const hex =
+		'0x0000000000000000000000000000000000000000000000000de0b6b3a7640000'
 	assertEquals(decodeBalanceOfResult(hex), 1000000000000000000n)
 })
-
 Deno.test('getErc20Balance: calls eth_call with to and encoded data, returns decoded balance', async () => {
 	let callParams: { to: string; data: string } | undefined
 	const provider: VoltaireProvider = {
 		request: async (args) => {
 			if ((args as { method: string }).method === 'eth_call') {
-				callParams = (args as { params: [{ to: string; data: string }] }).params[0]
+				callParams = (
+					args as unknown as { params: [{ to: string; data: string }] }
+				).params[0]
 			}
 			return '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000'
 		},

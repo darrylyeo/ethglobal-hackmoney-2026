@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang='ts'>
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { networksCollection } from '$/collections/networks'
 	import { coinsCollection } from '$/collections/coins'
