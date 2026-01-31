@@ -38,7 +38,7 @@
 		})
 </script>
 
-{#if address && list.length > 0}
+{#if address}
 	<section data-tx-history aria-labelledby="tx-history-heading">
 		<button
 			type="button"

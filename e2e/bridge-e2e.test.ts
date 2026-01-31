@@ -74,7 +74,9 @@ test.describe('E2E bridge flow', () => {
 			await page.locator('[data-wallet-provider-option]').waitFor({ state: 'visible', timeout: 10_000 })
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({ timeout: 15_000 })
-			await expect(page.locator('[data-tx-history]')).toBeVisible({ timeout: 10_000 })
+			await expect(
+				page.getByRole('button', { name: /Transaction history/ }),
+			).toBeVisible({ timeout: 10_000 })
 		})
 	})
 
