@@ -13,6 +13,7 @@
 
 	// Components
 	import NetworkStatusIndicator from '$/components/NetworkStatusIndicator.svelte'
+	import ThemeToggle from '$/components/ThemeToggle.svelte'
 	import NavigationItems, { type NavigationItem } from './NavigationItem.svelte'
 </script>
 
@@ -44,30 +45,7 @@
 				<NetworkStatusIndicator />
 			</li>
 			<li>
-				<button
-					type="button"
-					id="theme-toggle"
-					aria-label="Toggle light or dark theme"
-					data-stack
-					data-button="icon"
-					onclick={e => {
-						document.documentElement.style.colorScheme = (
-							document.documentElement.style.colorScheme &&
-								{
-									'dark': 'light',
-									'light': 'dark',
-								}[document.documentElement.style.colorScheme]
-							||
-								matchMedia('(prefers-color-scheme: dark)').matches ?
-									'light'
-								:
-									'dark'
-						)
-					}}
-				>
-					<span aria-hidden="true">☀️</span>
-					<span aria-hidden="true">🌙</span>
-				</button>
+				<ThemeToggle />
 			</li>
 
 			<li>
@@ -142,14 +120,6 @@
 					}
 				}
 
-				#theme-toggle {
-					> :first-child {
-						color: light-dark(currentColor, transparent);
-					}
-					> :last-child {
-						color: light-dark(transparent, currentColor);
-					}
-				}
 			}
 		}
 
