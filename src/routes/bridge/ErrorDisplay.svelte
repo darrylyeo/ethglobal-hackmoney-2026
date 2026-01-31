@@ -41,24 +41,26 @@
 	})
 </script>
 
-<div role='alert' data-error-display data-code={error.code}>
-	<div data-error-header>
-		<span data-error-icon>⚠️</span>
-		<strong data-error-title>{error.title}</strong>
+<div role="alert" data-error-display data-code={error.code} data-card="secondary" data-column="gap-2">
+	<div data-row="gap-2 align-center">
+		<span>⚠️</span>
+		<strong data-error data-row-item="flexible">{error.title}</strong>
 		{#if onDismiss}
-			<button type='button' data-error-dismiss onclick={onDismiss} aria-label='Dismiss'>
+			<button type="button" data-error-dismiss onclick={onDismiss} aria-label="Dismiss">
 				✕
 			</button>
 		{/if}
 	</div>
 
-	<p data-error-message>{error.message}</p>
-	<p data-error-suggestion>{error.suggestion}</p>
+	<p>{error.message}</p>
+	{#if error.suggestion}
+		<p data-muted>{error.suggestion}</p>
+	{/if}
 
 	{#if error.retryable && onRetry}
-		<div data-error-actions>
+		<div data-row="gap-2">
 			<Button.Root
-				type='button'
+				type="button"
 				onclick={onRetry}
 				disabled={!canRetry}
 			>
@@ -80,64 +82,15 @@
 </div>
 
 <style>
-	[data-error-display] {
-		padding: 1em;
-		background: var(--color-error-bg, #fef2f2);
-		border: 1px solid var(--color-error-border, #fecaca);
-		border-radius: 0.5em;
-	}
-
-	[data-error-header] {
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
-		margin-bottom: 0.5em;
-	}
-
-	[data-error-icon] {
-		font-size: 1.25em;
-	}
-
-	[data-error-title] {
-		flex: 1;
-		color: var(--color-error, #dc2626);
-	}
-
 	[data-error-dismiss] {
 		background: none;
 		border: none;
-		cursor: pointer;
 		padding: 0.25em;
 		opacity: 0.6;
 	}
 
 	[data-error-dismiss]:hover {
 		opacity: 1;
-	}
-
-	[data-error-message] {
-		margin-bottom: 0.25em;
-	}
-
-	[data-error-suggestion] {
-		font-size: 0.875em;
-		opacity: 0.8;
-		margin-bottom: 0.75em;
-	}
-
-	[data-error-actions] {
-		display: flex;
-		gap: 0.5em;
-	}
-
-	[data-error-details] {
-		margin-top: 0.75em;
-		font-size: 0.75em;
-	}
-
-	[data-error-details] summary {
-		cursor: pointer;
-		opacity: 0.7;
 	}
 
 	[data-error-details] pre {
