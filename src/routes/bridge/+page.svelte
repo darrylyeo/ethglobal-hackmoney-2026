@@ -10,7 +10,13 @@
 	import { networksCollection } from '$/collections/networks'
 	import { actorCoinsCollection, fetchAllBalancesForAddress } from '$/collections/actor-coins'
 	import { executeQuote, fetchQuoteCached } from '$/api/lifi'
-	import { categorizeError, isBridgeError } from '$/lib/errors'
+	import {
+		extractRouteLimits,
+		USDC_MIN_AMOUNT,
+		USDC_MAX_AMOUNT,
+	} from '$/constants/bridge-limits'
+	import { categorizeError, ErrorCode, isBridgeError } from '$/lib/errors'
+	import { formatTokenAmount } from '$/lib/format'
 
 	// Components
 	import ChainIdSection from './ChainIdSection.svelte'
@@ -186,7 +192,16 @@
 							bind:recipient
 						/>
 					{/if}
-					{#if quoteError}
+					{#if quoteError?.code === ErrorCode.NO_ROUTES}
+						<div data-no-routes>
+							<p>No routes available for this transfer.</p>
+							<ul>
+								<li>Try a different amount (min ~1 USDC, max varies by route)</li>
+								<li>Try a different chain pair</li>
+								<li>Check if the bridge is operational</li>
+							</ul>
+						</div>
+					{:else if quoteError}
 						<ErrorDisplay
 							error={quoteError}
 							attempt={quoteRetryAttempt}
@@ -207,6 +222,13 @@
 							onSwitched={() => {}}
 						/>
 					{:else if quote}
+						{@const limits = extractRouteLimits([quote])}
+						{@const minDisplay = limits.minAmount ?? USDC_MIN_AMOUNT}
+						{@const maxDisplay = limits.maxAmount ?? USDC_MAX_AMOUNT}
+						<p data-route-limits>
+							Min: {formatTokenAmount(String(minDisplay), 6)} USDC
+							Max: {formatTokenAmount(String(maxDisplay), 6)} USDC
+						</p>
 						<QuoteOutput
 							{quote}
 							connectedDetail={wallet.connectedDetail}

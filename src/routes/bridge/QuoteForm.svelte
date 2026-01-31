@@ -1,6 +1,11 @@
 <script lang='ts'>
 	// Functions
 	import { Select, Button } from 'bits-ui'
+	import {
+		validateBridgeAmount,
+		USDC_MIN_AMOUNT,
+		USDC_MAX_AMOUNT,
+	} from '$/constants/bridge-limits'
 
 	// Props
 	let {
@@ -20,6 +25,21 @@
 		loading?: boolean
 		onSubmit: () => void
 	} = $props()
+
+	const amountValidation = $derived(
+		(() => {
+			const trimmed = amount.trim()
+			if (trimmed === '') return { isValid: false as const, error: 'invalid' as const }
+			try {
+				const n = BigInt(trimmed)
+				return n < 0n
+					? { isValid: false as const, error: 'invalid' as const }
+					: validateBridgeAmount(n, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT)
+			} catch {
+				return { isValid: false as const, error: 'invalid' as const }
+			}
+		})(),
+	)
 </script>
 
 <form
@@ -27,6 +47,7 @@
 	data-column='gap-4'
 	onsubmit={(e) => {
 		e.preventDefault()
+		if (!amountValidation.isValid) return
 		onSubmit()
 	}}
 >
@@ -86,12 +107,23 @@
 		<div data-column='gap-2'>
 			<label for='amount'>Amount (smallest units)</label>
 			<input id='amount' type='text' inputmode='numeric' autocomplete='off' bind:value={amount} />
+			{#if !amountValidation.isValid}
+				<p data-amount-validation-error role='alert'>
+					{#if amountValidation.error === 'too_low'}
+						Minimum amount is {amountValidation.minAmount} USDC
+					{:else if amountValidation.error === 'too_high'}
+						Maximum amount is {amountValidation.maxAmount} USDC
+					{:else}
+						Enter a valid amount
+					{/if}
+				</p>
+			{/if}
 		</div>
 		<div data-column='gap-2'>
 			<label for='from-address'>From address</label>
 			<input id='from-address' type='text' autocomplete='off' value={fromAddress} readonly />
 		</div>
-		<Button.Root type='submit' disabled={loading}>
+		<Button.Root type='submit' disabled={loading || !amountValidation.isValid}>
 			{loading ? 'Loading…' : 'Get Quote'}
 		</Button.Root>
 	</fieldset>
