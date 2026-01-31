@@ -7,6 +7,14 @@ export default {
   // for more information about preprocessors
   preprocess: vitePreprocess(),
 
+  vitePlugin: {
+    experimental: {
+      inspector: {
+        toggleKeyCombo: 'shift-i',
+      },
+    },
+  },
+
   compilerOptions: {
     experimental: {
       async: true,
