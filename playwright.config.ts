@@ -10,5 +10,5 @@ export default defineConfig({
     reuseExistingServer: true,
   },
   testDir: ".",
-  testMatch: ["src/routes/**/*.test.ts"],
+  testMatch: ["src/routes/**/*.test.ts", "e2e/**/*.test.ts"],
 });
