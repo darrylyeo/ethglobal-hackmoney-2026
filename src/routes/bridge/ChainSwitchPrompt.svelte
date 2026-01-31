@@ -46,31 +46,15 @@
 	}
 </script>
 
-<div data-chain-switch-prompt role='alert'>
+<div data-chain-switch-prompt data-card data-column="gap-3" role="alert">
 	<p>
 		Your wallet is connected to <strong>{currentChainName}</strong>.
 		Switch to <strong>{requiredChainName}</strong> to continue.
 	</p>
-	<Button.Root type='button' onclick={handleSwitch} disabled={switching} data-chain-switch-button>
+	<Button.Root type="button" onclick={handleSwitch} disabled={switching} data-chain-switch-button>
 		{switching ? 'Switching…' : `Switch to ${requiredChainName}`}
 	</Button.Root>
 	{#if error}
-		<p data-chain-switch-error>{error}</p>
+		<p data-error>{error}</p>
 	{/if}
 </div>
-
-<style>
-	[data-chain-switch-prompt] {
-		padding: 1em;
-		background: var(--color-warning-bg, #fef3c7);
-		border-radius: 0.5em;
-		display: flex;
-		flex-direction: column;
-		gap: 0.75em;
-	}
-
-	[data-chain-switch-error] {
-		color: var(--color-error, #ef4444);
-		font-size: 0.875em;
-	}
-</style>
