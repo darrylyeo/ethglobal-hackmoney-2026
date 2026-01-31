@@ -44,6 +44,11 @@
 				href: '/bridge',
 			},
 			{
+				id: 'transfers',
+				title: 'Transfers',
+				href: '/transfers',
+			},
+			{
 				id: 'test-collections',
 				title: 'Test collections',
 				href: '/test/collections',

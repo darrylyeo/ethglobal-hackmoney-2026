@@ -71,19 +71,19 @@ message.
 
 ## Acceptance criteria
 
-- [ ] Route `/transfers` exists and renders `LiveTransfers` with a `Coin` prop
+- [x] Route `/transfers` exists and renders `LiveTransfers` with a `Coin` prop
       (e.g. USDC from project constants).
-- [ ] Time period selector offers: 1h, 6h, 12h, 1d, 3d, 7d.
-- [ ] Transfers for the selected period are fetched from Covalent (or agreed
+- [x] Time period selector offers: 1h, 6h, 12h, 1d, 3d, 7d.
+- [x] Transfers for the selected period are fetched from Covalent (or agreed
       indexer) for USDC on all supported chains.
-- [ ] Unique actor addresses from the fetched events are rendered as nodes in a
+- [x] Unique actor addresses from the fetched events are rendered as nodes in a
       Threlte visualization.
-- [ ] Flows between actors are shown as edges; volume (amount) is represented
+- [x] Flows between actors are shown as edges; volume (amount) is represented
       (e.g. thickness or label).
-- [ ] Edges are staggered or animated according to transfer timestamps within
+- [x] Edges are staggered or animated according to transfer timestamps within
       the period.
-- [ ] Chain information is reflected (e.g. node or edge color/label by chain).
-- [ ] Errors (e.g. indexer down, no data) are handled with `<svelte:boundary>`
+- [x] Chain information is reflected (e.g. node or edge color/label by chain).
+- [x] Errors (e.g. indexer down, no data) are handled with `<svelte:boundary>`
       and a clear message.
 
 ## Implementation notes
@@ -101,7 +101,7 @@ message.
 
 ## Status
 
-Not started.
+Complete. Route /transfers, LiveTransfers with time selector (1h–7d), transfers-indexer (Covalent fetch, buildGraph), Threlte nodes/edges, chain colors, svelte:boundary for errors. COVALENT_API_KEY server-side in +page.server.ts.
 
 ## Output when complete
 

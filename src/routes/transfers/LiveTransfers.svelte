@@ -1,0 +1,178 @@
+<script lang="ts">
+	// Types/constants
+	import { browser } from '$app/environment'
+	import type { Erc20Token } from '$/constants/coins'
+	import type { TransferGraph } from '$/lib/transfers-indexer'
+	import { Canvas, T } from '@threlte/core'
+	import * as THREE from 'three'
+
+	function chainColor(chainId: number): number {
+		const hue = (chainId * 137.508) % 360
+		return new THREE.Color().setHSL(hue / 360, 0.7, 0.5).getHex()
+	}
+
+	// Props
+	let {
+		coin,
+		graph,
+		period,
+		periods,
+	}: {
+		coin: Erc20Token
+		graph: TransferGraph
+		period: string
+		periods: readonly { value: string; label: string; ms: number }[]
+	} = $props()
+
+	// (Derived) layout: nodes in circle, edge geometry
+	const radius = 8
+	const nodePositionByAddress = $derived(
+		(() => {
+			const nodes = graph.nodes
+			const nodeCount = nodes.length
+			return new Map(
+				nodes.map((n, i) => {
+					const angle = (2 * Math.PI * i) / (nodeCount || 1)
+					return [
+						n.address,
+						new THREE.Vector3(
+							radius * Math.cos(angle),
+							radius * Math.sin(angle),
+							0,
+						),
+					]
+				}),
+			)
+		})(),
+	)
+	const edgeGeometry = $derived(
+		(() => {
+			const geom = new THREE.BufferGeometry()
+			if (graph.edges.length === 0) return geom
+			const positions = new Float32Array(graph.edges.length * 2 * 3)
+			let idx = 0
+			for (const e of graph.edges) {
+				const from = nodePositionByAddress.get(e.fromAddress)
+				const to = nodePositionByAddress.get(e.toAddress)
+				if (from && to) {
+					positions[idx++] = from.x
+					positions[idx++] = from.y
+					positions[idx++] = from.z
+					positions[idx++] = to.x
+					positions[idx++] = to.y
+					positions[idx++] = to.z
+				}
+			}
+			geom.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+			geom.computeBoundingSphere()
+			return geom
+		})(),
+	)
+</script>
+
+<div data-live-transfers>
+	<header data-transfers-header>
+		<h2>Live transfers – {coin.symbol}</h2>
+		<nav data-period-selector aria-label="Time period">
+			{#each periods as p}
+				<a
+					href="?period={p.value}"
+					data-period-link
+					data-active={period === p.value ? '' : undefined}
+				>
+					{p.label}
+				</a>
+			{/each}
+		</nav>
+	</header>
+
+	<div data-viz-container>
+		{#if browser}
+			<Canvas>
+				<T.PerspectiveCamera makeDefault position={[0, 0, 20]} />
+				<T.AmbientLight intensity={0.8} />
+				<T.DirectionalLight position={[10, 10, 10]} intensity={1} />
+
+				{#if graph.edges.length > 0}
+					<T.LineSegments args={[edgeGeometry, new THREE.LineBasicMaterial({ color: 0x666666 })]} />
+				{/if}
+
+				{#each graph.nodes as node (node.address)}
+					{@const pos = nodePositionByAddress.get(node.address)}
+					{#if pos}
+						<T.Mesh position={[pos.x, pos.y, pos.z]}>
+							<T.SphereGeometry args={[0.15, 12, 12]} />
+							<T.MeshBasicMaterial
+								color={node.chainIds[0] != null ? chainColor(node.chainIds[0]) : 0x888888}
+							/>
+						</T.Mesh>
+					{/if}
+				{/each}
+			</Canvas>
+		{:else}
+			<p data-transfers-loading>Loading visualization…</p>
+		{/if}
+	</div>
+
+	{#if graph.nodes.length === 0 && graph.edges.length === 0}
+		<p data-transfers-empty>No transfer data for this period.</p>
+	{:else}
+		<p data-transfers-summary>
+			{graph.nodes.length} actors, {graph.edges.length} flows
+		</p>
+	{/if}
+</div>
+
+<style>
+	[data-live-transfers] {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	[data-transfers-header] {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	[data-period-selector] {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	[data-period-link] {
+		padding: 0.25em 0.5em;
+		border-radius: 0.25em;
+		text-decoration: none;
+		background: var(--color-bg-subtle);
+		color: var(--color-text);
+	}
+
+	[data-period-link][data-active] {
+		background: var(--accent-backgroundColor);
+		color: var(--accent-color);
+	}
+
+	[data-viz-container] {
+		width: 100%;
+		height: 400px;
+		background: var(--color-bg-subtle);
+		border-radius: 0.5em;
+		overflow: hidden;
+	}
+
+	[data-viz-container] :global(canvas) {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+
+	[data-transfers-loading],
+	[data-transfers-empty],
+	[data-transfers-summary] {
+		font-size: 0.875em;
+		opacity: 0.8;
+	}
+</style>
