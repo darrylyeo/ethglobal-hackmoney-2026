@@ -24,7 +24,11 @@ test('after networks load, To chain dropdown lists Ethereum and OP Mainnet', asy
 }) => {
 	await page.goto('/')
 	await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 10_000 })
+	await page.getByLabel('From chain').click()
+	await page.getByTestId('option-Ethereum').waitFor({ state: 'visible', timeout: 5_000 })
+	await page.getByTestId('option-Ethereum').click()
 	await page.getByLabel('To chain').click()
-	await expect(page.getByTestId('option-Ethereum')).toBeVisible({ timeout: 5_000 })
-	await expect(page.getByTestId('option-OP Mainnet')).toBeVisible({ timeout: 5_000 })
+	const listbox = page.getByRole('listbox')
+	await expect(listbox.getByRole('option', { name: 'Ethereum' })).toBeVisible({ timeout: 5_000 })
+	await expect(listbox.getByRole('option', { name: 'OP Mainnet' })).toBeVisible({ timeout: 5_000 })
 })
