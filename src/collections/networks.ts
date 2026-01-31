@@ -4,7 +4,8 @@ import { networks } from '$/constants/networks'
 import type { Network } from '$/constants/networks'
 import { queryClient } from '$/lib/db/query-client'
 
-export type NetworkRow = Network & { $id: number }
+export type Network$id = number
+export type NetworkRow = Network & { $id: Network$id }
 
 export const normalizeNetwork = (entry: Network): NetworkRow => ({
 	...entry,
