@@ -1,6 +1,7 @@
 /**
- * Stub for bun:ffi when running under Deno/Node so @tevm/voltaire provider/main
- * bundles load. Only used when "bun:ffi" is mapped here via import map.
+ * Stub for bun:ffi when running under Deno so @tevm/voltaire (main/provider)
+ * can load in unit tests. Mapped in deno.json only. Not used by Playwright e2e
+ * (Node) or the app bundle (we use @tevm/voltaire/Abi and /Hex subpaths only).
  */
 const stub = Symbol('stub')
 export const FFIType = {
