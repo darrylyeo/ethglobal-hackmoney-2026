@@ -88,19 +88,22 @@ export const fetchActorCoinBalance = async (
 		isLoading: true,
 		error: null,
 	}
-	actorCoinsCollection.insert(placeholder)
+	actorCoinsCollection.utils.writeUpsert(placeholder)
 	try {
 		const rpcUrl = rpcUrls[chainId]
 		if (!rpcUrl) throw new Error(`No RPC URL for chain ${chainId}`)
-		const provider = createHttpProvider(rpcUrl)
-		const balance = await getErc20Balance(provider, coinAddress, address)
+		const balance = await getErc20Balance(
+			createHttpProvider(rpcUrl),
+			coinAddress,
+			address,
+		)
 		const result: ActorCoin = {
 			...placeholder,
 			balance,
 			balanceFormatted: formatBalance(balance, coinDecimals),
 			isLoading: false,
 		}
-		actorCoinsCollection.insert(result)
+		actorCoinsCollection.utils.writeUpsert(result)
 		return result
 	} catch (e) {
 		const result: ActorCoin = {
@@ -108,7 +111,7 @@ export const fetchActorCoinBalance = async (
 			isLoading: false,
 			error: e instanceof Error ? e.message : String(e),
 		}
-		actorCoinsCollection.insert(result)
+		actorCoinsCollection.utils.writeUpsert(result)
 		return result
 	}
 }

@@ -30,7 +30,7 @@ export const actorsCollection = createCollection(
 )
 
 export const insertActor = (actor: Actor) => {
-	actorsCollection.insert(actor)
+	actorsCollection.utils.writeUpsert(actor)
 }
 
 export const insertActorsForAddress = (
@@ -38,7 +38,7 @@ export const insertActorsForAddress = (
 	chainIds: number[],
 ) => {
 	for (const chainId of chainIds) {
-		actorsCollection.insert({
+		actorsCollection.utils.writeUpsert({
 			$id: { network: chainId, address },
 			chainId,
 			address,
