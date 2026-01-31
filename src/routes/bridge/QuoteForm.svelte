@@ -133,7 +133,16 @@
 			<label for='from-address'>From address</label>
 			<input id='from-address' type='text' autocomplete='off' value={fromAddress} readonly />
 		</div>
-		<Button.Root type='submit' disabled={loading || !canSubmit}>
+		<Button.Root
+			type='submit'
+			disabled={loading || !canSubmit}
+			aria-busy={loading || undefined}
+			aria-describedby={loading ? 'quote-loading-status' : undefined}
+		>
+			{#if loading}
+				<span aria-hidden='true'>⏳</span>
+				<span id='quote-loading-status' class='sr-only'>Loading, please wait</span>
+			{/if}
 			{loading ? 'Loading…' : 'Get Quote'}
 		</Button.Root>
 	</fieldset>

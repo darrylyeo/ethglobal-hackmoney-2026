@@ -65,8 +65,13 @@
 		<Button.Root
 			type='button'
 			disabled={execLoading}
+			aria-busy={execLoading || undefined}
+			aria-describedby={execLoading ? 'send-loading-status' : undefined}
 			onclick={onSendTransaction}
 		>
+			{#if execLoading}
+				<span id='send-loading-status' class='sr-only'>Sending transaction, please wait</span>
+			{/if}
 			{execLoading ? 'Sending…' : 'Send transaction'}
 		</Button.Root>
 	{:else}

@@ -17,6 +17,7 @@
 	import '$/styles/colors.css'
 	import '$/styles/fonts.css'
 	import '$/styles/components.css'
+	import '$/styles/accessibility.css'
 	import '$/styles/bits-ui.css'
 </script>
 
@@ -31,6 +32,7 @@
 	data-scroll-container
 	data-sticky-container
 >
+	<a href="#main-content" class="skip-link">Skip to main content</a>
 	<Navigation
 		navigationItems={[
 			{
@@ -56,17 +58,19 @@
 		]}
 	/>
 
-	<Boundary>
-		{@render children()}
+	<main id="main-content" tabindex="-1" data-scroll-container data-sticky-container>
+		<Boundary>
+			{@render children()}
 
 		{#snippet failed(error)}
-			<main data-column>
+			<div data-column>
 				<h2>{(error as unknown as Error).status}</h2>
 
 				<p>{(error as unknown as Error).message}</p>
-			</main>
+			</div>
 		{/snippet}
-	</Boundary>
+		</Boundary>
+	</main>
 </div>
 
 

@@ -33,6 +33,12 @@
 		balance !== null && amountSmallest > balance,
 	)
 	const isValid = $derived(isValidDecimalInput(value, decimals))
+	const hasError = $derived(exceedsBalance || (!isValid && value !== ''))
+	const describedBy = $derived(
+		id
+			? [id + '-hint', hasError ? id + '-error' : null].filter(Boolean).join(' ') || undefined
+			: undefined,
+	)
 
 	// Actions
 	const handleMax = () => {
@@ -53,6 +59,8 @@
 			type="text"
 			inputmode="decimal"
 			autocomplete="off"
+			aria-describedby={describedBy}
+			aria-invalid={hasError || undefined}
 			{disabled}
 			{value}
 			oninput={handleInput}
@@ -60,6 +68,9 @@
 		/>
 		<span data-amount-symbol>{symbol}</span>
 	</div>
+	{#if id}
+		<p id={id + '-hint'} class="sr-only">Enter the amount of USDC to bridge</p>
+	{/if}
 	{#if balanceFormatted !== null}
 		<div data-amount-balance>
 			<span>Balance: {balanceFormatted} {symbol}</span>
@@ -67,10 +78,9 @@
 		</div>
 	{/if}
 	{#if exceedsBalance}
-		<p data-amount-error role="alert">Insufficient balance</p>
-	{/if}
-	{#if !exceedsBalance && !isValid && value !== ''}
-		<p data-amount-error role="alert">Invalid amount</p>
+		<p id={id ? id + '-error' : undefined} data-amount-error role="alert">Insufficient balance</p>
+	{:else if !isValid && value !== ''}
+		<p id={id ? id + '-error' : undefined} data-amount-error role="alert">Invalid amount</p>
 	{/if}
 </div>
 

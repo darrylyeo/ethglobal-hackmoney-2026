@@ -152,7 +152,7 @@
 <WalletProvider>
 	{#snippet children(wallet)}
 		{@const _ = wallet.address ? fetchBalances(wallet) : (lastFetchedAddress = null)}
-		<main data-column='gap-6'>
+		<div data-column='gap-6'>
 			<h1>USDC Bridge</h1>
 
 			{#if wallet.address}
@@ -284,7 +284,7 @@
 			</section>
 
 			<ChainIdSection />
-		</main>
+		</div>
 	{/snippet}
 </WalletProvider>
 

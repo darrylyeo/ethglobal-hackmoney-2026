@@ -43,6 +43,7 @@
 				<button
 					type="button"
 					id="theme-toggle"
+					aria-label="Toggle light or dark theme"
 					data-stack
 					data-button="icon"
 					onclick={e => {
@@ -60,14 +61,14 @@
 						)
 					}}
 				>
-					<span>☀️</span>
-					<span>🌙</span>
+					<span aria-hidden="true">☀️</span>
+					<span aria-hidden="true">🌙</span>
 				</button>
 			</li>
 
 			<li>
-				<button type="button" id="menu-toggle" popovertarget="nav">
-					<span>☰</span>
+				<button type="button" id="menu-toggle" aria-label="Open menu" popovertarget="nav">
+					<span aria-hidden="true">☰</span>
 				</button>
 			</li>
 		</menu>

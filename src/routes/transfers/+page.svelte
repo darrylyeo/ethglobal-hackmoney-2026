@@ -13,7 +13,7 @@
 	<title>Transfers – USDC Tools</title>
 </svelte:head>
 
-<main data-column>
+<div data-column>
 	<svelte:boundary>
 		<LiveTransfers
 			coin={coin}
@@ -30,7 +30,7 @@
 			</div>
 		{/snippet}
 	</svelte:boundary>
-</main>
+</div>
 
 <style>
 	[data-transfers-error] {

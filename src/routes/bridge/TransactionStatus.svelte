@@ -23,6 +23,16 @@
 
 	const getStepStatus = (stepKey: TxStep) =>
 		status.steps.find((s) => s.step === stepKey)
+	const currentStepLabel = $derived(
+		status.overall === 'in_progress'
+			? (steps.find((s) => getStepStatus(s.key)?.state === 'in_progress')?.label ?? 'Processing')
+			: '',
+	)
+	const errorMessage = $derived(
+		status.overall === 'failed'
+			? (status.steps.find((s) => s.state === 'failed')?.error ?? 'Transaction failed')
+			: '',
+	)
 
 	let tick = $state(0)
 	$effect(() => {
@@ -40,6 +50,19 @@
 	)
 </script>
 
+<div
+	aria-live="polite"
+	aria-atomic="true"
+	class="sr-only"
+>
+	{#if status.overall === 'in_progress'}
+		Transaction in progress. {currentStepLabel}
+	{:else if status.overall === 'completed'}
+		Bridge complete. Tokens sent successfully.
+	{:else if status.overall === 'failed'}
+		Transaction failed. {errorMessage}
+	{/if}
+</div>
 {#if status.overall !== 'idle'}
 	<div data-tx-status data-status={status.overall}>
 		<ol data-tx-steps>

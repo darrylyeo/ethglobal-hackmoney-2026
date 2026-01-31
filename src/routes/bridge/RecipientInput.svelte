@@ -48,7 +48,11 @@
 
 <div data-recipient-input>
 	<div data-recipient-toggle>
-		<Switch.Root checked={useCustomRecipient} onCheckedChange={toggleCustom}>
+		<Switch.Root
+			checked={useCustomRecipient}
+			onCheckedChange={toggleCustom}
+			aria-label="Send to different address"
+		>
 			<Switch.Thumb />
 		</Switch.Root>
 		<span>Send to different address</span>
