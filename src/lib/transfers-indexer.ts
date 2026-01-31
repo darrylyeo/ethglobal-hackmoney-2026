@@ -161,3 +161,30 @@ export function periodToRange(periodMs: number): { start: number; end: number } 
 	const end = Date.now()
 	return { start: end - periodMs, end }
 }
+
+export type TransfersGraphResult = {
+	graph: TransferGraph
+	period: string
+	periods: typeof TIME_PERIODS
+}
+
+const FETCH_TIMEOUT_MS = 15_000
+
+export async function fetchTransfersGraph(
+	period: string,
+	apiKey: string,
+	chains: ChainContract[],
+): Promise<TransfersGraphResult> {
+	const periodDef = TIME_PERIODS.find((p) => p.value === period) ?? TIME_PERIODS[3]
+	const { start, end } = periodToRange(periodDef.ms)
+	const fetchTransfers =
+		apiKey.length > 0
+			? () => fetchAllTransfers(chains, start, end, apiKey)
+			: () => Promise.resolve([])
+	const timeout = new Promise<never>((_, reject) =>
+		setTimeout(() => reject(new Error('Transfers load timed out')), FETCH_TIMEOUT_MS),
+	)
+	const transfers = await Promise.race([fetchTransfers(), timeout]).catch(() => [])
+	const graph = buildGraph(transfers)
+	return { graph, period: periodDef.value, periods: TIME_PERIODS }
+}
