@@ -29,3 +29,37 @@ export function formatInteger(value: string | number, locale?: string): string {
 		Number(value),
 	)
 }
+
+export const parseDecimalToSmallest = (
+	value: string,
+	decimals: number,
+): bigint => {
+	const cleaned = value.replace(/[,\s]/g, '')
+	if (!/^\d*\.?\d*$/.test(cleaned) || cleaned === '') return 0n
+	const [integer = '0', fraction = ''] = cleaned.split('.')
+	const paddedFraction = fraction.padEnd(decimals, '0').slice(0, decimals)
+	return BigInt((integer || '0') + paddedFraction)
+}
+
+export const formatSmallestToDecimal = (
+	value: bigint | string,
+	decimals: number,
+	maxFractionDigits?: number,
+): string => {
+	const str = typeof value === 'string' ? value : value.toString()
+	if (str === '0') return '0'
+	const padded = str.padStart(decimals + 1, '0')
+	const intPart = padded.slice(0, -decimals) || '0'
+	let fracPart = padded.slice(-decimals).replace(/0+$/, '')
+	if (maxFractionDigits !== undefined && fracPart.length > maxFractionDigits) {
+		fracPart = fracPart.slice(0, maxFractionDigits)
+	}
+	return fracPart === '' ? intPart : `${intPart}.${fracPart}`
+}
+
+export const isValidDecimalInput = (value: string, decimals: number): boolean => {
+	const cleaned = value.replace(/[,\s]/g, '')
+	if (!/^\d*\.?\d*$/.test(cleaned)) return false
+	const [, fraction = ''] = cleaned.split('.')
+	return fraction.length <= decimals
+}

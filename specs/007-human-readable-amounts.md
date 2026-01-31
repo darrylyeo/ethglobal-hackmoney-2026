@@ -186,29 +186,29 @@ Deno.test('isValidDecimalInput validates correctly', () => {
 ## Acceptance criteria
 
 ### Format functions
-- [ ] `parseDecimalToSmallest('100.5', 6)` returns `100500000n`
-- [ ] `parseDecimalToSmallest('1,000.50', 6)` returns `1000500000n`
-- [ ] `parseDecimalToSmallest('', 6)` returns `0n`
-- [ ] `formatSmallestToDecimal(100500000n, 6)` returns `'100.5'`
-- [ ] `formatSmallestToDecimal(1n, 6)` returns `'0.000001'`
-- [ ] `isValidDecimalInput('100.1234567', 6)` returns `false`
+- [x] `parseDecimalToSmallest('100.5', 6)` returns `100500000n`
+- [x] `parseDecimalToSmallest('1,000.50', 6)` returns `1000500000n`
+- [x] `parseDecimalToSmallest('', 6)` returns `0n`
+- [x] `formatSmallestToDecimal(100500000n, 6)` returns `'100.5'`
+- [x] `formatSmallestToDecimal(1n, 6)` returns `'0.000001'`
+- [x] `isValidDecimalInput('100.1234567', 6)` returns `false`
 
 ### AmountInput component
-- [ ] Accepts decimal values (e.g., `50.25`)
-- [ ] Shows balance when provided
-- [ ] "Max" button fills input with formatted balance
-- [ ] Insufficient balance shows error message
-- [ ] Invalid input (letters, too many decimals) shows error
-- [ ] Strips commas on paste
+- [x] Accepts decimal values (e.g., `50.25`)
+- [x] Shows balance when provided
+- [x] "Max" button fills input with formatted balance
+- [x] Insufficient balance shows error message
+- [x] Invalid input (letters, too many decimals) shows error
+- [x] Strips commas on paste
 
 ### Integration
-- [ ] QuoteForm uses AmountInput component
-- [ ] Quote API receives correct smallest-unit value
-- [ ] Submit disabled when amount invalid or exceeds balance
+- [x] QuoteForm uses AmountInput component
+- [x] Quote API receives correct smallest-unit value
+- [x] Submit disabled when amount invalid or exceeds balance
 
 ## Status
 
-Not started.
+Complete. format.ts helpers, AmountInput.svelte, QuoteForm integration, format.spec.ts; default amount 1 USDC.
 
 ## Output when complete
 

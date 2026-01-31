@@ -16,7 +16,10 @@
 		USDC_MAX_AMOUNT,
 	} from '$/constants/bridge-limits'
 	import { categorizeError, ErrorCode, isBridgeError } from '$/lib/errors'
-	import { formatTokenAmount } from '$/lib/format'
+	import {
+		formatTokenAmount,
+		parseDecimalToSmallest,
+	} from '$/lib/format'
 
 	// Components
 	import ChainIdSection from './ChainIdSection.svelte'
@@ -53,7 +56,7 @@
 
 	let fromChain = $state(String(1))
 	let toChain = $state(String(10))
-	let amount = $state('1000000')
+	let amount = $state('1')
 	let recipient = $state<`0x${string}`>(
 		'0x0000000000000000000000000000000000000000' as `0x${string}`,
 	)
@@ -83,7 +86,7 @@
 			quote = await fetchQuoteCached({
 				fromChain: Number(fromChain),
 				toChain: Number(toChain),
-				fromAmount: amount,
+				fromAmount: parseDecimalToSmallest(amount, 6).toString(),
 				fromAddress: wallet.address,
 				toAddress: recipient,
 			})
@@ -100,12 +103,12 @@
 		execTxHashes = []
 		execLoading = true
 		try {
-			const route = await executeQuote(
+			const route = await 			executeQuote(
 				wallet.connectedDetail,
 				{
 					fromChain: Number(fromChain),
 					toChain: Number(toChain),
-					fromAmount: amount,
+					fromAmount: parseDecimalToSmallest(amount, 6).toString(),
 					fromAddress: wallet.address,
 					toAddress: recipient,
 				},
@@ -177,12 +180,19 @@
 					{:else if networksQuery.isLoading}
 						<p>Loading networks…</p>
 					{:else}
+						{@const sourceBalance = actorCoins.find(
+							(ac) =>
+								ac.address === wallet.address &&
+								ac.chainId === Number(fromChain) &&
+								ac.coinSymbol === 'USDC',
+						)?.balance ?? null}
 						<QuoteForm
 							{networkItems}
 							bind:fromChain
 							bind:toChain
 							bind:amount
 							fromAddress={wallet.address}
+							balance={sourceBalance}
 							loading={quoteLoading}
 							onSubmit={() => getQuote(wallet)}
 						/>

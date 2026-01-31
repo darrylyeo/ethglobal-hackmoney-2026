@@ -6,14 +6,19 @@
 		USDC_MIN_AMOUNT,
 		USDC_MAX_AMOUNT,
 	} from '$/constants/bridge-limits'
+	import { parseDecimalToSmallest, isValidDecimalInput } from '$/lib/format'
+
+	// Components
+	import AmountInput from './AmountInput.svelte'
 
 	// Props
 	let {
 		networkItems,
 		fromChain = $bindable('1'),
 		toChain = $bindable('10'),
-		amount = $bindable('1000000'),
+		amount = $bindable('1'),
 		fromAddress,
+		balance = null,
 		loading = false,
 		onSubmit,
 	}: {
@@ -22,23 +27,23 @@
 		toChain?: string
 		amount?: string
 		fromAddress: string
+		balance?: bigint | null
 		loading?: boolean
 		onSubmit: () => void
 	} = $props()
 
+	// (Derived)
+	const amountSmallest = $derived(parseDecimalToSmallest(amount, 6))
 	const amountValidation = $derived(
-		(() => {
-			const trimmed = amount.trim()
-			if (trimmed === '') return { isValid: false as const, error: 'invalid' as const }
-			try {
-				const n = BigInt(trimmed)
-				return n < 0n
-					? { isValid: false as const, error: 'invalid' as const }
-					: validateBridgeAmount(n, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT)
-			} catch {
-				return { isValid: false as const, error: 'invalid' as const }
-			}
-		})(),
+		!isValidDecimalInput(amount, 6)
+			? { isValid: false as const, error: 'invalid' as const }
+			: validateBridgeAmount(amountSmallest, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT),
+	)
+	const exceedsBalance = $derived(
+		balance !== null && amountSmallest > balance,
+	)
+	const canSubmit = $derived(
+		amountValidation.isValid && !exceedsBalance,
 	)
 </script>
 
@@ -47,13 +52,13 @@
 	data-column='gap-4'
 	onsubmit={(e) => {
 		e.preventDefault()
-		if (!amountValidation.isValid) return
+		if (!canSubmit) return
 		onSubmit()
 	}}
 >
 	<fieldset data-column='gap-4' aria-describedby='quote-desc'>
 		<legend class='sr-only'>Quote parameters</legend>
-		<p id='quote-desc' class='sr-only'>Source and destination chain, amount in smallest units, and sender address.</p>
+		<p id='quote-desc' class='sr-only'>Source and destination chain, amount, and sender address.</p>
 		<div data-row='gap-4'>
 			<div data-column='gap-2'>
 				<label for='from-chain'>From chain</label>
@@ -105,17 +110,22 @@
 			</div>
 		</div>
 		<div data-column='gap-2'>
-			<label for='amount'>Amount (smallest units)</label>
-			<input id='amount' type='text' inputmode='numeric' autocomplete='off' bind:value={amount} />
-			{#if !amountValidation.isValid}
+			<label for='amount'>Amount</label>
+			<AmountInput
+				id='amount'
+				bind:value={amount}
+				decimals={6}
+				{balance}
+				symbol='USDC'
+				disabled={loading}
+			/>
+			{#if amountValidation.error === 'too_low'}
 				<p data-amount-validation-error role='alert'>
-					{#if amountValidation.error === 'too_low'}
-						Minimum amount is {amountValidation.minAmount} USDC
-					{:else if amountValidation.error === 'too_high'}
-						Maximum amount is {amountValidation.maxAmount} USDC
-					{:else}
-						Enter a valid amount
-					{/if}
+					Minimum amount is {amountValidation.minAmount} USDC
+				</p>
+			{:else if amountValidation.error === 'too_high'}
+				<p data-amount-validation-error role='alert'>
+					Maximum amount is {amountValidation.maxAmount} USDC
 				</p>
 			{/if}
 		</div>
@@ -123,7 +133,7 @@
 			<label for='from-address'>From address</label>
 			<input id='from-address' type='text' autocomplete='off' value={fromAddress} readonly />
 		</div>
-		<Button.Root type='submit' disabled={loading || !amountValidation.isValid}>
+		<Button.Root type='submit' disabled={loading || !canSubmit}>
 			{loading ? 'Loading…' : 'Get Quote'}
 		</Button.Root>
 	</fieldset>
