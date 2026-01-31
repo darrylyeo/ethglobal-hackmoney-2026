@@ -4,6 +4,8 @@
 	import type { LiFiStep } from '@lifi/sdk'
 	import type { WalletState } from '$/lib/wallet'
 	import type { BridgeError } from '$/lib/errors'
+	import { NetworkType } from '$/constants/networks'
+	import { createWalletState } from '$/lib/wallet'
 
 	// Functions
 	import { useLiveQuery } from '@tanstack/svelte-db'
@@ -39,6 +41,7 @@
 	import WalletProvider from './WalletProvider.svelte'
 
 	// State
+	let walletState = $state<WalletState | null>(null)
 	const networksQuery = useLiveQuery((q) =>
 		q
 			.from({ network: networksCollection })
@@ -48,8 +51,15 @@
 	const networks = $derived(
 		(networksQuery.data ?? []).map((row) => row.network),
 	)
-	const networkItems = $derived(
-		networks.map((n) => ({ value: String(n.id), label: n.name })),
+	const filteredNetworks = $derived(
+		networks.filter((n) =>
+			(walletState ?? createWalletState()).isTestnet
+				? n.type === NetworkType.Testnet
+				: n.type === NetworkType.Mainnet,
+		),
+	)
+	const filteredNetworkItems = $derived(
+		filteredNetworks.map((n) => ({ value: String(n.id), label: n.name })),
 	)
 
 	const actorCoinsQuery = useLiveQuery((q) =>
@@ -79,6 +89,7 @@
 	let execTxHashes = $state<string[]>([])
 	let bridgeStatus = $state(createInitialStatus())
 	let lastFetchedAddress = $state<string | null>(null)
+	let lastFetchedChainKey = $state<string | null>(null)
 	let approvalComplete = $state(false)
 
 	const approvalAddress = $derived(
@@ -99,11 +110,29 @@
 		approvalComplete = false
 	})
 
+	$effect(() => {
+		const filtered = filteredNetworks
+		if (filtered.length === 0) return
+		const ids = new Set(filtered.map((n) => String(n.id)))
+		if (!ids.has(fromChain)) fromChain = String(filtered[0].id)
+		const toId = filtered.find((n) => String(n.id) !== fromChain)?.id ?? filtered[0].id
+		if (!ids.has(toChain)) toChain = String(toId)
+	})
+
 	// Actions
-	const fetchBalances = async (wallet: WalletState) => {
-		if (!wallet.address || lastFetchedAddress === wallet.address) return
+	const fetchBalances = async (
+		wallet: WalletState,
+		chainIds: number[],
+	) => {
+		const chainKey = [...chainIds].sort((a, b) => a - b).join(',')
+		if (
+			!wallet.address ||
+			(lastFetchedAddress === wallet.address && lastFetchedChainKey === chainKey)
+		)
+			return
 		lastFetchedAddress = wallet.address
-		await fetchAllBalancesForAddress(wallet.address)
+		lastFetchedChainKey = chainKey
+		await fetchAllBalancesForAddress(wallet.address, chainIds)
 	}
 
 	const getQuote = async (wallet: WalletState) => {
@@ -170,20 +199,23 @@
 	<title>USDC Bridge</title>
 </svelte:head>
 
-<WalletProvider>
+<WalletProvider onStateChange={(s) => (walletState = s)}>
 	{#snippet children(wallet)}
-		{@const _ = wallet.address ? fetchBalances(wallet) : (lastFetchedAddress = null)}
+		{@const filteredIds = new Set(filteredNetworks.map((n) => n.id))}
+		{@const _ = wallet.address
+			? fetchBalances(wallet, filteredNetworks.map((n) => n.id))
+			: (lastFetchedAddress = null) || (lastFetchedChainKey = null)}
 		<div data-column='gap-6'>
 			<h1>USDC Bridge</h1>
 
 			{#if wallet.address}
 				<section data-card data-column='gap-4' aria-labelledby='balances-heading'>
 					<h2 id='balances-heading'>Your USDC Balances</h2>
-					{#if actorCoins.length === 0}
+					{#if actorCoins.filter((ac) => ac.address === wallet.address && filteredIds.has(ac.chainId)).length === 0}
 						<p>Loading balances…</p>
 					{:else}
 						<div data-balances-grid>
-							{#each actorCoins.filter((ac) => ac.address === wallet.address) as ac (`${ac.chainId}-${ac.address}-${ac.coinAddress}`)}
+							{#each actorCoins.filter((ac) => ac.address === wallet.address && filteredIds.has(ac.chainId)) as ac (`${ac.chainId}-${ac.address}-${ac.coinAddress}`)}
 								{@const network = networks.find((n) => n.id === ac.chainId)}
 								<div data-balance-item data-loading={ac.isLoading ? '' : undefined}>
 									<span data-balance-network>{network?.name ?? `Chain ${ac.chainId}`}</span>
@@ -218,7 +250,7 @@
 								ac.coinSymbol === 'USDC',
 						)?.balance ?? null}
 						<QuoteForm
-							{networkItems}
+							networkItems={filteredNetworkItems}
 							bind:fromChain
 							bind:toChain
 							bind:amount

@@ -53,16 +53,16 @@ When testnet/mainnet changes:
 
 ## Acceptance criteria
 
-- [ ] Mainnet mode shows only mainnet chains in dropdowns
-- [ ] Testnet mode shows only testnet chains in dropdowns
-- [ ] Balances grid shows only chains matching toggle
-- [ ] Chain selection resets if current chain not in filtered list
-- [ ] Toggle preference persists across page reloads
-- [ ] Default to Mainnet if no preference stored
+- [x] Mainnet mode shows only mainnet chains in dropdowns
+- [x] Testnet mode shows only testnet chains in dropdowns
+- [x] Balances grid shows only chains matching toggle
+- [x] Chain selection resets if current chain not in filtered list
+- [x] Toggle preference persists across page reloads
+- [x] Default to Mainnet if no preference stored
 
 ## Status
 
-Not started.
+Complete. WalletProvider: STORAGE_KEY_IS_TESTNET, restore isTestnet from localStorage once on init (hasRestoredTestnet), save on toggleTestnet. Bridge page: getContext('wallet'), filteredNetworks/filteredNetworkItems by wallet.isTestnet and NetworkType, $effect resets fromChain/toChain when not in filtered list, fetchBalances(wallet, chainIds) with lastFetchedChainKey so refetch on filter change, balances grid and QuoteForm use filtered list.
 
 ## Output when complete
 

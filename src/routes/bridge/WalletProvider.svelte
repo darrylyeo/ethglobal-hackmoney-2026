@@ -3,6 +3,8 @@
 	import type { Snippet } from 'svelte'
 	import type { ProviderDetailType, WalletState } from '$/lib/wallet'
 
+	const STORAGE_KEY_IS_TESTNET = 'bridge-is-testnet'
+
 	// Context
 	import { setContext } from 'svelte'
 
@@ -19,14 +21,28 @@
 	// Props
 	let {
 		children,
+		onStateChange,
 	}: {
 		children: Snippet<[WalletState]>
+		onStateChange?: (state: WalletState) => void
 	} = $props()
 
 	// State
 	let state = $state<WalletState>(
 		createWalletState(),
 	)
+	let hasRestoredTestnet = $state(false)
+
+	$effect(() => {
+		if (typeof window === 'undefined' || hasRestoredTestnet) return
+		hasRestoredTestnet = true
+		const stored = localStorage.getItem(STORAGE_KEY_IS_TESTNET)
+		state.isTestnet = stored === 'true'
+	})
+
+	$effect(() => {
+		onStateChange?.(state)
+	})
 
 	$effect(() => {
 		if (typeof window === 'undefined') return
@@ -74,6 +90,7 @@
 
 	const toggleTestnet = (checked: boolean) => {
 		state.isTestnet = checked
+		localStorage.setItem(STORAGE_KEY_IS_TESTNET, String(checked))
 	}
 </script>
 
