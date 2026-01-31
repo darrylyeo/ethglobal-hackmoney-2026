@@ -33,6 +33,7 @@
 	import ApprovalButton from './ApprovalButton.svelte'
 	import ChainIdSection from './ChainIdSection.svelte'
 	import ChainSwitchPrompt from './ChainSwitchPrompt.svelte'
+	import ConfirmationDialog from './ConfirmationDialog.svelte'
 	import ErrorDisplay from './ErrorDisplay.svelte'
 	import QuoteForm from './QuoteForm.svelte'
 	import QuoteOutput from './QuoteOutput.svelte'
@@ -91,6 +92,8 @@
 	let lastFetchedAddress = $state<string | null>(null)
 	let lastFetchedChainKey = $state<string | null>(null)
 	let approvalComplete = $state(false)
+	let showConfirmation = $state(false)
+	const defaultSlippage = 0.005
 
 	const approvalAddress = $derived(
 		(quoteStep as { estimate?: { approvalAddress?: string } } | null)?.estimate
@@ -316,7 +319,9 @@
 									execRetryAttempt={execRetryAttempt}
 									execTxHashes={execTxHashes}
 									showSendButton={showSendButton}
-									onSendTransaction={() => sendTransaction(wallet)}
+									onSendTransaction={() => {
+										showConfirmation = true
+									}}
 									onDismissExecError={() => {
 										execError = null
 									}}
@@ -325,6 +330,21 @@
 										sendTransaction(wallet)
 									}}
 								/>
+								{#if wallet.address}
+									<ConfirmationDialog
+										bind:open={showConfirmation}
+										{quote}
+										{quoteStep}
+										fromChainId={Number(fromChain)}
+										toChainId={Number(toChain)}
+										fromAmount={parseDecimalToSmallest(amount, 6).toString()}
+										fromAddress={wallet.address}
+										toAddress={recipient}
+										slippage={defaultSlippage}
+										onConfirm={() => sendTransaction(wallet)}
+										onCancel={() => {}}
+									/>
+								{/if}
 								{#if needsApprovalCheck && !approvalComplete && wallet.connectedDetail && wallet.address}
 									<ApprovalButton
 										chainId={Number(fromChain)}
