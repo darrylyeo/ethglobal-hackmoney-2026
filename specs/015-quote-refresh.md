@@ -159,26 +159,26 @@ $effect(() => {
 ## Acceptance criteria
 
 ### Expiration tracking
-- [ ] Quote fetchedAt timestamp stored when quote received
-- [ ] expiresAt calculated as fetchedAt + 60 seconds
-- [ ] isExpired derived from current time vs expiresAt
+- [x] Quote fetchedAt timestamp stored when quote received
+- [x] expiresAt calculated as fetchedAt + 60 seconds
+- [x] isExpired derived from current time vs expiresAt
 
 ### QuoteExpiration component
-- [ ] Shows countdown "Quote valid for Xs"
-- [ ] Warning style at 15 seconds remaining
-- [ ] "Quote expired" message when expired
-- [ ] Refresh button triggers new quote fetch
-- [ ] Refresh button disabled while loading
+- [x] Shows countdown "Quote valid for Xs"
+- [x] Warning style at 15 seconds remaining
+- [x] "Quote expired" message when expired
+- [x] Refresh button triggers new quote fetch
+- [x] Refresh button disabled while loading
 
 ### Integration
-- [ ] Bridge button disabled when quote expired
-- [ ] Expired quote shows prompt to refresh
-- [ ] New quote fetch updates fetchedAt
+- [x] Bridge button disabled when quote expired
+- [x] Expired quote shows prompt to refresh
+- [x] New quote fetch updates fetchedAt
 - [ ] Auto-refresh toggle available (optional)
 
 ## Status
 
-Not started.
+Complete. Bridge page: routesFetchedAt, quoteNow, routesExpiresAt, quoteIsExpired; getRoutes sets routesFetchedAt on success and clears on start; $effect ticks quoteNow every second when routesFetchedAt set. QuoteExpiration.svelte: countdown, warning at 15s, expired message, Refresh button. QuoteOutput: quoteExpired prop disables Send button. Optional auto-refresh not implemented.
 
 ## Output when complete
 

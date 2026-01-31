@@ -45,6 +45,7 @@
 	import RecipientInput from './RecipientInput.svelte'
 	import RouteList from './RouteList.svelte'
 	import TransactionHistory from './TransactionHistory.svelte'
+	import QuoteExpiration from './QuoteExpiration.svelte'
 	import TransactionStatus from './TransactionStatus.svelte'
 	import WalletProvider from './WalletProvider.svelte'
 
@@ -101,7 +102,24 @@
 	let lastFetchedChainKey = $state<string | null>(null)
 	let approvalComplete = $state(false)
 	let showConfirmation = $state(false)
+	let routesFetchedAt = $state<number | null>(null)
+	let quoteNow = $state(Date.now())
 	const defaultSlippage = 0.005
+	const QUOTE_VALIDITY_MS = 60_000
+	const routesExpiresAt = $derived(
+		routesFetchedAt !== null ? routesFetchedAt + QUOTE_VALIDITY_MS : null,
+	)
+	const quoteIsExpired = $derived(
+		routesExpiresAt !== null && quoteNow > routesExpiresAt,
+	)
+
+	$effect(() => {
+		if (routesFetchedAt === null) return
+		const interval = setInterval(() => {
+			quoteNow = Date.now()
+		}, 1000)
+		return () => clearInterval(interval)
+	})
 
 	const sortedRoutes = $derived(
 		[...routes].sort((a, b) => {
@@ -169,6 +187,7 @@
 		routesError = null
 		routes = []
 		selectedRouteId = null
+		routesFetchedAt = null
 		routesLoading = true
 		try {
 			const list = await getRoutesForUsdcBridge({
@@ -180,6 +199,7 @@
 				slippage: defaultSlippage,
 			})
 			routes = list
+			routesFetchedAt = Date.now()
 		} catch (e) {
 			routesError = isBridgeError(e) ? e : categorizeError(e)
 		} finally {
@@ -464,6 +484,13 @@
 									Min: {formatTokenAmount(String(minDisplay), 6)} USDC
 									Max: {formatTokenAmount(String(maxDisplay), 6)} USDC
 								</p>
+								{#if routesExpiresAt !== null}
+									<QuoteExpiration
+										expiresAt={routesExpiresAt}
+										onRefresh={() => getRoutes(wallet)}
+										isRefreshing={routesLoading}
+									/>
+								{/if}
 								<QuoteOutput
 									route={selectedRoute}
 									connectedDetail={wallet.connectedDetail}
@@ -472,6 +499,7 @@
 									execRetryAttempt={execRetryAttempt}
 									execTxHashes={execTxHashes}
 									showSendButton={showSendButton}
+									quoteExpired={quoteIsExpired}
 									onSendTransaction={() => {
 										showConfirmation = true
 									}}

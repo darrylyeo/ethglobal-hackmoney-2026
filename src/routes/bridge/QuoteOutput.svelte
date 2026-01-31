@@ -25,6 +25,7 @@
 		execRetryAttempt = 1,
 		execTxHashes = [],
 		showSendButton = true,
+		quoteExpired = false,
 		onSendTransaction,
 		onDismissExecError,
 		onRetryExec,
@@ -38,6 +39,7 @@
 		execRetryAttempt?: number
 		execTxHashes?: string[]
 		showSendButton?: boolean
+		quoteExpired?: boolean
 		onSendTransaction: () => void
 		onDismissExecError?: () => void
 		onRetryExec?: () => void
@@ -83,7 +85,7 @@
 		{#if showSendButton}
 			<Button.Root
 				type='button'
-				disabled={execLoading}
+				disabled={execLoading || quoteExpired}
 				aria-busy={execLoading || undefined}
 				aria-describedby={execLoading ? 'send-loading-status' : undefined}
 				onclick={onSendTransaction}
