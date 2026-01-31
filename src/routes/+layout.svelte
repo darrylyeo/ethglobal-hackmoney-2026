@@ -2,6 +2,16 @@
 	// Props
 	let { children } = $props()
 
+	// State
+	import { networkStatus } from '$/lib/network-status.svelte'
+	import { networks } from '$/constants/networks'
+
+	// (Derived)
+	$effect(() => {
+		const chainIds = networks.map((n) => n.id)
+		networkStatus.start(chainIds)
+		return () => networkStatus.stop()
+	})
 
 	// Components
 	import Boundary from '$/components/Boundary.svelte'

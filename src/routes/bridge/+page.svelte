@@ -24,6 +24,8 @@
 		USDC_MAX_AMOUNT,
 	} from '$/constants/bridge-limits'
 	import { getTxUrl } from '$/constants/explorers'
+	import { networksByChainId } from '$/constants/networks'
+	import { networkStatus } from '$/lib/network-status.svelte'
 	import { categorizeError, ErrorCode, isBridgeError } from '$/lib/errors'
 	import { toasts } from '$/lib/toast.svelte'
 	import {
@@ -316,6 +318,16 @@
 									toChainId={Number(toChain)}
 									bind:recipient
 								/>
+								{@const fromChainStatus = networkStatus.getChainStatus(Number(fromChain))}
+								{#if fromChainStatus?.status === 'degraded'}
+									<p data-chain-warning role="alert">
+										⚠️ {networksByChainId[Number(fromChain)]?.name ?? `Chain ${fromChain}`} is experiencing delays
+									</p>
+								{:else if fromChainStatus?.status === 'down'}
+									<p data-chain-error role="alert">
+										⛔ {networksByChainId[Number(fromChain)]?.name ?? `Chain ${fromChain}`} is currently unavailable
+									</p>
+								{/if}
 							{/if}
 							{#if routesError?.code === ErrorCode.NO_ROUTES}
 								<div data-no-routes>
