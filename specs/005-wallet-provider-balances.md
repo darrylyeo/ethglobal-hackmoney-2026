@@ -105,11 +105,11 @@ type ActorCoin = {
 
 ### E2E tests
 
-- [x] Test: Network toggle switches between Mainnet/Testnet label
-- [x] Test: Connect wallet button opens popover
-- [x] Test: After connection, address displays in header (manual / skipped in CI)
-- [x] Test: Disconnect button clears connection (manual / skipped in CI)
-- [x] Test: Balances section appears after connection (manual / skipped in CI)
+- [ ] Test: Network toggle switches between Mainnet/Testnet label
+- [ ] Test: Connect wallet button opens popover
+- [ ] Test: After connection, address displays in header (manual / skipped in CI)
+- [ ] Test: Disconnect button clears connection (manual / skipped in CI)
+- [ ] Test: Balances section appears after connection (manual / skipped in CI)
 
 ## Testing approach
 
