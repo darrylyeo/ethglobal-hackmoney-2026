@@ -10,7 +10,11 @@
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { Button } from 'bits-ui'
 	import { networksCollection } from '$/collections/networks'
-	import { actorCoinsCollection, fetchAllBalancesForAddress } from '$/collections/actor-coins'
+	import {
+		actorCoinsCollection,
+		fetchAllBalancesForAddress,
+	} from '$/collections/actor-coins'
+	import { queryClient } from '$/lib/db/query-client'
 	import {
 		executeSelectedRoute,
 		getRoutesForUsdcBridge,
@@ -119,6 +123,11 @@
 			quoteNow = Date.now()
 		}, 1000)
 		return () => clearInterval(interval)
+	})
+
+	$effect(() => {
+		if (walletState?.address) return
+		queryClient.removeQueries({ queryKey: ['actorCoins'] })
 	})
 
 	const sortedRoutes = $derived(

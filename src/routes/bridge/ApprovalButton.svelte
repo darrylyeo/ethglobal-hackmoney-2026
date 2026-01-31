@@ -118,6 +118,15 @@
 				</Switch.Root>
 				<span>Unlimited approval</span>
 			</div>
+			{#if unlimited}
+				<div data-security-warning role="alert">
+					<strong>⚠️ Unlimited approval</strong>
+					<p>
+						This allows the contract to spend any amount of your USDC.
+						Consider using exact amount approval for better security.
+					</p>
+				</div>
+			{/if}
 			<Button.Root type="button" onclick={approve}>
 				Approve USDC
 			</Button.Root>

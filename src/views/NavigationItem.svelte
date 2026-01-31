@@ -72,6 +72,15 @@
 		|| (item.children?.some((child) => matchesSearch(child, query)) ?? false)
 	)
 
+	const escapeHtml = (s: string) => (
+		s
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;')
+	)
+
 	const highlightText = (text: string, query: string) => {
 		const ranges = fuzzyMatch(text, query)
 
@@ -79,14 +88,14 @@
 			ranges ?
 				[
 					...ranges.flatMap(([start, end], i, arr) => [
-						text.slice(arr[i - 1]?.[1] ?? 0, start),
-						`<mark>${text.slice(start, end)}</mark>`,
+						escapeHtml(text.slice(arr[i - 1]?.[1] ?? 0, start)),
+						`<mark>${escapeHtml(text.slice(start, end))}</mark>`,
 					]),
-					text.slice(ranges.at(-1)?.[1] ?? 0),
+					escapeHtml(text.slice(ranges.at(-1)?.[1] ?? 0)),
 				]
 					.join('')
 			:
-				text
+				escapeHtml(text)
 		)
 	}
 </script>
@@ -195,21 +204,21 @@
 			aria-current={currentPathname === item.href ? 'page' : undefined}
 			{...item.href.startsWith('http') && {
 				target: '_blank',
-				rel: 'noreferrer',
+				rel: 'noopener noreferrer',
 			}}
 		>
 			{#if item.icon}
-				<span class="icon">{@html item.icon}</span>
+				<span class="icon">{@html escapeHtml(item.icon)}</span>
 			{/if}
 
-			<span>{@html effectiveSearchValue ? highlightText(item.title, effectiveSearchValue) : item.title}</span>
+			<span>{@html effectiveSearchValue ? highlightText(item.title, effectiveSearchValue) : escapeHtml(item.title)}</span>
 		</a>
 	{:else}
 		{#if item.icon}
-			<span class="icon">{@html item.icon}</span>
+			<span class="icon">{@html escapeHtml(item.icon)}</span>
 		{/if}
 
-		<span>{@html effectiveSearchValue ? highlightText(item.title, effectiveSearchValue) : item.title}</span>
+		<span>{@html effectiveSearchValue ? highlightText(item.title, effectiveSearchValue) : escapeHtml(item.title)}</span>
 	{/if}
 {/snippet}
 
