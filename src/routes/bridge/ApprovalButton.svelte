@@ -34,7 +34,7 @@
 	} = $props()
 
 	// State
-	let state = $state<ApprovalState>('unknown')
+	let _state = $state<ApprovalState>('unknown')
 	let error = $state<string | null>(null)
 	let txHash = $state<`0x${string}` | null>(null)
 	let unlimited = $state(false)
@@ -42,7 +42,7 @@
 	// (Derived)
 	$effect(() => {
 		void (chainId && tokenAddress && spenderAddress && walletAddress && (() => {
-			state = 'checking'
+			_state = 'checking'
 			error = null
 			checkApproval(
 				chainId,
@@ -51,7 +51,7 @@
 				spenderAddress,
 				amount,
 			).then((result) => {
-				state = result.state
+				_state = result.state
 				error = result.error ?? null
 				if (result.state === 'approved') onApproved()
 			})
@@ -60,7 +60,7 @@
 
 	// Actions
 	const approve = async () => {
-		state = 'approving'
+		_state = 'approving'
 		error = null
 		try {
 			const hash = await sendApproval(
@@ -74,20 +74,20 @@
 			txHash = hash
 			const success = await waitForApprovalConfirmation(chainId, hash)
 			if (success) {
-				state = 'approved'
+				_state = 'approved'
 				onApproved()
 			} else {
-				state = 'error'
+				_state = 'error'
 				error = 'Approval transaction failed'
 			}
 		} catch (e) {
-			state = 'error'
+			_state = 'error'
 			error = e instanceof Error ? e.message : String(e)
 		}
 	}
 
 	const retry = () => {
-		state = 'checking'
+		_state = 'checking'
 		error = null
 		checkApproval(
 			chainId,
@@ -96,19 +96,19 @@
 			spenderAddress,
 			amount,
 		).then((result) => {
-			state = result.state
+			_state = result.state
 			error = result.error ?? null
 			if (result.state === 'approved') onApproved()
 		})
 	}
 </script>
 
-<div data-approval data-state={state}>
-	{#if state === 'checking'}
+<div data-approval data-state={_state} data-column="gap-2">
+	{#if _state === 'checking'}
 		<p>Checking approval…</p>
-	{:else if state === 'needed'}
-		<div data-approval-controls>
-			<div data-approval-toggle>
+	{:else if _state === 'needed'}
+		<div data-column="gap-3">
+			<div data-row="gap-2 align-center" data-muted>
 				<Switch.Root
 					checked={unlimited}
 					onCheckedChange={(c) => (unlimited = c)}
@@ -119,7 +119,7 @@
 				<span>Unlimited approval</span>
 			</div>
 			{#if unlimited}
-				<div data-security-warning role="alert">
+				<div data-security-warning data-card="secondary" data-column="gap-2" role="alert">
 					<strong>⚠️ Unlimited approval</strong>
 					<p>
 						This allows the contract to spend any amount of your USDC.
@@ -131,44 +131,32 @@
 				Approve USDC
 			</Button.Root>
 		</div>
-	{:else if state === 'approving'}
+	{:else if _state === 'approving'}
 		<p>Approving…</p>
 		{#if txHash}
 			<a
 				href={getTxUrl(chainId, txHash)}
 				target="_blank"
 				rel="noopener noreferrer"
+				data-link
 			>
 				View transaction
 			</a>
 		{/if}
-	{:else if state === 'approved'}
+	{:else if _state === 'approved'}
 		<p data-approval-success>✓ Approved</p>
-	{:else if state === 'error'}
-		<p data-approval-error role="alert">{error}</p>
+	{:else if _state === 'error'}
+		<p data-error role="alert">{error}</p>
 		<Button.Root type="button" onclick={retry}>Retry</Button.Root>
 	{/if}
 </div>
 
 <style>
-	[data-approval-controls] {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75em;
-	}
-
-	[data-approval-toggle] {
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
-		font-size: 0.875em;
+	[data-security-warning] {
+		background: var(--color-warning-bg, #fef3c7);
 	}
 
 	[data-approval-success] {
 		color: var(--color-success, #22c55e);
-	}
-
-	[data-approval-error] {
-		color: var(--color-error, #ef4444);
 	}
 </style>
