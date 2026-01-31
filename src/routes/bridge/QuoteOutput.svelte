@@ -2,10 +2,14 @@
 	// Types/constants
 	import type { NormalizedQuote } from '$/api/lifi'
 	import type { ProviderDetailType } from '$/lib/wallet'
+	import type { BridgeError } from '$/lib/errors'
 
 	// Functions
 	import { Button } from 'bits-ui'
 	import { formatTokenAmount } from '$/lib/format'
+
+	// Components
+	import ErrorDisplay from './ErrorDisplay.svelte'
 
 	// Props
 	let {
@@ -13,15 +17,21 @@
 		connectedDetail,
 		execLoading = false,
 		execError = null,
+		execRetryAttempt = 1,
 		execTxHashes = [],
 		onSendTransaction,
+		onDismissExecError,
+		onRetryExec,
 	}: {
 		quote: NormalizedQuote
 		connectedDetail: ProviderDetailType | null
 		execLoading?: boolean
-		execError?: string | null
+		execError?: BridgeError | null
+		execRetryAttempt?: number
 		execTxHashes?: string[]
 		onSendTransaction: () => void
+		onDismissExecError?: () => void
+		onRetryExec?: () => void
 	} = $props()
 </script>
 
@@ -52,7 +62,12 @@
 		<p>Connect a wallet above to send the transaction.</p>
 	{/if}
 	{#if execError}
-		<p role='alert'>{execError}</p>
+		<ErrorDisplay
+			error={execError}
+			attempt={execRetryAttempt}
+			onRetry={onRetryExec}
+			onDismiss={onDismissExecError}
+		/>
 	{/if}
 	{#if execTxHashes.length > 0}
 		<p data-column='gap-1'>

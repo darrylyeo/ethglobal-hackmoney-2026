@@ -2,6 +2,7 @@
 	// Types/constants
 	import type { NormalizedQuote } from '$/api/lifi'
 	import type { WalletState } from '$/lib/wallet'
+	import type { BridgeError } from '$/lib/errors'
 
 	// Functions
 	import { useLiveQuery } from '@tanstack/svelte-db'
@@ -9,10 +10,12 @@
 	import { networksCollection } from '$/collections/networks'
 	import { actorCoinsCollection, fetchAllBalancesForAddress } from '$/collections/actor-coins'
 	import { executeQuote, fetchQuoteCached } from '$/api/lifi'
+	import { categorizeError, isBridgeError } from '$/lib/errors'
 
 	// Components
 	import ChainIdSection from './ChainIdSection.svelte'
 	import ChainSwitchPrompt from './ChainSwitchPrompt.svelte'
+	import ErrorDisplay from './ErrorDisplay.svelte'
 	import QuoteForm from './QuoteForm.svelte'
 	import QuoteOutput from './QuoteOutput.svelte'
 	import RecipientInput from './RecipientInput.svelte'
@@ -49,10 +52,12 @@
 		'0x0000000000000000000000000000000000000000' as `0x${string}`,
 	)
 	let quote = $state<NormalizedQuote | null>(null)
-	let quoteError = $state<string | null>(null)
+	let quoteError = $state<BridgeError | null>(null)
+	let quoteRetryAttempt = $state(1)
 	let quoteLoading = $state(false)
 	let execLoading = $state(false)
-	let execError = $state<string | null>(null)
+	let execError = $state<BridgeError | null>(null)
+	let execRetryAttempt = $state(1)
 	let execTxHashes = $state<string[]>([])
 	let lastFetchedAddress = $state<string | null>(null)
 
@@ -77,7 +82,7 @@
 				toAddress: recipient,
 			})
 		} catch (e) {
-			quoteError = e instanceof Error ? e.message : String(e)
+			quoteError = isBridgeError(e) ? e : categorizeError(e)
 		} finally {
 			quoteLoading = false
 		}
@@ -114,7 +119,7 @@
 				.filter((h): h is string => Boolean(h))
 			if (hashes.length > 0) execTxHashes = hashes
 		} catch (e) {
-			execError = e instanceof Error ? e.message : String(e)
+			execError = isBridgeError(e) ? e : categorizeError(e)
 		} finally {
 			execLoading = false
 		}
@@ -182,7 +187,17 @@
 						/>
 					{/if}
 					{#if quoteError}
-						<p role='alert'>{quoteError}</p>
+						<ErrorDisplay
+							error={quoteError}
+							attempt={quoteRetryAttempt}
+							onRetry={() => {
+								quoteRetryAttempt++
+								getQuote(wallet)
+							}}
+							onDismiss={() => {
+								quoteError = null
+							}}
+						/>
 					{/if}
 					{#if wallet.chainId !== null && wallet.chainId !== Number(fromChain) && wallet.connectedDetail}
 						<ChainSwitchPrompt
@@ -197,16 +212,25 @@
 							connectedDetail={wallet.connectedDetail}
 							execLoading={execLoading}
 							execError={execError}
+							execRetryAttempt={execRetryAttempt}
 							execTxHashes={execTxHashes}
 							onSendTransaction={() => sendTransaction(wallet)}
+							onDismissExecError={() => {
+								execError = null
+							}}
+							onRetryExec={() => {
+								execRetryAttempt++
+								sendTransaction(wallet)
+							}}
 						/>
 					{/if}
 
 					{#snippet failed(error, reset)}
-						<div data-row='gap-2 align-center'>
-							<p role='alert'>{error instanceof Error ? error.message : String(error)}</p>
-							<Button.Root type='button' onclick={reset}>Try again</Button.Root>
-						</div>
+						<ErrorDisplay
+							error={categorizeError(error)}
+							attempt={1}
+							onRetry={reset}
+						/>
 					{/snippet}
 				</svelte:boundary>
 			</section>
