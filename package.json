@@ -1,45 +1,45 @@
 {
-  "name": "ethglobal-hackmoney-2026",
-  "private": true,
-  "version": "0.0.1",
-  "type": "module",
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
-    "prepare": "svelte-kit sync || echo ''",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "test:unit": "deno task test:unit && vitest run",
-    "test": "deno task test:unit && npm run test:e2e",
-    "test:e2e": "node node_modules/@playwright/test/cli.js test",
-    "check:size": "pnpm build && node scripts/check-bundle-size.mjs"
-  },
-  "dependencies": {
-    "@lifi/sdk": "^3.15.4",
-    "@tanstack/query-db-collection": "^1.0.22",
-    "@tanstack/svelte-db": "^0.1.68",
-    "@tevm/voltaire": "^0.2.28",
-    "@threlte/core": "^8.3.1",
-    "bits-ui": "^2.15.5",
-    "runed": "^0.37.1",
-    "three": "^0.182.0",
-    "viem": "^2.45.1"
-  },
-  "devDependencies": {
-    "@axe-core/playwright": "^4.11.0",
-    "@playwright/test": "^1.57.0",
-    "@sveltejs/adapter-auto": "^7.0.0",
-    "@sveltejs/kit": "^2.49.1",
-    "@sveltejs/vite-plugin-svelte": "^6.2.1",
-    "@types/three": "^0.182.0",
-    "playwright": "^1.57.0",
-    "svelte": "^5.45.6",
-    "svelte-check": "^4.3.4",
-    "tevm": "^1.0.0-next.149",
-    "typescript": "^5.9.3",
-    "vite": "^7.2.6",
-    "vite-plugin-devtools-json": "^1.0.0",
-    "vitest": "^4.0.18"
-  }
+	"name": "ethglobal-hackmoney-2026",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"test:unit": "deno task test:unit && vitest run",
+		"test": "deno task test:unit && npm run test:e2e",
+		"test:e2e": "node node_modules/@playwright/test/cli.js test",
+		"check:size": "pnpm build && node scripts/check-bundle-size.mjs"
+	},
+	"dependencies": {
+		"@lifi/sdk": "^3.15.4",
+		"@tanstack/query-db-collection": "^1.0.22",
+		"@tanstack/svelte-db": "^0.1.68",
+		"@tevm/voltaire": "^0.2.28",
+		"@threlte/core": "^8.3.1",
+		"bits-ui": "^2.15.5",
+		"runed": "^0.37.1",
+		"three": "^0.182.0",
+		"viem": "^2.45.1"
+	},
+	"devDependencies": {
+		"@axe-core/playwright": "^4.11.0",
+		"@playwright/test": "^1.57.0",
+		"@sveltejs/adapter-auto": "^7.0.0",
+		"@sveltejs/kit": "^2.49.1",
+		"@sveltejs/vite-plugin-svelte": "^6.2.1",
+		"@types/three": "^0.182.0",
+		"playwright": "^1.57.0",
+		"svelte": "^5.45.6",
+		"svelte-check": "^4.3.4",
+		"tevm": "^1.0.0-next.149",
+		"typescript": "^5.9.3",
+		"vite": "^7.2.6",
+		"vite-plugin-devtools-json": "^1.0.0",
+		"vitest": "^4.0.18"
+	}
 }
