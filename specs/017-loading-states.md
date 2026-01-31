@@ -218,38 +218,38 @@ For balance fetches, show stale data with loading indicator:
 ## Acceptance criteria
 
 ### Skeleton component
-- [ ] `Skeleton.svelte` renders animated placeholder
-- [ ] Width, height, and border-radius configurable
-- [ ] Shimmer animation runs smoothly
+- [x] `Skeleton.svelte` renders animated placeholder
+- [x] Width, height, and border-radius configurable
+- [x] Shimmer animation runs smoothly
 
 ### Spinner component
-- [ ] `Spinner.svelte` renders spinning indicator
-- [ ] Size configurable
-- [ ] Uses currentColor for theming
+- [x] `Spinner.svelte` renders spinning indicator
+- [x] Size configurable
+- [x] Uses currentColor for theming
 
 ### LoadingButton component
-- [ ] Shows spinner + text when loading
-- [ ] Disabled when loading
-- [ ] Falls back to children when not loading
+- [x] Shows spinner + text when loading
+- [x] Disabled when loading
+- [x] Falls back to children when not loading
 
 ### Balance loading
-- [ ] Skeleton grid shown before any balances load
-- [ ] Individual balances show spinner while refreshing
-- [ ] Stale balance shown during refresh (optimistic)
+- [x] Skeleton grid shown before any balances load
+- [x] Individual balances show spinner while refreshing
+- [x] Stale balance shown during refresh (optimistic)
 
 ### Route loading
-- [ ] Skeleton route cards shown while fetching
-- [ ] 3 skeleton cards by default
-- [ ] "Finding routes…" button state
+- [x] Skeleton route cards shown while fetching
+- [x] 3 skeleton cards by default
+- [x] "Finding routes…" button state
 
 ### Form interactions
-- [ ] All form inputs disabled during submission
-- [ ] Submit button shows loading state
-- [ ] Double-submit prevented
+- [x] All form inputs disabled during submission
+- [x] Submit button shows loading state
+- [x] Double-submit prevented
 
 ## Status
 
-Not started.
+Complete. `src/components/Skeleton.svelte`: width, height, rounded props; shimmer via --color-skeleton/--color-skeleton-highlight. `src/components/Spinner.svelte`: size prop; border-top-color currentColor. `src/components/LoadingButton.svelte`: loading, loadingText, children snippet; disabled when loading; Spinner + text when loading. Bridge +page: balance section shows 6-item skeleton grid when no actorCoins; per-balance skeleton when isLoading && balance === 0n, spinner beside balance when isLoading and balance shown (optimistic). RouteList: 3 skeleton route cards when loading (data-route-card-skeleton); bridge output shows route list area when routesLoading. QuoteForm: LoadingButton "Finding routes…", fieldset and Select.Root disabled when loading, double-submit prevented. QuoteOutput: LoadingButton "Bridging…" for Send.
 
 ## Output when complete
 

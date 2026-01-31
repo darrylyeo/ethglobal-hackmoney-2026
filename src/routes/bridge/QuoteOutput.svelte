@@ -7,7 +7,6 @@
 
 	// Functions
 	import { extractFeeBreakdown } from '$/api/lifi'
-	import { Button } from 'bits-ui'
 	import {
 		calculateMinOutput,
 		formatSlippagePercent,
@@ -15,6 +14,7 @@
 	import { formatTokenAmount } from '$/lib/format'
 
 	// Components
+	import LoadingButton from '$/components/LoadingButton.svelte'
 	import ErrorDisplay from './ErrorDisplay.svelte'
 	import FeeBreakdown from './FeeBreakdown.svelte'
 
@@ -96,18 +96,21 @@
 	{/if}
 	{#if connectedDetail}
 		{#if showSendButton}
-			<Button.Root
+			{#if execLoading}
+				<span id='send-loading-status' class='sr-only'>Sending transaction, please wait</span>
+			{/if}
+			<LoadingButton
 				type='button'
-				disabled={execLoading || quoteExpired}
-				aria-busy={execLoading || undefined}
+				loading={execLoading}
+				loadingText='Bridging…'
+				disabled={quoteExpired}
 				aria-describedby={execLoading ? 'send-loading-status' : undefined}
 				onclick={onSendTransaction}
 			>
-				{#if execLoading}
-					<span id='send-loading-status' class='sr-only'>Sending transaction, please wait</span>
-				{/if}
-				{execLoading ? 'Sending…' : 'Send transaction'}
-			</Button.Root>
+				{#snippet children()}
+					Send transaction
+				{/snippet}
+			</LoadingButton>
 		{/if}
 	{:else}
 		<p>Connect a wallet above to send the transaction.</p>

@@ -1,6 +1,6 @@
 <script lang='ts'>
 	// Functions
-	import { Select, Button } from 'bits-ui'
+	import { Select } from 'bits-ui'
 	import {
 		validateBridgeAmount,
 		USDC_MIN_AMOUNT,
@@ -9,6 +9,7 @@
 	import { parseDecimalToSmallest, isValidDecimalInput } from '$/lib/format'
 
 	// Components
+	import LoadingButton from '$/components/LoadingButton.svelte'
 	import AmountInput from './AmountInput.svelte'
 
 	// Props
@@ -52,11 +53,11 @@
 	data-column='gap-4'
 	onsubmit={(e) => {
 		e.preventDefault()
-		if (!canSubmit) return
+		if (!canSubmit || loading) return
 		onSubmit()
 	}}
 >
-	<fieldset data-column='gap-4' aria-describedby='quote-desc'>
+	<fieldset data-column='gap-4' aria-describedby='quote-desc' disabled={loading}>
 		<legend class='sr-only'>Quote parameters</legend>
 		<p id='quote-desc' class='sr-only'>Source and destination chain, amount, and sender address.</p>
 		<div data-row='gap-4' data-form-row>
@@ -67,6 +68,7 @@
 					bind:value={fromChain}
 					items={networkItems}
 					name='fromChain'
+					disabled={loading}
 				>
 					<Select.Trigger id='from-chain' aria-label='From chain'>
 						{networkItems.find((i) => i.value === fromChain)?.label ?? 'Select'}
@@ -91,6 +93,7 @@
 					bind:value={toChain}
 					items={networkItems}
 					name='toChain'
+					disabled={loading}
 				>
 					<Select.Trigger id='to-chain' aria-label='To chain'>
 						{networkItems.find((i) => i.value === toChain)?.label ?? 'Select'}
@@ -131,19 +134,21 @@
 		</div>
 		<div data-column='gap-2'>
 			<label for='from-address'>From address</label>
-			<input id='from-address' type='text' autocomplete='off' value={fromAddress} readonly />
+			<input id='from-address' type='text' autocomplete='off' value={fromAddress} readonly disabled={loading} />
 		</div>
-		<Button.Root
+		{#if loading}
+			<span id='quote-loading-status' class='sr-only'>Loading, please wait</span>
+		{/if}
+		<LoadingButton
 			type='submit'
-			disabled={loading || !canSubmit}
-			aria-busy={loading || undefined}
+			loading={loading}
+			loadingText='Finding routes…'
+			disabled={!canSubmit}
 			aria-describedby={loading ? 'quote-loading-status' : undefined}
 		>
-			{#if loading}
-				<span aria-hidden='true'>⏳</span>
-				<span id='quote-loading-status' class='sr-only'>Loading, please wait</span>
-			{/if}
-			{loading ? 'Loading…' : 'Get Routes'}
-		</Button.Root>
+			{#snippet children()}
+				Get Routes
+			{/snippet}
+		</LoadingButton>
 	</fieldset>
 </form>

@@ -45,6 +45,8 @@
 	import { saveTransaction, updateTransactionStatus } from '$/lib/tx-history'
 
 	// Components
+	import Skeleton from '$/components/Skeleton.svelte'
+	import Spinner from '$/components/Spinner.svelte'
 	import ApprovalButton from './ApprovalButton.svelte'
 	import ChainIdSection from './ChainIdSection.svelte'
 	import ChainSwitchPrompt from './ChainSwitchPrompt.svelte'
@@ -396,7 +398,14 @@
 				<section data-card data-column='gap-4' aria-labelledby='balances-heading'>
 					<h2 id='balances-heading'>Your USDC Balances</h2>
 					{#if actorCoins.filter((ac) => ac.address === wallet.address && filteredIds.has(ac.chainId)).length === 0}
-						<p>Loading balances…</p>
+						<div data-balances-grid>
+							{#each Array(6) as _, i (i)}
+								<div data-balance-item data-loading>
+									<Skeleton width="60%" height="0.75em" />
+									<Skeleton width="80%" height="1.25em" />
+								</div>
+							{/each}
+						</div>
 					{:else}
 						<div data-balances-grid>
 							{#each actorCoins.filter((ac) => ac.address === wallet.address && filteredIds.has(ac.chainId)) as ac (`${ac.chainId}-${ac.address}-${ac.coinAddress}`)}
@@ -404,12 +413,15 @@
 								<div data-balance-item data-loading={ac.isLoading ? '' : undefined}>
 									<span data-balance-network>{network?.name ?? `Chain ${ac.chainId}`}</span>
 									<span data-balance-amount>
-										{#if ac.isLoading}
-											…
+										{#if ac.isLoading && ac.balance === 0n}
+											<Skeleton width="80px" height="1em" />
 										{:else if ac.error}
 											<span data-balance-error title={ac.error}>Error</span>
 										{:else}
 											{ac.balanceFormatted} {ac.coinSymbol}
+											{#if ac.isLoading}
+												<Spinner size="0.75em" />
+											{/if}
 										{/if}
 									</span>
 								</div>
@@ -493,34 +505,36 @@
 							{/if}
 						</div>
 						<div data-bridge-output data-column='gap-4'>
-							{#if routes.length > 0}
-								<div data-column='gap-2'>
-									<label for='sort-routes' class='sr-only'>Sort routes</label>
-									<Select.Root
-										type='single'
-										bind:value={sortBy}
-										items={[
-											{ value: 'recommended', label: 'Recommended' },
-											{ value: 'output', label: 'Best output' },
-											{ value: 'fees', label: 'Lowest fees' },
-											{ value: 'speed', label: 'Fastest' },
-										]}
-									>
-										<Select.Trigger id='sort-routes' aria-label='Sort routes'>
-											Sort: {sortBy === 'recommended' ? 'Recommended' : sortBy === 'output' ? 'Best output' : sortBy === 'fees' ? 'Lowest fees' : 'Fastest'}
-										</Select.Trigger>
-										<Select.Portal>
-											<Select.Content>
-												<Select.Viewport>
-													<Select.Item value='recommended' label='Recommended'>Recommended</Select.Item>
-													<Select.Item value='output' label='Best output'>Best output</Select.Item>
-													<Select.Item value='fees' label='Lowest fees'>Lowest fees</Select.Item>
-													<Select.Item value='speed' label='Fastest'>Fastest</Select.Item>
-												</Select.Viewport>
-											</Select.Content>
-										</Select.Portal>
-									</Select.Root>
-								</div>
+							{#if routes.length > 0 || routesLoading}
+								{#if routes.length > 0}
+									<div data-column='gap-2'>
+										<label for='sort-routes' class='sr-only'>Sort routes</label>
+										<Select.Root
+											type='single'
+											bind:value={sortBy}
+											items={[
+												{ value: 'recommended', label: 'Recommended' },
+												{ value: 'output', label: 'Best output' },
+												{ value: 'fees', label: 'Lowest fees' },
+												{ value: 'speed', label: 'Fastest' },
+											]}
+										>
+											<Select.Trigger id='sort-routes' aria-label='Sort routes'>
+												Sort: {sortBy === 'recommended' ? 'Recommended' : sortBy === 'output' ? 'Best output' : sortBy === 'fees' ? 'Lowest fees' : 'Fastest'}
+											</Select.Trigger>
+											<Select.Portal>
+												<Select.Content>
+													<Select.Viewport>
+														<Select.Item value='recommended' label='Recommended'>Recommended</Select.Item>
+														<Select.Item value='output' label='Best output'>Best output</Select.Item>
+														<Select.Item value='fees' label='Lowest fees'>Lowest fees</Select.Item>
+														<Select.Item value='speed' label='Fastest'>Fastest</Select.Item>
+													</Select.Viewport>
+												</Select.Content>
+											</Select.Portal>
+										</Select.Root>
+									</div>
+								{/if}
 								<RouteList
 									routes={sortedRoutes}
 									bind:selectedId={selectedRouteId}
@@ -645,8 +659,11 @@
 	}
 
 	[data-balance-amount] {
-		font-weight: 600
-		font-variant-numeric: tabular-nums
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25em;
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
 	}
 
 	[data-balance-error] {
