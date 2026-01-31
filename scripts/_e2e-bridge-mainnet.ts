@@ -11,7 +11,7 @@
  */
 
 import { createConfig, getQuote, getStatus } from "@lifi/sdk";
-import { Signers } from "@tevm/voltaire";
+import { PrivateKeySignerImpl } from "@tevm/voltaire/signers";
 import { ChainId } from "../src/constants/networks.ts";
 import { ercTokensBySymbolByChainId } from "../src/constants/coins.ts";
 
@@ -80,7 +80,7 @@ async function runBridge(params: BridgeParams) {
   const { fromChain, toChain, fromAmount, privateKey } = params;
 
   // Create signer
-  const signer = Signers.PrivateKeySignerImpl.fromPrivateKey({ privateKey });
+  const signer = PrivateKeySignerImpl.fromPrivateKey({ privateKey });
   const fromAddress = signer.address as `0x${string}`;
 
   console.log(`\n--- E2E Bridge Test ---`);
