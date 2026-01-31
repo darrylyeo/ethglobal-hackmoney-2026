@@ -13,6 +13,7 @@
 	import {
 		executeQuoteWithStatus,
 		fetchQuoteCached,
+		getUsdcAddress,
 	} from '$/api/lifi'
 	import { createInitialStatus } from '$/lib/tx-status'
 	import {
@@ -27,6 +28,7 @@
 	} from '$/lib/format'
 
 	// Components
+	import ApprovalButton from './ApprovalButton.svelte'
 	import ChainIdSection from './ChainIdSection.svelte'
 	import ChainSwitchPrompt from './ChainSwitchPrompt.svelte'
 	import ErrorDisplay from './ErrorDisplay.svelte'
@@ -77,6 +79,25 @@
 	let execTxHashes = $state<string[]>([])
 	let bridgeStatus = $state(createInitialStatus())
 	let lastFetchedAddress = $state<string | null>(null)
+	let approvalComplete = $state(false)
+
+	const approvalAddress = $derived(
+		(quoteStep as { estimate?: { approvalAddress?: string } } | null)?.estimate
+			?.approvalAddress as `0x${string}` | undefined,
+	)
+	const needsApprovalCheck = $derived(
+		Boolean(
+			approvalAddress &&
+				approvalAddress.startsWith('0x') &&
+				approvalAddress.length === 42,
+		),
+	)
+	const showSendButton = $derived(!needsApprovalCheck || approvalComplete)
+
+	$effect(() => {
+		const _ = quoteStep
+		approvalComplete = false
+	})
 
 	// Actions
 	const fetchBalances = async (wallet: WalletState) => {
@@ -257,6 +278,7 @@
 							execError={execError}
 							execRetryAttempt={execRetryAttempt}
 							execTxHashes={execTxHashes}
+							showSendButton={showSendButton}
 							onSendTransaction={() => sendTransaction(wallet)}
 							onDismissExecError={() => {
 								execError = null
@@ -266,6 +288,19 @@
 								sendTransaction(wallet)
 							}}
 						/>
+						{#if needsApprovalCheck && !approvalComplete && wallet.connectedDetail && wallet.address}
+							<ApprovalButton
+								chainId={Number(fromChain)}
+								tokenAddress={getUsdcAddress(Number(fromChain))}
+								spenderAddress={approvalAddress!}
+								amount={parseDecimalToSmallest(amount, 6)}
+								walletProvider={wallet.connectedDetail.provider}
+								walletAddress={wallet.address}
+								onApproved={() => {
+									approvalComplete = true
+								}}
+							/>
+						{/if}
 						<TransactionStatus
 							status={bridgeStatus}
 							fromChainId={Number(fromChain)}

@@ -23,6 +23,7 @@
 		execError = null,
 		execRetryAttempt = 1,
 		execTxHashes = [],
+		showSendButton = true,
 		onSendTransaction,
 		onDismissExecError,
 		onRetryExec,
@@ -34,6 +35,7 @@
 		execError?: BridgeError | null
 		execRetryAttempt?: number
 		execTxHashes?: string[]
+		showSendButton?: boolean
 		onSendTransaction: () => void
 		onDismissExecError?: () => void
 		onRetryExec?: () => void
@@ -62,18 +64,20 @@
 		</p>
 	{/if}
 	{#if connectedDetail}
-		<Button.Root
-			type='button'
-			disabled={execLoading}
-			aria-busy={execLoading || undefined}
-			aria-describedby={execLoading ? 'send-loading-status' : undefined}
-			onclick={onSendTransaction}
-		>
-			{#if execLoading}
-				<span id='send-loading-status' class='sr-only'>Sending transaction, please wait</span>
-			{/if}
-			{execLoading ? 'Sending…' : 'Send transaction'}
-		</Button.Root>
+		{#if showSendButton}
+			<Button.Root
+				type='button'
+				disabled={execLoading}
+				aria-busy={execLoading || undefined}
+				aria-describedby={execLoading ? 'send-loading-status' : undefined}
+				onclick={onSendTransaction}
+			>
+				{#if execLoading}
+					<span id='send-loading-status' class='sr-only'>Sending transaction, please wait</span>
+				{/if}
+				{execLoading ? 'Sending…' : 'Send transaction'}
+			</Button.Root>
+		{/if}
 	{:else}
 		<p>Connect a wallet above to send the transaction.</p>
 	{/if}

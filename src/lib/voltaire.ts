@@ -65,6 +65,48 @@ export async function getErc20Balance(
 	return decodeBalanceOfResult(res)
 }
 
+const ALLOWANCE_SELECTOR = '0xdd62ed3e'
+const APPROVE_SELECTOR = '0x095ea7b3'
+export const MAX_UINT256 = 2n ** 256n - 1n
+
+export function encodeAllowanceCall(
+	owner: `0x${string}`,
+	spender: `0x${string}`,
+): `0x${string}` {
+	const paddedOwner = owner.slice(2).toLowerCase().padStart(64, '0')
+	const paddedSpender = spender.slice(2).toLowerCase().padStart(64, '0')
+	return `${ALLOWANCE_SELECTOR}${paddedOwner}${paddedSpender}` as `0x${string}`
+}
+
+export async function getErc20Allowance(
+	provider: VoltaireProvider,
+	tokenAddress: `0x${string}`,
+	owner: `0x${string}`,
+	spender: `0x${string}`,
+): Promise<bigint> {
+	const result = await provider.request({
+		method: 'eth_call',
+		params: [
+			{
+				to: tokenAddress,
+				data: encodeAllowanceCall(owner, spender),
+			},
+			'latest',
+		],
+	})
+	if (typeof result !== 'string' || !result) throw new Error('eth_call returned invalid data')
+	return BigInt(result)
+}
+
+export function encodeApproveCall(
+	spender: `0x${string}`,
+	amount: bigint,
+): `0x${string}` {
+	const paddedSpender = spender.slice(2).toLowerCase().padStart(64, '0')
+	const paddedAmount = amount.toString(16).padStart(64, '0')
+	return `${APPROVE_SELECTOR}${paddedSpender}${paddedAmount}` as `0x${string}`
+}
+
 export function createHttpProvider(url: string): VoltaireProvider {
 	const noop = () => ({ on: noop, removeListener: noop }) as VoltaireProvider
 	return {

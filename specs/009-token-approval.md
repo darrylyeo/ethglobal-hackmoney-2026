@@ -393,36 +393,36 @@ Deno.test('encodeApproveCall generates correct calldata', () => {
 ## Acceptance criteria
 
 ### Voltaire functions
-- [ ] `encodeAllowanceCall()` generates correct 4-byte selector + args
-- [ ] `getErc20Allowance()` returns current allowance as bigint
-- [ ] `encodeApproveCall()` generates correct calldata
-- [ ] Works with both exact and unlimited amounts
+- [x] `encodeAllowanceCall()` generates correct 4-byte selector + args
+- [x] `getErc20Allowance()` returns current allowance as bigint
+- [x] `encodeApproveCall()` generates correct calldata
+- [x] Works with both exact and unlimited amounts
 
 ### Approval module
-- [ ] `checkApproval()` returns correct state (needed/approved)
-- [ ] `sendApproval()` sends transaction via wallet
-- [ ] `waitForApprovalConfirmation()` polls for receipt
-- [ ] Handles errors gracefully
+- [x] `checkApproval()` returns correct state (needed/approved)
+- [x] `sendApproval()` sends transaction via wallet
+- [x] `waitForApprovalConfirmation()` polls for receipt
+- [x] Handles errors gracefully
 
 ### ApprovalButton component
-- [ ] Shows "Checking approval…" initially
-- [ ] Shows "Approve USDC" button when needed
-- [ ] Unlimited approval toggle available
-- [ ] Shows "Approving…" during transaction
-- [ ] Links to explorer during approval
-- [ ] Shows "✓ Approved" when done
-- [ ] Shows error with retry on failure
-- [ ] Calls `onApproved` callback when complete
+- [x] Shows "Checking approval…" initially
+- [x] Shows "Approve USDC" button when needed
+- [x] Unlimited approval toggle available
+- [x] Shows "Approving…" during transaction
+- [x] Links to explorer during approval
+- [x] Shows "✓ Approved" when done
+- [x] Shows error with retry on failure
+- [x] Calls `onApproved` callback when complete
 
 ### Integration
-- [ ] Bridge page checks approval after route selection
-- [ ] Approval required before Bridge button enabled
-- [ ] Switching routes resets approval state
-- [ ] Already-approved tokens show "✓ Approved" immediately
+- [x] Bridge page checks approval after route selection
+- [x] Approval required before Bridge button enabled
+- [x] Switching routes resets approval state
+- [x] Already-approved tokens show "✓ Approved" immediately
 
 ## Status
 
-Not started.
+Complete. Voltaire: encodeAllowanceCall, getErc20Allowance, encodeApproveCall, MAX_UINT256. approval.ts: checkApproval, sendApproval, waitForApprovalConfirmation. ApprovalButton.svelte with Switch, states checking/needed/approving/approved/error, explorer link, onApproved. Bridge page: approvalAddress from quoteStep.estimate.approvalAddress, showSendButton when approved or no approval needed, ApprovalButton when needed, reset approvalComplete when quoteStep changes. getUsdcAddress exported from lifi. Unit tests in voltaire.spec.ts for encodeAllowanceCall/encodeApproveCall.
 
 ## Output when complete
 

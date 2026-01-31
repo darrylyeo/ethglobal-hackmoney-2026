@@ -2,6 +2,8 @@
 import { assertEquals } from 'jsr:@std/assert'
 import {
 	decodeBalanceOfResult,
+	encodeAllowanceCall,
+	encodeApproveCall,
 	encodeBalanceOfCall,
 	getChainId,
 	getErc20Balance,
@@ -55,4 +57,22 @@ Deno.test('getErc20Balance: calls eth_call with to and encoded data, returns dec
 	assertEquals(callParams?.to, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48')
 	assertEquals(callParams?.data?.startsWith('0x70a08231'), true)
 	assertEquals(balance, 1000000000000000000n)
+})
+
+Deno.test('encodeAllowanceCall generates correct calldata', () => {
+	const data = encodeAllowanceCall(
+		'0x1234567890123456789012345678901234567890' as `0x${string}`,
+		'0xabcdef0123456789abcdef0123456789abcdef01' as `0x${string}`,
+	)
+	assertEquals(data.slice(0, 10), '0xdd62ed3e')
+	assertEquals(data.length, 138)
+})
+
+Deno.test('encodeApproveCall generates correct calldata', () => {
+	const data = encodeApproveCall(
+		'0xabcdef0123456789abcdef0123456789abcdef01' as `0x${string}`,
+		1000000n,
+	)
+	assertEquals(data.slice(0, 10), '0x095ea7b3')
+	assertEquals(data.length, 138)
 })

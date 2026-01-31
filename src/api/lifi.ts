@@ -192,7 +192,7 @@ export type QuoteParams = {
 	fromAddress: `0x${string}`
 	toAddress?: `0x${string}`
 }
-function getUsdcAddress(chainId: number): `0x${string}` {
+export function getUsdcAddress(chainId: number): `0x${string}` {
 	const token = ercTokensBySymbolByChainId[chainId as ChainId]?.USDC
 	if (!token) throw new Error(`USDC not configured for chain ${chainId}`)
 	return token.address
