@@ -184,27 +184,27 @@ Show minimum guaranteed output:
 ## Acceptance criteria
 
 ### Slippage functions
-- [ ] `formatSlippagePercent(0.005)` returns `'0.5%'`
-- [ ] `parseSlippagePercent('1%')` returns `0.01`
-- [ ] `parseSlippagePercent('0.001%')` returns `null` (below min)
-- [ ] `calculateMinOutput(1000000n, 0.005)` returns `995000n`
+- [x] `formatSlippagePercent(0.005)` returns `'0.5%'`
+- [x] `parseSlippagePercent('1%')` returns `0.01`
+- [x] `parseSlippagePercent('0.001%')` returns `null` (below min)
+- [x] `calculateMinOutput(1000000n, 0.005)` returns `995000n`
 
 ### SlippageSettings component
-- [ ] Shows current slippage percentage
-- [ ] Preset buttons for 0.1%, 0.5%, 1%
-- [ ] Custom input accepts valid percentages
-- [ ] Invalid custom input ignored
-- [ ] High slippage (>1%) shows warning
+- [x] Shows current slippage percentage
+- [x] Preset buttons for 0.1%, 0.5%, 1%
+- [x] Custom input accepts valid percentages
+- [x] Invalid custom input ignored
+- [x] High slippage (>1%) shows warning
 
 ### Integration
-- [ ] Default slippage is 0.5%
-- [ ] Slippage passed to `getQuote()` and `getRoutes()`
-- [ ] Quote output shows minimum guaranteed amount
-- [ ] Slippage setting persists in localStorage
+- [x] Default slippage is 0.5%
+- [x] Slippage passed to `getQuote()` and `getRoutes()`
+- [x] Quote output shows minimum guaranteed amount
+- [x] Slippage setting persists in localStorage
 
 ## Status
 
-Not started.
+Complete. `src/constants/slippage.ts`: SLIPPAGE_PRESETS, DEFAULT_SLIPPAGE, MIN/MAX, formatSlippagePercent, parseSlippagePercent, calculateMinOutput; unit tests in slippage.spec.ts. `src/routes/bridge/SlippageSettings.svelte`: Popover with trigger showing current %, preset buttons (0.1%, 0.5%, 1%), custom input, high-slippage warning. lifi.ts: QuoteParams.slippage, getQuoteForUsdcBridge/getQuoteStep pass slippage to getQuote; routesQueryKey/quoteQueryKey include slippage. Bridge page: slippage state with localStorage (bridge-slippage), SlippageSettings, getRoutes/ConfirmationDialog/QuoteOutput use slippage; QuoteOutput shows minimum guaranteed amount.
 
 ## Output when complete
 

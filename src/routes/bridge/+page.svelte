@@ -27,6 +27,11 @@
 		USDC_MIN_AMOUNT,
 		USDC_MAX_AMOUNT,
 	} from '$/constants/bridge-limits'
+	import {
+		DEFAULT_SLIPPAGE,
+		MIN_SLIPPAGE,
+		MAX_SLIPPAGE,
+	} from '$/constants/slippage'
 	import { getTxUrl } from '$/constants/explorers'
 	import { networksByChainId } from '$/constants/networks'
 	import { networkStatus } from '$/lib/network-status.svelte'
@@ -51,6 +56,7 @@
 	import RouteList from './RouteList.svelte'
 	import TransactionHistory from './TransactionHistory.svelte'
 	import QuoteExpiration from './QuoteExpiration.svelte'
+	import SlippageSettings from './SlippageSettings.svelte'
 	import TransactionStatus from './TransactionStatus.svelte'
 	import WalletProvider from './WalletProvider.svelte'
 
@@ -109,7 +115,21 @@
 	let showConfirmation = $state(false)
 	let routesFetchedAt = $state<number | null>(null)
 	let quoteNow = $state(Date.now())
-	const defaultSlippage = 0.005
+	const SLIPPAGE_STORAGE_KEY = 'bridge-slippage'
+	const initialSlippage = () => {
+		if (typeof document === 'undefined') return DEFAULT_SLIPPAGE
+		const raw = localStorage.getItem(SLIPPAGE_STORAGE_KEY)
+		if (raw === null) return DEFAULT_SLIPPAGE
+		const num = parseFloat(raw)
+		if (
+			Number.isNaN(num) ||
+			num < MIN_SLIPPAGE ||
+			num > MAX_SLIPPAGE
+		)
+			return DEFAULT_SLIPPAGE
+		return num
+	}
+	let slippage = $state(initialSlippage())
 	const QUOTE_VALIDITY_MS = 60_000
 	const routesExpiresAt = $derived(
 		routesFetchedAt !== null ? routesFetchedAt + QUOTE_VALIDITY_MS : null,
@@ -117,6 +137,11 @@
 	const quoteIsExpired = $derived(
 		routesExpiresAt !== null && quoteNow > routesExpiresAt,
 	)
+
+	$effect(() => {
+		if (typeof document === 'undefined') return
+		localStorage.setItem(SLIPPAGE_STORAGE_KEY, String(slippage))
+	})
 
 	$effect(() => {
 		if (routesFetchedAt === null) return
@@ -206,7 +231,7 @@
 				fromAmount: parseDecimalToSmallest(amount, 6).toString(),
 				fromAddress: wallet.address,
 				toAddress: recipient,
-				slippage: defaultSlippage,
+				slippage,
 			})
 			routes = list
 			routesFetchedAt = Date.now()
@@ -517,8 +542,10 @@
 										isRefreshing={routesLoading}
 									/>
 								{/if}
+								<SlippageSettings bind:value={slippage} />
 								<QuoteOutput
 									route={selectedRoute}
+									slippage={slippage}
 									connectedDetail={wallet.connectedDetail}
 									execLoading={execLoading}
 									execError={execError}
@@ -546,7 +573,7 @@
 										fromAmount={parseDecimalToSmallest(amount, 6).toString()}
 										fromAddress={wallet.address}
 										toAddress={recipient}
-										slippage={defaultSlippage}
+										slippage={slippage}
 										onConfirm={() => sendTransaction(wallet)}
 										onCancel={() => {}}
 									/>

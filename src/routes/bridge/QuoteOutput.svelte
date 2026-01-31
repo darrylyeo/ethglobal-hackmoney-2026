@@ -8,6 +8,10 @@
 	// Functions
 	import { extractFeeBreakdown } from '$/api/lifi'
 	import { Button } from 'bits-ui'
+	import {
+		calculateMinOutput,
+		formatSlippagePercent,
+	} from '$/constants/slippage'
 	import { formatTokenAmount } from '$/lib/format'
 
 	// Components
@@ -19,6 +23,7 @@
 		quote = null,
 		quoteStep = null,
 		route = null,
+		slippage = 0.005,
 		connectedDetail,
 		execLoading = false,
 		execError = null,
@@ -33,6 +38,7 @@
 		quote?: NormalizedQuote | null
 		quoteStep?: LiFiStep | null
 		route?: NormalizedRoute | null
+		slippage?: number
 		connectedDetail: ProviderDetailType | null
 		execLoading?: boolean
 		execError?: BridgeError | null
@@ -47,6 +53,9 @@
 
 	const estimatedToAmount = $derived(
 		route?.toAmount ?? quote?.estimatedToAmount ?? '0',
+	)
+	const minOutput = $derived(
+		calculateMinOutput(BigInt(estimatedToAmount), slippage),
 	)
 	const stepCount = $derived(route?.steps.length ?? quote?.steps.length ?? 0)
 	const fees = $derived(
@@ -68,6 +77,10 @@
 	<p>
 		<strong>Estimated output:</strong> {formatTokenAmount(estimatedToAmount, 6)} USDC
 		(steps: {stepCount})
+	</p>
+	<p>
+		Minimum (with {formatSlippagePercent(slippage)} slippage):
+		{formatTokenAmount(minOutput.toString(), 6)} USDC
 	</p>
 	{#if fees}
 		<FeeBreakdown fees={fees} expanded={true} />

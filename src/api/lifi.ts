@@ -316,7 +316,14 @@ export function getUsdcAddress(chainId: number): `0x${string}` {
 export async function getQuoteForUsdcBridge(
 	params: QuoteParams,
 ): Promise<{ quote: NormalizedQuote; step: LiFiStep }> {
-	const { fromChain, toChain, fromAmount, fromAddress, toAddress } = params
+	const {
+		fromChain,
+		toChain,
+		fromAmount,
+		fromAddress,
+		toAddress,
+		slippage = 0.005,
+	} = params
 	const sdk = await getLifiSdk()
 	const step = await sdk.getQuote({
 		fromChain,
@@ -326,19 +333,21 @@ export async function getQuoteForUsdcBridge(
 		fromAmount,
 		fromAddress,
 		toAddress: toAddress ?? fromAddress,
+		slippage,
 	})
 	return { quote: normalizeQuote(step), step }
 }
 
 export function quoteQueryKey(
 	params: QuoteParams,
-): [string, number, number, string, string | undefined] {
+): [string, number, number, string, string | undefined, number] {
 	return [
 		'lifi-quote',
 		params.fromChain,
 		params.toChain,
 		params.fromAmount,
 		params.toAddress,
+		params.slippage ?? 0.005,
 	]
 }
 
@@ -353,7 +362,14 @@ export async function fetchQuoteCached(
 }
 
 export async function getQuoteStep(params: QuoteParams): Promise<LiFiStep> {
-	const { fromChain, toChain, fromAmount, fromAddress, toAddress } = params
+	const {
+		fromChain,
+		toChain,
+		fromAmount,
+		fromAddress,
+		toAddress,
+		slippage = 0.005,
+	} = params
 	const sdk = await getLifiSdk()
 	return await sdk.getQuote({
 		fromChain,
@@ -363,6 +379,7 @@ export async function getQuoteStep(params: QuoteParams): Promise<LiFiStep> {
 		fromAmount,
 		fromAddress,
 		toAddress: toAddress ?? fromAddress,
+		slippage,
 	})
 }
 
