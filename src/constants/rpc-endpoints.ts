@@ -13,7 +13,7 @@ export enum ServiceProvider {
 
 export enum TransportType {
 	Http = 'Http',
-	Ws = 'Ws',
+	WebSocket = 'WebSocket',
 }
 
 export type RpcEndpoint = {
@@ -26,10 +26,16 @@ export type RpcEndpoint = {
 export const rpcEndpoints: readonly RpcEndpoint[] = [
 	{
 		chainId: ChainId.Ethereum,
-		url: 'https://eth.llamarpc.com',
-		serviceProvider: ServiceProvider.LlamaRPC,
+		url: 'https://mainnet.rpc.buidlguidl.com',
+		serviceProvider: ServiceProvider.Public,
 		transportType: TransportType.Http,
 	},
+	// {
+	// 	chainId: ChainId.Ethereum,
+	// 	url: 'https://eth.llamarpc.com',
+	// 	serviceProvider: ServiceProvider.LlamaRPC,
+	// 	transportType: TransportType.Http,
+	// },
 	{
 		chainId: ChainId.Optimism,
 		url: 'https://mainnet.optimism.io',
@@ -50,8 +56,8 @@ export const rpcEndpoints: readonly RpcEndpoint[] = [
 	},
 	{
 		chainId: ChainId.Unichain,
-		url: 'https://rpc.unichain.org',
-		serviceProvider: ServiceProvider.Chain,
+		url: 'https://unichain-rpc.publicnode.com',
+		serviceProvider: ServiceProvider.Public,
 		transportType: TransportType.Http,
 	},
 	{
@@ -86,20 +92,20 @@ export const rpcEndpoints: readonly RpcEndpoint[] = [
 	},
 	{
 		chainId: ChainId.WorldChain,
-		url: 'https://rpc.world.org',
-		serviceProvider: ServiceProvider.Chain,
+		url: 'https://worldchain-mainnet.g.alchemy.com/public',
+		serviceProvider: ServiceProvider.Alchemy,
 		transportType: TransportType.Http,
 	},
 	{
 		chainId: ChainId.HyperEVM,
-		url: 'https://api.hyperliquid.xyz/evm',
-		serviceProvider: ServiceProvider.Chain,
+		url: 'https://hyperliquid.drpc.org',
+		serviceProvider: ServiceProvider.Public,
 		transportType: TransportType.Http,
 	},
 	{
 		chainId: ChainId.HyperEVMTestnet,
-		url: 'https://api.hyperliquid-testnet.xyz/evm',
-		serviceProvider: ServiceProvider.Chain,
+		url: 'https://hyperliquid-testnet.drpc.org',
+		serviceProvider: ServiceProvider.Public,
 		transportType: TransportType.Http,
 	},
 	{
@@ -110,7 +116,7 @@ export const rpcEndpoints: readonly RpcEndpoint[] = [
 	},
 	{
 		chainId: ChainId.SeiTestnet,
-		url: 'https://evm-rpc.atlantic-2.sei-apis.com',
+		url: 'https://evm-rpc-testnet.sei-apis.com',
 		serviceProvider: ServiceProvider.Chain,
 		transportType: TransportType.Http,
 	},
@@ -230,7 +236,7 @@ export const rpcEndpoints: readonly RpcEndpoint[] = [
 	},
 	{
 		chainId: ChainId.EthereumSepolia,
-		url: 'https://rpc.sepolia.org',
+		url: 'https://ethereum-sepolia-rpc.publicnode.com',
 		serviceProvider: ServiceProvider.Public,
 		transportType: TransportType.Http,
 	},
@@ -242,7 +248,7 @@ export const rpcEndpoints: readonly RpcEndpoint[] = [
 	},
 	{
 		chainId: ChainId.CeloSepolia,
-		url: 'https://forno.celo-sepolia.org',
+		url: 'https://forno.celo-sepolia.celo-testnet.org',
 		serviceProvider: ServiceProvider.Chain,
 		transportType: TransportType.Http,
 	},
