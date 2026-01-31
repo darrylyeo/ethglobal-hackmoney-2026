@@ -80,7 +80,7 @@ const createNetworkStatusStore = () => {
 	const checkLifiApi = async (): Promise<'healthy' | 'degraded' | 'down'> => {
 		try {
 			const start = performance.now()
-			const response = await fetch('https://li.quest/v1/status', {
+			const response = await fetch('https://li.quest/v1/chains', {
 				signal: AbortSignal.timeout(5000),
 			})
 			const latency = performance.now() - start
