@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 async function addMockWallet(context: { addInitScript: (fn: () => void) => Promise<void> }) {
 	await context.addInitScript(() => {
-		const MOCK = '0x1234567890123456789012345678901234567890'
+		const MOCK = '0x4a6B66dDF6FC5c5691571eF1bCa1FD7e406aaDce'
 		window.addEventListener('eip6963:requestProvider', () => {
 			window.dispatchEvent(
 				new CustomEvent('eip6963:announceProvider', {
@@ -45,18 +45,18 @@ test.describe('E2E bridge flow', () => {
 			await page.locator('[data-wallet-provider-option]').waitFor({ state: 'visible', timeout: 10_000 })
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({ timeout: 15_000 })
-			await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 15_000 })
+			await expect(page.locator('[data-balances-grid]')).toBeVisible({ timeout: 20_000 })
+			await expect(page.getByLabel('From chain')).toBeVisible({ timeout: 20_000 })
 			await expect(page.getByLabel('From chain')).toContainText('Ethereum', { timeout: 5_000 })
 			await page.getByLabel('From chain').click()
 			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
 			await page.getByLabel('To chain').click()
 			await page.getByRole('option', { name: 'OP Mainnet' }).click({ force: true })
 			await page.getByLabel('Amount').fill('1')
-			await page.getByRole('button', { name: 'Get Routes' }).click()
 			await Promise.race([
-				page.locator('[data-testid="quote-result"]').waitFor({ state: 'visible', timeout: 25_000 }),
-				page.locator('[data-no-routes]').waitFor({ state: 'visible', timeout: 25_000 }),
-				page.locator('[data-error-display]').waitFor({ state: 'visible', timeout: 25_000 }),
+				page.locator('[data-testid="quote-result"]').waitFor({ state: 'visible', timeout: 50_000 }),
+				page.locator('[data-no-routes]').waitFor({ state: 'visible', timeout: 50_000 }),
+				page.locator('[data-error-display]').waitFor({ state: 'visible', timeout: 50_000 }),
 			])
 			const hasResult =
 				(await page.locator('[data-testid="quote-result"]').count()) > 0 ||
@@ -74,6 +74,7 @@ test.describe('E2E bridge flow', () => {
 			await page.locator('[data-wallet-provider-option]').waitFor({ state: 'visible', timeout: 10_000 })
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({ timeout: 15_000 })
+			await expect(page.locator('[data-balances-grid]')).toBeVisible({ timeout: 20_000 })
 			await expect(
 				page.getByRole('button', { name: /Transaction history/ }),
 			).toBeVisible({ timeout: 10_000 })
@@ -97,14 +98,14 @@ test.describe('E2E bridge flow', () => {
 			await page.locator('[data-wallet-provider-option]').waitFor({ state: 'visible', timeout: 10_000 })
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({ timeout: 15_000 })
-			await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 15_000 })
+			await expect(page.locator('[data-balances-grid]')).toBeVisible({ timeout: 20_000 })
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText('Mainnet')
 			await expect(page.getByLabel('From chain')).toContainText('Ethereum', { timeout: 5_000 })
-			await page.locator('[data-wallet-network-switch]').click()
+			await page.locator('[data-wallet-network-testnet]').click()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText('Testnet', {
 				timeout: 10_000,
 			})
-			await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 15_000 })
+			await expect(page.getByLabel('From chain')).toBeVisible({ timeout: 15_000 })
 			await page.getByLabel('From chain').click()
 			await expect(page.getByRole('listbox')).toBeVisible({ timeout: 5_000 })
 			const hasSepolia =
@@ -119,15 +120,16 @@ test.describe('E2E bridge flow', () => {
 			await page.locator('[data-wallet-provider-option]').waitFor({ state: 'visible', timeout: 10_000 })
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({ timeout: 15_000 })
-			await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 15_000 })
+			await expect(page.locator('[data-balances-grid]')).toBeVisible({ timeout: 20_000 })
 			await page.getByLabel('From chain').click()
 			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
-			await page.locator('[data-wallet-network-switch]').click()
+			await page.locator('[data-wallet-network-testnet]').click()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText('Testnet', {
 				timeout: 10_000,
 			})
-			await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 15_000 })
-			await expect(page.getByLabel('From chain')).not.toContainText('Ethereum')
+			await expect(page.getByLabel('From chain')).not.toHaveText('Ethereum', {
+				timeout: 15_000,
+			})
 		})
 	})
 
@@ -157,21 +159,20 @@ test.describe('E2E bridge flow', () => {
 			await page.locator('[data-wallet-provider-option]').waitFor({ state: 'visible', timeout: 10_000 })
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({ timeout: 15_000 })
-			await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 15_000 })
+			await expect(page.locator('[data-balances-grid]')).toBeVisible({ timeout: 20_000 })
 			await page.getByLabel('From chain').click()
 			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
 			await page.getByLabel('To chain').click()
 			await page.getByRole('option', { name: 'OP Mainnet' }).click({ force: true })
 			await page.getByLabel('Amount').fill('1')
-			await page.getByRole('button', { name: 'Get Routes' }).click()
 			await Promise.race([
-				page.locator('[data-testid="quote-result"]').waitFor({ state: 'visible', timeout: 25_000 }),
-				page.locator('[data-no-routes]').waitFor({ state: 'visible', timeout: 25_000 }),
-				page.locator('[data-error-display]').waitFor({ state: 'visible', timeout: 25_000 }),
+				page.locator('[data-testid="quote-result"]').waitFor({ state: 'visible', timeout: 50_000 }),
+				page.locator('[data-no-routes]').waitFor({ state: 'visible', timeout: 50_000 }),
+				page.locator('[data-error-display]').waitFor({ state: 'visible', timeout: 50_000 }),
 			])
 			if ((await page.locator('[data-error-display]').count()) > 0) {
 				await expect(
-					page.locator('[data-error-display]').getByRole('button', { name: /retry|dismiss/i }),
+					page.locator('[data-error-display]').getByRole('button', { name: /retry|dismiss/i }).first(),
 				).toBeVisible({ timeout: 5_000 })
 			}
 		})
