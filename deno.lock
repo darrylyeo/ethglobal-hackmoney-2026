@@ -3,6 +3,7 @@
   "specifiers": {
     "jsr:@std/assert@*": "1.0.18",
     "jsr:@std/internal@^1.0.12": "1.0.12",
+    "npm:@axe-core/playwright@^4.11.0": "4.11.0_playwright-core@1.58.0",
     "npm:@lifi/sdk@^3.15.4": "3.15.4_@solana+wallet-adapter-base@0.9.27__@solana+web3.js@1.98.4___typescript@5.9.3__typescript@5.9.3_@solana+web3.js@1.98.4__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_bs58@6.0.0_typescript@5.9.3",
     "npm:@playwright/test@^1.57.0": "1.58.0",
     "npm:@sveltejs/adapter-auto@7": "7.0.0_@sveltejs+kit@2.49.2__@sveltejs+vite-plugin-svelte@6.2.1___svelte@5.46.1____acorn@8.15.0___vite@7.3.0____picomatch@4.0.3__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3__acorn@8.15.0_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3_svelte@5.46.1__acorn@8.15.0_vite@7.3.0__picomatch@4.0.3",
@@ -12,11 +13,14 @@
     "npm:@tanstack/query-db-collection@^1.0.22": "1.0.22_@tanstack+query-core@5.90.20_typescript@5.9.3",
     "npm:@tanstack/svelte-db@~0.1.68": "0.1.68_svelte@5.46.1__acorn@8.15.0_typescript@5.9.3",
     "npm:@tevm/voltaire@~0.2.28": "0.2.28_typescript@5.9.3",
+    "npm:@threlte/core@^8.3.1": "8.3.1_svelte@5.46.1__acorn@8.15.0_three@0.182.0",
+    "npm:@types/three@0.182": "0.182.0",
     "npm:bits-ui@^2.15.5": "2.15.5_@internationalized+date@3.10.1_svelte@5.46.1__acorn@8.15.0_@sveltejs+kit@2.49.2__@sveltejs+vite-plugin-svelte@6.2.1___svelte@5.46.1____acorn@8.15.0___vite@7.3.0____picomatch@4.0.3__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3__acorn@8.15.0_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3_vite@7.3.0__picomatch@4.0.3",
     "npm:playwright@^1.57.0": "1.58.0",
     "npm:svelte-check@^4.3.4": "4.3.5_svelte@5.46.1__acorn@8.15.0_typescript@5.9.3",
     "npm:svelte@^5.45.6": "5.46.1_acorn@8.15.0",
     "npm:tevm@^1.0.0-next.149": "1.0.0-next.149_@tevm+ts-plugin@1.0.0-next.148__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+    "npm:three@0.182": "0.182.0",
     "npm:typescript@^5.9.3": "5.9.3",
     "npm:viem@^2.45.1": "2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
     "npm:vite-plugin-devtools-json@1": "1.0.0_vite@7.3.0__picomatch@4.0.3",
@@ -60,6 +64,13 @@
       "dependencies": [
         "ansi-styles@6.2.3",
         "is-fullwidth-code-point@5.1.0"
+      ]
+    },
+    "@axe-core/playwright@4.11.0_playwright-core@1.58.0": {
+      "integrity": "sha512-70vBT/Ylqpm65RQz2iCG2o0JJCEG/WCNyefTr2xcOcr1CoSee60gNQYUMZZ7YukoKkFLv26I/jjlsvwwp532oQ==",
+      "dependencies": [
+        "axe-core",
+        "playwright-core"
       ]
     },
     "@babel/code-frame@7.28.6": {
@@ -224,6 +235,9 @@
         "react-dom",
         "react-is@17.0.2"
       ]
+    },
+    "@dimforge/rapier3d-compat@0.12.0": {
+      "integrity": "sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow=="
     },
     "@effect/schema@0.75.5_effect@3.18.1": {
       "integrity": "sha512-TQInulTVCuF+9EIbJpyLP6dvxbQJMphrnRqgexm/Ze39rSjfhJuufF7XvU3SxTgg3HnL7B/kpORTJbHhlE6thw==",
@@ -2065,6 +2079,17 @@
         "webpack"
       ]
     },
+    "@threlte/core@8.3.1_svelte@5.46.1__acorn@8.15.0_three@0.182.0": {
+      "integrity": "sha512-qKjjNCQ+40hyeBcfOMh/8ef5x/j5PG5Wmo/L9Ye0aDCcdD6fCewWxfp7tV/J3CxPzX1dEp1JGK7sjyc7ntZSrg==",
+      "dependencies": [
+        "mitt",
+        "svelte",
+        "three"
+      ]
+    },
+    "@tweenjs/tween.js@23.1.3": {
+      "integrity": "sha512-vJmvvwFxYuGnF2axRtPYocag6Clbb5YS7kLL+SO/TeVFzHqDIWrNKYtcsPMibjDx9O+bu+psAy9NKfWklassUA=="
+    },
     "@types/chai@5.2.3": {
       "integrity": "sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==",
       "dependencies": [
@@ -2146,11 +2171,29 @@
         "safe-buffer@5.1.2"
       ]
     },
+    "@types/stats.js@0.17.4": {
+      "integrity": "sha512-jIBvWWShCvlBqBNIZt0KAshWpvSjhkwkEu4ZUcASoAvhmrgAUI2t1dXrjSL4xXVLB4FznPrIsX3nKXFl/Dt4vA=="
+    },
+    "@types/three@0.182.0": {
+      "integrity": "sha512-WByN9V3Sbwbe2OkWuSGyoqQO8Du6yhYaXtXLoA5FkKTUJorZ+yOHBZ35zUUPQXlAKABZmbYp5oAqpA4RBjtJ/Q==",
+      "dependencies": [
+        "@dimforge/rapier3d-compat",
+        "@tweenjs/tween.js",
+        "@types/stats.js",
+        "@types/webxr",
+        "@webgpu/types",
+        "fflate",
+        "meshoptimizer"
+      ]
+    },
     "@types/tinycolor2@1.4.6": {
       "integrity": "sha512-iEN8J0BoMnsWBqjVbWH/c0G0Hh7O21lpR2/+PrvAVgWdzL7eexIFm4JN/Wn10PTcmNdtS6U67r499mlWMXOxNw=="
     },
     "@types/uuid@8.3.4": {
       "integrity": "sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw=="
+    },
+    "@types/webxr@0.5.24": {
+      "integrity": "sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg=="
     },
     "@types/ws@7.4.7": {
       "integrity": "sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==",
@@ -2416,6 +2459,9 @@
         "@xtuc/long"
       ]
     },
+    "@webgpu/types@0.1.69": {
+      "integrity": "sha512-RPmm6kgRbI8e98zSD3RVACvnuktIja5+yLgDAkTmxLr90BEwdTXRQWNLF3ETTTyH/8mKhznZuN5AveXYFEsMGQ=="
+    },
     "@xtuc/ieee754@1.2.0": {
       "integrity": "sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA=="
     },
@@ -2509,6 +2555,9 @@
     },
     "auto-bind@5.0.1": {
       "integrity": "sha512-ooviqdwwgfIfNmDwo94wlshcdzfO64XV0Cg6oDsDYBJfITDz1EngD2z7DkbvCWn+XIMsIqW27sEVF6qcpJrRcg=="
+    },
+    "axe-core@4.11.1": {
+      "integrity": "sha512-BASOg+YwO2C+346x3LZOeoovTIoTrRqEsqMa6fmfAV0P+U9mFr9NsyOEpiYvFjbc64NMrSswhV50WdXzdb/Z5A=="
     },
     "axobject-query@4.1.0": {
       "integrity": "sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ=="
@@ -3027,6 +3076,9 @@
         "picomatch"
       ]
     },
+    "fflate@0.8.2": {
+      "integrity": "sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A=="
+    },
     "figures@6.1.0": {
       "integrity": "sha512-d+l3qxjSesT4V7v2fh+QnmFnUWv9lSpjarhShNTgBOfA0ttejbQUAlHLitbjkoRiDulW0OPoQPYIGhIC8ohejg==",
       "dependencies": [
@@ -3401,6 +3453,9 @@
     "merge-stream@2.0.0": {
       "integrity": "sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w=="
     },
+    "meshoptimizer@0.22.0": {
+      "integrity": "sha512-IebiK79sqIy+E4EgOr+CAw+Ke8hAspXKzBd0JdgEmPHiAwmvEj2S4h1rfvo+o/BnfEYd/jAOg5IeeIjzlzSnDg=="
+    },
     "mime-db@1.52.0": {
       "integrity": "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg=="
     },
@@ -3421,6 +3476,9 @@
     },
     "minipass@7.1.2": {
       "integrity": "sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw=="
+    },
+    "mitt@3.0.1": {
+      "integrity": "sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw=="
     },
     "modern-monaco@0.3.7_typescript@5.9.3": {
       "integrity": "sha512-YPpKf7wr7mXpcD3GqWGxGKJ9LllCJ7luQF07tTJ7TMLPBNyWDt1CqjUa2soY/Q1KgEJBG6Cu0RtoYDbFw/fVNg==",
@@ -4197,6 +4255,9 @@
         "real-require"
       ]
     },
+    "three@0.182.0": {
+      "integrity": "sha512-GbHabT+Irv+ihI1/f5kIIsZ+Ef9Sl5A1Y7imvS5RQjWgtTPfPnZ43JmlYI7NtCRDK9zir20lQpfg8/9Yd02OvQ=="
+    },
     "tinybench@2.9.0": {
       "integrity": "sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg=="
     },
@@ -4637,6 +4698,7 @@
     ],
     "packageJson": {
       "dependencies": [
+        "npm:@axe-core/playwright@^4.11.0",
         "npm:@lifi/sdk@^3.15.4",
         "npm:@playwright/test@^1.57.0",
         "npm:@sveltejs/adapter-auto@7",
@@ -4645,11 +4707,14 @@
         "npm:@tanstack/query-db-collection@^1.0.22",
         "npm:@tanstack/svelte-db@~0.1.68",
         "npm:@tevm/voltaire@~0.2.28",
+        "npm:@threlte/core@^8.3.1",
+        "npm:@types/three@0.182",
         "npm:bits-ui@^2.15.5",
         "npm:playwright@^1.57.0",
         "npm:svelte-check@^4.3.4",
         "npm:svelte@^5.45.6",
         "npm:tevm@^1.0.0-next.149",
+        "npm:three@0.182",
         "npm:typescript@^5.9.3",
         "npm:viem@^2.45.1",
         "npm:vite-plugin-devtools-json@1",
