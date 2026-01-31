@@ -86,113 +86,124 @@
 	<title>USDC Bridge</title>
 </svelte:head>
 
-<h1>USDC Bridge</h1>
+<div data-column="gap-6">
+	<h1>USDC Bridge</h1>
 
-<section>
-	<h2>Get quote</h2>
-	<svelte:boundary>
-		{#if networksQuery.isLoading}
-			<p>Loading networks…</p>
-		{:else}
-			<form
-				onsubmit={(e) => {
-					e.preventDefault()
-					getQuote()
-				}}
-			>
-				<p>
-					<label for="from-chain">From chain</label>
-					<Select.Root
-						type="single"
-						bind:value={fromChain}
-						items={networkItems}
-						name="fromChain"
-					>
-						<Select.Trigger id="from-chain" aria-label="From chain">
-							{networkItems.find((i) => i.value === fromChain)?.label ?? 'Select'}
-						</Select.Trigger>
-						<Select.Portal>
-							<Select.Content>
-								<Select.Viewport>
-									{#each networkItems as item, i (`from-${i}-${item.value}`)}
-										<Select.Item value={item.value} label={item.label}>
-											<span data-testid={`option-${item.label}`}>{item.label}</span>
-										</Select.Item>
-									{/each}
-								</Select.Viewport>
-							</Select.Content>
-						</Select.Portal>
-					</Select.Root>
-				</p>
-				<p>
-					<label for="to-chain">To chain</label>
-					<Select.Root
-						type="single"
-						bind:value={toChain}
-						items={networkItems}
-						name="toChain"
-					>
-						<Select.Trigger id="to-chain" aria-label="To chain">
-							{networkItems.find((i) => i.value === toChain)?.label ?? 'Select'}
-						</Select.Trigger>
-						<Select.Portal>
-							<Select.Content>
-								<Select.Viewport>
-									{#each networkItems as item, i (`to-${i}-${item.value}`)}
-										<Select.Item value={item.value} label={item.label}>
-											<span data-testid={`option-${item.label}`}>{item.label}</span>
-										</Select.Item>
-									{/each}
-								</Select.Viewport>
-							</Select.Content>
-						</Select.Portal>
-					</Select.Root>
-				</p>
-				<p>
-					<label for="amount">Amount (smallest units)</label>
-					<input id="amount" type="text" bind:value={amount} />
-				</p>
-				<p>
-					<label for="from-address">From address</label>
-					<input id="from-address" type="text" bind:value={fromAddress} />
-				</p>
-				<Button.Root type="submit" disabled={quoteLoading}>
-					{quoteLoading ? 'Loading…' : 'Get Quote'}
-				</Button.Root>
-			</form>
-		{/if}
-		{#if quoteError}
-			<p role="alert">{quoteError}</p>
-		{/if}
-		{#if quote}
-			<p data-testid="quote-result">
-				<strong>Estimated output:</strong> {quote.estimatedToAmount} (steps: {quote.steps.length})
-			</p>
-			{#if quote.fees.length > 0}
-				<p>Fees: {quote.fees.map((f) => `${f.amount} ${f.token.symbol}`).join(', ')}</p>
+	<section data-card data-column="gap-4">
+		<h2>Get quote</h2>
+		<svelte:boundary>
+			{#if networksQuery.isLoading}
+				<p>Loading networks…</p>
+			{:else}
+				<form
+					data-column="gap-4"
+					onsubmit={(e) => {
+						e.preventDefault()
+						getQuote()
+					}}
+				>
+					<div data-row="gap-4">
+						<div data-column="gap-2">
+							<label for="from-chain">From chain</label>
+							<Select.Root
+								type="single"
+								bind:value={fromChain}
+								items={networkItems}
+								name="fromChain"
+							>
+								<Select.Trigger id="from-chain" aria-label="From chain">
+									{networkItems.find((i) => i.value === fromChain)?.label ?? 'Select'}
+								</Select.Trigger>
+								<Select.Portal>
+									<Select.Content>
+										<Select.Viewport>
+											{#each networkItems as item, i (`from-${i}-${item.value}`)}
+												<Select.Item value={item.value} label={item.label}>
+													<span data-testid={`option-${item.label}`}>{item.label}</span>
+												</Select.Item>
+											{/each}
+										</Select.Viewport>
+									</Select.Content>
+								</Select.Portal>
+							</Select.Root>
+						</div>
+						<div data-column="gap-2">
+							<label for="to-chain">To chain</label>
+							<Select.Root
+								type="single"
+								bind:value={toChain}
+								items={networkItems}
+								name="toChain"
+							>
+								<Select.Trigger id="to-chain" aria-label="To chain">
+									{networkItems.find((i) => i.value === toChain)?.label ?? 'Select'}
+								</Select.Trigger>
+								<Select.Portal>
+									<Select.Content>
+										<Select.Viewport>
+											{#each networkItems as item, i (`to-${i}-${item.value}`)}
+												<Select.Item value={item.value} label={item.label}>
+													<span data-testid={`option-${item.label}`}>{item.label}</span>
+												</Select.Item>
+											{/each}
+										</Select.Viewport>
+									</Select.Content>
+								</Select.Portal>
+							</Select.Root>
+						</div>
+					</div>
+					<div data-column="gap-2">
+						<label for="amount">Amount (smallest units)</label>
+						<input id="amount" type="text" bind:value={amount} />
+					</div>
+					<div data-column data-column="gap-2">
+						<label for="from-address">From address</label>
+						<input id="from-address" type="text" bind:value={fromAddress} />
+					</div>
+					<Button.Root type="submit" disabled={quoteLoading}>
+						{quoteLoading ? 'Loading…' : 'Get Quote'}
+					</Button.Root>
+				</form>
 			{/if}
+			{#if quoteError}
+				<p role="alert">{quoteError}</p>
+			{/if}
+			{#if quote}
+				<div data-column data-column="gap-2">
+					<p data-testid="quote-result">
+						<strong>Estimated output:</strong> {quote.estimatedToAmount} (steps: {quote.steps.length})
+					</p>
+					{#if quote.fees.length > 0}
+						<p>Fees: {quote.fees.map((f) => `${f.amount} ${f.token.symbol}`).join(', ')}</p>
+					{/if}
+				</div>
+			{/if}
+
+			{#snippet failed(error, reset)}
+				<div data-row data-row="gap-2 align-center">
+					<p role="alert">{error instanceof Error ? error.message : String(error)}</p>
+					<Button.Root type="button" onclick={reset}>Try again</Button.Root>
+				</div>
+			{/snippet}
+		</svelte:boundary>
+	</section>
+
+	<section data-card data-column data-column="gap-4">
+		<h2>Chain ID (Voltaire)</h2>
+		<div data-row data-row="gap-2">
+			<div data-column data-column="gap-2" data-row-item="flexible">
+				<label for="rpc-url">RPC URL</label>
+				<input id="rpc-url" type="url" bind:value={rpcUrl} placeholder="https://…" />
+			</div>
+			<Button.Root type="button" disabled={chainIdLoading || !rpcUrl.trim()} onclick={getChainIdFromRpc}>
+				{chainIdLoading ? 'Loading…' : 'Get chain ID'}
+			</Button.Root>
+		</div>
+		{#if chainIdError}
+			<p role="alert">{chainIdError}</p>
 		{/if}
-
-		{#snippet failed(error, reset)}
-			<p role="alert">{error instanceof Error ? error.message : String(error)}</p>
-			<Button.Root type="button" onclick={reset}>Try again</Button.Root>
-		{/snippet}
-	</svelte:boundary>
-</section>
-
-<section>
-	<h2>Chain ID (Voltaire)</h2>
-	<p>
-		<label for="rpc-url">RPC URL</label>
-		<input id="rpc-url" type="url" bind:value={rpcUrl} placeholder="https://…" />
-	</p>
-	<Button.Root type="button" disabled={chainIdLoading || !rpcUrl.trim()} onclick={getChainIdFromRpc}>
-		{chainIdLoading ? 'Loading…' : 'Get chain ID'}
-	</Button.Root>
-	{#if chainIdError}
-		<p role="alert">{chainIdError}</p>
-	{/if}
-	{#if chainIdResult !== null}
-		<p>Chain ID: {chainIdResult}</p>
-	{/if}
-</section>
+		{#if chainIdResult !== null}
+			<p>Chain ID: {chainIdResult}</p>
+		{/if}
+	</section>
+</div>
