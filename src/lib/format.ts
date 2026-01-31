@@ -1,7 +1,9 @@
 /**
  * Format token amounts from smallest units to human-readable, with locale grouping.
- * Uses BigInt for precision (safe for 18+ decimals).
+ * Uses BigInt for precision (safe for 18+ decimals). Memoized for hot paths.
  */
+
+const formatTokenAmountCache = new Map<string, string>()
 
 export function formatTokenAmount(
 	amountInSmallestUnits: string,
@@ -10,6 +12,9 @@ export function formatTokenAmount(
 ): string {
 	const trimmed = amountInSmallestUnits.trim()
 	if (trimmed === '' || trimmed === '-') return '0'
+	const key = `${amountInSmallestUnits}|${decimals}|${locale ?? ''}`
+	const cached = formatTokenAmountCache.get(key)
+	if (cached !== undefined) return cached
 	const amount = BigInt(trimmed)
 	const divisor = 10n ** BigInt(decimals)
 	const intPart = amount / divisor
@@ -21,7 +26,9 @@ export function formatTokenAmount(
 		.replace(/0+$/, '')
 	const intFormatted = new Intl.NumberFormat(locale, { useGrouping: true })
 		.format(intPart)
-	return fracPadded === '' ? intFormatted : `${intFormatted}.${fracPadded}`
+	const result = fracPadded === '' ? intFormatted : `${intFormatted}.${fracPadded}`
+	formatTokenAmountCache.set(key, result)
+	return result
 }
 
 export function formatInteger(value: string | number, locale?: string): string {

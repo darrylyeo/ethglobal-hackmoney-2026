@@ -32,6 +32,7 @@
 	import { networkStatus } from '$/lib/network-status.svelte'
 	import { categorizeError, ErrorCode, isBridgeError } from '$/lib/errors'
 	import { toasts } from '$/lib/toast.svelte'
+	import { debounce } from '$/lib/debounce'
 	import {
 		formatTokenAmount,
 		parseDecimalToSmallest,
@@ -215,6 +216,22 @@
 			routesLoading = false
 		}
 	}
+
+	const debouncedGetRoutes = debounce((wallet: WalletState) => {
+		void getRoutes(wallet)
+	}, 500)
+
+	$effect(() => {
+		if (
+			!walletState?.address ||
+			!amount.trim() ||
+			!fromChain ||
+			!toChain
+		)
+			return
+		debouncedGetRoutes(walletState)
+		return () => debouncedGetRoutes.cancel()
+	})
 
 	const sendTransaction = async (wallet: WalletState) => {
 		if (!wallet.connectedDetail || !wallet.address || !selectedRoute) return

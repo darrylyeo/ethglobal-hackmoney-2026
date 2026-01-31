@@ -11,6 +11,9 @@
 
 
 <script lang="ts">
+	// Context
+	import { preloadData } from '$app/navigation'
+
 	// Props
 	let {
 		items,
@@ -202,6 +205,11 @@
 		<a
 			href={item.href}
 			aria-current={currentPathname === item.href ? 'page' : undefined}
+			onmouseenter={() => {
+				if (item.href && !item.href.startsWith('http')) {
+					preloadData(item.href)
+				}
+			}}
 			{...item.href.startsWith('http') && {
 				target: '_blank',
 				rel: 'noopener noreferrer',

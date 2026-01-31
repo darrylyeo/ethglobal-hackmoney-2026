@@ -116,6 +116,8 @@
 					alt=''
 					width='20'
 					height='20'
+					loading='lazy'
+					decoding='async'
 					data-wallet-icon
 				/>
 			{/if}
@@ -147,7 +149,7 @@
 								data-wallet-provider-option
 							>
 								{#if detail.info.icon}
-									<img src={detail.info.icon} alt='' width='20' height='20' />
+									<img src={detail.info.icon} alt='' width='20' height='20' loading='lazy' decoding='async' />
 								{/if}
 								<span>{detail.info.name}</span>
 							</Button.Root>

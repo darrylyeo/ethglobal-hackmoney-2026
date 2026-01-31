@@ -12,7 +12,8 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test:unit": "deno task test:unit && vitest run",
     "test": "deno task test:unit && npm run test:e2e",
-    "test:e2e": "node node_modules/@playwright/test/cli.js test"
+    "test:e2e": "node node_modules/@playwright/test/cli.js test",
+    "check:size": "pnpm build && node scripts/check-bundle-size.mjs"
   },
   "dependencies": {
     "@lifi/sdk": "^3.15.4",

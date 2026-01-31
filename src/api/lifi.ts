@@ -1,17 +1,9 @@
 /**
  * LI.FI SDK integration for USDC routes and quotes.
  * Route = list of options; quote = detailed execution for one route (getQuote returns LiFiStep).
+ * SDK is lazy-loaded so non-bridge routes stay light.
  */
 
-import {
-	config as lifiConfig,
-	convertQuoteToRoute,
-	createConfig,
-	EVM,
-	executeRoute,
-	getQuote,
-	getRoutes,
-} from '@lifi/sdk'
 import type { LiFiStep, Process, Route, RouteExtended } from '@lifi/sdk'
 import { queryClient } from '$/lib/db/query-client'
 import { ChainId } from '$/constants/networks'
@@ -26,7 +18,28 @@ import {
 	mapLifiProcessStatus,
 	type TxStatus,
 } from '$/lib/tx-status'
-createConfig({ integrator: 'ethglobal-hackmoney-26' })
+
+const ROUTES_STALE_MS = 30_000
+
+let lifiSdk: Promise<{
+	config: { setProviders: (p: unknown[]) => void }
+	convertQuoteToRoute: (step: LiFiStep) => RouteExtended
+	createConfig: (opts: { integrator: string }) => void
+	EVM: (opts: unknown) => unknown
+	executeRoute: (route: RouteExtended, opts?: { updateRouteHook?: (r: RouteExtended) => void }) => Promise<RouteExtended>
+	getQuote: (params: unknown) => Promise<LiFiStep>
+	getRoutes: (params: unknown) => Promise<{ routes: Route[] }>
+}> | null = null
+
+const getLifiSdk = async () => {
+	if (!lifiSdk) {
+		lifiSdk = import('@lifi/sdk').then((m) => {
+			m.createConfig({ integrator: 'ethglobal-hackmoney-26' })
+			return m
+		})
+	}
+	return lifiSdk
+}
 
 export type StatusCallback = (status: BridgeStatus) => void
 
@@ -248,6 +261,17 @@ export function normalizeRoute(route: Route): NormalizedRoute {
 	}
 }
 
+export function routesQueryKey(params: QuoteParams): [string, number, number, string, string, number] {
+	return [
+		'lifi-routes',
+		params.fromChain,
+		params.toChain,
+		params.fromAmount,
+		params.fromAddress,
+		params.slippage ?? 0.005,
+	]
+}
+
 export async function getRoutesForUsdcBridge(
 	params: QuoteParams,
 ): Promise<NormalizedRoute[]> {
@@ -259,21 +283,28 @@ export async function getRoutesForUsdcBridge(
 		toAddress,
 		slippage = 0.005,
 	} = params
-	const result = await getRoutes({
-		fromChainId: fromChain,
-		toChainId: toChain,
-		fromTokenAddress: getUsdcAddress(fromChain),
-		toTokenAddress: getUsdcAddress(toChain),
-		fromAmount,
-		fromAddress,
-		toAddress: toAddress ?? fromAddress,
-		options: {
-			slippage,
-			order: 'RECOMMENDED',
-			maxPriceImpact: 0.1,
+	const sdk = await getLifiSdk()
+	return await queryClient.fetchQuery({
+		queryKey: routesQueryKey(params),
+		queryFn: async () => {
+			const result = await sdk.getRoutes({
+				fromChainId: fromChain,
+				toChainId: toChain,
+				fromTokenAddress: getUsdcAddress(fromChain),
+				toTokenAddress: getUsdcAddress(toChain),
+				fromAmount,
+				fromAddress,
+				toAddress: toAddress ?? fromAddress,
+				options: {
+					slippage,
+					order: 'RECOMMENDED',
+					maxPriceImpact: 0.1,
+				},
+			})
+			return result.routes.slice(0, 5).map(normalizeRoute)
 		},
+		staleTime: ROUTES_STALE_MS,
 	})
-	return result.routes.slice(0, 5).map(normalizeRoute)
 }
 
 export function getUsdcAddress(chainId: number): `0x${string}` {
@@ -286,7 +317,8 @@ export async function getQuoteForUsdcBridge(
 	params: QuoteParams,
 ): Promise<{ quote: NormalizedQuote; step: LiFiStep }> {
 	const { fromChain, toChain, fromAmount, fromAddress, toAddress } = params
-	const step = await getQuote({
+	const sdk = await getLifiSdk()
+	const step = await sdk.getQuote({
 		fromChain,
 		toChain,
 		fromToken: getUsdcAddress(fromChain),
@@ -316,12 +348,14 @@ export async function fetchQuoteCached(
 	return await queryClient.fetchQuery({
 		queryKey: quoteQueryKey(params),
 		queryFn: () => getQuoteForUsdcBridge(params),
+		staleTime: ROUTES_STALE_MS,
 	})
 }
 
 export async function getQuoteStep(params: QuoteParams): Promise<LiFiStep> {
 	const { fromChain, toChain, fromAmount, fromAddress, toAddress } = params
-	return await getQuote({
+	const sdk = await getLifiSdk()
+	return await sdk.getQuote({
 		fromChain,
 		toChain,
 		fromToken: getUsdcAddress(fromChain),
@@ -340,10 +374,11 @@ export async function executeQuote(
 	const provider = providerDetail.provider as {
 		request(args: { method: string; params?: unknown[] }): Promise<unknown>
 	}
+	const sdk = await getLifiSdk()
 	const step = await getQuoteStep(params)
-	const route = convertQuoteToRoute(step)
-	lifiConfig.setProviders([
-		EVM({
+	const route = sdk.convertQuoteToRoute(step)
+	sdk.config.setProviders([
+		sdk.EVM({
 			getWalletClient: () =>
 				Promise.resolve(createWalletClientForChain(provider, params.fromChain)),
 			switchChain: async (chainId) => {
@@ -352,7 +387,7 @@ export async function executeQuote(
 			},
 		}),
 	])
-	return executeRoute(route, {
+	return sdk.executeRoute(route, {
 		updateRouteHook: options?.updateRouteHook,
 	})
 }
@@ -418,8 +453,9 @@ export async function executeSelectedRoute(
 	const provider = providerDetail.provider as {
 		request(args: { method: string; params?: unknown[] }): Promise<unknown>
 	}
-	lifiConfig.setProviders([
-		EVM({
+	const sdk = await getLifiSdk()
+	sdk.config.setProviders([
+		sdk.EVM({
 			getWalletClient: () =>
 				Promise.resolve(
 					createWalletClientForChain(provider, route.fromChainId),
@@ -435,7 +471,7 @@ export async function executeSelectedRoute(
 		steps: [],
 	}
 	if (onStatusChange) onStatusChange({ ...status })
-	return executeRoute(route.originalRoute, {
+	return sdk.executeRoute(route.originalRoute, {
 		updateRouteHook: onStatusChange
 			? (updatedRoute) => {
 					const next = routeToBridgeStatus(updatedRoute)
