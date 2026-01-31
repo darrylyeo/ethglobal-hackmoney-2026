@@ -95,6 +95,7 @@ export type QuoteParams = {
 	toChain: number
 	fromAmount: string
 	fromAddress: `0x${string}`
+	toAddress?: `0x${string}`
 }
 function getUsdcAddress(chainId: number): `0x${string}` {
 	const token = ercTokensBySymbolByChainId[chainId as ChainId]?.USDC
@@ -105,7 +106,7 @@ function getUsdcAddress(chainId: number): `0x${string}` {
 export async function getQuoteForUsdcBridge(
 	params: QuoteParams,
 ): Promise<NormalizedQuote> {
-	const { fromChain, toChain, fromAmount, fromAddress } = params
+	const { fromChain, toChain, fromAmount, fromAddress, toAddress } = params
 	const step = await getQuote({
 		fromChain,
 		toChain,
@@ -113,14 +114,21 @@ export async function getQuoteForUsdcBridge(
 		toToken: getUsdcAddress(toChain),
 		fromAmount,
 		fromAddress,
+		toAddress: toAddress ?? fromAddress,
 	})
 	return normalizeQuote(step)
 }
 
 export function quoteQueryKey(
 	params: QuoteParams,
-): [string, number, number, string] {
-	return ['lifi-quote', params.fromChain, params.toChain, params.fromAmount]
+): [string, number, number, string, string | undefined] {
+	return [
+		'lifi-quote',
+		params.fromChain,
+		params.toChain,
+		params.fromAmount,
+		params.toAddress,
+	]
 }
 
 export async function fetchQuoteCached(
@@ -133,7 +141,7 @@ export async function fetchQuoteCached(
 }
 
 export async function getQuoteStep(params: QuoteParams): Promise<LiFiStep> {
-	const { fromChain, toChain, fromAmount, fromAddress } = params
+	const { fromChain, toChain, fromAmount, fromAddress, toAddress } = params
 	return await getQuote({
 		fromChain,
 		toChain,
@@ -141,6 +149,7 @@ export async function getQuoteStep(params: QuoteParams): Promise<LiFiStep> {
 		toToken: getUsdcAddress(toChain),
 		fromAmount,
 		fromAddress,
+		toAddress: toAddress ?? fromAddress,
 	})
 }
 

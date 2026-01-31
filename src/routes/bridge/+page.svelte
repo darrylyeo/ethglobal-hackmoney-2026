@@ -15,6 +15,7 @@
 	import ChainSwitchPrompt from './ChainSwitchPrompt.svelte'
 	import QuoteForm from './QuoteForm.svelte'
 	import QuoteOutput from './QuoteOutput.svelte'
+	import RecipientInput from './RecipientInput.svelte'
 	import WalletProvider from './WalletProvider.svelte'
 
 	// State
@@ -44,6 +45,9 @@
 	let fromChain = $state(String(1))
 	let toChain = $state(String(10))
 	let amount = $state('1000000')
+	let recipient = $state<`0x${string}`>(
+		'0x0000000000000000000000000000000000000000' as `0x${string}`,
+	)
 	let quote = $state<NormalizedQuote | null>(null)
 	let quoteError = $state<string | null>(null)
 	let quoteLoading = $state(false)
@@ -70,6 +74,7 @@
 				toChain: Number(toChain),
 				fromAmount: amount,
 				fromAddress: wallet.address,
+				toAddress: recipient,
 			})
 		} catch (e) {
 			quoteError = e instanceof Error ? e.message : String(e)
@@ -91,6 +96,7 @@
 					toChain: Number(toChain),
 					fromAmount: amount,
 					fromAddress: wallet.address,
+					toAddress: recipient,
 				},
 				{
 					updateRouteHook(route) {
@@ -168,6 +174,11 @@
 							fromAddress={wallet.address}
 							loading={quoteLoading}
 							onSubmit={() => getQuote(wallet)}
+						/>
+						<RecipientInput
+							walletAddress={wallet.address}
+							toChainId={Number(toChain)}
+							bind:recipient
 						/>
 					{/if}
 					{#if quoteError}
