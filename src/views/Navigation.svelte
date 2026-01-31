@@ -13,7 +13,6 @@
 
 	// Components
 	import NetworkStatusIndicator from '$/components/NetworkStatusIndicator.svelte'
-	import ThemeToggle from '$/components/ThemeToggle.svelte'
 	import NavigationItems, { type NavigationItem } from './NavigationItem.svelte'
 </script>
 
@@ -43,9 +42,6 @@
 		<menu data-row="gap-2">
 			<li>
 				<NetworkStatusIndicator />
-			</li>
-			<li>
-				<ThemeToggle />
 			</li>
 
 			<li>
