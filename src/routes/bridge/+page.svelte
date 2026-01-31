@@ -1,5 +1,6 @@
 <script lang='ts'>
 	// Types/constants
+	import { browser } from '$app/environment'
 	import type { NormalizedRoute } from '$/api/lifi'
 	import type { WalletState } from '$/lib/wallet'
 	import type { BridgeError } from '$/lib/errors'
@@ -8,7 +9,7 @@
 
 	// Functions
 	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { Button } from 'bits-ui'
+	import { Button, Switch } from 'bits-ui'
 	import { networksCollection } from '$/collections/networks'
 	import {
 		actorCoinsCollection,
@@ -118,6 +119,12 @@
 	let routesFetchedAt = $state<number | null>(null)
 	let quoteNow = $state(Date.now())
 	const SLIPPAGE_STORAGE_KEY = 'bridge-slippage'
+	const AUTO_REFRESH_STORAGE_KEY = 'bridge-quote-auto-refresh'
+	const initialAutoRefresh = () => {
+		if (typeof document === 'undefined') return false
+		return localStorage.getItem(AUTO_REFRESH_STORAGE_KEY) === 'true'
+	}
+	let autoRefreshEnabled = $state(initialAutoRefresh())
 	const initialSlippage = () => {
 		if (typeof document === 'undefined') return DEFAULT_SLIPPAGE
 		const raw = localStorage.getItem(SLIPPAGE_STORAGE_KEY)
@@ -143,6 +150,30 @@
 	$effect(() => {
 		if (typeof document === 'undefined') return
 		localStorage.setItem(SLIPPAGE_STORAGE_KEY, String(slippage))
+	})
+
+	$effect(() => {
+		if (typeof document === 'undefined') return
+		localStorage.setItem(AUTO_REFRESH_STORAGE_KEY, String(autoRefreshEnabled))
+	})
+
+	$effect(() => {
+		if (
+			!autoRefreshEnabled ||
+			routesExpiresAt === null ||
+			!walletState?.address ||
+			routesLoading
+		)
+			return
+		const refreshAt = routesExpiresAt - 5_000
+		const delay = refreshAt - Date.now()
+		if (delay <= 0) return
+		const timeout = setTimeout(() => {
+			if (autoRefreshEnabled && !routesLoading && walletState?.address) {
+				void getRoutes(walletState)
+			}
+		}, delay)
+		return () => clearTimeout(timeout)
 	})
 
 	$effect(() => {
@@ -550,11 +581,23 @@
 									Max: {formatTokenAmount(String(maxDisplay), 6)} USDC
 								</p>
 								{#if routesExpiresAt !== null}
-									<QuoteExpiration
-										expiresAt={routesExpiresAt}
-										onRefresh={() => getRoutes(wallet)}
-										isRefreshing={routesLoading}
-									/>
+									<div data-quote-expiration-row>
+										<QuoteExpiration
+											expiresAt={routesExpiresAt}
+											onRefresh={() => getRoutes(wallet)}
+											isRefreshing={routesLoading}
+										/>
+										<label data-auto-refresh-toggle>
+											<Switch.Root
+												checked={autoRefreshEnabled}
+												onCheckedChange={(c) => (autoRefreshEnabled = c ?? false)}
+												aria-label="Auto-refresh quote before expiry"
+											>
+												<Switch.Thumb />
+											</Switch.Root>
+											<span>Auto-refresh before expiry</span>
+										</label>
+									</div>
 								{/if}
 								<SlippageSettings bind:value={slippage} />
 								<QuoteOutput
@@ -633,6 +676,7 @@
 	{/snippet}
 </WalletProvider>
 
+
 <style>
 	[data-balances-grid] {
 		display: grid;
@@ -640,22 +684,22 @@
 	}
 
 	[data-balance-item] {
-		display: flex
-		flex-direction: column
-		gap: 0.25em
-		padding: 0.75em
-		background: var(--color-bg-page)
-		border-radius: 0.5em
-		border: 1px solid var(--color-border)
+		display: flex;
+		flex-direction: column;
+		gap: 0.25em;
+		padding: 0.75em;
+		background: var(--color-bg-page);
+		border-radius: 0.5em;
+		border: 1px solid var(--color-border);
 	}
 
 	[data-balance-item][data-loading] {
-		opacity: 0.6
+		opacity: 0.6;
 	}
 
 	[data-balance-network] {
-		font-size: 0.75em
-		opacity: 0.7
+		font-size: 0.75em;
+		opacity: 0.7;
 	}
 
 	[data-balance-amount] {
@@ -667,7 +711,22 @@
 	}
 
 	[data-balance-error] {
-		color: var(--color-error, #ef4444)
-		font-size: 0.875em
+		color: var(--color-error, #ef4444);
+		font-size: 0.875em;
+	}
+
+	[data-quote-expiration-row] {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75em;
+	}
+
+	[data-auto-refresh-toggle] {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+		font-size: 0.875em;
+		cursor: pointer;
 	}
 </style>

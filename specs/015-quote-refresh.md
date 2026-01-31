@@ -174,11 +174,11 @@ $effect(() => {
 - [x] Bridge button disabled when quote expired
 - [x] Expired quote shows prompt to refresh
 - [x] New quote fetch updates fetchedAt
-- [ ] Auto-refresh toggle available (optional)
+- [x] Auto-refresh toggle available (optional)
 
 ## Status
 
-Complete. Bridge page: routesFetchedAt, quoteNow, routesExpiresAt, quoteIsExpired; getRoutes sets routesFetchedAt on success and clears on start; $effect ticks quoteNow every second when routesFetchedAt set. QuoteExpiration.svelte: countdown, warning at 15s, expired message, Refresh button. QuoteOutput: quoteExpired prop disables Send button. Optional auto-refresh not implemented.
+Complete. Bridge page: routesFetchedAt, quoteNow, routesExpiresAt, quoteIsExpired; getRoutes sets routesFetchedAt on success and clears on start; $effect ticks quoteNow every second when routesFetchedAt set. QuoteExpiration.svelte: countdown, warning at 15s, expired message, Refresh button. QuoteOutput: quoteExpired prop disables Send button. Auto-refresh: Switch "Auto-refresh before expiry" with localStorage (bridge-quote-auto-refresh), $effect schedules getRoutes 5s before expiry when enabled.
 
 ## Output when complete
 
