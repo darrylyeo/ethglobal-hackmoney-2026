@@ -29,7 +29,7 @@
 	import '$/styles/fonts.css'
 	import '$/styles/components.css'
 	import '$/styles/accessibility.css'
-	import '$/styles/responsive.css'
+	// import '$/styles/responsive.css'
 	import '$/styles/bits-ui.css'
 </script>
 
@@ -45,13 +45,9 @@
 	data-sticky-container
 >
 	<a href="#main-content" class="skip-link">Skip to main content</a>
+
 	<Navigation
 		navigationItems={[
-			{
-				id: 'home',
-				title: 'Home',
-				href: '/',
-			},
 			{
 				id: 'bridge',
 				title: 'Bridge',
@@ -63,40 +59,64 @@
 				href: '/transfers',
 			},
 			{
-				id: 'test-collections',
-				title: 'Test collections',
-				href: '/test/collections',
+				id: 'tests',
+				title: 'Tests',
+				children: [
+					{
+						id: 'test-collections',
+						title: 'Collections',
+						href: '/test/collections',
+					},
+					{
+						id: 'test-networks-coins',
+						title: 'Networks & coins',
+						href: '/test/networks-coins',
+					},
+					{
+						id: 'test-chain-id',
+						title: 'Chain ID (Voltaire)',
+						href: '/test/chain-id',
+					},
+				],
 			},
 		]}
 	/>
 
-	<main id="main-content" tabindex="-1" data-scroll-container data-sticky-container>
+	<main id="main-content">
 		<Boundary>
 			{@render children()}
 
-		{#snippet failed(error)}
-			<div data-column>
-				<h2>{(error as unknown as Error).status}</h2>
-
-				<p>{(error as unknown as Error).message}</p>
-			</div>
-		{/snippet}
+			{#snippet Failed(error, retry)}
+				<div data-column>
+					<h2>Error</h2>
+					<p>{error instanceof Error ? error.message : String(error)}</p>
+					<button type="button" onclick={retry}>Retry</button>
+				</div>
+			{/snippet}
 		</Boundary>
-		</main>
-		<ToastContainer position="bottom-right" />
-	</div>
+	</main>
+
+	<ToastContainer
+		position="bottom-right"
+	/>
+</div>
 
 
 <style>
 	#layout {
 		/* Constants */
-		--navigation-desktop-inlineSize: 16.5rem;
-		--navigation-mobile-blockSize: 4rem;
+		--navigation-desktop-inlineSize: 20rem;
+		--navigation-mobile-blockSize: 4.16rem;
 
 		/* Rules */
 		width: 100dvw;
 		height: 100dvh;
-		padding: var(--safeArea-insetTop) var(--safeArea-insetRight) var(--safeArea-insetBottom) var(--safeArea-insetLeft);
+		padding:
+			var(--safeArea-insetTop)
+			var(--safeArea-insetRight)
+			var(--safeArea-insetBottom)
+			var(--safeArea-insetLeft)
+		;
 		display: grid;
 		align-items: start;
 		gap: var(--separator-width);
@@ -108,11 +128,10 @@
 			--sticky-paddingInlineEnd: var(--safeArea-insetRight);
 		}
 
-		@media (width >= 60rem) {
+		@media not (max-width: 1024px) {
 			grid-template:
 				'Nav Main' 100dvh
-				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr)
-			;
+				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr);
 
 			&[data-sticky-container] {
 				--sticky-marginInlineStart: var(--separator-width);
@@ -120,7 +139,7 @@
 			}
 		}
 
-		@media (width < 60rem) {
+		@media (max-width: 1024px) {
 			grid-template:
 				'Nav' var(--navigation-mobile-blockSize)
 				'Main' 1fr
@@ -133,18 +152,13 @@
 			}
 		}
 
-		:global {
-			> nav {
-				grid-area: Nav;
-				box-shadow: 0 0 0 var(--separator-width) var(--border-color);
-			}
+		> :global(nav) {
+			grid-area: Nav;
+			box-shadow: 0 0 0 var(--separator-width) var(--border-color);
+		}
 
-			> main {
-				grid-area: Main;
-
-				--sticky-paddingInlineStart: clamp(1rem, 6cqi, 2rem);
-				--sticky-paddingInlineEnd: clamp(1rem, 6cqi, 2rem);
-			}
+		> main {
+			grid-area: Main;
 		}
 	}
 </style>
