@@ -11,7 +11,7 @@ import {
 	executeRoute,
 	getQuote,
 } from '@lifi/sdk'
-import type { LiFiStep, RouteExtended } from '@lifi/sdk'
+import type { LiFiStep, Process, RouteExtended } from '@lifi/sdk'
 import { queryClient } from '$/lib/db/query-client'
 import { ChainId } from '$/constants/networks'
 import { ercTokensBySymbolByChainId } from '$/constants/coins'
@@ -20,7 +20,14 @@ import {
 	type ProviderDetailType,
 	switchWalletChain,
 } from '$/lib/wallet'
+import {
+	type BridgeStatus,
+	mapLifiProcessStatus,
+	type TxStatus,
+} from '$/lib/tx-status'
 createConfig({ integrator: 'ethglobal-hackmoney-26' })
+
+export type StatusCallback = (status: BridgeStatus) => void
 
 export type FeeBreakdown = {
 	gasCost: {
@@ -263,5 +270,58 @@ export async function executeQuote(
 	])
 	return executeRoute(route, {
 		updateRouteHook: options?.updateRouteHook,
+	})
+}
+
+function routeToBridgeStatus(route: RouteExtended): BridgeStatus {
+	const processes = route.steps.flatMap(
+		(s) => (s.execution?.process ?? []) as Process[],
+	)
+	const stepMap = new Map<TxStatus['step'], TxStatus>()
+	for (const p of processes) {
+		const { step, state } = mapLifiProcessStatus(p.type, p.status)
+		stepMap.set(step, {
+			step,
+			state,
+			txHash: p.txHash,
+			chainId: p.chainId,
+			error: p.error?.message,
+			startedAt: p.startedAt,
+			completedAt:
+				state !== 'pending' ? (p.doneAt ?? p.failedAt ?? Date.now()) : undefined,
+		})
+	}
+	const steps = Array.from(stepMap.values())
+	const hasFailed = steps.some((s) => s.state === 'failed')
+	const allDone = processes.length > 0 && processes.every((p) => p.status === 'DONE')
+	const estimatedDurationSeconds = route.steps.reduce(
+		(sum, s) => sum + (s.estimate?.executionDuration ?? 0),
+		0,
+	)
+	return {
+		overall: hasFailed ? 'failed' : allDone ? 'completed' : 'in_progress',
+		steps,
+		estimatedDurationSeconds: estimatedDurationSeconds || undefined,
+	}
+}
+
+export async function executeQuoteWithStatus(
+	providerDetail: ProviderDetailType,
+	params: QuoteParams,
+	onStatusChange: StatusCallback,
+): Promise<RouteExtended> {
+	const status: BridgeStatus = {
+		overall: 'in_progress',
+		steps: [],
+	}
+	onStatusChange({ ...status })
+	return executeQuote(providerDetail, params, {
+		updateRouteHook(route) {
+			const next = routeToBridgeStatus(route)
+			status.overall = next.overall
+			status.steps = next.steps
+			status.estimatedDurationSeconds = next.estimatedDurationSeconds
+			onStatusChange({ ...status })
+		},
 	})
 }

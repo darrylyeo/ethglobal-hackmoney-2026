@@ -10,7 +10,11 @@
 	import { Button } from 'bits-ui'
 	import { networksCollection } from '$/collections/networks'
 	import { actorCoinsCollection, fetchAllBalancesForAddress } from '$/collections/actor-coins'
-	import { executeQuote, fetchQuoteCached } from '$/api/lifi'
+	import {
+		executeQuoteWithStatus,
+		fetchQuoteCached,
+	} from '$/api/lifi'
+	import { createInitialStatus } from '$/lib/tx-status'
 	import {
 		extractRouteLimits,
 		USDC_MIN_AMOUNT,
@@ -29,6 +33,7 @@
 	import QuoteForm from './QuoteForm.svelte'
 	import QuoteOutput from './QuoteOutput.svelte'
 	import RecipientInput from './RecipientInput.svelte'
+	import TransactionStatus from './TransactionStatus.svelte'
 	import WalletProvider from './WalletProvider.svelte'
 
 	// State
@@ -70,6 +75,7 @@
 	let execError = $state<BridgeError | null>(null)
 	let execRetryAttempt = $state(1)
 	let execTxHashes = $state<string[]>([])
+	let bridgeStatus = $state(createInitialStatus())
 	let lastFetchedAddress = $state<string | null>(null)
 
 	// Actions
@@ -107,8 +113,9 @@
 		execError = null
 		execTxHashes = []
 		execLoading = true
+		bridgeStatus = createInitialStatus()
 		try {
-			const route = await 			executeQuote(
+			const route = await executeQuoteWithStatus(
 				wallet.connectedDetail,
 				{
 					fromChain: Number(fromChain),
@@ -117,14 +124,12 @@
 					fromAddress: wallet.address,
 					toAddress: recipient,
 				},
-				{
-					updateRouteHook(route) {
-						const hashes = route.steps
-							.flatMap((s) => s.execution?.process ?? [])
-							.map((p) => (p as { txHash?: string }).txHash)
-							.filter((h): h is string => Boolean(h))
-						if (hashes.length > 0) execTxHashes = hashes
-					},
+				(s) => {
+					bridgeStatus = s
+					const hashes = s.steps
+						.map((t) => t.txHash)
+						.filter((h): h is string => Boolean(h))
+					if (hashes.length > 0) execTxHashes = hashes
 				},
 			)
 			const hashes = route.steps
@@ -260,6 +265,11 @@
 								execRetryAttempt++
 								sendTransaction(wallet)
 							}}
+						/>
+						<TransactionStatus
+							status={bridgeStatus}
+							fromChainId={Number(fromChain)}
+							toChainId={Number(toChain)}
 						/>
 					{/if}
 

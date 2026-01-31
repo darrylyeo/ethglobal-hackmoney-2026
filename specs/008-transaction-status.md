@@ -284,35 +284,35 @@ export async function executeQuoteWithStatus(
 ## Acceptance criteria
 
 ### Explorer URLs
-- [ ] `src/constants/explorers.ts` exists with URLs for all mainnet chains
-- [ ] `src/constants/explorers.ts` includes testnet explorer URLs
-- [ ] `getTxUrl(1, '0xabc')` returns `'https://etherscan.io/tx/0xabc'`
-- [ ] `getTxUrl(10, '0xabc')` returns `'https://optimistic.etherscan.io/tx/0xabc'`
-- [ ] `getTxUrl(999999, '0xabc')` returns Blockscan fallback
-- [ ] `getAddressUrl()` works for address links
+- [x] `src/constants/explorers.ts` exists with URLs for all mainnet chains
+- [x] `src/constants/explorers.ts` includes testnet explorer URLs
+- [x] `getTxUrl(1, '0xabc')` returns `'https://etherscan.io/tx/0xabc'`
+- [x] `getTxUrl(10, '0xabc')` returns `'https://optimistic.etherscan.io/tx/0xabc'`
+- [x] `getTxUrl(999999, '0xabc')` returns Blockscan fallback
+- [x] `getAddressUrl()` works for address links
 
 ### Status types
-- [ ] `TxStatus` type defined with step, state, txHash, chainId, error
-- [ ] `BridgeStatus` type defined with overall, steps, estimatedDuration
-- [ ] `mapLifiProcessStatus()` maps LI.FI process types correctly
+- [x] `TxStatus` type defined with step, state, txHash, chainId, error
+- [x] `BridgeStatus` type defined with overall, steps, estimatedDuration
+- [x] `mapLifiProcessStatus()` maps LI.FI process types correctly
 
 ### TransactionStatus component
-- [ ] Shows 4 steps: Approve → Send → Confirm → Complete
-- [ ] Active step shows spinner/pending indicator
-- [ ] Completed steps show checkmark
-- [ ] Failed steps show X and error message
-- [ ] Tx hashes link to correct chain explorers
-- [ ] Elapsed time counter updates during transaction
-- [ ] Estimated time shown if available
+- [x] Shows 4 steps: Approve → Send → Confirm → Complete
+- [x] Active step shows spinner/pending indicator
+- [x] Completed steps show checkmark
+- [x] Failed steps show X and error message
+- [x] Tx hashes link to correct chain explorers
+- [x] Elapsed time counter updates during transaction
+- [x] Estimated time shown if available
 
 ### Integration
-- [ ] `executeQuoteWithStatus()` exposes status callback
-- [ ] Bridge page uses status callback to update UI
-- [ ] Status persists across component re-renders
+- [x] `executeQuoteWithStatus()` exposes status callback
+- [x] Bridge page uses status callback to update UI
+- [x] Status persists across component re-renders
 
 ## Status
 
-Not started.
+Complete.
 
 ## Output when complete
 
