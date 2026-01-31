@@ -20,5 +20,9 @@ export default {
     alias: {
       "$": "./src",
     },
+
+    experimental: {
+      remoteFunctions: true,
+    },
   },
 };
