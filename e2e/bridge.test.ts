@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test'
 
 test('bridge: select source and destination chain, enter amount and address', async ({ page }) => {
-	await page.goto('/')
+	await page.goto('/bridge')
 	await expect(page.getByRole('heading', { level: 1, name: 'USDC Bridge' })).toBeVisible({ timeout: 15000 })
 	await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 10000 })
+	await expect(page.getByLabel('From chain')).toContainText('Ethereum', { timeout: 5000 })
 	await page.getByLabel('From chain').click()
+	await expect(page.getByRole('listbox')).toBeVisible({ timeout: 5000 })
 	await page.getByTestId('option-Ethereum').waitFor({ state: 'attached', timeout: 5000 })
 	await page.getByTestId('option-Ethereum').click()
 	await page.getByLabel('To chain').click()
@@ -15,10 +17,12 @@ test('bridge: select source and destination chain, enter amount and address', as
 })
 
 test('bridge: click Get Quote, wait for result, assert quote result visible', async ({ page }) => {
-	await page.goto('/')
+	await page.goto('/bridge')
 	await expect(page.getByRole('heading', { level: 1, name: 'USDC Bridge' })).toBeVisible({ timeout: 15000 })
 	await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 10000 })
+	await expect(page.getByLabel('From chain')).toContainText('Ethereum', { timeout: 5000 })
 	await page.getByLabel('From chain').click()
+	await expect(page.getByRole('listbox')).toBeVisible({ timeout: 5000 })
 	await page.getByTestId('option-Ethereum').waitFor({ state: 'attached', timeout: 5000 })
 	await page.getByTestId('option-Ethereum').click()
 	await page.getByLabel('To chain').click()
