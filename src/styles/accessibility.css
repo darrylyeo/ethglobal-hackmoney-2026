@@ -21,14 +21,6 @@
 	top: 0;
 }
 
-:root {
-	--color-focus: var(--color-accent);
-	--color-text: var(--color-fg);
-	--color-text-muted: var(--color-fg-muted);
-	--color-error: #dc2626;
-	--color-success: #16a34a;
-}
-
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,
