@@ -32,6 +32,7 @@
 		formatTokenAmount,
 		parseDecimalToSmallest,
 	} from '$/lib/format'
+	import { saveTransaction, updateTransactionStatus } from '$/lib/tx-history'
 
 	// Components
 	import ApprovalButton from './ApprovalButton.svelte'
@@ -43,6 +44,7 @@
 	import QuoteOutput from './QuoteOutput.svelte'
 	import RecipientInput from './RecipientInput.svelte'
 	import RouteList from './RouteList.svelte'
+	import TransactionHistory from './TransactionHistory.svelte'
 	import TransactionStatus from './TransactionStatus.svelte'
 	import WalletProvider from './WalletProvider.svelte'
 
@@ -192,6 +194,10 @@
 		execLoading = true
 		bridgeStatus = createInitialStatus()
 		const loadingId = toasts.loading('Submitting transaction…')
+		let savedPendingId: string | null = null
+		const fromChainId = Number(fromChain)
+		const toChainId = Number(toChain)
+		const fromAmountStr = parseDecimalToSmallest(amount, 6).toString()
 		try {
 			const route = await executeSelectedRoute(
 				wallet.connectedDetail,
@@ -202,32 +208,87 @@
 						.map((t) => t.txHash)
 						.filter((h): h is string => Boolean(h))
 					if (hashes.length > 0) execTxHashes = hashes
+					const firstHash = hashes[0]
+					if (firstHash && savedPendingId === null) {
+						savedPendingId = firstHash
+						saveTransaction({
+							id: firstHash,
+							address: wallet.address,
+							fromChainId,
+							toChainId,
+							fromAmount: fromAmountStr,
+							toAmount: selectedRoute.toAmount,
+							sourceTxHash: firstHash,
+							status: 'pending',
+							createdAt: Date.now(),
+							updatedAt: Date.now(),
+						})
+					}
 				},
 			)
-			const hashes = route.steps
-				.flatMap((s) => s.execution?.process ?? [])
-				.map((p) => (p as { txHash?: string }).txHash)
+			const processes = route.steps.flatMap(
+				(s) => (s.execution?.process ?? []) as { txHash?: string; chainId?: number }[],
+			)
+			const hashes = processes
+				.map((p) => p.txHash)
 				.filter((h): h is string => Boolean(h))
 			if (hashes.length > 0) execTxHashes = hashes
 			toasts.dismiss(loadingId)
 			const firstHash = hashes[0]
-			toasts.success('Bridge transaction submitted!', {
-				title: 'Success',
-				...(firstHash
-					? {
-							action: {
-								label: 'View on Explorer',
-								onClick: () =>
-									window.open(
-										getTxUrl(Number(fromChain), firstHash),
-										'_blank',
-									),
-							},
-						}
-					: {}),
-			})
+			const destProcess = processes.find(
+				(p) => p.chainId === toChainId && p.txHash,
+			)
+			const destTxHash = destProcess?.txHash
+			if (savedPendingId) {
+				updateTransactionStatus(
+					wallet.address,
+					savedPendingId,
+					bridgeStatus.overall === 'failed' ? 'failed' : 'completed',
+					destTxHash,
+				)
+			} else if (firstHash) {
+				saveTransaction({
+					id: firstHash,
+					address: wallet.address,
+					fromChainId,
+					toChainId,
+					fromAmount: fromAmountStr,
+					toAmount: selectedRoute.toAmount,
+					sourceTxHash: firstHash,
+					destTxHash,
+					status:
+						bridgeStatus.overall === 'failed' ? 'failed' : 'completed',
+					createdAt: Date.now(),
+					updatedAt: Date.now(),
+				})
+			}
+			if (bridgeStatus.overall === 'completed') {
+				toasts.success('Bridge transaction submitted!', {
+					title: 'Success',
+					...(firstHash
+						? {
+								action: {
+									label: 'View on Explorer',
+									onClick: () =>
+										window.open(
+											getTxUrl(Number(fromChain), firstHash),
+											'_blank',
+										),
+								},
+							}
+						: {}),
+				})
+			} else if (bridgeStatus.overall === 'failed') {
+				const failedStep = bridgeStatus.steps.find((s) => s.state === 'failed')
+				execError = categorizeError(
+					new Error(failedStep?.error ?? 'Transaction failed'),
+				)
+			}
 		} catch (e) {
 			toasts.dismiss(loadingId)
+			if (savedPendingId && wallet.address) {
+				updateTransactionStatus(wallet.address, savedPendingId, 'failed')
+			}
 			const error = isBridgeError(e) ? e : categorizeError(e)
 			execError = error
 			toasts.error(error.message, {
@@ -469,6 +530,10 @@
 			</section>
 
 			<ChainIdSection />
+
+			{#if wallet.address}
+				<TransactionHistory address={wallet.address} />
+			{/if}
 		</div>
 	{/snippet}
 </WalletProvider>

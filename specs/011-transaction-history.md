@@ -82,18 +82,18 @@ export const updateTransactionStatus = (
 
 ## Acceptance criteria
 
-- [ ] `saveTransaction()` persists to localStorage
-- [ ] `getTransactions()` returns transactions for address
-- [ ] `TransactionHistory.svelte` displays past transactions
-- [ ] Transactions sorted by date (newest first)
-- [ ] Each row shows: date, from→to chains, amount, status
-- [ ] Explorer links work for source and destination chains
-- [ ] Pending transactions show spinner and poll for updates
-- [ ] Maximum 50 transactions stored per address
+- [x] `saveTransaction()` persists to localStorage
+- [x] `getTransactions()` returns transactions for address
+- [x] `TransactionHistory.svelte` displays past transactions
+- [x] Transactions sorted by date (newest first)
+- [x] Each row shows: date, from→to chains, amount, status
+- [x] Explorer links work for source and destination chains
+- [x] Pending transactions show spinner and poll for updates
+- [x] Maximum 50 transactions stored per address
 
 ## Status
 
-Not started.
+Complete. tx-history.ts: StoredTransaction, saveTransaction, getTransactions, updateTransactionStatus (50 max per address). TransactionHistory.svelte: collapsible section, list by date, explorer links, pending spinner, 8s poll. Bridge page: save as pending on first tx hash, update to completed/failed on resolve/catch; TransactionHistory shown when wallet connected. Unit tests in tx-history.spec.ts.
 
 ## Output when complete
 
