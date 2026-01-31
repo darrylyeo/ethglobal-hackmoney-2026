@@ -1,6 +1,6 @@
 /**
  * Minimal EIP-1193-style RPC and ERC20 balanceOf helpers using @tevm/voltaire.
- * Uses Abi/Hex subpaths only (main package and provider use bun:ffi; Deno-incompatible).
+ * Uses Abi/Hex subpaths only (main package and provider use bun:ffi and are Deno-incompatible; deno.json maps bun:ffi to a stub for unit tests).
  * Builtins available but not used here: @tevm/voltaire ERC20 (encodeBalanceOf, decodeUint256),
  * @tevm/voltaire/provider HttpProvider (timeout, retries).
  */
@@ -59,8 +59,10 @@ export async function getErc20Balance(
 		],
 	})
 
-	if (typeof res !== 'string' || !res)
+	if (typeof res !== 'string')
 		throw new Error('eth_call returned invalid data')
+	if (!res || res === '0x' || res.length < 66)
+		return 0n
 
 	return decodeBalanceOfResult(res)
 }
@@ -116,9 +118,9 @@ export function createHttpProvider(url: string): VoltaireProvider {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
 			})
-			const json = await res.json()
-			if (json.error) throw new Error(json.error.message ?? 'RPC error')
-			return json.result
+			const data = await res.json()
+			if (data.error) throw new Error(data.error.message ?? 'RPC error')
+			return data.result
 		},
 		on: noop,
 		removeListener: noop,
