@@ -260,7 +260,7 @@ Show full breakdown after route selected:
 ### Integration
 - [x] Fee summary shown in quote output (single-route flow; no route cards)
 - [x] Full breakdown shown for selected route (QuoteOutput with quoteStep)
-- [ ] Sorting by fees uses extracted total (N/A: single quote, no route comparison)
+- [x] Sorting by fees uses extracted total (N/A: single quote, no route comparison)
 
 ## Status
 
