@@ -73,15 +73,13 @@
 	)
 </script>
 
-<output data-column='gap-2' data-testid='quote-result' for='from-chain to-chain amount from-address'>
-	<p>
-		<strong>Estimated output:</strong> {formatTokenAmount(estimatedToAmount, 6)} USDC
-		(steps: {stepCount})
-	</p>
-	<p>
-		Minimum (with {formatSlippagePercent(slippage)} slippage):
-		{formatTokenAmount(minOutput.toString(), 6)} USDC
-	</p>
+<output data-column='gap-2' data-testid='quote-result' for='from-network to-network amount from-address'>
+	<dl data-quote-summary>
+		<dt>Estimated output</dt>
+		<dd>{formatTokenAmount(estimatedToAmount, 6)} USDC (steps: {stepCount})</dd>
+		<dt>Minimum (with {formatSlippagePercent(slippage)} slippage)</dt>
+		<dd>{formatTokenAmount(minOutput.toString(), 6)} USDC</dd>
+	</dl>
 	{#if fees}
 		<FeeBreakdown fees={fees} expanded={true} />
 	{:else if quote?.fees.length > 0}
@@ -124,11 +122,32 @@
 		/>
 	{/if}
 	{#if execTxHashes.length > 0}
-		<p data-column='gap-1'>
-			<strong>Tx:</strong>
-			{#each execTxHashes as hash (hash)}
-				<a data-link href={`https://etherscan.io/tx/${hash}`} target='_blank' rel='noopener noreferrer'>{hash.slice(0, 10)}…</a>
-			{/each}
-		</p>
+		<dl data-quote-summary>
+			<dt>Tx</dt>
+			<dd data-column='gap-1'>
+				{#each execTxHashes as hash (hash)}
+					<a data-link href={`https://etherscan.io/tx/${hash}`} target='_blank' rel='noopener noreferrer'>{hash.slice(0, 10)}…</a>
+				{/each}
+			</dd>
+		</dl>
 	{/if}
 </output>
+
+<style>
+	[data-quote-summary] {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 0.25em 1em;
+	}
+
+	[data-quote-summary] dt,
+	[data-quote-summary] dd {
+		margin: 0;
+	}
+
+	[data-quote-summary] dd[data-column] {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25em;
+	}
+</style>
