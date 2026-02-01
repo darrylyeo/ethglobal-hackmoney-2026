@@ -139,6 +139,8 @@
 	// Reset selection on params change (approval derives from collection automatically)
 	$effect(() => { void quoteParams; selectedRouteId = null })
 
+	$effect(() => { if (showConfirmation) confirmed = false })
+
 	// Balances (reactive from query)
 	const balances = $derived(
 		selectedActor
@@ -202,6 +204,10 @@
 	const output = $derived(selectedRoute?.toAmount ?? 0n)
 	const minOutput = $derived(calculateMinOutput(output, settings.slippage))
 	const fees = $derived(selectedRoute ? extractFeeBreakdown({ steps: selectedRoute.originalRoute.steps, fromAmountUSD: selectedRoute.originalRoute.fromAmountUSD }) : null)
+	const fromAmountUsd = $derived(selectedRoute ? parseFloat(selectedRoute.originalRoute.fromAmountUSD ?? '0') : 0)
+	const warnDifferentRecipient = $derived(settings.useCustomRecipient)
+	const warnHighSlippage = $derived(settings.slippage > 0.01)
+	const warnLargeAmount = $derived(fromAmountUsd > 10_000)
 
 	const transactions = $derived((txQuery.data ?? []).map((r) => r.row).filter((tx) => tx.$id.address.toLowerCase() === selectedActor?.toLowerCase()))
 
@@ -410,7 +416,7 @@
 
 				<!-- Send button -->
 				{#if selectedWallet && canSend}
-					<Button.Root disabled={quoteExpired || executing || needsChainSwitch || !canSendAmount} onclick={() => { showConfirmation = true; confirmed = false }}>
+					<Button.Root disabled={quoteExpired || executing || needsChainSwitch || !canSendAmount} onclick={() => { showConfirmation = true }}>
 						{executing ? 'Bridging…' : 'Send'}
 					</Button.Root>
 					<BridgeExecution
@@ -462,9 +468,23 @@
 				<dl data-summary>
 					<dt>From</dt><dd>{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}</dd>
 					<dt>To</dt><dd>~{formatTokenAmount(selectedRoute.toAmount, 6)} USDC on {toNetwork.name}</dd>
-					<dt>Recipient</dt><dd>{formatAddress(recipient)}</dd>
+					<dt>Min received</dt><dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
+					<dt>Recipient</dt><dd>
+						<span>{formatAddress(recipient)}</span>
+						{#if warnDifferentRecipient}<span data-badge data-warning>Different recipient</span>{/if}
+					</dd>
+					<dt>Protocol</dt><dd>{[...new Set(selectedRoute.steps.map((st) => st.toolName))].join(' → ')}</dd>
+					<dt>Est. time</dt><dd>~{Math.ceil(selectedRoute.estimatedDurationSeconds / 60)} min</dd>
 					<dt>Slippage</dt><dd>{formatSlippagePercent(settings.slippage)}</dd>
+					{#if fees}<dt>Fees</dt><dd>~${fees.totalUsd}</dd>{/if}
 				</dl>
+				{#if warnDifferentRecipient || warnHighSlippage || warnLargeAmount}
+					<div data-warnings data-column="gap-1">
+						{#if warnDifferentRecipient}<p data-warning>Recipient is not your connected wallet.</p>{/if}
+						{#if warnHighSlippage}<p data-warning>High slippage ({formatSlippagePercent(settings.slippage)}).</p>{/if}
+						{#if warnLargeAmount}<p data-warning>Large amount (${fromAmountUsd.toLocaleString()} USD).</p>{/if}
+					</div>
+				{/if}
 			{/if}
 			<label data-row="gap-2"><Checkbox.Root bind:checked={confirmed}>{#snippet children({ checked })}{checked ? '✓' : '○'}{/snippet}</Checkbox.Root>I understand this transaction is irreversible</label>
 			<div data-row="gap-2">
@@ -584,5 +604,24 @@
 
 	:global([data-tabular]) {
 		font-variant-numeric: tabular-nums;
+	}
+
+	[data-warning] {
+		color: var(--color-warning);
+		font-size: 0.875em;
+	}
+
+	[data-badge][data-warning] {
+		display: inline-block;
+		margin-left: 0.5em;
+		padding: 0.125em 0.5em;
+		border-radius: 0.25em;
+		background: var(--color-warning-bg);
+		color: var(--color-warning);
+		font-size: 0.75em;
+	}
+
+	[data-warnings] [data-warning] {
+		margin: 0;
 	}
 </style>
