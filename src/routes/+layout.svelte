@@ -6,6 +6,9 @@
 	import { networkStatus } from '$/lib/network-status.svelte'
 	import { networks } from '$/constants/networks'
 
+	let showGraph =
+		$state(false)
+
 	// (Derived)
 	$effect(() => {
 		const chainIds = networks.map((n) => n.id)
@@ -17,6 +20,7 @@
 	import Boundary from '$/components/Boundary.svelte'
 	import Navigation from '$/views/Navigation.svelte'
 	import ToastContainer from '$/components/ToastContainer.svelte'
+	import GraphScene from '$/components/GraphScene.svelte'
 
 
 	// Images
@@ -99,6 +103,17 @@
 	<ToastContainer
 		position="bottom-right"
 	/>
+
+	<button
+		type="button"
+		data-graph-toggle
+		onclick={() => { showGraph = !showGraph }}
+		title={showGraph ? 'Hide data graph' : 'Show data graph'}
+	>
+		{showGraph ? '✕' : '◉'}
+	</button>
+
+	<GraphScene visible={showGraph} />
 </div>
 
 
@@ -159,6 +174,31 @@
 
 		> main {
 			grid-area: Main;
+		}
+	}
+
+	[data-graph-toggle] {
+		position: fixed;
+		bottom: 1rem;
+		right: 460px;
+		width: 2rem;
+		height: 2rem;
+		border-radius: 50%;
+		background: var(--color-bg-page, #fff);
+		border: 1px solid var(--color-border, #e5e7eb);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		cursor: pointer;
+		font-size: 0.75rem;
+		z-index: 51;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.2s ease;
+
+		&:hover {
+			transform: scale(1.1);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			background: var(--color-bg-elevated, #f8fafc);
 		}
 	}
 </style>
