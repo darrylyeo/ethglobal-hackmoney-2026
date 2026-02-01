@@ -3,7 +3,9 @@ import type { ProviderDetailType, WalletState } from '$/lib/wallet'
 
 // Context
 import { useContext } from '$/svelte/useContext'
-import { useBridgeIsTestnet } from '$/state/bridge'
+
+// State
+import { bridgeSettingsState } from '$/state/bridge-settings.svelte'
 
 // Functions
 import {
@@ -17,11 +19,10 @@ import {
 export const WALLET_CONTEXT_KEY = 'wallet'
 
 const createWalletContext = () => {
-	const isTestnetState = useBridgeIsTestnet()
 	let state = $state(createWalletState())
 
 	$effect(() => {
-		state.isTestnet = isTestnetState.current
+		state.isTestnet = bridgeSettingsState.current.isTestnet
 	})
 
 	$effect(() => {
@@ -65,7 +66,7 @@ const createWalletContext = () => {
 	}
 
 	const toggleTestnet = (checked: boolean) => {
-		isTestnetState.current = checked
+		bridgeSettingsState.current = { ...bridgeSettingsState.current, isTestnet: checked }
 	}
 
 	return {

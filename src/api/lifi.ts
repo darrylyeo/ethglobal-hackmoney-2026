@@ -464,7 +464,7 @@ export async function executeQuoteWithStatus(
 
 export async function executeSelectedRoute(
 	providerDetail: ProviderDetailType,
-	route: NormalizedRoute,
+	route: { originalRoute: Route; fromChainId: number },
 	onStatusChange?: StatusCallback,
 ): Promise<RouteExtended> {
 	const provider = providerDetail.provider as {

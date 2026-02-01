@@ -1,118 +1,86 @@
 /**
- * ActorCoin: Balance of a coin for an actor (account on a specific chain).
- * $id: { actor: Actor$id, coin: Coin$id }
+ * ActorCoin: Balance of a token for an address on a chain.
+ * In-memory cache, no persistence needed.
  */
 
-import { createCollection } from '@tanstack/svelte-db'
-import { queryCollectionOptions } from '@tanstack/query-db-collection'
-import { queryClient } from '$/lib/db/query-client'
+import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import { stringify } from 'devalue'
 import { ercTokens } from '$/constants/coins'
 import { networksByChainId } from '$/constants/networks'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import { createHttpProvider, getErc20Balance } from '$/lib/voltaire'
-import type { Actor$id } from './actors'
-import type { Coin$id } from './coins'
 
-export type ActorCoin$id = { actor: Actor$id; coin: Coin$id }
-
-export type ActorCoin = {
-	$id: ActorCoin$id
+export type ActorCoin$id = {
 	chainId: number
 	address: `0x${string}`
-	coinAddress: `0x${string}`
-	coinSymbol: string
-	coinDecimals: number
+	tokenAddress: `0x${string}`
+}
+
+export type ActorCoinRow = {
+	$id: ActorCoin$id
+	symbol: string
+	decimals: number
 	balance: bigint
-	balanceFormatted: string
 	isLoading: boolean
 	error: string | null
 }
 
-export const actorCoinKey = (
-	chainId: number,
-	address: `0x${string}`,
-	coinAddress: `0x${string}`,
-) => (
-	`${chainId}-${address.toLowerCase()}-${coinAddress.toLowerCase()}`
-)
-
 export const actorCoinsCollection = createCollection(
-	queryCollectionOptions({
+	localOnlyCollectionOptions({
 		id: 'actorCoins',
-		queryKey: ['actorCoins'],
-		queryFn: () => Promise.resolve<ActorCoin[]>([]),
-		queryClient,
-		getKey: (row: ActorCoin) => (
-			actorCoinKey(
-				row.$id.actor.network,
-				row.$id.actor.address,
-				row.$id.coin.address,
-			)
-		),
+		getKey: (row: ActorCoinRow) => stringify(row.$id),
 	}),
 )
 
-const formatBalance = (balance: bigint, decimals: number) => {
-	const divisor = 10n ** BigInt(decimals)
-	const integerPart = balance / divisor
-	const fractionalPart = balance % divisor
-	const fractionalStr = fractionalPart.toString().padStart(decimals, '0').slice(
-		0,
-		4,
-	)
-	return `${integerPart}.${fractionalStr}`
-}
+export const getActorCoin = ($id: ActorCoin$id) => (
+	actorCoinsCollection.state.get(stringify($id))
+)
 
 export const fetchActorCoinBalance = async (
-	chainId: number,
-	address: `0x${string}`,
-	coinAddress: `0x${string}`,
-	coinSymbol: string,
-	coinDecimals: number,
-): Promise<ActorCoin> => {
-	const $id: ActorCoin$id = {
-		actor: { network: chainId, address },
-		coin: { network: chainId, address: coinAddress },
-	}
-	const key = actorCoinKey(chainId, address, coinAddress)
+	$id: ActorCoin$id,
+	symbol: string,
+	decimals: number,
+): Promise<ActorCoinRow> => {
+	const key = stringify($id)
 	const existing = actorCoinsCollection.state.get(key)
-	const placeholder: ActorCoin = {
-		$id,
-		chainId,
-		address,
-		coinAddress,
-		coinSymbol,
-		coinDecimals,
-		balance: existing?.balance ?? 0n,
-		balanceFormatted: existing?.balanceFormatted ?? '0.0000',
-		isLoading: true,
-		error: null,
+
+	// Set loading state
+	if (existing) {
+		actorCoinsCollection.update(key, (draft) => {
+			draft.isLoading = true
+			draft.error = null
+		})
+	} else {
+		actorCoinsCollection.insert({
+			$id,
+			symbol,
+			decimals,
+			balance: 0n,
+			isLoading: true,
+			error: null,
+		})
 	}
-	actorCoinsCollection.utils.writeUpsert(placeholder)
+
 	try {
-		const rpcUrl = rpcUrls[chainId]
-		if (!rpcUrl) throw new Error(`No RPC URL for chain ${chainId}`)
+		const rpcUrl = rpcUrls[$id.chainId]
+		if (!rpcUrl) throw new Error(`No RPC URL for chain ${$id.chainId}`)
 		const balance = await getErc20Balance(
 			createHttpProvider(rpcUrl),
-			coinAddress,
-			address,
+			$id.tokenAddress,
+			$id.address,
 		)
-		const result: ActorCoin = {
-			...placeholder,
-			balance,
-			balanceFormatted: formatBalance(balance, coinDecimals),
-			isLoading: false,
-		}
-		actorCoinsCollection.utils.writeUpsert(result)
-		return result
+		actorCoinsCollection.update(key, (draft) => {
+			draft.balance = balance
+			draft.isLoading = false
+			draft.error = null
+		})
+		return actorCoinsCollection.state.get(key)!
 	} catch (e) {
-		const result: ActorCoin = {
-			...placeholder,
-			isLoading: false,
-			error: e instanceof Error ? e.message : String(e),
-		}
-		actorCoinsCollection.utils.writeUpsert(result)
-		return result
+		actorCoinsCollection.update(key, (draft) => {
+			draft.isLoading = false
+			draft.error = e instanceof Error ? e.message : String(e)
+		})
+		return actorCoinsCollection.state.get(key)!
 	}
 }
 
@@ -125,9 +93,7 @@ export const fetchAllBalancesForAddress = async (
 	return await Promise.all(
 		tokens.map((token) => (
 			fetchActorCoinBalance(
-				token.chainId,
-				address,
-				token.address,
+				{ chainId: token.chainId, address, tokenAddress: token.address },
 				token.symbol,
 				token.decimals,
 			)

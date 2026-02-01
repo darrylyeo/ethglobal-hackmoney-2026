@@ -6,16 +6,15 @@
 const formatTokenAmountCache = new Map<string, string>()
 
 export function formatTokenAmount(
-	amountInSmallestUnits: string,
+	amountInSmallestUnits: bigint | string,
 	decimals: number,
 	locale?: string,
 ): string {
-	const trimmed = amountInSmallestUnits.trim()
-	if (trimmed === '' || trimmed === '-') return '0'
-	const key = `${amountInSmallestUnits}|${decimals}|${locale ?? ''}`
+	const amount = typeof amountInSmallestUnits === 'bigint' ? amountInSmallestUnits : BigInt(amountInSmallestUnits.trim() || '0')
+	if (amount === 0n) return '0'
+	const key = `${amount}|${decimals}|${locale ?? ''}`
 	const cached = formatTokenAmountCache.get(key)
 	if (cached !== undefined) return cached
-	const amount = BigInt(trimmed)
 	const divisor = 10n ** BigInt(decimals)
 	const intPart = amount / divisor
 	const fracPart = amount % divisor

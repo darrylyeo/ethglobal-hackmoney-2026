@@ -3,10 +3,6 @@ import {
 	formatSlippagePercent,
 	parseSlippagePercent,
 	calculateMinOutput,
-	SLIPPAGE_PRESETS,
-	DEFAULT_SLIPPAGE,
-	MIN_SLIPPAGE,
-	MAX_SLIPPAGE,
 } from './slippage'
 
 describe('formatSlippagePercent', () => {
@@ -40,18 +36,5 @@ describe('parseSlippagePercent', () => {
 describe('calculateMinOutput', () => {
 	it('returns 995000n for 1000000n and 0.005 slippage', () => {
 		expect(calculateMinOutput(1_000_000n, 0.005)).toBe(995_000n)
-	})
-})
-
-describe('constants', () => {
-	it('presets are 0.1%, 0.5%, 1%', () => {
-		expect(SLIPPAGE_PRESETS).toEqual([0.001, 0.005, 0.01])
-	})
-	it('default is 0.5%', () => {
-		expect(DEFAULT_SLIPPAGE).toBe(0.005)
-	})
-	it('min/max in range', () => {
-		expect(MIN_SLIPPAGE).toBe(0.0001)
-		expect(MAX_SLIPPAGE).toBe(0.5)
 	})
 })

@@ -1,10 +1,8 @@
 /**
- * Bridge amount limits and validation (spec 020).
- * USDC has 6 decimals; amounts in smallest units.
+ * USDC bridge amount limits and validation. Amounts in smallest units (6 decimals).
  */
 
-export const DEFAULT_MIN_AMOUNT_USD = 1
-export const DEFAULT_MAX_AMOUNT_USD = 1_000_000
+import { formatSmallestToDecimal } from '$/lib/format'
 
 export const USDC_MIN_AMOUNT = 1_000_000n
 export const USDC_MAX_AMOUNT = 1_000_000_000_000n
@@ -14,6 +12,11 @@ export type AmountValidation = {
 	error?: 'too_low' | 'too_high' | 'invalid'
 	minAmount?: string
 	maxAmount?: string
+}
+
+export type RouteLimits = {
+	minAmount: bigint | null
+	maxAmount: bigint | null
 }
 
 export const validateBridgeAmount = (
@@ -35,23 +38,6 @@ export const validateBridgeAmount = (
 			maxAmount: formatSmallestToDecimal(maxAmount, 6),
 		}
 	return { isValid: true }
-}
-
-function formatSmallestToDecimal(amount: bigint, decimals: number): string {
-	const divisor = 10n ** BigInt(decimals)
-	const intPart = amount / divisor
-	const fracPart = amount % divisor
-	const fracPadded = fracPart
-		.toString()
-		.padStart(decimals, '0')
-		.slice(0, decimals)
-		.replace(/0+$/, '')
-	return fracPadded === '' ? String(intPart) : `${intPart}.${fracPadded}`
-}
-
-export type RouteLimits = {
-	minAmount: bigint | null
-	maxAmount: bigint | null
 }
 
 export const extractRouteLimits = (

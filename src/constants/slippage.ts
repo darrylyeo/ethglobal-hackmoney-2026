@@ -1,6 +1,5 @@
 /**
- * Slippage tolerance for bridge quotes (spec 016).
- * Values in 0–1 scale (0.005 = 0.5%). LI.FI uses 0–1.
+ * Slippage tolerance for bridge quotes. Values in 0–1 scale (0.005 = 0.5%). LI.FI uses 0–1.
  */
 
 export const SLIPPAGE_PRESETS = [0.001, 0.005, 0.01] as const
