@@ -19,8 +19,9 @@
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
 	import Navigation from '$/views/Navigation.svelte'
+	import NetworkStatusIndicator from '$/routes/NetworkStatusIndicator.svelte'
 	import ToastContainer from '$/components/ToastContainer.svelte'
-	import GraphScene from '$/components/GraphScene.svelte'
+	import GraphScene from '$/routes/GraphScene.svelte'
 
 
 	// Images
@@ -99,7 +100,11 @@
 				],
 			},
 		]}
-	/>
+		>
+			{#snippet headerActions()}
+				<NetworkStatusIndicator />
+			{/snippet}
+		</Navigation>
 
 	<main id="main-content" tabindex="-1">
 		<Boundary>
