@@ -7,7 +7,7 @@
 
 import { createCollection, localStorageCollectionOptions } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
-import { type Wallet$id, getWallet } from '$/collections/wallets'
+import { type Wallet$id, type WalletRow, getWallet } from '$/collections/wallets'
 import { connectProvider, getWalletChainId } from '$/lib/wallet'
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'error'
@@ -26,6 +26,8 @@ export type WalletConnectionRow = {
 	error: string | null
 	connectedAt: number
 }
+
+export type ConnectedWallet = { wallet: WalletRow; connection: WalletConnectionRow }
 
 export const walletConnectionsCollection = createCollection(
 	localStorageCollectionOptions({

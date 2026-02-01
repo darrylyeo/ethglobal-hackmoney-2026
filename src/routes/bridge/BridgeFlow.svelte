@@ -1,7 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { WalletRow } from '$/collections/wallets'
-	import type { WalletConnectionRow } from '$/collections/wallet-connections'
+	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute } from '$/collections/bridge-routes'
 	import { ChainId, NetworkType, networks, networksByChainId } from '$/constants/networks'
 	import { SLIPPAGE_PRESETS, formatSlippagePercent, parseSlippagePercent, calculateMinOutput } from '$/constants/slippage'
@@ -34,7 +33,6 @@
 	import BridgeExecution from './BridgeExecution.svelte'
 
 	// Props
-	type ConnectedWallet = { wallet: WalletRow; connection: WalletConnectionRow }
 	let {
 		selectedWallets,
 		selectedActor,
