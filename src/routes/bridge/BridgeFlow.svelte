@@ -67,6 +67,7 @@
 
 	// Ephemeral UI state (not persisted)
 	let slippageInput = $state('')
+	let invalidAmountInput = $state(false)
 	let showConfirmation = $state(false)
 	let confirmed = $state(false)
 	let selectedRouteId = $state<string | null>(null)
@@ -176,7 +177,7 @@
 
 	const validation = $derived(validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT))
 	const exceedsBalance = $derived(sourceBalance !== null && settings.amount > sourceBalance)
-	const canSendAmount = $derived(validation.isValid && !exceedsBalance)
+	const canSendAmount = $derived(validation.isValid && !exceedsBalance && !invalidAmountInput)
 
 	const approvalAddress = $derived(selectedRoute?.originalRoute?.steps?.[0]?.estimate?.approvalAddress as `0x${string}` | undefined)
 	const needsApproval = $derived(Boolean(approvalAddress?.startsWith('0x') && approvalAddress.length === 42))
@@ -207,8 +208,15 @@
 	// Handlers
 	const onAmountInput = (e: Event) => {
 		const v = (e.target as HTMLInputElement).value.replace(/[^0-9.,]/g, '').replace(/,/g, '')
-		if (v === '') bridgeSettingsState.current = { ...settings, amount: 0n }
-		else if (isValidDecimalInput(v, 6)) bridgeSettingsState.current = { ...settings, amount: parseDecimalToSmallest(v, 6) }
+		if (v === '') {
+			invalidAmountInput = false
+			bridgeSettingsState.current = { ...settings, amount: 0n }
+		} else if (isValidDecimalInput(v, 6)) {
+			invalidAmountInput = false
+			bridgeSettingsState.current = { ...settings, amount: parseDecimalToSmallest(v, 6) }
+		} else {
+			invalidAmountInput = true
+		}
 	}
 
 	const onRefresh = () => { if (quoteParams) fetchBridgeRoutes(quoteParams).catch(() => {}) }
@@ -253,7 +261,8 @@
 				{#if sourceBalance !== null}<Button.Root type="button" onclick={() => { bridgeSettingsState.current = { ...settings, amount: sourceBalance } }}>Max</Button.Root>{/if}
 			</div>
 			{#if sourceBalance !== null}<small data-muted>Balance: {formatSmallestToDecimal(sourceBalance, 6, 4)} USDC</small>{/if}
-			{#if exceedsBalance}<small data-error>Insufficient balance</small>
+			{#if invalidAmountInput}<small data-error>Invalid amount (use numbers and up to 6 decimals)</small>
+			{:else if exceedsBalance}<small data-error>Insufficient balance</small>
 			{:else if validation.error === 'too_low'}<small data-error>Min {validation.minAmount} USDC</small>
 			{:else if validation.error === 'too_high'}<small data-error>Max {validation.maxAmount} USDC</small>{/if}
 		</div>
