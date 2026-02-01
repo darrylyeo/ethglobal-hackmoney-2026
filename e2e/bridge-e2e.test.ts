@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 async function addMockWallet(context: { addInitScript: (fn: () => void) => Promise<void> }) {
 	await context.addInitScript(() => {
 		const MOCK = '0x4a6B66dDF6FC5c5691571eF1bCa1FD7e406aaDce'
-		window.addEventListener('eip6963:requestProvider', () => {
+		const announce = () => {
 			window.dispatchEvent(
 				new CustomEvent('eip6963:announceProvider', {
 					detail: {
@@ -14,15 +14,20 @@ async function addMockWallet(context: { addInitScript: (fn: () => void) => Promi
 							rdns: 'com.mock',
 						},
 						provider: {
-							request: async ({ method }: { method: string }) => {
-								if (method === 'eth_requestAccounts') return [MOCK]
-								if (method === 'eth_chainId') return '0x1'
-								return null
-							},
+							request: (args: { method: string }) =>
+								Promise.resolve(
+									args.method === 'eth_requestAccounts' ? [MOCK]
+									: args.method === 'eth_chainId' ? '0x1'
+									: args.method === 'eth_accounts' ? [MOCK]
+									: null,
+								),
 						},
 					},
 				}),
 			)
+		}
+		window.addEventListener('eip6963:requestProvider', () => {
+			setTimeout(announce, 0)
 		})
 	})
 }
@@ -38,19 +43,24 @@ test.describe('E2E bridge flow', () => {
 			page,
 		}) => {
 			await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
+			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main-content')).toContainText(/USDC Bridge|Connect a wallet/, {
-				timeout: 45_000,
+				timeout: 15_000,
 			})
 			await page.getByRole('button', { name: 'Connect Wallet' }).click()
 			await page.locator('[data-wallet-provider-option]').waitFor({ state: 'visible', timeout: 10_000 })
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({ timeout: 15_000 })
 			await expect(page.locator('[data-balances-grid]')).toBeVisible({ timeout: 20_000 })
-			await expect(page.getByLabel('From chain')).toBeVisible({ timeout: 20_000 })
-			await expect(page.getByLabel('From chain')).toContainText('Ethereum', { timeout: 5_000 })
-			await page.getByLabel('From chain').click()
+			await expect(page.getByRole('heading', { name: 'Bridge USDC', level: 2 })).toBeVisible({ timeout: 10_000 })
+			await page.locator('#main-content').evaluate((el) => {
+				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({ block: 'center' })
+			})
+			await expect(page.locator('[data-from-chain]')).toBeVisible({ timeout: 20_000 })
+			await expect(page.locator('[data-from-chain]')).toContainText('Ethereum', { timeout: 5_000 })
+			await page.locator('[data-from-chain] button').click()
 			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
-			await page.getByLabel('To chain').click()
+			await page.locator('[data-to-chain] button').click()
 			await page.getByRole('option', { name: 'OP Mainnet' }).click({ force: true })
 			await page.getByLabel('Amount').fill('1')
 			await Promise.race([
@@ -67,8 +77,9 @@ test.describe('E2E bridge flow', () => {
 
 		test('transaction history section visible when connected', async ({ page }) => {
 			await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
+			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main-content')).toContainText(/USDC Bridge|Connect a wallet/, {
-				timeout: 45_000,
+				timeout: 15_000,
 			})
 			await page.getByRole('button', { name: 'Connect Wallet' }).click()
 			await page.locator('[data-wallet-provider-option]').waitFor({ state: 'visible', timeout: 10_000 })
@@ -86,8 +97,9 @@ test.describe('E2E bridge flow', () => {
 			await addMockWallet(context)
 			await page.goto('/bridge')
 			await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
+			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main-content')).toContainText(/USDC Bridge|Connect a wallet/, {
-				timeout: 45_000,
+				timeout: 15_000,
 			})
 		})
 
@@ -99,14 +111,17 @@ test.describe('E2E bridge flow', () => {
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({ timeout: 15_000 })
 			await expect(page.locator('[data-balances-grid]')).toBeVisible({ timeout: 20_000 })
+			await page.locator('#main-content').evaluate((el) => {
+				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({ block: 'center' })
+			})
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText('Mainnet')
-			await expect(page.getByLabel('From chain')).toContainText('Ethereum', { timeout: 5_000 })
+			await expect(page.locator('[data-from-chain]')).toContainText('Ethereum', { timeout: 5_000 })
 			await page.locator('[data-wallet-network-testnet]').click()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText('Testnet', {
 				timeout: 10_000,
 			})
-			await expect(page.getByLabel('From chain')).toBeVisible({ timeout: 15_000 })
-			await page.getByLabel('From chain').click()
+			await expect(page.locator('[data-from-chain]')).toBeVisible({ timeout: 15_000 })
+			await page.locator('[data-from-chain] button').click()
 			await expect(page.getByRole('listbox')).toBeVisible({ timeout: 5_000 })
 			const hasSepolia =
 				(await page.getByRole('option', { name: /Sepolia/i }).count()) > 0
@@ -121,13 +136,16 @@ test.describe('E2E bridge flow', () => {
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({ timeout: 15_000 })
 			await expect(page.locator('[data-balances-grid]')).toBeVisible({ timeout: 20_000 })
-			await page.getByLabel('From chain').click()
+			await page.locator('#main-content').evaluate((el) => {
+				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({ block: 'center' })
+			})
+			await page.locator('[data-from-chain] button').click()
 			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
 			await page.locator('[data-wallet-network-testnet]').click()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText('Testnet', {
 				timeout: 10_000,
 			})
-			await expect(page.getByLabel('From chain')).not.toHaveText('Ethereum', {
+			await expect(page.locator('[data-from-chain]')).not.toHaveText('Ethereum', {
 				timeout: 15_000,
 			})
 		})
@@ -137,8 +155,9 @@ test.describe('E2E bridge flow', () => {
 		test('without wallet: clear message and connect prompt', async ({ page }) => {
 			await page.goto('/bridge')
 			await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
+			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main-content')).toContainText(/USDC Bridge|Connect a wallet/, {
-				timeout: 45_000,
+				timeout: 15_000,
 			})
 			await expect(page.getByText('Connect a wallet to get routes')).toBeVisible({
 				timeout: 10_000,
@@ -151,8 +170,9 @@ test.describe('E2E bridge flow', () => {
 		}) => {
 			await addMockWallet(context)
 			await page.goto('/bridge')
+			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main-content')).toContainText(/USDC Bridge|Connect a wallet/, {
-				timeout: 45_000,
+				timeout: 15_000,
 			})
 			await page.getByRole('button', { name: 'Connect Wallet' }).scrollIntoViewIfNeeded()
 			await page.getByRole('button', { name: 'Connect Wallet' }).click()
@@ -160,9 +180,12 @@ test.describe('E2E bridge flow', () => {
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({ timeout: 15_000 })
 			await expect(page.locator('[data-balances-grid]')).toBeVisible({ timeout: 20_000 })
-			await page.getByLabel('From chain').click()
+			await page.locator('#main-content').evaluate((el) => {
+				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({ block: 'center' })
+			})
+			await page.locator('[data-from-chain] button').click()
 			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
-			await page.getByLabel('To chain').click()
+			await page.locator('[data-to-chain] button').click()
 			await page.getByRole('option', { name: 'OP Mainnet' }).click({ force: true })
 			await page.getByLabel('Amount').fill('1')
 			await Promise.race([

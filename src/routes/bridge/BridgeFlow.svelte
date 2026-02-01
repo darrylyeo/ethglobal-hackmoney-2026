@@ -9,6 +9,7 @@
 	// Context
 	import { Button, Dialog, Popover, Select, Switch, Checkbox } from 'bits-ui'
 	import { useLiveQuery } from '@tanstack/svelte-db'
+	// import { liveQueryAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// State
 	import { type BridgeSettings, defaultBridgeSettings, bridgeSettingsState } from '$/state/bridge-settings.svelte'
@@ -25,6 +26,7 @@
 	import { ErrorCode } from '$/lib/errors'
 	import { formatTokenAmount, formatSmallestToDecimal, parseDecimalToSmallest, isValidDecimalInput } from '$/lib/format'
 	import { isValidAddress, normalizeAddress, formatAddress } from '$/lib/address'
+	import { stringify } from 'devalue'
 	import { debounce } from '$/lib/debounce'
 	import { switchWalletChain } from '$/lib/wallet'
 
@@ -51,6 +53,14 @@
 	const balancesQuery = useLiveQuery((q) => q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })))
 	const allowancesQuery = useLiveQuery((q) => q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })))
 	const txQuery = useLiveQuery((q) => q.from({ row: transactionsCollection }).orderBy(({ row }) => row.$id?.createdAt ?? 0, 'desc').select(({ row }) => ({ row })))
+
+	// const bridgeLiveQueryEntries = $derived([
+	// 	{ id: 'bridge-routes', label: 'Bridge Routes', query: routesQuery },
+	// 	{ id: 'bridge-balances', label: 'Balances', query: balancesQuery },
+	// 	{ id: 'bridge-allowances', label: 'Allowances', query: allowancesQuery },
+	// 	{ id: 'bridge-transactions', label: 'Transactions', query: txQuery },
+	// ])
+	// const bridgeLiveQuery = liveQueryAttachmentFrom(() => bridgeLiveQueryEntries)
 
 	// Settings (shared persisted state)
 	const settings = $derived(bridgeSettingsState.current ?? defaultBridgeSettings)
@@ -215,19 +225,19 @@
 
 		<!-- Network selectors -->
 		<div data-row="gap-4">
-			<div data-column="gap-1" style="flex:1">
+			<div data-column="gap-1" style="flex:1" data-from-chain>
 				<label for="from">From</label>
 				<Select.Root type="single" value={settings.fromChainId?.toString()} onValueChange={(v) => { if (v) bridgeSettingsState.current = { ...settings, fromChainId: Number(v) } }} items={filteredNetworks.map((n) => ({ value: String(n.id), label: n.name }))}>
-					<Select.Trigger id="from">{fromNetwork?.name ?? '—'}</Select.Trigger>
+					<Select.Trigger id="from" aria-label="From chain">{fromNetwork?.name ?? '—'}</Select.Trigger>
 					<Select.Portal><Select.Content><Select.Viewport>
 						{#each filteredNetworks as n (n.id)}<Select.Item value={String(n.id)} label={n.name}>{n.name}</Select.Item>{/each}
 					</Select.Viewport></Select.Content></Select.Portal>
 				</Select.Root>
 			</div>
-			<div data-column="gap-1" style="flex:1">
+			<div data-column="gap-1" style="flex:1" data-to-chain>
 				<label for="to">To</label>
 				<Select.Root type="single" value={settings.toChainId?.toString()} onValueChange={(v) => { if (v) bridgeSettingsState.current = { ...settings, toChainId: Number(v) } }} items={filteredNetworks.map((n) => ({ value: String(n.id), label: n.name }))}>
-					<Select.Trigger id="to">{toNetwork?.name ?? '—'}</Select.Trigger>
+					<Select.Trigger id="to" aria-label="To chain">{toNetwork?.name ?? '—'}</Select.Trigger>
 					<Select.Portal><Select.Content><Select.Viewport>
 						{#each filteredNetworks as n (n.id)}<Select.Item value={String(n.id)} label={n.name}>{n.name}</Select.Item>{/each}
 					</Select.Viewport></Select.Content></Select.Portal>
@@ -276,16 +286,36 @@
 
 	<!-- Right column: Routes & Output -->
 	<div data-column="gap-4">
+		{#if !selectedWallet}
+			<p data-muted>Connect a wallet to get routes</p>
+		{/if}
 		<!-- Routes error -->
 		{#if routesRow?.error}
-			<div data-card data-error>
-				{routesRow.error.code === ErrorCode.NO_ROUTES ? 'No routes available for this transfer.' : routesRow.error.message}
+			<div
+				data-card
+				data-error
+				data-error-display
+				data-no-routes={routesRow.error.code === ErrorCode.NO_ROUTES ? '' : undefined}
+				data-column="gap-2"
+			>
+				<span>{routesRow.error.code === ErrorCode.NO_ROUTES ? 'No routes available for this transfer.' : routesRow.error.message}</span>
+				<div data-row="gap-2">
+					<Button.Root onclick={onRefresh}>Retry</Button.Root>
+					<Button.Root
+						data-dismiss
+						onclick={() => {
+							if (quoteParams) bridgeRoutesCollection.update(stringify(quoteParams), (draft) => { draft.error = null })
+						}}
+					>
+						Dismiss
+					</Button.Root>
+				</div>
 			</div>
 		{/if}
 
 		<!-- Routes list -->
 		{#if sortedRoutes.length > 0 || routesRow?.isLoading}
-			<section data-card data-column="gap-3">
+			<section data-card data-column="gap-3" data-testid="quote-result">
 				<div data-row="gap-2 align-center justify-between">
 					<h3>Routes {routesRow?.isLoading ? '(loading…)' : `(${sortedRoutes.length})`}</h3>
 					<Select.Root type="single" value={settings.sortBy} onValueChange={(v) => { if (v) bridgeSettingsState.current = { ...settings, sortBy: v as BridgeSettings['sortBy'] } }} items={[{ value: 'recommended', label: 'Recommended' }, { value: 'output', label: 'Best output' }, { value: 'fees', label: 'Lowest fees' }, { value: 'speed', label: 'Fastest' }]}>
@@ -390,20 +420,24 @@
 			</section>
 		{/if}
 
-		<!-- Transaction history -->
-		{#if transactions.length > 0}
+		<!-- Transaction history (visible when connected per spec 014) -->
+		{#if selectedActor}
 			<section data-card data-column="gap-2">
-				<h3>Recent Transactions</h3>
-				<div data-column="gap-1">
-					{#each transactions as tx (tx.$id.sourceTxHash)}
-						<div data-row="gap-2 align-center" data-tx-row>
-							<span>{networksByChainId[tx.fromChainId]?.name} → {networksByChainId[tx.toChainId]?.name}</span>
-							<span data-tabular>{formatSmallestToDecimal(tx.fromAmount, 6)} USDC</span>
-							<span data-tag={tx.status}>{tx.status}</span>
-							<a href={getTxUrl(tx.fromChainId, tx.$id.sourceTxHash)} target="_blank" rel="noopener">↗</a>
-						</div>
-					{/each}
-				</div>
+				<button type="button" data-heading>Transaction history</button>
+				{#if transactions.length > 0}
+					<div data-column="gap-1">
+						{#each transactions as tx (tx.$id.sourceTxHash)}
+							<div data-row="gap-2 align-center" data-tx-row>
+								<span>{networksByChainId[tx.fromChainId]?.name} → {networksByChainId[tx.toChainId]?.name}</span>
+								<span data-tabular>{formatSmallestToDecimal(tx.fromAmount, 6)} USDC</span>
+								<span data-tag={tx.status}>{tx.status}</span>
+								<a href={getTxUrl(tx.fromChainId, tx.$id.sourceTxHash)} target="_blank" rel="noopener">↗</a>
+							</div>
+						{/each}
+					</div>
+				{:else}
+					<p data-muted>No transactions yet</p>
+				{/if}
 			</section>
 		{/if}
 	</div>
@@ -482,6 +516,16 @@
 	[data-route-card][data-selected] {
 		border-color: var(--color-primary, #3b82f6);
 		background: var(--color-primary-bg, #eff6ff);
+	}
+
+	[data-heading] {
+		font: inherit;
+		font-weight: 600;
+		margin: 0;
+		padding: 0;
+		background: none;
+		border: none;
+		cursor: default;
 	}
 
 	[data-tx-row] {
