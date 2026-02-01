@@ -29,14 +29,14 @@
 		data-row
 		data-scroll-container
 	>
-		<a href="/">
-			<h1
+		<a href="/" aria-label="USDC Tools home">
+			<span
 				class="logo"
 				data-row="gap-1"
 			>
 				<span class="title">USDC</span>
 				<span data-tag>Tools</span>
-			</h1>
+			</span>
 		</a>
 
 		<menu data-row="gap-2">

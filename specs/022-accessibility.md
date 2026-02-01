@@ -202,50 +202,8 @@ Ensure correct elements used:
 
 ### Route selection keyboard support
 
-```svelte
-<div
-  role="listbox"
-  aria-label="Bridge routes"
-  tabindex="0"
-  onkeydown={handleKeyDown}
->
-  {#each routes as route, i (route.id)}
-    <button
-      role="option"
-      aria-selected={selectedId === route.id}
-      tabindex={selectedId === route.id ? 0 : -1}
-    >
-      <!-- Route content -->
-    </button>
-  {/each}
-</div>
-
-<script>
-  const handleKeyDown = (e: KeyboardEvent) => {
-    const currentIndex = routes.findIndex(r => r.id === selectedId)
-    switch (e.key) {
-      case 'ArrowDown':
-      case 'ArrowRight':
-        e.preventDefault()
-        selectedId = routes[Math.min(currentIndex + 1, routes.length - 1)]?.id
-        break
-      case 'ArrowUp':
-      case 'ArrowLeft':
-        e.preventDefault()
-        selectedId = routes[Math.max(currentIndex - 1, 0)]?.id
-        break
-      case 'Home':
-        e.preventDefault()
-        selectedId = routes[0]?.id
-        break
-      case 'End':
-        e.preventDefault()
-        selectedId = routes[routes.length - 1]?.id
-        break
-    }
-  }
-</script>
-```
+Route selection in BridgeFlow uses standard button elements with `aria-pressed`
+for the selected state, allowing native keyboard navigation.
 
 ## Acceptance criteria
 
@@ -285,7 +243,12 @@ Ensure correct elements used:
 
 ## Status
 
-Complete. accessibility.css (focus-visible, skip link, reduced motion, contrast vars); layout skip link and main#main-content; TransactionStatus aria-live announcements; AmountInput aria-describedby, aria-invalid, sr-only hint; QuoteForm/QuoteOutput aria-busy and loading status; Navigation aria-labels; RecipientInput Switch aria-label; single main per page (bridge/transfers use div). Testing: src/routes/accessibility.test.ts — axe-core (home + bridge), keyboard-only Tab to Connect Wallet and Get Routes.
+Complete. `src/styles/accessibility.css` (focus-visible, skip link, reduced motion,
+contrast vars); layout skip link and `main#main-content` tabindex="-1"; BridgeFlow
+inline aria-live announcements; amount input with aria-describedby, aria-invalid;
+BridgeFlow aria-busy and loading status; Navigation logo as span (single h1 per
+page), aria-label on home link; single main per page. Testing: `e2e/accessibility.test.ts`
+– axe-core (home + bridge), keyboard Tab to Connect Wallet, connect + form + result.
 
 ## Output when complete
 
