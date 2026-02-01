@@ -52,11 +52,13 @@
 	)
 
 	const shareAddress = (address: `0x${string}`) => {
+		console.debug('[SIWE] share-address sent', { address })
 		roomState.connection?.send({ type: 'share-address', address })
 	}
 
 	const signChallenge = async (challenge: SiweChallenge) => {
 		if (!provider) return
+		console.debug('[SIWE] signChallenge start', { challengeId: challenge.id, toPeerId: challenge.toPeerId, address: challenge.address })
 		try {
 			const signature = await signSiweMessage({
 				provider,
@@ -68,8 +70,9 @@
 				challengeId: challenge.id,
 				signature,
 			})
-		} catch {
-			// user rejected or error
+			console.debug('[SIWE] signChallenge submit-signature sent', { challengeId: challenge.id })
+		} catch (err) {
+			console.debug('[SIWE] signChallenge error', { challengeId: challenge.id, error: err })
 		}
 	}
 
@@ -108,8 +111,9 @@
 	{:else}
 		<ul>
 			{#each pendingForMe as challenge (challenge.id)}
-				<li data-challenge>
+				<li data-challenge data-challenge-id={challenge.id}>
 					<span>Sign for peer {challenge.toPeerId.slice(0, 8)}</span>
+					<code title={challenge.id}>{challenge.id.slice(-12)}</code>
 					<Button.Root
 						type="button"
 						onclick={() => signChallenge(challenge)}

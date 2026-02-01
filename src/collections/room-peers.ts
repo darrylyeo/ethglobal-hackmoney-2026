@@ -11,6 +11,8 @@ export type RoomPeer = {
 	displayName?: string
 	joinedAt: number
 	lastSeenAt: number
+	connectedAt?: number
+	disconnectedAt?: number
 	isConnected: boolean
 }
 

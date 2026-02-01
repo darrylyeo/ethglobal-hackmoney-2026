@@ -58,6 +58,8 @@ type RoomPeer = {
 	displayName?: string
 	joinedAt: number
 	lastSeenAt: number
+	connectedAt?: number
+	disconnectedAt?: number
 	isConnected: boolean
 }
 
@@ -189,18 +191,25 @@ export default class RoomServer implements Party.Server {
 	onConnect(conn: Party.Connection) {
 		const state = this.getState()
 		const peerId = conn.id
+		const now = Date.now()
 		const roomPeer: RoomPeer = {
 			id: `${this.room.id}:${peerId}`,
 			roomId: this.room.id,
 			peerId,
 			displayName: undefined,
-			joinedAt: Date.now(),
-			lastSeenAt: Date.now(),
+			joinedAt: now,
+			lastSeenAt: now,
+			connectedAt: now,
 			isConnected: true,
 		}
 		const existingIdx = state.peers.findIndex((p) => p.peerId === peerId)
 		if (existingIdx >= 0) {
-			state.peers[existingIdx] = { ...roomPeer, displayName: state.peers[existingIdx].displayName }
+			const existing = state.peers[existingIdx]
+			state.peers[existingIdx] = {
+				...roomPeer,
+				displayName: existing.displayName,
+				joinedAt: existing.joinedAt,
+			}
 		} else {
 			if (state.peers.length === 0) {
 				state.room.createdBy = peerId
@@ -216,8 +225,10 @@ export default class RoomServer implements Party.Server {
 		const peerId = conn.id
 		const peer = state.peers.find((p) => p.peerId === peerId)
 		if (peer) {
+			const now = Date.now()
 			peer.isConnected = false
-			peer.lastSeenAt = Date.now()
+			peer.lastSeenAt = now
+			peer.disconnectedAt = now
 			this.room.broadcast(JSON.stringify({ type: 'sync', state }))
 		}
 	}

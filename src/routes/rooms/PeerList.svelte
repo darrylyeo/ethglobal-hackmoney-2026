@@ -6,6 +6,11 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { roomPeersCollection } from '$/collections/room-peers'
 
+	// Components
+	import PeerAvatar from '$/components/PeerAvatar.svelte'
+	import Timestamp from '$/components/Timestamp.svelte'
+	import { TimestampFormat } from '$/components/Timestamp.svelte'
+
 	const peersQuery = useLiveQuery(
 		(q) => q
 			.from({ row: roomPeersCollection })
@@ -22,8 +27,18 @@
 	<ul>
 		{#each peers as peer (peer.id)}
 			<li data-peer data-connected={peer.isConnected}>
+				<PeerAvatar {peer} />
 				<span>{peer.displayName ?? peer.peerId.slice(0, 8)}</span>
 				<span data-status>{peer.isConnected ? '●' : '○'}</span>
+				{#if peer.isConnected && peer.connectedAt != null}
+					<small title="Connected">
+						since <Timestamp timestamp={peer.connectedAt} format={TimestampFormat.Relative} />
+					</small>
+				{:else if peer.disconnectedAt != null}
+					<small title="Disconnected">
+						left <Timestamp timestamp={peer.disconnectedAt} format={TimestampFormat.Relative} />
+					</small>
+				{/if}
 			</li>
 		{/each}
 	</ul>

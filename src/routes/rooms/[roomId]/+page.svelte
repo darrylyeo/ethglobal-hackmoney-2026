@@ -1,11 +1,13 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
+	import { untrack } from 'svelte'
 
 	// Props
 	let { data }: { data: { roomId: string } } = $props()
 
 	// State
+	import { getOrCreatePeerDisplayName } from '$/lib/partykit'
 	import { roomState, joinRoom, leaveRoom } from '$/state/room.svelte'
 	import Wallets from '$/routes/bridge/Wallets.svelte'
 
@@ -23,14 +25,12 @@
 	const provider = $derived(selectedWallet?.wallet.provider ?? null)
 
 	$effect(() => {
-		if (roomId && roomState.roomId !== roomId) {
-			joinRoom(roomId)
+		const id = roomId
+		if (!id) return
+		if (untrack(() => roomState.roomId) !== id) {
+			joinRoom(id, getOrCreatePeerDisplayName())
 		}
-		return () => {
-			if (roomState.roomId === roomId) {
-				leaveRoom()
-			}
-		}
+		return () => leaveRoom()
 	})
 </script>
 

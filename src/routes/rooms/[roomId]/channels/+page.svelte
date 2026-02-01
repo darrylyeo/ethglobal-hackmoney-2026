@@ -3,10 +3,12 @@
 	let { data }: { data: { roomId: string } } = $props()
 
 	// State
+	import { getOrCreatePeerDisplayName } from '$/lib/partykit'
 	import { roomState, joinRoom, leaveRoom } from '$/state/room.svelte'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { walletsCollection } from '$/collections/wallets'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
+	import { untrack } from 'svelte'
 
 	const roomId = $derived(data.roomId)
 
@@ -24,14 +26,12 @@
 	const provider = $derived(selectedWallet?.provider ?? null)
 
 	$effect(() => {
-		if (roomId && roomState.roomId !== roomId) {
-			joinRoom(roomId)
+		const id = roomId
+		if (!id) return
+		if (untrack(() => roomState.roomId) !== id) {
+			joinRoom(id, getOrCreatePeerDisplayName())
 		}
-		return () => {
-			if (roomState.roomId === roomId) {
-				leaveRoom()
-			}
-		}
+		return () => leaveRoom()
 	})
 
 	// Components
