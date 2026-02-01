@@ -302,7 +302,8 @@
 			{#if invalidAmountInput}<small data-error>Invalid amount (use numbers and up to 6 decimals)</small>
 			{:else if exceedsBalance}<small data-error>Insufficient balance</small>
 			{:else if validation.error === 'too_low'}<small data-error>Min {validation.minAmount} USDC</small>
-			{:else if validation.error === 'too_high'}<small data-error>Max {validation.maxAmount} USDC</small>{/if}
+			{:else if validation.error === 'too_high'}<small data-error>Max {validation.maxAmount} USDC</small>
+			{:else if validation.error === 'invalid'}<small data-error>Enter a valid amount</small>{/if}
 		</div>
 
 		<!-- Recipient -->
