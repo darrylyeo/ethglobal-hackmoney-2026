@@ -12,8 +12,7 @@ import {
 	normalizeRoute,
 } from './lifi'
 import type { Route } from '@lifi/sdk'
-vi.mock('@lifi/sdk', async (importOriginal) => {
-	const actual = await importOriginal<typeof import('@lifi/sdk')>()
+vi.mock('@lifi/sdk', () => {
 	const mockStep: LiFiStep = {
 		action: {
 			fromChainId: 1,
@@ -64,12 +63,15 @@ vi.mock('@lifi/sdk', async (importOriginal) => {
 		tags: ['RECOMMENDED'],
 	}
 	return {
-		...actual,
 		createConfig: vi.fn(),
 		getQuote: vi.fn(() => Promise.resolve(mockStep)),
 		getRoutes: vi.fn(() =>
 			Promise.resolve({ routes: [mockRoute], unavailableRoutes: { filteredOut: [], failed: [] } }),
 		),
+		convertQuoteToRoute: vi.fn((step: unknown) => ({ ...(step as object), originalRoute: mockRoute })),
+		config: { setProviders: vi.fn() },
+		EVM: vi.fn(),
+		executeRoute: vi.fn((r: unknown) => Promise.resolve(r)),
 	}
 })
 const mockLiFiStep: LiFiStep = {

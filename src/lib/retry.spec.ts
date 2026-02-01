@@ -23,10 +23,13 @@ describe('withRetry', () => {
 	it('throws last categorized error after max attempts', async () => {
 		let attempts = 0
 		await expect(
-			withRetry(() => {
-				attempts++
-				throw new Error('network error')
-			}, { maxAttempts: 3 }),
+			withRetry(
+				() => {
+					attempts++
+					throw new Error('network error')
+				},
+				{ maxAttempts: 3, getDelay: () => 0 },
+			),
 		).rejects.toMatchObject({
 			code: ErrorCode.NETWORK,
 			title: 'Network error',
