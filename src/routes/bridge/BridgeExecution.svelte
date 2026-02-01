@@ -60,39 +60,43 @@
 		mutationFn: async ({ route, providerDetail, walletAddress, fromChainId, toChainId, amount, onStatus }) => {
 			let txId: Transaction$id | null = null
 
-			const result = await executeSelectedRoute(providerDetail, route, (s) => {
-				onStatus(s)
+			try {
+				const result = await executeSelectedRoute(providerDetail, route, (s) => {
+					onStatus(s)
 
-				// Insert transaction when we get the first tx hash
-				const hash = s.steps.find((st) => st.txHash)?.txHash
-				if (hash && !txId) {
-					txId = { address: walletAddress, sourceTxHash: hash, createdAt: Date.now() }
-					insertTransaction({
-						$id: txId,
-						fromChainId,
-						toChainId,
-						fromAmount: amount,
-						toAmount: route.toAmount,
-						destTxHash: null,
-						status: 'pending',
+					const hash = s.steps.find((st) => st.txHash)?.txHash
+					if (hash && !txId) {
+						txId = { address: walletAddress, sourceTxHash: hash, createdAt: Date.now() }
+						insertTransaction({
+							$id: txId,
+							fromChainId,
+							toChainId,
+							fromAmount: amount,
+							toAmount: route.toAmount,
+							destTxHash: null,
+							status: 'pending',
+						})
+					}
+				})
+
+				const destHash = result.steps
+					.flatMap((s) => (s.execution?.process ?? []) as { txHash?: string; chainId?: number }[])
+					.find((p) => p.chainId === toChainId)?.txHash
+
+				if (txId) {
+					updateTransaction(txId, {
+						status: 'completed',
+						destTxHash: destHash ?? null,
 					})
 				}
-			})
 
-			// Find destination tx hash
-			const destHash = result.steps
-				.flatMap((s) => (s.execution?.process ?? []) as { txHash?: string; chainId?: number }[])
-				.find((p) => p.chainId === toChainId)?.txHash
-
-			// Update final status
-			if (txId) {
-				updateTransaction(txId, {
-					status: onStatus.length > 0 ? 'completed' : 'completed',
-					destTxHash: destHash ?? null,
-				})
+				return { txId, destHash }
+			} catch {
+				if (txId) {
+					updateTransaction(txId, { status: 'failed' })
+				}
+				throw
 			}
-
-			return { txId, destHash }
 		},
 	})
 
