@@ -39,7 +39,10 @@
 		selectedActor
 			? (balancesQuery.data ?? [])
 				.map((r) => r.row)
-				.filter((b) => b.$id.address.toLowerCase() === selectedActor!.toLowerCase())
+				.filter((b) => (
+					b.$id.address.toLowerCase() === selectedActor!.toLowerCase() &&
+					filteredNetworks.some((n) => n.id === b.$id.chainId)
+				))
 			: []
 	)
 
