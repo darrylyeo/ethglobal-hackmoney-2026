@@ -2,6 +2,7 @@
  * Room state: PartyKit connection, join/leave, sync from server to collections.
  */
 
+import { channelProposalsCollection } from '$/collections/channel-proposals'
 import { roomsCollection } from '$/collections/rooms'
 import { roomPeersCollection } from '$/collections/room-peers'
 import { sharedAddressesCollection } from '$/collections/shared-addresses'
@@ -96,6 +97,56 @@ function handleServerMessage(msg: RoomMessage) {
 						verified,
 					})
 				})
+			}
+			break
+		}
+		case 'channel-proposal': {
+			const p = msg.channelParams
+			upsert(channelProposalsCollection, {
+				id: p.id,
+				roomId: p.roomId,
+				from: p.from,
+				to: p.to,
+				chainId: p.chainId,
+				fromDeposit: BigInt(p.fromDeposit ?? '0'),
+				toDeposit: BigInt(p.toDeposit ?? '0'),
+				status: 'pending',
+				createdAt: p.createdAt,
+				expiresAt: p.expiresAt,
+			}, (r) => r.id)
+			break
+		}
+		case 'accept-channel': {
+			const existing = channelProposalsCollection.state.get(msg.proposalId)
+			if (existing) {
+				channelProposalsCollection.update(msg.proposalId, (draft) => {
+					draft.status = 'accepted'
+				})
+			}
+			break
+		}
+		case 'reject-channel': {
+			const existing = channelProposalsCollection.state.get(msg.proposalId)
+			if (existing) {
+				channelProposalsCollection.update(msg.proposalId, (draft) => {
+					draft.status = 'rejected'
+				})
+			}
+			break
+		}
+		case 'channel-opened': {
+			const [a, b] = msg.participants
+			const lower = (x: string) => x.toLowerCase()
+			for (const [id, row] of channelProposalsCollection.state) {
+				if (row.status === 'accepted' && (
+					(lower(row.from) === lower(a) && lower(row.to) === lower(b)) ||
+					(lower(row.from) === lower(b) && lower(row.to) === lower(a))
+				)) {
+					channelProposalsCollection.update(id, (draft) => {
+						draft.status = 'opened'
+					})
+					break
+				}
 			}
 			break
 		}

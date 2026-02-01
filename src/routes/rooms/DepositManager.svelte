@@ -1,0 +1,98 @@
+<script lang="ts">
+	// Types/constants
+	import type { EIP1193Provider } from '$/lib/wallet'
+
+	// Props
+	let { provider }: { provider: EIP1193Provider | null } = $props()
+
+	// State
+	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
+	import { yellowState } from '$/state/yellow.svelte'
+	import { depositToCustody, withdrawFromCustody } from '$/api/yellow'
+	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format'
+
+	const depositQuery = useLiveQuery((q) => q.from({ row: yellowDepositsCollection }).select(({ row }) => ({ row })))
+
+	const depositRow = $derived(
+		yellowState.chainId && yellowState.address
+			? (depositQuery.data ?? []).map((r) => r.row).find(
+				(d) => d.chainId === yellowState.chainId && d.address.toLowerCase() === yellowState.address!.toLowerCase(),
+			)
+			: null,
+	)
+	const availableBalance = $derived(depositRow?.availableBalance ?? 0n)
+	const lockedBalance = $derived(depositRow?.lockedBalance ?? 0n)
+
+	let depositAmount = $state('')
+	let withdrawAmount = $state('')
+	let loading = $state(false)
+
+	const handleDeposit = async () => {
+		if (!provider || !yellowState.chainId) return
+		loading = true
+		try {
+			await depositToCustody({
+				provider,
+				chainId: yellowState.chainId,
+				amount: parseDecimalToSmallest(depositAmount, 6),
+			})
+			depositAmount = ''
+		} finally {
+			loading = false
+		}
+	}
+
+	const handleWithdraw = async () => {
+		if (!provider || !yellowState.chainId) return
+		loading = true
+		try {
+			await withdrawFromCustody({
+				provider,
+				chainId: yellowState.chainId,
+				amount: parseDecimalToSmallest(withdrawAmount, 6),
+			})
+			withdrawAmount = ''
+		} finally {
+			loading = false
+		}
+	}
+</script>
+
+<section data-deposit-manager>
+	<h3>Custody Balance</h3>
+
+	<dl>
+		<dt>Available</dt>
+		<dd>{formatSmallestToDecimal(availableBalance, 6)} USDC</dd>
+
+		<dt>Locked in channels</dt>
+		<dd>{formatSmallestToDecimal(lockedBalance, 6)} USDC</dd>
+	</dl>
+
+	<form
+		onsubmit={(e) => {
+			e.preventDefault()
+			handleDeposit()
+		}}
+	>
+		<input type="text" placeholder="Deposit amount" bind:value={depositAmount} inputmode="decimal" />
+		<button type="submit" disabled={loading}>Deposit</button>
+	</form>
+
+	<form
+		onsubmit={(e) => {
+			e.preventDefault()
+			handleWithdraw()
+		}}
+	>
+		<input type="text" placeholder="Withdraw amount" bind:value={withdrawAmount} inputmode="decimal" />
+		<button type="submit" disabled={loading}>Withdraw</button>
+	</form>
+</section>
+
+<style>
+	[data-deposit-manager] h3 { margin-bottom: 0.5rem; }
+	[data-deposit-manager] dl { margin: 0.5rem 0; }
+	[data-deposit-manager] form { display: flex; gap: 0.5rem; margin: 0.5rem 0; }
+</style>

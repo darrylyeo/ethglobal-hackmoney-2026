@@ -4,6 +4,30 @@
 
 import type * as Party from 'partykit/server'
 
+type ChannelProposalParams = {
+	id: string
+	roomId: string
+	from: `0x${string}`
+	to: `0x${string}`
+	chainId: number
+	fromDeposit: string
+	toDeposit: string
+	status: 'pending'
+	createdAt: number
+	expiresAt: number
+}
+
+type PendingChannelProposal = {
+	fromPeerId: string
+	toPeerId: string
+	from: `0x${string}`
+	to: `0x${string}`
+	fromDeposit: string
+	toDeposit: string
+	createdAt: number
+	expiresAt: number
+}
+
 type RoomMessage =
 	| { type: 'join'; displayName?: string }
 	| { type: 'leave' }
@@ -13,6 +37,12 @@ type RoomMessage =
 	| { type: 'submit-signature'; challengeId: string; signature: `0x${string}` }
 	| { type: 'verify-result'; challengeId: string; verified: boolean }
 	| { type: 'sync'; state: RoomState }
+	| { type: 'propose-channel'; to: `0x${string}`; myDeposit: string; theirDeposit: string }
+	| { type: 'channel-proposal'; from: `0x${string}`; channelParams: ChannelProposalParams }
+	| { type: 'accept-channel'; proposalId: string }
+	| { type: 'reject-channel'; proposalId: string; reason?: string }
+	| { type: 'channel-opened'; channelId: string; participants: [`0x${string}`, `0x${string}`] }
+	| { type: 'channel-closed'; channelId: string }
 
 type Room = {
 	id: string
@@ -133,6 +163,7 @@ function generateChallenge(params: {
 export default class RoomServer implements Party.Server {
 	room: Party.Room
 	state: RoomState | null = null
+	channelProposals = new Map<string, PendingChannelProposal>()
 
 	constructor(room: Party.Room) {
 		this.room = room
@@ -273,6 +304,71 @@ export default class RoomServer implements Party.Server {
 				this.room.broadcast(JSON.stringify({ type: 'sync', state }))
 				break
 			}
+			case 'propose-channel': {
+				const fromShared = state.sharedAddresses.find((s) => s.peerId === peerId)
+				const fromAddress = fromShared?.address
+				const toShared = state.sharedAddresses.find(
+					(s) => s.address.toLowerCase() === (msg.to as string).toLowerCase(),
+				)
+				const toPeerId = toShared?.peerId
+				if (!fromAddress || !toPeerId) break
+				const now = Date.now()
+				const expiresAt = now + 15 * 60 * 1000
+				const proposalId = `${this.room.id}:${fromAddress.toLowerCase()}:${msg.to.toLowerCase()}:${now}`
+				this.channelProposals.set(proposalId, {
+					fromPeerId: peerId,
+					toPeerId,
+					from: fromAddress,
+					to: msg.to,
+					fromDeposit: msg.myDeposit,
+					toDeposit: msg.theirDeposit,
+					createdAt: now,
+					expiresAt,
+				})
+				const channelParams: ChannelProposalParams = {
+					id: proposalId,
+					roomId: this.room.id,
+					from: fromAddress,
+					to: msg.to,
+					chainId: 1,
+					fromDeposit: msg.myDeposit,
+					toDeposit: msg.theirDeposit,
+					status: 'pending',
+					createdAt: now,
+					expiresAt,
+				}
+				const toConn = this.room.getConnection(toPeerId)
+				if (toConn) {
+					toConn.send(JSON.stringify({ type: 'channel-proposal', from: fromAddress, channelParams }))
+				}
+				break
+			}
+			case 'accept-channel': {
+				const pending = this.channelProposals.get(msg.proposalId)
+				if (pending) {
+					const fromConn = this.room.getConnection(pending.fromPeerId)
+					if (fromConn) {
+						fromConn.send(JSON.stringify({ type: 'accept-channel', proposalId: msg.proposalId }))
+					}
+					this.channelProposals.delete(msg.proposalId)
+				}
+				break
+			}
+			case 'reject-channel': {
+				const pending = this.channelProposals.get(msg.proposalId)
+				if (pending) {
+					const fromConn = this.room.getConnection(pending.fromPeerId)
+					if (fromConn) {
+						fromConn.send(JSON.stringify({ type: 'reject-channel', proposalId: msg.proposalId, reason: msg.reason }))
+					}
+					this.channelProposals.delete(msg.proposalId)
+				}
+				break
+			}
+			case 'channel-opened':
+			case 'channel-closed':
+				this.room.broadcast(raw)
+				break
 			default:
 				break
 		}

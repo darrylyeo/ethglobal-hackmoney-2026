@@ -13,6 +13,12 @@ export type RoomMessage =
 	| { type: 'submit-signature'; challengeId: string; signature: `0x${string}` }
 	| { type: 'verify-result'; challengeId: string; verified: boolean }
 	| { type: 'sync'; state: unknown }
+	| { type: 'propose-channel'; to: `0x${string}`; myDeposit: string; theirDeposit: string }
+	| { type: 'channel-proposal'; from: `0x${string}`; channelParams: { id: string; roomId: string; from: `0x${string}`; to: `0x${string}`; chainId: number; fromDeposit: string; toDeposit: string; status: string; createdAt: number; expiresAt: number } }
+	| { type: 'accept-channel'; proposalId: string }
+	| { type: 'reject-channel'; proposalId: string; reason?: string }
+	| { type: 'channel-opened'; channelId: string; participants: [`0x${string}`, `0x${string}`] }
+	| { type: 'channel-closed'; channelId: string }
 
 const PARTYKIT_HOST =
 	(typeof import.meta.env !== 'undefined' && (import.meta.env as { PUBLIC_PARTYKIT_HOST?: string }).PUBLIC_PARTYKIT_HOST)

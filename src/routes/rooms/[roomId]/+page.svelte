@@ -42,9 +42,11 @@
 	<h1>Room {roomId}</h1>
 
 	<p>
+		<a href="/rooms/{roomId}/channels">Channels</a>
+		·
 		<a
 			href="/rooms"
-			onclick={(e) => {
+			onclick={() => {
 				leaveRoom()
 			}}
 		>
