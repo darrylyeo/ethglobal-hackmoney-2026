@@ -3,6 +3,12 @@
  */
 
 import PartySocket from 'partysocket'
+import {
+	PEER_ADJECTIVES,
+	PEER_ANIMALS,
+	PEER_ANIMAL_EMOJI,
+	PEER_ANIMAL_EMOJI_LIST,
+} from '$/constants/peer-display-names'
 
 export type RoomMessage =
 	| { type: 'join'; displayName?: string }
@@ -50,15 +56,6 @@ export const generateRoomCode = () => (
 	Math.random().toString(36).substring(2, 8).toUpperCase()
 )
 
-const PEER_ADJECTIVES = [
-	'Swift', 'Bold', 'Calm', 'Clever', 'Cosmic', 'Crimson', 'Daring', 'Eager', 'Frosty', 'Gentle',
-	'Golden', 'Hasty', 'Jolly', 'Lucky', 'Misty', 'Noble', 'Quick', 'Silent', 'Solar', 'Velvet',
-]
-const PEER_ANIMALS = [
-	'Bear', 'Cat', 'Crow', 'Deer', 'Dog', 'Dolphin', 'Eagle', 'Fox', 'Hawk', 'Lion',
-	'Otter', 'Owl', 'Panda', 'Rabbit', 'Raven', 'Salmon', 'Seal', 'Tiger', 'Wolf', 'Wren',
-]
-
 export const generatePeerDisplayName = (): string => (
 	`${PEER_ADJECTIVES[Math.floor(Math.random() * PEER_ADJECTIVES.length)]} ${PEER_ANIMALS[Math.floor(Math.random() * PEER_ANIMALS.length)]}`
 )
@@ -83,38 +80,13 @@ const simpleHash = (s: string): number => {
 
 export const peerNameToHue = (name: string): number => (simpleHash(name) % 360)
 
-const ANIMAL_EMOJIS: Record<string, string> = {
-	Bear: '🐻',
-	Cat: '🐱',
-	Crow: '🐦‍⬛',
-	Deer: '🦌',
-	Dog: '🐕',
-	Dolphin: '🐬',
-	Eagle: '🦅',
-	Fox: '🦊',
-	Hawk: '🦅',
-	Lion: '🦁',
-	Otter: '🦦',
-	Owl: '🦉',
-	Panda: '🐼',
-	Rabbit: '🐰',
-	Raven: '🐦‍⬛',
-	Salmon: '🐟',
-	Seal: '🦭',
-	Tiger: '🐯',
-	Wolf: '🐺',
-	Wren: '🐦',
-}
-
-const EMOJI_LIST = [...new Set(Object.values(ANIMAL_EMOJIS))]
-
 export const peerNameToEmoji = (displayName: string | undefined, fallbackId: string): string => {
 	if (displayName) {
 		const parts = displayName.trim().split(/\s+/)
 		const animal = parts[parts.length - 1]
-		if (animal && ANIMAL_EMOJIS[animal]) return ANIMAL_EMOJIS[animal]
+		if (animal && animal in PEER_ANIMAL_EMOJI) return PEER_ANIMAL_EMOJI[animal as keyof typeof PEER_ANIMAL_EMOJI]
 	}
-	return EMOJI_LIST[simpleHash(fallbackId) % EMOJI_LIST.length]
+	return PEER_ANIMAL_EMOJI_LIST[simpleHash(fallbackId) % PEER_ANIMAL_EMOJI_LIST.length]
 }
 
 export const createRoom = async (_name?: string): Promise<string> => {

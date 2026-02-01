@@ -3,18 +3,18 @@
 	let { children } = $props()
 
 	// State
-	import { networkStatus } from '$/lib/network-status.svelte'
-	import { networks } from '$/constants/networks'
+	// import { networkStatus } from '$/lib/network-status.svelte'
+	// import { networks } from '$/constants/networks'
 
 	let showGraph =
 		$state(false)
 
 	// (Derived)
-	$effect(() => {
-		const chainIds = networks.map((n) => n.id)
-		networkStatus.start(chainIds)
-		return () => networkStatus.stop()
-	})
+	// $effect(() => {
+	// 	const chainIds = networks.map((n) => n.id)
+	// 	networkStatus.start(chainIds)
+	// 	return () => networkStatus.stop()
+	// })
 
 	// Components
 	import Boundary from '$/components/Boundary.svelte'

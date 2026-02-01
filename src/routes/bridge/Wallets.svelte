@@ -13,6 +13,7 @@
 		requestWalletConnection,
 		switchActiveActor,
 		selectConnection,
+		setSelectedConnections,
 		disconnectWallet,
 	} from '$/collections/wallet-connections'
 	import { walletsCollection } from '$/collections/wallets'
@@ -93,6 +94,9 @@
 	const selectedConnection = $derived(
 		connectedWalletsDerived.find((w) => w.connection.selected) ?? null
 	)
+	const selectedRdns = $derived(
+		connectedWalletsDerived.filter((w) => w.connection.selected).map((w) => w.wallet.$id.rdns)
+	)
 
 	const selectedActorDerived = $derived(
 		selectedConnection?.connection.activeActor ?? null
@@ -114,10 +118,12 @@
 		connectedWallets = $bindable([] as ConnectedWallet[]),
 		selectedActor = $bindable(null as `0x${string}` | null),
 		selectedChainId = $bindable(null as number | null),
+		selectionMode = 'single' as 'single' | 'multiple',
 	}: {
 		connectedWallets?: ConnectedWallet[]
 		selectedActor?: `0x${string}` | null
-		selectedChainId?: number | null,
+		selectedChainId?: number | null
+		selectionMode?: 'single' | 'multiple'
 	} = $props()
 
 	$effect(() => {
@@ -155,9 +161,12 @@
 <div data-row>
 	{#if walletChips.length > 0}
 		<ToggleGroup.Root
-			type="single"
-			value={selectedConnection?.wallet.$id.rdns}
-			onValueChange={(v) => { if (v) selectConnection({ rdns: v }) }}
+			type={selectionMode}
+			value={selectionMode === 'single' ? (selectedConnection?.wallet.$id.rdns ?? '') : selectedRdns}
+			onValueChange={(v) => {
+				if (selectionMode === 'single' && v) selectConnection({ rdns: v as string })
+				else if (selectionMode === 'multiple') setSelectedConnections(new Set((v ?? []) as string[]))
+			}}
 			data-row="wrap gap-2"
 		>
 			{#each walletChips as { wallet, connection, status } (wallet.$id.rdns)}

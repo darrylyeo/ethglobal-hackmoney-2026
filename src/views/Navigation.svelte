@@ -12,7 +12,7 @@
 
 
 	// Components
-	import NetworkStatusIndicator from '$/components/NetworkStatusIndicator.svelte'
+	// import NetworkStatusIndicator from '$/components/NetworkStatusIndicator.svelte'
 	import NavigationItems, { type NavigationItem } from './NavigationItem.svelte'
 </script>
 
@@ -40,9 +40,9 @@
 		</a>
 
 		<menu data-row="gap-2">
-			<li>
+			<!-- <li>
 				<NetworkStatusIndicator />
-			</li>
+			</li> -->
 
 			<li>
 				<button type="button" id="menu-toggle" aria-label="Open menu" popovertarget="nav">

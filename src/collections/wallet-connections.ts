@@ -136,6 +136,30 @@ export const selectConnection = (wallet$id: Wallet$id) => {
 	}
 }
 
+// Toggle one connection's selection (for multiselect)
+export const toggleConnectionSelection = (wallet$id: Wallet$id) => {
+	const key = stringify({ wallet$id })
+	const conn = walletConnectionsCollection.state.get(key)
+	if (conn) {
+		walletConnectionsCollection.update(key, (draft) => {
+			draft.selected = !draft.selected
+		})
+	}
+}
+
+// Set which connections are selected by rdns (for multiselect)
+export const setSelectedConnections = (rdnsSet: Set<string>) => {
+	for (const [key, conn] of walletConnectionsCollection.state) {
+		const rdns = conn.$id.wallet$id.rdns
+		const shouldSelect = rdnsSet.has(rdns)
+		if (conn.selected !== shouldSelect) {
+			walletConnectionsCollection.update(key, (draft) => {
+				draft.selected = shouldSelect
+			})
+		}
+	}
+}
+
 // Update chain
 export const updateWalletChain = (wallet$id: Wallet$id, chainId: number) => {
 	const key = stringify({ wallet$id })

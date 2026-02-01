@@ -45,25 +45,28 @@ function upsert<T extends object>(
 }
 
 function syncStateToCollections(roomId: string, state: RoomStateSync) {
-	for (const [key, row] of roomPeersCollection.state) {
-		if (row.roomId === roomId) roomPeersCollection.delete(key)
-	}
-	for (const [key, row] of sharedAddressesCollection.state) {
-		if (row.roomId === roomId) sharedAddressesCollection.delete(key)
-	}
-	for (const [key, row] of siweChallengesCollection.state) {
-		if (row.roomId === roomId) siweChallengesCollection.delete(key)
-	}
+	const peerIds = new Set(state.peers.map((p) => `${roomId}:${p.peerId}`))
+	const sharedIds = new Set(state.sharedAddresses.map((s) => s.id))
+	const challengeIds = new Set(state.challenges.map((c) => c.id))
 
 	upsert(roomsCollection, state.room, (r) => r.id)
 	for (const p of state.peers) {
 		upsert(roomPeersCollection, p, (r) => r.id)
 	}
+	for (const [key, row] of roomPeersCollection.state) {
+		if (row.roomId === roomId && !peerIds.has(key)) roomPeersCollection.delete(key)
+	}
 	for (const s of state.sharedAddresses) {
 		upsert(sharedAddressesCollection, s, (r) => r.id)
 	}
+	for (const [key, row] of sharedAddressesCollection.state) {
+		if (row.roomId === roomId && !sharedIds.has(row.id)) sharedAddressesCollection.delete(key)
+	}
 	for (const c of state.challenges) {
 		upsert(siweChallengesCollection, c, (r) => r.id)
+	}
+	for (const [key, row] of siweChallengesCollection.state) {
+		if (row.roomId === roomId && !challengeIds.has(row.id)) siweChallengesCollection.delete(key)
 	}
 }
 

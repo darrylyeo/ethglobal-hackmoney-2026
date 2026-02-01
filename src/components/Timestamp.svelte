@@ -80,4 +80,3 @@
 		title={`${absoluteTime} (${relativeTime})`}
 	>{absoluteTime} ({relativeTime})</time>
 {/if}
-
