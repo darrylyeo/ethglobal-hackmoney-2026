@@ -40,6 +40,11 @@ export const validateBridgeAmount = (
 	return { isValid: true }
 }
 
-export const extractRouteLimits = (
-	_routes: { steps: { fromAmount?: string }[] }[],
-): RouteLimits => ({ minAmount: null, maxAmount: null })
+export const extractRouteLimits = (routes: { fromAmount: bigint }[]): RouteLimits => (
+	routes.length === 0
+		? { minAmount: null, maxAmount: null }
+		: {
+			minAmount: routes.reduce((a, r) => (r.fromAmount < a ? r.fromAmount : a), routes[0].fromAmount),
+			maxAmount: routes.reduce((a, r) => (r.fromAmount > a ? r.fromAmount : a), routes[0].fromAmount),
+		}
+)

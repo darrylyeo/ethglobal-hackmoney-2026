@@ -41,10 +41,14 @@ describe('extractRouteLimits', () => {
 		})
 	})
 
-	it('returns null limits for routes without step amounts', () => {
-		expect(extractRouteLimits([{ steps: [] }])).toEqual({
-			minAmount: null,
-			maxAmount: null,
+	it('returns min/max from route fromAmounts', () => {
+		expect(extractRouteLimits([
+			{ fromAmount: 100_000_000n },
+			{ fromAmount: 50_000_000n },
+			{ fromAmount: 200_000_000n },
+		])).toEqual({
+			minAmount: 50_000_000n,
+			maxAmount: 200_000_000n,
 		})
 	})
 })

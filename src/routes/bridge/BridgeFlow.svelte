@@ -4,7 +4,7 @@
 	import type { BridgeRoute } from '$/collections/bridge-routes'
 	import { ChainId, NetworkType, networks, networksByChainId } from '$/constants/networks'
 	import { SLIPPAGE_PRESETS, formatSlippagePercent, parseSlippagePercent, calculateMinOutput } from '$/constants/slippage'
-	import { validateBridgeAmount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT } from '$/constants/bridge-limits'
+	import { validateBridgeAmount, extractRouteLimits, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT } from '$/constants/bridge-limits'
 
 	// Context
 	import { Button, Dialog, Popover, Select, Switch, Checkbox } from 'bits-ui'
@@ -314,6 +314,13 @@
 				data-column="gap-2"
 			>
 				<span>{routesRow.error.code === ErrorCode.NO_ROUTES ? 'No routes available for this transfer.' : routesRow.error.message}</span>
+				{#if routesRow.error.code === ErrorCode.NO_ROUTES}
+					<ul data-no-routes-guidance>
+						<li>Try a different amount (min ~1 USDC, max varies by route)</li>
+						<li>Try a different chain pair</li>
+						<li>Check if the bridge is operational</li>
+					</ul>
+				{/if}
 				<div data-row="gap-2">
 					<Button.Root onclick={onRefresh}>Retry</Button.Root>
 					<Button.Root
@@ -341,6 +348,19 @@
 					</Select.Root>
 				</div>
 
+				{#if sortedRoutes.length > 0}
+					{@const limits = extractRouteLimits(sortedRoutes)}
+					{#if limits.minAmount !== null || limits.maxAmount !== null}
+						<p data-route-limits data-muted>
+							{#if limits.minAmount !== null}
+								Min: {formatSmallestToDecimal(limits.minAmount, 6)} USDC
+							{/if}
+							{#if limits.maxAmount !== null}
+								{#if limits.minAmount !== null} · {/if}Max: {formatSmallestToDecimal(limits.maxAmount, 6)} USDC
+							{/if}
+						</p>
+					{/if}
+				{/if}
 				<div data-column="gap-2">
 					{#each sortedRoutes as r (r.id)}
 						<button
