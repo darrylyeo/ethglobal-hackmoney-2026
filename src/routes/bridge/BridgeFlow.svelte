@@ -29,6 +29,7 @@
 	import { stringify } from 'devalue'
 	import { debounce } from '$/lib/debounce'
 	import { switchWalletChain } from '$/lib/wallet'
+	import { networkStatus } from '$/lib/network-status.svelte'
 
 	// Components
 	import TokenApproval from './TokenApproval.svelte'
@@ -258,6 +259,15 @@
 				</Select.Root>
 			</div>
 		</div>
+
+		{#if settings.fromChainId !== null}
+			{@const fromChainStatus = networkStatus.getChainStatus(settings.fromChainId)}
+			{#if fromChainStatus?.status === 'degraded'}
+				<p data-chain-warning>⚠️ {fromNetwork?.name ?? `Chain ${settings.fromChainId}`} is experiencing delays</p>
+			{:else if fromChainStatus?.status === 'down'}
+				<p data-chain-error>⛔ {fromNetwork?.name ?? `Chain ${settings.fromChainId}`} is currently unavailable</p>
+			{/if}
+		{/if}
 
 		<!-- Amount -->
 		<div data-column="gap-1">
