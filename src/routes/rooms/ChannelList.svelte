@@ -66,7 +66,7 @@
 			</span>
 			<span data-status>{channel.status}</span>
 			{#if channel.status === 'active'}
-				<Button onclick={() => { transferChannel = channel; transferOpen = true }}>Send</Button>
+				<Button.Root type="button" onclick={() => { transferChannel = channel; transferOpen = true }}>Send</Button.Root>
 			{/if}
 		</div>
 	{/each}

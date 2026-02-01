@@ -138,9 +138,9 @@
 			inputmode="decimal"
 		/>
 
-		<Button type="submit" disabled={!selectedAddress || !myDeposit}>
+		<Button.Root type="submit" disabled={!selectedAddress || !myDeposit}>
 			Propose Channel
-		</Button>
+		</Button.Root>
 	</form>
 
 	{#if incoming.length > 0}
@@ -151,8 +151,8 @@
 				<span>
 					wants to open {formatSmallestToDecimal(proposal.fromDeposit, 6)} / {formatSmallestToDecimal(proposal.toDeposit, 6)} USDC channel
 				</span>
-				<Button onclick={() => acceptProposal(proposal.id)}>Accept</Button>
-				<Button onclick={() => rejectProposal(proposal.id)}>Reject</Button>
+				<Button.Root type="button" onclick={() => acceptProposal(proposal.id)}>Accept</Button.Root>
+				<Button.Root type="button" onclick={() => rejectProposal(proposal.id)}>Reject</Button.Root>
 			</div>
 		{/each}
 	{/if}

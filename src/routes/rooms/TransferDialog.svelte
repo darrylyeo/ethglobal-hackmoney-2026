@@ -81,10 +81,10 @@
 		{/if}
 
 		<div data-actions>
-			<Button onclick={() => { open = false }}>Cancel</Button>
-			<Button onclick={handleSend} disabled={sending || !amount}>
+			<Button.Root type="button" onclick={() => { open = false }}>Cancel</Button.Root>
+			<Button.Root type="button" onclick={handleSend} disabled={sending || !amount}>
 				{sending ? 'Sending...' : 'Send'}
-			</Button>
+			</Button.Root>
 		</div>
 	</Dialog.Content>
 </Dialog.Root>
