@@ -24,7 +24,7 @@
 		periods: readonly { value: string; label: string; ms: number }[]
 	} = $props()
 
-	// (Derived) layout: nodes in circle, edge geometry
+	// (Derived) layout: nodes in circle
 	const radius = 8
 	const nodePositionByAddress = $derived(
 		(() => {
@@ -45,13 +45,43 @@
 			)
 		})(),
 	)
+	const sortedEdges = $derived(
+		[...graph.edges].sort(
+			(a, b) =>
+				Math.min(...a.timestamps) - Math.min(...b.timestamps),
+		),
+	)
+	const totalVolume = $derived(
+		graph.edges.reduce((s, e) => s + e.totalAmount, 0),
+	)
+
+	// State: stagger edges by timestamp over 2s
+	let visibleEdgeCount = $state(0)
+	$effect(() => {
+		const edges = sortedEdges
+		visibleEdgeCount = 0
+		if (edges.length === 0) return
+		const duration = 2000
+		const step = 50
+		const perStep = Math.max(1, Math.ceil(edges.length / (duration / step)))
+		const id = setInterval(() => {
+			visibleEdgeCount = Math.min(
+				visibleEdgeCount + perStep,
+				edges.length,
+			)
+			if (visibleEdgeCount >= edges.length) clearInterval(id)
+		}, step)
+		return () => clearInterval(id)
+	})
+
+	const visibleEdges = $derived(sortedEdges.slice(0, visibleEdgeCount))
 	const edgeGeometry = $derived(
 		(() => {
 			const geom = new THREE.BufferGeometry()
-			if (graph.edges.length === 0) return geom
-			const positions = new Float32Array(graph.edges.length * 2 * 3)
+			if (visibleEdges.length === 0) return geom
+			const positions = new Float32Array(visibleEdges.length * 2 * 3)
 			let idx = 0
-			for (const e of graph.edges) {
+			for (const e of visibleEdges) {
 				const from = nodePositionByAddress.get(e.fromAddress)
 				const to = nodePositionByAddress.get(e.toAddress)
 				if (from && to) {
@@ -74,7 +104,7 @@
 	<header data-transfers-header>
 		<h2>Live transfers – {coin.symbol}</h2>
 		<nav data-period-selector aria-label="Time period">
-			{#each periods as p}
+			{#each periods as p (p.value)}
 				<a
 					href="?period={p.value}"
 					data-period-link
@@ -119,6 +149,12 @@
 	{:else}
 		<p data-transfers-summary>
 			{graph.nodes.length} actors, {graph.edges.length} flows
+			{totalVolume > 0 ?
+				` · ${totalVolume.toLocaleString(undefined, {
+					minimumFractionDigits: 0,
+					maximumFractionDigits: 2,
+				})} ${coin.symbol} total volume`
+			: ''}
 		</p>
 	{/if}
 </div>
