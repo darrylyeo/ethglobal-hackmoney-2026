@@ -1,24 +1,10 @@
-# Spec 001 re-verification
+# Spec 001 re-verification (2026-02-01)
 
-**Date:** 2026-02-01
+Re-verified acceptance criteria for spec 001 (constants and networks):
 
-## Re-verification (all specs complete)
+- NetworkType enum (Mainnet, Testnet) in src/constants/networks.ts
+- ChainId enum with ~30 chains, networks array with id/name/type, as const satisfies
+- ercTokens array with USDC per chain, ercTokensBySymbolByChainId lookup in src/constants/coins.ts
+- networksByChainId lookup
 
-Per constitution Re-Verification Mode: picked spec 001 (Constants and networks).
-
-## Acceptance criteria verified
-
-- [x] `NetworkType` enum with Mainnet/Testnet — `src/constants/networks.ts`
-- [x] `ChainId` enum with LI.FI / Circle supported chains — ~40 chains in networks.ts
-- [x] `networks` array with id, name, type — `as const satisfies readonly Network[]`
-- [x] `ercTokens` array with USDC address per chain — `src/constants/coins.ts`
-- [x] Lookup objects — `networksByChainId`, `ercTokensBySymbolByChainId`
-- [x] Code style: tabs, no semicolons, `as const satisfies`
-
-## Tests
-
-- `pnpm test:unit` — 42 Deno + 88 Vitest passed.
-
-## Result
-
-Spec 001 quality confirmed. No regressions.
+Unit tests (deno + vitest): all passed. Build: success.
