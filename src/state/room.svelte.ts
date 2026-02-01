@@ -13,10 +13,13 @@ import {
 	type RoomMessage,
 } from '$/lib/partykit'
 import { verifySiweSignature } from '$/lib/siwe'
+import type { ChannelProposal } from '$/collections/channel-proposals'
 import type { Room } from '$/collections/rooms'
 import type { RoomPeer } from '$/collections/room-peers'
 import type { SharedAddress } from '$/collections/shared-addresses'
 import type { SiweChallenge } from '$/collections/siwe-challenges'
+
+const SIWE_DEBUG = typeof import.meta !== 'undefined' && (import.meta as { env?: { DEV?: boolean } }).env?.DEV
 
 type RoomStateSync = {
 	room: Room
@@ -71,10 +74,14 @@ function handleServerMessage(msg: RoomMessage) {
 			break
 		case 'challenge': {
 			const ch = msg.challenge as SiweChallenge
+			if (SIWE_DEBUG) {
+				console.debug('[SIWE] challenge received', { id: ch.id, from: ch.fromPeerId, to: ch.toPeerId, address: ch.address })
+			}
 			upsert(siweChallengesCollection, ch, (r) => r.id)
 			break
 		}
 		case 'verify-result': {
+			if (SIWE_DEBUG) console.debug('[SIWE] verify-result received', { challengeId: msg.challengeId, verified: msg.verified })
 			const existing = siweChallengesCollection.state.get(msg.challengeId)
 			if (existing) {
 				siweChallengesCollection.update(msg.challengeId, (draft) => {
@@ -85,12 +92,17 @@ function handleServerMessage(msg: RoomMessage) {
 		}
 		case 'submit-signature': {
 			const ch = siweChallengesCollection.state.get(msg.challengeId)
-			if (ch && ch.toPeerId === roomState.peerId) {
+			const amVerifier = ch?.toPeerId === roomState.peerId
+			if (SIWE_DEBUG) {
+				console.debug('[SIWE] submit-signature received', { challengeId: msg.challengeId, amVerifier, myPeerId: roomState.peerId })
+			}
+			if (ch && amVerifier) {
 				verifySiweSignature({
 					message: ch.message,
 					signature: msg.signature,
 					expectedAddress: ch.address,
 				}).then((verified) => {
+					if (SIWE_DEBUG) console.debug('[SIWE] sending verify-result', { challengeId: msg.challengeId, verified })
 					roomState.connection?.send({
 						type: 'verify-result',
 						challengeId: msg.challengeId,
@@ -102,7 +114,7 @@ function handleServerMessage(msg: RoomMessage) {
 		}
 		case 'channel-proposal': {
 			const p = msg.channelParams
-			upsert(channelProposalsCollection, {
+			const row: ChannelProposal = {
 				id: p.id,
 				roomId: p.roomId,
 				from: p.from,
@@ -113,7 +125,8 @@ function handleServerMessage(msg: RoomMessage) {
 				status: 'pending',
 				createdAt: p.createdAt,
 				expiresAt: p.expiresAt,
-			}, (r) => r.id)
+			}
+			upsert(channelProposalsCollection, row, (r) => r.id)
 			break
 		}
 		case 'accept-channel': {
