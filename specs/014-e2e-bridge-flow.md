@@ -86,41 +86,44 @@ Requires specs 003-013 to be complete.
 
 ## Dependencies
 
-### Core (must complete for working E2E):
-- [ ] 003 - LI.FI quotes
-- [ ] 004 - Bridge UI
-- [ ] 005 - Wallet provider (implementation done, E2E pending)
-- [ ] 007 - Human-readable amounts ⭐ **P0**
-- [ ] 012 - Testnet/mainnet filtering ⭐ **P0**
-- [ ] 018 - Chain switching ⭐ **P0**
-- [ ] 009 - Token approval ⭐ **P0**
-- [ ] 008 - Transaction status ⭐ **P0**
-- [ ] 013 - Error handling ⭐ **P0**
-- [ ] 024 - Confirmation dialog ⭐ **P0**
+All core specs are complete. The bridge flow is implemented in
+`BridgeFlow.svelte` with supporting components `TokenApproval.svelte`,
+`BridgeExecution.svelte`, `Balances.svelte`, and `Wallets.svelte`.
 
-### Enhanced UX (recommended):
-- [ ] 010 - Route comparison ⭐ **P1**
-- [ ] 015 - Quote refresh ⭐ **P1**
-- [ ] 016 - Slippage settings ⭐ **P1**
-- [ ] 020 - Bridge limits **P1**
-- [ ] 021 - Fee breakdown **P1**
-- [ ] 025 - Toast notifications **P1**
+### Core (complete):
+- [x] 003 - LI.FI quotes
+- [x] 004 - Bridge UI
+- [x] 005 - Wallet provider
+- [x] 007 - Human-readable amounts
+- [x] 012 - Testnet/mainnet filtering
+- [x] 018 - Chain switching
+- [x] 009 - Token approval
+- [x] 008 - Transaction status
+- [x] 013 - Error handling
+- [x] 024 - Confirmation dialog
 
-### Polish:
-- [ ] 017 - Loading states **P2**
-- [ ] 019 - Recipient address **P2**
-- [ ] 011 - Transaction history **P2**
-- [ ] 026 - Network status **P2**
-- [ ] 027 - Dark mode **P2**
+### Enhanced UX (complete):
+- [x] 010 - Route comparison
+- [x] 015 - Quote refresh
+- [x] 016 - Slippage settings
+- [x] 020 - Bridge limits
+- [x] 021 - Fee breakdown
+- [x] 025 - Toast notifications
 
-### Quality:
-- [ ] 022 - Accessibility **P2**
-- [ ] 023 - Responsive design **P2**
-- [ ] 028 - Security checklist **P2**
-- [ ] 029 - Performance **P2**
+### Polish (complete):
+- [x] 017 - Loading states
+- [x] 019 - Recipient address
+- [x] 011 - Transaction history
+- [x] 026 - Network status
 
-### Nice to have:
-- [ ] 006 - Transfers visualization **P3**
+### Quality (complete):
+- [x] 022 - Accessibility
+- [x] 023 - Responsive design
+- [x] 028 - Security checklist
+- [x] 029 - Performance
+
+### Visualization:
+- [x] 006 - Transfers visualization
 
 ## Recommended implementation order
 

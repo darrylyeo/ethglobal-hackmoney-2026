@@ -150,201 +150,42 @@ export const executeSelectedRoute = async (
 }
 ```
 
-### `src/routes/bridge/RouteList.svelte`
+### Route list and cards in `src/routes/bridge/BridgeFlow.svelte`
+
+Routes are rendered inline in BridgeFlow rather than separate components. The
+implementation uses:
+
+- `bridgeRoutesCollection` via TanStack DB `useLiveQuery`
+- `sortedRoutes` derived from settings sort preference
+- `selectedRouteId` state for selection
+- Auto-select first route via `$effect`
 
 ```svelte
-<script lang="ts">
-  import type { NormalizedRoute } from '$/api/lifi'
-  import RouteCard from './RouteCard.svelte'
-
-  let {
-    routes,
-    selectedId = $bindable<string | null>(null),
-    loading = false,
-  }: {
-    routes: NormalizedRoute[]
-    selectedId?: string | null
-    loading?: boolean
-  } = $props()
-
-  // Auto-select first route
-  $effect(() => {
-    if (routes.length > 0 && selectedId === null) {
-      selectedId = routes[0].id
-    }
-  })
-
-  const handleKeyDown = (e: KeyboardEvent, index: number) => {
-    if (e.key === 'ArrowDown' && index < routes.length - 1) {
-      selectedId = routes[index + 1].id
-      e.preventDefault()
-    } else if (e.key === 'ArrowUp' && index > 0) {
-      selectedId = routes[index - 1].id
-      e.preventDefault()
-    }
-  }
-</script>
-
-<div data-route-list role="listbox" aria-label="Bridge routes">
-  {#if loading}
-    <p data-route-loading>Finding best routes…</p>
-  {:else if routes.length === 0}
-    <p data-route-empty>No routes available for this transfer.</p>
-  {:else}
-    {#each routes as route, i (route.id)}
-      <RouteCard
-        {route}
-        selected={selectedId === route.id}
-        onclick={() => { selectedId = route.id }}
-        onkeydown={(e) => handleKeyDown(e, i)}
-      />
-    {/each}
-  {/if}
-</div>
-
-<style>
-  [data-route-list] {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75em;
-  }
-</style>
-```
-
-### `src/routes/bridge/RouteCard.svelte`
-
-```svelte
-<script lang="ts">
-  import type { NormalizedRoute } from '$/api/lifi'
-  import { formatTokenAmount } from '$/lib/format'
-
-  let {
-    route,
-    selected = false,
-    onclick,
-    onkeydown,
-  }: {
-    route: NormalizedRoute
-    selected?: boolean
-    onclick: () => void
-    onkeydown?: (e: KeyboardEvent) => void
-  } = $props()
-
-  const bridgeNames = $derived(
-    [...new Set(route.steps.map(s => s.toolName))].join(' → ')
-  )
-
-  const formatDuration = (seconds: number) => (
-    seconds < 60 ? `~${seconds}s`
-    : seconds < 3600 ? `~${Math.ceil(seconds / 60)} min`
-    : `~${Math.ceil(seconds / 3600)} hr`
-  )
-</script>
-
-<button
-  type="button"
-  role="option"
-  aria-selected={selected}
-  data-route-card
-  data-selected={selected ? '' : undefined}
-  {onclick}
-  {onkeydown}
->
-  <div data-route-header>
-    <span data-route-output>
-      {formatTokenAmount(route.toAmount, 6)} USDC
-    </span>
-    {#if route.tags.includes('BEST')}
-      <span data-route-tag="best">Best</span>
-    {:else if route.tags.includes('CHEAPEST')}
-      <span data-route-tag="cheapest">Cheapest</span>
-    {:else if route.tags.includes('FASTEST')}
-      <span data-route-tag="fastest">Fastest</span>
-    {/if}
-  </div>
-
-  <div data-route-details>
-    <span data-route-bridge>{bridgeNames}</span>
-    <span data-route-time>{formatDuration(route.estimatedDurationSeconds)}</span>
-    <span data-route-gas>~${parseFloat(route.gasCostUsd).toFixed(2)} gas</span>
-  </div>
-
-  {#if route.steps.length > 1}
-    <div data-route-steps>
-      {route.steps.length} steps
+<!-- Routes list -->
+{#if sortedRoutes.length > 0 || routesRow?.isLoading}
+  <section data-card data-column="gap-3">
+    <div data-row="gap-2 align-center justify-between">
+      <h3>Routes {routesRow?.isLoading ? '(loading…)' : `(${sortedRoutes.length})`}</h3>
+      <Select.Root ...>Sort: {settings.sortBy}</Select.Root>
     </div>
-  {/if}
-</button>
 
-<style>
-  [data-route-card] {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
-    padding: 1em;
-    border: 1px solid var(--color-border);
-    border-radius: 0.5em;
-    background: var(--color-bg-card);
-    cursor: pointer;
-    text-align: left;
-    transition: border-color 0.15s;
-  }
-
-  [data-route-card]:hover,
-  [data-route-card]:focus-visible {
-    border-color: var(--color-primary);
-  }
-
-  [data-route-card][data-selected] {
-    border-color: var(--color-primary);
-    background: var(--color-bg-card-selected, var(--color-bg-card));
-  }
-
-  [data-route-header] {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  [data-route-output] {
-    font-size: 1.125em;
-    font-weight: 600;
-  }
-
-  [data-route-tag] {
-    font-size: 0.75em;
-    padding: 0.25em 0.5em;
-    border-radius: 0.25em;
-    text-transform: uppercase;
-  }
-
-  [data-route-tag="best"] {
-    background: var(--color-success-bg, #dcfce7);
-    color: var(--color-success, #22c55e);
-  }
-
-  [data-route-tag="cheapest"] {
-    background: var(--color-info-bg, #dbeafe);
-    color: var(--color-info, #3b82f6);
-  }
-
-  [data-route-tag="fastest"] {
-    background: var(--color-warning-bg, #fef3c7);
-    color: var(--color-warning, #f59e0b);
-  }
-
-  [data-route-details] {
-    display: flex;
-    gap: 1em;
-    font-size: 0.875em;
-    opacity: 0.8;
-  }
-
-  [data-route-steps] {
-    font-size: 0.75em;
-    opacity: 0.6;
-  }
-</style>
+    <div data-column="gap-2">
+      {#each sortedRoutes as r (r.id)}
+        <button type="button" data-route-card data-selected={r.id === selectedRouteId ? '' : undefined}
+          onclick={() => { selectedRouteId = r.id }}>
+          <div data-row="gap-2 align-center justify-between">
+            <strong>{formatTokenAmount(r.toAmount, 6)} USDC</strong>
+            <span data-muted>${r.gasCostUsd.toFixed(2)} fees</span>
+          </div>
+          <div data-row="gap-2" data-muted>
+            <span>{[...new Set(r.steps.map((st) => st.toolName))].join(' → ')}</span>
+            <span>~{Math.ceil(r.estimatedDurationSeconds / 60)}m</span>
+          </div>
+        </button>
+      {/each}
+    </div>
+  </section>
+{/if}
 ```
 
 ### Sort controls
@@ -390,21 +231,19 @@ export const executeSelectedRoute = async (
 - [x] `normalizeRoute()` extracts tool names, durations, tags
 - [x] `executeSelectedRoute()` executes the chosen route
 
-### RouteList component
+### Route list (inline in BridgeFlow)
 - [x] Shows up to 5 routes
 - [x] First route auto-selected
-- [x] "No routes available" shown when empty
-- [x] Loading state shows "Finding best routes…"
-- [x] Keyboard navigation (arrow keys) works
+- [x] "No routes available" shown when empty (via routesRow.error)
+- [x] Loading state shows "(loading…)" in header
+- [x] Click to select routes
 
-### RouteCard component
+### Route cards (inline in BridgeFlow)
 - [x] Displays output amount (human-readable)
 - [x] Shows bridge/protocol name(s)
 - [x] Shows estimated time
 - [x] Shows gas cost in USD
-- [x] Tags displayed: Best, Cheapest, Fastest
-- [x] Selected state visually distinct
-- [x] Multi-step routes show step count
+- [x] Selected state visually distinct via `data-selected`
 
 ### Sorting
 - [x] Sort dropdown with 4 options
@@ -420,7 +259,10 @@ export const executeSelectedRoute = async (
 
 ## Status
 
-Complete. lifi.ts: getRoutesForUsdcBridge, normalizeRoute, executeSelectedRoute. RouteList.svelte, RouteCard.svelte. Bridge page: getRoutes, sortedRoutes, selectedRoute, sort dropdown, RouteList, QuoteOutput/ConfirmationDialog/ApprovalButton/TransactionStatus use selected route. Unit tests for normalizeRoute and getRoutesForUsdcBridge.
+Complete. `src/api/lifi.ts`: getRoutesForUsdcBridge, normalizeRoute, executeSelectedRoute.
+Routes fetched into `bridgeRoutesCollection`, displayed inline in BridgeFlow.svelte.
+Sort dropdown persisted via `bridgeSettingsState.sortBy`. Selected route used for
+approval check and execution via TokenApproval and BridgeExecution components.
 
 ## Output when complete
 

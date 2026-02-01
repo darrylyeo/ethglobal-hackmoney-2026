@@ -116,129 +116,21 @@ export const mapLifiProcessStatus = (
 }
 ```
 
-### `src/routes/bridge/TransactionStatus.svelte`
+### Transaction status in `src/routes/bridge/BridgeExecution.svelte`
 
-```svelte
-<script lang="ts">
-  import type { BridgeStatus, TxStep } from '$/lib/tx-status'
-  import { getTxUrl } from '$/constants/explorers'
+Transaction execution and status tracking is handled by `BridgeExecution.svelte`
+which:
 
-  let {
-    status,
-    fromChainId,
-    toChainId,
-  }: {
-    status: BridgeStatus
-    fromChainId: number
-    toChainId: number
-  } = $props()
+- Uses `createOptimisticAction` from TanStack DB
+- Calls `executeSelectedRoute` from `$/api/lifi`
+- Receives status updates via `onStatusChange` callback
+- Inserts transaction into `transactionsCollection` on first tx hash
+- Updates transaction status on completion/failure
+- Shows toast notifications via `toasts` from `$/lib/toast.svelte`
 
-  const steps: { key: TxStep; label: string }[] = [
-    { key: 'approve', label: 'Approve' },
-    { key: 'send', label: 'Send' },
-    { key: 'confirm', label: 'Confirm' },
-    { key: 'complete', label: 'Complete' },
-  ]
-
-  const getStepStatus = (stepKey: TxStep) => (
-    status.steps.find(s => s.step === stepKey)
-  )
-
-  const elapsed = $derived(
-    status.steps[0]?.startedAt
-      ? Math.floor((Date.now() - status.steps[0].startedAt) / 1000)
-      : 0
-  )
-</script>
-
-{#if status.overall !== 'idle'}
-  <div data-tx-status data-status={status.overall}>
-    <ol data-tx-steps>
-      {#each steps as { key, label } (key)}
-        {@const stepStatus = getStepStatus(key)}
-        <li
-          data-step={key}
-          data-state={stepStatus?.state ?? 'pending'}
-        >
-          <span data-step-indicator>
-            {#if stepStatus?.state === 'success'}✓
-            {:else if stepStatus?.state === 'failed'}✗
-            {:else if stepStatus?.state === 'pending'}⋯
-            {:else}○{/if}
-          </span>
-          <span data-step-label>{label}</span>
-          {#if stepStatus?.txHash && stepStatus.chainId}
-            <a
-              href={getTxUrl(stepStatus.chainId, stepStatus.txHash)}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-tx-link
-            >
-              {stepStatus.txHash.slice(0, 8)}…
-            </a>
-          {/if}
-        </li>
-      {/each}
-    </ol>
-
-    {#if status.overall === 'in_progress'}
-      <p data-tx-elapsed>Elapsed: {elapsed}s</p>
-      {#if status.estimatedDurationSeconds}
-        <p data-tx-estimate>Est. {status.estimatedDurationSeconds}s total</p>
-      {/if}
-    {/if}
-
-    {#if status.overall === 'failed'}
-      {@const failedStep = status.steps.find(s => s.state === 'failed')}
-      {#if failedStep?.error}
-        <p data-tx-error role="alert">{failedStep.error}</p>
-      {/if}
-    {/if}
-
-    {#if status.overall === 'completed'}
-      <p data-tx-success>Bridge complete!</p>
-    {/if}
-  </div>
-{/if}
-
-<style>
-  [data-tx-steps] {
-    display: flex;
-    gap: 0.5em;
-    list-style: none;
-    padding: 0;
-  }
-
-  [data-tx-steps] li {
-    display: flex;
-    align-items: center;
-    gap: 0.25em;
-    opacity: 0.5;
-  }
-
-  [data-tx-steps] li[data-state='pending'] {
-    opacity: 1;
-  }
-
-  [data-tx-steps] li[data-state='success'] {
-    opacity: 1;
-    color: var(--color-success, #22c55e);
-  }
-
-  [data-tx-steps] li[data-state='failed'] {
-    opacity: 1;
-    color: var(--color-error, #ef4444);
-  }
-
-  [data-tx-error] {
-    color: var(--color-error, #ef4444);
-  }
-
-  [data-tx-success] {
-    color: var(--color-success, #22c55e);
-  }
-</style>
-```
+Status is tracked via `BridgeStatus` type:
+- `overall`: 'idle' | 'in_progress' | 'completed' | 'failed'
+- `steps`: Array of `TxStatus` with step, state, txHash, chainId, error
 
 ### Integration with `executeQuote`
 
@@ -296,14 +188,13 @@ export async function executeQuoteWithStatus(
 - [x] `BridgeStatus` type defined with overall, steps, estimatedDuration
 - [x] `mapLifiProcessStatus()` maps LI.FI process types correctly
 
-### TransactionStatus component
-- [x] Shows 4 steps: Approve → Send → Confirm → Complete
-- [x] Active step shows spinner/pending indicator
-- [x] Completed steps show checkmark
-- [x] Failed steps show X and error message
-- [x] Tx hashes link to correct chain explorers
-- [x] Elapsed time counter updates during transaction
-- [x] Estimated time shown if available
+### BridgeExecution component
+- [x] Executes bridge via `executeSelectedRoute`
+- [x] Receives status updates via callback
+- [x] Tracks steps with state (pending/success/failed)
+- [x] Inserts transaction on first tx hash
+- [x] Updates transaction status on completion/failure
+- [x] Shows toast notifications for success/error
 
 ### Integration
 - [x] `executeQuoteWithStatus()` exposes status callback
@@ -312,7 +203,10 @@ export async function executeQuoteWithStatus(
 
 ## Status
 
-Complete.
+Complete. `src/constants/explorers.ts` with explorer URLs and getTxUrl/getAddressUrl.
+`src/lib/tx-status.ts` with TxStatus, BridgeStatus types and mapLifiProcessStatus.
+`src/routes/bridge/BridgeExecution.svelte` handles execution with status tracking
+and transaction persistence via TanStack DB. Toast notifications for success/error.
 
 ## Output when complete
 

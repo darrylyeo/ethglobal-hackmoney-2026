@@ -50,88 +50,32 @@ export const calculateMinOutput = (
 }
 ```
 
-### `src/routes/bridge/SlippageSettings.svelte`
+### Slippage settings in `src/routes/bridge/BridgeFlow.svelte`
+
+Slippage settings are implemented inline using a Popover:
 
 ```svelte
-<script lang="ts">
-  import { Button, Popover } from 'bits-ui'
-  import {
-    SLIPPAGE_PRESETS,
-    DEFAULT_SLIPPAGE,
-    formatSlippagePercent,
-    parseSlippagePercent,
-  } from '$/constants/slippage'
-
-  let {
-    value = $bindable(DEFAULT_SLIPPAGE),
-  }: {
-    value?: number
-  } = $props()
-
-  let customInput = $state('')
-  let isCustom = $derived(!SLIPPAGE_PRESETS.includes(value as typeof SLIPPAGE_PRESETS[number]))
-
-  const setPreset = (preset: number) => {
-    value = preset
-    customInput = ''
-  }
-
-  const setCustom = () => {
-    const parsed = parseSlippagePercent(customInput)
-    if (parsed !== null) {
-      value = parsed
-    }
-  }
-</script>
-
+<!-- Slippage -->
 <Popover.Root>
-  <Popover.Trigger data-slippage-trigger>
-    Slippage: {formatSlippagePercent(value)}
+  <Popover.Trigger data-row="gap-1">
+    Slippage: <strong>{formatSlippagePercent(settings.slippage)}</strong>
   </Popover.Trigger>
-  <Popover.Content data-slippage-popover>
-    <div data-slippage-presets>
-      {#each SLIPPAGE_PRESETS as preset (preset)}
-        <Button.Root
-          type="button"
-          onclick={() => setPreset(preset)}
-          data-selected={value === preset ? '' : undefined}
-        >
-          {formatSlippagePercent(preset)}
+  <Popover.Content data-column="gap-2">
+    <div data-row="gap-1">
+      {#each SLIPPAGE_PRESETS as p}
+        <Button.Root onclick={() => { bridgeSettingsState.current = { ...settings, slippage: p } }}
+          data-selected={settings.slippage === p ? '' : undefined}>
+          {formatSlippagePercent(p)}
         </Button.Root>
       {/each}
     </div>
-    <div data-slippage-custom>
-      <input
-        type="text"
-        inputmode="decimal"
-        placeholder="Custom %"
-        bind:value={customInput}
-        onchange={setCustom}
-      />
-    </div>
-    {#if value > 0.01}
-      <p data-slippage-warning>High slippage may result in unfavorable rates</p>
-    {/if}
+    <input placeholder="Custom %" bind:value={slippageInput}
+      onchange={() => { const p = parseSlippagePercent(slippageInput); if (p) bridgeSettingsState.current = { ...settings, slippage: p } }} />
   </Popover.Content>
 </Popover.Root>
-
-<style>
-  [data-slippage-presets] {
-    display: flex;
-    gap: 0.5em;
-  }
-
-  [data-slippage-presets] button[data-selected] {
-    background: var(--color-primary);
-    color: var(--color-primary-foreground);
-  }
-
-  [data-slippage-warning] {
-    color: var(--color-warning, #f59e0b);
-    font-size: 0.875em;
-  }
-</style>
 ```
+
+Slippage is persisted via `bridgeSettingsState` and passed to route queries.
 
 ### LI.FI integration
 
@@ -204,7 +148,11 @@ Show minimum guaranteed output:
 
 ## Status
 
-Complete. `src/constants/slippage.ts`: SLIPPAGE_PRESETS, DEFAULT_SLIPPAGE, MIN/MAX, formatSlippagePercent, parseSlippagePercent, calculateMinOutput; unit tests in slippage.spec.ts. `src/routes/bridge/SlippageSettings.svelte`: Popover with trigger showing current %, preset buttons (0.1%, 0.5%, 1%), custom input, high-slippage warning. lifi.ts: QuoteParams.slippage, getQuoteForUsdcBridge/getQuoteStep pass slippage to getQuote; routesQueryKey/quoteQueryKey include slippage. Bridge page: slippage state with localStorage (bridge-slippage), SlippageSettings, getRoutes/ConfirmationDialog/QuoteOutput use slippage; QuoteOutput shows minimum guaranteed amount.
+Complete. `src/constants/slippage.ts`: SLIPPAGE_PRESETS, DEFAULT_SLIPPAGE, MIN/MAX,
+formatSlippagePercent, parseSlippagePercent, calculateMinOutput; unit tests in
+slippage.spec.ts. BridgeFlow.svelte: Popover with trigger, preset buttons, custom
+input, slippage stored in `bridgeSettingsState`, passed to route queries via
+`quoteParams`. Min output shown in quote summary via `calculateMinOutput`.
 
 ## Output when complete
 

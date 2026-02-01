@@ -26,312 +26,44 @@ details and requiring explicit user confirmation.
 
 ## Implementation
 
-### `src/routes/bridge/ConfirmationDialog.svelte`
+### Confirmation dialog in `src/routes/bridge/BridgeFlow.svelte`
+
+The confirmation dialog is implemented inline using Bits UI Dialog:
 
 ```svelte
-<script lang="ts">
-  import { Dialog, Button, Checkbox } from 'bits-ui'
-  import type { NormalizedRoute } from '$/api/lifi'
-  import { formatTokenAmount, formatSmallestToDecimal } from '$/lib/format'
-  import { networksByChainId } from '$/constants/networks'
-  import FeeBreakdown from './FeeBreakdown.svelte'
-
-  let {
-    open = $bindable(false),
-    route,
-    fromChainId,
-    toChainId,
-    fromAmount,
-    fromAddress,
-    toAddress,
-    slippage,
-    onConfirm,
-    onCancel,
-  }: {
-    open?: boolean
-    route: NormalizedRoute
-    fromChainId: number
-    toChainId: number
-    fromAmount: string
-    fromAddress: `0x${string}`
-    toAddress: `0x${string}`
-    slippage: number
-    onConfirm: () => void
-    onCancel: () => void
-  } = $props()
-
-  let acknowledged = $state(false)
-
-  const fromChainName = $derived(networksByChainId[fromChainId]?.name ?? `Chain ${fromChainId}`)
-  const toChainName = $derived(networksByChainId[toChainId]?.name ?? `Chain ${toChainId}`)
-  const isDifferentRecipient = $derived(
-    toAddress.toLowerCase() !== fromAddress.toLowerCase()
-  )
-  const isHighSlippage = $derived(slippage > 0.01)
-  const isLargeAmount = $derived(
-    parseFloat(route.originalRoute.fromAmountUSD ?? '0') > 10000
-  )
-  const hasWarnings = $derived(isDifferentRecipient || isHighSlippage || isLargeAmount)
-
-  const handleConfirm = () => {
-    if (acknowledged) {
-      onConfirm()
-      open = false
-    }
-  }
-
-  const handleCancel = () => {
-    acknowledged = false
-    onCancel()
-    open = false
-  }
-
-  // Reset acknowledgment when dialog opens
-  $effect(() => {
-    if (open) {
-      acknowledged = false
-    }
-  })
-</script>
-
-<Dialog.Root bind:open>
+<!-- Confirmation dialog -->
+<Dialog.Root bind:open={showConfirmation}>
   <Dialog.Portal>
-    <Dialog.Overlay data-dialog-overlay />
-    <Dialog.Content data-dialog-content aria-describedby="confirm-desc">
-      <Dialog.Title>Confirm Bridge Transaction</Dialog.Title>
-      <Dialog.Description id="confirm-desc" class="sr-only">
-        Review and confirm your bridge transaction details
-      </Dialog.Description>
-
-      <div data-confirm-details>
-        <div data-confirm-row>
-          <span>From</span>
-          <span>
-            <strong>{formatSmallestToDecimal(fromAmount, 6)} USDC</strong>
-            on {fromChainName}
-          </span>
-        </div>
-
-        <div data-confirm-arrow>↓</div>
-
-        <div data-confirm-row>
-          <span>To</span>
-          <span>
-            <strong>~{formatTokenAmount(route.toAmount, 6)} USDC</strong>
-            on {toChainName}
-          </span>
-        </div>
-
-        <div data-confirm-row>
-          <span>Min. received</span>
-          <span>{formatTokenAmount(route.toAmountMin, 6)} USDC</span>
-        </div>
-
-        <div data-confirm-row>
-          <span>Recipient</span>
-          <span>
-            {toAddress.slice(0, 8)}…{toAddress.slice(-6)}
-            {#if isDifferentRecipient}
-              <span data-badge="warning">Different address</span>
-            {/if}
-          </span>
-        </div>
-
-        <div data-confirm-row>
-          <span>Bridge</span>
-          <span>{route.steps.map(s => s.toolName).join(' → ')}</span>
-        </div>
-
-        <div data-confirm-row>
-          <span>Est. time</span>
-          <span>~{Math.ceil(route.estimatedDurationSeconds / 60)} min</span>
-        </div>
-
-        <div data-confirm-row>
-          <span>Slippage</span>
-          <span>
-            {(slippage * 100).toFixed(1)}%
-            {#if isHighSlippage}
-              <span data-badge="warning">High</span>
-            {/if}
-          </span>
-        </div>
-
-        <div data-confirm-row>
-          <span>Fees</span>
-          <span>~${route.gasCostUsd}</span>
-        </div>
-      </div>
-
-      {#if hasWarnings}
-        <div data-confirm-warnings role="alert">
-          <strong>⚠️ Please note:</strong>
-          <ul>
-            {#if isDifferentRecipient}
-              <li>Tokens will be sent to a <strong>different address</strong> than your wallet.</li>
-            {/if}
-            {#if isHighSlippage}
-              <li>High slippage ({(slippage * 100).toFixed(1)}%) may result in receiving less than expected.</li>
-            {/if}
-            {#if isLargeAmount}
-              <li>This is a large transaction (>${Math.floor(parseFloat(route.originalRoute.fromAmountUSD ?? '0')).toLocaleString()}).</li>
-            {/if}
-          </ul>
-        </div>
+    <Dialog.Overlay data-overlay />
+    <Dialog.Content data-dialog data-column="gap-3">
+      <Dialog.Title>Confirm Bridge</Dialog.Title>
+      {#if selectedRoute && fromNetwork && toNetwork}
+        <dl data-summary>
+          <dt>From</dt><dd>{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}</dd>
+          <dt>To</dt><dd>~{formatTokenAmount(selectedRoute.toAmount, 6)} USDC on {toNetwork.name}</dd>
+          <dt>Recipient</dt><dd>{formatAddress(recipient)}</dd>
+          <dt>Slippage</dt><dd>{formatSlippagePercent(settings.slippage)}</dd>
+        </dl>
       {/if}
-
-      <div data-confirm-acknowledge>
-        <Checkbox.Root bind:checked={acknowledged} id="confirm-checkbox">
-          <Checkbox.Indicator>✓</Checkbox.Indicator>
+      <label data-row="gap-2">
+        <Checkbox.Root bind:checked={confirmed}>
+          {#snippet children({ checked })}{checked ? '✓' : '○'}{/snippet}
         </Checkbox.Root>
-        <label for="confirm-checkbox">
-          I understand this transaction cannot be reversed once submitted
-        </label>
-      </div>
-
-      <div data-confirm-actions>
-        <Button.Root type="button" onclick={handleCancel} data-variant="secondary">
-          Cancel
-        </Button.Root>
-        <Button.Root
-          type="button"
-          onclick={handleConfirm}
-          disabled={!acknowledged}
-          data-variant="primary"
-        >
-          Confirm Bridge
-        </Button.Root>
+        I understand this transaction is irreversible
+      </label>
+      <div data-row="gap-2">
+        <Button.Root onclick={() => showConfirmation = false}>Cancel</Button.Root>
+        <Button.Root disabled={!confirmed} onclick={onConfirm}>Confirm</Button.Root>
       </div>
     </Dialog.Content>
   </Dialog.Portal>
 </Dialog.Root>
-
-<style>
-  [data-dialog-overlay] {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 100;
-  }
-
-  [data-dialog-content] {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: var(--color-bg-page);
-    border-radius: 0.75em;
-    padding: 1.5em;
-    max-width: 480px;
-    width: 90vw;
-    max-height: 90vh;
-    overflow-y: auto;
-    z-index: 101;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  }
-
-  [data-confirm-details] {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75em;
-    margin: 1em 0;
-    padding: 1em;
-    background: var(--color-bg-subtle);
-    border-radius: 0.5em;
-  }
-
-  [data-confirm-row] {
-    display: flex;
-    justify-content: space-between;
-    gap: 1em;
-  }
-
-  [data-confirm-row] > span:first-child {
-    opacity: 0.7;
-  }
-
-  [data-confirm-arrow] {
-    text-align: center;
-    font-size: 1.25em;
-    opacity: 0.5;
-  }
-
-  [data-badge] {
-    font-size: 0.75em;
-    padding: 0.125em 0.375em;
-    border-radius: 0.25em;
-    margin-left: 0.5em;
-  }
-
-  [data-badge="warning"] {
-    background: var(--color-warning-bg, #fef3c7);
-    color: var(--color-warning, #d97706);
-  }
-
-  [data-confirm-warnings] {
-    padding: 1em;
-    background: var(--color-warning-bg, #fef3c7);
-    border-radius: 0.5em;
-    margin: 1em 0;
-  }
-
-  [data-confirm-warnings] ul {
-    margin: 0.5em 0 0 1.5em;
-    padding: 0;
-  }
-
-  [data-confirm-warnings] li {
-    margin: 0.25em 0;
-  }
-
-  [data-confirm-acknowledge] {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5em;
-    margin: 1em 0;
-    font-size: 0.875em;
-  }
-
-  [data-confirm-actions] {
-    display: flex;
-    gap: 0.75em;
-    justify-content: flex-end;
-    margin-top: 1.5em;
-  }
-</style>
 ```
 
-### Integration in bridge page
-
-```svelte
-let showConfirmation = $state(false)
-
-const handleBridgeClick = () => {
-  showConfirmation = true
-}
-
-const handleConfirm = () => {
-  // Proceed with actual bridge execution
-  executeBridge()
-}
-
-<Button.Root onclick={handleBridgeClick}>
-  Bridge
-</Button.Root>
-
-<ConfirmationDialog
-  bind:open={showConfirmation}
-  route={selectedRoute}
-  {fromChainId}
-  {toChainId}
-  fromAmount={amountSmallest}
-  fromAddress={wallet.address}
-  toAddress={recipient}
-  {slippage}
-  onConfirm={handleConfirm}
-  onCancel={() => {}}
-/>
-```
+State is managed via:
+- `showConfirmation` – controls dialog visibility
+- `confirmed` – checkbox state for acknowledgment
+- `onConfirm` – triggers `executionRef.execute()` and closes dialog
 
 ## Acceptance criteria
 
@@ -365,7 +97,9 @@ const handleConfirm = () => {
 
 ## Status
 
-Complete.
+Complete. Confirmation dialog implemented inline in BridgeFlow.svelte using Bits
+UI Dialog with Checkbox for acknowledgment. Shows from/to chains, amounts,
+recipient, slippage. Confirm button disabled until checkbox checked.
 
 ## Output when complete
 

@@ -22,28 +22,40 @@ for route comparison UI.
 
 ## Implementation
 
-`src/lib/lifi.ts` exports:
+`src/api/lifi.ts` exports:
 
-- `NormalizedQuote` type:
-  `{ steps, fromChainId, toChainId, fromAmount, toAmount, estimatedToAmount, fees }`
-- `normalizeQuote(step)` – transform LI.FI `LiFiStep` to normalized shape
-- `getQuoteForUsdcBridge(params)` – fetch quote for USDC transfer
-- `fetchQuoteCached(params)` – TanStack Query wrapper with caching
+**Types:**
+- `NormalizedRoute` – normalized route with toolName, duration, amounts, fees
+- `FeeBreakdown` – gas costs, protocol fees, total USD, percent of transfer
+- `StatusCallback` – callback for execution status updates
+
+**Functions:**
+- `getLifiSdk()` – lazy-load LI.FI SDK
+- `getRoutesForUsdcBridge(params)` – fetch routes for USDC transfer
+- `normalizeRoute(route)` – transform LI.FI Route to normalized shape
+- `extractFeeBreakdown(route)` – extract detailed fee info from route
+- `fetchBridgeRoutes(params)` – fetch and store routes in bridgeRoutesCollection
+- `executeSelectedRoute(params)` – execute route with status updates
 
 ## Acceptance criteria
 
-- [x] `src/lib/lifi.ts` exists with exports above.
-- [x] `getQuoteForUsdcBridge({ fromChain, toChain, fromAmount, fromAddress })`
-      fetches quote via LI.FI SDK.
-- [x] Quote is normalized to `NormalizedQuote` shape with steps, amounts, fees.
+- [x] `src/api/lifi.ts` exists with exports above.
+- [x] `getRoutesForUsdcBridge({ fromChainId, toChainId, fromAmount, fromAddress })`
+      fetches routes via LI.FI SDK.
+- [x] Routes normalized to `NormalizedRoute` shape with toolName, amounts, fees.
 - [x] USDC addresses are looked up from `src/constants/coins.ts` by chain ID.
-- [x] `fetchQuoteCached` uses TanStack Query for caching.
-- [x] Unit test (`src/lib/lifi.spec.ts`) mocks LI.FI response and asserts
+- [x] `fetchBridgeRoutes` uses TanStack Query for caching and stores in collection.
+- [x] `executeSelectedRoute` handles wallet provider, chain switching, execution.
+- [x] `extractFeeBreakdown` provides detailed gas and protocol fee info.
+- [x] Unit test (`src/api/lifi.spec.ts`) mocks LI.FI response and asserts
       normalized shape.
 
 ## Status
 
-Complete.
+Complete. SDK lazy-loaded via `getLifiSdk()`. Routes fetched via `getRoutesForUsdcBridge`,
+normalized via `normalizeRoute`, stored in `bridgeRoutesCollection`. Execution via
+`executeSelectedRoute` with `StatusCallback` for progress tracking. Fee breakdown
+via `extractFeeBreakdown` shows gas costs, protocol fees, and totals.
 
 ## Output when complete
 

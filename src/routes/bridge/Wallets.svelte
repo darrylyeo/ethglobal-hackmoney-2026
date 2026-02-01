@@ -230,7 +230,7 @@
 						</DropdownMenu.Root>
 					</ToggleGroup.Item>
 				{:else if status === 'connecting'}
-					<div data-tag="wallet-type" data-connecting aria-disabled="true">
+					<div data-tag="wallet-type" data-wallet-connecting data-connecting aria-disabled="true">
 						{#if wallet.icon}
 							<img
 								src={wallet.icon}

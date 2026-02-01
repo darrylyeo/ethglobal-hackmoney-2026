@@ -404,7 +404,14 @@ export const networkStatus = createNetworkStatusStore()
 
 ## Status
 
-Complete. `src/lib/network-status.svelte.ts`: store with checkChain (RPC + latency, timeout 10s), checkLifiApi (li.quest/v1/status), checkAll (parallel), healthy/degraded/down thresholds, start/stop with 30s interval. `src/components/NetworkStatusIndicator.svelte`: Popover trigger with status dot, content with LI.FI API badge, affected chains list or "All N networks healthy", last updated. Layout: $effect starts networkStatus with networks chainIds and cleanup stop. Navigation: NetworkStatusIndicator in header menu. Bridge page: fromChainStatus warning (degraded) and error (down) with chain name.
+Complete. `src/lib/network-status.svelte.ts`: store with checkChain (RPC + latency,
+timeout 10s), checkLifiApi (li.quest/v1/status), checkAll (parallel),
+healthy/degraded/down thresholds, start/stop with 30s interval.
+`src/components/NetworkStatusIndicator.svelte`: Popover trigger with status dot,
+content with LI.FI API badge, affected chains list or "All N networks healthy",
+last updated. Layout: $effect starts networkStatus with networks chainIds and
+cleanup stop. Navigation: NetworkStatusIndicator in header menu. BridgeFlow:
+chain status warning (degraded) and error (down) with chain name.
 
 ## Output when complete
 

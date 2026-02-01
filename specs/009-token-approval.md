@@ -172,152 +172,17 @@ export const waitForApprovalConfirmation = async (
 }
 ```
 
-### `src/routes/bridge/ApprovalButton.svelte`
+### `src/routes/bridge/TokenApproval.svelte`
 
-```svelte
-<script lang="ts">
-  import { Button, Switch } from 'bits-ui'
-  import Spinner from '$/components/Spinner.svelte'
-  import {
-    checkApproval,
-    sendApproval,
-    waitForApprovalConfirmation,
-    type ApprovalState,
-  } from '$/lib/approval'
-  import type { EIP1193Provider } from '$/lib/wallet'
-  import { getTxUrl } from '$/constants/explorers'
+Component that derives approval state from `actorAllowancesCollection` and
+handles approval transactions. Uses TanStack DB for reactive allowance queries.
 
-  let {
-    chainId,
-    tokenAddress,
-    spenderAddress,
-    amount,
-    walletProvider,
-    walletAddress,
-    onApproved,
-  }: {
-    chainId: number
-    tokenAddress: `0x${string}`
-    spenderAddress: `0x${string}`
-    amount: bigint
-    walletProvider: EIP1193Provider
-    walletAddress: `0x${string}`
-    onApproved: () => void
-  } = $props()
-
-  let state = $state<ApprovalState>('unknown')
-  let error = $state<string | null>(null)
-  let txHash = $state<`0x${string}` | null>(null)
-  let unlimited = $state(false)
-
-  // Check approval on mount and when deps change
-  $effect(() => {
-    check()
-  })
-
-  const check = async () => {
-    state = 'checking'
-    error = null
-    const result = await checkApproval(
-      chainId,
-      tokenAddress,
-      walletAddress,
-      spenderAddress,
-      amount,
-    )
-    state = result.state
-    error = result.error ?? null
-
-    if (result.state === 'approved') {
-      onApproved()
-    }
-  }
-
-  const approve = async () => {
-    state = 'approving'
-    error = null
-    try {
-      txHash = await sendApproval(
-        walletProvider,
-        chainId,
-        tokenAddress,
-        spenderAddress,
-        amount,
-        unlimited,
-      )
-
-      const success = await waitForApprovalConfirmation(chainId, txHash)
-      if (success) {
-        state = 'approved'
-        onApproved()
-      } else {
-        state = 'error'
-        error = 'Approval transaction failed'
-      }
-    } catch (e) {
-      state = 'error'
-      error = e instanceof Error ? e.message : String(e)
-    }
-  }
-</script>
-
-<div data-approval data-state={state}>
-  {#if state === 'checking'}
-    <p><Spinner /> Checking approval…</p>
-
-  {:else if state === 'needed'}
-    <div data-approval-controls>
-      <div data-approval-toggle>
-        <Switch.Root bind:checked={unlimited}>
-          <Switch.Thumb />
-        </Switch.Root>
-        <span>Unlimited approval</span>
-      </div>
-      <Button.Root type="button" onclick={approve}>
-        Approve USDC
-      </Button.Root>
-    </div>
-
-  {:else if state === 'approving'}
-    <p><Spinner /> Approving…</p>
-    {#if txHash}
-      <a href={getTxUrl(chainId, txHash)} target="_blank" rel="noopener noreferrer">
-        View transaction
-      </a>
-    {/if}
-
-  {:else if state === 'approved'}
-    <p data-approval-success>✓ Approved</p>
-
-  {:else if state === 'error'}
-    <p data-approval-error role="alert">{error}</p>
-    <Button.Root type="button" onclick={check}>Retry</Button.Root>
-  {/if}
-</div>
-
-<style>
-  [data-approval-controls] {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75em;
-  }
-
-  [data-approval-toggle] {
-    display: flex;
-    align-items: center;
-    gap: 0.5em;
-    font-size: 0.875em;
-  }
-
-  [data-approval-success] {
-    color: var(--color-success, #22c55e);
-  }
-
-  [data-approval-error] {
-    color: var(--color-error, #ef4444);
-  }
-</style>
-```
+Key features:
+- Queries `actorAllowancesCollection` via `useLiveQuery`
+- Fetches allowance on mount via `fetchActorAllowance`
+- Sends approval via `sendApproval` from `$/lib/approval`
+- Updates collection optimistically via `setActorAllowance` on success
+- Toggle for unlimited vs exact amount approval
 
 ### Integration in bridge page
 
@@ -404,7 +269,7 @@ Deno.test('encodeApproveCall generates correct calldata', () => {
 - [x] `waitForApprovalConfirmation()` polls for receipt
 - [x] Handles errors gracefully
 
-### ApprovalButton component
+### TokenApproval component
 - [x] Shows "Checking approval…" initially
 - [x] Shows "Approve USDC" button when needed
 - [x] Unlimited approval toggle available
@@ -412,7 +277,7 @@ Deno.test('encodeApproveCall generates correct calldata', () => {
 - [x] Links to explorer during approval
 - [x] Shows "✓ Approved" when done
 - [x] Shows error with retry on failure
-- [x] Calls `onApproved` callback when complete
+- [x] Updates `actorAllowancesCollection` on success
 
 ### Integration
 - [x] Bridge page checks approval after route selection
@@ -422,7 +287,13 @@ Deno.test('encodeApproveCall generates correct calldata', () => {
 
 ## Status
 
-Complete. Voltaire: encodeAllowanceCall, getErc20Allowance, encodeApproveCall, MAX_UINT256. approval.ts: checkApproval, sendApproval, waitForApprovalConfirmation. ApprovalButton.svelte with Switch, states checking/needed/approving/approved/error, explorer link, onApproved. Bridge page: approvalAddress from quoteStep.estimate.approvalAddress, showSendButton when approved or no approval needed, ApprovalButton when needed, reset approvalComplete when quoteStep changes. getUsdcAddress exported from lifi. Unit tests in voltaire.spec.ts for encodeAllowanceCall/encodeApproveCall.
+Complete. Voltaire: encodeAllowanceCall, getErc20Allowance, encodeApproveCall,
+MAX_UINT256. approval.ts: sendApproval, waitForApprovalConfirmation.
+TokenApproval.svelte with Switch, states checking/needed/approving/approved/error,
+explorer link, reactive allowance from actorAllowancesCollection.
+BridgeFlow.svelte: approvalAddress from route, TokenApproval shown when needed,
+approval state derived from allowancesQuery. getUsdcAddress exported from lifi.
+Unit tests in voltaire.spec.ts.
 
 ## Output when complete
 

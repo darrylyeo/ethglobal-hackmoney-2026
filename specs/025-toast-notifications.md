@@ -452,7 +452,13 @@ export const toasts = createToastStore()
 
 ## Status
 
-Complete. `src/lib/toast.svelte.ts` store (add/dismiss/update/clear, convenience methods, auto-dismiss, loading no auto-dismiss); `Toast.svelte` (icon, title, message, type styling, dismiss, action, progress bar, pause on hover, entrance animation); `ToastContainer.svelte` (position, stack, ARIA); layout includes ToastContainer; bridge flow shows loading toast, success with View on Explorer, error with Retry, loading dismissed on completion.
+Complete. `src/lib/toast.svelte.ts` store (add/dismiss/update/clear, convenience
+methods, auto-dismiss, loading no auto-dismiss); `src/components/Toast.svelte`
+(icon, title, message, type styling, dismiss, action, progress bar, pause on
+hover, entrance animation); `src/components/ToastContainer.svelte` (position,
+stack, ARIA); layout includes ToastContainer; BridgeExecution.svelte shows loading
+toast, success with View on Explorer, error with Retry, loading dismissed on
+completion.
 
 ## Output when complete
 

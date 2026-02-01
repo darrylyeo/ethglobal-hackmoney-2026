@@ -182,7 +182,14 @@ rg 'http://' src/  # Should only be https://
 
 ## Status
 
-Complete. NavigationItem: escapeHtml for all @html (icon, title, highlightText); external links rel="noopener noreferrer". WalletProvider: disconnect clears connectedDetail, address, chainId, error. Bridge +page: $effect clears actorCoins query when wallet address is null. RecipientInput: isValidAddress; bridge-limits validateBridgeAmount; ConfirmationDialog before send. ApprovalButton: data-security-warning when unlimited. localStorage: theme, testnet, tx history by address (no private data). Automated checks: @html only with escapeHtml; external links have noopener noreferrer.
+Complete. NavigationItem: escapeHtml for all @html (icon, title, highlightText);
+external links rel="noopener noreferrer". Wallets.svelte: disconnect clears
+connection state. BridgeFlow: $effect clears actorCoins query when wallet address
+is null; isValidAddress for recipient; validateBridgeAmount for amounts;
+confirmation dialog before send. TokenApproval: warning when unlimited approval.
+localStorage: theme, testnet settings, tx history by address (no private data).
+Automated checks: @html only with escapeHtml; external links have noopener
+noreferrer.
 
 ## Output when complete
 

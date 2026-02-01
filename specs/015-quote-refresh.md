@@ -42,74 +42,26 @@ const QUOTE_VALIDITY_MS = 60_000 // 60 seconds
 const EXPIRATION_WARNING_MS = 15_000 // warn at 15 seconds remaining
 ```
 
-### `src/routes/bridge/QuoteExpiration.svelte`
+### Quote expiration in `src/routes/bridge/BridgeFlow.svelte`
+
+Quote expiration is implemented inline in BridgeFlow with:
+
+- `now` state updated via `setInterval` every second
+- `quoteExpiry` derived from `routesRow.fetchedAt + QUOTE_TTL`
+- `quoteRemaining` and `quoteExpired` derived states
+- Refresh button that calls `onRefresh` → `fetchBridgeRoutes`
+- Auto-refresh every 10 seconds via `setInterval`
 
 ```svelte
-<script lang="ts">
-  let {
-    expiresAt,
-    onRefresh,
-    isRefreshing = false,
-  }: {
-    expiresAt: number | null
-    onRefresh: () => void
-    isRefreshing?: boolean
-  } = $props()
-
-  let now = $state(Date.now())
-
-  $effect(() => {
-    const interval = setInterval(() => { now = Date.now() }, 1000)
-    return () => clearInterval(interval)
-  })
-
-  const remainingMs = $derived(expiresAt ? expiresAt - now : null)
-  const remainingSec = $derived(
-    remainingMs !== null ? Math.max(0, Math.ceil(remainingMs / 1000)) : null
-  )
-  const isExpired = $derived(remainingMs !== null && remainingMs <= 0)
-  const isWarning = $derived(
-    remainingMs !== null && remainingMs > 0 && remainingMs <= 15_000
-  )
-</script>
-
-{#if expiresAt !== null}
-  <div
-    data-quote-expiration
-    data-expired={isExpired ? '' : undefined}
-    data-warning={isWarning ? '' : undefined}
-  >
-    {#if isExpired}
-      <span>Quote expired</span>
-    {:else}
-      <span>Quote valid for {remainingSec}s</span>
-    {/if}
-    <button
-      type="button"
-      onclick={onRefresh}
-      disabled={isRefreshing}
-    >
-      {isRefreshing ? 'Refreshing…' : 'Refresh'}
-    </button>
-  </div>
-{/if}
-
-<style>
-  [data-quote-expiration] {
-    display: flex;
-    align-items: center;
-    gap: 0.5em;
-    font-size: 0.875em;
-  }
-
-  [data-quote-expiration][data-warning] {
-    color: var(--color-warning, #f59e0b);
-  }
-
-  [data-quote-expiration][data-expired] {
-    color: var(--color-error, #ef4444);
-  }
-</style>
+<!-- Quote expiry display in Quote Details section -->
+<div data-row="gap-2 align-center" data-muted>
+  {#if routesRow?.isLoading}
+    Refreshing…
+  {:else if quoteRemaining !== null}
+    {quoteExpired ? 'Expired' : `${quoteRemaining}s`}
+  {/if}
+  <Button.Root onclick={onRefresh} disabled={routesRow?.isLoading}>↻</Button.Root>
+</div>
 ```
 
 ### Bridge page integration
@@ -178,7 +130,10 @@ $effect(() => {
 
 ## Status
 
-Complete. Bridge page: routesFetchedAt, quoteNow, routesExpiresAt, quoteIsExpired; getRoutes sets routesFetchedAt on success and clears on start; $effect ticks quoteNow every second when routesFetchedAt set. QuoteExpiration.svelte: countdown, warning at 15s, expired message, Refresh button. QuoteOutput: quoteExpired prop disables Send button. Auto-refresh: Switch "Auto-refresh before expiry" with localStorage (bridge-quote-auto-refresh), $effect schedules getRoutes 5s before expiry when enabled.
+Complete. BridgeFlow.svelte: `now` state updated every second, `quoteExpiry`
+derived from `routesRow.fetchedAt + QUOTE_TTL` (60s), `quoteRemaining` and
+`quoteExpired` derived states, refresh button, auto-refresh every 10s via
+`setInterval`. Send button disabled when `quoteExpired`.
 
 ## Output when complete
 

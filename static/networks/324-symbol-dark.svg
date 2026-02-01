@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ZKsync Era Block Explorer</title>
+    <meta charset="UTF-8" />
+    <meta name="description" content="ZKsync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync Era and explore the network."/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta property="og:title" content="ZKsync Era Block Explorer" />
+    <meta property="og:description" content="ZKsync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync Era and explore the network." />
+    <meta property="og:image" content="https://explorer.zksync.io/preview.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="ZKsync Era Block Explorer" />
+
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="/config.js"></script>
+    
+    <script type="module" crossorigin src="/assets/index.8c86f480.js"></script>
+    <link rel="modulepreload" href="/assets/vi.f1fd3f15.js">
+    <link rel="modulepreload" href="/assets/s.9ba336b8.js">
+    <link rel="modulepreload" href="/assets/cm.7c83c123.js">
+    <link rel="modulepreload" href="/assets/v.78693842.js">
+    <link rel="modulepreload" href="/assets/t.e63267b1.js">
+    <link rel="modulepreload" href="/assets/cn.a3895e8c.js">
+    <link rel="stylesheet" href="/assets/vi.943c2ba4.css">
+    <link rel="stylesheet" href="/assets/cn.7e7a01dc.css">
+    <link rel="stylesheet" href="/assets/index.49dce0a4.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    
+  </body>
+</html>

@@ -247,7 +247,7 @@ button {
 }
 ```
 
-### WalletProvider header responsive
+### Wallet header responsive
 
 ```css
 [data-wallet-header] {
@@ -313,7 +313,11 @@ h3 { font-size: var(--text-lg); }
 
 ## Status
 
-Complete. responsive.css (spacing, containers, tap-target, fluid typography, form-row, bridge layout grid, balance grid breakpoints, wallet-header wrap); +layout.svelte imports responsive.css; bridge +page.svelte uses data-bridge-layout / data-bridge-form / data-bridge-output; QuoteForm from/to row has data-form-row; main overflow-x: hidden. Navigation already hamburger &lt; 60rem (layout). Manual viewport check recommended for device sizes.
+Complete. `src/styles/responsive.css` (spacing, containers, tap-target, fluid
+typography, form-row, bridge layout grid, balance grid breakpoints, wallet-header
+wrap); +layout.svelte imports responsive.css; bridge components use responsive
+data attributes; main overflow-x: hidden. Navigation already hamburger < 60rem
+(layout). Manual viewport check recommended for device sizes.
 
 ## Output when complete
 

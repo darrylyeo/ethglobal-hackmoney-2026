@@ -18,38 +18,37 @@ bridge UI. This spec wires them together.
 
 ## Implementation
 
-### Update `WalletProvider.svelte`
+### `src/state/bridge-settings.svelte.ts`
 
-- Load `isTestnet` from localStorage on init
-- Save to localStorage when toggled
+Bridge settings including `isTestnet` are managed via `bridgeSettingsState` with
+localStorage persistence.
 
-### Update bridge page
+### `src/routes/bridge/BridgeFlow.svelte`
 
 ```svelte
+// Networks (derived from settings)
 const filteredNetworks = $derived(
-  networks.filter(n =>
-    wallet.isTestnet
-      ? n.type === NetworkType.Testnet
-      : n.type === NetworkType.Mainnet
-  )
+  networks.filter((n) => settings.isTestnet ? n.type === NetworkType.Testnet : n.type === NetworkType.Mainnet)
 )
 
-const filteredNetworkItems = $derived(
-  filteredNetworks.map(n => ({ value: String(n.id), label: n.name }))
-)
-
-const filteredBalances = $derived(
-  actorCoins.filter(ac =>
-    filteredNetworks.some(n => n.id === ac.chainId)
-  )
-)
+// Initialize networks when switching testnet/mainnet
+$effect(() => {
+  if (filteredNetworks.length === 0) return
+  if (settings.fromChainId !== null && filteredNetworks.some((n) => n.id === settings.fromChainId)) return
+  const defaultFrom = settings.isTestnet ? ChainId.EthereumSepolia : ChainId.Ethereum
+  const defaultTo = settings.isTestnet ? ChainId.ArcTestnet : ChainId.Optimism
+  bridgeSettingsState.current = {
+    ...settings,
+    fromChainId: filteredNetworks.find((n) => n.id === defaultFrom)?.id ?? filteredNetworks[0]?.id ?? null,
+    toChainId: filteredNetworks.find((n) => n.id === defaultTo)?.id ?? filteredNetworks[1]?.id ?? null,
+  }
+})
 ```
 
 ### Reset chain selection on toggle
 
-When testnet/mainnet changes:
-- If selected `fromChain` is not in filtered list, reset to first available
-- Same for `toChain`
+When testnet/mainnet changes, the `$effect` resets fromChainId/toChainId to
+appropriate defaults for the new network type.
 
 ## Acceptance criteria
 
@@ -62,7 +61,10 @@ When testnet/mainnet changes:
 
 ## Status
 
-Complete. WalletProvider: STORAGE_KEY_IS_TESTNET, restore isTestnet from localStorage once on init (hasRestoredTestnet), save on toggleTestnet. Bridge page: getContext('wallet'), filteredNetworks/filteredNetworkItems by wallet.isTestnet and NetworkType, $effect resets fromChain/toChain when not in filtered list, fetchBalances(wallet, chainIds) with lastFetchedChainKey so refetch on filter change, balances grid and QuoteForm use filtered list.
+Complete. Testnet/mainnet toggle managed via `bridgeSettingsState` (persisted).
+BridgeFlow.svelte: `filteredNetworks` derived from `settings.isTestnet` and
+`NetworkType`, `$effect` resets fromChainId/toChainId when not in filtered list.
+Routes and balances refetch when filter changes.
 
 ## Output when complete
 

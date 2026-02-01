@@ -145,153 +145,34 @@ export const getChainConfig = (chainId: number): WalletChainConfig | null => {
 }
 ```
 
-### Update `WalletState` type
+### Wallet chain tracking
 
-```typescript
-export type WalletState = {
-  providers: ProviderDetailType[]
-  connectedDetail: ProviderDetailType | null
-  address: `0x${string}` | null
-  chainId: number | null // NEW: current wallet chain
-  isTestnet: boolean
-  isConnecting: boolean
-  error: string | null
-}
+Chain ID is tracked via `walletConnectionsCollection` which stores `chainId` for
+each connected wallet. Updated via `subscribeChainChanged` in the connection
+handler.
 
-export function createWalletState(): WalletState {
-  return {
-    providers: [],
-    connectedDetail: null,
-    address: null,
-    chainId: null, // NEW
-    isTestnet: false,
-    isConnecting: false,
-    error: null,
-  }
-}
-```
+### Chain switch prompt in `src/routes/bridge/BridgeFlow.svelte`
 
-### Update `WalletProvider.svelte`
+Chain switch prompt is shown inline:
 
 ```svelte
-<script lang="ts">
-  // ... existing code ...
+const needsChainSwitch = $derived(Boolean(
+  selectedWallet && selectedChainId !== null && fromNetwork && selectedChainId !== fromNetwork.id
+))
 
-  // Track wallet chain
-  $effect(() => {
-    if (!state.connectedDetail) {
-      state.chainId = null
-      return
-    }
-
-    // Get initial chain
-    getWalletChainId(state.connectedDetail.provider).then(chainId => {
-      state.chainId = chainId
-    })
-
-    // Subscribe to changes
-    return subscribeChainChanged(state.connectedDetail.provider, chainId => {
-      state.chainId = chainId
-    })
-  })
-</script>
-```
-
-### `src/routes/bridge/ChainSwitchPrompt.svelte`
-
-```svelte
-<script lang="ts">
-  import { Button } from 'bits-ui'
-  import Spinner from '$/components/Spinner.svelte'
-  import { switchWalletChain, type EIP1193Provider } from '$/lib/wallet'
-  import { networksByChainId } from '$/constants/networks'
-
-  let {
-    currentChainId,
-    requiredChainId,
-    provider,
-    onSwitched,
-  }: {
-    currentChainId: number
-    requiredChainId: number
-    provider: EIP1193Provider
-    onSwitched?: () => void
-  } = $props()
-
-  let switching = $state(false)
-  let error = $state<string | null>(null)
-
-  const requiredChainName = $derived(
-    networksByChainId[requiredChainId]?.name ?? `Chain ${requiredChainId}`
-  )
-  const currentChainName = $derived(
-    networksByChainId[currentChainId]?.name ?? `Chain ${currentChainId}`
-  )
-
-  const handleSwitch = async () => {
-    switching = true
-    error = null
-    try {
-      await switchWalletChain(provider, requiredChainId)
-      onSwitched?.()
-    } catch (e) {
-      error = e instanceof Error ? e.message : String(e)
-    } finally {
-      switching = false
-    }
-  }
-</script>
-
-<div data-chain-switch-prompt role="alert">
-  <p>
-    Your wallet is connected to <strong>{currentChainName}</strong>.
-    Switch to <strong>{requiredChainName}</strong> to continue.
-  </p>
-  <Button.Root type="button" onclick={handleSwitch} disabled={switching}>
-    {#if switching}
-      <Spinner size="1em" /> Switching…
-    {:else}
-      Switch to {requiredChainName}
-    {/if}
-  </Button.Root>
-  {#if error}
-    <p data-chain-switch-error>{error}</p>
-  {/if}
-</div>
-
-<style>
-  [data-chain-switch-prompt] {
-    padding: 1em;
-    background: var(--color-warning-bg, #fef3c7);
-    border-radius: 0.5em;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75em;
-  }
-
-  [data-chain-switch-error] {
-    color: var(--color-error, #ef4444);
-    font-size: 0.875em;
-  }
-</style>
-```
-
-### Integration in bridge page
-
-```svelte
-{@const sourceChainId = Number(fromChain)}
-{@const needsChainSwitch = wallet.chainId !== null && wallet.chainId !== sourceChainId}
-
-{#if needsChainSwitch}
-  <ChainSwitchPrompt
-    currentChainId={wallet.chainId}
-    requiredChainId={sourceChainId}
-    provider={wallet.connectedDetail.provider}
-  />
-{:else if selectedRoute}
-  <!-- Approval and Bridge buttons -->
+<!-- Chain switch prompt -->
+{#if needsChainSwitch && fromNetwork && selectedWallet}
+  <div data-card="secondary" data-row="gap-2 align-center">
+    <span>Switch to {fromNetwork.name}</span>
+    <Button.Root onclick={() => selectedWallet && switchWalletChain(selectedWallet.wallet.provider, fromNetwork.id)}>
+      Switch
+    </Button.Root>
+  </div>
 {/if}
 ```
+
+Uses `switchWalletChain` from `$/lib/wallet`. Send button is also disabled when
+`needsChainSwitch` is true.
 
 ## Acceptance criteria
 
@@ -311,12 +192,11 @@ export function createWalletState(): WalletState {
 - [x] Updates when wallet switches chains
 - [x] Null when disconnected
 
-### ChainSwitchPrompt component
-- [x] Shows current vs required chain names
-- [x] "Switch to {chain}" button triggers switch
-- [x] Loading state during switch
-- [x] Error displayed on failure
-- [x] Callback fired on successful switch
+### Chain switch prompt (inline in BridgeFlow)
+- [x] Shows required chain name when mismatch detected
+- [x] "Switch to {chain}" button triggers switch via `switchWalletChain`
+- [x] Send button disabled until correct chain
+- [x] Reactive to wallet chain changes
 
 ### Integration
 - [x] Chain mismatch detected before approve/bridge
@@ -326,7 +206,11 @@ export function createWalletState(): WalletState {
 
 ## Status
 
-Complete.
+Complete. `src/lib/wallet.ts`: getWalletChainId, subscribeChainChanged,
+switchWalletChain, addChainToWallet. `src/constants/chain-configs.ts`:
+WalletChainConfig type, nativeCurrencies, getChainConfig. BridgeFlow.svelte:
+`needsChainSwitch` derived, inline switch prompt, Send button disabled when
+chain mismatch. Unit tests in wallet.spec.ts and chain-configs.spec.ts.
 
 ## Output when complete
 

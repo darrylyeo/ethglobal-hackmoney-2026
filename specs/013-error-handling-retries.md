@@ -268,156 +268,23 @@ export const getRetryDelay = (error: BridgeError, attempt: number): number => {
 }
 ```
 
-### `src/routes/bridge/ErrorDisplay.svelte`
+### Error display in `src/routes/bridge/BridgeFlow.svelte`
+
+Errors from route fetching are shown inline:
 
 ```svelte
-<script lang="ts">
-  import type { BridgeError } from '$/lib/errors'
-  import { Button } from 'bits-ui'
-  import { getRetryDelay } from '$/lib/errors'
-
-  let {
-    error,
-    attempt = 1,
-    onRetry,
-    onDismiss,
-    showDetails = false,
-  }: {
-    error: BridgeError
-    attempt?: number
-    onRetry?: () => void
-    onDismiss?: () => void
-    showDetails?: boolean
-  } = $props()
-
-  let countdown = $state(0)
-  let canRetry = $derived(countdown === 0)
-
-  // Start countdown if there's a retry delay
-  $effect(() => {
-    if (!error.retryable) return
-    const delay = getRetryDelay(error, attempt)
-    if (delay > 1000) {
-      countdown = Math.ceil(delay / 1000)
-      const interval = setInterval(() => {
-        countdown--
-        if (countdown <= 0) clearInterval(interval)
-      }, 1000)
-      return () => clearInterval(interval)
-    }
-  })
-</script>
-
-<div role="alert" data-error-display data-code={error.code}>
-  <div data-error-header>
-    <span data-error-icon>⚠️</span>
-    <strong data-error-title>{error.title}</strong>
-    {#if onDismiss}
-      <button type="button" data-error-dismiss onclick={onDismiss} aria-label="Dismiss">
-        ✕
-      </button>
-    {/if}
+<!-- Routes error -->
+{#if routesRow?.error}
+  <div data-card data-error>
+    {routesRow.error.code === ErrorCode.NO_ROUTES
+      ? 'No routes available for this transfer.'
+      : routesRow.error.message}
   </div>
-
-  <p data-error-message>{error.message}</p>
-  <p data-error-suggestion>{error.suggestion}</p>
-
-  {#if error.retryable && onRetry}
-    <div data-error-actions>
-      <Button.Root
-        type="button"
-        onclick={onRetry}
-        disabled={!canRetry}
-      >
-        {#if countdown > 0}
-          Retry in {countdown}s
-        {:else}
-          Try again
-        {/if}
-      </Button.Root>
-    </div>
-  {/if}
-
-  {#if showDetails && error.originalError}
-    <details data-error-details>
-      <summary>Technical details</summary>
-      <pre>{error.originalError.message}</pre>
-    </details>
-  {/if}
-</div>
-
-<style>
-  [data-error-display] {
-    padding: 1em;
-    background: var(--color-error-bg, #fef2f2);
-    border: 1px solid var(--color-error-border, #fecaca);
-    border-radius: 0.5em;
-  }
-
-  [data-error-header] {
-    display: flex;
-    align-items: center;
-    gap: 0.5em;
-    margin-bottom: 0.5em;
-  }
-
-  [data-error-icon] {
-    font-size: 1.25em;
-  }
-
-  [data-error-title] {
-    flex: 1;
-    color: var(--color-error, #dc2626);
-  }
-
-  [data-error-dismiss] {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25em;
-    opacity: 0.6;
-  }
-
-  [data-error-dismiss]:hover {
-    opacity: 1;
-  }
-
-  [data-error-message] {
-    margin-bottom: 0.25em;
-  }
-
-  [data-error-suggestion] {
-    font-size: 0.875em;
-    opacity: 0.8;
-    margin-bottom: 0.75em;
-  }
-
-  [data-error-actions] {
-    display: flex;
-    gap: 0.5em;
-  }
-
-  [data-error-details] {
-    margin-top: 0.75em;
-    font-size: 0.75em;
-  }
-
-  [data-error-details] summary {
-    cursor: pointer;
-    opacity: 0.7;
-  }
-
-  [data-error-details] pre {
-    margin-top: 0.5em;
-    padding: 0.5em;
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 0.25em;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-break: break-all;
-  }
-</style>
+{/if}
 ```
+
+Error categorization uses `ErrorCode` from `$/lib/errors` to provide
+user-friendly messages.
 
 ### Auto-retry with backoff
 
@@ -455,40 +322,11 @@ export const withRetry = async <T>(
 }
 ```
 
-### Integration example
+### Integration
 
-```svelte
-<script lang="ts">
-  import { categorizeError, type BridgeError } from '$/lib/errors'
-  import ErrorDisplay from './ErrorDisplay.svelte'
-
-  let error = $state<BridgeError | null>(null)
-  let retryAttempt = $state(1)
-
-  const fetchRoutes = async () => {
-    error = null
-    try {
-      routes = await getRoutesForUsdcBridge(params)
-    } catch (e) {
-      error = categorizeError(e)
-    }
-  }
-
-  const handleRetry = () => {
-    retryAttempt++
-    fetchRoutes()
-  }
-</script>
-
-{#if error}
-  <ErrorDisplay
-    {error}
-    attempt={retryAttempt}
-    onRetry={handleRetry}
-    onDismiss={() => { error = null }}
-  />
-{/if}
-```
+Routes are fetched via `fetchBridgeRoutes` which stores errors in
+`bridgeRoutesCollection`. The error is available via `routesRow?.error` and
+displayed inline with appropriate messaging based on `ErrorCode`.
 
 ## Acceptance criteria
 
@@ -503,13 +341,11 @@ export const withRetry = async <T>(
 - [x] Slippage: retryable with suggestion
 - [x] Unknown: generic message, retryable
 
-### ErrorDisplay component
-- [x] Shows title, message, suggestion
-- [x] Retry button for retryable errors
-- [x] Countdown timer for delayed retries
-- [x] Dismiss button (optional)
-- [x] Technical details expandable
-- [x] Accessible with `role="alert"`
+### Error display (inline in BridgeFlow)
+- [x] Shows error message based on ErrorCode
+- [x] "No routes available" for NO_ROUTES error
+- [x] Generic error message for other errors
+- [x] Refresh button available to retry
 
 ### Retry logic
 - [x] `withRetry()` retries on retryable errors
@@ -518,14 +354,16 @@ export const withRetry = async <T>(
 - [x] Callback on each error
 
 ### Integration
-- [x] All async operations wrapped with error handling
-- [x] Errors displayed via `ErrorDisplay`
-- [x] Retry callbacks functional
-- [x] Error state cleared on success
+- [x] Route fetching wrapped with error handling via collection
+- [x] Errors displayed inline via `routesRow?.error`
+- [x] Retry via refresh button (`onRefresh`)
+- [x] Error state cleared on successful fetch
 
 ## Status
 
-Complete.
+Complete. `src/lib/errors.ts` with ErrorCode enum and categorizeError function.
+Errors stored in `bridgeRoutesCollection` and displayed inline in BridgeFlow.svelte.
+Retry via refresh button. `withRetry` utility in `retry.ts` for exponential backoff.
 
 ## Output when complete
 

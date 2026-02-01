@@ -6,10 +6,12 @@ Chain and token constants for USDC bridging.
 
 `src/constants/networks.ts`:
 
-- `ChainId` enum (9 chains): Ethereum, Optimism, Polygon, Arbitrum, Avalanche,
-  Celo, Base, Linea, ZkSyncEra
-- `Network` type: `{ id: ChainId, name: string }`
-- `networks` array with `as const satisfies Network[]`
+- `NetworkType` enum: `Mainnet`, `Testnet`
+- `ChainId` enum (~40 chains): Ethereum, Optimism, Polygon, Arbitrum, Avalanche,
+  Celo, Base, Linea, ZkSyncEra, Unichain, Monad, Sonic, WorldChain, HyperEVM,
+  Sei, Ink, Codex, Plume, XDC, Arc, plus testnets (Sepolia, Amoy, Fuji, etc.)
+- `Network` type: `{ id: ChainId, name: string, type: NetworkType }`
+- `networks` array with `as const satisfies readonly Network[]`
 - `networksByChainId` lookup object
 
 `src/constants/coins.ts`:
@@ -20,15 +22,16 @@ Chain and token constants for USDC bridging.
 
 ## Acceptance criteria
 
-- [x] `ChainId` enum with 9 LI.FI / Circle supported chains.
-- [x] `networks` array with id and name for each chain.
+- [x] `NetworkType` enum with Mainnet/Testnet.
+- [x] `ChainId` enum with LI.FI / Circle supported chains (mainnets and testnets).
+- [x] `networks` array with id, name, and type for each chain.
 - [x] `ercTokens` array with USDC address for each chain.
 - [x] Lookup objects for quick access by chain ID.
 - [x] Code style: tabs, no semicolons, `as const satisfies`.
 
 ## Status
 
-Complete.
+Complete. ~40 chains with Mainnet/Testnet classification.
 
 ## Output when complete
 

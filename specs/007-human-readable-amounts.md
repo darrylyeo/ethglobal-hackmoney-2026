@@ -65,90 +65,37 @@ export const isValidDecimalInput = (value: string, decimals: number): boolean =>
 }
 ```
 
-### `src/routes/bridge/AmountInput.svelte`
+### `src/routes/bridge/BridgeFlow.svelte` – Amount input section
+
+Amount input is implemented inline in `BridgeFlow.svelte` rather than a separate
+component. It uses:
+
+- `parseDecimalToSmallest` and `formatSmallestToDecimal` from `$/lib/format`
+- `isValidDecimalInput` for validation
+- `bridgeSettingsState` for persisted amount state (as `bigint`)
+- Balance from `actorCoinsCollection` query for Max button and validation
 
 ```svelte
-<script lang="ts">
-  import { Button } from 'bits-ui'
-  import {
-    parseDecimalToSmallest,
-    formatSmallestToDecimal,
-    isValidDecimalInput,
-  } from '$/lib/format'
-
-  let {
-    value = $bindable(''),
-    decimals = 6,
-    balance = null,
-    symbol = 'USDC',
-    disabled = false,
-  }: {
-    value?: string
-    decimals?: number
-    balance?: bigint | null
-    symbol?: string
-    disabled?: boolean
-  } = $props()
-
-  const balanceFormatted = $derived(
-    balance !== null ? formatSmallestToDecimal(balance, decimals, 4) : null
-  )
-
-  const amountSmallest = $derived(parseDecimalToSmallest(value, decimals))
-
-  const exceedsBalance = $derived(
-    balance !== null && amountSmallest > balance
-  )
-
-  const isValid = $derived(isValidDecimalInput(value, decimals))
-
-  const handleMax = () => {
-    if (balance !== null) {
-      value = formatSmallestToDecimal(balance, decimals)
-    }
-  }
-
-  const handleInput = (e: Event) => {
-    const input = e.target as HTMLInputElement
-    // Strip invalid chars but allow partial input during typing
-    value = input.value.replace(/[^0-9.,]/g, '').replace(/,/g, '')
-  }
-</script>
-
-<div data-amount-input data-error={exceedsBalance || !isValid ? '' : undefined}>
-  <div data-amount-input-row>
-    <input
-      type="text"
-      inputmode="decimal"
-      autocomplete="off"
-      {disabled}
-      {value}
-      oninput={handleInput}
-      placeholder="0.00"
-    />
-    <span data-amount-symbol>{symbol}</span>
+<!-- Amount -->
+<div data-column="gap-1">
+  <label for="amt">Amount</label>
+  <div data-row="gap-2">
+    <input id="amt" type="text" inputmode="decimal" placeholder="0.00"
+      value={settings.amount === 0n ? '' : formatSmallestToDecimal(settings.amount, 6)}
+      oninput={onAmountInput} style="flex:1" />
+    {#if sourceBalance !== null}
+      <Button.Root type="button" onclick={() => { bridgeSettingsState.current = { ...settings, amount: sourceBalance } }}>Max</Button.Root>
+    {/if}
   </div>
-  {#if balanceFormatted !== null}
-    <div data-amount-balance>
-      <span>Balance: {balanceFormatted} {symbol}</span>
-      <Button.Root type="button" onclick={handleMax} {disabled}>Max</Button.Root>
-    </div>
-  {/if}
-  {#if exceedsBalance}
-    <p data-amount-error role="alert">Insufficient balance</p>
-  {/if}
+  {#if sourceBalance !== null}<small data-muted>Balance: {formatSmallestToDecimal(sourceBalance, 6, 4)} USDC</small>{/if}
+  {#if exceedsBalance}<small data-error>Insufficient balance</small>
+  {:else if validation.error === 'too_low'}<small data-error>Min {validation.minAmount} USDC</small>
+  {:else if validation.error === 'too_high'}<small data-error>Max {validation.maxAmount} USDC</small>{/if}
 </div>
 ```
 
-### `QuoteForm.svelte` updates
-
-- Replace raw amount input with `AmountInput`
-- Pass `balance` from actorCoins collection for selected source chain
-- Convert decimal to smallest units in form submission:
-  ```typescript
-  const amountSmallest = parseDecimalToSmallest(amount, 6).toString()
-  ```
-- Disable submit if `exceedsBalance` or `!isValid`
+Amount is stored as `bigint` in `bridgeSettingsState` and displayed/parsed via
+format helpers.
 
 ### Unit tests (`src/lib/format.spec.ts`)
 
@@ -193,7 +140,7 @@ Deno.test('isValidDecimalInput validates correctly', () => {
 - [x] `formatSmallestToDecimal(1n, 6)` returns `'0.000001'`
 - [x] `isValidDecimalInput('100.1234567', 6)` returns `false`
 
-### AmountInput component
+### Amount input (inline in BridgeFlow)
 - [x] Accepts decimal values (e.g., `50.25`)
 - [x] Shows balance when provided
 - [x] "Max" button fills input with formatted balance
@@ -202,13 +149,14 @@ Deno.test('isValidDecimalInput validates correctly', () => {
 - [x] Strips commas on paste
 
 ### Integration
-- [x] QuoteForm uses AmountInput component
-- [x] Quote API receives correct smallest-unit value
+- [x] BridgeFlow uses inline amount input with format helpers
+- [x] Quote API receives correct smallest-unit value via `bridgeSettingsState`
 - [x] Submit disabled when amount invalid or exceeds balance
 
 ## Status
 
-Complete. format.ts helpers, AmountInput.svelte, QuoteForm integration, format.spec.ts; default amount 1 USDC.
+Complete. format.ts helpers (`parseDecimalToSmallest`, `formatSmallestToDecimal`,
+`isValidDecimalInput`), amount input inline in BridgeFlow.svelte, format.spec.ts.
 
 ## Output when complete
 

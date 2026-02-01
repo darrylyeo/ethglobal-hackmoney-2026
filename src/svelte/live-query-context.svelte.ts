@@ -51,6 +51,32 @@ export const liveQueryAttachment = (
 }
 
 /**
+ * Creates an attachment that syncs multiple entries (derived from getEntries) to the stack.
+ * Use when a component has several live queries and should register them as one unit.
+ */
+export const liveQueryAttachmentFrom = (
+	getEntries: () => LiveQueryEntry[],
+): Attachment => {
+	const ctx = useLiveQueryContext()
+
+	return () => {
+		const destroy = $effect.root(() => {
+			$effect(() => {
+				const entries = getEntries()
+				entries.forEach((e) => ctx.stack.push(e))
+				return () => {
+					entries.forEach((e) => {
+						const idx = ctx.stack.findIndex((x) => x.id === e.id)
+						if (idx !== -1) ctx.stack.splice(idx, 1)
+					})
+				}
+			})
+		})
+		return () => { destroy() }
+	}
+}
+
+/**
  * Creates props with attachment keys for spreading onto an element.
  * Allows registering multiple queries at once.
  */

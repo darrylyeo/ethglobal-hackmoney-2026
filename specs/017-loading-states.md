@@ -130,90 +130,31 @@ performance and user feedback.
 </style>
 ```
 
-### Balance grid skeleton
+### Loading states in BridgeFlow.svelte
+
+Loading states are shown inline:
 
 ```svelte
-<!-- In bridge page, when loading balances -->
-{#if actorCoins.length === 0}
-  <div data-balances-grid>
-    {#each Array(6) as _, i (i)}
-      <div data-balance-item data-loading>
-        <Skeleton width="60%" height="0.75em" />
-        <Skeleton width="80%" height="1.25em" />
-      </div>
-    {/each}
-  </div>
-{:else}
-  <!-- Actual balances -->
+<!-- Routes loading -->
+<h3>Routes {routesRow?.isLoading ? '(loading…)' : `(${sortedRoutes.length})`}</h3>
+
+<!-- Quote refresh -->
+{#if routesRow?.isLoading}
+  Refreshing…
+{:else if quoteRemaining !== null}
+  {quoteExpired ? 'Expired' : `${quoteRemaining}s`}
 {/if}
+
+<!-- Send button -->
+<Button.Root disabled={quoteExpired || executing || needsChainSwitch || !canSendAmount}>
+  {executing ? 'Bridging…' : 'Send'}
+</Button.Root>
 ```
 
-### Route list skeleton
+### Balances.svelte
 
-```svelte
-<!-- In RouteList, when loading -->
-{#if loading}
-  <div data-route-list>
-    {#each Array(3) as _, i (i)}
-      <div data-route-card-skeleton>
-        <div data-route-header>
-          <Skeleton width="120px" height="1.25em" />
-          <Skeleton width="60px" height="1.5em" rounded="0.25em" />
-        </div>
-        <div data-route-details>
-          <Skeleton width="100px" height="1em" />
-          <Skeleton width="60px" height="1em" />
-          <Skeleton width="80px" height="1em" />
-        </div>
-      </div>
-    {/each}
-  </div>
-{/if}
-```
-
-### Button states in bridge page
-
-```svelte
-<LoadingButton
-  type="submit"
-  loading={routesLoading}
-  loadingText="Finding routes…"
->
-  Get Routes
-</LoadingButton>
-
-<LoadingButton
-  type="button"
-  onclick={bridge}
-  loading={execLoading}
-  loadingText="Bridging…"
-  disabled={!selectedRoute || quoteExpired}
->
-  Bridge
-</LoadingButton>
-```
-
-### Optimistic loading
-
-For balance fetches, show stale data with loading indicator:
-
-```svelte
-{#each actorCoins as ac (ac.key)}
-  <div data-balance-item data-loading={ac.isLoading ? '' : undefined}>
-    <span>{networkName}</span>
-    <span data-balance-value>
-      {#if ac.isLoading && ac.balance === 0n}
-        <Skeleton width="80px" height="1em" />
-      {:else}
-        {ac.balanceFormatted}
-        {#if ac.isLoading}
-          <Spinner size="0.75em" />
-        {/if}
-      {/if}
-    </span>
-  </div>
-{/each}
-```
+Balances component shows loading state per-chain via `isLoading` from
+`actorCoinsCollection`.
 
 ## Acceptance criteria
 
@@ -249,7 +190,10 @@ For balance fetches, show stale data with loading indicator:
 
 ## Status
 
-Complete. `src/components/Skeleton.svelte`: width, height, rounded props; shimmer via --color-skeleton/--color-skeleton-highlight. `src/components/Spinner.svelte`: size prop; border-top-color currentColor. `src/components/LoadingButton.svelte`: loading, loadingText, children snippet; disabled when loading; Spinner + text when loading. Bridge +page: balance section shows 6-item skeleton grid when no actorCoins; per-balance skeleton when isLoading && balance === 0n, spinner beside balance when isLoading and balance shown (optimistic). RouteList: 3 skeleton route cards when loading (data-route-card-skeleton); bridge output shows route list area when routesLoading. QuoteForm: LoadingButton "Finding routes…", fieldset and Select.Root disabled when loading, double-submit prevented. QuoteOutput: LoadingButton "Bridging…" for Send.
+Complete. `src/components/Skeleton.svelte`, `src/components/Spinner.svelte`,
+`src/components/LoadingButton.svelte`. BridgeFlow.svelte: routes loading shows
+"(loading…)" in header, quote refresh shows "Refreshing…", Send button shows
+"Bridging…" when executing, button disabled during loading states.
 
 ## Output when complete
 

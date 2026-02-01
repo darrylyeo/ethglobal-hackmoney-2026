@@ -35,8 +35,6 @@
 	{/snippet}
 
 	{#snippet failed(error, retry)}
-		{console.error(error)}
-
 		{#if Failed}
 			{@render Failed(error, retry)}
 		{:else}

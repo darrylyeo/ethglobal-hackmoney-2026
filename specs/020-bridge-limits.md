@@ -20,48 +20,13 @@ Display and enforce minimum/maximum bridge amounts based on LI.FI route constrai
 
 ## Implementation
 
-### Limit constants (fallbacks)
+### `src/constants/bridge-limits.ts`
 
 ```typescript
-// src/constants/bridge-limits.ts
-export const DEFAULT_MIN_AMOUNT_USD = 1 // $1 minimum
-export const DEFAULT_MAX_AMOUNT_USD = 1_000_000 // $1M maximum
-
 // USDC has 6 decimals, so these are in smallest units
 export const USDC_MIN_AMOUNT = 1_000_000n // 1 USDC
 export const USDC_MAX_AMOUNT = 1_000_000_000_000n // 1M USDC
-```
 
-### Extract limits from route
-
-```typescript
-// In src/api/lifi.ts
-export type RouteLimits = {
-  minAmount: bigint | null
-  maxAmount: bigint | null
-}
-
-export const extractRouteLimits = (routes: NormalizedRoute[]): RouteLimits => {
-  if (routes.length === 0) return { minAmount: null, maxAmount: null }
-
-  // Find the most permissive limits across all routes
-  let minAmount: bigint | null = null
-  let maxAmount: bigint | null = null
-
-  for (const route of routes) {
-    const routeMin = route.originalRoute.steps[0]?.action?.fromAmount
-      ? BigInt(route.originalRoute.steps[0].action.fromAmount)
-      : null
-    // LI.FI doesn't always expose limits directly, but we can infer from errors
-  }
-
-  return { minAmount, maxAmount }
-}
-```
-
-### Pre-fetch validation
-
-```typescript
 export type AmountValidation = {
   isValid: boolean
   error?: 'too_low' | 'too_high' | 'invalid'
@@ -69,33 +34,21 @@ export type AmountValidation = {
   maxAmount?: string
 }
 
+export type RouteLimits = {
+  minAmount: bigint | null
+  maxAmount: bigint | null
+}
+
 export const validateBridgeAmount = (
   amount: bigint,
   minAmount: bigint = USDC_MIN_AMOUNT,
   maxAmount: bigint = USDC_MAX_AMOUNT,
-): AmountValidation => {
-  if (amount <= 0n) {
-    return { isValid: false, error: 'invalid' }
-  }
-  if (amount < minAmount) {
-    return {
-      isValid: false,
-      error: 'too_low',
-      minAmount: formatSmallestToDecimal(minAmount, 6),
-    }
-  }
-  if (amount > maxAmount) {
-    return {
-      isValid: false,
-      error: 'too_high',
-      maxAmount: formatSmallestToDecimal(maxAmount, 6),
-    }
-  }
-  return { isValid: true }
-}
+): AmountValidation
+
+export const extractRouteLimits = (routes: ...): RouteLimits
 ```
 
-### Amount validation UI
+### Amount validation UI in `BridgeFlow.svelte`
 
 ```svelte
 {@const amountBigint = parseDecimalToSmallest(amount, 6)}
@@ -183,7 +136,9 @@ When routes return empty, provide guidance:
 
 ## Status
 
-Complete.
+Complete. `src/constants/bridge-limits.ts` with USDC_MIN_AMOUNT, USDC_MAX_AMOUNT,
+AmountValidation type, validateBridgeAmount, extractRouteLimits. BridgeFlow.svelte
+uses validation inline with `canSendAmount` derived state.
 
 ## Output when complete
 

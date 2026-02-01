@@ -4,11 +4,9 @@ test.describe('WalletProvider', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/bridge')
     await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'USDC Bridge' }).or(
-        page.getByText('Connect a wallet to get routes'),
-      ),
-    ).toBeVisible({ timeout: 45_000 })
+    await expect(page.getByRole('heading', { level: 1, name: 'USDC Bridge' })).toBeVisible({
+      timeout: 45_000,
+    })
   })
 
   test.describe('with mock wallet', () => {

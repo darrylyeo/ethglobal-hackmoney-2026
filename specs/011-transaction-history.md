@@ -67,24 +67,41 @@ export const updateTransactionStatus = (
 }
 ```
 
-### `src/routes/bridge/TransactionHistory.svelte`
+### Transaction history in `src/routes/bridge/BridgeFlow.svelte`
 
-- Props: `address: \`0x${string}\``
-- Loads transactions for address on mount
-- Displays list with expandable details
-- Each item shows: date, chains, amount, status badge, links
+Transaction history is displayed inline using `transactionsCollection` via
+TanStack DB:
+
+```svelte
+<!-- Transaction history -->
+{#if transactions.length > 0}
+  <section data-card data-column="gap-2">
+    <h3>Recent Transactions</h3>
+    <div data-column="gap-1">
+      {#each transactions as tx (tx.$id.sourceTxHash)}
+        <div data-row="gap-2 align-center" data-tx-row>
+          <span>{networksByChainId[tx.fromChainId]?.name} → {networksByChainId[tx.toChainId]?.name}</span>
+          <span data-tabular>{formatSmallestToDecimal(tx.fromAmount, 6)} USDC</span>
+          <span data-tag={tx.status}>{tx.status}</span>
+          <a href={getTxUrl(tx.fromChainId, tx.$id.sourceTxHash)} target="_blank" rel="noopener">↗</a>
+        </div>
+      {/each}
+    </div>
+  </section>
+{/if}
+```
 
 ### Integration
 
-- After successful bridge submission, call `saveTransaction()`
-- Show `TransactionHistory` component in bridge page
-- Poll pending transactions for status updates
+- `BridgeExecution.svelte` inserts transaction via `insertTransaction` on first tx hash
+- Updates status via `updateTransaction` on completion/failure
+- Transactions filtered by `selectedActor` address
 
 ## Acceptance criteria
 
 - [x] `saveTransaction()` persists to localStorage
 - [x] `getTransactions()` returns transactions for address
-- [x] `TransactionHistory.svelte` displays past transactions
+- [x] Transaction history displays inline in BridgeFlow.svelte
 - [x] Transactions sorted by date (newest first)
 - [x] Each row shows: date, from→to chains, amount, status
 - [x] Explorer links work for source and destination chains
@@ -93,7 +110,11 @@ export const updateTransactionStatus = (
 
 ## Status
 
-Complete. tx-history.ts: StoredTransaction, saveTransaction, getTransactions, updateTransactionStatus (50 max per address). TransactionHistory.svelte: collapsible section, list by date, explorer links, pending spinner, 8s poll. Bridge page: save as pending on first tx hash, update to completed/failed on resolve/catch; TransactionHistory shown when wallet connected. Unit tests in tx-history.spec.ts.
+Complete. Transaction storage uses `transactionsCollection` via TanStack DB.
+`insertTransaction` and `updateTransaction` in `$/collections/transactions`.
+BridgeExecution.svelte inserts on first tx hash, updates on completion.
+BridgeFlow.svelte displays transactions inline filtered by `selectedActor`.
+Unit tests in tx-history.spec.ts.
 
 ## Output when complete
 
