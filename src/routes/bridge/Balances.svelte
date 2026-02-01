@@ -1,6 +1,5 @@
 <script lang="ts">
 	// Types/constants
-	import type { WalletState } from '$/lib/wallet'
 	import { NetworkType, networks, networksByChainId } from '$/constants/networks'
 
 	// Context
@@ -16,7 +15,11 @@
 	import { formatSmallestToDecimal } from '$/lib/format'
 
 	// Props
-	let { wallet }: { wallet: WalletState } = $props()
+	let {
+		selectedActor,
+	}: {
+		selectedActor: `0x${string}` | null,
+	} = $props()
 
 	// Settings
 	const settings = $derived(bridgeSettingsState.current ?? defaultBridgeSettings)
@@ -33,22 +36,22 @@
 	// Balances query
 	const balancesQuery = useLiveQuery((q) => q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })))
 	const balances = $derived(
-		wallet.address
+		selectedActor
 			? (balancesQuery.data ?? [])
 				.map((r) => r.row)
-				.filter((b) => b.$id.address.toLowerCase() === wallet.address!.toLowerCase())
+				.filter((b) => b.$id.address.toLowerCase() === selectedActor!.toLowerCase())
 			: []
 	)
 
-	// Fetch balances on wallet/network change
+	// Fetch balances on actor/network change
 	$effect(() => {
 		void settings.isTestnet
-		if (wallet.address) fetchAllBalancesForAddress(wallet.address, filteredNetworks.map((n) => n.id))
+		if (selectedActor) fetchAllBalancesForAddress(selectedActor, filteredNetworks.map((n) => n.id))
 	})
 </script>
 
 
-{#if wallet.address && balances.length > 0}
+{#if selectedActor && balances.length > 0}
 	<section data-balances>
 		<h3>Your USDC Balances</h3>
 		<div data-balances-grid>
