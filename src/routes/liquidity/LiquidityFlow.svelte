@@ -1,0 +1,140 @@
+<script lang="ts">
+	import type { ConnectedWallet } from '$/collections/wallet-connections'
+	import { Button, Select } from 'bits-ui'
+	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { ChainId, NetworkType, networks, networksByChainId } from '$/constants/networks'
+	import { FEE_TIERS } from '$/constants/uniswap'
+	import { liquiditySettingsState, defaultLiquiditySettings } from '$/state/liquidity-settings.svelte'
+	import { uniswapPoolsCollection } from '$/collections/uniswap-pools'
+	import { uniswapPositionsCollection } from '$/collections/uniswap-positions'
+	import { actorCoinsCollection } from '$/collections/actor-coins'
+	import { formatSmallestToDecimal, parseDecimalToSmallest, isValidDecimalInput } from '$/lib/format'
+	import { switchWalletChain } from '$/lib/wallet'
+	import Positions from './Positions.svelte'
+
+	let {
+		selectedWallets,
+		selectedActor,
+		selectedChainId,
+	}: {
+		selectedWallets: ConnectedWallet[]
+		selectedActor: `0x${string}` | null
+		selectedChainId: number | null
+	} = $props()
+
+	const selectedWallet = $derived(selectedWallets.find((w) => w.connection.selected) ?? null)
+	const settings = $derived(liquiditySettingsState.current ?? defaultLiquiditySettings)
+	const filteredNetworks = $derived(networks.filter((n) => n.type === NetworkType.Mainnet))
+	const network = $derived(settings.chainId ? networksByChainId[settings.chainId] : null)
+
+	const poolsQuery = useLiveQuery((q) => q.from({ row: uniswapPoolsCollection }).select(({ row }) => ({ row })))
+	const positionsQuery = useLiveQuery((q) => q.from({ row: uniswapPositionsCollection }).select(({ row }) => ({ row })))
+	const balancesQuery = useLiveQuery((q) => q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })))
+
+	const pools = $derived((poolsQuery.data ?? []).map((r) => r.row))
+	const positions = $derived(
+		selectedActor
+			? (positionsQuery.data ?? []).map((r) => r.row).filter((p) => p.owner.toLowerCase() === selectedActor!.toLowerCase())
+			: []
+	)
+	const needsChainSwitch = $derived(Boolean(selectedWallet && selectedChainId !== null && network && selectedChainId !== network.id))
+	const feeLabel = (fee: number) => `${(fee / 10000).toFixed(2)}%`
+
+	const onAmount0Input = (e: Event) => {
+		const v = (e.target as HTMLInputElement).value.replace(/[^0-9.,]/g, '').replace(/,/g, '')
+		if (v === '') liquiditySettingsState.current = { ...settings, amount0: 0n }
+		else if (isValidDecimalInput(v, 18)) liquiditySettingsState.current = { ...settings, amount0: parseDecimalToSmallest(v, 18) }
+	}
+	const onAmount1Input = (e: Event) => {
+		const v = (e.target as HTMLInputElement).value.replace(/[^0-9.,]/g, '').replace(/,/g, '')
+		if (v === '') liquiditySettingsState.current = { ...settings, amount1: 0n }
+		else if (isValidDecimalInput(v, 18)) liquiditySettingsState.current = { ...settings, amount1: parseDecimalToSmallest(v, 18) }
+	}
+</script>
+
+<div data-column="gap-4">
+	<h2>Add Liquidity</h2>
+
+	<div data-row="gap-4">
+		<div data-column="gap-1" style="flex:1">
+			<label for="liq-chain">Chain</label>
+			<Select.Root
+				type="single"
+				value={String(settings.chainId)}
+				onValueChange={(v) => { if (v) liquiditySettingsState.current = { ...settings, chainId: Number(v) } }}
+				items={filteredNetworks.map((n) => ({ value: String(n.id), label: n.name }))}
+			>
+				<Select.Trigger id="liq-chain">{network?.name ?? '—'}</Select.Trigger>
+				<Select.Portal>
+					<Select.Content>
+						<Select.Viewport>
+							{#each filteredNetworks as n (n.id)}
+								<Select.Item value={String(n.id)} label={n.name}>{n.name}</Select.Item>
+							{/each}
+						</Select.Viewport>
+					</Select.Content>
+				</Select.Portal>
+			</Select.Root>
+		</div>
+	</div>
+
+	<div data-card data-column="gap-2">
+		<div data-column="gap-1">
+			<label for="liq-token0">Token 0</label>
+			<input id="liq-token0" type="text" readonly value={settings.token0.slice(0, 10)} />
+		</div>
+		<div data-column="gap-1">
+			<label for="liq-token1">Token 1</label>
+			<input id="liq-token1" type="text" readonly value={settings.token1.slice(0, 10)} />
+		</div>
+		<div data-column="gap-1">
+			<label for="liq-fee">Fee tier</label>
+			<Select.Root
+				type="single"
+				value={String(settings.fee)}
+				onValueChange={(v) => { if (v) liquiditySettingsState.current = { ...settings, fee: Number(v) } }}
+				items={FEE_TIERS.map((f) => ({ value: String(f), label: feeLabel(f) }))}
+			>
+				<Select.Trigger id="liq-fee">{feeLabel(settings.fee)}</Select.Trigger>
+				<Select.Portal>
+					<Select.Content>
+						<Select.Viewport>
+							{#each FEE_TIERS as f}
+								<Select.Item value={String(f)} label={feeLabel(f)}>{feeLabel(f)}</Select.Item>
+							{/each}
+						</Select.Viewport>
+					</Select.Content>
+				</Select.Portal>
+			</Select.Root>
+		</div>
+		<div data-column="gap-1">
+			<span aria-hidden="true">Price range (tick)</span>
+			<div data-row="gap-2">
+				<input type="number" value={settings.tickLower} oninput={(e) => { const v = parseInt((e.target as HTMLInputElement).value, 10); if (!Number.isNaN(v)) liquiditySettingsState.current = { ...settings, tickLower: v } }} />
+				<span>—</span>
+				<input type="number" value={settings.tickUpper} oninput={(e) => { const v = parseInt((e.target as HTMLInputElement).value, 10); if (!Number.isNaN(v)) liquiditySettingsState.current = { ...settings, tickUpper: v } }} />
+			</div>
+		</div>
+		<div data-column="gap-1">
+			<label for="liq-amt0">Amount 0</label>
+			<input id="liq-amt0" type="text" inputmode="decimal" placeholder="0.00" value={settings.amount0 === 0n ? '' : formatSmallestToDecimal(settings.amount0, 6)} oninput={onAmount0Input} />
+		</div>
+		<div data-column="gap-1">
+			<label for="liq-amt1">Amount 1</label>
+			<input id="liq-amt1" type="text" inputmode="decimal" placeholder="0.00" value={settings.amount1 === 0n ? '' : formatSmallestToDecimal(settings.amount1, 6)} oninput={onAmount1Input} />
+		</div>
+	</div>
+
+	{#if needsChainSwitch && network && selectedWallet}
+		<div data-card="secondary" data-row="gap-2 align-center">
+			<span>Switch to {network.name}</span>
+			<Button.Root onclick={() => selectedWallet && switchWalletChain(selectedWallet.wallet.provider, network.id)}>Switch</Button.Root>
+		</div>
+	{/if}
+
+	<Button.Root type="button" disabled={settings.amount0 === 0n && settings.amount1 === 0n}>
+		Add Liquidity
+	</Button.Root>
+
+	<Positions {positions} chainId={settings.chainId} />
+</div>

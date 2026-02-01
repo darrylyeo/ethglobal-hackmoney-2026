@@ -50,12 +50,22 @@
 >
 	<a href="#main-content" class="skip-link">Skip to main content</a>
 
-	<Navigation
-		navigationItems={[
+		<Navigation
+			navigationItems={[
 			{
 				id: 'bridge',
 				title: 'Bridge',
 				href: '/bridge',
+			},
+			{
+				id: 'swap',
+				title: 'Swap',
+				href: '/swap',
+			},
+			{
+				id: 'liquidity',
+				title: 'Liquidity',
+				href: '/liquidity',
 			},
 			{
 				id: 'transfers',
