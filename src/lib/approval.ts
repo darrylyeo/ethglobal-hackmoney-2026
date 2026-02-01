@@ -105,3 +105,18 @@ export async function waitForApprovalConfirmation(
 
 	throw new Error('Approval confirmation timeout')
 }
+
+export async function getTxReceiptStatus(
+	chainId: number,
+	txHash: string,
+): Promise<'pending' | 'completed' | 'failed'> {
+	const rpcUrl = rpcUrls[chainId]
+	if (!rpcUrl) return 'pending'
+	const provider = createHttpProvider(rpcUrl)
+	const receipt = (await provider.request({
+		method: 'eth_getTransactionReceipt',
+		params: [txHash],
+	})) as { status?: string } | null
+	if (!receipt) return 'pending'
+	return receipt.status === '0x1' ? 'completed' : 'failed'
+}

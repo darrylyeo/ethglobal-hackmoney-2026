@@ -18,11 +18,13 @@
 	import { type BridgeRoutes$id, bridgeRoutesCollection, fetchBridgeRoutes } from '$/collections/bridge-routes'
 	import { actorCoinsCollection } from '$/collections/actor-coins'
 	import { actorAllowancesCollection } from '$/collections/actor-allowances'
-	import { transactionsCollection } from '$/collections/transactions'
+	import { transactionsCollection, updateTransaction } from '$/collections/transactions'
 
 	// Functions
 	import { extractFeeBreakdown, getUsdcAddress } from '$/api/lifi'
 	import { getTxUrl } from '$/constants/explorers'
+	import { getTxReceiptStatus } from '$/lib/approval'
+	import { formatRelativeTime } from '$/lib/formatRelativeTime'
 	import { ErrorCode } from '$/lib/errors'
 	import { formatTokenAmount, formatSmallestToDecimal, parseDecimalToSmallest, isValidDecimalInput } from '$/lib/format'
 	import { isValidAddress, normalizeAddress, formatAddress } from '$/lib/address'
@@ -32,6 +34,7 @@
 	import { networkStatus } from '$/lib/network-status.svelte'
 
 	// Components
+	import Spinner from '$/components/Spinner.svelte'
 	import TokenApproval from './TokenApproval.svelte'
 	import BridgeExecution from './BridgeExecution.svelte'
 
@@ -79,6 +82,20 @@
 	let now = $state(Date.now())
 	$effect(() => {
 		const id = setInterval(() => { now = Date.now() }, 1000)
+		return () => clearInterval(id)
+	})
+
+	// Poll pending transaction status (spec 011)
+	$effect(() => {
+		const list = transactions.filter((tx) => tx.status === 'pending')
+		if (list.length === 0) return
+		const id = setInterval(() => {
+			for (const tx of list) {
+				getTxReceiptStatus(tx.fromChainId, tx.$id.sourceTxHash).then((status) => {
+					if (status === 'failed') updateTransaction(tx.$id, { status: 'failed' })
+				}).catch(() => {})
+			}
+		}, 5000)
 		return () => clearInterval(id)
 	})
 
@@ -210,7 +227,12 @@
 	const warnHighSlippage = $derived(settings.slippage > 0.01)
 	const warnLargeAmount = $derived(fromAmountUsd > 10_000)
 
-	const transactions = $derived((txQuery.data ?? []).map((r) => r.row).filter((tx) => tx.$id.address.toLowerCase() === selectedActor?.toLowerCase()))
+	const transactions = $derived(
+		(txQuery.data ?? [])
+			.map((r) => r.row)
+			.filter((tx) => tx.$id.address.toLowerCase() === selectedActor?.toLowerCase())
+			.slice(0, 50),
+	)
 
 	// Handlers
 	const onAmountInput = (e: Event) => {
@@ -471,12 +493,19 @@
 				<button type="button" data-heading>Transaction history</button>
 				{#if transactions.length > 0}
 					<div data-column="gap-1">
-						{#each transactions as tx (tx.$id.sourceTxHash)}
+						{#each transactions as tx (stringify(tx.$id))}
 							<div data-row="gap-2 align-center" data-tx-row>
+								<span data-muted>{formatRelativeTime(now - tx.$id.createdAt)}</span>
 								<span>{networksByChainId[tx.fromChainId]?.name} → {networksByChainId[tx.toChainId]?.name}</span>
 								<span data-tabular>{formatSmallestToDecimal(tx.fromAmount, 6)} USDC</span>
-								<span data-tag={tx.status}>{tx.status}</span>
-								<a href={getTxUrl(tx.fromChainId, tx.$id.sourceTxHash)} target="_blank" rel="noopener">↗</a>
+								<span data-tag={tx.status} data-row="gap-1 align-center">
+									{#if tx.status === 'pending'}<Spinner size="0.75em" />{/if}
+									{tx.status}
+								</span>
+								<a href={getTxUrl(tx.fromChainId, tx.$id.sourceTxHash)} target="_blank" rel="noopener" aria-label="Source tx">↗</a>
+								{#if tx.destTxHash}
+									<a href={getTxUrl(tx.toChainId, tx.destTxHash)} target="_blank" rel="noopener" aria-label="Dest tx">↗</a>
+								{/if}
 							</div>
 						{/each}
 					</div>
