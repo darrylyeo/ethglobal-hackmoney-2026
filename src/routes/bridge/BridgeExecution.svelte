@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { BridgeRoute } from '$/collections/bridge-routes'
-	import type { ProviderDetailType } from '$/lib/wallet'
+	import type { WalletRow } from '$/collections/wallets'
+	import type { EIP1193Provider } from '$/lib/wallet'
 	import type { BridgeStatus } from '$/lib/tx-status'
 	import type { Transaction } from '@tanstack/db'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
@@ -11,7 +12,7 @@
 
 	let {
 		route,
-		connectedDetail,
+		walletRow,
 		walletAddress,
 		fromChainId,
 		toChainId,
@@ -19,7 +20,7 @@
 		executing = $bindable(false),
 	}: {
 		route: BridgeRoute
-		connectedDetail: ProviderDetailType
+		walletRow: WalletRow
 		walletAddress: `0x${string}`
 		fromChainId: number
 		toChainId: number
@@ -27,11 +28,17 @@
 		executing?: boolean
 	} = $props()
 
+	// Build compatible ProviderDetailType for API
+	const providerDetail = $derived({
+		info: { uuid: walletRow.$id.rdns, name: walletRow.name, icon: walletRow.icon, rdns: walletRow.rdns },
+		provider: walletRow.provider,
+	})
+
 	// Progress state (updated via callback, not persisted)
 	let status = $state<BridgeStatus>({ overall: 'idle', steps: [] })
 
 	// Current action transaction for state tracking
-	let actionTx = $state<Transaction<unknown> | null>(null)
+	let actionTx = $state<Transaction<Record<string, unknown>> | null>(null)
 
 	// Sync executing prop with action state
 	$effect(() => {
@@ -41,7 +48,7 @@
 	// Define the bridge action
 	const executeBridge = createOptimisticAction<{
 		route: BridgeRoute
-		connectedDetail: ProviderDetailType
+		providerDetail: typeof providerDetail
 		walletAddress: `0x${string}`
 		fromChainId: number
 		toChainId: number
@@ -50,10 +57,10 @@
 	}>({
 		// No optimistic insert - we don't have the tx hash yet
 		onMutate: () => {},
-		mutationFn: async ({ route, connectedDetail, walletAddress, fromChainId, toChainId, amount, onStatus }) => {
+		mutationFn: async ({ route, providerDetail, walletAddress, fromChainId, toChainId, amount, onStatus }) => {
 			let txId: Transaction$id | null = null
 
-			const result = await executeSelectedRoute(connectedDetail, route, (s) => {
+			const result = await executeSelectedRoute(providerDetail, route, (s) => {
 				onStatus(s)
 
 				// Insert transaction when we get the first tx hash
@@ -99,7 +106,7 @@
 
 		actionTx = executeBridge({
 			route,
-			connectedDetail,
+			providerDetail,
 			walletAddress,
 			fromChainId,
 			toChainId,
@@ -108,7 +115,7 @@
 		})
 
 		try {
-			await actionTx.isPersisted.promise
+			await actionTx!.isPersisted.promise
 			toasts.dismiss(loadingId)
 			if (status.overall === 'completed') {
 				toasts.success('Bridge complete!', { title: 'Success' })

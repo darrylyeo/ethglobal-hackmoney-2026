@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { WalletState } from '$/lib/wallet'
+	import type { WalletRow } from '$/collections/wallets'
+	import type { WalletConnectionRow } from '$/collections/wallet-connections'
 	import type { BridgeRoute } from '$/collections/bridge-routes'
 	import { ChainId, NetworkType, networks, networksByChainId } from '$/constants/networks'
 	import { SLIPPAGE_PRESETS, formatSlippagePercent, parseSlippagePercent, calculateMinOutput } from '$/constants/slippage'
@@ -33,7 +34,19 @@
 	import BridgeExecution from './BridgeExecution.svelte'
 
 	// Props
-	let { wallet }: { wallet: WalletState } = $props()
+	type ConnectedWallet = { wallet: WalletRow; connection: WalletConnectionRow }
+	let {
+		selectedWallets,
+		selectedActor,
+		selectedChainId,
+	}: {
+		selectedWallets: ConnectedWallet[],
+		selectedActor: `0x${string}` | null,
+		selectedChainId: number | null,
+	} = $props()
+
+	// (Derived)
+	const selectedWallet = $derived(selectedWallets.find((w) => w.connection.selected) ?? null)
 
 	// Queries (reactive)
 	const routesQuery = useLiveQuery((q) => q.from({ row: bridgeRoutesCollection }).select(({ row }) => ({ row })))
@@ -79,7 +92,7 @@
 
 	// Placeholder address for quotes when wallet not connected (vitalik.eth)
 	const PLACEHOLDER_ADDRESS: `0x${string}` = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
-	const quoteAddress = $derived(wallet.address ?? PLACEHOLDER_ADDRESS)
+	const quoteAddress = $derived(selectedActor ?? PLACEHOLDER_ADDRESS)
 
 	// Quote params (use placeholder when disconnected)
 	const quoteParams = $derived<BridgeRoutes$id | null>(
@@ -119,14 +132,14 @@
 
 	// Balances (reactive from query)
 	const balances = $derived(
-		wallet.address
+		selectedActor
 			? (balancesQuery.data ?? [])
 				.map((r) => r.row)
-				.filter((b) => b.$id.address.toLowerCase() === wallet.address!.toLowerCase())
+				.filter((b) => b.$id.address.toLowerCase() === selectedActor!.toLowerCase())
 			: []
 	)
 	const sourceBalance = $derived(
-		fromNetwork && wallet.address
+		fromNetwork && selectedActor
 			? balances.find((b) => b.$id.chainId === fromNetwork.id && b.$id.tokenAddress.toLowerCase() === getUsdcAddress(fromNetwork.id).toLowerCase())?.balance ?? null
 			: null
 	)
@@ -162,10 +175,10 @@
 
 	// Derive approval state from allowances collection
 	const currentAllowance = $derived(
-		wallet.address && fromNetwork && approvalAddress
+		selectedActor && fromNetwork && approvalAddress
 			? (allowancesQuery.data?.find((r) => (
 				r.row.$id.chainId === fromNetwork.id &&
-				r.row.$id.address.toLowerCase() === wallet.address!.toLowerCase() &&
+				r.row.$id.address.toLowerCase() === selectedActor!.toLowerCase() &&
 				r.row.$id.tokenAddress.toLowerCase() === getUsdcAddress(fromNetwork.id).toLowerCase() &&
 				r.row.$id.spenderAddress.toLowerCase() === approvalAddress.toLowerCase()
 			))?.row.allowance ?? 0n)
@@ -174,14 +187,14 @@
 	const approved = $derived(currentAllowance >= settings.amount)
 
 	const canSend = $derived(!needsApproval || approved)
-	const needsChainSwitch = $derived(Boolean(wallet.connectedDetail && wallet.chainId !== null && fromNetwork && wallet.chainId !== fromNetwork.id))
+	const needsChainSwitch = $derived(Boolean(selectedWallet && selectedChainId !== null && fromNetwork && selectedChainId !== fromNetwork.id))
 
-	const recipient = $derived<`0x${string}`>(settings.useCustomRecipient && isValidAddress(settings.customRecipient) ? normalizeAddress(settings.customRecipient)! : wallet.address ?? '0x0000000000000000000000000000000000000000')
+	const recipient = $derived<`0x${string}`>(settings.useCustomRecipient && isValidAddress(settings.customRecipient) ? normalizeAddress(settings.customRecipient)! : selectedActor ?? '0x0000000000000000000000000000000000000000')
 	const output = $derived(selectedRoute?.toAmount ?? 0n)
 	const minOutput = $derived(calculateMinOutput(output, settings.slippage))
 	const fees = $derived(selectedRoute ? extractFeeBreakdown({ steps: selectedRoute.originalRoute.steps, fromAmountUSD: selectedRoute.originalRoute.fromAmountUSD }) : null)
 
-	const transactions = $derived((txQuery.data ?? []).map((r) => r.row).filter((tx) => tx.$id.address.toLowerCase() === wallet.address?.toLowerCase()))
+	const transactions = $derived((txQuery.data ?? []).map((r) => r.row).filter((tx) => tx.$id.address.toLowerCase() === selectedActor?.toLowerCase()))
 
 	// Handlers
 	const onAmountInput = (e: Event) => {
@@ -195,7 +208,9 @@
 </script>
 
 
-<div data-bridge-layout>
+<div
+	data-bridge-layout
+>
 	<!-- Left column: Form -->
 	<section data-card data-column="gap-4">
 		<h2>Bridge USDC</h2>
@@ -244,18 +259,18 @@
 			{#if settings.useCustomRecipient}
 				<input type="text" placeholder="0x..." value={settings.customRecipient} oninput={(e) => { bridgeSettingsState.current = { ...settings, customRecipient: (e.target as HTMLInputElement).value } }} />
 				{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}<small data-error>Invalid address</small>{/if}
-			{:else if wallet.address}
-				<small data-muted>To: {formatAddress(wallet.address)}</small>
+			{:else if selectedActor}
+				<small data-muted>To: {formatAddress(selectedActor)}</small>
 			{:else}
 				<small data-muted>To: Connect wallet</small>
 			{/if}
 		</div>
 
 		<!-- Chain switch prompt -->
-		{#if needsChainSwitch && fromNetwork}
+		{#if needsChainSwitch && fromNetwork && selectedWallet}
 			<div data-card="secondary" data-row="gap-2 align-center">
 				<span>Switch to {fromNetwork.name}</span>
-				<Button.Root onclick={() => wallet.connectedDetail && switchWalletChain(wallet.connectedDetail.provider, fromNetwork.id)}>Switch</Button.Root>
+				<Button.Root onclick={() => selectedWallet && switchWalletChain(selectedWallet.wallet.provider, fromNetwork.id)}>Switch</Button.Root>
 			</div>
 		{/if}
 
@@ -275,7 +290,7 @@
 			<section data-card data-column="gap-3">
 				<div data-row="gap-2 align-center justify-between">
 					<h3>Routes {routesRow?.isLoading ? '(loading…)' : `(${sortedRoutes.length})`}</h3>
-					<Select.Root type="single" value={settings.sortBy} onValueChange={(v) => { if (v) bridgeSettingsState.current = { ...settings, sortBy: v as Settings['sortBy'] } }} items={[{ value: 'recommended', label: 'Recommended' }, { value: 'output', label: 'Best output' }, { value: 'fees', label: 'Lowest fees' }, { value: 'speed', label: 'Fastest' }]}>
+					<Select.Root type="single" value={settings.sortBy} onValueChange={(v) => { if (v) bridgeSettingsState.current = { ...settings, sortBy: v as BridgeSettings['sortBy'] } }} items={[{ value: 'recommended', label: 'Recommended' }, { value: 'output', label: 'Best output' }, { value: 'fees', label: 'Lowest fees' }, { value: 'speed', label: 'Fastest' }]}>
 						<Select.Trigger>Sort: {settings.sortBy}</Select.Trigger>
 						<Select.Portal><Select.Content><Select.Viewport>
 							{#each [['recommended', 'Recommended'], ['output', 'Best output'], ['fees', 'Lowest fees'], ['speed', 'Fastest']] as [v, label]}<Select.Item value={v} {label}>{label}</Select.Item>{/each}
@@ -345,33 +360,33 @@
 				</dl>
 
 				<!-- Approval -->
-				{#if needsApproval && !approved && wallet.connectedDetail && wallet.address}
+				{#if needsApproval && !approved && selectedWallet && selectedActor}
 					<TokenApproval
 						chainId={fromNetwork.id}
 						tokenAddress={getUsdcAddress(fromNetwork.id)}
 						spenderAddress={approvalAddress!}
 						amount={settings.amount}
-						provider={wallet.connectedDetail.provider}
-						ownerAddress={wallet.address}
+						provider={selectedWallet.wallet.provider}
+						ownerAddress={selectedActor}
 					/>
 				{/if}
 
 				<!-- Send button -->
-				{#if wallet.connectedDetail && canSend}
+				{#if selectedWallet && canSend}
 					<Button.Root disabled={quoteExpired || executing || needsChainSwitch || !canSendAmount} onclick={() => { showConfirmation = true; confirmed = false }}>
 						{executing ? 'Bridging…' : 'Send'}
 					</Button.Root>
 					<BridgeExecution
 						bind:this={executionRef}
 						route={selectedRoute}
-						connectedDetail={wallet.connectedDetail}
-						walletAddress={wallet.address!}
+						walletRow={selectedWallet.wallet}
+						walletAddress={selectedActor!}
 						fromChainId={fromNetwork.id}
 						toChainId={toNetwork.id}
 						amount={settings.amount}
 						bind:executing
 					/>
-				{:else if !wallet.connectedDetail}
+				{:else if !selectedWallet}
 					<p data-muted>Connect wallet to send</p>
 				{/if}
 			</section>

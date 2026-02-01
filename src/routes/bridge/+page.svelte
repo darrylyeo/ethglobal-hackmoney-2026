@@ -1,7 +1,6 @@
 <script lang="ts">
 	// Components
-	import WalletProvider from './WalletProvider.svelte'
-	import Balances from './Balances.svelte'
+	import WalletsProvider from './WalletsProvider.svelte'
 	import BridgeFlow from './BridgeFlow.svelte'
 </script>
 
@@ -11,12 +10,11 @@
 </svelte:head>
 
 
-<WalletProvider>
-	{#snippet children(wallet)}
+<WalletsProvider>
+	{#snippet children({ connectedWallets, selectedActor, selectedChainId })}
 		<div data-column="gap-6">
 			<h1>USDC Bridge</h1>
-			<Balances {wallet} />
-			<BridgeFlow {wallet} />
+			<BridgeFlow selectedWallets={connectedWallets} {selectedActor} {selectedChainId} />
 		</div>
 	{/snippet}
-</WalletProvider>
+</WalletsProvider>

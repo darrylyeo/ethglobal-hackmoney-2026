@@ -1,84 +1,125 @@
-// Types
-import type { ProviderDetailType, WalletState } from '$/lib/wallet'
+/**
+ * Wallet subscriptions context.
+ * Runs once at app root to:
+ * 1. Subscribe to EIP-6963 → populate walletsCollection + auto-reconnect persisted connections
+ * 2. Subscribe to chain/account changes → update walletConnectionsCollection
+ *
+ * Components query collections directly for data.
+ */
 
 // Context
 import { useContext } from '$/svelte/useContext'
+import { useLiveQuery } from '@tanstack/svelte-db'
 
-// State
-import { bridgeSettingsState } from '$/state/bridge-settings.svelte'
+// Collections
+import { walletsCollection, upsertWallet } from '$/collections/wallets'
+import { walletConnectionsCollection, updateWalletChain, updateConnectionActors, reconnectWallet } from '$/collections/wallet-connections'
 
 // Functions
-import {
-	connectProvider,
-	subscribeProviders,
-	createWalletState,
-	getWalletChainId,
-	subscribeChainChanged,
-} from '$/lib/wallet'
+import { subscribeProviders, getWalletChainId, subscribeChainChanged, subscribeAccountsChanged } from '$/lib/wallet'
 
 export const WALLET_CONTEXT_KEY = 'wallet'
 
 const createWalletContext = () => {
-	let state = $state(createWalletState())
+	// Queries for subscription effects
+	const walletsQuery = useLiveQuery((q) => q.from({ row: walletsCollection }).select(({ row }) => ({ row })))
+	const connectionsQuery = useLiveQuery((q) => q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })))
 
-	$effect(() => {
-		state.isTestnet = bridgeSettingsState.current.isTestnet
-	})
+	// Track which wallets we've attempted to reconnect
+	const reconnectAttempted = new Set<string>()
 
+	// Subscribe to EIP-6963 provider announcements → populate walletsCollection + auto-reconnect
 	$effect(() => {
 		if (typeof window === 'undefined') return
 		return subscribeProviders((providers) => {
-			state.providers = providers
+			const providerRdnsSet = new Set(
+				providers
+					.filter((p) => typeof p?.info?.rdns === 'string' && p.info.rdns.length > 0 && p.provider)
+					.map((p) => p.info.rdns),
+			)
+			for (const p of providers) {
+				const rdns = p.info?.rdns
+				if (typeof rdns !== 'string' || rdns.length === 0 || !p.provider) continue
+				if (import.meta.env?.DEV) {
+					console.debug('[EIP-6963] upsertWallet', rdns, p.info.name)
+				}
+				upsertWallet({
+					$id: { rdns },
+					name: p.info.name ?? '',
+					icon: p.info.icon ?? '',
+					rdns: p.info.rdns ?? '',
+					provider: p.provider,
+				})
+			}
+			const connections = (connectionsQuery.data ?? []).filter((c) => c?.row?.$id?.wallet$id?.rdns)
+			for (const { row } of connections) {
+				const rdns = row.$id.wallet$id.rdns
+				if (!providerRdnsSet.has(rdns) || reconnectAttempted.has(rdns)) continue
+				reconnectAttempted.add(rdns)
+				reconnectWallet({ rdns })
+			}
 		})
 	})
 
+	// Subscribe to chain and account changes for all connected wallets
+	const cleanups = new Map<string, () => void>()
 	$effect(() => {
-		if (!state.connectedDetail) {
-			state.chainId = null
-			return
+		const connections = (connectionsQuery.data ?? []).filter((c) => c?.row?.$id?.wallet$id?.rdns)
+		const walletRows = (walletsQuery.data ?? []).filter((w) => w?.row?.$id?.rdns)
+
+		const connectedRdns = new Set(
+			connections
+				.filter((c) => c.row.status === 'connected')
+				.map((c) => c.row.$id.wallet$id.rdns)
+		)
+
+		// Clean up subscriptions for disconnected wallets
+		for (const [rdns, cleanup] of cleanups) {
+			if (!connectedRdns.has(rdns)) {
+				cleanup()
+				cleanups.delete(rdns)
+			}
 		}
-		getWalletChainId(state.connectedDetail.provider).then((id) => {
-			state.chainId = id
-		})
-		return subscribeChainChanged(state.connectedDetail.provider, (id) => {
-			state.chainId = id
-		})
+
+		// Set up subscriptions for new connections
+		for (const conn of connections) {
+			if (conn.row.status !== 'connected') continue
+			const rdns = conn.row.$id.wallet$id.rdns
+			if (cleanups.has(rdns)) continue
+
+			const walletRow = walletRows.find((w) => w.row.$id.rdns === rdns)
+			if (!walletRow) continue
+
+			// Get initial chain
+			getWalletChainId(walletRow.row.provider).then((chainId) => {
+				if (chainId !== conn.row.chainId) {
+					updateWalletChain({ rdns }, chainId)
+				}
+			})
+
+			// Subscribe to chain changes
+			const chainCleanup = subscribeChainChanged(walletRow.row.provider, (chainId) => {
+				updateWalletChain({ rdns }, chainId)
+			})
+
+			// Subscribe to account changes
+			const accountsCleanup = subscribeAccountsChanged(walletRow.row.provider, (actors) => {
+				updateConnectionActors({ rdns }, actors)
+			})
+
+			cleanups.set(rdns, () => {
+				chainCleanup()
+				accountsCleanup()
+			})
+		}
+
+		return () => {
+			for (const cleanup of cleanups.values()) cleanup()
+			cleanups.clear()
+		}
 	})
-
-	const connect = async (detail: ProviderDetailType) => {
-		state.error = null
-		state.isConnecting = true
-		try {
-			state.address = await connectProvider(detail)
-			state.connectedDetail = detail
-		} catch (e) {
-			state.error = e instanceof Error ? e.message : String(e)
-		} finally {
-			state.isConnecting = false
-		}
-	}
-
-	const disconnect = () => {
-		state.connectedDetail = null
-		state.address = null
-		state.chainId = null
-		state.error = null
-	}
-
-	const toggleTestnet = (checked: boolean) => {
-		bridgeSettingsState.current = { ...bridgeSettingsState.current, isTestnet: checked }
-	}
-
-	return {
-		get state() {
-			return state
-		},
-		connect,
-		disconnect,
-		toggleTestnet,
-	}
 }
 
-export const useWalletState = () => (
+export const useWalletSubscriptions = () => (
 	useContext(WALLET_CONTEXT_KEY, createWalletContext)
 )
