@@ -39,8 +39,10 @@
 
 {:else if format === TruncatedValueFormat.Visual}
 	<span
-		data-truncatedValueFormat={TruncatedValueFormat.Visual}
+		role="button"
 		tabindex="0"
+		aria-label={value}
+		data-truncatedValueFormat={TruncatedValueFormat.Visual}
 	>
 		{#if value}
 			{@const start = value.slice(0, startLength)}
@@ -53,8 +55,10 @@
 
 {:else if format === TruncatedValueFormat.VisualCharacters}
 	<span
-		data-truncatedValueFormat={TruncatedValueFormat.VisualCharacters}
+		role="button"
 		tabindex="0"
+		aria-label={value}
+		data-truncatedValueFormat={TruncatedValueFormat.VisualCharacters}
 	>{#if startLength}<span>{value.slice(0, startLength)}</span>{/if}<span class="middle" style:--l={value.length - startLength - endLength}>{#each value.slice(startLength, -endLength || undefined) as char, i}<span style:--i={i}>{char}</span>{/each}</span>{#if endLength}<span>{value.slice(-endLength)}</span>{/if}</span>
 {/if}
 
