@@ -73,6 +73,11 @@
 				href: '/transfers',
 			},
 			{
+				id: 'rooms',
+				title: 'Rooms',
+				href: '/rooms',
+			},
+			{
 				id: 'tests',
 				title: 'Tests',
 				children: [
