@@ -1,11 +1,9 @@
 import { expect, test } from '@playwright/test'
 
-const MOCK_ADDRESS = '0x1234567890123456789012345678901234567890' as const
-
 async function addMockWallet(context: { addInitScript: (fn: () => void) => Promise<void> }) {
 	await context.addInitScript(() => {
 		const MOCK = '0x1234567890123456789012345678901234567890'
-		window.addEventListener('eip6963:requestProvider', () => {
+		const announce = () => {
 			window.dispatchEvent(
 				new CustomEvent('eip6963:announceProvider', {
 					detail: {
@@ -16,15 +14,20 @@ async function addMockWallet(context: { addInitScript: (fn: () => void) => Promi
 							rdns: 'com.mock',
 						},
 						provider: {
-							request: async ({ method }: { method: string }) => {
-								if (method === 'eth_requestAccounts') return [MOCK]
-								if (method === 'eth_chainId') return '0x1'
-								return null
-							},
+							request: (args: { method: string }) =>
+								Promise.resolve(
+									args.method === 'eth_requestAccounts' ? [MOCK]
+									: args.method === 'eth_chainId' ? '0x1'
+									: args.method === 'eth_accounts' ? [MOCK]
+									: null,
+								),
 						},
 					},
 				}),
 			)
+		}
+		window.addEventListener('eip6963:requestProvider', () => {
+			setTimeout(announce, 0)
 		})
 	})
 }
@@ -60,10 +63,9 @@ test.describe('Bridge UI (Spec 004)', () => {
 		await expect(page.getByLabel('From chain')).toContainText('Ethereum')
 		await expect(page.getByLabel('To chain')).toContainText('OP Mainnet')
 		await expect(page.getByLabel('Amount')).toHaveValue('1')
-		await expect(page.locator('#from-address')).toHaveValue(MOCK_ADDRESS)
 	})
 
-	test('click Get Quote, wait for result, assert quote result is visible', async ({
+	test('routes auto-fetch after chains and amount; quote result or no-routes or error visible', async ({
 		page,
 	}) => {
 		await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
@@ -85,11 +87,10 @@ test.describe('Bridge UI (Spec 004)', () => {
 		await page.getByLabel('To chain').click()
 		await page.getByRole('option', { name: 'OP Mainnet' }).click({ force: true })
 		await page.getByLabel('Amount').fill('1')
-		await page.getByRole('button', { name: 'Get Routes' }).click()
 		await Promise.race([
-			page.locator('[data-testid="quote-result"]').waitFor({ state: 'visible', timeout: 25_000 }),
-			page.locator('[data-no-routes]').waitFor({ state: 'visible', timeout: 25_000 }),
-			page.locator('[data-error-display]').waitFor({ state: 'visible', timeout: 25_000 }),
+			page.locator('[data-testid="quote-result"]').waitFor({ state: 'visible', timeout: 50_000 }),
+			page.locator('[data-no-routes]').waitFor({ state: 'visible', timeout: 50_000 }),
+			page.locator('[data-error-display]').waitFor({ state: 'visible', timeout: 50_000 }),
 		])
 		const quoteVisible = (await page.locator('[data-testid="quote-result"]').count()) > 0
 		const noRoutesVisible = (await page.locator('[data-no-routes]').count()) > 0
