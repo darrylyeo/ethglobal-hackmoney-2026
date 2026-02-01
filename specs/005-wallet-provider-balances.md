@@ -22,24 +22,17 @@ querying for connected accounts.
 
 ## Implementation
 
-### WalletProvider (`src/routes/bridge/WalletProvider.svelte`)
+### Wallet management (`src/routes/bridge/Wallets.svelte`)
 
-Context component with:
+Wallet management using TanStack DB collections:
 
-- `Switch.Root` for testnet/mainnet toggle
-- `Popover.Root` for wallet selection dropdown
-- Children snippet: `{#snippet children(wallet: WalletState)}`
+- `walletsCollection` – discovered EIP-6963 wallets
+- `walletConnectionsCollection` – connection state per wallet
+- Multi-wallet support with selection
 
-```typescript
-type WalletState = {
-  providers: ProviderDetailType[];
-  connectedDetail: ProviderDetailType | null;
-  address: `0x${string}` | null;
-  isTestnet: boolean;
-  isConnecting: boolean;
-  error: string | null;
-};
-```
+### Bridge settings (`src/state/bridge-settings.svelte.ts`)
+
+Persisted settings including testnet/mainnet toggle managed via `bridgeSettingsState`.
 
 ### Collections
 
@@ -78,15 +71,14 @@ type ActorCoin = {
 
 ## Acceptance criteria
 
-### WalletProvider component
+### Wallet components
 
-- [x] `WalletProvider.svelte` exists in `src/routes/bridge/`
-- [x] Uses Bits UI `Switch` for network toggle (testnet/mainnet)
-- [x] Uses Bits UI `Popover` for wallet selection
-- [x] Children snippet receives `WalletState` object
-- [x] Toggle updates `isTestnet` in state
+- [x] `Wallets.svelte` exists in `src/routes/bridge/`
+- [x] Uses TanStack DB collections for wallet and connection state
+- [x] Multi-wallet support with selection
+- [x] Testnet/mainnet toggle via `bridgeSettingsState`
 - [x] Connect button shows discovered EIP-6963 wallets
-- [x] Connected state shows address and disconnect button
+- [x] Connected state shows address and disconnect option
 
 ### Collections
 
@@ -97,7 +89,8 @@ type ActorCoin = {
 
 ### Bridge page integration
 
-- [x] Bridge page uses `WalletProvider` wrapper
+- [x] Bridge page uses `Wallets.svelte` for wallet management
+- [x] `Balances.svelte` displays USDC balances per chain
 - [x] Balances fetched automatically when wallet connects
 - [x] Balances displayed in grid with chain name and amount
 - [x] Loading states shown while fetching
@@ -105,11 +98,11 @@ type ActorCoin = {
 
 ### E2E tests
 
-- [ ] Test: Network toggle switches between Mainnet/Testnet label
-- [ ] Test: Connect wallet button opens popover
-- [ ] Test: After connection, address displays in header (manual / skipped in CI)
-- [ ] Test: Disconnect button clears connection (manual / skipped in CI)
-- [ ] Test: Balances section appears after connection (manual / skipped in CI)
+- [x] Test: Network toggle switches between Mainnet/Testnet label
+- [x] Test: Connect wallet button opens popover
+- [x] Test: After connection, address displays in header (manual / skipped in CI)
+- [x] Test: Disconnect button clears connection (manual / skipped in CI)
+- [x] Test: Balances section appears after connection (manual / skipped in CI)
 
 ## Testing approach
 
@@ -171,7 +164,11 @@ test("balances display after wallet connection", async ({ page }) => {
 
 ## Status
 
-Complete. Implementation complete, E2E tests pending.
+Complete. `Wallets.svelte` with TanStack DB collections (`walletsCollection`,
+`walletConnectionsCollection`). `actorsCollection` and `actorCoinsCollection`
+for balances. `bridgeSettingsState` for testnet/mainnet toggle. E2E tests in
+`e2e/wallet.test.ts`: network toggle and connect-popover automated; address,
+disconnect, and balances tests skipped in CI (manual verification).
 
 ## Output when complete
 

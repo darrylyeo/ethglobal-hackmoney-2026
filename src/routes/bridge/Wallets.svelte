@@ -5,6 +5,7 @@
 
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { liveQueryAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte'
 
 	import {
@@ -26,6 +27,14 @@
 	const connectionsQuery = useLiveQuery((q) =>
 		q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row }))
 	)
+
+	/* infinite loop
+	const walletsLiveQueryEntries = $derived([
+		{ id: 'wallets', label: 'Wallets', query: walletsQuery },
+		{ id: 'wallet-connections', label: 'Connections', query: connectionsQuery },
+	])
+	const walletsLiveQuery = liveQueryAttachmentFrom(() => walletsLiveQueryEntries)
+	*/
 
 	const settings = $derived(
 		bridgeSettingsState.current ?? defaultBridgeSettings
@@ -131,14 +140,16 @@
 
 
 <label data-row="gap-2" role="group" aria-label="Network type">
-	<Switch.Root
+		<Switch.Root
 		checked={settings.isTestnet}
 		onCheckedChange={(c) => toggleTestnet(c ?? false)}
 		aria-label="Mainnets / Testnets"
+		data-wallet-network-testnet={!settings.isTestnet}
+		data-wallet-network-mainnet={settings.isTestnet}
 	>
 		<Switch.Thumb />
 	</Switch.Root>
-	<span>{settings.isTestnet ? 'Testnet' : 'Mainnet'}</span>
+	<span data-wallet-network-label>{settings.isTestnet ? 'Testnet' : 'Mainnet'}</span>
 </label>
 
 <div data-row>
@@ -166,16 +177,18 @@
 							/>
 						{/if}
 						{#if connection.activeActor}
-							<Address
-								network={selectedChainIdDerived ?? 1}
-								address={connection.activeActor}
-								linked={false}
-							/>
+							<span data-wallet-address>
+								<Address
+									network={selectedChainIdDerived ?? 1}
+									address={connection.activeActor}
+									linked={false}
+								/>
+							</span>
 						{:else}
 							—
 						{/if}
 						<DropdownMenu.Root>
-							<DropdownMenu.Trigger onclick={(e: MouseEvent) => e.stopPropagation()}>
+							<DropdownMenu.Trigger data-wallet-menu-trigger onclick={(e: MouseEvent) => e.stopPropagation()}>
 								<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
 									<circle cx="6" cy="2" r="1.5" />
 									<circle cx="6" cy="6" r="1.5" />
@@ -209,7 +222,7 @@
 										</DropdownMenu.Sub>
 										<DropdownMenu.Separator />
 									{/if}
-									<DropdownMenu.Item onclick={() => disconnectWallet(wallet.$id)}>
+									<DropdownMenu.Item data-wallet-disconnect onclick={() => disconnectWallet(wallet.$id)}>
 										Disconnect
 									</DropdownMenu.Item>
 								</DropdownMenu.Content>
@@ -267,33 +280,35 @@
 		</ToggleGroup.Root>
 	{/if}
 
-	{#if availableWallets.length > 0}
+	{#if availableWallets.length > 0 || wallets.length === 0}
 		<DropdownMenu.Root>
-			<DropdownMenu.Trigger>
+			<DropdownMenu.Trigger data-wallet-connect-trigger>
 				Connect Wallet
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Portal>
-				<DropdownMenu.Content>
-					{#each availableWallets as w (w.$id.rdns)}
-						<DropdownMenu.Item onclick={() => connect(w.$id.rdns)}>
-							{#if w.icon}
-								<img
-									src={w.icon}
-									alt=""
-									width="20"
-									height="20"
-									loading="lazy"
-									decoding="async"
-								/>
-							{/if}
-							<span>{w.name}</span>
-						</DropdownMenu.Item>
-					{/each}
+				<DropdownMenu.Content data-wallet-popover>
+					{#if availableWallets.length > 0}
+						{#each availableWallets as w (w.$id.rdns)}
+							<DropdownMenu.Item data-wallet-provider-option onclick={() => connect(w.$id.rdns)}>
+								{#if w.icon}
+									<img
+										src={w.icon}
+										alt=""
+										width="20"
+										height="20"
+										loading="lazy"
+										decoding="async"
+									/>
+								{/if}
+								<span>{w.name}</span>
+							</DropdownMenu.Item>
+						{/each}
+					{:else}
+						<span data-wallet-empty>No wallets found</span>
+					{/if}
 				</DropdownMenu.Content>
 			</DropdownMenu.Portal>
 		</DropdownMenu.Root>
-	{:else if wallets.length === 0}
-		<span>No wallets detected</span>
 	{/if}
 </div>
 
