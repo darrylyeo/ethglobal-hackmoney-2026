@@ -91,11 +91,11 @@
 				}
 
 				return { txId, destHash }
-			} catch {
+			} catch (err) {
 				if (txId) {
 					updateTransaction(txId, { status: 'failed' })
 				}
-				throw
+				throw err
 			}
 		},
 	})
