@@ -127,7 +127,7 @@
 		>
 	</div>
 {:else if hasSufficientAllowance}
-	<p data-success>✓ Approved</p>
+	<p class="approval-success">✓ Approved</p>
 {:else}
 	<div data-column="gap-2">
 		<label data-row="gap-2 align-center" data-muted>
@@ -141,7 +141,7 @@
 {/if}
 
 <style>
-	[data-success] {
+	.approval-success {
 		color: var(--color-success, #22c55e);
 	}
 </style>

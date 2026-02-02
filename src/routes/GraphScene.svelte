@@ -717,19 +717,22 @@
 </script>
 
 {#if visible && graphModel}
-	<aside data-graph-scene data-expanded={expanded}>
+	<aside
+		class="graph-scene"
+		data-expanded={expanded}
+	>
 		<header class="graph-scene-header">
 			<button
+				class="graph-scene-collapse"
 				type="button"
 				onclick={() => {
 					expanded = !expanded
 				}}
-				data-collapse
 			>
 				{expanded ? '▼' : '▲'}
 			</button>
 			<h4>Data Graph</h4>
-			<div data-framework>
+			<div class="graph-scene-framework">
 				<button
 					type="button"
 					data-active={graphFramework === 'sigma'}
@@ -751,16 +754,18 @@
 					G6
 				</button>
 			</div>
-			<div data-stats>
+			<div class="graph-scene-stats">
 				{graphModel.graph.order} nodes · {graphModel.graph.size} edges
 				{#if highlightedSet.size > 0}
-					<span data-highlight>· {highlightedNodes.length} active</span>
+					<span class="graph-scene-highlight">
+						· {highlightedNodes.length} active
+					</span>
 				{/if}
 			</div>
 		</header>
 
 		{#if expanded}
-			<div data-graph-container>
+			<div class="graph-scene-container">
 				{#if graphFramework === 'g6'}
 					<G6GraphView
 						model={graphModel}
@@ -805,14 +810,19 @@
 				{/if}
 
 				{#if hoveredNodeData}
-					<div data-hover-info>
-						<div data-hover-header>
-							<span data-dot style="background: {hoveredNodeData.color}"></span>
+					<div class="graph-scene-hover">
+						<div class="graph-scene-hover-header">
+							<span
+								class="graph-scene-dot"
+								style="background: {hoveredNodeData.color}"
+							></span>
 							<strong>{hoveredNodeData.label}</strong>
 						</div>
-						<small data-collection>{hoveredNodeData.collection}</small>
+						<small class="graph-scene-collection">
+							{hoveredNodeData.collection}
+						</small>
 						{#if hoveredNodeEntries.length > 0}
-							<dl data-details>
+							<dl class="graph-scene-details">
 								{#each hoveredNodeEntries as [key, value]}
 									{#if value !== undefined && value !== null && value !== ''}
 										<dt>{key}</dt>
@@ -824,11 +834,16 @@
 					</div>
 				{/if}
 
-				<div data-sr-only aria-live="polite">{selectionAnnouncement}</div>
+				<div
+					class="sr-only"
+					aria-live="polite"
+				>
+					{selectionAnnouncement}
+				</div>
 			</div>
 
 			<footer class="graph-scene-footer">
-				<div data-legend>
+				<div class="graph-scene-legend">
 					{#each Object.entries(collections) as [key, config]}
 						{@const entityType = key}
 						{@const count = counts[entityType]}
@@ -838,14 +853,16 @@
 							data-active={visibleCollections.has(entityType)}
 							onclick={() => toggleCollection(entityType)}
 						>
-							<span data-dot></span>
+							<span class="graph-scene-dot"></span>
 							{config.label}
-							{#if count > 0}<span data-count>{count}</span>{/if}
+							{#if count > 0}
+								<span class="graph-scene-count">{count}</span>
+							{/if}
 						</button>
 					{/each}
 				</div>
 				{#if selectionItems.length > 0}
-					<div data-selection>
+					<div class="graph-scene-selection">
 						<h5>Selection</h5>
 						<ul>
 							{#each selectionItems as item}
@@ -878,7 +895,7 @@
 {/if}
 
 <style>
-	[data-graph-scene] {
+	.graph-scene {
 		position: fixed;
 		bottom: 1rem;
 		right: 1rem;
@@ -891,14 +908,14 @@
 		flex-direction: column;
 		z-index: 50;
 		transition: height 0.2s ease;
-	}
 
-	[data-graph-scene][data-expanded='true'] {
-		height: 380px;
-	}
+		&[data-expanded='true'] {
+			height: 380px;
+		}
 
-	[data-graph-scene][data-expanded='false'] {
-		height: auto;
+		&[data-expanded='false'] {
+			height: auto;
+		}
 	}
 
 	.graph-scene-header {
@@ -911,7 +928,7 @@
 		border-radius: 0.75rem 0.75rem 0 0;
 	}
 
-	[data-collapse] {
+	.graph-scene-collapse {
 		background: none;
 		border: none;
 		cursor: pointer;
@@ -932,12 +949,12 @@
 		flex: 1;
 	}
 
-	[data-framework] {
+	.graph-scene-framework {
 		display: flex;
 		gap: 0.25rem;
 	}
 
-	[data-framework] button {
+	.graph-scene-framework button {
 		border: 1px solid var(--color-border, #e5e7eb);
 		border-radius: 0.5rem;
 		background: white;
@@ -959,26 +976,26 @@
 		}
 	}
 
-	[data-stats] {
+	.graph-scene-stats {
 		font-size: 0.6875rem;
 		opacity: 0.6;
 		display: flex;
 		gap: 0.25rem;
 	}
 
-	[data-highlight] {
+	.graph-scene-highlight {
 		color: #3b82f6;
 		font-weight: 500;
 	}
 
-	[data-graph-container] {
+	.graph-scene-container {
 		flex: 1;
 		min-height: 0;
 		position: relative;
 		background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
 	}
 
-	[data-hover-info] {
+	.graph-scene-hover {
 		position: absolute;
 		top: 0.5rem;
 		left: 0.5rem;
@@ -995,20 +1012,20 @@
 		border: 1px solid rgba(0, 0, 0, 0.06);
 	}
 
-	[data-hover-header] {
+	.graph-scene-hover-header {
 		display: flex;
 		align-items: center;
 		gap: 0.375rem;
 	}
 
-	[data-hover-header] [data-dot] {
+	.graph-scene-hover-header .graph-scene-dot {
 		width: 8px;
 		height: 8px;
 		border-radius: 50%;
 		flex-shrink: 0;
 	}
 
-	[data-hover-info] strong {
+	.graph-scene-hover strong {
 		font-size: 0.75rem;
 		font-weight: 600;
 		overflow: hidden;
@@ -1016,14 +1033,14 @@
 		white-space: nowrap;
 	}
 
-	[data-hover-info] [data-collection] {
+	.graph-scene-hover .graph-scene-collection {
 		font-size: 0.625rem;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		opacity: 0.5;
 	}
 
-	[data-details] {
+	.graph-scene-details {
 		display: grid;
 		grid-template-columns: auto 1fr;
 		gap: 0.125rem 0.5rem;
@@ -1033,12 +1050,12 @@
 		border-top: 1px solid rgba(0, 0, 0, 0.06);
 	}
 
-	[data-details] dt {
+	.graph-scene-details dt {
 		opacity: 0.5;
 		text-transform: capitalize;
 	}
 
-	[data-details] dd {
+	.graph-scene-details dd {
 		margin: 0;
 		font-family: ui-monospace, monospace;
 		overflow: hidden;
@@ -1053,13 +1070,13 @@
 		border-radius: 0 0 0.75rem 0.75rem;
 	}
 
-	[data-legend] {
+	.graph-scene-legend {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.375rem;
 	}
 
-	[data-legend] button {
+	.graph-scene-legend button {
 		display: flex;
 		align-items: center;
 		gap: 0.25rem;
@@ -1084,14 +1101,14 @@
 		}
 	}
 
-	[data-legend] [data-dot] {
+	.graph-scene-legend .graph-scene-dot {
 		width: 6px;
 		height: 6px;
 		border-radius: 50%;
 		background: var(--color);
 	}
 
-	[data-legend] [data-count] {
+	.graph-scene-legend .graph-scene-count {
 		font-size: 0.5625rem;
 		font-weight: 600;
 		background: color-mix(in srgb, var(--color) 15%, white);
@@ -1102,7 +1119,7 @@
 		text-align: center;
 	}
 
-	[data-selection] {
+	.graph-scene-selection {
 		margin-top: 0.5rem;
 		border-top: 1px solid var(--color-border, #e5e7eb);
 		padding-top: 0.5rem;
@@ -1111,7 +1128,7 @@
 		gap: 0.375rem;
 	}
 
-	[data-selection] h5 {
+	.graph-scene-selection h5 {
 		margin: 0;
 		font-size: 0.625rem;
 		text-transform: uppercase;
@@ -1119,7 +1136,7 @@
 		opacity: 0.6;
 	}
 
-	[data-selection] ul {
+	.graph-scene-selection ul {
 		list-style: none;
 		margin: 0;
 		padding: 0;
@@ -1128,7 +1145,7 @@
 		gap: 0.25rem;
 	}
 
-	[data-selection] button {
+	.graph-scene-selection button {
 		width: 100%;
 		display: flex;
 		justify-content: space-between;
@@ -1143,21 +1160,21 @@
 		text-align: left;
 	}
 
-	[data-selection] button strong {
+	.graph-scene-selection button strong {
 		font-weight: 600;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
 
-	[data-selection] button span {
+	.graph-scene-selection button span {
 		opacity: 0.5;
 		font-size: 0.5625rem;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 	}
 
-	[data-sr-only] {
+	.sr-only {
 		position: absolute;
 		width: 1px;
 		height: 1px;
@@ -1169,7 +1186,7 @@
 	}
 
 	@media (prefers-color-scheme: dark) {
-		[data-graph-container] {
+		.graph-scene-container {
 			background: linear-gradient(
 				145deg,
 				#1e293b 0%,
@@ -1178,16 +1195,16 @@
 			);
 		}
 
-		[data-hover-info] {
+		.graph-scene-hover {
 			background: rgba(30, 41, 59, 0.97);
 			border-color: rgba(255, 255, 255, 0.06);
 		}
 
-		[data-details] {
+		.graph-scene-details {
 			border-top-color: rgba(255, 255, 255, 0.06);
 		}
 
-		[data-legend] button {
+		.graph-scene-legend button {
 			background: #1e293b;
 
 			&[data-active='true'] {
@@ -1195,11 +1212,11 @@
 			}
 		}
 
-		[data-legend] [data-count] {
+		.graph-scene-legend .graph-scene-count {
 			background: color-mix(in srgb, var(--color) 20%, #1e293b);
 		}
 
-		[data-framework] button {
+		.graph-scene-framework button {
 			background: #0f172a;
 			border-color: rgba(148, 163, 184, 0.3);
 			color: #e2e8f0;
@@ -1211,7 +1228,7 @@
 			}
 		}
 
-		[data-selection] button {
+		.graph-scene-selection button {
 			background: #0f172a;
 			border-color: rgba(148, 163, 184, 0.3);
 			color: #e2e8f0;

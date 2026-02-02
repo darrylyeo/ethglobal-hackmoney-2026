@@ -88,15 +88,21 @@
 	import TransferDialog from './TransferDialog.svelte'
 </script>
 
-<section data-channel-list>
+<section class="channel-list">
 	<h3>Payment Channels</h3>
 
 	{#each roomChannels as channel (channel.id)}
 		{@const counterparty = getCounterparty(channel)}
 		{@const myBalance = getMyBalance(channel)}
-		<div data-channel data-status={channel.status}>
-			<Address network={channel.chainId} address={counterparty} />
-			<span data-balance>
+		<div
+			class="channel"
+			data-status={channel.status}
+		>
+			<Address
+				network={channel.chainId}
+				address={counterparty}
+			/>
+			<span class="channel-balance">
 				{formatSmallestToDecimal(myBalance, 6)} USDC
 			</span>
 			<span data-status>{channel.status}</span>
@@ -124,7 +130,12 @@
 	{/if}
 
 	{#if closeError}
-		<p data-error role="alert">{closeError}</p>
+		<p
+			class="channel-error"
+			role="alert"
+		>
+			{closeError}
+		</p>
 	{/if}
 </section>
 
@@ -133,19 +144,19 @@
 {/if}
 
 <style>
-	[data-channel-list] h3 {
+	.channel-list h3 {
 		margin-bottom: 0.5rem;
 	}
-	[data-channel] {
+	.channel {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 		flex-wrap: wrap;
 	}
-	[data-balance] {
+	.channel-balance {
 		font-variant-numeric: tabular-nums;
 	}
-	[data-error] {
+	.channel-error {
 		color: var(--color-error, red);
 	}
 </style>

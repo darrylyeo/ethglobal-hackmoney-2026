@@ -435,7 +435,7 @@
 		<h2>Intent slots</h2>
 		<div data-row="gap-3 wrap">
 			<div
-				data-intent-slot="from"
+				class="intent-slot"
 				ondrop={onDrop('from')}
 				ondragover={onDragOver}
 				role="button"
@@ -449,7 +449,7 @@
 				{/if}
 			</div>
 			<div
-				data-intent-slot="to"
+				class="intent-slot"
 				ondrop={onDrop('to')}
 				ondragover={onDragOver}
 				role="button"
@@ -614,7 +614,7 @@
 </main>
 
 <style>
-	[data-intent-slot] {
+	.intent-slot {
 		min-height: 140px;
 		padding: 1em;
 		border: 1px dashed var(--border-color, #64748b);

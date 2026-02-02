@@ -219,17 +219,23 @@
 
 <div data-column="gap-2">
 	<strong>Status</strong>
-	<ol data-status>
+	<ol class="cctp-status">
 		<li
-			data-status-step
+			class="cctp-status-step"
 			data-done={step !== 'idle' && step !== 'approving' && step !== 'burning'}
 		>
 			Burn on source chain {burnTxHash ? `(${burnTxHash.slice(0, 10)}…)` : ''}
 		</li>
-		<li data-status-step data-done={attestationPayload !== null}>
+		<li
+			class="cctp-status-step"
+			data-done={attestationPayload !== null}
+		>
 			Attestation {attestationPayload ? 'ready' : 'pending…'}
 		</li>
-		<li data-status-step data-done={mintTxHash !== null}>
+		<li
+			class="cctp-status-step"
+			data-done={mintTxHash !== null}
+		>
 			Mint on destination chain {mintTxHash
 				? `(${mintTxHash.slice(0, 10)}…)`
 				: ''}
@@ -241,16 +247,16 @@
 </div>
 
 <style>
-	[data-status] {
+	.cctp-status {
 		margin: 0;
 		padding-inline-start: 1.2em;
 	}
 
-	[data-status-step] {
+	.cctp-status-step {
 		opacity: 0.7;
-	}
 
-	[data-status-step][data-done] {
-		opacity: 1;
+		&[data-done] {
+			opacity: 1;
+		}
 	}
 </style>

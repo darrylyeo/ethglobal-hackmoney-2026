@@ -25,6 +25,15 @@ Ensure UI styling relies on shared primitives from
   `src/styles/components.css` before bespoke overrides.
 - [x] Component-specific overrides are defined on local classes (not bare
   element selectors) unless a primitive already covers the element.
+- [x] Local `<style>` blocks may target element selectors when nested under a
+  semantic parent class and no differentiation is needed.
+- [x] Component `<style>` selectors target classes; data-attribute selectors are
+  only used as nested `&[data-*]` variants on those classes for variable
+  overrides.
+- [x] Remove local `data-*` attributes once styles switch to classes (keep only
+  data attributes that provide primitive layout or variant state).
+- [x] When a Svelte element has multiple attributes, each attribute is placed on
+  its own line.
 - [x] Any data-attribute variants are implemented with nested `&[data-*]` rules
   in the class definition.
 - [x] No changes are made to `src/styles/components.css`.

@@ -80,7 +80,7 @@
 			Instant off-chain transfer to counterparty
 		</Dialog.Description>
 
-		<div data-balance>
+		<div class="transfer-balance">
 			Available: {formatSmallestToDecimal(myBalance, 6)} USDC
 		</div>
 
@@ -92,10 +92,15 @@
 		/>
 
 		{#if error}
-			<p data-error role="alert">{error}</p>
+			<p
+				class="transfer-error"
+				role="alert"
+			>
+				{error}
+			</p>
 		{/if}
 
-		<div data-actions>
+		<div class="transfer-actions">
 			<Button.Root
 				type="button"
 				onclick={() => {
@@ -114,15 +119,15 @@
 </Dialog.Root>
 
 <style>
-	[data-balance] {
+	.transfer-balance {
 		margin: 0.5rem 0;
 	}
-	[data-actions] {
+	.transfer-actions {
 		display: flex;
 		gap: 0.5rem;
 		margin-top: 1rem;
 	}
-	[data-error] {
+	.transfer-error {
 		color: var(--color-error, red);
 	}
 </style>

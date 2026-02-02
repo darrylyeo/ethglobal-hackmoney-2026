@@ -65,7 +65,7 @@
 	}
 </script>
 
-<section data-deposit-manager>
+<section class="deposit-manager">
 	<h3>Custody Balance</h3>
 
 	<dl>
@@ -108,13 +108,13 @@
 </section>
 
 <style>
-	[data-deposit-manager] h3 {
+	.deposit-manager h3 {
 		margin-bottom: 0.5rem;
 	}
-	[data-deposit-manager] dl {
+	.deposit-manager dl {
 		margin: 0.5rem 0;
 	}
-	[data-deposit-manager] form {
+	.deposit-manager form {
 		display: flex;
 		gap: 0.5rem;
 		margin: 0.5rem 0;

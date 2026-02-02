@@ -78,9 +78,9 @@
 
 <main id="main-content" data-column>
 	{#if transfersLoading && !transfersData}
-		<p data-transfers-loading>Loading transfers…</p>
+		<p class="transfers-loading">Loading transfers…</p>
 	{:else if failed}
-		<div data-transfers-error>
+		<div class="transfers-error">
 			<h2>Transfers unavailable</h2>
 			<p>{transfersError?.message ?? 'Unknown error'}</p>
 			<p>
@@ -93,7 +93,7 @@
 			<LiveTransfers {coin} {graph} period={periodValue} {periods} />
 
 			{#snippet Failed(error, retryFn)}
-				<div data-transfers-error>
+				<div class="transfers-error">
 					<h2>Transfers unavailable</h2>
 					<p>{(error as Error).message}</p>
 					<p>
@@ -107,19 +107,12 @@
 </main>
 
 <style>
-	[data-transfers-loading] {
+	.transfers-loading {
 		padding: 1rem;
 		opacity: 0.8;
 	}
 
-	[data-transfers-error] {
+	.transfers-error {
 		padding: 1rem;
-	}
-
-	[data-transfers-error] code {
-		font-family: var(--font-mono);
-		background: var(--color-bg-subtle);
-		padding: 0.125em 0.25em;
-		border-radius: 0.25em;
 	}
 </style>

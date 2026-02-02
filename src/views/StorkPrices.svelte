@@ -40,7 +40,10 @@
 	})
 </script>
 
-<section data-card="secondary" data-stork-prices>
+<section
+	class="stork-prices"
+	data-card="secondary"
+>
 	<header data-row="gap-2 align-center justify-between">
 		<h3>{title}</h3>
 		<span data-muted>{assetIds.length} feeds</span>
@@ -52,8 +55,11 @@
 		<ul data-column="gap-2">
 			{#each assetIds as assetId (assetId)}
 				{@const best = getBestStorkPrice(prices, assetId, chainId ?? null)}
-				<li data-row="gap-2 align-center justify-between" data-price-row>
-					<span data-asset-id>{assetId}</span>
+				<li
+					class="stork-price-row"
+					data-row="gap-2 align-center justify-between"
+				>
+					<span class="stork-asset-id">{assetId}</span>
 					{#if best}
 						<span data-tabular>
 							${formatSmallestToDecimal(best.price, 18, 6)}
@@ -73,27 +79,27 @@
 </section>
 
 <style>
-	[data-stork-prices] {
+	.stork-prices {
 		display: grid;
 		gap: 0.75rem;
+
+		h3 {
+			margin: 0;
+			font-size: 1em;
+		}
 	}
 
-	[data-stork-prices] h3 {
-		margin: 0;
-		font-size: 1em;
-	}
-
-	[data-price-row] {
+	.stork-price-row {
 		border-bottom: 1px solid var(--color-border);
 		padding-bottom: 0.5rem;
+
+		&:last-child {
+			border-bottom: none;
+			padding-bottom: 0;
+		}
 	}
 
-	[data-price-row]:last-child {
-		border-bottom: none;
-		padding-bottom: 0;
-	}
-
-	[data-asset-id] {
+	.stork-asset-id {
 		font-weight: 600;
 	}
 </style>

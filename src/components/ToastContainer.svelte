@@ -34,31 +34,31 @@
 		width: 100%;
 		padding: 1em;
 		pointer-events: none;
-	}
 
-	.toast-container > :global(*) {
-		pointer-events: auto;
-	}
+		> :global(*) {
+			pointer-events: auto;
+		}
 
-	.toast-container[data-position='top-right'] {
-		top: 0;
-		right: 0;
-	}
+		&[data-position='top-right'] {
+			top: 0;
+			right: 0;
+		}
 
-	.toast-container[data-position='top-left'] {
-		top: 0;
-		left: 0;
-	}
+		&[data-position='top-left'] {
+			top: 0;
+			left: 0;
+		}
 
-	.toast-container[data-position='bottom-right'] {
-		bottom: 0;
-		right: 0;
-		flex-direction: column-reverse;
-	}
+		&[data-position='bottom-right'] {
+			bottom: 0;
+			right: 0;
+			flex-direction: column-reverse;
+		}
 
-	.toast-container[data-position='bottom-left'] {
-		bottom: 0;
-		left: 0;
-		flex-direction: column-reverse;
+		&[data-position='bottom-left'] {
+			bottom: 0;
+			left: 0;
+			flex-direction: column-reverse;
+		}
 	}
 </style>

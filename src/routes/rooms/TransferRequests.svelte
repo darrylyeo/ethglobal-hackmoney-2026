@@ -134,10 +134,10 @@
 	import { Button } from 'bits-ui'
 </script>
 
-<section data-transfer-requests>
+<section class="transfer-requests">
 	<h3>Request Transfer</h3>
 
-	<div data-available-balance>
+	<div class="available-balance">
 		Available: {formatSmallestToDecimal(availableBalance, 6)} USDC
 	</div>
 
@@ -183,7 +183,7 @@
 	{#if incoming.length > 0}
 		<h4>Incoming Requests</h4>
 		{#each incoming as request (request.id)}
-			<div data-request>
+			<div class="transfer-request">
 				<Address network={1} address={request.from} />
 				<span>
 					requested {request.allocations[0]?.amount ?? '0'}
@@ -202,7 +202,7 @@
 	{#if outgoing.length > 0}
 		<h4>Outgoing Requests</h4>
 		{#each outgoing as request (request.id)}
-			<div data-request>
+			<div class="transfer-request">
 				<Address network={1} address={request.to} />
 				<span>
 					{request.allocations[0]?.amount ?? '0'}
@@ -222,32 +222,37 @@
 	{/if}
 
 	{#if sendError}
-		<p data-error role="alert">{sendError}</p>
+		<p
+			class="transfer-error"
+			role="alert"
+		>
+			{sendError}
+		</p>
 	{/if}
 </section>
 
 <style>
-	[data-transfer-requests] h3,
-	[data-transfer-requests] h4 {
+	.transfer-requests h3,
+	.transfer-requests h4 {
 		margin: 0.5rem 0;
 	}
-	[data-available-balance] {
+	.available-balance {
 		margin-bottom: 0.5rem;
 	}
-	[data-transfer-requests] form {
+	.transfer-requests form {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
 		max-width: 20rem;
 	}
-	[data-request] {
+	.transfer-request {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 		flex-wrap: wrap;
 		margin: 0.5rem 0;
 	}
-	[data-error] {
+	.transfer-error {
 		color: var(--color-error, red);
 	}
 </style>

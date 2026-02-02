@@ -64,7 +64,10 @@
 <section data-card data-column="gap-3">
 	<h3>Protocol Selection</h3>
 	<div data-column="gap-2">
-		<span data-badge data-protocol={activeProtocol ?? undefined}>
+		<span
+			class="protocol-badge"
+			data-protocol={activeProtocol ?? undefined}
+		>
 			{protocolLabel}
 		</span>
 		<small data-muted>{protocolReason}</small>
@@ -111,7 +114,7 @@
 
 	<div data-column="gap-2">
 		<strong>Summary</strong>
-		<dl data-summary>
+		<dl class="protocol-summary">
 			<dt>From</dt>
 			<dd>{fromNetwork?.name ?? '—'}</dd>
 			<dt>To</dt>
@@ -135,22 +138,22 @@
 </section>
 
 <style>
-	[data-summary] {
+	.protocol-summary {
 		display: grid;
 		grid-template-columns: auto 1fr;
 		gap: 0.25em 1em;
+
+		dt,
+		dd {
+			margin: 0;
+		}
+
+		dt {
+			opacity: 0.7;
+		}
 	}
 
-	[data-summary] dt,
-	[data-summary] dd {
-		margin: 0;
-	}
-
-	[data-summary] dt {
-		opacity: 0.7;
-	}
-
-	[data-badge] {
+	.protocol-badge {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -159,15 +162,15 @@
 		background: var(--color-bg-elevated, #f8fafc);
 		font-size: 0.8em;
 		font-weight: 600;
-	}
 
-	[data-badge][data-protocol='cctp'] {
-		background: #e0f2fe;
-		color: #0284c7;
-	}
+		&[data-protocol='cctp'] {
+			background: #e0f2fe;
+			color: #0284c7;
+		}
 
-	[data-badge][data-protocol='lifi'] {
-		background: #f3e8ff;
-		color: #7e22ce;
+		&[data-protocol='lifi'] {
+			background: #f3e8ff;
+			color: #7e22ce;
+		}
 	}
 </style>

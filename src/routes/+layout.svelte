@@ -31,7 +31,7 @@
 	import '$/styles/fonts.css'
 	import '$/styles/components.css'
 	import '$/styles/accessibility.css'
-	import '$/styles/responsive.css'
+	// import '$/styles/responsive.css'
 	import '$/styles/bits-ui.css'
 </script>
 
@@ -42,6 +42,7 @@
 
 <div
 	id="layout"
+	class="layout"
 	data-scroll-container
 	data-sticky-container
 >
@@ -137,12 +138,14 @@
 	<GraphScene visible={showGraph} />
 </div>
 
+
 <style>
 	.layout {
 		/* Constants */
 		--navigation-desktop-inlineSize: 20rem;
 		--navigation-mobile-blockSize: 4.16rem;
 
+		/* Rules */
 		width: 100dvw;
 		height: 100dvh;
 		padding:
@@ -214,10 +217,10 @@
 		align-items: center;
 		justify-content: center;
 		transition: all 0.2s ease;
-
-	.graph-toggle:hover {
+	&:hover {
 		transform: scale(1.1);
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 		background: var(--color-bg-elevated, #f8fafc);
+	}
 	}
 </style>

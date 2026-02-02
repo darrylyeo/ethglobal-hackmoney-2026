@@ -80,7 +80,7 @@
 	{:else if feeError}
 		<small data-error>{feeError}</small>
 	{:else if feeFastBps !== null || feeStandardBps !== null}
-		<dl data-summary>
+		<dl class="fee-summary">
 			<dt>Fast</dt>
 			<dd>{feeFastBps ?? '—'} bps</dd>
 			<dt>Standard</dt>
@@ -92,19 +92,19 @@
 </div>
 
 <style>
-	[data-summary] {
+	.fee-summary {
 		display: grid;
 		grid-template-columns: auto 1fr;
 		gap: 0.25em 1em;
 		margin: 0;
-	}
 
-	[data-summary] dt,
-	[data-summary] dd {
-		margin: 0;
-	}
+		dt,
+		dd {
+			margin: 0;
+		}
 
-	[data-summary] dt {
-		opacity: 0.7;
+		dt {
+			opacity: 0.7;
+		}
 	}
 </style>

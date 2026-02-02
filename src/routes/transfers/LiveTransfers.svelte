@@ -96,14 +96,17 @@
 	)
 </script>
 
-<div data-live-transfers>
-	<header data-transfers-header>
+<div class="live-transfers">
+	<header class="transfers-header">
 		<h2>Live transfers – {coin.symbol}</h2>
-		<nav data-period-selector aria-label="Time period">
+		<nav
+			class="period-selector"
+			aria-label="Time period"
+		>
 			{#each periods as p (p.value)}
 				<a
+					class="period-link"
 					href="?period={p.value}"
-					data-period-link
 					data-active={period === p.value ? '' : undefined}
 				>
 					{p.label}
@@ -112,7 +115,7 @@
 		</nav>
 	</header>
 
-	<div data-viz-container>
+	<div class="viz-container">
 		{#if browser}
 			<Canvas>
 				<T.PerspectiveCamera makeDefault position={[0, 0, 20]} />
@@ -143,14 +146,14 @@
 				{/each}
 			</Canvas>
 		{:else}
-			<p data-transfers-loading>Loading visualization…</p>
+			<p class="transfers-loading">Loading visualization…</p>
 		{/if}
 	</div>
 
 	{#if graph.nodes.length === 0 && graph.edges.length === 0}
-		<p data-transfers-empty>No transfer data for this period.</p>
+		<p class="transfers-empty">No transfer data for this period.</p>
 	{:else}
-		<p data-transfers-summary>
+		<p class="transfers-summary">
 			{graph.nodes.length} actors, {graph.edges.length} flows
 			{totalVolume > 0
 				? ` · ${totalVolume.toLocaleString(undefined, {
@@ -163,54 +166,54 @@
 </div>
 
 <style>
-	[data-live-transfers] {
+	.live-transfers {
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
 	}
 
-	[data-transfers-header] {
+	.transfers-header {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 1rem;
 	}
 
-	[data-period-selector] {
+	.period-selector {
 		display: flex;
 		gap: 0.5rem;
 	}
 
-	[data-period-link] {
+	.period-link {
 		padding: 0.25em 0.5em;
 		border-radius: 0.25em;
 		text-decoration: none;
 		background: var(--color-bg-subtle);
 		color: var(--color-text);
+
+		&[data-active] {
+			background: var(--accent-backgroundColor);
+			color: var(--accent-color);
+		}
 	}
 
-	[data-period-link][data-active] {
-		background: var(--accent-backgroundColor);
-		color: var(--accent-color);
-	}
-
-	[data-viz-container] {
+	.viz-container {
 		width: 100%;
 		height: 400px;
 		background: var(--color-bg-subtle);
 		border-radius: 0.5em;
 		overflow: hidden;
+
+		:global(canvas) {
+			display: block;
+			width: 100%;
+			height: 100%;
+		}
 	}
 
-	[data-viz-container] :global(canvas) {
-		display: block;
-		width: 100%;
-		height: 100%;
-	}
-
-	[data-transfers-loading],
-	[data-transfers-empty],
-	[data-transfers-summary] {
+	.transfers-loading,
+	.transfers-empty,
+	.transfers-summary {
 		font-size: 0.875em;
 		opacity: 0.8;
 	}
