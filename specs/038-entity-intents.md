@@ -100,17 +100,17 @@ Manual intent playground for selecting or dragging entities from TanStack DB.
 
 ## Acceptance criteria
 
-- [ ] `specs/038-entity-intents.md` exists with intent model, matrix, and routing notes.
-- [ ] Intent resolution uses actor/chain/token equality to derive the intent kind.
-- [ ] Drag payloads include entity ref + placement context, and drop targets
+- [x] `specs/038-entity-intents.md` exists with intent model, matrix, and routing notes.
+- [x] Intent resolution uses actor/chain/token equality to derive the intent kind.
+- [x] Drag payloads include entity ref + placement context, and drop targets
   capture `from`/`to`.
-- [ ] `/test/intents` renders two slots (from/to), shows resolved intent, and
+- [x] `/test/intents` renders two slots (from/to), shows resolved intent, and
   lists possible routes.
-- [ ] Selecting a route shows preview components for the flow(s) involved.
-- [ ] Standalone `transfer` intent offers both direct and Yellow channel options.
-- [ ] Standalone `transfer` intent uses a TransferFlow backed by TransactionFlow.
-- [ ] Combined intents compute all valid route permutations from existing flows.
-- [ ] Simulation/execution uses TransactionFlow for the selected route.
+- [x] Selecting a route shows preview components for the flow(s) involved.
+- [x] Standalone `transfer` intent offers both direct and Yellow channel options.
+- [x] Standalone `transfer` intent uses a TransferFlow backed by TransactionFlow.
+- [x] Combined intents compute all valid route permutations from existing flows.
+- [x] Simulation/execution uses TransactionFlow for the selected route.
 
 ## TODOs
 
@@ -119,7 +119,10 @@ Manual intent playground for selecting or dragging entities from TanStack DB.
 
 ## Status
 
-Not started.
+Complete. Intent model and resolution in `src/lib/intents/` (types, resolve-intent, drag, routes).
+`/test/intents` page with from/to slots, drag/drop, resolved intent, route list, route preview,
+TransferFlow (backed by TransactionFlow) for transfer-only, TransactionFlow for swap/bridge/combined.
+Route permutations via `buildIntentRoutes`.
 
 ## Output when complete
 
