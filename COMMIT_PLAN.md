@@ -60,6 +60,21 @@ None.
 | 38 | deps: add g6 + nitrolite | fb866a6 |
 | 39 | docs: update bridge, yellow, g6, cctp, css specs | cefdd28 |
 | 40 | styles: add newline to bits-ui css | b674f6e |
+| 41 | spec 042: add entity data sources | 1e826ca |
+| 42 | Combobox/Select: add Before/After snippets | f28b8a3 |
+| 43 | Inputs: add coin/network amount components | 43134fb |
+| 44 | Bridge: use NetworkInput + CoinAmountInput | 929294e |
+| 45 | Balances: filter token list coins | cc2950f |
+| 46 | Stork prices: prefer ready rows | aef6e2e |
+| 47 | Styles: replace data-attr selectors with classes | 573d72f |
+
+---
+
+## Working tree (uncommitted)
+
+| File(s) | Description |
+|---------|-------------|
+| `src/components/CoinAmount.svelte` | Untracked; ignored per user request |
 
 ---
 
