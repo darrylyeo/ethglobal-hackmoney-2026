@@ -181,9 +181,10 @@
 				/ minmax(auto, 1fr)
 			;
 
-		.layout[data-sticky-container] {
-			--sticky-marginBlockStart: var(--separator-width);
-			--sticky-paddingBlockStart: var(--navigation-mobile-blockSize);
+			&[data-sticky-container] {
+				--sticky-marginBlockStart: var(--separator-width);
+				--sticky-paddingBlockStart: var(--navigation-mobile-blockSize);
+			}
 		}
 	}
 
