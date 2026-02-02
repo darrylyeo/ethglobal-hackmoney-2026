@@ -173,7 +173,6 @@
 				--sticky-paddingInlineStart: var(--navigation-desktop-inlineSize);
 			}
 		}
-	}
 
 	@media (max-width: 1024px) {
 		.layout {
