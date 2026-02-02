@@ -5,6 +5,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { channelProposalsCollection } from '$/collections/channel-proposals'
+	import type { SharedAddress } from '$/collections/shared-addresses'
 	import { sharedAddressesCollection } from '$/collections/shared-addresses'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
 	import { roomState } from '$/state/room.svelte'
@@ -87,9 +88,14 @@
 		roomState.connection?.send({ type: 'reject-channel', proposalId })
 	}
 
+	const isHexAddress = (value: string): value is `0x${string}` => (
+		value.startsWith('0x')
+	)
+
 	// Components
 	import Address from '$/components/Address.svelte'
-	import { Button, Select } from 'bits-ui'
+	import Select from '$/components/Select.svelte'
+	import { Button } from 'bits-ui'
 </script>
 
 <section data-channel-proposals>
@@ -105,25 +111,21 @@
 			proposeChannel()
 		}}
 	>
-		<Select.Root
-			type="single"
+		{#snippet addressItem(shared: SharedAddress)}
+			<Address network={1} address={shared.address} />
+		{/snippet}
+
+		<Select
+			items={otherVerified}
 			value={selectedAddress ?? ''}
-			onValueChange={(v) => { selectedAddress = v ? (v as `0x${string}`) : null }}
-			items={otherVerified.map((s) => ({ value: s.address, label: s.address }))}
-		>
-			<Select.Trigger>Select participant</Select.Trigger>
-			<Select.Portal>
-				<Select.Content>
-					<Select.Viewport>
-						{#each otherVerified as shared (shared.id)}
-							<Select.Item value={shared.address} label={shared.address}>
-								<Address network={1} address={shared.address} />
-							</Select.Item>
-						{/each}
-					</Select.Viewport>
-				</Select.Content>
-			</Select.Portal>
-		</Select.Root>
+			onValueChange={(v) => {
+				selectedAddress = v && isHexAddress(v) ? v : null
+			}}
+			getItemId={(shared) => shared.address}
+			getItemLabel={(shared) => shared.address}
+			placeholder="Select participant"
+			Item={addressItem}
+		/>
 
 		<input
 			type="text"

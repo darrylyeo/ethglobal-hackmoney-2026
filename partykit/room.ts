@@ -93,8 +93,6 @@ type RoomState = {
 	challenges: SiweChallenge[]
 }
 
-const SIWE_DOMAIN = 'hackmoney.example'
-
 function createSiweMessage(params: {
 	domain: string
 	address: `0x${string}`
@@ -129,6 +127,7 @@ function createSiweMessage(params: {
 }
 
 function generateChallenge(params: {
+	domain: string
 	roomId: string
 	fromPeerId: string
 	toPeerId: string
@@ -138,7 +137,7 @@ function generateChallenge(params: {
 	const issuedAt = Date.now()
 	const expiresAt = issuedAt + 5 * 60 * 1000
 	const message = createSiweMessage({
-		domain: SIWE_DOMAIN,
+		domain: params.domain,
 		address: params.address,
 		statement: `Verify address ownership for room ${params.roomId}`,
 		uri: `partykit://${params.roomId}`,
@@ -166,6 +165,7 @@ export default class RoomServer implements Party.Server {
 	room: Party.Room
 	state: RoomState | null = null
 	channelProposals = new Map<string, PendingChannelProposal>()
+	peerHosts = new Map<string, string>()
 
 	constructor(room: Party.Room) {
 		this.room = room
@@ -188,7 +188,14 @@ export default class RoomServer implements Party.Server {
 		return this.state
 	}
 
-	onConnect(conn: Party.Connection) {
+	onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
+		try {
+			const origin = ctx.request.headers.get('Origin')
+			const host = origin ? new URL(origin).host : new URL(ctx.request.url).host
+			this.peerHosts.set(conn.id, host)
+		} catch {
+			// leave peerHosts unset; generateChallenge will use fallback
+		}
 		const state = this.getState()
 		const peerId = conn.id
 		const now = Date.now()
@@ -221,6 +228,7 @@ export default class RoomServer implements Party.Server {
 	}
 
 	onClose(conn: Party.Connection) {
+		this.peerHosts.delete(conn.id)
 		const state = this.getState()
 		const peerId = conn.id
 		const peer = state.peers.find((p) => p.peerId === peerId)
@@ -273,9 +281,11 @@ export default class RoomServer implements Party.Server {
 						sharedAt: Date.now(),
 					})
 				}
+				const domain = this.peerHosts.get(peerId) ?? 'localhost'
 				const others = state.peers.filter((p) => p.peerId !== peerId && p.isConnected)
 				for (const other of others) {
 					const challenge = generateChallenge({
+						domain,
 						roomId: this.room.id,
 						fromPeerId: peerId,
 						toPeerId: other.peerId,

@@ -1,6 +1,5 @@
 <script lang="ts">
 	// Types/constants
-	import type { SiweChallenge } from '$/collections/siwe-challenges'
 	import type { EIP1193Provider } from '$/lib/siwe'
 
 	// Props
@@ -17,20 +16,11 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { sharedAddressesCollection } from '$/collections/shared-addresses'
-	import { siweChallengesCollection } from '$/collections/siwe-challenges'
 	import { roomState } from '$/state/room.svelte'
-	import { signSiweMessage } from '$/lib/siwe'
 
 	const mySharedQuery = useLiveQuery(
 		(q) => q
 			.from({ row: sharedAddressesCollection })
-			.where(({ row }) => eq(row.roomId, roomId))
-			.select(({ row }) => ({ row })),
-		[() => roomId],
-	)
-	const pendingChallengesQuery = useLiveQuery(
-		(q) => q
-			.from({ row: siweChallengesCollection })
 			.where(({ row }) => eq(row.roomId, roomId))
 			.select(({ row }) => ({ row })),
 		[() => roomId],
@@ -41,39 +31,13 @@
 			.map((r) => r.row)
 			.filter((s) => s.peerId === roomState.peerId),
 	)
-	const pendingForMe = $derived(
-		(pendingChallengesQuery.data ?? []).map((r) => r.row).filter(
-			(ch: SiweChallenge) => ch.fromPeerId === roomState.peerId && !ch.signature,
-		),
-	)
 
 	const isShared = (addr: `0x${string}`) => (
 		myShared.some((s) => s.address.toLowerCase() === addr.toLowerCase())
 	)
 
 	const shareAddress = (address: `0x${string}`) => {
-		console.debug('[SIWE] share-address sent', { address })
 		roomState.connection?.send({ type: 'share-address', address })
-	}
-
-	const signChallenge = async (challenge: SiweChallenge) => {
-		if (!provider) return
-		console.debug('[SIWE] signChallenge start', { challengeId: challenge.id, toPeerId: challenge.toPeerId, address: challenge.address })
-		try {
-			const signature = await signSiweMessage({
-				provider,
-				message: challenge.message,
-				address: challenge.address,
-			})
-			roomState.connection?.send({
-				type: 'submit-signature',
-				challengeId: challenge.id,
-				signature,
-			})
-			console.debug('[SIWE] signChallenge submit-signature sent', { challengeId: challenge.id })
-		} catch (err) {
-			console.debug('[SIWE] signChallenge error', { challengeId: challenge.id, error: err })
-		}
 	}
 
 	// Components
@@ -97,29 +61,6 @@
 						disabled={shared}
 					>
 						{shared ? 'Shared' : 'Share'}
-					</Button.Root>
-				</li>
-			{/each}
-		</ul>
-	{/if}
-</section>
-
-<section data-pending-signatures>
-	<h3>Pending signatures</h3>
-	{#if pendingForMe.length === 0}
-		<p>No pending challenges.</p>
-	{:else}
-		<ul>
-			{#each pendingForMe as challenge (challenge.id)}
-				<li data-challenge data-challenge-id={challenge.id}>
-					<span>Sign for peer {challenge.toPeerId.slice(0, 8)}</span>
-					<code title={challenge.id}>{challenge.id.slice(-12)}</code>
-					<Button.Root
-						type="button"
-						onclick={() => signChallenge(challenge)}
-						disabled={!provider}
-					>
-						Sign
 					</Button.Root>
 				</li>
 			{/each}

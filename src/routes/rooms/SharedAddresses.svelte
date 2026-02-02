@@ -6,6 +6,7 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { sharedAddressesCollection } from '$/collections/shared-addresses'
 	import { roomPeersCollection } from '$/collections/room-peers'
+	import { roomState } from '$/state/room.svelte'
 
 	const sharedQuery = useLiveQuery(
 		(q) => q
@@ -24,7 +25,6 @@
 
 	const shared = $derived((sharedQuery.data ?? []).map((r) => r.row))
 	const peers = $derived((peersQuery.data ?? []).map((r) => r.row))
-	const peerCount = $derived(Math.max(0, peers.filter((p) => p.isConnected).length - 1))
 	const getPeerName = (peerId: string) => (
 		peers.find((p) => p.peerId === peerId)?.displayName ?? peerId.slice(0, 8)
 	)
@@ -40,15 +40,15 @@
 	{:else}
 		<ul>
 			{#each shared as s (s.id)}
-				{@const verificationCount = s.verifiedBy.length}
+				{@const verifiedByMe = roomState.peerId != null && s.verifiedBy.includes(roomState.peerId)}
 				<li
 					data-shared-address
-					data-fully-verified={peerCount > 0 && verificationCount === peerCount}
+					data-verified-by-me={verifiedByMe}
 				>
 					<span data-peer-name>{getPeerName(s.peerId)}</span>
 					<Address network={1} address={s.address} />
 					<span data-verification>
-						{verificationCount}/{peerCount} verified
+						{verifiedByMe ? 'Verified by you' : 'Not verified by you'}
 					</span>
 				</li>
 			{/each}

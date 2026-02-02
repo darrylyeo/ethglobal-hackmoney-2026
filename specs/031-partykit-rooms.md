@@ -141,8 +141,9 @@ export default class RoomServer implements Party.Server {
     // Handle message types
   }
 
-  // Generate SIWE challenge for peer
+  // Generate SIWE challenge for peer (domain = app host from connection: Origin at onConnect, else request host, else 'localhost')
   generateChallenge(params: {
+    domain: string
     roomId: string
     fromPeerId: string
     toPeerId: string
@@ -153,7 +154,7 @@ export default class RoomServer implements Party.Server {
     const expiresAt = issuedAt + 5 * 60 * 1000 // 5 minutes
 
     const message = createSiweMessage({
-      domain: 'hackmoney.example', // TODO: configure
+      domain: params.domain,
       address: params.address,
       statement: `Verify address ownership for room ${params.roomId}`,
       uri: `partykit://${params.roomId}`,

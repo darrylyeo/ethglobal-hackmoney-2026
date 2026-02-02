@@ -17,10 +17,8 @@
 
 	// Components
 	import AddressSharing from '../AddressSharing.svelte'
-	import PeerAvatar from '$/components/PeerAvatar.svelte'
+	import Peer from '$/components/Peer.svelte'
 	import PeerCard from '../PeerCard.svelte'
-	import Timestamp from '$/components/Timestamp.svelte'
-	import { TimestampFormat } from '$/components/Timestamp.svelte'
 
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
@@ -45,7 +43,6 @@
 	const others = $derived(peers.filter((p) => p.peerId !== roomState.peerId))
 	const connectedOthers = $derived(others.filter((p) => p.isConnected))
 	const disconnectedOthers = $derived(others.filter((p) => !p.isConnected))
-	const verifierCount = $derived(Math.max(0, peers.length - 1))
 
 	let leaveToken = 0
 	$effect(() => {
@@ -101,16 +98,7 @@
 				<h2>Me</h2>
 				{#if me}
 					<header data-row="wrap gap-2 align-center">
-						<PeerAvatar peer={me} />
-						<div data-column="gap-0">
-							<span data-peer-name>{me.displayName ?? me.peerId.slice(0, 8)}</span>
-							<span data-status>{me.isConnected ? '●' : '○'}</span>
-							{#if me.isConnected && me.connectedAt != null}
-								<small>since <Timestamp timestamp={me.connectedAt} format={TimestampFormat.Relative} /></small>
-							{:else if me.disconnectedAt != null}
-								<small>left <Timestamp timestamp={me.disconnectedAt} format={TimestampFormat.Relative} /></small>
-							{/if}
-						</div>
+						<Peer peer={me} />
 					</header>
 					<AddressSharing
 						{roomId}
@@ -131,7 +119,7 @@
 						<ul data-peer-cards>
 							{#each connectedOthers as peer (peer.id)}
 								<li>
-									<PeerCard {peer} {roomId} peerCount={verifierCount} />
+									<PeerCard {peer} {roomId} {provider} />
 								</li>
 							{/each}
 						</ul>
@@ -142,7 +130,7 @@
 							<ul data-peer-cards>
 								{#each disconnectedOthers as peer (peer.id)}
 									<li>
-										<PeerCard {peer} {roomId} peerCount={verifierCount} />
+										<PeerCard {peer} {roomId} {provider} />
 									</li>
 								{/each}
 							</ul>

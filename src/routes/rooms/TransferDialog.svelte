@@ -28,12 +28,17 @@
 
 	const handleSend = async () => {
 		if (!yellowState.clearnodeConnection) return
+		if (!yellowState.address) {
+			error = 'Missing wallet address'
+			return
+		}
 
 		sending = true
 		error = null
 
 		try {
-			const amountSmallest = parseDecimalToSmallest(amount, 6)
+			const trimmedAmount = amount.trim()
+			const amountSmallest = parseDecimalToSmallest(trimmedAmount, 6)
 
 			if (amountSmallest > myBalance) {
 				throw new Error('Insufficient channel balance')
@@ -41,8 +46,18 @@
 
 			await sendTransfer({
 				clearnodeConnection: yellowState.clearnodeConnection,
-				channelId: channel.id,
-				amount: amountSmallest,
+				destination: (
+					channel.participant0.toLowerCase() === yellowState.address.toLowerCase() ?
+						channel.participant1
+					:
+						channel.participant0
+				),
+				allocations: [
+					{
+						asset: 'usdc',
+						amount: trimmedAmount,
+					},
+				],
 			})
 
 			open = false
