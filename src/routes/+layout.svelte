@@ -174,8 +174,7 @@
 			}
 		}
 
-	@media (max-width: 1024px) {
-		.layout {
+		@media (max-width: 1024px) {
 			grid-template:
 				'Nav' var(--navigation-mobile-blockSize)
 				'Main' 1fr
