@@ -1,38 +1,36 @@
-import adapter from "@sveltejs/adapter-auto";
-import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+import adapter from '@sveltejs/adapter-auto'
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
-  // Consult https://svelte.dev/docs/kit/integrations
-  // for more information about preprocessors
-  preprocess: vitePreprocess({
-    script: true
-  }),
+	// Consult https://svelte.dev/docs/kit/integrations
+	// for more information about preprocessors
+	preprocess: vitePreprocess({
+		script: true,
+	}),
 
-  vitePlugin: {
-    experimental: {
-      inspector: {
-        toggleKeyCombo: 'shift-i',
-      },
-    },
-  },
+	vitePlugin: {
+		inspector: {
+			toggleKeyCombo: 'shift-i',
+		},
+	},
 
-  compilerOptions: {
-    experimental: {
-      async: true,
-    },
-  },
+	compilerOptions: {
+		experimental: {
+			async: true,
+		},
+	},
 
 
-  kit: {
-    adapter: adapter(),
+	kit: {
+		adapter: adapter(),
 
-    alias: {
-      "$": "./src",
-    },
+		alias: {
+			'$': './src',
+		},
 
-    experimental: {
-      remoteFunctions: true,
-    },
-  },
-};
+		experimental: {
+			remoteFunctions: true,
+		},
+	},
+}
