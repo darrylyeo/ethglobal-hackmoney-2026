@@ -827,7 +827,7 @@
 				<div data-sr-only aria-live="polite">{selectionAnnouncement}</div>
 			</div>
 
-			<footer>
+			<footer class="graph-scene-footer">
 				<div data-legend>
 					{#each Object.entries(collections) as [key, config]}
 						{@const entityType = key}
@@ -1046,7 +1046,7 @@
 		white-space: nowrap;
 	}
 
-	footer {
+	.graph-scene-footer {
 		padding: 0.5rem 0.625rem;
 		border-top: 1px solid var(--color-border, #e5e7eb);
 		background: var(--color-bg-elevated, #fafafa);
