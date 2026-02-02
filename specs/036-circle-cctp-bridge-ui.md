@@ -100,15 +100,34 @@ Fast Transfer allowance display and availability warning.
 - [x] Test: 404 attestation response continues polling.
 - [x] Test: retry mint path allowed when previous mint fails (mocked).
 
+## Wireframes / flow
+
+CCTP flow steps (user perspective):
+
+1. **Setup** – Select source/destination chains, amount, Standard vs Fast, optional custom recipient. Transfer preview shows burn amount, destination amount, fees.
+2. **Confirm** – Confirmation dialog summarizes transfer; user confirms.
+3. **Burn** – User signs burn tx on source chain; status shows "Burn submitted" and explorer link.
+4. **Attestation** – UI polls CCTP attestation API; status shows "Waiting for attestation…" (or "Attested").
+5. **Mint** – Once attested, user signs mint tx on destination (or Forwarding Service is used when enabled); status shows "Mint submitted" and explorer link.
+6. **Complete** – Success message; balances refresh.
+
+## Supported chains and domains
+
+`src/constants/cctp.ts` defines `CCTP_DOMAINS_BY_CHAIN_ID` and related sets. Domain IDs and supported EVM chains align with [Circle CCTP supported blockchains and domain identifiers](https://developers.circle.com/cctp/concepts/supported-chains-and-domains). Solana, BNB Smart Chain, and Starknet are out of scope for this app (EVM-only bridge UI).
+
+## Forwarding Service
+
+Decision: **expose in UI when supported.** The Forwarding Service toggle is shown only when the selected destination chain is in `CCTP_FORWARDING_CHAIN_IDS` (see `CctpBridgeFlow.svelte`). When enabled, mint is executed via Circle’s Forwarding Service instead of the user signing a mint tx.
+
 ## TODO
 
-- [ ] Add wireframes for CCTP flow steps.
-- [ ] Confirm supported chain list and domain IDs match Circle docs.
-- [ ] Decide whether to expose Forwarding Service in UI or keep internal.
+- [x] Add wireframes for CCTP flow steps.
+- [x] Confirm supported chain list and domain IDs match Circle docs.
+- [x] Decide whether to expose Forwarding Service in UI or keep internal.
 
 ## Status
 
-Complete. CCTP bridge UI with CctpWallets, CctpBalances, CctpFees, CctpAllowance, CctpAttestation, CctpExecution; confirmation dialog; transfer preview; E2E tests (confirmation dialog test skipped until mock sets selectedActor).
+Complete. CCTP bridge UI with CctpWallets, CctpBalances, CctpFees, CctpAllowance, CctpAttestation, CctpExecution; confirmation dialog; transfer preview; E2E tests (confirmation dialog test skipped until mock sets selectedActor). Wireframes/flow documented; supported chains and domain IDs confirmed against Circle docs; Forwarding Service exposed in UI when destination is in CCTP_FORWARDING_CHAIN_IDS.
 
 ## Output when complete
 
