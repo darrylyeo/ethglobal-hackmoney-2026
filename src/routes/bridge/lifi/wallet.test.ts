@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('WalletProvider', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/bridge')
+    await page.goto('/bridge/lifi')
     await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
     await expect(page.getByRole('heading', { level: 1, name: 'USDC Bridge' })).toBeVisible({
       timeout: 45_000,
@@ -36,7 +36,7 @@ test.describe('WalletProvider', () => {
           )
         })
       })
-      await page.goto('/bridge')
+      await page.goto('/bridge/lifi')
     })
 
     test('after connection address displays in header', async ({ page }) => {

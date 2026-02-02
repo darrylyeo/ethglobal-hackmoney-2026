@@ -7,14 +7,14 @@
 	let selectedActor = $state<`0x${string}` | null>(null)
 
 	// Components
-	import Balances from './lifi/Balances.svelte'
-	import UnifiedBridgeFlow from './UnifiedBridgeFlow.svelte'
-	import Wallets from './lifi/Wallets.svelte'
+	import Balances from '../lifi/Balances.svelte'
+	import CctpBridgeFlow from './CctpBridgeFlow.svelte'
+	import Wallets from '../lifi/Wallets.svelte'
 </script>
 
 
 <svelte:head>
-	<title>USDC Bridge</title>
+	<title>USDC Bridge (CCTP)</title>
 </svelte:head>
 
 
@@ -29,11 +29,11 @@
 	</summary>
 
 	<div data-column="gap-6">
-		<h1>USDC Bridge</h1>
+		<h1>USDC Bridge (CCTP)</h1>
 		<Balances
 			{selectedActor}
 		/>
-		<UnifiedBridgeFlow
+		<CctpBridgeFlow
 			selectedWallets={connectedWallets}
 			{selectedActor}
 		/>

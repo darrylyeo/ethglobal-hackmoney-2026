@@ -28,7 +28,7 @@ async function addMockWallet(context: { addInitScript: (fn: () => void) => Promi
 
 test.describe('bridge flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/bridge')
+    await page.goto('/bridge/lifi')
     await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
     await expect(
       page.getByRole('heading', { level: 1, name: 'USDC Bridge' }).or(
@@ -49,7 +49,7 @@ test.describe('bridge flow', () => {
   test.describe('with mock wallet', () => {
     test.beforeEach(async ({ context, page }) => {
       await addMockWallet(context)
-      await page.goto('/bridge')
+      await page.goto('/bridge/lifi')
       await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
       await expect(
         page.getByRole('heading', { level: 1, name: 'USDC Bridge' }).or(

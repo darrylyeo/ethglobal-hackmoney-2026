@@ -5,11 +5,12 @@
 	// State
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
+	let selectedChainId = $state<number | null>(null)
 
 	// Components
-	import Balances from './lifi/Balances.svelte'
-	import UnifiedBridgeFlow from './UnifiedBridgeFlow.svelte'
-	import Wallets from './lifi/Wallets.svelte'
+	import Balances from './Balances.svelte'
+	import BridgeFlow from './BridgeFlow.svelte'
+	import Wallets from './Wallets.svelte'
 </script>
 
 
@@ -24,6 +25,7 @@
 			<Wallets
 				bind:connectedWallets
 				bind:selectedActor
+				bind:selectedChainId
 			/>
 		</header>
 	</summary>
@@ -33,9 +35,10 @@
 		<Balances
 			{selectedActor}
 		/>
-		<UnifiedBridgeFlow
+		<BridgeFlow
 			selectedWallets={connectedWallets}
 			{selectedActor}
+			{selectedChainId}
 		/>
 	</div>
 </details>

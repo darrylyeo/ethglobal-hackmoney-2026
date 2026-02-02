@@ -1,6 +1,8 @@
 <script lang="ts">
 	// Types/constants
+	import { ENTITY_TYPE } from '$/constants/entity-types'
 	import { NetworkType, networks, networksByChainId } from '$/constants/networks'
+	import type { IntentDragPayload } from '$/lib/intents/types'
 
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
@@ -92,6 +94,7 @@
 
 
 	// Components
+	import EntityId from '$/components/EntityId.svelte'
 	import StorkPrices from '$/views/StorkPrices.svelte'
 </script>
 
@@ -108,9 +111,24 @@
 			{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
 				{@const network = networksByChainId[b.$id.chainId]}
 				{#if network}
+					{@const intent = ({
+						entity: {
+							type: ENTITY_TYPE.actorCoin,
+							id: b.$id,
+						},
+						context: {
+							source: 'balances',
+						},
+					} satisfies IntentDragPayload)}
 					<div data-balance-item>
 						<dt>{network.name}</dt>
-						<dd data-tabular>{formatSmallestToDecimal(b.balance, b.decimals, 4)} {b.symbol}</dd>
+						<EntityId
+							className="balance-intent"
+							draggableText={`${b.symbol} ${b.$id.address}`}
+							intent={intent}
+						>
+							<span data-tabular>{formatSmallestToDecimal(b.balance, b.decimals, 4)} {b.symbol}</span>
+						</EntityId>
 					</div>
 				{/if}
 			{/each}

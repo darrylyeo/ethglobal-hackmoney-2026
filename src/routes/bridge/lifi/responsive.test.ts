@@ -26,7 +26,7 @@ for (const { name, width, height } of VIEWPORTS) {
 		page,
 	}) => {
 		await page.setViewportSize({ width, height })
-		await page.goto('/bridge')
+		await page.goto('/bridge/lifi')
 		await expect(page.locator('#main-content')).toBeAttached({ timeout: 15_000 })
 		await assertNoHorizontalOverflow(page)
 		await assertTextReadable(page)
