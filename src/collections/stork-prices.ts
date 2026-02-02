@@ -551,15 +551,19 @@ export const getBestStorkPrice = (
 				(chainId !== null && row.chainId === chainId)),
 	)
 	if (candidates.length === 0) return null
+	const readyCandidates = candidates.filter(
+		(row) => !row.isLoading && row.error === null,
+	)
+	const pool = readyCandidates.length > 0 ? readyCandidates : candidates
 	const priority = ['rpc', 'websocket', 'rest'] as const
 	for (const transport of priority) {
-		const best = candidates
+		const best = pool
 			.filter((row) => row.transport === transport)
 			.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0]
 		if (best) return best
 	}
 	return (
-		candidates.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0] ??
+		pool.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0] ??
 		null
 	)
 }
