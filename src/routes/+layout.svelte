@@ -155,12 +155,12 @@
 		align-items: start;
 		gap: var(--separator-width);
 
-	.layout[data-scroll-container] {
-		--sticky-paddingBlockStart: var(--safeArea-insetTop);
-		--sticky-paddingBlockEnd: var(--safeArea-insetBottom);
-		--sticky-paddingInlineStart: var(--safeArea-insetLeft);
-		--sticky-paddingInlineEnd: var(--safeArea-insetRight);
-	}
+		&[data-scroll-container] {
+			--sticky-paddingBlockStart: var(--safeArea-insetTop);
+			--sticky-paddingBlockEnd: var(--safeArea-insetBottom);
+			--sticky-paddingInlineStart: var(--safeArea-insetLeft);
+			--sticky-paddingInlineEnd: var(--safeArea-insetRight);
+		}
 
 	@media not (max-width: 1024px) {
 		.layout {
