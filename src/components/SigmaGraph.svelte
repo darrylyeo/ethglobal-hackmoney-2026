@@ -5,7 +5,6 @@
 	import type { DisplayData } from 'sigma/types'
 	import type { Sigma } from 'sigma'
 
-
 	// Props
 	let {
 		graph,
@@ -49,39 +48,137 @@
 
 <div
 	{@attach (container) => {
+		if (typeof WebGL2RenderingContext === 'undefined') return () => {}
+
 		let renderer: Sigma | undefined
-		let layout: import('graphology-layout-forceatlas2/worker').default | undefined
+		let layout: { start: () => void; kill: () => void; stop: () => void } | undefined
 		let draggedNode: string | null = null
 		let isDragging = false
 		let centerInterval: ReturnType<typeof setInterval> | undefined
-		const cleanups: (() => void)[] = []
+		let activeGraph = graph
+		let modules:
+			| {
+				EdgeCurveModule: {
+					indexParallelEdgesIndex: (g: Graph, opts: { edgeIndexAttribute: string; edgeMaxIndexAttribute: string }) => void
+					default: unknown
+					EdgeCurvedArrowProgram: unknown
+				}
+				ForceSupervisor: new (g: Graph, opts: { settings: Record<string, unknown> }) => { start: () => void; kill: () => void; stop: () => void }
+				forceAtlas2: { inferSettings: (g: Graph) => Record<string, unknown> }
+			}
+			| undefined
 
-		const loadModules = async () => {
-			const [
-				{ default: SigmaClass },
-				{ default: ForceSupervisor },
-				SigmaRenderingModule,
-				NodeImageModule,
-				EdgeCurveModule,
-				{ default: forceAtlas2 },
-			] = await Promise.all([
-				import('sigma'),
-				import('graphology-layout-forceatlas2/worker'),
-				import('sigma/rendering'),
-				import('@sigma/node-image'),
-				import('@sigma/edge-curve'),
-				import('graphology-layout-forceatlas2'),
-			])
+		const applyGraph = (g: Graph) => {
+			if (!renderer || !modules) return
+			if (arrangeParallelEdges !== false) {
+				modules.EdgeCurveModule.indexParallelEdgesIndex(g, {
+					edgeIndexAttribute: 'edgeIndex',
+					edgeMaxIndexAttribute: 'edgeCount',
+				})
+				g.forEachEdge((edge, attrs) => {
+					const { type, edgeIndex, edgeCount } = attrs as { type?: string; edgeIndex?: number; edgeCount?: number }
+					const curvature = (
+						typeof edgeIndex === 'number' && typeof edgeCount === 'number'
+							? (edgeCount === 1 ? 0 : edgeIndex / (edgeCount - 1) * 2 - 1) * (1 - Math.exp(-0.1 * edgeCount))
+							: 0
+					)
+					g.mergeEdgeAttributes(edge, {
+						type: type?.replace(/^(?:curved|straight)/, curvature !== 0 ? 'curved' : 'straight') ?? 'curved',
+						curvature,
+					})
+				})
+			}
+			renderer.setGraph(g)
+			renderer.refresh()
+		}
 
+		$effect(() => {
+			const g = graph
+			const key = refreshKey
+			activeGraph = g
+			if (!renderer || !modules) return
+			applyGraph(g)
+			layout?.kill()
+			if (enableForce !== false) {
+				layout = new modules.ForceSupervisor(g, {
+					settings: {
+						...modules.forceAtlas2.inferSettings(g),
+						adjustSizes: true,
+						slowDown: 10,
+					},
+				})
+				layout.start()
+			} else {
+				layout = undefined
+			}
+		})
+
+		$effect(() => {
+			if (renderer && edgeReducer) {
+				renderer.setSetting('edgeReducer', edgeReducer)
+			}
+			if (renderer && nodeReducer) {
+				renderer.setSetting('nodeReducer', nodeReducer)
+			}
+			renderer?.refresh()
+		})
+
+		$effect(() => {
+			const highlightedSet = new Set(highlightedNodes ?? [])
+			const force = centerForce ?? 0.01
+			const g = graph
+
+			if (centerInterval) clearInterval(centerInterval)
+
+			if (highlightedSet.size > 0) {
+				centerInterval = setInterval(() => {
+					g.forEachNode((node, attrs) => {
+						if (highlightedSet.has(node)) {
+							const dx = -attrs.x * force
+							const dy = -attrs.y * force
+							g.setNodeAttribute(node, 'x', attrs.x + dx)
+							g.setNodeAttribute(node, 'y', attrs.y + dy)
+						} else {
+							const dist = Math.sqrt(attrs.x ** 2 + attrs.y ** 2) || 0.1
+							const repelForce = force * 2
+							g.setNodeAttribute(node, 'x', attrs.x + (attrs.x / dist) * repelForce)
+							g.setNodeAttribute(node, 'y', attrs.y + (attrs.y / dist) * repelForce)
+						}
+					})
+				}, 50)
+			}
+
+			return () => {
+				if (centerInterval) clearInterval(centerInterval)
+			}
+		})
+
+		Promise.all([
+			import('sigma'),
+			import('graphology-layout-forceatlas2/worker'),
+			import('sigma/rendering'),
+			import('@sigma/node-image'),
+			import('@sigma/edge-curve'),
+			import('graphology-layout-forceatlas2'),
+		]).then(([sigmaMod, forceWorkerMod, sigmaRendering, nodeImageMod, edgeCurveMod, forceAtlas2Mod]) => {
+			const SigmaClass = sigmaMod.default
+			const ForceSupervisor = forceWorkerMod.default
+			const forceAtlas2 = forceAtlas2Mod.default
 			const nodeProgramClasses = {
-				'circle': SigmaRenderingModule.NodeCircleProgram,
-				'point': SigmaRenderingModule.NodePointProgram,
-				'image': NodeImageModule.createNodeImageProgram({
+				'circle': sigmaRendering.NodeCircleProgram,
+				'point': sigmaRendering.NodePointProgram,
+				'image': nodeImageMod.createNodeImageProgram({
 					objectFit: 'contain',
 					padding: 0.1,
 					correctCentering: true,
 				}),
-				'pictogram': NodeImageModule.NodePictogramProgram,
+				'pictogram': nodeImageMod.NodePictogramProgram,
+			}
+
+			modules = {
+				EdgeCurveModule: edgeCurveMod,
+				ForceSupervisor,
+				forceAtlas2,
 			}
 
 			renderer = new SigmaClass(
@@ -95,13 +192,26 @@
 					nodeProgramClasses,
 					nodeHoverProgramClasses: nodeProgramClasses,
 					edgeProgramClasses: {
-						'straight': SigmaRenderingModule.EdgeLineProgram,
-						'straightArrow': SigmaRenderingModule.EdgeArrowProgram,
-						'curved': EdgeCurveModule.default,
-						'curvedArrow': EdgeCurveModule.EdgeCurvedArrowProgram,
+						'straight': sigmaRendering.EdgeLineProgram,
+						'straightArrow': sigmaRendering.EdgeArrowProgram,
+						'curved': edgeCurveMod.default,
+						'curvedArrow': edgeCurveMod.EdgeCurvedArrowProgram,
 					},
 				},
 			)
+
+			applyGraph(graph)
+
+			if (enableForce !== false) {
+				layout = new ForceSupervisor(graph, {
+					settings: {
+						...forceAtlas2.inferSettings(graph),
+						adjustSizes: true,
+						slowDown: 10,
+					},
+				})
+				layout.start()
+			}
 
 			renderer.on('clickNode', ({ node }) => onNodeClick?.(node))
 			renderer.on('enterNode', ({ node }) => {
@@ -122,46 +232,10 @@
 				hoveredEdge = undefined
 			})
 
-			if (arrangeParallelEdges !== false) {
-				EdgeCurveModule.indexParallelEdgesIndex(graph, {
-					edgeIndexAttribute: 'edgeIndex',
-					edgeMaxIndexAttribute: 'edgeCount',
-				})
-
-				graph.forEachEdge((edge, attrs) => {
-					const { type, edgeIndex, edgeCount } = attrs as { type?: string; edgeIndex?: number; edgeCount?: number }
-					const curvature = (
-						typeof edgeIndex === 'number' && typeof edgeCount === 'number'
-							? (edgeCount === 1 ? 0 : edgeIndex / (edgeCount - 1) * 2 - 1) * (1 - Math.exp(-0.1 * edgeCount))
-							: 0
-					)
-
-					graph.mergeEdgeAttributes(edge, {
-						type: type?.replace(/^(?:curved|straight)/, curvature !== 0 ? 'curved' : 'straight') ?? 'curved',
-						curvature,
-					})
-				})
-
-				renderer.setGraph(graph)
-				renderer.refresh()
-			}
-
-			if (enableForce !== false) {
-				layout = new ForceSupervisor(graph, {
-					settings: {
-						...forceAtlas2.inferSettings(graph),
-						adjustSizes: true,
-						slowDown: 10,
-					},
-				})
-				layout.start()
-				cleanups.push(() => layout?.kill())
-			}
-
 			if (enableDragAndDrop !== false) {
 				renderer.on('downNode', (e) => {
 					draggedNode = e.node
-					graph.setNodeAttribute(draggedNode, 'highlighted', true)
+					activeGraph.setNodeAttribute(draggedNode, 'highlighted', true)
 				})
 
 				const mouseCaptor = renderer.getMouseCaptor()
@@ -171,15 +245,15 @@
 					isDragging = true
 					layout?.stop()
 					const pos = renderer.viewportToGraph(e)
-					graph.setNodeAttribute(draggedNode, 'x', pos.x)
-					graph.setNodeAttribute(draggedNode, 'y', pos.y)
+					activeGraph.setNodeAttribute(draggedNode, 'x', pos.x)
+					activeGraph.setNodeAttribute(draggedNode, 'y', pos.y)
 					e.preventSigmaDefault()
 					e.original.preventDefault()
 					e.original.stopPropagation()
 				})
 
 				mouseCaptor.on('mouseup', () => {
-					if (draggedNode) graph.removeNodeAttribute(draggedNode, 'highlighted')
+					if (draggedNode) activeGraph.removeNodeAttribute(draggedNode, 'highlighted')
 					isDragging = false
 					draggedNode = null
 					layout?.start()
@@ -191,52 +265,11 @@
 					}
 				})
 			}
-
-			$effect(() => {
-				if (renderer && edgeReducer) {
-					renderer.setSetting('edgeReducer', edgeReducer)
-				}
-				if (renderer && nodeReducer) {
-					renderer.setSetting('nodeReducer', nodeReducer)
-				}
-				renderer?.refresh()
-			})
-
-			$effect(() => {
-				const highlightedSet = new Set(highlightedNodes ?? [])
-				const force = centerForce ?? 0.01
-
-				if (centerInterval) clearInterval(centerInterval)
-
-				if (highlightedSet.size > 0) {
-					centerInterval = setInterval(() => {
-						graph.forEachNode((node, attrs) => {
-							if (highlightedSet.has(node)) {
-								const dx = -attrs.x * force
-								const dy = -attrs.y * force
-								graph.setNodeAttribute(node, 'x', attrs.x + dx)
-								graph.setNodeAttribute(node, 'y', attrs.y + dy)
-							} else {
-								const dist = Math.sqrt(attrs.x ** 2 + attrs.y ** 2) || 0.1
-								const repelForce = force * 2
-								graph.setNodeAttribute(node, 'x', attrs.x + (attrs.x / dist) * repelForce)
-								graph.setNodeAttribute(node, 'y', attrs.y + (attrs.y / dist) * repelForce)
-							}
-						})
-					}, 50)
-				}
-
-				return () => {
-					if (centerInterval) clearInterval(centerInterval)
-				}
-			})
-		}
-
-		loadModules()
+		})
 
 		return () => {
 			if (centerInterval) clearInterval(centerInterval)
-			cleanups.forEach((fn) => fn())
+			layout?.kill()
 			renderer?.kill()
 		}
 	}}

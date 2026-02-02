@@ -19,6 +19,11 @@
 
 	// Functions
 	import Graph from 'graphology'
+	import {
+		ENTITY_TYPE,
+		GRAPH_SCENE_ENTITY_TYPES,
+		type EntityType,
+	} from '$/constants/entity-types'
 	import { networksByChainId } from '$/constants/networks'
 	import { formatSmallestToDecimal } from '$/lib/format'
 
@@ -43,8 +48,8 @@
 		$state(undefined)
 	let expanded =
 		$state(true)
-	let visibleCollections: Set<string> =
-		$state(new Set(['wallets', 'connections', 'actors', 'coins', 'allowances', 'routes', 'transactions']))
+	let visibleCollections: Set<EntityType> =
+		$state(new Set(GRAPH_SCENE_ENTITY_TYPES))
 
 
 	// Queries for all collections
@@ -57,15 +62,15 @@
 	const txQuery = useLiveQuery((q) => q.from({ row: transactionsCollection }).select(({ row }) => ({ row })))
 
 
-	// Collection config
+	// Collection config (graph-scene entity types only)
 	const collections = {
-		wallets: { color: '#3b82f6', label: 'Wallets', size: 18, ring: 0 },
-		connections: { color: '#22c55e', label: 'Sessions', size: 14, ring: 1 },
-		actors: { color: '#f59e0b', label: 'Accounts', size: 16, ring: 2 },
-		coins: { color: '#8b5cf6', label: 'Balances', size: 10, ring: 3 },
-		allowances: { color: '#ec4899', label: 'Approvals', size: 9, ring: 3.5 },
-		routes: { color: '#06b6d4', label: 'Routes', size: 12, ring: 4 },
-		transactions: { color: '#ef4444', label: 'Transactions', size: 11, ring: 4.5 },
+		[ENTITY_TYPE.wallet]: { color: '#3b82f6', label: 'Wallets', size: 18, ring: 0 },
+		[ENTITY_TYPE.walletConnection]: { color: '#22c55e', label: 'Sessions', size: 14, ring: 1 },
+		[ENTITY_TYPE.actor]: { color: '#f59e0b', label: 'Accounts', size: 16, ring: 2 },
+		[ENTITY_TYPE.actorCoin]: { color: '#8b5cf6', label: 'Balances', size: 10, ring: 3 },
+		[ENTITY_TYPE.actorAllowance]: { color: '#ec4899', label: 'Approvals', size: 9, ring: 3.5 },
+		[ENTITY_TYPE.bridgeRoute]: { color: '#06b6d4', label: 'Routes', size: 12, ring: 4 },
+		[ENTITY_TYPE.transaction]: { color: '#ef4444', label: 'Transactions', size: 11, ring: 4.5 },
 	} as const
 
 	// Edge colors
@@ -78,15 +83,15 @@
 		transaction: '#ef4444',
 	}
 
-	// Counts
+	// Counts (graph-scene entity types only)
 	const counts = $derived({
-		wallets: walletsQuery.data?.length ?? 0,
-		connections: connectionsQuery.data?.length ?? 0,
-		actors: actorsQuery.data?.length ?? 0,
-		coins: coinsQuery.data?.length ?? 0,
-		allowances: allowancesQuery.data?.length ?? 0,
-		routes: routesQuery.data?.length ?? 0,
-		transactions: txQuery.data?.length ?? 0,
+		[ENTITY_TYPE.wallet]: walletsQuery.data?.length ?? 0,
+		[ENTITY_TYPE.walletConnection]: connectionsQuery.data?.length ?? 0,
+		[ENTITY_TYPE.actor]: actorsQuery.data?.length ?? 0,
+		[ENTITY_TYPE.actorCoin]: coinsQuery.data?.length ?? 0,
+		[ENTITY_TYPE.actorAllowance]: allowancesQuery.data?.length ?? 0,
+		[ENTITY_TYPE.bridgeRoute]: routesQuery.data?.length ?? 0,
+		[ENTITY_TYPE.transaction]: txQuery.data?.length ?? 0,
 	})
 
 	// Helper to get chain name
@@ -112,34 +117,34 @@
 		}
 
 		// Add wallet nodes (center)
-		if (visibleCollections.has('wallets')) {
+		if (visibleCollections.has(ENTITY_TYPE.wallet)) {
 			const wallets = walletsQuery.data ?? []
 			wallets.forEach(({ row }, i) => {
 				const rdns = row.$id?.rdns
 				if (!rdns) return
-				const pos = positionInRing(collections.wallets.ring, i, wallets.length)
+				const pos = positionInRing(collections[ENTITY_TYPE.wallet].ring, i, wallets.length)
 				g.addNode(`wallet:${rdns}`, {
 					label: row.name,
 					...pos,
-					size: collections.wallets.size,
-					color: collections.wallets.color,
+					size: collections[ENTITY_TYPE.wallet].size,
+					color: collections[ENTITY_TYPE.wallet].color,
 					type: row.icon ? 'image' : 'circle',
 					image: row.icon || undefined,
-					collection: 'wallets',
+					collection: ENTITY_TYPE.wallet,
 					details: { rdns: row.rdns },
 				})
 			})
 		}
 
 		// Add connection nodes
-		if (visibleCollections.has('connections')) {
+		if (visibleCollections.has(ENTITY_TYPE.walletConnection)) {
 			const connections = connectionsQuery.data ?? []
 			connections.forEach(({ row }, i) => {
 				const rdns = row.$id?.wallet$id?.rdns
 				if (!rdns) return
 				const connId = `connection:${rdns}`
 				if (g.hasNode(connId)) return
-				const pos = positionInRing(collections.connections.ring, i, connections.length)
+				const pos = positionInRing(collections[ENTITY_TYPE.walletConnection].ring, i, connections.length)
 				const statusColor = row.status === 'connected' ? '#22c55e' : row.status === 'error' ? '#ef4444' : '#f59e0b'
 				const chainName = row.chainId ? getChainName(row.chainId) : null
 				g.addNode(connId, {
@@ -147,13 +152,13 @@
 						? `${row.actors.length} acct${row.actors.length !== 1 ? 's' : ''}${chainName ? ` · ${chainName}` : ''}`
 						: row.status,
 					...pos,
-					size: collections.connections.size,
+					size: collections[ENTITY_TYPE.walletConnection].size,
 					color: statusColor,
 					type: 'circle',
-					collection: 'connections',
+					collection: ENTITY_TYPE.walletConnection,
 					details: { status: row.status, chainId: row.chainId, actors: row.actors.length },
 				})
-				if (visibleCollections.has('wallets')) {
+				if (visibleCollections.has(ENTITY_TYPE.wallet)) {
 					const walletId = `wallet:${rdns}`
 					if (g.hasNode(walletId)) {
 						g.addEdge(walletId, connId, {
@@ -167,25 +172,25 @@
 		}
 
 		// Add actor nodes
-		if (visibleCollections.has('actors')) {
+		if (visibleCollections.has(ENTITY_TYPE.actor)) {
 			const actors = actorsQuery.data ?? []
 			const connections = connectionsQuery.data ?? []
 			actors.forEach(({ row }, i) => {
 				const actorId = `actor:${row.$id.network}:${row.address}`
 				if (g.hasNode(actorId)) return
-				const pos = positionInRing(collections.actors.ring, i, actors.length)
+				const pos = positionInRing(collections[ENTITY_TYPE.actor].ring, i, actors.length)
 				const chainName = getChainName(row.$id.network)
 				g.addNode(actorId, {
 					label: `${row.address.slice(0, 6)}…${row.address.slice(-4)}`,
 					...pos,
-					size: collections.actors.size,
-					color: collections.actors.color,
+					size: collections[ENTITY_TYPE.actor].size,
+					color: collections[ENTITY_TYPE.actor].color,
 					type: 'circle',
-					collection: 'actors',
+					collection: ENTITY_TYPE.actor,
 					details: { address: row.address, chain: chainName, chainId: row.$id.network },
 				})
 				// Connect actor to connection
-				if (visibleCollections.has('connections')) {
+				if (visibleCollections.has(ENTITY_TYPE.walletConnection)) {
 					for (const { row: conn } of connections) {
 						if (conn.actors.includes(row.address)) {
 							const connRdns = conn.$id?.wallet$id?.rdns
@@ -203,25 +208,25 @@
 		}
 
 		// Add coin balance nodes
-		if (visibleCollections.has('coins')) {
+		if (visibleCollections.has(ENTITY_TYPE.actorCoin)) {
 			const coins = coinsQuery.data ?? []
 			coins.forEach(({ row }, i) => {
 				const coinId = `coin:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}`
 				if (g.hasNode(coinId)) return
-				const pos = positionInRing(collections.coins.ring, i, coins.length)
+				const pos = positionInRing(collections[ENTITY_TYPE.actorCoin].ring, i, coins.length)
 				const hasBalance = row.balance > 0n
 				const chainName = getChainName(row.$id.chainId)
 				const balanceStr = hasBalance ? formatSmallestToDecimal(row.balance, row.decimals, 2) : '0'
 				g.addNode(coinId, {
 					label: `${balanceStr} ${row.symbol}`,
 					...pos,
-					size: hasBalance ? collections.coins.size + 3 : collections.coins.size,
-					color: hasBalance ? collections.coins.color : `${collections.coins.color}55`,
+					size: hasBalance ? collections[ENTITY_TYPE.actorCoin].size + 3 : collections[ENTITY_TYPE.actorCoin].size,
+					color: hasBalance ? collections[ENTITY_TYPE.actorCoin].color : `${collections[ENTITY_TYPE.actorCoin].color}55`,
 					type: 'circle',
-					collection: 'coins',
+					collection: ENTITY_TYPE.actorCoin,
 					details: { symbol: row.symbol, balance: balanceStr, chain: chainName, hasBalance },
 				})
-				if (visibleCollections.has('actors')) {
+				if (visibleCollections.has(ENTITY_TYPE.actor)) {
 					const actorId = `actor:${row.$id.chainId}:${row.$id.address}`
 					if (g.hasNode(actorId)) {
 						g.addEdge(actorId, coinId, {
@@ -235,24 +240,24 @@
 		}
 
 		// Add allowance nodes
-		if (visibleCollections.has('allowances')) {
+		if (visibleCollections.has(ENTITY_TYPE.actorAllowance)) {
 			const allowances = allowancesQuery.data ?? []
 			allowances.forEach(({ row }, i) => {
 				const allowanceId = `allowance:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}:${row.$id.spenderAddress}`
 				if (g.hasNode(allowanceId)) return
-				const pos = positionInRing(collections.allowances.ring, i, allowances.length)
+				const pos = positionInRing(collections[ENTITY_TYPE.actorAllowance].ring, i, allowances.length)
 				const hasAllowance = row.allowance > 0n
 				const chainName = getChainName(row.$id.chainId)
 				g.addNode(allowanceId, {
 					label: hasAllowance ? '✓ Approved' : '○ Pending',
 					...pos,
-					size: hasAllowance ? collections.allowances.size + 2 : collections.allowances.size,
-					color: hasAllowance ? collections.allowances.color : `${collections.allowances.color}55`,
+					size: hasAllowance ? collections[ENTITY_TYPE.actorAllowance].size + 2 : collections[ENTITY_TYPE.actorAllowance].size,
+					color: hasAllowance ? collections[ENTITY_TYPE.actorAllowance].color : `${collections[ENTITY_TYPE.actorAllowance].color}55`,
 					type: 'circle',
-					collection: 'allowances',
+					collection: ENTITY_TYPE.actorAllowance,
 					details: { chain: chainName, approved: hasAllowance, spender: row.$id.spenderAddress.slice(0, 10) + '…' },
 				})
-				if (visibleCollections.has('coins')) {
+				if (visibleCollections.has(ENTITY_TYPE.actorCoin)) {
 					const coinId = `coin:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}`
 					if (g.hasNode(coinId)) {
 						g.addEdge(coinId, allowanceId, {
@@ -266,34 +271,34 @@
 		}
 
 		// Add route nodes
-		if (visibleCollections.has('routes')) {
+		if (visibleCollections.has(ENTITY_TYPE.bridgeRoute)) {
 			const routes = routesQuery.data ?? []
 			routes.forEach(({ row }, i) => {
 				const routeId = `routes:${row.$id.fromChainId}:${row.$id.toChainId}:${row.$id.amount}`
 				if (g.hasNode(routeId)) return
-				const pos = positionInRing(collections.routes.ring, i, routes.length)
+				const pos = positionInRing(collections[ENTITY_TYPE.bridgeRoute].ring, i, routes.length)
 				const hasRoutes = row.routes.length > 0
 				const fromChain = getChainName(row.$id.fromChainId)
 				const toChain = getChainName(row.$id.toChainId)
 				g.addNode(routeId, {
 					label: hasRoutes ? `${row.routes.length}× ${fromChain} → ${toChain}` : `${fromChain} → ${toChain}`,
 					...pos,
-					size: hasRoutes ? collections.routes.size + Math.min(row.routes.length, 5) : collections.routes.size,
-					color: hasRoutes ? collections.routes.color : `${collections.routes.color}55`,
+					size: hasRoutes ? collections[ENTITY_TYPE.bridgeRoute].size + Math.min(row.routes.length, 5) : collections[ENTITY_TYPE.bridgeRoute].size,
+					color: hasRoutes ? collections[ENTITY_TYPE.bridgeRoute].color : `${collections[ENTITY_TYPE.bridgeRoute].color}55`,
 					type: 'circle',
-					collection: 'routes',
+					collection: ENTITY_TYPE.bridgeRoute,
 					details: { from: fromChain, to: toChain, count: row.routes.length, loading: row.isLoading },
 				})
 			})
 		}
 
 		// Add transaction nodes
-		if (visibleCollections.has('transactions')) {
+		if (visibleCollections.has(ENTITY_TYPE.transaction)) {
 			const txs = txQuery.data ?? []
 			txs.forEach(({ row }, i) => {
 				const txId = `tx:${row.$id.sourceTxHash}`
 				if (g.hasNode(txId)) return
-				const pos = positionInRing(collections.transactions.ring, i, txs.length)
+				const pos = positionInRing(collections[ENTITY_TYPE.transaction].ring, i, txs.length)
 				const statusColors = { pending: '#f59e0b', completed: '#22c55e', failed: '#ef4444' }
 				const statusIcon = { pending: '⏳', completed: '✓', failed: '✗' }
 				const fromChain = getChainName(row.fromChainId)
@@ -301,13 +306,13 @@
 				g.addNode(txId, {
 					label: `${statusIcon[row.status]} ${fromChain} → ${toChain}`,
 					...pos,
-					size: collections.transactions.size,
-					color: statusColors[row.status] ?? collections.transactions.color,
+					size: collections[ENTITY_TYPE.transaction].size,
+					color: statusColors[row.status] ?? collections[ENTITY_TYPE.transaction].color,
 					type: 'circle',
-					collection: 'transactions',
+					collection: ENTITY_TYPE.transaction,
 					details: { status: row.status, from: fromChain, to: toChain, hash: row.$id.sourceTxHash.slice(0, 10) + '…' },
 				})
-				if (visibleCollections.has('actors')) {
+				if (visibleCollections.has(ENTITY_TYPE.actor)) {
 					const actorId = `actor:${row.fromChainId}:${row.$id.address}`
 					if (g.hasNode(actorId)) {
 						g.addEdge(actorId, txId, {
@@ -402,7 +407,7 @@
 
 
 	// Toggle collection visibility
-	const toggleCollection = (key: string) => {
+	const toggleCollection = (key: EntityType) => {
 		const next = new Set(visibleCollections)
 		if (next.has(key)) next.delete(key)
 		else next.add(key)
@@ -475,12 +480,13 @@
 			<footer>
 				<div data-legend>
 					{#each Object.entries(collections) as [key, config]}
-						{@const count = counts[key as keyof typeof counts]}
+						{@const entityType = key as keyof typeof counts}
+						{@const count = counts[entityType]}
 						<button
 							type="button"
 							style="--color: {config.color}"
-							data-active={visibleCollections.has(key)}
-							onclick={() => toggleCollection(key)}
+							data-active={visibleCollections.has(entityType)}
+							onclick={() => toggleCollection(entityType)}
 						>
 							<span data-dot></span>
 							{config.label}
