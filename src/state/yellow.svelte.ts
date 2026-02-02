@@ -18,6 +18,7 @@ import { parseDecimalToSmallest } from '$/lib/format'
 
 function upsertChannel(row: YellowChannel) {
 	const existing = yellowChannelsCollection.state.get(row.id)
+	if (existing && row.turnNum < existing.turnNum) return
 	if (existing) {
 		yellowChannelsCollection.update(row.id, (draft) => {
 			Object.assign(draft, row)

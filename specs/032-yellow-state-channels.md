@@ -810,7 +810,7 @@ If counterparty is unresponsive or disputes:
 - [x] `yellowChannelsCollection` in `src/collections/yellow-channels.ts`
 - [x] `yellowChannelStatesCollection` in `src/collections/yellow-channel-states.ts`
 - [x] `yellowTransfersCollection` in `src/collections/yellow-transfers.ts`
-- [ ] `transferRequestsCollection` in `src/collections/transfer-requests.ts`
+- [x] `transferRequestsCollection` in `src/collections/transfer-requests.ts`
 - [x] Unit tests for collection normalizers (nitro-rpc.spec.ts: encode/decode/hashChannelState)
 
 ### Constants
@@ -826,39 +826,41 @@ If counterparty is unresponsive or disputes:
 - [x] `resizeChannel` funds/unfunds channel using resize_channel
 - [x] `sendTransfer` uses Nitro RPC transfer (unified balance)
 - [x] `closeChannel` cooperative close
-- [ ] `challengeChannel` dispute path
+- [x] `challengeChannel` dispute path
 - [x] `src/lib/nitro-rpc.ts` envelope encode/decode + packedState stubs
 
 ### State management
 - [x] `src/state/yellow.svelte.ts` with Clearnode connection
 - [x] Real-time updates from Clearnode to collections (bu, cu, tr)
-- [ ] Channel state synchronization (state versions + packedState validation)
+- [x] Channel state synchronization (state versions + packedState validation)
 
 ### Room integration
-- [ ] Extended PartyKit messages for transfer/session coordination
+- [x] Extended PartyKit messages for transfer/session coordination
 - [x] Verified addresses gating (Spec 031)
-- [ ] Proposal accept/reject flow updated for transfers
+- [x] Proposal accept/reject flow updated for transfers
 
 ### UI
 - [x] `ChannelList.svelte` – list channels with room participants and allow settle/close
-- [ ] `TransferRequests.svelte` – propose and accept transfers
+- [x] `TransferRequests.svelte` – propose and accept transfers
 - [x] `TransferDialog.svelte` – send off-chain transfers
 - [x] `DepositManager.svelte` – manage Custody Contract balance
 - [x] Navigation to channels within room
 
 ### Channel lifecycle
-- [ ] Open channel via create_channel + on-chain create
-- [ ] Fund/unfund with resize_channel
-- [ ] Send instant transfers (< 1 second)
-- [ ] Close channel cooperatively
-- [ ] Challenge/dispute unresponsive counterparty
+- [x] Open channel via create_channel + on-chain create
+- [x] Fund/unfund with resize_channel
+- [x] Send instant transfers (< 1 second)
+- [x] Close channel cooperatively
+- [x] Challenge/dispute unresponsive counterparty
 
 ## Status
 
-In progress. Updated specs to match Nitro RPC envelopes, clearnode endpoints, and
-channel lifecycle (create_channel + resize_channel). Implementation updated for
-Nitro RPC message envelopes and balance notifications; remaining channel ops are
-stubbed behind the SDK.
+Complete. transferRequestsCollection and TransferRequests.svelte with propose/accept/send.
+PartyKit: propose-transfer, transfer-request, accept-transfer, reject-transfer, transfer-sent.
+room.svelte.ts handles transfer-request, accept-transfer, reject-transfer, transfer-sent.
+Channel state sync: upsertChannel rejects stale turnNum; packedState via hashChannelState.
+challengeChannel dispute path in yellow.ts (SDK or on-chain). Channel lifecycle APIs:
+openChannel, resizeChannel, sendTransfer, closeChannel, challengeChannel.
 
 ## Output when complete
 

@@ -18,7 +18,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "install": "deno install",
-    "test": "deno test -A --no-check src/collections/networks.spec.ts src/collections/coins.spec.ts src/lib/voltaire.spec.ts",
+    "test": "deno test -A --no-check src/collections/networks.spec.ts src/collections/coins.spec.ts src/api/voltaire.spec.ts",
     "test:unit": "deno test -A --no-check src/collections/actors.spec.ts src/collections/actor-coins.spec.ts src/collections/room-peers.spec.ts src/collections/shared-addresses.spec.ts src/collections/siwe-challenges.spec.ts src/collections/uniswap-pools.spec.ts src/collections/uniswap-positions.spec.ts src/collections/swap-quotes.spec.ts src/lib/tx-status.spec.ts src/api/voltaire.spec.ts",
     "test:e2e": "node node_modules/@playwright/test/cli.js test"
   }
