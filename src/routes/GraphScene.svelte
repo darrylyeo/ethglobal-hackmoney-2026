@@ -23,7 +23,7 @@
 	import { formatSmallestToDecimal } from '$/lib/format'
 
 	// Components
-	import SigmaGraph from './SigmaGraph.svelte'
+	import SigmaGraph from '$/components/SigmaGraph.svelte'
 
 
 	// Props
