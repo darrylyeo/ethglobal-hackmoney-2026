@@ -508,14 +508,14 @@
 			? graphModel.graph.getNodeAttributes(hoveredNode)
 			: null
 	)
-	const hoveredNodeEntries = $derived(() => {
+	const hoveredNodeEntries = $derived.by(() => {
 		const details = hoveredNodeData?.details
 		return isRecord(details) ? Object.entries(details) : []
 	})
 	const selectionCount = $derived(
 		selectedNodes.length + selectedEdges.length
 	)
-	const selectionAnnouncement = $derived(() => {
+	const selectionAnnouncement = $derived.by(() => {
 		const count = selectionCount
 		if (count === 0) return 'Selection cleared'
 		const nodeCount = selectedNodes.length

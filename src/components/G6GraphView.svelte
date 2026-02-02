@@ -33,6 +33,7 @@
 
 
 <div
+	role="application"
 	tabindex="0"
 	aria-label={`Graph visualization with ${selectionCount} selected`}
 	{@attach (container) => {
@@ -107,6 +108,7 @@
 				stroke: edge.color ?? '#94a3b8',
 				lineWidth: edge.size ?? 1,
 				endArrow: getEdgeArrow(edge.type),
+				lineDash: edge.relation === 'allowance' ? [4, 4] : undefined,
 				labelText: edge.relation ?? '',
 				labelBackground: true,
 				labelBackgroundFill,

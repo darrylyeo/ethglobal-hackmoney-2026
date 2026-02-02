@@ -104,18 +104,18 @@ Use built-in node/edge types, state styling, and behaviors from the G6 docs:
 
 ## Acceptance criteria
 
-- [ ] `SigmaGraph.svelte` is renamed to `SigmaGraphView.svelte` and references
+- [x] `SigmaGraph.svelte` is renamed to `SigmaGraphView.svelte` and references
       updated accordingly.
-- [ ] `G6GraphView.svelte` renders the same nodes, edges, labels, and colors as
+- [x] `G6GraphView.svelte` renders the same nodes, edges, labels, and colors as
       the Sigma view for the same data input.
-- [ ] GraphScene uses a normalized graph model that is passed to both renderers.
-- [ ] A UI switcher lets users toggle between Sigma and G6 at any time.
-- [ ] The selected framework persists through graph data updates and UI changes.
-- [ ] G6 view enables drag, zoom, selection, and relation highlighting.
-- [ ] G6 view uses hover/active/selected state styling and readable labels.
-- [ ] G6 view respects reduced motion and color scheme preferences.
-- [ ] Graph container is keyboard-focusable with clear ARIA text.
-- [ ] Selection changes are announced via an `aria-live` region.
+- [x] GraphScene uses a normalized graph model that is passed to both renderers.
+- [x] A UI switcher lets users toggle between Sigma and G6 at any time.
+- [x] The selected framework persists through graph data updates and UI changes.
+- [x] G6 view enables drag, zoom, selection, and relation highlighting.
+- [x] G6 view uses hover/active/selected state styling and readable labels.
+- [x] G6 view respects reduced motion and color scheme preferences.
+- [x] Graph container is keyboard-focusable with clear ARIA text.
+- [x] Selection changes are announced via an `aria-live` region.
 
 ## Implementation notes
 
@@ -134,7 +134,7 @@ Use built-in node/edge types, state styling, and behaviors from the G6 docs:
 
 ## Status
 
-Incomplete.
+Complete. SigmaGraphView.svelte (renamed from SigmaGraph), G6GraphView.svelte, GraphScene.svelte with normalized GraphModel from graph-model.ts. Framework switcher (Sigma/G6) with localStorage persistence. G6: drag-canvas, zoom-canvas, drag-element, click-select, brush-select, hover-activate, focus-element; node/edge states (selected, highlight, active) with halo; tooltip; allowance edges dashed; reduced motion and prefers-color-scheme respected. Graph container role="application", tabindex="0", aria-label; selection announced via aria-live in data-sr-only div. selectionAnnouncement and hoveredNodeEntries use $derived.by.
 
 ## Output when complete
 
