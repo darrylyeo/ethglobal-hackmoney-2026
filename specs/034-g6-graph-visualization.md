@@ -134,7 +134,7 @@ Use built-in node/edge types, state styling, and behaviors from the G6 docs:
 
 ## Status
 
-Complete. SigmaGraphView.svelte (renamed from SigmaGraph), G6GraphView.svelte, GraphScene.svelte with normalized GraphModel from graph-model.ts. Framework switcher (Sigma/G6) with localStorage persistence. G6: drag-canvas, zoom-canvas, drag-element, click-select, brush-select, hover-activate, focus-element; node/edge states (selected, highlight, active) with halo; tooltip; allowance edges dashed; reduced motion and prefers-color-scheme respected. Graph container role="application", tabindex="0", aria-label; selection announced via aria-live in data-sr-only div. selectionAnnouncement and hoveredNodeEntries use $derived.by.
+Complete. SigmaGraphView.svelte (renamed from SigmaGraph), G6GraphView.svelte, GraphScene.svelte with normalized GraphModel from graph-model.ts. Framework switcher (Sigma/G6) with localStorage persistence. G6: drag-canvas, zoom-canvas, drag-element, click-select, brush-select, hover-activate, focus-element; node/edge states (selected, highlight, active) with halo; tooltip; allowance edges dashed; reduced motion and prefers-color-scheme respected. Graph container role="application", tabindex="0", aria-label; selection announced via aria-live in data-sr-only div. selectionAnnouncement and hoveredNodeEntries use $derived.by. Open TODOs are product decisions (default framework, persistence scope, selection UI alignment).
 
 ## Output when complete
 

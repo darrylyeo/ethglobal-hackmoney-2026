@@ -35,7 +35,7 @@ async function addMockWallet(context: { addInitScript: (fn: () => void) => Promi
 test.describe('Bridge UI (Spec 004)', () => {
 	test.beforeEach(async ({ context, page }) => {
 		await addMockWallet(context)
-		await page.goto('/bridge')
+		await page.goto('/bridge/lifi')
 	})
 
 	test('select source chain, destination chain, enter amount and address', async ({
