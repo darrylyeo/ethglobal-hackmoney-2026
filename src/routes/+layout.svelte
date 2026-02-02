@@ -3,23 +3,23 @@
 	let { children } = $props()
 
 	// State
-	import { networkStatus } from '$/lib/network-status.svelte'
-	import { networks } from '$/constants/networks'
+	// import { networkStatus } from '$/lib/network-status.svelte'
+	// import { networks } from '$/constants/networks'
 
 	let showGraph =
 		$state(false)
 
 	// (Derived)
-	$effect(() => {
-		const chainIds = networks.map((n) => n.id)
-		networkStatus.start(chainIds)
-		return () => networkStatus.stop()
-	})
+	// $effect(() => {
+	// 	const chainIds = networks.map((n) => n.id)
+	// 	networkStatus.start(chainIds)
+	// 	return () => networkStatus.stop()
+	// })
 
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
 	import Navigation from '$/views/Navigation.svelte'
-	import NetworkStatusIndicator from '$/routes/NetworkStatusIndicator.svelte'
+	// import NetworkStatusIndicator from '$/routes/NetworkStatusIndicator.svelte'
 	import ToastContainer from '$/components/ToastContainer.svelte'
 	import GraphScene from '$/routes/GraphScene.svelte'
 
@@ -101,9 +101,9 @@
 			},
 		]}
 		>
-			{#snippet headerActions()}
+			<!-- {#snippet headerActions()}
 				<NetworkStatusIndicator />
-			{/snippet}
+			{/snippet} -->
 		</Navigation>
 
 	<main id="main-content" tabindex="-1">
