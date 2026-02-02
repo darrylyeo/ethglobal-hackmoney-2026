@@ -8,15 +8,21 @@
 import { createCollection, localStorageCollectionOptions } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
 import { type Wallet$id, type WalletRow, getWallet } from '$/collections/wallets'
+import { normalizeAddress } from '$/lib/address'
 import { connectProvider, getWalletChainId } from '$/lib/wallet'
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'error'
+
+export enum WalletConnectionTransport {
+	Eip1193 = 'eip1193',
+	None = 'none',
+}
 
 export type WalletConnection$id = {
 	wallet$id: Wallet$id
 }
 
-export type WalletConnectionRow = {
+export type WalletConnectionBase = {
 	$id: WalletConnection$id
 	status: ConnectionStatus
 	actors: `0x${string}`[]
@@ -27,7 +33,26 @@ export type WalletConnectionRow = {
 	connectedAt: number
 }
 
-export type ConnectedWallet = { wallet: WalletRow; connection: WalletConnectionRow }
+export type WalletConnectionEip1193 = WalletConnectionBase & {
+	transport: WalletConnectionTransport.Eip1193
+}
+
+export type WalletConnectionNone = WalletConnectionBase & {
+	transport: WalletConnectionTransport.None
+}
+
+export type WalletConnectionRow = WalletConnectionEip1193 | WalletConnectionNone
+
+export type ReadOnlyWalletRow = {
+	$id: Wallet$id
+	name: string
+	icon: string
+	rdns: string
+}
+
+export type ConnectedWallet =
+	| { wallet: WalletRow; connection: WalletConnectionEip1193 }
+	| { wallet: ReadOnlyWalletRow; connection: WalletConnectionNone }
 
 export const walletConnectionsCollection = createCollection(
 	localStorageCollectionOptions({
@@ -60,6 +85,7 @@ export const createConnection = (wallet$id: Wallet$id, autoSelect: boolean) => {
 		}
 		walletConnectionsCollection.insert({
 			$id,
+			transport: WalletConnectionTransport.Eip1193,
 			status: 'connecting',
 			actors: [],
 			activeActor: null,
@@ -77,6 +103,7 @@ export const setConnectionConnected = (wallet$id: Wallet$id, actors: `0x${string
 	const existing = walletConnectionsCollection.state.get(key)
 	if (existing) {
 		walletConnectionsCollection.update(key, (draft) => {
+			draft.transport = WalletConnectionTransport.Eip1193
 			draft.status = 'connected'
 			draft.actors = actors
 			draft.activeActor = actors[0] ?? null
@@ -92,6 +119,7 @@ export const setConnectionError = (wallet$id: Wallet$id, error: string) => {
 	const existing = walletConnectionsCollection.state.get(key)
 	if (existing) {
 		walletConnectionsCollection.update(key, (draft) => {
+			draft.transport = WalletConnectionTransport.Eip1193
 			draft.status = 'error'
 			draft.error = error
 		})
@@ -104,6 +132,7 @@ export const updateConnectionActors = (wallet$id: Wallet$id, actors: `0x${string
 	const existing = walletConnectionsCollection.state.get(key)
 	if (existing) {
 		walletConnectionsCollection.update(key, (draft) => {
+			draft.transport = WalletConnectionTransport.Eip1193
 			draft.actors = actors
 			if (!actors.includes(draft.activeActor!)) {
 				draft.activeActor = actors[0] ?? null
@@ -118,6 +147,7 @@ export const switchActiveActor = (wallet$id: Wallet$id, actor: `0x${string}`) =>
 	const existing = walletConnectionsCollection.state.get(key)
 	if (existing && existing.actors.includes(actor)) {
 		walletConnectionsCollection.update(key, (draft) => {
+			draft.transport = WalletConnectionTransport.Eip1193
 			draft.activeActor = actor
 		})
 	}
@@ -166,9 +196,58 @@ export const updateWalletChain = (wallet$id: Wallet$id, chainId: number) => {
 	const existing = walletConnectionsCollection.state.get(key)
 	if (existing) {
 		walletConnectionsCollection.update(key, (draft) => {
+			draft.transport = WalletConnectionTransport.Eip1193
 			draft.chainId = chainId
 		})
 	}
+}
+
+export const connectReadOnly = ({
+	address,
+	chainId,
+	autoSelect = true,
+}: {
+	address: string
+	chainId: number
+	autoSelect?: boolean
+}) => {
+	const normalized = normalizeAddress(address)
+	if (!normalized) return false
+	const wallet$id = { rdns: `readonly:${normalized}` }
+	const key = stringify({ wallet$id })
+	const existing = walletConnectionsCollection.state.get(key)
+	if (autoSelect) {
+		for (const [k, conn] of walletConnectionsCollection.state) {
+			if (conn.selected) {
+				walletConnectionsCollection.update(k, (draft) => {
+					draft.selected = false
+				})
+			}
+		}
+	}
+	if (existing) {
+		walletConnectionsCollection.update(key, (draft) => {
+			draft.transport = WalletConnectionTransport.None
+			draft.status = 'connected'
+			draft.actors = [normalized]
+			draft.activeActor = normalized
+			draft.chainId = chainId
+			draft.error = null
+		})
+		return true
+	}
+	walletConnectionsCollection.insert({
+		$id: { wallet$id },
+		transport: WalletConnectionTransport.None,
+		status: 'connected',
+		actors: [normalized],
+		activeActor: normalized,
+		chainId,
+		selected: autoSelect,
+		error: null,
+		connectedAt: Date.now(),
+	})
+	return true
 }
 
 // Disconnect (remove from collection)
@@ -219,6 +298,7 @@ export const reconnectWallet = async (wallet$id: Wallet$id) => {
 
 	// Set to connecting state
 	walletConnectionsCollection.update(key, (draft) => {
+		draft.transport = WalletConnectionTransport.Eip1193
 		draft.status = 'connecting'
 		draft.error = null
 	})
@@ -236,6 +316,7 @@ export const reconnectWallet = async (wallet$id: Wallet$id) => {
 		const chainId = await getWalletChainId(walletRow.provider)
 
 		walletConnectionsCollection.update(key, (draft) => {
+			draft.transport = WalletConnectionTransport.Eip1193
 			draft.status = 'connected'
 			draft.actors = actors
 			// Keep activeActor if still in list, otherwise use first

@@ -7,7 +7,6 @@ export default defineConfig({
     include: ["src/api/**/*.spec.ts", "src/constants/**/*.spec.ts", "src/lib/**/*.spec.ts"],
     exclude: [
       "**/voltaire.spec.ts",
-      "**/explorers.spec.ts",
       "**/tx-status.spec.ts",
     ],
   },

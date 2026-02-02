@@ -5,25 +5,99 @@
 
 import { ChainId } from '$/constants/networks'
 
-export const POOL_MANAGER_ADDRESS: Partial<Record<number, `0x${string}`>> = {
-	[ChainId.Ethereum]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-	[ChainId.Optimism]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-	[ChainId.Arbitrum]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-	[ChainId.Base]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+type Address = `0x${string}`
+
+export enum UniswapContract {
+	PoolManager = 'PoolManager',
+	UniversalRouter = 'UniversalRouter',
 }
 
-export const UNIVERSAL_ROUTER_ADDRESS: Partial<Record<number, `0x${string}`>> = {
-	[ChainId.Ethereum]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-	[ChainId.Optimism]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-	[ChainId.Arbitrum]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-	[ChainId.Base]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+export type UniswapContractAddress = {
+	chainId: ChainId
+	contract: UniswapContract
+	address: Address
 }
 
-export const FEE_TIERS = [100, 500, 3000, 10000] as const
+const placeholderAddress: Address = '0x0000000000000000000000000000000000000000'
 
-export const TICK_SPACINGS: Record<number, number> = {
-	100: 1,
-	500: 10,
-	3000: 60,
-	10000: 200,
+export const uniswapContractAddresses = [
+	{
+		chainId: ChainId.Ethereum,
+		contract: UniswapContract.PoolManager,
+		address: placeholderAddress,
+	},
+	{
+		chainId: ChainId.Optimism,
+		contract: UniswapContract.PoolManager,
+		address: placeholderAddress,
+	},
+	{
+		chainId: ChainId.Arbitrum,
+		contract: UniswapContract.PoolManager,
+		address: placeholderAddress,
+	},
+	{
+		chainId: ChainId.Base,
+		contract: UniswapContract.PoolManager,
+		address: placeholderAddress,
+	},
+	{
+		chainId: ChainId.Ethereum,
+		contract: UniswapContract.UniversalRouter,
+		address: placeholderAddress,
+	},
+	{
+		chainId: ChainId.Optimism,
+		contract: UniswapContract.UniversalRouter,
+		address: placeholderAddress,
+	},
+	{
+		chainId: ChainId.Arbitrum,
+		contract: UniswapContract.UniversalRouter,
+		address: placeholderAddress,
+	},
+	{
+		chainId: ChainId.Base,
+		contract: UniswapContract.UniversalRouter,
+		address: placeholderAddress,
+	},
+] as const satisfies readonly UniswapContractAddress[]
+
+const contractAddressEntries = (
+	Object.fromEntries(
+		Map.groupBy(uniswapContractAddresses, (entry) => entry.contract)
+			.entries()
+			.map(([contract, entries]) => [
+				contract,
+				Object.fromEntries(entries.map((entry) => [entry.chainId, entry.address])),
+			])
+	)
+)
+
+export const POOL_MANAGER_ADDRESS = contractAddressEntries[UniswapContract.PoolManager]
+export const UNIVERSAL_ROUTER_ADDRESS = contractAddressEntries[UniswapContract.UniversalRouter]
+
+export enum FeeTier {
+	Lowest = 100,
+	Low = 500,
+	Medium = 3000,
+	High = 10000,
 }
+
+export type UniswapFeeTier = {
+	feeTier: FeeTier
+	tickSpacing: number
+}
+
+export const uniswapFeeTiers = [
+	{ feeTier: FeeTier.Lowest, tickSpacing: 1 },
+	{ feeTier: FeeTier.Low, tickSpacing: 10 },
+	{ feeTier: FeeTier.Medium, tickSpacing: 60 },
+	{ feeTier: FeeTier.High, tickSpacing: 200 },
+] as const satisfies readonly UniswapFeeTier[]
+
+export const FEE_TIERS = uniswapFeeTiers.map((tier) => tier.feeTier)
+
+export const TICK_SPACINGS = Object.fromEntries(
+	uniswapFeeTiers.map((tier) => [tier.feeTier, tier.tickSpacing]),
+)

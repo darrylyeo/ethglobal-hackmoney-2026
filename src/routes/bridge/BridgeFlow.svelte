@@ -7,7 +7,7 @@
 	import { validateBridgeAmount, extractRouteLimits, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT } from '$/constants/bridge-limits'
 
 	// Context
-	import { Button, Dialog, Popover, Select, Switch, Checkbox } from 'bits-ui'
+	import { Button, Popover, Switch } from 'bits-ui'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	// import { liveQueryAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
@@ -21,20 +21,22 @@
 	import { transactionsCollection, updateTransaction } from '$/collections/transactions'
 
 	// Functions
+	import { resolve } from '$app/paths'
 	import { extractFeeBreakdown, getUsdcAddress } from '$/api/lifi'
-	import { getTxUrl } from '$/constants/explorers'
-	import { getTxReceiptStatus } from '$/lib/approval'
+	import { getTxUrl } from '$/constants/networks'
+	import { getTxReceiptStatus } from '$/api/approval'
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
 	import { ErrorCode } from '$/lib/errors'
 	import { formatTokenAmount, formatSmallestToDecimal, parseDecimalToSmallest, isValidDecimalInput } from '$/lib/format'
 	import { isValidAddress, normalizeAddress, formatAddress } from '$/lib/address'
 	import { stringify } from 'devalue'
 	import { debounce } from '$/lib/debounce'
-	import { switchWalletChain } from '$/lib/wallet'
-	import { networkStatus } from '$/lib/network-status.svelte'
+	import { networkStatus } from '$/api/network-status.svelte'
 
 	// Components
+	import Select from '$/components/Select.svelte'
 	import Spinner from '$/components/Spinner.svelte'
+	import TransactionFlow from '$/components/TransactionFlow.svelte'
 	import TokenApproval from './TokenApproval.svelte'
 	import BridgeExecution from './BridgeExecution.svelte'
 
@@ -42,11 +44,9 @@
 	let {
 		selectedWallets,
 		selectedActor,
-		selectedChainId,
 	}: {
 		selectedWallets: ConnectedWallet[],
 		selectedActor: `0x${string}` | null,
-		selectedChainId: number | null,
 	} = $props()
 
 	// (Derived)
@@ -68,12 +68,16 @@
 
 	// Settings (shared persisted state)
 	const settings = $derived(bridgeSettingsState.current ?? defaultBridgeSettings)
+	const sortOptions: { id: BridgeSettings['sortBy']; label: string }[] = [
+		{ id: 'recommended', label: 'Recommended' },
+		{ id: 'output', label: 'Best output' },
+		{ id: 'fees', label: 'Lowest fees' },
+		{ id: 'speed', label: 'Fastest' },
+	]
 
 	// Ephemeral UI state (not persisted)
 	let slippageInput = $state('')
 	let invalidAmountInput = $state(false)
-	let showConfirmation = $state(false)
-	let confirmed = $state(false)
 	let selectedRouteId = $state<string | null>(null)
 	let executing = $state(false) // bound from BridgeExecution
 	let executionRef = $state<{ execute: () => Promise<void> } | null>(null)
@@ -157,8 +161,6 @@
 	// Reset selection on params change (approval derives from collection automatically)
 	$effect(() => { void quoteParams; selectedRouteId = null })
 
-	$effect(() => { if (showConfirmation) confirmed = false })
-
 	// Balances (reactive from query)
 	const balances = $derived(
 		selectedActor
@@ -216,7 +218,6 @@
 	const approved = $derived(currentAllowance >= settings.amount)
 
 	const canSend = $derived(!needsApproval || approved)
-	const needsChainSwitch = $derived(Boolean(selectedWallet && selectedChainId !== null && fromNetwork && selectedChainId !== fromNetwork.id))
 
 	const recipient = $derived<`0x${string}`>(settings.useCustomRecipient && isValidAddress(settings.customRecipient) ? normalizeAddress(settings.customRecipient)! : selectedActor ?? '0x0000000000000000000000000000000000000000')
 	const output = $derived(selectedRoute?.toAmount ?? 0n)
@@ -249,7 +250,6 @@
 	}
 
 	const onRefresh = () => { if (quoteParams) fetchBridgeRoutes(quoteParams).catch(() => {}) }
-	const onConfirm = () => { executionRef?.execute(); showConfirmation = false }
 </script>
 
 
@@ -264,21 +264,35 @@
 		<div data-row="gap-4">
 			<div data-column="gap-1" style="flex:1" data-from-chain>
 				<label for="from">From</label>
-				<Select.Root type="single" value={settings.fromChainId?.toString()} onValueChange={(v) => { if (v) bridgeSettingsState.current = { ...settings, fromChainId: Number(v) } }} items={filteredNetworks.map((n) => ({ value: String(n.id), label: n.name }))}>
-					<Select.Trigger id="from" aria-label="From chain">{fromNetwork?.name ?? '—'}</Select.Trigger>
-					<Select.Portal><Select.Content><Select.Viewport>
-						{#each filteredNetworks as n (n.id)}<Select.Item value={String(n.id)} label={n.name}>{n.name}</Select.Item>{/each}
-					</Select.Viewport></Select.Content></Select.Portal>
-				</Select.Root>
+				<Select
+					items={filteredNetworks}
+					value={settings.fromChainId?.toString() ?? ''}
+					onValueChange={(v) => {
+						if (!v) return
+						bridgeSettingsState.current = { ...settings, fromChainId: Number(v) }
+					}}
+					getItemId={(network) => String(network.id)}
+					getItemLabel={(network) => network.name}
+					placeholder="—"
+					id="from"
+					ariaLabel="From chain"
+				/>
 			</div>
 			<div data-column="gap-1" style="flex:1" data-to-chain>
 				<label for="to">To</label>
-				<Select.Root type="single" value={settings.toChainId?.toString()} onValueChange={(v) => { if (v) bridgeSettingsState.current = { ...settings, toChainId: Number(v) } }} items={filteredNetworks.map((n) => ({ value: String(n.id), label: n.name }))}>
-					<Select.Trigger id="to" aria-label="To chain">{toNetwork?.name ?? '—'}</Select.Trigger>
-					<Select.Portal><Select.Content><Select.Viewport>
-						{#each filteredNetworks as n (n.id)}<Select.Item value={String(n.id)} label={n.name}>{n.name}</Select.Item>{/each}
-					</Select.Viewport></Select.Content></Select.Portal>
-				</Select.Root>
+				<Select
+					items={filteredNetworks}
+					value={settings.toChainId?.toString() ?? ''}
+					onValueChange={(v) => {
+						if (!v) return
+						bridgeSettingsState.current = { ...settings, toChainId: Number(v) }
+					}}
+					getItemId={(network) => String(network.id)}
+					getItemLabel={(network) => network.name}
+					placeholder="—"
+					id="to"
+					ariaLabel="To chain"
+				/>
 			</div>
 		</div>
 
@@ -322,14 +336,6 @@
 			{/if}
 		</div>
 
-		<!-- Chain switch prompt -->
-		{#if needsChainSwitch && fromNetwork && selectedWallet}
-			<div data-card="secondary" data-row="gap-2 align-center">
-				<span>Switch to {fromNetwork.name}</span>
-				<Button.Root onclick={() => selectedWallet && switchWalletChain(selectedWallet.wallet.provider, fromNetwork.id)}>Switch</Button.Root>
-			</div>
-		{/if}
-
 	</section>
 
 	<!-- Right column: Routes & Output -->
@@ -371,14 +377,25 @@
 		<!-- Routes list -->
 		{#if sortedRoutes.length > 0 || routesRow?.isLoading}
 			<section data-card data-column="gap-3" data-testid="quote-result">
+				{#snippet sortPrefix()}
+					Sort:
+				{/snippet}
+
 				<div data-row="gap-2 align-center justify-between">
 					<h3>Routes {routesRow?.isLoading ? '(loading…)' : `(${sortedRoutes.length})`}</h3>
-					<Select.Root type="single" value={settings.sortBy} onValueChange={(v) => { if (v) bridgeSettingsState.current = { ...settings, sortBy: v as BridgeSettings['sortBy'] } }} items={[{ value: 'recommended', label: 'Recommended' }, { value: 'output', label: 'Best output' }, { value: 'fees', label: 'Lowest fees' }, { value: 'speed', label: 'Fastest' }]}>
-						<Select.Trigger>Sort: {settings.sortBy}</Select.Trigger>
-						<Select.Portal><Select.Content><Select.Viewport>
-							{#each [['recommended', 'Recommended'], ['output', 'Best output'], ['fees', 'Lowest fees'], ['speed', 'Fastest']] as [v, label]}<Select.Item value={v} {label}>{label}</Select.Item>{/each}
-						</Select.Viewport></Select.Content></Select.Portal>
-					</Select.Root>
+					<Select
+						items={sortOptions}
+						value={settings.sortBy}
+						onValueChange={(v) => {
+							if (!v) return
+							const option = sortOptions.find((entry) => entry.id === v)
+							if (!option) return
+							bridgeSettingsState.current = { ...settings, sortBy: option.id }
+						}}
+						getItemId={(option) => option.id}
+						getItemLabel={(option) => option.label}
+						Before={sortPrefix}
+					/>
 				</div>
 
 				{#if sortedRoutes.length > 0}
@@ -436,7 +453,7 @@
 					<Popover.Trigger data-row="gap-1">Slippage: <strong>{formatSlippagePercent(settings.slippage)}</strong></Popover.Trigger>
 					<Popover.Content data-column="gap-2">
 						<div data-row="gap-1">
-							{#each SLIPPAGE_PRESETS as p}
+						{#each SLIPPAGE_PRESETS as p (p)}
 								<Button.Root onclick={() => { bridgeSettingsState.current = { ...settings, slippage: p } }} data-selected={settings.slippage === p ? '' : undefined}>{formatSlippagePercent(p)}</Button.Root>
 							{/each}
 						</div>
@@ -444,47 +461,85 @@
 					</Popover.Content>
 				</Popover.Root>
 
-				<!-- Summary -->
-				<dl data-summary>
-					<dt>You send</dt><dd>{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}</dd>
-					<dt>You receive</dt><dd>~{formatTokenAmount(output, 6)} USDC on {toNetwork.name}</dd>
-					<dt>Min received</dt><dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
-					<dt>Recipient</dt><dd>{formatAddress(recipient)}</dd>
-					{#if fees}
-						<dt>Est. fees</dt><dd>~${fees.totalUsd}</dd>
+				{#snippet bridgeSummary()}
+					<dl data-summary>
+						<dt>You send</dt><dd>{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}</dd>
+						<dt>You receive</dt><dd>~{formatTokenAmount(output, 6)} USDC on {toNetwork.name}</dd>
+						<dt>Min received</dt><dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
+						<dt>Recipient</dt><dd>{formatAddress(recipient)}</dd>
+						{#if fees}
+							<dt>Est. fees</dt><dd>~${fees.totalUsd}</dd>
+						{/if}
+					</dl>
+				{/snippet}
+
+				{#snippet bridgeDetails(_tx: unknown, _state: unknown)}
+					{#if needsApproval && !approved && selectedWallet && selectedActor}
+						<TokenApproval
+							chainId={fromNetwork.id}
+							tokenAddress={getUsdcAddress(fromNetwork.id)}
+							spenderAddress={approvalAddress!}
+							amount={settings.amount}
+							provider={selectedWallet.wallet.provider}
+							ownerAddress={selectedActor}
+						/>
 					{/if}
-				</dl>
 
-				<!-- Approval -->
-				{#if needsApproval && !approved && selectedWallet && selectedActor}
-					<TokenApproval
-						chainId={fromNetwork.id}
-						tokenAddress={getUsdcAddress(fromNetwork.id)}
-						spenderAddress={approvalAddress!}
-						amount={settings.amount}
-						provider={selectedWallet.wallet.provider}
-						ownerAddress={selectedActor}
-					/>
-				{/if}
+					{#if selectedWallet && selectedActor}
+						<BridgeExecution
+							bind:this={executionRef}
+							route={selectedRoute}
+							walletRow={selectedWallet.wallet}
+							walletAddress={selectedActor}
+							fromChainId={fromNetwork.id}
+							toChainId={toNetwork.id}
+							amount={settings.amount}
+							bind:executing
+						/>
+					{/if}
+				{/snippet}
 
-				<!-- Send button -->
-				{#if selectedWallet && canSend}
-					<Button.Root disabled={quoteExpired || executing || needsChainSwitch || !canSendAmount} onclick={() => { showConfirmation = true }}>
-						{executing ? 'Bridging…' : 'Send'}
-					</Button.Root>
-					<BridgeExecution
-						bind:this={executionRef}
-						route={selectedRoute}
-						walletRow={selectedWallet.wallet}
-						walletAddress={selectedActor!}
-						fromChainId={fromNetwork.id}
-						toChainId={toNetwork.id}
-						amount={settings.amount}
-						bind:executing
-					/>
-				{:else if !selectedWallet}
-					<p data-muted>Connect wallet to send</p>
-				{/if}
+				{#snippet bridgeConfirmation(_tx: unknown, _state: unknown)}
+					<dl data-summary>
+						<dt>From</dt><dd>{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}</dd>
+						<dt>To</dt><dd>~{formatTokenAmount(selectedRoute.toAmount, 6)} USDC on {toNetwork.name}</dd>
+						<dt>Min received</dt><dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
+						<dt>Recipient</dt><dd>
+							<span>{formatAddress(recipient)}</span>
+							{#if warnDifferentRecipient}<span data-badge data-warning>Different recipient</span>{/if}
+						</dd>
+						<dt>Protocol</dt><dd>{[...new Set(selectedRoute.steps.map((st) => st.toolName))].join(' → ')}</dd>
+						<dt>Est. time</dt><dd>~{Math.ceil(selectedRoute.estimatedDurationSeconds / 60)} min</dd>
+						<dt>Slippage</dt><dd>{formatSlippagePercent(settings.slippage)}</dd>
+						{#if fees}<dt>Fees</dt><dd>~${fees.totalUsd}</dd>{/if}
+					</dl>
+					{#if warnDifferentRecipient || warnHighSlippage || warnLargeAmount}
+						<div data-warnings data-column="gap-1">
+							{#if warnDifferentRecipient}<p data-warning>Recipient is not your connected wallet.</p>{/if}
+							{#if warnHighSlippage}<p data-warning>High slippage ({formatSlippagePercent(settings.slippage)}).</p>{/if}
+							{#if warnLargeAmount}<p data-warning>Large amount (${fromAmountUsd.toLocaleString()} USD).</p>{/if}
+						</div>
+					{/if}
+				{/snippet}
+
+				<TransactionFlow
+					walletConnection={selectedWallet}
+					Summary={bridgeSummary}
+					transactions={[
+						{
+							id: selectedRoute.id,
+							chainId: fromNetwork.id,
+							title: 'Bridge',
+							actionLabel: executing ? 'Bridging…' : 'Send',
+							canExecute: Boolean(selectedWallet && selectedActor && canSend && canSendAmount && !quoteExpired) && !executing,
+							execute: (_args) => (executionRef ? executionRef.execute() : Promise.resolve()),
+							requiresConfirmation: true,
+							confirmationLabel: 'I understand this transaction is irreversible',
+							Details: bridgeDetails,
+							Confirmation: bridgeConfirmation,
+						},
+					]}
+				/>
 			</section>
 		{/if}
 
@@ -503,9 +558,9 @@
 									{#if tx.status === 'pending'}<Spinner size="0.75em" />{/if}
 									{tx.status}
 								</span>
-								<a href={getTxUrl(tx.fromChainId, tx.$id.sourceTxHash)} target="_blank" rel="noopener" aria-label="Source tx">↗</a>
+								<a href={resolve(getTxUrl(tx.fromChainId, tx.$id.sourceTxHash))} target="_blank" rel="noopener" aria-label="Source tx">↗</a>
 								{#if tx.destTxHash}
-									<a href={getTxUrl(tx.toChainId, tx.destTxHash)} target="_blank" rel="noopener" aria-label="Dest tx">↗</a>
+									<a href={resolve(getTxUrl(tx.toChainId, tx.destTxHash))} target="_blank" rel="noopener" aria-label="Dest tx">↗</a>
 								{/if}
 							</div>
 						{/each}
@@ -517,44 +572,6 @@
 		{/if}
 	</div>
 </div>
-
-<!-- Confirmation dialog -->
-<Dialog.Root bind:open={showConfirmation}>
-	<Dialog.Portal>
-		<Dialog.Overlay data-overlay />
-		<Dialog.Content data-dialog data-column="gap-3">
-			<Dialog.Title>Confirm Bridge</Dialog.Title>
-			{#if selectedRoute && fromNetwork && toNetwork}
-				<dl data-summary>
-					<dt>From</dt><dd>{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}</dd>
-					<dt>To</dt><dd>~{formatTokenAmount(selectedRoute.toAmount, 6)} USDC on {toNetwork.name}</dd>
-					<dt>Min received</dt><dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
-					<dt>Recipient</dt><dd>
-						<span>{formatAddress(recipient)}</span>
-						{#if warnDifferentRecipient}<span data-badge data-warning>Different recipient</span>{/if}
-					</dd>
-					<dt>Protocol</dt><dd>{[...new Set(selectedRoute.steps.map((st) => st.toolName))].join(' → ')}</dd>
-					<dt>Est. time</dt><dd>~{Math.ceil(selectedRoute.estimatedDurationSeconds / 60)} min</dd>
-					<dt>Slippage</dt><dd>{formatSlippagePercent(settings.slippage)}</dd>
-					{#if fees}<dt>Fees</dt><dd>~${fees.totalUsd}</dd>{/if}
-				</dl>
-				{#if warnDifferentRecipient || warnHighSlippage || warnLargeAmount}
-					<div data-warnings data-column="gap-1">
-						{#if warnDifferentRecipient}<p data-warning>Recipient is not your connected wallet.</p>{/if}
-						{#if warnHighSlippage}<p data-warning>High slippage ({formatSlippagePercent(settings.slippage)}).</p>{/if}
-						{#if warnLargeAmount}<p data-warning>Large amount (${fromAmountUsd.toLocaleString()} USD).</p>{/if}
-					</div>
-				{/if}
-			{/if}
-			<label data-row="gap-2"><Checkbox.Root bind:checked={confirmed}>{#snippet children({ checked })}{checked ? '✓' : '○'}{/snippet}</Checkbox.Root>I understand this transaction is irreversible</label>
-			<div data-row="gap-2">
-				<Button.Root onclick={() => showConfirmation = false}>Cancel</Button.Root>
-				<Button.Root disabled={!confirmed} onclick={onConfirm}>Confirm</Button.Root>
-			</div>
-		</Dialog.Content>
-	</Dialog.Portal>
-</Dialog.Root>
-
 
 <style>
 	[data-bridge-layout] {
@@ -640,26 +657,6 @@
 	[data-tag="pending"] {
 		background: #fef3c7;
 		color: #f59e0b;
-	}
-
-	:global([data-overlay]) {
-		position: fixed;
-		inset: 0;
-		background: rgba(0, 0, 0, 0.5);
-		z-index: 100;
-	}
-
-	:global([data-dialog]) {
-		position: fixed;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		background: var(--color-bg-page, #fff);
-		padding: 1.5em;
-		border-radius: 0.5em;
-		z-index: 101;
-		max-width: 400px;
-		width: 90vw;
 	}
 
 	:global([data-tabular]) {

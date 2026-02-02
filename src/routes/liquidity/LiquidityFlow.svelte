@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import { Button, Select } from 'bits-ui'
+	import { Button } from 'bits-ui'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { ChainId, NetworkType, networks, networksByChainId } from '$/constants/networks'
 	import { FEE_TIERS } from '$/constants/uniswap'
@@ -10,6 +10,7 @@
 	import { actorCoinsCollection } from '$/collections/actor-coins'
 	import { formatSmallestToDecimal, parseDecimalToSmallest, isValidDecimalInput } from '$/lib/format'
 	import { switchWalletChain } from '$/lib/wallet'
+	import Select from '$/components/Select.svelte'
 	import Positions from './Positions.svelte'
 
 	let {
@@ -58,23 +59,15 @@
 	<div data-row="gap-4">
 		<div data-column="gap-1" style="flex:1">
 			<label for="liq-chain">Chain</label>
-			<Select.Root
-				type="single"
+			<Select
+				items={filteredNetworks}
 				value={String(settings.chainId)}
 				onValueChange={(v) => { if (v) liquiditySettingsState.current = { ...settings, chainId: Number(v) } }}
-				items={filteredNetworks.map((n) => ({ value: String(n.id), label: n.name }))}
-			>
-				<Select.Trigger id="liq-chain">{network?.name ?? '—'}</Select.Trigger>
-				<Select.Portal>
-					<Select.Content>
-						<Select.Viewport>
-							{#each filteredNetworks as n (n.id)}
-								<Select.Item value={String(n.id)} label={n.name}>{n.name}</Select.Item>
-							{/each}
-						</Select.Viewport>
-					</Select.Content>
-				</Select.Portal>
-			</Select.Root>
+				getItemId={(network) => String(network.id)}
+				getItemLabel={(network) => network.name}
+				placeholder="—"
+				id="liq-chain"
+			/>
 		</div>
 	</div>
 
@@ -89,23 +82,14 @@
 		</div>
 		<div data-column="gap-1">
 			<label for="liq-fee">Fee tier</label>
-			<Select.Root
-				type="single"
+			<Select
+				items={FEE_TIERS}
 				value={String(settings.fee)}
 				onValueChange={(v) => { if (v) liquiditySettingsState.current = { ...settings, fee: Number(v) } }}
-				items={FEE_TIERS.map((f) => ({ value: String(f), label: feeLabel(f) }))}
-			>
-				<Select.Trigger id="liq-fee">{feeLabel(settings.fee)}</Select.Trigger>
-				<Select.Portal>
-					<Select.Content>
-						<Select.Viewport>
-							{#each FEE_TIERS as f}
-								<Select.Item value={String(f)} label={feeLabel(f)}>{feeLabel(f)}</Select.Item>
-							{/each}
-						</Select.Viewport>
-					</Select.Content>
-				</Select.Portal>
-			</Select.Root>
+				getItemId={(fee) => String(fee)}
+				getItemLabel={(fee) => feeLabel(fee)}
+				id="liq-fee"
+			/>
 		</div>
 		<div data-column="gap-1">
 			<span aria-hidden="true">Price range (tick)</span>

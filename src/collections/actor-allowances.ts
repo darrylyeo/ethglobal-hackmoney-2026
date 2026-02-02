@@ -6,7 +6,7 @@
 import { createCollection, localStorageCollectionOptions } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
 import { rpcUrls } from '$/constants/rpc-endpoints'
-import { createHttpProvider, getErc20Allowance } from '$/lib/voltaire'
+import { createHttpProvider, getErc20Allowance } from '$/api/voltaire'
 
 export type ActorAllowance$id = {
 	chainId: number

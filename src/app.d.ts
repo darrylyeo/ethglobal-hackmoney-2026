@@ -10,4 +10,8 @@ declare global {
 	}
 }
 
+declare module '$app/paths' {
+	export function resolve(href: string): string
+}
+
 export {}

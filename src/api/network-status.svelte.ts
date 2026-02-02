@@ -3,7 +3,7 @@
  * and bridge page for degraded/down chain warnings.
  */
 import { rpcUrls } from '$/constants/rpc-endpoints'
-import { createHttpProvider } from '$/lib/voltaire'
+import { createHttpProvider } from './voltaire'
 
 export type ChainStatus = {
 	chainId: number

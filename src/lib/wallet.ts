@@ -1,7 +1,7 @@
 import { createWalletClient, custom } from 'viem'
 import type { Chain, Client } from 'viem'
-import { networksByChainId } from '$/constants/networks'
-import { getChainConfig } from '$/constants/chain-configs'
+import { networkConfigsByChainId, networksByChainId } from '$/constants/networks'
+import { rpcUrls } from '$/constants/rpc-endpoints'
 
 export type EIP1193Provider = {
 	request(args: { method: string; params?: unknown[] }): Promise<unknown>
@@ -67,11 +67,24 @@ export const subscribeAccountsChanged = (
 }
 
 export const addChainToWallet = async (provider: EIP1193Provider, chainId: number): Promise<void> => {
-	const chainConfig = getChainConfig(chainId)
-	if (!chainConfig) throw new Error(`Unknown chain ${chainId}`)
+	const config = networkConfigsByChainId[chainId]
+	const rpcUrl = rpcUrls[chainId]
+	if (!config || !rpcUrl) throw new Error(`Unknown chain ${chainId}`)
 	await provider.request({
 		method: 'wallet_addEthereumChain',
-		params: [chainConfig],
+		params: [
+			{
+				chainId: `0x${chainId.toString(16)}`,
+				chainName: config.name,
+				nativeCurrency: {
+					name: config.nativeCurrency.name,
+					symbol: config.nativeCurrency.symbol,
+					decimals: 18,
+				},
+				rpcUrls: [rpcUrl],
+				blockExplorerUrls: config.explorerUrl ? [config.explorerUrl] : undefined,
+			},
+		],
 	})
 }
 

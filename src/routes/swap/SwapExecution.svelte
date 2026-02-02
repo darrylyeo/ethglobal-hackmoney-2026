@@ -3,7 +3,7 @@
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
 	import { executeSwap } from '$/api/uniswap'
-	import { getTxUrl } from '$/constants/explorers'
+	import { getTxUrl } from '$/constants/networks'
 	import { toasts } from '$/lib/toast.svelte'
 	import { insertTransaction, updateTransaction, type Transaction$id } from '$/collections/transactions'
 

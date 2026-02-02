@@ -2,7 +2,7 @@
 	// Types/constants
 	import { browser } from '$app/environment'
 	import type { Erc20Token } from '$/constants/coins'
-	import type { TransferGraph } from '$/lib/transfers-indexer'
+	import type { TransferGraph } from '$/api/transfers-indexer'
 	import { Canvas, T } from '@threlte/core'
 	import * as THREE from 'three'
 

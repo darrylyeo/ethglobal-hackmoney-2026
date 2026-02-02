@@ -5,15 +5,6 @@
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
-	// State
-	import { bridgeSettingsState, defaultBridgeSettings } from '$/state/bridge-settings.svelte'
-
-	// Collections
-	import { actorCoinsCollection, fetchAllBalancesForAddress } from '$/collections/actor-coins'
-
-	// Functions
-	import { formatSmallestToDecimal } from '$/lib/format'
-
 	// Props
 	let {
 		selectedActor,
@@ -21,7 +12,16 @@
 		selectedActor: `0x${string}` | null,
 	} = $props()
 
-	// Settings
+	// Functions
+	import { formatSmallestToDecimal } from '$/lib/format'
+	import { getStorkAssetIdForSymbol } from '$/lib/stork'
+
+	// State
+	import { actorCoinsCollection, fetchAllBalancesForAddress } from '$/collections/actor-coins'
+	import { storkPricesCollection, subscribeStorkPrices, getBestStorkPrice } from '$/collections/stork-prices'
+	import { bridgeSettingsState, defaultBridgeSettings } from '$/state/bridge-settings.svelte'
+
+	// (Derived)
 	const settings = $derived(bridgeSettingsState.current ?? defaultBridgeSettings)
 
 	// Networks
@@ -35,6 +35,7 @@
 
 	// Balances query
 	const balancesQuery = useLiveQuery((q) => q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })))
+	const pricesQuery = useLiveQuery((q) => q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })))
 	const balances = $derived(
 		selectedActor
 			? (balancesQuery.data ?? [])
@@ -45,18 +46,64 @@
 				))
 			: []
 	)
+	const prices = $derived((pricesQuery.data ?? []).map((r) => r.row))
+	const balanceAssetIds = $derived(
+		[...new Set(
+			balances.flatMap((balance) => {
+				const assetId = getStorkAssetIdForSymbol(balance.symbol)
+				return assetId ? [assetId] : []
+			})
+		)]
+	)
+	const balanceChainIds = $derived(
+		[...new Set(balances.map((balance) => balance.$id.chainId))]
+	)
+	const netWorthUsd = $derived(
+		balances.length > 0
+			? balances.reduce((total, balance) => {
+				const assetId = getStorkAssetIdForSymbol(balance.symbol)
+				if (!assetId) return total
+				const priceRow = getBestStorkPrice(prices, assetId, balance.$id.chainId)
+				if (!priceRow) return total
+				return total + (balance.balance * priceRow.price) / (10n ** BigInt(balance.decimals))
+			}, 0n)
+			: null
+	)
 
 	// Fetch balances on actor/network change
 	$effect(() => {
 		void settings.isTestnet
 		if (selectedActor) fetchAllBalancesForAddress(selectedActor, filteredNetworks.map((n) => n.id))
 	})
+
+	$effect(() => {
+		const assetIds = balanceAssetIds
+		if (assetIds.length === 0) return
+		const unsubscribers = [
+			subscribeStorkPrices({ assetIds, transports: ['rest', 'websocket'] }),
+			...balanceChainIds.map((chainId) => (
+				subscribeStorkPrices({ assetIds, chainId, transports: ['rpc'] })
+			)),
+		]
+		return () => {
+			for (const unsubscribe of unsubscribers) unsubscribe()
+		}
+	})
+
+
+	// Components
+	import StorkPrices from '$/views/StorkPrices.svelte'
 </script>
 
 
 {#if selectedActor && balances.length > 0}
 	<section data-balances>
 		<h3>Your USDC Balances</h3>
+		{#if netWorthUsd !== null}
+			<p data-net-worth>
+				Net worth: ${formatSmallestToDecimal(netWorthUsd, 18, 2)}
+			</p>
+		{/if}
 		<div data-balances-grid>
 			{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
 				{@const network = networksByChainId[b.$id.chainId]}
@@ -68,6 +115,11 @@
 				{/if}
 			{/each}
 		</div>
+		<StorkPrices
+			assetIds={balanceAssetIds}
+			chainId={balanceChainIds[0] ?? null}
+			title="Stork USD feeds"
+		/>
 	</section>
 {/if}
 
@@ -82,6 +134,11 @@
 	[data-balances] h3 {
 		margin: 0 0 0.75em;
 		font-size: 1em;
+	}
+
+	[data-net-worth] {
+		margin: 0 0 0.75em;
+		font-weight: 600;
 	}
 
 	[data-balances-grid] {

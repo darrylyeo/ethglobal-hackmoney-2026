@@ -3,7 +3,7 @@
 	let { children } = $props()
 
 	// State
-	// import { networkStatus } from '$/lib/network-status.svelte'
+	// import { networkStatus } from '$/api/network-status.svelte'
 	// import { networks } from '$/constants/networks'
 
 	let showGraph =

@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Functions
 	import { Button } from 'bits-ui'
-	import { createHttpProvider, getChainId } from '$/lib/voltaire'
+	import { createHttpProvider, getChainId } from '$/api/voltaire'
 	import { formatInteger } from '$/lib/format'
 
 	// State

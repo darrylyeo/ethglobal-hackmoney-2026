@@ -1,18 +1,22 @@
 <script lang="ts">
+	// Types
+	import type { Snippet } from 'svelte'
+
 	// Context
 	import { page } from '$app/state'
 
 
 	// Props
 	let {
-		navigationItems
+		navigationItems,
+		headerActions,
 	}: {
 		navigationItems: NavigationItem[]
+		headerActions?: Snippet
 	} = $props()
 
 
 	// Components
-	// import NetworkStatusIndicator from '$/components/NetworkStatusIndicator.svelte'
 	import NavigationItems, { type NavigationItem } from './NavigationItem.svelte'
 </script>
 
@@ -40,9 +44,11 @@
 		</a>
 
 		<menu data-row="gap-2">
-			<!-- <li>
-				<NetworkStatusIndicator />
-			</li> -->
+			{#if headerActions}
+				<li>
+					{@render headerActions()}
+				</li>
+			{/if}
 
 			<li>
 				<button type="button" id="menu-toggle" aria-label="Open menu" popovertarget="nav">

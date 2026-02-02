@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Button, Switch } from 'bits-ui'
 	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { sendApproval, waitForApprovalConfirmation } from '$/lib/approval'
-	import { getTxUrl } from '$/constants/explorers'
+	import { sendApproval, waitForApprovalConfirmation } from '$/api/approval'
+	import { getTxUrl } from '$/constants/networks'
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import {
 		actorAllowancesCollection,

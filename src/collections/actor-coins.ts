@@ -8,7 +8,7 @@ import { stringify } from 'devalue'
 import { ercTokens } from '$/constants/coins'
 import { networksByChainId } from '$/constants/networks'
 import { rpcUrls } from '$/constants/rpc-endpoints'
-import { createHttpProvider, getErc20Balance } from '$/lib/voltaire'
+import { createHttpProvider, getErc20Balance } from '$/api/voltaire'
 
 export type ActorCoin$id = {
 	chainId: number

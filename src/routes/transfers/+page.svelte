@@ -8,7 +8,7 @@
 		fetchTransfersGraph,
 		TIME_PERIODS,
 		type TransfersGraphResult,
-	} from '$/lib/transfers-indexer'
+	} from '$/api/transfers-indexer'
 	import Boundary from '$/components/Boundary.svelte'
 	import LiveTransfers from './LiveTransfers.svelte'
 

@@ -98,7 +98,7 @@ describe('switchWalletChain', () => {
 })
 
 describe('addChainToWallet', () => {
-	it('adds chain with config from getChainConfig', async () => {
+	it('adds chain with config from networks', async () => {
 		const request = vi.fn(() => Promise.resolve(undefined))
 		const provider: EIP1193Provider = { request }
 		await addChainToWallet(provider, 8453)
