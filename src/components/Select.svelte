@@ -158,10 +158,16 @@
 											disabled={item.disabled}
 										>
 											{#snippet children({ selected })}
+												{#if Before}
+													{@render Before()}
+												{/if}
 												{#if Item}
 													{@render Item(item.item, selected)}
 												{:else}
 													{item.label}
+												{/if}
+												{#if After}
+													{@render After()}
 												{/if}
 											{/snippet}
 										</Select.Item>
@@ -176,10 +182,16 @@
 									disabled={item.disabled}
 								>
 									{#snippet children({ selected })}
+										{#if Before}
+											{@render Before()}
+										{/if}
 										{#if Item}
 											{@render Item(item.item, selected)}
 										{:else}
 											{item.label}
+										{/if}
+										{#if After}
+											{@render After()}
 										{/if}
 									{/snippet}
 								</Select.Item>
@@ -229,10 +241,16 @@
 											disabled={item.disabled}
 										>
 											{#snippet children({ selected })}
+												{#if Before}
+													{@render Before()}
+												{/if}
 												{#if Item}
 													{@render Item(item.item, selected)}
 												{:else}
 													{item.label}
+												{/if}
+												{#if After}
+													{@render After()}
 												{/if}
 											{/snippet}
 										</Select.Item>
@@ -247,10 +265,16 @@
 									disabled={item.disabled}
 								>
 									{#snippet children({ selected })}
+										{#if Before}
+											{@render Before()}
+										{/if}
 										{#if Item}
 											{@render Item(item.item, selected)}
 										{:else}
 											{item.label}
+										{/if}
+										{#if After}
+											{@render After()}
 										{/if}
 									{/snippet}
 								</Select.Item>
