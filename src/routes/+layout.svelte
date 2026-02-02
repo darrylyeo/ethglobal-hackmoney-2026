@@ -79,6 +79,11 @@
 				href: '/rooms',
 			},
 			{
+				id: 'architecture',
+				title: 'Architecture',
+				href: '/architecture',
+			},
+			{
 				id: 'tests',
 				title: 'Tests',
 				children: [

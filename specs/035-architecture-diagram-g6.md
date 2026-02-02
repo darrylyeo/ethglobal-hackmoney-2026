@@ -69,16 +69,16 @@ and runtime dependencies at a glance.
 
 ## Acceptance criteria
 
-- [ ] `ArchitectureGraph.svelte` renders the diagram with G6 and uses the
+- [x] `ArchitectureGraph.svelte` renders the diagram with G6 and uses the
       normalized graph model from `architecture-graph.ts`.
-- [ ] The architecture route renders the diagram with a short textual intro and
+- [x] The architecture route renders the diagram with a short textual intro and
       a legend that explains node/edge styling.
-- [ ] Nodes include all core systems listed above and are connected by the
+- [x] Nodes include all core systems listed above and are connected by the
       listed edges.
-- [ ] The diagram uses chain icons from `static/networks` for network nodes.
-- [ ] Pan/zoom, selection, hover details, and keyboard shortcuts work.
-- [ ] Reduced motion is respected (no animated transitions).
-- [ ] The diagram remains readable in both light and dark themes.
+- [x] The diagram uses chain icons from `static/networks` for network nodes.
+- [x] Pan/zoom, selection, hover details, and keyboard shortcuts work.
+- [x] Reduced motion is respected (no animated transitions).
+- [x] The diagram remains readable in both light and dark themes.
 
 ## TODOs
 
@@ -87,7 +87,7 @@ and runtime dependencies at a glance.
 
 ## Status
 
-Incomplete.
+Complete.
 
 ## Output when complete
 
