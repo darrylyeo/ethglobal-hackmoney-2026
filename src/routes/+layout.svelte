@@ -165,8 +165,8 @@
 		@media not (max-width: 1024px) {
 			grid-template:
 				'Nav Main' 100dvh
-				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr);
-		}
+				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr)
+			;
 
 		.layout[data-sticky-container] {
 			--sticky-marginInlineStart: var(--separator-width);
