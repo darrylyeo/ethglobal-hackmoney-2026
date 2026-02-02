@@ -1,7 +1,13 @@
 <script lang="ts">
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
+	import type {
+		ConnectedWallet,
+		WalletConnectionEip1193,
+	} from '$/collections/wallet-connections'
 	import type { BridgeRoute } from '$/collections/bridge-routes'
+	import type { WalletRow } from '$/collections/wallets'
+	import { WalletConnectionTransport } from '$/collections/wallet-connections'
+	import { CoinSymbol, ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
 	import {
 		ChainId,
 		NetworkType,
@@ -57,8 +63,6 @@
 	import {
 		formatTokenAmount,
 		formatSmallestToDecimal,
-		parseDecimalToSmallest,
-		isValidDecimalInput,
 	} from '$/lib/format'
 	import {
 		isValidAddress,
@@ -69,12 +73,22 @@
 	import { debounce } from '$/lib/debounce'
 	import { networkStatus } from '$/api/network-status.svelte'
 
+	const isEip1193Wallet = (
+		wallet: ConnectedWallet | null,
+	): wallet is { wallet: WalletRow; connection: WalletConnectionEip1193 } =>
+		Boolean(
+			wallet &&
+				wallet.connection.transport === WalletConnectionTransport.Eip1193,
+		)
+
 	// Components
+	import NetworkInput from '$/components/NetworkInput.svelte'
 	import Select from '$/components/Select.svelte'
 	import Spinner from '$/components/Spinner.svelte'
+	import CoinAmountInput from '$/components/CoinAmountInput.svelte'
 	import TransactionFlow from '$/components/TransactionFlow.svelte'
-	import TokenApproval from './TokenApproval.svelte'
 	import BridgeExecution from './BridgeExecution.svelte'
+	import TokenApproval from './TokenApproval.svelte'
 
 	// Props
 	let {
@@ -88,6 +102,12 @@
 	// (Derived)
 	const selectedWallet = $derived(
 		selectedWallets.find((w) => w.connection.selected) ?? null,
+	)
+	const selectedEip1193Wallet = $derived(
+		isEip1193Wallet(selectedWallet) ? selectedWallet.wallet : null,
+	)
+	const selectedWalletProvider = $derived(
+		selectedEip1193Wallet ? selectedEip1193Wallet.provider : null,
 	)
 
 	// Queries (reactive)
@@ -118,6 +138,12 @@
 	// Settings (shared persisted state)
 	const settings = $derived(
 		bridgeSettingsState.current ?? defaultBridgeSettings,
+	)
+	const usdcToken = $derived(
+		settings.fromChainId !== null
+			? (ercTokensBySymbolByChainId[settings.fromChainId]?.[CoinSymbol.Usdc] ??
+					ercTokens[0])
+			: ercTokens[0],
 	)
 	const sortOptions: { id: BridgeSettings['sortBy']; label: string }[] = [
 		{ id: 'recommended', label: 'Recommended' },
@@ -388,23 +414,6 @@
 	)
 
 	// Handlers
-	const onAmountInput = (e: Event) => {
-		const v = (e.target as HTMLInputElement).value
-			.replace(/[^0-9.,]/g, '')
-			.replace(/,/g, '')
-		if (v === '') {
-			invalidAmountInput = false
-			bridgeSettingsState.current = { ...settings, amount: 0n }
-		} else if (isValidDecimalInput(v, 6)) {
-			invalidAmountInput = false
-			bridgeSettingsState.current = {
-				...settings,
-				amount: parseDecimalToSmallest(v, 6),
-			}
-		} else {
-			invalidAmountInput = true
-		}
-	}
 
 	const onRefresh = () => {
 		if (quoteParams) fetchBridgeRoutes(quoteParams).catch(() => {})
@@ -433,18 +442,17 @@
 		<div data-row="gap-4">
 			<div data-column="gap-1" style="flex:1" data-from-chain>
 				<label for="from">From</label>
-				<Select
-					items={filteredNetworks}
-					value={settings.fromChainId?.toString() ?? ''}
-					onValueChange={(v) => {
-						if (!v) return
-						bridgeSettingsState.current = {
-							...settings,
-							fromChainId: Number(v),
-						}
-					}}
-					getItemId={(network) => String(network.id)}
-					getItemLabel={(network) => network.name}
+				<NetworkInput
+					networks={filteredNetworks}
+					value={settings.fromChainId}
+					onValueChange={(v) => (
+						typeof v === 'number'
+							? (bridgeSettingsState.current = {
+									...settings,
+									fromChainId: v,
+								})
+							: null
+					)}
 					placeholder="—"
 					id="from"
 					ariaLabel="From chain"
@@ -452,15 +460,14 @@
 			</div>
 			<div data-column="gap-1" style="flex:1" data-to-chain>
 				<label for="to">To</label>
-				<Select
-					items={filteredNetworks}
-					value={settings.toChainId?.toString() ?? ''}
-					onValueChange={(v) => {
-						if (!v) return
-						bridgeSettingsState.current = { ...settings, toChainId: Number(v) }
-					}}
-					getItemId={(network) => String(network.id)}
-					getItemLabel={(network) => network.name}
+				<NetworkInput
+					networks={filteredNetworks}
+					value={settings.toChainId}
+					onValueChange={(v) => (
+						typeof v === 'number'
+							? (bridgeSettingsState.current = { ...settings, toChainId: v })
+							: null
+					)}
 					placeholder="—"
 					id="to"
 					ariaLabel="To chain"
@@ -488,24 +495,26 @@
 		<div data-column="gap-1" data-form-field>
 			<label for="amt">Amount</label>
 			<div data-row="gap-2">
-				<input
+				<CoinAmountInput
 					id="amt"
-					type="text"
-					inputmode="decimal"
-					placeholder="0.00"
-					value={settings.amount === 0n
-						? ''
-						: formatSmallestToDecimal(settings.amount, 6)}
-					oninput={onAmountInput}
+					coins={[usdcToken]}
+					coin={usdcToken}
+					min={USDC_MIN_AMOUNT}
+					max={USDC_MAX_AMOUNT}
+					value={settings.amount}
+					onValueChange={(nextAmount) => {
+						bridgeSettingsState.current = { ...settings, amount: nextAmount }
+					}}
+					onInvalidChange={(nextInvalid) => {
+						invalidAmountInput = nextInvalid
+					}}
 					style="flex:1"
-					aria-describedby={invalidAmountInput ||
+					ariaDescribedby={invalidAmountInput ||
 					exceedsBalance ||
 					validation.error
 						? 'amt-hint amt-error'
 						: 'amt-hint'}
-					aria-invalid={invalidAmountInput || validation.error
-						? 'true'
-						: undefined}
+					ariaInvalid={invalidAmountInput || validation.error ? true : undefined}
 				/>
 				{#if sourceBalance !== null}<Button.Root
 						type="button"
@@ -661,8 +670,8 @@
 				<div data-column="gap-2">
 					{#each sortedRoutes as r (r.id)}
 						<button
+							class="route-card"
 							type="button"
-							data-route-card
 							data-selected={r.id === selectedRouteId ? '' : undefined}
 							onclick={() => {
 								selectedRouteId = r.id
@@ -735,7 +744,7 @@
 				</Popover.Root>
 
 				{#snippet bridgeSummary()}
-					<dl data-summary>
+					<dl class="summary">
 						<dt>You send</dt>
 						<dd>
 							{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
@@ -754,22 +763,22 @@
 				{/snippet}
 
 				{#snippet bridgeDetails(_tx: unknown, _state: unknown)}
-					{#if needsApproval && !approved && selectedWallet && selectedActor}
+					{#if needsApproval && !approved && selectedWalletProvider && selectedActor}
 						<TokenApproval
 							chainId={fromNetwork.id}
 							tokenAddress={getUsdcAddress(fromNetwork.id)}
 							spenderAddress={approvalAddress!}
 							amount={settings.amount}
-							provider={selectedWallet.wallet.provider}
+							provider={selectedWalletProvider}
 							ownerAddress={selectedActor}
 						/>
 					{/if}
 
-					{#if selectedWallet && selectedActor}
+					{#if selectedEip1193Wallet && selectedActor}
 						<BridgeExecution
 							bind:this={executionRef}
 							route={selectedRoute}
-							walletRow={selectedWallet.wallet}
+							walletRow={selectedEip1193Wallet}
 							walletAddress={selectedActor}
 							fromChainId={fromNetwork.id}
 							toChainId={toNetwork.id}
@@ -783,7 +792,7 @@
 				{/snippet}
 
 				{#snippet bridgeConfirmation(_tx: unknown, _state: unknown)}
-					<dl data-summary>
+					<dl class="summary">
 						<dt>From</dt>
 						<dd>
 							{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
@@ -797,9 +806,14 @@
 						<dt>Recipient</dt>
 						<dd>
 							<span>{formatAddress(recipient)}</span>
-							{#if warnDifferentRecipient}<span data-badge data-warning
-									>Different recipient</span
-								>{/if}
+							{#if warnDifferentRecipient}
+								<span
+									class="badge"
+									data-warning
+								>
+									Different recipient
+								</span>
+							{/if}
 						</dd>
 						<dt>Protocol</dt>
 						<dd>
@@ -817,16 +831,23 @@
 							<dd>~${fees.totalUsd}</dd>{/if}
 					</dl>
 					{#if warnDifferentRecipient || warnHighSlippage || warnLargeAmount}
-						<div data-warnings data-column="gap-1">
-							{#if warnDifferentRecipient}<p data-warning>
-									Recipient is not your connected wallet.
-								</p>{/if}
-							{#if warnHighSlippage}<p data-warning>
+						<div
+							class="warnings"
+							data-column="gap-1"
+						>
+							{#if warnDifferentRecipient}
+								<p class="warning">Recipient is not your connected wallet.</p>
+							{/if}
+							{#if warnHighSlippage}
+								<p class="warning">
 									High slippage ({formatSlippagePercent(settings.slippage)}).
-								</p>{/if}
-							{#if warnLargeAmount}<p data-warning>
+								</p>
+							{/if}
+							{#if warnLargeAmount}
+								<p class="warning">
 									Large amount (${fromAmountUsd.toLocaleString()} USD).
-								</p>{/if}
+								</p>
+							{/if}
 						</div>
 					{/if}
 				{/snippet}
@@ -864,11 +885,19 @@
 		<!-- Transaction history (visible when connected per spec 014) -->
 		{#if selectedActor}
 			<section data-card data-column="gap-2">
-				<button type="button" data-heading>Transaction history</button>
+				<button
+					class="heading"
+					type="button"
+				>
+					Transaction history
+				</button>
 				{#if transactions.length > 0}
 					<div data-column="gap-1">
 						{#each transactions as tx (stringify(tx.$id))}
-							<div data-row="gap-2 align-center" data-tx-row>
+							<div
+								class="tx-row"
+								data-row="gap-2 align-center"
+							>
 								<span data-muted
 									>{formatRelativeTime(now - tx.$id.createdAt)}</span
 								>
@@ -880,7 +909,11 @@
 								<span data-tabular
 									>{formatSmallestToDecimal(tx.fromAmount, 6)} USDC</span
 								>
-								<span data-tag={tx.status} data-row="gap-1 align-center">
+								<span
+									class="tag"
+									data-tag={tx.status}
+									data-row="gap-1 align-center"
+								>
 									{#if tx.status === 'pending'}<Spinner size="0.75em" />{/if}
 									{tx.status}
 								</span>
@@ -910,22 +943,22 @@
 </div>
 
 <style>
-	[data-summary] {
+	.summary {
 		display: grid;
 		grid-template-columns: auto 1fr;
 		gap: 0.25em 1em;
+
+		dt,
+		dd {
+			margin: 0;
+		}
+
+		dt {
+			opacity: 0.7;
+		}
 	}
 
-	[data-summary] dt,
-	[data-summary] dd {
-		margin: 0;
-	}
-
-	[data-summary] dt {
-		opacity: 0.7;
-	}
-
-	[data-route-card] {
+	.route-card {
 		display: flex;
 		flex-direction: column;
 		gap: 0.25em;
@@ -936,18 +969,18 @@
 		cursor: pointer;
 		text-align: left;
 		width: 100%;
+
+		&:hover {
+			border-color: var(--color-primary, #3b82f6);
+		}
+
+		&[data-selected] {
+			border-color: var(--color-primary, #3b82f6);
+			background: var(--color-primary-bg, #eff6ff);
+		}
 	}
 
-	[data-route-card]:hover {
-		border-color: var(--color-primary, #3b82f6);
-	}
-
-	[data-route-card][data-selected] {
-		border-color: var(--color-primary, #3b82f6);
-		background: var(--color-primary-bg, #eff6ff);
-	}
-
-	[data-heading] {
+	.heading {
 		font: inherit;
 		font-weight: 600;
 		margin: 0;
@@ -957,51 +990,55 @@
 		cursor: default;
 	}
 
-	[data-tx-row] {
+	.tx-row {
 		font-size: 0.875em;
 	}
 
-	[data-tag] {
+	.tag {
 		font-size: 0.75em;
 		padding: 0.125em 0.5em;
 		border-radius: 0.25em;
-	}
 
-	[data-tag='completed'] {
-		background: #dcfce7;
-		color: #22c55e;
-	}
+		&[data-tag='completed'] {
+			background: #dcfce7;
+			color: #22c55e;
+		}
 
-	[data-tag='failed'] {
-		background: #fee2e2;
-		color: #ef4444;
-	}
+		&[data-tag='failed'] {
+			background: #fee2e2;
+			color: #ef4444;
+		}
 
-	[data-tag='pending'] {
-		background: #fef3c7;
-		color: #f59e0b;
+		&[data-tag='pending'] {
+			background: #fef3c7;
+			color: #f59e0b;
+		}
 	}
 
 	:global([data-tabular]) {
 		font-variant-numeric: tabular-nums;
 	}
 
-	[data-warning] {
+	.warning {
 		color: var(--color-warning);
 		font-size: 0.875em;
 	}
 
-	[data-badge][data-warning] {
-		display: inline-block;
-		margin-left: 0.5em;
-		padding: 0.125em 0.5em;
-		border-radius: 0.25em;
-		background: var(--color-warning-bg);
-		color: var(--color-warning);
-		font-size: 0.75em;
+	.badge {
+		&[data-warning] {
+			display: inline-block;
+			margin-left: 0.5em;
+			padding: 0.125em 0.5em;
+			border-radius: 0.25em;
+			background: var(--color-warning-bg);
+			color: var(--color-warning);
+			font-size: 0.75em;
+		}
 	}
 
-	[data-warnings] [data-warning] {
-		margin: 0;
+	.warnings {
+		> .warning {
+			margin: 0;
+		}
 	}
 </style>

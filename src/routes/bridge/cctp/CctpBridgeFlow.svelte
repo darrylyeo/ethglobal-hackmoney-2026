@@ -2,6 +2,7 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import { WalletConnectionTransport } from '$/collections/wallet-connections'
+	import { CoinSymbol, ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
 	import {
 		validateBridgeAmount,
 		USDC_MIN_AMOUNT,
@@ -47,11 +48,7 @@
 
 	// Functions
 	import { formatAddress, isValidAddress } from '$/lib/address'
-	import {
-		formatSmallestToDecimal,
-		isValidDecimalInput,
-		parseDecimalToSmallest,
-	} from '$/lib/format'
+	import { formatSmallestToDecimal } from '$/lib/format'
 
 	// State
 	import {
@@ -71,6 +68,12 @@
 	// (Derived)
 	const settings = $derived(
 		bridgeSettingsState.current ?? defaultBridgeSettings,
+	)
+	const usdcToken = $derived(
+		settings.fromChainId !== null
+			? (ercTokensBySymbolByChainId[settings.fromChainId]?.[CoinSymbol.Usdc] ??
+					ercTokens[0])
+			: ercTokens[0],
 	)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
@@ -150,23 +153,6 @@
 	})
 
 	// Actions
-	const onAmountInput = (e: Event) => {
-		const v = (e.target as HTMLInputElement).value
-			.replace(/[^0-9.,]/g, '')
-			.replace(/,/g, '')
-		if (v === '') {
-			invalidAmountInput = false
-			bridgeSettingsState.current = { ...settings, amount: 0n }
-		} else if (isValidDecimalInput(v, 6)) {
-			invalidAmountInput = false
-			bridgeSettingsState.current = {
-				...settings,
-				amount: parseDecimalToSmallest(v, 6),
-			}
-		} else {
-			invalidAmountInput = true
-		}
-	}
 	const onConfirmBridge = () => {
 		confirmOpen = true
 	}
@@ -176,31 +162,31 @@
 	}
 
 	// Components
-	import Select from '$/components/Select.svelte'
+	import NetworkInput from '$/components/NetworkInput.svelte'
+	import CoinAmountInput from '$/components/CoinAmountInput.svelte'
 	import CctpAllowance from './CctpAllowance.svelte'
 	import CctpExecution from './CctpExecution.svelte'
 	import CctpFees from './CctpFees.svelte'
 </script>
 
-<div data-bridge-layout>
+<div class="bridge-layout">
 	<section data-card data-column="gap-4">
 		<h2>Bridge USDC (CCTP)</h2>
 
 		<div data-row="gap-4">
 			<div data-column="gap-1" style="flex:1" data-from-chain>
 				<label for="from">From</label>
-				<Select
-					items={cctpNetworks}
-					value={settings.fromChainId?.toString() ?? ''}
-					onValueChange={(v) => {
-						if (!v) return
-						bridgeSettingsState.current = {
-							...settings,
-							fromChainId: Number(v),
-						}
-					}}
-					getItemId={(network) => String(network.id)}
-					getItemLabel={(network) => network.name}
+				<NetworkInput
+					networks={cctpNetworks}
+					value={settings.fromChainId}
+					onValueChange={(v) => (
+						typeof v === 'number'
+							? (bridgeSettingsState.current = {
+									...settings,
+									fromChainId: v,
+								})
+							: null
+					)}
 					placeholder="—"
 					id="from"
 					ariaLabel="From chain"
@@ -208,15 +194,14 @@
 			</div>
 			<div data-column="gap-1" style="flex:1" data-to-chain>
 				<label for="to">To</label>
-				<Select
-					items={cctpNetworks}
-					value={settings.toChainId?.toString() ?? ''}
-					onValueChange={(v) => {
-						if (!v) return
-						bridgeSettingsState.current = { ...settings, toChainId: Number(v) }
-					}}
-					getItemId={(network) => String(network.id)}
-					getItemLabel={(network) => network.name}
+				<NetworkInput
+					networks={cctpNetworks}
+					value={settings.toChainId}
+					onValueChange={(v) => (
+						typeof v === 'number'
+							? (bridgeSettingsState.current = { ...settings, toChainId: v })
+							: null
+					)}
 					placeholder="—"
 					id="to"
 					ariaLabel="To chain"
@@ -226,15 +211,19 @@
 
 		<div data-column="gap-1">
 			<label for="amt">Amount</label>
-			<input
+			<CoinAmountInput
 				id="amt"
-				type="text"
-				inputmode="decimal"
-				placeholder="0.00"
-				value={settings.amount === 0n
-					? ''
-					: formatSmallestToDecimal(settings.amount, 6)}
-				oninput={onAmountInput}
+				coins={[usdcToken]}
+				coin={usdcToken}
+				min={USDC_MIN_AMOUNT}
+				max={USDC_MAX_AMOUNT}
+				value={settings.amount}
+				onValueChange={(nextAmount) => {
+					bridgeSettingsState.current = { ...settings, amount: nextAmount }
+				}}
+				onInvalidChange={(nextInvalid) => {
+					invalidAmountInput = nextInvalid
+				}}
 			/>
 			{#if invalidAmountInput}
 				<small data-error
@@ -289,7 +278,7 @@
 		{#if canSendAmount && recipient && fromNetwork && toNetwork}
 			<div data-preview data-column="gap-1">
 				<strong>Transfer preview</strong>
-				<dl data-summary>
+				<dl class="bridge-summary">
 					<dt>Burn</dt>
 					<dd>
 						{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
@@ -402,7 +391,7 @@
 					to {toNetwork.name}. Recipient: {formatAddress(recipient)}.
 				</Dialog.Description>
 			{/if}
-			<div data-dialog-actions>
+			<div class="dialog-actions">
 				<Button.Root
 					type="button"
 					onclick={() => {
@@ -418,35 +407,35 @@
 </Dialog.Root>
 
 <style>
-	[data-bridge-layout] {
+	.bridge-layout {
 		display: grid;
 		gap: 1.5em;
 		grid-template-columns: 1fr;
 	}
 
 	@media (min-width: 768px) {
-		[data-bridge-layout] {
+		.bridge-layout {
 			grid-template-columns: 1fr 1fr;
 			gap: 2em;
 		}
 	}
 
-	[data-summary] {
+	.bridge-summary {
 		display: grid;
 		grid-template-columns: auto 1fr;
 		gap: 0.25em 1em;
+
+		dt,
+		dd {
+			margin: 0;
+		}
+
+		dt {
+			opacity: 0.7;
+		}
 	}
 
-	[data-summary] dt,
-	[data-summary] dd {
-		margin: 0;
-	}
-
-	[data-summary] dt {
-		opacity: 0.7;
-	}
-
-	[data-dialog-actions] {
+	.dialog-actions {
 		display: flex;
 		gap: 0.5rem;
 		margin-top: 1rem;

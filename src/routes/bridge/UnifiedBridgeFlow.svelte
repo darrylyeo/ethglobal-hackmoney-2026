@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
+	import { CoinSymbol, ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
 	import {
 		validateBridgeAmount,
 		USDC_MIN_AMOUNT,
@@ -31,12 +32,7 @@
 	)
 
 	// Functions
-	import { formatAddress, isValidAddress } from '$/lib/address'
-	import {
-		formatSmallestToDecimal,
-		isValidDecimalInput,
-		parseDecimalToSmallest,
-	} from '$/lib/format'
+	import { formatAddress, isValidAddress, normalizeAddress } from '$/lib/address'
 
 	// State
 	import {
@@ -50,6 +46,12 @@
 	// (Derived)
 	const settings = $derived(
 		bridgeSettingsState.current ?? defaultBridgeSettings,
+	)
+	const usdcToken = $derived(
+		settings.fromChainId !== null
+			? (ercTokensBySymbolByChainId[settings.fromChainId]?.[CoinSymbol.Usdc] ??
+					ercTokens[0])
+			: ercTokens[0],
 	)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
@@ -100,54 +102,35 @@
 							: 'Defaulting to CCTP for USDC transfers',
 	)
 	const recipient = $derived(
-		settings.useCustomRecipient && isValidAddress(settings.customRecipient)
-			? settings.customRecipient
+		settings.useCustomRecipient
+			? normalizeAddress(settings.customRecipient)
 			: selectedActor,
 	)
 
-	// Actions
-	const onAmountInput = (e: Event) => {
-		const v = (e.target as HTMLInputElement).value
-			.replace(/[^0-9.,]/g, '')
-			.replace(/,/g, '')
-		if (v === '') {
-			invalidAmountInput = false
-			bridgeSettingsState.current = { ...settings, amount: 0n }
-		} else if (isValidDecimalInput(v, 6)) {
-			invalidAmountInput = false
-			bridgeSettingsState.current = {
-				...settings,
-				amount: parseDecimalToSmallest(v, 6),
-			}
-		} else {
-			invalidAmountInput = true
-		}
-	}
-
 	// Components
-	import Select from '$/components/Select.svelte'
+	import NetworkInput from '$/components/NetworkInput.svelte'
+	import CoinAmountInput from '$/components/CoinAmountInput.svelte'
 	import UnifiedProtocolRouter from './UnifiedProtocolRouter.svelte'
 </script>
 
-<div data-bridge-layout>
+<div class="bridge-layout">
 	<section data-card data-column="gap-4">
 		<h2>Bridge USDC</h2>
 
 		<div data-row="gap-4">
 			<div data-column="gap-1" style="flex:1" data-from-chain>
 				<label for="from">From</label>
-				<Select
-					items={filteredNetworks}
-					value={settings.fromChainId?.toString() ?? ''}
-					onValueChange={(v) => {
-						if (!v) return
-						bridgeSettingsState.current = {
-							...settings,
-							fromChainId: Number(v),
-						}
-					}}
-					getItemId={(network) => String(network.id)}
-					getItemLabel={(network) => network.name}
+				<NetworkInput
+					networks={filteredNetworks}
+					value={settings.fromChainId}
+					onValueChange={(v) => (
+						typeof v === 'number'
+							? (bridgeSettingsState.current = {
+									...settings,
+									fromChainId: v,
+								})
+							: null
+					)}
 					placeholder="—"
 					id="from"
 					ariaLabel="From chain"
@@ -155,15 +138,14 @@
 			</div>
 			<div data-column="gap-1" style="flex:1" data-to-chain>
 				<label for="to">To</label>
-				<Select
-					items={filteredNetworks}
-					value={settings.toChainId?.toString() ?? ''}
-					onValueChange={(v) => {
-						if (!v) return
-						bridgeSettingsState.current = { ...settings, toChainId: Number(v) }
-					}}
-					getItemId={(network) => String(network.id)}
-					getItemLabel={(network) => network.name}
+				<NetworkInput
+					networks={filteredNetworks}
+					value={settings.toChainId}
+					onValueChange={(v) => (
+						typeof v === 'number'
+							? (bridgeSettingsState.current = { ...settings, toChainId: v })
+							: null
+					)}
 					placeholder="—"
 					id="to"
 					ariaLabel="To chain"
@@ -173,15 +155,19 @@
 
 		<div data-column="gap-1">
 			<label for="amt">Amount</label>
-			<input
+			<CoinAmountInput
 				id="amt"
-				type="text"
-				inputmode="decimal"
-				placeholder="0.00"
-				value={settings.amount === 0n
-					? ''
-					: formatSmallestToDecimal(settings.amount, 6)}
-				oninput={onAmountInput}
+				coins={[usdcToken]}
+				coin={usdcToken}
+				min={USDC_MIN_AMOUNT}
+				max={USDC_MAX_AMOUNT}
+				value={settings.amount}
+				onValueChange={(nextAmount) => {
+					bridgeSettingsState.current = { ...settings, amount: nextAmount }
+				}}
+				onInvalidChange={(nextInvalid) => {
+					invalidAmountInput = nextInvalid
+				}}
 			/>
 			{#if invalidAmountInput}
 				<small data-error
@@ -250,14 +236,14 @@
 </div>
 
 <style>
-	[data-bridge-layout] {
+	.bridge-layout {
 		display: grid;
 		gap: 1.5em;
 		grid-template-columns: 1fr;
 	}
 
 	@media (min-width: 768px) {
-		[data-bridge-layout] {
+		.bridge-layout {
 			grid-template-columns: 1fr 1fr;
 			gap: 2em;
 		}

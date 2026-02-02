@@ -207,16 +207,14 @@
 		requestWalletConnection({ rdns }).catch(() => {})
 	const toggleTestnet = (checked: boolean) =>
 		(bridgeSettingsState.current = { ...settings, isTestnet: checked })
-	const selectNetwork = (value: string) => {
-		const chainId = Number(value)
-		if (Number.isNaN(chainId)) return
+	const selectNetwork = (chainId: number) => {
 		if (settings.fromChainId !== chainId)
 			bridgeSettingsState.current = { ...settings, fromChainId: chainId }
 		if (swapSettings.chainId !== chainId)
 			swapSettingsState.current = { ...swapSettings, chainId }
 	}
-	const onNetworkValueChange = (value: string | string[] | null) =>
-		typeof value === 'string' && value ? selectNetwork(value) : undefined
+	const onNetworkValueChange = (value: number | number[] | null) =>
+		typeof value === 'number' ? selectNetwork(value) : undefined
 	const onSingleSelectionChange = (value: string | null) => {
 		if (value) selectConnection({ rdns: value })
 	}
@@ -246,7 +244,7 @@
 
 	// Components
 	import Address from '$/components/Address.svelte'
-	import Select from '$/components/Select.svelte'
+	import NetworkInput from '$/components/NetworkInput.svelte'
 	import { Button, DropdownMenu, Switch, ToggleGroup } from 'bits-ui'
 </script>
 
@@ -270,12 +268,10 @@
 		>
 	</label>
 	<div data-row-item="flexible">
-		<Select
-			items={filteredNetworks}
-			value={settings.fromChainId?.toString() ?? ''}
+		<NetworkInput
+			networks={filteredNetworks}
+			value={settings.fromChainId}
 			onValueChange={onNetworkValueChange}
-			getItemId={(network) => String(network.id)}
-			getItemLabel={(network) => network.name}
 			placeholder="Select network"
 			ariaLabel="Network"
 		/>
@@ -1189,12 +1185,12 @@
 		align-items: center;
 		gap: 0.35rem;
 		position: relative;
-	}
 
-	.wallet-chip.wallet-connecting,
-	.wallet-chip.wallet-failed {
-		opacity: 0.7;
-		cursor: default;
+		&.wallet-connecting,
+		&.wallet-failed {
+			opacity: 0.7;
+			cursor: default;
+		}
 	}
 
 	.wallet-details {
@@ -1222,28 +1218,32 @@
 		padding-inline-end: 1.75rem;
 	}
 
-	:global(.wallet-connection-item[data-state='on']) .wallet-chip::before {
-		content: '✓';
-		position: absolute;
-		top: -0.2rem;
-		right: -0.2rem;
-		font-size: 0.55rem;
-		line-height: 1;
-		color: var(--color-on-accent, #fff);
-		z-index: 1;
-	}
+	:global(.wallet-connection-item) {
+		&[data-state='on'] {
+			:global(.wallet-chip)::before {
+				content: '✓';
+				position: absolute;
+				top: -0.2rem;
+				right: -0.2rem;
+				font-size: 0.55rem;
+				line-height: 1;
+				color: var(--color-on-accent, #fff);
+				z-index: 1;
+			}
 
-	:global(.wallet-connection-item[data-state='on']) .wallet-chip::after {
-		content: '';
-		position: absolute;
-		top: -0.3rem;
-		right: -0.3rem;
-		width: 0.85rem;
-		height: 0.85rem;
-		border-radius: 9999px;
-		background-color: var(--color-accent, #6c24e0);
-		box-shadow: 0 0 0 1px
-			color-mix(in srgb, var(--color-accent) 70%, transparent);
+			:global(.wallet-chip)::after {
+				content: '';
+				position: absolute;
+				top: -0.3rem;
+				right: -0.3rem;
+				width: 0.85rem;
+				height: 0.85rem;
+				border-radius: 9999px;
+				background-color: var(--color-accent, #6c24e0);
+				box-shadow: 0 0 0 1px
+					color-mix(in srgb, var(--color-accent) 70%, transparent);
+			}
+		}
 	}
 
 	.wallet-readonly {

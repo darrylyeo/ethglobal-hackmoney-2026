@@ -22,6 +22,7 @@
 		isValidDecimalInput,
 	} from '$/lib/format'
 	import { switchWalletChain } from '$/lib/wallet'
+	import NetworkInput from '$/components/NetworkInput.svelte'
 	import Select from '$/components/Select.svelte'
 	import Positions from './Positions.svelte'
 
@@ -106,15 +107,14 @@
 	<div data-row="gap-4">
 		<div data-column="gap-1" style="flex:1">
 			<label for="liq-chain">Chain</label>
-			<Select
-				items={filteredNetworks}
-				value={String(settings.chainId)}
-				onValueChange={(v) => {
-					if (v)
-						liquiditySettingsState.current = { ...settings, chainId: Number(v) }
-				}}
-				getItemId={(network) => String(network.id)}
-				getItemLabel={(network) => network.name}
+			<NetworkInput
+				networks={filteredNetworks}
+				value={settings.chainId}
+				onValueChange={(v) => (
+					typeof v === 'number'
+						? (liquiditySettingsState.current = { ...settings, chainId: v })
+						: null
+				)}
 				placeholder="—"
 				id="liq-chain"
 			/>
