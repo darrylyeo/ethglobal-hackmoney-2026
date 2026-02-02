@@ -269,7 +269,7 @@
 		{/if}
 	</div>
 	<!-- Left column: Form -->
-	<section data-card data-column="gap-4">
+	<section data-bridge-form data-card data-column="gap-4">
 		<h2>Bridge USDC</h2>
 
 		<!-- Network selectors -->
@@ -366,7 +366,7 @@
 	</section>
 
 	<!-- Right column: Routes & Output -->
-	<div data-column="gap-4">
+	<div data-bridge-output data-column="gap-4">
 		{#if !selectedWallet}
 			<p data-muted>Connect a wallet to get routes</p>
 		{/if}
@@ -602,19 +602,6 @@
 </div>
 
 <style>
-	[data-bridge-layout] {
-		display: grid;
-		gap: 1.5em;
-		grid-template-columns: 1fr;
-	}
-
-	@media (min-width: 768px) {
-		[data-bridge-layout] {
-			grid-template-columns: 1fr 1fr;
-			gap: 2em;
-		}
-	}
-
 	[data-summary] {
 		display: grid;
 		grid-template-columns: auto 1fr;

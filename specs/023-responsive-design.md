@@ -313,11 +313,10 @@ h3 { font-size: var(--text-lg); }
 
 ## Status
 
-Complete. `src/styles/responsive.css` (spacing, containers, tap-target, fluid
+Complete. `src/styles/responsive.css` active (:root spacing, containers, tap-target, fluid
 typography, form-row, bridge layout grid, balance grid breakpoints, wallet-header
-wrap); +layout.svelte imports responsive.css; bridge components use responsive
-data attributes; main overflow-x: hidden. Navigation already hamburger < 60rem
-(layout). Manual viewport check recommended for device sizes.
+wrap); +layout.svelte imports responsive.css; BridgeFlow uses data-bridge-form and
+data-bridge-output; main overflow-x: hidden. E2E viewport tests in e2e/responsive.test.ts.
 
 ## Output when complete
 

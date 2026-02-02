@@ -34,7 +34,7 @@
 	import '$/styles/fonts.css'
 	import '$/styles/components.css'
 	import '$/styles/accessibility.css'
-	// import '$/styles/responsive.css'
+	import '$/styles/responsive.css'
 	import '$/styles/bits-ui.css'
 </script>
 
