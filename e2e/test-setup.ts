@@ -6,41 +6,86 @@
 
 const MOCK_ADDRESS = '0x1234567890123456789012345678901234567890'
 
-export async function addMockWallet(context: {
-	addInitScript: (fn: () => void) => Promise<void>
-}) {
-	await context.addInitScript(() => {
-		const MOCK = MOCK_ADDRESS
+const mockWalletInitScript = () => {
+	const MOCK = MOCK_ADDRESS
+	const detail = {
+		info: {
+			uuid: 'mock-wallet-uuid',
+			name: 'Mock Wallet',
+			icon: '',
+			rdns: 'com.mock',
+		},
+		provider: {
+			request: (args: { method: string }) =>
+				Promise.resolve(
+					args.method === 'eth_requestAccounts'
+						? [MOCK]
+						: args.method === 'eth_chainId'
+							? '0x1'
+							: args.method === 'eth_accounts'
+								? [MOCK]
+								: null,
+				),
+		},
+	}
+	const announce = () => {
+		window.dispatchEvent(
+			new CustomEvent('eip6963:announceProvider', { detail }),
+		)
+	}
+	window.addEventListener('eip6963:requestProvider', () => {
+		announce()
+	})
+	for (const ms of [0, 50, 150, 300, 500, 800, 1200]) {
+		setTimeout(announce, ms)
+	}
+}
+
+/** Call after page.goto() to inject mock in page context (init script may not run in same world). */
+export async function injectMockWalletInPage(
+	page: import('@playwright/test').Page,
+) {
+	await page.evaluate((mockAddress: string) => {
+		const detail = {
+			info: {
+				uuid: 'mock-wallet-uuid',
+				name: 'Mock Wallet',
+				icon: '',
+				rdns: 'com.mock',
+			},
+			provider: {
+				request: (args: { method: string }) =>
+					Promise.resolve(
+						args.method === 'eth_requestAccounts'
+							? [mockAddress]
+							: args.method === 'eth_chainId'
+								? '0x1'
+								: args.method === 'eth_accounts'
+									? [mockAddress]
+									: null,
+					),
+			},
+		}
 		const announce = () => {
 			window.dispatchEvent(
-				new CustomEvent('eip6963:announceProvider', {
-					detail: {
-						info: {
-							uuid: 'mock-wallet-uuid',
-							name: 'Mock Wallet',
-							icon: '',
-							rdns: 'com.mock',
-						},
-						provider: {
-							request: (args: { method: string }) =>
-								Promise.resolve(
-									args.method === 'eth_requestAccounts'
-										? [MOCK]
-										: args.method === 'eth_chainId'
-											? '0x1'
-											: args.method === 'eth_accounts'
-												? [MOCK]
-												: null,
-								),
-						},
-					},
-				}),
+				new CustomEvent('eip6963:announceProvider', { detail }),
 			)
 		}
 		window.addEventListener('eip6963:requestProvider', () => {
-			setTimeout(announce, 0)
+			announce()
 		})
-	})
+		announce()
+		setTimeout(announce, 50)
+		setTimeout(announce, 200)
+	}, MOCK_ADDRESS)
+}
+
+export async function addMockWallet(
+	context: { addInitScript: (fn: () => void) => Promise<void> },
+	page?: { addInitScript: (fn: () => void) => Promise<void> },
+) {
+	await context.addInitScript(mockWalletInitScript)
+	if (page) await page.addInitScript(mockWalletInitScript)
 }
 
 const mockLifiRoutes = {

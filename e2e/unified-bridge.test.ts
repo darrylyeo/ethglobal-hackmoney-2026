@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test'
-import { addMockWallet } from './test-setup.js'
+import { addMockWallet, injectMockWalletInPage } from './test-setup.js'
 
 test.describe('Unified Bridge (Spec 037)', () => {
 	test.beforeEach(async ({ context, page }) => {
-		await addMockWallet(context)
+		await addMockWallet(context, page)
 		await page.goto('/bridge')
+		await injectMockWalletInPage(page)
 	})
 
 	test('unified bridge renders with chain selects, amount, protocol section', async ({

@@ -61,23 +61,23 @@ while reducing flakiness and runtime.
 
 ## Acceptance criteria
 
-- [ ] All E2E tests run with a single shared fixture entrypoint
-- [ ] Network mocking eliminates flaky external dependencies
-- [ ] Each core route has at least one happy-path E2E test
-- [ ] Each core route has at least one error or empty-state test
-- [ ] Accessibility smoke tests pass for all core routes
-- [ ] Responsive checks cover mobile and desktop breakpoints
-- [ ] Test failures include trace + screenshot + console errors
-- [ ] Total E2E runtime stays within current CI budget
+- [x] All E2E tests run with a single shared fixture entrypoint
+- [x] Network mocking eliminates flaky external dependencies
+- [x] Each core route has at least one happy-path E2E test
+- [x] Each core route has at least one error or empty-state test
+- [x] Accessibility smoke tests pass for all core routes
+- [x] Responsive checks cover mobile and desktop breakpoints
+- [x] Test failures include trace + screenshot + console errors
+- [x] Total E2E runtime stays within current CI budget
 
 ## TODO
 
-- [ ] Inventory existing E2E tests and map to routes
-- [ ] Create shared fixture and migrate tests
-- [ ] Add network mocks for LI.FI, Voltaire, PartyKit
-- [ ] Implement route-level coverage gaps
-- [ ] Add accessibility + responsive smoke tests
-- [ ] Add failure diagnostics and logs
+- [x] Inventory existing E2E tests and map to routes
+- [x] Create shared fixture and migrate tests
+- [x] Add network mocks for LI.FI, Voltaire, PartyKit
+- [x] Implement route-level coverage gaps
+- [x] Add accessibility + responsive smoke tests
+- [x] Add failure diagnostics and logs
 
 ## Testing
 
@@ -87,7 +87,7 @@ pnpm test:e2e
 
 ## Status
 
-Planned.
+Complete. Single fixture in `e2e/test-setup.ts`: `addMockWallet`, `injectMockWalletInPage`, `addLifiRoutesMock`, `addCctpMocks`, `addNetworkMocks`. Wallet mock injected via `page.evaluate` after goto so EIP-6963 announce is received in page context. Route-coverage: Home nav uses `.first()` for duplicate links; Transfers asserts `#main-content`-scoped period/loading text. All e2e tests pass. Playwright config: trace on-first-retry, screenshot only-on-failure, video on-first-retry.
 
 ## Output when complete
 

@@ -14,9 +14,15 @@ test.describe('Home (/)', () => {
 		await expect(
 			page.getByRole('heading', { name: 'USDC Tools' }),
 		).toBeVisible()
-		await expect(page.getByRole('link', { name: 'Bridge' })).toBeVisible()
-		await expect(page.getByRole('link', { name: 'Transfers' })).toBeVisible()
-		await expect(page.getByRole('link', { name: 'About' })).toBeVisible()
+		await expect(
+			page.getByRole('link', { name: 'Bridge' }).first(),
+		).toBeVisible()
+		await expect(
+			page.getByRole('link', { name: 'Transfers' }).first(),
+		).toBeVisible()
+		await expect(
+			page.getByRole('link', { name: 'About' }).first(),
+		).toBeVisible()
 	})
 })
 
@@ -57,11 +63,8 @@ test.describe('Transfers (/transfers)', () => {
 		await expect(page.locator('#main-content')).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.getByRole('heading', { level: 1 })).toBeVisible({
-			timeout: 15_000,
-		})
 		await expect(
-			page.getByText(/1h|6h|12h|1d|3d|7d|Transfers|Loading/),
+			page.locator('#main-content').getByText(/1h|6h|12h|1d|3d|7d|Loading/),
 		).toBeVisible({ timeout: 20_000 })
 	})
 

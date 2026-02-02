@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test'
-import { addMockWallet } from './test-setup.js'
+import { addMockWallet, injectMockWalletInPage } from './test-setup.js'
 
 test.describe('E2E bridge flow', () => {
 	test.describe('happy path with mocked wallet', () => {
 		test.beforeEach(async ({ context, page }) => {
-			await addMockWallet(context)
+			await addMockWallet(context, page)
 			await page.goto('/bridge/lifi')
+			await injectMockWalletInPage(page)
 		})
 
 		test('connect → balance → select → amount → get routes (result or no-routes)', async ({
@@ -109,8 +110,9 @@ test.describe('E2E bridge flow', () => {
 
 	test.describe('testnet/mainnet toggle', () => {
 		test.beforeEach(async ({ context, page }) => {
-			await addMockWallet(context)
+			await addMockWallet(context, page)
 			await page.goto('/bridge/lifi')
+			await injectMockWalletInPage(page)
 			await expect(page.locator('#main-content')).toBeAttached({
 				timeout: 30_000,
 			})
@@ -231,8 +233,9 @@ test.describe('E2E bridge flow', () => {
 			context,
 			page,
 		}) => {
-			await addMockWallet(context)
+			await addMockWallet(context, page)
 			await page.goto('/bridge/lifi')
+			await injectMockWalletInPage(page)
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main-content')).toContainText(
 				/USDC Bridge|Connect a wallet/,

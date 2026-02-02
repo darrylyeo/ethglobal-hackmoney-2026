@@ -1,6 +1,6 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
-import { addMockWallet } from './test-setup.js'
+import { addMockWallet, injectMockWalletInPage } from './test-setup.js'
 
 test.describe('Accessibility (axe-core)', () => {
 	test('home page has no critical violations', async ({ page }) => {
@@ -77,8 +77,9 @@ test.describe('Accessibility (axe-core)', () => {
 
 test.describe('Keyboard navigation', () => {
 	test.beforeEach(async ({ context, page }) => {
-		await addMockWallet(context)
+		await addMockWallet(context, page)
 		await page.goto('/bridge/lifi')
+		await injectMockWalletInPage(page)
 		await expect(page.locator('#main-content')).toBeAttached({
 			timeout: 30_000,
 		})

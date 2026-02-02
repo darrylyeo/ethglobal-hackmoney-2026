@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { addMockWallet } from './test-setup.js'
+import { addMockWallet, injectMockWalletInPage } from './test-setup.js'
 
 test.describe('Wallet provider & balances (Spec 005)', () => {
 	test('network toggle switches between Mainnet/Testnet label', async ({
@@ -38,8 +38,9 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 
 	test.describe('with mock wallet', () => {
 		test.beforeEach(async ({ context, page }) => {
-			await addMockWallet(context)
+			await addMockWallet(context, page)
 			await page.goto('/bridge')
+			await injectMockWalletInPage(page)
 			await expect(page.locator('#main-content')).toBeAttached({
 				timeout: 30_000,
 			})

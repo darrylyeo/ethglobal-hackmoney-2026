@@ -1,11 +1,16 @@
 import { expect, test } from '@playwright/test'
-import { addMockWallet, addCctpMocks } from './test-setup.js'
+import {
+	addCctpMocks,
+	addMockWallet,
+	injectMockWalletInPage,
+} from './test-setup.js'
 
 test.describe('CCTP Bridge (Spec 036)', () => {
 	test.beforeEach(async ({ context, page }) => {
-		await addMockWallet(context)
+		await addMockWallet(context, page)
 		await addCctpMocks(page)
 		await page.goto('/bridge/cctp')
+		await injectMockWalletInPage(page)
 	})
 
 	test('select chains, enter amount', async ({ page }) => {
