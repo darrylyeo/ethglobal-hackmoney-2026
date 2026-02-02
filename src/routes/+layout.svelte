@@ -162,8 +162,7 @@
 			--sticky-paddingInlineEnd: var(--safeArea-insetRight);
 		}
 
-	@media not (max-width: 1024px) {
-		.layout {
+		@media not (max-width: 1024px) {
 			grid-template:
 				'Nav Main' 100dvh
 				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr);
