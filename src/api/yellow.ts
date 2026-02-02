@@ -13,7 +13,10 @@ export type ClearnodeConnection = {
 	send: (msg: unknown) => void
 }
 
-const getYellowSdk = async (): Promise<unknown> => null
+const getYellowSdk = async (): Promise<unknown> => (
+	// TODO: lazy-load @erc7824/nitrolite and expose typed helpers
+	null
+)
 
 export const connectClearnode = async (params: {
 	chainId: number
@@ -76,9 +79,7 @@ export const getAvailableBalance = async (params: {
 export const openChannel = async (params: {
 	provider: EIP1193Provider
 	chainId: number
-	counterparty: `0x${string}`
-	myDeposit: bigint
-	counterpartyDeposit: bigint
+	token: `0x${string}`
 }): Promise<{ channelId: string }> => {
 	const sdk = await getYellowSdk()
 	if (sdk && typeof (sdk as { openChannel?: (p: typeof params) => Promise<{ channelId: string }> }).openChannel === 'function') {
@@ -89,8 +90,8 @@ export const openChannel = async (params: {
 
 export const sendTransfer = async (params: {
 	clearnodeConnection: ClearnodeConnection
-	channelId: string
-	amount: bigint
+	destination: `0x${string}`
+	allocations: { asset: string; amount: string }[]
 }): Promise<{ turnNum: number }> => {
 	const sdk = await getYellowSdk()
 	if (sdk && typeof (sdk as { sendTransfer?: (p: typeof params) => Promise<{ turnNum: number }> }).sendTransfer === 'function') {

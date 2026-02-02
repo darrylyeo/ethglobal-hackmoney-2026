@@ -1,14 +1,19 @@
 # Spec 032: Yellow state channels
 
 Open USDC payment channels with verified actors in multiplayer rooms using
-[Yellow Network's](https://docs.yellow.org/docs/learn/introduction/architecture-at-a-glance/)
-Nitrolite protocol for instant off-chain transfers.
+Yellow Network's Nitrolite protocol for instant off-chain transfers and unified
+balance settlement via clearnodes.
 
 **References:**
 
-- https://docs.yellow.org/docs/learn/introduction/architecture-at-a-glance/
-- https://docs.yellow.org/docs/learn/core-concepts/state-channels-vs-l1-l2/
-- https://docs.yellow.org/docs/build/
+- https://docs.yellow.org/yellow-network/architecture-and-design/smart-clearing-protocol
+- https://docs.yellow.org/docs/protocol/on-chain/channel-lifecycle
+- https://docs.yellow.org/docs/protocol/on-chain/data-structures
+- https://docs.yellow.org/docs/protocol/off-chain/overview
+- https://docs.yellow.org/docs/protocol/off-chain/message-format
+- https://docs.yellow.org/docs/protocol/off-chain/channel-methods
+- https://docs.yellow.org/docs/protocol/glossary
+- https://docs.yellow.org/docs/build/quick-start/
 
 **Depends on:**
 
@@ -16,34 +21,37 @@ Nitrolite protocol for instant off-chain transfers.
 
 ## Overview
 
-Yellow Network enables instant, gasless transfers via state channels:
+Yellow Network provides state-channel-backed unified balances through clearnodes.
+Clients authenticate via Nitro RPC, open a payment channel with a clearnode, and
+then move funds off-chain with instant finality.
 
-| Layer           | Purpose                                | Speed      | Cost     |
-| --------------- | -------------------------------------- | ---------- | -------- |
-| **Application** | Room UI, channel management            | —          | —        |
-| **Off-Chain**   | Instant state updates via Nitro RPC    | < 1 second | Zero gas |
-| **On-Chain**    | Fund custody, disputes, final settlement | Block time | Gas fees |
+| Layer           | Purpose                                     | Speed      | Cost     |
+| --------------- | ------------------------------------------- | ---------- | -------- |
+| **Application** | Room UI, session orchestration, UX          | —          | —        |
+| **Off-Chain**   | Nitro RPC (auth, channel ops, transfers)    | < 1 second | Zero gas |
+| **On-Chain**    | Custody, disputes, final settlement         | Block time | Gas fees |
 
 Within a multiplayer room, users with verified addresses can:
 
-1. Deposit USDC to Yellow's Custody Contract
-2. Open bilateral payment channels with other verified actors
-3. Send instant off-chain transfers
-4. Close channels and settle on-chain
+1. Authenticate with a clearnode (session keys)
+2. Create a payment channel with the clearnode (`create_channel` + on-chain `create`)
+3. Fund/resize the channel (`resize_channel`)
+4. Send instant transfers (`transfer`) to other verified actors
+5. Close channels cooperatively (`close_channel`) or via challenge on-chain
 
 ## Collections
 
 ### `src/collections/yellow-deposits.ts`
 
-Track USDC deposits to Custody Contract:
+Track unified balance and channel-locked balances:
 
 ```typescript
 type YellowDeposit = {
   id: string // `${chainId}:${address}`
   chainId: number
   address: `0x${string}`
-  availableBalance: bigint // deposited, ready for channels
-  lockedBalance: bigint // committed to channels
+  availableBalance: bigint // unified balance
+  lockedBalance: bigint // locked in channels / escrow
   lastUpdated: number
 }
 
@@ -55,16 +63,22 @@ const yellowDepositsCollection = createCollection<YellowDeposit>({
 
 ### `src/collections/yellow-channels.ts`
 
-Track payment channels between actors:
+Track payment channels (user <-> clearnode):
 
 ```typescript
-type ChannelStatus = 'pending' | 'active' | 'closing' | 'closed' | 'disputed'
+type ChannelStatus =
+  | 'void'
+  | 'initial'
+  | 'active'
+  | 'dispute'
+  | 'final'
+  | 'closing'
 
 type YellowChannel = {
   id: string // channelId from contract
   chainId: number
-  participant0: `0x${string}`
-  participant1: `0x${string}`
+  participant0: `0x${string}` // user
+  participant1: `0x${string}` // clearnode
   asset: `0x${string}` // USDC address
   totalDeposited: bigint
   balance0: bigint // participant0's current balance
@@ -88,14 +102,17 @@ Track signed state updates:
 
 ```typescript
 type YellowChannelState = {
-  id: string // `${channelId}:${turnNum}`
-  channelId: string
-  turnNum: number
-  balance0: bigint
-  balance1: bigint
-  appData: string // encoded app-specific data
-  signature0?: `0x${string}`
-  signature1?: `0x${string}`
+  id: string // `${channelId}:${version}`
+  channelId: `0x${string}`
+  intent: number
+  version: number
+  stateData: `0x${string}`
+  allocations: {
+    destination: `0x${string}`
+    token: `0x${string}`
+    amount: bigint
+  }[]
+  signatures: `0x${string}`[]
   isFinal: boolean
   timestamp: number
 }
@@ -108,16 +125,16 @@ const yellowChannelStatesCollection = createCollection<YellowChannelState>({
 
 ### `src/collections/yellow-transfers.ts`
 
-Track off-chain transfers within channels:
+Track off-chain transfers (unified balance):
 
 ```typescript
 type YellowTransfer = {
   id: string // unique transfer id
-  channelId: string
+  channelId?: string
   from: `0x${string}`
   to: `0x${string}`
   amount: bigint
-  turnNum: number
+  turnNum?: number
   timestamp: number
   status: 'pending' | 'confirmed' | 'failed'
 }
@@ -145,13 +162,13 @@ export const CUSTODY_CONTRACT_ADDRESS: Record<number, `0x${string}`> = {
 
 // Clearnode WebSocket endpoints
 export const CLEARNODE_WS_URL: Record<number, string> = {
-  [ChainId.Ethereum]: 'wss://clearnode.yellow.org/ethereum',
-  [ChainId.Optimism]: 'wss://clearnode.yellow.org/optimism',
+  [ChainId.Ethereum]: 'wss://clearnet.yellow.com/ws',
+  [ChainId.Optimism]: 'wss://clearnet.yellow.com/ws',
   // ...
 }
 
 // Challenge period for disputes (in seconds)
-export const CHALLENGE_PERIOD = 24 * 60 * 60 // 24 hours
+export const CHALLENGE_PERIOD = 60 * 60 // 1 hour minimum
 
 // Minimum channel funding
 export const MIN_CHANNEL_DEPOSIT = 10n * 10n ** 6n // 10 USDC
@@ -170,7 +187,7 @@ const getYellowSdk = async () => {
   return { NitroClient, ... }
 }
 
-// Connect to Clearnode
+// Connect to Clearnode (Nitro RPC: auth_request -> auth_challenge -> auth_verify)
 const connectClearnode = async (params: {
   chainId: number
   signer: EIP1193Provider
@@ -181,7 +198,7 @@ const connectClearnode = async (params: {
   // ... establish authenticated connection
 }
 
-// Deposit USDC to Custody Contract
+// Deposit USDC to Custody Contract (optional; most funding uses resize_channel)
 const depositToCustody = async (params: {
   provider: EIP1193Provider
   chainId: number
@@ -201,20 +218,18 @@ const getAvailableBalance = async (params: {
   address: `0x${string}`
 }): Promise<bigint>
 
-// Open channel with counterparty
+// Open channel with clearnode (create_channel -> on-chain create)
 const openChannel = async (params: {
   provider: EIP1193Provider
   chainId: number
-  counterparty: `0x${string}`
-  myDeposit: bigint
-  counterpartyDeposit: bigint
+  token: `0x${string}`
 }): Promise<{ channelId: string }>
 
-// Send off-chain transfer
+// Send off-chain transfer (unified balance)
 const sendTransfer = async (params: {
   clearnodeConnection: ClearnodeConnection
-  channelId: string
-  amount: bigint
+  destination: `0x${string}`
+  allocations: { asset: string; amount: string }[]
 }): Promise<{ turnNum: number }>
 
 // Close channel cooperatively
@@ -224,7 +239,7 @@ const closeChannel = async (params: {
   channelId: string
 }): Promise<{ txHash: `0x${string}` }>
 
-// Challenge channel (dispute)
+// Challenge channel (dispute on-chain)
 const challengeChannel = async (params: {
   provider: EIP1193Provider
   channelId: string
@@ -240,29 +255,33 @@ Nitro RPC message handling:
 // Nitro RPC compact format: [requestId, method, params, timestamp]
 type NitroRpcMessage = [number, string, Record<string, unknown>, number]
 
-// Encode RPC message
+// Encode RPC message (req/sig envelope)
 const encodeNitroRpc = (
   requestId: number,
   method: string,
   params: Record<string, unknown>,
 ): string => (
-  JSON.stringify([requestId, method, params, Date.now()])
+  JSON.stringify({
+    req: [requestId, method, params, Date.now()],
+    sig: [],
+  })
 )
 
-// Decode RPC message
-const decodeNitroRpc = (message: string): NitroRpcMessage => (
-  JSON.parse(message)
-)
+// Decode RPC message (req/res envelope)
+const decodeNitroRpc = (message: string): NitroRpcMessage => {
+  const parsed = JSON.parse(message) as { req?: NitroRpcMessage; res?: NitroRpcMessage }
+  return parsed.req ?? parsed.res ?? parsed
+}
 
-// Sign state for channel
+// Sign state for channel (packedState)
 const signChannelState = async (params: {
   provider: EIP1193Provider
   address: `0x${string}`
-  channelId: string
-  turnNum: number
-  balance0: bigint
-  balance1: bigint
-  appData: string
+  channelId: `0x${string}`
+  intent: number
+  version: number
+  stateData: `0x${string}`
+  allocations: YellowChannelAllocation[]
 }): Promise<`0x${string}`> => {
   const stateHash = hashChannelState(params)
   return await params.provider.request({
@@ -328,16 +347,21 @@ export const disconnectFromYellow = () => {
   yellowState.address = null
 }
 
-// Handle incoming Clearnode messages
+// Handle incoming Clearnode messages (bu, cu, tr)
 const handleClearnodeMessage = (msg: NitroRpcMessage) => {
   const [, method, params] = msg
 
   switch (method) {
+    case 'cu':
     case 'channel_updated':
       yellowChannelsCollection.upsert(normalizeChannel(params))
       break
+    case 'tr':
     case 'transfer_received':
       yellowTransfersCollection.insert(normalizeTransfer(params))
+      break
+    case 'bu':
+      yellowDepositsCollection.upsert(normalizeBalance(params))
       break
     case 'state_proposed':
       // Counterparty proposed new state, auto-sign if valid
@@ -350,48 +374,43 @@ const handleClearnodeMessage = (msg: NitroRpcMessage) => {
 
 ### PartyKit message extensions
 
-Extend room messages (from Spec 031) to coordinate channel operations:
+Extend room messages (from Spec 031) to coordinate transfer intent:
 
 ```typescript
 type RoomMessage =
   // ... existing messages from Spec 031
-  | { type: 'propose-channel'; to: `0x${string}`; myDeposit: string; theirDeposit: string }
-  | { type: 'channel-proposal'; from: `0x${string}`; channelParams: ChannelProposal }
-  | { type: 'accept-channel'; proposalId: string }
-  | { type: 'reject-channel'; proposalId: string; reason?: string }
-  | { type: 'channel-opened'; channelId: string; participants: [`0x${string}`, `0x${string}`] }
-  | { type: 'channel-closed'; channelId: string }
+  | { type: 'propose-transfer'; to: `0x${string}`; allocations: { asset: string; amount: string }[] }
+  | { type: 'transfer-request'; from: `0x${string}`; request: TransferRequest }
+  | { type: 'accept-transfer'; requestId: string }
+  | { type: 'reject-transfer'; requestId: string; reason?: string }
+  | { type: 'transfer-sent'; transferId: string }
 
-type ChannelProposal = {
+type TransferRequest = {
   id: string
   from: `0x${string}`
   to: `0x${string}`
-  chainId: number
-  fromDeposit: bigint
-  toDeposit: bigint
+  allocations: { asset: string; amount: string }[]
   createdAt: number
   expiresAt: number
 }
 ```
 
-### `src/collections/channel-proposals.ts`
+### `src/collections/transfer-requests.ts`
 
 ```typescript
-type ChannelProposal = {
+type TransferRequest = {
   id: string
   roomId: string
   from: `0x${string}`
   to: `0x${string}`
-  chainId: number
-  fromDeposit: bigint
-  toDeposit: bigint
-  status: 'pending' | 'accepted' | 'rejected' | 'expired' | 'opened'
+  allocations: { asset: string; amount: string }[]
+  status: 'pending' | 'accepted' | 'rejected' | 'expired' | 'sent'
   createdAt: number
   expiresAt: number
 }
 
-const channelProposalsCollection = createCollection<ChannelProposal>({
-  id: 'channel-proposals',
+const transferRequestsCollection = createCollection<TransferRequest>({
+  id: 'transfer-requests',
   getId: (p) => p.id,
 })
 ```
@@ -483,128 +502,60 @@ List channels with room participants:
 </section>
 ```
 
-### `src/routes/rooms/ChannelProposals.svelte`
+### `src/routes/rooms/TransferRequests.svelte`
 
-Propose and accept channel openings:
+Propose and accept transfer requests:
 
 ```svelte
 <script lang="ts">
   import { useLiveQuery } from '$/svelte/live-query-context.svelte'
-  import { channelProposalsCollection } from '$/collections/channel-proposals'
+  import { transferRequestsCollection } from '$/collections/transfer-requests'
   import { sharedAddressesCollection } from '$/collections/shared-addresses'
-  import { yellowDepositsCollection } from '$/collections/yellow-deposits'
   import { roomState } from '$/state/room.svelte'
   import { yellowState } from '$/state/yellow.svelte'
 
   let { roomId }: { roomId: string } = $props()
 
-  // Verified addresses I can open channels with
   const verifiedQuery = useLiveQuery(() => (
-    sharedAddressesCollection.query({
-      where: { roomId },
-    })
+    sharedAddressesCollection.query({ where: { roomId } })
   ))
 
   const otherVerified = $derived(
     verifiedQuery.data?.filter((s) => s.address !== yellowState.address) ?? []
   )
 
-  // My available balance
-  const depositQuery = useLiveQuery(() => (
-    yellowDepositsCollection.query({
-      where: { address: yellowState.address },
-    })
-  ))
-
-  const availableBalance = $derived(
-    depositQuery.data?.[0]?.availableBalance ?? 0n
-  )
-
-  // Pending proposals for me
   const incomingQuery = useLiveQuery(() => (
-    channelProposalsCollection.query({
+    transferRequestsCollection.query({
       where: { roomId, to: yellowState.address, status: 'pending' },
     })
   ))
 
-  // My outgoing proposals
   const outgoingQuery = useLiveQuery(() => (
-    channelProposalsCollection.query({
+    transferRequestsCollection.query({
       where: { roomId, from: yellowState.address, status: 'pending' },
     })
   ))
 
-  // Propose channel
   let selectedAddress = $state<`0x${string}` | null>(null)
-  let myDeposit = $state('')
-  let theirDeposit = $state('')
+  let amount = $state('')
 
-  const proposeChannel = () => {
+  const proposeTransfer = () => {
     if (!selectedAddress) return
     roomState.connection?.send({
-      type: 'propose-channel',
+      type: 'propose-transfer',
       to: selectedAddress,
-      myDeposit,
-      theirDeposit,
+      allocations: [{ asset: 'usdc', amount }],
     })
   }
 
-  const acceptProposal = (proposalId: string) => {
-    roomState.connection?.send({ type: 'accept-channel', proposalId })
+  const acceptRequest = (requestId: string) => {
+    roomState.connection?.send({ type: 'accept-transfer', requestId })
   }
 
-  const rejectProposal = (proposalId: string) => {
-    roomState.connection?.send({ type: 'reject-channel', proposalId })
+  const rejectRequest = (requestId: string) => {
+    roomState.connection?.send({ type: 'reject-transfer', requestId })
   }
 </script>
-
-<section data-channel-proposals>
-  <h3>Open Channel</h3>
-
-  <div data-available-balance>
-    Available: {formatSmallestToDecimal(availableBalance, 6)} USDC
-  </div>
-
-  <form onsubmit={(e) => { e.preventDefault(); proposeChannel() }}>
-    <Select.Root bind:value={selectedAddress}>
-      <Select.Trigger>Select participant</Select.Trigger>
-      <Select.Content>
-        {#each otherVerified as shared (shared.id)}
-          <Select.Item value={shared.address}>
-            <Address address={shared.address} />
-          </Select.Item>
-        {/each}
-      </Select.Content>
-    </Select.Root>
-
-    <Input
-      type="text"
-      placeholder="My deposit (USDC)"
-      bind:value={myDeposit}
-    />
-    <Input
-      type="text"
-      placeholder="Their deposit (USDC)"
-      bind:value={theirDeposit}
-    />
-
-    <Button type="submit" disabled={!selectedAddress || !myDeposit}>
-      Propose Channel
-    </Button>
-  </form>
-
-  {#if incomingQuery.data?.length}
-    <h4>Incoming Proposals</h4>
-    {#each incomingQuery.data as proposal (proposal.id)}
-      <div data-proposal>
-        <Address address={proposal.from} />
-        <span>wants to open {formatSmallestToDecimal(proposal.fromDeposit, 6)} / {formatSmallestToDecimal(proposal.toDeposit, 6)} USDC channel</span>
-        <Button onclick={() => acceptProposal(proposal.id)}>Accept</Button>
-        <Button onclick={() => rejectProposal(proposal.id)}>Reject</Button>
-      </div>
-    {/each}
-  {/if}
-</section>
 ```
 
 ### `src/routes/rooms/TransferDialog.svelte`
@@ -792,21 +743,20 @@ Manage Custody Contract deposits:
 ```
 User A (Room)              PartyKit Server              User B (Room)
     |                            |                            |
-    |-- propose-channel(B) ----->|                            |
-    |                            |-- channel-proposal ------->|
+    |-- propose-transfer(B) ---->|                            |
+    |                            |-- transfer-request ------->|
     |                            |                            |
-    |                            |<-- accept-channel ---------|
-    |<-- proposal-accepted ------|                            |
+    |                            |<-- accept-transfer --------|
+    |<-- transfer-accepted ------|                            |
     |                            |                            |
-    |  [Both connect to Clearnode, sign initial state]        |
+    |  [Both connect to Clearnode, authenticate]              |
     |                            |                            |
     |=================== Yellow Clearnode ====================|
     |                            |                            |
-    |-- create_channel --------->|<-- create_channel ---------|
-    |                            |                            |
-    |<-- channel_created --------|-- channel_created -------->|
-    |                            |                            |
-    |  [Channel ACTIVE, off-chain transfers enabled]          |
+    |-- create_channel --------->|                            |
+    |<-- create_channel ---------|                            |
+    |  [Submit on-chain create()]                             |
+    |  [Channel ACTIVE, resize_channel to fund]               |
 ```
 
 ### Transfer flow (off-chain)
@@ -814,13 +764,11 @@ User A (Room)              PartyKit Server              User B (Room)
 ```
 User A                    Clearnode                    User B
     |                         |                            |
-    |-- transfer(50 USDC) --->|                            |
-    |                         |-- state_proposed --------->|
-    |                         |                            |
-    |                         |<-- state_signed -----------|
+    |-- transfer(allocs) ---->|                            |
+    |                         |-- tr notification -------->|
     |<-- transfer_confirmed --|                            |
     |                         |                            |
-    |  [State: A:-50, B:+50, turnNum++]                    |
+    |  [Unified balance updated for both parties]         |
 ```
 
 ### Closing flow (cooperative)
@@ -840,10 +788,10 @@ User A                    Clearnode                    User B
 
 ### Dispute flow (uncooperative)
 
-If counterparty is unresponsive:
+If counterparty is unresponsive or disputes:
 
-1. Submit latest signed state via `challengeChannel`
-2. Wait challenge period (24 hours)
+1. Submit latest signed state via on-chain `challenge`
+2. Wait challenge period (>= 1 hour)
 3. If no newer state submitted, finalize and withdraw
 
 ## Acceptance criteria
@@ -853,49 +801,55 @@ If counterparty is unresponsive:
 - [x] `yellowChannelsCollection` in `src/collections/yellow-channels.ts`
 - [x] `yellowChannelStatesCollection` in `src/collections/yellow-channel-states.ts`
 - [x] `yellowTransfersCollection` in `src/collections/yellow-transfers.ts`
-- [x] `channelProposalsCollection` in `src/collections/channel-proposals.ts`
+- [ ] `transferRequestsCollection` in `src/collections/transfer-requests.ts`
 - [x] Unit tests for collection normalizers (nitro-rpc.spec.ts: encode/decode/hashChannelState)
 
 ### Constants
 - [x] `src/constants/yellow.ts` with contract addresses
-- [x] Clearnode WebSocket URLs per chain
+- [x] Clearnode WebSocket endpoints (clearnet + sandbox)
+- [x] Challenge period default set to 1 hour
 
 ### API
 - [x] `src/api/yellow.ts` with lazy-loaded SDK
-- [x] `connectClearnode` establishes authenticated connection
+- [ ] `connectClearnode` establishes authenticated connection (auth_request/auth_verify)
 - [x] `depositToCustody` / `withdrawFromCustody` on-chain operations
-- [x] `openChannel` creates channel with counterparty
-- [x] `sendTransfer` instant off-chain transfer
-- [x] `closeChannel` cooperative close
-- [x] `challengeChannel` dispute path
-- [x] `src/lib/nitro-rpc.ts` message encoding/signing
+- [ ] `openChannel` uses create_channel + on-chain create flow
+- [ ] `resizeChannel` funds/unfunds channel using resize_channel
+- [ ] `sendTransfer` uses Nitro RPC transfer (unified balance)
+- [ ] `closeChannel` cooperative close
+- [ ] `challengeChannel` dispute path
+- [x] `src/lib/nitro-rpc.ts` envelope encode/decode + packedState stubs
 
 ### State management
 - [x] `src/state/yellow.svelte.ts` with Clearnode connection
-- [x] Real-time updates from Clearnode to collections
-- [x] Channel state synchronization
+- [x] Real-time updates from Clearnode to collections (bu, cu, tr)
+- [ ] Channel state synchronization (state versions + packedState validation)
 
 ### Room integration
-- [x] Extended PartyKit messages for channel coordination
-- [x] Channel proposals require verified addresses (Spec 031)
-- [x] Proposal accept/reject flow
+- [ ] Extended PartyKit messages for transfer/session coordination
+- [x] Verified addresses gating (Spec 031)
+- [ ] Proposal accept/reject flow updated for transfers
 
 ### UI
 - [x] `ChannelList.svelte` – list channels with room participants
-- [x] `ChannelProposals.svelte` – propose and accept channels
+- [ ] `TransferRequests.svelte` – propose and accept transfers
 - [x] `TransferDialog.svelte` – send off-chain transfers
 - [x] `DepositManager.svelte` – manage Custody Contract balance
 - [x] Navigation to channels within room
 
 ### Channel lifecycle
-- [x] Open channel via room proposal flow
-- [x] Send instant transfers (< 1 second)
-- [x] Close channel cooperatively
-- [x] Challenge/dispute unresponsive counterparty
+- [ ] Open channel via create_channel + on-chain create
+- [ ] Fund/unfund with resize_channel
+- [ ] Send instant transfers (< 1 second)
+- [ ] Close channel cooperatively
+- [ ] Challenge/dispute unresponsive counterparty
 
 ## Status
 
-Complete. Collections (yellow-deposits, yellow-channels, yellow-channel-states, yellow-transfers, channel-proposals) in src/collections. Constants src/constants/yellow.ts (CUSTODY_CONTRACT_ADDRESS placeholder, CLEARNODE_WS_URL, CHALLENGE_PERIOD, MIN_CHANNEL_DEPOSIT). API src/api/yellow.ts: lazy-loaded SDK stub, connectClearnode, depositToCustody/withdrawFromCustody, openChannel, sendTransfer, closeChannel, challengeChannel (throw when SDK not loaded). src/lib/nitro-rpc.ts: encodeNitroRpc, decodeNitroRpc, hashChannelState, signChannelState, verifyStateSignature; unit tests in nitro-rpc.spec.ts. State src/state/yellow.svelte.ts: yellowState, connectToYellow, disconnectFromYellow, handleClearnodeMessage (channel_updated, transfer_received), refresh deposit on connect. PartyKit room.ts: propose-channel (verified-address check), channel-proposal, accept-channel, reject-channel, channel-opened, channel-closed; room.svelte.ts handlers for channel-proposal, accept/reject, channel-opened. UI: ChannelList.svelte, ChannelProposals.svelte, TransferDialog.svelte, DepositManager.svelte; rooms/[roomId]/channels/+page.svelte; link from room page to Channels.
+In progress. Updated specs to match Nitro RPC envelopes, clearnode endpoints, and
+channel lifecycle (create_channel + resize_channel). Implementation updated for
+Nitro RPC message envelopes and balance notifications; remaining channel ops are
+stubbed behind the SDK.
 
 ## Output when complete
 

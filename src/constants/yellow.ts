@@ -5,20 +5,79 @@
 
 import { ChainId } from '$/constants/networks'
 
-export const CUSTODY_CONTRACT_ADDRESS: Partial<Record<number, `0x${string}`>> = {
-	[ChainId.Ethereum]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-	[ChainId.Optimism]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-	[ChainId.Arbitrum]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-	[ChainId.Base]: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+type Address = `0x${string}`
+
+export enum YellowResource {
+	CustodyContract = 'CustodyContract',
+	ClearnodeWsUrl = 'ClearnodeWsUrl',
 }
 
-export const CLEARNODE_WS_URL: Partial<Record<number, string>> = {
-	[ChainId.Ethereum]: 'wss://clearnode.yellow.org/ethereum',
-	[ChainId.Optimism]: 'wss://clearnode.yellow.org/optimism',
-	[ChainId.Arbitrum]: 'wss://clearnode.yellow.org/arbitrum',
-	[ChainId.Base]: 'wss://clearnode.yellow.org/base',
+export type YellowResourceEntry = {
+	chainId: ChainId
+	resource: YellowResource
+	value: string
 }
 
-export const CHALLENGE_PERIOD = 24 * 60 * 60
+const placeholderAddress: Address = '0x0000000000000000000000000000000000000000'
+
+export const yellowResources = [
+	{
+		chainId: ChainId.Ethereum,
+		resource: YellowResource.CustodyContract,
+		value: placeholderAddress,
+	},
+	{
+		chainId: ChainId.Optimism,
+		resource: YellowResource.CustodyContract,
+		value: placeholderAddress,
+	},
+	{
+		chainId: ChainId.Arbitrum,
+		resource: YellowResource.CustodyContract,
+		value: placeholderAddress,
+	},
+	{
+		chainId: ChainId.Base,
+		resource: YellowResource.CustodyContract,
+		value: placeholderAddress,
+	},
+	{
+		chainId: ChainId.Ethereum,
+		resource: YellowResource.ClearnodeWsUrl,
+		value: 'wss://clearnet.yellow.com/ws',
+	},
+	{
+		chainId: ChainId.Optimism,
+		resource: YellowResource.ClearnodeWsUrl,
+		value: 'wss://clearnet.yellow.com/ws',
+	},
+	{
+		chainId: ChainId.Arbitrum,
+		resource: YellowResource.ClearnodeWsUrl,
+		value: 'wss://clearnet.yellow.com/ws',
+	},
+	{
+		chainId: ChainId.Base,
+		resource: YellowResource.ClearnodeWsUrl,
+		value: 'wss://clearnet.yellow.com/ws',
+	},
+] as const satisfies readonly YellowResourceEntry[]
+
+const yellowResourcesByType = (
+	Object.fromEntries(
+		Map.groupBy(yellowResources, (entry) => entry.resource)
+			.entries()
+			.map(([resource, entries]) => [
+				resource,
+				Object.fromEntries(entries.map((entry) => [entry.chainId, entry.value])),
+			])
+	)
+)
+
+export const CUSTODY_CONTRACT_ADDRESS = yellowResourcesByType[YellowResource.CustodyContract]
+export const CLEARNODE_WS_URL = yellowResourcesByType[YellowResource.ClearnodeWsUrl]
+export const CLEARNODE_WS_URL_SANDBOX = 'wss://clearnet-sandbox.yellow.com/ws'
+
+export const CHALLENGE_PERIOD = 60 * 60
 
 export const MIN_CHANNEL_DEPOSIT = 10n * 10n ** 6n

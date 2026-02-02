@@ -72,14 +72,66 @@ function normalizeTransferFromMessage(params: unknown): YellowTransfer | null {
 	}
 }
 
+function normalizeBalanceUpdate(params: unknown): { address: `0x${string}`; availableBalance: bigint; lockedBalance: bigint } | null {
+	if (!params || typeof params !== 'object') return null
+	const p = params as Record<string, unknown>
+	const addressValue = (
+		typeof p.address === 'string' && p.address.startsWith('0x') ?
+			p.address
+		: typeof p.wallet === 'string' && p.wallet.startsWith('0x') ?
+			p.wallet
+		: typeof p.account_id === 'string' && p.account_id.startsWith('0x') ?
+			p.account_id
+		:
+			yellowState.address
+	)
+	const address = (
+		addressValue && addressValue.startsWith('0x') ?
+			addressValue as `0x${string}`
+		:
+			null
+	)
+	if (!address) return null
+	const availableBalance = p.available_balance ?? p.availableBalance
+	if (availableBalance === undefined || availableBalance === null) return null
+	return {
+		address,
+		availableBalance: BigInt(String(availableBalance)),
+		lockedBalance: BigInt(String(p.locked_balance ?? p.lockedBalance ?? 0)),
+	}
+}
+
 function handleClearnodeMessage(msg: NitroRpcMessage) {
 	const [, method, params] = msg
-	if (method === 'channel_updated') {
+	if (method === 'channel_updated' || method === 'cu') {
 		const ch = normalizeChannelFromMessage(params)
 		if (ch) upsertChannel(ch)
-	} else if (method === 'transfer_received') {
+	} else if (method === 'transfer_received' || method === 'tr') {
 		const t = normalizeTransferFromMessage(params)
 		if (t) yellowTransfersCollection.insert(t)
+	} else if (method === 'bu') {
+		const update = normalizeBalanceUpdate(params)
+		if (update) {
+			const depositId = `${yellowState.chainId}:${update.address.toLowerCase()}`
+			const existing = yellowDepositsCollection.state.get(depositId)
+			const now = Date.now()
+			if (existing) {
+				yellowDepositsCollection.update(depositId, (draft) => {
+					draft.availableBalance = update.availableBalance
+					draft.lockedBalance = update.lockedBalance
+					draft.lastUpdated = now
+				})
+			} else {
+				yellowDepositsCollection.insert({
+					id: depositId,
+					chainId: yellowState.chainId ?? 0,
+					address: update.address,
+					availableBalance: update.availableBalance,
+					lockedBalance: update.lockedBalance,
+					lastUpdated: now,
+				})
+			}
+		}
 	}
 }
 
