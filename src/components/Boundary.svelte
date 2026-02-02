@@ -48,18 +48,20 @@
 					<button onclick={retry}>Retry</button>
 				</header>
 
-				{#if error instanceof Error}
-					<p>{error.message}</p>
+				<div class="error-content">
+					{#if error instanceof Error}
+						<p>{error.message}</p>
 
-					{#if error.stack}
-						<details>
-							<summary>Stack trace</summary>
-							<pre>{error.stack}</pre>
-						</details>
+						{#if error.stack}
+							<details>
+								<summary>Stack trace</summary>
+								<pre>{error.stack}</pre>
+							</details>
+						{/if}
+					{:else}
+						<pre>{stringify(error, null, 2)}</pre>
 					{/if}
-				{:else}
-					<pre>{stringify(error, null, 2)}</pre>
-				{/if}
+				</div>
 			</div>
 		{/if}
 	{/snippet}
@@ -71,13 +73,14 @@
 		cursor: wait;
 	}
 
-	pre, p {
+	.error-content pre,
+	.error-content p {
 		overflow: auto;
 		min-width: 100%;
 		width: 0;
 	}
 
-	pre {
+	.error-content pre {
 		font-size: smaller;
 	}
 

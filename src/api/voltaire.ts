@@ -69,6 +69,7 @@ export async function getErc20Balance(
 
 const ALLOWANCE_SELECTOR = '0xdd62ed3e'
 const APPROVE_SELECTOR = '0x095ea7b3'
+const TRANSFER_SELECTOR = '0xa9059cbb'
 export const MAX_UINT256 = 2n ** 256n - 1n
 
 export function encodeAllowanceCall(
@@ -107,6 +108,15 @@ export function encodeApproveCall(
 	const paddedSpender = spender.slice(2).toLowerCase().padStart(64, '0')
 	const paddedAmount = amount.toString(16).padStart(64, '0')
 	return `${APPROVE_SELECTOR}${paddedSpender}${paddedAmount}` as `0x${string}`
+}
+
+export function encodeTransferCall(
+	recipient: `0x${string}`,
+	amount: bigint,
+): string {
+	const paddedRecipient = recipient.slice(2).toLowerCase().padStart(64, '0')
+	const paddedAmount = amount.toString(16).padStart(64, '0')
+	return `${TRANSFER_SELECTOR}${paddedRecipient}${paddedAmount}`
 }
 
 export function createHttpProvider(url: string): VoltaireProvider {

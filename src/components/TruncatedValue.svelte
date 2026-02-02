@@ -39,6 +39,7 @@
 
 {:else if format === TruncatedValueFormat.Visual}
 	<span
+		class="truncated-value"
 		role="button"
 		tabindex="0"
 		aria-label={value}
@@ -55,6 +56,7 @@
 
 {:else if format === TruncatedValueFormat.VisualCharacters}
 	<span
+		class="truncated-value"
 		role="button"
 		tabindex="0"
 		aria-label={value}
@@ -64,7 +66,7 @@
 
 
 <style>
-	[tabindex] {
+	.truncated-value {
 		&:is(:active, :focus-within) {
 			--isTruncated: 0;
 		}

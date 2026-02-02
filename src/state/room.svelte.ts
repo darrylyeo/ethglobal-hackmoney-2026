@@ -2,7 +2,7 @@
  * Room state: PartyKit connection, join/leave, sync from server to collections.
  */
 
-import { channelProposalsCollection } from '$/collections/channel-proposals'
+import { transferRequestsCollection } from '$/collections/transfer-requests'
 import { roomsCollection } from '$/collections/rooms'
 import { roomPeersCollection } from '$/collections/room-peers'
 import { sharedAddressesCollection } from '$/collections/shared-addresses'
@@ -13,7 +13,7 @@ import {
 	type RoomMessage,
 } from '$/lib/partykit'
 import { verifySiweSignature } from '$/lib/siwe'
-import type { ChannelProposal } from '$/collections/channel-proposals'
+import type { TransferRequest } from '$/collections/transfer-requests'
 import type { Room } from '$/collections/rooms'
 import type { RoomPeer } from '$/collections/room-peers'
 import type { SharedAddress } from '$/collections/shared-addresses'
@@ -115,54 +115,45 @@ function handleServerMessage(msg: RoomMessage) {
 			}
 			break
 		}
-		case 'channel-proposal': {
-			const p = msg.channelParams
-			const row: ChannelProposal = {
+		case 'transfer-request': {
+			const p = msg.request
+			const row: TransferRequest = {
 				id: p.id,
 				roomId: p.roomId,
 				from: p.from,
 				to: p.to,
-				chainId: p.chainId,
-				fromDeposit: BigInt(p.fromDeposit ?? '0'),
-				toDeposit: BigInt(p.toDeposit ?? '0'),
+				allocations: p.allocations,
 				status: 'pending',
 				createdAt: p.createdAt,
 				expiresAt: p.expiresAt,
 			}
-			upsert(channelProposalsCollection, row, (r) => r.id)
+			upsert(transferRequestsCollection, row, (r) => r.id)
 			break
 		}
-		case 'accept-channel': {
-			const existing = channelProposalsCollection.state.get(msg.proposalId)
+		case 'accept-transfer': {
+			const existing = transferRequestsCollection.state.get(msg.requestId)
 			if (existing) {
-				channelProposalsCollection.update(msg.proposalId, (draft) => {
+				transferRequestsCollection.update(msg.requestId, (draft) => {
 					draft.status = 'accepted'
 				})
 			}
 			break
 		}
-		case 'reject-channel': {
-			const existing = channelProposalsCollection.state.get(msg.proposalId)
+		case 'reject-transfer': {
+			const existing = transferRequestsCollection.state.get(msg.requestId)
 			if (existing) {
-				channelProposalsCollection.update(msg.proposalId, (draft) => {
+				transferRequestsCollection.update(msg.requestId, (draft) => {
 					draft.status = 'rejected'
 				})
 			}
 			break
 		}
-		case 'channel-opened': {
-			const [a, b] = msg.participants
-			const lower = (x: string) => x.toLowerCase()
-			for (const [id, row] of channelProposalsCollection.state) {
-				if (row.status === 'accepted' && (
-					(lower(row.from) === lower(a) && lower(row.to) === lower(b)) ||
-					(lower(row.from) === lower(b) && lower(row.to) === lower(a))
-				)) {
-					channelProposalsCollection.update(id, (draft) => {
-						draft.status = 'opened'
-					})
-					break
-				}
+		case 'transfer-sent': {
+			const existing = transferRequestsCollection.state.get(msg.requestId)
+			if (existing) {
+				transferRequestsCollection.update(msg.requestId, (draft) => {
+					draft.status = 'sent'
+				})
 			}
 			break
 		}

@@ -1,5 +1,5 @@
 import { createWalletClient, custom } from 'viem'
-import type { Chain, Client } from 'viem'
+import type { Chain, WalletClient } from 'viem'
 import { networkConfigsByChainId, networksByChainId } from '$/constants/networks'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 
@@ -181,7 +181,7 @@ export async function connectProvider(detail: ProviderDetailType): Promise<`0x${
 	return addr as `0x${string}`
 }
 
-export function createWalletClientForChain(provider: EIP1193Provider, chainId: number): Client {
+export function createWalletClientForChain(provider: EIP1193Provider, chainId: number): WalletClient {
 	return createWalletClient({
 		chain: chainFor(chainId),
 		transport: custom(provider),

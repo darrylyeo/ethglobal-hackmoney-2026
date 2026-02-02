@@ -20,8 +20,8 @@
 
 <Button.Root
 	{...props}
+	class="loading-button"
 	disabled={loading || disabled}
-	data-loading-button
 	aria-busy={loading || undefined}
 >
 	{#if loading}
@@ -33,7 +33,7 @@
 </Button.Root>
 
 <style>
-	:global([data-loading-button]) {
+	:global(.loading-button) {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5em;

@@ -32,22 +32,22 @@
 
 
 <output>
-    {#each parts as part}
-        <span data-part={part.type}>{part.value}</span>
-    {/each}
+	{#each parts as part}
+		<span class:part-fraction={part.type === 'fraction'} class:part-currency={part.type === 'currency'} class:part-group={part.type === 'group'}>{part.value}</span>
+	{/each}
 </output>
 
 
 <style>
-    [data-part='fraction'] {
+	.part-fraction {
 		opacity: 0.6;
 	}
 
-    [data-part='currency'] {
+	.part-currency {
 		font-weight: 600;
 	}
 
-    [data-part='group'] {
+	.part-group {
 		opacity: 0.4;
 	}
 </style>

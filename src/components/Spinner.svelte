@@ -6,10 +6,10 @@
 	} = $props()
 </script>
 
-<span data-spinner style:width={size} style:height={size} aria-hidden="true"></span>
+<span class="spinner" style:width={size} style:height={size} aria-hidden="true"></span>
 
 <style>
-	[data-spinner] {
+	.spinner {
 		display: inline-block;
 		border: 2px solid var(--color-spinner-track, #e5e7eb);
 		border-top-color: var(--color-spinner, currentColor);

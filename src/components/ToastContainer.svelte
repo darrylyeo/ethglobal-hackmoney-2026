@@ -12,7 +12,7 @@
 </script>
 
 <div
-	data-toast-container
+	class="toast-container"
 	data-position={position}
 	role="region"
 	aria-label="Notifications"
@@ -24,7 +24,7 @@
 </div>
 
 <style>
-	[data-toast-container] {
+	.toast-container {
 		position: fixed;
 		z-index: 200;
 		display: flex;
@@ -36,27 +36,27 @@
 		pointer-events: none;
 	}
 
-	[data-toast-container] > :global(*) {
+	.toast-container > :global(*) {
 		pointer-events: auto;
 	}
 
-	[data-position='top-right'] {
+	.toast-container[data-position='top-right'] {
 		top: 0;
 		right: 0;
 	}
 
-	[data-position='top-left'] {
+	.toast-container[data-position='top-left'] {
 		top: 0;
 		left: 0;
 	}
 
-	[data-position='bottom-right'] {
+	.toast-container[data-position='bottom-right'] {
 		bottom: 0;
 		right: 0;
 		flex-direction: column-reverse;
 	}
 
-	[data-position='bottom-left'] {
+	.toast-container[data-position='bottom-left'] {
 		bottom: 0;
 		left: 0;
 		flex-direction: column-reverse;

@@ -19,16 +19,26 @@ export type RoomMessage =
 	| { type: 'submit-signature'; challengeId: string; signature: `0x${string}` }
 	| { type: 'verify-result'; challengeId: string; verified: boolean }
 	| { type: 'sync'; state: unknown }
-	| { type: 'propose-channel'; to: `0x${string}`; myDeposit: string; theirDeposit: string }
-	| { type: 'channel-proposal'; from: `0x${string}`; channelParams: { id: string; roomId: string; from: `0x${string}`; to: `0x${string}`; chainId: number; fromDeposit: string; toDeposit: string; status: string; createdAt: number; expiresAt: number } }
-	| { type: 'accept-channel'; proposalId: string }
-	| { type: 'reject-channel'; proposalId: string; reason?: string }
-	| { type: 'channel-opened'; channelId: string; participants: [`0x${string}`, `0x${string}`] }
-	| { type: 'channel-closed'; channelId: string }
+	| { type: 'propose-transfer'; to: `0x${string}`; allocations: { asset: string; amount: string }[] }
+	| { type: 'transfer-request'; from: `0x${string}`; request: { id: string; roomId: string; from: `0x${string}`; to: `0x${string}`; allocations: { asset: string; amount: string }[]; status: string; createdAt: number; expiresAt: number } }
+	| { type: 'accept-transfer'; requestId: string }
+	| { type: 'reject-transfer'; requestId: string; reason?: string }
+	| { type: 'transfer-sent'; requestId: string }
 
-const PARTYKIT_HOST =
-	(typeof import.meta.env !== 'undefined' && (import.meta.env as { PUBLIC_PARTYKIT_HOST?: string }).PUBLIC_PARTYKIT_HOST)
-		?? (typeof window !== 'undefined' ? `${window.location.hostname}:1999` : 'localhost:1999')
+const envHost = (
+	typeof import.meta.env !== 'undefined'
+		? (import.meta.env as { PUBLIC_PARTYKIT_HOST?: string }).PUBLIC_PARTYKIT_HOST
+		: undefined
+)
+const browserHost = (
+	typeof globalThis !== 'undefined' &&
+	'location' in globalThis &&
+	typeof globalThis.location === 'object' &&
+	globalThis.location
+		? globalThis.location.hostname
+		: undefined
+)
+const PARTYKIT_HOST = envHost ?? (browserHost ? `${browserHost}:1999` : 'localhost:1999')
 
 export type RoomConnection = {
 	socket: PartySocket
@@ -89,6 +99,6 @@ export const peerNameToEmoji = (displayName: string | undefined, fallbackId: str
 	return PEER_ANIMAL_EMOJI_LIST[simpleHash(fallbackId) % PEER_ANIMAL_EMOJI_LIST.length]
 }
 
-export const createRoom = async (_name?: string): Promise<string> => {
-	return generateRoomCode()
-}
+export const createRoom = (_name?: string): Promise<string> => (
+	Promise.resolve(generateRoomCode())
+)

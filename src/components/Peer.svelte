@@ -22,9 +22,9 @@
 	const bg = $derived(`oklch(0.65 0.2 ${hue})`)
 </script>
 
-<span data-peer data-row="wrap gap-2 align-center">
+<span data-row="wrap gap-2 align-center">
 	<span
-		data-peer-avatar
+		class="peer-avatar"
 		role="img"
 		aria-hidden="true"
 		style="background: {bg};"
@@ -43,10 +43,7 @@
 </span>
 
 <style>
-	[data-peer] {
-		display: inline-flex;
-	}
-	[data-peer-avatar] {
+	.peer-avatar {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;

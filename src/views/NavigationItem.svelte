@@ -104,7 +104,7 @@
 </script>
 
 
-<search data-column="gap-3">
+<search class="nav-items" data-column="gap-3">
 	<input
 		type="search"
 		data-sticky
@@ -232,101 +232,99 @@
 
 
 <style>
-	menu {
+	.nav-items menu {
 		display: grid;
 		gap: 2px;
 		list-style: none;
 		font-size: 0.975em;
-
-		li {
-			display: grid;
-		}
 	}
 
-	details {
-		&[data-sticky-container] {
-			--sticky-marginBlockStart: 1.75rem;
-			--sticky-paddingBlockStart: 0.5rem;
-		}
+	.nav-items menu li {
+		display: grid;
 	}
 
-	a {
+	.nav-items details[data-sticky-container] {
+		--sticky-marginBlockStart: 1.75rem;
+		--sticky-paddingBlockStart: 0.5rem;
+	}
+
+	.nav-items a {
 		color: inherit;
 		font-weight: inherit;
-
-		&:hover {
-			color: var(--accent);
-			text-decoration: none;
-		}
-
-		&[aria-current] {
-			background-color: var(--background-primary);
-			font-weight: 700;
-		}
 	}
 
-	summary,
-	a {
+	.nav-items a:hover {
+		color: var(--accent);
+		text-decoration: none;
+	}
+
+	.nav-items a[aria-current] {
+		background-color: var(--background-primary);
+		font-weight: 700;
+	}
+
+	.nav-items summary,
+	.nav-items a {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-
-		> .icon {
-			display: flex;
-			font-size: 1.25em;
-			width: 1em;
-			height: 1em;
-			line-height: 1;
-
-			:global(
-				img,
-				svg
-			) {
-				border-radius: 0.125rem;
-				width: 100%;
-				height: 100%;
-			}
-		}
-
-		:global(mark) {
-			font-weight: 600;
-			text-decoration: underline;
-			background-color: transparent;
-			color: inherit;
-		}
 	}
 
-	summary,
-	a:not(summary a) {
+	.nav-items summary > .icon,
+	.nav-items a > .icon {
+		display: flex;
+		font-size: 1.25em;
+		width: 1em;
+		height: 1em;
+		line-height: 1;
+	}
+
+	.nav-items summary > .icon :global(img),
+	.nav-items summary > .icon :global(svg),
+	.nav-items a > .icon :global(img),
+	.nav-items a > .icon :global(svg) {
+		border-radius: 0.125rem;
+		width: 100%;
+		height: 100%;
+	}
+
+	.nav-items :global(mark) {
+		font-weight: 600;
+		text-decoration: underline;
+		background-color: transparent;
+		color: inherit;
+	}
+
+	.nav-items summary,
+	.nav-items a:not(summary a) {
 		padding: 0.45rem 0.45rem;
 		border-radius: 0.375rem;
 		font-weight: 500;
-
 		transition-property: opacity, scale, background-color, color, outline;
-
-		&:hover:not(:has(a:hover)) {
-			background-color: var(--background-primary);
-			color: var(--accent);
-		}
-
-		&:focus {
-			outline: 2px solid var(--accent);
-			outline-offset: -1px;
-		}
-
-		&:active {
-			background-color: var(--background-primary);
-		}
 	}
 
-	details:not([open]) > summary::after {
+	.nav-items summary:hover:not(:has(a:hover)),
+	.nav-items a:not(summary a):hover:not(:has(a:hover)) {
+		background-color: var(--background-primary);
+		color: var(--accent);
+	}
+
+	.nav-items summary:focus,
+	.nav-items a:not(summary a):focus {
+		outline: 2px solid var(--accent);
+		outline-offset: -1px;
+	}
+
+	.nav-items summary:active,
+	.nav-items a:not(summary a):active {
+		background-color: var(--background-primary);
+	}
+
+	.nav-items details:not([open]) > summary::after {
 		transform: perspective(100px) rotateX(180deg) rotate(-90deg);
 	}
 
-	summary ~ * {
-		margin-inline-start: 2em;
-		margin-block-start: 2px;
-
+	.nav-items summary ~ * {
 		margin-inline-start: 1.25em;
 		margin-block-start: 2px;
 		padding-inline-start: 0.75em;

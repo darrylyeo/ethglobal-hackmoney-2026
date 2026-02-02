@@ -9,7 +9,7 @@
 	// State
 	import { getOrCreatePeerDisplayName } from '$/lib/partykit'
 	import { roomState, joinRoom, leaveRoom } from '$/state/room.svelte'
-	import Wallets from '$/routes/bridge/Wallets.svelte'
+	import Wallets from '$/routes/bridge/lifi/Wallets.svelte'
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'

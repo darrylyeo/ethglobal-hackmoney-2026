@@ -14,6 +14,7 @@ import {
 } from '$/api/yellow'
 import type { EIP1193Provider } from '$/lib/wallet'
 import { decodeNitroRpc, type NitroRpcMessage } from '$/lib/nitro-rpc'
+import { parseDecimalToSmallest } from '$/lib/format'
 
 function upsertChannel(row: YellowChannel) {
 	const existing = yellowChannelsCollection.state.get(row.id)
@@ -75,6 +76,19 @@ function normalizeTransferFromMessage(params: unknown): YellowTransfer | null {
 function normalizeBalanceUpdate(params: unknown): { address: `0x${string}`; availableBalance: bigint; lockedBalance: bigint } | null {
 	if (!params || typeof params !== 'object') return null
 	const p = params as Record<string, unknown>
+	if ('balanceUpdates' in p && Array.isArray(p.balanceUpdates)) {
+		const updates = p.balanceUpdates
+			.filter((entry) => entry && typeof entry === 'object')
+			.map((entry) => entry as { asset?: unknown; amount?: unknown })
+		const usdc = updates.find((entry) => String(entry.asset ?? '').toLowerCase() === 'usdc')
+		const amount = usdc ? String(usdc.amount ?? '0') : '0'
+		if (!yellowState.address) return null
+		return {
+			address: yellowState.address,
+			availableBalance: parseDecimalToSmallest(amount, 6),
+			lockedBalance: 0n,
+		}
+	}
 	const addressValue = (
 		typeof p.address === 'string' && p.address.startsWith('0x') ?
 			p.address
@@ -165,7 +179,7 @@ export const connectToYellow = async (
 	yellowState.chainId = chainId
 	yellowState.address = address
 
-	const balance = await getAvailableBalance({ chainId, address })
+	const balance = await getAvailableBalance({ clearnodeConnection: connection, address })
 	const depositId = `${chainId}:${address.toLowerCase()}`
 	const existing = yellowDepositsCollection.state.get(depositId)
 	const now = Date.now()

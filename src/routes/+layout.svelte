@@ -45,7 +45,7 @@
 
 
 <div
-	id="layout"
+	class="layout"
 	data-scroll-container
 	data-sticky-container
 >
@@ -126,7 +126,7 @@
 
 	<button
 		type="button"
-		data-graph-toggle
+		class="graph-toggle"
 		onclick={() => { showGraph = !showGraph }}
 		title={showGraph ? 'Hide data graph' : 'Show data graph'}
 	>
@@ -138,12 +138,10 @@
 
 
 <style>
-	#layout {
-		/* Constants */
+	.layout {
 		--navigation-desktop-inlineSize: 20rem;
 		--navigation-mobile-blockSize: 4.16rem;
 
-		/* Rules */
 		width: 100dvw;
 		height: 100dvh;
 		padding:
@@ -155,49 +153,53 @@
 		display: grid;
 		align-items: start;
 		gap: var(--separator-width);
+	}
 
-		&[data-scroll-container] {
-			--sticky-paddingBlockStart: var(--safeArea-insetTop);
-			--sticky-paddingBlockEnd: var(--safeArea-insetBottom);
-			--sticky-paddingInlineStart: var(--safeArea-insetLeft);
-			--sticky-paddingInlineEnd: var(--safeArea-insetRight);
-		}
+	.layout[data-scroll-container] {
+		--sticky-paddingBlockStart: var(--safeArea-insetTop);
+		--sticky-paddingBlockEnd: var(--safeArea-insetBottom);
+		--sticky-paddingInlineStart: var(--safeArea-insetLeft);
+		--sticky-paddingInlineEnd: var(--safeArea-insetRight);
+	}
 
-		@media not (max-width: 1024px) {
+	@media not (max-width: 1024px) {
+		.layout {
 			grid-template:
 				'Nav Main' 100dvh
 				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr);
-
-			&[data-sticky-container] {
-				--sticky-marginInlineStart: var(--separator-width);
-				--sticky-paddingInlineStart: var(--navigation-desktop-inlineSize);
-			}
 		}
 
-		@media (max-width: 1024px) {
+		.layout[data-sticky-container] {
+			--sticky-marginInlineStart: var(--separator-width);
+			--sticky-paddingInlineStart: var(--navigation-desktop-inlineSize);
+		}
+	}
+
+	@media (max-width: 1024px) {
+		.layout {
 			grid-template:
 				'Nav' var(--navigation-mobile-blockSize)
 				'Main' 1fr
 				/ minmax(auto, 1fr)
 			;
-
-			&[data-sticky-container] {
-				--sticky-marginBlockStart: var(--separator-width);
-				--sticky-paddingBlockStart: var(--navigation-mobile-blockSize);
-			}
 		}
 
-		> :global(nav) {
-			grid-area: Nav;
-			box-shadow: 0 0 0 var(--separator-width) var(--border-color);
-		}
-
-		> main {
-			grid-area: Main;
+		.layout[data-sticky-container] {
+			--sticky-marginBlockStart: var(--separator-width);
+			--sticky-paddingBlockStart: var(--navigation-mobile-blockSize);
 		}
 	}
 
-	[data-graph-toggle] {
+	.layout > :global(nav) {
+		grid-area: Nav;
+		box-shadow: 0 0 0 var(--separator-width) var(--border-color);
+	}
+
+	.layout > main {
+		grid-area: Main;
+	}
+
+	.graph-toggle {
 		position: fixed;
 		bottom: 1rem;
 		right: 460px;
@@ -214,11 +216,11 @@
 		align-items: center;
 		justify-content: center;
 		transition: all 0.2s ease;
+	}
 
-		&:hover {
-			transform: scale(1.1);
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-			background: var(--color-bg-elevated, #f8fafc);
-		}
+	.graph-toggle:hover {
+		transform: scale(1.1);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		background: var(--color-bg-elevated, #f8fafc);
 	}
 </style>

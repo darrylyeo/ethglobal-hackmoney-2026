@@ -12,7 +12,7 @@
 
 
 <span
-	data-skeleton
+	class="skeleton"
 	style:width={width}
 	style:height={height}
 	style:border-radius={rounded}
@@ -20,7 +20,7 @@
 
 
 <style>
-	[data-skeleton] {
+	.skeleton {
 		display: inline-block;
 		background: linear-gradient(
 			90deg,

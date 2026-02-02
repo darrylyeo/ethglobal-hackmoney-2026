@@ -25,7 +25,9 @@
 </script>
 
 <div
-	data-toast
+	class="toast-root"
+	data-card="secondary"
+	data-row="gap-3"
 	data-type={toast.type}
 	role="alert"
 	onmouseenter={() => {
@@ -35,23 +37,23 @@
 		paused = false
 	}}
 >
-	<div data-toast-icon>
+	<div class="toast-icon">
 		{#if toast.type === 'loading'}
-			<span data-toast-spinner aria-hidden="true"></span>
+			<span class="toast-spinner" aria-hidden="true"></span>
 		{:else}
 			{icons[toast.type]}
 		{/if}
 	</div>
 
-	<div data-toast-content>
+	<div class="toast-content">
 		{#if toast.title}
-			<strong data-toast-title>{toast.title}</strong>
+			<strong class="toast-title">{toast.title}</strong>
 		{/if}
-		<p data-toast-message>{toast.message}</p>
+		<p class="toast-message">{toast.message}</p>
 		{#if toast.action}
 			<button
 				type="button"
-				data-toast-action
+				class="toast-action"
 				onclick={toast.action.onClick}
 			>
 				{toast.action.label}
@@ -62,7 +64,7 @@
 	{#if toast.dismissible !== false}
 		<button
 			type="button"
-			data-toast-dismiss
+			class="toast-dismiss"
 			onclick={onDismiss}
 			aria-label="Dismiss notification"
 		>
@@ -72,7 +74,7 @@
 
 	{#if toast.duration != null && toast.duration > 0}
 		<div
-			data-toast-progress
+			class="toast-progress"
 			data-paused={paused ? '' : undefined}
 			style="--duration: {toast.duration}ms"
 		></div>
@@ -80,14 +82,7 @@
 </div>
 
 <style>
-	[data-toast] {
-		display: flex;
-		align-items: flex-start;
-		gap: 0.75em;
-		padding: 1em;
-		border-radius: 0.5em;
-		background: var(--color-bg-page);
-		border: 1px solid var(--color-border);
+	.toast-root {
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 		position: relative;
 		overflow: hidden;
@@ -101,29 +96,41 @@
 		}
 	}
 
-	[data-toast][data-type='success'] {
+	.toast-root[data-type='success'] {
 		border-color: var(--color-success, #22c55e);
 	}
 
-	[data-toast][data-type='error'] {
+	.toast-root[data-type='error'] {
 		border-color: var(--color-error, #ef4444);
 	}
 
-	[data-toast][data-type='warning'] {
+	.toast-root[data-type='warning'] {
 		border-color: var(--color-warning, #f59e0b);
 	}
 
-	[data-toast][data-type='info'] {
+	.toast-root[data-type='info'] {
 		border-color: var(--color-info, #3b82f6);
 	}
 
-	[data-toast-icon] {
+	.toast-icon {
 		flex-shrink: 0;
 		width: 1.25em;
 		text-align: center;
 	}
 
-	[data-toast-spinner] {
+	.toast-root[data-type='success'] .toast-icon {
+		color: var(--color-success);
+	}
+
+	.toast-root[data-type='error'] .toast-icon {
+		color: var(--color-error);
+	}
+
+	.toast-root[data-type='warning'] .toast-icon {
+		color: var(--color-warning);
+	}
+
+	.toast-spinner {
 		display: inline-block;
 		width: 1em;
 		height: 1em;
@@ -139,35 +146,23 @@
 		}
 	}
 
-	[data-toast][data-type='success'] [data-toast-icon] {
-		color: var(--color-success);
-	}
-
-	[data-toast][data-type='error'] [data-toast-icon] {
-		color: var(--color-error);
-	}
-
-	[data-toast][data-type='warning'] [data-toast-icon] {
-		color: var(--color-warning);
-	}
-
-	[data-toast-content] {
+	.toast-content {
 		flex: 1;
 		min-width: 0;
 	}
 
-	[data-toast-title] {
+	.toast-title {
 		display: block;
 		margin-bottom: 0.25em;
 	}
 
-	[data-toast-message] {
+	.toast-message {
 		margin: 0;
 		font-size: 0.875em;
 		opacity: 0.9;
 	}
 
-	[data-toast-action] {
+	.toast-action {
 		margin-top: 0.5em;
 		font-size: 0.875em;
 		padding: 0.25em 0.5em;
@@ -177,7 +172,7 @@
 		cursor: pointer;
 	}
 
-	[data-toast-dismiss] {
+	.toast-dismiss {
 		flex-shrink: 0;
 		background: none;
 		border: none;
@@ -187,11 +182,11 @@
 		font-size: 0.875em;
 	}
 
-	[data-toast-dismiss]:hover {
+	.toast-dismiss:hover {
 		opacity: 1;
 	}
 
-	[data-toast-progress] {
+	.toast-progress {
 		position: absolute;
 		bottom: 0;
 		left: 0;
@@ -201,7 +196,7 @@
 		animation: toast-progress var(--duration) linear forwards;
 	}
 
-	[data-toast-progress][data-paused] {
+	.toast-progress[data-paused] {
 		animation-play-state: paused;
 	}
 

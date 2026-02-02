@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 
-	import Wallets from '$/routes/bridge/Wallets.svelte'
+	import Wallets from '$/routes/bridge/lifi/Wallets.svelte'
 	import LiquidityFlow from './LiquidityFlow.svelte'
 
 	let connectedWallets = $state<ConnectedWallet[]>([])
