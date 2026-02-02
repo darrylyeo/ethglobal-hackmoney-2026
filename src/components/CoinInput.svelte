@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { Coin } from '$/constants/coins'
+	import { CoinType } from '$/constants/coins'
 	import { networksByChainId } from '$/constants/networks'
 
 	// Props
@@ -28,15 +29,29 @@
 
 	// (Derived)
 	const comboboxValue = $derived(
-		value ? `${value.chainId}-${value.address.toLowerCase()}` : '',
+		value
+			? `${value.chainId}-${value.type}-${
+					value.type === CoinType.Native
+						? 'native'
+					:
+						value.address.toLowerCase()
+				}`
+			: '',
 	)
 
 	// Functions
 	const toCoinId = (coin: Coin) => (
-		`${coin.chainId}-${coin.address.toLowerCase()}`
+		`${coin.chainId}-${coin.type}-${
+			coin.type === CoinType.Native
+				? 'native'
+			:
+				coin.address.toLowerCase()
+		}`
 	)
 	const getCoinLabel = (coin: Coin) => (
-		`${coin.symbol} (${networksByChainId[coin.chainId]?.name ?? coin.chainId})`
+		`${coin.symbol} (${networksByChainId[coin.chainId]?.name ?? coin.chainId} · ${
+			coin.type === CoinType.Native ? 'Native' : 'ERC-20'
+		})`
 	)
 	const resolveValue = (nextValue: string | string[]) => (
 		Array.isArray(nextValue)
@@ -69,13 +84,25 @@
 	getItemLabel={getCoinLabel}
 >
 	{#snippet Item(coin, selected)}
+		{@const iconUrl =
+			coin.icon?.original?.url ??
+			coin.icon?.thumbnail?.url ??
+			coin.icon?.low?.url}
+		{@const typeLabel = coin.type === CoinType.Native ? 'Native' : 'ERC-20'}
 		<span
 			class="coin-input-item"
 			data-selected={selected}
 		>
+			{#if iconUrl}
+				<img src={iconUrl} alt={coin.symbol} width="16" height="16" />
+			{:else}
+				<span class="coin-input-placeholder" aria-hidden="true"></span>
+			{/if}
 			<span>{coin.symbol}</span>
 			<small data-muted>
 				{networksByChainId[coin.chainId]?.name ?? `Chain ${coin.chainId}`}
+				·
+				{typeLabel}
 			</small>
 		</span>
 	{/snippet}
@@ -87,9 +114,21 @@
 		display: inline-flex;
 		gap: 0.5rem;
 		align-items: center;
+		min-height: 1.5rem;
 
 		> small {
 			opacity: 0.7;
+		}
+
+		> img,
+		> .coin-input-placeholder {
+			width: 1rem;
+			height: 1rem;
+			border-radius: 999px;
+		}
+
+		> .coin-input-placeholder {
+			background: var(--color-border);
 		}
 	}
 </style>
