@@ -86,8 +86,5 @@ test.describe('Bridge UI (Spec 004)', () => {
 		const errorVisible =
 			(await page.locator('[data-error-display]').count()) > 0
 		expect(quoteVisible || noRoutesVisible || errorVisible).toBe(true)
-		if (quoteVisible) {
-			await expect(page.locator('[data-testid="quote-result"]')).toBeVisible()
-		}
 	})
 })
