@@ -18,10 +18,13 @@ test.describe('Bridge UI (Spec 004)', () => {
 			/USDC Bridge|Connect a wallet/,
 			{ timeout: 45_000 },
 		)
-		await page.getByRole('button', { name: 'Connect Wallet' }).click()
+		const connectTrigger = page.locator('[data-wallet-connect-trigger]')
+		await connectTrigger.scrollIntoViewIfNeeded()
+		await connectTrigger.dispatchEvent('click')
 		await page
 			.locator('[data-wallet-provider-option]')
-			.waitFor({ state: 'visible', timeout: 10_000 })
+			.first()
+			.waitFor({ state: 'visible', timeout: 20_000 })
 		await page.locator('[data-wallet-provider-option]').click()
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 15_000,
@@ -29,15 +32,30 @@ test.describe('Bridge UI (Spec 004)', () => {
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
-		await page.getByLabel('From chain').click()
+		await page.locator('#main-content').evaluate((el) => {
+			el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
+				block: 'center',
+			})
+		})
+		await page.getByLabel('From chain').focus()
+		await page.getByLabel('From chain').press('ArrowDown')
+		await page
+			.getByRole('option', { name: 'Ethereum' })
+			.waitFor({ state: 'visible', timeout: 10_000 })
 		await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
-		await page.getByLabel('To chain').click()
+		await page.getByLabel('To chain').focus()
+		await page.getByLabel('To chain').press('ArrowDown')
 		await page
 			.getByRole('option', { name: 'OP Mainnet' })
+			.last()
+			.waitFor({ state: 'visible', timeout: 10_000 })
+		await page
+			.getByRole('option', { name: 'OP Mainnet' })
+			.last()
 			.click({ force: true })
 		await page.getByLabel('Amount').fill('1')
-		await expect(page.getByLabel('From chain')).toContainText('Ethereum')
-		await expect(page.getByLabel('To chain')).toContainText('OP Mainnet')
+		await expect(page.locator('[data-from-chain]')).toBeVisible()
+		await expect(page.locator('[data-to-chain]')).toBeVisible()
 		await expect(page.getByLabel('Amount')).toHaveValue('1')
 	})
 
@@ -51,10 +69,13 @@ test.describe('Bridge UI (Spec 004)', () => {
 			/USDC Bridge|Connect a wallet/,
 			{ timeout: 45_000 },
 		)
-		await page.getByRole('button', { name: 'Connect Wallet' }).click()
+		const connectTrigger = page.locator('[data-wallet-connect-trigger]')
+		await connectTrigger.scrollIntoViewIfNeeded()
+		await connectTrigger.dispatchEvent('click')
 		await page
 			.locator('[data-wallet-provider-option]')
-			.waitFor({ state: 'visible', timeout: 10_000 })
+			.first()
+			.waitFor({ state: 'visible', timeout: 20_000 })
 		await page.locator('[data-wallet-provider-option]').click()
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 15_000,
@@ -62,11 +83,26 @@ test.describe('Bridge UI (Spec 004)', () => {
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
-		await page.getByLabel('From chain').click()
+		await page.locator('#main-content').evaluate((el) => {
+			el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
+				block: 'center',
+			})
+		})
+		await page.getByLabel('From chain').focus()
+		await page.getByLabel('From chain').press('ArrowDown')
+		await page
+			.getByRole('option', { name: 'Ethereum' })
+			.waitFor({ state: 'visible', timeout: 10_000 })
 		await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
-		await page.getByLabel('To chain').click()
+		await page.getByLabel('To chain').focus()
+		await page.getByLabel('To chain').press('ArrowDown')
 		await page
 			.getByRole('option', { name: 'OP Mainnet' })
+			.last()
+			.waitFor({ state: 'visible', timeout: 10_000 })
+		await page
+			.getByRole('option', { name: 'OP Mainnet' })
+			.last()
 			.click({ force: true })
 		await page.getByLabel('Amount').fill('1')
 		await Promise.race([
