@@ -9,7 +9,6 @@ import {
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
 import { ercTokens } from '$/constants/coins'
-import { networksByChainId } from '$/constants/networks'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import { createHttpProvider, getErc20Balance } from '$/api/voltaire'
 
@@ -26,6 +25,13 @@ export type ActorCoinRow = {
 	balance: bigint
 	isLoading: boolean
 	error: string | null
+}
+
+type ActorCoinToken = {
+	chainId: number
+	address: `0x${string}`
+	symbol: string
+	decimals: number
 }
 
 export const actorCoinsCollection = createCollection(
@@ -89,16 +95,19 @@ export const fetchActorCoinBalance = async (
 export const fetchAllBalancesForAddress = async (
 	address: `0x${string}`,
 	chainIds?: number[],
+	tokens: readonly ActorCoinToken[] = ercTokens,
 ) => {
-	const targetChainIds = chainIds ?? Object.keys(networksByChainId).map(Number)
-	const tokens = ercTokens.filter((t) => targetChainIds.includes(t.chainId))
+	const targetChainIds =
+		chainIds ?? [...new Set(tokens.map((token) => token.chainId))]
 	return await Promise.all(
-		tokens.map((token) =>
-			fetchActorCoinBalance(
-				{ chainId: token.chainId, address, tokenAddress: token.address },
-				token.symbol,
-				token.decimals,
+		tokens
+			.filter((token) => targetChainIds.includes(token.chainId))
+			.map((token) =>
+				fetchActorCoinBalance(
+					{ chainId: token.chainId, address, tokenAddress: token.address },
+					token.symbol,
+					token.decimals,
+				),
 			),
-		),
 	)
 }

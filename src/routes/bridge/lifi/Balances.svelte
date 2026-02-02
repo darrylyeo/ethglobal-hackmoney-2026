@@ -27,6 +27,7 @@
 		actorCoinsCollection,
 		fetchAllBalancesForAddress,
 	} from '$/collections/actor-coins'
+	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
 	import {
 		storkPricesCollection,
 		subscribeStorkPrices,
@@ -41,33 +42,46 @@
 	const settings = $derived(
 		bridgeSettingsState.current ?? defaultBridgeSettings,
 	)
-
-	// Networks
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			settings.isTestnet
-				? n.type === NetworkType.Testnet
-				: n.type === NetworkType.Mainnet,
+			settings.isTestnet ?
+				n.type === NetworkType.Testnet
+			:
+				n.type === NetworkType.Mainnet,
 		),
 	)
-
-	// Balances query
 	const balancesQuery = useLiveQuery((q) =>
 		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
+	)
+	const tokenListQuery = useLiveQuery((q) =>
+		q.from({ row: tokenListCoinsCollection }).select(({ row }) => ({ row })),
 	)
 	const pricesQuery = useLiveQuery((q) =>
 		q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })),
 	)
+	const filteredTokenListCoins = $derived(
+		(tokenListQuery.data ?? [])
+			.map((r) => r.row)
+			.filter((token) =>
+				filteredNetworks.some((network) => network.id === token.chainId),
+			),
+	)
 	const balances = $derived(
-		selectedActor
-			? (balancesQuery.data ?? [])
-					.map((r) => r.row)
-					.filter(
-						(b) =>
-							b.$id.address.toLowerCase() === selectedActor!.toLowerCase() &&
-							filteredNetworks.some((n) => n.id === b.$id.chainId),
-					)
-			: [],
+		selectedActor ?
+			(balancesQuery.data ?? [])
+				.map((r) => r.row)
+				.filter(
+					(b) =>
+						b.$id.address.toLowerCase() === selectedActor.toLowerCase() &&
+						filteredTokenListCoins.some(
+							(token) =>
+								token.chainId === b.$id.chainId &&
+								token.address.toLowerCase() ===
+									b.$id.tokenAddress.toLowerCase(),
+						),
+				)
+		:
+			[],
 	)
 	const prices = $derived((pricesQuery.data ?? []).map((r) => r.row))
 	const balanceAssetIds = $derived([
@@ -82,31 +96,33 @@
 		...new Set(balances.map((balance) => balance.$id.chainId)),
 	])
 	const netWorthUsd = $derived(
-		balances.length > 0
-			? balances.reduce((total, balance) => {
-					const assetId = getStorkAssetIdForSymbol(balance.symbol)
-					if (!assetId) return total
-					const priceRow = getBestStorkPrice(
-						prices,
-						assetId,
-						balance.$id.chainId,
-					)
-					if (!priceRow) return total
-					return (
-						total +
-						(balance.balance * priceRow.price) / 10n ** BigInt(balance.decimals)
-					)
-				}, 0n)
-			: null,
+		balances.length > 0 ?
+			balances.reduce((total, balance) => {
+				const assetId = getStorkAssetIdForSymbol(balance.symbol)
+				if (!assetId) return total
+				const priceRow = getBestStorkPrice(
+					prices,
+					assetId,
+					balance.$id.chainId,
+				)
+				if (!priceRow) return total
+				return (
+					total +
+					(balance.balance * priceRow.price) / 10n ** BigInt(balance.decimals)
+				)
+			}, 0n)
+		:
+			null,
 	)
 
-	// Fetch balances on actor/network change
+	// Actions
 	$effect(() => {
 		void settings.isTestnet
-		if (selectedActor)
+		if (selectedActor && filteredTokenListCoins.length > 0)
 			fetchAllBalancesForAddress(
 				selectedActor,
 				filteredNetworks.map((n) => n.id),
+				filteredTokenListCoins,
 			)
 	})
 
@@ -130,14 +146,14 @@
 </script>
 
 {#if selectedActor && balances.length > 0}
-	<section data-balances>
-		<h3>Your USDC Balances</h3>
+	<section class="balances">
+		<h3>Your balances</h3>
 		{#if netWorthUsd !== null}
-			<p data-net-worth>
+			<p class="net-worth">
 				Net worth: ${formatSmallestToDecimal(netWorthUsd, 18, 2)}
 			</p>
 		{/if}
-		<div data-balances-grid>
+		<div class="balances-grid">
 			{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
 				{@const network = networksByChainId[b.$id.chainId]}
 				{#if network}
@@ -150,7 +166,7 @@
 							source: 'balances',
 						},
 					} satisfies IntentDragPayload}
-					<div data-balance-item>
+					<div class="balance-item">
 						<dt>{network.name}</dt>
 						<EntityId
 							className="balance-intent"
@@ -175,39 +191,36 @@
 {/if}
 
 <style>
-	[data-balances] {
+	.balances {
 		padding: 1em;
 		background: var(--surface-1);
 		border-radius: 0.5em;
 	}
 
-	[data-balances] h3 {
+	.balances h3 {
 		margin: 0 0 0.75em;
 		font-size: 1em;
 	}
 
-	[data-net-worth] {
+	.net-worth {
 		margin: 0 0 0.75em;
 		font-weight: 600;
 	}
 
-	[data-balances-grid] {
+	.balances-grid {
 		display: grid;
 		gap: 0.75em;
 		grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
 	}
 
-	[data-balance-item] {
+	.balance-item {
 		display: flex;
 		flex-direction: column;
-	}
 
-	[data-balance-item] dt {
-		margin: 0;
-	}
-
-	[data-balance-item] dt {
-		font-size: 0.75em;
-		opacity: 0.7;
+		dt {
+			margin: 0;
+			font-size: 0.75em;
+			opacity: 0.7;
+		}
 	}
 </style>
