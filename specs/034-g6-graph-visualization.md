@@ -28,8 +28,8 @@ between frameworks and allow users to switch at any time.
 
 **Behavior**
 
-- Built-in modes: `drag-canvas`, `zoom-canvas`, `drag-node`, `click-select`,
-  `brush-select`, `activate-relations`.
+- Built-in behaviors: `drag-canvas`, `zoom-canvas`, `drag-element`,
+  `click-select`, `brush-select`, `hover-activate`.
 - Fit/center on initial render and on layout change.
 - Smooth zooming/panning with boundaries to avoid losing the graph.
 - Keyboard shortcuts: arrows to pan, `+`/`-` to zoom, `Escape` to clear
@@ -50,6 +50,49 @@ between frameworks and allow users to switch at any time.
 - Provide a keyboard-accessible list of entities that mirrors graph selection.
 - Node labels are readable at standard zoom levels and are exposed as accessible
   text.
+
+## G6 feature mapping by entity
+
+Use built-in node/edge types, state styling, and behaviors from the G6 docs:
+
+- **Wallets**
+  - Node type: `image` when `icon` is available, otherwise `circle`.
+  - Use `halo` in selected/highlight state to indicate focus.
+- **Wallet connections**
+  - Node type: `circle` with badges for status or actor counts.
+  - Use `selected`/`active` state styles.
+- **Actors**
+  - Node type: `circle` with label background for legibility.
+  - Enable `hover-activate` to highlight related edges.
+- **Actor coins**
+  - Node type: `donut` or `circle` with size/opacity mapped to balance.
+  - Badge shows token symbol.
+- **Actor allowances**
+  - Node style: dashed stroke to indicate approvals.
+  - Use `highlight` state to show attention.
+- **Bridge routes**
+  - Node type: `rect` or `diamond` to differentiate routing entities.
+  - Label background to keep route names readable.
+- **Transactions**
+  - Node type: `diamond` or `triangle` for event semantics.
+  - Use entrance/update animations when reduced motion is not requested.
+- **Edges**
+  - Use `endArrow` with arrow types for directionality.
+  - Use `cubic`/`cubic-horizontal` where ring spacing is wide; `line` for short
+    links.
+  - Label background or auto-rotate labels for clarity.
+
+**Docs reference**
+
+- Behaviors overview: https://g6.antv.antgroup.com/en/manual/behavior/overview
+- Drag canvas: https://g6.antv.antgroup.com/en/manual/behavior/drag-canvas
+- Zoom canvas: https://g6.antv.antgroup.com/en/manual/behavior/zoom-canvas
+- Brush select: https://g6.antv.antgroup.com/en/manual/behavior/brush-select
+- Element state: https://g6.antv.antgroup.com/en/manual/element/state
+- Node config: https://g6.antv.antgroup.com/en/manual/element/node/base-node
+- Edge config: https://g6.antv.antgroup.com/en/manual/element/edge/base-edge
+- Tooltip plugin: https://g6.antv.antgroup.com/en/manual/plugin/tooltip
+- Minimap plugin: https://g6.antv.antgroup.com/en/manual/plugin/minimap
 
 ## User switcher
 

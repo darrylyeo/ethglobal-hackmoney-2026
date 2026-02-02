@@ -19,11 +19,11 @@ Full bridge interface for USDC bridging via Circle CCTP, using Bits UI primitive
 
 ## Components
 
-### `src/routes/cctp/+page.svelte`
+### `src/routes/bridge/cctp/+page.svelte`
 
 Entry point that renders CctpBridgeFlow.
 
-### `src/routes/cctp/CctpBridgeFlow.svelte`
+### `src/routes/bridge/cctp/CctpBridgeFlow.svelte`
 
 Main CCTP bridge interface with:
 
@@ -41,27 +41,27 @@ Main CCTP bridge interface with:
 12. **Transfer status** – burn tx, attestation polling, mint tx
 13. **Forwarding option** – toggle Forwarding Service when supported
 
-### `src/routes/cctp/CctpWallets.svelte`
+### `src/routes/bridge/cctp/CctpWallets.svelte`
 
 Wallet discovery and connection via EIP-6963.
 
-### `src/routes/cctp/CctpBalances.svelte`
+### `src/routes/bridge/cctp/CctpBalances.svelte`
 
 USDC balance display per chain.
 
-### `src/routes/cctp/CctpAttestation.svelte`
+### `src/routes/bridge/cctp/CctpAttestation.svelte`
 
 Attestation polling status and refresh control.
 
-### `src/routes/cctp/CctpExecution.svelte`
+### `src/routes/bridge/cctp/CctpExecution.svelte`
 
 Transaction execution for burn and mint with status tracking.
 
-### `src/routes/cctp/CctpFees.svelte`
+### `src/routes/bridge/cctp/CctpFees.svelte`
 
 Fast Transfer fee lookup and max fee guidance.
 
-### `src/routes/cctp/CctpAllowance.svelte`
+### `src/routes/bridge/cctp/CctpAllowance.svelte`
 
 Fast Transfer allowance display and availability warning.
 

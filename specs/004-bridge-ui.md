@@ -8,11 +8,11 @@ Full bridge interface for USDC bridging via LI.FI, using Bits UI primitives.
 
 ## Components
 
-### `src/routes/bridge/+page.svelte`
+### `src/routes/bridge/lifi/+page.svelte`
 
 Entry point that renders BridgeFlow.
 
-### `src/routes/bridge/BridgeFlow.svelte`
+### `src/routes/bridge/lifi/BridgeFlow.svelte`
 
 Main bridge interface with:
 
@@ -29,19 +29,19 @@ Main bridge interface with:
 11. **Confirmation dialog** – review before sending
 12. **Error display** – inline error messages
 
-### `src/routes/bridge/Wallets.svelte`
+### `src/routes/bridge/lifi/Wallets.svelte`
 
 Wallet discovery and connection via EIP-6963.
 
-### `src/routes/bridge/Balances.svelte`
+### `src/routes/bridge/lifi/Balances.svelte`
 
 USDC balance display per chain.
 
-### `src/routes/bridge/TokenApproval.svelte`
+### `src/routes/bridge/lifi/TokenApproval.svelte`
 
 ERC20 approval flow for bridge router.
 
-### `src/routes/bridge/BridgeExecution.svelte`
+### `src/routes/bridge/lifi/BridgeExecution.svelte`
 
 Transaction execution with status tracking.
 

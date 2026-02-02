@@ -147,7 +147,7 @@ const yellowTransfersCollection = createCollection<YellowTransfer>({
 
 ## Constants
 
-### `src/constants/yellow.ts`
+### `src/constants/yellow/*`
 
 ```typescript
 import { ChainId } from '$/constants/networks'
@@ -220,9 +220,18 @@ const getAvailableBalance = async (params: {
 
 // Open channel with clearnode (create_channel -> on-chain create)
 const openChannel = async (params: {
-  provider: EIP1193Provider
+  clearnodeConnection: ClearnodeConnection
   chainId: number
   token: `0x${string}`
+}): Promise<{ channelId: string }>
+
+// Resize channel funding (resize_channel)
+const resizeChannel = async (params: {
+  clearnodeConnection: ClearnodeConnection
+  channelId: `0x${string}`
+  fundsDestination: `0x${string}`
+  resizeAmount?: bigint
+  allocateAmount?: bigint
 }): Promise<{ channelId: string }>
 
 // Send off-chain transfer (unified balance)
@@ -234,10 +243,10 @@ const sendTransfer = async (params: {
 
 // Close channel cooperatively
 const closeChannel = async (params: {
-  provider: EIP1193Provider
   clearnodeConnection: ClearnodeConnection
-  channelId: string
-}): Promise<{ txHash: `0x${string}` }>
+  channelId: `0x${string}`
+  fundsDestination: `0x${string}`
+}): Promise<{ channelId: string }>
 
 // Challenge channel (dispute on-chain)
 const challengeChannel = async (params: {
@@ -805,18 +814,18 @@ If counterparty is unresponsive or disputes:
 - [x] Unit tests for collection normalizers (nitro-rpc.spec.ts: encode/decode/hashChannelState)
 
 ### Constants
-- [x] `src/constants/yellow.ts` with contract addresses
+- [x] `src/constants/yellow/*` with contract addresses, endpoints, limits
 - [x] Clearnode WebSocket endpoints (clearnet + sandbox)
 - [x] Challenge period default set to 1 hour
 
 ### API
 - [x] `src/api/yellow.ts` with lazy-loaded SDK
-- [ ] `connectClearnode` establishes authenticated connection (auth_request/auth_verify)
+- [x] `connectClearnode` establishes authenticated connection (auth_request/auth_verify)
 - [x] `depositToCustody` / `withdrawFromCustody` on-chain operations
-- [ ] `openChannel` uses create_channel + on-chain create flow
-- [ ] `resizeChannel` funds/unfunds channel using resize_channel
-- [ ] `sendTransfer` uses Nitro RPC transfer (unified balance)
-- [ ] `closeChannel` cooperative close
+- [x] `openChannel` uses create_channel + on-chain create flow
+- [x] `resizeChannel` funds/unfunds channel using resize_channel
+- [x] `sendTransfer` uses Nitro RPC transfer (unified balance)
+- [x] `closeChannel` cooperative close
 - [ ] `challengeChannel` dispute path
 - [x] `src/lib/nitro-rpc.ts` envelope encode/decode + packedState stubs
 
@@ -831,7 +840,7 @@ If counterparty is unresponsive or disputes:
 - [ ] Proposal accept/reject flow updated for transfers
 
 ### UI
-- [x] `ChannelList.svelte` – list channels with room participants
+- [x] `ChannelList.svelte` – list channels with room participants and allow settle/close
 - [ ] `TransferRequests.svelte` – propose and accept transfers
 - [x] `TransferDialog.svelte` – send off-chain transfers
 - [x] `DepositManager.svelte` – manage Custody Contract balance
