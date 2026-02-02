@@ -139,6 +139,7 @@
 
 <style>
 	.layout {
+		/* Constants */
 		--navigation-desktop-inlineSize: 20rem;
 		--navigation-mobile-blockSize: 4.16rem;
 
