@@ -36,7 +36,7 @@ test.describe('E2E bridge flow', () => {
 	test.describe('happy path with mocked wallet', () => {
 		test.beforeEach(async ({ context, page }) => {
 			await addMockWallet(context)
-			await page.goto('/bridge')
+			await page.goto('/bridge/lifi')
 		})
 
 		test('connect → balance → select → amount → get routes (result or no-routes)', async ({
@@ -86,6 +86,7 @@ test.describe('E2E bridge flow', () => {
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({ timeout: 15_000 })
 			await expect(page.locator('[data-balances-grid]')).toBeVisible({ timeout: 20_000 })
+			await page.getByRole('button', { name: /Transaction history/ }).scrollIntoViewIfNeeded()
 			await expect(
 				page.getByRole('button', { name: /Transaction history/ }),
 			).toBeVisible({ timeout: 10_000 })
@@ -95,7 +96,7 @@ test.describe('E2E bridge flow', () => {
 	test.describe('testnet/mainnet toggle', () => {
 		test.beforeEach(async ({ context, page }) => {
 			await addMockWallet(context)
-			await page.goto('/bridge')
+			await page.goto('/bridge/lifi')
 			await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main-content')).toContainText(/USDC Bridge|Connect a wallet/, {
@@ -153,7 +154,7 @@ test.describe('E2E bridge flow', () => {
 
 	test.describe('error handling', () => {
 		test('without wallet: clear message and connect prompt', async ({ page }) => {
-			await page.goto('/bridge')
+			await page.goto('/bridge/lifi')
 			await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main-content')).toContainText(/USDC Bridge|Connect a wallet/, {
@@ -169,7 +170,7 @@ test.describe('E2E bridge flow', () => {
 			page,
 		}) => {
 			await addMockWallet(context)
-			await page.goto('/bridge')
+			await page.goto('/bridge/lifi')
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main-content')).toContainText(/USDC Bridge|Connect a wallet/, {
 				timeout: 15_000,

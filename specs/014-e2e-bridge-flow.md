@@ -165,7 +165,7 @@ All core specs are complete. The bridge flow is implemented in
 
 ## Status
 
-Complete. E2E tests in `e2e/bridge-e2e.test.ts`: mocked wallet happy path (connect → balance → select → get routes; transaction history section visible when connected), testnet/mainnet toggle (filters chains, resets selections), error handling (without wallet: connect prompt; with mock: routes error shows retry/dismiss). TransactionHistory shows section when connected (address set) even with 0 transactions. Manual test script in spec; full approve/bridge/history flow verified via implementation (specs 003–013, 024).
+Complete. E2E tests in `e2e/bridge-e2e.test.ts` run against `/bridge/lifi`: mocked wallet happy path (connect → balance → select → get routes; transaction history section visible when connected), testnet/mainnet toggle (filters chains, resets selections), error handling (without wallet: connect prompt; with mock: routes error shows retry/dismiss). Transaction history section shown when connected (address set) even with 0 transactions. Manual test script in spec; full approve/bridge/history flow still requires live-wallet verification.
 
 ## Output when complete
 
