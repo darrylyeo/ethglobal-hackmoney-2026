@@ -154,7 +154,6 @@
 		display: grid;
 		align-items: start;
 		gap: var(--separator-width);
-	}
 
 	.layout[data-scroll-container] {
 		--sticky-paddingBlockStart: var(--safeArea-insetTop);
