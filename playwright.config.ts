@@ -1,14 +1,26 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
-  timeout: 60_000,
-  use: { baseURL: "http://localhost:4173" },
-  webServer: {
-    command: "pnpm run build && pnpm run preview",
-    url: "http://localhost:4173/",
-    timeout: 120_000,
-    reuseExistingServer: true,
-  },
-  testDir: "e2e",
-  testMatch: "**/*.test.ts",
-});
+	timeout: 60_000,
+	testDir: 'e2e',
+	testMatch: '**/*.test.ts',
+	use: {
+		baseURL: 'http://localhost:4173',
+		trace: 'on-first-retry',
+		screenshot: 'only-on-failure',
+		video: 'on-first-retry',
+		actionTimeout: 15_000,
+	},
+	webServer: {
+		command: 'pnpm run build && pnpm run preview',
+		url: 'http://localhost:4173/',
+		timeout: 120_000,
+		reuseExistingServer: true,
+	},
+	reporter: [
+		['html', { open: 'never' }],
+		['list'],
+	],
+	fullyParallel: true,
+	expect: { timeout: 10_000 },
+})
