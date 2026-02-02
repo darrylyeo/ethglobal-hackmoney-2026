@@ -45,6 +45,12 @@ Each commit results in a valid build. Commits are organized by dependency, not b
 | 28 | Navigation: trim; Svelte: update config | af4b603 |
 | 30 | `<NumberValue>`, `<Timestamp>`: add | 5ba9f03 |
 | 31 | e2e: add Playwright config | d06106c |
+| 32 | chore: ignore PartyKit state | 01879af |
+| 33 | rooms: update SIWE host + peer verification UI | c36e3b1 |
+| 34 | graph: add entity types + optimize sigma rendering | dbf9dcc |
+| 35 | yellow: update channel state + nitro rpc envelope | f3450e3 |
+| 36 | bridge/swap: add stork + token lists + transaction flow + api refactor | 43cadc6 |
+| 37 | docs: add stork/transaction flow/graph/cctp specs + history | e1923a5 |
 
 ---
 
