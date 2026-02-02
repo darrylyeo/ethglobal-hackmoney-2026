@@ -164,10 +164,11 @@ test("balances display after wallet connection", async ({ page }) => {
 
 ## Status
 
-Complete. `Wallets.svelte` with TanStack DB collections (`walletsCollection`,
-`walletConnectionsCollection`). `actorsCollection` and `actorCoinsCollection`
-for balances. `bridgeSettingsState` for testnet/mainnet toggle. E2E tests in
-`e2e/wallet.test.ts`: network toggle and connect-popover automated; address,
+Complete. `Wallets.svelte` in `src/routes/bridge/lifi/` with TanStack DB
+collections (`walletsCollection`, `walletConnectionsCollection`).
+`actorsCollection` and `actorCoinsCollection` for balances.
+`bridgeSettingsState` for testnet/mainnet toggle. E2E tests in
+`e2e/wallet.test.ts`: network toggle and connect-popover pass; address,
 disconnect, and balances tests skipped in CI (manual verification).
 
 ## Output when complete
