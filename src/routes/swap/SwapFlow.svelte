@@ -18,7 +18,7 @@
 	import { getStorkAssetIdForSymbol } from '$/lib/stork'
 	import Select from '$/components/Select.svelte'
 	import TransactionFlow from '$/components/TransactionFlow.svelte'
-	import TokenApproval from '$/routes/bridge/TokenApproval.svelte'
+	import TokenApproval from '$/routes/bridge/lifi/TokenApproval.svelte'
 	import SwapExecution from './SwapExecution.svelte'
 
 	let {

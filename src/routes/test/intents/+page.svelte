@@ -29,7 +29,7 @@
 	import { yellowState } from '$/state/yellow.svelte'
 
 	// Components
-	import Wallets from '$/routes/bridge/Wallets.svelte'
+	import Wallets from '$/routes/bridge/lifi/Wallets.svelte'
 	import EntityId from '$/components/EntityId.svelte'
 	import TransactionFlow from '$/components/TransactionFlow.svelte'
 	import TransferFlow from '$/routes/transfers/TransferFlow.svelte'

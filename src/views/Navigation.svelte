@@ -114,12 +114,6 @@
 		display: contents;
 	}
 
-	.nav > header menu button svg {
-		width: 1.25em;
-		height: 1.25em;
-		transition-property: color;
-	}
-
 	.nav #nav-menu {
 		padding: 1rem 0.75rem;
 	}
@@ -134,15 +128,6 @@
 
 	.nav footer {
 		padding: 1rem;
-	}
-
-	.nav footer p {
-		padding: 0.75rem 1rem;
-		line-height: 1.4;
-		background-color: var(--accent-backgroundColor);
-		border-radius: 0.5rem;
-		font-size: 0.875rem;
-		color: var(--text-secondary);
 	}
 
 	@media (width >= 60rem) {

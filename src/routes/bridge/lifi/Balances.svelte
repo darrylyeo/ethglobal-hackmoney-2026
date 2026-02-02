@@ -170,8 +170,7 @@
 		flex-direction: column;
 	}
 
-	[data-balance-item] dt,
-	[data-balance-item] dd {
+	[data-balance-item] dt {
 		margin: 0;
 	}
 
