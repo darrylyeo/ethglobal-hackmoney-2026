@@ -4,6 +4,12 @@ Each commit results in a valid build. Commits are organized by dependency, not b
 
 ---
 
+## Pending Commits
+
+None.
+
+---
+
 ## Completed Commits
 
 | # | Message | SHA |
@@ -51,6 +57,9 @@ Each commit results in a valid build. Commits are organized by dependency, not b
 | 35 | yellow: update channel state + nitro rpc envelope | f3450e3 |
 | 36 | bridge/swap: add stork + token lists + transaction flow + api refactor | 43cadc6 |
 | 37 | docs: add stork/transaction flow/graph/cctp specs + history | e1923a5 |
+| 38 | deps: add g6 + nitrolite | fb866a6 |
+| 39 | docs: update bridge, yellow, g6, cctp, css specs | cefdd28 |
+| 40 | styles: add newline to bits-ui css | b674f6e |
 
 ---
 
@@ -62,6 +71,7 @@ The following are **not** part of the main commit sequence. Commit when enabling
 
 | File(s) | Description |
 |---------|-------------|
+| `COMMIT_PLAN.md` | Update with recent SHAs |
 | `package.json` | fflate, svgo deps + icons:\* scripts |
 | `scripts/_fetch-chain-icons.ts` | Icons fetch script |
 | `static/networks/*.svg` | Network icons |
