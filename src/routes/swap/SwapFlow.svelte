@@ -191,7 +191,9 @@
 			: null,
 	)
 	const storkRate = $derived(
-		tokenInPriceRow && tokenOutPriceRow
+		tokenInPriceRow &&
+		tokenOutPriceRow &&
+		tokenOutPriceRow.price !== 0n
 			? (tokenInPriceRow.price * 10n ** 18n) / tokenOutPriceRow.price
 			: null,
 	)
@@ -202,7 +204,9 @@
 			: null,
 	)
 	const rateDeltaBps = $derived(
-		storkRate && quoteRate
+		storkRate &&
+		storkRate !== 0n &&
+		quoteRate
 			? ((quoteRate > storkRate
 					? quoteRate - storkRate
 					: storkRate - quoteRate) *
