@@ -214,7 +214,6 @@
 		align-items: center;
 		justify-content: center;
 		transition: all 0.2s ease;
-	}
 
 	.graph-toggle:hover {
 		transform: scale(1.1);
