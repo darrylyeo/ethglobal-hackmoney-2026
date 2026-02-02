@@ -1,13 +1,13 @@
 <script lang="ts">
-	// Types
-	import type Graph from 'graphology'
+	// Types/constants
 	import type { Attributes } from 'graphology-types'
 	import type { DisplayData } from 'sigma/types'
 	import type { Sigma } from 'sigma'
+	import type { GraphModel } from '$/lib/graph-model'
 
 	// Props
 	let {
-		graph,
+		model,
 		refreshKey,
 		enableForce = true,
 		enableDragAndDrop = true,
@@ -25,7 +25,7 @@
 		onEdgeEnter,
 		onEdgeLeave,
 	}: {
-		graph: Graph
+		model: GraphModel
 		refreshKey?: unknown
 		enableForce?: boolean
 		enableDragAndDrop?: boolean
@@ -55,7 +55,7 @@
 		let draggedNode: string | null = null
 		let isDragging = false
 		let centerInterval: ReturnType<typeof setInterval> | undefined
-		let activeGraph = graph
+		let activeGraph = model.graph
 		let modules:
 			| {
 				EdgeCurveModule: {
@@ -68,7 +68,7 @@
 			}
 			| undefined
 
-		const applyGraph = (g: Graph) => {
+		const applyGraph = (g: GraphModel['graph']) => {
 			if (!renderer || !modules) return
 			if (arrangeParallelEdges !== false) {
 				modules.EdgeCurveModule.indexParallelEdgesIndex(g, {
@@ -76,7 +76,9 @@
 					edgeMaxIndexAttribute: 'edgeCount',
 				})
 				g.forEachEdge((edge, attrs) => {
-					const { type, edgeIndex, edgeCount } = attrs as { type?: string; edgeIndex?: number; edgeCount?: number }
+					const type = typeof attrs.type === 'string' ? attrs.type : undefined
+					const edgeIndex = typeof attrs.edgeIndex === 'number' ? attrs.edgeIndex : undefined
+					const edgeCount = typeof attrs.edgeCount === 'number' ? attrs.edgeCount : undefined
 					const curvature = (
 						typeof edgeIndex === 'number' && typeof edgeCount === 'number'
 							? (edgeCount === 1 ? 0 : edgeIndex / (edgeCount - 1) * 2 - 1) * (1 - Math.exp(-0.1 * edgeCount))
@@ -93,7 +95,7 @@
 		}
 
 		$effect(() => {
-			const g = graph
+			const g = model.graph
 			const key = refreshKey
 			activeGraph = g
 			if (!renderer || !modules) return
@@ -126,7 +128,7 @@
 		$effect(() => {
 			const highlightedSet = new Set(highlightedNodes ?? [])
 			const force = centerForce ?? 0.01
-			const g = graph
+			const g = model.graph
 
 			if (centerInterval) clearInterval(centerInterval)
 
@@ -182,7 +184,7 @@
 			}
 
 			renderer = new SigmaClass(
-				graph,
+				model.graph,
 				container,
 				{
 					defaultEdgeType: 'curved',
@@ -200,12 +202,12 @@
 				},
 			)
 
-			applyGraph(graph)
+			applyGraph(model.graph)
 
 			if (enableForce !== false) {
-				layout = new ForceSupervisor(graph, {
+				layout = new ForceSupervisor(model.graph, {
 					settings: {
-						...forceAtlas2.inferSettings(graph),
+						...forceAtlas2.inferSettings(model.graph),
 						adjustSizes: true,
 						slowDown: 10,
 					},

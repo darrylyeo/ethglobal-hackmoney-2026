@@ -1,14 +1,19 @@
 <script lang="ts">
-	// Types
+	// Types/constants
 	import type { Attributes } from 'graphology-types'
 	import type { DisplayData } from 'sigma/types'
-
-	// Context
-	import { browser } from '$app/environment'
-	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { useLiveQueryContext } from '$/svelte/live-query-context.svelte'
-
-	// Collections
+	import type {
+		GraphEdge,
+		GraphFramework,
+		GraphModel,
+		GraphNode,
+	} from '$/lib/graph-model'
+	import {
+		ENTITY_TYPE,
+		GRAPH_SCENE_ENTITY_TYPES,
+		type EntityType,
+	} from '$/constants/entity-types'
+	import { networksByChainId } from '$/constants/networks'
 	import { walletsCollection } from '$/collections/wallets'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
 	import { actorsCollection } from '$/collections/actors'
@@ -17,18 +22,21 @@
 	import { bridgeRoutesCollection } from '$/collections/bridge-routes'
 	import { transactionsCollection } from '$/collections/transactions'
 
+	// Context
+	import { browser } from '$app/environment'
+	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQueryContext } from '$/svelte/live-query-context.svelte'
+
 	// Functions
 	import Graph from 'graphology'
-	import {
-		ENTITY_TYPE,
-		GRAPH_SCENE_ENTITY_TYPES,
-		type EntityType,
-	} from '$/constants/entity-types'
-	import { networksByChainId } from '$/constants/networks'
 	import { formatSmallestToDecimal } from '$/lib/format'
 
 	// Components
-	import SigmaGraph from '$/components/SigmaGraph.svelte'
+	import G6GraphView from '$/components/G6GraphView.svelte'
+	import SigmaGraphView from '$/components/SigmaGraphView.svelte'
+
+	// Context
+	const liveQueryCtx = useLiveQueryContext()
 
 
 	// Props
@@ -39,20 +47,37 @@
 	} = $props()
 
 
-	// Context
-	const liveQueryCtx = useLiveQueryContext()
-
-
 	// State
 	let hoveredNode: string | undefined =
 		$state(undefined)
 	let expanded =
 		$state(true)
-	let visibleCollections: Set<EntityType> =
+	let visibleCollections: Set<string> =
 		$state(new Set(GRAPH_SCENE_ENTITY_TYPES))
+	let graphFramework =
+		$state<GraphFramework>('sigma')
+	let frameworkHydrated =
+		$state(false)
+	let selectedNodes =
+		$state<string[]>([])
+	let selectedEdges =
+		$state<string[]>([])
+
+	$effect(() => {
+		if (!browser || frameworkHydrated) return
+		frameworkHydrated = true
+		const stored = localStorage.getItem('graph-framework')
+		if (stored === 'sigma' || stored === 'g6') {
+			graphFramework = stored
+		}
+	})
+
+	$effect(() => {
+		if (!browser || !frameworkHydrated) return
+		localStorage.setItem('graph-framework', graphFramework)
+	})
 
 
-	// Queries for all collections
 	const walletsQuery = useLiveQuery((q) => q.from({ row: walletsCollection }).select(({ row }) => ({ row })))
 	const connectionsQuery = useLiveQuery((q) => q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })))
 	const actorsQuery = useLiveQuery((q) => q.from({ row: actorsCollection }).select(({ row }) => ({ row })))
@@ -62,8 +87,8 @@
 	const txQuery = useLiveQuery((q) => q.from({ row: transactionsCollection }).select(({ row }) => ({ row })))
 
 
-	// Collection config (graph-scene entity types only)
-	const collections = {
+	// Types/constants
+	const collections: Record<EntityType, { color: string; label: string; size: number; ring: number }> = {
 		[ENTITY_TYPE.wallet]: { color: '#3b82f6', label: 'Wallets', size: 18, ring: 0 },
 		[ENTITY_TYPE.walletConnection]: { color: '#22c55e', label: 'Sessions', size: 14, ring: 1 },
 		[ENTITY_TYPE.actor]: { color: '#f59e0b', label: 'Accounts', size: 16, ring: 2 },
@@ -71,9 +96,8 @@
 		[ENTITY_TYPE.actorAllowance]: { color: '#ec4899', label: 'Approvals', size: 9, ring: 3.5 },
 		[ENTITY_TYPE.bridgeRoute]: { color: '#06b6d4', label: 'Routes', size: 12, ring: 4 },
 		[ENTITY_TYPE.transaction]: { color: '#ef4444', label: 'Transactions', size: 11, ring: 4.5 },
-	} as const
+	}
 
-	// Edge colors
 	const edgeColors = {
 		owns: '#64748b',
 		connection: '#22c55e',
@@ -83,8 +107,8 @@
 		transaction: '#ef4444',
 	}
 
-	// Counts (graph-scene entity types only)
-	const counts = $derived({
+	// (Derived)
+	const counts: Record<string, number> = $derived({
 		[ENTITY_TYPE.wallet]: walletsQuery.data?.length ?? 0,
 		[ENTITY_TYPE.walletConnection]: connectionsQuery.data?.length ?? 0,
 		[ENTITY_TYPE.actor]: actorsQuery.data?.length ?? 0,
@@ -94,17 +118,36 @@
 		[ENTITY_TYPE.transaction]: txQuery.data?.length ?? 0,
 	})
 
-	// Helper to get chain name
+	// Functions
+	const isRecord = (value: unknown): value is Record<string, unknown> => (
+		typeof value === 'object' && value !== null
+	)
+
 	const getChainName = (chainId: number) => (
 		networksByChainId[chainId]?.name ?? `Chain ${chainId}`
 	)
 
 
-	// Build graph from all collections
-	const graph = $derived.by(() => {
+	// (Derived)
+	const graphModel = $derived.by(() => {
 		if (!browser) return null
 
 		const g = new Graph({ multi: true, allowSelfLoops: true })
+		const nodes: GraphNode[] = []
+		const edges: GraphEdge[] = []
+		let edgeIndex = 0
+
+		const addNode = (node: GraphNode) => {
+			const { id, ...attrs } = node
+			g.addNode(id, attrs)
+			nodes.push(node)
+		}
+
+		const addEdge = (edge: GraphEdge) => {
+			const { id, source, target, ...attrs } = edge
+			g.addEdgeWithKey(id, source, target, attrs)
+			edges.push(edge)
+		}
 
 		// Position nodes in rings by collection type
 		const positionInRing = (ring: number, index: number, total: number) => {
@@ -123,7 +166,8 @@
 				const rdns = row.$id?.rdns
 				if (!rdns) return
 				const pos = positionInRing(collections[ENTITY_TYPE.wallet].ring, i, wallets.length)
-				g.addNode(`wallet:${rdns}`, {
+				addNode({
+					id: `wallet:${rdns}`,
 					label: row.name,
 					...pos,
 					size: collections[ENTITY_TYPE.wallet].size,
@@ -147,7 +191,8 @@
 				const pos = positionInRing(collections[ENTITY_TYPE.walletConnection].ring, i, connections.length)
 				const statusColor = row.status === 'connected' ? '#22c55e' : row.status === 'error' ? '#ef4444' : '#f59e0b'
 				const chainName = row.chainId ? getChainName(row.chainId) : null
-				g.addNode(connId, {
+				addNode({
+					id: connId,
 					label: row.status === 'connected'
 						? `${row.actors.length} acct${row.actors.length !== 1 ? 's' : ''}${chainName ? ` · ${chainName}` : ''}`
 						: row.status,
@@ -161,10 +206,14 @@
 				if (visibleCollections.has(ENTITY_TYPE.wallet)) {
 					const walletId = `wallet:${rdns}`
 					if (g.hasNode(walletId)) {
-						g.addEdge(walletId, connId, {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: walletId,
+							target: connId,
 							size: 2,
 							color: edgeColors.connection,
 							type: 'curvedArrow',
+							relation: 'connection',
 						})
 					}
 				}
@@ -180,7 +229,8 @@
 				if (g.hasNode(actorId)) return
 				const pos = positionInRing(collections[ENTITY_TYPE.actor].ring, i, actors.length)
 				const chainName = getChainName(row.$id.network)
-				g.addNode(actorId, {
+				addNode({
+					id: actorId,
 					label: `${row.address.slice(0, 6)}…${row.address.slice(-4)}`,
 					...pos,
 					size: collections[ENTITY_TYPE.actor].size,
@@ -195,10 +245,14 @@
 						if (conn.actors.includes(row.address)) {
 							const connRdns = conn.$id?.wallet$id?.rdns
 							if (connRdns && g.hasNode(`connection:${connRdns}`)) {
-								g.addEdge(`connection:${connRdns}`, actorId, {
+								addEdge({
+									id: `edge:${edgeIndex++}`,
+									source: `connection:${connRdns}`,
+									target: actorId,
 									size: 1.5,
 									color: edgeColors.owns,
 									type: 'curvedArrow',
+									relation: 'owns',
 								})
 							}
 						}
@@ -217,7 +271,8 @@
 				const hasBalance = row.balance > 0n
 				const chainName = getChainName(row.$id.chainId)
 				const balanceStr = hasBalance ? formatSmallestToDecimal(row.balance, row.decimals, 2) : '0'
-				g.addNode(coinId, {
+				addNode({
+					id: coinId,
 					label: `${balanceStr} ${row.symbol}`,
 					...pos,
 					size: hasBalance ? collections[ENTITY_TYPE.actorCoin].size + 3 : collections[ENTITY_TYPE.actorCoin].size,
@@ -229,10 +284,14 @@
 				if (visibleCollections.has(ENTITY_TYPE.actor)) {
 					const actorId = `actor:${row.$id.chainId}:${row.$id.address}`
 					if (g.hasNode(actorId)) {
-						g.addEdge(actorId, coinId, {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: actorId,
+							target: coinId,
 							size: hasBalance ? 1.5 : 0.5,
 							color: hasBalance ? edgeColors.balance : `${edgeColors.balance}33`,
 							type: 'curvedArrow',
+							relation: 'balance',
 						})
 					}
 				}
@@ -248,7 +307,8 @@
 				const pos = positionInRing(collections[ENTITY_TYPE.actorAllowance].ring, i, allowances.length)
 				const hasAllowance = row.allowance > 0n
 				const chainName = getChainName(row.$id.chainId)
-				g.addNode(allowanceId, {
+				addNode({
+					id: allowanceId,
 					label: hasAllowance ? '✓ Approved' : '○ Pending',
 					...pos,
 					size: hasAllowance ? collections[ENTITY_TYPE.actorAllowance].size + 2 : collections[ENTITY_TYPE.actorAllowance].size,
@@ -260,10 +320,14 @@
 				if (visibleCollections.has(ENTITY_TYPE.actorCoin)) {
 					const coinId = `coin:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}`
 					if (g.hasNode(coinId)) {
-						g.addEdge(coinId, allowanceId, {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: coinId,
+							target: allowanceId,
 							size: hasAllowance ? 1 : 0.5,
 							color: hasAllowance ? edgeColors.allowance : `${edgeColors.allowance}33`,
 							type: 'curvedArrow',
+							relation: 'allowance',
 						})
 					}
 				}
@@ -280,7 +344,8 @@
 				const hasRoutes = row.routes.length > 0
 				const fromChain = getChainName(row.$id.fromChainId)
 				const toChain = getChainName(row.$id.toChainId)
-				g.addNode(routeId, {
+				addNode({
+					id: routeId,
 					label: hasRoutes ? `${row.routes.length}× ${fromChain} → ${toChain}` : `${fromChain} → ${toChain}`,
 					...pos,
 					size: hasRoutes ? collections[ENTITY_TYPE.bridgeRoute].size + Math.min(row.routes.length, 5) : collections[ENTITY_TYPE.bridgeRoute].size,
@@ -303,7 +368,8 @@
 				const statusIcon = { pending: '⏳', completed: '✓', failed: '✗' }
 				const fromChain = getChainName(row.fromChainId)
 				const toChain = getChainName(row.toChainId)
-				g.addNode(txId, {
+				addNode({
+					id: txId,
 					label: `${statusIcon[row.status]} ${fromChain} → ${toChain}`,
 					...pos,
 					size: collections[ENTITY_TYPE.transaction].size,
@@ -315,51 +381,70 @@
 				if (visibleCollections.has(ENTITY_TYPE.actor)) {
 					const actorId = `actor:${row.fromChainId}:${row.$id.address}`
 					if (g.hasNode(actorId)) {
-						g.addEdge(actorId, txId, {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: actorId,
+							target: txId,
 							size: 1.5,
 							color: edgeColors.transaction,
 							type: 'curvedArrow',
+							relation: 'transaction',
 						})
 					}
 				}
 			})
 		}
 
-		return g
+		return { graph: g, nodes, edges }
 	})
 
 
-	// Get highlighted nodes from current live query stack
+	// (Derived)
 	const highlightedNodes = $derived.by(() => {
 		const nodes: string[] = []
 		for (const entry of liveQueryCtx.stack) {
 			for (const item of entry.query.data ?? []) {
-				const row = (item as { row: { $id: unknown; [k: string]: unknown } }).row
-				if (!row?.$id) continue
-				const rowId = row.$id as Record<string, unknown>
+				const row = isRecord(item) && 'row' in item ? item.row : null
+				if (!isRecord(row) || !('$id' in row)) continue
+				const rowId = row.$id
+				if (!isRecord(rowId)) continue
 
 				if ('rdns' in rowId && !('wallet$id' in rowId)) {
-					const rdns = (rowId as { rdns: string }).rdns
-					if (rdns) nodes.push(`wallet:${rdns}`)
+					const rdns = rowId.rdns
+					if (typeof rdns === 'string' && rdns) nodes.push(`wallet:${rdns}`)
 				} else if ('wallet$id' in rowId) {
-					const rdns = (rowId as { wallet$id: { rdns: string } }).wallet$id?.rdns
+					const walletId = rowId.wallet$id
+					const rdns = isRecord(walletId) && typeof walletId.rdns === 'string' ? walletId.rdns : ''
 					if (rdns) nodes.push(`connection:${rdns}`)
 				} else if ('network' in rowId && 'address' in rowId) {
-					const id = rowId as { network: number; address: string }
-					nodes.push(`actor:${id.network}:${id.address}`)
+					const network = rowId.network
+					const address = rowId.address
+					if (typeof network === 'number' && typeof address === 'string') {
+						nodes.push(`actor:${network}:${address}`)
+					}
 				} else if ('chainId' in rowId && 'tokenAddress' in rowId) {
-					const id = rowId as { chainId: number; address: string; tokenAddress: string; spenderAddress?: string }
-					if ('spenderAddress' in id) {
-						nodes.push(`allowance:${id.chainId}:${id.address}:${id.tokenAddress}:${id.spenderAddress}`)
-					} else {
-						nodes.push(`coin:${id.chainId}:${id.address}:${id.tokenAddress}`)
+					const chainId = rowId.chainId
+					const address = rowId.address
+					const tokenAddress = rowId.tokenAddress
+					if (typeof chainId === 'number' && typeof address === 'string' && typeof tokenAddress === 'string') {
+						if ('spenderAddress' in rowId && typeof rowId.spenderAddress === 'string') {
+							nodes.push(`allowance:${chainId}:${address}:${tokenAddress}:${rowId.spenderAddress}`)
+						} else {
+							nodes.push(`coin:${chainId}:${address}:${tokenAddress}`)
+						}
 					}
 				} else if ('fromChainId' in rowId && 'amount' in rowId) {
-					const id = rowId as { fromChainId: number; toChainId: number; amount: bigint }
-					nodes.push(`routes:${id.fromChainId}:${id.toChainId}:${id.amount}`)
+					const fromChainId = rowId.fromChainId
+					const toChainId = rowId.toChainId
+					const amount = rowId.amount
+					if (typeof fromChainId === 'number' && typeof toChainId === 'number' && typeof amount === 'bigint') {
+						nodes.push(`routes:${fromChainId}:${toChainId}:${amount}`)
+					}
 				} else if ('sourceTxHash' in rowId) {
-					const id = rowId as { sourceTxHash: string }
-					nodes.push(`tx:${id.sourceTxHash}`)
+					const sourceTxHash = rowId.sourceTxHash
+					if (typeof sourceTxHash === 'string') {
+						nodes.push(`tx:${sourceTxHash}`)
+					}
 				}
 			}
 		}
@@ -369,45 +454,99 @@
 	const highlightedSet = $derived(new Set(highlightedNodes))
 
 
-	// Node/edge reducers for highlighting
+	// (Derived)
+	const selectedNodeSet = $derived(new Set(selectedNodes))
+	const selectedEdgeSet = $derived(new Set(selectedEdges))
+
 	const nodeReducer = (node: string, data: Attributes): Partial<DisplayData> => {
 		const isHighlighted = highlightedSet.has(node)
+		const isSelected = selectedNodeSet.has(node)
 		const isHovered = hoveredNode === node
-		const color = (data.color ?? '#888888') as string
-		const size = (data.size ?? 5) as number
+		const color = typeof data.color === 'string' ? data.color : '#888888'
+		const size = typeof data.size === 'number' ? data.size : 5
 		return {
 			...data,
-			color: isHighlighted || isHovered ? color : `${color}25`,
-			size: isHovered ? size * 1.8 : isHighlighted ? size * 1.2 : size * 0.7,
-			zIndex: isHovered ? 2 : isHighlighted ? 1 : 0,
+			color: isHighlighted || isHovered || isSelected ? color : `${color}25`,
+			size: isHovered
+				? size * 1.8
+			: isSelected
+				? size * 1.4
+			: isHighlighted
+				? size * 1.2
+			:
+				size * 0.7,
+			zIndex: isHovered ? 2 : isSelected ? 1.5 : isHighlighted ? 1 : 0,
 		}
 	}
 
 	const edgeReducer = (edge: string, data: Attributes): Partial<DisplayData> => {
-		const source = graph?.source(edge)
-		const target = graph?.target(edge)
+		const source = graphModel?.graph.source(edge)
+		const target = graphModel?.graph.target(edge)
 		const isHighlighted = (source && highlightedSet.has(source)) || (target && highlightedSet.has(target))
+		const isSelected = selectedEdgeSet.has(edge)
 		const isHovered = (source && hoveredNode === source) || (target && hoveredNode === target)
-		const color = (data.color ?? '#888888') as string
-		const size = (data.size ?? 1) as number
+		const color = typeof data.color === 'string' ? data.color : '#888888'
+		const size = typeof data.size === 'number' ? data.size : 1
 		return {
 			...data,
-			color: isHighlighted || isHovered ? color : `${color}10`,
-			size: isHovered ? size * 2 : isHighlighted ? size * 1.5 : size * 0.4,
+			color: isHighlighted || isHovered || isSelected ? color : `${color}10`,
+			size: isHovered
+				? size * 2
+			: isSelected
+				? size * 1.7
+			: isHighlighted
+				? size * 1.5
+			:
+				size * 0.4,
 		}
 	}
 
 
-	// Hover info
+	// (Derived)
 	const hoveredNodeData = $derived(
-		hoveredNode && graph
-			? graph.getNodeAttributes(hoveredNode)
+		hoveredNode && graphModel
+			? graphModel.graph.getNodeAttributes(hoveredNode)
 			: null
 	)
+	const hoveredNodeEntries = $derived(() => {
+		const details = hoveredNodeData?.details
+		return isRecord(details) ? Object.entries(details) : []
+	})
+	const selectionCount = $derived(
+		selectedNodes.length + selectedEdges.length
+	)
+	const selectionAnnouncement = $derived(() => {
+		const count = selectionCount
+		if (count === 0) return 'Selection cleared'
+		const nodeCount = selectedNodes.length
+		const edgeCount = selectedEdges.length
+		const nodeLabel = nodeCount > 0 ? `${nodeCount} node${nodeCount === 1 ? '' : 's'}` : ''
+		const edgeLabel = edgeCount > 0 ? `${edgeCount} edge${edgeCount === 1 ? '' : 's'}` : ''
+		return `Selected ${nodeLabel}${nodeLabel && edgeLabel ? ' and ' : ''}${edgeLabel}`
+	})
+	const selectionItems = $derived.by(() => {
+		if (!graphModel) return []
+		const items = selectedNodes.map((nodeId) => {
+			const attrs = graphModel.graph.getNodeAttributes(nodeId)
+			const label = typeof attrs.label === 'string' ? attrs.label : nodeId
+			const collection = typeof attrs.collection === 'string' ? attrs.collection : 'node'
+			return { id: nodeId, kind: 'node', label, collection }
+		})
+		for (const edgeId of selectedEdges) {
+			const edge = graphModel.edges.find((entry) => entry.id === edgeId)
+			items.push({
+				id: edgeId,
+				kind: 'edge',
+				label: edge?.relation ?? 'edge',
+				collection: edge?.relation ?? 'edge',
+			})
+		}
+		return items
+	})
 
 
-	// Toggle collection visibility
-	const toggleCollection = (key: EntityType) => {
+	// Actions
+	const toggleCollection = (key: string) => {
 		const next = new Set(visibleCollections)
 		if (next.has(key)) next.delete(key)
 		else next.add(key)
@@ -415,7 +554,7 @@
 	}
 
 
-	// Refresh key
+	// (Derived)
 	const refreshKey = $derived([
 		walletsQuery.data?.length,
 		connectionsQuery.data?.length,
@@ -429,15 +568,33 @@
 </script>
 
 
-{#if visible && graph}
+{#if visible && graphModel}
 	<aside data-graph-scene data-expanded={expanded}>
 		<header>
 			<button type="button" onclick={() => { expanded = !expanded }} data-collapse>
 				{expanded ? '▼' : '▲'}
 			</button>
 			<h4>Data Graph</h4>
+			<div data-framework>
+				<button
+					type="button"
+					data-active={graphFramework === 'sigma'}
+					aria-pressed={graphFramework === 'sigma'}
+					onclick={() => { graphFramework = 'sigma' }}
+				>
+					Sigma
+				</button>
+				<button
+					type="button"
+					data-active={graphFramework === 'g6'}
+					aria-pressed={graphFramework === 'g6'}
+					onclick={() => { graphFramework = 'g6' }}
+				>
+					G6
+				</button>
+			</div>
 			<div data-stats>
-				{graph.order} nodes · {graph.size} edges
+				{graphModel.graph.order} nodes · {graphModel.graph.size} edges
 				{#if highlightedSet.size > 0}
 					<span data-highlight>· {highlightedNodes.length} active</span>
 				{/if}
@@ -446,15 +603,40 @@
 
 		{#if expanded}
 			<div data-graph-container>
-				<SigmaGraph
-					{graph}
-					{refreshKey}
-					{highlightedNodes}
-					nodeReducer={nodeReducer}
-					edgeReducer={edgeReducer}
-					onNodeEnter={(node) => { hoveredNode = node }}
-					onNodeLeave={() => { hoveredNode = undefined }}
-				/>
+				{#if graphFramework === 'g6'}
+					<G6GraphView
+						model={graphModel}
+						{refreshKey}
+						{highlightedNodes}
+						{selectedNodes}
+						{selectedEdges}
+						selectionCount={selectionCount}
+						onSelectionChange={({ nodes, edges }) => {
+							selectedNodes = nodes
+							selectedEdges = edges
+						}}
+						onNodeEnter={(node) => { hoveredNode = node }}
+						onNodeLeave={() => { hoveredNode = undefined }}
+					/>
+				{:else}
+					<SigmaGraphView
+						model={graphModel}
+						{refreshKey}
+						{highlightedNodes}
+						nodeReducer={nodeReducer}
+						edgeReducer={edgeReducer}
+						onNodeEnter={(node) => { hoveredNode = node }}
+						onNodeLeave={() => { hoveredNode = undefined }}
+						onNodeClick={(node) => {
+							selectedNodes = [node]
+							selectedEdges = []
+						}}
+						onEdgeClick={(edge) => {
+							selectedEdges = [edge]
+							selectedNodes = []
+						}}
+					/>
+				{/if}
 
 				{#if hoveredNodeData}
 					<div data-hover-info>
@@ -463,9 +645,9 @@
 							<strong>{hoveredNodeData.label}</strong>
 						</div>
 						<small data-collection>{hoveredNodeData.collection}</small>
-						{#if hoveredNodeData.details}
+						{#if hoveredNodeEntries.length > 0}
 							<dl data-details>
-								{#each Object.entries(hoveredNodeData.details as Record<string, unknown>) as [key, value]}
+								{#each hoveredNodeEntries as [key, value]}
 									{#if value !== undefined && value !== null && value !== ''}
 										<dt>{key}</dt>
 										<dd>{value}</dd>
@@ -475,12 +657,14 @@
 						{/if}
 					</div>
 				{/if}
+
+				<div data-sr-only aria-live="polite">{selectionAnnouncement}</div>
 			</div>
 
 			<footer>
 				<div data-legend>
 					{#each Object.entries(collections) as [key, config]}
-						{@const entityType = key as keyof typeof counts}
+						{@const entityType = key}
 						{@const count = counts[entityType]}
 						<button
 							type="button"
@@ -494,6 +678,34 @@
 						</button>
 					{/each}
 				</div>
+				{#if selectionItems.length > 0}
+					<div data-selection>
+						<h5>Selection</h5>
+						<ul>
+							{#each selectionItems as item}
+								<li>
+									<button
+										type="button"
+										data-kind={item.kind}
+										onclick={() => {
+											if (item.kind === 'node') {
+												selectedNodes = [item.id]
+												selectedEdges = []
+												hoveredNode = item.id
+											} else {
+												selectedEdges = [item.id]
+												selectedNodes = []
+											}
+										}}
+									>
+										<strong>{item.label}</strong>
+										<span>{item.collection}</span>
+									</button>
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
 			</footer>
 		{/if}
 	</aside>
@@ -553,6 +765,33 @@
 		font-size: 0.8125rem;
 		font-weight: 600;
 		flex: 1;
+	}
+
+	[data-framework] {
+		display: flex;
+		gap: 0.25rem;
+	}
+
+	[data-framework] button {
+		border: 1px solid var(--color-border, #e5e7eb);
+		border-radius: 0.5rem;
+		background: white;
+		font-size: 0.625rem;
+		padding: 0.25rem 0.5rem;
+		cursor: pointer;
+		opacity: 0.6;
+		transition: all 0.15s ease;
+
+		&[data-active="true"] {
+			opacity: 1;
+			background: #0f172a;
+			border-color: #0f172a;
+			color: white;
+		}
+
+		&:hover {
+			opacity: 1;
+		}
 	}
 
 	[data-stats] {
@@ -698,6 +937,72 @@
 		text-align: center;
 	}
 
+	[data-selection] {
+		margin-top: 0.5rem;
+		border-top: 1px solid var(--color-border, #e5e7eb);
+		padding-top: 0.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+	}
+
+	[data-selection] h5 {
+		margin: 0;
+		font-size: 0.625rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		opacity: 0.6;
+	}
+
+	[data-selection] ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	[data-selection] button {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 0.5rem;
+		border: 1px solid var(--color-border, #e5e7eb);
+		border-radius: 0.5rem;
+		background: white;
+		padding: 0.25rem 0.5rem;
+		font-size: 0.625rem;
+		cursor: pointer;
+		text-align: left;
+	}
+
+	[data-selection] button strong {
+		font-weight: 600;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	[data-selection] button span {
+		opacity: 0.5;
+		font-size: 0.5625rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	[data-sr-only] {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		border: 0;
+	}
+
 	@media (prefers-color-scheme: dark) {
 		[data-graph-container] {
 			background: linear-gradient(145deg, #1e293b 0%, #0f172a 50%, #020617 100%);
@@ -722,6 +1027,24 @@
 
 		[data-legend] [data-count] {
 			background: color-mix(in srgb, var(--color) 20%, #1e293b);
+		}
+
+		[data-framework] button {
+			background: #0f172a;
+			border-color: rgba(148, 163, 184, 0.3);
+			color: #e2e8f0;
+
+			&[data-active="true"] {
+				background: #e2e8f0;
+				border-color: #e2e8f0;
+				color: #0f172a;
+			}
+		}
+
+		[data-selection] button {
+			background: #0f172a;
+			border-color: rgba(148, 163, 184, 0.3);
+			color: #e2e8f0;
 		}
 	}
 </style>

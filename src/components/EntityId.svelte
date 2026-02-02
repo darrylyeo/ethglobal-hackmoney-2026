@@ -1,14 +1,22 @@
 <script lang="ts">
+	// Types/constants
+	import type { IntentDragPayload } from '$/lib/intents/types'
+
+	// Functions
+	import { setIntentDragData } from '$/lib/intents/drag'
+
 	// Props
 	let {
 		link,
 		draggableText,
 		className,
+		intent,
 		children,
 	}: {
 		link?: string
 		draggableText: string
 		className: string
+		intent?: IntentDragPayload
 		children?: import('svelte').Snippet
 	} = $props()
 
@@ -17,6 +25,7 @@
 	const ondragstart = (e: DragEvent) => {
 		e.dataTransfer?.setData('text/plain', draggableText)
 		if (link) e.dataTransfer?.setData('text/uri-list', link)
+		if (intent) setIntentDragData(e, intent)
 	}
 </script>
 
