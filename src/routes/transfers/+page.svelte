@@ -6,6 +6,7 @@
 	import { queryClient } from '$/lib/db/query-client'
 	import {
 		fetchTransfersGraph,
+		fetchTransfersGraphFromVoltaire,
 		TIME_PERIODS,
 		type TransfersGraphResult,
 	} from '$/api/transfers-indexer'
@@ -21,17 +22,16 @@
 	const coin = $derived(ercTokens[0])
 	const period = $derived($page.url.searchParams.get('period') ?? '1d')
 
-	// (Derived) client-side query keyed by period
+	// (Derived) client-side query keyed by period; primary source: eth_getLogs (Voltaire)
 	$effect(() => {
 		const p = period
 		transfersError = null
 		transfersLoading = true
 		let cancelled = false
-		const apiKey = env.PUBLIC_COVALENT_API_KEY ?? ''
 		queryClient
 			.fetchQuery({
 				queryKey: ['transfers', p],
-				queryFn: () => fetchTransfersGraph(p, apiKey, USDC_CHAINS),
+				queryFn: () => fetchTransfersGraphFromVoltaire(p),
 			})
 			.then((data) => {
 				if (!cancelled) {
@@ -48,6 +48,14 @@
 		return () => {
 			cancelled = true
 		}
+	})
+
+	// (Derived) optional bridge indexer enrichment (non-blocking)
+	$effect(() => {
+		const apiKey = env.PUBLIC_COVALENT_API_KEY ?? ''
+		if (apiKey.length === 0) return
+		const p = period
+		fetchTransfersGraph(p, apiKey, USDC_CHAINS).catch(() => {})
 	})
 
 	const graph = $derived(transfersData?.graph ?? { nodes: [], edges: [] })
@@ -72,7 +80,7 @@
 		<div data-transfers-error>
 			<h2>Transfers unavailable</h2>
 			<p>{transfersError?.message ?? 'Unknown error'}</p>
-			<p>Check that <code>PUBLIC_COVALENT_API_KEY</code> is set and the indexer is reachable.</p>
+			<p>RPC or network may be unreachable. Try another time period or retry.</p>
 			<button type="button" onclick={retry}>Retry</button>
 		</div>
 	{:else}
@@ -88,7 +96,7 @@
 				<div data-transfers-error>
 					<h2>Transfers unavailable</h2>
 					<p>{(error as Error).message}</p>
-					<p>Check that <code>PUBLIC_COVALENT_API_KEY</code> is set and the indexer is reachable.</p>
+					<p>RPC or network may be unreachable. Try another time period or retry.</p>
 					<button type="button" onclick={retryFn}>Retry</button>
 				</div>
 			{/snippet}

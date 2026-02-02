@@ -168,7 +168,25 @@ export type TransfersGraphResult = {
 	periods: typeof TIME_PERIODS
 }
 
-const FETCH_TIMEOUT_MS = 15_000
+const FETCH_TIMEOUT_MS = 30_000
+
+/** Primary: eth_getLogs (Voltaire). Returns graph for the selected period. */
+export async function fetchTransfersGraphFromVoltaire(
+	period: string,
+): Promise<TransfersGraphResult> {
+	const { fetchTransferEventsForPeriod } = await import('$/api/transfers-logs')
+	const periodDef = TIME_PERIODS.find((p) => p.value === period) ?? TIME_PERIODS[3]
+	const events = await fetchTransferEventsForPeriod(period)
+	const transfers: NormalizedTransfer[] = events.map((e) => ({
+		fromAddress: e.fromAddress,
+		toAddress: e.toAddress,
+		amount: e.amount,
+		timestamp: e.timestamp,
+		chainId: e.chainId,
+	}))
+	const graph = buildGraph(transfers)
+	return { graph, period: periodDef.value, periods: TIME_PERIODS }
+}
 
 export async function fetchTransfersGraph(
 	period: string,

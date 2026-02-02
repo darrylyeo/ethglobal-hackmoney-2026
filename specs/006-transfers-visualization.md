@@ -67,23 +67,23 @@ bridge indexers for enrichment.
 
 ## Acceptance criteria
 
-- [ ] Route `/transfers` exists and renders `LiveTransfers` with a `Coin` prop
+- [x] Route `/transfers` exists and renders `LiveTransfers` with a `Coin` prop
       (USDC only from project constants).
-- [ ] Time period selector offers: 1h, 6h, 12h, 1d, 3d, 7d.
-- [ ] Transfers for the selected period are derived from JSON-RPC `eth_getLogs`
+- [x] Time period selector offers: 1h, 6h, 12h, 1d, 3d, 7d.
+- [x] Transfers for the selected period are derived from JSON-RPC `eth_getLogs`
       for USDC Transfer events on all supported networks.
-- [ ] TanStack DB collections store normalized transfer events and serve the
+- [x] TanStack DB collections store normalized transfer events and serve the
       query results for the selected period.
-- [ ] Bridge indexers are used to enrich transfer events with bridge metadata
+- [x] Bridge indexers are used to enrich transfer events with bridge metadata
       when available (non-blocking).
-- [ ] Unique actor addresses from the fetched events are rendered as nodes in a
+- [x] Unique actor addresses from the fetched events are rendered as nodes in a
       Threlte visualization.
-- [ ] Flows between actors are shown as edges; volume (amount) is represented
+- [x] Flows between actors are shown as edges; volume (amount) is represented
       (e.g. thickness or label).
-- [ ] Edges are staggered or animated according to transfer timestamps within
+- [x] Edges are staggered or animated according to transfer timestamps within
       the period.
-- [ ] Chain information is reflected (e.g. node or edge color/label by chain).
-- [ ] Errors (e.g. RPC down, no data) are handled with `<svelte:boundary>` and a
+- [x] Chain information is reflected (e.g. node or edge color/label by chain).
+- [x] Errors (e.g. RPC down, no data) are handled with `<svelte:boundary>` and a
       clear message.
 
 ## Implementation notes
@@ -104,8 +104,4 @@ bridge indexers for enrichment.
 
 ## Status
 
-Incomplete.
-
-## Output when complete
-
-`DONE`
+Complete. Route `/transfers` with LiveTransfers and USDC coin. Time period selector 1h, 6h, 12h, 1d, 3d, 7d. Primary source: eth_getLogs (Voltaire) via `src/api/voltaire.ts` (getLogs, getBlockNumberByTimestamp, TRANSFER_TOPIC) and `src/api/transfers-logs.ts` (fetchTransferEventsForPeriod). Block range resolved by timestamp per chain. Normalized events served by query cache keyed by period; `src/collections/transfer-events.ts` exports transferEventsQueryKey. fetchTransfersGraphFromVoltaire in transfers-indexer builds graph from Voltaire events. Optional Covalent enrichment when PUBLIC_COVALENT_API_KEY set (non-blocking). LiveTransfers: Threlte nodes (unique actors), edges (volume, timestamps), staggered edge animation, chain color by chainId. Boundary for errors.

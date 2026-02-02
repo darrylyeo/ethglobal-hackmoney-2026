@@ -119,9 +119,72 @@ export function encodeTransferCall(
 	return `${TRANSFER_SELECTOR}${paddedRecipient}${paddedAmount}`
 }
 
-export function createHttpProvider(url: string): VoltaireProvider {
-	const noop = () => ({ on: noop, removeListener: noop }) as VoltaireProvider
+/** ERC20 Transfer(address,address,uint256) topic0 */
+export const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4d52336f2' as const
+
+export type EthLog = {
+	address: string
+	topics: string[]
+	data: string
+	blockNumber: string
+	transactionHash: string
+	logIndex: string
+}
+
+export async function getBlockByNumber(
+	provider: VoltaireProvider,
+	blockNum: bigint | 'latest',
+): Promise<{ number: bigint; timestamp: number }> {
+	const blockHex = blockNum === 'latest' ? 'latest' : `0x${blockNum.toString(16)}`
+	const res = await provider.request({
+		method: 'eth_getBlockByNumber',
+		params: [blockHex, false],
+	})
+	const block = res as { number?: string; timestamp?: string } | null
+	if (!block?.number || !block?.timestamp)
+		throw new Error('eth_getBlockByNumber returned invalid block')
 	return {
+		number: BigInt(block.number),
+		timestamp: parseInt(block.timestamp, 16) * 1000,
+	}
+}
+
+const BINARY_SEARCH_MAX_ITER = 30
+
+/** Resolve block number at or before targetTimestamp (ms) via binary search. */
+export async function getBlockNumberByTimestamp(
+	provider: VoltaireProvider,
+	targetTimestampMs: number,
+): Promise<bigint> {
+	const latest = await getBlockByNumber(provider, 'latest')
+	if (latest.timestamp <= targetTimestampMs) return latest.number
+	let lo = 0n
+	let hi = latest.number
+	for (let i = 0; i < BINARY_SEARCH_MAX_ITER && lo <= hi; i++) {
+		const mid = (lo + hi) / 2n
+		const { timestamp } = await getBlockByNumber(provider, mid)
+		if (timestamp <= targetTimestampMs) lo = mid + 1n
+		else hi = mid - 1n
+	}
+	return hi < 0n ? 0n : hi
+}
+
+export async function getLogs(
+	provider: VoltaireProvider,
+	filter: {
+		address?: `0x${string}`
+		topics?: (string | string[] | null)[]
+		fromBlock?: string
+		toBlock?: string
+	},
+): Promise<EthLog[]> {
+	const res = await provider.request({ method: 'eth_getLogs', params: [filter] })
+	const logs = res as EthLog[] | null
+	return Array.isArray(logs) ? logs : []
+}
+
+export function createHttpProvider(url: string): VoltaireProvider {
+	const provider: VoltaireProvider = {
 		request: async ({ method, params = [] }) => {
 			const res = await fetch(url, {
 				method: 'POST',
@@ -132,7 +195,8 @@ export function createHttpProvider(url: string): VoltaireProvider {
 			if (data.error) throw new Error(data.error.message ?? 'RPC error')
 			return data.result
 		},
-		on: noop,
-		removeListener: noop,
+		on: () => provider,
+		removeListener: () => provider,
 	}
+	return provider
 }
