@@ -18,6 +18,7 @@
 		toChainId,
 		amount,
 		executing = $bindable(false),
+		onStatus,
 	}: {
 		route: BridgeRoute
 		walletRow: WalletRow
@@ -26,6 +27,7 @@
 		toChainId: number
 		amount: bigint
 		executing?: boolean
+		onStatus?: (s: BridgeStatus) => void
 	} = $props()
 
 	// Build compatible ProviderDetailType for API
@@ -57,12 +59,12 @@
 	}>({
 		// No optimistic insert - we don't have the tx hash yet
 		onMutate: () => {},
-		mutationFn: async ({ route, providerDetail, walletAddress, fromChainId, toChainId, amount, onStatus }) => {
+		mutationFn: async ({ route, providerDetail, walletAddress, fromChainId, toChainId, amount, onStatus: reportStatus }) => {
 			let txId: Transaction$id | null = null
 
 			try {
 				const result = await executeSelectedRoute(providerDetail, route, (s) => {
-					onStatus(s)
+					reportStatus(s)
 
 					const hash = s.steps.find((st) => st.txHash)?.txHash
 					if (hash && !txId) {
@@ -115,7 +117,10 @@
 			fromChainId,
 			toChainId,
 			amount,
-			onStatus: (s) => { status = s },
+			onStatus: (s) => {
+				status = s
+				onStatus?.(s)
+			},
 		})
 
 		try {

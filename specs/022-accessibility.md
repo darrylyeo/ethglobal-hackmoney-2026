@@ -243,12 +243,16 @@ for the selected state, allowing native keyboard navigation.
 
 ## Status
 
-Complete. `src/styles/accessibility.css` (focus-visible, skip link, reduced motion,
-contrast vars); layout skip link and `main#main-content` tabindex="-1"; BridgeFlow
-inline aria-live announcements; amount input with aria-describedby, aria-invalid;
-BridgeFlow aria-busy and loading status; Navigation logo as span (single h1 per
-page), aria-label on home link; single main per page. Testing: `e2e/accessibility.test.ts`
-– axe-core (home + bridge), keyboard Tab to Connect Wallet, connect + form + result.
+Complete. `src/styles/accessibility.css`: focus-visible, skip link, reduced motion,
+skeleton reduced-motion rule. Layout: skip link, `main#main-content` tabindex="-1".
+BridgeFlow: aria-live region for execution status (in_progress/completed/failed);
+amount input with aria-describedby (amt-hint, amt-error), aria-invalid, hint and
+role="alert" error; BridgeExecution onStatus callback for live announcements.
+TransactionFlow execute button aria-busy. Navigation: logo as span, home
+aria-label; single h1 per page. Skeleton.svelte data-skeleton for reduced motion.
+Testing: `e2e/accessibility.test.ts` – axe-core (home + bridge), keyboard test on
+/bridge/lifi (connect, form, quote result). Manual VoiceOver verification
+recommended.
 
 ## Output when complete
 

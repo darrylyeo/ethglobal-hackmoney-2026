@@ -287,7 +287,13 @@
 				</div>
 
 				<div data-row>
-					<Button.Root type="button" disabled={executeDisabled} onclick={() => executeTransaction(tx)} data-row-item="flexible">
+					<Button.Root
+						type="button"
+						disabled={executeDisabled}
+						onclick={() => executeTransaction(tx)}
+						data-row-item="flexible"
+						aria-busy={hasPendingExecution ? 'true' : undefined}
+					>
 						{tx.actionLabel}
 					</Button.Root>
 				</div>

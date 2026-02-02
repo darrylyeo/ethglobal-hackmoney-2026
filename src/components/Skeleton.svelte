@@ -13,6 +13,7 @@
 
 <span
 	class="skeleton"
+	data-skeleton
 	style:width={width}
 	style:height={height}
 	style:border-radius={rounded}

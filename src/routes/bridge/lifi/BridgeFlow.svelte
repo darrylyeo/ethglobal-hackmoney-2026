@@ -26,6 +26,7 @@
 	import { getTxUrl } from '$/constants/networks'
 	import { getTxReceiptStatus } from '$/api/approval'
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
+	import type { BridgeStatus } from '$/lib/tx-status'
 	import { ErrorCode } from '$/lib/errors'
 	import { formatTokenAmount, formatSmallestToDecimal, parseDecimalToSmallest, isValidDecimalInput } from '$/lib/format'
 	import { isValidAddress, normalizeAddress, formatAddress } from '$/lib/address'
@@ -79,8 +80,9 @@
 	let slippageInput = $state('')
 	let invalidAmountInput = $state(false)
 	let selectedRouteId = $state<string | null>(null)
-	let executing = $state(false) // bound from BridgeExecution
+	let executing = $state(false)
 	let executionRef = $state<{ execute: () => Promise<void> } | null>(null)
+	let executionStatus = $state<BridgeStatus>({ overall: 'idle', steps: [] })
 
 	// Timer for quote expiry
 	let now = $state(Date.now())
@@ -256,6 +258,16 @@
 <div
 	data-bridge-layout
 >
+	<div aria-live="polite" aria-atomic="true" class="sr-only">
+		{#if executionStatus.overall === 'in_progress'}
+			{@const currentStep = executionStatus.steps.find((s) => s.state === 'pending') ?? executionStatus.steps[executionStatus.steps.length - 1]}
+			Transaction in progress. {currentStep?.step ?? 'Sending'}
+		{:else if executionStatus.overall === 'completed'}
+			Bridge complete. Tokens sent successfully.
+		{:else if executionStatus.overall === 'failed'}
+			Transaction failed. {executionStatus.steps.find((s) => s.error)?.error ?? 'Unknown error'}
+		{/if}
+	</div>
 	<!-- Left column: Form -->
 	<section data-card data-column="gap-4">
 		<h2>Bridge USDC</h2>
@@ -306,18 +318,33 @@
 		{/if}
 
 		<!-- Amount -->
-		<div data-column="gap-1">
+		<div data-column="gap-1" data-form-field>
 			<label for="amt">Amount</label>
 			<div data-row="gap-2">
-				<input id="amt" type="text" inputmode="decimal" placeholder="0.00" value={settings.amount === 0n ? '' : formatSmallestToDecimal(settings.amount, 6)} oninput={onAmountInput} style="flex:1" />
+				<input
+					id="amt"
+					type="text"
+					inputmode="decimal"
+					placeholder="0.00"
+					value={settings.amount === 0n ? '' : formatSmallestToDecimal(settings.amount, 6)}
+					oninput={onAmountInput}
+					style="flex:1"
+					aria-describedby={invalidAmountInput || exceedsBalance || validation.error ? 'amt-hint amt-error' : 'amt-hint'}
+					aria-invalid={invalidAmountInput || validation.error ? 'true' : undefined}
+				/>
 				{#if sourceBalance !== null}<Button.Root type="button" onclick={() => { bridgeSettingsState.current = { ...settings, amount: sourceBalance } }}>Max</Button.Root>{/if}
 			</div>
+			<p id="amt-hint" class="sr-only">Enter the amount of USDC to bridge</p>
 			{#if sourceBalance !== null}<small data-muted>Balance: {formatSmallestToDecimal(sourceBalance, 6, 4)} USDC</small>{/if}
-			{#if invalidAmountInput}<small data-error>Invalid amount (use numbers and up to 6 decimals)</small>
-			{:else if exceedsBalance}<small data-error>Insufficient balance</small>
-			{:else if validation.error === 'too_low'}<small data-error>Min {validation.minAmount} USDC</small>
-			{:else if validation.error === 'too_high'}<small data-error>Max {validation.maxAmount} USDC</small>
-			{:else if validation.error === 'invalid'}<small data-error>Enter a valid amount</small>{/if}
+			{#if invalidAmountInput || exceedsBalance || validation.error}
+				<p id="amt-error" role="alert" data-error>
+					{#if invalidAmountInput}Invalid amount (use numbers and up to 6 decimals)
+					{:else if exceedsBalance}Insufficient balance
+					{:else if validation.error === 'too_low'}Min {validation.minAmount} USDC
+					{:else if validation.error === 'too_high'}Max {validation.maxAmount} USDC
+					{:else if validation.error === 'invalid'}Enter a valid amount{/if}
+				</p>
+			{/if}
 		</div>
 
 		<!-- Recipient -->
@@ -495,6 +522,7 @@
 							toChainId={toNetwork.id}
 							amount={settings.amount}
 							bind:executing
+							onStatus={(s) => { executionStatus = s }}
 						/>
 					{/if}
 				{/snippet}

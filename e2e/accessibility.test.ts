@@ -57,7 +57,7 @@ async function addMockWallet(context: { addInitScript: (fn: () => void) => Promi
 test.describe('Keyboard navigation', () => {
 	test.beforeEach(async ({ context, page }) => {
 		await addMockWallet(context)
-		await page.goto('/bridge')
+		await page.goto('/bridge/lifi')
 		await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
 		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 		await expect(
