@@ -6,7 +6,7 @@
 	import type { Transaction } from '@tanstack/db'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
 	import { executeSelectedRoute } from '$/api/lifi'
-	import { getTxUrl } from '$/constants/networks'
+	import { getTxUrl } from '$/constants/explorers'
 	import { toasts } from '$/lib/toast.svelte'
 	import {
 		insertTransaction,

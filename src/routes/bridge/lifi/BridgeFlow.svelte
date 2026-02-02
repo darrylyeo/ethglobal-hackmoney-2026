@@ -49,7 +49,7 @@
 	// Functions
 	import { resolve } from '$app/paths'
 	import { extractFeeBreakdown, getUsdcAddress } from '$/api/lifi'
-	import { getTxUrl } from '$/constants/networks'
+	import { getTxUrl } from '$/constants/explorers'
 	import { getTxReceiptStatus } from '$/api/approval'
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
 	import type { BridgeStatus } from '$/lib/tx-status'

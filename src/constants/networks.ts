@@ -80,11 +80,6 @@ export type RpcEndpoint = {
 	transportType: TransportType
 }
 
-export type Explorer = {
-	chainId: ChainId
-	url: string
-}
-
 export type NetworkConfig = {
 	chainId: ChainId
 	name: string
@@ -695,25 +690,3 @@ export const networkConfigsByChainId = Object.fromEntries(
 export const networksByChainId = Object.fromEntries(
 	networks.map((network) => [network.id, network]),
 )
-
-export const explorers: readonly Explorer[] = networkConfigs.flatMap(
-	(config) =>
-		config.explorerUrl
-			? [
-					{
-						chainId: config.chainId,
-						url: config.explorerUrl,
-					},
-				]
-			: [],
-)
-
-export const explorerUrls = Object.fromEntries(
-	explorers.map((explorer) => [explorer.chainId, explorer.url]),
-)
-
-export const getTxUrl = (chainId: number, txHash: string): string =>
-	`${explorerUrls[chainId] ?? 'https://blockscan.com'}/tx/${txHash}`
-
-export const getAddressUrl = (chainId: number, address: string): string =>
-	`${explorerUrls[chainId] ?? 'https://blockscan.com'}/address/${address}`
