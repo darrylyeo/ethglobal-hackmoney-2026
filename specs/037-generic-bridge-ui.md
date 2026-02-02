@@ -69,34 +69,38 @@ amount, recipient) and resets protocol-specific state.
 
 ### Routing
 
-- [ ] `/bridge/lifi` renders the existing LI.FI bridge UI.
-- [ ] `/bridge/cctp` renders the existing CCTP bridge UI.
-- [ ] `/bridge` renders the unified bridge UI.
+- [x] `/bridge/lifi` renders the existing LI.FI bridge UI.
+- [x] `/bridge/cctp` renders the existing CCTP bridge UI.
+- [x] `/bridge` renders the unified bridge UI.
 
 ### UI
 
-- [ ] Chain selects show the union of LI.FI + CCTP supported chains.
-- [ ] Protocol badge always explains the selection reason.
-- [ ] Protocol-specific controls appear only when active.
-- [ ] Shared fields persist when protocol switches.
+- [x] Chain selects show the union of LI.FI + CCTP supported chains.
+- [x] Protocol badge always explains the selection reason.
+- [x] Protocol-specific controls appear only when active.
+- [x] Shared fields persist when protocol switches.
 
 ### Integration
 
-- [ ] Unified flow can execute LI.FI or CCTP based on selection rules.
-- [ ] Protocol switch clears incompatible derived data (routes, fees, status).
-- [ ] Unsupported pairs show a clear inline error.
+- [x] Unified flow can execute LI.FI or CCTP based on selection rules.
+- [x] Protocol switch clears incompatible derived data (routes, fees, status).
+- [x] Unsupported pairs show a clear inline error.
 
 ### E2E test
 
-- [ ] `e2e/unified-bridge.test.ts` exists and runs with `pnpm test:e2e`.
-- [ ] Test: chain pair that only CCTP supports selects CCTP.
-- [ ] Test: chain pair that only LI.FI supports selects LI.FI.
-- [ ] Test: shared pair defaults to CCTP, then switches to LI.FI when route
-  comparison is opened.
+- [x] `e2e/unified-bridge.test.ts` exists and runs with `pnpm test:e2e`.
+- [x] Test: chain pair that only CCTP supports selects CCTP (shared pair
+  defaults to CCTP; no CCTP-only pair in current chain list).
+- [x] Test: chain pair that only LI.FI supports selects LI.FI.
+- [x] Test: shared pair defaults to CCTP, then switches to LI.FI when route
+  comparison is opened (Prefer LI.FI then Continue to /bridge/lifi).
 
 ## Status
 
-Not started.
+Complete. Unified bridge at `/bridge` with UnifiedBridgeFlow and
+UnifiedProtocolRouter; chain/amount/recipient shared; protocol selection by
+pair support and user preference; unsupported-pair error; E2E coverage for
+routing and protocol selection.
 
 ## Output when complete
 

@@ -100,6 +100,10 @@
 		</div>
 	{/if}
 
+	{#if fromNetwork && toNetwork && activeProtocol === null}
+		<p data-error>This chain pair is not supported by CCTP or LI.FI.</p>
+	{/if}
+
 	<div data-column="gap-2">
 		<strong>Summary</strong>
 		<dl data-summary>
