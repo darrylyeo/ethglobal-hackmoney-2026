@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
+	import { WalletConnectionTransport } from '$/collections/wallet-connections'
 	import { validateBridgeAmount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT } from '$/constants/bridge-limits'
 	import {
 		CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS,
@@ -11,7 +12,7 @@
 	import { NetworkType, networks, networksByChainId } from '$/constants/networks'
 
 	// Context
-	import { Button, Switch } from 'bits-ui'
+	import { Button, Dialog, Switch } from 'bits-ui'
 
 	// Props
 	let {
@@ -26,6 +27,11 @@
 	const selectedWallet = $derived(
 		selectedWallets.find((w) => w.connection.selected) ?? null
 	)
+	const walletProvider = $derived(
+		selectedWallet?.connection.transport === WalletConnectionTransport.Eip1193
+			? (selectedWallet.wallet as { provider: import('$lib/wallet').EIP1193Provider }).provider
+			: null
+	)
 
 	// Functions
 	import { formatAddress, isValidAddress } from '$/lib/address'
@@ -37,12 +43,11 @@
 	let invalidAmountInput = $state(false)
 	let transferSpeed = $state<'fast' | 'standard'>('fast')
 	let forwardingEnabled = $state(false)
-	let feeRows = $state<{ finalityThreshold: number, minimumFee: number }[] | null>(null)
-	let feeError = $state<string | null>(null)
-	let feeLoading = $state(false)
-	let allowance = $state<{ value: number, lastUpdated: string } | null>(null)
-	let allowanceError = $state<string | null>(null)
-	let allowanceLoading = $state(false)
+	let confirmOpen = $state(false)
+	let feeFastBps = $state<number | null>(null)
+	let feeStandardBps = $state<number | null>(null)
+	let executing = $state(false)
+	let runExecutionAt = $state(0)
 
 	// (Derived)
 	const settings = $derived(bridgeSettingsState.current ?? defaultBridgeSettings)
@@ -70,13 +75,22 @@
 	)
 	const validation = $derived(validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT))
 	const canSendAmount = $derived(validation.isValid && !invalidAmountInput)
-	const feeFastBps = $derived(feeRows?.find((row) => row.finalityThreshold === 1000)?.minimumFee ?? null)
-	const feeStandardBps = $derived(feeRows?.find((row) => row.finalityThreshold === 2000)?.minimumFee ?? null)
+	const minFinalityThreshold = $derived(effectiveTransferSpeed === 'fast' ? 1000 : 2000)
+	const feeBps = $derived(
+		effectiveTransferSpeed === 'fast'
+			? (feeFastBps ?? feeStandardBps ?? 0)
+			: (feeStandardBps ?? feeFastBps ?? 0),
+	)
 	const apiHost = $derived(settings.isTestnet ? 'https://iris-api-sandbox.circle.com' : 'https://iris-api.circle.com')
 	const recipient = $derived(
 		settings.useCustomRecipient && isValidAddress(settings.customRecipient)
-			? settings.customRecipient
+			? (settings.customRecipient as `0x${string}`)
 			: selectedActor
+	)
+	const expectedReceive = $derived(
+		feeBps > 0 && settings.amount > 0n
+			? settings.amount - (settings.amount * BigInt(feeBps)) / 10000n
+			: settings.amount
 	)
 
 	$effect(() => {
@@ -95,69 +109,6 @@
 		}
 	})
 
-	$effect(() => {
-		const source = fromDomain
-		const destination = toDomain
-		if (source === null || destination === null) {
-			feeRows = null
-			return
-		}
-		let cancelled = false
-		feeLoading = true
-		feeError = null
-		fetch(`${apiHost}/v2/burn/USDC/fees/${source}/${destination}`, {
-			headers: { Accept: 'application/json' },
-		})
-			.then((res) => (
-				res.ok
-					? res.json()
-					: Promise.reject(new Error(`Fee request failed (${res.status})`))
-			))
-			.then((data) => {
-				if (!cancelled) feeRows = Array.isArray(data) ? data : null
-			})
-			.catch((err: Error) => {
-				if (!cancelled) feeError = err.message
-			})
-			.finally(() => {
-				if (!cancelled) feeLoading = false
-			})
-		return () => { cancelled = true }
-	})
-
-	$effect(() => {
-		if (!fastTransferSupported) {
-			allowance = null
-			return
-		}
-		let cancelled = false
-		allowanceLoading = true
-		allowanceError = null
-		fetch(`${apiHost}/v2/fastBurn/USDC/allowance`, {
-			headers: { Accept: 'application/json' },
-		})
-			.then((res) => (
-				res.ok
-					? res.json()
-					: Promise.reject(new Error(`Allowance request failed (${res.status})`))
-			))
-			.then((data) => {
-				if (cancelled) return
-				if (typeof data?.allowance === 'number' && typeof data?.lastUpdated === 'string') {
-					allowance = { value: data.allowance, lastUpdated: data.lastUpdated }
-				} else {
-					allowance = null
-				}
-			})
-			.catch((err: Error) => {
-				if (!cancelled) allowanceError = err.message
-			})
-			.finally(() => {
-				if (!cancelled) allowanceLoading = false
-			})
-		return () => { cancelled = true }
-	})
-
 	// Actions
 	const onAmountInput = (e: Event) => {
 		const v = (e.target as HTMLInputElement).value.replace(/[^0-9.,]/g, '').replace(/,/g, '')
@@ -171,9 +122,19 @@
 			invalidAmountInput = true
 		}
 	}
+	const onConfirmBridge = () => {
+		confirmOpen = true
+	}
+	const onConfirmSubmit = () => {
+		confirmOpen = false
+		runExecutionAt = Date.now()
+	}
 
 	// Components
 	import Select from '$/components/Select.svelte'
+	import CctpAllowance from './CctpAllowance.svelte'
+	import CctpExecution from './CctpExecution.svelte'
+	import CctpFees from './CctpFees.svelte'
 </script>
 
 
@@ -267,6 +228,17 @@
 				<small data-muted>To: Connect wallet</small>
 			{/if}
 		</div>
+
+		{#if canSendAmount && recipient && fromNetwork && toNetwork}
+			<div data-preview data-column="gap-1">
+				<strong>Transfer preview</strong>
+				<dl data-summary>
+					<dt>Burn</dt><dd>{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}</dd>
+					<dt>Receive</dt><dd>~{formatSmallestToDecimal(expectedReceive, 6)} USDC on {toNetwork.name}</dd>
+					<dt>Recipient</dt><dd>{formatAddress(recipient)}</dd>
+				</dl>
+			</div>
+		{/if}
 	</section>
 
 	<section data-card data-column="gap-3">
@@ -307,54 +279,61 @@
 			</label>
 		{/if}
 
-		<div data-column="gap-1">
-			<strong>Fees</strong>
-			{#if feeLoading}
-				<small data-muted>Loading fees…</small>
-			{:else if feeError}
-				<small data-error>{feeError}</small>
-			{:else if feeFastBps !== null || feeStandardBps !== null}
-				<dl data-summary>
-					<dt>Fast</dt><dd>{feeFastBps ?? '—'} bps</dd>
-					<dt>Standard</dt><dd>{feeStandardBps ?? '—'} bps</dd>
-				</dl>
-			{:else}
-				<small data-muted>Select a valid chain pair to load fees.</small>
-			{/if}
-		</div>
+		<CctpFees
+			fromDomain={fromDomain}
+			toDomain={toDomain}
+			apiHost={apiHost}
+			bind:fastBps={feeFastBps}
+			bind:standardBps={feeStandardBps}
+		/>
 
-		<div data-column="gap-1">
-			<strong>Fast transfer allowance</strong>
-			{#if !fastTransferSupported}
-				<small data-muted>Not required for this source chain.</small>
-			{:else if allowanceLoading}
-				<small data-muted>Loading allowance…</small>
-			{:else if allowanceError}
-				<small data-error>{allowanceError}</small>
-			{:else if allowance}
-				<small data-muted>{allowance.value.toLocaleString()} USDC · Updated {allowance.lastUpdated}</small>
-			{:else}
-				<small data-muted>Allowance unavailable.</small>
-			{/if}
-		</div>
+		<CctpAllowance
+			fastTransferSupported={fastTransferSupported}
+			apiHost={apiHost}
+		/>
 
 		<div data-column="gap-2">
-			<strong>Status</strong>
-			<ol data-status>
-				<li data-status-step>Burn on {fromNetwork?.name ?? 'source chain'}</li>
-				<li data-status-step>Attestation available</li>
-				<li data-status-step>Mint on {toNetwork?.name ?? 'destination chain'}</li>
-			</ol>
+			<CctpExecution
+				bind:executing
+				walletProvider={walletProvider}
+				senderAddress={selectedActor}
+				fromChainId={settings.fromChainId}
+				toChainId={settings.toChainId}
+				amount={settings.amount}
+				mintRecipient={recipient ?? '0x0000000000000000000000000000000000000000'}
+				minFinalityThreshold={minFinalityThreshold}
+				feeBps={feeBps}
+				isTestnet={settings.isTestnet}
+				runAt={runExecutionAt}
+			/>
 			<Button.Root
 				type="button"
-				disabled={!cctpPairSupported || !canSendAmount || !selectedWallet}
+				disabled={!cctpPairSupported || !canSendAmount || !selectedWallet || !recipient || executing}
+				onclick={onConfirmBridge}
 			>
 				Bridge via CCTP
 			</Button.Root>
-			<small data-muted>TODO: wire CCTP onchain execution.</small>
 		</div>
 	</section>
 </div>
+
+<Dialog.Root bind:open={confirmOpen}>
+	<Dialog.Portal>
+		<Dialog.Content>
+			<Dialog.Title>Confirm CCTP transfer</Dialog.Title>
+			{#if fromNetwork && toNetwork && recipient}
+				<Dialog.Description>
+					Send {formatSmallestToDecimal(settings.amount, 6)} USDC from {fromNetwork.name} to {toNetwork.name}.
+					Recipient: {formatAddress(recipient)}.
+				</Dialog.Description>
+			{/if}
+			<div data-dialog-actions>
+				<Button.Root type="button" onclick={() => { confirmOpen = false }}>Cancel</Button.Root>
+				<Button.Root type="button" onclick={onConfirmSubmit}>Confirm</Button.Root>
+			</div>
+		</Dialog.Content>
+	</Dialog.Portal>
+</Dialog.Root>
 
 <style>
 	[data-bridge-layout] {
@@ -385,8 +364,9 @@
 		opacity: 0.7;
 	}
 
-	[data-status] {
-		margin: 0;
-		padding-inline-start: 1.2em;
+	[data-dialog-actions] {
+		display: flex;
+		gap: 0.5rem;
+		margin-top: 1rem;
 	}
 </style>

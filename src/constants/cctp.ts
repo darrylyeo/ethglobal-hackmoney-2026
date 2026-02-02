@@ -1,5 +1,10 @@
 import { ChainId } from '$/constants/networks'
 
+export const CCTP_TOKEN_MESSENGER_MAINNET = '0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d' as const
+export const CCTP_MESSAGE_TRANSMITTER_MAINNET = '0x81D40F21F12A8F0E3252Bccb954D722d4c464B64' as const
+export const CCTP_TOKEN_MESSENGER_TESTNET = '0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA' as const
+export const CCTP_MESSAGE_TRANSMITTER_TESTNET = '0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' as const
+
 export const CCTP_DOMAINS_BY_CHAIN_ID: Record<number, number> = {
 	[ChainId.Ethereum]: 0,
 	[ChainId.EthereumSepolia]: 0,
@@ -101,4 +106,16 @@ export const getCctpDomainId = (chainId: number | null): number | null => (
 
 export const isCctpSupportedChain = (chainId: number | null): boolean => (
 	chainId !== null && CCTP_DOMAINS_BY_CHAIN_ID[chainId] !== undefined
+)
+
+export const getCctpTokenMessenger = (chainId: number | null, isTestnet: boolean): `0x${string}` | null => (
+	chainId !== null && isCctpSupportedChain(chainId)
+		? (isTestnet ? CCTP_TOKEN_MESSENGER_TESTNET : CCTP_TOKEN_MESSENGER_MAINNET) as `0x${string}`
+		: null
+)
+
+export const getCctpMessageTransmitter = (chainId: number | null, isTestnet: boolean): `0x${string}` | null => (
+	chainId !== null && isCctpSupportedChain(chainId)
+		? (isTestnet ? CCTP_MESSAGE_TRANSMITTER_TESTNET : CCTP_MESSAGE_TRANSMITTER_MAINNET) as `0x${string}`
+		: null
 )

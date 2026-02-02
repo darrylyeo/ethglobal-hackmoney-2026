@@ -7,9 +7,9 @@
 	let selectedActor = $state<`0x${string}` | null>(null)
 
 	// Components
-	import Balances from '../lifi/Balances.svelte'
+	import CctpBalances from './CctpBalances.svelte'
 	import CctpBridgeFlow from './CctpBridgeFlow.svelte'
-	import Wallets from '../lifi/Wallets.svelte'
+	import CctpWallets from './CctpWallets.svelte'
 </script>
 
 
@@ -19,18 +19,18 @@
 
 
 <details open data-card>
-	<summary>
-		<header data-card="secondary" data-row="wrap gap-2">
-			<Wallets
-				bind:connectedWallets
-				bind:selectedActor
-			/>
-		</header>
-	</summary>
+		<summary>
+			<header data-card="secondary" data-row="wrap gap-2">
+				<CctpWallets
+					bind:connectedWallets
+					bind:selectedActor
+				/>
+			</header>
+		</summary>
 
 	<div data-column="gap-6">
 		<h1>USDC Bridge (CCTP)</h1>
-		<Balances
+		<CctpBalances
 			{selectedActor}
 		/>
 		<CctpBridgeFlow

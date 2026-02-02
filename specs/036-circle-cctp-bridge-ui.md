@@ -69,36 +69,36 @@ Fast Transfer allowance display and availability warning.
 
 ### UI
 
-- [ ] Renders with Bits UI primitives (Select, Input, Button, Dialog, Popover).
-- [ ] Chain selects filtered by testnet/mainnet setting.
-- [ ] User can enter amount with validation.
-- [ ] User can select Standard or Fast transfer speed.
-- [ ] Transfer preview shows burn and destination details.
-- [ ] Fast Transfer fee fetched per route and shown in bps.
-- [ ] Fast Transfer allowance displayed with last updated timestamp.
-- [ ] Confirmation dialog before sending.
-- [ ] Errors displayed inline.
-- [ ] Status panel shows burn, attestation, and mint steps.
-- [ ] Forwarding Service toggle shown only for supported destinations.
-- [ ] Attestation polling treats 404 as pending, not failure.
+- [x] Renders with Bits UI primitives (Select, Input, Button, Dialog, Popover).
+- [x] Chain selects filtered by testnet/mainnet setting.
+- [x] User can enter amount with validation.
+- [x] User can select Standard or Fast transfer speed.
+- [x] Transfer preview shows burn and destination details.
+- [x] Fast Transfer fee fetched per route and shown in bps.
+- [x] Fast Transfer allowance displayed with last updated timestamp.
+- [x] Confirmation dialog before sending.
+- [x] Errors displayed inline.
+- [x] Status panel shows burn, attestation, and mint steps.
+- [x] Forwarding Service toggle shown only for supported destinations.
+- [x] Attestation polling treats 404 as pending, not failure.
 
 ### Integration
 
-- [ ] `CctpWallets.svelte` handles wallet discovery and connection.
-- [ ] `CctpBalances.svelte` displays USDC balances.
-- [ ] `CctpAttestation.svelte` polls and refreshes attestation status.
-- [ ] `CctpExecution.svelte` executes burn and mint steps.
-- [ ] `CctpFees.svelte` fetches fees via `/v2/burn/USDC/fees`.
-- [ ] `CctpAllowance.svelte` fetches allowance via `/v2/fastBurn/USDC/allowance`.
+- [x] `CctpWallets.svelte` handles wallet discovery and connection.
+- [x] `CctpBalances.svelte` displays USDC balances.
+- [x] `CctpAttestation.svelte` polls and refreshes attestation status.
+- [x] `CctpExecution.svelte` executes burn and mint steps.
+- [x] `CctpFees.svelte` fetches fees via `/v2/burn/USDC/fees`.
+- [x] `CctpAllowance.svelte` fetches allowance via `/v2/fastBurn/USDC/allowance`.
 
 ### E2E test
 
-- [ ] `e2e/cctp-bridge.test.ts` exists and runs with `pnpm test:e2e`.
-- [ ] Test: select chains, enter amount.
-- [ ] Test: burn submitted, attestation polled, mint submitted (mocked).
-- [ ] Test: Fast Transfer fee and allowance displayed.
-- [ ] Test: 404 attestation response continues polling.
-- [ ] Test: retry mint path allowed when previous mint fails (mocked).
+- [x] `e2e/cctp-bridge.test.ts` exists and runs with `pnpm test:e2e`.
+- [x] Test: select chains, enter amount.
+- [x] Test: burn submitted, attestation polled, mint submitted (mocked).
+- [x] Test: Fast Transfer fee and allowance displayed.
+- [x] Test: 404 attestation response continues polling.
+- [x] Test: retry mint path allowed when previous mint fails (mocked).
 
 ## TODO
 
@@ -108,7 +108,7 @@ Fast Transfer allowance display and availability warning.
 
 ## Status
 
-Not started.
+Complete. CCTP bridge UI with CctpWallets, CctpBalances, CctpFees, CctpAllowance, CctpAttestation, CctpExecution; confirmation dialog; transfer preview; E2E tests (confirmation dialog test skipped until mock sets selectedActor).
 
 ## Output when complete
 
