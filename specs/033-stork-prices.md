@@ -26,11 +26,19 @@
 - Use Stork prices in swap to compare the implied quote rate vs Stork USD prices.
 
 ## Acceptance Criteria
-- [ ] A new spec file exists at `specs/033-stork-prices.md` with the content above.
-- [ ] `stork-prices` TanStack DB collection stores REST, websocket, and RPC price rows.
-- [ ] REST transport uses Stork REST latest prices with auth token.
-- [ ] Websocket transport subscribes to asset ids and updates prices on incoming messages.
-- [ ] RPC transport reads on-chain prices using Voltaire + Stork contract address.
-- [ ] `src/views/StorkPrices.svelte` renders latest Stork prices with transport metadata.
-- [ ] Balances view shows net worth computed from Stork prices.
-- [ ] Swap view shows a price comparison using Stork prices for token in/out.
+- [x] A new spec file exists at `specs/033-stork-prices.md` with the content above.
+- [x] `stork-prices` TanStack DB collection stores REST, websocket, and RPC price rows.
+- [x] REST transport uses Stork REST latest prices with auth token.
+- [x] Websocket transport subscribes to asset ids and updates prices on incoming messages.
+- [x] RPC transport reads on-chain prices using Voltaire + Stork contract address.
+- [x] `src/views/StorkPrices.svelte` renders latest Stork prices with transport metadata.
+- [x] Balances view shows net worth computed from Stork prices.
+- [x] Swap view shows a price comparison using Stork prices for token in/out.
+
+## Status
+
+Complete. `src/collections/stork-prices.ts`: stork-prices collection with REST (PUBLIC_STORK_REST_TOKEN), websocket (evm/subscribe), and RPC (getTemporalNumericValueV1 via Voltaire). `src/views/StorkPrices.svelte`: latest prices and transport metadata. Balances: net worth from Stork in bridge/lifi/Balances.svelte. Swap: Stork vs quote rate comparison in SwapFlow.svelte.
+
+## Output when complete
+
+`DONE`
