@@ -67,14 +67,15 @@ None.
 | 45 | Balances: filter token list coins | cc2950f |
 | 46 | Stork prices: prefer ready rows | aef6e2e |
 | 47 | Styles: replace data-attr selectors with classes | 573d72f |
+| 48 | COMMIT_PLAN: update with SHAs | c8d13ef |
+| 49 | Coins: add metadata + CoinAmount component | 996bfae |
+| 50 | CoinInput: show icons + type labels | ddde315 |
 
 ---
 
 ## Working tree (uncommitted)
 
-| File(s) | Description |
-|---------|-------------|
-| `src/components/CoinAmount.svelte` | Untracked; ignored per user request |
+None.
 
 ---
 
