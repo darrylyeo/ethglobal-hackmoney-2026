@@ -3,10 +3,7 @@ import { assertEquals } from 'jsr:@std/assert'
 import { sharedAddressKey } from './shared-addresses-keys.ts'
 
 Deno.test('sharedAddressKey generates correct composite key', () => {
-	assertEquals(
-		sharedAddressKey('R1', 'peer1', '0xABC123'),
-		'R1:peer1:0xabc123',
-	)
+	assertEquals(sharedAddressKey('R1', 'peer1', '0xABC123'), 'R1:peer1:0xabc123')
 })
 
 Deno.test('sharedAddressKey normalizes address to lowercase', () => {

@@ -25,7 +25,13 @@ export type NormalizedTransferEvent = {
 }
 
 function parseTransferLog(
-	log: { topics: string[]; data: string; blockNumber: string; transactionHash: string; logIndex: string },
+	log: {
+		topics: string[]
+		data: string
+		blockNumber: string
+		transactionHash: string
+		logIndex: string
+	},
 	chainId: number,
 	blockTimestampMs: number,
 ): NormalizedTransferEvent | null {
@@ -45,7 +51,10 @@ function parseTransferLog(
 	}
 }
 
-async function getBlockTimestampMs(provider: VoltaireProvider, blockNumber: number): Promise<number> {
+async function getBlockTimestampMs(
+	provider: VoltaireProvider,
+	blockNumber: number,
+): Promise<number> {
 	const res = await provider.request({
 		method: 'eth_getBlockByNumber',
 		params: [`0x${blockNumber.toString(16)}`, false],
@@ -70,7 +79,9 @@ async function fetchTransferLogsForChain(
 		toBlock: `0x${toBlock.toString(16)}`,
 	})
 	if (logs.length === 0) return []
-	const blockNumbers = [...new Set(logs.map((l) => parseInt(l.blockNumber, 16)))]
+	const blockNumbers = [
+		...new Set(logs.map((l) => parseInt(l.blockNumber, 16))),
+	]
 	const blockTimestamps = new Map<number, number>()
 	await Promise.all(
 		blockNumbers.map(async (num) => {
@@ -115,7 +126,8 @@ async function resolveBlockRange(
 export async function fetchTransferEventsForPeriod(
 	period: string,
 ): Promise<NormalizedTransferEvent[]> {
-	const periodDef = TIME_PERIODS.find((p) => p.value === period) ?? TIME_PERIODS[3]
+	const periodDef =
+		TIME_PERIODS.find((p) => p.value === period) ?? TIME_PERIODS[3]
 	const { start, end } = periodToRange(periodDef.ms)
 	const chainsWithRpc = USDC_CHAINS.filter((c) => rpcUrls[c.chainId])
 	const ranges = await Promise.all(
@@ -127,7 +139,12 @@ export async function fetchTransferEventsForPeriod(
 	)
 	const results = await Promise.allSettled(
 		ranges
-			.filter((r): r is typeof r & { range: { fromBlock: bigint; toBlock: bigint } } => r.range != null)
+			.filter(
+				(
+					r,
+				): r is typeof r & { range: { fromBlock: bigint; toBlock: bigint } } =>
+					r.range != null,
+			)
 			.map((r) => {
 				const rpcUrl = rpcUrls[r.chainId]!
 				return fetchTransferLogsForChain(
@@ -140,6 +157,9 @@ export async function fetchTransferEventsForPeriod(
 			}),
 	)
 	return results
-		.filter((r): r is PromiseFulfilledResult<NormalizedTransferEvent[]> => r.status === 'fulfilled')
+		.filter(
+			(r): r is PromiseFulfilledResult<NormalizedTransferEvent[]> =>
+				r.status === 'fulfilled',
+		)
 		.flatMap((r) => r.value)
 }

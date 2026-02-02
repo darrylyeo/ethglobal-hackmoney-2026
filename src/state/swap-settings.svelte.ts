@@ -25,5 +25,10 @@ export const defaultSwapSettings: SwapSettings = {
 export const swapSettingsState = new PersistedState<SwapSettings>(
 	'swap-settings',
 	defaultSwapSettings,
-	{ serializer: { serialize: stringify, deserialize: (v) => parse(v) as SwapSettings } },
+	{
+		serializer: {
+			serialize: stringify,
+			deserialize: (v) => parse(v) as SwapSettings,
+		},
+	},
 )

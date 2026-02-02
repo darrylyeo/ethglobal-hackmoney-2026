@@ -32,5 +32,10 @@ export const defaultBridgeSettings: BridgeSettings = {
 export const bridgeSettingsState = new PersistedState<BridgeSettings>(
 	'bridge-settings',
 	defaultBridgeSettings,
-	{ serializer: { serialize: stringify, deserialize: (v) => parse(v) as BridgeSettings } },
+	{
+		serializer: {
+			serialize: stringify,
+			deserialize: (v) => parse(v) as BridgeSettings,
+		},
+	},
 )

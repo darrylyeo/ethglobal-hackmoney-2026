@@ -35,9 +35,19 @@
 	{#if showStatus}
 		<span data-status>{peer.isConnected ? '●' : '○'}</span>
 		{#if peer.isConnected && peer.connectedAt != null}
-			<small>since <Timestamp timestamp={peer.connectedAt} format={TimestampFormat.Relative} /></small>
+			<small
+				>since <Timestamp
+					timestamp={peer.connectedAt}
+					format={TimestampFormat.Relative}
+				/></small
+			>
 		{:else if peer.disconnectedAt != null}
-			<small>left <Timestamp timestamp={peer.disconnectedAt} format={TimestampFormat.Relative} /></small>
+			<small
+				>left <Timestamp
+					timestamp={peer.disconnectedAt}
+					format={TimestampFormat.Relative}
+				/></small
+			>
 		{/if}
 	{/if}
 </span>

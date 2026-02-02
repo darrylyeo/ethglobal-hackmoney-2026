@@ -14,23 +14,30 @@
 	let { data }: { data: { roomId: string } } = $props()
 
 	// Functions
-	const isEip1193Provider = (value: unknown): value is EIP1193Provider => (
+	const isEip1193Provider = (value: unknown): value is EIP1193Provider =>
 		typeof value === 'object' &&
 		value !== null &&
 		'request' in value &&
 		typeof value.request === 'function'
-	)
 
 	// (Derived)
 	const roomId = $derived(data.roomId)
-	const walletsQuery = useLiveQuery((q) => q.from({ row: walletsCollection }).select(({ row }) => ({ row })))
-	const connectionsQuery = useLiveQuery((q) => q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })))
+	const walletsQuery = useLiveQuery((q) =>
+		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
+	)
+	const connectionsQuery = useLiveQuery((q) =>
+		q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })),
+	)
 	const wallets = $derived((walletsQuery.data ?? []).map((r) => r.row))
 	const connections = $derived((connectionsQuery.data ?? []).map((r) => r.row))
-	const selectedConnection = $derived(connections.find((c) => c.selected) ?? null)
+	const selectedConnection = $derived(
+		connections.find((c) => c.selected) ?? null,
+	)
 	const selectedWallet = $derived(
 		selectedConnection
-			? wallets.find((w) => w.$id.rdns === selectedConnection.$id.wallet$id.rdns)
+			? wallets.find(
+					(w) => w.$id.rdns === selectedConnection.$id.wallet$id.rdns,
+				)
 			: null,
 	)
 	const provider = $derived(

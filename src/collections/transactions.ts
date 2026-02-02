@@ -3,7 +3,10 @@
  * Persists to localStorage across sessions.
  */
 
-import { createCollection, localStorageCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localStorageCollectionOptions,
+} from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
 
 export type Transaction$id = {
@@ -32,15 +35,16 @@ export const transactionsCollection = createCollection(
 	}),
 )
 
-export const getTransaction = ($id: Transaction$id) => (
+export const getTransaction = ($id: Transaction$id) =>
 	transactionsCollection.state.get(stringify($id))
-)
 
-export const insertTransaction = (tx: Omit<TransactionRow, 'updatedAt'>) => (
+export const insertTransaction = (tx: Omit<TransactionRow, 'updatedAt'>) =>
 	transactionsCollection.insert({ ...tx, updatedAt: Date.now() })
-)
 
-export const updateTransaction = ($id: Transaction$id, changes: Partial<Pick<TransactionRow, 'status' | 'destTxHash'>>) => {
+export const updateTransaction = (
+	$id: Transaction$id,
+	changes: Partial<Pick<TransactionRow, 'status' | 'destTxHash'>>,
+) => {
 	const existing = transactionsCollection.state.get(stringify($id))
 	if (!existing) return
 	transactionsCollection.update(stringify($id), (draft) => {

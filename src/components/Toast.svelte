@@ -51,11 +51,7 @@
 		{/if}
 		<p class="toast-message">{toast.message}</p>
 		{#if toast.action}
-			<button
-				type="button"
-				class="toast-action"
-				onclick={toast.action.onClick}
-			>
+			<button type="button" class="toast-action" onclick={toast.action.onClick}>
 				{toast.action.label}
 			</button>
 		{/if}

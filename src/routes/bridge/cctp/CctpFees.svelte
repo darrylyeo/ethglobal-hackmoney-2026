@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	type FeeRow = { finalityThreshold: number, minimumFee: number }
+	type FeeRow = { finalityThreshold: number; minimumFee: number }
 
 	// Props
 	let {
@@ -23,8 +23,12 @@
 	let feeLoading = $state(false)
 
 	// (Derived)
-	const feeFastBps = $derived(feeRows?.find((row) => row.finalityThreshold === 1000)?.minimumFee ?? null)
-	const feeStandardBps = $derived(feeRows?.find((row) => row.finalityThreshold === 2000)?.minimumFee ?? null)
+	const feeFastBps = $derived(
+		feeRows?.find((row) => row.finalityThreshold === 1000)?.minimumFee ?? null,
+	)
+	const feeStandardBps = $derived(
+		feeRows?.find((row) => row.finalityThreshold === 2000)?.minimumFee ?? null,
+	)
 
 	$effect(() => {
 		const source = fromDomain
@@ -41,16 +45,20 @@
 		fetch(`${apiHost}/v2/burn/USDC/fees/${source}/${destination}`, {
 			headers: { Accept: 'application/json' },
 		})
-			.then((res) => (
+			.then((res) =>
 				res.ok
 					? res.json()
-					: Promise.reject(new Error(`Fee request failed (${res.status})`))
-			))
+					: Promise.reject(new Error(`Fee request failed (${res.status})`)),
+			)
 			.then((data) => {
 				if (!cancelled) {
 					feeRows = Array.isArray(data) ? data : null
-					fastBps = feeRows?.find((row) => row.finalityThreshold === 1000)?.minimumFee ?? null
-					standardBps = feeRows?.find((row) => row.finalityThreshold === 2000)?.minimumFee ?? null
+					fastBps =
+						feeRows?.find((row) => row.finalityThreshold === 1000)
+							?.minimumFee ?? null
+					standardBps =
+						feeRows?.find((row) => row.finalityThreshold === 2000)
+							?.minimumFee ?? null
 				}
 			})
 			.catch((err: Error) => {
@@ -59,10 +67,11 @@
 			.finally(() => {
 				if (!cancelled) feeLoading = false
 			})
-		return () => { cancelled = true }
+		return () => {
+			cancelled = true
+		}
 	})
 </script>
-
 
 <div data-column="gap-1">
 	<strong>Fees</strong>
@@ -72,8 +81,10 @@
 		<small data-error>{feeError}</small>
 	{:else if feeFastBps !== null || feeStandardBps !== null}
 		<dl data-summary>
-			<dt>Fast</dt><dd>{feeFastBps ?? '—'} bps</dd>
-			<dt>Standard</dt><dd>{feeStandardBps ?? '—'} bps</dd>
+			<dt>Fast</dt>
+			<dd>{feeFastBps ?? '—'} bps</dd>
+			<dt>Standard</dt>
+			<dd>{feeStandardBps ?? '—'} bps</dd>
 		</dl>
 	{:else}
 		<small data-muted>Select a valid chain pair to load fees.</small>

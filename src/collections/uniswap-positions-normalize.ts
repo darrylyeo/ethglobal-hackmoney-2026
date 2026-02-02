@@ -14,7 +14,9 @@ export type UniswapPosition = {
 	token1Owed: bigint
 }
 
-export const normalizeUniswapPosition = (entry: UniswapPosition): UniswapPosition => ({
+export const normalizeUniswapPosition = (
+	entry: UniswapPosition,
+): UniswapPosition => ({
 	...entry,
 	liquidity: BigInt(entry.liquidity),
 	token0Owed: BigInt(entry.token0Owed),

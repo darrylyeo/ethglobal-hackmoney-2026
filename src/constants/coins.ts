@@ -261,16 +261,11 @@ export const ercTokens = [
 	},
 ] as const satisfies readonly Erc20Token[]
 
-export const ercTokensBySymbolByChainId = (
-	Object.fromEntries(
-		Map.groupBy(ercTokens, (token) => token.chainId)
-			.entries()
-			.map(([chainId, tokens]) => [
-				Number(chainId),
-				Object.fromEntries(tokens.map((token) => [
-					token.symbol,
-					token,
-				])),
-			])
-	)
+export const ercTokensBySymbolByChainId = Object.fromEntries(
+	Map.groupBy(ercTokens, (token) => token.chainId)
+		.entries()
+		.map(([chainId, tokens]) => [
+			Number(chainId),
+			Object.fromEntries(tokens.map((token) => [token.symbol, token])),
+		]),
 )

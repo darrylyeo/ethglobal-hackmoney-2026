@@ -27,9 +27,9 @@ const BALANCE_OF_OUTPUTS = [{ type: 'uint256' as const, name: '' }] as const
 export function getChainId(provider: VoltaireProvider): Promise<bigint> {
 	return provider
 		.request({ method: 'eth_chainId', params: [] })
-		.then((
-			res,
-		) => (typeof res === 'string' ? BigInt(res) : BigInt(res as string)))
+		.then((res) =>
+			typeof res === 'string' ? BigInt(res) : BigInt(res as string),
+		)
 }
 
 export function encodeBalanceOfCall(account: `0x${string}`): `0x${string}` {
@@ -53,16 +53,11 @@ export async function getErc20Balance(
 
 	const res = await provider.request({
 		method: 'eth_call',
-		params: [
-			{ to: contractAddress, data },
-			'latest',
-		],
+		params: [{ to: contractAddress, data }, 'latest'],
 	})
 
-	if (typeof res !== 'string')
-		throw new Error('eth_call returned invalid data')
-	if (!res || res === '0x' || res.length < 66)
-		return 0n
+	if (typeof res !== 'string') throw new Error('eth_call returned invalid data')
+	if (!res || res === '0x' || res.length < 66) return 0n
 
 	return decodeBalanceOfResult(res)
 }
@@ -97,7 +92,8 @@ export async function getErc20Allowance(
 			'latest',
 		],
 	})
-	if (typeof result !== 'string' || !result) throw new Error('eth_call returned invalid data')
+	if (typeof result !== 'string' || !result)
+		throw new Error('eth_call returned invalid data')
 	return BigInt(result)
 }
 
@@ -120,7 +116,8 @@ export function encodeTransferCall(
 }
 
 /** ERC20 Transfer(address,address,uint256) topic0 */
-export const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4d52336f2' as const
+export const TRANSFER_TOPIC =
+	'0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4d52336f2' as const
 
 export type EthLog = {
 	address: string
@@ -135,7 +132,8 @@ export async function getBlockByNumber(
 	provider: VoltaireProvider,
 	blockNum: bigint | 'latest',
 ): Promise<{ number: bigint; timestamp: number }> {
-	const blockHex = blockNum === 'latest' ? 'latest' : `0x${blockNum.toString(16)}`
+	const blockHex =
+		blockNum === 'latest' ? 'latest' : `0x${blockNum.toString(16)}`
 	const res = await provider.request({
 		method: 'eth_getBlockByNumber',
 		params: [blockHex, false],
@@ -178,7 +176,10 @@ export async function getLogs(
 		toBlock?: string
 	},
 ): Promise<EthLog[]> {
-	const res = await provider.request({ method: 'eth_getLogs', params: [filter] })
+	const res = await provider.request({
+		method: 'eth_getLogs',
+		params: [filter],
+	})
 	const logs = res as EthLog[] | null
 	return Array.isArray(logs) ? logs : []
 }

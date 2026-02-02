@@ -69,7 +69,7 @@
 	transition-property: background-color, border-color;
 }
 
-[data-switch-root][data-state="checked"] {
+[data-switch-root][data-state='checked'] {
 	background: color-mix(in oklch, var(--color-accent) 30%, transparent);
 	border-color: var(--color-accent);
 }
@@ -84,7 +84,7 @@
 	transition-property: transform, background-color;
 }
 
-[data-switch-root][data-state="checked"] > [data-switch-thumb] {
+[data-switch-root][data-state='checked'] > [data-switch-thumb] {
 	transform: translateX(1.375em);
 	background: var(--color-accent);
 }
@@ -193,7 +193,7 @@
 	gap: 0.5rem;
 }
 
-[data-toggle-group-root][data-orientation="vertical"] {
+[data-toggle-group-root][data-orientation='vertical'] {
 	flex-direction: column;
 	align-items: stretch;
 }
@@ -216,7 +216,7 @@
 	background-color: var(--color-bg);
 }
 
-[data-toggle-group-item][data-state="on"] {
+[data-toggle-group-item][data-state='on'] {
 	border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
 	background-color: color-mix(in srgb, var(--color-accent) 15%, transparent);
 }

@@ -2,7 +2,10 @@
  * Yellow deposits: USDC balances in Custody Contract (in-memory, synced from API/Clearnode).
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
 export type YellowDeposit = {
 	id: string

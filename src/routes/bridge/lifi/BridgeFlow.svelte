@@ -2,9 +2,24 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute } from '$/collections/bridge-routes'
-	import { ChainId, NetworkType, networks, networksByChainId } from '$/constants/networks'
-	import { SLIPPAGE_PRESETS, formatSlippagePercent, parseSlippagePercent, calculateMinOutput } from '$/constants/slippage'
-	import { validateBridgeAmount, extractRouteLimits, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT } from '$/constants/bridge-limits'
+	import {
+		ChainId,
+		NetworkType,
+		networks,
+		networksByChainId,
+	} from '$/constants/networks'
+	import {
+		SLIPPAGE_PRESETS,
+		formatSlippagePercent,
+		parseSlippagePercent,
+		calculateMinOutput,
+	} from '$/constants/slippage'
+	import {
+		validateBridgeAmount,
+		extractRouteLimits,
+		USDC_MIN_AMOUNT,
+		USDC_MAX_AMOUNT,
+	} from '$/constants/bridge-limits'
 
 	// Context
 	import { Button, Popover, Switch } from 'bits-ui'
@@ -12,13 +27,24 @@
 	// import { liveQueryAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// State
-	import { type BridgeSettings, defaultBridgeSettings, bridgeSettingsState } from '$/state/bridge-settings.svelte'
+	import {
+		type BridgeSettings,
+		defaultBridgeSettings,
+		bridgeSettingsState,
+	} from '$/state/bridge-settings.svelte'
 
 	// Collections
-	import { type BridgeRoutes$id, bridgeRoutesCollection, fetchBridgeRoutes } from '$/collections/bridge-routes'
+	import {
+		type BridgeRoutes$id,
+		bridgeRoutesCollection,
+		fetchBridgeRoutes,
+	} from '$/collections/bridge-routes'
 	import { actorCoinsCollection } from '$/collections/actor-coins'
 	import { actorAllowancesCollection } from '$/collections/actor-allowances'
-	import { transactionsCollection, updateTransaction } from '$/collections/transactions'
+	import {
+		transactionsCollection,
+		updateTransaction,
+	} from '$/collections/transactions'
 
 	// Functions
 	import { resolve } from '$app/paths'
@@ -28,8 +54,17 @@
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
 	import type { BridgeStatus } from '$/lib/tx-status'
 	import { ErrorCode } from '$/lib/errors'
-	import { formatTokenAmount, formatSmallestToDecimal, parseDecimalToSmallest, isValidDecimalInput } from '$/lib/format'
-	import { isValidAddress, normalizeAddress, formatAddress } from '$/lib/address'
+	import {
+		formatTokenAmount,
+		formatSmallestToDecimal,
+		parseDecimalToSmallest,
+		isValidDecimalInput,
+	} from '$/lib/format'
+	import {
+		isValidAddress,
+		normalizeAddress,
+		formatAddress,
+	} from '$/lib/address'
 	import { stringify } from 'devalue'
 	import { debounce } from '$/lib/debounce'
 	import { networkStatus } from '$/api/network-status.svelte'
@@ -46,18 +81,31 @@
 		selectedWallets,
 		selectedActor,
 	}: {
-		selectedWallets: ConnectedWallet[],
-		selectedActor: `0x${string}` | null,
+		selectedWallets: ConnectedWallet[]
+		selectedActor: `0x${string}` | null
 	} = $props()
 
 	// (Derived)
-	const selectedWallet = $derived(selectedWallets.find((w) => w.connection.selected) ?? null)
+	const selectedWallet = $derived(
+		selectedWallets.find((w) => w.connection.selected) ?? null,
+	)
 
 	// Queries (reactive)
-	const routesQuery = useLiveQuery((q) => q.from({ row: bridgeRoutesCollection }).select(({ row }) => ({ row })))
-	const balancesQuery = useLiveQuery((q) => q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })))
-	const allowancesQuery = useLiveQuery((q) => q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })))
-	const txQuery = useLiveQuery((q) => q.from({ row: transactionsCollection }).orderBy(({ row }) => row.$id?.createdAt ?? 0, 'desc').select(({ row }) => ({ row })))
+	const routesQuery = useLiveQuery((q) =>
+		q.from({ row: bridgeRoutesCollection }).select(({ row }) => ({ row })),
+	)
+	const balancesQuery = useLiveQuery((q) =>
+		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
+	)
+	const allowancesQuery = useLiveQuery((q) =>
+		q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })),
+	)
+	const txQuery = useLiveQuery((q) =>
+		q
+			.from({ row: transactionsCollection })
+			.orderBy(({ row }) => row.$id?.createdAt ?? 0, 'desc')
+			.select(({ row }) => ({ row })),
+	)
 
 	// const bridgeLiveQueryEntries = $derived([
 	// 	{ id: 'bridge-routes', label: 'Bridge Routes', query: routesQuery },
@@ -68,7 +116,9 @@
 	// const bridgeLiveQuery = liveQueryAttachmentFrom(() => bridgeLiveQueryEntries)
 
 	// Settings (shared persisted state)
-	const settings = $derived(bridgeSettingsState.current ?? defaultBridgeSettings)
+	const settings = $derived(
+		bridgeSettingsState.current ?? defaultBridgeSettings,
+	)
 	const sortOptions: { id: BridgeSettings['sortBy']; label: string }[] = [
 		{ id: 'recommended', label: 'Recommended' },
 		{ id: 'output', label: 'Best output' },
@@ -87,7 +137,9 @@
 	// Timer for quote expiry
 	let now = $state(Date.now())
 	$effect(() => {
-		const id = setInterval(() => { now = Date.now() }, 1000)
+		const id = setInterval(() => {
+			now = Date.now()
+		}, 1000)
 		return () => clearInterval(id)
 	})
 
@@ -97,91 +149,150 @@
 		if (list.length === 0) return
 		const id = setInterval(() => {
 			for (const tx of list) {
-				getTxReceiptStatus(tx.fromChainId, tx.$id.sourceTxHash).then((status) => {
-					if (status === 'failed') updateTransaction(tx.$id, { status: 'failed' })
-				}).catch(() => {})
+				getTxReceiptStatus(tx.fromChainId, tx.$id.sourceTxHash)
+					.then((status) => {
+						if (status === 'failed')
+							updateTransaction(tx.$id, { status: 'failed' })
+					})
+					.catch(() => {})
 			}
 		}, 5000)
 		return () => clearInterval(id)
 	})
 
 	// Networks (derived from settings)
-	const filteredNetworks = $derived(networks.filter((n) => settings.isTestnet ? n.type === NetworkType.Testnet : n.type === NetworkType.Mainnet))
-	const fromNetwork = $derived(settings.fromChainId !== null ? networksByChainId[settings.fromChainId] : null)
-	const toNetwork = $derived(settings.toChainId !== null ? networksByChainId[settings.toChainId] : null)
+	const filteredNetworks = $derived(
+		networks.filter((n) =>
+			settings.isTestnet
+				? n.type === NetworkType.Testnet
+				: n.type === NetworkType.Mainnet,
+		),
+	)
+	const fromNetwork = $derived(
+		settings.fromChainId !== null
+			? networksByChainId[settings.fromChainId]
+			: null,
+	)
+	const toNetwork = $derived(
+		settings.toChainId !== null ? networksByChainId[settings.toChainId] : null,
+	)
 
 	// Initialize networks when switching testnet/mainnet
 	$effect(() => {
 		if (filteredNetworks.length === 0) return
-		if (settings.fromChainId !== null && filteredNetworks.some((n) => n.id === settings.fromChainId)) return
-		const defaultFrom = settings.isTestnet ? ChainId.EthereumSepolia : ChainId.Ethereum
+		if (
+			settings.fromChainId !== null &&
+			filteredNetworks.some((n) => n.id === settings.fromChainId)
+		)
+			return
+		const defaultFrom = settings.isTestnet
+			? ChainId.EthereumSepolia
+			: ChainId.Ethereum
 		const defaultTo = settings.isTestnet ? ChainId.ArcTestnet : ChainId.Optimism
 		bridgeSettingsState.current = {
 			...settings,
-			fromChainId: filteredNetworks.find((n) => n.id === defaultFrom)?.id ?? filteredNetworks[0]?.id ?? null,
-			toChainId: filteredNetworks.find((n) => n.id === defaultTo)?.id ?? filteredNetworks[1]?.id ?? null,
+			fromChainId:
+				filteredNetworks.find((n) => n.id === defaultFrom)?.id ??
+				filteredNetworks[0]?.id ??
+				null,
+			toChainId:
+				filteredNetworks.find((n) => n.id === defaultTo)?.id ??
+				filteredNetworks[1]?.id ??
+				null,
 		}
 	})
 
 	// Placeholder address for quotes when wallet not connected (vitalik.eth)
-	const PLACEHOLDER_ADDRESS: `0x${string}` = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
+	const PLACEHOLDER_ADDRESS: `0x${string}` =
+		'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 	const quoteAddress = $derived(selectedActor ?? PLACEHOLDER_ADDRESS)
 
 	// Quote params (use placeholder when disconnected)
 	const quoteParams = $derived<BridgeRoutes$id | null>(
 		fromNetwork && toNetwork && settings.amount > 0n
-			? { fromChainId: fromNetwork.id, toChainId: toNetwork.id, amount: settings.amount, fromAddress: quoteAddress, slippage: settings.slippage }
-			: null
+			? {
+					fromChainId: fromNetwork.id,
+					toChainId: toNetwork.id,
+					amount: settings.amount,
+					fromAddress: quoteAddress,
+					slippage: settings.slippage,
+				}
+			: null,
 	)
 
 	// Routes (reactive from query)
 	const routesRow = $derived(
 		quoteParams
-			? routesQuery.data?.find((r) => (
-				r.row.$id.fromChainId === quoteParams.fromChainId &&
-				r.row.$id.toChainId === quoteParams.toChainId &&
-				r.row.$id.amount === quoteParams.amount &&
-				r.row.$id.fromAddress === quoteParams.fromAddress &&
-				r.row.$id.slippage === quoteParams.slippage
-			))?.row ?? null
-			: null
+			? (routesQuery.data?.find(
+					(r) =>
+						r.row.$id.fromChainId === quoteParams.fromChainId &&
+						r.row.$id.toChainId === quoteParams.toChainId &&
+						r.row.$id.amount === quoteParams.amount &&
+						r.row.$id.fromAddress === quoteParams.fromAddress &&
+						r.row.$id.slippage === quoteParams.slippage,
+				)?.row ?? null)
+			: null,
 	)
 	const routes = $derived<BridgeRoute[]>(routesRow?.routes ?? [])
 	const sortedRoutes = $derived(
 		[...routes].sort((a, b) => {
-			if (settings.sortBy === 'output') return b.toAmount > a.toAmount ? 1 : b.toAmount < a.toAmount ? -1 : 0
+			if (settings.sortBy === 'output')
+				return b.toAmount > a.toAmount ? 1 : b.toAmount < a.toAmount ? -1 : 0
 			if (settings.sortBy === 'fees') return a.gasCostUsd - b.gasCostUsd
-			if (settings.sortBy === 'speed') return a.estimatedDurationSeconds - b.estimatedDurationSeconds
+			if (settings.sortBy === 'speed')
+				return a.estimatedDurationSeconds - b.estimatedDurationSeconds
 			return 0
-		})
+		}),
 	)
 
 	// Auto-select first route, or use manually selected
-	$effect(() => { if (sortedRoutes.length > 0 && !selectedRouteId) selectedRouteId = sortedRoutes[0].id })
-	const selectedRoute = $derived(sortedRoutes.find((r) => r.id === selectedRouteId) ?? sortedRoutes[0] ?? null)
+	$effect(() => {
+		if (sortedRoutes.length > 0 && !selectedRouteId)
+			selectedRouteId = sortedRoutes[0].id
+	})
+	const selectedRoute = $derived(
+		sortedRoutes.find((r) => r.id === selectedRouteId) ??
+			sortedRoutes[0] ??
+			null,
+	)
 
 	// Reset selection on params change (approval derives from collection automatically)
-	$effect(() => { void quoteParams; selectedRouteId = null })
+	$effect(() => {
+		void quoteParams
+		selectedRouteId = null
+	})
 
 	// Balances (reactive from query)
 	const balances = $derived(
 		selectedActor
 			? (balancesQuery.data ?? [])
-				.map((r) => r.row)
-				.filter((b) => b.$id.address.toLowerCase() === selectedActor!.toLowerCase())
-			: []
+					.map((r) => r.row)
+					.filter(
+						(b) => b.$id.address.toLowerCase() === selectedActor!.toLowerCase(),
+					)
+			: [],
 	)
 	const sourceBalance = $derived(
 		fromNetwork && selectedActor
-			? balances.find((b) => b.$id.chainId === fromNetwork.id && b.$id.tokenAddress.toLowerCase() === getUsdcAddress(fromNetwork.id).toLowerCase())?.balance ?? null
-			: null
+			? (balances.find(
+					(b) =>
+						b.$id.chainId === fromNetwork.id &&
+						b.$id.tokenAddress.toLowerCase() ===
+							getUsdcAddress(fromNetwork.id).toLowerCase(),
+				)?.balance ?? null)
+			: null,
 	)
 
 	// Fetch routes on params change (debounced, depends on isTestnet via quoteParams)
-	const fetchRoutes = debounce(() => { if (quoteParams) fetchBridgeRoutes(quoteParams).catch(() => {}) }, 300)
+	const fetchRoutes = debounce(() => {
+		if (quoteParams) fetchBridgeRoutes(quoteParams).catch(() => {})
+	}, 300)
 	$effect(() => {
 		void settings.isTestnet
-		if (quoteParams) { fetchRoutes(); return () => fetchRoutes.cancel() }
+		if (quoteParams) {
+			fetchRoutes()
+			return () => fetchRoutes.cancel()
+		}
 	})
 
 	// Auto-refresh every 10s (depends on isTestnet via quoteParams)
@@ -189,43 +300,80 @@
 	$effect(() => {
 		void settings.isTestnet
 		if (!quoteParams) return
-		const id = setInterval(() => fetchBridgeRoutes(quoteParams).catch(() => {}), QUOTE_REFRESH_MS)
+		const id = setInterval(
+			() => fetchBridgeRoutes(quoteParams).catch(() => {}),
+			QUOTE_REFRESH_MS,
+		)
 		return () => clearInterval(id)
 	})
 
 	// Quote expiry (60s validity for UI display)
 	const QUOTE_TTL = 60_000
-	const quoteExpiry = $derived(routesRow?.fetchedAt ? routesRow.fetchedAt + QUOTE_TTL : null)
-	const quoteRemaining = $derived(quoteExpiry ? Math.max(0, Math.ceil((quoteExpiry - now) / 1000)) : null)
+	const quoteExpiry = $derived(
+		routesRow?.fetchedAt ? routesRow.fetchedAt + QUOTE_TTL : null,
+	)
+	const quoteRemaining = $derived(
+		quoteExpiry ? Math.max(0, Math.ceil((quoteExpiry - now) / 1000)) : null,
+	)
 	const quoteExpired = $derived(quoteRemaining !== null && quoteRemaining <= 0)
 
-	const validation = $derived(validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT))
-	const exceedsBalance = $derived(sourceBalance !== null && settings.amount > sourceBalance)
-	const canSendAmount = $derived(validation.isValid && !exceedsBalance && !invalidAmountInput)
+	const validation = $derived(
+		validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT),
+	)
+	const exceedsBalance = $derived(
+		sourceBalance !== null && settings.amount > sourceBalance,
+	)
+	const canSendAmount = $derived(
+		validation.isValid && !exceedsBalance && !invalidAmountInput,
+	)
 
-	const approvalAddress = $derived(selectedRoute?.originalRoute?.steps?.[0]?.estimate?.approvalAddress as `0x${string}` | undefined)
-	const needsApproval = $derived(Boolean(approvalAddress?.startsWith('0x') && approvalAddress.length === 42))
+	const approvalAddress = $derived(
+		selectedRoute?.originalRoute?.steps?.[0]?.estimate?.approvalAddress as
+			| `0x${string}`
+			| undefined,
+	)
+	const needsApproval = $derived(
+		Boolean(approvalAddress?.startsWith('0x') && approvalAddress.length === 42),
+	)
 
 	// Derive approval state from allowances collection
 	const currentAllowance = $derived(
 		selectedActor && fromNetwork && approvalAddress
-			? (allowancesQuery.data?.find((r) => (
-				r.row.$id.chainId === fromNetwork.id &&
-				r.row.$id.address.toLowerCase() === selectedActor!.toLowerCase() &&
-				r.row.$id.tokenAddress.toLowerCase() === getUsdcAddress(fromNetwork.id).toLowerCase() &&
-				r.row.$id.spenderAddress.toLowerCase() === approvalAddress.toLowerCase()
-			))?.row.allowance ?? 0n)
-			: 0n
+			? (allowancesQuery.data?.find(
+					(r) =>
+						r.row.$id.chainId === fromNetwork.id &&
+						r.row.$id.address.toLowerCase() === selectedActor!.toLowerCase() &&
+						r.row.$id.tokenAddress.toLowerCase() ===
+							getUsdcAddress(fromNetwork.id).toLowerCase() &&
+						r.row.$id.spenderAddress.toLowerCase() ===
+							approvalAddress.toLowerCase(),
+				)?.row.allowance ?? 0n)
+			: 0n,
 	)
 	const approved = $derived(currentAllowance >= settings.amount)
 
 	const canSend = $derived(!needsApproval || approved)
 
-	const recipient = $derived<`0x${string}`>(settings.useCustomRecipient && isValidAddress(settings.customRecipient) ? normalizeAddress(settings.customRecipient)! : selectedActor ?? '0x0000000000000000000000000000000000000000')
+	const recipient = $derived<`0x${string}`>(
+		settings.useCustomRecipient && isValidAddress(settings.customRecipient)
+			? normalizeAddress(settings.customRecipient)!
+			: (selectedActor ?? '0x0000000000000000000000000000000000000000'),
+	)
 	const output = $derived(selectedRoute?.toAmount ?? 0n)
 	const minOutput = $derived(calculateMinOutput(output, settings.slippage))
-	const fees = $derived(selectedRoute ? extractFeeBreakdown({ steps: selectedRoute.originalRoute.steps, fromAmountUSD: selectedRoute.originalRoute.fromAmountUSD }) : null)
-	const fromAmountUsd = $derived(selectedRoute ? parseFloat(selectedRoute.originalRoute.fromAmountUSD ?? '0') : 0)
+	const fees = $derived(
+		selectedRoute
+			? extractFeeBreakdown({
+					steps: selectedRoute.originalRoute.steps,
+					fromAmountUSD: selectedRoute.originalRoute.fromAmountUSD,
+				})
+			: null,
+	)
+	const fromAmountUsd = $derived(
+		selectedRoute
+			? parseFloat(selectedRoute.originalRoute.fromAmountUSD ?? '0')
+			: 0,
+	)
 	const warnDifferentRecipient = $derived(settings.useCustomRecipient)
 	const warnHighSlippage = $derived(settings.slippage > 0.01)
 	const warnLargeAmount = $derived(fromAmountUsd > 10_000)
@@ -233,39 +381,48 @@
 	const transactions = $derived(
 		(txQuery.data ?? [])
 			.map((r) => r.row)
-			.filter((tx) => tx.$id.address.toLowerCase() === selectedActor?.toLowerCase())
+			.filter(
+				(tx) => tx.$id.address.toLowerCase() === selectedActor?.toLowerCase(),
+			)
 			.slice(0, 50),
 	)
 
 	// Handlers
 	const onAmountInput = (e: Event) => {
-		const v = (e.target as HTMLInputElement).value.replace(/[^0-9.,]/g, '').replace(/,/g, '')
+		const v = (e.target as HTMLInputElement).value
+			.replace(/[^0-9.,]/g, '')
+			.replace(/,/g, '')
 		if (v === '') {
 			invalidAmountInput = false
 			bridgeSettingsState.current = { ...settings, amount: 0n }
 		} else if (isValidDecimalInput(v, 6)) {
 			invalidAmountInput = false
-			bridgeSettingsState.current = { ...settings, amount: parseDecimalToSmallest(v, 6) }
+			bridgeSettingsState.current = {
+				...settings,
+				amount: parseDecimalToSmallest(v, 6),
+			}
 		} else {
 			invalidAmountInput = true
 		}
 	}
 
-	const onRefresh = () => { if (quoteParams) fetchBridgeRoutes(quoteParams).catch(() => {}) }
+	const onRefresh = () => {
+		if (quoteParams) fetchBridgeRoutes(quoteParams).catch(() => {})
+	}
 </script>
 
-
-<div
-	data-bridge-layout
->
+<div data-bridge-layout>
 	<div aria-live="polite" aria-atomic="true" class="sr-only">
 		{#if executionStatus.overall === 'in_progress'}
-			{@const currentStep = executionStatus.steps.find((s) => s.state === 'pending') ?? executionStatus.steps[executionStatus.steps.length - 1]}
+			{@const currentStep =
+				executionStatus.steps.find((s) => s.state === 'pending') ??
+				executionStatus.steps[executionStatus.steps.length - 1]}
 			Transaction in progress. {currentStep?.step ?? 'Sending'}
 		{:else if executionStatus.overall === 'completed'}
 			Bridge complete. Tokens sent successfully.
 		{:else if executionStatus.overall === 'failed'}
-			Transaction failed. {executionStatus.steps.find((s) => s.error)?.error ?? 'Unknown error'}
+			Transaction failed. {executionStatus.steps.find((s) => s.error)?.error ??
+				'Unknown error'}
 		{/if}
 	</div>
 	<!-- Left column: Form -->
@@ -281,7 +438,10 @@
 					value={settings.fromChainId?.toString() ?? ''}
 					onValueChange={(v) => {
 						if (!v) return
-						bridgeSettingsState.current = { ...settings, fromChainId: Number(v) }
+						bridgeSettingsState.current = {
+							...settings,
+							fromChainId: Number(v),
+						}
 					}}
 					getItemId={(network) => String(network.id)}
 					getItemLabel={(network) => network.name}
@@ -309,11 +469,18 @@
 		</div>
 
 		{#if settings.fromChainId !== null}
-			{@const fromChainStatus = networkStatus.getChainStatus(settings.fromChainId)}
+			{@const fromChainStatus = networkStatus.getChainStatus(
+				settings.fromChainId,
+			)}
 			{#if fromChainStatus?.status === 'degraded'}
-				<p data-chain-warning>⚠️ {fromNetwork?.name ?? `Chain ${settings.fromChainId}`} is experiencing delays</p>
+				<p data-chain-warning>
+					⚠️ {fromNetwork?.name ?? `Chain ${settings.fromChainId}`} is experiencing
+					delays
+				</p>
 			{:else if fromChainStatus?.status === 'down'}
-				<p data-chain-error>⛔ {fromNetwork?.name ?? `Chain ${settings.fromChainId}`} is currently unavailable</p>
+				<p data-chain-error>
+					⛔ {fromNetwork?.name ?? `Chain ${settings.fromChainId}`} is currently unavailable
+				</p>
 			{/if}
 		{/if}
 
@@ -326,19 +493,38 @@
 					type="text"
 					inputmode="decimal"
 					placeholder="0.00"
-					value={settings.amount === 0n ? '' : formatSmallestToDecimal(settings.amount, 6)}
+					value={settings.amount === 0n
+						? ''
+						: formatSmallestToDecimal(settings.amount, 6)}
 					oninput={onAmountInput}
 					style="flex:1"
-					aria-describedby={invalidAmountInput || exceedsBalance || validation.error ? 'amt-hint amt-error' : 'amt-hint'}
-					aria-invalid={invalidAmountInput || validation.error ? 'true' : undefined}
+					aria-describedby={invalidAmountInput ||
+					exceedsBalance ||
+					validation.error
+						? 'amt-hint amt-error'
+						: 'amt-hint'}
+					aria-invalid={invalidAmountInput || validation.error
+						? 'true'
+						: undefined}
 				/>
-				{#if sourceBalance !== null}<Button.Root type="button" onclick={() => { bridgeSettingsState.current = { ...settings, amount: sourceBalance } }}>Max</Button.Root>{/if}
+				{#if sourceBalance !== null}<Button.Root
+						type="button"
+						onclick={() => {
+							bridgeSettingsState.current = {
+								...settings,
+								amount: sourceBalance,
+							}
+						}}>Max</Button.Root
+					>{/if}
 			</div>
 			<p id="amt-hint" class="sr-only">Enter the amount of USDC to bridge</p>
-			{#if sourceBalance !== null}<small data-muted>Balance: {formatSmallestToDecimal(sourceBalance, 6, 4)} USDC</small>{/if}
+			{#if sourceBalance !== null}<small data-muted
+					>Balance: {formatSmallestToDecimal(sourceBalance, 6, 4)} USDC</small
+				>{/if}
 			{#if invalidAmountInput || exceedsBalance || validation.error}
 				<p id="amt-error" role="alert" data-error>
-					{#if invalidAmountInput}Invalid amount (use numbers and up to 6 decimals)
+					{#if invalidAmountInput}Invalid amount (use numbers and up to 6
+						decimals)
 					{:else if exceedsBalance}Insufficient balance
 					{:else if validation.error === 'too_low'}Min {validation.minAmount} USDC
 					{:else if validation.error === 'too_high'}Max {validation.maxAmount} USDC
@@ -350,19 +536,35 @@
 		<!-- Recipient -->
 		<div data-column="gap-1">
 			<label data-row="gap-2 align-center">
-				<Switch.Root checked={settings.useCustomRecipient} onCheckedChange={(c) => { bridgeSettingsState.current = { ...settings, useCustomRecipient: c } }}><Switch.Thumb /></Switch.Root>
+				<Switch.Root
+					checked={settings.useCustomRecipient}
+					onCheckedChange={(c) => {
+						bridgeSettingsState.current = { ...settings, useCustomRecipient: c }
+					}}><Switch.Thumb /></Switch.Root
+				>
 				Different recipient
 			</label>
 			{#if settings.useCustomRecipient}
-				<input type="text" placeholder="0x..." value={settings.customRecipient} oninput={(e) => { bridgeSettingsState.current = { ...settings, customRecipient: (e.target as HTMLInputElement).value } }} />
-				{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}<small data-error>Invalid address</small>{/if}
+				<input
+					type="text"
+					placeholder="0x..."
+					value={settings.customRecipient}
+					oninput={(e) => {
+						bridgeSettingsState.current = {
+							...settings,
+							customRecipient: (e.target as HTMLInputElement).value,
+						}
+					}}
+				/>
+				{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}<small
+						data-error>Invalid address</small
+					>{/if}
 			{:else if selectedActor}
 				<small data-muted>To: {formatAddress(selectedActor)}</small>
 			{:else}
 				<small data-muted>To: Connect wallet</small>
 			{/if}
 		</div>
-
 	</section>
 
 	<!-- Right column: Routes & Output -->
@@ -376,10 +578,16 @@
 				data-card
 				data-error
 				data-error-display
-				data-no-routes={routesRow.error.code === ErrorCode.NO_ROUTES ? '' : undefined}
+				data-no-routes={routesRow.error.code === ErrorCode.NO_ROUTES
+					? ''
+					: undefined}
 				data-column="gap-2"
 			>
-				<span>{routesRow.error.code === ErrorCode.NO_ROUTES ? 'No routes available for this transfer.' : routesRow.error.message}</span>
+				<span
+					>{routesRow.error.code === ErrorCode.NO_ROUTES
+						? 'No routes available for this transfer.'
+						: routesRow.error.message}</span
+				>
 				{#if routesRow.error.code === ErrorCode.NO_ROUTES}
 					<ul data-no-routes-guidance>
 						<li>Try a different amount (min ~1 USDC, max varies by route)</li>
@@ -392,7 +600,13 @@
 					<Button.Root
 						data-dismiss
 						onclick={() => {
-							if (quoteParams) bridgeRoutesCollection.update(stringify(quoteParams), (draft) => { draft.error = null })
+							if (quoteParams)
+								bridgeRoutesCollection.update(
+									stringify(quoteParams),
+									(draft) => {
+										draft.error = null
+									},
+								)
 						}}
 					>
 						Dismiss
@@ -409,7 +623,11 @@
 				{/snippet}
 
 				<div data-row="gap-2 align-center justify-between">
-					<h3>Routes {routesRow?.isLoading ? '(loading…)' : `(${sortedRoutes.length})`}</h3>
+					<h3>
+						Routes {routesRow?.isLoading
+							? '(loading…)'
+							: `(${sortedRoutes.length})`}
+					</h3>
 					<Select
 						items={sortOptions}
 						value={settings.sortBy}
@@ -433,7 +651,9 @@
 								Min: {formatSmallestToDecimal(limits.minAmount, 6)} USDC
 							{/if}
 							{#if limits.maxAmount !== null}
-								{#if limits.minAmount !== null} · {/if}Max: {formatSmallestToDecimal(limits.maxAmount, 6)} USDC
+								{#if limits.minAmount !== null}
+									·
+								{/if}Max: {formatSmallestToDecimal(limits.maxAmount, 6)} USDC
 							{/if}
 						</p>
 					{/if}
@@ -444,14 +664,20 @@
 							type="button"
 							data-route-card
 							data-selected={r.id === selectedRouteId ? '' : undefined}
-							onclick={() => { selectedRouteId = r.id }}
+							onclick={() => {
+								selectedRouteId = r.id
+							}}
 						>
 							<div data-row="gap-2 align-center justify-between">
 								<strong>{formatTokenAmount(r.toAmount, 6)} USDC</strong>
 								<span data-muted>${r.gasCostUsd.toFixed(2)} fees</span>
 							</div>
 							<div data-row="gap-2" data-muted>
-								<span>{[...new Set(r.steps.map((st) => st.toolName))].join(' → ')}</span>
+								<span
+									>{[...new Set(r.steps.map((st) => st.toolName))].join(
+										' → ',
+									)}</span
+								>
 								<span>~{Math.ceil(r.estimatedDurationSeconds / 60)}m</span>
 							</div>
 						</button>
@@ -471,31 +697,58 @@
 						{:else if quoteRemaining !== null}
 							{quoteExpired ? 'Expired' : `${quoteRemaining}s`}
 						{/if}
-						<Button.Root onclick={onRefresh} disabled={routesRow?.isLoading}>↻</Button.Root>
+						<Button.Root onclick={onRefresh} disabled={routesRow?.isLoading}
+							>↻</Button.Root
+						>
 					</div>
 				</div>
 
 				<!-- Slippage -->
 				<Popover.Root>
-					<Popover.Trigger data-row="gap-1">Slippage: <strong>{formatSlippagePercent(settings.slippage)}</strong></Popover.Trigger>
+					<Popover.Trigger data-row="gap-1"
+						>Slippage: <strong
+							>{formatSlippagePercent(settings.slippage)}</strong
+						></Popover.Trigger
+					>
 					<Popover.Content data-column="gap-2">
 						<div data-row="gap-1">
-						{#each SLIPPAGE_PRESETS as p (p)}
-								<Button.Root onclick={() => { bridgeSettingsState.current = { ...settings, slippage: p } }} data-selected={settings.slippage === p ? '' : undefined}>{formatSlippagePercent(p)}</Button.Root>
+							{#each SLIPPAGE_PRESETS as p (p)}
+								<Button.Root
+									onclick={() => {
+										bridgeSettingsState.current = { ...settings, slippage: p }
+									}}
+									data-selected={settings.slippage === p ? '' : undefined}
+									>{formatSlippagePercent(p)}</Button.Root
+								>
 							{/each}
 						</div>
-						<input placeholder="Custom %" bind:value={slippageInput} onchange={() => { const p = parseSlippagePercent(slippageInput); if (p) bridgeSettingsState.current = { ...settings, slippage: p } }} />
+						<input
+							placeholder="Custom %"
+							bind:value={slippageInput}
+							onchange={() => {
+								const p = parseSlippagePercent(slippageInput)
+								if (p)
+									bridgeSettingsState.current = { ...settings, slippage: p }
+							}}
+						/>
 					</Popover.Content>
 				</Popover.Root>
 
 				{#snippet bridgeSummary()}
 					<dl data-summary>
-						<dt>You send</dt><dd>{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}</dd>
-						<dt>You receive</dt><dd>~{formatTokenAmount(output, 6)} USDC on {toNetwork.name}</dd>
-						<dt>Min received</dt><dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
-						<dt>Recipient</dt><dd>{formatAddress(recipient)}</dd>
+						<dt>You send</dt>
+						<dd>
+							{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
+						</dd>
+						<dt>You receive</dt>
+						<dd>~{formatTokenAmount(output, 6)} USDC on {toNetwork.name}</dd>
+						<dt>Min received</dt>
+						<dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
+						<dt>Recipient</dt>
+						<dd>{formatAddress(recipient)}</dd>
 						{#if fees}
-							<dt>Est. fees</dt><dd>~${fees.totalUsd}</dd>
+							<dt>Est. fees</dt>
+							<dd>~${fees.totalUsd}</dd>
 						{/if}
 					</dl>
 				{/snippet}
@@ -522,30 +775,58 @@
 							toChainId={toNetwork.id}
 							amount={settings.amount}
 							bind:executing
-							onStatus={(s) => { executionStatus = s }}
+							onStatus={(s) => {
+								executionStatus = s
+							}}
 						/>
 					{/if}
 				{/snippet}
 
 				{#snippet bridgeConfirmation(_tx: unknown, _state: unknown)}
 					<dl data-summary>
-						<dt>From</dt><dd>{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}</dd>
-						<dt>To</dt><dd>~{formatTokenAmount(selectedRoute.toAmount, 6)} USDC on {toNetwork.name}</dd>
-						<dt>Min received</dt><dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
-						<dt>Recipient</dt><dd>
-							<span>{formatAddress(recipient)}</span>
-							{#if warnDifferentRecipient}<span data-badge data-warning>Different recipient</span>{/if}
+						<dt>From</dt>
+						<dd>
+							{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
 						</dd>
-						<dt>Protocol</dt><dd>{[...new Set(selectedRoute.steps.map((st) => st.toolName))].join(' → ')}</dd>
-						<dt>Est. time</dt><dd>~{Math.ceil(selectedRoute.estimatedDurationSeconds / 60)} min</dd>
-						<dt>Slippage</dt><dd>{formatSlippagePercent(settings.slippage)}</dd>
-						{#if fees}<dt>Fees</dt><dd>~${fees.totalUsd}</dd>{/if}
+						<dt>To</dt>
+						<dd>
+							~{formatTokenAmount(selectedRoute.toAmount, 6)} USDC on {toNetwork.name}
+						</dd>
+						<dt>Min received</dt>
+						<dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
+						<dt>Recipient</dt>
+						<dd>
+							<span>{formatAddress(recipient)}</span>
+							{#if warnDifferentRecipient}<span data-badge data-warning
+									>Different recipient</span
+								>{/if}
+						</dd>
+						<dt>Protocol</dt>
+						<dd>
+							{[...new Set(selectedRoute.steps.map((st) => st.toolName))].join(
+								' → ',
+							)}
+						</dd>
+						<dt>Est. time</dt>
+						<dd>
+							~{Math.ceil(selectedRoute.estimatedDurationSeconds / 60)} min
+						</dd>
+						<dt>Slippage</dt>
+						<dd>{formatSlippagePercent(settings.slippage)}</dd>
+						{#if fees}<dt>Fees</dt>
+							<dd>~${fees.totalUsd}</dd>{/if}
 					</dl>
 					{#if warnDifferentRecipient || warnHighSlippage || warnLargeAmount}
 						<div data-warnings data-column="gap-1">
-							{#if warnDifferentRecipient}<p data-warning>Recipient is not your connected wallet.</p>{/if}
-							{#if warnHighSlippage}<p data-warning>High slippage ({formatSlippagePercent(settings.slippage)}).</p>{/if}
-							{#if warnLargeAmount}<p data-warning>Large amount (${fromAmountUsd.toLocaleString()} USD).</p>{/if}
+							{#if warnDifferentRecipient}<p data-warning>
+									Recipient is not your connected wallet.
+								</p>{/if}
+							{#if warnHighSlippage}<p data-warning>
+									High slippage ({formatSlippagePercent(settings.slippage)}).
+								</p>{/if}
+							{#if warnLargeAmount}<p data-warning>
+									Large amount (${fromAmountUsd.toLocaleString()} USD).
+								</p>{/if}
 						</div>
 					{/if}
 				{/snippet}
@@ -559,10 +840,19 @@
 							chainId: fromNetwork.id,
 							title: 'Bridge',
 							actionLabel: executing ? 'Bridging…' : 'Send',
-							canExecute: Boolean(selectedWallet && selectedActor && canSend && canSendAmount && !quoteExpired) && !executing,
-							execute: (_args) => (executionRef ? executionRef.execute() : Promise.resolve()),
+							canExecute:
+								Boolean(
+									selectedWallet &&
+									selectedActor &&
+									canSend &&
+									canSendAmount &&
+									!quoteExpired,
+								) && !executing,
+							execute: (_args) =>
+								executionRef ? executionRef.execute() : Promise.resolve(),
 							requiresConfirmation: true,
-							confirmationLabel: 'I understand this transaction is irreversible',
+							confirmationLabel:
+								'I understand this transaction is irreversible',
 							Details: bridgeDetails,
 							Confirmation: bridgeConfirmation,
 						},
@@ -579,16 +869,34 @@
 					<div data-column="gap-1">
 						{#each transactions as tx (stringify(tx.$id))}
 							<div data-row="gap-2 align-center" data-tx-row>
-								<span data-muted>{formatRelativeTime(now - tx.$id.createdAt)}</span>
-								<span>{networksByChainId[tx.fromChainId]?.name} → {networksByChainId[tx.toChainId]?.name}</span>
-								<span data-tabular>{formatSmallestToDecimal(tx.fromAmount, 6)} USDC</span>
+								<span data-muted
+									>{formatRelativeTime(now - tx.$id.createdAt)}</span
+								>
+								<span
+									>{networksByChainId[tx.fromChainId]?.name} → {networksByChainId[
+										tx.toChainId
+									]?.name}</span
+								>
+								<span data-tabular
+									>{formatSmallestToDecimal(tx.fromAmount, 6)} USDC</span
+								>
 								<span data-tag={tx.status} data-row="gap-1 align-center">
 									{#if tx.status === 'pending'}<Spinner size="0.75em" />{/if}
 									{tx.status}
 								</span>
-								<a href={resolve(getTxUrl(tx.fromChainId, tx.$id.sourceTxHash))} target="_blank" rel="noopener noreferrer" aria-label="Source tx">↗</a>
+								<a
+									href={resolve(getTxUrl(tx.fromChainId, tx.$id.sourceTxHash))}
+									target="_blank"
+									rel="noopener noreferrer"
+									aria-label="Source tx">↗</a
+								>
 								{#if tx.destTxHash}
-									<a href={resolve(getTxUrl(tx.toChainId, tx.destTxHash))} target="_blank" rel="noopener noreferrer" aria-label="Dest tx">↗</a>
+									<a
+										href={resolve(getTxUrl(tx.toChainId, tx.destTxHash))}
+										target="_blank"
+										rel="noopener noreferrer"
+										aria-label="Dest tx">↗</a
+									>
 								{/if}
 							</div>
 						{/each}
@@ -659,17 +967,17 @@
 		border-radius: 0.25em;
 	}
 
-	[data-tag="completed"] {
+	[data-tag='completed'] {
 		background: #dcfce7;
 		color: #22c55e;
 	}
 
-	[data-tag="failed"] {
+	[data-tag='failed'] {
 		background: #fee2e2;
 		color: #ef4444;
 	}
 
-	[data-tag="pending"] {
+	[data-tag='pending'] {
 		background: #fef3c7;
 		color: #f59e0b;
 	}

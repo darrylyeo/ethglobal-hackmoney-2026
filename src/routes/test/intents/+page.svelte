@@ -2,7 +2,10 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { IntentDragPayload } from '$/lib/intents/types'
-	import type { IntentRouteStep, IntentBridgeRouteOption } from '$/lib/intents/routes'
+	import type {
+		IntentRouteStep,
+		IntentBridgeRouteOption,
+	} from '$/lib/intents/routes'
 	import type { Transaction$id } from '$/collections/transactions'
 	import { ENTITY_TYPE } from '$/constants/entity-types'
 	import { networksByChainId } from '$/constants/networks'
@@ -15,7 +18,11 @@
 	import { resolveIntent } from '$/lib/intents/resolve-intent'
 	import { buildIntentRoutes } from '$/lib/intents/routes'
 	import { getIntentDragPayload } from '$/lib/intents/drag'
-	import { formatSmallestToDecimal, isValidDecimalInput, parseDecimalToSmallest } from '$/lib/format'
+	import {
+		formatSmallestToDecimal,
+		isValidDecimalInput,
+		parseDecimalToSmallest,
+	} from '$/lib/format'
 	import { executeSwap } from '$/api/uniswap'
 	import { executeSelectedRoute } from '$/api/lifi'
 	import { sendTransfer } from '$/api/yellow'
@@ -25,7 +32,10 @@
 	import { actorCoinsCollection } from '$/collections/actor-coins'
 	import { bridgeRoutesCollection } from '$/collections/bridge-routes'
 	import { swapQuotesCollection } from '$/collections/swap-quotes'
-	import { insertTransaction, updateTransaction } from '$/collections/transactions'
+	import {
+		insertTransaction,
+		updateTransaction,
+	} from '$/collections/transactions'
 	import { yellowState } from '$/state/yellow.svelte'
 
 	// Components
@@ -65,78 +75,105 @@
 	}
 
 	// State
-	const balancesQuery = useLiveQuery((q) => q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })))
-	const swapQuotesQuery = useLiveQuery((q) => q.from({ row: swapQuotesCollection }).select(({ row }) => ({ row })))
-	const bridgeRoutesQuery = useLiveQuery((q) => q.from({ row: bridgeRoutesCollection }).select(({ row }) => ({ row })))
+	const balancesQuery = useLiveQuery((q) =>
+		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
+	)
+	const swapQuotesQuery = useLiveQuery((q) =>
+		q.from({ row: swapQuotesCollection }).select(({ row }) => ({ row })),
+	)
+	const bridgeRoutesQuery = useLiveQuery((q) =>
+		q.from({ row: bridgeRoutesCollection }).select(({ row }) => ({ row })),
+	)
 
 	// (Derived)
 	const actorCoins = $derived((balancesQuery.data ?? []).map((r) => r.row))
 	const swapQuotes = $derived((swapQuotesQuery.data ?? []).map((r) => r.row))
 	const bridgeRouteOptions = $derived<IntentBridgeRouteOption[]>(
-		(bridgeRoutesQuery.data ?? [])
-			.flatMap((entry) => (
-				entry.row.routes.map((route) => ({
-					rowId: entry.row.$id,
-					route,
-				}))
-			))
+		(bridgeRoutesQuery.data ?? []).flatMap((entry) =>
+			entry.row.routes.map((route) => ({
+				rowId: entry.row.$id,
+				route,
+			})),
+		),
 	)
 
-	const selectedWallet = $derived(connectedWallets.find((w) => w.connection.selected) ?? null)
+	const selectedWallet = $derived(
+		connectedWallets.find((w) => w.connection.selected) ?? null,
+	)
 	const walletRow = $derived(
 		selectedWallet &&
-		selectedWallet.connection.transport === WalletConnectionTransport.Eip1193 &&
-		'provider' in selectedWallet.wallet
+			selectedWallet.connection.transport ===
+				WalletConnectionTransport.Eip1193 &&
+			'provider' in selectedWallet.wallet
 			? selectedWallet.wallet
-			: null
+			: null,
 	)
 
 	const fromRef = $derived(fromPayload?.entity ?? null)
 	const toRef = $derived(toPayload?.entity ?? null)
 
 	const resolution = $derived(
-		fromRef && toRef
-			? resolveIntent(fromRef, toRef)
-			: null
+		fromRef && toRef ? resolveIntent(fromRef, toRef) : null,
 	)
 	const routes = $derived(
 		resolution
-			? buildIntentRoutes(resolution, { swapQuotes, bridgeRoutes: bridgeRouteOptions })
-			: []
+			? buildIntentRoutes(resolution, {
+					swapQuotes,
+					bridgeRoutes: bridgeRouteOptions,
+				})
+			: [],
 	)
 	const selectedRoute = $derived(
-		routes.find((route) => route.id === selectedRouteId) ?? routes[0] ?? null
+		routes.find((route) => route.id === selectedRouteId) ?? routes[0] ?? null,
 	)
 	const isTransferOnly = $derived(
-		selectedRoute?.steps.length === 1 && selectedRoute.steps[0]?.type === 'transfer'
+		selectedRoute?.steps.length === 1 &&
+			selectedRoute.steps[0]?.type === 'transfer',
 	)
 	const activeTransferStep = $derived(
-		selectedRoute?.steps.find((step) => step.type === 'transfer') ?? null
+		selectedRoute?.steps.find((step) => step.type === 'transfer') ?? null,
 	)
 	const transferCoin = $derived(
 		activeTransferStep
-			? actorCoins.find((row) => (
-				row.$id.chainId === activeTransferStep.chainId &&
-				row.$id.address.toLowerCase() === activeTransferStep.fromActor.toLowerCase() &&
-				row.$id.tokenAddress.toLowerCase() === activeTransferStep.tokenAddress.toLowerCase()
-			)) ?? null
-			: null
+			? (actorCoins.find(
+					(row) =>
+						row.$id.chainId === activeTransferStep.chainId &&
+						row.$id.address.toLowerCase() ===
+							activeTransferStep.fromActor.toLowerCase() &&
+						row.$id.tokenAddress.toLowerCase() ===
+							activeTransferStep.tokenAddress.toLowerCase(),
+				) ?? null)
+			: null,
 	)
-	const transferDecimals = $derived(
-		transferCoin?.decimals ?? 6
-	)
+	const transferDecimals = $derived(transferCoin?.decimals ?? 6)
 	const transferAmount = $derived(
-		transferAmountInput && isValidDecimalInput(transferAmountInput, transferDecimals)
+		transferAmountInput &&
+			isValidDecimalInput(transferAmountInput, transferDecimals)
 			? parseDecimalToSmallest(transferAmountInput, transferDecimals)
-			: 0n
+			: 0n,
 	)
-	const transferTokenSymbol = $derived(
-		transferCoin?.symbol ?? 'USDC'
-	)
+	const transferTokenSymbol = $derived(transferCoin?.symbol ?? 'USDC')
 
 	const executeSwapStep = async (
 		step: Extract<IntentRouteStep, { type: 'swap' }>,
-		{ provider, walletAddress, onStatus }: { provider: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> }; walletAddress: `0x${string}`; onStatus: (u: { status: 'signing' | 'executing' | 'confirming' | 'completed' | 'failed'; error?: string; txHash?: `0x${string}` }) => void },
+		{
+			provider,
+			walletAddress,
+			onStatus,
+		}: {
+			provider: {
+				request: (args: {
+					method: string
+					params?: unknown[]
+				}) => Promise<unknown>
+			}
+			walletAddress: `0x${string}`
+			onStatus: (u: {
+				status: 'signing' | 'executing' | 'confirming' | 'completed' | 'failed'
+				error?: string
+				txHash?: `0x${string}`
+			}) => void
+		},
 	) => {
 		onStatus({ status: 'executing' })
 		const deadline = Math.floor(Date.now() / 1000) + 1200
@@ -146,7 +183,11 @@
 			recipient: walletAddress,
 			deadline,
 		})
-		const txId: Transaction$id = { address: walletAddress, sourceTxHash: result.txHash, createdAt: Date.now() }
+		const txId: Transaction$id = {
+			address: walletAddress,
+			sourceTxHash: result.txHash,
+			createdAt: Date.now(),
+		}
 		insertTransaction({
 			$id: txId,
 			fromChainId: step.quote.chainId,
@@ -162,7 +203,17 @@
 
 	const executeBridgeStep = async (
 		step: Extract<IntentRouteStep, { type: 'bridge' }>,
-		{ walletAddress, onStatus }: { walletAddress: `0x${string}`; onStatus: (u: { status: 'signing' | 'executing' | 'confirming' | 'completed' | 'failed'; error?: string; txHash?: `0x${string}` }) => void },
+		{
+			walletAddress,
+			onStatus,
+		}: {
+			walletAddress: `0x${string}`
+			onStatus: (u: {
+				status: 'signing' | 'executing' | 'confirming' | 'completed' | 'failed'
+				error?: string
+				txHash?: `0x${string}`
+			}) => void
+		},
 	) => {
 		if (!walletRow) throw new Error('Connect a signing wallet to bridge.')
 		if (walletAddress.toLowerCase() !== step.actor.toLowerCase()) {
@@ -186,7 +237,11 @@
 				const hash = status.steps.find((s) => s.txHash)?.txHash
 				if (hash && !txId) {
 					sourceTxHash = hash
-					txId = { address: walletAddress, sourceTxHash: hash, createdAt: Date.now() }
+					txId = {
+						address: walletAddress,
+						sourceTxHash: hash,
+						createdAt: Date.now(),
+					}
 					insertTransaction({
 						$id: txId,
 						fromChainId: step.route.fromChainId,
@@ -199,21 +254,21 @@
 				}
 			},
 		)
-		const processEntries = result.steps.flatMap((s) => (
-			Array.isArray(s.execution?.process)
-				? s.execution?.process
-				: []
-		))
-		const destHash = processEntries
-			.map((entry) => (
-				entry && typeof entry === 'object'
-					? {
-						chainId: typeof entry.chainId === 'number' ? entry.chainId : null,
-						txHash: typeof entry.txHash === 'string' ? entry.txHash : null,
-					}
-					: { chainId: null, txHash: null }
-			))
-			.find((entry) => entry.chainId === step.route.toChainId)?.txHash ?? null
+		const processEntries = result.steps.flatMap((s) =>
+			Array.isArray(s.execution?.process) ? s.execution?.process : [],
+		)
+		const destHash =
+			processEntries
+				.map((entry) =>
+					entry && typeof entry === 'object'
+						? {
+								chainId:
+									typeof entry.chainId === 'number' ? entry.chainId : null,
+								txHash: typeof entry.txHash === 'string' ? entry.txHash : null,
+							}
+						: { chainId: null, txHash: null },
+				)
+				.find((entry) => entry.chainId === step.route.toChainId)?.txHash ?? null
 		if (txId) {
 			updateTransaction(txId, { status: 'completed', destTxHash: destHash })
 		}
@@ -248,7 +303,15 @@
 	}
 	const executeDirectTransferStep = async (
 		step: Extract<IntentRouteStep, { type: 'transfer' }>,
-		args: { provider: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> }; walletAddress: `0x${string}` },
+		args: {
+			provider: {
+				request: (args: {
+					method: string
+					params?: unknown[]
+				}) => Promise<unknown>
+			}
+			walletAddress: `0x${string}`
+		},
 	) => {
 		if (args.walletAddress.toLowerCase() !== step.fromActor.toLowerCase()) {
 			throw new Error('Active wallet address must match the transfer sender.')
@@ -266,7 +329,11 @@
 		if (typeof txHash !== 'string') {
 			throw new Error('Direct transfer did not return a transaction hash.')
 		}
-		const txId: Transaction$id = { address: args.walletAddress, sourceTxHash: txHash, createdAt: Date.now() }
+		const txId: Transaction$id = {
+			address: args.walletAddress,
+			sourceTxHash: txHash,
+			createdAt: Date.now(),
+		}
 		insertTransaction({
 			$id: txId,
 			fromChainId: step.chainId,
@@ -281,15 +348,25 @@
 
 	const toTransaction = (step: IntentRouteStep) => {
 		const chainId = step.type === 'bridge' ? step.fromChainId : step.chainId
-		const title = step.type === 'swap' ? 'Swap' : step.type === 'bridge' ? 'Bridge' : `Transfer (${step.mode})`
-		const actionLabel = step.type === 'swap' ? 'Swap' : step.type === 'bridge' ? 'Bridge' : 'Transfer'
-		const canExecute = step.type === 'transfer'
-			? transferAmount > 0n && (
-				step.mode === 'channel'
-					? Boolean(yellowState.clearnodeConnection)
-					: true
-			)
-			: true
+		const title =
+			step.type === 'swap'
+				? 'Swap'
+				: step.type === 'bridge'
+					? 'Bridge'
+					: `Transfer (${step.mode})`
+		const actionLabel =
+			step.type === 'swap'
+				? 'Swap'
+				: step.type === 'bridge'
+					? 'Bridge'
+					: 'Transfer'
+		const canExecute =
+			step.type === 'transfer'
+				? transferAmount > 0n &&
+					(step.mode === 'channel'
+						? Boolean(yellowState.clearnodeConnection)
+						: true)
+				: true
 		return {
 			id: step.id,
 			chainId,
@@ -297,32 +374,51 @@
 			actionLabel,
 			canExecute,
 			step,
-			execute: (args: { provider: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> }; walletAddress: `0x${string}`; onStatus: (u: { status: 'signing' | 'executing' | 'confirming' | 'completed' | 'failed'; error?: string; txHash?: `0x${string}` }) => void }) => (
+			execute: (args: {
+				provider: {
+					request: (args: {
+						method: string
+						params?: unknown[]
+					}) => Promise<unknown>
+				}
+				walletAddress: `0x${string}`
+				onStatus: (u: {
+					status:
+						| 'signing'
+						| 'executing'
+						| 'confirming'
+						| 'completed'
+						| 'failed'
+					error?: string
+					txHash?: `0x${string}`
+				}) => void
+			}) =>
 				step.type === 'swap'
 					? executeSwapStep(step, args)
-				: step.type === 'bridge'
-					? executeBridgeStep(step, { walletAddress: args.walletAddress, onStatus: args.onStatus })
-				:
-					step.mode === 'channel'
-						? executeChannelTransferStep(step)
-						: executeDirectTransferStep(step, args)
-			),
+					: step.type === 'bridge'
+						? executeBridgeStep(step, {
+								walletAddress: args.walletAddress,
+								onStatus: args.onStatus,
+							})
+						: step.mode === 'channel'
+							? executeChannelTransferStep(step)
+							: executeDirectTransferStep(step, args),
 		}
 	}
 
 	const transactions = $derived(
-		selectedRoute
-			? selectedRoute.steps.map(toTransaction)
-			: []
+		selectedRoute ? selectedRoute.steps.map(toTransaction) : [],
 	)
 
 	$effect(() => {
-		if (!selectedRouteId || !routes.some((route) => route.id === selectedRouteId)) {
+		if (
+			!selectedRouteId ||
+			!routes.some((route) => route.id === selectedRouteId)
+		) {
 			selectedRouteId = routes[0]?.id ?? null
 		}
 	})
 </script>
-
 
 <main id="main-content" data-column="gap-6">
 	<section data-column="gap-3">
@@ -332,10 +428,7 @@
 
 	<section data-column="gap-3">
 		<h2>Wallet context</h2>
-		<Wallets
-			bind:connectedWallets
-			bind:selectedActor
-		/>
+		<Wallets bind:connectedWallets bind:selectedActor />
 	</section>
 
 	<section data-column="gap-3">
@@ -379,7 +472,7 @@
 		{:else}
 			<div data-column="gap-2">
 				{#each actorCoins as row (row.$id.chainId + row.$id.address + row.$id.tokenAddress)}
-					{@const intent = ({
+					{@const intent = {
 						entity: {
 							type: ENTITY_TYPE.actorCoin,
 							id: row.$id,
@@ -387,32 +480,37 @@
 						context: {
 							source: 'intent-test',
 						},
-					})}
+					}}
 					<div data-row="gap-2 align-center">
 						<EntityId
 							className="intent-entity"
 							draggableText={`${row.symbol} ${row.$id.address}`}
-							intent={intent}
+							{intent}
 						>
 							<span>
-								{row.symbol} · {networksByChainId[row.$id.chainId]?.name ?? `Chain ${row.$id.chainId}`}
+								{row.symbol} · {networksByChainId[row.$id.chainId]?.name ??
+									`Chain ${row.$id.chainId}`}
 								· {row.$id.address.slice(0, 8)}…{row.$id.address.slice(-4)}
 								· {formatSmallestToDecimal(row.balance, row.decimals, 4)}
 							</span>
 						</EntityId>
 						<button
 							type="button"
-							onclick={() => (
-								setPayload('from', { ...intent, context: { ...intent.context, placement: 'from' } })
-							)}
+							onclick={() =>
+								setPayload('from', {
+									...intent,
+									context: { ...intent.context, placement: 'from' },
+								})}
 						>
 							From
 						</button>
 						<button
 							type="button"
-							onclick={() => (
-								setPayload('to', { ...intent, context: { ...intent.context, placement: 'to' } })
-							)}
+							onclick={() =>
+								setPayload('to', {
+									...intent,
+									context: { ...intent.context, placement: 'to' },
+								})}
 						>
 							To
 						</button>
@@ -444,7 +542,9 @@
 							name="intent-route"
 							value={route.id}
 							checked={route.id === selectedRouteId}
-							onchange={() => { selectedRouteId = route.id }}
+							onchange={() => {
+								selectedRouteId = route.id
+							}}
 						/>
 						<span>{route.label}</span>
 					</label>
@@ -460,11 +560,18 @@
 				{#each selectedRoute.steps as step (step.id)}
 					<li>
 						{#if step.type === 'swap'}
-							Swap {step.quote.tokenIn.slice(0, 6)}… → {step.quote.tokenOut.slice(0, 6)}… on {networksByChainId[step.chainId]?.name ?? `Chain ${step.chainId}`}
+							Swap {step.quote.tokenIn.slice(0, 6)}… → {step.quote.tokenOut.slice(
+								0,
+								6,
+							)}… on {networksByChainId[step.chainId]?.name ??
+								`Chain ${step.chainId}`}
 						{:else if step.type === 'bridge'}
 							Bridge {step.route.fromChainId} → {step.route.toChainId}
 						{:else}
-							Transfer ({step.mode}) {step.fromActor.slice(0, 6)}… → {step.toActor.slice(0, 6)}…
+							Transfer ({step.mode}) {step.fromActor.slice(0, 6)}… → {step.toActor.slice(
+								0,
+								6,
+							)}…
 						{/if}
 					</li>
 				{/each}
@@ -499,16 +606,12 @@
 						mode={selectedRoute.steps[0].mode}
 					/>
 				{:else}
-					<TransactionFlow
-						walletConnection={selectedWallet}
-						transactions={transactions}
-					/>
+					<TransactionFlow walletConnection={selectedWallet} {transactions} />
 				{/if}
 			</div>
 		</section>
 	{/if}
 </main>
-
 
 <style>
 	[data-intent-slot] {

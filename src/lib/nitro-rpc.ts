@@ -2,7 +2,10 @@
  * Nitro RPC: compact message encoding/decoding and channel state signing.
  */
 
-import type { YellowChannelAllocation, YellowChannelState } from '$/collections/yellow-channel-states'
+import type {
+	YellowChannelAllocation,
+	YellowChannelState,
+} from '$/collections/yellow-channel-states'
 
 export type NitroRpcPayload = [number, string, Record<string, unknown>, number]
 export type NitroRpcMessage = NitroRpcPayload
@@ -19,22 +22,14 @@ export const encodeNitroRpc = (
 	params: Record<string, unknown>,
 	timestamp = Date.now(),
 	signatures: `0x${string}`[] = [],
-): string => (
-	JSON.stringify(
-		{
-			req: [requestId, method, params, timestamp],
-			...(
-				signatures.length
-					? { sig: signatures }
-					: {}
-			),
-		}
-	)
-)
+): string =>
+	JSON.stringify({
+		req: [requestId, method, params, timestamp],
+		...(signatures.length ? { sig: signatures } : {}),
+	})
 
-export const decodeNitroRpcEnvelope = (message: string): NitroRpcEnvelope => (
+export const decodeNitroRpcEnvelope = (message: string): NitroRpcEnvelope =>
 	JSON.parse(message) as NitroRpcEnvelope
-)
 
 export const decodeNitroRpc = (message: string): NitroRpcPayload => {
 	const parsed = JSON.parse(message) as NitroRpcEnvelope | NitroRpcPayload
@@ -44,15 +39,12 @@ export const decodeNitroRpc = (message: string): NitroRpcPayload => {
 	throw new Error('Unsupported Nitro RPC message')
 }
 
-const serializeAllocations = (allocations: YellowChannelAllocation[]) => (
-	allocations.map((allocation) => (
-		{
-			destination: allocation.destination,
-			token: allocation.token,
-			amount: allocation.amount.toString(),
-		}
-	))
-)
+const serializeAllocations = (allocations: YellowChannelAllocation[]) =>
+	allocations.map((allocation) => ({
+		destination: allocation.destination,
+		token: allocation.token,
+		amount: allocation.amount.toString(),
+	}))
 
 export const packChannelState = (params: {
 	channelId: `0x${string}`
@@ -60,17 +52,14 @@ export const packChannelState = (params: {
 	version: number
 	stateData: `0x${string}`
 	allocations: YellowChannelAllocation[]
-}): string => (
-	JSON.stringify(
-		[
-			params.channelId,
-			params.intent,
-			params.version,
-			params.stateData,
-			serializeAllocations(params.allocations),
-		]
-	)
-)
+}): string =>
+	JSON.stringify([
+		params.channelId,
+		params.intent,
+		params.version,
+		params.stateData,
+		serializeAllocations(params.allocations),
+	])
 
 export const hashChannelState = (params: {
 	channelId: `0x${string}`
@@ -78,13 +67,14 @@ export const hashChannelState = (params: {
 	version: number
 	stateData: `0x${string}`
 	allocations: YellowChannelAllocation[]
-}): string => (
+}): string =>
 	// TODO: replace with abi.encode packedState + keccak256 when SDK is wired
 	packChannelState(params)
-)
 
 export const signChannelState = async (params: {
-	provider: { request: (args: { method: string; params: unknown[] }) => Promise<unknown> }
+	provider: {
+		request: (args: { method: string; params: unknown[] }) => Promise<unknown>
+	}
 	address: `0x${string}`
 	channelId: `0x${string}`
 	intent: number

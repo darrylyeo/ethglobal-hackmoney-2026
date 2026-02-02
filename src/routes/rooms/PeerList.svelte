@@ -10,10 +10,11 @@
 	import Peer from '$/components/Peer.svelte'
 
 	const peersQuery = useLiveQuery(
-		(q) => q
-			.from({ row: roomPeersCollection })
-			.where(({ row }) => eq(row.roomId, roomId))
-			.select(({ row }) => ({ row })),
+		(q) =>
+			q
+				.from({ row: roomPeersCollection })
+				.where(({ row }) => eq(row.roomId, roomId))
+				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
 

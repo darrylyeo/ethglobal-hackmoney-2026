@@ -5,26 +5,21 @@ const actorCoinKey = (
 	chainId: number,
 	address: `0x${string}`,
 	coinAddress: `0x${string}`,
-) => (
-	`${chainId}-${address.toLowerCase()}-${coinAddress.toLowerCase()}`
-)
+) => `${chainId}-${address.toLowerCase()}-${coinAddress.toLowerCase()}`
 
 const formatBalance = (balance: bigint, decimals: number) => {
 	const divisor = 10n ** BigInt(decimals)
 	const integerPart = balance / divisor
 	const fractionalPart = balance % divisor
-	const fractionalStr = fractionalPart.toString().padStart(decimals, '0').slice(
-		0,
-		4,
-	)
+	const fractionalStr = fractionalPart
+		.toString()
+		.padStart(decimals, '0')
+		.slice(0, 4)
 	return `${integerPart}.${fractionalStr}`
 }
 
 Deno.test('actorCoinKey generates correct composite key', () => {
-	assertEquals(
-		actorCoinKey(1, '0xABC123', '0xUSDC456'),
-		'1-0xabc123-0xusdc456',
-	)
+	assertEquals(actorCoinKey(1, '0xABC123', '0xUSDC456'), '1-0xabc123-0xusdc456')
 })
 
 Deno.test('actorCoinKey normalizes addresses to lowercase', () => {

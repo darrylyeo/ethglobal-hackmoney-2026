@@ -26,7 +26,10 @@ let lifiSdk: Promise<{
 	convertQuoteToRoute: (step: LiFiStep) => RouteExtended
 	createConfig: (opts: { integrator: string }) => void
 	EVM: (opts: unknown) => unknown
-	executeRoute: (route: RouteExtended, opts?: { updateRouteHook?: (r: RouteExtended) => void }) => Promise<RouteExtended>
+	executeRoute: (
+		route: RouteExtended,
+		opts?: { updateRouteHook?: (r: RouteExtended) => void },
+	) => Promise<RouteExtended>
 	getQuote: (params: unknown) => Promise<LiFiStep>
 	getRoutes: (params: unknown) => Promise<{ routes: Route[] }>
 }> | null = null
@@ -149,15 +152,18 @@ export type NormalizedQuote = {
 	estimatedToAmount: string
 	fees: { amount: string; token: { symbol: string; decimals?: number } }[]
 }
-function actionAmounts(
-	action: LiFiStep['action'],
-): { fromAmount: string; toAmount: string } {
-	const fromAmount = 'fromAmount' in action && action.fromAmount != null
-		? String(action.fromAmount)
-		: '0'
-	const toAmount = 'toAmount' in action && action.toAmount != null
-		? String(action.toAmount)
-		: '0'
+function actionAmounts(action: LiFiStep['action']): {
+	fromAmount: string
+	toAmount: string
+} {
+	const fromAmount =
+		'fromAmount' in action && action.fromAmount != null
+			? String(action.fromAmount)
+			: '0'
+	const toAmount =
+		'toAmount' in action && action.toAmount != null
+			? String(action.toAmount)
+			: '0'
 	return { fromAmount, toAmount }
 }
 
@@ -255,13 +261,16 @@ export function normalizeRoute(route: Route): NormalizedRoute {
 			(sum, s) => sum + (s.estimate?.executionDuration ?? 0),
 			0,
 		),
-		tags: (route.tags ?? []).filter((t): t is (typeof ROUTE_TAG_ORDER)[number] =>
-			ROUTE_TAG_ORDER.includes(t as (typeof ROUTE_TAG_ORDER)[number]),
+		tags: (route.tags ?? []).filter(
+			(t): t is (typeof ROUTE_TAG_ORDER)[number] =>
+				ROUTE_TAG_ORDER.includes(t as (typeof ROUTE_TAG_ORDER)[number]),
 		),
 	}
 }
 
-export function routesQueryKey(params: QuoteParams): [string, number, number, string, string, number] {
+export function routesQueryKey(
+	params: QuoteParams,
+): [string, number, number, string, string, number] {
 	return [
 		'lifi-routes',
 		params.fromChain,
@@ -424,12 +433,15 @@ function routeToBridgeStatus(route: RouteExtended): BridgeStatus {
 			error: p.error?.message,
 			startedAt: p.startedAt,
 			completedAt:
-				state !== 'pending' ? (p.doneAt ?? p.failedAt ?? Date.now()) : undefined,
+				state !== 'pending'
+					? (p.doneAt ?? p.failedAt ?? Date.now())
+					: undefined,
 		})
 	}
 	const steps = Array.from(stepMap.values())
 	const hasFailed = steps.some((s) => s.state === 'failed')
-	const allDone = processes.length > 0 && processes.every((p) => p.status === 'DONE')
+	const allDone =
+		processes.length > 0 && processes.every((p) => p.status === 'DONE')
 	const estimatedDurationSeconds = route.steps.reduce(
 		(sum, s) => sum + (s.estimate?.executionDuration ?? 0),
 		0,

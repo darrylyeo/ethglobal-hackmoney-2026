@@ -4,30 +4,30 @@ import type { IntentResolution } from './types'
 
 export type IntentRouteStep =
 	| {
-		id: string
-		type: 'transfer'
-		mode: 'direct' | 'channel'
-		chainId: number
-		fromActor: `0x${string}`
-		toActor: `0x${string}`
-		tokenAddress: `0x${string}`
-	}
+			id: string
+			type: 'transfer'
+			mode: 'direct' | 'channel'
+			chainId: number
+			fromActor: `0x${string}`
+			toActor: `0x${string}`
+			tokenAddress: `0x${string}`
+	  }
 	| {
-		id: string
-		type: 'swap'
-		chainId: number
-		actor: `0x${string}`
-		quote: SwapQuote
-	}
+			id: string
+			type: 'swap'
+			chainId: number
+			actor: `0x${string}`
+			quote: SwapQuote
+	  }
 	| {
-		id: string
-		type: 'bridge'
-		fromChainId: number
-		toChainId: number
-		actor: `0x${string}`
-		route: BridgeRoute
-		rowId: BridgeRoutes$id
-	}
+			id: string
+			type: 'bridge'
+			fromChainId: number
+			toChainId: number
+			actor: `0x${string}`
+			route: BridgeRoute
+			rowId: BridgeRoutes$id
+	  }
 
 export type IntentRoute = {
 	id: string
@@ -45,24 +45,19 @@ type IntentRouteInputs = {
 	bridgeRoutes: IntentBridgeRouteOption[]
 }
 
-const productRoutes = (steps: IntentRouteStep[][]) => (
+const productRoutes = (steps: IntentRouteStep[][]) =>
 	steps.reduce<IntentRouteStep[][]>(
-		(result, options) => (
-			result.flatMap((existing) => options.map((step) => [...existing, step]))
-		),
+		(result, options) =>
+			result.flatMap((existing) => options.map((step) => [...existing, step])),
 		[[]],
 	)
-)
 
-const buildRouteLabel = (steps: IntentRouteStep[]) => (
+const buildRouteLabel = (steps: IntentRouteStep[]) =>
 	steps
-		.map((step) => (
-			step.type === 'transfer'
-				? `transfer:${step.mode}`
-				: step.type
-		))
+		.map((step) =>
+			step.type === 'transfer' ? `transfer:${step.mode}` : step.type,
+		)
 		.join(' → ')
-)
 
 export const buildIntentRoutes = (
 	resolution: IntentResolution,
@@ -79,13 +74,14 @@ export const buildIntentRoutes = (
 		tokenIn: `0x${string}`,
 		tokenOut: `0x${string}`,
 		actor: `0x${string}`,
-	): IntentRouteStep[] => (
+	): IntentRouteStep[] =>
 		swapQuotes
-			.filter((quote) => (
-				quote.chainId === chainId &&
-				quote.tokenIn.toLowerCase() === tokenIn.toLowerCase() &&
-				quote.tokenOut.toLowerCase() === tokenOut.toLowerCase()
-			))
+			.filter(
+				(quote) =>
+					quote.chainId === chainId &&
+					quote.tokenIn.toLowerCase() === tokenIn.toLowerCase() &&
+					quote.tokenOut.toLowerCase() === tokenOut.toLowerCase(),
+			)
 			.map((quote) => ({
 				id: `swap:${quote.id}`,
 				type: 'swap',
@@ -93,21 +89,21 @@ export const buildIntentRoutes = (
 				actor,
 				quote,
 			}))
-	)
 
 	const bridgeOnChain = (
 		fromChainId: number,
 		toChainId: number,
 		actor: `0x${string}`,
-	): IntentRouteStep[] => (
+	): IntentRouteStep[] =>
 		bridgeRoutes
-			.filter(({ rowId, route }) => (
-				rowId.fromChainId === fromChainId &&
-				rowId.toChainId === toChainId &&
-				rowId.fromAddress.toLowerCase() === actor.toLowerCase() &&
-				route.fromChainId === fromChainId &&
-				route.toChainId === toChainId
-			))
+			.filter(
+				({ rowId, route }) =>
+					rowId.fromChainId === fromChainId &&
+					rowId.toChainId === toChainId &&
+					rowId.fromAddress.toLowerCase() === actor.toLowerCase() &&
+					route.fromChainId === fromChainId &&
+					route.toChainId === toChainId,
+			)
 			.map(({ rowId, route }) => ({
 				id: `bridge:${rowId.fromChainId}:${rowId.toChainId}:${route.id}`,
 				type: 'bridge',
@@ -117,69 +113,81 @@ export const buildIntentRoutes = (
 				route,
 				rowId,
 			}))
-	)
 
-	const transferStepOptions = (chainId: number, token: `0x${string}`): IntentRouteStep[] => (
-		[
-			{
-				id: `transfer:direct:${chainId}:${from.actor}:${to.actor}:${token}`,
-				type: 'transfer',
-				mode: 'direct',
-				chainId,
-				fromActor: from.actor,
-				toActor: to.actor,
-				tokenAddress: token,
-			},
-			{
-				id: `transfer:channel:${chainId}:${from.actor}:${to.actor}:${token}`,
-				type: 'transfer',
-				mode: 'channel',
-				chainId,
-				fromActor: from.actor,
-				toActor: to.actor,
-				tokenAddress: token,
-			},
-		]
-	)
+	const transferStepOptions = (
+		chainId: number,
+		token: `0x${string}`,
+	): IntentRouteStep[] => [
+		{
+			id: `transfer:direct:${chainId}:${from.actor}:${to.actor}:${token}`,
+			type: 'transfer',
+			mode: 'direct',
+			chainId,
+			fromActor: from.actor,
+			toActor: to.actor,
+			tokenAddress: token,
+		},
+		{
+			id: `transfer:channel:${chainId}:${from.actor}:${to.actor}:${token}`,
+			type: 'transfer',
+			mode: 'channel',
+			chainId,
+			fromActor: from.actor,
+			toActor: to.actor,
+			tokenAddress: token,
+		},
+	]
 
-	const swapSource = swapOnChain(from.chainId, from.tokenAddress, to.tokenAddress, from.actor)
-	const swapDest = swapOnChain(to.chainId, from.tokenAddress, to.tokenAddress, to.actor)
+	const swapSource = swapOnChain(
+		from.chainId,
+		from.tokenAddress,
+		to.tokenAddress,
+		from.actor,
+	)
+	const swapDest = swapOnChain(
+		to.chainId,
+		from.tokenAddress,
+		to.tokenAddress,
+		to.actor,
+	)
 	const bridge = bridgeOnChain(from.chainId, to.chainId, from.actor)
 
 	const transferFromToken = transferStepOptions(from.chainId, from.tokenAddress)
-	const transferToTokenOnSource = transferStepOptions(from.chainId, to.tokenAddress)
+	const transferToTokenOnSource = transferStepOptions(
+		from.chainId,
+		to.tokenAddress,
+	)
 	const transferToTokenOnDest = transferStepOptions(to.chainId, to.tokenAddress)
-	const transferFromTokenOnDest = transferStepOptions(to.chainId, from.tokenAddress)
+	const transferFromTokenOnDest = transferStepOptions(
+		to.chainId,
+		from.tokenAddress,
+	)
 
 	const sequences: IntentRouteStep[][][] = (
 		resolution.kind === 'transfer'
 			? [[transferFromToken]]
-		: resolution.kind === 'swap'
-			? [[swapSource]]
-		: resolution.kind === 'bridge'
-			? [[bridge]]
-		: resolution.kind === 'transfer+swap'
-			? [
-				[swapSource, transferToTokenOnSource],
-				[transferFromToken, swapDest],
-			]
-		: resolution.kind === 'swap+bridge'
-			? [
-				[swapSource, bridge],
-				[bridge, swapDest],
-			]
-		: resolution.kind === 'transfer+bridge'
-			? [
-				[bridge, transferToTokenOnDest],
-			]
-		:
-			[
-				[swapSource, bridge, transferToTokenOnDest],
-				[bridge, swapDest, transferToTokenOnDest],
-				[bridge, transferFromTokenOnDest, swapDest],
-			]
-	)
-		.filter((sequence) => sequence.every((options) => options.length > 0))
+			: resolution.kind === 'swap'
+				? [[swapSource]]
+				: resolution.kind === 'bridge'
+					? [[bridge]]
+					: resolution.kind === 'transfer+swap'
+						? [
+								[swapSource, transferToTokenOnSource],
+								[transferFromToken, swapDest],
+							]
+						: resolution.kind === 'swap+bridge'
+							? [
+									[swapSource, bridge],
+									[bridge, swapDest],
+								]
+							: resolution.kind === 'transfer+bridge'
+								? [[bridge, transferToTokenOnDest]]
+								: [
+										[swapSource, bridge, transferToTokenOnDest],
+										[bridge, swapDest, transferToTokenOnDest],
+										[bridge, transferFromTokenOnDest, swapDest],
+									]
+	).filter((sequence) => sequence.every((options) => options.length > 0))
 
 	return sequences
 		.flatMap((sequence) => productRoutes(sequence))

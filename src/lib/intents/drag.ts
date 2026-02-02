@@ -2,14 +2,16 @@ import type { IntentDragPayload } from './types'
 
 export const INTENT_MIME = 'application/x-entity-intent'
 
-export const setIntentDragData = (event: DragEvent, payload: IntentDragPayload) => {
+export const setIntentDragData = (
+	event: DragEvent,
+	payload: IntentDragPayload,
+) => {
 	const data = JSON.stringify(payload)
 	event.dataTransfer?.setData(INTENT_MIME, data)
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> => (
+const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null
-)
 
 const isIntentDragPayload = (value: unknown): value is IntentDragPayload => {
 	if (!isRecord(value)) return false
@@ -18,7 +20,9 @@ const isIntentDragPayload = (value: unknown): value is IntentDragPayload => {
 	return entity.type !== undefined && entity.id !== undefined
 }
 
-export const getIntentDragPayload = (event: DragEvent): IntentDragPayload | null => {
+export const getIntentDragPayload = (
+	event: DragEvent,
+): IntentDragPayload | null => {
 	const data = event.dataTransfer?.getData(INTENT_MIME)
 	if (!data) return null
 	try {

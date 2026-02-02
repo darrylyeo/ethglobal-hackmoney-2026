@@ -17,10 +17,15 @@ const STORAGE_KEY = 'bridge-tx-history'
 export const saveTransaction = (tx: StoredTransaction) => {
 	const existing = getTransactions(tx.address)
 	const updated = [tx, ...existing.filter((t) => t.id !== tx.id)].slice(0, 50)
-	localStorage.setItem(`${STORAGE_KEY}-${tx.address.toLowerCase()}`, JSON.stringify(updated))
+	localStorage.setItem(
+		`${STORAGE_KEY}-${tx.address.toLowerCase()}`,
+		JSON.stringify(updated),
+	)
 }
 
-export const getTransactions = (address: `0x${string}`): StoredTransaction[] => {
+export const getTransactions = (
+	address: `0x${string}`,
+): StoredTransaction[] => {
 	const raw = localStorage.getItem(`${STORAGE_KEY}-${address.toLowerCase()}`)
 	return raw ? (JSON.parse(raw) as StoredTransaction[]) : []
 }

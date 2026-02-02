@@ -46,8 +46,14 @@ describe('subscribeChainChanged', () => {
 			}),
 			removeListener,
 		}
-		const unsub = subscribeChainChanged(provider as unknown as EIP1193Provider, callback)
-		expect(provider.on).toHaveBeenCalledWith('chainChanged', expect.any(Function))
+		const unsub = subscribeChainChanged(
+			provider as unknown as EIP1193Provider,
+			callback,
+		)
+		expect(provider.on).toHaveBeenCalledWith(
+			'chainChanged',
+			expect.any(Function),
+		)
 		handler('0x2')
 		expect(callback).toHaveBeenCalledWith(2)
 		unsub()
@@ -81,7 +87,9 @@ describe('switchWalletChain', () => {
 		})
 		expect(request).toHaveBeenNthCalledWith(2, {
 			method: 'wallet_addEthereumChain',
-			params: [expect.objectContaining({ chainId: '0x2105', chainName: 'Base' })],
+			params: [
+				expect.objectContaining({ chainId: '0x2105', chainName: 'Base' }),
+			],
 		})
 		expect(request).toHaveBeenNthCalledWith(3, {
 			method: 'wallet_switchEthereumChain',
@@ -93,7 +101,9 @@ describe('switchWalletChain', () => {
 		const provider: EIP1193Provider = {
 			request: vi.fn(() => Promise.reject(new Error('User rejected'))),
 		}
-		await expect(switchWalletChain(provider, 1)).rejects.toThrow('User rejected')
+		await expect(switchWalletChain(provider, 1)).rejects.toThrow(
+			'User rejected',
+		)
 	})
 })
 
@@ -117,7 +127,9 @@ describe('addChainToWallet', () => {
 
 	it('throws for unknown chain', async () => {
 		const provider: EIP1193Provider = { request: vi.fn() }
-		await expect(addChainToWallet(provider, 99999)).rejects.toThrow('Unknown chain')
+		await expect(addChainToWallet(provider, 99999)).rejects.toThrow(
+			'Unknown chain',
+		)
 	})
 })
 

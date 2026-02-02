@@ -108,9 +108,14 @@ export type ChainIconItem = {
 	fetch: FetchType
 }
 
-function suffixFromKindStyle(kind: ChainIconKind, style?: ChainIconStyle): string {
-	if (kind === ChainIconKind.Wordmark) return style != null ? `wordmark-${style}` : 'wordmark'
-	if (kind === ChainIconKind.LogoAndWordmark) return style != null ? `logo-and-wordmark-${style}` : 'logo-and-wordmark'
+function suffixFromKindStyle(
+	kind: ChainIconKind,
+	style?: ChainIconStyle,
+): string {
+	if (kind === ChainIconKind.Wordmark)
+		return style != null ? `wordmark-${style}` : 'wordmark'
+	if (kind === ChainIconKind.LogoAndWordmark)
+		return style != null ? `logo-and-wordmark-${style}` : 'logo-and-wordmark'
 	if (kind === ChainIconKind.Logo && style != null) return String(style)
 	return ''
 }
@@ -131,7 +136,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		fetch: {
 			fetchType: 'zip',
 			zipUrl: 'https://www.unichain.org/assets/zip/unichain-brand-kit.zip',
-			pathInZip: 'Unichain Brand Kit /Unichain Logo Assets/Network icons/Mainnet.svg',
+			pathInZip:
+				'Unichain Brand Kit /Unichain Logo Assets/Network icons/Mainnet.svg',
 		},
 	},
 	{
@@ -141,7 +147,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		fetch: {
 			fetchType: 'zip',
 			zipUrl: 'https://www.unichain.org/assets/zip/unichain-brand-kit.zip',
-			pathInZip: 'Unichain Brand Kit /Unichain Logo Assets/Unichain Icon - Dark.svg',
+			pathInZip:
+				'Unichain Brand Kit /Unichain Logo Assets/Unichain Icon - Dark.svg',
 		},
 	},
 	{
@@ -151,7 +158,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		fetch: {
 			fetchType: 'zip',
 			zipUrl: 'https://www.unichain.org/assets/zip/unichain-brand-kit.zip',
-			pathInZip: 'Unichain Brand Kit /Unichain Logo Assets/Unichain Icon - Light.svg',
+			pathInZip:
+				'Unichain Brand Kit /Unichain Logo Assets/Unichain Icon - Light.svg',
 		},
 	},
 	{
@@ -161,7 +169,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		fetch: {
 			fetchType: 'zip',
 			zipUrl: 'https://www.unichain.org/assets/zip/unichain-brand-kit.zip',
-			pathInZip: 'Unichain Brand Kit /Unichain Logo Assets/Unichain Icon - Vibrant.svg',
+			pathInZip:
+				'Unichain Brand Kit /Unichain Logo Assets/Unichain Icon - Vibrant.svg',
 		},
 	},
 	{
@@ -171,7 +180,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		fetch: {
 			fetchType: 'zip',
 			zipUrl: 'https://www.unichain.org/assets/zip/unichain-brand-kit.zip',
-			pathInZip: 'Unichain Brand Kit /Unichain Logo Assets/Unichain Lockup - Dark.svg',
+			pathInZip:
+				'Unichain Brand Kit /Unichain Logo Assets/Unichain Lockup - Dark.svg',
 		},
 	},
 	{
@@ -181,7 +191,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		fetch: {
 			fetchType: 'zip',
 			zipUrl: 'https://www.unichain.org/assets/zip/unichain-brand-kit.zip',
-			pathInZip: 'Unichain Brand Kit /Unichain Logo Assets/Unichain Lockup - Light.svg',
+			pathInZip:
+				'Unichain Brand Kit /Unichain Logo Assets/Unichain Lockup - Light.svg',
 		},
 	},
 	{
@@ -191,7 +202,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		fetch: {
 			fetchType: 'zip',
 			zipUrl: 'https://www.unichain.org/assets/zip/unichain-brand-kit.zip',
-			pathInZip: 'Unichain Brand Kit /Unichain Logo Assets/Unichain Lockup - Vibrant.svg',
+			pathInZip:
+				'Unichain Brand Kit /Unichain Logo Assets/Unichain Lockup - Vibrant.svg',
 		},
 	},
 	{
@@ -201,7 +213,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		fetch: {
 			fetchType: 'zip',
 			zipUrl: 'https://www.unichain.org/assets/zip/unichain-brand-kit.zip',
-			pathInZip: 'Unichain Brand Kit /Unichain Logo Assets/Unichain Vertical  Lockup - Light.svg',
+			pathInZip:
+				'Unichain Brand Kit /Unichain Logo Assets/Unichain Vertical  Lockup - Light.svg',
 		},
 	},
 	{
@@ -211,7 +224,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		fetch: {
 			fetchType: 'zip',
 			zipUrl: 'https://www.unichain.org/assets/zip/unichain-brand-kit.zip',
-			pathInZip: 'Unichain Brand Kit /Unichain Logo Assets/Unichain Vertical Lockup - Dark.svg',
+			pathInZip:
+				'Unichain Brand Kit /Unichain Logo Assets/Unichain Vertical Lockup - Dark.svg',
 		},
 	},
 	{
@@ -221,7 +235,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		fetch: {
 			fetchType: 'zip',
 			zipUrl: 'https://www.unichain.org/assets/zip/unichain-brand-kit.zip',
-			pathInZip: 'Unichain Brand Kit /Unichain Logo Assets/Unichain Vertical Lockup - Vibrant.svg',
+			pathInZip:
+				'Unichain Brand Kit /Unichain Logo Assets/Unichain Vertical Lockup - Vibrant.svg',
 		},
 	},
 	/** Plume: docs.plumenetwork.xyz/plume/community-and-support/brand-assets (GitBook SVG zip) */
@@ -229,7 +244,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		chainId: ChainId.Plume,
 		fetch: {
 			fetchType: 'zip',
-			zipUrl: 'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
+			zipUrl:
+				'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
 			pathInZip: 'Logomark Red.svg',
 		},
 	},
@@ -239,7 +255,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.Dark,
 		fetch: {
 			fetchType: 'zip',
-			zipUrl: 'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
+			zipUrl:
+				'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
 			pathInZip: 'Logomark Dark.svg',
 		},
 	},
@@ -249,7 +266,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.White,
 		fetch: {
 			fetchType: 'zip',
-			zipUrl: 'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
+			zipUrl:
+				'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
 			pathInZip: 'Logomark White.svg',
 		},
 	},
@@ -258,7 +276,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		kind: ChainIconKind.LogoAndWordmark,
 		fetch: {
 			fetchType: 'zip',
-			zipUrl: 'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
+			zipUrl:
+				'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
 			pathInZip: 'Full Logo.svg',
 		},
 	},
@@ -268,7 +287,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.Black,
 		fetch: {
 			fetchType: 'zip',
-			zipUrl: 'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
+			zipUrl:
+				'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
 			pathInZip: 'Full Logo Black.svg',
 		},
 	},
@@ -278,7 +298,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.White,
 		fetch: {
 			fetchType: 'zip',
-			zipUrl: 'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
+			zipUrl:
+				'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
 			pathInZip: 'Full Logo White.svg',
 		},
 	},
@@ -288,7 +309,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.RedBg,
 		fetch: {
 			fetchType: 'zip',
-			zipUrl: 'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
+			zipUrl:
+				'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
 			pathInZip: 'Logomark-BG-Red.svg',
 		},
 	},
@@ -298,7 +320,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.BlackBg,
 		fetch: {
 			fetchType: 'zip',
-			zipUrl: 'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
+			zipUrl:
+				'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
 			pathInZip: 'Logomark-BG-Black.svg',
 		},
 	},
@@ -308,7 +331,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.PoweredBy,
 		fetch: {
 			fetchType: 'zip',
-			zipUrl: 'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
+			zipUrl:
+				'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
 			pathInZip: 'Powered by Plume.svg',
 		},
 	},
@@ -318,7 +342,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.Inverted,
 		fetch: {
 			fetchType: 'zip',
-			zipUrl: 'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
+			zipUrl:
+				'https://4283780171-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FcaO8bqNQ5CJfDyLKmEZF%2Fuploads%2FhACgnZH9YAp6HsArymxz%2FPlume%20Media%20Kit%20-%20SVG.zip?alt=media&token=801bc6e8-cf27-4c9b-8141-935a6e2b663f',
 			pathInZip: 'Powered by Plume Inverted.svg',
 		},
 	},
@@ -3220,7 +3245,8 @@ export const chainIconItems: readonly ChainIconItem[] = [
 			fetchType: 'zip',
 			zipUrl:
 				'https://cdn.jsdelivr.net/gh/MadeByKin/codex/codex%20brand%20assets%20%E2%80%94%20color.zip',
-			pathInZip: 'codex brand assets \u00e2\u0080\u0094 color/codex logo black, chartreuse bg.svg',
+			pathInZip:
+				'codex brand assets \u00e2\u0080\u0094 color/codex logo black, chartreuse bg.svg',
 		},
 	},
 	/** Arc Testnet: CDN from Alchemy (default icon); official Arc brand at arc.link/newsroom/brand-assets (PNG — Powered by ARC dark/light/colored/alt) */
@@ -3470,7 +3496,10 @@ async function main() {
 					const res = await fetch(f.zipUrl, { redirect: 'follow' })
 					if (!res.ok) throw new Error(`${f.zipUrl} ${res.status}`)
 					const buf = await res.arrayBuffer()
-					unzipped = unzipSync(new Uint8Array(buf)) as Record<string, Uint8Array>
+					unzipped = unzipSync(new Uint8Array(buf)) as Record<
+						string,
+						Uint8Array
+					>
 					zipCache.set(f.zipUrl, unzipped)
 				}
 				const entry = unzipped[f.pathInZip]

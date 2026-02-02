@@ -28,9 +28,8 @@ type TokenListEntry = {
 	logoURI?: string
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> => (
+const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null
-)
 
 const toTokenListEntry = (value: unknown): TokenListEntry | null => {
 	if (!isRecord(value)) return null
@@ -44,7 +43,9 @@ const toTokenListEntry = (value: unknown): TokenListEntry | null => {
 	return { chainId, address, symbol, name, decimals, logoURI }
 }
 
-const normalizeTokenListEntry = (entry: TokenListEntry): TokenListCoinRow | null => {
+const normalizeTokenListEntry = (
+	entry: TokenListEntry,
+): TokenListCoinRow | null => {
 	const normalized = normalizeAddress(entry.address)
 	if (!normalized) return null
 	return {
@@ -68,13 +69,18 @@ const fetchTokenList = async (url: string): Promise<TokenListEntry[]> => {
 	}
 	const data = await response.json()
 	if (!isRecord(data) || !Array.isArray(data.tokens)) return []
-	return data.tokens.map(toTokenListEntry).filter((entry): entry is TokenListEntry => entry !== null)
+	return data.tokens
+		.map(toTokenListEntry)
+		.filter((entry): entry is TokenListEntry => entry !== null)
 }
 
 const fetchTokenListEntries = async (): Promise<TokenListCoinRow[]> => {
 	const results = await Promise.allSettled(tokenListUrls.map(fetchTokenList))
 	const rows = results
-		.filter((result): result is PromiseFulfilledResult<TokenListEntry[]> => result.status === 'fulfilled')
+		.filter(
+			(result): result is PromiseFulfilledResult<TokenListEntry[]> =>
+				result.status === 'fulfilled',
+		)
 		.flatMap((result) => result.value)
 		.map(normalizeTokenListEntry)
 		.filter((entry): entry is TokenListCoinRow => entry !== null)
@@ -91,6 +97,7 @@ export const tokenListCoinsCollection = createCollection(
 		queryKey: ['token-list-coins'],
 		queryFn: fetchTokenListEntries,
 		queryClient,
-		getKey: (row: TokenListCoinRow) => `${row.chainId}-${row.address.toLowerCase()}`,
+		getKey: (row: TokenListCoinRow) =>
+			`${row.chainId}-${row.address.toLowerCase()}`,
 	}),
 )

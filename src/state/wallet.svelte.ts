@@ -13,17 +13,31 @@ import { useLiveQuery } from '@tanstack/svelte-db'
 
 // Collections
 import { walletsCollection, upsertWallet } from '$/collections/wallets'
-import { walletConnectionsCollection, updateWalletChain, updateConnectionActors, reconnectWallet } from '$/collections/wallet-connections'
+import {
+	walletConnectionsCollection,
+	updateWalletChain,
+	updateConnectionActors,
+	reconnectWallet,
+} from '$/collections/wallet-connections'
 
 // Functions
-import { subscribeProviders, getWalletChainId, subscribeChainChanged, subscribeAccountsChanged } from '$/lib/wallet'
+import {
+	subscribeProviders,
+	getWalletChainId,
+	subscribeChainChanged,
+	subscribeAccountsChanged,
+} from '$/lib/wallet'
 
 export const WALLET_CONTEXT_KEY = 'wallet'
 
 const createWalletContext = () => {
 	// Queries for subscription effects
-	const walletsQuery = useLiveQuery((q) => q.from({ row: walletsCollection }).select(({ row }) => ({ row })))
-	const connectionsQuery = useLiveQuery((q) => q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })))
+	const walletsQuery = useLiveQuery((q) =>
+		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
+	)
+	const connectionsQuery = useLiveQuery((q) =>
+		q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })),
+	)
 
 	// Track which wallets we've attempted to reconnect
 	const reconnectAttempted = new Set<string>()
@@ -34,12 +48,18 @@ const createWalletContext = () => {
 		return subscribeProviders((providers) => {
 			const providerRdnsSet = new Set(
 				providers
-					.filter((p) => typeof p?.info?.rdns === 'string' && p.info.rdns.length > 0 && p.provider)
+					.filter(
+						(p) =>
+							typeof p?.info?.rdns === 'string' &&
+							p.info.rdns.length > 0 &&
+							p.provider,
+					)
 					.map((p) => p.info.rdns),
 			)
 			for (const p of providers) {
 				const rdns = p.info?.rdns
-				if (typeof rdns !== 'string' || rdns.length === 0 || !p.provider) continue
+				if (typeof rdns !== 'string' || rdns.length === 0 || !p.provider)
+					continue
 				if (import.meta.env?.DEV) {
 					console.debug('[EIP-6963] upsertWallet', rdns, p.info.name)
 				}
@@ -51,7 +71,9 @@ const createWalletContext = () => {
 					provider: p.provider,
 				})
 			}
-			const connections = (connectionsQuery.data ?? []).filter((c) => c?.row?.$id?.wallet$id?.rdns)
+			const connections = (connectionsQuery.data ?? []).filter(
+				(c) => c?.row?.$id?.wallet$id?.rdns,
+			)
 			for (const { row } of connections) {
 				const rdns = row.$id.wallet$id.rdns
 				if (!providerRdnsSet.has(rdns) || reconnectAttempted.has(rdns)) continue
@@ -64,13 +86,17 @@ const createWalletContext = () => {
 	// Subscribe to chain and account changes for all connected wallets
 	const cleanups = new Map<string, () => void>()
 	$effect(() => {
-		const connections = (connectionsQuery.data ?? []).filter((c) => c?.row?.$id?.wallet$id?.rdns)
-		const walletRows = (walletsQuery.data ?? []).filter((w) => w?.row?.$id?.rdns)
+		const connections = (connectionsQuery.data ?? []).filter(
+			(c) => c?.row?.$id?.wallet$id?.rdns,
+		)
+		const walletRows = (walletsQuery.data ?? []).filter(
+			(w) => w?.row?.$id?.rdns,
+		)
 
 		const connectedRdns = new Set(
 			connections
 				.filter((c) => c.row.status === 'connected')
-				.map((c) => c.row.$id.wallet$id.rdns)
+				.map((c) => c.row.$id.wallet$id.rdns),
 		)
 
 		// Clean up subscriptions for disconnected wallets
@@ -98,14 +124,20 @@ const createWalletContext = () => {
 			})
 
 			// Subscribe to chain changes
-			const chainCleanup = subscribeChainChanged(walletRow.row.provider, (chainId) => {
-				updateWalletChain({ rdns }, chainId)
-			})
+			const chainCleanup = subscribeChainChanged(
+				walletRow.row.provider,
+				(chainId) => {
+					updateWalletChain({ rdns }, chainId)
+				},
+			)
 
 			// Subscribe to account changes
-			const accountsCleanup = subscribeAccountsChanged(walletRow.row.provider, (actors) => {
-				updateConnectionActors({ rdns }, actors)
-			})
+			const accountsCleanup = subscribeAccountsChanged(
+				walletRow.row.provider,
+				(actors) => {
+					updateConnectionActors({ rdns }, actors)
+				},
+			)
 
 			cleanups.set(rdns, () => {
 				chainCleanup()
@@ -120,6 +152,5 @@ const createWalletContext = () => {
 	})
 }
 
-export const useWalletSubscriptions = () => (
+export const useWalletSubscriptions = () =>
 	useContext(WALLET_CONTEXT_KEY, createWalletContext)
-)

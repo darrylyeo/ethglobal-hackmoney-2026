@@ -64,14 +64,24 @@ export const toasts = {
 	dismiss,
 	update,
 	clear,
-	info: (message: string, options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>) =>
-		add({ type: 'info', message, ...options }),
-	success: (message: string, options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>) =>
-		add({ type: 'success', message, ...options }),
-	warning: (message: string, options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>) =>
-		add({ type: 'warning', message, ...options }),
-	error: (message: string, options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>) =>
-		add({ type: 'error', message, duration: 0, ...options }),
-	loading: (message: string, options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>) =>
-		add({ type: 'loading', message, duration: 0, ...options }),
+	info: (
+		message: string,
+		options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>,
+	) => add({ type: 'info', message, ...options }),
+	success: (
+		message: string,
+		options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>,
+	) => add({ type: 'success', message, ...options }),
+	warning: (
+		message: string,
+		options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>,
+	) => add({ type: 'warning', message, ...options }),
+	error: (
+		message: string,
+		options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>,
+	) => add({ type: 'error', message, duration: 0, ...options }),
+	loading: (
+		message: string,
+		options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>,
+	) => add({ type: 'loading', message, duration: 0, ...options }),
 }

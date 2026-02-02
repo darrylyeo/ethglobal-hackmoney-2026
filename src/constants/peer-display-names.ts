@@ -139,4 +139,6 @@ export const PEER_ANIMAL_EMOJI = Object.fromEntries(
 	peerAnimalEmojis.map((entry) => [entry.animal, entry.emoji]),
 )
 
-export const PEER_ANIMAL_EMOJI_LIST = [...new Set(peerAnimalEmojis.map((entry) => entry.emoji))]
+export const PEER_ANIMAL_EMOJI_LIST = [
+	...new Set(peerAnimalEmojis.map((entry) => entry.emoji)),
+]

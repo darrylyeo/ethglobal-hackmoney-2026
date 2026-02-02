@@ -10,7 +10,10 @@ export function formatTokenAmount(
 	decimals: number,
 	locale?: string,
 ): string {
-	const amount = typeof amountInSmallestUnits === 'bigint' ? amountInSmallestUnits : BigInt(amountInSmallestUnits.trim() || '0')
+	const amount =
+		typeof amountInSmallestUnits === 'bigint'
+			? amountInSmallestUnits
+			: BigInt(amountInSmallestUnits.trim() || '0')
 	if (amount === 0n) return '0'
 	const key = `${amount}|${decimals}|${locale ?? ''}`
 	const cached = formatTokenAmountCache.get(key)
@@ -23,9 +26,11 @@ export function formatTokenAmount(
 		.padStart(decimals, '0')
 		.slice(0, decimals)
 		.replace(/0+$/, '')
-	const intFormatted = new Intl.NumberFormat(locale, { useGrouping: true })
-		.format(intPart)
-	const result = fracPadded === '' ? intFormatted : `${intFormatted}.${fracPadded}`
+	const intFormatted = new Intl.NumberFormat(locale, {
+		useGrouping: true,
+	}).format(intPart)
+	const result =
+		fracPadded === '' ? intFormatted : `${intFormatted}.${fracPadded}`
 	formatTokenAmountCache.set(key, result)
 	return result
 }
@@ -63,7 +68,10 @@ export const formatSmallestToDecimal = (
 	return fracPart === '' ? intPart : `${intPart}.${fracPart}`
 }
 
-export const isValidDecimalInput = (value: string, decimals: number): boolean => {
+export const isValidDecimalInput = (
+	value: string,
+	decimals: number,
+): boolean => {
 	const cleaned = value.replace(/[,\s]/g, '')
 	if (!/^\d*\.?\d*$/.test(cleaned)) return false
 	const [, fraction = ''] = cleaned.split('.')

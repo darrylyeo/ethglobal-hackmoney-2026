@@ -8,7 +8,11 @@
 	import { formatSmallestToDecimal } from '$/lib/format'
 
 	// State
-	import { insertTransaction, updateTransaction, type Transaction$id } from '$/collections/transactions'
+	import {
+		insertTransaction,
+		updateTransaction,
+		type Transaction$id,
+	} from '$/collections/transactions'
 	import { yellowState } from '$/state/yellow.svelte'
 
 	// Props
@@ -35,17 +39,13 @@
 	} = $props()
 
 	// (Derived)
-	const amountLabel = $derived(
-		formatSmallestToDecimal(amount, tokenDecimals)
-	)
+	const amountLabel = $derived(formatSmallestToDecimal(amount, tokenDecimals))
 	const canTransfer = $derived(
 		amount > 0n &&
-		(
-			mode === 'channel'
+			(mode === 'channel'
 				? Boolean(yellowState.clearnodeConnection) &&
 					yellowState.address?.toLowerCase() === fromActor.toLowerCase()
-				: true
-		)
+				: true),
 	)
 
 	// Actions
@@ -71,7 +71,12 @@
 		})
 	}
 	const executeDirectTransfer = async (args: {
-		provider: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> }
+		provider: {
+			request: (args: {
+				method: string
+				params?: unknown[]
+			}) => Promise<unknown>
+		}
 		walletAddress: `0x${string}`
 	}) => {
 		if (args.walletAddress.toLowerCase() !== fromActor.toLowerCase()) {
@@ -90,7 +95,11 @@
 		if (typeof txHash !== 'string') {
 			throw new Error('Direct transfer did not return a transaction hash.')
 		}
-		const txId: Transaction$id = { address: args.walletAddress, sourceTxHash: txHash, createdAt: Date.now() }
+		const txId: Transaction$id = {
+			address: args.walletAddress,
+			sourceTxHash: txHash,
+			createdAt: Date.now(),
+		}
 		insertTransaction({
 			$id: txId,
 			fromChainId: chainId,
@@ -107,18 +116,17 @@
 	import TransactionFlow from '$/components/TransactionFlow.svelte'
 </script>
 
-
 {#snippet transferSummary()}
 	<div data-column="gap-1">
 		<p data-muted>From: {fromActor.slice(0, 8)}…{fromActor.slice(-4)}</p>
 		<p data-muted>To: {toActor.slice(0, 8)}…{toActor.slice(-4)}</p>
 		<p data-muted>Amount: {amountLabel} {tokenSymbol}</p>
-	<p data-muted>Mode: {mode}</p>
+		<p data-muted>Mode: {mode}</p>
 	</div>
 {/snippet}
 
 <TransactionFlow
-	walletConnection={walletConnection}
+	{walletConnection}
 	Summary={transferSummary}
 	transactions={[
 		{
@@ -127,11 +135,10 @@
 			title: 'Transfer',
 			actionLabel: 'Transfer',
 			canExecute: canTransfer,
-			execute: (args) => (
+			execute: (args) =>
 				mode === 'channel'
 					? executeChannelTransfer()
-					: executeDirectTransfer(args)
-			),
+					: executeDirectTransfer(args),
 		},
 	]}
 />

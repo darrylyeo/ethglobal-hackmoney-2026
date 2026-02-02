@@ -8,7 +8,11 @@
 	import { executeSelectedRoute } from '$/api/lifi'
 	import { getTxUrl } from '$/constants/networks'
 	import { toasts } from '$/lib/toast.svelte'
-	import { insertTransaction, updateTransaction, type Transaction$id } from '$/collections/transactions'
+	import {
+		insertTransaction,
+		updateTransaction,
+		type Transaction$id,
+	} from '$/collections/transactions'
 
 	let {
 		route,
@@ -32,7 +36,12 @@
 
 	// Build compatible ProviderDetailType for API
 	const providerDetail = $derived({
-		info: { uuid: walletRow.$id.rdns, name: walletRow.name, icon: walletRow.icon, rdns: walletRow.rdns },
+		info: {
+			uuid: walletRow.$id.rdns,
+			name: walletRow.name,
+			icon: walletRow.icon,
+			rdns: walletRow.rdns,
+		},
 		provider: walletRow.provider,
 	})
 
@@ -44,7 +53,8 @@
 
 	// Sync executing prop with action state
 	$effect(() => {
-		executing = actionTx?.state === 'pending' || actionTx?.state === 'persisting'
+		executing =
+			actionTx?.state === 'pending' || actionTx?.state === 'persisting'
 	})
 
 	// Define the bridge action
@@ -59,30 +69,52 @@
 	}>({
 		// No optimistic insert - we don't have the tx hash yet
 		onMutate: () => {},
-		mutationFn: async ({ route, providerDetail, walletAddress, fromChainId, toChainId, amount, onStatus: reportStatus }) => {
+		mutationFn: async ({
+			route,
+			providerDetail,
+			walletAddress,
+			fromChainId,
+			toChainId,
+			amount,
+			onStatus: reportStatus,
+		}) => {
 			let txId: Transaction$id | null = null
 
 			try {
-				const result = await executeSelectedRoute(providerDetail, route, (s) => {
-					reportStatus(s)
+				const result = await executeSelectedRoute(
+					providerDetail,
+					route,
+					(s) => {
+						reportStatus(s)
 
-					const hash = s.steps.find((st) => st.txHash)?.txHash
-					if (hash && !txId) {
-						txId = { address: walletAddress, sourceTxHash: hash, createdAt: Date.now() }
-						insertTransaction({
-							$id: txId,
-							fromChainId,
-							toChainId,
-							fromAmount: amount,
-							toAmount: route.toAmount,
-							destTxHash: null,
-							status: 'pending',
-						})
-					}
-				})
+						const hash = s.steps.find((st) => st.txHash)?.txHash
+						if (hash && !txId) {
+							txId = {
+								address: walletAddress,
+								sourceTxHash: hash,
+								createdAt: Date.now(),
+							}
+							insertTransaction({
+								$id: txId,
+								fromChainId,
+								toChainId,
+								fromAmount: amount,
+								toAmount: route.toAmount,
+								destTxHash: null,
+								status: 'pending',
+							})
+						}
+					},
+				)
 
 				const destHash = result.steps
-					.flatMap((s) => (s.execution?.process ?? []) as { txHash?: string; chainId?: number }[])
+					.flatMap(
+						(s) =>
+							(s.execution?.process ?? []) as {
+								txHash?: string
+								chainId?: number
+							}[],
+					)
 					.find((p) => p.chainId === toChainId)?.txHash
 
 				if (txId) {
@@ -131,20 +163,30 @@
 			}
 		} catch (e) {
 			toasts.dismiss(loadingId)
-			toasts.error(e instanceof Error ? e.message : 'Bridge failed', { title: 'Error' })
+			toasts.error(e instanceof Error ? e.message : 'Bridge failed', {
+				title: 'Error',
+			})
 		}
 	}
 </script>
 
-
 {#if status.overall !== 'idle'}
 	<div data-column="gap-1">
 		{#each status.steps as step (step.step)}
-			<div data-row="gap-1" class:muted={step.state === 'pending'} class:error={step.state === 'failed'} class:success={step.state === 'success'}>
+			<div
+				data-row="gap-1"
+				class:muted={step.state === 'pending'}
+				class:error={step.state === 'failed'}
+				class:success={step.state === 'success'}
+			>
 				{step.state === 'success' ? '✓' : step.state === 'failed' ? '✗' : '…'}
 				{step.step}
 				{#if step.txHash}
-					<a href={getTxUrl(step.chainId ?? fromChainId, step.txHash)} target="_blank" rel="noopener noreferrer">{step.txHash.slice(0, 8)}…</a>
+					<a
+						href={getTxUrl(step.chainId ?? fromChainId, step.txHash)}
+						target="_blank"
+						rel="noopener noreferrer">{step.txHash.slice(0, 8)}…</a
+					>
 				{/if}
 			</div>
 		{/each}
@@ -158,9 +200,14 @@
 	<p class="error">Transaction failed</p>
 {/if}
 
-
 <style>
-	.muted { opacity: 0.6; }
-	.error { color: var(--color-error, #ef4444); }
-	.success { color: var(--color-success, #22c55e); }
+	.muted {
+		opacity: 0.6;
+	}
+	.error {
+		color: var(--color-error, #ef4444);
+	}
+	.success {
+		color: var(--color-success, #22c55e);
+	}
 </style>

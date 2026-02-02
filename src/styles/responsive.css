@@ -36,13 +36,13 @@ h3 {
 	font-size: var(--text-lg);
 }
 
-input:not([type="checkbox"]):not([type="radio"]),
+input:not([type='checkbox']):not([type='radio']),
 select,
 button {
 	min-height: var(--tap-target);
 }
 
-input:not([type="checkbox"]):not([type="radio"]) {
+input:not([type='checkbox']):not([type='radio']) {
 	font-size: 16px;
 }
 

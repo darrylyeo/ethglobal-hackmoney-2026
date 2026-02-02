@@ -20,7 +20,9 @@
 			{#each positions as pos (pos.id)}
 				<div data-row="gap-2 align-center" data-position-row>
 					<span>Pool {pos.poolId.slice(0, 10)}…</span>
-					<span data-tabular>Liquidity: {formatSmallestToDecimal(pos.liquidity, 0, 0)}</span>
+					<span data-tabular
+						>Liquidity: {formatSmallestToDecimal(pos.liquidity, 0, 0)}</span
+					>
 					<span data-muted>Range: {pos.tickLower} — {pos.tickUpper}</span>
 					<button type="button">Collect</button>
 					<button type="button">Remove</button>

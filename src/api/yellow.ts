@@ -7,7 +7,10 @@ import { createWalletClientForChain } from '$/lib/wallet'
 import type { EIP1193Provider } from '$/lib/wallet'
 import type { YellowChannelState } from '$/collections/yellow-channel-states'
 import { CUSTODY_CONTRACT_ADDRESS } from '$/constants/yellow/custody'
-import { CLEARNODE_WS_URL, CLEARNODE_WS_URL_SANDBOX } from '$/constants/yellow/clearnode'
+import {
+	CLEARNODE_WS_URL,
+	CLEARNODE_WS_URL_SANDBOX,
+} from '$/constants/yellow/clearnode'
 import { parseDecimalToSmallest } from '$/lib/format'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 
@@ -15,14 +18,14 @@ export type ClearnodeConnection = {
 	close: () => void
 	onMessage: (handler: (msg: unknown) => void) => void
 	send: (msg: unknown) => void
-	sendRequest?: <T>(buildMessage: (requestId: number) => Promise<string>) => Promise<T>
+	sendRequest?: <T>(
+		buildMessage: (requestId: number) => Promise<string>,
+	) => Promise<T>
 	sessionSigner?: (payload: unknown[]) => Promise<`0x${string}`>
 	sessionKey?: `0x${string}`
 }
 
-const getYellowSdk = async () => (
-	import('@erc7824/nitrolite')
-)
+const getYellowSdk = async () => import('@erc7824/nitrolite')
 
 export const connectClearnode = async (params: {
 	chainId: number
@@ -43,30 +46,43 @@ export const connectClearnode = async (params: {
 
 	const socket = new WebSocket(wsUrl)
 	const handlers = new Set<(msg: unknown) => void>()
-	const pending = new Map<number, { resolve: (value: unknown) => void; reject: (error: Error) => void }>()
+	const pending = new Map<
+		number,
+		{ resolve: (value: unknown) => void; reject: (error: Error) => void }
+	>()
 	let requestId = 1
-	let sessionSigner: ((payload: unknown[]) => Promise<`0x${string}`>) | null = null
+	let sessionSigner: ((payload: unknown[]) => Promise<`0x${string}`>) | null =
+		null
 	let sessionKey: `0x${string}` | null = null
 
 	const sendRaw = (msg: unknown) => {
 		socket.send(typeof msg === 'string' ? msg : JSON.stringify(msg))
 	}
 
-	const sendRequest = <T>(buildMessage: (id: number) => Promise<string>) => (
+	const sendRequest = <T>(buildMessage: (id: number) => Promise<string>) =>
 		new Promise<T>((resolve, reject) => {
 			const id = requestId++
-			buildMessage(id).then((message) => {
-				pending.set(id, { resolve, reject })
-				sendRaw(message)
-			}).catch((error: unknown) => {
-				reject(error instanceof Error ? error : new Error('Failed to build request'))
-			})
+			buildMessage(id)
+				.then((message) => {
+					pending.set(id, { resolve, reject })
+					sendRaw(message)
+				})
+				.catch((error: unknown) => {
+					reject(
+						error instanceof Error
+							? error
+							: new Error('Failed to build request'),
+					)
+				})
 		})
-	)
 
 	const awaitOpen = new Promise<void>((resolve, reject) => {
 		socket.addEventListener('open', () => resolve(), { once: true })
-		socket.addEventListener('error', () => reject(new Error('Clearnode connection failed')), { once: true })
+		socket.addEventListener(
+			'error',
+			() => reject(new Error('Clearnode connection failed')),
+			{ once: true },
+		)
 	})
 
 	await awaitOpen
@@ -102,29 +118,41 @@ export const connectClearnode = async (params: {
 			}
 			const [id, method, result] = response
 			if (method === 'auth_challenge' || method === 'auth_request') {
-				const walletClient = createWalletClientForChain(params.signer, params.chainId)
-				const signer = createEIP712AuthMessageSigner(walletClient, authParams, { name: authParams.application })
-				const challenge = (
+				const walletClient = createWalletClientForChain(
+					params.signer,
+					params.chainId,
+				)
+				const signer = createEIP712AuthMessageSigner(walletClient, authParams, {
+					name: authParams.application,
+				})
+				const challenge =
 					result && typeof result === 'object' && 'challenge_message' in result
 						? result.challenge_message
-						: result && typeof result === 'object' && 'challengeMessage' in result
+						: result &&
+							  typeof result === 'object' &&
+							  'challengeMessage' in result
 							? result.challengeMessage
 							: null
-				)
 				if (typeof challenge === 'string') {
-					const verifyMessage = await createAuthVerifyMessageFromChallenge(signer, challenge)
+					const verifyMessage = await createAuthVerifyMessageFromChallenge(
+						signer,
+						challenge,
+					)
 					sendRaw(verifyMessage)
 				}
 			} else if (method === 'auth_verify') {
-				const success = (
+				const success =
 					result && typeof result === 'object' && 'success' in result
 						? Boolean(result.success)
 						: false
-				)
 				if (success) {
 					sessionSigner = createECDSAMessageSigner(sessionPrivateKey)
 					sessionKey = sessionAccount.address
-					const balancesMessage = await createGetLedgerBalancesMessage(sessionSigner, params.address, requestId++)
+					const balancesMessage = await createGetLedgerBalancesMessage(
+						sessionSigner,
+						params.address,
+						requestId++,
+					)
 					sendRaw(balancesMessage)
 					resolve()
 				} else {
@@ -137,9 +165,10 @@ export const connectClearnode = async (params: {
 				const entry = pending.get(id)
 				if (entry) {
 					if (method === 'error') {
-						const message = result && typeof result === 'object' && 'error' in result
-							? String(result.error)
-							: 'Yellow request failed'
+						const message =
+							result && typeof result === 'object' && 'error' in result
+								? String(result.error)
+								: 'Yellow request failed'
 						entry.reject(new Error(message))
 					} else {
 						entry.resolve(result)
@@ -174,8 +203,23 @@ export const depositToCustody = async (params: {
 		throw new Error('Yellow Custody Contract not configured for this chain')
 	}
 	const sdk = await getYellowSdk()
-	if (sdk && typeof (sdk as { depositToCustody?: (p: typeof params) => Promise<{ txHash: `0x${string}` }> }).depositToCustody === 'function') {
-		return (sdk as { depositToCustody: (p: typeof params) => Promise<{ txHash: `0x${string}` }> }).depositToCustody(params)
+	if (
+		sdk &&
+		typeof (
+			sdk as {
+				depositToCustody?: (
+					p: typeof params,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).depositToCustody === 'function'
+	) {
+		return (
+			sdk as {
+				depositToCustody: (
+					p: typeof params,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).depositToCustody(params)
 	}
 	throw new Error('Yellow SDK not loaded; deposit when configured')
 }
@@ -189,8 +233,23 @@ export const withdrawFromCustody = async (params: {
 		throw new Error('Yellow Custody Contract not configured for this chain')
 	}
 	const sdk = await getYellowSdk()
-	if (sdk && typeof (sdk as { withdrawFromCustody?: (p: typeof params) => Promise<{ txHash: `0x${string}` }> }).withdrawFromCustody === 'function') {
-		return (sdk as { withdrawFromCustody: (p: typeof params) => Promise<{ txHash: `0x${string}` }> }).withdrawFromCustody(params)
+	if (
+		sdk &&
+		typeof (
+			sdk as {
+				withdrawFromCustody?: (
+					p: typeof params,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).withdrawFromCustody === 'function'
+	) {
+		return (
+			sdk as {
+				withdrawFromCustody: (
+					p: typeof params,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).withdrawFromCustody(params)
 	}
 	throw new Error('Yellow SDK not loaded; withdraw when configured')
 }
@@ -200,25 +259,34 @@ export const getAvailableBalance = async (params: {
 	address: `0x${string}`
 }): Promise<bigint> => {
 	const { createGetLedgerBalancesMessage } = await getYellowSdk()
-	if (!params.clearnodeConnection.sendRequest || !params.clearnodeConnection.sessionSigner) return 0n
-	const result = await params.clearnodeConnection.sendRequest((id) => (
-		createGetLedgerBalancesMessage(params.clearnodeConnection.sessionSigner!, params.address, id)
-	))
-	const balances = (
+	if (
+		!params.clearnodeConnection.sendRequest ||
+		!params.clearnodeConnection.sessionSigner
+	)
+		return 0n
+	const result = await params.clearnodeConnection.sendRequest((id) =>
+		createGetLedgerBalancesMessage(
+			params.clearnodeConnection.sessionSigner!,
+			params.address,
+			id,
+		),
+	)
+	const balances =
 		result && typeof result === 'object' && 'ledgerBalances' in result
 			? result.ledgerBalances
 			: []
-	)
 	if (!Array.isArray(balances)) return 0n
-	const usdc = balances.find((entry) => (
-		entry &&
-		typeof entry === 'object' &&
-		'asset' in entry &&
-		String(entry.asset).toLowerCase() === 'usdc'
-	))
-	const amount = usdc && typeof usdc === 'object' && 'amount' in usdc
-		? String(usdc.amount)
-		: '0'
+	const usdc = balances.find(
+		(entry) =>
+			entry &&
+			typeof entry === 'object' &&
+			'asset' in entry &&
+			String(entry.asset).toLowerCase() === 'usdc',
+	)
+	const amount =
+		usdc && typeof usdc === 'object' && 'amount' in usdc
+			? String(usdc.amount)
+			: '0'
 	return parseDecimalToSmallest(amount, 6)
 }
 
@@ -228,20 +296,28 @@ export const openChannel = async (params: {
 	token: `0x${string}`
 }): Promise<{ channelId: string }> => {
 	const { createCreateChannelMessage } = await getYellowSdk()
-	if (!params.clearnodeConnection.sendRequest || !params.clearnodeConnection.sessionSigner) {
+	if (
+		!params.clearnodeConnection.sendRequest ||
+		!params.clearnodeConnection.sessionSigner
+	) {
 		throw new Error('Clearnode connection unavailable')
 	}
-	const result = await params.clearnodeConnection.sendRequest((id) => (
-		createCreateChannelMessage(params.clearnodeConnection.sessionSigner!, {
-			chain_id: params.chainId,
-			token: params.token,
-		}, id)
-	))
-	const channelId = result && typeof result === 'object' && 'channelId' in result
-		? String(result.channelId)
-		: result && typeof result === 'object' && 'channel_id' in result
-			? String(result.channel_id)
-			: ''
+	const result = await params.clearnodeConnection.sendRequest((id) =>
+		createCreateChannelMessage(
+			params.clearnodeConnection.sessionSigner!,
+			{
+				chain_id: params.chainId,
+				token: params.token,
+			},
+			id,
+		),
+	)
+	const channelId =
+		result && typeof result === 'object' && 'channelId' in result
+			? String(result.channelId)
+			: result && typeof result === 'object' && 'channel_id' in result
+				? String(result.channel_id)
+				: ''
 	if (!channelId) throw new Error('Missing channel id from clearnode')
 	// TODO: submit channel + initial state to custody contract
 	return { channelId }
@@ -255,17 +331,24 @@ export const resizeChannel = async (params: {
 	allocateAmount?: bigint
 }): Promise<{ channelId: string }> => {
 	const { createResizeChannelMessage } = await getYellowSdk()
-	if (!params.clearnodeConnection.sendRequest || !params.clearnodeConnection.sessionSigner) {
+	if (
+		!params.clearnodeConnection.sendRequest ||
+		!params.clearnodeConnection.sessionSigner
+	) {
 		throw new Error('Clearnode session missing')
 	}
-	await params.clearnodeConnection.sendRequest((id) => (
-		createResizeChannelMessage(params.clearnodeConnection.sessionSigner!, {
-			channel_id: params.channelId,
-			funds_destination: params.fundsDestination,
-			resize_amount: params.resizeAmount,
-			allocate_amount: params.allocateAmount,
-		}, id)
-	))
+	await params.clearnodeConnection.sendRequest((id) =>
+		createResizeChannelMessage(
+			params.clearnodeConnection.sessionSigner!,
+			{
+				channel_id: params.channelId,
+				funds_destination: params.fundsDestination,
+				resize_amount: params.resizeAmount,
+				allocate_amount: params.allocateAmount,
+			},
+			id,
+		),
+	)
 	return { channelId: params.channelId }
 }
 
@@ -275,19 +358,27 @@ export const sendTransfer = async (params: {
 	allocations: { asset: string; amount: string }[]
 }): Promise<{ turnNum: number }> => {
 	const { createTransferMessage } = await getYellowSdk()
-	if (!params.clearnodeConnection.sendRequest || !params.clearnodeConnection.sessionSigner) {
+	if (
+		!params.clearnodeConnection.sendRequest ||
+		!params.clearnodeConnection.sessionSigner
+	) {
 		throw new Error('Clearnode session missing')
 	}
-	const result = await params.clearnodeConnection.sendRequest((id) => (
-		createTransferMessage(params.clearnodeConnection.sessionSigner!, {
-			destination: params.destination,
-			allocations: params.allocations,
-		}, id)
-	))
+	const result = await params.clearnodeConnection.sendRequest((id) =>
+		createTransferMessage(
+			params.clearnodeConnection.sessionSigner!,
+			{
+				destination: params.destination,
+				allocations: params.allocations,
+			},
+			id,
+		),
+	)
 	return {
-		turnNum: result && typeof result === 'object' && 'version' in result
-			? Number(result.version)
-			: 0,
+		turnNum:
+			result && typeof result === 'object' && 'version' in result
+				? Number(result.version)
+				: 0,
 	}
 }
 
@@ -297,12 +388,20 @@ export const closeChannel = async (params: {
 	fundsDestination: `0x${string}`
 }): Promise<{ channelId: string }> => {
 	const { createCloseChannelMessage } = await getYellowSdk()
-	if (!params.clearnodeConnection.sendRequest || !params.clearnodeConnection.sessionSigner) {
+	if (
+		!params.clearnodeConnection.sendRequest ||
+		!params.clearnodeConnection.sessionSigner
+	) {
 		throw new Error('Clearnode session missing')
 	}
-	await params.clearnodeConnection.sendRequest((id) => (
-		createCloseChannelMessage(params.clearnodeConnection.sessionSigner!, params.channelId, params.fundsDestination, id)
-	))
+	await params.clearnodeConnection.sendRequest((id) =>
+		createCloseChannelMessage(
+			params.clearnodeConnection.sessionSigner!,
+			params.channelId,
+			params.fundsDestination,
+			id,
+		),
+	)
 	return { channelId: params.channelId }
 }
 
@@ -312,8 +411,23 @@ export const challengeChannel = async (params: {
 	latestState: YellowChannelState
 }): Promise<{ txHash: `0x${string}` }> => {
 	const sdk = await getYellowSdk()
-	if (sdk && typeof (sdk as { challengeChannel?: (p: typeof params) => Promise<{ txHash: `0x${string}` }> }).challengeChannel === 'function') {
-		return (sdk as { challengeChannel: (p: typeof params) => Promise<{ txHash: `0x${string}` }> }).challengeChannel(params)
+	if (
+		sdk &&
+		typeof (
+			sdk as {
+				challengeChannel?: (
+					p: typeof params,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).challengeChannel === 'function'
+	) {
+		return (
+			sdk as {
+				challengeChannel: (
+					p: typeof params,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).challengeChannel(params)
 	}
 	throw new Error('Yellow SDK not loaded; challenge channel when configured')
 }

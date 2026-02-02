@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { networksCollection } from '$/collections/networks'
 	import { coinsCollection } from '$/collections/coins'
@@ -18,9 +18,7 @@
 	const networks = $derived(
 		(networksQuery.data ?? []).map((row) => row.network),
 	)
-	const coins = $derived(
-		(coinsQuery.data ?? []).map((row) => row.coin),
-	)
+	const coins = $derived((coinsQuery.data ?? []).map((row) => row.coin))
 </script>
 
 <main id="main-content">

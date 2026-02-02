@@ -7,7 +7,6 @@
 	}
 </script>
 
-
 <script lang="ts">
 	// Props
 	let {
@@ -23,20 +22,15 @@
 	} = $props()
 
 	// (Derived)
-	let shouldTruncate = $derived(
-		value.length > startLength + endLength
-	)
+	let shouldTruncate = $derived(value.length > startLength + endLength)
 </script>
-
 
 {#if !shouldTruncate}
 	{value}
-
 {:else if format === TruncatedValueFormat.Abbr}
 	{@const formattedValue = `${value.slice(0, startLength)}⸱⸱⸱${value.slice(-endLength)}`}
 
 	<abbr title={value}>{formattedValue}</abbr>
-
 {:else if format === TruncatedValueFormat.Visual}
 	<span
 		class="truncated-value"
@@ -50,10 +44,13 @@
 			{@const middle = value.slice(startLength, -endLength || undefined)}
 			{@const end = value.slice(-endLength || undefined)}
 
-			<span>{start}</span><span class="middle"><span>{middle.slice(0, middle.length / 2)}</span><span aria-hidden="true"></span><span>{middle.slice(middle.length / 2)}</span></span><span>{end}</span>
+			<span>{start}</span><span class="middle"
+				><span>{middle.slice(0, middle.length / 2)}</span><span
+					aria-hidden="true"
+				></span><span>{middle.slice(middle.length / 2)}</span></span
+			><span>{end}</span>
 		{/if}
 	</span>
-
 {:else if format === TruncatedValueFormat.VisualCharacters}
 	<span
 		class="truncated-value"
@@ -61,9 +58,15 @@
 		tabindex="0"
 		aria-label={value}
 		data-truncatedValueFormat={TruncatedValueFormat.VisualCharacters}
-	>{#if startLength}<span>{value.slice(0, startLength)}</span>{/if}<span class="middle" style:--l={value.length - startLength - endLength}>{#each value.slice(startLength, -endLength || undefined) as char, i}<span style:--i={i}>{char}</span>{/each}</span>{#if endLength}<span>{value.slice(-endLength)}</span>{/if}</span>
+		>{#if startLength}<span>{value.slice(0, startLength)}</span>{/if}<span
+			class="middle"
+			style:--l={value.length - startLength - endLength}
+			>{#each value.slice(startLength, -endLength || undefined) as char, i}<span
+					style:--i={i}>{char}</span
+				>{/each}</span
+		>{#if endLength}<span>{value.slice(-endLength)}</span>{/if}</span
+	>
 {/if}
-
 
 <style>
 	.truncated-value {
@@ -86,7 +89,7 @@
 			text-shadow: 0 0.5px 0.2em var(--accent);
 		}
 
-		&[data-truncatedValueFormat="Visual"] > .middle {
+		&[data-truncatedValueFormat='Visual'] > .middle {
 			align-items: baseline;
 
 			> span {
@@ -117,21 +120,14 @@
 			}
 		}
 
-		&[data-truncatedValueFormat="VisualCharacters"] > span {
+		&[data-truncatedValueFormat='VisualCharacters'] > span {
 			vertical-align: baseline;
 
 			&.middle {
 				> span {
-					--d: (
-						1 - sin(var(--i) / (var(--l) - 1) * 180deg)
-					);
+					--d: (1 - sin(var(--i) / (var(--l) - 1) * 180deg));
 
-					--x: (
-						pow(
-							var(--d),
-							var(--isTruncated) * 2.5
-						)
-					);
+					--x: (pow(var(--d), var(--isTruncated) * 2.5));
 
 					vertical-align: middle;
 

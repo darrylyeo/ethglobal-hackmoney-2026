@@ -16,9 +16,8 @@
 	let { roomId }: { roomId: string } = $props()
 
 	// Functions
-	const isHexAddress = (value: string): value is `0x${string}` => (
+	const isHexAddress = (value: string): value is `0x${string}` =>
 		value.startsWith('0x')
-	)
 
 	// State
 	let selectedAddress = $state<`0x${string}` | null>(null)
@@ -28,45 +27,57 @@
 
 	// (Derived)
 	const verifiedQuery = useLiveQuery(
-		(q) => q
-			.from({ row: sharedAddressesCollection })
-			.where(({ row }) => eq(row.roomId, roomId))
-			.select(({ row }) => ({ row })),
+		(q) =>
+			q
+				.from({ row: sharedAddressesCollection })
+				.where(({ row }) => eq(row.roomId, roomId))
+				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
-	const depositQuery = useLiveQuery(
-		(q) => q
-			.from({ row: yellowDepositsCollection })
-			.select(({ row }) => ({ row })),
+	const depositQuery = useLiveQuery((q) =>
+		q.from({ row: yellowDepositsCollection }).select(({ row }) => ({ row })),
 	)
 	const requestsQuery = useLiveQuery(
-		(q) => q
-			.from({ row: transferRequestsCollection })
-			.where(({ row }) => eq(row.roomId, roomId))
-			.select(({ row }) => ({ row })),
+		(q) =>
+			q
+				.from({ row: transferRequestsCollection })
+				.where(({ row }) => eq(row.roomId, roomId))
+				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
 	const myAddress = $derived(yellowState.address?.toLowerCase() ?? null)
 	const otherVerified = $derived(
 		myAddress
-			? (verifiedQuery.data ?? []).map((r) => r.row).filter((s) => s.address.toLowerCase() !== myAddress)
+			? (verifiedQuery.data ?? [])
+					.map((r) => r.row)
+					.filter((s) => s.address.toLowerCase() !== myAddress)
 			: [],
 	)
 	const availableBalance = $derived(
 		myAddress && yellowState.chainId
-			? (depositQuery.data ?? []).map((r) => r.row).find(
-				(d) => d.address.toLowerCase() === myAddress && d.chainId === yellowState.chainId,
-			)?.availableBalance ?? 0n
+			? ((depositQuery.data ?? [])
+					.map((r) => r.row)
+					.find(
+						(d) =>
+							d.address.toLowerCase() === myAddress &&
+							d.chainId === yellowState.chainId,
+					)?.availableBalance ?? 0n)
 			: 0n,
 	)
 	const incoming = $derived(
 		myAddress
-			? (requestsQuery.data ?? []).map((r) => r.row).filter((p) => p.to.toLowerCase() === myAddress && p.status === 'pending')
+			? (requestsQuery.data ?? [])
+					.map((r) => r.row)
+					.filter(
+						(p) => p.to.toLowerCase() === myAddress && p.status === 'pending',
+					)
 			: [],
 	)
 	const outgoing = $derived(
 		myAddress
-			? (requestsQuery.data ?? []).map((r) => r.row).filter((p) => p.from.toLowerCase() === myAddress)
+			? (requestsQuery.data ?? [])
+					.map((r) => r.row)
+					.filter((p) => p.from.toLowerCase() === myAddress)
 			: [],
 	)
 
@@ -97,7 +108,9 @@
 			sendError = 'Connect to Yellow before sending'
 			return
 		}
-		const request = (requestsQuery.data ?? []).map((r) => r.row).find((r) => r.id === requestId)
+		const request = (requestsQuery.data ?? [])
+			.map((r) => r.row)
+			.find((r) => r.id === requestId)
 		if (!request) return
 		sendError = null
 		sendingRequestId = requestId
@@ -121,7 +134,6 @@
 	import { Button } from 'bits-ui'
 </script>
 
-
 <section data-transfer-requests>
 	<h3>Request Transfer</h3>
 
@@ -143,14 +155,12 @@
 			items={otherVerified}
 			value={selectedAddress ?? ''}
 			onValueChange={(v) => {
-				selectedAddress = (
-					typeof v === 'string' && isHexAddress(v) ?
-						v
-					: Array.isArray(v) && typeof v[0] === 'string' && isHexAddress(v[0]) ?
-						v[0]
-					:
-						null
-				)
+				selectedAddress =
+					typeof v === 'string' && isHexAddress(v)
+						? v
+						: Array.isArray(v) && typeof v[0] === 'string' && isHexAddress(v[0])
+							? v[0]
+							: null
 			}}
 			getItemId={(shared) => shared.address}
 			getItemLabel={(shared) => shared.address}
@@ -176,10 +186,15 @@
 			<div data-request>
 				<Address network={1} address={request.from} />
 				<span>
-					requested {request.allocations[0]?.amount ?? '0'} {request.allocations[0]?.asset ?? 'usdc'}
+					requested {request.allocations[0]?.amount ?? '0'}
+					{request.allocations[0]?.asset ?? 'usdc'}
 				</span>
-				<Button.Root type="button" onclick={() => acceptRequest(request.id)}>Accept</Button.Root>
-				<Button.Root type="button" onclick={() => rejectRequest(request.id)}>Reject</Button.Root>
+				<Button.Root type="button" onclick={() => acceptRequest(request.id)}
+					>Accept</Button.Root
+				>
+				<Button.Root type="button" onclick={() => rejectRequest(request.id)}
+					>Reject</Button.Root
+				>
 			</div>
 		{/each}
 	{/if}
@@ -190,7 +205,8 @@
 			<div data-request>
 				<Address network={1} address={request.to} />
 				<span>
-					{request.allocations[0]?.amount ?? '0'} {request.allocations[0]?.asset ?? 'usdc'} ({request.status})
+					{request.allocations[0]?.amount ?? '0'}
+					{request.allocations[0]?.asset ?? 'usdc'} ({request.status})
 				</span>
 				{#if request.status === 'accepted'}
 					<Button.Root
@@ -210,11 +226,28 @@
 	{/if}
 </section>
 
-
 <style>
-	[data-transfer-requests] h3, [data-transfer-requests] h4 { margin: 0.5rem 0; }
-	[data-available-balance] { margin-bottom: 0.5rem; }
-	[data-transfer-requests] form { display: flex; flex-direction: column; gap: 0.5rem; max-width: 20rem; }
-	[data-request] { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin: 0.5rem 0; }
-	[data-error] { color: var(--color-error, red); }
+	[data-transfer-requests] h3,
+	[data-transfer-requests] h4 {
+		margin: 0.5rem 0;
+	}
+	[data-available-balance] {
+		margin-bottom: 0.5rem;
+	}
+	[data-transfer-requests] form {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		max-width: 20rem;
+	}
+	[data-request] {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+		margin: 0.5rem 0;
+	}
+	[data-error] {
+		color: var(--color-error, red);
+	}
 </style>

@@ -9,11 +9,13 @@
 
 	const handleCreate = () => {
 		creating = true
-		createRoom().then((roomId) => {
-			goto(`/rooms/${roomId}`)
-		}).finally(() => {
-			creating = false
-		})
+		createRoom()
+			.then((roomId) => {
+				goto(`/rooms/${roomId}`)
+			})
+			.finally(() => {
+				creating = false
+			})
 	}
 
 	const handleJoin = () => {
@@ -34,11 +36,7 @@
 
 	<section data-card>
 		<h2>Create room</h2>
-		<button
-			type="button"
-			disabled={creating}
-			onclick={handleCreate}
-		>
+		<button type="button" disabled={creating} onclick={handleCreate}>
 			{creating ? 'Creating…' : 'Create room'}
 		</button>
 	</section>

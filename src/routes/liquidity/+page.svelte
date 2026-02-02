@@ -16,11 +16,7 @@
 <details open data-card>
 	<summary>
 		<header data-card="secondary" data-row="wrap gap-2">
-			<Wallets
-				bind:connectedWallets
-				bind:selectedActor
-				bind:selectedChainId
-			/>
+			<Wallets bind:connectedWallets bind:selectedActor bind:selectedChainId />
 		</header>
 	</summary>
 

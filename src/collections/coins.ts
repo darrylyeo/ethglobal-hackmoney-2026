@@ -19,8 +19,7 @@ export const coinsCollection = createCollection(
 		queryKey: ['coins'],
 		queryFn: () => Promise.resolve(ercTokens.map(normalizeCoin)),
 		queryClient,
-		getKey: (row: CoinRow) => (
-			`${row.$id.network}-${row.$id.address.toLowerCase()}`
-		),
+		getKey: (row: CoinRow) =>
+			`${row.$id.network}-${row.$id.address.toLowerCase()}`,
 	}),
 )

@@ -7,12 +7,14 @@
 		burnTxHash = $bindable(null as string | null),
 		sourceDomain,
 		apiHost,
-		attestationPayload = $bindable(null as { message: string, attestation: string } | null),
+		attestationPayload = $bindable(
+			null as { message: string; attestation: string } | null,
+		),
 	}: {
 		burnTxHash?: string | null
 		sourceDomain: number | null
 		apiHost: string
-		attestationPayload?: { message: string, attestation: string } | null
+		attestationPayload?: { message: string; attestation: string } | null
 	} = $props()
 
 	// State
@@ -54,11 +56,12 @@
 	})
 </script>
 
-
 <div data-column="gap-1">
 	<strong>Attestation</strong>
 	{#if status === 'idle'}
-		<small data-muted>After burn, attestation will be polled automatically.</small>
+		<small data-muted
+			>After burn, attestation will be polled automatically.</small
+		>
 	{:else if status === 'pending'}
 		<small data-muted>Waiting for attestation… (404 treated as pending)</small>
 	{:else if status === 'ready'}

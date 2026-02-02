@@ -20,7 +20,6 @@
 		children?: import('svelte').Snippet
 	} = $props()
 
-
 	// Actions
 	const ondragstart = (e: DragEvent) => {
 		e.dataTransfer?.setData('text/plain', draggableText)
@@ -29,14 +28,8 @@
 	}
 </script>
 
-
 {#if link}
-	<a
-		class={className}
-		href={link}
-		draggable={true}
-		{ondragstart}
-	>
+	<a class={className} href={link} draggable={true} {ondragstart}>
 		<span data-text="font-monospace">
 			{#if children}
 				{@render children()}

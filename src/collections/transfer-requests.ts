@@ -2,9 +2,17 @@
  * Transfer requests: room-scoped proposals to send off-chain transfers.
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
-export type TransferRequestStatus = 'pending' | 'accepted' | 'rejected' | 'expired' | 'sent'
+export type TransferRequestStatus =
+	| 'pending'
+	| 'accepted'
+	| 'rejected'
+	| 'expired'
+	| 'sent'
 
 export type TransferAllocation = {
 	asset: string

@@ -1,18 +1,16 @@
 import { normalizeAddress } from '$/lib/address'
 import { ENTITY_TYPE } from '$/constants/entity-types'
-import type { IntentDimensions, IntentEntityRef, IntentResolution } from './types'
+import type {
+	IntentDimensions,
+	IntentEntityRef,
+	IntentResolution,
+} from './types'
 
-const getNumber = (value: unknown): number | null => (
-	typeof value === 'number' && Number.isFinite(value)
-		? value
-		: null
-)
+const getNumber = (value: unknown): number | null =>
+	typeof value === 'number' && Number.isFinite(value) ? value : null
 
-const getAddress = (value: unknown): `0x${string}` | null => (
-	typeof value === 'string'
-		? normalizeAddress(value)
-		: null
-)
+const getAddress = (value: unknown): `0x${string}` | null =>
+	typeof value === 'string' ? normalizeAddress(value) : null
 
 const resolveDimensions = (ref: IntentEntityRef): IntentDimensions => {
 	const id = ref.id
@@ -44,16 +42,22 @@ const resolveDimensions = (ref: IntentEntityRef): IntentDimensions => {
 	}
 }
 
-const isMissingDimensions = (dimensions: IntentDimensions) => (
+const isMissingDimensions = (dimensions: IntentDimensions) =>
 	!dimensions.actor || !dimensions.chainId || !dimensions.tokenAddress
-)
 
 const resolveEquality = (from: IntentDimensions, to: IntentDimensions) => ({
-	actor: from.actor && to.actor ? from.actor.toLowerCase() === to.actor.toLowerCase() : null,
-	chain: from.chainId !== null && to.chainId !== null ? from.chainId === to.chainId : null,
-	token: from.tokenAddress && to.tokenAddress
-		? from.tokenAddress.toLowerCase() === to.tokenAddress.toLowerCase()
-		: null,
+	actor:
+		from.actor && to.actor
+			? from.actor.toLowerCase() === to.actor.toLowerCase()
+			: null,
+	chain:
+		from.chainId !== null && to.chainId !== null
+			? from.chainId === to.chainId
+			: null,
+	token:
+		from.tokenAddress && to.tokenAddress
+			? from.tokenAddress.toLowerCase() === to.tokenAddress.toLowerCase()
+			: null,
 })
 
 export const resolveIntent = (
@@ -63,7 +67,10 @@ export const resolveIntent = (
 	const from = { ref: fromRef, dimensions: resolveDimensions(fromRef) }
 	const to = { ref: toRef, dimensions: resolveDimensions(toRef) }
 	const equality = resolveEquality(from.dimensions, to.dimensions)
-	if (isMissingDimensions(from.dimensions) || isMissingDimensions(to.dimensions)) {
+	if (
+		isMissingDimensions(from.dimensions) ||
+		isMissingDimensions(to.dimensions)
+	) {
 		return {
 			status: 'invalid',
 			reason: 'Missing actor, chain, or token details.',
@@ -84,15 +91,20 @@ export const resolveIntent = (
 	const sameActor = equality.actor === true
 	const sameChain = equality.chain === true
 	const sameToken = equality.token === true
-	const kind = (
-		sameActor && sameChain && !sameToken ? 'swap'
-		: sameActor && !sameChain && sameToken ? 'bridge'
-		: sameActor && !sameChain && !sameToken ? 'swap+bridge'
-		: !sameActor && sameChain && sameToken ? 'transfer'
-		: !sameActor && sameChain && !sameToken ? 'transfer+swap'
-		: !sameActor && !sameChain && sameToken ? 'transfer+bridge'
-		: 'transfer+swap+bridge'
-	)
+	const kind =
+		sameActor && sameChain && !sameToken
+			? 'swap'
+			: sameActor && !sameChain && sameToken
+				? 'bridge'
+				: sameActor && !sameChain && !sameToken
+					? 'swap+bridge'
+					: !sameActor && sameChain && sameToken
+						? 'transfer'
+						: !sameActor && sameChain && !sameToken
+							? 'transfer+swap'
+							: !sameActor && !sameChain && sameToken
+								? 'transfer+bridge'
+								: 'transfer+swap+bridge'
 	return {
 		status: 'valid',
 		kind,

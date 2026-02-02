@@ -15,9 +15,8 @@ export type Actor = {
 	address: `0x${string}`
 }
 
-export const actorKey = (chainId: number, address: `0x${string}`) => (
+export const actorKey = (chainId: number, address: `0x${string}`) =>
 	`${chainId}-${address.toLowerCase()}`
-)
 
 export const actorsCollection = createCollection(
 	queryCollectionOptions({

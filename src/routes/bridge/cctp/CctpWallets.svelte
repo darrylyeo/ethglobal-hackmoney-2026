@@ -15,8 +15,4 @@
 	import Wallets from '../lifi/Wallets.svelte'
 </script>
 
-
-<Wallets
-	bind:connectedWallets
-	bind:selectedActor
-/>
+<Wallets bind:connectedWallets bind:selectedActor />

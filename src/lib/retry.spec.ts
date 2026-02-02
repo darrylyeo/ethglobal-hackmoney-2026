@@ -41,10 +41,13 @@ describe('withRetry', () => {
 	it('does not retry on non-retryable error', async () => {
 		let attempts = 0
 		await expect(
-			withRetry(() => {
-				attempts++
-				throw new Error('insufficient funds')
-			}, { maxAttempts: 3 }),
+			withRetry(
+				() => {
+					attempts++
+					throw new Error('insufficient funds')
+				},
+				{ maxAttempts: 3 },
+			),
 		).rejects.toMatchObject({
 			code: ErrorCode.INSUFFICIENT_FUNDS,
 			retryable: false,
@@ -68,6 +71,8 @@ describe('withRetry', () => {
 			),
 		).rejects.toBeDefined()
 		expect(errors).toHaveLength(2)
-		expect(errors.every((e) => (e as BridgeError).code === ErrorCode.NETWORK)).toBe(true)
+		expect(
+			errors.every((e) => (e as BridgeError).code === ErrorCode.NETWORK),
+		).toBe(true)
 	})
 })

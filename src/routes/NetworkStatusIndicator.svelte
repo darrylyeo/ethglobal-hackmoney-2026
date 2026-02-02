@@ -56,7 +56,10 @@
 				<ul data-status-chains>
 					{#each degradedChains as chain (chain.chainId)}
 						<li>
-							<span>{networksByChainId[chain.chainId]?.name ?? `Chain ${chain.chainId}`}</span>
+							<span
+								>{networksByChainId[chain.chainId]?.name ??
+									`Chain ${chain.chainId}`}</span
+							>
 							<span data-status-badge={chain.status}>
 								{chain.status}
 								{#if chain.latencyMs}
@@ -68,11 +71,15 @@
 				</ul>
 			</div>
 		{:else}
-			<p data-status-all-healthy>All {networkStatus.status.chains.size} networks healthy</p>
+			<p data-status-all-healthy>
+				All {networkStatus.status.chains.size} networks healthy
+			</p>
 		{/if}
 
 		<p data-status-updated>
-			Last updated: {new Date(networkStatus.status.lastUpdated).toLocaleTimeString()}
+			Last updated: {new Date(
+				networkStatus.status.lastUpdated,
+			).toLocaleTimeString()}
 		</p>
 	</Popover.Content>
 </Popover.Root>
@@ -139,17 +146,17 @@
 		text-transform: capitalize;
 	}
 
-	:global([data-status-badge="healthy"]) {
+	:global([data-status-badge='healthy']) {
 		background: var(--color-success-bg, #dcfce7);
 		color: var(--color-success, #22c55e);
 	}
 
-	:global([data-status-badge="degraded"]) {
+	:global([data-status-badge='degraded']) {
 		background: var(--color-warning-bg, #fef3c7);
 		color: var(--color-warning, #d97706);
 	}
 
-	:global([data-status-badge="down"]) {
+	:global([data-status-badge='down']) {
 		background: var(--color-error-bg, #fef2f2);
 		color: var(--color-error, #dc2626);
 	}

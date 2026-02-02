@@ -8,7 +8,13 @@
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import type { Snippet } from 'svelte'
 
-	type ExecutionStatus = 'idle' | 'signing' | 'executing' | 'confirming' | 'completed' | 'failed'
+	type ExecutionStatus =
+		| 'idle'
+		| 'signing'
+		| 'executing'
+		| 'confirming'
+		| 'completed'
+		| 'failed'
 	type SimulationStatus = 'idle' | 'running' | 'success' | 'failed'
 	type TransactionFlowExecutionUpdate = {
 		status: ExecutionStatus
@@ -34,7 +40,10 @@
 		title: string
 		actionLabel: string
 		canExecute: boolean
-		simulate?: (args: { provider: VoltaireProvider; walletAddress: `0x${string}` }) => Promise<unknown>
+		simulate?: (args: {
+			provider: VoltaireProvider
+			walletAddress: `0x${string}`
+		}) => Promise<unknown>
 		execute?: (args: {
 			provider: EIP1193Provider
 			walletAddress: `0x${string}`
@@ -44,8 +53,12 @@
 		confirmationLabel?: string
 	}
 	type TransactionFlowItem = TransactionFlowItemBase & {
-		Details?: Snippet<[item: TransactionFlowItemBase, state: TransactionFlowItemState]>
-		Confirmation?: Snippet<[item: TransactionFlowItemBase, state: TransactionFlowItemState]>
+		Details?: Snippet<
+			[item: TransactionFlowItemBase, state: TransactionFlowItemState]
+		>
+		Confirmation?: Snippet<
+			[item: TransactionFlowItemBase, state: TransactionFlowItemState]
+		>
 	}
 
 	// Context
@@ -70,9 +83,11 @@
 	const walletProvider = $derived(
 		walletConnection?.connection.transport === WalletConnectionTransport.Eip1193
 			? walletConnection.wallet.provider
-			: null
+			: null,
 	)
-	const walletAddress = $derived(walletConnection?.connection.activeActor ?? null)
+	const walletAddress = $derived(
+		walletConnection?.connection.activeActor ?? null,
+	)
 	const walletChainId = $derived(walletConnection?.connection.chainId ?? null)
 	const hasSigner = $derived(Boolean(walletProvider && walletAddress))
 
@@ -90,9 +105,8 @@
 		},
 		confirmed: false,
 	})
-	const getTxState = (id: string): TransactionFlowItemState => (
+	const getTxState = (id: string): TransactionFlowItemState =>
 		txStates[id] ?? createInitialState()
-	)
 	const updateTxState = (
 		id: string,
 		update: (state: TransactionFlowItemState) => TransactionFlowItemState,
@@ -187,16 +201,13 @@
 	// (Derived)
 	const txStates = $derived(
 		Object.fromEntries(
-			transactions.map((tx) => (
-				[
-					tx.id,
-					txOverrides[tx.id] ?? createInitialState(),
-				]
-			)),
-		)
+			transactions.map((tx) => [
+				tx.id,
+				txOverrides[tx.id] ?? createInitialState(),
+			]),
+		),
 	)
 </script>
-
 
 <div data-column="gap-4" data-transaction-flow>
 	{#if Summary}
@@ -211,11 +222,24 @@
 		{#each transactions as tx (tx.id)}
 			{@const txState = getTxState(tx.id)}
 			{@const network = networksByChainId[tx.chainId]}
-			{@const needsChainSwitch = Boolean(walletProvider && walletChainId !== null && walletChainId !== tx.chainId)}
+			{@const needsChainSwitch = Boolean(
+				walletProvider &&
+				walletChainId !== null &&
+				walletChainId !== tx.chainId,
+			)}
 			{@const confirmationRequired = tx.requiresConfirmation}
 			{@const confirmationReady = !confirmationRequired || txState.confirmed}
-			{@const hasPendingExecution = txState.execution.status === 'signing' || txState.execution.status === 'executing' || txState.execution.status === 'confirming'}
-			{@const executeDisabled = !tx.execute || !tx.canExecute || !hasSigner || needsChainSwitch || !confirmationReady || hasPendingExecution}
+			{@const hasPendingExecution =
+				txState.execution.status === 'signing' ||
+				txState.execution.status === 'executing' ||
+				txState.execution.status === 'confirming'}
+			{@const executeDisabled =
+				!tx.execute ||
+				!tx.canExecute ||
+				!hasSigner ||
+				needsChainSwitch ||
+				!confirmationReady ||
+				hasPendingExecution}
 
 			<section data-column="gap-2" data-transaction>
 				<div data-row="gap-2 align-center justify-between">
@@ -231,8 +255,14 @@
 
 				{#if tx.simulate}
 					<div data-row="gap-2 align-center">
-						<Button.Root type="button" onclick={() => simulateTransaction(tx)} disabled={txState.simulation.status === 'running'}>
-							{txState.simulation.status === 'running' ? 'Simulating…' : 'Simulate'}
+						<Button.Root
+							type="button"
+							onclick={() => simulateTransaction(tx)}
+							disabled={txState.simulation.status === 'running'}
+						>
+							{txState.simulation.status === 'running'
+								? 'Simulating…'
+								: 'Simulate'}
 						</Button.Root>
 						{#if txState.simulation.status === 'success'}
 							<span data-muted>Simulation ok</span>
@@ -253,7 +283,11 @@
 				{#if needsChainSwitch && walletProvider}
 					<div data-card="secondary" data-row="gap-2 align-center">
 						<span>Switch to {network?.name ?? `Chain ${tx.chainId}`}</span>
-						<Button.Root type="button" onclick={() => switchWalletChain(walletProvider, tx.chainId)}>Switch</Button.Root>
+						<Button.Root
+							type="button"
+							onclick={() => switchWalletChain(walletProvider, tx.chainId)}
+							>Switch</Button.Root
+						>
 					</div>
 				{/if}
 
@@ -266,14 +300,18 @@
 							<Checkbox.Root
 								checked={txState.confirmed}
 								onCheckedChange={(checked) => {
-									updateTxState(tx.id, (state) => ({ ...state, confirmed: checked }))
+									updateTxState(tx.id, (state) => ({
+										...state,
+										confirmed: checked,
+									}))
 								}}
 							>
 								{#snippet children({ checked })}
 									{checked ? '✓' : '○'}
 								{/snippet}
 							</Checkbox.Root>
-							{tx.confirmationLabel ?? 'I understand this transaction is irreversible'}
+							{tx.confirmationLabel ??
+								'I understand this transaction is irreversible'}
 						</label>
 					</div>
 				{/if}

@@ -59,14 +59,18 @@ export function encodeDepositForBurn(
 	]) as `0x${string}`
 }
 
-export function encodeReceiveMessage(message: `0x${string}`, attestation: `0x${string}`): `0x${string}` {
+export function encodeReceiveMessage(
+	message: `0x${string}`,
+	attestation: `0x${string}`,
+): `0x${string}` {
 	return encodeFunction(RECEIVE_MESSAGE_ABI, 'receiveMessage', [
 		message as `0x${string}`,
 		attestation as `0x${string}`,
 	]) as `0x${string}`
 }
 
-const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000' as const
+const ZERO_BYTES32 =
+	'0x0000000000000000000000000000000000000000000000000000000000000000' as const
 
 export function zeroBytes32(): `0x${string}` {
 	return ZERO_BYTES32
@@ -77,7 +81,11 @@ export type CctpMessageResponse = {
 		message: string
 		attestation?: string
 		eventNonce?: string
-		decodedMessage?: { sourceDomain: string; destinationDomain: string; nonce: string }
+		decodedMessage?: {
+			sourceDomain: string
+			destinationDomain: string
+			nonce: string
+		}
 	}>
 }
 
@@ -95,7 +103,9 @@ export async function fetchCctpMessages(
 	return res.json() as Promise<CctpMessageResponse>
 }
 
-export function getAttestationFromMessages(data: CctpMessageResponse): { message: string, attestation: string } | null {
+export function getAttestationFromMessages(
+	data: CctpMessageResponse,
+): { message: string; attestation: string } | null {
 	const msg = data.messages?.[0]
 	if (!msg?.attestation || !msg?.message) return null
 	return { message: msg.message, attestation: msg.attestation }

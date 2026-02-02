@@ -3,7 +3,10 @@
  * In-memory cache, no persistence needed.
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
 import { ercTokens } from '$/constants/coins'
 import { networksByChainId } from '$/constants/networks'
@@ -32,9 +35,8 @@ export const actorCoinsCollection = createCollection(
 	}),
 )
 
-export const getActorCoin = ($id: ActorCoin$id) => (
+export const getActorCoin = ($id: ActorCoin$id) =>
 	actorCoinsCollection.state.get(stringify($id))
-)
 
 export const fetchActorCoinBalance = async (
 	$id: ActorCoin$id,
@@ -91,12 +93,12 @@ export const fetchAllBalancesForAddress = async (
 	const targetChainIds = chainIds ?? Object.keys(networksByChainId).map(Number)
 	const tokens = ercTokens.filter((t) => targetChainIds.includes(t.chainId))
 	return await Promise.all(
-		tokens.map((token) => (
+		tokens.map((token) =>
 			fetchActorCoinBalance(
 				{ chainId: token.chainId, address, tokenAddress: token.address },
 				token.symbol,
 				token.decimals,
-			)
-		)),
+			),
+		),
 	)
 }

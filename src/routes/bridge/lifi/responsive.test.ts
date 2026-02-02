@@ -7,9 +7,15 @@ const VIEWPORTS = [
 	{ name: 'desktop', width: 1280, height: 800 },
 ] as const
 
-async function assertNoHorizontalOverflow(page: import('@playwright/test').Page) {
-	const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
-	const clientWidth = await page.evaluate(() => document.documentElement.clientWidth)
+async function assertNoHorizontalOverflow(
+	page: import('@playwright/test').Page,
+) {
+	const scrollWidth = await page.evaluate(
+		() => document.documentElement.scrollWidth,
+	)
+	const clientWidth = await page.evaluate(
+		() => document.documentElement.clientWidth,
+	)
 	expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1)
 }
 
@@ -27,7 +33,9 @@ for (const { name, width, height } of VIEWPORTS) {
 	}) => {
 		await page.setViewportSize({ width, height })
 		await page.goto('/bridge/lifi')
-		await expect(page.locator('#main-content')).toBeAttached({ timeout: 15_000 })
+		await expect(page.locator('#main-content')).toBeAttached({
+			timeout: 15_000,
+		})
 		await assertNoHorizontalOverflow(page)
 		await assertTextReadable(page)
 	})

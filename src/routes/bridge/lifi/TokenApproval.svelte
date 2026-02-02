@@ -28,7 +28,9 @@
 	} = $props()
 
 	// Query allowances collection
-	const allowancesQuery = useLiveQuery((q) => q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })))
+	const allowancesQuery = useLiveQuery((q) =>
+		q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })),
+	)
 
 	// Derive allowance ID and row
 	const allowanceId = $derived<ActorAllowance$id>({
@@ -37,23 +39,30 @@
 		tokenAddress,
 		spenderAddress,
 	})
-	const allowanceKey = $derived(`${chainId}:${ownerAddress}:${tokenAddress}:${spenderAddress}`)
-	const allowanceRow = $derived(allowancesQuery.data?.find((r) => (
-		`${r.row.$id.chainId}:${r.row.$id.address}:${r.row.$id.tokenAddress}:${r.row.$id.spenderAddress}` === allowanceKey
-	))?.row ?? null)
+	const allowanceKey = $derived(
+		`${chainId}:${ownerAddress}:${tokenAddress}:${spenderAddress}`,
+	)
+	const allowanceRow = $derived(
+		allowancesQuery.data?.find(
+			(r) =>
+				`${r.row.$id.chainId}:${r.row.$id.address}:${r.row.$id.tokenAddress}:${r.row.$id.spenderAddress}` ===
+				allowanceKey,
+		)?.row ?? null,
+	)
 
 	// Derive state from collection
 	const isChecking = $derived(allowanceRow?.isLoading ?? true)
 	const hasError = $derived(allowanceRow?.error !== null)
 	const errorMessage = $derived(allowanceRow?.error ?? null)
-	const hasSufficientAllowance = $derived(allowanceRow ? allowanceRow.allowance >= amount : false)
+	const hasSufficientAllowance = $derived(
+		allowanceRow ? allowanceRow.allowance >= amount : false,
+	)
 
 	// Local UI state
 	let txHash = $state<`0x${string}` | null>(null)
 	let unlimited = $state(false)
 	let isApproving = $state(false)
 	let approvalError = $state<string | null>(null)
-
 
 	// Fetch allowance on mount and when deps change
 	$effect(() => {
@@ -64,11 +73,25 @@
 		isApproving = true
 		approvalError = null
 		try {
-			txHash = await sendApproval(provider, chainId, tokenAddress, spenderAddress, amount, unlimited)
+			txHash = await sendApproval(
+				provider,
+				chainId,
+				tokenAddress,
+				spenderAddress,
+				amount,
+				unlimited,
+			)
 			const ok = await waitForApprovalConfirmation(chainId, txHash)
 			if (ok) {
 				// Optimistically update allowance in collection
-				setActorAllowance(allowanceId, unlimited ? BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff') : amount)
+				setActorAllowance(
+					allowanceId,
+					unlimited
+						? BigInt(
+								'0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+							)
+						: amount,
+				)
 			} else {
 				approvalError = 'Transaction failed'
 			}
@@ -85,7 +108,11 @@
 {:else if isApproving}
 	<p data-muted>
 		Approving…
-		{#if txHash}<a href={getTxUrl(chainId, txHash)} target="_blank" rel="noopener noreferrer">View tx</a>{/if}
+		{#if txHash}<a
+				href={getTxUrl(chainId, txHash)}
+				target="_blank"
+				rel="noopener noreferrer">View tx</a
+			>{/if}
 	</p>
 {:else if approvalError}
 	<div data-column="gap-2">
@@ -95,14 +122,18 @@
 {:else if hasError}
 	<div data-column="gap-2">
 		<p data-error>{errorMessage ?? 'Failed to check approval'}</p>
-		<Button.Root onclick={() => fetchActorAllowance(allowanceId)}>Retry</Button.Root>
+		<Button.Root onclick={() => fetchActorAllowance(allowanceId)}
+			>Retry</Button.Root
+		>
 	</div>
 {:else if hasSufficientAllowance}
 	<p data-success>✓ Approved</p>
 {:else}
 	<div data-column="gap-2">
 		<label data-row="gap-2 align-center" data-muted>
-			<Switch.Root checked={unlimited} onCheckedChange={(c) => unlimited = c}><Switch.Thumb /></Switch.Root>
+			<Switch.Root checked={unlimited} onCheckedChange={(c) => (unlimited = c)}
+				><Switch.Thumb /></Switch.Root
+			>
 			Unlimited approval
 		</label>
 		<Button.Root onclick={handleApprove}>Approve USDC</Button.Root>
@@ -110,5 +141,7 @@
 {/if}
 
 <style>
-	[data-success] { color: var(--color-success, #22c55e); }
+	[data-success] {
+		color: var(--color-success, #22c55e);
+	}
 </style>

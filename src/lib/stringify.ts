@@ -1,17 +1,11 @@
-export const stringify: typeof JSON.stringify = (
-	value,
-	replacer,
-	space,
-) => (
+export const stringify: typeof JSON.stringify = (value, replacer, space) =>
 	JSON.stringify(
 		value,
-		(key, val) => (
+		(key, val) =>
 			typeof val === 'bigint'
 				? val.toString()
 				: typeof replacer === 'function'
-				? replacer.call(value, key, val)
-				: val
-		),
+					? replacer.call(value, key, val)
+					: val,
 		space,
 	)
-)

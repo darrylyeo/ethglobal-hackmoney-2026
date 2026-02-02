@@ -12,13 +12,19 @@
 	import { depositToCustody, withdrawFromCustody } from '$/api/yellow'
 	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format'
 
-	const depositQuery = useLiveQuery((q) => q.from({ row: yellowDepositsCollection }).select(({ row }) => ({ row })))
+	const depositQuery = useLiveQuery((q) =>
+		q.from({ row: yellowDepositsCollection }).select(({ row }) => ({ row })),
+	)
 
 	const depositRow = $derived(
 		yellowState.chainId && yellowState.address
-			? (depositQuery.data ?? []).map((r) => r.row).find(
-				(d) => d.chainId === yellowState.chainId && d.address.toLowerCase() === yellowState.address!.toLowerCase(),
-			)
+			? (depositQuery.data ?? [])
+					.map((r) => r.row)
+					.find(
+						(d) =>
+							d.chainId === yellowState.chainId &&
+							d.address.toLowerCase() === yellowState.address!.toLowerCase(),
+					)
 			: null,
 	)
 	const availableBalance = $derived(depositRow?.availableBalance ?? 0n)
@@ -76,7 +82,12 @@
 			handleDeposit()
 		}}
 	>
-		<input type="text" placeholder="Deposit amount" bind:value={depositAmount} inputmode="decimal" />
+		<input
+			type="text"
+			placeholder="Deposit amount"
+			bind:value={depositAmount}
+			inputmode="decimal"
+		/>
 		<button type="submit" disabled={loading}>Deposit</button>
 	</form>
 
@@ -86,13 +97,26 @@
 			handleWithdraw()
 		}}
 	>
-		<input type="text" placeholder="Withdraw amount" bind:value={withdrawAmount} inputmode="decimal" />
+		<input
+			type="text"
+			placeholder="Withdraw amount"
+			bind:value={withdrawAmount}
+			inputmode="decimal"
+		/>
 		<button type="submit" disabled={loading}>Withdraw</button>
 	</form>
 </section>
 
 <style>
-	[data-deposit-manager] h3 { margin-bottom: 0.5rem; }
-	[data-deposit-manager] dl { margin: 0.5rem 0; }
-	[data-deposit-manager] form { display: flex; gap: 0.5rem; margin: 0.5rem 0; }
+	[data-deposit-manager] h3 {
+		margin-bottom: 0.5rem;
+	}
+	[data-deposit-manager] dl {
+		margin: 0.5rem 0;
+	}
+	[data-deposit-manager] form {
+		display: flex;
+		gap: 0.5rem;
+		margin: 0.5rem 0;
+	}
 </style>

@@ -30,6 +30,4 @@ export type GraphModel = {
 	edges: GraphEdge[]
 }
 
-export type GraphFramework =
-	| 'sigma'
-	| 'g6'
+export type GraphFramework = 'sigma' | 'g6'

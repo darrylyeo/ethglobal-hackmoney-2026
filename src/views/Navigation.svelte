@@ -5,7 +5,6 @@
 	// Context
 	import { page } from '$app/state'
 
-
 	// Props
 	let {
 		navigationItems,
@@ -15,11 +14,9 @@
 		headerActions?: Snippet
 	} = $props()
 
-
 	// Components
 	import NavigationItems, { type NavigationItem } from './NavigationItem.svelte'
 </script>
-
 
 <nav
 	id="nav"
@@ -29,16 +26,9 @@
 	data-scroll-container
 	data-sticky-container
 >
-	<header
-		data-sticky="block"
-		data-row
-		data-scroll-container
-	>
+	<header data-sticky="block" data-row data-scroll-container>
 		<a href="/" aria-label="USDC Tools home">
-			<span
-				class="logo"
-				data-row="gap-1"
-			>
+			<span class="logo" data-row="gap-1">
 				<span class="title">USDC</span>
 				<span data-tag>Tools</span>
 			</span>
@@ -52,7 +42,12 @@
 			{/if}
 
 			<li>
-				<button type="button" id="menu-toggle" aria-label="Open menu" popovertarget="nav">
+				<button
+					type="button"
+					id="menu-toggle"
+					aria-label="Open menu"
+					popovertarget="nav"
+				>
 					<span aria-hidden="true">☰</span>
 				</button>
 			</li>
@@ -66,11 +61,8 @@
 		/>
 	</div>
 
-	<footer data-sticky>
-		
-	</footer>
+	<footer data-sticky></footer>
 </nav>
-
 
 <style>
 	.nav {

@@ -57,9 +57,8 @@ const createNetworkStatusStore = () => {
 				timeoutPromise,
 			])
 			const latencyMs = Math.round(performance.now() - start)
-			const chainStatus: ChainStatus['status'] = (
+			const chainStatus: ChainStatus['status'] =
 				latencyMs > LATENCY_THRESHOLD_DEGRADED ? 'degraded' : 'healthy'
-			)
 			return {
 				chainId,
 				status: chainStatus,
@@ -101,12 +100,13 @@ const createNetworkStatusStore = () => {
 		const hasDown =
 			chainResults.some((r) => r.status === 'down') || lifiStatus === 'down'
 		const hasDegraded =
-			chainResults.some((r) => r.status === 'degraded') || lifiStatus === 'degraded'
-		const overall: NetworkStatus['overall'] = (
-			hasDown ? 'down'
-			: hasDegraded ? 'degraded'
-			: 'healthy'
-		)
+			chainResults.some((r) => r.status === 'degraded') ||
+			lifiStatus === 'degraded'
+		const overall: NetworkStatus['overall'] = hasDown
+			? 'down'
+			: hasDegraded
+				? 'degraded'
+				: 'healthy'
 		status = {
 			chains,
 			lifiApi: lifiStatus,
@@ -127,9 +127,8 @@ const createNetworkStatusStore = () => {
 		}
 	}
 
-	const getChainStatus = (chainId: number): ChainStatus | undefined => (
+	const getChainStatus = (chainId: number): ChainStatus | undefined =>
 		status.chains.get(chainId)
-	)
 
 	return {
 		get status() {

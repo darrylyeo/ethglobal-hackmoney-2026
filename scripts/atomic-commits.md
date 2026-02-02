@@ -29,6 +29,7 @@ git log --oneline -20
 ```
 
 Categorize each change:
+
 - **Independent**: Can be committed in any order
 - **Dependency**: Must come before files that import it
 - **Atomic group**: Multiple files that must change together (e.g., prop renames)
@@ -50,12 +51,12 @@ Create a `COMMIT_PLAN.md` with:
 
 Analyze `git log` to match existing style. Common patterns:
 
-| Pattern | Example |
-|---------|---------|
-| `[Subject]: [verb] ...` | `Voltaire: handle empty response` |
-| `<Component>: [verb]` | `AmountInput: align markup` |
-| `[area]: [verb]` | `e2e: update selectors` |
-| `` `package`: install `` | `` fflate: install `` |
+| Pattern                  | Example                           |
+| ------------------------ | --------------------------------- |
+| `[Subject]: [verb] ...`  | `Voltaire: handle empty response` |
+| `<Component>: [verb]`    | `AmountInput: align markup`       |
+| `[area]: [verb]`         | `e2e: update selectors`           |
+| `` `package`: install `` | `fflate: install`                 |
 
 ### Topological Rules
 
@@ -135,6 +136,7 @@ deno task build  # or pnpm build
 ```
 
 If verification fails:
+
 1. Fix the issue
 2. Amend the commit (if not pushed) or create a fix commit
 

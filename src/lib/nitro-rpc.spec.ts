@@ -17,7 +17,12 @@ describe('nitro-rpc', () => {
 		it('parses encoded payload arrays', () => {
 			const msg = [2, 'channel_updated', { id: 'ch1' }, 12345] as const
 			const encoded = JSON.stringify(msg)
-			expect(decodeNitroRpc(encoded)).toEqual([2, 'channel_updated', { id: 'ch1' }, 12345])
+			expect(decodeNitroRpc(encoded)).toEqual([
+				2,
+				'channel_updated',
+				{ id: 'ch1' },
+				12345,
+			])
 		})
 
 		it('parses encoded envelopes', () => {
@@ -29,31 +34,35 @@ describe('nitro-rpc', () => {
 
 	describe('hashChannelState', () => {
 		it('serializes packed state payload', () => {
-			expect(hashChannelState({
-				channelId: '0x1111111111111111111111111111111111111111',
-				intent: 1,
-				version: 3,
-				stateData: '0x',
-				allocations: [
-					{
-						destination: '0x2222222222222222222222222222222222222222',
-						token: '0x3333333333333333333333333333333333333333',
-						amount: 100n,
-					},
-				],
-			})).toBe(JSON.stringify([
-				'0x1111111111111111111111111111111111111111',
-				1,
-				3,
-				'0x',
-				[
-					{
-						destination: '0x2222222222222222222222222222222222222222',
-						token: '0x3333333333333333333333333333333333333333',
-						amount: '100',
-					},
-				],
-			]))
+			expect(
+				hashChannelState({
+					channelId: '0x1111111111111111111111111111111111111111',
+					intent: 1,
+					version: 3,
+					stateData: '0x',
+					allocations: [
+						{
+							destination: '0x2222222222222222222222222222222222222222',
+							token: '0x3333333333333333333333333333333333333333',
+							amount: 100n,
+						},
+					],
+				}),
+			).toBe(
+				JSON.stringify([
+					'0x1111111111111111111111111111111111111111',
+					1,
+					3,
+					'0x',
+					[
+						{
+							destination: '0x2222222222222222222222222222222222222222',
+							token: '0x3333333333333333333333333333333333333333',
+							amount: '100',
+						},
+					],
+				]),
+			)
 		})
 	})
 })

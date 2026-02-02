@@ -6,7 +6,6 @@
 	}
 </script>
 
-
 <script lang="ts">
 	// Types/constants
 	import type { Network$id } from '$/collections/networks'
@@ -48,12 +47,7 @@
 	import TruncatedValue from './TruncatedValue.svelte'
 </script>
 
-
-<EntityId
-	draggableText={address}
-	className="address"
-	intent={intent}
->
+<EntityId draggableText={address} className="address" {intent}>
 	{#if !ensName}
 		<TruncatedValue value={address} />
 	{:else}

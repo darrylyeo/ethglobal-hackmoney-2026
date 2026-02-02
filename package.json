@@ -16,6 +16,7 @@
 		"test:e2e": "node node_modules/@playwright/test/cli.js test",
 		"check:size": "pnpm run build && node scripts/check-bundle-size.mjs",
 		"check:perf": "node scripts/check-performance.mjs",
+		"format": "prettier --write src e2e scripts",
 		"icons:fetch": "bun run scripts/_fetch-chain-icons.ts",
 		"icons:optimize": "svgo static/networks/*.svg",
 		"icons": "bun run icons:fetch && bun run icons:optimize"
@@ -51,6 +52,8 @@
 		"fflate": "^0.8.2",
 		"partykit": "^0.0.115",
 		"playwright": "^1.57.0",
+		"prettier": "^3.8.1",
+		"prettier-plugin-svelte": "^3.4.1",
 		"svelte": "^5.45.6",
 		"svelte-check": "^4.3.4",
 		"svgo": "^4.0.0",

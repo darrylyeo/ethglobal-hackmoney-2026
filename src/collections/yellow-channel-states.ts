@@ -2,7 +2,10 @@
  * Yellow channel states: signed state updates (in-memory).
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
 export type YellowChannelAllocation = {
 	destination: `0x${string}`

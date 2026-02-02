@@ -1,12 +1,10 @@
 import { keccak256, toBytes } from 'viem'
 
-export const isValidAddress = (address: string): boolean => (
+export const isValidAddress = (address: string): boolean =>
 	/^0x[a-fA-F0-9]{40}$/.test(address)
-)
 
-export const normalizeAddress = (address: string): `0x${string}` | null => (
+export const normalizeAddress = (address: string): `0x${string}` | null =>
 	isValidAddress(address) ? (address.toLowerCase() as `0x${string}`) : null
-)
 
 export const checksumAddress = (address: string): `0x${string}` | null => {
 	if (!isValidAddress(address)) return null
@@ -19,6 +17,5 @@ export const checksumAddress = (address: string): `0x${string}` | null => {
 	return checksummed as `0x${string}`
 }
 
-export const formatAddress = (address: string, chars = 6): string => (
+export const formatAddress = (address: string, chars = 6): string =>
 	`${address.slice(0, chars + 2)}…${address.slice(-chars)}`
-)

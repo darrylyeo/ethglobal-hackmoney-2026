@@ -40,7 +40,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
 		{
 			code: ErrorCode.USER_REJECTED,
 			title: 'Transaction cancelled',
-			message: "You declined the transaction in your wallet.",
+			message: 'You declined the transaction in your wallet.',
 			suggestion: 'Click the button again when ready.',
 			retryable: true,
 		},

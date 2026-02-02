@@ -10,7 +10,4 @@
 	import Balances from '../lifi/Balances.svelte'
 </script>
 
-
-<Balances
-	{selectedActor}
-/>
+<Balances {selectedActor} />

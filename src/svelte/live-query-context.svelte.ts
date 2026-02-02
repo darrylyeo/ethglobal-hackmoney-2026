@@ -15,29 +15,23 @@ export type LiveQueryEntry = {
 }
 
 class LiveQueryContextState {
-	stack: LiveQueryEntry[] =
-		$state([])
+	stack: LiveQueryEntry[] = $state([])
 }
 
 export type LiveQueryContext = LiveQueryContextState
 
-const createLiveQueryContext = () => (
-	new LiveQueryContextState()
-)
+const createLiveQueryContext = () => new LiveQueryContextState()
 
-export const useLiveQueryContext = () => (
+export const useLiveQueryContext = () =>
 	hasContext(LIVE_QUERY_CONTEXT_KEY)
 		? getContext<LiveQueryContext>(LIVE_QUERY_CONTEXT_KEY)
 		: setContext(LIVE_QUERY_CONTEXT_KEY, createLiveQueryContext())
-)
 
 /**
  * Creates an attachment that registers a live query to the global stack.
  * Query is registered when element mounts, unregistered on unmount.
  */
-export const liveQueryAttachment = (
-	entry: LiveQueryEntry,
-): Attachment => {
+export const liveQueryAttachment = (entry: LiveQueryEntry): Attachment => {
 	const ctx = useLiveQueryContext()
 
 	return () => {
@@ -72,7 +66,9 @@ export const liveQueryAttachmentFrom = (
 				}
 			})
 		})
-		return () => { destroy() }
+		return () => {
+			destroy()
+		}
 	}
 }
 
@@ -80,9 +76,7 @@ export const liveQueryAttachmentFrom = (
  * Creates props with attachment keys for spreading onto an element.
  * Allows registering multiple queries at once.
  */
-export const liveQueryProps = (
-	entries: LiveQueryEntry[],
-) => {
+export const liveQueryProps = (entries: LiveQueryEntry[]) => {
 	const ctx = useLiveQueryContext()
 
 	return Object.fromEntries(

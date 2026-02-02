@@ -66,9 +66,15 @@ vi.mock('@lifi/sdk', () => {
 		createConfig: vi.fn(),
 		getQuote: vi.fn(() => Promise.resolve(mockStep)),
 		getRoutes: vi.fn(() =>
-			Promise.resolve({ routes: [mockRoute], unavailableRoutes: { filteredOut: [], failed: [] } }),
+			Promise.resolve({
+				routes: [mockRoute],
+				unavailableRoutes: { filteredOut: [], failed: [] },
+			}),
 		),
-		convertQuoteToRoute: vi.fn((step: unknown) => ({ ...(step as object), originalRoute: mockRoute })),
+		convertQuoteToRoute: vi.fn((step: unknown) => ({
+			...(step as object),
+			originalRoute: mockRoute,
+		})),
 		config: { setProviders: vi.fn() },
 		EVM: vi.fn(),
 		executeRoute: vi.fn((r: unknown) => Promise.resolve(r)),
@@ -99,25 +105,23 @@ const mockLiFiStep: LiFiStep = {
 describe('LI.FI routes and quotes', () => {
 	it('normalizeQuote: given mock LI.FI response, produces expected route/quote shape (steps, amounts, fees)', () => {
 		const out = normalizeQuote(mockLiFiStep)
-		expect(out).toMatchObject(
-			{
-				steps: [
-					{
-						fromChainId: 1,
-						toChainId: 42161,
-						fromAmount: '1000000',
-						toAmount: '998500',
-						estimatedGasCosts: [{ amount: '150000', token: { symbol: 'ETH' } }],
-					},
-				],
-				fromChainId: 1,
-				toChainId: 42161,
-				fromAmount: '1000000',
-				toAmount: '998500',
-				estimatedToAmount: '998500',
-				fees: [{ amount: '150000', token: { symbol: 'ETH' } }],
-			} satisfies Partial<NormalizedQuote>,
-		)
+		expect(out).toMatchObject({
+			steps: [
+				{
+					fromChainId: 1,
+					toChainId: 42161,
+					fromAmount: '1000000',
+					toAmount: '998500',
+					estimatedGasCosts: [{ amount: '150000', token: { symbol: 'ETH' } }],
+				},
+			],
+			fromChainId: 1,
+			toChainId: 42161,
+			fromAmount: '1000000',
+			toAmount: '998500',
+			estimatedToAmount: '998500',
+			fees: [{ amount: '150000', token: { symbol: 'ETH' } }],
+		} satisfies Partial<NormalizedQuote>)
 		expect(out.steps).toHaveLength(1)
 		expect(typeof out.estimatedToAmount).toBe('string')
 	})
@@ -149,24 +153,22 @@ describe('LI.FI routes and quotes', () => {
 				'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as `0x${string}`,
 		}
 		const result = await fetchQuoteCached(params)
-		expect(result.quote).toMatchObject(
-			{
-				steps: [
-					{
-						fromChainId: 1,
-						toChainId: 42161,
-						fromAmount: '1000000',
-						toAmount: '998500',
-					},
-				],
-				fromChainId: 1,
-				toChainId: 42161,
-				fromAmount: '1000000',
-				toAmount: '998500',
-				estimatedToAmount: '998500',
-				fees: [{ amount: '150000', token: { symbol: 'ETH' } }],
-			} satisfies Partial<NormalizedQuote>,
-		)
+		expect(result.quote).toMatchObject({
+			steps: [
+				{
+					fromChainId: 1,
+					toChainId: 42161,
+					fromAmount: '1000000',
+					toAmount: '998500',
+				},
+			],
+			fromChainId: 1,
+			toChainId: 42161,
+			fromAmount: '1000000',
+			toAmount: '998500',
+			estimatedToAmount: '998500',
+			fees: [{ amount: '150000', token: { symbol: 'ETH' } }],
+		} satisfies Partial<NormalizedQuote>)
 		const cached = await fetchQuoteCached(params)
 		expect(cached).toStrictEqual(result)
 	})
@@ -315,7 +317,9 @@ describe('extractFeeBreakdown', () => {
 					action: { fromChainId: 1 },
 					estimate: {
 						gasCosts: [{ amount: '0', amountUSD: '0.50', token: {} }],
-						feeCosts: [{ name: 'Fee', amount: '0', amountUSD: '0.50', token: {} }],
+						feeCosts: [
+							{ name: 'Fee', amount: '0', amountUSD: '0.50', token: {} },
+						],
 					},
 				},
 			],
@@ -339,7 +343,10 @@ describe('extractFeeBreakdown', () => {
 			steps: [
 				{
 					action: { fromChainId: 1 },
-					estimate: { fromAmountUSD: '50', gasCosts: [{ amount: '0', amountUSD: '1', token: {} }] },
+					estimate: {
+						fromAmountUSD: '50',
+						gasCosts: [{ amount: '0', amountUSD: '1', token: {} }],
+					},
 				},
 			],
 		}

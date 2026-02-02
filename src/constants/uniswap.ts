@@ -63,19 +63,21 @@ export const uniswapContractAddresses = [
 	},
 ] as const satisfies readonly UniswapContractAddress[]
 
-const contractAddressEntries = (
-	Object.fromEntries(
-		Map.groupBy(uniswapContractAddresses, (entry) => entry.contract)
-			.entries()
-			.map(([contract, entries]) => [
-				contract,
-				Object.fromEntries(entries.map((entry) => [entry.chainId, entry.address])),
-			])
-	)
+const contractAddressEntries = Object.fromEntries(
+	Map.groupBy(uniswapContractAddresses, (entry) => entry.contract)
+		.entries()
+		.map(([contract, entries]) => [
+			contract,
+			Object.fromEntries(
+				entries.map((entry) => [entry.chainId, entry.address]),
+			),
+		]),
 )
 
-export const POOL_MANAGER_ADDRESS = contractAddressEntries[UniswapContract.PoolManager]
-export const UNIVERSAL_ROUTER_ADDRESS = contractAddressEntries[UniswapContract.UniversalRouter]
+export const POOL_MANAGER_ADDRESS =
+	contractAddressEntries[UniswapContract.PoolManager]
+export const UNIVERSAL_ROUTER_ADDRESS =
+	contractAddressEntries[UniswapContract.UniversalRouter]
 
 export enum FeeTier {
 	Lowest = 100,

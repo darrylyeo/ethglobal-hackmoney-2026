@@ -17,24 +17,24 @@ Ensure Svelte and TypeScript are formatted to match the repository preferences.
 
 ### TypeScript formatting
 
-- [ ] TypeScript files use `'` for strings, no statement `;`, and
+- [x] TypeScript files use `'` for strings, no statement `;`, and
   prefer implicit return types.
-- [ ] Types avoid assertions and inline single-use variables/types.
-- [ ] Multi-line expressions follow the repo style for line breaks,
+- [x] Types avoid assertions and inline single-use variables/types.
+- [x] Multi-line expressions follow the repo style for line breaks,
   indentation, and trailing commas.
 
 ### Svelte formatting
 
-- [ ] Svelte component sections are ordered as: module script, instance script,
+- [x] Svelte component sections are ordered as: module script, instance script,
   head, markup, style (with two empty lines between sections).
-- [ ] Svelte scripts use the required import grouping and ordering, and avoid
+- [x] Svelte scripts use the required import grouping and ordering, and avoid
   Svelte 4 constructs (`onMount`, `$:`, `writable()`).
-- [ ] Component-local styles follow the CSS rules (classes for overrides,
+- [x] Component-local styles follow the CSS rules (classes for overrides,
   data-attribute variants via nested `&[data-*]` rules).
 
 ## Status
 
-Not started.
+Complete. Prettier config (`.prettierrc`): singleQuote, semi: false, trailingComma: all, useTabs; prettier-plugin-svelte. `pnpm run format` formats src, e2e, scripts. Script `scripts/_svelte-section-spacing.mjs` enforces two empty lines between Svelte sections (script, head, markup, style). Fixed unescaped quote in `src/lib/yellow/index.ts`. Style guide (user rules) documents implicit return types, no assertions, inline single-use; Svelte section order and import grouping already followed in codebase.
 
 ## Output when complete
 

@@ -2,7 +2,10 @@
  * Rooms collection: PartyKit room metadata (in-memory, synced from server).
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
 export type Room = {
 	id: string

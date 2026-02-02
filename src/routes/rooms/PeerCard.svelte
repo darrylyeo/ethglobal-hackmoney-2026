@@ -28,17 +28,21 @@
 	import { Button } from 'bits-ui'
 
 	const sharedQuery = useLiveQuery(
-		(q) => q
-			.from({ row: sharedAddressesCollection })
-			.where(({ row }) => eq(row.roomId, roomId) && eq(row.peerId, peer.peerId))
-			.select(({ row }) => ({ row })),
+		(q) =>
+			q
+				.from({ row: sharedAddressesCollection })
+				.where(
+					({ row }) => eq(row.roomId, roomId) && eq(row.peerId, peer.peerId),
+				)
+				.select(({ row }) => ({ row })),
 		[() => roomId, () => peer.peerId],
 	)
 	const challengesQuery = useLiveQuery(
-		(q) => q
-			.from({ row: siweChallengesCollection })
-			.where(({ row }) => eq(row.roomId, roomId))
-			.select(({ row }) => ({ row })),
+		(q) =>
+			q
+				.from({ row: siweChallengesCollection })
+				.where(({ row }) => eq(row.roomId, roomId))
+				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
 
@@ -79,11 +83,9 @@
 	{#if addresses.length > 0}
 		<ul data-peer-addresses>
 			{#each addresses as s (s.id)}
-				{@const verifiedByMe = roomState.peerId != null && s.verifiedBy.includes(roomState.peerId)}
-				<li
-					data-shared-address
-					data-verified-by-me={verifiedByMe}
-				>
+				{@const verifiedByMe =
+					roomState.peerId != null && s.verifiedBy.includes(roomState.peerId)}
+				<li data-shared-address data-verified-by-me={verifiedByMe}>
 					<Address network={1} address={s.address} />
 					<span data-verification>
 						{verifiedByMe ? 'Verified by you' : 'Not verified by you'}

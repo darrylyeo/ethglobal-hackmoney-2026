@@ -45,11 +45,19 @@ function node(
 	return { id, x, y, label, category, details, image }
 }
 
-function edge(id: string, source: string, target: string, label: string, critical?: boolean): ArchitectureEdge {
+function edge(
+	id: string,
+	source: string,
+	target: string,
+	label: string,
+	critical?: boolean,
+): ArchitectureEdge {
 	return { id, source, target, label, critical }
 }
 
-const CHAIN_IDS_FOR_DIAGRAM: readonly number[] = [137, 42161, 8453, 11155111, 324]
+const CHAIN_IDS_FOR_DIAGRAM: readonly number[] = [
+	137, 42161, 8453, 11155111, 324,
+]
 
 export function getArchitectureGraphModel(): ArchitectureGraphModel {
 	const nodes: ArchitectureNode[] = [
@@ -105,8 +113,19 @@ export function getArchitectureGraphModel(): ArchitectureGraphModel {
 		edge('e-partykit-ui', 'partykit', 'client-ui', 'realtime'),
 		edge('e-ui-partykit', 'client-ui', 'partykit', 'realtime'),
 		...CHAIN_IDS_FOR_DIAGRAM.flatMap((chainId) => [
-			edge(`e-voltaire-net-${chainId}`, 'voltaire', `network-${chainId}`, 'RPC'),
-			edge(`e-wallets-net-${chainId}`, 'wallets', `network-${chainId}`, 'tx', true),
+			edge(
+				`e-voltaire-net-${chainId}`,
+				'voltaire',
+				`network-${chainId}`,
+				'RPC',
+			),
+			edge(
+				`e-wallets-net-${chainId}`,
+				'wallets',
+				`network-${chainId}`,
+				'tx',
+				true,
+			),
 		]),
 	]
 

@@ -2,14 +2,22 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import { WalletConnectionTransport } from '$/collections/wallet-connections'
-	import { validateBridgeAmount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT } from '$/constants/bridge-limits'
+	import {
+		validateBridgeAmount,
+		USDC_MIN_AMOUNT,
+		USDC_MAX_AMOUNT,
+	} from '$/constants/bridge-limits'
 	import {
 		CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS,
 		CCTP_FORWARDING_CHAIN_IDS,
 		getCctpDomainId,
 		isCctpSupportedChain,
 	} from '$/constants/cctp'
-	import { NetworkType, networks, networksByChainId } from '$/constants/networks'
+	import {
+		NetworkType,
+		networks,
+		networksByChainId,
+	} from '$/constants/networks'
 
 	// Context
 	import { Button, Dialog, Switch } from 'bits-ui'
@@ -19,26 +27,37 @@
 		selectedWallets,
 		selectedActor,
 	}: {
-		selectedWallets: ConnectedWallet[],
-		selectedActor: `0x${string}` | null,
+		selectedWallets: ConnectedWallet[]
+		selectedActor: `0x${string}` | null
 	} = $props()
 
 	// (Derived)
 	const selectedWallet = $derived(
-		selectedWallets.find((w) => w.connection.selected) ?? null
+		selectedWallets.find((w) => w.connection.selected) ?? null,
 	)
 	const walletProvider = $derived(
 		selectedWallet?.connection.transport === WalletConnectionTransport.Eip1193
-			? (selectedWallet.wallet as { provider: import('$lib/wallet').EIP1193Provider }).provider
-			: null
+			? (
+					selectedWallet.wallet as {
+						provider: import('$lib/wallet').EIP1193Provider
+					}
+				).provider
+			: null,
 	)
 
 	// Functions
 	import { formatAddress, isValidAddress } from '$/lib/address'
-	import { formatSmallestToDecimal, isValidDecimalInput, parseDecimalToSmallest } from '$/lib/format'
+	import {
+		formatSmallestToDecimal,
+		isValidDecimalInput,
+		parseDecimalToSmallest,
+	} from '$/lib/format'
 
 	// State
-	import { bridgeSettingsState, defaultBridgeSettings } from '$/state/bridge-settings.svelte'
+	import {
+		bridgeSettingsState,
+		defaultBridgeSettings,
+	} from '$/state/bridge-settings.svelte'
 
 	let invalidAmountInput = $state(false)
 	let transferSpeed = $state<'fast' | 'standard'>('fast')
@@ -50,58 +69,79 @@
 	let runExecutionAt = $state(0)
 
 	// (Derived)
-	const settings = $derived(bridgeSettingsState.current ?? defaultBridgeSettings)
+	const settings = $derived(
+		bridgeSettingsState.current ?? defaultBridgeSettings,
+	)
 	const filteredNetworks = $derived(
-		networks.filter((n) => (
+		networks.filter((n) =>
 			settings.isTestnet
 				? n.type === NetworkType.Testnet
-				: n.type === NetworkType.Mainnet
-		))
+				: n.type === NetworkType.Mainnet,
+		),
 	)
-	const cctpNetworks = $derived(filteredNetworks.filter((n) => isCctpSupportedChain(n.id)))
-	const fromNetwork = $derived(settings.fromChainId !== null ? networksByChainId[settings.fromChainId] : null)
-	const toNetwork = $derived(settings.toChainId !== null ? networksByChainId[settings.toChainId] : null)
+	const cctpNetworks = $derived(
+		filteredNetworks.filter((n) => isCctpSupportedChain(n.id)),
+	)
+	const fromNetwork = $derived(
+		settings.fromChainId !== null
+			? networksByChainId[settings.fromChainId]
+			: null,
+	)
+	const toNetwork = $derived(
+		settings.toChainId !== null ? networksByChainId[settings.toChainId] : null,
+	)
 	const fromDomain = $derived(getCctpDomainId(settings.fromChainId))
 	const toDomain = $derived(getCctpDomainId(settings.toChainId))
 	const cctpPairSupported = $derived(fromDomain !== null && toDomain !== null)
 	const fastTransferSupported = $derived(
-		settings.fromChainId !== null && CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS.has(settings.fromChainId)
+		settings.fromChainId !== null &&
+			CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS.has(settings.fromChainId),
 	)
 	const effectiveTransferSpeed = $derived(
-		fastTransferSupported ? transferSpeed : 'standard'
+		fastTransferSupported ? transferSpeed : 'standard',
 	)
 	const forwardingSupported = $derived(
-		settings.toChainId !== null && CCTP_FORWARDING_CHAIN_IDS.has(settings.toChainId)
+		settings.toChainId !== null &&
+			CCTP_FORWARDING_CHAIN_IDS.has(settings.toChainId),
 	)
-	const validation = $derived(validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT))
+	const validation = $derived(
+		validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT),
+	)
 	const canSendAmount = $derived(validation.isValid && !invalidAmountInput)
-	const minFinalityThreshold = $derived(effectiveTransferSpeed === 'fast' ? 1000 : 2000)
+	const minFinalityThreshold = $derived(
+		effectiveTransferSpeed === 'fast' ? 1000 : 2000,
+	)
 	const feeBps = $derived(
 		effectiveTransferSpeed === 'fast'
 			? (feeFastBps ?? feeStandardBps ?? 0)
 			: (feeStandardBps ?? feeFastBps ?? 0),
 	)
-	const apiHost = $derived(settings.isTestnet ? 'https://iris-api-sandbox.circle.com' : 'https://iris-api.circle.com')
+	const apiHost = $derived(
+		settings.isTestnet
+			? 'https://iris-api-sandbox.circle.com'
+			: 'https://iris-api.circle.com',
+	)
 	const recipient = $derived(
 		settings.useCustomRecipient && isValidAddress(settings.customRecipient)
 			? (settings.customRecipient as `0x${string}`)
-			: selectedActor
+			: selectedActor,
 	)
 	const expectedReceive = $derived(
 		feeBps > 0 && settings.amount > 0n
 			? settings.amount - (settings.amount * BigInt(feeBps)) / 10000n
-			: settings.amount
+			: settings.amount,
 	)
 
 	$effect(() => {
 		if (cctpNetworks.length === 0) return
 		const nextFrom = cctpNetworks.some((n) => n.id === settings.fromChainId)
 			? settings.fromChainId
-			: cctpNetworks[0]?.id ?? null
+			: (cctpNetworks[0]?.id ?? null)
 		const nextTo = cctpNetworks.some((n) => n.id === settings.toChainId)
 			? settings.toChainId
-			: cctpNetworks[1]?.id ?? cctpNetworks[0]?.id ?? null
-		if (nextFrom === settings.fromChainId && nextTo === settings.toChainId) return
+			: (cctpNetworks[1]?.id ?? cctpNetworks[0]?.id ?? null)
+		if (nextFrom === settings.fromChainId && nextTo === settings.toChainId)
+			return
 		bridgeSettingsState.current = {
 			...settings,
 			fromChainId: nextFrom,
@@ -111,13 +151,18 @@
 
 	// Actions
 	const onAmountInput = (e: Event) => {
-		const v = (e.target as HTMLInputElement).value.replace(/[^0-9.,]/g, '').replace(/,/g, '')
+		const v = (e.target as HTMLInputElement).value
+			.replace(/[^0-9.,]/g, '')
+			.replace(/,/g, '')
 		if (v === '') {
 			invalidAmountInput = false
 			bridgeSettingsState.current = { ...settings, amount: 0n }
 		} else if (isValidDecimalInput(v, 6)) {
 			invalidAmountInput = false
-			bridgeSettingsState.current = { ...settings, amount: parseDecimalToSmallest(v, 6) }
+			bridgeSettingsState.current = {
+				...settings,
+				amount: parseDecimalToSmallest(v, 6),
+			}
 		} else {
 			invalidAmountInput = true
 		}
@@ -137,7 +182,6 @@
 	import CctpFees from './CctpFees.svelte'
 </script>
 
-
 <div data-bridge-layout>
 	<section data-card data-column="gap-4">
 		<h2>Bridge USDC (CCTP)</h2>
@@ -150,7 +194,10 @@
 					value={settings.fromChainId?.toString() ?? ''}
 					onValueChange={(v) => {
 						if (!v) return
-						bridgeSettingsState.current = { ...settings, fromChainId: Number(v) }
+						bridgeSettingsState.current = {
+							...settings,
+							fromChainId: Number(v),
+						}
 					}}
 					getItemId={(network) => String(network.id)}
 					getItemLabel={(network) => network.name}
@@ -184,11 +231,15 @@
 				type="text"
 				inputmode="decimal"
 				placeholder="0.00"
-				value={settings.amount === 0n ? '' : formatSmallestToDecimal(settings.amount, 6)}
+				value={settings.amount === 0n
+					? ''
+					: formatSmallestToDecimal(settings.amount, 6)}
 				oninput={onAmountInput}
 			/>
 			{#if invalidAmountInput}
-				<small data-error>Invalid amount (use numbers and up to 6 decimals)</small>
+				<small data-error
+					>Invalid amount (use numbers and up to 6 decimals)</small
+				>
 			{:else if validation.error === 'too_low'}
 				<small data-error>Min {validation.minAmount} USDC</small>
 			{:else if validation.error === 'too_high'}
@@ -203,7 +254,10 @@
 				<Switch.Root
 					checked={settings.useCustomRecipient}
 					onCheckedChange={(c) => {
-						bridgeSettingsState.current = { ...settings, useCustomRecipient: c ?? false }
+						bridgeSettingsState.current = {
+							...settings,
+							useCustomRecipient: c ?? false,
+						}
 					}}
 				>
 					<Switch.Thumb />
@@ -216,7 +270,10 @@
 					placeholder="0x..."
 					value={settings.customRecipient}
 					oninput={(e) => {
-						bridgeSettingsState.current = { ...settings, customRecipient: (e.target as HTMLInputElement).value }
+						bridgeSettingsState.current = {
+							...settings,
+							customRecipient: (e.target as HTMLInputElement).value,
+						}
 					}}
 				/>
 				{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}
@@ -233,9 +290,16 @@
 			<div data-preview data-column="gap-1">
 				<strong>Transfer preview</strong>
 				<dl data-summary>
-					<dt>Burn</dt><dd>{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}</dd>
-					<dt>Receive</dt><dd>~{formatSmallestToDecimal(expectedReceive, 6)} USDC on {toNetwork.name}</dd>
-					<dt>Recipient</dt><dd>{formatAddress(recipient)}</dd>
+					<dt>Burn</dt>
+					<dd>
+						{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
+					</dd>
+					<dt>Receive</dt>
+					<dd>
+						~{formatSmallestToDecimal(expectedReceive, 6)} USDC on {toNetwork.name}
+					</dd>
+					<dt>Recipient</dt>
+					<dd>{formatAddress(recipient)}</dd>
 				</dl>
 			</div>
 		{/if}
@@ -250,20 +314,27 @@
 					type="button"
 					disabled={!fastTransferSupported}
 					data-selected={effectiveTransferSpeed === 'fast' ? '' : undefined}
-					onclick={() => { transferSpeed = 'fast' }}
+					onclick={() => {
+						transferSpeed = 'fast'
+					}}
 				>
 					Fast
 				</Button.Root>
 				<Button.Root
 					type="button"
 					data-selected={effectiveTransferSpeed === 'standard' ? '' : undefined}
-					onclick={() => { transferSpeed = 'standard' }}
+					onclick={() => {
+						transferSpeed = 'standard'
+					}}
 				>
 					Standard
 				</Button.Root>
 			</div>
 			{#if !fastTransferSupported}
-				<small data-muted>Fast transfer is not supported for {fromNetwork?.name ?? 'this source chain'}.</small>
+				<small data-muted
+					>Fast transfer is not supported for {fromNetwork?.name ??
+						'this source chain'}.</small
+				>
 			{/if}
 		</div>
 
@@ -271,7 +342,9 @@
 			<label data-row="gap-2 align-center">
 				<Switch.Root
 					checked={forwardingEnabled}
-					onCheckedChange={(c) => { forwardingEnabled = c ?? false }}
+					onCheckedChange={(c) => {
+						forwardingEnabled = c ?? false
+					}}
 				>
 					<Switch.Thumb />
 				</Switch.Root>
@@ -280,35 +353,37 @@
 		{/if}
 
 		<CctpFees
-			fromDomain={fromDomain}
-			toDomain={toDomain}
-			apiHost={apiHost}
+			{fromDomain}
+			{toDomain}
+			{apiHost}
 			bind:fastBps={feeFastBps}
 			bind:standardBps={feeStandardBps}
 		/>
 
-		<CctpAllowance
-			fastTransferSupported={fastTransferSupported}
-			apiHost={apiHost}
-		/>
+		<CctpAllowance {fastTransferSupported} {apiHost} />
 
 		<div data-column="gap-2">
 			<CctpExecution
 				bind:executing
-				walletProvider={walletProvider}
+				{walletProvider}
 				senderAddress={selectedActor}
 				fromChainId={settings.fromChainId}
 				toChainId={settings.toChainId}
 				amount={settings.amount}
-				mintRecipient={recipient ?? '0x0000000000000000000000000000000000000000'}
-				minFinalityThreshold={minFinalityThreshold}
-				feeBps={feeBps}
+				mintRecipient={recipient ??
+					'0x0000000000000000000000000000000000000000'}
+				{minFinalityThreshold}
+				{feeBps}
 				isTestnet={settings.isTestnet}
 				runAt={runExecutionAt}
 			/>
 			<Button.Root
 				type="button"
-				disabled={!cctpPairSupported || !canSendAmount || !selectedWallet || !recipient || executing}
+				disabled={!cctpPairSupported ||
+					!canSendAmount ||
+					!selectedWallet ||
+					!recipient ||
+					executing}
 				onclick={onConfirmBridge}
 			>
 				Bridge via CCTP
@@ -323,13 +398,20 @@
 			<Dialog.Title>Confirm CCTP transfer</Dialog.Title>
 			{#if fromNetwork && toNetwork && recipient}
 				<Dialog.Description>
-					Send {formatSmallestToDecimal(settings.amount, 6)} USDC from {fromNetwork.name} to {toNetwork.name}.
-					Recipient: {formatAddress(recipient)}.
+					Send {formatSmallestToDecimal(settings.amount, 6)} USDC from {fromNetwork.name}
+					to {toNetwork.name}. Recipient: {formatAddress(recipient)}.
 				</Dialog.Description>
 			{/if}
 			<div data-dialog-actions>
-				<Button.Root type="button" onclick={() => { confirmOpen = false }}>Cancel</Button.Root>
-				<Button.Root type="button" onclick={onConfirmSubmit}>Confirm</Button.Root>
+				<Button.Root
+					type="button"
+					onclick={() => {
+						confirmOpen = false
+					}}>Cancel</Button.Root
+				>
+				<Button.Root type="button" onclick={onConfirmSubmit}
+					>Confirm</Button.Root
+				>
 			</div>
 		</Dialog.Content>
 	</Dialog.Portal>

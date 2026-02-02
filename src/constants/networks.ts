@@ -696,17 +696,17 @@ export const networksByChainId = Object.fromEntries(
 	networks.map((network) => [network.id, network]),
 )
 
-export const explorers: readonly Explorer[] = networkConfigs.flatMap((config) => (
-	config.explorerUrl
-		? [
-			{
-				chainId: config.chainId,
-				url: config.explorerUrl,
-			},
-		]
-	:
-		[]
-))
+export const explorers: readonly Explorer[] = networkConfigs.flatMap(
+	(config) =>
+		config.explorerUrl
+			? [
+					{
+						chainId: config.chainId,
+						url: config.explorerUrl,
+					},
+				]
+			: [],
+)
 
 export const explorerUrls = Object.fromEntries(
 	explorers.map((explorer) => [explorer.chainId, explorer.url]),

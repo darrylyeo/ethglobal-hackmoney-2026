@@ -14,7 +14,10 @@
 	import LiveTransfers from './LiveTransfers.svelte'
 
 	// State
-	const USDC_CHAINS = ercTokens.map((t) => ({ chainId: t.chainId, contractAddress: t.address }))
+	const USDC_CHAINS = ercTokens.map((t) => ({
+		chainId: t.chainId,
+		contractAddress: t.address,
+	}))
 	let transfersData = $state<TransfersGraphResult | null>(null)
 	let transfersError = $state<Error | null>(null)
 	let transfersLoading = $state(true)
@@ -80,23 +83,22 @@
 		<div data-transfers-error>
 			<h2>Transfers unavailable</h2>
 			<p>{transfersError?.message ?? 'Unknown error'}</p>
-			<p>RPC or network may be unreachable. Try another time period or retry.</p>
+			<p>
+				RPC or network may be unreachable. Try another time period or retry.
+			</p>
 			<button type="button" onclick={retry}>Retry</button>
 		</div>
 	{:else}
 		<Boundary>
-			<LiveTransfers
-				coin={coin}
-				graph={graph}
-				period={periodValue}
-				periods={periods}
-			/>
+			<LiveTransfers {coin} {graph} period={periodValue} {periods} />
 
 			{#snippet Failed(error, retryFn)}
 				<div data-transfers-error>
 					<h2>Transfers unavailable</h2>
 					<p>{(error as Error).message}</p>
-					<p>RPC or network may be unreachable. Try another time period or retry.</p>
+					<p>
+						RPC or network may be unreachable. Try another time period or retry.
+					</p>
 					<button type="button" onclick={retryFn}>Retry</button>
 				</div>
 			{/snippet}

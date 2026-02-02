@@ -2,7 +2,10 @@
  * Shared addresses collection: addresses shared in a room with verification status.
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
 export type SharedAddress = {
 	id: string

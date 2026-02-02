@@ -2,18 +2,43 @@
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import { Button, Popover } from 'bits-ui'
 	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { NetworkType, networks, networksByChainId } from '$/constants/networks'
+	import {
+		NetworkType,
+		networks,
+		networksByChainId,
+	} from '$/constants/networks'
 	import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap'
-	import { bridgeSettingsState, defaultBridgeSettings } from '$/state/bridge-settings.svelte'
-	import { swapSettingsState, defaultSwapSettings } from '$/state/swap-settings.svelte'
+	import {
+		bridgeSettingsState,
+		defaultBridgeSettings,
+	} from '$/state/bridge-settings.svelte'
+	import {
+		swapSettingsState,
+		defaultSwapSettings,
+	} from '$/state/swap-settings.svelte'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
 	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
-	import { swapQuotesCollection, fetchSwapQuote, type FetchSwapQuoteParams } from '$/collections/swap-quotes'
-	import { actorCoinsCollection, fetchActorCoinBalance } from '$/collections/actor-coins'
+	import {
+		swapQuotesCollection,
+		fetchSwapQuote,
+		type FetchSwapQuoteParams,
+	} from '$/collections/swap-quotes'
+	import {
+		actorCoinsCollection,
+		fetchActorCoinBalance,
+	} from '$/collections/actor-coins'
 	import { actorAllowancesCollection } from '$/collections/actor-allowances'
-	import { storkPricesCollection, subscribeStorkPrices, getBestStorkPrice } from '$/collections/stork-prices'
+	import {
+		storkPricesCollection,
+		subscribeStorkPrices,
+		getBestStorkPrice,
+	} from '$/collections/stork-prices'
 	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
-	import { formatSmallestToDecimal, parseDecimalToSmallest, isValidDecimalInput } from '$/lib/format'
+	import {
+		formatSmallestToDecimal,
+		parseDecimalToSmallest,
+		isValidDecimalInput,
+	} from '$/lib/format'
 	import { debounce } from '$/lib/debounce'
 	import { getStorkAssetIdForSymbol } from '$/lib/stork'
 	import Select from '$/components/Select.svelte'
@@ -29,115 +54,164 @@
 		selectedActor: `0x${string}` | null
 	} = $props()
 
-	const selectedWallet = $derived(selectedWallets.find((w) => w.connection.selected) ?? null)
-	const bridgeSettings = $derived(bridgeSettingsState.current ?? defaultBridgeSettings)
+	const selectedWallet = $derived(
+		selectedWallets.find((w) => w.connection.selected) ?? null,
+	)
+	const bridgeSettings = $derived(
+		bridgeSettingsState.current ?? defaultBridgeSettings,
+	)
 	const settings = $derived(swapSettingsState.current ?? defaultSwapSettings)
 	const quoteParams = $derived(
 		settings.amount > 0n
-			? {
-				chainId: settings.chainId,
-				tokenIn: settings.tokenIn,
-				tokenOut: settings.tokenOut,
-				amountIn: settings.amount,
-				slippage: settings.slippage,
-			} satisfies FetchSwapQuoteParams
-			: null
+			? ({
+					chainId: settings.chainId,
+					tokenIn: settings.tokenIn,
+					tokenOut: settings.tokenOut,
+					amountIn: settings.amount,
+					slippage: settings.slippage,
+				} satisfies FetchSwapQuoteParams)
+			: null,
 	)
 
-	const quotesQuery = useLiveQuery((q) => q.from({ row: swapQuotesCollection }).select(({ row }) => ({ row })))
-	const balancesQuery = useLiveQuery((q) => q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })))
-	const allowancesQuery = useLiveQuery((q) => q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })))
-	const tokenListQuery = useLiveQuery((q) => q.from({ row: tokenListCoinsCollection }).select(({ row }) => ({ row })))
-	const storkPricesQuery = useLiveQuery((q) => q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })))
+	const quotesQuery = useLiveQuery((q) =>
+		q.from({ row: swapQuotesCollection }).select(({ row }) => ({ row })),
+	)
+	const balancesQuery = useLiveQuery((q) =>
+		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
+	)
+	const allowancesQuery = useLiveQuery((q) =>
+		q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })),
+	)
+	const tokenListQuery = useLiveQuery((q) =>
+		q.from({ row: tokenListCoinsCollection }).select(({ row }) => ({ row })),
+	)
+	const storkPricesQuery = useLiveQuery((q) =>
+		q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })),
+	)
 
 	const filteredNetworks = $derived(
-		networks.filter((n) => (
+		networks.filter((n) =>
 			bridgeSettings.isTestnet
 				? n.type === NetworkType.Testnet
-				: n.type === NetworkType.Mainnet
-		))
+				: n.type === NetworkType.Mainnet,
+		),
 	)
-	const network = $derived(settings.chainId ? networksByChainId[settings.chainId] : null)
+	const network = $derived(
+		settings.chainId ? networksByChainId[settings.chainId] : null,
+	)
 	const chainTokens = $derived(
 		(tokenListQuery.data ?? [])
 			.map((r) => r.row)
-			.filter((token) => token.chainId === settings.chainId)
+			.filter((token) => token.chainId === settings.chainId),
 	)
 	const tokenInEntry = $derived(
-		chainTokens.find((token) => token.address.toLowerCase() === settings.tokenIn.toLowerCase()) ?? null
+		chainTokens.find(
+			(token) => token.address.toLowerCase() === settings.tokenIn.toLowerCase(),
+		) ?? null,
 	)
 	const tokenOutEntry = $derived(
-		chainTokens.find((token) => token.address.toLowerCase() === settings.tokenOut.toLowerCase()) ?? null
+		chainTokens.find(
+			(token) =>
+				token.address.toLowerCase() === settings.tokenOut.toLowerCase(),
+		) ?? null,
 	)
 	const tokenInDecimals = $derived(tokenInEntry?.decimals ?? 18)
 	const tokenOutDecimals = $derived(tokenOutEntry?.decimals ?? 18)
 	const quoteRow = $derived(
 		quoteParams
-			? (quotesQuery.data?.find((r) => r.row.id === getSwapQuoteId(quoteParams))?.row ?? null)
-			: null
+			? (quotesQuery.data?.find((r) => r.row.id === getSwapQuoteId(quoteParams))
+					?.row ?? null)
+			: null,
 	)
 	const quote = $derived(quoteRow ?? null)
 	const balances = $derived(
 		selectedActor && network
 			? (balancesQuery.data ?? [])
-				.map((r) => r.row)
-				.filter((b) => (
-					b.$id.address.toLowerCase() === selectedActor.toLowerCase() &&
-					b.$id.chainId === network.id &&
-					chainTokens.some((token) => token.address.toLowerCase() === b.$id.tokenAddress.toLowerCase())
-				))
-			: []
+					.map((r) => r.row)
+					.filter(
+						(b) =>
+							b.$id.address.toLowerCase() === selectedActor.toLowerCase() &&
+							b.$id.chainId === network.id &&
+							chainTokens.some(
+								(token) =>
+									token.address.toLowerCase() ===
+									b.$id.tokenAddress.toLowerCase(),
+							),
+					)
+			: [],
 	)
 	const tokenInBalance = $derived(
 		network && selectedActor
-			? balances.find((b) => b.$id.chainId === network.id && b.$id.tokenAddress.toLowerCase() === settings.tokenIn.toLowerCase())?.balance ?? null
-			: null
+			? (balances.find(
+					(b) =>
+						b.$id.chainId === network.id &&
+						b.$id.tokenAddress.toLowerCase() === settings.tokenIn.toLowerCase(),
+				)?.balance ?? null)
+			: null,
 	)
-	const routerAddress = $derived(UNIVERSAL_ROUTER_ADDRESS[settings.chainId] ?? null)
+	const routerAddress = $derived(
+		UNIVERSAL_ROUTER_ADDRESS[settings.chainId] ?? null,
+	)
 	const needsApproval = $derived(Boolean(routerAddress && settings.amount > 0n))
 	const allowanceRow = $derived(
 		selectedActor && network && routerAddress
-			? allowancesQuery.data?.find((r) => (
-				r.row.$id.chainId === network.id &&
-				r.row.$id.address.toLowerCase() === selectedActor.toLowerCase() &&
-				r.row.$id.tokenAddress.toLowerCase() === settings.tokenIn.toLowerCase() &&
-				r.row.$id.spenderAddress.toLowerCase() === routerAddress.toLowerCase()
-			))?.row ?? null
-			: null
+			? (allowancesQuery.data?.find(
+					(r) =>
+						r.row.$id.chainId === network.id &&
+						r.row.$id.address.toLowerCase() === selectedActor.toLowerCase() &&
+						r.row.$id.tokenAddress.toLowerCase() ===
+							settings.tokenIn.toLowerCase() &&
+						r.row.$id.spenderAddress.toLowerCase() ===
+							routerAddress.toLowerCase(),
+				)?.row ?? null)
+			: null,
 	)
-	const hasSufficientAllowance = $derived(allowanceRow ? allowanceRow.allowance >= settings.amount : !needsApproval)
-	const canSwap = $derived(settings.amount > 0n && (hasSufficientAllowance || !needsApproval) && quote)
+	const hasSufficientAllowance = $derived(
+		allowanceRow ? allowanceRow.allowance >= settings.amount : !needsApproval,
+	)
+	const canSwap = $derived(
+		settings.amount > 0n && (hasSufficientAllowance || !needsApproval) && quote,
+	)
 	const priceImpactWarning = $derived(quote ? quote.priceImpact > 1 : false)
 	const storkPrices = $derived((storkPricesQuery.data ?? []).map((r) => r.row))
-	const tokenInAssetId = $derived(tokenInEntry ? getStorkAssetIdForSymbol(tokenInEntry.symbol) : null)
-	const tokenOutAssetId = $derived(tokenOutEntry ? getStorkAssetIdForSymbol(tokenOutEntry.symbol) : null)
+	const tokenInAssetId = $derived(
+		tokenInEntry ? getStorkAssetIdForSymbol(tokenInEntry.symbol) : null,
+	)
+	const tokenOutAssetId = $derived(
+		tokenOutEntry ? getStorkAssetIdForSymbol(tokenOutEntry.symbol) : null,
+	)
 	const tokenInPriceRow = $derived(
 		tokenInAssetId && network
 			? getBestStorkPrice(storkPrices, tokenInAssetId, network.id)
-			: null
+			: null,
 	)
 	const tokenOutPriceRow = $derived(
 		tokenOutAssetId && network
 			? getBestStorkPrice(storkPrices, tokenOutAssetId, network.id)
-			: null
+			: null,
 	)
 	const storkRate = $derived(
 		tokenInPriceRow && tokenOutPriceRow
 			? (tokenInPriceRow.price * 10n ** 18n) / tokenOutPriceRow.price
-			: null
+			: null,
 	)
 	const quoteRate = $derived(
 		quote && settings.amount > 0n
-			? (quote.amountOut * 10n ** 18n * 10n ** BigInt(tokenInDecimals)) / (settings.amount * 10n ** BigInt(tokenOutDecimals))
-			: null
+			? (quote.amountOut * 10n ** 18n * 10n ** BigInt(tokenInDecimals)) /
+					(settings.amount * 10n ** BigInt(tokenOutDecimals))
+			: null,
 	)
 	const rateDeltaBps = $derived(
 		storkRate && quoteRate
-			? ((quoteRate > storkRate ? quoteRate - storkRate : storkRate - quoteRate) * 10_000n) / storkRate
-			: null
+			? ((quoteRate > storkRate
+					? quoteRate - storkRate
+					: storkRate - quoteRate) *
+					10_000n) /
+					storkRate
+			: null,
 	)
 	const rateDeltaPercent = $derived(
-		rateDeltaBps !== null ? Number(rateDeltaBps) / 100 : null
+		rateDeltaBps !== null ? Number(rateDeltaBps) / 100 : null,
 	)
 
 	let executing = $state(false)
@@ -146,15 +220,28 @@
 		if (quoteParams) fetchSwapQuote(quoteParams, getSwapQuote).catch(() => {})
 	}, 500)
 	$effect(() => {
-		if (quoteParams) { fetchQuote(); return () => fetchQuote.cancel() }
+		if (quoteParams) {
+			fetchQuote()
+			return () => fetchQuote.cancel()
+		}
 	})
 
 	$effect(() => {
-		const assetIds = [tokenInAssetId, tokenOutAssetId].flatMap((assetId) => (assetId ? [assetId] : []))
+		const assetIds = [tokenInAssetId, tokenOutAssetId].flatMap((assetId) =>
+			assetId ? [assetId] : [],
+		)
 		if (assetIds.length === 0) return
 		const unsubscribers = [
 			subscribeStorkPrices({ assetIds, transports: ['rest', 'websocket'] }),
-			...(network ? [subscribeStorkPrices({ assetIds, chainId: network.id, transports: ['rpc'] })] : []),
+			...(network
+				? [
+						subscribeStorkPrices({
+							assetIds,
+							chainId: network.id,
+							transports: ['rpc'],
+						}),
+					]
+				: []),
 		]
 		return () => {
 			for (const unsubscribe of unsubscribers) unsubscribe()
@@ -162,23 +249,32 @@
 	})
 
 	const onAmountInput = (e: Event) => {
-		const v = (e.target as HTMLInputElement).value.replace(/[^0-9.,]/g, '').replace(/,/g, '')
+		const v = (e.target as HTMLInputElement).value
+			.replace(/[^0-9.,]/g, '')
+			.replace(/,/g, '')
 		if (v === '') swapSettingsState.current = { ...settings, amount: 0n }
-		else if (isValidDecimalInput(v, tokenInDecimals)) swapSettingsState.current = { ...settings, amount: parseDecimalToSmallest(v, tokenInDecimals) }
+		else if (isValidDecimalInput(v, tokenInDecimals))
+			swapSettingsState.current = {
+				...settings,
+				amount: parseDecimalToSmallest(v, tokenInDecimals),
+			}
 	}
-	const normalizeSelectValue = (value: string | string[] | null | undefined): string | null => (
-		Array.isArray(value)
-			? value[0] ?? null
-			: value ?? null
-	)
+	const normalizeSelectValue = (
+		value: string | string[] | null | undefined,
+	): string | null =>
+		Array.isArray(value) ? (value[0] ?? null) : (value ?? null)
 	const onTokenInChange = (value: string) => {
-		const nextToken = chainTokens.find((token) => token.address === value)?.address
+		const nextToken = chainTokens.find(
+			(token) => token.address === value,
+		)?.address
 		if (!nextToken) return
 		if (nextToken === settings.tokenOut) swapDirection()
 		else swapSettingsState.current = { ...settings, tokenIn: nextToken }
 	}
 	const onTokenOutChange = (value: string) => {
-		const nextToken = chainTokens.find((token) => token.address === value)?.address
+		const nextToken = chainTokens.find(
+			(token) => token.address === value,
+		)?.address
 		if (!nextToken) return
 		if (nextToken === settings.tokenIn) swapDirection()
 		else swapSettingsState.current = { ...settings, tokenOut: nextToken }
@@ -202,25 +298,46 @@
 
 	$effect(() => {
 		if (chainTokens.length === 0) return
-		const tokenInMatch = chainTokens.find((token) => token.address.toLowerCase() === settings.tokenIn.toLowerCase())
-		const tokenOutMatch = chainTokens.find((token) => token.address.toLowerCase() === settings.tokenOut.toLowerCase())
+		const tokenInMatch = chainTokens.find(
+			(token) => token.address.toLowerCase() === settings.tokenIn.toLowerCase(),
+		)
+		const tokenOutMatch = chainTokens.find(
+			(token) =>
+				token.address.toLowerCase() === settings.tokenOut.toLowerCase(),
+		)
 		const nextTokenIn = tokenInMatch?.address ?? chainTokens[0]?.address
-		const nextTokenOut = tokenOutMatch?.address ?? chainTokens.find((token) => token.address !== nextTokenIn)?.address ?? nextTokenIn
+		const nextTokenOut =
+			tokenOutMatch?.address ??
+			chainTokens.find((token) => token.address !== nextTokenIn)?.address ??
+			nextTokenIn
 		if (!nextTokenIn || !nextTokenOut) return
-		if (nextTokenIn === settings.tokenIn && nextTokenOut === settings.tokenOut) return
-		swapSettingsState.current = { ...settings, tokenIn: nextTokenIn, tokenOut: nextTokenOut }
+		if (nextTokenIn === settings.tokenIn && nextTokenOut === settings.tokenOut)
+			return
+		swapSettingsState.current = {
+			...settings,
+			tokenIn: nextTokenIn,
+			tokenOut: nextTokenOut,
+		}
 	})
 
 	$effect(() => {
 		if (!selectedActor || !network || !tokenInEntry) return
 		void fetchActorCoinBalance(
-			{ chainId: network.id, address: selectedActor, tokenAddress: tokenInEntry.address },
+			{
+				chainId: network.id,
+				address: selectedActor,
+				tokenAddress: tokenInEntry.address,
+			},
 			tokenInEntry.symbol,
 			tokenInEntry.decimals,
 		)
 		if (!tokenOutEntry || tokenOutEntry.address === tokenInEntry.address) return
 		void fetchActorCoinBalance(
-			{ chainId: network.id, address: selectedActor, tokenAddress: tokenOutEntry.address },
+			{
+				chainId: network.id,
+				address: selectedActor,
+				tokenAddress: tokenOutEntry.address,
+			},
 			tokenOutEntry.symbol,
 			tokenOutEntry.decimals,
 		)
@@ -236,14 +353,23 @@
 		{#if quote}
 			<div data-row="gap-1 align-center wrap">
 				<span data-row-item="wrap-start">
-					{formatSmallestToDecimal(settings.amount, tokenInDecimals, 4)} {tokenInEntry?.symbol ?? '—'} -> {formatSmallestToDecimal(quote.amountOut, tokenOutDecimals, 4)} {tokenOutEntry?.symbol ?? '—'}
+					{formatSmallestToDecimal(settings.amount, tokenInDecimals, 4)}
+					{tokenInEntry?.symbol ?? '—'} -> {formatSmallestToDecimal(
+						quote.amountOut,
+						tokenOutDecimals,
+						4,
+					)}
+					{tokenOutEntry?.symbol ?? '—'}
 				</span>
 			</div>
 			<div data-row="gap-2 align-center wrap" data-muted>
 				<span>Price impact: {quote.priceImpact.toFixed(2)}%</span>
 				{#if priceImpactWarning}<span data-error>High impact</span>{/if}
 				<Popover.Root>
-					<Popover.Trigger data-row="gap-1">Slippage: <strong>{formatSlippage(settings.slippage)}</strong></Popover.Trigger>
+					<Popover.Trigger data-row="gap-1"
+						>Slippage: <strong>{formatSlippage(settings.slippage)}</strong
+						></Popover.Trigger
+					>
 					<Popover.Content data-column="gap-2">
 						<input
 							type="number"
@@ -251,7 +377,8 @@
 							value={settings.slippage * 100}
 							oninput={(e) => {
 								const v = parseFloat((e.target as HTMLInputElement).value)
-								if (!Number.isNaN(v) && v >= 0 && v <= 50) swapSettingsState.current = { ...settings, slippage: v / 100 }
+								if (!Number.isNaN(v) && v >= 0 && v <= 50)
+									swapSettingsState.current = { ...settings, slippage: v / 100 }
 							}}
 						/>
 					</Popover.Content>
@@ -260,11 +387,21 @@
 			{#if tokenInPriceRow && tokenOutPriceRow}
 				<div data-row="gap-2 align-center wrap" data-muted>
 					<span>
-						Stork: 1 {tokenInEntry?.symbol ?? '—'} ≈ {formatSmallestToDecimal(storkRate ?? 0n, 18, 6)} {tokenOutEntry?.symbol ?? '—'}
+						Stork: 1 {tokenInEntry?.symbol ?? '—'} ≈ {formatSmallestToDecimal(
+							storkRate ?? 0n,
+							18,
+							6,
+						)}
+						{tokenOutEntry?.symbol ?? '—'}
 					</span>
 					{#if quoteRate !== null}
 						<span>
-							Quote: 1 {tokenInEntry?.symbol ?? '—'} ≈ {formatSmallestToDecimal(quoteRate, 18, 6)} {tokenOutEntry?.symbol ?? '—'}
+							Quote: 1 {tokenInEntry?.symbol ?? '—'} ≈ {formatSmallestToDecimal(
+								quoteRate,
+								18,
+								6,
+							)}
+							{tokenOutEntry?.symbol ?? '—'}
 						</span>
 						{#if rateDeltaPercent !== null}
 							<span>Δ {rateDeltaPercent.toFixed(2)}%</span>
@@ -289,7 +426,7 @@
 
 		{#if quote && selectedActor && selectedWallet}
 			<SwapExecution
-				quote={quote}
+				{quote}
 				walletProvider={selectedWallet.wallet.provider}
 				walletAddress={selectedActor}
 				amount={settings.amount}
@@ -310,7 +447,9 @@
 					type="text"
 					inputmode="decimal"
 					placeholder="0.00"
-					value={settings.amount === 0n ? '' : formatSmallestToDecimal(settings.amount, tokenInDecimals)}
+					value={settings.amount === 0n
+						? ''
+						: formatSmallestToDecimal(settings.amount, tokenInDecimals)}
 					oninput={onAmountInput}
 					data-row-item="flexible"
 				/>
@@ -332,11 +471,22 @@
 				</div>
 			</div>
 			{#if tokenInBalance !== null}
-				<small data-muted>Balance: {formatSmallestToDecimal(tokenInBalance, tokenInDecimals, 4)} {tokenInEntry?.symbol ?? ''}</small>
+				<small data-muted
+					>Balance: {formatSmallestToDecimal(
+						tokenInBalance,
+						tokenInDecimals,
+						4,
+					)}
+					{tokenInEntry?.symbol ?? ''}</small
+				>
 			{/if}
 		</div>
 		<div data-row="center">
-			<Button.Root type="button" onclick={swapDirection} aria-label="Swap direction">↕</Button.Root>
+			<Button.Root
+				type="button"
+				onclick={swapDirection}
+				aria-label="Swap direction">↕</Button.Root
+			>
 		</div>
 		<div data-row-item="flexible" data-card="secondary" data-column="gap-1">
 			<div data-row="gap-2 align-center wrap">
@@ -377,16 +527,18 @@
 		Summary={swapSummary}
 		transactions={quote
 			? [
-				{
-					id: 'swap',
-					chainId: settings.chainId,
-					title: 'Swap',
-					actionLabel: executing ? 'Swapping…' : 'Swap',
-					canExecute: Boolean(canSwap && selectedActor && selectedWallet) && !executing,
-					execute: (_args) => (executionRef ? executionRef.execute() : Promise.resolve()),
-					Details: swapDetails,
-				},
-			]
+					{
+						id: 'swap',
+						chainId: settings.chainId,
+						title: 'Swap',
+						actionLabel: executing ? 'Swapping…' : 'Swap',
+						canExecute:
+							Boolean(canSwap && selectedActor && selectedWallet) && !executing,
+						execute: (_args) =>
+							executionRef ? executionRef.execute() : Promise.resolve(),
+						Details: swapDetails,
+					},
+				]
 			: []}
 	/>
 </section>

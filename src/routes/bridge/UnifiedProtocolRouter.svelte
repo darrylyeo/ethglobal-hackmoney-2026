@@ -22,36 +22,36 @@
 		recipient,
 		canSendAmount,
 	}: {
-		activeProtocol: 'cctp' | 'lifi' | null,
-		protocolReason: string,
-		protocolIntent?: 'cctp' | 'lifi' | null,
-		cctpPairSupported: boolean,
-		lifiPairSupported: boolean,
-		selectedWallet: ConnectedWallet | null,
-		selectedActor: `0x${string}` | null,
-		fromNetwork: Network | null,
-		toNetwork: Network | null,
-		recipient: `0x${string}` | null,
-		canSendAmount: boolean,
+		activeProtocol: 'cctp' | 'lifi' | null
+		protocolReason: string
+		protocolIntent?: 'cctp' | 'lifi' | null
+		cctpPairSupported: boolean
+		lifiPairSupported: boolean
+		selectedWallet: ConnectedWallet | null
+		selectedActor: `0x${string}` | null
+		fromNetwork: Network | null
+		toNetwork: Network | null
+		recipient: `0x${string}` | null
+		canSendAmount: boolean
 	} = $props()
 
 	// (Derived)
-	const canContinue = $derived(Boolean(activeProtocol && canSendAmount && selectedWallet))
+	const canContinue = $derived(
+		Boolean(activeProtocol && canSendAmount && selectedWallet),
+	)
 	const protocolLabel = $derived(
 		activeProtocol === 'cctp'
 			? 'CCTP'
-		: activeProtocol === 'lifi'
-			? 'LI.FI'
-		:
-			'—'
+			: activeProtocol === 'lifi'
+				? 'LI.FI'
+				: '—',
 	)
 	const protocolHref = $derived(
 		activeProtocol === 'cctp'
 			? '/bridge/cctp'
-		: activeProtocol === 'lifi'
-			? '/bridge/lifi'
-		:
-			null
+			: activeProtocol === 'lifi'
+				? '/bridge/lifi'
+				: null,
 	)
 
 	// Actions
@@ -60,7 +60,6 @@
 		goto(resolve(protocolHref))
 	}
 </script>
-
 
 <section data-card data-column="gap-3">
 	<h3>Protocol Selection</h3>
@@ -78,21 +77,27 @@
 				<Button.Root
 					type="button"
 					data-selected={protocolIntent === 'cctp' ? '' : undefined}
-					onclick={() => { protocolIntent = 'cctp' }}
+					onclick={() => {
+						protocolIntent = 'cctp'
+					}}
 				>
 					Prefer CCTP
 				</Button.Root>
 				<Button.Root
 					type="button"
 					data-selected={protocolIntent === 'lifi' ? '' : undefined}
-					onclick={() => { protocolIntent = 'lifi' }}
+					onclick={() => {
+						protocolIntent = 'lifi'
+					}}
 				>
 					Prefer LI.FI
 				</Button.Root>
 				<Button.Root
 					type="button"
 					data-selected={protocolIntent === null ? '' : undefined}
-					onclick={() => { protocolIntent = null }}
+					onclick={() => {
+						protocolIntent = null
+					}}
 				>
 					Auto
 				</Button.Root>
@@ -112,7 +117,7 @@
 			<dt>To</dt>
 			<dd>{toNetwork?.name ?? '—'}</dd>
 			<dt>Recipient</dt>
-			<dd>{recipient ?? (selectedActor ?? '—')}</dd>
+			<dd>{recipient ?? selectedActor ?? '—'}</dd>
 		</dl>
 	</div>
 
@@ -120,12 +125,12 @@
 		<p data-muted>Connect a wallet to continue</p>
 	{/if}
 
-	<Button.Root
-		type="button"
-		disabled={!canContinue}
-		onclick={onContinue}
-	>
-		{activeProtocol === 'cctp' ? 'Continue to CCTP' : activeProtocol === 'lifi' ? 'Continue to LI.FI' : 'Select chains'}
+	<Button.Root type="button" disabled={!canContinue} onclick={onContinue}>
+		{activeProtocol === 'cctp'
+			? 'Continue to CCTP'
+			: activeProtocol === 'lifi'
+				? 'Continue to LI.FI'
+				: 'Select chains'}
 	</Button.Root>
 </section>
 
@@ -156,12 +161,12 @@
 		font-weight: 600;
 	}
 
-	[data-badge][data-protocol="cctp"] {
+	[data-badge][data-protocol='cctp'] {
 		background: #e0f2fe;
 		color: #0284c7;
 	}
 
-	[data-badge][data-protocol="lifi"] {
+	[data-badge][data-protocol='lifi'] {
 		background: #f3e8ff;
 		color: #7e22ce;
 	}

@@ -51,16 +51,23 @@ function parseCovalentItem(
 ): NormalizedTransfer | null {
 	const from = item.from_address ?? ''
 	const to = item.to_address ?? ''
-	const amount = (
-		item.delta != null ? String(Math.abs(Number(item.delta))) :
-		item.amount != null ? String(Math.abs(Number(item.amount))) :
-		'0'
-	)
+	const amount =
+		item.delta != null
+			? String(Math.abs(Number(item.delta)))
+			: item.amount != null
+				? String(Math.abs(Number(item.amount)))
+				: '0'
 	const timestamp = item.block_signed_at
 		? new Date(item.block_signed_at).getTime()
 		: 0
 	if (!from || !to) return null
-	return { fromAddress: from.toLowerCase(), toAddress: to.toLowerCase(), amount, timestamp, chainId }
+	return {
+		fromAddress: from.toLowerCase(),
+		toAddress: to.toLowerCase(),
+		amount,
+		timestamp,
+		chainId,
+	}
 }
 
 export async function fetchTransfersForChain(
@@ -96,7 +103,13 @@ export async function fetchAllTransfers(
 ): Promise<NormalizedTransfer[]> {
 	const results = await Promise.all(
 		chains.map(({ chainId, contractAddress }) =>
-			fetchTransfersForChain(chainId, contractAddress, startTime, endTime, apiKey),
+			fetchTransfersForChain(
+				chainId,
+				contractAddress,
+				startTime,
+				endTime,
+				apiKey,
+			),
 		),
 	)
 	return results.flat()
@@ -157,7 +170,10 @@ export const TIME_PERIODS = [
 	{ value: '7d', label: '7d', ms: 7 * 24 * 60 * 60 * 1000 },
 ] as const
 
-export function periodToRange(periodMs: number): { start: number; end: number } {
+export function periodToRange(periodMs: number): {
+	start: number
+	end: number
+} {
 	const end = Date.now()
 	return { start: end - periodMs, end }
 }
@@ -175,7 +191,8 @@ export async function fetchTransfersGraphFromVoltaire(
 	period: string,
 ): Promise<TransfersGraphResult> {
 	const { fetchTransferEventsForPeriod } = await import('$/api/transfers-logs')
-	const periodDef = TIME_PERIODS.find((p) => p.value === period) ?? TIME_PERIODS[3]
+	const periodDef =
+		TIME_PERIODS.find((p) => p.value === period) ?? TIME_PERIODS[3]
 	const events = await fetchTransferEventsForPeriod(period)
 	const transfers: NormalizedTransfer[] = events.map((e) => ({
 		fromAddress: e.fromAddress,
@@ -193,16 +210,22 @@ export async function fetchTransfersGraph(
 	apiKey: string,
 	chains: ChainContract[],
 ): Promise<TransfersGraphResult> {
-	const periodDef = TIME_PERIODS.find((p) => p.value === period) ?? TIME_PERIODS[3]
+	const periodDef =
+		TIME_PERIODS.find((p) => p.value === period) ?? TIME_PERIODS[3]
 	const { start, end } = periodToRange(periodDef.ms)
 	const fetchTransfers =
 		apiKey.length > 0
 			? () => fetchAllTransfers(chains, start, end, apiKey)
 			: () => Promise.resolve([])
 	const timeout = new Promise<never>((_, reject) =>
-		setTimeout(() => reject(new Error('Transfers load timed out')), FETCH_TIMEOUT_MS),
+		setTimeout(
+			() => reject(new Error('Transfers load timed out')),
+			FETCH_TIMEOUT_MS,
+		),
 	)
-	const transfers = await Promise.race([fetchTransfers(), timeout]).catch(() => [])
+	const transfers = await Promise.race([fetchTransfers(), timeout]).catch(
+		() => [],
+	)
 	const graph = buildGraph(transfers)
 	return { graph, period: periodDef.value, periods: TIME_PERIODS }
 }

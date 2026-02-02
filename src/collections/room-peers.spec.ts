@@ -3,10 +3,7 @@ import { assertEquals } from 'jsr:@std/assert'
 import { roomPeerKey } from './room-peers-keys.ts'
 
 Deno.test('roomPeerKey generates correct composite key', () => {
-	assertEquals(
-		roomPeerKey('ABC123', 'peer-xyz'),
-		'ABC123:peer-xyz',
-	)
+	assertEquals(roomPeerKey('ABC123', 'peer-xyz'), 'ABC123:peer-xyz')
 })
 
 Deno.test('roomPeerKey differentiates by roomId', () => {

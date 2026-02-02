@@ -45,27 +45,37 @@
 	} = $props()
 </script>
 
-
 <div
 	{@attach (container) => {
 		if (typeof WebGL2RenderingContext === 'undefined') return () => {}
 
 		let renderer: Sigma | undefined
-		let layout: { start: () => void; kill: () => void; stop: () => void } | undefined
+		let layout:
+			| { start: () => void; kill: () => void; stop: () => void }
+			| undefined
 		let draggedNode: string | null = null
 		let isDragging = false
 		let centerInterval: ReturnType<typeof setInterval> | undefined
 		let activeGraph = model.graph
 		let modules:
 			| {
-				EdgeCurveModule: {
-					indexParallelEdgesIndex: (g: Graph, opts: { edgeIndexAttribute: string; edgeMaxIndexAttribute: string }) => void
-					default: unknown
-					EdgeCurvedArrowProgram: unknown
-				}
-				ForceSupervisor: new (g: Graph, opts: { settings: Record<string, unknown> }) => { start: () => void; kill: () => void; stop: () => void }
-				forceAtlas2: { inferSettings: (g: Graph) => Record<string, unknown> }
-			}
+					EdgeCurveModule: {
+						indexParallelEdgesIndex: (
+							g: Graph,
+							opts: {
+								edgeIndexAttribute: string
+								edgeMaxIndexAttribute: string
+							},
+						) => void
+						default: unknown
+						EdgeCurvedArrowProgram: unknown
+					}
+					ForceSupervisor: new (
+						g: Graph,
+						opts: { settings: Record<string, unknown> },
+					) => { start: () => void; kill: () => void; stop: () => void }
+					forceAtlas2: { inferSettings: (g: Graph) => Record<string, unknown> }
+			  }
 			| undefined
 
 		const applyGraph = (g: GraphModel['graph']) => {
@@ -77,15 +87,21 @@
 				})
 				g.forEachEdge((edge, attrs) => {
 					const type = typeof attrs.type === 'string' ? attrs.type : undefined
-					const edgeIndex = typeof attrs.edgeIndex === 'number' ? attrs.edgeIndex : undefined
-					const edgeCount = typeof attrs.edgeCount === 'number' ? attrs.edgeCount : undefined
-					const curvature = (
+					const edgeIndex =
+						typeof attrs.edgeIndex === 'number' ? attrs.edgeIndex : undefined
+					const edgeCount =
+						typeof attrs.edgeCount === 'number' ? attrs.edgeCount : undefined
+					const curvature =
 						typeof edgeIndex === 'number' && typeof edgeCount === 'number'
-							? (edgeCount === 1 ? 0 : edgeIndex / (edgeCount - 1) * 2 - 1) * (1 - Math.exp(-0.1 * edgeCount))
+							? (edgeCount === 1 ? 0 : (edgeIndex / (edgeCount - 1)) * 2 - 1) *
+								(1 - Math.exp(-0.1 * edgeCount))
 							: 0
-					)
 					g.mergeEdgeAttributes(edge, {
-						type: type?.replace(/^(?:curved|straight)/, curvature !== 0 ? 'curved' : 'straight') ?? 'curved',
+						type:
+							type?.replace(
+								/^(?:curved|straight)/,
+								curvature !== 0 ? 'curved' : 'straight',
+							) ?? 'curved',
 						curvature,
 					})
 				})
@@ -143,8 +159,16 @@
 						} else {
 							const dist = Math.sqrt(attrs.x ** 2 + attrs.y ** 2) || 0.1
 							const repelForce = force * 2
-							g.setNodeAttribute(node, 'x', attrs.x + (attrs.x / dist) * repelForce)
-							g.setNodeAttribute(node, 'y', attrs.y + (attrs.y / dist) * repelForce)
+							g.setNodeAttribute(
+								node,
+								'x',
+								attrs.x + (attrs.x / dist) * repelForce,
+							)
+							g.setNodeAttribute(
+								node,
+								'y',
+								attrs.y + (attrs.y / dist) * repelForce,
+							)
 						}
 					})
 				}, 50)
@@ -162,31 +186,36 @@
 			import('@sigma/node-image'),
 			import('@sigma/edge-curve'),
 			import('graphology-layout-forceatlas2'),
-		]).then(([sigmaMod, forceWorkerMod, sigmaRendering, nodeImageMod, edgeCurveMod, forceAtlas2Mod]) => {
-			const SigmaClass = sigmaMod.default
-			const ForceSupervisor = forceWorkerMod.default
-			const forceAtlas2 = forceAtlas2Mod.default
-			const nodeProgramClasses = {
-				'circle': sigmaRendering.NodeCircleProgram,
-				'point': sigmaRendering.NodePointProgram,
-				'image': nodeImageMod.createNodeImageProgram({
-					objectFit: 'contain',
-					padding: 0.1,
-					correctCentering: true,
-				}),
-				'pictogram': nodeImageMod.NodePictogramProgram,
-			}
+		]).then(
+			([
+				sigmaMod,
+				forceWorkerMod,
+				sigmaRendering,
+				nodeImageMod,
+				edgeCurveMod,
+				forceAtlas2Mod,
+			]) => {
+				const SigmaClass = sigmaMod.default
+				const ForceSupervisor = forceWorkerMod.default
+				const forceAtlas2 = forceAtlas2Mod.default
+				const nodeProgramClasses = {
+					circle: sigmaRendering.NodeCircleProgram,
+					point: sigmaRendering.NodePointProgram,
+					image: nodeImageMod.createNodeImageProgram({
+						objectFit: 'contain',
+						padding: 0.1,
+						correctCentering: true,
+					}),
+					pictogram: nodeImageMod.NodePictogramProgram,
+				}
 
-			modules = {
-				EdgeCurveModule: edgeCurveMod,
-				ForceSupervisor,
-				forceAtlas2,
-			}
+				modules = {
+					EdgeCurveModule: edgeCurveMod,
+					ForceSupervisor,
+					forceAtlas2,
+				}
 
-			renderer = new SigmaClass(
-				model.graph,
-				container,
-				{
+				renderer = new SigmaClass(model.graph, container, {
 					defaultEdgeType: 'curved',
 					renderLabels: true,
 					renderEdgeLabels: true,
@@ -194,80 +223,81 @@
 					nodeProgramClasses,
 					nodeHoverProgramClasses: nodeProgramClasses,
 					edgeProgramClasses: {
-						'straight': sigmaRendering.EdgeLineProgram,
-						'straightArrow': sigmaRendering.EdgeArrowProgram,
-						'curved': edgeCurveMod.default,
-						'curvedArrow': edgeCurveMod.EdgeCurvedArrowProgram,
-					},
-				},
-			)
-
-			applyGraph(model.graph)
-
-			if (enableForce !== false) {
-				layout = new ForceSupervisor(model.graph, {
-					settings: {
-						...forceAtlas2.inferSettings(model.graph),
-						adjustSizes: true,
-						slowDown: 10,
+						straight: sigmaRendering.EdgeLineProgram,
+						straightArrow: sigmaRendering.EdgeArrowProgram,
+						curved: edgeCurveMod.default,
+						curvedArrow: edgeCurveMod.EdgeCurvedArrowProgram,
 					},
 				})
-				layout.start()
-			}
 
-			renderer.on('clickNode', ({ node }) => onNodeClick?.(node))
-			renderer.on('enterNode', ({ node }) => {
-				onNodeEnter?.(node)
-				hoveredNode = node
-			})
-			renderer.on('leaveNode', ({ node }) => {
-				onNodeLeave?.(node)
-				hoveredNode = undefined
-			})
-			renderer.on('clickEdge', ({ edge }) => onEdgeClick?.(edge))
-			renderer.on('enterEdge', ({ edge }) => {
-				onEdgeEnter?.(edge)
-				hoveredEdge = edge
-			})
-			renderer.on('leaveEdge', ({ edge }) => {
-				onEdgeLeave?.(edge)
-				hoveredEdge = undefined
-			})
+				applyGraph(model.graph)
 
-			if (enableDragAndDrop !== false) {
-				renderer.on('downNode', (e) => {
-					draggedNode = e.node
-					activeGraph.setNodeAttribute(draggedNode, 'highlighted', true)
+				if (enableForce !== false) {
+					layout = new ForceSupervisor(model.graph, {
+						settings: {
+							...forceAtlas2.inferSettings(model.graph),
+							adjustSizes: true,
+							slowDown: 10,
+						},
+					})
+					layout.start()
+				}
+
+				renderer.on('clickNode', ({ node }) => onNodeClick?.(node))
+				renderer.on('enterNode', ({ node }) => {
+					onNodeEnter?.(node)
+					hoveredNode = node
+				})
+				renderer.on('leaveNode', ({ node }) => {
+					onNodeLeave?.(node)
+					hoveredNode = undefined
+				})
+				renderer.on('clickEdge', ({ edge }) => onEdgeClick?.(edge))
+				renderer.on('enterEdge', ({ edge }) => {
+					onEdgeEnter?.(edge)
+					hoveredEdge = edge
+				})
+				renderer.on('leaveEdge', ({ edge }) => {
+					onEdgeLeave?.(edge)
+					hoveredEdge = undefined
 				})
 
-				const mouseCaptor = renderer.getMouseCaptor()
+				if (enableDragAndDrop !== false) {
+					renderer.on('downNode', (e) => {
+						draggedNode = e.node
+						activeGraph.setNodeAttribute(draggedNode, 'highlighted', true)
+					})
 
-				mouseCaptor.on('mousemovebody', (e) => {
-					if (!draggedNode || !renderer) return
-					isDragging = true
-					layout?.stop()
-					const pos = renderer.viewportToGraph(e)
-					activeGraph.setNodeAttribute(draggedNode, 'x', pos.x)
-					activeGraph.setNodeAttribute(draggedNode, 'y', pos.y)
-					e.preventSigmaDefault()
-					e.original.preventDefault()
-					e.original.stopPropagation()
-				})
+					const mouseCaptor = renderer.getMouseCaptor()
 
-				mouseCaptor.on('mouseup', () => {
-					if (draggedNode) activeGraph.removeNodeAttribute(draggedNode, 'highlighted')
-					isDragging = false
-					draggedNode = null
-					layout?.start()
-				})
+					mouseCaptor.on('mousemovebody', (e) => {
+						if (!draggedNode || !renderer) return
+						isDragging = true
+						layout?.stop()
+						const pos = renderer.viewportToGraph(e)
+						activeGraph.setNodeAttribute(draggedNode, 'x', pos.x)
+						activeGraph.setNodeAttribute(draggedNode, 'y', pos.y)
+						e.preventSigmaDefault()
+						e.original.preventDefault()
+						e.original.stopPropagation()
+					})
 
-				mouseCaptor.on('mousedown', () => {
-					if (renderer && !renderer.getCustomBBox()) {
-						renderer.setCustomBBox(renderer.getBBox())
-					}
-				})
-			}
-		})
+					mouseCaptor.on('mouseup', () => {
+						if (draggedNode)
+							activeGraph.removeNodeAttribute(draggedNode, 'highlighted')
+						isDragging = false
+						draggedNode = null
+						layout?.start()
+					})
+
+					mouseCaptor.on('mousedown', () => {
+						if (renderer && !renderer.getCustomBBox()) {
+							renderer.setCustomBBox(renderer.getBBox())
+						}
+					})
+				}
+			},
+		)
 
 		return () => {
 			if (centerInterval) clearInterval(centerInterval)
@@ -276,15 +306,6 @@
 		}
 	}}
 ></div>
-
-
-<style>
-	.sigma-container {
-		width: 100%;
-		height: 100%;
-	}
-</style>
-
 
 <!-- 
 <script lang="ts">
@@ -571,6 +592,7 @@
 ></div>
 
 
+
 <style>
 	.sigma-container {
 		width: 100%;
@@ -579,3 +601,10 @@
 </style>
 
 -->
+
+<style>
+	.sigma-container {
+		width: 100%;
+		height: 100%;
+	}
+</style>

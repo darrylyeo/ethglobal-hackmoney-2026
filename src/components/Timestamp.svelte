@@ -7,7 +7,6 @@
 	}
 </script>
 
-
 <script lang="ts">
 	// Props
 	let {
@@ -18,36 +17,24 @@
 		format?: TimestampFormat
 	} = $props()
 
-
 	// Functions
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
 
-
 	// State
-	let now = $state(
-		Date.now()
-	)
+	let now = $state(Date.now())
 
 	const date = $derived(
-		typeof timestamp === 'number' ?
-			new Date(timestamp)
-		:
-			undefined
+		typeof timestamp === 'number' ? new Date(timestamp) : undefined,
 	)
 
-	const isoString = $derived(
-		date?.toISOString()
-	)
+	const isoString = $derived(date?.toISOString())
 
-	const absoluteTime = $derived(
-		date?.toLocaleString()
-	)
+	const absoluteTime = $derived(date?.toLocaleString())
 
 	const relativeTime = $derived(
-		typeof timestamp === 'number' ?
-			formatRelativeTime(now - timestamp)
-		:
-			undefined
+		typeof timestamp === 'number'
+			? formatRelativeTime(now - timestamp)
+			: undefined,
 	)
 
 	// $effect(() => {
@@ -63,20 +50,12 @@
 	// })
 </script>
 
-
 {#if format === TimestampFormat.Absolute}
-	<time
-		datetime={isoString}
-		title={relativeTime}
-	>{absoluteTime}</time>
+	<time datetime={isoString} title={relativeTime}>{absoluteTime}</time>
 {:else if format === TimestampFormat.Relative}
-	<time
-		datetime={isoString}
-		title={absoluteTime}
-	>{relativeTime}</time>
+	<time datetime={isoString} title={absoluteTime}>{relativeTime}</time>
 {:else if format === TimestampFormat.Both}
-	<time
-		datetime={isoString}
-		title={`${absoluteTime} (${relativeTime})`}
-	>{absoluteTime} ({relativeTime})</time>
+	<time datetime={isoString} title={`${absoluteTime} (${relativeTime})`}
+		>{absoluteTime} ({relativeTime})</time
+	>
 {/if}

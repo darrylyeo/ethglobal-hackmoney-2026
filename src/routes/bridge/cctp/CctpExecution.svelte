@@ -9,9 +9,17 @@
 		getAttestationFromMessages,
 		zeroBytes32,
 	} from '$/api/cctp'
-	import { checkApproval, sendApproval, waitForApprovalConfirmation } from '$/api/approval'
+	import {
+		checkApproval,
+		sendApproval,
+		waitForApprovalConfirmation,
+	} from '$/api/approval'
 	import { switchWalletChain } from '$/lib/wallet'
-	import { getCctpDomainId, getCctpTokenMessenger, getCctpMessageTransmitter } from '$/constants/cctp'
+	import {
+		getCctpDomainId,
+		getCctpTokenMessenger,
+		getCctpMessageTransmitter,
+	} from '$/constants/cctp'
 	import { getUsdcAddress } from '$/api/lifi'
 
 	// Props
@@ -40,28 +48,49 @@
 		isTestnet: boolean
 		runAt?: number
 		executing?: boolean
-		onStatus?: (step: 'burn' | 'attestation' | 'mint', status: 'pending' | 'done' | 'error', detail?: string) => void
+		onStatus?: (
+			step: 'burn' | 'attestation' | 'mint',
+			status: 'pending' | 'done' | 'error',
+			detail?: string,
+		) => void
 	} = $props()
 
 	// State
 	let lastRunAt = $state(0)
 	let burnTxHash = $state<string | null>(null)
-	let attestationPayload = $state<{ message: string, attestation: string } | null>(null)
+	let attestationPayload = $state<{
+		message: string
+		attestation: string
+	} | null>(null)
 	let mintTxHash = $state<string | null>(null)
 	let error = $state<string | null>(null)
-	let step = $state<'idle' | 'approving' | 'burning' | 'attestation' | 'minting' | 'done'>('idle')
+	let step = $state<
+		'idle' | 'approving' | 'burning' | 'attestation' | 'minting' | 'done'
+	>('idle')
 
 	// (Derived)
 	const tokenMessenger = $derived(getCctpTokenMessenger(fromChainId, isTestnet))
-	const messageTransmitterDest = $derived(getCctpMessageTransmitter(toChainId, isTestnet))
-	const burnToken = $derived(fromChainId !== null ? getUsdcAddress(fromChainId) : null)
+	const messageTransmitterDest = $derived(
+		getCctpMessageTransmitter(toChainId, isTestnet),
+	)
+	const burnToken = $derived(
+		fromChainId !== null ? getUsdcAddress(fromChainId) : null,
+	)
 	const destinationDomain = $derived(getCctpDomainId(toChainId))
 	const fromDomain = $derived(getCctpDomainId(fromChainId))
 
-	const apiHost = $derived(isTestnet ? 'https://iris-api-sandbox.circle.com' : 'https://iris-api.circle.com')
+	const apiHost = $derived(
+		isTestnet
+			? 'https://iris-api-sandbox.circle.com'
+			: 'https://iris-api.circle.com',
+	)
 
-	async function pollAttestation(): Promise<{ message: string, attestation: string }> {
-		if (burnTxHash === null || fromDomain === null) throw new Error('Missing burn tx or domain')
+	async function pollAttestation(): Promise<{
+		message: string
+		attestation: string
+	}> {
+		if (burnTxHash === null || fromDomain === null)
+			throw new Error('Missing burn tx or domain')
 		for (let i = 0; i < 120; i++) {
 			const data = await fetchCctpMessages(apiHost, fromDomain, burnTxHash)
 			const payload = getAttestationFromMessages(data)
@@ -74,15 +103,15 @@
 
 	async function execute() {
 		if (
-			!walletProvider
-			|| senderAddress === null
-			|| fromChainId === null
-			|| toChainId === null
-			|| tokenMessenger === null
-			|| messageTransmitterDest === null
-			|| burnToken === null
-			|| destinationDomain === null
-			|| fromDomain === null
+			!walletProvider ||
+			senderAddress === null ||
+			fromChainId === null ||
+			toChainId === null ||
+			tokenMessenger === null ||
+			messageTransmitterDest === null ||
+			burnToken === null ||
+			destinationDomain === null ||
+			fromDomain === null
 		) {
 			error = 'Missing wallet or chain config'
 			return
@@ -165,7 +194,11 @@
 		} catch (e) {
 			error = e instanceof Error ? e.message : String(e)
 			onStatus?.(
-				step === 'burning' ? 'burn' : step === 'attestation' ? 'attestation' : 'mint',
+				step === 'burning'
+					? 'burn'
+					: step === 'attestation'
+						? 'attestation'
+						: 'mint',
 				'error',
 				error ?? undefined,
 			)
@@ -184,18 +217,22 @@
 	export { burnTxHash, attestationPayload, mintTxHash, step, error, execute }
 </script>
 
-
 <div data-column="gap-2">
 	<strong>Status</strong>
 	<ol data-status>
-		<li data-status-step data-done={step !== 'idle' && step !== 'approving' && step !== 'burning'}>
+		<li
+			data-status-step
+			data-done={step !== 'idle' && step !== 'approving' && step !== 'burning'}
+		>
 			Burn on source chain {burnTxHash ? `(${burnTxHash.slice(0, 10)}…)` : ''}
 		</li>
 		<li data-status-step data-done={attestationPayload !== null}>
 			Attestation {attestationPayload ? 'ready' : 'pending…'}
 		</li>
 		<li data-status-step data-done={mintTxHash !== null}>
-			Mint on destination chain {mintTxHash ? `(${mintTxHash.slice(0, 10)}…)` : ''}
+			Mint on destination chain {mintTxHash
+				? `(${mintTxHash.slice(0, 10)}…)`
+				: ''}
 		</li>
 	</ol>
 	{#if error}

@@ -1,7 +1,11 @@
 <script lang="ts">
 	// Types/constants
 	import { ENTITY_TYPE } from '$/constants/entity-types'
-	import { NetworkType, networks, networksByChainId } from '$/constants/networks'
+	import {
+		NetworkType,
+		networks,
+		networksByChainId,
+	} from '$/constants/networks'
 	import type { IntentDragPayload } from '$/lib/intents/types'
 
 	// Context
@@ -11,7 +15,7 @@
 	let {
 		selectedActor,
 	}: {
-		selectedActor: `0x${string}` | null,
+		selectedActor: `0x${string}` | null
 	} = $props()
 
 	// Functions
@@ -19,63 +23,91 @@
 	import { getStorkAssetIdForSymbol } from '$/lib/stork'
 
 	// State
-	import { actorCoinsCollection, fetchAllBalancesForAddress } from '$/collections/actor-coins'
-	import { storkPricesCollection, subscribeStorkPrices, getBestStorkPrice } from '$/collections/stork-prices'
-	import { bridgeSettingsState, defaultBridgeSettings } from '$/state/bridge-settings.svelte'
+	import {
+		actorCoinsCollection,
+		fetchAllBalancesForAddress,
+	} from '$/collections/actor-coins'
+	import {
+		storkPricesCollection,
+		subscribeStorkPrices,
+		getBestStorkPrice,
+	} from '$/collections/stork-prices'
+	import {
+		bridgeSettingsState,
+		defaultBridgeSettings,
+	} from '$/state/bridge-settings.svelte'
 
 	// (Derived)
-	const settings = $derived(bridgeSettingsState.current ?? defaultBridgeSettings)
+	const settings = $derived(
+		bridgeSettingsState.current ?? defaultBridgeSettings,
+	)
 
 	// Networks
 	const filteredNetworks = $derived(
-		networks.filter((n) => (
+		networks.filter((n) =>
 			settings.isTestnet
 				? n.type === NetworkType.Testnet
-				: n.type === NetworkType.Mainnet
-		))
+				: n.type === NetworkType.Mainnet,
+		),
 	)
 
 	// Balances query
-	const balancesQuery = useLiveQuery((q) => q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })))
-	const pricesQuery = useLiveQuery((q) => q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })))
+	const balancesQuery = useLiveQuery((q) =>
+		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
+	)
+	const pricesQuery = useLiveQuery((q) =>
+		q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })),
+	)
 	const balances = $derived(
 		selectedActor
 			? (balancesQuery.data ?? [])
-				.map((r) => r.row)
-				.filter((b) => (
-					b.$id.address.toLowerCase() === selectedActor!.toLowerCase() &&
-					filteredNetworks.some((n) => n.id === b.$id.chainId)
-				))
-			: []
+					.map((r) => r.row)
+					.filter(
+						(b) =>
+							b.$id.address.toLowerCase() === selectedActor!.toLowerCase() &&
+							filteredNetworks.some((n) => n.id === b.$id.chainId),
+					)
+			: [],
 	)
 	const prices = $derived((pricesQuery.data ?? []).map((r) => r.row))
-	const balanceAssetIds = $derived(
-		[...new Set(
+	const balanceAssetIds = $derived([
+		...new Set(
 			balances.flatMap((balance) => {
 				const assetId = getStorkAssetIdForSymbol(balance.symbol)
 				return assetId ? [assetId] : []
-			})
-		)]
-	)
-	const balanceChainIds = $derived(
-		[...new Set(balances.map((balance) => balance.$id.chainId))]
-	)
+			}),
+		),
+	])
+	const balanceChainIds = $derived([
+		...new Set(balances.map((balance) => balance.$id.chainId)),
+	])
 	const netWorthUsd = $derived(
 		balances.length > 0
 			? balances.reduce((total, balance) => {
-				const assetId = getStorkAssetIdForSymbol(balance.symbol)
-				if (!assetId) return total
-				const priceRow = getBestStorkPrice(prices, assetId, balance.$id.chainId)
-				if (!priceRow) return total
-				return total + (balance.balance * priceRow.price) / (10n ** BigInt(balance.decimals))
-			}, 0n)
-			: null
+					const assetId = getStorkAssetIdForSymbol(balance.symbol)
+					if (!assetId) return total
+					const priceRow = getBestStorkPrice(
+						prices,
+						assetId,
+						balance.$id.chainId,
+					)
+					if (!priceRow) return total
+					return (
+						total +
+						(balance.balance * priceRow.price) / 10n ** BigInt(balance.decimals)
+					)
+				}, 0n)
+			: null,
 	)
 
 	// Fetch balances on actor/network change
 	$effect(() => {
 		void settings.isTestnet
-		if (selectedActor) fetchAllBalancesForAddress(selectedActor, filteredNetworks.map((n) => n.id))
+		if (selectedActor)
+			fetchAllBalancesForAddress(
+				selectedActor,
+				filteredNetworks.map((n) => n.id),
+			)
 	})
 
 	$effect(() => {
@@ -83,21 +115,19 @@
 		if (assetIds.length === 0) return
 		const unsubscribers = [
 			subscribeStorkPrices({ assetIds, transports: ['rest', 'websocket'] }),
-			...balanceChainIds.map((chainId) => (
-				subscribeStorkPrices({ assetIds, chainId, transports: ['rpc'] })
-			)),
+			...balanceChainIds.map((chainId) =>
+				subscribeStorkPrices({ assetIds, chainId, transports: ['rpc'] }),
+			),
 		]
 		return () => {
 			for (const unsubscribe of unsubscribers) unsubscribe()
 		}
 	})
 
-
 	// Components
 	import EntityId from '$/components/EntityId.svelte'
 	import StorkPrices from '$/views/StorkPrices.svelte'
 </script>
-
 
 {#if selectedActor && balances.length > 0}
 	<section data-balances>
@@ -111,7 +141,7 @@
 			{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
 				{@const network = networksByChainId[b.$id.chainId]}
 				{#if network}
-					{@const intent = ({
+					{@const intent = {
 						entity: {
 							type: ENTITY_TYPE.actorCoin,
 							id: b.$id,
@@ -119,15 +149,18 @@
 						context: {
 							source: 'balances',
 						},
-					} satisfies IntentDragPayload)}
+					} satisfies IntentDragPayload}
 					<div data-balance-item>
 						<dt>{network.name}</dt>
 						<EntityId
 							className="balance-intent"
 							draggableText={`${b.symbol} ${b.$id.address}`}
-							intent={intent}
+							{intent}
 						>
-							<span data-tabular>{formatSmallestToDecimal(b.balance, b.decimals, 4)} {b.symbol}</span>
+							<span data-tabular
+								>{formatSmallestToDecimal(b.balance, b.decimals, 4)}
+								{b.symbol}</span
+							>
 						</EntityId>
 					</div>
 				{/if}
@@ -140,7 +173,6 @@
 		/>
 	</section>
 {/if}
-
 
 <style>
 	[data-balances] {

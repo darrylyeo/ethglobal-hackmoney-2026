@@ -7,14 +7,17 @@ const manifestPath = path.join(clientDir, '.vite/manifest.json')
 const maxGzipBytes = 700 * 1024
 
 function collectInitialPaths(manifest, pathByBasename, pathToEntry) {
-	const appEntry = Object.values(manifest).find(
-		(e) => e.file?.startsWith('_app/immutable/entry/')
+	const appEntry = Object.values(manifest).find((e) =>
+		e.file?.startsWith('_app/immutable/entry/'),
 	)
 	const node0 = Object.values(manifest).find((e) => e.name === 'nodes/0')
 	const node2 = Object.values(manifest).find((e) => e.name === 'nodes/2')
-	const startPaths = [appEntry, node0, node2].filter(Boolean).map((e) => path.join(clientDir, e.file))
+	const startPaths = [appEntry, node0, node2]
+		.filter(Boolean)
+		.map((e) => path.join(clientDir, e.file))
 
-	const resolve = (imp) => pathByBasename[imp.replace(/^_/, '')] ?? pathByBasename[imp]
+	const resolve = (imp) =>
+		pathByBasename[imp.replace(/^_/, '')] ?? pathByBasename[imp]
 	const collected = new Set()
 	const queue = [...startPaths]
 	while (queue.length) {
@@ -93,7 +96,9 @@ for (const f of paths) {
 
 const kb = (total / 1024).toFixed(1)
 if (total > maxGzipBytes) {
-	console.error(`Initial load gzip size ${kb}KB exceeds ${maxGzipBytes / 1024}KB`)
+	console.error(
+		`Initial load gzip size ${kb}KB exceeds ${maxGzipBytes / 1024}KB`,
+	)
 	process.exit(1)
 }
 console.log(`Initial load gzip size: ${kb}KB`)

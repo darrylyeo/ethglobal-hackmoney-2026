@@ -25,12 +25,14 @@
 		selectedNodes?: string[]
 		selectedEdges?: string[]
 		selectionCount?: number
-		onSelectionChange?: (selection: { nodes: string[]; edges: string[] }) => void
+		onSelectionChange?: (selection: {
+			nodes: string[]
+			edges: string[]
+		}) => void
 		onNodeEnter?: (node: string) => void
 		onNodeLeave?: (node: string) => void
 	} = $props()
 </script>
-
 
 <div
 	class="graph-container"
@@ -40,34 +42,35 @@
 	{@attach (container) => {
 		let graph: G6Graph | undefined
 		let resizeObserver: ResizeObserver | undefined
-		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-		const labelBackgroundFill = prefersDark ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.9)'
+		const reducedMotion = window.matchMedia(
+			'(prefers-reduced-motion: reduce)',
+		).matches
+		const prefersDark = window.matchMedia(
+			'(prefers-color-scheme: dark)',
+		).matches
+		const labelBackgroundFill = prefersDark
+			? 'rgba(15, 23, 42, 0.9)'
+			: 'rgba(255, 255, 255, 0.9)'
 		const labelFill = prefersDark ? '#e2e8f0' : '#0f172a'
 
-		const getNodeType = (node: GraphModel['nodes'][number]) => (
-			node.type === 'image' || node.image ?
-				'image'
-			: node.collection === ENTITY_TYPE.actorCoin ?
-				'donut'
-			: node.collection === ENTITY_TYPE.bridgeRoute ?
-				'rect'
-			: node.collection === ENTITY_TYPE.transaction ?
-				'diamond'
-			:
-				'circle'
-		)
+		const getNodeType = (node: GraphModel['nodes'][number]) =>
+			node.type === 'image' || node.image
+				? 'image'
+				: node.collection === ENTITY_TYPE.actorCoin
+					? 'donut'
+					: node.collection === ENTITY_TYPE.bridgeRoute
+						? 'rect'
+						: node.collection === ENTITY_TYPE.transaction
+							? 'diamond'
+							: 'circle'
 
-		const getEdgeType = (edgeType?: string) => (
-			typeof edgeType === 'string' && edgeType.includes('curved') ?
-				'cubic'
-			:
-				'line'
-		)
+		const getEdgeType = (edgeType?: string) =>
+			typeof edgeType === 'string' && edgeType.includes('curved')
+				? 'cubic'
+				: 'line'
 
-		const getEdgeArrow = (edgeType?: string) => (
+		const getEdgeArrow = (edgeType?: string) =>
 			typeof edgeType === 'string' && edgeType.includes('Arrow')
-		)
 
 		const getNodeData = (node: GraphModel['nodes'][number]): NodeData => {
 			const baseStyle = {
@@ -128,8 +131,12 @@
 
 		const syncSelection = () => {
 			if (!graph) return
-			const nodes = graph.getElementDataByState('node', 'selected').map((node) => node.id)
-			const edges = graph.getElementDataByState('edge', 'selected').map((edge) => edge.id)
+			const nodes = graph
+				.getElementDataByState('node', 'selected')
+				.map((node) => node.id)
+			const edges = graph
+				.getElementDataByState('edge', 'selected')
+				.map((edge) => edge.id)
 			onSelectionChange?.({ nodes, edges })
 		}
 
@@ -137,7 +144,9 @@
 			if (!graph) return
 			const highlightedSet = new Set(highlightedNodes ?? [])
 			for (const node of model.nodes) {
-				const states = graph.getElementState(node.id).filter((state) => state !== 'highlight')
+				const states = graph
+					.getElementState(node.id)
+					.filter((state) => state !== 'highlight')
 				graph.setElementState(
 					node.id,
 					highlightedSet.has(node.id) ? [...states, 'highlight'] : states,
@@ -150,14 +159,18 @@
 			const selectedNodeSet = new Set(selectedNodes ?? [])
 			const selectedEdgeSet = new Set(selectedEdges ?? [])
 			for (const node of model.nodes) {
-				const states = graph.getElementState(node.id).filter((state) => state !== 'selected')
+				const states = graph
+					.getElementState(node.id)
+					.filter((state) => state !== 'selected')
 				graph.setElementState(
 					node.id,
 					selectedNodeSet.has(node.id) ? [...states, 'selected'] : states,
 				)
 			}
 			for (const edge of model.edges) {
-				const states = graph.getElementState(edge.id).filter((state) => state !== 'selected')
+				const states = graph
+					.getElementState(edge.id)
+					.filter((state) => state !== 'selected')
 				graph.setElementState(
 					edge.id,
 					selectedEdgeSet.has(edge.id) ? [...states, 'selected'] : states,
@@ -168,11 +181,15 @@
 		const clearSelection = () => {
 			if (!graph) return
 			for (const node of model.nodes) {
-				const states = graph.getElementState(node.id).filter((state) => state !== 'selected')
+				const states = graph
+					.getElementState(node.id)
+					.filter((state) => state !== 'selected')
 				graph.setElementState(node.id, states)
 			}
 			for (const edge of model.edges) {
-				const states = graph.getElementState(edge.id).filter((state) => state !== 'selected')
+				const states = graph
+					.getElementState(edge.id)
+					.filter((state) => state !== 'selected')
 				graph.setElementState(edge.id, states)
 			}
 			onSelectionChange?.({ nodes: [], edges: [] })
@@ -219,14 +236,16 @@
 						haloStrokeOpacity: 0.35,
 					},
 				},
-				animation: reducedMotion ? false : {
-					update: [
-						{
-							fields: ['x', 'y'],
-							duration: 250,
+				animation: reducedMotion
+					? false
+					: {
+							update: [
+								{
+									fields: ['x', 'y'],
+									duration: 250,
+								},
+							],
 						},
-					],
-				},
 			},
 			edge: {
 				state: {
@@ -252,14 +271,16 @@
 						haloStrokeOpacity: 0.35,
 					},
 				},
-				animation: reducedMotion ? false : {
-					update: [
-						{
-							fields: ['controlPoints'],
-							duration: 250,
+				animation: reducedMotion
+					? false
+					: {
+							update: [
+								{
+									fields: ['controlPoints'],
+									duration: 250,
+								},
+							],
 						},
-					],
-				},
 			},
 			behaviors: [
 				{
@@ -299,8 +320,16 @@
 						if (!item) return ''
 						const details = item.data?.details ?? {}
 						const detailsMarkup = Object.entries(details)
-							.filter((entry) => entry[1] !== undefined && entry[1] !== null && entry[1] !== '')
-							.map(([key, value]) => `<div><strong>${key}:</strong> ${String(value)}</div>`)
+							.filter(
+								(entry) =>
+									entry[1] !== undefined &&
+									entry[1] !== null &&
+									entry[1] !== '',
+							)
+							.map(
+								([key, value]) =>
+									`<div><strong>${key}:</strong> ${String(value)}</div>`,
+							)
 							.join('')
 						return `
 							<div>
@@ -321,11 +350,13 @@
 		graph.on(NodeEvent.CLICK, () => syncSelection())
 		graph.on(EdgeEvent.CLICK, () => syncSelection())
 		graph.on(NodeEvent.POINTER_OVER, (event) => {
-			const targetId = typeof event.target?.id === 'string' ? event.target.id : undefined
+			const targetId =
+				typeof event.target?.id === 'string' ? event.target.id : undefined
 			if (targetId) onNodeEnter?.(targetId)
 		})
 		graph.on(NodeEvent.POINTER_OUT, (event) => {
-			const targetId = typeof event.target?.id === 'string' ? event.target.id : undefined
+			const targetId =
+				typeof event.target?.id === 'string' ? event.target.id : undefined
 			if (targetId) onNodeLeave?.(targetId)
 		})
 
@@ -386,7 +417,6 @@
 		}
 	}}
 ></div>
-
 
 <style>
 	.graph-container {

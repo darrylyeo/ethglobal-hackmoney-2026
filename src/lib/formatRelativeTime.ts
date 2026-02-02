@@ -15,9 +15,11 @@ export const formatRelativeTime = (ms: number): string => {
 
 	const value = ms < 0 ? 1 : -1
 
-	const format = (val: number, unit: Intl.RelativeTimeFormatUnit): string => (
-		rtf.format(val, unit).replace(/\s*(ago|in)\s*/gi, ' ').trim()
-	)
+	const format = (val: number, unit: Intl.RelativeTimeFormatUnit): string =>
+		rtf
+			.format(val, unit)
+			.replace(/\s*(ago|in)\s*/gi, ' ')
+			.trim()
 
 	if (years > 0) {
 		const remainingMonths = months % 12

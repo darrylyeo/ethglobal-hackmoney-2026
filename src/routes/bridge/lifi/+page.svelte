@@ -13,28 +13,20 @@
 	import Wallets from './Wallets.svelte'
 </script>
 
-
 <svelte:head>
 	<title>USDC Bridge</title>
 </svelte:head>
 
-
 <details open data-card>
 	<summary>
 		<header data-card="secondary" data-row="wrap gap-2">
-			<Wallets
-				bind:connectedWallets
-				bind:selectedActor
-				bind:selectedChainId
-			/>
+			<Wallets bind:connectedWallets bind:selectedActor bind:selectedChainId />
 		</header>
 	</summary>
 
 	<div data-column="gap-6">
 		<h1>USDC Bridge</h1>
-		<Balances
-			{selectedActor}
-		/>
+		<Balances {selectedActor} />
 		<BridgeFlow
 			selectedWallets={connectedWallets}
 			{selectedActor}

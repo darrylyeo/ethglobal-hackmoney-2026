@@ -3,7 +3,10 @@
  * In-memory only (providers are runtime objects, can't be serialized).
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
 import type { EIP1193Provider } from '$/lib/wallet'
 
@@ -26,9 +29,8 @@ export const walletsCollection = createCollection(
 	}),
 )
 
-export const getWallet = ($id: Wallet$id) => (
+export const getWallet = ($id: Wallet$id) =>
 	walletsCollection.state.get(stringify($id))
-)
 
 export const upsertWallet = (row: WalletRow) => {
 	if (!row?.$id?.rdns) return

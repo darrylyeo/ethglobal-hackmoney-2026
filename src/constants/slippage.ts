@@ -33,9 +33,8 @@ export const DEFAULT_SLIPPAGE = slippagePresets[1].value
 export const MIN_SLIPPAGE = 0.0001
 export const MAX_SLIPPAGE = 0.5
 
-export const formatSlippagePercent = (slippage: number): string => (
+export const formatSlippagePercent = (slippage: number): string =>
 	`${(slippage * 100).toFixed(2).replace(/\.?0+$/, '')}%`
-)
 
 export const parseSlippagePercent = (value: string): number | null => {
 	const num = parseFloat(value.replace('%', ''))

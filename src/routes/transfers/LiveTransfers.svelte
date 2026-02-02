@@ -47,8 +47,7 @@
 	)
 	const sortedEdges = $derived(
 		[...graph.edges].sort(
-			(a, b) =>
-				Math.min(...a.timestamps) - Math.min(...b.timestamps),
+			(a, b) => Math.min(...a.timestamps) - Math.min(...b.timestamps),
 		),
 	)
 	const totalVolume = $derived(
@@ -65,10 +64,7 @@
 		const step = 50
 		const perStep = Math.max(1, Math.ceil(edges.length / (duration / step)))
 		const id = setInterval(() => {
-			visibleEdgeCount = Math.min(
-				visibleEdgeCount + perStep,
-				edges.length,
-			)
+			visibleEdgeCount = Math.min(visibleEdgeCount + perStep, edges.length)
 			if (visibleEdgeCount >= edges.length) clearInterval(id)
 		}, step)
 		return () => clearInterval(id)
@@ -124,7 +120,12 @@
 				<T.DirectionalLight position={[10, 10, 10]} intensity={1} />
 
 				{#if graph.edges.length > 0}
-					<T.LineSegments args={[edgeGeometry, new THREE.LineBasicMaterial({ color: 0x666666 })]} />
+					<T.LineSegments
+						args={[
+							edgeGeometry,
+							new THREE.LineBasicMaterial({ color: 0x666666 }),
+						]}
+					/>
 				{/if}
 
 				{#each graph.nodes as node (node.address)}
@@ -133,7 +134,9 @@
 						<T.Mesh position={[pos.x, pos.y, pos.z]}>
 							<T.SphereGeometry args={[0.15, 12, 12]} />
 							<T.MeshBasicMaterial
-								color={node.chainIds[0] != null ? chainColor(node.chainIds[0]) : 0x888888}
+								color={node.chainIds[0] != null
+									? chainColor(node.chainIds[0])
+									: 0x888888}
 							/>
 						</T.Mesh>
 					{/if}
@@ -149,12 +152,12 @@
 	{:else}
 		<p data-transfers-summary>
 			{graph.nodes.length} actors, {graph.edges.length} flows
-			{totalVolume > 0 ?
-				` · ${totalVolume.toLocaleString(undefined, {
-					minimumFractionDigits: 0,
-					maximumFractionDigits: 2,
-				})} ${coin.symbol} total volume`
-			: ''}
+			{totalVolume > 0
+				? ` · ${totalVolume.toLocaleString(undefined, {
+						minimumFractionDigits: 0,
+						maximumFractionDigits: 2,
+					})} ${coin.symbol} total volume`
+				: ''}
 		</p>
 	{/if}
 </div>

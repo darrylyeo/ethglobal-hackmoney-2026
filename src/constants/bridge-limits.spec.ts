@@ -28,8 +28,14 @@ describe('validateBridgeAmount', () => {
 	})
 
 	it('invalidates zero and negative amounts', () => {
-		expect(validateBridgeAmount(0n)).toEqual({ isValid: false, error: 'invalid' })
-		expect(validateBridgeAmount(-1n)).toEqual({ isValid: false, error: 'invalid' })
+		expect(validateBridgeAmount(0n)).toEqual({
+			isValid: false,
+			error: 'invalid',
+		})
+		expect(validateBridgeAmount(-1n)).toEqual({
+			isValid: false,
+			error: 'invalid',
+		})
 	})
 })
 
@@ -42,11 +48,13 @@ describe('extractRouteLimits', () => {
 	})
 
 	it('returns min/max from route fromAmounts', () => {
-		expect(extractRouteLimits([
-			{ fromAmount: 100_000_000n },
-			{ fromAmount: 50_000_000n },
-			{ fromAmount: 200_000_000n },
-		])).toEqual({
+		expect(
+			extractRouteLimits([
+				{ fromAmount: 100_000_000n },
+				{ fromAmount: 50_000_000n },
+				{ fromAmount: 200_000_000n },
+			]),
+		).toEqual({
 			minAmount: 50_000_000n,
 			maxAmount: 200_000_000n,
 		})

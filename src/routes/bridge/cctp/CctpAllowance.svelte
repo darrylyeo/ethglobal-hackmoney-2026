@@ -9,7 +9,7 @@
 	} = $props()
 
 	// State
-	let allowance = $state<{ value: number, lastUpdated: string } | null>(null)
+	let allowance = $state<{ value: number; lastUpdated: string } | null>(null)
 	let allowanceError = $state<string | null>(null)
 	let allowanceLoading = $state(false)
 
@@ -24,14 +24,19 @@
 		fetch(`${apiHost}/v2/fastBurn/USDC/allowance`, {
 			headers: { Accept: 'application/json' },
 		})
-			.then((res) => (
+			.then((res) =>
 				res.ok
 					? res.json()
-					: Promise.reject(new Error(`Allowance request failed (${res.status})`))
-			))
+					: Promise.reject(
+							new Error(`Allowance request failed (${res.status})`),
+						),
+			)
 			.then((data) => {
 				if (cancelled) return
-				if (typeof data?.allowance === 'number' && typeof data?.lastUpdated === 'string') {
+				if (
+					typeof data?.allowance === 'number' &&
+					typeof data?.lastUpdated === 'string'
+				) {
 					allowance = { value: data.allowance, lastUpdated: data.lastUpdated }
 				} else {
 					allowance = null
@@ -43,10 +48,11 @@
 			.finally(() => {
 				if (!cancelled) allowanceLoading = false
 			})
-		return () => { cancelled = true }
+		return () => {
+			cancelled = true
+		}
 	})
 </script>
-
 
 <div data-column="gap-1">
 	<strong>Fast transfer allowance</strong>
@@ -57,7 +63,9 @@
 	{:else if allowanceError}
 		<small data-error>{allowanceError}</small>
 	{:else if allowance}
-		<small data-muted>{allowance.value.toLocaleString()} USDC · Updated {allowance.lastUpdated}</small>
+		<small data-muted
+			>{allowance.value.toLocaleString()} USDC · Updated {allowance.lastUpdated}</small
+		>
 	{:else}
 		<small data-muted>Allowance unavailable.</small>
 	{/if}

@@ -2,8 +2,15 @@
  * Swap quotes collection. In-memory cache keyed by quote id (hash of params).
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
-import { normalizeSwapQuote, type SwapQuote, type SwapRoute } from './swap-quotes-normalize'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
+import {
+	normalizeSwapQuote,
+	type SwapQuote,
+	type SwapRoute,
+} from './swap-quotes-normalize'
 
 export type { SwapQuote, SwapRoute } from './swap-quotes-normalize'
 export { normalizeSwapQuote }

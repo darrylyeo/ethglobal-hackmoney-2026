@@ -1,6 +1,9 @@
 import { createWalletClient, custom } from 'viem'
 import type { Chain, WalletClient } from 'viem'
-import { networkConfigsByChainId, networksByChainId } from '$/constants/networks'
+import {
+	networkConfigsByChainId,
+	networksByChainId,
+} from '$/constants/networks'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 
 export type EIP1193Provider = {
@@ -22,7 +25,9 @@ export type WalletState = {
 	error: string | null
 }
 
-export const getWalletChainId = async (provider: EIP1193Provider): Promise<number> => {
+export const getWalletChainId = async (
+	provider: EIP1193Provider,
+): Promise<number> => {
 	const chainIdHex = (await provider.request({
 		method: 'eth_chainId',
 		params: [],
@@ -37,11 +42,30 @@ export const subscribeChainChanged = (
 	const handler = (chainIdHex: string) => {
 		callback(parseInt(chainIdHex, 16))
 	}
-	if ('on' in provider && typeof (provider as { on?: (event: string, cb: (v: string) => void) => void }).on === 'function') {
-		(provider as { on: (event: string, cb: (v: string) => void) => void }).on('chainChanged', handler)
+	if (
+		'on' in provider &&
+		typeof (
+			provider as { on?: (event: string, cb: (v: string) => void) => void }
+		).on === 'function'
+	) {
+		;(provider as { on: (event: string, cb: (v: string) => void) => void }).on(
+			'chainChanged',
+			handler,
+		)
 		return () => {
-			if ('removeListener' in provider && typeof (provider as { removeListener?: (event: string, cb: (v: string) => void) => void }).removeListener === 'function') {
-				(provider as { removeListener: (event: string, cb: (v: string) => void) => void }).removeListener('chainChanged', handler)
+			if (
+				'removeListener' in provider &&
+				typeof (
+					provider as {
+						removeListener?: (event: string, cb: (v: string) => void) => void
+					}
+				).removeListener === 'function'
+			) {
+				;(
+					provider as {
+						removeListener: (event: string, cb: (v: string) => void) => void
+					}
+				).removeListener('chainChanged', handler)
 			}
 		}
 	}
@@ -55,18 +79,39 @@ export const subscribeAccountsChanged = (
 	const handler = (accounts: string[]) => {
 		callback(accounts.filter((a) => a.startsWith('0x')) as `0x${string}`[])
 	}
-	if ('on' in provider && typeof (provider as { on?: (event: string, cb: (v: string[]) => void) => void }).on === 'function') {
-		(provider as { on: (event: string, cb: (v: string[]) => void) => void }).on('accountsChanged', handler)
+	if (
+		'on' in provider &&
+		typeof (
+			provider as { on?: (event: string, cb: (v: string[]) => void) => void }
+		).on === 'function'
+	) {
+		;(
+			provider as { on: (event: string, cb: (v: string[]) => void) => void }
+		).on('accountsChanged', handler)
 		return () => {
-			if ('removeListener' in provider && typeof (provider as { removeListener?: (event: string, cb: (v: string[]) => void) => void }).removeListener === 'function') {
-				(provider as { removeListener: (event: string, cb: (v: string[]) => void) => void }).removeListener('accountsChanged', handler)
+			if (
+				'removeListener' in provider &&
+				typeof (
+					provider as {
+						removeListener?: (event: string, cb: (v: string[]) => void) => void
+					}
+				).removeListener === 'function'
+			) {
+				;(
+					provider as {
+						removeListener: (event: string, cb: (v: string[]) => void) => void
+					}
+				).removeListener('accountsChanged', handler)
 			}
 		}
 	}
 	return () => {}
 }
 
-export const addChainToWallet = async (provider: EIP1193Provider, chainId: number): Promise<void> => {
+export const addChainToWallet = async (
+	provider: EIP1193Provider,
+	chainId: number,
+): Promise<void> => {
 	const config = networkConfigsByChainId[chainId]
 	const rpcUrl = rpcUrls[chainId]
 	if (!config || !rpcUrl) throw new Error(`Unknown chain ${chainId}`)
@@ -82,7 +127,9 @@ export const addChainToWallet = async (provider: EIP1193Provider, chainId: numbe
 					decimals: 18,
 				},
 				rpcUrls: [rpcUrl],
-				blockExplorerUrls: config.explorerUrl ? [config.explorerUrl] : undefined,
+				blockExplorerUrls: config.explorerUrl
+					? [config.explorerUrl]
+					: undefined,
 			},
 		],
 	})
@@ -105,13 +152,15 @@ const MINIMAL_CHAINS = new Map<number, Chain>(
 
 function chainFor(chainId: number): Chain {
 	const c = MINIMAL_CHAINS.get(chainId)
-	return c
-		?? ({
+	return (
+		c ??
+		({
 			id: chainId,
 			name: `Chain ${chainId}`,
 			nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
 			rpcUrls: { default: { http: [] } },
 		} as Chain)
+	)
 }
 
 // EIP-6963: single listener for page lifetime; DApp MUST NOT remove it (spec). Key by rdns (stable across sessions).
@@ -119,7 +168,8 @@ const eip6963ByRdns = new Map<string, ProviderDetailType>()
 let eip6963Listener: ((providers: ProviderDetailType[]) => void) | null = null
 let eip6963Installed = false
 
-const EIP6963_DEBUG = typeof import.meta.env !== 'undefined' && import.meta.env.DEV
+const EIP6963_DEBUG =
+	typeof import.meta.env !== 'undefined' && import.meta.env.DEV
 
 function eip6963HandleAnnounce(e: Event) {
 	const { detail } = e as CustomEvent<ProviderDetailType>
@@ -136,24 +186,41 @@ function eip6963HandleAnnounce(e: Event) {
 		})
 	}
 	if (detail?.info?.rdns && typeof detail.provider?.request === 'function') {
-		eip6963ByRdns.set(detail.info.rdns, { info: detail.info, provider: detail.provider })
+		eip6963ByRdns.set(detail.info.rdns, {
+			info: detail.info,
+			provider: detail.provider,
+		})
 		const list = [...eip6963ByRdns.values()]
-		if (EIP6963_DEBUG) console.debug('[EIP-6963] providers now', list.length, list.map((p) => p.info.name))
+		if (EIP6963_DEBUG)
+			console.debug(
+				'[EIP-6963] providers now',
+				list.length,
+				list.map((p) => p.info.name),
+			)
 		eip6963Listener?.(list)
 	}
 }
 
-export function subscribeProviders(listener: (providers: ProviderDetailType[]) => void): () => void {
+export function subscribeProviders(
+	listener: (providers: ProviderDetailType[]) => void,
+): () => void {
 	if (typeof window === 'undefined') return () => {}
 	eip6963Listener = listener
 	if (!eip6963Installed) {
 		eip6963Installed = true
 		window.addEventListener(PROVIDER_ANNOUNCE, eip6963HandleAnnounce)
 		window.dispatchEvent(new Event(PROVIDER_REQUEST))
-		if (EIP6963_DEBUG) console.debug('[EIP-6963] listener installed, request dispatched')
+		if (EIP6963_DEBUG)
+			console.debug('[EIP-6963] listener installed, request dispatched')
 	}
 	const list = [...eip6963ByRdns.values()]
-	if (EIP6963_DEBUG) console.debug('[EIP-6963] subscribeProviders callback with', list.length, 'providers', list.map((p) => p.info.name))
+	if (EIP6963_DEBUG)
+		console.debug(
+			'[EIP-6963] subscribeProviders callback with',
+			list.length,
+			'providers',
+			list.map((p) => p.info.name),
+		)
 	listener(list)
 	return () => {
 		eip6963Listener = null
@@ -168,10 +235,14 @@ export function requestEIP6963Providers(): void {
 }
 
 if (typeof window !== 'undefined' && EIP6963_DEBUG) {
-	(window as unknown as { requestEIP6963Providers?: () => void }).requestEIP6963Providers = requestEIP6963Providers
+	;(
+		window as unknown as { requestEIP6963Providers?: () => void }
+	).requestEIP6963Providers = requestEIP6963Providers
 }
 
-export async function connectProvider(detail: ProviderDetailType): Promise<`0x${string}`> {
+export async function connectProvider(
+	detail: ProviderDetailType,
+): Promise<`0x${string}`> {
 	const accounts = (await detail.provider.request({
 		method: 'eth_requestAccounts',
 		params: [],
@@ -181,14 +252,20 @@ export async function connectProvider(detail: ProviderDetailType): Promise<`0x${
 	return addr as `0x${string}`
 }
 
-export function createWalletClientForChain(provider: EIP1193Provider, chainId: number): WalletClient {
+export function createWalletClientForChain(
+	provider: EIP1193Provider,
+	chainId: number,
+): WalletClient {
 	return createWalletClient({
 		chain: chainFor(chainId),
 		transport: custom(provider),
 	})
 }
 
-export const switchWalletChain = async (provider: EIP1193Provider, chainId: number): Promise<void> => {
+export const switchWalletChain = async (
+	provider: EIP1193Provider,
+	chainId: number,
+): Promise<void> => {
 	const chainIdHex = `0x${chainId.toString(16)}`
 	try {
 		await provider.request({

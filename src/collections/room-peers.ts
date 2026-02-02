@@ -2,7 +2,10 @@
  * Room peers collection: participants in a PartyKit room (in-memory, synced from server).
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
 export type RoomPeer = {
 	id: string

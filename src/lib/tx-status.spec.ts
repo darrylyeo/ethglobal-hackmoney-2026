@@ -13,30 +13,36 @@ Deno.test('createInitialStatus returns idle with empty steps', () => {
 	assertEquals(status.steps, [])
 })
 
-Deno.test('TxStatus type has step, state, txHash, chainId, error, startedAt', () => {
-	const s: TxStatus = {
-		step: 'approve',
-		state: 'success',
-		txHash: '0xabc',
-		chainId: 1,
-		startedAt: 1000,
-		completedAt: 2000,
-	}
-	assertEquals(s.step, 'approve')
-	assertEquals(s.state, 'success')
-	assertEquals(s.txHash, '0xabc')
-	assertEquals(s.chainId, 1)
-})
+Deno.test(
+	'TxStatus type has step, state, txHash, chainId, error, startedAt',
+	() => {
+		const s: TxStatus = {
+			step: 'approve',
+			state: 'success',
+			txHash: '0xabc',
+			chainId: 1,
+			startedAt: 1000,
+			completedAt: 2000,
+		}
+		assertEquals(s.step, 'approve')
+		assertEquals(s.state, 'success')
+		assertEquals(s.txHash, '0xabc')
+		assertEquals(s.chainId, 1)
+	},
+)
 
-Deno.test('BridgeStatus type has overall, steps, estimatedDurationSeconds', () => {
-	const s: BridgeStatus = {
-		overall: 'in_progress',
-		steps: [],
-		estimatedDurationSeconds: 120,
-	}
-	assertEquals(s.overall, 'in_progress')
-	assertEquals(s.estimatedDurationSeconds, 120)
-})
+Deno.test(
+	'BridgeStatus type has overall, steps, estimatedDurationSeconds',
+	() => {
+		const s: BridgeStatus = {
+			overall: 'in_progress',
+			steps: [],
+			estimatedDurationSeconds: 120,
+		}
+		assertEquals(s.overall, 'in_progress')
+		assertEquals(s.estimatedDurationSeconds, 120)
+	},
+)
 
 Deno.test('mapLifiProcessStatus maps TOKEN_ALLOWANCE to approve', () => {
 	assertEquals(mapLifiProcessStatus('TOKEN_ALLOWANCE', 'DONE'), {

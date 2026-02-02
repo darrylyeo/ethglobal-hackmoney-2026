@@ -5,7 +5,6 @@
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
-
 	// Props
 	let {
 		assetIds,
@@ -17,25 +16,29 @@
 		title?: string
 	} = $props()
 
-
 	// Functions
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
-	import { getBestStorkPrice, storkPricesCollection, subscribeStorkPrices } from '$/collections/stork-prices'
-
+	import {
+		getBestStorkPrice,
+		storkPricesCollection,
+		subscribeStorkPrices,
+	} from '$/collections/stork-prices'
 
 	// State
-	const pricesQuery = useLiveQuery((q) => q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })))
-	const prices = $derived<StorkPriceRow[]>((pricesQuery.data ?? []).map((r) => r.row))
+	const pricesQuery = useLiveQuery((q) =>
+		q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })),
+	)
+	const prices = $derived<StorkPriceRow[]>(
+		(pricesQuery.data ?? []).map((r) => r.row),
+	)
 
 	$effect(() => {
 		if (assetIds.length === 0) return
 		const unsubscribe = subscribeStorkPrices({ assetIds, chainId })
 		return () => unsubscribe()
 	})
-
 </script>
-
 
 <section data-card="secondary" data-stork-prices>
 	<header data-row="gap-2 align-center justify-between">
@@ -56,7 +59,9 @@
 							${formatSmallestToDecimal(best.price, 18, 6)}
 						</span>
 						<small data-muted>
-							{best.transport}{best.chainId ? ` · ${best.chainId}` : ''} · {formatRelativeTime(Date.now() - best.updatedAt)}
+							{best.transport}{best.chainId ? ` · ${best.chainId}` : ''} · {formatRelativeTime(
+								Date.now() - best.updatedAt,
+							)}
 						</small>
 					{:else}
 						<small data-muted>Waiting for price…</small>
@@ -66,7 +71,6 @@
 		</ul>
 	{/if}
 </section>
-
 
 <style>
 	[data-stork-prices] {

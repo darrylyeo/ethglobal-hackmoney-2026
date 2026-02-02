@@ -21,7 +21,8 @@
 	let error = $state<string | null>(null)
 
 	const myBalance = $derived(
-		yellowState.address && channel.participant0.toLowerCase() === yellowState.address.toLowerCase()
+		yellowState.address &&
+			channel.participant0.toLowerCase() === yellowState.address.toLowerCase()
 			? channel.balance0
 			: channel.balance1,
 	)
@@ -46,12 +47,11 @@
 
 			await sendTransfer({
 				clearnodeConnection: yellowState.clearnodeConnection,
-				destination: (
-					channel.participant0.toLowerCase() === yellowState.address.toLowerCase() ?
-						channel.participant1
-					:
-						channel.participant0
-				),
+				destination:
+					channel.participant0.toLowerCase() ===
+					yellowState.address.toLowerCase()
+						? channel.participant1
+						: channel.participant0,
 				allocations: [
 					{
 						asset: 'usdc',
@@ -96,8 +96,17 @@
 		{/if}
 
 		<div data-actions>
-			<Button.Root type="button" onclick={() => { open = false }}>Cancel</Button.Root>
-			<Button.Root type="button" onclick={handleSend} disabled={sending || !amount}>
+			<Button.Root
+				type="button"
+				onclick={() => {
+					open = false
+				}}>Cancel</Button.Root
+			>
+			<Button.Root
+				type="button"
+				onclick={handleSend}
+				disabled={sending || !amount}
+			>
 				{sending ? 'Sending...' : 'Send'}
 			</Button.Root>
 		</div>
@@ -105,7 +114,15 @@
 </Dialog.Root>
 
 <style>
-	[data-balance] { margin: 0.5rem 0; }
-	[data-actions] { display: flex; gap: 0.5rem; margin-top: 1rem; }
-	[data-error] { color: var(--color-error, red); }
+	[data-balance] {
+		margin: 0.5rem 0;
+	}
+	[data-actions] {
+		display: flex;
+		gap: 0.5rem;
+		margin-top: 1rem;
+	}
+	[data-error] {
+		color: var(--color-error, red);
+	}
 </style>

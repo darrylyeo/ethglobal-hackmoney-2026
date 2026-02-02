@@ -5,7 +5,10 @@
  */
 
 import type { Route } from '@lifi/sdk'
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
 import { getRoutesForUsdcBridge, type NormalizedRoute } from '$/api/lifi'
 import type { BridgeError } from '$/lib/errors'
@@ -111,7 +114,12 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$id) => {
 				fromAddress: $id.fromAddress,
 				slippage: $id.slippage,
 			}),
-			new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Routes request timed out')), ROUTES_REQUEST_TIMEOUT_MS)),
+			new Promise<never>((_, reject) =>
+				setTimeout(
+					() => reject(new Error('Routes request timed out')),
+					ROUTES_REQUEST_TIMEOUT_MS,
+				),
+			),
 		])
 
 		const routes = apiRoutes.map(normalizedToBridgeRoute)
@@ -132,6 +140,5 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$id) => {
 	}
 }
 
-export const getBridgeRoutes = ($id: BridgeRoutes$id) => (
+export const getBridgeRoutes = ($id: BridgeRoutes$id) =>
 	bridgeRoutesCollection.state.get(stringify($id))
-)

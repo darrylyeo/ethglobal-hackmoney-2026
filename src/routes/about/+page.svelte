@@ -3,7 +3,6 @@
 	import { resolve } from '$app/paths'
 </script>
 
-
 <div data-column="center gap-4">
 	<h1>About</h1>
 	<p>

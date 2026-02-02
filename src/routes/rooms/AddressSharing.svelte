@@ -19,10 +19,11 @@
 	import { roomState } from '$/state/room.svelte'
 
 	const mySharedQuery = useLiveQuery(
-		(q) => q
-			.from({ row: sharedAddressesCollection })
-			.where(({ row }) => eq(row.roomId, roomId))
-			.select(({ row }) => ({ row })),
+		(q) =>
+			q
+				.from({ row: sharedAddressesCollection })
+				.where(({ row }) => eq(row.roomId, roomId))
+				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
 
@@ -32,9 +33,8 @@
 			.filter((s) => s.peerId === roomState.peerId),
 	)
 
-	const isShared = (addr: `0x${string}`) => (
+	const isShared = (addr: `0x${string}`) =>
 		myShared.some((s) => s.address.toLowerCase() === addr.toLowerCase())
-	)
 
 	const shareAddress = (address: `0x${string}`) => {
 		roomState.connection?.send({ type: 'share-address', address })
@@ -54,7 +54,7 @@
 			{#each addresses as address (address)}
 				{@const shared = isShared(address)}
 				<li data-address>
-					<Address network={1} address={address} />
+					<Address network={1} {address} />
 					<Button.Root
 						type="button"
 						onclick={() => shareAddress(address)}

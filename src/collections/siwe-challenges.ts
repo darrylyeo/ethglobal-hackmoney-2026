@@ -2,7 +2,10 @@
  * SIWE challenges collection: per-peer sign-in challenges for address verification.
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
 export type SiweChallenge = {
 	id: string

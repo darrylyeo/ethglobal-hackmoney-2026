@@ -30,7 +30,7 @@ const askQuestion = (query: string): Promise<string> => {
 		rl.question(query, (ans) => {
 			rl.close()
 			resolve(ans)
-		})
+		}),
 	)
 }
 // Your wallet private key (use environment variables in production!)
@@ -42,14 +42,14 @@ if (!PRIVATE_KEY) {
 		throw new Error('Private Key is required')
 	}
 	PRIVATE_KEY = inputKey.startsWith('0x')
-		? inputKey as `0x${string}`
-		: `0x${inputKey}` as `0x${string}`
+		? (inputKey as `0x${string}`)
+		: (`0x${inputKey}` as `0x${string}`)
 }
 
 const account = privateKeyToAccount(PRIVATE_KEY)
 // Create viem clients
 const ALCHEMY_RPC_URL = process.env.ALCHEMY_RPC_URL
-const FALLBACK_RPC_URL = 'https://1rpc.io/sepolia'; // Public fallback
+const FALLBACK_RPC_URL = 'https://1rpc.io/sepolia' // Public fallback
 
 const publicClient = createPublicClient({
 	chain: sepolia,
@@ -132,10 +132,13 @@ const sessionSigner = createECDSAMessageSigner(sessionPrivateKey)
 // Step 2: Send auth_request
 const authParams = {
 	session_key: sessionAddress, // Session key you generated
-	allowances: [{ // Add allowance for ytest.usd
-		asset: 'ytest.usd',
-		amount: '1000000000', // Large amount
-	}],
+	allowances: [
+		{
+			// Add allowance for ytest.usd
+			asset: 'ytest.usd',
+			amount: '1000000000', // Large amount
+		},
+	],
 	expires_at: BigInt(Math.floor(Date.now() / 1000) + 3600), // 1 hour in seconds
 	scope: 'test.app',
 }
@@ -168,19 +171,16 @@ const triggerResize = async (
 
 	const amountToFund = 20n
 	if (!skipResize) {
-		console.log("\nRequesting resize to fund channel with 20 tokens...")
+		console.log('\nRequesting resize to fund channel with 20 tokens...')
 	}
 
 	if (!skipResize) {
-		const resizeMsg = await createResizeChannelMessage(
-			sessionSigner,
-			{
-				channel_id: channelId as `0x${string}`,
-				// resize_amount: 10n, // <-- This requires L1 funds in Custody (which we don't have)
-				allocate_amount: amountToFund, // <-- This pulls from Unified Balance (Faucet) (Variable name adjusted)
-				funds_destination: account.address,
-			},
-		)
+		const resizeMsg = await createResizeChannelMessage(sessionSigner, {
+			channel_id: channelId as `0x${string}`,
+			// resize_amount: 10n, // <-- This requires L1 funds in Custody (which we don't have)
+			allocate_amount: amountToFund, // <-- This pulls from Unified Balance (Faucet) (Variable name adjusted)
+			funds_destination: account.address,
+		})
 		ws.send(resizeMsg)
 		// Wait for resize confirmation
 		console.log('  Waiting for resize confirmation...')
@@ -210,40 +210,50 @@ const triggerResize = async (
 	}
 
 	// Verify Channel Balance
-	const channelBalances = await publicClient.readContract({
+	const channelBalances = (await publicClient.readContract({
 		address: client.addresses.custody,
-		abi: [{
-			name: 'getChannelBalances',
-			type: 'function',
-			stateMutability: 'view',
-			inputs: [{ name: 'channelId', type: 'bytes32' }, {
-				name: 'tokens',
-				type: 'address[]',
-			}],
-			outputs: [{ name: 'balances', type: 'uint256[]' }],
-		}],
+		abi: [
+			{
+				name: 'getChannelBalances',
+				type: 'function',
+				stateMutability: 'view',
+				inputs: [
+					{ name: 'channelId', type: 'bytes32' },
+					{
+						name: 'tokens',
+						type: 'address[]',
+					},
+				],
+				outputs: [{ name: 'balances', type: 'uint256[]' }],
+			},
+		],
 		functionName: 'getChannelBalances',
 		args: [channelId as `0x${string}`, [token as `0x${string}`]],
-	}) as bigint[]
+	})) as bigint[]
 	console.log(`✓ Channel funded with ${channelBalances[0]} USDC`)
 	// Check User Balance again
 	let finalUserBalance = 0n
 	try {
-		const result = await publicClient.readContract({
+		const result = (await publicClient.readContract({
 			address: client.addresses.custody,
-			abi: [{
-				type: 'function',
-				name: 'getAccountsBalances',
-				inputs: [{ name: 'users', type: 'address[]' }, {
-					name: 'tokens',
-					type: 'address[]',
-				}],
-				outputs: [{ type: 'uint256[]' }],
-				stateMutability: 'view',
-			}] as const,
+			abi: [
+				{
+					type: 'function',
+					name: 'getAccountsBalances',
+					inputs: [
+						{ name: 'users', type: 'address[]' },
+						{
+							name: 'tokens',
+							type: 'address[]',
+						},
+					],
+					outputs: [{ type: 'uint256[]' }],
+					stateMutability: 'view',
+				},
+			] as const,
 			functionName: 'getAccountsBalances',
 			args: [[client.account.address], [token as `0x${string}`]],
-		}) as bigint[]
+		})) as bigint[]
 		finalUserBalance = result[0]
 		console.log(`✓ User Custody Balance after resize: ${finalUserBalance}`)
 	} catch (e) {
@@ -262,7 +272,7 @@ ws.onmessage = async (event) => {
 	console.log('Received WS message:', JSON.stringify(response, null, 2))
 	if (response.error) {
 		console.error('RPC Error:', response.error)
-		process.exit(1); // Exit on error to prevent infinite loops
+		process.exit(1) // Exit on error to prevent infinite loops
 	}
 
 	if (response.res && response.res[1] === 'auth_challenge') {
@@ -273,11 +283,9 @@ ws.onmessage = async (event) => {
 
 		const challenge = response.res[2].challenge_message
 		// Create EIP-712 typed data signature with main wallet
-		const signer = createEIP712AuthMessageSigner(
-			walletClient,
-			authParams,
-			{ name: 'Test app' },
-		)
+		const signer = createEIP712AuthMessageSigner(walletClient, authParams, {
+			name: 'Test app',
+		})
 		// Send auth_verify using builder
 		// We sign with the MAIN wallet for the first verification
 		const verifyMsg = await createAuthVerifyMessageFromChallenge(
@@ -289,7 +297,7 @@ ws.onmessage = async (event) => {
 
 	if (response.res && response.res[1] === 'auth_verify') {
 		console.log('✓ Authenticated successfully')
-		isAuthenticated = true; // Mark as authenticated
+		isAuthenticated = true // Mark as authenticated
 		const sessionKey = response.res[2].session_key
 		console.log('  Session key:', sessionKey)
 		console.log('  JWT token received')
@@ -309,8 +317,8 @@ ws.onmessage = async (event) => {
 		const openChannel = channels.find((c: any) => c.status === 'open')
 		// Derive token
 		const chainId = sepolia.id
-		const supportedAsset = (config.assets as any)?.find((a: any) =>
-			a.chain_id === chainId
+		const supportedAsset = (config.assets as any)?.find(
+			(a: any) => a.chain_id === chainId,
 		)
 		const token = supportedAsset
 			? supportedAsset.token
@@ -318,17 +326,13 @@ ws.onmessage = async (event) => {
 		if (openChannel) {
 			console.log('✓ Found existing open channel')
 			// CORRECT: Check if channel is already funded
-			const currentAmount = BigInt(openChannel.amount || 0); // Need to parse amount
+			const currentAmount = BigInt(openChannel.amount || 0) // Need to parse amount
 			// Wait, standard RPC returns strings. Let's rely on openChannel structure.
 			// openChannel object from logs: { ..., amount: '40', ... }
 
 			if (BigInt(openChannel.amount) >= 20n) {
-				console.log(
-					`  Channel already funded with ${openChannel.amount} USDC.`,
-				)
-				console.log(
-					'  Skipping resize to avoid 'Insufficient Balance' errors.',
-				)
+				console.log(`  Channel already funded with ${openChannel.amount} USDC.`)
+				console.log("  Skipping resize to avoid 'Insufficient Balance' errors.")
 				// Call triggerResize but indicate skipping actual resize
 				await triggerResize(openChannel.channel_id, token, true)
 			} else {
@@ -338,13 +342,10 @@ ws.onmessage = async (event) => {
 			console.log('  No existing open channel found, creating new one...')
 			console.log('  Using token:', token, 'for chain:', chainId)
 			// Request channel creation
-			const createChannelMsg = await createCreateChannelMessage(
-				sessionSigner,
-				{
-					chain_id: 11155111, // Sepolia
-					token: token,
-				},
-			)
+			const createChannelMsg = await createCreateChannelMessage(sessionSigner, {
+				chain_id: 11155111, // Sepolia
+				token: token,
+			})
 			ws.send(createChannelMsg)
 		}
 	}
@@ -374,9 +375,8 @@ ws.onmessage = async (event) => {
 		// createChannel returns an object { txHash, ... } or just hash depending on version.
 		// Based on logs: { channelId: ..., initialState: ..., txHash: ... }
 		// We need to handle both or just the object.
-		const txHash = typeof createResult === 'string'
-			? createResult
-			: createResult.txHash
+		const txHash =
+			typeof createResult === 'string' ? createResult : createResult.txHash
 		console.log('✓ Channel created on-chain:', txHash)
 		console.log('  Waiting for transaction confirmation...')
 		await publicClient.waitForTransactionReceipt({ hash: txHash })
@@ -411,7 +411,7 @@ ws.onmessage = async (event) => {
 			'DEBUG: resizeState:',
 			JSON.stringify(
 				resizeState,
-				(key, value) => typeof value === 'bigint' ? value.toString() : value,
+				(key, value) => (typeof value === 'bigint' ? value.toString() : value),
 				2,
 			),
 		)
@@ -424,7 +424,8 @@ ws.onmessage = async (event) => {
 				'DEBUG: On-chain channel data:',
 				JSON.stringify(
 					onChainData,
-					(key, value) => typeof value === 'bigint' ? value.toString() : value,
+					(key, value) =>
+						typeof value === 'bigint' ? value.toString() : value,
 					2,
 				),
 			)
@@ -454,7 +455,7 @@ ws.onmessage = async (event) => {
 		console.log(`  Checking User Custody Balance for ${userAddress}... [v2]`)
 		// Check initial balance first
 		try {
-			const result = await publicClient.readContract({
+			const result = (await publicClient.readContract({
 				address: client.addresses.custody,
 				abi: [
 					{
@@ -470,14 +471,15 @@ ws.onmessage = async (event) => {
 				] as const,
 				functionName: 'getAccountsBalances',
 				args: [[userAddress], [token as `0x${string}`]],
-			}) as bigint[]
+			})) as bigint[]
 			userBalance = result[0]
 		} catch (e) {
 			console.warn('    Error checking initial user balance:', e)
 		}
 
 		console.log('  Skipping L1 deposit (using off-chain faucet funds)...')
-		if (true) { // Skip the wait loop as we just deposited
+		if (true) {
+			// Skip the wait loop as we just deposited
 			// Define ABI fragment for getAccountsBalances
 			const custodyAbiFragment = [
 				{
@@ -491,14 +493,15 @@ ws.onmessage = async (event) => {
 					stateMutability: 'view',
 				},
 			] as const
-			while (retries < 30) { // Wait up to 60 seconds
+			while (retries < 30) {
+				// Wait up to 60 seconds
 				try {
-					const result = await publicClient.readContract({
+					const result = (await publicClient.readContract({
 						address: client.addresses.custody,
 						abi: custodyAbiFragment,
 						functionName: 'getAccountsBalances',
 						args: [[userAddress], [token as `0x${string}`]],
-					}) as bigint[]
+					})) as bigint[]
 					userBalance = result[0]
 				} catch (e) {
 					console.warn('    Error checking user balance:', e)
@@ -603,25 +606,30 @@ ws.onmessage = async (event) => {
 		// Withdraw funds
 		console.log('  Withdrawing funds...')
 		const token = state.allocations[0].token
-		await new Promise((r) => setTimeout(r, 2000)); // Wait for close to settle
+		await new Promise((r) => setTimeout(r, 2000)) // Wait for close to settle
 
 		let withdrawableBalance = 0n
 		try {
-			const result = await publicClient.readContract({
+			const result = (await publicClient.readContract({
 				address: client.addresses.custody,
-				abi: [{
-					type: 'function',
-					name: 'getAccountsBalances',
-					inputs: [{ name: 'users', type: 'address[]' }, {
-						name: 'tokens',
-						type: 'address[]',
-					}],
-					outputs: [{ type: 'uint256[]' }],
-					stateMutability: 'view',
-				}] as const,
+				abi: [
+					{
+						type: 'function',
+						name: 'getAccountsBalances',
+						inputs: [
+							{ name: 'users', type: 'address[]' },
+							{
+								name: 'tokens',
+								type: 'address[]',
+							},
+						],
+						outputs: [{ type: 'uint256[]' }],
+						stateMutability: 'view',
+					},
+				] as const,
 				functionName: 'getAccountsBalances',
 				args: [[client.account.address], [token as `0x${string}`]],
-			}) as bigint[]
+			})) as bigint[]
 			withdrawableBalance = result[0]
 			console.log(
 				`✓ User Custody Balance (Withdrawable): ${withdrawableBalance}`,

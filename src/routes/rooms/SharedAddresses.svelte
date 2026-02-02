@@ -9,25 +9,26 @@
 	import { roomState } from '$/state/room.svelte'
 
 	const sharedQuery = useLiveQuery(
-		(q) => q
-			.from({ row: sharedAddressesCollection })
-			.where(({ row }) => eq(row.roomId, roomId))
-			.select(({ row }) => ({ row })),
+		(q) =>
+			q
+				.from({ row: sharedAddressesCollection })
+				.where(({ row }) => eq(row.roomId, roomId))
+				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
 	const peersQuery = useLiveQuery(
-		(q) => q
-			.from({ row: roomPeersCollection })
-			.where(({ row }) => eq(row.roomId, roomId))
-			.select(({ row }) => ({ row })),
+		(q) =>
+			q
+				.from({ row: roomPeersCollection })
+				.where(({ row }) => eq(row.roomId, roomId))
+				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
 
 	const shared = $derived((sharedQuery.data ?? []).map((r) => r.row))
 	const peers = $derived((peersQuery.data ?? []).map((r) => r.row))
-	const getPeerName = (peerId: string) => (
+	const getPeerName = (peerId: string) =>
 		peers.find((p) => p.peerId === peerId)?.displayName ?? peerId.slice(0, 8)
-	)
 
 	// Components
 	import Address from '$/components/Address.svelte'
@@ -40,11 +41,9 @@
 	{:else}
 		<ul>
 			{#each shared as s (s.id)}
-				{@const verifiedByMe = roomState.peerId != null && s.verifiedBy.includes(roomState.peerId)}
-				<li
-					data-shared-address
-					data-verified-by-me={verifiedByMe}
-				>
+				{@const verifiedByMe =
+					roomState.peerId != null && s.verifiedBy.includes(roomState.peerId)}
+				<li data-shared-address data-verified-by-me={verifiedByMe}>
 					<span data-peer-name>{getPeerName(s.peerId)}</span>
 					<Address network={1} address={s.address} />
 					<span data-verification>

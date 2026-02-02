@@ -33,9 +33,18 @@ function normalizeChannelFromMessage(params: unknown): YellowChannel | null {
 	const p = params as Record<string, unknown>
 	const id = typeof p.id === 'string' ? p.id : null
 	const chainId = typeof p.chainId === 'number' ? p.chainId : 0
-	const participant0 = typeof p.participant0 === 'string' && p.participant0.startsWith('0x') ? p.participant0 as `0x${string}` : null
-	const participant1 = typeof p.participant1 === 'string' && p.participant1.startsWith('0x') ? p.participant1 as `0x${string}` : null
-	const asset = typeof p.asset === 'string' && p.asset.startsWith('0x') ? p.asset as `0x${string}` : null
+	const participant0 =
+		typeof p.participant0 === 'string' && p.participant0.startsWith('0x')
+			? (p.participant0 as `0x${string}`)
+			: null
+	const participant1 =
+		typeof p.participant1 === 'string' && p.participant1.startsWith('0x')
+			? (p.participant1 as `0x${string}`)
+			: null
+	const asset =
+		typeof p.asset === 'string' && p.asset.startsWith('0x')
+			? (p.asset as `0x${string}`)
+			: null
 	if (!id || !participant0 || !participant1 || !asset) return null
 	return {
 		id,
@@ -47,7 +56,9 @@ function normalizeChannelFromMessage(params: unknown): YellowChannel | null {
 		balance0: BigInt(String(p.balance0 ?? 0)),
 		balance1: BigInt(String(p.balance1 ?? 0)),
 		turnNum: Number(p.turnNum ?? 0),
-		status: (typeof p.status === 'string' ? p.status : 'pending') as YellowChannel['status'],
+		status: (typeof p.status === 'string'
+			? p.status
+			: 'pending') as YellowChannel['status'],
 		roomId: typeof p.roomId === 'string' ? p.roomId : undefined,
 		createdAt: Number(p.createdAt ?? 0),
 		updatedAt: Number(p.updatedAt ?? 0),
@@ -59,8 +70,14 @@ function normalizeTransferFromMessage(params: unknown): YellowTransfer | null {
 	const p = params as Record<string, unknown>
 	const id = typeof p.id === 'string' ? p.id : null
 	const channelId = typeof p.channelId === 'string' ? p.channelId : null
-	const from = typeof p.from === 'string' && p.from.startsWith('0x') ? p.from as `0x${string}` : null
-	const to = typeof p.to === 'string' && p.to.startsWith('0x') ? p.to as `0x${string}` : null
+	const from =
+		typeof p.from === 'string' && p.from.startsWith('0x')
+			? (p.from as `0x${string}`)
+			: null
+	const to =
+		typeof p.to === 'string' && p.to.startsWith('0x')
+			? (p.to as `0x${string}`)
+			: null
 	if (!id || !channelId || !from || !to) return null
 	return {
 		id,
@@ -70,18 +87,26 @@ function normalizeTransferFromMessage(params: unknown): YellowTransfer | null {
 		amount: BigInt(String(p.amount ?? 0)),
 		turnNum: Number(p.turnNum ?? 0),
 		timestamp: Number(p.timestamp ?? 0),
-		status: (typeof p.status === 'string' ? p.status : 'pending') as YellowTransfer['status'],
+		status: (typeof p.status === 'string'
+			? p.status
+			: 'pending') as YellowTransfer['status'],
 	}
 }
 
-function normalizeBalanceUpdate(params: unknown): { address: `0x${string}`; availableBalance: bigint; lockedBalance: bigint } | null {
+function normalizeBalanceUpdate(params: unknown): {
+	address: `0x${string}`
+	availableBalance: bigint
+	lockedBalance: bigint
+} | null {
 	if (!params || typeof params !== 'object') return null
 	const p = params as Record<string, unknown>
 	if ('balanceUpdates' in p && Array.isArray(p.balanceUpdates)) {
 		const updates = p.balanceUpdates
 			.filter((entry) => entry && typeof entry === 'object')
 			.map((entry) => entry as { asset?: unknown; amount?: unknown })
-		const usdc = updates.find((entry) => String(entry.asset ?? '').toLowerCase() === 'usdc')
+		const usdc = updates.find(
+			(entry) => String(entry.asset ?? '').toLowerCase() === 'usdc',
+		)
 		const amount = usdc ? String(usdc.amount ?? '0') : '0'
 		if (!yellowState.address) return null
 		return {
@@ -90,22 +115,18 @@ function normalizeBalanceUpdate(params: unknown): { address: `0x${string}`; avai
 			lockedBalance: 0n,
 		}
 	}
-	const addressValue = (
-		typeof p.address === 'string' && p.address.startsWith('0x') ?
-			p.address
-		: typeof p.wallet === 'string' && p.wallet.startsWith('0x') ?
-			p.wallet
-		: typeof p.account_id === 'string' && p.account_id.startsWith('0x') ?
-			p.account_id
-		:
-			yellowState.address
-	)
-	const address = (
-		addressValue && addressValue.startsWith('0x') ?
-			addressValue as `0x${string}`
-		:
-			null
-	)
+	const addressValue =
+		typeof p.address === 'string' && p.address.startsWith('0x')
+			? p.address
+			: typeof p.wallet === 'string' && p.wallet.startsWith('0x')
+				? p.wallet
+				: typeof p.account_id === 'string' && p.account_id.startsWith('0x')
+					? p.account_id
+					: yellowState.address
+	const address =
+		addressValue && addressValue.startsWith('0x')
+			? (addressValue as `0x${string}`)
+			: null
 	if (!address) return null
 	const availableBalance = p.available_balance ?? p.availableBalance
 	if (availableBalance === undefined || availableBalance === null) return null
@@ -167,7 +188,11 @@ export const connectToYellow = async (
 	provider: EIP1193Provider,
 	address: `0x${string}`,
 ) => {
-	const connection = await connectClearnode({ chainId, signer: provider, address })
+	const connection = await connectClearnode({
+		chainId,
+		signer: provider,
+		address,
+	})
 	connection.onMessage((msg) => {
 		try {
 			const parsed = typeof msg === 'string' ? decodeNitroRpc(msg) : null
@@ -180,7 +205,10 @@ export const connectToYellow = async (
 	yellowState.chainId = chainId
 	yellowState.address = address
 
-	const balance = await getAvailableBalance({ clearnodeConnection: connection, address })
+	const balance = await getAvailableBalance({
+		clearnodeConnection: connection,
+		address,
+	})
 	const depositId = `${chainId}:${address.toLowerCase()}`
 	const existing = yellowDepositsCollection.state.get(depositId)
 	const now = Date.now()

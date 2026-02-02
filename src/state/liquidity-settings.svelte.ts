@@ -31,5 +31,10 @@ export const defaultLiquiditySettings: LiquiditySettings = {
 export const liquiditySettingsState = new PersistedState<LiquiditySettings>(
 	'liquidity-settings',
 	defaultLiquiditySettings,
-	{ serializer: { serialize: stringify, deserialize: (v) => parse(v) as LiquiditySettings } },
+	{
+		serializer: {
+			serialize: stringify,
+			deserialize: (v) => parse(v) as LiquiditySettings,
+		},
+	},
 )

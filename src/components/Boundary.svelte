@@ -14,7 +14,6 @@
 	} = $props()
 </script>
 
-
 <svelte:boundary>
 	{#if children}
 		{@render children()}
@@ -24,11 +23,7 @@
 		{#if Pending}
 			{@render Pending()}
 		{:else}
-			<div
-				data-card
-				data-row="center"
-				class="loading"
-			>
+			<div data-card data-row="center" class="loading">
 				<p>Loading...</p>
 			</div>
 		{/if}
@@ -38,10 +33,7 @@
 		{#if Failed}
 			{@render Failed(error, retry)}
 		{:else}
-			<div
-				data-card="secondary"
-				data-column="gap-1"
-			>
+			<div data-card="secondary" data-column="gap-1">
 				<header data-row="wrap">
 					<h3>Error</h3>
 
@@ -66,7 +58,6 @@
 		{/if}
 	{/snippet}
 </svelte:boundary>
-
 
 <style>
 	.loading {

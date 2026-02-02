@@ -5,9 +5,16 @@
  * One connection can be "selected" at a time for use by the app.
  */
 
-import { createCollection, localStorageCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localStorageCollectionOptions,
+} from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
-import { type Wallet$id, type WalletRow, getWallet } from '$/collections/wallets'
+import {
+	type Wallet$id,
+	type WalletRow,
+	getWallet,
+} from '$/collections/wallets'
 import { normalizeAddress } from '$/lib/address'
 import { connectProvider, getWalletChainId } from '$/lib/wallet'
 
@@ -63,9 +70,8 @@ export const walletConnectionsCollection = createCollection(
 	}),
 )
 
-export const getWalletConnection = ($id: WalletConnection$id) => (
+export const getWalletConnection = ($id: WalletConnection$id) =>
 	walletConnectionsCollection.state.get(stringify($id))
-)
 
 // Create a connection in "connecting" state
 export const createConnection = (wallet$id: Wallet$id, autoSelect: boolean) => {
@@ -98,7 +104,11 @@ export const createConnection = (wallet$id: Wallet$id, autoSelect: boolean) => {
 }
 
 // Update connection to connected state with actors
-export const setConnectionConnected = (wallet$id: Wallet$id, actors: `0x${string}`[], chainId: number) => {
+export const setConnectionConnected = (
+	wallet$id: Wallet$id,
+	actors: `0x${string}`[],
+	chainId: number,
+) => {
 	const key = stringify({ wallet$id })
 	const existing = walletConnectionsCollection.state.get(key)
 	if (existing) {
@@ -127,7 +137,10 @@ export const setConnectionError = (wallet$id: Wallet$id, error: string) => {
 }
 
 // Update actors when wallet emits accountsChanged
-export const updateConnectionActors = (wallet$id: Wallet$id, actors: `0x${string}`[]) => {
+export const updateConnectionActors = (
+	wallet$id: Wallet$id,
+	actors: `0x${string}`[],
+) => {
 	const key = stringify({ wallet$id })
 	const existing = walletConnectionsCollection.state.get(key)
 	if (existing) {
@@ -142,7 +155,10 @@ export const updateConnectionActors = (wallet$id: Wallet$id, actors: `0x${string
 }
 
 // Switch active actor for a connection
-export const switchActiveActor = (wallet$id: Wallet$id, actor: `0x${string}`) => {
+export const switchActiveActor = (
+	wallet$id: Wallet$id,
+	actor: `0x${string}`,
+) => {
 	const key = stringify({ wallet$id })
 	const existing = walletConnectionsCollection.state.get(key)
 	if (existing && existing.actors.includes(actor)) {
@@ -266,7 +282,10 @@ export const disconnectAllWallets = () => {
 }
 
 // Request wallet connection via RPC (user-initiated)
-export const requestWalletConnection = async (wallet$id: Wallet$id, autoSelect = true) => {
+export const requestWalletConnection = async (
+	wallet$id: Wallet$id,
+	autoSelect = true,
+) => {
 	const walletRow = getWallet(wallet$id)
 	if (!walletRow) throw new Error('Wallet not found')
 
@@ -275,7 +294,12 @@ export const requestWalletConnection = async (wallet$id: Wallet$id, autoSelect =
 
 	try {
 		const actor = await connectProvider({
-			info: { uuid: walletRow.$id.rdns, name: walletRow.name, icon: walletRow.icon, rdns: walletRow.rdns },
+			info: {
+				uuid: walletRow.$id.rdns,
+				name: walletRow.name,
+				icon: walletRow.icon,
+				rdns: walletRow.rdns,
+			},
 			provider: walletRow.provider,
 		})
 		const chainId = await getWalletChainId(walletRow.provider)
@@ -305,7 +329,9 @@ export const reconnectWallet = async (wallet$id: Wallet$id) => {
 
 	try {
 		// Request accounts (will prompt if not already authorized, or return silently if authorized)
-		const accounts = await walletRow.provider.request({ method: 'eth_accounts' }) as string[]
+		const accounts = (await walletRow.provider.request({
+			method: 'eth_accounts',
+		})) as string[]
 		if (accounts.length === 0) {
 			// Not authorized anymore - remove connection
 			walletConnectionsCollection.delete(key)

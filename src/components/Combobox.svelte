@@ -6,23 +6,27 @@
 	import { Combobox } from 'bits-ui'
 
 	const defaultItemLabel = (item: Item) => String(item)
-	const isRecord = (value: unknown): value is Record<string, unknown> => (
+	const isRecord = (value: unknown): value is Record<string, unknown> =>
 		typeof value === 'object' && value !== null
-	)
-	const isGroup = (value: unknown): value is {
+	const isGroup = (
+		value: unknown,
+	): value is {
 		id?: string
 		label: string
 		items: readonly Item[]
-	} => (
-		isRecord(value)
-		&& typeof value.label === 'string'
-		&& Array.isArray(value.items)
-	)
+	} =>
+		isRecord(value) &&
+		typeof value.label === 'string' &&
+		Array.isArray(value.items)
 	const isGroupedItems = (
-		value: readonly Item[] | readonly { id?: string; label: string; items: readonly Item[] }[],
-	): value is readonly { id?: string; label: string; items: readonly Item[] }[] => (
-		value.length > 0 && isGroup(value[0])
-	)
+		value:
+			| readonly Item[]
+			| readonly { id?: string; label: string; items: readonly Item[] }[],
+	): value is readonly {
+		id?: string
+		label: string
+		items: readonly Item[]
+	}[] => value.length > 0 && isGroup(value[0])
 
 	// Props
 	let {
@@ -44,7 +48,9 @@
 		children,
 		...rootProps
 	}: {
-		items: readonly Item[] | readonly { id?: string; label: string; items: readonly Item[] }[]
+		items:
+			| readonly Item[]
+			| readonly { id?: string; label: string; items: readonly Item[] }[]
 		value?: string | string[]
 		type?: 'single' | 'multiple'
 		placeholder?: string
@@ -69,76 +75,69 @@
 
 	// (Derived)
 	const normalizedItems = $derived(
-		(
-			isGroupedItems(items)
-				? items.flatMap((group) => group.items)
-				: items
-		).map((item) => ({
-			item,
-			id: getItemId(item),
-			label: getItemLabel(item),
-			disabled: getItemDisabled ? getItemDisabled(item) : false,
-		}))
+		(isGroupedItems(items) ? items.flatMap((group) => group.items) : items).map(
+			(item) => ({
+				item,
+				id: getItemId(item),
+				label: getItemLabel(item),
+				disabled: getItemDisabled ? getItemDisabled(item) : false,
+			}),
+		),
 	)
 	const normalizedGroups = $derived(
 		isGroupedItems(items)
 			? items.map((group) => ({
-				id: group.id ?? group.label,
-				label: group.label,
-				items: group.items.map((item) => ({
-					item,
-					id: getItemId(item),
-					label: getItemLabel(item),
-					disabled: getItemDisabled ? getItemDisabled(item) : false,
-				})),
-			}))
-			: []
+					id: group.id ?? group.label,
+					label: group.label,
+					items: group.items.map((item) => ({
+						item,
+						id: getItemId(item),
+						label: getItemLabel(item),
+						disabled: getItemDisabled ? getItemDisabled(item) : false,
+					})),
+				}))
+			: [],
 	)
 	const filteredItems = $derived(
 		inputValue === ''
 			? normalizedItems
-			: normalizedItems.filter((item) => (
-				item.label.toLowerCase().includes(inputValue.toLowerCase())
-			))
+			: normalizedItems.filter((item) =>
+					item.label.toLowerCase().includes(inputValue.toLowerCase()),
+				),
 	)
 	const filteredGroups = $derived(
 		normalizedGroups.length > 0
 			? normalizedGroups
-				.map((group) => ({
-					...group,
-					items: group.items.filter((item) => (
-						item.label.toLowerCase().includes(inputValue.toLowerCase())
-					)),
-				}))
-				.filter((group) => group.items.length > 0)
-			: []
+					.map((group) => ({
+						...group,
+						items: group.items.filter((item) =>
+							item.label.toLowerCase().includes(inputValue.toLowerCase()),
+						),
+					}))
+					.filter((group) => group.items.length > 0)
+			: [],
 	)
 	const rootItems = $derived(
 		normalizedItems.map((item) => ({
 			value: item.id,
 			label: item.label,
 			disabled: item.disabled,
-		}))
+		})),
 	)
 
 	$effect(() => {
 		if (isFocused) return
-		const nextValue = (
+		const nextValue =
 			type === 'multiple'
-				? (
-					Array.isArray(value)
-						? normalizedItems
+				? Array.isArray(value)
+					? normalizedItems
 							.filter((item) => value.includes(item.id))
 							.map((item) => item.label)
 							.join(', ')
-						: ''
-				)
-				: (
-					typeof value === 'string'
-						? normalizedItems.find((item) => item.id === value)?.label ?? ''
-						: ''
-				)
-		)
+					: ''
+				: typeof value === 'string'
+					? (normalizedItems.find((item) => item.id === value)?.label ?? '')
+					: ''
 		if (inputValue !== nextValue) inputValue = nextValue
 	})
 
@@ -157,7 +156,6 @@
 	}
 </script>
 
-
 {#if type === 'multiple'}
 	<Combobox.Root
 		{...rootProps}
@@ -166,7 +164,7 @@
 		{disabled}
 		{name}
 		items={rootItems}
-		inputValue={inputValue}
+		{inputValue}
 		onValueChange={onValueChangeInternal}
 	>
 		{#if children}
@@ -177,12 +175,16 @@
 					{@render Before()}
 				{/if}
 				<Combobox.Input
-					id={id}
+					{id}
 					aria-label={ariaLabel}
-					placeholder={placeholder}
+					{placeholder}
 					oninput={onInput}
-					onfocus={() => { isFocused = true }}
-					onblur={() => { isFocused = false }}
+					onfocus={() => {
+						isFocused = true
+					}}
+					onblur={() => {
+						isFocused = false
+					}}
 				/>
 				{#if After}
 					<Combobox.Trigger aria-label={ariaLabel ?? 'Open'}>
@@ -244,7 +246,7 @@
 		{disabled}
 		{name}
 		items={rootItems}
-		inputValue={inputValue}
+		{inputValue}
 		onValueChange={onValueChangeInternal}
 	>
 		{#if children}
@@ -255,12 +257,16 @@
 					{@render Before()}
 				{/if}
 				<Combobox.Input
-					id={id}
+					{id}
 					aria-label={ariaLabel}
-					placeholder={placeholder}
+					{placeholder}
 					oninput={onInput}
-					onfocus={() => { isFocused = true }}
-					onblur={() => { isFocused = false }}
+					onfocus={() => {
+						isFocused = true
+					}}
+					onblur={() => {
+						isFocused = false
+					}}
 				/>
 				{#if After}
 					<Combobox.Trigger aria-label={ariaLabel ?? 'Open'}>

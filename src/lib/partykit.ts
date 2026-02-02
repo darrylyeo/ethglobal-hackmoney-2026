@@ -19,26 +19,43 @@ export type RoomMessage =
 	| { type: 'submit-signature'; challengeId: string; signature: `0x${string}` }
 	| { type: 'verify-result'; challengeId: string; verified: boolean }
 	| { type: 'sync'; state: unknown }
-	| { type: 'propose-transfer'; to: `0x${string}`; allocations: { asset: string; amount: string }[] }
-	| { type: 'transfer-request'; from: `0x${string}`; request: { id: string; roomId: string; from: `0x${string}`; to: `0x${string}`; allocations: { asset: string; amount: string }[]; status: string; createdAt: number; expiresAt: number } }
+	| {
+			type: 'propose-transfer'
+			to: `0x${string}`
+			allocations: { asset: string; amount: string }[]
+	  }
+	| {
+			type: 'transfer-request'
+			from: `0x${string}`
+			request: {
+				id: string
+				roomId: string
+				from: `0x${string}`
+				to: `0x${string}`
+				allocations: { asset: string; amount: string }[]
+				status: string
+				createdAt: number
+				expiresAt: number
+			}
+	  }
 	| { type: 'accept-transfer'; requestId: string }
 	| { type: 'reject-transfer'; requestId: string; reason?: string }
 	| { type: 'transfer-sent'; requestId: string }
 
-const envHost = (
+const envHost =
 	typeof import.meta.env !== 'undefined'
-		? (import.meta.env as { PUBLIC_PARTYKIT_HOST?: string }).PUBLIC_PARTYKIT_HOST
+		? (import.meta.env as { PUBLIC_PARTYKIT_HOST?: string })
+				.PUBLIC_PARTYKIT_HOST
 		: undefined
-)
-const browserHost = (
+const browserHost =
 	typeof globalThis !== 'undefined' &&
 	'location' in globalThis &&
 	typeof globalThis.location === 'object' &&
 	globalThis.location
 		? globalThis.location.hostname
 		: undefined
-)
-const PARTYKIT_HOST = envHost ?? (browserHost ? `${browserHost}:1999` : 'localhost:1999')
+const PARTYKIT_HOST =
+	envHost ?? (browserHost ? `${browserHost}:1999` : 'localhost:1999')
 
 export type RoomConnection = {
 	socket: PartySocket
@@ -62,13 +79,11 @@ export const connectToRoom = (roomId: string): RoomConnection => {
 	}
 }
 
-export const generateRoomCode = () => (
+export const generateRoomCode = () =>
 	Math.random().toString(36).substring(2, 8).toUpperCase()
-)
 
-export const generatePeerDisplayName = (): string => (
+export const generatePeerDisplayName = (): string =>
 	`${PEER_ADJECTIVES[Math.floor(Math.random() * PEER_ADJECTIVES.length)]} ${PEER_ANIMALS[Math.floor(Math.random() * PEER_ANIMALS.length)]}`
-)
 
 const PEER_DISPLAY_NAME_KEY = 'room-peer-display-name'
 
@@ -88,17 +103,22 @@ const simpleHash = (s: string): number => {
 	return Math.abs(h)
 }
 
-export const peerNameToHue = (name: string): number => (simpleHash(name) % 360)
+export const peerNameToHue = (name: string): number => simpleHash(name) % 360
 
-export const peerNameToEmoji = (displayName: string | undefined, fallbackId: string): string => {
+export const peerNameToEmoji = (
+	displayName: string | undefined,
+	fallbackId: string,
+): string => {
 	if (displayName) {
 		const parts = displayName.trim().split(/\s+/)
 		const animal = parts[parts.length - 1]
-		if (animal && animal in PEER_ANIMAL_EMOJI) return PEER_ANIMAL_EMOJI[animal as keyof typeof PEER_ANIMAL_EMOJI]
+		if (animal && animal in PEER_ANIMAL_EMOJI)
+			return PEER_ANIMAL_EMOJI[animal as keyof typeof PEER_ANIMAL_EMOJI]
 	}
-	return PEER_ANIMAL_EMOJI_LIST[simpleHash(fallbackId) % PEER_ANIMAL_EMOJI_LIST.length]
+	return PEER_ANIMAL_EMOJI_LIST[
+		simpleHash(fallbackId) % PEER_ANIMAL_EMOJI_LIST.length
+	]
 }
 
-export const createRoom = (_name?: string): Promise<string> => (
+export const createRoom = (_name?: string): Promise<string> =>
 	Promise.resolve(generateRoomCode())
-)

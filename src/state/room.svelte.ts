@@ -19,7 +19,9 @@ import type { RoomPeer } from '$/collections/room-peers'
 import type { SharedAddress } from '$/collections/shared-addresses'
 import type { SiweChallenge } from '$/collections/siwe-challenges'
 
-const SIWE_DEBUG = typeof import.meta !== 'undefined' && (import.meta as { env?: { DEV?: boolean } }).env?.DEV
+const SIWE_DEBUG =
+	typeof import.meta !== 'undefined' &&
+	(import.meta as { env?: { DEV?: boolean } }).env?.DEV
 
 type RoomStateSync = {
 	room: Room
@@ -29,7 +31,11 @@ type RoomStateSync = {
 }
 
 function upsert<T extends object>(
-	col: { state: Map<string, T>; insert: (row: T) => void; update: (key: string, fn: (draft: T) => void) => void },
+	col: {
+		state: Map<string, T>
+		insert: (row: T) => void
+		update: (key: string, fn: (draft: T) => void) => void
+	},
 	row: T,
 	getKey: (row: T) => string,
 ) {
@@ -54,37 +60,52 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 		upsert(roomPeersCollection, p, (r) => r.id)
 	}
 	for (const [key, row] of roomPeersCollection.state) {
-		if (row.roomId === roomId && !peerIds.has(key)) roomPeersCollection.delete(key)
+		if (row.roomId === roomId && !peerIds.has(key))
+			roomPeersCollection.delete(key)
 	}
 	for (const s of state.sharedAddresses) {
 		upsert(sharedAddressesCollection, s, (r) => r.id)
 	}
 	for (const [key, row] of sharedAddressesCollection.state) {
-		if (row.roomId === roomId && !sharedIds.has(row.id)) sharedAddressesCollection.delete(key)
+		if (row.roomId === roomId && !sharedIds.has(row.id))
+			sharedAddressesCollection.delete(key)
 	}
 	for (const c of state.challenges) {
 		upsert(siweChallengesCollection, c, (r) => r.id)
 	}
 	for (const [key, row] of siweChallengesCollection.state) {
-		if (row.roomId === roomId && !challengeIds.has(row.id)) siweChallengesCollection.delete(key)
+		if (row.roomId === roomId && !challengeIds.has(row.id))
+			siweChallengesCollection.delete(key)
 	}
 }
 
 function handleServerMessage(msg: RoomMessage) {
 	switch (msg.type) {
 		case 'sync':
-			syncStateToCollections((msg.state as RoomStateSync).room.id, msg.state as RoomStateSync)
+			syncStateToCollections(
+				(msg.state as RoomStateSync).room.id,
+				msg.state as RoomStateSync,
+			)
 			break
 		case 'challenge': {
 			const ch = msg.challenge as SiweChallenge
 			if (SIWE_DEBUG) {
-				console.debug('[SIWE] challenge received', { id: ch.id, from: ch.fromPeerId, to: ch.toPeerId, address: ch.address })
+				console.debug('[SIWE] challenge received', {
+					id: ch.id,
+					from: ch.fromPeerId,
+					to: ch.toPeerId,
+					address: ch.address,
+				})
 			}
 			upsert(siweChallengesCollection, ch, (r) => r.id)
 			break
 		}
 		case 'verify-result': {
-			if (SIWE_DEBUG) console.debug('[SIWE] verify-result received', { challengeId: msg.challengeId, verified: msg.verified })
+			if (SIWE_DEBUG)
+				console.debug('[SIWE] verify-result received', {
+					challengeId: msg.challengeId,
+					verified: msg.verified,
+				})
 			const existing = siweChallengesCollection.state.get(msg.challengeId)
 			if (existing) {
 				siweChallengesCollection.update(msg.challengeId, (draft) => {
@@ -97,7 +118,11 @@ function handleServerMessage(msg: RoomMessage) {
 			const ch = siweChallengesCollection.state.get(msg.challengeId)
 			const amVerifier = ch?.toPeerId === roomState.peerId
 			if (SIWE_DEBUG) {
-				console.debug('[SIWE] submit-signature received', { challengeId: msg.challengeId, amVerifier, myPeerId: roomState.peerId })
+				console.debug('[SIWE] submit-signature received', {
+					challengeId: msg.challengeId,
+					amVerifier,
+					myPeerId: roomState.peerId,
+				})
 			}
 			if (ch && amVerifier) {
 				verifySiweSignature({
@@ -105,7 +130,11 @@ function handleServerMessage(msg: RoomMessage) {
 					signature: msg.signature,
 					expectedAddress: ch.address,
 				}).then((verified) => {
-					if (SIWE_DEBUG) console.debug('[SIWE] sending verify-result', { challengeId: msg.challengeId, verified })
+					if (SIWE_DEBUG)
+						console.debug('[SIWE] sending verify-result', {
+							challengeId: msg.challengeId,
+							verified,
+						})
 					roomState.connection?.send({
 						type: 'verify-result',
 						challengeId: msg.challengeId,

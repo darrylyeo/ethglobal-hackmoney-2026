@@ -62,13 +62,11 @@ export const yellowResources = [
 	},
 ] as const satisfies readonly YellowResourceEntry[]
 
-export const yellowResourcesByType = (
-	Object.fromEntries(
-		Map.groupBy(yellowResources, (entry) => entry.resource)
-			.entries()
-			.map(([resource, entries]) => [
-				resource,
-				Object.fromEntries(entries.map((entry) => [entry.chainId, entry.value])),
-			])
-	)
+export const yellowResourcesByType = Object.fromEntries(
+	Map.groupBy(yellowResources, (entry) => entry.resource)
+		.entries()
+		.map(([resource, entries]) => [
+			resource,
+			Object.fromEntries(entries.map((entry) => [entry.chainId, entry.value])),
+		]),
 )

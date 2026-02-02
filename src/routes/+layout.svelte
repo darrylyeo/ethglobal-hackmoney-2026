@@ -6,8 +6,7 @@
 	// import { networkStatus } from '$/api/network-status.svelte'
 	// import { networks } from '$/constants/networks'
 
-	let showGraph =
-		$state(false)
+	let showGraph = $state(false)
 
 	// (Derived)
 	// $effect(() => {
@@ -23,10 +22,8 @@
 	import ToastContainer from '$/components/ToastContainer.svelte'
 	import GraphScene from '$/routes/GraphScene.svelte'
 
-
 	// Images
 	import favicon from '$/lib/assets/favicon.svg'
-
 
 	// Styles
 	import '$/styles/reset.css'
@@ -38,21 +35,20 @@
 	import '$/styles/bits-ui.css'
 </script>
 
-
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
 
 <div
-	class="layout"
+	id="layout"
 	data-scroll-container
 	data-sticky-container
 >
 	<a href="#main-content" class="skip-link">Skip to main content</a>
 
-		<Navigation
-			navigationItems={[
+	<Navigation
+		navigationItems={[
 			{
 				id: 'bridge',
 				title: 'Bridge',
@@ -105,11 +101,11 @@
 				],
 			},
 		]}
-		>
-			<!-- {#snippet headerActions()}
+	>
+		<!-- {#snippet headerActions()}
 				<NetworkStatusIndicator />
 			{/snippet} -->
-		</Navigation>
+	</Navigation>
 
 	<main id="main-content" tabindex="-1">
 		<Boundary>
@@ -125,14 +121,14 @@
 		</Boundary>
 	</main>
 
-	<ToastContainer
-		position="bottom-right"
-	/>
+	<ToastContainer position="bottom-right" />
 
 	<button
 		type="button"
 		class="graph-toggle"
-		onclick={() => { showGraph = !showGraph }}
+		onclick={() => {
+			showGraph = !showGraph
+		}}
 		title={showGraph ? 'Hide data graph' : 'Show data graph'}
 	>
 		{showGraph ? '✕' : '◉'}
@@ -140,7 +136,6 @@
 
 	<GraphScene visible={showGraph} />
 </div>
-
 
 <style>
 	.layout {
@@ -187,7 +182,6 @@
 				'Main' 1fr
 				/ minmax(auto, 1fr)
 			;
-		}
 
 		.layout[data-sticky-container] {
 			--sticky-marginBlockStart: var(--separator-width);

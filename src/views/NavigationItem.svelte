@@ -9,7 +9,6 @@
 	}
 </script>
 
-
 <script lang="ts">
 	// Context
 	import { preloadData } from '$app/navigation'
@@ -23,30 +22,24 @@
 		currentPathname: string
 	} = $props()
 
-
 	// State
 	import { SvelteMap } from 'svelte/reactivity'
 
-	let isOpen = $state(
-		new SvelteMap<NavigationItem, boolean>()
-	)
+	let isOpen = $state(new SvelteMap<NavigationItem, boolean>())
 
-	let searchValue = $state(
-		''
-	)
+	let searchValue = $state('')
 
-	let effectiveSearchValue = $derived(
-		searchValue.trim().toLowerCase()
-	)
-
+	let effectiveSearchValue = $derived(searchValue.trim().toLowerCase())
 
 	// Functions
-	const hasCurrentPage = (item: NavigationItem) => (
-		currentPathname === item.href
-		|| (item.children?.some(hasCurrentPage) ?? false)
-	)
+	const hasCurrentPage = (item: NavigationItem) =>
+		currentPathname === item.href ||
+		(item.children?.some(hasCurrentPage) ?? false)
 
-	const fuzzyMatch = (text: string, query: string): [number, number][] | undefined => {
+	const fuzzyMatch = (
+		text: string,
+		query: string,
+	): [number, number][] | undefined => {
 		const ranges: [number, number][] = []
 		let textIndex = 0
 
@@ -69,40 +62,33 @@
 		return ranges
 	}
 
-	const matchesSearch = (item: NavigationItem, query: string): boolean => (
-		!query
-		|| !!fuzzyMatch(item.title, query)
-		|| (item.children?.some((child) => matchesSearch(child, query)) ?? false)
-	)
+	const matchesSearch = (item: NavigationItem, query: string): boolean =>
+		!query ||
+		!!fuzzyMatch(item.title, query) ||
+		(item.children?.some((child) => matchesSearch(child, query)) ?? false)
 
-	const escapeHtml = (s: string) => (
+	const escapeHtml = (s: string) =>
 		s
 			.replace(/&/g, '&amp;')
 			.replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;')
 			.replace(/"/g, '&quot;')
 			.replace(/'/g, '&#39;')
-	)
 
 	const highlightText = (text: string, query: string) => {
 		const ranges = fuzzyMatch(text, query)
 
-		return (
-			ranges ?
-				[
+		return ranges
+			? [
 					...ranges.flatMap(([start, end], i, arr) => [
 						escapeHtml(text.slice(arr[i - 1]?.[1] ?? 0, start)),
 						`<mark>${escapeHtml(text.slice(start, end))}</mark>`,
 					]),
 					escapeHtml(text.slice(ranges.at(-1)?.[1] ?? 0)),
-				]
-					.join('')
-			:
-				escapeHtml(text)
-		)
+				].join('')
+			: escapeHtml(text)
 	}
 </script>
-
 
 <search class="nav-items" data-column="gap-3">
 	<input
@@ -110,24 +96,27 @@
 		data-sticky
 		bind:value={searchValue}
 		placeholder="Search (⌘+K)"
-		{@attach element => {
+		{@attach (element) => {
 			const abortController = new AbortController()
 
 			let lastFocusedElement: HTMLElement | undefined = $state()
 
 			globalThis.addEventListener(
 				'keydown',
-				event => {
-					if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+				(event) => {
+					if (
+						(event.metaKey || event.ctrlKey) &&
+						event.key.toLowerCase() === 'k'
+					) {
 						event.preventDefault()
 
-						if(document.activeElement instanceof HTMLElement)
+						if (document.activeElement instanceof HTMLElement)
 							lastFocusedElement = document.activeElement
 
 						element.focus()
 					}
 				},
-				{ signal: abortController.signal }
+				{ signal: abortController.signal },
 			)
 
 			element.addEventListener(
@@ -136,7 +125,7 @@
 					lastFocusedElement?.focus()
 					lastFocusedElement = undefined
 				},
-				{ signal: abortController.signal }
+				{ signal: abortController.signal },
 			)
 
 			return () => {
@@ -145,24 +134,17 @@
 				lastFocusedElement = undefined
 			}
 		}}
-		onkeyup={event => {
-			if (event.key === 'Escape')
-				event.currentTarget.blur()
+		onkeyup={(event) => {
+			if (event.key === 'Escape') event.currentTarget.blur()
 		}}
 	/>
 
 	{@render navigationItems(items)}
 </search>
 
-
 {#snippet navigationItems(items: NavigationItem[])}
 	<menu>
-		{#each (
-			effectiveSearchValue ?
-				items.filter(item => matchesSearch(item, effectiveSearchValue))
-			:
-				items
-		) as item (item.id)}
+		{#each effectiveSearchValue ? items.filter( (item) => matchesSearch(item, effectiveSearchValue), ) : items as item (item.id)}
 			<li>
 				{@render navigationItem(item)}
 			</li>
@@ -170,22 +152,19 @@
 	</menu>
 {/snippet}
 
-
 {#snippet navigationItem(item: NavigationItem)}
 	{#if !item.children?.length}
 		{@render linkable(item)}
 	{:else}
 		<details
 			bind:open={
-				() => (
-					effectiveSearchValue ?
-						matchesSearch(item, effectiveSearchValue)
-					:
-						isOpen.get(item) ?? isOpen.set(item, hasCurrentPage(item)).get(item)
-				),
-				_ => {
-					if (!effectiveSearchValue && _ !== undefined)
-						isOpen.set(item, _)
+				() =>
+					effectiveSearchValue
+						? matchesSearch(item, effectiveSearchValue)
+						: (isOpen.get(item) ??
+							isOpen.set(item, hasCurrentPage(item)).get(item)),
+				(_) => {
+					if (!effectiveSearchValue && _ !== undefined) isOpen.set(item, _)
 				}
 			}
 			data-sticky-container
@@ -198,7 +177,6 @@
 		</details>
 	{/if}
 {/snippet}
-
 
 {#snippet linkable(item: NavigationItem)}
 	{#if item.href}
@@ -219,17 +197,24 @@
 				<span class="icon">{@html escapeHtml(item.icon)}</span>
 			{/if}
 
-			<span>{@html effectiveSearchValue ? highlightText(item.title, effectiveSearchValue) : escapeHtml(item.title)}</span>
+			<span
+				>{@html effectiveSearchValue
+					? highlightText(item.title, effectiveSearchValue)
+					: escapeHtml(item.title)}</span
+			>
 		</a>
 	{:else}
 		{#if item.icon}
 			<span class="icon">{@html escapeHtml(item.icon)}</span>
 		{/if}
 
-		<span>{@html effectiveSearchValue ? highlightText(item.title, effectiveSearchValue) : escapeHtml(item.title)}</span>
+		<span
+			>{@html effectiveSearchValue
+				? highlightText(item.title, effectiveSearchValue)
+				: escapeHtml(item.title)}</span
+		>
 	{/if}
 {/snippet}
-
 
 <style>
 	.nav-items menu {

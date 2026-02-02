@@ -25,17 +25,20 @@
 	let selectedChainId = $state<number | null>(null)
 
 	const roomId = $derived(data.roomId)
-	const selectedWallets = $derived(connectedWallets.filter((w) => w.connection.selected))
-	const selectedAddresses = $derived(
-		[...new Set(selectedWallets.flatMap((w) => w.connection.actors ?? []))]
+	const selectedWallets = $derived(
+		connectedWallets.filter((w) => w.connection.selected),
 	)
+	const selectedAddresses = $derived([
+		...new Set(selectedWallets.flatMap((w) => w.connection.actors ?? [])),
+	])
 	const provider = $derived(selectedWallets[0]?.wallet.provider ?? null)
 
 	const peersQuery = useLiveQuery(
-		(q) => q
-			.from({ row: roomPeersCollection })
-			.where(({ row }) => eq(row.roomId, roomId))
-			.select(({ row }) => ({ row })),
+		(q) =>
+			q
+				.from({ row: roomPeersCollection })
+				.where(({ row }) => eq(row.roomId, roomId))
+				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
 	const peers = $derived((peersQuery.data ?? []).map((r) => r.row))
@@ -100,11 +103,7 @@
 					<header data-row="wrap gap-2 align-center">
 						<Peer peer={me} />
 					</header>
-					<AddressSharing
-						{roomId}
-						addresses={selectedAddresses}
-						{provider}
-					/>
+					<AddressSharing {roomId} addresses={selectedAddresses} {provider} />
 				{:else}
 					<p>Connecting…</p>
 				{/if}

@@ -6,23 +6,27 @@
 	import { Select } from 'bits-ui'
 
 	const defaultItemLabel = (item: Item) => String(item)
-	const isRecord = (value: unknown): value is Record<string, unknown> => (
+	const isRecord = (value: unknown): value is Record<string, unknown> =>
 		typeof value === 'object' && value !== null
-	)
-	const isGroup = (value: unknown): value is {
+	const isGroup = (
+		value: unknown,
+	): value is {
 		id?: string
 		label: string
 		items: readonly Item[]
-	} => (
-		isRecord(value)
-		&& typeof value.label === 'string'
-		&& Array.isArray(value.items)
-	)
+	} =>
+		isRecord(value) &&
+		typeof value.label === 'string' &&
+		Array.isArray(value.items)
 	const isGroupedItems = (
-		value: readonly Item[] | readonly { id?: string; label: string; items: readonly Item[] }[],
-	): value is readonly { id?: string; label: string; items: readonly Item[] }[] => (
-		value.length > 0 && isGroup(value[0])
-	)
+		value:
+			| readonly Item[]
+			| readonly { id?: string; label: string; items: readonly Item[] }[],
+	): value is readonly {
+		id?: string
+		label: string
+		items: readonly Item[]
+	}[] => value.length > 0 && isGroup(value[0])
 
 	// Props
 	let {
@@ -45,7 +49,9 @@
 		children,
 		...rootProps
 	}: {
-		items: readonly Item[] | readonly { id?: string; label: string; items: readonly Item[] }[]
+		items:
+			| readonly Item[]
+			| readonly { id?: string; label: string; items: readonly Item[] }[]
 		value?: string | string[]
 		type?: 'single' | 'multiple'
 		placeholder?: string
@@ -67,56 +73,51 @@
 
 	// (Derived)
 	const normalizedItems = $derived(
-		(
-			isGroupedItems(items)
-				? items.flatMap((group) => group.items)
-				: items
-		).map((item) => ({
-			item,
-			id: getItemId(item),
-			label: getItemLabel(item),
-			disabled: getItemDisabled ? getItemDisabled(item) : false,
-		}))
+		(isGroupedItems(items) ? items.flatMap((group) => group.items) : items).map(
+			(item) => ({
+				item,
+				id: getItemId(item),
+				label: getItemLabel(item),
+				disabled: getItemDisabled ? getItemDisabled(item) : false,
+			}),
+		),
 	)
 	const normalizedGroups = $derived(
 		isGroupedItems(items)
 			? items.map((group) => ({
-				id: group.id ?? group.label,
-				label: group.label,
-				items: group.items.map((item) => ({
-					item,
-					id: getItemId(item),
-					label: getItemLabel(item),
-					disabled: getItemDisabled ? getItemDisabled(item) : false,
-				})),
-			}))
-			: []
+					id: group.id ?? group.label,
+					label: group.label,
+					items: group.items.map((item) => ({
+						item,
+						id: getItemId(item),
+						label: getItemLabel(item),
+						disabled: getItemDisabled ? getItemDisabled(item) : false,
+					})),
+				}))
+			: [],
 	)
 	const triggerLabel = $derived(
 		type === 'multiple'
-			? (
-				Array.isArray(value) && value.length > 0
-					? normalizedItems
+			? Array.isArray(value) && value.length > 0
+				? normalizedItems
 						.filter((item) => value.includes(item.id))
 						.map((item) => item.label)
 						.join(', ')
-					: placeholder ?? ''
-			)
-			: (
-				typeof value === 'string'
+				: (placeholder ?? '')
+			: ((typeof value === 'string'
 					? normalizedItems.find((item) => item.id === value)?.label
-					: null
-			) ?? placeholder ?? ''
+					: null) ??
+					placeholder ??
+					''),
 	)
 	const rootItems = $derived(
 		normalizedItems.map((item) => ({
 			value: item.id,
 			label: item.label,
 			disabled: item.disabled,
-		}))
+		})),
 	)
 </script>
-
 
 {#if type === 'multiple'}
 	<Select.Root
@@ -127,12 +128,12 @@
 		{name}
 		{allowDeselect}
 		items={rootItems}
-		onValueChange={onValueChange}
+		{onValueChange}
 	>
 		{#if children}
 			{@render children()}
 		{:else}
-			<Select.Trigger id={id} aria-label={ariaLabel}>
+			<Select.Trigger {id} aria-label={ariaLabel}>
 				<span data-row="gap-1 align-center">
 					{#if Before}
 						{@render Before()}
@@ -198,12 +199,12 @@
 		{name}
 		{allowDeselect}
 		items={rootItems}
-		onValueChange={onValueChange}
+		{onValueChange}
 	>
 		{#if children}
 			{@render children()}
 		{:else}
-			<Select.Trigger id={id} aria-label={ariaLabel}>
+			<Select.Trigger {id} aria-label={ariaLabel}>
 				<span data-row="gap-1 align-center">
 					{#if Before}
 						{@render Before()}

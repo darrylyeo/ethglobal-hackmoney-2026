@@ -3,7 +3,10 @@
  * Tracks on-chain allowances to avoid redundant approval transactions.
  */
 
-import { createCollection, localStorageCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localStorageCollectionOptions,
+} from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import { createHttpProvider, getErc20Allowance } from '$/api/voltaire'
@@ -32,11 +35,12 @@ export const actorAllowancesCollection = createCollection(
 	}),
 )
 
-export const getActorAllowance = ($id: ActorAllowance$id) => (
+export const getActorAllowance = ($id: ActorAllowance$id) =>
 	actorAllowancesCollection.state.get(stringify($id))
-)
 
-export const fetchActorAllowance = async ($id: ActorAllowance$id): Promise<ActorAllowanceRow> => {
+export const fetchActorAllowance = async (
+	$id: ActorAllowance$id,
+): Promise<ActorAllowanceRow> => {
 	const key = stringify($id)
 	const existing = actorAllowancesCollection.state.get(key)
 
@@ -91,7 +95,10 @@ export const hasApproval = ($id: ActorAllowance$id, amount: bigint) => {
 }
 
 // Update allowance after successful approval tx (optimistic)
-export const setActorAllowance = ($id: ActorAllowance$id, allowance: bigint) => {
+export const setActorAllowance = (
+	$id: ActorAllowance$id,
+	allowance: bigint,
+) => {
 	const key = stringify($id)
 	const existing = actorAllowancesCollection.state.get(key)
 	if (existing) {

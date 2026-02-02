@@ -12,30 +12,20 @@
 	import Wallets from './lifi/Wallets.svelte'
 </script>
 
-
 <svelte:head>
 	<title>USDC Bridge</title>
 </svelte:head>
 
-
 <details open data-card>
 	<summary>
 		<header data-card="secondary" data-row="wrap gap-2">
-			<Wallets
-				bind:connectedWallets
-				bind:selectedActor
-			/>
+			<Wallets bind:connectedWallets bind:selectedActor />
 		</header>
 	</summary>
 
 	<div data-column="gap-6">
 		<h1>USDC Bridge</h1>
-		<Balances
-			{selectedActor}
-		/>
-		<UnifiedBridgeFlow
-			selectedWallets={connectedWallets}
-			{selectedActor}
-		/>
+		<Balances {selectedActor} />
+		<UnifiedBridgeFlow selectedWallets={connectedWallets} {selectedActor} />
 	</div>
 </details>

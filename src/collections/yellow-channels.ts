@@ -2,9 +2,17 @@
  * Yellow channels: payment channels between actors (in-memory, synced from Clearnode).
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
-export type ChannelStatus = 'pending' | 'active' | 'closing' | 'closed' | 'disputed'
+export type ChannelStatus =
+	| 'pending'
+	| 'active'
+	| 'closing'
+	| 'closed'
+	| 'disputed'
 
 export type YellowChannel = {
 	id: string

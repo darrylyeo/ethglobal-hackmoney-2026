@@ -6,9 +6,12 @@ import {
 	type StoredTransaction,
 } from './tx-history'
 
-const testAddress = '0x1234567890123456789012345678901234567890' as `0x${string}`
+const testAddress =
+	'0x1234567890123456789012345678901234567890' as `0x${string}`
 
-const makeTx = (overrides: Partial<StoredTransaction> = {}): StoredTransaction => ({
+const makeTx = (
+	overrides: Partial<StoredTransaction> = {},
+): StoredTransaction => ({
 	id: 'tx-1',
 	address: testAddress,
 	fromChainId: 1,

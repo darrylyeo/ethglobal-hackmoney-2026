@@ -115,14 +115,20 @@ describe('isBridgeError', () => {
 
 describe('isRetryable', () => {
 	it('returns error.retryable', () => {
-		expect(isRetryable({ retryable: true } as Parameters<typeof isRetryable>[0])).toBe(true)
-		expect(isRetryable({ retryable: false } as Parameters<typeof isRetryable>[0])).toBe(false)
+		expect(
+			isRetryable({ retryable: true } as Parameters<typeof isRetryable>[0]),
+		).toBe(true)
+		expect(
+			isRetryable({ retryable: false } as Parameters<typeof isRetryable>[0]),
+		).toBe(false)
 	})
 })
 
 describe('getRetryDelay', () => {
 	it('uses error.retryDelay when set', () => {
-		const e = { retryDelay: 30_000, retryable: true } as Parameters<typeof getRetryDelay>[0]
+		const e = { retryDelay: 30_000, retryable: true } as Parameters<
+			typeof getRetryDelay
+		>[0]
 		expect(getRetryDelay(e, 1)).toBe(30_000)
 	})
 	it('applies exponential backoff', () => {

@@ -2,7 +2,10 @@
  * Yellow transfers: off-chain transfers within channels (in-memory).
  */
 
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
 export type YellowTransfer = {
 	id: string

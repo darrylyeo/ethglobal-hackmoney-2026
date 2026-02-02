@@ -39,7 +39,9 @@ export const createSiweMessage = (params: SiweMessageParams): string => {
 	return lines.join('\n')
 }
 
-const SIWE_DEBUG = typeof window !== 'undefined' && (import.meta as { env?: { DEV?: boolean } }).env?.DEV
+const SIWE_DEBUG =
+	typeof window !== 'undefined' &&
+	(import.meta as { env?: { DEV?: boolean } }).env?.DEV
 
 export const verifySiweSignature = async (params: {
 	message: string
@@ -56,7 +58,8 @@ export const verifySiweSignature = async (params: {
 			expected: params.expectedAddress,
 			recovered,
 			ok,
-			messagePreview: params.message.slice(0, 80) + (params.message.length > 80 ? '…' : ''),
+			messagePreview:
+				params.message.slice(0, 80) + (params.message.length > 80 ? '…' : ''),
 		})
 	}
 	return ok
@@ -72,12 +75,19 @@ export const signSiweMessage = async (params: {
 	address: `0x${string}`
 }): Promise<`0x${string}`> => {
 	if (SIWE_DEBUG) {
-		console.debug('[SIWE] sign requested', { address: params.address, messagePreview: params.message.slice(0, 80) + (params.message.length > 80 ? '…' : '') })
+		console.debug('[SIWE] sign requested', {
+			address: params.address,
+			messagePreview:
+				params.message.slice(0, 80) + (params.message.length > 80 ? '…' : ''),
+		})
 	}
 	const sig = await params.provider.request({
 		method: 'personal_sign',
 		params: [params.message, params.address],
 	})
-	if (SIWE_DEBUG) console.debug('[SIWE] sign result', { signature: (sig as string).slice(0, 20) + '…' })
+	if (SIWE_DEBUG)
+		console.debug('[SIWE] sign result', {
+			signature: (sig as string).slice(0, 20) + '…',
+		})
 	return sig as `0x${string}`
 }

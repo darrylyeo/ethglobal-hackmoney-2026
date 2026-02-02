@@ -10,21 +10,28 @@ const CLS_MAX = 0.1
 const TBT_MS = 300
 
 function isUrl(s) {
-	return typeof s === 'string' && (s.startsWith('http://') || s.startsWith('https://'))
+	return (
+		typeof s === 'string' &&
+		(s.startsWith('http://') || s.startsWith('https://'))
+	)
 }
 
 function runLighthouse(baseUrl) {
-	const url = baseUrl.endsWith('/bridge') ? baseUrl : `${baseUrl.replace(/\/$/, '')}/bridge`
+	const url = baseUrl.endsWith('/bridge')
+		? baseUrl
+		: `${baseUrl.replace(/\/$/, '')}/bridge`
 	try {
 		execSync(
 			`npx lighthouse "${url}" --output=json --output-path="${reportPath}" --only-categories=performance --form-factor=mobile --chrome-flags="--headless --no-sandbox --disable-gpu"`,
-			{ stdio: 'inherit', maxBuffer: 10 * 1024 * 1024 }
+			{ stdio: 'inherit', maxBuffer: 10 * 1024 * 1024 },
 		)
 		return true
 	} catch (e) {
 		const out = String(e.stderr ?? e.stdout ?? e.message ?? '')
 		if (/Chrome|chromium|not found/i.test(out)) {
-			console.warn('Skipping Lighthouse (Chrome not available). Pass a pre-generated report path to verify.')
+			console.warn(
+				'Skipping Lighthouse (Chrome not available). Pass a pre-generated report path to verify.',
+			)
 			return false
 		}
 		process.exit(1)
@@ -52,9 +59,13 @@ if (isUrl(input)) {
 	if (!runLighthouse(input)) process.exit(0)
 }
 
-const reportFile = isUrl(input) ? reportPath : path.resolve(process.cwd(), input)
+const reportFile = isUrl(input)
+	? reportPath
+	: path.resolve(process.cwd(), input)
 if (!fs.existsSync(reportFile)) {
-	console.error('No report found. Run with BASE_URL or pass path to Lighthouse JSON report.')
+	console.error(
+		'No report found. Run with BASE_URL or pass path to Lighthouse JSON report.',
+	)
 	process.exit(1)
 }
 

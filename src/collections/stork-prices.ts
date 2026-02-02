@@ -1,4 +1,7 @@
-import { createCollection, localOnlyCollectionOptions } from '@tanstack/svelte-db'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
 import { decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
 import { toBytes } from '@tevm/voltaire/Hex'
@@ -44,21 +47,13 @@ type StorkSubscriptionParams = {
 	chainId?: number | null
 }
 
-const DEFAULT_TRANSPORTS: StorkPriceTransport[] = [
-	'websocket',
-	'rest',
-	'rpc',
-]
+const DEFAULT_TRANSPORTS: StorkPriceTransport[] = ['websocket', 'rest', 'rpc']
 
-const isRecord = (value: unknown): value is Record<string, unknown> => (
+const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null
-)
 
-const toBigInt = (value: unknown): bigint | null => (
-	typeof value === 'string' || typeof value === 'number'
-		? BigInt(value)
-		: null
-)
+const toBigInt = (value: unknown): bigint | null =>
+	typeof value === 'string' || typeof value === 'number' ? BigInt(value) : null
 
 const storkPricesCollection = createCollection(
 	localOnlyCollectionOptions({
@@ -79,7 +74,10 @@ const updateStorkPrice = (row: StorkPriceRow) => {
 	}
 }
 
-const setStorkPriceLoading = ($id: StorkPrice$id, encodedAssetId: string | null) => {
+const setStorkPriceLoading = (
+	$id: StorkPrice$id,
+	encodedAssetId: string | null,
+) => {
 	const key = stringify($id)
 	const existing = storkPricesCollection.state.get(key)
 	const next = {
@@ -97,7 +95,11 @@ const setStorkPriceLoading = ($id: StorkPrice$id, encodedAssetId: string | null)
 	updateStorkPrice(next)
 }
 
-const setStorkPriceError = ($id: StorkPrice$id, encodedAssetId: string | null, error: string) => {
+const setStorkPriceError = (
+	$id: StorkPrice$id,
+	encodedAssetId: string | null,
+	error: string,
+) => {
 	const key = stringify($id)
 	const existing = storkPricesCollection.state.get(key)
 	updateStorkPrice({
@@ -138,7 +140,10 @@ const upsertStorkPricePayload = (
 	})
 }
 
-const readStorkPricePayload = (value: unknown, assetId: string): StorkPricePayload | null => {
+const readStorkPricePayload = (
+	value: unknown,
+	assetId: string,
+): StorkPricePayload | null => {
 	if (!isRecord(value)) return null
 	const price = toBigInt(value.price)
 	const timestampNs = toBigInt(value.timestamp)
@@ -162,7 +167,11 @@ const fetchRestPrices = async (assetIds: string[]) => {
 	const baseUrl = env.PUBLIC_STORK_REST_URL ?? storkRestBaseUrl
 	if (!token) {
 		for (const assetId of assetIds) {
-			setStorkPriceError({ assetId, transport: 'rest' }, storkEncodedAssetIdByAssetId[assetId] ?? null, 'Missing PUBLIC_STORK_REST_TOKEN')
+			setStorkPriceError(
+				{ assetId, transport: 'rest' },
+				storkEncodedAssetIdByAssetId[assetId] ?? null,
+				'Missing PUBLIC_STORK_REST_TOKEN',
+			)
 		}
 		return
 	}
@@ -182,14 +191,21 @@ const fetchRestPrices = async (assetIds: string[]) => {
 	}
 	for (const assetId of assetIds) {
 		if (!seen.has(assetId)) {
-			setStorkPriceError({ assetId, transport: 'rest' }, storkEncodedAssetIdByAssetId[assetId] ?? null, 'No REST price returned')
+			setStorkPriceError(
+				{ assetId, transport: 'rest' },
+				storkEncodedAssetIdByAssetId[assetId] ?? null,
+				'No REST price returned',
+			)
 		}
 	}
 }
 
 const createRestSubscription = (assetIds: string[]) => {
 	for (const assetId of assetIds) {
-		setStorkPriceLoading({ assetId, transport: 'rest' }, storkEncodedAssetIdByAssetId[assetId] ?? null)
+		setStorkPriceLoading(
+			{ assetId, transport: 'rest' },
+			storkEncodedAssetIdByAssetId[assetId] ?? null,
+		)
 	}
 	const fetchNow = () => {
 		fetchRestPrices(assetIds).catch((error) => {
@@ -214,7 +230,8 @@ const fetchStorkDeployments = async () => {
 	const baseUrl = env.PUBLIC_STORK_REST_URL ?? storkRestBaseUrl
 	const url = new URL('/v1/deployments/evm', baseUrl)
 	const response = await fetch(url.toString())
-	if (!response.ok) throw new Error(`Stork deployments error: ${response.status}`)
+	if (!response.ok)
+		throw new Error(`Stork deployments error: ${response.status}`)
 	const data = await response.json()
 	const rows = isRecord(data) && Array.isArray(data.data) ? data.data : []
 	const deployments = new Map<number, string>()
@@ -222,7 +239,8 @@ const fetchStorkDeployments = async () => {
 		if (!isRecord(entry)) continue
 		const chainId = entry.chain_id
 		const proxyAddress = entry.proxy_address
-		if (typeof chainId !== 'number' || typeof proxyAddress !== 'string') continue
+		if (typeof chainId !== 'number' || typeof proxyAddress !== 'string')
+			continue
 		deployments.set(chainId, proxyAddress)
 	}
 	storkDeployments = deployments
@@ -259,7 +277,9 @@ const STORK_VALUE_OUTPUTS = [
 	},
 ] as const
 
-const readTemporalNumericValue = (value: unknown): { timestampNs: bigint; quantizedValue: bigint } | null => {
+const readTemporalNumericValue = (
+	value: unknown,
+): { timestampNs: bigint; quantizedValue: bigint } | null => {
 	if (Array.isArray(value)) {
 		const [timestampNs, quantizedValue] = value
 		if (typeof timestampNs === 'bigint' && typeof quantizedValue === 'bigint') {
@@ -279,32 +299,39 @@ const readTemporalNumericValue = (value: unknown): { timestampNs: bigint; quanti
 const fetchRpcPrice = async (assetId: string, chainId: number) => {
 	const encodedAssetId = storkEncodedAssetIdByAssetId[assetId]
 	if (!encodedAssetId) {
-		setStorkPriceError({ assetId, transport: 'rpc', chainId }, null, 'Missing encoded asset id')
+		setStorkPriceError(
+			{ assetId, transport: 'rpc', chainId },
+			null,
+			'Missing encoded asset id',
+		)
 		return
 	}
 	const rpcUrl = rpcUrls[chainId]
 	if (!rpcUrl) {
-		setStorkPriceError({ assetId, transport: 'rpc', chainId }, encodedAssetId, `No RPC URL for chain ${chainId}`)
+		setStorkPriceError(
+			{ assetId, transport: 'rpc', chainId },
+			encodedAssetId,
+			`No RPC URL for chain ${chainId}`,
+		)
 		return
 	}
 	const deployments = await fetchStorkDeployments()
 	const contractAddress = deployments.get(chainId)
 	if (!contractAddress) {
-		setStorkPriceError({ assetId, transport: 'rpc', chainId }, encodedAssetId, `No Stork contract for chain ${chainId}`)
+		setStorkPriceError(
+			{ assetId, transport: 'rpc', chainId },
+			encodedAssetId,
+			`No Stork contract for chain ${chainId}`,
+		)
 		return
 	}
 	const provider = createHttpProvider(rpcUrl)
-	const data = encodeFunction(
-		STORK_VALUE_ABI,
-		'getTemporalNumericValueV1',
-		[encodedAssetId],
-	)
+	const data = encodeFunction(STORK_VALUE_ABI, 'getTemporalNumericValueV1', [
+		encodedAssetId,
+	])
 	const result = await provider.request({
 		method: 'eth_call',
-		params: [
-			{ to: contractAddress, data },
-			'latest',
-		],
+		params: [{ to: contractAddress, data }, 'latest'],
 	})
 	if (typeof result !== 'string' || !result || result === '0x') {
 		throw new Error('Stork RPC returned invalid data')
@@ -325,19 +352,22 @@ const fetchRpcPrice = async (assetId: string, chainId: number) => {
 
 const createRpcSubscription = (assetIds: string[], chainId: number) => {
 	for (const assetId of assetIds) {
-		setStorkPriceLoading({ assetId, transport: 'rpc', chainId }, storkEncodedAssetIdByAssetId[assetId] ?? null)
+		setStorkPriceLoading(
+			{ assetId, transport: 'rpc', chainId },
+			storkEncodedAssetIdByAssetId[assetId] ?? null,
+		)
 	}
 	const fetchNow = () => {
 		Promise.all(
-			assetIds.map((assetId) => (
+			assetIds.map((assetId) =>
 				fetchRpcPrice(assetId, chainId).catch((error) => {
 					setStorkPriceError(
 						{ assetId, transport: 'rpc', chainId },
 						storkEncodedAssetIdByAssetId[assetId] ?? null,
 						error instanceof Error ? error.message : String(error),
 					)
-				})
-			)),
+				}),
+			),
 		).catch(() => {})
 	}
 	fetchNow()
@@ -357,9 +387,7 @@ const storkWebsocketState: StorkWebsocketState = {
 	connecting: false,
 }
 
-const getWebsocketUrl = () => (
-	env.PUBLIC_STORK_WS_URL ?? storkWebsocketUrl
-)
+const getWebsocketUrl = () => env.PUBLIC_STORK_WS_URL ?? storkWebsocketUrl
 
 const ensureWebsocketConnection = () => {
 	if (storkWebsocketState.socket || storkWebsocketState.connecting) return
@@ -410,7 +438,8 @@ const updateWebsocketSubscriptions = () => {
 }
 
 const createWebsocketSubscription = (assetIds: string[]) => {
-	const needsProxy = getWebsocketUrl() === storkWebsocketUrl && env.PUBLIC_STORK_WS_URL == null
+	const needsProxy =
+		getWebsocketUrl() === storkWebsocketUrl && env.PUBLIC_STORK_WS_URL == null
 	if (needsProxy) {
 		for (const assetId of assetIds) {
 			setStorkPriceError(
@@ -422,7 +451,10 @@ const createWebsocketSubscription = (assetIds: string[]) => {
 		return () => {}
 	}
 	for (const assetId of assetIds) {
-		setStorkPriceLoading({ assetId, transport: 'websocket' }, storkEncodedAssetIdByAssetId[assetId] ?? null)
+		setStorkPriceLoading(
+			{ assetId, transport: 'websocket' },
+			storkEncodedAssetIdByAssetId[assetId] ?? null,
+		)
 		const count = storkWebsocketState.assetCounts.get(assetId) ?? 0
 		storkWebsocketState.assetCounts.set(assetId, count + 1)
 	}
@@ -441,7 +473,10 @@ const createWebsocketSubscription = (assetIds: string[]) => {
 	}
 }
 
-const subscriptionRegistry = new Map<string, { count: number; unsubscribe: () => void }>()
+const subscriptionRegistry = new Map<
+	string,
+	{ count: number; unsubscribe: () => void }
+>()
 
 const registerSubscription = (key: string, create: () => () => void) => {
 	const existing = subscriptionRegistry.get(key)
@@ -478,24 +513,23 @@ export const subscribeStorkPrices = ({
 	const keyAssetIds = [...uniqueAssetIds].sort().join(',')
 	const unsubscribers = transports.flatMap((transport) => {
 		if (transport === 'rest') {
-			return registerSubscription(
-				`rest:${keyAssetIds}`,
-				() => createRestSubscription(uniqueAssetIds),
+			return registerSubscription(`rest:${keyAssetIds}`, () =>
+				createRestSubscription(uniqueAssetIds),
 			)
 		}
 		if (transport === 'websocket') {
-			return registerSubscription(
-				`websocket:${keyAssetIds}`,
-				() => createWebsocketSubscription(uniqueAssetIds),
+			return registerSubscription(`websocket:${keyAssetIds}`, () =>
+				createWebsocketSubscription(uniqueAssetIds),
 			)
 		}
 		if (transport === 'rpc' && chainId !== null) {
-			const rpcAssetIds = uniqueAssetIds.filter((assetId) => assetId in storkEncodedAssetIdByAssetId)
+			const rpcAssetIds = uniqueAssetIds.filter(
+				(assetId) => assetId in storkEncodedAssetIdByAssetId,
+			)
 			if (rpcAssetIds.length === 0) return []
 			const rpcKey = [...rpcAssetIds].sort().join(',')
-			return registerSubscription(
-				`rpc:${chainId}:${rpcKey}`,
-				() => createRpcSubscription(rpcAssetIds, chainId),
+			return registerSubscription(`rpc:${chainId}:${rpcKey}`, () =>
+				createRpcSubscription(rpcAssetIds, chainId),
 			)
 		}
 		return []
@@ -510,10 +544,12 @@ export const getBestStorkPrice = (
 	assetId: string,
 	chainId: number | null,
 ): StorkPriceRow | null => {
-	const candidates = rows.filter((row) => (
-		row.assetId === assetId &&
-		(row.transport !== 'rpc' || (chainId !== null && row.chainId === chainId))
-	))
+	const candidates = rows.filter(
+		(row) =>
+			row.assetId === assetId &&
+			(row.transport !== 'rpc' ||
+				(chainId !== null && row.chainId === chainId)),
+	)
 	if (candidates.length === 0) return null
 	const priority = ['rpc', 'websocket', 'rest'] as const
 	for (const transport of priority) {
@@ -522,7 +558,10 @@ export const getBestStorkPrice = (
 			.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0]
 		if (best) return best
 	}
-	return candidates.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0] ?? null
+	return (
+		candidates.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0] ??
+		null
+	)
 }
 
 export { storkPricesCollection }

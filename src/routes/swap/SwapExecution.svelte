@@ -5,7 +5,11 @@
 	import { executeSwap } from '$/api/uniswap'
 	import { getTxUrl } from '$/constants/networks'
 	import { toasts } from '$/lib/toast.svelte'
-	import { insertTransaction, updateTransaction, type Transaction$id } from '$/collections/transactions'
+	import {
+		insertTransaction,
+		updateTransaction,
+		type Transaction$id,
+	} from '$/collections/transactions'
 
 	let {
 		quote,
@@ -21,7 +25,11 @@
 		executing?: boolean
 	} = $props()
 
-	let status = $state<{ overall: 'idle' | 'in_progress' | 'completed' | 'failed'; txHash?: `0x${string}`; error?: string }>({ overall: 'idle' })
+	let status = $state<{
+		overall: 'idle' | 'in_progress' | 'completed' | 'failed'
+		txHash?: `0x${string}`
+		error?: string
+	}>({ overall: 'idle' })
 	let actionTx = $state<ReturnType<typeof runExecute> | null>(null)
 
 	$effect(() => {
@@ -32,7 +40,11 @@
 		quote: SwapQuote
 		provider: EIP1193Provider
 		recipient: `0x${string}`
-		onStatus: (s: { overall: string; txHash?: `0x${string}`; error?: string }) => void
+		onStatus: (s: {
+			overall: string
+			txHash?: `0x${string}`
+			error?: string
+		}) => void
 	}>({
 		onMutate: () => {},
 		mutationFn: async ({ quote, provider, recipient, onStatus }) => {
@@ -44,7 +56,11 @@
 				deadline,
 				onStatusChange: onStatus,
 			})
-			const txId: Transaction$id = { address: recipient, sourceTxHash: result.txHash, createdAt: Date.now() }
+			const txId: Transaction$id = {
+				address: recipient,
+				sourceTxHash: result.txHash,
+				createdAt: Date.now(),
+			}
 			insertTransaction({
 				$id: txId,
 				fromChainId: quote.chainId,
@@ -54,7 +70,10 @@
 				destTxHash: result.txHash,
 				status: 'pending',
 			})
-			updateTransaction(txId, { status: 'completed', destTxHash: result.txHash })
+			updateTransaction(txId, {
+				status: 'completed',
+				destTxHash: result.txHash,
+			})
 			return result
 		},
 	})
@@ -66,7 +85,9 @@
 			quote,
 			provider: walletProvider,
 			recipient: walletAddress,
-			onStatus: (s) => { status = s },
+			onStatus: (s) => {
+				status = s
+			},
 		})
 		try {
 			await actionTx!.isPersisted.promise
@@ -75,8 +96,13 @@
 			toasts.success('Swap complete!', { title: 'Success' })
 		} catch (e) {
 			toasts.dismiss(loadingId)
-			status = { overall: 'failed', error: e instanceof Error ? e.message : String(e) }
-			toasts.error(e instanceof Error ? e.message : 'Swap failed', { title: 'Error' })
+			status = {
+				overall: 'failed',
+				error: e instanceof Error ? e.message : String(e),
+			}
+			toasts.error(e instanceof Error ? e.message : 'Swap failed', {
+				title: 'Error',
+			})
 		}
 	}
 </script>
@@ -84,7 +110,11 @@
 {#if status.overall !== 'idle'}
 	<div data-column="gap-1">
 		{#if status.txHash}
-			<a href={getTxUrl(quote.chainId, status.txHash)} target="_blank" rel="noopener noreferrer">{status.txHash.slice(0, 8)}…</a>
+			<a
+				href={getTxUrl(quote.chainId, status.txHash)}
+				target="_blank"
+				rel="noopener noreferrer">{status.txHash.slice(0, 8)}…</a
+			>
 		{/if}
 		{#if status.overall === 'completed'}
 			<p>Swap complete!</p>
