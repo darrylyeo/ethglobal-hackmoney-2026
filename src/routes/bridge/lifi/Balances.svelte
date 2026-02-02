@@ -1,6 +1,8 @@
 <script lang="ts">
 	// Types/constants
+	import { CoinType } from '$/constants/coins'
 	import { ENTITY_TYPE } from '$/constants/entity-types'
+	import { MediaType } from '$/constants/media.ts'
 	import {
 		NetworkType,
 		networks,
@@ -141,6 +143,7 @@
 	})
 
 	// Components
+	import CoinAmount from '$/components/CoinAmount.svelte'
 	import EntityId from '$/components/EntityId.svelte'
 	import StorkPrices from '$/views/StorkPrices.svelte'
 </script>
@@ -155,6 +158,38 @@
 		{/if}
 		<div class="balances-grid">
 			{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
+				{@const token = filteredTokenListCoins.find(
+					(entry) =>
+						entry.chainId === b.$id.chainId &&
+						entry.address.toLowerCase() === b.$id.tokenAddress.toLowerCase(),
+				)}
+				{@const coin = (
+					token ?
+						{
+							type: CoinType.Erc20,
+							chainId: token.chainId,
+							address: token.address,
+							symbol: token.symbol,
+							name: token.name,
+							decimals: token.decimals,
+							icon: token.logoURI
+								? {
+										type: MediaType.Image,
+										original: {
+											url: token.logoURI,
+										},
+									}
+								: undefined,
+						}
+					:
+						{
+							type: CoinType.Erc20,
+							chainId: b.$id.chainId,
+							address: b.$id.tokenAddress,
+							symbol: b.symbol,
+							decimals: b.decimals,
+						}
+				)}
 				{@const network = networksByChainId[b.$id.chainId]}
 				{#if network}
 					{@const intent = {
@@ -173,10 +208,7 @@
 							draggableText={`${b.symbol} ${b.$id.address}`}
 							{intent}
 						>
-							<span data-tabular
-								>{formatSmallestToDecimal(b.balance, b.decimals, 4)}
-								{b.symbol}</span
-							>
+							<CoinAmount coin={coin} amount={b.balance} draggable={false} />
 						</EntityId>
 					</div>
 				{/if}

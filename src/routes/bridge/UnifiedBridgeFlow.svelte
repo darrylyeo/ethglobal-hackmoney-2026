@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import { CoinSymbol, ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
+	import { ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
 	import {
 		validateBridgeAmount,
 		USDC_MIN_AMOUNT,
@@ -49,7 +49,7 @@
 	)
 	const usdcToken = $derived(
 		settings.fromChainId !== null
-			? (ercTokensBySymbolByChainId[settings.fromChainId]?.[CoinSymbol.Usdc] ??
+			? (ercTokensBySymbolByChainId[settings.fromChainId]?.['USDC'] ??
 					ercTokens[0])
 			: ercTokens[0],
 	)

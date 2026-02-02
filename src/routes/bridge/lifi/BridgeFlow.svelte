@@ -7,7 +7,7 @@
 	import type { BridgeRoute } from '$/collections/bridge-routes'
 	import type { WalletRow } from '$/collections/wallets'
 	import { WalletConnectionTransport } from '$/collections/wallet-connections'
-	import { CoinSymbol, ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
+	import { ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
 	import {
 		ChainId,
 		NetworkType,
@@ -141,7 +141,7 @@
 	)
 	const usdcToken = $derived(
 		settings.fromChainId !== null
-			? (ercTokensBySymbolByChainId[settings.fromChainId]?.[CoinSymbol.Usdc] ??
+			? (ercTokensBySymbolByChainId[settings.fromChainId]?.['USDC'] ??
 					ercTokens[0])
 			: ercTokens[0],
 	)
