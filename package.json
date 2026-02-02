@@ -14,7 +14,7 @@
 		"test:unit": "deno task test:unit && vitest run",
 		"test": "deno task test:unit && npm run test:e2e",
 		"test:e2e": "node node_modules/@playwright/test/cli.js test",
-		"check:size": "deno task build && node scripts/check-bundle-size.mjs",
+		"check:size": "pnpm run build && node scripts/check-bundle-size.mjs",
 		"check:perf": "node scripts/check-performance.mjs",
 		"icons:fetch": "bun run scripts/_fetch-chain-icons.ts",
 		"icons:optimize": "svgo static/networks/*.svg",

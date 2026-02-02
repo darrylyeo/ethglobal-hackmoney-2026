@@ -256,7 +256,7 @@ pnpm build && ls -la .svelte-kit/output/client/_app/immutable/
 
 ## Status
 
-Complete. Load/runtime verified by `scripts/check-performance.mjs` + `pnpm run check:perf`: Lighthouse (mobile, /bridge) asserts FCP &lt; 1.5s, LCP &lt; 2.5s, CLS &lt; 0.1, TBT &lt; 300ms (TTI/interactivity and input response implied by low TBT). Run `pnpm run preview` then `pnpm run check:perf` (or pass BASE_URL / path to Lighthouse JSON). Debounce: `src/lib/debounce.ts` (500ms). BridgeFlow: debounced route fetching via `bridgeRoutesCollection`. LI.FI: lazy-loaded via `getLifiSdk()` in `src/api/lifi.ts`; queryClient.fetchQuery staleTime 30s. Format: formatTokenAmount memoized. Images: width/height + loading=lazy, decoding=async. Preload: NavigationItem preloadData(href). Bundle: `pnpm run check:size` (700KB gzip cap).
+Complete. Load/runtime verified by `scripts/check-performance.mjs` + `pnpm run check:perf`: Lighthouse (mobile, /bridge) asserts FCP < 1.5s, LCP < 2.5s, CLS < 0.1, TBT < 300ms. Run `pnpm run preview` then `pnpm run check:perf` (or pass BASE_URL / path to Lighthouse JSON); skips with exit 0 when Chrome unavailable. `check:size`: initial load (entry + layout + bridge node and transitive imports) gzip ≤ 700KB via manifest; uses `pnpm run build`. Debounce: `src/lib/debounce.ts` (500ms). BridgeFlow: debounced route fetching via `bridgeRoutesCollection`. LI.FI: lazy-loaded via `getLifiSdk()` in `src/api/lifi.ts`; queryClient.fetchQuery staleTime 30s. Format: formatTokenAmount memoized. Images: width/height + loading=lazy, decoding=async. Preload: NavigationItem preloadData(href).
 
 ## Output when complete
 
