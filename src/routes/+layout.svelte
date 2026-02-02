@@ -168,9 +168,10 @@
 				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr)
 			;
 
-		.layout[data-sticky-container] {
-			--sticky-marginInlineStart: var(--separator-width);
-			--sticky-paddingInlineStart: var(--navigation-desktop-inlineSize);
+			&[data-sticky-container] {
+				--sticky-marginInlineStart: var(--separator-width);
+				--sticky-paddingInlineStart: var(--navigation-desktop-inlineSize);
+			}
 		}
 	}
 
