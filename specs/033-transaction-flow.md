@@ -77,3 +77,17 @@ Each `TransactionFlowItem` includes:
   TransactionFlow snippets.
 - Swap and bridge execution buttons are provided by TransactionFlow (not
   duplicated in the flow).
+
+## Status
+
+Complete. `src/components/TransactionFlow.svelte` with props walletConnection,
+Summary snippet, transactions (TransactionFlowItem with id, chainId, title,
+actionLabel, canExecute, simulate, execute, requiresConfirmation,
+confirmationLabel, Details/Confirmation snippets). Chain switching via
+switchWalletChain when wallet chain ≠ transaction chain; simulation via
+createHttpProvider(rpcUrls[chainId]); execution state per transaction with
+onStatus. EIP-1193 check: execution disabled and "Connect a signing-capable
+wallet to continue" when no hasSigner. SwapFlow and BridgeFlow use
+TransactionFlow with Summary and per-transaction Details/Confirmation
+snippets; execution buttons only inside TransactionFlow. No duplicate
+chain-switch UI in swap or bridge flows.
