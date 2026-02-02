@@ -33,6 +33,7 @@
 
 
 <div
+	class="graph-container"
 	role="application"
 	tabindex="0"
 	aria-label={`Graph visualization with ${selectionCount} selected`}
@@ -388,7 +389,7 @@
 
 
 <style>
-	div {
+	.graph-container {
 		width: 100%;
 		height: 100%;
 	}

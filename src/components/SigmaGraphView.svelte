@@ -279,7 +279,7 @@
 
 
 <style>
-	div {
+	.sigma-container {
 		width: 100%;
 		height: 100%;
 	}
@@ -572,7 +572,7 @@
 
 
 <style>
-	div {
+	.sigma-container {
 		width: 100%;
 		height: 100%;
 	}

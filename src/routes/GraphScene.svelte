@@ -570,7 +570,7 @@
 
 {#if visible && graphModel}
 	<aside data-graph-scene data-expanded={expanded}>
-		<header>
+		<header class="graph-scene-header">
 			<button type="button" onclick={() => { expanded = !expanded }} data-collapse>
 				{expanded ? '▼' : '▲'}
 			</button>
@@ -736,7 +736,7 @@
 		height: auto;
 	}
 
-	header {
+	.graph-scene-header {
 		padding: 0.5rem 0.75rem;
 		border-bottom: 1px solid var(--color-border, #e5e7eb);
 		display: flex;
@@ -760,7 +760,7 @@
 		}
 	}
 
-	header h4 {
+	.graph-scene-header h4 {
 		margin: 0;
 		font-size: 0.8125rem;
 		font-weight: 600;

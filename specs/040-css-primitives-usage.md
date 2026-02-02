@@ -37,7 +37,7 @@ Ensure UI styling relies on shared primitives from
 
 ## Status
 
-Complete.
+Complete. Audit done: bare element selectors in component `<style>` replaced with class-based selectors (G6GraphView.svelte, GraphScene.svelte, SigmaGraphView.svelte).
 
 ## Output when complete
 
