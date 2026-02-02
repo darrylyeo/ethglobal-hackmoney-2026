@@ -186,7 +186,6 @@
 				--sticky-paddingBlockStart: var(--navigation-mobile-blockSize);
 			}
 		}
-	}
 
 	.layout > :global(nav) {
 		grid-area: Nav;
