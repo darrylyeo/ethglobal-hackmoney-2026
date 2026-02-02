@@ -139,7 +139,7 @@
 				{step.state === 'success' ? '✓' : step.state === 'failed' ? '✗' : '…'}
 				{step.step}
 				{#if step.txHash}
-					<a href={getTxUrl(step.chainId ?? fromChainId, step.txHash)} target="_blank" rel="noopener">{step.txHash.slice(0, 8)}…</a>
+					<a href={getTxUrl(step.chainId ?? fromChainId, step.txHash)} target="_blank" rel="noopener noreferrer">{step.txHash.slice(0, 8)}…</a>
 				{/if}
 			</div>
 		{/each}

@@ -85,7 +85,7 @@
 {:else if isApproving}
 	<p data-muted>
 		Approving…
-		{#if txHash}<a href={getTxUrl(chainId, txHash)} target="_blank" rel="noopener">View tx</a>{/if}
+		{#if txHash}<a href={getTxUrl(chainId, txHash)} target="_blank" rel="noopener noreferrer">View tx</a>{/if}
 	</p>
 {:else if approvalError}
 	<div data-column="gap-2">

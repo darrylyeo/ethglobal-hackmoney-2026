@@ -183,13 +183,16 @@ rg 'http://' src/  # Should only be https://
 ## Status
 
 Complete. NavigationItem: escapeHtml for all @html (icon, title, highlightText);
-external links rel="noopener noreferrer". Wallets.svelte: disconnect clears
-connection state. BridgeFlow: $effect clears actorCoins query when wallet address
-is null; isValidAddress for recipient; validateBridgeAmount for amounts;
-confirmation dialog before send. TokenApproval: warning when unlimited approval.
-localStorage: theme, testnet settings, tx history by address (no private data).
-Automated checks: @html only with escapeHtml; external links have noopener
-noreferrer.
+external links rel="noopener noreferrer" (SwapExecution, TokenApproval,
+BridgeFlow, BridgeExecution). Wallets.svelte: disconnect clears connection
+state. BridgeFlow: $effect clears actorCoins query when wallet address is null;
+isValidAddress for recipient; validateBridgeAmount for amounts; confirmation
+dialog before send. TokenApproval: warning when unlimited approval.
+localStorage: theme, testnet settings, graph-framework, tx history by address (no
+private data). Manual audit: eth_sendTransaction in approval.ts, TransferFlow,
+test/intents—all behind confirmation or test page; console.debug in siwe/wallet
+with truncated data; yellow/index.ts standalone script; no http:// external
+requests.
 
 ## Output when complete
 

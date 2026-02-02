@@ -84,7 +84,7 @@
 {#if status.overall !== 'idle'}
 	<div data-column="gap-1">
 		{#if status.txHash}
-			<a href={getTxUrl(quote.chainId, status.txHash)} target="_blank" rel="noopener">{status.txHash.slice(0, 8)}…</a>
+			<a href={getTxUrl(quote.chainId, status.txHash)} target="_blank" rel="noopener noreferrer">{status.txHash.slice(0, 8)}…</a>
 		{/if}
 		{#if status.overall === 'completed'}
 			<p>Swap complete!</p>

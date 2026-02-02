@@ -558,9 +558,9 @@
 									{#if tx.status === 'pending'}<Spinner size="0.75em" />{/if}
 									{tx.status}
 								</span>
-								<a href={resolve(getTxUrl(tx.fromChainId, tx.$id.sourceTxHash))} target="_blank" rel="noopener" aria-label="Source tx">↗</a>
+								<a href={resolve(getTxUrl(tx.fromChainId, tx.$id.sourceTxHash))} target="_blank" rel="noopener noreferrer" aria-label="Source tx">↗</a>
 								{#if tx.destTxHash}
-									<a href={resolve(getTxUrl(tx.toChainId, tx.destTxHash))} target="_blank" rel="noopener" aria-label="Dest tx">↗</a>
+									<a href={resolve(getTxUrl(tx.toChainId, tx.destTxHash))} target="_blank" rel="noopener noreferrer" aria-label="Dest tx">↗</a>
 								{/if}
 							</div>
 						{/each}
