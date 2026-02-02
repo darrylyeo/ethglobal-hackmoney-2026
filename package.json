@@ -21,6 +21,8 @@
 		"icons": "bun run icons:fetch && bun run icons:optimize"
 	},
 	"dependencies": {
+		"@antv/g6": "^5.0.51",
+		"@erc7824/nitrolite": "^0.5.3",
 		"@lifi/sdk": "^3.15.4",
 		"@sigma/edge-curve": "^3.1.0",
 		"@sigma/node-image": "^3.0.0",
