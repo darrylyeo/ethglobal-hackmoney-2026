@@ -192,8 +192,9 @@
 			box-shadow: 0 0 0 var(--separator-width) var(--border-color);
 		}
 
-	.layout > main {
-		grid-area: Main;
+		> main {
+			grid-area: Main;
+		}
 	}
 
 	.graph-toggle {
