@@ -1,6 +1,5 @@
 /**
- * Yellow Network / Nitrolite: Custody Contract and Clearnode endpoints.
- * Contract addresses: populate from Yellow docs when deploying.
+ * Yellow Network resources shared across constants.
  */
 
 import { ChainId } from '$/constants/networks'
@@ -63,7 +62,7 @@ export const yellowResources = [
 	},
 ] as const satisfies readonly YellowResourceEntry[]
 
-const yellowResourcesByType = (
+export const yellowResourcesByType = (
 	Object.fromEntries(
 		Map.groupBy(yellowResources, (entry) => entry.resource)
 			.entries()
@@ -73,11 +72,3 @@ const yellowResourcesByType = (
 			])
 	)
 )
-
-export const CUSTODY_CONTRACT_ADDRESS = yellowResourcesByType[YellowResource.CustodyContract]
-export const CLEARNODE_WS_URL = yellowResourcesByType[YellowResource.ClearnodeWsUrl]
-export const CLEARNODE_WS_URL_SANDBOX = 'wss://clearnet-sandbox.yellow.com/ws'
-
-export const CHALLENGE_PERIOD = 60 * 60
-
-export const MIN_CHANNEL_DEPOSIT = 10n * 10n ** 6n
