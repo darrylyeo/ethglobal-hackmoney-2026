@@ -20,6 +20,14 @@ import type { BridgeError } from '$/lib/errors'
 import { categorizeError, isBridgeError } from '$/lib/errors'
 
 export type BridgeRoutesRow = BridgeRoutes & { $source: DataSource }
+export type BridgeRouteItemRow = BridgeRoute & {
+	$id: {
+		routeId: string
+		quote: BridgeRoutes$Id
+	}
+	$source: DataSource
+	fetchedAt: number
+}
 
 const ROUTES_REQUEST_TIMEOUT_MS = 45_000
 
@@ -27,6 +35,13 @@ export const bridgeRoutesCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: 'bridgeRoutes',
 		getKey: (row: BridgeRoutesRow) => stringify(row.$id),
+	}),
+)
+
+export const bridgeRouteItemsCollection = createCollection(
+	localOnlyCollectionOptions({
+		id: 'bridgeRouteItems',
+		getKey: (row: BridgeRouteItemRow) => stringify(row.$id),
 	}),
 )
 
@@ -100,6 +115,35 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$Id) => {
 			draft.isLoading = false
 			draft.error = null
 		})
+		const routeRows = routes.map((route) => ({
+			...route,
+			$id: {
+				routeId: route.id,
+				quote: $id,
+			},
+			$source: DataSource.LiFi,
+			fetchedAt,
+		}))
+		const routeKeys = new Set(routeRows.map((row) => stringify(row.$id)))
+		for (const [rowKey, row] of bridgeRouteItemsCollection.state) {
+			if (
+				row.$source === DataSource.LiFi &&
+				stringify(row.$id.quote) === key &&
+				!routeKeys.has(rowKey)
+			)
+				bridgeRouteItemsCollection.delete(rowKey)
+		}
+		for (const row of routeRows) {
+			const rowKey = stringify(row.$id)
+			const existingRow = bridgeRouteItemsCollection.state.get(rowKey)
+			if (existingRow) {
+				bridgeRouteItemsCollection.update(rowKey, (draft) => {
+					Object.assign(draft, row)
+				})
+			} else {
+				bridgeRouteItemsCollection.insert(row)
+			}
+		}
 		return { routes, fetchedAt }
 	} catch (e) {
 		bridgeRoutesCollection.update(key, (draft) => {
