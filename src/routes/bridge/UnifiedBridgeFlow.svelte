@@ -9,6 +9,7 @@
 	} from '$/constants/bridge-limits'
 	import { isCctpSupportedChain } from '$/constants/cctp'
 	import {
+		ChainId,
 		NetworkType,
 		networks,
 		networksByChainId,
@@ -106,6 +107,30 @@
 			? normalizeAddress(settings.customRecipient)
 			: selectedActor,
 	)
+
+	$effect(() => {
+		if (filteredNetworks.length === 0) return
+		if (
+			settings.fromChainId !== null &&
+			filteredNetworks.some((n) => n.id === settings.fromChainId)
+		)
+			return
+		const defaultFrom = settings.isTestnet
+			? ChainId.EthereumSepolia
+			: ChainId.Ethereum
+		const defaultTo = settings.isTestnet ? ChainId.ArcTestnet : ChainId.Optimism
+		bridgeSettingsState.current = {
+			...settings,
+			fromChainId:
+				filteredNetworks.find((n) => n.id === defaultFrom)?.id ??
+				filteredNetworks[0]?.id ??
+				null,
+			toChainId:
+				filteredNetworks.find((n) => n.id === defaultTo)?.id ??
+				filteredNetworks[1]?.id ??
+				null,
+		}
+	})
 
 	// Components
 	import NetworkInput from '$/components/NetworkInput.svelte'
