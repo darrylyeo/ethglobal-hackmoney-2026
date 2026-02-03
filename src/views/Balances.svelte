@@ -12,7 +12,7 @@
 	import type { IntentDragPayload } from '$/lib/intents/types'
 
 	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { and, eq, or, useLiveQuery } from '@tanstack/svelte-db'
 
 	// Props
 	let {
@@ -53,22 +53,10 @@
 				n.type === NetworkType.Mainnet,
 		),
 	)
-	const balancesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: actorCoinsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
-			.select(({ row }) => ({ row })),
-	)
 	const tokenListQuery = useLiveQuery((q) =>
 		q
 			.from({ row: tokenListCoinsCollection })
 			.where(({ row }) => eq(row.$source, DataSource.TokenLists))
-			.select(({ row }) => ({ row })),
-	)
-	const pricesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: storkPricesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Stork))
 			.select(({ row }) => ({ row })),
 	)
 	const filteredTokenListCoins = $derived(
@@ -78,23 +66,40 @@
 				filteredNetworks.some((network) => network.id === token.chainId),
 			),
 	)
-	const balances = $derived(
-		selectedActor ?
-			(balancesQuery.data ?? [])
-				.map((r) => r.row)
-				.filter(
-					(b) =>
-						b.$id.address.toLowerCase() === selectedActor.toLowerCase() &&
-						filteredTokenListCoins.some(
-							(token) =>
-								token.chainId === b.$id.chainId &&
-								token.address.toLowerCase() ===
-									b.$id.tokenAddress.toLowerCase(),
+	const balancesQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: actorCoinsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+				.where(({ row }) =>
+					eq(row.$id.address, selectedActor ?? ('0x' as `0x${string}`)),
+				)
+				.where(({ row }) =>
+					filteredTokenListCoins.length > 0 ?
+						or(
+							...filteredTokenListCoins.map((token) =>
+								and(
+									eq(row.$id.chainId, token.chainId),
+									eq(row.$id.tokenAddress, token.address),
+								),
+							),
+						)
+					:
+						and(
+							eq(row.$id.chainId, -1),
+							eq(row.$id.chainId, 0),
 						),
 				)
-		:
-			[],
+				.select(({ row }) => ({ row })),
+		[() => selectedActor, () => filteredTokenListCoins],
 	)
+	const pricesQuery = useLiveQuery((q) =>
+		q
+			.from({ row: storkPricesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Stork))
+			.select(({ row }) => ({ row })),
+	)
+	const balances = $derived((balancesQuery.data ?? []).map((r) => r.row))
 	const prices = $derived((pricesQuery.data ?? []).map((r) => r.row))
 	const balanceAssetIds = $derived([
 		...new Set(
@@ -153,10 +158,12 @@
 	})
 
 	// Components
-	import CoinAmount from '$/views/CoinAmount.svelte'
 	import EntityId from '$/components/EntityId.svelte'
-	import StorkPrices from '$/views/StorkPrices.svelte'
+	import Tooltip from '$/components/Tooltip.svelte'
+	import CoinAmount from '$/views/CoinAmount.svelte'
+	import StorkPriceFeed from '$/views/StorkPriceFeed.svelte'
 </script>
+
 
 {#if selectedActor}
 	<section class="balances">
@@ -174,6 +181,15 @@
 					(entry) =>
 						entry.chainId === b.$id.chainId &&
 						entry.address.toLowerCase() === b.$id.tokenAddress.toLowerCase(),
+				)}
+				{@const assetId = getStorkAssetIdForSymbol(b.symbol)}
+				{@const priceRow =
+					assetId ? getBestStorkPrice(prices, assetId, b.$id.chainId) : null}
+				{@const balanceUsdValue = (
+					priceRow ?
+						(b.balance * priceRow.price) / 10n ** BigInt(b.decimals)
+					:
+						null
 				)}
 				{@const coin = (
 					token ?
@@ -215,24 +231,30 @@
 					} satisfies IntentDragPayload}
 					<div class="balance-item">
 						<dt>{network.name}</dt>
-						<EntityId
-							className="balance-intent"
-							draggableText={`${b.symbol} ${b.$id.address}`}
-							{intent}
-						>
-							<CoinAmount coin={coin} amount={b.balance} draggable={false} />
-						</EntityId>
+						<Tooltip contentProps={{ side: 'top' }}>
+							{#snippet Content()}
+								<StorkPriceFeed symbol={b.symbol} priceRow={priceRow} />
+							{/snippet}
+							<EntityId
+								className="balance-intent"
+								draggableText={`${b.symbol} ${b.$id.address}`}
+								{intent}
+							>
+								<CoinAmount coin={coin} amount={b.balance} draggable={false} />
+							</EntityId>
+						</Tooltip>
+						{#if balanceUsdValue !== null}
+							<small data-muted>
+								≈ ${formatSmallestToDecimal(balanceUsdValue, 18, 2)}
+							</small>
+						{/if}
 					</div>
 				{/if}
 			{/each}
 		</div>
-		<StorkPrices
-			assetIds={balanceAssetIds}
-			chainId={balanceChainIds[0] ?? null}
-			title="Stork USD feeds"
-		/>
 	</section>
 {/if}
+
 
 <style>
 	.balances {

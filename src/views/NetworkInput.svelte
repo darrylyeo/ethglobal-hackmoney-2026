@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Types/constants
+	import { networkConfigsByChainId } from '$/constants/networks'
 	import type { Network } from '$/schema/constants/networks'
 
 	// Props
@@ -50,7 +51,7 @@
 			{#each selectedNetworks as network (network.id)}
 				<span class="network-input-icon">
 					<Icon
-						src={`/networks/${network.id}.svg`}
+						src={networkConfigsByChainId[network.id]?.icon ?? `/networks/${network.id}.svg`}
 						alt=""
 						size={16}
 						loading="lazy"
@@ -70,7 +71,7 @@
 	>
 		<span class="network-input-icon">
 			<Icon
-				src={`/networks/${network.id}.svg`}
+				src={networkConfigsByChainId[network.id]?.icon ?? `/networks/${network.id}.svg`}
 				alt=""
 				size={16}
 				loading="lazy"

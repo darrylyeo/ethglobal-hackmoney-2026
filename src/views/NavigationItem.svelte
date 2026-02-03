@@ -93,7 +93,11 @@
 	import Icon from '$/components/Icon.svelte'
 </script>
 
-<search class="nav-items" data-column="gap-3">
+
+<search
+	class="nav-items"
+	data-column="gap-3"
+>
 	<input
 		type="search"
 		data-sticky
@@ -164,8 +168,7 @@
 				() =>
 					effectiveSearchValue
 						? matchesSearch(item, effectiveSearchValue)
-						: (isOpen.get(item) ??
-							isOpen.set(item, hasCurrentPage(item)).get(item)),
+						: (hasCurrentPage(item) || (isOpen.get(item) ?? false)),
 				(_) => {
 					if (!effectiveSearchValue && _ !== undefined) isOpen.set(item, _)
 				}
