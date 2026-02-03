@@ -1,5 +1,9 @@
 import type Graph from 'graphology'
 import type { EntityType } from '$/data/$EntityType'
+import type { IntentDragPayload } from '$/lib/intents/types'
+
+export type GraphNodeStyle = Record<string, unknown>
+export type GraphEdgeStyle = Record<string, unknown>
 
 export type GraphNode = {
 	id: string
@@ -12,6 +16,10 @@ export type GraphNode = {
 	image?: string
 	collection: EntityType
 	details?: Record<string, unknown>
+	intent?: IntentDragPayload
+	disabled?: boolean
+	g6Type?: string
+	g6Style?: GraphNodeStyle
 }
 
 export type GraphEdge = {
@@ -22,6 +30,8 @@ export type GraphEdge = {
 	color?: string
 	type?: string
 	relation?: string
+	g6Style?: GraphEdgeStyle
+	disabled?: boolean
 }
 
 export type GraphModel = {

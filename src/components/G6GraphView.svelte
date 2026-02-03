@@ -6,6 +6,11 @@
 	// Functions
 	import { Graph, EdgeEvent, NodeEvent } from '@antv/g6'
 	import { EntityType } from '$/data/$EntityType'
+	import {
+		finalizeIntentDragPreview,
+		startIntentDragPreview,
+		updateIntentDragTarget,
+	} from '$/state/intent-drag-preview.svelte'
 
 	// Props
 	let {
@@ -53,8 +58,15 @@
 			: 'rgba(255, 255, 255, 0.9)'
 		const labelFill = prefersDark ? '#e2e8f0' : '#0f172a'
 
+		const isRecord = (value: unknown): value is Record<string, unknown> =>
+			typeof value === 'object' && value !== null
+
+		const getNumber = (value: unknown): number | null =>
+			typeof value === 'number' ? value : null
+
 		const getNodeType = (node: GraphModel['nodes'][number]) =>
-			node.type === 'image' || node.image
+			node.g6Type ??
+			(node.type === 'image' || node.image
 				? 'image'
 				: node.collection === EntityType.ActorCoin
 					? 'donut'
@@ -62,7 +74,7 @@
 						? 'rect'
 						: node.collection === EntityType.Transaction
 							? 'diamond'
-							: 'circle'
+							: 'circle')
 
 		const getEdgeType = (edgeType?: string) =>
 			typeof edgeType === 'string' && edgeType.includes('curved')
@@ -87,6 +99,10 @@
 				labelFill,
 				labelFontSize: 10,
 			}
+			const style = {
+				...baseStyle,
+				...(node.g6Style ?? {}),
+			}
 
 			return {
 				id: node.id,
@@ -95,8 +111,10 @@
 					label: node.label ?? node.id,
 					collection: node.collection,
 					details: node.details ?? {},
+					intent: node.intent ?? null,
+					disabled: node.disabled ?? false,
 				},
-				style: node.image ? { ...baseStyle, src: node.image } : baseStyle,
+				style: node.image ? { ...style, src: node.image } : style,
 			}
 		}
 
@@ -107,6 +125,7 @@
 			type: getEdgeType(edge.type),
 			data: {
 				relation: edge.relation ?? 'edge',
+				disabled: edge.disabled ?? false,
 			},
 			style: {
 				stroke: edge.color ?? '#94a3b8',
@@ -121,13 +140,126 @@
 				labelFill,
 				labelFontSize: 9,
 				labelAutoRotate: true,
+				...(edge.g6Style ?? {}),
 			},
 		})
 
-		const buildData = () => ({
-			nodes: model.nodes.map((node) => getNodeData(node)),
-			edges: model.edges.map((edge) => getEdgeData(edge)),
-		})
+		let intentById = new Map<
+			string,
+			GraphModel['nodes'][number]['intent']
+		>()
+		let sourceIntent: GraphModel['nodes'][number]['intent'] | null = null
+		let sourceProxy: HTMLDivElement | null = null
+		let targetProxy: HTMLDivElement | null = null
+
+		const buildData = () => {
+			intentById = new Map(
+				model.nodes
+					.filter((node) => node.intent)
+					.map((node) => [node.id, node.intent]),
+			)
+			return {
+				nodes: model.nodes.map((node) => getNodeData(node)),
+				edges: model.edges.map((edge) => getEdgeData(edge)),
+			}
+		}
+
+		const getEventTargetId = (event: unknown) =>
+			isRecord(event) && isRecord(event.target) && typeof event.target.id === 'string'
+				? event.target.id
+				: null
+
+		const getIntentPayload = (nodeId: string) =>
+			intentById.get(nodeId) ?? null
+
+		const ensureProxy = (role: 'source' | 'target') => {
+			const current = role === 'source' ? sourceProxy : targetProxy
+			if (current) return current
+			const next = document.createElement('div')
+			next.className = 'graph-intent-proxy'
+			next.dataset.intentRole = role
+			document.body.appendChild(next)
+			if (role === 'source') {
+				sourceProxy = next
+			} else {
+				targetProxy = next
+			}
+			return next
+		}
+
+		const toClientPoint = (event: unknown, nodeId: string) => {
+			if (isRecord(event)) {
+				const x = getNumber(event.clientX)
+				const y = getNumber(event.clientY)
+				if (x !== null && y !== null) return { x, y }
+			}
+			const node = model.nodes.find((entry) => entry.id === nodeId)
+			if (!node) return null
+			const getClientByPoint = graph?.getClientByPoint
+			if (typeof getClientByPoint === 'function') {
+				const point = getClientByPoint.call(graph, node.x, node.y)
+				if (isRecord(point)) {
+					const x = getNumber(point.x)
+					const y = getNumber(point.y)
+					if (x !== null && y !== null) return { x, y }
+				}
+			}
+			const rect = container.getBoundingClientRect()
+			return { x: rect.left + node.x, y: rect.top + node.y }
+		}
+
+		const setProxyPosition = (
+			proxy: HTMLDivElement,
+			point: { x: number; y: number },
+		) => {
+			proxy.style.left = `${point.x}px`
+			proxy.style.top = `${point.y}px`
+		}
+
+		const getDragSourceId = (nodeId: string) => {
+			if (selectedNodes.length > 1 && selectedNodes.includes(nodeId)) {
+				const primary = selectedNodes[0]
+				if (primary && getIntentPayload(primary)) return primary
+			}
+			return nodeId
+		}
+
+		const startIntentDrag = (nodeId: string, event: unknown) => {
+			const sourceId = getDragSourceId(nodeId)
+			const payload = getIntentPayload(sourceId)
+			if (!payload) return
+			const proxy = ensureProxy('source')
+			const point = toClientPoint(event, sourceId)
+			if (!point) return
+			setProxyPosition(proxy, point)
+			sourceIntent = payload
+			startIntentDragPreview({ payload, element: proxy })
+		}
+
+		const updateIntentTarget = (nodeId: string, event: unknown) => {
+			if (!sourceIntent || !sourceProxy) return
+			const payload = getIntentPayload(nodeId)
+			if (!payload) {
+				updateIntentDragTarget({ payload: sourceIntent, element: sourceProxy })
+				return
+			}
+			const proxy = ensureProxy('target')
+			const point = toClientPoint(event, nodeId)
+			if (!point) return
+			setProxyPosition(proxy, point)
+			updateIntentDragTarget({ payload, element: proxy })
+		}
+
+		const clearIntentTarget = () => {
+			if (sourceIntent && sourceProxy) {
+				updateIntentDragTarget({ payload: sourceIntent, element: sourceProxy })
+			}
+		}
+
+		const finalizeIntentDrag = () => {
+			finalizeIntentDragPreview()
+			sourceIntent = null
+		}
 
 		const syncSelection = () => {
 			if (!graph) return
@@ -176,6 +308,39 @@
 					selectedEdgeSet.has(edge.id) ? [...states, 'selected'] : states,
 				)
 			}
+		}
+
+		const updateDisabledStates = () => {
+			if (!graph) return
+			for (const node of model.nodes) {
+				const states = graph
+					.getElementState(node.id)
+					.filter((state) => state !== 'disabled')
+				graph.setElementState(
+					node.id,
+					node.disabled ? [...states, 'disabled'] : states,
+				)
+			}
+			for (const edge of model.edges) {
+				const states = graph
+					.getElementState(edge.id)
+					.filter((state) => state !== 'disabled')
+				graph.setElementState(
+					edge.id,
+					edge.disabled ? [...states, 'disabled'] : states,
+				)
+			}
+		}
+
+		const setHoverState = (nodeId: string, isHovered: boolean) => {
+			if (!graph) return
+			const states = graph
+				.getElementState(nodeId)
+				.filter((state) => state !== 'hover')
+			graph.setElementState(
+				nodeId,
+				isHovered ? [...states, 'hover'] : states,
+			)
 		}
 
 		const clearSelection = () => {
@@ -228,12 +393,23 @@
 						haloStroke: '#f59e0b',
 						haloStrokeOpacity: 0.35,
 					},
+					hover: {
+						lineWidth: 2,
+						halo: true,
+						haloLineWidth: 4,
+						haloStroke: '#38bdf8',
+						haloStrokeOpacity: 0.25,
+					},
 					active: {
 						lineWidth: 2,
 						halo: true,
 						haloLineWidth: 4,
 						haloStroke: '#38bdf8',
 						haloStrokeOpacity: 0.35,
+					},
+					disabled: {
+						opacity: 0.35,
+						labelFill: prefersDark ? '#94a3b8' : '#64748b',
 					},
 				},
 				animation: reducedMotion
@@ -263,12 +439,22 @@
 						haloStroke: '#f59e0b',
 						haloStrokeOpacity: 0.35,
 					},
+					hover: {
+						lineWidth: 2,
+						halo: true,
+						haloLineWidth: 4,
+						haloStroke: '#38bdf8',
+						haloStrokeOpacity: 0.25,
+					},
 					active: {
 						lineWidth: 2,
 						halo: true,
 						haloLineWidth: 4,
 						haloStroke: '#38bdf8',
 						haloStrokeOpacity: 0.35,
+					},
+					disabled: {
+						opacity: 0.2,
 					},
 				},
 				animation: reducedMotion
@@ -346,18 +532,45 @@
 		graph.render()
 		updateHighlightStates()
 		updateSelectionStates()
+		updateDisabledStates()
 
 		graph.on(NodeEvent.CLICK, () => syncSelection())
 		graph.on(EdgeEvent.CLICK, () => syncSelection())
 		graph.on(NodeEvent.POINTER_OVER, (event) => {
-			const targetId =
-				typeof event.target?.id === 'string' ? event.target.id : undefined
-			if (targetId) onNodeEnter?.(targetId)
+			const targetId = getEventTargetId(event)
+			if (targetId) {
+				setHoverState(targetId, true)
+				onNodeEnter?.(targetId)
+			}
 		})
 		graph.on(NodeEvent.POINTER_OUT, (event) => {
-			const targetId =
-				typeof event.target?.id === 'string' ? event.target.id : undefined
-			if (targetId) onNodeLeave?.(targetId)
+			const targetId = getEventTargetId(event)
+			if (targetId) {
+				setHoverState(targetId, false)
+				onNodeLeave?.(targetId)
+			}
+		})
+		graph.on(NodeEvent.DRAG_START, (event) => {
+			const targetId = getEventTargetId(event)
+			if (targetId) startIntentDrag(targetId, event)
+		})
+		graph.on(NodeEvent.DRAG, (event) => {
+			const targetId = getEventTargetId(event)
+			if (targetId) updateIntentTarget(targetId, event)
+		})
+		graph.on(NodeEvent.DRAG_ENTER, (event) => {
+			const targetId = getEventTargetId(event)
+			if (targetId) updateIntentTarget(targetId, event)
+		})
+		graph.on(NodeEvent.DRAG_LEAVE, () => {
+			clearIntentTarget()
+		})
+		graph.on(NodeEvent.DROP, (event) => {
+			const targetId = getEventTargetId(event)
+			if (targetId) updateIntentTarget(targetId, event)
+		})
+		graph.on(NodeEvent.DRAG_END, () => {
+			finalizeIntentDrag()
 		})
 
 		const handleKeydown = (event: KeyboardEvent) => {
@@ -390,6 +603,7 @@
 			graph.render()
 			updateHighlightStates()
 			updateSelectionStates()
+			updateDisabledStates()
 			const fitView = graph.fitView
 			const fitCenter = graph.fitCenter
 			if (typeof fitView === 'function') {
@@ -409,8 +623,15 @@
 			updateSelectionStates()
 		})
 
+		$effect(() => {
+			if (!graph) return
+			updateDisabledStates()
+		})
+
 		return () => {
 			container.removeEventListener('keydown', handleKeydown)
+			if (sourceProxy) sourceProxy.remove()
+			if (targetProxy) targetProxy.remove()
 			resizeObserver?.disconnect()
 			graph?.destroy()
 			graph = undefined
@@ -422,5 +643,15 @@
 	.graph-container {
 		width: 100%;
 		height: 100%;
+	}
+
+	.graph-intent-proxy {
+		position: fixed;
+		width: 1px;
+		height: 1px;
+		pointer-events: none;
+		transform: translate(-50%, -50%);
+		opacity: 0;
+		z-index: 60;
 	}
 </style>

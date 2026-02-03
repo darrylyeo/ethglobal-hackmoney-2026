@@ -4,20 +4,44 @@
 	import type { DisplayData } from 'sigma/types'
 	import type {
 		GraphEdge,
+		GraphEdgeStyle,
 		GraphFramework,
 		GraphModel,
 		GraphNode,
+		GraphNodeStyle,
 	} from '$/lib/graph-model'
-	import { EntityType, GRAPH_SCENE_ENTITY_TYPES } from '$/data/$EntityType'
+	import { actorAllowancesCollection } from '$/collections/actor-allowances'
+	import { actorCoinsCollection } from '$/collections/actor-coins'
+	import { actorsCollection } from '$/collections/actors'
+	import { bridgeRouteItemsCollection } from '$/collections/bridge-routes'
+	import { cctpAllowanceCollection } from '$/collections/cctp-allowance'
+	import { cctpFeesCollection } from '$/collections/cctp-fees'
+	import { coinsCollection } from '$/collections/coins'
+	import { dashboardPanelsCollection } from '$/collections/dashboard-panels'
+	import { networksCollection } from '$/collections/networks'
+	import { roomPeersCollection } from '$/collections/room-peers'
+	import { roomsCollection } from '$/collections/rooms'
+	import { sharedAddressesCollection } from '$/collections/shared-addresses'
+	import { siweChallengesCollection } from '$/collections/siwe-challenges'
+	import { storkPricesCollection } from '$/collections/stork-prices'
+	import { swapQuotesCollection } from '$/collections/swap-quotes'
+	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
+	import { transactionSessionSimulationsCollection } from '$/collections/transaction-session-simulations'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { transactionsCollection } from '$/collections/transactions'
+	import { transferGraphsCollection } from '$/collections/transfer-graphs'
+	import { transferRequestsCollection } from '$/collections/transfer-requests'
+	import { uniswapPoolsCollection } from '$/collections/uniswap-pools'
+	import { uniswapPositionsCollection } from '$/collections/uniswap-positions'
+	import { walletConnectionsCollection } from '$/collections/wallet-connections'
+	import { walletsCollection } from '$/collections/wallets'
+	import { yellowChannelStatesCollection } from '$/collections/yellow-channel-states'
+	import { yellowChannelsCollection } from '$/collections/yellow-channels'
+	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
+	import { yellowTransfersCollection } from '$/collections/yellow-transfers'
 	import { DataSource } from '$/constants/data-sources'
 	import { networksByChainId } from '$/constants/networks'
-	import { walletsCollection } from '$/collections/wallets'
-	import { walletConnectionsCollection } from '$/collections/wallet-connections'
-	import { actorsCollection } from '$/collections/actors'
-	import { actorCoinsCollection } from '$/collections/actor-coins'
-	import { actorAllowancesCollection } from '$/collections/actor-allowances'
-	import { bridgeRouteItemsCollection } from '$/collections/bridge-routes'
-	import { transactionsCollection } from '$/collections/transactions'
+	import { EntityType, GRAPH_SCENE_ENTITY_TYPES } from '$/data/$EntityType'
 
 	// Context
 	import { browser } from '$app/environment'
@@ -27,6 +51,7 @@
 	// Functions
 	import Graph from 'graphology'
 	import { formatSmallestToDecimal } from '$/lib/format'
+	import { stringify } from '$/lib/stringify'
 
 	// Components
 	import G6GraphView from '$/components/G6GraphView.svelte'
@@ -85,7 +110,7 @@
 			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
-	const coinsQuery = useLiveQuery((q) =>
+	const actorCoinsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: actorCoinsCollection })
 			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
@@ -109,55 +134,532 @@
 			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
+	const networksQuery = useLiveQuery((q) =>
+		q
+			.from({ row: networksCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
+	)
+	const coinsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: coinsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
+	)
+	const tokenListCoinsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: tokenListCoinsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.TokenLists))
+			.select(({ row }) => ({ row })),
+	)
+	const storkPricesQuery = useLiveQuery((q) =>
+		q
+			.from({ row: storkPricesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Stork))
+			.select(({ row }) => ({ row })),
+	)
+	const swapQuotesQuery = useLiveQuery((q) =>
+		q
+			.from({ row: swapQuotesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Uniswap))
+			.select(({ row }) => ({ row })),
+	)
+	const uniswapPoolsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: uniswapPoolsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Uniswap))
+			.select(({ row }) => ({ row })),
+	)
+	const uniswapPositionsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: uniswapPositionsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Uniswap))
+			.select(({ row }) => ({ row })),
+	)
+	const cctpAllowanceQuery = useLiveQuery((q) =>
+		q
+			.from({ row: cctpAllowanceCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Cctp))
+			.select(({ row }) => ({ row })),
+	)
+	const cctpFeesQuery = useLiveQuery((q) =>
+		q
+			.from({ row: cctpFeesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Cctp))
+			.select(({ row }) => ({ row })),
+	)
+	const roomsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: roomsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+			.select(({ row }) => ({ row })),
+	)
+	const roomPeersQuery = useLiveQuery((q) =>
+		q
+			.from({ row: roomPeersCollection })
+			.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+			.select(({ row }) => ({ row })),
+	)
+	const sharedAddressesQuery = useLiveQuery((q) =>
+		q
+			.from({ row: sharedAddressesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+			.select(({ row }) => ({ row })),
+	)
+	const siweChallengesQuery = useLiveQuery((q) =>
+		q
+			.from({ row: siweChallengesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+			.select(({ row }) => ({ row })),
+	)
+	const transactionSessionsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: transactionSessionsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
+	)
+	const transactionSessionSimulationsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: transactionSessionSimulationsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
+	)
+	const transferGraphsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: transferGraphsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+			.select(({ row }) => ({ row })),
+	)
+	const transferRequestsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: transferRequestsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+			.select(({ row }) => ({ row })),
+	)
+	const dashboardPanelsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: dashboardPanelsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
+	)
+	const yellowChannelsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: yellowChannelsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Yellow))
+			.select(({ row }) => ({ row })),
+	)
+	const yellowChannelStatesQuery = useLiveQuery((q) =>
+		q
+			.from({ row: yellowChannelStatesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Yellow))
+			.select(({ row }) => ({ row })),
+	)
+	const yellowDepositsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: yellowDepositsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Yellow))
+			.select(({ row }) => ({ row })),
+	)
+	const yellowTransfersQuery = useLiveQuery((q) =>
+		q
+			.from({ row: yellowTransfersCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Yellow))
+			.select(({ row }) => ({ row })),
+	)
 
 	// Types/constants
 	type GraphSceneEntityType = (typeof GRAPH_SCENE_ENTITY_TYPES)[number]
 
-	const collections: Record<
-		GraphSceneEntityType,
-		{ color: string; label: string; size: number; ring: number }
-	> = {
+	type CollectionStyle = {
+		color: string
+		label: string
+		size: number
+		ring: number
+		g6Type?: string
+		g6Style: GraphNodeStyle
+	}
+
+	const collections: Record<GraphSceneEntityType, CollectionStyle> = {
 		[EntityType.Wallet]: {
 			color: '#3b82f6',
 			label: 'Wallets',
 			size: 18,
 			ring: 0,
+			g6Type: 'image',
+			g6Style: {
+				shadowBlur: 14,
+				shadowColor: '#60a5fa',
+				labelPlacement: 'bottom',
+				zIndex: 4,
+			},
 		},
 		[EntityType.WalletConnection]: {
 			color: '#22c55e',
 			label: 'Sessions',
 			size: 14,
 			ring: 1,
+			g6Type: 'circle',
+			g6Style: {
+				lineDash: [6, 3],
+				labelPlacement: 'top',
+				badge: { text: 'WS' },
+				zIndex: 3,
+			},
 		},
 		[EntityType.Actor]: {
 			color: '#f59e0b',
 			label: 'Accounts',
 			size: 16,
 			ring: 2,
+			g6Type: 'circle',
+			g6Style: {
+				lineWidth: 2,
+				labelPlacement: 'right',
+				halo: true,
+				haloStroke: '#fbbf24',
+				haloLineWidth: 6,
+			},
 		},
 		[EntityType.ActorCoin]: {
 			color: '#8b5cf6',
 			label: 'Balances',
 			size: 10,
 			ring: 3,
+			g6Type: 'donut',
+			g6Style: {
+				innerR: 0.55,
+				labelPlacement: 'bottom',
+				shadowBlur: 8,
+				shadowColor: '#a78bfa',
+			},
 		},
 		[EntityType.ActorAllowance]: {
 			color: '#ec4899',
 			label: 'Approvals',
 			size: 9,
 			ring: 3.5,
+			g6Type: 'circle',
+			g6Style: {
+				lineDash: [4, 4],
+				labelPlacement: 'left',
+				badge: { text: 'OK' },
+				opacity: 0.85,
+			},
 		},
 		[EntityType.BridgeRoute]: {
 			color: '#06b6d4',
 			label: 'Routes',
 			size: 12,
 			ring: 4,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 6,
+				labelPlacement: 'bottom',
+				shadowBlur: 10,
+				shadowColor: '#22d3ee',
+			},
 		},
 		[EntityType.Transaction]: {
 			color: '#ef4444',
 			label: 'Transactions',
 			size: 11,
 			ring: 4.5,
+			g6Type: 'diamond',
+			g6Style: {
+				labelPlacement: 'top',
+				lineWidth: 2,
+				opacity: 0.9,
+			},
+		},
+		[EntityType.CctpAllowance]: {
+			color: '#f97316',
+			label: 'CCTP Allowance',
+			size: 10,
+			ring: 4.8,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 4,
+				lineDash: [6, 2],
+				labelPlacement: 'right',
+				shadowBlur: 6,
+				shadowColor: '#fdba74',
+			},
+		},
+		[EntityType.CctpFee]: {
+			color: '#facc15',
+			label: 'CCTP Fees',
+			size: 9,
+			ring: 5,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 8,
+				labelPlacement: 'left',
+				opacity: 0.8,
+				badge: { text: '$' },
+			},
+		},
+		[EntityType.Coin]: {
+			color: '#14b8a6',
+			label: 'Coins',
+			size: 10,
+			ring: 5.2,
+			g6Type: 'circle',
+			g6Style: {
+				labelPlacement: 'bottom',
+				lineWidth: 1.5,
+				shadowBlur: 6,
+				shadowColor: '#5eead4',
+			},
+		},
+		[EntityType.DashboardPanel]: {
+			color: '#64748b',
+			label: 'Panels',
+			size: 11,
+			ring: 9,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 6,
+				labelPlacement: 'top',
+				ports: [
+					{ placement: 'top' },
+					{ placement: 'bottom' },
+				],
+				opacity: 0.7,
+			},
+		},
+		[EntityType.Network]: {
+			color: '#94a3b8',
+			label: 'Networks',
+			size: 13,
+			ring: 2.5,
+			g6Type: 'circle',
+			g6Style: {
+				labelPlacement: 'right',
+				anchorPoints: [
+					[0, 0.5],
+					[1, 0.5],
+				],
+				lineDash: [2, 2],
+			},
+		},
+		[EntityType.Room]: {
+			color: '#f472b6',
+			label: 'Rooms',
+			size: 12,
+			ring: 7,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 10,
+				labelPlacement: 'bottom',
+				shadowBlur: 10,
+				shadowColor: '#f9a8d4',
+			},
+		},
+		[EntityType.RoomPeer]: {
+			color: '#fb7185',
+			label: 'Room Peers',
+			size: 9,
+			ring: 7.2,
+			g6Type: 'circle',
+			g6Style: {
+				labelPlacement: 'top',
+				lineDash: [3, 3],
+				opacity: 0.75,
+			},
+		},
+		[EntityType.SharedAddress]: {
+			color: '#fca5a5',
+			label: 'Shared Addresses',
+			size: 9,
+			ring: 7.4,
+			g6Type: 'circle',
+			g6Style: {
+				labelPlacement: 'right',
+				badge: { text: 'ID' },
+				shadowBlur: 6,
+				shadowColor: '#fecaca',
+			},
+		},
+		[EntityType.SiweChallenge]: {
+			color: '#c084fc',
+			label: 'SIWE',
+			size: 9,
+			ring: 7.6,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 4,
+				labelPlacement: 'left',
+				lineDash: [5, 3],
+				opacity: 0.8,
+			},
+		},
+		[EntityType.StorkPrice]: {
+			color: '#a855f7',
+			label: 'Stork Prices',
+			size: 8,
+			ring: 5.6,
+			g6Type: 'circle',
+			g6Style: {
+				labelPlacement: 'right',
+				shadowBlur: 8,
+				shadowColor: '#d8b4fe',
+				opacity: 0.75,
+			},
+		},
+		[EntityType.SwapQuote]: {
+			color: '#0ea5e9',
+			label: 'Swap Quotes',
+			size: 10,
+			ring: 5.8,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 6,
+				labelPlacement: 'bottom',
+				lineWidth: 2,
+				badge: { text: 'Q' },
+			},
+		},
+		[EntityType.TokenListCoin]: {
+			color: '#10b981',
+			label: 'Token Lists',
+			size: 9,
+			ring: 5.4,
+			g6Type: 'circle',
+			g6Style: {
+				labelPlacement: 'top',
+				opacity: 0.8,
+				lineDash: [2, 6],
+			},
+		},
+		[EntityType.TransactionSession]: {
+			color: '#22d3ee',
+			label: 'Sessions',
+			size: 12,
+			ring: 6.4,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 8,
+				labelPlacement: 'right',
+				halo: true,
+				haloStroke: '#67e8f9',
+				haloLineWidth: 6,
+			},
+		},
+		[EntityType.TransactionSessionSimulation]: {
+			color: '#38bdf8',
+			label: 'Simulations',
+			size: 9,
+			ring: 6.6,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 6,
+				labelPlacement: 'left',
+				lineDash: [4, 2],
+				opacity: 0.8,
+			},
+		},
+		[EntityType.TransferGraph]: {
+			color: '#84cc16',
+			label: 'Transfer Graphs',
+			size: 11,
+			ring: 6.8,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 6,
+				labelPlacement: 'bottom',
+				shadowBlur: 8,
+				shadowColor: '#bef264',
+			},
+		},
+		[EntityType.TransferRequest]: {
+			color: '#16a34a',
+			label: 'Transfer Requests',
+			size: 10,
+			ring: 7.8,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 6,
+				labelPlacement: 'top',
+				badge: { text: 'TR' },
+			},
+		},
+		[EntityType.UniswapPool]: {
+			color: '#6366f1',
+			label: 'Pools',
+			size: 12,
+			ring: 6,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 10,
+				labelPlacement: 'bottom',
+				lineWidth: 2,
+				shadowBlur: 8,
+				shadowColor: '#a5b4fc',
+			},
+		},
+		[EntityType.UniswapPosition]: {
+			color: '#8b5cf6',
+			label: 'Positions',
+			size: 10,
+			ring: 6.2,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 4,
+				labelPlacement: 'right',
+				lineDash: [3, 2],
+				opacity: 0.85,
+			},
+		},
+		[EntityType.YellowChannel]: {
+			color: '#fbbf24',
+			label: 'Yellow Channels',
+			size: 12,
+			ring: 8,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 10,
+				labelPlacement: 'bottom',
+				shadowBlur: 10,
+				shadowColor: '#fde68a',
+			},
+		},
+		[EntityType.YellowChannelState]: {
+			color: '#f59e0b',
+			label: 'Channel States',
+			size: 10,
+			ring: 8.2,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 6,
+				labelPlacement: 'top',
+				lineDash: [5, 2],
+				opacity: 0.75,
+			},
+		},
+		[EntityType.YellowDeposit]: {
+			color: '#fb923c',
+			label: 'Deposits',
+			size: 10,
+			ring: 8.4,
+			g6Type: 'circle',
+			g6Style: {
+				labelPlacement: 'right',
+				badge: { text: 'D' },
+				shadowBlur: 6,
+				shadowColor: '#fdba74',
+			},
+		},
+		[EntityType.YellowTransfer]: {
+			color: '#f97316',
+			label: 'Transfers',
+			size: 10,
+			ring: 8.6,
+			g6Type: 'circle',
+			g6Style: {
+				labelPlacement: 'left',
+				opacity: 0.85,
+				lineWidth: 2,
+			},
 		},
 	}
 
@@ -168,17 +670,85 @@
 		allowance: '#ec4899',
 		route: '#06b6d4',
 		transaction: '#ef4444',
+		network: '#94a3b8',
+		coin: '#14b8a6',
+		token: '#10b981',
+		stork: '#a855f7',
+		swap: '#0ea5e9',
+		pool: '#6366f1',
+		position: '#8b5cf6',
+		cctp: '#f97316',
+		session: '#22d3ee',
+		simulation: '#38bdf8',
+		room: '#f472b6',
+		peer: '#fb7185',
+		shared: '#fca5a5',
+		siwe: '#c084fc',
+		transferGraph: '#84cc16',
+		transferRequest: '#16a34a',
+		yellow: '#fbbf24',
+		panel: '#64748b',
+	}
+
+	const edgeStyles: Record<string, GraphEdgeStyle> = {
+		owns: { lineDash: [3, 3], labelPlacement: 'center' },
+		connection: { lineDash: [6, 3], endArrow: true, labelPlacement: 'center' },
+		balance: { lineWidth: 1.5, endArrow: true, labelPlacement: 'center' },
+		allowance: { lineDash: [4, 4], endArrow: true, labelPlacement: 'center' },
+		route: { lineWidth: 2, endArrow: true, labelPlacement: 'center' },
+		transaction: { lineWidth: 2, endArrow: true, labelPlacement: 'center' },
+		network: { lineDash: [2, 4], labelPlacement: 'center' },
+		coin: { lineWidth: 1, endArrow: true, labelPlacement: 'center' },
+		token: { lineDash: [2, 2], labelPlacement: 'center' },
+		stork: { lineDash: [4, 2], labelPlacement: 'center' },
+		swap: { lineWidth: 2, endArrow: true, labelPlacement: 'center' },
+		pool: { lineWidth: 2, labelPlacement: 'center' },
+		position: { lineDash: [5, 3], labelPlacement: 'center' },
+		cctp: { lineDash: [6, 2], labelPlacement: 'center' },
+		session: { lineWidth: 2, endArrow: true, labelPlacement: 'center' },
+		simulation: { lineDash: [4, 2], labelPlacement: 'center' },
+		room: { lineWidth: 1.5, endArrow: true, labelPlacement: 'center' },
+		peer: { lineDash: [3, 3], labelPlacement: 'center' },
+		shared: { lineDash: [2, 2], labelPlacement: 'center' },
+		siwe: { lineDash: [4, 2], labelPlacement: 'center' },
+		transferGraph: { lineWidth: 1.5, labelPlacement: 'center' },
+		transferRequest: { lineDash: [6, 3], labelPlacement: 'center' },
+		yellow: { lineWidth: 2, endArrow: true, labelPlacement: 'center' },
+		panel: { lineDash: [2, 2], labelPlacement: 'center' },
 	}
 
 	// (Derived)
-	const counts: Record<string, number> = $derived({
+	const counts: Record<GraphSceneEntityType, number> = $derived({
 		[EntityType.Wallet]: walletsQuery.data?.length ?? 0,
 		[EntityType.WalletConnection]: connectionsQuery.data?.length ?? 0,
 		[EntityType.Actor]: actorsQuery.data?.length ?? 0,
-		[EntityType.ActorCoin]: coinsQuery.data?.length ?? 0,
+		[EntityType.ActorCoin]: actorCoinsQuery.data?.length ?? 0,
 		[EntityType.ActorAllowance]: allowancesQuery.data?.length ?? 0,
 		[EntityType.BridgeRoute]: routesQuery.data?.length ?? 0,
 		[EntityType.Transaction]: txQuery.data?.length ?? 0,
+		[EntityType.CctpAllowance]: cctpAllowanceQuery.data?.length ?? 0,
+		[EntityType.CctpFee]: cctpFeesQuery.data?.length ?? 0,
+		[EntityType.Coin]: coinsQuery.data?.length ?? 0,
+		[EntityType.DashboardPanel]: dashboardPanelsQuery.data?.length ?? 0,
+		[EntityType.Network]: networksQuery.data?.length ?? 0,
+		[EntityType.Room]: roomsQuery.data?.length ?? 0,
+		[EntityType.RoomPeer]: roomPeersQuery.data?.length ?? 0,
+		[EntityType.SharedAddress]: sharedAddressesQuery.data?.length ?? 0,
+		[EntityType.SiweChallenge]: siweChallengesQuery.data?.length ?? 0,
+		[EntityType.StorkPrice]: storkPricesQuery.data?.length ?? 0,
+		[EntityType.SwapQuote]: swapQuotesQuery.data?.length ?? 0,
+		[EntityType.TokenListCoin]: tokenListCoinsQuery.data?.length ?? 0,
+		[EntityType.TransactionSession]: transactionSessionsQuery.data?.length ?? 0,
+		[EntityType.TransactionSessionSimulation]:
+			transactionSessionSimulationsQuery.data?.length ?? 0,
+		[EntityType.TransferGraph]: transferGraphsQuery.data?.length ?? 0,
+		[EntityType.TransferRequest]: transferRequestsQuery.data?.length ?? 0,
+		[EntityType.UniswapPool]: uniswapPoolsQuery.data?.length ?? 0,
+		[EntityType.UniswapPosition]: uniswapPositionsQuery.data?.length ?? 0,
+		[EntityType.YellowChannel]: yellowChannelsQuery.data?.length ?? 0,
+		[EntityType.YellowChannelState]: yellowChannelStatesQuery.data?.length ?? 0,
+		[EntityType.YellowDeposit]: yellowDepositsQuery.data?.length ?? 0,
+		[EntityType.YellowTransfer]: yellowTransfersQuery.data?.length ?? 0,
 	})
 
 	// Functions
@@ -187,6 +757,18 @@
 
 	const getChainName = (chainId: number) =>
 		networksByChainId[chainId]?.name ?? `Chain ${chainId}`
+
+	const toNodeId = (prefix: string, id: unknown) => `${prefix}:${stringify(id)}`
+
+	const toIntentPayload = (type: EntityType, id: Record<string, unknown>) => ({
+		entity: {
+			type,
+			id,
+		},
+		context: {
+			source: 'graph',
+		},
+	})
 
 	// (Derived)
 	const graphModel = $derived.by(() => {
@@ -239,6 +821,8 @@
 					type: row.icon ? 'image' : 'circle',
 					image: row.icon || undefined,
 					collection: EntityType.Wallet,
+					g6Type: row.icon ? 'image' : collections[EntityType.Wallet].g6Type,
+					g6Style: collections[EntityType.Wallet].g6Style,
 					details: { rdns: row.rdns },
 				})
 			})
@@ -275,6 +859,19 @@
 					color: statusColor,
 					type: 'circle',
 					collection: EntityType.WalletConnection,
+					g6Type: collections[EntityType.WalletConnection].g6Type,
+					g6Style: {
+						...collections[EntityType.WalletConnection].g6Style,
+						badge: {
+							text:
+								row.status === 'connected'
+									? 'ON'
+									: row.status === 'error'
+										? 'ERR'
+										: 'OFF',
+						},
+					},
+					disabled: row.status === 'error',
 					details: {
 						status: row.status,
 						chainId: row.chainId,
@@ -292,6 +889,7 @@
 							color: edgeColors.connection,
 							type: 'curvedArrow',
 							relation: 'connection',
+							g6Style: edgeStyles.connection,
 						})
 					}
 				}
@@ -319,6 +917,9 @@
 					color: collections[EntityType.Actor].color,
 					type: 'circle',
 					collection: EntityType.Actor,
+					g6Type: collections[EntityType.Actor].g6Type,
+					g6Style: collections[EntityType.Actor].g6Style,
+					intent: toIntentPayload(EntityType.Actor, row.$id),
 					details: {
 						address: row.address,
 						chain: chainName,
@@ -339,6 +940,7 @@
 									color: edgeColors.owns,
 									type: 'curvedArrow',
 									relation: 'owns',
+									g6Style: edgeStyles.owns,
 								})
 							}
 						}
@@ -349,7 +951,7 @@
 
 		// Add coin balance nodes
 		if (visibleCollections.has(EntityType.ActorCoin)) {
-			const coins = coinsQuery.data ?? []
+			const coins = actorCoinsQuery.data ?? []
 			coins.forEach(({ row }, i) => {
 				const coinId = `coin:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}`
 				if (g.hasNode(coinId)) return
@@ -375,6 +977,10 @@
 						: `${collections[EntityType.ActorCoin].color}55`,
 					type: 'circle',
 					collection: EntityType.ActorCoin,
+					g6Type: collections[EntityType.ActorCoin].g6Type,
+					g6Style: collections[EntityType.ActorCoin].g6Style,
+					intent: toIntentPayload(EntityType.ActorCoin, row.$id),
+					disabled: !hasBalance,
 					details: {
 						symbol: row.symbol,
 						balance: balanceStr,
@@ -395,6 +1001,8 @@
 								: `${edgeColors.balance}33`,
 							type: 'curvedArrow',
 							relation: 'balance',
+							g6Style: edgeStyles.balance,
+							disabled: !hasBalance,
 						})
 					}
 				}
@@ -426,6 +1034,9 @@
 						: `${collections[EntityType.ActorAllowance].color}55`,
 					type: 'circle',
 					collection: EntityType.ActorAllowance,
+					g6Type: collections[EntityType.ActorAllowance].g6Type,
+					g6Style: collections[EntityType.ActorAllowance].g6Style,
+					disabled: !hasAllowance,
 					details: {
 						chain: chainName,
 						approved: hasAllowance,
@@ -445,9 +1056,41 @@
 								: `${edgeColors.allowance}33`,
 							type: 'curvedArrow',
 							relation: 'allowance',
+							g6Style: edgeStyles.allowance,
+							disabled: !hasAllowance,
 						})
 					}
 				}
+			})
+		}
+
+		// Add network nodes
+		if (visibleCollections.has(EntityType.Network)) {
+			const networks = networksQuery.data ?? []
+			networks.forEach(({ row }, i) => {
+				const networkId = `network:${row.$id}`
+				if (g.hasNode(networkId)) return
+				const pos = positionInRing(
+					collections[EntityType.Network].ring,
+					i,
+					networks.length,
+				)
+				addNode({
+					id: networkId,
+					label: row.name,
+					...pos,
+					size: collections[EntityType.Network].size,
+					color: collections[EntityType.Network].color,
+					type: 'circle',
+					collection: EntityType.Network,
+					g6Type: collections[EntityType.Network].g6Type,
+					g6Style: collections[EntityType.Network].g6Style,
+					details: {
+						chainId: row.chainId,
+						type: row.type,
+						network: row.network,
+					},
+				})
 			})
 		}
 
@@ -472,6 +1115,8 @@
 					color: collections[EntityType.BridgeRoute].color,
 					type: 'circle',
 					collection: EntityType.BridgeRoute,
+					g6Type: collections[EntityType.BridgeRoute].g6Type,
+					g6Style: collections[EntityType.BridgeRoute].g6Style,
 					details: {
 						from: fromChain,
 						to: toChain,
@@ -482,6 +1127,34 @@
 						tags: row.tags.join(', '),
 					},
 				})
+				if (visibleCollections.has(EntityType.Network)) {
+					const fromNetworkId = `network:${row.fromChainId}`
+					const toNetworkId = `network:${row.toChainId}`
+					if (g.hasNode(fromNetworkId)) {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: fromNetworkId,
+							target: routeId,
+							size: 1.5,
+							color: edgeColors.route,
+							type: 'curvedArrow',
+							relation: 'route',
+							g6Style: edgeStyles.route,
+						})
+					}
+					if (g.hasNode(toNetworkId)) {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: routeId,
+							target: toNetworkId,
+							size: 1.5,
+							color: edgeColors.route,
+							type: 'curvedArrow',
+							relation: 'route',
+							g6Style: edgeStyles.route,
+						})
+					}
+				}
 			})
 		}
 
@@ -514,6 +1187,9 @@
 						collections[EntityType.Transaction].color,
 					type: 'circle',
 					collection: EntityType.Transaction,
+					g6Type: collections[EntityType.Transaction].g6Type,
+					g6Style: collections[EntityType.Transaction].g6Style,
+					disabled: row.status === 'failed',
 					details: {
 						status: row.status,
 						from: fromChain,
@@ -532,9 +1208,895 @@
 							color: edgeColors.transaction,
 							type: 'curvedArrow',
 							relation: 'transaction',
+							g6Style: edgeStyles.transaction,
+							disabled: row.status === 'failed',
 						})
 					}
 				}
+			})
+		}
+
+		// Add coin nodes
+		if (visibleCollections.has(EntityType.Coin)) {
+			const coins = coinsQuery.data ?? []
+			coins.forEach(({ row }, i) => {
+				const coinId = `erc20:${row.$id.network}:${row.$id.address}`
+				if (g.hasNode(coinId)) return
+				const pos = positionInRing(
+					collections[EntityType.Coin].ring,
+					i,
+					coins.length,
+				)
+				addNode({
+					id: coinId,
+					label: row.symbol,
+					...pos,
+					size: collections[EntityType.Coin].size,
+					color: collections[EntityType.Coin].color,
+					type: 'circle',
+					collection: EntityType.Coin,
+					g6Type: collections[EntityType.Coin].g6Type,
+					g6Style: collections[EntityType.Coin].g6Style,
+					intent: toIntentPayload(EntityType.Coin, row.$id),
+					details: {
+						address: row.$id.address,
+						chainId: row.$id.network,
+						symbol: row.symbol,
+					},
+				})
+				if (visibleCollections.has(EntityType.Network)) {
+					const networkId = `network:${row.$id.network}`
+					if (g.hasNode(networkId)) {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: networkId,
+							target: coinId,
+							size: 1,
+							color: edgeColors.coin,
+							type: 'line',
+							relation: 'coin',
+							g6Style: edgeStyles.coin,
+						})
+					}
+				}
+			})
+		}
+
+		// Add token list coin nodes
+		if (visibleCollections.has(EntityType.TokenListCoin)) {
+			const tokens = tokenListCoinsQuery.data ?? []
+			tokens.forEach(({ row }, i) => {
+				const tokenId = `token:${row.$id.chainId}:${row.$id.address}`
+				if (g.hasNode(tokenId)) return
+				const pos = positionInRing(
+					collections[EntityType.TokenListCoin].ring,
+					i,
+					tokens.length,
+				)
+				addNode({
+					id: tokenId,
+					label: row.symbol,
+					...pos,
+					size: collections[EntityType.TokenListCoin].size,
+					color: collections[EntityType.TokenListCoin].color,
+					type: 'circle',
+					collection: EntityType.TokenListCoin,
+					g6Type: collections[EntityType.TokenListCoin].g6Type,
+					g6Style: collections[EntityType.TokenListCoin].g6Style,
+					intent: toIntentPayload(EntityType.TokenListCoin, row.$id),
+					details: {
+						address: row.$id.address,
+						chainId: row.$id.chainId,
+						symbol: row.symbol,
+					},
+				})
+				if (visibleCollections.has(EntityType.Network)) {
+					const networkId = `network:${row.$id.chainId}`
+					if (g.hasNode(networkId)) {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: networkId,
+							target: tokenId,
+							size: 1,
+							color: edgeColors.token,
+							type: 'line',
+							relation: 'token',
+							g6Style: edgeStyles.token,
+						})
+					}
+				}
+			})
+		}
+
+		// Add stork price nodes
+		if (visibleCollections.has(EntityType.StorkPrice)) {
+			const prices = storkPricesQuery.data ?? []
+			prices.forEach(({ row }, i) => {
+				const priceId = toNodeId('stork', row.$id)
+				if (g.hasNode(priceId)) return
+				const pos = positionInRing(
+					collections[EntityType.StorkPrice].ring,
+					i,
+					prices.length,
+				)
+				addNode({
+					id: priceId,
+					label:
+						row.assetId.length > 10
+							? row.assetId.slice(0, 10)
+							: row.assetId,
+					...pos,
+					size: collections[EntityType.StorkPrice].size,
+					color: collections[EntityType.StorkPrice].color,
+					type: 'circle',
+					collection: EntityType.StorkPrice,
+					g6Type: collections[EntityType.StorkPrice].g6Type,
+					g6Style: collections[EntityType.StorkPrice].g6Style,
+					disabled: row.isLoading || row.error !== null,
+					details: {
+						assetId: row.assetId,
+						transport: row.transport,
+						chainId: row.chainId,
+						price: row.price.toString(),
+					},
+				})
+				if (visibleCollections.has(EntityType.Network) && row.chainId) {
+					const networkId = `network:${row.chainId}`
+					if (g.hasNode(networkId)) {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: networkId,
+							target: priceId,
+							size: 1,
+							color: edgeColors.stork,
+							type: 'line',
+							relation: 'stork',
+							g6Style: edgeStyles.stork,
+							disabled: row.isLoading || row.error !== null,
+						})
+					}
+				}
+			})
+		}
+
+		// Add swap quote nodes
+		if (visibleCollections.has(EntityType.SwapQuote)) {
+			const quotes = swapQuotesQuery.data ?? []
+			quotes.forEach(({ row }, i) => {
+				const quoteId = `swap:${row.id}`
+				if (g.hasNode(quoteId)) return
+				const pos = positionInRing(
+					collections[EntityType.SwapQuote].ring,
+					i,
+					quotes.length,
+				)
+				addNode({
+					id: quoteId,
+					label: `${row.tokenIn.slice(0, 6)}→${row.tokenOut.slice(0, 6)}`,
+					...pos,
+					size: collections[EntityType.SwapQuote].size,
+					color: collections[EntityType.SwapQuote].color,
+					type: 'rect',
+					collection: EntityType.SwapQuote,
+					g6Type: collections[EntityType.SwapQuote].g6Type,
+					g6Style: collections[EntityType.SwapQuote].g6Style,
+					details: {
+						chainId: row.chainId,
+						priceImpact: row.priceImpact,
+						tokenIn: row.tokenIn,
+						tokenOut: row.tokenOut,
+					},
+				})
+				if (visibleCollections.has(EntityType.Network)) {
+					const networkId = `network:${row.chainId}`
+					if (g.hasNode(networkId)) {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: networkId,
+							target: quoteId,
+							size: 1.5,
+							color: edgeColors.swap,
+							type: 'curvedArrow',
+							relation: 'swap',
+							g6Style: edgeStyles.swap,
+						})
+					}
+				}
+			})
+		}
+
+		// Add uniswap pool nodes
+		if (visibleCollections.has(EntityType.UniswapPool)) {
+			const pools = uniswapPoolsQuery.data ?? []
+			pools.forEach(({ row }, i) => {
+				const poolId = `pool:${row.id}`
+				if (g.hasNode(poolId)) return
+				const pos = positionInRing(
+					collections[EntityType.UniswapPool].ring,
+					i,
+					pools.length,
+				)
+				addNode({
+					id: poolId,
+					label: `${row.token0.slice(0, 6)} / ${row.token1.slice(0, 6)}`,
+					...pos,
+					size: collections[EntityType.UniswapPool].size,
+					color: collections[EntityType.UniswapPool].color,
+					type: 'rect',
+					collection: EntityType.UniswapPool,
+					g6Type: collections[EntityType.UniswapPool].g6Type,
+					g6Style: collections[EntityType.UniswapPool].g6Style,
+					details: {
+						chainId: row.chainId,
+						fee: row.fee,
+						hooks: row.hooks,
+					},
+				})
+				if (visibleCollections.has(EntityType.Network)) {
+					const networkId = `network:${row.chainId}`
+					if (g.hasNode(networkId)) {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: networkId,
+							target: poolId,
+							size: 1.5,
+							color: edgeColors.pool,
+							type: 'line',
+							relation: 'pool',
+							g6Style: edgeStyles.pool,
+						})
+					}
+				}
+			})
+		}
+
+		// Add uniswap position nodes
+		if (visibleCollections.has(EntityType.UniswapPosition)) {
+			const positions = uniswapPositionsQuery.data ?? []
+			positions.forEach(({ row }, i) => {
+				const positionId = `position:${row.id}`
+				if (g.hasNode(positionId)) return
+				const pos = positionInRing(
+					collections[EntityType.UniswapPosition].ring,
+					i,
+					positions.length,
+				)
+				addNode({
+					id: positionId,
+					label: `Pos ${row.owner.slice(0, 6)}…`,
+					...pos,
+					size: collections[EntityType.UniswapPosition].size,
+					color: collections[EntityType.UniswapPosition].color,
+					type: 'rect',
+					collection: EntityType.UniswapPosition,
+					g6Type: collections[EntityType.UniswapPosition].g6Type,
+					g6Style: collections[EntityType.UniswapPosition].g6Style,
+					details: {
+						chainId: row.chainId,
+						poolId: row.poolId,
+						owner: row.owner,
+					},
+				})
+				const poolId = `pool:${row.poolId}`
+				if (g.hasNode(poolId)) {
+					addEdge({
+						id: `edge:${edgeIndex++}`,
+						source: poolId,
+						target: positionId,
+						size: 1.2,
+						color: edgeColors.position,
+						type: 'curvedArrow',
+						relation: 'position',
+						g6Style: edgeStyles.position,
+					})
+				}
+			})
+		}
+
+		// Add CCTP allowance nodes
+		if (visibleCollections.has(EntityType.CctpAllowance)) {
+			const allowances = cctpAllowanceQuery.data ?? []
+			allowances.forEach(({ row }, i) => {
+				const allowanceId = toNodeId('cctp-allowance', row.$id)
+				if (g.hasNode(allowanceId)) return
+				const pos = positionInRing(
+					collections[EntityType.CctpAllowance].ring,
+					i,
+					allowances.length,
+				)
+				addNode({
+					id: allowanceId,
+					label:
+						row.allowance === null
+							? 'Allowance n/a'
+							: `Allowance ${row.allowance}`,
+					...pos,
+					size: collections[EntityType.CctpAllowance].size,
+					color: collections[EntityType.CctpAllowance].color,
+					type: 'rect',
+					collection: EntityType.CctpAllowance,
+					g6Type: collections[EntityType.CctpAllowance].g6Type,
+					g6Style: collections[EntityType.CctpAllowance].g6Style,
+					disabled: row.isLoading || row.error !== null,
+					details: {
+						apiHost: row.$id.apiHost,
+						lastUpdated: row.lastUpdated,
+						error: row.error,
+					},
+				})
+			})
+		}
+
+		// Add CCTP fee nodes
+		if (visibleCollections.has(EntityType.CctpFee)) {
+			const fees = cctpFeesQuery.data ?? []
+			fees.forEach(({ row }, i) => {
+				const feeId = toNodeId('cctp-fee', row.$id)
+				if (g.hasNode(feeId)) return
+				const pos = positionInRing(
+					collections[EntityType.CctpFee].ring,
+					i,
+					fees.length,
+				)
+				addNode({
+					id: feeId,
+					label: `${row.$id.fromDomain}→${row.$id.toDomain}`,
+					...pos,
+					size: collections[EntityType.CctpFee].size,
+					color: collections[EntityType.CctpFee].color,
+					type: 'rect',
+					collection: EntityType.CctpFee,
+					g6Type: collections[EntityType.CctpFee].g6Type,
+					g6Style: collections[EntityType.CctpFee].g6Style,
+					disabled: row.isLoading || row.error !== null,
+					details: {
+						apiHost: row.$id.apiHost,
+						rows: row.rows.length,
+						error: row.error,
+					},
+				})
+			})
+		}
+
+		// Add transaction session nodes
+		if (visibleCollections.has(EntityType.TransactionSession)) {
+			const sessions = transactionSessionsQuery.data ?? []
+			sessions.forEach(({ row }, i) => {
+				const sessionId = `session:${row.id}`
+				if (g.hasNode(sessionId)) return
+				const pos = positionInRing(
+					collections[EntityType.TransactionSession].ring,
+					i,
+					sessions.length,
+				)
+				addNode({
+					id: sessionId,
+					label: `Session ${row.id.slice(0, 6)}`,
+					...pos,
+					size: collections[EntityType.TransactionSession].size,
+					color: collections[EntityType.TransactionSession].color,
+					type: 'rect',
+					collection: EntityType.TransactionSession,
+					g6Type: collections[EntityType.TransactionSession].g6Type,
+					g6Style: collections[EntityType.TransactionSession].g6Style,
+					disabled: row.status === 'Finalized',
+					details: {
+						status: row.status,
+						flows: row.flows.join(', '),
+						simulations: row.simulationCount ?? 0,
+					},
+				})
+				if (visibleCollections.has(EntityType.Network)) {
+					if (row.execution?.chainId) {
+						const networkId = `network:${row.execution.chainId}`
+						if (g.hasNode(networkId)) {
+							addEdge({
+								id: `edge:${edgeIndex++}`,
+								source: networkId,
+								target: sessionId,
+								size: 1.5,
+								color: edgeColors.session,
+								type: 'curvedArrow',
+								relation: 'session',
+								g6Style: edgeStyles.session,
+							})
+						}
+					}
+				}
+			})
+		}
+
+		// Add transaction session simulation nodes
+		if (visibleCollections.has(EntityType.TransactionSessionSimulation)) {
+			const simulations = transactionSessionSimulationsQuery.data ?? []
+			simulations.forEach(({ row }, i) => {
+				const simulationId = `simulation:${row.id}`
+				if (g.hasNode(simulationId)) return
+				const pos = positionInRing(
+					collections[EntityType.TransactionSessionSimulation].ring,
+					i,
+					simulations.length,
+				)
+				addNode({
+					id: simulationId,
+					label: `Sim ${row.id.slice(0, 6)}`,
+					...pos,
+					size: collections[EntityType.TransactionSessionSimulation].size,
+					color: collections[EntityType.TransactionSessionSimulation].color,
+					type: 'rect',
+					collection: EntityType.TransactionSessionSimulation,
+					g6Type: collections[EntityType.TransactionSessionSimulation].g6Type,
+					g6Style: collections[EntityType.TransactionSessionSimulation].g6Style,
+					disabled: row.status === 'failed',
+					details: {
+						status: row.status,
+						sessionId: row.sessionId,
+					},
+				})
+				const sessionId = `session:${row.sessionId}`
+				if (g.hasNode(sessionId)) {
+					addEdge({
+						id: `edge:${edgeIndex++}`,
+						source: sessionId,
+						target: simulationId,
+						size: 1,
+						color: edgeColors.simulation,
+						type: 'curvedArrow',
+						relation: 'simulation',
+						g6Style: edgeStyles.simulation,
+						disabled: row.status === 'failed',
+					})
+				}
+			})
+		}
+
+		// Add transfer graph nodes
+		if (visibleCollections.has(EntityType.TransferGraph)) {
+			const graphs = transferGraphsQuery.data ?? []
+			graphs.forEach(({ row }, i) => {
+				const graphId = `transfer-graph:${row.$id.period}`
+				if (g.hasNode(graphId)) return
+				const pos = positionInRing(
+					collections[EntityType.TransferGraph].ring,
+					i,
+					graphs.length,
+				)
+				addNode({
+					id: graphId,
+					label: row.period,
+					...pos,
+					size: collections[EntityType.TransferGraph].size,
+					color: collections[EntityType.TransferGraph].color,
+					type: 'rect',
+					collection: EntityType.TransferGraph,
+					g6Type: collections[EntityType.TransferGraph].g6Type,
+					g6Style: collections[EntityType.TransferGraph].g6Style,
+					disabled: row.isLoading || row.error !== null,
+					details: {
+						nodes: row.graph.nodes.length,
+						edges: row.graph.edges.length,
+						error: row.error,
+					},
+				})
+			})
+		}
+
+		// Add room nodes
+		if (visibleCollections.has(EntityType.Room)) {
+			const rooms = roomsQuery.data ?? []
+			rooms.forEach(({ row }, i) => {
+				const roomId = `room:${row.id}`
+				if (g.hasNode(roomId)) return
+				const pos = positionInRing(
+					collections[EntityType.Room].ring,
+					i,
+					rooms.length,
+				)
+				addNode({
+					id: roomId,
+					label: row.name ?? row.id,
+					...pos,
+					size: collections[EntityType.Room].size,
+					color: collections[EntityType.Room].color,
+					type: 'rect',
+					collection: EntityType.Room,
+					g6Type: collections[EntityType.Room].g6Type,
+					g6Style: collections[EntityType.Room].g6Style,
+					details: {
+						createdBy: row.createdBy,
+						createdAt: row.createdAt,
+					},
+				})
+			})
+		}
+
+		// Add room peer nodes
+		if (visibleCollections.has(EntityType.RoomPeer)) {
+			const peers = roomPeersQuery.data ?? []
+			peers.forEach(({ row }, i) => {
+				const peerId = `peer:${row.id}`
+				if (g.hasNode(peerId)) return
+				const pos = positionInRing(
+					collections[EntityType.RoomPeer].ring,
+					i,
+					peers.length,
+				)
+				addNode({
+					id: peerId,
+					label: row.displayName ?? row.peerId,
+					...pos,
+					size: collections[EntityType.RoomPeer].size,
+					color: collections[EntityType.RoomPeer].color,
+					type: 'circle',
+					collection: EntityType.RoomPeer,
+					g6Type: collections[EntityType.RoomPeer].g6Type,
+					g6Style: collections[EntityType.RoomPeer].g6Style,
+					disabled: !row.isConnected,
+					details: {
+						roomId: row.roomId,
+						peerId: row.peerId,
+						connected: row.isConnected,
+					},
+				})
+				const roomId = `room:${row.roomId}`
+				if (g.hasNode(roomId)) {
+					addEdge({
+						id: `edge:${edgeIndex++}`,
+						source: roomId,
+						target: peerId,
+						size: 1,
+						color: edgeColors.peer,
+						type: 'curvedArrow',
+						relation: 'peer',
+						g6Style: edgeStyles.peer,
+						disabled: !row.isConnected,
+					})
+				}
+			})
+		}
+
+		// Add shared address nodes
+		if (visibleCollections.has(EntityType.SharedAddress)) {
+			const shared = sharedAddressesQuery.data ?? []
+			shared.forEach(({ row }, i) => {
+				const sharedId = `shared:${row.id}`
+				if (g.hasNode(sharedId)) return
+				const pos = positionInRing(
+					collections[EntityType.SharedAddress].ring,
+					i,
+					shared.length,
+				)
+				addNode({
+					id: sharedId,
+					label: row.address.slice(0, 10) + '…',
+					...pos,
+					size: collections[EntityType.SharedAddress].size,
+					color: collections[EntityType.SharedAddress].color,
+					type: 'circle',
+					collection: EntityType.SharedAddress,
+					g6Type: collections[EntityType.SharedAddress].g6Type,
+					g6Style: collections[EntityType.SharedAddress].g6Style,
+					details: {
+						roomId: row.roomId,
+						peerId: row.peerId,
+						verifiedBy: row.verifiedBy.length,
+					},
+				})
+				const roomId = `room:${row.roomId}`
+				if (g.hasNode(roomId)) {
+					addEdge({
+						id: `edge:${edgeIndex++}`,
+						source: roomId,
+						target: sharedId,
+						size: 1,
+						color: edgeColors.shared,
+						type: 'line',
+						relation: 'shared',
+						g6Style: edgeStyles.shared,
+					})
+				}
+			})
+		}
+
+		// Add SIWE challenge nodes
+		if (visibleCollections.has(EntityType.SiweChallenge)) {
+			const challenges = siweChallengesQuery.data ?? []
+			challenges.forEach(({ row }, i) => {
+				const challengeId = `siwe:${row.id}`
+				if (g.hasNode(challengeId)) return
+				const pos = positionInRing(
+					collections[EntityType.SiweChallenge].ring,
+					i,
+					challenges.length,
+				)
+				addNode({
+					id: challengeId,
+					label: `SIWE ${row.address.slice(0, 6)}…`,
+					...pos,
+					size: collections[EntityType.SiweChallenge].size,
+					color: collections[EntityType.SiweChallenge].color,
+					type: 'rect',
+					collection: EntityType.SiweChallenge,
+					g6Type: collections[EntityType.SiweChallenge].g6Type,
+					g6Style: collections[EntityType.SiweChallenge].g6Style,
+					disabled: !row.verified,
+					details: {
+						roomId: row.roomId,
+						address: row.address,
+						verified: row.verified,
+					},
+				})
+				const roomId = `room:${row.roomId}`
+				if (g.hasNode(roomId)) {
+					addEdge({
+						id: `edge:${edgeIndex++}`,
+						source: roomId,
+						target: challengeId,
+						size: 1,
+						color: edgeColors.siwe,
+						type: 'curvedArrow',
+						relation: 'siwe',
+						g6Style: edgeStyles.siwe,
+						disabled: !row.verified,
+					})
+				}
+			})
+		}
+
+		// Add transfer request nodes
+		if (visibleCollections.has(EntityType.TransferRequest)) {
+			const requests = transferRequestsQuery.data ?? []
+			requests.forEach(({ row }, i) => {
+				const requestId = `transfer-request:${row.id}`
+				if (g.hasNode(requestId)) return
+				const pos = positionInRing(
+					collections[EntityType.TransferRequest].ring,
+					i,
+					requests.length,
+				)
+				const disabled =
+					row.status === 'rejected' || row.status === 'expired'
+				addNode({
+					id: requestId,
+					label: `Request ${row.status}`,
+					...pos,
+					size: collections[EntityType.TransferRequest].size,
+					color: collections[EntityType.TransferRequest].color,
+					type: 'rect',
+					collection: EntityType.TransferRequest,
+					g6Type: collections[EntityType.TransferRequest].g6Type,
+					g6Style: collections[EntityType.TransferRequest].g6Style,
+					disabled,
+					details: {
+						from: row.from,
+						to: row.to,
+						allocations: row.allocations.length,
+					},
+				})
+				const roomId = `room:${row.roomId}`
+				if (g.hasNode(roomId)) {
+					addEdge({
+						id: `edge:${edgeIndex++}`,
+						source: roomId,
+						target: requestId,
+						size: 1.2,
+						color: edgeColors.transferRequest,
+						type: 'curvedArrow',
+						relation: 'transferRequest',
+						g6Style: edgeStyles.transferRequest,
+						disabled,
+					})
+				}
+			})
+		}
+
+		// Add yellow channel nodes
+		if (visibleCollections.has(EntityType.YellowChannel)) {
+			const channels = yellowChannelsQuery.data ?? []
+			channels.forEach(({ row }, i) => {
+				const channelId = `yellow:${row.id}`
+				if (g.hasNode(channelId)) return
+				const pos = positionInRing(
+					collections[EntityType.YellowChannel].ring,
+					i,
+					channels.length,
+				)
+				addNode({
+					id: channelId,
+					label: `Channel ${row.id.slice(0, 6)}`,
+					...pos,
+					size: collections[EntityType.YellowChannel].size,
+					color: collections[EntityType.YellowChannel].color,
+					type: 'rect',
+					collection: EntityType.YellowChannel,
+					g6Type: collections[EntityType.YellowChannel].g6Type,
+					g6Style: collections[EntityType.YellowChannel].g6Style,
+					disabled: row.status === 'closed',
+					details: {
+						status: row.status,
+						chainId: row.chainId,
+						asset: row.asset,
+					},
+				})
+				if (visibleCollections.has(EntityType.Network)) {
+					const networkId = `network:${row.chainId}`
+					if (g.hasNode(networkId)) {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: networkId,
+							target: channelId,
+							size: 1.5,
+							color: edgeColors.yellow,
+							type: 'curvedArrow',
+							relation: 'yellow',
+							g6Style: edgeStyles.yellow,
+							disabled: row.status === 'closed',
+						})
+					}
+				}
+			})
+		}
+
+		// Add yellow channel state nodes
+		if (visibleCollections.has(EntityType.YellowChannelState)) {
+			const states = yellowChannelStatesQuery.data ?? []
+			states.forEach(({ row }, i) => {
+				const stateId = `yellow-state:${row.id}`
+				if (g.hasNode(stateId)) return
+				const pos = positionInRing(
+					collections[EntityType.YellowChannelState].ring,
+					i,
+					states.length,
+				)
+				addNode({
+					id: stateId,
+					label: `State v${row.version}`,
+					...pos,
+					size: collections[EntityType.YellowChannelState].size,
+					color: collections[EntityType.YellowChannelState].color,
+					type: 'rect',
+					collection: EntityType.YellowChannelState,
+					g6Type: collections[EntityType.YellowChannelState].g6Type,
+					g6Style: collections[EntityType.YellowChannelState].g6Style,
+					disabled: row.isFinal,
+					details: {
+						channelId: row.channelId,
+						intent: row.intent,
+						isFinal: row.isFinal,
+					},
+				})
+				const channelId = `yellow:${row.channelId}`
+				if (g.hasNode(channelId)) {
+					addEdge({
+						id: `edge:${edgeIndex++}`,
+						source: channelId,
+						target: stateId,
+						size: 1,
+						color: edgeColors.yellow,
+						type: 'curvedArrow',
+						relation: 'yellow',
+						g6Style: edgeStyles.yellow,
+						disabled: row.isFinal,
+					})
+				}
+			})
+		}
+
+		// Add yellow deposit nodes
+		if (visibleCollections.has(EntityType.YellowDeposit)) {
+			const deposits = yellowDepositsQuery.data ?? []
+			deposits.forEach(({ row }, i) => {
+				const depositId = `yellow-deposit:${row.id}`
+				if (g.hasNode(depositId)) return
+				const pos = positionInRing(
+					collections[EntityType.YellowDeposit].ring,
+					i,
+					deposits.length,
+				)
+				addNode({
+					id: depositId,
+					label: `Deposit ${row.address.slice(0, 6)}…`,
+					...pos,
+					size: collections[EntityType.YellowDeposit].size,
+					color: collections[EntityType.YellowDeposit].color,
+					type: 'circle',
+					collection: EntityType.YellowDeposit,
+					g6Type: collections[EntityType.YellowDeposit].g6Type,
+					g6Style: collections[EntityType.YellowDeposit].g6Style,
+					details: {
+						chainId: row.chainId,
+						available: row.availableBalance.toString(),
+						locked: row.lockedBalance.toString(),
+					},
+				})
+				if (visibleCollections.has(EntityType.Network)) {
+					const networkId = `network:${row.chainId}`
+					if (g.hasNode(networkId)) {
+						addEdge({
+							id: `edge:${edgeIndex++}`,
+							source: networkId,
+							target: depositId,
+							size: 1,
+							color: edgeColors.yellow,
+							type: 'line',
+							relation: 'yellow',
+							g6Style: edgeStyles.yellow,
+						})
+					}
+				}
+			})
+		}
+
+		// Add yellow transfer nodes
+		if (visibleCollections.has(EntityType.YellowTransfer)) {
+			const transfers = yellowTransfersQuery.data ?? []
+			transfers.forEach(({ row }, i) => {
+				const transferId = `yellow-transfer:${row.id}`
+				if (g.hasNode(transferId)) return
+				const pos = positionInRing(
+					collections[EntityType.YellowTransfer].ring,
+					i,
+					transfers.length,
+				)
+				addNode({
+					id: transferId,
+					label: `${row.status} transfer`,
+					...pos,
+					size: collections[EntityType.YellowTransfer].size,
+					color: collections[EntityType.YellowTransfer].color,
+					type: 'circle',
+					collection: EntityType.YellowTransfer,
+					g6Type: collections[EntityType.YellowTransfer].g6Type,
+					g6Style: collections[EntityType.YellowTransfer].g6Style,
+					disabled: row.status === 'failed',
+					details: {
+						channelId: row.channelId,
+						amount: row.amount.toString(),
+						status: row.status,
+					},
+				})
+				const channelId = `yellow:${row.channelId}`
+				if (g.hasNode(channelId)) {
+					addEdge({
+						id: `edge:${edgeIndex++}`,
+						source: channelId,
+						target: transferId,
+						size: 1,
+						color: edgeColors.yellow,
+						type: 'curvedArrow',
+						relation: 'yellow',
+						g6Style: edgeStyles.yellow,
+						disabled: row.status === 'failed',
+					})
+				}
+			})
+		}
+
+		// Add dashboard panel nodes
+		if (visibleCollections.has(EntityType.DashboardPanel)) {
+			const panels = dashboardPanelsQuery.data ?? []
+			panels.forEach(({ row }, i) => {
+				const panelId = toNodeId('dashboard', row.$id)
+				if (g.hasNode(panelId)) return
+				const pos = positionInRing(
+					collections[EntityType.DashboardPanel].ring,
+					i,
+					panels.length,
+				)
+				addNode({
+					id: panelId,
+					label: `Dashboard ${row.$id.id}`,
+					...pos,
+					size: collections[EntityType.DashboardPanel].size,
+					color: collections[EntityType.DashboardPanel].color,
+					type: 'rect',
+					collection: EntityType.DashboardPanel,
+					g6Type: collections[EntityType.DashboardPanel].g6Type,
+					g6Style: collections[EntityType.DashboardPanel].g6Style,
+					details: {
+						focusedPanelId: row.focusedPanelId,
+					},
+				})
 			})
 		}
 
@@ -719,10 +2281,32 @@
 			walletsQuery.data?.length,
 			connectionsQuery.data?.length,
 			actorsQuery.data?.length,
-			coinsQuery.data?.length,
+			actorCoinsQuery.data?.length,
 			allowancesQuery.data?.length,
 			routesQuery.data?.length,
 			txQuery.data?.length,
+			cctpAllowanceQuery.data?.length,
+			cctpFeesQuery.data?.length,
+			networksQuery.data?.length,
+			coinsQuery.data?.length,
+			tokenListCoinsQuery.data?.length,
+			storkPricesQuery.data?.length,
+			swapQuotesQuery.data?.length,
+			uniswapPoolsQuery.data?.length,
+			uniswapPositionsQuery.data?.length,
+			transactionSessionsQuery.data?.length,
+			transactionSessionSimulationsQuery.data?.length,
+			transferGraphsQuery.data?.length,
+			transferRequestsQuery.data?.length,
+			roomsQuery.data?.length,
+			roomPeersQuery.data?.length,
+			sharedAddressesQuery.data?.length,
+			siweChallengesQuery.data?.length,
+			yellowChannelsQuery.data?.length,
+			yellowChannelStatesQuery.data?.length,
+			yellowDepositsQuery.data?.length,
+			yellowTransfersQuery.data?.length,
+			dashboardPanelsQuery.data?.length,
 			[...visibleCollections].join(','),
 		].join(':'),
 	)
@@ -927,13 +2511,20 @@
 	.graph-scene {
 		position: fixed;
 		bottom: 1rem;
-		right: 1rem;
-		width: 440px;
+		left: var(--safeArea-insetLeft);
+		right: var(--safeArea-insetRight);
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 		display: flex;
 		flex-direction: column;
 		z-index: 50;
 		transition: height 0.2s ease;
+
+		@media not (max-width: 1024px) {
+			left: calc(
+				var(--safeArea-insetLeft) + var(--navigation-desktop-inlineSize) +
+					var(--separator-width)
+			);
+		}
 
 		&[data-expanded='true'] {
 			height: 380px;

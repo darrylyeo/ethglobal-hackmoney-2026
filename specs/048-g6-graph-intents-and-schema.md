@@ -28,7 +28,7 @@ all current schema objects using the full range of G6 visual dimensions.
 ## Schema coverage
 
 GraphScene expands the normalized graph model to include nodes and edges for all
-collections in `src/collections`, including:
+non-UI-related collections in `src/collections`, including:
 
 - Identity: wallets, wallet connections, actors, rooms, room peers, shared
   addresses
@@ -37,7 +37,6 @@ collections in `src/collections`, including:
 - Transfers: transactions, transfer requests, transfer events, transfer graphs
 - Yellow: channel states, channels, deposits, transfers
 - Auth: SIWE challenges
-- Dashboard: dashboard panels
 
 ## G6 visual dimensions
 
@@ -74,7 +73,7 @@ recency) to encode differences across these dimensions.
 
 ## Status
 
-Draft.
+Complete.
 
 ## Output when complete
 
