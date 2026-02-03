@@ -7,9 +7,9 @@
 	let selectedActor = $state<`0x${string}` | null>(null)
 
 	// Components
-	import Balances from './lifi/Balances.svelte'
+	import Balances from '$/views/Balances.svelte'
 	import UnifiedBridgeFlow from './UnifiedBridgeFlow.svelte'
-	import Wallets from './lifi/Wallets.svelte'
+	import Wallets from '$/views/Wallets.svelte'
 </script>
 
 <svelte:head>

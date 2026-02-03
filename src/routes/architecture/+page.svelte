@@ -3,7 +3,7 @@
 	import { resolve } from '$app/paths'
 
 	// Components
-	import ArchitectureGraph from '$/components/ArchitectureGraph.svelte'
+	import ArchitectureGraph from './ArchitectureGraph.svelte'
 </script>
 
 <svelte:head>

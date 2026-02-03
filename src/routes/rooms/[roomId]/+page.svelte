@@ -10,7 +10,7 @@
 	// State
 	import { getOrCreatePeerDisplayName } from '$/lib/partykit'
 	import { roomState, joinRoom, leaveRoom } from '$/state/room.svelte'
-	import Wallets from '$/routes/bridge/lifi/Wallets.svelte'
+	import Wallets from '$/views/Wallets.svelte'
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -18,7 +18,7 @@
 
 	// Components
 	import AddressSharing from '../AddressSharing.svelte'
-	import Peer from '$/components/Peer.svelte'
+	import Peer from '../Peer.svelte'
 	import PeerCard from '../PeerCard.svelte'
 
 	let connectedWallets = $state<ConnectedWallet[]>([])

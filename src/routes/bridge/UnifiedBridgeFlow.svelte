@@ -133,8 +133,8 @@
 	})
 
 	// Components
-	import NetworkInput from '$/components/NetworkInput.svelte'
-	import CoinAmountInput from '$/components/CoinAmountInput.svelte'
+	import NetworkInput from '$/views/NetworkInput.svelte'
+	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import UnifiedProtocolRouter from './UnifiedProtocolRouter.svelte'
 </script>
 

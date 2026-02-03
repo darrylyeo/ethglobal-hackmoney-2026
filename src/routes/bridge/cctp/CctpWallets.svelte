@@ -12,7 +12,7 @@
 	} = $props()
 
 	// Components
-	import Wallets from '../lifi/Wallets.svelte'
+	import Wallets from '$/views/Wallets.svelte'
 </script>
 
 <Wallets bind:connectedWallets bind:selectedActor />

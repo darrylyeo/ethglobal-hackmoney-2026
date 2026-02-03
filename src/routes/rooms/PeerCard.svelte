@@ -25,7 +25,7 @@
 
 	// Components
 	import Address from '$/components/Address.svelte'
-	import Peer from '$/components/Peer.svelte'
+	import Peer from './Peer.svelte'
 	import { Button } from 'bits-ui'
 
 	const sharedQuery = useLiveQuery(

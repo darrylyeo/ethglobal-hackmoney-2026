@@ -8,9 +8,9 @@
 	let selectedChainId = $state<number | null>(null)
 
 	// Components
-	import Balances from './Balances.svelte'
+	import Balances from '$/views/Balances.svelte'
 	import BridgeFlow from './BridgeFlow.svelte'
-	import Wallets from './Wallets.svelte'
+	import Wallets from '$/views/Wallets.svelte'
 </script>
 
 <svelte:head>

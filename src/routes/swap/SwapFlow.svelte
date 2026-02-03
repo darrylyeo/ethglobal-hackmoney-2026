@@ -44,7 +44,7 @@ import { DataSource } from '$/constants/data-sources'
 	import { debounce } from '$/lib/debounce'
 	import { getStorkAssetIdForSymbol } from '$/lib/stork'
 	import Select from '$/components/Select.svelte'
-	import TransactionFlow from '$/components/TransactionFlow.svelte'
+	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import TokenApproval from '$/routes/bridge/lifi/TokenApproval.svelte'
 	import SwapExecution from './SwapExecution.svelte'
 

@@ -16,7 +16,7 @@
 	import { actorsCollection } from '$/collections/actors'
 	import { actorCoinsCollection } from '$/collections/actor-coins'
 	import { actorAllowancesCollection } from '$/collections/actor-allowances'
-	import { bridgeRoutesCollection } from '$/collections/bridge-routes'
+	import { bridgeRouteItemsCollection } from '$/collections/bridge-routes'
 	import { transactionsCollection } from '$/collections/transactions'
 
 	// Context
@@ -99,7 +99,7 @@
 	)
 	const routesQuery = useLiveQuery((q) =>
 		q
-			.from({ row: bridgeRoutesCollection })
+			.from({ row: bridgeRouteItemsCollection })
 			.where(({ row }) => eq(row.$source, DataSource.LiFi))
 			.select(({ row }) => ({ row })),
 	)
@@ -455,36 +455,31 @@
 		if (visibleCollections.has(EntityType.BridgeRoute)) {
 			const routes = routesQuery.data ?? []
 			routes.forEach(({ row }, i) => {
-				const routeId = `routes:${row.$id.fromChainId}:${row.$id.toChainId}:${row.$id.amount}`
+				const routeId = `route:${row.$id.routeId}`
 				if (g.hasNode(routeId)) return
 				const pos = positionInRing(
 					collections[EntityType.BridgeRoute].ring,
 					i,
 					routes.length,
 				)
-				const hasRoutes = row.routes.length > 0
-				const fromChain = getChainName(row.$id.fromChainId)
-				const toChain = getChainName(row.$id.toChainId)
+				const fromChain = getChainName(row.fromChainId)
+				const toChain = getChainName(row.toChainId)
 				addNode({
 					id: routeId,
-					label: hasRoutes
-						? `${row.routes.length}× ${fromChain} → ${toChain}`
-						: `${fromChain} → ${toChain}`,
+					label: `${formatSmallestToDecimal(row.toAmount, 6, 4)} USDC`,
 					...pos,
-					size: hasRoutes
-						? collections[EntityType.BridgeRoute].size +
-							Math.min(row.routes.length, 5)
-						: collections[EntityType.BridgeRoute].size,
-					color: hasRoutes
-						? collections[EntityType.BridgeRoute].color
-						: `${collections[EntityType.BridgeRoute].color}55`,
+					size: collections[EntityType.BridgeRoute].size,
+					color: collections[EntityType.BridgeRoute].color,
 					type: 'circle',
 					collection: EntityType.BridgeRoute,
 					details: {
 						from: fromChain,
 						to: toChain,
-						count: row.routes.length,
-						loading: row.isLoading,
+						tools: [...new Set(row.steps.map((step) => step.toolName))].join(
+							' → ',
+						),
+						duration: `${Math.ceil(row.estimatedDurationSeconds / 60)}m`,
+						tags: row.tags.join(', '),
 					},
 				})
 			})
@@ -592,16 +587,13 @@
 							nodes.push(`coin:${chainId}:${address}:${tokenAddress}`)
 						}
 					}
-				} else if ('fromChainId' in rowId && 'amount' in rowId) {
-					const fromChainId = rowId.fromChainId
-					const toChainId = rowId.toChainId
-					const amount = rowId.amount
+				} else if ('routeId' in rowId && 'quote' in rowId) {
+					const routeId = rowId.routeId
 					if (
-						typeof fromChainId === 'number' &&
-						typeof toChainId === 'number' &&
-						typeof amount === 'bigint'
+						typeof routeId === 'string' &&
+						routeId
 					) {
-						nodes.push(`routes:${fromChainId}:${toChainId}:${amount}`)
+						nodes.push(`route:${routeId}`)
 					}
 				} else if ('sourceTxHash' in rowId) {
 					const sourceTxHash = rowId.sourceTxHash

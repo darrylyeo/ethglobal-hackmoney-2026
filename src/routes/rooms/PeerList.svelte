@@ -10,7 +10,7 @@
 	import { roomPeersCollection } from '$/collections/room-peers'
 
 	// Components
-	import Peer from '$/components/Peer.svelte'
+	import Peer from './Peer.svelte'
 
 	const peersQuery = useLiveQuery(
 		(q) =>

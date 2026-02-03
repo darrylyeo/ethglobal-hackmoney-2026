@@ -2,11 +2,13 @@
 	// Types/constants
 	import type {
 		ConnectedWallet,
-		WalletConnectionEip1193,
 	} from '$/collections/wallet-connections'
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
 	import type { WalletRow } from '$/collections/wallets'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	import {
+		type WalletConnectionEip1193,
+		WalletConnectionTransport,
+	} from '$/data/WalletConnection'
 	import { ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
 	import { DataSource } from '$/constants/data-sources'
 	import {
@@ -36,6 +38,7 @@
 	// State
 	import {
 		type BridgeSettings,
+		BridgeRouteSort,
 		defaultBridgeSettings,
 		bridgeSettingsState,
 	} from '$/state/bridge-settings.svelte'
@@ -81,11 +84,11 @@
 		)
 
 	// Components
-	import NetworkInput from '$/components/NetworkInput.svelte'
+	import NetworkInput from '$/views/NetworkInput.svelte'
 	import Select from '$/components/Select.svelte'
 	import Spinner from '$/components/Spinner.svelte'
-	import CoinAmountInput from '$/components/CoinAmountInput.svelte'
-	import TransactionFlow from '$/components/TransactionFlow.svelte'
+	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
+	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import BridgeExecution from './BridgeExecution.svelte'
 	import TokenApproval from './TokenApproval.svelte'
 
@@ -155,10 +158,10 @@
 			: ercTokens[0],
 	)
 	const sortOptions: { id: BridgeSettings['sortBy']; label: string }[] = [
-		{ id: 'recommended', label: 'Recommended' },
-		{ id: 'output', label: 'Best output' },
-		{ id: 'fees', label: 'Lowest fees' },
-		{ id: 'speed', label: 'Fastest' },
+		{ id: BridgeRouteSort.Recommended, label: 'Recommended' },
+		{ id: BridgeRouteSort.Output, label: 'Best output' },
+		{ id: BridgeRouteSort.Fees, label: 'Lowest fees' },
+		{ id: BridgeRouteSort.Speed, label: 'Fastest' },
 	]
 
 	// Ephemeral UI state (not persisted)
@@ -242,9 +245,15 @@
 		'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 	const quoteAddress = $derived(selectedActor ?? PLACEHOLDER_ADDRESS)
 
-	// Quote params (use placeholder when disconnected)
+	const validation = $derived(
+		validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT),
+	)
+	// Quote params (use placeholder when disconnected; block fetch for invalid amounts)
 	const quoteParams = $derived<BridgeRoutes$Id | null>(
-		fromNetwork && toNetwork && settings.amount > 0n
+		fromNetwork &&
+			toNetwork &&
+			settings.amount > 0n &&
+			validation.isValid
 			? {
 					fromChainId: fromNetwork.id,
 					toChainId: toNetwork.id,
@@ -271,10 +280,11 @@
 	const routes = $derived<BridgeRoute[]>(routesRow?.routes ?? [])
 	const sortedRoutes = $derived(
 		[...routes].sort((a, b) => {
-			if (settings.sortBy === 'output')
+			if (settings.sortBy === BridgeRouteSort.Output)
 				return b.toAmount > a.toAmount ? 1 : b.toAmount < a.toAmount ? -1 : 0
-			if (settings.sortBy === 'fees') return a.gasCostUsd - b.gasCostUsd
-			if (settings.sortBy === 'speed')
+			if (settings.sortBy === BridgeRouteSort.Fees)
+				return a.gasCostUsd - b.gasCostUsd
+			if (settings.sortBy === BridgeRouteSort.Speed)
 				return a.estimatedDurationSeconds - b.estimatedDurationSeconds
 			return 0
 		}),
@@ -352,9 +362,6 @@
 	)
 	const quoteExpired = $derived(quoteRemaining !== null && quoteRemaining <= 0)
 
-	const validation = $derived(
-		validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT),
-	)
 	const exceedsBalance = $derived(
 		sourceBalance !== null && settings.amount > sourceBalance,
 	)
@@ -620,29 +627,28 @@
 		<!-- Routes list -->
 		{#if sortedRoutes.length > 0 || routesRow?.isLoading}
 			<section data-card data-column="gap-3" data-testid="quote-result">
-				{#snippet sortPrefix()}
-					Sort:
-				{/snippet}
-
 				<div data-row="gap-2 align-center justify-between">
 					<h3>
 						Routes {routesRow?.isLoading
 							? '(loading…)'
 							: `(${sortedRoutes.length})`}
 					</h3>
-					<Select
-						items={sortOptions}
-						value={settings.sortBy}
-						onValueChange={(v) => {
-							if (!v) return
-							const option = sortOptions.find((entry) => entry.id === v)
-							if (!option) return
-							bridgeSettingsState.current = { ...settings, sortBy: option.id }
-						}}
-						getItemId={(option) => option.id}
-						getItemLabel={(option) => option.label}
-						Before={sortPrefix}
-					/>
+					<label data-row="gap-2 align-center">
+						<span>Sort</span>
+						<Select
+							id="route-sort"
+							items={sortOptions}
+							value={settings.sortBy}
+							onValueChange={(v) => {
+								if (!v) return
+								const option = sortOptions.find((entry) => entry.id === v)
+								if (!option) return
+								bridgeSettingsState.current = { ...settings, sortBy: option.id }
+							}}
+							getItemId={(option) => option.id}
+							getItemLabel={(option) => option.label}
+						/>
+					</label>
 				</div>
 
 				{#if sortedRoutes.length > 0}

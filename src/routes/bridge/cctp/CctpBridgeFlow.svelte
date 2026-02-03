@@ -162,8 +162,8 @@
 	}
 
 	// Components
-	import NetworkInput from '$/components/NetworkInput.svelte'
-	import CoinAmountInput from '$/components/CoinAmountInput.svelte'
+	import NetworkInput from '$/views/NetworkInput.svelte'
+	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import CctpAllowance from './CctpAllowance.svelte'
 	import CctpExecution from './CctpExecution.svelte'
 	import CctpFees from './CctpFees.svelte'

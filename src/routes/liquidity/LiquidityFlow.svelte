@@ -24,7 +24,7 @@ import { useLiveQuery, eq } from '@tanstack/svelte-db'
 		isValidDecimalInput,
 	} from '$/lib/format'
 	import { switchWalletChain } from '$/lib/wallet'
-	import NetworkInput from '$/components/NetworkInput.svelte'
+	import NetworkInput from '$/views/NetworkInput.svelte'
 	import Select from '$/components/Select.svelte'
 	import Positions from './Positions.svelte'
 

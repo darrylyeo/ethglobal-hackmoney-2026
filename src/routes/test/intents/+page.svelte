@@ -40,9 +40,9 @@
 	import { yellowState } from '$/state/yellow.svelte'
 
 	// Components
-	import Wallets from '$/routes/bridge/lifi/Wallets.svelte'
+	import Wallets from '$/views/Wallets.svelte'
 	import EntityId from '$/components/EntityId.svelte'
-	import TransactionFlow from '$/components/TransactionFlow.svelte'
+	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import TransferFlow from '$/routes/transfers/TransferFlow.svelte'
 
 	let connectedWallets = $state<ConnectedWallet[]>([])

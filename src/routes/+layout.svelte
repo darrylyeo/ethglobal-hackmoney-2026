@@ -8,7 +8,7 @@
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
 	import Navigation from '$/views/Navigation.svelte'
-	import ToastContainer from '$/components/ToastContainer.svelte'
+	import ToastContainer from '$/views/ToastContainer.svelte'
 	import GraphScene from '$/routes/GraphScene.svelte'
 
 

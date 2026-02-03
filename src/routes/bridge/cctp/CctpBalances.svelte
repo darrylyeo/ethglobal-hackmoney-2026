@@ -7,7 +7,7 @@
 	} = $props()
 
 	// Components
-	import Balances from '../lifi/Balances.svelte'
+	import Balances from '$/views/Balances.svelte'
 </script>
 
 <Balances {selectedActor} />

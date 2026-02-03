@@ -113,7 +113,7 @@
 	}
 
 	// Components
-	import TransactionFlow from '$/components/TransactionFlow.svelte'
+	import TransactionFlow from '$/views/TransactionFlow.svelte'
 </script>
 
 {#snippet transferSummary()}
