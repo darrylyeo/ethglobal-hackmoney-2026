@@ -21,6 +21,7 @@
     "npm:@total-typescript/ts-reset@*": "0.6.1",
     "npm:@types/three@0.182": "0.182.0",
     "npm:bits-ui@^2.15.5": "2.15.5_@internationalized+date@3.10.1_svelte@5.46.1__acorn@8.15.0_@sveltejs+kit@2.49.2__@sveltejs+vite-plugin-svelte@6.2.1___svelte@5.46.1____acorn@8.15.0___vite@7.3.0____picomatch@4.0.3__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3__acorn@8.15.0_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3_vite@7.3.0__picomatch@4.0.3",
+    "npm:chrome-devtools-mcp@latest": "0.12.1",
     "npm:devalue@^5.6.2": "5.6.2",
     "npm:fflate@~0.8.2": "0.8.2",
     "npm:graphology-layout-forceatlas2@~0.10.1": "0.10.1_graphology-types@0.24.8",
@@ -3234,6 +3235,10 @@
       "dependencies": [
         "readdirp"
       ]
+    },
+    "chrome-devtools-mcp@0.12.1": {
+      "integrity": "sha512-QREfGxJVVlBrjKdyis9px6UHyXix+Rre9nCkqX7CY7GsU8c6azOwwV8inQB8E3h2/QGqi4sCSF8fmjfAvmE07Q==",
+      "bin": true
     },
     "chrome-trace-event@1.0.4": {
       "integrity": "sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ=="
