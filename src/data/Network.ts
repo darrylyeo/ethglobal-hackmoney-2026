@@ -1,5 +1,6 @@
-import type { Network } from '$/schema/constants/networks'
+import type { ChainId } from '$/constants/networks'
+import type { Network } from '$/constants/networks'
 
-export type Network$Id = number
+export type Network$Id = ChainId
 
 export type NetworkEntry = Network & { $id: Network$Id }

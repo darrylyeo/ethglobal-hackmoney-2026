@@ -1,5 +1,7 @@
+import type { ChainId } from '$/constants/networks'
+
 export type ActorAllowance$Id = {
-	chainId: number
+	chainId: ChainId
 	address: `0x${string}`
 	tokenAddress: `0x${string}`
 	spenderAddress: `0x${string}`

@@ -3,10 +3,16 @@
  */
 
 import { ChainId } from './networks'
-import type { Erc20Token } from '$/schema/constants/tokens'
 
 export enum TokenSymbol {
 	Usdc = 'USDC',
+}
+
+export type Erc20Token = {
+	chainId: number
+	address: `0x${string}`
+	symbol: TokenSymbol
+	decimals: number
 }
 
 export const tokens = [

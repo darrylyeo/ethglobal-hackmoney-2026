@@ -40,6 +40,27 @@ const normalizeResult = (r: TransfersGraphResult): Omit<TransferGraphRow, 'isLoa
 	$source: DataSource.Voltaire,
 })
 
+const RETRY_DELAY_MS = 1500
+const MAX_ATTEMPTS = 3
+
+const isTransientError = (message: string) =>
+	/retry|internal error|timeout|unavailable|rate limit/i.test(message)
+
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+	let last: unknown
+	for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+		try {
+			return await fn()
+		} catch (e) {
+			last = e
+			const msg = e instanceof Error ? e.message : String(e)
+			if (attempt === MAX_ATTEMPTS || !isTransientError(msg)) throw e
+			await new Promise((r) => setTimeout(r, RETRY_DELAY_MS))
+		}
+	}
+	throw last
+}
+
 export const fetchTransferGraph = async (period: string) => {
 	const key = period
 	const existing = transferGraphsCollection.state.get(key)
@@ -63,7 +84,7 @@ export const fetchTransferGraph = async (period: string) => {
 	}
 
 	try {
-		const result = await fetchTransfersGraphFromVoltaire(period)
+		const result = await withRetry(() => fetchTransfersGraphFromVoltaire(period))
 		const normalized = normalizeResult(result)
 		transferGraphsCollection.update(key, (draft) => {
 			draft.$source = DataSource.Voltaire

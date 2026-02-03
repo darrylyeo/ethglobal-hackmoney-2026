@@ -6,11 +6,12 @@
 import { createWalletClientForChain } from '$/lib/wallet'
 import type { EIP1193Provider } from '$/lib/wallet'
 import type { YellowChannelState } from '$/data/YellowChannelState'
-import { CUSTODY_CONTRACT_ADDRESS } from '$/constants/yellow/custody'
 import {
-	CLEARNODE_WS_URL,
-	CLEARNODE_WS_URL_SANDBOX,
-} from '$/constants/yellow/clearnode'
+	CUSTODY_CONTRACT_ADDRESS,
+	YellowEnvironment,
+	yellowClearnodeEndpointByEnvironment,
+} from '$/constants/yellow'
+import { NetworkType, networkConfigsByChainId } from '$/constants/networks'
 import { parseDecimalToSmallest } from '$/lib/format'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 
@@ -31,6 +32,7 @@ export const connectClearnode = async (params: {
 	chainId: number
 	signer: EIP1193Provider
 	address: `0x${string}`
+	environment?: YellowEnvironment
 }): Promise<ClearnodeConnection> => {
 	const {
 		createAuthRequestMessage,
@@ -39,7 +41,17 @@ export const connectClearnode = async (params: {
 		createEIP712AuthMessageSigner,
 		createGetLedgerBalancesMessage,
 	} = await getYellowSdk()
-	const wsUrl = CLEARNODE_WS_URL[params.chainId] ?? CLEARNODE_WS_URL_SANDBOX
+	const wsUrl =
+		yellowClearnodeEndpointByEnvironment[
+			params.environment ??
+				(
+					networkConfigsByChainId[params.chainId]?.type ===
+					NetworkType.Testnet ?
+						YellowEnvironment.Sandbox
+					:
+						YellowEnvironment.Production
+				)
+		]
 	if (!wsUrl) {
 		throw new Error('Missing clearnode endpoint for chain')
 	}

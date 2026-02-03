@@ -10,6 +10,7 @@ import {
 import { stringify } from 'devalue'
 import { DataSource } from '$/constants/data-sources'
 import { ercTokens } from '$/constants/coins'
+import type { ChainId } from '$/constants/networks'
 import type { ActorCoin, ActorCoin$Id, ActorCoinToken } from '$/data/ActorCoin'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import { createHttpProvider, getErc20Balance } from '$/api/voltaire'
@@ -80,7 +81,7 @@ export const fetchActorCoinBalance = async (
 
 export const fetchAllBalancesForAddress = async (
 	address: `0x${string}`,
-	chainIds?: number[],
+	chainIds?: ChainId[],
 	tokens: readonly ActorCoinToken[] = ercTokens,
 ) => {
 	const targetChainIds =

@@ -2,12 +2,15 @@
  * Slippage tolerance for bridge quotes. Values in 0–1 scale (0.005 = 0.5%). LI.FI uses 0–1.
  */
 
-import type { SlippagePreset } from '$/schema/constants/slippage'
-
 export enum SlippagePresetId {
 	Low = 'Low',
 	Medium = 'Medium',
 	High = 'High',
+}
+
+export type SlippagePreset = {
+	id: SlippagePresetId
+	value: number
 }
 
 export const slippagePresets = [
@@ -25,7 +28,6 @@ export const slippagePresets = [
 	},
 ] as const satisfies readonly SlippagePreset[]
 
-export const SLIPPAGE_PRESETS = slippagePresets.map((preset) => preset.value)
 export const DEFAULT_SLIPPAGE = slippagePresets[1].value
 export const MIN_SLIPPAGE = 0.0001
 export const MAX_SLIPPAGE = 0.5

@@ -4,12 +4,19 @@
  */
 
 import { ChainId } from '$/constants/networks'
-import type {
-	UniswapContractAddress,
-	UniswapFeeTier,
-} from '$/schema/constants/uniswap'
 
 type Address = `0x${string}`
+
+export type UniswapContractAddress = {
+	chainId: ChainId
+	contract: UniswapContract
+	address: Address
+}
+
+export type UniswapFeeTier = {
+	feeTier: FeeTier
+	tickSpacing: number
+}
 
 export enum UniswapContract {
 	PoolManager = 'PoolManager',
@@ -90,8 +97,6 @@ export const uniswapFeeTiers = [
 	{ feeTier: FeeTier.Medium, tickSpacing: 60 },
 	{ feeTier: FeeTier.High, tickSpacing: 200 },
 ] as const satisfies readonly UniswapFeeTier[]
-
-export const FEE_TIERS = uniswapFeeTiers.map((tier) => tier.feeTier)
 
 export const TICK_SPACINGS = Object.fromEntries(
 	uniswapFeeTiers.map((tier) => [tier.feeTier, tier.tickSpacing]),

@@ -1,3 +1,4 @@
+import type { ChainId } from '$/constants/networks'
 import type { Wallet$Id, Wallet } from './Wallet'
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'error'
@@ -16,7 +17,7 @@ export type WalletConnectionBase = {
 	status: ConnectionStatus
 	actors: `0x${string}`[]
 	activeActor: `0x${string}` | null
-	chainId: number | null
+	chainId: ChainId | null
 	selected: boolean
 	error: string | null
 	connectedAt: number

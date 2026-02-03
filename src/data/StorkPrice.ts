@@ -1,16 +1,18 @@
+import type { ChainId } from '$/constants/networks'
+
 export type StorkPriceTransport = 'rest' | 'websocket' | 'rpc'
 
 export type StorkPrice$Id = {
 	assetId: string
 	transport: StorkPriceTransport
-	chainId?: number
+	chainId?: ChainId
 }
 
 export type StorkPrice = {
 	$id: StorkPrice$Id
 	assetId: string
 	transport: StorkPriceTransport
-	chainId: number | null
+	chainId: ChainId | null
 	encodedAssetId: string | null
 	price: bigint
 	timestampNs: bigint

@@ -1,4 +1,4 @@
-import type { Erc20Token } from '$/schema/constants/coins'
+import type { Erc20Token } from '$/constants/coins'
 
 export type Coin$Id = { network: number; address: `0x${string}` }
 

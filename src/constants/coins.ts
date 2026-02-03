@@ -3,12 +3,34 @@
  */
 
 import { ChainId } from '$/constants/networks'
-import type { Coin, Erc20Token, NativeCurrency } from '$/schema/constants/coins'
+import type { Media } from '$/constants/media'
 
 export enum CoinType {
 	Native = 'Native',
 	Erc20 = 'Erc20',
 }
+
+export type NativeCurrency = {
+	type: CoinType.Native
+	name?: string
+	chainId: ChainId
+	address: `0x${string}`
+	symbol: string
+	decimals: number
+	icon?: Media
+}
+
+export type Erc20Token = {
+	type: CoinType.Erc20
+	name?: string
+	chainId: ChainId
+	address: `0x${string}`
+	symbol: string
+	decimals: number
+	icon?: Media
+}
+
+export type Coin = NativeCurrency | Erc20Token
 
 export const ercTokens = ([
 	{

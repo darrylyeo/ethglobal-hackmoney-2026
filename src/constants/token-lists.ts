@@ -1,9 +1,12 @@
-import type { TokenList } from '$/schema/constants/token-lists'
-
 export enum TokenListId {
 	Uniswap = 'Uniswap',
 	Aave = 'Aave',
 	Compound = 'Compound',
+}
+
+export type TokenList = {
+	id: TokenListId
+	url: string
 }
 
 export const tokenLists = [
@@ -21,4 +24,6 @@ export const tokenLists = [
 	},
 ] as const satisfies readonly TokenList[]
 
-export const tokenListUrls = tokenLists.map((list) => list.url)
+export const tokenListUrls: readonly string[] = tokenLists.map(
+	(list) => list.url,
+)

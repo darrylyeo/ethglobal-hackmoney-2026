@@ -39,3 +39,5 @@ export const GRAPH_SCENE_ENTITY_TYPES = [
 	EntityType.BridgeRoute,
 	EntityType.Transaction,
 ] as const satisfies EntityType[]
+
+export type GraphSceneEntityType = (typeof GRAPH_SCENE_ENTITY_TYPES)[number]

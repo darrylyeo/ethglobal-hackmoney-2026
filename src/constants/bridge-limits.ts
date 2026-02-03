@@ -3,14 +3,15 @@
  */
 
 import { formatSmallestToDecimal } from '$/lib/format'
-import type {
-	AmountValidation,
-	BridgeLimit,
-	RouteLimits,
-} from '$/schema/constants/bridge-limits'
 
 export enum BridgeAsset {
 	Usdc = 'USDC',
+}
+
+export type BridgeLimit = {
+	asset: BridgeAsset
+	minAmount: bigint
+	maxAmount: bigint
 }
 
 export const bridgeAssets = [
@@ -32,6 +33,18 @@ export enum AmountValidationError {
 	TooLow = 'too_low',
 	TooHigh = 'too_high',
 	Invalid = 'invalid',
+}
+
+export type AmountValidation = {
+	isValid: boolean
+	error?: AmountValidationError
+	minAmount?: string
+	maxAmount?: string
+}
+
+export type RouteLimits = {
+	minAmount: bigint | null
+	maxAmount: bigint | null
 }
 
 export const validateBridgeAmount = (

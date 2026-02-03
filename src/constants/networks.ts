@@ -3,13 +3,6 @@
  * Chain IDs and names from Circle USDC contract addresses and CCTP docs.
  */
 
-import type {
-	Network,
-	NetworkConfig,
-	NetworkCurrency,
-	RpcEndpoint,
-} from '$/schema/constants/networks'
-
 export enum NetworkType {
 	Mainnet = 'Mainnet',
 	Testnet = 'Testnet',
@@ -69,6 +62,34 @@ export enum TransportType {
 	WebSocket = 'WebSocket',
 }
 
+export type Network = {
+	id: ChainId
+	name: string
+	type: NetworkType
+}
+
+export type NetworkCurrency = {
+	name: string
+	symbol: string
+}
+
+export type RpcEndpoint = {
+	chainId: ChainId
+	url: string
+	serviceProvider: ServiceProvider
+	transportType: TransportType
+}
+
+export type NetworkConfig = {
+	chainId: ChainId
+	name: string
+	type: NetworkType
+	nativeCurrency: NetworkCurrency
+	explorerUrl?: string
+	rpcEndpoints: readonly RpcEndpoint[]
+	icon?: string
+}
+
 export const networkConfigs: readonly NetworkConfig[] = [
 	{
 		chainId: ChainId.Ethereum,
@@ -76,6 +97,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://etherscan.io',
+		icon: '/networks/1-logo.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.Ethereum,
@@ -91,6 +113,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://optimistic.etherscan.io',
+		icon: '/networks/10-symbol.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.Optimism,
@@ -106,6 +129,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'XDC', symbol: 'XDC' },
 		explorerUrl: 'https://xdc.blocksscan.io',
+		icon: '/networks/50.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.XDC,
@@ -121,6 +145,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'XDC', symbol: 'XDC' },
 		explorerUrl: 'https://apothem.blocksscan.io',
+		icon: '/networks/51.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.XDCApothem,
@@ -136,6 +161,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Unichain', symbol: 'UNI' },
 		explorerUrl: 'https://unichain.blockscout.com',
+		icon: '/networks/130.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.Unichain,
@@ -151,6 +177,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Unichain', symbol: 'UNI' },
 		explorerUrl: 'https://sepolia.unichain.blockscout.com',
+		icon: '/networks/1301.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.UnichainSepolia,
@@ -166,6 +193,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'MATIC', symbol: 'MATIC' },
 		explorerUrl: 'https://polygonscan.com',
+		icon: '/networks/137.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.Polygon,
@@ -181,6 +209,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'MATIC', symbol: 'MATIC' },
 		explorerUrl: 'https://amoy.polygonscan.com',
+		icon: '/networks/80002.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.PolygonAmoy,
@@ -196,6 +225,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://explorer.monad.xyz',
+		icon: '/networks/143.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.Monad,
@@ -211,6 +241,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet-explorer.monad.xyz',
+		icon: '/networks/143.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.MonadTestnet,
@@ -226,6 +257,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'S', symbol: 'S' },
 		explorerUrl: 'https://sonicscan.org',
+		icon: '/networks/146.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.Sonic,
@@ -241,6 +273,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'S', symbol: 'S' },
 		explorerUrl: 'https://testnet.sonicscan.org',
+		icon: '/networks/14601.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.SonicTestnet,
@@ -511,6 +544,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://lineascan.build',
+		icon: '/networks/59144-symbol.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.Linea,
@@ -526,6 +560,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet.explorer.inkonchain.com',
+		icon: '/networks/763373.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.InkTestnet,
@@ -541,6 +576,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://explorer.codexchain.io',
+		icon: '/networks/81224-logo-and-wordmark.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.Codex,
@@ -556,6 +592,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet-explorer.codexchain.io',
+		icon: '/networks/81224-logo-and-wordmark.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.CodexTestnet,
@@ -571,6 +608,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://plume-explorer.alt.technology',
+		icon: '/networks/98866-dark.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.Plume,
@@ -586,6 +624,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet-plume-explorer.alt.technology',
+		icon: '/networks/98867.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.PlumeTestnet,
@@ -601,6 +640,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'CELO', symbol: 'CELO' },
 		explorerUrl: 'https://celo-sepolia.blockscout.com',
+		icon: '/networks/11142220.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.CeloSepolia,
@@ -616,6 +656,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia.etherscan.io',
+		icon: '/networks/1-logo.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.EthereumSepolia,
@@ -631,6 +672,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia-optimism.etherscan.io',
+		icon: '/networks/11155420.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.OPSepolia,
@@ -646,6 +688,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet.arcscan.io',
+		icon: '/networks/5042002.svg',
 		rpcEndpoints: [
 			{
 				chainId: ChainId.ArcTestnet,
@@ -663,10 +706,74 @@ export const networks: readonly Network[] = networkConfigs.map((config) => ({
 	type: config.type,
 }))
 
-export const networkConfigsByChainId = Object.fromEntries(
-	networkConfigs.map((config) => [config.chainId, config]),
+export const networkConfigsByChainId: Partial<Record<ChainId, NetworkConfig>> =
+	Object.fromEntries(networkConfigs.map((config) => [config.chainId, config]))
+
+export const networksByChainId: Partial<Record<ChainId, Network>> =
+	Object.fromEntries(networks.map((network) => [network.id, network]))
+
+export type MainnetTestnetMapping = {
+	mainnetChainId: ChainId
+	testnetChainId: ChainId
+}
+
+export const mainnetTestnetMappings: readonly MainnetTestnetMapping[] = [
+	{ mainnetChainId: ChainId.Ethereum, testnetChainId: ChainId.EthereumSepolia },
+	{ mainnetChainId: ChainId.Optimism, testnetChainId: ChainId.OPSepolia },
+	{ mainnetChainId: ChainId.XDC, testnetChainId: ChainId.XDCApothem },
+	{ mainnetChainId: ChainId.Unichain, testnetChainId: ChainId.UnichainSepolia },
+	{ mainnetChainId: ChainId.Polygon, testnetChainId: ChainId.PolygonAmoy },
+	{ mainnetChainId: ChainId.Monad, testnetChainId: ChainId.MonadTestnet },
+	{ mainnetChainId: ChainId.Sonic, testnetChainId: ChainId.SonicTestnet },
+	{ mainnetChainId: ChainId.ZkSyncEra, testnetChainId: ChainId.ZkSyncEraSepolia },
+	{ mainnetChainId: ChainId.WorldChain, testnetChainId: ChainId.WorldChainSepolia },
+	{ mainnetChainId: ChainId.HyperEVM, testnetChainId: ChainId.HyperEVMTestnet },
+	{ mainnetChainId: ChainId.Sei, testnetChainId: ChainId.SeiTestnet },
+	{ mainnetChainId: ChainId.Arbitrum, testnetChainId: ChainId.ArbitrumSepolia },
+	{ mainnetChainId: ChainId.Celo, testnetChainId: ChainId.CeloSepolia },
+	{ mainnetChainId: ChainId.Avalanche, testnetChainId: ChainId.AvalancheFuji },
+	{ mainnetChainId: ChainId.Base, testnetChainId: ChainId.BaseSepolia },
+	{ mainnetChainId: ChainId.Ink, testnetChainId: ChainId.InkTestnet },
+	{ mainnetChainId: ChainId.Linea, testnetChainId: ChainId.LineaSepolia },
+	{ mainnetChainId: ChainId.Codex, testnetChainId: ChainId.CodexTestnet },
+	{ mainnetChainId: ChainId.Plume, testnetChainId: ChainId.PlumeTestnet },
+]
+
+export const mainnetIdForTestnetId = Object.fromEntries(
+	mainnetTestnetMappings.map(mapping => [
+		mapping.testnetChainId,
+		mapping.mainnetChainId,
+	])
 )
 
-export const networksByChainId = Object.fromEntries(
-	networks.map((network) => [network.id, network]),
+export const mainnetForTestnet = new Map(
+	Object.entries(mainnetIdForTestnetId)
+		.map(([testnetId, mainnetId]) => [
+			networksByChainId[testnetId]!,
+			networksByChainId[mainnetId]!,
+		])
+)
+
+export const testnetIdsForMainnetId = Object.fromEntries(
+	Array.from(
+		(
+			Map.groupBy(
+				mainnetTestnetMappings,
+				mapping => mapping.mainnetChainId
+			)
+			.entries()
+		),
+		([mainnetId, mappings]) => [
+			mainnetId,
+			mappings.map((m) => m.testnetChainId),
+		],
+	),
+)
+
+export const testnetsForMainnet = new Map(
+	Object.entries(testnetIdsForMainnetId)
+		.map(([mainnetId, testnetIds]) => [
+			networksByChainId[mainnetId]!,
+			testnetIds.map((testnetId) => networksByChainId[testnetId]!),
+		])
 )

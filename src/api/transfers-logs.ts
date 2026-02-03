@@ -7,6 +7,7 @@ import { ercTokens } from '$/constants/coins'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import {
 	createHttpProvider,
+	getBlockByNumber,
 	getBlockNumberByTimestamp,
 	getLogs,
 	TRANSFER_TOPIC,
@@ -51,19 +52,6 @@ function parseTransferLog(
 	}
 }
 
-async function getBlockTimestampMs(
-	provider: VoltaireProvider,
-	blockNumber: number,
-): Promise<number> {
-	const res = await provider.request({
-		method: 'eth_getBlockByNumber',
-		params: [`0x${blockNumber.toString(16)}`, false],
-	})
-	const block = res as { timestamp?: string } | null
-	if (!block?.timestamp) return 0
-	return parseInt(block.timestamp, 16) * 1000
-}
-
 async function fetchTransferLogsForChain(
 	chainId: number,
 	contractAddress: `0x${string}`,
@@ -85,7 +73,8 @@ async function fetchTransferLogsForChain(
 	const blockTimestamps = new Map<number, number>()
 	await Promise.all(
 		blockNumbers.map(async (num) => {
-			blockTimestamps.set(num, await getBlockTimestampMs(provider, num))
+			const { timestamp } = await getBlockByNumber(provider, BigInt(num))
+			blockTimestamps.set(num, timestamp)
 		}),
 	)
 	return logs

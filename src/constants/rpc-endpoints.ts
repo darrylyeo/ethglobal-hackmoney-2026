@@ -3,7 +3,7 @@
  */
 
 import { ChainId } from '$/constants/networks'
-import type { RpcEndpoint } from '$/schema/constants/rpc-endpoints'
+import type { RpcEndpoint } from '$/constants/networks'
 
 export enum ServiceProvider {
 	Chain = 'Chain',
@@ -260,6 +260,6 @@ export const rpcEndpoints: readonly RpcEndpoint[] = [
 	},
 ] as const satisfies readonly RpcEndpoint[]
 
-export const rpcUrls: Record<number, string> = Object.fromEntries(
+export const rpcUrls: Partial<Record<ChainId, string>> = Object.fromEntries(
 	rpcEndpoints.map((e) => [e.chainId, e.url]),
 )

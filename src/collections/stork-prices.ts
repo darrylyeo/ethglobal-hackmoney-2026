@@ -15,9 +15,9 @@ import type {
 } from '$/data/StorkPrice'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import {
+	storkEncodedAssetIdByAssetId,
 	storkRestBaseUrl,
 	storkWebsocketUrl,
-	storkEncodedAssetIdByAssetId,
 } from '$/constants/stork'
 
 export type StorkPriceRow = StorkPrice & { $source: DataSource }
@@ -429,7 +429,8 @@ const updateWebsocketSubscriptions = () => {
 
 const createWebsocketSubscription = (assetIds: string[]) => {
 	const needsProxy =
-		getWebsocketUrl() === storkWebsocketUrl && env.PUBLIC_STORK_WS_URL == null
+		getWebsocketUrl() === storkWebsocketUrl &&
+		env.PUBLIC_STORK_WS_URL == null
 	if (needsProxy) {
 		for (const assetId of assetIds) {
 			setStorkPriceError(

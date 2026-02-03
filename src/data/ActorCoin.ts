@@ -1,5 +1,7 @@
+import type { ChainId } from '$/constants/networks'
+
 export type ActorCoin$Id = {
-	chainId: number
+	chainId: ChainId
 	address: `0x${string}`
 	tokenAddress: `0x${string}`
 }
@@ -14,7 +16,7 @@ export type ActorCoin = {
 }
 
 export type ActorCoinToken = {
-	chainId: number
+	chainId: ChainId
 	address: `0x${string}`
 	symbol: string
 	decimals: number
