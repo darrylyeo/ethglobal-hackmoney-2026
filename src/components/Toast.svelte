@@ -14,14 +14,8 @@
 	// State
 	let paused = $state(false)
 
-	// Functions
-	const icons: Record<ToastType['type'], string> = {
-		info: 'ℹ️',
-		success: '✓',
-		warning: '⚠️',
-		error: '✕',
-		loading: '',
-	}
+	// Components
+	import Icon from '$/components/Icon.svelte'
 </script>
 
 <div
@@ -41,7 +35,16 @@
 		{#if toast.type === 'loading'}
 			<span class="toast-spinner" aria-hidden="true"></span>
 		{:else}
-			{icons[toast.type]}
+			<Icon
+				icon={{
+					info: 'ℹ️',
+					success: '✓',
+					warning: '⚠️',
+					error: '✕',
+					loading: '',
+				}[toast.type]}
+				size="1em"
+			/>
 		{/if}
 	</div>
 
