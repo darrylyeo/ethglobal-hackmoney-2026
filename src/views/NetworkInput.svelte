@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { networkConfigsByChainId } from '$/constants/networks'
-	import type { Network } from '$/schema/constants/networks'
+	import type { Network } from '$/constants/networks'
 
 	// Props
 	let {

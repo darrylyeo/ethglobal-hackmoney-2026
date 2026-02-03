@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { Coin } from '$/schema/constants/coins'
+	import type { Coin } from '$/constants/coins'
 	import { CoinType } from '$/constants/coins'
 	import { networksByChainId } from '$/constants/networks'
 

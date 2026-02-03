@@ -2,20 +2,8 @@
  * Public RPC endpoints by chain: url, serviceProvider, transportType.
  */
 
-import { ChainId } from '$/constants/networks'
 import type { RpcEndpoint } from '$/constants/networks'
-
-export enum ServiceProvider {
-	Chain = 'Chain',
-	LlamaRPC = 'LlamaRPC',
-	Alchemy = 'Alchemy',
-	Public = 'Public',
-}
-
-export enum TransportType {
-	Http = 'Http',
-	WebSocket = 'WebSocket',
-}
+import { ChainId, ServiceProvider, TransportType } from '$/constants/networks'
 
 export const rpcEndpoints: readonly RpcEndpoint[] = [
 	{

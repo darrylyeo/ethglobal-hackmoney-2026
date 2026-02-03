@@ -51,7 +51,7 @@ reuse of existing domain types, and single-purpose derived indices.
 
 ## Status
 
-Incomplete.
+Complete.
 
 ## Output when complete
 

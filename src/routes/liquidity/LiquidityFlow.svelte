@@ -2,7 +2,7 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
-	import type { Coin } from '$/schema/constants/coins'
+	import type { Coin } from '$/constants/coins'
 	import { CoinType } from '$/constants/coins'
 	import { DataSource } from '$/constants/data-sources'
 	import { MediaType } from '$/constants/media'

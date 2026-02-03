@@ -3,50 +3,63 @@
  * Spec 008: Transaction status tracking.
  */
 
-export const explorerUrls: Partial<Record<number, string>> = {
-	1: 'https://etherscan.io',
-	10: 'https://optimistic.etherscan.io',
-	50: 'https://xdc.blocksscan.io',
-	51: 'https://apothem.blocksscan.io',
-	130: 'https://unichain.blockscout.com',
-	1301: 'https://sepolia.unichain.blockscout.com',
-	137: 'https://polygonscan.com',
-	80002: 'https://amoy.polygonscan.com',
-	143: 'https://explorer.monad.xyz',
-	10143: 'https://testnet-explorer.monad.xyz',
-	146: 'https://sonicscan.org',
-	14601: 'https://testnet.sonicscan.org',
-	300: 'https://sepolia-era.zksync.network',
-	324: 'https://era.zksync.network',
-	480: 'https://worldscan.org',
-	4801: 'https://sepolia.worldscan.org',
-	998: 'https://testnet.hyper.evm.cc',
-	999: 'https://hyper.evm.cc',
-	1328: 'https://testnet.seitrace.com',
-	1329: 'https://seitrace.com',
-	42161: 'https://arbiscan.io',
-	421614: 'https://sepolia.arbiscan.io',
-	42220: 'https://celoscan.io',
-	43113: 'https://testnet.snowtrace.io',
-	43114: 'https://snowtrace.io',
-	8453: 'https://basescan.org',
-	84532: 'https://sepolia.basescan.org',
-	57073: 'https://explorer.inkonchain.com',
-	59141: 'https://sepolia.lineascan.build',
-	59144: 'https://lineascan.build',
-	763373: 'https://testnet.explorer.inkonchain.com',
-	81224: 'https://explorer.codexchain.io',
-	812242: 'https://testnet-explorer.codexchain.io',
-	98866: 'https://plume-explorer.alt.technology',
-	98867: 'https://testnet-plume-explorer.alt.technology',
-	11142220: 'https://celo-sepolia.blockscout.com',
-	11155111: 'https://sepolia.etherscan.io',
-	11155420: 'https://sepolia-optimism.etherscan.io',
-	5042002: 'https://testnet.arcscan.io',
+import { ChainId } from '$/constants/networks'
+
+export type ExplorerEntry = {
+	chainId: ChainId
+	url: string
 }
 
-export const getTxUrl = (chainId: number, txHash: string): string =>
-	`${explorerUrls[chainId] ?? 'https://blockscan.com'}/tx/${txHash}`
+export const explorerEntries = [
+	{ chainId: ChainId.Ethereum, url: 'https://etherscan.io' },
+	{ chainId: ChainId.Optimism, url: 'https://optimistic.etherscan.io' },
+	{ chainId: ChainId.XDC, url: 'https://xdc.blocksscan.io' },
+	{ chainId: ChainId.XDCApothem, url: 'https://apothem.blocksscan.io' },
+	{ chainId: ChainId.Unichain, url: 'https://unichain.blockscout.com' },
+	{ chainId: ChainId.UnichainSepolia, url: 'https://sepolia.unichain.blockscout.com' },
+	{ chainId: ChainId.Polygon, url: 'https://polygonscan.com' },
+	{ chainId: ChainId.PolygonAmoy, url: 'https://amoy.polygonscan.com' },
+	{ chainId: ChainId.Monad, url: 'https://explorer.monad.xyz' },
+	{ chainId: ChainId.MonadTestnet, url: 'https://testnet-explorer.monad.xyz' },
+	{ chainId: ChainId.Sonic, url: 'https://sonicscan.org' },
+	{ chainId: ChainId.SonicTestnet, url: 'https://testnet.sonicscan.org' },
+	{ chainId: ChainId.ZkSyncEraSepolia, url: 'https://sepolia-era.zksync.network' },
+	{ chainId: ChainId.ZkSyncEra, url: 'https://era.zksync.network' },
+	{ chainId: ChainId.WorldChain, url: 'https://worldscan.org' },
+	{ chainId: ChainId.WorldChainSepolia, url: 'https://sepolia.worldscan.org' },
+	{ chainId: ChainId.HyperEVMTestnet, url: 'https://testnet.hyper.evm.cc' },
+	{ chainId: ChainId.HyperEVM, url: 'https://hyper.evm.cc' },
+	{ chainId: ChainId.SeiTestnet, url: 'https://testnet.seitrace.com' },
+	{ chainId: ChainId.Sei, url: 'https://seitrace.com' },
+	{ chainId: ChainId.Arbitrum, url: 'https://arbiscan.io' },
+	{ chainId: ChainId.ArbitrumSepolia, url: 'https://sepolia.arbiscan.io' },
+	{ chainId: ChainId.Celo, url: 'https://celoscan.io' },
+	{ chainId: ChainId.AvalancheFuji, url: 'https://testnet.snowtrace.io' },
+	{ chainId: ChainId.Avalanche, url: 'https://snowtrace.io' },
+	{ chainId: ChainId.Base, url: 'https://basescan.org' },
+	{ chainId: ChainId.BaseSepolia, url: 'https://sepolia.basescan.org' },
+	{ chainId: ChainId.Ink, url: 'https://explorer.inkonchain.com' },
+	{ chainId: ChainId.LineaSepolia, url: 'https://sepolia.lineascan.build' },
+	{ chainId: ChainId.Linea, url: 'https://lineascan.build' },
+	{ chainId: ChainId.InkTestnet, url: 'https://testnet.explorer.inkonchain.com' },
+	{ chainId: ChainId.Codex, url: 'https://explorer.codexchain.io' },
+	{ chainId: ChainId.CodexTestnet, url: 'https://testnet-explorer.codexchain.io' },
+	{ chainId: ChainId.Plume, url: 'https://plume-explorer.alt.technology' },
+	{ chainId: ChainId.PlumeTestnet, url: 'https://testnet-plume-explorer.alt.technology' },
+	{ chainId: ChainId.CeloSepolia, url: 'https://celo-sepolia.blockscout.com' },
+	{ chainId: ChainId.EthereumSepolia, url: 'https://sepolia.etherscan.io' },
+	{ chainId: ChainId.OPSepolia, url: 'https://sepolia-optimism.etherscan.io' },
+	{ chainId: ChainId.ArcTestnet, url: 'https://testnet.arcscan.io' },
+] as const satisfies readonly ExplorerEntry[]
 
-export const getAddressUrl = (chainId: number, address: string): string =>
+export const explorerUrls: Record<number, string> = Object.fromEntries(
+	explorerEntries.map((entry) => [entry.chainId, entry.url]),
+)
+
+export const getTxUrl = (chainId: number, txHash: string): string => (
+	`${explorerUrls[chainId] ?? 'https://blockscan.com'}/tx/${txHash}`
+)
+
+export const getAddressUrl = (chainId: number, address: string): string => (
 	`${explorerUrls[chainId] ?? 'https://blockscan.com'}/address/${address}`
+)
