@@ -18,19 +18,19 @@
 		apiHost: string
 	} = $props()
 
-	// (Derived)
+	// (Derived) filter by source; then pick row matching apiHost
 	const allowanceQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: cctpAllowanceCollection })
-				.where(
-					({ row }) =>
-						eq(row.$source, DataSource.Cctp) && row.$id.apiHost === apiHost,
-				)
+				.where(({ row }) => eq(row.$source, DataSource.Cctp))
 				.select(({ row }) => ({ row })),
 		[() => apiHost],
 	)
-	const allowanceRow = $derived((allowanceQuery.data ?? [])[0]?.row ?? null)
+	const allowanceRow = $derived(
+		(allowanceQuery.data ?? []).find((r) => r.row.$id.apiHost === apiHost)?.row ??
+			null,
+	)
 	const allowance = $derived(
 		fastTransferSupported && allowanceRow ?
 			allowanceRow.allowance !== null && allowanceRow.lastUpdated !== null ?

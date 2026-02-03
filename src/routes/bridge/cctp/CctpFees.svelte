@@ -21,24 +21,25 @@
 		standardBps?: number | null
 	} = $props()
 
-	// (Derived)
+	// (Derived) filter by source; then pick row matching apiHost/fromDomain/toDomain
 	const feesQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: cctpFeesCollection })
-				.where(
-					({ row }) =>
-						fromDomain !== null &&
-						toDomain !== null &&
-						eq(row.$source, DataSource.Cctp) &&
-						row.$id.apiHost === apiHost &&
-						row.$id.fromDomain === fromDomain &&
-						row.$id.toDomain === toDomain,
-				)
+				.where(({ row }) => eq(row.$source, DataSource.Cctp))
 				.select(({ row }) => ({ row })),
 		[() => apiHost, () => fromDomain, () => toDomain],
 	)
-	const feeRow = $derived((feesQuery.data ?? [])[0]?.row ?? null)
+	const feeRow = $derived(
+		fromDomain !== null && toDomain !== null ?
+			(feesQuery.data ?? []).find(
+				(r) =>
+					r.row.$id.apiHost === apiHost &&
+					r.row.$id.fromDomain === fromDomain &&
+					r.row.$id.toDomain === toDomain,
+			)?.row ?? null
+		:	null,
+	)
 	const feeRows = $derived(feeRow?.rows ?? null)
 	const feeLoading = $derived(feeRow?.isLoading ?? false)
 	const feeError = $derived(feeRow?.error ?? null)

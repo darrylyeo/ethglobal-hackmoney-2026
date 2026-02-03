@@ -27,7 +27,7 @@
 	const graphQuery = useLiveQuery((q) =>
 		q
 			.from({ row: transferGraphsCollection })
-			.where(({ row }) => eq(row.$id.period, period))
+			.where(({ row }) => eq(row.period, period))
 			.select(({ row }) => ({ row })),
 	)
 	const graphRow = $derived(graphQuery.data?.[0]?.row ?? null)

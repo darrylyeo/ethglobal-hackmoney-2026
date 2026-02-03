@@ -36,26 +36,20 @@ normalized into collections, and queries filter by source where applicable.
 
 ## Acceptance criteria
 
-- [ ] `DataSource` enum exists in `src/constants/data-sources.ts` with required values.
-- [ ] All TanStack DB collection entities include a source attribute.
-- [ ] Entities with multiple possible origins include `$source: DataSource`.
-- [ ] Manually fetched data is normalized into TanStack DB collections before use.
-- [ ] Queries filter by source when applicable.
-- [ ] Playwright coverage exists for any UI that renders source-tagged entities and `pnpm test:e2e` passes.
+- [x] `DataSource` enum exists in `src/constants/data-sources.ts` with required values.
+- [x] All TanStack DB collection entities include a source attribute.
+- [x] Entities with multiple possible origins include `$source: DataSource`.
+- [x] Manually fetched data is normalized into TanStack DB collections before use.
+- [x] Queries filter by source when applicable.
+- [ ] Playwright coverage exists for any UI that renders source-tagged entities and `pnpm test:e2e` passes. (Route-coverage and Transfers e2e pass; full suite has 12 pre-existing failures.)
 
 ## Testing
 
 - `pnpm test:e2e`
 
-## TODOs
-
-- TODO: List current external sources to ensure enum coverage.
-- TODO: Inventory manual fetches that should be normalized into collections.
-- TODO: Identify UI surfaces that need e2e coverage for source-tagged data.
-
 ## Status
 
-Proposed.
+Implementation complete. DataSource enum (Local, LiFi, TokenLists, Stork, Uniswap, Yellow, Cctp, Voltaire, PartyKit, Covalent). All collections have $source; transfer-graphs collection; transfers page uses collection; CctpFees/CctpAllowance filter by source. Blocked: full e2e suite does not pass.
 
 ## Output when complete
 
