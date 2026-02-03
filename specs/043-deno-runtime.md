@@ -1,0 +1,30 @@
+# Spec 043: Deno as primary runtime
+
+Use Deno instead of npm, pnpm, or bun for running scripts, tasks, and installing dependencies.
+
+## Scope
+
+- Define Deno as the preferred way to run dev, build, test, and one-off scripts.
+- Dependencies are declared in `deno.json` (import map / npm specifiers) and installed via `deno install` or `deno cache`.
+- Use `deno task`, `deno run`, or `deno test` rather than `npm run`, `pnpx`, `npx`, or `bun` when invoking project tooling.
+
+## Non-goals
+
+- Do not remove `package.json` / `pnpm-lock.yaml` if still required by Vite, SvelteKit, or other tooling that expects Node.
+- Do not rewrite application runtime to Deno; the app can remain a Vite/SvelteKit app run via `deno task dev`.
+
+## Acceptance criteria
+
+- [ ] All documented and scripted commands use Deno: `deno task <name>`, `deno run -A`, or `deno test -A` as appropriate.
+- [ ] New dependencies are added to `deno.json` imports (e.g. `"pkg": "npm:pkg"`) and cached with `deno cache` or `deno install`.
+- [ ] One-off or temporary scripts are run with `deno run -A` (or `deno task` if added to `deno.json` tasks); prefix temporary scripts with `_` per project convention.
+- [ ] Unit/spec tests that can run under Deno use `deno test -A`; e2e may still use Node/Playwright as needed.
+- [ ] README, AGENTS.md, or other contributor docs state that Deno is the primary way to run commands (with fallbacks only where necessary).
+
+## Status
+
+Draft. `deno.json` already defines tasks (dev, build, preview, install, test, test:unit, test:e2e). Align docs and any remaining npm/pnpm/bun references to this spec.
+
+## Output when complete
+
+`DONE`
