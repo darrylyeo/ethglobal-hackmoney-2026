@@ -5,14 +5,17 @@
 ## Done
 
 1. **Layout**
-   - Wrapped Boundary in `<main id="main-content">` so skip link and E2E have a single target.
+   - Wrapped Boundary in `<main
+	id="main"
+	data-column
+>` so skip link and E2E have a single target.
    - Disabled `compilerOptions.experimental.async` in svelte.config.js so route segment no longer suspends; Boundary resolves and bridge content renders.
 
 2. **Bridge page**
-   - Removed duplicate `id="main-content"` from bridge page (was on inner `<main>`); use `<div>` for content wrapper so only layout has main#main-content.
+   - Removed duplicate `id="main"` from bridge page (was on inner `<main>`); use `<div>` for content wrapper so only layout has main#main.
 
 3. **E2E**
-   - One test passes: "without wallet: clear message and connect prompt" (page loads, #main-content shows "USDC Bridge" / "Connect a wallet").
+   - One test passes: "without wallet: clear message and connect prompt" (page loads, #main shows "USDC Bridge" / "Connect a wallet").
    - Mock wallet: added waitFor for [data-wallet-provider-option], eth_chainId in mock, longer timeout for [data-wallet-address].
 
 ## Still blocked

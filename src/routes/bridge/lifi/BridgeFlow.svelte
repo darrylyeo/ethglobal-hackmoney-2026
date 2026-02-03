@@ -13,9 +13,11 @@
 	import { DataSource } from '$/constants/data-sources'
 	import {
 		ChainId,
+		mainnetForTestnet,
 		NetworkType,
 		networks,
 		networksByChainId,
+		testnetsForMainnet,
 	} from '$/constants/networks'
 	import {
 		SLIPPAGE_PRESETS,
@@ -223,10 +225,26 @@
 			filteredNetworks.some((n) => n.id === settings.fromChainId)
 		)
 			return
-		const defaultFrom = settings.isTestnet
-			? ChainId.EthereumSepolia
-			: ChainId.Ethereum
-		const defaultTo = settings.isTestnet ? ChainId.ArcTestnet : ChainId.Optimism
+		const fromNet =
+			settings.fromChainId !== null
+				? networksByChainId[settings.fromChainId]
+				: null
+		const toNet =
+			settings.toChainId !== null
+				? networksByChainId[settings.toChainId]
+				: null
+		const defaultFrom =
+			settings.isTestnet
+				? (fromNet ? testnetsForMainnet.get(fromNet)?.[0]?.id : undefined) ??
+					ChainId.EthereumSepolia
+				: (fromNet ? mainnetForTestnet.get(fromNet)?.id : undefined) ??
+					ChainId.Ethereum
+		const defaultTo =
+			settings.isTestnet
+				? (toNet ? testnetsForMainnet.get(toNet)?.[0]?.id : undefined) ??
+					ChainId.ArcTestnet
+				: (toNet ? mainnetForTestnet.get(toNet)?.id : undefined) ??
+					ChainId.Optimism
 		bridgeSettingsState.current = {
 			...settings,
 			fromChainId:

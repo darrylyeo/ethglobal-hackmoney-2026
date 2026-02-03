@@ -1,8 +1,95 @@
 <script lang="ts">
+	// Types/constants
+	import { DataSource } from '$/constants/data-sources'
+
+	// Context
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { roomsCollection } from '$/collections/rooms'
+
+	// Functions
+	import { roomIdToDisplayName } from '$/lib/room'
+
 	// Props
 	let { children } = $props()
 
+	// State
 	let showGraph = $state(false)
+
+	// (Derived)
+	const roomsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: roomsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const navigationItems = $derived([
+		{
+			id: 'bridge',
+			title: 'Bridge',
+			href: '/bridge',
+		},
+		{
+			id: 'swap',
+			title: 'Swap',
+			href: '/swap',
+		},
+		{
+			id: 'liquidity',
+			title: 'Liquidity',
+			href: '/liquidity',
+		},
+		{
+			id: 'transfers',
+			title: 'Transfers',
+			href: '/transfers',
+		},
+		{
+			id: 'wallets',
+			title: 'Wallets',
+			href: '/wallets',
+		},
+		{
+			id: 'rooms',
+			title: 'Rooms',
+			href: '/rooms',
+			children: (roomsQuery.data ?? [])
+				.map((result) => result.row)
+				.sort((a, b) => a.createdAt - b.createdAt)
+				.map((room) => ({
+					id: `room-${room.id}`,
+					title: room.name ?? roomIdToDisplayName(room.id),
+					href: `/rooms/${room.id}`,
+				})),
+		},
+		{
+			id: 'about',
+			title: 'About',
+			href: '/about',
+		},
+		{
+			id: 'tests',
+			title: 'Tests',
+			children: [
+				{
+					id: 'test-collections',
+					title: 'Collections',
+					href: '/test/collections',
+				},
+				{
+					id: 'test-networks-coins',
+					title: 'Networks & coins',
+					href: '/test/networks-coins',
+				},
+				{
+					id: 'test-chain-id',
+					title: 'Chain ID (Voltaire)',
+					href: '/test/chain-id',
+				},
+			],
+		},
+	])
 
 
 	// Components
@@ -41,77 +128,31 @@
 	data-scroll-container
 	data-sticky-container
 >
-	<a href="#main-content" class="skip-link">Skip to main content</a>
+	<a href="#main" class="skip-link">Skip to main content</a>
 
 	<Navigation
-		navigationItems={[
-			{
-				id: 'bridge',
-				title: 'Bridge',
-				href: '/bridge',
-			},
-			{
-				id: 'swap',
-				title: 'Swap',
-				href: '/swap',
-			},
-			{
-				id: 'liquidity',
-				title: 'Liquidity',
-				href: '/liquidity',
-			},
-			{
-				id: 'transfers',
-				title: 'Transfers',
-				href: '/transfers',
-			},
-			{
-				id: 'rooms',
-				title: 'Rooms',
-				href: '/rooms',
-			},
-			{
-				id: 'architecture',
-				title: 'Architecture',
-				href: '/architecture',
-			},
-			{
-				id: 'tests',
-				title: 'Tests',
-				children: [
-					{
-						id: 'test-collections',
-						title: 'Collections',
-						href: '/test/collections',
-					},
-					{
-						id: 'test-networks-coins',
-						title: 'Networks & coins',
-						href: '/test/networks-coins',
-					},
-					{
-						id: 'test-chain-id',
-						title: 'Chain ID (Voltaire)',
-						href: '/test/chain-id',
-					},
-				],
-			},
-		]}
+		navigationItems={navigationItems}
 	>
 	</Navigation>
 
-	<main id="main-content" tabindex="-1">
-		<Boundary>
-			{@render children()}
+	<main
+		id="main"
+		tabindex="-1"
+		data-sticky-container
+	>
+		<section data-scroll-item>
+			<Boundary>
+				{@render children()}
 
-			{#snippet Failed(error, retry)}
-				<div data-column>
-					<h2>Error</h2>
-					<p>{error instanceof Error ? error.message : String(error)}</p>
-					<button type="button" onclick={retry}>Retry</button>
-				</div>
-			{/snippet}
-		</Boundary>
+				{#snippet Failed(error, retry)}
+					<div data-column>
+						<h2>Error</h2>
+						<p>{error instanceof Error ? error.message : String(error)}</p>
+						<button type="button" onclick={retry}>Retry</button>
+					</div>
+				{/snippet}
+			</Boundary>
+		</section>
 	</main>
 
 	<ToastContainer
@@ -184,13 +225,23 @@
 			}
 		}
 
-		> :global(nav) {
-			grid-area: Nav;
-			box-shadow: 0 0 0 var(--separator-width) var(--border-color);
-		}
+		:global {
+			> nav {
+				grid-area: Nav;
+				box-shadow: 0 0 0 var(--separator-width) var(--border-color);
+			}
 
-		> main {
-			grid-area: Main;
+			> main {
+				grid-area: Main;
+
+				&[data-sticky-container] {
+					--scrollItem-inlineDetached-maxSize: 54rem;
+					--scrollItem-inlineDetached-paddingStart: 2rem;
+					--scrollItem-inlineDetached-maxPaddingMatchStart: 5rem;
+					--scrollItem-inlineDetached-paddingEnd: 2rem;
+					--scrollItem-inlineDetached-maxPaddingMatchEnd: 5rem;
+				}
+			}
 		}
 	}
 

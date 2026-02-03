@@ -73,11 +73,11 @@ Ensure correct elements used:
 
 ```svelte
 <!-- src/routes/+layout.svelte -->
-<a href="#main-content" class="skip-link">Skip to main content</a>
+<a href="#main" class="skip-link">Skip to main content</a>
 
 <Navigation />
 
-<main id="main-content" tabindex="-1">
+<main id="main" tabindex="-1">
   {@render children()}
 </main>
 ```
@@ -244,7 +244,7 @@ for the selected state, allowing native keyboard navigation.
 ## Status
 
 Complete. `src/styles/accessibility.css`: focus-visible, skip link, reduced motion,
-skeleton reduced-motion rule. Layout: skip link, `main#main-content` tabindex="-1".
+skeleton reduced-motion rule. Layout: skip link, `main#main` tabindex="-1".
 BridgeFlow: aria-live region for execution status (in_progress/completed/failed);
 amount input with aria-describedby (amt-hint, amt-error), aria-invalid, hint and
 role="alert" error; BridgeExecution onStatus callback for live announcements.

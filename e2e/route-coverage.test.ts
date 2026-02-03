@@ -8,7 +8,7 @@ import { expect, test } from '@playwright/test'
 test.describe('Home (/)', () => {
 	test('renders nav and key CTAs without errors', async ({ page }) => {
 		await page.goto('/')
-		await expect(page.locator('#main-content h1')).toBeVisible({
+		await expect(page.locator('#main h1')).toBeVisible({
 			timeout: 20_000,
 		})
 		await expect(
@@ -29,7 +29,7 @@ test.describe('Home (/)', () => {
 test.describe('Bridge (/bridge)', () => {
 	test('unified bridge renders with protocol selection', async ({ page }) => {
 		await page.goto('/bridge')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(
@@ -44,7 +44,7 @@ test.describe('Bridge (/bridge)', () => {
 
 	test('without wallet shows connect prompt', async ({ page }) => {
 		await page.goto('/bridge')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(
@@ -60,17 +60,17 @@ test.describe('Transfers (/transfers)', () => {
 		page,
 	}) => {
 		await page.goto('/transfers')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(
-			page.locator('#main-content').getByText(/1h|6h|12h|1d|3d|7d|Loading/),
+			page.locator('#main').getByText(/1h|6h|12h|1d|3d|7d|Loading/),
 		).toBeVisible({ timeout: 20_000 })
 	})
 
 	test('empty or loading state shows without crashing', async ({ page }) => {
 		await page.goto('/transfers')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await Promise.race([
@@ -88,7 +88,7 @@ test.describe('Transfers (/transfers)', () => {
 test.describe('Rooms (/rooms)', () => {
 	test('rooms page renders create and join sections', async ({ page }) => {
 		await page.goto('/rooms')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(page.getByRole('heading', { name: 'Rooms' })).toBeVisible({
@@ -105,7 +105,7 @@ test.describe('Rooms (/rooms)', () => {
 
 	test('join room form accepts code input', async ({ page }) => {
 		await page.goto('/rooms')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		const codeInput = page.getByLabel('Room code')

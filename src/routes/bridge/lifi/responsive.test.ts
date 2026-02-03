@@ -33,7 +33,7 @@ for (const { name, width, height } of VIEWPORTS) {
 	}) => {
 		await page.setViewportSize({ width, height })
 		await page.goto('/bridge/lifi')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 15_000,
 		})
 		await assertNoHorizontalOverflow(page)

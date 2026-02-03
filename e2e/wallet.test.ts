@@ -41,10 +41,10 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			await addMockWallet(context, page)
 			await page.goto('/bridge')
 			await injectMockWalletInPage(page)
-			await expect(page.locator('#main-content')).toBeAttached({
+			await expect(page.locator('#main')).toBeAttached({
 				timeout: 30_000,
 			})
-			await expect(page.locator('#main-content')).toContainText(
+			await expect(page.locator('#main')).toContainText(
 				/USDC Bridge|Connect a wallet/,
 				{ timeout: 45_000 },
 			)

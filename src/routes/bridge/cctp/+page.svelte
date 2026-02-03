@@ -16,16 +16,24 @@
 	<title>USDC Bridge (CCTP)</title>
 </svelte:head>
 
-<details open data-card>
-	<summary>
-		<header data-card="secondary" data-row="wrap gap-2">
-			<CctpWallets bind:connectedWallets bind:selectedActor />
-		</header>
-	</summary>
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
+	<section data-scroll-item>
+		<details open data-card>
+			<summary>
+				<header data-card="secondary" data-row="wrap gap-2">
+					<CctpWallets bind:connectedWallets bind:selectedActor />
+				</header>
+			</summary>
 
-	<div data-column="gap-6">
-		<h1>USDC Bridge (CCTP)</h1>
-		<CctpBalances {selectedActor} />
-		<CctpBridgeFlow selectedWallets={connectedWallets} {selectedActor} />
-	</div>
-</details>
+			<div data-column="gap-6">
+				<h1>USDC Bridge (CCTP)</h1>
+				<CctpBalances {selectedActor} />
+				<CctpBridgeFlow selectedWallets={connectedWallets} {selectedActor} />
+			</div>
+		</details>
+	</section>
+</main>

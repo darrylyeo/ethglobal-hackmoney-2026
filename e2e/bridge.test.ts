@@ -11,10 +11,10 @@ test.describe('Bridge UI (Spec 004)', () => {
 	test('select source chain, destination chain, enter amount and address', async ({
 		page,
 	}) => {
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.locator('#main-content')).toContainText(
+		await expect(page.locator('#main')).toContainText(
 			/USDC Bridge|Connect a wallet/,
 			{ timeout: 45_000 },
 		)
@@ -32,7 +32,7 @@ test.describe('Bridge UI (Spec 004)', () => {
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
-		await page.locator('#main-content').evaluate((el) => {
+		await page.locator('#main').evaluate((el) => {
 			el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
 				block: 'center',
 			})
@@ -63,10 +63,10 @@ test.describe('Bridge UI (Spec 004)', () => {
 	test('routes auto-fetch after chains and amount; quote result or no-routes or error visible', async ({
 		page,
 	}) => {
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.locator('#main-content')).toContainText(
+		await expect(page.locator('#main')).toContainText(
 			/USDC Bridge|Connect a wallet/,
 			{ timeout: 45_000 },
 		)
@@ -84,7 +84,7 @@ test.describe('Bridge UI (Spec 004)', () => {
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
-		await page.locator('#main-content').evaluate((el) => {
+		await page.locator('#main').evaluate((el) => {
 			el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
 				block: 'center',
 			})

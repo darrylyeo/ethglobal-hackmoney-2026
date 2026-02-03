@@ -24,32 +24,38 @@ import { coinsCollection } from '$/collections/coins'
 	const coins = $derived((coinsQuery.data ?? []).map((row) => row.coin))
 </script>
 
-<main id="main-content">
-	<h1>Networks and coins</h1>
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
+	<section data-scroll-item>
+		<h1>Networks and coins</h1>
 
-	{#if networksQuery.isLoading}
-		<p>Loading networks…</p>
-	{:else}
-		<section>
-			<h2>Networks</h2>
-			<ul>
-				{#each networks as network, i (`${i}-${network.id}`)}
-					<li>{network.name} (ID: {network.id})</li>
-				{/each}
-			</ul>
-		</section>
-	{/if}
+		{#if networksQuery.isLoading}
+			<p>Loading networks…</p>
+		{:else}
+			<section>
+				<h2>Networks</h2>
+				<ul>
+					{#each networks as network, i (`${i}-${network.id}`)}
+						<li>{network.name} (ID: {network.id})</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
 
-	{#if coinsQuery.isLoading}
-		<p>Loading coins…</p>
-	{:else}
-		<section>
-			<h2>USDC coins</h2>
-			<ul>
-				{#each coins as coin, i (`${i}-${coin.chainId}-${coin.address}`)}
-					<li>{coin.symbol} on chain {coin.chainId} — {coin.address}</li>
-				{/each}
-			</ul>
-		</section>
-	{/if}
+		{#if coinsQuery.isLoading}
+			<p>Loading coins…</p>
+		{:else}
+			<section>
+				<h2>USDC coins</h2>
+				<ul>
+					{#each coins as coin, i (`${i}-${coin.chainId}-${coin.address}`)}
+						<li>{coin.symbol} on chain {coin.chainId} — {coin.address}</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+	</section>
 </main>

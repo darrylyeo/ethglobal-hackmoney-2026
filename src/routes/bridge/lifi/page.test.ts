@@ -30,11 +30,9 @@ async function addMockWallet(context: {
 
 test('bridge page loads and shows USDC Bridge heading', async ({ page }) => {
 	await page.goto('/bridge/lifi')
-	await expect(page.locator('#main-content')).toBeAttached({ timeout: 30_000 })
+	await expect(page.locator('#main')).toBeAttached({ timeout: 30_000 })
 	await expect(
-		page
-			.getByRole('heading', { level: 1, name: 'USDC Bridge' })
-			.or(page.getByText('Connect a wallet to get routes')),
+		page.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
 	).toBeVisible({ timeout: 45_000 })
 })
 
@@ -42,13 +40,11 @@ test.describe('with mock wallet and networks loaded', () => {
 	test.beforeEach(async ({ context, page }) => {
 		await addMockWallet(context)
 		await page.goto('/bridge/lifi')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(
-			page
-				.getByRole('heading', { level: 1, name: 'USDC Bridge' })
-				.or(page.getByText('Connect a wallet to get routes')),
+			page.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
 		).toBeVisible({ timeout: 45_000 })
 		await page.getByRole('button', { name: 'Connect Wallet' }).click()
 		await page.locator('[data-wallet-provider-option]').click()

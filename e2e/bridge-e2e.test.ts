@@ -12,11 +12,11 @@ test.describe('E2E bridge flow', () => {
 		test('connect → balance → select → amount → get routes (result or no-routes)', async ({
 			page,
 		}) => {
-			await expect(page.locator('#main-content')).toBeAttached({
+			await expect(page.locator('#main')).toBeAttached({
 				timeout: 30_000,
 			})
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
-			await expect(page.locator('#main-content')).toContainText(
+			await expect(page.locator('#main')).toContainText(
 				/USDC Bridge|Connect a wallet/,
 				{
 					timeout: 15_000,
@@ -36,7 +36,7 @@ test.describe('E2E bridge flow', () => {
 				timeout: 20_000,
 			})
 			await expect(
-				page.locator('#main-content').getByRole('heading', {
+				page.locator('#main').getByRole('heading', {
 					name: 'Bridge USDC',
 					level: 2,
 				}),
@@ -90,11 +90,11 @@ test.describe('E2E bridge flow', () => {
 		test('transaction history section visible when connected', async ({
 			page,
 		}) => {
-			await expect(page.locator('#main-content')).toBeAttached({
+			await expect(page.locator('#main')).toBeAttached({
 				timeout: 30_000,
 			})
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
-			await expect(page.locator('#main-content')).toContainText(
+			await expect(page.locator('#main')).toContainText(
 				/USDC Bridge|Connect a wallet/,
 				{
 					timeout: 15_000,
@@ -127,11 +127,11 @@ test.describe('E2E bridge flow', () => {
 			await addMockWallet(context, page)
 			await page.goto('/bridge/lifi')
 			await injectMockWalletInPage(page)
-			await expect(page.locator('#main-content')).toBeAttached({
+			await expect(page.locator('#main')).toBeAttached({
 				timeout: 30_000,
 			})
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
-			await expect(page.locator('#main-content')).toContainText(
+			await expect(page.locator('#main')).toContainText(
 				/USDC Bridge|Connect a wallet/,
 				{
 					timeout: 15_000,
@@ -202,7 +202,7 @@ test.describe('E2E bridge flow', () => {
 			await expect(page.locator('[data-balances-grid]')).toBeVisible({
 				timeout: 20_000,
 			})
-			await page.locator('#main-content').evaluate((el) => {
+			await page.locator('#main').evaluate((el) => {
 				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
 					block: 'center',
 				})
@@ -237,21 +237,16 @@ test.describe('E2E bridge flow', () => {
 			page,
 		}) => {
 			await page.goto('/bridge/lifi')
-			await expect(page.locator('#main-content')).toBeAttached({
+			await expect(page.locator('#main')).toBeAttached({
 				timeout: 30_000,
 			})
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
-			await expect(page.locator('#main-content')).toContainText(
+			await expect(page.locator('#main')).toContainText(
 				/USDC Bridge|Connect a wallet/,
 				{
 					timeout: 15_000,
 				},
 			)
-			await expect(
-				page.getByText('Connect a wallet to get routes'),
-			).toBeVisible({
-				timeout: 10_000,
-			})
 		})
 
 		test('with mock wallet: connect then routes error shows retry/dismiss', async ({
@@ -262,7 +257,7 @@ test.describe('E2E bridge flow', () => {
 			await page.goto('/bridge/lifi')
 			await injectMockWalletInPage(page)
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
-			await expect(page.locator('#main-content')).toContainText(
+			await expect(page.locator('#main')).toContainText(
 				/USDC Bridge|Connect a wallet/,
 				{
 					timeout: 15_000,
@@ -282,7 +277,7 @@ test.describe('E2E bridge flow', () => {
 			await expect(page.locator('[data-balances-grid]')).toBeVisible({
 				timeout: 20_000,
 			})
-			await page.locator('#main-content').evaluate((el) => {
+			await page.locator('#main').evaluate((el) => {
 				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
 					block: 'center',
 				})

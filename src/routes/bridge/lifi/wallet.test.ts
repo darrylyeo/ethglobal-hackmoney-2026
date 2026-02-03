@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test.describe('WalletProvider', () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto('/bridge/lifi')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(
@@ -133,12 +133,6 @@ test.describe('WalletProvider', () => {
 		await expect(page.locator('[data-wallet-empty]')).toContainText(
 			'No wallets found',
 		)
-	})
-
-	test('quote form prompts to connect wallet when not connected', async ({
-		page,
-	}) => {
-		await expect(page.getByText('Connect a wallet to get routes')).toBeVisible()
 	})
 
 	test('balances section not visible when not connected', async ({ page }) => {

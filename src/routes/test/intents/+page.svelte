@@ -430,18 +430,22 @@
 	})
 </script>
 
-<main id="main-content" data-column="gap-6">
-	<section data-column="gap-3">
+<main
+	id="main"
+	data-column="gap-6"
+	data-sticky-container
+>
+	<section data-scroll-item data-column="gap-3">
 		<h1>Entity intents</h1>
 		<p data-muted>Drag balances into from/to slots to resolve intents.</p>
 	</section>
 
-	<section data-column="gap-3">
+	<section data-scroll-item data-column="gap-3">
 		<h2>Wallet context</h2>
 		<Wallets bind:connectedWallets bind:selectedActor />
 	</section>
 
-	<section data-column="gap-3">
+	<section data-scroll-item data-column="gap-3">
 		<h2>Intent slots</h2>
 		<div data-row="gap-3 wrap">
 			<div
@@ -475,7 +479,7 @@
 		</div>
 	</section>
 
-	<section data-column="gap-3">
+	<section data-scroll-item data-column="gap-3">
 		<h2>Balances (TanStack DB cache)</h2>
 		{#if actorCoins.length === 0}
 			<p data-muted>No cached balances yet.</p>
@@ -530,7 +534,7 @@
 		{/if}
 	</section>
 
-	<section data-column="gap-3">
+	<section data-scroll-item data-column="gap-3">
 		<h2>Resolved intent</h2>
 		{#if resolution}
 			<pre data-muted>{JSON.stringify(resolution, null, 2)}</pre>
@@ -539,7 +543,7 @@
 		{/if}
 	</section>
 
-	<section data-column="gap-3">
+	<section data-scroll-item data-column="gap-3">
 		<h2>Routes</h2>
 		{#if routes.length === 0}
 			<p data-muted>No routes computed.</p>
@@ -564,7 +568,7 @@
 	</section>
 
 	{#if selectedRoute}
-		<section data-column="gap-3">
+		<section data-scroll-item data-column="gap-3">
 			<h2>Selected route preview</h2>
 			<ol data-column="gap-1">
 				{#each selectedRoute.steps as step (step.id)}
@@ -588,7 +592,7 @@
 			</ol>
 		</section>
 
-		<section data-column="gap-3">
+		<section data-scroll-item data-column="gap-3">
 			<h2>Execute</h2>
 			<div data-column="gap-2">
 				<label data-row="gap-2 align-center">

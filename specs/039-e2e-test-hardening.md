@@ -87,7 +87,7 @@ pnpm test:e2e
 
 ## Status
 
-Complete. Single fixture in `e2e/test-setup.ts`: `addMockWallet`, `injectMockWalletInPage`, `addLifiRoutesMock`, `addCctpMocks`, `addNetworkMocks`. Wallet mock injected via `page.evaluate` after goto so EIP-6963 announce is received in page context. Route-coverage: Home nav uses `.first()` for duplicate links; Transfers asserts `#main-content`-scoped period/loading text. All e2e tests pass. Playwright config: trace on-first-retry, screenshot only-on-failure, video on-first-retry.
+Complete. Single fixture in `e2e/test-setup.ts`: `addMockWallet`, `injectMockWalletInPage`, `addLifiRoutesMock`, `addCctpMocks`, `addNetworkMocks`. Wallet mock injected via `page.evaluate` after goto so EIP-6963 announce is received in page context. Route-coverage: Home nav uses `.first()` for duplicate links; Transfers asserts `#main`-scoped period/loading text. All e2e tests pass. Playwright config: trace on-first-retry, screenshot only-on-failure, video on-first-retry.
 
 ## Output when complete
 

@@ -5,7 +5,7 @@ import { addMockWallet, injectMockWalletInPage } from './test-setup.js'
 test.describe('Accessibility (axe-core)', () => {
 	test('home page has no critical violations', async ({ page }) => {
 		await page.goto('/')
-		await expect(page.locator('#main-content h1')).toBeVisible({
+		await expect(page.locator('#main h1')).toBeVisible({
 			timeout: 20_000,
 		})
 		const results = await new AxeBuilder({ page })
@@ -20,12 +20,12 @@ test.describe('Accessibility (axe-core)', () => {
 
 	test('bridge page has no critical violations', async ({ page }) => {
 		await page.goto('/bridge')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(
 			page
-				.locator('#main-content')
+				.locator('#main')
 				.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
 		).toBeVisible({ timeout: 50_000 })
 		const results = await new AxeBuilder({ page })
@@ -40,7 +40,7 @@ test.describe('Accessibility (axe-core)', () => {
 
 	test('transfers page has no critical violations', async ({ page }) => {
 		await page.goto('/transfers')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(
@@ -58,7 +58,7 @@ test.describe('Accessibility (axe-core)', () => {
 
 	test('rooms page has no critical violations', async ({ page }) => {
 		await page.goto('/rooms')
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(page.getByRole('heading', { name: 'Rooms' })).toBeVisible({
@@ -80,13 +80,13 @@ test.describe('Keyboard navigation', () => {
 		await addMockWallet(context, page)
 		await page.goto('/bridge/lifi')
 		await injectMockWalletInPage(page)
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 		await expect(
 			page
-				.locator('#main-content')
+				.locator('#main')
 				.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
 		).toBeVisible({ timeout: 50_000 })
 	})

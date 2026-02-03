@@ -36,7 +36,7 @@ for (const { path, name } of CORE_ROUTES) {
 	}) => {
 		await page.setViewportSize(MOBILE)
 		await page.goto(path)
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 15_000,
 		})
 		await assertNoHorizontalOverflow(page)
@@ -47,7 +47,7 @@ for (const { path, name } of CORE_ROUTES) {
 	}) => {
 		await page.setViewportSize(DESKTOP)
 		await page.goto(path)
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 15_000,
 		})
 		await assertNoHorizontalOverflow(page)

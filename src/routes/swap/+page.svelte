@@ -14,20 +14,28 @@
 	<title>Swap</title>
 </svelte:head>
 
-<details open data-card>
-	<summary>
-		<header data-card="secondary" data-row="wrap gap-2">
-			<Wallets bind:connectedWallets bind:selectedActor bind:selectedChainId />
-		</header>
-	</summary>
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
+	<section data-scroll-item>
+		<details open data-card>
+			<summary>
+				<header data-card="secondary" data-row="wrap gap-2">
+					<Wallets bind:connectedWallets bind:selectedActor bind:selectedChainId />
+				</header>
+			</summary>
 
-	<div data-column="gap-6">
-		<h1>Swap</h1>
-		<Balances {selectedActor} />
-		<SwapFlow
-			selectedWallets={connectedWallets}
-			{selectedActor}
-			{selectedChainId}
-		/>
-	</div>
-</details>
+			<div data-column="gap-6">
+				<h1>Swap</h1>
+				<Balances {selectedActor} />
+				<SwapFlow
+					selectedWallets={connectedWallets}
+					{selectedActor}
+					{selectedChainId}
+				/>
+			</div>
+		</details>
+	</section>
+</main>

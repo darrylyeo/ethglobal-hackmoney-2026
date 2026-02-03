@@ -10,9 +10,11 @@
 	import { isCctpSupportedChain } from '$/constants/cctp'
 	import {
 		ChainId,
+		mainnetForTestnet,
 		NetworkType,
 		networks,
 		networksByChainId,
+		testnetsForMainnet,
 	} from '$/constants/networks'
 
 	// Context
@@ -91,16 +93,16 @@
 	)
 	const protocolReason = $derived(
 		!settings.fromChainId || !settings.toChainId
-			? 'Select chains to determine protocol'
+			? 'Select chains to choose a protocol'
 			: cctpPairSupported && !lifiPairSupported
 				? 'Only CCTP supports this pair'
 				: lifiPairSupported && !cctpPairSupported
 					? 'Only LI.FI supports this pair'
 					: protocolIntent === 'cctp'
-						? 'Preferring CCTP based on your selection'
+						? 'Using CCTP (your preference)'
 						: protocolIntent === 'lifi'
-							? 'Preferring LI.FI based on your selection'
-							: 'Defaulting to CCTP for USDC transfers',
+							? 'Using LI.FI (your preference)'
+							: 'Using CCTP (best route)',
 	)
 	const recipient = $derived(
 		settings.useCustomRecipient
@@ -115,10 +117,26 @@
 			filteredNetworks.some((n) => n.id === settings.fromChainId)
 		)
 			return
-		const defaultFrom = settings.isTestnet
-			? ChainId.EthereumSepolia
-			: ChainId.Ethereum
-		const defaultTo = settings.isTestnet ? ChainId.ArcTestnet : ChainId.Optimism
+		const fromNet =
+			settings.fromChainId !== null
+				? networksByChainId[settings.fromChainId]
+				: null
+		const toNet =
+			settings.toChainId !== null
+				? networksByChainId[settings.toChainId]
+				: null
+		const defaultFrom =
+			settings.isTestnet
+				? (fromNet ? testnetsForMainnet.get(fromNet)?.[0]?.id : undefined) ??
+					ChainId.EthereumSepolia
+				: (fromNet ? mainnetForTestnet.get(fromNet)?.id : undefined) ??
+					ChainId.Ethereum
+		const defaultTo =
+			settings.isTestnet
+				? (toNet ? testnetsForMainnet.get(toNet)?.[0]?.id : undefined) ??
+					ChainId.ArcTestnet
+				: (toNet ? mainnetForTestnet.get(toNet)?.id : undefined) ??
+					ChainId.Optimism
 		bridgeSettingsState.current = {
 			...settings,
 			fromChainId:

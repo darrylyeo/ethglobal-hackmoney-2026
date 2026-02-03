@@ -9,6 +9,6 @@
   - Liquidity: liquidity/+page.svelte, LiquidityFlow, Positions ✓
   - Navigation: Swap and Liquidity links in +layout.svelte ✓
 - `pnpm test:unit`: **passed** (Deno + Vitest).
-- `pnpm test:e2e`: **failed**. Failures: `net::ERR_CONNECTION_REFUSED` at `http://localhost:4173` (Playwright webServer / preview not serving in run). Some tests also expect `#main-content h1`, bridge heading "USDC Bridge", "Rooms" heading, etc.; those may be selector/env issues once server is up.
+- `pnpm test:e2e`: **failed**. Failures: `net::ERR_CONNECTION_REFUSED` at `http://localhost:4173` (Playwright webServer / preview not serving in run). Some tests also expect `#main h1`, bridge heading "USDC Bridge", "Rooms" heading, etc.; those may be selector/env issues once server is up.
 - No code changes made (spec 030 implementation already matches spec).
 - Per constitution: do not output DONE until 100% complete; E2E not verified. Exit without DONE.

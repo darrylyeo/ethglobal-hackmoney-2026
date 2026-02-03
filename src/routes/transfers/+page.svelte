@@ -12,6 +12,7 @@
 		transferGraphsCollection,
 		fetchTransferGraph,
 	} from '$/collections/transfer-graphs'
+	import { toasts } from '$/lib/toast.svelte'
 	import Boundary from '$/components/Boundary.svelte'
 	import LiveTransfers from './LiveTransfers.svelte'
 
@@ -50,37 +51,56 @@
 	const periodValue = $derived(graphRow?.period ?? period)
 	const periods = $derived(graphRow?.periods ?? TIME_PERIODS)
 	const loading = $derived(graphRow?.isLoading ?? true)
-	const failed = $derived((graphRow?.error?.length ?? 0) > 0)
 	const errorMessage = $derived(graphRow?.error ?? null)
+	const errorShort = $derived(
+		errorMessage?.includes('trace-id')
+			? 'Temporary internal error. Please retry.'
+			: errorMessage,
+	)
 
-	function retry() {
-		if (!period) return
-		fetchTransferGraph(period).catch(() => {})
-	}
+	// Non-blocking: toast on fetch error, do not replace view
+	let lastToastedError = $state<string | null>(null)
+	$effect(() => {
+		period
+		lastToastedError = null
+	})
+	$effect(() => {
+		const err = errorMessage
+		if (!err || err === lastToastedError) return
+		lastToastedError = err
+		toasts.error(errorShort ?? 'Transfers load failed', {
+			action: {
+				label: 'Retry',
+				onClick: () => {
+					lastToastedError = null
+					fetchTransferGraph(period).catch(() => {})
+				},
+			},
+			dismissible: true,
+		})
+	})
 </script>
 
 <svelte:head>
 	<title>Transfers – USDC Tools</title>
 </svelte:head>
 
-<main id="main-content" data-column>
-	{#if loading && !graphRow?.graph?.nodes?.length}
-		<p class="transfers-loading" data-transfers-loading>Loading transfers…</p>
-	{:else if failed}
-		<div class="transfers-error" data-transfers-error>
-			<h2>Transfers unavailable</h2>
-			<p>{errorMessage ?? 'Unknown error'}</p>
-			<p>
-				RPC or network may be unreachable. Try another time period or retry.
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
+	<section data-scroll-item>
+		{#if loading && !graph.nodes.length}
+			<p class="transfers-loading" data-transfers-loading aria-live="polite">
+				Loading transfers…
 			</p>
-			<button type="button" onclick={retry}>Retry</button>
-		</div>
-	{:else}
+		{/if}
 		<Boundary>
 			<LiveTransfers {coin} {graph} period={periodValue} {periods} />
 
 			{#snippet Failed(error, retryFn)}
-				<div class="transfers-error">
+				<div class="transfers-error" data-transfers-error>
 					<h2>Transfers unavailable</h2>
 					<p>{(error as Error).message}</p>
 					<p>
@@ -90,7 +110,7 @@
 				</div>
 			{/snippet}
 		</Boundary>
-	{/if}
+	</section>
 </main>
 
 <style>

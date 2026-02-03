@@ -14,10 +14,10 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 	})
 
 	test('select chains, enter amount', async ({ page }) => {
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.locator('#main-content')).toContainText(
+		await expect(page.locator('#main')).toContainText(
 			/USDC Bridge \(CCTP\)|Connect a wallet/,
 			{ timeout: 45_000 },
 		)
@@ -44,7 +44,7 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 	})
 
 	test('Fast Transfer fee and allowance displayed', async ({ page }) => {
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await page.getByRole('button', { name: 'Connect Wallet' }).click()
@@ -73,7 +73,7 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 	})
 
 	test.skip('confirmation dialog before send', async ({ page }) => {
-		await expect(page.locator('#main-content')).toBeAttached({
+		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
 		await page.getByRole('button', { name: 'Connect Wallet' }).click()
