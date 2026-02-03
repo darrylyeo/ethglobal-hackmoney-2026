@@ -105,3 +105,7 @@ bridge indexers for enrichment.
 ## Status
 
 Complete. Route `/transfers` with LiveTransfers and USDC coin. Time period selector 1h, 6h, 12h, 1d, 3d, 7d. Primary source: eth_getLogs (Voltaire) via `src/api/voltaire.ts` (getLogs, getBlockNumberByTimestamp, TRANSFER_TOPIC) and `src/api/transfers-logs.ts` (fetchTransferEventsForPeriod). Block range resolved by timestamp per chain. Normalized events served by query cache keyed by period; `src/collections/transfer-events.ts` exports transferEventsQueryKey. fetchTransfersGraphFromVoltaire in transfers-indexer builds graph from Voltaire events. Optional Covalent enrichment when PUBLIC_COVALENT_API_KEY set (non-blocking). LiveTransfers: Threlte nodes (unique actors), edges (volume, timestamps), staggered edge animation, chain color by chainId. Boundary for errors.
+
+## Output when complete
+
+`DONE`
