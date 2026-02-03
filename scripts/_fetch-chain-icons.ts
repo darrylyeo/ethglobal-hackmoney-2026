@@ -601,7 +601,7 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.Dark,
 		fetch: {
 			fetchType: 'url',
-			url: 'https://etherscan.io/images/svg/brands/ethereum-original-dark.svg',
+			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-black.svg',
 		},
 	},
 	{
@@ -610,7 +610,7 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.Dark,
 		fetch: {
 			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/logo-dark.svg',
+			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-portrait-black.svg',
 		},
 	},
 	{
@@ -619,7 +619,7 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.Light,
 		fetch: {
 			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/logo-light.svg',
+			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-landscape-purple-white.svg',
 		},
 	},
 	{
@@ -628,7 +628,7 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.Symbol,
 		fetch: {
 			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/logo-symbol.svg',
+			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-glyph.svg',
 		},
 	},
 	{
@@ -637,7 +637,7 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.SymbolLight,
 		fetch: {
 			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/logo-symbol-light.svg',
+			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-purple-white.svg',
 		},
 	},
 	{
@@ -646,34 +646,7 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.SymbolDark,
 		fetch: {
 			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/logo-symbol-dark.svg',
-		},
-	},
-	{
-		chainId: ChainId.Ethereum,
-		kind: ChainIconKind.Logo,
-		style: ChainIconStyle.Circle,
-		fetch: {
-			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/logo-circle.svg',
-		},
-	},
-	{
-		chainId: ChainId.Ethereum,
-		kind: ChainIconKind.Logo,
-		style: ChainIconStyle.CircleDark,
-		fetch: {
-			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/logo-circle-dark.svg',
-		},
-	},
-	{
-		chainId: ChainId.Ethereum,
-		kind: ChainIconKind.Logo,
-		style: ChainIconStyle.CircleLight,
-		fetch: {
-			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/logo-circle-light.svg',
+			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-black.svg',
 		},
 	},
 	{
@@ -682,7 +655,7 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.Dark,
 		fetch: {
 			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/wordmark-dark.svg',
+			url: 'https://ethereum.org/images/assets/svgs/ethereum-wordmark-black.svg',
 		},
 	},
 	{
@@ -691,7 +664,7 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.Light,
 		fetch: {
 			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/wordmark-light.svg',
+			url: 'https://ethereum.org/images/assets/svgs/ethereum-wordmark-purple-white.svg',
 		},
 	},
 	{
@@ -700,7 +673,7 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.Logo,
 		fetch: {
 			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/logo.svg',
+			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-portrait-black.svg',
 		},
 	},
 	{
@@ -709,7 +682,7 @@ export const chainIconItems: readonly ChainIconItem[] = [
 		style: ChainIconStyle.Logo,
 		fetch: {
 			fetchType: 'url',
-			url: 'https://etherscan.io/assets/ethereum/images/svg/brandassets/wordmark.svg',
+			url: 'https://ethereum.org/images/assets/svgs/ethereum-wordmark-black.svg',
 		},
 	},
 	/** Optimism: CDN from optimism.io/brand (OP Mainnet = chain logo; wordmark + avatar as variants) */
@@ -3469,13 +3442,24 @@ export const testnetIconReuse = [
 	{ testnetId: ChainId.OPSepolia, mainnetId: ChainId.Optimism },
 ] as const satisfies readonly TestnetIconReuse[]
 
+function isSvgContent(text: string): boolean {
+	const t = text.trim()
+	return (
+		t.startsWith('<?xml') ||
+		t.startsWith('<svg') ||
+		(t.startsWith('<!--') && t.includes('<svg'))
+	)
+}
+
 async function fetchSvg(url: string): Promise<string> {
 	const res = await fetch(url, {
 		headers: { Accept: 'image/svg+xml' },
 		redirect: 'follow',
 	})
 	if (!res.ok) throw new Error(`${url} ${res.status}`)
-	return res.text()
+	const text = await res.text()
+	if (!isSvgContent(text)) throw new Error(`${url} returned non-SVG content`)
+	return text
 }
 
 function pngToSvgWrapper(pngBase64: string, size = 256): string {
