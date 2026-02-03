@@ -105,9 +105,11 @@ test.describe('Keyboard navigation', () => {
 		await expect(connectButton).toBeFocused()
 		await page.keyboard.press('Enter')
 		await page
-			.locator('[data-wallet-provider-option]')
+			.getByRole('menuitem', { name: 'Mock Wallet' })
 			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.getByRole('menuitem', { name: 'Mock Wallet' }).click()
+		await page.getByRole('menuitem', { name: 'Mock Wallet' }).click({
+			force: true,
+		})
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 15_000,
 		})

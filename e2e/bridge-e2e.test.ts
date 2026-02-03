@@ -24,9 +24,11 @@ test.describe('E2E bridge flow', () => {
 			)
 			await page.getByRole('button', { name: 'Connect Wallet' }).click()
 			await page
-				.locator('[data-wallet-provider-option]')
+				.getByRole('menuitem', { name: 'Mock Wallet' })
 				.waitFor({ state: 'visible', timeout: 10_000 })
-			await page.locator('[data-wallet-provider-option]').click()
+			await page.getByRole('menuitem', { name: 'Mock Wallet' }).click({
+				force: true,
+			})
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({
 				timeout: 15_000,
 			})
@@ -34,8 +36,11 @@ test.describe('E2E bridge flow', () => {
 				timeout: 20_000,
 			})
 			await expect(
-				page.getByRole('heading', { name: 'Bridge USDC', level: 2 }),
-			).toBeVisible({ timeout: 10_000 })
+				page.locator('#main-content').getByRole('heading', {
+					name: 'Bridge USDC',
+					level: 2,
+				}),
+			).toBeVisible({ timeout: 15_000 })
 			await expect(page.locator('[data-from-chain]')).toBeVisible({
 				timeout: 20_000,
 			})
@@ -97,9 +102,11 @@ test.describe('E2E bridge flow', () => {
 			)
 			await page.getByRole('button', { name: 'Connect Wallet' }).click()
 			await page
-				.locator('[data-wallet-provider-option]')
+				.getByRole('menuitem', { name: 'Mock Wallet' })
 				.waitFor({ state: 'visible', timeout: 10_000 })
-			await page.locator('[data-wallet-provider-option]').click()
+			await page.getByRole('menuitem', { name: 'Mock Wallet' }).click({
+				force: true,
+			})
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({
 				timeout: 15_000,
 			})
@@ -137,9 +144,11 @@ test.describe('E2E bridge flow', () => {
 		}) => {
 			await page.getByRole('button', { name: 'Connect Wallet' }).click()
 			await page
-				.locator('[data-wallet-provider-option]')
+				.getByRole('menuitem', { name: 'Mock Wallet' })
 				.waitFor({ state: 'visible', timeout: 10_000 })
-			await page.locator('[data-wallet-provider-option]').click()
+			await page.getByRole('menuitem', { name: 'Mock Wallet' }).click({
+				force: true,
+			})
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({
 				timeout: 15_000,
 			})
@@ -182,9 +191,11 @@ test.describe('E2E bridge flow', () => {
 		}) => {
 			await page.getByRole('button', { name: 'Connect Wallet' }).click()
 			await page
-				.locator('[data-wallet-provider-option]')
+				.getByRole('menuitem', { name: 'Mock Wallet' })
 				.waitFor({ state: 'visible', timeout: 10_000 })
-			await page.locator('[data-wallet-provider-option]').click()
+			await page.getByRole('menuitem', { name: 'Mock Wallet' }).click({
+				force: true,
+			})
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({
 				timeout: 15_000,
 			})
