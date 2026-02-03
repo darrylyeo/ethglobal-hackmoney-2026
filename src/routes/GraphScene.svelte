@@ -48,7 +48,7 @@
 	let visibleCollections: Set<string> = $state(
 		new Set(GRAPH_SCENE_ENTITY_TYPES),
 	)
-	let graphFramework = $state<GraphFramework>('sigma')
+	let graphFramework = $state<GraphFramework>('g6')
 	let frameworkHydrated = $state(false)
 	let selectedNodes = $state<string[]>([])
 	let selectedEdges = $state<string[]>([])
@@ -731,9 +731,13 @@
 {#if visible && graphModel}
 	<aside
 		class="graph-scene"
+		data-card="secondary padding-0 radius-6"
 		data-expanded={expanded}
 	>
-		<header class="graph-scene-header">
+		<header
+			class="graph-scene-header"
+			data-row="gap-2 align-center"
+		>
 			<button
 				class="graph-scene-collapse"
 				type="button"
@@ -743,8 +747,11 @@
 			>
 				{expanded ? '▼' : '▲'}
 			</button>
-			<h4>Data Graph</h4>
-			<div class="graph-scene-framework">
+			<h4 data-row-item="flexible">Data Graph</h4>
+			<div
+				class="graph-scene-framework"
+				data-row="gap-1"
+			>
 				<button
 					type="button"
 					data-active={graphFramework === 'sigma'}
@@ -766,7 +773,10 @@
 					G6
 				</button>
 			</div>
-			<div class="graph-scene-stats">
+			<div
+				class="graph-scene-stats"
+				data-row="gap-1"
+			>
 				{graphModel.graph.order} nodes · {graphModel.graph.size} edges
 				{#if highlightedSet.size > 0}
 					<span class="graph-scene-highlight">
@@ -835,7 +845,7 @@
 						</small>
 						{#if hoveredNodeEntries.length > 0}
 							<dl class="graph-scene-details">
-								{#each hoveredNodeEntries as [key, value]}
+							{#each hoveredNodeEntries as [key, value] (key)}
 									{#if value !== undefined && value !== null && value !== ''}
 										<dt>{key}</dt>
 										<dd>{value}</dd>
@@ -855,8 +865,11 @@
 			</div>
 
 			<footer class="graph-scene-footer">
-				<div class="graph-scene-legend">
-					{#each Object.entries(collections) as [key, config]}
+				<div
+					class="graph-scene-legend"
+					data-row="wrap gap-1"
+				>
+					{#each Object.entries(collections) as [key, config] (key)}
 						{@const entityType = key}
 						{@const count = counts[entityType]}
 						<button
@@ -874,14 +887,18 @@
 					{/each}
 				</div>
 				{#if selectionItems.length > 0}
-					<div class="graph-scene-selection">
+					<div
+						class="graph-scene-selection"
+						data-column="gap-2"
+					>
 						<h5>Selection</h5>
-						<ul>
-							{#each selectionItems as item}
+						<ul data-column="gap-1">
+							{#each selectionItems as item (item.id)}
 								<li>
 									<button
 										type="button"
 										data-kind={item.kind}
+										data-row="gap-2 align-center"
 										onclick={() => {
 											if (item.kind === 'node') {
 												selectedNodes = [item.id]
@@ -893,7 +910,7 @@
 											}
 										}}
 									>
-										<strong>{item.label}</strong>
+										<strong data-row-item="flexible">{item.label}</strong>
 										<span>{item.collection}</span>
 									</button>
 								</li>
@@ -912,9 +929,6 @@
 		bottom: 1rem;
 		right: 1rem;
 		width: 440px;
-		background: var(--color-bg-page, #fff);
-		border: 1px solid var(--color-border, #e5e7eb);
-		border-radius: 0.75rem;
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 		display: flex;
 		flex-direction: column;
@@ -933,66 +947,25 @@
 	.graph-scene-header {
 		padding: 0.5rem 0.75rem;
 		border-bottom: 1px solid var(--color-border, #e5e7eb);
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
 		background: var(--color-bg-elevated, #fafafa);
 		border-radius: 0.75rem 0.75rem 0 0;
-	}
-
-	.graph-scene-collapse {
-		background: none;
-		border: none;
-		cursor: pointer;
-		font-size: 0.625rem;
-		opacity: 0.5;
-		padding: 0.25rem;
-		line-height: 1;
-
-		&:hover {
-			opacity: 1;
-		}
 	}
 
 	.graph-scene-header h4 {
 		margin: 0;
 		font-size: 0.8125rem;
 		font-weight: 600;
-		flex: 1;
 	}
 
-	.graph-scene-framework {
-		display: flex;
-		gap: 0.25rem;
-	}
-
-	.graph-scene-framework button {
-		border: 1px solid var(--color-border, #e5e7eb);
-		border-radius: 0.5rem;
-		background: white;
-		font-size: 0.625rem;
-		padding: 0.25rem 0.5rem;
-		cursor: pointer;
-		opacity: 0.6;
-		transition: all 0.15s ease;
-
-		&[data-active='true'] {
-			opacity: 1;
-			background: #0f172a;
-			border-color: #0f172a;
-			color: white;
-		}
-
-		&:hover {
-			opacity: 1;
-		}
+	.graph-scene-framework button[data-active='true'] {
+		background: #0f172a;
+		border-color: #0f172a;
+		color: white;
 	}
 
 	.graph-scene-stats {
 		font-size: 0.6875rem;
 		opacity: 0.6;
-		display: flex;
-		gap: 0.25rem;
 	}
 
 	.graph-scene-highlight {
@@ -1082,35 +1055,9 @@
 		border-radius: 0 0 0.75rem 0.75rem;
 	}
 
-	.graph-scene-legend {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.375rem;
-	}
-
-	.graph-scene-legend button {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-		padding: 0.25rem 0.5rem;
-		font-size: 0.625rem;
-		border: 1px solid var(--color-border, #e5e7eb);
-		border-radius: 1rem;
-		background: white;
-		cursor: pointer;
-		transition: all 0.15s ease;
-		opacity: 0.5;
-
-		&[data-active='true'] {
-			opacity: 1;
-			background: color-mix(in srgb, var(--color) 8%, white);
-			border-color: color-mix(in srgb, var(--color) 30%, transparent);
-		}
-
-		&:hover {
-			opacity: 1;
-			transform: scale(1.02);
-		}
+	.graph-scene-legend button[data-active='true'] {
+		background: color-mix(in srgb, var(--color) 8%, white);
+		border-color: color-mix(in srgb, var(--color) 30%, transparent);
 	}
 
 	.graph-scene-legend .graph-scene-dot {
@@ -1135,9 +1082,6 @@
 		margin-top: 0.5rem;
 		border-top: 1px solid var(--color-border, #e5e7eb);
 		padding-top: 0.5rem;
-		display: flex;
-		flex-direction: column;
-		gap: 0.375rem;
 	}
 
 	.graph-scene-selection h5 {
@@ -1148,28 +1092,8 @@
 		opacity: 0.6;
 	}
 
-	.graph-scene-selection ul {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
-
 	.graph-scene-selection button {
 		width: 100%;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: 0.5rem;
-		border: 1px solid var(--color-border, #e5e7eb);
-		border-radius: 0.5rem;
-		background: white;
-		padding: 0.25rem 0.5rem;
-		font-size: 0.625rem;
-		cursor: pointer;
-		text-align: left;
 	}
 
 	.graph-scene-selection button strong {
@@ -1184,17 +1108,6 @@
 		font-size: 0.5625rem;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-	}
-
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		border: 0;
 	}
 
 	@media (prefers-color-scheme: dark) {
@@ -1216,34 +1129,18 @@
 			border-top-color: rgba(255, 255, 255, 0.06);
 		}
 
-		.graph-scene-legend button {
-			background: #1e293b;
-
-			&[data-active='true'] {
-				background: color-mix(in srgb, var(--color) 15%, #1e293b);
-			}
+		.graph-scene-legend button[data-active='true'] {
+			background: color-mix(in srgb, var(--color) 15%, #1e293b);
 		}
 
 		.graph-scene-legend .graph-scene-count {
 			background: color-mix(in srgb, var(--color) 20%, #1e293b);
 		}
 
-		.graph-scene-framework button {
-			background: #0f172a;
-			border-color: rgba(148, 163, 184, 0.3);
-			color: #e2e8f0;
-
-			&[data-active='true'] {
-				background: #e2e8f0;
-				border-color: #e2e8f0;
-				color: #0f172a;
-			}
-		}
-
-		.graph-scene-selection button {
-			background: #0f172a;
-			border-color: rgba(148, 163, 184, 0.3);
-			color: #e2e8f0;
+		.graph-scene-framework button[data-active='true'] {
+			background: #e2e8f0;
+			border-color: #e2e8f0;
+			color: #0f172a;
 		}
 	}
 </style>
