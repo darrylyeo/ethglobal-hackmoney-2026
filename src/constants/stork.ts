@@ -1443,12 +1443,13 @@ export const storkPushedAssetsByNetwork = Object.fromEntries(
 		]),
 ) satisfies Record<string, Partial<Record<StorkNetworkEnvironment, StorkPushedAsset[]>>>
 
-const storkAssetChainEntries = storkPushedAssets.flatMap((asset) => {
-	const key = `${asset.network}:${asset.environment}`
-	const config = storkNetworkDeploymentByKey[key]
-	const chainId = config?.oracleChainId ?? config?.chainId
-	return chainId == null ? [] : [[asset.assetId, chainId]]
-})
+const storkAssetChainEntries: [StorkAsset['assetId'], ChainId][] =
+	storkPushedAssets.flatMap((asset) => {
+		const key = `${asset.network}:${asset.environment}`
+		const config = storkNetworkDeploymentByKey[key]
+		const chainId = config?.oracleChainId ?? config?.chainId
+		return chainId == null ? [] : [[asset.assetId, chainId]]
+	})
 
 export const storkOracleChainIdsByAssetId = Object.fromEntries(
 	Map.groupBy(storkAssetChainEntries, ([assetId]) => assetId)
@@ -1457,7 +1458,7 @@ export const storkOracleChainIdsByAssetId = Object.fromEntries(
 			assetId,
 			[...new Set(entries.map((entry) => entry[1]))],
 		]),
-) satisfies Record<string, readonly number[]>
+) satisfies Record<string, readonly ChainId[]>
 
 export const storkPushedAssetIds: readonly string[] = [
 	...new Set(storkPushedAssets.map((asset) => asset.assetId)),

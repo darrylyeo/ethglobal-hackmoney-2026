@@ -85,8 +85,6 @@ export type NetworkConfig = {
 	name: string
 	type: NetworkType
 	nativeCurrency: NetworkCurrency
-	explorerUrl?: string
-	rpcEndpoints: readonly RpcEndpoint[]
 	icon?: string
 }
 
@@ -98,14 +96,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://etherscan.io',
 		icon: '/networks/1-logo.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Ethereum,
-				url: 'https://mainnet.rpc.buidlguidl.com',
-				serviceProvider: ServiceProvider.Public,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Optimism,
@@ -114,14 +104,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://optimistic.etherscan.io',
 		icon: '/networks/10-symbol.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Optimism,
-				url: 'https://mainnet.optimism.io',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.XDC,
@@ -130,14 +112,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'XDC', symbol: 'XDC' },
 		explorerUrl: 'https://xdc.blocksscan.io',
 		icon: '/networks/50.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.XDC,
-				url: 'https://erpc.xinfin.network',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.XDCApothem,
@@ -146,14 +120,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'XDC', symbol: 'XDC' },
 		explorerUrl: 'https://apothem.blocksscan.io',
 		icon: '/networks/51.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.XDCApothem,
-				url: 'https://rpc.apothem.network',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Unichain,
@@ -162,14 +128,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Unichain', symbol: 'UNI' },
 		explorerUrl: 'https://unichain.blockscout.com',
 		icon: '/networks/130.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Unichain,
-				url: 'https://unichain-rpc.publicnode.com',
-				serviceProvider: ServiceProvider.Public,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.UnichainSepolia,
@@ -178,14 +136,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Unichain', symbol: 'UNI' },
 		explorerUrl: 'https://sepolia.unichain.blockscout.com',
 		icon: '/networks/1301.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.UnichainSepolia,
-				url: 'https://sepolia.unichain.org',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Polygon,
@@ -194,14 +144,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'MATIC', symbol: 'MATIC' },
 		explorerUrl: 'https://polygonscan.com',
 		icon: '/networks/137.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Polygon,
-				url: 'https://polygon-rpc.com',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.PolygonAmoy,
@@ -210,14 +152,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'MATIC', symbol: 'MATIC' },
 		explorerUrl: 'https://amoy.polygonscan.com',
 		icon: '/networks/80002.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.PolygonAmoy,
-				url: 'https://rpc-amoy.polygon.technology',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Monad,
@@ -226,14 +160,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://explorer.monad.xyz',
 		icon: '/networks/143.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Monad,
-				url: 'https://rpc.monad.xyz',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.MonadTestnet,
@@ -242,14 +168,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet-explorer.monad.xyz',
 		icon: '/networks/143.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.MonadTestnet,
-				url: 'https://testnet-rpc.monad.xyz',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Sonic,
@@ -258,14 +176,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'S', symbol: 'S' },
 		explorerUrl: 'https://sonicscan.org',
 		icon: '/networks/146.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Sonic,
-				url: 'https://rpc.soniclabs.com',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.SonicTestnet,
@@ -274,14 +184,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'S', symbol: 'S' },
 		explorerUrl: 'https://testnet.sonicscan.org',
 		icon: '/networks/14601.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.SonicTestnet,
-				url: 'https://rpc.testnet.soniclabs.com',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.ZkSyncEraSepolia,
@@ -289,14 +191,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia-era.zksync.network',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.ZkSyncEraSepolia,
-				url: 'https://sepolia.era.zksync.dev',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.ZkSyncEra,
@@ -304,14 +198,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://era.zksync.network',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.ZkSyncEra,
-				url: 'https://mainnet.era.zksync.io',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.WorldChain,
@@ -319,14 +205,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://worldscan.org',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.WorldChain,
-				url: 'https://worldchain-mainnet.g.alchemy.com/public',
-				serviceProvider: ServiceProvider.Alchemy,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.WorldChainSepolia,
@@ -334,14 +212,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia.worldscan.org',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.WorldChainSepolia,
-				url: 'https://worldchain-sepolia.g.alchemy.com/public',
-				serviceProvider: ServiceProvider.Alchemy,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.HyperEVMTestnet,
@@ -349,14 +219,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet.hyper.evm.cc',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.HyperEVMTestnet,
-				url: 'https://hyperliquid-testnet.drpc.org',
-				serviceProvider: ServiceProvider.Public,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.HyperEVM,
@@ -364,14 +226,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://hyper.evm.cc',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.HyperEVM,
-				url: 'https://hyperliquid.drpc.org',
-				serviceProvider: ServiceProvider.Public,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.SeiTestnet,
@@ -379,14 +233,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'SEI', symbol: 'SEI' },
 		explorerUrl: 'https://testnet.seitrace.com',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.SeiTestnet,
-				url: 'https://evm-rpc-testnet.sei-apis.com',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Sei,
@@ -394,14 +240,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'SEI', symbol: 'SEI' },
 		explorerUrl: 'https://seitrace.com',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Sei,
-				url: 'https://evm-rpc.sei-apis.com',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Arbitrum,
@@ -409,14 +247,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://arbiscan.io',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Arbitrum,
-				url: 'https://arb1.arbitrum.io/rpc',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.ArbitrumSepolia,
@@ -424,14 +254,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia.arbiscan.io',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.ArbitrumSepolia,
-				url: 'https://sepolia-rollup.arbitrum.io/rpc',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Celo,
@@ -439,14 +261,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'CELO', symbol: 'CELO' },
 		explorerUrl: 'https://celoscan.io',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Celo,
-				url: 'https://forno.celo.org',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.AvalancheFuji,
@@ -454,14 +268,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'AVAX', symbol: 'AVAX' },
 		explorerUrl: 'https://testnet.snowtrace.io',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.AvalancheFuji,
-				url: 'https://api.avax-test.network/ext/bc/C/rpc',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Avalanche,
@@ -469,14 +275,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'AVAX', symbol: 'AVAX' },
 		explorerUrl: 'https://snowtrace.io',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Avalanche,
-				url: 'https://api.avax.network/ext/bc/C/rpc',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Base,
@@ -484,14 +282,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://basescan.org',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Base,
-				url: 'https://mainnet.base.org',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.BaseSepolia,
@@ -499,14 +289,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia.basescan.org',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.BaseSepolia,
-				url: 'https://sepolia.base.org',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Ink,
@@ -514,14 +296,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://explorer.inkonchain.com',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Ink,
-				url: 'https://rpc-gel.inkonchain.com',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.LineaSepolia,
@@ -529,14 +303,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia.lineascan.build',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.LineaSepolia,
-				url: 'https://rpc.sepolia.linea.build',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Linea,
@@ -545,14 +311,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://lineascan.build',
 		icon: '/networks/59144-symbol.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Linea,
-				url: 'https://rpc.linea.build',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.InkTestnet,
@@ -561,14 +319,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet.explorer.inkonchain.com',
 		icon: '/networks/763373.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.InkTestnet,
-				url: 'https://rpc-gel-sepolia.inkonchain.com',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Codex,
@@ -577,14 +327,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://explorer.codexchain.io',
 		icon: '/networks/81224-logo-and-wordmark.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Codex,
-				url: 'https://rpc.codex.xyz',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.CodexTestnet,
@@ -593,14 +335,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet-explorer.codexchain.io',
 		icon: '/networks/81224-logo-and-wordmark.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.CodexTestnet,
-				url: 'https://rpc.codex-stg.xyz',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.Plume,
@@ -609,14 +343,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://plume-explorer.alt.technology',
 		icon: '/networks/98866-dark.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.Plume,
-				url: 'https://rpc.plume.org',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.PlumeTestnet,
@@ -625,14 +351,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet-plume-explorer.alt.technology',
 		icon: '/networks/98867.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.PlumeTestnet,
-				url: 'https://testnet-rpc.plume.org',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.CeloSepolia,
@@ -641,14 +359,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'CELO', symbol: 'CELO' },
 		explorerUrl: 'https://celo-sepolia.blockscout.com',
 		icon: '/networks/11142220.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.CeloSepolia,
-				url: 'https://forno.celo-sepolia.celo-testnet.org',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.EthereumSepolia,
@@ -657,14 +367,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia.etherscan.io',
 		icon: '/networks/1-logo.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.EthereumSepolia,
-				url: 'https://ethereum-sepolia-rpc.publicnode.com',
-				serviceProvider: ServiceProvider.Public,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.OPSepolia,
@@ -673,14 +375,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia-optimism.etherscan.io',
 		icon: '/networks/11155420.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.OPSepolia,
-				url: 'https://sepolia.optimism.io',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 	{
 		chainId: ChainId.ArcTestnet,
@@ -689,14 +383,6 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet.arcscan.io',
 		icon: '/networks/5042002.svg',
-		rpcEndpoints: [
-			{
-				chainId: ChainId.ArcTestnet,
-				url: 'https://rpc.testnet.arc.network',
-				serviceProvider: ServiceProvider.Chain,
-				transportType: TransportType.Http,
-			},
-		],
 	},
 ]
 

@@ -29,25 +29,25 @@ reuse of existing domain types, and single-purpose derived indices.
 
 ### Schema types
 
-- [ ] Constants modules depend only on the minimal schema types required for
+- [x] Constants modules depend only on the minimal schema types required for
   their data.
-- [ ] Types live alongside constants in `src/constants/` (no duplicated type
+- [x] Types live alongside constants in `src/constants/` (no duplicated type
   definitions).
-- [ ] Paired concepts (e.g. base/quote) are separate fields or types, not
+- [x] Paired concepts (e.g. base/quote) are separate fields or types, not
   encoded in a single string or overloaded field.
-- [ ] Domain concepts (symbols, chain ids, tokens, etc.) use existing shared
+- [x] Domain concepts (symbols, chain ids, tokens, etc.) use existing shared
   types where they exist.
 
 ### Constants structure
 
-- [ ] Each schema type has a single canonical array of objects in
+- [x] Each schema type has a single canonical array of objects in
   `src/constants/`.
-- [ ] Each derived lookup is one index object (e.g. `byId`, `bySymbol`);
+- [x] Each derived lookup is one index object (e.g. `byId`, `bySymbol`);
   indices are not merged or overloaded.
-- [ ] When an entity’s “read context” (e.g. chain, endpoint) can differ from its
+- [x] When an entity’s “read context” (e.g. chain, endpoint) can differ from its
   primary context, that is represented explicitly (e.g. optional
   `oracleChainId`).
-- [ ] Data values are consistent with current upstream docs.
+- [x] Data values are consistent with current upstream docs.
 
 ## Status
 

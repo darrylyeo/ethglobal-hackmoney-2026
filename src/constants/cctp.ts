@@ -9,7 +9,7 @@ export const CCTP_TOKEN_MESSENGER_TESTNET =
 export const CCTP_MESSAGE_TRANSMITTER_TESTNET =
 	'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' as const
 
-export const CCTP_DOMAINS_BY_CHAIN_ID: Record<number, number> = {
+export const CCTP_DOMAINS_BY_CHAIN_ID: Partial<Record<ChainId, number>> = {
 	[ChainId.Ethereum]: 0,
 	[ChainId.EthereumSepolia]: 0,
 	[ChainId.Avalanche]: 1,
@@ -47,7 +47,7 @@ export const CCTP_DOMAINS_BY_CHAIN_ID: Record<number, number> = {
 	[ChainId.ArcTestnet]: 26,
 }
 
-export const CCTP_FORWARDING_CHAIN_IDS = new Set<number>([
+export const CCTP_FORWARDING_CHAIN_IDS = new Set<ChainId>([
 	ChainId.ArcTestnet,
 	ChainId.Arbitrum,
 	ChainId.ArbitrumSepolia,
@@ -79,7 +79,7 @@ export const CCTP_FORWARDING_CHAIN_IDS = new Set<number>([
 	ChainId.WorldChainSepolia,
 ])
 
-export const CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS = new Set<number>([
+export const CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS = new Set<ChainId>([
 	ChainId.Arbitrum,
 	ChainId.ArbitrumSepolia,
 	ChainId.Base,
@@ -102,30 +102,31 @@ export const CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS = new Set<number>([
 	ChainId.WorldChainSepolia,
 ])
 
-export const getCctpDomainId = (chainId: number | null): number | null =>
-	chainId !== null && CCTP_DOMAINS_BY_CHAIN_ID[chainId] !== undefined
-		? CCTP_DOMAINS_BY_CHAIN_ID[chainId]
-		: null
+export const getCctpDomainId = (chainId: ChainId | null): number | null => (
+	chainId === null
+		? null
+		: CCTP_DOMAINS_BY_CHAIN_ID[chainId] ?? null
+)
 
-export const isCctpSupportedChain = (chainId: number | null): boolean =>
+export const isCctpSupportedChain = (chainId: ChainId | null): boolean =>
 	chainId !== null && CCTP_DOMAINS_BY_CHAIN_ID[chainId] !== undefined
 
 export const getCctpTokenMessenger = (
-	chainId: number | null,
+	chainId: ChainId | null,
 	isTestnet: boolean,
 ): `0x${string}` | null =>
 	chainId !== null && isCctpSupportedChain(chainId)
-		? ((isTestnet
+		? (isTestnet
 				? CCTP_TOKEN_MESSENGER_TESTNET
-				: CCTP_TOKEN_MESSENGER_MAINNET) as `0x${string}`)
+				: CCTP_TOKEN_MESSENGER_MAINNET)
 		: null
 
 export const getCctpMessageTransmitter = (
-	chainId: number | null,
+	chainId: ChainId | null,
 	isTestnet: boolean,
 ): `0x${string}` | null =>
 	chainId !== null && isCctpSupportedChain(chainId)
-		? ((isTestnet
+		? (isTestnet
 				? CCTP_MESSAGE_TRANSMITTER_TESTNET
-				: CCTP_MESSAGE_TRANSMITTER_MAINNET) as `0x${string}`)
+				: CCTP_MESSAGE_TRANSMITTER_MAINNET)
 		: null
