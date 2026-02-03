@@ -3,7 +3,7 @@
 	import type { Snippet } from 'svelte'
 
 	type DropdownActionItem<Item> = {
-		type: 'item'
+	type: string
 		item: Item
 		id?: string
 		label?: string
@@ -12,12 +12,12 @@
 	}
 
 	type DropdownSeparator = {
-		type: 'separator'
+	type: string
 		id?: string
 	}
 
 	type DropdownCheckboxItem = {
-		type: 'checkbox'
+	type: string
 		id?: string
 		label: string
 		checked: boolean
@@ -26,7 +26,7 @@
 	}
 
 	type DropdownCheckboxGroup = {
-		type: 'checkbox-group'
+	type: string
 		id?: string
 		label?: string
 		items: readonly {
@@ -39,7 +39,7 @@
 	}
 
 	type DropdownRadioGroup = {
-		type: 'radio-group'
+	type: string
 		id?: string
 		label?: string
 		value: string
@@ -165,7 +165,7 @@
 		getItemLabel?: (item: Item) => string
 		getItemDisabled?: (item: Item) => boolean
 		Trigger?: Snippet
-		Item?: Snippet<[item: Item]>
+	Item?: Snippet<[item: any]>
 		CheckboxItem?: Snippet<[item: {
 			label: string
 			checked: boolean
