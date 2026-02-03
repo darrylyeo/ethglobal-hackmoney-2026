@@ -1,128 +1,83 @@
-# Granular Atomic Commits (Topological Order)
+# Commit Plan
 
-Each commit results in a valid build. Commits are organized by dependency, not
-by file.
+## Phase 1: Tooling + type reset
 
----
+DONE (e9b382f): `Deno runtime: add ts-reset and uqr`
+- Files: `deno.json`, `deno.lock`, `package.json`, `reset.d.ts`, `src/Object.d.ts`
+- Files (delete): `pnpm-lock.yaml`
+- Dependency: none
 
-## Pending Commits
+## Phase 2: Schema constants alignment
 
-None.
+DONE (77291ce): `Constants: align schema exports`
+- Files: `src/constants/bridge-limits.ts`, `src/constants/coins.ts`, `src/constants/media.ts`, `src/constants/networks.ts`, `src/constants/peer-display-names.ts`, `src/constants/rpc-endpoints.ts`, `src/constants/slippage.ts`, `src/constants/stork.ts`, `src/constants/token-lists.ts`, `src/constants/tokens.ts`, `src/constants/uniswap.ts`, `src/constants/yellow.ts`
+- Files (delete): `src/constants/yellow/clearnode.ts`, `src/constants/yellow/custody.ts`, `src/constants/yellow/limits.ts`, `src/constants/yellow/resources.ts`, `src/schema/constants/bridge-limits.ts`, `src/schema/constants/coins.ts`, `src/schema/constants/entity-types.ts`, `src/schema/constants/media.ts`, `src/schema/constants/networks.ts`, `src/schema/constants/peer-display-names.ts`, `src/schema/constants/rpc-endpoints.ts`, `src/schema/constants/slippage.ts`, `src/schema/constants/stork.ts`, `src/schema/constants/token-lists.ts`, `src/schema/constants/tokens.ts`, `src/schema/constants/uniswap.ts`, `src/schema/constants/yellow/resources.ts`
+- Files: `src/data/$EntityType.ts`, `src/data/Actor.ts`, `src/data/ActorAllowance.ts`, `src/data/ActorCoin.ts`, `src/data/Coin.ts`, `src/data/Network.ts`, `src/data/StorkPrice.ts`, `src/data/TokenListCoin.ts`, `src/data/WalletConnection.ts`
+- Files: `src/collections/actor-coins.ts`, `src/collections/stork-prices.ts`, `src/collections/token-list-coins.ts`, `src/collections/transfer-graphs.ts`
+- Files: `src/api/transfers-logs.ts`, `src/api/yellow.ts`, `src/lib/stork.ts`
+- Dependency: Phase 1
 
----
+## Phase 3: Graph + UI primitives
 
-## Completed Commits
+DONE (d6883d8): `Graph: refresh scene and sigma view`
+- Files: `src/routes/GraphScene.svelte`, `src/components/SigmaGraphView.svelte`
+- Dependency: Phase 2
 
-| #   | Message                                                                | SHA     |
-| --- | ---------------------------------------------------------------------- | ------- |
-| 1   | spec 005: uncheck E2E criteria (pending verification)                  | a543b68 |
-| 2   | Shims: clarify bun:ffi stub scope                                      | 01bc809 |
-| 3   | Voltaire: handle empty or short balance response                       | 1ba3623 |
-| 4   | Voltaire: add test for 0n on empty response                            | 674ccc4 |
-| 5   | Scripts: fix Voltaire signer import path                               | 9013b21 |
-| 6   | RPC endpoints: update URLs and transport type                          | ba421ab |
-| 7   | Constants: remove legacy rpc-urls module                               | a4ab308 |
-| 8   | Network status: switch LI.FI API to /v1/chains                         | 1d78c11 |
-| 9   | Collections: use writeUpsert in actors and actor-coins                 | 233b16f |
-| 10  | Transfers: add fetchTransfersGraph                                     | b9e58f3 |
-| 11  | App: set color-scheme from theme                                       | 158dc12 |
-| 12  | Theme: remove dark mode spec and implementation                        | 88ab881 |
-| 13  | Svelte: add useContext helper                                          | 09258ce |
-| 14  | Bridge state: add useBridgeSlippage, useBridgeAutoRefresh              | 041979e |
-| 15  | Wallet: move state to context, refactor WalletProvider                 | f4d9267 |
-| 16  | Layout: add Tests submenu and test routes                              | 54e6432 |
-| 17  | Root: replace redirect with landing page                               | 2c27baf |
-| 18a | package.json: setup                                                    | f3bced7 |
-| 18b | check:size: setup                                                      | a1ff0d8 |
-| 19  | Bridge: inline RouteCard into RouteList                                | 869ecf0 |
-| 20a | AmountInput: align markup                                              | b190a23 |
-| 20b | ApprovalButton: align markup                                           | bb94fe4 |
-| 20c | ChainSwitchPrompt: align markup                                        | 021ded4 |
-| 20d | ErrorDisplay: align markup                                             | 092d63c |
-| 20e | FeeBreakdown: align markup                                             | be376a3 |
-| 20f | QuoteOutput: align markup                                              | cca5f28 |
-| 20g | TransactionHistory: align markup                                       | 64eec73 |
-| 21  | Bridge: switch to network objects and shared state                     | cd6fd3e |
-| 22  | Bridge: remove QuoteExpiration and ChainIdSection                      | d21da88 |
-| 23  | e2e: update bridge flow selectors and timeouts                         | 4a5cd80 |
-| 24  | Bridge: update unit tests for API changes                              | 5af91b0 |
-| 25  | Tests: update page and collections tests                               | ba7a321 |
-| 26  | Transfers: remove server load, update page                             | 181c40f |
-| 27  | Styles: update accessibility, bits-ui, components, responsive          | cdfdd32 |
-| 28  | Navigation: trim; Svelte: update config                                | af4b603 |
-| 30  | `<NumberValue>`, `<Timestamp>`: add                                    | 5ba9f03 |
-| 31  | e2e: add Playwright config                                             | d06106c |
-| 32  | chore: ignore PartyKit state                                           | 01879af |
-| 33  | rooms: update SIWE host + peer verification UI                         | c36e3b1 |
-| 34  | graph: add entity types + optimize sigma rendering                     | dbf9dcc |
-| 35  | yellow: update channel state + nitro rpc envelope                      | f3450e3 |
-| 36  | bridge/swap: add stork + token lists + transaction flow + api refactor | 43cadc6 |
-| 37  | docs: add stork/transaction flow/graph/cctp specs + history            | e1923a5 |
-| 38  | deps: add g6 + nitrolite                                               | fb866a6 |
-| 39  | docs: update bridge, yellow, g6, cctp, css specs                       | cefdd28 |
-| 40  | styles: add newline to bits-ui css                                     | b674f6e |
-| 41  | spec 042: add entity data sources                                      | 1e826ca |
-| 42  | Combobox/Select: add Before/After snippets                             | f28b8a3 |
-| 43  | Inputs: add coin/network amount components                             | 43134fb |
-| 44  | Bridge: use NetworkInput + CoinAmountInput                             | 929294e |
-| 45  | Balances: filter token list coins                                      | cc2950f |
-| 46  | Stork prices: prefer ready rows                                        | aef6e2e |
-| 47  | Styles: replace data-attr selectors with classes                       | 573d72f |
-| 48  | COMMIT_PLAN: update with SHAs                                          | c8d13ef |
-| 49  | Coins: add metadata + CoinAmount component                             | 996bfae |
-| 50  | CoinInput: show icons + type labels                                    | ddde315 |
-| 51  | Schema: add data entity models                                         | de264b9 |
-| 52  | App: align constants, collections, and UI to schema                    | db4ab3e |
-| 53  | Spec 043: track component organization plan                            | b10cd23 |
-| 54  | Spec 044: add dashboard panel system                                   | d5bafed |
-| 55  | Components: add Dropdown and Icon primitives                           | af11d71 |
-| 56  | Views: move domain components out of shared                            | 2cdc807 |
-| 57  | Architecture: move graph component into route                          | d85bac6 |
-| 58  | Routes: update imports for moved components                            | 3d1e3dc |
-| 59  | Rooms: move Peer component into route                                  | 8d873d1 |
-| 60  | Bridge: remove lifi route-local views                                  | cc2dc91 |
-| 61  | Components: align Select and Toast composition                         | 1837dae |
-| 62  | Bridge settings: align defaults                                        | 3588bc8 |
-| 63  | NavigationItem: align with view component moves                        | f3b3040 |
-| 64  | Bridge routes: adjust collection query shape                           | 5ca8e2d |
-| 65  | Spec 043: remove completed spec                                        | 51830ec |
+DONE (66cc716): `Components: add Dropdown and Tooltip`
+- Files: `src/components/Dropdown.svelte`, `src/components/Tooltip.svelte`
+- Dependency: Phase 1
 
----
+DONE (c20e479): `Styles: refine bits-ui component states`
+- Files: `src/styles/bits-ui.css`
+- Dependency: Phase 3
 
-## Working tree (uncommitted)
+## Phase 4: About architecture graph move
 
-| File(s)                                      | Description                                      |
-| -------------------------------------------- | ------------------------------------------------ |
-| `COMMIT_PLAN.md`                             | Refresh plan for current working tree            |
+DONE (689d5cd): `About: move architecture graph into route`
+- Files: `src/routes/about/+page.svelte`, `src/routes/about/ArchitectureGraph.svelte`, `src/routes/about/architecture-graph.ts`
+- Files (delete): `src/lib/architecture-graph.ts`, `src/routes/architecture/+page.svelte`, `src/routes/architecture/ArchitectureGraph.svelte`
+- Dependency: Phase 1
 
----
+## Phase 5: Rooms + PartyKit
 
-## Commit later (icons + unused deps)
+DONE (9d5de54): `Rooms: add display-name encoding and QR`
+- Files: `src/lib/room.ts`, `src/constants/room-display-names.ts`, `src/state/room.svelte.ts`
+- Files: `src/routes/rooms/+page.svelte`, `src/routes/rooms/Peer.svelte`, `src/routes/rooms/SharedAddresses.svelte`, `src/routes/rooms/[roomId]/+page.svelte`, `src/routes/rooms/[roomId]/channels/+page.svelte`
+- Files (delete): `src/lib/partykit.ts`
+- Dependency: Phase 1, Phase 2
 
-The following are **not** part of the main commit sequence. Commit when enabling
-icons/icon tooling.
+## Phase 6: Wallets UI + route
 
-### Working tree (uncommitted)
+DONE (dece40a): `Wallets: add manager route and view updates`
+- Files: `src/routes/wallets/+page.svelte`, `src/routes/wallets/WalletManager.svelte`
+- Files: `src/views/Wallets.svelte`, `src/views/Balances.svelte`, `src/views/NetworkInput.svelte`, `src/views/NavigationItem.svelte`, `src/views/StorkPriceFeed.svelte`
+- Dependency: Phase 2
 
-| File(s)                         | Description                          |
-| ------------------------------- | ------------------------------------ |
-| `COMMIT_PLAN.md`                | Update with recent SHAs              |
-| `package.json`                  | fflate, svgo deps + icons:\* scripts |
-| `scripts/_fetch-chain-icons.ts` | Icons fetch script                   |
-| `static/networks/*.svg`         | Network icons                        |
+## Phase 7: Dashboard panels
 
-### Commit order
+DONE (aa980b0): `Dashboard: add panel tree state and routes`
+- Files: `src/data/DashboardPanel.ts`, `src/collections/dashboard-panels.ts`
+- Files: `src/routes/dashboard/+page.svelte`, `src/routes/dashboard/PanelTree.svelte`, `src/routes/dashboard/PanelView.svelte`, `src/routes/dashboard/RouteRenderer.svelte`, `src/routes/dashboard/panel-tree.ts`, `src/routes/dashboard/route-map.ts`
+- Dependency: Phase 2
 
-After each change: run `deno task install`, then commit `package.json` +
-`deno.lock`.
+## Phase 8: Layout, navigation, and tests
 
-1. **fflate: install** — `devDependencies`: add `"fflate": "^0.8.2"`
-2. **svgo: install** — `devDependencies`: add `"svgo": "^4.0.0"`
-3. **icons:fetch: setup** — `scripts`: add
-   `"icons:fetch": "bun run scripts/_fetch-chain-icons.ts"`
-4. **icons:optimize: setup** — `scripts`: add
-   `"icons:optimize": "svgo static/networks/*.svg"`
-5. **icons: setup** — `scripts`: add
-   `"icons": "bun run icons:fetch && bun run icons:optimize"`
-6. **Scripts: add chain icons fetch** — `git add scripts/_fetch-chain-icons.ts`
-7. **Static: add network icons** — `git add static/networks/*.svg`
+DONE (3a73bcb): `Layout: align main landmark and selectors`
+- Files: `src/routes/+layout.svelte`, `src/routes/bridge/+page.svelte`, `src/routes/bridge/UnifiedBridgeFlow.svelte`, `src/routes/bridge/UnifiedProtocolRouter.svelte`, `src/routes/bridge/cctp/+page.svelte`, `src/routes/bridge/lifi/+page.svelte`, `src/routes/bridge/lifi/BridgeFlow.svelte`, `src/routes/liquidity/+page.svelte`, `src/routes/liquidity/LiquidityFlow.svelte`, `src/routes/swap/+page.svelte`, `src/routes/swap/SwapFlow.svelte`, `src/routes/transfers/+page.svelte`, `src/routes/transfers/TransferFlow.svelte`, `src/routes/test/chain-id/+page.svelte`, `src/routes/test/collections/+page.svelte`, `src/routes/test/intents/+page.svelte`, `src/routes/test/networks-coins/+page.svelte`
+- Files: `e2e/accessibility.test.ts`, `e2e/bridge-e2e.test.ts`, `e2e/bridge.test.ts`, `e2e/cctp-bridge.test.ts`, `e2e/responsive.test.ts`, `e2e/route-coverage.test.ts`, `e2e/unified-bridge.test.ts`, `e2e/wallet.test.ts`, `src/routes/bridge/lifi/bridge.test.ts`, `src/routes/bridge/lifi/page.test.ts`, `src/routes/bridge/lifi/responsive.test.ts`, `src/routes/bridge/lifi/wallet.test.ts`
+- Files: `history/2026-01-31-spec-014-e2e-blocked.md`, `history/2026-01-31-spec-014-still-blocked.md`, `history/2026-01-31-spec-014-unblock-partial.md`, `history/2026-02-02-build-reverify-030-e2e-blocked.md`, `specs/022-accessibility.md`, `specs/039-e2e-test-hardening.md`
+- Dependency: Phase 5
+
+## Phase 9: Specs tracking
+
+DONE (a4178cc): `Specs: add new spec docs`
+- Files: `specs/043-deno-runtime.md`, `specs/045-schema-constants-preferences.md`, `specs/046-transaction-sessions.md`, `specs/047-intent-drag-tooltip-previews.md`, `specs/048-g6-graph-intents-and-schema.md`
+- Dependency: Phase 1
+
+## Commit later
+
+- None
+
+## Uncommitted working tree files
+
+- None
