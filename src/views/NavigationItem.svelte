@@ -88,6 +88,9 @@
 				].join('')
 			: escapeHtml(text)
 	}
+
+	// Components
+	import Icon from '$/components/Icon.svelte'
 </script>
 
 <search class="nav-items" data-column="gap-3">
@@ -194,7 +197,7 @@
 			}}
 		>
 			{#if item.icon}
-				<span class="icon">{@html escapeHtml(item.icon)}</span>
+				<Icon class="icon" icon={item.icon} />
 			{/if}
 
 			<span
@@ -205,7 +208,7 @@
 		</a>
 	{:else}
 		{#if item.icon}
-			<span class="icon">{@html escapeHtml(item.icon)}</span>
+			<Icon class="icon" icon={item.icon} />
 		{/if}
 
 		<span
