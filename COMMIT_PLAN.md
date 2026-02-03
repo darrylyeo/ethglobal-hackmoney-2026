@@ -7,7 +7,20 @@ by file.
 
 ## Pending Commits
 
-None.
+### Phase 1: CCTP query predicates
+
+1. **CCTP: use db predicates in live queries**
+   - Files:
+     - `src/routes/bridge/cctp/CctpAllowance.svelte`
+     - `src/routes/bridge/cctp/CctpFees.svelte`
+   - Dependencies: none
+
+### Phase 2: Transfers query filter
+
+2. **Transfers: filter transfer graph rows by period**
+   - Files:
+     - `src/routes/transfers/+page.svelte`
+   - Dependencies: none
 
 ---
 
@@ -78,9 +91,12 @@ None.
 
 ## Working tree (uncommitted)
 
-| File(s)          | Description                |
-| ---------------- | -------------------------- |
-| `COMMIT_PLAN.md` | Update with recent SHAs    |
+| File(s)                                      | Description                              |
+| -------------------------------------------- | ---------------------------------------- |
+| `src/routes/bridge/cctp/CctpAllowance.svelte` | Query filter uses `and`/`eq` predicates |
+| `src/routes/bridge/cctp/CctpFees.svelte`      | Query filter uses `and`/`eq` predicates |
+| `src/routes/transfers/+page.svelte`           | Query filter uses `row.period`          |
+| `COMMIT_PLAN.md`                              | Refresh plan for current working tree   |
 
 ---
 

@@ -71,7 +71,6 @@
 	} from '$/lib/address'
 	import { stringify } from 'devalue'
 	import { debounce } from '$/lib/debounce'
-	import { networkStatus } from '$/api/network-status.svelte'
 
 	const isEip1193Wallet = (
 		wallet: ConnectedWallet | null,
@@ -484,22 +483,6 @@
 				/>
 			</div>
 		</div>
-
-		{#if settings.fromChainId !== null}
-			{@const fromChainStatus = networkStatus.getChainStatus(
-				settings.fromChainId,
-			)}
-			{#if fromChainStatus?.status === 'degraded'}
-				<p data-chain-warning>
-					⚠️ {fromNetwork?.name ?? `Chain ${settings.fromChainId}`} is experiencing
-					delays
-				</p>
-			{:else if fromChainStatus?.status === 'down'}
-				<p data-chain-error>
-					⛔ {fromNetwork?.name ?? `Chain ${settings.fromChainId}`} is currently unavailable
-				</p>
-			{/if}
-		{/if}
 
 		<!-- Amount -->
 		<div data-column="gap-1" data-form-field>

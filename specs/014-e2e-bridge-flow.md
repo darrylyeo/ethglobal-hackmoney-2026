@@ -114,7 +114,6 @@ All core specs are complete. The bridge flow is implemented in
 - [x] 017 - Loading states
 - [x] 019 - Recipient address
 - [x] 011 - Transaction history
-- [x] 026 - Network status
 
 ### Quality (complete):
 - [x] 022 - Accessibility
@@ -150,7 +149,6 @@ All core specs are complete. The bridge flow is implemented in
    - 017 Loading states
    - 019 Recipient address
    - 011 Transaction history
-   - 026 Network status
    - 027 Dark mode
 
 5. **Phase 4: Quality**

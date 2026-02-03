@@ -2,28 +2,19 @@
 	// Props
 	let { children } = $props()
 
-	// State
-	import { networkStatus } from '$/api/network-status.svelte'
-	import { networks } from '$/constants/networks'
-
 	let showGraph = $state(false)
 
-	// (Derived)
-	$effect(() => {
-		const chainIds = networks.map((n) => n.id)
-		networkStatus.start(chainIds)
-		return () => networkStatus.stop()
-	})
 
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
 	import Navigation from '$/views/Navigation.svelte'
-	import NetworkStatusIndicator from '$/routes/NetworkStatusIndicator.svelte'
 	import ToastContainer from '$/components/ToastContainer.svelte'
 	import GraphScene from '$/routes/GraphScene.svelte'
 
+
 	// Images
 	import favicon from '$/lib/assets/favicon.svg'
+
 
 	// Styles
 	import '$/styles/reset.css'
@@ -35,8 +26,12 @@
 	import '$/styles/bits-ui.css'
 </script>
 
+
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link
+		rel="icon"
+		href={favicon}
+	/>
 </svelte:head>
 
 
@@ -102,9 +97,6 @@
 				],
 			},
 		]}
-		headerActions={#snippet headerActions()}
-			<NetworkStatusIndicator />
-		{/snippet}
 	>
 	</Navigation>
 
@@ -122,7 +114,9 @@
 		</Boundary>
 	</main>
 
-	<ToastContainer position="bottom-right" />
+	<ToastContainer
+		position="bottom-right"
+	/>
 
 	<button
 		type="button"
@@ -212,15 +206,15 @@
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		cursor: pointer;
 		font-size: 0.75rem;
-		z-index: 51;
+		z-index: 1;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		transition: all 0.2s ease;
-	&:hover {
-		transform: scale(1.1);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-		background: var(--color-bg-elevated, #f8fafc);
-	}
+		&:hover {
+			transform: scale(1.1);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			background: var(--color-bg-elevated, #f8fafc);
+		}
 	}
 </style>
