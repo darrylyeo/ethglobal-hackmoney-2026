@@ -1,8 +1,9 @@
 <script lang="ts">
 	// Types/constants
-	import type { RoomPeer } from '$/collections/room-peers'
+	import type { RoomPeerRow } from '$/collections/room-peers'
 	import type { EIP1193Provider } from '$/lib/siwe'
-	import type { SiweChallenge } from '$/collections/siwe-challenges'
+	import type { SiweChallengeRow } from '$/collections/siwe-challenges'
+	import { DataSource } from '$/constants/data-sources'
 
 	// Props
 	let {
@@ -10,7 +11,7 @@
 		roomId,
 		provider,
 	}: {
-		peer: RoomPeer
+		peer: RoomPeerRow
 		roomId: string
 		provider: EIP1193Provider | null
 	} = $props()
@@ -32,7 +33,10 @@
 			q
 				.from({ row: sharedAddressesCollection })
 				.where(
-					({ row }) => eq(row.roomId, roomId) && eq(row.peerId, peer.peerId),
+					({ row }) =>
+						eq(row.$source, DataSource.PartyKit) &&
+						eq(row.roomId, roomId) &&
+						eq(row.peerId, peer.peerId),
 				)
 				.select(({ row }) => ({ row })),
 		[() => roomId, () => peer.peerId],
@@ -41,6 +45,7 @@
 		(q) =>
 			q
 				.from({ row: siweChallengesCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
@@ -51,13 +56,13 @@
 		(challengesQuery.data ?? [])
 			.map((r) => r.row)
 			.filter(
-				(ch: SiweChallenge) =>
+				(ch: SiweChallengeRow) =>
 					ch.toPeerId === peer.peerId &&
 					ch.fromPeerId === roomState.peerId &&
 					!ch.signature,
 			),
 	)
-	const signChallenge = async (challenge: SiweChallenge) => {
+	const signChallenge = async (challenge: SiweChallengeRow) => {
 		if (!provider) return
 		try {
 			const signature = await signSiweMessage({

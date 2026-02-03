@@ -5,7 +5,7 @@
 
 	// Functions
 	import { Graph, EdgeEvent, NodeEvent } from '@antv/g6'
-	import { ENTITY_TYPE } from '$/constants/entity-types'
+	import { EntityType } from '$/data/$EntityType'
 
 	// Props
 	let {
@@ -56,11 +56,11 @@
 		const getNodeType = (node: GraphModel['nodes'][number]) =>
 			node.type === 'image' || node.image
 				? 'image'
-				: node.collection === ENTITY_TYPE.actorCoin
+				: node.collection === EntityType.ActorCoin
 					? 'donut'
-					: node.collection === ENTITY_TYPE.bridgeRoute
+					: node.collection === EntityType.BridgeRoute
 						? 'rect'
-						: node.collection === ENTITY_TYPE.transaction
+						: node.collection === EntityType.Transaction
 							? 'diamond'
 							: 'circle'
 

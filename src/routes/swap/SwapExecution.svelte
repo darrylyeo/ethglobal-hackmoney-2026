@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SwapQuote } from '$/collections/swap-quotes'
+	import type { SwapQuote } from '$/data/SwapQuote'
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
 	import { executeSwap } from '$/api/uniswap'
@@ -8,8 +8,8 @@
 	import {
 		insertTransaction,
 		updateTransaction,
-		type Transaction$id,
 	} from '$/collections/transactions'
+	import type { Transaction$Id } from '$/data/Transaction'
 
 	let {
 		quote,
@@ -56,7 +56,7 @@
 				deadline,
 				onStatusChange: onStatus,
 			})
-			const txId: Transaction$id = {
+			const txId: Transaction$Id = {
 				address: recipient,
 				sourceTxHash: result.txHash,
 				createdAt: Date.now(),

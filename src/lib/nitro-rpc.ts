@@ -5,7 +5,7 @@
 import type {
 	YellowChannelAllocation,
 	YellowChannelState,
-} from '$/collections/yellow-channel-states'
+} from '$/data/YellowChannelState'
 
 export type NitroRpcPayload = [number, string, Record<string, unknown>, number]
 export type NitroRpcMessage = NitroRpcPayload

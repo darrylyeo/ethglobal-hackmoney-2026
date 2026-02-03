@@ -3,18 +3,13 @@
  */
 
 import { ChainId } from '$/constants/networks'
+import type { YellowResourceEntry } from '$/schema/constants/yellow/resources'
 
 type Address = `0x${string}`
 
 export enum YellowResource {
 	CustodyContract = 'CustodyContract',
 	ClearnodeWsUrl = 'ClearnodeWsUrl',
-}
-
-export type YellowResourceEntry = {
-	chainId: ChainId
-	resource: YellowResource
-	value: string
 }
 
 const placeholderAddress: Address = '0x0000000000000000000000000000000000000000'

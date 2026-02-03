@@ -4,10 +4,11 @@
 		ConnectedWallet,
 		WalletConnectionEip1193,
 	} from '$/collections/wallet-connections'
-	import type { BridgeRoute } from '$/collections/bridge-routes'
+	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
 	import type { WalletRow } from '$/collections/wallets'
-	import { WalletConnectionTransport } from '$/collections/wallet-connections'
+	import { WalletConnectionTransport } from '$/data/WalletConnection'
 	import { ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
+	import { DataSource } from '$/constants/data-sources'
 	import {
 		ChainId,
 		NetworkType,
@@ -29,7 +30,7 @@
 
 	// Context
 	import { Button, Popover, Switch } from 'bits-ui'
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	// import { liveQueryAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// State
@@ -41,7 +42,6 @@
 
 	// Collections
 	import {
-		type BridgeRoutes$id,
 		bridgeRoutesCollection,
 		fetchBridgeRoutes,
 	} from '$/collections/bridge-routes'
@@ -112,17 +112,27 @@
 
 	// Queries (reactive)
 	const routesQuery = useLiveQuery((q) =>
-		q.from({ row: bridgeRoutesCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: bridgeRoutesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.LiFi))
+			.select(({ row }) => ({ row })),
 	)
 	const balancesQuery = useLiveQuery((q) =>
-		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: actorCoinsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+			.select(({ row }) => ({ row })),
 	)
 	const allowancesQuery = useLiveQuery((q) =>
-		q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: actorAllowancesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+			.select(({ row }) => ({ row })),
 	)
 	const txQuery = useLiveQuery((q) =>
 		q
 			.from({ row: transactionsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.orderBy(({ row }) => row.$id?.createdAt ?? 0, 'desc')
 			.select(({ row }) => ({ row })),
 	)
@@ -234,7 +244,7 @@
 	const quoteAddress = $derived(selectedActor ?? PLACEHOLDER_ADDRESS)
 
 	// Quote params (use placeholder when disconnected)
-	const quoteParams = $derived<BridgeRoutes$id | null>(
+	const quoteParams = $derived<BridgeRoutes$Id | null>(
 		fromNetwork && toNetwork && settings.amount > 0n
 			? {
 					fromChainId: fromNetwork.id,

@@ -6,13 +6,14 @@
 		IntentRouteStep,
 		IntentBridgeRouteOption,
 	} from '$/lib/intents/routes'
-	import type { Transaction$id } from '$/collections/transactions'
-	import { ENTITY_TYPE } from '$/constants/entity-types'
+	import type { Transaction$Id } from '$/data/Transaction'
+	import { EntityType } from '$/data/$EntityType'
+	import { DataSource } from '$/constants/data-sources'
 	import { networksByChainId } from '$/constants/networks'
-	import { WalletConnectionTransport } from '$/collections/wallet-connections'
+	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
 	// Context
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
 	// Functions
 	import { resolveIntent } from '$/lib/intents/resolve-intent'
@@ -76,13 +77,22 @@
 
 	// State
 	const balancesQuery = useLiveQuery((q) =>
-		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: actorCoinsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+			.select(({ row }) => ({ row })),
 	)
 	const swapQuotesQuery = useLiveQuery((q) =>
-		q.from({ row: swapQuotesCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: swapQuotesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Uniswap))
+			.select(({ row }) => ({ row })),
 	)
 	const bridgeRoutesQuery = useLiveQuery((q) =>
-		q.from({ row: bridgeRoutesCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: bridgeRoutesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.LiFi))
+			.select(({ row }) => ({ row })),
 	)
 
 	// (Derived)
@@ -183,7 +193,7 @@
 			recipient: walletAddress,
 			deadline,
 		})
-		const txId: Transaction$id = {
+		const txId: Transaction$Id = {
 			address: walletAddress,
 			sourceTxHash: result.txHash,
 			createdAt: Date.now(),
@@ -220,7 +230,7 @@
 			throw new Error('Active wallet address must match the bridge actor.')
 		}
 		onStatus({ status: 'executing' })
-		let txId: Transaction$id | null = null
+		let txId: Transaction$Id | null = null
 		let sourceTxHash: string | null = null
 		const result = await executeSelectedRoute(
 			{
@@ -329,7 +339,7 @@
 		if (typeof txHash !== 'string') {
 			throw new Error('Direct transfer did not return a transaction hash.')
 		}
-		const txId: Transaction$id = {
+		const txId: Transaction$Id = {
 			address: args.walletAddress,
 			sourceTxHash: txHash,
 			createdAt: Date.now(),
@@ -474,7 +484,7 @@
 				{#each actorCoins as row (row.$id.chainId + row.$id.address + row.$id.tokenAddress)}
 					{@const intent = {
 						entity: {
-							type: ENTITY_TYPE.actorCoin,
+							type: EntityType.ActorCoin,
 							id: row.$id,
 						},
 						context: {

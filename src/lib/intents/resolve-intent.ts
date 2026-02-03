@@ -1,5 +1,5 @@
 import { normalizeAddress } from '$/lib/address'
-import { ENTITY_TYPE } from '$/constants/entity-types'
+import { EntityType } from '$/data/$EntityType'
 import type {
 	IntentDimensions,
 	IntentEntityRef,
@@ -14,21 +14,21 @@ const getAddress = (value: unknown): `0x${string}` | null =>
 
 const resolveDimensions = (ref: IntentEntityRef): IntentDimensions => {
 	const id = ref.id
-	if (ref.type === ENTITY_TYPE.actorCoin) {
+	if (ref.type === EntityType.ActorCoin) {
 		return {
 			actor: getAddress(id.address),
 			chainId: getNumber(id.chainId),
 			tokenAddress: getAddress(id.tokenAddress),
 		}
 	}
-	if (ref.type === ENTITY_TYPE.actor) {
+	if (ref.type === EntityType.Actor) {
 		return {
 			actor: getAddress(id.address),
 			chainId: getNumber(id.network ?? id.chainId),
 			tokenAddress: null,
 		}
 	}
-	if (ref.type === ENTITY_TYPE.coin || ref.type === ENTITY_TYPE.tokenListCoin) {
+	if (ref.type === EntityType.Coin || ref.type === EntityType.TokenListCoin) {
 		return {
 			actor: null,
 			chainId: getNumber(id.network ?? id.chainId),

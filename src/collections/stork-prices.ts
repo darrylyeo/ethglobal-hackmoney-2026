@@ -7,6 +7,12 @@ import { decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
 import { toBytes } from '@tevm/voltaire/Hex'
 import { env } from '$env/dynamic/public'
 import { createHttpProvider } from '$/api/voltaire'
+import { DataSource } from '$/constants/data-sources'
+import type {
+	StorkPrice,
+	StorkPrice$Id,
+	StorkPriceTransport,
+} from '$/data/StorkPrice'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import {
 	storkRestBaseUrl,
@@ -14,26 +20,7 @@ import {
 	storkEncodedAssetIdByAssetId,
 } from '$/constants/stork'
 
-export type StorkPriceTransport = 'rest' | 'websocket' | 'rpc'
-
-export type StorkPrice$id = {
-	assetId: string
-	transport: StorkPriceTransport
-	chainId?: number
-}
-
-export type StorkPriceRow = {
-	$id: StorkPrice$id
-	assetId: string
-	transport: StorkPriceTransport
-	chainId: number | null
-	encodedAssetId: string | null
-	price: bigint
-	timestampNs: bigint
-	updatedAt: number
-	isLoading: boolean
-	error: string | null
-}
+export type StorkPriceRow = StorkPrice & { $source: DataSource }
 
 type StorkPricePayload = {
 	assetId: string
@@ -75,13 +62,14 @@ const updateStorkPrice = (row: StorkPriceRow) => {
 }
 
 const setStorkPriceLoading = (
-	$id: StorkPrice$id,
+	$id: StorkPrice$Id,
 	encodedAssetId: string | null,
 ) => {
 	const key = stringify($id)
 	const existing = storkPricesCollection.state.get(key)
 	const next = {
 		$id,
+		$source: DataSource.Stork,
 		assetId: $id.assetId,
 		transport: $id.transport,
 		chainId: $id.chainId ?? null,
@@ -96,7 +84,7 @@ const setStorkPriceLoading = (
 }
 
 const setStorkPriceError = (
-	$id: StorkPrice$id,
+	$id: StorkPrice$Id,
 	encodedAssetId: string | null,
 	error: string,
 ) => {
@@ -104,6 +92,7 @@ const setStorkPriceError = (
 	const existing = storkPricesCollection.state.get(key)
 	updateStorkPrice({
 		$id,
+		$source: DataSource.Stork,
 		assetId: $id.assetId,
 		transport: $id.transport,
 		chainId: $id.chainId ?? null,
@@ -128,6 +117,7 @@ const upsertStorkPricePayload = (
 			transport,
 			...(chainId !== null && chainId !== undefined ? { chainId } : {}),
 		},
+		$source: DataSource.Stork,
 		assetId: payload.assetId,
 		transport,
 		chainId: chainId ?? null,

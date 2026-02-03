@@ -2,14 +2,16 @@
 	// Types/constants
 	import { page } from '$app/stores'
 	import { env } from '$env/dynamic/public'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins'
-	import { queryClient } from '$/lib/db/query-client'
 	import {
 		fetchTransfersGraph,
-		fetchTransfersGraphFromVoltaire,
 		TIME_PERIODS,
-		type TransfersGraphResult,
 	} from '$/api/transfers-indexer'
+	import {
+		transferGraphsCollection,
+		fetchTransferGraph,
+	} from '$/collections/transfer-graphs'
 	import Boundary from '$/components/Boundary.svelte'
 	import LiveTransfers from './LiveTransfers.svelte'
 
@@ -18,42 +20,25 @@
 		chainId: t.chainId,
 		contractAddress: t.address,
 	}))
-	let transfersData = $state<TransfersGraphResult | null>(null)
-	let transfersError = $state<Error | null>(null)
-	let transfersLoading = $state(true)
-
 	const coin = $derived(ercTokens[0])
 	const period = $derived($page.url.searchParams.get('period') ?? '1d')
 
-	// (Derived) client-side query keyed by period; primary source: eth_getLogs (Voltaire)
+	// Queries (reactive): source-tagged transfer graph from collection
+	const graphQuery = useLiveQuery((q) =>
+		q
+			.from({ row: transferGraphsCollection })
+			.where(({ row }) => eq(row.$id.period, period))
+			.select(({ row }) => ({ row })),
+	)
+	const graphRow = $derived(graphQuery.data?.[0]?.row ?? null)
+
+	// (Derived) fetch into collection when period changes
 	$effect(() => {
 		const p = period
-		transfersError = null
-		transfersLoading = true
-		let cancelled = false
-		queryClient
-			.fetchQuery({
-				queryKey: ['transfers', p],
-				queryFn: () => fetchTransfersGraphFromVoltaire(p),
-			})
-			.then((data) => {
-				if (!cancelled) {
-					transfersData = data
-					transfersLoading = false
-				}
-			})
-			.catch((e) => {
-				if (!cancelled) {
-					transfersError = e instanceof Error ? e : new Error(String(e))
-					transfersLoading = false
-				}
-			})
-		return () => {
-			cancelled = true
-		}
+		fetchTransferGraph(p).catch(() => {})
 	})
 
-	// (Derived) optional bridge indexer enrichment (non-blocking)
+	// (Derived) optional Covalent indexer enrichment (non-blocking)
 	$effect(() => {
 		const apiKey = env.PUBLIC_COVALENT_API_KEY ?? ''
 		if (apiKey.length === 0) return
@@ -61,14 +46,16 @@
 		fetchTransfersGraph(p, apiKey, USDC_CHAINS).catch(() => {})
 	})
 
-	const graph = $derived(transfersData?.graph ?? { nodes: [], edges: [] })
-	const periodValue = $derived(transfersData?.period ?? period)
-	const periods = $derived(transfersData?.periods ?? TIME_PERIODS)
-	const failed = $derived(transfersError != null)
+	const graph = $derived(graphRow?.graph ?? { nodes: [], edges: [] })
+	const periodValue = $derived(graphRow?.period ?? period)
+	const periods = $derived(graphRow?.periods ?? TIME_PERIODS)
+	const loading = $derived(graphRow?.isLoading ?? true)
+	const failed = $derived((graphRow?.error?.length ?? 0) > 0)
+	const errorMessage = $derived(graphRow?.error ?? null)
 
 	function retry() {
-		transfersError = null
-		queryClient.invalidateQueries({ queryKey: ['transfers'] })
+		if (!period) return
+		fetchTransferGraph(period).catch(() => {})
 	}
 </script>
 
@@ -77,12 +64,12 @@
 </svelte:head>
 
 <main id="main-content" data-column>
-	{#if transfersLoading && !transfersData}
-		<p class="transfers-loading">Loading transfers…</p>
+	{#if loading && !graphRow?.graph?.nodes?.length}
+		<p class="transfers-loading" data-transfers-loading>Loading transfers…</p>
 	{:else if failed}
-		<div class="transfers-error">
+		<div class="transfers-error" data-transfers-error>
 			<h2>Transfers unavailable</h2>
-			<p>{transfersError?.message ?? 'Unknown error'}</p>
+			<p>{errorMessage ?? 'Unknown error'}</p>
 			<p>
 				RPC or network may be unreachable. Try another time period or retry.
 			</p>

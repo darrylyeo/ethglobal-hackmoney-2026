@@ -1,6 +1,10 @@
 <script lang="ts">
 	// Types/constants
-	type FeeRow = { finalityThreshold: number; minimumFee: number }
+	import { DataSource } from '$/constants/data-sources'
+
+	// Context
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { cctpFeesCollection, fetchCctpFees } from '$/collections/cctp-fees'
 
 	// Props
 	let {
@@ -17,12 +21,27 @@
 		standardBps?: number | null
 	} = $props()
 
-	// State
-	let feeRows = $state<FeeRow[] | null>(null)
-	let feeError = $state<string | null>(null)
-	let feeLoading = $state(false)
-
 	// (Derived)
+	const feesQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: cctpFeesCollection })
+				.where(
+					({ row }) =>
+						fromDomain !== null &&
+						toDomain !== null &&
+						eq(row.$source, DataSource.Cctp) &&
+						row.$id.apiHost === apiHost &&
+						row.$id.fromDomain === fromDomain &&
+						row.$id.toDomain === toDomain,
+				)
+				.select(({ row }) => ({ row })),
+		[() => apiHost, () => fromDomain, () => toDomain],
+	)
+	const feeRow = $derived((feesQuery.data ?? [])[0]?.row ?? null)
+	const feeRows = $derived(feeRow?.rows ?? null)
+	const feeLoading = $derived(feeRow?.isLoading ?? false)
+	const feeError = $derived(feeRow?.error ?? null)
 	const feeFastBps = $derived(
 		feeRows?.find((row) => row.finalityThreshold === 1000)?.minimumFee ?? null,
 	)
@@ -30,46 +49,21 @@
 		feeRows?.find((row) => row.finalityThreshold === 2000)?.minimumFee ?? null,
 	)
 
+	// Actions
+	$effect(() => {
+		fastBps = feeFastBps
+		standardBps = feeStandardBps
+	})
+
 	$effect(() => {
 		const source = fromDomain
 		const destination = toDomain
-		if (source === null || destination === null) {
-			feeRows = null
-			fastBps = null
-			standardBps = null
-			return
-		}
-		let cancelled = false
-		feeLoading = true
-		feeError = null
-		fetch(`${apiHost}/v2/burn/USDC/fees/${source}/${destination}`, {
-			headers: { Accept: 'application/json' },
-		})
-			.then((res) =>
-				res.ok
-					? res.json()
-					: Promise.reject(new Error(`Fee request failed (${res.status})`)),
-			)
-			.then((data) => {
-				if (!cancelled) {
-					feeRows = Array.isArray(data) ? data : null
-					fastBps =
-						feeRows?.find((row) => row.finalityThreshold === 1000)
-							?.minimumFee ?? null
-					standardBps =
-						feeRows?.find((row) => row.finalityThreshold === 2000)
-							?.minimumFee ?? null
-				}
-			})
-			.catch((err: Error) => {
-				if (!cancelled) feeError = err.message
-			})
-			.finally(() => {
-				if (!cancelled) feeLoading = false
-			})
-		return () => {
-			cancelled = true
-		}
+		if (source === null || destination === null) return
+		fetchCctpFees({
+			apiHost,
+			fromDomain: source,
+			toDomain: destination,
+		}).catch(() => {})
 	})
 </script>
 

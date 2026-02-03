@@ -6,17 +6,15 @@ import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import {
-	normalizeUniswapPool,
-	type UniswapPool,
-} from './uniswap-pools-normalize'
+import { DataSource } from '$/constants/data-sources'
+import { normalizeUniswapPool } from './uniswap-pools-normalize'
+import type { UniswapPool } from '$/data/UniswapPool'
 
-export type { UniswapPool } from './uniswap-pools-normalize'
-export { normalizeUniswapPool }
+export type UniswapPoolRow = UniswapPool & { $source: DataSource }
 
 export const uniswapPoolsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: 'uniswap-pools',
-		getKey: (row: UniswapPool) => row.id,
+		getKey: (row: UniswapPoolRow) => row.id,
 	}),
 )

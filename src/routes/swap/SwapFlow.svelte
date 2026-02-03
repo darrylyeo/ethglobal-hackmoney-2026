@@ -1,7 +1,9 @@
 <script lang="ts">
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
+import type { ConnectedWallet } from '$/collections/wallet-connections'
+import { WalletConnectionTransport } from '$/data/WalletConnection'
 	import { Button, Popover } from 'bits-ui'
-	import { useLiveQuery } from '@tanstack/svelte-db'
+import { useLiveQuery, eq } from '@tanstack/svelte-db'
+import { DataSource } from '$/constants/data-sources'
 	import {
 		NetworkType,
 		networks,
@@ -21,8 +23,8 @@
 	import {
 		swapQuotesCollection,
 		fetchSwapQuote,
-		type FetchSwapQuoteParams,
 	} from '$/collections/swap-quotes'
+	import type { FetchSwapQuoteParams } from '$/data/SwapQuote'
 	import {
 		actorCoinsCollection,
 		fetchActorCoinBalance,
@@ -57,6 +59,11 @@
 	const selectedWallet = $derived(
 		selectedWallets.find((w) => w.connection.selected) ?? null,
 	)
+	const selectedEip1193Wallet = $derived(
+		selectedWallet?.connection.transport === WalletConnectionTransport.Eip1193
+			? selectedWallet.wallet
+			: null,
+	)
 	const bridgeSettings = $derived(
 		bridgeSettingsState.current ?? defaultBridgeSettings,
 	)
@@ -73,21 +80,36 @@
 			: null,
 	)
 
-	const quotesQuery = useLiveQuery((q) =>
-		q.from({ row: swapQuotesCollection }).select(({ row }) => ({ row })),
-	)
-	const balancesQuery = useLiveQuery((q) =>
-		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
-	)
-	const allowancesQuery = useLiveQuery((q) =>
-		q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })),
-	)
-	const tokenListQuery = useLiveQuery((q) =>
-		q.from({ row: tokenListCoinsCollection }).select(({ row }) => ({ row })),
-	)
-	const storkPricesQuery = useLiveQuery((q) =>
-		q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })),
-	)
+const quotesQuery = useLiveQuery((q) =>
+	q
+		.from({ row: swapQuotesCollection })
+		.where(({ row }) => eq(row.$source, DataSource.Uniswap))
+		.select(({ row }) => ({ row })),
+)
+const balancesQuery = useLiveQuery((q) =>
+	q
+		.from({ row: actorCoinsCollection })
+		.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+		.select(({ row }) => ({ row })),
+)
+const allowancesQuery = useLiveQuery((q) =>
+	q
+		.from({ row: actorAllowancesCollection })
+		.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+		.select(({ row }) => ({ row })),
+)
+const tokenListQuery = useLiveQuery((q) =>
+	q
+		.from({ row: tokenListCoinsCollection })
+		.where(({ row }) => eq(row.$source, DataSource.TokenLists))
+		.select(({ row }) => ({ row })),
+)
+const storkPricesQuery = useLiveQuery((q) =>
+	q
+		.from({ row: storkPricesCollection })
+		.where(({ row }) => eq(row.$source, DataSource.Stork))
+		.select(({ row }) => ({ row })),
+)
 
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
@@ -170,7 +192,10 @@
 		allowanceRow ? allowanceRow.allowance >= settings.amount : !needsApproval,
 	)
 	const canSwap = $derived(
-		settings.amount > 0n && (hasSufficientAllowance || !needsApproval) && quote,
+		settings.amount > 0n &&
+			(hasSufficientAllowance || !needsApproval) &&
+			quote &&
+			selectedEip1193Wallet,
 	)
 	const priceImpactWarning = $derived(quote ? quote.priceImpact > 1 : false)
 	const storkPrices = $derived((storkPricesQuery.data ?? []).map((r) => r.row))
@@ -417,21 +442,21 @@
 	{/snippet}
 
 	{#snippet swapDetails(_tx: unknown, _state: unknown)}
-		{#if needsApproval && selectedActor && selectedWallet && routerAddress}
+		{#if needsApproval && selectedActor && selectedEip1193Wallet && routerAddress}
 			<TokenApproval
 				chainId={settings.chainId}
 				tokenAddress={settings.tokenIn}
 				spenderAddress={routerAddress}
 				amount={settings.amount}
-				provider={selectedWallet.wallet.provider}
+				provider={selectedEip1193Wallet.provider}
 				ownerAddress={selectedActor}
 			/>
 		{/if}
 
-		{#if quote && selectedActor && selectedWallet}
+		{#if quote && selectedActor && selectedEip1193Wallet}
 			<SwapExecution
 				{quote}
-				walletProvider={selectedWallet.wallet.provider}
+				walletProvider={selectedEip1193Wallet.provider}
 				walletAddress={selectedActor}
 				amount={settings.amount}
 				bind:executing
@@ -536,8 +561,8 @@
 						chainId: settings.chainId,
 						title: 'Swap',
 						actionLabel: executing ? 'Swapping…' : 'Swap',
-						canExecute:
-							Boolean(canSwap && selectedActor && selectedWallet) && !executing,
+		canExecute:
+			Boolean(canSwap && selectedActor && selectedEip1193Wallet) && !executing,
 						execute: (_args) =>
 							executionRef ? executionRef.execute() : Promise.resolve(),
 						Details: swapDetails,

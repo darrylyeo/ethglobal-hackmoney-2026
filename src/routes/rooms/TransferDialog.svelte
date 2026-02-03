@@ -1,13 +1,13 @@
 <script lang="ts">
 	// Types/constants
-	import type { YellowChannel } from '$/collections/yellow-channels'
+	import type { YellowChannelRow } from '$/collections/yellow-channels'
 
 	// Props
 	let {
 		channel,
 		open = $bindable(false),
 	}: {
-		channel: YellowChannel
+		channel: YellowChannelRow
 		open: boolean
 	} = $props()
 

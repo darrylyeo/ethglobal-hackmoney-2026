@@ -2,11 +2,12 @@
  * Yellow state: Clearnode connection and channel/deposit sync.
  */
 
+import { DataSource } from '$/constants/data-sources'
 import { yellowDepositsCollection } from '$/collections/yellow-deposits'
 import { yellowChannelsCollection } from '$/collections/yellow-channels'
 import { yellowTransfersCollection } from '$/collections/yellow-transfers'
-import type { YellowChannel } from '$/collections/yellow-channels'
-import type { YellowTransfer } from '$/collections/yellow-transfers'
+import type { YellowChannelRow } from '$/collections/yellow-channels'
+import type { YellowTransferRow } from '$/collections/yellow-transfers'
 import {
 	connectClearnode,
 	getAvailableBalance,
@@ -16,19 +17,22 @@ import type { EIP1193Provider } from '$/lib/wallet'
 import { decodeNitroRpc, type NitroRpcMessage } from '$/lib/nitro-rpc'
 import { parseDecimalToSmallest } from '$/lib/format'
 
-function upsertChannel(row: YellowChannel) {
+function upsertChannel(row: YellowChannelRow) {
 	const existing = yellowChannelsCollection.state.get(row.id)
 	if (existing && row.turnNum < existing.turnNum) return
 	if (existing) {
 		yellowChannelsCollection.update(row.id, (draft) => {
 			Object.assign(draft, row)
+			draft.$source = DataSource.Yellow
 		})
 	} else {
-		yellowChannelsCollection.insert(row)
+		yellowChannelsCollection.insert({ ...row, $source: DataSource.Yellow })
 	}
 }
 
-function normalizeChannelFromMessage(params: unknown): YellowChannel | null {
+function normalizeChannelFromMessage(
+	params: unknown,
+): YellowChannelRow | null {
 	if (!params || typeof params !== 'object') return null
 	const p = params as Record<string, unknown>
 	const id = typeof p.id === 'string' ? p.id : null
@@ -48,6 +52,7 @@ function normalizeChannelFromMessage(params: unknown): YellowChannel | null {
 	if (!id || !participant0 || !participant1 || !asset) return null
 	return {
 		id,
+		$source: DataSource.Yellow,
 		chainId,
 		participant0,
 		participant1,
@@ -58,14 +63,16 @@ function normalizeChannelFromMessage(params: unknown): YellowChannel | null {
 		turnNum: Number(p.turnNum ?? 0),
 		status: (typeof p.status === 'string'
 			? p.status
-			: 'pending') as YellowChannel['status'],
+			: 'pending') as YellowChannelRow['status'],
 		roomId: typeof p.roomId === 'string' ? p.roomId : undefined,
 		createdAt: Number(p.createdAt ?? 0),
 		updatedAt: Number(p.updatedAt ?? 0),
 	}
 }
 
-function normalizeTransferFromMessage(params: unknown): YellowTransfer | null {
+function normalizeTransferFromMessage(
+	params: unknown,
+): YellowTransferRow | null {
 	if (!params || typeof params !== 'object') return null
 	const p = params as Record<string, unknown>
 	const id = typeof p.id === 'string' ? p.id : null
@@ -81,6 +88,7 @@ function normalizeTransferFromMessage(params: unknown): YellowTransfer | null {
 	if (!id || !channelId || !from || !to) return null
 	return {
 		id,
+		$source: DataSource.Yellow,
 		channelId,
 		from,
 		to,
@@ -89,7 +97,7 @@ function normalizeTransferFromMessage(params: unknown): YellowTransfer | null {
 		timestamp: Number(p.timestamp ?? 0),
 		status: (typeof p.status === 'string'
 			? p.status
-			: 'pending') as YellowTransfer['status'],
+			: 'pending') as YellowTransferRow['status'],
 	}
 }
 
@@ -153,6 +161,7 @@ function handleClearnodeMessage(msg: NitroRpcMessage) {
 			const now = Date.now()
 			if (existing) {
 				yellowDepositsCollection.update(depositId, (draft) => {
+					draft.$source = DataSource.Yellow
 					draft.availableBalance = update.availableBalance
 					draft.lockedBalance = update.lockedBalance
 					draft.lastUpdated = now
@@ -160,6 +169,7 @@ function handleClearnodeMessage(msg: NitroRpcMessage) {
 			} else {
 				yellowDepositsCollection.insert({
 					id: depositId,
+					$source: DataSource.Yellow,
 					chainId: yellowState.chainId ?? 0,
 					address: update.address,
 					availableBalance: update.availableBalance,
@@ -214,12 +224,14 @@ export const connectToYellow = async (
 	const now = Date.now()
 	if (existing) {
 		yellowDepositsCollection.update(depositId, (draft) => {
+			draft.$source = DataSource.Yellow
 			draft.availableBalance = balance
 			draft.lastUpdated = now
 		})
 	} else {
 		yellowDepositsCollection.insert({
 			id: depositId,
+			$source: DataSource.Yellow,
 			chainId,
 			address,
 			availableBalance: balance,

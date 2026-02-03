@@ -1,23 +1,12 @@
 import { createCollection } from '@tanstack/svelte-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import { DataSource } from '$/constants/data-sources'
 import { tokenListUrls } from '$/constants/token-lists'
+import type { TokenListCoin } from '$/data/TokenListCoin'
 import { normalizeAddress } from '$/lib/address'
 import { queryClient } from '$/lib/db/query-client'
 
-export type TokenListCoin$id = {
-	chainId: number
-	address: `0x${string}`
-}
-
-export type TokenListCoinRow = {
-	$id: TokenListCoin$id
-	chainId: number
-	address: `0x${string}`
-	symbol: string
-	name: string
-	decimals: number
-	logoURI?: string
-}
+export type TokenListCoinRow = TokenListCoin & { $source: DataSource }
 
 type TokenListEntry = {
 	chainId: number
@@ -45,7 +34,7 @@ const toTokenListEntry = (value: unknown): TokenListEntry | null => {
 
 const normalizeTokenListEntry = (
 	entry: TokenListEntry,
-): TokenListCoinRow | null => {
+): TokenListCoin | null => {
 	const normalized = normalizeAddress(entry.address)
 	if (!normalized) return null
 	return {
@@ -83,7 +72,8 @@ const fetchTokenListEntries = async (): Promise<TokenListCoinRow[]> => {
 		)
 		.flatMap((result) => result.value)
 		.map(normalizeTokenListEntry)
-		.filter((entry): entry is TokenListCoinRow => entry !== null)
+		.filter((entry): entry is TokenListCoin => entry !== null)
+		.map((entry) => ({ ...entry, $source: DataSource.TokenLists }))
 	const unique = new Map<string, TokenListCoinRow>()
 	for (const row of rows) {
 		unique.set(`${row.chainId}-${row.address}`, row)

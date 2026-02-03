@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
+	import { DataSource } from '$/constants/data-sources'
 	import { untrack } from 'svelte'
 
 	// Props
@@ -37,6 +38,7 @@
 		(q) =>
 			q
 				.from({ row: roomPeersCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],

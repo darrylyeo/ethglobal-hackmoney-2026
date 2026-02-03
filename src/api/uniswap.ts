@@ -5,7 +5,7 @@
  */
 
 import type { UniswapPool } from '$/collections/uniswap-pools'
-import type { SwapQuote, SwapRoute } from '$/collections/swap-quotes'
+import type { SwapQuote, SwapRoute } from '$/data/SwapQuote'
 import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap'
 export const getUniswapSdk = async (): Promise<unknown> => null
 

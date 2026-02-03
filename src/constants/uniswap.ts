@@ -4,18 +4,16 @@
  */
 
 import { ChainId } from '$/constants/networks'
+import type {
+	UniswapContractAddress,
+	UniswapFeeTier,
+} from '$/schema/constants/uniswap'
 
 type Address = `0x${string}`
 
 export enum UniswapContract {
 	PoolManager = 'PoolManager',
 	UniversalRouter = 'UniversalRouter',
-}
-
-export type UniswapContractAddress = {
-	chainId: ChainId
-	contract: UniswapContract
-	address: Address
 }
 
 const placeholderAddress: Address = '0x0000000000000000000000000000000000000000'
@@ -84,11 +82,6 @@ export enum FeeTier {
 	Low = 500,
 	Medium = 3000,
 	High = 10000,
-}
-
-export type UniswapFeeTier = {
-	feeTier: FeeTier
-	tickSpacing: number
 }
 
 export const uniswapFeeTiers = [

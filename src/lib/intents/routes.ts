@@ -1,5 +1,5 @@
-import type { BridgeRoute, BridgeRoutes$id } from '$/collections/bridge-routes'
-import type { SwapQuote } from '$/collections/swap-quotes'
+import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
+import type { SwapQuote } from '$/data/SwapQuote'
 import type { IntentResolution } from './types'
 
 export type IntentRouteStep =
@@ -26,7 +26,7 @@ export type IntentRouteStep =
 			toChainId: number
 			actor: `0x${string}`
 			route: BridgeRoute
-			rowId: BridgeRoutes$id
+			rowId: BridgeRoutes$Id
 	  }
 
 export type IntentRoute = {
@@ -36,7 +36,7 @@ export type IntentRoute = {
 }
 
 export type IntentBridgeRouteOption = {
-	rowId: BridgeRoutes$id
+	rowId: BridgeRoutes$Id
 	route: BridgeRoute
 }
 

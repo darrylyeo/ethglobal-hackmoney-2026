@@ -9,7 +9,8 @@
 
 // Context
 import { useContext } from '$/svelte/useContext'
-import { useLiveQuery } from '@tanstack/svelte-db'
+import { useLiveQuery, eq } from '@tanstack/svelte-db'
+import { DataSource } from '$/constants/data-sources'
 
 // Collections
 import { walletsCollection, upsertWallet } from '$/collections/wallets'
@@ -33,10 +34,16 @@ export const WALLET_CONTEXT_KEY = 'wallet'
 const createWalletContext = () => {
 	// Queries for subscription effects
 	const walletsQuery = useLiveQuery((q) =>
-		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: walletsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
 	)
 	const connectionsQuery = useLiveQuery((q) =>
-		q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: walletConnectionsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
 	)
 
 	// Track which wallets we've attempted to reconnect

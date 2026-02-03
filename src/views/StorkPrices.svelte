@@ -1,9 +1,10 @@
 <script lang="ts">
 	// Types/constants
+	import { DataSource } from '$/constants/data-sources'
 	import type { StorkPriceRow } from '$/collections/stork-prices'
 
 	// Context
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
 	// Props
 	let {
@@ -27,7 +28,10 @@
 
 	// State
 	const pricesQuery = useLiveQuery((q) =>
-		q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: storkPricesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Stork))
+			.select(({ row }) => ({ row })),
 	)
 	const prices = $derived<StorkPriceRow[]>(
 		(pricesQuery.data ?? []).map((r) => r.row),

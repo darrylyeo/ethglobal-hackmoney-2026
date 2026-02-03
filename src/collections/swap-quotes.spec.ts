@@ -1,6 +1,7 @@
 /// <reference lib='deno.ns' />
 import { assertEquals, assertExists } from 'jsr:@std/assert'
-import { normalizeSwapQuote, type SwapQuote } from './swap-quotes-normalize.ts'
+import type { SwapQuote } from '$/data/SwapQuote'
+import { normalizeSwapQuote } from './swap-quotes-normalize.ts'
 
 Deno.test(
 	'normalizeSwapQuote returns quote with bigint amountIn, amountOut, gasEstimate',

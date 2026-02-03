@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import { WalletConnectionTransport } from '$/collections/wallet-connections'
+	import { WalletConnectionTransport } from '$/data/WalletConnection'
 	import { ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
 	import {
 		validateBridgeAmount,

@@ -8,8 +8,8 @@
 
 <script lang="ts">
 	// Types/constants
-	import type { Network$id } from '$/collections/networks'
-	import { ENTITY_TYPE } from '$/constants/entity-types'
+	import type { Network$Id } from '$/data/Network'
+	import { EntityType } from '$/data/$EntityType'
 	import type { IntentDragPayload } from '$/lib/intents/types'
 
 	// Props
@@ -21,7 +21,7 @@
 		format = AddressFormat.Full,
 		linked = true,
 	}: {
-		network: Network$id
+		network: Network$Id
 		address: `0x${string}`
 		ensName?: string
 		format?: AddressFormat
@@ -31,7 +31,7 @@
 	// (Derived)
 	const intent = $derived<IntentDragPayload>({
 		entity: {
-			type: ENTITY_TYPE.actor,
+			type: EntityType.Actor,
 			id: {
 				network,
 				address,

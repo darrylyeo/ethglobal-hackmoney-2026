@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import { WalletConnectionTransport } from '$/collections/wallet-connections'
+	import { WalletConnectionTransport } from '$/data/WalletConnection'
 	import { networksByChainId } from '$/constants/networks'
 	import { rpcUrls } from '$/constants/rpc-endpoints'
 	import type { VoltaireProvider } from '$/api/voltaire'

@@ -5,15 +5,16 @@
 		ReadOnlyWalletRow,
 		WalletConnectionRow,
 	} from '$/collections/wallet-connections'
-	import { WalletConnectionTransport } from '$/collections/wallet-connections'
+	import { WalletConnectionTransport } from '$/data/WalletConnection'
 	import {
 		NetworkType,
 		networks,
 		networksByChainId,
 	} from '$/constants/networks'
+	import { DataSource } from '$/constants/data-sources'
 
 	// Context
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { liveQueryAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte'
 
@@ -41,11 +42,17 @@
 	useWalletSubscriptions()
 
 	const walletsQuery = useLiveQuery((q) =>
-		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: walletsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
 	)
 
 	const connectionsQuery = useLiveQuery((q) =>
-		q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: walletConnectionsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
 	)
 
 	/* infinite loop

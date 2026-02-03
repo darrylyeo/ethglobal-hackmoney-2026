@@ -6,17 +6,14 @@ import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
+import { DataSource } from '$/constants/data-sources'
+import type { Room } from '$/data/Room'
 
-export type Room = {
-	id: string
-	createdAt: number
-	createdBy: string
-	name?: string
-}
+export type RoomRow = Room & { $source: DataSource }
 
 export const roomsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: 'rooms',
-		getKey: (row: Room) => row.id,
+		getKey: (row: RoomRow) => row.id,
 	}),
 )

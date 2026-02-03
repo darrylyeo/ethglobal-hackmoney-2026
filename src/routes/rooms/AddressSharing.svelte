@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { EIP1193Provider } from '$/lib/siwe'
+	import { DataSource } from '$/constants/data-sources'
 
 	// Props
 	let {
@@ -22,6 +23,7 @@
 		(q) =>
 			q
 				.from({ row: sharedAddressesCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],

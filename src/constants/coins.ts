@@ -2,33 +2,12 @@
  * Token entries per network from Circle USDC contract addresses.
  */
 
-import type { Media } from '$/constants/media'
 import { ChainId } from '$/constants/networks'
+import type { Coin, Erc20Token, NativeCurrency } from '$/schema/constants/coins'
 
 export enum CoinType {
 	Native = 'Native',
 	Erc20 = 'Erc20',
-}
-
-export type Coin = NativeCurrency | Erc20Token
-export type NativeCurrency = {
-	type: CoinType.Native
-	name?: string
-	chainId: number
-	address: `0x${string}`
-	symbol: string
-	decimals: number
-	icon?: Media
-}
-
-export type Erc20Token = {
-	type: CoinType.Erc20
-	name?: string
-	chainId: number
-	address: `0x${string}`
-	symbol: string
-	decimals: number
-	icon?: Media
 }
 
 export const ercTokens = ([

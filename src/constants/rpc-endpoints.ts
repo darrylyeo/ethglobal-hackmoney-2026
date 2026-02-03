@@ -3,6 +3,7 @@
  */
 
 import { ChainId } from '$/constants/networks'
+import type { RpcEndpoint } from '$/schema/constants/rpc-endpoints'
 
 export enum ServiceProvider {
 	Chain = 'Chain',
@@ -14,13 +15,6 @@ export enum ServiceProvider {
 export enum TransportType {
 	Http = 'Http',
 	WebSocket = 'WebSocket',
-}
-
-export type RpcEndpoint = {
-	chainId: ChainId
-	url: string
-	serviceProvider: ServiceProvider
-	transportType: TransportType
 }
 
 export const rpcEndpoints: readonly RpcEndpoint[] = [

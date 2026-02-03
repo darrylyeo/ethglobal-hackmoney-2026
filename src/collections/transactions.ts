@@ -8,23 +8,10 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
+import { DataSource } from '$/constants/data-sources'
+import type { Transaction, Transaction$Id } from '$/data/Transaction'
 
-export type Transaction$id = {
-	address: `0x${string}`
-	sourceTxHash: string
-	createdAt: number
-}
-
-export type TransactionRow = {
-	$id: Transaction$id
-	fromChainId: number
-	toChainId: number
-	fromAmount: bigint
-	toAmount: bigint
-	destTxHash: string | null
-	status: 'pending' | 'completed' | 'failed'
-	updatedAt: number
-}
+export type TransactionRow = Transaction & { $source: DataSource }
 
 export const transactionsCollection = createCollection(
 	localStorageCollectionOptions({
@@ -35,19 +22,34 @@ export const transactionsCollection = createCollection(
 	}),
 )
 
-export const getTransaction = ($id: Transaction$id) =>
+for (const [key, row] of transactionsCollection.state) {
+	if (row.$source !== DataSource.Local) {
+		transactionsCollection.update(key, (draft) => {
+			draft.$source = DataSource.Local
+		})
+	}
+}
+
+export const getTransaction = ($id: Transaction$Id) =>
 	transactionsCollection.state.get(stringify($id))
 
-export const insertTransaction = (tx: Omit<TransactionRow, 'updatedAt'>) =>
-	transactionsCollection.insert({ ...tx, updatedAt: Date.now() })
+export const insertTransaction = (
+	tx: Omit<Transaction, 'updatedAt'>,
+) =>
+	transactionsCollection.insert({
+		...tx,
+		$source: DataSource.Local,
+		updatedAt: Date.now(),
+	})
 
 export const updateTransaction = (
-	$id: Transaction$id,
+	$id: Transaction$Id,
 	changes: Partial<Pick<TransactionRow, 'status' | 'destTxHash'>>,
 ) => {
 	const existing = transactionsCollection.state.get(stringify($id))
 	if (!existing) return
 	transactionsCollection.update(stringify($id), (draft) => {
+		draft.$source = DataSource.Local
 		if (changes.status !== undefined) draft.status = changes.status
 		if (changes.destTxHash !== undefined) draft.destTxHash = changes.destTxHash
 		draft.updatedAt = Date.now()

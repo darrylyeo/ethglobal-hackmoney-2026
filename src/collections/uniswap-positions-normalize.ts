@@ -2,17 +2,7 @@
  * Uniswap V4 position normalizer (no svelte-db dependency for Deno tests).
  */
 
-export type UniswapPosition = {
-	id: string
-	chainId: number
-	poolId: string
-	owner: `0x${string}`
-	tickLower: number
-	tickUpper: number
-	liquidity: bigint
-	token0Owed: bigint
-	token1Owed: bigint
-}
+import type { UniswapPosition } from '$/data/UniswapPosition'
 
 export const normalizeUniswapPosition = (
 	entry: UniswapPosition,

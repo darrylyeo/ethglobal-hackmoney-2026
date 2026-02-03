@@ -5,7 +5,7 @@
 
 import { createWalletClientForChain } from '$/lib/wallet'
 import type { EIP1193Provider } from '$/lib/wallet'
-import type { YellowChannelState } from '$/collections/yellow-channel-states'
+import type { YellowChannelState } from '$/data/YellowChannelState'
 import { CUSTODY_CONTRACT_ADDRESS } from '$/constants/yellow/custody'
 import {
 	CLEARNODE_WS_URL,

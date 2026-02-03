@@ -1,4 +1,4 @@
-import type { EntityType } from '$/constants/entity-types'
+import type { EntityType } from '$/data/$EntityType'
 
 export type IntentPlacement = 'from' | 'to'
 

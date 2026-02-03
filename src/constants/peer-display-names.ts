@@ -2,6 +2,12 @@
  * Peer display name word lists and animal→emoji mapping for room avatars.
  */
 
+import type {
+	PeerAdjectiveEntry,
+	PeerAnimalEmojiEntry,
+	PeerAnimalEntry,
+} from '$/schema/constants/peer-display-names'
+
 export enum PeerAdjective {
 	Swift = 'Swift',
 	Bold = 'Bold',
@@ -23,11 +29,6 @@ export enum PeerAdjective {
 	Silent = 'Silent',
 	Solar = 'Solar',
 	Velvet = 'Velvet',
-}
-
-export type PeerAdjectiveEntry = {
-	adjective: PeerAdjective
-	label: string
 }
 
 export const peerAdjectives = [
@@ -76,15 +77,6 @@ export enum PeerAnimal {
 	Tiger = 'Tiger',
 	Wolf = 'Wolf',
 	Wren = 'Wren',
-}
-
-export type PeerAnimalEntry = {
-	animal: PeerAnimal
-}
-
-export type PeerAnimalEmojiEntry = {
-	animal: PeerAnimal
-	emoji: string
 }
 
 export const peerAnimals = [

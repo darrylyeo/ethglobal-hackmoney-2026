@@ -1,7 +1,9 @@
 <script lang="ts">
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
+import type { ConnectedWallet } from '$/collections/wallet-connections'
+import { WalletConnectionTransport } from '$/data/WalletConnection'
 	import { Button } from 'bits-ui'
-	import { useLiveQuery } from '@tanstack/svelte-db'
+import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { DataSource } from '$/constants/data-sources'
 	import {
 		ChainId,
 		NetworkType,
@@ -39,6 +41,11 @@
 	const selectedWallet = $derived(
 		selectedWallets.find((w) => w.connection.selected) ?? null,
 	)
+	const selectedEip1193Wallet = $derived(
+		selectedWallet?.connection.transport === WalletConnectionTransport.Eip1193
+			? selectedWallet.wallet
+			: null,
+	)
 	const settings = $derived(
 		liquiditySettingsState.current ?? defaultLiquiditySettings,
 	)
@@ -50,13 +57,22 @@
 	)
 
 	const poolsQuery = useLiveQuery((q) =>
-		q.from({ row: uniswapPoolsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: uniswapPoolsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Uniswap))
+			.select(({ row }) => ({ row })),
 	)
 	const positionsQuery = useLiveQuery((q) =>
-		q.from({ row: uniswapPositionsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: uniswapPositionsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Uniswap))
+			.select(({ row }) => ({ row })),
 	)
 	const balancesQuery = useLiveQuery((q) =>
-		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: actorCoinsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+			.select(({ row }) => ({ row })),
 	)
 
 	const pools = $derived((poolsQuery.data ?? []).map((r) => r.row))
@@ -206,13 +222,12 @@
 		</div>
 	</div>
 
-	{#if needsChainSwitch && network && selectedWallet}
+{#if needsChainSwitch && network && selectedEip1193Wallet}
 		<div data-card="secondary" data-row="gap-2 align-center">
 			<span>Switch to {network.name}</span>
 			<Button.Root
 				onclick={() =>
-					selectedWallet &&
-					switchWalletChain(selectedWallet.wallet.provider, network.id)}
+				switchWalletChain(selectedEip1193Wallet.provider, network.id)}
 				>Switch</Button.Root
 			>
 		</div>

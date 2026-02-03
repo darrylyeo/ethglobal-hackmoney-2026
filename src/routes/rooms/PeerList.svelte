@@ -1,4 +1,7 @@
 <script lang="ts">
+	// Types/constants
+	import { DataSource } from '$/constants/data-sources'
+
 	// Props
 	let { roomId }: { roomId: string } = $props()
 
@@ -13,6 +16,7 @@
 		(q) =>
 			q
 				.from({ row: roomPeersCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],

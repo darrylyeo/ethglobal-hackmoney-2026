@@ -1,19 +1,23 @@
 <script lang="ts">
 	// Types/constants
 	import type { EIP1193Provider } from '$/lib/wallet'
+	import { DataSource } from '$/constants/data-sources'
 
 	// Props
 	let { provider }: { provider: EIP1193Provider | null } = $props()
 
 	// State
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
 	import { yellowState } from '$/state/yellow.svelte'
 	import { depositToCustody, withdrawFromCustody } from '$/api/yellow'
 	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format'
 
 	const depositQuery = useLiveQuery((q) =>
-		q.from({ row: yellowDepositsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: yellowDepositsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Yellow))
+			.select(({ row }) => ({ row })),
 	)
 
 	const depositRow = $derived(

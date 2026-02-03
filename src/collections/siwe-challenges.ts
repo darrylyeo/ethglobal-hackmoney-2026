@@ -6,25 +6,15 @@ import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
+import { DataSource } from '$/constants/data-sources'
+import type { SiweChallenge } from '$/data/SiweChallenge'
 
-export type SiweChallenge = {
-	id: string
-	roomId: string
-	fromPeerId: string
-	toPeerId: string
-	address: `0x${string}`
-	message: string
-	nonce: string
-	issuedAt: number
-	expiresAt: number
-	signature?: `0x${string}`
-	verified: boolean
-}
+export type SiweChallengeRow = SiweChallenge & { $source: DataSource }
 
 export const siweChallengesCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: 'siwe-challenges',
-		getKey: (row: SiweChallenge) => row.id,
+		getKey: (row: SiweChallengeRow) => row.id,
 	}),
 )
 

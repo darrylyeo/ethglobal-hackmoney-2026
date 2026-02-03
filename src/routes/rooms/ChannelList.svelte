@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { YellowChannel } from '$/collections/yellow-channels'
+	import type { YellowChannelRow } from '$/collections/yellow-channels'
+	import { DataSource } from '$/constants/data-sources'
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -18,12 +19,16 @@
 		(q) =>
 			q
 				.from({ row: sharedAddressesCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
 	const channelsQuery = useLiveQuery((q) =>
-		q.from({ row: yellowChannelsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: yellowChannelsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Yellow))
+			.select(({ row }) => ({ row })),
 	)
 	const roomAddresses = $derived(
 		(sharedQuery.data ?? []).map((r) => r.row.address.toLowerCase()),
@@ -46,23 +51,23 @@
 	)
 
 	// Functions
-	const getCounterparty = (channel: YellowChannel) =>
+	const getCounterparty = (channel: YellowChannelRow) =>
 		myAddress && channel.participant0.toLowerCase() === myAddress
 			? channel.participant1
 			: channel.participant0
-	const getMyBalance = (channel: YellowChannel) =>
+	const getMyBalance = (channel: YellowChannelRow) =>
 		myAddress && channel.participant0.toLowerCase() === myAddress
 			? channel.balance0
 			: channel.balance1
 
 	// State
 	let transferOpen = $state(false)
-	let transferChannel = $state<YellowChannel | null>(null)
+	let transferChannel = $state<YellowChannelRow | null>(null)
 	let closingChannelId = $state<string | null>(null)
 	let closeError = $state<string | null>(null)
 
 	// Actions
-	const settleAndClose = async (channel: YellowChannel) => {
+	const settleAndClose = async (channel: YellowChannelRow) => {
 		if (!yellowState.clearnodeConnection || !yellowState.address) {
 			closeError = 'Connect to Yellow before closing'
 			return

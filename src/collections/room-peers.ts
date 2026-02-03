@@ -6,23 +6,15 @@ import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
+import { DataSource } from '$/constants/data-sources'
+import type { RoomPeer } from '$/data/RoomPeer'
 
-export type RoomPeer = {
-	id: string
-	roomId: string
-	peerId: string
-	displayName?: string
-	joinedAt: number
-	lastSeenAt: number
-	connectedAt?: number
-	disconnectedAt?: number
-	isConnected: boolean
-}
+export type RoomPeerRow = RoomPeer & { $source: DataSource }
 
 export const roomPeersCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: 'room-peers',
-		getKey: (row: RoomPeer) => row.id,
+		getKey: (row: RoomPeerRow) => row.id,
 	}),
 )
 

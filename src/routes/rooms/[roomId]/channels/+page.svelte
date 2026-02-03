@@ -1,9 +1,10 @@
 <script lang="ts">
 	// Types/constants
 	import type { EIP1193Provider } from '$/lib/wallet'
+	import { DataSource } from '$/constants/data-sources'
 
 	// Context
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
 	import { walletsCollection } from '$/collections/wallets'
 	import { getOrCreatePeerDisplayName } from '$/lib/partykit'
@@ -23,10 +24,16 @@
 	// (Derived)
 	const roomId = $derived(data.roomId)
 	const walletsQuery = useLiveQuery((q) =>
-		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: walletsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
 	)
 	const connectionsQuery = useLiveQuery((q) =>
-		q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: walletConnectionsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
 	)
 	const wallets = $derived((walletsQuery.data ?? []).map((r) => r.row))
 	const connections = $derived((connectionsQuery.data ?? []).map((r) => r.row))

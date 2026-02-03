@@ -11,8 +11,8 @@
 	import {
 		insertTransaction,
 		updateTransaction,
-		type Transaction$id,
 	} from '$/collections/transactions'
+	import type { Transaction$Id } from '$/data/Transaction'
 	import { yellowState } from '$/state/yellow.svelte'
 
 	// Props
@@ -95,7 +95,7 @@
 		if (typeof txHash !== 'string') {
 			throw new Error('Direct transfer did not return a transaction hash.')
 		}
-		const txId: Transaction$id = {
+		const txId: Transaction$Id = {
 			address: args.walletAddress,
 			sourceTxHash: txHash,
 			createdAt: Date.now(),

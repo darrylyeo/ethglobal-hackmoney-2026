@@ -4,55 +4,22 @@
  * Converts API string amounts to bigint at the boundary.
  */
 
-import type { Route } from '@lifi/sdk'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
+import { DataSource } from '$/constants/data-sources'
+import type {
+	BridgeRoute,
+	BridgeRoutes,
+	BridgeRoutes$Id,
+} from '$/data/BridgeRoute'
 import { getRoutesForUsdcBridge, type NormalizedRoute } from '$/api/lifi'
 import type { BridgeError } from '$/lib/errors'
 import { categorizeError, isBridgeError } from '$/lib/errors'
 
-export type BridgeRoutes$id = {
-	fromChainId: number
-	toChainId: number
-	amount: bigint
-	fromAddress: `0x${string}`
-	slippage: number
-}
-
-export type BridgeRouteStep = {
-	tool: string
-	toolName: string
-	type: 'bridge' | 'swap' | 'cross'
-	fromChainId: number
-	toChainId: number
-	fromAmount: bigint
-	toAmount: bigint
-}
-
-export type BridgeRoute = {
-	id: string
-	originalRoute: Route
-	steps: BridgeRouteStep[]
-	fromChainId: number
-	toChainId: number
-	fromAmount: bigint
-	toAmount: bigint
-	toAmountMin: bigint
-	gasCostUsd: number
-	estimatedDurationSeconds: number
-	tags: ('BEST' | 'CHEAPEST' | 'FASTEST' | 'RECOMMENDED')[]
-}
-
-export type BridgeRoutesRow = {
-	$id: BridgeRoutes$id
-	routes: BridgeRoute[]
-	fetchedAt: number
-	isLoading: boolean
-	error: BridgeError | null
-}
+export type BridgeRoutesRow = BridgeRoutes & { $source: DataSource }
 
 const ROUTES_REQUEST_TIMEOUT_MS = 45_000
 
@@ -85,19 +52,21 @@ const normalizedToBridgeRoute = (r: NormalizedRoute): BridgeRoute => ({
 	tags: r.tags,
 })
 
-export const fetchBridgeRoutes = async ($id: BridgeRoutes$id) => {
+export const fetchBridgeRoutes = async ($id: BridgeRoutes$Id) => {
 	const key = stringify($id)
 	const existing = bridgeRoutesCollection.state.get(key)
 
 	// Set loading state
 	if (existing) {
 		bridgeRoutesCollection.update(key, (draft) => {
+			draft.$source = DataSource.LiFi
 			draft.isLoading = true
 			draft.error = null
 		})
 	} else {
 		bridgeRoutesCollection.insert({
 			$id,
+			$source: DataSource.LiFi,
 			routes: [],
 			fetchedAt: 0,
 			isLoading: true,
@@ -125,6 +94,7 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$id) => {
 		const routes = apiRoutes.map(normalizedToBridgeRoute)
 		const fetchedAt = Date.now()
 		bridgeRoutesCollection.update(key, (draft) => {
+			draft.$source = DataSource.LiFi
 			draft.routes = routes
 			draft.fetchedAt = fetchedAt
 			draft.isLoading = false
@@ -133,6 +103,7 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$id) => {
 		return { routes, fetchedAt }
 	} catch (e) {
 		bridgeRoutesCollection.update(key, (draft) => {
+			draft.$source = DataSource.LiFi
 			draft.isLoading = false
 			draft.error = isBridgeError(e) ? e : categorizeError(e)
 		})
@@ -140,5 +111,5 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$id) => {
 	}
 }
 
-export const getBridgeRoutes = ($id: BridgeRoutes$id) =>
+export const getBridgeRoutes = ($id: BridgeRoutes$Id) =>
 	bridgeRoutesCollection.state.get(stringify($id))

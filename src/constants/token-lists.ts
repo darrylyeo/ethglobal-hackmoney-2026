@@ -1,12 +1,9 @@
+import type { TokenList } from '$/schema/constants/token-lists'
+
 export enum TokenListId {
 	Uniswap = 'Uniswap',
 	Aave = 'Aave',
 	Compound = 'Compound',
-}
-
-export type TokenList = {
-	id: TokenListId
-	url: string
 }
 
 export const tokenLists = [

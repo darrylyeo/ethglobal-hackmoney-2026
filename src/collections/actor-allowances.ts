@@ -8,23 +8,12 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
+import { DataSource } from '$/constants/data-sources'
+import type { ActorAllowance, ActorAllowance$Id } from '$/data/ActorAllowance'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import { createHttpProvider, getErc20Allowance } from '$/api/voltaire'
 
-export type ActorAllowance$id = {
-	chainId: number
-	address: `0x${string}`
-	tokenAddress: `0x${string}`
-	spenderAddress: `0x${string}`
-}
-
-export type ActorAllowanceRow = {
-	$id: ActorAllowance$id
-	allowance: bigint
-	isLoading: boolean
-	error: string | null
-	lastChecked: number
-}
+export type ActorAllowanceRow = ActorAllowance & { $source: DataSource }
 
 export const actorAllowancesCollection = createCollection(
 	localStorageCollectionOptions({
@@ -35,11 +24,19 @@ export const actorAllowancesCollection = createCollection(
 	}),
 )
 
-export const getActorAllowance = ($id: ActorAllowance$id) =>
+for (const [key, row] of actorAllowancesCollection.state) {
+	if (row.$source !== DataSource.Voltaire) {
+		actorAllowancesCollection.update(key, (draft) => {
+			draft.$source = DataSource.Voltaire
+		})
+	}
+}
+
+export const getActorAllowance = ($id: ActorAllowance$Id) =>
 	actorAllowancesCollection.state.get(stringify($id))
 
 export const fetchActorAllowance = async (
-	$id: ActorAllowance$id,
+	$id: ActorAllowance$Id,
 ): Promise<ActorAllowanceRow> => {
 	const key = stringify($id)
 	const existing = actorAllowancesCollection.state.get(key)
@@ -47,12 +44,14 @@ export const fetchActorAllowance = async (
 	// Set loading state
 	if (existing) {
 		actorAllowancesCollection.update(key, (draft) => {
+			draft.$source = DataSource.Voltaire
 			draft.isLoading = true
 			draft.error = null
 		})
 	} else {
 		actorAllowancesCollection.insert({
 			$id,
+			$source: DataSource.Voltaire,
 			allowance: 0n,
 			isLoading: true,
 			error: null,
@@ -72,6 +71,7 @@ export const fetchActorAllowance = async (
 		)
 
 		actorAllowancesCollection.update(key, (draft) => {
+			draft.$source = DataSource.Voltaire
 			draft.allowance = allowance
 			draft.isLoading = false
 			draft.error = null
@@ -80,6 +80,7 @@ export const fetchActorAllowance = async (
 		return actorAllowancesCollection.state.get(key)!
 	} catch (e) {
 		actorAllowancesCollection.update(key, (draft) => {
+			draft.$source = DataSource.Voltaire
 			draft.isLoading = false
 			draft.error = e instanceof Error ? e.message : String(e)
 			draft.lastChecked = Date.now()
@@ -89,26 +90,28 @@ export const fetchActorAllowance = async (
 }
 
 // Check if allowance is sufficient for amount
-export const hasApproval = ($id: ActorAllowance$id, amount: bigint) => {
+export const hasApproval = ($id: ActorAllowance$Id, amount: bigint) => {
 	const row = getActorAllowance($id)
 	return row ? row.allowance >= amount : false
 }
 
 // Update allowance after successful approval tx (optimistic)
 export const setActorAllowance = (
-	$id: ActorAllowance$id,
+	$id: ActorAllowance$Id,
 	allowance: bigint,
 ) => {
 	const key = stringify($id)
 	const existing = actorAllowancesCollection.state.get(key)
 	if (existing) {
 		actorAllowancesCollection.update(key, (draft) => {
+			draft.$source = DataSource.Voltaire
 			draft.allowance = allowance
 			draft.lastChecked = Date.now()
 		})
 	} else {
 		actorAllowancesCollection.insert({
 			$id,
+			$source: DataSource.Voltaire,
 			allowance,
 			isLoading: false,
 			error: null,

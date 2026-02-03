@@ -8,19 +8,10 @@ import {
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
-import type { EIP1193Provider } from '$/lib/wallet'
+import { DataSource } from '$/constants/data-sources'
+import type { Wallet, Wallet$Id } from '$/data/Wallet'
 
-export type Wallet$id = {
-	rdns: string
-}
-
-export type WalletRow = {
-	$id: Wallet$id
-	name: string
-	icon: string
-	rdns: string
-	provider: EIP1193Provider
-}
+export type WalletRow = Wallet & { $source: DataSource }
 
 export const walletsCollection = createCollection(
 	localOnlyCollectionOptions({
@@ -29,10 +20,10 @@ export const walletsCollection = createCollection(
 	}),
 )
 
-export const getWallet = ($id: Wallet$id) =>
+export const getWallet = ($id: Wallet$Id) =>
 	walletsCollection.state.get(stringify($id))
 
-export const upsertWallet = (row: WalletRow) => {
+export const upsertWallet = (row: Wallet) => {
 	if (!row?.$id?.rdns) return
 	const key = stringify(row.$id)
 	const existing = walletsCollection.state.get(key)
@@ -42,8 +33,9 @@ export const upsertWallet = (row: WalletRow) => {
 			draft.icon = row.icon
 			draft.rdns = row.rdns
 			draft.provider = row.provider
+			draft.$source = DataSource.Local
 		})
 	} else {
-		walletsCollection.insert(row)
+		walletsCollection.insert({ ...row, $source: DataSource.Local })
 	}
 }

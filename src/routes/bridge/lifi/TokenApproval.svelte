@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { Button, Switch } from 'bits-ui'
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { sendApproval, waitForApprovalConfirmation } from '$/api/approval'
+	import { DataSource } from '$/constants/data-sources'
 	import { getTxUrl } from '$/constants/explorers'
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import {
 		actorAllowancesCollection,
 		fetchActorAllowance,
 		setActorAllowance,
-		type ActorAllowance$id,
 	} from '$/collections/actor-allowances'
+	import type { ActorAllowance$Id } from '$/data/ActorAllowance'
 
 	let {
 		chainId,
@@ -29,11 +30,14 @@
 
 	// Query allowances collection
 	const allowancesQuery = useLiveQuery((q) =>
-		q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: actorAllowancesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+			.select(({ row }) => ({ row })),
 	)
 
 	// Derive allowance ID and row
-	const allowanceId = $derived<ActorAllowance$id>({
+	const allowanceId = $derived<ActorAllowance$Id>({
 		chainId,
 		address: ownerAddress,
 		tokenAddress,

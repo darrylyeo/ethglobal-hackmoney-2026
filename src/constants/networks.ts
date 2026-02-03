@@ -3,6 +3,13 @@
  * Chain IDs and names from Circle USDC contract addresses and CCTP docs.
  */
 
+import type {
+	Network,
+	NetworkConfig,
+	NetworkCurrency,
+	RpcEndpoint,
+} from '$/schema/constants/networks'
+
 export enum NetworkType {
 	Mainnet = 'Mainnet',
 	Testnet = 'Testnet',
@@ -50,12 +57,6 @@ export enum ChainId {
 	ArcTestnet = 5042002,
 }
 
-export type Network = {
-	id: ChainId
-	name: string
-	type: NetworkType
-}
-
 export enum ServiceProvider {
 	Chain = 'Chain',
 	LlamaRPC = 'LlamaRPC',
@@ -66,27 +67,6 @@ export enum ServiceProvider {
 export enum TransportType {
 	Http = 'Http',
 	WebSocket = 'WebSocket',
-}
-
-export type NetworkCurrency = {
-	name: string
-	symbol: string
-}
-
-export type RpcEndpoint = {
-	chainId: ChainId
-	url: string
-	serviceProvider: ServiceProvider
-	transportType: TransportType
-}
-
-export type NetworkConfig = {
-	chainId: ChainId
-	name: string
-	type: NetworkType
-	nativeCurrency: NetworkCurrency
-	explorerUrl?: string
-	rpcEndpoints: readonly RpcEndpoint[]
 }
 
 export const networkConfigs: readonly NetworkConfig[] = [

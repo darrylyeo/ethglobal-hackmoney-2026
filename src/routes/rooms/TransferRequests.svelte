@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { SharedAddress } from '$/collections/shared-addresses'
+	import type { SharedAddressRow } from '$/collections/shared-addresses'
+	import { DataSource } from '$/constants/data-sources'
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -30,17 +31,22 @@
 		(q) =>
 			q
 				.from({ row: sharedAddressesCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
 	const depositQuery = useLiveQuery((q) =>
-		q.from({ row: yellowDepositsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: yellowDepositsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Yellow))
+			.select(({ row }) => ({ row })),
 	)
 	const requestsQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: transferRequestsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
@@ -147,7 +153,7 @@
 			proposeTransfer()
 		}}
 	>
-		{#snippet addressItem(shared: SharedAddress)}
+		{#snippet addressItem(shared: SharedAddressRow)}
 			<Address network={1} address={shared.address} />
 		{/snippet}
 

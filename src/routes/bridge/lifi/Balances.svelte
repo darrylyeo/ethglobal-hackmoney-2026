@@ -1,8 +1,9 @@
 <script lang="ts">
 	// Types/constants
 	import { CoinType } from '$/constants/coins'
-	import { ENTITY_TYPE } from '$/constants/entity-types'
-	import { MediaType } from '$/constants/media.ts'
+	import { DataSource } from '$/constants/data-sources'
+	import { EntityType } from '$/data/$EntityType'
+	import { MediaType } from '$/constants/media'
 	import {
 		NetworkType,
 		networks,
@@ -11,7 +12,7 @@
 	import type { IntentDragPayload } from '$/lib/intents/types'
 
 	// Context
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
 	// Props
 	let {
@@ -53,13 +54,22 @@
 		),
 	)
 	const balancesQuery = useLiveQuery((q) =>
-		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: actorCoinsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+			.select(({ row }) => ({ row })),
 	)
 	const tokenListQuery = useLiveQuery((q) =>
-		q.from({ row: tokenListCoinsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: tokenListCoinsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.TokenLists))
+			.select(({ row }) => ({ row })),
 	)
 	const pricesQuery = useLiveQuery((q) =>
-		q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: storkPricesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Stork))
+			.select(({ row }) => ({ row })),
 	)
 	const filteredTokenListCoins = $derived(
 		(tokenListQuery.data ?? [])
@@ -194,7 +204,7 @@
 				{#if network}
 					{@const intent = {
 						entity: {
-							type: ENTITY_TYPE.actorCoin,
+							type: EntityType.ActorCoin,
 							id: b.$id,
 						},
 						context: {

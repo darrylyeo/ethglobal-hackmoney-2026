@@ -6,19 +6,14 @@ import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
+import { DataSource } from '$/constants/data-sources'
+import type { YellowDeposit } from '$/data/YellowDeposit'
 
-export type YellowDeposit = {
-	id: string
-	chainId: number
-	address: `0x${string}`
-	availableBalance: bigint
-	lockedBalance: bigint
-	lastUpdated: number
-}
+export type YellowDepositRow = YellowDeposit & { $source: DataSource }
 
 export const yellowDepositsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: 'yellow-deposits',
-		getKey: (row: YellowDeposit) => row.id,
+		getKey: (row: YellowDepositRow) => row.id,
 	}),
 )

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { BridgeRoute } from '$/collections/bridge-routes'
+	import type { BridgeRoute } from '$/data/BridgeRoute'
 	import type { WalletRow } from '$/collections/wallets'
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import type { BridgeStatus } from '$/lib/tx-status'
@@ -11,8 +11,8 @@
 	import {
 		insertTransaction,
 		updateTransaction,
-		type Transaction$id,
 	} from '$/collections/transactions'
+	import type { Transaction$Id } from '$/data/Transaction'
 
 	let {
 		route,
@@ -78,7 +78,7 @@
 			amount,
 			onStatus: reportStatus,
 		}) => {
-			let txId: Transaction$id | null = null
+			let txId: Transaction$Id | null = null
 
 			try {
 				const result = await executeSelectedRoute(

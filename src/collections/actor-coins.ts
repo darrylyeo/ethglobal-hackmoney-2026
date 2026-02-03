@@ -8,31 +8,13 @@ import {
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
+import { DataSource } from '$/constants/data-sources'
 import { ercTokens } from '$/constants/coins'
+import type { ActorCoin, ActorCoin$Id, ActorCoinToken } from '$/data/ActorCoin'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import { createHttpProvider, getErc20Balance } from '$/api/voltaire'
 
-export type ActorCoin$id = {
-	chainId: number
-	address: `0x${string}`
-	tokenAddress: `0x${string}`
-}
-
-export type ActorCoinRow = {
-	$id: ActorCoin$id
-	symbol: string
-	decimals: number
-	balance: bigint
-	isLoading: boolean
-	error: string | null
-}
-
-type ActorCoinToken = {
-	chainId: number
-	address: `0x${string}`
-	symbol: string
-	decimals: number
-}
+export type ActorCoinRow = ActorCoin & { $source: DataSource }
 
 export const actorCoinsCollection = createCollection(
 	localOnlyCollectionOptions({
@@ -41,11 +23,11 @@ export const actorCoinsCollection = createCollection(
 	}),
 )
 
-export const getActorCoin = ($id: ActorCoin$id) =>
+export const getActorCoin = ($id: ActorCoin$Id) =>
 	actorCoinsCollection.state.get(stringify($id))
 
 export const fetchActorCoinBalance = async (
-	$id: ActorCoin$id,
+	$id: ActorCoin$Id,
 	symbol: string,
 	decimals: number,
 ): Promise<ActorCoinRow> => {
@@ -55,12 +37,14 @@ export const fetchActorCoinBalance = async (
 	// Set loading state
 	if (existing) {
 		actorCoinsCollection.update(key, (draft) => {
+			draft.$source = DataSource.Voltaire
 			draft.isLoading = true
 			draft.error = null
 		})
 	} else {
 		actorCoinsCollection.insert({
 			$id,
+			$source: DataSource.Voltaire,
 			symbol,
 			decimals,
 			balance: 0n,
@@ -78,6 +62,7 @@ export const fetchActorCoinBalance = async (
 			$id.address,
 		)
 		actorCoinsCollection.update(key, (draft) => {
+			draft.$source = DataSource.Voltaire
 			draft.balance = balance
 			draft.isLoading = false
 			draft.error = null
@@ -85,6 +70,7 @@ export const fetchActorCoinBalance = async (
 		return actorCoinsCollection.state.get(key)!
 	} catch (e) {
 		actorCoinsCollection.update(key, (draft) => {
+			draft.$source = DataSource.Voltaire
 			draft.isLoading = false
 			draft.error = e instanceof Error ? e.message : String(e)
 		})

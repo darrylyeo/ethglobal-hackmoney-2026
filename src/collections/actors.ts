@@ -5,15 +5,11 @@
 
 import { createCollection } from '@tanstack/svelte-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import { DataSource } from '$/constants/data-sources'
+import type { Actor } from '$/data/Actor'
 import { queryClient } from '$/lib/db/query-client'
 
-export type Actor$id = { network: number; address: `0x${string}` }
-
-export type Actor = {
-	$id: Actor$id
-	chainId: number
-	address: `0x${string}`
-}
+export type ActorRow = Actor & { $source: DataSource }
 
 export const actorKey = (chainId: number, address: `0x${string}`) =>
 	`${chainId}-${address.toLowerCase()}`
@@ -22,14 +18,14 @@ export const actorsCollection = createCollection(
 	queryCollectionOptions({
 		id: 'actors',
 		queryKey: ['actors'],
-		queryFn: () => Promise.resolve<Actor[]>([]),
+		queryFn: () => Promise.resolve<ActorRow[]>([]),
 		queryClient,
-		getKey: (row: Actor) => actorKey(row.$id.network, row.$id.address),
+		getKey: (row: ActorRow) => actorKey(row.$id.network, row.$id.address),
 	}),
 )
 
 export const insertActor = (actor: Actor) => {
-	actorsCollection.utils.writeUpsert(actor)
+	actorsCollection.utils.writeUpsert({ ...actor, $source: DataSource.Local })
 }
 
 export const insertActorsForAddress = (
@@ -39,6 +35,7 @@ export const insertActorsForAddress = (
 	for (const chainId of chainIds) {
 		actorsCollection.utils.writeUpsert({
 			$id: { network: chainId, address },
+			$source: DataSource.Local,
 			chainId,
 			address,
 		})

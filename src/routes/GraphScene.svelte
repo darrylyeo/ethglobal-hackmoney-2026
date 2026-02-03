@@ -8,11 +8,8 @@
 		GraphModel,
 		GraphNode,
 	} from '$/lib/graph-model'
-	import {
-		ENTITY_TYPE,
-		GRAPH_SCENE_ENTITY_TYPES,
-		type EntityType,
-	} from '$/constants/entity-types'
+	import { EntityType, GRAPH_SCENE_ENTITY_TYPES } from '$/data/$EntityType'
+	import { DataSource } from '$/constants/data-sources'
 	import { networksByChainId } from '$/constants/networks'
 	import { walletsCollection } from '$/collections/wallets'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
@@ -24,7 +21,7 @@
 
 	// Context
 	import { browser } from '$app/environment'
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { useLiveQueryContext } from '$/svelte/live-query-context.svelte'
 
 	// Functions
@@ -71,69 +68,92 @@
 	})
 
 	const walletsQuery = useLiveQuery((q) =>
-		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: walletsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
 	)
 	const connectionsQuery = useLiveQuery((q) =>
-		q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: walletConnectionsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
 	)
 	const actorsQuery = useLiveQuery((q) =>
-		q.from({ row: actorsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: actorsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
 	)
 	const coinsQuery = useLiveQuery((q) =>
-		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: actorCoinsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+			.select(({ row }) => ({ row })),
 	)
 	const allowancesQuery = useLiveQuery((q) =>
-		q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: actorAllowancesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
+			.select(({ row }) => ({ row })),
 	)
 	const routesQuery = useLiveQuery((q) =>
-		q.from({ row: bridgeRoutesCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: bridgeRoutesCollection })
+			.where(({ row }) => eq(row.$source, DataSource.LiFi))
+			.select(({ row }) => ({ row })),
 	)
 	const txQuery = useLiveQuery((q) =>
-		q.from({ row: transactionsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: transactionsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
 	)
 
 	// Types/constants
+	type GraphSceneEntityType = (typeof GRAPH_SCENE_ENTITY_TYPES)[number]
+
 	const collections: Record<
-		EntityType,
+		GraphSceneEntityType,
 		{ color: string; label: string; size: number; ring: number }
 	> = {
-		[ENTITY_TYPE.wallet]: {
+		[EntityType.Wallet]: {
 			color: '#3b82f6',
 			label: 'Wallets',
 			size: 18,
 			ring: 0,
 		},
-		[ENTITY_TYPE.walletConnection]: {
+		[EntityType.WalletConnection]: {
 			color: '#22c55e',
 			label: 'Sessions',
 			size: 14,
 			ring: 1,
 		},
-		[ENTITY_TYPE.actor]: {
+		[EntityType.Actor]: {
 			color: '#f59e0b',
 			label: 'Accounts',
 			size: 16,
 			ring: 2,
 		},
-		[ENTITY_TYPE.actorCoin]: {
+		[EntityType.ActorCoin]: {
 			color: '#8b5cf6',
 			label: 'Balances',
 			size: 10,
 			ring: 3,
 		},
-		[ENTITY_TYPE.actorAllowance]: {
+		[EntityType.ActorAllowance]: {
 			color: '#ec4899',
 			label: 'Approvals',
 			size: 9,
 			ring: 3.5,
 		},
-		[ENTITY_TYPE.bridgeRoute]: {
+		[EntityType.BridgeRoute]: {
 			color: '#06b6d4',
 			label: 'Routes',
 			size: 12,
 			ring: 4,
 		},
-		[ENTITY_TYPE.transaction]: {
+		[EntityType.Transaction]: {
 			color: '#ef4444',
 			label: 'Transactions',
 			size: 11,
@@ -152,13 +172,13 @@
 
 	// (Derived)
 	const counts: Record<string, number> = $derived({
-		[ENTITY_TYPE.wallet]: walletsQuery.data?.length ?? 0,
-		[ENTITY_TYPE.walletConnection]: connectionsQuery.data?.length ?? 0,
-		[ENTITY_TYPE.actor]: actorsQuery.data?.length ?? 0,
-		[ENTITY_TYPE.actorCoin]: coinsQuery.data?.length ?? 0,
-		[ENTITY_TYPE.actorAllowance]: allowancesQuery.data?.length ?? 0,
-		[ENTITY_TYPE.bridgeRoute]: routesQuery.data?.length ?? 0,
-		[ENTITY_TYPE.transaction]: txQuery.data?.length ?? 0,
+		[EntityType.Wallet]: walletsQuery.data?.length ?? 0,
+		[EntityType.WalletConnection]: connectionsQuery.data?.length ?? 0,
+		[EntityType.Actor]: actorsQuery.data?.length ?? 0,
+		[EntityType.ActorCoin]: coinsQuery.data?.length ?? 0,
+		[EntityType.ActorAllowance]: allowancesQuery.data?.length ?? 0,
+		[EntityType.BridgeRoute]: routesQuery.data?.length ?? 0,
+		[EntityType.Transaction]: txQuery.data?.length ?? 0,
 	})
 
 	// Functions
@@ -200,13 +220,13 @@
 		}
 
 		// Add wallet nodes (center)
-		if (visibleCollections.has(ENTITY_TYPE.wallet)) {
+		if (visibleCollections.has(EntityType.Wallet)) {
 			const wallets = walletsQuery.data ?? []
 			wallets.forEach(({ row }, i) => {
 				const rdns = row.$id?.rdns
 				if (!rdns) return
 				const pos = positionInRing(
-					collections[ENTITY_TYPE.wallet].ring,
+					collections[EntityType.Wallet].ring,
 					i,
 					wallets.length,
 				)
@@ -214,18 +234,18 @@
 					id: `wallet:${rdns}`,
 					label: row.name,
 					...pos,
-					size: collections[ENTITY_TYPE.wallet].size,
-					color: collections[ENTITY_TYPE.wallet].color,
+					size: collections[EntityType.Wallet].size,
+					color: collections[EntityType.Wallet].color,
 					type: row.icon ? 'image' : 'circle',
 					image: row.icon || undefined,
-					collection: ENTITY_TYPE.wallet,
+					collection: EntityType.Wallet,
 					details: { rdns: row.rdns },
 				})
 			})
 		}
 
 		// Add connection nodes
-		if (visibleCollections.has(ENTITY_TYPE.walletConnection)) {
+		if (visibleCollections.has(EntityType.WalletConnection)) {
 			const connections = connectionsQuery.data ?? []
 			connections.forEach(({ row }, i) => {
 				const rdns = row.$id?.wallet$id?.rdns
@@ -233,7 +253,7 @@
 				const connId = `connection:${rdns}`
 				if (g.hasNode(connId)) return
 				const pos = positionInRing(
-					collections[ENTITY_TYPE.walletConnection].ring,
+					collections[EntityType.WalletConnection].ring,
 					i,
 					connections.length,
 				)
@@ -251,17 +271,17 @@
 							? `${row.actors.length} acct${row.actors.length !== 1 ? 's' : ''}${chainName ? ` · ${chainName}` : ''}`
 							: row.status,
 					...pos,
-					size: collections[ENTITY_TYPE.walletConnection].size,
+					size: collections[EntityType.WalletConnection].size,
 					color: statusColor,
 					type: 'circle',
-					collection: ENTITY_TYPE.walletConnection,
+					collection: EntityType.WalletConnection,
 					details: {
 						status: row.status,
 						chainId: row.chainId,
 						actors: row.actors.length,
 					},
 				})
-				if (visibleCollections.has(ENTITY_TYPE.wallet)) {
+				if (visibleCollections.has(EntityType.Wallet)) {
 					const walletId = `wallet:${rdns}`
 					if (g.hasNode(walletId)) {
 						addEdge({
@@ -279,14 +299,14 @@
 		}
 
 		// Add actor nodes
-		if (visibleCollections.has(ENTITY_TYPE.actor)) {
+		if (visibleCollections.has(EntityType.Actor)) {
 			const actors = actorsQuery.data ?? []
 			const connections = connectionsQuery.data ?? []
 			actors.forEach(({ row }, i) => {
 				const actorId = `actor:${row.$id.network}:${row.address}`
 				if (g.hasNode(actorId)) return
 				const pos = positionInRing(
-					collections[ENTITY_TYPE.actor].ring,
+					collections[EntityType.Actor].ring,
 					i,
 					actors.length,
 				)
@@ -295,10 +315,10 @@
 					id: actorId,
 					label: `${row.address.slice(0, 6)}…${row.address.slice(-4)}`,
 					...pos,
-					size: collections[ENTITY_TYPE.actor].size,
-					color: collections[ENTITY_TYPE.actor].color,
+					size: collections[EntityType.Actor].size,
+					color: collections[EntityType.Actor].color,
 					type: 'circle',
-					collection: ENTITY_TYPE.actor,
+					collection: EntityType.Actor,
 					details: {
 						address: row.address,
 						chain: chainName,
@@ -306,7 +326,7 @@
 					},
 				})
 				// Connect actor to connection
-				if (visibleCollections.has(ENTITY_TYPE.walletConnection)) {
+				if (visibleCollections.has(EntityType.WalletConnection)) {
 					for (const { row: conn } of connections) {
 						if (conn.actors.includes(row.address)) {
 							const connRdns = conn.$id?.wallet$id?.rdns
@@ -328,13 +348,13 @@
 		}
 
 		// Add coin balance nodes
-		if (visibleCollections.has(ENTITY_TYPE.actorCoin)) {
+		if (visibleCollections.has(EntityType.ActorCoin)) {
 			const coins = coinsQuery.data ?? []
 			coins.forEach(({ row }, i) => {
 				const coinId = `coin:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}`
 				if (g.hasNode(coinId)) return
 				const pos = positionInRing(
-					collections[ENTITY_TYPE.actorCoin].ring,
+					collections[EntityType.ActorCoin].ring,
 					i,
 					coins.length,
 				)
@@ -348,13 +368,13 @@
 					label: `${balanceStr} ${row.symbol}`,
 					...pos,
 					size: hasBalance
-						? collections[ENTITY_TYPE.actorCoin].size + 3
-						: collections[ENTITY_TYPE.actorCoin].size,
+						? collections[EntityType.ActorCoin].size + 3
+						: collections[EntityType.ActorCoin].size,
 					color: hasBalance
-						? collections[ENTITY_TYPE.actorCoin].color
-						: `${collections[ENTITY_TYPE.actorCoin].color}55`,
+						? collections[EntityType.ActorCoin].color
+						: `${collections[EntityType.ActorCoin].color}55`,
 					type: 'circle',
-					collection: ENTITY_TYPE.actorCoin,
+					collection: EntityType.ActorCoin,
 					details: {
 						symbol: row.symbol,
 						balance: balanceStr,
@@ -362,7 +382,7 @@
 						hasBalance,
 					},
 				})
-				if (visibleCollections.has(ENTITY_TYPE.actor)) {
+				if (visibleCollections.has(EntityType.Actor)) {
 					const actorId = `actor:${row.$id.chainId}:${row.$id.address}`
 					if (g.hasNode(actorId)) {
 						addEdge({
@@ -382,13 +402,13 @@
 		}
 
 		// Add allowance nodes
-		if (visibleCollections.has(ENTITY_TYPE.actorAllowance)) {
+		if (visibleCollections.has(EntityType.ActorAllowance)) {
 			const allowances = allowancesQuery.data ?? []
 			allowances.forEach(({ row }, i) => {
 				const allowanceId = `allowance:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}:${row.$id.spenderAddress}`
 				if (g.hasNode(allowanceId)) return
 				const pos = positionInRing(
-					collections[ENTITY_TYPE.actorAllowance].ring,
+					collections[EntityType.ActorAllowance].ring,
 					i,
 					allowances.length,
 				)
@@ -399,20 +419,20 @@
 					label: hasAllowance ? '✓ Approved' : '○ Pending',
 					...pos,
 					size: hasAllowance
-						? collections[ENTITY_TYPE.actorAllowance].size + 2
-						: collections[ENTITY_TYPE.actorAllowance].size,
+						? collections[EntityType.ActorAllowance].size + 2
+						: collections[EntityType.ActorAllowance].size,
 					color: hasAllowance
-						? collections[ENTITY_TYPE.actorAllowance].color
-						: `${collections[ENTITY_TYPE.actorAllowance].color}55`,
+						? collections[EntityType.ActorAllowance].color
+						: `${collections[EntityType.ActorAllowance].color}55`,
 					type: 'circle',
-					collection: ENTITY_TYPE.actorAllowance,
+					collection: EntityType.ActorAllowance,
 					details: {
 						chain: chainName,
 						approved: hasAllowance,
 						spender: row.$id.spenderAddress.slice(0, 10) + '…',
 					},
 				})
-				if (visibleCollections.has(ENTITY_TYPE.actorCoin)) {
+				if (visibleCollections.has(EntityType.ActorCoin)) {
 					const coinId = `coin:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}`
 					if (g.hasNode(coinId)) {
 						addEdge({
@@ -432,13 +452,13 @@
 		}
 
 		// Add route nodes
-		if (visibleCollections.has(ENTITY_TYPE.bridgeRoute)) {
+		if (visibleCollections.has(EntityType.BridgeRoute)) {
 			const routes = routesQuery.data ?? []
 			routes.forEach(({ row }, i) => {
 				const routeId = `routes:${row.$id.fromChainId}:${row.$id.toChainId}:${row.$id.amount}`
 				if (g.hasNode(routeId)) return
 				const pos = positionInRing(
-					collections[ENTITY_TYPE.bridgeRoute].ring,
+					collections[EntityType.BridgeRoute].ring,
 					i,
 					routes.length,
 				)
@@ -452,14 +472,14 @@
 						: `${fromChain} → ${toChain}`,
 					...pos,
 					size: hasRoutes
-						? collections[ENTITY_TYPE.bridgeRoute].size +
+						? collections[EntityType.BridgeRoute].size +
 							Math.min(row.routes.length, 5)
-						: collections[ENTITY_TYPE.bridgeRoute].size,
+						: collections[EntityType.BridgeRoute].size,
 					color: hasRoutes
-						? collections[ENTITY_TYPE.bridgeRoute].color
-						: `${collections[ENTITY_TYPE.bridgeRoute].color}55`,
+						? collections[EntityType.BridgeRoute].color
+						: `${collections[EntityType.BridgeRoute].color}55`,
 					type: 'circle',
-					collection: ENTITY_TYPE.bridgeRoute,
+					collection: EntityType.BridgeRoute,
 					details: {
 						from: fromChain,
 						to: toChain,
@@ -471,13 +491,13 @@
 		}
 
 		// Add transaction nodes
-		if (visibleCollections.has(ENTITY_TYPE.transaction)) {
+		if (visibleCollections.has(EntityType.Transaction)) {
 			const txs = txQuery.data ?? []
 			txs.forEach(({ row }, i) => {
 				const txId = `tx:${row.$id.sourceTxHash}`
 				if (g.hasNode(txId)) return
 				const pos = positionInRing(
-					collections[ENTITY_TYPE.transaction].ring,
+					collections[EntityType.Transaction].ring,
 					i,
 					txs.length,
 				)
@@ -493,12 +513,12 @@
 					id: txId,
 					label: `${statusIcon[row.status]} ${fromChain} → ${toChain}`,
 					...pos,
-					size: collections[ENTITY_TYPE.transaction].size,
+					size: collections[EntityType.Transaction].size,
 					color:
 						statusColors[row.status] ??
-						collections[ENTITY_TYPE.transaction].color,
+						collections[EntityType.Transaction].color,
 					type: 'circle',
-					collection: ENTITY_TYPE.transaction,
+					collection: EntityType.Transaction,
 					details: {
 						status: row.status,
 						from: fromChain,
@@ -506,7 +526,7 @@
 						hash: row.$id.sourceTxHash.slice(0, 10) + '…',
 					},
 				})
-				if (visibleCollections.has(ENTITY_TYPE.actor)) {
+				if (visibleCollections.has(EntityType.Actor)) {
 					const actorId = `actor:${row.fromChainId}:${row.$id.address}`
 					if (g.hasNode(actorId)) {
 						addEdge({

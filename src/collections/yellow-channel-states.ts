@@ -6,28 +6,14 @@ import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
+import { DataSource } from '$/constants/data-sources'
+import type { YellowChannelState } from '$/data/YellowChannelState'
 
-export type YellowChannelAllocation = {
-	destination: `0x${string}`
-	token: `0x${string}`
-	amount: bigint
-}
-
-export type YellowChannelState = {
-	id: string
-	channelId: `0x${string}`
-	intent: number
-	version: number
-	stateData: `0x${string}`
-	allocations: YellowChannelAllocation[]
-	signatures: `0x${string}`[]
-	isFinal: boolean
-	timestamp: number
-}
+export type YellowChannelStateRow = YellowChannelState & { $source: DataSource }
 
 export const yellowChannelStatesCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: 'yellow-channel-states',
-		getKey: (row: YellowChannelState) => row.id,
+		getKey: (row: YellowChannelStateRow) => row.id,
 	}),
 )

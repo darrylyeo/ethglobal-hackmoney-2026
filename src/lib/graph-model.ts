@@ -1,5 +1,5 @@
 import type Graph from 'graphology'
-import type { EntityType } from '$/constants/entity-types'
+import type { EntityType } from '$/data/$EntityType'
 
 export type GraphNode = {
 	id: string

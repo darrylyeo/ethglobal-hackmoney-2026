@@ -2,6 +2,7 @@
  * Room state: PartyKit connection, join/leave, sync from server to collections.
  */
 
+import { DataSource } from '$/constants/data-sources'
 import { transferRequestsCollection } from '$/collections/transfer-requests'
 import { roomsCollection } from '$/collections/rooms'
 import { roomPeersCollection } from '$/collections/room-peers'
@@ -13,11 +14,11 @@ import {
 	type RoomMessage,
 } from '$/lib/partykit'
 import { verifySiweSignature } from '$/lib/siwe'
-import type { TransferRequest } from '$/collections/transfer-requests'
-import type { Room } from '$/collections/rooms'
-import type { RoomPeer } from '$/collections/room-peers'
-import type { SharedAddress } from '$/collections/shared-addresses'
-import type { SiweChallenge } from '$/collections/siwe-challenges'
+import type { TransferRequest } from '$/data/TransferRequest'
+import type { Room } from '$/data/Room'
+import type { RoomPeer } from '$/data/RoomPeer'
+import type { SharedAddress } from '$/data/SharedAddress'
+import type { SiweChallenge } from '$/data/SiweChallenge'
 
 const SIWE_DEBUG =
 	typeof import.meta !== 'undefined' &&
@@ -55,23 +56,39 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 	const sharedIds = new Set(state.sharedAddresses.map((s) => s.id))
 	const challengeIds = new Set(state.challenges.map((c) => c.id))
 
-	upsert(roomsCollection, state.room, (r) => r.id)
+	upsert(
+		roomsCollection,
+		{ ...state.room, $source: DataSource.PartyKit },
+		(r) => r.id,
+	)
 	for (const p of state.peers) {
-		upsert(roomPeersCollection, p, (r) => r.id)
+		upsert(
+			roomPeersCollection,
+			{ ...p, $source: DataSource.PartyKit },
+			(r) => r.id,
+		)
 	}
 	for (const [key, row] of roomPeersCollection.state) {
 		if (row.roomId === roomId && !peerIds.has(key))
 			roomPeersCollection.delete(key)
 	}
 	for (const s of state.sharedAddresses) {
-		upsert(sharedAddressesCollection, s, (r) => r.id)
+		upsert(
+			sharedAddressesCollection,
+			{ ...s, $source: DataSource.PartyKit },
+			(r) => r.id,
+		)
 	}
 	for (const [key, row] of sharedAddressesCollection.state) {
 		if (row.roomId === roomId && !sharedIds.has(row.id))
 			sharedAddressesCollection.delete(key)
 	}
 	for (const c of state.challenges) {
-		upsert(siweChallengesCollection, c, (r) => r.id)
+		upsert(
+			siweChallengesCollection,
+			{ ...c, $source: DataSource.PartyKit },
+			(r) => r.id,
+		)
 	}
 	for (const [key, row] of siweChallengesCollection.state) {
 		if (row.roomId === roomId && !challengeIds.has(row.id))
@@ -97,7 +114,11 @@ function handleServerMessage(msg: RoomMessage) {
 					address: ch.address,
 				})
 			}
-			upsert(siweChallengesCollection, ch, (r) => r.id)
+			upsert(
+				siweChallengesCollection,
+				{ ...ch, $source: DataSource.PartyKit },
+				(r) => r.id,
+			)
 			break
 		}
 		case 'verify-result': {
@@ -109,6 +130,7 @@ function handleServerMessage(msg: RoomMessage) {
 			const existing = siweChallengesCollection.state.get(msg.challengeId)
 			if (existing) {
 				siweChallengesCollection.update(msg.challengeId, (draft) => {
+					draft.$source = DataSource.PartyKit
 					draft.verified = msg.verified
 				})
 			}
@@ -148,6 +170,7 @@ function handleServerMessage(msg: RoomMessage) {
 			const p = msg.request
 			const row: TransferRequest = {
 				id: p.id,
+				$source: DataSource.PartyKit,
 				roomId: p.roomId,
 				from: p.from,
 				to: p.to,
@@ -163,6 +186,7 @@ function handleServerMessage(msg: RoomMessage) {
 			const existing = transferRequestsCollection.state.get(msg.requestId)
 			if (existing) {
 				transferRequestsCollection.update(msg.requestId, (draft) => {
+					draft.$source = DataSource.PartyKit
 					draft.status = 'accepted'
 				})
 			}
@@ -172,6 +196,7 @@ function handleServerMessage(msg: RoomMessage) {
 			const existing = transferRequestsCollection.state.get(msg.requestId)
 			if (existing) {
 				transferRequestsCollection.update(msg.requestId, (draft) => {
+					draft.$source = DataSource.PartyKit
 					draft.status = 'rejected'
 				})
 			}
@@ -181,6 +206,7 @@ function handleServerMessage(msg: RoomMessage) {
 			const existing = transferRequestsCollection.state.get(msg.requestId)
 			if (existing) {
 				transferRequestsCollection.update(msg.requestId, (draft) => {
+					draft.$source = DataSource.PartyKit
 					draft.status = 'sent'
 				})
 			}

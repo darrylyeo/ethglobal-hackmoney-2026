@@ -1,9 +1,7 @@
 /// <reference lib='deno.ns' />
 import { assertEquals, assertExists } from 'jsr:@std/assert'
-import {
-	normalizeUniswapPool,
-	type UniswapPool,
-} from './uniswap-pools-normalize.ts'
+import type { UniswapPool } from '$/data/UniswapPool'
+import { normalizeUniswapPool } from './uniswap-pools-normalize.ts'
 
 Deno.test(
 	'normalizeUniswapPool returns pool with bigint sqrtPriceX96 and liquidity',

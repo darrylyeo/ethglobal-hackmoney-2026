@@ -1,4 +1,14 @@
 <script lang="ts">
+	// Types/constants
+	import { DataSource } from '$/constants/data-sources'
+
+	// Context
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import {
+		cctpAllowanceCollection,
+		fetchCctpAllowance,
+	} from '$/collections/cctp-allowance'
+
 	// Props
 	let {
 		fastTransferSupported,
@@ -8,49 +18,40 @@
 		apiHost: string
 	} = $props()
 
-	// State
-	let allowance = $state<{ value: number; lastUpdated: string } | null>(null)
-	let allowanceError = $state<string | null>(null)
-	let allowanceLoading = $state(false)
-
-	$effect(() => {
-		if (!fastTransferSupported) {
-			allowance = null
-			return
-		}
-		let cancelled = false
-		allowanceLoading = true
-		allowanceError = null
-		fetch(`${apiHost}/v2/fastBurn/USDC/allowance`, {
-			headers: { Accept: 'application/json' },
-		})
-			.then((res) =>
-				res.ok
-					? res.json()
-					: Promise.reject(
-							new Error(`Allowance request failed (${res.status})`),
-						),
-			)
-			.then((data) => {
-				if (cancelled) return
-				if (
-					typeof data?.allowance === 'number' &&
-					typeof data?.lastUpdated === 'string'
-				) {
-					allowance = { value: data.allowance, lastUpdated: data.lastUpdated }
-				} else {
-					allowance = null
+	// (Derived)
+	const allowanceQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: cctpAllowanceCollection })
+				.where(
+					({ row }) =>
+						eq(row.$source, DataSource.Cctp) && row.$id.apiHost === apiHost,
+				)
+				.select(({ row }) => ({ row })),
+		[() => apiHost],
+	)
+	const allowanceRow = $derived((allowanceQuery.data ?? [])[0]?.row ?? null)
+	const allowance = $derived(
+		fastTransferSupported && allowanceRow ?
+			allowanceRow.allowance !== null && allowanceRow.lastUpdated !== null ?
+				{
+					value: allowanceRow.allowance,
+					lastUpdated: allowanceRow.lastUpdated,
 				}
-			})
-			.catch((err: Error) => {
-				if (!cancelled) allowanceError = err.message
-			})
-			.finally(() => {
-				if (!cancelled) allowanceLoading = false
-			})
-		return () => {
-			cancelled = true
-		}
+			: null
+		: null,
+	)
+	const allowanceError = $derived(
+		fastTransferSupported ? allowanceRow?.error ?? null : null,
+	)
+	const allowanceLoading = $derived(
+		fastTransferSupported ? allowanceRow?.isLoading ?? false : false,
+	)
+
+	// Actions
+	$effect(() => {
+		if (!fastTransferSupported) return
+		fetchCctpAllowance({ apiHost }).catch(() => {})
 	})
 </script>
 

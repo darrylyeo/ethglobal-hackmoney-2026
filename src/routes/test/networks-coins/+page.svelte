@@ -1,17 +1,20 @@
 <script lang="ts">
-	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { networksCollection } from '$/collections/networks'
-	import { coinsCollection } from '$/collections/coins'
+import { useLiveQuery, eq } from '@tanstack/svelte-db'
+import { DataSource } from '$/constants/data-sources'
+import { networksCollection } from '$/collections/networks'
+import { coinsCollection } from '$/collections/coins'
 
 	const networksQuery = useLiveQuery((q) =>
 		q
 			.from({ network: networksCollection })
+			.where(({ network }) => eq(network.$source, DataSource.Local))
 			.orderBy(({ network }) => network.id)
 			.select(({ network }) => ({ network })),
 	)
 	const coinsQuery = useLiveQuery((q) =>
 		q
 			.from({ coin: coinsCollection })
+			.where(({ coin }) => eq(coin.$source, DataSource.Local))
 			.orderBy(({ coin }) => coin.chainId)
 			.select(({ coin }) => ({ coin })),
 	)

@@ -3,6 +3,14 @@
  */
 
 import { ChainId } from '$/constants/networks'
+import type {
+	StorkAssetDefinition,
+	StorkAssetRegistryEntry,
+	StorkEndpoint,
+	StorkPushedAssetsByNetwork,
+	StorkPushedAsset,
+	StorkTokenSymbolEntry,
+} from '$/schema/constants/stork'
 
 export enum StorkRegion {
 	Dev = 'dev',
@@ -17,13 +25,6 @@ export enum StorkTransportType {
 export enum StorkEnvironment {
 	Development = 'development',
 	Production = 'production',
-}
-
-export type StorkEndpoint = {
-	region: StorkRegion
-	url: string
-	transportType: StorkTransportType
-	environment: StorkEnvironment
 }
 
 export const storkEndpoints: readonly StorkEndpoint[] = [
@@ -78,17 +79,6 @@ export const storkWebsocketUrl = storkWebsocketUrls[storkDefaultRegion]
 
 export enum StorkQuoteAsset {
 	Usd = 'USD',
-}
-
-export type StorkAssetRegistryEntry = {
-	assetId: string
-	encodedAssetId: string
-}
-
-export type StorkAssetDefinition = StorkAssetRegistryEntry & {
-	baseAsset: string
-	quoteAsset: StorkQuoteAsset
-	chainIds: readonly number[]
 }
 
 export const storkAssetEntries = [
@@ -495,11 +485,6 @@ export enum StorkTokenSymbol {
 	Zro = 'ZRO',
 }
 
-export type StorkTokenSymbolEntry = {
-	symbol: StorkTokenSymbol
-	assetId: string
-}
-
 export const storkTokenSymbolEntries = [
 	{ symbol: StorkTokenSymbol.Aave, assetId: 'AAVEUSD' },
 	{ symbol: StorkTokenSymbol.Ada, assetId: 'ADAUSD' },
@@ -565,20 +550,6 @@ export const storkTokenSymbolEntries = [
 export const storkAssetIdByTokenSymbol = Object.fromEntries(
 	storkTokenSymbolEntries.map((entry) => [entry.symbol, entry.assetId]),
 ) satisfies Record<StorkTokenSymbol, string>
-
-export type StorkPushedAsset = {
-	assetId: string
-	maxStalenessSeconds: number
-	minDeltaPercent: number
-}
-
-export type StorkPushedAssetsByNetwork = {
-	[network: string]: {
-		mainnet?: StorkPushedAsset[]
-		testnet?: StorkPushedAsset[]
-		dognet?: StorkPushedAsset[]
-	}
-}
 
 export const storkPushedAssetsByNetwork = {
 	'EDU Chain': {
