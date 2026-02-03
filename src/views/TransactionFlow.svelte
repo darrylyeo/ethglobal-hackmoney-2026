@@ -1,5 +1,10 @@
 <script lang="ts">
 	// Types/constants
+	import type {
+		ExplainAvailability,
+		ExplainContext,
+		ExplainRecord,
+	} from '$/lib/explain'
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 	import { networksByChainId } from '$/constants/networks'
@@ -21,6 +26,23 @@
 		error?: string
 		txHash?: `0x${string}`
 	}
+	type ExplainTarget = 'simulation' | 'execution'
+	type ExplainState = {
+		status: 'idle' | 'loading' | 'success' | 'error'
+		error: string | null
+		progress: number | null
+		record: ExplainRecord | null
+		cancel?: () => void
+	}
+	type ExplainDetails = {
+		summary?: string
+		gasUsed?: string
+		gasEstimated?: string
+		revertReason?: string
+		errorSelector?: string
+		traceSummary?: string
+		eventSummary?: string
+	}
 	type TransactionFlowItemState = {
 		simulation: {
 			status: SimulationStatus
@@ -31,6 +53,10 @@
 			status: ExecutionStatus
 			error: string | null
 			txHash: `0x${string}` | null
+		}
+		explanations: {
+			simulation: ExplainState
+			execution: ExplainState
 		}
 		confirmed: boolean
 	}
@@ -66,6 +92,7 @@
 
 	// Functions
 	import { createHttpProvider } from '$/api/voltaire'
+	import { createExplainProvider, createExplainRecord } from '$/lib/explain'
 	import { switchWalletChain } from '$/lib/wallet'
 
 	// Props
@@ -91,6 +118,22 @@
 	const hasSigner = $derived(Boolean(walletProvider && walletAddress))
 
 	// Functions
+	const isRecord = (value: unknown): value is Record<string, unknown> => (
+		typeof value === 'object' && value !== null
+	)
+	const toOptionalString = (value: unknown): string | undefined => (
+		typeof value === 'string' ?
+			value
+		: typeof value === 'number' || typeof value === 'bigint' ?
+			String(value)
+		: undefined
+	)
+	const createInitialExplainState = (): ExplainState => ({
+		status: 'idle',
+		error: null,
+		progress: null,
+		record: null,
+	})
 	const createInitialState = (): TransactionFlowItemState => ({
 		simulation: {
 			status: 'idle',
@@ -101,6 +144,10 @@
 			status: 'idle',
 			error: null,
 			txHash: null,
+		},
+		explanations: {
+			simulation: createInitialExplainState(),
+			execution: createInitialExplainState(),
 		},
 		confirmed: false,
 	})
@@ -115,6 +162,96 @@
 			[id]: update(getTxState(id)),
 		}
 	}
+	const updateExplainState = (
+		id: string,
+		kind: ExplainTarget,
+		update: (state: ExplainState) => ExplainState,
+	) => {
+		updateTxState(id, (state) => ({
+			...state,
+			explanations: {
+				...state.explanations,
+				[kind]: update(state.explanations[kind]),
+			},
+		}))
+	}
+	const extractExplainDetails = (value: unknown): ExplainDetails => (
+		!isRecord(value) ?
+			{}
+		:
+			(() => {
+				const gas = isRecord(value.gas) ? value.gas : null
+				const errors = isRecord(value.errors) ? value.errors : null
+				return {
+					summary: toOptionalString(value.summary),
+					gasUsed: toOptionalString(value.gasUsed ?? gas?.used),
+					gasEstimated: toOptionalString(value.gasEstimated ?? gas?.estimated),
+					revertReason: toOptionalString(value.revertReason ?? errors?.revertReason),
+					errorSelector: toOptionalString(value.errorSelector ?? errors?.errorSelector),
+					traceSummary: toOptionalString(value.traceSummary),
+					eventSummary: toOptionalString(value.eventSummary),
+				}
+			})()
+	)
+	const buildExplainContext = (
+		tx: TransactionFlowItemBase,
+		state: TransactionFlowItemState,
+		kind: ExplainTarget,
+	): ExplainContext => (
+		((details, error) => ({
+			kind,
+			sessionId: tx.id,
+			simulationId: kind === 'simulation' ? tx.id : undefined,
+			executionId: kind === 'execution' ? tx.id : undefined,
+			chainId: tx.chainId,
+			status:
+				kind === 'simulation' ?
+					state.simulation.status === 'success' ?
+						'success'
+					: details.revertReason || (error && error.toLowerCase().includes('revert')) ?
+						'revert'
+					:
+						'error'
+				: state.execution.status === 'completed' ?
+					'success'
+				: details.revertReason || (error && error.toLowerCase().includes('revert')) ?
+					'revert'
+				:
+					'error',
+			summary:
+				details.summary ??
+				(error ?
+					`${tx.title} ${kind} failed: ${error}`
+				:
+					`${tx.title} ${kind} ${
+						kind === 'simulation' && state.simulation.status === 'success' ?
+							'completed'
+						: kind === 'execution' && state.execution.status === 'completed' ?
+							'completed'
+						:
+							'failed'
+					}.`),
+			gas: {
+				used: details.gasUsed,
+				estimated: details.gasEstimated,
+			},
+			errors:
+				details.revertReason || details.errorSelector ?
+					{
+						revertReason: details.revertReason,
+						errorSelector: details.errorSelector,
+					}
+				: undefined,
+			traceSummary: details.traceSummary,
+			eventSummary: details.eventSummary,
+			txHash: kind === 'execution' ? state.execution.txHash ?? undefined : undefined,
+		}))(
+			extractExplainDetails(
+				kind === 'simulation' ? state.simulation.result : null,
+			),
+			kind === 'simulation' ? state.simulation.error : state.execution.error,
+		)
+	)
 	const updateExecution = (
 		id: string,
 		update: TransactionFlowExecutionUpdate,
@@ -128,6 +265,73 @@
 				txHash: update.txHash ?? state.execution.txHash,
 			},
 		}))
+	}
+	const refreshExplainAvailability = async () => {
+		explainAvailability = await createExplainProvider().availability()
+	}
+	const cancelExplain = (id: string, kind: ExplainTarget) => {
+		const cancel = getTxState(id).explanations[kind].cancel
+		if (cancel) cancel()
+		updateExplainState(id, kind, (state) => ({
+			...state,
+			status: 'idle',
+			error: null,
+			progress: null,
+			cancel: undefined,
+		}))
+	}
+	const explainTransaction = async (
+		tx: TransactionFlowItem,
+		kind: ExplainTarget,
+	) => {
+		const provider = createExplainProvider({
+			onProgress: (progress) => {
+				updateExplainState(tx.id, kind, (state) => ({
+					...state,
+					progress,
+				}))
+			},
+		})
+		updateExplainState(tx.id, kind, (state) => ({
+			...state,
+			status: 'loading',
+			error: null,
+			progress: null,
+			cancel: provider.cancel,
+		}))
+		try {
+			const availability = await provider.availability()
+			explainAvailability = availability
+			if (availability === 'unavailable') {
+				updateExplainState(tx.id, kind, (state) => ({
+					...state,
+					status: 'error',
+					error: 'Explain results unavailable.',
+					cancel: undefined,
+				}))
+				return
+			}
+			const output = await provider.explain({
+				context: buildExplainContext(tx, getTxState(tx.id), kind),
+				language: 'en',
+			})
+			updateExplainState(tx.id, kind, (state) => ({
+				...state,
+				status: 'success',
+				error: null,
+				progress: null,
+				record: createExplainRecord(output),
+				cancel: undefined,
+			}))
+		} catch (error) {
+			updateExplainState(tx.id, kind, (state) => ({
+				...state,
+				status: 'error',
+				error: error instanceof Error ? error.message : String(error),
+				progress: null,
+				cancel: undefined,
+			}))
+		}
 	}
 	const simulateTransaction = async (tx: TransactionFlowItem) => {
 		if (!tx.simulate || !walletAddress) return
@@ -195,6 +399,7 @@
 	}
 
 	// State
+	let explainAvailability = $state<ExplainAvailability>('unavailable')
 	let txOverrides = $state<Record<string, TransactionFlowItemState>>({})
 
 	// (Derived)
@@ -206,7 +411,13 @@
 			]),
 		),
 	)
+
+	$effect(() => {
+		if (typeof window === 'undefined') return
+		void refreshExplainAvailability()
+	})
 </script>
+
 
 <div data-column="gap-4" data-transaction-flow>
 	{#if Summary}
@@ -220,6 +431,8 @@
 	{:else}
 		{#each transactions as tx (tx.id)}
 			{@const txState = getTxState(tx.id)}
+			{@const simulationExplain = txState.explanations.simulation}
+			{@const executionExplain = txState.explanations.execution}
 			{@const network = networksByChainId[tx.chainId]}
 			{@const needsChainSwitch = Boolean(
 				walletProvider &&
@@ -269,6 +482,62 @@
 							<span data-error>{txState.simulation.error}</span>
 						{/if}
 					</div>
+					{#if
+						txState.simulation.status === 'success' ||
+						txState.simulation.status === 'failed'}
+						<div data-row="gap-2 align-center wrap">
+							<Button.Root
+								type="button"
+								onclick={() => explainTransaction(tx, 'simulation')}
+								disabled={
+									simulationExplain.status === 'loading' ||
+									explainAvailability === 'unavailable'
+								}
+							>
+								{simulationExplain.status === 'loading'
+									? 'Explaining…'
+									: 'Explain results'}
+							</Button.Root>
+							{#if
+								explainAvailability === 'downloading' &&
+								simulationExplain.status !== 'loading'}
+								<span data-muted>Model downloading…</span>
+							{:else if explainAvailability === 'unavailable'}
+								<span data-muted>Explain unavailable.</span>
+								<a href="/about#explain-results-fallback">Set up hosted fallback</a>
+							{/if}
+							{#if simulationExplain.status === 'loading'}
+								<span data-muted>
+									{simulationExplain.progress !== null
+										? `Downloading model ${Math.round(
+												simulationExplain.progress * 100,
+											)}%`
+										: 'Generating explanation…'}
+								</span>
+								<Button.Root
+									type="button"
+									onclick={() => cancelExplain(tx.id, 'simulation')}
+								>
+									Cancel
+								</Button.Root>
+							{/if}
+						</div>
+						{#if simulationExplain.status === 'error'}
+							<p data-error>
+								{simulationExplain.error ?? 'Explanation failed.'}
+							</p>
+						{:else if simulationExplain.status === 'success'}
+							<div data-card="secondary" data-column="gap-2">
+								<p>{simulationExplain.record?.text}</p>
+								{#if simulationExplain.record}
+									<small data-muted>
+										{simulationExplain.record.provider} ·
+										{simulationExplain.record.createdAt}
+									</small>
+								{/if}
+							</div>
+						{/if}
+					{/if}
 				{/if}
 
 				{#if txState.execution.status === 'failed'}
@@ -277,6 +546,60 @@
 
 				{#if txState.execution.txHash}
 					<p data-muted>{txState.execution.txHash.slice(0, 8)}…</p>
+				{/if}
+				{#if
+					txState.execution.status === 'completed' ||
+					txState.execution.status === 'failed'}
+					<div data-row="gap-2 align-center wrap">
+						<Button.Root
+							type="button"
+							onclick={() => explainTransaction(tx, 'execution')}
+							disabled={
+								executionExplain.status === 'loading' ||
+								explainAvailability === 'unavailable'
+							}
+						>
+							{executionExplain.status === 'loading'
+								? 'Explaining…'
+								: 'Explain results'}
+						</Button.Root>
+						{#if
+							explainAvailability === 'downloading' &&
+							executionExplain.status !== 'loading'}
+							<span data-muted>Model downloading…</span>
+						{:else if explainAvailability === 'unavailable'}
+							<span data-muted>Explain unavailable.</span>
+							<a href="/about#explain-results-fallback">Set up hosted fallback</a>
+						{/if}
+						{#if executionExplain.status === 'loading'}
+							<span data-muted>
+								{executionExplain.progress !== null
+									? `Downloading model ${Math.round(
+											executionExplain.progress * 100,
+										)}%`
+									: 'Generating explanation…'}
+							</span>
+							<Button.Root
+								type="button"
+								onclick={() => cancelExplain(tx.id, 'execution')}
+							>
+								Cancel
+							</Button.Root>
+						{/if}
+					</div>
+					{#if executionExplain.status === 'error'}
+						<p data-error>{executionExplain.error ?? 'Explanation failed.'}</p>
+					{:else if executionExplain.status === 'success'}
+						<div data-card="secondary" data-column="gap-2">
+							<p>{executionExplain.record?.text}</p>
+							{#if executionExplain.record}
+								<small data-muted>
+									{executionExplain.record.provider} ·
+									{executionExplain.record.createdAt}
+								</small>
+							{/if}
+						</div>
+					{/if}
 				{/if}
 
 				{#if needsChainSwitch && walletProvider}

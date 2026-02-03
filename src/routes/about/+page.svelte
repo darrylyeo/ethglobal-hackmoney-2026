@@ -58,6 +58,20 @@
 	<section class="diagram-section" aria-label="Architecture diagram">
 		<ArchitectureGraph />
 	</section>
+	<section
+		id="explain-results-fallback"
+		data-column="gap-2"
+		aria-label="Explain results fallback"
+	>
+		<h2>Explain results fallback</h2>
+		<p>
+			Enable the hosted explanation fallback by setting the following env vars:
+		</p>
+		<ul data-list="gap-1">
+			<li><code>PUBLIC_EXPLAIN_LLM_ENDPOINT</code></li>
+			<li><code>PUBLIC_EXPLAIN_LLM_API_KEY</code> (optional)</li>
+		</ul>
+	</section>
 	<section data-column="gap-2">
 		<h2>Navigation</h2>
 		<ul data-list="gap-1">
