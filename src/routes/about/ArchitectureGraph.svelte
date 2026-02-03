@@ -3,13 +3,30 @@
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
 	import type {
 		ArchitectureEdge,
-		ArchitectureGraphModel,
 		ArchitectureNode,
-	} from '$/lib/architecture-graph'
+	} from './architecture-graph'
+
+	type TooltipItem = {
+		id: string
+		data?: {
+			label?: string
+			details?: Record<string, string>
+		}
+	}
 
 	// Functions
 	import { Graph, EdgeEvent, NodeEvent } from '@antv/g6'
-	import { getArchitectureGraphModel } from '$/lib/architecture-graph'
+	import { getArchitectureGraphModel } from './architecture-graph'
+
+	const getEventTargetId = (event: unknown): string | null => {
+		if (typeof event !== 'object' || event == null) return null
+		if (!('target' in event)) return null
+		const target = event.target
+		if (typeof target !== 'object' || target == null) return null
+		if (!('id' in target)) return null
+		const id = target.id
+		return typeof id === 'string' ? id : null
+	}
 
 	// State
 	let hoveredId = $state<string | null>(null)
@@ -18,7 +35,9 @@
 	const model = $derived(getArchitectureGraphModel())
 </script>
 
+
 <div class="architecture-graph-wrap">
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 	<div
 		role="application"
 		tabindex="0"
@@ -193,14 +212,11 @@
 				plugins: [
 					{
 						type: 'tooltip',
-						getContent: (_event, items) => {
+						getContent: (_event: unknown, items?: TooltipItem[]) => {
 							const [item] = items ?? []
 							if (!item) return ''
-							const details = (item.data?.details ?? {}) as Record<
-								string,
-								string
-							>
-							const detailsMarkup = Object.entries(details)
+							const details = item.data?.details
+							const detailsMarkup = Object.entries(details ?? {})
 								.filter(([_, v]) => v !== undefined && v !== null && v !== '')
 								.map(([k, v]) => `<div><strong>${k}:</strong> ${v}</div>`)
 								.join('')
@@ -212,15 +228,13 @@
 			graph.render()
 
 			graph.on(NodeEvent.POINTER_OVER, (event) => {
-				const id = typeof event.target?.id === 'string' ? event.target.id : null
-				hoveredId = id
+				hoveredId = getEventTargetId(event)
 			})
 			graph.on(NodeEvent.POINTER_OUT, () => {
 				hoveredId = null
 			})
 			graph.on(EdgeEvent.POINTER_OVER, (event) => {
-				const id = typeof event.target?.id === 'string' ? event.target.id : null
-				hoveredId = id
+				hoveredId = getEventTargetId(event)
 			})
 			graph.on(EdgeEvent.POINTER_OUT, () => {
 				hoveredId = null
@@ -281,6 +295,7 @@
 		</div>
 	{/if}
 </div>
+
 
 <style>
 	.architecture-graph-wrap {
