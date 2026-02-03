@@ -12,7 +12,7 @@ import {
 	connectToRoom,
 	type RoomConnection,
 	type RoomMessage,
-} from '$/lib/partykit'
+} from '$/lib/room'
 import { verifySiweSignature } from '$/lib/siwe'
 import type { TransferRequest } from '$/data/TransferRequest'
 import type { Room } from '$/data/Room'
@@ -62,6 +62,7 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 		(r) => r.id,
 	)
 	for (const p of state.peers) {
+		if (p.peerId === roomState.peerId) continue
 		upsert(
 			roomPeersCollection,
 			{ ...p, $source: DataSource.PartyKit },

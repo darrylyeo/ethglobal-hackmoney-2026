@@ -2,38 +2,31 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import { DataSource } from '$/constants/data-sources'
-	import { untrack } from 'svelte'
+
+	// Context
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { resolve } from '$app/paths'
+	import { roomPeersCollection } from '$/collections/room-peers'
+	import { roomState, joinRoom, leaveRoom } from '$/state/room.svelte'
 
 	// Props
 	let { data }: { data: { roomId: string } } = $props()
 
+	// (Derived)
+	const roomId = $derived(data.roomId)
+
+	// Functions
+	import { renderSVG } from 'uqr'
+	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/room'
+	import { untrack } from 'svelte'
+
 	// State
-	import { getOrCreatePeerDisplayName } from '$/lib/partykit'
-	import { roomState, joinRoom, leaveRoom } from '$/state/room.svelte'
-	import Wallets from '$/views/Wallets.svelte'
-
-	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { roomPeersCollection } from '$/collections/room-peers'
-
-	// Components
-	import AddressSharing from '../AddressSharing.svelte'
-	import Peer from '../Peer.svelte'
-	import PeerCard from '../PeerCard.svelte'
-
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
 	let selectedChainId = $state<number | null>(null)
+	let leaveToken = 0
 
-	const roomId = $derived(data.roomId)
-	const selectedWallets = $derived(
-		connectedWallets.filter((w) => w.connection.selected),
-	)
-	const selectedAddresses = $derived([
-		...new Set(selectedWallets.flatMap((w) => w.connection.actors ?? [])),
-	])
-	const provider = $derived(selectedWallets[0]?.wallet.provider ?? null)
-
+	// (Derived)
 	const peersQuery = useLiveQuery(
 		(q) =>
 			q
@@ -43,13 +36,27 @@
 				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
-	const peers = $derived((peersQuery.data ?? []).map((r) => r.row))
-	const me = $derived(peers.find((p) => p.peerId === roomState.peerId))
-	const others = $derived(peers.filter((p) => p.peerId !== roomState.peerId))
-	const connectedOthers = $derived(others.filter((p) => p.isConnected))
-	const disconnectedOthers = $derived(others.filter((p) => !p.isConnected))
+	const others = $derived(
+		(peersQuery.data ?? [])
+			.map((r) => r.row)
+			.filter((p) => p.peerId !== roomState.peerId),
+	)
+	const selectedWallets = $derived(
+		connectedWallets.filter((w) => w.connection.selected),
+	)
+	const selectedAddresses = $derived([
+		...new Set(selectedWallets.flatMap((w) => w.connection.actors ?? [])),
+	])
+	const provider = $derived(selectedWallets[0]?.wallet.provider ?? null)
+	const roomDisplayName = $derived(roomIdToDisplayName(roomId))
+	const roomShareUrl = $derived(
+		typeof globalThis !== 'undefined' &&
+		'location' in globalThis &&
+		globalThis.location
+			? `${globalThis.location.origin}${resolve(`/rooms/${roomId}`)}`
+			: resolve(`/rooms/${roomId}`),
+	)
 
-	let leaveToken = 0
 	$effect(() => {
 		leaveToken++
 		const id = roomId
@@ -64,29 +71,67 @@
 			})
 		}
 	})
+
+	// Components
+	import Wallets from '$/views/Wallets.svelte'
+	import AddressSharing from '../AddressSharing.svelte'
+	import Peer from '../Peer.svelte'
+	import PeerCard from '../PeerCard.svelte'
 </script>
 
+
 <svelte:head>
-	<title>Room {roomId}</title>
+	<title>{roomDisplayName}</title>
 </svelte:head>
 
-<main id="main-content">
-	<h1>Room {roomId}</h1>
 
-	<p>
-		<a href="/rooms/{roomId}/channels">Channels</a>
-		·
-		<a
-			href="/rooms"
-			onclick={() => {
-				leaveRoom()
-			}}
-		>
-			Leave room
-		</a>
-	</p>
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
+	<section data-scroll-item>
+		<h1>{roomDisplayName}</h1>
 
-	<details open data-card>
+		<p>
+			<a href={resolve(`/rooms/${roomId}/channels`)}>Channels</a>
+			·
+			<a
+				href={resolve('/rooms')}
+				onclick={() => {
+					leaveRoom()
+				}}
+			>
+				Leave room
+			</a>
+		</p>
+	</section>
+
+	<section data-scroll-item data-card="secondary" data-room-share>
+		<h2>Share</h2>
+		<div data-row="wrap gap-3">
+			<div data-qr>
+				<img
+					alt={`${roomDisplayName} QR code`}
+					src={roomShareUrl
+						? `data:image/svg+xml;utf8,${encodeURIComponent(renderSVG(roomShareUrl))}`
+						: ''}
+				/>
+			</div>
+			<div data-column="gap-2">
+				<p>{roomDisplayName}</p>
+				<a
+					href={resolve(`/rooms/${roomId}`)}
+					title={roomShareUrl}
+				>
+					Open room link
+				</a>
+			</div>
+		</div>
+	</section>
+
+	<section data-scroll-item>
+		<details open data-card>
 		<summary>
 			<header data-card="secondary" data-row="wrap gap-2">
 				<Wallets
@@ -101,7 +146,17 @@
 		<div data-column="gap-6" data-room-structure>
 			<section data-me data-card="secondary">
 				<h2>Me</h2>
-				{#if me}
+				{#if roomState.peerId}
+					{@const me = {
+						id: `${roomId}:${roomState.peerId}`,
+						roomId,
+						peerId: roomState.peerId,
+						displayName: getOrCreatePeerDisplayName(),
+						joinedAt: 0,
+						lastSeenAt: 0,
+						connectedAt: 0,
+						isConnected: true,
+					}}
 					<header data-row="wrap gap-2 align-center">
 						<Peer peer={me} />
 					</header>
@@ -116,20 +171,22 @@
 				{#if others.length === 0}
 					<p>No other peers in this room.</p>
 				{:else}
-					{#if connectedOthers.length > 0}
+					{@const connected = others.filter((p) => p.isConnected)}
+					{@const disconnected = others.filter((p) => !p.isConnected)}
+					{#if connected.length > 0}
 						<ul data-peer-cards>
-							{#each connectedOthers as peer (peer.id)}
+							{#each connected as peer (peer.id)}
 								<li>
 									<PeerCard {peer} {roomId} {provider} />
 								</li>
 							{/each}
 						</ul>
 					{/if}
-					{#if disconnectedOthers.length > 0}
+					{#if disconnected.length > 0}
 						<details data-disconnected-peers>
-							<summary>Disconnected ({disconnectedOthers.length})</summary>
+							<summary>Disconnected ({disconnected.length})</summary>
 							<ul data-peer-cards>
-								{#each disconnectedOthers as peer (peer.id)}
+								{#each disconnected as peer (peer.id)}
 									<li>
 										<PeerCard {peer} {roomId} {provider} />
 									</li>
@@ -140,5 +197,6 @@
 				{/if}
 			</section>
 		</div>
-	</details>
+		</details>
+	</section>
 </main>

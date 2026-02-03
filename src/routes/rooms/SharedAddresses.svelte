@@ -11,6 +11,9 @@
 	import { roomPeersCollection } from '$/collections/room-peers'
 	import { roomState } from '$/state/room.svelte'
 
+	// Functions
+	import { getOrCreatePeerDisplayName } from '$/lib/room'
+
 	const sharedQuery = useLiveQuery(
 		(q) =>
 			q
@@ -33,7 +36,9 @@
 	const shared = $derived((sharedQuery.data ?? []).map((r) => r.row))
 	const peers = $derived((peersQuery.data ?? []).map((r) => r.row))
 	const getPeerName = (peerId: string) =>
-		peers.find((p) => p.peerId === peerId)?.displayName ?? peerId.slice(0, 8)
+		peerId === roomState.peerId
+			? getOrCreatePeerDisplayName()
+			: peers.find((p) => p.peerId === peerId)?.displayName ?? peerId.slice(0, 8)
 
 	// Components
 	import Address from '$/components/Address.svelte'

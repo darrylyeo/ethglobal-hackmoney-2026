@@ -5,16 +5,18 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { resolve } from '$app/paths'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
 	import { walletsCollection } from '$/collections/wallets'
-	import { getOrCreatePeerDisplayName } from '$/lib/partykit'
 	import { roomState, joinRoom, leaveRoom } from '$/state/room.svelte'
-	import { untrack } from 'svelte'
 
 	// Props
 	let { data }: { data: { roomId: string } } = $props()
 
 	// Functions
+	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/room'
+	import { untrack } from 'svelte'
+
 	const isEip1193Provider = (value: unknown): value is EIP1193Provider =>
 		typeof value === 'object' &&
 		value !== null &&
@@ -23,6 +25,7 @@
 
 	// (Derived)
 	const roomId = $derived(data.roomId)
+	const roomDisplayName = $derived(roomIdToDisplayName(roomId))
 	const walletsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: walletsCollection })
@@ -68,15 +71,21 @@
 	import TransferRequests from '../../TransferRequests.svelte'
 </script>
 
+
 <svelte:head>
-	<title>Channels – Room {roomId}</title>
+	<title>Channels – {roomDisplayName}</title>
 </svelte:head>
 
-<main id="main-content">
-	<h1>Channels – Room {roomId}</h1>
+
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
+	<h1>Channels – {roomDisplayName}</h1>
 
 	<p>
-		<a href="/rooms/{roomId}">Back to room</a>
+		<a href={resolve(`/rooms/${roomId}`)}>Back to room</a>
 	</p>
 
 	<section data-column="gap-6">

@@ -4,11 +4,13 @@
 
 import PartySocket from 'partysocket'
 import {
-	PEER_ADJECTIVES,
-	PEER_ANIMALS,
-	PEER_ANIMAL_EMOJI,
-	PEER_ANIMAL_EMOJI_LIST,
+	adjectives as peerAdjectives,
+	nouns as peerNouns,
 } from '$/constants/peer-display-names'
+import {
+	adjectives as roomAdjectives,
+	nouns as roomNouns,
+} from '$/constants/room-display-names'
 
 export type RoomMessage =
 	| { type: 'join'; displayName?: string }
@@ -79,11 +81,77 @@ export const connectToRoom = (roomId: string): RoomConnection => {
 	}
 }
 
-export const generateRoomCode = () =>
-	Math.random().toString(36).substring(2, 8).toUpperCase()
+
+// Room ID encoding: hex string <-> human-readable "Adjective Noun" pairs
+// Each pair encodes `adjectives.length * nouns.length` values (~2352 with current lists)
+
+const ROOM_PAIR_BASE = BigInt(roomAdjectives.length * roomNouns.length)
+const ROOM_ID_BYTES = 4
+const ROOM_ID_MIN_PAIRS = 2
+
+export const generateRoomId = () => {
+	const bytes = crypto.getRandomValues(new Uint8Array(ROOM_ID_BYTES))
+	return (
+		[...bytes]
+			.map((b) => b.toString(16).padStart(2, '0'))
+			.join('')
+	)
+}
+
+export const roomIdToDisplayName = (roomId: string) => {
+	const value = BigInt(`0x${roomId}`)
+	const pairs: string[] = []
+	let remaining = value
+
+	do {
+		const pairIndex = Number(remaining % ROOM_PAIR_BASE)
+		const adjIndex = Math.floor(pairIndex / roomNouns.length)
+		const nounIndex = pairIndex % roomNouns.length
+		pairs.push(`${roomAdjectives[adjIndex].adjective} ${roomNouns[nounIndex].noun}`)
+		remaining = remaining / ROOM_PAIR_BASE
+	} while (remaining > 0n)
+
+	while (pairs.length < ROOM_ID_MIN_PAIRS)
+		pairs.push(`${roomAdjectives[0].adjective} ${roomNouns[0].noun}`)
+
+	return pairs.reverse().join(' ')
+}
+
+const roomAdjectiveIndex = new Map(
+	roomAdjectives.map((entry, index) => [entry.adjective.toLowerCase(), index]),
+)
+const roomNounIndex = new Map(
+	roomNouns.map((entry, index) => [entry.noun.toLowerCase(), index]),
+)
+
+export const displayNameToRoomId = (displayName: string) => {
+	const words = displayName.trim().toLowerCase().split(/\s+/).filter(Boolean)
+	if (words.length === 0 || words.length % 2 !== 0) return null
+
+	const pairs: number[] = []
+	for (let i = 0; i < words.length; i += 2) {
+		const adjIdx = roomAdjectiveIndex.get(words[i])
+		const nounIdx = roomNounIndex.get(words[i + 1])
+		if (adjIdx === undefined || nounIdx === undefined) return null
+		pairs.push(adjIdx * roomNouns.length + nounIdx)
+	}
+
+	let value = 0n
+	for (const pairIndex of pairs) {
+		value = value * ROOM_PAIR_BASE + BigInt(pairIndex)
+	}
+
+	return value.toString(16).padStart(ROOM_ID_BYTES * 2, '0')
+}
+
+export const normalizeRoomInput = (input: string) => {
+	const trimmed = input.trim()
+	if (/^[0-9a-f]+$/i.test(trimmed)) return trimmed.toLowerCase()
+	return displayNameToRoomId(trimmed)
+}
 
 export const generatePeerDisplayName = (): string =>
-	`${PEER_ADJECTIVES[Math.floor(Math.random() * PEER_ADJECTIVES.length)]} ${PEER_ANIMALS[Math.floor(Math.random() * PEER_ANIMALS.length)]}`
+	`${peerAdjectives[Math.floor(Math.random() * peerAdjectives.length)].adjective} ${peerNouns[Math.floor(Math.random() * peerNouns.length)].noun}`
 
 const PEER_DISPLAY_NAME_KEY = 'room-peer-display-name'
 
@@ -109,16 +177,21 @@ export const peerNameToEmoji = (
 	displayName: string | undefined,
 	fallbackId: string,
 ): string => {
+	const peerNounsByName = new Map(
+		peerNouns.map((entry) => [entry.noun, entry.icon]),
+	)
+	const peerNounIcons = [...new Set(peerNouns.map((entry) => entry.icon))]
+
 	if (displayName) {
 		const parts = displayName.trim().split(/\s+/)
 		const animal = parts[parts.length - 1]
-		if (animal && animal in PEER_ANIMAL_EMOJI)
-			return PEER_ANIMAL_EMOJI[animal as keyof typeof PEER_ANIMAL_EMOJI]
+		const emoji = peerNounsByName.get(animal)
+		if (emoji) return emoji
 	}
-	return PEER_ANIMAL_EMOJI_LIST[
-		simpleHash(fallbackId) % PEER_ANIMAL_EMOJI_LIST.length
+	return peerNounIcons[
+		simpleHash(fallbackId) % peerNounIcons.length
 	]
 }
 
 export const createRoom = (_name?: string): Promise<string> =>
-	Promise.resolve(generateRoomCode())
+	Promise.resolve(generateRoomId())
