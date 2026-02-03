@@ -114,13 +114,23 @@ test.describe('Keyboard navigation', () => {
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
-		await page.getByLabel('From chain').click()
+		await page.getByLabel('From chain').focus()
+		await page.getByLabel('From chain').press('ArrowDown')
+		await page
+			.getByRole('option', { name: 'Ethereum' })
+			.waitFor({ state: 'visible', timeout: 10_000 })
 		await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
-		await page.getByLabel('To chain').click()
+		await page.getByLabel('To chain').focus()
+		await page.getByLabel('To chain').press('ArrowDown')
 		await page
 			.getByRole('option', { name: 'OP Mainnet' })
+			.last()
+			.waitFor({ state: 'visible', timeout: 10_000 })
+		await page
+			.getByRole('option', { name: 'OP Mainnet' })
+			.last()
 			.click({ force: true })
-		await page.getByLabel('Amount').fill('1')
+		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 		await Promise.race([
 			page
 				.locator('[data-testid="quote-result"]')

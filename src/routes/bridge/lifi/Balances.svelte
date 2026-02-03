@@ -158,15 +158,17 @@
 	import StorkPrices from '$/views/StorkPrices.svelte'
 </script>
 
-{#if selectedActor && balances.length > 0}
+{#if selectedActor}
 	<section class="balances">
 		<h3>Your balances</h3>
-		{#if netWorthUsd !== null}
-			<p class="net-worth">
-				Net worth: ${formatSmallestToDecimal(netWorthUsd, 18, 2)}
-			</p>
+		{#if balances.length > 0}
+			{#if netWorthUsd !== null}
+				<p class="net-worth">
+					Net worth: ${formatSmallestToDecimal(netWorthUsd, 18, 2)}
+				</p>
+			{/if}
 		{/if}
-		<div class="balances-grid">
+		<div class="balances-grid" data-balances-grid>
 			{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
 				{@const token = filteredTokenListCoins.find(
 					(entry) =>

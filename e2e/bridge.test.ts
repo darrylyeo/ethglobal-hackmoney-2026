@@ -53,10 +53,10 @@ test.describe('Bridge UI (Spec 004)', () => {
 			.getByRole('option', { name: 'OP Mainnet' })
 			.last()
 			.click({ force: true })
-		await page.getByLabel('Amount').fill('1')
+		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 		await expect(page.locator('[data-from-chain]')).toBeVisible()
 		await expect(page.locator('[data-to-chain]')).toBeVisible()
-		await expect(page.getByLabel('Amount')).toHaveValue('1')
+		await expect(page.getByRole('textbox', { name: 'Amount' })).toHaveValue('1')
 	})
 
 	test('routes auto-fetch after chains and amount; quote result or no-routes or error visible', async ({
@@ -104,7 +104,7 @@ test.describe('Bridge UI (Spec 004)', () => {
 			.getByRole('option', { name: 'OP Mainnet' })
 			.last()
 			.click({ force: true })
-		await page.getByLabel('Amount').fill('1')
+		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 		await Promise.race([
 			page
 				.locator('[data-testid="quote-result"]')

@@ -29,18 +29,28 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 15_000,
 		})
-		await page.getByLabel('From chain').click()
+		await page.getByLabel('From chain').focus()
+		await page.getByLabel('From chain').press('ArrowDown')
+		await page
+			.getByRole('option', { name: /Ethereum|Base|Arbitrum/ })
+			.first()
+			.waitFor({ state: 'visible', timeout: 10_000 })
 		await page
 			.getByRole('option', { name: /Ethereum|Base|Arbitrum/ })
 			.first()
 			.click({ force: true })
-		await page.getByLabel('To chain').click()
+		await page.getByLabel('To chain').focus()
+		await page.getByLabel('To chain').press('ArrowDown')
+		await page
+			.getByRole('option', { name: /Ethereum|Base|Arbitrum/ })
+			.first()
+			.waitFor({ state: 'visible', timeout: 10_000 })
 		await page
 			.getByRole('option', { name: /Ethereum|Base|Arbitrum/ })
 			.first()
 			.click({ force: true })
-		await page.getByLabel('Amount').fill('1')
-		await expect(page.getByLabel('Amount')).toHaveValue('1')
+		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
+		await expect(page.getByRole('textbox', { name: 'Amount' })).toHaveValue('1')
 	})
 
 	test('Fast Transfer fee and allowance displayed', async ({ page }) => {
@@ -55,10 +65,15 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 15_000,
 		})
-		await page.getByLabel('From chain').click()
-		await page.getByRole('option').first().click({ force: true })
-		await page.getByLabel('To chain').click()
-		await page.getByRole('option').nth(1).click({ force: true })
+		await page.getByLabel('From chain').focus()
+		await page.getByLabel('From chain').press('ArrowDown')
+		await page.getByRole('option').first().waitFor({ state: 'visible', timeout: 10_000 })
+		await page.keyboard.press('Enter')
+		await page.getByLabel('To chain').focus()
+		await page.getByLabel('To chain').press('ArrowDown')
+		await page.getByRole('option').nth(1).waitFor({ state: 'visible', timeout: 10_000 })
+		await page.keyboard.press('ArrowDown')
+		await page.keyboard.press('Enter')
 		await expect(page.getByText(/bps|Loading fees/).first()).toBeVisible({
 			timeout: 15_000,
 		})
@@ -88,7 +103,7 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 		await page.getByRole('option').first().click({ force: true })
 		await page.getByLabel('To chain').click()
 		await page.getByRole('option').nth(1).click({ force: true })
-		await page.getByLabel('Amount').fill('0.01')
+		await page.getByRole('textbox', { name: 'Amount' }).fill('0.01')
 		await expect(
 			page.getByRole('button', { name: 'Bridge via CCTP' }),
 		).toBeEnabled({

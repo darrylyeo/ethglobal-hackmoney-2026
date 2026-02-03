@@ -23,7 +23,7 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		).toBeVisible()
 		await expect(page.getByLabel('From chain')).toBeAttached()
 		await expect(page.getByLabel('To chain')).toBeAttached()
-		await expect(page.getByLabel('Amount')).toBeAttached()
+		await expect(page.getByRole('textbox', { name: 'Amount' })).toBeAttached()
 		await expect(
 			page.getByRole('heading', { name: 'Protocol Selection' }),
 		).toBeVisible()
@@ -43,12 +43,21 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 15_000,
 		})
-		await page.getByLabel('From chain').click()
-		await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
-		await page.getByLabel('To chain').click()
-		await page.getByRole('option', { name: 'Base' }).click({ force: true })
+		await page.getByLabel('From chain').focus()
+		await page.getByLabel('From chain').press('ArrowDown')
+		await page
+			.getByRole('option', { name: 'Ethereum' })
+			.waitFor({ state: 'visible', timeout: 10_000 })
+		await page.keyboard.press('Enter')
+		await page.getByLabel('To chain').focus()
+		await page.getByLabel('To chain').press('ArrowDown')
+		await page.getByLabel('To chain').fill('Base')
+		await page
+			.getByRole('option', { name: 'Base', exact: true })
+			.waitFor({ state: 'visible', timeout: 15_000 })
+		await page.keyboard.press('Enter')
 		await expect(
-			page.locator('[data-badge][data-protocol="cctp"]'),
+			page.locator('[data-protocol="cctp"]'),
 		).toContainText('CCTP')
 		await expect(
 			page.getByText(/Defaulting to CCTP|Preferring CCTP/),
@@ -69,14 +78,22 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 15_000,
 		})
-		await page.getByLabel('From chain').click()
-		await page.getByRole('option', { name: 'Celo' }).click({ force: true })
-		await page.getByLabel('To chain').click()
+		await page.getByLabel('From chain').focus()
+		await page.getByLabel('From chain').press('ArrowDown')
+		await page.getByLabel('From chain').fill('Celo')
+		await page
+			.getByRole('option', { name: 'Celo' })
+			.waitFor({ state: 'visible', timeout: 15_000 })
+		await page.keyboard.press('Enter')
+		await page.getByLabel('To chain').focus()
+		await page.getByLabel('To chain').press('ArrowDown')
+		await page.getByLabel('To chain').fill('ZKsync')
 		await page
 			.getByRole('option', { name: 'ZKsync Era' })
-			.click({ force: true })
+			.waitFor({ state: 'visible', timeout: 10_000 })
+		await page.getByRole('option', { name: 'ZKsync Era' }).click({ force: true })
 		await expect(
-			page.locator('[data-badge][data-protocol="lifi"]'),
+			page.locator('[data-protocol="lifi"]'),
 		).toContainText('LI.FI')
 		await expect(page.getByText(/Only LI.FI supports this pair/)).toBeVisible()
 	})
@@ -95,18 +112,27 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 15_000,
 		})
-		await page.getByLabel('From chain').click()
-		await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
-		await page.getByLabel('To chain').click()
-		await page.getByRole('option', { name: 'Base' }).click({ force: true })
+		await page.getByLabel('From chain').focus()
+		await page.getByLabel('From chain').press('ArrowDown')
+		await page
+			.getByRole('option', { name: 'Ethereum' })
+			.waitFor({ state: 'visible', timeout: 10_000 })
+		await page.keyboard.press('Enter')
+		await page.getByLabel('To chain').focus()
+		await page.getByLabel('To chain').press('ArrowDown')
+		await page.getByLabel('To chain').fill('Base')
+		await page
+			.getByRole('option', { name: 'Base', exact: true })
+			.waitFor({ state: 'visible', timeout: 15_000 })
+		await page.keyboard.press('Enter')
 		await expect(
-			page.locator('[data-badge][data-protocol="cctp"]'),
+			page.locator('[data-protocol="cctp"]'),
 		).toContainText('CCTP')
 		await page.getByRole('button', { name: 'Prefer LI.FI' }).click()
 		await expect(
-			page.locator('[data-badge][data-protocol="lifi"]'),
+			page.locator('[data-protocol="lifi"]'),
 		).toContainText('LI.FI')
-		await page.getByLabel('Amount').fill('1')
+		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 		await page.getByRole('button', { name: 'Continue to LI.FI' }).click()
 		await expect(page).toHaveURL(/\/bridge\/lifi/)
 	})

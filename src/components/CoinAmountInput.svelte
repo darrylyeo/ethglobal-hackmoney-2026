@@ -135,6 +135,7 @@
 		step="1"
 		value={sliderValue}
 		{disabled}
+		aria-label={ariaLabel ? `${ariaLabel} range` : 'Amount range'}
 		oninput={onSliderInput}
 		style={`--slider-progress:${sliderProgress}%`}
 	/>

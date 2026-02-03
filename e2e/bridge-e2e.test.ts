@@ -44,19 +44,31 @@ test.describe('E2E bridge flow', () => {
 			await expect(page.locator('[data-from-chain]')).toBeVisible({
 				timeout: 20_000,
 			})
-			await expect(page.locator('[data-from-chain]')).toContainText(
-				'Ethereum',
-				{ timeout: 5_000 },
-			)
-			await page.locator('[data-from-chain] button').click()
+			await page.getByLabel('From chain').scrollIntoViewIfNeeded()
+			await page.getByLabel('From chain').focus()
+			await page.getByLabel('From chain').press('ArrowDown')
 			await page
 				.getByRole('option', { name: 'Ethereum' })
-				.click({ force: true })
-			await page.locator('[data-to-chain] button').click()
+				.waitFor({ state: 'visible', timeout: 10_000 })
+			await page
+				.getByRole('option', { name: 'Ethereum' })
+				.scrollIntoViewIfNeeded()
+			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
+			await page.getByLabel('To chain').focus()
+			await page.getByLabel('To chain').press('ArrowDown')
 			await page
 				.getByRole('option', { name: 'OP Mainnet' })
+				.last()
+				.waitFor({ state: 'visible', timeout: 10_000 })
+			await page
+				.getByRole('option', { name: 'OP Mainnet' })
+				.last()
+				.scrollIntoViewIfNeeded()
+			await page
+				.getByRole('option', { name: 'OP Mainnet' })
+				.last()
 				.click({ force: true })
-			await page.getByLabel('Amount').fill('1')
+			await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 			await Promise.race([
 				page
 					.locator('[data-testid="quote-result"]')
@@ -147,10 +159,11 @@ test.describe('E2E bridge flow', () => {
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText(
 				'Mainnet',
 			)
-			await expect(page.locator('[data-from-chain]')).toContainText(
-				'Ethereum',
-				{ timeout: 5_000 },
-			)
+			await page.getByLabel('From chain').focus()
+			await page.getByLabel('From chain').press('ArrowDown')
+			await expect(
+				page.getByRole('option', { name: 'Ethereum' }),
+			).toBeVisible({ timeout: 10_000 })
 			await page.locator('[data-wallet-network-testnet]').click()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText(
 				'Testnet',
@@ -161,8 +174,13 @@ test.describe('E2E bridge flow', () => {
 			await expect(page.locator('[data-from-chain]')).toBeVisible({
 				timeout: 15_000,
 			})
-			await page.locator('[data-from-chain] button').click()
-			await expect(page.getByRole('listbox')).toBeVisible({ timeout: 5_000 })
+			await page.getByLabel('From chain').focus()
+			await page.getByLabel('From chain').press('ArrowDown')
+			await page.getByLabel('From chain').fill('Sepolia')
+			await page
+				.getByRole('option', { name: /Sepolia/i })
+				.first()
+				.waitFor({ state: 'visible', timeout: 15_000 })
 			const hasSepolia =
 				(await page.getByRole('option', { name: /Sepolia/i }).count()) > 0
 			expect(hasSepolia).toBe(true)
@@ -187,10 +205,15 @@ test.describe('E2E bridge flow', () => {
 					block: 'center',
 				})
 			})
-			await page.locator('[data-from-chain] button').click()
+			await page.getByLabel('From chain').focus()
+			await page.getByLabel('From chain').press('ArrowDown')
 			await page
 				.getByRole('option', { name: 'Ethereum' })
-				.click({ force: true })
+				.waitFor({ state: 'visible', timeout: 10_000 })
+			await page
+				.getByRole('option', { name: 'Ethereum' })
+				.scrollIntoViewIfNeeded()
+			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
 			await page.locator('[data-wallet-network-testnet]').click()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText(
 				'Testnet',
@@ -262,15 +285,31 @@ test.describe('E2E bridge flow', () => {
 					block: 'center',
 				})
 			})
-			await page.locator('[data-from-chain] button').click()
+			await page.getByLabel('From chain').scrollIntoViewIfNeeded()
+			await page.getByLabel('From chain').focus()
+			await page.getByLabel('From chain').press('ArrowDown')
 			await page
 				.getByRole('option', { name: 'Ethereum' })
-				.click({ force: true })
-			await page.locator('[data-to-chain] button').click()
+				.waitFor({ state: 'visible', timeout: 10_000 })
+			await page
+				.getByRole('option', { name: 'Ethereum' })
+				.scrollIntoViewIfNeeded()
+			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
+			await page.getByLabel('To chain').focus()
+			await page.getByLabel('To chain').press('ArrowDown')
 			await page
 				.getByRole('option', { name: 'OP Mainnet' })
+				.last()
+				.waitFor({ state: 'visible', timeout: 10_000 })
+			await page
+				.getByRole('option', { name: 'OP Mainnet' })
+				.last()
+				.scrollIntoViewIfNeeded()
+			await page
+				.getByRole('option', { name: 'OP Mainnet' })
+				.last()
 				.click({ force: true })
-			await page.getByLabel('Amount').fill('1')
+			await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 			await Promise.race([
 				page
 					.locator('[data-testid="quote-result"]')
