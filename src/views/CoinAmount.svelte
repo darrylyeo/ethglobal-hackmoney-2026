@@ -17,6 +17,9 @@
 
 	// Functions
 	import { stringify } from '$/lib/stringify'
+
+	// Components
+	import Icon from '$/components/Icon.svelte'
 </script>
 
 
@@ -61,17 +64,19 @@
 		data-row="wrap"
 	>
 		{#if coin.icon?.original?.url}
-			<img src={coin.icon.original.url} alt={coin.symbol ?? ''} width="16" height="16" />
+			<Icon
+				src={coin.icon.original.url}
+				alt={coin.symbol ?? ''}
+				size={16}
+			/>
 		{/if}
 
 		{#if coin.name || coin.symbol}
-			{@const title = (
-				coin.type === CoinType.Native
-					? 'Native Currency'
-					: coin.address
-			)}
-
-			<abbr {title}>
+		<abbr title={(
+			coin.type === CoinType.Native
+				? 'Native Currency'
+				: coin.address
+		)}>
 				{coin.name && coin.symbol ? `${coin.symbol} (${coin.name})` : coin.symbol}
 			</abbr>
 		{/if}

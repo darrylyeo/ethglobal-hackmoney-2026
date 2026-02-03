@@ -9,17 +9,14 @@
 	} = $props()
 
 	// Derived
-	const numberValue = $derived(Number(value))
-
-	const formatter = $derived(
+	const parts = $derived(
 		new Intl.NumberFormat(undefined, {
 			// minimumFractionDigits: 2,
 			// maximumFractionDigits: 6,
 			// ...options,
-		}),
+		})
+			.formatToParts(Number(value)),
 	)
-
-	const parts = $derived(formatter.formatToParts(numberValue))
 </script>
 
 <output>

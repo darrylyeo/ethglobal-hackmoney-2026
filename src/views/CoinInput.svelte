@@ -27,18 +27,6 @@
 		[key: string]: unknown
 	} = $props()
 
-	// (Derived)
-	const comboboxValue = $derived(
-		value
-			? `${value.chainId}-${value.type}-${
-					value.type === CoinType.Native
-						? 'native'
-					:
-						value.address.toLowerCase()
-				}`
-			: '',
-	)
-
 	// Functions
 	const toCoinId = (coin: Coin) => (
 		`${coin.chainId}-${coin.type}-${
@@ -48,24 +36,10 @@
 				coin.address.toLowerCase()
 		}`
 	)
-	const getCoinLabel = (coin: Coin) => (
-		`${coin.symbol} (${networksByChainId[coin.chainId]?.name ?? coin.chainId} · ${
-			coin.type === CoinType.Native ? 'Native' : 'ERC-20'
-		})`
-	)
-	const resolveValue = (nextValue: string | string[]) => (
-		Array.isArray(nextValue)
-			? coins.find((coin) => toCoinId(coin) === (nextValue[0] ?? '')) ?? null
-			: coins.find((coin) => toCoinId(coin) === nextValue) ?? null
-	)
-
-	// Actions
-	const onValueChangeInternal = (nextValue: string | string[]) => (
-		onValueChange?.(value = resolveValue(nextValue))
-	)
 
 	// Components
 	import Combobox from '$/components/Combobox.svelte'
+	import Icon from '$/components/Icon.svelte'
 </script>
 
 
@@ -73,28 +47,47 @@
 	{...rootProps}
 	items={coins}
 	type="single"
-	value={comboboxValue}
+	value={value
+		? `${value.chainId}-${value.type}-${
+				value.type === CoinType.Native
+					? 'native'
+				:
+					value.address.toLowerCase()
+			}`
+		: ''}
 	{placeholder}
 	{disabled}
 	{name}
 	{id}
 	ariaLabel={ariaLabel}
-	onValueChange={onValueChangeInternal}
+	onValueChange={(nextValue) => (
+		onValueChange?.(
+			value = Array.isArray(nextValue)
+				? coins.find((coin) => toCoinId(coin) === (nextValue[0] ?? '')) ??
+					null
+				: coins.find((coin) => toCoinId(coin) === nextValue) ?? null,
+		)
+	)}
 	getItemId={toCoinId}
-	getItemLabel={getCoinLabel}
+	getItemLabel={(coin) => (
+		`${coin.symbol} (${networksByChainId[coin.chainId]?.name ?? coin.chainId} · ${
+			coin.type === CoinType.Native ? 'Native' : 'ERC-20'
+		})`
+	)}
 >
 	{#snippet Item(coin, selected)}
 		{@const iconUrl =
 			coin.icon?.original?.url ??
 			coin.icon?.thumbnail?.url ??
 			coin.icon?.low?.url}
-		{@const typeLabel = coin.type === CoinType.Native ? 'Native' : 'ERC-20'}
 		<span
 			class="coin-input-item"
 			data-selected={selected}
 		>
 			{#if iconUrl}
-				<img src={iconUrl} alt={coin.symbol} width="16" height="16" />
+				<span class="coin-input-icon">
+					<Icon src={iconUrl} alt={coin.symbol} size="1rem" />
+				</span>
 			{:else}
 				<span class="coin-input-placeholder" aria-hidden="true"></span>
 			{/if}
@@ -102,7 +95,7 @@
 			<small data-muted>
 				{networksByChainId[coin.chainId]?.name ?? `Chain ${coin.chainId}`}
 				·
-				{typeLabel}
+				{coin.type === CoinType.Native ? 'Native' : 'ERC-20'}
 			</small>
 		</span>
 	{/snippet}
@@ -120,7 +113,7 @@
 			opacity: 0.7;
 		}
 
-		> img,
+		> .coin-input-icon,
 		> .coin-input-placeholder {
 			width: 1rem;
 			height: 1rem;

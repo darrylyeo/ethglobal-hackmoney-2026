@@ -88,7 +88,6 @@
 	const walletAddress = $derived(
 		walletConnection?.connection.activeActor ?? null,
 	)
-	const walletChainId = $derived(walletConnection?.connection.chainId ?? null)
 	const hasSigner = $derived(Boolean(walletProvider && walletAddress))
 
 	// Functions
@@ -224,8 +223,8 @@
 			{@const network = networksByChainId[tx.chainId]}
 			{@const needsChainSwitch = Boolean(
 				walletProvider &&
-				walletChainId !== null &&
-				walletChainId !== tx.chainId,
+				walletConnection?.connection.chainId !== null &&
+				walletConnection?.connection.chainId !== tx.chainId,
 			)}
 			{@const confirmationRequired = tx.requiresConfirmation}
 			{@const confirmationReady = !confirmationRequired || txState.confirmed}

@@ -4,8 +4,7 @@
 
 	// Props
 	let {
-		coins,
-		coin = $bindable(coins[0]),
+		coin,
 		min,
 		max,
 		value = $bindable(0n),
@@ -21,8 +20,7 @@
 		ariaInvalid,
 		...rootProps
 	}: {
-		coins: readonly [Coin, ...Coin[]]
-		coin?: Coin
+		coin: Coin
 		min: bigint
 		max: bigint
 		value?: bigint
@@ -39,25 +37,17 @@
 		[key: string]: unknown
 	} = $props()
 
-	// (Derived)
-	const formattedValue = $derived(
-		formatSmallestToDecimal(value, coin.decimals),
-	)
-	const sliderMin = $derived(Number(min))
-	const sliderMax = $derived(Number(max))
-	const sliderValue = $derived(Number(value))
-	const sliderProgress = $derived(
-		sliderMax > sliderMin
-			? ((sliderValue - sliderMin) / (sliderMax - sliderMin)) * 100
-			: 0,
-	)
-
 	// Functions
 	import {
 		formatSmallestToDecimal,
 		isValidDecimalInput,
 		parseDecimalToSmallest,
 	} from '$/lib/format'
+
+	// (Derived)
+	const sliderMin = $derived(Number(min))
+	const sliderMax = $derived(Number(max))
+	const sliderValue = $derived(Number(value))
 
 	// Actions
 	const onTextInput = (
@@ -91,78 +81,57 @@
 		onInvalidChange?.(invalid)
 		onValueChange?.(value)
 	}
-
-	// Components
-	import CoinInput from '$/components/CoinInput.svelte'
 </script>
 
 
 <div
 	{...rootProps}
-	class="coin-amount"
+	class="token-amount"
 	data-stack
 	data-invalid={invalid ? '' : undefined}
 >
-	<div class="coin-amount-row">
-		<input
-			{id}
-			class="coin-amount-input"
-			type="text"
-			inputmode="decimal"
-			{placeholder}
-			{disabled}
-			{name}
-			aria-label={ariaLabel}
-			aria-describedby={ariaDescribedby}
-			aria-invalid={ariaInvalid}
-			value={formattedValue}
-			oninput={onTextInput}
-		/>
-		<div class="coin-amount-select">
-			<CoinInput
-				coins={coins}
-				bind:value={coin}
-				{disabled}
-				ariaLabel="Token"
-			/>
-		</div>
-	</div>
 	<input
-		class="coin-amount-slider"
+		{id}
+		class="token-amount-input"
+		type="text"
+		inputmode="decimal"
+		{placeholder}
+		{disabled}
+		{name}
+		aria-label={ariaLabel}
+		aria-describedby={ariaDescribedby}
+		aria-invalid={ariaInvalid}
+		value={value === 0n ? '' : formatSmallestToDecimal(value, coin.decimals)}
+		oninput={onTextInput}
+	/>
+	<input
+		class="token-amount-slider"
 		type="range"
 		min={sliderMin}
 		max={sliderMax}
 		step="1"
 		value={sliderValue}
 		{disabled}
-		aria-label={ariaLabel ? `${ariaLabel} range` : 'Amount range'}
 		oninput={onSliderInput}
-		style={`--slider-progress:${sliderProgress}%`}
+	style={`--slider-progress:${
+		sliderMax > sliderMin
+			? ((sliderValue - sliderMin) / (sliderMax - sliderMin)) * 100
+			: 0
+	}%`}
 	/>
 </div>
 
 
 <style>
-	.coin-amount {
+	.token-amount {
 		display: grid;
 		gap: 0.25em;
 
-		> .coin-amount-row {
-			display: flex;
-			gap: 0.5em;
-			align-items: center;
-
-			> .coin-amount-input {
-				flex: 1;
-				padding-bottom: 1.1em;
-			}
-
-			> .coin-amount-select {
-				flex: 0 0 auto;
-			}
+		> .token-amount-input {
+			padding-bottom: 1.1em;
 		}
 
-		> .coin-amount-slider {
+		> .token-amount-slider {
 			appearance: none;
 			background: transparent;
 			padding: 0;
