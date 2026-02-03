@@ -36,11 +36,6 @@ test.describe('E2E bridge flow', () => {
 			await expect(
 				page.getByRole('heading', { name: 'Bridge USDC', level: 2 }),
 			).toBeVisible({ timeout: 10_000 })
-			await page.locator('#main-content').evaluate((el) => {
-				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
-					block: 'center',
-				})
-			})
 			await expect(page.locator('[data-from-chain]')).toBeVisible({
 				timeout: 20_000,
 			})
@@ -151,11 +146,7 @@ test.describe('E2E bridge flow', () => {
 			await expect(page.locator('[data-balances-grid]')).toBeVisible({
 				timeout: 20_000,
 			})
-			await page.locator('#main-content').evaluate((el) => {
-				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
-					block: 'center',
-				})
-			})
+			await page.locator('[data-from-chain]').scrollIntoViewIfNeeded()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText(
 				'Mainnet',
 			)
