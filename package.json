@@ -40,6 +40,7 @@
 		"runed": "^0.37.1",
 		"sigma": "^3.0.2",
 		"three": "^0.182.0",
+		"uqr": "^0.1.2",
 		"viem": "^2.45.1"
 	},
 	"devDependencies": {

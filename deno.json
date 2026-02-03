@@ -3,6 +3,7 @@
   "imports": {
     "$/": "./src/",
     "@tanstack/query-core": "npm:@tanstack/query-core",
+    "@total-typescript/ts-reset": "npm:@total-typescript/ts-reset",
     "@tevm/voltaire": "npm:@tevm/voltaire@^0.2.28",
     "bun:ffi": "./shims/bun-ffi.js"
   },
