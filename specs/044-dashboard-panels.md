@@ -59,16 +59,16 @@ Add a `/dashboard` route that hosts a modular tiling panel system. Each panel ca
 
 ## Acceptance criteria
 
-- [ ] A new spec exists at `specs/044-dashboard-panels.md` describing the dashboard panel system.
-- [ ] The spec defines the panel tree model with split nodes and panel nodes.
-- [ ] The spec states that panels can render any non-dashboard SvelteKit route.
-- [ ] The spec defines per-panel hash history and focus/unfocus navigation stack rules.
-- [ ] The spec defines a new persisted TanStack DB collection with localStorage backing.
-- [ ] The spec defines restoration behavior and default panel initialization when empty.
+- [x] A new spec exists at `specs/044-dashboard-panels.md` describing the dashboard panel system.
+- [x] The spec defines the panel tree model with split nodes and panel nodes.
+- [x] The spec states that panels can render any non-dashboard SvelteKit route.
+- [x] The spec defines per-panel hash history and focus/unfocus navigation stack rules.
+- [x] The spec defines a new persisted TanStack DB collection with localStorage backing.
+- [x] The spec defines restoration behavior and default panel initialization when empty.
 
 ## Status
 
-Draft.
+Complete.
 
 ## Output when complete
 
