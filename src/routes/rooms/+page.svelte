@@ -31,7 +31,7 @@
 	<title>Rooms</title>
 </svelte:head>
 
-<main id="main-content">
+<div data-column>
 	<h1>Rooms</h1>
 
 	<section data-card>
@@ -64,4 +64,4 @@
 			</button>
 		</form>
 	</section>
-</main>
+</div>
