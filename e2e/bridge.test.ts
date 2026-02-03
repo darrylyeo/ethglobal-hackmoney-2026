@@ -42,17 +42,18 @@ test.describe('Bridge UI (Spec 004)', () => {
 		await page
 			.getByRole('option', { name: 'Ethereum' })
 			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
+		await page.getByRole('option', { name: 'Ethereum' }).evaluate((el) => (el as HTMLElement).click())
 		await page.getByLabel('To chain').focus()
 		await page.getByLabel('To chain').press('ArrowDown')
+		await page.getByLabel('To chain').fill('OP Mainnet')
 		await page
 			.getByRole('option', { name: 'OP Mainnet' })
-			.last()
+			.first()
 			.waitFor({ state: 'visible', timeout: 10_000 })
 		await page
 			.getByRole('option', { name: 'OP Mainnet' })
-			.last()
-			.click({ force: true })
+			.first()
+			.evaluate((el) => (el as HTMLElement).click())
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 		await expect(page.locator('[data-from-chain]')).toBeVisible()
 		await expect(page.locator('[data-to-chain]')).toBeVisible()
@@ -93,17 +94,18 @@ test.describe('Bridge UI (Spec 004)', () => {
 		await page
 			.getByRole('option', { name: 'Ethereum' })
 			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
+		await page.getByRole('option', { name: 'Ethereum' }).evaluate((el) => (el as HTMLElement).click())
 		await page.getByLabel('To chain').focus()
 		await page.getByLabel('To chain').press('ArrowDown')
+		await page.getByLabel('To chain').fill('OP Mainnet')
 		await page
 			.getByRole('option', { name: 'OP Mainnet' })
-			.last()
+			.first()
 			.waitFor({ state: 'visible', timeout: 10_000 })
 		await page
 			.getByRole('option', { name: 'OP Mainnet' })
-			.last()
-			.click({ force: true })
+			.first()
+			.evaluate((el) => (el as HTMLElement).click())
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 		await Promise.race([
 			page
