@@ -7,20 +7,7 @@ by file.
 
 ## Pending Commits
 
-### Phase 1: CCTP query predicates
-
-1. **CCTP: use db predicates in live queries**
-   - Files:
-     - `src/routes/bridge/cctp/CctpAllowance.svelte`
-     - `src/routes/bridge/cctp/CctpFees.svelte`
-   - Dependencies: none
-
-### Phase 2: Transfers query filter
-
-2. **Transfers: filter transfer graph rows by period**
-   - Files:
-     - `src/routes/transfers/+page.svelte`
-   - Dependencies: none
+None.
 
 ---
 
@@ -86,17 +73,27 @@ by file.
 | 50  | CoinInput: show icons + type labels                                    | ddde315 |
 | 51  | Schema: add data entity models                                         | de264b9 |
 | 52  | App: align constants, collections, and UI to schema                    | db4ab3e |
+| 53  | Spec 043: track component organization plan                            | b10cd23 |
+| 54  | Spec 044: add dashboard panel system                                   | d5bafed |
+| 55  | Components: add Dropdown and Icon primitives                           | af11d71 |
+| 56  | Views: move domain components out of shared                            | 2cdc807 |
+| 57  | Architecture: move graph component into route                          | d85bac6 |
+| 58  | Routes: update imports for moved components                            | 3d1e3dc |
+| 59  | Rooms: move Peer component into route                                  | 8d873d1 |
+| 60  | Bridge: remove lifi route-local views                                  | cc2dc91 |
+| 61  | Components: align Select and Toast composition                         | 1837dae |
+| 62  | Bridge settings: align defaults                                        | 3588bc8 |
+| 63  | NavigationItem: align with view component moves                        | f3b3040 |
+| 64  | Bridge routes: adjust collection query shape                           | 5ca8e2d |
+| 65  | Spec 043: remove completed spec                                        | 51830ec |
 
 ---
 
 ## Working tree (uncommitted)
 
-| File(s)                                      | Description                              |
-| -------------------------------------------- | ---------------------------------------- |
-| `src/routes/bridge/cctp/CctpAllowance.svelte` | Query filter uses `and`/`eq` predicates |
-| `src/routes/bridge/cctp/CctpFees.svelte`      | Query filter uses `and`/`eq` predicates |
-| `src/routes/transfers/+page.svelte`           | Query filter uses `row.period`          |
-| `COMMIT_PLAN.md`                              | Refresh plan for current working tree   |
+| File(s)                                      | Description                                      |
+| -------------------------------------------- | ------------------------------------------------ |
+| `COMMIT_PLAN.md`                             | Refresh plan for current working tree            |
 
 ---
 
