@@ -5,6 +5,7 @@
 		title: string
 		icon?: string
 		href?: string
+		tag?: string
 		children?: NavigationItem[]
 	}
 </script>
@@ -208,6 +209,9 @@
 					? highlightText(item.title, effectiveSearchValue)
 					: escapeHtml(item.title)}</span
 			>
+			{#if item.tag}
+				<span data-tag={item.tag}>{item.tag}</span>
+			{/if}
 		</a>
 	{:else}
 		{#if item.icon}
@@ -219,6 +223,9 @@
 				? highlightText(item.title, effectiveSearchValue)
 				: escapeHtml(item.title)}</span
 		>
+		{#if item.tag}
+			<span data-tag={item.tag}>{item.tag}</span>
+		{/if}
 	{/if}
 {/snippet}
 

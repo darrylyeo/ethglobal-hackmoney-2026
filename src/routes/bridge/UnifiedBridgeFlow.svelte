@@ -16,9 +16,15 @@
 		networksByChainId,
 		testnetsForMainnet,
 	} from '$/constants/networks'
+	import type { BridgeSettings } from '$/state/bridge-settings.svelte'
+
+	type BridgeSessionParams = BridgeSettings & {
+		protocolIntent: 'cctp' | 'lifi' | null
+	}
 
 	// Context
-	import { Switch } from 'bits-ui'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { Button, Switch } from 'bits-ui'
 
 	// Props
 	let {
@@ -36,20 +42,109 @@
 
 	// Functions
 	import { formatAddress, isValidAddress, normalizeAddress } from '$/lib/address'
-
-	// State
 	import {
-		bridgeSettingsState,
-		defaultBridgeSettings,
-	} from '$/state/bridge-settings.svelte'
+		buildSessionHash,
+		createTransactionSession,
+		forkTransactionSession,
+		getTransactionSession,
+		parseSessionHash,
+		updateTransactionSessionParams,
+	} from '$/lib/transaction-sessions'
 
+	const bridgeSortValues = new Set(Object.values(BridgeRouteSort))
+	const isBridgeSort = (value: unknown): value is BridgeSettings['sortBy'] => (
+		typeof value === 'string' && bridgeSortValues.has(value)
+	)
+	const toBoolean = (value: unknown, fallback: boolean) => (
+		typeof value === 'boolean' ? value : fallback
+	)
+	const toNumber = (value: unknown, fallback: number) => (
+		typeof value === 'number' && Number.isFinite(value) ?
+			value
+		: typeof value === 'string' &&
+			value.trim().length > 0 &&
+			Number.isFinite(Number(value)) ?
+			Number(value)
+		: fallback
+	)
+	const toNullableNumber = (
+		value: unknown,
+		fallback: number | null,
+	) => (
+		typeof value === 'number' && Number.isFinite(value) ?
+			value
+		: typeof value === 'string' &&
+			value.trim().length > 0 &&
+			Number.isFinite(Number(value)) ?
+			Number(value)
+		: value === null ?
+			null
+		: fallback
+	)
+	const toBigInt = (value: unknown, fallback: bigint) => (
+		typeof value === 'bigint' ?
+			value
+		: typeof value === 'number' && Number.isFinite(value) ?
+			BigInt(Math.floor(value))
+		: typeof value === 'string' && /^\d+$/.test(value) ?
+			BigInt(value)
+		: fallback
+	)
+	const toProtocolIntent = (
+		value: unknown,
+		fallback: BridgeSessionParams['protocolIntent'],
+	) => (
+		value === 'cctp' || value === 'lifi' ? value : value === null ? null : fallback
+	)
+	const normalizeBridgeParams = (
+		params: Record<string, unknown> | null,
+	): BridgeSessionParams => ({
+		slippage: toNumber(params?.slippage, defaultBridgeSettings.slippage),
+		isTestnet: toBoolean(params?.isTestnet, defaultBridgeSettings.isTestnet),
+		sortBy: isBridgeSort(params?.sortBy)
+			? params.sortBy
+			: defaultBridgeSettings.sortBy,
+		fromChainId: toNullableNumber(
+			params?.fromChainId,
+			defaultBridgeSettings.fromChainId,
+		),
+		toChainId: toNullableNumber(
+			params?.toChainId,
+			defaultBridgeSettings.toChainId,
+		),
+		amount: toBigInt(params?.amount, defaultBridgeSettings.amount),
+		useCustomRecipient: toBoolean(
+			params?.useCustomRecipient,
+			defaultBridgeSettings.useCustomRecipient,
+		),
+		customRecipient:
+			typeof params?.customRecipient === 'string'
+				? params.customRecipient
+				: defaultBridgeSettings.customRecipient,
+		protocolIntent: toProtocolIntent(params?.protocolIntent, null),
+	})
+	// State
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { defaultBridgeSettings } from '$/state/bridge-settings.svelte'
+
+	let activeSessionId = $state<string | null>(null)
 	let invalidAmountInput = $state(false)
-	let protocolIntent = $state<'cctp' | 'lifi' | null>(null)
 
 	// (Derived)
-	const settings = $derived(
-		bridgeSettingsState.current ?? defaultBridgeSettings,
+	const sessionQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
+				.select(({ row }) => ({ row })),
+		[activeSessionId],
 	)
+	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
+	const sessionParams = $derived(
+		normalizeBridgeParams(session?.params ?? null),
+	)
+	const sessionLocked = $derived(Boolean(session?.lockedAt))
+	const settings = $derived(sessionParams)
 	const usdcToken = $derived(
 		settings.fromChainId !== null
 			? (ercTokensBySymbolByChainId[settings.fromChainId]?.['USDC'] ??
@@ -88,27 +183,85 @@
 			: lifiPairSupported && !cctpPairSupported
 				? 'lifi'
 				: cctpPairSupported && lifiPairSupported
-					? (protocolIntent ?? 'cctp')
+					? (settings.protocolIntent ?? 'cctp')
 					: null,
 	)
 	const protocolReason = $derived(
 		!settings.fromChainId || !settings.toChainId
 			? 'Select chains to choose a protocol'
-			: cctpPairSupported && !lifiPairSupported
-				? 'Only CCTP supports this pair'
-				: lifiPairSupported && !cctpPairSupported
-					? 'Only LI.FI supports this pair'
-					: protocolIntent === 'cctp'
-						? 'Using CCTP (your preference)'
-						: protocolIntent === 'lifi'
-							? 'Using LI.FI (your preference)'
-							: 'Using CCTP (best route)',
+				: cctpPairSupported && !lifiPairSupported
+					? 'Only CCTP supports this pair'
+					: lifiPairSupported && !cctpPairSupported
+						? 'Only LI.FI supports this pair'
+						: settings.protocolIntent === 'cctp'
+							? 'Using CCTP (your preference)'
+							: settings.protocolIntent === 'lifi'
+								? 'Using LI.FI (your preference)'
+								: 'Using CCTP (best route)',
 	)
 	const recipient = $derived(
 		settings.useCustomRecipient
 			? normalizeAddress(settings.customRecipient)
 			: selectedActor,
 	)
+
+	// Actions
+	const activateSession = (sessionId: string) => {
+		activeSessionId = sessionId
+		if (typeof window === 'undefined') return
+		const nextHash = buildSessionHash(sessionId)
+		const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`
+		history.replaceState(history.state, '', nextUrl)
+	}
+	const updateSessionParams = (nextParams: BridgeSessionParams) => {
+		if (!session) return
+		if (sessionLocked) {
+			activateSession(
+				createTransactionSession({
+					flows: [...session.flows],
+					params: nextParams,
+				}).id,
+			)
+			return
+		}
+		updateTransactionSessionParams(session.id, nextParams)
+	}
+	const forkSession = () => {
+		if (!session) return
+		activateSession(forkTransactionSession(session).id)
+	}
+
+	$effect(() => {
+		if (typeof window === 'undefined') return
+		const handleHash = () => {
+			const parsed = parseSessionHash(window.location.hash)
+			if (parsed.kind === 'session') {
+				if (parsed.sessionId === activeSessionId && session) return
+				if (getTransactionSession(parsed.sessionId)) {
+					activeSessionId = parsed.sessionId
+					return
+				}
+				activateSession(
+					createTransactionSession({
+						flows: ['bridge'],
+						params: normalizeBridgeParams(null),
+					}).id,
+				)
+				return
+			}
+			activateSession(
+				createTransactionSession({
+					flows: ['bridge'],
+					params: normalizeBridgeParams(
+						parsed.kind === 'params' ? parsed.params : null,
+					),
+				}).id,
+			)
+		}
+		handleHash()
+		window.addEventListener('hashchange', handleHash)
+		return () => window.removeEventListener('hashchange', handleHash)
+	})
 
 	$effect(() => {
 		if (filteredNetworks.length === 0) return
@@ -137,7 +290,7 @@
 					ChainId.ArcTestnet
 				: (toNet ? mainnetForTestnet.get(toNet)?.id : undefined) ??
 					ChainId.Optimism
-		bridgeSettingsState.current = {
+		updateSessionParams({
 			...settings,
 			fromChainId:
 				filteredNetworks.find((n) => n.id === defaultFrom)?.id ??
@@ -147,7 +300,7 @@
 				filteredNetworks.find((n) => n.id === defaultTo)?.id ??
 				filteredNetworks[1]?.id ??
 				null,
-		}
+		})
 	})
 
 	// Components
@@ -158,7 +311,14 @@
 
 <div class="bridge-layout">
 	<section data-card data-column="gap-4">
-		<h2>Bridge USDC</h2>
+		<div data-row="gap-2 align-center justify-between">
+			<h2>Bridge USDC</h2>
+			{#if sessionLocked}
+				<Button.Root type="button" onclick={forkSession}>
+					New draft
+				</Button.Root>
+			{/if}
+		</div>
 
 		<div data-row="gap-4">
 			<div data-column="gap-1" style="flex:1" data-from-chain>
@@ -168,15 +328,13 @@
 					value={settings.fromChainId}
 					onValueChange={(v) => (
 						typeof v === 'number'
-							? (bridgeSettingsState.current = {
-									...settings,
-									fromChainId: v,
-								})
+							? updateSessionParams({ ...settings, fromChainId: v })
 							: null
 					)}
 					placeholder="—"
 					id="from"
 					ariaLabel="From chain"
+					disabled={sessionLocked}
 				/>
 			</div>
 			<div data-column="gap-1" style="flex:1" data-to-chain>
@@ -186,12 +344,13 @@
 					value={settings.toChainId}
 					onValueChange={(v) => (
 						typeof v === 'number'
-							? (bridgeSettingsState.current = { ...settings, toChainId: v })
+							? updateSessionParams({ ...settings, toChainId: v })
 							: null
 					)}
 					placeholder="—"
 					id="to"
 					ariaLabel="To chain"
+					disabled={sessionLocked}
 				/>
 			</div>
 		</div>
@@ -206,8 +365,9 @@
 				max={USDC_MAX_AMOUNT}
 				value={settings.amount}
 				onValueChange={(nextAmount) => {
-					bridgeSettingsState.current = { ...settings, amount: nextAmount }
+					updateSessionParams({ ...settings, amount: nextAmount })
 				}}
+				disabled={sessionLocked}
 				onInvalidChange={(nextInvalid) => {
 					invalidAmountInput = nextInvalid
 				}}
@@ -230,11 +390,12 @@
 				<Switch.Root
 					checked={settings.useCustomRecipient}
 					onCheckedChange={(c) => {
-						bridgeSettingsState.current = {
+						updateSessionParams({
 							...settings,
 							useCustomRecipient: c ?? false,
-						}
+						})
 					}}
+					disabled={sessionLocked}
 				>
 					<Switch.Thumb />
 				</Switch.Root>
@@ -246,11 +407,12 @@
 					placeholder="0x..."
 					value={settings.customRecipient}
 					oninput={(e) => {
-						bridgeSettingsState.current = {
+						updateSessionParams({
 							...settings,
 							customRecipient: (e.target as HTMLInputElement).value,
-						}
+						})
 					}}
+					disabled={sessionLocked}
 				/>
 				{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}
 					<small data-error>Invalid address</small>
@@ -264,7 +426,12 @@
 	</section>
 
 	<UnifiedProtocolRouter
-		bind:protocolIntent
+		protocolIntent={settings.protocolIntent}
+		onProtocolIntentChange={(next) => {
+			updateSessionParams({ ...settings, protocolIntent: next })
+		}}
+		sessionId={session?.id ?? null}
+		disabled={sessionLocked}
 		{activeProtocol}
 		{protocolReason}
 		{cctpPairSupported}

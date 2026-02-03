@@ -5,9 +5,38 @@
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { roomsCollection } from '$/collections/rooms'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 
 	// Functions
 	import { roomIdToDisplayName } from '$/lib/room'
+	import { buildSessionHash } from '$/lib/transaction-sessions'
+
+	const flowLabel = (flow: string) => (
+		flow.length > 0 ? `${flow[0].toUpperCase()}${flow.slice(1)}` : 'Session'
+	)
+	const flowRoute = (flow: string) => (
+		flow === 'bridge' ?
+			'/bridge'
+		: flow === 'liquidity' ?
+			'/liquidity'
+		: flow === 'transfer' ?
+			'/transfer'
+		: flow === 'intent' ?
+			'/test/intents'
+		: '/swap'
+	)
+	const sessionTitle = (session: {
+		id: string
+		flows: string[]
+	}) => (
+		`${flowLabel(session.flows[0] ?? '')} ${session.id.slice(0, 6)}`
+	)
+	const sessionHref = (session: {
+		id: string
+		flows: string[]
+	}) => (
+		`${flowRoute(session.flows[0] ?? '')}${buildSessionHash(session.id)}`
+	)
 
 	// Props
 	let { children } = $props()
@@ -21,6 +50,14 @@
 			q
 				.from({ row: roomsCollection })
 				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const sessionsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.Local))
 				.select(({ row }) => ({ row })),
 		[],
 	)
@@ -39,6 +76,20 @@
 			id: 'liquidity',
 			title: 'Liquidity',
 			href: '/liquidity',
+		},
+		{
+			id: 'sessions',
+			title: 'Sessions',
+			href: '/session',
+			children: (sessionsQuery.data ?? [])
+				.map((result) => result.row)
+				.sort((a, b) => b.updatedAt - a.updatedAt)
+				.map((session) => ({
+					id: `session-${session.id}`,
+					title: sessionTitle(session),
+					href: sessionHref(session),
+					tag: session.status,
+				})),
 		},
 		{
 			id: 'transfers',

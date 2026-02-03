@@ -21,6 +21,7 @@
 	} from '$/constants/networks'
 
 	// Context
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Dialog, Switch } from 'bits-ui'
 
 	// Props
@@ -49,16 +50,104 @@
 	// Functions
 	import { formatAddress, isValidAddress } from '$/lib/address'
 	import { formatSmallestToDecimal } from '$/lib/format'
+	import {
+		buildSessionHash,
+		createTransactionSession,
+		forkTransactionSession,
+		getTransactionSession,
+		lockTransactionSession,
+		markTransactionSessionFinalized,
+		markTransactionSessionSubmitted,
+		parseSessionHash,
+		updateTransactionSession,
+		updateTransactionSessionParams,
+	} from '$/lib/transaction-sessions'
+
+	type BridgeSessionParams = BridgeSettings & {
+		transferSpeed: 'fast' | 'standard'
+		forwardingEnabled: boolean
+	}
+
+	const toBoolean = (value: unknown, fallback: boolean) => (
+		typeof value === 'boolean' ? value : fallback
+	)
+	const toNumber = (value: unknown, fallback: number) => (
+		typeof value === 'number' && Number.isFinite(value) ?
+			value
+		: typeof value === 'string' &&
+			value.trim().length > 0 &&
+			Number.isFinite(Number(value)) ?
+			Number(value)
+		: fallback
+	)
+	const toNullableNumber = (
+		value: unknown,
+		fallback: number | null,
+	) => (
+		typeof value === 'number' && Number.isFinite(value) ?
+			value
+		: typeof value === 'string' &&
+			value.trim().length > 0 &&
+			Number.isFinite(Number(value)) ?
+			Number(value)
+		: value === null ?
+			null
+		: fallback
+	)
+	const toBigInt = (value: unknown, fallback: bigint) => (
+		typeof value === 'bigint' ?
+			value
+		: typeof value === 'number' && Number.isFinite(value) ?
+			BigInt(Math.floor(value))
+		: typeof value === 'string' && /^\d+$/.test(value) ?
+			BigInt(value)
+		: fallback
+	)
+	const toTransferSpeed = (
+		value: unknown,
+		fallback: BridgeSessionParams['transferSpeed'],
+	) => (
+		value === 'fast' || value === 'standard' ? value : fallback
+	)
+	const normalizeBridgeParams = (
+		params: Record<string, unknown> | null,
+	): BridgeSessionParams => ({
+		slippage: toNumber(params?.slippage, defaultBridgeSettings.slippage),
+		isTestnet: toBoolean(params?.isTestnet, defaultBridgeSettings.isTestnet),
+		sortBy: defaultBridgeSettings.sortBy,
+		fromChainId: toNullableNumber(
+			params?.fromChainId,
+			defaultBridgeSettings.fromChainId,
+		),
+		toChainId: toNullableNumber(
+			params?.toChainId,
+			defaultBridgeSettings.toChainId,
+		),
+		amount: toBigInt(params?.amount, defaultBridgeSettings.amount),
+		useCustomRecipient: toBoolean(
+			params?.useCustomRecipient,
+			defaultBridgeSettings.useCustomRecipient,
+		),
+		customRecipient:
+			typeof params?.customRecipient === 'string'
+				? params.customRecipient
+				: defaultBridgeSettings.customRecipient,
+		transferSpeed: toTransferSpeed(params?.transferSpeed, 'fast'),
+		forwardingEnabled: toBoolean(params?.forwardingEnabled, false),
+	})
+	const isTxHash = (value: unknown): value is `0x${string}` => (
+		typeof value === 'string' && value.startsWith('0x')
+	)
 
 	// State
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 	import {
-		bridgeSettingsState,
+		type BridgeSettings,
 		defaultBridgeSettings,
 	} from '$/state/bridge-settings.svelte'
 
+	let activeSessionId = $state<string | null>(null)
 	let invalidAmountInput = $state(false)
-	let transferSpeed = $state<'fast' | 'standard'>('fast')
-	let forwardingEnabled = $state(false)
 	let confirmOpen = $state(false)
 	let feeFastBps = $state<number | null>(null)
 	let feeStandardBps = $state<number | null>(null)
@@ -66,9 +155,20 @@
 	let runExecutionAt = $state(0)
 
 	// (Derived)
-	const settings = $derived(
-		bridgeSettingsState.current ?? defaultBridgeSettings,
+	const sessionQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
+				.select(({ row }) => ({ row })),
+		[activeSessionId],
 	)
+	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
+	const sessionParams = $derived(
+		normalizeBridgeParams(session?.params ?? null),
+	)
+	const sessionLocked = $derived(Boolean(session?.lockedAt))
+	const settings = $derived(sessionParams)
 	const usdcToken = $derived(
 		settings.fromChainId !== null
 			? (ercTokensBySymbolByChainId[settings.fromChainId]?.['USDC'] ??
@@ -101,7 +201,7 @@
 			CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS.has(settings.fromChainId),
 	)
 	const effectiveTransferSpeed = $derived(
-		fastTransferSupported ? transferSpeed : 'standard',
+		fastTransferSupported ? settings.transferSpeed : 'standard',
 	)
 	const forwardingSupported = $derived(
 		settings.toChainId !== null &&
@@ -135,6 +235,64 @@
 			: settings.amount,
 	)
 
+	// Actions
+	const activateSession = (sessionId: string) => {
+		activeSessionId = sessionId
+		if (typeof window === 'undefined') return
+		const nextHash = buildSessionHash(sessionId)
+		const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`
+		history.replaceState(history.state, '', nextUrl)
+	}
+	const updateSessionParams = (nextParams: BridgeSessionParams) => {
+		if (!session) return
+		if (sessionLocked) {
+			activateSession(
+				createTransactionSession({
+					flows: [...session.flows],
+					params: nextParams,
+				}).id,
+			)
+			return
+		}
+		updateTransactionSessionParams(session.id, nextParams)
+	}
+	const forkSession = () => {
+		if (!session) return
+		activateSession(forkTransactionSession(session).id)
+	}
+
+	$effect(() => {
+		if (typeof window === 'undefined') return
+		const handleHash = () => {
+			const parsed = parseSessionHash(window.location.hash)
+			if (parsed.kind === 'session') {
+				if (parsed.sessionId === activeSessionId && session) return
+				if (getTransactionSession(parsed.sessionId)) {
+					activeSessionId = parsed.sessionId
+					return
+				}
+				activateSession(
+					createTransactionSession({
+						flows: ['bridge'],
+						params: normalizeBridgeParams(null),
+					}).id,
+				)
+				return
+			}
+			activateSession(
+				createTransactionSession({
+					flows: ['bridge'],
+					params: normalizeBridgeParams(
+						parsed.kind === 'params' ? parsed.params : null,
+					),
+				}).id,
+			)
+		}
+		handleHash()
+		window.addEventListener('hashchange', handleHash)
+		return () => window.removeEventListener('hashchange', handleHash)
+	})
+
 	$effect(() => {
 		if (cctpNetworks.length === 0) return
 		const nextFrom = cctpNetworks.some((n) => n.id === settings.fromChainId)
@@ -145,11 +303,11 @@
 			: (cctpNetworks[1]?.id ?? cctpNetworks[0]?.id ?? null)
 		if (nextFrom === settings.fromChainId && nextTo === settings.toChainId)
 			return
-		bridgeSettingsState.current = {
+		updateSessionParams({
 			...settings,
 			fromChainId: nextFrom,
 			toChainId: nextTo,
-		}
+		})
 	})
 
 	// Actions
@@ -158,7 +316,38 @@
 	}
 	const onConfirmSubmit = () => {
 		confirmOpen = false
+		if (session) {
+			lockTransactionSession(session.id)
+			markTransactionSessionSubmitted(session.id, {
+				submittedAt: Date.now(),
+				chainId: settings.fromChainId ?? undefined,
+			})
+		}
 		runExecutionAt = Date.now()
+	}
+	const onExecutionStatus = (
+		step: 'burn' | 'attestation' | 'mint',
+		status: 'pending' | 'done' | 'error',
+		detail?: string,
+	) => {
+		if (!session || status !== 'done') return
+		if (step === 'burn' && isTxHash(detail)) {
+			updateTransactionSession(session.id, (current) => ({
+				...current,
+				status: 'Submitted',
+				lockedAt: current.lockedAt ?? Date.now(),
+				execution: {
+					submittedAt: current.execution?.submittedAt ?? Date.now(),
+					chainId: settings.fromChainId ?? current.execution?.chainId,
+					txHash: detail,
+				},
+				updatedAt: Date.now(),
+			}))
+			return
+		}
+		if (step === 'mint') {
+			markTransactionSessionFinalized(session.id, { at: Date.now() })
+		}
 	}
 
 	// Components
@@ -171,7 +360,14 @@
 
 <div class="bridge-layout">
 	<section data-card data-column="gap-4">
-		<h2>Bridge USDC (CCTP)</h2>
+		<div data-row="gap-2 align-center justify-between">
+			<h2>Bridge USDC (CCTP)</h2>
+			{#if sessionLocked}
+				<Button.Root type="button" onclick={forkSession}>
+					New draft
+				</Button.Root>
+			{/if}
+		</div>
 
 		<div data-row="gap-4">
 			<div data-column="gap-1" style="flex:1" data-from-chain>
@@ -181,15 +377,13 @@
 					value={settings.fromChainId}
 					onValueChange={(v) => (
 						typeof v === 'number'
-							? (bridgeSettingsState.current = {
-									...settings,
-									fromChainId: v,
-								})
+							? updateSessionParams({ ...settings, fromChainId: v })
 							: null
 					)}
 					placeholder="—"
 					id="from"
 					ariaLabel="From chain"
+					disabled={sessionLocked}
 				/>
 			</div>
 			<div data-column="gap-1" style="flex:1" data-to-chain>
@@ -199,12 +393,13 @@
 					value={settings.toChainId}
 					onValueChange={(v) => (
 						typeof v === 'number'
-							? (bridgeSettingsState.current = { ...settings, toChainId: v })
+							? updateSessionParams({ ...settings, toChainId: v })
 							: null
 					)}
 					placeholder="—"
 					id="to"
 					ariaLabel="To chain"
+					disabled={sessionLocked}
 				/>
 			</div>
 		</div>
@@ -219,8 +414,9 @@
 				max={USDC_MAX_AMOUNT}
 				value={settings.amount}
 				onValueChange={(nextAmount) => {
-					bridgeSettingsState.current = { ...settings, amount: nextAmount }
+					updateSessionParams({ ...settings, amount: nextAmount })
 				}}
+				disabled={sessionLocked}
 				onInvalidChange={(nextInvalid) => {
 					invalidAmountInput = nextInvalid
 				}}
@@ -243,11 +439,12 @@
 				<Switch.Root
 					checked={settings.useCustomRecipient}
 					onCheckedChange={(c) => {
-						bridgeSettingsState.current = {
+						updateSessionParams({
 							...settings,
 							useCustomRecipient: c ?? false,
-						}
+						})
 					}}
+					disabled={sessionLocked}
 				>
 					<Switch.Thumb />
 				</Switch.Root>
@@ -259,11 +456,12 @@
 					placeholder="0x..."
 					value={settings.customRecipient}
 					oninput={(e) => {
-						bridgeSettingsState.current = {
+						updateSessionParams({
 							...settings,
 							customRecipient: (e.target as HTMLInputElement).value,
-						}
+						})
 					}}
+					disabled={sessionLocked}
 				/>
 				{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}
 					<small data-error>Invalid address</small>
@@ -301,10 +499,10 @@
 			<div data-row="gap-2">
 				<Button.Root
 					type="button"
-					disabled={!fastTransferSupported}
+					disabled={!fastTransferSupported || sessionLocked}
 					data-selected={effectiveTransferSpeed === 'fast' ? '' : undefined}
 					onclick={() => {
-						transferSpeed = 'fast'
+						updateSessionParams({ ...settings, transferSpeed: 'fast' })
 					}}
 				>
 					Fast
@@ -312,8 +510,9 @@
 				<Button.Root
 					type="button"
 					data-selected={effectiveTransferSpeed === 'standard' ? '' : undefined}
+					disabled={sessionLocked}
 					onclick={() => {
-						transferSpeed = 'standard'
+						updateSessionParams({ ...settings, transferSpeed: 'standard' })
 					}}
 				>
 					Standard
@@ -330,10 +529,14 @@
 		{#if forwardingSupported}
 			<label data-row="gap-2 align-center">
 				<Switch.Root
-					checked={forwardingEnabled}
+					checked={settings.forwardingEnabled}
 					onCheckedChange={(c) => {
-						forwardingEnabled = c ?? false
+						updateSessionParams({
+							...settings,
+							forwardingEnabled: c ?? false,
+						})
 					}}
+					disabled={sessionLocked}
 				>
 					<Switch.Thumb />
 				</Switch.Root>
@@ -365,6 +568,7 @@
 				{feeBps}
 				isTestnet={settings.isTestnet}
 				runAt={runExecutionAt}
+				onStatus={onExecutionStatus}
 			/>
 			<Button.Root
 				type="button"

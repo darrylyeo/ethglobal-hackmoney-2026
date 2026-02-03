@@ -20,7 +20,7 @@
 		testnetsForMainnet,
 	} from '$/constants/networks'
 	import {
-		SLIPPAGE_PRESETS,
+		slippagePresets,
 		formatSlippagePercent,
 		parseSlippagePercent,
 		calculateMinOutput,
@@ -33,8 +33,8 @@
 	} from '$/constants/bridge-limits'
 
 	// Context
-	import { Button, Popover, Switch } from 'bits-ui'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { Button, Popover, Switch } from 'bits-ui'
 	// import { liveQueryAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// State
@@ -42,16 +42,18 @@
 		type BridgeSettings,
 		BridgeRouteSort,
 		defaultBridgeSettings,
-		bridgeSettingsState,
 	} from '$/state/bridge-settings.svelte'
 
 	// Collections
+	import { actorAllowancesCollection } from '$/collections/actor-allowances'
+	import {
+		actorCoinsCollection,
+	} from '$/collections/actor-coins'
 	import {
 		bridgeRoutesCollection,
 		fetchBridgeRoutes,
 	} from '$/collections/bridge-routes'
-	import { actorCoinsCollection } from '$/collections/actor-coins'
-	import { actorAllowancesCollection } from '$/collections/actor-allowances'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 	import {
 		transactionsCollection,
 		updateTransaction,
@@ -74,8 +76,84 @@
 		normalizeAddress,
 		formatAddress,
 	} from '$/lib/address'
+	import {
+		buildSessionHash,
+		createTransactionSession,
+		forkTransactionSession,
+		getTransactionSession,
+		parseSessionHash,
+		updateTransactionSessionParams,
+	} from '$/lib/transaction-sessions'
 	import { stringify } from 'devalue'
 	import { debounce } from '$/lib/debounce'
+
+	type BridgeSessionParams = BridgeSettings
+
+	const bridgeSortValues = new Set(Object.values(BridgeRouteSort))
+	const isBridgeSort = (value: unknown): value is BridgeSettings['sortBy'] => (
+		typeof value === 'string' && bridgeSortValues.has(value)
+	)
+	const toBoolean = (value: unknown, fallback: boolean) => (
+		typeof value === 'boolean' ? value : fallback
+	)
+	const toNumber = (value: unknown, fallback: number) => (
+		typeof value === 'number' && Number.isFinite(value) ?
+			value
+		: typeof value === 'string' &&
+			value.trim().length > 0 &&
+			Number.isFinite(Number(value)) ?
+			Number(value)
+		: fallback
+	)
+	const toNullableNumber = (
+		value: unknown,
+		fallback: number | null,
+	) => (
+		typeof value === 'number' && Number.isFinite(value) ?
+			value
+		: typeof value === 'string' &&
+			value.trim().length > 0 &&
+			Number.isFinite(Number(value)) ?
+			Number(value)
+		: value === null ?
+			null
+		: fallback
+	)
+	const toBigInt = (value: unknown, fallback: bigint) => (
+		typeof value === 'bigint' ?
+			value
+		: typeof value === 'number' && Number.isFinite(value) ?
+			BigInt(Math.floor(value))
+		: typeof value === 'string' && /^\d+$/.test(value) ?
+			BigInt(value)
+		: fallback
+	)
+	const normalizeBridgeParams = (
+		params: Record<string, unknown> | null,
+	): BridgeSessionParams => ({
+		slippage: toNumber(params?.slippage, defaultBridgeSettings.slippage),
+		isTestnet: toBoolean(params?.isTestnet, defaultBridgeSettings.isTestnet),
+		sortBy: isBridgeSort(params?.sortBy)
+			? params.sortBy
+			: defaultBridgeSettings.sortBy,
+		fromChainId: toNullableNumber(
+			params?.fromChainId,
+			defaultBridgeSettings.fromChainId,
+		),
+		toChainId: toNullableNumber(
+			params?.toChainId,
+			defaultBridgeSettings.toChainId,
+		),
+		amount: toBigInt(params?.amount, defaultBridgeSettings.amount),
+		useCustomRecipient: toBoolean(
+			params?.useCustomRecipient,
+			defaultBridgeSettings.useCustomRecipient,
+		),
+		customRecipient:
+			typeof params?.customRecipient === 'string'
+				? params.customRecipient
+				: defaultBridgeSettings.customRecipient,
+	})
 
 	const isEip1193Wallet = (
 		wallet: ConnectedWallet | null,
@@ -149,10 +227,21 @@
 	// ])
 	// const bridgeLiveQuery = liveQueryAttachmentFrom(() => bridgeLiveQueryEntries)
 
-	// Settings (shared persisted state)
-	const settings = $derived(
-		bridgeSettingsState.current ?? defaultBridgeSettings,
+	// Settings (session params)
+	const sessionQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
+				.select(({ row }) => ({ row })),
+		[activeSessionId],
 	)
+	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
+	const sessionParams = $derived(
+		normalizeBridgeParams(session?.params ?? null),
+	)
+	const sessionLocked = $derived(Boolean(session?.lockedAt))
+	const settings = $derived(sessionParams)
 	const usdcToken = $derived(
 		settings.fromChainId !== null
 			? (ercTokensBySymbolByChainId[settings.fromChainId]?.['USDC'] ??
@@ -166,7 +255,34 @@
 		{ id: BridgeRouteSort.Speed, label: 'Fastest' },
 	]
 
+	// Actions
+	const activateSession = (sessionId: string) => {
+		activeSessionId = sessionId
+		if (typeof window === 'undefined') return
+		const nextHash = buildSessionHash(sessionId)
+		const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`
+		history.replaceState(history.state, '', nextUrl)
+	}
+	const updateSessionParams = (nextParams: BridgeSessionParams) => {
+		if (!session) return
+		if (sessionLocked) {
+			activateSession(
+				createTransactionSession({
+					flows: [...session.flows],
+					params: nextParams,
+				}).id,
+			)
+			return
+		}
+		updateTransactionSessionParams(session.id, nextParams)
+	}
+	const forkSession = () => {
+		if (!session) return
+		activateSession(forkTransactionSession(session).id)
+	}
+
 	// Ephemeral UI state (not persisted)
+	let activeSessionId = $state<string | null>(null)
 	let slippageInput = $state('')
 	let invalidAmountInput = $state(false)
 	let selectedRouteId = $state<string | null>(null)
@@ -176,6 +292,37 @@
 
 	// Timer for quote expiry
 	let now = $state(Date.now())
+	$effect(() => {
+		if (typeof window === 'undefined') return
+		const handleHash = () => {
+			const parsed = parseSessionHash(window.location.hash)
+			if (parsed.kind === 'session') {
+				if (parsed.sessionId === activeSessionId && session) return
+				if (getTransactionSession(parsed.sessionId)) {
+					activeSessionId = parsed.sessionId
+					return
+				}
+				activateSession(
+					createTransactionSession({
+						flows: ['bridge'],
+						params: normalizeBridgeParams(null),
+					}).id,
+				)
+				return
+			}
+			activateSession(
+				createTransactionSession({
+					flows: ['bridge'],
+					params: normalizeBridgeParams(
+						parsed.kind === 'params' ? parsed.params : null,
+					),
+				}).id,
+			)
+		}
+		handleHash()
+		window.addEventListener('hashchange', handleHash)
+		return () => window.removeEventListener('hashchange', handleHash)
+	})
 	$effect(() => {
 		const id = setInterval(() => {
 			now = Date.now()
@@ -245,7 +392,7 @@
 					ChainId.ArcTestnet
 				: (toNet ? mainnetForTestnet.get(toNet)?.id : undefined) ??
 					ChainId.Optimism
-		bridgeSettingsState.current = {
+		updateSessionParams({
 			...settings,
 			fromChainId:
 				filteredNetworks.find((n) => n.id === defaultFrom)?.id ??
@@ -255,7 +402,7 @@
 				filteredNetworks.find((n) => n.id === defaultTo)?.id ??
 				filteredNetworks[1]?.id ??
 				null,
-		}
+		})
 	})
 
 	// Placeholder address for quotes when wallet not connected (vitalik.eth)
@@ -470,7 +617,14 @@
 	</div>
 	<!-- Left column: Form -->
 	<section data-bridge-form data-card data-column="gap-4">
-		<h2>Bridge USDC</h2>
+		<div data-row="gap-2 align-center justify-between">
+			<h2>Bridge USDC</h2>
+			{#if sessionLocked}
+				<Button.Root type="button" onclick={forkSession}>
+					New draft
+				</Button.Root>
+			{/if}
+		</div>
 
 		<!-- Network selectors -->
 		<div data-row="gap-4">
@@ -481,15 +635,13 @@
 					value={settings.fromChainId}
 					onValueChange={(v) => (
 						typeof v === 'number'
-							? (bridgeSettingsState.current = {
-									...settings,
-									fromChainId: v,
-								})
+							? updateSessionParams({ ...settings, fromChainId: v })
 							: null
 					)}
 					placeholder="—"
 					id="from"
 					ariaLabel="From chain"
+					disabled={sessionLocked}
 				/>
 			</div>
 			<div data-column="gap-1" style="flex:1" data-to-chain>
@@ -499,12 +651,13 @@
 					value={settings.toChainId}
 					onValueChange={(v) => (
 						typeof v === 'number'
-							? (bridgeSettingsState.current = { ...settings, toChainId: v })
+							? updateSessionParams({ ...settings, toChainId: v })
 							: null
 					)}
 					placeholder="—"
 					id="to"
 					ariaLabel="To chain"
+					disabled={sessionLocked}
 				/>
 			</div>
 		</div>
@@ -521,8 +674,9 @@
 					max={USDC_MAX_AMOUNT}
 					value={settings.amount}
 					onValueChange={(nextAmount) => {
-						bridgeSettingsState.current = { ...settings, amount: nextAmount }
+						updateSessionParams({ ...settings, amount: nextAmount })
 					}}
+					disabled={sessionLocked}
 					onInvalidChange={(nextInvalid) => {
 						invalidAmountInput = nextInvalid
 					}}
@@ -537,11 +691,13 @@
 				{#if sourceBalance !== null}<Button.Root
 						type="button"
 						onclick={() => {
-							bridgeSettingsState.current = {
+							updateSessionParams({
 								...settings,
 								amount: sourceBalance,
-							}
-						}}>Max</Button.Root
+							})
+						}}
+						disabled={sessionLocked}
+						>Max</Button.Root
 					>{/if}
 			</div>
 			<p id="amt-hint" class="sr-only">Enter the amount of USDC to bridge</p>
@@ -566,8 +722,10 @@
 				<Switch.Root
 					checked={settings.useCustomRecipient}
 					onCheckedChange={(c) => {
-						bridgeSettingsState.current = { ...settings, useCustomRecipient: c }
-					}}><Switch.Thumb /></Switch.Root
+						updateSessionParams({ ...settings, useCustomRecipient: c })
+					}}
+					disabled={sessionLocked}
+					><Switch.Thumb /></Switch.Root
 				>
 				Different recipient
 			</label>
@@ -577,11 +735,12 @@
 					placeholder="0x..."
 					value={settings.customRecipient}
 					oninput={(e) => {
-						bridgeSettingsState.current = {
+						updateSessionParams({
 							...settings,
 							customRecipient: (e.target as HTMLInputElement).value,
-						}
+						})
 					}}
+					disabled={sessionLocked}
 				/>
 				{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}<small
 						data-error>Invalid address</small
@@ -661,10 +820,11 @@
 								if (!v) return
 								const option = sortOptions.find((entry) => entry.id === v)
 								if (!option) return
-								bridgeSettingsState.current = { ...settings, sortBy: option.id }
+								updateSessionParams({ ...settings, sortBy: option.id })
 							}}
 							getItemId={(option) => option.id}
 							getItemLabel={(option) => option.label}
+							disabled={sessionLocked}
 						/>
 					</label>
 				</div>
@@ -731,19 +891,20 @@
 
 				<!-- Slippage -->
 				<Popover.Root>
-					<Popover.Trigger data-row="gap-1"
+					<Popover.Trigger data-row="gap-1" disabled={sessionLocked}
 						>Slippage: <strong
 							>{formatSlippagePercent(settings.slippage)}</strong
 						></Popover.Trigger
 					>
 					<Popover.Content data-column="gap-2">
 						<div data-row="gap-1">
-							{#each SLIPPAGE_PRESETS as p (p)}
+							{#each slippagePresets as p (p)}
 								<Button.Root
 									onclick={() => {
-										bridgeSettingsState.current = { ...settings, slippage: p }
+										updateSessionParams({ ...settings, slippage: p })
 									}}
 									data-selected={settings.slippage === p ? '' : undefined}
+									disabled={sessionLocked}
 									>{formatSlippagePercent(p)}</Button.Root
 								>
 							{/each}
@@ -751,10 +912,10 @@
 						<input
 							placeholder="Custom %"
 							bind:value={slippageInput}
+							disabled={sessionLocked}
 							onchange={() => {
 								const p = parseSlippagePercent(slippageInput)
-								if (p)
-									bridgeSettingsState.current = { ...settings, slippage: p }
+								if (p) updateSessionParams({ ...settings, slippage: p })
 							}}
 						/>
 					</Popover.Content>
@@ -871,6 +1032,8 @@
 
 				<TransactionFlow
 					walletConnection={selectedWallet}
+					sessionId={session?.id ?? null}
+					sessionParams={sessionParams}
 					Summary={bridgeSummary}
 					transactions={[
 						{

@@ -8,11 +8,17 @@
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 
+	// Functions
+	import { buildSessionHash } from '$/lib/transaction-sessions'
+
 	// Props
 	let {
 		activeProtocol,
 		protocolReason,
-		protocolIntent = $bindable(null),
+		protocolIntent = null,
+		onProtocolIntentChange,
+		sessionId = null,
+		disabled = false,
 		cctpPairSupported,
 		lifiPairSupported,
 		selectedWallet,
@@ -23,6 +29,9 @@
 		activeProtocol: 'cctp' | 'lifi' | null
 		protocolReason: string
 		protocolIntent?: 'cctp' | 'lifi' | null
+		onProtocolIntentChange?: (value: 'cctp' | 'lifi' | null) => void
+		sessionId?: string | null
+		disabled?: boolean
 		cctpPairSupported: boolean
 		lifiPairSupported: boolean
 		selectedWallet: ConnectedWallet | null
@@ -42,11 +51,14 @@
 				? 'LI.FI'
 				: '—',
 	)
+	const protocolHash = $derived(
+		sessionId ? buildSessionHash(sessionId) : '',
+	)
 	const protocolHref = $derived(
 		activeProtocol === 'cctp'
-			? '/bridge/cctp'
+			? `/bridge/cctp${protocolHash}`
 			: activeProtocol === 'lifi'
-				? '/bridge/lifi'
+				? `/bridge/lifi${protocolHash}`
 				: null,
 	)
 	const protocolOptions = $derived(
@@ -76,6 +88,9 @@
 		if (!protocolHref) return
 		goto(resolve(protocolHref))
 	}
+	const onProtocolIntent = (value: 'cctp' | 'lifi' | null) => (
+		onProtocolIntentChange?.(value)
+	)
 </script>
 
 <section data-card data-column="gap-3">
@@ -98,8 +113,9 @@
 					<Button.Root
 						type="button"
 						data-selected={protocolIntent === null ? '' : undefined}
+						disabled={disabled}
 						onclick={() => {
-							protocolIntent = null
+							onProtocolIntent(null)
 						}}
 					>
 						Auto
@@ -112,8 +128,9 @@
 						class="protocol-card"
 						type="button"
 						data-selected={option.id === activeProtocol ? '' : undefined}
+						disabled={disabled}
 						onclick={() => {
-							protocolIntent = option.id
+							onProtocolIntent(option.id)
 						}}
 					>
 						<div data-row="gap-2 align-center justify-between">

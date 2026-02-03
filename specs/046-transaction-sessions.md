@@ -50,11 +50,8 @@ type TransactionSession = {
 	updatedAt: number
 	lockedAt?: number
 	params: Record<string, unknown>
-	simulation?: {
-		at: number
-		result: Record<string, unknown>
-		metadata?: Record<string, unknown>
-	}
+	latestSimulationId?: string
+	simulationCount?: number
 	execution?: {
 		submittedAt: number
 		txHash?: `0x${string}`
@@ -87,13 +84,23 @@ type TransactionSession = {
 
 ## Locking and results
 
-- Simulation locks the session parameters, writes `lockedAt`, and persists
-  `simulation`.
+- Simulation locks the session parameters, writes `lockedAt`, creates a new
+  session simulation row, and updates `latestSimulationId` + `simulationCount`.
 - Execution locks the session parameters, writes `execution.submittedAt`, and
   persists the transaction hash when known.
 - Finalization updates `status` to `Finalized` and writes `finalization`.
+- Locked sessions (simulated or submitted) can be forked into a new Draft
+  session that copies `flows` and `params`, resets `status`, and clears lock,
+  simulations, execution, and finalization fields.
 - To change parameters after locking, create a new Draft session seeded from the
   locked session and navigate to its hash.
+
+## Simulation storage
+
+- Use a dedicated `transaction-session-simulations` TanStack DB collection.
+- Each simulation row includes `sessionId` for joining and a params hash for
+  grouping results by identical inputs.
+- Session rows store only `latestSimulationId` and `simulationCount`.
 
 ## Sessions route and navigation
 
@@ -119,17 +126,21 @@ type TransactionSession = {
 
 ## Acceptance criteria
 
-- [ ] `transaction-sessions` collection exists in TanStack DB with persistence.
-- [ ] Transaction flow routes accept JSON hashes, create sessions, and replace
+- [x] `transaction-sessions` collection exists in TanStack DB with persistence.
+- [x] Transaction flow routes accept JSON hashes, create sessions, and replace
   the hash with `#session:<id>`.
-- [ ] Routes hydrate form state from `TransactionSession.params`.
-- [ ] Any form edits sync back into the active session in TanStack DB.
-- [ ] Simulation and execution lock parameter edits and persist results.
-- [ ] Sessions update to `Submitted` and `Finalized` with persisted metadata.
-- [ ] A new draft session is created when users change parameters after locking.
-- [ ] Navigation includes a sessions parent item with child items per session.
-- [ ] Session child items include `[data-tag]` reflecting state.
-- [ ] Legacy hash formats are removed without backward compatibility shims.
+- [x] Routes hydrate form state from `TransactionSession.params`.
+- [x] Any form edits sync back into the active session in TanStack DB.
+- [x] Simulation and execution lock parameter edits and persist results.
+- [x] Simulations are stored in `transaction-session-simulations` with a
+  `sessionId` join key.
+- [x] Multiple simulations can be stored for the same locked params.
+- [x] Sessions update to `Submitted` and `Finalized` with persisted metadata.
+- [x] A new draft session is created when users change parameters after locking.
+- [x] Locked sessions can be forked into a new Draft session with copied params.
+- [x] Navigation includes a sessions parent item with child items per session.
+- [x] Session child items include `[data-tag]` reflecting state.
+- [x] Legacy hash formats are removed without backward compatibility shims.
 
 ## TODOs
 
@@ -139,7 +150,7 @@ type TransactionSession = {
 
 ## Status
 
-Draft.
+Complete.
 
 ## Output when complete
 

@@ -13,7 +13,7 @@
 		networksByChainId,
 	} from '$/constants/networks'
 	import {
-		SLIPPAGE_PRESETS,
+		slippagePresets,
 		calculateMinOutput,
 		formatSlippagePercent,
 		parseSlippagePercent,
@@ -22,8 +22,8 @@
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
 	// Context
-	import { Button, Popover } from 'bits-ui'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { Button, Popover } from 'bits-ui'
 
 	// Props
 	let {
@@ -48,13 +48,31 @@
 	)
 
 	// Functions
+	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
+	import { normalizeAddress } from '$/lib/address'
 	import { debounce } from '$/lib/debounce'
 	import {
 		formatSmallestToDecimal,
 		formatTokenAmount,
 	} from '$/lib/format'
 	import { getStorkAssetIdForSymbol } from '$/lib/stork'
-	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
+	import {
+		buildSessionHash,
+		createTransactionSession,
+		forkTransactionSession,
+		getTransactionSession,
+		parseSessionHash,
+		updateTransactionSessionParams,
+	} from '$/lib/transaction-sessions'
+
+	type SwapSessionParams = {
+		chainId: number
+		tokenIn: `0x${string}`
+		tokenOut: `0x${string}`
+		amount: bigint
+		slippage: number
+		isTestnet: boolean
+	}
 
 	const asNonEmpty = (coins: Coin[]): coins is [Coin, ...Coin[]] =>
 		coins.length > 0
@@ -74,22 +92,42 @@
 				}
 			: undefined,
 	})
-	const updateAmount = (value: bigint) => (
-		swapSettingsState.current = { ...settings, amount: value }
+	const toBoolean = (value: unknown, fallback: boolean) => (
+		typeof value === 'boolean' ? value : fallback
 	)
-	const updateSlippage = (value: number) => (
-		swapSettingsState.current = { ...settings, slippage: value }
+	const toNumber = (value: unknown, fallback: number) => (
+		typeof value === 'number' && Number.isFinite(value) ?
+			value
+		: typeof value === 'string' &&
+			value.trim().length > 0 &&
+			Number.isFinite(Number(value)) ?
+			Number(value)
+		: fallback
 	)
+	const toBigInt = (value: unknown, fallback: bigint) => (
+		typeof value === 'bigint' ?
+			value
+		: typeof value === 'number' && Number.isFinite(value) ?
+			BigInt(Math.floor(value))
+		: typeof value === 'string' && /^\d+$/.test(value) ?
+			BigInt(value)
+		: fallback
+	)
+	const toAddress = (value: unknown, fallback: `0x${string}`) => (
+		typeof value === 'string' ? normalizeAddress(value) ?? fallback : fallback
+	)
+	const normalizeSwapParams = (
+		params: Record<string, unknown> | null,
+	): SwapSessionParams => ({
+		chainId: toNumber(params?.chainId, defaultSwapSettings.chainId),
+		tokenIn: toAddress(params?.tokenIn, defaultSwapSettings.tokenIn),
+		tokenOut: toAddress(params?.tokenOut, defaultSwapSettings.tokenOut),
+		amount: toBigInt(params?.amount, defaultSwapSettings.amount),
+		slippage: toNumber(params?.slippage, defaultSwapSettings.slippage),
+		isTestnet: toBoolean(params?.isTestnet, defaultBridgeSettings.isTestnet),
+	})
 
 	// State
-	import {
-		bridgeSettingsState,
-		defaultBridgeSettings,
-	} from '$/state/bridge-settings.svelte'
-	import {
-		defaultSwapSettings,
-		swapSettingsState,
-	} from '$/state/swap-settings.svelte'
 	import { actorAllowancesCollection } from '$/collections/actor-allowances'
 	import {
 		actorCoinsCollection,
@@ -105,7 +143,11 @@
 		swapQuotesCollection,
 	} from '$/collections/swap-quotes'
 	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { defaultBridgeSettings } from '$/state/bridge-settings.svelte'
+	import { defaultSwapSettings } from '$/state/swap-settings.svelte'
 
+	let activeSessionId = $state<string | null>(null)
 	let executing = $state(false)
 	let executionRef = $state<{ execute: () => Promise<void> } | null>(null)
 	let invalidAmountInput = $state(false)
@@ -114,13 +156,23 @@
 	let tokenOutSelection = $state<Coin | null>(null)
 
 	// (Derived)
-	const bridgeSettings = $derived(
-		bridgeSettingsState.current ?? defaultBridgeSettings,
+	const sessionQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
+				.select(({ row }) => ({ row })),
+		[activeSessionId],
 	)
-	const settings = $derived(swapSettingsState.current ?? defaultSwapSettings)
+	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
+	const sessionParams = $derived(
+		normalizeSwapParams(session?.params ?? null),
+	)
+	const sessionLocked = $derived(Boolean(session?.lockedAt))
+	const settings = $derived(sessionParams)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			bridgeSettings.isTestnet ?
+			sessionParams.isTestnet ?
 				n.type === NetworkType.Testnet
 			:
 				n.type === NetworkType.Mainnet,
@@ -144,6 +196,38 @@
 		:
 			null,
 	)
+
+	// Actions
+	const activateSession = (sessionId: string) => {
+		activeSessionId = sessionId
+		if (typeof window === 'undefined') return
+		const nextHash = buildSessionHash(sessionId)
+		const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`
+		history.replaceState(history.state, '', nextUrl)
+	}
+	const updateSessionParams = (nextParams: SwapSessionParams) => {
+		if (!session) return
+		if (sessionLocked) {
+			activateSession(
+				createTransactionSession({
+					flows: [...session.flows],
+					params: nextParams,
+				}).id,
+			)
+			return
+		}
+		updateTransactionSessionParams(session.id, nextParams)
+	}
+	const updateAmount = (value: bigint) => (
+		updateSessionParams({ ...settings, amount: value })
+	)
+	const updateSlippage = (value: number) => (
+		updateSessionParams({ ...settings, slippage: value })
+	)
+	const forkSession = () => {
+		if (!session) return
+		activateSession(forkTransactionSession(session).id)
+	}
 
 	const quotesQuery = useLiveQuery((q) =>
 		q
@@ -199,6 +283,38 @@
 		:
 			null,
 	)
+
+	$effect(() => {
+		if (typeof window === 'undefined') return
+		const handleHash = () => {
+			const parsed = parseSessionHash(window.location.hash)
+			if (parsed.kind === 'session') {
+				if (parsed.sessionId === activeSessionId && session) return
+				if (getTransactionSession(parsed.sessionId)) {
+					activeSessionId = parsed.sessionId
+					return
+				}
+				activateSession(
+					createTransactionSession({
+						flows: ['swap'],
+						params: normalizeSwapParams(null),
+					}).id,
+				)
+				return
+			}
+			activateSession(
+				createTransactionSession({
+					flows: ['swap'],
+					params: normalizeSwapParams(
+						parsed.kind === 'params' ? parsed.params : null,
+					),
+				}).id,
+			)
+		}
+		handleHash()
+		window.addEventListener('hashchange', handleHash)
+		return () => window.removeEventListener('hashchange', handleHash)
+	})
 	const quote = $derived(quoteRow ?? null)
 	const balances = $derived(
 		selectedActor && network ?
@@ -381,18 +497,18 @@
 			tokenOutAddress === settings.tokenOut
 		)
 			return
-		swapSettingsState.current = {
+		updateSessionParams({
 			...settings,
 			tokenIn: tokenInAddress,
 			tokenOut: tokenOutAddress,
-		}
+		})
 	})
 
 	$effect(() => {
 		const nextChainId = filteredNetworks[0]?.id
 		if (!nextChainId) return
 		if (filteredNetworks.some((n) => n.id === settings.chainId)) return
-		swapSettingsState.current = { ...settings, chainId: nextChainId }
+		updateSessionParams({ ...settings, chainId: nextChainId })
 	})
 
 	$effect(() => {
@@ -507,15 +623,23 @@
 
 	<div data-row="gap-2 align-center justify-between">
 		<h2>Swap</h2>
-		<NetworkInput
-			networks={filteredNetworks}
-			value={settings.chainId}
-			onValueChange={(value) => {
-				const nextChainId = Array.isArray(value) ? value[0] ?? null : value
-				if (nextChainId === null || nextChainId === settings.chainId) return
-				swapSettingsState.current = { ...settings, chainId: nextChainId }
-			}}
-		/>
+		<div data-row="gap-2 align-center">
+			{#if sessionLocked}
+				<Button.Root type="button" onclick={forkSession}>
+					New draft
+				</Button.Root>
+			{/if}
+			<NetworkInput
+				networks={filteredNetworks}
+				value={settings.chainId}
+				onValueChange={(value) => {
+					const nextChainId = Array.isArray(value) ? value[0] ?? null : value
+					if (nextChainId === null || nextChainId === settings.chainId) return
+					updateSessionParams({ ...settings, chainId: nextChainId })
+				}}
+				disabled={sessionLocked}
+			/>
+		</div>
 	</div>
 
 	{#if asNonEmpty(chainCoins) && tokenInSelection && tokenOutSelection}
@@ -527,7 +651,7 @@
 						<Button.Root
 							type="button"
 							onclick={() => updateAmount(tokenInBalance)}
-							disabled={tokenInBalance === 0n}
+							disabled={sessionLocked || tokenInBalance === 0n}
 						>
 							Max
 						</Button.Root>
@@ -542,6 +666,7 @@
 					value={settings.amount}
 					invalid={invalidAmountInput}
 					onValueChange={updateAmount}
+					disabled={sessionLocked}
 					onInvalidChange={(invalid) => {
 						invalidAmountInput = invalid
 					}}
@@ -564,13 +689,14 @@
 					type="button"
 					onclick={() => {
 						if (!tokenInSelection || !tokenOutSelection) return
-						swapSettingsState.current = {
+						updateSessionParams({
 							...settings,
 							tokenIn: tokenOutSelection.address,
 							tokenOut: tokenInSelection.address,
 							amount: 0n,
-						}
+						})
 					}}
+					disabled={sessionLocked}
 					aria-label="Swap direction"
 				>
 					↕
@@ -599,6 +725,7 @@
 							bind:value={tokenOutSelection}
 							id="swap-token-out"
 							ariaLabel="Token out"
+							disabled={sessionLocked}
 						/>
 					</div>
 				</div>
@@ -614,17 +741,18 @@
 			</div>
 
 			<Popover.Root>
-				<Popover.Trigger data-row="gap-1"
+				<Popover.Trigger data-row="gap-1" disabled={sessionLocked}
 					>Slippage: <strong
 						>{formatSlippagePercent(settings.slippage)}</strong
 					></Popover.Trigger
 				>
 				<Popover.Content data-column="gap-2">
 					<div data-row="gap-1">
-						{#each SLIPPAGE_PRESETS as preset (preset)}
+						{#each slippagePresets as preset (preset)}
 							<Button.Root
 								onclick={() => updateSlippage(preset)}
 								data-selected={settings.slippage === preset ? '' : undefined}
+								disabled={sessionLocked}
 							>
 								{formatSlippagePercent(preset)}
 							</Button.Root>
@@ -633,6 +761,7 @@
 					<input
 						placeholder="Custom %"
 						bind:value={slippageInput}
+						disabled={sessionLocked}
 						onchange={() => {
 							const nextSlippage = parseSlippagePercent(slippageInput)
 							if (nextSlippage !== null) updateSlippage(nextSlippage)
@@ -708,6 +837,8 @@
 
 		<TransactionFlow
 			walletConnection={selectedWallet}
+			sessionId={session?.id ?? null}
+			sessionParams={sessionParams}
 			Summary={swapSummary}
 			transactions={quote
 				? [

@@ -11,12 +11,12 @@
 		networks,
 		networksByChainId,
 	} from '$/constants/networks'
-	import { FEE_TIERS } from '$/constants/uniswap'
+	import { uniswapFeeTiers } from '$/constants/uniswap'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
 	// Context
-	import { Button } from 'bits-ui'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { Button } from 'bits-ui'
 
 	// Props
 	let {
@@ -43,8 +43,59 @@
 	)
 
 	// Functions
+	import { normalizeAddress } from '$/lib/address'
 	import { formatSmallestToDecimal } from '$/lib/format'
+	import {
+		buildSessionHash,
+		createTransactionSession,
+		forkTransactionSession,
+		getTransactionSession,
+		parseSessionHash,
+		updateTransactionSessionParams,
+	} from '$/lib/transaction-sessions'
 	import { switchWalletChain } from '$/lib/wallet'
+
+	type LiquiditySessionParams = LiquiditySettings & {
+		isTestnet: boolean
+	}
+
+	const toBoolean = (value: unknown, fallback: boolean) => (
+		typeof value === 'boolean' ? value : fallback
+	)
+	const toNumber = (value: unknown, fallback: number) => (
+		typeof value === 'number' && Number.isFinite(value) ?
+			value
+		: typeof value === 'string' &&
+			value.trim().length > 0 &&
+			Number.isFinite(Number(value)) ?
+			Number(value)
+		: fallback
+	)
+	const toBigInt = (value: unknown, fallback: bigint) => (
+		typeof value === 'bigint' ?
+			value
+		: typeof value === 'number' && Number.isFinite(value) ?
+			BigInt(Math.floor(value))
+		: typeof value === 'string' && /^\d+$/.test(value) ?
+			BigInt(value)
+		: fallback
+	)
+	const toAddress = (value: unknown, fallback: `0x${string}`) => (
+		typeof value === 'string' ? normalizeAddress(value) ?? fallback : fallback
+	)
+	const normalizeLiquidityParams = (
+		params: Record<string, unknown> | null,
+	): LiquiditySessionParams => ({
+		chainId: toNumber(params?.chainId, defaultLiquiditySettings.chainId),
+		token0: toAddress(params?.token0, defaultLiquiditySettings.token0),
+		token1: toAddress(params?.token1, defaultLiquiditySettings.token1),
+		fee: toNumber(params?.fee, defaultLiquiditySettings.fee),
+		tickLower: toNumber(params?.tickLower, defaultLiquiditySettings.tickLower),
+		tickUpper: toNumber(params?.tickUpper, defaultLiquiditySettings.tickUpper),
+		amount0: toBigInt(params?.amount0, defaultLiquiditySettings.amount0),
+		amount1: toBigInt(params?.amount1, defaultLiquiditySettings.amount1),
+		isTestnet: toBoolean(params?.isTestnet, defaultBridgeSettings.isTestnet),
+	})
 
 	const asNonEmpty = (coins: Coin[]): coins is [Coin, ...Coin[]] =>
 		coins.length > 0
@@ -66,40 +117,49 @@
 	})
 	const feeLabel = (fee: number) => `${(fee / 10000).toFixed(2)}%`
 	const updateAmount0 = (value: bigint) => (
-		liquiditySettingsState.current = { ...settings, amount0: value }
+		updateSessionParams({ ...settings, amount0: value })
 	)
 	const updateAmount1 = (value: bigint) => (
-		liquiditySettingsState.current = { ...settings, amount1: value }
+		updateSessionParams({ ...settings, amount1: value })
 	)
 
 	// State
+	import { actorCoinsCollection } from '$/collections/actor-coins'
+	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { uniswapPositionsCollection } from '$/collections/uniswap-positions'
 	import {
-		bridgeSettingsState,
 		defaultBridgeSettings,
 	} from '$/state/bridge-settings.svelte'
 	import {
+		type LiquiditySettings,
 		defaultLiquiditySettings,
-		liquiditySettingsState,
 	} from '$/state/liquidity-settings.svelte'
-	import { actorCoinsCollection } from '$/collections/actor-coins'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
-	import { uniswapPositionsCollection } from '$/collections/uniswap-positions'
 
+	let activeSessionId = $state<string | null>(null)
 	let invalidAmount0 = $state(false)
 	let invalidAmount1 = $state(false)
 	let token0Selection = $state<Coin | null>(null)
 	let token1Selection = $state<Coin | null>(null)
 
 	// (Derived)
-	const bridgeSettings = $derived(
-		bridgeSettingsState.current ?? defaultBridgeSettings,
+	const sessionQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
+				.select(({ row }) => ({ row })),
+		[activeSessionId],
 	)
-	const settings = $derived(
-		liquiditySettingsState.current ?? defaultLiquiditySettings,
+	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
+	const sessionParams = $derived(
+		normalizeLiquidityParams(session?.params ?? null),
 	)
+	const sessionLocked = $derived(Boolean(session?.lockedAt))
+	const settings = $derived(sessionParams)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			bridgeSettings.isTestnet ?
+			sessionParams.isTestnet ?
 				n.type === NetworkType.Testnet
 			:
 				n.type === NetworkType.Mainnet,
@@ -194,6 +254,63 @@
 	)
 
 	// Actions
+	const activateSession = (sessionId: string) => {
+		activeSessionId = sessionId
+		if (typeof window === 'undefined') return
+		const nextHash = buildSessionHash(sessionId)
+		const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`
+		history.replaceState(history.state, '', nextUrl)
+	}
+	const updateSessionParams = (nextParams: LiquiditySessionParams) => {
+		if (!session) return
+		if (sessionLocked) {
+			activateSession(
+				createTransactionSession({
+					flows: [...session.flows],
+					params: nextParams,
+				}).id,
+			)
+			return
+		}
+		updateTransactionSessionParams(session.id, nextParams)
+	}
+	const forkSession = () => {
+		if (!session) return
+		activateSession(forkTransactionSession(session).id)
+	}
+
+	$effect(() => {
+		if (typeof window === 'undefined') return
+		const handleHash = () => {
+			const parsed = parseSessionHash(window.location.hash)
+			if (parsed.kind === 'session') {
+				if (parsed.sessionId === activeSessionId && session) return
+				if (getTransactionSession(parsed.sessionId)) {
+					activeSessionId = parsed.sessionId
+					return
+				}
+				activateSession(
+					createTransactionSession({
+						flows: ['liquidity'],
+						params: normalizeLiquidityParams(null),
+					}).id,
+				)
+				return
+			}
+			activateSession(
+				createTransactionSession({
+					flows: ['liquidity'],
+					params: normalizeLiquidityParams(
+						parsed.kind === 'params' ? parsed.params : null,
+					),
+				}).id,
+			)
+		}
+		handleHash()
+		window.addEventListener('hashchange', handleHash)
+		return () => window.removeEventListener('hashchange', handleHash)
+	})
+
 	$effect(() => {
 		if (!asNonEmpty(chainCoins)) return
 		const token0Match =
@@ -227,18 +344,18 @@
 		if (token0Address === token1Address) return
 		if (token0Address === settings.token0 && token1Address === settings.token1)
 			return
-		liquiditySettingsState.current = {
+		updateSessionParams({
 			...settings,
 			token0: token0Address,
 			token1: token1Address,
-		}
+		})
 	})
 
 	$effect(() => {
 		const nextChainId = filteredNetworks[0]?.id
 		if (!nextChainId) return
 		if (filteredNetworks.some((n) => n.id === settings.chainId)) return
-		liquiditySettingsState.current = { ...settings, chainId: nextChainId }
+		updateSessionParams({ ...settings, chainId: nextChainId })
 	})
 
 	// Components
@@ -252,17 +369,25 @@
 <div data-column="gap-4">
 	<div data-row="gap-2 align-center justify-between">
 		<h2>Add Liquidity</h2>
-		<NetworkInput
-			networks={filteredNetworks}
-			value={settings.chainId}
-			onValueChange={(value) => {
-				const nextChainId = Array.isArray(value) ? value[0] ?? null : value
-				if (nextChainId === null || nextChainId === settings.chainId) return
-				liquiditySettingsState.current = { ...settings, chainId: nextChainId }
-			}}
-			placeholder="—"
-			id="liq-chain"
-		/>
+		<div data-row="gap-2 align-center">
+			{#if sessionLocked}
+				<Button.Root type="button" onclick={forkSession}>
+					New draft
+				</Button.Root>
+			{/if}
+			<NetworkInput
+				networks={filteredNetworks}
+				value={settings.chainId}
+				onValueChange={(value) => {
+					const nextChainId = Array.isArray(value) ? value[0] ?? null : value
+					if (nextChainId === null || nextChainId === settings.chainId) return
+					updateSessionParams({ ...settings, chainId: nextChainId })
+				}}
+				placeholder="—"
+				id="liq-chain"
+				disabled={sessionLocked}
+			/>
+		</div>
 	</div>
 
 	{#if asNonEmpty(chainCoins) && token0Selection && token1Selection}
@@ -274,7 +399,7 @@
 						<Button.Root
 							type="button"
 							onclick={() => updateAmount0(token0Balance)}
-							disabled={token0Balance === 0n}
+							disabled={sessionLocked || token0Balance === 0n}
 						>
 							Max
 						</Button.Root>
@@ -289,6 +414,7 @@
 					value={settings.amount0}
 					invalid={invalidAmount0}
 					onValueChange={updateAmount0}
+					disabled={sessionLocked}
 					onInvalidChange={(invalid) => {
 						invalidAmount0 = invalid
 					}}
@@ -313,7 +439,7 @@
 						<Button.Root
 							type="button"
 							onclick={() => updateAmount1(token1Balance)}
-							disabled={token1Balance === 0n}
+							disabled={sessionLocked || token1Balance === 0n}
 						>
 							Max
 						</Button.Root>
@@ -328,6 +454,7 @@
 					value={settings.amount1}
 					invalid={invalidAmount1}
 					onValueChange={updateAmount1}
+					disabled={sessionLocked}
 					onInvalidChange={(invalid) => {
 						invalidAmount1 = invalid
 					}}
@@ -348,15 +475,16 @@
 			<div data-column="gap-2">
 				<label for="liq-fee">Fee tier</label>
 				<Select
-					items={FEE_TIERS}
+					items={uniswapFeeTiers}
 					value={String(settings.fee)}
 					onValueChange={(value) => {
 						if (!value) return
-						liquiditySettingsState.current = { ...settings, fee: Number(value) }
+						updateSessionParams({ ...settings, fee: Number(value) })
 					}}
 					getItemId={(fee) => String(fee)}
 					getItemLabel={(fee) => feeLabel(fee)}
 					id="liq-fee"
+					disabled={sessionLocked}
 				/>
 			</div>
 
@@ -370,8 +498,9 @@
 						oninput={(e) => {
 							const v = Number((e.target as HTMLInputElement).value)
 							if (Number.isNaN(v)) return
-							liquiditySettingsState.current = { ...settings, tickLower: v }
+							updateSessionParams({ ...settings, tickLower: v })
 						}}
+						disabled={sessionLocked}
 					/>
 					<span>—</span>
 					<input
@@ -380,8 +509,9 @@
 						oninput={(e) => {
 							const v = Number((e.target as HTMLInputElement).value)
 							if (Number.isNaN(v)) return
-							liquiditySettingsState.current = { ...settings, tickUpper: v }
+							updateSessionParams({ ...settings, tickUpper: v })
 						}}
+						disabled={sessionLocked}
 					/>
 				</div>
 			</div>
