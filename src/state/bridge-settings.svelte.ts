@@ -7,10 +7,17 @@ import { PersistedState } from 'runed'
 import { stringify, parse } from 'devalue'
 import { ChainId } from '$/constants/networks'
 
+export enum BridgeRouteSort {
+	Recommended = 'recommended',
+	Output = 'output',
+	Fees = 'fees',
+	Speed = 'speed',
+}
+
 export type BridgeSettings = {
 	slippage: number
 	isTestnet: boolean
-	sortBy: 'recommended' | 'output' | 'fees' | 'speed'
+	sortBy: BridgeRouteSort
 	fromChainId: number | null
 	toChainId: number | null
 	amount: bigint
@@ -21,7 +28,7 @@ export type BridgeSettings = {
 export const defaultBridgeSettings: BridgeSettings = {
 	slippage: 0.005,
 	isTestnet: false,
-	sortBy: 'recommended',
+	sortBy: BridgeRouteSort.Recommended,
 	fromChainId: ChainId.Ethereum,
 	toChainId: ChainId.Optimism,
 	amount: 1_000_000n,
