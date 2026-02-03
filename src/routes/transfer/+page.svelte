@@ -43,7 +43,7 @@
 			</summary>
 
 			<div data-column="gap-6">
-				<h1>Transfer USDC</h1>
+				<h1 data-intent-transition="route">Transfer USDC</h1>
 				<TransferFlow
 					walletConnection={selectedWallet}
 					{fromActor}

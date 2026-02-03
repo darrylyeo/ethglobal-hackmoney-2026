@@ -65,16 +65,16 @@ transaction session on selection.
 
 ## Acceptance criteria
 
-- [ ] Dragging between intent entities draws a live arrow between element rects.
-- [ ] The arrow updates with pointer movement and respects reduced motion.
-- [ ] A tooltip anchored to the arrow midpoint previews possible intents.
-- [ ] After drag end, the tooltip list becomes selectable and persists until
+- [x] Dragging between intent entities draws a live arrow between element rects.
+- [x] The arrow updates with pointer movement and respects reduced motion.
+- [x] A tooltip anchored to the arrow midpoint previews possible intents.
+- [x] After drag end, the tooltip list becomes selectable and persists until
   dismissed or a new drag starts.
-- [ ] Selecting a route navigates to the target flow with a JSON hash.
-- [ ] Dashboard selections open in a new panel when applicable.
-- [ ] View transitions connect drag endpoints and selected intent text to their
+- [x] Selecting a route navigates to the target flow with a JSON hash.
+- [x] Dashboard selections open in a new panel when applicable.
+- [x] View transitions connect drag endpoints and selected intent text to their
   corresponding form fields.
-- [ ] Drag preview uses a single SVG overlay and Floating UI for positioning.
+- [x] Drag preview uses a single SVG overlay and Floating UI for positioning.
 
 ## TODOs
 
@@ -84,7 +84,7 @@ transaction session on selection.
 
 ## Status
 
-Draft.
+Complete.
 
 ## Output when complete
 

@@ -20,6 +20,13 @@
 	import { buildIntentRoutes } from '$/lib/intents/routes'
 	import { getIntentDragPayload } from '$/lib/intents/drag'
 	import {
+		buildSessionHash,
+		createTransactionSession,
+		getTransactionSession,
+		parseSessionHash,
+		updateTransactionSessionParams,
+	} from '$/lib/transaction-sessions'
+	import {
 		formatSmallestToDecimal,
 		isValidDecimalInput,
 		parseDecimalToSmallest,
@@ -29,10 +36,17 @@
 	import { sendTransfer } from '$/api/yellow'
 	import { encodeTransferCall } from '$/api/voltaire'
 
+	type IntentSessionParams = {
+		from: IntentDragPayload | null
+		to: IntentDragPayload | null
+		routeId: string | null
+	}
+
 	// State
 	import { actorCoinsCollection } from '$/collections/actor-coins'
 	import { bridgeRoutesCollection } from '$/collections/bridge-routes'
 	import { swapQuotesCollection } from '$/collections/swap-quotes'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 	import {
 		insertTransaction,
 		updateTransaction,
@@ -47,9 +61,7 @@
 
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
-	let fromPayload = $state<IntentDragPayload | null>(null)
-	let toPayload = $state<IntentDragPayload | null>(null)
-	let selectedRouteId = $state<string | null>(null)
+	let activeSessionId = $state<string | null>(null)
 	let transferAmountInput = $state('')
 
 	const setPayload = (placement: 'from' | 'to', payload: IntentDragPayload) => {
@@ -60,8 +72,11 @@
 				placement,
 			},
 		}
-		if (placement === 'from') fromPayload = next
-		else toPayload = next
+		updateIntentParams({
+			...sessionParams,
+			from: placement === 'from' ? next : sessionParams.from,
+			to: placement === 'to' ? next : sessionParams.to,
+		})
 	}
 
 	const onDrop = (placement: 'from' | 'to') => (event: DragEvent) => {
@@ -75,7 +90,52 @@
 		event.preventDefault()
 	}
 
+	const isRecord = (value: unknown): value is Record<string, unknown> => (
+		typeof value === 'object' && value !== null
+	)
+	const isIntentDragPayload = (value: unknown): value is IntentDragPayload => {
+		if (!isRecord(value)) return false
+		const entity = value.entity
+		if (!isRecord(entity)) return false
+		return entity.type !== undefined && entity.id !== undefined
+	}
+	const normalizeIntentParams = (
+		params: Record<string, unknown> | null,
+	): IntentSessionParams => ({
+		from: isIntentDragPayload(params?.from) ? params?.from ?? null : null,
+		to: isIntentDragPayload(params?.to) ? params?.to ?? null : null,
+		routeId: typeof params?.routeId === 'string' ? params.routeId : null,
+	})
+	const activateSession = (sessionId: string) => {
+		activeSessionId = sessionId
+		if (typeof window === 'undefined') return
+		const nextHash = buildSessionHash(sessionId)
+		const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`
+		history.replaceState(history.state, '', nextUrl)
+	}
+	const updateIntentParams = (nextParams: IntentSessionParams) => {
+		if (!session) return
+		if (sessionLocked) {
+			activateSession(
+				createTransactionSession({
+					flows: [...session.flows],
+					params: nextParams,
+				}).id,
+			)
+			return
+		}
+		updateTransactionSessionParams(session.id, nextParams)
+	}
+
 	// State
+	const sessionQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
+				.select(({ row }) => ({ row })),
+		[activeSessionId],
+	)
 	const balancesQuery = useLiveQuery((q) =>
 		q
 			.from({ row: actorCoinsCollection })
@@ -96,6 +156,12 @@
 	)
 
 	// (Derived)
+	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
+	const sessionParams = $derived(normalizeIntentParams(session?.params ?? null))
+	const sessionLocked = $derived(Boolean(session?.lockedAt))
+	const fromPayload = $derived(sessionParams.from)
+	const toPayload = $derived(sessionParams.to)
+	const selectedRouteId = $derived(sessionParams.routeId)
 	const actorCoins = $derived((balancesQuery.data ?? []).map((r) => r.row))
 	const swapQuotes = $derived((swapQuotesQuery.data ?? []).map((r) => r.row))
 	const bridgeRouteOptions = $derived<IntentBridgeRouteOption[]>(
@@ -421,11 +487,47 @@
 	)
 
 	$effect(() => {
+		if (typeof window === 'undefined') return
+		const handleHash = () => {
+			const parsed = parseSessionHash(window.location.hash)
+			if (parsed.kind === 'session') {
+				if (parsed.sessionId === activeSessionId && session) return
+				if (getTransactionSession(parsed.sessionId)) {
+					activeSessionId = parsed.sessionId
+					return
+				}
+				activateSession(
+					createTransactionSession({
+						flows: ['intent'],
+						params: normalizeIntentParams(null),
+					}).id,
+				)
+				return
+			}
+			activateSession(
+				createTransactionSession({
+					flows: ['intent'],
+					params: normalizeIntentParams(
+						parsed.kind === 'params' ? parsed.params : null,
+					),
+				}).id,
+			)
+		}
+		handleHash()
+		window.addEventListener('hashchange', handleHash)
+		return () => window.removeEventListener('hashchange', handleHash)
+	})
+
+	$effect(() => {
+		if (!session) return
 		if (
 			!selectedRouteId ||
 			!routes.some((route) => route.id === selectedRouteId)
 		) {
-			selectedRouteId = routes[0]?.id ?? null
+			updateIntentParams({
+				...sessionParams,
+				routeId: routes[0]?.id ?? null,
+			})
 		}
 	})
 </script>
@@ -557,7 +659,10 @@
 							value={route.id}
 							checked={route.id === selectedRouteId}
 							onchange={() => {
-								selectedRouteId = route.id
+								updateIntentParams({
+									...sessionParams,
+									routeId: route.id,
+								})
 							}}
 						/>
 						<span>{route.label}</span>
@@ -620,7 +725,12 @@
 						mode={selectedRoute.steps[0].mode}
 					/>
 				{:else}
-					<TransactionFlow walletConnection={selectedWallet} {transactions} />
+					<TransactionFlow
+						walletConnection={selectedWallet}
+						sessionId={session?.id ?? null}
+						sessionParams={sessionParams}
+						{transactions}
+					/>
 				{/if}
 			</div>
 		</section>

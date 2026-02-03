@@ -145,9 +145,10 @@
 
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
+	import IntentDragPreview from '$/components/IntentDragPreview.svelte'
+	import GraphScene from '$/routes/GraphScene.svelte'
 	import Navigation from '$/views/Navigation.svelte'
 	import ToastContainer from '$/views/ToastContainer.svelte'
-	import GraphScene from '$/routes/GraphScene.svelte'
 
 
 	// Images
@@ -205,6 +206,8 @@
 			</Boundary>
 		</section>
 	</main>
+
+	<IntentDragPreview />
 
 	<ToastContainer
 		position="bottom-right"

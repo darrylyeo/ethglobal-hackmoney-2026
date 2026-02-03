@@ -264,9 +264,9 @@
 {#snippet transferSummary()}
 	<dl class="summary">
 		<dt>From</dt>
-		<dd>{formatAddress(settings.fromActor)}</dd>
+		<dd data-intent-transition="source">{formatAddress(settings.fromActor)}</dd>
 		<dt>To</dt>
-		<dd>{formatAddress(settings.toActor)}</dd>
+		<dd data-intent-transition="target">{formatAddress(settings.toActor)}</dd>
 		<dt>Network</dt>
 		<dd>{chainLabel}</dd>
 		<dt>Amount</dt>

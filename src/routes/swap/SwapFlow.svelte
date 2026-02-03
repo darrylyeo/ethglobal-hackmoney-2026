@@ -622,7 +622,7 @@
 	{/snippet}
 
 	<div data-row="gap-2 align-center justify-between">
-		<h2>Swap</h2>
+		<h2 data-intent-transition="route">Swap</h2>
 		<div data-row="gap-2 align-center">
 			{#if sessionLocked}
 				<Button.Root type="button" onclick={forkSession}>
@@ -644,7 +644,7 @@
 
 	{#if asNonEmpty(chainCoins) && tokenInSelection && tokenOutSelection}
 		<section data-column="gap-2">
-			<div data-card="secondary" data-column="gap-2">
+			<div data-card="secondary" data-column="gap-2" data-intent-transition="source">
 				<div data-row="gap-2 align-center justify-between">
 					<label for="swap-amount-in">From</label>
 					{#if tokenInBalance !== null}
@@ -703,7 +703,7 @@
 				</Button.Root>
 			</div>
 
-			<div data-card="secondary" data-column="gap-2">
+			<div data-card="secondary" data-column="gap-2" data-intent-transition="target">
 				<label for="swap-token-out">To</label>
 				<div data-row="gap-2 align-center wrap">
 					<div data-row-item="flexible">

@@ -312,7 +312,7 @@
 <div class="bridge-layout">
 	<section data-card data-column="gap-4">
 		<div data-row="gap-2 align-center justify-between">
-			<h2>Bridge USDC</h2>
+			<h2 data-intent-transition="route">Bridge USDC</h2>
 			{#if sessionLocked}
 				<Button.Root type="button" onclick={forkSession}>
 					New draft
@@ -321,7 +321,12 @@
 		</div>
 
 		<div data-row="gap-4">
-			<div data-column="gap-1" style="flex:1" data-from-chain>
+			<div
+				data-column="gap-1"
+				style="flex:1"
+				data-from-chain
+				data-intent-transition="source"
+			>
 				<label for="from">From</label>
 				<NetworkInput
 					networks={filteredNetworks}
@@ -337,7 +342,12 @@
 					disabled={sessionLocked}
 				/>
 			</div>
-			<div data-column="gap-1" style="flex:1" data-to-chain>
+			<div
+				data-column="gap-1"
+				style="flex:1"
+				data-to-chain
+				data-intent-transition="target"
+			>
 				<label for="to">To</label>
 				<NetworkInput
 					networks={filteredNetworks}
