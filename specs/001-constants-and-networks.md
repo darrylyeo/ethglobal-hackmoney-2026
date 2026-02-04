@@ -31,7 +31,7 @@ Chain and token constants for USDC bridging.
 
 ## Status
 
-Complete. ~40 chains with Mainnet/Testnet classification. Re-verification 2026-02-04: all 6 acceptance criteria confirmed in networks.ts and coins.ts (NetworkType, ChainId, networks, ercTokens, networksByChainId, ercTokensBySymbolByChainId); test:unit passed.
+Complete. ~40 chains with Mainnet/Testnet classification. Re-verification 2026-02-04: all 6 acceptance criteria confirmed in networks.ts and coins.ts (NetworkType, ChainId, networks, ercTokens, networksByChainId, ercTokensBySymbolByChainId); test:unit passed. Re-verification 2026-02-04 (PROMPT_build): same criteria re-checked; test:unit 41 Deno + 98 Vitest passed.
 
 ## Output when complete
 
