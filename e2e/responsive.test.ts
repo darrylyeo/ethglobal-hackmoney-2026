@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures/tevm.js'
 
 const MOBILE = { width: 375, height: 667 }
 const DESKTOP = { width: 1280, height: 800 }
@@ -36,7 +36,7 @@ for (const { path, name } of CORE_ROUTES) {
 	}) => {
 		await page.setViewportSize(MOBILE)
 		await page.goto(path)
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 15_000,
 		})
 		await assertNoHorizontalOverflow(page)
@@ -47,7 +47,7 @@ for (const { path, name } of CORE_ROUTES) {
 	}) => {
 		await page.setViewportSize(DESKTOP)
 		await page.goto(path)
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 15_000,
 		})
 		await assertNoHorizontalOverflow(page)

@@ -1,20 +1,29 @@
-import { expect, test } from '@playwright/test'
-import { addMockWallet, injectMockWalletInPage } from './test-setup.js'
+import { expect, test } from './fixtures/tevm.js'
+import {
+	addTevmWallet,
+	ensureWalletConnected,
+	selectChainOption,
+} from './test-setup.js'
 
 test.describe('Unified Bridge (Spec 037)', () => {
-	test.beforeEach(async ({ context, page }) => {
-		await addMockWallet(context, page)
+	test.beforeEach(async ({ context, page, tevm }) => {
+		await addTevmWallet(context, page, {
+			rpcUrl: tevm.rpcUrl,
+			chainId: tevm.chainId,
+			address: tevm.walletAddress,
+			rdns: tevm.providerRdns,
+			name: tevm.providerName,
+		})
 		await page.goto('/bridge')
-		await injectMockWalletInPage(page)
 	})
 
 	test('unified bridge renders with chain selects, amount, protocol section', async ({
 		page,
 	}) => {
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.locator('#main')).toContainText(
+		await expect(page.locator('#main').first()).toContainText(
 			/USDC Bridge|Connect a wallet/,
 			{ timeout: 45_000 },
 		)
@@ -32,54 +41,30 @@ test.describe('Unified Bridge (Spec 037)', () => {
 	test('chain pair supported by both defaults to CCTP badge', async ({
 		page,
 	}) => {
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await page.getByRole('button', { name: 'Connect Wallet' }).click()
-		await page
-			.locator('[data-wallet-provider-option]')
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.locator('[data-wallet-provider-option]').click()
-		await expect(page.locator('[data-wallet-address]')).toBeVisible({
-			timeout: 15_000,
-		})
-		await page.getByLabel('From chain').focus()
-		await page.getByLabel('From chain').press('ArrowDown')
-		await page
-			.getByRole('option', { name: 'Ethereum' })
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page
-			.getByRole('option', { name: 'Ethereum' })
-			.evaluate((el) => (el as HTMLElement).click())
-		await page.keyboard.press('Escape')
-		await page.getByLabel('To chain').focus()
-		await page.getByLabel('To chain').press('ArrowDown')
-		await page.getByRole('option').first().waitFor({ state: 'visible', timeout: 10_000 })
-		await page.keyboard.press('ArrowDown')
-		await page.keyboard.press('Enter')
+		await ensureWalletConnected(page)
+		await selectChainOption(page, 'From chain', 'Ethereum')
+		await selectChainOption(page, 'To chain', 'OP Mainnet')
 		await expect(
 			page.locator('[data-protocol="cctp"]'),
 		).toContainText('CCTP')
 		await expect(
-			page.getByText(/Defaulting to CCTP|Preferring CCTP/),
+			page.getByText(/Using CCTP|Only CCTP supports/),
 		).toBeVisible()
 	})
 
 	test.fixme('chain pair that only LI.FI supports selects LI.FI', async ({
 		page,
 	}) => {
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await page.getByRole('button', { name: 'Connect Wallet' }).click()
-		await page
-			.locator('[data-wallet-provider-option]')
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.locator('[data-wallet-provider-option]').click()
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 15_000,
 		})
-		await page.locator('#main').evaluate((el) => {
+		await page.locator('#main').first().evaluate((el) => {
 			el.querySelector<HTMLElement>('[data-to-chain]')?.scrollIntoView({
 				block: 'center',
 			})
@@ -106,40 +91,21 @@ test.describe('Unified Bridge (Spec 037)', () => {
 	test('shared pair defaults to CCTP, then Prefer LI.FI shows LI.FI, Continue goes to /bridge/lifi', async ({
 		page,
 	}) => {
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await page.getByRole('button', { name: 'Connect Wallet' }).click()
-		await page
-			.locator('[data-wallet-provider-option]')
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.locator('[data-wallet-provider-option]').click()
-		await expect(page.locator('[data-wallet-address]')).toBeVisible({
-			timeout: 15_000,
-		})
-		await page.getByLabel('From chain').focus()
-		await page.getByLabel('From chain').press('ArrowDown')
-		await page
-			.getByRole('option', { name: 'Ethereum' })
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page
-			.getByRole('option', { name: 'Ethereum' })
-			.evaluate((el) => (el as HTMLElement).click())
-		await page.keyboard.press('Escape')
-		await page.getByLabel('To chain').focus()
-		await page.getByLabel('To chain').press('ArrowDown')
-		await page.getByRole('option').first().waitFor({ state: 'visible', timeout: 10_000 })
-		await page.keyboard.press('ArrowDown')
-		await page.keyboard.press('Enter')
+		await ensureWalletConnected(page)
+		await selectChainOption(page, 'From chain', 'Ethereum')
+		await selectChainOption(page, 'To chain', 'OP Mainnet')
 		await expect(
 			page.locator('[data-protocol="cctp"]'),
 		).toContainText('CCTP')
-		await page.getByRole('button', { name: 'Prefer LI.FI' }).click()
+		await page.getByRole('button', { name: 'LI.FI' }).click()
 		await expect(
 			page.locator('[data-protocol="lifi"]'),
 		).toContainText('LI.FI')
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
-		await page.getByRole('button', { name: 'Continue to LI.FI' }).click()
+		await page.getByRole('button', { name: 'Continue' }).click()
 		await expect(page).toHaveURL(/\/bridge\/lifi/)
 	})
 })
@@ -147,10 +113,10 @@ test.describe('Unified Bridge (Spec 037)', () => {
 test.describe('Unified Bridge routing (Spec 037)', () => {
 	test('/bridge/lifi renders LI.FI bridge UI', async ({ page }) => {
 		await page.goto('/bridge/lifi')
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.locator('#main')).toContainText(
+		await expect(page.locator('#main').first()).toContainText(
 			/USDC Bridge|Connect a wallet/,
 		)
 		await expect(page.getByLabel('From chain')).toBeAttached()
@@ -159,10 +125,10 @@ test.describe('Unified Bridge routing (Spec 037)', () => {
 
 	test('/bridge/cctp renders CCTP bridge UI', async ({ page }) => {
 		await page.goto('/bridge/cctp')
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.locator('#main')).toContainText(
+		await expect(page.locator('#main').first()).toContainText(
 			/USDC Bridge \(CCTP\)|Connect a wallet/,
 		)
 		await expect(page.getByLabel('From chain')).toBeAttached()
@@ -171,7 +137,7 @@ test.describe('Unified Bridge routing (Spec 037)', () => {
 
 	test('/bridge renders unified bridge UI', async ({ page }) => {
 		await page.goto('/bridge')
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(

@@ -1,42 +1,44 @@
-import { expect, test } from '@playwright/test'
-import { addMockWallet, injectMockWalletInPage } from './test-setup.js'
+import { expect, test } from './fixtures/tevm.js'
+import {
+	addLifiRoutesMock,
+	addTevmWallet,
+	ensureWalletConnected,
+	selectChainOption,
+} from './test-setup.js'
 
 test.describe('E2E bridge flow', () => {
-	test.describe('happy path with mocked wallet', () => {
-		test.beforeEach(async ({ context, page }) => {
-			await addMockWallet(context, page)
+	test.describe('happy path with tevm wallet', () => {
+		test.beforeEach(async ({ context, page, tevm }) => {
+			await addTevmWallet(context, page, {
+				rpcUrl: tevm.rpcUrl,
+				chainId: tevm.chainId,
+				address: tevm.walletAddress,
+				rdns: tevm.providerRdns,
+				name: tevm.providerName,
+			})
 			await page.goto('/bridge/lifi')
-			await injectMockWalletInPage(page)
+			await addLifiRoutesMock(page)
 		})
 
 		test('connect → balance → select → amount → get routes (result or no-routes)', async ({
 			page,
 		}) => {
-			await expect(page.locator('#main')).toBeAttached({
+			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
-			await expect(page.locator('#main')).toContainText(
+			await expect(page.locator('#main').first()).toContainText(
 				/USDC Bridge|Connect a wallet/,
 				{
 					timeout: 15_000,
 				},
 			)
-			await page.getByRole('button', { name: 'Connect Wallet' }).click()
-			await page
-				.getByRole('menuitem', { name: 'Mock Wallet' })
-				.waitFor({ state: 'visible', timeout: 10_000 })
-			await page.getByRole('menuitem', { name: 'Mock Wallet' }).click({
-				force: true,
-			})
-			await expect(page.locator('[data-wallet-address]')).toBeVisible({
-				timeout: 15_000,
-			})
-			await expect(page.locator('[data-balances-grid]')).toBeVisible({
-				timeout: 20_000,
-			})
+			await ensureWalletConnected(page)
 			await expect(
-				page.locator('#main').getByRole('heading', {
+				page.getByRole('heading', { name: 'Your balances' }),
+			).toBeVisible({ timeout: 20_000 })
+			await expect(
+				page.locator('#main').first().getByRole('heading', {
 					name: 'Bridge USDC',
 					level: 2,
 				}),
@@ -90,29 +92,20 @@ test.describe('E2E bridge flow', () => {
 		test('transaction history section visible when connected', async ({
 			page,
 		}) => {
-			await expect(page.locator('#main')).toBeAttached({
+			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
-			await expect(page.locator('#main')).toContainText(
+			await expect(page.locator('#main').first()).toContainText(
 				/USDC Bridge|Connect a wallet/,
 				{
 					timeout: 15_000,
 				},
 			)
-			await page.getByRole('button', { name: 'Connect Wallet' }).click()
-			await page
-				.getByRole('menuitem', { name: 'Mock Wallet' })
-				.waitFor({ state: 'visible', timeout: 10_000 })
-			await page.getByRole('menuitem', { name: 'Mock Wallet' }).click({
-				force: true,
-			})
-			await expect(page.locator('[data-wallet-address]')).toBeVisible({
-				timeout: 15_000,
-			})
-			await expect(page.locator('[data-balances-grid]')).toBeVisible({
-				timeout: 20_000,
-			})
+			await ensureWalletConnected(page)
+			await expect(
+				page.getByRole('heading', { name: 'Your balances' }),
+			).toBeVisible({ timeout: 20_000 })
 			await page
 				.getByRole('button', { name: /Transaction history/ })
 				.scrollIntoViewIfNeeded()
@@ -123,15 +116,21 @@ test.describe('E2E bridge flow', () => {
 	})
 
 	test.describe('testnet/mainnet toggle', () => {
-		test.beforeEach(async ({ context, page }) => {
-			await addMockWallet(context, page)
+		test.beforeEach(async ({ context, page, tevm }) => {
+			await addTevmWallet(context, page, {
+				rpcUrl: tevm.rpcUrl,
+				chainId: tevm.chainId,
+				address: tevm.walletAddress,
+				rdns: tevm.providerRdns,
+				name: tevm.providerName,
+			})
 			await page.goto('/bridge/lifi')
-			await injectMockWalletInPage(page)
-			await expect(page.locator('#main')).toBeAttached({
+			await addLifiRoutesMock(page)
+			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
-			await expect(page.locator('#main')).toContainText(
+			await expect(page.locator('#main').first()).toContainText(
 				/USDC Bridge|Connect a wallet/,
 				{
 					timeout: 15_000,
@@ -142,28 +141,15 @@ test.describe('E2E bridge flow', () => {
 		test('toggle filters chains: mainnet shows Ethereum, testnet shows Sepolia', async ({
 			page,
 		}) => {
-			await page.getByRole('button', { name: 'Connect Wallet' }).click()
-			await page
-				.getByRole('menuitem', { name: 'Mock Wallet' })
-				.waitFor({ state: 'visible', timeout: 10_000 })
-			await page.getByRole('menuitem', { name: 'Mock Wallet' }).click({
-				force: true,
-			})
-			await expect(page.locator('[data-wallet-address]')).toBeVisible({
-				timeout: 15_000,
-			})
-			await expect(page.locator('[data-balances-grid]')).toBeVisible({
-				timeout: 20_000,
-			})
+			await ensureWalletConnected(page)
+			await expect(
+				page.getByRole('heading', { name: 'Your balances' }),
+			).toBeVisible({ timeout: 20_000 })
 			await page.locator('[data-from-chain]').scrollIntoViewIfNeeded()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText(
 				'Mainnet',
 			)
-			await page.getByLabel('From chain').focus()
-			await page.getByLabel('From chain').press('ArrowDown')
-			await expect(
-				page.getByRole('option', { name: 'Ethereum' }),
-			).toBeVisible({ timeout: 10_000 })
+			await selectChainOption(page, 'From chain', 'Ethereum')
 			await page.locator('[data-wallet-network-testnet]').click()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText(
 				'Testnet',
@@ -174,35 +160,23 @@ test.describe('E2E bridge flow', () => {
 			await expect(page.locator('[data-from-chain]')).toBeVisible({
 				timeout: 15_000,
 			})
-			await page.getByLabel('From chain').focus()
-			await page.getByLabel('From chain').press('ArrowDown')
-			await page.getByLabel('From chain').fill('Sepolia')
-			await page
-				.getByRole('option', { name: /Sepolia/i })
-				.first()
-				.waitFor({ state: 'visible', timeout: 15_000 })
-			const hasSepolia =
-				(await page.getByRole('option', { name: /Sepolia/i }).count()) > 0
-			expect(hasSepolia).toBe(true)
+			const fromChainTrigger = page.getByLabel('From chain')
+			await fromChainTrigger.focus()
+			await fromChainTrigger.press('ArrowDown')
+			await expect(
+				page.getByRole('option', { name: /Sepolia/i }).first(),
+			).toBeVisible({ timeout: 15_000 })
+			await page.keyboard.press('Escape')
 		})
 
 		test('switching testnet/mainnet resets chain selections when current not in filtered list', async ({
 			page,
 		}) => {
-			await page.getByRole('button', { name: 'Connect Wallet' }).click()
-			await page
-				.getByRole('menuitem', { name: 'Mock Wallet' })
-				.waitFor({ state: 'visible', timeout: 10_000 })
-			await page.getByRole('menuitem', { name: 'Mock Wallet' }).click({
-				force: true,
-			})
-			await expect(page.locator('[data-wallet-address]')).toBeVisible({
-				timeout: 15_000,
-			})
-			await expect(page.locator('[data-balances-grid]')).toBeVisible({
-				timeout: 20_000,
-			})
-			await page.locator('#main').evaluate((el) => {
+			await ensureWalletConnected(page)
+			await expect(
+				page.getByRole('heading', { name: 'Your balances' }),
+			).toBeVisible({ timeout: 20_000 })
+			await page.locator('#main').first().evaluate((el) => {
 				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
 					block: 'center',
 				})
@@ -237,11 +211,11 @@ test.describe('E2E bridge flow', () => {
 			page,
 		}) => {
 			await page.goto('/bridge/lifi')
-			await expect(page.locator('#main')).toBeAttached({
+			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
-			await expect(page.locator('#main')).toContainText(
+			await expect(page.locator('#main').first()).toContainText(
 				/USDC Bridge|Connect a wallet/,
 				{
 					timeout: 15_000,
@@ -249,35 +223,31 @@ test.describe('E2E bridge flow', () => {
 			)
 		})
 
-		test('with mock wallet: connect then routes error shows retry/dismiss', async ({
+		test('with tevm wallet: routes error shows retry/dismiss', async ({
 			context,
 			page,
+			tevm,
 		}) => {
-			await addMockWallet(context, page)
+			await addTevmWallet(context, page, {
+				rpcUrl: tevm.rpcUrl,
+				chainId: tevm.chainId,
+				address: tevm.walletAddress,
+				rdns: tevm.providerRdns,
+				name: tevm.providerName,
+			})
 			await page.goto('/bridge/lifi')
-			await injectMockWalletInPage(page)
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
-			await expect(page.locator('#main')).toContainText(
+			await expect(page.locator('#main').first()).toContainText(
 				/USDC Bridge|Connect a wallet/,
 				{
 					timeout: 15_000,
 				},
 			)
-			await page
-				.getByRole('button', { name: 'Connect Wallet' })
-				.scrollIntoViewIfNeeded()
-			await page.getByRole('button', { name: 'Connect Wallet' }).click()
-			await page
-				.locator('[data-wallet-provider-option]')
-				.waitFor({ state: 'visible', timeout: 10_000 })
-			await page.locator('[data-wallet-provider-option]').click()
-			await expect(page.locator('[data-wallet-address]')).toBeVisible({
-				timeout: 15_000,
-			})
-			await expect(page.locator('[data-balances-grid]')).toBeVisible({
-				timeout: 20_000,
-			})
-			await page.locator('#main').evaluate((el) => {
+			await ensureWalletConnected(page)
+			await expect(
+				page.getByRole('heading', { name: 'Your balances' }),
+			).toBeVisible({ timeout: 20_000 })
+			await page.locator('#main').first().evaluate((el) => {
 				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
 					block: 'center',
 				})

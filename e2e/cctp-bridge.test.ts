@@ -1,34 +1,32 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures/tevm.js'
 import {
 	addCctpMocks,
-	addMockWallet,
-	injectMockWalletInPage,
+	addTevmWallet,
+	ensureWalletConnected,
 } from './test-setup.js'
 
 test.describe('CCTP Bridge (Spec 036)', () => {
-	test.beforeEach(async ({ context, page }) => {
-		await addMockWallet(context, page)
+	test.beforeEach(async ({ context, page, tevm }) => {
+		await addTevmWallet(context, page, {
+			rpcUrl: tevm.rpcUrl,
+			chainId: tevm.chainId,
+			address: tevm.walletAddress,
+			rdns: tevm.providerRdns,
+			name: tevm.providerName,
+		})
 		await addCctpMocks(page)
 		await page.goto('/bridge/cctp')
-		await injectMockWalletInPage(page)
 	})
 
 	test('select chains, enter amount', async ({ page }) => {
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.locator('#main')).toContainText(
+		await expect(page.locator('#main').first()).toContainText(
 			/USDC Bridge \(CCTP\)|Connect a wallet/,
 			{ timeout: 45_000 },
 		)
-		await page.getByRole('button', { name: 'Connect Wallet' }).click()
-		await page
-			.locator('[data-wallet-provider-option]')
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.locator('[data-wallet-provider-option]').click()
-		await expect(page.locator('[data-wallet-address]')).toBeVisible({
-			timeout: 15_000,
-		})
+		await ensureWalletConnected(page)
 		await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 15_000 })
 		await page.getByLabel('From chain').focus()
 		await page.getByLabel('From chain').press('ArrowDown')
@@ -44,17 +42,10 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 	})
 
 	test('Fast Transfer fee and allowance displayed', async ({ page }) => {
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await page.getByRole('button', { name: 'Connect Wallet' }).click()
-		await page
-			.locator('[data-wallet-provider-option]')
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.locator('[data-wallet-provider-option]').click()
-		await expect(page.locator('[data-wallet-address]')).toBeVisible({
-			timeout: 15_000,
-		})
+		await ensureWalletConnected(page)
 		await page.getByLabel('From chain').focus()
 		await page.getByLabel('From chain').press('ArrowDown')
 		await page.getByRole('option').first().waitFor({ state: 'visible', timeout: 10_000 })
@@ -73,7 +64,7 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 	})
 
 	test.skip('confirmation dialog before send', async ({ page }) => {
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
 		await page.getByRole('button', { name: 'Connect Wallet' }).click()

@@ -4,9 +4,14 @@ export default defineConfig({
 	timeout: 60_000,
 	testDir: 'e2e',
 	testMatch: '**/*.test.ts',
+	workers: 1,
 	use: { baseURL: 'http://localhost:4173' },
 	webServer: {
-		command: 'pnpm run build && pnpm run preview',
+		command: 'deno task build && deno task preview',
+		env: {
+			PUBLIC_E2E_TEVM: '1',
+			PUBLIC_E2E_TEVM_RPC_URL: 'http://127.0.0.1:8545',
+		},
 		url: 'http://localhost:4173/',
 		timeout: 120_000,
 		reuseExistingServer: true,

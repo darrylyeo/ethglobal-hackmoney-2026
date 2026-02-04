@@ -36,6 +36,98 @@ const mockWalletInitScript = () => {
 	window.addEventListener('eip6963:requestProvider', () => {
 		announce()
 	})
+	for (const ms of [0, 50, 150, 300, 500, 800, 1200, 2000, 3000, 5000]) {
+		setTimeout(announce, ms)
+	}
+}
+
+const tevmWalletInitScript = (opts: {
+	rpcUrl: string
+	chainId: number
+	address: string
+	rdns: string
+	name: string
+}) => {
+	Object.assign(window, {
+		__E2E_TEVM__: true,
+		__E2E_TEVM_RPC_URL__: opts.rpcUrl,
+	})
+	let activeChainId = opts.chainId
+	const listeners = new Map<string, Array<(payload: unknown) => void>>()
+	const emit = (event: string, payload: unknown) => {
+		const handlers = listeners.get(event) ?? []
+		for (const handler of handlers) handler(payload)
+	}
+	const provider = {
+		request: async (args: { method: string; params?: unknown[] }) => {
+			if (args.method === 'eth_chainId') {
+				return `0x${activeChainId.toString(16)}`
+			}
+			if (
+				args.method === 'eth_requestAccounts' ||
+				args.method === 'eth_accounts'
+			) {
+				emit('accountsChanged', [opts.address])
+				return [opts.address]
+			}
+			if (args.method === 'wallet_switchEthereumChain') {
+				const next = (
+					(args.params?.[0] as { chainId?: string } | undefined)?.chainId ??
+					`0x${activeChainId.toString(16)}`
+				).toLowerCase()
+				activeChainId = parseInt(next, 16)
+				emit('chainChanged', `0x${activeChainId.toString(16)}`)
+				return null
+			}
+			if (args.method === 'wallet_addEthereumChain') return null
+			const response = await fetch(opts.rpcUrl, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					jsonrpc: '2.0',
+					id: Date.now(),
+					method: args.method,
+					params: args.params ?? [],
+				}),
+			})
+			const payload = await response.json()
+			if (payload.error) throw new Error(payload.error.message ?? 'RPC error')
+			return payload.result
+		},
+		on: (event: string, handler: (payload: unknown) => void) => {
+			const existing = listeners.get(event) ?? []
+			listeners.set(event, [...existing, handler])
+			return provider
+		},
+		removeListener: (event: string, handler: (payload: unknown) => void) => {
+			const existing = listeners.get(event) ?? []
+			listeners.set(
+				event,
+				existing.filter((entry) => entry !== handler),
+			)
+			return provider
+		},
+	}
+	const detail = {
+		info: {
+			uuid: 'tevm-e2e-wallet',
+			name: opts.name,
+			icon: '',
+			rdns: opts.rdns,
+		},
+		provider,
+	}
+	Object.assign(window, {
+		__E2E_TEVM_PROVIDER__: detail,
+	})
+	const announce = () => {
+		window.dispatchEvent(
+			new CustomEvent('eip6963:announceProvider', { detail }),
+		)
+	}
+	window.addEventListener('eip6963:requestProvider', () => {
+		announce()
+	})
 	for (const ms of [0, 50, 150, 300, 500, 800, 1200]) {
 		setTimeout(announce, ms)
 	}
@@ -78,6 +170,55 @@ export async function injectMockWalletInPage(
 		setTimeout(announce, 50)
 		setTimeout(announce, 200)
 	}, MOCK_ADDRESS)
+}
+
+export async function addTevmWallet(
+	context: { addInitScript: (fn: (...args: unknown[]) => void, ...args: unknown[]) => Promise<void> },
+	page: { addInitScript: (fn: (...args: unknown[]) => void, ...args: unknown[]) => Promise<void> } | undefined,
+	opts: {
+		rpcUrl: string
+		chainId: number
+		address: `0x${string}`
+		rdns: string
+		name: string
+	},
+) {
+	await context.addInitScript(tevmWalletInitScript, opts)
+	if (page) {
+		await page.addInitScript(tevmWalletInitScript, opts)
+	}
+}
+
+export const ensureWalletConnected = async (
+	page: import('@playwright/test').Page,
+) => {
+	const walletAddress = page.locator('[data-wallet-address]')
+	if (await walletAddress.count()) {
+		if (await walletAddress.first().isVisible()) return
+	}
+	const connectTrigger = page.locator('[data-wallet-connect-trigger]')
+	if (await connectTrigger.count()) {
+		await connectTrigger.click()
+		const providerOption = page.locator('[data-wallet-provider-option]').first()
+		if (await providerOption.count()) {
+			await providerOption.click()
+		}
+	}
+	await walletAddress.waitFor({ state: 'visible', timeout: 20_000 })
+}
+
+export const selectChainOption = async (
+	page: import('@playwright/test').Page,
+	label: string,
+	optionName: string | RegExp,
+) => {
+	const trigger = page.getByLabel(label)
+	await trigger.focus()
+	await trigger.press('ArrowDown')
+	const option = page.getByRole('option', { name: optionName }).first()
+	await option.waitFor({ state: 'visible', timeout: 15_000 })
+	await option.click()
+	await page.keyboard.press('Escape')
 }
 
 export async function addMockWallet(

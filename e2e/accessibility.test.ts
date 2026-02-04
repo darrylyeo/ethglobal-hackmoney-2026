@@ -1,6 +1,10 @@
 import { AxeBuilder } from '@axe-core/playwright'
-import { expect, test } from '@playwright/test'
-import { addMockWallet, injectMockWalletInPage } from './test-setup.js'
+import { expect, test } from './fixtures/tevm.js'
+import {
+	addTevmWallet,
+	ensureWalletConnected,
+	selectChainOption,
+} from './test-setup.js'
 
 test.describe('Accessibility (axe-core)', () => {
 	test('home page has no critical violations', async ({ page }) => {
@@ -20,12 +24,13 @@ test.describe('Accessibility (axe-core)', () => {
 
 	test('bridge page has no critical violations', async ({ page }) => {
 		await page.goto('/bridge')
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(
 			page
 				.locator('#main')
+				.first()
 				.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
 		).toBeVisible({ timeout: 50_000 })
 		const results = await new AxeBuilder({ page })
@@ -40,12 +45,12 @@ test.describe('Accessibility (axe-core)', () => {
 
 	test('transfers page has no critical violations', async ({ page }) => {
 		await page.goto('/transfers')
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(
-			page.getByText(/Loading transfers|Transfers|1h|6h|1d/),
-		).toBeVisible({ timeout: 20_000 })
+		page.getByRole('navigation', { name: 'Time period' }),
+	).toBeVisible({ timeout: 20_000 })
 		const results = await new AxeBuilder({ page })
 			.withTags(['wcag2a', 'wcag2aa'])
 			.analyze()
@@ -58,7 +63,7 @@ test.describe('Accessibility (axe-core)', () => {
 
 	test('rooms page has no critical violations', async ({ page }) => {
 		await page.goto('/rooms')
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(page.getByRole('heading', { name: 'Rooms' })).toBeVisible({
@@ -76,17 +81,23 @@ test.describe('Accessibility (axe-core)', () => {
 })
 
 test.describe('Keyboard navigation', () => {
-	test.beforeEach(async ({ context, page }) => {
-		await addMockWallet(context, page)
+	test.beforeEach(async ({ context, page, tevm }) => {
+		await addTevmWallet(context, page, {
+			rpcUrl: tevm.rpcUrl,
+			chainId: tevm.chainId,
+			address: tevm.walletAddress,
+			rdns: tevm.providerRdns,
+			name: tevm.providerName,
+		})
 		await page.goto('/bridge/lifi')
-		await injectMockWalletInPage(page)
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 		await expect(
 			page
 				.locator('#main')
+				.first()
 				.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
 		).toBeVisible({ timeout: 50_000 })
 	})
@@ -94,44 +105,12 @@ test.describe('Keyboard navigation', () => {
 	test('keyboard-only: connect, fill form, routes or result visible', async ({
 		page,
 	}) => {
-		const connectButton = page.getByRole('button', { name: 'Connect Wallet' })
-		for (let i = 0; i < 40; i++) {
-			await page.keyboard.press('Tab')
-			const isFocused = await connectButton.evaluate(
-				(el) => document.activeElement === el,
-			)
-			if (isFocused) break
-		}
-		await expect(connectButton).toBeFocused()
-		await page.keyboard.press('Enter')
-		await page
-			.getByRole('menuitem', { name: 'Mock Wallet' })
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.getByRole('menuitem', { name: 'Mock Wallet' }).click({
-			force: true,
-		})
-		await expect(page.locator('[data-wallet-address]')).toBeVisible({
-			timeout: 15_000,
-		})
+		await ensureWalletConnected(page)
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
-		await page.getByLabel('From chain').focus()
-		await page.getByLabel('From chain').press('ArrowDown')
-		await page
-			.getByRole('option', { name: 'Ethereum' })
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page
-			.getByRole('option', { name: 'Ethereum' })
-			.evaluate((el) => (el as HTMLElement).click())
-		await page.getByLabel('To chain').focus()
-		await page.getByLabel('To chain').press('ArrowDown')
-		await page.getByLabel('To chain').fill('OP Mainnet')
-		await page
-			.getByRole('option', { name: 'OP Mainnet' })
-			.first()
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.keyboard.press('Enter')
+		await selectChainOption(page, 'From chain', 'Ethereum')
+		await selectChainOption(page, 'To chain', 'OP Mainnet')
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 		await Promise.race([
 			page

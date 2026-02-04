@@ -1,59 +1,45 @@
-import { expect, test } from '@playwright/test'
-import { addMockWallet, injectMockWalletInPage } from './test-setup.js'
+import { expect, test } from './fixtures/tevm.js'
+import {
+	addLifiRoutesMock,
+	addTevmWallet,
+	ensureWalletConnected,
+	selectChainOption,
+} from './test-setup.js'
 
 test.describe('Bridge UI (Spec 004)', () => {
-	test.beforeEach(async ({ context, page }) => {
-		await addMockWallet(context, page)
+	test.beforeEach(async ({ context, page, tevm }) => {
+		await addTevmWallet(context, page, {
+			rpcUrl: tevm.rpcUrl,
+			chainId: tevm.chainId,
+			address: tevm.walletAddress,
+			rdns: tevm.providerRdns,
+			name: tevm.providerName,
+		})
 		await page.goto('/bridge/lifi')
-		await injectMockWalletInPage(page)
+		await addLifiRoutesMock(page)
 	})
 
 	test('select source chain, destination chain, enter amount and address', async ({
 		page,
 	}) => {
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.locator('#main')).toContainText(
+		await expect(page.locator('#main').first()).toContainText(
 			/USDC Bridge|Connect a wallet/,
 			{ timeout: 45_000 },
 		)
-		const connectTrigger = page.locator('[data-wallet-connect-trigger]')
-		await connectTrigger.scrollIntoViewIfNeeded()
-		await connectTrigger.dispatchEvent('click')
-		await page
-			.locator('[data-wallet-provider-option]')
-			.first()
-			.waitFor({ state: 'visible', timeout: 20_000 })
-		await page.locator('[data-wallet-provider-option]').click()
-		await expect(page.locator('[data-wallet-address]')).toBeVisible({
-			timeout: 15_000,
-		})
+		await ensureWalletConnected(page)
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
-		await page.locator('#main').evaluate((el) => {
+		await page.locator('#main').first().evaluate((el) => {
 			el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
 				block: 'center',
 			})
 		})
-		await page.getByLabel('From chain').focus()
-		await page.getByLabel('From chain').press('ArrowDown')
-		await page
-			.getByRole('option', { name: 'Ethereum' })
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.getByRole('option', { name: 'Ethereum' }).evaluate((el) => (el as HTMLElement).click())
-		await page.getByLabel('To chain').focus()
-		await page.getByLabel('To chain').press('ArrowDown')
-		await page.getByLabel('To chain').fill('OP Mainnet')
-		await page
-			.getByRole('option', { name: 'OP Mainnet' })
-			.first()
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page
-			.getByRole('option', { name: 'OP Mainnet' })
-			.first()
-			.evaluate((el) => (el as HTMLElement).click())
+		await selectChainOption(page, 'From chain', 'Ethereum')
+		await selectChainOption(page, 'To chain', 'OP Mainnet')
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 		await expect(page.locator('[data-from-chain]')).toBeVisible()
 		await expect(page.locator('[data-to-chain]')).toBeVisible()
@@ -63,49 +49,24 @@ test.describe('Bridge UI (Spec 004)', () => {
 	test('routes auto-fetch after chains and amount; quote result or no-routes or error visible', async ({
 		page,
 	}) => {
-		await expect(page.locator('#main')).toBeAttached({
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.locator('#main')).toContainText(
+		await expect(page.locator('#main').first()).toContainText(
 			/USDC Bridge|Connect a wallet/,
 			{ timeout: 45_000 },
 		)
-		const connectTrigger = page.locator('[data-wallet-connect-trigger]')
-		await connectTrigger.scrollIntoViewIfNeeded()
-		await connectTrigger.dispatchEvent('click')
-		await page
-			.locator('[data-wallet-provider-option]')
-			.first()
-			.waitFor({ state: 'visible', timeout: 20_000 })
-		await page.locator('[data-wallet-provider-option]').click()
-		await expect(page.locator('[data-wallet-address]')).toBeVisible({
-			timeout: 15_000,
-		})
+		await ensureWalletConnected(page)
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
-		await page.locator('#main').evaluate((el) => {
+		await page.locator('#main').first().evaluate((el) => {
 			el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
 				block: 'center',
 			})
 		})
-		await page.getByLabel('From chain').focus()
-		await page.getByLabel('From chain').press('ArrowDown')
-		await page
-			.getByRole('option', { name: 'Ethereum' })
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page.getByRole('option', { name: 'Ethereum' }).evaluate((el) => (el as HTMLElement).click())
-		await page.getByLabel('To chain').focus()
-		await page.getByLabel('To chain').press('ArrowDown')
-		await page.getByLabel('To chain').fill('OP Mainnet')
-		await page
-			.getByRole('option', { name: 'OP Mainnet' })
-			.first()
-			.waitFor({ state: 'visible', timeout: 10_000 })
-		await page
-			.getByRole('option', { name: 'OP Mainnet' })
-			.first()
-			.evaluate((el) => (el as HTMLElement).click())
+		await selectChainOption(page, 'From chain', 'Ethereum')
+		await selectChainOption(page, 'To chain', 'OP Mainnet')
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 		await Promise.race([
 			page
