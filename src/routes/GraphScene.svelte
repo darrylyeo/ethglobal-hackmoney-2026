@@ -39,14 +39,18 @@
 	import { yellowChannelsCollection } from '$/collections/yellow-channels'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
 	import { yellowTransfersCollection } from '$/collections/yellow-transfers'
-	import { networksByChainId } from '$/constants/networks'
+	import { NetworkType, networksByChainId } from '$/constants/networks'
 	import { EntityType } from '$/data/$EntityType'
 	import { entityTypes, type GraphSceneEntityType } from '$/constants/entity-types'
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits'
 
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { useLiveQueryContext } from '$/svelte/live-query-context.svelte'
+	import {
+		useLiveQueryContext,
+		useLocalLiveQueryContext,
+		type LiveQueryEntry,
+	} from '$/svelte/live-query-context.svelte'
 
 	// Functions
 	import Graph from 'graphology'
@@ -58,13 +62,18 @@
 	import SigmaGraphView from '$/components/SigmaGraphView.svelte'
 
 	// Context
-	const liveQueryCtx = useLiveQueryContext()
+	const globalLiveQueryCtx = useLiveQueryContext()
+	const localLiveQueryCtx = useLocalLiveQueryContext()
 
 	// Props
 	let {
 		visible = false,
+		queryStack,
+		globalQueryStack,
 	}: {
 		visible?: boolean
+		queryStack?: LiveQueryEntry[]
+		globalQueryStack?: LiveQueryEntry[]
 	} = $props()
 
 	// State
@@ -637,6 +646,45 @@
 		panel: { lineDash: [2, 2], labelPlacement: 'center' },
 	}
 
+	const toStatusBadge = (status?: string) => {
+		if (!status) return null
+		const normalized = status.toLowerCase()
+		if (normalized === 'pending') return 'PEND'
+		if (normalized === 'completed') return 'DONE'
+		if (normalized === 'failed') return 'FAIL'
+		if (normalized === 'finalized') return 'DONE'
+		if (normalized === 'open') return 'OPEN'
+		if (normalized === 'closed') return 'CLOSE'
+		return status.slice(0, 4).toUpperCase()
+	}
+
+	const statusLineDash = (status?: string) => {
+		if (!status) return undefined
+		const normalized = status.toLowerCase()
+		if (normalized === 'pending') return [4, 3]
+		if (normalized === 'failed') return [2, 2]
+		if (normalized === 'closed') return [6, 3]
+		return undefined
+	}
+
+	const statusOpacity = (status?: string) => {
+		if (!status) return undefined
+		const normalized = status.toLowerCase()
+		if (normalized === 'failed') return 0.6
+		if (normalized === 'pending') return 0.85
+		if (normalized === 'closed') return 0.7
+		return undefined
+	}
+
+	const parseNumber = (value: unknown): number | null => {
+		if (typeof value === 'number') return value
+		if (typeof value === 'string') {
+			const parsed = Number(value)
+			return Number.isFinite(parsed) ? parsed : null
+		}
+		return null
+	}
+
 	// (Derived)
 	const counts: Record<GraphSceneEntityType, number> = $derived({
 		[EntityType.Wallet]: walletsQuery.data?.length ?? 0,
@@ -900,7 +948,11 @@
 					type: 'circle',
 					collection: EntityType.ActorCoin,
 					g6Type: collections[EntityType.ActorCoin].g6Type,
-					g6Style: collections[EntityType.ActorCoin].g6Style,
+					g6Style: {
+						...collections[EntityType.ActorCoin].g6Style,
+						opacity: hasBalance ? 1 : 0.6,
+						lineDash: hasBalance ? undefined : [3, 3],
+					},
 					intent: toIntentPayload(EntityType.ActorCoin, row.$id),
 					disabled: !hasBalance,
 					details: {
@@ -957,7 +1009,11 @@
 					type: 'circle',
 					collection: EntityType.ActorAllowance,
 					g6Type: collections[EntityType.ActorAllowance].g6Type,
-					g6Style: collections[EntityType.ActorAllowance].g6Style,
+					g6Style: {
+						...collections[EntityType.ActorAllowance].g6Style,
+						badge: { text: hasAllowance ? 'OK' : 'WAIT' },
+						lineDash: hasAllowance ? undefined : [5, 3],
+					},
 					disabled: !hasAllowance,
 					details: {
 						chain: chainName,
@@ -1006,7 +1062,20 @@
 					type: 'circle',
 					collection: EntityType.Network,
 					g6Type: collections[EntityType.Network].g6Type,
-					g6Style: collections[EntityType.Network].g6Style,
+					g6Style: {
+						...collections[EntityType.Network].g6Style,
+						badge: {
+							text:
+								row.type === NetworkType.Testnet
+									? 'TEST'
+									: 'MAIN',
+						},
+						lineDash:
+							row.type === NetworkType.Testnet
+								? [3, 3]
+								: undefined,
+						opacity: row.type === NetworkType.Testnet ? 0.7 : 1,
+					},
 					details: {
 						chainId: row.chainId,
 						type: row.type,
@@ -1038,7 +1107,20 @@
 					type: 'circle',
 					collection: EntityType.BridgeRoute,
 					g6Type: collections[EntityType.BridgeRoute].g6Type,
-					g6Style: collections[EntityType.BridgeRoute].g6Style,
+					g6Style: {
+						...collections[EntityType.BridgeRoute].g6Style,
+						badge: {
+							text:
+								row.tags.find((tag) =>
+									tag.toLowerCase().includes('fast'),
+								)?.slice(0, 4).toUpperCase() ??
+								row.tags.find((tag) =>
+									tag.toLowerCase().includes('cheap'),
+								)?.slice(0, 4).toUpperCase() ??
+								row.tags[0]?.slice(0, 4).toUpperCase() ??
+								'ROUT',
+						},
+					},
 					details: {
 						from: fromChain,
 						to: toChain,
@@ -1110,7 +1192,12 @@
 					type: 'circle',
 					collection: EntityType.Transaction,
 					g6Type: collections[EntityType.Transaction].g6Type,
-					g6Style: collections[EntityType.Transaction].g6Style,
+					g6Style: {
+						...collections[EntityType.Transaction].g6Style,
+						badge: { text: toStatusBadge(row.status) ?? 'TX' },
+						lineDash: statusLineDash(row.status),
+						opacity: statusOpacity(row.status),
+					},
 					disabled: row.status === 'failed',
 					details: {
 						status: row.status,
@@ -1292,6 +1379,7 @@
 					i,
 					quotes.length,
 				)
+				const priceImpact = parseNumber(row.priceImpact)
 				addNode({
 					id: quoteId,
 					label: `${row.tokenIn.slice(0, 6)}→${row.tokenOut.slice(0, 6)}`,
@@ -1301,7 +1389,19 @@
 					type: 'rect',
 					collection: EntityType.SwapQuote,
 					g6Type: collections[EntityType.SwapQuote].g6Type,
-					g6Style: collections[EntityType.SwapQuote].g6Style,
+					g6Style: {
+						...collections[EntityType.SwapQuote].g6Style,
+						badge:
+							priceImpact !== null && priceImpact >= 0.02
+								? { text: 'HI' }
+								: priceImpact !== null && priceImpact >= 0.01
+									? { text: 'MED' }
+									: undefined,
+						lineDash:
+							priceImpact !== null && priceImpact >= 0.02
+								? [4, 2]
+								: undefined,
+					},
 					details: {
 						chainId: row.chainId,
 						priceImpact: row.priceImpact,
@@ -1347,7 +1447,13 @@
 					type: 'rect',
 					collection: EntityType.UniswapPool,
 					g6Type: collections[EntityType.UniswapPool].g6Type,
-					g6Style: collections[EntityType.UniswapPool].g6Style,
+					g6Style: {
+						...collections[EntityType.UniswapPool].g6Style,
+						badge:
+							typeof row.fee === 'number'
+								? { text: `${(row.fee / 10000).toFixed(2)}%` }
+								: undefined,
+					},
 					details: {
 						chainId: row.chainId,
 						fee: row.fee,
@@ -1500,7 +1606,12 @@
 					type: 'rect',
 					collection: EntityType.TransactionSession,
 					g6Type: collections[EntityType.TransactionSession].g6Type,
-					g6Style: collections[EntityType.TransactionSession].g6Style,
+					g6Style: {
+						...collections[EntityType.TransactionSession].g6Style,
+						badge: { text: toStatusBadge(row.status) ?? 'LIVE' },
+						lineDash: statusLineDash(row.status),
+						opacity: statusOpacity(row.status),
+					},
 					disabled: row.status === 'Finalized',
 					details: {
 						status: row.status,
@@ -1548,7 +1659,12 @@
 					type: 'rect',
 					collection: EntityType.TransactionSessionSimulation,
 					g6Type: collections[EntityType.TransactionSessionSimulation].g6Type,
-					g6Style: collections[EntityType.TransactionSessionSimulation].g6Style,
+					g6Style: {
+						...collections[EntityType.TransactionSessionSimulation].g6Style,
+						badge: { text: toStatusBadge(row.status) ?? 'SIM' },
+						lineDash: statusLineDash(row.status),
+						opacity: statusOpacity(row.status),
+					},
 					disabled: row.status === 'failed',
 					details: {
 						status: row.status,
@@ -1652,7 +1768,12 @@
 					type: 'circle',
 					collection: EntityType.RoomPeer,
 					g6Type: collections[EntityType.RoomPeer].g6Type,
-					g6Style: collections[EntityType.RoomPeer].g6Style,
+					g6Style: {
+						...collections[EntityType.RoomPeer].g6Style,
+						badge: { text: row.isConnected ? 'ON' : 'OFF' },
+						lineDash: row.isConnected ? undefined : [4, 4],
+						opacity: row.isConnected ? 1 : 0.6,
+					},
 					disabled: !row.isConnected,
 					details: {
 						roomId: row.roomId,
@@ -1697,7 +1818,10 @@
 					type: 'circle',
 					collection: EntityType.SharedAddress,
 					g6Type: collections[EntityType.SharedAddress].g6Type,
-					g6Style: collections[EntityType.SharedAddress].g6Style,
+					g6Style: {
+						...collections[EntityType.SharedAddress].g6Style,
+						badge: { text: `${row.verifiedBy.length}` },
+					},
 					details: {
 						roomId: row.roomId,
 						peerId: row.peerId,
@@ -1740,7 +1864,12 @@
 					type: 'rect',
 					collection: EntityType.SiweChallenge,
 					g6Type: collections[EntityType.SiweChallenge].g6Type,
-					g6Style: collections[EntityType.SiweChallenge].g6Style,
+					g6Style: {
+						...collections[EntityType.SiweChallenge].g6Style,
+						badge: { text: row.verified ? 'VER' : 'PEND' },
+						lineDash: row.verified ? undefined : [4, 2],
+						opacity: row.verified ? 1 : 0.8,
+					},
 					disabled: !row.verified,
 					details: {
 						roomId: row.roomId,
@@ -1787,7 +1916,12 @@
 					type: 'rect',
 					collection: EntityType.TransferRequest,
 					g6Type: collections[EntityType.TransferRequest].g6Type,
-					g6Style: collections[EntityType.TransferRequest].g6Style,
+					g6Style: {
+						...collections[EntityType.TransferRequest].g6Style,
+						badge: { text: toStatusBadge(row.status) ?? 'REQ' },
+						lineDash: statusLineDash(row.status),
+						opacity: statusOpacity(row.status),
+					},
 					disabled,
 					details: {
 						from: row.from,
@@ -1832,7 +1966,12 @@
 					type: 'rect',
 					collection: EntityType.YellowChannel,
 					g6Type: collections[EntityType.YellowChannel].g6Type,
-					g6Style: collections[EntityType.YellowChannel].g6Style,
+					g6Style: {
+						...collections[EntityType.YellowChannel].g6Style,
+						badge: { text: toStatusBadge(row.status) ?? 'LIVE' },
+						lineDash: statusLineDash(row.status),
+						opacity: statusOpacity(row.status),
+					},
 					disabled: row.status === 'closed',
 					details: {
 						status: row.status,
@@ -1879,7 +2018,12 @@
 					type: 'rect',
 					collection: EntityType.YellowChannelState,
 					g6Type: collections[EntityType.YellowChannelState].g6Type,
-					g6Style: collections[EntityType.YellowChannelState].g6Style,
+					g6Style: {
+						...collections[EntityType.YellowChannelState].g6Style,
+						badge: { text: row.isFinal ? 'FINAL' : 'LIVE' },
+						lineDash: row.isFinal ? [6, 3] : undefined,
+						opacity: row.isFinal ? 0.75 : 1,
+					},
 					disabled: row.isFinal,
 					details: {
 						channelId: row.channelId,
@@ -1924,7 +2068,13 @@
 					type: 'circle',
 					collection: EntityType.YellowDeposit,
 					g6Type: collections[EntityType.YellowDeposit].g6Type,
-					g6Style: collections[EntityType.YellowDeposit].g6Style,
+					g6Style: {
+						...collections[EntityType.YellowDeposit].g6Style,
+						badge:
+							row.lockedBalance > 0n
+								? { text: 'LOCK' }
+								: { text: 'FREE' },
+					},
 					details: {
 						chainId: row.chainId,
 						available: row.availableBalance.toString(),
@@ -1969,7 +2119,12 @@
 					type: 'circle',
 					collection: EntityType.YellowTransfer,
 					g6Type: collections[EntityType.YellowTransfer].g6Type,
-					g6Style: collections[EntityType.YellowTransfer].g6Style,
+					g6Style: {
+						...collections[EntityType.YellowTransfer].g6Style,
+						badge: { text: toStatusBadge(row.status) ?? 'XFER' },
+						lineDash: statusLineDash(row.status),
+						opacity: statusOpacity(row.status),
+					},
 					disabled: row.status === 'failed',
 					details: {
 						channelId: row.channelId,
@@ -2026,96 +2181,215 @@
 	})
 
 	// (Derived)
-	const highlightedNodes = $derived.by(() => {
+	const buildHighlightedNodes = (stack: LiveQueryEntry[] | undefined) => {
 		const nodes: string[] = []
-		for (const entry of liveQueryCtx.stack) {
+		for (const entry of stack ?? []) {
 			for (const item of entry.query.data ?? []) {
 				const row = isRecord(item) && 'row' in item ? item.row : null
-				if (!isRecord(row) || !('$id' in row)) continue
-				const rowId = row.$id
-				if (!isRecord(rowId)) continue
+				if (!isRecord(row)) continue
+				const rowId = '$id' in row ? row.$id : undefined
+				const rowIdRecord = isRecord(rowId) ? rowId : null
 
-				if ('rdns' in rowId && !('wallet$id' in rowId)) {
-					const rdns = rowId.rdns
-					if (typeof rdns === 'string' && rdns) nodes.push(`wallet:${rdns}`)
-				} else if ('wallet$id' in rowId) {
-					const walletId = rowId.wallet$id
-					const rdns =
-						isRecord(walletId) && typeof walletId.rdns === 'string'
-							? walletId.rdns
-							: ''
-					if (rdns) nodes.push(`connection:${rdns}`)
-				} else if ('network' in rowId && 'address' in rowId) {
-					const network = rowId.network
-					const address = rowId.address
-					if (typeof network === 'number' && typeof address === 'string') {
-						nodes.push(`actor:${network}:${address}`)
-					}
-				} else if ('chainId' in rowId && 'tokenAddress' in rowId) {
-					const chainId = rowId.chainId
-					const address = rowId.address
-					const tokenAddress = rowId.tokenAddress
-					if (
-						typeof chainId === 'number' &&
-						typeof address === 'string' &&
-						typeof tokenAddress === 'string'
-					) {
-						if (
-							'spenderAddress' in rowId &&
-							typeof rowId.spenderAddress === 'string'
-						) {
+				if (rowIdRecord) {
+					if ('rdns' in rowIdRecord && !('wallet$id' in rowIdRecord)) {
+						const rdns = rowIdRecord.rdns
+						if (typeof rdns === 'string' && rdns) nodes.push(`wallet:${rdns}`)
+					} else if ('wallet$id' in rowIdRecord) {
+						const walletId = rowIdRecord.wallet$id
+						const rdns =
+							isRecord(walletId) && typeof walletId.rdns === 'string'
+								? walletId.rdns
+								: ''
+						if (rdns) nodes.push(`connection:${rdns}`)
+					} else if ('network' in rowIdRecord && 'address' in rowIdRecord) {
+						const network = rowIdRecord.network
+						const address = rowIdRecord.address
+						if (typeof network === 'number' && typeof address === 'string') {
 							nodes.push(
-								`allowance:${chainId}:${address}:${tokenAddress}:${rowId.spenderAddress}`,
+								'symbol' in row && typeof row.symbol === 'string'
+									? `erc20:${network}:${address}`
+									: `actor:${network}:${address}`,
 							)
-						} else {
-							nodes.push(`coin:${chainId}:${address}:${tokenAddress}`)
 						}
+					} else if ('chainId' in rowIdRecord && 'tokenAddress' in rowIdRecord) {
+						const chainId = rowIdRecord.chainId
+						const address = rowIdRecord.address
+						const tokenAddress = rowIdRecord.tokenAddress
+						if (
+							typeof chainId === 'number' &&
+							typeof address === 'string' &&
+							typeof tokenAddress === 'string'
+						) {
+							if (
+								'spenderAddress' in rowIdRecord &&
+								typeof rowIdRecord.spenderAddress === 'string'
+							) {
+								nodes.push(
+									`allowance:${chainId}:${address}:${tokenAddress}:${rowIdRecord.spenderAddress}`,
+								)
+							} else {
+								nodes.push(`coin:${chainId}:${address}:${tokenAddress}`)
+							}
+						}
+					} else if ('chainId' in rowIdRecord && 'address' in rowIdRecord) {
+						const chainId = rowIdRecord.chainId
+						const address = rowIdRecord.address
+						if (typeof chainId === 'number' && typeof address === 'string') {
+							nodes.push(`token:${chainId}:${address}`)
+						}
+					} else if ('routeId' in rowIdRecord && 'quote' in rowIdRecord) {
+						const routeId = rowIdRecord.routeId
+						if (
+							typeof routeId === 'string' &&
+							routeId
+						) {
+							nodes.push(`route:${routeId}`)
+						}
+					} else if ('sourceTxHash' in rowIdRecord) {
+						const sourceTxHash = rowIdRecord.sourceTxHash
+						if (typeof sourceTxHash === 'string') {
+							nodes.push(`tx:${sourceTxHash}`)
+						}
+					} else if ('assetId' in rowIdRecord && 'transport' in rowIdRecord) {
+						nodes.push(toNodeId('stork', rowIdRecord))
+					} else if ('apiHost' in rowIdRecord) {
+						nodes.push(
+							'fromDomain' in rowIdRecord && 'toDomain' in rowIdRecord
+								? toNodeId('cctp-fee', rowIdRecord)
+								: toNodeId('cctp-allowance', rowIdRecord),
+						)
+					} else if ('period' in rowIdRecord) {
+						const period = rowIdRecord.period
+						if (typeof period === 'string') {
+							nodes.push(`transfer-graph:${period}`)
+						}
+					} else if ('id' in rowIdRecord) {
+						nodes.push(toNodeId('dashboard', rowIdRecord))
 					}
-				} else if ('routeId' in rowId && 'quote' in rowId) {
-					const routeId = rowId.routeId
-					if (
-						typeof routeId === 'string' &&
-						routeId
-					) {
-						nodes.push(`route:${routeId}`)
-					}
-				} else if ('sourceTxHash' in rowId) {
-					const sourceTxHash = rowId.sourceTxHash
-					if (typeof sourceTxHash === 'string') {
-						nodes.push(`tx:${sourceTxHash}`)
-					}
+				} else if (typeof rowId === 'number') {
+					nodes.push(`network:${rowId}`)
+				}
+
+				const rowIdString =
+					typeof rowId === 'string'
+						? rowId
+						: 'id' in row && typeof row.id === 'string'
+							? row.id
+							: null
+
+				if (!rowIdString) continue
+
+				if ('tokenIn' in row && 'tokenOut' in row) {
+					nodes.push(`swap:${rowIdString}`)
+				} else if ('token0' in row && 'token1' in row) {
+					nodes.push(`pool:${rowIdString}`)
+				} else if ('poolId' in row && 'owner' in row) {
+					nodes.push(`position:${rowIdString}`)
+				} else if ('actions' in row && Array.isArray(row.actions)) {
+					nodes.push(`session:${rowIdString}`)
+				} else if ('sessionId' in row && 'status' in row) {
+					nodes.push(`simulation:${rowIdString}`)
+				} else if ('createdBy' in row && 'createdAt' in row) {
+					nodes.push(`room:${rowIdString}`)
+				} else if ('peerId' in row && 'roomId' in row && 'isConnected' in row) {
+					nodes.push(`peer:${rowIdString}`)
+				} else if ('peerId' in row && 'address' in row && 'sharedAt' in row) {
+					nodes.push(`shared:${rowIdString}`)
+				} else if ('nonce' in row && 'message' in row) {
+					nodes.push(`siwe:${rowIdString}`)
+				} else if ('allocations' in row && Array.isArray(row.allocations)) {
+					nodes.push(`transfer-request:${rowIdString}`)
+				} else if ('participant0' in row && 'participant1' in row) {
+					nodes.push(`yellow:${rowIdString}`)
+				} else if ('channelId' in row && 'stateData' in row) {
+					nodes.push(`yellow-state:${rowIdString}`)
+				} else if ('availableBalance' in row && 'lockedBalance' in row) {
+					nodes.push(`yellow-deposit:${rowIdString}`)
+				} else if ('channelId' in row && 'amount' in row && 'turnNum' in row) {
+					nodes.push(`yellow-transfer:${rowIdString}`)
 				}
 			}
 		}
 		return nodes
-	})
+	}
+
+	const highlightedNodes = $derived.by(() =>
+		buildHighlightedNodes(queryStack ?? localLiveQueryCtx.stack),
+	)
+
+	const globalHighlightedNodes = $derived.by(() =>
+		buildHighlightedNodes(globalQueryStack ?? globalLiveQueryCtx.stack),
+	)
 
 	const highlightedSet = $derived(new Set(highlightedNodes))
+	const globalHighlightedSet = $derived(new Set(globalHighlightedNodes))
+	const showGlobalHighlights = $derived(
+		globalQueryStack !== undefined || globalLiveQueryCtx.stack.length > 0,
+	)
 
 	// (Derived)
 	const selectedNodeSet = $derived(new Set(selectedNodes))
 	const selectedEdgeSet = $derived(new Set(selectedEdges))
 
+	const hexToRgb = (hex: string) => {
+		const normalized = hex.replace('#', '')
+		const full =
+			normalized.length === 3
+				? normalized
+						.split('')
+						.map((c) => `${c}${c}`)
+						.join('')
+				: normalized
+		if (full.length !== 6) return null
+		const r = Number.parseInt(full.slice(0, 2), 16)
+		const g = Number.parseInt(full.slice(2, 4), 16)
+		const b = Number.parseInt(full.slice(4, 6), 16)
+		return Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)
+			? null
+			: { r, g, b }
+	}
+
+	const colorWithAlpha = (color: string, alpha: number) => {
+		const rgb = color.startsWith('#') ? hexToRgb(color) : null
+		return rgb ? `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})` : color
+	}
+
 	const nodeReducer = (
 		node: string,
 		data: Attributes,
 	): Partial<DisplayData> => {
-		const isHighlighted = highlightedSet.has(node)
+		const isLocalHighlighted = highlightedSet.has(node)
+		const isGlobalHighlighted = globalHighlightedSet.has(node)
 		const isSelected = selectedNodeSet.has(node)
 		const isHovered = hoveredNode === node
 		const color = typeof data.color === 'string' ? data.color : '#888888'
 		const size = typeof data.size === 'number' ? data.size : 5
 		return {
 			...data,
-			color: isHighlighted || isHovered || isSelected ? color : `${color}25`,
+			color:
+				isHovered || isSelected || isLocalHighlighted
+					? color
+					: isGlobalHighlighted
+						? colorWithAlpha(color, 0.5)
+						: colorWithAlpha(color, 0.18),
 			size: isHovered
 				? size * 1.8
 				: isSelected
 					? size * 1.4
-					: isHighlighted
+					: isLocalHighlighted
 						? size * 1.2
-						: size * 0.7,
-			zIndex: isHovered ? 2 : isSelected ? 1.5 : isHighlighted ? 1 : 0,
+						: isGlobalHighlighted
+							? size * 0.9
+							: size * 0.7,
+			zIndex: isHovered
+				? 2
+				: isSelected
+					? 1.5
+					: isLocalHighlighted
+						? 1
+						: isGlobalHighlighted
+							? 0.6
+							: 0,
 		}
 	}
 
@@ -2125,9 +2399,12 @@
 	): Partial<DisplayData> => {
 		const source = graphModel?.graph.source(edge)
 		const target = graphModel?.graph.target(edge)
-		const isHighlighted =
+		const isLocalHighlighted =
 			(source && highlightedSet.has(source)) ||
 			(target && highlightedSet.has(target))
+		const isGlobalHighlighted =
+			(source && globalHighlightedSet.has(source)) ||
+			(target && globalHighlightedSet.has(target))
 		const isSelected = selectedEdgeSet.has(edge)
 		const isHovered =
 			(source && hoveredNode === source) || (target && hoveredNode === target)
@@ -2135,14 +2412,21 @@
 		const size = typeof data.size === 'number' ? data.size : 1
 		return {
 			...data,
-			color: isHighlighted || isHovered || isSelected ? color : `${color}10`,
+			color:
+				isHovered || isSelected || isLocalHighlighted
+					? color
+					: isGlobalHighlighted
+						? colorWithAlpha(color, 0.4)
+						: colorWithAlpha(color, 0.12),
 			size: isHovered
 				? size * 2
 				: isSelected
 					? size * 1.7
-					: isHighlighted
+					: isLocalHighlighted
 						? size * 1.5
-						: size * 0.4,
+						: isGlobalHighlighted
+							? size * 0.9
+							: size * 0.4,
 		}
 	}
 
@@ -2280,8 +2564,13 @@
 			>
 				{graphModel.graph.order} nodes · {graphModel.graph.size} edges
 				{#if highlightedSet.size > 0}
-					<span class="graph-scene-highlight">
-						· {highlightedNodes.length} active
+					<span class="graph-scene-highlight" data-scope="local">
+						· {highlightedNodes.length} local
+					</span>
+				{/if}
+				{#if showGlobalHighlights && globalHighlightedSet.size > 0}
+					<span class="graph-scene-highlight" data-scope="global">
+						· {globalHighlightedNodes.length} global
 					</span>
 				{/if}
 			</div>
@@ -2293,6 +2582,7 @@
 						model={graphModel}
 						{refreshKey}
 						{highlightedNodes}
+						globalHighlightedNodes={globalHighlightedNodes}
 						{selectedNodes}
 						{selectedEdges}
 						{selectionCount}
@@ -2505,6 +2795,10 @@
 				.graph-scene-highlight {
 					color: var(--color-primary);
 					font-weight: 500;
+				}
+
+				.graph-scene-highlight[data-scope='global'] {
+					color: var(--color-warning);
 				}
 			}
 		}

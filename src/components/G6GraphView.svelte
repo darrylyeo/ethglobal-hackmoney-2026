@@ -18,6 +18,7 @@
 		model,
 		refreshKey,
 		highlightedNodes = [],
+		globalHighlightedNodes = [],
 		selectedNodes = [],
 		selectedEdges = [],
 		selectionCount = 0,
@@ -28,6 +29,7 @@
 		model: GraphModel
 		refreshKey?: unknown
 		highlightedNodes?: string[]
+		globalHighlightedNodes?: string[]
 		selectedNodes?: string[]
 		selectedEdges?: string[]
 		selectionCount?: number
@@ -323,15 +325,18 @@
 
 		const updateHighlightStates = () => {
 			if (!graph) return
-			const highlightedSet = new Set(highlightedNodes ?? [])
+			const localSet = new Set(highlightedNodes ?? [])
+			const globalSet = new Set(globalHighlightedNodes ?? [])
 			for (const node of model.nodes) {
 				const states = graph
 					.getElementState(node.id)
-					.filter((state) => state !== 'highlight')
-				graph.setElementState(
-					node.id,
-					highlightedSet.has(node.id) ? [...states, 'highlight'] : states,
-				)
+					.filter((s) => s !== 'highlight' && s !== 'globalHighlight')
+				const next = localSet.has(node.id)
+					? [...states, 'highlight']
+					: globalSet.has(node.id)
+						? [...states, 'globalHighlight']
+						: states
+				graph.setElementState(node.id, next)
 			}
 		}
 
@@ -442,6 +447,14 @@
 						haloStroke: '#f59e0b',
 						haloStrokeOpacity: 0.35,
 					},
+					globalHighlight: {
+						opacity: 0.5,
+						lineWidth: 1.5,
+						halo: true,
+						haloLineWidth: 3,
+						haloStroke: '#f59e0b',
+						haloStrokeOpacity: 0.2,
+					},
 					hover: {
 						lineWidth: 2,
 						halo: true,
@@ -487,6 +500,10 @@
 						haloLineWidth: 5,
 						haloStroke: '#f59e0b',
 						haloStrokeOpacity: 0.35,
+					},
+					globalHighlight: {
+						opacity: 0.4,
+						lineWidth: 1.5,
 					},
 					hover: {
 						lineWidth: 2,

@@ -11,6 +11,9 @@
 		deleteTransactionSession,
 	} from '$/lib/transaction-sessions'
 
+	// Components
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
+
 	const actionLabel = (action: string) => (
 		action.length > 0 ? `${action[0].toUpperCase()}${action.slice(1)}` : 'Session'
 	)
@@ -38,6 +41,9 @@
 				.select(({ row }) => ({ row })),
 		[],
 	)
+	const liveQueryEntries = [
+		{ id: 'sessions-list', label: 'Sessions', query: sessionsQuery },
+	]
 	const sessions = $derived(
 		(sessionsQuery.data ?? [])
 			.map((result) => result.row)
@@ -51,6 +57,7 @@
 </svelte:head>
 
 
+<LiveQueryScope entries={liveQueryEntries} scope="local">
 <main
 	id="main"
 	data-column
@@ -79,3 +86,4 @@
 		{/if}
 	</section>
 </main>
+</LiveQueryScope>
