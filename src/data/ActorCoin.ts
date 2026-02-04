@@ -4,6 +4,7 @@ export type ActorCoin$Id = {
 	chainId: ChainId
 	address: `0x${string}`
 	tokenAddress: `0x${string}`
+	interopAddress?: string
 }
 
 export type ActorCoin = {

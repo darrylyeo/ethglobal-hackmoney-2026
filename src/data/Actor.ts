@@ -1,6 +1,10 @@
 import type { ChainId } from '$/constants/networks'
 
-export type Actor$Id = { network: ChainId; address: `0x${string}` }
+export type Actor$Id = {
+	network: ChainId
+	address: `0x${string}`
+	interopAddress?: string
+}
 
 export type Actor = {
 	$id: Actor$Id

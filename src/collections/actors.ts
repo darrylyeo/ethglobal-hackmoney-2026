@@ -1,11 +1,12 @@
 /**
  * Actor: A unique account address on any chain.
- * $id: { network, address }
+ * $id: { network, address, interopAddress }
  */
 
 import { createCollection } from '@tanstack/svelte-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { DataSource } from '$/constants/data-sources'
+import { toInteropName } from '$/constants/interop'
 import type { Actor } from '$/data/Actor'
 import { queryClient } from '$/lib/db/query-client'
 
@@ -34,7 +35,11 @@ export const insertActorsForAddress = (
 ) => {
 	for (const chainId of chainIds) {
 		actorsCollection.utils.writeUpsert({
-			$id: { network: chainId, address },
+			$id: {
+				network: chainId,
+				address,
+				interopAddress: toInteropName(chainId, address),
+			},
 			$source: DataSource.Local,
 			chainId,
 			address,

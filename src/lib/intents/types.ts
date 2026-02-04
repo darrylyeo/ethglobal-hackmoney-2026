@@ -30,6 +30,8 @@ export type IntentDimensions = {
 	actor: `0x${string}` | null
 	chainId: number | null
 	tokenAddress: `0x${string}` | null
+	interopAddress?: string
+	tokenInteropAddress?: string
 }
 
 export type IntentResolvedEntity = {

@@ -2,6 +2,7 @@ import { createCollection } from '@tanstack/svelte-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { DataSource } from '$/constants/data-sources'
 import { tokenListUrls } from '$/constants/token-lists'
+import { toInteropName } from '$/constants/interop'
 import type { TokenListCoin } from '$/data/TokenListCoin'
 import { normalizeAddress } from '$/lib/address'
 import { queryClient } from '$/lib/db/query-client'
@@ -42,6 +43,7 @@ const normalizeTokenListEntry = (
 		$id: {
 			chainId: entry.chainId,
 			address: normalized,
+			interopAddress: toInteropName(entry.chainId, normalized),
 		},
 		chainId: entry.chainId,
 		address: normalized,

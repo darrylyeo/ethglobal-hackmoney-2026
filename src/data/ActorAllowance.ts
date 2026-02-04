@@ -5,6 +5,7 @@ export type ActorAllowance$Id = {
 	address: `0x${string}`
 	tokenAddress: `0x${string}`
 	spenderAddress: `0x${string}`
+	interopAddress?: string
 }
 
 export type ActorAllowance = {

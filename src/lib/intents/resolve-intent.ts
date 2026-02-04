@@ -1,3 +1,4 @@
+import { toInteropName } from '$/constants/interop'
 import { normalizeAddress } from '$/lib/address'
 import { EntityType } from '$/data/$EntityType'
 import type {
@@ -12,6 +13,19 @@ const getNumber = (value: unknown): number | null =>
 const getAddress = (value: unknown): `0x${string}` | null =>
 	typeof value === 'string' ? normalizeAddress(value) : null
 
+const getInteropAddress = (id: Record<string, unknown>): string | undefined =>
+	typeof id.interopAddress === 'string' ? id.interopAddress : undefined
+
+const getTokenInteropFromId = (id: Record<string, unknown>): string | undefined => {
+	const chainId = getNumber(id.chainId)
+	const tokenAddress = getAddress(id.tokenAddress)
+	return (
+		chainId !== null && tokenAddress !== null
+			? toInteropName(chainId, tokenAddress)
+			: undefined
+	)
+}
+
 const resolveDimensions = (ref: IntentEntityRef): IntentDimensions => {
 	const id = ref.id
 	if (ref.type === EntityType.ActorCoin) {
@@ -19,6 +33,8 @@ const resolveDimensions = (ref: IntentEntityRef): IntentDimensions => {
 			actor: getAddress(id.address),
 			chainId: getNumber(id.chainId),
 			tokenAddress: getAddress(id.tokenAddress),
+			interopAddress: getInteropAddress(id),
+			tokenInteropAddress: getTokenInteropFromId(id),
 		}
 	}
 	if (ref.type === EntityType.Actor) {
@@ -26,6 +42,7 @@ const resolveDimensions = (ref: IntentEntityRef): IntentDimensions => {
 			actor: getAddress(id.address),
 			chainId: getNumber(id.network ?? id.chainId),
 			tokenAddress: null,
+			interopAddress: getInteropAddress(id),
 		}
 	}
 	if (ref.type === EntityType.Coin || ref.type === EntityType.TokenListCoin) {
@@ -33,6 +50,7 @@ const resolveDimensions = (ref: IntentEntityRef): IntentDimensions => {
 			actor: null,
 			chainId: getNumber(id.network ?? id.chainId),
 			tokenAddress: getAddress(id.address),
+			tokenInteropAddress: getInteropAddress(id),
 		}
 	}
 	return {
@@ -47,17 +65,21 @@ const isMissingDimensions = (dimensions: IntentDimensions) =>
 
 const resolveEquality = (from: IntentDimensions, to: IntentDimensions) => ({
 	actor:
-		from.actor && to.actor
-			? from.actor.toLowerCase() === to.actor.toLowerCase()
-			: null,
+		from.interopAddress && to.interopAddress
+			? from.interopAddress === to.interopAddress
+			: from.actor && to.actor
+				? from.actor.toLowerCase() === to.actor.toLowerCase()
+				: null,
 	chain:
 		from.chainId !== null && to.chainId !== null
 			? from.chainId === to.chainId
 			: null,
 	token:
-		from.tokenAddress && to.tokenAddress
-			? from.tokenAddress.toLowerCase() === to.tokenAddress.toLowerCase()
-			: null,
+		from.tokenInteropAddress && to.tokenInteropAddress
+			? from.tokenInteropAddress === to.tokenInteropAddress
+			: from.tokenAddress && to.tokenAddress
+				? from.tokenAddress.toLowerCase() === to.tokenAddress.toLowerCase()
+				: null,
 })
 
 export const resolveIntent = (

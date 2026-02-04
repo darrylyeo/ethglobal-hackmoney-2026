@@ -9,17 +9,31 @@ import {
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
 import { DataSource } from '$/constants/data-sources'
+import { toInteropName } from '$/constants/interop'
 import type { ActorAllowance, ActorAllowance$Id } from '$/data/ActorAllowance'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import { createHttpProvider, getErc20Allowance } from '$/api/voltaire'
 
 export type ActorAllowanceRow = ActorAllowance & { $source: DataSource }
 
+const allowanceKeyParts = (
+	id: Pick<
+		ActorAllowance$Id,
+		'chainId' | 'address' | 'tokenAddress' | 'spenderAddress'
+	>,
+) =>
+	stringify({
+		chainId: id.chainId,
+		address: id.address,
+		tokenAddress: id.tokenAddress,
+		spenderAddress: id.spenderAddress,
+	})
+
 export const actorAllowancesCollection = createCollection(
 	localStorageCollectionOptions({
 		id: 'actorAllowances',
 		storageKey: 'actor-allowances',
-		getKey: (row: ActorAllowanceRow) => stringify(row.$id),
+		getKey: (row: ActorAllowanceRow) => allowanceKeyParts(row.$id),
 		parser: { stringify, parse },
 	}),
 )
@@ -32,13 +46,26 @@ for (const [key, row] of actorAllowancesCollection.state) {
 	}
 }
 
+export const toActorAllowance$Id = (
+	chainId: number,
+	address: `0x${string}`,
+	tokenAddress: `0x${string}`,
+	spenderAddress: `0x${string}`,
+): ActorAllowance$Id => ({
+	chainId,
+	address,
+	tokenAddress,
+	spenderAddress,
+	interopAddress: toInteropName(chainId, address),
+})
+
 export const getActorAllowance = ($id: ActorAllowance$Id) =>
-	actorAllowancesCollection.state.get(stringify($id))
+	actorAllowancesCollection.state.get(allowanceKeyParts($id))
 
 export const fetchActorAllowance = async (
 	$id: ActorAllowance$Id,
 ): Promise<ActorAllowanceRow> => {
-	const key = stringify($id)
+	const key = allowanceKeyParts($id)
 	const existing = actorAllowancesCollection.state.get(key)
 
 	// Set loading state
@@ -49,8 +76,13 @@ export const fetchActorAllowance = async (
 			draft.error = null
 		})
 	} else {
+		const full$id: ActorAllowance$Id = {
+			...$id,
+			interopAddress:
+				$id.interopAddress ?? toInteropName($id.chainId, $id.address),
+		}
 		actorAllowancesCollection.insert({
-			$id,
+			$id: full$id,
 			$source: DataSource.Voltaire,
 			allowance: 0n,
 			isLoading: true,
@@ -100,7 +132,12 @@ export const setActorAllowance = (
 	$id: ActorAllowance$Id,
 	allowance: bigint,
 ) => {
-	const key = stringify($id)
+	const key = allowanceKeyParts($id)
+	const full$id: ActorAllowance$Id = {
+		...$id,
+		interopAddress:
+			$id.interopAddress ?? toInteropName($id.chainId, $id.address),
+	}
 	const existing = actorAllowancesCollection.state.get(key)
 	if (existing) {
 		actorAllowancesCollection.update(key, (draft) => {
@@ -110,7 +147,7 @@ export const setActorAllowance = (
 		})
 	} else {
 		actorAllowancesCollection.insert({
-			$id,
+			$id: full$id,
 			$source: DataSource.Voltaire,
 			allowance,
 			isLoading: false,

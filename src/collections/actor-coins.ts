@@ -11,28 +11,46 @@ import { stringify } from 'devalue'
 import { DataSource } from '$/constants/data-sources'
 import { ercTokens } from '$/constants/coins'
 import type { ChainId } from '$/constants/networks'
+import { toInteropName } from '$/constants/interop'
 import type { ActorCoin, ActorCoin$Id, ActorCoinToken } from '$/data/ActorCoin'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import { createHttpProvider, getErc20Balance } from '$/api/voltaire'
 
 export type ActorCoinRow = ActorCoin & { $source: DataSource }
 
+const actorCoinKeyParts = (
+	id: Pick<ActorCoin$Id, 'chainId' | 'address' | 'tokenAddress'>,
+) => stringify({ chainId: id.chainId, address: id.address, tokenAddress: id.tokenAddress })
+
+const actorCoinKey = (row: ActorCoinRow) => actorCoinKeyParts(row.$id)
+
 export const actorCoinsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: 'actorCoins',
-		getKey: (row: ActorCoinRow) => stringify(row.$id),
+		getKey: actorCoinKey,
 	}),
 )
 
 export const getActorCoin = ($id: ActorCoin$Id) =>
-	actorCoinsCollection.state.get(stringify($id))
+	actorCoinsCollection.state.get(actorCoinKeyParts($id))
+
+export const toActorCoin$Id = (
+	chainId: number,
+	address: `0x${string}`,
+	tokenAddress: `0x${string}`,
+): ActorCoin$Id => ({
+	chainId,
+	address,
+	tokenAddress,
+	interopAddress: toInteropName(chainId, address),
+})
 
 export const fetchActorCoinBalance = async (
 	$id: ActorCoin$Id,
 	symbol: string,
 	decimals: number,
 ): Promise<ActorCoinRow> => {
-	const key = stringify($id)
+	const key = actorCoinKeyParts($id)
 	const existing = actorCoinsCollection.state.get(key)
 
 	// Set loading state
@@ -43,8 +61,13 @@ export const fetchActorCoinBalance = async (
 			draft.error = null
 		})
 	} else {
+		const full$id: ActorCoin$Id = {
+			...$id,
+			interopAddress:
+				$id.interopAddress ?? toInteropName($id.chainId, $id.address),
+		}
 		actorCoinsCollection.insert({
-			$id,
+			$id: full$id,
 			$source: DataSource.Voltaire,
 			symbol,
 			decimals,
@@ -91,7 +114,7 @@ export const fetchAllBalancesForAddress = async (
 			.filter((token) => targetChainIds.includes(token.chainId))
 			.map((token) =>
 				fetchActorCoinBalance(
-					{ chainId: token.chainId, address, tokenAddress: token.address },
+					toActorCoin$Id(token.chainId, address, token.address),
 					token.symbol,
 					token.decimals,
 				),

@@ -3,6 +3,7 @@ import type { ChainId } from '$/constants/networks'
 export type TokenListCoin$Id = {
 	chainId: ChainId
 	address: `0x${string}`
+	interopAddress?: string
 }
 
 export type TokenListCoin = {
