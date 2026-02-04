@@ -237,7 +237,7 @@ if ! command -v "$CODEX_CMD" &> /dev/null; then
     echo -e "${RED}Error: Codex CLI not found${NC}"
     echo ""
     echo "Install Codex CLI:"
-    echo "  npm install -g @openai/codex"
+    echo "  deno install -A -n codex npm:@openai/codex"
     echo ""
     echo "Then authenticate:"
     echo "  codex login"

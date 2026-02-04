@@ -2,12 +2,13 @@
   "mcpServers": {
     "svelte": {
       "type": "stdio",
-      "command": "npx",
+      "command": "deno",
       "env": {
       },
       "args": [
-        "-y",
-        "@sveltejs/mcp"
+        "run",
+        "-A",
+        "npm:@sveltejs/mcp"
       ]
     }
   }

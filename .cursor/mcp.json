@@ -1,16 +1,19 @@
 {
   "mcpServers": {
     "svelte": {
-      "command": "npx",
+      "command": "deno",
       "args": [
-        "-y",
-        "@sveltejs/mcp"
+        "run",
+        "-A",
+        "npm:@sveltejs/mcp"
       ]
     },
     "voltaire": {
-      "command": "npx",
+      "command": "deno",
       "args": [
-        "mcp-remote",
+        "run",
+        "-A",
+        "npm:mcp-remote",
         "https://voltaire.tevm.sh/mcp"
       ]
     }

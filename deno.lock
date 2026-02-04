@@ -4,8 +4,10 @@
     "jsr:@std/assert@*": "1.0.18",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "npm:@antv/g6@^5.0.51": "5.0.51",
+    "npm:@antv/layout@1.2.14-beta.8": "1.2.14-beta.8",
     "npm:@axe-core/playwright@^4.11.0": "4.11.0_playwright-core@1.58.0",
     "npm:@erc7824/nitrolite@~0.5.3": "0.5.3_typescript@5.9.3_zod@3.25.76",
+    "npm:@floating-ui/dom@^1.7.5": "1.7.5",
     "npm:@lifi/sdk@^3.15.4": "3.15.4_@solana+wallet-adapter-base@0.9.27__@solana+web3.js@1.98.4___typescript@5.9.3__typescript@5.9.3_@solana+web3.js@1.98.4__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_bs58@6.0.0_typescript@5.9.3",
     "npm:@playwright/test@^1.57.0": "1.58.0",
     "npm:@sigma/edge-curve@^3.1.0": "3.1.0_sigma@3.0.2__graphology-types@0.24.8_graphology-types@0.24.8",
@@ -13,30 +15,41 @@
     "npm:@sveltejs/adapter-auto@7": "7.0.0_@sveltejs+kit@2.49.2__@sveltejs+vite-plugin-svelte@6.2.1___svelte@5.46.1____acorn@8.15.0___vite@7.3.0____picomatch@4.0.3__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3__acorn@8.15.0_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3_svelte@5.46.1__acorn@8.15.0_vite@7.3.0__picomatch@4.0.3",
     "npm:@sveltejs/kit@^2.49.1": "2.49.2_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3_svelte@5.46.1__acorn@8.15.0_vite@7.3.0__picomatch@4.0.3_acorn@8.15.0",
     "npm:@sveltejs/vite-plugin-svelte@^6.2.1": "6.2.1_svelte@5.46.1__acorn@8.15.0_vite@7.3.0__picomatch@4.0.3",
+    "npm:@tanstack/db@~0.5.25": "0.5.25_typescript@5.9.3",
     "npm:@tanstack/query-core@*": "5.90.20",
     "npm:@tanstack/query-db-collection@^1.0.22": "1.0.22_@tanstack+query-core@5.90.20_typescript@5.9.3",
     "npm:@tanstack/svelte-db@~0.1.68": "0.1.68_svelte@5.46.1__acorn@8.15.0_typescript@5.9.3",
     "npm:@tevm/voltaire@~0.2.28": "0.2.28_typescript@5.9.3",
     "npm:@threlte/core@^8.3.1": "8.3.1_svelte@5.46.1__acorn@8.15.0_three@0.182.0",
     "npm:@total-typescript/ts-reset@*": "0.6.1",
+    "npm:@types/dom-chromium-ai@^0.0.13": "0.0.13",
     "npm:@types/three@0.182": "0.182.0",
+    "npm:arktype@^2.1.29": "2.1.29",
     "npm:bits-ui@^2.15.5": "2.15.5_@internationalized+date@3.10.1_svelte@5.46.1__acorn@8.15.0_@sveltejs+kit@2.49.2__@sveltejs+vite-plugin-svelte@6.2.1___svelte@5.46.1____acorn@8.15.0___vite@7.3.0____picomatch@4.0.3__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3__acorn@8.15.0_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3_vite@7.3.0__picomatch@4.0.3",
     "npm:chrome-devtools-mcp@latest": "0.12.1",
+    "npm:clsx@^2.1.1": "2.1.1",
+    "npm:cookie@~0.7.2": "0.7.2",
     "npm:devalue@^5.6.2": "5.6.2",
+    "npm:fflate@*": "0.8.2",
     "npm:fflate@~0.8.2": "0.8.2",
     "npm:graphology-layout-forceatlas2@~0.10.1": "0.10.1_graphology-types@0.24.8",
     "npm:graphology-types@~0.24.8": "0.24.8",
     "npm:graphology@0.26": "0.26.0_graphology-types@0.24.8",
+    "npm:mitt@^3.0.1": "3.0.1",
     "npm:partykit@^0.0.115": "0.0.115",
     "npm:partysocket@^1.1.11": "1.1.11",
+    "npm:perfect-arrows@~0.3.7": "0.3.7",
     "npm:playwright@^1.57.0": "1.58.0",
     "npm:prettier-plugin-svelte@^3.4.1": "3.4.1_prettier@3.8.1_svelte@5.46.1__acorn@8.15.0",
     "npm:prettier@^3.8.1": "3.8.1",
     "npm:runed@~0.37.1": "0.37.1_@sveltejs+kit@2.49.2__@sveltejs+vite-plugin-svelte@6.2.1___svelte@5.46.1____acorn@8.15.0___vite@7.3.0____picomatch@4.0.3__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3__acorn@8.15.0_svelte@5.46.1__acorn@8.15.0_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3_vite@7.3.0__picomatch@4.0.3",
+    "npm:set-cookie-parser@^2.7.2": "2.7.2",
     "npm:sigma@^3.0.2": "3.0.2_graphology-types@0.24.8",
+    "npm:style-to-object@^1.0.14": "1.0.14",
     "npm:svelte-check@^4.3.4": "4.3.5_svelte@5.46.1__acorn@8.15.0_typescript@5.9.3",
     "npm:svelte@^5.45.6": "5.46.1_acorn@8.15.0",
     "npm:svgo@4": "4.0.0",
+    "npm:tabbable@^6.4.0": "6.4.0",
     "npm:tevm@^1.0.0-next.149": "1.0.0-next.149_@tevm+ts-plugin@1.0.0-next.148__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
     "npm:three@0.182": "0.182.0",
     "npm:typescript@^5.9.3": "5.9.3",
@@ -44,6 +57,7 @@
     "npm:viem@^2.45.1": "2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
     "npm:vite-plugin-devtools-json@1": "1.0.0_vite@7.3.0__picomatch@4.0.3",
     "npm:vite@^7.2.6": "7.3.0_picomatch@4.0.3",
+    "npm:vitest@*": "4.0.18_vite@7.3.0__picomatch@4.0.3",
     "npm:vitest@^4.0.18": "4.0.18_vite@7.3.0__picomatch@4.0.3"
   },
   "jsr": {
@@ -156,7 +170,7 @@
         "@antv/g-plugin-dragndrop",
         "@antv/graphlib",
         "@antv/hierarchy",
-        "@antv/layout",
+        "@antv/layout@1.2.14-beta.9",
         "@antv/util@3.3.11",
         "bubblesets-js"
       ]
@@ -179,6 +193,23 @@
     },
     "@antv/hierarchy@0.7.1": {
       "integrity": "sha512-7r22r+HxfcRZp79ZjGmsn97zgC1Iajrv0Mm9DIgx3lPfk+Kme2MG/+EKdZj1iEBsN0rJRzjWVPGL5YrBdVHchw=="
+    },
+    "@antv/layout@1.2.14-beta.8": {
+      "integrity": "sha512-/zP8pRz28ahYSVk4fsfhl3T1X3FvCAi7Q3YQ8H2LZEvTojYYrJtO2AXFsojehU6HGVnIAq+QIjd3He6ot8+gvA==",
+      "dependencies": [
+        "@antv/event-emitter",
+        "@antv/graphlib",
+        "@antv/util@3.3.11",
+        "@naoak/workerize-transferable",
+        "comlink",
+        "d3-force",
+        "d3-force-3d",
+        "d3-octree",
+        "d3-quadtree",
+        "dagre",
+        "ml-matrix",
+        "tslib"
+      ]
     },
     "@antv/layout@1.2.14-beta.9": {
       "integrity": "sha512-wPlwBFMtq2lWZFc89/7Lzb8fjHnyKVZZ9zBb2h+zZIP0YWmVmHRE8+dqCiPKOyOGUXEdDtn813f1g107dCHZlg==",
@@ -265,6 +296,15 @@
         "d3-time",
         "d3-timer"
       ]
+    },
+    "@ark/schema@0.56.0": {
+      "integrity": "sha512-ECg3hox/6Z/nLajxXqNhgPtNdHWC9zNsDyskwO28WinoFEnWow4IsERNz9AnXRhTZJnYIlAJ4uGn3nlLk65vZA==",
+      "dependencies": [
+        "@ark/util"
+      ]
+    },
+    "@ark/util@0.56.0": {
+      "integrity": "sha512-BghfRC8b9pNs3vBoDJhcta0/c1J1rsoS1+HgVUreMFPdhz/CRAKReAu57YEllNaSy98rWAdY1gE+gFup7OXpgA=="
     },
     "@axe-core/playwright@4.11.0_playwright-core@1.58.0": {
       "integrity": "sha512-70vBT/Ylqpm65RQz2iCG2o0JJCEG/WCNyefTr2xcOcr1CoSee60gNQYUMZZ7YukoKkFLv26I/jjlsvwwp532oQ==",
@@ -2569,6 +2609,9 @@
     "@types/deep-eql@4.0.2": {
       "integrity": "sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw=="
     },
+    "@types/dom-chromium-ai@0.0.13": {
+      "integrity": "sha512-m+CAxlofdsZpP3QVhY9Ys4yUMyRRDfs5kmx+DYywKhNpn9Q6Nt8Gtn3/ayK/rjiHJRY8QJwiNHD6LG55JWibdA=="
+    },
     "@types/eslint-scope@3.7.7": {
       "integrity": "sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==",
       "dependencies": [
@@ -3037,6 +3080,20 @@
     },
     "aria-query@5.3.2": {
       "integrity": "sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw=="
+    },
+    "arkregex@0.0.5": {
+      "integrity": "sha512-ncYjBdLlh5/QnVsAA8De16Tc9EqmYM7y/WU9j+236KcyYNUXogpz3sC4ATIZYzzLxwI+0sEOaQLEmLmRleaEXw==",
+      "dependencies": [
+        "@ark/util"
+      ]
+    },
+    "arktype@2.1.29": {
+      "integrity": "sha512-jyfKk4xIOzvYNayqnD8ZJQqOwcrTOUbIU4293yrzAjA3O1dWh61j71ArMQ6tS/u4pD7vabSPe7nG3RCyoXW6RQ==",
+      "dependencies": [
+        "@ark/schema",
+        "@ark/util",
+        "arkregex"
+      ]
     },
     "as-table@1.0.55": {
       "integrity": "sha512-xvsWESUJn0JN421Xb9MQw6AsMHRCUknCe0Wjlxvjud80mU4E6hQf1A6NzQKcYNmYw62MfzEtXc+badstZP3JpQ==",
@@ -3963,6 +4020,7 @@
         "package-json-from-dist",
         "path-scurry"
       ],
+      "deprecated": true,
       "bin": true
     },
     "gql.tada@1.8.13_typescript@5.9.3_graphql@16.11.0_@0no-co+graphqlsp@1.15.0__graphql@16.11.0__typescript@5.9.3": {
@@ -4705,6 +4763,9 @@
     },
     "pathval@2.0.1": {
       "integrity": "sha512-//nshmD55c46FuFw26xV/xFAaB5HF9Xdap7HJBBnrKdAd6/GxDBaNA1870O79+9ueg61cZLSVc+OaFlfmObYVQ=="
+    },
+    "perfect-arrows@0.3.7": {
+      "integrity": "sha512-wEN2gerTPVWl3yqoFEF8OeGbg3aRe2sxNUi9rnyYrCsL4JcI6K2tBDezRtqVrYG0BNtsWLdYiiTrYm+X//8yLQ=="
     },
     "picocolors@1.1.1": {
       "integrity": "sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA=="
@@ -5930,13 +5991,22 @@
   },
   "workspace": {
     "dependencies": [
+      "npm:@floating-ui/dom@^1.7.5",
+      "npm:@tanstack/db@~0.5.25",
       "npm:@tanstack/query-core@*",
       "npm:@tevm/voltaire@~0.2.28",
-      "npm:@total-typescript/ts-reset@*"
+      "npm:@total-typescript/ts-reset@*",
+      "npm:clsx@^2.1.1",
+      "npm:cookie@~0.7.2",
+      "npm:mitt@^3.0.1",
+      "npm:set-cookie-parser@^2.7.2",
+      "npm:style-to-object@^1.0.14",
+      "npm:tabbable@^6.4.0"
     ],
     "packageJson": {
       "dependencies": [
         "npm:@antv/g6@^5.0.51",
+        "npm:@antv/layout@1.2.14-beta.8",
         "npm:@axe-core/playwright@^4.11.0",
         "npm:@erc7824/nitrolite@~0.5.3",
         "npm:@lifi/sdk@^3.15.4",
@@ -5950,7 +6020,9 @@
         "npm:@tanstack/svelte-db@~0.1.68",
         "npm:@tevm/voltaire@~0.2.28",
         "npm:@threlte/core@^8.3.1",
+        "npm:@types/dom-chromium-ai@^0.0.13",
         "npm:@types/three@0.182",
+        "npm:arktype@^2.1.29",
         "npm:bits-ui@^2.15.5",
         "npm:devalue@^5.6.2",
         "npm:fflate@~0.8.2",
@@ -5959,6 +6031,7 @@
         "npm:graphology@0.26",
         "npm:partykit@^0.0.115",
         "npm:partysocket@^1.1.11",
+        "npm:perfect-arrows@~0.3.7",
         "npm:playwright@^1.57.0",
         "npm:prettier-plugin-svelte@^3.4.1",
         "npm:prettier@^3.8.1",

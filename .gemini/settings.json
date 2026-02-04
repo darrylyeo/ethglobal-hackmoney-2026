@@ -2,10 +2,11 @@
   "$schema": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/schemas/settings.schema.json",
   "mcpServers": {
     "svelte": {
-      "command": "npx",
+      "command": "deno",
       "args": [
-        "-y",
-        "@sveltejs/mcp"
+        "run",
+        "-A",
+        "npm:@sveltejs/mcp"
       ]
     }
   }

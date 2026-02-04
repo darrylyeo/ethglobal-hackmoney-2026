@@ -132,7 +132,7 @@ EOF
 After each commit, optionally verify the build:
 
 ```bash
-deno task build  # or pnpm build
+deno task build
 ```
 
 If verification fails:

@@ -51,7 +51,7 @@ function collectInitialPaths(manifest, pathByBasename, pathToEntry) {
 }
 
 if (!fs.existsSync(clientDir)) {
-	console.error('Run pnpm build first')
+	console.error('Run deno task build first')
 	process.exit(1)
 }
 

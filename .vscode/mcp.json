@@ -1,10 +1,11 @@
 {
   "servers": {
     "svelte": {
-      "command": "npx",
+      "command": "deno",
       "args": [
-        "-y",
-        "@sveltejs/mcp"
+        "run",
+        "-A",
+        "npm:@sveltejs/mcp"
       ]
     }
   }

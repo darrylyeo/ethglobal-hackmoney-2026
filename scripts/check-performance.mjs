@@ -22,7 +22,7 @@ function runLighthouse(baseUrl) {
 		: `${baseUrl.replace(/\/$/, '')}/bridge`
 	try {
 		execSync(
-			`npx lighthouse "${url}" --output=json --output-path="${reportPath}" --only-categories=performance --form-factor=mobile --chrome-flags="--headless --no-sandbox --disable-gpu"`,
+			`deno run -A npm:lighthouse "${url}" --output=json --output-path="${reportPath}" --only-categories=performance --form-factor=mobile --chrome-flags="--headless --no-sandbox --disable-gpu"`,
 			{ stdio: 'inherit', maxBuffer: 10 * 1024 * 1024 },
 		)
 		return true

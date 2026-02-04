@@ -4,9 +4,10 @@
     "svelte": {
       "type": "local",
       "command": [
-        "npx",
-        "-y",
-        "@sveltejs/mcp"
+        "deno",
+        "run",
+        "-A",
+        "npm:@sveltejs/mcp"
       ]
     }
   }
