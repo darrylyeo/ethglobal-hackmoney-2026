@@ -28,6 +28,7 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/session': ['swap', 'bridge', 'transfer', 'liquidity', 'unsupported'],
 	'/session/[id]': ['not-found', 'redirect'],
 	'/sessions': ['empty', 'populated'],
+	'/channels/yellow': ['default'],
 	'/test/chain-id': ['button-disabled', 'button-enabled'],
 	'/test/collections': ['default'],
 	'/test/intents': ['default'],
@@ -269,6 +270,18 @@ export const coverageScenarios: CoverageScenario[] = [
 			await expect(
 				page.getByRole('link', { name: 'Back to room' }),
 			).toBeVisible()
+		},
+	},
+	{
+		route: '/channels/yellow',
+		branch: 'default',
+		path: '/channels/yellow',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Yellow Channels' }),
+			).toBeVisible()
+			await expect(page.getByText('Total:')).toBeVisible()
+			await expect(page.getByLabel('Status')).toBeVisible()
 		},
 	},
 	{

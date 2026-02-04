@@ -1,7 +1,9 @@
 export type IntentNavigateTo = (path: string, hash: string) => void
 
-export const intentNavigateTo = $state<IntentNavigateTo | null>(null)
+export const intentNavigationStore = $state({
+	fn: null as IntentNavigateTo | null,
+})
 
 export const setIntentNavigateTo = (fn: IntentNavigateTo | null) => {
-	intentNavigateTo = fn
+	intentNavigationStore.fn = fn
 }

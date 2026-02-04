@@ -306,6 +306,7 @@ export const openChannel = async (params: {
 	clearnodeConnection: ClearnodeConnection
 	chainId: number
 	token: `0x${string}`
+	roomId?: string
 }): Promise<{ channelId: string }> => {
 	const { createCreateChannelMessage } = await getYellowSdk()
 	if (

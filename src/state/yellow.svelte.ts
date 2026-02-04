@@ -17,16 +17,30 @@ import type { EIP1193Provider } from '$/lib/wallet'
 import { decodeNitroRpc, type NitroRpcMessage } from '$/lib/nitro-rpc'
 import { parseDecimalToSmallest } from '$/lib/format'
 
+const pendingChannelRooms = new Map<string, string>()
+
+export const tagChannelWithRoom = (channelId: string, roomId: string) => {
+	pendingChannelRooms.set(channelId, roomId)
+}
+
 function upsertChannel(row: YellowChannelRow) {
+	const pendingRoomId = pendingChannelRooms.get(row.id)
+	if (pendingRoomId) pendingChannelRooms.delete(row.id)
 	const existing = yellowChannelsCollection.state.get(row.id)
 	if (existing && row.turnNum < existing.turnNum) return
+	const roomId = row.roomId ?? pendingRoomId
 	if (existing) {
 		yellowChannelsCollection.update(row.id, (draft) => {
 			Object.assign(draft, row)
 			draft.$source = DataSource.Yellow
+			if (roomId) draft.roomId = roomId
 		})
 	} else {
-		yellowChannelsCollection.insert({ ...row, $source: DataSource.Yellow })
+		yellowChannelsCollection.insert({
+			...row,
+			$source: DataSource.Yellow,
+			...(roomId && { roomId }),
+		})
 	}
 }
 

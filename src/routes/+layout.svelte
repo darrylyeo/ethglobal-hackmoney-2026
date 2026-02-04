@@ -6,6 +6,10 @@
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { roomsCollection } from '$/collections/rooms'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import {
+		useLiveQueryContext,
+		useLocalLiveQueryContext,
+	} from '$/svelte/live-query-context.svelte'
 
 	// Functions
 	import { roomIdToDisplayName } from '$/lib/room'
@@ -32,6 +36,8 @@
 
 	// State
 	let showGraph = $state(false)
+	const globalLiveQueryCtx = useLiveQueryContext()
+	const localLiveQueryCtx = useLocalLiveQueryContext()
 
 	// (Derived)
 	const roomsQuery = useLiveQuery(
@@ -50,6 +56,10 @@
 				.select(({ row }) => ({ row })),
 		[],
 	)
+	const layoutLiveQueryEntries = [
+		{ id: 'layout-rooms', label: 'Rooms', query: roomsQuery },
+		{ id: 'layout-sessions', label: 'Sessions', query: sessionsQuery },
+	]
 	const navigationItems = $derived([
 		{
 			id: 'about',
@@ -106,6 +116,11 @@
 			href: '/transfers',
 		},
 		{
+			id: 'channels-yellow',
+			title: 'Yellow Channels',
+			href: '/channels/yellow',
+		},
+		{
 			id: 'rooms',
 			title: 'Rooms',
 			href: '/rooms',
@@ -146,6 +161,7 @@
 	import { Tooltip } from 'bits-ui'
 	import Boundary from '$/components/Boundary.svelte'
 	import IntentDragPreview from '$/components/IntentDragPreview.svelte'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import GraphScene from '$/routes/GraphScene.svelte'
 	import Navigation from '$/views/Navigation.svelte'
 	import ToastContainer from '$/views/ToastContainer.svelte'
@@ -175,12 +191,13 @@
 
 
 <Tooltip.Provider>
-	<div
-		id="layout"
-		class="layout"
-		data-scroll-container
-		data-sticky-container
-	>
+	<LiveQueryScope entries={layoutLiveQueryEntries} scope="global">
+		<div
+			id="layout"
+			class="layout"
+			data-scroll-container
+			data-sticky-container
+		>
 		<a href="#main" class="skip-link">Skip to main content</a>
 
 		<Navigation
@@ -225,8 +242,13 @@
 			{showGraph ? '✕' : '◉'}
 		</button>
 
-		<GraphScene visible={showGraph} />
-	</div>
+		<GraphScene
+			visible={showGraph}
+			queryStack={localLiveQueryCtx.stack}
+			globalQueryStack={globalLiveQueryCtx.stack}
+		/>
+		</div>
+	</LiveQueryScope>
 </Tooltip.Provider>
 
 

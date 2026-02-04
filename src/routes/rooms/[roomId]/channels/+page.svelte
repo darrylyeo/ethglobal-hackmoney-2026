@@ -86,6 +86,8 @@
 
 	<p>
 		<a href={resolve(`/rooms/${roomId}`)}>Back to room</a>
+		·
+		<a href="/channels/yellow">Yellow Channels</a>
 	</p>
 
 	<section data-column="gap-6">

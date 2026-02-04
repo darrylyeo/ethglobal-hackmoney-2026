@@ -21,7 +21,7 @@
 		intentDragPreviewState,
 		selectIntentDragRoute,
 	} from '$/state/intent-drag-preview.svelte'
-	import { intentNavigateTo } from '$/state/intent-navigation.svelte'
+	import { intentNavigationStore } from '$/state/intent-navigation.svelte'
 	import { tick } from 'svelte'
 
 	// Components
@@ -82,7 +82,7 @@
 		document.startViewTransition(() => action())
 	}
 	const navigateTo = async (path: string, hash: string) => {
-		const handler = intentNavigateTo
+		const handler = intentNavigationStore.fn
 		if (handler) {
 			handler(path, hash)
 			return
