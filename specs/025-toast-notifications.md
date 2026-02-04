@@ -115,7 +115,7 @@ const createToastStore = () => {
 export const toasts = createToastStore()
 ```
 
-### `src/components/ToastContainer.svelte`
+### `src/views/ToastContainer.svelte`
 
 ```svelte
 <script lang="ts">
@@ -411,7 +411,7 @@ export const toasts = createToastStore()
 ```svelte
 <!-- src/routes/+layout.svelte -->
 <script>
-  import ToastContainer from '$/components/ToastContainer.svelte'
+  import ToastContainer from '$/views/ToastContainer.svelte'
 </script>
 
 <slot />
@@ -455,10 +455,9 @@ export const toasts = createToastStore()
 Complete. `src/lib/toast.svelte.ts` store (add/dismiss/update/clear, convenience
 methods, auto-dismiss, loading no auto-dismiss); `src/components/Toast.svelte`
 (icon, title, message, type styling, dismiss, action, progress bar, pause on
-hover, entrance animation); `src/components/ToastContainer.svelte` (position,
-stack, ARIA); layout includes ToastContainer; BridgeExecution.svelte shows loading
-toast, success with View on Explorer, error with Retry, loading dismissed on
-completion.
+hover, entrance animation); `src/views/ToastContainer.svelte` (position, stack,
+ARIA); layout includes ToastContainer; BridgeExecution.svelte shows loading toast,
+success with View on Explorer, error with Retry, loading dismissed on completion.
 
 ## Output when complete
 

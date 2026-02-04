@@ -19,13 +19,15 @@ TransactionFlow is a generic UI layer that:
 
 ## Component API
 
-Location: `src/components/TransactionFlow.svelte`
+Location: `src/views/TransactionFlow.svelte`
 
 Props:
 
 - `walletConnection: ConnectedWallet | null`
 - `Summary?: Snippet`
 - `transactions: TransactionFlowItem[]`
+- `sessionId?: string | null`
+- `sessionParams?: Record<string, unknown> | null`
 
 Each `TransactionFlowItem` includes:
 
@@ -59,7 +61,7 @@ Each `TransactionFlowItem` includes:
 
 ### Bridge flow
 
-- Update `src/routes/bridge/BridgeFlow.svelte` to pass a single transaction with
+- Update `src/routes/bridge/lifi/BridgeFlow.svelte` to pass a single transaction with
   bridge-specific details and execution callback.
 - Move the confirmation dialog content into TransactionFlow’s confirmation
   snippet.
@@ -80,14 +82,14 @@ Each `TransactionFlowItem` includes:
 
 ## Status
 
-Complete. `src/components/TransactionFlow.svelte` with props walletConnection,
+Complete. `src/views/TransactionFlow.svelte` with props walletConnection,
 Summary snippet, transactions (TransactionFlowItem with id, chainId, title,
 actionLabel, canExecute, simulate, execute, requiresConfirmation,
-confirmationLabel, Details/Confirmation snippets). Chain switching via
-switchWalletChain when wallet chain ≠ transaction chain; simulation via
-createHttpProvider(rpcUrls[chainId]); execution state per transaction with
-onStatus. EIP-1193 check: execution disabled and "Connect a signing-capable
-wallet to continue" when no hasSigner. SwapFlow and BridgeFlow use
-TransactionFlow with Summary and per-transaction Details/Confirmation
-snippets; execution buttons only inside TransactionFlow. No duplicate
-chain-switch UI in swap or bridge flows.
+confirmationLabel, Details/Confirmation snippets), plus optional sessionId and
+sessionParams. Chain switching via switchWalletChain when wallet chain ≠
+transaction chain; simulation via createHttpProvider(rpcUrls[chainId]);
+execution state per transaction with onStatus. EIP-1193 check: execution
+disabled and "Connect a signing-capable wallet to continue" when no hasSigner.
+SwapFlow and BridgeFlow use TransactionFlow with Summary and per-transaction
+Details/Confirmation snippets; execution buttons only inside TransactionFlow.
+No duplicate chain-switch UI in swap or bridge flows.

@@ -82,7 +82,7 @@ while reducing flakiness and runtime.
 ## Testing
 
 ```bash
-pnpm test:e2e
+deno task test:e2e
 ```
 
 ## Status

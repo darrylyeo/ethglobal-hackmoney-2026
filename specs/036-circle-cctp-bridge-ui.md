@@ -93,7 +93,7 @@ Fast Transfer allowance display and availability warning.
 
 ### E2E test
 
-- [x] `e2e/cctp-bridge.test.ts` exists and runs with `pnpm test:e2e`.
+- [x] `e2e/cctp-bridge.test.ts` exists and runs with `deno task test:e2e`.
 - [x] Test: select chains, enter amount.
 - [x] Test: burn submitted, attestation polled, mint submitted (mocked).
 - [x] Test: Fast Transfer fee and allowance displayed.

@@ -151,7 +151,7 @@ Chain ID is tracked via `walletConnectionsCollection` which stores `chainId` for
 each connected wallet. Updated via `subscribeChainChanged` in the connection
 handler.
 
-### Chain switch prompt in `src/routes/bridge/BridgeFlow.svelte`
+### Chain switch prompt in `src/routes/bridge/lifi/BridgeFlow.svelte`
 
 Chain switch prompt is shown inline:
 

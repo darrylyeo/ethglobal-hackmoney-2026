@@ -7,9 +7,9 @@ and runtime dependencies at a glance.
 
 ## Scope
 
-- **Route:** `src/routes/architecture/+page.svelte`
-- **Graph component:** `src/components/ArchitectureGraph.svelte`
-- **Diagram model:** `src/lib/architecture-graph.ts` (normalized nodes/edges)
+- **Route:** `src/routes/about/+page.svelte`
+- **Graph component:** `src/routes/about/ArchitectureGraph.svelte`
+- **Diagram model:** `src/routes/about/architecture-graph.ts` (normalized nodes/edges)
 - **Icons:** use existing chain icon pipeline in `scripts/_fetch-chain-icons.ts`
   and `static/networks`
 
@@ -17,34 +17,38 @@ and runtime dependencies at a glance.
 
 ### Core nodes
 
-- **Client/UI:** SvelteKit app + Svelte 5 components
-- **State:** TanStack DB collections
+- **Client/UI:** SvelteKit app + Svelte 5 flows and visualization layers
+- **State:** Svelte state + TanStack DB collections
+- **Collections:** named collections for runtime data and sessions
+- **Storage:** localStorage + sessionStorage persistence
 - **Blockchain access:** Voltaire RPC + ABI registry
 - **Bridge/Swap:** LI.FI routes + quotes
 - **USDC bridge:** Circle CCTP / Bridge Kit
-- **Rooms:** PartyKit realtime rooms
+- **Swap/Liquidity:** Uniswap v4 + Universal Router
+- **Transfers:** Voltaire logs + Covalent indexer fallback
+- **Rooms:** PartyKit realtime rooms + SIWE challenges
 - **Price/Oracle:** Stork price feeds
-- **Payments/Channels:** Yellow state channels
-- **Wallets:** EIP-1193 wallet connections
+- **Payments/Channels:** Yellow state channels + custody
+- **Wallets:** EIP-1193 wallet connections + EIP-6963 discovery
+- **Explain:** Prompt API + hosted LLM fallback
+- **Tooling:** Deno tasks, build pipeline, tests, scripts
 - **Networks:** supported chains (use chain icons)
 
 ### Core edges
 
 - UI → State: collections read/write
-- State → Voltaire: RPC calls, simulations, event queries
-- State → LI.FI: route/quote requests
-- State → Circle: CCTP transfers + status
+- State → Collections: live queries + persistence
+- State → Services: Voltaire, LI.FI, Circle, Uniswap, Transfers, PartyKit, Stork, Yellow, Intents
 - UI ↔ Wallets: chain switching + signing
-- Rooms ↔ UI: realtime peer updates
-- State ↔ Stork: price updates
-- State ↔ Yellow: channel state updates
-- Voltaire ↔ Networks: RPC access per chain
+- Services → External APIs: LI.FI, Circle, Stork, Covalent, PartyKit, Yellow
+- Voltaire ↔ RPC providers: JSON-RPC calls
 - Wallets ↔ Networks: transactions on chain
+- Tooling → Runtime: dev/build/test flows (Deno tasks, Playwright, TEVM)
 
 ## Visual design
 
 - Use a layered left-to-right layout (Client → State → Services → Networks).
-- Nodes use distinct shapes per category: UI, state, service, network.
+- Nodes use distinct shapes per category: UI, state, collections/storage, service, tooling, network.
 - Edges are directional with arrowheads and short labels (e.g. “quotes”, “RPC”).
 - Provide a legend explaining colors/shapes and the chain icon usage.
 - Highlight critical paths (bridge/swap) with stronger edge styling.
@@ -62,7 +66,7 @@ and runtime dependencies at a glance.
   `scripts/_fetch-chain-icons.ts`.
 - If a required chain icon is missing, add it to `chainIconItems` using the
   existing comment format that documents the official source URL and whether it
-  came from explorer assets. Run `bun run icons` to fetch + optimize.
+  came from explorer assets. Run `deno task icons` to fetch + optimize.
 - **Non-chain icons:** prefer simple geometric shapes + labels; if brand icons
   are required later, follow the same process and attribution style in a new
   icon fetch script only if chain icons are insufficient.
@@ -71,10 +75,10 @@ and runtime dependencies at a glance.
 
 - [x] `ArchitectureGraph.svelte` renders the diagram with G6 and uses the
       normalized graph model from `architecture-graph.ts`.
-- [x] The architecture route renders the diagram with a short textual intro and
-      a legend that explains node/edge styling.
-- [x] Nodes include all core systems listed above and are connected by the
-      listed edges.
+- [x] The about route renders the diagram with a short textual intro and a
+      legend that explains node/edge styling.
+- [x] Nodes include all core systems listed above (runtime + tooling) and are
+      connected by the listed edges.
 - [x] The diagram uses chain icons from `static/networks` for network nodes.
 - [x] Pan/zoom, selection, hover details, and keyboard shortcuts work.
 - [x] Reduced motion is respected (no animated transitions).

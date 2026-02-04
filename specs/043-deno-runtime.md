@@ -15,15 +15,15 @@ Use Deno instead of npm, pnpm, or bun for running scripts, tasks, and installing
 
 ## Acceptance criteria
 
-- [ ] All documented and scripted commands use Deno: `deno task <name>`, `deno run -A`, or `deno test -A` as appropriate.
-- [ ] New dependencies are added to `deno.json` imports (e.g. `"pkg": "npm:pkg"`) and cached with `deno cache` or `deno install`.
-- [ ] One-off or temporary scripts are run with `deno run -A` (or `deno task` if added to `deno.json` tasks); prefix temporary scripts with `_` per project convention.
-- [ ] Unit/spec tests that can run under Deno use `deno test -A`; e2e may still use Node/Playwright as needed.
-- [ ] README, AGENTS.md, or other contributor docs state that Deno is the primary way to run commands (with fallbacks only where necessary).
+- [x] All documented and scripted commands use Deno: `deno task <name>`, `deno run -A`, or `deno test -A` as appropriate.
+- [x] New dependencies are added to `deno.json` imports (e.g. `"pkg": "npm:pkg"`) and cached with `deno cache` or `deno install`.
+- [x] One-off or temporary scripts are run with `deno run -A` (or `deno task` if added to `deno.json` tasks); prefix temporary scripts with `_` per project convention.
+- [x] Unit/spec tests that can run under Deno use `deno test -A`; e2e may still use Node/Playwright as needed.
+- [x] README, AGENTS.md, or other contributor docs state that Deno is the primary way to run commands (with fallbacks only where necessary).
 
 ## Status
 
-Draft. `deno.json` already defines tasks (dev, build, preview, install, test, test:unit, test:e2e). Align docs and any remaining npm/pnpm/bun references to this spec.
+Implemented. Deno-first commands are wired up, but full E2E suite still fails (see history entry for details).
 
 ## Output when complete
 

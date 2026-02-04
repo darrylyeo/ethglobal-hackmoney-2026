@@ -11,6 +11,7 @@ and navigation.
 - Dedicated `transaction-sessions` TanStack DB collection.
 - URL hash handling for session bootstrap and navigation.
 - Session lifecycle and edit locking rules.
+- Normalize session params at the collection boundary using ArkType.
 - Navigation state tags for Draft, Submitted, Finalized.
 - Replace legacy per-flow hash state and local draft state.
 
@@ -101,6 +102,7 @@ type TransactionSession = {
 - Each simulation row includes `sessionId` for joining and a params hash for
   grouping results by identical inputs.
 - Session rows store only `latestSimulationId` and `simulationCount`.
+- Simulation rows persist `paramsHash` to group results by identical inputs.
 
 ## Sessions route and navigation
 
@@ -123,6 +125,7 @@ type TransactionSession = {
   `TransactionSession.params` as the single source of truth.
 - Flow-specific view models derive from `params` without duplicating state.
 - Form edits never mutate URL hash directly beyond the `#session:<id>` form.
+- TransactionFlow owns execution orchestration, and flows only provide specifics.
 
 ## Acceptance criteria
 
@@ -131,6 +134,7 @@ type TransactionSession = {
   the hash with `#session:<id>`.
 - [x] Routes hydrate form state from `TransactionSession.params`.
 - [x] Any form edits sync back into the active session in TanStack DB.
+- [x] Session params are normalized at the collection boundary using ArkType.
 - [x] Simulation and execution lock parameter edits and persist results.
 - [x] Simulations are stored in `transaction-session-simulations` with a
   `sessionId` join key.

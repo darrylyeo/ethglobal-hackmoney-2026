@@ -56,7 +56,7 @@ export const formatAddress = (address: string, chars = 6): string => (
 )
 ```
 
-### Recipient input in `src/routes/bridge/BridgeFlow.svelte`
+### Recipient input in `src/routes/bridge/lifi/BridgeFlow.svelte`
 
 Recipient functionality is implemented inline in BridgeFlow using:
 

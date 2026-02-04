@@ -95,7 +95,7 @@ export const extractFeeBreakdown = (route: Route): FeeBreakdown => {
 }
 ```
 
-### Fee display in `src/routes/bridge/BridgeFlow.svelte`
+### Fee display in `src/routes/bridge/lifi/BridgeFlow.svelte`
 
 Fee breakdown is shown inline in the quote summary:
 

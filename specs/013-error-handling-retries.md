@@ -268,7 +268,7 @@ export const getRetryDelay = (error: BridgeError, attempt: number): number => {
 }
 ```
 
-### Error display in `src/routes/bridge/BridgeFlow.svelte`
+### Error display in `src/routes/bridge/lifi/BridgeFlow.svelte`
 
 Errors from route fetching are shown inline:
 

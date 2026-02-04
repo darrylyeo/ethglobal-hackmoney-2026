@@ -88,7 +88,7 @@ amount, recipient) and resets protocol-specific state.
 
 ### E2E test
 
-- [x] `e2e/unified-bridge.test.ts` exists and runs with `pnpm test:e2e`.
+- [x] `e2e/unified-bridge.test.ts` exists and runs with `deno task test:e2e`.
 - [x] Test: chain pair that only CCTP supports selects CCTP (shared pair
   defaults to CCTP; no CCTP-only pair in current chain list).
 - [x] Test: chain pair that only LI.FI supports selects LI.FI.

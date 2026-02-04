@@ -67,7 +67,7 @@ export const updateTransactionStatus = (
 }
 ```
 
-### Transaction history in `src/routes/bridge/BridgeFlow.svelte`
+### Transaction history in `src/routes/bridge/lifi/BridgeFlow.svelte`
 
 Transaction history is displayed inline using `transactionsCollection` via
 TanStack DB:

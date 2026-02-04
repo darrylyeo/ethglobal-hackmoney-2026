@@ -221,7 +221,7 @@ const trackPerformance = () => {
 - [x] First contentful paint < 1.5s on 4G
 - [x] Largest contentful paint < 2.5s
 - [x] Time to interactive < 3s
-- [x] Bundle size check: `pnpm run check:size` (cap 700KB gzip; 500KB aspirational with LI.FI SDK)
+- [x] Bundle size check: `deno task check:size` (cap 700KB gzip; 500KB aspirational with LI.FI SDK)
 
 ### Runtime
 - [x] No layout shifts after initial render
@@ -245,10 +245,10 @@ const trackPerformance = () => {
 
 ```bash
 # Lighthouse CI
-npx lighthouse http://localhost:5000/bridge --output=json
+deno run -A npm:lighthouse http://localhost:5000/bridge --output=json
 
 # Bundle size check
-pnpm build && ls -la .svelte-kit/output/client/_app/immutable/
+deno task build && ls -la .svelte-kit/output/client/_app/immutable/
 
 # Performance profiling
 # Use Chrome DevTools Performance tab
@@ -256,7 +256,7 @@ pnpm build && ls -la .svelte-kit/output/client/_app/immutable/
 
 ## Status
 
-Complete. Load/runtime verified by `scripts/check-performance.mjs` + `pnpm run check:perf`: Lighthouse (mobile, /bridge) asserts FCP < 1.5s, LCP < 2.5s, CLS < 0.1, TBT < 300ms. Run `pnpm run preview` then `pnpm run check:perf` (or pass BASE_URL / path to Lighthouse JSON); skips with exit 0 when Chrome unavailable. `check:size`: initial load (entry + layout + bridge node and transitive imports) gzip ≤ 700KB via manifest; uses `pnpm run build`. Debounce: `src/lib/debounce.ts` (500ms). BridgeFlow: debounced route fetching via `bridgeRoutesCollection`. LI.FI: lazy-loaded via `getLifiSdk()` in `src/api/lifi.ts`; queryClient.fetchQuery staleTime 30s. Format: formatTokenAmount memoized. Images: width/height + loading=lazy, decoding=async. Preload: NavigationItem preloadData(href).
+Complete. Load/runtime verified by `scripts/check-performance.mjs` + `deno task check:perf`: Lighthouse (mobile, /bridge) asserts FCP < 1.5s, LCP < 2.5s, CLS < 0.1, TBT < 300ms. Run `deno task preview` then `deno task check:perf` (or pass BASE_URL / path to Lighthouse JSON); skips with exit 0 when Chrome unavailable. `check:size`: initial load (entry + layout + bridge node and transitive imports) gzip ≤ 700KB via manifest; uses `deno task build`. Debounce: `src/lib/debounce.ts` (500ms). BridgeFlow: debounced route fetching via `bridgeRoutesCollection`. LI.FI: lazy-loaded via `getLifiSdk()` in `src/api/lifi.ts`; queryClient.fetchQuery staleTime 30s. Format: formatTokenAmount memoized. Images: width/height + loading=lazy, decoding=async. Preload: NavigationItem preloadData(href).
 
 ## Output when complete
 

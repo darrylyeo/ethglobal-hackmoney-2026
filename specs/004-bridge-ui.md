@@ -29,11 +29,11 @@ Main bridge interface with:
 11. **Confirmation dialog** – review before sending
 12. **Error display** – inline error messages
 
-### `src/routes/bridge/lifi/Wallets.svelte`
+### `src/views/Wallets.svelte`
 
 Wallet discovery and connection via EIP-6963.
 
-### `src/routes/bridge/lifi/Balances.svelte`
+### `src/views/Balances.svelte`
 
 USDC balance display per chain.
 
@@ -66,7 +66,7 @@ Transaction execution with status tracking.
 
 ### E2E test
 
-- [x] `e2e/bridge.test.ts` exists and runs with `pnpm test:e2e`.
+- [x] `e2e/bridge.test.ts` exists and runs with `deno task test:e2e`.
 - [x] Test: select chains, enter amount.
 - [x] Test: routes fetched and displayed.
 

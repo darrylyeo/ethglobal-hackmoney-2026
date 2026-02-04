@@ -150,7 +150,7 @@ export const executeSelectedRoute = async (
 }
 ```
 
-### Route list and cards in `src/routes/bridge/BridgeFlow.svelte`
+### Route list and cards in `src/routes/bridge/lifi/BridgeFlow.svelte`
 
 Routes are rendered inline in BridgeFlow rather than separate components. The
 implementation uses:

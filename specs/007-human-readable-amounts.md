@@ -65,7 +65,7 @@ export const isValidDecimalInput = (value: string, decimals: number): boolean =>
 }
 ```
 
-### `src/routes/bridge/BridgeFlow.svelte` – Amount input section
+### `src/routes/bridge/lifi/BridgeFlow.svelte` – Amount input section
 
 Amount input is implemented inline in `BridgeFlow.svelte` rather than a separate
 component. It uses:

@@ -8,12 +8,13 @@ Add a `/dashboard` route that hosts a modular tiling panel system. Each panel ca
 - Define per-panel route rendering and hash navigation history rules.
 - Define focus/unfocus behavior for syncing hash history into SvelteKit navigation.
 - Define persistence in a dedicated TanStack DB collection.
+- Define in-panel link interception and modifier-click split navigation.
 
 ## Non-goals
 
 - Do not implement data loading or UI for routes being rendered inside panels.
 - Do not add cross-panel shared navigation history.
-- Do not define panel styling or theme tokens beyond what is needed to express layout.
+- Do not define global theme tokens beyond what is needed to express layout.
 
 ## Definitions
 
@@ -51,6 +52,8 @@ Add a `/dashboard` route that hosts a modular tiling panel system. Each panel ca
 
 - Panels may render any existing SvelteKit route except dashboard routes.
 - Each panel manages its own `hashHistory` of `#hash` strings.
+- Internal anchor clicks inside a panel are intercepted and routed within that panel.
+- Modifier-click (Cmd/Ctrl) on an internal anchor opens the target route in a new split panel.
 - For hash-only updates, use `$app/navigation` shallow routing (`pushState`/`replaceState`) instead of `history.*` so SvelteKit state stays in sync.
 - When a panel is focused, its `hashHistory` is pushed onto the SvelteKit navigation stack as hash URLs (in order) via `pushState`.
 - When a panel loses focus, all hash entries pushed for that panel are popped off the SvelteKit navigation stack.

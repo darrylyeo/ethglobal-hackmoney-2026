@@ -26,7 +26,7 @@ details and requiring explicit user confirmation.
 
 ## Implementation
 
-### Confirmation dialog in `src/routes/bridge/BridgeFlow.svelte`
+### Confirmation dialog in `src/routes/bridge/lifi/BridgeFlow.svelte`
 
 The confirmation dialog is implemented inline using Bits UI Dialog:
 

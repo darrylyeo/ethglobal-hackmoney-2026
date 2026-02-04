@@ -41,15 +41,15 @@ normalized into collections, and queries filter by source where applicable.
 - [x] Entities with multiple possible origins include `$source: DataSource`.
 - [x] Manually fetched data is normalized into TanStack DB collections before use.
 - [x] Queries filter by source when applicable.
-- [x] Playwright coverage exists for any UI that renders source-tagged entities and `pnpm test:e2e` passes.
+- [x] Playwright coverage exists for any UI that renders source-tagged entities and `deno task test:e2e` passes.
 
 ## Testing
 
-- `pnpm test:e2e`
+- `deno task test:e2e`
 
 ## Status
 
-Complete. DataSource enum (Local, LiFi, TokenLists, Stork, Uniswap, Yellow, Cctp, Voltaire, PartyKit, Covalent). All collections have $source; transfer-graphs collection; transfers page uses collection; CctpFees/CctpAllowance filter by source. Balances.svelte shows data-balances-grid when connected; CoinAmountInput range slider has aria-label for a11y; e2e fixes (chain select focus+ArrowDown/Enter, amount textbox selector, protocol badge selector). `pnpm test:e2e` passes.
+Complete. DataSource enum (Local, LiFi, TokenLists, Stork, Uniswap, Yellow, Cctp, Voltaire, PartyKit, Covalent). All collections have $source; transfer-graphs collection; transfers page uses collection; CctpFees/CctpAllowance filter by source. Balances.svelte shows data-balances-grid when connected; CoinAmountInput range slider has aria-label for a11y; e2e fixes (chain select focus+ArrowDown/Enter, amount textbox selector, protocol badge selector). `deno task test:e2e` passes.
 
 ## Output when complete
 

@@ -50,7 +50,7 @@ export const calculateMinOutput = (
 }
 ```
 
-### Slippage settings in `src/routes/bridge/BridgeFlow.svelte`
+### Slippage settings in `src/routes/bridge/lifi/BridgeFlow.svelte`
 
 Slippage settings are implemented inline using a Popover:
 

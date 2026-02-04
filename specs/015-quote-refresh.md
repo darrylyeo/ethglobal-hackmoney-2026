@@ -42,7 +42,7 @@ const QUOTE_VALIDITY_MS = 60_000 // 60 seconds
 const EXPIRATION_WARNING_MS = 15_000 // warn at 15 seconds remaining
 ```
 
-### Quote expiration in `src/routes/bridge/BridgeFlow.svelte`
+### Quote expiration in `src/routes/bridge/lifi/BridgeFlow.svelte`
 
 Quote expiration is implemented inline in BridgeFlow with:
 

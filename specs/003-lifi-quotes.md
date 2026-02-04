@@ -11,14 +11,14 @@ supported chains.
 
 ## Design decision
 
-**Quote-only approach:** This implementation uses `getQuote()` (single
-executable step) rather than `getRoutes()` (multiple options). Per LI.FI docs:
+**Routes-first approach:** This implementation uses `getRoutes()` to fetch
+multiple route options and execute the selected route. Per LI.FI docs:
 
 - Route = planning step, returns array of route options
 - Quote = executable transaction with tool data for one specific route
 
-For a minimal USDC bridge, quote-only is sufficient. Routes could be added later
-for route comparison UI.
+Quotes remain available for single-step flows, but the bridge UI uses routes to
+enable comparison and execution.
 
 ## Implementation
 
@@ -35,12 +35,12 @@ for route comparison UI.
 - `normalizeRoute(route)` – transform LI.FI Route to normalized shape
 - `extractFeeBreakdown(route)` – extract detailed fee info from route
 - `fetchBridgeRoutes(params)` – fetch and store routes in bridgeRoutesCollection
-- `executeSelectedRoute(params)` – execute route with status updates
+- `executeSelectedRoute(providerDetail, route, onStatusChange?)` – execute route with status updates
 
 ## Acceptance criteria
 
 - [x] `src/api/lifi.ts` exists with exports above.
-- [x] `getRoutesForUsdcBridge({ fromChainId, toChainId, fromAmount, fromAddress })`
+- [x] `getRoutesForUsdcBridge({ fromChain, toChain, fromAmount, fromAddress, toAddress, slippage })`
       fetches routes via LI.FI SDK.
 - [x] Routes normalized to `NormalizedRoute` shape with toolName, amounts, fees.
 - [x] USDC addresses are looked up from `src/constants/coins.ts` by chain ID.

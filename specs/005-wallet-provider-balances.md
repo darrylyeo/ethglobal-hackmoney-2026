@@ -22,7 +22,7 @@ querying for connected accounts.
 
 ## Implementation
 
-### Wallet management (`src/routes/bridge/Wallets.svelte`)
+### Wallet management (`src/views/Wallets.svelte`)
 
 Wallet management using TanStack DB collections:
 
@@ -55,7 +55,6 @@ type ActorCoin = {
   coinSymbol: string;
   coinDecimals: number;
   balance: bigint;
-  balanceFormatted: string;
   isLoading: boolean;
   error: string | null;
 };
@@ -73,7 +72,7 @@ type ActorCoin = {
 
 ### Wallet components
 
-- [x] `Wallets.svelte` exists in `src/routes/bridge/`
+- [x] `Wallets.svelte` exists in `src/views/`
 - [x] Uses TanStack DB collections for wallet and connection state
 - [x] Multi-wallet support with selection
 - [x] Testnet/mainnet toggle via `bridgeSettingsState`
@@ -164,8 +163,8 @@ test("balances display after wallet connection", async ({ page }) => {
 
 ## Status
 
-Complete. `Wallets.svelte` in `src/routes/bridge/lifi/` with TanStack DB
-collections (`walletsCollection`, `walletConnectionsCollection`).
+Complete. `Wallets.svelte` in `src/views/` with TanStack DB collections
+(`walletsCollection`, `walletConnectionsCollection`).
 `actorsCollection` and `actorCoinsCollection` for balances.
 `bridgeSettingsState` for testnet/mainnet toggle. E2E tests in
 `e2e/wallet.test.ts`: network toggle and connect-popover pass; address,

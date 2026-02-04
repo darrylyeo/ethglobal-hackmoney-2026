@@ -23,7 +23,7 @@ bridge UI. This spec wires them together.
 Bridge settings including `isTestnet` are managed via `bridgeSettingsState` with
 localStorage persistence.
 
-### `src/routes/bridge/BridgeFlow.svelte`
+### `src/routes/bridge/lifi/BridgeFlow.svelte`
 
 ```svelte
 // Networks (derived from settings)
