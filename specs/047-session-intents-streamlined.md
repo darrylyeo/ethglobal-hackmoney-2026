@@ -74,24 +74,24 @@ three-column `<SessionAction>` row with a dedicated `<form>`.
 
 ## Acceptance criteria
 
-- [ ] `<Session>` and `<SessionAction>` exist and render actions as three-column
+- [x] `<Session>` and `<SessionAction>` exist and render actions as three-column
   form rows with the specified column responsibilities.
-- [ ] Specialized action components consume `<SessionAction>` and provide
+- [x] Specialized action components consume `<SessionAction>` and provide
   snippet content for action-specific UI.
-- [ ] Session context includes wallet(s) and mainnet/testnet environment.
-- [ ] Local session state is the default source of truth until `Save Draft`,
+- [x] Session context includes wallet(s) and mainnet/testnet environment.
+- [x] Local session state is the default source of truth until `Save Draft`,
   `Simulate`, or `Sign and Submit`.
-- [ ] Sessions are only persisted on those actions and never on initial render.
-- [ ] Successful `Simulate` or `Sign and Submit` locks the persisted session,
+- [x] Sessions are only persisted on those actions and never on initial render.
+- [x] Successful `Simulate` or `Sign and Submit` locks the persisted session,
   but form fields in columns 1 and 2 remain editable.
-- [ ] When locked, the next successful submit creates a new session record in
+- [x] When locked, the next successful submit creates a new session record in
   the DB based on the local state.
-- [ ] Users can run `Simulate` repeatedly before `Sign and Submit`.
-- [ ] Failed actions (including signature rejection) do not update or persist
+- [x] Users can run `Simulate` repeatedly before `Sign and Submit`.
+- [x] Failed actions (including signature rejection) do not update or persist
   session state.
-- [ ] Protocol availability depends on params and supported intents; protocol
+- [x] Protocol availability depends on params and supported intents; protocol
   settings depend on the selected protocol.
-- [ ] API data is normalized at the TanStack DB collection boundary.
+- [x] API data is normalized at the TanStack DB collection boundary.
 
 ## TODOs
 
@@ -100,4 +100,8 @@ three-column `<SessionAction>` row with a dedicated `<form>`.
 
 ## Status
 
-Proposed.
+Complete. Session and SessionAction in `src/views/`. UnifiedBridgeFlow, SwapAction, TransferAction use SessionAction with Params/Protocol/Preview snippets; local state (localParams) is source of truth; persist only on Save Draft, Simulate, Sign and Submit. Session +page no longer creates or persists a session on initial render for empty or action-slug hash—only sets activeSessionId = null and hashAction; persistence happens in flow components on user action. Lock on Simulate/Submit; when locked, next submit creates new session (shouldCreate = !current || current.lockedAt). Failed submit does not persist (try/catch). Context: Session Context snippet provides Wallets; mainnet/testnet from bridgeSettingsState / globalIsTestnet.
+
+## Output when complete
+
+`DONE`

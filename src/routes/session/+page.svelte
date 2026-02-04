@@ -10,12 +10,7 @@
 		SESSION_HASH_SOURCE_KEY,
 		type SessionHashSource,
 	} from '$/lib/dashboard-panel-hash'
-	import {
-		buildSessionHash,
-		createTransactionSession,
-		getTransactionSession,
-		parseSessionHash,
-	} from '$/lib/transaction-sessions'
+	import { getTransactionSession, parseSessionHash } from '$/lib/transaction-sessions'
 
 	// State
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
@@ -92,23 +87,13 @@
 			return
 		}
 		if (parsed.kind === 'actions') {
-			const session = createTransactionSession({
-				actions: parsed.actions.map((a) => a.action),
-				params: parsed.actions[0]?.params ?? {},
-			})
-			setEffectiveHash(hashSource, buildSessionHash(session.id))
-			activeSessionId = session.id
-			hashAction = session.actions[0] ?? null
+			activeSessionId = null
+			hashAction = parsed.actions[0]?.action ?? 'swap'
 			return
 		}
 		if (parsed.kind === 'empty') {
-			const session = createTransactionSession({
-				actions: ['swap'],
-				params: {},
-			})
-			setEffectiveHash(hashSource, buildSessionHash(session.id))
-			activeSessionId = session.id
-			hashAction = session.actions[0] ?? null
+			activeSessionId = null
+			hashAction = 'swap'
 			return
 		}
 		activeSessionId = null
@@ -126,11 +111,11 @@
 			}
 			if (parsed.kind === 'actions') {
 				activeSessionId = null
-				hashAction = parsed.actions[0]?.action ?? null
+				hashAction = parsed.actions[0]?.action ?? 'swap'
 				return
 			}
 			activeSessionId = null
-			hashAction = null
+			hashAction = parsed.kind === 'empty' ? 'swap' : null
 		}
 		handleHash()
 		window.addEventListener('hashchange', handleHash)
