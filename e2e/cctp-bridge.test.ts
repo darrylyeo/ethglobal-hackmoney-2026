@@ -24,12 +24,11 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 			timeout: 30_000,
 		})
 		await expect(page.locator('#main').first()).toContainText(
-			/USDC Bridge \(CCTP\)|Connect a wallet/,
+			/USDC Bridge|Connect a wallet/,
 			{ timeout: 45_000 },
 		)
 		await ensureWalletConnected(page)
 		await selectProtocolOption(page, 'CCTP')
-		await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 15_000 })
 		await page.getByLabel('From chain').focus()
 		await page.getByLabel('From chain').press('ArrowDown')
 		await page.getByRole('option').first().waitFor({ state: 'visible', timeout: 10_000 })
@@ -89,11 +88,11 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 		await page.getByRole('option').nth(1).click({ force: true })
 		await page.getByRole('textbox', { name: 'Amount' }).fill('0.01')
 		await expect(
-			page.getByRole('button', { name: 'Bridge via CCTP' }),
+			page.getByRole('button', { name: 'Sign and Submit' }),
 		).toBeEnabled({
 			timeout: 30_000,
 		})
-		await page.getByRole('button', { name: 'Bridge via CCTP' }).click()
+		await page.getByRole('button', { name: 'Sign and Submit' }).click()
 		await expect(
 			page.getByRole('dialog').getByText('Confirm CCTP transfer'),
 		).toBeVisible({

@@ -29,7 +29,7 @@ test.describe('Unified Bridge (Spec 037)', () => {
 			{ timeout: 45_000 },
 		)
 		await expect(
-			page.getByRole('heading', { name: 'Bridge USDC' }),
+			page.getByRole('heading', { name: 'Bridge', level: 2 }),
 		).toBeVisible()
 		await expect(page.getByLabel('From chain')).toBeAttached()
 		await expect(page.getByLabel('To chain')).toBeAttached()
@@ -103,7 +103,9 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		).toContainText('CCTP')
 		await selectProtocolOption(page, 'LI.FI')
 		await expect(
-			page.locator('[data-protocol="lifi"]'),
-		).toContainText('LI.FI')
+			page.locator('section').filter({
+				has: page.getByRole('heading', { name: 'Protocol Selection' }),
+			}).getByText('LI.FI'),
+		).toBeVisible({ timeout: 10_000 })
 	})
 })

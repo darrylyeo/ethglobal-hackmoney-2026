@@ -40,7 +40,7 @@ test.describe('E2E Tevm walletless execution', () => {
 		await page.goto('/session#swap')
 		await ensureWalletConnected(page)
 		await page.getByRole('textbox', { name: 'Token in' }).fill('1')
-		const swapButton = page.getByRole('button', { name: 'Swap', exact: true })
+		const swapButton = page.getByRole('button', { name: 'Sign and Submit' })
 		await expect(swapButton).toBeEnabled({ timeout: 20_000 })
 		await swapButton.click()
 		const txHash = await getTxHash(page.locator('[data-tx-hash]'), 'swap')
@@ -66,7 +66,7 @@ test.describe('E2E Tevm walletless execution', () => {
 			.locator('[data-testid="quote-result"]')
 			.waitFor({ state: 'visible', timeout: 50_000 })
 		await page.getByLabel(/I understand this transaction is irreversible/).click()
-		const sendButton = page.getByRole('button', { name: 'Send' })
+		const sendButton = page.getByRole('button', { name: 'Sign and Submit' })
 		await expect(sendButton).toBeEnabled({ timeout: 20_000 })
 		await sendButton.click()
 		const txHash = await getTxHash(
@@ -99,7 +99,7 @@ test.describe('E2E Tevm walletless execution', () => {
 		const beforeRecipient = await tevm.getBalance(tevm.recipientAddress)
 		await page.goto(`/session${hash}`)
 		await ensureWalletConnected(page)
-		const transferButton = page.getByRole('button', { name: 'Transfer' })
+		const transferButton = page.getByRole('button', { name: 'Sign and Submit' })
 		await expect(transferButton).toBeEnabled({ timeout: 20_000 })
 		await transferButton.click()
 		const txHash = await getTxHash(

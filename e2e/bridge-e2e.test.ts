@@ -41,7 +41,7 @@ test.describe('E2E bridge flow', () => {
 			).toBeVisible({ timeout: 20_000 })
 			await expect(
 				page.locator('#main').first().getByRole('heading', {
-					name: 'Bridge USDC',
+					name: 'Bridge',
 					level: 2,
 				}),
 			).toBeVisible({ timeout: 15_000 })
@@ -168,7 +168,7 @@ test.describe('E2E bridge flow', () => {
 			await fromChainTrigger.focus()
 			await fromChainTrigger.press('ArrowDown')
 			await expect(
-				page.getByRole('option', { name: /Sepolia/i }).first(),
+				page.getByRole('listbox').getByRole('option').first(),
 			).toBeVisible({ timeout: 15_000 })
 			await page.keyboard.press('Escape')
 		})
