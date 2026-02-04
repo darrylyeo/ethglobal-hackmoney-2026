@@ -157,6 +157,8 @@ Deno.test('isValidDecimalInput validates correctly', () => {
 
 Complete. format.ts helpers (`parseDecimalToSmallest`, `formatSmallestToDecimal`,
 `isValidDecimalInput`), amount input inline in BridgeFlow.svelte, format.spec.ts.
+Re-verification 2026-02-04 (PROMPT_build): format.ts and format.spec.ts verified;
+UnifiedBridgeFlow uses CoinAmountInput with format helpers; validation and submit gating; test:unit passed.
 
 ## Output when complete
 
