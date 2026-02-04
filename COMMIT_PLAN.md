@@ -49,7 +49,7 @@ DONE (9d5de54): `Rooms: add display-name encoding and QR`
 ## Phase 6: Wallets UI + route
 
 DONE (dece40a): `Wallets: add manager route and view updates`
-- Files: `src/routes/wallets/+page.svelte`, `src/routes/wallets/WalletManager.svelte`
+- Files: `src/routes/wallets/+page.svelte`, `src/routes/wallets/WalletsManager.svelte`
 - Files: `src/views/Wallets.svelte`, `src/views/Balances.svelte`, `src/views/NetworkInput.svelte`, `src/views/NavigationItem.svelte`, `src/views/StorkPriceFeed.svelte`
 - Dependency: Phase 2
 
@@ -73,6 +73,62 @@ DONE (3a73bcb): `Layout: align main landmark and selectors`
 DONE (a4178cc): `Specs: add new spec docs`
 - Files: `specs/043-deno-runtime.md`, `specs/045-schema-constants-preferences.md`, `specs/046-transaction-sessions.md`, `specs/047-intent-drag-tooltip-previews.md`, `specs/048-g6-graph-intents-and-schema.md`
 - Dependency: Phase 1
+
+## Phase 10: Tooling, deps, and dev scripts
+
+DONE (cc119c7): `Tooling: update Deno tasks and deps`
+- Files: `.cursor/mcp.json`, `.gemini/settings.json`, `.mcp.json`, `.vscode/mcp.json`, `README.md`, `opencode.json`, `package.json`, `bun.lock`, `deno.json`, `deno.lock`, `scripts/check-bundle-size.mjs`, `scripts/check-performance.mjs`, `scripts/ralph-loop-codex.sh`, `scripts/atomic-commits.md`
+- Dependency: none
+
+## Phase 11: Icons pipeline and assets
+
+DONE (439cdc1): `Icons: add fetch pipeline and assets`
+- Files: `scripts/_fetch-chain-icons.ts`, `scripts/_fetch-icons.ts`, `src/constants/chain-icon-fetch-items.ts`, `src/constants/icons.ts`, `src/constants/networks.ts`, `static/icons/**`
+- Dependency: Phase 10
+
+## Phase 12: Graph + entity type refresh
+
+DONE (7cb0b50): `Graph: expand scene and entity grouping`
+- Files: `src/constants/entity-types.ts`, `src/data/$EntityType.ts`, `src/constants/query-limits.ts`, `src/components/G6GraphView.svelte`, `src/routes/GraphScene.svelte`, `src/routes/about/+page.svelte`, `src/routes/about/ArchitectureGraph.svelte`, `src/routes/about/architecture-graph.ts`, `src/routes/about-old/**`, `src/routes/about-old-2/**`
+- Dependency: Phase 10
+
+## Phase 13: Dashboard intent drag preview
+
+DONE (49c401d): `Dashboard: refine intent drag preview`
+- Files: `src/components/DragArrow.svelte`, `src/components/IntentDragPreview.svelte`, `src/collections/dashboard-panels.ts`, `src/routes/dashboard/+page.svelte`, `src/routes/dashboard/PanelTree.svelte`, `src/routes/dashboard/PanelView.svelte`, `src/routes/dashboard/RouteRenderer.svelte`, `src/routes/dashboard/panel-tree.ts`, `src/routes/dashboard/route-map.ts`
+- Dependency: Phase 10
+
+## Phase 14: Wallet UI and input components
+
+DONE (d9aeb5d): `Wallets: refresh manager flow and inputs`
+- Files: `src/routes/wallets/+page.svelte`, `src/routes/wallets/WalletsManager.svelte`, `src/views/Wallets.svelte`, `src/views/Balances.svelte`, `src/views/AddressInput.svelte`, `src/views/NetworkInput.svelte`, `src/views/CoinAmountInput.svelte`, `src/views/CoinInput.svelte`, `src/views/TokenAmountInput.svelte`, `src/views/Navigation.svelte`, `src/views/NavigationItem.svelte`, `src/components/Combobox.svelte`, `src/components/Dropdown.svelte`, `src/components/Select.svelte`, `src/components/Skeleton.svelte`, `src/components/Spinner.svelte`, `src/components/Toast.svelte`, `src/state/wallet.svelte.ts`, `src/collections/wallet-connections.ts`, `src/lib/wallet.ts`, `src/styles/accessibility.css`, `src/styles/components.css`, `src/svelte/useContext.ts`
+- Files (delete): `src/routes/wallets/WalletManager.svelte`
+- Dependency: Phase 11
+
+## Phase 15: Transaction flows and sessions
+
+DONE (f0e4c10): `Flow: update transaction sessions and routes`
+- Files: `src/lib/transaction-sessions.ts`, `src/lib/transaction-session-params.ts`, `src/routes/session/+page.svelte`, `src/routes/session/[id]/+page.svelte`, `src/views/TransactionFlow.svelte`, `src/routes/+layout.svelte`, `src/routes/+page.svelte`, `src/routes/bridge/**`, `src/routes/swap/**`, `src/routes/transfers/**`, `src/routes/liquidity/LiquidityFlow.svelte`, `src/routes/rooms/TransferRequests.svelte`, `src/routes/test/intents/+page.svelte`, `src/api/lifi.ts`, `src/api/uniswap.ts`, `src/api/transfers-indexer.ts`, `src/api/transfers-logs.ts`, `src/collections/token-list-coins.ts`
+- Dependency: Phase 10
+
+## Phase 16: E2E test hardening + tevm
+
+DONE (5fcb8ac): `e2e: add tevm execution coverage`
+- Files: `.env.example`, `e2e/**`, `playwright.config.ts`, `playwright.e2e.config.ts`
+- Dependency: Phase 15
+
+## Phase 16b: E2E tevm runtime config
+
+DONE (84f03e1): `e2e: add tevm runtime config`
+- Files: `src/lib/e2e/tevm.ts`, `src/lib/e2e/tevm-config.ts`, `src/constants/rpc-endpoints.ts`
+- Dependency: Phase 16
+
+## Phase 17: Specs and history updates
+
+DONE (b3b4e55): `Specs: refresh docs and history`
+- Files: `specs/*.md`, `history/*.md`
+- Files (delete): `specs/023-responsive-design.md`
+- Dependency: Phase 10
 
 ## Commit later
 
