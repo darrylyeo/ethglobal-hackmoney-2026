@@ -4,6 +4,8 @@
 
 import type { RpcEndpoint } from '$/constants/networks'
 import { ChainId, ServiceProvider, TransportType } from '$/constants/networks'
+import { E2E_TEVM_CHAIN_ID } from '$/lib/e2e/tevm-config'
+import { E2E_TEVM_ENABLED, E2E_TEVM_RPC_URL } from '$/lib/e2e/tevm'
 
 export const rpcEndpoints: readonly RpcEndpoint[] = [
 	{
@@ -248,6 +250,13 @@ export const rpcEndpoints: readonly RpcEndpoint[] = [
 	},
 ] as const satisfies readonly RpcEndpoint[]
 
-export const rpcUrls: Partial<Record<ChainId, string>> = Object.fromEntries(
+const baseRpcUrls = Object.fromEntries(
 	rpcEndpoints.map((e) => [e.chainId, e.url]),
+)
+
+export const rpcUrls: Partial<Record<ChainId, string>> = (
+	E2E_TEVM_ENABLED && E2E_TEVM_RPC_URL ?
+		{ ...baseRpcUrls, [E2E_TEVM_CHAIN_ID]: E2E_TEVM_RPC_URL }
+	:
+		baseRpcUrls
 )
