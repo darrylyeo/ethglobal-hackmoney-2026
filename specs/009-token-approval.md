@@ -293,7 +293,9 @@ TokenApproval.svelte with Switch, states checking/needed/approving/approved/erro
 explorer link, reactive allowance from actorAllowancesCollection.
 BridgeFlow.svelte: approvalAddress from route, TokenApproval shown when needed,
 approval state derived from allowancesQuery. getUsdcAddress exported from lifi.
-Unit tests in voltaire.spec.ts.
+Unit tests in voltaire.spec.ts. Re-verification 2026-02-04 (PROMPT_build): all
+acceptance criteria verified in src/api/voltaire.ts, src/api/approval.ts,
+src/routes/bridge/lifi/TokenApproval.svelte, BridgeFlow.svelte; test:unit passed.
 
 ## Output when complete
 
