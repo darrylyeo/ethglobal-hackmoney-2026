@@ -1,12 +1,48 @@
 <script lang="ts">
 	// Context
+	import { setContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
 	// Functions
+	import {
+		getEffectiveHash,
+		SESSION_HASH_SOURCE_KEY,
+		type SessionHashSource,
+	} from '$/lib/dashboard-panel-hash'
 	import { getTransactionSession, parseSessionHash } from '$/lib/transaction-sessions'
 
 	// State
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+
+	// Props
+	let {
+		data = {},
+		panelHash,
+		setPanelHash,
+	}: {
+		data?: Record<string, unknown>
+		panelHash?: string | null
+		setPanelHash?: (hash: string, replace?: boolean) => void
+	} = $props()
+
+	const hashSource = $state<SessionHashSource>({
+		enabled: false,
+		panelHash: null,
+		setPanelHash: () => {},
+	})
+	$effect(() => {
+		if (typeof setPanelHash === 'function') {
+			hashSource.enabled = true
+			hashSource.panelHash = panelHash ?? null
+			hashSource.setPanelHash = setPanelHash
+			return
+		}
+		hashSource.enabled = false
+		hashSource.panelHash = null
+		hashSource.setPanelHash = () => {}
+	})
+	const effectiveHash = $derived(getEffectiveHash(hashSource))
+	setContext(SESSION_HASH_SOURCE_KEY, hashSource)
 
 	let activeSessionId = $state<string | null>(null)
 	let hashAction = $state<
@@ -43,6 +79,22 @@
 	)
 
 	$effect(() => {
+		const parsed = parseSessionHash(effectiveHash)
+		if (parsed.kind === 'session') {
+			activeSessionId = parsed.sessionId
+			hashAction = getTransactionSession(parsed.sessionId)?.actions[0] ?? null
+			return
+		}
+		if (parsed.kind === 'actions') {
+			activeSessionId = null
+			hashAction = parsed.actions[0]?.action ?? null
+			return
+		}
+		activeSessionId = null
+		hashAction = null
+	})
+	$effect(() => {
+		if (hashSource.enabled) return
 		if (typeof window === 'undefined') return
 		const handleHash = () => {
 			const parsed = parseSessionHash(window.location.hash)

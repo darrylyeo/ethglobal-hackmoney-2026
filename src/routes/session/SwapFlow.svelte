@@ -22,8 +22,14 @@
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
 	// Context
+	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Popover } from 'bits-ui'
+	import {
+		getEffectiveHash,
+		setEffectiveHash,
+		SESSION_HASH_SOURCE_KEY,
+	} from '$/lib/dashboard-panel-hash'
 
 	// Props
 	let {
@@ -144,6 +150,10 @@
 	)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
+	const hashSource = getContext<import('$/lib/dashboard-panel-hash').SessionHashSource>(
+		SESSION_HASH_SOURCE_KEY,
+	)
+	const effectiveHash = $derived(getEffectiveHash(hashSource))
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
 			sessionParams.isTestnet ?
@@ -171,10 +181,7 @@
 	// Actions
 	const activateSession = (sessionId: string) => {
 		activeSessionId = sessionId
-		if (typeof window === 'undefined') return
-		const nextHash = buildSessionHash(sessionId)
-		const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`
-		history.replaceState(history.state, '', nextUrl)
+		setEffectiveHash(hashSource, buildSessionHash(sessionId))
 	}
 	const updateSessionParams = (nextParams: SwapSessionParams) => {
 		if (!session) return
@@ -256,6 +263,39 @@
 	)
 
 	$effect(() => {
+		const hash = hashSource.enabled
+			? effectiveHash
+			: (typeof window !== 'undefined' ? window.location.hash : '')
+		const parsed = parseSessionHash(hash)
+		if (parsed.kind === 'session') {
+			if (parsed.sessionId === activeSessionId && session) return
+			if (getTransactionSession(parsed.sessionId)) {
+				activeSessionId = parsed.sessionId
+				return
+			}
+			activateSession(
+				createTransactionSession({
+					actions: ['swap'],
+					params: {},
+				}).id,
+			)
+			return
+		}
+		activateSession(
+			createTransactionSession({
+				actions:
+					parsed.kind === 'actions'
+						? parsed.actions.map((action) => action.action)
+						: ['swap'],
+				params:
+					parsed.kind === 'actions'
+						? parsed.actions[0]?.params ?? {}
+						: {},
+			}).id,
+		)
+	})
+	$effect(() => {
+		if (hashSource.enabled) return
 		if (typeof window === 'undefined') return
 		const handleHash = () => {
 			const parsed = parseSessionHash(window.location.hash)
@@ -822,8 +862,6 @@
 
 		<TransactionFlow
 			walletConnection={selectedWallet}
-			sessionId={session?.id ?? null}
-			sessionParams={sessionParams}
 			Summary={swapSummary}
 			transactions={quote
 				? [

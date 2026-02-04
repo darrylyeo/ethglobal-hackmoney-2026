@@ -24,7 +24,11 @@ export type SwapSessionParams = {
 	isTestnet: boolean
 }
 
-export type BridgeSessionParams = BridgeSettings
+export type BridgeSessionParams = BridgeSettings & {
+	protocolIntent: 'cctp' | 'lifi' | null
+	transferSpeed: 'fast' | 'standard'
+	forwardingEnabled: boolean
+}
 
 export type TransferSessionParams = {
 	fromActor: `0x${string}`
@@ -151,7 +155,12 @@ export const normalizeSwapSessionParams = (
 
 export const normalizeBridgeSessionParams = (
 	params: Record<string, unknown> | null,
-	defaults: BridgeSessionParams = defaultBridgeSettings,
+	defaults: BridgeSessionParams = {
+		...defaultBridgeSettings,
+		protocolIntent: null,
+		transferSpeed: 'fast',
+		forwardingEnabled: false,
+	},
 ): BridgeSessionParams => {
 	const base: BridgeSessionParams = {
 		slippage: parseNumber(params?.slippage, defaults.slippage),
@@ -168,6 +177,20 @@ export const normalizeBridgeSessionParams = (
 			typeof params?.customRecipient === 'string'
 				? params.customRecipient
 				: defaults.customRecipient,
+		protocolIntent:
+			params?.protocolIntent === 'cctp' || params?.protocolIntent === 'lifi'
+				? params.protocolIntent
+				: params?.protocolIntent === null
+					? null
+					: defaults.protocolIntent,
+		transferSpeed:
+			params?.transferSpeed === 'fast' || params?.transferSpeed === 'standard'
+				? params.transferSpeed
+				: defaults.transferSpeed,
+		forwardingEnabled: parseBoolean(
+			params?.forwardingEnabled,
+			defaults.forwardingEnabled,
+		),
 	}
 	return params ? { ...params, ...base } : base
 }

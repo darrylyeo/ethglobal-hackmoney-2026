@@ -734,8 +734,6 @@
 				{:else}
 					<TransactionFlow
 						walletConnection={selectedWallet}
-						sessionId={session?.id ?? null}
-						sessionParams={sessionParams}
 						{transactions}
 					/>
 				{/if}

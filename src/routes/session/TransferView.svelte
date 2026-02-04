@@ -19,38 +19,34 @@
 	const toActor = $derived(selectedActor ?? PLACEHOLDER_ADDRESS)
 
 	// Components
+	import Session from '$/views/Session.svelte'
 	import Wallets from '$/views/Wallets.svelte'
-	import TransferFlow from './TransferFlow.svelte'
+	import TransferAction from './TransferAction.svelte'
 </script>
 
 
-<main
-	id="main"
-	data-column
-	data-sticky-container
->
-	<section data-scroll-item>
+<Session title="Transfer">
+	{#snippet Context()}
 		<details open data-card>
 			<summary>
 				<header data-card="secondary" data-row="wrap gap-2">
 					<Wallets bind:connectedWallets bind:selectedActor />
 				</header>
 			</summary>
-
-			<div data-column="gap-6">
-				<h1 data-intent-transition="route">Transfer USDC</h1>
-				<TransferFlow
-					walletConnection={selectedWallet}
-					{fromActor}
-					{toActor}
-					chainId={defaultToken.chainId}
-					amount={0n}
-					tokenSymbol={defaultToken.symbol}
-					tokenDecimals={defaultToken.decimals}
-					tokenAddress={defaultToken.address}
-					mode="direct"
-				/>
-			</div>
 		</details>
-	</section>
-</main>
+	{/snippet}
+
+	{#snippet Actions()}
+		<TransferAction
+			walletConnection={selectedWallet}
+			{fromActor}
+			{toActor}
+			chainId={defaultToken.chainId}
+			amount={0n}
+			tokenSymbol={defaultToken.symbol}
+			tokenDecimals={defaultToken.decimals}
+			tokenAddress={defaultToken.address}
+			mode="direct"
+		/>
+	{/snippet}
+</Session>

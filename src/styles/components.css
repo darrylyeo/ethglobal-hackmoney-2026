@@ -1270,3 +1270,19 @@ ol {
 	white-space: nowrap;
 	border: 0;
 }
+
+[data-session-action-columns] {
+	display: grid;
+	gap: 1.5rem;
+	grid-template-columns: minmax(0, 1fr);
+}
+
+[data-session-column] {
+	min-width: 0;
+}
+
+@media (min-width: 960px) {
+	[data-session-action-columns] {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}

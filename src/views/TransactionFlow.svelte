@@ -101,13 +101,6 @@
 	// Functions
 	import { createHttpProvider } from '$/api/voltaire'
 	import { createExplainProvider, createExplainRecord } from '$/lib/explain'
-	import {
-		createTransactionSessionSimulation,
-		lockTransactionSession,
-		markTransactionSessionFinalized,
-		markTransactionSessionSubmitted,
-		updateTransactionSession,
-	} from '$/lib/transaction-sessions'
 	import { getE2eProvider, switchWalletChain } from '$/lib/wallet'
 
 	// Props
@@ -115,14 +108,14 @@
 		walletConnection,
 		Summary,
 		transactions,
-		sessionId,
-		sessionParams,
+		onSimulationSuccess,
+		onExecutionSuccess,
 	}: {
 		walletConnection: ConnectedWallet | null
 		Summary?: Snippet
 		transactions: TransactionFlowItem[]
-		sessionId?: string | null
-		sessionParams?: Record<string, unknown> | null
+		onSimulationSuccess?: (args: { result: unknown }) => void
+		onExecutionSuccess?: (args: { txHash?: `0x${string}` }) => void
 	} = $props()
 
 	// (Derived)
@@ -288,18 +281,6 @@
 				txHash: update.txHash ?? state.execution.txHash,
 			},
 		}))
-		if (!sessionId) return
-		updateTransactionSession(sessionId, (session) => ({
-			...session,
-			status: 'Submitted',
-			lockedAt: session.lockedAt ?? Date.now(),
-			execution: {
-				submittedAt: session.execution?.submittedAt ?? Date.now(),
-				chainId: session.execution?.chainId,
-				txHash: update.txHash ?? session.execution?.txHash,
-			},
-			updatedAt: Date.now(),
-		}))
 	}
 	const resolveExecutionContext = (): Omit<
 		TransactionFlowExecutionArgs,
@@ -425,9 +406,6 @@
 			},
 		}))
 		try {
-			if (sessionId && sessionParams) {
-				lockTransactionSession(sessionId)
-			}
 			const provider = createHttpProvider(rpcUrl)
 			const result = await tx.simulate({
 				provider,
@@ -441,36 +419,8 @@
 					result,
 				},
 			}))
-			if (sessionId && sessionParams) {
-				const simulationId = createTransactionSessionSimulation({
-					sessionId,
-					params: sessionParams,
-					status: 'success',
-					result,
-				})
-				updateTransactionSession(sessionId, (session) => ({
-					...session,
-					latestSimulationId: simulationId,
-					simulationCount: (session.simulationCount ?? 0) + 1,
-					updatedAt: Date.now(),
-				}))
-			}
+			onSimulationSuccess?.({ result })
 		} catch (error) {
-			if (sessionId && sessionParams) {
-				const simulationId = createTransactionSessionSimulation({
-					sessionId,
-					params: sessionParams,
-					status: 'failed',
-					result: null,
-					error: error instanceof Error ? error.message : String(error),
-				})
-				updateTransactionSession(sessionId, (session) => ({
-					...session,
-					latestSimulationId: simulationId,
-					simulationCount: (session.simulationCount ?? 0) + 1,
-					updatedAt: Date.now(),
-				}))
-			}
 			updateTxState(tx.id, (state) => ({
 				...state,
 				simulation: {
@@ -489,13 +439,6 @@
 			!supportsExecutionMode(tx, executionContext.mode)
 		)
 			return
-		if (sessionId) {
-			lockTransactionSession(sessionId)
-			markTransactionSessionSubmitted(sessionId, {
-				submittedAt: Date.now(),
-				chainId: tx.chainId,
-			})
-		}
 		updateExecution(tx.id, { status: 'signing' })
 		try {
 			const result = await tx.execute({
@@ -506,9 +449,7 @@
 				status: 'completed',
 				txHash: result?.txHash,
 			})
-			if (sessionId) {
-				markTransactionSessionFinalized(sessionId, { at: Date.now() })
-			}
+			onExecutionSuccess?.({ txHash: result?.txHash })
 		} catch (error) {
 			updateExecution(tx.id, {
 				status: 'failed',

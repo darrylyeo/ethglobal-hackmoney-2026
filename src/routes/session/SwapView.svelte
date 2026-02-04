@@ -5,41 +5,37 @@
 	// State
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
-	let selectedChainId = $state<number | null>(null)
 	let balanceTokens = $state<{ chainId: number; tokenAddress: `0x${string}` }[]>(
 		[],
 	)
 
 	// Components
 	import Balances from '$/views/Balances.svelte'
+	import Session from '$/views/Session.svelte'
 	import Wallets from '$/views/Wallets.svelte'
-	import SwapFlow from './SwapFlow.svelte'
+	import SwapAction from './SwapAction.svelte'
 </script>
 
 
-<main
-	id="main"
-	data-column
-	data-sticky-container
->
-	<section data-scroll-item>
+<Session title="Swap">
+	{#snippet Context()}
 		<details open data-card>
 			<summary>
 				<header data-card="secondary" data-row="wrap gap-2">
-					<Wallets bind:connectedWallets bind:selectedActor bind:selectedChainId />
+					<Wallets bind:connectedWallets bind:selectedActor />
 				</header>
 			</summary>
-
-			<div data-column="gap-6">
-				<h1>Swap</h1>
+			<div data-column="gap-3">
 				<Balances {selectedActor} {balanceTokens} />
-				<SwapFlow
-					selectedWallets={connectedWallets}
-					{selectedActor}
-					{selectedChainId}
-					bind:balanceTokens
-				/>
 			</div>
 		</details>
-	</section>
-</main>
+	{/snippet}
+
+	{#snippet Actions()}
+		<SwapAction
+			selectedWallets={connectedWallets}
+			{selectedActor}
+			bind:balanceTokens
+		/>
+	{/snippet}
+</Session>
