@@ -31,13 +31,22 @@ const createPanelNode = (routePath: string): DashboardPanelNode => ({
 	hashHistory: [],
 })
 
-const createDefaultState = (routePath: string): DashboardStateRow => {
-	const panel = createPanelNode(routePath)
+const createDefaultState = (_routePath: string): DashboardStateRow => {
+	const bridgePanel = createPanelNode('/bridge')
+	const swapPanel = createPanelNode('/swap')
+	const root: DashboardNode = {
+		id: crypto.randomUUID(),
+		type: 'split',
+		direction: 'horizontal',
+		ratio: 0.5,
+		first: bridgePanel,
+		second: swapPanel,
+	}
 	return {
 		$id: dashboardStateId,
 		$source: DataSource.Local,
-		root: panel,
-		focusedPanelId: panel.id,
+		root,
+		focusedPanelId: bridgePanel.id,
 	}
 }
 

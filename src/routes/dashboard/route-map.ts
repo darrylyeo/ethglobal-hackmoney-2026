@@ -114,3 +114,38 @@ export const matchRoutePath = (path: string) => {
 			.find((entry) => entry !== null)
 	)
 }
+
+export const parsePanelHref = (
+	href: string,
+	origin: string,
+) =>
+	(
+		(() => {
+			try {
+				return new URL(href, origin)
+			} catch {
+				return null
+			}
+		})()
+	)
+
+export const toPanelNavigation = (
+	href: string,
+	origin: string,
+) =>
+	(
+		(() => {
+			const url = parsePanelHref(href, origin)
+			if (!url || url.origin !== origin) return null
+			const match = matchRoutePath(url.pathname)
+			return match ?
+				{
+					route: {
+						path: match.entry.path,
+						params: match.params,
+					},
+					hash: url.hash.length > 0 ? url.hash : null,
+				}
+			: null
+		})()
+	)

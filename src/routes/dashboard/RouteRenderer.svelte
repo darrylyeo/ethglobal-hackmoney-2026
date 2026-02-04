@@ -19,6 +19,9 @@
 		entry: RouteEntry | null
 	} = $props()
 
+	// (Derived) – stable key so effect only re-runs when route identity changes
+	const routeKey = $derived(route.path + '\0' + JSON.stringify(route.params))
+
 	// State
 	let status = $state<'idle' | 'loading' | 'loaded' | 'error'>('idle')
 	let error = $state<string | null>(null)
@@ -27,16 +30,20 @@
 	let loadToken = 0
 
 	$effect(() => {
+		const key = routeKey
+		const entryRef = entry
 		loadToken++
 		const token = loadToken
-		if (!entry) {
+		if (!entryRef) {
 			status = 'error'
 			error = 'Route module not found.'
 			component = null
 			data = null
 			return
 		}
-		const href = resolve(buildRoutePath(route))
+		const [path, paramsStr] = key.split('\0')
+		const params = JSON.parse(paramsStr ?? '{}') as Record<string, string>
+		const href = resolve(buildRoutePath({ path, params }))
 		status = 'loading'
 		error = null
 		component = null

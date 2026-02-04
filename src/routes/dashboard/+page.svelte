@@ -2,13 +2,9 @@
 	// Types/constants
 	import type { DashboardNode, DashboardPanelRoute } from '$/data/DashboardPanel'
 
-	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { pushState } from '$app/navigation'
+	import { pushState, replaceState } from '$app/navigation'
 	import { resolve } from '$app/paths'
 	import {
-		dashboardPanelsCollection,
-		dashboardStateId,
 		ensureDashboardState,
 		setDashboardFocus,
 		setDashboardRoot,
@@ -34,22 +30,12 @@
 	// Components
 	import PanelTree from './PanelTree.svelte'
 
-	// Context
-	const dashboardQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: dashboardPanelsCollection })
-				.where(({ row }) => eq(row.$id, dashboardStateId))
-				.select(({ row }) => ({ row })),
-	)
+	// State
+	const initialState = ensureDashboardState(defaultRoutePath)
+	let root = $state(initialState.root)
+	let focusedPanelId = $state(initialState.focusedPanelId)
 
 	// (Derived)
-	const dashboardRow = $derived(
-		(dashboardQuery.data ?? [])[0]?.row
-		?? ensureDashboardState(defaultRoutePath),
-	)
-	const root = $derived(dashboardRow.root)
-	const focusedPanelId = $derived(dashboardRow.focusedPanelId)
 	const focusedPanel = $derived(getPanelById(root, focusedPanelId))
 	const panelIds = $derived(listPanelIds(root))
 
@@ -57,18 +43,25 @@
 	const isPrefix = (a: string[], b: string[]) => (
 		a.every((value, index) => value === b[index])
 	)
+	const isSameRoute = (
+		a: DashboardPanelRoute,
+		b: DashboardPanelRoute,
+	) => (
+		a.path === b.path
+		&& Object.keys(a.params).length === Object.keys(b.params).length
+		&& Object.entries(a.params).every(([key, value]) => b.params[key] === value)
+	)
 
-	// State
 	let pushedPanelId = $state<string | null>(null)
 	let pushedHashes = $state<string[]>([])
 
 	// Actions
 	const setRoot = (nextRoot: DashboardNode) => (
-		setDashboardRoot(nextRoot)
+		(root = nextRoot, setDashboardRoot(nextRoot))
 	)
 
 	const focusPanel = (panelId: string) => (
-		setDashboardFocus(panelId)
+		(focusedPanelId = panelId, setDashboardFocus(panelId))
 	)
 
 	const splitFocusedPanel = (
@@ -89,7 +82,7 @@
 				const nextRoot = removePanel(root, panelId) ?? root
 				setRoot(nextRoot)
 				if (focusedPanelId === panelId) {
-					setDashboardFocus(firstPanelId(nextRoot))
+					focusPanel(firstPanelId(nextRoot))
 				}
 			})()
 		)
@@ -98,8 +91,30 @@
 		setRoot(swapWithSibling(root, panelId))
 	)
 
+	const RATIO_MIN = 0.2
+	const RATIO_MAX = 0.8
+
+	let splitRatioOverrides = $state<Record<string, number>>({})
+
+	const setSplitRatioOverride = (splitId: string, value: number) => (
+		(splitRatioOverrides = { ...splitRatioOverrides, [splitId]: value })
+	)
+	const clearSplitRatioOverride = (splitId: string) => (
+		(() => {
+			const next = { ...splitRatioOverrides }
+			delete next[splitId]
+			splitRatioOverrides = next
+		})()
+	)
+
 	const updateSplitRatio = (splitId: string, ratio: number) => (
-		setRoot(setSplitRatio(root, splitId, ratio))
+		setRoot(
+			setSplitRatio(
+				root,
+				splitId,
+				Math.max(RATIO_MIN, Math.min(RATIO_MAX, ratio)),
+			),
+		)
 	)
 
 	const flipSplitDirection = (splitId: string) => (
@@ -116,6 +131,33 @@
 		)
 	)
 
+	const navigatePanel = (
+		panelId: string,
+		route: DashboardPanelRoute,
+		hash: string | null,
+	) => (
+		setRoot(
+			updatePanel(root, panelId, (panel) =>
+				isSameRoute(panel.route, route) ?
+					(
+						hash ?
+							{
+								...panel,
+								hashHistory: [...panel.hashHistory, hash],
+							}
+						:
+							panel
+					)
+				:
+					{
+						...panel,
+						route,
+						hashHistory: hash ? [hash] : [],
+					},
+			),
+		)
+	)
+
 	const appendPanelHash = (panelId: string, hash: string) => (
 		setRoot(
 			updatePanel(root, panelId, (panel) => ({
@@ -124,6 +166,29 @@
 			})),
 		)
 	)
+
+	const openInNewPanel = (
+		panelId: string,
+		route: DashboardPanelRoute,
+		hash: string | null,
+	) =>
+		(
+			(() => {
+				const beforeIds = listPanelIds(root)
+				const nextRoot = splitPanel(
+					root,
+					panelId,
+					'horizontal',
+					() => route,
+					() => (hash ? [hash] : []),
+				)
+				setRoot(nextRoot)
+				focusPanel(
+					listPanelIds(nextRoot).find((id) => !beforeIds.includes(id))
+					?? panelId,
+				)
+			})()
+		)
 
 	$effect(() => {
 		if (panelIds.length === 0) return
@@ -137,10 +202,12 @@
 		const shouldReplace =
 			pushedPanelId !== focusedPanel.id
 			|| !isPrefix(pushedHashes, nextHashes)
-		if (pushedHashes.length > 0 && shouldReplace) {
-			history.go(-pushedHashes.length)
-		}
 		if (shouldReplace) {
+			replaceState(resolve('/dashboard'), {
+				panelId: focusedPanel.id,
+				hash: null,
+				route: buildRoutePath(focusedPanel.route),
+			})
 			for (const hash of nextHashes) {
 				pushState(resolve(`/dashboard${hash}`), {
 					panelId: focusedPanel.id,
@@ -174,29 +241,28 @@
 
 <main
 	id="main"
-	data-dashboard
+	class="dashboard"
 	data-sticky-container
 >
-	<section data-scroll-item>
-		<header data-dashboard-header>
-			<h1>Dashboard</h1>
-			<p>
-				Focused panel hashes are mirrored into the URL history.
-			</p>
-		</header>
-	</section>
-
-	<section data-scroll-item data-dashboard-tree>
+	<section
+		data-scroll-item
+		class="dashboard-tree"
+	>
 		<PanelTree
 			{root}
 			{focusedPanelId}
+			{splitRatioOverrides}
 			onFocus={focusPanel}
 			onSplit={splitFocusedPanel}
 			onRemove={removePanelById}
 			onSwap={swapPanel}
 			onUpdateRoute={updatePanelRoute}
 			onAppendHash={appendPanelHash}
+			onNavigate={navigatePanel}
+			onOpenInNewPanel={openInNewPanel}
 			onSetSplitRatio={updateSplitRatio}
+			onSetSplitRatioOverride={setSplitRatioOverride}
+			onClearSplitRatioOverride={clearSplitRatioOverride}
 			onToggleSplitDirection={flipSplitDirection}
 		/>
 	</section>
@@ -204,21 +270,15 @@
 
 
 <style>
-	main[data-dashboard] {
+	.dashboard {
 		display: flex;
 		flex-direction: column;
-		gap: 1.5rem;
-		min-height: 70vh;
+		height: 100vh;
+		min-height: 0;
 	}
 
-	header[data-dashboard-header] {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	section[data-dashboard-tree] {
-		flex: 1;
-		min-height: 60vh;
+	.dashboard-tree {
+		flex: 1 1 0;
+		min-height: 0;
 	}
 </style>

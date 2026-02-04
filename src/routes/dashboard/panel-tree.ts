@@ -7,11 +7,12 @@ import type {
 
 export const createPanelNode = (
 	route: DashboardPanelRoute,
+	hashHistory: string[] = [],
 ): DashboardPanelNode => ({
 	id: crypto.randomUUID(),
 	type: 'panel',
 	route,
-	hashHistory: [],
+	hashHistory,
 })
 
 export const getPanelById = (node: DashboardNode, panelId: string) =>
@@ -69,6 +70,7 @@ export const splitPanel = (
 	panelId: string,
 	direction: DashboardSplitNode['direction'],
 	createRoute: () => DashboardPanelRoute,
+	createHashHistory: () => string[] = () => [],
 ) =>
 	(
 		updateNode(root, (node) =>
@@ -79,7 +81,7 @@ export const splitPanel = (
 					direction,
 					ratio: 0.5,
 					first: node,
-					second: createPanelNode(createRoute()),
+					second: createPanelNode(createRoute(), createHashHistory()),
 				}
 			:
 				null,

@@ -1,35 +1,37 @@
 <script lang="ts">
 	// Types/constants
 	import type { IntentRoute, IntentRouteStep } from '$/lib/intents/routes'
-	import type { IntentDragPayload } from '$/lib/intents/types'
+	import type { IntentDragPayload, IntentResolution } from '$/lib/intents/types'
 	import { DataSource } from '$/constants/data-sources'
 	import { NetworkType, networksByChainId } from '$/constants/networks'
 	import { defaultBridgeSettings } from '$/state/bridge-settings.svelte'
 	import { defaultSwapSettings } from '$/state/swap-settings.svelte'
 
 	// Context
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { goto } from '$app/navigation'
 	import { page } from '$app/state'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 	// Functions
-	import { computePosition, flip, offset, shift } from '@floating-ui/dom'
-	import { tick } from 'svelte'
 	import { buildIntentRoutes } from '$/lib/intents/routes'
 	import { resolveIntent } from '$/lib/intents/resolve-intent'
 	import { stringify } from '$/lib/stringify'
-	import {
-		clearIntentDragPreview,
-		finalizeIntentDragPreview,
-		intentDragPreviewState,
-		selectIntentDragRoute,
-	} from '$/state/intent-drag-preview.svelte'
 	import {
 		getDashboardState,
 		setDashboardFocus,
 		setDashboardRoot,
 	} from '$/collections/dashboard-panels'
 	import { listPanelIds, splitPanel, updatePanel } from '$/routes/dashboard/panel-tree'
+	import {
+		clearIntentDragPreview,
+		finalizeIntentDragPreview,
+		intentDragPreviewState,
+		selectIntentDragRoute,
+	} from '$/state/intent-drag-preview.svelte'
+	import { tick } from 'svelte'
+
+	// Components
+	import DragArrow from '$/components/DragArrow.svelte'
 
 	// State
 	import { actorCoinsCollection } from '$/collections/actor-coins'
@@ -40,10 +42,6 @@
 	const isTestnetChain = (chainId: number) => (
 		networksByChainId[chainId]?.type === NetworkType.Testnet
 	)
-	const toCenter = (rect: DOMRect) => ({
-		x: rect.left + rect.width / 2,
-		y: rect.top + rect.height / 2,
-	})
 	const withPlacement = (
 		payload: IntentDragPayload,
 		placement: 'from' | 'to',
@@ -57,16 +55,6 @@
 	const toParamsHash = (params: Record<string, unknown>) => (
 		`#${encodeURIComponent(stringify(params))}`
 	)
-	const buildCurvePath = (
-		from: { x: number; y: number },
-		to: { x: number; y: number },
-	) => {
-		const bend = Math.max(120, Math.abs(to.x - from.x) * 0.45)
-		const direction = from.x <= to.x ? 1 : -1
-		const c1x = from.x + bend * direction
-		const c2x = to.x - bend * direction
-		return `M ${from.x} ${from.y} C ${c1x} ${from.y}, ${c2x} ${to.y}, ${to.x} ${to.y}`
-	}
 	const isDashboardPath = (path: string) => (
 		path.startsWith('/dashboard')
 	)
@@ -188,7 +176,10 @@
 				}
 			: {}
 		)
-	const buildRouteNavigation = (route: IntentRoute) => {
+	const buildRouteNavigation = (
+		route: IntentRoute,
+		resolution: IntentResolution | null,
+	) => {
 		if (route.steps.length === 1 && route.steps[0]?.type === 'swap') {
 			return { path: '/swap', params: buildSwapParams(route.steps[0]) }
 		}
@@ -198,13 +189,65 @@
 		if (route.steps.length === 1 && route.steps[0]?.type === 'transfer') {
 			return { path: '/transfer', params: buildTransferParams(route.steps[0]) }
 		}
+		if (route.steps.length === 0 && resolution?.status === 'valid' && resolution.kind) {
+			const { from, to } = resolution
+			const fd = from.dimensions
+			const td = to.dimensions
+			if (resolution.kind === 'swap' && fd.chainId !== null && fd.tokenAddress && td.tokenAddress) {
+				return {
+					path: '/swap',
+					params: {
+						chainId: fd.chainId,
+						tokenIn: fd.tokenAddress,
+						tokenOut: td.tokenAddress,
+						amount: 0n,
+						slippage: defaultSwapSettings.slippage,
+						isTestnet: isTestnetChain(fd.chainId),
+					},
+				}
+			}
+			if (resolution.kind === 'bridge' && fd.chainId !== null && td.chainId !== null && fd.actor) {
+				return {
+					path: '/bridge',
+					params: {
+						...defaultBridgeSettings,
+						fromChainId: fd.chainId,
+						toChainId: td.chainId,
+						amount: 0n,
+						isTestnet: isTestnetChain(fd.chainId),
+					},
+				}
+			}
+			if (
+				resolution.kind === 'transfer' &&
+				fd.actor &&
+				td.actor &&
+				fd.chainId !== null &&
+				fd.tokenAddress
+			) {
+				const token = getTransferTokenMeta(fd.chainId, fd.tokenAddress)
+				return {
+					path: '/transfer',
+					params: {
+						fromActor: fd.actor,
+						toActor: td.actor,
+						chainId: fd.chainId,
+						amount: 0n,
+						tokenSymbol: token?.symbol ?? 'USDC',
+						tokenDecimals: token?.decimals ?? 6,
+						tokenAddress: fd.tokenAddress,
+						mode: 'direct' as const,
+					},
+				}
+			}
+		}
 		return { path: '/test/intents', params: buildIntentParams(route) }
 	}
 	const selectRoute = async (route: IntentRoute) => {
 		selectIntentDragRoute(route.id)
 		await tick()
 		await runWithViewTransition(async () => {
-			const navigation = buildRouteNavigation(route)
+			const navigation = buildRouteNavigation(route, resolution)
 			await navigateTo(navigation.path, navigation.params)
 		})
 		clearIntentDragPreview()
@@ -235,11 +278,9 @@
 			.select(({ row }) => ({ row })),
 	)
 
-	let arrowPath = $state('')
-	let midPoint = $state<{ x: number; y: number } | null>(null)
-	let tooltipElement = $state<HTMLDivElement | null>(null)
-	let tooltipStyle = $state('')
+	let tooltipContentRef = $state<HTMLDivElement | null>(null)
 	let prefersReducedMotion = $state(false)
+	let pointerPosition = $state<{ x: number; y: number } | null>(null)
 
 	// (Derived)
 	const sourcePayload = $derived(intentDragPreviewState.source?.payload ?? null)
@@ -268,8 +309,48 @@
 				})
 			: [],
 	)
+	const displayRoutes = $derived(
+		(
+			resolution?.status === 'valid' &&
+			resolution.kind &&
+			(resolution.kind === 'swap' ||
+				resolution.kind === 'bridge' ||
+				resolution.kind === 'transfer')
+				? [
+						{
+							id: `open-${resolution.kind}`,
+							label: resolution.kind.replaceAll('+', ' + '),
+							steps: [] as IntentRouteStep[],
+						} satisfies IntentRoute,
+					]
+				: []
+		).concat(routes),
+	)
 	const isActive = $derived(intentDragPreviewState.status !== 'idle')
 	const isInteractive = $derived(intentDragPreviewState.status === 'selected')
+	const effectiveTargetRect = $derived(
+		intentDragPreviewState.target?.rect
+			?? (pointerPosition
+				? new DOMRect(pointerPosition.x - 0.5, pointerPosition.y - 0.5, 1, 1)
+				: null),
+	)
+
+	// Effects
+	$effect(() => {
+		if (typeof window === 'undefined') return
+		if (intentDragPreviewState.status !== 'dragging') {
+			pointerPosition = null
+			return
+		}
+		const onDrag = (e: DragEvent) => {
+			pointerPosition = { x: e.clientX, y: e.clientY }
+		}
+		window.addEventListener('drag', onDrag)
+		return () => {
+			window.removeEventListener('drag', onDrag)
+			pointerPosition = null
+		}
+	})
 
 	$effect(() => {
 		if (typeof window === 'undefined') return
@@ -280,51 +361,6 @@
 		update()
 		media.addEventListener('change', update)
 		return () => media.removeEventListener('change', update)
-	})
-
-	$effect(() => {
-		if (!intentDragPreviewState.source || !intentDragPreviewState.target) {
-			arrowPath = ''
-			midPoint = null
-			return
-		}
-		const from = toCenter(intentDragPreviewState.source.rect)
-		const to = toCenter(intentDragPreviewState.target.rect)
-		arrowPath = buildCurvePath(from, to)
-		midPoint = {
-			x: (from.x + to.x) / 2,
-			y: (from.y + to.y) / 2,
-		}
-	})
-
-	$effect(() => {
-		if (!tooltipElement || !midPoint || !isActive) {
-			tooltipStyle = ''
-			return
-		}
-		let cancelled = false
-		const virtualReference = {
-			getBoundingClientRect: () => ({
-				x: midPoint.x,
-				y: midPoint.y,
-				width: 0,
-				height: 0,
-				top: midPoint.y,
-				left: midPoint.x,
-				right: midPoint.x,
-				bottom: midPoint.y,
-			}),
-		}
-		void computePosition(virtualReference, tooltipElement, {
-			placement: 'top',
-			middleware: [offset(12), flip(), shift({ padding: 8 })],
-		}).then(({ x, y }) => {
-			if (cancelled) return
-			tooltipStyle = `position: fixed; left: ${x}px; top: ${y}px;`
-		})
-		return () => {
-			cancelled = true
-		}
 	})
 
 	$effect(() => {
@@ -347,9 +383,9 @@
 			clearIntentDragPreview()
 		}
 		const onPointerDown = (event: PointerEvent) => {
-			if (!tooltipElement) return
+			if (!tooltipContentRef) return
 			const path = event.composedPath()
-			if (path.includes(tooltipElement)) return
+			if (path.includes(tooltipContentRef)) return
 			clearIntentDragPreview()
 		}
 		document.addEventListener('keydown', onKeyDown)
@@ -389,54 +425,30 @@
 </script>
 
 
-{#if isActive && intentDragPreviewState.source && intentDragPreviewState.target}
-	<div
-		class="intent-drag-overlay"
-		data-interactive={isInteractive ? 'true' : 'false'}
-		aria-hidden={isInteractive ? 'false' : 'true'}
+{#if isActive && intentDragPreviewState.source && effectiveTargetRect}
+	<DragArrow
+		sourceRect={intentDragPreviewState.source.rect}
+		targetRect={effectiveTargetRect}
+		gap={8}
+		interactive={isInteractive}
 	>
-		<svg class="intent-drag-arrow" aria-hidden="true">
-			<defs>
-				<marker
-					id="intent-arrow"
-					markerWidth="12"
-					markerHeight="12"
-					viewBox="0 0 12 12"
-					refX="10"
-					refY="6"
-					orient="auto"
-				>
-					<path d="M 0 0 L 12 6 L 0 12 z" />
-				</marker>
-			</defs>
-			{#if arrowPath}
-				<path
-					d={arrowPath}
-					marker-end="url(#intent-arrow)"
-					vector-effect="non-scaling-stroke"
-				/>
-			{/if}
-		</svg>
-
-		{#if midPoint}
+		{#snippet tooltipContent()}
 			<div
 				class="intent-drag-tooltip"
 				data-state={intentDragPreviewState.status}
-				bind:this={tooltipElement}
-				style={tooltipStyle}
+				data-interactive={isInteractive ? 'true' : 'false'}
+				bind:this={tooltipContentRef}
 			>
 				{#if resolution && resolution.status === 'valid' && resolution.kind}
 					<header>
 						<strong>
 							{resolution.kind.replaceAll('+', ' + ')}
 						</strong>
-						<span data-muted>{routes.length} route{routes.length === 1 ? '' : 's'}</span>
+							<span data-muted>{routes.length} route{routes.length === 1 ? '' : 's'}</span>
 					</header>
-					{#if routes.length === 0}
-						<p data-muted>No routes available yet.</p>
-					{:else}
-						<ol>
-							{#each routes as route (route.id)}
+							{#if routes.length > 0}
+								<ol>
+									{#each routes as route (route.id)}
 								<li>
 									<button
 										type="button"
@@ -459,43 +471,22 @@
 								</li>
 							{/each}
 						</ol>
+					{:else}
+						<p data-muted>No routes available yet.</p>
 					{/if}
 				{:else if resolution}
 					<header>
 						<strong data-muted>Intent unavailable</strong>
 					</header>
 					<p data-muted>{resolution.reason ?? 'Select compatible entities.'}</p>
-				{:else}
-					<header>
-						<strong data-muted>Drag to preview intents</strong>
-					</header>
 				{/if}
 			</div>
-		{/if}
-	</div>
+		{/snippet}
+	</DragArrow>
 {/if}
 
 
 <style>
-	.intent-drag-overlay {
-		position: fixed;
-		inset: 0;
-		z-index: 50;
-		pointer-events: none;
-		color: var(--color-accent);
-	}
-
-	.intent-drag-arrow {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		pointer-events: none;
-		stroke: currentColor;
-		stroke-width: 2;
-		fill: currentColor;
-	}
-
 	.intent-drag-tooltip {
 		display: flex;
 		flex-direction: column;
@@ -510,7 +501,7 @@
 		pointer-events: none;
 	}
 
-	.intent-drag-overlay[data-interactive='true'] .intent-drag-tooltip {
+	.intent-drag-tooltip[data-interactive='true'] {
 		pointer-events: auto;
 	}
 

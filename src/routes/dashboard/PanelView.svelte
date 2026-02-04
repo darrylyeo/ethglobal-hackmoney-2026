@@ -3,7 +3,7 @@
 	import type { DashboardPanelNode, DashboardPanelRoute } from '$/data/DashboardPanel'
 
 	// Functions
-	import { buildRoutePath, routeEntries } from './route-map'
+	import { routeEntries, toPanelNavigation } from './route-map'
 
 	// Components
 	import RouteRenderer from './RouteRenderer.svelte'
@@ -18,6 +18,8 @@
 		onSwap,
 		onUpdateRoute,
 		onAppendHash,
+		onNavigate,
+		onOpenInNewPanel,
 	}: {
 		panel: DashboardPanelNode
 		isFocused: boolean
@@ -27,6 +29,12 @@
 		onSwap: (panelId: string) => void
 		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void
 		onAppendHash: (panelId: string, hash: string) => void
+		onNavigate: (panelId: string, route: DashboardPanelRoute, hash: string | null) => void
+		onOpenInNewPanel: (
+			panelId: string,
+			route: DashboardPanelRoute,
+			hash: string | null,
+		) => void
 	} = $props()
 
 	// (Derived)
@@ -34,7 +42,7 @@
 		routeEntries.find((entry) => entry.path === panel.route.path) ?? null,
 	)
 	const paramKeys = $derived(routeEntry?.paramKeys ?? [])
-	const resolvedPath = $derived(buildRoutePath(panel.route))
+	const routeKey = $derived(panel.route.path + '\0' + JSON.stringify(panel.route.params))
 
 	// State
 	let hashInput = $state('')
@@ -57,7 +65,7 @@
 		})
 	)
 
-	const addHash = () => (
+	const commitHash = () => (
 		hashInput.trim().length === 0 ?
 			undefined
 		:
@@ -68,42 +76,43 @@
 				hashInput = ''
 			})()
 	)
+
+	const handlePanelClick = (event: MouseEvent) =>
+		(
+			event.defaultPrevented || event.button !== 0 ?
+				undefined
+			:
+				(() => {
+					const target = event.target
+					if (!(target instanceof Element)) return
+					const link = target.closest('a')
+					if (!(link instanceof HTMLAnchorElement)) return
+					if (link.target === '_blank' || link.hasAttribute('download')) return
+					const navigation = toPanelNavigation(link.href, location.origin)
+					if (!navigation) return
+					event.preventDefault()
+					const action = (event.metaKey || event.ctrlKey) ?
+						onOpenInNewPanel
+					:
+						onNavigate
+					action(panel.id, navigation.route, navigation.hash)
+				})()
+		)
 </script>
 
 
-<section data-panel data-focused={isFocused}>
-	<header data-panel-header>
-		<div data-panel-title>
-			<strong>Panel</strong>
-			<span>{resolvedPath}</span>
-		</div>
-		<div data-panel-controls>
-			<button
-				type="button"
-				aria-pressed={isFocused}
-				onclick={() => onFocus(panel.id)}
-			>
-				Focus
-			</button>
-			<button type="button" onclick={() => onSplit(panel.id, 'horizontal')}>
-				Split H
-			</button>
-			<button type="button" onclick={() => onSplit(panel.id, 'vertical')}>
-				Split V
-			</button>
-			<button type="button" onclick={() => onSwap(panel.id)}>
-				Swap
-			</button>
-			<button type="button" onclick={() => onRemove(panel.id)}>
-				Remove
-			</button>
-		</div>
-	</header>
-
-	<section data-panel-config>
-		<label>
-			<span>Route</span>
+<section
+	class="dashboard-panel"
+	data-focused={isFocused}
+	role="group"
+	aria-label="Panel"
+	onpointerdown={() => onFocus(panel.id)}
+	onfocusin={() => onFocus(panel.id)}
+>
+	<header class="dashboard-panel-header">
+		<div class="dashboard-panel-title">
 			<select
+				class="dashboard-panel-route"
 				value={panel.route.path}
 				onchange={(event) => {
 					const target = event.currentTarget
@@ -115,52 +124,68 @@
 					<option value={entry.path}>{entry.path}</option>
 				{/each}
 			</select>
-		</label>
 
-		{#if paramKeys.length > 0}
-			<div data-panel-params>
+			{#if paramKeys.length > 0}
 				{#each paramKeys as key (key)}
-					<label>
-						<span>{key}</span>
-						<input
-							type="text"
-							value={panel.route.params[key] ?? ''}
-							oninput={(event) => {
-								const target = event.currentTarget
-								if (!(target instanceof HTMLInputElement)) return
-								updateParam(key, target.value)
-							}}
-						/>
-					</label>
+					<input
+						type="text"
+						placeholder={key}
+						value={panel.route.params[key] ?? ''}
+						oninput={(event) => {
+							const target = event.currentTarget
+							if (!(target instanceof HTMLInputElement)) return
+							updateParam(key, target.value)
+						}}
+					/>
 				{/each}
-			</div>
-		{/if}
+			{/if}
 
-		<form
-			data-panel-hash
-			onsubmit={(event) => {
-				event.preventDefault()
-				addHash()
-			}}
+			<input
+				type="text"
+				class="dashboard-panel-hash"
+				placeholder="#hash"
+				bind:value={hashInput}
+				onchange={commitHash}
+				onblur={commitHash}
+			/>
+		</div>
+		<div class="dashboard-panel-controls">
+			<button type="button" onclick={() => onSplit(panel.id, 'horizontal')}>
+				Split →
+			</button>
+			<button type="button" onclick={() => onSplit(panel.id, 'vertical')}>
+				Split ↓
+			</button>
+			<button type="button" onclick={() => onSwap(panel.id)}>
+				Swap
+			</button>
+			<button type="button" onclick={() => onRemove(panel.id)}>
+				Remove
+			</button>
+		</div>
+	</header>
+
+	<section
+		class="dashboard-panel-body"
+		data-scroll-container="block"
+		data-sticky-container
+		role="presentation"
+		tabindex="-1"
+		onclick={handlePanelClick}
+		onkeydown={() => undefined}
+	>
+		<section
+			data-scroll-item
+			class="dashboard-panel-route-body"
 		>
-			<label>
-				<span>Hash</span>
-				<input
-					type="text"
-					placeholder="#section"
-					bind:value={hashInput}
-				/>
-			</label>
-			<button type="submit">Add</button>
-		</form>
-	</section>
-
-	<section data-panel-body>
-		<RouteRenderer route={panel.route} entry={routeEntry} />
+			{#key routeKey}
+				<RouteRenderer route={panel.route} entry={routeEntry} />
+			{/key}
+		</section>
 	</section>
 
 	{#if panel.hashHistory.length > 0}
-		<footer data-panel-history>
+		<footer class="dashboard-panel-history">
 			<span>History</span>
 			<ul>
 				{#each panel.hashHistory as hash, index (index)}
@@ -173,83 +198,78 @@
 
 
 <style>
-	section[data-panel] {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		padding: 0.75rem;
-		border-radius: 0.75rem;
-		border: 1px solid color-mix(in oklab, currentColor 20%, transparent);
-		background: color-mix(in oklab, currentColor 4%, transparent);
-		min-height: 100%;
-	}
-
-	section[data-panel][data-focused='true'] {
-		border-color: color-mix(in oklab, currentColor 45%, transparent);
-		box-shadow: 0 0 0 2px color-mix(in oklab, currentColor 15%, transparent);
-	}
-
-	header[data-panel-header] {
+	.dashboard-panel {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
+		padding: 0.5rem;
+		border-radius: 0.5rem;
+		border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+		background: color-mix(in oklab, currentColor 3%, transparent);
+		contain: layout paint;
+		height: 100%;
+		min-height: 0;
+
+		&[data-focused='true'] {
+			border-color: color-mix(in oklab, currentColor 45%, transparent);
+			box-shadow: 0 0 0 1px color-mix(in oklab, currentColor 22%, transparent);
+		}
 	}
 
-	div[data-panel-title] {
+	.dashboard-panel-header {
 		display: flex;
 		justify-content: space-between;
 		gap: 0.75rem;
-		align-items: baseline;
+		align-items: center;
 		flex-wrap: wrap;
 	}
 
-	div[data-panel-controls] {
+	.dashboard-panel-title {
+		display: flex;
+		gap: 0.35rem;
+		align-items: center;
+		flex-wrap: wrap;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.dashboard-panel-title > select.dashboard-panel-route {
+		min-width: 6rem;
+	}
+
+	.dashboard-panel-title > input.dashboard-panel-hash {
+		min-width: 5rem;
+	}
+
+	.dashboard-panel-controls {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5rem;
+		gap: 0.35rem;
 	}
 
-	section[data-panel-config] {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	section[data-panel-config] > label,
-	section[data-panel-config] label {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
-
-	div[data-panel-params] {
-		display: grid;
-		gap: 0.5rem;
-		grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-	}
-
-	form[data-panel-hash] {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		align-items: flex-end;
-	}
-
-	section[data-panel-body] {
+	.dashboard-panel-body {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
-		min-height: 220px;
+		flex: 1 1 0;
+		min-height: 0;
 	}
 
-	footer[data-panel-history] {
+	.dashboard-panel-route-body {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		min-height: 0;
+	}
+
+	.dashboard-panel-history {
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
 		font-size: 0.85rem;
 	}
 
-	footer[data-panel-history] ul {
+	.dashboard-panel-history ul {
 		margin: 0;
 		padding-left: 1.25rem;
 	}
