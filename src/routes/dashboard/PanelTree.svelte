@@ -1,6 +1,9 @@
 <script lang="ts">
 	// Types/constants
-	import type { DashboardNode, DashboardPanelRoute } from '$/data/DashboardPanel'
+	import type {
+		DashboardNode,
+		DashboardPanelRoute,
+	} from '$/data/DashboardPanel'
 
 	// Props
 	let {
@@ -31,7 +34,11 @@
 		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void
 		onAppendHash: (panelId: string, hash: string) => void
 		onSetPanelHash: (panelId: string, hash: string, replace?: boolean) => void
-		onNavigate: (panelId: string, route: DashboardPanelRoute, hash: string | null) => void
+		onNavigate: (
+			panelId: string,
+			route: DashboardPanelRoute,
+			hash: string | null,
+		) => void
 		onOpenInNewPanel: (
 			panelId: string,
 			route: DashboardPanelRoute,
@@ -44,10 +51,7 @@
 	} = $props()
 
 	const displayRatio = $derived(
-		root.type === 'split' ?
-			(splitRatioOverrides[root.id] ?? root.ratio)
-		:
-			0.5,
+		root.type === 'split' ? (splitRatioOverrides[root.id] ?? root.ratio) : 0.5,
 	)
 
 	// Components
@@ -55,7 +59,6 @@
 	import PanelTree from './PanelTree.svelte'
 	import PanelView from './Panel.svelte'
 </script>
-
 
 {#if root.type === 'panel'}
 	<PanelView
@@ -75,7 +78,8 @@
 	<section
 		class="dashboard-split"
 		data-direction={root.direction}
-		style="--ratio: {displayRatio}; --ratio-min: 0.2; --ratio-max: 0.8; --col-1: {displayRatio}fr; --col-2: {1 - displayRatio}fr"
+		style="--ratio: {displayRatio}; --ratio-min: 0.2; --ratio-max: 0.8; --col-1: {displayRatio}fr; --col-2: {1 -
+			displayRatio}fr"
 	>
 		<section class="dashboard-split-pane">
 			<PanelTree
@@ -97,10 +101,7 @@
 				{onToggleSplitDirection}
 			/>
 		</section>
-		<div
-			class="dashboard-split-gutter"
-			data-direction={root.direction}
-		>
+		<div class="dashboard-split-gutter" data-direction={root.direction}>
 			<Tooltip.Root delayDuration={80}>
 				<Tooltip.Trigger>
 					{#snippet child({ props })}
@@ -126,10 +127,7 @@
 							>
 								Flip
 							</button>
-							<button
-								type="button"
-								onclick={() => onSwap(root.first.id)}
-							>
+							<button type="button" onclick={() => onSwap(root.first.id)}>
 								Swap
 							</button>
 						</div>
@@ -184,7 +182,6 @@
 	</section>
 {/if}
 
-
 <style>
 	.dashboard-split {
 		--split-gutter-size: 1.5rem;
@@ -198,16 +195,16 @@
 		position: relative;
 
 		&[data-direction='horizontal'] {
-			grid-template: 1fr / minmax(0, var(--col-1)) var(--split-gutter-size) minmax(0, var(--col-2));
+			grid-template:
+				1fr / minmax(0, var(--col-1)) var(--split-gutter-size)
+				minmax(0, var(--col-2));
 
 			& > input[type='range'] {
 				cursor: ew-resize;
 
 				clip-path: inset(
-					0
-					calc((1 - var(--ratio)) * var(--ratio-track))
-					0
-					calc(var(--ratio) * var(--ratio-track))
+					0 calc((1 - var(--ratio)) * var(--ratio-track)) 0
+						calc(var(--ratio) * var(--ratio-track))
 				);
 
 				&::-webkit-slider-thumb,
@@ -228,17 +225,17 @@
 		}
 
 		&[data-direction='vertical'] {
-			grid-template: minmax(0, var(--col-1)) var(--split-gutter-size) minmax(0, var(--col-2)) / 1fr;
+			grid-template:
+				minmax(0, var(--col-1)) var(--split-gutter-size) minmax(0, var(--col-2))
+				/ 1fr;
 
 			& > input[type='range'] {
 				cursor: ns-resize;
 				writing-mode: vertical-lr;
 
 				clip-path: inset(
-					calc(var(--ratio) * var(--ratio-track))
-					0
-					calc((1 - var(--ratio)) * var(--ratio-track))
-					0
+					calc(var(--ratio) * var(--ratio-track)) 0
+						calc((1 - var(--ratio)) * var(--ratio-track)) 0
 				);
 
 				&::-webkit-slider-thumb,
@@ -270,7 +267,8 @@
 				var(--ratio-min) * var(--ratio-track) + var(--split-gutter-size) / 2
 			);
 			padding-inline-end: calc(
-				100% - var(--ratio-max) * var(--ratio-track) - var(--split-gutter-size) / 2
+				100% - var(--ratio-max) * var(--ratio-track) -
+					var(--split-gutter-size) / 2
 			);
 			margin-inline: -0.75em;
 			z-index: 1;

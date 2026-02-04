@@ -38,7 +38,8 @@
 	const getPeerName = (peerId: string) =>
 		peerId === roomState.peerId
 			? getOrCreatePeerDisplayName()
-			: peers.find((p) => p.peerId === peerId)?.displayName ?? peerId.slice(0, 8)
+			: (peers.find((p) => p.peerId === peerId)?.displayName ??
+				peerId.slice(0, 8))
 
 	// Components
 	import Address from '$/components/Address.svelte'

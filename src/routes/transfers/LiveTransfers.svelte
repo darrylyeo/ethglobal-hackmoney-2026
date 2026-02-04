@@ -99,10 +99,7 @@
 <div class="live-transfers">
 	<header class="transfers-header">
 		<h2>Live transfers – {coin.symbol}</h2>
-		<nav
-			class="period-selector"
-			aria-label="Time period"
-		>
+		<nav class="period-selector" aria-label="Time period">
 			{#each periods as p (p.value)}
 				<a
 					class="period-link"

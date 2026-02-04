@@ -6,20 +6,18 @@
 	import ArchitectureGraph from './ArchitectureGraph.svelte'
 </script>
 
-
 <svelte:head>
 	<title>About | USDC Tools</title>
 </svelte:head>
-
 
 <section data-scroll-item data-column="center gap-4">
 	<h1>About</h1>
 	<p>
 		USDC Tools is a SvelteKit app for bridging, swapping, and tracking USDC
-		across supported chains. It combines TanStack DB collections, Voltaire
-		(RPC + ABI helpers), LI.FI routing, Circle CCTP, realtime PartyKit rooms,
-		Yellow state channels, and Stork price feeds. The diagram below maps
-		runtime systems, data flows, and external dependencies.
+		across supported chains. It combines TanStack DB collections, Voltaire (RPC
+		+ ABI helpers), LI.FI routing, Circle CCTP, realtime PartyKit rooms, Yellow
+		state channels, and Stork price feeds. The diagram below maps runtime
+		systems, data flows, and external dependencies.
 	</p>
 	<section data-column="gap-2">
 		<h2>Core systems</h2>
@@ -60,8 +58,8 @@
 			</dd>
 			<dt>Interactions</dt>
 			<dd>
-				Drag to pan; scroll or <kbd>+</kbd>/<kbd>−</kbd> to zoom; <kbd>0</kbd> to
-				fit; <kbd>Escape</kbd> to clear selection. Hover for details.
+				Drag to pan; scroll or <kbd>+</kbd>/<kbd>−</kbd> to zoom; <kbd>0</kbd>
+				to fit; <kbd>Escape</kbd> to clear selection. Hover for details.
 			</dd>
 		</dl>
 	</section>
@@ -93,7 +91,6 @@
 		</ul>
 	</section>
 </section>
-
 
 <style>
 	.legend dl {

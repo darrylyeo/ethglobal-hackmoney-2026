@@ -44,9 +44,7 @@ function upsertChannel(row: YellowChannelRow) {
 	}
 }
 
-function normalizeChannelFromMessage(
-	params: unknown,
-): YellowChannelRow | null {
+function normalizeChannelFromMessage(params: unknown): YellowChannelRow | null {
 	if (!params || typeof params !== 'object') return null
 	const p = params as Record<string, unknown>
 	const id = typeof p.id === 'string' ? p.id : null

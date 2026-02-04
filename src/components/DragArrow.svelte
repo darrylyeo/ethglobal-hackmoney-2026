@@ -53,9 +53,13 @@
 			const midY = midPoint.y
 			const dx = arrowData[2] - midX
 			const dy = arrowData[3] - midY
-			return Math.abs(dy) > Math.abs(dx) ?
-				(dy < 0 ? 'bottom' : 'top')
-			:	(dx > 0 ? 'left' : 'right')
+			return Math.abs(dy) > Math.abs(dx)
+				? dy < 0
+					? 'bottom'
+					: 'top'
+				: dx > 0
+					? 'left'
+					: 'right'
 		})(),
 	)
 </script>
@@ -87,11 +91,7 @@
 		/>
 	</svg>
 
-	<Tooltip.Root
-		open={true}
-		delayDuration={0}
-		disableHoverableContent={false}
-	>
+	<Tooltip.Root open={true} delayDuration={0} disableHoverableContent={false}>
 		<Tooltip.Trigger>
 			{#snippet child({ props })}
 				<div

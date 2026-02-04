@@ -226,16 +226,10 @@
 		>
 			Burn on source chain {burnTxHash ? `(${burnTxHash.slice(0, 10)}…)` : ''}
 		</li>
-		<li
-			class="cctp-status-step"
-			data-done={attestationPayload !== null}
-		>
+		<li class="cctp-status-step" data-done={attestationPayload !== null}>
 			Attestation {attestationPayload ? 'ready' : 'pending…'}
 		</li>
-		<li
-			class="cctp-status-step"
-			data-done={mintTxHash !== null}
-		>
+		<li class="cctp-status-step" data-done={mintTxHash !== null}>
 			Mint on destination chain {mintTxHash
 				? `(${mintTxHash.slice(0, 10)}…)`
 				: ''}

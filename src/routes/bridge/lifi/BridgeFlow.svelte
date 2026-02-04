@@ -4,9 +4,7 @@
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
 	import type { WalletRow } from '$/collections/wallets'
 	import type { BridgeSessionParams } from '$/lib/transaction-session-params'
-	import {
-		BridgeRouteSort,
-	} from '$/state/bridge-settings.svelte'
+	import { BridgeRouteSort } from '$/state/bridge-settings.svelte'
 	import {
 		type WalletConnectionEip1193,
 		WalletConnectionTransport,
@@ -39,10 +37,7 @@
 	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
 	import type { BridgeStatus } from '$/lib/tx-status'
 	import { ErrorCode } from '$/lib/errors'
-	import {
-		formatSmallestToDecimal,
-		formatTokenAmount,
-	} from '$/lib/format'
+	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format'
 	import {
 		formatAddress,
 		isValidAddress,
@@ -66,6 +61,7 @@
 	// Components
 	import Select from '$/components/Select.svelte'
 	import Spinner from '$/components/Spinner.svelte'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import BridgeExecution from './BridgeExecution.svelte'
 	import TokenApproval from './TokenApproval.svelte'
@@ -92,23 +88,20 @@
 		}[]
 	} = $props()
 
-	const resolveNetwork = (chainId: number | null) => (
-		chainId !== null ?
-			(Object.values(networksByChainId).find(
-				(entry) => entry?.id === chainId,
-			) ?? null)
-		:
-			null
-	)
-	const resolveNetworkName = (chainId: number) => (
+	const resolveNetwork = (chainId: number | null) =>
+		chainId !== null
+			? (Object.values(networksByChainId).find(
+					(entry) => entry?.id === chainId,
+				) ?? null)
+			: null
+	const resolveNetworkName = (chainId: number) =>
 		resolveNetwork(chainId)?.name ?? `Chain ${chainId}`
-	)
 	const isEip1193Wallet = (
 		wallet: ConnectedWallet | null,
 	): wallet is { wallet: WalletRow; connection: WalletConnectionEip1193 } =>
 		Boolean(
 			wallet &&
-				wallet.connection.transport === WalletConnectionTransport.Eip1193,
+			wallet.connection.transport === WalletConnectionTransport.Eip1193,
 		)
 
 	// State
@@ -132,12 +125,8 @@
 	const selectedWalletProvider = $derived(
 		selectedEip1193Wallet ? selectedEip1193Wallet.provider : null,
 	)
-	const fromNetwork = $derived(
-		resolveNetwork(settings.fromChainId),
-	)
-	const toNetwork = $derived(
-		resolveNetwork(settings.toChainId),
-	)
+	const fromNetwork = $derived(resolveNetwork(settings.fromChainId))
+	const toNetwork = $derived(resolveNetwork(settings.toChainId))
 
 	const routesQuery = useLiveQuery((q) =>
 		q
@@ -164,35 +153,55 @@
 			.orderBy(({ row }) => row.$id?.createdAt ?? 0, 'desc')
 			.select(({ row }) => ({ row })),
 	)
+	const liveQueryEntries = [
+		{
+			id: 'bridge-flow-routes',
+			label: 'Bridge Routes',
+			query: routesQuery,
+		},
+		{
+			id: 'bridge-flow-balances',
+			label: 'Balances',
+			query: balancesQuery,
+		},
+		{
+			id: 'bridge-flow-allowances',
+			label: 'Allowances',
+			query: allowancesQuery,
+		},
+		{
+			id: 'bridge-flow-transactions',
+			label: 'Transactions',
+			query: txQuery,
+		},
+	]
 
 	const validation = $derived(
 		validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT),
 	)
 	const balances = $derived(
-		selectedActor ?
-			(balancesQuery.data ?? [])
-				.map((r) => r.row)
-				.filter(
-					(b) => b.$id.address.toLowerCase() === selectedActor.toLowerCase(),
-				)
-		:
-			[],
+		selectedActor
+			? (balancesQuery.data ?? [])
+					.map((r) => r.row)
+					.filter(
+						(b) => b.$id.address.toLowerCase() === selectedActor.toLowerCase(),
+					)
+			: [],
 	)
 	const sourceBalance = $derived(
-		fromNetwork && selectedActor ?
-			(balances.find(
-				(b) =>
-					b.$id.chainId === fromNetwork.id &&
-					b.$id.tokenAddress.toLowerCase() ===
-						getUsdcAddress(fromNetwork.id).toLowerCase(),
-			)?.balance ?? null)
-		:
-			null,
+		fromNetwork && selectedActor
+			? (balances.find(
+					(b) =>
+						b.$id.chainId === fromNetwork.id &&
+						b.$id.tokenAddress.toLowerCase() ===
+							getUsdcAddress(fromNetwork.id).toLowerCase(),
+				)?.balance ?? null)
+			: null,
 	)
 	const exceedsBalance = $derived(
-		E2E_TEVM_ENABLED ?
-			false
-		: sourceBalance !== null && settings.amount > sourceBalance,
+		E2E_TEVM_ENABLED
+			? false
+			: sourceBalance !== null && settings.amount > sourceBalance,
 	)
 	const canSendAmount = $derived(
 		validation.isValid && !exceedsBalance && !invalidAmountInput,
@@ -202,10 +211,7 @@
 		'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 	const quoteAddress = $derived(selectedActor ?? PLACEHOLDER_ADDRESS)
 	const quoteParams = $derived<BridgeRoutes$Id | null>(
-		fromNetwork &&
-			toNetwork &&
-			settings.amount > 0n &&
-			validation.isValid
+		fromNetwork && toNetwork && settings.amount > 0n && validation.isValid
 			? {
 					fromChainId: fromNetwork.id,
 					toChainId: toNetwork.id,
@@ -251,44 +257,47 @@
 			| undefined,
 	)
 	const needsApproval = $derived(
-		E2E_TEVM_ENABLED ?
-			false
-		: Boolean(approvalAddress?.startsWith('0x') && approvalAddress.length === 42),
+		E2E_TEVM_ENABLED
+			? false
+			: Boolean(
+					approvalAddress?.startsWith('0x') && approvalAddress.length === 42,
+				),
 	)
 	const currentAllowance = $derived(
-		selectedActor && fromNetwork && approvalAddress ?
-			(allowancesQuery.data?.find(
-				(r) =>
-					r.row.$id.chainId === fromNetwork.id &&
-					r.row.$id.address.toLowerCase() === selectedActor.toLowerCase() &&
-					r.row.$id.tokenAddress.toLowerCase() ===
-						getUsdcAddress(fromNetwork.id).toLowerCase() &&
-					r.row.$id.spenderAddress.toLowerCase() ===
-						approvalAddress.toLowerCase(),
-			)?.row.allowance ?? 0n)
-		:
-			0n,
+		selectedActor && fromNetwork && approvalAddress
+			? (allowancesQuery.data?.find(
+					(r) =>
+						r.row.$id.chainId === fromNetwork.id &&
+						r.row.$id.address.toLowerCase() === selectedActor.toLowerCase() &&
+						r.row.$id.tokenAddress.toLowerCase() ===
+							getUsdcAddress(fromNetwork.id).toLowerCase() &&
+						r.row.$id.spenderAddress.toLowerCase() ===
+							approvalAddress.toLowerCase(),
+				)?.row.allowance ?? 0n)
+			: 0n,
 	)
 	const approved = $derived(currentAllowance >= settings.amount)
 	const canSend = $derived(!needsApproval || approved)
 
 	const recipient = $derived<`0x${string}`>(
-		settings.useCustomRecipient && isValidAddress(settings.customRecipient) ?
-			normalizeAddress(settings.customRecipient)!
-		: (selectedActor ?? '0x0000000000000000000000000000000000000000'),
+		settings.useCustomRecipient && isValidAddress(settings.customRecipient)
+			? normalizeAddress(settings.customRecipient)!
+			: (selectedActor ?? '0x0000000000000000000000000000000000000000'),
 	)
 	const output = $derived(selectedRoute?.toAmount ?? 0n)
 	const minOutput = $derived(calculateMinOutput(output, settings.slippage))
 	const fees = $derived(
-		selectedRoute ?
-			extractFeeBreakdown({
-				steps: selectedRoute.originalRoute.steps,
-				fromAmountUSD: selectedRoute.originalRoute.fromAmountUSD,
-			})
-		: null,
+		selectedRoute
+			? extractFeeBreakdown({
+					steps: selectedRoute.originalRoute.steps,
+					fromAmountUSD: selectedRoute.originalRoute.fromAmountUSD,
+				})
+			: null,
 	)
 	const fromAmountUsd = $derived(
-		selectedRoute ? parseFloat(selectedRoute.originalRoute.fromAmountUSD ?? '0') : 0,
+		selectedRoute
+			? parseFloat(selectedRoute.originalRoute.fromAmountUSD ?? '0')
+			: 0,
 	)
 	const warnDifferentRecipient = $derived(settings.useCustomRecipient)
 	const warnHighSlippage = $derived(settings.slippage > 0.01)
@@ -303,22 +312,20 @@
 	)
 
 	$effect(() => {
-		balanceTokens = (
-			[
-				settings.fromChainId !== null
-					? {
-							chainId: settings.fromChainId,
-							tokenAddress: getUsdcAddress(settings.fromChainId),
-						}
-					: null,
-				settings.toChainId !== null
-					? {
-							chainId: settings.toChainId,
-							tokenAddress: getUsdcAddress(settings.toChainId),
-						}
-					: null,
-			].flatMap((token) => (token ? [token] : []))
-		)
+		balanceTokens = [
+			settings.fromChainId !== null
+				? {
+						chainId: settings.fromChainId,
+						tokenAddress: getUsdcAddress(settings.fromChainId),
+					}
+				: null,
+			settings.toChainId !== null
+				? {
+						chainId: settings.toChainId,
+						tokenAddress: getUsdcAddress(settings.toChainId),
+					}
+				: null,
+		].flatMap((token) => (token ? [token] : []))
 	})
 	$effect(() => {
 		if (sortedRoutes.length > 0 && !selectedRouteId)
@@ -393,6 +400,7 @@
 	}
 </script>
 
+<LiveQueryScope entries={liveQueryEntries}>
 <div aria-live="polite" aria-atomic="true" class="sr-only">
 	{#if executionStatus.overall === 'in_progress'}
 		{@const currentStep =
@@ -439,12 +447,9 @@
 				data-dismiss
 				onclick={() => {
 					if (quoteParams)
-						bridgeRoutesCollection.update(
-							stringify(quoteParams),
-							(draft) => {
-								draft.error = null
-							},
-						)
+						bridgeRoutesCollection.update(stringify(quoteParams), (draft) => {
+							draft.error = null
+						})
 				}}
 			>
 				Dismiss
@@ -466,12 +471,15 @@
 				<Select
 					id="route-sort"
 					items={sortOptions}
-					bind:value={() => settings.sortBy, (v) => {
-						if (!v) return
-						const option = sortOptions.find((entry) => entry.id === v)
-						if (!option) return
-						onSettingsChange({ ...settings, sortBy: option.id })
-					}}
+					bind:value={
+						() => settings.sortBy,
+						(v) => {
+							if (!v) return
+							const option = sortOptions.find((entry) => entry.id === v)
+							if (!option) return
+							onSettingsChange({ ...settings, sortBy: option.id })
+						}
+					}
 					getItemId={(option) => option.id}
 					getItemLabel={(option) => option.label}
 				/>
@@ -551,7 +559,9 @@
 									slippage: preset.value,
 								})
 							}}
-							data-selected={settings.slippage === preset.value ? '' : undefined}
+							data-selected={settings.slippage === preset.value
+								? ''
+								: undefined}
 						>
 							{formatSlippagePercent(preset.value)}
 						</Button.Root>
@@ -632,12 +642,7 @@
 				<dd>
 					<span>{formatAddress(recipient)}</span>
 					{#if warnDifferentRecipient}
-						<span
-							class="badge"
-							data-warning
-						>
-							Different recipient
-						</span>
+						<span class="badge" data-warning> Different recipient </span>
 					{/if}
 				</dd>
 				<dt>Protocol</dt>
@@ -656,10 +661,7 @@
 					<dd>~${fees.totalUsd}</dd>{/if}
 			</dl>
 			{#if warnDifferentRecipient || warnHighSlippage || warnLargeAmount}
-				<div
-					class="warnings"
-					data-column="gap-1"
-				>
+				<div class="warnings" data-column="gap-1">
 					{#if warnDifferentRecipient}
 						<p class="warning">Recipient is not your connected wallet.</p>
 					{/if}
@@ -679,7 +681,7 @@
 
 		<TransactionFlow
 			walletConnection={selectedWallet}
-			onExecutionSuccess={onExecutionSuccess}
+			{onExecutionSuccess}
 			Summary={bridgeSummary}
 			transactions={[
 				{
@@ -698,8 +700,7 @@
 					execute: (_args) =>
 						executionRef ? executionRef.execute() : Promise.resolve(),
 					requiresConfirmation: true,
-					confirmationLabel:
-						'I understand this transaction is irreversible',
+					confirmationLabel: 'I understand this transaction is irreversible',
 					Details: bridgeDetails,
 					Confirmation: bridgeConfirmation,
 				},
@@ -710,22 +711,12 @@
 
 {#if selectedActor}
 	<section data-card data-column="gap-2">
-		<button
-			class="heading"
-			type="button"
-		>
-			Transaction history
-		</button>
+		<button class="heading" type="button"> Transaction history </button>
 		{#if transactions.length > 0}
 			<div data-column="gap-1">
 				{#each transactions as tx (stringify(tx.$id))}
-					<div
-						class="tx-row"
-						data-row="gap-2 align-center"
-					>
-						<span data-muted
-							>{formatRelativeTime(now - tx.$id.createdAt)}</span
-						>
+					<div class="tx-row" data-row="gap-2 align-center">
+						<span data-muted>{formatRelativeTime(now - tx.$id.createdAt)}</span>
 						<span
 							>{resolveNetworkName(tx.fromChainId)} → {resolveNetworkName(
 								tx.toChainId,
@@ -764,6 +755,8 @@
 		{/if}
 	</section>
 {/if}
+
+</LiveQueryScope>
 
 <style>
 	.summary {

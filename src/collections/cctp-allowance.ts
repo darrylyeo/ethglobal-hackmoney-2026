@@ -48,13 +48,13 @@ export const fetchCctpAllowance = async (
 			throw new Error(`Allowance request failed (${response.status})`)
 		const data = await response.json()
 		const allowance =
-			isRecord(data) && typeof data.allowance === 'number' ?
-				data.allowance
-			: null
+			isRecord(data) && typeof data.allowance === 'number'
+				? data.allowance
+				: null
 		const lastUpdated =
-			isRecord(data) && typeof data.lastUpdated === 'string' ?
-				data.lastUpdated
-			: null
+			isRecord(data) && typeof data.lastUpdated === 'string'
+				? data.lastUpdated
+				: null
 		const fetchedAt = Date.now()
 		cctpAllowanceCollection.update(key, (draft) => {
 			draft.allowance = allowance

@@ -1,8 +1,10 @@
 <script lang="ts">
 	import type { UniswapPosition } from '$/data/UniswapPosition'
 
-	let { positions, chainId }: { positions: UniswapPosition[]; chainId: number | null } =
-		$props()
+	let {
+		positions,
+		chainId,
+	}: { positions: UniswapPosition[]; chainId: number | null } = $props()
 
 	const filtered = $derived(
 		chainId !== null ? positions.filter((p) => p.chainId === chainId) : [],

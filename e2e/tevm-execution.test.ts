@@ -7,9 +7,8 @@ import {
 	selectProtocolOption,
 } from './test-setup.js'
 
-const isHexHash = (value: string | null): value is `0x${string}` => (
+const isHexHash = (value: string | null): value is `0x${string}` =>
 	typeof value === 'string' && value.startsWith('0x')
-)
 
 const getTxHash = async (
 	locator: import('@playwright/test').Locator,
@@ -24,9 +23,7 @@ const getTxHash = async (
 const buildActionHash = (
 	action: 'swap' | 'bridge' | 'transfer' | 'liquidity',
 	params: Record<string, unknown>,
-) => (
-	`#${action}:${encodeURIComponent(JSON.stringify(params))}`
-)
+) => `#${action}:${encodeURIComponent(JSON.stringify(params))}`
 
 test.describe('E2E Tevm walletless execution', () => {
 	test('swap executes via tevm with logs', async ({ context, page, tevm }) => {
@@ -47,7 +44,11 @@ test.describe('E2E Tevm walletless execution', () => {
 		expect(txHash).toMatch(/^0x/)
 	})
 
-	test('bridge executes via tevm with logs', async ({ context, page, tevm }) => {
+	test('bridge executes via tevm with logs', async ({
+		context,
+		page,
+		tevm,
+	}) => {
 		await addTevmWallet(context, page, {
 			rpcUrl: tevm.rpcUrl,
 			chainId: tevm.chainId,
@@ -65,7 +66,9 @@ test.describe('E2E Tevm walletless execution', () => {
 		await page
 			.locator('[data-testid="quote-result"]')
 			.waitFor({ state: 'visible', timeout: 50_000 })
-		await page.getByLabel(/I understand this transaction is irreversible/).click()
+		await page
+			.getByLabel(/I understand this transaction is irreversible/)
+			.click()
 		const sendButton = page.getByRole('button', { name: 'Sign and Submit' })
 		await expect(sendButton).toBeEnabled({ timeout: 20_000 })
 		await sendButton.click()

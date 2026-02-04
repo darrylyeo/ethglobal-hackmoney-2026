@@ -92,10 +92,7 @@
 		/>
 
 		{#if error}
-			<p
-				class="transfer-error"
-				role="alert"
-			>
+			<p class="transfer-error" role="alert">
 				{error}
 			</p>
 		{/if}

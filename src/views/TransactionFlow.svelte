@@ -121,29 +121,26 @@
 	// (Derived)
 	const walletProvider = $derived(
 		walletConnection &&
-		walletConnection.connection.transport === WalletConnectionTransport.Eip1193 &&
-		'provider' in walletConnection.wallet ?
-			walletConnection.wallet.provider
-		: null,
+			walletConnection.connection.transport ===
+				WalletConnectionTransport.Eip1193 &&
+			'provider' in walletConnection.wallet
+			? walletConnection.wallet.provider
+			: null,
 	)
 	const walletAddress = $derived(
 		walletConnection?.connection.activeActor ?? null,
 	)
-	const e2eProvider = $derived(
-		E2E_TEVM_ENABLED ? getE2eProvider() : null,
-	)
+	const e2eProvider = $derived(E2E_TEVM_ENABLED ? getE2eProvider() : null)
 
 	// Functions
-	const isRecord = (value: unknown): value is Record<string, unknown> => (
+	const isRecord = (value: unknown): value is Record<string, unknown> =>
 		typeof value === 'object' && value !== null
-	)
-	const toOptionalString = (value: unknown): string | undefined => (
-		typeof value === 'string' ?
-			value
-		: typeof value === 'number' || typeof value === 'bigint' ?
-			String(value)
-		: undefined
-	)
+	const toOptionalString = (value: unknown): string | undefined =>
+		typeof value === 'string'
+			? value
+			: typeof value === 'number' || typeof value === 'bigint'
+				? String(value)
+				: undefined
 	const createInitialExplainState = (): ExplainState => ({
 		status: 'idle',
 		error: null,
@@ -191,29 +188,33 @@
 			},
 		}))
 	}
-	const extractExplainDetails = (value: unknown): ExplainDetails => (
-		!isRecord(value) ?
-			{}
-		:
-			(() => {
-				const gas = isRecord(value.gas) ? value.gas : null
-				const errors = isRecord(value.errors) ? value.errors : null
-				return {
-					summary: toOptionalString(value.summary),
-					gasUsed: toOptionalString(value.gasUsed ?? gas?.used),
-					gasEstimated: toOptionalString(value.gasEstimated ?? gas?.estimated),
-					revertReason: toOptionalString(value.revertReason ?? errors?.revertReason),
-					errorSelector: toOptionalString(value.errorSelector ?? errors?.errorSelector),
-					traceSummary: toOptionalString(value.traceSummary),
-					eventSummary: toOptionalString(value.eventSummary),
-				}
-			})()
-	)
+	const extractExplainDetails = (value: unknown): ExplainDetails =>
+		!isRecord(value)
+			? {}
+			: (() => {
+					const gas = isRecord(value.gas) ? value.gas : null
+					const errors = isRecord(value.errors) ? value.errors : null
+					return {
+						summary: toOptionalString(value.summary),
+						gasUsed: toOptionalString(value.gasUsed ?? gas?.used),
+						gasEstimated: toOptionalString(
+							value.gasEstimated ?? gas?.estimated,
+						),
+						revertReason: toOptionalString(
+							value.revertReason ?? errors?.revertReason,
+						),
+						errorSelector: toOptionalString(
+							value.errorSelector ?? errors?.errorSelector,
+						),
+						traceSummary: toOptionalString(value.traceSummary),
+						eventSummary: toOptionalString(value.eventSummary),
+					}
+				})()
 	const buildExplainContext = (
 		tx: TransactionFlowItemBase,
 		state: TransactionFlowItemState,
 		kind: ExplainTarget,
-	): ExplainContext => (
+	): ExplainContext =>
 		((details, error) => ({
 			kind,
 			sessionId: tx.id,
@@ -221,53 +222,53 @@
 			executionId: kind === 'execution' ? tx.id : undefined,
 			chainId: tx.chainId,
 			status:
-				kind === 'simulation' ?
-					state.simulation.status === 'success' ?
-						'success'
-					: details.revertReason || (error && error.toLowerCase().includes('revert')) ?
-						'revert'
-					:
-						'error'
-				: state.execution.status === 'completed' ?
-					'success'
-				: details.revertReason || (error && error.toLowerCase().includes('revert')) ?
-					'revert'
-				:
-					'error',
+				kind === 'simulation'
+					? state.simulation.status === 'success'
+						? 'success'
+						: details.revertReason ||
+							  (error && error.toLowerCase().includes('revert'))
+							? 'revert'
+							: 'error'
+					: state.execution.status === 'completed'
+						? 'success'
+						: details.revertReason ||
+							  (error && error.toLowerCase().includes('revert'))
+							? 'revert'
+							: 'error',
 			summary:
 				details.summary ??
-				(error ?
-					`${tx.title} ${kind} failed: ${error}`
-				:
-					`${tx.title} ${kind} ${
-						kind === 'simulation' && state.simulation.status === 'success' ?
-							'completed'
-						: kind === 'execution' && state.execution.status === 'completed' ?
-							'completed'
-						:
-							'failed'
-					}.`),
+				(error
+					? `${tx.title} ${kind} failed: ${error}`
+					: `${tx.title} ${kind} ${
+							kind === 'simulation' && state.simulation.status === 'success'
+								? 'completed'
+								: kind === 'execution' && state.execution.status === 'completed'
+									? 'completed'
+									: 'failed'
+						}.`),
 			gas: {
 				used: details.gasUsed,
 				estimated: details.gasEstimated,
 			},
 			errors:
-				details.revertReason || details.errorSelector ?
-					{
-						revertReason: details.revertReason,
-						errorSelector: details.errorSelector,
-					}
-				: undefined,
+				details.revertReason || details.errorSelector
+					? {
+							revertReason: details.revertReason,
+							errorSelector: details.errorSelector,
+						}
+					: undefined,
 			traceSummary: details.traceSummary,
 			eventSummary: details.eventSummary,
-			txHash: kind === 'execution' ? state.execution.txHash ?? undefined : undefined,
+			txHash:
+				kind === 'execution'
+					? (state.execution.txHash ?? undefined)
+					: undefined,
 		}))(
 			extractExplainDetails(
 				kind === 'simulation' ? state.simulation.result : null,
 			),
 			kind === 'simulation' ? state.simulation.error : state.execution.error,
 		)
-	)
 	const updateExecution = (
 		id: string,
 		update: TransactionFlowExecutionUpdate,
@@ -285,32 +286,27 @@
 	const resolveExecutionContext = (): Omit<
 		TransactionFlowExecutionArgs,
 		'onStatus'
-	> | null => (
-		E2E_TEVM_ENABLED && e2eProvider ?
-			{
-				mode: 'e2e',
-				provider: e2eProvider,
-				walletAddress: E2E_TEVM_WALLET_ADDRESS,
-			}
-		: walletProvider && walletAddress ?
-			{
-				mode: 'wallet',
-				provider: walletProvider,
-				walletAddress,
-			}
-		:
-			null
-	)
-	const resolveSimulationWalletAddress = () => (
+	> | null =>
+		E2E_TEVM_ENABLED && e2eProvider
+			? {
+					mode: 'e2e',
+					provider: e2eProvider,
+					walletAddress: E2E_TEVM_WALLET_ADDRESS,
+				}
+			: walletProvider && walletAddress
+				? {
+						mode: 'wallet',
+						provider: walletProvider,
+						walletAddress,
+					}
+				: null
+	const resolveSimulationWalletAddress = () =>
 		walletAddress ??
 		(E2E_TEVM_ENABLED && e2eProvider ? E2E_TEVM_WALLET_ADDRESS : null)
-	)
 	const supportsExecutionMode = (
 		tx: TransactionFlowItemBase,
 		mode: TransactionFlowExecutionMode,
-	) => (
-		tx.executionModes ? tx.executionModes.includes(mode) : true
-	)
+	) => (tx.executionModes ? tx.executionModes.includes(mode) : true)
 	const refreshExplainAvailability = async () => {
 		explainAvailability = await createExplainProvider().availability()
 	}
@@ -381,11 +377,10 @@
 	const simulateTransaction = async (tx: TransactionFlowItem) => {
 		const simulationWalletAddress = resolveSimulationWalletAddress()
 		if (!tx.simulate || !simulationWalletAddress) return
-		const rpcUrl = (
+		const rpcUrl =
 			Object.entries(rpcUrls).find(
 				(entry) => Number(entry?.[0]) === tx.chainId,
 			)?.[1] ?? null
-		)
 		if (!rpcUrl) {
 			updateTxState(tx.id, (state) => ({
 				...state,
@@ -478,7 +473,6 @@
 	})
 </script>
 
-
 <div data-column="gap-4" data-transaction-flow>
 	{#if Summary}
 		<div data-column="gap-2">
@@ -499,8 +493,9 @@
 				) ?? null}
 			{@const executionContext = resolveExecutionContext()}
 			{@const hasExecutionContext = Boolean(executionContext)}
-			{@const executionUnsupported =
-				Boolean(executionContext && !supportsExecutionMode(tx, executionContext.mode))}
+			{@const executionUnsupported = Boolean(
+				executionContext && !supportsExecutionMode(tx, executionContext.mode),
+			)}
 			{@const hasWalletSigner = Boolean(walletProvider && walletAddress)}
 			{@const needsChainSwitch = Boolean(
 				executionContext?.mode === 'wallet' &&
@@ -552,29 +547,25 @@
 							<span data-error>{txState.simulation.error}</span>
 						{/if}
 					</div>
-					{#if
-						txState.simulation.status === 'success' ||
-						txState.simulation.status === 'failed'}
+					{#if txState.simulation.status === 'success' || txState.simulation.status === 'failed'}
 						<div data-row="gap-2 align-center wrap">
 							<Button.Root
 								type="button"
 								onclick={() => explainTransaction(tx, 'simulation')}
-								disabled={
-									simulationExplain.status === 'loading' ||
-									explainAvailability === 'unavailable'
-								}
+								disabled={simulationExplain.status === 'loading' ||
+									explainAvailability === 'unavailable'}
 							>
 								{simulationExplain.status === 'loading'
 									? 'Explaining…'
 									: 'Explain results'}
 							</Button.Root>
-							{#if
-								explainAvailability === 'downloading' &&
-								simulationExplain.status !== 'loading'}
+							{#if explainAvailability === 'downloading' && simulationExplain.status !== 'loading'}
 								<span data-muted>Model downloading…</span>
 							{:else if explainAvailability === 'unavailable'}
 								<span data-muted>Explain unavailable.</span>
-								<a href="/about#explain-results-fallback">Set up hosted fallback</a>
+								<a href="/about#explain-results-fallback"
+									>Set up hosted fallback</a
+								>
 							{/if}
 							{#if simulationExplain.status === 'loading'}
 								<span data-muted>
@@ -619,29 +610,25 @@
 						{txState.execution.txHash.slice(0, 8)}…
 					</p>
 				{/if}
-				{#if
-					txState.execution.status === 'completed' ||
-					txState.execution.status === 'failed'}
+				{#if txState.execution.status === 'completed' || txState.execution.status === 'failed'}
 					<div data-row="gap-2 align-center wrap">
 						<Button.Root
 							type="button"
 							onclick={() => explainTransaction(tx, 'execution')}
-							disabled={
-								executionExplain.status === 'loading' ||
-								explainAvailability === 'unavailable'
-							}
+							disabled={executionExplain.status === 'loading' ||
+								explainAvailability === 'unavailable'}
 						>
 							{executionExplain.status === 'loading'
 								? 'Explaining…'
 								: 'Explain results'}
 						</Button.Root>
-						{#if
-							explainAvailability === 'downloading' &&
-							executionExplain.status !== 'loading'}
+						{#if explainAvailability === 'downloading' && executionExplain.status !== 'loading'}
 							<span data-muted>Model downloading…</span>
 						{:else if explainAvailability === 'unavailable'}
 							<span data-muted>Explain unavailable.</span>
-							<a href="/about#explain-results-fallback">Set up hosted fallback</a>
+							<a href="/about#explain-results-fallback"
+								>Set up hosted fallback</a
+							>
 						{/if}
 						{#if executionExplain.status === 'loading'}
 							<span data-muted>
@@ -692,12 +679,14 @@
 						{/if}
 						<label data-row="gap-2 align-center">
 							<Checkbox.Root
-								bind:checked={() => txState.confirmed, (checked) => (
-									updateTxState(tx.id, (state) => ({
-										...state,
-										confirmed: checked,
-									}))
-								)}
+								bind:checked={
+									() => txState.confirmed,
+									(checked) =>
+										updateTxState(tx.id, (state) => ({
+											...state,
+											confirmed: checked,
+										}))
+								}
 							>
 								{#snippet children({ checked })}
 									{checked ? '✓' : '○'}

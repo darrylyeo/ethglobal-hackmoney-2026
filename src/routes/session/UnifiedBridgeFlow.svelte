@@ -37,7 +37,11 @@
 
 	// Functions
 	import { getUsdcAddress } from '$/api/lifi'
-	import { formatAddress, isValidAddress, normalizeAddress } from '$/lib/address'
+	import {
+		formatAddress,
+		isValidAddress,
+		normalizeAddress,
+	} from '$/lib/address'
 	import {
 		createSessionId,
 		createTransactionSessionSimulation,
@@ -56,6 +60,7 @@
 
 	// Components
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import SessionAction from '$/views/SessionAction.svelte'
 	import UnifiedProtocolRouter from './UnifiedProtocolRouter.svelte'
@@ -78,14 +83,12 @@
 		}[]
 	} = $props()
 
-	const resolveNetwork = (chainId: number | null) => (
-		chainId !== null ?
-			(Object.values(networksByChainId).find(
-				(entry) => entry?.id === chainId,
-			) ?? null)
-		:
-			null
-	)
+	const resolveNetwork = (chainId: number | null) =>
+		chainId !== null
+			? (Object.values(networksByChainId).find(
+					(entry) => entry?.id === chainId,
+				) ?? null)
+			: null
 
 	// State
 	let activeSessionId = $state<string | null>(null)
@@ -104,6 +107,13 @@
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
 	)
+	const liveQueryEntries = [
+		{
+			id: 'session-unified-bridge-session',
+			label: 'Session',
+			query: sessionQuery,
+		},
+	]
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const bridgeDefaults = $derived({
@@ -122,21 +132,16 @@
 	)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			effectiveIsTestnet ?
-				n.type === NetworkType.Testnet
-			:
-				n.type === NetworkType.Mainnet,
+			effectiveIsTestnet
+				? n.type === NetworkType.Testnet
+				: n.type === NetworkType.Mainnet,
 		),
 	)
 	const selectedWallet = $derived(
 		selectedWallets.find((w) => w.connection.selected) ?? null,
 	)
-	const fromNetwork = $derived(
-		resolveNetwork(settings.fromChainId),
-	)
-	const toNetwork = $derived(
-		resolveNetwork(settings.toChainId),
-	)
+	const fromNetwork = $derived(resolveNetwork(settings.fromChainId))
+	const toNetwork = $derived(resolveNetwork(settings.toChainId))
 	const validation = $derived(
 		validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT),
 	)
@@ -160,20 +165,20 @@
 	const protocolReason = $derived(
 		!settings.fromChainId || !settings.toChainId
 			? 'Select chains to choose a protocol'
-				: cctpPairSupported && !lifiPairSupported
-					? 'Only CCTP supports this pair'
-					: lifiPairSupported && !cctpPairSupported
-						? 'Only LI.FI supports this pair'
-						: settings.protocolIntent === 'cctp'
-							? 'Using CCTP (your preference)'
-							: settings.protocolIntent === 'lifi'
-								? 'Using LI.FI (your preference)'
-								: 'Using CCTP (best route)',
+			: cctpPairSupported && !lifiPairSupported
+				? 'Only CCTP supports this pair'
+				: lifiPairSupported && !cctpPairSupported
+					? 'Only LI.FI supports this pair'
+					: settings.protocolIntent === 'cctp'
+						? 'Using CCTP (your preference)'
+						: settings.protocolIntent === 'lifi'
+							? 'Using LI.FI (your preference)'
+							: 'Using CCTP (best route)',
 	)
 	const recipient = $derived(
-		settings.useCustomRecipient ?
-			normalizeAddress(settings.customRecipient)
-		: selectedActor,
+		settings.useCustomRecipient
+			? normalizeAddress(settings.customRecipient)
+			: selectedActor,
 	)
 	const usdcToken = $derived(
 		settings.fromChainId !== null
@@ -182,14 +187,16 @@
 			: ercTokens[0],
 	)
 	const minOutput = $derived(
-		previewResult ? calculateMinOutput(previewResult.toAmount, settings.slippage) : null,
+		previewResult
+			? calculateMinOutput(previewResult.toAmount, settings.slippage)
+			: null,
 	)
-	const previewAvailable = $derived(Boolean(
-		activeProtocol === 'lifi' ? previewResult : recipient,
-	))
-	const hashSource = getContext<import('$/lib/dashboard-panel-hash').SessionHashSource>(
-		SESSION_HASH_SOURCE_KEY,
+	const previewAvailable = $derived(
+		Boolean(activeProtocol === 'lifi' ? previewResult : recipient),
 	)
+	const hashSource = getContext<
+		import('$/lib/dashboard-panel-hash').SessionHashSource
+	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 
 	const updateParams = (nextParams: BridgeSessionParams) => {
@@ -211,9 +218,13 @@
 	}
 	const persistDraft = () => {
 		const nextParams = normalizeBridgeSessionParams(settings)
-		const current = activeSessionId ? getTransactionSession(activeSessionId) : null
+		const current = activeSessionId
+			? getTransactionSession(activeSessionId)
+			: null
 		const shouldCreate = !current || current.lockedAt
-		const sessionId = shouldCreate ? (pendingSessionId ?? createSessionId()) : current.id
+		const sessionId = shouldCreate
+			? (pendingSessionId ?? createSessionId())
+			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
 				actions: ['bridge'],
@@ -230,9 +241,13 @@
 	}
 	const persistSimulation = (result: unknown) => {
 		const nextParams = normalizeBridgeSessionParams(settings)
-		const current = activeSessionId ? getTransactionSession(activeSessionId) : null
+		const current = activeSessionId
+			? getTransactionSession(activeSessionId)
+			: null
 		const shouldCreate = !current || current.lockedAt
-		const sessionId = shouldCreate ? (pendingSessionId ?? createSessionId()) : current.id
+		const sessionId = shouldCreate
+			? (pendingSessionId ?? createSessionId())
+			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
 				actions: ['bridge'],
@@ -259,11 +274,18 @@
 		}))
 		setSessionHash(sessionId)
 	}
-	const persistExecution = (args: { txHash?: `0x${string}`; chainId?: number }) => {
+	const persistExecution = (args: {
+		txHash?: `0x${string}`
+		chainId?: number
+	}) => {
 		const nextParams = normalizeBridgeSessionParams(settings)
-		const current = activeSessionId ? getTransactionSession(activeSessionId) : null
+		const current = activeSessionId
+			? getTransactionSession(activeSessionId)
+			: null
 		const shouldCreate = !current || current.lockedAt
-		const sessionId = shouldCreate ? (pendingSessionId ?? createSessionId()) : current.id
+		const sessionId = shouldCreate
+			? (pendingSessionId ?? createSessionId())
+			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
 				actions: ['bridge'],
@@ -293,25 +315,28 @@
 		if (intent === 'save') persistDraft()
 		if (intent === 'simulate' && previewAvailable) {
 			const result =
-				activeProtocol === 'lifi' ?
-					previewResult
-				: {
-						amount: settings.amount,
-						fromChainId: settings.fromChainId,
-						toChainId: settings.toChainId,
-						recipient: recipient ?? null,
-						transferSpeed: settings.transferSpeed,
-						forwardingEnabled: settings.forwardingEnabled,
-					}
+				activeProtocol === 'lifi'
+					? previewResult
+					: {
+							amount: settings.amount,
+							fromChainId: settings.fromChainId,
+							toChainId: settings.toChainId,
+							recipient: recipient ?? null,
+							transferSpeed: settings.transferSpeed,
+							forwardingEnabled: settings.forwardingEnabled,
+						}
 			if (result) persistSimulation(result)
 		}
 	}
 
 	$effect(() => {
-		if (!localParams) updateParams(normalizeBridgeSessionParams(null, bridgeDefaults))
+		if (!localParams)
+			updateParams(normalizeBridgeSessionParams(null, bridgeDefaults))
 		const hash = hashSource.enabled
 			? effectiveHash
-			: (typeof window !== 'undefined' ? window.location.hash : '')
+			: typeof window !== 'undefined'
+				? window.location.hash
+				: ''
 		const parsed = parseSessionHash(hash)
 		if (parsed.kind === 'session') {
 			const existing = getTransactionSession(parsed.sessionId)
@@ -333,7 +358,7 @@
 		setPendingSessionId(null)
 		updateParams(
 			normalizeBridgeSessionParams(
-				parsed.kind === 'actions' ? parsed.actions[0]?.params ?? null : null,
+				parsed.kind === 'actions' ? (parsed.actions[0]?.params ?? null) : null,
 				bridgeDefaults,
 			),
 		)
@@ -363,7 +388,9 @@
 			setPendingSessionId(null)
 			updateParams(
 				normalizeBridgeSessionParams(
-					parsed.kind === 'actions' ? parsed.actions[0]?.params ?? null : null,
+					parsed.kind === 'actions'
+						? (parsed.actions[0]?.params ?? null)
+						: null,
 					bridgeDefaults,
 				),
 			)
@@ -373,10 +400,10 @@
 		return () => window.removeEventListener('hashchange', handleHash)
 	})
 
-
 	$effect(() => {
-		const isTestnet =
-			useGlobalNetworkType ? globalIsTestnet : settings.isTestnet
+		const isTestnet = useGlobalNetworkType
+			? globalIsTestnet
+			: settings.isTestnet
 		if (filteredNetworks.length === 0) return
 		if (
 			settings.fromChainId !== null &&
@@ -385,18 +412,16 @@
 			return
 		const fromNet = resolveNetwork(settings.fromChainId)
 		const toNet = resolveNetwork(settings.toChainId)
-		const defaultFrom =
-			isTestnet
-				? (fromNet ? testnetsForMainnet.get(fromNet)?.[0]?.id : undefined) ??
-					ChainId.EthereumSepolia
-				: (fromNet ? mainnetForTestnet.get(fromNet)?.id : undefined) ??
-					ChainId.Ethereum
-		const defaultTo =
-			isTestnet
-				? (toNet ? testnetsForMainnet.get(toNet)?.[0]?.id : undefined) ??
-					ChainId.ArcTestnet
-				: (toNet ? mainnetForTestnet.get(toNet)?.id : undefined) ??
-					ChainId.Optimism
+		const defaultFrom = isTestnet
+			? ((fromNet ? testnetsForMainnet.get(fromNet)?.[0]?.id : undefined) ??
+				ChainId.EthereumSepolia)
+			: ((fromNet ? mainnetForTestnet.get(fromNet)?.id : undefined) ??
+				ChainId.Ethereum)
+		const defaultTo = isTestnet
+			? ((toNet ? testnetsForMainnet.get(toNet)?.[0]?.id : undefined) ??
+				ChainId.ArcTestnet)
+			: ((toNet ? mainnetForTestnet.get(toNet)?.id : undefined) ??
+				ChainId.Optimism)
 		updateParams({
 			...settings,
 			fromChainId:
@@ -411,242 +436,263 @@
 	})
 
 	$effect(() => {
-		balanceTokens = (
-			[
-				settings.fromChainId !== null
-					? {
-							chainId: settings.fromChainId,
-							tokenAddress: getUsdcAddress(settings.fromChainId),
-						}
-					: null,
-				settings.toChainId !== null
-					? {
-							chainId: settings.toChainId,
-							tokenAddress: getUsdcAddress(settings.toChainId),
-						}
-					: null,
-			].flatMap((token) => (token ? [token] : []))
-		)
+		balanceTokens = [
+			settings.fromChainId !== null
+				? {
+						chainId: settings.fromChainId,
+						tokenAddress: getUsdcAddress(settings.fromChainId),
+					}
+				: null,
+			settings.toChainId !== null
+				? {
+						chainId: settings.toChainId,
+						tokenAddress: getUsdcAddress(settings.toChainId),
+					}
+				: null,
+		].flatMap((token) => (token ? [token] : []))
 	})
 </script>
 
-
-<SessionAction
-	title="Bridge"
-	description={sessionLocked ? 'Last saved session is locked.' : undefined}
-	onSubmit={onSubmit}
->
-	{#snippet Params()}
-		<div data-row="gap-4">
-			<div data-column="gap-1" style="flex:1" data-from-chain>
-				<label for="from">From</label>
-				<NetworkInput
-					networks={filteredNetworks}
-					bind:value={() => settings.fromChainId, (v) => (
-						typeof v === 'number'
-							? updateParams({ ...settings, fromChainId: v })
-							: null
-					)}
-					placeholder="—"
-					id="from"
-					ariaLabel="From chain"
-				/>
+<LiveQueryScope entries={liveQueryEntries}>
+	<SessionAction
+		title="Bridge"
+		description={sessionLocked ? 'Last saved session is locked.' : undefined}
+		{onSubmit}
+	>
+		{#snippet Params()}
+			<div data-row="gap-4">
+				<div data-column="gap-1" style="flex:1" data-from-chain>
+					<label for="from">From</label>
+					<NetworkInput
+						networks={filteredNetworks}
+						bind:value={
+							() => settings.fromChainId,
+							(v) =>
+								typeof v === 'number'
+									? updateParams({ ...settings, fromChainId: v })
+									: null
+						}
+						placeholder="—"
+						id="from"
+						ariaLabel="From chain"
+					/>
+				</div>
+				<div data-column="gap-1" style="flex:1" data-to-chain>
+					<label for="to">To</label>
+					<NetworkInput
+						networks={filteredNetworks}
+						bind:value={
+							() => settings.toChainId,
+							(v) =>
+								typeof v === 'number'
+									? updateParams({ ...settings, toChainId: v })
+									: null
+						}
+						placeholder="—"
+						id="to"
+						ariaLabel="To chain"
+					/>
+				</div>
 			</div>
-			<div data-column="gap-1" style="flex:1" data-to-chain>
-				<label for="to">To</label>
-				<NetworkInput
-					networks={filteredNetworks}
-					bind:value={() => settings.toChainId, (v) => (
-						typeof v === 'number'
-							? updateParams({ ...settings, toChainId: v })
-							: null
-					)}
-					placeholder="—"
-					id="to"
-					ariaLabel="To chain"
-				/>
-			</div>
-		</div>
 
-		<div data-column="gap-1">
-			<label for="amt">Amount</label>
-			<CoinAmountInput
-				id="amt"
-				coins={[usdcToken]}
-				coin={usdcToken}
-				min={USDC_MIN_AMOUNT}
-				max={USDC_MAX_AMOUNT}
-				bind:value={() => settings.amount, (nextAmount) => (
-					updateParams({ ...settings, amount: nextAmount })
-				)}
-				bind:invalid={() => invalidAmountInput, (nextInvalid) => (
-					invalidAmountInput = nextInvalid
-				)}
-			/>
-			{#if invalidAmountInput}
-				<small data-error
-					>Invalid amount (use numbers and up to 6 decimals)</small
-				>
-			{:else if validation.error === 'too_low'}
-				<small data-error>Min {validation.minAmount} USDC</small>
-			{:else if validation.error === 'too_high'}
-				<small data-error>Max {validation.maxAmount} USDC</small>
-			{:else if validation.error === 'invalid'}
-				<small data-error>Enter a valid amount</small>
-			{/if}
-		</div>
-
-		<div data-column="gap-1">
-			<label data-row="gap-2 align-center">
-				<Switch.Root
-					bind:checked={() => settings.useCustomRecipient, (c) => (
-						updateParams({
-							...settings,
-							useCustomRecipient: c ?? false,
-						})
-					)}
-				>
-					<Switch.Thumb />
-				</Switch.Root>
-				Different recipient
-			</label>
-			{#if settings.useCustomRecipient}
-				<input
-					type="text"
-					placeholder="0x..."
-					value={settings.customRecipient}
-					oninput={(e) => {
-						updateParams({
-							...settings,
-							customRecipient: (e.target as HTMLInputElement).value,
-						})
-					}}
+			<div data-column="gap-1">
+				<label for="amt">Amount</label>
+				<CoinAmountInput
+					id="amt"
+					coins={[usdcToken]}
+					coin={usdcToken}
+					min={USDC_MIN_AMOUNT}
+					max={USDC_MAX_AMOUNT}
+					bind:value={
+						() => settings.amount,
+						(nextAmount) => updateParams({ ...settings, amount: nextAmount })
+					}
+					bind:invalid={
+						() => invalidAmountInput,
+						(nextInvalid) => (invalidAmountInput = nextInvalid)
+					}
 				/>
-				{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}
-					<small data-error>Invalid address</small>
+				{#if invalidAmountInput}
+					<small data-error
+						>Invalid amount (use numbers and up to 6 decimals)</small
+					>
+				{:else if validation.error === 'too_low'}
+					<small data-error>Min {validation.minAmount} USDC</small>
+				{:else if validation.error === 'too_high'}
+					<small data-error>Max {validation.maxAmount} USDC</small>
+				{:else if validation.error === 'invalid'}
+					<small data-error>Enter a valid amount</small>
 				{/if}
-			{:else if selectedActor}
-				<small data-muted>To: {formatAddress(selectedActor)}</small>
-			{:else}
-				<small data-muted>To: Connect wallet</small>
-			{/if}
-		</div>
-	{/snippet}
-
-	{#snippet Protocol()}
-		<UnifiedProtocolRouter
-			protocolIntent={settings.protocolIntent}
-			onProtocolIntentChange={(next) => (
-				updateParams({ ...settings, protocolIntent: next })
-			)}
-			{activeProtocol}
-			{protocolReason}
-			{cctpPairSupported}
-			{lifiPairSupported}
-			{selectedWallet}
-			{fromNetwork}
-			{toNetwork}
-			{canSendAmount}
-		/>
-
-		{#if activeProtocol === 'lifi'}
-			<div data-card="secondary" data-column="gap-2">
-				<h3>LI.FI settings</h3>
-				<div data-row="gap-1">
-					{#each slippagePresets as preset (preset.id)}
-						<Button.Root
-							type="button"
-							onclick={() => updateParams({ ...settings, slippage: preset.value })}
-							data-selected={settings.slippage === preset.value ? '' : undefined}
-						>
-							{formatSlippagePercent(preset.value)}
-						</Button.Root>
-					{/each}
-				</div>
-				<input
-					placeholder="Custom %"
-					bind:value={slippageInput}
-					onchange={() => {
-						const nextSlippage = parseSlippagePercent(slippageInput)
-						if (nextSlippage !== null)
-							updateParams({ ...settings, slippage: nextSlippage })
-					}}
-				/>
 			</div>
-		{/if}
 
-		{#if activeProtocol === 'cctp'}
-			<div data-card="secondary" data-column="gap-2">
-				<h3>CCTP settings</h3>
-				<div data-row="gap-2">
-					<Button.Root
-						type="button"
-						data-selected={settings.transferSpeed === 'fast' ? '' : undefined}
-						onclick={() => updateParams({ ...settings, transferSpeed: 'fast' })}
-					>
-						Fast
-					</Button.Root>
-					<Button.Root
-						type="button"
-						data-selected={settings.transferSpeed === 'standard' ? '' : undefined}
-						onclick={() => updateParams({ ...settings, transferSpeed: 'standard' })}
-					>
-						Standard
-					</Button.Root>
-				</div>
+			<div data-column="gap-1">
 				<label data-row="gap-2 align-center">
 					<Switch.Root
-						bind:checked={() => settings.forwardingEnabled, (c) => (
-							updateParams({ ...settings, forwardingEnabled: c ?? false })
-						)}
+						bind:checked={
+							() => settings.useCustomRecipient,
+							(c) =>
+								updateParams({
+									...settings,
+									useCustomRecipient: c ?? false,
+								})
+						}
 					>
 						<Switch.Thumb />
 					</Switch.Root>
-					Use Forwarding Service
+					Different recipient
 				</label>
+				{#if settings.useCustomRecipient}
+					<input
+						type="text"
+						placeholder="0x..."
+						value={settings.customRecipient}
+						oninput={(e) => {
+							updateParams({
+								...settings,
+								customRecipient: (e.target as HTMLInputElement).value,
+							})
+						}}
+					/>
+					{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}
+						<small data-error>Invalid address</small>
+					{/if}
+				{:else if selectedActor}
+					<small data-muted>To: {formatAddress(selectedActor)}</small>
+				{:else}
+					<small data-muted>To: Connect wallet</small>
+				{/if}
 			</div>
-		{/if}
-	{/snippet}
+		{/snippet}
 
-	{#snippet Preview()}
-		<div data-row="gap-2 align-center wrap">
-			<Button.Root type="submit" name="intent" value="save">
-				Save Draft
-			</Button.Root>
-			<Button.Root
-				type="submit"
-				name="intent"
-				value="simulate"
-				disabled={!previewAvailable}
-			>
-				Simulate
-			</Button.Root>
-		</div>
+		{#snippet Protocol()}
+			<UnifiedProtocolRouter
+				protocolIntent={settings.protocolIntent}
+				onProtocolIntentChange={(next) =>
+					updateParams({ ...settings, protocolIntent: next })}
+				{activeProtocol}
+				{protocolReason}
+				{cctpPairSupported}
+				{lifiPairSupported}
+				{selectedWallet}
+				{fromNetwork}
+				{toNetwork}
+				{canSendAmount}
+			/>
 
-		{#if activeProtocol === 'lifi'}
-			<BridgeFlow
-				selectedWallets={selectedWallets}
-				{selectedActor}
-				settings={settings}
-				onSettingsChange={updateParams}
-				onPreviewChange={(route) => {
-					previewResult = route
-				}}
-				onExecutionSuccess={({ txHash }) =>
-					persistExecution({ txHash, chainId: settings.fromChainId ?? undefined })}
-				bind:balanceTokens
-			/>
-		{:else if activeProtocol === 'cctp'}
-			<CctpBridgeFlow
-				selectedWallets={selectedWallets}
-				{selectedActor}
-				settings={settings}
-				onExecutionSuccess={({ txHash }) =>
-					persistExecution({ txHash, chainId: settings.fromChainId ?? undefined })}
-				{recipient}
-				{minOutput}
-				bind:balanceTokens
-			/>
-		{/if}
-	{/snippet}
-</SessionAction>
+			{#if activeProtocol === 'lifi'}
+				<div data-card="secondary" data-column="gap-2">
+					<h3>LI.FI settings</h3>
+					<div data-row="gap-1">
+						{#each slippagePresets as preset (preset.id)}
+							<Button.Root
+								type="button"
+								onclick={() =>
+									updateParams({ ...settings, slippage: preset.value })}
+								data-selected={settings.slippage === preset.value
+									? ''
+									: undefined}
+							>
+								{formatSlippagePercent(preset.value)}
+							</Button.Root>
+						{/each}
+					</div>
+					<input
+						placeholder="Custom %"
+						bind:value={slippageInput}
+						onchange={() => {
+							const nextSlippage = parseSlippagePercent(slippageInput)
+							if (nextSlippage !== null)
+								updateParams({ ...settings, slippage: nextSlippage })
+						}}
+					/>
+				</div>
+			{/if}
+
+			{#if activeProtocol === 'cctp'}
+				<div data-card="secondary" data-column="gap-2">
+					<h3>CCTP settings</h3>
+					<div data-row="gap-2">
+						<Button.Root
+							type="button"
+							data-selected={settings.transferSpeed === 'fast' ? '' : undefined}
+							onclick={() =>
+								updateParams({ ...settings, transferSpeed: 'fast' })}
+						>
+							Fast
+						</Button.Root>
+						<Button.Root
+							type="button"
+							data-selected={settings.transferSpeed === 'standard'
+								? ''
+								: undefined}
+							onclick={() =>
+								updateParams({ ...settings, transferSpeed: 'standard' })}
+						>
+							Standard
+						</Button.Root>
+					</div>
+					<label data-row="gap-2 align-center">
+						<Switch.Root
+							bind:checked={
+								() => settings.forwardingEnabled,
+								(c) =>
+									updateParams({ ...settings, forwardingEnabled: c ?? false })
+							}
+						>
+							<Switch.Thumb />
+						</Switch.Root>
+						Use Forwarding Service
+					</label>
+				</div>
+			{/if}
+		{/snippet}
+
+		{#snippet Preview()}
+			<div data-row="gap-2 align-center wrap">
+				<Button.Root type="submit" name="intent" value="save">
+					Save Draft
+				</Button.Root>
+				<Button.Root
+					type="submit"
+					name="intent"
+					value="simulate"
+					disabled={!previewAvailable}
+				>
+					Simulate
+				</Button.Root>
+			</div>
+
+			{#if activeProtocol === 'lifi'}
+				<BridgeFlow
+					{selectedWallets}
+					{selectedActor}
+					{settings}
+					onSettingsChange={updateParams}
+					onPreviewChange={(route) => {
+						previewResult = route
+					}}
+					onExecutionSuccess={({ txHash }) =>
+						persistExecution({
+							txHash,
+							chainId: settings.fromChainId ?? undefined,
+						})}
+					bind:balanceTokens
+				/>
+			{:else if activeProtocol === 'cctp'}
+				<CctpBridgeFlow
+					{selectedWallets}
+					{selectedActor}
+					{settings}
+					onExecutionSuccess={({ txHash }) =>
+						persistExecution({
+							txHash,
+							chainId: settings.fromChainId ?? undefined,
+						})}
+					{recipient}
+					{minOutput}
+					bind:balanceTokens
+				/>
+			{/if}
+		{/snippet}
+	</SessionAction>
+</LiveQueryScope>

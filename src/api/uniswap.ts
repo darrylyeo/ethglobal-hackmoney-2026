@@ -7,10 +7,7 @@
 import type { UniswapPool } from '$/collections/uniswap-pools'
 import type { SwapQuote, SwapRoute } from '$/data/SwapQuote'
 import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap'
-import {
-	E2E_TEVM_ENABLED,
-	requestE2eTevmContractTx,
-} from '$/lib/e2e/tevm'
+import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm'
 import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
 export const getUniswapSdk = async (): Promise<unknown> => null
 

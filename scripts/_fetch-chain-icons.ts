@@ -4,12 +4,11 @@
  */
 
 import { unzipSync } from 'npm:fflate'
-import { chainIconAliases, chainIconFetchItems } from '../src/constants/chain-icon-fetch-items.ts'
 import {
-	iconSuffix,
-	IconKind,
-	isDefaultIcon,
-} from '../src/constants/icons.ts'
+	chainIconAliases,
+	chainIconFetchItems,
+} from '../src/constants/chain-icon-fetch-items.ts'
+import { iconSuffix, IconKind, isDefaultIcon } from '../src/constants/icons.ts'
 
 const OUT_DIR = new URL('../static/networks/', import.meta.url)
 
@@ -51,7 +50,10 @@ async function main() {
 					const res = await fetch(f.zipUrl, { redirect: 'follow' })
 					if (!res.ok) throw new Error(`${f.zipUrl} ${res.status}`)
 					const buf = await res.arrayBuffer()
-					unzipped = unzipSync(new Uint8Array(buf)) as Record<string, Uint8Array>
+					unzipped = unzipSync(new Uint8Array(buf)) as Record<
+						string,
+						Uint8Array
+					>
 					zipCache.set(f.zipUrl, unzipped)
 				}
 				const entry = unzipped[f.pathInZip]

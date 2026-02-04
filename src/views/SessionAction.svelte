@@ -20,13 +20,7 @@
 	} = $props()
 </script>
 
-
-<form
-	data-session-action
-	data-card
-	data-column="gap-3"
-	onsubmit={onSubmit}
->
+<form data-session-action data-card data-column="gap-3" onsubmit={onSubmit}>
 	<header data-row="gap-2 align-center justify-between">
 		<div data-column="gap-1">
 			<h2>{title}</h2>

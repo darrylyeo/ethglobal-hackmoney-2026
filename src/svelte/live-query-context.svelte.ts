@@ -7,6 +7,7 @@ import { getContext, hasContext, setContext } from 'svelte'
 import { createAttachmentKey, type Attachment } from 'svelte/attachments'
 
 export const LIVE_QUERY_CONTEXT_KEY = 'live-query-stack'
+export const LIVE_QUERY_LOCAL_CONTEXT_KEY = 'live-query-stack-local'
 
 export type LiveQueryEntry = {
 	id: string
@@ -27,13 +28,19 @@ export const useLiveQueryContext = () =>
 		? getContext<LiveQueryContext>(LIVE_QUERY_CONTEXT_KEY)
 		: setContext(LIVE_QUERY_CONTEXT_KEY, createLiveQueryContext())
 
+export const useLocalLiveQueryContext = () =>
+	hasContext(LIVE_QUERY_LOCAL_CONTEXT_KEY)
+		? getContext<LiveQueryContext>(LIVE_QUERY_LOCAL_CONTEXT_KEY)
+		: setContext(LIVE_QUERY_LOCAL_CONTEXT_KEY, createLiveQueryContext())
+
 /**
  * Creates an attachment that registers a live query to the global stack.
  * Query is registered when element mounts, unregistered on unmount.
  */
-export const liveQueryAttachment = (entry: LiveQueryEntry): Attachment => {
-	const ctx = useLiveQueryContext()
-
+const createLiveQueryAttachment = (
+	ctx: LiveQueryContext,
+	entry: LiveQueryEntry,
+): Attachment => {
 	return () => {
 		ctx.stack.push(entry)
 
@@ -44,15 +51,20 @@ export const liveQueryAttachment = (entry: LiveQueryEntry): Attachment => {
 	}
 }
 
+export const liveQueryAttachment = (entry: LiveQueryEntry): Attachment =>
+	createLiveQueryAttachment(useLiveQueryContext(), entry)
+
+export const liveQueryLocalAttachment = (entry: LiveQueryEntry): Attachment =>
+	createLiveQueryAttachment(useLocalLiveQueryContext(), entry)
+
 /**
  * Creates an attachment that syncs multiple entries (derived from getEntries) to the stack.
  * Use when a component has several live queries and should register them as one unit.
  */
-export const liveQueryAttachmentFrom = (
+const createLiveQueryAttachmentFrom = (
+	ctx: LiveQueryContext,
 	getEntries: () => LiveQueryEntry[],
 ): Attachment => {
-	const ctx = useLiveQueryContext()
-
 	return () => {
 		const destroy = $effect.root(() => {
 			$effect(() => {
@@ -72,13 +84,24 @@ export const liveQueryAttachmentFrom = (
 	}
 }
 
+export const liveQueryAttachmentFrom = (
+	getEntries: () => LiveQueryEntry[],
+): Attachment =>
+	createLiveQueryAttachmentFrom(useLiveQueryContext(), getEntries)
+
+export const liveQueryLocalAttachmentFrom = (
+	getEntries: () => LiveQueryEntry[],
+): Attachment =>
+	createLiveQueryAttachmentFrom(useLocalLiveQueryContext(), getEntries)
+
 /**
  * Creates props with attachment keys for spreading onto an element.
  * Allows registering multiple queries at once.
  */
-export const liveQueryProps = (entries: LiveQueryEntry[]) => {
-	const ctx = useLiveQueryContext()
-
+const createLiveQueryProps = (
+	ctx: LiveQueryContext,
+	entries: LiveQueryEntry[],
+) => {
 	return Object.fromEntries(
 		entries.map((entry) => [
 			createAttachmentKey(),
@@ -93,3 +116,9 @@ export const liveQueryProps = (entries: LiveQueryEntry[]) => {
 		]),
 	)
 }
+
+export const liveQueryProps = (entries: LiveQueryEntry[]) =>
+	createLiveQueryProps(useLiveQueryContext(), entries)
+
+export const liveQueryLocalProps = (entries: LiveQueryEntry[]) =>
+	createLiveQueryProps(useLocalLiveQueryContext(), entries)

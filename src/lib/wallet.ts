@@ -219,7 +219,10 @@ export const ensureE2eProvider = () => {
 			if (args.method === 'eth_chainId') {
 				return `0x${activeChainId.toString(16)}`
 			}
-			if (args.method === 'eth_requestAccounts' || args.method === 'eth_accounts') {
+			if (
+				args.method === 'eth_requestAccounts' ||
+				args.method === 'eth_accounts'
+			) {
 				emit('accountsChanged', [E2E_TEVM_WALLET_ADDRESS])
 				return [E2E_TEVM_WALLET_ADDRESS]
 			}
@@ -277,11 +280,10 @@ export const ensureE2eProvider = () => {
 	}
 }
 
-export const getE2eProvider = () => (
+export const getE2eProvider = () =>
 	typeof window !== 'undefined'
-		? window.__E2E_TEVM_PROVIDER__?.provider ?? null
+		? (window.__E2E_TEVM_PROVIDER__?.provider ?? null)
 		: null
-)
 
 function eip6963HandleAnnounce(e: Event) {
 	const { detail } = e as CustomEvent<ProviderDetailType>

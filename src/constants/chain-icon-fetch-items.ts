@@ -1,11 +1,12 @@
-import { ChainId } from "./networks"
-import type { IconFetchItem, IconAlias } from "./icons"
-import { IconKind } from "./icons"
+import { ChainId } from './networks'
+import type { IconFetchItem, IconAlias } from './icons'
+import { IconKind } from './icons'
 
 /** Chain icon fetch list. Generated from scripts/_fetch-chain-icons.ts. */
 export const chainIconFetchItems = [
 	/** Unichain: unichain.org/assets/zip/unichain-brand-kit.zip (official brand kit; icon, lockup, vertical lockup) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Unichain,
 		fetch: {
 			fetchType: 'zip',
@@ -14,7 +15,8 @@ export const chainIconFetchItems = [
 				'Unichain Brand Kit /Unichain Logo Assets/Network icons/Mainnet.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Unichain,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -25,7 +27,8 @@ export const chainIconFetchItems = [
 				'Unichain Brand Kit /Unichain Logo Assets/Unichain Icon - Dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Unichain,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -36,7 +39,8 @@ export const chainIconFetchItems = [
 				'Unichain Brand Kit /Unichain Logo Assets/Unichain Icon - Light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Unichain,
 		kind: IconKind.Logo,
 		style: 'vibrant',
@@ -47,7 +51,8 @@ export const chainIconFetchItems = [
 				'Unichain Brand Kit /Unichain Logo Assets/Unichain Icon - Vibrant.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Unichain,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -58,7 +63,8 @@ export const chainIconFetchItems = [
 				'Unichain Brand Kit /Unichain Logo Assets/Unichain Lockup - Dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Unichain,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -69,7 +75,8 @@ export const chainIconFetchItems = [
 				'Unichain Brand Kit /Unichain Logo Assets/Unichain Lockup - Light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Unichain,
 		kind: IconKind.LogoAndWordmark,
 		style: 'vibrant',
@@ -80,7 +87,8 @@ export const chainIconFetchItems = [
 				'Unichain Brand Kit /Unichain Logo Assets/Unichain Lockup - Vibrant.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Unichain,
 		kind: IconKind.LogoAndWordmark,
 		style: 'vertical-light',
@@ -91,7 +99,8 @@ export const chainIconFetchItems = [
 				'Unichain Brand Kit /Unichain Logo Assets/Unichain Vertical  Lockup - Light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Unichain,
 		kind: IconKind.LogoAndWordmark,
 		style: 'vertical-dark',
@@ -102,7 +111,8 @@ export const chainIconFetchItems = [
 				'Unichain Brand Kit /Unichain Logo Assets/Unichain Vertical Lockup - Dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Unichain,
 		kind: IconKind.LogoAndWordmark,
 		style: 'vertical-vibrant',
@@ -114,7 +124,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Plume: docs.plumenetwork.xyz/plume/community-and-support/brand-assets (GitBook SVG zip) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Plume,
 		fetch: {
 			fetchType: 'zip',
@@ -123,7 +134,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Logomark Red.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Plume,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -134,7 +146,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Logomark Dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Plume,
 		kind: IconKind.Logo,
 		style: 'white',
@@ -145,7 +158,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Logomark White.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Plume,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -155,7 +169,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Full Logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Plume,
 		kind: IconKind.LogoAndWordmark,
 		style: 'black',
@@ -166,7 +181,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Full Logo Black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Plume,
 		kind: IconKind.LogoAndWordmark,
 		style: 'white',
@@ -177,7 +193,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Full Logo White.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Plume,
 		kind: IconKind.Logo,
 		style: 'red-bg',
@@ -188,7 +205,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Logomark-BG-Red.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Plume,
 		kind: IconKind.Logo,
 		style: 'black-bg',
@@ -199,7 +217,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Logomark-BG-Black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Plume,
 		kind: IconKind.LogoAndWordmark,
 		style: 'powered-by',
@@ -210,7 +229,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Powered by Plume.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Plume,
 		kind: IconKind.LogoAndWordmark,
 		style: 'inverted',
@@ -222,14 +242,16 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Ink: docs.inkonchain.com (official brand kit; PNG only — symbol + full logo + safe-margin variants) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ink,
 		fetch: {
 			fetchType: 'png',
 			url: 'https://docs.inkonchain.com/images/brand-kit/docs-logo-symbol.png',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ink,
 		kind: IconKind.Logo,
 		style: 'safe-margin',
@@ -238,7 +260,8 @@ export const chainIconFetchItems = [
 			url: 'https://docs.inkonchain.com/images/brand-kit/docs-logo-symbol-margin.png',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ink,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -246,7 +269,8 @@ export const chainIconFetchItems = [
 			url: 'https://docs.inkonchain.com/images/brand-kit/docs-logo-wordmark.png',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ink,
 		kind: IconKind.LogoAndWordmark,
 		style: 'safe-margin',
@@ -256,7 +280,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Ethereum: ethereum.org/assets (Brand assets); chain logo/light from etherscan.io (explorer) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		fetch: {
@@ -264,7 +289,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-glyph.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -273,7 +299,8 @@ export const chainIconFetchItems = [
 			url: 'https://etherscan.io/images/svg/brands/ethereum-original.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -282,7 +309,8 @@ export const chainIconFetchItems = [
 			url: 'https://etherscan.io/images/svg/brands/ethereum-original-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'black',
@@ -291,7 +319,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'purple',
@@ -300,7 +329,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-purple.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'white',
@@ -309,7 +339,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-purple-white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'rainbow',
@@ -318,7 +349,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-rainbow.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'colored',
@@ -327,7 +359,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-glyph-colored.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'gray',
@@ -336,7 +369,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-black-gray.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'purple-purple',
@@ -345,7 +379,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-purple-purple.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'black-white',
@@ -354,7 +389,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-black-white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -362,7 +398,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-wordmark-black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Wordmark,
 		style: 'purple',
@@ -371,7 +408,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-wordmark-purple-purple.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Wordmark,
 		style: 'white',
@@ -380,7 +418,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-wordmark-purple-white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Wordmark,
 		style: 'gray',
@@ -389,7 +428,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-wordmark-black-gray.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -397,7 +437,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-portrait-black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'purple',
@@ -406,7 +447,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-portrait-purple.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'white',
@@ -415,7 +457,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-landscape-purple-white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'landscape-black',
@@ -424,7 +467,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-landscape-black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'landscape-purple',
@@ -433,7 +477,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-landscape-purple.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'gray',
@@ -442,7 +487,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-portrait-black-gray.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'landscape-gray',
@@ -451,7 +497,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-landscape-black-gray.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'portrait-purple-purple',
@@ -460,7 +507,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-portrait-purple-purple.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'landscape-purple-purple',
@@ -469,7 +517,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-landscape-purple-purple.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -478,7 +527,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -487,7 +537,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-portrait-black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -496,7 +547,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-landscape-purple-white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'symbol',
@@ -505,7 +557,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-glyph.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -514,7 +567,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-purple-white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -523,7 +577,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/eth-diamond-black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -532,7 +587,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-wordmark-black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -541,7 +597,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-wordmark-purple-white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'logo',
@@ -550,7 +607,8 @@ export const chainIconFetchItems = [
 			url: 'https://ethereum.org/images/assets/svgs/ethereum-logo-portrait-black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Ethereum,
 		kind: IconKind.Wordmark,
 		style: 'logo',
@@ -560,7 +618,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Optimism: CDN from optimism.io/brand (OP Mainnet = chain logo; wordmark + avatar as variants) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		fetch: {
@@ -568,7 +627,8 @@ export const chainIconFetchItems = [
 			url: 'https://framerusercontent.com/images/Bhk5XtyRGAW86jJoFWQYE0wcWzI.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -576,7 +636,8 @@ export const chainIconFetchItems = [
 			url: 'https://framerusercontent.com/assets/4C7aevn7I1NA7W6ELgvkKvSKnOM.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		style: 'avatar',
@@ -585,7 +646,8 @@ export const chainIconFetchItems = [
 			url: 'https://framerusercontent.com/assets/Z4dQJAxQCRUaDha5xN1AoF95g.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -594,7 +656,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		style: 'chain-light',
@@ -603,7 +666,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -612,7 +676,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -621,7 +686,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		style: 'symbol',
@@ -630,7 +696,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -639,7 +706,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -647,7 +715,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -656,7 +725,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -665,7 +735,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -674,7 +745,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -683,7 +755,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -692,7 +765,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Logo,
 		style: 'circle-light',
@@ -701,7 +775,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/logo-circle-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -709,7 +784,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -718,7 +794,8 @@ export const chainIconFetchItems = [
 			url: 'https://optimistic.etherscan.io/assets/optimism/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Optimism,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -728,7 +805,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** XDC: xinfin.org/brand-assets (official); chain dim/dark from xdcscan.com (explorer) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		fetch: {
@@ -736,7 +814,8 @@ export const chainIconFetchItems = [
 			url: 'https://xinfin.org/assets/images/brand-assets/primary-icon.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -745,7 +824,8 @@ export const chainIconFetchItems = [
 			url: 'https://xinfin.org/assets/images/brand-assets/primary-logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'monotone-black',
@@ -754,7 +834,8 @@ export const chainIconFetchItems = [
 			url: 'https://xinfin.org/assets/images/brand-assets/monotone-black-icon.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'monotone-white',
@@ -763,7 +844,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcf.cdn.prismic.io/xdcf/aCJ1SydWJ-7kR-bx_XDCIconWhiteMonoLogo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -772,7 +854,8 @@ export const chainIconFetchItems = [
 			url: 'https://xinfin.org/assets/images/brand-assets/inverted-primary-logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'symbol',
@@ -781,7 +864,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'chain-light',
@@ -790,7 +874,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -799,7 +884,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -808,7 +894,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -817,7 +904,8 @@ export const chainIconFetchItems = [
 			url: 'https://xinfin.org/assets/images/brand-assets/inverted-primary-icon.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -825,7 +913,8 @@ export const chainIconFetchItems = [
 			url: 'https://xinfin.org/assets/images/brand-assets/primary-logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -834,7 +923,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -843,7 +933,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.LogoAndWordmark,
 		style: 'logo',
@@ -852,7 +943,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -861,7 +953,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -870,7 +963,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -879,7 +973,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -888,7 +983,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Logo,
 		style: 'circle-light',
@@ -897,7 +993,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/logo-circle-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -905,7 +1002,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -914,7 +1012,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -923,7 +1022,8 @@ export const chainIconFetchItems = [
 			url: 'https://xdcscan.com/assets/xdc/images/svg/brandassets/wordmark-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.LogoAndWordmark,
 		style: 'monotone-black',
@@ -932,7 +1032,8 @@ export const chainIconFetchItems = [
 			url: 'https://xinfin.org/assets/images/brand-assets/monotone-black-logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.XDC,
 		kind: IconKind.LogoAndWordmark,
 		style: 'monotone-white',
@@ -942,7 +1043,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Polygon: CDN from polygon.technology/brandguidelines; GitHub 0xPolygon/polygon-token-assets assets/brandAssets (icon black/white/gradient, logo primary/monochrome, circle/square black-bg/white-bg); chain light/dim/dark + symbol/symbol-light + full logo + circle/circle-dark/circle-light/wordmark from polygonscan.com/brandassets (explorer) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		fetch: {
@@ -950,7 +1052,8 @@ export const chainIconFetchItems = [
 			url: 'https://cdn.prod.website-files.com/637359c81e22b715cec245ad/64db31746dec8ad339c4a315_logo-light-mode.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'white',
@@ -959,7 +1062,8 @@ export const chainIconFetchItems = [
 			url: 'https://cdn.prod.website-files.com/637359c81e22b715cec245ad/66273f100889f2489acb2d8e_Polygon%20Logo%20Complete%20White.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -968,7 +1072,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -977,7 +1082,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -986,7 +1092,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -995,7 +1102,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -1004,7 +1112,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'symbol',
@@ -1013,7 +1122,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'black',
@@ -1022,7 +1132,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/0xPolygon/polygon-token-assets/main/assets/brandAssets/polygon_icon_black_on_transparent.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'inverted',
@@ -1031,7 +1142,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/0xPolygon/polygon-token-assets/main/assets/brandAssets/polygon_icon_white_on_transparent.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'colored',
@@ -1040,7 +1152,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/0xPolygon/polygon-token-assets/main/assets/brandAssets/polygon_icon_gradient_on_transparent.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -1048,7 +1161,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -1057,7 +1171,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -1066,7 +1181,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.LogoAndWordmark,
 		style: 'colored',
@@ -1075,7 +1191,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/0xPolygon/polygon-token-assets/main/assets/brandAssets/polygon_logo_primary.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.LogoAndWordmark,
 		style: 'monotone-black',
@@ -1084,7 +1201,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/0xPolygon/polygon-token-assets/main/assets/brandAssets/polygon_logo_monochrome_black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.LogoAndWordmark,
 		style: 'monotone-white',
@@ -1093,7 +1211,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/0xPolygon/polygon-token-assets/main/assets/brandAssets/polygon_logo_monochrome_white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.LogoAndWordmark,
 		style: 'white',
@@ -1102,7 +1221,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/0xPolygon/polygon-token-assets/main/assets/brandAssets/polygon_logo_primary_white_wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -1111,7 +1231,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -1120,7 +1241,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -1129,7 +1251,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'circle-light',
@@ -1138,7 +1261,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/logo-circle-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'circle-black-bg',
@@ -1147,7 +1271,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/0xPolygon/polygon-token-assets/main/assets/brandAssets/polygon_icon_white_on_black_circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'circle-white-bg',
@@ -1156,7 +1281,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/0xPolygon/polygon-token-assets/main/assets/brandAssets/polygon_icon_gradient_on_white_circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'square-black-bg',
@@ -1165,7 +1291,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/0xPolygon/polygon-token-assets/main/assets/brandAssets/polygon_icon_white_on_black_square.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Logo,
 		style: 'square-white-bg',
@@ -1174,7 +1301,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/0xPolygon/polygon-token-assets/main/assets/brandAssets/polygon_icon_gradient_on_white_square.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -1182,7 +1310,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -1191,7 +1320,8 @@ export const chainIconFetchItems = [
 			url: 'https://polygonscan.com/assets/poly/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Polygon,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -1201,7 +1331,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** ZKsync: zksync.io/brand (default + ZIP full logo); dark/light symbol from docs.zksync.io */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Logo,
 		fetch: {
@@ -1209,7 +1340,8 @@ export const chainIconFetchItems = [
 			url: 'https://www.zksync.io/zksync-logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -1218,7 +1350,8 @@ export const chainIconFetchItems = [
 			url: 'https://docs.zksync.io/logos/zksync_logo_dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -1227,7 +1360,8 @@ export const chainIconFetchItems = [
 			url: 'https://docs.zksync.io/logos/zksync_logo_light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Logo,
 		style: 'symbol',
@@ -1236,7 +1370,8 @@ export const chainIconFetchItems = [
 			url: 'https://explorer.zksync.io/images/icons/zksync-arrows.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -1245,7 +1380,8 @@ export const chainIconFetchItems = [
 			url: 'https://explorer.zksync.io/assets/zksync/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -1255,7 +1391,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'ZKsync-Brand/Logo-Primary/ZKsync-Logo-darksvg.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.LogoAndWordmark,
 		style: 'white',
@@ -1266,7 +1403,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** ZKsync slogan assets: zksync.io/brand → ZKsync-Slogan.zip (slogan with/without bg, light/dark) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.LogoAndWordmark,
 		style: 'slogan',
@@ -1276,7 +1414,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'zksync-slogan/slogan without bg/slogan-no-bg-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.LogoAndWordmark,
 		style: 'slogan-dark',
@@ -1286,7 +1425,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'zksync-slogan/slogan without bg/slogan-no-bg-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.LogoAndWordmark,
 		style: 'slogan-bg-light',
@@ -1296,7 +1436,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'zksync-slogan/slogan with bg/slogan-bg-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.LogoAndWordmark,
 		style: 'slogan-bg-dark',
@@ -1306,7 +1447,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'zksync-slogan/slogan with bg/slogan-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.LogoAndWordmark,
 		style: 'slogan-bg-1',
@@ -1316,7 +1458,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'zksync-slogan/slogan with bg/slogan-bg-1-logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.LogoAndWordmark,
 		style: 'slogan-bg-2',
@@ -1326,7 +1469,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'zksync-slogan/slogan with bg/slogan-bg-2-logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -1335,7 +1479,8 @@ export const chainIconFetchItems = [
 			url: 'https://explorer.zksync.io/assets/zksync/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.LogoAndWordmark,
 		style: 'logo',
@@ -1344,7 +1489,8 @@ export const chainIconFetchItems = [
 			url: 'https://explorer.zksync.io/assets/zksync/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -1353,7 +1499,8 @@ export const chainIconFetchItems = [
 			url: 'https://explorer.zksync.io/assets/zksync/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -1362,7 +1509,8 @@ export const chainIconFetchItems = [
 			url: 'https://explorer.zksync.io/assets/zksync/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -1371,7 +1519,8 @@ export const chainIconFetchItems = [
 			url: 'https://explorer.zksync.io/assets/zksync/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -1380,7 +1529,8 @@ export const chainIconFetchItems = [
 			url: 'https://explorer.zksync.io/assets/zksync/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Logo,
 		style: 'circle-light',
@@ -1389,7 +1539,8 @@ export const chainIconFetchItems = [
 			url: 'https://explorer.zksync.io/assets/zksync/images/svg/brandassets/logo-circle-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -1397,7 +1548,8 @@ export const chainIconFetchItems = [
 			url: 'https://explorer.zksync.io/assets/zksync/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -1406,7 +1558,8 @@ export const chainIconFetchItems = [
 			url: 'https://explorer.zksync.io/assets/zksync/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ZkSyncEra,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -1416,7 +1569,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Sei: CDN from docs.sei.io/learn/general-brand-kit (symbol, full logo); chain light/dim/dark from seiscan.io (explorer) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Logo,
 		fetch: {
@@ -1424,7 +1578,8 @@ export const chainIconFetchItems = [
 			url: 'https://cdn.sei.io/sei.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -1433,7 +1588,8 @@ export const chainIconFetchItems = [
 			url: 'https://docs.sei.io/assets/sei-brand-assets/sei_red_and_white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Logo,
 		style: 'colored',
@@ -1442,7 +1598,8 @@ export const chainIconFetchItems = [
 			url: 'https://docs.sei.io/assets/sei-brand-assets/sei_red_symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Logo,
 		style: 'symbol',
@@ -1451,7 +1608,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -1460,7 +1618,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -1469,7 +1628,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -1478,7 +1638,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -1487,7 +1648,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -1495,7 +1657,8 @@ export const chainIconFetchItems = [
 			url: 'https://docs.sei.io/assets/sei-brand-assets/sei_red_and_white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -1504,7 +1667,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -1513,7 +1677,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.LogoAndWordmark,
 		style: 'logo',
@@ -1522,7 +1687,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -1531,7 +1697,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -1540,7 +1707,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -1549,7 +1717,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -1557,7 +1726,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -1566,7 +1736,8 @@ export const chainIconFetchItems = [
 			url: 'https://seiscan.io/assets/sei/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sei,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -1576,7 +1747,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Avalanche: CDN from shop.avax.network (official horizontal red); chain light/dim/dark + full logo/symbol/symbol-light + logo-and-wordmark light/dark/logo + circle/circle-dark/circle-light/wordmark from snowscan.xyz (explorer) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Logo,
 		fetch: {
@@ -1584,7 +1756,8 @@ export const chainIconFetchItems = [
 			url: 'https://cdn.shopify.com/s/files/1/0655/7260/2081/files/AVAX_Horizontal_Red.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -1593,7 +1766,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Logo,
 		style: 'symbol',
@@ -1602,7 +1776,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -1611,7 +1786,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -1620,7 +1796,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -1629,7 +1806,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -1638,7 +1816,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -1646,7 +1825,8 @@ export const chainIconFetchItems = [
 			url: 'https://cdn.shopify.com/s/files/1/0655/7260/2081/files/AVAX_Horizontal_Red.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -1655,7 +1835,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -1664,7 +1845,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.LogoAndWordmark,
 		style: 'logo',
@@ -1673,7 +1855,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -1682,7 +1865,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -1691,7 +1875,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -1700,7 +1885,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Logo,
 		style: 'circle-light',
@@ -1709,7 +1895,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/logo-circle-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -1717,7 +1904,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -1726,7 +1914,8 @@ export const chainIconFetchItems = [
 			url: 'https://snowscan.xyz/assets/avax/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Avalanche,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -1736,7 +1925,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Base: github.com/base/brand-kit (base.org/brand), logo/TheSquare/Digital */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		fetch: {
@@ -1744,7 +1934,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/base/brand-kit/main/logo/TheSquare/Digital/Base_square_blue.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'white',
@@ -1753,7 +1944,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/base/brand-kit/main/logo/TheSquare/Digital/Base_square_white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'black',
@@ -1762,7 +1954,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/base/brand-kit/main/logo/TheSquare/Digital/Base_square_black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -1770,7 +1963,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/base/brand-kit/main/logo/Logotype/Digital/Base_lockup_black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.LogoAndWordmark,
 		style: 'white',
@@ -1779,7 +1973,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/base/brand-kit/main/logo/Logotype/Digital/Base_lockup_white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.LogoAndWordmark,
 		style: 'colored',
@@ -1788,7 +1983,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/base/brand-kit/main/logo/Logotype/Digital/Base_lockup_2color.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'basemark',
@@ -1797,7 +1993,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/base/brand-kit/main/logo/Basemark/Digital/Base_basemark_blue.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'basemark-white',
@@ -1806,7 +2003,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/base/brand-kit/main/logo/Basemark/Digital/Base_basemark_white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'basemark-black',
@@ -1815,7 +2013,8 @@ export const chainIconFetchItems = [
 			url: 'https://raw.githubusercontent.com/base/brand-kit/main/logo/Basemark/Digital/Base_basemark_black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -1824,7 +2023,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.LogoAndWordmark,
 		style: 'logo',
@@ -1833,7 +2033,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'symbol',
@@ -1842,7 +2043,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -1851,7 +2053,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -1860,7 +2063,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -1869,7 +2073,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -1878,7 +2083,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -1887,7 +2093,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -1896,7 +2103,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -1905,7 +2113,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -1914,7 +2123,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -1923,7 +2133,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Logo,
 		style: 'circle-light',
@@ -1932,7 +2143,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/logo-circle-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -1940,7 +2152,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -1949,7 +2162,8 @@ export const chainIconFetchItems = [
 			url: 'https://basescan.org/assets/base/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Base,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -1959,7 +2173,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Linea: linea.build (logomark/logotype); lineascan.build/brandassets (chain light/dim/dark, full logo, symbol-light) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		fetch: {
@@ -1967,7 +2182,8 @@ export const chainIconFetchItems = [
 			url: 'https://linea.build/_next/static/media/logomark.1510dc60.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -1976,7 +2192,8 @@ export const chainIconFetchItems = [
 			url: 'https://linea.build/_next/static/media/logotype.ba0f8bdc.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -1985,7 +2202,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -1994,7 +2212,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -2003,7 +2222,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -2011,7 +2231,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -2020,7 +2241,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -2029,7 +2251,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -2038,7 +2261,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'symbol',
@@ -2047,7 +2271,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -2056,7 +2281,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -2065,7 +2291,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -2074,7 +2301,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'circle-light',
@@ -2083,7 +2311,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/brandassets/logo-circle-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -2091,7 +2320,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -2100,7 +2330,8 @@ export const chainIconFetchItems = [
 			url: 'https://lineascan.build/assets/linea/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -2110,7 +2341,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Linea official brand ZIP: linea.build/assets → Linea-Brand-Assets.zip (Logomark + Wordmark SVG variants) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'black',
@@ -2121,7 +2353,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Linea-Brand-Assets/Logo/SVG/Logomark Black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'white',
@@ -2132,7 +2365,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Linea-Brand-Assets/Logo/SVG/Logomark White.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -2142,7 +2376,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Linea-Brand-Assets/Logo/SVG/Wordmark Black.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Wordmark,
 		style: 'white',
@@ -2153,7 +2388,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Linea-Brand-Assets/Logo/SVG/Wordmark White.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'yellow-bg',
@@ -2164,7 +2400,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Linea-Brand-Assets/Logo/SVG/Logomark Yellow BG.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'blue-bg',
@@ -2175,7 +2412,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Linea-Brand-Assets/Logo/SVG/Logomark Blue BG.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'white-bg',
@@ -2186,7 +2424,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Linea-Brand-Assets/Logo/SVG/Logomark white BG.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Wordmark,
 		style: 'yellow-bg',
@@ -2197,7 +2436,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Linea-Brand-Assets/Logo/SVG/Wordmark Yellow BG.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Wordmark,
 		style: 'blue-bg',
@@ -2208,7 +2448,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Linea-Brand-Assets/Logo/SVG/Wordmark Blue BG.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Wordmark,
 		style: 'white-bg',
@@ -2219,7 +2460,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Linea-Brand-Assets/Logo/SVG/Wordmark White BG.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'token-round',
@@ -2230,7 +2472,8 @@ export const chainIconFetchItems = [
 			pathInZip: 'Linea-Brand-Assets/Token/Linea-Token_Round.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Linea,
 		kind: IconKind.Logo,
 		style: 'token-square',
@@ -2242,7 +2485,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Sonic: sonicscan.org/brandassets (explorer; chain light/dim/dark + symbol, full logo; no direct SVG on official soniclabs.com) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Logo,
 		fetch: {
@@ -2250,7 +2494,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -2259,7 +2504,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -2268,7 +2514,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Logo,
 		style: 'chain-light',
@@ -2277,7 +2524,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -2286,7 +2534,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -2295,7 +2544,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -2304,7 +2554,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -2312,7 +2563,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -2321,7 +2573,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -2330,7 +2583,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -2339,7 +2593,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -2348,7 +2603,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -2357,7 +2613,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -2365,7 +2622,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -2374,7 +2632,8 @@ export const chainIconFetchItems = [
 			url: 'https://sonicscan.org/assets/sonic/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Sonic,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -2384,7 +2643,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Monad: monadscan.com (explorer; chain light/dim/dark + symbol, full logo; official monad.xyz/brand-and-media-kit is Figma/ZIP only) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Logo,
 		fetch: {
@@ -2392,7 +2652,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -2401,7 +2662,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -2410,7 +2672,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Logo,
 		style: 'chain-light',
@@ -2419,7 +2682,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -2428,7 +2692,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -2437,7 +2702,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -2446,7 +2712,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -2454,7 +2721,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -2463,7 +2731,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -2472,7 +2741,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -2481,7 +2751,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -2490,7 +2761,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -2499,7 +2771,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Logo,
 		style: 'circle-light',
@@ -2508,7 +2781,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/logo-circle-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -2516,7 +2790,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -2525,7 +2800,8 @@ export const chainIconFetchItems = [
 			url: 'https://monadscan.com/assets/monad/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Monad,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -2535,7 +2811,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** World Chain: world.org/brand (Prismic CDN lockup, wordmark, logomark); dim/dark from worldscan.org (explorer) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		fetch: {
@@ -2543,7 +2820,8 @@ export const chainIconFetchItems = [
 			url: 'https://world.org/icons/worldcoin-orb-world-logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -2552,7 +2830,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldcoin-company-website.cdn.prismic.io/worldcoin-company-website/Z9GEuxsAHJWomb_3_fulllogo-1.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -2560,7 +2839,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldcoin-company-website.cdn.prismic.io/worldcoin-company-website/Z9GEuxsAHJWomb_3_fulllogo-1.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.LogoAndWordmark,
 		style: 'white',
@@ -2569,7 +2849,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldcoin-company-website.cdn.prismic.io/worldcoin-company-website/Z9GEwxsAHJWomb_5_fulllogo-2.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -2577,7 +2858,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldcoin-company-website.cdn.prismic.io/worldcoin-company-website/Z9GEfBsAHJWomb_n_wordmark-1.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -2586,7 +2868,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldcoin-company-website.cdn.prismic.io/worldcoin-company-website/Z9GEgxsAHJWomb_q_wordmark-2.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		style: 'logomark-dark',
@@ -2595,7 +2878,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldcoin-company-website.cdn.prismic.io/worldcoin-company-website/Z9GEWBsAHJWomb_i_logomark-1.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		style: 'logomark-light',
@@ -2604,7 +2888,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldcoin-company-website.cdn.prismic.io/worldcoin-company-website/Z9GEYBsAHJWomb_k_logomark-2.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -2613,7 +2898,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -2622,7 +2908,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -2631,7 +2918,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -2640,7 +2928,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -2649,7 +2938,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -2658,7 +2948,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -2667,7 +2958,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -2675,7 +2967,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -2684,7 +2977,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -2693,7 +2987,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/brandassets/wordmark-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		style: 'symbol',
@@ -2702,7 +2997,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -2711,7 +3007,8 @@ export const chainIconFetchItems = [
 			url: 'https://worldscan.org/assets/world/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.WorldChain,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -2721,7 +3018,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Celo: celoscan.io/brandassets (explorer; chain light/dim/dark + symbol, full logo; official celo.org/brand-kit is Drive/ZIP only) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Logo,
 		fetch: {
@@ -2729,7 +3027,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -2738,7 +3037,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -2747,7 +3047,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Logo,
 		style: 'chain-light',
@@ -2756,7 +3057,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -2765,7 +3067,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -2774,7 +3077,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -2783,7 +3087,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -2791,7 +3096,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -2800,7 +3106,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -2809,7 +3116,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -2818,7 +3126,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -2827,7 +3136,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -2836,7 +3146,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Logo,
 		style: 'circle-light',
@@ -2845,7 +3156,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/logo-circle-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -2853,7 +3165,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -2862,7 +3175,8 @@ export const chainIconFetchItems = [
 			url: 'https://celoscan.io/assets/celo/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Celo,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -2872,7 +3186,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Arbitrum: arbitrum.io (arb_logo_color, assets/arbitrum/logo_color, brandkit/icon_white); default/symbol/light/chain-light/dim/dark from arbiscan.io (explorer; chain light/dim/dark + full logo) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		fetch: {
@@ -2880,7 +3195,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -2889,7 +3205,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbitrum.io/arb_logo_color.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'colored',
@@ -2898,7 +3215,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbitrum.io/assets/arbitrum/logo_color.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'white',
@@ -2907,7 +3225,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbitrum.io/brandkit/icon_white.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -2916,7 +3235,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'chain-light',
@@ -2925,7 +3245,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -2934,7 +3255,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -2943,7 +3265,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -2952,7 +3275,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/logo-symbol-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -2960,7 +3284,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -2969,7 +3294,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -2978,7 +3304,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.LogoAndWordmark,
 		style: 'alt',
@@ -2987,7 +3314,8 @@ export const chainIconFetchItems = [
 			url: 'https://www.arbitrumhub.io/brandAndPress/brand.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -2996,7 +3324,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -3005,7 +3334,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -3014,7 +3344,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Logo,
 		style: 'circle-light',
@@ -3023,7 +3354,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/logo-circle-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -3031,7 +3363,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -3040,7 +3373,8 @@ export const chainIconFetchItems = [
 			url: 'https://arbiscan.io/assets/arbitrum/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Arbitrum,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -3050,7 +3384,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Codex: docs.codex.xyz (Astro); codex.io/press-kit CDN (colour + monochrome SVG); ZIP from GitHub (LogoAndWordmark chartreuse bg) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Codex,
 		kind: IconKind.Logo,
 		fetch: {
@@ -3058,7 +3393,8 @@ export const chainIconFetchItems = [
 			url: 'https://docs.codex.xyz/_astro/codex-dark-full-logo.IOPtxPup.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Codex,
 		kind: IconKind.Logo,
 		style: 'white',
@@ -3067,7 +3403,8 @@ export const chainIconFetchItems = [
 			url: 'https://docs.codex.xyz/_astro/codex-white-full-logo.CI7DkyOz.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Codex,
 		kind: IconKind.Logo,
 		style: 'colored',
@@ -3076,7 +3413,8 @@ export const chainIconFetchItems = [
 			url: 'https://cdn.prod.website-files.com/6669befdbe2926bfc0a8363a/667ed94e03b6f717805e8363_Logo-pack-colour.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Codex,
 		kind: IconKind.Logo,
 		style: 'monotone-black',
@@ -3085,7 +3423,8 @@ export const chainIconFetchItems = [
 			url: 'https://cdn.prod.website-files.com/6669befdbe2926bfc0a8363a/667ed94e9a8f19f44946fdee_Logo-pack-bw.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.Codex,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -3097,7 +3436,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** Arc Testnet: CDN from Alchemy (default icon); official Arc brand at arc.link/newsroom/brand-assets (PNG — Powered by ARC dark/light/colored/alt) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ArcTestnet,
 		kind: IconKind.Logo,
 		fetch: {
@@ -3105,7 +3445,8 @@ export const chainIconFetchItems = [
 			url: 'https://static.alchemyapi.io/images/emblems/arc-testnet.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ArcTestnet,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -3114,7 +3455,8 @@ export const chainIconFetchItems = [
 			url: 'https://arc-prd.s3.us-east-2.amazonaws.com/storage/static/logos/1.png',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ArcTestnet,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -3123,7 +3465,8 @@ export const chainIconFetchItems = [
 			url: 'https://arc-prd.s3.us-east-2.amazonaws.com/storage/static/logos/2.png',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ArcTestnet,
 		kind: IconKind.LogoAndWordmark,
 		style: 'colored',
@@ -3132,7 +3475,8 @@ export const chainIconFetchItems = [
 			url: 'https://arc-prd.s3.us-east-2.amazonaws.com/storage/static/logos/3.png',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.ArcTestnet,
 		kind: IconKind.LogoAndWordmark,
 		style: 'alt',
@@ -3142,7 +3486,8 @@ export const chainIconFetchItems = [
 		},
 	},
 	/** HyperEVM: hyperevmscan.io/brandassets (explorer; chain light/dim/dark + full logo, symbol, logo-light, symbol-light) */
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Logo,
 		fetch: {
@@ -3150,7 +3495,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/logos/chain-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Logo,
 		style: 'logo',
@@ -3159,7 +3505,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Logo,
 		style: 'symbol',
@@ -3168,7 +3515,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/logo-symbol.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Logo,
 		style: 'light',
@@ -3177,7 +3525,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Logo,
 		style: 'dim',
@@ -3186,7 +3535,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/logos/chain-dim.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Logo,
 		style: 'dark',
@@ -3195,7 +3545,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/logos/chain-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.LogoAndWordmark,
 		fetch: {
@@ -3203,7 +3554,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/logo.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.LogoAndWordmark,
 		style: 'light',
@@ -3212,7 +3564,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/logo-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.LogoAndWordmark,
 		style: 'dark',
@@ -3221,7 +3574,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/logo-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Logo,
 		style: 'symbol-dark',
@@ -3230,7 +3584,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/logo-symbol-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Logo,
 		style: 'circle',
@@ -3239,7 +3594,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/logo-circle.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Logo,
 		style: 'circle-dark',
@@ -3248,7 +3604,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/logo-circle-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Logo,
 		style: 'circle-light',
@@ -3257,7 +3614,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/logo-circle-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Wordmark,
 		fetch: {
@@ -3265,7 +3623,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/wordmark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Wordmark,
 		style: 'dark',
@@ -3274,7 +3633,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/wordmark-dark.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Wordmark,
 		style: 'light',
@@ -3283,7 +3643,8 @@ export const chainIconFetchItems = [
 			url: 'https://hyperevmscan.io/assets/hype/images/svg/brandassets/wordmark-light.svg',
 		},
 	},
-	{ target: 'chain' as const,
+	{
+		target: 'chain' as const,
 		id: ChainId.HyperEVM,
 		kind: IconKind.Logo,
 		style: 'symbol-light',
@@ -3297,22 +3658,78 @@ export const chainIconFetchItems = [
 /** Testnet reuse mainnet default icon. */
 export const chainIconAliases = [
 	{ target: 'chain' as const, fromId: ChainId.XDCApothem, toId: ChainId.XDC },
-	{ target: 'chain' as const, fromId: ChainId.UnichainSepolia, toId: ChainId.Unichain },
-	{ target: 'chain' as const, fromId: ChainId.PolygonAmoy, toId: ChainId.Polygon },
-	{ target: 'chain' as const, fromId: ChainId.MonadTestnet, toId: ChainId.Monad },
-	{ target: 'chain' as const, fromId: ChainId.SonicTestnet, toId: ChainId.Sonic },
-	{ target: 'chain' as const, fromId: ChainId.ZkSyncEraSepolia, toId: ChainId.ZkSyncEra },
-	{ target: 'chain' as const, fromId: ChainId.WorldChainSepolia, toId: ChainId.WorldChain },
-	{ target: 'chain' as const, fromId: ChainId.HyperEVMTestnet, toId: ChainId.HyperEVM },
+	{
+		target: 'chain' as const,
+		fromId: ChainId.UnichainSepolia,
+		toId: ChainId.Unichain,
+	},
+	{
+		target: 'chain' as const,
+		fromId: ChainId.PolygonAmoy,
+		toId: ChainId.Polygon,
+	},
+	{
+		target: 'chain' as const,
+		fromId: ChainId.MonadTestnet,
+		toId: ChainId.Monad,
+	},
+	{
+		target: 'chain' as const,
+		fromId: ChainId.SonicTestnet,
+		toId: ChainId.Sonic,
+	},
+	{
+		target: 'chain' as const,
+		fromId: ChainId.ZkSyncEraSepolia,
+		toId: ChainId.ZkSyncEra,
+	},
+	{
+		target: 'chain' as const,
+		fromId: ChainId.WorldChainSepolia,
+		toId: ChainId.WorldChain,
+	},
+	{
+		target: 'chain' as const,
+		fromId: ChainId.HyperEVMTestnet,
+		toId: ChainId.HyperEVM,
+	},
 	{ target: 'chain' as const, fromId: ChainId.SeiTestnet, toId: ChainId.Sei },
-	{ target: 'chain' as const, fromId: ChainId.ArbitrumSepolia, toId: ChainId.Arbitrum },
+	{
+		target: 'chain' as const,
+		fromId: ChainId.ArbitrumSepolia,
+		toId: ChainId.Arbitrum,
+	},
 	{ target: 'chain' as const, fromId: ChainId.CeloSepolia, toId: ChainId.Celo },
-	{ target: 'chain' as const, fromId: ChainId.AvalancheFuji, toId: ChainId.Avalanche },
+	{
+		target: 'chain' as const,
+		fromId: ChainId.AvalancheFuji,
+		toId: ChainId.Avalanche,
+	},
 	{ target: 'chain' as const, fromId: ChainId.BaseSepolia, toId: ChainId.Base },
-	{ target: 'chain' as const, fromId: ChainId.LineaSepolia, toId: ChainId.Linea },
+	{
+		target: 'chain' as const,
+		fromId: ChainId.LineaSepolia,
+		toId: ChainId.Linea,
+	},
 	{ target: 'chain' as const, fromId: ChainId.InkTestnet, toId: ChainId.Ink },
-	{ target: 'chain' as const, fromId: ChainId.CodexTestnet, toId: ChainId.Codex },
-	{ target: 'chain' as const, fromId: ChainId.PlumeTestnet, toId: ChainId.Plume },
-	{ target: 'chain' as const, fromId: ChainId.EthereumSepolia, toId: ChainId.Ethereum },
-	{ target: 'chain' as const, fromId: ChainId.OPSepolia, toId: ChainId.Optimism },
+	{
+		target: 'chain' as const,
+		fromId: ChainId.CodexTestnet,
+		toId: ChainId.Codex,
+	},
+	{
+		target: 'chain' as const,
+		fromId: ChainId.PlumeTestnet,
+		toId: ChainId.Plume,
+	},
+	{
+		target: 'chain' as const,
+		fromId: ChainId.EthereumSepolia,
+		toId: ChainId.Ethereum,
+	},
+	{
+		target: 'chain' as const,
+		fromId: ChainId.OPSepolia,
+		toId: ChainId.Optimism,
+	},
 ] as const satisfies readonly IconAlias[]

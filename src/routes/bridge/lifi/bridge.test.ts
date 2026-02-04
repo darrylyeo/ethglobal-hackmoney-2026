@@ -30,7 +30,7 @@ async function addMockWallet(context: {
 
 test.describe('bridge flow', () => {
 	test.beforeEach(async ({ page }) => {
-	await page.goto('/session#bridge')
+		await page.goto('/session#bridge')
 		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
@@ -42,7 +42,7 @@ test.describe('bridge flow', () => {
 	test.describe('with mock wallet', () => {
 		test.beforeEach(async ({ context, page }) => {
 			await addMockWallet(context)
-	await page.goto('/session#bridge')
+			await page.goto('/session#bridge')
 			await expect(page.locator('#main')).toBeAttached({
 				timeout: 30_000,
 			})

@@ -13,25 +13,23 @@
 	} = $props()
 
 	// Functions
-	const isRecord = (value: unknown): value is Record<string, unknown> => (
+	const isRecord = (value: unknown): value is Record<string, unknown> =>
 		typeof value === 'object' && value !== null
-	)
-	const getNumber = (value: unknown): number | null => (
+	const getNumber = (value: unknown): number | null =>
 		typeof value === 'number' ? value : null
-	)
-	const getTargetId = (event: unknown) => (
-		isRecord(event) && isRecord(event.target) && typeof event.target.id === 'string' ?
-			event.target.id
-		: null
-	)
-	const toGradient = (color: string) => (
-		`l(0) 0:${color} 1:#0f172a`
-	)
-	const getThemeToken = (varName: string) => (
-		typeof document !== 'undefined' ?
-			getComputedStyle(document.documentElement).getPropertyValue(varName).trim()
-		:	''
-	)
+	const getTargetId = (event: unknown) =>
+		isRecord(event) &&
+		isRecord(event.target) &&
+		typeof event.target.id === 'string'
+			? event.target.id
+			: null
+	const toGradient = (color: string) => `l(0) 0:${color} 1:#0f172a`
+	const getThemeToken = (varName: string) =>
+		typeof document !== 'undefined'
+			? getComputedStyle(document.documentElement)
+					.getPropertyValue(varName)
+					.trim()
+			: ''
 	const toNodeStyle = (
 		node: ArchitectureNode,
 		prefersDark: boolean,
@@ -107,9 +105,10 @@
 				{ key: 'in', x: 0, y: 0.5 },
 				{ key: 'out', x: 1, y: 0.5 },
 			],
-			style: node.shape === 'image' && node.icon
-				? { ...style, src: node.icon }
-				: style,
+			style:
+				node.shape === 'image' && node.icon
+					? { ...style, src: node.icon }
+					: style,
 		}
 	}
 	const toEdgeStyle = (
@@ -148,33 +147,30 @@
 		edge: ArchitectureEdge,
 		prefersDark: boolean,
 		theme: { text: string; bgSubtle: string },
-	): EdgeData => (
-		{
-			id: edge.id,
-			source: edge.source,
-			target: edge.target,
-			type: edge.type,
-			data: {
-				label: edge.label,
-				relation: edge.relation,
-				priority: edge.priority ?? 'secondary',
-			},
-			style: toEdgeStyle(edge, prefersDark, theme),
-		}
-	)
+	): EdgeData => ({
+		id: edge.id,
+		source: edge.source,
+		target: edge.target,
+		type: edge.type,
+		data: {
+			label: edge.label,
+			relation: edge.relation,
+			priority: edge.priority ?? 'secondary',
+		},
+		style: toEdgeStyle(edge, prefersDark, theme),
+	})
 	const toSelectionLabel = (selection: {
 		nodes: NodeData[]
 		edges: EdgeData[]
 		combos: { id: string }[]
-	}) => (
-		selection.nodes.length > 0 ?
-			selection.nodes.map((node) => node.data?.label ?? node.id).join(', ')
-		: selection.edges.length > 0 ?
-			selection.edges.map((edge) => edge.data?.label ?? edge.id).join(', ')
-		: selection.combos.length > 0 ?
-			selection.combos.map((combo) => combo.id).join(', ')
-		: 'No selection'
-	)
+	}) =>
+		selection.nodes.length > 0
+			? selection.nodes.map((node) => node.data?.label ?? node.id).join(', ')
+			: selection.edges.length > 0
+				? selection.edges.map((edge) => edge.data?.label ?? edge.id).join(', ')
+				: selection.combos.length > 0
+					? selection.combos.map((combo) => combo.id).join(', ')
+					: 'No selection'
 	const nodeById = new Map(
 		architectureGraph.nodes.map((node) => [node.id, node]),
 	)
@@ -210,12 +206,8 @@
 	)
 </script>
 
-
 <svelte:boundary>
-	<div
-		class="architecture-graph"
-		style:height={height}
-	>
+	<div class="architecture-graph" style:height>
 		<div
 			class="architecture-graph__canvas"
 			role="application"
@@ -287,18 +279,15 @@
 						}
 					},
 				)
-				const resolveEndpoint = (id: string) => (
-					comboAnchorIds.get(id) ?? id
-				)
+				const resolveEndpoint = (id: string) => comboAnchorIds.get(id) ?? id
 
-				const getLayoutSize = (node: unknown) => (
+				const getLayoutSize = (node: unknown) =>
 					isRecord(node) &&
 					'style' in node &&
 					isRecord(node.style) &&
 					'size' in node.style
-						? getNumber(node.style.size) ?? 28
+						? (getNumber(node.style.size) ?? 28)
 						: 28
-				)
 
 				graph = new Graph({
 					container,
@@ -307,12 +296,12 @@
 					autoFit: 'center',
 					data: {
 						nodes: [
-							...architectureGraph.nodes.map((node) => (
-								toNodeData(node, prefersDark, theme)
-							)),
+							...architectureGraph.nodes.map((node) =>
+								toNodeData(node, prefersDark, theme),
+							),
 							...comboAnchors,
 						],
-						edges: architectureGraph.edges.map((edge) => (
+						edges: architectureGraph.edges.map((edge) =>
 							toEdgeData(
 								{
 									...edge,
@@ -321,8 +310,8 @@
 								},
 								prefersDark,
 								theme,
-							)
-						)),
+							),
+						),
 						combos: architectureGraph.combos.map((combo) => ({
 							id: combo.id,
 							type: 'rect',
@@ -501,9 +490,10 @@
 								if (!item) return ''
 								const details = item.data?.details ?? {}
 								const detailsMarkup = Object.entries(details)
-									.map(([key, value]) => (
-										`<div><strong>${key}:</strong> ${String(value)}</div>`
-									))
+									.map(
+										([key, value]) =>
+											`<div><strong>${key}:</strong> ${String(value)}</div>`,
+									)
 									.join('')
 								return `
 									<div>
@@ -650,7 +640,9 @@
 				<p class="architecture-graph__detail-title">Hover</p>
 				<p>{hoveredItem.label}</p>
 				{#if hoveredItem.relation}
-					<p class="architecture-graph__detail-meta">Relation: {hoveredItem.relation}</p>
+					<p class="architecture-graph__detail-meta">
+						Relation: {hoveredItem.relation}
+					</p>
 				{/if}
 				{#if hoveredItem.details}
 					<dl>
@@ -666,7 +658,9 @@
 				<p class="architecture-graph__detail-title">Selected</p>
 				<p>{selectedItem.label}</p>
 				{#if selectedItem.relation}
-					<p class="architecture-graph__detail-meta">Relation: {selectedItem.relation}</p>
+					<p class="architecture-graph__detail-meta">
+						Relation: {selectedItem.relation}
+					</p>
 				{/if}
 				{#if selectedItem.details}
 					<dl>
@@ -698,7 +692,6 @@
 <div class="sr-only" aria-live="polite">
 	{selectionAnnouncement}
 </div>
-
 
 <style>
 	.architecture-graph {

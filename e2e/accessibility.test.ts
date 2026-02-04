@@ -50,8 +50,8 @@ test.describe('Accessibility (axe-core)', () => {
 			timeout: 30_000,
 		})
 		await expect(
-		page.getByRole('navigation', { name: 'Time period' }),
-	).toBeVisible({ timeout: 20_000 })
+			page.getByRole('navigation', { name: 'Time period' }),
+		).toBeVisible({ timeout: 20_000 })
 		const results = await new AxeBuilder({ page })
 			.withTags(['wcag2a', 'wcag2aa'])
 			.analyze()

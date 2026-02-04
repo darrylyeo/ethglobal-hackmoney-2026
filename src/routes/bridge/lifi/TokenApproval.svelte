@@ -2,6 +2,7 @@
 	import { Button, Switch } from 'bits-ui'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { sendApproval, waitForApprovalConfirmation } from '$/api/approval'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import { DataSource } from '$/constants/data-sources'
 	import { getTxUrl } from '$/constants/explorers'
 	import type { EIP1193Provider } from '$/lib/wallet'
@@ -9,6 +10,7 @@
 		actorAllowancesCollection,
 		fetchActorAllowance,
 		setActorAllowance,
+		toActorAllowance$Id,
 	} from '$/collections/actor-allowances'
 	import type { ActorAllowance$Id } from '$/data/ActorAllowance'
 
@@ -35,14 +37,18 @@
 			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
 			.select(({ row }) => ({ row })),
 	)
+	const liveQueryEntries = [
+		{
+			id: 'token-approval-allowances',
+			label: 'Actor Allowances',
+			query: allowancesQuery,
+		},
+	]
 
 	// Derive allowance ID and row
-	const allowanceId = $derived<ActorAllowance$Id>({
-		chainId,
-		address: ownerAddress,
-		tokenAddress,
-		spenderAddress,
-	})
+	const allowanceId = $derived(
+		toActorAllowance$Id(chainId, ownerAddress, tokenAddress, spenderAddress),
+	)
 	const allowanceKey = $derived(
 		`${chainId}:${ownerAddress}:${tokenAddress}:${spenderAddress}`,
 	)
@@ -107,42 +113,44 @@
 	}
 </script>
 
-{#if isChecking}
-	<p data-muted>Checking approval…</p>
-{:else if isApproving}
-	<p data-muted>
-		Approving…
-		{#if txHash}<a
-				href={getTxUrl(chainId, txHash)}
-				target="_blank"
-				rel="noopener noreferrer">View tx</a
-			>{/if}
-	</p>
-{:else if approvalError}
-	<div data-column="gap-2">
-		<p data-error>{approvalError}</p>
-		<Button.Root onclick={handleApprove}>Retry</Button.Root>
-	</div>
-{:else if hasError}
-	<div data-column="gap-2">
-		<p data-error>{errorMessage ?? 'Failed to check approval'}</p>
-		<Button.Root onclick={() => fetchActorAllowance(allowanceId)}
-			>Retry</Button.Root
-		>
-	</div>
-{:else if hasSufficientAllowance}
-	<p class="approval-success">✓ Approved</p>
-{:else}
-	<div data-column="gap-2">
-		<label data-row="gap-2 align-center" data-muted>
-			<Switch.Root bind:checked={() => unlimited, (c) => (unlimited = c)}
-				><Switch.Thumb /></Switch.Root
+<LiveQueryScope entries={liveQueryEntries}>
+	{#if isChecking}
+		<p data-muted>Checking approval…</p>
+	{:else if isApproving}
+		<p data-muted>
+			Approving…
+			{#if txHash}<a
+					href={getTxUrl(chainId, txHash)}
+					target="_blank"
+					rel="noopener noreferrer">View tx</a
+				>{/if}
+		</p>
+	{:else if approvalError}
+		<div data-column="gap-2">
+			<p data-error>{approvalError}</p>
+			<Button.Root onclick={handleApprove}>Retry</Button.Root>
+		</div>
+	{:else if hasError}
+		<div data-column="gap-2">
+			<p data-error>{errorMessage ?? 'Failed to check approval'}</p>
+			<Button.Root onclick={() => fetchActorAllowance(allowanceId)}
+				>Retry</Button.Root
 			>
-			Unlimited approval
-		</label>
-		<Button.Root onclick={handleApprove}>Approve USDC</Button.Root>
-	</div>
-{/if}
+		</div>
+	{:else if hasSufficientAllowance}
+		<p class="approval-success">✓ Approved</p>
+	{:else}
+		<div data-column="gap-2">
+			<label data-row="gap-2 align-center" data-muted>
+				<Switch.Root bind:checked={() => unlimited, (c) => (unlimited = c)}
+					><Switch.Thumb /></Switch.Root
+				>
+				Unlimited approval
+			</label>
+			<Button.Root onclick={handleApprove}>Approve USDC</Button.Root>
+		</div>
+	{/if}
+</LiveQueryScope>
 
 <style>
 	.approval-success {

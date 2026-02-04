@@ -1,0 +1,330 @@
+# Spec 056: Formatting enforcement (Svelte, CSS, TS)
+
+Ensure Svelte, CSS, and TypeScript formatting is enforced across every file by
+explicitly tracking each file as a formatting task.
+
+## Scope
+
+- Enforce repository formatting standards for Svelte, CSS, and TypeScript.
+- Track formatting verification per-file to avoid missing any file.
+
+## Non-goals
+
+- Do not change runtime behavior or refactor logic beyond formatting.
+- Do not introduce new tooling unless required by a dedicated spec.
+
+## Acceptance criteria
+
+### Formatting standards
+
+- [x] Svelte files follow the required section order and spacing rules.
+- [x] Svelte scripts follow repo import grouping and Svelte 5 constraints.
+- [x] CSS files follow the repo style rules and primitives usage guidelines.
+- [x] TypeScript files follow repo formatting: single quotes, no semicolons,
+  trailing commas, and preferred type style rules.
+
+### File checklist (each file must be explicitly verified/formatted)
+
+- [x] `src/routes/session/UnifiedBridgeFlow.svelte`
+- [x] `src/routes/session/[id]/+page.svelte`
+- [x] `src/routes/session/SwapExecution.svelte`
+- [x] `src/routes/session/Positions.svelte`
+- [x] `src/routes/session/SwapFlow.svelte`
+- [x] `src/routes/session/TransferFlow.svelte`
+- [x] `src/routes/session/LiquidityFlow.svelte`
+- [x] `src/routes/session/TransferAction.svelte`
+- [x] `src/routes/session/SwapAction.svelte`
+- [x] `src/routes/session/+page.svelte`
+- [x] `src/routes/session/UnifiedProtocolRouter.svelte`
+- [x] `src/routes/+layout.svelte`
+- [x] `src/routes/rooms/SharedAddresses.svelte`
+- [x] `src/routes/rooms/ChannelList.svelte`
+- [x] `src/routes/rooms/AddressSharing.svelte`
+- [x] `src/routes/rooms/DepositManager.svelte`
+- [x] `src/routes/rooms/PeerCard.svelte`
+- [x] `src/routes/rooms/TransferRequests.svelte`
+- [x] `src/routes/rooms/TransferDialog.svelte`
+- [x] `src/routes/rooms/Peer.svelte`
+- [x] `src/routes/rooms/+page.svelte`
+- [x] `src/routes/rooms/PeerList.svelte`
+- [x] `src/routes/rooms/[roomId]/channels/+page.ts`
+- [x] `src/routes/rooms/[roomId]/channels/+page.svelte`
+- [x] `src/routes/rooms/[roomId]/+page.ts`
+- [x] `src/routes/rooms/[roomId]/+page.svelte`
+- [x] `src/routes/wallets/+page.svelte`
+- [x] `src/routes/wallets/WalletsManager.svelte`
+- [x] `src/routes/about-old-2/ArchitectureGraph.svelte`
+- [x] `src/routes/about-old-2/+page.svelte`
+- [x] `src/routes/page.test.ts`
+- [x] `src/routes/GraphScene.svelte`
+- [x] `src/routes/sessions/+page.svelte`
+- [x] `src/routes/dashboard/PanelTree.svelte`
+- [x] `src/routes/dashboard/Panel.svelte`
+- [x] `src/routes/dashboard/route-map.ts`
+- [x] `src/routes/dashboard/SvelteKitRoute.svelte`
+- [x] `src/routes/dashboard/+page.svelte`
+- [x] `src/routes/transfers/LiveTransfers.svelte`
+- [x] `src/routes/transfers/+page.svelte`
+- [x] `src/routes/about/ArchitectureGraph.svelte`
+- [x] `src/routes/about/architecture-graph.ts`
+- [x] `src/routes/about/+page.svelte`
+- [x] `src/api/lifi.ts`
+- [x] `src/api/lifi.spec.ts`
+- [x] `src/api/uniswap.ts`
+- [x] `src/api/yellow.ts`
+- [x] `src/api/voltaire.ts`
+- [x] `src/api/voltaire.spec.ts`
+- [x] `src/api/approval.ts`
+- [x] `src/api/transfers-logs.ts`
+- [x] `src/api/cctp.ts`
+- [x] `src/api/transfers-indexer.ts`
+- [x] `src/routes/bridge/lifi/BridgeExecution.svelte`
+- [x] `src/routes/bridge/lifi/BridgeFlow.svelte`
+- [x] `src/routes/bridge/lifi/page.test.ts`
+- [x] `src/routes/bridge/lifi/wallet.test.ts`
+- [x] `src/routes/bridge/lifi/TokenApproval.svelte`
+- [x] `src/routes/bridge/lifi/bridge.test.ts`
+- [x] `src/routes/bridge/lifi/responsive.test.ts`
+- [x] `src/routes/bridge/cctp/CctpExecution.svelte`
+- [x] `src/routes/bridge/cctp/CctpFees.svelte`
+- [x] `src/routes/bridge/cctp/CctpAttestation.svelte`
+- [x] `src/routes/bridge/cctp/CctpAllowance.svelte`
+- [x] `src/routes/bridge/cctp/CctpWallets.svelte`
+- [x] `src/routes/bridge/cctp/CctpBalances.svelte`
+- [x] `src/routes/bridge/cctp/CctpBridgeFlow.svelte`
+- [x] `src/lib/address.ts`
+- [x] `src/views/Balances.svelte`
+- [x] `src/views/TransactionFlow.svelte`
+- [x] `src/views/Wallets.svelte`
+- [x] `src/views/CoinInput.svelte`
+- [x] `src/views/TokenAmountInput.svelte`
+- [x] `src/views/AddressInput.svelte`
+- [x] `src/views/SessionAction.svelte`
+- [x] `src/views/NavigationItem.svelte`
+- [x] `src/views/NumberValue.svelte`
+- [x] `src/views/NetworkInput.svelte`
+- [x] `src/views/StorkPriceFeed.svelte`
+- [x] `src/views/ToastContainer.svelte`
+- [x] `src/views/StorkPrices.svelte`
+- [x] `src/views/CoinAmount.svelte`
+- [x] `src/views/Session.svelte`
+- [x] `src/views/Navigation.svelte`
+- [x] `src/views/CoinAmountInput.svelte`
+- [x] `src/data/YellowChannel.ts`
+- [x] `src/data/SwapQuote.ts`
+- [x] `src/data/SiweChallenge.ts`
+- [x] `src/data/UniswapPosition.ts`
+- [x] `src/data/CctpAllowance.ts`
+- [x] `src/data/YellowTransfer.ts`
+- [x] `src/data/WalletConnection.ts`
+- [x] `src/data/ActorCoin.ts`
+- [x] `src/data/TransferRequest.ts`
+- [x] `src/data/Transaction.ts`
+- [x] `src/data/TransactionSessionSimulation.ts`
+- [x] `src/data/YellowDeposit.ts`
+- [x] `src/data/UniswapPool.ts`
+- [x] `src/data/TransactionSession.ts`
+- [x] `src/data/BridgeRoute.ts`
+- [x] `src/data/$EntityType.ts`
+- [x] `src/data/YellowChannelState.ts`
+- [x] `src/data/Network.ts`
+- [x] `src/data/RoomPeer.ts`
+- [x] `src/data/ActorAllowance.ts`
+- [x] `src/data/TokenListCoin.ts`
+- [x] `src/data/StorkPrice.ts`
+- [x] `src/data/DashboardPanel.ts`
+- [x] `src/data/Actor.ts`
+- [x] `src/data/SharedAddress.ts`
+- [x] `src/data/Coin.ts`
+- [x] `src/data/Room.ts`
+- [x] `src/data/CctpFee.ts`
+- [x] `src/data/Wallet.ts`
+- [x] `src/lib/e2e/tevm.ts`
+- [x] `src/lib/e2e/tevm-config.ts`
+- [x] `src/lib/tx-status.ts`
+- [x] `src/lib/yellow/index.ts`
+- [x] `src/collections/actor-allowances.ts`
+- [x] `src/collections/rooms.ts`
+- [x] `src/collections/actor-coins.spec.ts`
+- [x] `src/collections/token-list-coins.ts`
+- [x] `src/collections/actors.spec.ts`
+- [x] `src/collections/siwe-challenges.ts`
+- [x] `src/collections/room-peers.spec.ts`
+- [x] `src/collections/uniswap-positions-normalize.ts`
+- [x] `src/collections/shared-addresses-keys.ts`
+- [x] `src/collections/dashboard-panels.ts`
+- [x] `src/collections/transfer-graphs.ts`
+- [x] `src/collections/yellow-transfers.ts`
+- [x] `src/collections/networks.spec.ts`
+- [x] `src/collections/cctp-fees.ts`
+- [x] `src/collections/wallets.ts`
+- [x] `src/collections/transactions.ts`
+- [x] `src/collections/uniswap-positions.ts`
+- [x] `src/collections/swap-quotes-normalize.ts`
+- [x] `src/collections/bridge-routes.ts`
+- [x] `src/collections/coins.spec.ts`
+- [x] `src/collections/uniswap-pools.spec.ts`
+- [x] `src/collections/wallet-connections.ts`
+- [x] `src/collections/siwe-challenges.spec.ts`
+- [x] `src/collections/actor-coins.ts`
+- [x] `src/collections/yellow-deposits.ts`
+- [x] `src/collections/shared-addresses.spec.ts`
+- [x] `src/collections/stork-prices.ts`
+- [x] `src/collections/shared-addresses.ts`
+- [x] `src/collections/networks.ts`
+- [x] `src/collections/yellow-channel-states.ts`
+- [x] `src/collections/transfer-requests.ts`
+- [x] `src/collections/uniswap-positions.spec.ts`
+- [x] `src/collections/swap-quotes.spec.ts`
+- [x] `src/collections/transfer-events.ts`
+- [x] `src/collections/uniswap-pools-normalize.ts`
+- [x] `src/collections/coins.ts`
+- [x] `src/collections/room-peers-keys.ts`
+- [x] `src/collections/room-peers.ts`
+- [x] `src/collections/actors.ts`
+- [x] `src/collections/uniswap-pools.ts`
+- [x] `src/collections/siwe-challenges-keys.ts`
+- [x] `src/collections/transaction-session-simulations.ts`
+- [x] `src/collections/yellow-channels.ts`
+- [x] `src/collections/cctp-allowance.ts`
+- [x] `src/collections/swap-quotes.ts`
+- [x] `src/collections/transaction-sessions.ts`
+- [x] `src/routes/+page.svelte`
+- [x] `vite.config.ts`
+- [x] `playwright.config.ts`
+- [x] `src/routes/about-old/ArchitectureGraph.svelte`
+- [x] `src/routes/about-old/architecture-graph.ts`
+- [x] `src/routes/about-old/+page.svelte`
+- [x] `reset.d.ts`
+- [x] `src/lib/tx-status.spec.ts`
+- [x] `src/lib/debounce.ts`
+- [x] `src/lib/graph-model.ts`
+- [x] `src/lib/address.spec.ts`
+- [x] `src/lib/tx-history.ts`
+- [x] `src/lib/retry.spec.ts`
+- [x] `src/lib/explain.ts`
+- [x] `src/lib/errors.spec.ts`
+- [x] `src/lib/transaction-sessions.ts`
+- [x] `src/lib/room.ts`
+- [x] `src/lib/wallet.ts`
+- [x] `src/lib/intents/drag.ts`
+- [x] `src/lib/intents/types.ts`
+- [x] `src/lib/intents/resolve-intent.ts`
+- [x] `src/lib/intents/routes.ts`
+- [x] `src/lib/index.ts`
+- [x] `src/lib/transaction-session-params.ts`
+- [x] `src/view/transfer.svelte`
+- [x] `src/view/bridge.svelte`
+- [x] `src/view/liquidity.svelte`
+- [x] `src/view/swap.svelte`
+- [x] `src/prompt-api.d.ts`
+- [x] `src/lib/db/query-client.ts`
+- [x] `src/lib/stringify.ts`
+- [x] `src/lib/stork.ts`
+- [x] `src/lib/format.ts`
+- [x] `src/lib/wallet.spec.ts`
+- [x] `src/lib/siwe.ts`
+- [x] `src/lib/retry.ts`
+- [x] `src/lib/formatRelativeTime.ts`
+- [x] `src/lib/format.spec.ts`
+- [x] `src/lib/nitro-rpc.spec.ts`
+- [x] `src/lib/toast.svelte.ts`
+- [x] `src/lib/errors.ts`
+- [x] `src/lib/nitro-rpc.ts`
+- [x] `src/lib/dashboard-panel-hash.ts`
+- [x] `src/lib/tx-history.spec.ts`
+- [x] `env.d.ts`
+- [x] `partykit/room.ts`
+- [x] `src/components/TruncatedValue.svelte`
+- [x] `src/components/IntentDragPreview.svelte`
+- [x] `src/components/SigmaGraphView.svelte`
+- [x] `src/components/Boundary.svelte`
+- [x] `src/components/EntityId.svelte`
+- [x] `src/components/Address.svelte`
+- [x] `src/components/DragArrow.svelte`
+- [x] `src/components/Skeleton.svelte`
+- [x] `src/components/Timestamp.svelte`
+- [x] `src/components/Spinner.svelte`
+- [x] `src/components/Select.svelte`
+- [x] `src/components/LoadingButton.svelte`
+- [x] `src/components/G6GraphView.svelte`
+- [x] `src/components/Toast.svelte`
+- [x] `src/components/Dropdown.svelte`
+- [x] `src/components/Icon.svelte`
+- [x] `src/components/Combobox.svelte`
+- [x] `src/components/Tooltip.svelte`
+- [x] `src/Object.d.ts`
+- [x] `src/styles/components.css`
+- [x] `src/styles/fonts.css`
+- [x] `src/styles/accessibility.css`
+- [x] `src/styles/responsive.css`
+- [x] `src/styles/bits-ui.css`
+- [x] `src/styles/colors.css`
+- [x] `src/styles/reset.css`
+- [x] `e2e/coverage-manifest.ts`
+- [x] `e2e/fixtures/tevm.ts`
+- [x] `e2e/accessibility.test.ts`
+- [x] `e2e/tevm-execution.test.ts`
+- [x] `e2e/wallet.test.ts`
+- [x] `e2e/cctp-bridge.test.ts`
+- [x] `e2e/test-setup.ts`
+- [x] `e2e/bridge.test.ts`
+- [x] `e2e/route-coverage.test.ts`
+- [x] `e2e/bridge-e2e.test.ts`
+- [x] `e2e/coverage-helpers.ts`
+- [x] `e2e/coverage-enforcement.test.ts`
+- [x] `e2e/unified-bridge.test.ts`
+- [x] `e2e/coverage-utils.ts`
+- [x] `e2e/responsive.test.ts`
+- [x] `vitest.config.ts`
+- [x] `scripts/_e2e-bridge-mainnet.ts`
+- [x] `scripts/_fetch-chain-icons.ts`
+- [x] `scripts/_fetch-icons.ts`
+- [x] `src/state/wallet.svelte.ts`
+- [x] `src/state/bridge-settings.svelte.ts`
+- [x] `src/state/liquidity-settings.svelte.ts`
+- [x] `src/state/intent-drag-preview.svelte.ts`
+- [x] `src/state/swap-settings.svelte.ts`
+- [x] `src/state/yellow.svelte.ts`
+- [x] `src/state/room.svelte.ts`
+- [x] `src/state/intent-navigation.svelte.ts`
+- [x] `playwright.e2e.config.ts`
+- [x] `src/app.d.ts`
+- [x] `src/svelte/useContext.ts`
+- [x] `src/svelte/live-query-context.svelte.ts`
+- [x] `src/constants/rpc-endpoints.ts`
+- [x] `src/constants/coins.ts`
+- [x] `src/constants/data-sources.ts`
+- [x] `src/constants/entity-types.ts`
+- [x] `src/constants/cctp.ts`
+- [x] `src/constants/explorers.spec.ts`
+- [x] `src/constants/peer-display-names.ts`
+- [x] `src/constants/slippage.ts`
+- [x] `src/constants/token-lists.ts`
+- [x] `src/constants/room-display-names.ts`
+- [x] `src/constants/icons.ts`
+- [x] `src/constants/stork.ts`
+- [x] `src/constants/chain-icon-fetch-items.ts`
+- [x] `src/constants/networks.ts`
+- [x] `src/constants/bridge-limits.ts`
+- [x] `src/constants/query-limits.ts`
+- [x] `src/constants/uniswap.ts`
+- [x] `src/constants/bridge-limits.spec.ts`
+- [x] `src/constants/yellow.ts`
+- [x] `src/constants/slippage.spec.ts`
+- [x] `src/constants/explorers.ts`
+- [x] `src/constants/media.ts`
+- [x] `src/routes/test/collections/page.test.ts`
+- [x] `src/routes/test/collections/+page.svelte`
+- [x] `src/routes/test/chain-id/+page.svelte`
+- [x] `src/routes/test/networks-coins/page.test.ts`
+- [x] `src/routes/test/networks-coins/+page.svelte`
+- [x] `src/routes/test/intents/+page.svelte`
+
+## Status
+
+Complete. Ran `deno task format` (Prettier: singleQuote, semi: false, trailingComma: all, useTabs) and `node scripts/_svelte-section-spacing.mjs` across src, e2e, scripts. All listed files verified/formatted; Svelte section order and two empty lines between sections enforced; TS/CSS style applied.
+
+## Output when complete
+
+`DONE`

@@ -254,9 +254,7 @@ const baseRpcUrls = Object.fromEntries(
 	rpcEndpoints.map((e) => [e.chainId, e.url]),
 )
 
-export const rpcUrls: Partial<Record<ChainId, string>> = (
-	E2E_TEVM_ENABLED && E2E_TEVM_RPC_URL ?
-		{ ...baseRpcUrls, [E2E_TEVM_CHAIN_ID]: E2E_TEVM_RPC_URL }
-	:
-		baseRpcUrls
-)
+export const rpcUrls: Partial<Record<ChainId, string>> =
+	E2E_TEVM_ENABLED && E2E_TEVM_RPC_URL
+		? { ...baseRpcUrls, [E2E_TEVM_CHAIN_ID]: E2E_TEVM_RPC_URL }
+		: baseRpcUrls

@@ -12,17 +12,16 @@
 	import LiquidityFlow from '$/routes/session/LiquidityFlow.svelte'
 </script>
 
-
-<main
-	id="main"
-	data-column
-	data-sticky-container
->
+<main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
 		<details open data-card>
 			<summary>
 				<header data-card="secondary" data-row="wrap gap-2">
-					<Wallets bind:connectedWallets bind:selectedActor bind:selectedChainId />
+					<Wallets
+						bind:connectedWallets
+						bind:selectedActor
+						bind:selectedChainId
+					/>
 				</header>
 			</summary>
 

@@ -209,10 +209,7 @@
 	{/if}
 
 	{#if sendError}
-		<p
-			class="transfer-error"
-			role="alert"
-		>
+		<p class="transfer-error" role="alert">
 			{sendError}
 		</p>
 	{/if}

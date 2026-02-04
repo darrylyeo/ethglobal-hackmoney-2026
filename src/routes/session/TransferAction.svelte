@@ -45,6 +45,7 @@
 
 	// Components
 	import CoinAmount from '$/views/CoinAmount.svelte'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import SessionAction from '$/views/SessionAction.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 
@@ -82,15 +83,12 @@
 		mode?: 'direct' | 'channel'
 	} = $props()
 
-	const isHexString = (value: unknown): value is `0x${string}` => (
+	const isHexString = (value: unknown): value is `0x${string}` =>
 		typeof value === 'string' && value.startsWith('0x')
-	)
 	const normalizeTransferParams = (
 		params: Record<string, unknown> | null,
 		defaults: TransferSessionParams,
-	): TransferSessionParams => (
-		normalizeTransferSessionParams(params, defaults)
-	)
+	): TransferSessionParams => normalizeTransferSessionParams(params, defaults)
 
 	let activeSessionId = $state<string | null>(null)
 	let pendingSessionId = $state<string | null>(null)
@@ -118,6 +116,13 @@
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
 	)
+	const liveQueryEntries = [
+		{
+			id: 'transfer-action-session',
+			label: 'Session',
+			query: sessionQuery,
+		},
+	]
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const transferDefaults = $derived<TransferSessionParams>({
@@ -135,8 +140,9 @@
 		formatSmallestToDecimal(settings.amount, settings.tokenDecimals),
 	)
 	const chainLabel = $derived(
-		Object.values(networksByChainId).find((entry) => entry?.id === settings.chainId)
-			?.name ?? `Chain ${settings.chainId}`,
+		Object.values(networksByChainId).find(
+			(entry) => entry?.id === settings.chainId,
+		)?.name ?? `Chain ${settings.chainId}`,
 	)
 	const transferCoin = $derived<Coin>({
 		type: CoinType.Erc20,
@@ -147,16 +153,15 @@
 	})
 	const canTransfer = $derived(
 		settings.amount > 0n &&
-			(settings.mode === 'channel' ?
-				Boolean(yellowState.clearnodeConnection) &&
+			(settings.mode === 'channel'
+				? Boolean(yellowState.clearnodeConnection) &&
 					yellowState.address?.toLowerCase() ===
 						settings.fromActor.toLowerCase()
-			:
-				true),
+				: true),
 	)
-	const hashSource = getContext<import('$/lib/dashboard-panel-hash').SessionHashSource>(
-		SESSION_HASH_SOURCE_KEY,
-	)
+	const hashSource = getContext<
+		import('$/lib/dashboard-panel-hash').SessionHashSource
+	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 
 	const setSessionHash = (sessionId: string) => {
@@ -166,9 +171,13 @@
 	}
 	const persistDraft = () => {
 		const nextParams = normalizeTransferParams(settings, settings)
-		const current = activeSessionId ? getTransactionSession(activeSessionId) : null
+		const current = activeSessionId
+			? getTransactionSession(activeSessionId)
+			: null
 		const shouldCreate = !current || current.lockedAt
-		const sessionId = shouldCreate ? (pendingSessionId ?? createSessionId()) : current.id
+		const sessionId = shouldCreate
+			? (pendingSessionId ?? createSessionId())
+			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
 				actions: ['transfer'],
@@ -188,9 +197,13 @@
 	}
 	const persistSimulation = (result: unknown) => {
 		const nextParams = normalizeTransferParams(settings, settings)
-		const current = activeSessionId ? getTransactionSession(activeSessionId) : null
+		const current = activeSessionId
+			? getTransactionSession(activeSessionId)
+			: null
 		const shouldCreate = !current || current.lockedAt
-		const sessionId = shouldCreate ? (pendingSessionId ?? createSessionId()) : current.id
+		const sessionId = shouldCreate
+			? (pendingSessionId ?? createSessionId())
+			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
 				actions: ['transfer'],
@@ -222,9 +235,13 @@
 	}
 	const persistExecution = (txHash?: `0x${string}`) => {
 		const nextParams = normalizeTransferParams(settings, settings)
-		const current = activeSessionId ? getTransactionSession(activeSessionId) : null
+		const current = activeSessionId
+			? getTransactionSession(activeSessionId)
+			: null
 		const shouldCreate = !current || current.lockedAt
-		const sessionId = shouldCreate ? (pendingSessionId ?? createSessionId()) : current.id
+		const sessionId = shouldCreate
+			? (pendingSessionId ?? createSessionId())
+			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
 				actions: ['transfer'],
@@ -257,7 +274,9 @@
 			setLocalParamsIfChanged(normalizeTransferParams(null, transferDefaults))
 		const hash = hashSource.enabled
 			? effectiveHash
-			: (typeof window !== 'undefined' ? window.location.hash : '')
+			: typeof window !== 'undefined'
+				? window.location.hash
+				: ''
 		const parsed = parseSessionHash(hash)
 		if (parsed.kind === 'session') {
 			const existing = getTransactionSession(parsed.sessionId)
@@ -278,7 +297,7 @@
 		setPendingSessionId(null)
 		setLocalParamsIfChanged(
 			normalizeTransferParams(
-				parsed.kind === 'actions' ? parsed.actions[0]?.params ?? null : null,
+				parsed.kind === 'actions' ? (parsed.actions[0]?.params ?? null) : null,
 				transferDefaults,
 			),
 		)
@@ -307,7 +326,9 @@
 			setPendingSessionId(null)
 			setLocalParamsIfChanged(
 				normalizeTransferParams(
-					parsed.kind === 'actions' ? parsed.actions[0]?.params ?? null : null,
+					parsed.kind === 'actions'
+						? (parsed.actions[0]?.params ?? null)
+						: null,
 					transferDefaults,
 				),
 			)
@@ -324,7 +345,9 @@
 		if (!yellowState.address) {
 			throw new Error('Missing Yellow wallet address.')
 		}
-		if (yellowState.address.toLowerCase() !== settings.fromActor.toLowerCase()) {
+		if (
+			yellowState.address.toLowerCase() !== settings.fromActor.toLowerCase()
+		) {
 			throw new Error('Active Yellow address must match the transfer sender.')
 		}
 		await sendTransfer({
@@ -343,23 +366,23 @@
 			throw new Error('Active wallet address must match the transfer sender.')
 		}
 		const txHash =
-			args.mode === 'e2e' ?
-				await requestE2eTevmValueTransfer({
-					provider: args.provider,
-					from: args.walletAddress,
-					to: settings.toActor,
-					value: settings.amount,
-				})
-			: await args.provider.request({
-					method: 'eth_sendTransaction',
-					params: [
-						{
-							from: args.walletAddress,
-							to: settings.tokenAddress,
-							data: encodeTransferCall(settings.toActor, settings.amount),
-						},
-					],
-				})
+			args.mode === 'e2e'
+				? await requestE2eTevmValueTransfer({
+						provider: args.provider,
+						from: args.walletAddress,
+						to: settings.toActor,
+						value: settings.amount,
+					})
+				: await args.provider.request({
+						method: 'eth_sendTransaction',
+						params: [
+							{
+								from: args.walletAddress,
+								to: settings.tokenAddress,
+								data: encodeTransferCall(settings.toActor, settings.amount),
+							},
+						],
+					})
 		if (!isHexString(txHash)) {
 			throw new Error('Direct transfer did not return a transaction hash.')
 		}
@@ -390,72 +413,77 @@
 	}
 </script>
 
+<LiveQueryScope entries={liveQueryEntries}>
+	<SessionAction
+		title="Transfer"
+		description={sessionLocked ? 'Last saved session is locked.' : undefined}
+		{onSubmit}
+	>
+		{#snippet Params()}
+			<dl class="summary">
+				<dt>From</dt>
+				<dd data-intent-transition="source">
+					{formatAddress(settings.fromActor)}
+				</dd>
+				<dt>To</dt>
+				<dd data-intent-transition="target">
+					{formatAddress(settings.toActor)}
+				</dd>
+				<dt>Network</dt>
+				<dd>{chainLabel}</dd>
+				<dt>Amount</dt>
+				<dd>
+					<CoinAmount
+						coin={transferCoin}
+						amount={settings.amount}
+						draggable={false}
+					/>
+				</dd>
+				<dt>Mode</dt>
+				<dd>{settings.mode === 'channel' ? 'Channel (Yellow)' : 'Direct'}</dd>
+			</dl>
+		{/snippet}
 
-<SessionAction
-	title="Transfer"
-	description={sessionLocked ? 'Last saved session is locked.' : undefined}
-	onSubmit={onSubmit}
->
-	{#snippet Params()}
-		<dl class="summary">
-			<dt>From</dt>
-			<dd data-intent-transition="source">{formatAddress(settings.fromActor)}</dd>
-			<dt>To</dt>
-			<dd data-intent-transition="target">{formatAddress(settings.toActor)}</dd>
-			<dt>Network</dt>
-			<dd>{chainLabel}</dd>
-			<dt>Amount</dt>
-			<dd>
-				<CoinAmount
-					coin={transferCoin}
-					amount={settings.amount}
-					draggable={false}
-				/>
-			</dd>
-			<dt>Mode</dt>
-			<dd>{settings.mode === 'channel' ? 'Channel (Yellow)' : 'Direct'}</dd>
-		</dl>
-	{/snippet}
+		{#snippet Protocol()}
+			<dl class="summary">
+				<dt>Token</dt>
+				<dd>{settings.tokenSymbol} ({formatAddress(settings.tokenAddress)})</dd>
+				<dt>Transfer amount</dt>
+				<dd>{amountLabel} {settings.tokenSymbol}</dd>
+			</dl>
+			{#if settings.mode === 'channel' && !yellowState.clearnodeConnection}
+				<p data-muted>Connect a Yellow clearnode to send.</p>
+			{/if}
+		{/snippet}
 
-	{#snippet Protocol()}
-		<dl class="summary">
-			<dt>Token</dt>
-			<dd>{settings.tokenSymbol} ({formatAddress(settings.tokenAddress)})</dd>
-			<dt>Transfer amount</dt>
-			<dd>{amountLabel} {settings.tokenSymbol}</dd>
-		</dl>
-		{#if settings.mode === 'channel' && !yellowState.clearnodeConnection}
-			<p data-muted>Connect a Yellow clearnode to send.</p>
-		{/if}
-	{/snippet}
+		{#snippet Preview()}
+			<div data-row="gap-2 align-center wrap">
+				<Button.Root type="submit" name="intent" value="save">
+					Save Draft
+				</Button.Root>
+			</div>
 
-	{#snippet Preview()}
-		<div data-row="gap-2 align-center wrap">
-			<Button.Root type="submit" name="intent" value="save">
-				Save Draft
-			</Button.Root>
-		</div>
-
-		<TransactionFlow
-			{walletConnection}
-			onSimulationSuccess={({ result }) => persistSimulation(result)}
-			onExecutionSuccess={({ txHash }) => persistExecution(txHash)}
-			transactions={[
-				{
-					id: `transfer-${settings.chainId}-${settings.fromActor}-${settings.toActor}`,
-					chainId: settings.chainId,
-					title: 'Transfer',
-					actionLabel: 'Sign and Submit',
-					canExecute: canTransfer,
-					simulate: async () => ({
-						...settings,
-					}),
-					execute: (args) =>
-						settings.mode === 'channel'
-							? executeChannelTransfer()
-							: executeDirectTransfer(args),
-				},
-			]}
-		/>
-	{/snippet}
-</SessionAction>
+			<TransactionFlow
+				{walletConnection}
+				onSimulationSuccess={({ result }) => persistSimulation(result)}
+				onExecutionSuccess={({ txHash }) => persistExecution(txHash)}
+				transactions={[
+					{
+						id: `transfer-${settings.chainId}-${settings.fromActor}-${settings.toActor}`,
+						chainId: settings.chainId,
+						title: 'Transfer',
+						actionLabel: 'Sign and Submit',
+						canExecute: canTransfer,
+						simulate: async () => ({
+							...settings,
+						}),
+						execute: (args) =>
+							settings.mode === 'channel'
+								? executeChannelTransfer()
+								: executeDirectTransfer(args),
+					},
+				]}
+			/>
+		{/snippet}
+	</SessionAction>
+</LiveQueryScope>

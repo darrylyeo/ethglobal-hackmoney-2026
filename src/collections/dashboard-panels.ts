@@ -68,14 +68,12 @@ for (const [key, row] of dashboardPanelsCollection.state) {
 }
 
 export const ensureDashboardState = (routePath: string) =>
-	(
-		dashboardPanelsCollection.state.get(dashboardStateKey)
-		?? (() => {
-			const created = createDefaultState(routePath)
-			dashboardPanelsCollection.insert(created)
-			return created
-		})()
-	)
+	dashboardPanelsCollection.state.get(dashboardStateKey) ??
+	(() => {
+		const created = createDefaultState(routePath)
+		dashboardPanelsCollection.insert(created)
+		return created
+	})()
 
 export const getDashboardState = () =>
 	dashboardPanelsCollection.state.get(dashboardStateKey)
@@ -83,28 +81,22 @@ export const getDashboardState = () =>
 export const updateDashboardState = (
 	apply: (state: DashboardStateRow) => DashboardStateRow,
 ) =>
-	(
-		dashboardPanelsCollection.state.get(dashboardStateKey) ?
-			dashboardPanelsCollection.update(dashboardStateKey, (draft) => {
+	dashboardPanelsCollection.state.get(dashboardStateKey)
+		? dashboardPanelsCollection.update(dashboardStateKey, (draft) => {
 				Object.assign(draft, apply(draft))
 			})
 		: undefined
-	)
 
 export const setDashboardRoot = (root: DashboardNode) =>
-	(
-		dashboardPanelsCollection.state.get(dashboardStateKey) ?
-			dashboardPanelsCollection.update(dashboardStateKey, (draft) => {
+	dashboardPanelsCollection.state.get(dashboardStateKey)
+		? dashboardPanelsCollection.update(dashboardStateKey, (draft) => {
 				draft.root = root
 			})
 		: undefined
-	)
 
 export const setDashboardFocus = (panelId: string) =>
-	(
-		dashboardPanelsCollection.state.get(dashboardStateKey) ?
-			dashboardPanelsCollection.update(dashboardStateKey, (draft) => {
+	dashboardPanelsCollection.state.get(dashboardStateKey)
+		? dashboardPanelsCollection.update(dashboardStateKey, (draft) => {
 				draft.focusedPanelId = panelId
 			})
 		: undefined
-	)

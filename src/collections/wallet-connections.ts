@@ -11,10 +11,7 @@ import {
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
 import { DataSource } from '$/constants/data-sources'
-import {
-	type WalletRow,
-	getWallet,
-} from '$/collections/wallets'
+import { type WalletRow, getWallet } from '$/collections/wallets'
 import type {
 	ReadOnlyWallet,
 	WalletConnection$Id,

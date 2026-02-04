@@ -10,7 +10,7 @@ export type ExplorerEntry = {
 	url: string
 }
 
-export const explorerEntries = networkConfigs.flatMap((config) => (
+export const explorerEntries = networkConfigs.flatMap((config) =>
 	config.explorerUrl
 		? [
 				{
@@ -18,17 +18,15 @@ export const explorerEntries = networkConfigs.flatMap((config) => (
 					url: config.explorerUrl,
 				},
 			]
-		: []
-)) satisfies readonly ExplorerEntry[]
+		: [],
+) satisfies readonly ExplorerEntry[]
 
 export const explorerUrls: Record<number, string> = Object.fromEntries(
 	explorerEntries.map((entry) => [entry.chainId, entry.url]),
 )
 
-export const getTxUrl = (chainId: number, txHash: string): string => (
+export const getTxUrl = (chainId: number, txHash: string): string =>
 	`${explorerUrls[chainId] ?? 'https://blockscan.com'}/tx/${txHash}`
-)
 
-export const getAddressUrl = (chainId: number, address: string): string => (
+export const getAddressUrl = (chainId: number, address: string): string =>
 	`${explorerUrls[chainId] ?? 'https://blockscan.com'}/address/${address}`
-)

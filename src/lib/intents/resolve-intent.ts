@@ -16,14 +16,14 @@ const getAddress = (value: unknown): `0x${string}` | null =>
 const getInteropAddress = (id: Record<string, unknown>): string | undefined =>
 	typeof id.interopAddress === 'string' ? id.interopAddress : undefined
 
-const getTokenInteropFromId = (id: Record<string, unknown>): string | undefined => {
+const getTokenInteropFromId = (
+	id: Record<string, unknown>,
+): string | undefined => {
 	const chainId = getNumber(id.chainId)
 	const tokenAddress = getAddress(id.tokenAddress)
-	return (
-		chainId !== null && tokenAddress !== null
-			? toInteropName(chainId, tokenAddress)
-			: undefined
-	)
+	return chainId !== null && tokenAddress !== null
+		? toInteropName(chainId, tokenAddress)
+		: undefined
 }
 
 const resolveDimensions = (ref: IntentEntityRef): IntentDimensions => {

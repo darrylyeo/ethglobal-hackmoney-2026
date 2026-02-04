@@ -27,11 +27,7 @@
 	}
 </script>
 
-<main
-	id="main"
-	data-column
-	data-sticky-container
->
+<main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
 		<h1>Tests</h1>
 		<section data-card data-column="gap-4" aria-labelledby="chainid-heading">
@@ -64,7 +60,8 @@
 			{/if}
 			{#if chainIdResult !== null}
 				<p>
-					<output for="rpc-url">Chain ID: {formatInteger(chainIdResult)}</output>
+					<output for="rpc-url">Chain ID: {formatInteger(chainIdResult)}</output
+					>
 				</p>
 			{/if}
 		</section>

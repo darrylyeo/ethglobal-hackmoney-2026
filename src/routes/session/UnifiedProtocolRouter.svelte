@@ -42,43 +42,40 @@
 				: '—',
 	)
 	const protocolOptions = $derived(
-		([
-			{
-				id: 'cctp',
-				label: 'CCTP',
-				detail: 'Native USDC',
-				enabled: cctpPairSupported,
-			},
-			{
-				id: 'lifi',
-				label: 'LI.FI',
-				detail: 'Aggregated routes',
-				enabled: lifiPairSupported,
-			},
-		] satisfies {
-			id: 'cctp' | 'lifi'
-			label: string
-			detail: string
-			enabled: boolean
-		}[]).filter((option) => option.enabled),
+		(
+			[
+				{
+					id: 'cctp',
+					label: 'CCTP',
+					detail: 'Native USDC',
+					enabled: cctpPairSupported,
+				},
+				{
+					id: 'lifi',
+					label: 'LI.FI',
+					detail: 'Aggregated routes',
+					enabled: lifiPairSupported,
+				},
+			] satisfies {
+				id: 'cctp' | 'lifi'
+				label: string
+				detail: string
+				enabled: boolean
+			}[]
+		).filter((option) => option.enabled),
 	)
 
 	// Actions
 	const onProtocolIntent = (value: 'cctp' | 'lifi' | null) => (
-		(
-			onProtocolIntentChange?.(value),
-			protocolIntent = value
-		)
+		onProtocolIntentChange?.(value),
+		(protocolIntent = value)
 	)
 </script>
 
 <section data-card data-column="gap-3">
 	<h3>Protocol Selection</h3>
 	<div data-column="gap-2">
-		<span
-			class="protocol-badge"
-			data-protocol={activeProtocol ?? undefined}
-		>
+		<span class="protocol-badge" data-protocol={activeProtocol ?? undefined}>
 			{protocolLabel}
 		</span>
 		<small data-muted>{protocolReason}</small>
@@ -92,7 +89,7 @@
 					<Button.Root
 						type="button"
 						data-selected={protocolIntent === null ? '' : undefined}
-						disabled={disabled}
+						{disabled}
 						onclick={() => {
 							onProtocolIntent(null)
 						}}
@@ -107,7 +104,7 @@
 						class="protocol-card"
 						type="button"
 						data-selected={option.id === activeProtocol ? '' : undefined}
-						disabled={disabled}
+						{disabled}
 						onclick={() => {
 							onProtocolIntent(option.id)
 						}}

@@ -56,26 +56,19 @@
 		selectedWallets.find((w) => w.connection.selected) ?? null,
 	)
 	const walletProvider = $derived(
-		selectedWallet?.connection.transport === WalletConnectionTransport.Eip1193 &&
-		'provider' in selectedWallet.wallet ?
-			selectedWallet.wallet.provider
-		:
-			null,
+		selectedWallet?.connection.transport ===
+			WalletConnectionTransport.Eip1193 && 'provider' in selectedWallet.wallet
+			? selectedWallet.wallet.provider
+			: null,
 	)
-	const resolveNetwork = (chainId: number | null) => (
-		chainId !== null ?
-			(Object.values(networksByChainId).find(
-				(entry) => entry?.id === chainId,
-			) ?? null)
-		:
-			null
-	)
-	const fromNetwork = $derived(
-		resolveNetwork(settings.fromChainId),
-	)
-	const toNetwork = $derived(
-		resolveNetwork(settings.toChainId),
-	)
+	const resolveNetwork = (chainId: number | null) =>
+		chainId !== null
+			? (Object.values(networksByChainId).find(
+					(entry) => entry?.id === chainId,
+				) ?? null)
+			: null
+	const fromNetwork = $derived(resolveNetwork(settings.fromChainId))
+	const toNetwork = $derived(resolveNetwork(settings.toChainId))
 	const fromDomain = $derived(getCctpDomainId(settings.fromChainId))
 	const toDomain = $derived(getCctpDomainId(settings.toChainId))
 	const cctpPairSupported = $derived(fromDomain !== null && toDomain !== null)
@@ -176,8 +169,7 @@
 			fromChainId={settings.fromChainId}
 			toChainId={settings.toChainId}
 			amount={settings.amount}
-			mintRecipient={recipient ??
-				'0x0000000000000000000000000000000000000000'}
+			mintRecipient={recipient ?? '0x0000000000000000000000000000000000000000'}
 			{minFinalityThreshold}
 			{feeBps}
 			isTestnet={settings.isTestnet}

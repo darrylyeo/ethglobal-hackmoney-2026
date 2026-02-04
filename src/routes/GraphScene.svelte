@@ -41,7 +41,10 @@
 	import { yellowTransfersCollection } from '$/collections/yellow-transfers'
 	import { NetworkType, networksByChainId } from '$/constants/networks'
 	import { EntityType } from '$/data/$EntityType'
-	import { entityTypes, type GraphSceneEntityType } from '$/constants/entity-types'
+	import {
+		entityTypes,
+		type GraphSceneEntityType,
+	} from '$/constants/entity-types'
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits'
 
 	// Context
@@ -167,7 +170,9 @@
 		q.from({ row: siweChallengesCollection }).select(({ row }) => ({ row })),
 	)
 	const transactionSessionsQuery = useLiveQuery((q) =>
-		q.from({ row: transactionSessionsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: transactionSessionsCollection })
+			.select(({ row }) => ({ row })),
 	)
 	const transactionSessionSimulationsQuery = useLiveQuery((q) =>
 		q
@@ -349,10 +354,7 @@
 			g6Style: {
 				radius: 6,
 				labelPlacement: 'top',
-				ports: [
-					{ placement: 'top' },
-					{ placement: 'bottom' },
-				],
+				ports: [{ placement: 'top' }, { placement: 'bottom' }],
 				opacity: 0.7,
 			},
 		},
@@ -742,7 +744,7 @@
 	const graphModel = $derived.by(() => {
 		if (!visible) return null
 
-		const take = <T>(a: T[] | undefined) =>
+		const take = <T,>(a: T[] | undefined) =>
 			(a ?? []).slice(0, GRAPH_SCENE_MAX_PER_COLLECTION)
 		const g = new Graph({ multi: true, allowSelfLoops: true })
 		const nodes: GraphNode[] = []
@@ -1065,15 +1067,9 @@
 					g6Style: {
 						...collections[EntityType.Network].g6Style,
 						badge: {
-							text:
-								row.type === NetworkType.Testnet
-									? 'TEST'
-									: 'MAIN',
+							text: row.type === NetworkType.Testnet ? 'TEST' : 'MAIN',
 						},
-						lineDash:
-							row.type === NetworkType.Testnet
-								? [3, 3]
-								: undefined,
+						lineDash: row.type === NetworkType.Testnet ? [3, 3] : undefined,
 						opacity: row.type === NetworkType.Testnet ? 0.7 : 1,
 					},
 					details: {
@@ -1111,12 +1107,14 @@
 						...collections[EntityType.BridgeRoute].g6Style,
 						badge: {
 							text:
-								row.tags.find((tag) =>
-									tag.toLowerCase().includes('fast'),
-								)?.slice(0, 4).toUpperCase() ??
-								row.tags.find((tag) =>
-									tag.toLowerCase().includes('cheap'),
-								)?.slice(0, 4).toUpperCase() ??
+								row.tags
+									.find((tag) => tag.toLowerCase().includes('fast'))
+									?.slice(0, 4)
+									.toUpperCase() ??
+								row.tags
+									.find((tag) => tag.toLowerCase().includes('cheap'))
+									?.slice(0, 4)
+									.toUpperCase() ??
 								row.tags[0]?.slice(0, 4).toUpperCase() ??
 								'ROUT',
 						},
@@ -1331,9 +1329,7 @@
 				addNode({
 					id: priceId,
 					label:
-						row.assetId.length > 10
-							? row.assetId.slice(0, 10)
-							: row.assetId,
+						row.assetId.length > 10 ? row.assetId.slice(0, 10) : row.assetId,
 					...pos,
 					size: collections[EntityType.StorkPrice].size,
 					color: collections[EntityType.StorkPrice].color,
@@ -1398,9 +1394,7 @@
 									? { text: 'MED' }
 									: undefined,
 						lineDash:
-							priceImpact !== null && priceImpact >= 0.02
-								? [4, 2]
-								: undefined,
+							priceImpact !== null && priceImpact >= 0.02 ? [4, 2] : undefined,
 					},
 					details: {
 						chainId: row.chainId,
@@ -1905,8 +1899,7 @@
 					i,
 					requests.length,
 				)
-				const disabled =
-					row.status === 'rejected' || row.status === 'expired'
+				const disabled = row.status === 'rejected' || row.status === 'expired'
 				addNode({
 					id: requestId,
 					label: `Request ${row.status}`,
@@ -2070,10 +2063,7 @@
 					g6Type: collections[EntityType.YellowDeposit].g6Type,
 					g6Style: {
 						...collections[EntityType.YellowDeposit].g6Style,
-						badge:
-							row.lockedBalance > 0n
-								? { text: 'LOCK' }
-								: { text: 'FREE' },
+						badge: row.lockedBalance > 0n ? { text: 'LOCK' } : { text: 'FREE' },
 					},
 					details: {
 						chainId: row.chainId,
@@ -2211,7 +2201,10 @@
 									: `actor:${network}:${address}`,
 							)
 						}
-					} else if ('chainId' in rowIdRecord && 'tokenAddress' in rowIdRecord) {
+					} else if (
+						'chainId' in rowIdRecord &&
+						'tokenAddress' in rowIdRecord
+					) {
 						const chainId = rowIdRecord.chainId
 						const address = rowIdRecord.address
 						const tokenAddress = rowIdRecord.tokenAddress
@@ -2239,10 +2232,7 @@
 						}
 					} else if ('routeId' in rowIdRecord && 'quote' in rowIdRecord) {
 						const routeId = rowIdRecord.routeId
-						if (
-							typeof routeId === 'string' &&
-							routeId
-						) {
+						if (typeof routeId === 'string' && routeId) {
 							nodes.push(`route:${routeId}`)
 						}
 					} else if ('sourceTxHash' in rowIdRecord) {
@@ -2524,10 +2514,7 @@
 		data-card="secondary padding-0 radius-6"
 		bind:open={expanded}
 	>
-		<summary
-			class="graph-scene-header"
-			data-row="gap-2 align-center"
-		>
+		<summary class="graph-scene-header" data-row="gap-2 align-center">
 			<h4 data-row-item="flexible">Data Graph</h4>
 			<div
 				class="graph-scene-framework"
@@ -2558,10 +2545,7 @@
 					G6
 				</button>
 			</div>
-			<div
-				class="graph-scene-stats"
-				data-row="gap-1"
-			>
+			<div class="graph-scene-stats" data-row="gap-1">
 				{graphModel.graph.order} nodes · {graphModel.graph.size} edges
 				{#if highlightedSet.size > 0}
 					<span class="graph-scene-highlight" data-scope="local">
@@ -2577,88 +2561,82 @@
 		</summary>
 
 		<div class="graph-scene-container">
-				{#if graphFramework === 'g6'}
-					<G6GraphView
-						model={graphModel}
-						{refreshKey}
-						{highlightedNodes}
-						globalHighlightedNodes={globalHighlightedNodes}
-						{selectedNodes}
-						{selectedEdges}
-						{selectionCount}
-						onSelectionChange={({ nodes, edges }) => {
-							selectedNodes = nodes
-							selectedEdges = edges
-						}}
-						onNodeEnter={(node) => {
-							hoveredNode = node
-						}}
-						onNodeLeave={() => {
-							hoveredNode = undefined
-						}}
-					/>
-				{:else}
-					<SigmaGraphView
-						model={graphModel}
-						{refreshKey}
-						{highlightedNodes}
-						{nodeReducer}
-						{edgeReducer}
-						onNodeEnter={(node) => {
-							hoveredNode = node
-						}}
-						onNodeLeave={() => {
-							hoveredNode = undefined
-						}}
-						onNodeClick={(node) => {
-							selectedNodes = [node]
-							selectedEdges = []
-						}}
-						onEdgeClick={(edge) => {
-							selectedEdges = [edge]
-							selectedNodes = []
-						}}
-					/>
-				{/if}
+			{#if graphFramework === 'g6'}
+				<G6GraphView
+					model={graphModel}
+					{refreshKey}
+					{highlightedNodes}
+					{globalHighlightedNodes}
+					{selectedNodes}
+					{selectedEdges}
+					{selectionCount}
+					onSelectionChange={({ nodes, edges }) => {
+						selectedNodes = nodes
+						selectedEdges = edges
+					}}
+					onNodeEnter={(node) => {
+						hoveredNode = node
+					}}
+					onNodeLeave={() => {
+						hoveredNode = undefined
+					}}
+				/>
+			{:else}
+				<SigmaGraphView
+					model={graphModel}
+					{refreshKey}
+					{highlightedNodes}
+					{nodeReducer}
+					{edgeReducer}
+					onNodeEnter={(node) => {
+						hoveredNode = node
+					}}
+					onNodeLeave={() => {
+						hoveredNode = undefined
+					}}
+					onNodeClick={(node) => {
+						selectedNodes = [node]
+						selectedEdges = []
+					}}
+					onEdgeClick={(edge) => {
+						selectedEdges = [edge]
+						selectedNodes = []
+					}}
+				/>
+			{/if}
 
-				{#if hoveredNodeData}
-					<div class="graph-scene-hover">
-						<div class="graph-scene-hover-header">
-							<span
-								class="graph-scene-dot"
-								style="background: {hoveredNodeData.color}"
-							></span>
-							<strong>{hoveredNodeData.label}</strong>
-						</div>
-						<small class="graph-scene-collection">
-							{hoveredNodeData.collection}
-						</small>
-						{#if hoveredNodeEntries.length > 0}
-							<dl class="graph-scene-details">
-							{#each hoveredNodeEntries as [key, value] (key)}
-									{#if value !== undefined && value !== null && value !== ''}
-										<dt>{key}</dt>
-										<dd>{value}</dd>
-									{/if}
-								{/each}
-							</dl>
-						{/if}
+			{#if hoveredNodeData}
+				<div class="graph-scene-hover">
+					<div class="graph-scene-hover-header">
+						<span
+							class="graph-scene-dot"
+							style="background: {hoveredNodeData.color}"
+						></span>
+						<strong>{hoveredNodeData.label}</strong>
 					</div>
-				{/if}
-
-				<div
-					class="sr-only"
-					aria-live="polite"
-				>
-					{selectionAnnouncement}
+					<small class="graph-scene-collection">
+						{hoveredNodeData.collection}
+					</small>
+					{#if hoveredNodeEntries.length > 0}
+						<dl class="graph-scene-details">
+							{#each hoveredNodeEntries as [key, value] (key)}
+								{#if value !== undefined && value !== null && value !== ''}
+									<dt>{key}</dt>
+									<dd>{value}</dd>
+								{/if}
+							{/each}
+						</dl>
+					{/if}
 				</div>
+			{/if}
+
+			<div class="sr-only" aria-live="polite">
+				{selectionAnnouncement}
+			</div>
 		</div>
 
 		<footer class="graph-scene-footer">
-			<div
-				class="graph-scene-legend"
-				data-row="wrap gap-1"
-			>
+			<div class="graph-scene-legend" data-row="wrap gap-1">
 				{#each Object.entries(collections) as [key, config] (key)}
 					{@const entityType = key}
 					{@const count = counts[entityType]}
@@ -2677,10 +2655,7 @@
 				{/each}
 			</div>
 			{#if selectionItems.length > 0}
-				<div
-					class="graph-scene-selection"
-					data-column="gap-2"
-				>
+				<div class="graph-scene-selection" data-column="gap-2">
 					<h5>Selection</h5>
 					<ul data-column="gap-1">
 						{#each selectionItems as item (item.id)}
@@ -2958,8 +2933,16 @@
 			--graph-scene-hover-bg: rgba(30, 41, 59, 0.97);
 			--graph-scene-hover-border: rgba(255, 255, 255, 0.06);
 			--graph-scene-details-border: rgba(255, 255, 255, 0.06);
-			--graph-scene-legend-active-bg: color-mix(in srgb, var(--color) 15%, #1e293b);
-			--graph-scene-legend-count-bg: color-mix(in srgb, var(--color) 20%, #1e293b);
+			--graph-scene-legend-active-bg: color-mix(
+				in srgb,
+				var(--color) 15%,
+				#1e293b
+			);
+			--graph-scene-legend-count-bg: color-mix(
+				in srgb,
+				var(--color) 20%,
+				#1e293b
+			);
 			--graph-scene-framework-active-bg: var(--color-border);
 			--graph-scene-framework-active-border: var(--color-border);
 			--graph-scene-framework-active-fg: var(--color-text);

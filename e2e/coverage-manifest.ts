@@ -73,9 +73,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/about',
 		assert: async (page) => {
 			await expect(page.getByRole('heading', { name: 'About' })).toBeVisible()
-			await expect(
-				page.getByRole('heading', { name: 'Legend' }),
-			).toBeVisible()
+			await expect(page.getByRole('heading', { name: 'Legend' })).toBeVisible()
 		},
 	},
 	{
@@ -125,7 +123,9 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'empty',
 		path: '/sessions',
 		assert: async (page) => {
-			await expect(page.getByRole('heading', { name: 'Sessions' })).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: 'Sessions' }),
+			).toBeVisible()
 			await expect(page.getByText('No sessions yet.')).toBeVisible()
 		},
 	},
@@ -139,7 +139,9 @@ export const coverageScenarios: CoverageScenario[] = [
 			])
 		},
 		assert: async (page) => {
-			await expect(page.getByRole('heading', { name: 'Sessions' })).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: 'Sessions' }),
+			).toBeVisible()
 			await expect(
 				page.getByRole('link', { name: 'Bridge sessio', exact: true }),
 			).toBeVisible()
@@ -153,7 +155,9 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'swap',
 		path: '/session#swap',
 		assert: async (page) => {
-			await expect(page.getByRole('heading', { name: 'Swap', level: 1 })).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: 'Swap', level: 1 }),
+			).toBeVisible()
 		},
 	},
 	{
@@ -192,9 +196,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/session#intent',
 		assert: async (page) => {
 			await expect(page.getByRole('heading', { name: 'Session' })).toBeVisible()
-			await expect(
-				page.getByText('Unsupported session action.'),
-			).toBeVisible()
+			await expect(page.getByText('Unsupported session action.')).toBeVisible()
 		},
 	},
 	{
@@ -254,9 +256,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'peers-empty',
 		path: '/rooms/abcd',
 		assert: async (page) => {
-			await expect(
-				page.getByText('No other peers in this room.'),
-			).toBeVisible()
+			await expect(page.getByText('No other peers in this room.')).toBeVisible()
 		},
 	},
 	{

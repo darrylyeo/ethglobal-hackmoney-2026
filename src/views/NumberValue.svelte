@@ -14,8 +14,7 @@
 			// minimumFractionDigits: 2,
 			// maximumFractionDigits: 6,
 			// ...options,
-		})
-			.formatToParts(Number(value)),
+		}).formatToParts(Number(value)),
 	)
 </script>
 

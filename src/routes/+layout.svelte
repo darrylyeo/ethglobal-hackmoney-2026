@@ -15,21 +15,14 @@
 	import { roomIdToDisplayName } from '$/lib/room'
 	import { buildSessionHash } from '$/lib/transaction-sessions'
 
-	const actionLabel = (action: string) => (
-		action.length > 0 ? `${action[0].toUpperCase()}${action.slice(1)}` : 'Session'
-	)
-	const sessionTitle = (session: {
-		id: string
-		actions: string[]
-	}) => (
+	const actionLabel = (action: string) =>
+		action.length > 0
+			? `${action[0].toUpperCase()}${action.slice(1)}`
+			: 'Session'
+	const sessionTitle = (session: { id: string; actions: string[] }) =>
 		`${actionLabel(session.actions[0] ?? '')} ${session.id.slice(0, 6)}`
-	)
-	const sessionHref = (session: {
-		id: string
-		actions: string[]
-	}) => (
+	const sessionHref = (session: { id: string; actions: string[] }) =>
 		`/session${buildSessionHash(session.id)}`
-	)
 
 	// Props
 	let { children } = $props()
@@ -156,7 +149,6 @@
 		},
 	])
 
-
 	// Components
 	import { Tooltip } from 'bits-ui'
 	import Boundary from '$/components/Boundary.svelte'
@@ -166,10 +158,8 @@
 	import Navigation from '$/views/Navigation.svelte'
 	import ToastContainer from '$/views/ToastContainer.svelte'
 
-
 	// Images
 	import favicon from '$/lib/assets/favicon.svg'
-
 
 	// Styles
 	import '$/styles/reset.css'
@@ -181,76 +171,56 @@
 	import '$/styles/bits-ui.css'
 </script>
 
-
 <svelte:head>
-	<link
-		rel="icon"
-		href={favicon}
-	/>
+	<link rel="icon" href={favicon} />
 </svelte:head>
-
 
 <Tooltip.Provider>
 	<LiveQueryScope entries={layoutLiveQueryEntries} scope="global">
-		<div
-			id="layout"
-			class="layout"
-			data-scroll-container
-			data-sticky-container
-		>
-		<a href="#main" class="skip-link">Skip to main content</a>
+		<div id="layout" class="layout" data-scroll-container data-sticky-container>
+			<a href="#main" class="skip-link">Skip to main content</a>
 
-		<Navigation
-			navigationItems={navigationItems}
-		>
-		</Navigation>
+			<Navigation {navigationItems}></Navigation>
 
-		<main
-			id="main"
-			tabindex="-1"
-			data-sticky-container
-		>
-			<section data-scroll-item>
-				<Boundary>
-					{@render children()}
+			<main id="main" tabindex="-1" data-sticky-container>
+				<section data-scroll-item>
+					<Boundary>
+						{@render children()}
 
-					{#snippet Failed(error, retry)}
-						<div data-column>
-							<h2>Error</h2>
-							<p>{error instanceof Error ? error.message : String(error)}</p>
-							<button type="button" onclick={retry}>Retry</button>
-						</div>
-					{/snippet}
-				</Boundary>
-			</section>
-		</main>
+						{#snippet Failed(error, retry)}
+							<div data-column>
+								<h2>Error</h2>
+								<p>{error instanceof Error ? error.message : String(error)}</p>
+								<button type="button" onclick={retry}>Retry</button>
+							</div>
+						{/snippet}
+					</Boundary>
+				</section>
+			</main>
 
-		<IntentDragPreview />
+			<IntentDragPreview />
 
-		<ToastContainer
-			position="bottom-right"
-		/>
+			<ToastContainer position="bottom-right" />
 
-		<button
-			type="button"
-			class="graph-toggle"
-			onclick={() => {
-				showGraph = !showGraph
-			}}
-			title={showGraph ? 'Hide data graph' : 'Show data graph'}
-		>
-			{showGraph ? '✕' : '◉'}
-		</button>
+			<button
+				type="button"
+				class="graph-toggle"
+				onclick={() => {
+					showGraph = !showGraph
+				}}
+				title={showGraph ? 'Hide data graph' : 'Show data graph'}
+			>
+				{showGraph ? '✕' : '◉'}
+			</button>
 
-		<GraphScene
-			visible={showGraph}
-			queryStack={localLiveQueryCtx.stack}
-			globalQueryStack={globalLiveQueryCtx.stack}
-		/>
+			<GraphScene
+				visible={showGraph}
+				queryStack={localLiveQueryCtx.stack}
+				globalQueryStack={globalLiveQueryCtx.stack}
+			/>
 		</div>
 	</LiveQueryScope>
 </Tooltip.Provider>
-
 
 <style>
 	.layout {
@@ -261,12 +231,8 @@
 		/* Rules */
 		width: 100dvw;
 		height: 100dvh;
-		padding:
-			var(--safeArea-insetTop)
-			var(--safeArea-insetRight)
-			var(--safeArea-insetBottom)
-			var(--safeArea-insetLeft)
-		;
+		padding: var(--safeArea-insetTop) var(--safeArea-insetRight)
+			var(--safeArea-insetBottom) var(--safeArea-insetLeft);
 		display: grid;
 		align-items: start;
 		gap: var(--separator-width);
@@ -281,8 +247,7 @@
 		@media not (max-width: 1024px) {
 			grid-template:
 				'Nav Main' 100dvh
-				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr)
-			;
+				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr);
 
 			&[data-sticky-container] {
 				--sticky-marginInlineStart: var(--separator-width);
@@ -294,8 +259,7 @@
 			grid-template:
 				'Nav' var(--navigation-mobile-blockSize)
 				'Main' 1fr
-				/ minmax(auto, 1fr)
-			;
+				/ minmax(auto, 1fr);
 
 			&[data-sticky-container] {
 				--sticky-marginBlockStart: var(--separator-width);

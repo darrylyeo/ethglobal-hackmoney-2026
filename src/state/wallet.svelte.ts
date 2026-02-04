@@ -23,7 +23,7 @@ import {
 
 // Functions
 import {
-		ensureE2eProvider,
+	ensureE2eProvider,
 	subscribeProviders,
 	getWalletChainId,
 	subscribeChainChanged,
@@ -114,10 +114,7 @@ const createWalletContext = () => {
 			const e2eProvider = providers.find(
 				(p) => p.info.rdns === E2E_TEVM_PROVIDER_RDNS,
 			)
-			if (
-				e2eProvider &&
-				!autoConnectAttempted.has(E2E_TEVM_PROVIDER_RDNS)
-			) {
+			if (e2eProvider && !autoConnectAttempted.has(E2E_TEVM_PROVIDER_RDNS)) {
 				autoConnectAttempted.add(E2E_TEVM_PROVIDER_RDNS)
 				requestWalletConnection({ rdns: E2E_TEVM_PROVIDER_RDNS }, true)
 			}

@@ -44,10 +44,7 @@
 	})
 </script>
 
-<section
-	class="stork-prices"
-	data-card="secondary"
->
+<section class="stork-prices" data-card="secondary">
 	<header data-row="gap-2 align-center justify-between">
 		<h3>{title}</h3>
 		<span data-muted>{assetIds.length} feeds</span>

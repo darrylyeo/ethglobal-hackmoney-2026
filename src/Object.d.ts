@@ -7,5 +7,7 @@ interface ObjectConstructor {
 		obj: T,
 	): Array<{ [K in keyof T]: [K, T[K]] }[keyof T]>
 
-	fromEntries<K extends PropertyKey, V>(entries: ReadonlyArray<readonly [K, V]>): Record<K, V>
+	fromEntries<K extends PropertyKey, V>(
+		entries: ReadonlyArray<readonly [K, V]>,
+	): Record<K, V>
 }

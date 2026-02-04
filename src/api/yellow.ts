@@ -44,13 +44,9 @@ export const connectClearnode = async (params: {
 	const wsUrl =
 		yellowClearnodeEndpointByEnvironment[
 			params.environment ??
-				(
-					networkConfigsByChainId[params.chainId]?.type ===
-					NetworkType.Testnet ?
-						YellowEnvironment.Sandbox
-					:
-						YellowEnvironment.Production
-				)
+				(networkConfigsByChainId[params.chainId]?.type === NetworkType.Testnet
+					? YellowEnvironment.Sandbox
+					: YellowEnvironment.Production)
 		]
 	if (!wsUrl) {
 		throw new Error('Missing clearnode endpoint for chain')

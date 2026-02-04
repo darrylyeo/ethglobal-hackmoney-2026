@@ -69,13 +69,9 @@ const layerColors: Record<ArchitectureLayer, string> = {
 	tooling: '#94a3b8',
 }
 
-const rowY = (index: number, base = 100, gap = 110) => (
-	base + index * gap
-)
+const rowY = (index: number, base = 100, gap = 110) => base + index * gap
 
-const comboId = (layer: ArchitectureLayer) => (
-	`combo-${layer}`
-)
+const comboId = (layer: ArchitectureLayer) => `combo-${layer}`
 
 const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 	{
@@ -89,7 +85,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		badge: '/session • /rooms',
 		priority: 'primary',
 		details: {
-			purpose: 'Routes: /session, /transfers, /rooms, /wallets, /dashboard, /sessions',
+			purpose:
+				'Routes: /session, /transfers, /rooms, /wallets, /dashboard, /sessions',
 			tech: 'SvelteKit pages + layouts',
 		},
 	},
@@ -149,7 +146,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		badge: 'Bridge / Swap / Liquidity',
 		priority: 'primary',
 		details: {
-			purpose: 'Settings for chains, amounts, slippage, recipient, and fee toggles',
+			purpose:
+				'Settings for chains, amounts, slippage, recipient, and fee toggles',
 			tech: 'bridgeSettingsState + swapSettingsState + liquiditySettingsState',
 		},
 	},
@@ -707,37 +705,36 @@ const networkLayer: ArchitectureLayer = 'networks'
 const baseNetworkNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 	baseMultiChainNode,
 	...networkConfigs
-	.slice()
-	.sort((a, b) => (
-		a.type === b.type
-			? a.name.localeCompare(b.name)
-			: a.type.localeCompare(b.type)
-	))
-	.map((network, index) => {
-		const column = index % 4
-		const row = Math.floor(index / 4)
-		const icon = network.icon ?? ''
-		const shape: ArchitectureNode['shape'] = (
-			icon.length > 0 ? 'image' : 'circle'
+		.slice()
+		.sort((a, b) =>
+			a.type === b.type
+				? a.name.localeCompare(b.name)
+				: a.type.localeCompare(b.type),
 		)
-		const priority: ArchitectureNode['priority'] = 'primary'
-		return {
-			id: `network-${network.chainId}`,
-			label: network.name,
-			layer: networkLayer,
-			x: layerX.networks + column * 140,
-			y: rowY(row, 140, 90),
-			size: 44,
-			shape,
-			icon: icon.length > 0 ? icon : undefined,
-			badge: network.type,
-			priority,
-			details: {
-				purpose: 'Execution target for on-chain activity',
-				tech: `Chain ${network.chainId}`,
-			},
-		}
-	}),
+		.map((network, index) => {
+			const column = index % 4
+			const row = Math.floor(index / 4)
+			const icon = network.icon ?? ''
+			const shape: ArchitectureNode['shape'] =
+				icon.length > 0 ? 'image' : 'circle'
+			const priority: ArchitectureNode['priority'] = 'primary'
+			return {
+				id: `network-${network.chainId}`,
+				label: network.name,
+				layer: networkLayer,
+				x: layerX.networks + column * 140,
+				y: rowY(row, 140, 90),
+				size: 44,
+				shape,
+				icon: icon.length > 0 ? icon : undefined,
+				badge: network.type,
+				priority,
+				details: {
+					purpose: 'Execution target for on-chain activity',
+					tech: `Chain ${network.chainId}`,
+				},
+			}
+		}),
 ]
 
 const networkNodes: ArchitectureNode[] = baseNetworkNodes.map((node) => ({
@@ -1221,7 +1218,11 @@ const combos: ArchitectureCombo[] = [
 	{ id: comboId('client'), label: 'Client', color: layerColors.client },
 	{ id: comboId('state'), label: 'State', color: layerColors.state },
 	{ id: comboId('services'), label: 'Services', color: layerColors.services },
-	{ id: comboId('external'), label: 'External APIs', color: layerColors.external },
+	{
+		id: comboId('external'),
+		label: 'External APIs',
+		color: layerColors.external,
+	},
 	{ id: comboId('networks'), label: 'Networks', color: layerColors.networks },
 	{ id: comboId('tooling'), label: 'Tooling', color: layerColors.tooling },
 ]

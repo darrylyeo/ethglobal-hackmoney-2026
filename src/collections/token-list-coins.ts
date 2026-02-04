@@ -67,9 +67,7 @@ const fetchTokenList = async (url: string): Promise<TokenListEntry[]> => {
 }
 
 const fetchTokenListEntries = async (): Promise<TokenListCoinRow[]> => {
-	const results = await Promise.allSettled(
-		tokenListUrls.map(fetchTokenList),
-	)
+	const results = await Promise.allSettled(tokenListUrls.map(fetchTokenList))
 	const rows = results
 		.filter(
 			(result): result is PromiseFulfilledResult<TokenListEntry[]> =>

@@ -35,11 +35,14 @@ test.describe('Bridge UI (Spec 004)', () => {
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
-		await page.locator('#main').first().evaluate((el) => {
-			el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
-				block: 'center',
+		await page
+			.locator('#main')
+			.first()
+			.evaluate((el) => {
+				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
+					block: 'center',
+				})
 			})
-		})
 		await selectChainOption(page, 'From chain', 'Ethereum')
 		await selectChainOption(page, 'To chain', 'OP Mainnet')
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
@@ -63,11 +66,14 @@ test.describe('Bridge UI (Spec 004)', () => {
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
-		await page.locator('#main').first().evaluate((el) => {
-			el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
-				block: 'center',
+		await page
+			.locator('#main')
+			.first()
+			.evaluate((el) => {
+				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
+					block: 'center',
+				})
 			})
-		})
 		await selectChainOption(page, 'From chain', 'Ethereum')
 		await selectChainOption(page, 'To chain', 'OP Mainnet')
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')

@@ -1,8 +1,4 @@
-<main
-	id="main"
-	data-column
-	data-sticky-container
->
+<main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
 		<h1>Test collections</h1>
 		<ul>

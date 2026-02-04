@@ -20,7 +20,12 @@ export type ActorCoinRow = ActorCoin & { $source: DataSource }
 
 const actorCoinKeyParts = (
 	id: Pick<ActorCoin$Id, 'chainId' | 'address' | 'tokenAddress'>,
-) => stringify({ chainId: id.chainId, address: id.address, tokenAddress: id.tokenAddress })
+) =>
+	stringify({
+		chainId: id.chainId,
+		address: id.address,
+		tokenAddress: id.tokenAddress,
+	})
 
 const actorCoinKey = (row: ActorCoinRow) => actorCoinKeyParts(row.$id)
 
@@ -107,8 +112,9 @@ export const fetchAllBalancesForAddress = async (
 	chainIds?: ChainId[],
 	tokens: readonly ActorCoinToken[] = ercTokens,
 ) => {
-	const targetChainIds =
-		chainIds ?? [...new Set(tokens.map((token) => token.chainId))]
+	const targetChainIds = chainIds ?? [
+		...new Set(tokens.map((token) => token.chainId)),
+	]
 	return await Promise.all(
 		tokens
 			.filter((token) => targetChainIds.includes(token.chainId))

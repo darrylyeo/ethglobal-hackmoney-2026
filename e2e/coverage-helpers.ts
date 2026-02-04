@@ -25,17 +25,32 @@ export const buildLocalStoragePayload = <T>(
 }
 
 export const seedLocalStorageCollection = async (
-	context: { addInitScript: (fn: (...args: unknown[]) => void, ...args: unknown[]) => Promise<void> },
+	context: {
+		addInitScript: (
+			fn: (...args: unknown[]) => void,
+			...args: unknown[]
+		) => Promise<void>
+	},
 	storageKey: string,
 	payload: string,
 ) => {
-	await context.addInitScript((key: string, value: string) => {
-		localStorage.setItem(key, value)
-	}, storageKey, payload)
+	await context.addInitScript(
+		(key: string, value: string) => {
+			localStorage.setItem(key, value)
+		},
+		storageKey,
+		payload,
+	)
 }
 
 export const seedLocalStorageCollectionViaPage = async (
-	page: { goto: (url: string) => Promise<unknown>; evaluate: <T>(fn: (arg: { key: string; value: string }) => T, arg: { key: string; value: string }) => Promise<T> },
+	page: {
+		goto: (url: string) => Promise<unknown>
+		evaluate: <T>(
+			fn: (arg: { key: string; value: string }) => T,
+			arg: { key: string; value: string },
+		) => Promise<T>
+	},
 	baseURL: string,
 	storageKey: string,
 	payload: string,

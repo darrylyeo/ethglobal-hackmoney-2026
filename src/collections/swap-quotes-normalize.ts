@@ -4,9 +4,7 @@
 
 import type { SwapQuote } from '$/data/SwapQuote'
 
-export const normalizeSwapQuote = (
-	entry: SwapQuote,
-): SwapQuote => ({
+export const normalizeSwapQuote = (entry: SwapQuote): SwapQuote => ({
 	...entry,
 	amountIn: BigInt(entry.amountIn),
 	amountOut: BigInt(entry.amountOut),

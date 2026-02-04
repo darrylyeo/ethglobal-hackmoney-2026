@@ -14,13 +14,7 @@
 	} = $props()
 </script>
 
-
-<main
-	id="main"
-	data-session
-	data-column="gap-4"
-	data-sticky-container
->
+<main id="main" data-session data-column="gap-4" data-sticky-container>
 	<section data-scroll-item data-column="gap-2">
 		<h1>{title}</h1>
 		{#if Context}

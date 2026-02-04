@@ -37,7 +37,6 @@
 	const model = $derived(getArchitectureGraphModel())
 </script>
 
-
 <div class="architecture-graph-wrap">
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 	<div
@@ -99,17 +98,15 @@
 							  n.category === 'tooling'
 							? 'rect'
 							: 'diamond'
-			const getCategoryStyle = (category: ArchitectureNodeCategory) => (
+			const getCategoryStyle = (category: ArchitectureNodeCategory) =>
 				categoryStyles[category] ?? { fill: nodeFill, stroke: nodeStroke }
-			)
-			const getNumericSize = (value: unknown): number | undefined => (
+			const getNumericSize = (value: unknown): number | undefined =>
 				typeof value === 'number'
 					? value
 					: Array.isArray(value) && typeof value[0] === 'number'
 						? value[0]
 						: undefined
-			)
-			const getStyleSize = (node: NodeData | undefined): unknown => (
+			const getStyleSize = (node: NodeData | undefined): unknown =>
 				typeof node === 'object' &&
 				node != null &&
 				'style' in node &&
@@ -118,10 +115,8 @@
 				'size' in node.style
 					? node.style.size
 					: undefined
-			)
-			const getLayoutSize = (node: NodeData | undefined): number => (
+			const getLayoutSize = (node: NodeData | undefined): number =>
 				getNumericSize(getStyleSize(node)) ?? 28
-			)
 
 			const areaByNodeId = new Map<string, string>([
 				...[
@@ -573,7 +568,6 @@
 		{/if}
 	</div>
 </div>
-
 
 <style>
 	.architecture-graph-wrap {

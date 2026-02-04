@@ -72,13 +72,11 @@ const storkApiBaseUrlByRegionTransport = Object.fromEntries(
 
 export const storkDefaultRegion: StorkApiRegion = 'jp'
 
-export const storkRestBaseUrl = storkApiBaseUrlByRegionTransport[
-	`${storkDefaultRegion}:rest`
-]
+export const storkRestBaseUrl =
+	storkApiBaseUrlByRegionTransport[`${storkDefaultRegion}:rest`]
 
-export const storkWebsocketBaseUrl = storkApiBaseUrlByRegionTransport[
-	`${storkDefaultRegion}:websocket`
-]
+export const storkWebsocketBaseUrl =
+	storkApiBaseUrlByRegionTransport[`${storkDefaultRegion}:websocket`]
 
 export const storkWebsocketUrl = `${storkWebsocketBaseUrl}/evm/subscribe`
 
@@ -1441,7 +1439,10 @@ export const storkPushedAssetsByNetwork = Object.fromEntries(
 					.map(([environment, envAssets]) => [environment, envAssets]),
 			),
 		]),
-) satisfies Record<string, Partial<Record<StorkNetworkEnvironment, StorkPushedAsset[]>>>
+) satisfies Record<
+	string,
+	Partial<Record<StorkNetworkEnvironment, StorkPushedAsset[]>>
+>
 
 const storkAssetChainEntries: [StorkAsset['assetId'], ChainId][] =
 	storkPushedAssets.flatMap((asset) => {

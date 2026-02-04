@@ -18,13 +18,11 @@ const E2E_SIMPLE_CONTRACT_ABI = [
 	},
 ] as const
 
-const isE2eFlag = (value: string | undefined) => (
+const isE2eFlag = (value: string | undefined) =>
 	value === '1' || value === 'true'
-)
 
-const isHexString = (value: unknown): value is `0x${string}` => (
+const isHexString = (value: unknown): value is `0x${string}` =>
 	typeof value === 'string' && value.startsWith('0x')
-)
 
 export const E2E_TEVM_ENABLED =
 	(typeof window !== 'undefined' && window.__E2E_TEVM__ === true) ||
@@ -32,15 +30,16 @@ export const E2E_TEVM_ENABLED =
 		isE2eFlag(import.meta.env.PUBLIC_E2E_TEVM))
 
 export const E2E_TEVM_RPC_URL =
-	typeof window !== 'undefined' && window.__E2E_TEVM_RPC_URL__ ?
-		window.__E2E_TEVM_RPC_URL__
-	: typeof import.meta.env !== 'undefined' ?
-		import.meta.env.PUBLIC_E2E_TEVM_RPC_URL
-	:
-		undefined
+	typeof window !== 'undefined' && window.__E2E_TEVM_RPC_URL__
+		? window.__E2E_TEVM_RPC_URL__
+		: typeof import.meta.env !== 'undefined'
+			? import.meta.env.PUBLIC_E2E_TEVM_RPC_URL
+			: undefined
 
 export const requestE2eTevmContractTx = async (args: {
-	provider: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> }
+	provider: {
+		request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
+	}
 	from: `0x${string}`
 	value: bigint
 }) => {
@@ -61,7 +60,9 @@ export const requestE2eTevmContractTx = async (args: {
 }
 
 export const requestE2eTevmValueTransfer = async (args: {
-	provider: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> }
+	provider: {
+		request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
+	}
 	from: `0x${string}`
 	to: `0x${string}`
 	value: bigint
@@ -81,4 +82,3 @@ export const requestE2eTevmValueTransfer = async (args: {
 		throw new Error('E2E Tevm transfer did not return a tx hash.')
 	return txHash
 }
-

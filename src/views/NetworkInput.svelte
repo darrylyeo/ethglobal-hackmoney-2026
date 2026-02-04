@@ -33,23 +33,21 @@
 	import Icon from '$/components/Icon.svelte'
 </script>
 
-
 {#snippet networkIcons()}
-	{@const selectedNetworks = (
-		multiple
-			? networks.filter((network) =>
-					Array.isArray(value) && value.includes(network.id),
-				)
-			: typeof value === 'number'
-				? networks.filter((network) => network.id === value)
-				: []
-	)}
+	{@const selectedNetworks = multiple
+		? networks.filter(
+				(network) => Array.isArray(value) && value.includes(network.id),
+			)
+		: typeof value === 'number'
+			? networks.filter((network) => network.id === value)
+			: []}
 	{#if selectedNetworks.length > 0}
 		<span class="network-input-icons">
 			{#each selectedNetworks as network (network.id)}
 				<span class="network-input-icon">
 					<Icon
-						src={networkConfigsByChainId[network.id]?.icon ?? `/icons/chains/${network.id}.svg`}
+						src={networkConfigsByChainId[network.id]?.icon ??
+							`/icons/chains/${network.id}.svg`}
 						size={16}
 						title={network.name}
 					/>
@@ -60,13 +58,11 @@
 {/snippet}
 
 {#snippet networkItem(network: Network, selected: boolean)}
-	<span
-		class="network-input-item"
-		data-selected={selected}
-	>
+	<span class="network-input-item" data-selected={selected}>
 		<span class="network-input-icon">
 			<Icon
-				src={networkConfigsByChainId[network.id]?.icon ?? `/icons/chains/${network.id}.svg`}
+				src={networkConfigsByChainId[network.id]?.icon ??
+					`/icons/chains/${network.id}.svg`}
 				size={16}
 			/>
 		</span>
@@ -89,28 +85,27 @@
 	{disabled}
 	{name}
 	{id}
-	ariaLabel={ariaLabel}
-	onValueChange={(nextValue: string | string[]) => (
-		value = multiple
+	{ariaLabel}
+	onValueChange={(nextValue: string | string[]) =>
+		(value = multiple
 			? Array.isArray(nextValue)
 				? nextValue
-						.map((id) =>
-							networks.find((network) => String(network.id) === id)?.id ??
-								null)
+						.map(
+							(id) =>
+								networks.find((network) => String(network.id) === id)?.id ??
+								null,
+						)
 						.filter((id): id is Network['id'] => id !== null)
 				: []
 			: typeof nextValue === 'string'
-				? networks.find((network) => String(network.id) === nextValue)?.id ??
-					null
-				: null
-	)}
+				? (networks.find((network) => String(network.id) === nextValue)?.id ??
+					null)
+				: null)}
 	getItemId={(network) => String(network.id)}
 	getItemLabel={(network) => network.name}
 	Before={networkIcons}
 	Item={networkItem}
->
-</Select>
-
+></Select>
 
 <style>
 	.network-input-icons {

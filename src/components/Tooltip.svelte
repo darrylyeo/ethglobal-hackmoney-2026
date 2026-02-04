@@ -29,7 +29,6 @@
 	import { Tooltip } from 'bits-ui'
 </script>
 
-
 <Tooltip.Root {...rootProps}>
 	<Tooltip.Trigger {...triggerProps}>
 		{#if Trigger}

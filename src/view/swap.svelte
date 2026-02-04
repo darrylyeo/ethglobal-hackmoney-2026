@@ -5,9 +5,9 @@
 	// State
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
-	let balanceTokens = $state<{ chainId: number; tokenAddress: `0x${string}` }[]>(
-		[],
-	)
+	let balanceTokens = $state<
+		{ chainId: number; tokenAddress: `0x${string}` }[]
+	>([])
 
 	// Components
 	import Balances from '$/views/Balances.svelte'
@@ -15,7 +15,6 @@
 	import Wallets from '$/views/Wallets.svelte'
 	import SwapAction from '$/routes/session/SwapAction.svelte'
 </script>
-
 
 <Session title="Swap">
 	{#snippet Context()}

@@ -46,9 +46,7 @@
 	const sliderValue = $derived(Number(value))
 
 	// Actions
-	const onTextInput = (
-		event: Event & { currentTarget: HTMLInputElement },
-	) => {
+	const onTextInput = (event: Event & { currentTarget: HTMLInputElement }) => {
 		const cleaned = event.currentTarget.value
 			.replace(/[^0-9.,]/g, '')
 			.replace(/,/g, '')
@@ -71,7 +69,6 @@
 		value = BigInt(event.currentTarget.value)
 	}
 </script>
-
 
 <div
 	{...rootProps}
@@ -102,14 +99,13 @@
 		value={sliderValue}
 		{disabled}
 		oninput={onSliderInput}
-	style={`--slider-progress:${
-		sliderMax > sliderMin
-			? ((sliderValue - sliderMin) / (sliderMax - sliderMin)) * 100
-			: 0
-	}%`}
+		style={`--slider-progress:${
+			sliderMax > sliderMin
+				? ((sliderValue - sliderMin) / (sliderMax - sliderMin)) * 100
+				: 0
+		}%`}
 	/>
 </div>
-
 
 <style>
 	.token-amount {

@@ -33,9 +33,7 @@ for (const [key, row] of transactionsCollection.state) {
 export const getTransaction = ($id: Transaction$Id) =>
 	transactionsCollection.state.get(stringify($id))
 
-export const insertTransaction = (
-	tx: Omit<Transaction, 'updatedAt'>,
-) =>
+export const insertTransaction = (tx: Omit<Transaction, 'updatedAt'>) =>
 	transactionsCollection.insert({
 		...tx,
 		$source: DataSource.Local,

@@ -32,7 +32,9 @@ export const transferGraphsCollection = createCollection(
 	}),
 )
 
-const normalizeResult = (r: TransfersGraphResult): Omit<TransferGraphRow, 'isLoading' | 'error'> => ({
+const normalizeResult = (
+	r: TransfersGraphResult,
+): Omit<TransferGraphRow, 'isLoading' | 'error'> => ({
 	$id: { period: r.period },
 	graph: r.graph,
 	period: r.period,
@@ -84,7 +86,9 @@ export const fetchTransferGraph = async (period: string) => {
 	}
 
 	try {
-		const result = await withRetry(() => fetchTransfersGraphFromVoltaire(period))
+		const result = await withRetry(() =>
+			fetchTransfersGraphFromVoltaire(period),
+		)
 		const normalized = normalizeResult(result)
 		transferGraphsCollection.update(key, (draft) => {
 			draft.$source = DataSource.Voltaire

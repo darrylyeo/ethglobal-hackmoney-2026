@@ -15,18 +15,12 @@ const getAddress = (id: Record<string, unknown>): `0x${string}` | null => {
 		: null
 }
 
-const withInteropAddress = (
-	payload: IntentDragPayload,
-): IntentDragPayload => {
+const withInteropAddress = (payload: IntentDragPayload): IntentDragPayload => {
 	const { entity } = payload
 	const id = { ...entity.id }
 	const chainId = getChainId(id)
 	const address = getAddress(id)
-	if (
-		chainId !== null &&
-		address !== null &&
-		id.interopAddress === undefined
-	) {
+	if (chainId !== null && address !== null && id.interopAddress === undefined) {
 		id.interopAddress = toInteropName(chainId, address)
 	}
 	return { ...payload, entity: { ...entity, id } }

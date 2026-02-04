@@ -191,26 +191,26 @@ label:has(> input:is([type='checkbox'], [type='radio'])) {
 	transition-duration: var(--pressable-transitionOutDuration);
 
 	&:active:is(
-		label:has(> input:is([type='checkbox'], [type='radio']), button),
-		:not(
-			:has(
-				:where(
-					[data-pressable],
-					[role='button'],
-					[draggable],
+			label:has(> input:is([type='checkbox'], [type='radio']), button),
+			:not(
+				:has(
 					:where(
-						summary,
-						a,
-						select,
-						option,
-						button,
-						input,
-						label:has(> input:is([type='checkbox'], [type='radio']), button)
-					)
-				):active
+						[data-pressable],
+						[role='button'],
+						[draggable],
+						:where(
+							summary,
+							a,
+							select,
+							option,
+							button,
+							input,
+							label:has(> input:is([type='checkbox'], [type='radio']), button)
+						)
+					):active
+				)
 			)
-		)
-	) {
+		) {
 		transition-duration: var(--pressable-transitionInDuration);
 		opacity: var(--pressable-pressed-opacity);
 

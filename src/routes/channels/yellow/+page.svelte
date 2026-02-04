@@ -53,6 +53,33 @@
 			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
+	const liveQueryEntries = [
+		{
+			id: 'yellow-channels',
+			label: 'Yellow Channels',
+			query: channelsQuery,
+		},
+		{
+			id: 'yellow-channel-states',
+			label: 'Channel States',
+			query: statesQuery,
+		},
+		{
+			id: 'yellow-rooms',
+			label: 'Rooms',
+			query: roomsQuery,
+		},
+		{
+			id: 'yellow-connections',
+			label: 'Wallet Connections',
+			query: connectionsQuery,
+		},
+		{
+			id: 'yellow-wallets',
+			label: 'Wallets',
+			query: walletsQuery,
+		},
+	]
 	const connections = $derived((connectionsQuery.data ?? []).map((r) => r.row))
 	const wallets = $derived((walletsQuery.data ?? []).map((r) => r.row))
 	const selectedConnection = $derived(
@@ -104,14 +131,13 @@
 	let actionError = $state<string | null>(null)
 
 	// (Derived) filtered list
-	const statusMatches = (status: ChannelStatus) => (
+	const statusMatches = (status: ChannelStatus) =>
 		statusFilter === 'all' ||
 		(statusFilter === 'active' && status === 'active') ||
 		(statusFilter === 'closing' && status === 'closing') ||
 		(statusFilter === 'dispute' && status === 'disputed') ||
 		(statusFilter === 'final' && status === 'closed') ||
 		(statusFilter === 'initial' && status === 'pending')
-	)
 	const filteredChannels = $derived(
 		allChannels.filter((ch) => {
 			if (!statusMatches(ch.status)) return false
@@ -214,6 +240,7 @@
 	// Components
 	import Address from '$/components/Address.svelte'
 	import { Button } from 'bits-ui'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import TransferDialog from '$/routes/rooms/TransferDialog.svelte'
 
 	let transferOpen = $state(false)
@@ -224,129 +251,133 @@
 	<title>Yellow Channels</title>
 </svelte:head>
 
-<main id="main" data-column data-sticky-container>
-	<h1>Yellow Channels</h1>
+<LiveQueryScope entries={liveQueryEntries}>
+	<main id="main" data-column data-sticky-container>
+		<h1>Yellow Channels</h1>
 
-	<section class="summary" data-row="gap-4">
-		<p>Total: {totalChannels}</p>
-		<p>Active: {activeChannels}</p>
-		<p>With room: {roomChannelsCount}</p>
-	</section>
+		<section class="summary" data-row="gap-4">
+			<p>Total: {totalChannels}</p>
+			<p>Active: {activeChannels}</p>
+			<p>With room: {roomChannelsCount}</p>
+		</section>
 
-	<section class="filters" data-row="gap-4" data-wrap>
-		<label data-row="gap-1">
-			<span>Status</span>
-			<select bind:value={statusFilter}>
-				<option value="all">all</option>
-				<option value="initial">initial</option>
-				<option value="active">active</option>
-				<option value="closing">closing</option>
-				<option value="dispute">dispute</option>
-				<option value="final">final</option>
-			</select>
-		</label>
-		<label data-row="gap-1">
-			<span>Origin</span>
-			<select bind:value={originFilter}>
-				<option value="all">all</option>
-				<option value="room">room</option>
-				<option value="external">external</option>
-			</select>
-		</label>
-		<label data-row="gap-1">
-			<input type="checkbox" bind:checked={myChannelsOnly} />
-			My channels only
-		</label>
-	</section>
+		<section class="filters" data-row="gap-4" data-wrap>
+			<label data-row="gap-1">
+				<span>Status</span>
+				<select bind:value={statusFilter}>
+					<option value="all">all</option>
+					<option value="initial">initial</option>
+					<option value="active">active</option>
+					<option value="closing">closing</option>
+					<option value="dispute">dispute</option>
+					<option value="final">final</option>
+				</select>
+			</label>
+			<label data-row="gap-1">
+				<span>Origin</span>
+				<select bind:value={originFilter}>
+					<option value="all">all</option>
+					<option value="room">room</option>
+					<option value="external">external</option>
+				</select>
+			</label>
+			<label data-row="gap-1">
+				<input type="checkbox" bind:checked={myChannelsOnly} />
+				My channels only
+			</label>
+		</section>
 
-	{#if actionError}
-		<p class="action-error" role="alert">{actionError}</p>
-	{/if}
-
-	<section class="channel-list">
-		<table>
-			<thead>
-				<tr>
-					<th>Channel</th>
-					<th>Participants</th>
-					<th>My balance</th>
-					<th>Counterparty</th>
-					<th>Status</th>
-					<th>Room</th>
-					<th>Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each filteredChannels as ch (ch.id)}
-					{@const counterparty = getCounterparty(ch)}
-					{@const myBal = getMyBalance(ch)}
-					{@const otherBal = getCounterpartyBalance(ch)}
-					{@const participant = isParticipant(ch)}
-					<tr data-status={ch.status}>
-						<td>{shortId(ch.id)}</td>
-						<td>
-							<Address network={ch.chainId} address={ch.participant0} />
-							–
-							<Address network={ch.chainId} address={ch.participant1} />
-						</td>
-						<td>{formatSmallestToDecimal(myBal, 6)} USDC</td>
-						<td>{formatSmallestToDecimal(otherBal, 6)} USDC</td>
-						<td data-status>{ch.status}</td>
-						<td>
-							{#if ch.roomId}
-								<span class="room-badge" data-room>{roomDisplay(ch.roomId)}</span>
-								<a href="/rooms/{ch.roomId}/channels">View room</a>
-							{:else}
-								—
-							{/if}
-						</td>
-						<td data-row="gap-1">
-							{#if ch.status === 'active' && participant}
-								<Button.Root
-									type="button"
-									onclick={() => {
-										transferChannel = ch
-										transferOpen = true
-									}}
-								>
-									Send
-								</Button.Root>
-							{/if}
-							{#if ch.status === 'active' && participant}
-								<Button.Root
-									type="button"
-									disabled={closingChannelId === ch.id}
-									onclick={() => handleClose(ch)}
-								>
-									{closingChannelId === ch.id ? 'Closing…' : 'Close'}
-								</Button.Root>
-							{/if}
-							{#if (ch.status === 'active' || ch.status === 'closing') && participant}
-								<Button.Root
-									type="button"
-									disabled={
-										challengeChannelId === ch.id ||
-										!channelStatesByChannelId[ch.id]
-									}
-									onclick={() => handleChallenge(ch)}
-								>
-									{challengeChannelId === ch.id ? 'Challenging…' : 'Challenge'}
-								</Button.Root>
-							{/if}
-						</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-		{#if filteredChannels.length === 0}
-			<p>No channels match the filters.</p>
+		{#if actionError}
+			<p class="action-error" role="alert">{actionError}</p>
 		{/if}
-	</section>
-</main>
 
-{#if transferChannel}
-	<TransferDialog channel={transferChannel} bind:open={transferOpen} />
-{/if}
+		<section class="channel-list">
+			<table>
+				<thead>
+					<tr>
+						<th>Channel</th>
+						<th>Participants</th>
+						<th>My balance</th>
+						<th>Counterparty</th>
+						<th>Status</th>
+						<th>Room</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each filteredChannels as ch (ch.id)}
+						{@const counterparty = getCounterparty(ch)}
+						{@const myBal = getMyBalance(ch)}
+						{@const otherBal = getCounterpartyBalance(ch)}
+						{@const participant = isParticipant(ch)}
+						<tr data-status={ch.status}>
+							<td>{shortId(ch.id)}</td>
+							<td>
+								<Address network={ch.chainId} address={ch.participant0} />
+								–
+								<Address network={ch.chainId} address={ch.participant1} />
+							</td>
+							<td>{formatSmallestToDecimal(myBal, 6)} USDC</td>
+							<td>{formatSmallestToDecimal(otherBal, 6)} USDC</td>
+							<td data-status>{ch.status}</td>
+							<td>
+								{#if ch.roomId}
+									<span class="room-badge" data-room
+										>{roomDisplay(ch.roomId)}</span
+									>
+									<a href="/rooms/{ch.roomId}/channels">View room</a>
+								{:else}
+									—
+								{/if}
+							</td>
+							<td data-row="gap-1">
+								{#if ch.status === 'active' && participant}
+									<Button.Root
+										type="button"
+										onclick={() => {
+											transferChannel = ch
+											transferOpen = true
+										}}
+									>
+										Send
+									</Button.Root>
+								{/if}
+								{#if ch.status === 'active' && participant}
+									<Button.Root
+										type="button"
+										disabled={closingChannelId === ch.id}
+										onclick={() => handleClose(ch)}
+									>
+										{closingChannelId === ch.id ? 'Closing…' : 'Close'}
+									</Button.Root>
+								{/if}
+								{#if (ch.status === 'active' || ch.status === 'closing') && participant}
+									<Button.Root
+										type="button"
+										disabled={challengeChannelId === ch.id ||
+											!channelStatesByChannelId[ch.id]}
+										onclick={() => handleChallenge(ch)}
+									>
+										{challengeChannelId === ch.id
+											? 'Challenging…'
+											: 'Challenge'}
+									</Button.Root>
+								{/if}
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+			{#if filteredChannels.length === 0}
+				<p>No channels match the filters.</p>
+			{/if}
+		</section>
+	</main>
+
+	{#if transferChannel}
+		<TransferDialog channel={transferChannel} bind:open={transferOpen} />
+	{/if}
+</LiveQueryScope>
 
 <style>
 	.summary p {

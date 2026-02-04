@@ -20,7 +20,7 @@
 	import { ConcentricLayout, ForceLayout } from '@antv/layout'
 	import { getArchitectureGraphModel } from '../about-old/architecture-graph'
 
-	const getEventTargetId = (event: unknown): string | null => (
+	const getEventTargetId = (event: unknown): string | null =>
 		typeof event === 'object' &&
 		event != null &&
 		'target' in event &&
@@ -30,7 +30,6 @@
 		typeof event.target.id === 'string'
 			? event.target.id
 			: null
-	)
 
 	// State
 	let hoveredId = $state<string | null>(null)
@@ -38,7 +37,6 @@
 	// (Derived)
 	const model = $derived(getArchitectureGraphModel())
 </script>
-
 
 <div class="architecture-graph-wrap">
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -90,7 +88,7 @@
 						tooling: { fill: '#ede9fe', stroke: '#c4b5fd' },
 					}
 
-			const getNodeType = (n: ArchitectureNode) => (
+			const getNodeType = (n: ArchitectureNode) =>
 				n.shape ??
 				(n.image
 					? 'image'
@@ -99,19 +97,11 @@
 						: n.category === 'service' || n.category === 'external'
 							? 'diamond'
 							: 'rect')
-			)
 
-			const getNodeSize = (n: ArchitectureNode) => (
-				18 + (n.importance ?? 3) * 4
-			)
+			const getNodeSize = (n: ArchitectureNode) => 18 + (n.importance ?? 3) * 4
 
-			const getNodeOpacity = (n: ArchitectureNode) => (
-				n.status === 'optional'
-					? 0.7
-					: n.status === 'experimental'
-						? 0.55
-						: 1
-			)
+			const getNodeOpacity = (n: ArchitectureNode) =>
+				n.status === 'optional' ? 0.7 : n.status === 'experimental' ? 0.55 : 1
 
 			const getNodeStyle = (n: ArchitectureNode): NodeData['style'] => {
 				const base = categoryStyles[n.category]
@@ -144,22 +134,24 @@
 							labelFontSize: 10,
 							opacity: getNodeOpacity(n),
 							shadowBlur: n.category === 'service' ? 6 : 0,
-							shadowColor: n.category === 'service'
-								? 'rgba(15, 23, 42, 0.25)'
-								: undefined,
+							shadowColor:
+								n.category === 'service' ? 'rgba(15, 23, 42, 0.25)' : undefined,
 						}
 			}
 
-			const getEdgeType = (e: ArchitectureEdge) => (
+			const getEdgeType = (e: ArchitectureEdge) =>
 				e.relation === 'stream'
 					? 'cubic'
 					: e.relation === 'route' || e.relation === 'execute'
 						? 'quadratic'
 						: 'line'
-			)
 
 			const getEdgeStyle = (e: ArchitectureEdge) => ({
-				stroke: e.critical ? criticalStroke : e.optional ? optionalStroke : edgeStroke,
+				stroke: e.critical
+					? criticalStroke
+					: e.optional
+						? optionalStroke
+						: edgeStroke,
 				lineWidth: e.critical ? 2 : 1,
 				lineDash: e.async || e.optional ? [6, 4] : undefined,
 				endArrow: true,
@@ -186,10 +178,7 @@
 
 			const comboPadding = 26
 			const comboByArea = new Map(
-				model.combos.map((combo) => [
-					combo.id.replace('combo-', ''),
-					combo,
-				]),
+				model.combos.map((combo) => [combo.id.replace('combo-', ''), combo]),
 			)
 
 			const buildData = () => ({
@@ -252,11 +241,10 @@
 					animation: !reducedMotion,
 					comboPadding,
 					spacing: 24,
-					nodeSize: (node) => (
+					nodeSize: (node) =>
 						typeof node === 'object' && node && 'style' in node
-							? (node.style as NodeData['style'])?.size ?? 28
-							: 28
-					),
+							? ((node.style as NodeData['style'])?.size ?? 28)
+							: 28,
 					innerLayout: new ConcentricLayout({
 						nodeSize: 28,
 					}),
@@ -345,7 +333,9 @@
 					animation: reducedMotion
 						? false
 						: {
-								update: [{ fields: ['x', 'y', 'width', 'height'], duration: 250 }],
+								update: [
+									{ fields: ['x', 'y', 'width', 'height'], duration: 250 },
+								],
 							},
 				},
 				behaviors: [
@@ -492,65 +482,6 @@
 	</div>
 </div>
 
-
-<style>
-	.architecture-graph-wrap {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		height: 100%;
-		min-height: 400px;
-		position: relative;
-	}
-	.graph-container {
-		flex: 1;
-		min-height: 0;
-		border-radius: 0.5rem;
-		background: var(--color-surface, #f1f5f9);
-		outline: 1px solid var(--color-border, #e2e8f0);
-		touch-action: none;
-	}
-	:global([data-theme='dark']) .graph-container,
-	:global(.dark) .graph-container {
-		--color-surface: #1e293b;
-		--color-border: #334155;
-	}
-	@media (prefers-color-scheme: dark) {
-		.graph-container {
-			--color-surface: #1e293b;
-			--color-border: #334155;
-		}
-	}
-	.details-panel {
-		position: absolute;
-		left: 0.75rem;
-		right: 0.75rem;
-		bottom: 0.75rem;
-		padding: 0.5rem 0.75rem;
-		font-size: 0.875rem;
-		background: var(--color-surface, #f1f5f9);
-		border: 1px solid var(--color-border, #e2e8f0);
-		border-radius: 0.375rem;
-		transition: opacity 120ms ease;
-		pointer-events: none;
-	}
-	.details-panel[data-visible='false'] {
-		opacity: 0;
-		pointer-events: none;
-	}
-	:global(.g6-tooltip) {
-		pointer-events: none;
-	}
-	.details-panel strong {
-		display: block;
-	}
-	.details-panel p {
-		margin: 0.25rem 0 0;
-		color: var(--color-muted, #64748b);
-	}
-
-</style>
-
 <div class="architecture-graph-wrap">
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 	<div
@@ -612,17 +543,15 @@
 							  n.category === 'tooling'
 							? 'rect'
 							: 'diamond'
-			const getCategoryStyle = (category: ArchitectureNodeCategory) => (
+			const getCategoryStyle = (category: ArchitectureNodeCategory) =>
 				categoryStyles[category] ?? { fill: nodeFill, stroke: nodeStroke }
-			)
-			const getNumericSize = (value: unknown): number | undefined => (
+			const getNumericSize = (value: unknown): number | undefined =>
 				typeof value === 'number'
 					? value
 					: Array.isArray(value) && typeof value[0] === 'number'
 						? value[0]
 						: undefined
-			)
-			const getStyleSize = (node: NodeData | undefined): unknown => (
+			const getStyleSize = (node: NodeData | undefined): unknown =>
 				typeof node === 'object' &&
 				node != null &&
 				'style' in node &&
@@ -631,10 +560,8 @@
 				'size' in node.style
 					? node.style.size
 					: undefined
-			)
-			const getLayoutSize = (node: NodeData | undefined): number => (
+			const getLayoutSize = (node: NodeData | undefined): number =>
 				getNumericSize(getStyleSize(node)) ?? 28
-			)
 
 			const areaByNodeId = new Map<string, string>([
 				...[
@@ -1084,3 +1011,60 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	.architecture-graph-wrap {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		height: 100%;
+		min-height: 400px;
+		position: relative;
+	}
+	.graph-container {
+		flex: 1;
+		min-height: 0;
+		border-radius: 0.5rem;
+		background: var(--color-surface, #f1f5f9);
+		outline: 1px solid var(--color-border, #e2e8f0);
+		touch-action: none;
+	}
+	:global([data-theme='dark']) .graph-container,
+	:global(.dark) .graph-container {
+		--color-surface: #1e293b;
+		--color-border: #334155;
+	}
+	@media (prefers-color-scheme: dark) {
+		.graph-container {
+			--color-surface: #1e293b;
+			--color-border: #334155;
+		}
+	}
+	.details-panel {
+		position: absolute;
+		left: 0.75rem;
+		right: 0.75rem;
+		bottom: 0.75rem;
+		padding: 0.5rem 0.75rem;
+		font-size: 0.875rem;
+		background: var(--color-surface, #f1f5f9);
+		border: 1px solid var(--color-border, #e2e8f0);
+		border-radius: 0.375rem;
+		transition: opacity 120ms ease;
+		pointer-events: none;
+	}
+	.details-panel[data-visible='false'] {
+		opacity: 0;
+		pointer-events: none;
+	}
+	:global(.g6-tooltip) {
+		pointer-events: none;
+	}
+	.details-panel strong {
+		display: block;
+	}
+	.details-panel p {
+		margin: 0.25rem 0 0;
+		color: var(--color-muted, #64748b);
+	}
+</style>

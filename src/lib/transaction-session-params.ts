@@ -73,70 +73,57 @@ const bigintSchema = type('bigint')
 const booleanSchema = type('boolean')
 	.or(type("'true'").pipe(() => true))
 	.or(type("'false'").pipe(() => false))
-const addressSchema = type('string').pipe((value, ctx) => (
-	normalizeAddress(value) ?? ctx.mustBe('a hex address')
-))
+const addressSchema = type('string').pipe(
+	(value, ctx) => normalizeAddress(value) ?? ctx.mustBe('a hex address'),
+)
 const modeSchema = type("'direct'|'channel'")
 
-const parseNumber = (value: unknown, fallback: number): number => (
-	((result) => (
-		result instanceof type.errors ? fallback : result
-	))(numberSchema(value))
-)
+const parseNumber = (value: unknown, fallback: number): number =>
+	((result) => (result instanceof type.errors ? fallback : result))(
+		numberSchema(value),
+	)
 
-const parseInteger = (value: unknown, fallback: number): number => (
-	((result) => (
-		result instanceof type.errors ? fallback : result
-	))(integerSchema(value))
-)
+const parseInteger = (value: unknown, fallback: number): number =>
+	((result) => (result instanceof type.errors ? fallback : result))(
+		integerSchema(value),
+	)
 
 const parseNullableNumber = (
 	value: unknown,
 	fallback: number | null,
-): number | null => (
-	((result) => (
-		result instanceof type.errors ? fallback : result
-	))(nullableNumberSchema(value))
-)
+): number | null =>
+	((result) => (result instanceof type.errors ? fallback : result))(
+		nullableNumberSchema(value),
+	)
 
-const parseBigInt = (value: unknown, fallback: bigint): bigint => (
-	((result) => (
-		result instanceof type.errors ? fallback : result
-	))(bigintSchema(value))
-)
+const parseBigInt = (value: unknown, fallback: bigint): bigint =>
+	((result) => (result instanceof type.errors ? fallback : result))(
+		bigintSchema(value),
+	)
 
-const parseBoolean = (value: unknown, fallback: boolean): boolean => (
-	((result) => (
-		result instanceof type.errors ? fallback : result
-	))(booleanSchema(value))
-)
+const parseBoolean = (value: unknown, fallback: boolean): boolean =>
+	((result) => (result instanceof type.errors ? fallback : result))(
+		booleanSchema(value),
+	)
 
-const parseAddress = (
-	value: unknown,
-	fallback: `0x${string}`,
-): `0x${string}` => (
-	((result) => (
-		result instanceof type.errors ? fallback : result
-	))(addressSchema(value))
-)
+const parseAddress = (value: unknown, fallback: `0x${string}`): `0x${string}` =>
+	((result) => (result instanceof type.errors ? fallback : result))(
+		addressSchema(value),
+	)
 
 const parseMode = (
 	value: unknown,
 	fallback: 'direct' | 'channel',
-): 'direct' | 'channel' => (
-	((result) => (
-		result instanceof type.errors ? fallback : result
-	))(modeSchema(value))
-)
+): 'direct' | 'channel' =>
+	((result) => (result instanceof type.errors ? fallback : result))(
+		modeSchema(value),
+	)
 
 const parseBridgeSort = (
 	value: unknown,
 	fallback: BridgeSettings['sortBy'],
-): BridgeSettings['sortBy'] => (
-	typeof value === 'string' && bridgeSortValues.has(value) ?
-		value
-	: fallback
-)
+): BridgeSettings['sortBy'] =>
+	typeof value === 'string' && bridgeSortValues.has(value) ? value : fallback
 
 export const normalizeSwapSessionParams = (
 	params: Record<string, unknown> | null,
@@ -240,9 +227,15 @@ export const normalizeTransactionSessionParams = (
 ) => {
 	const action = actions[0] ?? null
 	if (action === 'swap')
-		return normalizeSwapSessionParams(params, defaults?.swap ?? defaultSwapSessionParams)
+		return normalizeSwapSessionParams(
+			params,
+			defaults?.swap ?? defaultSwapSessionParams,
+		)
 	if (action === 'bridge')
-		return normalizeBridgeSessionParams(params, defaults?.bridge ?? defaultBridgeSettings)
+		return normalizeBridgeSessionParams(
+			params,
+			defaults?.bridge ?? defaultBridgeSettings,
+		)
 	if (action === 'liquidity')
 		return normalizeLiquiditySessionParams(
 			params,
@@ -253,21 +246,16 @@ export const normalizeTransactionSessionParams = (
 	return params ?? {}
 }
 
-export const getSwapSessionParams = (session: TransactionSession | null) => (
+export const getSwapSessionParams = (session: TransactionSession | null) =>
 	normalizeSwapSessionParams(session?.params ?? null)
-)
 
-export const getBridgeSessionParams = (session: TransactionSession | null) => (
+export const getBridgeSessionParams = (session: TransactionSession | null) =>
 	normalizeBridgeSessionParams(session?.params ?? null)
-)
 
 export const getTransferSessionParams = (
 	session: TransactionSession | null,
 	defaults: TransferSessionParams,
-) => (
-	normalizeTransferSessionParams(session?.params ?? null, defaults)
-)
+) => normalizeTransferSessionParams(session?.params ?? null, defaults)
 
-export const getLiquiditySessionParams = (session: TransactionSession | null) => (
+export const getLiquiditySessionParams = (session: TransactionSession | null) =>
 	normalizeLiquiditySessionParams(session?.params ?? null)
-)

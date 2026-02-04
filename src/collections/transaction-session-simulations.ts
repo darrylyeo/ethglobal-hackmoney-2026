@@ -11,10 +11,9 @@ import { stringify, parse } from 'devalue'
 import { DataSource } from '$/constants/data-sources'
 import type { TransactionSessionSimulation } from '$/data/TransactionSessionSimulation'
 
-export type TransactionSessionSimulationRow =
-	TransactionSessionSimulation & {
-		$source: DataSource
-	}
+export type TransactionSessionSimulationRow = TransactionSessionSimulation & {
+	$source: DataSource
+}
 
 export const transactionSessionSimulationsCollection = createCollection(
 	localStorageCollectionOptions({

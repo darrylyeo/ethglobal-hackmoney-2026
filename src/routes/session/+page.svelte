@@ -52,12 +52,7 @@
 
 	let activeSessionId = $state<string | null>(null)
 	let hashAction = $state<
-		| 'swap'
-		| 'bridge'
-		| 'transfer'
-		| 'liquidity'
-		| 'intent'
-		| null
+		'swap' | 'bridge' | 'transfer' | 'liquidity' | 'intent' | null
 	>(null)
 
 	const sessionQuery = useLiveQuery(
@@ -68,20 +63,25 @@
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
 	)
+	const liveQueryEntries = [
+		{
+			id: 'session-page-session',
+			label: 'Session',
+			query: sessionQuery,
+		},
+	]
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
-	const activeAction = $derived(
-		session?.actions[0] ?? hashAction ?? 'swap',
-	)
+	const activeAction = $derived(session?.actions[0] ?? hashAction ?? 'swap')
 	const pageTitle = $derived(
-		activeAction === 'bridge' ?
-			'USDC Bridge'
-		: activeAction === 'transfer' ?
-			'Transfer'
-		: activeAction === 'swap' ?
-			'Swap'
-		: activeAction === 'liquidity' ?
-			'Liquidity'
-		: 'Session',
+		activeAction === 'bridge'
+			? 'USDC Bridge'
+			: activeAction === 'transfer'
+				? 'Transfer'
+				: activeAction === 'swap'
+					? 'Swap'
+					: activeAction === 'liquidity'
+						? 'Liquidity'
+						: 'Session',
 	)
 
 	$effect(() => {
@@ -140,29 +140,30 @@
 	// Components
 	import BridgeView from '$/view/bridge.svelte'
 	import LiquidityView from '$/view/liquidity.svelte'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import SwapView from '$/view/swap.svelte'
 	import TransferView from '$/view/transfer.svelte'
 </script>
-
 
 <svelte:head>
 	<title>{pageTitle} – USDC Tools</title>
 </svelte:head>
 
-
-{#if activeAction === 'swap'}
-	<SwapView />
-{:else if activeAction === 'bridge'}
-	<BridgeView />
-{:else if activeAction === 'transfer'}
-	<TransferView />
-{:else if activeAction === 'liquidity'}
-	<LiquidityView />
-{:else}
-	<main id="main" data-column data-sticky-container>
-		<section data-scroll-item data-column="gap-3">
-			<h1>Session</h1>
-			<p data-muted>Unsupported session action.</p>
-		</section>
-	</main>
-{/if}
+<LiveQueryScope entries={liveQueryEntries}>
+	{#if activeAction === 'swap'}
+		<SwapView />
+	{:else if activeAction === 'bridge'}
+		<BridgeView />
+	{:else if activeAction === 'transfer'}
+		<TransferView />
+	{:else if activeAction === 'liquidity'}
+		<LiquidityView />
+	{:else}
+		<main id="main" data-column data-sticky-container>
+			<section data-scroll-item data-column="gap-3">
+				<h1>Session</h1>
+				<p data-muted>Unsupported session action.</p>
+			</section>
+		</main>
+	{/if}
+</LiveQueryScope>

@@ -2,7 +2,7 @@ import { expect, test } from './fixtures/tevm.js'
 import { addTevmWallet, ensureWalletConnected } from './test-setup.js'
 
 test.describe('Wallet provider & balances (Spec 005)', () => {
-test('network toggle switches between Mainnet/Testnet label', async ({
+	test('network toggle switches between Mainnet/Testnet label', async ({
 		context,
 		page,
 		tevm,
@@ -78,9 +78,7 @@ test('network toggle switches between Mainnet/Testnet label', async ({
 			})
 		})
 
-		test('balances section appears after auto-connection', async ({
-			page,
-		}) => {
+		test('balances section appears after auto-connection', async ({ page }) => {
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({
 				timeout: 20_000,
 			})

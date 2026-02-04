@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EntityType } from '$/data/$EntityType'
-import {
-	INTENT_MIME,
-	getIntentDragPayload,
-	setIntentDragData,
-} from './drag'
+import { INTENT_MIME, getIntentDragPayload, setIntentDragData } from './drag'
 import type { IntentDragPayload } from './types'
 
 const mockDataTransfer = () => {
@@ -44,7 +40,9 @@ describe('intent drag payload round-trip with interop', () => {
 		} as unknown as DragEvent)
 		expect(restored).not.toBeNull()
 		expect(restored!.entity.type).toBe(EntityType.Actor)
-		expect(restored!.entity.id.interopAddress).toBe(parsed.entity.id.interopAddress)
+		expect(restored!.entity.id.interopAddress).toBe(
+			parsed.entity.id.interopAddress,
+		)
 		expect(restored!.entity.id.address).toBe(payload.entity.id.address)
 	})
 
@@ -71,7 +69,9 @@ describe('intent drag payload round-trip with interop', () => {
 			dataTransfer: { getData: (t: string) => (t === INTENT_MIME ? raw : '') },
 		} as unknown as DragEvent)
 		expect(restored).not.toBeNull()
-		expect(restored!.entity.id.interopAddress).toBe(parsed.entity.id.interopAddress)
+		expect(restored!.entity.id.interopAddress).toBe(
+			parsed.entity.id.interopAddress,
+		)
 	})
 
 	it('accepts legacy 0x-only payload without interopAddress', () => {

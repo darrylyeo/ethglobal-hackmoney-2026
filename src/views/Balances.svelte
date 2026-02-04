@@ -47,27 +47,24 @@
 			]),
 		).values(),
 	])
-	const tokenListQuery = useLiveQuery((q) =>
-		q
-			.from({ row: tokenListCoinsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.TokenLists))
-			.where(({ row }) =>
-				normalizedBalanceTokens.length > 0 ?
-					normalizedBalanceTokens
-						.map((token) =>
-							and(
-								eq(row.chainId, token.chainId),
-								eq(row.address, token.tokenAddress),
-							),
-						)
-						.reduce((acc, filter) => or(acc, filter))
-				:
-					and(
-						eq(row.chainId, -1),
-						eq(row.chainId, 0),
-					),
-			)
-			.select(({ row }) => ({ row })),
+	const tokenListQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: tokenListCoinsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.TokenLists))
+				.where(({ row }) =>
+					normalizedBalanceTokens.length > 0
+						? normalizedBalanceTokens
+								.map((token) =>
+									and(
+										eq(row.chainId, token.chainId),
+										eq(row.address, token.tokenAddress),
+									),
+								)
+								.reduce((acc, filter) => or(acc, filter))
+						: and(eq(row.chainId, -1), eq(row.chainId, 0)),
+				)
+				.select(({ row }) => ({ row })),
 		[() => normalizedBalanceTokens],
 	)
 	const filteredTokenListCoins = $derived(
@@ -85,11 +82,9 @@
 			.flatMap((token) => (token ? [token] : [])),
 	)
 	const displayTokens = $derived(
-		(
-			filteredTokenListCoins.length > 0 ?
-				filteredTokenListCoins
-			:
-				fallbackTokens
+		(filteredTokenListCoins.length > 0
+			? filteredTokenListCoins
+			: fallbackTokens
 		).map((token) => ({
 			...token,
 			name: 'name' in token ? token.name : token.symbol,
@@ -110,23 +105,22 @@
 				.from({ row: actorCoinsCollection })
 				.where(({ row }) => eq(row.$source, DataSource.Voltaire))
 				.where(({ row }) =>
-					eq(row.$id.address, selectedActor ?? '0x0000000000000000000000000000000000000000'),
+					eq(
+						row.$id.address,
+						selectedActor ?? '0x0000000000000000000000000000000000000000',
+					),
 				)
 				.where(({ row }) =>
-					displayTokens.length > 0 ?
-						displayTokens
-							.map((token) =>
-								and(
-									eq(row.$id.chainId, token.chainId),
-									eq(row.$id.tokenAddress, token.address),
-								),
-							)
-							.reduce((acc, filter) => or(acc, filter))
-					:
-						and(
-							eq(row.$id.chainId, -1),
-							eq(row.$id.chainId, 0),
-						),
+					displayTokens.length > 0
+						? displayTokens
+								.map((token) =>
+									and(
+										eq(row.$id.chainId, token.chainId),
+										eq(row.$id.tokenAddress, token.address),
+									),
+								)
+								.reduce((acc, filter) => or(acc, filter))
+						: and(eq(row.$id.chainId, -1), eq(row.$id.chainId, 0)),
 				)
 				.select(({ row }) => ({ row })),
 		[() => selectedActor, () => displayTokens],
@@ -151,23 +145,22 @@
 		...new Set(balances.map((balance) => balance.$id.chainId)),
 	])
 	const netWorthUsd = $derived(
-		balances.length > 0 ?
-			balances.reduce((total, balance) => {
-				const assetId = getStorkAssetIdForSymbol(balance.symbol)
-				if (!assetId) return total
-				const priceRow = getBestStorkPrice(
-					prices,
-					assetId,
-					balance.$id.chainId,
-				)
-				if (!priceRow) return total
-				return (
-					total +
-					(balance.balance * priceRow.price) / 10n ** BigInt(balance.decimals)
-				)
-			}, 0n)
-		:
-			null,
+		balances.length > 0
+			? balances.reduce((total, balance) => {
+					const assetId = getStorkAssetIdForSymbol(balance.symbol)
+					if (!assetId) return total
+					const priceRow = getBestStorkPrice(
+						prices,
+						assetId,
+						balance.$id.chainId,
+					)
+					if (!priceRow) return total
+					return (
+						total +
+						(balance.balance * priceRow.price) / 10n ** BigInt(balance.decimals)
+					)
+				}, 0n)
+			: null,
 	)
 
 	// Actions
@@ -201,7 +194,6 @@
 	import StorkPriceFeed from '$/views/StorkPriceFeed.svelte'
 </script>
 
-
 {#if selectedActor}
 	<section class="balances">
 		<h3>Your balances</h3>
@@ -220,17 +212,14 @@
 						entry.address.toLowerCase() === b.$id.tokenAddress.toLowerCase(),
 				)}
 				{@const assetId = getStorkAssetIdForSymbol(b.symbol)}
-				{@const priceRow =
-					assetId ? getBestStorkPrice(prices, assetId, b.$id.chainId) : null}
-				{@const balanceUsdValue = (
-					priceRow ?
-						(b.balance * priceRow.price) / 10n ** BigInt(b.decimals)
-					:
-						null
-				)}
-				{@const coin = (
-					token ?
-						{
+				{@const priceRow = assetId
+					? getBestStorkPrice(prices, assetId, b.$id.chainId)
+					: null}
+				{@const balanceUsdValue = priceRow
+					? (b.balance * priceRow.price) / 10n ** BigInt(b.decimals)
+					: null}
+				{@const coin = token
+					? {
 							type: CoinType.Erc20,
 							chainId: token.chainId,
 							address: token.address,
@@ -246,15 +235,13 @@
 									}
 								: undefined,
 						}
-					:
-						{
+					: {
 							type: CoinType.Erc20,
 							chainId: b.$id.chainId,
 							address: b.$id.tokenAddress,
 							symbol: b.symbol,
 							decimals: b.decimals,
-						}
-				)}
+						}}
 				{@const network = networksByChainId[b.$id.chainId]}
 				{#if network}
 					{@const intent = {
@@ -270,14 +257,14 @@
 						<dt>{network.name}</dt>
 						<Tooltip contentProps={{ side: 'top' }}>
 							{#snippet Content()}
-								<StorkPriceFeed symbol={b.symbol} priceRow={priceRow} />
+								<StorkPriceFeed symbol={b.symbol} {priceRow} />
 							{/snippet}
 							<EntityId
 								className="balance-intent"
 								draggableText={`${b.symbol} ${b.$id.address}`}
 								{intent}
 							>
-								<CoinAmount coin={coin} amount={b.balance} draggable={false} />
+								<CoinAmount {coin} amount={b.balance} draggable={false} />
 							</EntityId>
 						</Tooltip>
 						{#if balanceUsdValue !== null}
@@ -291,7 +278,6 @@
 		</div>
 	</section>
 {/if}
-
 
 <style>
 	.balances {

@@ -24,7 +24,6 @@
 	import TransferAction from '$/routes/session/TransferAction.svelte'
 </script>
 
-
 <Session title="Transfer">
 	{#snippet Context()}
 		<details open data-card>

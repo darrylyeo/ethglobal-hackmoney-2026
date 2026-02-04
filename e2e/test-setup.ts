@@ -173,8 +173,20 @@ export async function injectMockWalletInPage(
 }
 
 export async function addTevmWallet(
-	context: { addInitScript: (fn: (...args: unknown[]) => void, ...args: unknown[]) => Promise<void> },
-	page: { addInitScript: (fn: (...args: unknown[]) => void, ...args: unknown[]) => Promise<void> } | undefined,
+	context: {
+		addInitScript: (
+			fn: (...args: unknown[]) => void,
+			...args: unknown[]
+		) => Promise<void>
+	},
+	page:
+		| {
+				addInitScript: (
+					fn: (...args: unknown[]) => void,
+					...args: unknown[]
+				) => Promise<void>
+		  }
+		| undefined,
 	opts: {
 		rpcUrl: string
 		chainId: number

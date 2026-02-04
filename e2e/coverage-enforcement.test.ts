@@ -1,16 +1,29 @@
 import { expect, test } from '@playwright/test'
-import { coverageScenarios, routeBranchRequirements } from './coverage-manifest.js'
+import {
+	coverageScenarios,
+	routeBranchRequirements,
+} from './coverage-manifest.js'
 import { listAppRoutes } from './coverage-utils.js'
 
 test('coverage manifest matches app routes', () => {
 	const appRoutes = new Set(listAppRoutes())
 	const manifestRoutes = new Set(Object.keys(routeBranchRequirements))
 
-	const missingInManifest = [...appRoutes].filter((route) => !manifestRoutes.has(route))
-	const unknownInManifest = [...manifestRoutes].filter((route) => !appRoutes.has(route))
+	const missingInManifest = [...appRoutes].filter(
+		(route) => !manifestRoutes.has(route),
+	)
+	const unknownInManifest = [...manifestRoutes].filter(
+		(route) => !appRoutes.has(route),
+	)
 
-	expect(missingInManifest, `Missing routes: ${missingInManifest.join(', ')}`).toEqual([])
-	expect(unknownInManifest, `Unknown routes: ${unknownInManifest.join(', ')}`).toEqual([])
+	expect(
+		missingInManifest,
+		`Missing routes: ${missingInManifest.join(', ')}`,
+	).toEqual([])
+	expect(
+		unknownInManifest,
+		`Unknown routes: ${unknownInManifest.join(', ')}`,
+	).toEqual([])
 })
 
 test('coverage manifest has scenarios for every branch', () => {
@@ -24,7 +37,9 @@ test('coverage manifest has scenarios for every branch', () => {
 	for (const [route, branches] of Object.entries(routeBranchRequirements)) {
 		const scenarioBranches = scenarioMap.get(route) ?? new Set<string>()
 		const missing = branches.filter((branch) => !scenarioBranches.has(branch))
-		const extra = [...scenarioBranches].filter((branch) => !branches.includes(branch))
+		const extra = [...scenarioBranches].filter(
+			(branch) => !branches.includes(branch),
+		)
 
 		expect(
 			missing,

@@ -51,7 +51,11 @@ const allItems: IconFetchItem[] = [
 ]
 
 async function main() {
-	const writtenByTarget = { chain: new Set<string>(), coin: new Set<string>(), provider: new Set<string>() }
+	const writtenByTarget = {
+		chain: new Set<string>(),
+		coin: new Set<string>(),
+		provider: new Set<string>(),
+	}
 	const defaultSvgByChainId = new Map<number, string>()
 	const zipCache = new Map<string, Record<string, Uint8Array>>()
 
@@ -74,7 +78,10 @@ async function main() {
 					const res = await fetch(f.zipUrl, { redirect: 'follow' })
 					if (!res.ok) throw new Error(`${f.zipUrl} ${res.status}`)
 					const buf = await res.arrayBuffer()
-					unzipped = unzipSync(new Uint8Array(buf)) as Record<string, Uint8Array>
+					unzipped = unzipSync(new Uint8Array(buf)) as Record<
+						string,
+						Uint8Array
+					>
 					zipCache.set(f.zipUrl, unzipped)
 				}
 				const entry = unzipped[f.pathInZip]
@@ -126,7 +133,10 @@ async function main() {
 		}
 	}
 
-	const total = writtenByTarget.chain.size + writtenByTarget.coin.size + writtenByTarget.provider.size
+	const total =
+		writtenByTarget.chain.size +
+		writtenByTarget.coin.size +
+		writtenByTarget.provider.size
 	console.log(
 		`Done. ${total} files (chains: ${writtenByTarget.chain.size}, coins: ${writtenByTarget.coin.size}, providers: ${writtenByTarget.provider.size}). Run: deno task icons:optimize`,
 	)

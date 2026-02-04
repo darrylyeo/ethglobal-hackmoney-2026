@@ -28,24 +28,24 @@
 		[() => apiHost],
 	)
 	const allowanceRow = $derived(
-		(allowanceQuery.data ?? []).find((r) => r.row.$id.apiHost === apiHost)?.row ??
-			null,
+		(allowanceQuery.data ?? []).find((r) => r.row.$id.apiHost === apiHost)
+			?.row ?? null,
 	)
 	const allowance = $derived(
-		fastTransferSupported && allowanceRow ?
-			allowanceRow.allowance !== null && allowanceRow.lastUpdated !== null ?
-				{
-					value: allowanceRow.allowance,
-					lastUpdated: allowanceRow.lastUpdated,
-				}
-			: null
-		: null,
+		fastTransferSupported && allowanceRow
+			? allowanceRow.allowance !== null && allowanceRow.lastUpdated !== null
+				? {
+						value: allowanceRow.allowance,
+						lastUpdated: allowanceRow.lastUpdated,
+					}
+				: null
+			: null,
 	)
 	const allowanceError = $derived(
-		fastTransferSupported ? allowanceRow?.error ?? null : null,
+		fastTransferSupported ? (allowanceRow?.error ?? null) : null,
 	)
 	const allowanceLoading = $derived(
-		fastTransferSupported ? allowanceRow?.isLoading ?? false : false,
+		fastTransferSupported ? (allowanceRow?.isLoading ?? false) : false,
 	)
 
 	// Actions

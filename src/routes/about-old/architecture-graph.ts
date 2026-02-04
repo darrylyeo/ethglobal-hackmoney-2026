@@ -114,9 +114,16 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 		node('wallet-state', LAYER_X.state, -4 * ROW, 'Wallet State', 'state', {
 			modules: 'wallet discovery + connection state',
 		}),
-		node('flow-settings', LAYER_X.state, -2 * ROW, 'Flow Settings State', 'state', {
-			modules: 'bridge, swap, liquidity settings',
-		}),
+		node(
+			'flow-settings',
+			LAYER_X.state,
+			-2 * ROW,
+			'Flow Settings State',
+			'state',
+			{
+				modules: 'bridge, swap, liquidity settings',
+			},
+		),
 		node('room-state', LAYER_X.state, 0, 'Room State', 'state', {
 			modules: 'PartyKit room connection + sync',
 		}),
@@ -143,9 +150,16 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 		node('tanstack-db', LAYER_X.state, 8 * ROW, 'TanStack DB', 'state', {
 			description: 'collections, live queries, query client',
 		}),
-		node('tx-sessions', LAYER_X.state, 10 * ROW, 'Transaction Sessions', 'state', {
-			description: 'session state, simulations, explain context',
-		}),
+		node(
+			'tx-sessions',
+			LAYER_X.state,
+			10 * ROW,
+			'Transaction Sessions',
+			'state',
+			{
+				description: 'session state, simulations, explain context',
+			},
+		),
 		node('collections', LAYER_X.data, -ROW, 'Collections', 'collection', {
 			modules:
 				'actors, actor-allowances, actor-coins, bridge-routes, coins, cctp-allowance, cctp-fees, dashboard-panels, networks, room-peers, rooms, shared-addresses, siwe-challenges, stork-prices, swap-quotes, token-list-coins, transaction-sessions, transaction-session-simulations, transfer-events, transfer-graphs, transfer-requests, transactions, uniswap-pools, uniswap-positions, wallet-connections, wallets, yellow-channels, yellow-channel-states, yellow-deposits, yellow-transfers',
@@ -156,9 +170,16 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 		node('local-storage', LAYER_X.data, 0, 'localStorage', 'storage', {
 			usage: 'collection persistence and cached state',
 		}),
-		node('session-storage', LAYER_X.data, 3 * ROW, 'sessionStorage', 'storage', {
-			usage: 'room peer display name',
-		}),
+		node(
+			'session-storage',
+			LAYER_X.data,
+			3 * ROW,
+			'sessionStorage',
+			'storage',
+			{
+				usage: 'room peer display name',
+			},
+		),
 		node('tx-history', LAYER_X.data, 5 * ROW, 'Tx History', 'storage', {
 			usage: 'local transaction history',
 		}),
@@ -166,12 +187,26 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 			description:
 				'EIP-6963 discovery, EIP-1193 providers, viem clients, chain switching',
 		}),
-		node('dashboard-core', LAYER_X.services, -7 * ROW, 'Dashboard Core', 'service', {
-			description: 'panel tree, route map, dynamic route loading',
-		}),
-		node('graphscene-core', LAYER_X.services, -5.5 * ROW, 'GraphScene Core', 'service', {
-			description: 'G6/Sigma graph rendering with schema-rich nodes',
-		}),
+		node(
+			'dashboard-core',
+			LAYER_X.services,
+			-7 * ROW,
+			'Dashboard Core',
+			'service',
+			{
+				description: 'panel tree, route map, dynamic route loading',
+			},
+		),
+		node(
+			'graphscene-core',
+			LAYER_X.services,
+			-5.5 * ROW,
+			'GraphScene Core',
+			'service',
+			{
+				description: 'G6/Sigma graph rendering with schema-rich nodes',
+			},
+		),
 		node('approvals', LAYER_X.services, -2 * ROW, 'Token Approval', 'service', {
 			description: 'allowance checks + approval txs',
 		}),
@@ -191,9 +226,16 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 		node('uniswap', LAYER_X.services, 3 * ROW, 'Uniswap v4', 'service', {
 			description: 'swap quotes, liquidity, Universal Router execution',
 		}),
-		node('transfers', LAYER_X.services, 5 * ROW, 'Transfers Pipeline', 'service', {
-			description: 'eth_getLogs (primary), Covalent indexer fallback, graphs',
-		}),
+		node(
+			'transfers',
+			LAYER_X.services,
+			5 * ROW,
+			'Transfers Pipeline',
+			'service',
+			{
+				description: 'eth_getLogs (primary), Covalent indexer fallback, graphs',
+			},
+		),
 		node('partykit', LAYER_X.services, 7 * ROW, 'PartyKit Client', 'service', {
 			description: 'rooms, sync, SIWE challenges, peer messaging',
 		}),
@@ -218,45 +260,101 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 		node('explain', LAYER_X.services, 15 * ROW, 'Explain', 'service', {
 			description: 'Prompt API + hosted LLM fallback',
 		}),
-		node('errors-retry', LAYER_X.services, 17 * ROW, 'Errors + Retry', 'service', {
-			description: 'error patterns + retry policies',
-		}),
+		node(
+			'errors-retry',
+			LAYER_X.services,
+			17 * ROW,
+			'Errors + Retry',
+			'service',
+			{
+				description: 'error patterns + retry policies',
+			},
+		),
 		node('toast', LAYER_X.services, 19 * ROW, 'Toasts', 'service', {
 			description: 'notifications + status messages',
 		}),
-		node('wallet-providers', LAYER_X.infra, -5 * ROW, 'Wallet Providers', 'external', {
-			description: 'EIP-1193 browser wallets',
-		}),
-		node('chain-explorers', LAYER_X.infra, -2 * ROW, 'Chain Explorers', 'external', {
-			description: 'tx + address links per chain',
-		}),
-		node('rpc-providers', LAYER_X.infra, -3 * ROW, 'RPC Providers', 'external', {
-			description: 'chain JSON-RPC endpoints',
-		}),
+		node(
+			'wallet-providers',
+			LAYER_X.infra,
+			-5 * ROW,
+			'Wallet Providers',
+			'external',
+			{
+				description: 'EIP-1193 browser wallets',
+			},
+		),
+		node(
+			'chain-explorers',
+			LAYER_X.infra,
+			-2 * ROW,
+			'Chain Explorers',
+			'external',
+			{
+				description: 'tx + address links per chain',
+			},
+		),
+		node(
+			'rpc-providers',
+			LAYER_X.infra,
+			-3 * ROW,
+			'RPC Providers',
+			'external',
+			{
+				description: 'chain JSON-RPC endpoints',
+			},
+		),
 		node('lifi-api', LAYER_X.infra, -ROW, 'LI.FI API', 'external', {
 			description: 'routes + quotes backend',
 		}),
 		node('circle-api', LAYER_X.infra, ROW, 'Circle CCTP API', 'external', {
 			description: 'message + attestation service',
 		}),
-		node('uniswap-router', LAYER_X.infra, 3 * ROW, 'Uniswap Router', 'external', {
-			description: 'onchain Universal Router',
-		}),
+		node(
+			'uniswap-router',
+			LAYER_X.infra,
+			3 * ROW,
+			'Uniswap Router',
+			'external',
+			{
+				description: 'onchain Universal Router',
+			},
+		),
 		node('covalent-api', LAYER_X.infra, 5 * ROW, 'Covalent API', 'external', {
 			description: 'transfer indexer',
 		}),
-		node('partykit-server', LAYER_X.infra, 7 * ROW, 'PartyKit Server', 'external', {
-			description: 'realtime room server',
-		}),
+		node(
+			'partykit-server',
+			LAYER_X.infra,
+			7 * ROW,
+			'PartyKit Server',
+			'external',
+			{
+				description: 'realtime room server',
+			},
+		),
 		node('stork-feeds', LAYER_X.infra, 9 * ROW, 'Stork Feeds', 'external', {
 			description: 'REST/WS/RPC price feeds',
 		}),
-		node('yellow-clearnode', LAYER_X.infra, 11 * ROW, 'Yellow Clearnode', 'external', {
-			description: 'Nitrolite WS relay',
-		}),
-		node('yellow-custody', LAYER_X.infra, 13 * ROW, 'Yellow Custody', 'external', {
-			description: 'custody contract',
-		}),
+		node(
+			'yellow-clearnode',
+			LAYER_X.infra,
+			11 * ROW,
+			'Yellow Clearnode',
+			'external',
+			{
+				description: 'Nitrolite WS relay',
+			},
+		),
+		node(
+			'yellow-custody',
+			LAYER_X.infra,
+			13 * ROW,
+			'Yellow Custody',
+			'external',
+			{
+				description: 'custody contract',
+			},
+		),
 		node('prompt-api', LAYER_X.infra, 15 * ROW, 'Prompt API', 'external', {
 			description: 'browser model runtime',
 		}),
@@ -271,12 +369,20 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 				networkConfigsByChainId[chainId]?.name ?? String(chainId),
 				'network',
 				{ chainId: String(chainId) },
-				networkConfigsByChainId[chainId]?.icon ?? `/icons/chains/${chainId}.svg`,
+				networkConfigsByChainId[chainId]?.icon ??
+					`/icons/chains/${chainId}.svg`,
 			),
 		),
-		node('tooling-deno', LAYER_X.state, TOOLING_ROW_START, 'Deno Runtime', 'tooling', {
-			description: 'primary runtime for tasks, scripts, tests',
-		}),
+		node(
+			'tooling-deno',
+			LAYER_X.state,
+			TOOLING_ROW_START,
+			'Deno Runtime',
+			'tooling',
+			{
+				description: 'primary runtime for tasks, scripts, tests',
+			},
+		),
 		node(
 			'tooling-node',
 			LAYER_X.data,
@@ -382,13 +488,33 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 
 	const edges: ArchitectureEdge[] = [
 		edge('e-dashboard-ui-core', 'dashboard-ui', 'dashboard-core', 'panels'),
-		edge('e-dashboard-core-collections', 'dashboard-core', 'collections', 'panels'),
+		edge(
+			'e-dashboard-core-collections',
+			'dashboard-core',
+			'collections',
+			'panels',
+		),
 		edge('e-graphscene-ui-core', 'graphscene-ui', 'graphscene-core', 'graph'),
-		edge('e-graphscene-core-model', 'graphscene-core', 'graph-model', 'graph data'),
-		edge('e-graphscene-model-collections', 'graph-model', 'collections', 'entities'),
+		edge(
+			'e-graphscene-core-model',
+			'graphscene-core',
+			'graph-model',
+			'graph data',
+		),
+		edge(
+			'e-graphscene-model-collections',
+			'graph-model',
+			'collections',
+			'entities',
+		),
 		edge('e-graphscene-intents', 'graphscene-core', 'intents', 'drag intents'),
 		edge('e-ui-wallet-state', 'client-ui', 'wallet-state', 'wallet context'),
-		edge('e-ui-flow-settings', 'flow-orchestration', 'flow-settings', 'form state'),
+		edge(
+			'e-ui-flow-settings',
+			'flow-orchestration',
+			'flow-settings',
+			'form state',
+		),
 		edge('e-ui-room-state', 'rooms-ui', 'room-state', 'room context'),
 		edge('e-ui-yellow-state', 'rooms-ui', 'yellow-state', 'channel context'),
 		edge(
@@ -441,7 +567,12 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 		edge('e-voltaire-rpc', 'voltaire', 'rpc-providers', 'JSON-RPC'),
 		edge('e-lifi-api', 'lifi', 'lifi-api', 'SDK calls'),
 		edge('e-circle-api', 'circle', 'circle-api', 'messages'),
-		edge('e-status-explorers', 'tx-status', 'chain-explorers', 'explorer links'),
+		edge(
+			'e-status-explorers',
+			'tx-status',
+			'chain-explorers',
+			'explorer links',
+		),
 		edge('e-status-history', 'tx-status', 'tx-history', 'history'),
 		edge('e-status-collections', 'tx-status', 'collections', 'transactions'),
 		edge('e-uniswap-router', 'uniswap', 'uniswap-router', 'router txs'),
@@ -471,12 +602,7 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 			'tooling-standards',
 			'standards',
 		),
-		edge(
-			'e-tooling-deno-tests',
-			'tooling-deno',
-			'tooling-tests',
-			'unit tests',
-		),
+		edge('e-tooling-deno-tests', 'tooling-deno', 'tooling-tests', 'unit tests'),
 		edge('e-tooling-node-e2e', 'tooling-node', 'tooling-e2e', 'playwright'),
 		edge(
 			'e-tooling-deno-scripts',
@@ -490,7 +616,12 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 			'tooling-partykit',
 			'dev server',
 		),
-		edge('e-tooling-tevm-fixtures', 'tooling-e2e', 'tooling-tevm-fixtures', 'fixtures'),
+		edge(
+			'e-tooling-tevm-fixtures',
+			'tooling-e2e',
+			'tooling-tevm-fixtures',
+			'fixtures',
+		),
 		edge('e-tooling-tevm-rpc', 'tooling-tevm-fixtures', 'tooling-tevm', 'rpc'),
 		edge('e-e2e-tevm', 'tooling-e2e', 'tooling-tevm', 'rpc'),
 		edge('e-e2e-wallets', 'tooling-e2e', 'wallets', 'test provider'),

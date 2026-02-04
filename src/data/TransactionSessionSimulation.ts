@@ -1,6 +1,4 @@
-export type TransactionSessionSimulationStatus =
-	| 'success'
-	| 'failed'
+export type TransactionSessionSimulationStatus = 'success' | 'failed'
 
 export type TransactionSessionSimulation = {
 	id: string

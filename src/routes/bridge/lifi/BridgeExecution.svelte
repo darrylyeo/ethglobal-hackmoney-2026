@@ -14,9 +14,8 @@
 	} from '$/collections/transactions'
 	import type { Transaction$Id } from '$/data/Transaction'
 
-	const isHexHash = (value: unknown): value is `0x${string}` => (
+	const isHexHash = (value: unknown): value is `0x${string}` =>
 		typeof value === 'string' && value.startsWith('0x')
-	)
 
 	let {
 		route,

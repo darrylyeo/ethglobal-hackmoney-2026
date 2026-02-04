@@ -61,10 +61,9 @@ const PROMPT_OPTIONS = {
 	],
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> => (
+const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null
-)
-const buildExplainPrompt = (context: ExplainContext) => (
+const buildExplainPrompt = (context: ExplainContext) =>
 	[
 		`Kind: ${context.kind}`,
 		`Status: ${context.status}`,
@@ -86,21 +85,20 @@ const buildExplainPrompt = (context: ExplainContext) => (
 	]
 		.filter((line): line is string => Boolean(line))
 		.join('\n')
-)
 
-const getPromptApi = () => (
-	typeof globalThis === 'undefined' ? null : globalThis.ai?.languageModel ?? null
-)
-const getHostedConfig = () => (
-	typeof import.meta === 'undefined' || !import.meta.env ?
-		null
-	: import.meta.env.PUBLIC_EXPLAIN_LLM_ENDPOINT ?
-		{
-			endpoint: import.meta.env.PUBLIC_EXPLAIN_LLM_ENDPOINT,
-			apiKey: import.meta.env.PUBLIC_EXPLAIN_LLM_API_KEY,
-		}
-	: null
-)
+const getPromptApi = () =>
+	typeof globalThis === 'undefined'
+		? null
+		: (globalThis.ai?.languageModel ?? null)
+const getHostedConfig = () =>
+	typeof import.meta === 'undefined' || !import.meta.env
+		? null
+		: import.meta.env.PUBLIC_EXPLAIN_LLM_ENDPOINT
+			? {
+					endpoint: import.meta.env.PUBLIC_EXPLAIN_LLM_ENDPOINT,
+					apiKey: import.meta.env.PUBLIC_EXPLAIN_LLM_API_KEY,
+				}
+			: null
 
 const createPromptApiProvider = (
 	onProgress?: (progress: number) => void,
@@ -162,12 +160,10 @@ const createPromptApiProvider = (
 	}
 }
 
-const createHostedProvider = (
-	config: {
-		endpoint: string
-		apiKey?: string
-	},
-) => {
+const createHostedProvider = (config: {
+	endpoint: string
+	apiKey?: string
+}) => {
 	const provider: ExplainProvider = {
 		availability: async () => 'available',
 		explain: async (input) => {
@@ -175,7 +171,9 @@ const createHostedProvider = (
 				method: 'POST',
 				headers: {
 					'content-type': 'application/json',
-					...(config.apiKey ? { authorization: `Bearer ${config.apiKey}` } : {}),
+					...(config.apiKey
+						? { authorization: `Bearer ${config.apiKey}` }
+						: {}),
 				},
 				body: JSON.stringify(input),
 			})
@@ -197,11 +195,15 @@ export const createExplainProvider = (
 ): ExplainProvider => {
 	const promptProvider = createPromptApiProvider(options.onProgress)
 	const hostedConfig = getHostedConfig()
-	const hostedProvider = hostedConfig ? createHostedProvider(hostedConfig) : null
+	const hostedProvider = hostedConfig
+		? createHostedProvider(hostedConfig)
+		: null
 
 	const pickProvider = async () => {
 		const availability = await promptProvider.availability()
-		return availability === 'unavailable' && hostedProvider ? hostedProvider : promptProvider
+		return availability === 'unavailable' && hostedProvider
+			? hostedProvider
+			: promptProvider
 	}
 
 	return {
@@ -211,9 +213,7 @@ export const createExplainProvider = (
 				? hostedProvider.availability()
 				: availability
 		},
-		explain: async (input) => (
-			(await pickProvider()).explain(input)
-		),
+		explain: async (input) => (await pickProvider()).explain(input),
 		cancel: () => {
 			promptProvider.cancel?.()
 			hostedProvider?.cancel?.()

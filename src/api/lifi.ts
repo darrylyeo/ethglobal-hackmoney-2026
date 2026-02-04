@@ -4,7 +4,13 @@
  * SDK is lazy-loaded so non-bridge routes stay light.
  */
 
-import type { Execution, LiFiStep, Process, Route, RouteExtended } from '@lifi/sdk'
+import type {
+	Execution,
+	LiFiStep,
+	Process,
+	Route,
+	RouteExtended,
+} from '@lifi/sdk'
 import { queryClient } from '$/lib/db/query-client'
 import { ChainId } from '$/constants/networks'
 import { ercTokensBySymbolByChainId } from '$/constants/coins'
@@ -18,10 +24,7 @@ import {
 	mapLifiProcessStatus,
 	type TxStatus,
 } from '$/lib/tx-status'
-import {
-	E2E_TEVM_ENABLED,
-	requestE2eTevmContractTx,
-} from '$/lib/e2e/tevm'
+import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm'
 import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
 
 const ROUTES_STALE_MS = 30_000

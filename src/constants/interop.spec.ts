@@ -8,7 +8,10 @@ import {
 
 describe('toInteropAddressText', () => {
 	it('returns eip155 text representation for chainId and address', () => {
-		const out = toInteropAddressText(1, '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')
+		const out = toInteropAddressText(
+			1,
+			'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+		)
 		expect(out.version).toBe(1)
 		expect(out.chainType).toBe('eip155')
 		expect(out.chainReference).toBe('1')

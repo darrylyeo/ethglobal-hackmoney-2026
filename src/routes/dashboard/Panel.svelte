@@ -1,6 +1,9 @@
 <script lang="ts">
 	// Types/constants
-	import type { DashboardPanelNode, DashboardPanelRoute } from '$/data/DashboardPanel'
+	import type {
+		DashboardPanelNode,
+		DashboardPanelRoute,
+	} from '$/data/DashboardPanel'
 
 	// Functions
 	import { routeEntries, toPanelNavigation } from './route-map'
@@ -31,7 +34,11 @@
 		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void
 		onAppendHash: (panelId: string, hash: string) => void
 		onSetPanelHash: (panelId: string, hash: string, replace?: boolean) => void
-		onNavigate: (panelId: string, route: DashboardPanelRoute, hash: string | null) => void
+		onNavigate: (
+			panelId: string,
+			route: DashboardPanelRoute,
+			hash: string | null,
+		) => void
 		onOpenInNewPanel: (
 			panelId: string,
 			route: DashboardPanelRoute,
@@ -44,17 +51,18 @@
 		routeEntries.find((entry) => entry.path === panel.route.path) ?? null,
 	)
 	const paramKeys = $derived(routeEntry?.paramKeys ?? [])
-	const routeKey = $derived(panel.route.path + '\0' + JSON.stringify(panel.route.params))
-	const panelHash = $derived(panel.hashHistory.at(-1) ?? null)
-	const setPanelHash = (hash: string, replace = true) => (
-		onSetPanelHash(panel.id, hash, replace)
+	const routeKey = $derived(
+		panel.route.path + '\0' + JSON.stringify(panel.route.params),
 	)
+	const panelHash = $derived(panel.hashHistory.at(-1) ?? null)
+	const setPanelHash = (hash: string, replace = true) =>
+		onSetPanelHash(panel.id, hash, replace)
 
 	// State
 	let hashInput = $state('')
 
 	// Actions
-	const updateParam = (key: string, value: string) => (
+	const updateParam = (key: string, value: string) =>
 		onUpdateRoute(panel.id, {
 			path: panel.route.path,
 			params: {
@@ -62,33 +70,28 @@
 				[key]: value,
 			},
 		})
-	)
 
-	const setRoutePath = (path: string) => (
+	const setRoutePath = (path: string) =>
 		onUpdateRoute(panel.id, {
 			path,
 			params: {},
 		})
-	)
 
-	const commitHash = () => (
-		hashInput.trim().length === 0 ?
-			undefined
-		:
-			(() => {
-				const normalized =
-					hashInput.startsWith('#') ? hashInput : `#${hashInput}`
-				onAppendHash(panel.id, normalized)
-				hashInput = ''
-			})()
-	)
+	const commitHash = () =>
+		hashInput.trim().length === 0
+			? undefined
+			: (() => {
+					const normalized = hashInput.startsWith('#')
+						? hashInput
+						: `#${hashInput}`
+					onAppendHash(panel.id, normalized)
+					hashInput = ''
+				})()
 
 	const handlePanelClick = (event: MouseEvent) =>
-		(
-			event.defaultPrevented || event.button !== 0 ?
-				undefined
-			:
-				(() => {
+		event.defaultPrevented || event.button !== 0
+			? undefined
+			: (() => {
 					const target = event.target
 					if (!(target instanceof Element)) return
 					const link = target.closest('a')
@@ -97,15 +100,11 @@
 					const navigation = toPanelNavigation(link.href, location.origin)
 					if (!navigation) return
 					event.preventDefault()
-					const action = (event.metaKey || event.ctrlKey) ?
-						onOpenInNewPanel
-					:
-						onNavigate
+					const action =
+						event.metaKey || event.ctrlKey ? onOpenInNewPanel : onNavigate
 					action(panel.id, navigation.route, navigation.hash)
 				})()
-		)
 </script>
-
 
 <section
 	class="dashboard-panel"
@@ -162,12 +161,8 @@
 			<button type="button" onclick={() => onSplit(panel.id, 'vertical')}>
 				Split ↓
 			</button>
-			<button type="button" onclick={() => onSwap(panel.id)}>
-				Swap
-			</button>
-			<button type="button" onclick={() => onRemove(panel.id)}>
-				Remove
-			</button>
+			<button type="button" onclick={() => onSwap(panel.id)}> Swap </button>
+			<button type="button" onclick={() => onRemove(panel.id)}> Remove </button>
 		</div>
 	</header>
 
@@ -180,10 +175,7 @@
 		onclick={handlePanelClick}
 		onkeydown={() => undefined}
 	>
-		<section
-			data-scroll-item
-			class="dashboard-panel-route-body"
-		>
+		<section data-scroll-item class="dashboard-panel-route-body">
 			{#key routeKey}
 				<SvelteKitRoute
 					route={panel.route}
@@ -208,7 +200,6 @@
 		</footer>
 	{/if}
 </section>
-
 
 <style>
 	.dashboard-panel {

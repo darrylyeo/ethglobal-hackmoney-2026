@@ -48,9 +48,7 @@
 	} from '$/lib/format'
 
 	// Actions
-	const onTextInput = (
-		event: Event & { currentTarget: HTMLInputElement },
-	) => {
+	const onTextInput = (event: Event & { currentTarget: HTMLInputElement }) => {
 		const cleaned = event.currentTarget.value
 			.replace(/[^0-9.,]/g, '')
 			.replace(/,/g, '')
@@ -77,7 +75,6 @@
 	import CoinInput from '$/views/CoinInput.svelte'
 </script>
 
-
 <div
 	{...rootProps}
 	class="coin-amount"
@@ -100,12 +97,7 @@
 			oninput={onTextInput}
 		/>
 		<div class="coin-amount-select">
-			<CoinInput
-				coins={coins}
-				bind:value={coin}
-				{disabled}
-				ariaLabel="Token"
-			/>
+			<CoinInput {coins} bind:value={coin} {disabled} ariaLabel="Token" />
 		</div>
 	</div>
 	<input
@@ -125,7 +117,6 @@
 		}%`}
 	/>
 </div>
-
 
 <style>
 	.coin-amount {

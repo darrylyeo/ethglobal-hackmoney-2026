@@ -15,7 +15,6 @@
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
 </script>
 
-
 <div class="stork-price-feed" data-column="gap-1">
 	<strong>{symbol} price</strong>
 	{#if priceRow}
@@ -35,7 +34,9 @@
 			<div data-row="gap-2">
 				<span data-muted>Feed</span>
 				<span
-					>{priceRow.transport}{priceRow.chainId ? ` · ${priceRow.chainId}` : ''}</span
+					>{priceRow.transport}{priceRow.chainId
+						? ` · ${priceRow.chainId}`
+						: ''}</span
 				>
 			</div>
 			<div data-row="gap-2">
@@ -50,7 +51,6 @@
 		<span data-muted>Waiting for price feed</span>
 	{/if}
 </div>
-
 
 <style>
 	.stork-price-feed {

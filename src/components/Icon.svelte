@@ -42,7 +42,6 @@
 	const resolvedTitle = title ?? (alt || undefined)
 </script>
 
-
 <span
 	{...rootProps}
 	class={`icon${className ? ` ${className}` : ''}`}
@@ -69,7 +68,6 @@
 		{icon}
 	{/if}
 </span>
-
 
 <style>
 	.icon {

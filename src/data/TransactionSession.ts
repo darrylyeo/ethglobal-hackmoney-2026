@@ -1,7 +1,4 @@
-export type TransactionSessionStatus =
-	| 'Draft'
-	| 'Submitted'
-	| 'Finalized'
+export type TransactionSessionStatus = 'Draft' | 'Submitted' | 'Finalized'
 
 export type TransactionSessionAction =
 	| 'swap'

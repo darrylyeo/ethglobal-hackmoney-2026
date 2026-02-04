@@ -429,8 +429,7 @@ const updateWebsocketSubscriptions = () => {
 
 const createWebsocketSubscription = (assetIds: string[]) => {
 	const needsProxy =
-		getWebsocketUrl() === storkWebsocketUrl &&
-		env.PUBLIC_STORK_WS_URL == null
+		getWebsocketUrl() === storkWebsocketUrl && env.PUBLIC_STORK_WS_URL == null
 	if (needsProxy) {
 		for (const assetId of assetIds) {
 			setStorkPriceError(
@@ -554,8 +553,7 @@ export const getBestStorkPrice = (
 		if (best) return best
 	}
 	return (
-		pool.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0] ??
-		null
+		pool.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0] ?? null
 	)
 }
 

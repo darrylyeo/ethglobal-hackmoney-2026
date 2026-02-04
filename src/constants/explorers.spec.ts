@@ -14,9 +14,7 @@ describe('explorers', () => {
 		})
 
 		it('returns Blockscan fallback for unknown chain', () => {
-			expect(getTxUrl(999999, '0xabc')).toBe(
-				'https://blockscan.com/tx/0xabc',
-			)
+			expect(getTxUrl(999999, '0xabc')).toBe('https://blockscan.com/tx/0xabc')
 		})
 	})
 

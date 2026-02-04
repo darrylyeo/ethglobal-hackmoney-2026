@@ -85,6 +85,7 @@ export type NetworkConfig = {
 	name: string
 	type: NetworkType
 	nativeCurrency: NetworkCurrency
+	explorerUrl?: string
 	icon?: string
 }
 
@@ -415,8 +416,14 @@ export const mainnetTestnetMappings: readonly MainnetTestnetMapping[] = [
 	{ mainnetChainId: ChainId.Polygon, testnetChainId: ChainId.PolygonAmoy },
 	{ mainnetChainId: ChainId.Monad, testnetChainId: ChainId.MonadTestnet },
 	{ mainnetChainId: ChainId.Sonic, testnetChainId: ChainId.SonicTestnet },
-	{ mainnetChainId: ChainId.ZkSyncEra, testnetChainId: ChainId.ZkSyncEraSepolia },
-	{ mainnetChainId: ChainId.WorldChain, testnetChainId: ChainId.WorldChainSepolia },
+	{
+		mainnetChainId: ChainId.ZkSyncEra,
+		testnetChainId: ChainId.ZkSyncEraSepolia,
+	},
+	{
+		mainnetChainId: ChainId.WorldChain,
+		testnetChainId: ChainId.WorldChainSepolia,
+	},
 	{ mainnetChainId: ChainId.HyperEVM, testnetChainId: ChainId.HyperEVMTestnet },
 	{ mainnetChainId: ChainId.Sei, testnetChainId: ChainId.SeiTestnet },
 	{ mainnetChainId: ChainId.Arbitrum, testnetChainId: ChainId.ArbitrumSepolia },
@@ -430,29 +437,25 @@ export const mainnetTestnetMappings: readonly MainnetTestnetMapping[] = [
 ]
 
 export const mainnetIdForTestnetId = Object.fromEntries(
-	mainnetTestnetMappings.map(mapping => [
+	mainnetTestnetMappings.map((mapping) => [
 		mapping.testnetChainId,
 		mapping.mainnetChainId,
-	])
+	]),
 )
 
 export const mainnetForTestnet = new Map(
-	Object.entries(mainnetIdForTestnetId)
-		.map(([testnetId, mainnetId]) => [
-			networksByChainId[testnetId]!,
-			networksByChainId[mainnetId]!,
-		])
+	Object.entries(mainnetIdForTestnetId).map(([testnetId, mainnetId]) => [
+		networksByChainId[testnetId]!,
+		networksByChainId[mainnetId]!,
+	]),
 )
 
 export const testnetIdsForMainnetId = Object.fromEntries(
 	Array.from(
-		(
-			Map.groupBy(
-				mainnetTestnetMappings,
-				mapping => mapping.mainnetChainId
-			)
-			.entries()
-		),
+		Map.groupBy(
+			mainnetTestnetMappings,
+			(mapping) => mapping.mainnetChainId,
+		).entries(),
 		([mainnetId, mappings]) => [
 			mainnetId,
 			mappings.map((m) => m.testnetChainId),
@@ -461,9 +464,8 @@ export const testnetIdsForMainnetId = Object.fromEntries(
 )
 
 export const testnetsForMainnet = new Map(
-	Object.entries(testnetIdsForMainnetId)
-		.map(([mainnetId, testnetIds]) => [
-			networksByChainId[mainnetId]!,
-			testnetIds.map((testnetId) => networksByChainId[testnetId]!),
-		])
+	Object.entries(testnetIdsForMainnetId).map(([mainnetId, testnetIds]) => [
+		networksByChainId[mainnetId]!,
+		testnetIds.map((testnetId) => networksByChainId[testnetId]!),
+	]),
 )

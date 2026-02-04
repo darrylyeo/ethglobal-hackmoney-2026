@@ -83,7 +83,11 @@
 							: 'circle')
 
 		const getEdgeTypeFromRelation = (relation?: string) =>
-			relation === 'connection' ? 'cubic' : relation === 'allowance' ? 'quadratic' : 'line'
+			relation === 'connection'
+				? 'cubic'
+				: relation === 'allowance'
+					? 'quadratic'
+					: 'line'
 
 		const getEdgeType = (edge: GraphModel['edges'][number]) =>
 			typeof edge.type === 'string' && edge.type.includes('curved')
@@ -154,7 +158,10 @@
 					haloStroke: isAllowance ? (edge.color ?? '#94a3b8') : undefined,
 					haloStrokeOpacity: isAllowance ? 0.25 : undefined,
 					shadowBlur: relation !== 'edge' && !isAllowance ? 4 : undefined,
-					shadowColor: relation !== 'edge' && !isAllowance ? 'rgba(0,0,0,0.15)' : undefined,
+					shadowColor:
+						relation !== 'edge' && !isAllowance
+							? 'rgba(0,0,0,0.15)'
+							: undefined,
 					labelText: relation !== 'edge' ? relation : '',
 					labelBackground: true,
 					labelBackgroundFill,
@@ -168,10 +175,7 @@
 			}
 		}
 
-		let intentById = new Map<
-			string,
-			GraphModel['nodes'][number]['intent']
-		>()
+		let intentById = new Map<string, GraphModel['nodes'][number]['intent']>()
 		let sourceIntent: GraphModel['nodes'][number]['intent'] | null = null
 		let sourceProxy: HTMLDivElement | null = null
 		let targetProxy: HTMLDivElement | null = null
@@ -182,7 +186,9 @@
 					.filter((node) => node.intent)
 					.map((node) => [node.id, node.intent]),
 			)
-			const collections = [...new Set(model.nodes.map((node) => node.collection))]
+			const collections = [
+				...new Set(model.nodes.map((node) => node.collection)),
+			]
 			const combos = collections.map((collection) => {
 				const firstNode = model.nodes.find((n) => n.collection === collection)
 				const fill = firstNode?.color ?? '#64748b'
@@ -216,12 +222,13 @@
 		}
 
 		const getEventTargetId = (event: unknown) =>
-			isRecord(event) && isRecord(event.target) && typeof event.target.id === 'string'
+			isRecord(event) &&
+			isRecord(event.target) &&
+			typeof event.target.id === 'string'
 				? event.target.id
 				: null
 
-		const getIntentPayload = (nodeId: string) =>
-			intentById.get(nodeId) ?? null
+		const getIntentPayload = (nodeId: string) => intentById.get(nodeId) ?? null
 
 		const ensureProxy = (role: 'source' | 'target') => {
 			const current = role === 'source' ? sourceProxy : targetProxy
@@ -391,10 +398,7 @@
 			const states = graph
 				.getElementState(nodeId)
 				.filter((state) => state !== 'hover')
-			graph.setElementState(
-				nodeId,
-				isHovered ? [...states, 'hover'] : states,
-			)
+			graph.setElementState(nodeId, isHovered ? [...states, 'hover'] : states)
 		}
 
 		const clearSelection = () => {
@@ -549,7 +553,9 @@
 				animation: reducedMotion
 					? false
 					: {
-							update: [{ fields: ['x', 'y', 'width', 'height'], duration: 250 }],
+							update: [
+								{ fields: ['x', 'y', 'width', 'height'], duration: 250 },
+							],
 						},
 			},
 			behaviors: [

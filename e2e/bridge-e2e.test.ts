@@ -57,7 +57,9 @@ test.describe('E2E bridge flow', () => {
 			await page
 				.getByRole('option', { name: 'Ethereum' })
 				.scrollIntoViewIfNeeded()
-			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
+			await page
+				.getByRole('option', { name: 'Ethereum' })
+				.click({ force: true })
 			await page.getByLabel('To chain').focus()
 			await page.getByLabel('To chain').press('ArrowDown')
 			await page
@@ -181,11 +183,14 @@ test.describe('E2E bridge flow', () => {
 			await expect(
 				page.getByRole('heading', { name: 'Your balances' }),
 			).toBeVisible({ timeout: 20_000 })
-			await page.locator('#main').first().evaluate((el) => {
-				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
-					block: 'center',
+			await page
+				.locator('#main')
+				.first()
+				.evaluate((el) => {
+					el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
+						block: 'center',
+					})
 				})
-			})
 			await page.getByLabel('From chain').focus()
 			await page.getByLabel('From chain').press('ArrowDown')
 			await page
@@ -194,7 +199,9 @@ test.describe('E2E bridge flow', () => {
 			await page
 				.getByRole('option', { name: 'Ethereum' })
 				.scrollIntoViewIfNeeded()
-			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
+			await page
+				.getByRole('option', { name: 'Ethereum' })
+				.click({ force: true })
 			await page.locator('[data-wallet-network-testnet]').click()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText(
 				'Testnet',
@@ -253,11 +260,14 @@ test.describe('E2E bridge flow', () => {
 			await expect(
 				page.getByRole('heading', { name: 'Your balances' }),
 			).toBeVisible({ timeout: 20_000 })
-			await page.locator('#main').first().evaluate((el) => {
-				el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
-					block: 'center',
+			await page
+				.locator('#main')
+				.first()
+				.evaluate((el) => {
+					el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
+						block: 'center',
+					})
 				})
-			})
 			await page.getByLabel('From chain').scrollIntoViewIfNeeded()
 			await page.getByLabel('From chain').focus()
 			await page.getByLabel('From chain').press('ArrowDown')
@@ -267,7 +277,9 @@ test.describe('E2E bridge flow', () => {
 			await page
 				.getByRole('option', { name: 'Ethereum' })
 				.scrollIntoViewIfNeeded()
-			await page.getByRole('option', { name: 'Ethereum' }).click({ force: true })
+			await page
+				.getByRole('option', { name: 'Ethereum' })
+				.click({ force: true })
 			await page.getByLabel('To chain').focus()
 			await page.getByLabel('To chain').press('ArrowDown')
 			await page

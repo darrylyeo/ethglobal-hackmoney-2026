@@ -41,10 +41,9 @@
 	import { executeSelectedRoute } from '$/api/lifi'
 	import { sendTransfer } from '$/api/yellow'
 	import { encodeTransferCall } from '$/api/voltaire'
-	const resolveChainName = (chainId: number) => (
-		Object.values(networksByChainId).find((entry) => entry?.id === chainId)?.name ??
-		`Chain ${chainId}`
-	)
+	const resolveChainName = (chainId: number) =>
+		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
+			?.name ?? `Chain ${chainId}`
 
 	// State
 	import { actorCoinsCollection } from '$/collections/actor-coins'
@@ -88,9 +87,8 @@
 		event.preventDefault()
 	}
 
-	const isRecord = (value: unknown): value is Record<string, unknown> => (
+	const isRecord = (value: unknown): value is Record<string, unknown> =>
 		typeof value === 'object' && value !== null
-	)
 	const isIntentDragPayload = (value: unknown): value is IntentDragPayload => {
 		if (!isRecord(value)) return false
 		const entity = value.entity
@@ -100,8 +98,8 @@
 	const normalizeIntentParams = (
 		params: Record<string, unknown> | null,
 	): IntentSessionParams => ({
-		from: isIntentDragPayload(params?.from) ? params?.from ?? null : null,
-		to: isIntentDragPayload(params?.to) ? params?.to ?? null : null,
+		from: isIntentDragPayload(params?.from) ? (params?.from ?? null) : null,
+		to: isIntentDragPayload(params?.to) ? (params?.to ?? null) : null,
 		routeId: typeof params?.routeId === 'string' ? params.routeId : null,
 	})
 	const activateSession = (sessionId: string) => {
@@ -152,6 +150,28 @@
 			.where(({ row }) => eq(row.$source, DataSource.LiFi))
 			.select(({ row }) => ({ row })),
 	)
+	const liveQueryEntries = [
+		{
+			id: 'intents-session',
+			label: 'Session',
+			query: sessionQuery,
+		},
+		{
+			id: 'intents-balances',
+			label: 'Balances',
+			query: balancesQuery,
+		},
+		{
+			id: 'intents-swap-quotes',
+			label: 'Swap Quotes',
+			query: swapQuotesQuery,
+		},
+		{
+			id: 'intents-bridge-routes',
+			label: 'Bridge Routes',
+			query: bridgeRoutesQuery,
+		},
+	]
 
 	// (Derived)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
@@ -509,7 +529,9 @@
 							? parsed.actions.map((action) => action.action)
 							: ['intent'],
 					params: normalizeIntentParams(
-						parsed.kind === 'actions' ? parsed.actions[0]?.params ?? null : null,
+						parsed.kind === 'actions'
+							? (parsed.actions[0]?.params ?? null)
+							: null,
 					),
 				}).id,
 			)
@@ -523,8 +545,7 @@
 		if (!session) return
 		const intendedRouteId = routes[0]?.id ?? null
 		const currentInvalid =
-			!selectedRouteId ||
-			!routes.some((route) => route.id === selectedRouteId)
+			!selectedRouteId || !routes.some((route) => route.id === selectedRouteId)
 		if (currentInvalid && sessionParams.routeId !== intendedRouteId) {
 			updateIntentParams({
 				...sessionParams,
@@ -533,19 +554,16 @@
 		}
 	})
 
-
 	// Components
 	import Wallets from '$/views/Wallets.svelte'
 	import EntityId from '$/components/EntityId.svelte'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import TransferFlow from '$/routes/session/TransferFlow.svelte'
 </script>
 
-<main
-	id="main"
-	data-column="gap-6"
-	data-sticky-container
->
+<LiveQueryScope entries={liveQueryEntries}>
+<main id="main" data-column="gap-6" data-sticky-container>
 	<section data-scroll-item data-column="gap-3">
 		<h1>Entity intents</h1>
 		<p data-muted>Drag balances into from/to slots to resolve intents.</p>
@@ -732,15 +750,13 @@
 						mode={selectedRoute.steps[0].mode}
 					/>
 				{:else}
-					<TransactionFlow
-						walletConnection={selectedWallet}
-						{transactions}
-					/>
+					<TransactionFlow walletConnection={selectedWallet} {transactions} />
 				{/if}
 			</div>
 		</section>
 	{/if}
 </main>
+</LiveQueryScope>
 
 <style>
 	.intent-slot {

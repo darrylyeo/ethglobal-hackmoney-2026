@@ -15,5 +15,4 @@
 	import Balances from '$/views/Balances.svelte'
 </script>
 
-
 <Balances {selectedActor} {balanceTokens} />

@@ -51,8 +51,8 @@
 	const roomDisplayName = $derived(roomIdToDisplayName(roomId))
 	const roomShareUrl = $derived(
 		typeof globalThis !== 'undefined' &&
-		'location' in globalThis &&
-		globalThis.location
+			'location' in globalThis &&
+			globalThis.location
 			? `${globalThis.location.origin}${resolve(`/rooms/${roomId}`)}`
 			: resolve(`/rooms/${roomId}`),
 	)
@@ -79,17 +79,11 @@
 	import PeerCard from '../PeerCard.svelte'
 </script>
 
-
 <svelte:head>
 	<title>{roomDisplayName}</title>
 </svelte:head>
 
-
-<main
-	id="main"
-	data-column
-	data-sticky-container
->
+<main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
 		<h1>{roomDisplayName}</h1>
 
@@ -120,10 +114,7 @@
 			</div>
 			<div data-column="gap-2">
 				<p>{roomDisplayName}</p>
-				<a
-					href={resolve(`/rooms/${roomId}`)}
-					title={roomShareUrl}
-				>
+				<a href={resolve(`/rooms/${roomId}`)} title={roomShareUrl}>
 					Open room link
 				</a>
 			</div>
@@ -132,71 +123,71 @@
 
 	<section data-scroll-item>
 		<details open data-card>
-		<summary>
-			<header data-card="secondary" data-row="wrap gap-2">
-				<Wallets
-					bind:connectedWallets
-					bind:selectedActor
-					bind:selectedChainId
-					selectionMode="multiple"
-				/>
-			</header>
-		</summary>
+			<summary>
+				<header data-card="secondary" data-row="wrap gap-2">
+					<Wallets
+						bind:connectedWallets
+						bind:selectedActor
+						bind:selectedChainId
+						selectionMode="multiple"
+					/>
+				</header>
+			</summary>
 
-		<div data-column="gap-6" data-room-structure>
-			<section data-me data-card="secondary">
-				<h2>Me</h2>
-				{#if roomState.peerId}
-					{@const me = {
-						id: `${roomId}:${roomState.peerId}`,
-						roomId,
-						peerId: roomState.peerId,
-						displayName: getOrCreatePeerDisplayName(),
-						joinedAt: 0,
-						lastSeenAt: 0,
-						connectedAt: 0,
-						isConnected: true,
-					}}
-					<header data-row="wrap gap-2 align-center">
-						<Peer peer={me} />
-					</header>
-					<AddressSharing {roomId} addresses={selectedAddresses} {provider} />
-				{:else}
-					<p>Connecting…</p>
-				{/if}
-			</section>
-
-			<section data-peers>
-				<h2>Peers</h2>
-				{#if others.length === 0}
-					<p>No other peers in this room.</p>
-				{:else}
-					{@const connected = others.filter((p) => p.isConnected)}
-					{@const disconnected = others.filter((p) => !p.isConnected)}
-					{#if connected.length > 0}
-						<ul data-peer-cards>
-							{#each connected as peer (peer.id)}
-								<li>
-									<PeerCard {peer} {roomId} {provider} />
-								</li>
-							{/each}
-						</ul>
+			<div data-column="gap-6" data-room-structure>
+				<section data-me data-card="secondary">
+					<h2>Me</h2>
+					{#if roomState.peerId}
+						{@const me = {
+							id: `${roomId}:${roomState.peerId}`,
+							roomId,
+							peerId: roomState.peerId,
+							displayName: getOrCreatePeerDisplayName(),
+							joinedAt: 0,
+							lastSeenAt: 0,
+							connectedAt: 0,
+							isConnected: true,
+						}}
+						<header data-row="wrap gap-2 align-center">
+							<Peer peer={me} />
+						</header>
+						<AddressSharing {roomId} addresses={selectedAddresses} {provider} />
+					{:else}
+						<p>Connecting…</p>
 					{/if}
-					{#if disconnected.length > 0}
-						<details data-disconnected-peers>
-							<summary>Disconnected ({disconnected.length})</summary>
+				</section>
+
+				<section data-peers>
+					<h2>Peers</h2>
+					{#if others.length === 0}
+						<p>No other peers in this room.</p>
+					{:else}
+						{@const connected = others.filter((p) => p.isConnected)}
+						{@const disconnected = others.filter((p) => !p.isConnected)}
+						{#if connected.length > 0}
 							<ul data-peer-cards>
-								{#each disconnected as peer (peer.id)}
+								{#each connected as peer (peer.id)}
 									<li>
 										<PeerCard {peer} {roomId} {provider} />
 									</li>
 								{/each}
 							</ul>
-						</details>
+						{/if}
+						{#if disconnected.length > 0}
+							<details data-disconnected-peers>
+								<summary>Disconnected ({disconnected.length})</summary>
+								<ul data-peer-cards>
+									{#each disconnected as peer (peer.id)}
+										<li>
+											<PeerCard {peer} {roomId} {provider} />
+										</li>
+									{/each}
+								</ul>
+							</details>
+						{/if}
 					{/if}
-				{/if}
-			</section>
-		</div>
+				</section>
+			</div>
 		</details>
 	</section>
 </main>

@@ -3,7 +3,7 @@
 	import type { Snippet } from 'svelte'
 
 	type DropdownActionItem<Item> = {
-	type: string
+		type: string
 		item: Item
 		id?: string
 		label?: string
@@ -12,12 +12,12 @@
 	}
 
 	type DropdownSeparator = {
-	type: string
+		type: string
 		id?: string
 	}
 
 	type DropdownCheckboxItem = {
-	type: string
+		type: string
 		id?: string
 		label: string
 		checked: boolean
@@ -26,7 +26,7 @@
 	}
 
 	type DropdownCheckboxGroup = {
-	type: string
+		type: string
 		id?: string
 		label?: string
 		items: readonly {
@@ -39,7 +39,7 @@
 	}
 
 	type DropdownRadioGroup = {
-	type: string
+		type: string
 		id?: string
 		label?: string
 		value: string
@@ -120,22 +120,19 @@
 		  }
 
 	const defaultItemLabel = (item: Item) => String(item)
-	const isRecord = (value: unknown): value is Record<string, unknown> => (
+	const isRecord = (value: unknown): value is Record<string, unknown> =>
 		typeof value === 'object' && value !== null
-	)
-	const isDeclaredItem = (value: unknown): value is DropdownDeclaredItem<Item> => (
+	const isDeclaredItem = (
+		value: unknown,
+	): value is DropdownDeclaredItem<Item> =>
 		isRecord(value) &&
-		(
-			(value.type === 'item' && 'item' in value) ||
+		((value.type === 'item' && 'item' in value) ||
 			value.type === 'separator' ||
 			value.type === 'checkbox' ||
 			value.type === 'checkbox-group' ||
-			value.type === 'radio-group'
-		)
-	)
-	const isGroup = (value: unknown): value is DropdownGroup<Item> => (
+			value.type === 'radio-group')
+	const isGroup = (value: unknown): value is DropdownGroup<Item> =>
 		isRecord(value) && Array.isArray(value.items) && !isDeclaredItem(value)
-	)
 
 	// Props
 	let {
@@ -165,36 +162,45 @@
 		getItemLabel?: (item: Item) => string
 		getItemDisabled?: (item: Item) => boolean
 		Trigger?: Snippet
-	Item?: Snippet<[item: any]>
-		CheckboxItem?: Snippet<[item: {
-			label: string
-			checked: boolean
-		}]>
-		RadioItem?: Snippet<[item: {
-			label: string
-			value: string
-			checked: boolean
-		}]>
+		Item?: Snippet<[item: any]>
+		CheckboxItem?: Snippet<
+			[
+				item: {
+					label: string
+					checked: boolean
+				},
+			]
+		>
+		RadioItem?: Snippet<
+			[
+				item: {
+					label: string
+					value: string
+					checked: boolean
+				},
+			]
+		>
 		children?: Snippet
 		[key: string]: unknown
 	} = $props()
 
 	// (Derived)
 	const normalizedEntries: NormalizedItem<Item>[] = $derived(
-		items.map((entry, index) => (
+		items.map((entry, index) =>
 			isGroup(entry)
 				? {
 						kind: 'group',
 						id: entry.id ?? entry.label ?? `group-${index}`,
 						label: entry.label,
-						items: entry.items.map((item, itemIndex) => (
+						items: entry.items.map((item, itemIndex) =>
 							isDeclaredItem(item)
 								? item.type === 'item'
 									? {
 											kind: 'item',
 											id: item.id ?? getItemId(item.item),
 											label: item.label ?? getItemLabel(item.item),
-											disabled: item.disabled ??
+											disabled:
+												item.disabled ??
 												(getItemDisabled ? getItemDisabled(item.item) : false),
 											item: item.item,
 											onSelect: item.onSelect,
@@ -218,13 +224,15 @@
 														kind: 'checkbox-group',
 														id: item.id ?? `checkbox-group-${itemIndex}`,
 														label: item.label,
-														checkboxes: item.items.map((groupItem, groupIndex) => ({
-															id: groupItem.id ?? `checkbox-${groupIndex}`,
-															label: groupItem.label,
-															checked: groupItem.checked,
-															disabled: groupItem.disabled ?? false,
-															onCheckedChange: groupItem.onCheckedChange,
-														})),
+														checkboxes: item.items.map(
+															(groupItem, groupIndex) => ({
+																id: groupItem.id ?? `checkbox-${groupIndex}`,
+																label: groupItem.label,
+																checked: groupItem.checked,
+																disabled: groupItem.disabled ?? false,
+																onCheckedChange: groupItem.onCheckedChange,
+															}),
+														),
 													}
 												: {
 														kind: 'radio-group',
@@ -245,8 +253,8 @@
 										label: getItemLabel(item),
 										disabled: getItemDisabled ? getItemDisabled(item) : false,
 										item,
-									}
-						)),
+									},
+						),
 					}
 				: isDeclaredItem(entry)
 					? entry.type === 'item'
@@ -254,7 +262,8 @@
 								kind: 'item',
 								id: entry.id ?? getItemId(entry.item),
 								label: entry.label ?? getItemLabel(entry.item),
-								disabled: entry.disabled ??
+								disabled:
+									entry.disabled ??
 									(getItemDisabled ? getItemDisabled(entry.item) : false),
 								item: entry.item,
 								onSelect: entry.onSelect,
@@ -305,25 +314,20 @@
 							label: getItemLabel(entry),
 							disabled: getItemDisabled ? getItemDisabled(entry) : false,
 							item: entry,
-						}
-		)),
+						},
+		),
 	)
 
 	// Actions
-	const onItemSelectInternal = (item: Item, onSelect?: () => void) => (
+	const onItemSelectInternal = (item: Item, onSelect?: () => void) =>
 		onSelect ? onSelect() : onItemSelect?.(item)
-	)
 
 	// Components
 	import { DropdownMenu } from 'bits-ui'
 </script>
 
-
 <DropdownMenu.Root {...rootProps}>
-	<DropdownMenu.Trigger
-		aria-label={triggerAriaLabel}
-		{...triggerProps}
-	>
+	<DropdownMenu.Trigger aria-label={triggerAriaLabel} {...triggerProps}>
 		{#if Trigger}
 			{@render Trigger()}
 		{:else}
@@ -446,7 +450,8 @@
 					<DropdownMenu.CheckboxItem
 						checked={checkboxItem.checked}
 						disabled={checkboxItem.disabled}
-						onCheckedChange={(checked) => checkboxItem.onCheckedChange?.(checked)}
+						onCheckedChange={(checked) =>
+							checkboxItem.onCheckedChange?.(checked)}
 					>
 						{#if CheckboxItem}
 							{@render CheckboxItem({

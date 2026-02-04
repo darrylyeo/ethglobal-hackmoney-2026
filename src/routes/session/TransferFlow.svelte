@@ -50,9 +50,8 @@
 		walletAddress: `0x${string}`
 		mode: 'wallet' | 'e2e'
 	}
-	const isHexString = (value: unknown): value is `0x${string}` => (
+	const isHexString = (value: unknown): value is `0x${string}` =>
 		typeof value === 'string' && value.startsWith('0x')
-	)
 
 	let activeSessionId = $state<string | null>(null)
 
@@ -65,6 +64,13 @@
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
 	)
+	const liveQueryEntries = [
+		{
+			id: 'transfer-flow-session',
+			label: 'Session',
+			query: sessionQuery,
+		},
+	]
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const transferDefaults = $derived({
 		fromActor,
@@ -81,16 +87,17 @@
 	)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
-	const hashSource = getContext<import('$/lib/dashboard-panel-hash').SessionHashSource>(
-		SESSION_HASH_SOURCE_KEY,
-	)
+	const hashSource = getContext<
+		import('$/lib/dashboard-panel-hash').SessionHashSource
+	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 	const amountLabel = $derived(
 		formatSmallestToDecimal(settings.amount, settings.tokenDecimals),
 	)
 	const chainLabel = $derived(
-		Object.values(networksByChainId).find((entry) => entry?.id === settings.chainId)
-			?.name ?? `Chain ${settings.chainId}`,
+		Object.values(networksByChainId).find(
+			(entry) => entry?.id === settings.chainId,
+		)?.name ?? `Chain ${settings.chainId}`,
 	)
 	const transferCoin = $derived<Coin>({
 		type: CoinType.Erc20,
@@ -101,12 +108,11 @@
 	})
 	const canTransfer = $derived(
 		settings.amount > 0n &&
-			(settings.mode === 'channel' ?
-				Boolean(yellowState.clearnodeConnection) &&
+			(settings.mode === 'channel'
+				? Boolean(yellowState.clearnodeConnection) &&
 					yellowState.address?.toLowerCase() ===
 						settings.fromActor.toLowerCase()
-			:
-				true),
+				: true),
 	)
 
 	const activateSession = (sessionId: string) => {
@@ -126,7 +132,9 @@
 	$effect(() => {
 		const hash = hashSource.enabled
 			? effectiveHash
-			: (typeof window !== 'undefined' ? window.location.hash : '')
+			: typeof window !== 'undefined'
+				? window.location.hash
+				: ''
 		const parsed = parseSessionHash(hash)
 		if (parsed.kind === 'session') {
 			if (parsed.sessionId === activeSessionId && session) return
@@ -151,7 +159,7 @@
 						: ['transfer'],
 				params:
 					parsed.kind === 'actions'
-						? parsed.actions[0]?.params ?? transferDefaults
+						? (parsed.actions[0]?.params ?? transferDefaults)
 						: transferDefaults,
 				defaults: { transfer: transferDefaults },
 			}).id,
@@ -185,7 +193,7 @@
 							: ['transfer'],
 					params:
 						parsed.kind === 'actions'
-							? parsed.actions[0]?.params ?? transferDefaults
+							? (parsed.actions[0]?.params ?? transferDefaults)
 							: transferDefaults,
 					defaults: { transfer: transferDefaults },
 				}).id,
@@ -226,7 +234,9 @@
 		if (!yellowState.address) {
 			throw new Error('Missing Yellow wallet address.')
 		}
-		if (yellowState.address.toLowerCase() !== settings.fromActor.toLowerCase()) {
+		if (
+			yellowState.address.toLowerCase() !== settings.fromActor.toLowerCase()
+		) {
 			throw new Error('Active Yellow address must match the transfer sender.')
 		}
 		await sendTransfer({
@@ -245,23 +255,23 @@
 			throw new Error('Active wallet address must match the transfer sender.')
 		}
 		const txHash =
-			args.mode === 'e2e' ?
-				await requestE2eTevmValueTransfer({
-					provider: args.provider,
-					from: args.walletAddress,
-					to: settings.toActor,
-					value: settings.amount,
-				})
-			: await args.provider.request({
-					method: 'eth_sendTransaction',
-					params: [
-						{
-							from: args.walletAddress,
-							to: settings.tokenAddress,
-							data: encodeTransferCall(settings.toActor, settings.amount),
-						},
-					],
-				})
+			args.mode === 'e2e'
+				? await requestE2eTevmValueTransfer({
+						provider: args.provider,
+						from: args.walletAddress,
+						to: settings.toActor,
+						value: settings.amount,
+					})
+				: await args.provider.request({
+						method: 'eth_sendTransaction',
+						params: [
+							{
+								from: args.walletAddress,
+								to: settings.tokenAddress,
+								data: encodeTransferCall(settings.toActor, settings.amount),
+							},
+						],
+					})
 		if (!isHexString(txHash)) {
 			throw new Error('Direct transfer did not return a transaction hash.')
 		}
@@ -285,66 +295,68 @@
 
 	// Components
 	import CoinAmount from '$/views/CoinAmount.svelte'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 </script>
 
+<LiveQueryScope entries={liveQueryEntries}>
+	{#snippet transferSummary()}
+		<dl class="summary">
+			<dt>From</dt>
+			<dd data-intent-transition="source">
+				{formatAddress(settings.fromActor)}
+			</dd>
+			<dt>To</dt>
+			<dd data-intent-transition="target">{formatAddress(settings.toActor)}</dd>
+			<dt>Network</dt>
+			<dd>{chainLabel}</dd>
+			<dt>Amount</dt>
+			<dd>
+				<CoinAmount
+					coin={transferCoin}
+					amount={settings.amount}
+					draggable={false}
+				/>
+			</dd>
+			<dt>Mode</dt>
+			<dd>{settings.mode === 'channel' ? 'Channel (Yellow)' : 'Direct'}</dd>
+		</dl>
+	{/snippet}
 
-{#snippet transferSummary()}
-	<dl class="summary">
-		<dt>From</dt>
-		<dd data-intent-transition="source">{formatAddress(settings.fromActor)}</dd>
-		<dt>To</dt>
-		<dd data-intent-transition="target">{formatAddress(settings.toActor)}</dd>
-		<dt>Network</dt>
-		<dd>{chainLabel}</dd>
-		<dt>Amount</dt>
-		<dd>
-			<CoinAmount
-				coin={transferCoin}
-				amount={settings.amount}
-				draggable={false}
-			/>
-		</dd>
-		<dt>Mode</dt>
-		<dd>{settings.mode === 'channel' ? 'Channel (Yellow)' : 'Direct'}</dd>
-	</dl>
-{/snippet}
+	{#snippet transferDetails()}
+		<dl class="summary">
+			<dt>Token</dt>
+			<dd>{settings.tokenSymbol} ({formatAddress(settings.tokenAddress)})</dd>
+			<dt>Transfer amount</dt>
+			<dd>{amountLabel} {settings.tokenSymbol}</dd>
+		</dl>
+		{#if settings.mode === 'channel' && !yellowState.clearnodeConnection}
+			<p data-muted>Connect a Yellow clearnode to send.</p>
+		{/if}
+	{/snippet}
 
-{#snippet transferDetails()}
-	<dl class="summary">
-		<dt>Token</dt>
-		<dd>{settings.tokenSymbol} ({formatAddress(settings.tokenAddress)})</dd>
-		<dt>Transfer amount</dt>
-		<dd>{amountLabel} {settings.tokenSymbol}</dd>
-	</dl>
-	{#if settings.mode === 'channel' && !yellowState.clearnodeConnection}
-		<p data-muted>Connect a Yellow clearnode to send.</p>
+	{#if sessionLocked}
+		<div data-row="gap-2 align-center">
+			<Button.Root type="button" onclick={forkSession}>New draft</Button.Root>
+		</div>
 	{/if}
-{/snippet}
 
-{#if sessionLocked}
-	<div data-row="gap-2 align-center">
-		<Button.Root type="button" onclick={forkSession}>
-			New draft
-		</Button.Root>
-	</div>
-{/if}
-
-<TransactionFlow
-	{walletConnection}
-	Summary={transferSummary}
-	transactions={[
-		{
-			id: `transfer-${settings.chainId}-${settings.fromActor}-${settings.toActor}`,
-			chainId: settings.chainId,
-			title: 'Transfer',
-			actionLabel: 'Transfer',
-			canExecute: canTransfer,
-			execute: (args) =>
-				settings.mode === 'channel'
-					? executeChannelTransfer()
-					: executeDirectTransfer(args),
-			Details: transferDetails,
-		},
-	]}
-/>
+	<TransactionFlow
+		{walletConnection}
+		Summary={transferSummary}
+		transactions={[
+			{
+				id: `transfer-${settings.chainId}-${settings.fromActor}-${settings.toActor}`,
+				chainId: settings.chainId,
+				title: 'Transfer',
+				actionLabel: 'Transfer',
+				canExecute: canTransfer,
+				execute: (args) =>
+					settings.mode === 'channel'
+						? executeChannelTransfer()
+						: executeDirectTransfer(args),
+				Details: transferDetails,
+			},
+		]}
+	/>
+</LiveQueryScope>

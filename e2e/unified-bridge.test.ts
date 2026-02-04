@@ -48,12 +48,8 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		await ensureWalletConnected(page)
 		await selectChainOption(page, 'From chain', 'Ethereum')
 		await selectChainOption(page, 'To chain', 'OP Mainnet')
-		await expect(
-			page.locator('[data-protocol="cctp"]'),
-		).toContainText('CCTP')
-		await expect(
-			page.getByText(/Using CCTP|Only CCTP supports/),
-		).toBeVisible()
+		await expect(page.locator('[data-protocol="cctp"]')).toContainText('CCTP')
+		await expect(page.getByText(/Using CCTP|Only CCTP supports/)).toBeVisible()
 	})
 
 	test.fixme('chain pair that only LI.FI supports selects LI.FI', async ({
@@ -65,11 +61,14 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 15_000,
 		})
-		await page.locator('#main').first().evaluate((el) => {
-			el.querySelector<HTMLElement>('[data-to-chain]')?.scrollIntoView({
-				block: 'center',
+		await page
+			.locator('#main')
+			.first()
+			.evaluate((el) => {
+				el.querySelector<HTMLElement>('[data-to-chain]')?.scrollIntoView({
+					block: 'center',
+				})
 			})
-		})
 		await page.getByLabel('From chain').focus()
 		await page.getByLabel('From chain').press('ArrowDown')
 		await page.getByLabel('From chain').fill('Celo')
@@ -83,9 +82,7 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		const zkOption = page.getByRole('option', { name: 'ZKsync Era' }).first()
 		await zkOption.waitFor({ state: 'visible', timeout: 10_000 })
 		await zkOption.evaluate((el) => (el as HTMLElement).click())
-		await expect(
-			page.locator('[data-protocol="lifi"]'),
-		).toContainText('LI.FI')
+		await expect(page.locator('[data-protocol="lifi"]')).toContainText('LI.FI')
 		await expect(page.getByText(/Only LI.FI supports this pair/)).toBeVisible()
 	})
 
@@ -98,14 +95,15 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		await ensureWalletConnected(page)
 		await selectChainOption(page, 'From chain', 'Ethereum')
 		await selectChainOption(page, 'To chain', 'OP Mainnet')
-		await expect(
-			page.locator('[data-protocol="cctp"]'),
-		).toContainText('CCTP')
+		await expect(page.locator('[data-protocol="cctp"]')).toContainText('CCTP')
 		await selectProtocolOption(page, 'LI.FI')
 		await expect(
-			page.locator('section').filter({
-				has: page.getByRole('heading', { name: 'Protocol Selection' }),
-			}).getByText('LI.FI'),
+			page
+				.locator('section')
+				.filter({
+					has: page.getByRole('heading', { name: 'Protocol Selection' }),
+				})
+				.getByText('LI.FI'),
 		).toBeVisible({ timeout: 10_000 })
 	})
 })

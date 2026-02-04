@@ -63,10 +63,10 @@
 					return
 				}
 				status = 'error'
-				error = result.type === 'redirect' ?
-					`Redirected to ${result.location}`
-				:
-					`Route responded with status ${result.status}`
+				error =
+					result.type === 'redirect'
+						? `Redirected to ${result.location}`
+						: `Route responded with status ${result.status}`
 			} catch (e) {
 				if (loadToken !== token) return
 				status = 'error'
@@ -75,7 +75,6 @@
 		})()
 	})
 </script>
-
 
 {#if status === 'loading'}
 	<p>Loading route data...</p>

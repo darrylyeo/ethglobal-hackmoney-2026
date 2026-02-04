@@ -81,7 +81,6 @@ export const connectToRoom = (roomId: string): RoomConnection => {
 	}
 }
 
-
 // Room ID encoding: hex string <-> human-readable "Adjective Noun" pairs
 // Each pair encodes `adjectives.length * nouns.length` values (~2352 with current lists)
 
@@ -91,11 +90,7 @@ const ROOM_ID_MIN_PAIRS = 2
 
 export const generateRoomId = () => {
 	const bytes = crypto.getRandomValues(new Uint8Array(ROOM_ID_BYTES))
-	return (
-		[...bytes]
-			.map((b) => b.toString(16).padStart(2, '0'))
-			.join('')
-	)
+	return [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 export const roomIdToDisplayName = (roomId: string) => {
@@ -107,7 +102,9 @@ export const roomIdToDisplayName = (roomId: string) => {
 		const pairIndex = Number(remaining % ROOM_PAIR_BASE)
 		const adjIndex = Math.floor(pairIndex / roomNouns.length)
 		const nounIndex = pairIndex % roomNouns.length
-		pairs.push(`${roomAdjectives[adjIndex].adjective} ${roomNouns[nounIndex].noun}`)
+		pairs.push(
+			`${roomAdjectives[adjIndex].adjective} ${roomNouns[nounIndex].noun}`,
+		)
 		remaining = remaining / ROOM_PAIR_BASE
 	} while (remaining > 0n)
 
@@ -188,9 +185,7 @@ export const peerNameToEmoji = (
 		const emoji = peerNounsByName.get(animal)
 		if (emoji) return emoji
 	}
-	return peerNounIcons[
-		simpleHash(fallbackId) % peerNounIcons.length
-	]
+	return peerNounIcons[simpleHash(fallbackId) % peerNounIcons.length]
 }
 
 export const createRoom = (_name?: string): Promise<string> =>

@@ -19,37 +19,27 @@ export type RouteEntry = {
 	paramKeys: string[]
 }
 
-const routeImports = import.meta.glob<RouteModule>('/src/routes/**/+page.svelte')
+const routeImports = import.meta.glob<RouteModule>(
+	'/src/routes/**/+page.svelte',
+)
 
 const toRoutePath = (filePath: string) =>
-	(
-		filePath
-			.replace('/src/routes', '')
-			.replace('/+page.svelte', '')
-		|| '/'
-	)
+	filePath.replace('/src/routes', '').replace('/+page.svelte', '') || '/'
 
 const toSegments = (routePath: string) =>
-	(
-		routePath === '/' ?
-			[]
-		:
-			routePath
+	routePath === '/'
+		? []
+		: routePath
 				.split('/')
 				.filter(Boolean)
 				.map((segment) => {
 					const match = /^\[(\.\.\.)?(.+)\]$/.exec(segment)
-					return match ?
-						(
-							match[1] ?
-								{ type: 'rest', name: match[2] }
-							:
-								{ type: 'param', name: match[2] }
-						)
-					:
-						{ type: 'static', value: segment }
+					return match
+						? match[1]
+							? { type: 'rest', name: match[2] }
+							: { type: 'param', name: match[2] }
+						: { type: 'static', value: segment }
 				})
-	)
 
 export const routeEntries: RouteEntry[] = Object.entries(routeImports)
 	.map(([filePath, load]) => {
@@ -66,81 +56,67 @@ export const routeEntries: RouteEntry[] = Object.entries(routeImports)
 	})
 	.filter((entry) => !entry.path.startsWith('/dashboard'))
 
-export const defaultRoutePath = routeEntries.find((entry) =>
-	entry.path === '/'
-)?.path ?? (routeEntries[0]?.path ?? '/')
+export const defaultRoutePath =
+	routeEntries.find((entry) => entry.path === '/')?.path ??
+	routeEntries[0]?.path ??
+	'/'
 
 export const buildRoutePath = (route: RoutePathInput) =>
-	(
-		route.path === '/' ?
-			'/'
-		:
-			'/' + toSegments(route.path)
+	route.path === '/'
+		? '/'
+		: '/' +
+			toSegments(route.path)
 				.map((segment) =>
-					segment.type === 'static' ?
-						segment.value
-					:
-						route.params[segment.name] ?? '',
+					segment.type === 'static'
+						? segment.value
+						: (route.params[segment.name] ?? ''),
 				)
 				.join('/')
 				.replace(/\/+$/, '')
-	)
 
 export const matchRoutePath = (path: string) => {
 	const normalized = path === '/' ? [] : path.split('/').filter(Boolean)
-	return (
-		routeEntries
-			.map((entry) => {
-				const params: Record<string, string> = {}
-				const isMatch = entry.segments.every((segment, index) => {
-					const part = normalized[index]
-					if (segment.type === 'static') return segment.value === part
-					if (segment.type === 'param') {
-						if (!part) return false
-						params[segment.name] = part
-						return true
-					}
-					const rest = normalized.slice(index)
-					if (rest.length === 0) return false
-					params[segment.name] = rest.join('/')
+	return routeEntries
+		.map((entry) => {
+			const params: Record<string, string> = {}
+			const isMatch = entry.segments.every((segment, index) => {
+				const part = normalized[index]
+				if (segment.type === 'static') return segment.value === part
+				if (segment.type === 'param') {
+					if (!part) return false
+					params[segment.name] = part
 					return true
-				})
-				return isMatch && (
-					normalized.length === entry.segments.length
-					|| entry.segments.some((segment) => segment.type === 'rest')
-				) ?
-					{ entry, params }
-				: null
+				}
+				const rest = normalized.slice(index)
+				if (rest.length === 0) return false
+				params[segment.name] = rest.join('/')
+				return true
 			})
-			.find((entry) => entry !== null)
-	)
+			return isMatch &&
+				(normalized.length === entry.segments.length ||
+					entry.segments.some((segment) => segment.type === 'rest'))
+				? { entry, params }
+				: null
+		})
+		.find((entry) => entry !== null)
 }
 
-export const parsePanelHref = (
-	href: string,
-	origin: string,
-) =>
-	(
-		(() => {
-			try {
-				return new URL(href, origin)
-			} catch {
-				return null
-			}
-		})()
-	)
+export const parsePanelHref = (href: string, origin: string) =>
+	(() => {
+		try {
+			return new URL(href, origin)
+		} catch {
+			return null
+		}
+	})()
 
-export const toPanelNavigation = (
-	href: string,
-	origin: string,
-) =>
-	(
-		(() => {
-			const url = parsePanelHref(href, origin)
-			if (!url || url.origin !== origin) return null
-			const match = matchRoutePath(url.pathname)
-			return match ?
-				{
+export const toPanelNavigation = (href: string, origin: string) =>
+	(() => {
+		const url = parsePanelHref(href, origin)
+		if (!url || url.origin !== origin) return null
+		const match = matchRoutePath(url.pathname)
+		return match
+			? {
 					route: {
 						path: match.entry.path,
 						params: match.params,
@@ -148,5 +124,4 @@ export const toPanelNavigation = (
 					hash: url.hash.length > 0 ? url.hash : null,
 				}
 			: null
-		})()
-	)
+	})()

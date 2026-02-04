@@ -38,6 +38,18 @@
 			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
+	const liveQueryEntries = [
+		{
+			id: 'room-channels-wallets',
+			label: 'Wallets',
+			query: walletsQuery,
+		},
+		{
+			id: 'room-channels-connections',
+			label: 'Wallet Connections',
+			query: connectionsQuery,
+		},
+	]
 	const wallets = $derived((walletsQuery.data ?? []).map((r) => r.row))
 	const connections = $derived((connectionsQuery.data ?? []).map((r) => r.row))
 	const selectedConnection = $derived(
@@ -68,31 +80,28 @@
 	// Components
 	import ChannelList from '../../ChannelList.svelte'
 	import DepositManager from '../../DepositManager.svelte'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import TransferRequests from '../../TransferRequests.svelte'
 </script>
-
 
 <svelte:head>
 	<title>Channels – {roomDisplayName}</title>
 </svelte:head>
 
+<LiveQueryScope entries={liveQueryEntries}>
+	<main id="main" data-column data-sticky-container>
+		<h1>Channels – {roomDisplayName}</h1>
 
-<main
-	id="main"
-	data-column
-	data-sticky-container
->
-	<h1>Channels – {roomDisplayName}</h1>
+		<p>
+			<a href={resolve(`/rooms/${roomId}`)}>Back to room</a>
+			·
+			<a href="/channels/yellow">Yellow Channels</a>
+		</p>
 
-	<p>
-		<a href={resolve(`/rooms/${roomId}`)}>Back to room</a>
-		·
-		<a href="/channels/yellow">Yellow Channels</a>
-	</p>
-
-	<section data-column="gap-6">
-		<DepositManager {provider} />
-		<TransferRequests {roomId} />
-		<ChannelList {roomId} />
-	</section>
-</main>
+		<section data-column="gap-6">
+			<DepositManager {provider} />
+			<TransferRequests {roomId} />
+			<ChannelList {roomId} />
+		</section>
+	</main>
+</LiveQueryScope>

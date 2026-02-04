@@ -21,7 +21,7 @@
 		intentDragPreviewState,
 		selectIntentDragRoute,
 	} from '$/state/intent-drag-preview.svelte'
-	import { intentNavigationStore } from '$/state/intent-navigation.svelte'
+	import { getIntentNavigationStore } from '$/state/intent-navigation.svelte'
 	import { tick } from 'svelte'
 
 	// Components
@@ -33,11 +33,9 @@
 	import { swapQuotesCollection } from '$/collections/swap-quotes'
 	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
 
-	const isTestnetChain = (chainId: number) => (
-		Object.values(networksByChainId).find(
-			(entry) => entry?.id === chainId,
-		)?.type === NetworkType.Testnet
-	)
+	const isTestnetChain = (chainId: number) =>
+		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
+			?.type === NetworkType.Testnet
 	const withPlacement = (
 		payload: IntentDragPayload,
 		placement: 'from' | 'to',
@@ -53,23 +51,21 @@
 			action: 'swap' | 'bridge' | 'transfer' | 'intent'
 			params: Record<string, unknown>
 		}[],
-	) => (
-		`#${actions.map((entry) => (
-			Object.keys(entry.params).length > 0 ?
-				`${entry.action}:${encodeURIComponent(stringify(entry.params))}`
-			:
-				entry.action
-		)).join('|')}`
-	)
+	) =>
+		`#${actions
+			.map((entry) =>
+				Object.keys(entry.params).length > 0
+					? `${entry.action}:${encodeURIComponent(stringify(entry.params))}`
+					: entry.action,
+			)
+			.join('|')}`
 	const hasViewTransition = (
 		value: Document,
 	): value is Document & {
-		startViewTransition: (
-			update: () => void | Promise<void>,
-		) => { finished: Promise<unknown> }
-	} => (
-		'startViewTransition' in value
-	)
+		startViewTransition: (update: () => void | Promise<void>) => {
+			finished: Promise<unknown>
+		}
+	} => 'startViewTransition' in value
 	const runWithViewTransition = async (action: () => void | Promise<void>) => {
 		if (typeof document === 'undefined' || prefersReducedMotion) {
 			await action()
@@ -82,34 +78,29 @@
 		document.startViewTransition(() => action())
 	}
 	const navigateTo = async (path: string, hash: string) => {
-		const handler = intentNavigationStore.fn
+		const handler = getIntentNavigationStore().fn
 		if (handler) {
 			handler(path, hash)
 			return
 		}
 		await goto(`${path}${hash}`)
 	}
-	const tokenMatch = (address: string, tokenAddress: string) => (
+	const tokenMatch = (address: string, tokenAddress: string) =>
 		address.toLowerCase() === tokenAddress.toLowerCase()
-	)
-	const getTransferTokenMeta = (
-		chainId: number,
-		tokenAddress: string,
-	) =>
-		(
-			tokenListCoins.find(
-				(token) =>
-					token.chainId === chainId &&
-					tokenMatch(token.address, tokenAddress),
-			)
-			?? actorCoins.find(
-				(coin) =>
-					coin.$id.chainId === chainId &&
-					tokenMatch(coin.$id.tokenAddress, tokenAddress),
-			)
-			?? null
-		)
-	const buildSwapParams = (step: Extract<IntentRouteStep, { type: 'swap' }>) => ({
+	const getTransferTokenMeta = (chainId: number, tokenAddress: string) =>
+		tokenListCoins.find(
+			(token) =>
+				token.chainId === chainId && tokenMatch(token.address, tokenAddress),
+		) ??
+		actorCoins.find(
+			(coin) =>
+				coin.$id.chainId === chainId &&
+				tokenMatch(coin.$id.tokenAddress, tokenAddress),
+		) ??
+		null
+	const buildSwapParams = (
+		step: Extract<IntentRouteStep, { type: 'swap' }>,
+	) => ({
 		chainId: step.chainId,
 		tokenIn: step.quote.tokenIn,
 		tokenOut: step.quote.tokenOut,
@@ -146,38 +137,44 @@
 		}
 	}
 	const buildIntentParams = (route: IntentRoute) =>
-		(
-			sourcePayload && targetPayload ?
-				{
+		sourcePayload && targetPayload
+			? {
 					from: withPlacement(sourcePayload, 'from'),
 					to: withPlacement(targetPayload, 'to'),
 					routeId: route.id,
 				}
 			: {}
-		)
 	const buildRouteNavigation = (
 		route: IntentRoute,
 		resolution: IntentResolution | null,
 	) => {
 		if (route.steps.length > 0) {
-			const actions = route.steps.map((step) => (
-				step.type === 'swap' ?
-					{ action: 'swap', params: buildSwapParams(step) }
-				: step.type === 'bridge' ?
-					{ action: 'bridge', params: buildBridgeParams(step) }
-				:
-					{ action: 'transfer', params: buildTransferParams(step) }
-			)) satisfies {
+			const actions = route.steps.map((step) =>
+				step.type === 'swap'
+					? { action: 'swap', params: buildSwapParams(step) }
+					: step.type === 'bridge'
+						? { action: 'bridge', params: buildBridgeParams(step) }
+						: { action: 'transfer', params: buildTransferParams(step) },
+			) satisfies {
 				action: 'swap' | 'bridge' | 'transfer'
 				params: Record<string, unknown>
 			}[]
 			return { path: '/session', hash: toActionHash(actions) }
 		}
-		if (route.steps.length === 0 && resolution?.status === 'valid' && resolution.kind) {
+		if (
+			route.steps.length === 0 &&
+			resolution?.status === 'valid' &&
+			resolution.kind
+		) {
 			const { from, to } = resolution
 			const fd = from.dimensions
 			const td = to.dimensions
-			if (resolution.kind === 'swap' && fd.chainId !== null && fd.tokenAddress && td.tokenAddress) {
+			if (
+				resolution.kind === 'swap' &&
+				fd.chainId !== null &&
+				fd.tokenAddress &&
+				td.tokenAddress
+			) {
 				return {
 					path: '/session',
 					hash: toActionHash([
@@ -195,7 +192,12 @@
 					]),
 				}
 			}
-			if (resolution.kind === 'bridge' && fd.chainId !== null && td.chainId !== null && fd.actor) {
+			if (
+				resolution.kind === 'bridge' &&
+				fd.chainId !== null &&
+				td.chainId !== null &&
+				fd.actor
+			) {
 				return {
 					path: '/session',
 					hash: toActionHash([
@@ -317,27 +319,26 @@
 			: [],
 	)
 	const displayRoutes = $derived(
-		(
-			resolution?.status === 'valid' &&
-			resolution.kind &&
-			(resolution.kind === 'swap' ||
-				resolution.kind === 'bridge' ||
-				resolution.kind === 'transfer')
-				? [
-						{
-							id: `open-${resolution.kind}`,
-							label: resolution.kind.replaceAll('+', ' + '),
-							steps: [] as IntentRouteStep[],
-						} satisfies IntentRoute,
-					]
-				: []
+		(resolution?.status === 'valid' &&
+		resolution.kind &&
+		(resolution.kind === 'swap' ||
+			resolution.kind === 'bridge' ||
+			resolution.kind === 'transfer')
+			? [
+					{
+						id: `open-${resolution.kind}`,
+						label: resolution.kind.replaceAll('+', ' + '),
+						steps: [] as IntentRouteStep[],
+					} satisfies IntentRoute,
+				]
+			: []
 		).concat(routes),
 	)
 	const isActive = $derived(intentDragPreviewState.status !== 'idle')
 	const isInteractive = $derived(intentDragPreviewState.status === 'selected')
 	const effectiveTargetRect = $derived(
-		intentDragPreviewState.target?.rect
-			?? (pointerPosition
+		intentDragPreviewState.target?.rect ??
+			(pointerPosition
 				? new DOMRect(pointerPosition.x - 0.5, pointerPosition.y - 0.5, 1, 1)
 				: null),
 	)
@@ -431,7 +432,6 @@
 	})
 </script>
 
-
 {#if isActive && intentDragPreviewState.source && effectiveTargetRect}
 	<DragArrow
 		sourceRect={intentDragPreviewState.source.rect}
@@ -451,11 +451,13 @@
 						<strong>
 							{resolution.kind.replaceAll('+', ' + ')}
 						</strong>
-							<span data-muted>{routes.length} route{routes.length === 1 ? '' : 's'}</span>
+						<span data-muted
+							>{routes.length} route{routes.length === 1 ? '' : 's'}</span
+						>
 					</header>
-							{#if routes.length > 0}
-								<ol>
-									{#each routes as route (route.id)}
+					{#if routes.length > 0}
+						<ol>
+							{#each routes as route (route.id)}
 								<li>
 									<button
 										type="button"
@@ -463,16 +465,16 @@
 										disabled={!isInteractive}
 									>
 										<span
-											data-intent-transition={
-												intentDragPreviewState.selectedRouteId === route.id
-													? 'route'
-													: undefined
-											}
+											data-intent-transition={intentDragPreviewState.selectedRouteId ===
+											route.id
+												? 'route'
+												: undefined}
 										>
 											{route.label}
 										</span>
 										<small data-muted>
-											{route.steps.length} {route.steps.length === 1 ? 'step' : 'steps'}
+											{route.steps.length}
+											{route.steps.length === 1 ? 'step' : 'steps'}
 										</small>
 									</button>
 								</li>
@@ -491,7 +493,6 @@
 		{/snippet}
 	</DragArrow>
 {/if}
-
 
 <style>
 	.intent-drag-tooltip {

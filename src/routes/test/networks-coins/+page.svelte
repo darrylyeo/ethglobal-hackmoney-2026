@@ -1,8 +1,9 @@
 <script lang="ts">
-import { useLiveQuery, eq } from '@tanstack/svelte-db'
-import { DataSource } from '$/constants/data-sources'
-import { networksCollection } from '$/collections/networks'
-import { coinsCollection } from '$/collections/coins'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { DataSource } from '$/constants/data-sources'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
+	import { networksCollection } from '$/collections/networks'
+	import { coinsCollection } from '$/collections/coins'
 
 	const networksQuery = useLiveQuery((q) =>
 		q
@@ -18,17 +19,26 @@ import { coinsCollection } from '$/collections/coins'
 			.orderBy(({ coin }) => coin.chainId)
 			.select(({ coin }) => ({ coin })),
 	)
+	const liveQueryEntries = [
+		{
+			id: 'networks-coins-networks',
+			label: 'Networks',
+			query: networksQuery,
+		},
+		{
+			id: 'networks-coins-coins',
+			label: 'Coins',
+			query: coinsQuery,
+		},
+	]
 	const networks = $derived(
 		(networksQuery.data ?? []).map((row) => row.network),
 	)
 	const coins = $derived((coinsQuery.data ?? []).map((row) => row.coin))
 </script>
 
-<main
-	id="main"
-	data-column
-	data-sticky-container
->
+<LiveQueryScope entries={liveQueryEntries}>
+<main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
 		<h1>Networks and coins</h1>
 
@@ -59,3 +69,4 @@ import { coinsCollection } from '$/collections/coins'
 		{/if}
 	</section>
 </main>
+</LiveQueryScope>

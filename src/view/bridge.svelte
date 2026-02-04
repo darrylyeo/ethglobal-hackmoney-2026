@@ -7,9 +7,9 @@
 
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
-	let balanceTokens = $state<{ chainId: number; tokenAddress: `0x${string}` }[]>(
-		[],
-	)
+	let balanceTokens = $state<
+		{ chainId: number; tokenAddress: `0x${string}` }[]
+	>([])
 
 	const globalIsTestnet = $derived(bridgeSettingsState.current.isTestnet)
 
@@ -19,7 +19,6 @@
 	import Wallets from '$/views/Wallets.svelte'
 	import UnifiedBridgeFlow from '$/routes/session/UnifiedBridgeFlow.svelte'
 </script>
-
 
 <Session title="USDC Bridge">
 	{#snippet Context()}

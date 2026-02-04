@@ -58,7 +58,7 @@
 
 <Select
 	{...rootProps}
-	items={items}
+	{items}
 	bind:value={raw}
 	{getItemId}
 	{getItemLabel}
@@ -66,7 +66,7 @@
 	{disabled}
 	{name}
 	{id}
-	ariaLabel={ariaLabel}
+	{ariaLabel}
 	Item={ItemSnippet ?? defaultItem}
 />
 

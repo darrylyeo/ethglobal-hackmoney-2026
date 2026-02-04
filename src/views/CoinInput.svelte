@@ -26,20 +26,15 @@
 	} = $props()
 
 	// Functions
-	const toCoinId = (coin: Coin) => (
+	const toCoinId = (coin: Coin) =>
 		`${coin.chainId}-${coin.type}-${
-			coin.type === CoinType.Native
-				? 'native'
-			:
-				coin.address.toLowerCase()
+			coin.type === CoinType.Native ? 'native' : coin.address.toLowerCase()
 		}`
-	)
 
 	// Components
 	import Combobox from '$/components/Combobox.svelte'
 	import Icon from '$/components/Icon.svelte'
 </script>
-
 
 <Combobox
 	{...rootProps}
@@ -47,38 +42,30 @@
 	type="single"
 	value={value
 		? `${value.chainId}-${value.type}-${
-				value.type === CoinType.Native
-					? 'native'
-				:
-					value.address.toLowerCase()
+				value.type === CoinType.Native ? 'native' : value.address.toLowerCase()
 			}`
 		: ''}
 	{placeholder}
 	{disabled}
 	{name}
 	{id}
-	ariaLabel={ariaLabel}
-	onValueChange={(nextValue: string | string[]) => (
-		value = Array.isArray(nextValue)
-			? coins.find((coin) => toCoinId(coin) === (nextValue[0] ?? '')) ?? null
-			: coins.find((coin) => toCoinId(coin) === nextValue) ?? null
-	)}
+	{ariaLabel}
+	onValueChange={(nextValue: string | string[]) =>
+		(value = Array.isArray(nextValue)
+			? (coins.find((coin) => toCoinId(coin) === (nextValue[0] ?? '')) ?? null)
+			: (coins.find((coin) => toCoinId(coin) === nextValue) ?? null))}
 	getItemId={toCoinId}
-	getItemLabel={(coin) => (
+	getItemLabel={(coin) =>
 		`${coin.symbol} (${networksByChainId[coin.chainId]?.name ?? coin.chainId} · ${
 			coin.type === CoinType.Native ? 'Native' : 'ERC-20'
-		})`
-	)}
+		})`}
 >
 	{#snippet Item(coin, selected)}
 		{@const iconUrl =
 			coin.icon?.original?.url ??
 			coin.icon?.thumbnail?.url ??
 			coin.icon?.low?.url}
-		<span
-			class="coin-input-item"
-			data-selected={selected}
-		>
+		<span class="coin-input-item" data-selected={selected}>
 			{#if iconUrl}
 				<span class="coin-input-icon">
 					<Icon src={iconUrl} alt={coin.symbol} size="1rem" />
@@ -95,7 +82,6 @@
 		</span>
 	{/snippet}
 </Combobox>
-
 
 <style>
 	.coin-input-item {

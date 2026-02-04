@@ -27,9 +27,8 @@
 	} = $props()
 
 	// Actions
-	const toElement = (event: DragEvent) => (
+	const toElement = (event: DragEvent) =>
 		event.currentTarget instanceof HTMLElement ? event.currentTarget : null
-	)
 	const ondragstart = (e: DragEvent) => {
 		e.dataTransfer?.setData('text/plain', draggableText)
 		if (link) e.dataTransfer?.setData('text/uri-list', link)

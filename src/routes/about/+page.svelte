@@ -7,20 +7,42 @@
 
 	// (Derived)
 	const legendItems = [
-		{ id: 'client', label: 'Client UI', color: architectureGraph.layerColors.client },
-		{ id: 'state', label: 'State + Collections', color: architectureGraph.layerColors.state },
-		{ id: 'services', label: 'Services + Protocols', color: architectureGraph.layerColors.services },
-		{ id: 'external', label: 'External APIs', color: architectureGraph.layerColors.external },
-		{ id: 'networks', label: 'Networks', color: architectureGraph.layerColors.networks },
-		{ id: 'tooling', label: 'Tooling', color: architectureGraph.layerColors.tooling },
+		{
+			id: 'client',
+			label: 'Client UI',
+			color: architectureGraph.layerColors.client,
+		},
+		{
+			id: 'state',
+			label: 'State + Collections',
+			color: architectureGraph.layerColors.state,
+		},
+		{
+			id: 'services',
+			label: 'Services + Protocols',
+			color: architectureGraph.layerColors.services,
+		},
+		{
+			id: 'external',
+			label: 'External APIs',
+			color: architectureGraph.layerColors.external,
+		},
+		{
+			id: 'networks',
+			label: 'Networks',
+			color: architectureGraph.layerColors.networks,
+		},
+		{
+			id: 'tooling',
+			label: 'Tooling',
+			color: architectureGraph.layerColors.tooling,
+		},
 	]
 </script>
-
 
 <svelte:head>
 	<title>About | USDC Tools</title>
 </svelte:head>
-
 
 <section class="about" data-scroll-item data-column="gap-4">
 	<header class="about__header" data-column="gap-2">
@@ -38,7 +60,12 @@
 		<ArchitectureGraph height="72vh" />
 	</section>
 
-	<section class="about__legend" data-card data-column="gap-2" aria-label="Diagram legend">
+	<section
+		class="about__legend"
+		data-card
+		data-column="gap-2"
+		aria-label="Diagram legend"
+	>
 		<h2>Legend</h2>
 		<div class="about__legend-grid">
 			{#each legendItems as item (item.id)}
@@ -89,14 +116,12 @@
 			<dd>Mainnets use solid outlines; testnets use dashed outlines.</dd>
 			<dt>Interactions</dt>
 			<dd>
-				Drag to pan; scroll or <kbd>+</kbd>/<kbd>−</kbd> to zoom; <kbd>0</kbd> to
-				fit; <kbd>Escape</kbd> to clear selection. Hover for details.
+				Drag to pan; scroll or <kbd>+</kbd>/<kbd>−</kbd> to zoom; <kbd>0</kbd>
+				to fit; <kbd>Escape</kbd> to clear selection. Hover for details.
 			</dd>
 		</dl>
 	</section>
-
 </section>
-
 
 <style>
 	.about__header {

@@ -6,20 +6,18 @@
 	import ArchitectureGraph from './ArchitectureGraph.svelte'
 </script>
 
-
 <svelte:head>
 	<title>About | USDC Tools</title>
 </svelte:head>
-
 
 <section data-scroll-item data-column="center gap-4">
 	<h1>About</h1>
 	<p>
 		USDC Tools is a SvelteKit app for bridging, swapping, and tracking USDC
 		across supported chains. It combines TanStack DB collections, Voltaire
-		(Ethereum RPC + ABIs), LI.FI routing, Circle CCTP, and realtime collaboration
-		with PartyKit. The architecture diagram covers runtime systems plus the
-		tooling that builds, tests, and ships the app.
+		(Ethereum RPC + ABIs), LI.FI routing, Circle CCTP, and realtime
+		collaboration with PartyKit. The architecture diagram covers runtime systems
+		plus the tooling that builds, tests, and ships the app.
 	</p>
 	<section data-column="gap-2">
 		<h2>Core systems</h2>
@@ -45,8 +43,7 @@
 			<dt>Nodes</dt>
 			<dd>
 				Rectangles = UI, state, collections, storage, tooling; diamonds =
-				services + external dependencies; circles with icons = supported
-				chains.
+				services + external dependencies; circles with icons = supported chains.
 			</dd>
 			<dt>Edges</dt>
 			<dd>
@@ -87,7 +84,6 @@
 		</ul>
 	</section>
 </section>
-
 
 <style>
 	.legend dl {

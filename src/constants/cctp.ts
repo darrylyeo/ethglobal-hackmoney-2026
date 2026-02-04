@@ -102,11 +102,8 @@ export const CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS = new Set<ChainId>([
 	ChainId.WorldChainSepolia,
 ])
 
-export const getCctpDomainId = (chainId: ChainId | null): number | null => (
-	chainId === null
-		? null
-		: CCTP_DOMAINS_BY_CHAIN_ID[chainId] ?? null
-)
+export const getCctpDomainId = (chainId: ChainId | null): number | null =>
+	chainId === null ? null : (CCTP_DOMAINS_BY_CHAIN_ID[chainId] ?? null)
 
 export const isCctpSupportedChain = (chainId: ChainId | null): boolean =>
 	chainId !== null && CCTP_DOMAINS_BY_CHAIN_ID[chainId] !== undefined
@@ -116,9 +113,9 @@ export const getCctpTokenMessenger = (
 	isTestnet: boolean,
 ): `0x${string}` | null =>
 	chainId !== null && isCctpSupportedChain(chainId)
-		? (isTestnet
-				? CCTP_TOKEN_MESSENGER_TESTNET
-				: CCTP_TOKEN_MESSENGER_MAINNET)
+		? isTestnet
+			? CCTP_TOKEN_MESSENGER_TESTNET
+			: CCTP_TOKEN_MESSENGER_MAINNET
 		: null
 
 export const getCctpMessageTransmitter = (
@@ -126,7 +123,7 @@ export const getCctpMessageTransmitter = (
 	isTestnet: boolean,
 ): `0x${string}` | null =>
 	chainId !== null && isCctpSupportedChain(chainId)
-		? (isTestnet
-				? CCTP_MESSAGE_TRANSMITTER_TESTNET
-				: CCTP_MESSAGE_TRANSMITTER_MAINNET)
+		? isTestnet
+			? CCTP_MESSAGE_TRANSMITTER_TESTNET
+			: CCTP_MESSAGE_TRANSMITTER_MAINNET
 		: null

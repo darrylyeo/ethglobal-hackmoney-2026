@@ -42,21 +42,19 @@
 	)
 	const selectedEip1193Wallet = $derived(
 		selectedWallet &&
-		selectedWallet.connection.transport === WalletConnectionTransport.Eip1193 &&
-		'provider' in selectedWallet.wallet ?
-			selectedWallet.wallet
-		:
-			null,
+			selectedWallet.connection.transport ===
+				WalletConnectionTransport.Eip1193 &&
+			'provider' in selectedWallet.wallet
+			? selectedWallet.wallet
+			: null,
 	)
-	const hashSource = getContext<import('$/lib/dashboard-panel-hash').SessionHashSource>(
-		SESSION_HASH_SOURCE_KEY,
-	)
+	const hashSource = getContext<
+		import('$/lib/dashboard-panel-hash').SessionHashSource
+	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 
 	// Functions
-	import {
-		requestE2eTevmContractTx,
-	} from '$/lib/e2e/tevm'
+	import { requestE2eTevmContractTx } from '$/lib/e2e/tevm'
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import {
 		type LiquiditySessionParams,
@@ -100,15 +98,12 @@
 				}
 			: undefined,
 	})
-	const feeLabel = (fee: UniswapFeeTier) => (
+	const feeLabel = (fee: UniswapFeeTier) =>
 		`${(fee.feeTier / 10000).toFixed(2)}%`
-	)
-	const updateAmount0 = (value: bigint) => (
+	const updateAmount0 = (value: bigint) =>
 		updateSessionParams({ ...settings, amount0: value })
-	)
-	const updateAmount1 = (value: bigint) => (
+	const updateAmount1 = (value: bigint) =>
 		updateSessionParams({ ...settings, amount1: value })
-	)
 
 	// State
 	import { actorCoinsCollection } from '$/collections/actor-coins'
@@ -136,26 +131,22 @@
 		[() => activeSessionId],
 	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
-	const sessionParams = $derived(
-		getLiquiditySessionParams(session),
-	)
+	const sessionParams = $derived(getLiquiditySessionParams(session))
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			sessionParams.isTestnet ?
-				n.type === NetworkType.Testnet
-			:
-				n.type === NetworkType.Mainnet,
+			sessionParams.isTestnet
+				? n.type === NetworkType.Testnet
+				: n.type === NetworkType.Mainnet,
 		),
 	)
 	const network = $derived(
-		settings.chainId ?
-			(Object.values(networksByChainId).find(
-				(entry) => entry?.id === settings.chainId,
-			) ?? null)
-		:
-			null,
+		settings.chainId
+			? (Object.values(networksByChainId).find(
+					(entry) => entry?.id === settings.chainId,
+				) ?? null)
+			: null,
 	)
 
 	const positionsQuery = useLiveQuery((q) =>
@@ -176,14 +167,35 @@
 			.where(({ row }) => eq(row.$source, DataSource.TokenLists))
 			.select(({ row }) => ({ row })),
 	)
+	const liveQueryEntries = [
+		{
+			id: 'liquidity-flow-session',
+			label: 'Session',
+			query: sessionQuery,
+		},
+		{
+			id: 'liquidity-flow-positions',
+			label: 'Uniswap Positions',
+			query: positionsQuery,
+		},
+		{
+			id: 'liquidity-flow-balances',
+			label: 'Balances',
+			query: balancesQuery,
+		},
+		{
+			id: 'liquidity-flow-token-list',
+			label: 'Token List',
+			query: tokenListQuery,
+		},
+	]
 
 	const positions = $derived(
-		selectedActor ?
-			(positionsQuery.data ?? [])
-				.map((r) => r.row)
-				.filter((p) => p.owner.toLowerCase() === selectedActor.toLowerCase())
-		:
-			[],
+		selectedActor
+			? (positionsQuery.data ?? [])
+					.map((r) => r.row)
+					.filter((p) => p.owner.toLowerCase() === selectedActor.toLowerCase())
+			: [],
 	)
 	const chainTokens = $derived(
 		(tokenListQuery.data ?? [])
@@ -194,41 +206,38 @@
 	const token0Address = $derived(token0Selection?.address ?? null)
 	const token1Address = $derived(token1Selection?.address ?? null)
 	const balances = $derived(
-		selectedActor && network ?
-			(balancesQuery.data ?? [])
-				.map((r) => r.row)
-				.filter(
-					(b) =>
-						b.$id.address.toLowerCase() === selectedActor.toLowerCase() &&
-						b.$id.chainId === network.id &&
-						chainTokens.some(
-							(token) =>
-								token.address.toLowerCase() ===
-								b.$id.tokenAddress.toLowerCase(),
-						),
-				)
-		:
-			[],
+		selectedActor && network
+			? (balancesQuery.data ?? [])
+					.map((r) => r.row)
+					.filter(
+						(b) =>
+							b.$id.address.toLowerCase() === selectedActor.toLowerCase() &&
+							b.$id.chainId === network.id &&
+							chainTokens.some(
+								(token) =>
+									token.address.toLowerCase() ===
+									b.$id.tokenAddress.toLowerCase(),
+							),
+					)
+			: [],
 	)
 	const token0Balance = $derived(
-		network && selectedActor && token0Address ?
-			(balances.find(
-				(b) =>
-					b.$id.chainId === network.id &&
-					b.$id.tokenAddress.toLowerCase() === token0Address.toLowerCase(),
-			)?.balance ?? null)
-		:
-			null,
+		network && selectedActor && token0Address
+			? (balances.find(
+					(b) =>
+						b.$id.chainId === network.id &&
+						b.$id.tokenAddress.toLowerCase() === token0Address.toLowerCase(),
+				)?.balance ?? null)
+			: null,
 	)
 	const token1Balance = $derived(
-		network && selectedActor && token1Address ?
-			(balances.find(
-				(b) =>
-					b.$id.chainId === network.id &&
-					b.$id.tokenAddress.toLowerCase() === token1Address.toLowerCase(),
-			)?.balance ?? null)
-		:
-			null,
+		network && selectedActor && token1Address
+			? (balances.find(
+					(b) =>
+						b.$id.chainId === network.id &&
+						b.$id.tokenAddress.toLowerCase() === token1Address.toLowerCase(),
+				)?.balance ?? null)
+			: null,
 	)
 	const needsChainSwitch = $derived(
 		Boolean(
@@ -262,8 +271,13 @@
 		activateSession(forkTransactionSession(session).id)
 	}
 	const executeLiquidity = async (args: ExecutionArgs) => {
-		if (selectedActor && args.walletAddress.toLowerCase() !== selectedActor.toLowerCase()) {
-			throw new Error('Active wallet address must match the liquidity provider.')
+		if (
+			selectedActor &&
+			args.walletAddress.toLowerCase() !== selectedActor.toLowerCase()
+		) {
+			throw new Error(
+				'Active wallet address must match the liquidity provider.',
+			)
 		}
 		e2eLiquidityStatus = null
 		try {
@@ -283,7 +297,9 @@
 	$effect(() => {
 		const hash = hashSource.enabled
 			? effectiveHash
-			: (typeof window !== 'undefined' ? window.location.hash : '')
+			: typeof window !== 'undefined'
+				? window.location.hash
+				: ''
 		const parsed = parseSessionHash(hash)
 		if (parsed.kind === 'session') {
 			if (parsed.sessionId === activeSessionId && session) return
@@ -306,9 +322,7 @@
 						? parsed.actions.map((action) => action.action)
 						: ['liquidity'],
 				params:
-					parsed.kind === 'actions'
-						? parsed.actions[0]?.params ?? {}
-						: {},
+					parsed.kind === 'actions' ? (parsed.actions[0]?.params ?? {}) : {},
 			}).id,
 		)
 	})
@@ -338,9 +352,7 @@
 							? parsed.actions.map((action) => action.action)
 							: ['liquidity'],
 					params:
-						parsed.kind === 'actions'
-							? parsed.actions[0]?.params ?? {}
-							: {},
+						parsed.kind === 'actions' ? (parsed.actions[0]?.params ?? {}) : {},
 				}).id,
 			)
 		}
@@ -371,9 +383,7 @@
 		if (!asNonEmpty(chainCoins)) return
 		if (!token0Address || !token1Address) return
 		if (token0Address !== token1Address) return
-		const fallback = chainCoins.find(
-			(coin) => coin.address !== token0Address,
-		)
+		const fallback = chainCoins.find((coin) => coin.address !== token0Address)
 		if (fallback) token1Selection = fallback
 	})
 
@@ -399,199 +409,209 @@
 	// Components
 	import Select from '$/components/Select.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
+	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import Positions from './Positions.svelte'
 </script>
 
-
-<div data-column="gap-4">
-	<div data-row="gap-2 align-center justify-between">
-		<h2>Add Liquidity</h2>
-		<div data-row="gap-2 align-center">
-			{#if sessionLocked}
-				<Button.Root type="button" onclick={forkSession}>
-					New draft
-				</Button.Root>
-			{/if}
-			<NetworkInput
-				networks={filteredNetworks}
-				bind:value={() => settings.chainId, (value) => {
-					const nextChainId = Array.isArray(value) ? value[0] ?? null : value
-					if (nextChainId === null || nextChainId === settings.chainId) return
-					updateSessionParams({ ...settings, chainId: nextChainId })
-				}}
-				placeholder="—"
-				id="liq-chain"
-				disabled={sessionLocked}
-			/>
+<LiveQueryScope entries={liveQueryEntries}>
+	<div data-column="gap-4">
+		<div data-row="gap-2 align-center justify-between">
+			<h2>Add Liquidity</h2>
+			<div data-row="gap-2 align-center">
+				{#if sessionLocked}
+					<Button.Root type="button" onclick={forkSession}>
+						New draft
+					</Button.Root>
+				{/if}
+				<NetworkInput
+					networks={filteredNetworks}
+					bind:value={
+						() => settings.chainId,
+						(value) => {
+							const nextChainId = Array.isArray(value)
+								? (value[0] ?? null)
+								: value
+							if (nextChainId === null || nextChainId === settings.chainId)
+								return
+							updateSessionParams({ ...settings, chainId: nextChainId })
+						}
+					}
+					placeholder="—"
+					id="liq-chain"
+					disabled={sessionLocked}
+				/>
+			</div>
 		</div>
-	</div>
 
-	{#if asNonEmpty(chainCoins) && token0Selection && token1Selection}
-		<div data-card data-column="gap-3">
-			<div data-card="secondary" data-column="gap-2">
-				<div data-row="gap-2 align-center justify-between">
-					<label for="liq-amount-0">Token 0</label>
+		{#if asNonEmpty(chainCoins) && token0Selection && token1Selection}
+			<div data-card data-column="gap-3">
+				<div data-card="secondary" data-column="gap-2">
+					<div data-row="gap-2 align-center justify-between">
+						<label for="liq-amount-0">Token 0</label>
+						{#if token0Balance !== null}
+							<Button.Root
+								type="button"
+								onclick={() => updateAmount0(token0Balance)}
+								disabled={sessionLocked || token0Balance === 0n}
+							>
+								Max
+							</Button.Root>
+						{/if}
+					</div>
+					<CoinAmountInput
+						id="liq-amount-0"
+						coins={chainCoins}
+						bind:coin={token0Selection}
+						min={0n}
+						max={token0Balance ?? 0n}
+						bind:value={() => settings.amount0, updateAmount0}
+						disabled={sessionLocked}
+						bind:invalid={
+							() => invalidAmount0, (invalid) => (invalidAmount0 = invalid)
+						}
+						ariaLabel="Token 0"
+					/>
 					{#if token0Balance !== null}
-						<Button.Root
-							type="button"
-							onclick={() => updateAmount0(token0Balance)}
-							disabled={sessionLocked || token0Balance === 0n}
-						>
-							Max
-						</Button.Root>
+						<small data-muted>
+							Balance: {formatSmallestToDecimal(
+								token0Balance,
+								token0Selection.decimals,
+								4,
+							)}
+							{token0Selection.symbol}
+						</small>
 					{/if}
 				</div>
-				<CoinAmountInput
-					id="liq-amount-0"
-					coins={chainCoins}
-					bind:coin={token0Selection}
-					min={0n}
-					max={token0Balance ?? 0n}
-					bind:value={() => settings.amount0, updateAmount0}
-					disabled={sessionLocked}
-					bind:invalid={() => invalidAmount0, (invalid) => (
-						invalidAmount0 = invalid
-					)}
-					ariaLabel="Token 0"
-				/>
-				{#if token0Balance !== null}
-					<small data-muted>
-						Balance: {formatSmallestToDecimal(
-							token0Balance,
-							token0Selection.decimals,
-							4,
-						)}
-						{token0Selection.symbol}
-					</small>
-				{/if}
-			</div>
 
-			<div data-card="secondary" data-column="gap-2">
-				<div data-row="gap-2 align-center justify-between">
-					<label for="liq-amount-1">Token 1</label>
+				<div data-card="secondary" data-column="gap-2">
+					<div data-row="gap-2 align-center justify-between">
+						<label for="liq-amount-1">Token 1</label>
+						{#if token1Balance !== null}
+							<Button.Root
+								type="button"
+								onclick={() => updateAmount1(token1Balance)}
+								disabled={sessionLocked || token1Balance === 0n}
+							>
+								Max
+							</Button.Root>
+						{/if}
+					</div>
+					<CoinAmountInput
+						id="liq-amount-1"
+						coins={chainCoins}
+						bind:coin={token1Selection}
+						min={0n}
+						max={token1Balance ?? 0n}
+						bind:value={() => settings.amount1, updateAmount1}
+						disabled={sessionLocked}
+						bind:invalid={
+							() => invalidAmount1, (invalid) => (invalidAmount1 = invalid)
+						}
+						ariaLabel="Token 1"
+					/>
 					{#if token1Balance !== null}
-						<Button.Root
-							type="button"
-							onclick={() => updateAmount1(token1Balance)}
-							disabled={sessionLocked || token1Balance === 0n}
-						>
-							Max
-						</Button.Root>
+						<small data-muted>
+							Balance: {formatSmallestToDecimal(
+								token1Balance,
+								token1Selection.decimals,
+								4,
+							)}
+							{token1Selection.symbol}
+						</small>
 					{/if}
 				</div>
-				<CoinAmountInput
-					id="liq-amount-1"
-					coins={chainCoins}
-					bind:coin={token1Selection}
-					min={0n}
-					max={token1Balance ?? 0n}
-					bind:value={() => settings.amount1, updateAmount1}
-					disabled={sessionLocked}
-					bind:invalid={() => invalidAmount1, (invalid) => (
-						invalidAmount1 = invalid
-					)}
-					ariaLabel="Token 1"
-				/>
-				{#if token1Balance !== null}
-					<small data-muted>
-						Balance: {formatSmallestToDecimal(
-							token1Balance,
-							token1Selection.decimals,
-							4,
-						)}
-						{token1Selection.symbol}
-					</small>
-				{/if}
-			</div>
 
-			<div data-column="gap-2">
-				<label for="liq-fee">Fee tier</label>
-				<Select
-					items={uniswapFeeTiers}
-					bind:value={() => String(settings.fee), (value) => {
-						if (!value) return
-						updateSessionParams({ ...settings, fee: Number(value) })
-					}}
-					getItemId={(fee) => String(fee.feeTier)}
-					getItemLabel={(fee) => feeLabel(fee)}
-					id="liq-fee"
-					disabled={sessionLocked}
-				/>
-			</div>
-
-			<div data-column="gap-2">
-				<label for="liq-tick-lower">Price range (tick)</label>
-				<div data-row="gap-2">
-					<input
-						id="liq-tick-lower"
-						type="number"
-						value={settings.tickLower}
-						oninput={(e) => {
-							const v = Number((e.target as HTMLInputElement).value)
-							if (Number.isNaN(v)) return
-							updateSessionParams({ ...settings, tickLower: v })
-						}}
-						disabled={sessionLocked}
-					/>
-					<span>—</span>
-					<input
-						type="number"
-						value={settings.tickUpper}
-						oninput={(e) => {
-							const v = Number((e.target as HTMLInputElement).value)
-							if (Number.isNaN(v)) return
-							updateSessionParams({ ...settings, tickUpper: v })
-						}}
+				<div data-column="gap-2">
+					<label for="liq-fee">Fee tier</label>
+					<Select
+						items={uniswapFeeTiers}
+						bind:value={
+							() => String(settings.fee),
+							(value) => {
+								if (!value) return
+								updateSessionParams({ ...settings, fee: Number(value) })
+							}
+						}
+						getItemId={(fee) => String(fee.feeTier)}
+						getItemLabel={(fee) => feeLabel(fee)}
+						id="liq-fee"
 						disabled={sessionLocked}
 					/>
 				</div>
-			</div>
-		</div>
 
-		{#if needsChainSwitch && network && selectedEip1193Wallet}
-			<div data-card="secondary" data-row="gap-2 align-center">
-				<span>Switch to {network.name}</span>
-				<Button.Root
-					type="button"
-					onclick={() =>
-						switchWalletChain(selectedEip1193Wallet.provider, network.id)}
-				>
-					Switch
-				</Button.Root>
+				<div data-column="gap-2">
+					<label for="liq-tick-lower">Price range (tick)</label>
+					<div data-row="gap-2">
+						<input
+							id="liq-tick-lower"
+							type="number"
+							value={settings.tickLower}
+							oninput={(e) => {
+								const v = Number((e.target as HTMLInputElement).value)
+								if (Number.isNaN(v)) return
+								updateSessionParams({ ...settings, tickLower: v })
+							}}
+							disabled={sessionLocked}
+						/>
+						<span>—</span>
+						<input
+							type="number"
+							value={settings.tickUpper}
+							oninput={(e) => {
+								const v = Number((e.target as HTMLInputElement).value)
+								if (Number.isNaN(v)) return
+								updateSessionParams({ ...settings, tickUpper: v })
+							}}
+							disabled={sessionLocked}
+						/>
+					</div>
+				</div>
 			</div>
+
+			{#if needsChainSwitch && network && selectedEip1193Wallet}
+				<div data-card="secondary" data-row="gap-2 align-center">
+					<span>Switch to {network.name}</span>
+					<Button.Root
+						type="button"
+						onclick={() =>
+							switchWalletChain(selectedEip1193Wallet.provider, network.id)}
+					>
+						Switch
+					</Button.Root>
+				</div>
+			{/if}
+		{:else}
+			<p data-muted>No tokens available for this network.</p>
 		{/if}
 
-	{:else}
-		<p data-muted>No tokens available for this network.</p>
-	{/if}
+		<TransactionFlow
+			walletConnection={selectedWallet}
+			transactions={[
+				{
+					id: `liquidity-${settings.chainId}-${settings.token0}-${settings.token1}`,
+					chainId: settings.chainId,
+					title: 'Add liquidity',
+					actionLabel: 'Add liquidity',
+					canExecute:
+						(settings.amount0 > 0n || settings.amount1 > 0n) &&
+						Boolean(selectedActor),
+					execute: executeLiquidity,
+					executionModes: ['e2e'],
+				},
+			]}
+		/>
+		{#if e2eLiquidityStatus}
+			<p
+				data-e2e-liquidity-status
+				data-tx-hash={e2eLiquidityStatus.txHash ?? undefined}
+				data-error={e2eLiquidityStatus.txHash ? undefined : ''}
+			>
+				{e2eLiquidityStatus.message}
+			</p>
+		{/if}
 
-	<TransactionFlow
-		walletConnection={selectedWallet}
-		transactions={[
-			{
-				id: `liquidity-${settings.chainId}-${settings.token0}-${settings.token1}`,
-				chainId: settings.chainId,
-				title: 'Add liquidity',
-				actionLabel: 'Add liquidity',
-				canExecute:
-					(settings.amount0 > 0n || settings.amount1 > 0n) &&
-					Boolean(selectedActor),
-				execute: executeLiquidity,
-				executionModes: ['e2e'],
-			},
-		]}
-	/>
-	{#if e2eLiquidityStatus}
-		<p
-			data-e2e-liquidity-status
-			data-tx-hash={e2eLiquidityStatus.txHash ?? undefined}
-			data-error={e2eLiquidityStatus.txHash ? undefined : ''}
-		>
-			{e2eLiquidityStatus.message}
-		</p>
-	{/if}
-
-	<Positions {positions} chainId={settings.chainId} />
-</div>
+		<Positions {positions} chainId={settings.chainId} />
+	</div>
+</LiveQueryScope>

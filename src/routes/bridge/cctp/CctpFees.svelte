@@ -31,14 +31,14 @@
 		[() => apiHost, () => fromDomain, () => toDomain],
 	)
 	const feeRow = $derived(
-		fromDomain !== null && toDomain !== null ?
-			(feesQuery.data ?? []).find(
-				(r) =>
-					r.row.$id.apiHost === apiHost &&
-					r.row.$id.fromDomain === fromDomain &&
-					r.row.$id.toDomain === toDomain,
-			)?.row ?? null
-		:	null,
+		fromDomain !== null && toDomain !== null
+			? ((feesQuery.data ?? []).find(
+					(r) =>
+						r.row.$id.apiHost === apiHost &&
+						r.row.$id.fromDomain === fromDomain &&
+						r.row.$id.toDomain === toDomain,
+				)?.row ?? null)
+			: null,
 	)
 	const feeRows = $derived(feeRow?.rows ?? null)
 	const feeLoading = $derived(feeRow?.isLoading ?? false)

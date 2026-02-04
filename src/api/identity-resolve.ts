@@ -51,7 +51,11 @@ const STRING_OUTPUT = [{ type: 'string' as const, name: '' }] as const
 
 function bytes32FromNamehash(nodeBytes: Uint8Array): `0x${string}` {
 	const hex = hexFromBytes(nodeBytes)
-	return hex.length === 66 ? (hex as `0x${string}`) : (`0x${Array.from(nodeBytes).map((b) => b.toString(16).padStart(2, '0')).join('')}` as `0x${string}`)
+	return hex.length === 66
+		? (hex as `0x${string}`)
+		: (`0x${Array.from(nodeBytes)
+				.map((b) => b.toString(16).padStart(2, '0'))
+				.join('')}` as `0x${string}`)
 }
 
 export function normalizeIdentity(raw: string): {
@@ -249,12 +253,17 @@ export async function resolveIdentity(
 		return {
 			...base,
 			address: address ?? undefined,
-			textRecords: Object.keys(textRecords).length > 0 ? textRecords : undefined,
+			textRecords:
+				Object.keys(textRecords).length > 0 ? textRecords : undefined,
 			avatarUrl: avatarUrl || undefined,
 			resolvedAt: now,
 		}
 	}
-	if (kind === IdentityInputKind.Address && normalized.startsWith('0x') && normalized.length === 42) {
+	if (
+		kind === IdentityInputKind.Address &&
+		normalized.startsWith('0x') &&
+		normalized.length === 42
+	) {
 		const name = await resolveEnsReverse(
 			provider,
 			resolver.ensRegistry,

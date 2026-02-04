@@ -26,9 +26,7 @@ export const cctpFeesCollection = createCollection(
 	}),
 )
 
-export const fetchCctpFees = async (
-	$id: CctpFee$Id,
-): Promise<CctpFeeRow> => {
+export const fetchCctpFees = async ($id: CctpFee$Id): Promise<CctpFeeRow> => {
 	const key = stringify($id)
 	const existing = cctpFeesCollection.state.get(key)
 	if (existing) {
@@ -52,12 +50,13 @@ export const fetchCctpFees = async (
 			`${$id.apiHost}/v2/burn/USDC/fees/${$id.fromDomain}/${$id.toDomain}`,
 			{ headers: { Accept: 'application/json' } },
 		)
-		if (!response.ok)
-			throw new Error(`Fee request failed (${response.status})`)
+		if (!response.ok) throw new Error(`Fee request failed (${response.status})`)
 		const data = await response.json()
-		const rows = Array.isArray(data) ?
-			data.map(toCctpFeeItem).filter((row): row is CctpFeeItem => row !== null)
-		: []
+		const rows = Array.isArray(data)
+			? data
+					.map(toCctpFeeItem)
+					.filter((row): row is CctpFeeItem => row !== null)
+			: []
 		const fetchedAt = Date.now()
 		cctpFeesCollection.update(key, (draft) => {
 			draft.rows = rows

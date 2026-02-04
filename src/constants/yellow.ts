@@ -42,8 +42,8 @@ export const yellowClearnodeEndpoints = [
 ] as const satisfies readonly YellowClearnodeEndpoint[]
 
 // TODO: populate custody contract deployments when published by Yellow.
-export const yellowCustodyContracts = [
-] as const satisfies readonly YellowCustodyContract[]
+export const yellowCustodyContracts =
+	[] as const satisfies readonly YellowCustodyContract[]
 
 export const yellowChallengePeriodLimits = [
 	{
@@ -63,10 +63,7 @@ export const yellowChallengePeriodLimits = [
 export const yellowClearnodeEndpointByEnvironment: Partial<
 	Record<YellowEnvironment, string>
 > = Object.fromEntries(
-	yellowClearnodeEndpoints.map((entry) => [
-		entry.environment,
-		entry.url,
-	]),
+	yellowClearnodeEndpoints.map((entry) => [entry.environment, entry.url]),
 )
 
 export const yellowCustodyContractByChainId: Partial<

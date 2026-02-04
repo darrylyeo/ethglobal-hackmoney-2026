@@ -99,14 +99,8 @@
 	{#each roomChannels as channel (channel.id)}
 		{@const counterparty = getCounterparty(channel)}
 		{@const myBalance = getMyBalance(channel)}
-		<div
-			class="channel"
-			data-status={channel.status}
-		>
-			<Address
-				network={channel.chainId}
-				address={counterparty}
-			/>
+		<div class="channel" data-status={channel.status}>
+			<Address network={channel.chainId} address={counterparty} />
 			<span class="channel-balance">
 				{formatSmallestToDecimal(myBalance, 6)} USDC
 			</span>
@@ -135,10 +129,7 @@
 	{/if}
 
 	{#if closeError}
-		<p
-			class="channel-error"
-			role="alert"
-		>
+		<p class="channel-error" role="alert">
 			{closeError}
 		</p>
 	{/if}
