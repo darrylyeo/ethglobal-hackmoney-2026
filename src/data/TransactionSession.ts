@@ -7,6 +7,12 @@ export type TransactionSessionAction =
 	| 'liquidity'
 	| 'intent'
 
+export type TransactionSessionSimulationSummary = {
+	forkMetadata: { blockNumber: number; rpcUrl: string; timestamp?: number }
+	summaryStatus: 'success' | 'revert' | 'error'
+	gasTotals: { used: string; refund?: string }
+}
+
 export type TransactionSession = {
 	id: string
 	actions: TransactionSessionAction[]
@@ -17,6 +23,7 @@ export type TransactionSession = {
 	params: Record<string, unknown>
 	latestSimulationId?: string
 	simulationCount?: number
+	simulation?: TransactionSessionSimulationSummary
 	execution?: {
 		submittedAt: number
 		txHash?: `0x${string}`

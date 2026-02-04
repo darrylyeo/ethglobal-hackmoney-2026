@@ -26,6 +26,7 @@
 	import { getContext, untrack } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Popover } from 'bits-ui'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import {
 		getEffectiveHash,
 		setEffectiveHash,
@@ -34,7 +35,12 @@
 
 	// Functions
 	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
+	import { rpcUrls } from '$/constants/rpc-endpoints'
 	import { debounce } from '$/lib/debounce'
+	import {
+		extractSimulationSummary,
+		runTevmSimulationFromClient,
+	} from '$/lib/tevm-simulation'
 	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format'
 	import { getStorkAssetIdForSymbol } from '$/lib/stork'
 	import { stringify } from '$/lib/stringify'
@@ -65,6 +71,7 @@
 		swapQuotesCollection,
 	} from '$/collections/swap-quotes'
 	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
+	import { transactionSessionSimulationsCollection } from '$/collections/transaction-session-simulations'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 
 	// Components
@@ -72,9 +79,10 @@
 	import CoinAmount from '$/views/CoinAmount.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import CoinInput from '$/views/CoinInput.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import SessionAction from '$/views/SessionAction.svelte'
+	import SimulationEventPanel from '$/views/SimulationEventPanel.svelte'
+	import SimulationTracePanel from '$/views/SimulationTracePanel.svelte'
 	import SwapExecution from './SwapExecution.svelte'
 
 	// Props
@@ -222,6 +230,21 @@
 			.where(({ row }) => eq(row.$source, DataSource.Stork))
 			.select(({ row }) => ({ row })),
 	)
+	const latestSimulationId = $derived(session?.latestSimulationId ?? '')
+	const simulationQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionSimulationsCollection })
+				.where(({ row }) => eq(row.id, latestSimulationId))
+				.select(({ row }) => ({ row })),
+		[() => latestSimulationId],
+	)
+	const latestSimulation = $derived(simulationQuery.data?.[0]?.row ?? null)
+	const simulationResult = $derived(
+		latestSimulation?.result as
+			| { trace?: unknown[]; events?: unknown[]; rawLogs?: unknown[] }
+			| null,
+	)
 	const liveQueryEntries = [
 		{
 			id: 'swap-action-session',
@@ -253,7 +276,15 @@
 			label: 'Stork Prices',
 			query: storkPricesQuery,
 		},
+		{
+			id: 'swap-action-simulation',
+			label: 'Simulation',
+			query: simulationQuery,
+		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 
 	const chainTokens = $derived(
 		(tokenListQuery.data ?? [])
@@ -439,16 +470,22 @@
 			lockedAt: session.lockedAt ?? Date.now(),
 			updatedAt: Date.now(),
 		}))
+		const tevmResult = result as { summaryStatus?: string; revertReason?: string }
+		const simStatus =
+			tevmResult.summaryStatus === 'success' ? 'success' : 'failed'
 		const simulationId = createTransactionSessionSimulation({
 			sessionId,
 			params: nextParams,
-			status: 'success',
+			status: tevmResult.summaryStatus != null ? simStatus : 'success',
 			result,
+			...(tevmResult.revertReason ? { error: tevmResult.revertReason } : {}),
 		})
+		const summary = extractSimulationSummary(result)
 		updateTransactionSession(sessionId, (session) => ({
 			...session,
 			latestSimulationId: simulationId,
 			simulationCount: (session.simulationCount ?? 0) + 1,
+			...(summary ? { simulation: summary } : {}),
 			updatedAt: Date.now(),
 		}))
 		setSessionHash(sessionId)
@@ -680,7 +717,25 @@
 		}
 		if (intent === 'simulate') {
 			if (!quote) return
-			persistSimulation(quote)
+			const rpcUrl = rpcUrls[settings.chainId]
+			const from = selectedActor
+			const router = UNIVERSAL_ROUTER_ADDRESS[settings.chainId]
+			const to = router && router !== '0x0000000000000000000000000000000000000000'
+				? router
+				: quote.tokenIn
+			if (rpcUrl && from) {
+				void runTevmSimulationFromClient({
+					rpcUrl,
+					chainId: settings.chainId,
+					from,
+					to,
+					data: '0x',
+					value: '0',
+					gasLimit: quote.gasEstimate.toString(),
+				}).then(({ result: tevmResult }) => persistSimulation(tevmResult)).catch(() => persistSimulation(quote))
+			} else {
+				persistSimulation(quote)
+			}
 			return
 		}
 		if (intent === 'submit') {
@@ -697,8 +752,8 @@
 	}
 </script>
 
-<LiveQueryScope entries={liveQueryEntries}>
-	<SessionAction
+<div style="display: contents" {@attach liveQueryAttachment}>
+<SessionAction
 		title="Swap"
 		description={sessionLocked ? 'Last saved session is locked.' : undefined}
 		{onSubmit}
@@ -971,5 +1026,19 @@
 				</Button.Root>
 			</div>
 		{/snippet}
-	</SessionAction>
-</LiveQueryScope>
+</SessionAction>
+
+	{#if simulationResult?.trace?.length || simulationResult?.events?.length}
+		<section data-column="gap-3" data-simulation-panels>
+			{#if simulationResult.trace?.length}
+				<SimulationTracePanel trace={simulationResult.trace} />
+			{/if}
+			{#if simulationResult.events?.length || simulationResult.rawLogs?.length}
+				<SimulationEventPanel
+					events={simulationResult.events ?? []}
+					rawLogs={(simulationResult.rawLogs ?? []) as { address: string; topics: string[]; data: string }[]}
+				/>
+			{/if}
+		</section>
+	{/if}
+</div>

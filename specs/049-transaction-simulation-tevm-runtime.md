@@ -105,14 +105,14 @@ Simulation payloads must be constructed from the union of the following sources:
 
 ## Acceptance criteria
 
-- [ ] Draft sessions can simulate using Tevm runtime with forked chain state.
-- [ ] Simulation payload includes all sources listed in the data sources section.
-- [ ] Simulation results persist on `TransactionSession.simulation` with fork
+- [x] Draft sessions can simulate using Tevm runtime with forked chain state.
+- [x] Simulation payload includes all sources listed in the data sources section.
+- [x] Simulation results persist on `TransactionSession.simulation` with fork
   metadata, summary status, and gas totals.
-- [ ] Trace panel renders a nested call tree with gas, value, and revert data.
-- [ ] Event panel renders decoded logs with toggles for raw topics/data.
-- [ ] Filters allow narrowing trace/event views by contract or selector.
-- [ ] Re-simulation updates the stored result without changing session params.
+- [x] Trace panel renders a nested call tree with gas, value, and revert data.
+- [x] Event panel renders decoded logs with toggles for raw topics/data.
+- [x] Filters allow narrowing trace/event views by contract or selector.
+- [x] Re-simulation updates the stored result without changing session params.
 
 ## TODOs
 
@@ -130,7 +130,7 @@ Simulation payloads must be constructed from the union of the following sources:
 
 ## Status
 
-Draft.
+Complete. POST /api/simulate uses Tevm createTevmNode + fork + runTx with impersonation; returns forkMetadata, summaryStatus, gasTotals, trace, events, rawLogs. Client runTevmSimulationFromClient + extractSimulationSummary in src/lib/tevm-simulation.ts. TransactionSession.simulation optional summary; SwapAction calls API when Simulate clicked (rpcUrl + selectedActor), persists Tevm result and summary. SimulationTracePanel and SimulationEventPanel with contract/selector filters; raw toggle on events. Re-simulation creates new simulation row and updates latestSimulationId/simulation without changing params. tevm in dependencies for server.
 
 ## Output when complete
 
