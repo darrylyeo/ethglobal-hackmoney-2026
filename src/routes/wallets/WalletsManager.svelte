@@ -29,6 +29,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import {
 		walletConnectionsCollection,
 		requestWalletConnection,
@@ -66,6 +67,9 @@
 			query: connectionsQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 
 	const settings = $derived(
 		bridgeSettingsState.current ?? defaultBridgeSettings,
@@ -184,13 +188,11 @@
 	import Address from '$/components/Address.svelte'
 	import Dropdown from '$/components/Dropdown.svelte'
 	import Icon from '$/components/Icon.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import { Button } from 'bits-ui'
 </script>
 
-<LiveQueryScope entries={liveQueryEntries} scope="local">
-	<div data-row="wrap align-start">
+<div data-row="wrap align-start" {@attach liveQueryAttachment}>
 		<details data-row-item="flexible" data-card="secondary radius-4" open>
 			<summary>
 				<div data-row>
@@ -424,4 +426,3 @@
 			</ul>
 		</details>
 	</div>
-</LiveQueryScope>

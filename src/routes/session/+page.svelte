@@ -2,26 +2,24 @@
 	// Context
 	import { setContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// Functions
 	import {
 		getEffectiveHash,
-		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 		type SessionHashSource,
 	} from '$/lib/dashboard-panel-hash'
-	import { getTransactionSession, parseSessionHash } from '$/lib/transaction-sessions'
+	import { parseSessionHash } from '$/lib/transaction-sessions'
 
 	// State
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 
 	// Props
 	let {
-		data = {},
 		panelHash,
 		setPanelHash,
 	}: {
-		data?: Record<string, unknown>
 		panelHash?: string | null
 		setPanelHash?: (hash: string, replace?: boolean) => void
 	} = $props()
@@ -42,13 +40,23 @@
 		hashSource.panelHash = null
 		hashSource.setPanelHash = () => {}
 	})
-	const effectiveHash = $derived(getEffectiveHash(hashSource))
+	let localHash = $state('')
+	const effectiveHash = $derived(
+		hashSource.enabled ? hashSource.panelHash ?? '' : localHash,
+	)
+	const parsedHash = $derived(parseSessionHash(effectiveHash))
 	setContext(SESSION_HASH_SOURCE_KEY, hashSource)
 
-	let activeSessionId = $state<string | null>(null)
-	let hashAction = $state<
-		'swap' | 'bridge' | 'transfer' | 'liquidity' | 'intent' | null
-	>(null)
+	const activeSessionId = $derived(
+		parsedHash.kind === 'session' ? parsedHash.sessionId : null,
+	)
+	const hashAction = $derived(
+		parsedHash.kind === 'actions'
+			? parsedHash.actions[0]?.action ?? 'swap'
+			: parsedHash.kind === 'empty'
+				? 'swap'
+				: null,
+	)
 
 	const sessionQuery = useLiveQuery(
 		(q) =>
@@ -65,6 +73,9 @@
 			query: sessionQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const activeAction = $derived(session?.actions[0] ?? hashAction ?? 'swap')
 	const pageTitle = $derived(
@@ -80,52 +91,19 @@
 	)
 
 	$effect(() => {
-		const parsed = parseSessionHash(effectiveHash)
-		if (parsed.kind === 'session') {
-			activeSessionId = parsed.sessionId
-			hashAction = getTransactionSession(parsed.sessionId)?.actions[0] ?? null
-			return
-		}
-		if (parsed.kind === 'actions') {
-			activeSessionId = null
-			hashAction = parsed.actions[0]?.action ?? 'swap'
-			return
-		}
-		if (parsed.kind === 'empty') {
-			activeSessionId = null
-			hashAction = 'swap'
-			return
-		}
-		activeSessionId = null
-		hashAction = null
-	})
-	$effect(() => {
 		if (hashSource.enabled) return
 		if (typeof window === 'undefined') return
-		const handleHash = () => {
-			const parsed = parseSessionHash(window.location.hash)
-			if (parsed.kind === 'session') {
-				activeSessionId = parsed.sessionId
-				hashAction = getTransactionSession(parsed.sessionId)?.actions[0] ?? null
-				return
-			}
-			if (parsed.kind === 'actions') {
-				activeSessionId = null
-				hashAction = parsed.actions[0]?.action ?? 'swap'
-				return
-			}
-			activeSessionId = null
-			hashAction = parsed.kind === 'empty' ? 'swap' : null
+		const updateHash = () => {
+			localHash = window.location.hash
 		}
-		handleHash()
-		window.addEventListener('hashchange', handleHash)
-		return () => window.removeEventListener('hashchange', handleHash)
+		updateHash()
+		window.addEventListener('hashchange', updateHash)
+		return () => window.removeEventListener('hashchange', updateHash)
 	})
 
 	// Components
 	import BridgeView from '$/view/bridge.svelte'
 	import LiquidityView from '$/view/liquidity.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import SwapView from '$/view/swap.svelte'
 	import TransferView from '$/view/transfer.svelte'
 </script>
@@ -134,7 +112,7 @@
 	<title>{pageTitle} – USDC Tools</title>
 </svelte:head>
 
-<LiveQueryScope entries={liveQueryEntries}>
+<div style="display: contents" {@attach liveQueryAttachment}>
 	{#if activeAction === 'swap'}
 		<SwapView />
 	{:else if activeAction === 'bridge'}
@@ -151,4 +129,4 @@
 			</section>
 		</main>
 	{/if}
-</LiveQueryScope>
+</div>

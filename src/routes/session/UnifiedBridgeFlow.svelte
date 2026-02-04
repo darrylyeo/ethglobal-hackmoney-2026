@@ -29,6 +29,7 @@
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Switch } from 'bits-ui'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import {
 		getEffectiveHash,
 		setEffectiveHash,
@@ -60,7 +61,6 @@
 
 	// Components
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import SessionAction from '$/views/SessionAction.svelte'
 	import UnifiedProtocolRouter from './UnifiedProtocolRouter.svelte'
@@ -114,6 +114,9 @@
 			query: sessionQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const bridgeDefaults = $derived({
@@ -453,7 +456,7 @@
 	})
 </script>
 
-<LiveQueryScope entries={liveQueryEntries}>
+<div style="display: contents" {@attach liveQueryAttachment}>
 	<SessionAction
 		title="Bridge"
 		description={sessionLocked ? 'Last saved session is locked.' : undefined}
@@ -695,4 +698,4 @@
 			{/if}
 		{/snippet}
 	</SessionAction>
-</LiveQueryScope>
+</div>

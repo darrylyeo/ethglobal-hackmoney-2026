@@ -3,7 +3,7 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { goto } from '$app/navigation'
 	import { page } from '$app/state'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// Functions
 	import { buildSessionHash } from '$/lib/transaction-sessions'
@@ -27,6 +27,9 @@
 			query: sessionQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 
 	$effect(() => {
@@ -41,15 +44,13 @@
 	<title>Session – USDC Tools</title>
 </svelte:head>
 
-<LiveQueryScope entries={liveQueryEntries}>
-	<main id="main" data-column data-sticky-container>
-		<section data-scroll-item>
-			{#if session}
-				<p data-muted>Redirecting to session…</p>
-			{:else}
-				<p data-muted>Session not found.</p>
-				<a href="/sessions">Back to sessions</a>
-			{/if}
-		</section>
-	</main>
-</LiveQueryScope>
+<main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
+	<section data-scroll-item>
+		{#if session}
+			<p data-muted>Redirecting to session…</p>
+		{:else}
+			<p data-muted>Session not found.</p>
+			<a href="/sessions">Back to sessions</a>
+		{/if}
+	</section>
+</main>

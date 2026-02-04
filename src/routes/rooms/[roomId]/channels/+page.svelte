@@ -6,6 +6,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
 	import { walletsCollection } from '$/collections/wallets'
 	import { roomState, joinRoom, leaveRoom } from '$/state/room.svelte'
@@ -50,6 +51,9 @@
 			query: connectionsQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 	const wallets = $derived((walletsQuery.data ?? []).map((r) => r.row))
 	const connections = $derived((connectionsQuery.data ?? []).map((r) => r.row))
 	const selectedConnection = $derived(
@@ -80,7 +84,6 @@
 	// Components
 	import ChannelList from '../../ChannelList.svelte'
 	import DepositManager from '../../DepositManager.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import TransferRequests from '../../TransferRequests.svelte'
 </script>
 
@@ -88,8 +91,7 @@
 	<title>Channels – {roomDisplayName}</title>
 </svelte:head>
 
-<LiveQueryScope entries={liveQueryEntries}>
-	<main id="main" data-column data-sticky-container>
+<main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 		<h1>Channels – {roomDisplayName}</h1>
 
 		<p>
@@ -103,5 +105,4 @@
 			<TransferRequests {roomId} />
 			<ChannelList {roomId} />
 		</section>
-	</main>
-</LiveQueryScope>
+</main>

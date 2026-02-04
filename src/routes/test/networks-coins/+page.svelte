@@ -1,23 +1,23 @@
 <script lang="ts">
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { DataSource } from '$/constants/data-sources'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { networksCollection } from '$/collections/networks'
 	import { coinsCollection } from '$/collections/coins'
 
 	const networksQuery = useLiveQuery((q) =>
 		q
-			.from({ network: networksCollection })
-			.where(({ network }) => eq(network.$source, DataSource.Local))
-			.orderBy(({ network }) => network.id)
-			.select(({ network }) => ({ network })),
+			.from({ row: networksCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.orderBy(({ row }) => row.id)
+			.select(({ row }) => ({ row })),
 	)
 	const coinsQuery = useLiveQuery((q) =>
 		q
-			.from({ coin: coinsCollection })
-			.where(({ coin }) => eq(coin.$source, DataSource.Local))
-			.orderBy(({ coin }) => coin.chainId)
-			.select(({ coin }) => ({ coin })),
+			.from({ row: coinsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.orderBy(({ row }) => row.chainId)
+			.select(({ row }) => ({ row })),
 	)
 	const liveQueryEntries = [
 		{
@@ -31,14 +31,16 @@
 			query: coinsQuery,
 		},
 	]
-	const networks = $derived(
-		(networksQuery.data ?? []).map((row) => row.network),
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
 	)
-	const coins = $derived((coinsQuery.data ?? []).map((row) => row.coin))
+	const networks = $derived(
+		(networksQuery.data ?? []).map((entry) => entry.row),
+	)
+	const coins = $derived((coinsQuery.data ?? []).map((entry) => entry.row))
 </script>
 
-<LiveQueryScope entries={liveQueryEntries}>
-<main id="main" data-column data-sticky-container>
+<main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 	<section data-scroll-item>
 		<h1>Networks and coins</h1>
 
@@ -69,4 +71,3 @@
 		{/if}
 	</section>
 </main>
-</LiveQueryScope>

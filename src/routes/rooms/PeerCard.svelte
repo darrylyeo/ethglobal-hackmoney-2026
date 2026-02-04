@@ -22,6 +22,7 @@
 	import { siweChallengesCollection } from '$/collections/siwe-challenges'
 	import { roomState } from '$/state/room.svelte'
 	import { signSiweMessage } from '$/lib/siwe'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// Components
 	import Address from '$/components/Address.svelte'
@@ -49,6 +50,21 @@
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
+	)
+	const liveQueryEntries = [
+		{
+			id: 'peer-card-shared',
+			label: 'Shared Addresses',
+			query: sharedQuery,
+		},
+		{
+			id: 'peer-card-siwe',
+			label: 'SIWE Challenges',
+			query: challengesQuery,
+		},
+	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
 	)
 
 	const addresses = $derived((sharedQuery.data ?? []).map((r) => r.row))
@@ -81,7 +97,12 @@
 	}
 </script>
 
-<article data-peer-card data-card="secondary" data-connected={peer.isConnected}>
+<article
+	data-peer-card
+	data-card="secondary"
+	data-connected={peer.isConnected}
+	{@attach liveQueryAttachment}
+>
 	<header data-peer-card-header data-row="wrap gap-2 align-center">
 		<Peer {peer} showStatus={true} />
 	</header>

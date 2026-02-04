@@ -7,6 +7,7 @@
 	import { roomsCollection } from '$/collections/rooms'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 	import {
+		liveQueryAttachmentFrom,
 		useLiveQueryContext,
 		useLocalLiveQueryContext,
 	} from '$/svelte/live-query-context.svelte'
@@ -53,6 +54,9 @@
 		{ id: 'layout-rooms', label: 'Rooms', query: roomsQuery },
 		{ id: 'layout-sessions', label: 'Sessions', query: sessionsQuery },
 	]
+	const liveQueryAttachment = liveQueryAttachmentFrom(
+		() => layoutLiveQueryEntries,
+	)
 	const navigationItems = $derived([
 		{
 			id: 'about',
@@ -153,7 +157,6 @@
 	import { Tooltip } from 'bits-ui'
 	import Boundary from '$/components/Boundary.svelte'
 	import IntentDragPreview from '$/components/IntentDragPreview.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import GraphScene from '$/routes/GraphScene.svelte'
 	import Navigation from '$/views/Navigation.svelte'
 	import ToastContainer from '$/views/ToastContainer.svelte'
@@ -176,11 +179,16 @@
 </svelte:head>
 
 <Tooltip.Provider>
-	<LiveQueryScope entries={layoutLiveQueryEntries} scope="global">
-		<div id="layout" class="layout" data-scroll-container data-sticky-container>
-			<a href="#main" class="skip-link">Skip to main content</a>
+	<div
+		id="layout"
+		class="layout"
+		data-scroll-container
+		data-sticky-container
+		{@attach liveQueryAttachment}
+	>
+		<a href="#main" class="skip-link">Skip to main content</a>
 
-			<Navigation {navigationItems}></Navigation>
+		<Navigation {navigationItems}></Navigation>
 
 			<main id="main" tabindex="-1" data-sticky-container>
 				<section data-scroll-item>
@@ -213,13 +221,12 @@
 				{showGraph ? '✕' : '◉'}
 			</button>
 
-			<GraphScene
-				visible={showGraph}
-				queryStack={localLiveQueryCtx.stack}
-				globalQueryStack={globalLiveQueryCtx.stack}
-			/>
-		</div>
-	</LiveQueryScope>
+		<GraphScene
+			visible={showGraph}
+			queryStack={localLiveQueryCtx.stack}
+			globalQueryStack={globalLiveQueryCtx.stack}
+		/>
+	</div>
 </Tooltip.Provider>
 
 <style>

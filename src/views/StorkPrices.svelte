@@ -5,6 +5,7 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// Props
 	let {
@@ -33,6 +34,16 @@
 			.where(({ row }) => eq(row.$source, DataSource.Stork))
 			.select(({ row }) => ({ row })),
 	)
+	const liveQueryEntries = [
+		{
+			id: 'stork-prices',
+			label: 'Stork Prices',
+			query: pricesQuery,
+		},
+	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 	const prices = $derived<StorkPriceRow[]>(
 		(pricesQuery.data ?? []).map((r) => r.row),
 	)
@@ -44,7 +55,7 @@
 	})
 </script>
 
-<section class="stork-prices" data-card="secondary">
+<section class="stork-prices" data-card="secondary" {@attach liveQueryAttachment}>
 	<header data-row="gap-2 align-center justify-between">
 		<h3>{title}</h3>
 		<span data-muted>{assetIds.length} feeds</span>

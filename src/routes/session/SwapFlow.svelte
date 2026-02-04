@@ -25,6 +25,7 @@
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Popover } from 'bits-ui'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import {
 		getEffectiveHash,
 		setEffectiveHash,
@@ -256,6 +257,9 @@
 			query: storkPricesQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 
 	const chainTokens = $derived(
 		(tokenListQuery.data ?? [])
@@ -580,15 +584,13 @@
 	import CoinAmount from '$/views/CoinAmount.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import CoinInput from '$/views/CoinInput.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import TokenApproval from '$/routes/bridge/lifi/TokenApproval.svelte'
 	import SwapExecution from './SwapExecution.svelte'
 </script>
 
-<LiveQueryScope entries={liveQueryEntries}>
-	<section data-card data-column="gap-4">
+<section data-card data-column="gap-4" {@attach liveQueryAttachment}>
 		{#snippet swapSummary()}
 			{#if quote && tokenInSelection && tokenOutSelection}
 				<dl class="summary">
@@ -896,5 +898,4 @@
 		{:else}
 			<p data-muted>No tokens available for this network.</p>
 		{/if}
-	</section>
-</LiveQueryScope>
+</section>

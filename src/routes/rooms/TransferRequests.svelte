@@ -11,6 +11,7 @@
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { roomState } from '$/state/room.svelte'
 	import { yellowState } from '$/state/yellow.svelte'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// Props
 	let { roomId }: { roomId: string } = $props()
@@ -45,6 +46,26 @@
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
+	)
+	const liveQueryEntries = [
+		{
+			id: 'transfer-requests-verified',
+			label: 'Shared Addresses',
+			query: verifiedQuery,
+		},
+		{
+			id: 'transfer-requests-deposits',
+			label: 'Yellow Deposits',
+			query: depositQuery,
+		},
+		{
+			id: 'transfer-requests',
+			label: 'Transfer Requests',
+			query: requestsQuery,
+		},
+	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
 	)
 	const myAddress = $derived(yellowState.address?.toLowerCase() ?? null)
 	const otherVerified = $derived(
@@ -135,7 +156,7 @@
 	import { Button } from 'bits-ui'
 </script>
 
-<section class="transfer-requests">
+<section class="transfer-requests" {@attach liveQueryAttachment}>
 	<h3>Request Transfer</h3>
 
 	<div class="available-balance">

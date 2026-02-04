@@ -5,7 +5,7 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins'
 	import { fetchTransfersGraph, TIME_PERIODS } from '$/api/transfers-indexer'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import {
 		transferGraphsCollection,
 		fetchTransferGraph,
@@ -36,6 +36,9 @@
 			query: graphQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 	const graphRow = $derived(graphQuery.data?.[0]?.row ?? null)
 
 	// (Derived) fetch into collection when period changes
@@ -90,8 +93,7 @@
 	<title>Transfers – USDC Tools</title>
 </svelte:head>
 
-<LiveQueryScope entries={liveQueryEntries}>
-<main id="main" data-column data-sticky-container>
+<main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 	<section data-scroll-item>
 		{#if loading && !graph.nodes.length}
 			<p class="transfers-loading" data-transfers-loading aria-live="polite">
@@ -114,7 +116,6 @@
 		</Boundary>
 	</section>
 </main>
-</LiveQueryScope>
 
 <style>
 	.transfers-loading {

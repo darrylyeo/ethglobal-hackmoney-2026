@@ -20,6 +20,7 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// Functions
 	import { resolveIntent } from '$/lib/intents/resolve-intent'
@@ -172,6 +173,9 @@
 			query: bridgeRoutesQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 
 	// (Derived)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
@@ -557,13 +561,16 @@
 	// Components
 	import Wallets from '$/views/Wallets.svelte'
 	import EntityId from '$/components/EntityId.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import TransferFlow from '$/routes/session/TransferFlow.svelte'
 </script>
 
-<LiveQueryScope entries={liveQueryEntries}>
-<main id="main" data-column="gap-6" data-sticky-container>
+<main
+	id="main"
+	data-column="gap-6"
+	data-sticky-container
+	{@attach liveQueryAttachment}
+>
 	<section data-scroll-item data-column="gap-3">
 		<h1>Entity intents</h1>
 		<p data-muted>Drag balances into from/to slots to resolve intents.</p>
@@ -756,7 +763,6 @@
 		</section>
 	{/if}
 </main>
-</LiveQueryScope>
 
 <style>
 	.intent-slot {

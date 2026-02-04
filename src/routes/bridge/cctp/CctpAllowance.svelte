@@ -8,6 +8,7 @@
 		cctpAllowanceCollection,
 		fetchCctpAllowance,
 	} from '$/collections/cctp-allowance'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// Props
 	let {
@@ -26,6 +27,16 @@
 				.where(({ row }) => eq(row.$source, DataSource.Cctp))
 				.select(({ row }) => ({ row })),
 		[() => apiHost],
+	)
+	const liveQueryEntries = [
+		{
+			id: 'cctp-allowance',
+			label: 'CCTP Allowance',
+			query: allowanceQuery,
+		},
+	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
 	)
 	const allowanceRow = $derived(
 		(allowanceQuery.data ?? []).find((r) => r.row.$id.apiHost === apiHost)
@@ -55,7 +66,7 @@
 	})
 </script>
 
-<div data-column="gap-1">
+<div data-column="gap-1" {@attach liveQueryAttachment}>
 	<strong>Fast transfer allowance</strong>
 	{#if !fastTransferSupported}
 		<small data-muted>Not required for this source chain.</small>

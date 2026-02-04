@@ -9,6 +9,7 @@
 
 	// Context
 	import { and, eq, or, useLiveQuery } from '@tanstack/svelte-db'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// Props
 	let {
@@ -131,6 +132,26 @@
 			.where(({ row }) => eq(row.$source, DataSource.Stork))
 			.select(({ row }) => ({ row })),
 	)
+	const liveQueryEntries = [
+		{
+			id: 'balances-token-list',
+			label: 'Token List',
+			query: tokenListQuery,
+		},
+		{
+			id: 'balances-actor-coins',
+			label: 'Actor Coins',
+			query: balancesQuery,
+		},
+		{
+			id: 'balances-stork-prices',
+			label: 'Stork Prices',
+			query: pricesQuery,
+		},
+	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 	const balances = $derived((balancesQuery.data ?? []).map((r) => r.row))
 	const prices = $derived((pricesQuery.data ?? []).map((r) => r.row))
 	const balanceAssetIds = $derived([
@@ -194,6 +215,7 @@
 	import StorkPriceFeed from '$/views/StorkPriceFeed.svelte'
 </script>
 
+<div style="display: contents" {@attach liveQueryAttachment}>
 {#if selectedActor}
 	<section class="balances">
 		<h3>Your balances</h3>
@@ -278,6 +300,7 @@
 		</div>
 	</section>
 {/if}
+</div>
 
 <style>
 	.balances {

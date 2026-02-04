@@ -10,6 +10,7 @@
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button } from 'bits-ui'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { yellowState } from '$/state/yellow.svelte'
 	import {
 		getEffectiveHash,
@@ -71,6 +72,9 @@
 			query: sessionQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const transferDefaults = $derived({
 		fromActor,
@@ -295,12 +299,10 @@
 
 	// Components
 	import CoinAmount from '$/views/CoinAmount.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 </script>
 
-<LiveQueryScope entries={liveQueryEntries}>
-	{#snippet transferSummary()}
+{#snippet transferSummary()}
 		<dl class="summary">
 			<dt>From</dt>
 			<dd data-intent-transition="source">
@@ -321,9 +323,9 @@
 			<dt>Mode</dt>
 			<dd>{settings.mode === 'channel' ? 'Channel (Yellow)' : 'Direct'}</dd>
 		</dl>
-	{/snippet}
+{/snippet}
 
-	{#snippet transferDetails()}
+{#snippet transferDetails()}
 		<dl class="summary">
 			<dt>Token</dt>
 			<dd>{settings.tokenSymbol} ({formatAddress(settings.tokenAddress)})</dd>
@@ -333,9 +335,10 @@
 		{#if settings.mode === 'channel' && !yellowState.clearnodeConnection}
 			<p data-muted>Connect a Yellow clearnode to send.</p>
 		{/if}
-	{/snippet}
+{/snippet}
 
-	{#if sessionLocked}
+<div style="display: contents" {@attach liveQueryAttachment}>
+{#if sessionLocked}
 		<div data-row="gap-2 align-center">
 			<Button.Root type="button" onclick={forkSession}>New draft</Button.Root>
 		</div>
@@ -358,5 +361,5 @@
 				Details: transferDetails,
 			},
 		]}
-	/>
-</LiveQueryScope>
+/>
+</div>

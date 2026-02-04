@@ -726,7 +726,12 @@
 		typeof value === 'object' && value !== null
 
 	const getChainName = (chainId: number) =>
-		networksByChainId[chainId]?.name ?? `Chain ${chainId}`
+		(
+			Object.values(networksByChainId)
+				.find((entry) => entry?.id === chainId)
+				?.name
+			?? `Chain ${chainId}`
+		)
 
 	const toNodeId = (prefix: string, id: unknown) => `${prefix}:${stringify(id)}`
 
@@ -1073,9 +1078,9 @@
 						opacity: row.type === NetworkType.Testnet ? 0.7 : 1,
 					},
 					details: {
-						chainId: row.chainId,
+						chainId: row.id,
 						type: row.type,
-						network: row.network,
+						name: row.name,
 					},
 				})
 			})

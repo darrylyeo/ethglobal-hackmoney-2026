@@ -27,6 +27,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Popover } from 'bits-ui'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// Functions
 	import { resolve } from '$app/paths'
@@ -61,7 +62,6 @@
 	// Components
 	import Select from '$/components/Select.svelte'
 	import Spinner from '$/components/Spinner.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import BridgeExecution from './BridgeExecution.svelte'
 	import TokenApproval from './TokenApproval.svelte'
@@ -175,6 +175,9 @@
 			query: txQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 
 	const validation = $derived(
 		validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT),
@@ -400,7 +403,7 @@
 	}
 </script>
 
-<LiveQueryScope entries={liveQueryEntries}>
+<div style="display: contents" {@attach liveQueryAttachment}>
 <div aria-live="polite" aria-atomic="true" class="sr-only">
 	{#if executionStatus.overall === 'in_progress'}
 		{@const currentStep =
@@ -756,7 +759,7 @@
 	</section>
 {/if}
 
-</LiveQueryScope>
+</div>
 
 <style>
 	.summary {

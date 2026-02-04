@@ -18,6 +18,7 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { sharedAddressesCollection } from '$/collections/shared-addresses'
 	import { roomState } from '$/state/room.svelte'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	const mySharedQuery = useLiveQuery(
 		(q) =>
@@ -27,6 +28,16 @@
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
+	)
+	const liveQueryEntries = [
+		{
+			id: 'address-sharing',
+			label: 'Shared Addresses',
+			query: mySharedQuery,
+		},
+	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
 	)
 
 	const myShared = $derived(
@@ -47,25 +58,25 @@
 	import { Button } from 'bits-ui'
 </script>
 
-<section data-my-addresses>
-	<h3>My addresses</h3>
-	{#if addresses.length === 0}
-		<p>Connect a wallet to share addresses.</p>
-	{:else}
-		<ul>
-			{#each addresses as address (address)}
-				{@const shared = isShared(address)}
-				<li data-address>
-					<Address network={1} {address} />
-					<Button.Root
-						type="button"
-						onclick={() => shareAddress(address)}
-						disabled={shared}
-					>
-						{shared ? 'Shared' : 'Share'}
-					</Button.Root>
-				</li>
-			{/each}
-		</ul>
-	{/if}
-</section>
+<section data-my-addresses {@attach liveQueryAttachment}>
+		<h3>My addresses</h3>
+		{#if addresses.length === 0}
+			<p>Connect a wallet to share addresses.</p>
+		{:else}
+			<ul>
+				{#each addresses as address (address)}
+					{@const shared = isShared(address)}
+					<li data-address>
+						<Address network={1} {address} />
+						<Button.Root
+							type="button"
+							onclick={() => shareAddress(address)}
+							disabled={shared}
+						>
+							{shared ? 'Shared' : 'Share'}
+						</Button.Root>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	</section>

@@ -19,6 +19,7 @@
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button } from 'bits-ui'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import {
 		getEffectiveHash,
 		setEffectiveHash,
@@ -189,6 +190,9 @@
 			query: tokenListQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 
 	const positions = $derived(
 		selectedActor
@@ -409,14 +413,12 @@
 	// Components
 	import Select from '$/components/Select.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import Positions from './Positions.svelte'
 </script>
 
-<LiveQueryScope entries={liveQueryEntries}>
-	<div data-column="gap-4">
+<div data-column="gap-4" {@attach liveQueryAttachment}>
 		<div data-row="gap-2 align-center justify-between">
 			<h2>Add Liquidity</h2>
 			<div data-row="gap-2 align-center">
@@ -613,5 +615,4 @@
 		{/if}
 
 		<Positions {positions} chainId={settings.chainId} />
-	</div>
-</LiveQueryScope>
+</div>

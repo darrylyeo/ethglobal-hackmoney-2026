@@ -9,6 +9,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { closeChannel, challengeChannel } from '$/api/yellow'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { yellowChannelsCollection } from '$/collections/yellow-channels'
 	import { yellowChannelStatesCollection } from '$/collections/yellow-channel-states'
 	import { roomsCollection } from '$/collections/rooms'
@@ -80,6 +81,9 @@
 			query: walletsQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 	const connections = $derived((connectionsQuery.data ?? []).map((r) => r.row))
 	const wallets = $derived((walletsQuery.data ?? []).map((r) => r.row))
 	const selectedConnection = $derived(
@@ -240,7 +244,6 @@
 	// Components
 	import Address from '$/components/Address.svelte'
 	import { Button } from 'bits-ui'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import TransferDialog from '$/routes/rooms/TransferDialog.svelte'
 
 	let transferOpen = $state(false)
@@ -251,7 +254,7 @@
 	<title>Yellow Channels</title>
 </svelte:head>
 
-<LiveQueryScope entries={liveQueryEntries}>
+<div style="display: contents" {@attach liveQueryAttachment}>
 	<main id="main" data-column data-sticky-container>
 		<h1>Yellow Channels</h1>
 
@@ -377,7 +380,7 @@
 	{#if transferChannel}
 		<TransferDialog channel={transferChannel} bind:open={transferOpen} />
 	{/if}
-</LiveQueryScope>
+</div>
 
 <style>
 	.summary p {

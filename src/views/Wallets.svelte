@@ -23,6 +23,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	import {
 		walletConnectionsCollection,
@@ -167,6 +168,9 @@
 			query: connectionsQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => walletsLiveQueryEntries,
+	)
 
 	const settings = $derived(
 		bridgeSettingsState.current ?? defaultBridgeSettings,
@@ -391,17 +395,16 @@
 	import Address from '$/components/Address.svelte'
 	import Dropdown from '$/components/Dropdown.svelte'
 	import Icon from '$/components/Icon.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import { Button, Switch, ToggleGroup } from 'bits-ui'
 </script>
 
-<LiveQueryScope entries={walletsLiveQueryEntries}>
-	<div
-		data-row="gap-2 align-center wrap"
-		role="group"
-		aria-label="Network settings"
-	>
+<div
+	data-row="gap-2 align-center wrap"
+	role="group"
+	aria-label="Network settings"
+	{@attach liveQueryAttachment}
+>
 		<label data-row="gap-2" aria-label="Network type">
 			<Switch.Root
 				bind:checked={
@@ -1018,8 +1021,7 @@
 				</form>
 			</Dropdown>
 		{/if}
-	</div>
-</LiveQueryScope>
+</div>
 
 <style>
 	.wallet-chip {

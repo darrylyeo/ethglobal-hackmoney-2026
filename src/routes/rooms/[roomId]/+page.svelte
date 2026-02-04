@@ -2,10 +2,12 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import { DataSource } from '$/constants/data-sources'
+	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { roomPeersCollection } from '$/collections/room-peers'
 	import { roomState, joinRoom, leaveRoom } from '$/state/room.svelte'
 
@@ -36,6 +38,16 @@
 				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
+	const liveQueryEntries = [
+		{
+			id: 'room-peers',
+			label: 'Room Peers',
+			query: peersQuery,
+		},
+	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 	const others = $derived(
 		(peersQuery.data ?? [])
 			.map((r) => r.row)
@@ -47,7 +59,16 @@
 	const selectedAddresses = $derived([
 		...new Set(selectedWallets.flatMap((w) => w.connection.actors ?? [])),
 	])
-	const provider = $derived(selectedWallets[0]?.wallet.provider ?? null)
+	const isEip1193Wallet = (
+		wallet: ConnectedWallet,
+	): wallet is Extract<
+		ConnectedWallet,
+		{ connection: { transport: WalletConnectionTransport.Eip1193 } }
+	> =>
+		wallet.connection.transport === WalletConnectionTransport.Eip1193
+	const provider = $derived(
+		selectedWallets.find(isEip1193Wallet)?.wallet.provider ?? null,
+	)
 	const roomDisplayName = $derived(roomIdToDisplayName(roomId))
 	const roomShareUrl = $derived(
 		typeof globalThis !== 'undefined' &&
@@ -83,7 +104,7 @@
 	<title>{roomDisplayName}</title>
 </svelte:head>
 
-<main id="main" data-column data-sticky-container>
+<main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 	<section data-scroll-item>
 		<h1>{roomDisplayName}</h1>
 

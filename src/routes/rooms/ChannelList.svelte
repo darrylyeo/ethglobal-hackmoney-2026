@@ -10,6 +10,7 @@
 	import { sharedAddressesCollection } from '$/collections/shared-addresses'
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { yellowState } from '$/state/yellow.svelte'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
 	// Props
 	let { roomId }: { roomId: string } = $props()
@@ -29,6 +30,21 @@
 			.from({ row: yellowChannelsCollection })
 			.where(({ row }) => eq(row.$source, DataSource.Yellow))
 			.select(({ row }) => ({ row })),
+	)
+	const liveQueryEntries = [
+		{
+			id: 'channel-list-shared',
+			label: 'Shared Addresses',
+			query: sharedQuery,
+		},
+		{
+			id: 'channel-list-channels',
+			label: 'Yellow Channels',
+			query: channelsQuery,
+		},
+	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
 	)
 	const roomAddresses = $derived(
 		(sharedQuery.data ?? []).map((r) => r.row.address.toLowerCase()),
@@ -93,7 +109,7 @@
 	import TransferDialog from './TransferDialog.svelte'
 </script>
 
-<section class="channel-list">
+<section class="channel-list" {@attach liveQueryAttachment}>
 	<h3>Payment Channels</h3>
 
 	{#each roomChannels as channel (channel.id)}

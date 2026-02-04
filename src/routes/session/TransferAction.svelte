@@ -11,6 +11,7 @@
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button } from 'bits-ui'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { yellowState } from '$/state/yellow.svelte'
 	import {
 		getEffectiveHash,
@@ -45,7 +46,6 @@
 
 	// Components
 	import CoinAmount from '$/views/CoinAmount.svelte'
-	import LiveQueryScope from '$/components/LiveQueryScope.svelte'
 	import SessionAction from '$/views/SessionAction.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 
@@ -123,6 +123,9 @@
 			query: sessionQuery,
 		},
 	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const transferDefaults = $derived<TransferSessionParams>({
@@ -413,8 +416,8 @@
 	}
 </script>
 
-<LiveQueryScope entries={liveQueryEntries}>
-	<SessionAction
+<div style="display: contents" {@attach liveQueryAttachment}>
+<SessionAction
 		title="Transfer"
 		description={sessionLocked ? 'Last saved session is locked.' : undefined}
 		{onSubmit}
@@ -485,5 +488,5 @@
 				]}
 			/>
 		{/snippet}
-	</SessionAction>
-</LiveQueryScope>
+</SessionAction>
+</div>

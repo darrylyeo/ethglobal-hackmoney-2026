@@ -8,6 +8,7 @@
 
 	// State
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
 	import { yellowState } from '$/state/yellow.svelte'
 	import { depositToCustody, withdrawFromCustody } from '$/api/yellow'
@@ -18,6 +19,16 @@
 			.from({ row: yellowDepositsCollection })
 			.where(({ row }) => eq(row.$source, DataSource.Yellow))
 			.select(({ row }) => ({ row })),
+	)
+	const liveQueryEntries = [
+		{
+			id: 'yellow-deposits',
+			label: 'Yellow Deposits',
+			query: depositQuery,
+		},
+	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
 	)
 
 	const depositRow = $derived(
@@ -69,7 +80,7 @@
 	}
 </script>
 
-<section class="deposit-manager">
+<section class="deposit-manager" {@attach liveQueryAttachment}>
 	<h3>Custody Balance</h3>
 
 	<dl>
