@@ -7,18 +7,6 @@
 	// Functions
 	import { buildSessionHash } from '$/lib/transaction-sessions'
 
-	const flowRoute = (flow: string) => (
-		flow === 'bridge' ?
-			'/bridge'
-		: flow === 'liquidity' ?
-			'/liquidity'
-		: flow === 'transfer' ?
-			'/transfer'
-		: flow === 'intent' ?
-			'/test/intents'
-		: '/swap'
-	)
-
 	// State
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 
@@ -35,7 +23,7 @@
 
 	$effect(() => {
 		if (!session) return
-		goto(`${flowRoute(session.flows[0] ?? '')}${buildSessionHash(session.id)}`, {
+		goto(`/session${buildSessionHash(session.id)}`, {
 			replaceState: true,
 		})
 	})
@@ -57,7 +45,7 @@
 			<p data-muted>Redirecting to session…</p>
 		{:else}
 			<p data-muted>Session not found.</p>
-			<a href="/session">Back to sessions</a>
+			<a href="/sessions">Back to sessions</a>
 		{/if}
 	</section>
 </main>

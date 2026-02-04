@@ -242,7 +242,7 @@
 		if (sessionLocked) {
 			activateSession(
 				createTransactionSession({
-					flows: [...session.flows],
+					actions: [...session.actions],
 					params: nextParams,
 				}).id,
 			)
@@ -285,7 +285,7 @@
 				}
 				activateSession(
 					createTransactionSession({
-						flows: ['liquidity'],
+						actions: ['liquidity'],
 						params: {},
 					}).id,
 				)
@@ -293,8 +293,14 @@
 			}
 			activateSession(
 				createTransactionSession({
-					flows: ['liquidity'],
-					params: parsed.kind === 'params' ? parsed.params : {},
+					actions:
+						parsed.kind === 'actions'
+							? parsed.actions.map((action) => action.action)
+							: ['liquidity'],
+					params:
+						parsed.kind === 'actions'
+							? parsed.actions[0]?.params ?? {}
+							: {},
 				}).id,
 			)
 		}

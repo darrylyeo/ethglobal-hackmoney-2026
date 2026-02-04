@@ -20,13 +20,8 @@
 
 	// Components
 	import Wallets from '$/views/Wallets.svelte'
-	import TransferFlow from '$/routes/transfers/TransferFlow.svelte'
+	import TransferFlow from './TransferFlow.svelte'
 </script>
-
-
-<svelte:head>
-	<title>Transfer – USDC Tools</title>
-</svelte:head>
 
 
 <main

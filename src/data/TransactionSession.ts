@@ -3,7 +3,7 @@ export type TransactionSessionStatus =
 	| 'Submitted'
 	| 'Finalized'
 
-export type TransactionSessionFlow =
+export type TransactionSessionAction =
 	| 'swap'
 	| 'bridge'
 	| 'transfer'
@@ -12,7 +12,7 @@ export type TransactionSessionFlow =
 
 export type TransactionSession = {
 	id: string
-	flows: TransactionSessionFlow[]
+	actions: TransactionSessionAction[]
 	status: TransactionSessionStatus
 	createdAt: number
 	updatedAt: number

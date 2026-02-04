@@ -86,10 +86,10 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(0),
 		size: 58,
 		shape: 'rect',
-		badge: '/bridge • /swap • /rooms',
+		badge: '/session • /rooms',
 		priority: 'primary',
 		details: {
-			purpose: 'Routes: /bridge, /swap, /liquidity, /transfers, /rooms, /wallets, /dashboard, /session',
+			purpose: 'Routes: /session, /transfers, /rooms, /wallets, /dashboard, /sessions',
 			tech: 'SvelteKit pages + layouts',
 		},
 	},

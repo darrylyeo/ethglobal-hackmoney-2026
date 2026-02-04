@@ -116,7 +116,7 @@
 		if (sessionLocked) {
 			activateSession(
 				createTransactionSession({
-					flows: [...session.flows],
+					actions: [...session.actions],
 					params: nextParams,
 				}).id,
 			)
@@ -496,7 +496,7 @@
 				}
 				activateSession(
 					createTransactionSession({
-						flows: ['intent'],
+						actions: ['intent'],
 						params: normalizeIntentParams(null),
 					}).id,
 				)
@@ -504,9 +504,12 @@
 			}
 			activateSession(
 				createTransactionSession({
-					flows: ['intent'],
+					actions:
+						parsed.kind === 'actions'
+							? parsed.actions.map((action) => action.action)
+							: ['intent'],
 					params: normalizeIntentParams(
-						parsed.kind === 'params' ? parsed.params : null,
+						parsed.kind === 'actions' ? parsed.actions[0]?.params ?? null : null,
 					),
 				}).id,
 			)
@@ -535,7 +538,7 @@
 	import Wallets from '$/views/Wallets.svelte'
 	import EntityId from '$/components/EntityId.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
-	import TransferFlow from '$/routes/transfers/TransferFlow.svelte'
+	import TransferFlow from '$/routes/session/transfer/TransferFlow.svelte'
 </script>
 
 <main

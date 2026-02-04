@@ -6,20 +6,11 @@
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
 	let selectedChainId = $state<number | null>(null)
-	let balanceTokens = $state<{ chainId: number; tokenAddress: `0x${string}` }[]>(
-		[],
-	)
 
 	// Components
-	import Balances from '$/views/Balances.svelte'
 	import Wallets from '$/views/Wallets.svelte'
-	import BridgeFlow from './BridgeFlow.svelte'
+	import LiquidityFlow from './LiquidityFlow.svelte'
 </script>
-
-
-<svelte:head>
-	<title>USDC Bridge</title>
-</svelte:head>
 
 
 <main
@@ -36,13 +27,11 @@
 			</summary>
 
 			<div data-column="gap-6">
-				<h1>USDC Bridge</h1>
-				<Balances {selectedActor} {balanceTokens} />
-				<BridgeFlow
+				<h1>Liquidity</h1>
+				<LiquidityFlow
 					selectedWallets={connectedWallets}
 					{selectedActor}
 					{selectedChainId}
-					bind:balanceTokens
 				/>
 			</div>
 		</details>

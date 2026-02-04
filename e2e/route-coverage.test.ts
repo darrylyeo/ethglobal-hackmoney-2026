@@ -27,7 +27,7 @@ test.describe('Home (/)', () => {
 	})
 })
 
-test.describe('Bridge (/bridge)', () => {
+test.describe('Session (bridge)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {
 		await addTevmWallet(context, page, {
 			rpcUrl: tevm.rpcUrl,
@@ -39,7 +39,7 @@ test.describe('Bridge (/bridge)', () => {
 	})
 
 	test('unified bridge renders with protocol selection', async ({ page }) => {
-		await page.goto('/bridge')
+		await page.goto('/session#bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
@@ -54,7 +54,7 @@ test.describe('Bridge (/bridge)', () => {
 	})
 
 	test('auto-connected wallet shows address', async ({ page }) => {
-		await page.goto('/bridge')
+		await page.goto('/session#bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})

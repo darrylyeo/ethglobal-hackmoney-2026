@@ -32,7 +32,7 @@ for (const { name, width, height } of VIEWPORTS) {
 		page,
 	}) => {
 		await page.setViewportSize({ width, height })
-		await page.goto('/bridge/lifi')
+		await page.goto('/session#bridge')
 		await expect(page.locator('#main')).toBeAttached({
 			timeout: 15_000,
 		})

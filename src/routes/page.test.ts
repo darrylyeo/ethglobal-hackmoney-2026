@@ -32,7 +32,7 @@ test('bridge: get quote flow selects options and shows result or error', async (
 			)
 		})
 	})
-	await page.goto('/bridge')
+	await page.goto('/session#bridge')
 	await expect(
 		page.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
 	).toBeVisible({
@@ -43,6 +43,7 @@ test('bridge: get quote flow selects options and shows result or error', async (
 	await expect(page.locator('[data-wallet-address]')).toBeVisible({
 		timeout: 10_000,
 	})
+	await page.getByRole('button', { name: 'LI.FI' }).click()
 	await page
 		.getByText('Loading networks…')
 		.waitFor({ state: 'hidden', timeout: 15_000 })
@@ -55,7 +56,6 @@ test('bridge: get quote flow selects options and shows result or error', async (
 	await page.getByLabel('To chain').click()
 	await page.getByTestId('option-OP Mainnet').click()
 	await page.getByLabel('Amount').fill('1')
-	await page.getByRole('button', { name: 'Get Routes' }).click()
 	await Promise.race([
 		page.locator('[data-testid="quote-result"]').waitFor({
 			state: 'visible',

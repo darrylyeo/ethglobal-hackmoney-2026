@@ -3,6 +3,7 @@ import {
 	addLifiRoutesMock,
 	addTevmWallet,
 	ensureWalletConnected,
+	selectProtocolOption,
 	selectChainOption,
 } from './test-setup.js'
 
@@ -15,7 +16,7 @@ test.describe('Bridge UI (Spec 004)', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/bridge/lifi')
+		await page.goto('/session#bridge')
 		await addLifiRoutesMock(page)
 	})
 
@@ -30,6 +31,7 @@ test.describe('Bridge UI (Spec 004)', () => {
 			{ timeout: 45_000 },
 		)
 		await ensureWalletConnected(page)
+		await selectProtocolOption(page, 'LI.FI')
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
@@ -57,6 +59,7 @@ test.describe('Bridge UI (Spec 004)', () => {
 			{ timeout: 45_000 },
 		)
 		await ensureWalletConnected(page)
+		await selectProtocolOption(page, 'LI.FI')
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })

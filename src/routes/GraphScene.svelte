@@ -1504,7 +1504,7 @@
 					disabled: row.status === 'Finalized',
 					details: {
 						status: row.status,
-						flows: row.flows.join(', '),
+						actions: row.actions.join(', '),
 						simulations: row.simulationCount ?? 0,
 					},
 				})

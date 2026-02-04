@@ -5,11 +5,6 @@
 
 	// Context
 	import { Button } from 'bits-ui'
-	import { goto } from '$app/navigation'
-	import { resolve } from '$app/paths'
-
-	// Functions
-	import { buildSessionHash } from '$/lib/transaction-sessions'
 
 	// Props
 	let {
@@ -17,7 +12,6 @@
 		protocolReason,
 		protocolIntent = $bindable(null),
 		onProtocolIntentChange = null,
-		sessionId = null,
 		disabled = false,
 		cctpPairSupported,
 		lifiPairSupported,
@@ -30,7 +24,6 @@
 		protocolReason: string
 		protocolIntent?: 'cctp' | 'lifi' | null
 		onProtocolIntentChange?: ((value: 'cctp' | 'lifi' | null) => void) | null
-		sessionId?: string | null
 		disabled?: boolean
 		cctpPairSupported: boolean
 		lifiPairSupported: boolean
@@ -41,25 +34,12 @@
 	} = $props()
 
 	// (Derived)
-	const canContinue = $derived(
-		Boolean(activeProtocol && canSendAmount && selectedWallet),
-	)
 	const protocolLabel = $derived(
 		activeProtocol === 'cctp'
 			? 'CCTP'
 			: activeProtocol === 'lifi'
 				? 'LI.FI'
 				: '—',
-	)
-	const protocolHash = $derived(
-		sessionId ? buildSessionHash(sessionId) : '',
-	)
-	const protocolHref = $derived(
-		activeProtocol === 'cctp'
-			? `/bridge/cctp${protocolHash}`
-			: activeProtocol === 'lifi'
-				? `/bridge/lifi${protocolHash}`
-				: null,
 	)
 	const protocolOptions = $derived(
 		([
@@ -84,10 +64,6 @@
 	)
 
 	// Actions
-	const onContinue = () => {
-		if (!protocolHref) return
-		goto(resolve(protocolHref))
-	}
 	const onProtocolIntent = (value: 'cctp' | 'lifi' | null) => (
 		(
 			onProtocolIntentChange?.(value),
@@ -160,10 +136,6 @@
 	{#if !selectedWallet}
 		<p data-muted>Connect a wallet to continue</p>
 	{/if}
-
-	<Button.Root type="button" disabled={!canContinue} onclick={onContinue}>
-		{activeProtocol ? 'Continue' : 'Select chains'}
-	</Button.Root>
 </section>
 
 <style>

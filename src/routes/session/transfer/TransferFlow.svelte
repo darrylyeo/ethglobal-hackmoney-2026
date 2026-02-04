@@ -110,7 +110,7 @@
 		if (!session) return
 		activateSession(
 			createTransactionSession({
-				flows: [...session.flows],
+				actions: [...session.actions],
 				params: sessionParams,
 			}).id,
 		)
@@ -128,7 +128,7 @@
 				}
 				activateSession(
 					createTransactionSession({
-						flows: ['transfer'],
+						actions: ['transfer'],
 						params: transferDefaults,
 						defaults: { transfer: transferDefaults },
 					}).id,
@@ -137,8 +137,14 @@
 			}
 			activateSession(
 				createTransactionSession({
-					flows: ['transfer'],
-					params: parsed.kind === 'params' ? parsed.params : transferDefaults,
+					actions:
+						parsed.kind === 'actions'
+							? parsed.actions.map((action) => action.action)
+							: ['transfer'],
+					params:
+						parsed.kind === 'actions'
+							? parsed.actions[0]?.params ?? transferDefaults
+							: transferDefaults,
 					defaults: { transfer: transferDefaults },
 				}).id,
 			)

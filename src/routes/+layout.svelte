@@ -11,31 +11,20 @@
 	import { roomIdToDisplayName } from '$/lib/room'
 	import { buildSessionHash } from '$/lib/transaction-sessions'
 
-	const flowLabel = (flow: string) => (
-		flow.length > 0 ? `${flow[0].toUpperCase()}${flow.slice(1)}` : 'Session'
-	)
-	const flowRoute = (flow: string) => (
-		flow === 'bridge' ?
-			'/bridge'
-		: flow === 'liquidity' ?
-			'/liquidity'
-		: flow === 'transfer' ?
-			'/transfer'
-		: flow === 'intent' ?
-			'/test/intents'
-		: '/swap'
+	const actionLabel = (action: string) => (
+		action.length > 0 ? `${action[0].toUpperCase()}${action.slice(1)}` : 'Session'
 	)
 	const sessionTitle = (session: {
 		id: string
-		flows: string[]
+		actions: string[]
 	}) => (
-		`${flowLabel(session.flows[0] ?? '')} ${session.id.slice(0, 6)}`
+		`${actionLabel(session.actions[0] ?? '')} ${session.id.slice(0, 6)}`
 	)
 	const sessionHref = (session: {
 		id: string
-		flows: string[]
+		actions: string[]
 	}) => (
-		`${flowRoute(session.flows[0] ?? '')}${buildSessionHash(session.id)}`
+		`/session${buildSessionHash(session.id)}`
 	)
 
 	// Props
@@ -80,7 +69,7 @@
 		{
 			id: 'sessions',
 			title: 'Sessions',
-			href: '/session',
+			href: '/sessions',
 			children: (sessionsQuery.data ?? [])
 				.map((result) => result.row)
 				.sort((a, b) => b.updatedAt - a.updatedAt)
@@ -94,17 +83,22 @@
 		{
 			id: 'bridge',
 			title: 'Bridge',
-			href: '/bridge',
+			href: '/session#bridge',
 		},
 		{
 			id: 'swap',
 			title: 'Swap',
-			href: '/swap',
+			href: '/session#swap',
+		},
+		{
+			id: 'transfer',
+			title: 'Transfer',
+			href: '/session#transfer',
 		},
 		{
 			id: 'liquidity',
 			title: 'Liquidity',
-			href: '/liquidity',
+			href: '/session#liquidity',
 		},
 		{
 			id: 'transfers',

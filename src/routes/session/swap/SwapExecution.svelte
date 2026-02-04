@@ -112,9 +112,9 @@
 			<a
 				href={getTxUrl(quote.chainId, status.txHash)}
 				target="_blank"
-			rel="noopener noreferrer"
-			data-tx-hash={status.txHash}>{status.txHash.slice(0, 8)}…</a
-			>
+				rel="noopener noreferrer"
+				data-tx-hash={status.txHash}
+			>{status.txHash.slice(0, 8)}…</a>
 		{/if}
 		{#if status.overall === 'completed'}
 			<p>Swap complete!</p>

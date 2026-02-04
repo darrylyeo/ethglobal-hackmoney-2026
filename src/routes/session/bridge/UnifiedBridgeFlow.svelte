@@ -231,7 +231,7 @@
 		if (sessionLocked) {
 			activateSession(
 				createTransactionSession({
-					flows: [...session.flows],
+					actions: [...session.actions],
 					params: nextParams,
 				}).id,
 			)
@@ -274,7 +274,7 @@
 					return
 				}
 				createTransactionSessionWithId(parsed.sessionId, {
-					flows: ['bridge'],
+					actions: ['bridge'],
 					params: normalizeBridgeParams(null),
 				})
 				activeSessionId = parsed.sessionId
@@ -282,9 +282,12 @@
 			}
 			activateSession(
 				createTransactionSession({
-					flows: ['bridge'],
+					actions:
+						parsed.kind === 'actions'
+							? parsed.actions.map((action) => action.action)
+							: ['bridge'],
 					params: normalizeBridgeParams(
-						parsed.kind === 'params' ? parsed.params : null,
+						parsed.kind === 'actions' ? parsed.actions[0]?.params ?? null : null,
 					),
 				}).id,
 			)
@@ -332,6 +335,8 @@
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import UnifiedProtocolRouter from './UnifiedProtocolRouter.svelte'
+	import CctpBridgeFlow from '$/routes/bridge/cctp/CctpBridgeFlow.svelte'
+	import BridgeFlow from '$/routes/bridge/lifi/BridgeFlow.svelte'
 </script>
 
 <div class="bridge-layout">
@@ -461,7 +466,6 @@
 		onProtocolIntentChange={(next) => (
 			updateSessionParams({ ...settings, protocolIntent: next })
 		)}
-		sessionId={session?.id ?? null}
 		disabled={sessionLocked}
 		{activeProtocol}
 		{protocolReason}
@@ -473,6 +477,20 @@
 		{canSendAmount}
 	/>
 </div>
+
+{#if activeProtocol === 'lifi'}
+	<BridgeFlow
+		selectedWallets={selectedWallets}
+		{selectedActor}
+		bind:balanceTokens
+	/>
+{:else if activeProtocol === 'cctp'}
+	<CctpBridgeFlow
+		selectedWallets={selectedWallets}
+		{selectedActor}
+		bind:balanceTokens
+	/>
+{/if}
 
 <style>
 	.bridge-layout {

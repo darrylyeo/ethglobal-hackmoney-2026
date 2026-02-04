@@ -1,7 +1,7 @@
 import { type } from 'arktype'
 import type {
 	TransactionSession,
-	TransactionSessionFlow,
+	TransactionSessionAction,
 } from '$/data/TransactionSession'
 import { normalizeAddress } from '$/lib/address'
 import {
@@ -211,21 +211,21 @@ export const normalizeLiquiditySessionParams = (
 }
 
 export const normalizeTransactionSessionParams = (
-	flows: TransactionSessionFlow[],
+	actions: TransactionSessionAction[],
 	params: Record<string, unknown> | null,
 	defaults?: TransactionSessionDefaults,
 ) => {
-	const flow = flows[0] ?? null
-	if (flow === 'swap')
+	const action = actions[0] ?? null
+	if (action === 'swap')
 		return normalizeSwapSessionParams(params, defaults?.swap ?? defaultSwapSessionParams)
-	if (flow === 'bridge')
+	if (action === 'bridge')
 		return normalizeBridgeSessionParams(params, defaults?.bridge ?? defaultBridgeSettings)
-	if (flow === 'liquidity')
+	if (action === 'liquidity')
 		return normalizeLiquiditySessionParams(
 			params,
 			defaults?.liquidity ?? defaultLiquiditySessionParams,
 		)
-	if (flow === 'transfer' && defaults?.transfer)
+	if (action === 'transfer' && defaults?.transfer)
 		return normalizeTransferSessionParams(params, defaults.transfer)
 	return params ?? {}
 }

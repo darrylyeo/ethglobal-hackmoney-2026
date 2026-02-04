@@ -3,6 +3,7 @@ import {
 	addCctpMocks,
 	addTevmWallet,
 	ensureWalletConnected,
+	selectProtocolOption,
 } from './test-setup.js'
 
 test.describe('CCTP Bridge (Spec 036)', () => {
@@ -15,7 +16,7 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 			name: tevm.providerName,
 		})
 		await addCctpMocks(page)
-		await page.goto('/bridge/cctp')
+		await page.goto('/session#bridge')
 	})
 
 	test('select chains, enter amount', async ({ page }) => {
@@ -27,6 +28,7 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 			{ timeout: 45_000 },
 		)
 		await ensureWalletConnected(page)
+		await selectProtocolOption(page, 'CCTP')
 		await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 15_000 })
 		await page.getByLabel('From chain').focus()
 		await page.getByLabel('From chain').press('ArrowDown')
@@ -46,6 +48,7 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 			timeout: 30_000,
 		})
 		await ensureWalletConnected(page)
+		await selectProtocolOption(page, 'CCTP')
 		await page.getByLabel('From chain').focus()
 		await page.getByLabel('From chain').press('ArrowDown')
 		await page.getByRole('option').first().waitFor({ state: 'visible', timeout: 10_000 })

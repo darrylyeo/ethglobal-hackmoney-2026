@@ -29,7 +29,7 @@ async function addMockWallet(context: {
 }
 
 test('bridge page loads and shows USDC Bridge heading', async ({ page }) => {
-	await page.goto('/bridge/lifi')
+	await page.goto('/session#bridge')
 	await expect(page.locator('#main')).toBeAttached({ timeout: 30_000 })
 	await expect(
 		page.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
@@ -39,7 +39,7 @@ test('bridge page loads and shows USDC Bridge heading', async ({ page }) => {
 test.describe('with mock wallet and networks loaded', () => {
 	test.beforeEach(async ({ context, page }) => {
 		await addMockWallet(context)
-		await page.goto('/bridge/lifi')
+		await page.goto('/session#bridge')
 		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
@@ -51,6 +51,7 @@ test.describe('with mock wallet and networks loaded', () => {
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 10_000,
 		})
+		await page.getByRole('button', { name: 'LI.FI' }).click()
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })

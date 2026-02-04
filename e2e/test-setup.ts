@@ -221,6 +221,15 @@ export const selectChainOption = async (
 	await page.keyboard.press('Escape')
 }
 
+export const selectProtocolOption = async (
+	page: import('@playwright/test').Page,
+	label: 'CCTP' | 'LI.FI',
+) => {
+	const option = page.getByRole('button', { name: label }).first()
+	await option.waitFor({ state: 'visible', timeout: 15_000 })
+	await option.click()
+}
+
 export async function addMockWallet(
 	context: { addInitScript: (fn: () => void) => Promise<void> },
 	page?: { addInitScript: (fn: () => void) => Promise<void> },

@@ -4,6 +4,7 @@ import {
 	addTevmWallet,
 	ensureWalletConnected,
 	selectChainOption,
+	selectProtocolOption,
 } from './test-setup.js'
 
 const isHexHash = (value: string | null): value is `0x${string}` => (
@@ -20,8 +21,11 @@ const getTxHash = async (
 	return value
 }
 
-const buildParamsHash = (params: Record<string, unknown>) => (
-	`#${encodeURIComponent(JSON.stringify(params))}`
+const buildActionHash = (
+	action: 'swap' | 'bridge' | 'transfer' | 'liquidity',
+	params: Record<string, unknown>,
+) => (
+	`#${action}:${encodeURIComponent(JSON.stringify(params))}`
 )
 
 test.describe('E2E Tevm walletless execution', () => {
@@ -33,7 +37,7 @@ test.describe('E2E Tevm walletless execution', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/swap')
+		await page.goto('/session#swap')
 		await ensureWalletConnected(page)
 		await page.getByRole('textbox', { name: 'Token in' }).fill('1')
 		const swapButton = page.getByRole('button', { name: 'Swap', exact: true })
@@ -51,9 +55,10 @@ test.describe('E2E Tevm walletless execution', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/bridge/lifi')
+		await page.goto('/session#bridge')
 		await addLifiRoutesMock(page)
 		await ensureWalletConnected(page)
+		await selectProtocolOption(page, 'LI.FI')
 		await selectChainOption(page, 'From chain', 'Ethereum')
 		await selectChainOption(page, 'To chain', 'OP Mainnet')
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
@@ -83,7 +88,7 @@ test.describe('E2E Tevm walletless execution', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		const hash = buildParamsHash({
+		const hash = buildActionHash('transfer', {
 			fromActor: tevm.walletAddress,
 			toActor: tevm.recipientAddress,
 			chainId: tevm.chainId,
@@ -92,7 +97,7 @@ test.describe('E2E Tevm walletless execution', () => {
 		})
 		const beforeSender = await tevm.getBalance(tevm.walletAddress)
 		const beforeRecipient = await tevm.getBalance(tevm.recipientAddress)
-		await page.goto(`/transfer${hash}`)
+		await page.goto(`/session${hash}`)
 		await ensureWalletConnected(page)
 		const transferButton = page.getByRole('button', { name: 'Transfer' })
 		await expect(transferButton).toBeEnabled({ timeout: 20_000 })
@@ -119,12 +124,12 @@ test.describe('E2E Tevm walletless execution', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		const hash = buildParamsHash({
+		const hash = buildActionHash('liquidity', {
 			chainId: tevm.chainId,
 			amount0: '1',
 			amount1: '2',
 		})
-		await page.goto(`/liquidity${hash}`)
+		await page.goto(`/session${hash}`)
 		await ensureWalletConnected(page)
 		const addButton = page.getByRole('button', { name: 'Add Liquidity' })
 		await expect(addButton).toBeEnabled({ timeout: 20_000 })

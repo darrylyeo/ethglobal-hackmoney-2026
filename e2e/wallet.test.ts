@@ -14,7 +14,7 @@ test('network toggle switches between Mainnet/Testnet label', async ({
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/bridge')
+		await page.goto('/session#bridge')
 		await expect(page.locator('[data-wallet-network-label]')).toHaveText(
 			'Mainnet',
 			{
@@ -45,7 +45,7 @@ test('network toggle switches between Mainnet/Testnet label', async ({
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/bridge')
+		await page.goto('/session#bridge')
 		await ensureWalletConnected(page)
 		await page.locator('[data-wallet-menu-trigger]').click()
 		await expect(page.locator('[data-wallet-disconnect]')).toBeVisible({
@@ -62,7 +62,7 @@ test('network toggle switches between Mainnet/Testnet label', async ({
 				rdns: tevm.providerRdns,
 				name: tevm.providerName,
 			})
-			await page.goto('/bridge')
+			await page.goto('/session#bridge')
 			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})

@@ -3,6 +3,7 @@ import {
 	addLifiRoutesMock,
 	addTevmWallet,
 	ensureWalletConnected,
+	selectProtocolOption,
 	selectChainOption,
 } from './test-setup.js'
 
@@ -16,7 +17,7 @@ test.describe('E2E bridge flow', () => {
 				rdns: tevm.providerRdns,
 				name: tevm.providerName,
 			})
-			await page.goto('/bridge/lifi')
+			await page.goto('/session#bridge')
 			await addLifiRoutesMock(page)
 		})
 
@@ -34,6 +35,7 @@ test.describe('E2E bridge flow', () => {
 				},
 			)
 			await ensureWalletConnected(page)
+			await selectProtocolOption(page, 'LI.FI')
 			await expect(
 				page.getByRole('heading', { name: 'Your balances' }),
 			).toBeVisible({ timeout: 20_000 })
@@ -103,6 +105,7 @@ test.describe('E2E bridge flow', () => {
 				},
 			)
 			await ensureWalletConnected(page)
+			await selectProtocolOption(page, 'LI.FI')
 			await expect(
 				page.getByRole('heading', { name: 'Your balances' }),
 			).toBeVisible({ timeout: 20_000 })
@@ -124,7 +127,7 @@ test.describe('E2E bridge flow', () => {
 				rdns: tevm.providerRdns,
 				name: tevm.providerName,
 			})
-			await page.goto('/bridge/lifi')
+			await page.goto('/session#bridge')
 			await addLifiRoutesMock(page)
 			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
@@ -142,6 +145,7 @@ test.describe('E2E bridge flow', () => {
 			page,
 		}) => {
 			await ensureWalletConnected(page)
+			await selectProtocolOption(page, 'LI.FI')
 			await expect(
 				page.getByRole('heading', { name: 'Your balances' }),
 			).toBeVisible({ timeout: 20_000 })
@@ -173,6 +177,7 @@ test.describe('E2E bridge flow', () => {
 			page,
 		}) => {
 			await ensureWalletConnected(page)
+			await selectProtocolOption(page, 'LI.FI')
 			await expect(
 				page.getByRole('heading', { name: 'Your balances' }),
 			).toBeVisible({ timeout: 20_000 })
@@ -210,7 +215,7 @@ test.describe('E2E bridge flow', () => {
 		test('without wallet: clear message and connect prompt', async ({
 			page,
 		}) => {
-			await page.goto('/bridge/lifi')
+			await page.goto('/session#bridge')
 			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})
@@ -235,7 +240,7 @@ test.describe('E2E bridge flow', () => {
 				rdns: tevm.providerRdns,
 				name: tevm.providerName,
 			})
-			await page.goto('/bridge/lifi')
+			await page.goto('/session#bridge')
 			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main').first()).toContainText(
 				/USDC Bridge|Connect a wallet/,
@@ -244,6 +249,7 @@ test.describe('E2E bridge flow', () => {
 				},
 			)
 			await ensureWalletConnected(page)
+			await selectProtocolOption(page, 'LI.FI')
 			await expect(
 				page.getByRole('heading', { name: 'Your balances' }),
 			).toBeVisible({ timeout: 20_000 })

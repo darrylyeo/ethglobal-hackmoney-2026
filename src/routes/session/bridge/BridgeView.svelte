@@ -16,11 +16,6 @@
 </script>
 
 
-<svelte:head>
-	<title>USDC Bridge</title>
-</svelte:head>
-
-
 <main
 	id="main"
 	data-column

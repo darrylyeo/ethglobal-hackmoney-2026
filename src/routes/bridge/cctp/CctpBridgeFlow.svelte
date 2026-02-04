@@ -262,7 +262,7 @@
 		if (sessionLocked) {
 			activateSession(
 				createTransactionSession({
-					flows: [...session.flows],
+					actions: [...session.actions],
 					params: nextParams,
 				}).id,
 			)
@@ -305,7 +305,7 @@
 					return
 				}
 				createTransactionSessionWithId(parsed.sessionId, {
-					flows: ['bridge'],
+					actions: ['bridge'],
 					params: normalizeBridgeParams(null),
 				})
 				activeSessionId = parsed.sessionId
@@ -313,9 +313,12 @@
 			}
 			activateSession(
 				createTransactionSession({
-					flows: ['bridge'],
+					actions:
+						parsed.kind === 'actions'
+							? parsed.actions.map((action) => action.action)
+							: ['bridge'],
 					params: normalizeBridgeParams(
-						parsed.kind === 'params' ? parsed.params : null,
+						parsed.kind === 'actions' ? parsed.actions[0]?.params ?? null : null,
 					),
 				}).id,
 			)

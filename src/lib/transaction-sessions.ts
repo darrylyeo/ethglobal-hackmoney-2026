@@ -3,7 +3,7 @@ import { transactionSessionsCollection } from '$/collections/transaction-session
 import { DataSource } from '$/constants/data-sources'
 import type {
 	TransactionSession,
-	TransactionSessionFlow,
+	TransactionSessionAction,
 	TransactionSessionStatus,
 } from '$/data/TransactionSession'
 import type {
@@ -24,8 +24,11 @@ export type SessionHashResult =
 			sessionId: string
 	  }
 	| {
-			kind: 'params'
-			params: Record<string, unknown>
+			kind: 'actions'
+			actions: {
+				action: TransactionSessionAction
+				params: Record<string, unknown> | null
+			}[]
 	  }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => (
@@ -43,12 +46,49 @@ export const parseSessionHash = (hash: string): SessionHashResult => {
 		const sessionId = normalized.slice('session:'.length)
 		return sessionId ? { kind: 'session', sessionId } : { kind: 'empty' }
 	}
-	try {
-		const parsed = JSON.parse(decodeURIComponent(normalized))
-		return isRecord(parsed) ? { kind: 'params', params: parsed } : { kind: 'empty' }
-	} catch {
-		return { kind: 'empty' }
-	}
+	const actions = normalized
+		.split('|')
+		.filter((entry) => entry.trim().length > 0)
+		.map((entry) => {
+			const separatorIndex = entry.indexOf(':')
+			const action = (separatorIndex === -1 ? entry : entry.slice(0, separatorIndex))
+				.trim() as TransactionSessionAction
+			if (
+				action !== 'swap' &&
+				action !== 'bridge' &&
+				action !== 'transfer' &&
+				action !== 'liquidity' &&
+				action !== 'intent'
+			)
+				return null
+			if (separatorIndex === -1) {
+				return {
+					action,
+					params: null,
+				}
+			}
+			const paramsSource = entry.slice(separatorIndex + 1).trim()
+			if (!paramsSource) {
+				return {
+					action,
+					params: null,
+				}
+			}
+			try {
+				const parsed = JSON.parse(decodeURIComponent(paramsSource))
+				return {
+					action,
+					params: isRecord(parsed) ? parsed : null,
+				}
+			} catch {
+				return {
+					action,
+					params: null,
+				}
+			}
+		})
+		.flatMap((entry) => (entry ? [entry] : []))
+	return actions.length > 0 ? { kind: 'actions', actions } : { kind: 'empty' }
 }
 
 export const createSessionId = () => (
@@ -58,7 +98,7 @@ export const createSessionId = () => (
 )
 
 export const createTransactionSession = (args: {
-	flows: TransactionSessionFlow[]
+	actions: TransactionSessionAction[]
 	params: Record<string, unknown>
 	status?: TransactionSessionStatus
 	defaults?: TransactionSessionDefaults
@@ -69,7 +109,7 @@ export const createTransactionSession = (args: {
 export const createTransactionSessionWithId = (
 	id: string,
 	args: {
-		flows: TransactionSessionFlow[]
+		actions: TransactionSessionAction[]
 		params: Record<string, unknown>
 		status?: TransactionSessionStatus
 		defaults?: TransactionSessionDefaults
@@ -77,13 +117,13 @@ export const createTransactionSessionWithId = (
 ) => {
 	const now = Date.now()
 	const normalizedParams = normalizeTransactionSessionParams(
-		args.flows,
+		args.actions,
 		args.params,
 		args.defaults,
 	)
 	const session: TransactionSession = {
 		id,
-		flows: args.flows,
+		actions: args.actions,
 		status: args.status ?? 'Draft',
 		createdAt: now,
 		updatedAt: now,
@@ -111,7 +151,7 @@ export const updateTransactionSession = (
 			...current,
 			params: { ...current.params },
 		})
-		draft.flows = next.flows
+		draft.actions = next.actions
 		draft.status = next.status
 		draft.createdAt = next.createdAt
 		draft.updatedAt = next.updatedAt
@@ -131,7 +171,7 @@ export const updateTransactionSessionParams = (
 ) => (
 	updateTransactionSession(sessionId, (session) => ({
 		...session,
-		params: normalizeTransactionSessionParams(session.flows, params, defaults),
+		params: normalizeTransactionSessionParams(session.actions, params, defaults),
 		updatedAt: Date.now(),
 	}))
 )
@@ -177,7 +217,7 @@ export const deleteTransactionSession = (sessionId: string) => {
 
 export const forkTransactionSession = (session: TransactionSession) => (
 	createTransactionSession({
-		flows: [...session.flows],
+		actions: [...session.actions],
 		params: { ...session.params },
 	})
 )

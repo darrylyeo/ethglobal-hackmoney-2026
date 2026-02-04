@@ -17,11 +17,6 @@
 </script>
 
 
-<svelte:head>
-	<title>Swap</title>
-</svelte:head>
-
-
 <main
 	id="main"
 	data-column

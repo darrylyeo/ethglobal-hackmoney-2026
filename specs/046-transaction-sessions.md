@@ -25,8 +25,8 @@ and navigation.
 
 ### Transaction session
 
-A persisted record that represents a transaction flow session, potentially
-containing multiple steps/flows (for intent-derived routes).
+A persisted record that represents a transaction session, containing one or more
+actions (swap, transfer, bridge) that together define the user flow.
 
 ### Lifecycle
 
@@ -39,12 +39,10 @@ containing multiple steps/flows (for intent-derived routes).
 ```ts
 type TransactionSession = {
 	id: string
-	flows: (
+	actions: (
 		| 'swap'
 		| 'bridge'
 		| 'transfer'
-		| 'liquidity'
-		| 'intent'
 	)[]
 	status: 'Draft' | 'Submitted' | 'Finalized'
 	createdAt: number
@@ -69,9 +67,15 @@ type TransactionSession = {
 
 ### Bootstrap
 
-- If the URL hash decodes into a JSON object, treat it as initial `params`.
-- Create a new session, persist it, and immediately replace the hash with
-  `#session:<id>`.
+- Single base route: `/session`.
+- Session initialization comes from the hash:
+  - `/session#[action-slug]`
+  - `/session#[action-1-slug]|[action-2-slug]`
+  - `/session#[action-1-slug]:{JSON params}|[action-2-slug]:{JSON params}`
+- When the hash contains action slugs, create a new session with `actions` in
+  order, persist it, and replace the hash with `#session:<id>`.
+- When an action slug includes JSON params, treat them as the initial `params`
+  payload (partial values allowed).
 - If there is no hash, create a new session using default params and replace the
   hash with `#session:<id>`.
 
@@ -106,26 +110,31 @@ type TransactionSession = {
 
 ## Sessions route and navigation
 
-- Introduce a dedicated sessions route, e.g. `/session`.
+- Introduce a dedicated sessions route: `/session`.
+- Replace dedicated action routes (`/swap`, `/bridge`, `/transfer`) with the
+  single `/session` route.
+- Move action views to `src/view/[action-slug]` and have `/session` consume them.
 - Add a Sessions parent navigation item that groups all session entries.
 - Session detail routes are nested under `/session` and point to the relevant
-  flow view with `#session:<id>`.
+  action view with `#session:<id>`.
 
 ## Navigation tags
 
 - Add child navigation items for active sessions under the sessions parent.
 - Each item includes a `[data-tag]` indicating `Draft`, `Submitted`, or
   `Finalized`.
-- Session navigation items resolve to the appropriate flow route with
-  `#session:<id>`.
+- Session navigation items resolve to `/session#[action-slug]`.
 
 ## Flow adoption
 
-- Swap, bridge (CCTP, LiFi), transfer, and liquidity flows read and write
-  `TransactionSession.params` as the single source of truth.
-- Flow-specific view models derive from `params` without duplicating state.
+- Swap, bridge, and transfer actions read and write `TransactionSession.params`
+  as the single source of truth.
+- Action-specific view models derive from `params` without duplicating state.
 - Form edits never mutate URL hash directly beyond the `#session:<id>` form.
-- TransactionFlow owns execution orchestration, and flows only provide specifics.
+- TransactionFlow owns execution orchestration, and actions only provide
+  specifics.
+- Intents resolve to a session with one or more actions, and params may be
+  partially filled out.
 
 ## Acceptance criteria
 
@@ -145,6 +154,11 @@ type TransactionSession = {
 - [x] Navigation includes a sessions parent item with child items per session.
 - [x] Session child items include `[data-tag]` reflecting state.
 - [x] Legacy hash formats are removed without backward compatibility shims.
+- [ ] `/session` is the single base route for all action flows.
+- [ ] Action views live in `src/view/[action-slug]` and are composed by
+  `/session`.
+- [ ] Navigation items (Swap, Transfer, Bridge) target `/session#[action-slug]`.
+- [ ] Session bootstrap supports multi-action hash syntax and JSON params.
 
 ## TODOs
 

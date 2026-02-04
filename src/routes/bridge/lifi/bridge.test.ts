@@ -30,7 +30,7 @@ async function addMockWallet(context: {
 
 test.describe('bridge flow', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/bridge/lifi')
+	await page.goto('/session#bridge')
 		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
@@ -42,7 +42,7 @@ test.describe('bridge flow', () => {
 	test.describe('with mock wallet', () => {
 		test.beforeEach(async ({ context, page }) => {
 			await addMockWallet(context)
-			await page.goto('/bridge/lifi')
+	await page.goto('/session#bridge')
 			await expect(page.locator('#main')).toBeAttached({
 				timeout: 30_000,
 			})
@@ -54,6 +54,7 @@ test.describe('bridge flow', () => {
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({
 				timeout: 10_000,
 			})
+			await page.getByRole('button', { name: 'LI.FI' }).click()
 			await page
 				.getByText('Loading networks…')
 				.waitFor({ state: 'hidden', timeout: 15_000 })
@@ -77,7 +78,7 @@ test.describe('bridge flow', () => {
 			await page.getByLabel('Amount').fill('1')
 		})
 
-		test('click Get Routes, wait for result or no-routes', async ({ page }) => {
+		test('wait for result or no-routes', async ({ page }) => {
 			await expect(page.getByLabel('From chain')).toContainText('Ethereum', {
 				timeout: 5_000,
 			})
@@ -90,7 +91,6 @@ test.describe('bridge flow', () => {
 				.getByRole('option', { name: 'OP Mainnet' })
 				.click({ force: true })
 			await page.getByLabel('Amount').fill('1')
-			await page.getByRole('button', { name: 'Get Routes' }).click()
 			await Promise.race([
 				page
 					.locator('[data-testid="quote-result"]')

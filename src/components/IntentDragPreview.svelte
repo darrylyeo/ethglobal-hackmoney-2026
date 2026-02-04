@@ -40,7 +40,9 @@
 	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
 
 	const isTestnetChain = (chainId: number) => (
-		networksByChainId[chainId]?.type === NetworkType.Testnet
+		Object.values(networksByChainId).find(
+			(entry) => entry?.id === chainId,
+		)?.type === NetworkType.Testnet
 	)
 	const withPlacement = (
 		payload: IntentDragPayload,
@@ -52,8 +54,18 @@
 			placement,
 		},
 	})
-	const toParamsHash = (params: Record<string, unknown>) => (
-		`#${encodeURIComponent(stringify(params))}`
+	const toActionHash = (
+		actions: {
+			action: 'swap' | 'bridge' | 'transfer' | 'intent'
+			params: Record<string, unknown>
+		}[],
+	) => (
+		`#${actions.map((entry) => (
+			Object.keys(entry.params).length > 0 ?
+				`${entry.action}:${encodeURIComponent(stringify(entry.params))}`
+			:
+				entry.action
+		)).join('|')}`
 	)
 	const isDashboardPath = (path: string) => (
 		path.startsWith('/dashboard')
@@ -100,9 +112,8 @@
 	}
 	const navigateTo = async (
 		path: string,
-		params: Record<string, unknown>,
+		hash: string,
 	) => {
-		const hash = toParamsHash(params)
 		const currentPath = page.url.pathname
 		if (isDashboardPath(currentPath)) {
 			openInDashboard(path, hash)
@@ -180,14 +191,19 @@
 		route: IntentRoute,
 		resolution: IntentResolution | null,
 	) => {
-		if (route.steps.length === 1 && route.steps[0]?.type === 'swap') {
-			return { path: '/swap', params: buildSwapParams(route.steps[0]) }
-		}
-		if (route.steps.length === 1 && route.steps[0]?.type === 'bridge') {
-			return { path: '/bridge', params: buildBridgeParams(route.steps[0]) }
-		}
-		if (route.steps.length === 1 && route.steps[0]?.type === 'transfer') {
-			return { path: '/transfer', params: buildTransferParams(route.steps[0]) }
+		if (route.steps.length > 0) {
+			const actions = route.steps.map((step) => (
+				step.type === 'swap' ?
+					{ action: 'swap', params: buildSwapParams(step) }
+				: step.type === 'bridge' ?
+					{ action: 'bridge', params: buildBridgeParams(step) }
+				:
+					{ action: 'transfer', params: buildTransferParams(step) }
+			)) satisfies {
+				action: 'swap' | 'bridge' | 'transfer'
+				params: Record<string, unknown>
+			}[]
+			return { path: '/session', hash: toActionHash(actions) }
 		}
 		if (route.steps.length === 0 && resolution?.status === 'valid' && resolution.kind) {
 			const { from, to } = resolution
@@ -195,27 +211,37 @@
 			const td = to.dimensions
 			if (resolution.kind === 'swap' && fd.chainId !== null && fd.tokenAddress && td.tokenAddress) {
 				return {
-					path: '/swap',
-					params: {
-						chainId: fd.chainId,
-						tokenIn: fd.tokenAddress,
-						tokenOut: td.tokenAddress,
-						amount: 0n,
-						slippage: defaultSwapSettings.slippage,
-						isTestnet: isTestnetChain(fd.chainId),
-					},
+					path: '/session',
+					hash: toActionHash([
+						{
+							action: 'swap',
+							params: {
+								chainId: fd.chainId,
+								tokenIn: fd.tokenAddress,
+								tokenOut: td.tokenAddress,
+								amount: 0n,
+								slippage: defaultSwapSettings.slippage,
+								isTestnet: isTestnetChain(fd.chainId),
+							},
+						},
+					]),
 				}
 			}
 			if (resolution.kind === 'bridge' && fd.chainId !== null && td.chainId !== null && fd.actor) {
 				return {
-					path: '/bridge',
-					params: {
-						...defaultBridgeSettings,
-						fromChainId: fd.chainId,
-						toChainId: td.chainId,
-						amount: 0n,
-						isTestnet: isTestnetChain(fd.chainId),
-					},
+					path: '/session',
+					hash: toActionHash([
+						{
+							action: 'bridge',
+							params: {
+								...defaultBridgeSettings,
+								fromChainId: fd.chainId,
+								toChainId: td.chainId,
+								amount: 0n,
+								isTestnet: isTestnetChain(fd.chainId),
+							},
+						},
+					]),
 				}
 			}
 			if (
@@ -227,28 +253,41 @@
 			) {
 				const token = getTransferTokenMeta(fd.chainId, fd.tokenAddress)
 				return {
-					path: '/transfer',
-					params: {
-						fromActor: fd.actor,
-						toActor: td.actor,
-						chainId: fd.chainId,
-						amount: 0n,
-						tokenSymbol: token?.symbol ?? 'USDC',
-						tokenDecimals: token?.decimals ?? 6,
-						tokenAddress: fd.tokenAddress,
-						mode: 'direct' as const,
-					},
+					path: '/session',
+					hash: toActionHash([
+						{
+							action: 'transfer',
+							params: {
+								fromActor: fd.actor,
+								toActor: td.actor,
+								chainId: fd.chainId,
+								amount: 0n,
+								tokenSymbol: token?.symbol ?? 'USDC',
+								tokenDecimals: token?.decimals ?? 6,
+								tokenAddress: fd.tokenAddress,
+								mode: 'direct' as const,
+							},
+						},
+					]),
 				}
 			}
 		}
-		return { path: '/test/intents', params: buildIntentParams(route) }
+		return {
+			path: '/test/intents',
+			hash: toActionHash([
+				{
+					action: 'intent',
+					params: buildIntentParams(route),
+				},
+			]),
+		}
 	}
 	const selectRoute = async (route: IntentRoute) => {
 		selectIntentDragRoute(route.id)
 		await tick()
 		await runWithViewTransition(async () => {
 			const navigation = buildRouteNavigation(route, resolution)
-			await navigateTo(navigation.path, navigation.params)
+			await navigateTo(navigation.path, navigation.hash)
 		})
 		clearIntentDragPreview()
 	}

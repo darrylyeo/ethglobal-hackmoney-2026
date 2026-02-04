@@ -3,6 +3,7 @@ import { expect, test } from './fixtures/tevm.js'
 import {
 	addTevmWallet,
 	ensureWalletConnected,
+	selectProtocolOption,
 	selectChainOption,
 } from './test-setup.js'
 
@@ -23,7 +24,7 @@ test.describe('Accessibility (axe-core)', () => {
 	})
 
 	test('bridge page has no critical violations', async ({ page }) => {
-		await page.goto('/bridge')
+		await page.goto('/session#bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
@@ -89,7 +90,7 @@ test.describe('Keyboard navigation', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/bridge/lifi')
+		await page.goto('/session#bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
@@ -106,6 +107,7 @@ test.describe('Keyboard navigation', () => {
 		page,
 	}) => {
 		await ensureWalletConnected(page)
+		await selectProtocolOption(page, 'LI.FI')
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
