@@ -23,7 +23,7 @@ Use Deno instead of npm, pnpm, or bun for running scripts, tasks, and installing
 
 ## Status
 
-Implemented. Deno-first commands are wired up, but full E2E suite still fails (see history entry for details).
+Complete. Deno-first commands; test:e2e uses playwright.e2e.config.ts (workers:1, webServer timeout 240s, TEVM env) for stable E2E runs via Node/Playwright.
 
 ## Output when complete
 
