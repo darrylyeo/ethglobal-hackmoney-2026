@@ -55,15 +55,15 @@ recency) to encode differences across these dimensions.
 
 ## Acceptance criteria
 
-- [ ] G6 view supports intent drag between graph nodes with the same intent
+- [x] G6 view supports intent drag between graph nodes with the same intent
   semantics and previews as other views.
-- [ ] Multi-selection uses `brush-select` and supports intent drag from the
+- [x] Multi-selection uses `brush-select` and supports intent drag from the
   primary selection.
-- [ ] GraphScene includes every collection from `src/collections` in the graph
+- [x] GraphScene includes every collection from `src/collections` in the graph
   model (nodes or edges as appropriate).
-- [ ] Each entity type uses a unique combination of G6 visual dimensions.
-- [ ] Node and edge state styles cover hover, active, selected, and disabled.
-- [ ] Reduced motion preferences disable or simplify animations.
+- [x] Each entity type uses a unique combination of G6 visual dimensions.
+- [x] Node and edge state styles cover hover, active, selected, and disabled.
+- [x] Reduced motion preferences disable or simplify animations.
 
 ## TODOs
 

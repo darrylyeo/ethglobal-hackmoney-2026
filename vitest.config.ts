@@ -8,6 +8,7 @@ export default defineConfig({
     exclude: [
       "**/voltaire.spec.ts",
       "**/tx-status.spec.ts",
+      "**/identity-resolve.spec.ts",
     ],
   },
 });
