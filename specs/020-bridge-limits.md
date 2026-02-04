@@ -138,7 +138,7 @@ When routes return empty, provide guidance:
 
 Complete. `src/constants/bridge-limits.ts` with USDC_MIN_AMOUNT, USDC_MAX_AMOUNT,
 AmountValidation type, validateBridgeAmount, extractRouteLimits. BridgeFlow.svelte
-uses validation inline with `canSendAmount` derived state.
+uses validation inline with `canSendAmount` derived state. Re-verification 2026-02-04: all acceptance criteria verified; bridge-limits.spec.ts (6 tests) pass; BridgeFlow/UnifiedBridgeFlow use validation and route limits; build passes.
 
 ## Output when complete
 
