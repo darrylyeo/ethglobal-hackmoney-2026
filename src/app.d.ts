@@ -5,7 +5,11 @@ declare global {
 		// interface Error {}
 		// interface Locals {}
 		// interface PageData {}
-		// interface PageState {}
+		interface PageState {
+			panelId?: string
+			hash?: string | null
+			route?: string
+		}
 		// interface Platform {}
 	}
 }

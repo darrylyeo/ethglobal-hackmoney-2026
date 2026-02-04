@@ -1,7 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { DashboardPanelRoute } from '$/data/DashboardPanel'
-	import type { RouteEntry, RouteModule } from './route-map'
+	import type { RouteEntry, RouteModule, RoutePathInput } from './route-map'
 
 	// Context
 	import { preloadData } from '$app/navigation'
@@ -14,9 +13,11 @@
 	let {
 		route,
 		entry,
+		extraData = {},
 	}: {
-		route: DashboardPanelRoute
+		route: RoutePathInput
 		entry: RouteEntry | null
+		extraData?: Record<string, unknown>
 	} = $props()
 
 	// (Derived) – stable key so effect only re-runs when route identity changes
@@ -81,8 +82,8 @@
 {:else if status === 'error'}
 	<p>{error ?? 'Route failed to load.'}</p>
 {:else if component}
-	{@const PanelRoute = component}
-	<PanelRoute data={data ?? {}} />
+	{@const Page = component}
+	<Page data={{ ...(data ?? {}), ...extraData }} />
 {:else}
 	<p>Select a route to render.</p>
 {/if}

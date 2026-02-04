@@ -1,4 +1,7 @@
-import type { DashboardPanelRoute } from '$/data/DashboardPanel'
+export type RoutePathInput = {
+	path: string
+	params: Record<string, string>
+}
 
 export type RouteModule = {
 	default: typeof import('svelte').SvelteComponent
@@ -67,9 +70,7 @@ export const defaultRoutePath = routeEntries.find((entry) =>
 	entry.path === '/'
 )?.path ?? (routeEntries[0]?.path ?? '/')
 
-export const buildRoutePath = (
-	route: DashboardPanelRoute,
-) =>
+export const buildRoutePath = (route: RoutePathInput) =>
 	(
 		route.path === '/' ?
 			'/'

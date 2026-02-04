@@ -1,7 +1,13 @@
 <script lang="ts">
 	// Types/constants
-	import type { DashboardNode, DashboardPanelRoute } from '$/data/DashboardPanel'
+	import type {
+		DashboardNode,
+		DashboardPanelNode,
+		DashboardPanelRoute,
+		DashboardSplitNode,
+	} from '$/data/DashboardPanel'
 
+	import { untrack } from 'svelte'
 	import { pushState, replaceState } from '$app/navigation'
 	import { resolve } from '$app/paths'
 	import {
@@ -9,26 +15,200 @@
 		setDashboardFocus,
 		setDashboardRoot,
 	} from '$/collections/dashboard-panels'
+	import { setIntentNavigateTo } from '$/state/intent-navigation.svelte'
 
 	// Functions
 	import {
 		buildRoutePath,
 		defaultRoutePath,
 	} from './route-map'
-	import {
-		firstPanelId,
-		getPanelById,
-		listPanelIds,
-		removePanel,
-		setSplitRatio,
-		splitPanel,
-		swapWithSibling,
-		toggleSplitDirection,
-		updatePanel,
-	} from './panel-tree'
 
 	// Components
 	import PanelTree from './PanelTree.svelte'
+
+	const createPanelNode = (
+		route: DashboardPanelRoute,
+		hashHistory: string[] = [],
+	): DashboardPanelNode => ({
+		id: crypto.randomUUID(),
+		type: 'panel',
+		route,
+		hashHistory,
+	})
+
+	const getPanelById = (
+		node: DashboardNode,
+		panelId: string,
+	): DashboardPanelNode | null =>
+		(
+			node.type === 'panel' ?
+				(node.id === panelId ? node : null)
+			:
+				(
+					getPanelById(node.first, panelId)
+					?? getPanelById(node.second, panelId)
+				)
+		)
+
+	const updateNode = (
+		node: DashboardNode,
+		apply: (target: DashboardNode) => DashboardNode | null,
+	): DashboardNode =>
+		(
+			apply(node)
+			?? (
+				node.type === 'split' ?
+					(() => {
+						const first: DashboardNode = updateNode(node.first, apply)
+						const second: DashboardNode = updateNode(node.second, apply)
+						return first === node.first && second === node.second ?
+							node
+						:
+							{
+								...node,
+								first,
+								second,
+							}
+					})()
+				:
+					node
+			)
+		)
+
+	const updatePanel = (
+		root: DashboardNode,
+		panelId: string,
+		update: (panel: DashboardPanelNode) => DashboardPanelNode,
+	) =>
+		(
+			updateNode(root, (node) =>
+				node.type === 'panel' && node.id === panelId ?
+					update(node)
+				:
+					null,
+			)
+		)
+
+	const splitPanel = (
+		root: DashboardNode,
+		panelId: string,
+		direction: DashboardSplitNode['direction'],
+		createRoute: () => DashboardPanelRoute,
+		createHashHistory: () => string[] = () => [],
+	) =>
+		(
+			updateNode(root, (node) =>
+				node.type === 'panel' && node.id === panelId ?
+					{
+						id: crypto.randomUUID(),
+						type: 'split',
+						direction,
+						ratio: 0.5,
+						first: node,
+						second: createPanelNode(createRoute(), createHashHistory()),
+					}
+				:
+					null,
+			)
+		)
+
+	const swapWithSibling = (root: DashboardNode, panelId: string) =>
+		(
+			updateNode(root, (node) =>
+				node.type === 'split' ?
+					(
+						(node.first.type === 'panel' && node.first.id === panelId)
+						|| (node.second.type === 'panel' && node.second.id === panelId)
+					) ?
+						{
+							...node,
+							first: node.second,
+							second: node.first,
+						}
+					:
+						null
+				:
+					null,
+			)
+		)
+
+	const setSplitRatio = (
+		root: DashboardNode,
+		splitId: string,
+		ratio: number,
+	) =>
+		(
+			updateNode(root, (node) =>
+				node.type === 'split' && node.id === splitId ?
+					{
+						...node,
+						ratio,
+					}
+				:
+					null,
+			)
+		)
+
+	const toggleSplitDirection = (
+		root: DashboardNode,
+		splitId: string,
+	) =>
+		(
+			updateNode(root, (node) =>
+				node.type === 'split' && node.id === splitId ?
+					{
+						...node,
+						direction: node.direction === 'horizontal' ? 'vertical' : 'horizontal',
+					}
+				:
+					null,
+			)
+		)
+
+	const removePanel = (
+		root: DashboardNode,
+		panelId: string,
+	) => {
+		const removeResult = (node: DashboardNode): DashboardNode | null =>
+			(
+				node.type === 'panel' ?
+					(node.id === panelId ? null : node)
+				:
+					(() => {
+						const first = removeResult(node.first)
+						const second = first ? removeResult(node.second) : null
+						return !first ?
+							node.second
+						: !second ?
+							node.first
+						: first === node.first && second === node.second ?
+							node
+						:
+							{
+								...node,
+								first,
+								second,
+							}
+					})()
+			)
+		return removeResult(root)
+	}
+
+	const firstPanelId = (node: DashboardNode): string =>
+		(
+			node.type === 'panel' ? node.id : firstPanelId(node.first)
+		)
+
+	const listPanelIds = (node: DashboardNode): string[] =>
+		(
+			node.type === 'panel' ?
+				[node.id]
+			:
+				[
+					...listPanelIds(node.first),
+					...listPanelIds(node.second),
+				]
+		)
 
 	// State
 	const initialState = ensureDashboardState(defaultRoutePath)
@@ -167,6 +347,23 @@
 		)
 	)
 
+	const setPanelHash = (
+		panelId: string,
+		hash: string,
+		replace = true,
+	) => (
+		setRoot(
+			updatePanel(root, panelId, (panel) => ({
+				...panel,
+				hashHistory:
+					replace ?
+						[hash]
+					:
+						[...panel.hashHistory, hash],
+			})),
+		)
+	)
+
 	const openInNewPanel = (
 		panelId: string,
 		route: DashboardPanelRoute,
@@ -199,9 +396,13 @@
 	$effect(() => {
 		if (!focusedPanel) return
 		const nextHashes = focusedPanel.hashHistory
+		const { previousPanelId, previousHashes } = untrack(() => ({
+			previousPanelId: pushedPanelId,
+			previousHashes: pushedHashes,
+		}))
 		const shouldReplace =
-			pushedPanelId !== focusedPanel.id
-			|| !isPrefix(pushedHashes, nextHashes)
+			previousPanelId !== focusedPanel.id
+			|| !isPrefix(previousHashes, nextHashes)
 		if (shouldReplace) {
 			replaceState(resolve('/dashboard'), {
 				panelId: focusedPanel.id,
@@ -219,7 +420,7 @@
 			pushedHashes = [...nextHashes]
 			return
 		}
-		const newHashes = nextHashes.slice(pushedHashes.length)
+		const newHashes = nextHashes.slice(previousHashes.length)
 		for (const hash of newHashes) {
 			pushState(resolve(`/dashboard${hash}`), {
 				panelId: focusedPanel.id,
@@ -230,6 +431,31 @@
 		if (newHashes.length > 0) {
 			pushedHashes = [...nextHashes]
 		}
+	})
+
+	$effect(() => {
+		setIntentNavigateTo((path, hash) => {
+			const previousPanelIds = listPanelIds(root)
+			const nextRoot = splitPanel(
+				root,
+				focusedPanelId,
+				'vertical',
+				() => ({ path, params: {} }),
+				() => (hash ? [hash] : []),
+			)
+			const nextPanelIds = listPanelIds(nextRoot)
+			const newPanelId =
+				nextPanelIds.find((id) => !previousPanelIds.includes(id)) ?? null
+			const updatedRoot = newPanelId
+				? updatePanel(nextRoot, newPanelId, (panel) => ({
+						...panel,
+						hashHistory: [hash],
+					}))
+				: nextRoot
+			setRoot(updatedRoot)
+			if (newPanelId) focusPanel(newPanelId)
+		})
+		return () => setIntentNavigateTo(null)
 	})
 </script>
 
@@ -258,6 +484,7 @@
 			onSwap={swapPanel}
 			onUpdateRoute={updatePanelRoute}
 			onAppendHash={appendPanelHash}
+			onSetPanelHash={setPanelHash}
 			onNavigate={navigatePanel}
 			onOpenInNewPanel={openInNewPanel}
 			onSetSplitRatio={updateSplitRatio}

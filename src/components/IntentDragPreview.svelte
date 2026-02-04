@@ -9,7 +9,6 @@
 
 	// Context
 	import { goto } from '$app/navigation'
-	import { page } from '$app/state'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 	// Functions
@@ -17,17 +16,12 @@
 	import { resolveIntent } from '$/lib/intents/resolve-intent'
 	import { stringify } from '$/lib/stringify'
 	import {
-		getDashboardState,
-		setDashboardFocus,
-		setDashboardRoot,
-	} from '$/collections/dashboard-panels'
-	import { listPanelIds, splitPanel, updatePanel } from '$/routes/dashboard/panel-tree'
-	import {
 		clearIntentDragPreview,
 		finalizeIntentDragPreview,
 		intentDragPreviewState,
 		selectIntentDragRoute,
 	} from '$/state/intent-drag-preview.svelte'
+	import { intentNavigateTo } from '$/state/intent-navigation.svelte'
 	import { tick } from 'svelte'
 
 	// Components
@@ -67,9 +61,6 @@
 				entry.action
 		)).join('|')}`
 	)
-	const isDashboardPath = (path: string) => (
-		path.startsWith('/dashboard')
-	)
 	const hasViewTransition = (
 		value: Document,
 	): value is Document & {
@@ -90,33 +81,10 @@
 		}
 		document.startViewTransition(() => action())
 	}
-	const openInDashboard = (path: string, hash: string) => {
-		const state = getDashboardState()
-		if (!state) return
-		const previousPanelIds = listPanelIds(state.root)
-		const nextRoot = splitPanel(state.root, state.focusedPanelId, 'vertical', () => ({
-			path,
-			params: {},
-		}))
-		const nextPanelIds = listPanelIds(nextRoot)
-		const newPanelId =
-			nextPanelIds.find((id) => !previousPanelIds.includes(id)) ?? null
-		const updatedRoot = newPanelId
-			? updatePanel(nextRoot, newPanelId, (panel) => ({
-					...panel,
-					hashHistory: [hash],
-				}))
-			: nextRoot
-		setDashboardRoot(updatedRoot)
-		if (newPanelId) setDashboardFocus(newPanelId)
-	}
-	const navigateTo = async (
-		path: string,
-		hash: string,
-	) => {
-		const currentPath = page.url.pathname
-		if (isDashboardPath(currentPath)) {
-			openInDashboard(path, hash)
+	const navigateTo = async (path: string, hash: string) => {
+		const handler = intentNavigateTo
+		if (handler) {
+			handler(path, hash)
 			return
 		}
 		await goto(`${path}${hash}`)

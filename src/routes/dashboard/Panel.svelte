@@ -6,7 +6,7 @@
 	import { routeEntries, toPanelNavigation } from './route-map'
 
 	// Components
-	import RouteRenderer from './RouteRenderer.svelte'
+	import SvelteKitRoute from './SvelteKitRoute.svelte'
 
 	// Props
 	let {
@@ -18,6 +18,7 @@
 		onSwap,
 		onUpdateRoute,
 		onAppendHash,
+		onSetPanelHash,
 		onNavigate,
 		onOpenInNewPanel,
 	}: {
@@ -29,6 +30,7 @@
 		onSwap: (panelId: string) => void
 		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void
 		onAppendHash: (panelId: string, hash: string) => void
+		onSetPanelHash: (panelId: string, hash: string, replace?: boolean) => void
 		onNavigate: (panelId: string, route: DashboardPanelRoute, hash: string | null) => void
 		onOpenInNewPanel: (
 			panelId: string,
@@ -43,6 +45,10 @@
 	)
 	const paramKeys = $derived(routeEntry?.paramKeys ?? [])
 	const routeKey = $derived(panel.route.path + '\0' + JSON.stringify(panel.route.params))
+	const panelHash = $derived(panel.hashHistory.at(-1) ?? null)
+	const setPanelHash = (hash: string, replace = true) => (
+		onSetPanelHash(panel.id, hash, replace)
+	)
 
 	// State
 	let hashInput = $state('')
@@ -179,7 +185,14 @@
 			class="dashboard-panel-route-body"
 		>
 			{#key routeKey}
-				<RouteRenderer route={panel.route} entry={routeEntry} />
+				<SvelteKitRoute
+					route={panel.route}
+					entry={routeEntry}
+					extraData={{
+						panelHash: panelHash ?? null,
+						setPanelHash,
+					}}
+				/>
 			{/key}
 		</section>
 	</section>

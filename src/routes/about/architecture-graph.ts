@@ -105,7 +105,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		priority: 'secondary',
 		details: {
 			purpose: 'Tiled route rendering and focused navigation',
-			tech: 'PanelTree + RouteRenderer',
+			tech: 'PanelTree + SvelteKitRoute',
 		},
 	},
 	{
