@@ -13,7 +13,7 @@
 	import Balances from '$/views/Balances.svelte'
 	import Session from '$/views/Session.svelte'
 	import Wallets from '$/views/Wallets.svelte'
-	import SwapAction from './SwapAction.svelte'
+	import SwapAction from '$/routes/session/SwapAction.svelte'
 </script>
 
 

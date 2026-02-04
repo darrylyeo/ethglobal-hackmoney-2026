@@ -9,7 +9,7 @@
 
 	// Components
 	import Wallets from '$/views/Wallets.svelte'
-	import LiquidityFlow from './LiquidityFlow.svelte'
+	import LiquidityFlow from '$/routes/session/LiquidityFlow.svelte'
 </script>
 
 

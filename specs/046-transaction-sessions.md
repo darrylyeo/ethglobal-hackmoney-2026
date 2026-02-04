@@ -154,11 +154,11 @@ type TransactionSession = {
 - [x] Navigation includes a sessions parent item with child items per session.
 - [x] Session child items include `[data-tag]` reflecting state.
 - [x] Legacy hash formats are removed without backward compatibility shims.
-- [ ] `/session` is the single base route for all action flows.
-- [ ] Action views live in `src/view/[action-slug]` and are composed by
+- [x] `/session` is the single base route for all action flows.
+- [x] Action views live in `src/view/[action-slug]` and are composed by
   `/session`.
-- [ ] Navigation items (Swap, Transfer, Bridge) target `/session#[action-slug]`.
-- [ ] Session bootstrap supports multi-action hash syntax and JSON params.
+- [x] Navigation items (Swap, Transfer, Bridge) target `/session#[action-slug]`.
+- [x] Session bootstrap supports multi-action hash syntax and JSON params.
 
 ## TODOs
 
@@ -168,7 +168,7 @@ type TransactionSession = {
 
 ## Status
 
-Complete.
+Complete. Single base route `/session`; action views in `src/view/` (bridge.svelte, swap.svelte, transfer.svelte, liquidity.svelte) composed by session +page. Nav items target `/session#[action-slug]`. Bootstrap: hash `#action`, `#action|action2`, `#action:{JSON}` or empty creates session and replaces hash with `#session:<id>`.
 
 ## Output when complete
 

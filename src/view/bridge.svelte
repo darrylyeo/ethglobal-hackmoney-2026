@@ -17,7 +17,7 @@
 	import Balances from '$/views/Balances.svelte'
 	import Session from '$/views/Session.svelte'
 	import Wallets from '$/views/Wallets.svelte'
-	import UnifiedBridgeFlow from './UnifiedBridgeFlow.svelte'
+	import UnifiedBridgeFlow from '$/routes/session/UnifiedBridgeFlow.svelte'
 </script>
 
 

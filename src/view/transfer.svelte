@@ -21,7 +21,7 @@
 	// Components
 	import Session from '$/views/Session.svelte'
 	import Wallets from '$/views/Wallets.svelte'
-	import TransferAction from './TransferAction.svelte'
+	import TransferAction from '$/routes/session/TransferAction.svelte'
 </script>
 
 

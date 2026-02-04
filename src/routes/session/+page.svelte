@@ -6,10 +6,16 @@
 	// Functions
 	import {
 		getEffectiveHash,
+		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 		type SessionHashSource,
 	} from '$/lib/dashboard-panel-hash'
-	import { getTransactionSession, parseSessionHash } from '$/lib/transaction-sessions'
+	import {
+		buildSessionHash,
+		createTransactionSession,
+		getTransactionSession,
+		parseSessionHash,
+	} from '$/lib/transaction-sessions'
 
 	// State
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
@@ -86,8 +92,23 @@
 			return
 		}
 		if (parsed.kind === 'actions') {
-			activeSessionId = null
-			hashAction = parsed.actions[0]?.action ?? null
+			const session = createTransactionSession({
+				actions: parsed.actions.map((a) => a.action),
+				params: parsed.actions[0]?.params ?? {},
+			})
+			setEffectiveHash(hashSource, buildSessionHash(session.id))
+			activeSessionId = session.id
+			hashAction = session.actions[0] ?? null
+			return
+		}
+		if (parsed.kind === 'empty') {
+			const session = createTransactionSession({
+				actions: ['swap'],
+				params: {},
+			})
+			setEffectiveHash(hashSource, buildSessionHash(session.id))
+			activeSessionId = session.id
+			hashAction = session.actions[0] ?? null
 			return
 		}
 		activeSessionId = null
@@ -117,10 +138,10 @@
 	})
 
 	// Components
-	import BridgeView from './BridgeView.svelte'
-	import LiquidityView from './LiquidityView.svelte'
-	import SwapView from './SwapView.svelte'
-	import TransferView from './TransferView.svelte'
+	import BridgeView from '$/view/bridge.svelte'
+	import LiquidityView from '$/view/liquidity.svelte'
+	import SwapView from '$/view/swap.svelte'
+	import TransferView from '$/view/transfer.svelte'
 </script>
 
 
