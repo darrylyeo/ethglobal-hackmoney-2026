@@ -39,7 +39,6 @@
 		allowDeselect,
 		id,
 		ariaLabel,
-		onValueChange,
 		getItemId = defaultItemLabel,
 		getItemLabel = defaultItemLabel,
 		getItemDisabled,
@@ -60,7 +59,6 @@
 		allowDeselect?: boolean
 		id?: string
 		ariaLabel?: string
-		onValueChange?: (value: string | string[]) => void
 		getItemId?: (item: Item) => string
 		getItemLabel?: (item: Item) => string
 		getItemDisabled?: (item: Item) => boolean
@@ -128,7 +126,7 @@
 		{name}
 		{allowDeselect}
 		items={rootItems}
-		{onValueChange}
+		onValueChange={(v) => (value = v)}
 	>
 		{#if children}
 			{@render children()}
@@ -158,11 +156,20 @@
 											disabled={item.disabled}
 										>
 											{#snippet children({ selected })}
-												{#if Item}
-													{@render Item(item.item, selected)}
-												{:else}
-													{item.label}
-												{/if}
+												<span class="select-item-inner">
+													<span
+														class="select-item-check"
+														aria-hidden="true"
+														data-selected={selected}
+													>
+														✓
+													</span>
+													{#if Item}
+														{@render Item(item.item, selected)}
+													{:else}
+														{item.label}
+													{/if}
+												</span>
 											{/snippet}
 										</Select.Item>
 									{/each}
@@ -176,11 +183,20 @@
 									disabled={item.disabled}
 								>
 									{#snippet children({ selected })}
-										{#if Item}
-											{@render Item(item.item, selected)}
-										{:else}
-											{item.label}
-										{/if}
+										<span class="select-item-inner">
+											<span
+												class="select-item-check"
+												aria-hidden="true"
+												data-selected={selected}
+											>
+												✓
+											</span>
+											{#if Item}
+												{@render Item(item.item, selected)}
+											{:else}
+												{item.label}
+											{/if}
+										</span>
 									{/snippet}
 								</Select.Item>
 							{/each}
@@ -199,7 +215,7 @@
 		{name}
 		{allowDeselect}
 		items={rootItems}
-		{onValueChange}
+		onValueChange={(v) => (value = v)}
 	>
 		{#if children}
 			{@render children()}
@@ -229,11 +245,20 @@
 											disabled={item.disabled}
 										>
 											{#snippet children({ selected })}
-												{#if Item}
-													{@render Item(item.item, selected)}
-												{:else}
-													{item.label}
-												{/if}
+												<span class="select-item-inner">
+													<span
+														class="select-item-check"
+														aria-hidden="true"
+														data-selected={selected}
+													>
+														✓
+													</span>
+													{#if Item}
+														{@render Item(item.item, selected)}
+													{:else}
+														{item.label}
+													{/if}
+												</span>
 											{/snippet}
 										</Select.Item>
 									{/each}
@@ -247,11 +272,20 @@
 									disabled={item.disabled}
 								>
 									{#snippet children({ selected })}
-										{#if Item}
-											{@render Item(item.item, selected)}
-										{:else}
-											{item.label}
-										{/if}
+										<span class="select-item-inner">
+											<span
+												class="select-item-check"
+												aria-hidden="true"
+												data-selected={selected}
+											>
+												✓
+											</span>
+											{#if Item}
+												{@render Item(item.item, selected)}
+											{:else}
+												{item.label}
+											{/if}
+										</span>
 									{/snippet}
 								</Select.Item>
 							{/each}
@@ -262,3 +296,20 @@
 		{/if}
 	</Select.Root>
 {/if}
+
+<style>
+	.select-item-inner {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+	.select-item-check {
+		display: inline-flex;
+		inline-size: 1em;
+		justify-content: center;
+		visibility: hidden;
+	}
+	.select-item-check[data-selected='true'] {
+		visibility: visible;
+	}
+</style>

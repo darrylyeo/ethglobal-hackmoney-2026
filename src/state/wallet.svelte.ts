@@ -8,7 +8,6 @@
  */
 
 // Context
-import { useContext } from '$/svelte/useContext'
 import { useLiveQuery, eq } from '@tanstack/svelte-db'
 import { DataSource } from '$/constants/data-sources'
 
@@ -18,18 +17,21 @@ import {
 	walletConnectionsCollection,
 	updateWalletChain,
 	updateConnectionActors,
+	requestWalletConnection,
 	reconnectWallet,
 } from '$/collections/wallet-connections'
 
 // Functions
 import {
+		ensureE2eProvider,
 	subscribeProviders,
 	getWalletChainId,
 	subscribeChainChanged,
 	subscribeAccountsChanged,
 } from '$/lib/wallet'
+import { E2E_TEVM_PROVIDER_RDNS } from '$/lib/e2e/tevm-config'
 
-export const WALLET_CONTEXT_KEY = 'wallet'
+let walletSubscriptionsReady = false
 
 const createWalletContext = () => {
 	// Queries for subscription effects
@@ -48,6 +50,28 @@ const createWalletContext = () => {
 
 	// Track which wallets we've attempted to reconnect
 	const reconnectAttempted = new Set<string>()
+	const autoConnectAttempted = new Set<string>()
+
+	$effect(() => {
+		if (typeof window === 'undefined') return
+		ensureE2eProvider()
+		const e2eProvider = window.__E2E_TEVM_PROVIDER__
+		if (
+			!e2eProvider?.info?.rdns ||
+			typeof e2eProvider.provider?.request !== 'function'
+		)
+			return
+		upsertWallet({
+			$id: { rdns: e2eProvider.info.rdns },
+			name: e2eProvider.info.name ?? '',
+			icon: e2eProvider.info.icon ?? '',
+			rdns: e2eProvider.info.rdns ?? '',
+			provider: e2eProvider.provider,
+		})
+		if (autoConnectAttempted.has(e2eProvider.info.rdns)) return
+		autoConnectAttempted.add(e2eProvider.info.rdns)
+		requestWalletConnection({ rdns: e2eProvider.info.rdns }, true)
+	})
 
 	// Subscribe to EIP-6963 provider announcements → populate walletsCollection + auto-reconnect
 	$effect(() => {
@@ -86,6 +110,16 @@ const createWalletContext = () => {
 				if (!providerRdnsSet.has(rdns) || reconnectAttempted.has(rdns)) continue
 				reconnectAttempted.add(rdns)
 				reconnectWallet({ rdns })
+			}
+			const e2eProvider = providers.find(
+				(p) => p.info.rdns === E2E_TEVM_PROVIDER_RDNS,
+			)
+			if (
+				e2eProvider &&
+				!autoConnectAttempted.has(E2E_TEVM_PROVIDER_RDNS)
+			) {
+				autoConnectAttempted.add(E2E_TEVM_PROVIDER_RDNS)
+				requestWalletConnection({ rdns: E2E_TEVM_PROVIDER_RDNS }, true)
 			}
 		})
 	})
@@ -159,5 +193,8 @@ const createWalletContext = () => {
 	})
 }
 
-export const useWalletSubscriptions = () =>
-	useContext(WALLET_CONTEXT_KEY, createWalletContext)
+export const useWalletSubscriptions = () => {
+	if (walletSubscriptionsReady) return
+	walletSubscriptionsReady = true
+	createWalletContext()
+}

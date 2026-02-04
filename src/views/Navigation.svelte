@@ -87,7 +87,7 @@
 
 		> header {
 			block-size: var(--navigation-mobile-blockSize);
-			box-shadow: 0 0 0 var(--separator-width) var(--border-color);
+			box-shadow: 0 0 0 var(--separator-width) var(--color-border);
 			padding: 1rem;
 
 			a {

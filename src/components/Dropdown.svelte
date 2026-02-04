@@ -173,6 +173,7 @@
 		RadioItem?: Snippet<[item: {
 			label: string
 			value: string
+			checked: boolean
 		}]>
 		children?: Snippet
 		[key: string]: unknown
@@ -401,14 +402,26 @@
 											value={groupItem.value}
 											disabled={groupItem.disabled}
 										>
-											{#if RadioItem}
-												{@render RadioItem({
-													label: groupItem.label,
-													value: groupItem.value,
-												})}
-											{:else}
-												{groupItem.label}
-											{/if}
+											{#snippet children({ checked })}
+												{#if RadioItem}
+													{@render RadioItem({
+														label: groupItem.label,
+														value: groupItem.value,
+														checked,
+													})}
+												{:else}
+													<span class="dropdown-radio-item">
+														<span
+															class="dropdown-radio-check"
+															aria-hidden="true"
+															data-checked={checked}
+														>
+															✓
+														</span>
+														{groupItem.label}
+													</span>
+												{/if}
+											{/snippet}
 										</DropdownMenu.RadioItem>
 									{/each}
 								</DropdownMenu.RadioGroup>
@@ -483,11 +496,26 @@
 								value={item.value}
 								disabled={item.disabled}
 							>
-								{#if RadioItem}
-									{@render RadioItem({ label: item.label, value: item.value })}
-								{:else}
-									{item.label}
-								{/if}
+								{#snippet children({ checked })}
+									{#if RadioItem}
+										{@render RadioItem({
+											label: item.label,
+											value: item.value,
+											checked,
+										})}
+									{:else}
+										<span class="dropdown-radio-item">
+											<span
+												class="dropdown-radio-check"
+												aria-hidden="true"
+												data-checked={checked}
+											>
+												✓
+											</span>
+											{item.label}
+										</span>
+									{/if}
+								{/snippet}
 							</DropdownMenu.RadioItem>
 						{/each}
 					</DropdownMenu.RadioGroup>
@@ -512,3 +540,20 @@
 		</DropdownMenu.Content>
 	</DropdownMenu.Portal>
 </DropdownMenu.Root>
+
+<style>
+	.dropdown-radio-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+	.dropdown-radio-check {
+		display: inline-flex;
+		inline-size: 1em;
+		justify-content: center;
+		visibility: hidden;
+	}
+	.dropdown-radio-check[data-checked='true'] {
+		visibility: visible;
+	}
+</style>

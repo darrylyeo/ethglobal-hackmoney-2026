@@ -7,7 +7,7 @@
 		src,
 		alt = '',
 		label,
-		title,
+		title = undefined,
 		size = '1em',
 		loading = 'lazy',
 		decoding = 'async',
@@ -38,6 +38,8 @@
 		[key: string]: unknown
 	} = $props()
 
+	const a11yLabel = label ?? alt
+	const resolvedTitle = title ?? (alt || undefined)
 </script>
 
 
@@ -45,10 +47,10 @@
 	{...rootProps}
 	class={`icon${className ? ` ${className}` : ''}`}
 	style={`--icon-size: ${typeof size === 'number' ? `${size}px` : size}`}
-	aria-label={label}
-	aria-hidden={label ? undefined : true}
-	title={title}
-	role={label ? 'img' : undefined}
+	aria-label={a11yLabel || undefined}
+	aria-hidden={a11yLabel ? undefined : true}
+	title={resolvedTitle}
+	role={a11yLabel ? 'img' : undefined}
 >
 	{#if src}
 		<img
@@ -82,6 +84,7 @@
 		:global(svg) {
 			width: 100%;
 			height: 100%;
+			object-fit: contain;
 			border-radius: inherit;
 		}
 	}

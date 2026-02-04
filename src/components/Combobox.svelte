@@ -38,7 +38,6 @@
 		name,
 		id,
 		ariaLabel,
-		onValueChange,
 		getItemId = defaultItemLabel,
 		getItemLabel = defaultItemLabel,
 		getItemDisabled,
@@ -58,7 +57,6 @@
 		name?: string
 		id?: string
 		ariaLabel?: string
-		onValueChange?: (value: string | string[]) => void
 		getItemId?: (item: Item) => string
 		getItemLabel?: (item: Item) => string
 		getItemDisabled?: (item: Item) => boolean
@@ -72,6 +70,7 @@
 	// State
 	let inputValue = $state('')
 	let isFocused = $state(false)
+	let open = $state(false)
 
 	// (Derived)
 	const normalizedItems = $derived(
@@ -148,7 +147,7 @@
 		inputValue = target.value
 	}
 	const onValueChangeInternal = (nextValue: string | string[]) => {
-		onValueChange?.(nextValue)
+		value = nextValue
 		if (typeof nextValue === 'string') {
 			const nextItem = normalizedItems.find((item) => item.id === nextValue)
 			if (nextItem) inputValue = nextItem.label
@@ -160,6 +159,7 @@
 	<Combobox.Root
 		{...rootProps}
 		type="multiple"
+		bind:open
 		value={Array.isArray(value) ? value : []}
 		{disabled}
 		{name}
@@ -181,6 +181,7 @@
 					oninput={onInput}
 					onfocus={() => {
 						isFocused = true
+						open = true
 					}}
 					onblur={() => {
 						isFocused = false
@@ -254,6 +255,7 @@
 	<Combobox.Root
 		{...rootProps}
 		type="single"
+		bind:open
 		value={typeof value === 'string' ? value : ''}
 		{disabled}
 		{name}
@@ -275,6 +277,7 @@
 					oninput={onInput}
 					onfocus={() => {
 						isFocused = true
+						open = true
 					}}
 					onblur={() => {
 						isFocused = false

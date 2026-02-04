@@ -1,15 +1,11 @@
 <script lang="ts">
 	// Types/constants
-	import { CoinType } from '$/constants/coins'
-	import { DataSource } from '$/constants/data-sources'
-	import { EntityType } from '$/data/$EntityType'
-	import { MediaType } from '$/constants/media'
-	import {
-		NetworkType,
-		networks,
-		networksByChainId,
-	} from '$/constants/networks'
 	import type { IntentDragPayload } from '$/lib/intents/types'
+	import { CoinType, ercTokens } from '$/constants/coins'
+	import { DataSource } from '$/constants/data-sources'
+	import { MediaType } from '$/constants/media'
+	import { networksByChainId } from '$/constants/networks'
+	import { EntityType } from '$/data/$EntityType'
 
 	// Context
 	import { and, eq, or, useLiveQuery } from '@tanstack/svelte-db'
@@ -17,8 +13,13 @@
 	// Props
 	let {
 		selectedActor,
+		balanceTokens = [],
 	}: {
 		selectedActor: `0x${string}` | null
+		balanceTokens?: {
+			chainId: number
+			tokenAddress: `0x${string}`
+		}[]
 	} = $props()
 
 	// Functions
@@ -30,41 +31,78 @@
 		actorCoinsCollection,
 		fetchAllBalancesForAddress,
 	} from '$/collections/actor-coins'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
 	import {
 		storkPricesCollection,
 		subscribeStorkPrices,
 		getBestStorkPrice,
 	} from '$/collections/stork-prices'
-	import {
-		bridgeSettingsState,
-		defaultBridgeSettings,
-	} from '$/state/bridge-settings.svelte'
+	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
 
 	// (Derived)
-	const settings = $derived(
-		bridgeSettingsState.current ?? defaultBridgeSettings,
-	)
-	const filteredNetworks = $derived(
-		networks.filter((n) =>
-			settings.isTestnet ?
-				n.type === NetworkType.Testnet
-			:
-				n.type === NetworkType.Mainnet,
-		),
-	)
+	const normalizedBalanceTokens = $derived([
+		...new Map(
+			balanceTokens.map((token) => [
+				`${token.chainId}:${token.tokenAddress.toLowerCase()}`,
+				token,
+			]),
+		).values(),
+	])
 	const tokenListQuery = useLiveQuery((q) =>
 		q
 			.from({ row: tokenListCoinsCollection })
 			.where(({ row }) => eq(row.$source, DataSource.TokenLists))
+			.where(({ row }) =>
+				normalizedBalanceTokens.length > 0 ?
+					normalizedBalanceTokens
+						.map((token) =>
+							and(
+								eq(row.chainId, token.chainId),
+								eq(row.address, token.tokenAddress),
+							),
+						)
+						.reduce((acc, filter) => or(acc, filter))
+				:
+					and(
+						eq(row.chainId, -1),
+						eq(row.chainId, 0),
+					),
+			)
 			.select(({ row }) => ({ row })),
+		[() => normalizedBalanceTokens],
 	)
 	const filteredTokenListCoins = $derived(
-		(tokenListQuery.data ?? [])
-			.map((r) => r.row)
-			.filter((token) =>
-				filteredNetworks.some((network) => network.id === token.chainId),
-			),
+		(tokenListQuery.data ?? []).map((r) => r.row),
+	)
+	const fallbackTokens = $derived(
+		balanceTokens
+			.map((token) =>
+				ercTokens.find(
+					(entry) =>
+						entry.chainId === token.chainId &&
+						entry.address.toLowerCase() === token.tokenAddress.toLowerCase(),
+				),
+			)
+			.flatMap((token) => (token ? [token] : [])),
+	)
+	const displayTokens = $derived(
+		(
+			filteredTokenListCoins.length > 0 ?
+				filteredTokenListCoins
+			:
+				fallbackTokens
+		).map((token) => ({
+			...token,
+			name: 'name' in token ? token.name : token.symbol,
+			logoURI: 'logoURI' in token ? token.logoURI : undefined,
+		})),
+	)
+	const balanceTokenListCoins = $derived(
+		displayTokens.map((token) => ({
+			chainId: token.chainId,
+			address: token.address,
+			symbol: token.symbol,
+			decimals: token.decimals,
+		})),
 	)
 	const balancesQuery = useLiveQuery(
 		(q) =>
@@ -72,18 +110,18 @@
 				.from({ row: actorCoinsCollection })
 				.where(({ row }) => eq(row.$source, DataSource.Voltaire))
 				.where(({ row }) =>
-					eq(row.$id.address, selectedActor ?? ('0x' as `0x${string}`)),
+					eq(row.$id.address, selectedActor ?? '0x0000000000000000000000000000000000000000'),
 				)
 				.where(({ row }) =>
-					filteredTokenListCoins.length > 0 ?
-						or(
-							...filteredTokenListCoins.map((token) =>
+					displayTokens.length > 0 ?
+						displayTokens
+							.map((token) =>
 								and(
 									eq(row.$id.chainId, token.chainId),
 									eq(row.$id.tokenAddress, token.address),
 								),
-							),
-						)
+							)
+							.reduce((acc, filter) => or(acc, filter))
 					:
 						and(
 							eq(row.$id.chainId, -1),
@@ -91,7 +129,7 @@
 						),
 				)
 				.select(({ row }) => ({ row })),
-		[() => selectedActor, () => filteredTokenListCoins],
+		[() => selectedActor, () => displayTokens],
 	)
 	const pricesQuery = useLiveQuery((q) =>
 		q
@@ -134,12 +172,11 @@
 
 	// Actions
 	$effect(() => {
-		void settings.isTestnet
-		if (selectedActor && filteredTokenListCoins.length > 0)
+		if (selectedActor && balanceTokenListCoins.length > 0)
 			fetchAllBalancesForAddress(
 				selectedActor,
-				filteredNetworks.map((n) => n.id),
-				filteredTokenListCoins,
+				undefined,
+				balanceTokenListCoins,
 			)
 	})
 
@@ -177,7 +214,7 @@
 		{/if}
 		<div class="balances-grid" data-balances-grid>
 			{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
-				{@const token = filteredTokenListCoins.find(
+				{@const token = displayTokens.find(
 					(entry) =>
 						entry.chainId === b.$id.chainId &&
 						entry.address.toLowerCase() === b.$id.tokenAddress.toLowerCase(),

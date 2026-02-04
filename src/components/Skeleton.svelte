@@ -23,9 +23,9 @@
 		display: inline-block;
 		background: linear-gradient(
 			90deg,
-			var(--color-skeleton, #e5e7eb) 25%,
-			var(--color-skeleton-highlight, #f3f4f6) 50%,
-			var(--color-skeleton, #e5e7eb) 75%
+			var(--color-skeleton) 25%,
+			var(--color-skeleton-highlight) 50%,
+			var(--color-skeleton) 75%
 		);
 		background-size: 200% 100%;
 		animation: skeleton-shimmer 1.5s ease-in-out infinite;

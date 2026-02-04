@@ -5,6 +5,13 @@ import {
 	networksByChainId,
 } from '$/constants/networks'
 import { rpcUrls } from '$/constants/rpc-endpoints'
+import { E2E_TEVM_RPC_URL } from '$/lib/e2e/tevm'
+import {
+	E2E_TEVM_CHAIN_ID,
+	E2E_TEVM_PROVIDER_NAME,
+	E2E_TEVM_PROVIDER_RDNS,
+	E2E_TEVM_WALLET_ADDRESS,
+} from '$/lib/e2e/tevm-config'
 
 export type EIP1193Provider = {
 	request(args: { method: string; params?: unknown[] }): Promise<unknown>
@@ -13,6 +20,12 @@ export type EIP1193Provider = {
 export type ProviderDetailType = {
 	info: Readonly<{ uuid: string; name: string; icon: string; rdns: string }>
 	provider: EIP1193Provider
+}
+
+declare global {
+	interface Window {
+		__E2E_TEVM_PROVIDER__?: ProviderDetailType
+	}
 }
 
 export type WalletState = {
@@ -171,6 +184,105 @@ let eip6963Installed = false
 const EIP6963_DEBUG =
 	typeof import.meta.env !== 'undefined' && import.meta.env.DEV
 
+export const ensureE2eProvider = () => {
+	if (typeof window === 'undefined') return
+	const existing = window.__E2E_TEVM_PROVIDER__
+	if (existing?.provider && existing.info) {
+		const nextInfo = {
+			uuid: existing.info.uuid ?? 'tevm-e2e-wallet',
+			name: existing.info.name ?? E2E_TEVM_PROVIDER_NAME,
+			icon: existing.info.icon ?? '',
+			rdns: existing.info.rdns ?? E2E_TEVM_PROVIDER_RDNS,
+		}
+		if (
+			existing.info.uuid !== nextInfo.uuid ||
+			existing.info.name !== nextInfo.name ||
+			existing.info.icon !== nextInfo.icon ||
+			existing.info.rdns !== nextInfo.rdns
+		) {
+			window.__E2E_TEVM_PROVIDER__ = {
+				info: nextInfo,
+				provider: existing.provider,
+			}
+		}
+		return
+	}
+	if (!E2E_TEVM_RPC_URL) return
+	let activeChainId = E2E_TEVM_CHAIN_ID
+	const listeners = new Map<string, Array<(payload: unknown) => void>>()
+	const emit = (event: string, payload: unknown) => {
+		const handlers = listeners.get(event) ?? []
+		for (const handler of handlers) handler(payload)
+	}
+	const provider = {
+		request: async (args: { method: string; params?: unknown[] }) => {
+			if (args.method === 'eth_chainId') {
+				return `0x${activeChainId.toString(16)}`
+			}
+			if (args.method === 'eth_requestAccounts' || args.method === 'eth_accounts') {
+				emit('accountsChanged', [E2E_TEVM_WALLET_ADDRESS])
+				return [E2E_TEVM_WALLET_ADDRESS]
+			}
+			if (args.method === 'wallet_switchEthereumChain') {
+				const [first] = args.params ?? []
+				const nextHex =
+					typeof first === 'object' && first !== null
+						? Reflect.get(first, 'chainId')
+						: null
+				const parsed =
+					typeof nextHex === 'string'
+						? Number.parseInt(nextHex, 16)
+						: activeChainId
+				activeChainId = Number.isNaN(parsed) ? activeChainId : parsed
+				emit('chainChanged', `0x${activeChainId.toString(16)}`)
+				return null
+			}
+			if (args.method === 'wallet_addEthereumChain') return null
+			const response = await fetch(E2E_TEVM_RPC_URL, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					jsonrpc: '2.0',
+					id: Date.now(),
+					method: args.method,
+					params: args.params ?? [],
+				}),
+			})
+			const payload = await response.json()
+			if (payload.error) throw new Error(payload.error.message ?? 'RPC error')
+			return payload.result
+		},
+		on: (event: string, handler: (payload: unknown) => void) => {
+			const existing = listeners.get(event) ?? []
+			listeners.set(event, [...existing, handler])
+			return provider
+		},
+		removeListener: (event: string, handler: (payload: unknown) => void) => {
+			const existing = listeners.get(event) ?? []
+			listeners.set(
+				event,
+				existing.filter((entry) => entry !== handler),
+			)
+			return provider
+		},
+	}
+	window.__E2E_TEVM_PROVIDER__ = {
+		info: {
+			uuid: 'tevm-e2e-wallet',
+			name: E2E_TEVM_PROVIDER_NAME,
+			icon: '',
+			rdns: E2E_TEVM_PROVIDER_RDNS,
+		},
+		provider,
+	}
+}
+
+export const getE2eProvider = () => (
+	typeof window !== 'undefined'
+		? window.__E2E_TEVM_PROVIDER__?.provider ?? null
+		: null
+)
+
 function eip6963HandleAnnounce(e: Event) {
 	const { detail } = e as CustomEvent<ProviderDetailType>
 	if (EIP6963_DEBUG) {
@@ -205,6 +317,14 @@ export function subscribeProviders(
 	listener: (providers: ProviderDetailType[]) => void,
 ): () => void {
 	if (typeof window === 'undefined') return () => {}
+	ensureE2eProvider()
+	const e2eProvider = window.__E2E_TEVM_PROVIDER__
+	if (
+		e2eProvider?.info?.rdns &&
+		typeof e2eProvider.provider?.request === 'function'
+	) {
+		eip6963ByRdns.set(e2eProvider.info.rdns, e2eProvider)
+	}
 	eip6963Listener = listener
 	if (!eip6963Installed) {
 		eip6963Installed = true

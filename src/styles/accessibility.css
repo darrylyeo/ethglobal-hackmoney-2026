@@ -35,6 +35,6 @@
 	[data-skeleton],
 	.skeleton {
 		animation: none !important;
-		background: var(--color-skeleton, #e5e7eb) !important;
+		background: var(--color-skeleton) !important;
 	}
 }

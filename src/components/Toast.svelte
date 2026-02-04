@@ -43,7 +43,6 @@
 					error: '✕',
 					loading: '',
 				}[toast.type]}
-				size="1em"
 			/>
 		{/if}
 	</div>
@@ -88,7 +87,7 @@
 		animation: toast-in 0.2s ease-out;
 
 		&[data-type='success'] {
-			border-color: var(--color-success, #22c55e);
+			border-color: var(--color-success);
 
 			.toast-icon {
 				color: var(--color-success);
@@ -96,7 +95,7 @@
 		}
 
 		&[data-type='error'] {
-			border-color: var(--color-error, #ef4444);
+			border-color: var(--color-error);
 
 			.toast-icon {
 				color: var(--color-error);
@@ -104,7 +103,7 @@
 		}
 
 		&[data-type='warning'] {
-			border-color: var(--color-warning, #f59e0b);
+			border-color: var(--color-warning);
 
 			.toast-icon {
 				color: var(--color-warning);
@@ -112,7 +111,7 @@
 		}
 
 		&[data-type='info'] {
-			border-color: var(--color-info, #3b82f6);
+			border-color: var(--color-info);
 		}
 	}
 

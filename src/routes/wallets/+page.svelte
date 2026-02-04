@@ -1,9 +1,9 @@
 <script lang="ts">
 	// Components
-	import WalletManager from './WalletManager.svelte'
+	import WalletsManager from './WalletsManager.svelte'
 </script>
 
 <div data-column="gap-2">
 	<h1>Wallets</h1>
-	<WalletManager />
+	<WalletsManager />
 </div>

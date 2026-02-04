@@ -10,8 +10,6 @@
 		max,
 		value = $bindable(0n),
 		invalid = $bindable(false),
-		onValueChange,
-		onInvalidChange,
 		id,
 		disabled,
 		name,
@@ -27,8 +25,6 @@
 		max: bigint
 		value?: bigint
 		invalid?: boolean
-		onValueChange?: (value: bigint) => void
-		onInvalidChange?: (invalid: boolean) => void
 		id?: string
 		disabled?: boolean
 		name?: string
@@ -61,27 +57,20 @@
 		if (cleaned === '') {
 			invalid = false
 			value = 0n
-			onInvalidChange?.(invalid)
-			onValueChange?.(value)
 			return
 		}
 		if (isValidDecimalInput(cleaned, coin.decimals)) {
 			invalid = false
 			value = parseDecimalToSmallest(cleaned, coin.decimals)
-			onInvalidChange?.(invalid)
-			onValueChange?.(value)
 			return
 		}
 		invalid = true
-		onInvalidChange?.(invalid)
 	}
 	const onSliderInput = (
 		event: Event & { currentTarget: HTMLInputElement },
 	) => {
 		invalid = false
 		value = BigInt(event.currentTarget.value)
-		onInvalidChange?.(invalid)
-		onValueChange?.(value)
 	}
 
 	// Components

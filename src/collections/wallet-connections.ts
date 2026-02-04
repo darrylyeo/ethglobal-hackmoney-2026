@@ -213,11 +213,9 @@ export const updateWalletChain = (wallet$id: Wallet$Id, chainId: number) => {
 
 export const connectReadOnly = ({
 	address,
-	chainId,
 	autoSelect = true,
 }: {
 	address: string
-	chainId: number
 	autoSelect?: boolean
 }) => {
 	const normalized = normalizeAddress(address)
@@ -241,7 +239,7 @@ export const connectReadOnly = ({
 			draft.status = 'connected'
 			draft.actors = [normalized]
 			draft.activeActor = normalized
-			draft.chainId = chainId
+			draft.chainId = null
 			draft.error = null
 		})
 		return true
@@ -253,7 +251,7 @@ export const connectReadOnly = ({
 		status: 'connected',
 		actors: [normalized],
 		activeActor: normalized,
-		chainId,
+		chainId: null,
 		selected: autoSelect,
 		error: null,
 		connectedAt: Date.now(),
@@ -329,8 +327,7 @@ export const reconnectWallet = async (wallet$id: Wallet$Id) => {
 			method: 'eth_accounts',
 		})) as string[]
 		if (accounts.length === 0) {
-			// Not authorized anymore - remove connection
-			walletConnectionsCollection.delete(key)
+			setConnectionError(wallet$id, 'Locked')
 			return false
 		}
 
@@ -351,8 +348,7 @@ export const reconnectWallet = async (wallet$id: Wallet$Id) => {
 		})
 		return true
 	} catch (e) {
-		// Failed to reconnect - remove connection
-		walletConnectionsCollection.delete(key)
+		setConnectionError(wallet$id, e instanceof Error ? e.message : String(e))
 		return false
 	}
 }

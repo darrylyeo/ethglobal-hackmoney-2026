@@ -13,7 +13,6 @@
 		name,
 		id,
 		ariaLabel = 'Token',
-		onValueChange,
 		...rootProps
 	}: {
 		coins: readonly [Coin, ...Coin[]]
@@ -23,7 +22,6 @@
 		name?: string
 		id?: string
 		ariaLabel?: string
-		onValueChange?: (value: Coin | null) => void
 		[key: string]: unknown
 	} = $props()
 
@@ -60,13 +58,10 @@
 	{name}
 	{id}
 	ariaLabel={ariaLabel}
-	onValueChange={(nextValue) => (
-		onValueChange?.(
-			value = Array.isArray(nextValue)
-				? coins.find((coin) => toCoinId(coin) === (nextValue[0] ?? '')) ??
-					null
-				: coins.find((coin) => toCoinId(coin) === nextValue) ?? null,
-		)
+	onValueChange={(nextValue: string | string[]) => (
+		value = Array.isArray(nextValue)
+			? coins.find((coin) => toCoinId(coin) === (nextValue[0] ?? '')) ?? null
+			: coins.find((coin) => toCoinId(coin) === nextValue) ?? null
 	)}
 	getItemId={toCoinId}
 	getItemLabel={(coin) => (

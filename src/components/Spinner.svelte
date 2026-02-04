@@ -12,7 +12,7 @@
 <style>
 	.spinner {
 		display: inline-block;
-		border: 2px solid var(--color-spinner-track, #e5e7eb);
+		border: 2px solid var(--color-border);
 		border-top-color: var(--color-spinner, currentColor);
 		border-radius: 50%;
 		animation: spin 0.8s linear infinite;

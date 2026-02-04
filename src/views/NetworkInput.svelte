@@ -13,7 +13,6 @@
 		name,
 		id,
 		ariaLabel = 'Network',
-		onValueChange,
 		...rootProps
 	}: {
 		networks: readonly Network[]
@@ -24,7 +23,6 @@
 		name?: string
 		id?: string
 		ariaLabel?: string
-		onValueChange?: (value: Network['id'] | Network['id'][] | null) => void
 		[key: string]: unknown
 	} = $props()
 
@@ -51,11 +49,8 @@
 			{#each selectedNetworks as network (network.id)}
 				<span class="network-input-icon">
 					<Icon
-						src={networkConfigsByChainId[network.id]?.icon ?? `/networks/${network.id}.svg`}
-						alt=""
+						src={networkConfigsByChainId[network.id]?.icon ?? `/icons/chains/${network.id}.svg`}
 						size={16}
-						loading="lazy"
-						decoding="async"
 						title={network.name}
 					/>
 				</span>
@@ -71,11 +66,8 @@
 	>
 		<span class="network-input-icon">
 			<Icon
-				src={networkConfigsByChainId[network.id]?.icon ?? `/networks/${network.id}.svg`}
-				alt=""
+				src={networkConfigsByChainId[network.id]?.icon ?? `/icons/chains/${network.id}.svg`}
 				size={16}
-				loading="lazy"
-				decoding="async"
 			/>
 		</span>
 		<span>{network.name}</span>
@@ -98,21 +90,19 @@
 	{name}
 	{id}
 	ariaLabel={ariaLabel}
-	onValueChange={(nextValue) => (
-		onValueChange?.(
-			value = multiple
-				? Array.isArray(nextValue)
-					? nextValue
-							.map((id) =>
-								networks.find((network) => String(network.id) === id)?.id ??
-									null)
-							.filter((id): id is Network['id'] => id !== null)
-					: []
-				: typeof nextValue === 'string'
-					? networks.find((network) => String(network.id) === nextValue)?.id ??
-						null
-					: null,
-		)
+	onValueChange={(nextValue: string | string[]) => (
+		value = multiple
+			? Array.isArray(nextValue)
+				? nextValue
+						.map((id) =>
+							networks.find((network) => String(network.id) === id)?.id ??
+								null)
+						.filter((id): id is Network['id'] => id !== null)
+				: []
+			: typeof nextValue === 'string'
+				? networks.find((network) => String(network.id) === nextValue)?.id ??
+					null
+				: null
 	)}
 	getItemId={(network) => String(network.id)}
 	getItemLabel={(network) => network.name}

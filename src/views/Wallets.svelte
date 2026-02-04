@@ -42,11 +42,13 @@
 		| {
 				type: string
 				item: WalletMenuItem
+				id?: string
 				onSelect?: () => void
 				disabled?: boolean
 		  }
 		| {
 				type: string
+				id?: string
 		  }
 	type WalletConnectItem = {
 		kind: string
@@ -56,14 +58,16 @@
 	type WalletConnectEntry =
 		| {
 				type: string
+				id?: string
 				item: WalletConnectItem
 				onSelect?: () => void
 				disabled?: boolean
 		  }
 		| {
 				type: string
+				id?: string
 		  }
-	import { walletsCollection } from '$/collections/wallets'
+	import { upsertWallet, walletsCollection } from '$/collections/wallets'
 	import {
 		bridgeSettingsState,
 		defaultBridgeSettings,
@@ -116,6 +120,28 @@
 			.map((w) => w.row)
 			.filter((w): w is WalletRow => !!w?.$id?.rdns),
 	)
+
+	$effect(() => {
+		if (typeof window === 'undefined') return
+		const e2eProvider = window.__E2E_TEVM_PROVIDER__
+		if (
+			!e2eProvider?.info?.rdns ||
+			typeof e2eProvider.provider?.request !== 'function'
+		)
+			return
+		upsertWallet({
+			$id: { rdns: e2eProvider.info.rdns },
+			name: e2eProvider.info.name ?? '',
+			icon: e2eProvider.info.icon ?? '',
+			rdns: e2eProvider.info.rdns ?? '',
+			provider: e2eProvider.provider,
+		})
+		if (connections.some((c) => c.$id.wallet$id.rdns === e2eProvider.info.rdns))
+			return
+		requestWalletConnection({ rdns: e2eProvider.info.rdns }, true).catch(
+			() => {},
+		)
+	})
 
 	const walletsByRdns = $derived(new Map(wallets.map((w) => [w.$id.rdns, w])))
 
@@ -270,7 +296,10 @@
 	const onNetworkValueChange = (value: number | number[] | null) =>
 		typeof value === 'number' ? selectNetwork(value) : undefined
 	const onSingleSelectionChange = (value: string | null) => {
-		if (value) selectConnection({ rdns: value })
+		if (!value) return
+		const chip = eip1193WalletChips.find((c) => c.wallet.$id.rdns === value)
+		if (chip?.status !== 'connected') return
+		selectConnection({ rdns: value })
 	}
 	const onMultipleSelectionChange = (value: string[] | null) =>
 		setSelectedConnections(new Set(value ?? []))
@@ -287,11 +316,7 @@
 			? switchWalletChain(wallet.provider, chainId)
 			: Promise.resolve()
 	const connectReadOnlyAddress = () => {
-		const nextChainId = settings.fromChainId
-		if (!nextChainId) return
-		if (
-			connectReadOnly({ address: readOnlyAddress.trim(), chainId: nextChainId })
-		) {
+		if (connectReadOnly({ address: readOnlyAddress.trim() })) {
 			readOnlyAddress = ''
 		}
 	}
@@ -311,8 +336,7 @@
 >
 	<label data-row="gap-2" aria-label="Network type">
 		<Switch.Root
-			checked={settings.isTestnet}
-			onCheckedChange={(c) => toggleTestnet(c ?? false)}
+			bind:checked={() => settings.isTestnet, (c) => toggleTestnet(c ?? false)}
 			aria-label="Mainnets / Testnets"
 			data-wallet-network-testnet={!settings.isTestnet}
 			data-wallet-network-mainnet={settings.isTestnet}
@@ -326,8 +350,7 @@
 	<div data-row-item="flexible">
 		<NetworkInput
 			networks={filteredNetworks}
-			value={settings.fromChainId}
-			onValueChange={onNetworkValueChange}
+			bind:value={() => settings.fromChainId, onNetworkValueChange}
 			placeholder="Select network"
 			ariaLabel="Network"
 		/>
@@ -338,12 +361,10 @@
 	{#if walletChips.length > 0}
 		{#if eip1193WalletChips.length > 0}
 			<div class="wallet-section">
-				<h3 class="wallet-section-title">Wallets</h3>
 				{#if selectionMode === 'single'}
 					<ToggleGroup.Root
 						type="single"
-						value={selectedConnection?.wallet.$id.rdns ?? ''}
-						onValueChange={onSingleSelectionChange}
+						bind:value={() => selectedConnection?.wallet.$id.rdns ?? '', onSingleSelectionChange}
 						data-row="wrap gap-2"
 					>
 						{#each eip1193WalletChips as { wallet, connection, status } (wallet.$id.rdns)}
@@ -356,14 +377,14 @@
 										? 'Reconnecting'
 										: 'Connecting…'
 									: status === 'error'
-										? 'Locked'
+										? (connection.error ?? null)
 										: null}
 							{@const chainId = connection.chainId}
 							{@const networkName = chainId
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
 							{@const networkIconSrc = chainId
-								? (networkConfigsByChainId[chainId]?.icon ?? `/networks/${chainId}.svg`)
+								? (networkConfigsByChainId[chainId]?.icon ?? `/icons/chains/${chainId}.svg`)
 								: null}
 							{@const walletChipClass =
 								status === 'connecting'
@@ -376,27 +397,16 @@
 								data-tag="wallet-type"
 								data-connecting={status === 'connecting'}
 								data-failed={status === 'error'}
-								disabled={!isConnected}
-								aria-disabled={!isConnected}
 								class="wallet-connection-item"
 							>
 								<span class={walletChipClass}>
 									{#if wallet.icon}
-										<Icon
-											src={wallet.icon}
-											alt=""
-											size={16}
-											loading="lazy"
-											decoding="async"
-										/>
+										<Icon src={wallet.icon} size={16} />
 									{/if}
 									{#if networkIconSrc}
 										<Icon
 											src={networkIconSrc}
-											alt=""
 											size={16}
-											loading="lazy"
-											decoding="async"
 											class="wallet-network-icon"
 											title={networkName ?? 'Unknown network'}
 										/>
@@ -429,6 +439,7 @@
 																		kind: 'actor',
 																		actor,
 																	},
+																	id: `actor-${actor}`,
 																	onSelect: () =>
 																		switchActiveActor(wallet.$id, actor),
 															})),
@@ -445,6 +456,7 @@
 																		kind: 'network',
 																		network,
 																	},
+																	id: `network-${network.id}`,
 																	onSelect: () =>
 																		switchNetwork(
 																			connection,
@@ -462,6 +474,7 @@
 														kind: 'disconnect',
 														label: 'Disconnect',
 													},
+													id: `disconnect-${wallet.$id.rdns}`,
 													onSelect: () => disconnectWallet(wallet.$id),
 												},
 											]
@@ -498,11 +511,8 @@
 												{:else if item.kind === 'network'}
 													<span class="wallet-menu-option">
 														<Icon
-															src={networkConfigsByChainId[item.network.id]?.icon ?? `/networks/${item.network.id}.svg`}
-															alt=""
+															src={networkConfigsByChainId[item.network.id]?.icon ?? `/icons/chains/${item.network.id}.svg`}
 															size={16}
-															loading="lazy"
-															decoding="async"
 															class="wallet-network-icon"
 														/>
 														<span>{item.network.name}</span>
@@ -563,8 +573,7 @@
 				{:else}
 					<ToggleGroup.Root
 						type="multiple"
-						value={selectedRdns}
-						onValueChange={onMultipleSelectionChange}
+						bind:value={() => selectedRdns, onMultipleSelectionChange}
 						data-row="wrap gap-2"
 					>
 						{#each eip1193WalletChips as { wallet, connection, status } (wallet.$id.rdns)}
@@ -577,14 +586,14 @@
 										? 'Reconnecting'
 										: 'Connecting…'
 									: status === 'error'
-										? 'Locked'
+										? (connection.error ?? null)
 										: null}
 							{@const chainId = connection.chainId}
 							{@const networkName = chainId
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
 							{@const networkIconSrc = chainId
-								? (networkConfigsByChainId[chainId]?.icon ?? `/networks/${chainId}.svg`)
+								? (networkConfigsByChainId[chainId]?.icon ?? `/icons/chains/${chainId}.svg`)
 								: null}
 							{@const walletChipClass =
 								status === 'connecting'
@@ -597,27 +606,16 @@
 								data-tag="wallet-type"
 								data-connecting={status === 'connecting'}
 								data-failed={status === 'error'}
-								disabled={!isConnected}
-								aria-disabled={!isConnected}
 								class="wallet-connection-item"
 							>
 								<span class={walletChipClass}>
 									{#if wallet.icon}
-										<Icon
-											src={wallet.icon}
-											alt=""
-											size={16}
-											loading="lazy"
-											decoding="async"
-										/>
+										<Icon src={wallet.icon} size={16} />
 									{/if}
 									{#if networkIconSrc}
 										<Icon
 											src={networkIconSrc}
-											alt=""
 											size={16}
-											loading="lazy"
-											decoding="async"
 											class="wallet-network-icon"
 											title={networkName ?? 'Unknown network'}
 										/>
@@ -650,6 +648,7 @@
 																		kind: 'actor',
 																		actor,
 																	},
+																	id: `actor-${actor}`,
 																	onSelect: () =>
 																		switchActiveActor(wallet.$id, actor),
 															})),
@@ -666,6 +665,7 @@
 																		kind: 'network',
 																		network,
 																	},
+																	id: `network-${network.id}`,
 																	onSelect: () =>
 																		switchNetwork(
 																			connection,
@@ -683,6 +683,7 @@
 														kind: 'disconnect',
 														label: 'Disconnect',
 													},
+													id: `disconnect-${wallet.$id.rdns}`,
 													onSelect: () => disconnectWallet(wallet.$id),
 												},
 											]
@@ -719,11 +720,8 @@
 												{:else if item.kind === 'network'}
 													<span class="wallet-menu-option">
 														<Icon
-															src={networkConfigsByChainId[item.network.id]?.icon ?? `/networks/${item.network.id}.svg`}
-															alt=""
+															src={networkConfigsByChainId[item.network.id]?.icon ?? `/icons/chains/${item.network.id}.svg`}
 															size={16}
-															loading="lazy"
-															decoding="async"
 															class="wallet-network-icon"
 														/>
 														<span>{item.network.name}</span>
@@ -787,12 +785,10 @@
 
 		{#if readOnlyWalletChips.length > 0}
 			<div class="wallet-section">
-				<h3 class="wallet-section-title">Read-only</h3>
 				{#if selectionMode === 'single'}
 					<ToggleGroup.Root
 						type="single"
-						value={selectedConnection?.wallet.$id.rdns ?? ''}
-						onValueChange={onSingleSelectionChange}
+						bind:value={() => selectedConnection?.wallet.$id.rdns ?? '', onSingleSelectionChange}
 						data-row="wrap gap-2"
 					>
 						{#each readOnlyWalletChips as { wallet, connection, status } (wallet.$id.rdns)}
@@ -805,14 +801,14 @@
 										? 'Reconnecting'
 										: 'Connecting…'
 									: status === 'error'
-										? 'Locked'
+										? (connection.error ?? null)
 										: null}
 							{@const chainId = connection.chainId}
 							{@const networkName = chainId
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
 							{@const networkIconSrc = chainId
-								? (networkConfigsByChainId[chainId]?.icon ?? `/networks/${chainId}.svg`)
+								? (networkConfigsByChainId[chainId]?.icon ?? `/icons/chains/${chainId}.svg`)
 								: null}
 							{@const walletChipClass =
 								status === 'connecting'
@@ -825,27 +821,16 @@
 								data-tag="wallet-type"
 								data-connecting={status === 'connecting'}
 								data-failed={status === 'error'}
-								disabled={!isConnected}
-								aria-disabled={!isConnected}
 								class="wallet-connection-item"
 							>
 								<span class={walletChipClass}>
 									{#if wallet.icon}
-										<Icon
-											src={wallet.icon}
-											alt=""
-											size={16}
-											loading="lazy"
-											decoding="async"
-										/>
+										<Icon src={wallet.icon} size={16} />
 									{/if}
 									{#if networkIconSrc}
 										<Icon
 											src={networkIconSrc}
-											alt=""
 											size={16}
-											loading="lazy"
-											decoding="async"
 											class="wallet-network-icon"
 											title={networkName ?? 'Unknown network'}
 										/>
@@ -878,6 +863,7 @@
 																		kind: 'actor',
 																		actor,
 																	},
+																	id: `actor-${actor}`,
 																	onSelect: () =>
 																		switchActiveActor(wallet.$id, actor),
 															})),
@@ -894,6 +880,7 @@
 																		kind: 'network',
 																		network,
 																	},
+																	id: `network-${network.id}`,
 																	onSelect: () =>
 																		switchNetwork(
 																			connection,
@@ -911,6 +898,7 @@
 														kind: 'disconnect',
 														label: 'Disconnect',
 													},
+													id: `disconnect-${wallet.$id.rdns}`,
 													onSelect: () => disconnectWallet(wallet.$id),
 												},
 											]
@@ -947,11 +935,8 @@
 												{:else if item.kind === 'network'}
 													<span class="wallet-menu-option">
 														<Icon
-															src={networkConfigsByChainId[item.network.id]?.icon ?? `/networks/${item.network.id}.svg`}
-															alt=""
+															src={networkConfigsByChainId[item.network.id]?.icon ?? `/icons/chains/${item.network.id}.svg`}
 															size={16}
-															loading="lazy"
-															decoding="async"
 															class="wallet-network-icon"
 														/>
 														<span>{item.network.name}</span>
@@ -1012,8 +997,7 @@
 				{:else}
 					<ToggleGroup.Root
 						type="multiple"
-						value={selectedRdns}
-						onValueChange={onMultipleSelectionChange}
+						bind:value={() => selectedRdns, onMultipleSelectionChange}
 						data-row="wrap gap-2"
 					>
 						{#each readOnlyWalletChips as { wallet, connection, status } (wallet.$id.rdns)}
@@ -1026,14 +1010,14 @@
 										? 'Reconnecting'
 										: 'Connecting…'
 									: status === 'error'
-										? 'Locked'
+										? (connection.error ?? null)
 										: null}
 							{@const chainId = connection.chainId}
 							{@const networkName = chainId
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
 							{@const networkIconSrc = chainId
-								? (networkConfigsByChainId[chainId]?.icon ?? `/networks/${chainId}.svg`)
+								? (networkConfigsByChainId[chainId]?.icon ?? `/icons/chains/${chainId}.svg`)
 								: null}
 							{@const walletChipClass =
 								status === 'connecting'
@@ -1046,27 +1030,16 @@
 								data-tag="wallet-type"
 								data-connecting={status === 'connecting'}
 								data-failed={status === 'error'}
-								disabled={!isConnected}
-								aria-disabled={!isConnected}
 								class="wallet-connection-item"
 							>
 								<span class={walletChipClass}>
 									{#if wallet.icon}
-										<Icon
-											src={wallet.icon}
-											alt=""
-											size={16}
-											loading="lazy"
-											decoding="async"
-										/>
+										<Icon src={wallet.icon} size={16} />
 									{/if}
 									{#if networkIconSrc}
 										<Icon
 											src={networkIconSrc}
-											alt=""
 											size={16}
-											loading="lazy"
-											decoding="async"
 											class="wallet-network-icon"
 											title={networkName ?? 'Unknown network'}
 										/>
@@ -1099,6 +1072,7 @@
 																		kind: 'actor',
 																		actor,
 																	},
+																	id: `actor-${actor}`,
 																	onSelect: () =>
 																		switchActiveActor(wallet.$id, actor),
 															})),
@@ -1115,6 +1089,7 @@
 																		kind: 'network',
 																		network,
 																	},
+																	id: `network-${network.id}`,
 																	onSelect: () =>
 																		switchNetwork(
 																			connection,
@@ -1132,6 +1107,7 @@
 														kind: 'disconnect',
 														label: 'Disconnect',
 													},
+													id: `disconnect-${wallet.$id.rdns}`,
 													onSelect: () => disconnectWallet(wallet.$id),
 												},
 											]
@@ -1168,11 +1144,8 @@
 												{:else if item.kind === 'network'}
 													<span class="wallet-menu-option">
 														<Icon
-															src={networkConfigsByChainId[item.network.id]?.icon ?? `/networks/${item.network.id}.svg`}
-															alt=""
+															src={networkConfigsByChainId[item.network.id]?.icon ?? `/icons/chains/${item.network.id}.svg`}
 															size={16}
-															loading="lazy"
-															decoding="async"
 															class="wallet-network-icon"
 														/>
 														<span>{item.network.name}</span>
@@ -1242,6 +1215,7 @@
 					availableWallets.length > 0 ?
 						availableWallets.map((wallet) => ({
 							type: 'item',
+							id: `wallet-${wallet.$id.rdns}`,
 							item: {
 								kind: 'wallet',
 								wallet,
@@ -1252,6 +1226,7 @@
 						[
 							{
 								type: 'item',
+								id: 'wallet-empty',
 								item: {
 									kind: 'empty',
 									label: 'No wallets found',
@@ -1260,7 +1235,7 @@
 							},
 						]
 				),
-				{ type: 'separator' },
+				{ type: 'separator', id: 'wallet-connect-sep' },
 			]
 		)}
 		<Dropdown
@@ -1278,13 +1253,7 @@
 				{#if item.kind === 'wallet'}
 					<span class="wallet-menu-option" data-wallet-provider-option>
 						{#if item.wallet.icon}
-							<Icon
-								src={item.wallet.icon}
-								alt=""
-								size={20}
-								loading="lazy"
-								decoding="async"
-							/>
+							<Icon src={item.wallet.icon} size={20} />
 						{/if}
 						<span>{item.wallet.name}</span>
 					</span>
@@ -1360,28 +1329,34 @@
 
 	:global(.wallet-connection-item) {
 		&[data-state='on'] {
-			:global(.wallet-chip)::before {
-				content: '✓';
-				position: absolute;
-				top: -0.2rem;
-				right: -0.2rem;
-				font-size: 0.55rem;
-				line-height: 1;
-				color: var(--color-on-accent, #fff);
-				z-index: 1;
-			}
-
 			:global(.wallet-chip)::after {
 				content: '';
 				position: absolute;
-				top: -0.3rem;
-				right: -0.3rem;
+				top: 0.2rem;
+				right: 0.2rem;
 				width: 0.85rem;
 				height: 0.85rem;
 				border-radius: 9999px;
-				background-color: var(--color-accent, #6c24e0);
+				background-color: var(--color-accent);
 				box-shadow: 0 0 0 1px
 					color-mix(in srgb, var(--color-accent) 70%, transparent);
+				z-index: 0;
+			}
+
+			:global(.wallet-chip)::before {
+				content: '✓';
+				position: absolute;
+				top: 0.2rem;
+				right: 0.2rem;
+				width: 0.85rem;
+				height: 0.85rem;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 0.55rem;
+				line-height: 1;
+				color: var(--color-primary-foreground);
+				z-index: 1;
 			}
 		}
 	}
