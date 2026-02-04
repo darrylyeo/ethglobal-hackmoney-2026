@@ -34,7 +34,7 @@ Ensure Svelte and TypeScript are formatted to match the repository preferences.
 
 ## Status
 
-Complete. Prettier config (`.prettierrc`): singleQuote, semi: false, trailingComma: all, useTabs; prettier-plugin-svelte. `deno task format` formats src, e2e, scripts. Script `scripts/_svelte-section-spacing.mjs` enforces two empty lines between Svelte sections (script, head, markup, style). Fixed unescaped quote in `src/lib/yellow/index.ts`. Style guide (user rules) documents implicit return types, no assertions, inline single-use; Svelte section order and import grouping already followed in codebase.
+Complete. Prettier config (`.prettierrc`): singleQuote, semi: false, trailingComma: all, useTabs; prettier-plugin-svelte. `deno task format` formats src, e2e, scripts. Script `scripts/_svelte-section-spacing.mjs` enforces two empty lines between Svelte sections (script, head, markup, style). Fixed unescaped quote in `src/lib/yellow/index.ts`. Style guide (user rules) documents implicit return types, no assertions, inline single-use; Svelte section order and import grouping already followed in codebase. Re-verification 2026-02-04 (PROMPT_build): all acceptance criteria verified; test:unit passed.
 
 ## Output when complete
 
