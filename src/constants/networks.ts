@@ -95,7 +95,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://etherscan.io',
-		icon: '/networks/1-logo.svg',
+		icon: '/icons/chains/1-logo.svg',
 	},
 	{
 		chainId: ChainId.Optimism,
@@ -103,7 +103,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://optimistic.etherscan.io',
-		icon: '/networks/10-symbol.svg',
+		icon: '/icons/chains/10-symbol.svg',
 	},
 	{
 		chainId: ChainId.XDC,
@@ -111,7 +111,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'XDC', symbol: 'XDC' },
 		explorerUrl: 'https://xdc.blocksscan.io',
-		icon: '/networks/50.svg',
+		icon: '/icons/chains/50.svg',
 	},
 	{
 		chainId: ChainId.XDCApothem,
@@ -119,7 +119,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'XDC', symbol: 'XDC' },
 		explorerUrl: 'https://apothem.blocksscan.io',
-		icon: '/networks/51.svg',
+		icon: '/icons/chains/51.svg',
 	},
 	{
 		chainId: ChainId.Unichain,
@@ -127,7 +127,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Unichain', symbol: 'UNI' },
 		explorerUrl: 'https://unichain.blockscout.com',
-		icon: '/networks/130.svg',
+		icon: '/icons/chains/130.svg',
 	},
 	{
 		chainId: ChainId.UnichainSepolia,
@@ -135,7 +135,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Unichain', symbol: 'UNI' },
 		explorerUrl: 'https://sepolia.unichain.blockscout.com',
-		icon: '/networks/1301.svg',
+		icon: '/icons/chains/1301.svg',
 	},
 	{
 		chainId: ChainId.Polygon,
@@ -143,7 +143,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'MATIC', symbol: 'MATIC' },
 		explorerUrl: 'https://polygonscan.com',
-		icon: '/networks/137.svg',
+		icon: '/icons/chains/137.svg',
 	},
 	{
 		chainId: ChainId.PolygonAmoy,
@@ -151,7 +151,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'MATIC', symbol: 'MATIC' },
 		explorerUrl: 'https://amoy.polygonscan.com',
-		icon: '/networks/80002.svg',
+		icon: '/icons/chains/80002.svg',
 	},
 	{
 		chainId: ChainId.Monad,
@@ -159,7 +159,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://explorer.monad.xyz',
-		icon: '/networks/143.svg',
+		icon: '/icons/chains/143.svg',
 	},
 	{
 		chainId: ChainId.MonadTestnet,
@@ -167,7 +167,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet-explorer.monad.xyz',
-		icon: '/networks/143.svg',
+		icon: '/icons/chains/143.svg',
 	},
 	{
 		chainId: ChainId.Sonic,
@@ -175,7 +175,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'S', symbol: 'S' },
 		explorerUrl: 'https://sonicscan.org',
-		icon: '/networks/146.svg',
+		icon: '/icons/chains/146.svg',
 	},
 	{
 		chainId: ChainId.SonicTestnet,
@@ -183,7 +183,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'S', symbol: 'S' },
 		explorerUrl: 'https://testnet.sonicscan.org',
-		icon: '/networks/14601.svg',
+		icon: '/icons/chains/14601.svg',
 	},
 	{
 		chainId: ChainId.ZkSyncEraSepolia,
@@ -219,6 +219,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet.hyper.evm.cc',
+		icon: '/icons/chains/999-symbol.svg',
 	},
 	{
 		chainId: ChainId.HyperEVM,
@@ -226,6 +227,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://hyper.evm.cc',
+		icon: '/icons/chains/999-symbol.svg',
 	},
 	{
 		chainId: ChainId.SeiTestnet,
@@ -247,6 +249,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://arbiscan.io',
+		icon: '/icons/chains/42161-logo.svg',
 	},
 	{
 		chainId: ChainId.ArbitrumSepolia,
@@ -254,6 +257,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia.arbiscan.io',
+		icon: '/icons/chains/42161-logo.svg',
 	},
 	{
 		chainId: ChainId.Celo,
@@ -310,7 +314,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://lineascan.build',
-		icon: '/networks/59144-symbol.svg',
+		icon: '/icons/chains/59144-symbol.svg',
 	},
 	{
 		chainId: ChainId.InkTestnet,
@@ -318,7 +322,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet.explorer.inkonchain.com',
-		icon: '/networks/763373.svg',
+		icon: '/icons/chains/763373.svg',
 	},
 	{
 		chainId: ChainId.Codex,
@@ -326,7 +330,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://explorer.codexchain.io',
-		icon: '/networks/81224-logo-and-wordmark.svg',
+		icon: '/icons/chains/81224-logo-and-wordmark.svg',
 	},
 	{
 		chainId: ChainId.CodexTestnet,
@@ -334,7 +338,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet-explorer.codexchain.io',
-		icon: '/networks/81224-logo-and-wordmark.svg',
+		icon: '/icons/chains/81224-logo-and-wordmark.svg',
 	},
 	{
 		chainId: ChainId.Plume,
@@ -342,7 +346,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://plume-explorer.alt.technology',
-		icon: '/networks/98866-dark.svg',
+		icon: '/icons/chains/98866-dark.svg',
 	},
 	{
 		chainId: ChainId.PlumeTestnet,
@@ -350,7 +354,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet-plume-explorer.alt.technology',
-		icon: '/networks/98867.svg',
+		icon: '/icons/chains/98867.svg',
 	},
 	{
 		chainId: ChainId.CeloSepolia,
@@ -358,7 +362,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'CELO', symbol: 'CELO' },
 		explorerUrl: 'https://celo-sepolia.blockscout.com',
-		icon: '/networks/11142220.svg',
+		icon: '/icons/chains/11142220.svg',
 	},
 	{
 		chainId: ChainId.EthereumSepolia,
@@ -366,7 +370,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia.etherscan.io',
-		icon: '/networks/1-logo.svg',
+		icon: '/icons/chains/1-logo.svg',
 	},
 	{
 		chainId: ChainId.OPSepolia,
@@ -374,7 +378,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://sepolia-optimism.etherscan.io',
-		icon: '/networks/11155420.svg',
+		icon: '/icons/chains/11155420.svg',
 	},
 	{
 		chainId: ChainId.ArcTestnet,
@@ -382,7 +386,7 @@ export const networkConfigs: readonly NetworkConfig[] = [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrl: 'https://testnet.arcscan.io',
-		icon: '/networks/5042002.svg',
+		icon: '/icons/chains/5042002.svg',
 	},
 ]
 
