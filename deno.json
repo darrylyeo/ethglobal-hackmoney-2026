@@ -38,7 +38,7 @@
     "icons:optimize": "deno run -A npm:svgo static/icons/chains/*.svg static/icons/coins/*.svg static/icons/providers/*.svg",
     "icons": "deno task icons:fetch && deno task icons:optimize",
     "test": "deno task test:unit && deno task test:e2e",
-    "test:unit": "deno test -A --no-check src/collections/actors.spec.ts src/collections/actor-coins.spec.ts src/collections/room-peers.spec.ts src/collections/shared-addresses.spec.ts src/collections/siwe-challenges.spec.ts src/collections/uniswap-pools.spec.ts src/collections/uniswap-positions.spec.ts src/collections/swap-quotes.spec.ts src/lib/tx-status.spec.ts src/api/voltaire.spec.ts && deno run -A npm:vitest run",
+    "test:unit": "deno test -A --no-check src/collections/actors.spec.ts src/collections/actor-coins.spec.ts src/collections/room-peers.spec.ts src/collections/shared-addresses.spec.ts src/collections/siwe-challenges.spec.ts src/collections/uniswap-pools.spec.ts src/collections/uniswap-positions.spec.ts src/collections/swap-quotes.spec.ts src/lib/tx-status.spec.ts src/api/voltaire.spec.ts src/api/identity-resolve.spec.ts && deno run -A npm:vitest run",
     "test:e2e": "node node_modules/@playwright/test/cli.js test"
   }
 }
