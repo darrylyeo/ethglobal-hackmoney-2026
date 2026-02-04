@@ -41,7 +41,7 @@
 	import {
 		type BridgeSettings,
 		BridgeRouteSort,
-		defaultBridgeSettings,
+		bridgeSettingsState,
 	} from '$/state/bridge-settings.svelte'
 
 	// Collections
@@ -65,6 +65,7 @@
 	import { getTxUrl } from '$/constants/explorers'
 	import { getTxReceiptStatus } from '$/api/approval'
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
+	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
 	import type { BridgeStatus } from '$/lib/tx-status'
 	import { ErrorCode } from '$/lib/errors'
 	import {
@@ -77,8 +78,13 @@
 		formatAddress,
 	} from '$/lib/address'
 	import {
+		type BridgeSessionParams,
+		getBridgeSessionParams,
+	} from '$/lib/transaction-session-params'
+	import {
 		buildSessionHash,
 		createTransactionSession,
+		createTransactionSessionWithId,
 		forkTransactionSession,
 		getTransactionSession,
 		parseSessionHash,
@@ -87,74 +93,17 @@
 	import { stringify } from 'devalue'
 	import { debounce } from '$/lib/debounce'
 
-	type BridgeSessionParams = BridgeSettings
-
-	const bridgeSortValues = new Set(Object.values(BridgeRouteSort))
-	const isBridgeSort = (value: unknown): value is BridgeSettings['sortBy'] => (
-		typeof value === 'string' && bridgeSortValues.has(value)
-	)
-	const toBoolean = (value: unknown, fallback: boolean) => (
-		typeof value === 'boolean' ? value : fallback
-	)
-	const toNumber = (value: unknown, fallback: number) => (
-		typeof value === 'number' && Number.isFinite(value) ?
-			value
-		: typeof value === 'string' &&
-			value.trim().length > 0 &&
-			Number.isFinite(Number(value)) ?
-			Number(value)
-		: fallback
-	)
-	const toNullableNumber = (
-		value: unknown,
-		fallback: number | null,
-	) => (
-		typeof value === 'number' && Number.isFinite(value) ?
-			value
-		: typeof value === 'string' &&
-			value.trim().length > 0 &&
-			Number.isFinite(Number(value)) ?
-			Number(value)
-		: value === null ?
+	const resolveNetwork = (chainId: number | null) => (
+		chainId !== null ?
+			(Object.values(networksByChainId).find(
+				(entry) => entry?.id === chainId,
+			) ?? null)
+		:
 			null
-		: fallback
 	)
-	const toBigInt = (value: unknown, fallback: bigint) => (
-		typeof value === 'bigint' ?
-			value
-		: typeof value === 'number' && Number.isFinite(value) ?
-			BigInt(Math.floor(value))
-		: typeof value === 'string' && /^\d+$/.test(value) ?
-			BigInt(value)
-		: fallback
+	const resolveNetworkName = (chainId: number) => (
+		resolveNetwork(chainId)?.name ?? `Chain ${chainId}`
 	)
-	const normalizeBridgeParams = (
-		params: Record<string, unknown> | null,
-	): BridgeSessionParams => ({
-		slippage: toNumber(params?.slippage, defaultBridgeSettings.slippage),
-		isTestnet: toBoolean(params?.isTestnet, defaultBridgeSettings.isTestnet),
-		sortBy: isBridgeSort(params?.sortBy)
-			? params.sortBy
-			: defaultBridgeSettings.sortBy,
-		fromChainId: toNullableNumber(
-			params?.fromChainId,
-			defaultBridgeSettings.fromChainId,
-		),
-		toChainId: toNullableNumber(
-			params?.toChainId,
-			defaultBridgeSettings.toChainId,
-		),
-		amount: toBigInt(params?.amount, defaultBridgeSettings.amount),
-		useCustomRecipient: toBoolean(
-			params?.useCustomRecipient,
-			defaultBridgeSettings.useCustomRecipient,
-		),
-		customRecipient:
-			typeof params?.customRecipient === 'string'
-				? params.customRecipient
-				: defaultBridgeSettings.customRecipient,
-	})
-
 	const isEip1193Wallet = (
 		wallet: ConnectedWallet | null,
 	): wallet is { wallet: WalletRow; connection: WalletConnectionEip1193 } =>
@@ -176,9 +125,14 @@
 	let {
 		selectedWallets,
 		selectedActor,
+		balanceTokens = $bindable([]),
 	}: {
 		selectedWallets: ConnectedWallet[]
 		selectedActor: `0x${string}` | null
+		balanceTokens?: {
+			chainId: number
+			tokenAddress: `0x${string}`
+		}[]
 	} = $props()
 
 	// (Derived)
@@ -227,6 +181,17 @@
 	// ])
 	// const bridgeLiveQuery = liveQueryAttachmentFrom(() => bridgeLiveQueryEntries)
 
+	// Ephemeral UI state (not persisted)
+	let activeSessionId = $state<string | null>(null)
+	let slippageInput = $state('')
+	let invalidAmountInput = $state(false)
+	let selectedRouteId = $state<string | null>(null)
+	let executing = $state(false)
+	let executionRef = $state<{
+		execute: () => Promise<{ txHash?: `0x${string}` } | void>
+	} | null>(null)
+	let executionStatus = $state<BridgeStatus>({ overall: 'idle', steps: [] })
+
 	// Settings (session params)
 	const sessionQuery = useLiveQuery(
 		(q) =>
@@ -234,11 +199,11 @@
 				.from({ row: transactionSessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
-		[activeSessionId],
+		[() => activeSessionId],
 	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionParams = $derived(
-		normalizeBridgeParams(session?.params ?? null),
+		getBridgeSessionParams(session),
 	)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
@@ -276,19 +241,34 @@
 		}
 		updateTransactionSessionParams(session.id, nextParams)
 	}
+	$effect(() => {
+		const nextIsTestnet = bridgeSettingsState.current?.isTestnet
+		if (typeof nextIsTestnet !== 'boolean') return
+		if (nextIsTestnet === settings.isTestnet) return
+		updateSessionParams({ ...settings, isTestnet: nextIsTestnet })
+	})
+	$effect(() => {
+		balanceTokens = (
+			[
+				settings.fromChainId !== null
+					? {
+							chainId: settings.fromChainId,
+							tokenAddress: getUsdcAddress(settings.fromChainId),
+						}
+					: null,
+				settings.toChainId !== null
+					? {
+							chainId: settings.toChainId,
+							tokenAddress: getUsdcAddress(settings.toChainId),
+						}
+					: null,
+			].flatMap((token) => (token ? [token] : []))
+		)
+	})
 	const forkSession = () => {
 		if (!session) return
 		activateSession(forkTransactionSession(session).id)
 	}
-
-	// Ephemeral UI state (not persisted)
-	let activeSessionId = $state<string | null>(null)
-	let slippageInput = $state('')
-	let invalidAmountInput = $state(false)
-	let selectedRouteId = $state<string | null>(null)
-	let executing = $state(false)
-	let executionRef = $state<{ execute: () => Promise<void> } | null>(null)
-	let executionStatus = $state<BridgeStatus>({ overall: 'idle', steps: [] })
 
 	// Timer for quote expiry
 	let now = $state(Date.now())
@@ -298,24 +278,22 @@
 			const parsed = parseSessionHash(window.location.hash)
 			if (parsed.kind === 'session') {
 				if (parsed.sessionId === activeSessionId && session) return
-				if (getTransactionSession(parsed.sessionId)) {
+				const existing = getTransactionSession(parsed.sessionId)
+				if (existing) {
 					activeSessionId = parsed.sessionId
 					return
 				}
-				activateSession(
-					createTransactionSession({
-						flows: ['bridge'],
-						params: normalizeBridgeParams(null),
-					}).id,
-				)
+				createTransactionSessionWithId(parsed.sessionId, {
+					flows: ['bridge'],
+					params: {},
+				})
+				activeSessionId = parsed.sessionId
 				return
 			}
 			activateSession(
 				createTransactionSession({
 					flows: ['bridge'],
-					params: normalizeBridgeParams(
-						parsed.kind === 'params' ? parsed.params : null,
-					),
+					params: parsed.kind === 'params' ? parsed.params : {},
 				}).id,
 			)
 		}
@@ -356,12 +334,10 @@
 		),
 	)
 	const fromNetwork = $derived(
-		settings.fromChainId !== null
-			? networksByChainId[settings.fromChainId]
-			: null,
+		resolveNetwork(settings.fromChainId),
 	)
 	const toNetwork = $derived(
-		settings.toChainId !== null ? networksByChainId[settings.toChainId] : null,
+		resolveNetwork(settings.toChainId),
 	)
 
 	// Initialize networks when switching testnet/mainnet
@@ -372,14 +348,8 @@
 			filteredNetworks.some((n) => n.id === settings.fromChainId)
 		)
 			return
-		const fromNet =
-			settings.fromChainId !== null
-				? networksByChainId[settings.fromChainId]
-				: null
-		const toNet =
-			settings.toChainId !== null
-				? networksByChainId[settings.toChainId]
-				: null
+		const fromNet = resolveNetwork(settings.fromChainId)
+		const toNet = resolveNetwork(settings.toChainId)
 		const defaultFrom =
 			settings.isTestnet
 				? (fromNet ? testnetsForMainnet.get(fromNet)?.[0]?.id : undefined) ??
@@ -528,7 +498,9 @@
 	const quoteExpired = $derived(quoteRemaining !== null && quoteRemaining <= 0)
 
 	const exceedsBalance = $derived(
-		sourceBalance !== null && settings.amount > sourceBalance,
+		E2E_TEVM_ENABLED
+			? false
+			: sourceBalance !== null && settings.amount > sourceBalance,
 	)
 	const canSendAmount = $derived(
 		validation.isValid && !exceedsBalance && !invalidAmountInput,
@@ -540,7 +512,9 @@
 			| undefined,
 	)
 	const needsApproval = $derived(
-		Boolean(approvalAddress?.startsWith('0x') && approvalAddress.length === 42),
+		E2E_TEVM_ENABLED ?
+			false
+		: Boolean(approvalAddress?.startsWith('0x') && approvalAddress.length === 42),
 	)
 
 	// Derive approval state from allowances collection
@@ -632,8 +606,7 @@
 				<label for="from">From</label>
 				<NetworkInput
 					networks={filteredNetworks}
-					value={settings.fromChainId}
-					onValueChange={(v) => (
+					bind:value={() => settings.fromChainId, (v) => (
 						typeof v === 'number'
 							? updateSessionParams({ ...settings, fromChainId: v })
 							: null
@@ -648,8 +621,7 @@
 				<label for="to">To</label>
 				<NetworkInput
 					networks={filteredNetworks}
-					value={settings.toChainId}
-					onValueChange={(v) => (
+					bind:value={() => settings.toChainId, (v) => (
 						typeof v === 'number'
 							? updateSessionParams({ ...settings, toChainId: v })
 							: null
@@ -672,14 +644,13 @@
 					coin={usdcToken}
 					min={USDC_MIN_AMOUNT}
 					max={USDC_MAX_AMOUNT}
-					value={settings.amount}
-					onValueChange={(nextAmount) => {
+					bind:value={() => settings.amount, (nextAmount) => (
 						updateSessionParams({ ...settings, amount: nextAmount })
-					}}
+					)}
 					disabled={sessionLocked}
-					onInvalidChange={(nextInvalid) => {
+					bind:invalid={() => invalidAmountInput, (nextInvalid) => (
 						invalidAmountInput = nextInvalid
-					}}
+					)}
 					style="flex:1"
 					ariaDescribedby={invalidAmountInput ||
 					exceedsBalance ||
@@ -720,10 +691,9 @@
 		<div data-column="gap-1">
 			<label data-row="gap-2 align-center">
 				<Switch.Root
-					checked={settings.useCustomRecipient}
-					onCheckedChange={(c) => {
+					bind:checked={() => settings.useCustomRecipient, (c) => (
 						updateSessionParams({ ...settings, useCustomRecipient: c })
-					}}
+					)}
 					disabled={sessionLocked}
 					><Switch.Thumb /></Switch.Root
 				>
@@ -815,8 +785,7 @@
 						<Select
 							id="route-sort"
 							items={sortOptions}
-							value={settings.sortBy}
-							onValueChange={(v) => {
+							bind:value={() => settings.sortBy, (v) => {
 								if (!v) return
 								const option = sortOptions.find((entry) => entry.id === v)
 								if (!option) return
@@ -898,14 +867,17 @@
 					>
 					<Popover.Content data-column="gap-2">
 						<div data-row="gap-1">
-							{#each slippagePresets as p (p)}
+							{#each slippagePresets as preset (preset.id)}
 								<Button.Root
 									onclick={() => {
-										updateSessionParams({ ...settings, slippage: p })
+										updateSessionParams({
+											...settings,
+											slippage: preset.value,
+										})
 									}}
-									data-selected={settings.slippage === p ? '' : undefined}
+									data-selected={settings.slippage === preset.value ? '' : undefined}
 									disabled={sessionLocked}
-									>{formatSlippagePercent(p)}</Button.Root
+									>{formatSlippagePercent(preset.value)}</Button.Root
 								>
 							{/each}
 						</div>
@@ -1082,9 +1054,9 @@
 									>{formatRelativeTime(now - tx.$id.createdAt)}</span
 								>
 								<span
-									>{networksByChainId[tx.fromChainId]?.name} → {networksByChainId[
-										tx.toChainId
-									]?.name}</span
+									>{resolveNetworkName(tx.fromChainId)} → {resolveNetworkName(
+										tx.toChainId,
+									)}</span
 								>
 								<span data-tabular
 									>{formatSmallestToDecimal(tx.fromAmount, 6)} USDC</span
@@ -1143,7 +1115,7 @@
 		flex-direction: column;
 		gap: 0.25em;
 		padding: 0.75em;
-		border: 1px solid var(--color-border, #e5e7eb);
+		border: 1px solid var(--color-border);
 		border-radius: 0.5em;
 		background: transparent;
 		cursor: pointer;
@@ -1151,12 +1123,12 @@
 		width: 100%;
 
 		&:hover {
-			border-color: var(--color-primary, #3b82f6);
+			border-color: var(--color-primary);
 		}
 
 		&[data-selected] {
-			border-color: var(--color-primary, #3b82f6);
-			background: var(--color-primary-bg, #eff6ff);
+			border-color: var(--color-primary);
+			background: var(--color-info-bg);
 		}
 	}
 
@@ -1180,18 +1152,18 @@
 		border-radius: 0.25em;
 
 		&[data-tag='completed'] {
-			background: #dcfce7;
-			color: #22c55e;
+			background: var(--color-success-bg);
+			color: var(--color-success);
 		}
 
 		&[data-tag='failed'] {
-			background: #fee2e2;
-			color: #ef4444;
+			background: var(--color-error-bg);
+			color: var(--color-error);
 		}
 
 		&[data-tag='pending'] {
-			background: #fef3c7;
-			color: #f59e0b;
+			background: var(--color-warning-bg);
+			color: var(--color-warning);
 		}
 	}
 

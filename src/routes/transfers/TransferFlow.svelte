@@ -4,6 +4,7 @@
 	import type { Coin } from '$/constants/coins'
 	import { CoinType } from '$/constants/coins'
 	import { networksByChainId } from '$/constants/networks'
+	import type { TransferSessionParams } from '$/lib/transaction-session-params'
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -33,54 +34,21 @@
 		mode?: 'direct' | 'channel'
 	} = $props()
 
-	type TransferSessionParams = {
-		fromActor: `0x${string}`
-		toActor: `0x${string}`
-		chainId: number
-		amount: bigint
-		tokenSymbol: string
-		tokenDecimals: number
-		tokenAddress: `0x${string}`
-		mode: 'direct' | 'channel'
+	type ExecutionArgs = {
+		provider: {
+			request: (args: {
+				method: string
+				params?: unknown[]
+			}) => Promise<unknown>
+		}
+		walletAddress: `0x${string}`
+		mode: 'wallet' | 'e2e'
 	}
+	const isHexString = (value: unknown): value is `0x${string}` => (
+		typeof value === 'string' && value.startsWith('0x')
+	)
 
-	const toBigInt = (value: unknown, fallback: bigint) => (
-		typeof value === 'bigint' ?
-			value
-		: typeof value === 'number' && Number.isFinite(value) ?
-			BigInt(Math.floor(value))
-		: typeof value === 'string' && /^\d+$/.test(value) ?
-			BigInt(value)
-		: fallback
-	)
-	const toNumber = (value: unknown, fallback: number) => (
-		typeof value === 'number' && Number.isFinite(value) ?
-			value
-		: typeof value === 'string' &&
-			value.trim().length > 0 &&
-			Number.isFinite(Number(value)) ?
-			Number(value)
-		: fallback
-	)
-	const toAddress = (value: unknown, fallback: `0x${string}`) => (
-		typeof value === 'string' ? normalizeAddress(value) ?? fallback : fallback
-	)
-	const toMode = (value: unknown, fallback: 'direct' | 'channel') => (
-		value === 'direct' || value === 'channel' ? value : fallback
-	)
-	const normalizeTransferParams = (
-		params: Record<string, unknown> | null,
-	): TransferSessionParams => ({
-		fromActor: toAddress(params?.fromActor, fromActor),
-		toActor: toAddress(params?.toActor, toActor),
-		chainId: toNumber(params?.chainId, chainId),
-		amount: toBigInt(params?.amount, amount),
-		tokenSymbol:
-			typeof params?.tokenSymbol === 'string' ? params.tokenSymbol : tokenSymbol,
-		tokenDecimals: toNumber(params?.tokenDecimals, tokenDecimals),
-		tokenAddress: toAddress(params?.tokenAddress, tokenAddress),
-		mode: toMode(params?.mode, mode),
-	})
+	let activeSessionId = $state<string | null>(null)
 
 	// (Derived)
 	const sessionQuery = useLiveQuery(
@@ -89,11 +57,21 @@
 				.from({ row: transactionSessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
-		[activeSessionId],
+		[() => activeSessionId],
 	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
+	const transferDefaults = $derived({
+		fromActor,
+		toActor,
+		chainId,
+		amount,
+		tokenSymbol,
+		tokenDecimals,
+		tokenAddress,
+		mode,
+	} satisfies TransferSessionParams)
 	const sessionParams = $derived(
-		normalizeTransferParams(session?.params ?? null),
+		getTransferSessionParams(session, transferDefaults),
 	)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
@@ -101,7 +79,8 @@
 		formatSmallestToDecimal(settings.amount, settings.tokenDecimals),
 	)
 	const chainLabel = $derived(
-		networksByChainId[settings.chainId]?.name ?? `Chain ${settings.chainId}`,
+		Object.values(networksByChainId).find((entry) => entry?.id === settings.chainId)
+			?.name ?? `Chain ${settings.chainId}`,
 	)
 	const transferCoin = $derived<Coin>({
 		type: CoinType.Erc20,
@@ -150,7 +129,8 @@
 				activateSession(
 					createTransactionSession({
 						flows: ['transfer'],
-						params: normalizeTransferParams(null),
+						params: transferDefaults,
+						defaults: { transfer: transferDefaults },
 					}).id,
 				)
 				return
@@ -158,9 +138,8 @@
 			activateSession(
 				createTransactionSession({
 					flows: ['transfer'],
-					params: normalizeTransferParams(
-						parsed.kind === 'params' ? parsed.params : null,
-					),
+					params: parsed.kind === 'params' ? parsed.params : transferDefaults,
+					defaults: { transfer: transferDefaults },
 				}).id,
 			)
 		}
@@ -172,8 +151,10 @@
 	// Functions
 	import { encodeTransferCall } from '$/api/voltaire'
 	import { sendTransfer } from '$/api/yellow'
-	import { formatAddress, normalizeAddress } from '$/lib/address'
+	import { formatAddress } from '$/lib/address'
+	import { requestE2eTevmValueTransfer } from '$/lib/e2e/tevm'
 	import { formatSmallestToDecimal } from '$/lib/format'
+	import { getTransferSessionParams } from '$/lib/transaction-session-params'
 	import {
 		buildSessionHash,
 		createTransactionSession,
@@ -188,8 +169,6 @@
 		updateTransaction,
 	} from '$/collections/transactions'
 	import type { Transaction$Id } from '$/data/Transaction'
-
-	let activeSessionId = $state<string | null>(null)
 
 	// Actions
 	const executeChannelTransfer = async () => {
@@ -213,29 +192,29 @@
 			],
 		})
 	}
-	const executeDirectTransfer = async (args: {
-		provider: {
-			request: (args: {
-				method: string
-				params?: unknown[]
-			}) => Promise<unknown>
-		}
-		walletAddress: `0x${string}`
-	}) => {
+	const executeDirectTransfer = async (args: ExecutionArgs) => {
 		if (args.walletAddress.toLowerCase() !== settings.fromActor.toLowerCase()) {
 			throw new Error('Active wallet address must match the transfer sender.')
 		}
-		const txHash = await args.provider.request({
-			method: 'eth_sendTransaction',
-			params: [
-				{
+		const txHash =
+			args.mode === 'e2e' ?
+				await requestE2eTevmValueTransfer({
+					provider: args.provider,
 					from: args.walletAddress,
-					to: settings.tokenAddress,
-					data: encodeTransferCall(settings.toActor, settings.amount),
-				},
-			],
-		})
-		if (typeof txHash !== 'string') {
+					to: settings.toActor,
+					value: settings.amount,
+				})
+			: await args.provider.request({
+					method: 'eth_sendTransaction',
+					params: [
+						{
+							from: args.walletAddress,
+							to: settings.tokenAddress,
+							data: encodeTransferCall(settings.toActor, settings.amount),
+						},
+					],
+				})
+		if (!isHexString(txHash)) {
 			throw new Error('Direct transfer did not return a transaction hash.')
 		}
 		const txId: Transaction$Id = {
@@ -253,6 +232,7 @@
 			status: 'pending',
 		})
 		updateTransaction(txId, { status: 'completed', destTxHash: txHash })
+		return { txHash }
 	}
 
 	// Components

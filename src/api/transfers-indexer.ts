@@ -2,6 +2,7 @@
  * Fetch and normalize USDC transfer events from Covalent (or compatible indexer).
  * Single module so endpoint/pagination can be adapted without changing callers.
  */
+import { COVALENT_TRANSFERS_MAX } from '$/constants/query-limits'
 
 export type NormalizedTransfer = {
 	fromAddress: string
@@ -91,6 +92,7 @@ export async function fetchTransfersForChain(
 			const sec = t.timestamp / 1000
 			return sec >= start && sec <= end
 		})
+		.slice(0, COVALENT_TRANSFERS_MAX)
 }
 
 export type ChainContract = { chainId: number; contractAddress: string }

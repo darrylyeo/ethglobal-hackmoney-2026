@@ -14,6 +14,7 @@ import {
 	type VoltaireProvider,
 } from '$/api/voltaire'
 import { TIME_PERIODS, periodToRange } from '$/api/transfers-indexer'
+import { TRANSFER_EVENTS_MAX_TOTAL } from '$/constants/query-limits'
 
 export type NormalizedTransferEvent = {
 	fromAddress: string
@@ -151,4 +152,5 @@ export async function fetchTransferEventsForPeriod(
 				r.status === 'fulfilled',
 		)
 		.flatMap((r) => r.value)
+		.slice(0, TRANSFER_EVENTS_MAX_TOTAL)
 }

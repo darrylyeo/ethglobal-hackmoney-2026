@@ -1,18 +1,26 @@
 <script lang="ts">
+	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 
-	import Balances from '$/views/Balances.svelte'
-	import Wallets from '$/views/Wallets.svelte'
-	import SwapFlow from './SwapFlow.svelte'
-
+	// State
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
 	let selectedChainId = $state<number | null>(null)
+	let balanceTokens = $state<{ chainId: number; tokenAddress: `0x${string}` }[]>(
+		[],
+	)
+
+	// Components
+	import Balances from '$/views/Balances.svelte'
+	import Wallets from '$/views/Wallets.svelte'
+	import SwapFlow from './SwapFlow.svelte'
 </script>
+
 
 <svelte:head>
 	<title>Swap</title>
 </svelte:head>
+
 
 <main
 	id="main"
@@ -29,11 +37,12 @@
 
 			<div data-column="gap-6">
 				<h1>Swap</h1>
-				<Balances {selectedActor} />
+				<Balances {selectedActor} {balanceTokens} />
 				<SwapFlow
 					selectedWallets={connectedWallets}
 					{selectedActor}
 					{selectedChainId}
+					bind:balanceTokens
 				/>
 			</div>
 		</details>

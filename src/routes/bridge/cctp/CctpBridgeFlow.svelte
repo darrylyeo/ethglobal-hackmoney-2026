@@ -28,9 +28,14 @@
 	let {
 		selectedWallets,
 		selectedActor,
+		balanceTokens = $bindable([]),
 	}: {
 		selectedWallets: ConnectedWallet[]
 		selectedActor: `0x${string}` | null
+		balanceTokens?: {
+			chainId: number
+			tokenAddress: `0x${string}`
+		}[]
 	} = $props()
 
 	// (Derived)
@@ -48,11 +53,13 @@
 	)
 
 	// Functions
+	import { getUsdcAddress } from '$/api/lifi'
 	import { formatAddress, isValidAddress } from '$/lib/address'
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import {
 		buildSessionHash,
 		createTransactionSession,
+		createTransactionSessionWithId,
 		forkTransactionSession,
 		getTransactionSession,
 		lockTransactionSession,
@@ -62,6 +69,15 @@
 		updateTransactionSession,
 		updateTransactionSessionParams,
 	} from '$/lib/transaction-sessions'
+
+	const resolveNetwork = (chainId: number | null) => (
+		chainId !== null ?
+			(Object.values(networksByChainId).find(
+				(entry) => entry?.id === chainId,
+			) ?? null)
+		:
+			null
+	)
 
 	type BridgeSessionParams = BridgeSettings & {
 		transferSpeed: 'fast' | 'standard'
@@ -161,7 +177,7 @@
 				.from({ row: transactionSessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
-		[activeSessionId],
+		[() => activeSessionId],
 	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionParams = $derived(
@@ -186,12 +202,10 @@
 		filteredNetworks.filter((n) => isCctpSupportedChain(n.id)),
 	)
 	const fromNetwork = $derived(
-		settings.fromChainId !== null
-			? networksByChainId[settings.fromChainId]
-			: null,
+		resolveNetwork(settings.fromChainId),
 	)
 	const toNetwork = $derived(
-		settings.toChainId !== null ? networksByChainId[settings.toChainId] : null,
+		resolveNetwork(settings.toChainId),
 	)
 	const fromDomain = $derived(getCctpDomainId(settings.fromChainId))
 	const toDomain = $derived(getCctpDomainId(settings.toChainId))
@@ -260,6 +274,24 @@
 		if (!session) return
 		activateSession(forkTransactionSession(session).id)
 	}
+	$effect(() => {
+		balanceTokens = (
+			[
+				settings.fromChainId !== null
+					? {
+							chainId: settings.fromChainId,
+							tokenAddress: getUsdcAddress(settings.fromChainId),
+						}
+					: null,
+				settings.toChainId !== null
+					? {
+							chainId: settings.toChainId,
+							tokenAddress: getUsdcAddress(settings.toChainId),
+						}
+					: null,
+			].flatMap((token) => (token ? [token] : []))
+		)
+	})
 
 	$effect(() => {
 		if (typeof window === 'undefined') return
@@ -267,16 +299,16 @@
 			const parsed = parseSessionHash(window.location.hash)
 			if (parsed.kind === 'session') {
 				if (parsed.sessionId === activeSessionId && session) return
-				if (getTransactionSession(parsed.sessionId)) {
+				const existing = getTransactionSession(parsed.sessionId)
+				if (existing) {
 					activeSessionId = parsed.sessionId
 					return
 				}
-				activateSession(
-					createTransactionSession({
-						flows: ['bridge'],
-						params: normalizeBridgeParams(null),
-					}).id,
-				)
+				createTransactionSessionWithId(parsed.sessionId, {
+					flows: ['bridge'],
+					params: normalizeBridgeParams(null),
+				})
+				activeSessionId = parsed.sessionId
 				return
 			}
 			activateSession(
@@ -374,8 +406,7 @@
 				<label for="from">From</label>
 				<NetworkInput
 					networks={cctpNetworks}
-					value={settings.fromChainId}
-					onValueChange={(v) => (
+					bind:value={() => settings.fromChainId, (v) => (
 						typeof v === 'number'
 							? updateSessionParams({ ...settings, fromChainId: v })
 							: null
@@ -390,8 +421,7 @@
 				<label for="to">To</label>
 				<NetworkInput
 					networks={cctpNetworks}
-					value={settings.toChainId}
-					onValueChange={(v) => (
+					bind:value={() => settings.toChainId, (v) => (
 						typeof v === 'number'
 							? updateSessionParams({ ...settings, toChainId: v })
 							: null
@@ -412,14 +442,13 @@
 				coin={usdcToken}
 				min={USDC_MIN_AMOUNT}
 				max={USDC_MAX_AMOUNT}
-				value={settings.amount}
-				onValueChange={(nextAmount) => {
+				bind:value={() => settings.amount, (nextAmount) => (
 					updateSessionParams({ ...settings, amount: nextAmount })
-				}}
+				)}
 				disabled={sessionLocked}
-				onInvalidChange={(nextInvalid) => {
+				bind:invalid={() => invalidAmountInput, (nextInvalid) => (
 					invalidAmountInput = nextInvalid
-				}}
+				)}
 			/>
 			{#if invalidAmountInput}
 				<small data-error
@@ -437,13 +466,12 @@
 		<div data-column="gap-1">
 			<label data-row="gap-2 align-center">
 				<Switch.Root
-					checked={settings.useCustomRecipient}
-					onCheckedChange={(c) => {
+					bind:checked={() => settings.useCustomRecipient, (c) => (
 						updateSessionParams({
 							...settings,
 							useCustomRecipient: c ?? false,
 						})
-					}}
+					)}
 					disabled={sessionLocked}
 				>
 					<Switch.Thumb />
@@ -529,13 +557,12 @@
 		{#if forwardingSupported}
 			<label data-row="gap-2 align-center">
 				<Switch.Root
-					checked={settings.forwardingEnabled}
-					onCheckedChange={(c) => {
+					bind:checked={() => settings.forwardingEnabled, (c) => (
 						updateSessionParams({
 							...settings,
 							forwardingEnabled: c ?? false,
 						})
-					}}
+					)}
 					disabled={sessionLocked}
 				>
 					<Switch.Thumb />

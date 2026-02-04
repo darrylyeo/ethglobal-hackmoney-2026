@@ -11,6 +11,7 @@
 		networks,
 		networksByChainId,
 	} from '$/constants/networks'
+	import type { UniswapFeeTier } from '$/constants/uniswap'
 	import { uniswapFeeTiers } from '$/constants/uniswap'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
@@ -43,8 +44,14 @@
 	)
 
 	// Functions
-	import { normalizeAddress } from '$/lib/address'
+	import {
+		requestE2eTevmContractTx,
+	} from '$/lib/e2e/tevm'
 	import { formatSmallestToDecimal } from '$/lib/format'
+	import {
+		type LiquiditySessionParams,
+		getLiquiditySessionParams,
+	} from '$/lib/transaction-session-params'
 	import {
 		buildSessionHash,
 		createTransactionSession,
@@ -55,47 +62,15 @@
 	} from '$/lib/transaction-sessions'
 	import { switchWalletChain } from '$/lib/wallet'
 
-	type LiquiditySessionParams = LiquiditySettings & {
-		isTestnet: boolean
+	type ExecutionArgs = {
+		provider: {
+			request: (args: {
+				method: string
+				params?: unknown[]
+			}) => Promise<unknown>
+		}
+		walletAddress: `0x${string}`
 	}
-
-	const toBoolean = (value: unknown, fallback: boolean) => (
-		typeof value === 'boolean' ? value : fallback
-	)
-	const toNumber = (value: unknown, fallback: number) => (
-		typeof value === 'number' && Number.isFinite(value) ?
-			value
-		: typeof value === 'string' &&
-			value.trim().length > 0 &&
-			Number.isFinite(Number(value)) ?
-			Number(value)
-		: fallback
-	)
-	const toBigInt = (value: unknown, fallback: bigint) => (
-		typeof value === 'bigint' ?
-			value
-		: typeof value === 'number' && Number.isFinite(value) ?
-			BigInt(Math.floor(value))
-		: typeof value === 'string' && /^\d+$/.test(value) ?
-			BigInt(value)
-		: fallback
-	)
-	const toAddress = (value: unknown, fallback: `0x${string}`) => (
-		typeof value === 'string' ? normalizeAddress(value) ?? fallback : fallback
-	)
-	const normalizeLiquidityParams = (
-		params: Record<string, unknown> | null,
-	): LiquiditySessionParams => ({
-		chainId: toNumber(params?.chainId, defaultLiquiditySettings.chainId),
-		token0: toAddress(params?.token0, defaultLiquiditySettings.token0),
-		token1: toAddress(params?.token1, defaultLiquiditySettings.token1),
-		fee: toNumber(params?.fee, defaultLiquiditySettings.fee),
-		tickLower: toNumber(params?.tickLower, defaultLiquiditySettings.tickLower),
-		tickUpper: toNumber(params?.tickUpper, defaultLiquiditySettings.tickUpper),
-		amount0: toBigInt(params?.amount0, defaultLiquiditySettings.amount0),
-		amount1: toBigInt(params?.amount1, defaultLiquiditySettings.amount1),
-		isTestnet: toBoolean(params?.isTestnet, defaultBridgeSettings.isTestnet),
-	})
 
 	const asNonEmpty = (coins: Coin[]): coins is [Coin, ...Coin[]] =>
 		coins.length > 0
@@ -115,7 +90,9 @@
 				}
 			: undefined,
 	})
-	const feeLabel = (fee: number) => `${(fee / 10000).toFixed(2)}%`
+	const feeLabel = (fee: UniswapFeeTier) => (
+		`${(fee.feeTier / 10000).toFixed(2)}%`
+	)
 	const updateAmount0 = (value: bigint) => (
 		updateSessionParams({ ...settings, amount0: value })
 	)
@@ -128,19 +105,16 @@
 	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 	import { uniswapPositionsCollection } from '$/collections/uniswap-positions'
-	import {
-		defaultBridgeSettings,
-	} from '$/state/bridge-settings.svelte'
-	import {
-		type LiquiditySettings,
-		defaultLiquiditySettings,
-	} from '$/state/liquidity-settings.svelte'
 
 	let activeSessionId = $state<string | null>(null)
 	let invalidAmount0 = $state(false)
 	let invalidAmount1 = $state(false)
 	let token0Selection = $state<Coin | null>(null)
 	let token1Selection = $state<Coin | null>(null)
+	let e2eLiquidityStatus = $state<{
+		txHash: `0x${string}` | null
+		message: string
+	} | null>(null)
 
 	// (Derived)
 	const sessionQuery = useLiveQuery(
@@ -149,11 +123,11 @@
 				.from({ row: transactionSessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
-		[activeSessionId],
+		[() => activeSessionId],
 	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionParams = $derived(
-		normalizeLiquidityParams(session?.params ?? null),
+		getLiquiditySessionParams(session),
 	)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
@@ -167,7 +141,9 @@
 	)
 	const network = $derived(
 		settings.chainId ?
-			networksByChainId[settings.chainId]
+			(Object.values(networksByChainId).find(
+				(entry) => entry?.id === settings.chainId,
+			) ?? null)
 		:
 			null,
 	)
@@ -278,6 +254,24 @@
 		if (!session) return
 		activateSession(forkTransactionSession(session).id)
 	}
+	const executeLiquidity = async (args: ExecutionArgs) => {
+		if (selectedActor && args.walletAddress.toLowerCase() !== selectedActor.toLowerCase()) {
+			throw new Error('Active wallet address must match the liquidity provider.')
+		}
+		e2eLiquidityStatus = null
+		try {
+			const txHash = await requestE2eTevmContractTx({
+				provider: args.provider,
+				from: args.walletAddress,
+				value: settings.amount0 + settings.amount1,
+			})
+			e2eLiquidityStatus = { txHash, message: 'Liquidity added.' }
+			return { txHash }
+		} catch (error) {
+			e2eLiquidityStatus = { txHash: null, message: 'Liquidity failed.' }
+			throw error
+		}
+	}
 
 	$effect(() => {
 		if (typeof window === 'undefined') return
@@ -292,7 +286,7 @@
 				activateSession(
 					createTransactionSession({
 						flows: ['liquidity'],
-						params: normalizeLiquidityParams(null),
+						params: {},
 					}).id,
 				)
 				return
@@ -300,9 +294,7 @@
 			activateSession(
 				createTransactionSession({
 					flows: ['liquidity'],
-					params: normalizeLiquidityParams(
-						parsed.kind === 'params' ? parsed.params : null,
-					),
+					params: parsed.kind === 'params' ? parsed.params : {},
 				}).id,
 			)
 		}
@@ -359,9 +351,10 @@
 	})
 
 	// Components
+	import Select from '$/components/Select.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
-	import Select from '$/components/Select.svelte'
+	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import Positions from './Positions.svelte'
 </script>
 
@@ -377,8 +370,7 @@
 			{/if}
 			<NetworkInput
 				networks={filteredNetworks}
-				value={settings.chainId}
-				onValueChange={(value) => {
+				bind:value={() => settings.chainId, (value) => {
 					const nextChainId = Array.isArray(value) ? value[0] ?? null : value
 					if (nextChainId === null || nextChainId === settings.chainId) return
 					updateSessionParams({ ...settings, chainId: nextChainId })
@@ -411,13 +403,11 @@
 					bind:coin={token0Selection}
 					min={0n}
 					max={token0Balance ?? 0n}
-					value={settings.amount0}
-					invalid={invalidAmount0}
-					onValueChange={updateAmount0}
+					bind:value={() => settings.amount0, updateAmount0}
 					disabled={sessionLocked}
-					onInvalidChange={(invalid) => {
+					bind:invalid={() => invalidAmount0, (invalid) => (
 						invalidAmount0 = invalid
-					}}
+					)}
 					ariaLabel="Token 0"
 				/>
 				{#if token0Balance !== null}
@@ -451,13 +441,11 @@
 					bind:coin={token1Selection}
 					min={0n}
 					max={token1Balance ?? 0n}
-					value={settings.amount1}
-					invalid={invalidAmount1}
-					onValueChange={updateAmount1}
+					bind:value={() => settings.amount1, updateAmount1}
 					disabled={sessionLocked}
-					onInvalidChange={(invalid) => {
+					bind:invalid={() => invalidAmount1, (invalid) => (
 						invalidAmount1 = invalid
-					}}
+					)}
 					ariaLabel="Token 1"
 				/>
 				{#if token1Balance !== null}
@@ -476,12 +464,11 @@
 				<label for="liq-fee">Fee tier</label>
 				<Select
 					items={uniswapFeeTiers}
-					value={String(settings.fee)}
-					onValueChange={(value) => {
+					bind:value={() => String(settings.fee), (value) => {
 						if (!value) return
 						updateSessionParams({ ...settings, fee: Number(value) })
 					}}
-					getItemId={(fee) => String(fee)}
+					getItemId={(fee) => String(fee.feeTier)}
 					getItemLabel={(fee) => feeLabel(fee)}
 					id="liq-fee"
 					disabled={sessionLocked}
@@ -530,14 +517,36 @@
 			</div>
 		{/if}
 
-		<Button.Root
-			type="button"
-			disabled={settings.amount0 === 0n && settings.amount1 === 0n}
-		>
-			Add Liquidity
-		</Button.Root>
 	{:else}
 		<p data-muted>No tokens available for this network.</p>
+	{/if}
+
+	<TransactionFlow
+		walletConnection={selectedWallet}
+		sessionId={session?.id ?? null}
+		sessionParams={sessionParams}
+		transactions={[
+			{
+				id: `liquidity-${settings.chainId}-${settings.token0}-${settings.token1}`,
+				chainId: settings.chainId,
+				title: 'Add liquidity',
+				actionLabel: 'Add liquidity',
+				canExecute:
+					(settings.amount0 > 0n || settings.amount1 > 0n) &&
+					Boolean(selectedActor),
+				execute: executeLiquidity,
+				executionModes: ['e2e'],
+			},
+		]}
+	/>
+	{#if e2eLiquidityStatus}
+		<p
+			data-e2e-liquidity-status
+			data-tx-hash={e2eLiquidityStatus.txHash ?? undefined}
+			data-error={e2eLiquidityStatus.txHash ? undefined : ''}
+		>
+			{e2eLiquidityStatus.message}
+		</p>
 	{/if}
 
 	<Positions {positions} chainId={settings.chainId} />

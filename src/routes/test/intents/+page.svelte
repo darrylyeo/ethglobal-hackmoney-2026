@@ -12,6 +12,12 @@
 	import { networksByChainId } from '$/constants/networks'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
+	type IntentSessionParams = {
+		from: IntentDragPayload | null
+		to: IntentDragPayload | null
+		routeId: string | null
+	}
+
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
@@ -35,12 +41,10 @@
 	import { executeSelectedRoute } from '$/api/lifi'
 	import { sendTransfer } from '$/api/yellow'
 	import { encodeTransferCall } from '$/api/voltaire'
-
-	type IntentSessionParams = {
-		from: IntentDragPayload | null
-		to: IntentDragPayload | null
-		routeId: string | null
-	}
+	const resolveChainName = (chainId: number) => (
+		Object.values(networksByChainId).find((entry) => entry?.id === chainId)?.name ??
+		`Chain ${chainId}`
+	)
 
 	// State
 	import { actorCoinsCollection } from '$/collections/actor-coins'
@@ -52,12 +56,6 @@
 		updateTransaction,
 	} from '$/collections/transactions'
 	import { yellowState } from '$/state/yellow.svelte'
-
-	// Components
-	import Wallets from '$/views/Wallets.svelte'
-	import EntityId from '$/components/EntityId.svelte'
-	import TransactionFlow from '$/views/TransactionFlow.svelte'
-	import TransferFlow from '$/routes/transfers/TransferFlow.svelte'
 
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
@@ -134,7 +132,7 @@
 				.from({ row: transactionSessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
-		[activeSessionId],
+		[() => activeSessionId],
 	)
 	const balancesQuery = useLiveQuery((q) =>
 		q
@@ -520,16 +518,24 @@
 
 	$effect(() => {
 		if (!session) return
-		if (
+		const intendedRouteId = routes[0]?.id ?? null
+		const currentInvalid =
 			!selectedRouteId ||
 			!routes.some((route) => route.id === selectedRouteId)
-		) {
+		if (currentInvalid && sessionParams.routeId !== intendedRouteId) {
 			updateIntentParams({
 				...sessionParams,
-				routeId: routes[0]?.id ?? null,
+				routeId: intendedRouteId,
 			})
 		}
 	})
+
+
+	// Components
+	import Wallets from '$/views/Wallets.svelte'
+	import EntityId from '$/components/EntityId.svelte'
+	import TransactionFlow from '$/views/TransactionFlow.svelte'
+	import TransferFlow from '$/routes/transfers/TransferFlow.svelte'
 </script>
 
 <main
@@ -604,8 +610,7 @@
 							{intent}
 						>
 							<span>
-								{row.symbol} · {networksByChainId[row.$id.chainId]?.name ??
-									`Chain ${row.$id.chainId}`}
+								{row.symbol} · {resolveChainName(row.$id.chainId)}
 								· {row.$id.address.slice(0, 8)}…{row.$id.address.slice(-4)}
 								· {formatSmallestToDecimal(row.balance, row.decimals, 4)}
 							</span>
@@ -682,8 +687,7 @@
 							Swap {step.quote.tokenIn.slice(0, 6)}… → {step.quote.tokenOut.slice(
 								0,
 								6,
-							)}… on {networksByChainId[step.chainId]?.name ??
-								`Chain ${step.chainId}`}
+							)}… on {resolveChainName(step.chainId)}
 						{:else if step.type === 'bridge'}
 							Bridge {step.route.fromChainId} → {step.route.toChainId}
 						{:else}
@@ -741,7 +745,7 @@
 	.intent-slot {
 		min-height: 140px;
 		padding: 1em;
-		border: 1px dashed var(--border-color, #64748b);
+		border: 1px dashed var(--color-border);
 		border-radius: 0.5em;
 		background: var(--surface-1);
 	}

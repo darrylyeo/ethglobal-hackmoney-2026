@@ -1,6 +1,5 @@
 <script lang="ts">
 	// Types/constants
-	import type { SharedAddressRow } from '$/collections/shared-addresses'
 	import { DataSource } from '$/constants/data-sources'
 
 	// Context
@@ -15,10 +14,6 @@
 
 	// Props
 	let { roomId }: { roomId: string } = $props()
-
-	// Functions
-	const isHexAddress = (value: string): value is `0x${string}` =>
-		value.startsWith('0x')
 
 	// State
 	let selectedAddress = $state<`0x${string}` | null>(null)
@@ -136,7 +131,7 @@
 
 	// Components
 	import Address from '$/components/Address.svelte'
-	import Select from '$/components/Select.svelte'
+	import AddressInput from '$/views/AddressInput.svelte'
 	import { Button } from 'bits-ui'
 </script>
 
@@ -153,25 +148,11 @@
 			proposeTransfer()
 		}}
 	>
-		{#snippet addressItem(shared: SharedAddressRow)}
-			<Address network={1} address={shared.address} />
-		{/snippet}
-
-		<Select
+		<AddressInput
 			items={otherVerified}
-			value={selectedAddress ?? ''}
-			onValueChange={(v) => {
-				selectedAddress =
-					typeof v === 'string' && isHexAddress(v)
-						? v
-						: Array.isArray(v) && typeof v[0] === 'string' && isHexAddress(v[0])
-							? v[0]
-							: null
-			}}
-			getItemId={(shared) => shared.address}
-			getItemLabel={(shared) => shared.address}
+			bind:value={selectedAddress}
 			placeholder="Select participant"
-			Item={addressItem}
+			ariaLabel="Participant"
 		/>
 
 		<input

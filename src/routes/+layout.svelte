@@ -63,19 +63,19 @@
 	)
 	const navigationItems = $derived([
 		{
-			id: 'bridge',
-			title: 'Bridge',
-			href: '/bridge',
+			id: 'about',
+			title: 'About',
+			href: '/about',
 		},
 		{
-			id: 'swap',
-			title: 'Swap',
-			href: '/swap',
+			id: 'dashboard',
+			title: 'Dashboard',
+			href: '/dashboard',
 		},
 		{
-			id: 'liquidity',
-			title: 'Liquidity',
-			href: '/liquidity',
+			id: 'wallets',
+			title: 'Wallets',
+			href: '/wallets',
 		},
 		{
 			id: 'sessions',
@@ -92,14 +92,24 @@
 				})),
 		},
 		{
+			id: 'bridge',
+			title: 'Bridge',
+			href: '/bridge',
+		},
+		{
+			id: 'swap',
+			title: 'Swap',
+			href: '/swap',
+		},
+		{
+			id: 'liquidity',
+			title: 'Liquidity',
+			href: '/liquidity',
+		},
+		{
 			id: 'transfers',
 			title: 'Transfers',
 			href: '/transfers',
-		},
-		{
-			id: 'wallets',
-			title: 'Wallets',
-			href: '/wallets',
 		},
 		{
 			id: 'rooms',
@@ -113,11 +123,6 @@
 					title: room.name ?? roomIdToDisplayName(room.id),
 					href: `/rooms/${room.id}`,
 				})),
-		},
-		{
-			id: 'about',
-			title: 'About',
-			href: '/about',
 		},
 		{
 			id: 'tests',
@@ -144,6 +149,7 @@
 
 
 	// Components
+	import { Tooltip } from 'bits-ui'
 	import Boundary from '$/components/Boundary.svelte'
 	import IntentDragPreview from '$/components/IntentDragPreview.svelte'
 	import GraphScene from '$/routes/GraphScene.svelte'
@@ -174,58 +180,60 @@
 </svelte:head>
 
 
-<div
-	id="layout"
-	class="layout"
-	data-scroll-container
-	data-sticky-container
->
-	<a href="#main" class="skip-link">Skip to main content</a>
-
-	<Navigation
-		navigationItems={navigationItems}
-	>
-	</Navigation>
-
-	<main
-		id="main"
-		tabindex="-1"
+<Tooltip.Provider>
+	<div
+		id="layout"
+		class="layout"
+		data-scroll-container
 		data-sticky-container
 	>
-		<section data-scroll-item>
-			<Boundary>
-				{@render children()}
+		<a href="#main" class="skip-link">Skip to main content</a>
 
-				{#snippet Failed(error, retry)}
-					<div data-column>
-						<h2>Error</h2>
-						<p>{error instanceof Error ? error.message : String(error)}</p>
-						<button type="button" onclick={retry}>Retry</button>
-					</div>
-				{/snippet}
-			</Boundary>
-		</section>
-	</main>
+		<Navigation
+			navigationItems={navigationItems}
+		>
+		</Navigation>
 
-	<IntentDragPreview />
+		<main
+			id="main"
+			tabindex="-1"
+			data-sticky-container
+		>
+			<section data-scroll-item>
+				<Boundary>
+					{@render children()}
 
-	<ToastContainer
-		position="bottom-right"
-	/>
+					{#snippet Failed(error, retry)}
+						<div data-column>
+							<h2>Error</h2>
+							<p>{error instanceof Error ? error.message : String(error)}</p>
+							<button type="button" onclick={retry}>Retry</button>
+						</div>
+					{/snippet}
+				</Boundary>
+			</section>
+		</main>
 
-	<button
-		type="button"
-		class="graph-toggle"
-		onclick={() => {
-			showGraph = !showGraph
-		}}
-		title={showGraph ? 'Hide data graph' : 'Show data graph'}
-	>
-		{showGraph ? '✕' : '◉'}
-	</button>
+		<IntentDragPreview />
 
-	<GraphScene visible={showGraph} />
-</div>
+		<ToastContainer
+			position="bottom-right"
+		/>
+
+		<button
+			type="button"
+			class="graph-toggle"
+			onclick={() => {
+				showGraph = !showGraph
+			}}
+			title={showGraph ? 'Hide data graph' : 'Show data graph'}
+		>
+			{showGraph ? '✕' : '◉'}
+		</button>
+
+		<GraphScene visible={showGraph} />
+	</div>
+</Tooltip.Provider>
 
 
 <style>
@@ -282,7 +290,7 @@
 		:global {
 			> nav {
 				grid-area: Nav;
-				box-shadow: 0 0 0 var(--separator-width) var(--border-color);
+				box-shadow: 0 0 0 var(--separator-width) var(--color-border);
 			}
 
 			> main {
@@ -306,9 +314,9 @@
 		width: 2rem;
 		height: 2rem;
 		border-radius: 50%;
-		background: var(--color-bg-page, #fff);
-		border: 1px solid var(--color-border, #e5e7eb);
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		background: var(--color-bg-page);
+		border: 1px solid var(--color-border);
+		box-shadow: var(--shadow-md);
 		cursor: pointer;
 		font-size: 0.75rem;
 		z-index: 1;
@@ -316,10 +324,11 @@
 		align-items: center;
 		justify-content: center;
 		transition: all 0.2s ease;
+
 		&:hover {
 			transform: scale(1.1);
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-			background: var(--color-bg-elevated, #f8fafc);
+			box-shadow: var(--shadow-lg);
+			background: var(--color-bg-subtle);
 		}
 	}
 </style>

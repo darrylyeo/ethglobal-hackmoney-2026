@@ -1,25 +1,42 @@
 <script lang="ts">
 	// Context
 	import { resolve } from '$app/paths'
+
+	const routes = [
+		{ href: '/about', title: 'About' },
+		{ href: '/dashboard', title: 'Dashboard' },
+		{ href: '/wallets', title: 'Wallets' },
+		{ href: '/session', title: 'Sessions' },
+		{ href: '/bridge', title: 'Bridge' },
+		{ href: '/swap', title: 'Swap' },
+		{ href: '/liquidity', title: 'Liquidity' },
+		{ href: '/transfers', title: 'Transfers' },
+		{ href: '/rooms', title: 'Rooms' },
+		{ href: '/test/collections', title: 'Tests' },
+	]
 </script>
 
 <div data-column="center gap-4">
 	<h1>USDC Tools</h1>
 	<p>Bridge and track USDC across supported chains.</p>
-	<nav aria-label="App routes">
-		<ul data-list="gap-2">
-			<li>
-				<a href={resolve('/bridge')}>Bridge</a>
-			</li>
-			<li>
-				<a href={resolve('/transfers')}>Transfers</a>
-			</li>
-			<li>
-				<a href={resolve('/about')}>About</a>
-			</li>
-			<li>
-				<a href={resolve('/test/collections')}>Test collections</a>
-			</li>
-		</ul>
+	<nav aria-label="App routes" class="route-cards">
+		{#each routes as { href, title }}
+			<a href={resolve(href)} data-card data-column="gap-1">
+				<span>{title}</span>
+			</a>
+		{/each}
 	</nav>
 </div>
+
+<style>
+	.route-cards {
+		display: grid;
+		gap: 1em;
+		grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+	}
+
+	.route-cards > a {
+		text-decoration: none;
+		color: inherit;
+	}
+</style>

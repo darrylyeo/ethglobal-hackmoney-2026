@@ -6,7 +6,10 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
 	// Functions
-	import { buildSessionHash } from '$/lib/transaction-sessions'
+	import {
+		buildSessionHash,
+		deleteTransactionSession,
+	} from '$/lib/transaction-sessions'
 
 	const flowLabel = (flow: string) => (
 		flow.length > 0 ? `${flow[0].toUpperCase()}${flow.slice(1)}` : 'Session'
@@ -74,6 +77,13 @@
 					<li data-row="gap-2 align-center">
 						<a href={sessionHref(session)}>{sessionTitle(session)}</a>
 						<span data-tag={session.status}>{session.status}</span>
+						<button
+							type="button"
+							aria-label="Delete session"
+							onclick={() => deleteTransactionSession(session.id)}
+						>
+							Delete
+						</button>
 					</li>
 				{/each}
 			</ul>

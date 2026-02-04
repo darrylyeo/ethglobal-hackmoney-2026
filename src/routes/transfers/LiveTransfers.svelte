@@ -117,7 +117,7 @@
 
 	<div class="viz-container">
 		{#if browser}
-			<Canvas>
+			<Canvas aria-label="Transfer graph" role="img">
 				<T.PerspectiveCamera makeDefault position={[0, 0, 20]} />
 				<T.AmbientLight intensity={0.8} />
 				<T.DirectionalLight position={[10, 10, 10]} intensity={1} />

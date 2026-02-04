@@ -14,6 +14,10 @@
 	} from '$/collections/transactions'
 	import type { Transaction$Id } from '$/data/Transaction'
 
+	const isHexHash = (value: unknown): value is `0x${string}` => (
+		typeof value === 'string' && value.startsWith('0x')
+	)
+
 	let {
 		route,
 		walletRow,
@@ -167,6 +171,8 @@
 				title: 'Error',
 			})
 		}
+		const txHash = status.steps.find((step) => step.txHash)?.txHash
+		return { txHash: isHexHash(txHash) ? txHash : undefined }
 	}
 </script>
 
@@ -185,7 +191,8 @@
 					<a
 						href={getTxUrl(step.chainId ?? fromChainId, step.txHash)}
 						target="_blank"
-						rel="noopener noreferrer">{step.txHash.slice(0, 8)}…</a
+						rel="noopener noreferrer"
+						data-tx-hash={step.txHash}>{step.txHash.slice(0, 8)}…</a
 					>
 				{/if}
 			</div>
@@ -205,9 +212,9 @@
 		opacity: 0.6;
 	}
 	.error {
-		color: var(--color-error, #ef4444);
+		color: var(--color-error);
 	}
 	.success {
-		color: var(--color-success, #22c55e);
+		color: var(--color-success);
 	}
 </style>

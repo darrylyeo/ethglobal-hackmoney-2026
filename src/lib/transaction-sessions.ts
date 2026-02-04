@@ -9,6 +9,10 @@ import type {
 import type {
 	TransactionSessionSimulationStatus,
 } from '$/data/TransactionSessionSimulation'
+import {
+	normalizeTransactionSessionParams,
+	type TransactionSessionDefaults,
+} from '$/lib/transaction-session-params'
 import { stringify } from '$/lib/stringify'
 
 export type SessionHashResult =
@@ -57,15 +61,33 @@ export const createTransactionSession = (args: {
 	flows: TransactionSessionFlow[]
 	params: Record<string, unknown>
 	status?: TransactionSessionStatus
-}) => {
+	defaults?: TransactionSessionDefaults
+}) => (
+	createTransactionSessionWithId(createSessionId(), args)
+)
+
+export const createTransactionSessionWithId = (
+	id: string,
+	args: {
+		flows: TransactionSessionFlow[]
+		params: Record<string, unknown>
+		status?: TransactionSessionStatus
+		defaults?: TransactionSessionDefaults
+	},
+) => {
 	const now = Date.now()
+	const normalizedParams = normalizeTransactionSessionParams(
+		args.flows,
+		args.params,
+		args.defaults,
+	)
 	const session: TransactionSession = {
-		id: createSessionId(),
+		id,
 		flows: args.flows,
 		status: args.status ?? 'Draft',
 		createdAt: now,
 		updatedAt: now,
-		params: args.params,
+		params: normalizedParams,
 	}
 	transactionSessionsCollection.insert({
 		...session,
@@ -105,10 +127,11 @@ export const updateTransactionSession = (
 export const updateTransactionSessionParams = (
 	sessionId: string,
 	params: Record<string, unknown>,
+	defaults?: TransactionSessionDefaults,
 ) => (
 	updateTransactionSession(sessionId, (session) => ({
 		...session,
-		params,
+		params: normalizeTransactionSessionParams(session.flows, params, defaults),
 		updatedAt: Date.now(),
 	}))
 )
@@ -144,6 +167,13 @@ export const markTransactionSessionFinalized = (
 		updatedAt: Date.now(),
 	}))
 )
+
+export const deleteTransactionSession = (sessionId: string) => {
+	for (const [id, row] of transactionSessionSimulationsCollection.state) {
+		if (row.sessionId === sessionId) transactionSessionSimulationsCollection.delete(id)
+	}
+	transactionSessionsCollection.delete(sessionId)
+}
 
 export const forkTransactionSession = (session: TransactionSession) => (
 	createTransactionSession({

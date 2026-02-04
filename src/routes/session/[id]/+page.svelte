@@ -29,7 +29,7 @@
 				.from({ row: transactionSessionsCollection })
 				.where(({ row }) => eq(row.id, sessionId))
 				.select(({ row }) => ({ row })),
-		[sessionId],
+		[() => sessionId],
 	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 

@@ -5,6 +5,7 @@ import { tokenListUrls } from '$/constants/token-lists'
 import type { TokenListCoin } from '$/data/TokenListCoin'
 import { normalizeAddress } from '$/lib/address'
 import { queryClient } from '$/lib/db/query-client'
+import { TOKEN_LIST_MAX_ENTRIES } from '$/constants/query-limits'
 
 export type TokenListCoinRow = TokenListCoin & { $source: DataSource }
 
@@ -78,6 +79,7 @@ const fetchTokenListEntries = async (): Promise<TokenListCoinRow[]> => {
 		.map((entry) => ({ ...entry, $source: DataSource.TokenLists }))
 	const unique = new Map<string, TokenListCoinRow>()
 	for (const row of rows) {
+		if (unique.size >= TOKEN_LIST_MAX_ENTRIES) break
 		unique.set(`${row.chainId}-${row.address}`, row)
 	}
 	return [...unique.values()]

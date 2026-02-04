@@ -11,6 +11,12 @@
 	} from '$/collections/transactions'
 	import type { Transaction$Id } from '$/data/Transaction'
 
+	type SwapExecutionStatus = {
+		overall: 'idle' | 'in_progress' | 'completed' | 'failed'
+		txHash?: `0x${string}`
+		error?: string
+	}
+
 	let {
 		quote,
 		walletProvider,
@@ -25,11 +31,7 @@
 		executing?: boolean
 	} = $props()
 
-	let status = $state<{
-		overall: 'idle' | 'in_progress' | 'completed' | 'failed'
-		txHash?: `0x${string}`
-		error?: string
-	}>({ overall: 'idle' })
+	let status = $state<SwapExecutionStatus>({ overall: 'idle' })
 	let actionTx = $state<ReturnType<typeof runExecute> | null>(null)
 
 	$effect(() => {
@@ -40,11 +42,7 @@
 		quote: SwapQuote
 		provider: EIP1193Provider
 		recipient: `0x${string}`
-		onStatus: (s: {
-			overall: string
-			txHash?: `0x${string}`
-			error?: string
-		}) => void
+		onStatus: (s: SwapExecutionStatus) => void
 	}>({
 		onMutate: () => {},
 		mutationFn: async ({ quote, provider, recipient, onStatus }) => {
@@ -104,6 +102,7 @@
 				title: 'Error',
 			})
 		}
+		return { txHash: status.txHash }
 	}
 </script>
 
@@ -113,7 +112,8 @@
 			<a
 				href={getTxUrl(quote.chainId, status.txHash)}
 				target="_blank"
-				rel="noopener noreferrer">{status.txHash.slice(0, 8)}…</a
+			rel="noopener noreferrer"
+			data-tx-hash={status.txHash}>{status.txHash.slice(0, 8)}…</a
 			>
 		{/if}
 		{#if status.overall === 'completed'}

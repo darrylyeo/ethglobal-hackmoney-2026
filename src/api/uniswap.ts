@@ -7,6 +7,11 @@
 import type { UniswapPool } from '$/collections/uniswap-pools'
 import type { SwapQuote, SwapRoute } from '$/data/SwapQuote'
 import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap'
+import {
+	E2E_TEVM_ENABLED,
+	requestE2eTevmContractTx,
+} from '$/lib/e2e/tevm'
+import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
 export const getUniswapSdk = async (): Promise<unknown> => null
 
 export type FetchPoolsParams = {
@@ -89,6 +94,16 @@ export type ExecuteSwapParams = {
 export const executeSwap = async (
 	params: ExecuteSwapParams,
 ): Promise<{ txHash: `0x${string}` }> => {
+	if (E2E_TEVM_ENABLED) {
+		params.onStatusChange?.({ overall: 'in_progress' })
+		const txHash = await requestE2eTevmContractTx({
+			provider: params.provider,
+			from: params.recipient,
+			value: params.quote.amountIn,
+		})
+		params.onStatusChange?.({ overall: 'completed', txHash })
+		return { txHash }
+	}
 	const router = params.quote.chainId
 		? UNIVERSAL_ROUTER_ADDRESS[params.quote.chainId]
 		: null
@@ -139,6 +154,15 @@ export type AddLiquidityParams = {
 export const addLiquidity = async (
 	params: AddLiquidityParams,
 ): Promise<{ txHash: `0x${string}`; tokenId?: bigint }> => {
+	if (E2E_TEVM_ENABLED) {
+		return {
+			txHash: await requestE2eTevmContractTx({
+				provider: params.provider,
+				from: params.recipient,
+				value: params.amount0Desired + params.amount1Desired,
+			}),
+		}
+	}
 	const sdk = await getUniswapSdk()
 	if (
 		sdk &&
@@ -173,6 +197,15 @@ export type RemoveLiquidityParams = {
 export const removeLiquidity = async (
 	params: RemoveLiquidityParams,
 ): Promise<{ txHash: `0x${string}` }> => {
+	if (E2E_TEVM_ENABLED) {
+		return {
+			txHash: await requestE2eTevmContractTx({
+				provider: params.provider,
+				from: E2E_TEVM_WALLET_ADDRESS,
+				value: params.liquidity,
+			}),
+		}
+	}
 	const sdk = await getUniswapSdk()
 	if (
 		sdk &&

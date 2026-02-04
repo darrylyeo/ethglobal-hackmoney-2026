@@ -135,7 +135,7 @@
 {:else}
 	<div data-column="gap-2">
 		<label data-row="gap-2 align-center" data-muted>
-			<Switch.Root checked={unlimited} onCheckedChange={(c) => (unlimited = c)}
+			<Switch.Root bind:checked={() => unlimited, (c) => (unlimited = c)}
 				><Switch.Thumb /></Switch.Root
 			>
 			Unlimited approval
@@ -146,6 +146,6 @@
 
 <style>
 	.approval-success {
-		color: var(--color-success, #22c55e);
+		color: var(--color-success);
 	}
 </style>

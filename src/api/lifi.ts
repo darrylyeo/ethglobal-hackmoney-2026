@@ -4,7 +4,7 @@
  * SDK is lazy-loaded so non-bridge routes stay light.
  */
 
-import type { LiFiStep, Process, Route, RouteExtended } from '@lifi/sdk'
+import type { Execution, LiFiStep, Process, Route, RouteExtended } from '@lifi/sdk'
 import { queryClient } from '$/lib/db/query-client'
 import { ChainId } from '$/constants/networks'
 import { ercTokensBySymbolByChainId } from '$/constants/coins'
@@ -18,6 +18,11 @@ import {
 	mapLifiProcessStatus,
 	type TxStatus,
 } from '$/lib/tx-status'
+import {
+	E2E_TEVM_ENABLED,
+	requestE2eTevmContractTx,
+} from '$/lib/e2e/tevm'
+import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
 
 const ROUTES_STALE_MS = 30_000
 
@@ -479,6 +484,61 @@ export async function executeSelectedRoute(
 	route: { originalRoute: Route; fromChainId: number },
 	onStatusChange?: StatusCallback,
 ): Promise<RouteExtended> {
+	if (E2E_TEVM_ENABLED) {
+		const startedAt = Date.now()
+		onStatusChange?.({
+			overall: 'in_progress',
+			steps: [
+				{
+					step: 'send',
+					state: 'pending',
+					chainId: route.fromChainId,
+					startedAt,
+				},
+			],
+		})
+		const txHash = await requestE2eTevmContractTx({
+			provider: providerDetail.provider,
+			from: E2E_TEVM_WALLET_ADDRESS,
+			value: BigInt(route.originalRoute.fromAmount ?? '0'),
+		})
+		const completedAt = Date.now()
+		onStatusChange?.({
+			overall: 'completed',
+			steps: [
+				{
+					step: 'send',
+					state: 'success',
+					txHash,
+					chainId: route.fromChainId,
+					startedAt,
+					completedAt,
+				},
+			],
+		})
+		const execution = {
+			startedAt,
+			doneAt: completedAt,
+			status: 'DONE',
+			process: [
+				{
+					type: 'CROSS_CHAIN',
+					status: 'DONE',
+					chainId: route.fromChainId,
+					txHash,
+					startedAt,
+					doneAt: completedAt,
+				},
+			],
+		} satisfies Execution
+		return {
+			...route.originalRoute,
+			steps: route.originalRoute.steps.map((step) => ({
+				...step,
+				execution,
+			})),
+		}
+	}
 	const provider = providerDetail.provider as {
 		request(args: { method: string; params?: unknown[] }): Promise<unknown>
 	}

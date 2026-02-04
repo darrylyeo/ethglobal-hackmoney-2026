@@ -15,8 +15,8 @@
 	let {
 		activeProtocol,
 		protocolReason,
-		protocolIntent = null,
-		onProtocolIntentChange,
+		protocolIntent = $bindable(null),
+		onProtocolIntentChange = null,
 		sessionId = null,
 		disabled = false,
 		cctpPairSupported,
@@ -29,7 +29,7 @@
 		activeProtocol: 'cctp' | 'lifi' | null
 		protocolReason: string
 		protocolIntent?: 'cctp' | 'lifi' | null
-		onProtocolIntentChange?: (value: 'cctp' | 'lifi' | null) => void
+		onProtocolIntentChange?: ((value: 'cctp' | 'lifi' | null) => void) | null
 		sessionId?: string | null
 		disabled?: boolean
 		cctpPairSupported: boolean
@@ -89,12 +89,15 @@
 		goto(resolve(protocolHref))
 	}
 	const onProtocolIntent = (value: 'cctp' | 'lifi' | null) => (
-		onProtocolIntentChange?.(value)
+		(
+			onProtocolIntentChange?.(value),
+			protocolIntent = value
+		)
 	)
 </script>
 
 <section data-card data-column="gap-3">
-	<h3>Protocol</h3>
+	<h3>Protocol Selection</h3>
 	<div data-column="gap-2">
 		<span
 			class="protocol-badge"
@@ -170,18 +173,18 @@
 		justify-content: center;
 		border-radius: 999px;
 		padding: 0.25em 0.75em;
-		background: var(--color-bg-elevated, #f8fafc);
+		background: var(--color-bg-subtle);
 		font-size: 0.8em;
 		font-weight: 600;
 
 		&[data-protocol='cctp'] {
-			background: #e0f2fe;
-			color: #0284c7;
+			background: var(--color-info-bg);
+			color: var(--color-info);
 		}
 
 		&[data-protocol='lifi'] {
-			background: #f3e8ff;
-			color: #7e22ce;
+			background: var(--color-accent-bg);
+			color: var(--color-primary);
 		}
 	}
 
@@ -191,7 +194,7 @@
 		border: 1px solid transparent;
 		border-radius: 0.75em;
 		padding: 0.75em;
-		background: var(--color-bg-elevated, #f8fafc);
+		background: var(--color-bg-subtle);
 		text-align: left;
 		transition:
 			border 0.2s ease,
@@ -203,22 +206,22 @@
 		}
 
 		&[data-selected] {
-			border-color: var(--color-border-strong, #cbd5f5);
-			box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+			border-color: var(--color-border-input);
+			box-shadow: var(--shadow-lg);
 		}
 	}
 
 	.protocol-tag {
 		border-radius: 999px;
 		padding: 0.15em 0.6em;
-		background: #dcfce7;
-		color: #15803d;
+		background: var(--color-success-bg);
+		color: var(--color-success);
 		font-size: 0.75em;
 		font-weight: 600;
 
 		&[data-variant='selected'] {
-			background: #e2e8f0;
-			color: #475569;
+			background: var(--color-bg-subtle);
+			color: var(--color-text-muted);
 		}
 	}
 </style>

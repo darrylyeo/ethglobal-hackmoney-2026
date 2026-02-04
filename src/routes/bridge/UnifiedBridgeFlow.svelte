@@ -16,7 +16,7 @@
 		networksByChainId,
 		testnetsForMainnet,
 	} from '$/constants/networks'
-	import type { BridgeSettings } from '$/state/bridge-settings.svelte'
+	import { BridgeRouteSort, type BridgeSettings } from '$/state/bridge-settings.svelte'
 
 	type BridgeSessionParams = BridgeSettings & {
 		protocolIntent: 'cctp' | 'lifi' | null
@@ -30,9 +30,14 @@
 	let {
 		selectedWallets,
 		selectedActor,
+		balanceTokens = $bindable([]),
 	}: {
 		selectedWallets: ConnectedWallet[]
 		selectedActor: `0x${string}` | null
+		balanceTokens?: {
+			chainId: number
+			tokenAddress: `0x${string}`
+		}[]
 	} = $props()
 
 	// (Derived)
@@ -41,17 +46,19 @@
 	)
 
 	// Functions
+	import { getUsdcAddress } from '$/api/lifi'
 	import { formatAddress, isValidAddress, normalizeAddress } from '$/lib/address'
 	import {
 		buildSessionHash,
 		createTransactionSession,
+		createTransactionSessionWithId,
 		forkTransactionSession,
 		getTransactionSession,
 		parseSessionHash,
 		updateTransactionSessionParams,
 	} from '$/lib/transaction-sessions'
 
-	const bridgeSortValues = new Set(Object.values(BridgeRouteSort))
+	const bridgeSortValues = new Set<string>(Object.values(BridgeRouteSort))
 	const isBridgeSort = (value: unknown): value is BridgeSettings['sortBy'] => (
 		typeof value === 'string' && bridgeSortValues.has(value)
 	)
@@ -80,6 +87,14 @@
 		: value === null ?
 			null
 		: fallback
+	)
+	const resolveNetwork = (chainId: number | null) => (
+		chainId !== null ?
+			(Object.values(networksByChainId).find(
+				(entry) => entry?.id === chainId,
+			) ?? null)
+		:
+			null
 	)
 	const toBigInt = (value: unknown, fallback: bigint) => (
 		typeof value === 'bigint' ?
@@ -137,7 +152,7 @@
 				.from({ row: transactionSessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
-		[activeSessionId],
+		[() => activeSessionId],
 	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionParams = $derived(
@@ -159,12 +174,10 @@
 		),
 	)
 	const fromNetwork = $derived(
-		settings.fromChainId !== null
-			? networksByChainId[settings.fromChainId]
-			: null,
+		resolveNetwork(settings.fromChainId),
 	)
 	const toNetwork = $derived(
-		settings.toChainId !== null ? networksByChainId[settings.toChainId] : null,
+		resolveNetwork(settings.toChainId),
 	)
 	const validation = $derived(
 		validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT),
@@ -230,6 +243,24 @@
 		if (!session) return
 		activateSession(forkTransactionSession(session).id)
 	}
+	$effect(() => {
+		balanceTokens = (
+			[
+				settings.fromChainId !== null
+					? {
+							chainId: settings.fromChainId,
+							tokenAddress: getUsdcAddress(settings.fromChainId),
+						}
+					: null,
+				settings.toChainId !== null
+					? {
+							chainId: settings.toChainId,
+							tokenAddress: getUsdcAddress(settings.toChainId),
+						}
+					: null,
+			].flatMap((token) => (token ? [token] : []))
+		)
+	})
 
 	$effect(() => {
 		if (typeof window === 'undefined') return
@@ -237,16 +268,16 @@
 			const parsed = parseSessionHash(window.location.hash)
 			if (parsed.kind === 'session') {
 				if (parsed.sessionId === activeSessionId && session) return
-				if (getTransactionSession(parsed.sessionId)) {
+				const existing = getTransactionSession(parsed.sessionId)
+				if (existing) {
 					activeSessionId = parsed.sessionId
 					return
 				}
-				activateSession(
-					createTransactionSession({
-						flows: ['bridge'],
-						params: normalizeBridgeParams(null),
-					}).id,
-				)
+				createTransactionSessionWithId(parsed.sessionId, {
+					flows: ['bridge'],
+					params: normalizeBridgeParams(null),
+				})
+				activeSessionId = parsed.sessionId
 				return
 			}
 			activateSession(
@@ -270,14 +301,8 @@
 			filteredNetworks.some((n) => n.id === settings.fromChainId)
 		)
 			return
-		const fromNet =
-			settings.fromChainId !== null
-				? networksByChainId[settings.fromChainId]
-				: null
-		const toNet =
-			settings.toChainId !== null
-				? networksByChainId[settings.toChainId]
-				: null
+		const fromNet = resolveNetwork(settings.fromChainId)
+		const toNet = resolveNetwork(settings.toChainId)
 		const defaultFrom =
 			settings.isTestnet
 				? (fromNet ? testnetsForMainnet.get(fromNet)?.[0]?.id : undefined) ??
@@ -330,8 +355,7 @@
 				<label for="from">From</label>
 				<NetworkInput
 					networks={filteredNetworks}
-					value={settings.fromChainId}
-					onValueChange={(v) => (
+					bind:value={() => settings.fromChainId, (v) => (
 						typeof v === 'number'
 							? updateSessionParams({ ...settings, fromChainId: v })
 							: null
@@ -351,8 +375,7 @@
 				<label for="to">To</label>
 				<NetworkInput
 					networks={filteredNetworks}
-					value={settings.toChainId}
-					onValueChange={(v) => (
+					bind:value={() => settings.toChainId, (v) => (
 						typeof v === 'number'
 							? updateSessionParams({ ...settings, toChainId: v })
 							: null
@@ -373,14 +396,13 @@
 				coin={usdcToken}
 				min={USDC_MIN_AMOUNT}
 				max={USDC_MAX_AMOUNT}
-				value={settings.amount}
-				onValueChange={(nextAmount) => {
+				bind:value={() => settings.amount, (nextAmount) => (
 					updateSessionParams({ ...settings, amount: nextAmount })
-				}}
+				)}
 				disabled={sessionLocked}
-				onInvalidChange={(nextInvalid) => {
+				bind:invalid={() => invalidAmountInput, (nextInvalid) => (
 					invalidAmountInput = nextInvalid
-				}}
+				)}
 			/>
 			{#if invalidAmountInput}
 				<small data-error
@@ -398,13 +420,12 @@
 		<div data-column="gap-1">
 			<label data-row="gap-2 align-center">
 				<Switch.Root
-					checked={settings.useCustomRecipient}
-					onCheckedChange={(c) => {
+					bind:checked={() => settings.useCustomRecipient, (c) => (
 						updateSessionParams({
 							...settings,
 							useCustomRecipient: c ?? false,
 						})
-					}}
+					)}
 					disabled={sessionLocked}
 				>
 					<Switch.Thumb />
@@ -437,9 +458,9 @@
 
 	<UnifiedProtocolRouter
 		protocolIntent={settings.protocolIntent}
-		onProtocolIntentChange={(next) => {
+		onProtocolIntentChange={(next) => (
 			updateSessionParams({ ...settings, protocolIntent: next })
-		}}
+		)}
 		sessionId={session?.id ?? null}
 		disabled={sessionLocked}
 		{activeProtocol}
@@ -447,10 +468,8 @@
 		{cctpPairSupported}
 		{lifiPairSupported}
 		{selectedWallet}
-		{selectedActor}
 		{fromNetwork}
 		{toNetwork}
-		{recipient}
 		{canSendAmount}
 	/>
 </div>

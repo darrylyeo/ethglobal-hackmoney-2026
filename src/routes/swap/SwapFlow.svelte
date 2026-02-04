@@ -29,9 +29,14 @@
 	let {
 		selectedWallets,
 		selectedActor,
+		balanceTokens = $bindable([]),
 	}: {
 		selectedWallets: ConnectedWallet[]
 		selectedActor: `0x${string}` | null
+		balanceTokens?: {
+			chainId: number
+			tokenAddress: `0x${string}`
+		}[]
 	} = $props()
 
 	// (Derived)
@@ -49,13 +54,17 @@
 
 	// Functions
 	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
-	import { normalizeAddress } from '$/lib/address'
 	import { debounce } from '$/lib/debounce'
+	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
 	import {
 		formatSmallestToDecimal,
 		formatTokenAmount,
 	} from '$/lib/format'
 	import { getStorkAssetIdForSymbol } from '$/lib/stork'
+	import {
+		type SwapSessionParams,
+		getSwapSessionParams,
+	} from '$/lib/transaction-session-params'
 	import {
 		buildSessionHash,
 		createTransactionSession,
@@ -64,15 +73,6 @@
 		parseSessionHash,
 		updateTransactionSessionParams,
 	} from '$/lib/transaction-sessions'
-
-	type SwapSessionParams = {
-		chainId: number
-		tokenIn: `0x${string}`
-		tokenOut: `0x${string}`
-		amount: bigint
-		slippage: number
-		isTestnet: boolean
-	}
 
 	const asNonEmpty = (coins: Coin[]): coins is [Coin, ...Coin[]] =>
 		coins.length > 0
@@ -92,40 +92,14 @@
 				}
 			: undefined,
 	})
-	const toBoolean = (value: unknown, fallback: boolean) => (
-		typeof value === 'boolean' ? value : fallback
+	const resolveNetwork = (chainId: number | null) => (
+		chainId !== null ?
+			(Object.values(networksByChainId).find(
+				(entry) => entry?.id === chainId,
+			) ?? null)
+		:
+			null
 	)
-	const toNumber = (value: unknown, fallback: number) => (
-		typeof value === 'number' && Number.isFinite(value) ?
-			value
-		: typeof value === 'string' &&
-			value.trim().length > 0 &&
-			Number.isFinite(Number(value)) ?
-			Number(value)
-		: fallback
-	)
-	const toBigInt = (value: unknown, fallback: bigint) => (
-		typeof value === 'bigint' ?
-			value
-		: typeof value === 'number' && Number.isFinite(value) ?
-			BigInt(Math.floor(value))
-		: typeof value === 'string' && /^\d+$/.test(value) ?
-			BigInt(value)
-		: fallback
-	)
-	const toAddress = (value: unknown, fallback: `0x${string}`) => (
-		typeof value === 'string' ? normalizeAddress(value) ?? fallback : fallback
-	)
-	const normalizeSwapParams = (
-		params: Record<string, unknown> | null,
-	): SwapSessionParams => ({
-		chainId: toNumber(params?.chainId, defaultSwapSettings.chainId),
-		tokenIn: toAddress(params?.tokenIn, defaultSwapSettings.tokenIn),
-		tokenOut: toAddress(params?.tokenOut, defaultSwapSettings.tokenOut),
-		amount: toBigInt(params?.amount, defaultSwapSettings.amount),
-		slippage: toNumber(params?.slippage, defaultSwapSettings.slippage),
-		isTestnet: toBoolean(params?.isTestnet, defaultBridgeSettings.isTestnet),
-	})
 
 	// State
 	import { actorAllowancesCollection } from '$/collections/actor-allowances'
@@ -144,12 +118,12 @@
 	} from '$/collections/swap-quotes'
 	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
-	import { defaultBridgeSettings } from '$/state/bridge-settings.svelte'
-	import { defaultSwapSettings } from '$/state/swap-settings.svelte'
 
 	let activeSessionId = $state<string | null>(null)
 	let executing = $state(false)
-	let executionRef = $state<{ execute: () => Promise<void> } | null>(null)
+	let executionRef = $state<{
+		execute: () => Promise<{ txHash?: `0x${string}` } | void>
+	} | null>(null)
 	let invalidAmountInput = $state(false)
 	let slippageInput = $state('')
 	let tokenInSelection = $state<Coin | null>(null)
@@ -162,11 +136,11 @@
 				.from({ row: transactionSessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
-		[activeSessionId],
+		[() => activeSessionId],
 	)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionParams = $derived(
-		normalizeSwapParams(session?.params ?? null),
+		getSwapSessionParams(session),
 	)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
@@ -179,10 +153,7 @@
 		),
 	)
 	const network = $derived(
-		settings.chainId ?
-			networksByChainId[settings.chainId]
-		:
-			null,
+		resolveNetwork(settings.chainId),
 	)
 	const quoteParams = $derived(
 		settings.amount > 0n && !invalidAmountInput ?
@@ -297,7 +268,7 @@
 				activateSession(
 					createTransactionSession({
 						flows: ['swap'],
-						params: normalizeSwapParams(null),
+						params: {},
 					}).id,
 				)
 				return
@@ -305,9 +276,7 @@
 			activateSession(
 				createTransactionSession({
 					flows: ['swap'],
-					params: normalizeSwapParams(
-						parsed.kind === 'params' ? parsed.params : null,
-					),
+					params: parsed.kind === 'params' ? parsed.params : {},
 				}).id,
 			)
 		}
@@ -348,11 +317,13 @@
 		UNIVERSAL_ROUTER_ADDRESS[settings.chainId] ?? null,
 	)
 	const needsApproval = $derived(
-		Boolean(
-			routerAddress &&
-				settings.amount > 0n &&
-				tokenInSelection?.type !== CoinType.Native,
-		),
+		E2E_TEVM_ENABLED ?
+			false
+		: Boolean(
+				routerAddress &&
+					settings.amount > 0n &&
+					tokenInSelection?.type !== CoinType.Native,
+			),
 	)
 	const allowanceRow = $derived(
 		selectedActor && network && routerAddress && tokenInAddress ?
@@ -557,6 +528,17 @@
 		)
 	})
 
+	$effect(() => {
+		balanceTokens =
+			network && tokenInSelection && tokenOutSelection ?
+				[
+					{ chainId: network.id, tokenAddress: tokenInSelection.address },
+					{ chainId: network.id, tokenAddress: tokenOutSelection.address },
+				]
+			:
+				[]
+	})
+
 	// Components
 	import CoinAmount from '$/views/CoinAmount.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
@@ -631,8 +613,7 @@
 			{/if}
 			<NetworkInput
 				networks={filteredNetworks}
-				value={settings.chainId}
-				onValueChange={(value) => {
+				bind:value={() => settings.chainId, (value) => {
 					const nextChainId = Array.isArray(value) ? value[0] ?? null : value
 					if (nextChainId === null || nextChainId === settings.chainId) return
 					updateSessionParams({ ...settings, chainId: nextChainId })
@@ -663,13 +644,11 @@
 					bind:coin={tokenInSelection}
 					min={0n}
 					max={tokenInBalance ?? 0n}
-					value={settings.amount}
-					invalid={invalidAmountInput}
-					onValueChange={updateAmount}
+					bind:value={() => settings.amount, updateAmount}
 					disabled={sessionLocked}
-					onInvalidChange={(invalid) => {
+					bind:invalid={() => invalidAmountInput, (invalid) => (
 						invalidAmountInput = invalid
-					}}
+					)}
 					ariaLabel="Token in"
 				/>
 				{#if tokenInBalance !== null}
@@ -748,13 +727,13 @@
 				>
 				<Popover.Content data-column="gap-2">
 					<div data-row="gap-1">
-						{#each slippagePresets as preset (preset)}
+						{#each slippagePresets as preset (preset.id)}
 							<Button.Root
-								onclick={() => updateSlippage(preset)}
-								data-selected={settings.slippage === preset ? '' : undefined}
+								onclick={() => updateSlippage(preset.value)}
+								data-selected={settings.slippage === preset.value ? '' : undefined}
 								disabled={sessionLocked}
 							>
-								{formatSlippagePercent(preset)}
+								{formatSlippagePercent(preset.value)}
 							</Button.Root>
 						{/each}
 					</div>

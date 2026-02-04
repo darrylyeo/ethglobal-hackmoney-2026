@@ -5,6 +5,9 @@
 	// State
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
+	let balanceTokens = $state<{ chainId: number; tokenAddress: `0x${string}` }[]>(
+		[],
+	)
 
 	// Components
 	import CctpBalances from './CctpBalances.svelte'
@@ -12,9 +15,11 @@
 	import CctpWallets from './CctpWallets.svelte'
 </script>
 
+
 <svelte:head>
 	<title>USDC Bridge (CCTP)</title>
 </svelte:head>
+
 
 <main
 	id="main"
@@ -31,8 +36,12 @@
 
 			<div data-column="gap-6">
 				<h1>USDC Bridge (CCTP)</h1>
-				<CctpBalances {selectedActor} />
-				<CctpBridgeFlow selectedWallets={connectedWallets} {selectedActor} />
+				<CctpBalances {selectedActor} {balanceTokens} />
+				<CctpBridgeFlow
+					selectedWallets={connectedWallets}
+					{selectedActor}
+					bind:balanceTokens
+				/>
 			</div>
 		</details>
 	</section>

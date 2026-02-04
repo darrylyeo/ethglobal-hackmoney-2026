@@ -1,17 +1,19 @@
 <script lang="ts">
 	// Types/constants
+	import type { VoltaireProvider } from '$/api/voltaire'
+	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type {
 		ExplainAvailability,
 		ExplainContext,
 		ExplainRecord,
 	} from '$/lib/explain'
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
-	import { networksByChainId } from '$/constants/networks'
-	import { rpcUrls } from '$/constants/rpc-endpoints'
-	import type { VoltaireProvider } from '$/api/voltaire'
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import type { Snippet } from 'svelte'
+	import { networksByChainId } from '$/constants/networks'
+	import { rpcUrls } from '$/constants/rpc-endpoints'
+	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
+	import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
 
 	type ExecutionStatus =
 		| 'idle'
@@ -25,6 +27,13 @@
 		status: ExecutionStatus
 		error?: string
 		txHash?: `0x${string}`
+	}
+	type TransactionFlowExecutionMode = 'wallet' | 'e2e'
+	type TransactionFlowExecutionArgs = {
+		mode: TransactionFlowExecutionMode
+		provider: EIP1193Provider
+		walletAddress: `0x${string}`
+		onStatus: (update: TransactionFlowExecutionUpdate) => void
 	}
 	type ExplainTarget = 'simulation' | 'execution'
 	type ExplainState = {
@@ -66,15 +75,14 @@
 		title: string
 		actionLabel: string
 		canExecute: boolean
+		executionModes?: TransactionFlowExecutionMode[]
 		simulate?: (args: {
 			provider: VoltaireProvider
 			walletAddress: `0x${string}`
 		}) => Promise<unknown>
-		execute?: (args: {
-			provider: EIP1193Provider
-			walletAddress: `0x${string}`
-			onStatus: (update: TransactionFlowExecutionUpdate) => void
-		}) => Promise<{ txHash?: `0x${string}` } | void>
+		execute?: (
+			args: TransactionFlowExecutionArgs,
+		) => Promise<{ txHash?: `0x${string}` } | void>
 		requiresConfirmation?: boolean
 		confirmationLabel?: string
 	}
@@ -100,7 +108,7 @@
 		markTransactionSessionSubmitted,
 		updateTransactionSession,
 	} from '$/lib/transaction-sessions'
-	import { switchWalletChain } from '$/lib/wallet'
+	import { getE2eProvider, switchWalletChain } from '$/lib/wallet'
 
 	// Props
 	let {
@@ -119,14 +127,18 @@
 
 	// (Derived)
 	const walletProvider = $derived(
-		walletConnection?.connection.transport === WalletConnectionTransport.Eip1193
-			? walletConnection.wallet.provider
-			: null,
+		walletConnection &&
+		walletConnection.connection.transport === WalletConnectionTransport.Eip1193 &&
+		'provider' in walletConnection.wallet ?
+			walletConnection.wallet.provider
+		: null,
 	)
 	const walletAddress = $derived(
 		walletConnection?.connection.activeActor ?? null,
 	)
-	const hasSigner = $derived(Boolean(walletProvider && walletAddress))
+	const e2eProvider = $derived(
+		E2E_TEVM_ENABLED ? getE2eProvider() : null,
+	)
 
 	// Functions
 	const isRecord = (value: unknown): value is Record<string, unknown> => (
@@ -289,6 +301,35 @@
 			updatedAt: Date.now(),
 		}))
 	}
+	const resolveExecutionContext = (): Omit<
+		TransactionFlowExecutionArgs,
+		'onStatus'
+	> | null => (
+		E2E_TEVM_ENABLED && e2eProvider ?
+			{
+				mode: 'e2e',
+				provider: e2eProvider,
+				walletAddress: E2E_TEVM_WALLET_ADDRESS,
+			}
+		: walletProvider && walletAddress ?
+			{
+				mode: 'wallet',
+				provider: walletProvider,
+				walletAddress,
+			}
+		:
+			null
+	)
+	const resolveSimulationWalletAddress = () => (
+		walletAddress ??
+		(E2E_TEVM_ENABLED && e2eProvider ? E2E_TEVM_WALLET_ADDRESS : null)
+	)
+	const supportsExecutionMode = (
+		tx: TransactionFlowItemBase,
+		mode: TransactionFlowExecutionMode,
+	) => (
+		tx.executionModes ? tx.executionModes.includes(mode) : true
+	)
 	const refreshExplainAvailability = async () => {
 		explainAvailability = await createExplainProvider().availability()
 	}
@@ -357,8 +398,13 @@
 		}
 	}
 	const simulateTransaction = async (tx: TransactionFlowItem) => {
-		if (!tx.simulate || !walletAddress) return
-		const rpcUrl = rpcUrls[tx.chainId]
+		const simulationWalletAddress = resolveSimulationWalletAddress()
+		if (!tx.simulate || !simulationWalletAddress) return
+		const rpcUrl = (
+			Object.entries(rpcUrls).find(
+				(entry) => Number(entry?.[0]) === tx.chainId,
+			)?.[1] ?? null
+		)
 		if (!rpcUrl) {
 			updateTxState(tx.id, (state) => ({
 				...state,
@@ -383,7 +429,10 @@
 				lockTransactionSession(sessionId)
 			}
 			const provider = createHttpProvider(rpcUrl)
-			const result = await tx.simulate({ provider, walletAddress })
+			const result = await tx.simulate({
+				provider,
+				walletAddress: simulationWalletAddress,
+			})
 			updateTxState(tx.id, (state) => ({
 				...state,
 				simulation: {
@@ -433,7 +482,13 @@
 		}
 	}
 	const executeTransaction = async (tx: TransactionFlowItem) => {
-		if (!tx.execute || !walletProvider || !walletAddress) return
+		const executionContext = resolveExecutionContext()
+		if (
+			!executionContext ||
+			!tx.execute ||
+			!supportsExecutionMode(tx, executionContext.mode)
+		)
+			return
 		if (sessionId) {
 			lockTransactionSession(sessionId)
 			markTransactionSessionSubmitted(sessionId, {
@@ -444,8 +499,7 @@
 		updateExecution(tx.id, { status: 'signing' })
 		try {
 			const result = await tx.execute({
-				provider: walletProvider,
-				walletAddress,
+				...executionContext,
 				onStatus: (update) => updateExecution(tx.id, update),
 			})
 			updateExecution(tx.id, {
@@ -498,8 +552,17 @@
 			{@const txState = getTxState(tx.id)}
 			{@const simulationExplain = txState.explanations.simulation}
 			{@const executionExplain = txState.explanations.execution}
-			{@const network = networksByChainId[tx.chainId]}
+			{@const network =
+				Object.values(networksByChainId).find(
+					(entry) => entry?.id === tx.chainId,
+				) ?? null}
+			{@const executionContext = resolveExecutionContext()}
+			{@const hasExecutionContext = Boolean(executionContext)}
+			{@const executionUnsupported =
+				Boolean(executionContext && !supportsExecutionMode(tx, executionContext.mode))}
+			{@const hasWalletSigner = Boolean(walletProvider && walletAddress)}
 			{@const needsChainSwitch = Boolean(
+				executionContext?.mode === 'wallet' &&
 				walletProvider &&
 				walletConnection?.connection.chainId !== null &&
 				walletConnection?.connection.chainId !== tx.chainId,
@@ -513,7 +576,8 @@
 			{@const executeDisabled =
 				!tx.execute ||
 				!tx.canExecute ||
-				!hasSigner ||
+				!hasExecutionContext ||
+				executionUnsupported ||
 				needsChainSwitch ||
 				!confirmationReady ||
 				hasPendingExecution}
@@ -610,7 +674,9 @@
 				{/if}
 
 				{#if txState.execution.txHash}
-					<p data-muted>{txState.execution.txHash.slice(0, 8)}…</p>
+					<p data-muted data-tx-hash={txState.execution.txHash}>
+						{txState.execution.txHash.slice(0, 8)}…
+					</p>
 				{/if}
 				{#if
 					txState.execution.status === 'completed' ||
@@ -685,13 +751,12 @@
 						{/if}
 						<label data-row="gap-2 align-center">
 							<Checkbox.Root
-								checked={txState.confirmed}
-								onCheckedChange={(checked) => {
+								bind:checked={() => txState.confirmed, (checked) => (
 									updateTxState(tx.id, (state) => ({
 										...state,
 										confirmed: checked,
 									}))
-								}}
+								)}
 							>
 								{#snippet children({ checked })}
 									{checked ? '✓' : '○'}
@@ -704,9 +769,15 @@
 				{/if}
 
 				<div data-row="gap-2 align-center wrap">
-					{#if !walletConnection}
-						<p data-muted>Connect a wallet to continue.</p>
-					{:else if !hasSigner}
+					{#if executionUnsupported}
+						<p data-muted>Execution not available for this mode.</p>
+					{:else if !hasExecutionContext}
+						<p data-muted>
+							{E2E_TEVM_ENABLED
+								? 'E2E provider unavailable.'
+								: 'Connect a wallet to continue.'}
+						</p>
+					{:else if executionContext?.mode === 'wallet' && !hasWalletSigner}
 						<p data-muted>Connect a signing-capable wallet to continue.</p>
 					{/if}
 				</div>
