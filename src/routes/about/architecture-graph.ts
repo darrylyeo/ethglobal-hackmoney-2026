@@ -1,15 +1,32 @@
-import { ChainId, networkConfigsByChainId } from '$/constants/networks'
+import { networkConfigs } from '$/constants/networks'
 
-export type ArchitectureNodeCategory = 'ui' | 'state' | 'service' | 'network'
+export type ArchitectureLayer =
+	| 'client'
+	| 'state'
+	| 'services'
+	| 'external'
+	| 'networks'
+	| 'tooling'
 
 export type ArchitectureNode = {
 	id: string
+	label: string
+	layer: ArchitectureLayer
+	combo: string
 	x: number
 	y: number
-	label: string
-	category: ArchitectureNodeCategory
-	details?: Record<string, string>
-	image?: string
+	size: number
+	shape: 'rect' | 'circle' | 'diamond' | 'triangle' | 'ellipse' | 'image'
+	color: string
+	opacity?: number
+	stroke?: string
+	lineWidth?: number
+	lineDash?: number[]
+	icon?: string
+	badge?: string
+	zIndex?: number
+	priority?: 'primary' | 'secondary' | 'optional'
+	details: Record<string, string>
 }
 
 export type ArchitectureEdge = {
@@ -17,122 +34,1201 @@ export type ArchitectureEdge = {
 	source: string
 	target: string
 	label: string
-	critical?: boolean
+	type: 'line' | 'quadratic' | 'cubic'
+	color: string
+	lineWidth: number
+	lineDash?: number[]
+	opacity?: number
+	relation: string
+	priority?: 'primary' | 'secondary' | 'optional'
+	controlPoints?: { x: number; y: number }[]
+	bidirectional?: boolean
 }
 
-export type ArchitectureGraphModel = {
-	nodes: ArchitectureNode[]
-	edges: ArchitectureEdge[]
+export type ArchitectureCombo = {
+	id: string
+	label: string
+	color: string
 }
 
-const LAYER_X = { client: 0, state: 200, services: 440, networks: 740 }
-const ROW = 80
+const layerX: Record<ArchitectureLayer, number> = {
+	client: 120,
+	state: 360,
+	services: 620,
+	external: 860,
+	networks: 1100,
+	tooling: 120,
+}
 
-const NETWORK_CHAIN_IDS: readonly ChainId[] = [
-	ChainId.Ethereum,
-	ChainId.Arbitrum,
-	ChainId.Base,
-	ChainId.Optimism,
-	ChainId.Polygon,
-	ChainId.ZkSyncEra,
+const layerColors: Record<ArchitectureLayer, string> = {
+	client: '#38bdf8',
+	state: '#f59e0b',
+	services: '#a855f7',
+	external: '#22c55e',
+	networks: '#14b8a6',
+	tooling: '#94a3b8',
+}
+
+const rowY = (index: number, base = 100, gap = 110) => (
+	base + index * gap
+)
+
+const comboId = (layer: ArchitectureLayer) => (
+	`combo-${layer}`
+)
+
+const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
+	{
+		id: 'ui',
+		label: 'Client UI',
+		layer: 'client',
+		x: layerX.client,
+		y: rowY(0),
+		size: 58,
+		shape: 'rect',
+		badge: '/bridge • /swap • /rooms',
+		priority: 'primary',
+		details: {
+			purpose: 'Routes: /bridge, /swap, /liquidity, /transfers, /rooms, /wallets, /dashboard, /session',
+			tech: 'SvelteKit pages + layouts',
+		},
+	},
+	{
+		id: 'dashboard-panels',
+		label: 'Dashboard Panels',
+		layer: 'client',
+		x: layerX.client,
+		y: rowY(1),
+		size: 46,
+		shape: 'rect',
+		badge: 'Panel tree',
+		priority: 'secondary',
+		details: {
+			purpose: 'Tiled route rendering and focused navigation',
+			tech: 'PanelTree + RouteRenderer',
+		},
+	},
+	{
+		id: 'views',
+		label: 'Views + Scenes',
+		layer: 'client',
+		x: layerX.client,
+		y: rowY(2),
+		size: 48,
+		shape: 'ellipse',
+		badge: 'G6 / Sigma / Threlte',
+		priority: 'secondary',
+		details: {
+			purpose: 'Graph, transfer, and intent visualization layers',
+			tech: 'G6, Sigma, Threlte',
+		},
+	},
+	{
+		id: 'intent-ui',
+		label: 'Intent UI',
+		layer: 'client',
+		x: layerX.client,
+		y: rowY(3),
+		size: 44,
+		shape: 'diamond',
+		badge: 'Drag + Preview',
+		priority: 'secondary',
+		details: {
+			purpose: 'Drag intents to bootstrap routes and sessions',
+			tech: 'Floating UI + view transitions',
+		},
+	},
+	{
+		id: 'flow-state',
+		label: 'Flow State',
+		layer: 'state',
+		x: layerX.state,
+		y: rowY(0),
+		size: 52,
+		shape: 'circle',
+		badge: 'Bridge / Swap / Liquidity',
+		priority: 'primary',
+		details: {
+			purpose: 'Settings for chains, amounts, slippage, recipient, and fee toggles',
+			tech: 'bridgeSettingsState + swapSettingsState + liquiditySettingsState',
+		},
+	},
+	{
+		id: 'wallet-state',
+		label: 'Wallet State',
+		layer: 'state',
+		x: layerX.state,
+		y: rowY(1),
+		size: 48,
+		shape: 'circle',
+		badge: 'Connections',
+		priority: 'primary',
+		details: {
+			purpose: 'Connected wallets, chain id tracking, provider discovery',
+			tech: 'wallet.svelte.ts + EIP-6963',
+		},
+	},
+	{
+		id: 'room-state',
+		label: 'Room + Channel State',
+		layer: 'state',
+		x: layerX.state,
+		y: rowY(2),
+		size: 46,
+		shape: 'circle',
+		badge: 'PartyKit / Yellow',
+		priority: 'secondary',
+		details: {
+			purpose: 'Room peers, SIWE challenges, channel sessions',
+			tech: 'room.svelte.ts + yellow.svelte.ts',
+		},
+	},
+	{
+		id: 'intent-state',
+		label: 'Intent Drag State',
+		layer: 'state',
+		x: layerX.state,
+		y: rowY(3),
+		size: 44,
+		shape: 'ellipse',
+		badge: 'Preview + selection',
+		priority: 'secondary',
+		details: {
+			purpose: 'Drag preview, tooltip routes, intent resolution context',
+			tech: 'intent-drag-preview.svelte.ts',
+		},
+	},
+	{
+		id: 'collections',
+		label: 'Collections',
+		layer: 'state',
+		x: layerX.state,
+		y: rowY(4),
+		size: 48,
+		shape: 'ellipse',
+		badge: 'TanStack DB',
+		priority: 'primary',
+		details: {
+			purpose: 'Normalized entities and live queries',
+			tech: '@tanstack/svelte-db',
+		},
+	},
+	{
+		id: 'storage',
+		label: 'Storage',
+		layer: 'state',
+		x: layerX.state,
+		y: rowY(5),
+		size: 40,
+		shape: 'triangle',
+		badge: 'localStorage',
+		priority: 'secondary',
+		details: {
+			purpose: 'Persisted settings and session history',
+			tech: 'localStorage + sessionStorage',
+		},
+	},
+	{
+		id: 'sessions',
+		label: 'Transaction Sessions',
+		layer: 'state',
+		x: layerX.state,
+		y: rowY(6),
+		size: 46,
+		shape: 'rect',
+		badge: 'Draft / Submitted / Final',
+		priority: 'secondary',
+		details: {
+			purpose: 'Session lifecycle and simulation tracking',
+			tech: 'TransactionFlow + session collections',
+		},
+	},
+	{
+		id: 'tx-history',
+		label: 'Transaction History',
+		layer: 'state',
+		x: layerX.state,
+		y: rowY(7),
+		size: 42,
+		shape: 'ellipse',
+		badge: 'Local history',
+		priority: 'secondary',
+		details: {
+			purpose: 'Persisted transaction rows and status refresh',
+			tech: 'transactions collection',
+		},
+	},
+	{
+		id: 'data-sources',
+		label: 'Data Sources',
+		layer: 'state',
+		x: layerX.state,
+		y: rowY(8),
+		size: 40,
+		shape: 'circle',
+		badge: '$source tags',
+		priority: 'secondary',
+		details: {
+			purpose: 'Attribution for LiFi, CCTP, Voltaire, Stork, and more',
+			tech: 'DataSource enum',
+		},
+	},
+	{
+		id: 'wallets',
+		label: 'Wallets',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(0),
+		size: 48,
+		shape: 'diamond',
+		badge: 'EIP-1193',
+		priority: 'primary',
+		details: {
+			purpose: 'Wallet discovery, chain switching, signing',
+			tech: 'EIP-6963 + EIP-1193',
+		},
+	},
+	{
+		id: 'voltaire',
+		label: 'Voltaire RPC',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(1),
+		size: 48,
+		shape: 'rect',
+		badge: 'ABI + JSON-RPC',
+		priority: 'primary',
+		details: {
+			purpose: 'RPC queries, ABI registry, log decoding',
+			tech: '@tevm/voltaire',
+		},
+	},
+	{
+		id: 'bridge-router',
+		label: 'Unified Router',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(2),
+		size: 48,
+		shape: 'rect',
+		badge: 'Protocol select',
+		priority: 'primary',
+		details: {
+			purpose: 'Routes traffic between LI.FI and CCTP flows',
+			tech: 'UnifiedProtocolRouter',
+		},
+	},
+	{
+		id: 'lifi-bridge',
+		label: 'LI.FI Bridge',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(3),
+		size: 48,
+		shape: 'rect',
+		badge: 'Routes + Execute',
+		priority: 'primary',
+		details: {
+			purpose: 'Route discovery, fee breakdown, execution',
+			tech: 'LI.FI SDK',
+		},
+	},
+	{
+		id: 'cctp-bridge',
+		label: 'CCTP Bridge',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(4),
+		size: 48,
+		shape: 'rect',
+		badge: 'Burn / Attest / Mint',
+		priority: 'primary',
+		details: {
+			purpose: 'Circle CCTP burn/mint and attestation flow',
+			tech: 'Circle CCTP API + contracts',
+		},
+	},
+	{
+		id: 'swap',
+		label: 'Swap + Liquidity',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(5),
+		size: 50,
+		shape: 'rect',
+		badge: 'Uniswap V4',
+		priority: 'secondary',
+		details: {
+			purpose: 'Swap quotes and liquidity management',
+			tech: 'Uniswap V4 + Universal Router',
+		},
+	},
+	{
+		id: 'transfers',
+		label: 'Transfers',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(6),
+		size: 46,
+		shape: 'ellipse',
+		badge: 'Logs + Graphs',
+		priority: 'secondary',
+		details: {
+			purpose: 'On-chain transfer graphs and visualization',
+			tech: 'Voltaire logs + transfer graph',
+		},
+	},
+	{
+		id: 'transfer-indexer',
+		label: 'Transfer Indexer',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(7),
+		size: 42,
+		shape: 'ellipse',
+		badge: 'Enrichment',
+		priority: 'secondary',
+		details: {
+			purpose: 'Enrich transfer events with indexer metadata',
+			tech: 'Transfers indexer + Covalent',
+		},
+	},
+	{
+		id: 'rooms',
+		label: 'Rooms + SIWE',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(8),
+		size: 46,
+		shape: 'circle',
+		badge: 'PartyKit',
+		priority: 'secondary',
+		details: {
+			purpose: 'Real-time collaboration and address sharing',
+			tech: 'PartyKit + SIWE',
+		},
+	},
+	{
+		id: 'yellow',
+		label: 'Yellow Channels',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(9),
+		size: 46,
+		shape: 'diamond',
+		badge: 'Nitrolite',
+		priority: 'secondary',
+		details: {
+			purpose: 'Off-chain transfers and unified balances',
+			tech: 'Yellow Clearnode + custody',
+		},
+	},
+	{
+		id: 'stork',
+		label: 'Stork Prices',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(10),
+		size: 44,
+		shape: 'circle',
+		badge: 'REST + WS + RPC',
+		priority: 'secondary',
+		details: {
+			purpose: 'Token price feeds and comparisons',
+			tech: 'Stork feeds + Voltaire',
+		},
+	},
+	{
+		id: 'explain',
+		label: 'Explain Results',
+		layer: 'services',
+		x: layerX.services,
+		y: rowY(11),
+		size: 42,
+		shape: 'ellipse',
+		badge: 'Prompt API',
+		priority: 'optional',
+		details: {
+			purpose: 'Optional LLM explanations for simulations and txs',
+			tech: 'Prompt API + hosted fallback',
+		},
+	},
+	{
+		id: 'rpc',
+		label: 'RPC Providers',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(0),
+		size: 40,
+		shape: 'ellipse',
+		badge: 'JSON-RPC',
+		priority: 'primary',
+		details: {
+			purpose: 'Chain data, receipts, and logs',
+			tech: 'Alchemy, LlamaRPC, public RPC',
+		},
+	},
+	{
+		id: 'lifi-api',
+		label: 'LI.FI API',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(1),
+		size: 42,
+		shape: 'rect',
+		badge: 'Routes + Status',
+		priority: 'primary',
+		details: {
+			purpose: 'Route discovery and execution callbacks',
+			tech: 'LI.FI cloud',
+		},
+	},
+	{
+		id: 'circle-api',
+		label: 'Circle CCTP',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(2),
+		size: 42,
+		shape: 'rect',
+		badge: 'Burn + Mint',
+		priority: 'primary',
+		details: {
+			purpose: 'Attestations, fees, and forwarding',
+			tech: 'CCTP APIs',
+		},
+	},
+	{
+		id: 'cctp-forwarding',
+		label: 'CCTP Forwarding',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(3),
+		size: 40,
+		shape: 'rect',
+		badge: 'Forwarding svc',
+		priority: 'optional',
+		details: {
+			purpose: 'Optional mint forwarding on destination',
+			tech: 'Circle forwarding service',
+		},
+	},
+	{
+		id: 'uniswap-api',
+		label: 'Uniswap Contracts',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(4),
+		size: 40,
+		shape: 'rect',
+		badge: 'Pool Manager',
+		priority: 'secondary',
+		details: {
+			purpose: 'On-chain swap and liquidity contracts',
+			tech: 'Uniswap V4',
+		},
+	},
+	{
+		id: 'token-lists',
+		label: 'Token Lists',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(5),
+		size: 38,
+		shape: 'rect',
+		badge: 'Metadata',
+		priority: 'secondary',
+		details: {
+			purpose: 'Token metadata for list ingestion',
+			tech: 'Token list providers',
+		},
+	},
+	{
+		id: 'covalent-api',
+		label: 'Covalent',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(6),
+		size: 38,
+		shape: 'rect',
+		badge: 'Enrichment',
+		priority: 'optional',
+		details: {
+			purpose: 'Transfer metadata enrichment',
+			tech: 'Covalent API',
+		},
+	},
+	{
+		id: 'partykit-api',
+		label: 'PartyKit',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(7),
+		size: 38,
+		shape: 'rect',
+		badge: 'WebSocket',
+		priority: 'secondary',
+		details: {
+			purpose: 'Real-time room sync',
+			tech: 'PartyKit servers',
+		},
+	},
+	{
+		id: 'yellow-api',
+		label: 'Yellow Clearnode',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(8),
+		size: 38,
+		shape: 'rect',
+		badge: 'Nitro RPC',
+		priority: 'secondary',
+		details: {
+			purpose: 'Channel operations and off-chain transfers',
+			tech: 'Yellow clearnodes',
+		},
+	},
+	{
+		id: 'stork-api',
+		label: 'Stork Feeds',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(9),
+		size: 38,
+		shape: 'rect',
+		badge: 'REST + WS',
+		priority: 'secondary',
+		details: {
+			purpose: 'Price feeds and subscriptions',
+			tech: 'Stork API',
+		},
+	},
+	{
+		id: 'prompt-api',
+		label: 'Prompt API',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(10),
+		size: 36,
+		shape: 'rect',
+		badge: 'On-device',
+		priority: 'optional',
+		details: {
+			purpose: 'On-device model inference',
+			tech: 'Chrome Prompt API',
+		},
+	},
+	{
+		id: 'hosted-llm',
+		label: 'Hosted LLM',
+		layer: 'external',
+		x: layerX.external,
+		y: rowY(11),
+		size: 36,
+		shape: 'rect',
+		badge: 'Fallback',
+		priority: 'optional',
+		details: {
+			purpose: 'Optional hosted explanation provider',
+			tech: 'Hosted LLM adapter',
+		},
+	},
+	{
+		id: 'deno',
+		label: 'Deno Runtime',
+		layer: 'tooling',
+		x: layerX.tooling,
+		y: rowY(6, 120, 120),
+		size: 44,
+		shape: 'circle',
+		badge: 'Tasks + Scripts',
+		priority: 'secondary',
+		details: {
+			purpose: 'Build, test, and automation tasks',
+			tech: 'deno task',
+		},
+	},
+	{
+		id: 'playwright',
+		label: 'Playwright',
+		layer: 'tooling',
+		x: layerX.tooling,
+		y: rowY(7, 120, 120),
+		size: 40,
+		shape: 'triangle',
+		badge: 'E2E',
+		priority: 'secondary',
+		details: {
+			purpose: 'End-to-end tests and coverage',
+			tech: 'Playwright + axe-core',
+		},
+	},
+	{
+		id: 'tevm',
+		label: 'Tevm',
+		layer: 'tooling',
+		x: layerX.tooling,
+		y: rowY(8, 120, 120),
+		size: 40,
+		shape: 'diamond',
+		badge: 'Simulation',
+		priority: 'optional',
+		details: {
+			purpose: 'Walletless simulation and E2E execution',
+			tech: 'tevm runtime',
+		},
+	},
 ]
 
-const node = (
-	id: string,
-	x: number,
-	y: number,
-	label: string,
-	category: ArchitectureNodeCategory,
-	details?: Record<string, string>,
-	image?: string,
-): ArchitectureNode => ({ id, x, y, label, category, details, image })
+const coreNodes: ArchitectureNode[] = baseCoreNodes.map((node) => ({
+	...node,
+	color: layerColors[node.layer],
+	combo: comboId(node.layer),
+}))
 
-const edge = (
-	id: string,
-	source: string,
-	target: string,
-	label: string,
-	critical?: boolean,
-): ArchitectureEdge => ({ id, source, target, label, critical })
+const baseMultiChainNode: Omit<ArchitectureNode, 'color' | 'combo'> = {
+	id: 'multi-chain',
+	label: 'Supported Chains',
+	layer: 'networks',
+	x: layerX.networks - 140,
+	y: rowY(0, 60, 100),
+	size: 48,
+	shape: 'ellipse',
+	badge: 'Mainnet + Testnet',
+	priority: 'primary',
+	details: {
+		purpose: 'Multi-chain execution across supported networks',
+		tech: 'Networks + USDC support',
+	},
+}
 
-export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
-	const nodes: ArchitectureNode[] = [
-		node('client-ui', LAYER_X.client, 0, 'Client UI', 'ui', {
-			description: 'SvelteKit routes (Bridge, Swap, Transfers, Rooms, Graph)',
-		}),
-		node('state', LAYER_X.state, 0, 'State', 'state', {
-			description: 'TanStack DB collections + live queries',
-		}),
-		node('voltaire', LAYER_X.services, -4 * ROW, 'Voltaire', 'service', {
-			description: 'RPC + ABI registry (tevm)',
-		}),
-		node('transfers', LAYER_X.services, -3 * ROW, 'Transfers data', 'service', {
-			description: 'Voltaire logs (primary) + Covalent indexer fallback',
-		}),
-		node('lifi', LAYER_X.services, -2 * ROW, 'LI.FI', 'service', {
-			description: 'Bridge + swap routes/quotes',
-		}),
-		node('circle', LAYER_X.services, -ROW, 'Circle CCTP', 'service', {
-			description: 'USDC bridge kit',
-		}),
-		node('uniswap', LAYER_X.services, 0, 'Uniswap v4', 'service', {
-			description: 'Swap + liquidity via Universal Router',
-		}),
-		node('partykit', LAYER_X.services, ROW, 'PartyKit', 'service', {
-			description: 'Realtime rooms + presence',
-		}),
-		node('stork', LAYER_X.services, 2 * ROW, 'Stork', 'service', {
-			description: 'Price feeds + tokens',
-		}),
-		node('yellow', LAYER_X.services, 3 * ROW, 'Yellow', 'service', {
-			description: 'State channels + escrow',
-		}),
-		node('wallets', LAYER_X.services, 4 * ROW, 'Wallets', 'service', {
-			description: 'EIP-1193 providers + signing',
-		}),
-		...NETWORK_CHAIN_IDS.map((chainId, i) =>
-			node(
-				`network-${chainId}`,
-				LAYER_X.networks,
-				(i - (NETWORK_CHAIN_IDS.length - 1) / 2) * ROW,
-				networkConfigsByChainId[chainId]?.name ?? String(chainId),
-				'network',
-				{ chainId: String(chainId) },
-				networkConfigsByChainId[chainId]?.icon ?? `/networks/${chainId}.svg`,
-			),
-		),
-	]
+const networkLayer: ArchitectureLayer = 'networks'
 
-	const edges: ArchitectureEdge[] = [
-		edge('e-ui-state', 'client-ui', 'state', 'collections'),
-		edge('e-state-voltaire', 'state', 'voltaire', 'RPC/ABI'),
-		edge('e-state-transfers', 'state', 'transfers', 'USDC logs'),
-		edge('e-state-lifi', 'state', 'lifi', 'routes/quotes'),
-		edge('e-state-circle', 'state', 'circle', 'CCTP'),
-		edge('e-state-uniswap', 'state', 'uniswap', 'swap quotes'),
-		edge('e-state-stork', 'state', 'stork', 'prices'),
-		edge('e-state-yellow', 'state', 'yellow', 'channels'),
-		edge('e-ui-wallets', 'client-ui', 'wallets', 'signing', true),
-		edge('e-wallets-ui', 'wallets', 'client-ui', 'chain switch', true),
-		edge('e-ui-partykit', 'client-ui', 'partykit', 'realtime'),
-		edge('e-partykit-ui', 'partykit', 'client-ui', 'realtime'),
-		edge('e-transfers-voltaire', 'transfers', 'voltaire', 'RPC'),
-		...NETWORK_CHAIN_IDS.flatMap((chainId) => [
-			edge(
-				`e-voltaire-net-${chainId}`,
-				'voltaire',
-				`network-${chainId}`,
-				'RPC',
-			),
-			edge(
-				`e-wallets-net-${chainId}`,
-				'wallets',
-				`network-${chainId}`,
-				'tx',
-				true,
-			),
-		]),
-	]
+const baseNetworkNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
+	baseMultiChainNode,
+	...networkConfigs
+	.slice()
+	.sort((a, b) => (
+		a.type === b.type
+			? a.name.localeCompare(b.name)
+			: a.type.localeCompare(b.type)
+	))
+	.map((network, index) => {
+		const column = index % 4
+		const row = Math.floor(index / 4)
+		const icon = network.icon ?? ''
+		const shape: ArchitectureNode['shape'] = (
+			icon.length > 0 ? 'image' : 'circle'
+		)
+		const priority: ArchitectureNode['priority'] = 'primary'
+		return {
+			id: `network-${network.chainId}`,
+			label: network.name,
+			layer: networkLayer,
+			x: layerX.networks + column * 140,
+			y: rowY(row, 140, 90),
+			size: 44,
+			shape,
+			icon: icon.length > 0 ? icon : undefined,
+			badge: network.type,
+			priority,
+			details: {
+				purpose: 'Execution target for on-chain activity',
+				tech: `Chain ${network.chainId}`,
+			},
+		}
+	}),
+]
 
-	return { nodes, edges }
+const networkNodes: ArchitectureNode[] = baseNetworkNodes.map((node) => ({
+	...node,
+	color: layerColors[node.layer],
+	combo: comboId(node.layer),
+}))
+
+const edges: ArchitectureEdge[] = [
+	{
+		id: 'ui-state',
+		source: 'ui',
+		target: 'combo-state',
+		label: 'reads / writes',
+		type: 'cubic',
+		color: '#38bdf8',
+		lineWidth: 2,
+		controlPoints: [
+			{ x: 220, y: rowY(0) - 40 },
+			{ x: 280, y: rowY(0) + 20 },
+		],
+		relation: 'state',
+		priority: 'primary',
+	},
+	{
+		id: 'ui-dashboard',
+		source: 'ui',
+		target: 'dashboard-panels',
+		label: 'split views',
+		type: 'line',
+		color: '#38bdf8',
+		lineWidth: 1.5,
+		relation: 'client',
+		priority: 'secondary',
+	},
+	{
+		id: 'ui-wallets',
+		source: 'ui',
+		target: 'wallets',
+		label: 'connect / sign',
+		type: 'cubic',
+		color: '#38bdf8',
+		lineWidth: 2,
+		controlPoints: [
+			{ x: 260, y: rowY(0) + 40 },
+			{ x: 420, y: rowY(0) + 20 },
+		],
+		relation: 'wallets',
+		priority: 'primary',
+	},
+	{
+		id: 'state-collections',
+		source: 'combo-state',
+		target: 'collections',
+		label: 'live queries',
+		type: 'line',
+		color: '#f59e0b',
+		lineWidth: 2,
+		relation: 'collections',
+		priority: 'primary',
+	},
+	{
+		id: 'collections-storage',
+		source: 'collections',
+		target: 'storage',
+		label: 'persist',
+		type: 'quadratic',
+		color: '#f59e0b',
+		lineWidth: 1.5,
+		lineDash: [4, 4],
+		relation: 'storage',
+		priority: 'secondary',
+	},
+	{
+		id: 'collections-sessions',
+		source: 'collections',
+		target: 'sessions',
+		label: 'session state',
+		type: 'line',
+		color: '#f59e0b',
+		lineWidth: 1.5,
+		relation: 'sessions',
+		priority: 'secondary',
+	},
+	{
+		id: 'collections-history',
+		source: 'collections',
+		target: 'tx-history',
+		label: 'history rows',
+		type: 'line',
+		color: '#f59e0b',
+		lineWidth: 1.5,
+		relation: 'history',
+		priority: 'secondary',
+	},
+	{
+		id: 'history-storage',
+		source: 'tx-history',
+		target: 'storage',
+		label: 'local persistence',
+		type: 'quadratic',
+		color: '#f59e0b',
+		lineWidth: 1.2,
+		lineDash: [4, 4],
+		relation: 'storage',
+		priority: 'secondary',
+	},
+	{
+		id: 'collections-sources',
+		source: 'collections',
+		target: 'data-sources',
+		label: 'tag source',
+		type: 'line',
+		color: '#f59e0b',
+		lineWidth: 1.2,
+		relation: 'sources',
+		priority: 'secondary',
+	},
+	{
+		id: 'collections-token-lists',
+		source: 'collections',
+		target: 'token-lists',
+		label: 'token metadata',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1.2,
+		bidirectional: true,
+		relation: 'api',
+		priority: 'secondary',
+	},
+	{
+		id: 'state-router',
+		source: 'flow-state',
+		target: 'bridge-router',
+		label: 'route intent',
+		type: 'cubic',
+		color: '#a855f7',
+		lineWidth: 2,
+		relation: 'services',
+		priority: 'primary',
+	},
+	{
+		id: 'router-lifi',
+		source: 'bridge-router',
+		target: 'lifi-bridge',
+		label: 'li.fi routes',
+		type: 'line',
+		color: '#a855f7',
+		lineWidth: 1.5,
+		relation: 'bridge',
+		priority: 'primary',
+	},
+	{
+		id: 'router-cctp',
+		source: 'bridge-router',
+		target: 'cctp-bridge',
+		label: 'cctp routes',
+		type: 'line',
+		color: '#a855f7',
+		lineWidth: 1.5,
+		relation: 'bridge',
+		priority: 'primary',
+	},
+	{
+		id: 'state-swap',
+		source: 'flow-state',
+		target: 'swap',
+		label: 'quote',
+		type: 'cubic',
+		color: '#a855f7',
+		lineWidth: 1.5,
+		relation: 'services',
+		priority: 'secondary',
+	},
+	{
+		id: 'state-transfers',
+		source: 'flow-state',
+		target: 'transfers',
+		label: 'query',
+		type: 'cubic',
+		color: '#a855f7',
+		lineWidth: 1.5,
+		relation: 'services',
+		priority: 'secondary',
+	},
+	{
+		id: 'state-rooms',
+		source: 'room-state',
+		target: 'rooms',
+		label: 'sync',
+		type: 'cubic',
+		color: '#a855f7',
+		lineWidth: 1.5,
+		relation: 'services',
+		priority: 'secondary',
+	},
+	{
+		id: 'state-yellow',
+		source: 'room-state',
+		target: 'yellow',
+		label: 'channels',
+		type: 'cubic',
+		color: '#a855f7',
+		lineWidth: 1.5,
+		relation: 'services',
+		priority: 'secondary',
+	},
+	{
+		id: 'state-stork',
+		source: 'flow-state',
+		target: 'stork',
+		label: 'prices',
+		type: 'cubic',
+		color: '#a855f7',
+		lineWidth: 1.5,
+		relation: 'services',
+		priority: 'secondary',
+	},
+	{
+		id: 'sessions-explain',
+		source: 'sessions',
+		target: 'explain',
+		label: 'summary',
+		type: 'cubic',
+		color: '#a855f7',
+		lineWidth: 1,
+		lineDash: [6, 3],
+		relation: 'services',
+		priority: 'optional',
+	},
+	{
+		id: 'lifi-api-bridge',
+		source: 'lifi-bridge',
+		target: 'lifi-api',
+		label: 'routes',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1.5,
+		relation: 'api',
+		priority: 'primary',
+	},
+	{
+		id: 'cctp-circle',
+		source: 'cctp-bridge',
+		target: 'circle-api',
+		label: 'attest',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1.5,
+		relation: 'api',
+		priority: 'primary',
+	},
+	{
+		id: 'cctp-forwarding-edge',
+		source: 'cctp-bridge',
+		target: 'cctp-forwarding',
+		label: 'forwarding',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1,
+		lineDash: [6, 3],
+		relation: 'api',
+		priority: 'optional',
+	},
+	{
+		id: 'swap-uniswap',
+		source: 'swap',
+		target: 'uniswap-api',
+		label: 'pools',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1.5,
+		relation: 'api',
+		priority: 'secondary',
+	},
+	{
+		id: 'transfers-voltaire',
+		source: 'transfers',
+		target: 'voltaire',
+		label: 'logs',
+		type: 'line',
+		color: '#a855f7',
+		lineWidth: 1.2,
+		relation: 'services',
+		priority: 'secondary',
+	},
+	{
+		id: 'transfers-indexer',
+		source: 'transfers',
+		target: 'transfer-indexer',
+		label: 'enrich',
+		type: 'line',
+		color: '#a855f7',
+		lineWidth: 1.2,
+		relation: 'services',
+		priority: 'secondary',
+	},
+	{
+		id: 'indexer-covalent',
+		source: 'transfer-indexer',
+		target: 'covalent-api',
+		label: 'indexer api',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1,
+		lineDash: [4, 4],
+		relation: 'api',
+		priority: 'optional',
+	},
+	{
+		id: 'rooms-partykit',
+		source: 'rooms',
+		target: 'partykit-api',
+		label: 'sync',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1.5,
+		relation: 'api',
+		priority: 'secondary',
+	},
+	{
+		id: 'yellow-clearnode',
+		source: 'yellow',
+		target: 'yellow-api',
+		label: 'nitro rpc',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1.5,
+		relation: 'api',
+		priority: 'secondary',
+	},
+	{
+		id: 'stork-feeds',
+		source: 'stork',
+		target: 'stork-api',
+		label: 'subscribe',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1.5,
+		relation: 'api',
+		priority: 'secondary',
+	},
+	{
+		id: 'stork-voltaire',
+		source: 'stork',
+		target: 'voltaire',
+		label: 'rpc reads',
+		type: 'line',
+		color: '#a855f7',
+		lineWidth: 1.2,
+		relation: 'services',
+		priority: 'secondary',
+	},
+	{
+		id: 'explain-prompt',
+		source: 'explain',
+		target: 'prompt-api',
+		label: 'explain',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1,
+		lineDash: [6, 3],
+		relation: 'api',
+		priority: 'optional',
+	},
+	{
+		id: 'explain-hosted',
+		source: 'explain',
+		target: 'hosted-llm',
+		label: 'fallback',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1,
+		lineDash: [6, 3],
+		relation: 'api',
+		priority: 'optional',
+	},
+	{
+		id: 'voltaire-rpc',
+		source: 'voltaire',
+		target: 'rpc',
+		label: 'json-rpc',
+		type: 'line',
+		color: '#22c55e',
+		lineWidth: 1.5,
+		relation: 'rpc',
+		priority: 'primary',
+	},
+	{
+		id: 'wallets-multi-chain',
+		source: 'wallets',
+		target: 'multi-chain',
+		label: 'tx + sign',
+		type: 'cubic',
+		color: '#14b8a6',
+		lineWidth: 2,
+		bidirectional: true,
+		relation: 'networks',
+		priority: 'primary',
+	},
+	{
+		id: 'rpc-multi-chain',
+		source: 'rpc',
+		target: 'multi-chain',
+		label: 'blocks + logs',
+		type: 'cubic',
+		color: '#14b8a6',
+		lineWidth: 1.5,
+		bidirectional: true,
+		relation: 'networks',
+		priority: 'primary',
+	},
+	{
+		id: 'tooling-ui',
+		source: 'deno',
+		target: 'ui',
+		label: 'build / dev',
+		type: 'quadratic',
+		color: '#94a3b8',
+		lineWidth: 1,
+		opacity: 0.7,
+		relation: 'tooling',
+		priority: 'secondary',
+	},
+	{
+		id: 'tooling-tests',
+		source: 'playwright',
+		target: 'ui',
+		label: 'e2e',
+		type: 'quadratic',
+		color: '#94a3b8',
+		lineWidth: 1,
+		opacity: 0.7,
+		relation: 'tooling',
+		priority: 'secondary',
+	},
+	{
+		id: 'tooling-sim',
+		source: 'tevm',
+		target: 'sessions',
+		label: 'simulate',
+		type: 'quadratic',
+		color: '#94a3b8',
+		lineWidth: 1,
+		lineDash: [4, 4],
+		opacity: 0.6,
+		relation: 'tooling',
+		priority: 'optional',
+	},
+]
+
+const networkEdges: ArchitectureEdge[] = [
+	{
+		id: 'multi-chain-combo',
+		source: 'multi-chain',
+		target: comboId('networks'),
+		label: 'chains',
+		type: 'line',
+		color: '#14b8a6',
+		lineWidth: 1.2,
+		opacity: 0.5,
+		relation: 'networks',
+		priority: 'optional',
+	},
+	{
+		id: 'combo-multi-chain',
+		source: comboId('networks'),
+		target: 'multi-chain',
+		label: 'traffic',
+		type: 'line',
+		color: '#14b8a6',
+		lineWidth: 1,
+		lineDash: [4, 4],
+		opacity: 0.4,
+		relation: 'networks',
+		priority: 'optional',
+	},
+]
+
+const combos: ArchitectureCombo[] = [
+	{ id: comboId('client'), label: 'Client', color: layerColors.client },
+	{ id: comboId('state'), label: 'State', color: layerColors.state },
+	{ id: comboId('services'), label: 'Services', color: layerColors.services },
+	{ id: comboId('external'), label: 'External APIs', color: layerColors.external },
+	{ id: comboId('networks'), label: 'Networks', color: layerColors.networks },
+	{ id: comboId('tooling'), label: 'Tooling', color: layerColors.tooling },
+]
+
+export const architectureGraph = {
+	nodes: [...coreNodes, ...networkNodes],
+	edges: [...edges, ...networkEdges],
+	combos,
+	layerColors,
 }

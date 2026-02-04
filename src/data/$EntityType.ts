@@ -1,15 +1,17 @@
 /**
- * Singular entity type names for collections. Use these instead of ad-hoc strings.
- * Each collection stores one entity type; the constant is the canonical key for that type.
+ * Entity type enum and metadata: label (singular), labelPlural, and whether the type is in the graph scene.
+ * Singular entity type names for collections; use these instead of ad-hoc strings.
  */
-
 export enum EntityType {
 	Actor = 'Actor',
 	ActorAllowance = 'ActorAllowance',
 	ActorCoin = 'ActorCoin',
 	BridgeRoute = 'BridgeRoute',
+	CctpAllowance = 'CctpAllowance',
+	CctpFee = 'CctpFee',
 	ChannelProposal = 'ChannelProposal',
 	Coin = 'Coin',
+	DashboardPanel = 'DashboardPanel',
 	Network = 'Network',
 	Room = 'Room',
 	RoomPeer = 'RoomPeer',
@@ -19,6 +21,10 @@ export enum EntityType {
 	SwapQuote = 'SwapQuote',
 	TokenListCoin = 'TokenListCoin',
 	Transaction = 'Transaction',
+	TransactionSession = 'TransactionSession',
+	TransactionSessionSimulation = 'TransactionSessionSimulation',
+	TransferGraph = 'TransferGraph',
+	TransferRequest = 'TransferRequest',
 	UniswapPool = 'UniswapPool',
 	UniswapPosition = 'UniswapPosition',
 	Wallet = 'Wallet',
@@ -29,15 +35,40 @@ export enum EntityType {
 	YellowTransfer = 'YellowTransfer',
 }
 
-/** Entity types shown in the graph scene (subset of EntityType). */
-export const GRAPH_SCENE_ENTITY_TYPES = [
-	EntityType.Wallet,
-	EntityType.WalletConnection,
-	EntityType.Actor,
-	EntityType.ActorCoin,
-	EntityType.ActorAllowance,
-	EntityType.BridgeRoute,
-	EntityType.Transaction,
-] as const satisfies EntityType[]
+export const entityTypes = [
+	{ type: EntityType.Actor, label: 'Account', labelPlural: 'Accounts', inGraph: true as const },
+	{ type: EntityType.ActorAllowance, label: 'Approval', labelPlural: 'Approvals', inGraph: true as const },
+	{ type: EntityType.ActorCoin, label: 'Balance', labelPlural: 'Balances', inGraph: true as const },
+	{ type: EntityType.BridgeRoute, label: 'Route', labelPlural: 'Routes', inGraph: true as const },
+	{ type: EntityType.CctpAllowance, label: 'CCTP Allowance', labelPlural: 'CCTP Allowances', inGraph: true as const },
+	{ type: EntityType.CctpFee, label: 'CCTP Fee', labelPlural: 'CCTP Fees', inGraph: true as const },
+	{ type: EntityType.ChannelProposal, label: 'Channel Proposal', labelPlural: 'Channel Proposals', inGraph: false as const },
+	{ type: EntityType.Coin, label: 'Coin', labelPlural: 'Coins', inGraph: true as const },
+	{ type: EntityType.DashboardPanel, label: 'Panel', labelPlural: 'Panels', inGraph: true as const },
+	{ type: EntityType.Network, label: 'Network', labelPlural: 'Networks', inGraph: true as const },
+	{ type: EntityType.Room, label: 'Room', labelPlural: 'Rooms', inGraph: true as const },
+	{ type: EntityType.RoomPeer, label: 'Room Peer', labelPlural: 'Room Peers', inGraph: true as const },
+	{ type: EntityType.SharedAddress, label: 'Shared Address', labelPlural: 'Shared Addresses', inGraph: true as const },
+	{ type: EntityType.SiweChallenge, label: 'SIWE', labelPlural: 'SIWE', inGraph: true as const },
+	{ type: EntityType.StorkPrice, label: 'Stork Price', labelPlural: 'Stork Prices', inGraph: true as const },
+	{ type: EntityType.SwapQuote, label: 'Swap Quote', labelPlural: 'Swap Quotes', inGraph: true as const },
+	{ type: EntityType.TokenListCoin, label: 'Token List', labelPlural: 'Token Lists', inGraph: true as const },
+	{ type: EntityType.Transaction, label: 'Transaction', labelPlural: 'Transactions', inGraph: true as const },
+	{ type: EntityType.TransactionSession, label: 'Session', labelPlural: 'Sessions', inGraph: true as const },
+	{ type: EntityType.TransactionSessionSimulation, label: 'Simulation', labelPlural: 'Simulations', inGraph: true as const },
+	{ type: EntityType.TransferGraph, label: 'Transfer Graph', labelPlural: 'Transfer Graphs', inGraph: true as const },
+	{ type: EntityType.TransferRequest, label: 'Transfer Request', labelPlural: 'Transfer Requests', inGraph: true as const },
+	{ type: EntityType.UniswapPool, label: 'Pool', labelPlural: 'Pools', inGraph: true as const },
+	{ type: EntityType.UniswapPosition, label: 'Position', labelPlural: 'Positions', inGraph: true as const },
+	{ type: EntityType.Wallet, label: 'Wallet', labelPlural: 'Wallets', inGraph: true as const },
+	{ type: EntityType.WalletConnection, label: 'Session', labelPlural: 'Sessions', inGraph: true as const },
+	{ type: EntityType.YellowChannel, label: 'Yellow Channel', labelPlural: 'Yellow Channels', inGraph: true as const },
+	{ type: EntityType.YellowChannelState, label: 'Yellow State', labelPlural: 'Yellow States', inGraph: true as const },
+	{ type: EntityType.YellowDeposit, label: 'Yellow Deposit', labelPlural: 'Yellow Deposits', inGraph: true as const },
+	{ type: EntityType.YellowTransfer, label: 'Yellow Transfer', labelPlural: 'Yellow Transfers', inGraph: true as const },
+] as const
 
-export type GraphSceneEntityType = (typeof GRAPH_SCENE_ENTITY_TYPES)[number]
+export type GraphSceneEntityType = Extract<
+	(typeof entityTypes)[number],
+	{ inGraph: true }
+>['type']

@@ -39,13 +39,13 @@
 	import { yellowChannelsCollection } from '$/collections/yellow-channels'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
 	import { yellowTransfersCollection } from '$/collections/yellow-transfers'
-	import { DataSource } from '$/constants/data-sources'
 	import { networksByChainId } from '$/constants/networks'
-	import { EntityType, GRAPH_SCENE_ENTITY_TYPES } from '$/data/$EntityType'
+	import { EntityType } from '$/data/$EntityType'
+	import { entityTypes, type GraphSceneEntityType } from '$/constants/entity-types'
+	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits'
 
 	// Context
-	import { browser } from '$app/environment'
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { useLiveQueryContext } from '$/svelte/live-query-context.svelte'
 
 	// Functions
@@ -71,16 +71,21 @@
 	let hoveredNode: string | undefined = $state(undefined)
 	let expanded = $state(true)
 	let visibleCollections: Set<string> = $state(
-		new Set(GRAPH_SCENE_ENTITY_TYPES),
+		new Set(
+			entityTypes
+				.filter((e): e is typeof e & { inGraph: true } => e.inGraph)
+				.map((e) => e.type),
+		),
 	)
 	let graphFramework = $state<GraphFramework>('g6')
-	let frameworkHydrated = $state(false)
+	let frameworkReadFromStorage = $state(false)
 	let selectedNodes = $state<string[]>([])
 	let selectedEdges = $state<string[]>([])
 
 	$effect(() => {
-		if (!browser || frameworkHydrated) return
-		frameworkHydrated = true
+		if (!visible) return
+		if (frameworkReadFromStorage) return
+		frameworkReadFromStorage = true
 		const stored = localStorage.getItem('graph-framework')
 		if (stored === 'sigma' || stored === 'g6') {
 			graphFramework = stored
@@ -88,188 +93,103 @@
 	})
 
 	$effect(() => {
-		if (!browser || !frameworkHydrated) return
+		if (!visible) return
 		localStorage.setItem('graph-framework', graphFramework)
 	})
 
 	const walletsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: walletsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
+		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
 	)
 	const connectionsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: walletConnectionsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
+		q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })),
 	)
 	const actorsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: actorsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
+		q.from({ row: actorsCollection }).select(({ row }) => ({ row })),
 	)
 	const actorCoinsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: actorCoinsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
-			.select(({ row }) => ({ row })),
+		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
 	)
 	const allowancesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: actorAllowancesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
-			.select(({ row }) => ({ row })),
+		q.from({ row: actorAllowancesCollection }).select(({ row }) => ({ row })),
 	)
 	const routesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: bridgeRouteItemsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.LiFi))
-			.select(({ row }) => ({ row })),
+		q.from({ row: bridgeRouteItemsCollection }).select(({ row }) => ({ row })),
 	)
 	const txQuery = useLiveQuery((q) =>
-		q
-			.from({ row: transactionsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
+		q.from({ row: transactionsCollection }).select(({ row }) => ({ row })),
 	)
 	const networksQuery = useLiveQuery((q) =>
-		q
-			.from({ row: networksCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
+		q.from({ row: networksCollection }).select(({ row }) => ({ row })),
 	)
 	const coinsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: coinsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
+		q.from({ row: coinsCollection }).select(({ row }) => ({ row })),
 	)
 	const tokenListCoinsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: tokenListCoinsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.TokenLists))
-			.select(({ row }) => ({ row })),
+		q.from({ row: tokenListCoinsCollection }).select(({ row }) => ({ row })),
 	)
 	const storkPricesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: storkPricesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Stork))
-			.select(({ row }) => ({ row })),
+		q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })),
 	)
 	const swapQuotesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: swapQuotesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Uniswap))
-			.select(({ row }) => ({ row })),
+		q.from({ row: swapQuotesCollection }).select(({ row }) => ({ row })),
 	)
 	const uniswapPoolsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: uniswapPoolsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Uniswap))
-			.select(({ row }) => ({ row })),
+		q.from({ row: uniswapPoolsCollection }).select(({ row }) => ({ row })),
 	)
 	const uniswapPositionsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: uniswapPositionsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Uniswap))
-			.select(({ row }) => ({ row })),
+		q.from({ row: uniswapPositionsCollection }).select(({ row }) => ({ row })),
 	)
 	const cctpAllowanceQuery = useLiveQuery((q) =>
-		q
-			.from({ row: cctpAllowanceCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Cctp))
-			.select(({ row }) => ({ row })),
+		q.from({ row: cctpAllowanceCollection }).select(({ row }) => ({ row })),
 	)
 	const cctpFeesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: cctpFeesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Cctp))
-			.select(({ row }) => ({ row })),
+		q.from({ row: cctpFeesCollection }).select(({ row }) => ({ row })),
 	)
 	const roomsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: roomsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.PartyKit))
-			.select(({ row }) => ({ row })),
+		q.from({ row: roomsCollection }).select(({ row }) => ({ row })),
 	)
 	const roomPeersQuery = useLiveQuery((q) =>
-		q
-			.from({ row: roomPeersCollection })
-			.where(({ row }) => eq(row.$source, DataSource.PartyKit))
-			.select(({ row }) => ({ row })),
+		q.from({ row: roomPeersCollection }).select(({ row }) => ({ row })),
 	)
 	const sharedAddressesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: sharedAddressesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.PartyKit))
-			.select(({ row }) => ({ row })),
+		q.from({ row: sharedAddressesCollection }).select(({ row }) => ({ row })),
 	)
 	const siweChallengesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: siweChallengesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.PartyKit))
-			.select(({ row }) => ({ row })),
+		q.from({ row: siweChallengesCollection }).select(({ row }) => ({ row })),
 	)
 	const transactionSessionsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: transactionSessionsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
+		q.from({ row: transactionSessionsCollection }).select(({ row }) => ({ row })),
 	)
 	const transactionSessionSimulationsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: transactionSessionSimulationsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
 	const transferGraphsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: transferGraphsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
-			.select(({ row }) => ({ row })),
+		q.from({ row: transferGraphsCollection }).select(({ row }) => ({ row })),
 	)
 	const transferRequestsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: transferRequestsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.PartyKit))
-			.select(({ row }) => ({ row })),
+		q.from({ row: transferRequestsCollection }).select(({ row }) => ({ row })),
 	)
 	const dashboardPanelsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: dashboardPanelsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
+		q.from({ row: dashboardPanelsCollection }).select(({ row }) => ({ row })),
 	)
 	const yellowChannelsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: yellowChannelsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Yellow))
-			.select(({ row }) => ({ row })),
+		q.from({ row: yellowChannelsCollection }).select(({ row }) => ({ row })),
 	)
 	const yellowChannelStatesQuery = useLiveQuery((q) =>
 		q
 			.from({ row: yellowChannelStatesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Yellow))
 			.select(({ row }) => ({ row })),
 	)
 	const yellowDepositsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: yellowDepositsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Yellow))
-			.select(({ row }) => ({ row })),
+		q.from({ row: yellowDepositsCollection }).select(({ row }) => ({ row })),
 	)
 	const yellowTransfersQuery = useLiveQuery((q) =>
-		q
-			.from({ row: yellowTransfersCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Yellow))
-			.select(({ row }) => ({ row })),
+		q.from({ row: yellowTransfersCollection }).select(({ row }) => ({ row })),
 	)
 
 	// Types/constants
-	type GraphSceneEntityType = (typeof GRAPH_SCENE_ENTITY_TYPES)[number]
-
 	type CollectionStyle = {
 		color: string
 		label: string
@@ -772,8 +692,10 @@
 
 	// (Derived)
 	const graphModel = $derived.by(() => {
-		if (!browser) return null
+		if (!visible) return null
 
+		const take = <T>(a: T[] | undefined) =>
+			(a ?? []).slice(0, GRAPH_SCENE_MAX_PER_COLLECTION)
 		const g = new Graph({ multi: true, allowSelfLoops: true })
 		const nodes: GraphNode[] = []
 		const edges: GraphEdge[] = []
@@ -803,7 +725,7 @@
 
 		// Add wallet nodes (center)
 		if (visibleCollections.has(EntityType.Wallet)) {
-			const wallets = walletsQuery.data ?? []
+			const wallets = take(walletsQuery.data)
 			wallets.forEach(({ row }, i) => {
 				const rdns = row.$id?.rdns
 				if (!rdns) return
@@ -830,7 +752,7 @@
 
 		// Add connection nodes
 		if (visibleCollections.has(EntityType.WalletConnection)) {
-			const connections = connectionsQuery.data ?? []
+			const connections = take(connectionsQuery.data)
 			connections.forEach(({ row }, i) => {
 				const rdns = row.$id?.wallet$id?.rdns
 				if (!rdns) return
@@ -898,8 +820,8 @@
 
 		// Add actor nodes
 		if (visibleCollections.has(EntityType.Actor)) {
-			const actors = actorsQuery.data ?? []
-			const connections = connectionsQuery.data ?? []
+			const actors = take(actorsQuery.data)
+			const connections = take(connectionsQuery.data)
 			actors.forEach(({ row }, i) => {
 				const actorId = `actor:${row.$id.network}:${row.address}`
 				if (g.hasNode(actorId)) return
@@ -951,7 +873,7 @@
 
 		// Add coin balance nodes
 		if (visibleCollections.has(EntityType.ActorCoin)) {
-			const coins = actorCoinsQuery.data ?? []
+			const coins = take(actorCoinsQuery.data)
 			coins.forEach(({ row }, i) => {
 				const coinId = `coin:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}`
 				if (g.hasNode(coinId)) return
@@ -1011,7 +933,7 @@
 
 		// Add allowance nodes
 		if (visibleCollections.has(EntityType.ActorAllowance)) {
-			const allowances = allowancesQuery.data ?? []
+			const allowances = take(allowancesQuery.data)
 			allowances.forEach(({ row }, i) => {
 				const allowanceId = `allowance:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}:${row.$id.spenderAddress}`
 				if (g.hasNode(allowanceId)) return
@@ -1066,7 +988,7 @@
 
 		// Add network nodes
 		if (visibleCollections.has(EntityType.Network)) {
-			const networks = networksQuery.data ?? []
+			const networks = take(networksQuery.data)
 			networks.forEach(({ row }, i) => {
 				const networkId = `network:${row.$id}`
 				if (g.hasNode(networkId)) return
@@ -1096,7 +1018,7 @@
 
 		// Add route nodes
 		if (visibleCollections.has(EntityType.BridgeRoute)) {
-			const routes = routesQuery.data ?? []
+			const routes = take(routesQuery.data)
 			routes.forEach(({ row }, i) => {
 				const routeId = `route:${row.$id.routeId}`
 				if (g.hasNode(routeId)) return
@@ -1160,7 +1082,7 @@
 
 		// Add transaction nodes
 		if (visibleCollections.has(EntityType.Transaction)) {
-			const txs = txQuery.data ?? []
+			const txs = take(txQuery.data)
 			txs.forEach(({ row }, i) => {
 				const txId = `tx:${row.$id.sourceTxHash}`
 				if (g.hasNode(txId)) return
@@ -1218,7 +1140,7 @@
 
 		// Add coin nodes
 		if (visibleCollections.has(EntityType.Coin)) {
-			const coins = coinsQuery.data ?? []
+			const coins = take(coinsQuery.data)
 			coins.forEach(({ row }, i) => {
 				const coinId = `erc20:${row.$id.network}:${row.$id.address}`
 				if (g.hasNode(coinId)) return
@@ -1264,7 +1186,7 @@
 
 		// Add token list coin nodes
 		if (visibleCollections.has(EntityType.TokenListCoin)) {
-			const tokens = tokenListCoinsQuery.data ?? []
+			const tokens = take(tokenListCoinsQuery.data)
 			tokens.forEach(({ row }, i) => {
 				const tokenId = `token:${row.$id.chainId}:${row.$id.address}`
 				if (g.hasNode(tokenId)) return
@@ -1310,7 +1232,7 @@
 
 		// Add stork price nodes
 		if (visibleCollections.has(EntityType.StorkPrice)) {
-			const prices = storkPricesQuery.data ?? []
+			const prices = take(storkPricesQuery.data)
 			prices.forEach(({ row }, i) => {
 				const priceId = toNodeId('stork', row.$id)
 				if (g.hasNode(priceId)) return
@@ -1361,7 +1283,7 @@
 
 		// Add swap quote nodes
 		if (visibleCollections.has(EntityType.SwapQuote)) {
-			const quotes = swapQuotesQuery.data ?? []
+			const quotes = take(swapQuotesQuery.data)
 			quotes.forEach(({ row }, i) => {
 				const quoteId = `swap:${row.id}`
 				if (g.hasNode(quoteId)) return
@@ -1407,7 +1329,7 @@
 
 		// Add uniswap pool nodes
 		if (visibleCollections.has(EntityType.UniswapPool)) {
-			const pools = uniswapPoolsQuery.data ?? []
+			const pools = take(uniswapPoolsQuery.data)
 			pools.forEach(({ row }, i) => {
 				const poolId = `pool:${row.id}`
 				if (g.hasNode(poolId)) return
@@ -1452,7 +1374,7 @@
 
 		// Add uniswap position nodes
 		if (visibleCollections.has(EntityType.UniswapPosition)) {
-			const positions = uniswapPositionsQuery.data ?? []
+			const positions = take(uniswapPositionsQuery.data)
 			positions.forEach(({ row }, i) => {
 				const positionId = `position:${row.id}`
 				if (g.hasNode(positionId)) return
@@ -1495,7 +1417,7 @@
 
 		// Add CCTP allowance nodes
 		if (visibleCollections.has(EntityType.CctpAllowance)) {
-			const allowances = cctpAllowanceQuery.data ?? []
+			const allowances = take(cctpAllowanceQuery.data)
 			allowances.forEach(({ row }, i) => {
 				const allowanceId = toNodeId('cctp-allowance', row.$id)
 				if (g.hasNode(allowanceId)) return
@@ -1529,7 +1451,7 @@
 
 		// Add CCTP fee nodes
 		if (visibleCollections.has(EntityType.CctpFee)) {
-			const fees = cctpFeesQuery.data ?? []
+			const fees = take(cctpFeesQuery.data)
 			fees.forEach(({ row }, i) => {
 				const feeId = toNodeId('cctp-fee', row.$id)
 				if (g.hasNode(feeId)) return
@@ -1560,7 +1482,7 @@
 
 		// Add transaction session nodes
 		if (visibleCollections.has(EntityType.TransactionSession)) {
-			const sessions = transactionSessionsQuery.data ?? []
+			const sessions = take(transactionSessionsQuery.data)
 			sessions.forEach(({ row }, i) => {
 				const sessionId = `session:${row.id}`
 				if (g.hasNode(sessionId)) return
@@ -1608,7 +1530,7 @@
 
 		// Add transaction session simulation nodes
 		if (visibleCollections.has(EntityType.TransactionSessionSimulation)) {
-			const simulations = transactionSessionSimulationsQuery.data ?? []
+			const simulations = take(transactionSessionSimulationsQuery.data)
 			simulations.forEach(({ row }, i) => {
 				const simulationId = `simulation:${row.id}`
 				if (g.hasNode(simulationId)) return
@@ -1652,7 +1574,7 @@
 
 		// Add transfer graph nodes
 		if (visibleCollections.has(EntityType.TransferGraph)) {
-			const graphs = transferGraphsQuery.data ?? []
+			const graphs = take(transferGraphsQuery.data)
 			graphs.forEach(({ row }, i) => {
 				const graphId = `transfer-graph:${row.$id.period}`
 				if (g.hasNode(graphId)) return
@@ -1683,7 +1605,7 @@
 
 		// Add room nodes
 		if (visibleCollections.has(EntityType.Room)) {
-			const rooms = roomsQuery.data ?? []
+			const rooms = take(roomsQuery.data)
 			rooms.forEach(({ row }, i) => {
 				const roomId = `room:${row.id}`
 				if (g.hasNode(roomId)) return
@@ -1712,7 +1634,7 @@
 
 		// Add room peer nodes
 		if (visibleCollections.has(EntityType.RoomPeer)) {
-			const peers = roomPeersQuery.data ?? []
+			const peers = take(roomPeersQuery.data)
 			peers.forEach(({ row }, i) => {
 				const peerId = `peer:${row.id}`
 				if (g.hasNode(peerId)) return
@@ -1757,7 +1679,7 @@
 
 		// Add shared address nodes
 		if (visibleCollections.has(EntityType.SharedAddress)) {
-			const shared = sharedAddressesQuery.data ?? []
+			const shared = take(sharedAddressesQuery.data)
 			shared.forEach(({ row }, i) => {
 				const sharedId = `shared:${row.id}`
 				if (g.hasNode(sharedId)) return
@@ -1800,7 +1722,7 @@
 
 		// Add SIWE challenge nodes
 		if (visibleCollections.has(EntityType.SiweChallenge)) {
-			const challenges = siweChallengesQuery.data ?? []
+			const challenges = take(siweChallengesQuery.data)
 			challenges.forEach(({ row }, i) => {
 				const challengeId = `siwe:${row.id}`
 				if (g.hasNode(challengeId)) return
@@ -1892,7 +1814,7 @@
 
 		// Add yellow channel nodes
 		if (visibleCollections.has(EntityType.YellowChannel)) {
-			const channels = yellowChannelsQuery.data ?? []
+			const channels = take(yellowChannelsQuery.data)
 			channels.forEach(({ row }, i) => {
 				const channelId = `yellow:${row.id}`
 				if (g.hasNode(channelId)) return
@@ -1939,7 +1861,7 @@
 
 		// Add yellow channel state nodes
 		if (visibleCollections.has(EntityType.YellowChannelState)) {
-			const states = yellowChannelStatesQuery.data ?? []
+			const states = take(yellowChannelStatesQuery.data)
 			states.forEach(({ row }, i) => {
 				const stateId = `yellow-state:${row.id}`
 				if (g.hasNode(stateId)) return
@@ -1984,7 +1906,7 @@
 
 		// Add yellow deposit nodes
 		if (visibleCollections.has(EntityType.YellowDeposit)) {
-			const deposits = yellowDepositsQuery.data ?? []
+			const deposits = take(yellowDepositsQuery.data)
 			deposits.forEach(({ row }, i) => {
 				const depositId = `yellow-deposit:${row.id}`
 				if (g.hasNode(depositId)) return
@@ -2029,7 +1951,7 @@
 
 		// Add yellow transfer nodes
 		if (visibleCollections.has(EntityType.YellowTransfer)) {
-			const transfers = yellowTransfersQuery.data ?? []
+			const transfers = take(yellowTransfersQuery.data)
 			transfers.forEach(({ row }, i) => {
 				const transferId = `yellow-transfer:${row.id}`
 				if (g.hasNode(transferId)) return
@@ -2074,7 +1996,7 @@
 
 		// Add dashboard panel nodes
 		if (visibleCollections.has(EntityType.DashboardPanel)) {
-			const panels = dashboardPanelsQuery.data ?? []
+			const panels = take(dashboardPanelsQuery.data)
 			panels.forEach(({ row }, i) => {
 				const panelId = toNodeId('dashboard', row.$id)
 				if (g.hasNode(panelId)) return
@@ -2313,28 +2235,23 @@
 </script>
 
 {#if visible && graphModel}
-	<aside
+	<details
 		class="graph-scene"
 		data-card="secondary padding-0 radius-6"
-		data-expanded={expanded}
+		bind:open={expanded}
 	>
-		<header
+		<summary
 			class="graph-scene-header"
 			data-row="gap-2 align-center"
 		>
-			<button
-				class="graph-scene-collapse"
-				type="button"
-				onclick={() => {
-					expanded = !expanded
-				}}
-			>
-				{expanded ? '▼' : '▲'}
-			</button>
 			<h4 data-row-item="flexible">Data Graph</h4>
 			<div
 				class="graph-scene-framework"
 				data-row="gap-1"
+				role="group"
+				aria-label="Graph framework"
+				onclick={(e) => e.stopPropagation()}
+				onkeydown={(e) => e.stopPropagation()}
 			>
 				<button
 					type="button"
@@ -2368,10 +2285,9 @@
 					</span>
 				{/if}
 			</div>
-		</header>
+		</summary>
 
-		{#if expanded}
-			<div class="graph-scene-container">
+		<div class="graph-scene-container">
 				{#if graphFramework === 'g6'}
 					<G6GraphView
 						model={graphModel}
@@ -2446,69 +2362,83 @@
 				>
 					{selectionAnnouncement}
 				</div>
-			</div>
+		</div>
 
-			<footer class="graph-scene-footer">
-				<div
-					class="graph-scene-legend"
-					data-row="wrap gap-1"
-				>
-					{#each Object.entries(collections) as [key, config] (key)}
-						{@const entityType = key}
-						{@const count = counts[entityType]}
-						<button
-							type="button"
-							style="--color: {config.color}"
-							data-active={visibleCollections.has(entityType)}
-							onclick={() => toggleCollection(entityType)}
-						>
-							<span class="graph-scene-dot"></span>
-							{config.label}
-							{#if count > 0}
-								<span class="graph-scene-count">{count}</span>
-							{/if}
-						</button>
-					{/each}
-				</div>
-				{#if selectionItems.length > 0}
-					<div
-						class="graph-scene-selection"
-						data-column="gap-2"
+		<footer class="graph-scene-footer">
+			<div
+				class="graph-scene-legend"
+				data-row="wrap gap-1"
+			>
+				{#each Object.entries(collections) as [key, config] (key)}
+					{@const entityType = key}
+					{@const count = counts[entityType]}
+					<button
+						type="button"
+						style="--color: {config.color}"
+						data-active={visibleCollections.has(entityType)}
+						onclick={() => toggleCollection(entityType)}
 					>
-						<h5>Selection</h5>
-						<ul data-column="gap-1">
-							{#each selectionItems as item (item.id)}
-								<li>
-									<button
-										type="button"
-										data-kind={item.kind}
-										data-row="gap-2 align-center"
-										onclick={() => {
-											if (item.kind === 'node') {
-												selectedNodes = [item.id]
-												selectedEdges = []
-												hoveredNode = item.id
-											} else {
-												selectedEdges = [item.id]
-												selectedNodes = []
-											}
-										}}
-									>
-										<strong data-row-item="flexible">{item.label}</strong>
-										<span>{item.collection}</span>
-									</button>
-								</li>
-							{/each}
-						</ul>
-					</div>
-				{/if}
-			</footer>
-		{/if}
-	</aside>
+						<span class="graph-scene-dot"></span>
+						{config.label}
+						{#if count > 0}
+							<span class="graph-scene-count">{count}</span>
+						{/if}
+					</button>
+				{/each}
+			</div>
+			{#if selectionItems.length > 0}
+				<div
+					class="graph-scene-selection"
+					data-column="gap-2"
+				>
+					<h5>Selection</h5>
+					<ul data-column="gap-1">
+						{#each selectionItems as item (item.id)}
+							<li>
+								<button
+									type="button"
+									data-kind={item.kind}
+									data-row="gap-2 align-center"
+									onclick={() => {
+										if (item.kind === 'node') {
+											selectedNodes = [item.id]
+											selectedEdges = []
+											hoveredNode = item.id
+										} else {
+											selectedEdges = [item.id]
+											selectedNodes = []
+										}
+									}}
+								>
+									<strong data-row-item="flexible">{item.label}</strong>
+									<span>{item.collection}</span>
+								</button>
+							</li>
+						{/each}
+					</ul>
+				</div>
+			{/if}
+		</footer>
+	</details>
 {/if}
 
 <style>
-	.graph-scene {
+	details.graph-scene {
+		--graph-scene-canvas-bg: linear-gradient(
+			145deg,
+			#f8fafc 0%,
+			#f1f5f9 50%,
+			#e2e8f0 100%
+		);
+		--graph-scene-hover-bg: rgba(255, 255, 255, 0.97);
+		--graph-scene-hover-border: rgba(0, 0, 0, 0.06);
+		--graph-scene-details-border: rgba(0, 0, 0, 0.06);
+		--graph-scene-legend-active-bg: color-mix(in srgb, var(--color) 8%, white);
+		--graph-scene-legend-count-bg: color-mix(in srgb, var(--color) 15%, white);
+		--graph-scene-framework-active-bg: var(--color-text);
+		--graph-scene-framework-active-border: var(--color-text);
+		--graph-scene-framework-active-fg: var(--color-text-inverted);
+
 		position: fixed;
 		bottom: 1rem;
 		left: var(--safeArea-insetLeft);
@@ -2526,212 +2456,219 @@
 			);
 		}
 
-		&[data-expanded='true'] {
+		&[open] {
 			height: 380px;
 		}
 
-		&[data-expanded='false'] {
+		&:not([open]) {
 			height: auto;
+		}
+
+		> summary {
+			padding: 0.5rem 0.75rem;
+			border-bottom: 1px solid var(--color-border);
+			background: var(--color-bg-subtle);
+			border-radius: 0.75rem 0.75rem 0 0;
+			list-style: none;
+			cursor: pointer;
+
+			&::-webkit-details-marker {
+				display: none;
+			}
+
+			&::marker {
+				display: none;
+			}
+
+			&::before {
+				content: '▼';
+				font-size: 0.625rem;
+				opacity: 0.6;
+			}
+
+			> h4 {
+				margin: 0;
+				font-size: 0.8125rem;
+				font-weight: 600;
+			}
+
+			> .graph-scene-framework > button[data-active='true'] {
+				background: var(--graph-scene-framework-active-bg);
+				border-color: var(--graph-scene-framework-active-border);
+				color: var(--graph-scene-framework-active-fg);
+			}
+
+			> .graph-scene-stats {
+				font-size: 0.6875rem;
+				opacity: 0.6;
+
+				.graph-scene-highlight {
+					color: var(--color-primary);
+					font-weight: 500;
+				}
+			}
+		}
+
+		&:not([open]) > summary::before {
+			content: '▲';
+		}
+
+		> .graph-scene-container {
+			flex: 1;
+			min-height: 0;
+			position: relative;
+			background: var(--graph-scene-canvas-bg);
+
+			> .graph-scene-hover {
+				position: absolute;
+				top: 0.5rem;
+				left: 0.5rem;
+				background: var(--graph-scene-hover-bg);
+				backdrop-filter: blur(12px);
+				padding: 0.5rem 0.75rem;
+				border-radius: 0.5rem;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+				display: flex;
+				flex-direction: column;
+				gap: 0.25rem;
+				max-width: 200px;
+				pointer-events: none;
+				border: 1px solid var(--graph-scene-hover-border);
+
+				> .graph-scene-hover-header {
+					display: flex;
+					align-items: center;
+					gap: 0.375rem;
+
+					> .graph-scene-dot {
+						width: 8px;
+						height: 8px;
+						border-radius: 50%;
+						flex-shrink: 0;
+					}
+				}
+
+				strong {
+					font-size: 0.75rem;
+					font-weight: 600;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+
+				> .graph-scene-collection {
+					font-size: 0.625rem;
+					text-transform: uppercase;
+					letter-spacing: 0.05em;
+					opacity: 0.5;
+				}
+
+				> .graph-scene-details {
+					display: grid;
+					grid-template-columns: auto 1fr;
+					gap: 0.125rem 0.5rem;
+					font-size: 0.625rem;
+					margin: 0.25rem 0 0;
+					padding-top: 0.25rem;
+					border-top: 1px solid var(--graph-scene-details-border);
+
+					> dt {
+						opacity: 0.5;
+						text-transform: capitalize;
+					}
+
+					> dd {
+						margin: 0;
+						font-family: ui-monospace, monospace;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+					}
+				}
+			}
+		}
+
+		> footer {
+			padding: 0.5rem 0.625rem;
+			border-top: 1px solid var(--color-border);
+			background: var(--color-bg-subtle);
+			border-radius: 0 0 0.75rem 0.75rem;
+
+			> .graph-scene-legend {
+				> button[data-active='true'] {
+					background: var(--graph-scene-legend-active-bg);
+					border-color: color-mix(in srgb, var(--color) 30%, transparent);
+				}
+
+				> button .graph-scene-dot {
+					width: 6px;
+					height: 6px;
+					border-radius: 50%;
+					background: var(--color);
+				}
+
+				> button .graph-scene-count {
+					font-size: 0.5625rem;
+					font-weight: 600;
+					background: var(--graph-scene-legend-count-bg);
+					color: var(--color);
+					padding: 0.0625rem 0.25rem;
+					border-radius: 0.75rem;
+					min-width: 1rem;
+					text-align: center;
+				}
+			}
+
+			> .graph-scene-selection {
+				margin-top: 0.5rem;
+				border-top: 1px solid var(--color-border);
+				padding-top: 0.5rem;
+
+				> h5 {
+					margin: 0;
+					font-size: 0.625rem;
+					text-transform: uppercase;
+					letter-spacing: 0.04em;
+					opacity: 0.6;
+				}
+
+				button {
+					width: 100%;
+
+					strong {
+						font-weight: 600;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+					}
+
+					span {
+						opacity: 0.5;
+						font-size: 0.5625rem;
+						text-transform: uppercase;
+						letter-spacing: 0.04em;
+					}
+				}
+			}
 		}
 	}
 
-	.graph-scene-header {
-		padding: 0.5rem 0.75rem;
-		border-bottom: 1px solid var(--color-border, #e5e7eb);
-		background: var(--color-bg-elevated, #fafafa);
-		border-radius: 0.75rem 0.75rem 0 0;
-	}
-
-	.graph-scene-header h4 {
-		margin: 0;
-		font-size: 0.8125rem;
-		font-weight: 600;
-	}
-
-	.graph-scene-framework button[data-active='true'] {
-		background: #0f172a;
-		border-color: #0f172a;
-		color: white;
-	}
-
-	.graph-scene-stats {
-		font-size: 0.6875rem;
-		opacity: 0.6;
-	}
-
-	.graph-scene-highlight {
-		color: #3b82f6;
-		font-weight: 500;
-	}
-
-	.graph-scene-container {
-		flex: 1;
-		min-height: 0;
-		position: relative;
-		background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
-	}
-
-	.graph-scene-hover {
-		position: absolute;
-		top: 0.5rem;
-		left: 0.5rem;
-		background: rgba(255, 255, 255, 0.97);
-		backdrop-filter: blur(12px);
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.5rem;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		max-width: 200px;
-		pointer-events: none;
-		border: 1px solid rgba(0, 0, 0, 0.06);
-	}
-
-	.graph-scene-hover-header {
-		display: flex;
-		align-items: center;
-		gap: 0.375rem;
-	}
-
-	.graph-scene-hover-header .graph-scene-dot {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		flex-shrink: 0;
-	}
-
-	.graph-scene-hover strong {
-		font-size: 0.75rem;
-		font-weight: 600;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.graph-scene-hover .graph-scene-collection {
-		font-size: 0.625rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		opacity: 0.5;
-	}
-
-	.graph-scene-details {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		gap: 0.125rem 0.5rem;
-		font-size: 0.625rem;
-		margin: 0.25rem 0 0;
-		padding-top: 0.25rem;
-		border-top: 1px solid rgba(0, 0, 0, 0.06);
-	}
-
-	.graph-scene-details dt {
-		opacity: 0.5;
-		text-transform: capitalize;
-	}
-
-	.graph-scene-details dd {
-		margin: 0;
-		font-family: ui-monospace, monospace;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.graph-scene-footer {
-		padding: 0.5rem 0.625rem;
-		border-top: 1px solid var(--color-border, #e5e7eb);
-		background: var(--color-bg-elevated, #fafafa);
-		border-radius: 0 0 0.75rem 0.75rem;
-	}
-
-	.graph-scene-legend button[data-active='true'] {
-		background: color-mix(in srgb, var(--color) 8%, white);
-		border-color: color-mix(in srgb, var(--color) 30%, transparent);
-	}
-
-	.graph-scene-legend .graph-scene-dot {
-		width: 6px;
-		height: 6px;
-		border-radius: 50%;
-		background: var(--color);
-	}
-
-	.graph-scene-legend .graph-scene-count {
-		font-size: 0.5625rem;
-		font-weight: 600;
-		background: color-mix(in srgb, var(--color) 15%, white);
-		color: var(--color);
-		padding: 0.0625rem 0.25rem;
-		border-radius: 0.75rem;
-		min-width: 1rem;
-		text-align: center;
-	}
-
-	.graph-scene-selection {
-		margin-top: 0.5rem;
-		border-top: 1px solid var(--color-border, #e5e7eb);
-		padding-top: 0.5rem;
-	}
-
-	.graph-scene-selection h5 {
-		margin: 0;
-		font-size: 0.625rem;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		opacity: 0.6;
-	}
-
-	.graph-scene-selection button {
-		width: 100%;
-	}
-
-	.graph-scene-selection button strong {
-		font-weight: 600;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.graph-scene-selection button span {
-		opacity: 0.5;
-		font-size: 0.5625rem;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-	}
-
 	@media (prefers-color-scheme: dark) {
-		.graph-scene-container {
-			background: linear-gradient(
+		details.graph-scene {
+			--graph-scene-canvas-bg: linear-gradient(
 				145deg,
 				#1e293b 0%,
 				#0f172a 50%,
 				#020617 100%
 			);
-		}
-
-		.graph-scene-hover {
-			background: rgba(30, 41, 59, 0.97);
-			border-color: rgba(255, 255, 255, 0.06);
-		}
-
-		.graph-scene-details {
-			border-top-color: rgba(255, 255, 255, 0.06);
-		}
-
-		.graph-scene-legend button[data-active='true'] {
-			background: color-mix(in srgb, var(--color) 15%, #1e293b);
-		}
-
-		.graph-scene-legend .graph-scene-count {
-			background: color-mix(in srgb, var(--color) 20%, #1e293b);
-		}
-
-		.graph-scene-framework button[data-active='true'] {
-			background: #e2e8f0;
-			border-color: #e2e8f0;
-			color: #0f172a;
+			--graph-scene-hover-bg: rgba(30, 41, 59, 0.97);
+			--graph-scene-hover-border: rgba(255, 255, 255, 0.06);
+			--graph-scene-details-border: rgba(255, 255, 255, 0.06);
+			--graph-scene-legend-active-bg: color-mix(in srgb, var(--color) 15%, #1e293b);
+			--graph-scene-legend-count-bg: color-mix(in srgb, var(--color) 20%, #1e293b);
+			--graph-scene-framework-active-bg: var(--color-border);
+			--graph-scene-framework-active-border: var(--color-border);
+			--graph-scene-framework-active-fg: var(--color-text);
 		}
 	}
 </style>

@@ -2,6 +2,7 @@
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
 	import type { GraphModel } from '$/lib/graph-model'
+	import { entityTypes } from '$/constants/entity-types'
 
 	// Functions
 	import { Graph, EdgeEvent, NodeEvent } from '@antv/g6'
@@ -64,6 +65,9 @@
 		const getNumber = (value: unknown): number | null =>
 			typeof value === 'number' ? value : null
 
+		const getCollectionLabel = (collection: string) =>
+			entityTypes.find((e) => e.type === collection)?.labelPlural ?? collection
+
 		const getNodeType = (node: GraphModel['nodes'][number]) =>
 			node.g6Type ??
 			(node.type === 'image' || node.image
@@ -76,10 +80,13 @@
 							? 'diamond'
 							: 'circle')
 
-		const getEdgeType = (edgeType?: string) =>
-			typeof edgeType === 'string' && edgeType.includes('curved')
+		const getEdgeTypeFromRelation = (relation?: string) =>
+			relation === 'connection' ? 'cubic' : relation === 'allowance' ? 'quadratic' : 'line'
+
+		const getEdgeType = (edge: GraphModel['edges'][number]) =>
+			typeof edge.type === 'string' && edge.type.includes('curved')
 				? 'cubic'
-				: 'line'
+				: getEdgeTypeFromRelation(edge.relation)
 
 		const getEdgeArrow = (edgeType?: string) =>
 			typeof edgeType === 'string' && edgeType.includes('Arrow')
@@ -106,6 +113,7 @@
 
 			return {
 				id: node.id,
+				combo: `combo-${node.collection}`,
 				type: getNodeType(node),
 				data: {
 					label: node.label ?? node.id,
@@ -118,31 +126,45 @@
 			}
 		}
 
-		const getEdgeData = (edge: GraphModel['edges'][number]): EdgeData => ({
-			id: edge.id,
-			source: edge.source,
-			target: edge.target,
-			type: getEdgeType(edge.type),
-			data: {
-				relation: edge.relation ?? 'edge',
-				disabled: edge.disabled ?? false,
-			},
-			style: {
-				stroke: edge.color ?? '#94a3b8',
-				lineWidth: edge.size ?? 1,
-				endArrow: getEdgeArrow(edge.type),
-				lineDash: edge.relation === 'allowance' ? [4, 4] : undefined,
-				labelText: edge.relation ?? '',
-				labelBackground: true,
-				labelBackgroundFill,
-				labelBackgroundRadius: 5,
-				labelPadding: [2, 6],
-				labelFill,
-				labelFontSize: 9,
-				labelAutoRotate: true,
-				...(edge.g6Style ?? {}),
-			},
-		})
+		const getEdgeData = (edge: GraphModel['edges'][number]): EdgeData => {
+			const relation = edge.relation ?? 'edge'
+			const directed = getEdgeArrow(edge.type) ?? relation !== 'connection'
+			const isAllowance = relation === 'allowance'
+			return {
+				id: edge.id,
+				source: edge.source,
+				target: edge.target,
+				type: getEdgeType(edge),
+				data: {
+					relation,
+					disabled: edge.disabled ?? false,
+				},
+				style: {
+					stroke: edge.color ?? '#94a3b8',
+					lineWidth: edge.size ?? 1,
+					endArrow: directed,
+					endArrowType: isAllowance ? 'triangle' : 'vee',
+					endArrowSize: isAllowance ? 10 : 8,
+					lineDash: isAllowance ? [4, 4] : undefined,
+					zIndex: isAllowance ? 2 : 1,
+					halo: isAllowance,
+					haloLineWidth: isAllowance ? 4 : undefined,
+					haloStroke: isAllowance ? (edge.color ?? '#94a3b8') : undefined,
+					haloStrokeOpacity: isAllowance ? 0.25 : undefined,
+					shadowBlur: relation !== 'edge' && !isAllowance ? 4 : undefined,
+					shadowColor: relation !== 'edge' && !isAllowance ? 'rgba(0,0,0,0.15)' : undefined,
+					labelText: relation !== 'edge' ? relation : '',
+					labelBackground: true,
+					labelBackgroundFill,
+					labelBackgroundRadius: 5,
+					labelPadding: [2, 6],
+					labelFill,
+					labelFontSize: 9,
+					labelAutoRotate: true,
+					...(edge.g6Style ?? {}),
+				},
+			}
+		}
 
 		let intentById = new Map<
 			string,
@@ -158,9 +180,36 @@
 					.filter((node) => node.intent)
 					.map((node) => [node.id, node.intent]),
 			)
+			const collections = [...new Set(model.nodes.map((node) => node.collection))]
+			const combos = collections.map((collection) => {
+				const firstNode = model.nodes.find((n) => n.collection === collection)
+				const fill = firstNode?.color ?? '#64748b'
+				return {
+					id: `combo-${collection}`,
+					type: 'rect' as const,
+					data: { label: getCollectionLabel(collection) },
+					style: {
+						fill,
+						fillOpacity: prefersDark ? 0.08 : 0.14,
+						stroke: fill,
+						strokeOpacity: 0.35,
+						lineWidth: 1,
+						labelText: getCollectionLabel(collection),
+						labelPlacement: 'top' as const,
+						labelBackground: true,
+						labelBackgroundFill,
+						labelBackgroundRadius: 6,
+						labelPadding: [2, 6],
+						labelFill,
+						labelFontSize: 11,
+						zIndex: 0,
+					},
+				}
+			})
 			return {
 				nodes: model.nodes.map((node) => getNodeData(node)),
 				edges: model.edges.map((edge) => getEdgeData(edge)),
+				combos,
 			}
 		}
 
@@ -468,6 +517,24 @@
 							],
 						},
 			},
+			combo: {
+				type: 'rect',
+				state: {
+					selected: {
+						lineWidth: 2,
+						stroke: '#60a5fa',
+						strokeOpacity: 0.6,
+					},
+					hover: {
+						strokeOpacity: 0.5,
+					},
+				},
+				animation: reducedMotion
+					? false
+					: {
+							update: [{ fields: ['x', 'y', 'width', 'height'], duration: 250 }],
+						},
+			},
 			behaviors: [
 				{
 					type: 'drag-canvas',
@@ -488,8 +555,9 @@
 						reset: ['0'],
 					},
 				},
-				{ type: 'drag-element' },
+				{ type: 'drag-element', dropEffect: 'link' },
 				{ type: 'click-select' },
+				{ type: 'collapse-expand' },
 				{
 					type: 'brush-select',
 					trigger: ['Shift'],
