@@ -538,7 +538,7 @@
 	import Wallets from '$/views/Wallets.svelte'
 	import EntityId from '$/components/EntityId.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
-	import TransferFlow from '$/routes/session/transfer/TransferFlow.svelte'
+	import TransferFlow from '$/routes/session/TransferFlow.svelte'
 </script>
 
 <main

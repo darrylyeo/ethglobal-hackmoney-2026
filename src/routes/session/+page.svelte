@@ -65,10 +65,10 @@
 	})
 
 	// Components
-	import BridgeView from './bridge/BridgeView.svelte'
-	import LiquidityView from './liquidity/LiquidityView.svelte'
-	import SwapView from './swap/SwapView.svelte'
-	import TransferView from './transfer/TransferView.svelte'
+	import BridgeView from './BridgeView.svelte'
+	import LiquidityView from './LiquidityView.svelte'
+	import SwapView from './SwapView.svelte'
+	import TransferView from './TransferView.svelte'
 </script>
 
 
