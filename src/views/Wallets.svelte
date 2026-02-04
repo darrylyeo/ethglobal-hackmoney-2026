@@ -5,6 +5,10 @@
 		ReadOnlyWalletRow,
 		WalletConnectionRow,
 	} from '$/collections/wallet-connections'
+	import type {
+		WalletConnectionEip1193,
+		WalletConnectionNone,
+	} from '$/data/WalletConnection'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 	import {
 		mainnetForTestnet,
@@ -38,6 +42,75 @@
 		actor?: `0x${string}`
 		network?: NetworkInfo
 	}
+	const getWalletMenuEntries = (
+		wallet: WalletRow | ReadOnlyWalletRow,
+		connection: WalletConnectionEip1193 | WalletConnectionNone,
+		status: 'connected' | 'connecting' | 'error',
+	): WalletMenuEntry[] =>
+		status !== 'connected' ?
+			[
+				{
+					type: 'item',
+					item: { kind: 'unlock', label: 'Unlock' },
+					id: `unlock-${wallet.$id.rdns}`,
+					onSelect: () => connect(wallet.$id.rdns),
+				},
+				{
+					type: 'item',
+					item: { kind: 'disconnect', label: 'Remove' },
+					id: `disconnect-${wallet.$id.rdns}`,
+					onSelect: () => disconnectWallet(wallet.$id),
+				},
+			]
+		: connection.transport === WalletConnectionTransport.None ?
+			[
+				{
+					type: 'item',
+					item: { kind: 'disconnect', label: 'Remove' },
+					id: `disconnect-${wallet.$id.rdns}`,
+					onSelect: () => disconnectWallet(wallet.$id),
+				},
+			]
+		: [
+				...(
+					(connection.actors ?? []).length > 0 ?
+						[
+							...(connection.actors ?? []).map((actor) => ({
+								type: 'item',
+								item: { kind: 'actor', actor },
+								id: `actor-${actor}`,
+								onSelect: () =>
+									switchActiveActor(wallet.$id, actor),
+							})),
+							{ type: 'separator' },
+						]
+					: []
+				),
+				...(
+					filteredNetworks.length > 0 ?
+						[
+							...filteredNetworks.map((network) => ({
+								type: 'item',
+								item: { kind: 'network', network },
+								id: `network-${network.id}`,
+								onSelect: () =>
+									switchNetwork(
+										connection,
+										wallet,
+										network.id,
+									).catch(() => {}),
+							})),
+							{ type: 'separator' },
+						]
+					: []
+				),
+				{
+					type: 'item',
+					item: { kind: 'disconnect', label: 'Disconnect' },
+					id: `disconnect-${wallet.$id.rdns}`,
+					onSelect: () => disconnectWallet(wallet.$id),
+				},
+			]
 	type WalletMenuEntry =
 		| {
 				type: string
@@ -307,7 +380,7 @@
 		event: Event & { currentTarget: HTMLInputElement },
 	) => (readOnlyAddress = event.currentTarget.value)
 	const switchNetwork = (
-		connection: WalletConnectionRow,
+		connection: WalletConnectionEip1193 | WalletConnectionNone,
 		wallet: WalletRow | ReadOnlyWalletRow,
 		chainId: number,
 	) =>
@@ -392,6 +465,7 @@
 									: status === 'error'
 										? 'wallet-chip wallet-failed'
 										: 'wallet-chip'}
+							{@const walletMenuItems = getWalletMenuEntries(wallet, connection, status)}
 							<ToggleGroup.Item
 								value={wallet.$id.rdns}
 								data-tag="wallet-type"
@@ -427,59 +501,7 @@
 											<span class="wallet-status">{statusLabel ?? '—'}</span>
 										{/if}
 									</span>
-									{#if isConnected && connection.transport === WalletConnectionTransport.Eip1193}
-{@const walletMenuItems: WalletMenuEntry[] = (
-											[
-												...(
-													(connection.actors ?? []).length > 0 ?
-														[
-															...(connection.actors ?? []).map((actor) => ({
-																	type: 'item',
-																	item: {
-																		kind: 'actor',
-																		actor,
-																	},
-																	id: `actor-${actor}`,
-																	onSelect: () =>
-																		switchActiveActor(wallet.$id, actor),
-															})),
-															{ type: 'separator' },
-														]
-													: []
-												),
-												...(
-													filteredNetworks.length > 0 ?
-														[
-															...filteredNetworks.map((network) => ({
-																	type: 'item',
-																	item: {
-																		kind: 'network',
-																		network,
-																	},
-																	id: `network-${network.id}`,
-																	onSelect: () =>
-																		switchNetwork(
-																			connection,
-																			wallet,
-																			network.id,
-																		).catch(() => {}),
-															})),
-															{ type: 'separator' },
-														]
-													: []
-												),
-												{
-													type: 'item',
-													item: {
-														kind: 'disconnect',
-														label: 'Disconnect',
-													},
-													id: `disconnect-${wallet.$id.rdns}`,
-													onSelect: () => disconnectWallet(wallet.$id),
-												},
-											]
-										)}
-										<Dropdown
+									<Dropdown
 											items={walletMenuItems}
 											triggerAriaLabel="Wallet menu"
 											triggerProps={{
@@ -524,48 +546,6 @@
 												{/if}
 											{/snippet}
 										</Dropdown>
-									{:else if connection.transport === WalletConnectionTransport.None}
-										<Dropdown
-											items={[
-												{
-													type: 'item',
-													item: {
-														kind: 'disconnect',
-														label: 'Remove',
-													},
-													onSelect: () => disconnectWallet(wallet.$id),
-												},
-											]}
-											triggerAriaLabel="Wallet menu"
-											triggerProps={{
-												'data-wallet-menu-trigger': true,
-												onclick: (event: MouseEvent) => event.stopPropagation(),
-											}}
-										>
-											{#snippet Trigger()}
-												<svg
-													width="12"
-													height="12"
-													viewBox="0 0 12 12"
-													fill="currentColor"
-												>
-													<circle cx="6" cy="2" r="1.5" />
-													<circle cx="6" cy="6" r="1.5" />
-													<circle cx="6" cy="10" r="1.5" />
-												</svg>
-											{/snippet}
-											{#snippet Item(item)}
-												<span data-wallet-disconnect>{item.label}</span>
-											{/snippet}
-										</Dropdown>
-									{:else}
-										<Button.Root
-											type="button"
-											onclick={() => disconnectWallet(wallet.$id)}
-										>
-											×
-										</Button.Root>
-									{/if}
 								</span>
 							</ToggleGroup.Item>
 						{/each}
@@ -601,6 +581,7 @@
 									: status === 'error'
 										? 'wallet-chip wallet-failed'
 										: 'wallet-chip'}
+							{@const walletMenuItems = getWalletMenuEntries(wallet, connection, status)}
 							<ToggleGroup.Item
 								value={wallet.$id.rdns}
 								data-tag="wallet-type"
@@ -636,59 +617,7 @@
 											<span class="wallet-status">{statusLabel ?? '—'}</span>
 										{/if}
 									</span>
-									{#if isConnected && connection.transport === WalletConnectionTransport.Eip1193}
-{@const walletMenuItems: WalletMenuEntry[] = (
-											[
-												...(
-													(connection.actors ?? []).length > 0 ?
-														[
-															...(connection.actors ?? []).map((actor) => ({
-																	type: 'item',
-																	item: {
-																		kind: 'actor',
-																		actor,
-																	},
-																	id: `actor-${actor}`,
-																	onSelect: () =>
-																		switchActiveActor(wallet.$id, actor),
-															})),
-															{ type: 'separator' },
-														]
-													: []
-												),
-												...(
-													filteredNetworks.length > 0 ?
-														[
-															...filteredNetworks.map((network) => ({
-																	type: 'item',
-																	item: {
-																		kind: 'network',
-																		network,
-																	},
-																	id: `network-${network.id}`,
-																	onSelect: () =>
-																		switchNetwork(
-																			connection,
-																			wallet,
-																			network.id,
-																		).catch(() => {}),
-															})),
-															{ type: 'separator' },
-														]
-													: []
-												),
-												{
-													type: 'item',
-													item: {
-														kind: 'disconnect',
-														label: 'Disconnect',
-													},
-													id: `disconnect-${wallet.$id.rdns}`,
-													onSelect: () => disconnectWallet(wallet.$id),
-												},
-											]
-										)}
-										<Dropdown
+									<Dropdown
 											items={walletMenuItems}
 											triggerAriaLabel="Wallet menu"
 											triggerProps={{
@@ -733,48 +662,6 @@
 												{/if}
 											{/snippet}
 										</Dropdown>
-									{:else if connection.transport === WalletConnectionTransport.None}
-										<Dropdown
-											items={[
-												{
-													type: 'item',
-													item: {
-								kind: 'disconnect',
-														label: 'Remove',
-													},
-													onSelect: () => disconnectWallet(wallet.$id),
-												},
-											]}
-											triggerAriaLabel="Wallet menu"
-											triggerProps={{
-												'data-wallet-menu-trigger': true,
-												onclick: (event: MouseEvent) => event.stopPropagation(),
-											}}
-										>
-											{#snippet Trigger()}
-												<svg
-													width="12"
-													height="12"
-													viewBox="0 0 12 12"
-													fill="currentColor"
-												>
-													<circle cx="6" cy="2" r="1.5" />
-													<circle cx="6" cy="6" r="1.5" />
-													<circle cx="6" cy="10" r="1.5" />
-												</svg>
-											{/snippet}
-											{#snippet Item(item)}
-												<span data-wallet-disconnect>{item.label}</span>
-											{/snippet}
-										</Dropdown>
-									{:else}
-										<Button.Root
-											type="button"
-											onclick={() => disconnectWallet(wallet.$id)}
-										>
-											×
-										</Button.Root>
-									{/if}
 								</span>
 							</ToggleGroup.Item>
 						{/each}
@@ -816,6 +703,7 @@
 									: status === 'error'
 										? 'wallet-chip wallet-failed'
 										: 'wallet-chip'}
+							{@const walletMenuItems = getWalletMenuEntries(wallet, connection, status)}
 							<ToggleGroup.Item
 								value={wallet.$id.rdns}
 								data-tag="wallet-type"
@@ -851,59 +739,7 @@
 											<span class="wallet-status">{statusLabel ?? '—'}</span>
 										{/if}
 									</span>
-									{#if isConnected && connection.transport === WalletConnectionTransport.Eip1193}
-{@const walletMenuItems: WalletMenuEntry[] = (
-											[
-												...(
-													(connection.actors ?? []).length > 0 ?
-														[
-															...(connection.actors ?? []).map((actor) => ({
-																	type: 'item',
-																	item: {
-																		kind: 'actor',
-																		actor,
-																	},
-																	id: `actor-${actor}`,
-																	onSelect: () =>
-																		switchActiveActor(wallet.$id, actor),
-															})),
-															{ type: 'separator' },
-														]
-													: []
-												),
-												...(
-													filteredNetworks.length > 0 ?
-														[
-															...filteredNetworks.map((network) => ({
-																	type: 'item',
-																	item: {
-																		kind: 'network',
-																		network,
-																	},
-																	id: `network-${network.id}`,
-																	onSelect: () =>
-																		switchNetwork(
-																			connection,
-																			wallet,
-																			network.id,
-																		).catch(() => {}),
-															})),
-															{ type: 'separator' },
-														]
-													: []
-												),
-												{
-													type: 'item',
-													item: {
-														kind: 'disconnect',
-														label: 'Disconnect',
-													},
-													id: `disconnect-${wallet.$id.rdns}`,
-													onSelect: () => disconnectWallet(wallet.$id),
-												},
-											]
-										)}
-										<Dropdown
+									<Dropdown
 											items={walletMenuItems}
 											triggerAriaLabel="Wallet menu"
 											triggerProps={{
@@ -948,48 +784,6 @@
 												{/if}
 											{/snippet}
 										</Dropdown>
-									{:else if connection.transport === WalletConnectionTransport.None}
-										<Dropdown
-											items={[
-												{
-													type: 'item',
-													item: {
-								kind: 'disconnect',
-														label: 'Remove',
-													},
-													onSelect: () => disconnectWallet(wallet.$id),
-												},
-											]}
-											triggerAriaLabel="Wallet menu"
-											triggerProps={{
-												'data-wallet-menu-trigger': true,
-												onclick: (event: MouseEvent) => event.stopPropagation(),
-											}}
-										>
-											{#snippet Trigger()}
-												<svg
-													width="12"
-													height="12"
-													viewBox="0 0 12 12"
-													fill="currentColor"
-												>
-													<circle cx="6" cy="2" r="1.5" />
-													<circle cx="6" cy="6" r="1.5" />
-													<circle cx="6" cy="10" r="1.5" />
-												</svg>
-											{/snippet}
-											{#snippet Item(item)}
-												<span data-wallet-disconnect>{item.label}</span>
-											{/snippet}
-										</Dropdown>
-									{:else}
-										<Button.Root
-											type="button"
-											onclick={() => disconnectWallet(wallet.$id)}
-										>
-											×
-										</Button.Root>
-									{/if}
 								</span>
 							</ToggleGroup.Item>
 						{/each}
@@ -1025,6 +819,7 @@
 									: status === 'error'
 										? 'wallet-chip wallet-failed'
 										: 'wallet-chip'}
+							{@const walletMenuItems = getWalletMenuEntries(wallet, connection, status)}
 							<ToggleGroup.Item
 								value={wallet.$id.rdns}
 								data-tag="wallet-type"
@@ -1060,59 +855,7 @@
 											<span class="wallet-status">{statusLabel ?? '—'}</span>
 										{/if}
 									</span>
-									{#if isConnected && connection.transport === WalletConnectionTransport.Eip1193}
-{@const walletMenuItems: WalletMenuEntry[] = (
-											[
-												...(
-													(connection.actors ?? []).length > 0 ?
-														[
-															...(connection.actors ?? []).map((actor) => ({
-																	type: 'item',
-																	item: {
-																		kind: 'actor',
-																		actor,
-																	},
-																	id: `actor-${actor}`,
-																	onSelect: () =>
-																		switchActiveActor(wallet.$id, actor),
-															})),
-															{ type: 'separator' },
-														]
-													: []
-												),
-												...(
-													filteredNetworks.length > 0 ?
-														[
-															...filteredNetworks.map((network) => ({
-																	type: 'item',
-																	item: {
-																		kind: 'network',
-																		network,
-																	},
-																	id: `network-${network.id}`,
-																	onSelect: () =>
-																		switchNetwork(
-																			connection,
-																			wallet,
-																			network.id,
-																		).catch(() => {}),
-															})),
-															{ type: 'separator' },
-														]
-													: []
-												),
-												{
-													type: 'item',
-													item: {
-														kind: 'disconnect',
-														label: 'Disconnect',
-													},
-													id: `disconnect-${wallet.$id.rdns}`,
-													onSelect: () => disconnectWallet(wallet.$id),
-												},
-											]
-										)}
-										<Dropdown
+									<Dropdown
 											items={walletMenuItems}
 											triggerAriaLabel="Wallet menu"
 											triggerProps={{
@@ -1157,48 +900,6 @@
 												{/if}
 											{/snippet}
 										</Dropdown>
-									{:else if connection.transport === WalletConnectionTransport.None}
-										<Dropdown
-											items={[
-												{
-													type: 'item',
-													item: {
-								kind: 'disconnect',
-														label: 'Remove',
-													},
-													onSelect: () => disconnectWallet(wallet.$id),
-												},
-											]}
-											triggerAriaLabel="Wallet menu"
-											triggerProps={{
-												'data-wallet-menu-trigger': true,
-												onclick: (event: MouseEvent) => event.stopPropagation(),
-											}}
-										>
-											{#snippet Trigger()}
-												<svg
-													width="12"
-													height="12"
-													viewBox="0 0 12 12"
-													fill="currentColor"
-												>
-													<circle cx="6" cy="2" r="1.5" />
-													<circle cx="6" cy="6" r="1.5" />
-													<circle cx="6" cy="10" r="1.5" />
-												</svg>
-											{/snippet}
-											{#snippet Item(item)}
-												<span data-wallet-disconnect>{item.label}</span>
-											{/snippet}
-										</Dropdown>
-									{:else}
-										<Button.Root
-											type="button"
-											onclick={() => disconnectWallet(wallet.$id)}
-										>
-											×
-										</Button.Root>
-									{/if}
 								</span>
 							</ToggleGroup.Item>
 						{/each}
