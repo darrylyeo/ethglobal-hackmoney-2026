@@ -469,3 +469,59 @@ export const testnetsForMainnet = new Map(
 		testnetIds.map((testnetId) => networksByChainId[testnetId]!),
 	]),
 )
+
+/** CAIP-2 chain id for EIP-155 (e.g. eip155:1). */
+export const toCaip2 = (chainId: number): string => `eip155:${chainId}`
+
+/** Slug from display name: lowercase, spaces → hyphens. */
+export const toNetworkSlug = (name: string): string =>
+	name.toLowerCase().replace(/\s+/g, '-')
+
+const slugToChainId: Partial<Record<string, ChainId>> = Object.fromEntries(
+	networkConfigs.map((config) => [toNetworkSlug(config.name), config.chainId]),
+)
+
+export const getNetworkBySlug = (slug: string): NetworkConfig | null => {
+	const chainId = slugToChainId[slug.toLowerCase()]
+	return chainId != null ? networkConfigsByChainId[chainId] ?? null : null
+}
+
+export const getNetworkByCaip2 = (caip2: string): NetworkConfig | null => {
+	const match = /^eip155:(\d+)$/.exec(caip2)
+	const chainId = match ? (Number(match[1]) as ChainId) : null
+	return chainId != null ? networkConfigsByChainId[chainId] ?? null : null
+}
+
+export type ParsedNetworkParam = {
+	chainId: ChainId
+	config: NetworkConfig
+	slug: string
+	caip2: string
+}
+
+/** Resolve [name] from /network/[name]: slug or eip155:chainId. */
+export const parseNetworkNameParam = (
+	name: string,
+): ParsedNetworkParam | null => {
+	const decoded = decodeURIComponent(name)
+	if (decoded.includes(':')) {
+		const config = getNetworkByCaip2(decoded)
+		return config
+			? {
+					chainId: config.chainId,
+					config,
+					slug: toNetworkSlug(config.name),
+					caip2: toCaip2(config.chainId),
+				}
+			: null
+	}
+	const config = getNetworkBySlug(decoded)
+	return config
+		? {
+				chainId: config.chainId,
+				config,
+				slug: toNetworkSlug(config.name),
+				caip2: toCaip2(config.chainId),
+			}
+		: null
+}
