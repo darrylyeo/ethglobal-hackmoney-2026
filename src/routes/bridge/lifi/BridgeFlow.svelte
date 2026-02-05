@@ -61,6 +61,7 @@
 
 	// Components
 	import Select from '$/components/Select.svelte'
+	import Skeleton from '$/components/Skeleton.svelte'
 	import Spinner from '$/components/Spinner.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import BridgeExecution from './BridgeExecution.svelte'
@@ -505,29 +506,45 @@
 			{/if}
 		{/if}
 		<div data-column="gap-2">
-			{#each sortedRoutes as r (r.id)}
-				<button
-					class="route-card"
-					type="button"
-					data-selected={r.id === selectedRouteId ? '' : undefined}
-					onclick={() => {
-						selectedRouteId = r.id
-					}}
-				>
-					<div data-row="gap-2 align-center justify-between">
-						<strong>{formatTokenAmount(r.toAmount, 6)} USDC</strong>
-						<span data-muted>${r.gasCostUsd.toFixed(2)} fees</span>
+			{#if routesRow?.isLoading && sortedRoutes.length === 0}
+				<p data-muted>Finding routes…</p>
+				{#each [1, 2, 3] as _}
+					<div class="route-card route-card-skeleton">
+						<div data-row="gap-2 align-center justify-between">
+							<Skeleton width="6em" height="1.25em" rounded="0.25em" />
+							<Skeleton width="4em" height="1em" rounded="0.25em" />
+						</div>
+						<div data-row="gap-2" data-muted>
+							<Skeleton width="10em" height="1em" rounded="0.25em" />
+							<Skeleton width="3em" height="1em" rounded="0.25em" />
+						</div>
 					</div>
-					<div data-row="gap-2" data-muted>
-						<span
-							>{[...new Set(r.steps.map((st) => st.toolName))].join(
-								' → ',
-							)}</span
-						>
-						<span>~{Math.ceil(r.estimatedDurationSeconds / 60)}m</span>
-					</div>
-				</button>
-			{/each}
+				{/each}
+			{:else}
+				{#each sortedRoutes as r (r.id)}
+					<button
+						class="route-card"
+						type="button"
+						data-selected={r.id === selectedRouteId ? '' : undefined}
+						onclick={() => {
+							selectedRouteId = r.id
+						}}
+					>
+						<div data-row="gap-2 align-center justify-between">
+							<strong>{formatTokenAmount(r.toAmount, 6)} USDC</strong>
+							<span data-muted>${r.gasCostUsd.toFixed(2)} fees</span>
+						</div>
+						<div data-row="gap-2" data-muted>
+							<span
+								>{[...new Set(r.steps.map((st) => st.toolName))].join(
+									' → ',
+								)}</span
+							>
+							<span>~{Math.ceil(r.estimatedDurationSeconds / 60)}m</span>
+						</div>
+					</button>
+				{/each}
+			{/if}
 		</div>
 	</section>
 {/if}
@@ -797,6 +814,11 @@
 			border-color: var(--color-primary);
 			background: var(--color-info-bg);
 		}
+	}
+
+	.route-card-skeleton {
+		cursor: default;
+		pointer-events: none;
 	}
 
 	.heading {

@@ -210,6 +210,8 @@
 
 	// Components
 	import EntityId from '$/components/EntityId.svelte'
+	import Skeleton from '$/components/Skeleton.svelte'
+	import Spinner from '$/components/Spinner.svelte'
 	import Tooltip from '$/components/Tooltip.svelte'
 	import CoinAmount from '$/views/CoinAmount.svelte'
 	import StorkPriceFeed from '$/views/StorkPriceFeed.svelte'
@@ -227,6 +229,14 @@
 			{/if}
 		{/if}
 		<div class="balances-grid" data-balances-grid>
+			{#if balancesQuery.isLoading && balances.length === 0}
+				{#each [1, 2, 3, 4, 5, 6] as _, i (i)}
+					<div class="balance-item balance-item-skeleton">
+						<Skeleton width="4em" height="0.75em" rounded="0.2em" />
+						<Skeleton width="5em" height="1.25em" rounded="0.25em" />
+					</div>
+				{/each}
+			{:else}
 			{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
 				{@const token = displayTokens.find(
 					(entry) =>
@@ -278,7 +288,10 @@
 					<div class="balance-item" data-balance-item>
 						<dt>{network.name}</dt>
 						{#if b.isLoading}
-							<span class="balance-loading" aria-busy="true">Loading…</span>
+							<span class="balance-loading" aria-busy="true">
+								<Spinner size="1em" />
+								Loading…
+							</span>
 						{:else if b.error}
 							<span class="balance-error" data-balance-error>{b.error}</span>
 						{:else}
@@ -303,6 +316,7 @@
 					</div>
 				{/if}
 			{/each}
+			{/if}
 		</div>
 	</section>
 {/if}
@@ -343,8 +357,15 @@
 	}
 
 	.balance-loading {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35em;
 		font-size: 0.875em;
 		opacity: 0.8;
+	}
+
+	.balance-item-skeleton {
+		pointer-events: none;
 	}
 
 	.balance-error {

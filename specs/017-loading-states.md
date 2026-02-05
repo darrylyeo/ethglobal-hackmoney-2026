@@ -192,8 +192,13 @@ Balances component shows loading state per-chain via `isLoading` from
 
 Complete. `src/components/Skeleton.svelte`, `src/components/Spinner.svelte`,
 `src/components/LoadingButton.svelte`. BridgeFlow.svelte: routes loading shows
-"(loading…)" in header, quote refresh shows "Refreshing…", Send button shows
-"Bridging…" when executing, button disabled during loading states.
+"(loading…)" in header, "Finding routes…" + 3 skeleton route cards while fetching,
+quote refresh shows "Refreshing…", Send button shows "Bridging…" when executing,
+button disabled during loading states. Balances.svelte: skeleton grid (6 items)
+when balancesQuery.isLoading and no balances; Spinner + "Loading…" per balance
+while refreshing. Re-verification 2026-02-05 (PROMPT_build execute one spec): all
+AC re-verified; skeleton route cards and balance skeleton grid added; test:unit
+41 Deno + 101 Vitest passed.
 
 ## Output when complete
 
