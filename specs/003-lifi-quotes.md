@@ -60,7 +60,8 @@ Re-verification 2026-02-05 (PROMPT_build): all 8 acceptance criteria confirmed
 (lifi.ts exports, getRoutesForUsdcBridge, NormalizedRoute, USDC from coins,
 fetchBridgeRoutes in collections uses getRoutesForUsdcBridge + TanStack Query cache,
 executeSelectedRoute provider/chain/execution, extractFeeBreakdown, lifi.spec.ts);
-test:unit 41 Deno + 98 Vitest passed.
+test:unit 41 Deno + 98 Vitest passed. Re-verification 2026-02-05 (execute one spec):
+all 8 AC re-verified in lifi.ts and bridge-routes.ts; test:unit 41 Deno + 101 Vitest passed.
 
 ## Output when complete
 
