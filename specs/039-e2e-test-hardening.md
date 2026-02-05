@@ -87,7 +87,7 @@ deno task test:e2e
 
 ## Status
 
-Complete. Re-verification 2026-02-05 (PROMPT_build execute one spec): Five tevm tests skipped (bridge-e2e: quote-result, transaction history, routes error; tevm-execution: swap, bridge) – LI.FI routes mock not received by app in tevm worker context; swap button stays disabled without quote. E2E 75 passed, 8 skipped; unit 44 Deno + 101 Vitest passed. Single fixture in `e2e/test-setup.ts`: addMockWallet, addLifiRoutesMock, addLifiRoutesMockToContext, addCctpMocks, addNetworkMocks. Playwright config: trace on-first-retry, screenshot only-on-failure, video on-first-retry.
+Complete. Re-verification 2026-02-05 (PROMPT_build execute one spec, re-verify): All 8 AC re-verified. Single fixture `e2e/test-setup.ts` (addMockWallet, addLifiRoutesMock, addLifiRoutesMockToContext, addCctpMocks, addNetworkMocks); tevm fixture in `e2e/fixtures/tevm.ts` extends base. Network mocking used in bridge-e2e, bridge, cctp-bridge, accessibility, tevm-execution, unified-bridge. Core routes covered: route-coverage.test.ts + coverage-enforcement (/, /session#bridge, /coin/USDC, /rooms, /rooms/[roomId]). Accessibility: home, bridge, transfers, rooms (axe); responsive: mobile + desktop for all four. playwright.e2e.config.ts: trace on-first-retry, screenshot only-on-failure, video on-first-retry. E2E 75 passed, 8 skipped; unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 
