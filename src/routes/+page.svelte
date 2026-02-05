@@ -11,7 +11,7 @@
 		{ href: '/session#swap', title: 'Swap' },
 		{ href: '/session#transfer', title: 'Transfer' },
 		{ href: '/session#liquidity', title: 'Liquidity' },
-		{ href: '/explore/usdc', title: 'USDC' },
+		{ href: '/coin/USDC', title: 'USDC' },
 		{ href: '/rooms', title: 'Rooms' },
 		{ href: '/test/collections', title: 'Tests' },
 	]

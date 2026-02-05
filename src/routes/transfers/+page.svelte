@@ -2,6 +2,6 @@
 	import { redirect } from '@sveltejs/kit'
 
 	export function load() {
-		redirect(302, '/explore/usdc')
+		redirect(302, '/coin/USDC')
 	}
 </script>

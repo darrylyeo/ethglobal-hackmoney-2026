@@ -1,6 +1,10 @@
 <script lang="ts">
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
+	import {
+		networkConfigs,
+		toNetworkSlug,
+	} from '$/constants/networks'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
 	// Context
@@ -102,6 +106,37 @@
 					(b.transport === WalletConnectionTransport.None ? 1 : 0),
 			),
 	)
+	const relevantChainIds = $derived(
+		[
+			...connectedWalletConnections
+				.map((c) => c.chainId)
+				.filter((id): id is number => id != null),
+			...(sessionsQuery.data ?? []).flatMap((r) => {
+				const row = r.row
+				const ids: number[] = []
+				if (typeof row.execution?.chainId === 'number')
+					ids.push(row.execution.chainId)
+				const p = row.params
+				if (p && typeof p === 'object') {
+					if (typeof (p as { chainId?: number }).chainId === 'number')
+						ids.push((p as { chainId: number }).chainId)
+					if (typeof (p as { fromChainId?: number }).fromChainId === 'number')
+						ids.push((p as { fromChainId: number }).fromChainId)
+					if (typeof (p as { toChainId?: number }).toChainId === 'number')
+						ids.push((p as { toChainId: number }).toChainId)
+				}
+				return ids
+			}),
+		]
+			.filter((id) => Number.isSafeInteger(id) && id > 0),
+	)
+	const relevantNetworkConfigs = $derived(
+		[...new Set(relevantChainIds)]
+			.map((chainId) =>
+				networkConfigs.find((c) => c.chainId === chainId),
+			)
+			.filter((c): c is NonNullable<typeof c> => c != null),
+	)
 	const accountNavItems = $derived(
 		connectedWalletConnections.flatMap((connection) => {
 			const rdns = connection.$id.wallet$id.rdns
@@ -122,7 +157,7 @@
 							)
 						: actor,
 				)}`,
-				tag: wallet.name ?? 'Watching',
+				tag: connection.status,
 				icon: wallet.icon ?? undefined,
 			}))
 		}),
@@ -172,11 +207,28 @@
 				})),
 		},
 		{
-			id: 'coins',
-			title: 'Coins',
+			id: 'explore',
+			title: 'Explore',
 			defaultOpen: true,
 			children: [
-				{ id: 'usdc', title: 'USDC', href: '/explore/usdc' },
+				{
+					id: 'coins',
+					title: 'Coins',
+					children: [
+						{ id: 'usdc', title: 'USDC', href: '/coin/USDC' },
+						{ id: 'eth', title: 'ETH', href: '/coin/ETH' },
+					],
+				},
+				{
+					id: 'networks',
+					title: 'Networks',
+					defaultOpen: false,
+					children: relevantNetworkConfigs.map((config) => ({
+						id: `network-${config.chainId}`,
+						title: config.name,
+						href: `/network/${toNetworkSlug(config.name)}`,
+					})),
+				},
 			],
 		},
 		{
