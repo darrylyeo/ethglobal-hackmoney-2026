@@ -12,7 +12,7 @@
 	} = $props()
 
 	// Components
-	import Balances from '$/views/Balances.svelte'
+	import CoinBalances from '$/views/CoinBalances.svelte'
 </script>
 
-<Balances {selectedActor} {balanceTokens} />
+<CoinBalances {selectedActor} {balanceTokens} />

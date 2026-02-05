@@ -218,8 +218,21 @@ let storkDeployments: Map<number, string> | null = null
 const fetchStorkDeployments = async () => {
 	if (storkDeployments) return storkDeployments
 	const baseUrl = env.PUBLIC_STORK_REST_URL ?? storkRestBaseUrl
+	if (baseUrl === storkRestBaseUrl && env.PUBLIC_STORK_REST_URL == null) {
+		throw new Error('Missing PUBLIC_STORK_REST_URL for Stork deployments')
+	}
 	const url = new URL('/v1/deployments/evm', baseUrl)
-	const response = await fetch(url.toString())
+	const token = env.PUBLIC_STORK_REST_TOKEN
+	const response = await fetch(url.toString(), {
+		headers: (
+			token ?
+				{
+					Authorization: `Basic ${token}`,
+				}
+			:
+				undefined
+		),
+	})
 	if (!response.ok)
 		throw new Error(`Stork deployments error: ${response.status}`)
 	const data = await response.json()

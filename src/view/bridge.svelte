@@ -14,7 +14,7 @@
 	const globalIsTestnet = $derived(bridgeSettingsState.current.isTestnet)
 
 	// Components
-	import Balances from '$/views/Balances.svelte'
+	import CoinBalances from '$/views/CoinBalances.svelte'
 	import Session from '$/views/Session.svelte'
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import UnifiedBridgeFlow from '$/routes/session/UnifiedBridgeFlow.svelte'
@@ -29,7 +29,7 @@
 				</header>
 			</summary>
 			<div data-column="gap-3">
-				<Balances {selectedActor} {balanceTokens} />
+				<CoinBalances {selectedActor} {balanceTokens} />
 			</div>
 		</details>
 	{/snippet}

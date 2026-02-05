@@ -89,7 +89,7 @@
 	)
 
 	// Components
-	import Balances from '$/views/Balances.svelte'
+	import CoinBalances from '$/views/CoinBalances.svelte'
 </script>
 
 <svelte:head>
@@ -141,7 +141,7 @@
 
 		<section class="account-section">
 			<h2>Balances</h2>
-			<Balances selectedActor={normalizedAddress} {balanceTokens} />
+			<CoinBalances selectedActor={normalizedAddress} {balanceTokens} />
 		</section>
 
 		<section class="account-section">

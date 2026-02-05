@@ -7,6 +7,8 @@
 	import { networksByChainId } from '$/constants/networks'
 	import { EntityType } from '$/data/$EntityType'
 
+	type DisplayToken = (typeof displayTokens)[number]
+
 	// Context
 	import { and, eq, or, useLiveQuery } from '@tanstack/svelte-db'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
@@ -91,6 +93,16 @@
 			name: 'name' in token ? token.name : token.symbol,
 			logoURI: 'logoURI' in token ? token.logoURI : undefined,
 		})),
+	)
+	const skeletonTokens = $derived(
+		displayTokens.length > 0
+			? displayTokens.slice(0, 6)
+			: [],
+	)
+	const skeletonRows: (DisplayToken | null)[] = $derived(
+		skeletonTokens.length > 0
+			? skeletonTokens
+			: Array.from({ length: 6 }, () => null),
 	)
 	const balanceTokenListCoins = $derived(
 		displayTokens.map((token) => ({
@@ -209,12 +221,10 @@
 	})
 
 	// Components
+	import Boundary from '$/components/Boundary.svelte'
 	import EntityId from '$/components/EntityId.svelte'
 	import Skeleton from '$/components/Skeleton.svelte'
-	import Spinner from '$/components/Spinner.svelte'
-	import Tooltip from '$/components/Tooltip.svelte'
 	import CoinAmount from '$/views/CoinAmount.svelte'
-	import StorkPriceFeed from '$/views/StorkPriceFeed.svelte'
 </script>
 
 <div style="display: contents" {@attach liveQueryAttachment}>
@@ -228,96 +238,170 @@
 				</p>
 			{/if}
 		{/if}
-		<div class="balances-grid" data-balances-grid>
+		<Boundary>
 			{#if balancesQuery.isLoading && balances.length === 0}
-				{#each [1, 2, 3, 4, 5, 6] as _, i (i)}
-					<div class="balance-item balance-item-skeleton">
-						<Skeleton width="4em" height="0.75em" rounded="0.2em" />
-						<Skeleton width="5em" height="1.25em" rounded="0.25em" />
-					</div>
-				{/each}
+				<div class="balances-grid" data-balances-grid data-balances-skeleton>
+					{#each skeletonRows as token, i (i)}
+						{@const coin = token
+							? {
+									type: CoinType.Erc20,
+									chainId: token.chainId,
+									address: token.address,
+									symbol: token.symbol,
+									name: token.name,
+									decimals: token.decimals,
+									icon: token.logoURI
+										? {
+												type: MediaType.Image,
+												original: {
+													url: token.logoURI,
+												},
+											}
+										: undefined,
+								}
+							: null}
+						<div class="balance-item balance-item-skeleton">
+							<Skeleton width="4em" height="0.75em" rounded="0.2em" />
+							<div class="balance-skeleton-row">
+								{#if coin}
+									<CoinAmount
+										{coin}
+										draggable={false}
+										showLabel={false}
+										showPriceTooltip={false}
+									/>
+								{:else}
+									<Skeleton width="2.5em" height="1.25em" rounded="0.25em" />
+								{/if}
+								<Skeleton width="5em" height="1.25em" rounded="0.25em" />
+							</div>
+						</div>
+					{/each}
+				</div>
 			{:else}
-			{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
-				{@const token = displayTokens.find(
-					(entry) =>
-						entry.chainId === b.$id.chainId &&
-						entry.address.toLowerCase() === b.$id.tokenAddress.toLowerCase(),
-				)}
-				{@const assetId = getStorkAssetIdForSymbol(b.symbol)}
-				{@const priceRow = assetId
-					? getBestStorkPrice(prices, assetId, b.$id.chainId)
-					: null}
-				{@const balanceUsdValue = priceRow
-					? (b.balance * priceRow.price) / 10n ** BigInt(b.decimals)
-					: null}
-				{@const coin = token
-					? {
-							type: CoinType.Erc20,
-							chainId: token.chainId,
-							address: token.address,
-							symbol: token.symbol,
-							name: token.name,
-							decimals: token.decimals,
-							icon: token.logoURI
-								? {
-										type: MediaType.Image,
-										original: {
-											url: token.logoURI,
-										},
-									}
-								: undefined,
-						}
-					: {
-							type: CoinType.Erc20,
-							chainId: b.$id.chainId,
-							address: b.$id.tokenAddress,
-							symbol: b.symbol,
-							decimals: b.decimals,
-						}}
-				{@const network = networksByChainId[b.$id.chainId]}
-				{#if network}
-					{@const intent = {
-						entity: {
-							type: EntityType.ActorCoin,
-							id: b.$id,
-						},
-						context: {
-							source: 'balances',
-						},
-					} satisfies IntentDragPayload}
-					<div class="balance-item" data-balance-item>
-						<dt>{network.name}</dt>
-						{#if b.isLoading}
-							<span class="balance-loading" aria-busy="true">
-								<Spinner size="1em" />
-								Loading…
-							</span>
-						{:else if b.error}
-							<span class="balance-error" data-balance-error>{b.error}</span>
-						{:else}
-							<Tooltip contentProps={{ side: 'top' }}>
-								{#snippet Content()}
-									<StorkPriceFeed symbol={b.symbol} {priceRow} />
-								{/snippet}
-								<EntityId
-									className="balance-intent"
-									draggableText={`${b.symbol} ${b.$id.address}`}
-									{intent}
-								>
-									<CoinAmount {coin} amount={b.balance} draggable={false} />
-								</EntityId>
-							</Tooltip>
-							{#if balanceUsdValue !== null}
-								<small data-muted>
-									≈ ${formatSmallestToDecimal(balanceUsdValue, 18, 2)}
-								</small>
-							{/if}
+				<div class="balances-grid" data-balances-grid>
+					{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
+						{@const token = displayTokens.find(
+							(entry) =>
+								entry.chainId === b.$id.chainId &&
+								entry.address.toLowerCase() === b.$id.tokenAddress.toLowerCase(),
+						)}
+						{@const assetId = getStorkAssetIdForSymbol(b.symbol)}
+						{@const priceRow = assetId
+							? getBestStorkPrice(prices, assetId, b.$id.chainId)
+							: null}
+						{@const balanceUsdValue = priceRow
+							? (b.balance * priceRow.price) / 10n ** BigInt(b.decimals)
+							: null}
+						{@const coin = token
+							? {
+									type: CoinType.Erc20,
+									chainId: token.chainId,
+									address: token.address,
+									symbol: token.symbol,
+									name: token.name,
+									decimals: token.decimals,
+									icon: token.logoURI
+										? {
+												type: MediaType.Image,
+												original: {
+													url: token.logoURI,
+												},
+											}
+										: undefined,
+								}
+							: {
+									type: CoinType.Erc20,
+									chainId: b.$id.chainId,
+									address: b.$id.tokenAddress,
+									symbol: b.symbol,
+									decimals: b.decimals,
+								}}
+						{@const network = networksByChainId[b.$id.chainId]}
+						{#if network}
+							{@const intent = {
+								entity: {
+									type: EntityType.ActorCoin,
+									id: b.$id,
+								},
+								context: {
+									source: 'balances',
+								},
+							} satisfies IntentDragPayload}
+							<div class="balance-item" data-balance-item>
+								<dt>{network.name}</dt>
+								{#if b.isLoading}
+									<span class="balance-loading" aria-busy="true">
+										<Skeleton width="6em" height="1.25em" rounded="0.25em" />
+									</span>
+								{:else if b.error}
+									<span class="balance-error" data-balance-error>{b.error}</span>
+								{:else}
+									<EntityId
+										className="balance-intent"
+										draggableText={`${b.symbol} ${b.$id.address}`}
+										{intent}
+									>
+										<CoinAmount
+											{coin}
+											amount={b.balance}
+											draggable={false}
+											{priceRow}
+										/>
+									</EntityId>
+									{#if balanceUsdValue !== null}
+										<small data-muted>
+											≈ ${formatSmallestToDecimal(balanceUsdValue, 18, 2)}
+										</small>
+									{/if}
+								{/if}
+							</div>
 						{/if}
-					</div>
-				{/if}
-			{/each}
+					{/each}
+				</div>
 			{/if}
-		</div>
+
+			{#snippet Pending()}
+				<div class="balances-grid" data-balances-grid data-balances-skeleton>
+					{#each skeletonRows as token, i (i)}
+						{@const coin = token
+							? {
+									type: CoinType.Erc20,
+									chainId: token.chainId,
+									address: token.address,
+									symbol: token.symbol,
+									name: token.name,
+									decimals: token.decimals,
+									icon: token.logoURI
+										? {
+												type: MediaType.Image,
+												original: {
+													url: token.logoURI,
+												},
+											}
+										: undefined,
+								}
+							: null}
+						<div class="balance-item balance-item-skeleton">
+							<Skeleton width="4em" height="0.75em" rounded="0.2em" />
+							<div class="balance-skeleton-row">
+								{#if coin}
+									<CoinAmount
+										{coin}
+										draggable={false}
+										showLabel={false}
+										showPriceTooltip={false}
+									/>
+								{:else}
+									<Skeleton width="2.5em" height="1.25em" rounded="0.25em" />
+								{/if}
+								<Skeleton width="5em" height="1.25em" rounded="0.25em" />
+							</div>
+						</div>
+					{/each}
+				</div>
+			{/snippet}
+		</Boundary>
 	</section>
 {/if}
 </div>
@@ -354,6 +438,12 @@
 			font-size: 0.75em;
 			opacity: 0.7;
 		}
+	}
+
+	.balance-skeleton-row {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4em;
 	}
 
 	.balance-loading {
