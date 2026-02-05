@@ -559,7 +559,7 @@
 	})
 
 	// Components
-	import Wallets from '$/views/Wallets.svelte'
+	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import EntityId from '$/components/EntityId.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import TransferFlow from '$/routes/session/TransferFlow.svelte'
@@ -578,7 +578,7 @@
 
 	<section data-scroll-item data-column="gap-3">
 		<h2>Wallet context</h2>
-		<Wallets bind:connectedWallets bind:selectedActor />
+		<AccountsSelect bind:connectedWallets bind:selectedActor />
 	</section>
 
 	<section data-scroll-item data-column="gap-3">

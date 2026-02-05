@@ -12,7 +12,7 @@
 	} = $props()
 
 	// Components
-	import Wallets from '$/views/Wallets.svelte'
+	import AccountsSelect from '$/views/AccountsSelect.svelte'
 </script>
 
-<Wallets bind:connectedWallets bind:selectedActor />
+<AccountsSelect bind:connectedWallets bind:selectedActor />

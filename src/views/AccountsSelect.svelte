@@ -997,22 +997,22 @@
 					{/if}
 				{/snippet}
 				<form
-					class="wallet-readonly"
+					class="account-watching"
 					onsubmit={(event) => (
 						event.preventDefault(),
 						connectReadOnlyAddress()
 					)}
 				>
-					<label class="wallet-readonly-label" for="read-only-wallet">
-						Read-only address
+					<label class="account-watching-label" for="account-watching-address">
+						Watching address
 					</label>
-					<div class="wallet-readonly-field">
+					<div class="account-watching-field">
 						<input
-							id="read-only-wallet"
-							name="read-only-wallet"
+							id="account-watching-address"
+							name="watching-address"
 							type="text"
 							placeholder="0x..."
-							class="wallet-readonly-input"
+							class="account-watching-input"
 							value={readOnlyAddress}
 							oninput={onReadOnlyInput}
 						/>
@@ -1096,26 +1096,26 @@
 		}
 	}
 
-	.wallet-readonly {
+	.account-watching {
 		display: grid;
 		gap: 0.5rem;
 		padding: 0.5rem 0;
 	}
 
-	.wallet-readonly-label {
+	.account-watching-label {
 		font-size: 0.75rem;
 		text-transform: uppercase;
 		opacity: 0.7;
 	}
 
-	.wallet-readonly-field {
+	.account-watching-field {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) auto;
 		gap: 0.5rem;
 		align-items: center;
 	}
 
-	.wallet-readonly-input {
+	.account-watching-input {
 		padding: 0.35rem 0.5rem;
 		border-radius: 0.4rem;
 		border: 1px solid var(--color-border);

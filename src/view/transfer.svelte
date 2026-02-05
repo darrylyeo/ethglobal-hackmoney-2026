@@ -20,7 +20,7 @@
 
 	// Components
 	import Session from '$/views/Session.svelte'
-	import Wallets from '$/views/Wallets.svelte'
+	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import TransferAction from '$/routes/session/TransferAction.svelte'
 </script>
 
@@ -29,7 +29,7 @@
 		<details open data-card>
 			<summary>
 				<header data-card="secondary" data-row="wrap gap-2">
-					<Wallets bind:connectedWallets bind:selectedActor />
+					<AccountsSelect bind:connectedWallets bind:selectedActor />
 				</header>
 			</summary>
 		</details>

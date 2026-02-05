@@ -94,7 +94,7 @@
 	})
 
 	// Components
-	import Wallets from '$/views/Wallets.svelte'
+	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import AddressSharing from '../AddressSharing.svelte'
 	import Peer from '../Peer.svelte'
 	import PeerCard from '../PeerCard.svelte'
@@ -146,7 +146,7 @@
 		<details open data-card>
 			<summary>
 				<header data-card="secondary" data-row="wrap gap-2">
-					<Wallets
+					<AccountsSelect
 						bind:connectedWallets
 						bind:selectedActor
 						bind:selectedChainId

@@ -8,7 +8,7 @@
 	let selectedChainId = $state<number | null>(null)
 
 	// Components
-	import Wallets from '$/views/Wallets.svelte'
+	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import LiquidityFlow from '$/routes/session/LiquidityFlow.svelte'
 </script>
 
@@ -17,7 +17,7 @@
 		<details open data-card>
 			<summary>
 				<header data-card="secondary" data-row="wrap gap-2">
-					<Wallets
+					<AccountsSelect
 						bind:connectedWallets
 						bind:selectedActor
 						bind:selectedChainId

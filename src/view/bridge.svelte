@@ -16,7 +16,7 @@
 	// Components
 	import Balances from '$/views/Balances.svelte'
 	import Session from '$/views/Session.svelte'
-	import Wallets from '$/views/Wallets.svelte'
+	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import UnifiedBridgeFlow from '$/routes/session/UnifiedBridgeFlow.svelte'
 </script>
 
@@ -25,7 +25,7 @@
 		<details open data-card>
 			<summary>
 				<header data-card="secondary" data-row="wrap gap-2">
-					<Wallets bind:connectedWallets bind:selectedActor />
+					<AccountsSelect bind:connectedWallets bind:selectedActor />
 				</header>
 			</summary>
 			<div data-column="gap-3">
