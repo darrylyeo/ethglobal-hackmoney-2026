@@ -159,6 +159,7 @@ Complete. format.ts helpers (`parseDecimalToSmallest`, `formatSmallestToDecimal`
 `isValidDecimalInput`), amount input inline in BridgeFlow.svelte, format.spec.ts.
 Re-verification 2026-02-04 (PROMPT_build): format.ts and format.spec.ts verified;
 UnifiedBridgeFlow uses CoinAmountInput with format helpers; validation and submit gating; test:unit passed.
+Re-verification 2026-02-05 (PROMPT_build execute one spec): all AC re-verified (format.ts + format.spec.ts; CoinAmountInput in UnifiedBridgeFlow; BridgeFlow uses settings.amount, sourceBalance, exceedsBalance, canSendAmount); test:unit 41 Deno + 101 Vitest passed.
 
 ## Output when complete
 
