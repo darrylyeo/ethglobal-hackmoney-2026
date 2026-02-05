@@ -17,6 +17,7 @@ import { TIME_PERIODS, periodToRange } from '$/api/transfers-indexer'
 import { TRANSFER_EVENTS_MAX_TOTAL } from '$/constants/query-limits'
 
 export type NormalizedTransferEvent = {
+	transactionHash: string
 	fromAddress: string
 	toAddress: string
 	amount: string
@@ -43,6 +44,7 @@ function parseTransferLog(
 	const amount = BigInt(log.data)
 	if (amount === 0n) return null
 	return {
+		transactionHash: log.transactionHash,
 		fromAddress: from.toLowerCase(),
 		toAddress: to.toLowerCase(),
 		amount: amount.toString(),
