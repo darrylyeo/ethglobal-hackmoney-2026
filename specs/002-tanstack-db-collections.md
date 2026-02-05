@@ -73,7 +73,7 @@ actor balances and allowances, bridge routes, and transaction history.
 Re-verification 2026-02-04: queryClient and all nine collections present; unit
 tests (actors.spec.ts, actor-coins.spec.ts) run in test:unit; networks.spec.ts
 and coins.spec.ts exist; test:unit passed. Re-verification 2026-02-05 (PROMPT_build
-execute one spec): all 11 AC re-verified in code; test:unit 41 Deno + 101 Vitest passed.
+execute one spec): all 11 AC re-verified in code; test:unit 41 Deno + 101 Vitest passed. Re-verification 2026-02-05 (PROMPT_build one spec): queryClient and all nine collections confirmed; networks.spec.ts, coins.spec.ts, actors.spec.ts, actor-coins.spec.ts present; test:unit passed.
 
 ## Output when complete
 
