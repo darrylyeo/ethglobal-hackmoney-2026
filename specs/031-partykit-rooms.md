@@ -722,7 +722,7 @@ Sharer                    Server                    Peer A                   Pee
 - [x] `roomPeersCollection` in `src/collections/room-peers.ts`
 - [x] `sharedAddressesCollection` in `src/collections/shared-addresses.ts`
 - [x] `siweChallengesCollection` in `src/collections/siwe-challenges.ts`
-- [ ] `verificationsCollection` in `src/collections/verifications.ts` (separate from shared-addresses; stores status, verifiedAt, signature; peers may request multiple times)
+- [x] `verificationsCollection` in `src/collections/verifications.ts` (separate from shared-addresses; stores status, verifiedAt, signature; peers may request multiple times)
 - [x] Unit tests for collection normalizers
 
 ### PartyKit server
@@ -747,23 +747,23 @@ Sharer                    Server                    Peer A                   Pee
 - [x] `src/routes/rooms/+page.svelte` – lobby
 - [x] `src/routes/rooms/[roomId]/+page.svelte` – room view
 - [x] Peer list with connection status
-- [ ] **Share with all** and **Share** (with specific peer) – distinct actions per address
+- [x] **Share with all** and **Share** (with specific peer) – distinct actions per address
 - [x] Address sharing toggle per address
-- [ ] Pending challenge signing UI – **only show Sign when** wallet connection supports signing (EIP-1193); show Unverifiable for read-only
-- [ ] Shared addresses display – verification status from `verificationsCollection`: **Unverifiable**, **Verifying**, **Verified**; show **date** (`verifiedAt`) and **signature** (persisted)
+- [x] Pending challenge signing UI – **only show Sign when** wallet connection supports signing (EIP-1193); show Unverifiable for read-only
+- [x] Shared addresses display – verification status from `verificationsCollection`: **Unverifiable**, **Verifying**, **Verified**; show **date** (`verifiedAt`) and **signature** (persisted)
 - [x] Navigation link added
 
 ### Verification flow
 - [x] Per-peer challenge generation
 - [x] Sharer signs each peer's challenge (when wallet can sign)
-- [ ] **Peers may request verification as many times as they want**
+- [x] **Peers may request verification as many times as they want**
 - [x] Peers validate signatures
-- [ ] Verification records in **separate** `verificationsCollection` with status, **verifiedAt**, **signature**
+- [x] Verification records in **separate** `verificationsCollection` with status, **verifiedAt**, **signature**
 - [x] Challenge expiration enforced
 
 ## Status
 
-Complete for initial implementation. Spec updated 2026-02-05: **Share with all** vs **Share** (specific peer); **wallet transport** – only show Sign/verify when connection supports signing (read-only → Unverifiable); **verification status** Unverifiable / Verifying / Verified with **verifiedAt** and **signature** persisted; **verifications** as **separate** `verificationsCollection`; peers may **request verification as many times as they want**. Collections (rooms, room-peers, shared-addresses, siwe-challenges) with key helpers in *-keys.ts and Deno unit tests. PartyKit server partykit/room.ts: onConnect/onClose/onMessage, join/leave/share-address, generateChallenge (SIWE message inline), submit-signature forwarded to verifier, verify-result broadcast; state sync on connect. Client: src/lib/partykit.ts (connectToRoom, createRoom, generateRoomCode), src/lib/siwe.ts (createSiweMessage, signSiweMessage via personal_sign, verifySiweSignature via viem recoverMessageAddress). State: src/state/room.svelte.ts (joinRoom, leaveRoom, handleServerMessage with sync/challenge/verify-result/submit-signature). UI: rooms/+page.svelte (lobby create/join), rooms/[roomId]/+page.svelte (room view, AccountsSelect, PeerList, AddressSharing, SharedAddresses), PeerList.svelte, AddressSharing.svelte, SharedAddresses.svelte; Rooms nav link in +layout.svelte. **TODO (per AC):** verificationsCollection; share-with-all vs share-with-peer UI; transport-gated Sign/Unverifiable; SharedAddresses from verifications with Unverifiable/Verifying/Verified and date/signature; server to emit verification-record and persist verifiedAt/signature.
+Complete. 2026-02-05 (PROMPT_build execute one spec): All acceptance criteria implemented. verificationsCollection in src/collections/verifications.ts with verificationKey in verifications-keys.ts; verifications.spec.ts (Deno). SharedAddress now targetPeerIds (null = share with all, [peerId] = share with peer); sharedAddressKey(roomId, peerId, address, targetPeerIds). PartyKit: share-address accepts targetPeerIds; request-challenge flow (verifier requests, server generates challenge, sends to sharer and verifier; peers may request multiple times); verify-result creates Verification (verifiedAt, signature) and broadcasts verification-record; mark-unverifiable creates unverifiable Verification and broadcasts; state.verifications synced on connect. Client: room.svelte.ts handles verification-record (upsert verificationsCollection), sync includes verifications. AddressSharing: Share with all + Share(peer) per peer; pending challenges section – Sign when canSign (provider), Unverifiable + Mark unverifiable when read-only. SharedAddresses + PeerCard: verification status from verificationsCollection (Unverifiable, Verifying, Verified); verifiedAt and signature; Request verification / Re-verify. test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 

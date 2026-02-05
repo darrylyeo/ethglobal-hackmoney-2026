@@ -8,6 +8,7 @@ import { roomsCollection } from '$/collections/rooms'
 import { roomPeersCollection } from '$/collections/room-peers'
 import { sharedAddressesCollection } from '$/collections/shared-addresses'
 import { siweChallengesCollection } from '$/collections/siwe-challenges'
+import { verificationsCollection } from '$/collections/verifications'
 import {
 	connectToRoom,
 	type RoomConnection,
@@ -19,6 +20,7 @@ import type { Room } from '$/data/Room'
 import type { RoomPeer } from '$/data/RoomPeer'
 import type { SharedAddress } from '$/data/SharedAddress'
 import type { SiweChallenge } from '$/data/SiweChallenge'
+import type { Verification } from '$/data/Verification'
 
 const SIWE_DEBUG =
 	typeof import.meta !== 'undefined' &&
@@ -29,6 +31,7 @@ type RoomStateSync = {
 	peers: RoomPeer[]
 	sharedAddresses: SharedAddress[]
 	challenges: SiweChallenge[]
+	verifications?: Verification[]
 }
 
 function upsert<T extends object>(
@@ -55,6 +58,9 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 	const peerIds = new Set(state.peers.map((p) => `${roomId}:${p.peerId}`))
 	const sharedIds = new Set(state.sharedAddresses.map((s) => s.id))
 	const challengeIds = new Set(state.challenges.map((c) => c.id))
+	const verificationIds = new Set(
+		(state.verifications ?? []).map((v) => v.id),
+	)
 
 	upsert(
 		roomsCollection,
@@ -94,6 +100,17 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 	for (const [key, row] of siweChallengesCollection.state) {
 		if (row.roomId === roomId && !challengeIds.has(row.id))
 			siweChallengesCollection.delete(key)
+	}
+	for (const v of state.verifications ?? []) {
+		upsert(
+			verificationsCollection,
+			{ ...v, $source: DataSource.PartyKit },
+			(r) => r.id,
+		)
+	}
+	for (const [key, row] of verificationsCollection.state) {
+		if (row.roomId === roomId && !verificationIds.has(row.id))
+			verificationsCollection.delete(key)
 	}
 }
 
@@ -135,6 +152,14 @@ function handleServerMessage(msg: RoomMessage) {
 					draft.verified = msg.verified
 				})
 			}
+			break
+		}
+		case 'verification-record': {
+			upsert(
+				verificationsCollection,
+				{ ...msg.verification, $source: DataSource.PartyKit },
+				(r) => r.id,
+			)
 			break
 		}
 		case 'submit-signature': {

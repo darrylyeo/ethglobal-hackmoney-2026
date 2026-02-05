@@ -1,8 +1,9 @@
 <script lang="ts">
 	// Types/constants
 	import type { RoomPeerRow } from '$/collections/room-peers'
-	import type { EIP1193Provider } from '$/lib/siwe'
 	import type { SiweChallengeRow } from '$/collections/siwe-challenges'
+	import type { VerificationRow } from '$/collections/verifications'
+	import type { EIP1193Provider } from '$/lib/siwe'
 	import { DataSource } from '$/constants/data-sources'
 
 	// Props
@@ -20,6 +21,7 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { sharedAddressesCollection } from '$/collections/shared-addresses'
 	import { siweChallengesCollection } from '$/collections/siwe-challenges'
+	import { verificationsCollection } from '$/collections/verifications'
 	import { roomState } from '$/state/room.svelte'
 	import { signSiweMessage } from '$/lib/siwe'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
@@ -51,23 +53,44 @@
 				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
+	const verificationsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: verificationsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+				.where(({ row }) => eq(row.roomId, roomId))
+				.select(({ row }) => ({ row })),
+		[() => roomId],
+	)
 	const liveQueryEntries = [
-		{
-			id: 'peer-card-shared',
-			label: 'Shared Addresses',
-			query: sharedQuery,
-		},
-		{
-			id: 'peer-card-siwe',
-			label: 'SIWE Challenges',
-			query: challengesQuery,
-		},
+		{ id: 'peer-card-shared', label: 'Shared Addresses', query: sharedQuery },
+		{ id: 'peer-card-siwe', label: 'SIWE Challenges', query: challengesQuery },
+		{ id: 'peer-card-verifications', label: 'Verifications', query: verificationsQuery },
 	]
 	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
 		() => liveQueryEntries,
 	)
 
-	const addresses = $derived((sharedQuery.data ?? []).map((r) => r.row))
+	const allShared = $derived((sharedQuery.data ?? []).map((r) => r.row))
+	const addressesVisibleToMe = $derived(
+		allShared.filter(
+			(s) =>
+				s.targetPeerIds === null ||
+				(roomState.peerId != null && s.targetPeerIds.includes(roomState.peerId)),
+		),
+	)
+	const verifications = $derived((verificationsQuery.data ?? []).map((r) => r.row))
+	const getMyVerification = (address: `0x${string}`): VerificationRow | undefined =>
+		roomState.peerId == null
+			? undefined
+			: [...verifications]
+					.filter(
+						(v) =>
+							v.verifierPeerId === roomState.peerId &&
+							v.verifiedPeerId === peer.peerId &&
+							v.address.toLowerCase() === address.toLowerCase(),
+					)
+					.sort((a, b) => b.requestedAt - a.requestedAt)[0]
 	const awaitingMySignature = $derived(
 		(challengesQuery.data ?? [])
 			.map((r) => r.row)
@@ -78,6 +101,7 @@
 					!ch.signature,
 			),
 	)
+	const canSign = $derived(provider != null)
 	const signChallenge = async (challenge: SiweChallengeRow) => {
 		if (!provider) return
 		try {
@@ -95,6 +119,17 @@
 			// user rejected or error
 		}
 	}
+	const markUnverifiable = (challengeId: string) => {
+		roomState.connection?.send({ type: 'mark-unverifiable', challengeId })
+	}
+	const requestVerification = (address: `0x${string}`) => {
+		if (roomState.peerId == null) return
+		roomState.connection?.send({
+			type: 'request-challenge',
+			address,
+			fromPeerId: roomState.peerId,
+		})
+	}
 </script>
 
 <article
@@ -106,15 +141,48 @@
 	<header data-peer-card-header data-row="wrap gap-2 align-center">
 		<Peer {peer} showStatus={true} />
 	</header>
-	{#if addresses.length > 0}
+	{#if addressesVisibleToMe.length > 0}
 		<ul data-peer-addresses>
-			{#each addresses as s (s.id)}
-				{@const verifiedByMe =
-					roomState.peerId != null && s.verifiedBy.includes(roomState.peerId)}
-				<li data-shared-address data-verified-by-me={verifiedByMe}>
+			{#each addressesVisibleToMe as s (s.id)}
+				{@const myVerification = getMyVerification(s.address)}
+				<li
+					data-shared-address
+					data-verification-status={myVerification?.status ?? null}
+				>
 					<Address network={1} address={s.address} />
 					<span data-verification>
-						{verifiedByMe ? 'Verified by you' : 'Not verified by you'}
+						{#if myVerification == null}
+							Not verified
+							<Button.Root
+								type="button"
+								onclick={() => requestVerification(s.address)}
+							>
+								Request verification
+							</Button.Root>
+						{:else if myVerification.status === 'unverifiable'}
+							Unverifiable
+							<Button.Root
+								type="button"
+								onclick={() => requestVerification(s.address)}
+							>
+								Re-verify
+							</Button.Root>
+						{:else if myVerification.status === 'verifying'}
+							Verifying
+						{:else}
+							Verified
+							{#if myVerification.verifiedAt != null}
+								<time datetime={new Date(myVerification.verifiedAt).toISOString()}>
+									{new Date(myVerification.verifiedAt).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
+								</time>
+							{/if}
+							<Button.Root
+								type="button"
+								onclick={() => requestVerification(s.address)}
+							>
+								Re-verify
+							</Button.Root>
+						{/if}
 					</span>
 				</li>
 			{/each}
@@ -129,13 +197,22 @@
 				{#each awaitingMySignature as ch (ch.id)}
 					<li data-challenge>
 						<Address network={1} address={ch.address} />
-						<Button.Root
-							type="button"
-							onclick={() => signChallenge(ch)}
-							disabled={!provider}
-						>
-							Sign to verify
-						</Button.Root>
+						{#if canSign}
+							<Button.Root
+								type="button"
+								onclick={() => signChallenge(ch)}
+							>
+								Sign to verify
+							</Button.Root>
+						{:else}
+							<span data-unverifiable>Unverifiable (read-only wallet)</span>
+							<Button.Root
+								type="button"
+								onclick={() => markUnverifiable(ch.id)}
+							>
+								Mark unverifiable
+							</Button.Root>
+						{/if}
 					</li>
 				{/each}
 			</ul>

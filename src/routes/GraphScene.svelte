@@ -1934,12 +1934,11 @@
 					g6Type: collections[EntityType.SharedAddress].g6Type,
 					g6Style: {
 						...collections[EntityType.SharedAddress].g6Style,
-						badge: { text: `${row.verifiedBy.length}` },
+						badge: { text: '' },
 					},
 					details: {
 						roomId: row.roomId,
 						peerId: row.peerId,
-						verifiedBy: row.verifiedBy.length,
 					},
 				})
 				const roomId = `room:${row.roomId}`

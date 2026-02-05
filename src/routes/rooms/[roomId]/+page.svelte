@@ -103,6 +103,7 @@
 	import AddressSharing from '../AddressSharing.svelte'
 	import Peer from '../Peer.svelte'
 	import PeerCard from '../PeerCard.svelte'
+	import SharedAddresses from '../SharedAddresses.svelte'
 </script>
 
 <svelte:head>
@@ -184,10 +185,14 @@
 						<header data-row="wrap gap-2 align-center">
 							<Peer peer={me} />
 						</header>
-						<AddressSharing {roomId} addresses={selectedAddresses} {provider} />
+						<AddressSharing {roomId} addresses={selectedAddresses} {provider} peers={others} />
 					{:else}
 						<p>Connecting…</p>
 					{/if}
+				</section>
+
+				<section data-shared-from-others>
+					<SharedAddresses {roomId} />
 				</section>
 
 				<section data-peers>

@@ -25,14 +25,30 @@ type PendingTransferRequest = {
 	expiresAt: number
 }
 
+type VerificationStatus = 'unverifiable' | 'verifying' | 'verified'
+type Verification = {
+	id: string
+	roomId: string
+	verifierPeerId: string
+	verifiedPeerId: string
+	address: `0x${string}`
+	status: VerificationStatus
+	requestedAt: number
+	verifiedAt?: number
+	signature?: `0x${string}`
+	challengeId?: string
+}
+
 type RoomMessage =
 	| { type: 'join'; displayName?: string }
 	| { type: 'leave' }
-	| { type: 'share-address'; address: `0x${string}` }
+	| { type: 'share-address'; address: `0x${string}`; targetPeerIds?: string[] | null }
 	| { type: 'request-challenge'; address: `0x${string}`; fromPeerId: string }
 	| { type: 'challenge'; challenge: SiweChallenge }
 	| { type: 'submit-signature'; challengeId: string; signature: `0x${string}` }
 	| { type: 'verify-result'; challengeId: string; verified: boolean }
+	| { type: 'verification-record'; verification: Verification }
+	| { type: 'mark-unverifiable'; challengeId: string }
 	| { type: 'sync'; state: RoomState }
 	| { type: 'propose-transfer'; to: `0x${string}`; allocations: { asset: string; amount: string }[] }
 	| { type: 'transfer-request'; from: `0x${string}`; request: TransferRequestParams }
@@ -64,7 +80,7 @@ type SharedAddress = {
 	roomId: string
 	peerId: string
 	address: `0x${string}`
-	verifiedBy: string[]
+	targetPeerIds: string[] | null
 	sharedAt: number
 }
 
@@ -87,6 +103,7 @@ type RoomState = {
 	peers: RoomPeer[]
 	sharedAddresses: SharedAddress[]
 	challenges: SiweChallenge[]
+	verifications: Verification[]
 }
 
 function createSiweMessage(params: {
@@ -180,6 +197,7 @@ export default class RoomServer implements Party.Server {
 			peers: [],
 			sharedAddresses: [],
 			challenges: [],
+			verifications: [],
 		}
 		return this.state
 	}
@@ -266,34 +284,47 @@ export default class RoomServer implements Party.Server {
 				break
 			}
 			case 'share-address': {
-				const id = `${this.room.id}:${peerId}:${msg.address.toLowerCase()}`
+				const targetPeerIds = msg.targetPeerIds ?? null
+				const id =
+					`${this.room.id}:${peerId}:${msg.address.toLowerCase()}:` +
+					(targetPeerIds === null ? 'all' : targetPeerIds.join(','))
 				if (!state.sharedAddresses.some((s) => s.id === id)) {
 					state.sharedAddresses.push({
 						id,
 						roomId: this.room.id,
 						peerId,
 						address: msg.address,
-						verifiedBy: [],
+						targetPeerIds,
 						sharedAt: Date.now(),
 					})
 				}
-				const domain = this.peerHosts.get(peerId) ?? 'localhost'
-				const others = state.peers.filter((p) => p.peerId !== peerId && p.isConnected)
-				for (const other of others) {
-					const challenge = generateChallenge({
-						domain,
-						roomId: this.room.id,
-						fromPeerId: peerId,
-						toPeerId: other.peerId,
-						address: msg.address,
-					})
-					state.challenges.push(challenge)
-					sender.send(JSON.stringify({ type: 'challenge', challenge }))
-					const toConn = this.room.getConnection(other.peerId)
-					if (toConn) {
-						toConn.send(JSON.stringify({ type: 'challenge', challenge }))
-					}
-				}
+				this.room.broadcast(JSON.stringify({ type: 'sync', state }))
+				break
+			}
+			case 'request-challenge': {
+				const verifierPeerId = msg.fromPeerId
+				const address = msg.address
+				const shared = state.sharedAddresses.find(
+					(s) =>
+						s.roomId === this.room.id &&
+						s.address.toLowerCase() === address.toLowerCase() &&
+						(s.targetPeerIds === null || s.targetPeerIds.includes(verifierPeerId)),
+				)
+				if (!shared) break
+				const sharerPeerId = shared.peerId
+				const domain = this.peerHosts.get(sharerPeerId) ?? 'localhost'
+				const challenge = generateChallenge({
+					domain,
+					roomId: this.room.id,
+					fromPeerId: verifierPeerId,
+					toPeerId: sharerPeerId,
+					address: shared.address,
+				})
+				state.challenges.push(challenge)
+				const sharerConn = this.room.getConnection(sharerPeerId)
+				if (sharerConn) sharerConn.send(JSON.stringify({ type: 'challenge', challenge }))
+				const verifierConn = this.room.getConnection(verifierPeerId)
+				if (verifierConn) verifierConn.send(JSON.stringify({ type: 'challenge', challenge }))
 				this.room.broadcast(JSON.stringify({ type: 'sync', state }))
 				break
 			}
@@ -310,13 +341,44 @@ export default class RoomServer implements Party.Server {
 			}
 			case 'verify-result': {
 				const ch = state.challenges.find((c) => c.id === msg.challengeId)
-				if (ch && msg.verified) {
-					ch.verified = true
-					const sharedId = `${this.room.id}:${ch.fromPeerId}:${ch.address.toLowerCase()}`
-					const shared = state.sharedAddresses.find((s) => s.id === sharedId)
-					if (shared && !shared.verifiedBy.includes(ch.toPeerId)) {
-						shared.verifiedBy.push(ch.toPeerId)
+				if (ch) {
+					ch.verified = msg.verified
+					if (msg.verified) {
+						const verifiedAt = Date.now()
+						const verification: Verification = {
+							id: `${this.room.id}:${ch.toPeerId}:${ch.fromPeerId}:${ch.address.toLowerCase()}:${ch.issuedAt}`,
+							roomId: this.room.id,
+							verifierPeerId: ch.toPeerId,
+							verifiedPeerId: ch.fromPeerId,
+							address: ch.address,
+							status: 'verified',
+							requestedAt: ch.issuedAt,
+							verifiedAt,
+							signature: ch.signature,
+							challengeId: ch.id,
+						}
+						state.verifications.push(verification)
+						this.room.broadcast(JSON.stringify({ type: 'verification-record', verification }))
 					}
+				}
+				this.room.broadcast(JSON.stringify({ type: 'sync', state }))
+				break
+			}
+			case 'mark-unverifiable': {
+				const ch = state.challenges.find((c) => c.id === msg.challengeId)
+				if (ch) {
+					const verification: Verification = {
+						id: `${this.room.id}:${ch.toPeerId}:${ch.fromPeerId}:${ch.address.toLowerCase()}:${ch.issuedAt}`,
+						roomId: this.room.id,
+						verifierPeerId: ch.toPeerId,
+						verifiedPeerId: ch.fromPeerId,
+						address: ch.address,
+						status: 'unverifiable',
+						requestedAt: ch.issuedAt,
+						challengeId: ch.id,
+					}
+					state.verifications.push(verification)
+					this.room.broadcast(JSON.stringify({ type: 'verification-record', verification }))
 				}
 				this.room.broadcast(JSON.stringify({ type: 'sync', state }))
 				break

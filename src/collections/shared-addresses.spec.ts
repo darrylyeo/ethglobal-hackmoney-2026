@@ -2,12 +2,22 @@
 import { assertEquals } from 'jsr:@std/assert'
 import { sharedAddressKey } from './shared-addresses-keys.ts'
 
-Deno.test('sharedAddressKey generates correct composite key', () => {
-	assertEquals(sharedAddressKey('R1', 'peer1', '0xABC123'), 'R1:peer1:0xabc123')
+Deno.test('sharedAddressKey share with all', () => {
+	assertEquals(
+		sharedAddressKey('R1', 'peer1', '0xABC123', null),
+		'R1:peer1:0xabc123:all',
+	)
+})
+
+Deno.test('sharedAddressKey share with specific peers', () => {
+	assertEquals(
+		sharedAddressKey('R1', 'peer1', '0xABC123', ['p2', 'p3']),
+		'R1:peer1:0xabc123:p2,p3',
+	)
 })
 
 Deno.test('sharedAddressKey normalizes address to lowercase', () => {
-	const k1 = sharedAddressKey('R', 'p', '0xABCDEF')
-	const k2 = sharedAddressKey('R', 'p', '0xabcdef')
+	const k1 = sharedAddressKey('R', 'p', '0xABCDEF', null)
+	const k2 = sharedAddressKey('R', 'p', '0xabcdef', null)
 	assertEquals(k1, k2)
 })

@@ -3,6 +3,6 @@ export type SharedAddress = {
 	roomId: string
 	peerId: string
 	address: `0x${string}`
-	verifiedBy: string[]
+	targetPeerIds: string[] | null
 	sharedAt: number
 }

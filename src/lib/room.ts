@@ -15,11 +15,13 @@ import {
 export type RoomMessage =
 	| { type: 'join'; displayName?: string }
 	| { type: 'leave' }
-	| { type: 'share-address'; address: `0x${string}` }
+	| { type: 'share-address'; address: `0x${string}`; targetPeerIds?: string[] | null }
 	| { type: 'request-challenge'; address: `0x${string}`; fromPeerId: string }
 	| { type: 'challenge'; challenge: unknown }
 	| { type: 'submit-signature'; challengeId: string; signature: `0x${string}` }
 	| { type: 'verify-result'; challengeId: string; verified: boolean }
+	| { type: 'verification-record'; verification: import('$/data/Verification').Verification }
+	| { type: 'mark-unverifiable'; challengeId: string }
 	| { type: 'sync'; state: unknown }
 	| {
 			type: 'propose-transfer'
