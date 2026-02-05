@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type {
 		DashboardNode,
@@ -17,11 +19,14 @@
 	} from '$/collections/dashboard-panels'
 	import { setIntentNavigateTo } from '$/state/intent-navigation.svelte'
 
+
 	// Functions
 	import { buildRoutePath, defaultRoutePath, routeEntries } from './route-map'
 
+
 	// Components
 	import PanelTree from './PanelTree.svelte'
+
 
 	// Props
 	let {
@@ -171,14 +176,17 @@
 			? [node.id]
 			: [...listPanelIds(node.first), ...listPanelIds(node.second)]
 
+
 	// State
 	const initialState = ensureDashboardState(defaultRoutePath)
 	let root = $state(initialState.root)
 	let focusedPanelId = $state(initialState.focusedPanelId)
 
+
 	// (Derived)
 	const focusedPanel = $derived(getPanelById(root, focusedPanelId))
 	const panelIds = $derived(listPanelIds(root))
+
 
 	// Functions
 	const isPrefix = (a: string[], b: string[]) =>
@@ -190,6 +198,7 @@
 
 	let pushedPanelId = $state<string | null>(null)
 	let pushedHashes = $state<string[]>([])
+
 
 	// Actions
 	const setRoot = (nextRoot: DashboardNode) => (
@@ -390,6 +399,7 @@
 	})
 </script>
 
+
 <svelte:head>
 	<title>Dashboard</title>
 </svelte:head>
@@ -431,6 +441,7 @@
 		</section>
 	</main>
 {/if}
+
 
 <style>
 	.dashboard {

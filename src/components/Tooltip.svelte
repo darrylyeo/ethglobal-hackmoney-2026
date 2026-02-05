@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
+
 
 	// Props
 	let {
@@ -25,9 +28,11 @@
 		[key: string]: unknown
 	} = $props()
 
+
 	// Components
 	import { Tooltip } from 'bits-ui'
 </script>
+
 
 <Tooltip.Root {...rootProps}>
 	<Tooltip.Trigger {...triggerProps}>

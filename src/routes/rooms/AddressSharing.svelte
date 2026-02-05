@@ -1,9 +1,12 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { RoomPeerRow } from '$/collections/room-peers'
 	import type { SiweChallengeRow } from '$/collections/siwe-challenges'
 	import type { EIP1193Provider } from '$/lib/siwe'
 	import { DataSource } from '$/constants/data-sources'
+
 
 	// Props
 	let {
@@ -17,6 +20,7 @@
 		provider: EIP1193Provider | null
 		peers: RoomPeerRow[]
 	} = $props()
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -115,10 +119,12 @@
 		roomState.connection?.send({ type: 'mark-unverifiable', challengeId })
 	}
 
+
 	// Components
 	import Address from '$/components/Address.svelte'
 	import { Button } from 'bits-ui'
 </script>
+
 
 <section data-my-addresses {@attach liveQueryAttachment}>
 	<h3>My addresses</h3>

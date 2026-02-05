@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -9,6 +12,7 @@
 		fetchCctpAllowance,
 	} from '$/collections/cctp-allowance'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Props
 	let {
@@ -59,12 +63,14 @@
 		fastTransferSupported ? (allowanceRow?.isLoading ?? false) : false,
 	)
 
+
 	// Actions
 	$effect(() => {
 		if (!fastTransferSupported) return
 		fetchCctpAllowance({ apiHost }).catch(() => {})
 	})
 </script>
+
 
 <div data-column="gap-1" {@attach liveQueryAttachment}>
 	<strong>Fast transfer allowance</strong>

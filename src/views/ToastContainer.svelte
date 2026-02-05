@@ -1,7 +1,10 @@
 <script lang="ts">
+
+
 	// Components
 	import { toasts } from '$/lib/toast.svelte'
 	import Toast from '$/components/Toast.svelte'
+
 
 	// Props
 	let {
@@ -10,6 +13,7 @@
 		position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
 	} = $props()
 </script>
+
 
 <div
 	class="toast-container"
@@ -22,6 +26,7 @@
 		<Toast {toast} onDismiss={() => toasts.dismiss(toast.id)} />
 	{/each}
 </div>
+
 
 <style>
 	.toast-container {

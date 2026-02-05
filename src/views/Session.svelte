@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
+
 
 	// Props
 	let {
@@ -13,6 +16,7 @@
 		Actions?: Snippet
 	} = $props()
 </script>
+
 
 <main id="main" data-session data-column="gap-4" data-sticky-container>
 	<section data-scroll-item data-column="gap-2">

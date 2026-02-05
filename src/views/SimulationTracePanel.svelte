@@ -27,6 +27,7 @@
 		addr.length > 14 ? `${addr.slice(0, 8)}…${addr.slice(-6)}` : addr
 </script>
 
+
 <div data-simulation-trace data-column="gap-2">
 	<header data-row="gap-2 align-center justify-between">
 		<h3>Trace</h3>
@@ -95,6 +96,7 @@
 		</ul>
 	{/if}
 </div>
+
 
 <style>
 	.sr-only {

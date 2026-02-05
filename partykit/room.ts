@@ -42,7 +42,11 @@ type Verification = {
 type RoomMessage =
 	| { type: 'join'; displayName?: string }
 	| { type: 'leave' }
-	| { type: 'share-address'; address: `0x${string}`; targetPeerIds?: string[] | null }
+	| {
+			type: 'share-address'
+			address: `0x${string}`
+			targetPeerIds?: string[] | null
+	  }
 	| { type: 'request-challenge'; address: `0x${string}`; fromPeerId: string }
 	| { type: 'challenge'; challenge: SiweChallenge }
 	| { type: 'submit-signature'; challengeId: string; signature: `0x${string}` }
@@ -50,8 +54,16 @@ type RoomMessage =
 	| { type: 'verification-record'; verification: Verification }
 	| { type: 'mark-unverifiable'; challengeId: string }
 	| { type: 'sync'; state: RoomState }
-	| { type: 'propose-transfer'; to: `0x${string}`; allocations: { asset: string; amount: string }[] }
-	| { type: 'transfer-request'; from: `0x${string}`; request: TransferRequestParams }
+	| {
+			type: 'propose-transfer'
+			to: `0x${string}`
+			allocations: { asset: string; amount: string }[]
+	  }
+	| {
+			type: 'transfer-request'
+			from: `0x${string}`
+			request: TransferRequestParams
+	  }
 	| { type: 'accept-transfer'; requestId: string }
 	| { type: 'reject-transfer'; requestId: string; reason?: string }
 	| { type: 'transfer-sent'; requestId: string }
@@ -255,8 +267,12 @@ export default class RoomServer implements Party.Server {
 		}
 	}
 
-	onMessage(message: string | ArrayBuffer | ArrayBufferView, sender: Party.Connection) {
-		const raw = typeof message === 'string' ? message : new TextDecoder().decode(message)
+	onMessage(
+		message: string | ArrayBuffer | ArrayBufferView,
+		sender: Party.Connection,
+	) {
+		const raw =
+			typeof message === 'string' ? message : new TextDecoder().decode(message)
 		let msg: RoomMessage
 		try {
 			msg = JSON.parse(raw) as RoomMessage
@@ -308,7 +324,8 @@ export default class RoomServer implements Party.Server {
 					(s) =>
 						s.roomId === this.room.id &&
 						s.address.toLowerCase() === address.toLowerCase() &&
-						(s.targetPeerIds === null || s.targetPeerIds.includes(verifierPeerId)),
+						(s.targetPeerIds === null ||
+							s.targetPeerIds.includes(verifierPeerId)),
 				)
 				if (!shared) break
 				const sharerPeerId = shared.peerId
@@ -322,9 +339,11 @@ export default class RoomServer implements Party.Server {
 				})
 				state.challenges.push(challenge)
 				const sharerConn = this.room.getConnection(sharerPeerId)
-				if (sharerConn) sharerConn.send(JSON.stringify({ type: 'challenge', challenge }))
+				if (sharerConn)
+					sharerConn.send(JSON.stringify({ type: 'challenge', challenge }))
 				const verifierConn = this.room.getConnection(verifierPeerId)
-				if (verifierConn) verifierConn.send(JSON.stringify({ type: 'challenge', challenge }))
+				if (verifierConn)
+					verifierConn.send(JSON.stringify({ type: 'challenge', challenge }))
 				this.room.broadcast(JSON.stringify({ type: 'sync', state }))
 				break
 			}
@@ -334,7 +353,13 @@ export default class RoomServer implements Party.Server {
 					ch.signature = msg.signature
 					const toConn = this.room.getConnection(ch.toPeerId)
 					if (toConn) {
-						toConn.send(JSON.stringify({ type: 'submit-signature', challengeId: msg.challengeId, signature: msg.signature }))
+						toConn.send(
+							JSON.stringify({
+								type: 'submit-signature',
+								challengeId: msg.challengeId,
+								signature: msg.signature,
+							}),
+						)
 					}
 				}
 				break
@@ -358,7 +383,9 @@ export default class RoomServer implements Party.Server {
 							challengeId: ch.id,
 						}
 						state.verifications.push(verification)
-						this.room.broadcast(JSON.stringify({ type: 'verification-record', verification }))
+						this.room.broadcast(
+							JSON.stringify({ type: 'verification-record', verification }),
+						)
 					}
 				}
 				this.room.broadcast(JSON.stringify({ type: 'sync', state }))
@@ -378,13 +405,17 @@ export default class RoomServer implements Party.Server {
 						challengeId: ch.id,
 					}
 					state.verifications.push(verification)
-					this.room.broadcast(JSON.stringify({ type: 'verification-record', verification }))
+					this.room.broadcast(
+						JSON.stringify({ type: 'verification-record', verification }),
+					)
 				}
 				this.room.broadcast(JSON.stringify({ type: 'sync', state }))
 				break
 			}
 			case 'propose-transfer': {
-				const fromShared = state.sharedAddresses.find((s) => s.peerId === peerId)
+				const fromShared = state.sharedAddresses.find(
+					(s) => s.peerId === peerId,
+				)
 				const fromAddress = fromShared?.address
 				const toShared = state.sharedAddresses.find(
 					(s) => s.address.toLowerCase() === (msg.to as string).toLowerCase(),
@@ -415,7 +446,13 @@ export default class RoomServer implements Party.Server {
 				}
 				const toConn = this.room.getConnection(toPeerId)
 				if (toConn) {
-					toConn.send(JSON.stringify({ type: 'transfer-request', from: fromAddress, request }))
+					toConn.send(
+						JSON.stringify({
+							type: 'transfer-request',
+							from: fromAddress,
+							request,
+						}),
+					)
 				}
 				break
 			}
@@ -424,7 +461,12 @@ export default class RoomServer implements Party.Server {
 				if (pending) {
 					const fromConn = this.room.getConnection(pending.fromPeerId)
 					if (fromConn) {
-						fromConn.send(JSON.stringify({ type: 'accept-transfer', requestId: msg.requestId }))
+						fromConn.send(
+							JSON.stringify({
+								type: 'accept-transfer',
+								requestId: msg.requestId,
+							}),
+						)
 					}
 				}
 				break
@@ -434,7 +476,13 @@ export default class RoomServer implements Party.Server {
 				if (pending) {
 					const fromConn = this.room.getConnection(pending.fromPeerId)
 					if (fromConn) {
-						fromConn.send(JSON.stringify({ type: 'reject-transfer', requestId: msg.requestId, reason: msg.reason }))
+						fromConn.send(
+							JSON.stringify({
+								type: 'reject-transfer',
+								requestId: msg.requestId,
+								reason: msg.reason,
+							}),
+						)
 					}
 					this.transferRequests.delete(msg.requestId)
 				}
@@ -445,7 +493,12 @@ export default class RoomServer implements Party.Server {
 				if (pending) {
 					const toConn = this.room.getConnection(pending.toPeerId)
 					if (toConn) {
-						toConn.send(JSON.stringify({ type: 'transfer-sent', requestId: msg.requestId }))
+						toConn.send(
+							JSON.stringify({
+								type: 'transfer-sent',
+								requestId: msg.requestId,
+							}),
+						)
 					}
 					this.transferRequests.delete(msg.requestId)
 				}

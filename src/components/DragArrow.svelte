@@ -1,10 +1,14 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
 	import { getBoxToBoxArrow } from 'perfect-arrows'
 
+
 	// Components
 	import { Tooltip } from 'bits-ui'
+
 
 	// Props
 	let {
@@ -22,6 +26,7 @@
 		tooltipContent: Snippet
 		interactive?: boolean
 	} = $props()
+
 
 	// (Derived)
 	const arrowData = $derived(
@@ -63,6 +68,7 @@
 		})(),
 	)
 </script>
+
 
 <div
 	class="drag-arrow-overlay"
@@ -114,6 +120,7 @@
 		</Tooltip.Portal>
 	</Tooltip.Root>
 </div>
+
 
 <style>
 	.drag-arrow-overlay {

@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute } from '$/data/BridgeRoute'
@@ -25,6 +27,7 @@
 		testnetsForMainnet,
 	} from '$/constants/networks'
 
+
 	// Context
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -35,6 +38,7 @@
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 	} from '$/lib/dashboard-panel-hash'
+
 
 	// Functions
 	import { getUsdcAddress } from '$/api/lifi'
@@ -55,9 +59,11 @@
 	import { normalizeBridgeSessionParams } from '$/lib/transaction-session-params'
 	import { stringify } from '$/lib/stringify'
 
+
 	// State
 	import { bridgeSettingsState } from '$/state/bridge-settings.svelte'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+
 
 	// Components
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
@@ -66,6 +72,7 @@
 	import UnifiedProtocolRouter from './UnifiedProtocolRouter.svelte'
 	import CctpBridgeFlow from '$/routes/bridge/cctp/CctpBridgeFlow.svelte'
 	import BridgeFlow from '$/routes/bridge/lifi/BridgeFlow.svelte'
+
 
 	// Props
 	let {
@@ -90,6 +97,7 @@
 				) ?? null)
 			: null
 
+
 	// State
 	let activeSessionId = $state<string | null>(null)
 	let pendingSessionId = $state<string | null>(null)
@@ -97,6 +105,7 @@
 	let slippageInput = $state('')
 	let localParams = $state<BridgeSessionParams | null>(null)
 	let previewResult = $state<BridgeRoute | null>(null)
+
 
 	// (Derived)
 	const sessionQuery = useLiveQuery(
@@ -455,6 +464,7 @@
 		].flatMap((token) => (token ? [token] : []))
 	})
 </script>
+
 
 <div style="display: contents" {@attach liveQueryAttachment}>
 	<SessionAction

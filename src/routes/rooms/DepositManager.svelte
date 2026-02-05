@@ -1,10 +1,14 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import { DataSource } from '$/constants/data-sources'
 
+
 	// Props
 	let { provider }: { provider: EIP1193Provider | null } = $props()
+
 
 	// State
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -80,6 +84,7 @@
 	}
 </script>
 
+
 <section class="deposit-manager" {@attach liveQueryAttachment}>
 	<h3>Custody Balance</h3>
 
@@ -121,6 +126,7 @@
 		<button type="submit" disabled={loading}>Withdraw</button>
 	</form>
 </section>
+
 
 <style>
 	.deposit-manager h3 {

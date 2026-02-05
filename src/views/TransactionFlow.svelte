@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { VoltaireProvider } from '$/api/voltaire'
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
@@ -95,13 +97,16 @@
 		>
 	}
 
+
 	// Context
 	import { Button, Checkbox } from 'bits-ui'
+
 
 	// Functions
 	import { createHttpProvider } from '$/api/voltaire'
 	import { createExplainProvider, createExplainRecord } from '$/lib/explain'
 	import { getE2eProvider, switchWalletChain } from '$/lib/wallet'
+
 
 	// Props
 	let {
@@ -118,6 +123,7 @@
 		onExecutionSuccess?: (args: { txHash?: `0x${string}` }) => void
 	} = $props()
 
+
 	// (Derived)
 	const walletProvider = $derived(
 		walletConnection &&
@@ -131,6 +137,7 @@
 		walletConnection?.connection.activeActor ?? null,
 	)
 	const e2eProvider = $derived(E2E_TEVM_ENABLED ? getE2eProvider() : null)
+
 
 	// Functions
 	const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -453,9 +460,11 @@
 		}
 	}
 
+
 	// State
 	let explainAvailability = $state<ExplainAvailability>('unavailable')
 	let txOverrides = $state<Record<string, TransactionFlowItemState>>({})
+
 
 	// (Derived)
 	const txStates = $derived(
@@ -472,6 +481,7 @@
 		void refreshExplainAvailability()
 	})
 </script>
+
 
 <div data-column="gap-4" data-transaction-flow>
 	{#if Summary}

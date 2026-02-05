@@ -1,8 +1,11 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import { DataSource } from '$/constants/data-sources'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -16,22 +19,27 @@
 		partyKitStatusLabel,
 	} from '$/state/room.svelte'
 
+
 	// Props
 	let { data }: { data: { roomId: string } } = $props()
 
+
 	// (Derived)
 	const roomId = $derived(data.roomId)
+
 
 	// Functions
 	import { renderSVG } from 'uqr'
 	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/room'
 	import { untrack } from 'svelte'
 
+
 	// State
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
 	let selectedChainId = $state<number | null>(null)
 	let leaveToken = 0
+
 
 	// (Derived)
 	const peersQuery = useLiveQuery(
@@ -97,6 +105,7 @@
 		}
 	})
 
+
 	// Components
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import AddressSharing from '../AddressSharing.svelte'
@@ -105,9 +114,11 @@
 	import SharedAddresses from '../SharedAddresses.svelte'
 </script>
 
+
 <svelte:head>
 	<title>{roomDisplayName}</title>
 </svelte:head>
+
 
 <main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 	<section data-scroll-item>

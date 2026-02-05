@@ -31,7 +31,7 @@
     "prepare": "svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "format": "deno run -A npm:prettier --write src e2e scripts",
+    "format": "deno run -A npm:prettier --write src e2e scripts partykit env.d.ts reset.d.ts playwright.config.ts playwright.e2e.config.ts vite.config.ts vitest.config.ts && node scripts/_svelte-section-spacing.mjs",
     "check:size": "deno task build && deno run -A scripts/check-bundle-size.mjs",
     "check:perf": "deno run -A scripts/check-performance.mjs",
     "icons:fetch": "deno run -A scripts/_fetch-icons.ts",

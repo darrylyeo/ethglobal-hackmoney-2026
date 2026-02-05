@@ -1,8 +1,11 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
 	import type { GraphModel } from '$/lib/graph-model'
 	import { entityTypes } from '$/constants/entity-types'
+
 
 	// Functions
 	import { Graph, EdgeEvent, NodeEvent } from '@antv/g6'
@@ -12,6 +15,7 @@
 		startIntentDragPreview,
 		updateIntentDragTarget,
 	} from '$/state/intent-drag-preview.svelte'
+
 
 	// Props
 	let {
@@ -41,6 +45,7 @@
 		onNodeLeave?: (node: string) => void
 	} = $props()
 </script>
+
 
 <div
 	class="graph-container"
@@ -729,6 +734,7 @@
 		}
 	}}
 ></div>
+
 
 <style>
 	.graph-container {

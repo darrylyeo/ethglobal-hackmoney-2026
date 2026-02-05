@@ -1,6 +1,9 @@
 <script lang="ts" generics="Item">
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
+
 
 	// Components
 	import { Select } from 'bits-ui'
@@ -27,6 +30,7 @@
 		label: string
 		items: readonly Item[]
 	}[] => value.length > 0 && isGroup(value[0])
+
 
 	// Props
 	let {
@@ -68,6 +72,7 @@
 		children?: Snippet
 		[key: string]: unknown
 	} = $props()
+
 
 	// (Derived)
 	const normalizedItems = $derived(
@@ -296,6 +301,7 @@
 		{/if}
 	</Select.Root>
 {/if}
+
 
 <style>
 	.select-item-inner {

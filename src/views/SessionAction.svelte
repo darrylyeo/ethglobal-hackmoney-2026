@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
+
 
 	// Props
 	let {
@@ -19,6 +22,7 @@
 		onSubmit?: (event: SubmitEvent) => void
 	} = $props()
 </script>
+
 
 <form data-session-action data-card data-column="gap-3" onsubmit={onSubmit}>
 	<header data-row="gap-2 align-center justify-between">

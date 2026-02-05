@@ -1,6 +1,9 @@
 <script lang="ts" generics="Item">
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
+
 
 	// Components
 	import { Combobox } from 'bits-ui'
@@ -27,6 +30,7 @@
 		label: string
 		items: readonly Item[]
 	}[] => value.length > 0 && isGroup(value[0])
+
 
 	// Props
 	let {
@@ -67,10 +71,12 @@
 		[key: string]: unknown
 	} = $props()
 
+
 	// State
 	let inputValue = $state('')
 	let isFocused = $state(false)
 	let open = $state(false)
+
 
 	// (Derived)
 	const normalizedItems = $derived(
@@ -139,6 +145,7 @@
 					: ''
 		if (inputValue !== nextValue) inputValue = nextValue
 	})
+
 
 	// Actions
 	const onInput = (event: Event) => {

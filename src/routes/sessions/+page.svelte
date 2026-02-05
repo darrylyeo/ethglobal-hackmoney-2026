@@ -1,10 +1,14 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Functions
 	import {
@@ -20,6 +24,7 @@
 		`${actionLabel(session.actions[0] ?? '')} ${session.id.slice(0, 6)}`
 	const sessionHref = (session: { id: string; actions: string[] }) =>
 		`/session${buildSessionHash(session.id)}`
+
 
 	// State
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
@@ -45,9 +50,11 @@
 	)
 </script>
 
+
 <svelte:head>
 	<title>Sessions – USDC Tools</title>
 </svelte:head>
+
 
 <main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 	<section data-scroll-item data-column="gap-3">

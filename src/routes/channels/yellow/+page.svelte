@@ -1,10 +1,13 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { YellowChannelRow } from '$/collections/yellow-channels'
 	import type { YellowChannelStateRow } from '$/collections/yellow-channel-states'
 	import { DataSource } from '$/constants/data-sources'
 	import type { ChannelStatus } from '$/data/YellowChannel'
 	import type { EIP1193Provider } from '$/lib/wallet'
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -24,6 +27,7 @@
 		value !== null &&
 		'request' in value &&
 		typeof value.request === 'function'
+
 
 	// (Derived)
 	const channelsQuery = useLiveQuery((q) =>
@@ -118,6 +122,7 @@
 	)
 	const myAddress = $derived(yellowState.address?.toLowerCase() ?? null)
 
+
 	// State
 	type StatusFilter =
 		| 'all'
@@ -164,6 +169,7 @@
 		allChannels.filter((ch) => ch.roomId != null).length,
 	)
 
+
 	// Functions
 	const shortId = (id: string) =>
 		id.length > 14 ? `${id.slice(0, 6)}…${id.slice(-6)}` : id
@@ -185,6 +191,7 @@
 			ch.participant1.toLowerCase() === myAddress)
 	const roomDisplay = (roomId: string) =>
 		roomsById.get(roomId)?.name ?? roomIdToDisplayName(roomId)
+
 
 	// Actions
 	const handleClose = async (ch: YellowChannelRow) => {
@@ -241,6 +248,7 @@
 		}
 	}
 
+
 	// Components
 	import Address from '$/components/Address.svelte'
 	import { Button } from 'bits-ui'
@@ -250,9 +258,11 @@
 	let transferChannel = $state<YellowChannelRow | null>(null)
 </script>
 
+
 <svelte:head>
 	<title>Yellow Channels</title>
 </svelte:head>
+
 
 <div style="display: contents" {@attach liveQueryAttachment}>
 	<main id="main" data-column data-sticky-container>
@@ -381,6 +391,7 @@
 		<TransferDialog channel={transferChannel} bind:open={transferOpen} />
 	{/if}
 </div>
+
 
 <style>
 	.summary p {

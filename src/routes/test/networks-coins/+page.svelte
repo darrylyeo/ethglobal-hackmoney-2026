@@ -40,6 +40,7 @@
 	const coins = $derived((coinsQuery.data ?? []).map((entry) => entry.row))
 </script>
 
+
 <main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 	<section data-scroll-item>
 		<h1>Networks and coins</h1>

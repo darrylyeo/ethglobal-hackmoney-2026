@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Attributes } from 'graphology-types'
 	import type { DisplayData } from 'sigma/types'
@@ -68,6 +70,7 @@
 		EntityType.TransactionSessionSimulation,
 	]
 
+
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import {
@@ -76,18 +79,22 @@
 		type LiveQueryEntry,
 	} from '$/svelte/live-query-context.svelte'
 
+
 	// Functions
 	import Graph from 'graphology'
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { stringify } from '$/lib/stringify'
 
+
 	// Components
 	import G6GraphView from '$/components/G6GraphView.svelte'
 	import SigmaGraphView from '$/components/SigmaGraphView.svelte'
 
+
 	// Context
 	const globalLiveQueryCtx = useLiveQueryContext()
 	const localLiveQueryCtx = useLocalLiveQueryContext()
+
 
 	// Props
 	let {
@@ -99,6 +106,7 @@
 		queryStack?: LiveQueryEntry[]
 		globalQueryStack?: LiveQueryEntry[]
 	} = $props()
+
 
 	// State
 	let hoveredNode: string | undefined = $state(undefined)
@@ -254,6 +262,7 @@
 	const yellowTransfersQuery = useLiveQuery((q) =>
 		q.from({ row: yellowTransfersCollection }).select(({ row }) => ({ row })),
 	)
+
 
 	// Types/constants
 	type CollectionStyle = {
@@ -751,6 +760,7 @@
 		return null
 	}
 
+
 	// (Derived)
 	const counts: Record<GraphSceneEntityType, number> = $derived({
 		[EntityType.Wallet]: walletsQuery.data?.length ?? 0,
@@ -786,6 +796,7 @@
 		[EntityType.YellowTransfer]: yellowTransfersQuery.data?.length ?? 0,
 	})
 
+
 	// Functions
 	const isRecord = (value: unknown): value is Record<string, unknown> =>
 		typeof value === 'object' && value !== null
@@ -805,6 +816,7 @@
 			source: 'graph',
 		},
 	})
+
 
 	// (Derived)
 	const graphModel = $derived.by(() => {
@@ -2285,6 +2297,7 @@
 		return { graph: g, nodes, edges }
 	})
 
+
 	// (Derived)
 	const buildHighlightedNodes = (stack: LiveQueryEntry[] | undefined) => {
 		const nodes: string[] = []
@@ -2436,6 +2449,7 @@
 		globalQueryStack !== undefined || globalLiveQueryCtx.stack.length > 0,
 	)
 
+
 	// (Derived)
 	const selectedNodeSet = $derived(new Set(selectedNodes))
 	const selectedEdgeSet = $derived(new Set(selectedEdges))
@@ -2539,6 +2553,7 @@
 		}
 	}
 
+
 	// (Derived)
 	const hoveredNodeData = $derived(
 		hoveredNode && graphModel
@@ -2609,6 +2624,7 @@
 		},
 	)
 
+
 	// Actions
 	const toggleCollection = (key: string) => {
 		const next = new Set(visibleCollections)
@@ -2616,6 +2632,7 @@
 		else next.add(key)
 		visibleCollections = next
 	}
+
 
 	// (Derived)
 	const refreshKey = $derived(
@@ -2845,6 +2862,7 @@
 		</footer>
 	</details>
 {/if}
+
 
 <style>
 	details.graph-scene {

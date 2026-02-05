@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { StorkPriceRow } from '$/collections/stork-prices'
+
 
 	// Props
 	let {
@@ -11,9 +14,11 @@
 		priceRow: StorkPriceRow | null
 	} = $props()
 
+
 	// Functions
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
 </script>
+
 
 <div class="stork-price-feed" data-column="gap-1">
 	<strong>{symbol} price</strong>
@@ -51,6 +56,7 @@
 		<span data-muted>Waiting for price feed</span>
 	{/if}
 </div>
+
 
 <style>
 	.stork-price-feed {

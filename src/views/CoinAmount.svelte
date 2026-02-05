@@ -1,8 +1,11 @@
 <script lang="ts" generics="_CoinType extends CoinType = CoinType">
+
+
 	// Types/constants
 	import { type Coin, CoinType } from '$/constants/coins'
 	import type { StorkPriceRow } from '$/collections/stork-prices'
 	import { networkConfigsByChainId } from '$/constants/networks'
+
 
 	// Props
 	let {
@@ -21,14 +24,17 @@
 		showPriceTooltip?: boolean
 	} = $props()
 
+
 	// Functions
 	import { stringify } from '$/lib/stringify'
+
 
 	// Components
 	import Icon from '$/components/Icon.svelte'
 	import Tooltip from '$/components/Tooltip.svelte'
 	import StorkPriceFeed from '$/views/StorkPriceFeed.svelte'
 </script>
+
 
 <div
 	role="term"
@@ -147,6 +153,7 @@
 		</span>
 	{/if}
 </div>
+
 
 <style>
 	.coin-amount {

@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { browser } from '$app/environment'
 	import type { Erc20Token } from '$/constants/coins'
@@ -10,6 +12,7 @@
 		const hue = (chainId * 137.508) % 360
 		return new THREE.Color().setHSL(hue / 360, 0.7, 0.5).getHex()
 	}
+
 
 	// Props
 	let {
@@ -96,6 +99,7 @@
 	)
 </script>
 
+
 <div class="live-transfers">
 	<header class="transfers-header">
 		<h2>Live transfers – {coin.symbol}</h2>
@@ -161,6 +165,7 @@
 		</p>
 	{/if}
 </div>
+
 
 <style>
 	.live-transfers {

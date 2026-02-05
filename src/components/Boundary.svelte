@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Props
 	import type { Snippet } from 'svelte'
 	import { stringify } from '$/lib/stringify'
@@ -13,6 +15,7 @@
 		Failed?: Snippet<[error: unknown, retry: () => void]>
 	} = $props()
 </script>
+
 
 <svelte:boundary>
 	{#if children}
@@ -58,6 +61,7 @@
 		{/if}
 	{/snippet}
 </svelte:boundary>
+
 
 <style>
 	.loading {

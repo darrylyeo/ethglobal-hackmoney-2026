@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Components
 	import { Button } from 'bits-ui'
 	import Spinner from './Spinner.svelte'
@@ -18,6 +20,7 @@
 	} = $props()
 </script>
 
+
 <Button.Root
 	{...props}
 	class="loading-button"
@@ -31,6 +34,7 @@
 		{@render children()}
 	{/if}
 </Button.Root>
+
 
 <style>
 	:global(.loading-button) {

@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type {
 		ConnectedWallet,
@@ -25,6 +27,7 @@
 				disabled?: boolean
 		  }
 		| { type: string; id?: string }
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -142,6 +145,7 @@
 
 	let readOnlyAddress = $state('')
 
+
 	// Actions
 	const connect = (rdns: string) =>
 		requestWalletConnection({ rdns }).catch(() => {})
@@ -184,6 +188,7 @@
 				]),
 	])
 
+
 	// Components
 	import Address from '$/components/Address.svelte'
 	import Dropdown from '$/components/Dropdown.svelte'
@@ -191,6 +196,7 @@
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import { Button } from 'bits-ui'
 </script>
+
 
 <div data-row="wrap align-start" {@attach liveQueryAttachment}>
 	<details data-row-item="flexible" data-card="secondary radius-4" open>

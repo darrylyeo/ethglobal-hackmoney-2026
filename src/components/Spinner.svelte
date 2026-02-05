@@ -6,8 +6,10 @@
 	} = $props()
 </script>
 
+
 <span class="spinner" style:width={size} style:height={size} aria-hidden="true"
 ></span>
+
 
 <style>
 	.spinner {

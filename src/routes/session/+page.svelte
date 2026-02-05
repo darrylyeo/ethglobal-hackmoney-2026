@@ -1,8 +1,11 @@
 <script lang="ts">
+
+
 	// Context
 	import { setContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Functions
 	import {
@@ -12,8 +15,10 @@
 	} from '$/lib/dashboard-panel-hash'
 	import { parseSessionHash } from '$/lib/transaction-sessions'
 
+
 	// State
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+
 
 	// Props
 	let {
@@ -101,6 +106,7 @@
 		return () => window.removeEventListener('hashchange', updateHash)
 	})
 
+
 	// Components
 	import BridgeView from '$/view/bridge.svelte'
 	import LiquidityView from '$/view/liquidity.svelte'
@@ -108,9 +114,11 @@
 	import TransferView from '$/view/transfer.svelte'
 </script>
 
+
 <svelte:head>
 	<title>{pageTitle} – USDC Tools</title>
 </svelte:head>
+
 
 <div style="display: contents" {@attach liveQueryAttachment}>
 	{#if activeAction === 'swap'}

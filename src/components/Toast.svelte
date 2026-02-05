@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Toast as ToastType } from '$/lib/toast.svelte'
+
 
 	// Props
 	let {
@@ -11,12 +14,15 @@
 		onDismiss: () => void
 	} = $props()
 
+
 	// State
 	let paused = $state(false)
+
 
 	// Components
 	import Icon from '$/components/Icon.svelte'
 </script>
+
 
 <div
 	class="toast-root"
@@ -78,6 +84,7 @@
 		></div>
 	{/if}
 </div>
+
 
 <style>
 	.toast-root {

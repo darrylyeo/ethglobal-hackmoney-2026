@@ -1,8 +1,11 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Coin } from '$/constants/coins'
 	import { CoinType } from '$/constants/coins'
 	import { networksByChainId } from '$/constants/networks'
+
 
 	// Props
 	let {
@@ -25,16 +28,19 @@
 		[key: string]: unknown
 	} = $props()
 
+
 	// Functions
 	const toCoinId = (coin: Coin) =>
 		`${coin.chainId}-${coin.type}-${
 			coin.type === CoinType.Native ? 'native' : coin.address.toLowerCase()
 		}`
 
+
 	// Components
 	import Combobox from '$/components/Combobox.svelte'
 	import Icon from '$/components/Icon.svelte'
 </script>
+
 
 <Combobox
 	{...rootProps}
@@ -82,6 +88,7 @@
 		</span>
 	{/snippet}
 </Combobox>
+
 
 <style>
 	.coin-input-item {

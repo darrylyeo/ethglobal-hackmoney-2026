@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { YellowChannelRow } from '$/collections/yellow-channels'
+
 
 	// Props
 	let {
@@ -10,6 +13,7 @@
 		channel: YellowChannelRow
 		open: boolean
 	} = $props()
+
 
 	// State
 	import { yellowState } from '$/state/yellow.svelte'
@@ -69,9 +73,11 @@
 		}
 	}
 
+
 	// Components
 	import { Button, Dialog } from 'bits-ui'
 </script>
+
 
 <Dialog.Root bind:open>
 	<Dialog.Content>
@@ -114,6 +120,7 @@
 		</div>
 	</Dialog.Content>
 </Dialog.Root>
+
 
 <style>
 	.transfer-balance {

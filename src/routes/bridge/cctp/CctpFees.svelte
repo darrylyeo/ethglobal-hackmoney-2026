@@ -1,11 +1,15 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { cctpFeesCollection, fetchCctpFees } from '$/collections/cctp-fees'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Props
 	let {
@@ -61,6 +65,7 @@
 		feeRows?.find((row) => row.finalityThreshold === 2000)?.minimumFee ?? null,
 	)
 
+
 	// Actions
 	$effect(() => {
 		fastBps = feeFastBps
@@ -79,6 +84,7 @@
 	})
 </script>
 
+
 <div data-column="gap-1" {@attach liveQueryAttachment}>
 	<strong>Fees</strong>
 	{#if feeLoading}
@@ -96,6 +102,7 @@
 		<small data-muted>Select a valid chain pair to load fees.</small>
 	{/if}
 </div>
+
 
 <style>
 	.fee-summary {

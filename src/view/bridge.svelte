@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
+
 
 	// State
 	import { bridgeSettingsState } from '$/state/bridge-settings.svelte'
@@ -13,12 +16,14 @@
 
 	const globalIsTestnet = $derived(bridgeSettingsState.current.isTestnet)
 
+
 	// Components
 	import CoinBalances from '$/views/CoinBalances.svelte'
 	import Session from '$/views/Session.svelte'
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import UnifiedBridgeFlow from '$/routes/session/UnifiedBridgeFlow.svelte'
 </script>
+
 
 <Session title="USDC Bridge">
 	{#snippet Context()}

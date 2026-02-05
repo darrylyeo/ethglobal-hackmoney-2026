@@ -116,6 +116,7 @@
 	}
 </script>
 
+
 <div style="display: contents" {@attach liveQueryAttachment}>
 	{#if isChecking}
 		<p data-muted>Checking approval…</p>
@@ -154,6 +155,7 @@
 		</div>
 	{/if}
 </div>
+
 
 <style>
 	.approval-success {

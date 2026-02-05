@@ -1,14 +1,19 @@
 <script lang="ts">
+
+
 	// Context
 	import { resolve } from '$app/paths'
+
 
 	// Components
 	import ArchitectureGraph from './ArchitectureGraph.svelte'
 </script>
 
+
 <svelte:head>
 	<title>About | USDC Tools</title>
 </svelte:head>
+
 
 <section data-scroll-item data-column="center gap-4">
 	<h1>About</h1>
@@ -91,6 +96,7 @@
 		</ul>
 	</section>
 </section>
+
 
 <style>
 	.legend dl {

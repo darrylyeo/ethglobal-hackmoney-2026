@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
 	import type {
@@ -15,6 +17,7 @@
 		}
 	}
 
+
 	// Functions
 	import { Graph, EdgeEvent, NodeEvent } from '@antv/g6'
 	import { ConcentricLayout, ForceLayout } from '@antv/layout'
@@ -30,12 +33,15 @@
 		return typeof id === 'string' ? id : null
 	}
 
+
 	// State
 	let hoveredId = $state<string | null>(null)
+
 
 	// (Derived)
 	const model = $derived(getArchitectureGraphModel())
 </script>
+
 
 <div class="architecture-graph-wrap">
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -568,6 +574,7 @@
 		{/if}
 	</div>
 </div>
+
 
 <style>
 	.architecture-graph-wrap {

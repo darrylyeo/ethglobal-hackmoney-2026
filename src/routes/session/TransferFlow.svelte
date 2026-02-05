@@ -1,10 +1,13 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Coin } from '$/constants/coins'
 	import { CoinType } from '$/constants/coins'
 	import { networksByChainId } from '$/constants/networks'
 	import type { TransferSessionParams } from '$/lib/transaction-session-params'
+
 
 	// Context
 	import { getContext } from 'svelte'
@@ -17,6 +20,7 @@
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 	} from '$/lib/dashboard-panel-hash'
+
 
 	// Props
 	let {
@@ -55,6 +59,7 @@
 		typeof value === 'string' && value.startsWith('0x')
 
 	let activeSessionId = $state<string | null>(null)
+
 
 	// (Derived)
 	const sessionQuery = useLiveQuery(
@@ -208,6 +213,7 @@
 		return () => window.removeEventListener('hashchange', handleHash)
 	})
 
+
 	// Functions
 	import { encodeTransferCall } from '$/api/voltaire'
 	import { sendTransfer } from '$/api/yellow'
@@ -222,6 +228,7 @@
 		parseSessionHash,
 	} from '$/lib/transaction-sessions'
 
+
 	// State
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 	import {
@@ -229,6 +236,7 @@
 		updateTransaction,
 	} from '$/collections/transactions'
 	import type { Transaction$Id } from '$/data/Transaction'
+
 
 	// Actions
 	const executeChannelTransfer = async () => {
@@ -296,6 +304,7 @@
 		updateTransaction(txId, { status: 'completed', destTxHash: txHash })
 		return { txHash }
 	}
+
 
 	// Components
 	import CoinAmount from '$/views/CoinAmount.svelte'

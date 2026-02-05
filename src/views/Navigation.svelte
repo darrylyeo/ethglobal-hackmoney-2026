@@ -2,8 +2,10 @@
 	// Types
 	import type { Snippet } from 'svelte'
 
+
 	// Context
 	import { page } from '$app/state'
+
 
 	// Props
 	let {
@@ -14,10 +16,12 @@
 		headerActions?: Snippet
 	} = $props()
 
+
 	// Components
 	import Icon from '$/components/Icon.svelte'
 	import NavigationItems, { type NavigationItem } from './NavigationItem.svelte'
 </script>
+
 
 <nav
 	id="nav"
@@ -68,6 +72,7 @@
 
 	<footer data-sticky></footer>
 </nav>
+
 
 <style>
 	.nav {

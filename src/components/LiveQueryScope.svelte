@@ -20,6 +20,7 @@
 	)
 </script>
 
+
 <div style="display: contents" {@attach liveQueryAttachment}>
 	<slot />
 </div>

@@ -1,14 +1,18 @@
 <script lang="ts">
+
+
 	// Functions
 	import { Button } from 'bits-ui'
 	import { createHttpProvider, getChainId } from '$/api/voltaire'
 	import { formatInteger } from '$/lib/format'
+
 
 	// State
 	let rpcUrl = $state('')
 	let chainIdResult = $state<string | null>(null)
 	let loading = $state(false)
 	let error = $state<string | null>(null)
+
 
 	// Actions
 	async function submit() {
@@ -26,6 +30,7 @@
 		}
 	}
 </script>
+
 
 <main id="main" data-column data-sticky-container>
 	<section data-scroll-item>

@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
@@ -24,10 +26,12 @@
 		validateBridgeAmount,
 	} from '$/constants/bridge-limits'
 
+
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Popover } from 'bits-ui'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Functions
 	import { resolve } from '$app/paths'
@@ -47,6 +51,7 @@
 	import { debounce } from '$/lib/debounce'
 	import { stringify } from 'devalue'
 
+
 	// State
 	import { actorAllowancesCollection } from '$/collections/actor-allowances'
 	import { actorCoinsCollection } from '$/collections/actor-coins'
@@ -59,6 +64,7 @@
 		updateTransaction,
 	} from '$/collections/transactions'
 
+
 	// Components
 	import Select from '$/components/Select.svelte'
 	import Skeleton from '$/components/Skeleton.svelte'
@@ -66,6 +72,7 @@
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import BridgeExecution from './BridgeExecution.svelte'
 	import TokenApproval from './TokenApproval.svelte'
+
 
 	// Props
 	let {
@@ -105,6 +112,7 @@
 			wallet.connection.transport === WalletConnectionTransport.Eip1193,
 		)
 
+
 	// State
 	let slippageInput = $state('')
 	let invalidAmountInput = $state(false)
@@ -115,6 +123,7 @@
 	} | null>(null)
 	let executionStatus = $state<BridgeStatus>({ overall: 'idle', steps: [] })
 	let now = $state(Date.now())
+
 
 	// (Derived)
 	const selectedWallet = $derived(
@@ -403,6 +412,7 @@
 		if (quoteParams) fetchBridgeRoutes(quoteParams).catch(() => {})
 	}
 </script>
+
 
 <div style="display: contents" {@attach liveQueryAttachment}>
 	<div aria-live="polite" aria-atomic="true" class="sr-only">
@@ -778,6 +788,7 @@
 		</section>
 	{/if}
 </div>
+
 
 <style>
 	.summary {

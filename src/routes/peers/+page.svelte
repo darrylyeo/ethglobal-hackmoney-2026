@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Context
 	import { resolve } from '$app/paths'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -8,6 +10,7 @@
 	import { verificationsCollection } from '$/collections/verifications'
 	import { formatAddress } from '$/lib/address'
 	import { forgetPeer } from '$/state/room.svelte'
+
 
 	// (Derived)
 	const verificationsQuery = useLiveQuery(
@@ -67,6 +70,7 @@
 		}, new Map<string, { address: `0x${string}`; displayName?: string; isConnected: boolean }[]>()),
 	)
 
+
 	// Actions
 	const handleForget = (peerId: string) => {
 		if (
@@ -80,9 +84,11 @@
 	}
 </script>
 
+
 <svelte:head>
 	<title>Peers</title>
 </svelte:head>
+
 
 <main id="main" data-sticky-container data-column>
 	<h1>Peers</h1>

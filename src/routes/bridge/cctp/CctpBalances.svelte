@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Props
 	let {
 		selectedActor,
@@ -11,8 +13,10 @@
 		}[]
 	} = $props()
 
+
 	// Components
 	import CoinBalances from '$/views/CoinBalances.svelte'
 </script>
+
 
 <CoinBalances {selectedActor} {balanceTokens} />

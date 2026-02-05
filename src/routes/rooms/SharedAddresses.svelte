@@ -1,11 +1,15 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { SharedAddress } from '$/data/SharedAddress'
 	import type { VerificationRow } from '$/collections/verifications'
 	import { DataSource } from '$/constants/data-sources'
 
+
 	// Props
 	let { roomId }: { roomId: string } = $props()
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -15,6 +19,7 @@
 	import { verificationsCollection } from '$/collections/verifications'
 	import { roomState } from '$/state/room.svelte'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Functions
 	import { getOrCreatePeerDisplayName } from '$/lib/room'
@@ -135,10 +140,12 @@
 			timeStyle: 'short',
 		})
 
+
 	// Components
 	import Address from '$/components/Address.svelte'
 	import { Button } from 'bits-ui'
 </script>
+
 
 <section data-shared-addresses {@attach liveQueryAttachment}>
 	<h3>Shared addresses</h3>

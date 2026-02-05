@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
@@ -22,6 +24,7 @@
 	import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
+
 	// Context
 	import { getContext, untrack } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -32,6 +35,7 @@
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 	} from '$/lib/dashboard-panel-hash'
+
 
 	// Functions
 	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
@@ -55,6 +59,7 @@
 		updateTransactionSession,
 	} from '$/lib/transaction-sessions'
 
+
 	// State
 	import { actorAllowancesCollection } from '$/collections/actor-allowances'
 	import {
@@ -74,6 +79,7 @@
 	import { transactionSessionSimulationsCollection } from '$/collections/transaction-session-simulations'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 
+
 	// Components
 	import TokenApproval from '$/routes/bridge/lifi/TokenApproval.svelte'
 	import CoinAmount from '$/views/CoinAmount.svelte'
@@ -84,6 +90,7 @@
 	import SimulationEventPanel from '$/views/SimulationEventPanel.svelte'
 	import SimulationTracePanel from '$/views/SimulationTracePanel.svelte'
 	import SwapExecution from './SwapExecution.svelte'
+
 
 	// Props
 	let {
@@ -127,6 +134,7 @@
 		params: Record<string, unknown> | null,
 	): SwapSessionParams => normalizeSwapSessionParams(params)
 
+
 	// State
 	let activeSessionId = $state<string | null>(null)
 	let pendingSessionId = $state<string | null>(null)
@@ -152,6 +160,7 @@
 		if (pendingSessionId === next) return
 		pendingSessionId = next
 	}
+
 
 	// (Derived)
 	const sessionQuery = useLiveQuery(
@@ -759,6 +768,7 @@
 		}
 	}
 </script>
+
 
 <div style="display: contents" {@attach liveQueryAttachment}>
 	<SessionAction

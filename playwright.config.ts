@@ -17,10 +17,7 @@ export default defineConfig({
 		timeout: 120_000,
 		reuseExistingServer: true,
 	},
-	reporter: [
-		['html', { open: 'never' }],
-		['list'],
-	],
+	reporter: [['html', { open: 'never' }], ['list']],
 	fullyParallel: true,
 	expect: { timeout: 10_000 },
 })

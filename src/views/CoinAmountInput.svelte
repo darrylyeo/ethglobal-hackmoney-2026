@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Coin } from '$/constants/coins'
+
 
 	// Props
 	let {
@@ -35,10 +38,12 @@
 		[key: string]: unknown
 	} = $props()
 
+
 	// (Derived)
 	const sliderMin = $derived(Number(min))
 	const sliderMax = $derived(Number(max))
 	const sliderValue = $derived(Number(value))
+
 
 	// Functions
 	import {
@@ -46,6 +51,7 @@
 		isValidDecimalInput,
 		parseDecimalToSmallest,
 	} from '$/lib/format'
+
 
 	// Actions
 	const onTextInput = (event: Event & { currentTarget: HTMLInputElement }) => {
@@ -71,9 +77,11 @@
 		value = BigInt(event.currentTarget.value)
 	}
 
+
 	// Components
 	import CoinInput from '$/views/CoinInput.svelte'
 </script>
+
 
 <div
 	{...rootProps}
@@ -117,6 +125,7 @@
 		}%`}
 	/>
 </div>
+
 
 <style>
 	.coin-amount {

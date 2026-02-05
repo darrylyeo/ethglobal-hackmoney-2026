@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
+
 
 	// Props
 	let {
@@ -11,8 +14,10 @@
 		selectedActor?: `0x${string}` | null
 	} = $props()
 
+
 	// Components
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
 </script>
+
 
 <AccountsSelect bind:connectedWallets bind:selectedActor />

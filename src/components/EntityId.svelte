@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { IntentDragPayload } from '$/lib/intents/types'
+
 
 	// Functions
 	import { setIntentDragData } from '$/lib/intents/drag'
@@ -8,6 +11,7 @@
 		startIntentDragPreview,
 		updateIntentDragTarget,
 	} from '$/state/intent-drag-preview.svelte'
+
 
 	// Props
 	let {
@@ -25,6 +29,7 @@
 		children?: import('svelte').Snippet
 		[key: string]: unknown
 	} = $props()
+
 
 	// Actions
 	const toElement = (event: DragEvent) =>

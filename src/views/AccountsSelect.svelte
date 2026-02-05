@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type {
 		ConnectedWallet,
@@ -19,6 +21,7 @@
 		testnetsForMainnet,
 	} from '$/constants/networks'
 	import { DataSource } from '$/constants/data-sources'
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -333,6 +336,7 @@
 
 	let readOnlyAddress = $state('')
 
+
 	// Props
 	let {
 		connectedWallets = $bindable([] as ConnectedWallet[]),
@@ -351,6 +355,7 @@
 		selectedActor = selectedActorDerived
 		selectedChainId = selectedChainIdDerived
 	})
+
 
 	// Actions
 	const connect = (rdns: string) =>
@@ -391,6 +396,7 @@
 		}
 	}
 
+
 	// Components
 	import Address from '$/components/Address.svelte'
 	import Dropdown from '$/components/Dropdown.svelte'
@@ -398,6 +404,7 @@
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import { Button, Switch, ToggleGroup } from 'bits-ui'
 </script>
+
 
 <div
 	data-row="gap-2 align-center wrap"
@@ -1013,6 +1020,7 @@
 		</Dropdown>
 	{/if}
 </div>
+
 
 <style>
 	.wallet-chip {

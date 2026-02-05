@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
+
 
 	// State
 	let connectedWallets = $state<ConnectedWallet[]>([])
@@ -9,12 +12,14 @@
 		{ chainId: number; tokenAddress: `0x${string}` }[]
 	>([])
 
+
 	// Components
 	import CoinBalances from '$/views/CoinBalances.svelte'
 	import Session from '$/views/Session.svelte'
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import SwapAction from '$/routes/session/SwapAction.svelte'
 </script>
+
 
 <Session title="Swap">
 	{#snippet Context()}

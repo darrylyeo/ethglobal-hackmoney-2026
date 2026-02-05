@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
@@ -21,6 +23,7 @@
 	import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
+
 	// Context
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -31,6 +34,7 @@
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 	} from '$/lib/dashboard-panel-hash'
+
 
 	// Props
 	let {
@@ -46,6 +50,7 @@
 		}[]
 	} = $props()
 
+
 	// (Derived)
 	const selectedWallet = $derived(
 		selectedWallets.find((w) => w.connection.selected) ?? null,
@@ -58,6 +63,7 @@
 			? selectedWallet.wallet
 			: null,
 	)
+
 
 	// Functions
 	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
@@ -103,6 +109,7 @@
 				) ?? null)
 			: null
 
+
 	// State
 	import { actorAllowancesCollection } from '$/collections/actor-allowances'
 	import {
@@ -130,6 +137,7 @@
 	let slippageInput = $state('')
 	let tokenInSelection = $state<Coin | null>(null)
 	let tokenOutSelection = $state<Coin | null>(null)
+
 
 	// (Derived)
 	const sessionQuery = useLiveQuery(
@@ -167,6 +175,7 @@
 				} satisfies FetchSwapQuoteParams)
 			: null,
 	)
+
 
 	// Actions
 	const activateSession = (sessionId: string) => {
@@ -458,6 +467,7 @@
 	)
 	const isQuotePending = $derived(Boolean(quoteParams && !quote))
 
+
 	// Actions
 	const fetchQuote = debounce(() => {
 		if (quoteParams) fetchSwapQuote(quoteParams, getSwapQuote).catch(() => {})
@@ -580,6 +590,7 @@
 				: []
 	})
 
+
 	// Components
 	import CoinAmount from '$/views/CoinAmount.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
@@ -589,6 +600,7 @@
 	import TokenApproval from '$/routes/bridge/lifi/TokenApproval.svelte'
 	import SwapExecution from './SwapExecution.svelte'
 </script>
+
 
 <section data-card data-column="gap-4" {@attach liveQueryAttachment}>
 	{#snippet swapSummary()}

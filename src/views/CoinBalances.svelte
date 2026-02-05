@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { IntentDragPayload } from '$/lib/intents/types'
 	import { CoinType, ercTokens } from '$/constants/coins'
@@ -9,9 +11,11 @@
 
 	type DisplayToken = (typeof displayTokens)[number]
 
+
 	// Context
 	import { and, eq, or, useLiveQuery } from '@tanstack/svelte-db'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Props
 	let {
@@ -25,9 +29,11 @@
 		}[]
 	} = $props()
 
+
 	// Functions
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { getStorkAssetIdForSymbol } from '$/lib/stork'
+
 
 	// State
 	import {
@@ -40,6 +46,7 @@
 		getBestStorkPrice,
 	} from '$/collections/stork-prices'
 	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
+
 
 	// (Derived)
 	const normalizedBalanceTokens = $derived([
@@ -194,6 +201,7 @@
 			: null,
 	)
 
+
 	// Actions
 	$effect(() => {
 		if (selectedActor && balanceTokenListCoins.length > 0)
@@ -218,12 +226,14 @@
 		}
 	})
 
+
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
 	import EntityId from '$/components/EntityId.svelte'
 	import Skeleton from '$/components/Skeleton.svelte'
 	import CoinAmount from '$/views/CoinAmount.svelte'
 </script>
+
 
 <div style="display: contents" {@attach liveQueryAttachment}>
 	{#if selectedActor}
@@ -406,6 +416,7 @@
 		</section>
 	{/if}
 </div>
+
 
 <style>
 	.balances {

@@ -1,9 +1,12 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type {
 		DashboardNode,
 		DashboardPanelRoute,
 	} from '$/data/DashboardPanel'
+
 
 	// Props
 	let {
@@ -53,6 +56,7 @@
 	const displayRatio = $derived(
 		root.type === 'split' ? (splitRatioOverrides[root.id] ?? root.ratio) : 0.5,
 	)
+
 
 	// Components
 	import { Tooltip } from 'bits-ui'
@@ -181,6 +185,7 @@
 		/>
 	</section>
 {/if}
+
 
 <style>
 	.dashboard-split {

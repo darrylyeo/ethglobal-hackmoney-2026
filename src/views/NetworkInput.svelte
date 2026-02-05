@@ -1,7 +1,10 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { networkConfigsByChainId } from '$/constants/networks'
 	import type { Network } from '$/constants/networks'
+
 
 	// Props
 	let {
@@ -26,7 +29,10 @@
 		[key: string]: unknown
 	} = $props()
 
+
 	// (Derived)
+
+
 
 	// Components
 	import Select from '$/components/Select.svelte'
@@ -106,6 +112,7 @@
 	Before={networkIcons}
 	Item={networkItem}
 ></Select>
+
 
 <style>
 	.network-input-icons {

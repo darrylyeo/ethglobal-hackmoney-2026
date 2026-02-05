@@ -1,8 +1,11 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 	import { networkConfigs, toNetworkSlug } from '$/constants/networks'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
+
 
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -19,6 +22,7 @@
 		useLocalLiveQueryContext,
 	} from '$/svelte/live-query-context.svelte'
 
+
 	// Functions
 	import { formatAddress } from '$/lib/address'
 	import { roomIdToDisplayName } from '$/lib/room'
@@ -34,13 +38,16 @@
 	const sessionHref = (session: { id: string; actions: string[] }) =>
 		`/session${buildSessionHash(session.id)}`
 
+
 	// Props
 	let { children } = $props()
+
 
 	// State
 	let showGraph = $state(false)
 	const globalLiveQueryCtx = useLiveQueryContext()
 	const localLiveQueryCtx = useLocalLiveQueryContext()
+
 
 	// (Derived)
 	const roomsQuery = useLiveQuery(
@@ -340,6 +347,7 @@
 		},
 	])
 
+
 	// Components
 	import { Tooltip } from 'bits-ui'
 	import Boundary from '$/components/Boundary.svelte'
@@ -348,8 +356,10 @@
 	import Navigation from '$/views/Navigation.svelte'
 	import ToastContainer from '$/views/ToastContainer.svelte'
 
+
 	// Images
 	import favicon from '$/lib/assets/favicon.svg'
+
 
 	// Styles
 	import '$/styles/reset.css'
@@ -361,9 +371,11 @@
 	import '$/styles/bits-ui.css'
 </script>
 
+
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
+
 
 <Tooltip.Provider>
 	<div
@@ -415,6 +427,7 @@
 		/>
 	</div>
 </Tooltip.Provider>
+
 
 <style>
 	.layout {

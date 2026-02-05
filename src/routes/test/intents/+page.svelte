@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { IntentDragPayload } from '$/lib/intents/types'
@@ -18,9 +20,11 @@
 		routeId: string | null
 	}
 
+
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Functions
 	import { resolveIntent } from '$/lib/intents/resolve-intent'
@@ -45,6 +49,7 @@
 	const resolveChainName = (chainId: number) =>
 		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
 			?.name ?? `Chain ${chainId}`
+
 
 	// State
 	import { actorCoinsCollection } from '$/collections/actor-coins'
@@ -124,6 +129,7 @@
 		updateTransactionSessionParams(session.id, nextParams)
 	}
 
+
 	// State
 	const sessionQuery = useLiveQuery(
 		(q) =>
@@ -176,6 +182,7 @@
 	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
 		() => liveQueryEntries,
 	)
+
 
 	// (Derived)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
@@ -558,12 +565,14 @@
 		}
 	})
 
+
 	// Components
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import EntityId from '$/components/EntityId.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import TransferFlow from '$/routes/session/TransferFlow.svelte'
 </script>
+
 
 <main
 	id="main"
@@ -763,6 +772,7 @@
 		</section>
 	{/if}
 </main>
+
 
 <style>
 	.intent-slot {

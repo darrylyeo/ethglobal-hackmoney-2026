@@ -1,14 +1,19 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 
+
 	// Props
 	let { roomId }: { roomId: string } = $props()
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { roomPeersCollection } from '$/collections/room-peers'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Components
 	import Peer from './Peer.svelte'
@@ -35,6 +40,7 @@
 
 	const peers = $derived((peersQuery.data ?? []).map((r) => r.row))
 </script>
+
 
 <section data-peer-list {@attach liveQueryAttachment}>
 	<h3>Peers</h3>

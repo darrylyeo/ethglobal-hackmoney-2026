@@ -1,7 +1,10 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { YellowChannelRow } from '$/collections/yellow-channels'
 	import { DataSource } from '$/constants/data-sources'
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -12,8 +15,10 @@
 	import { yellowState } from '$/state/yellow.svelte'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
+
 	// Props
 	let { roomId }: { roomId: string } = $props()
+
 
 	// (Derived)
 	const sharedQuery = useLiveQuery(
@@ -66,6 +71,7 @@
 			: [],
 	)
 
+
 	// Functions
 	const getCounterparty = (channel: YellowChannelRow) =>
 		myAddress && channel.participant0.toLowerCase() === myAddress
@@ -76,11 +82,13 @@
 			? channel.balance0
 			: channel.balance1
 
+
 	// State
 	let transferOpen = $state(false)
 	let transferChannel = $state<YellowChannelRow | null>(null)
 	let closingChannelId = $state<string | null>(null)
 	let closeError = $state<string | null>(null)
+
 
 	// Actions
 	const settleAndClose = async (channel: YellowChannelRow) => {
@@ -103,11 +111,13 @@
 		}
 	}
 
+
 	// Components
 	import Address from '$/components/Address.svelte'
 	import { Button } from 'bits-ui'
 	import TransferDialog from './TransferDialog.svelte'
 </script>
+
 
 <section class="channel-list" {@attach liveQueryAttachment}>
 	<h3>Payment Channels</h3>
@@ -154,6 +164,7 @@
 {#if transferChannel}
 	<TransferDialog channel={transferChannel} bind:open={transferOpen} />
 {/if}
+
 
 <style>
 	.channel-list h3 {

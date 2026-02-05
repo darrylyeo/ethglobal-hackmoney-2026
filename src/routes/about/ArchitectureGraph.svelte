@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
 	import type { ArchitectureEdge, ArchitectureNode } from './architecture-graph'
@@ -6,12 +8,14 @@
 	import { ForceLayout } from '@antv/layout'
 	import { architectureGraph } from './architecture-graph'
 
+
 	// Props
 	let {
 		height = '70vh',
 	}: {
 		height?: string
 	} = $props()
+
 
 	// Functions
 	const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -182,6 +186,7 @@
 		architectureGraph.combos.map((combo) => [combo.id, combo]),
 	)
 
+
 	// State
 	let hoveredItem = $state<{
 		kind: 'node' | 'edge' | 'combo'
@@ -199,6 +204,7 @@
 	} | null>(null)
 	let selectionSummary = $state('No selection')
 
+
 	// (Derived)
 	const selectionAnnouncement = $derived(
 		selectedItem
@@ -206,6 +212,7 @@
 			: 'Selection cleared',
 	)
 </script>
+
 
 <svelte:boundary>
 	<div class="architecture-graph" style:height>
@@ -693,6 +700,7 @@
 <div class="sr-only" aria-live="polite">
 	{selectionAnnouncement}
 </div>
+
 
 <style>
 	.architecture-graph {

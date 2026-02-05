@@ -1,4 +1,6 @@
 <script module lang="ts">
+
+
 	// Types/constants
 	export enum TimestampFormat {
 		Absolute = 'absolute',
@@ -7,7 +9,10 @@
 	}
 </script>
 
+
 <script lang="ts">
+
+
 	// Props
 	let {
 		timestamp,
@@ -17,8 +22,10 @@
 		format?: TimestampFormat
 	} = $props()
 
+
 	// Functions
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
+
 
 	// State
 	let now = $state(Date.now())

@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -13,14 +16,17 @@
 	import { yellowState } from '$/state/yellow.svelte'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
+
 	// Props
 	let { roomId }: { roomId: string } = $props()
+
 
 	// State
 	let selectedAddress = $state<`0x${string}` | null>(null)
 	let amount = $state('')
 	let sendingRequestId = $state<string | null>(null)
 	let sendError = $state<string | null>(null)
+
 
 	// (Derived)
 	const verifiedQuery = useLiveQuery(
@@ -103,6 +109,7 @@
 			: [],
 	)
 
+
 	// Actions
 	const proposeTransfer = () => {
 		if (!selectedAddress) return
@@ -150,11 +157,13 @@
 		}
 	}
 
+
 	// Components
 	import Address from '$/components/Address.svelte'
 	import AddressInput from '$/views/AddressInput.svelte'
 	import { Button } from 'bits-ui'
 </script>
+
 
 <section class="transfer-requests" {@attach liveQueryAttachment}>
 	<h3>Request Transfer</h3>
@@ -235,6 +244,7 @@
 		</p>
 	{/if}
 </section>
+
 
 <style>
 	.transfer-requests h3,

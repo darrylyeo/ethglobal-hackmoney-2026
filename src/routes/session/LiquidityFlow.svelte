@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
@@ -15,6 +17,7 @@
 	import { uniswapFeeTiers } from '$/constants/uniswap'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
+
 	// Context
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -26,6 +29,7 @@
 		SESSION_HASH_SOURCE_KEY,
 	} from '$/lib/dashboard-panel-hash'
 
+
 	// Props
 	let {
 		selectedWallets,
@@ -36,6 +40,7 @@
 		selectedActor: `0x${string}` | null
 		selectedChainId: number | null
 	} = $props()
+
 
 	// (Derived)
 	const selectedWallet = $derived(
@@ -53,6 +58,7 @@
 		import('$/lib/dashboard-panel-hash').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
+
 
 	// Functions
 	import { requestE2eTevmContractTx } from '$/lib/e2e/tevm'
@@ -106,6 +112,7 @@
 	const updateAmount1 = (value: bigint) =>
 		updateSessionParams({ ...settings, amount1: value })
 
+
 	// State
 	import { actorCoinsCollection } from '$/collections/actor-coins'
 	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
@@ -121,6 +128,7 @@
 		txHash: `0x${string}` | null
 		message: string
 	} | null>(null)
+
 
 	// (Derived)
 	const sessionQuery = useLiveQuery(
@@ -251,6 +259,7 @@
 			selectedChainId !== network.id,
 		),
 	)
+
 
 	// Actions
 	const activateSession = (sessionId: string) => {
@@ -410,6 +419,7 @@
 		updateSessionParams({ ...settings, chainId: nextChainId })
 	})
 
+
 	// Components
 	import Select from '$/components/Select.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
@@ -417,6 +427,7 @@
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 	import Positions from './Positions.svelte'
 </script>
+
 
 <div data-column="gap-4" {@attach liveQueryAttachment}>
 	<div data-row="gap-2 align-center justify-between">

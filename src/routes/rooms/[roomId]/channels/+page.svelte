@@ -1,7 +1,10 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import { DataSource } from '$/constants/data-sources'
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -16,8 +19,10 @@
 		partyKitStatusLabel,
 	} from '$/state/room.svelte'
 
+
 	// Props
 	let { data }: { data: { roomId: string } } = $props()
+
 
 	// Functions
 	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/room'
@@ -28,6 +33,7 @@
 		value !== null &&
 		'request' in value &&
 		typeof value.request === 'function'
+
 
 	// (Derived)
 	const roomId = $derived(data.roomId)
@@ -86,15 +92,18 @@
 		return () => leaveRoom()
 	})
 
+
 	// Components
 	import ChannelList from '../../ChannelList.svelte'
 	import DepositManager from '../../DepositManager.svelte'
 	import TransferRequests from '../../TransferRequests.svelte'
 </script>
 
+
 <svelte:head>
 	<title>Channels – {roomDisplayName}</title>
 </svelte:head>
+
 
 <main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 	<h1>Channels – {roomDisplayName}</h1>

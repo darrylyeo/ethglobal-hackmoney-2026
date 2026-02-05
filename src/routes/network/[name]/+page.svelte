@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { NetworkConfig } from '$/constants/networks'
+
 
 	// Props
 	let {
@@ -15,15 +18,18 @@
 		}
 	} = $props()
 
+
 	// (Derived)
 	const explorerBlockListUrl = $derived(
 		data.config.explorerUrl ? `${data.config.explorerUrl}/blocks` : null,
 	)
 </script>
 
+
 <svelte:head>
 	<title>{data.config.name} · Network</title>
 </svelte:head>
+
 
 <div data-column="gap-2">
 	<header class="network-header">
@@ -64,6 +70,7 @@
 		{/if}
 	</nav>
 </div>
+
 
 <style>
 	.network-header {

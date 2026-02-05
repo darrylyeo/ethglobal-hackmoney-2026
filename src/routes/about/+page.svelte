@@ -1,9 +1,13 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { architectureGraph } from './architecture-graph'
 
+
 	// Components
 	import ArchitectureGraph from './ArchitectureGraph.svelte'
+
 
 	// (Derived)
 	const legendItems = [
@@ -40,9 +44,11 @@
 	]
 </script>
 
+
 <svelte:head>
 	<title>About | USDC Tools</title>
 </svelte:head>
+
 
 <section class="about" data-scroll-item data-column="gap-4">
 	<header class="about__header" data-column="gap-2">
@@ -122,6 +128,7 @@
 		</dl>
 	</section>
 </section>
+
 
 <style>
 	.about__header {

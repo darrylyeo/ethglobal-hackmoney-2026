@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { page } from '$app/state'
 	import { env } from '$env/dynamic/public'
@@ -91,9 +93,11 @@
 	})
 </script>
 
+
 <svelte:head>
 	<title>{symbol} – Coin</title>
 </svelte:head>
+
 
 <main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 	<section data-scroll-item>
@@ -118,6 +122,7 @@
 		</Boundary>
 	</section>
 </main>
+
 
 <style>
 	.transfers-loading {

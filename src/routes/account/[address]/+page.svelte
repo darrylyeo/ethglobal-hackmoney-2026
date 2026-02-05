@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
@@ -10,17 +12,21 @@
 	import { walletsCollection } from '$/collections/wallets'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
+
 	// Props
 	let { data }: { data: { addressParam: string } } = $props()
+
 
 	// Functions
 	import { formatAddress, parseAccountAddressParam } from '$/lib/address'
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { getAddressUrl } from '$/constants/explorers'
 
+
 	// (Derived)
 	const parsed = $derived(parseAccountAddressParam(data.addressParam))
 	const normalizedAddress = $derived(parsed?.address ?? null)
+
 
 	// State
 	const balanceTokens = $derived(
@@ -89,15 +95,18 @@
 			: [],
 	)
 
+
 	// Components
 	import CoinBalances from '$/views/CoinBalances.svelte'
 </script>
+
 
 <svelte:head>
 	<title>
 		{parsed ? `Account ${formatAddress(parsed.address)}` : 'Account'}
 	</title>
 </svelte:head>
+
 
 <div data-column="gap-2" {@attach liveQueryAttachment}>
 	{#if !parsed}
@@ -195,6 +204,7 @@
 		</section>
 	{/if}
 </div>
+
 
 <style>
 	.account-header {

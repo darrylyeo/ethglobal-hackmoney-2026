@@ -1,12 +1,16 @@
 <script lang="ts">
+
+
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { goto } from '$app/navigation'
 	import { page } from '$app/state'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 
+
 	// Functions
 	import { buildSessionHash } from '$/lib/transaction-sessions'
+
 
 	// State
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
@@ -40,9 +44,11 @@
 	})
 </script>
 
+
 <svelte:head>
 	<title>Session – USDC Tools</title>
 </svelte:head>
+
 
 <main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 	<section data-scroll-item>

@@ -1,13 +1,18 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { RouteEntry, RouteModule, RoutePathInput } from './route-map'
+
 
 	// Context
 	import { preloadData } from '$app/navigation'
 	import { resolve } from '$app/paths'
 
+
 	// Functions
 	import { buildRoutePath } from './route-map'
+
 
 	// Props
 	let {
@@ -22,6 +27,7 @@
 
 	// (Derived) – stable key so effect only re-runs when route identity changes
 	const routeKey = $derived(route.path + '\0' + JSON.stringify(route.params))
+
 
 	// State
 	let status = $state<'idle' | 'loading' | 'loaded' | 'error'>('idle')

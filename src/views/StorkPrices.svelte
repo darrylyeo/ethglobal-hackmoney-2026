@@ -1,11 +1,15 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 	import type { StorkPriceRow } from '$/collections/stork-prices'
 
+
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Props
 	let {
@@ -18,6 +22,7 @@
 		title?: string
 	} = $props()
 
+
 	// Functions
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
@@ -26,6 +31,7 @@
 		storkPricesCollection,
 		subscribeStorkPrices,
 	} from '$/collections/stork-prices'
+
 
 	// State
 	const pricesQuery = useLiveQuery((q) =>
@@ -54,6 +60,7 @@
 		return () => unsubscribe()
 	})
 </script>
+
 
 <section
 	class="stork-prices"
@@ -93,6 +100,7 @@
 		</ul>
 	{/if}
 </section>
+
 
 <style>
 	.stork-prices {

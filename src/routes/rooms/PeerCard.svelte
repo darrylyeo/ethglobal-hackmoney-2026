@@ -1,10 +1,13 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { RoomPeerRow } from '$/collections/room-peers'
 	import type { SiweChallengeRow } from '$/collections/siwe-challenges'
 	import type { VerificationRow } from '$/collections/verifications'
 	import type { EIP1193Provider } from '$/lib/siwe'
 	import { DataSource } from '$/constants/data-sources'
+
 
 	// Props
 	let {
@@ -17,6 +20,7 @@
 		provider: EIP1193Provider | null
 	} = $props()
 
+
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { sharedAddressesCollection } from '$/collections/shared-addresses'
@@ -25,6 +29,7 @@
 	import { roomState } from '$/state/room.svelte'
 	import { signSiweMessage } from '$/lib/siwe'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Components
 	import Address from '$/components/Address.svelte'
@@ -140,6 +145,7 @@
 		})
 	}
 </script>
+
 
 <article
 	data-peer-card

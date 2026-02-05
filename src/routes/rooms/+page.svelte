@@ -1,15 +1,20 @@
 <script lang="ts">
+
+
 	// Context
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 
+
 	// Functions
 	import { createRoom, normalizeRoomInput } from '$/lib/room'
+
 
 	// State
 	let joinCode = $state('')
 	let creating = $state(false)
 	let joining = $state(false)
+
 
 	// Actions
 	const handleCreate = () => {
@@ -32,9 +37,11 @@
 	}
 </script>
 
+
 <svelte:head>
 	<title>Rooms</title>
 </svelte:head>
+
 
 <main id="main" data-sticky-container data-column>
 	<h1>Rooms</h1>

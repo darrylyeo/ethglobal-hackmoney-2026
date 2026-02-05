@@ -1,4 +1,6 @@
 <script lang="ts" generics="Item">
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
@@ -134,6 +136,7 @@
 	const isGroup = (value: unknown): value is DropdownGroup<Item> =>
 		isRecord(value) && Array.isArray(value.items) && !isDeclaredItem(value)
 
+
 	// Props
 	let {
 		items = [],
@@ -183,6 +186,7 @@
 		children?: Snippet
 		[key: string]: unknown
 	} = $props()
+
 
 	// (Derived)
 	const normalizedEntries: NormalizedItem<Item>[] = $derived(
@@ -318,13 +322,16 @@
 		),
 	)
 
+
 	// Actions
 	const onItemSelectInternal = (item: Item, onSelect?: () => void) =>
 		onSelect ? onSelect() : onItemSelect?.(item)
 
+
 	// Components
 	import { DropdownMenu } from 'bits-ui'
 </script>
+
 
 <DropdownMenu.Root {...rootProps}>
 	<DropdownMenu.Trigger aria-label={triggerAriaLabel} {...triggerProps}>
@@ -545,6 +552,7 @@
 		</DropdownMenu.Content>
 	</DropdownMenu.Portal>
 </DropdownMenu.Root>
+
 
 <style>
 	.dropdown-radio-item {

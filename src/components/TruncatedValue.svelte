@@ -1,4 +1,6 @@
 <script module lang="ts">
+
+
 	// Types/constants
 	export enum TruncatedValueFormat {
 		Abbr = 'Abbr',
@@ -7,7 +9,10 @@
 	}
 </script>
 
+
 <script lang="ts">
+
+
 	// Props
 	let {
 		value,
@@ -20,6 +25,7 @@
 		endLength?: number
 		format?: TruncatedValueFormat
 	} = $props()
+
 
 	// (Derived)
 	let shouldTruncate = $derived(value.length > startLength + endLength)
@@ -67,6 +73,7 @@
 		>{#if endLength}<span>{value.slice(-endLength)}</span>{/if}</span
 	>
 {/if}
+
 
 <style>
 	.truncated-value {

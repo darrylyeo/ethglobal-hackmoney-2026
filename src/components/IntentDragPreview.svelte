@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { IntentRoute, IntentRouteStep } from '$/lib/intents/routes'
 	import type { IntentDragPayload, IntentResolution } from '$/lib/intents/types'
@@ -7,9 +9,11 @@
 	import { defaultBridgeSettings } from '$/state/bridge-settings.svelte'
 	import { defaultSwapSettings } from '$/state/swap-settings.svelte'
 
+
 	// Context
 	import { goto } from '$app/navigation'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+
 
 	// Functions
 	import { buildIntentRoutes } from '$/lib/intents/routes'
@@ -24,8 +28,10 @@
 	import { getIntentNavigationStore } from '$/state/intent-navigation.svelte'
 	import { tick } from 'svelte'
 
+
 	// Components
 	import DragArrow from '$/components/DragArrow.svelte'
+
 
 	// State
 	import { actorCoinsCollection } from '$/collections/actor-coins'
@@ -291,6 +297,7 @@
 	let prefersReducedMotion = $state(false)
 	let pointerPosition = $state<{ x: number; y: number } | null>(null)
 
+
 	// (Derived)
 	const sourcePayload = $derived(intentDragPreviewState.source?.payload ?? null)
 	const targetPayload = $derived(intentDragPreviewState.target?.payload ?? null)
@@ -493,6 +500,7 @@
 		{/snippet}
 	</DragArrow>
 {/if}
+
 
 <style>
 	.intent-drag-tooltip {

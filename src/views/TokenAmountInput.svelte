@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Coin } from '$/constants/coins'
+
 
 	// Props
 	let {
@@ -33,6 +36,7 @@
 		[key: string]: unknown
 	} = $props()
 
+
 	// Functions
 	import {
 		formatSmallestToDecimal,
@@ -40,10 +44,12 @@
 		parseDecimalToSmallest,
 	} from '$/lib/format'
 
+
 	// (Derived)
 	const sliderMin = $derived(Number(min))
 	const sliderMax = $derived(Number(max))
 	const sliderValue = $derived(Number(value))
+
 
 	// Actions
 	const onTextInput = (event: Event & { currentTarget: HTMLInputElement }) => {
@@ -69,6 +75,7 @@
 		value = BigInt(event.currentTarget.value)
 	}
 </script>
+
 
 <div
 	{...rootProps}
@@ -106,6 +113,7 @@
 		}%`}
 	/>
 </div>
+
 
 <style>
 	.token-amount {

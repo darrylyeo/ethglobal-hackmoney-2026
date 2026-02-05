@@ -11,9 +11,13 @@
 	}
 </script>
 
+
 <script lang="ts">
+
+
 	// Context
 	import { preloadData } from '$app/navigation'
+
 
 	// Props
 	let {
@@ -24,6 +28,7 @@
 		currentPathname: string
 	} = $props()
 
+
 	// State
 	import { SvelteMap } from 'svelte/reactivity'
 
@@ -32,6 +37,7 @@
 	let searchValue = $state('')
 
 	let effectiveSearchValue = $derived(searchValue.trim().toLowerCase())
+
 
 	// Functions
 	const hasCurrentPage = (item: NavigationItem) =>
@@ -94,9 +100,11 @@
 	const navIconProps = (icon: string) =>
 		icon.startsWith('data:') ? { src: icon } : { icon }
 
+
 	// Components
 	import Icon from '$/components/Icon.svelte'
 </script>
+
 
 <search class="nav-items" data-column="gap-3">
 	<input
@@ -229,6 +237,7 @@
 		{/if}
 	{/if}
 {/snippet}
+
 
 <style>
 	.nav-items {

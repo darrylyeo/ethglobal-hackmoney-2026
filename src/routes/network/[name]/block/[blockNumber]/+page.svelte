@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { NetworkConfig } from '$/constants/networks'
 	import { getBlockUrl } from '$/constants/explorers'
@@ -6,6 +8,7 @@
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { blocksCollection } from '$/collections/blocks'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
 
 	// Props
 	let {
@@ -21,6 +24,7 @@
 			caip2: string
 		}
 	} = $props()
+
 
 	// State
 	const blockQuery = useLiveQuery(
@@ -47,10 +51,12 @@
 		() => liveQueryEntries,
 	)
 
+
 	// (Derived)
 	const blockRow = $derived(blockQuery.data?.[0]?.row ?? null)
 	const loading = $derived(blockRow?.isLoading ?? true)
 	const blockError = $derived(blockRow?.error ?? null)
+
 
 	// Actions
 	$effect(() => {
@@ -63,11 +69,13 @@
 	)
 </script>
 
+
 <svelte:head>
 	<title>
 		Block {data.blockNumberParam} · {data.config.name}
 	</title>
 </svelte:head>
+
 
 <div data-column="gap-2" {@attach liveQueryAttachment}>
 	<header class="block-header">
@@ -102,6 +110,7 @@
 		</a>
 	{/if}
 </div>
+
 
 <style>
 	.block-header {

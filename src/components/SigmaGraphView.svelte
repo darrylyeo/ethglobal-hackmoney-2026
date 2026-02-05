@@ -1,10 +1,13 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type Graph from 'graphology'
 	import type { Attributes } from 'graphology-types'
 	import type { DisplayData } from 'sigma/types'
 	import type { Sigma } from 'sigma'
 	import type { GraphModel } from '$/lib/graph-model'
+
 
 	// Props
 	let {
@@ -45,6 +48,7 @@
 		onEdgeLeave?: (edge: string) => void
 	} = $props()
 </script>
+
 
 <div
 	class="sigma-container"
@@ -308,6 +312,7 @@
 		}
 	}}
 ></div>
+
 
 <style>
 	.sigma-container {

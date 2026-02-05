@@ -10,6 +10,7 @@
 	} = $props()
 </script>
 
+
 <span
 	class="skeleton"
 	data-skeleton
@@ -17,6 +18,7 @@
 	style:height
 	style:border-radius={rounded}
 ></span>
+
 
 <style>
 	.skeleton {

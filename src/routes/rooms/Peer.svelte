@@ -1,7 +1,10 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { RoomPeer } from '$/collections/room-peers'
 	import { peerNameToEmoji, peerNameToHue } from '$/lib/room'
+
 
 	// Props
 	let {
@@ -12,6 +15,7 @@
 		showStatus?: boolean
 	} = $props()
 
+
 	// Components
 	import Timestamp from '$/components/Timestamp.svelte'
 	import { TimestampFormat } from '$/components/Timestamp.svelte'
@@ -21,6 +25,7 @@
 	const emoji = $derived(peerNameToEmoji(peer.displayName, peer.peerId))
 	const bg = $derived(`oklch(0.65 0.2 ${hue})`)
 </script>
+
 
 <span data-row="wrap gap-2 align-center">
 	<span
@@ -51,6 +56,7 @@
 		{/if}
 	{/if}
 </span>
+
 
 <style>
 	.peer-avatar {

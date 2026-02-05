@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import {
@@ -21,6 +23,7 @@
 		getCctpMessageTransmitter,
 	} from '$/constants/cctp'
 	import { getUsdcAddress } from '$/api/lifi'
+
 
 	// Props
 	let {
@@ -55,6 +58,7 @@
 		) => void
 	} = $props()
 
+
 	// State
 	let lastRunAt = $state(0)
 	let burnTxHash = $state<string | null>(null)
@@ -67,6 +71,7 @@
 	let step = $state<
 		'idle' | 'approving' | 'burning' | 'attestation' | 'minting' | 'done'
 	>('idle')
+
 
 	// (Derived)
 	const tokenMessenger = $derived(getCctpTokenMessenger(fromChainId, isTestnet))
@@ -217,6 +222,7 @@
 	export { burnTxHash, attestationPayload, mintTxHash, step, error, execute }
 </script>
 
+
 <div data-column="gap-2">
 	<strong>Status</strong>
 	<ol class="cctp-status">
@@ -239,6 +245,7 @@
 		<small data-error>{error}</small>
 	{/if}
 </div>
+
 
 <style>
 	.cctp-status {

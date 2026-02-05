@@ -1,15 +1,20 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type {
 		DashboardPanelNode,
 		DashboardPanelRoute,
 	} from '$/data/DashboardPanel'
 
+
 	// Functions
 	import { routeEntries, toPanelNavigation } from './route-map'
 
+
 	// Components
 	import SvelteKitRoute from './SvelteKitRoute.svelte'
+
 
 	// Props
 	let {
@@ -46,6 +51,7 @@
 		) => void
 	} = $props()
 
+
 	// (Derived)
 	const routeEntry = $derived(
 		routeEntries.find((entry) => entry.path === panel.route.path) ?? null,
@@ -58,8 +64,10 @@
 	const setPanelHash = (hash: string, replace = true) =>
 		onSetPanelHash(panel.id, hash, replace)
 
+
 	// State
 	let hashInput = $state('')
+
 
 	// Actions
 	const updateParam = (key: string, value: string) =>
@@ -105,6 +113,7 @@
 					action(panel.id, navigation.route, navigation.hash)
 				})()
 </script>
+
 
 <section
 	class="dashboard-panel"
@@ -201,6 +210,7 @@
 		</footer>
 	{/if}
 </section>
+
 
 <style>
 	.dashboard-panel {

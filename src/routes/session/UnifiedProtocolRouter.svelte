@@ -1,10 +1,14 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Network } from '$/constants/networks'
 
+
 	// Context
 	import { Button } from 'bits-ui'
+
 
 	// Props
 	let {
@@ -32,6 +36,7 @@
 		toNetwork: Network | null
 		canSendAmount: boolean
 	} = $props()
+
 
 	// (Derived)
 	const protocolLabel = $derived(
@@ -65,12 +70,14 @@
 		).filter((option) => option.enabled),
 	)
 
+
 	// Actions
 	const onProtocolIntent = (value: 'cctp' | 'lifi' | null) => (
 		onProtocolIntentChange?.(value),
 		(protocolIntent = value)
 	)
 </script>
+
 
 <section data-card data-column="gap-3">
 	<h3>Protocol Selection</h3>
@@ -134,6 +141,7 @@
 		<p data-muted>Connect a wallet to continue</p>
 	{/if}
 </section>
+
 
 <style>
 	.protocol-badge {

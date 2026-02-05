@@ -1,8 +1,11 @@
 <script lang="ts" generics="Item extends { address: `0x${string}` }">
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
 	import type { Network$Id } from '$/data/Network'
 	import { normalizeAddress } from '$/lib/address'
+
 
 	// Props
 	let {
@@ -33,8 +36,10 @@
 		[key: string]: unknown
 	} = $props()
 
+
 	// State
 	let raw = $state('')
+
 
 	// (Derived)
 	$effect(() => {
@@ -44,6 +49,7 @@
 		const next = raw === '' ? null : normalizeAddress(raw)
 		if (next !== null || raw === '') value = next
 	})
+
 
 	// Components
 	import Address from '$/components/Address.svelte'
@@ -69,6 +75,7 @@
 	{ariaLabel}
 	Item={ItemSnippet ?? defaultItem}
 />
+
 
 <style>
 	.address-input-item {

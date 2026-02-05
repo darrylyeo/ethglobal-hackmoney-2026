@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeSessionParams } from '$/lib/transaction-session-params'
@@ -10,17 +12,21 @@
 	} from '$/constants/cctp'
 	import { networksByChainId } from '$/constants/networks'
 
+
 	// Context
 	import { Button, Dialog } from 'bits-ui'
+
 
 	// Functions
 	import { formatAddress } from '$/lib/address'
 	import { formatSmallestToDecimal } from '$/lib/format'
 
+
 	// Components
 	import CctpAllowance from './CctpAllowance.svelte'
 	import CctpExecution from './CctpExecution.svelte'
 	import CctpFees from './CctpFees.svelte'
+
 
 	// Props
 	let {
@@ -44,12 +50,14 @@
 		}[]
 	} = $props()
 
+
 	// State
 	let confirmOpen = $state(false)
 	let feeFastBps = $state<number | null>(null)
 	let feeStandardBps = $state<number | null>(null)
 	let executing = $state(false)
 	let runExecutionAt = $state(0)
+
 
 	// (Derived)
 	const selectedWallet = $derived(
@@ -213,6 +221,7 @@
 		</Dialog.Content>
 	</Dialog.Portal>
 </Dialog.Root>
+
 
 <style>
 	.bridge-summary {

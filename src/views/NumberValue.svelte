@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Props
 	let {
 		value,
@@ -18,6 +20,7 @@
 	)
 </script>
 
+
 <output>
 	{#each parts as part}
 		<span
@@ -27,6 +30,7 @@
 		>
 	{/each}
 </output>
+
 
 <style>
 	.part-fraction {

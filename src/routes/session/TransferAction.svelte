@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Coin } from '$/constants/coins'
@@ -6,6 +8,7 @@
 	import type { TransferSessionParams } from '$/lib/transaction-session-params'
 	import { CoinType } from '$/constants/coins'
 	import { networksByChainId } from '$/constants/networks'
+
 
 	// Context
 	import { getContext } from 'svelte'
@@ -18,6 +21,7 @@
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 	} from '$/lib/dashboard-panel-hash'
+
 
 	// Functions
 	import { encodeTransferCall } from '$/api/voltaire'
@@ -37,12 +41,14 @@
 		updateTransactionSession,
 	} from '$/lib/transaction-sessions'
 
+
 	// State
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 	import {
 		insertTransaction,
 		updateTransaction,
 	} from '$/collections/transactions'
+
 
 	// Components
 	import CoinAmount from '$/views/CoinAmount.svelte'
@@ -59,6 +65,7 @@
 		walletAddress: `0x${string}`
 		mode: 'wallet' | 'e2e'
 	}
+
 
 	// Props
 	let {
@@ -106,6 +113,7 @@
 		if (pendingSessionId === next) return
 		pendingSessionId = next
 	}
+
 
 	// (Derived)
 	const sessionQuery = useLiveQuery(
@@ -415,6 +423,7 @@
 		if (intent === 'save') persistDraft()
 	}
 </script>
+
 
 <div style="display: contents" {@attach liveQueryAttachment}>
 	<SessionAction

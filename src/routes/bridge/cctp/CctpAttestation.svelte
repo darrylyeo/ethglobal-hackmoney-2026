@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { fetchCctpMessages, getAttestationFromMessages } from '$/api/cctp'
+
 
 	// Props
 	let {
@@ -16,6 +19,7 @@
 		apiHost: string
 		attestationPayload?: { message: string; attestation: string } | null
 	} = $props()
+
 
 	// State
 	let status = $state<'idle' | 'pending' | 'ready'>('idle')
@@ -55,6 +59,7 @@
 		}
 	})
 </script>
+
 
 <div data-column="gap-1">
 	<strong>Attestation</strong>

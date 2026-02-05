@@ -206,6 +206,7 @@
 	<p class="error">Transaction failed</p>
 {/if}
 
+
 <style>
 	.muted {
 		opacity: 0.6;
