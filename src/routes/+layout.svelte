@@ -241,7 +241,7 @@
 				{ id: 'bridge', title: 'Bridge', href: '/session#bridge' },
 				{
 					id: 'liquidity',
-					title: 'Manage Liquidity',
+					title: 'Add Liquidity',
 					href: '/session#liquidity',
 				},
 			],
