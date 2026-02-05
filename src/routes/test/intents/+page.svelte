@@ -21,7 +21,7 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Functions
@@ -186,9 +186,7 @@
 			query: bridgeRoutesQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 
 	// (Derived)
@@ -590,7 +588,6 @@
 	id="main"
 	data-column="gap-6"
 	data-sticky-container
-	{@attach liveQueryAttachment}
 >
 	<section data-scroll-item data-column="gap-3">
 		<h1>Entity intents</h1>

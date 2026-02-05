@@ -12,7 +12,7 @@
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { roomState } from '$/state/room.svelte'
 	import { yellowState } from '$/state/yellow.svelte'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Props
@@ -68,9 +68,7 @@
 			query: requestsQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const myAddress = $derived(yellowState.address?.toLowerCase() ?? null)
 	const otherVerified = $derived(
 		myAddress
@@ -163,7 +161,7 @@
 </script>
 
 
-<section class="transfer-requests" {@attach liveQueryAttachment}>
+<section class="transfer-requests">
 	<h3>Request Transfer</h3>
 
 	<div class="available-balance">

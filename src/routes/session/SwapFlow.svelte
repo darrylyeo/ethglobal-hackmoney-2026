@@ -26,7 +26,7 @@
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Popover } from 'bits-ui'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import {
 		getEffectiveHash,
 		setEffectiveHash,
@@ -273,9 +273,7 @@
 			query: storkPricesQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const chainTokens = $derived(
 		(tokenListQuery.data ?? [])
@@ -605,7 +603,7 @@
 </script>
 
 
-<section data-card data-column="gap-4" {@attach liveQueryAttachment}>
+<section data-card data-column="gap-4">
 	{#snippet swapSummary()}
 		{#if quote && tokenInSelection && tokenOutSelection}
 			<dl class="summary">

@@ -7,7 +7,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
 	import { walletsCollection } from '$/collections/wallets'
 	import {
@@ -60,9 +60,7 @@
 			query: connectionsQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const wallets = $derived((walletsQuery.data ?? []).map((r) => r.row))
 	const connections = $derived((connectionsQuery.data ?? []).map((r) => r.row))
 	const selectedConnection = $derived(
@@ -103,7 +101,7 @@
 </svelte:head>
 
 
-<main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
+<main id="main" data-column data-sticky-container>
 	<h1>Channels – {roomDisplayName}</h1>
 
 	<p data-row="wrap gap-2 align-center">

@@ -30,7 +30,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import {
 		walletConnectionsCollection,
 		requestWalletConnection,
@@ -68,9 +68,7 @@
 			query: connectionsQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const settings = $derived(
 		bridgeSettingsState.current ?? defaultBridgeSettings,
@@ -196,7 +194,7 @@
 </script>
 
 
-<div data-row="wrap align-start" {@attach liveQueryAttachment}>
+<div data-row="wrap align-start">
 	<details data-row-item="flexible" data-card="secondary radius-4" open>
 		<summary data-row="gap-2 align-center wrap">
 			<div data-row>

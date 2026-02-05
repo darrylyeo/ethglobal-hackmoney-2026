@@ -5,7 +5,7 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Functions
@@ -38,9 +38,7 @@
 	const liveQueryEntries = [
 		{ id: 'sessions-list', label: 'Sessions', query: sessionsQuery },
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const sessions = $derived(
 		(sessionsQuery.data ?? [])
 			.map((result) => result.row)
@@ -54,7 +52,7 @@
 </svelte:head>
 
 
-<main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
+<main id="main" data-column data-sticky-container>
 	<section data-scroll-item data-column="gap-3">
 		<h1>Sessions</h1>
 		{#if sessions.length === 0}

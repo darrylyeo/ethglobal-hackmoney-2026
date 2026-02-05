@@ -11,7 +11,7 @@
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button } from 'bits-ui'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import { yellowState } from '$/state/yellow.svelte'
 	import {
 		getEffectiveHash,
@@ -85,9 +85,7 @@
 			query: sessionQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const transferDefaults = $derived({
 		fromActor,
@@ -348,29 +346,27 @@
 	{/if}
 {/snippet}
 
-<div style="display: contents" {@attach liveQueryAttachment}>
-	{#if sessionLocked}
-		<div data-row="gap-2 align-center">
-			<Button.Root type="button" onclick={forkSession}>New draft</Button.Root>
-		</div>
-	{/if}
+{#if sessionLocked}
+	<div data-row="gap-2 align-center">
+		<Button.Root type="button" onclick={forkSession}>New draft</Button.Root>
+	</div>
+{/if}
 
-	<TransactionFlow
-		{walletConnection}
-		Summary={transferSummary}
-		transactions={[
-			{
-				id: `transfer-${settings.chainId}-${settings.fromActor}-${settings.toActor}`,
-				chainId: settings.chainId,
-				title: 'Transfer',
-				actionLabel: 'Transfer',
-				canExecute: canTransfer,
-				execute: (args) =>
-					settings.mode === 'channel'
-						? executeChannelTransfer()
-						: executeDirectTransfer(args),
-				Details: transferDetails,
-			},
-		]}
-	/>
-</div>
+<TransactionFlow
+	{walletConnection}
+	Summary={transferSummary}
+	transactions={[
+		{
+			id: `transfer-${settings.chainId}-${settings.fromActor}-${settings.toActor}`,
+			chainId: settings.chainId,
+			title: 'Transfer',
+			actionLabel: 'Transfer',
+			canExecute: canTransfer,
+			execute: (args) =>
+				settings.mode === 'channel'
+					? executeChannelTransfer()
+					: executeDirectTransfer(args),
+			Details: transferDetails,
+		},
+	]}
+/>

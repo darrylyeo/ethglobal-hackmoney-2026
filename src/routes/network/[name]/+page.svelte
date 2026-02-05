@@ -10,7 +10,7 @@
 		ensureBlocksForPlaceholders,
 	} from '$/collections/blocks'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import Network from '$/components/network/Network.svelte'
 
 
@@ -47,9 +47,7 @@
 			query: blocksQuery as { data: { row: unknown }[] | undefined },
 		},
 	])
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const network = $derived(networksByChainId[data.chainId] ?? null)
 	const blockRows = $derived(
@@ -117,7 +115,7 @@
 </svelte:head>
 
 
-<div data-column="gap-2" {@attach liveQueryAttachment}>
+<div data-column="gap-2">
 	<header data-column="gap-2">
 		<h1>Network</h1>
 		<div class="network-identity" data-row="gap-2 align-center">

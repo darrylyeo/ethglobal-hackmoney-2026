@@ -15,7 +15,7 @@
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
 	import { walletsCollection } from '$/collections/wallets'
 	import {
-		liveQueryAttachmentFrom,
+		registerGlobalLiveQueryStack,
 		useLiveQueryContext,
 		useLocalLiveQueryContext,
 	} from '$/svelte/live-query-context.svelte'
@@ -114,9 +114,7 @@
 		{ id: 'layout-room-peers', label: 'Room Peers', query: roomPeersQuery },
 		{ id: 'layout-my-peer-ids', label: 'My Peer IDs', query: myPeerIdsQuery },
 	]
-	const liveQueryAttachment = liveQueryAttachmentFrom(
-		() => layoutLiveQueryEntries,
-	)
+	registerGlobalLiveQueryStack(() => layoutLiveQueryEntries)
 	const walletsByRdns = $derived(
 		new Map(
 			(walletsQuery.data ?? []).map((result) => [
@@ -381,7 +379,6 @@
 		class="layout"
 		data-scroll-container
 		data-sticky-container
-		{@attach liveQueryAttachment}
 	>
 		<a href="#main" class="skip-link">Skip to main content</a>
 
@@ -410,6 +407,7 @@
 		<button
 			type="button"
 			class="graph-toggle"
+			data-row="center"
 			onclick={() => {
 				showGraph = !showGraph
 			}}
@@ -506,9 +504,6 @@
 		cursor: pointer;
 		font-size: 0.75rem;
 		z-index: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		transition: all 0.2s ease;
 
 		&:hover {

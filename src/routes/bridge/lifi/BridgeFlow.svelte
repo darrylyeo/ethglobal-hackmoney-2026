@@ -28,7 +28,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Popover } from 'bits-ui'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Functions
@@ -183,9 +183,7 @@
 			query: txQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const validation = $derived(
 		validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT),
@@ -412,7 +410,6 @@
 </script>
 
 
-<div style="display: contents" {@attach liveQueryAttachment}>
 	<div aria-live="polite" aria-atomic="true" class="sr-only">
 		{#if executionStatus.overall === 'in_progress'}
 			{@const currentStep =
@@ -517,7 +514,11 @@
 				{#if routesRow?.isLoading && sortedRoutes.length === 0}
 					<p data-muted>Finding routes…</p>
 					{#each [1, 2, 3] as _}
-						<div class="route-card route-card-skeleton">
+						<div
+							class="route-card route-card-skeleton"
+							data-card="radius-4 padding-3"
+							data-column="gap-1"
+						>
 							<div data-row="gap-2 align-center justify-between">
 								<Skeleton width="6em" height="1.25em" rounded="0.25em" />
 								<Skeleton width="4em" height="1em" rounded="0.25em" />
@@ -533,6 +534,8 @@
 						<button
 							class="route-card"
 							type="button"
+							data-card="radius-4 padding-3"
+							data-column="gap-1"
 							data-selected={r.id === selectedRouteId ? '' : undefined}
 							onclick={() => {
 								selectedRouteId = r.id
@@ -785,19 +788,13 @@
 			{/if}
 		</section>
 	{/if}
-</div>
 
 
 
 <style>
 	.route-card {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25em;
-		padding: 0.75em;
-		border: 1px solid var(--color-border);
-		border-radius: 0.5em;
 		background: transparent;
+		border: 1px solid var(--color-border);
 		cursor: pointer;
 		text-align: left;
 		width: 100%;

@@ -12,7 +12,7 @@
 	import { verificationsCollection } from '$/collections/verifications'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
 	import { walletsCollection } from '$/collections/wallets'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Props
@@ -112,9 +112,7 @@
 			query: verificationsQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const transactions = $derived(
 		normalizedAddress
 			? (transactionsQuery.data ?? [])
@@ -186,7 +184,7 @@
 </svelte:head>
 
 
-<div data-column="gap-2" {@attach liveQueryAttachment}>
+<div data-column="gap-2">
 	{#if !parsed}
 		<h1>Invalid address</h1>
 		<p>The address in the URL could not be parsed.</p>
@@ -238,12 +236,12 @@
 					{#each transactions as tx (tx.$id.sourceTxHash + tx.$id.createdAt)}
 						{@const fromNet = networksByChainId[tx.fromChainId]}
 						{@const toNet = networksByChainId[tx.toChainId]}
-						<li class="tx-item" data-tag={tx.status}>
+						<li class="tx-item" data-tag={tx.status} data-row="gap-3 align-center">
 							<span class="tx-chains">
 								{fromNet?.name ?? tx.fromChainId} → {toNet?.name ??
 									tx.toChainId}
 							</span>
-							<span class="tx-amount">
+							<span class="tx-amount" data-row-item="flexible">
 								{formatSmallestToDecimal(tx.fromAmount, 6, 2)} →
 								{formatSmallestToDecimal(tx.toAmount, 6, 2)}
 							</span>
@@ -263,8 +261,15 @@
 							conn.transport === WalletConnectionTransport.None
 								? null
 								: walletsByRdns.get(conn.$id.wallet$id.rdns)}
-						<li class="connection-item" data-tag={conn.status}>
-							<span class="connection-name">
+						<li
+							class="connection-item"
+							data-tag={conn.status}
+							data-row="gap-3 align-center"
+						>
+							<span
+								class="connection-name"
+								data-row-item="flexible"
+							>
 								{conn.transport === WalletConnectionTransport.None
 									? 'Watching'
 									: (wallet?.name ?? conn.$id.wallet$id.rdns)}
@@ -289,8 +294,12 @@
 							s.roomId,
 							s.peerId,
 						)}
-						<li class="connection-item">
-							<a href="/rooms/{s.roomId}" class="connection-name">
+						<li class="connection-item" data-row="gap-3 align-center">
+							<a
+								href="/rooms/{s.roomId}"
+								class="connection-name"
+								data-row-item="flexible"
+							>
 								{room?.name ?? s.roomId}
 							</a>
 							<span class="connection-status">
@@ -352,10 +361,6 @@
 
 	.tx-item,
 	.connection-item {
-		display: grid;
-		grid-template-columns: auto 1fr auto;
-		gap: 0.75rem;
-		align-items: center;
 		padding: 0.5rem;
 		background: var(--surface-1);
 		border-radius: 0.5rem;

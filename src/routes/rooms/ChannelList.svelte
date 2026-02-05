@@ -11,7 +11,7 @@
 	import { sharedAddressesCollection } from '$/collections/shared-addresses'
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { yellowState } from '$/state/yellow.svelte'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Props
@@ -46,9 +46,7 @@
 			query: channelsQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const roomAddresses = $derived(
 		(sharedQuery.data ?? []).map((r) => r.row.address.toLowerCase()),
 	)
@@ -117,7 +115,7 @@
 </script>
 
 
-<section class="channel-list" {@attach liveQueryAttachment}>
+<section class="channel-list">
 	<h3>Payment Channels</h3>
 
 	{#each roomChannels as channel (channel.id)}

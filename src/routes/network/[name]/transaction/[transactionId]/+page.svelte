@@ -10,7 +10,7 @@
 	import { blocksCollection } from '$/collections/blocks'
 	import { chainTransactionsCollection } from '$/collections/chain-transactions'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import Network from '$/components/network/Network.svelte'
 
 	let {
@@ -67,9 +67,7 @@
 			query: blockQuery as { data: { row: unknown }[] | undefined },
 		},
 	])
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const txRow = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
 	const blockRow = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
@@ -141,7 +139,7 @@
 </svelte:head>
 
 
-<div data-column="gap-2" {@attach liveQueryAttachment}>
+<div data-column="gap-2">
 	<p>
 		<a href={showContextUrl} data-link>Show Context</a>
 	</p>

@@ -12,7 +12,7 @@
 
 	// Context
 	import { and, eq, or, useLiveQuery } from '@tanstack/svelte-db'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Props
@@ -164,9 +164,7 @@
 			query: pricesQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const balances = $derived((balancesQuery.data ?? []).map((r) => r.row))
 	const prices = $derived((pricesQuery.data ?? []).map((r) => r.row))
 	const balanceAssetIds = $derived([
@@ -233,7 +231,6 @@
 </script>
 
 
-<div style="display: contents" {@attach liveQueryAttachment}>
 	{#if selectedActor}
 		<section class="balances">
 			<h3>Your balances</h3>
@@ -266,9 +263,9 @@
 											: undefined,
 									}
 								: null}
-							<div class="balance-item balance-item-skeleton">
+							<div class="balance-item balance-item-skeleton" data-column>
 								<Skeleton width="4em" height="0.75em" rounded="0.2em" />
-								<div class="balance-skeleton-row">
+								<div data-row="start gap-2">
 									{#if coin}
 										<CoinAmount
 											{coin}
@@ -335,10 +332,10 @@
 										source: 'balances',
 									},
 								} satisfies IntentDragPayload}
-								<div class="balance-item" data-balance-item>
+								<div class="balance-item" data-balance-item data-column>
 									<dt>{network.name}</dt>
 									{#if b.isLoading}
-										<span class="balance-loading" aria-busy="true">
+										<span class="balance-loading" data-row="start gap-2" aria-busy="true">
 											<Skeleton width="6em" height="1.25em" rounded="0.25em" />
 										</span>
 									{:else if b.error}
@@ -391,9 +388,9 @@
 											: undefined,
 									}
 								: null}
-							<div class="balance-item balance-item-skeleton">
+							<div class="balance-item balance-item-skeleton" data-column>
 								<Skeleton width="4em" height="0.75em" rounded="0.2em" />
-								<div class="balance-skeleton-row">
+								<div data-row="start gap-2">
 									{#if coin}
 										<CoinAmount
 											{coin}
@@ -413,7 +410,6 @@
 			</Boundary>
 		</section>
 	{/if}
-</div>
 
 
 
@@ -436,26 +432,12 @@
 	}
 
 	.balance-item {
-		display: flex;
-		flex-direction: column;
-
 		dt {
-			margin: 0;
 			font-size: 0.75em;
-			opacity: 0.7;
 		}
 	}
 
-	.balance-skeleton-row {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.4em;
-	}
-
 	.balance-loading {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.35em;
 		font-size: 0.875em;
 		opacity: 0.8;
 	}

@@ -2,7 +2,7 @@
 	import { Button, Switch } from 'bits-ui'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { sendApproval, waitForApprovalConfirmation } from '$/api/approval'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import { DataSource } from '$/constants/data-sources'
 	import { getTxUrl } from '$/constants/explorers'
 	import type { EIP1193Provider } from '$/lib/wallet'
@@ -44,9 +44,7 @@
 			query: allowancesQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	// Derive allowance ID and row
 	const allowanceId = $derived(
@@ -117,7 +115,6 @@
 </script>
 
 
-<div style="display: contents" {@attach liveQueryAttachment}>
 	{#if isChecking}
 		<p data-muted>Checking approval…</p>
 	{:else if isApproving}
@@ -154,7 +151,6 @@
 			<Button.Root onclick={handleApprove}>Approve USDC</Button.Root>
 		</div>
 	{/if}
-</div>
 
 
 

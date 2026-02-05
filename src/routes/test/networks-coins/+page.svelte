@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { DataSource } from '$/constants/data-sources'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import { networksCollection } from '$/collections/networks'
 	import { coinsCollection } from '$/collections/coins'
 
@@ -31,9 +31,7 @@
 			query: coinsQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const networks = $derived(
 		(networksQuery.data ?? []).map((entry) => entry.row),
 	)
@@ -41,7 +39,7 @@
 </script>
 
 
-<main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
+<main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
 		<h1>Networks and coins</h1>
 

@@ -12,7 +12,7 @@
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button } from 'bits-ui'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import { yellowState } from '$/state/yellow.svelte'
 	import {
 		getEffectiveHash,
@@ -138,9 +138,7 @@
 			query: sessionQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const transferDefaults = $derived<TransferSessionParams>({
@@ -421,77 +419,75 @@
 </script>
 
 
-<div style="display: contents" {@attach liveQueryAttachment}>
-	<SessionAction
-		title="Transfer"
-		description={sessionLocked ? 'Last saved session is locked.' : undefined}
-		{onSubmit}
-	>
-		{#snippet Params()}
-			<dl class="summary">
-				<dt>From</dt>
-				<dd data-intent-transition="source">
-					{formatAddress(settings.fromActor)}
-				</dd>
-				<dt>To</dt>
-				<dd data-intent-transition="target">
-					{formatAddress(settings.toActor)}
-				</dd>
-				<dt>Network</dt>
-				<dd>{chainLabel}</dd>
-				<dt>Amount</dt>
-				<dd>
-					<CoinAmount
-						coin={transferCoin}
-						amount={settings.amount}
-						draggable={false}
-					/>
-				</dd>
-				<dt>Mode</dt>
-				<dd>{settings.mode === 'channel' ? 'Channel (Yellow)' : 'Direct'}</dd>
-			</dl>
-		{/snippet}
+<SessionAction
+	title="Transfer"
+	description={sessionLocked ? 'Last saved session is locked.' : undefined}
+	onsubmit={onSubmit}
+>
+	{#snippet Params()}
+		<dl class="summary">
+			<dt>From</dt>
+			<dd data-intent-transition="source">
+				{formatAddress(settings.fromActor)}
+			</dd>
+			<dt>To</dt>
+			<dd data-intent-transition="target">
+				{formatAddress(settings.toActor)}
+			</dd>
+			<dt>Network</dt>
+			<dd>{chainLabel}</dd>
+			<dt>Amount</dt>
+			<dd>
+				<CoinAmount
+					coin={transferCoin}
+					amount={settings.amount}
+					draggable={false}
+				/>
+			</dd>
+			<dt>Mode</dt>
+			<dd>{settings.mode === 'channel' ? 'Channel (Yellow)' : 'Direct'}</dd>
+		</dl>
+	{/snippet}
 
-		{#snippet Protocol()}
-			<dl class="summary">
-				<dt>Token</dt>
-				<dd>{settings.tokenSymbol} ({formatAddress(settings.tokenAddress)})</dd>
-				<dt>Transfer amount</dt>
-				<dd>{amountLabel} {settings.tokenSymbol}</dd>
-			</dl>
-			{#if settings.mode === 'channel' && !yellowState.clearnodeConnection}
-				<p data-muted>Connect a Yellow clearnode to send.</p>
-			{/if}
-		{/snippet}
+	{#snippet Protocol()}
+		<dl class="summary">
+			<dt>Token</dt>
+			<dd>{settings.tokenSymbol} ({formatAddress(settings.tokenAddress)})</dd>
+			<dt>Transfer amount</dt>
+			<dd>{amountLabel} {settings.tokenSymbol}</dd>
+		</dl>
+		{#if settings.mode === 'channel' && !yellowState.clearnodeConnection}
+			<p data-muted>Connect a Yellow clearnode to send.</p>
+		{/if}
+	{/snippet}
 
-		{#snippet Preview()}
-			<div data-row="gap-2 align-center wrap">
-				<Button.Root type="submit" name="intent" value="save">
-					Save Draft
-				</Button.Root>
-			</div>
+	{#snippet Preview()}
+		<div data-row="gap-2 align-center wrap">
+			<Button.Root type="submit" name="intent" value="save">
+				Save Draft
+			</Button.Root>
+		</div>
 
-			<TransactionFlow
-				{walletConnection}
-				onSimulationSuccess={({ result }) => persistSimulation(result)}
-				onExecutionSuccess={({ txHash }) => persistExecution(txHash)}
-				transactions={[
-					{
-						id: `transfer-${settings.chainId}-${settings.fromActor}-${settings.toActor}`,
-						chainId: settings.chainId,
-						title: 'Transfer',
-						actionLabel: 'Sign and Submit',
-						canExecute: canTransfer,
-						simulate: async () => ({
-							...settings,
-						}),
-						execute: (args) =>
-							settings.mode === 'channel'
-								? executeChannelTransfer()
-								: executeDirectTransfer(args),
-					},
-				]}
-			/>
-		{/snippet}
-	</SessionAction>
-</div>
+		<TransactionFlow
+			{walletConnection}
+			onSimulationSuccess={({ result }) => persistSimulation(result)}
+			onExecutionSuccess={({ txHash }) => persistExecution(txHash)}
+			transactions={[
+				{
+					id: `transfer-${settings.chainId}-${settings.fromActor}-${settings.toActor}`,
+					chainId: settings.chainId,
+					title: 'Transfer',
+					actionLabel: 'Sign and Submit',
+					canExecute: canTransfer,
+					simulate: async () => ({
+						...settings,
+					}),
+					execute: (args) =>
+						settings.mode === 'channel'
+							? executeChannelTransfer()
+							: executeDirectTransfer(args),
+				},
+			]}
+		/>
+	{/snippet}
+</SessionAction>

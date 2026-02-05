@@ -3,7 +3,7 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { goto } from '$app/navigation'
 	import { page } from '$app/state'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Functions
@@ -29,9 +29,7 @@
 			query: sessionQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 
 	$effect(() => {
@@ -48,7 +46,7 @@
 </svelte:head>
 
 
-<main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
+<main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
 		{#if session}
 			<p data-muted>Redirecting to session…</p>

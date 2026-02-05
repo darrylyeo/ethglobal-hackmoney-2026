@@ -8,7 +8,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import { roomPeersCollection } from '$/collections/room-peers'
 	import {
 		roomState,
@@ -56,9 +56,7 @@
 			query: peersQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const others = $derived(
 		(peersQuery.data ?? [])
 			.map((r) => r.row)
@@ -118,7 +116,7 @@
 </svelte:head>
 
 
-<main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
+<main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
 		<h1>{roomDisplayName}</h1>
 

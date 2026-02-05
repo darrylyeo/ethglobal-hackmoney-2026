@@ -26,7 +26,7 @@
 	import { verificationsCollection } from '$/collections/verifications'
 	import { roomState } from '$/state/room.svelte'
 	import { signSiweMessage } from '$/lib/siwe'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Components
@@ -74,9 +74,7 @@
 			query: verificationsQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const allShared = $derived((sharedQuery.data ?? []).map((r) => r.row))
 	const addressesVisibleToMe = $derived(
@@ -149,7 +147,6 @@
 	data-peer-card
 	data-card="secondary"
 	data-connected={peer.isConnected}
-	{@attach liveQueryAttachment}
 >
 	<header data-peer-card-header data-row="wrap gap-2 align-center">
 		<Peer {peer} showStatus={true} />

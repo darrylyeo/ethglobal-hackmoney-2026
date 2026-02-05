@@ -9,7 +9,7 @@
 		cctpAllowanceCollection,
 		fetchCctpAllowance,
 	} from '$/collections/cctp-allowance'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Props
@@ -37,9 +37,7 @@
 			query: allowanceQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const allowanceRow = $derived(
 		(allowanceQuery.data ?? []).find((r) => r.row.$id.apiHost === apiHost)
 			?.row ?? null,
@@ -70,7 +68,7 @@
 </script>
 
 
-<div data-column="gap-1" {@attach liveQueryAttachment}>
+<div data-column="gap-1">
 	<strong>Fast transfer allowance</strong>
 	{#if !fastTransferSupported}
 		<small data-muted>Not required for this source chain.</small>

@@ -6,7 +6,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { cctpFeesCollection, fetchCctpFees } from '$/collections/cctp-fees'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Props
@@ -40,9 +40,7 @@
 			query: feesQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const feeRow = $derived(
 		fromDomain !== null && toDomain !== null
 			? ((feesQuery.data ?? []).find(
@@ -83,7 +81,7 @@
 </script>
 
 
-<div data-column="gap-1" {@attach liveQueryAttachment}>
+<div data-column="gap-1">
 	<strong>Fees</strong>
 	{#if feeLoading}
 		<small data-muted>Loading fees…</small>

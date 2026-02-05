@@ -20,7 +20,7 @@
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button } from 'bits-ui'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import {
 		getEffectiveHash,
 		setEffectiveHash,
@@ -205,9 +205,7 @@
 			query: tokenListQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const positions = $derived(
 		selectedActor
@@ -432,7 +430,7 @@
 </script>
 
 
-<div data-column="gap-4" {@attach liveQueryAttachment}>
+<div data-column="gap-4">
 	<div data-row="gap-2 align-center justify-between">
 		<h2>Add Liquidity</h2>
 		<div data-row="gap-2 align-center">

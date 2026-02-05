@@ -26,7 +26,7 @@
 	import { siweChallengesCollection } from '$/collections/siwe-challenges'
 	import { roomState } from '$/state/room.svelte'
 	import { signSiweMessage } from '$/lib/siwe'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 	const mySharedQuery = useLiveQuery(
 		(q) =>
@@ -54,9 +54,7 @@
 			query: challengesQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const myShared = $derived(
 		(mySharedQuery.data ?? [])
@@ -124,7 +122,7 @@
 </script>
 
 
-<section data-my-addresses {@attach liveQueryAttachment}>
+<section data-my-addresses>
 	<h3>My addresses</h3>
 	{#if addresses.length === 0}
 		<p>Connect a wallet to share addresses.</p>

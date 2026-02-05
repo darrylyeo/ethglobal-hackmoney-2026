@@ -16,7 +16,7 @@
 	import { siweChallengesCollection } from '$/collections/siwe-challenges'
 	import { verificationsCollection } from '$/collections/verifications'
 	import { roomState } from '$/state/room.svelte'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Functions
@@ -72,9 +72,7 @@
 			query: challengesQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const sharedRows = $derived((sharedQuery.data ?? []).map((r) => r.row))
 	const sharedVisibleToMe = $derived(
@@ -145,7 +143,7 @@
 </script>
 
 
-<section data-shared-addresses {@attach liveQueryAttachment}>
+<section data-shared-addresses>
 	<h3>Shared addresses</h3>
 	{#if sharedVisibleToMe.length === 0}
 		<p>No shared addresses yet.</p>

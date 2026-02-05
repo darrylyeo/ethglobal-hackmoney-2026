@@ -10,7 +10,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { closeChannel, challengeChannel } from '$/api/yellow'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import { yellowChannelsCollection } from '$/collections/yellow-channels'
 	import { yellowChannelStatesCollection } from '$/collections/yellow-channel-states'
 	import { roomsCollection } from '$/collections/rooms'
@@ -83,9 +83,7 @@
 			query: walletsQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const connections = $derived((connectionsQuery.data ?? []).map((r) => r.row))
 	const wallets = $derived((walletsQuery.data ?? []).map((r) => r.row))
 	const selectedConnection = $derived(
@@ -262,8 +260,7 @@
 </svelte:head>
 
 
-<div style="display: contents" {@attach liveQueryAttachment}>
-	<main id="main" data-column data-sticky-container>
+<main id="main" data-column data-sticky-container>
 		<h1>Yellow Channels</h1>
 
 		<section class="summary" data-row="gap-4">
@@ -333,7 +330,7 @@
 							<td data-status>{ch.status}</td>
 							<td>
 								{#if ch.roomId}
-									<span class="room-badge" data-room
+									<span data-badge class="room-badge" data-room
 										>{roomDisplay(ch.roomId)}</span
 									>
 									<a href="/rooms/{ch.roomId}/channels">View room</a>
@@ -341,7 +338,7 @@
 									—
 								{/if}
 							</td>
-							<td data-row="gap-1">
+							<td data-row="wrap gap-1">
 								{#if ch.status === 'active' && participant}
 									<Button.Root
 										type="button"
@@ -388,7 +385,6 @@
 	{#if transferChannel}
 		<TransferDialog channel={transferChannel} bind:open={transferOpen} />
 	{/if}
-</div>
 
 
 
@@ -415,16 +411,11 @@
 		text-align: left;
 		border: 1px solid var(--color-border, #ccc);
 	}
-	.channel-list td[data-row] {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.25rem;
-	}
 	.room-badge {
-		display: inline-block;
 		padding: 0.1rem 0.3rem;
 		border-radius: 0.2rem;
 		background: var(--color-surface-2, #eee);
-		margin-right: 0.25rem;
+		border: none;
+		margin-inline-end: 0.25rem;
 	}
 </style>

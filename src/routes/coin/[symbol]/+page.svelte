@@ -4,7 +4,7 @@
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { getCoinForCoinPage, type CoinPageSymbol } from '$/constants/coins'
 	import { TIME_PERIODS } from '$/api/transfers-indexer'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import {
 		transferEventsCollection,
 		ensureTransferEventsForPlaceholders,
@@ -65,9 +65,7 @@
 			query: graphQuery,
 		},
 	])
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const allRows = $derived(eventsQuery.data ?? [])
 	const eventRows = $derived(
 		allRows.filter(
@@ -147,7 +145,7 @@
 </svelte:head>
 
 
-<main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
+<main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
 		<header class="transfers-header" data-row="wrap gap-2 align-center">
 			<h2>Transfers – {coin.symbol}</h2>

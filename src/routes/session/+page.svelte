@@ -2,7 +2,7 @@
 	// Context
 	import { setContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Functions
@@ -76,9 +76,7 @@
 			query: sessionQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const activeAction = $derived(session?.actions[0] ?? hashAction ?? 'swap')
 	const pageTitle = $derived(
@@ -118,21 +116,19 @@
 </svelte:head>
 
 
-<div style="display: contents" {@attach liveQueryAttachment}>
-	{#if activeAction === 'swap'}
-		<SwapView />
-	{:else if activeAction === 'bridge'}
-		<BridgeView />
-	{:else if activeAction === 'transfer'}
-		<TransferView />
-	{:else if activeAction === 'liquidity'}
-		<LiquidityView />
-	{:else}
-		<main id="main" data-column data-sticky-container>
-			<section data-scroll-item data-column="gap-3">
-				<h1>Session</h1>
-				<p data-muted>Unsupported session action.</p>
-			</section>
-		</main>
-	{/if}
-</div>
+{#if activeAction === 'swap'}
+	<SwapView />
+{:else if activeAction === 'bridge'}
+	<BridgeView />
+{:else if activeAction === 'transfer'}
+	<TransferView />
+{:else if activeAction === 'liquidity'}
+	<LiquidityView />
+{:else}
+	<main id="main" data-column data-sticky-container>
+		<section data-scroll-item data-column="gap-3">
+			<h1>Session</h1>
+			<p data-muted>Unsupported session action.</p>
+		</section>
+	</main>
+{/if}

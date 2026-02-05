@@ -24,7 +24,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 	import {
 		walletConnectionsCollection,
@@ -169,9 +169,7 @@
 			query: connectionsQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => walletsLiveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => walletsLiveQueryEntries)
 
 	const settings = $derived(
 		bridgeSettingsState.current ?? defaultBridgeSettings,
@@ -408,7 +406,6 @@
 	data-row="gap-2 align-center wrap"
 	role="group"
 	aria-label="Network settings"
-	{@attach liveQueryAttachment}
 >
 	<label data-row="gap-2" aria-label="Network type">
 		<Switch.Root
@@ -436,7 +433,7 @@
 <div data-row>
 	{#if walletChips.length > 0}
 		{#if eip1193WalletChips.length > 0}
-			<div class="wallet-section">
+			<div class="wallet-section" data-column="gap-2">
 				{#if selectionMode === 'single'}
 					<ToggleGroup.Root
 						type="single"
@@ -484,7 +481,7 @@
 								data-failed={status === 'error'}
 								class="wallet-connection-item"
 							>
-								<span class={walletChipClass}>
+								<span class={walletChipClass} data-row="start gap-1">
 									{#if wallet.icon}
 										<Icon src={wallet.icon} size={16} />
 									{/if}
@@ -496,7 +493,7 @@
 											title={networkName ?? 'Unknown network'}
 										/>
 									{/if}
-									<span class="wallet-details">
+									<span class="wallet-details" data-column="gap-0">
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
@@ -534,7 +531,7 @@
 										{/snippet}
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option">
+												<span class="wallet-menu-option" data-row="start gap-2">
 													<Address
 														network={chainId ?? selectedChainIdDerived ?? 1}
 														address={item.actor}
@@ -542,7 +539,7 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option">
+												<span class="wallet-menu-option" data-row="start gap-2">
 													<Icon
 														src={networkConfigsByChainId[item.network.id]
 															?.icon ?? `/icons/chains/${item.network.id}.svg`}
@@ -606,7 +603,7 @@
 								data-failed={status === 'error'}
 								class="wallet-connection-item"
 							>
-								<span class={walletChipClass}>
+								<span class={walletChipClass} data-row="start gap-1">
 									{#if wallet.icon}
 										<Icon src={wallet.icon} size={16} />
 									{/if}
@@ -618,7 +615,7 @@
 											title={networkName ?? 'Unknown network'}
 										/>
 									{/if}
-									<span class="wallet-details">
+									<span class="wallet-details" data-column="gap-0">
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
@@ -656,7 +653,7 @@
 										{/snippet}
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option">
+												<span class="wallet-menu-option" data-row="start gap-2">
 													<Address
 														network={chainId ?? selectedChainIdDerived ?? 1}
 														address={item.actor}
@@ -664,7 +661,7 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option">
+												<span class="wallet-menu-option" data-row="start gap-2">
 													<Icon
 														src={networkConfigsByChainId[item.network.id]
 															?.icon ?? `/icons/chains/${item.network.id}.svg`}
@@ -689,7 +686,7 @@
 		{/if}
 
 		{#if readOnlyWalletChips.length > 0}
-			<div class="wallet-section">
+			<div class="wallet-section" data-column="gap-2">
 				{#if selectionMode === 'single'}
 					<ToggleGroup.Root
 						type="single"
@@ -737,7 +734,7 @@
 								data-failed={status === 'error'}
 								class="wallet-connection-item"
 							>
-								<span class={walletChipClass}>
+								<span class={walletChipClass} data-row="start gap-1">
 									{#if wallet.icon}
 										<Icon src={wallet.icon} size={16} />
 									{/if}
@@ -749,7 +746,7 @@
 											title={networkName ?? 'Unknown network'}
 										/>
 									{/if}
-									<span class="wallet-details">
+									<span class="wallet-details" data-column="gap-0">
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
@@ -787,7 +784,7 @@
 										{/snippet}
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option">
+												<span class="wallet-menu-option" data-row="start gap-2">
 													<Address
 														network={chainId ?? selectedChainIdDerived ?? 1}
 														address={item.actor}
@@ -795,7 +792,7 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option">
+												<span class="wallet-menu-option" data-row="start gap-2">
 													<Icon
 														src={networkConfigsByChainId[item.network.id]
 															?.icon ?? `/icons/chains/${item.network.id}.svg`}
@@ -859,7 +856,7 @@
 								data-failed={status === 'error'}
 								class="wallet-connection-item"
 							>
-								<span class={walletChipClass}>
+								<span class={walletChipClass} data-row="start gap-1">
 									{#if wallet.icon}
 										<Icon src={wallet.icon} size={16} />
 									{/if}
@@ -871,7 +868,7 @@
 											title={networkName ?? 'Unknown network'}
 										/>
 									{/if}
-									<span class="wallet-details">
+									<span class="wallet-details" data-column="gap-0">
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
@@ -909,7 +906,7 @@
 										{/snippet}
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option">
+												<span class="wallet-menu-option" data-row="start gap-2">
 													<Address
 														network={chainId ?? selectedChainIdDerived ?? 1}
 														address={item.actor}
@@ -917,7 +914,7 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option">
+												<span class="wallet-menu-option" data-row="start gap-2">
 													<Icon
 														src={networkConfigsByChainId[item.network.id]
 															?.icon ?? `/icons/chains/${item.network.id}.svg`}
@@ -985,7 +982,11 @@
 		>
 			{#snippet Item(item)}
 				{#if item.kind === 'wallet'}
-					<span class="wallet-menu-option" data-wallet-provider-option>
+					<span
+						class="wallet-menu-option"
+						data-row="start gap-2"
+						data-wallet-provider-option
+					>
 						{#if item.wallet.icon}
 							<Icon src={item.wallet.icon} size={20} />
 						{/if}
@@ -997,18 +998,20 @@
 			{/snippet}
 			<form
 				class="account-watching"
+				data-column="gap-2"
 				onsubmit={(event) => (event.preventDefault(), connectReadOnlyAddress())}
 			>
 				<label class="account-watching-label" for="account-watching-address">
 					Watching address
 				</label>
-				<div class="account-watching-field">
+				<div class="account-watching-field" data-row="gap-2">
 					<input
 						id="account-watching-address"
 						name="watching-address"
 						type="text"
 						placeholder="0x..."
 						class="account-watching-input"
+						data-row-item="flexible"
 						value={readOnlyAddress}
 						oninput={onReadOnlyInput}
 					/>
@@ -1024,9 +1027,6 @@
 
 <style>
 	.wallet-chip {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.35rem;
 		position: relative;
 
 		&.wallet-connecting,
@@ -1037,7 +1037,6 @@
 	}
 
 	.wallet-details {
-		display: grid;
 		gap: 0.1rem;
 	}
 
@@ -1054,9 +1053,6 @@
 
 	.wallet-menu-option {
 		position: relative;
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
 		width: 100%;
 		padding-inline-end: 1.75rem;
 	}
@@ -1108,9 +1104,6 @@
 	}
 
 	.account-watching-field {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
-		gap: 0.5rem;
 		align-items: center;
 	}
 
@@ -1121,11 +1114,6 @@
 		background: var(--color-bg-page);
 		color: inherit;
 		font: inherit;
-	}
-
-	.wallet-section {
-		display: grid;
-		gap: 0.5rem;
 	}
 
 	.wallet-section-title {

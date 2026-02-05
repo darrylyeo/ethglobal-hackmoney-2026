@@ -10,7 +10,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { roomPeersCollection } from '$/collections/room-peers'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
 	// Components
@@ -32,15 +32,13 @@
 			query: peersQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const peers = $derived((peersQuery.data ?? []).map((r) => r.row))
 </script>
 
 
-<section data-peer-list {@attach liveQueryAttachment}>
+<section data-peer-list>
 	<h3>Peers</h3>
 	<ul>
 		{#each peers as peer (peer.id)}
