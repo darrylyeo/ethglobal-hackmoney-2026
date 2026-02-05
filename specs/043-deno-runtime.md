@@ -23,7 +23,7 @@ Use Deno instead of npm, pnpm, or bun for running scripts, tasks, and installing
 
 ## Status
 
-Complete. Deno-first commands; test:e2e uses playwright.e2e.config.ts (workers:1, webServer timeout 240s, TEVM env) for stable E2E runs via Node/Playwright. Re-verification 2026-02-05 (PROMPT_build execute one spec): all 5 AC re-verified (deno.json tasks/imports, README Deno usage); test:unit 41 Deno + 101 Vitest passed. Re-verification 2026-02-05 (PROMPT_build one spec): all 5 AC re-confirmed; test:unit passed. Re-verification 2026-02-05 (PROMPT_build.md execute one spec, no incomplete specs): re-verified 043; all 5 AC confirmed; test:unit 41 Deno + 101 Vitest passed.
+Complete. Deno-first commands; test:e2e uses playwright.e2e.config.ts (workers:1, webServer timeout 240s, TEVM env) for stable E2E runs via Node/Playwright. Re-verification 2026-02-05 (PROMPT_build execute one spec, all specs complete): re-verified 043; all 5 AC confirmed (deno.json tasks/imports/install, README deno task/dev/build, constitution Deno test); test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 
