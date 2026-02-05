@@ -29,7 +29,7 @@ Main bridge interface with:
 11. **Confirmation dialog** – review before sending
 12. **Error display** – inline error messages
 
-### `src/views/Wallets.svelte`
+### `src/views/AccountsSelect.svelte`
 
 Wallet discovery and connection via EIP-6963.
 
@@ -59,7 +59,7 @@ Transaction execution with status tracking.
 
 ### Integration
 
-- [x] `Wallets.svelte` handles wallet discovery and connection.
+- [x] `AccountsSelect.svelte` handles wallet discovery and connection.
 - [x] `Balances.svelte` displays USDC balances.
 - [x] `TokenApproval.svelte` handles ERC20 approvals.
 - [x] `BridgeExecution.svelte` executes selected route.

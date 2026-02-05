@@ -100,7 +100,7 @@ three-column `<SessionAction>` row with a dedicated `<form>`.
 
 ## Status
 
-Complete. Session and SessionAction in `src/views/`. UnifiedBridgeFlow, SwapAction, TransferAction use SessionAction with Params/Protocol/Preview snippets; local state (localParams) is source of truth; persist only on Save Draft, Simulate, Sign and Submit. Session +page no longer creates or persists a session on initial render for empty or action-slug hash—only sets activeSessionId = null and hashAction; persistence happens in flow components on user action. Lock on Simulate/Submit; when locked, next submit creates new session (shouldCreate = !current || current.lockedAt). Failed submit does not persist (try/catch). Context: Session Context snippet provides Wallets; mainnet/testnet from bridgeSettingsState / globalIsTestnet.
+Complete. Session and SessionAction in `src/views/`. UnifiedBridgeFlow, SwapAction, TransferAction use SessionAction with Params/Protocol/Preview snippets; local state (localParams) is source of truth; persist only on Save Draft, Simulate, Sign and Submit. Session +page no longer creates or persists a session on initial render for empty or action-slug hash—only sets activeSessionId = null and hashAction; persistence happens in flow components on user action. Lock on Simulate/Submit; when locked, next submit creates new session (shouldCreate = !current || current.lockedAt). Failed submit does not persist (try/catch). Context: Session Context snippet provides AccountsSelect; mainnet/testnet from bridgeSettingsState / globalIsTestnet.
 
 ## Output when complete
 

@@ -1,16 +1,27 @@
-# Spec 006: Transfers page and LiveTransfers visualization
+# Spec 006: Coin pages and transfer/bridge visualization
 
-A `/transfers` page with a Threlte-based visualization of USDC transfer flows
-between actor addresses within a configurable time period. Data comes from
-TanStack DB collections backed by Ethereum JSON-RPC log filters (Voltaire) and
-bridge indexers for enrichment.
+Add a coin detail route that renders a time-windowed visualization of all
+transfer + bridge events for the given symbol. The visualization behavior and
+data-flow are based on the existing transfers visualization spec, but extended
+to cover all coins matching the symbol across chains.
 
-## Data sources (USDC transfers on supported networks)
+## Scope
+
+- New route: `/coin/[symbol]`
+- Supported symbols at launch: **USDC** and **ETH**.
+- Use existing APIs and TanStack DB collections to resolve transfer/bridge
+  events and render the visualization.
+- Reuse existing visualization components where possible; only create new
+  components if none already exist.
+
+## Data sources (by symbol, across chains)
 
 **Primary source: JSON-RPC event filters (Voltaire)**
 
-- Use `eth_getLogs` with the USDC `Transfer(address,address,uint256)` event
-  signature per supported network.
+- Use `eth_getLogs` with the ERC-20 `Transfer(address,address,uint256)` event
+  signature for all coins matching the symbol on supported chains.
+- For ETH, use native transfer events sourced via existing indexed transaction
+  data (not ERC-20 logs) and normalize into the same event shape.
 - Build filters by `fromBlock`/`toBlock` derived from the selected time window
   (resolve block numbers by timestamp).
 - Voltaire handles ABI/event signatures and RPC plumbing.
@@ -19,92 +30,72 @@ bridge indexers for enrichment.
 
 - Use relevant indexers to map transfer events to bridge-specific metadata
   (CCTP, canonical bridges, etc.) when available.
-- Indexers are not the source of truth for transfer listing; they only enrich
-  transfer edges with bridge context.
+- Indexers are not the source of truth; they only enrich transfer edges with
+  bridge context.
 
 ## Page and component
 
-- **Route:** `src/routes/transfers/+page.svelte` — `/transfers`
-- **Component:** `src/routes/transfers/LiveTransfers.svelte`
-  - **Props:** `coin: Coin` (USDC only; used to resolve contract addresses and
-    symbol for labels).
+- **Route:** `src/routes/coin/[symbol]/+page.svelte` — `/coin/{symbol}`
+- **Component:** reuse the existing LiveTransfers visualization where possible.
+  - **Props:** list of coins resolved by symbol, plus the selected time period.
   - **Behavior:**
     - Time period selector: 1h, 6h, 12h, 1d, 3d, 7d.
-    - For the selected period, query TanStack DB collections that are populated
-      from JSON-RPC logs for the given coin across all supported chains.
-    - From the fetched events, derive **unique actor addresses** (from/to or
-      equivalent) and treat them as **nodes**.
-    - **Edges:** flows of “coins” between two actor addresses. Volume = sum of
-      amounts for that (from, to) pair in the window; optionally retain
-      per-transfer timestamps for staggering.
-    - Render a **Threlte** 3D (or 2D) visualization:
-      - Nodes: one per unique actor (e.g. position by layout or chain).
-      - Edges: represent transfer volume between nodes; animate or stagger by
-        transfer timestamp so that flows appear over time within the window.
-    - Account for **amounts** (e.g. edge thickness or label) and **chains**
-      (e.g. node color or label by source/destination chain).
+    - For the selected period, query TanStack DB collections populated from
+      JSON-RPC logs / indexed transactions for the coins across supported
+      chains.
+    - From the fetched events, derive **unique actor addresses** and treat them
+      as **nodes**.
+    - **Edges:** flows of coins between two actor addresses. Volume = sum of
+      amounts for that (from, to) pair; retain per-transfer timestamps for
+      staggering.
+    - Render a **Threlte** visualization:
+      - Nodes: one per unique actor (position by layout or chain).
+      - Edges: represent transfer volume; animate/stagger by timestamp.
+    - Account for **amounts** and **chains** (e.g. node/edge color by chain).
 
 ## Data flow
 
 1. User selects time period (1h, 6h, 12h, 1d, 3d, 7d).
 2. Map period to a time range (e.g. `[now - period, now]`).
-3. Resolve per-chain `fromBlock`/`toBlock` for the time range using block
-   timestamps.
-4. For each supported chain that has USDC, fetch logs via Voltaire with
-   `eth_getLogs` using the USDC contract + Transfer event topic.
-5. Store normalized events in TanStack DB collections.
-6. Optionally enrich with bridge metadata from relevant indexers (CCTP, etc.)
-   using transaction hashes.
-7. Query TanStack DB for the selected time range and normalize into a single
-   list:
-   `{ fromAddress, toAddress, amount, timestamp, chainId }`.
-8. Build node set: unique `fromAddress` and `toAddress` (optionally keyed by
-   `chainId` if showing per-chain actors).
-9. Build edges: group by `(fromAddress, toAddress)` (and optionally chainId);
-   sum amounts; keep list of timestamps for staggering.
-10. Pass nodes and edges to the Threlte scene; render nodes and edges with volume
-   and time-staggered animation.
+3. Resolve per-chain `fromBlock`/`toBlock` for the time range.
+4. For each supported chain + coin matching the symbol, fetch logs via Voltaire
+   using the ERC-20 Transfer event topic.
+5. For ETH, pull matching indexed native transfers from existing TanStack DB
+   collections and normalize to the same event shape.
+6. Store normalized events in TanStack DB collections.
+7. Optionally enrich with bridge metadata from relevant indexers.
+8. Query TanStack DB for the selected time range and normalize into a single
+   list: `{ fromAddress, toAddress, amount, timestamp, chainId, symbol }`.
+9. Build node set: unique `fromAddress` and `toAddress`.
+10. Build edges: group by `(fromAddress, toAddress)` (and optionally chainId);
+    sum amounts; keep list of timestamps for staggering.
+11. Pass nodes and edges to the Threlte scene; render nodes and edges with
+    volume and time-staggered animation.
 
 ## Acceptance criteria
 
-- [x] Route `/transfers` exists and renders `LiveTransfers` with a `Coin` prop
-      (USDC only from project constants).
-- [x] Time period selector offers: 1h, 6h, 12h, 1d, 3d, 7d.
-- [x] Transfers for the selected period are derived from JSON-RPC `eth_getLogs`
-      for USDC Transfer events on all supported networks.
-- [x] TanStack DB collections store normalized transfer events and serve the
-      query results for the selected period.
-- [x] Bridge indexers are used to enrich transfer events with bridge metadata
-      when available (non-blocking).
-- [x] Unique actor addresses from the fetched events are rendered as nodes in a
-      Threlte visualization.
-- [x] Flows between actors are shown as edges; volume (amount) is represented
-      (e.g. thickness or label).
-- [x] Edges are staggered or animated according to transfer timestamps within
-      the period.
-- [x] Chain information is reflected (e.g. node or edge color/label by chain).
-- [x] Errors (e.g. RPC down, no data) are handled with `<svelte:boundary>` and a
+- [ ] Route `/coin/[symbol]` exists and renders the visualization for supported
+      symbols.
+- [ ] Supported symbols at launch: **USDC** and **ETH**.
+- [ ] Time period selector offers: 1h, 6h, 12h, 1d, 3d, 7d.
+- [ ] Transfers/bridges for the selected period are derived from TanStack DB
+      collections sourced by existing APIs (Voltaire/indexers).
+- [ ] Unique actor addresses are rendered as nodes; flows are rendered as edges.
+- [ ] Chain information is reflected in the visualization.
+- [ ] Errors (e.g. RPC down, no data) are handled with `<svelte:boundary>` and a
       clear message.
 
 ## Implementation notes
 
-- Use `src/constants/networks` and USDC contract addresses to define supported
-  networks (USDC only to start).
-- Use Voltaire for ABI and JSON-RPC calls, including `eth_getLogs`.
-- Resolve `fromBlock`/`toBlock` by timestamp per chain (binary search by
-  `eth_getBlockByNumber` timestamp).
-- Use TanStack DB collections for transfer events and any derived aggregates.
+- Use `src/constants/coins` to resolve coins by symbol.
+- Reuse `src/routes/explore/usdc/LiveTransfers.svelte` if compatible; otherwise
+  create a minimal coin-aware wrapper.
 - Keep Threlte scene minimal (nodes as meshes or points, edges as lines or
   tubes; optional instancing for many nodes/edges).
 
-## TODOs
-
-- TODO: Define USDC-only supported network list for transfers collection.
-- TODO: Document bridge indexers used for enrichment.
-
 ## Status
 
-Complete. Route `/transfers` with LiveTransfers and USDC coin. Time period selector 1h, 6h, 12h, 1d, 3d, 7d. Primary source: eth_getLogs (Voltaire) via `src/api/voltaire.ts` (getLogs, getBlockNumberByTimestamp, TRANSFER_TOPIC) and `src/api/transfers-logs.ts` (fetchTransferEventsForPeriod). Block range resolved by timestamp per chain. Normalized events served by query cache keyed by period; `src/collections/transfer-events.ts` exports transferEventsQueryKey. fetchTransfersGraphFromVoltaire in transfers-indexer builds graph from Voltaire events. Optional Covalent enrichment when PUBLIC_COVALENT_API_KEY set (non-blocking). LiveTransfers: Threlte nodes (unique actors), edges (volume, timestamps), staggered edge animation, chain color by chainId. Boundary for errors.
+Planned.
 
 ## Output when complete
 

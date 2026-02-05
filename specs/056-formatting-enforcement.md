@@ -51,8 +51,9 @@ explicitly tracking each file as a formatting task.
 - [x] `src/routes/rooms/[roomId]/channels/+page.svelte`
 - [x] `src/routes/rooms/[roomId]/+page.ts`
 - [x] `src/routes/rooms/[roomId]/+page.svelte`
+- [x] `src/routes/accounts/+page.svelte`
 - [x] `src/routes/wallets/+page.svelte`
-- [x] `src/routes/wallets/WalletsManager.svelte`
+- [x] `src/routes/wallets/Accounts.svelte`
 - [x] `src/routes/about-old-2/ArchitectureGraph.svelte`
 - [x] `src/routes/about-old-2/+page.svelte`
 - [x] `src/routes/page.test.ts`
@@ -63,8 +64,8 @@ explicitly tracking each file as a formatting task.
 - [x] `src/routes/dashboard/route-map.ts`
 - [x] `src/routes/dashboard/SvelteKitRoute.svelte`
 - [x] `src/routes/dashboard/+page.svelte`
-- [x] `src/routes/transfers/LiveTransfers.svelte`
-- [x] `src/routes/transfers/+page.svelte`
+- [x] `src/routes/explore/usdc/LiveTransfers.svelte`
+- [x] `src/routes/explore/usdc/+page.svelte`
 - [x] `src/routes/about/ArchitectureGraph.svelte`
 - [x] `src/routes/about/architecture-graph.ts`
 - [x] `src/routes/about/+page.svelte`
@@ -95,7 +96,7 @@ explicitly tracking each file as a formatting task.
 - [x] `src/lib/address.ts`
 - [x] `src/views/Balances.svelte`
 - [x] `src/views/TransactionFlow.svelte`
-- [x] `src/views/Wallets.svelte`
+- [x] `src/views/AccountsSelect.svelte`
 - [x] `src/views/CoinInput.svelte`
 - [x] `src/views/TokenAmountInput.svelte`
 - [x] `src/views/AddressInput.svelte`

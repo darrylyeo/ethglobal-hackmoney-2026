@@ -1,6 +1,6 @@
 # Spec 044: Dashboard Panel System
 
-Add a `/dashboard` route that hosts a modular tiling panel system. Each panel can render any existing non-dashboard SvelteKit route, keeps its own hash navigation history, and persists layout + history in TanStack DB.
+Add a `/dashboard` route that hosts a modular tiling panel system. When loaded normally, it shows the panel tree. When loaded inside a panel (e.g. user selects "dashboard" in the panel route dropdown), it shows a grid of links to all routes instead of nesting another dashboard. Each panel can render any existing SvelteKit route; panels keep their own hash navigation history and persist layout + history in TanStack DB.
 
 ## Scope
 
@@ -18,7 +18,7 @@ Add a `/dashboard` route that hosts a modular tiling panel system. Each panel ca
 
 ## Definitions
 
-- **Dashboard route**: `/dashboard` and any nested routes under `/dashboard/**`.
+- **Dashboard route**: `/dashboard`. Overloaded: top-level load shows the panel tree; load within a panel shows a grid of links to all routes (no nested dashboards).
 - **Panel**: A leaf node in the tiling tree that renders a single route at a time.
 - **Panel tree**: A binary tiling layout with split direction and ratio at internal nodes.
 - **Panel history**: The ordered list of hash URLs visited within a panel.
@@ -28,7 +28,7 @@ Add a `/dashboard` route that hosts a modular tiling panel system. Each panel ca
 
 - **PanelNode**
   - `id`: unique id
-  - `route`: target SvelteKit route (non-dashboard)
+  - `route`: target SvelteKit route (any route; when `/dashboard`, the page renders the route grid in-panel)
   - `params`: route params for dynamic routes
   - `hashHistory`: list of `#hash` strings in visit order
 - **SplitNode**
@@ -50,7 +50,7 @@ Add a `/dashboard` route that hosts a modular tiling panel system. Each panel ca
 
 ## Navigation rules
 
-- Panels may render any existing SvelteKit route except dashboard routes.
+- Panels may render any existing SvelteKit route. If the route is `/dashboard`, the dashboard page detects it is embedded and renders a grid of links to all routes (not the panel tree), avoiding nested dashboards.
 - Each panel manages its own `hashHistory` of `#hash` strings.
 - Internal anchor clicks inside a panel are intercepted and routed within that panel.
 - Modifier-click (Cmd/Ctrl) on an internal anchor opens the target route in a new split panel.
@@ -64,7 +64,7 @@ Add a `/dashboard` route that hosts a modular tiling panel system. Each panel ca
 
 - [x] A new spec exists at `specs/044-dashboard-panels.md` describing the dashboard panel system.
 - [x] The spec defines the panel tree model with split nodes and panel nodes.
-- [x] The spec states that panels can render any non-dashboard SvelteKit route.
+- [x] The spec states that panels can render any route; when the route is `/dashboard`, the page shows the route link grid in-panel (no nested dashboard).
 - [x] The spec defines per-panel hash history and focus/unfocus navigation stack rules.
 - [x] The spec defines a new persisted TanStack DB collection with localStorage backing.
 - [x] The spec defines restoration behavior and default panel initialization when empty.

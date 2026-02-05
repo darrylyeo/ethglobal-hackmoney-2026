@@ -234,7 +234,7 @@ Display user's existing positions:
 
 Reuse existing components and utilities:
 
-- `Wallets.svelte` – wallet connection
+- `AccountsSelect.svelte` – wallet connection
 - `TokenApproval.svelte` – ERC20 approvals (adapt for swap router)
 - `actorCoinsCollection` – token balances
 - `actorAllowancesCollection` – approval state
@@ -314,7 +314,7 @@ const TICK_SPACINGS: Record<number, number> = {
 - [x] Position list with collect/remove actions
 
 ### Integration
-- [x] Reuses `Wallets.svelte` for connection
+- [x] Reuses `AccountsSelect.svelte` for connection
 - [x] Reuses `actorCoinsCollection` for balances
 - [x] Reuses `transactionsCollection` for history
 - [x] Navigation links added to `Navigation.svelte`

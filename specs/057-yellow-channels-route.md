@@ -71,7 +71,7 @@ context.
 
 ### Navigation integration
 
-- Add a navigation item titled `Yellow Channels` pointing to `/channels/yellow`.
+- Add a navigation item titled `Yellow Channels` pointing to `/channels/yellow` (under Multiplayer group in nav).
 - Room channel creation flows provide a direct link (or secondary CTA) to
   `/channels/yellow` after successful creation.
 
@@ -89,7 +89,7 @@ context.
 
 ## Status
 
-Complete. Route `src/routes/channels/yellow/+page.svelte`: summary (total, active, with room), table with channel id, participants, balances, status, room badge, View room link, Send/Close/Challenge actions; filters status (all|initial|active|closing|dispute|final), origin (all|room|external), my channels only. Uses `yellowChannelsCollection`, `yellowChannelStatesCollection`, `roomsCollection`; wallet provider from connections for Challenge. `tagChannelWithRoom` and optional `roomId` on `openChannel` in `src/state/yellow.svelte.ts` and `src/api/yellow.ts` for room-origin tagging. Nav item in `+layout.svelte`; link from room channels page. E2E coverage scenario in `e2e/coverage-manifest.ts`. Fixed pre-existing build error in `src/state/intent-navigation.svelte.ts` (export state mutation).
+Complete. Route `src/routes/channels/yellow/+page.svelte`: summary (total, active, with room), table with channel id, participants, balances, status, room badge, View room link, Send/Close/Challenge actions; filters status (all|initial|active|closing|dispute|final), origin (all|room|external), my channels only. Uses `yellowChannelsCollection`, `yellowChannelStatesCollection`, `roomsCollection`; wallet provider from connections for Challenge. `tagChannelWithRoom` and optional `roomId` on `openChannel` in `src/state/yellow.svelte.ts` and `src/api/yellow.ts` for room-origin tagging. Nav item in `+layout.svelte` under Multiplayer (with Rooms); link from room channels page. E2E coverage scenario in `e2e/coverage-manifest.ts`. Fixed pre-existing build error in `src/state/intent-navigation.svelte.ts` (export state mutation).
 
 ## Output when complete
 

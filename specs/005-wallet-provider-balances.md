@@ -22,7 +22,7 @@ querying for connected accounts.
 
 ## Implementation
 
-### Wallet management (`src/views/Wallets.svelte`)
+### Wallet management (`src/views/AccountsSelect.svelte`)
 
 Wallet management using TanStack DB collections:
 
@@ -88,7 +88,7 @@ type ActorCoin = {
 
 ### Bridge page integration
 
-- [x] Bridge page uses `Wallets.svelte` for wallet management
+- [x] Bridge page uses `AccountsSelect.svelte` for wallet management
 - [x] `Balances.svelte` displays USDC balances per chain
 - [x] Balances fetched automatically when wallet connects
 - [x] Balances displayed in grid with chain name and amount
@@ -163,7 +163,7 @@ test("balances display after wallet connection", async ({ page }) => {
 
 ## Status
 
-Complete. `Wallets.svelte` in `src/views/` with TanStack DB collections
+Complete. `AccountsSelect.svelte` in `src/views/` with TanStack DB collections
 (`walletsCollection`, `walletConnectionsCollection`).
 `actorsCollection` and `actorCoinsCollection` for balances.
 `bridgeSettingsState` for testnet/mainnet toggle. E2E tests in

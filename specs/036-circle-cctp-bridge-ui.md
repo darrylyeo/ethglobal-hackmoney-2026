@@ -84,7 +84,7 @@ Fast Transfer allowance display and availability warning.
 
 ### Integration
 
-- [x] `CctpWallets.svelte` handles wallet discovery and connection.
+- [x] `CctpWallets.svelte` uses `AccountsSelect.svelte` for wallet discovery and connection.
 - [x] `CctpBalances.svelte` displays USDC balances.
 - [x] `CctpAttestation.svelte` polls and refreshes attestation status.
 - [x] `CctpExecution.svelte` executes burn and mint steps.
@@ -127,7 +127,7 @@ Decision: **expose in UI when supported.** The Forwarding Service toggle is show
 
 ## Status
 
-Complete. CCTP bridge UI with CctpWallets, CctpBalances, CctpFees, CctpAllowance, CctpAttestation, CctpExecution; confirmation dialog; transfer preview; E2E tests (confirmation dialog test skipped until mock sets selectedActor). Wireframes/flow documented; supported chains and domain IDs confirmed against Circle docs; Forwarding Service exposed in UI when destination is in CCTP_FORWARDING_CHAIN_IDS.
+Complete. CCTP bridge UI with CctpWallets (AccountsSelect), CctpBalances, CctpFees, CctpAllowance, CctpAttestation, CctpExecution; confirmation dialog; transfer preview; E2E tests (confirmation dialog test skipped until mock sets selectedActor). Wireframes/flow documented; supported chains and domain IDs confirmed against Circle docs; Forwarding Service exposed in UI when destination is in CCTP_FORWARDING_CHAIN_IDS.
 
 ## Output when complete
 

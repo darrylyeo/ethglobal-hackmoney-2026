@@ -88,7 +88,7 @@ Requires specs 003-013 to be complete.
 
 All core specs are complete. The bridge flow is implemented in
 `BridgeFlow.svelte` with supporting components `TokenApproval.svelte`,
-`BridgeExecution.svelte`, `Balances.svelte`, and `Wallets.svelte`.
+`BridgeExecution.svelte`, `Balances.svelte`, and `AccountsSelect.svelte`.
 
 ### Core (complete):
 - [x] 003 - LI.FI quotes

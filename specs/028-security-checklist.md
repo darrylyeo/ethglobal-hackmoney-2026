@@ -184,7 +184,7 @@ rg 'http://' src/  # Should only be https://
 
 Complete. NavigationItem: escapeHtml for all @html (icon, title, highlightText);
 external links rel="noopener noreferrer" (SwapExecution, TokenApproval,
-BridgeFlow, BridgeExecution). Wallets.svelte: disconnect clears connection
+BridgeFlow, BridgeExecution). AccountsSelect.svelte: disconnect clears connection
 state. BridgeFlow: $effect clears actorCoins query when wallet address is null;
 isValidAddress for recipient; validateBridgeAmount for amounts; confirmation
 dialog before send. TokenApproval: warning when unlimited approval.
