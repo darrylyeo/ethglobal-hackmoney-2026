@@ -72,7 +72,7 @@ type ActorCoin = {
 
 ### Wallet components
 
-- [x] `Wallets.svelte` exists in `src/views/`
+- [x] `AccountsSelect.svelte` (wallet management) exists in `src/views/`
 - [x] Uses TanStack DB collections for wallet and connection state
 - [x] Multi-wallet support with selection
 - [x] Testnet/mainnet toggle via `bridgeSettingsState`
