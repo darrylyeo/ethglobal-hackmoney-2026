@@ -4,6 +4,7 @@ import {
 	formatAddress,
 	isValidAddress,
 	normalizeAddress,
+	parseAccountAddressParam,
 } from './address'
 
 describe('isValidAddress', () => {
@@ -58,5 +59,28 @@ describe('formatAddress', () => {
 	it('respects chars argument', () => {
 		const addr = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 		expect(formatAddress(addr, 4)).toBe('0xd8dA…6045')
+	})
+})
+
+describe('parseAccountAddressParam', () => {
+	it('parses raw 0x address', () => {
+		const out = parseAccountAddressParam('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')
+		expect(out).not.toBeNull()
+		expect(out?.address).toBe('0xd8da6bf26964af9d7eed9e03e53415d37aa96045')
+		expect(out?.interopAddress).toBeUndefined()
+		expect(out?.chainId).toBeUndefined()
+	})
+	it('parses interop name (address@eip155:chain#checksum)', () => {
+		const param =
+			'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:1#ABCD1234'
+		const out = parseAccountAddressParam(param)
+		expect(out).not.toBeNull()
+		expect(out?.address).toBe('0xd8da6bf26964af9d7eed9e03e53415d37aa96045')
+		expect(out?.interopAddress).toBe(param)
+		expect(out?.chainId).toBe(1)
+	})
+	it('returns null for invalid input', () => {
+		expect(parseAccountAddressParam('not-an-address')).toBeNull()
+		expect(parseAccountAddressParam('')).toBeNull()
 	})
 })

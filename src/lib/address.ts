@@ -19,3 +19,23 @@ export const checksumAddress = (address: string): `0x${string}` | null => {
 
 export const formatAddress = (address: string, chars = 6): string =>
 	`${address.slice(0, chars + 2)}…${address.slice(-chars)}`
+
+export const parseAccountAddressParam = (
+	param: string,
+): { address: `0x${string}`; interopAddress?: string; chainId?: number } | null => {
+	const decoded = decodeURIComponent(param)
+	if (decoded.includes('@')) {
+		const [addressPart, rest] = decoded.split('@')
+		const normalized = normalizeAddress(addressPart)
+		if (!normalized) return null
+		const match = rest?.match(/^eip155:(\d+)#/)
+		const chainId = match ? parseInt(match[1], 10) : undefined
+		return {
+			address: normalized,
+			interopAddress: chainId != null ? decoded : undefined,
+			chainId,
+		}
+	}
+	const normalized = normalizeAddress(decoded)
+	return normalized ? { address: normalized } : null
+}
