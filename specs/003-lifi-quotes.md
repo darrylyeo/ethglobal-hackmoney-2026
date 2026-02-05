@@ -56,6 +56,11 @@ Complete. SDK lazy-loaded via `getLifiSdk()`. Routes fetched via `getRoutesForUs
 normalized via `normalizeRoute`, stored in `bridgeRoutesCollection`. Execution via
 `executeSelectedRoute` with `StatusCallback` for progress tracking. Fee breakdown
 via `extractFeeBreakdown` shows gas costs, protocol fees, and totals.
+Re-verification 2026-02-05 (PROMPT_build): all 8 acceptance criteria confirmed
+(lifi.ts exports, getRoutesForUsdcBridge, NormalizedRoute, USDC from coins,
+fetchBridgeRoutes in collections uses getRoutesForUsdcBridge + TanStack Query cache,
+executeSelectedRoute provider/chain/execution, extractFeeBreakdown, lifi.spec.ts);
+test:unit 41 Deno + 98 Vitest passed.
 
 ## Output when complete
 
