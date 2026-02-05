@@ -202,6 +202,11 @@ one spec, re-verify): all 18 AC confirmed (Skeleton/Spinner/LoadingButton,
 BridgeFlow routes header "(loading…)", Finding routes…, 3 skeleton cards,
 Refreshing…, Bridging…, Balances 6-item skeleton grid, per-balance skeleton,
 form disabled/double-submit); test:unit 41 Deno + 101 Vitest passed.
+Re-verification 2026-02-05 (PROMPT_build one spec, no incomplete specs): re-verified
+017; all 18 AC confirmed in Skeleton.svelte, Spinner.svelte, LoadingButton.svelte,
+BridgeFlow.svelte (routes header, Finding routes…, 3 skeleton cards, Refreshing…,
+Bridging…), CoinBalances.svelte (6-item skeleton grid, per-balance skeleton);
+test:unit 44 Deno + 101 Vitest passed; test:e2e 75 passed, 8 skipped.
 
 ## Output when complete
 
