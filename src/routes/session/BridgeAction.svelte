@@ -30,7 +30,7 @@
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Switch } from 'bits-ui'
-	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import {
 		getEffectiveHash,
 		setEffectiveHash,
@@ -65,7 +65,7 @@
 	// Components
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
-	import SessionAction from '$/views/SessionAction.svelte'
+	import BridgeAction from '$/views/SessionAction.svelte'
 	import UnifiedProtocolRouter from './UnifiedProtocolRouter.svelte'
 	import CctpBridgeFlow from '$/routes/bridge/cctp/CctpBridgeFlow.svelte'
 	import BridgeFlow from '$/routes/bridge/lifi/BridgeFlow.svelte'
@@ -130,9 +130,7 @@
 			query: sessionQuery,
 		},
 	]
-	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
-		() => liveQueryEntries,
-	)
+	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const bridgeDefaults = $derived({
@@ -462,11 +460,10 @@
 </script>
 
 
-<div style="display: contents" {@attach liveQueryAttachment}>
-	<SessionAction
+<BridgeAction
 		title="Bridge"
 		description={sessionLocked ? 'Last saved session is locked.' : undefined}
-		{onSubmit}
+		onsubmit={onSubmit}
 	>
 		{#snippet Params()}
 			<div data-row="gap-4">
@@ -714,5 +711,4 @@
 				/>
 			{/if}
 		{/snippet}
-	</SessionAction>
-</div>
+	</BridgeAction>

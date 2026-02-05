@@ -19,7 +19,7 @@
 	import CoinBalances from '$/views/CoinBalances.svelte'
 	import Session from '$/views/Session.svelte'
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
-	import UnifiedBridgeFlow from '$/routes/session/UnifiedBridgeFlow.svelte'
+	import BridgeAction from '$/routes/session/BridgeAction.svelte'
 </script>
 
 
@@ -38,7 +38,7 @@
 	{/snippet}
 
 	{#snippet Actions()}
-		<UnifiedBridgeFlow
+		<BridgeAction
 			selectedWallets={connectedWallets}
 			{selectedActor}
 			{globalIsTestnet}
