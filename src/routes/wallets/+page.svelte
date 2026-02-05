@@ -1,9 +1,7 @@
 <script lang="ts">
-	// Components
-	import WalletsManager from './WalletsManager.svelte'
-</script>
+	import { redirect } from '@sveltejs/kit'
 
-<div data-column="gap-2">
-	<h1>Wallets</h1>
-	<WalletsManager />
-</div>
+	export function load() {
+		redirect(302, '/accounts')
+	}
+</script>

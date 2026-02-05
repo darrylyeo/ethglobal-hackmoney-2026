@@ -1,11 +1,14 @@
 <script lang="ts">
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
+	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { roomsCollection } from '$/collections/rooms'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { walletConnectionsCollection } from '$/collections/wallet-connections'
+	import { walletsCollection } from '$/collections/wallets'
 	import {
 		liveQueryAttachmentFrom,
 		useLiveQueryContext,
@@ -13,8 +16,10 @@
 	} from '$/svelte/live-query-context.svelte'
 
 	// Functions
+	import { formatAddress } from '$/lib/address'
 	import { roomIdToDisplayName } from '$/lib/room'
 	import { buildSessionHash } from '$/lib/transaction-sessions'
+	import { interopFormatConfig, toInteropName } from '$/constants/interop'
 
 	const actionLabel = (action: string) =>
 		action.length > 0
@@ -50,32 +55,111 @@
 				.select(({ row }) => ({ row })),
 		[],
 	)
+	const walletsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: walletsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.Local))
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const walletConnectionsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: walletConnectionsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.Local))
+				.select(({ row }) => ({ row })),
+		[],
+	)
 	const layoutLiveQueryEntries = [
 		{ id: 'layout-rooms', label: 'Rooms', query: roomsQuery },
 		{ id: 'layout-sessions', label: 'Sessions', query: sessionsQuery },
+		{ id: 'layout-wallets', label: 'Wallets', query: walletsQuery },
+		{
+			id: 'layout-wallet-connections',
+			label: 'Wallet Connections',
+			query: walletConnectionsQuery,
+		},
 	]
 	const liveQueryAttachment = liveQueryAttachmentFrom(
 		() => layoutLiveQueryEntries,
 	)
+	const walletsByRdns = $derived(
+		new Map(
+			(walletsQuery.data ?? []).map((result) => [
+				result.row.$id.rdns,
+				result.row,
+			]),
+		),
+	)
+	const connectedWalletConnections = $derived(
+		(walletConnectionsQuery.data ?? [])
+			.map((result) => result.row)
+			.filter((row) => row.status === 'connected')
+			.sort(
+				(a, b) =>
+					(a.transport === WalletConnectionTransport.None ? 1 : 0) -
+					(b.transport === WalletConnectionTransport.None ? 1 : 0),
+			),
+	)
+	const accountNavItems = $derived(
+		connectedWalletConnections.flatMap((connection) => {
+			const rdns = connection.$id.wallet$id.rdns
+			const wallet =
+				connection.transport === WalletConnectionTransport.None
+					? { name: 'Watching', rdns, icon: undefined as string | undefined }
+					: walletsByRdns.get(rdns) ?? { name: rdns, rdns, icon: undefined as string | undefined }
+
+			return connection.actors.map((actor) => ({
+				id: `account-${wallet.rdns}-${actor}`,
+				title: formatAddress(actor),
+				href: `/account/${encodeURIComponent(
+					connection.chainId != null
+						? toInteropName(
+								connection.chainId,
+								actor,
+								interopFormatConfig,
+							)
+						: actor,
+				)}`,
+				tag: wallet.name ?? 'Watching',
+				icon: wallet.icon ?? undefined,
+			}))
+		}),
+	)
 	const navigationItems = $derived([
-		{
-			id: 'about',
-			title: 'About',
-			href: '/about',
-		},
 		{
 			id: 'dashboard',
 			title: 'Dashboard',
 			href: '/dashboard',
 		},
 		{
-			id: 'wallets',
-			title: 'Wallets',
-			href: '/wallets',
+			id: 'accounts',
+			title: 'Accounts',
+			href: '/accounts',
+			defaultOpen: true,
+			tag: String(accountNavItems.length),
+			children: accountNavItems,
+		},
+		{
+			id: 'actions',
+			title: 'Actions',
+			defaultOpen: true,
+			children: [
+				{ id: 'transfer', title: 'Transfer', href: '/session#transfer' },
+				{ id: 'swap', title: 'Swap', href: '/session#swap' },
+				{ id: 'bridge', title: 'Bridge', href: '/session#bridge' },
+				{
+					id: 'liquidity',
+					title: 'Manage Liquidity',
+					href: '/session#liquidity',
+				},
+			],
 		},
 		{
 			id: 'sessions',
 			title: 'Sessions',
+			defaultOpen: false,
 			href: '/sessions',
 			children: (sessionsQuery.data ?? [])
 				.map((result) => result.row)
@@ -88,51 +172,43 @@
 				})),
 		},
 		{
-			id: 'bridge',
-			title: 'Bridge',
-			href: '/session#bridge',
+			id: 'coins',
+			title: 'Coins',
+			defaultOpen: true,
+			children: [
+				{ id: 'usdc', title: 'USDC', href: '/explore/usdc' },
+			],
 		},
 		{
-			id: 'swap',
-			title: 'Swap',
-			href: '/session#swap',
-		},
-		{
-			id: 'transfer',
-			title: 'Transfer',
-			href: '/session#transfer',
-		},
-		{
-			id: 'liquidity',
-			title: 'Liquidity',
-			href: '/session#liquidity',
-		},
-		{
-			id: 'transfers',
-			title: 'Transfers',
-			href: '/transfers',
-		},
-		{
-			id: 'channels-yellow',
-			title: 'Yellow Channels',
-			href: '/channels/yellow',
-		},
-		{
-			id: 'rooms',
-			title: 'Rooms',
-			href: '/rooms',
-			children: (roomsQuery.data ?? [])
-				.map((result) => result.row)
-				.sort((a, b) => a.createdAt - b.createdAt)
-				.map((room) => ({
-					id: `room-${room.id}`,
-					title: room.name ?? roomIdToDisplayName(room.id),
-					href: `/rooms/${room.id}`,
-				})),
+			id: 'multiplayer',
+			title: 'Multiplayer',
+			defaultOpen: true,
+			children: [
+				{
+					id: 'rooms',
+					title: 'Rooms',
+					href: '/rooms',
+					tag: String((roomsQuery.data ?? []).length),
+					children: (roomsQuery.data ?? [])
+						.map((result) => result.row)
+						.sort((a, b) => a.createdAt - b.createdAt)
+						.map((room) => ({
+							id: `room-${room.id}`,
+							title: room.name ?? roomIdToDisplayName(room.id),
+							href: `/rooms/${room.id}`,
+						})),
+				},
+				{
+					id: 'channels-yellow',
+					title: 'Yellow Channels',
+					href: '/channels/yellow',
+				},
+			],
 		},
 		{
 			id: 'tests',
 			title: 'Tests',
+			defaultOpen: true,
 			children: [
 				{
 					id: 'test-collections',

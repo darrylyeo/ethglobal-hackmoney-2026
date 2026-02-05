@@ -1,0 +1,285 @@
+<script lang="ts">
+	// Types/constants
+	import { DataSource } from '$/constants/data-sources'
+	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { ercTokens } from '$/constants/coins'
+	import { networksByChainId } from '$/constants/networks'
+	import { transactionsCollection } from '$/collections/transactions'
+	import { walletConnectionsCollection } from '$/collections/wallet-connections'
+	import { walletsCollection } from '$/collections/wallets'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+
+	// Props
+	let { data }: { data: { addressParam: string } } = $props()
+
+	// Functions
+	import { formatAddress, parseAccountAddressParam } from '$/lib/address'
+	import { formatSmallestToDecimal } from '$/lib/format'
+	import { getAddressUrl } from '$/constants/explorers'
+
+	// (Derived)
+	const parsed = $derived(parseAccountAddressParam(data.addressParam))
+	const normalizedAddress = $derived(parsed?.address ?? null)
+
+	// State
+	const balanceTokens = $derived(
+		ercTokens.map((t) => ({ chainId: t.chainId, tokenAddress: t.address })),
+	)
+	const transactionsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionsCollection })
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const connectionsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: walletConnectionsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.Local))
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const walletsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: walletsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.Local))
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const liveQueryEntries = [
+		{ id: 'account-transactions', label: 'Transactions', query: transactionsQuery },
+		{
+			id: 'account-connections',
+			label: 'Wallet Connections',
+			query: connectionsQuery,
+		},
+		{ id: 'account-wallets', label: 'Wallets', query: walletsQuery },
+	]
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
+	const transactions = $derived(
+		normalizedAddress
+			? (transactionsQuery.data ?? [])
+					.map((r) => r.row)
+					.filter(
+						(row) =>
+							row.$id.address.toLowerCase() ===
+							normalizedAddress.toLowerCase(),
+					)
+					.sort((a, b) => b.$id.createdAt - a.$id.createdAt)
+			: [],
+	)
+	const walletsByRdns = $derived(
+		new Map((walletsQuery.data ?? []).map((r) => [r.row.$id.rdns, r.row])),
+	)
+	const connectionsForAccount = $derived(
+		normalizedAddress
+			? (connectionsQuery.data ?? [])
+					.map((r) => r.row)
+					.filter((c) =>
+						c.actors.some(
+							(a) => a.toLowerCase() === normalizedAddress.toLowerCase(),
+						),
+					)
+			: [],
+	)
+
+	// Components
+	import Balances from '$/views/Balances.svelte'
+</script>
+
+<svelte:head>
+	<title>
+		{parsed ? `Account ${formatAddress(parsed.address)}` : 'Account'}
+	</title>
+</svelte:head>
+
+<div data-column="gap-2" {@attach liveQueryAttachment}>
+	{#if !parsed}
+		<h1>Invalid address</h1>
+		<p>The address in the URL could not be parsed.</p>
+	{:else}
+		<header class="account-header">
+			<h1>Account</h1>
+			<div class="account-address" data-account-header>
+				{#if parsed.interopAddress}
+					<code class="interop">{parsed.interopAddress}</code>
+				{/if}
+				<code class="raw" title={parsed.address}>{parsed.address}</code>
+				<button
+					type="button"
+					class="copy-btn"
+					title="Copy address"
+					onclick={() => {
+						navigator.clipboard.writeText(parsed.address)
+					}}
+				>
+					Copy
+				</button>
+				{#if parsed.chainId}
+					{@const explorerUrl = getAddressUrl(
+						parsed.chainId,
+						parsed.address,
+					)}
+					{#if explorerUrl}
+						<a
+							href={explorerUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="explorer-link"
+						>
+							View on explorer
+						</a>
+					{/if}
+				{/if}
+			</div>
+		</header>
+
+		<section class="account-section">
+			<h2>Balances</h2>
+			<Balances selectedActor={normalizedAddress} {balanceTokens} />
+		</section>
+
+		<section class="account-section">
+			<h2>Transactions</h2>
+			{#if transactions.length === 0}
+				<p data-muted>No indexed transactions for this account.</p>
+			{:else}
+				<ul class="tx-list">
+					{#each transactions as tx (tx.$id.sourceTxHash + tx.$id.createdAt)}
+						{@const fromNet = networksByChainId[tx.fromChainId]}
+						{@const toNet = networksByChainId[tx.toChainId]}
+						<li class="tx-item" data-tag={tx.status}>
+							<span class="tx-chains">
+								{fromNet?.name ?? tx.fromChainId} → {toNet?.name ?? tx.toChainId}
+							</span>
+							<span class="tx-amount">
+								{formatSmallestToDecimal(tx.fromAmount, 6, 2)} →
+								{formatSmallestToDecimal(tx.toAmount, 6, 2)}
+							</span>
+							<span class="tx-status">{tx.status}</span>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</section>
+
+		<section class="account-section">
+			<h2>Wallet connections</h2>
+			{#if connectionsForAccount.length === 0}
+				<p data-muted>No connected wallets include this account.</p>
+			{:else}
+				<ul class="connections-list">
+					{#each connectionsForAccount as conn (conn.$id.wallet$id.rdns)}
+						{@const wallet =
+							conn.transport === WalletConnectionTransport.None
+								? null
+								: walletsByRdns.get(conn.$id.wallet$id.rdns)}
+						<li class="connection-item" data-tag={conn.status}>
+							<span class="connection-name">
+								{conn.transport === WalletConnectionTransport.None
+									? 'Watching'
+									: wallet?.name ?? conn.$id.wallet$id.rdns}
+							</span>
+							<span class="connection-status">{conn.status}</span>
+							{#if conn.selected}
+								<span class="connection-badge">Selected</span>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</section>
+	{/if}
+</div>
+
+<style>
+	.account-header {
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.account-address {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.9em;
+	}
+
+	.account-address code {
+		font-family: ui-monospace, monospace;
+		word-break: break-all;
+	}
+
+	.account-address code.raw {
+		opacity: 0.85;
+	}
+
+	.copy-btn,
+	.explorer-link {
+		font-size: 0.85em;
+		padding: 0.2rem 0.5rem;
+		border-radius: 0.25rem;
+		border: 1px solid var(--color-border);
+		background: var(--color-bg-subtle);
+		color: inherit;
+		text-decoration: none;
+		cursor: pointer;
+	}
+
+	.copy-btn:hover,
+	.explorer-link:hover {
+		background: var(--color-border);
+	}
+
+	.account-section {
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.account-section h2 {
+		font-size: 1rem;
+		margin: 0;
+	}
+
+	.tx-list,
+	.connections-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.tx-item,
+	.connection-item {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		gap: 0.75rem;
+		align-items: center;
+		padding: 0.5rem;
+		background: var(--surface-1);
+		border-radius: 0.5rem;
+	}
+
+	.tx-chains,
+	.connection-name {
+		font-weight: 500;
+	}
+
+	.tx-status,
+	.connection-status {
+		font-size: 0.85em;
+		opacity: 0.8;
+	}
+
+	.connection-badge {
+		font-size: 0.75em;
+		opacity: 0.9;
+	}
+</style>

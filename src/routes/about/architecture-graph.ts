@@ -86,7 +86,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		priority: 'primary',
 		details: {
 			purpose:
-				'Routes: /session, /transfers, /rooms, /wallets, /dashboard, /sessions',
+				'Routes: /session, /explore/usdc, /rooms, /accounts, /dashboard, /sessions',
 			tech: 'SvelteKit pages + layouts',
 		},
 	},

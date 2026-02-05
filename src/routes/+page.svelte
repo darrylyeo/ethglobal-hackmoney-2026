@@ -5,13 +5,13 @@
 	const routes = [
 		{ href: '/about', title: 'About' },
 		{ href: '/dashboard', title: 'Dashboard' },
-		{ href: '/wallets', title: 'Wallets' },
+		{ href: '/accounts', title: 'Accounts' },
 		{ href: '/sessions', title: 'Sessions' },
 		{ href: '/session#bridge', title: 'Bridge' },
 		{ href: '/session#swap', title: 'Swap' },
 		{ href: '/session#transfer', title: 'Transfer' },
 		{ href: '/session#liquidity', title: 'Liquidity' },
-		{ href: '/transfers', title: 'Transfers' },
+		{ href: '/explore/usdc', title: 'USDC' },
 		{ href: '/rooms', title: 'Rooms' },
 		{ href: '/test/collections', title: 'Tests' },
 	]

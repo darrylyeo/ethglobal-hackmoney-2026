@@ -6,6 +6,7 @@
 		icon?: string
 		href?: string
 		tag?: string
+		defaultOpen?: boolean
 		children?: NavigationItem[]
 	}
 </script>
@@ -90,6 +91,10 @@
 			: escapeHtml(text)
 	}
 
+	const navIconProps = (icon: string) => (
+		icon.startsWith('data:') ? { src: icon } : { icon }
+	)
+
 	// Components
 	import Icon from '$/components/Icon.svelte'
 </script>
@@ -165,7 +170,8 @@
 				() =>
 					effectiveSearchValue
 						? matchesSearch(item, effectiveSearchValue)
-						: hasCurrentPage(item) || (isOpen.get(item) ?? false),
+						: hasCurrentPage(item) ||
+							(isOpen.get(item) ?? item.defaultOpen ?? false),
 				(_) => {
 					if (!effectiveSearchValue && _ !== undefined) isOpen.set(item, _)
 				}
@@ -197,7 +203,7 @@
 			}}
 		>
 			{#if item.icon}
-				<Icon class="icon" icon={item.icon} />
+				<Icon class="icon" {...navIconProps(item.icon)} />
 			{/if}
 
 			<span
@@ -211,7 +217,7 @@
 		</a>
 	{:else}
 		{#if item.icon}
-			<Icon class="icon" icon={item.icon} />
+			<Icon class="icon" {...navIconProps(item.icon)} />
 		{/if}
 
 		<span

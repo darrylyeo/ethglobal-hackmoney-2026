@@ -79,7 +79,7 @@
 		<ul data-list="gap-1">
 			<li><a href={resolve('/bridge')}>Bridge</a></li>
 			<li><a href={resolve('/swap')}>Swap</a></li>
-			<li><a href={resolve('/transfers')}>Transfers</a></li>
+			<li><a href={resolve('/explore/usdc')}>USDC</a></li>
 			<li><a href={resolve('/rooms')}>Rooms</a></li>
 		</ul>
 	</section>

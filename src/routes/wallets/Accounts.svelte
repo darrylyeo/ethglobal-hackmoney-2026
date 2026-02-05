@@ -60,9 +60,9 @@
 			.select(({ row }) => ({ row })),
 	)
 	const liveQueryEntries = [
-		{ id: 'wallets-manager-wallets', label: 'Wallets', query: walletsQuery },
+		{ id: 'accounts-watching', label: 'Watching', query: walletsQuery },
 		{
-			id: 'wallets-manager-connections',
+			id: 'accounts-connections',
 			label: 'Wallet Connections',
 			query: connectionsQuery,
 		},
@@ -91,7 +91,7 @@
 			? {
 					wallet: {
 						$id: c.$id.wallet$id,
-						name: 'Read-only',
+						name: 'Watching',
 						icon: '',
 						rdns: c.$id.wallet$id.rdns,
 						$source: c.$source,
@@ -193,6 +193,86 @@
 </script>
 
 <div data-row="wrap align-start" {@attach liveQueryAttachment}>
+		<details data-row-item="flexible" data-card="secondary radius-4" open>
+			<summary data-row="gap-2 align-center wrap">
+				<div data-row>
+					<div data-row="gap-2 align-center">
+						<h4>Watching addresses</h4>
+
+						<span
+							data-badge="small"
+							aria-label={`${readOnlyChips.length} watching connections`}
+						>
+							{readOnlyChips.length}
+						</span>
+					</div>
+
+					<Dropdown
+						items={[]}
+						triggerLabel="+"
+						triggerAriaLabel="Add watching address"
+						triggerProps={{
+							'data-account-watching-trigger': true,
+							onclick: (e: MouseEvent) => e.stopPropagation(),
+						}}
+						contentProps={{
+							'data-account-watching-popover': true,
+						}}
+					>
+						{#snippet children()}
+							<form
+								class="add-form"
+								data-column="gap-2"
+								onsubmit={(e) => (e.preventDefault(), connectReadOnlyAddress())}
+							>
+								<label for="accounts-add-watching">Watching address</label>
+								<div data-row="gap-2 align-center">
+									<span data-row-item="flexible">
+										<input
+											id="accounts-add-watching"
+											name="watching-address"
+											type="text"
+											placeholder="0x..."
+											value={readOnlyAddress}
+											oninput={onReadOnlyInput}
+										/>
+									</span>
+									<Button.Root type="submit">Add</Button.Root>
+								</div>
+							</form>
+						{/snippet}
+					</Dropdown>
+				</div>
+			</summary>
+
+			<ul class="list" data-column="gap-2">
+				{#each readOnlyChips as { wallet, connection } (wallet.$id.rdns)}
+					<li>
+						<div
+							data-card="secondary padding-2 radius-3"
+							data-row="gap-2 align-center wrap"
+						>
+							{#if connection.activeActor}
+								<Address
+									network={1}
+									address={connection.activeActor}
+									linked={false}
+								/>
+							{/if}
+							<span class="disconnect">
+								<Button.Root
+									type="button"
+									onclick={() => disconnectWallet(wallet.$id)}
+								>
+									Remove
+								</Button.Root>
+							</span>
+						</div>
+					</li>
+				{/each}
+			</ul>
+		</details>
+
 		<details data-row-item="flexible" data-card="secondary radius-4" open>
 			<summary>
 				<div data-row>
@@ -341,86 +421,6 @@
 								{/if}
 							</div>
 						</details>
-					</li>
-				{/each}
-			</ul>
-		</details>
-
-		<details data-row-item="flexible" data-card="secondary radius-4" open>
-			<summary data-row="gap-2 align-center wrap">
-				<div data-row>
-					<div data-row="gap-2 align-center">
-						<h4>Read-only addresses</h4>
-
-						<span
-							data-badge="small"
-							aria-label={`${readOnlyChips.length} read-only connections`}
-						>
-							{readOnlyChips.length}
-						</span>
-					</div>
-
-					<Dropdown
-						items={[]}
-						triggerLabel="+"
-						triggerAriaLabel="Add read-only address"
-						triggerProps={{
-							'data-wallet-readonly-trigger': true,
-							onclick: (e: MouseEvent) => e.stopPropagation(),
-						}}
-						contentProps={{
-							'data-wallet-readonly-popover': true,
-						}}
-					>
-						{#snippet children()}
-							<form
-								class="add-form"
-								data-column="gap-2"
-								onsubmit={(e) => (e.preventDefault(), connectReadOnlyAddress())}
-							>
-								<label for="wallet-manager-readonly">Read-only address</label>
-								<div data-row="gap-2 align-center">
-									<span data-row-item="flexible">
-										<input
-											id="wallet-manager-readonly"
-											name="read-only-wallet"
-											type="text"
-											placeholder="0x..."
-											value={readOnlyAddress}
-											oninput={onReadOnlyInput}
-										/>
-									</span>
-									<Button.Root type="submit">Add</Button.Root>
-								</div>
-							</form>
-						{/snippet}
-					</Dropdown>
-				</div>
-			</summary>
-
-			<ul class="list" data-column="gap-2">
-				{#each readOnlyChips as { wallet, connection } (wallet.$id.rdns)}
-					<li>
-						<div
-							data-card="secondary padding-2 radius-3"
-							data-row="gap-2 align-center wrap"
-						>
-							{#if connection.activeActor}
-								<Address
-									network={1}
-									address={connection.activeActor}
-									linked={false}
-								/>
-							{/if}
-							<span class="disconnect">
-								<Button.Root
-									type="button"
-									onclick={() => disconnectWallet(wallet.$id)}
-								>
-									Remove
-								</Button.Root>
-							</span>
-						</div>
 					</li>
 				{/each}
 			</ul>

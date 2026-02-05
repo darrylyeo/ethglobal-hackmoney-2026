@@ -3,6 +3,7 @@
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
 	import type { ArchitectureEdge, ArchitectureNode } from './architecture-graph'
 	import { ComboEvent, EdgeEvent, Graph, NodeEvent } from '@antv/g6'
+	import { ForceLayout } from '@antv/layout'
 	import { architectureGraph } from './architecture-graph'
 
 	// Props
@@ -343,15 +344,15 @@
 						comboPadding: 28,
 						spacing: 24,
 						nodeSize: getLayoutSize,
-						outerLayout: {
-							type: 'force',
+						outerLayout: new ForceLayout({
 							preventOverlap: true,
 							nodeSpacing: 18,
+							nodeSize: getLayoutSize,
 							nodeStrength: -220,
 							edgeStrength: 0.15,
 							gravity: 0.1,
 							damping: 0.9,
-						},
+						}),
 					},
 					node: {
 						state: {

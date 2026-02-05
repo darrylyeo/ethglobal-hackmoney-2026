@@ -15,6 +15,7 @@
 	} = $props()
 
 	// Components
+	import Icon from '$/components/Icon.svelte'
 	import NavigationItems, { type NavigationItem } from './NavigationItem.svelte'
 </script>
 
@@ -32,6 +33,10 @@
 				<span class="title">USDC</span>
 				<span class="nav-tag">Tools</span>
 			</span>
+		</a>
+
+		<a href="/about" class="about-link" aria-label="About" title="About">
+			<Icon class="icon" icon="ℹ" label="About" />
 		</a>
 
 		<menu data-row="gap-2">
@@ -83,6 +88,23 @@
 			a {
 				display: flex;
 				text-decoration: none;
+			}
+
+			.about-link {
+				align-items: center;
+				justify-content: center;
+				padding: 0.35rem;
+				border-radius: 0.375rem;
+				color: inherit;
+
+				&:hover {
+					background-color: var(--background-primary);
+					color: var(--accent);
+				}
+
+				& .icon {
+					font-size: 1.15em;
+				}
 			}
 
 			.logo {
