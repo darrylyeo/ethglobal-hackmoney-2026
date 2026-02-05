@@ -64,11 +64,11 @@ test.describe('Session (bridge)', () => {
 	})
 })
 
-test.describe('Transfers (/transfers)', () => {
+test.describe('USDC (/explore/usdc)', () => {
 	test('transfers page renders with period selector and content area', async ({
 		page,
 	}) => {
-		await page.goto('/transfers')
+		await page.goto('/explore/usdc')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
@@ -78,7 +78,7 @@ test.describe('Transfers (/transfers)', () => {
 	})
 
 	test('empty or loading state shows without crashing', async ({ page }) => {
-		await page.goto('/transfers')
+		await page.goto('/explore/usdc')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})

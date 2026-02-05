@@ -26,7 +26,7 @@ async function assertTextReadable(page: import('@playwright/test').Page) {
 const CORE_ROUTES = [
 	{ path: '/', name: 'home' },
 	{ path: '/session#bridge', name: 'bridge' },
-	{ path: '/transfers', name: 'transfers' },
+	{ path: '/explore/usdc', name: 'usdc' },
 	{ path: '/rooms', name: 'rooms' },
 ] as const
 

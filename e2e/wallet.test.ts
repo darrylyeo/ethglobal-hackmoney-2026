@@ -15,11 +15,15 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			name: tevm.providerName,
 		})
 		await page.goto('/session#bridge')
+		await expect(page.locator('#main').first()).toBeAttached({
+			timeout: 30_000,
+		})
+		await expect(
+			page.getByRole('heading', { name: 'USDC Bridge', level: 1 }),
+		).toBeVisible({ timeout: 60_000 })
 		await expect(page.locator('[data-wallet-network-label]')).toHaveText(
 			'Mainnet',
-			{
-				timeout: 15_000,
-			},
+			{ timeout: 15_000 },
 		)
 		await page.locator('[data-wallet-network-testnet]').click()
 		await expect(page.locator('[data-wallet-network-label]')).toHaveText(
@@ -46,6 +50,9 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			name: tevm.providerName,
 		})
 		await page.goto('/session#bridge')
+		await expect(
+			page.getByRole('heading', { name: 'USDC Bridge', level: 1 }),
+		).toBeVisible({ timeout: 60_000 })
 		await ensureWalletConnected(page)
 		await page.locator('[data-wallet-menu-trigger]').click()
 		await expect(page.locator('[data-wallet-disconnect]')).toBeVisible({
@@ -66,10 +73,9 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})
-			await expect(page.locator('#main').first()).toContainText(
-				/USDC Bridge|Connect a wallet/,
-				{ timeout: 45_000 },
-			)
+			await expect(
+				page.getByRole('heading', { name: 'USDC Bridge', level: 1 }),
+			).toBeVisible({ timeout: 60_000 })
 		})
 
 		test('auto-connected address displays in header', async ({ page }) => {

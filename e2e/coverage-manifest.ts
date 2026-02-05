@@ -33,8 +33,9 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/test/collections': ['default'],
 	'/test/intents': ['default'],
 	'/test/networks-coins': ['default'],
-	'/transfers': ['nav', 'loading-or-empty'],
-	'/wallets': ['default'],
+	'/explore/usdc': ['nav', 'loading-or-empty'],
+	'/accounts': ['default'],
+	'/account/[address]': ['valid-address', 'invalid-address'],
 }
 
 const seedSessions = async (page: Page, rows: TransactionSessionRow[]) => {
@@ -110,11 +111,11 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/wallets',
+		route: '/accounts',
 		branch: 'default',
-		path: '/wallets',
+		path: '/accounts',
 		assert: async (page) => {
-			await expect(page.getByRole('heading', { name: 'Wallets' })).toBeVisible()
+			await expect(page.getByRole('heading', { name: 'Accounts' })).toBeVisible()
 			await expect(page.locator('[data-wallet-connect-trigger]')).toBeAttached()
 		},
 	},
@@ -285,9 +286,9 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/transfers',
+		route: '/explore/usdc',
 		branch: 'nav',
-		path: '/transfers',
+		path: '/explore/usdc',
 		assert: async (page) => {
 			await expect(page.locator('#main')).toBeVisible()
 			await expect(
@@ -296,9 +297,9 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/transfers',
+		route: '/explore/usdc',
 		branch: 'loading-or-empty',
-		path: '/transfers',
+		path: '/explore/usdc',
 		assert: async (page) => {
 			await Promise.race([
 				page
@@ -368,6 +369,32 @@ export const coverageScenarios: CoverageScenario[] = [
 			await input.fill('https://example.com')
 			const button = page.getByRole('button', { name: 'Get chain ID' })
 			await expect(button).toBeEnabled()
+		},
+	},
+	{
+		route: '/account/[address]',
+		branch: 'valid-address',
+		path: '/account/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+		assert: async (page) => {
+			await expect(page.getByRole('heading', { name: 'Account' })).toBeVisible()
+			await expect(page.getByRole('heading', { name: 'Balances' })).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: 'Transactions' }),
+			).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: 'Wallet connections' }),
+			).toBeVisible()
+			await expect(page.locator('[data-account-header]')).toBeVisible()
+		},
+	},
+	{
+		route: '/account/[address]',
+		branch: 'invalid-address',
+		path: '/account/not-an-address',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Invalid address' }),
+			).toBeVisible()
 		},
 	},
 ]

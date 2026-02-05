@@ -5,7 +5,12 @@ export default defineConfig({
 	testDir: 'e2e',
 	testMatch: '**/*.test.ts',
 	workers: 1,
-	use: { baseURL: 'http://localhost:4173' },
+	use: {
+		baseURL: 'http://localhost:4173',
+		trace: 'on-first-retry',
+		screenshot: 'only-on-failure',
+		video: 'on-first-retry',
+	},
 	webServer: {
 		command: 'deno task build && deno task preview',
 		env: {
