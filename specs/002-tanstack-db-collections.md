@@ -68,7 +68,7 @@ Collections to normalize chain, token, wallet, and bridge data.
 
 ## Status
 
-Complete. Re-verification 2026-02-05 (PROMPT_build execute one spec, re-verify): re-verified 002; all 11 AC confirmed (queryClient in src/lib/db/query-client.ts; networksCollection, coinsCollection, walletsCollection, walletConnectionsCollection, actorsCollection, actorCoinsCollection, actorAllowancesCollection, bridgeRoutesCollection, transactionsCollection in src/collections/*; networks.spec.ts, coins.spec.ts, actors.spec.ts, actor-coins.spec.ts present); test:unit 44 Deno + 101 Vitest passed. Previous: Re-verification 2026-02-05 (PROMPT_build execute one spec): re-verified 002;
+Complete. Re-verification 2026-02-05 (PROMPT_build one spec, no incomplete): re-verified 002; all 11 AC; test:unit 44 Deno + 101 Vitest passed; test:e2e 75 passed, 8 skipped. Previous: Re-verification 2026-02-05 (PROMPT_build execute one spec, re-verify): re-verified 002; all 11 AC confirmed (queryClient in src/lib/db/query-client.ts; networksCollection, coinsCollection, walletsCollection, walletConnectionsCollection, actorsCollection, actorCoinsCollection, actorAllowancesCollection, bridgeRoutesCollection, transactionsCollection in src/collections/*; networks.spec.ts, coins.spec.ts, actors.spec.ts, actor-coins.spec.ts present); test:unit 44 Deno + 101 Vitest passed. Previous: Re-verification 2026-02-05 (PROMPT_build execute one spec): re-verified 002;
 all 11 AC confirmed (queryClient, networksCollection, coinsCollection,
 walletsCollection, walletConnectionsCollection, actorsCollection,
 actorCoinsCollection, actorAllowancesCollection, bridgeRoutesCollection,
