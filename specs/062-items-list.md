@@ -47,7 +47,7 @@ preservation across layout shifts.
 
 ## Status
 
-Complete. ItemsList.svelte in src/components/ with generics _Item and Key; getKey, getSortValue, getGroupKey, getGroupLabel, placeholderKeys (Set with range expansion), visiblePlaceholderKeys (bindable), scrollPosition, Item snippet. Sorted and optionally grouped via Map.groupBy; placeholders filtered by expanded keys. scrollPosition mapped to overflow-anchor (Start=first child, End=last child, Auto=default). Re-verification 2026-02-05 (PROMPT_build execute one spec): all 7 AC verified; test:unit 44 Deno + 101 Vitest passed.
+Complete. ItemsList.svelte in src/components/ with generics _Item and Key; getKey, getSortValue, getGroupKey, getGroupLabel, placeholderKeys (Set with range expansion), visiblePlaceholderKeys (bindable), scrollPosition, Item snippet. Sorted and optionally grouped via Map.groupBy; placeholders filtered by expanded keys. scrollPosition mapped to overflow-anchor (Start=first child, End=last child, Auto=default). Re-verification 2026-02-05 (PROMPT_build execute one spec): all 7 AC verified; test:unit 44 Deno + 101 Vitest passed. Re-verification 2026-02-05 (PROMPT_build execute one spec, no incomplete specs): re-verified 062; all 7 AC confirmed in ItemsList.svelte and usages (Network, Block, Transaction, coin/[symbol]); test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 
