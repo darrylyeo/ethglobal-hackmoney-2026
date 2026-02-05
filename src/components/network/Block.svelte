@@ -21,7 +21,9 @@
 	} = $props()
 
 	const block = $derived([...data.keys()][0])
-	const transactionsSet = $derived([...data.values()][0] ?? new Set<ChainTransactionEntry>())
+	const transactionsSet = $derived(
+		[...data.values()][0] ?? new Set<ChainTransactionEntry>(),
+	)
 	const count = $derived(
 		block?.transactionCount ?? getAverageTransactionsPerBlock(chainId),
 	)
@@ -32,6 +34,7 @@
 		placeholderTransactionIds ?? defaultPlaceholderIds,
 	)
 </script>
+
 
 <details data-card="secondary radius-2 padding-4">
 	<summary data-row="gap-2 align-center">
@@ -69,7 +72,7 @@
 				items={transactionsSet}
 				getKey={(tx) => tx.$id.txHash}
 				getSortValue={(tx) => tx.blockNumber}
-				placeholderKeys={placeholderKeys}
+				{placeholderKeys}
 				bind:visiblePlaceholderTransactionIds
 				scrollPosition="End"
 			>
@@ -78,10 +81,13 @@
 						{#if isPlaceholder}
 							<code>Transaction placeholder {key}</code>
 						{:else}
-							{@const txData = new Map<ChainTransactionEntry | undefined, { trace?: never; events: typeof item.logs }>([[item, { events: item.logs }]])}
+							{@const txData = new Map<
+								ChainTransactionEntry | undefined,
+								{ trace?: never; events: typeof item.logs }
+							>([[item, { events: item.logs }]])}
 							<Transaction
 								data={txData}
-								chainId={chainId}
+								{chainId}
 								visiblePlaceholderEventIds={[]}
 							/>
 						{/if}

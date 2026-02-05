@@ -57,9 +57,15 @@
 		[() => data.chainId, () => data.blockNumber],
 	)
 	const liveQueryEntries = $derived([
-		{ id: 'tx', label: 'Transaction', query: txQuery as { data: { row: unknown }[] | undefined },
+		{
+			id: 'tx',
+			label: 'Transaction',
+			query: txQuery as { data: { row: unknown }[] | undefined },
 		},
-		{ id: 'block', label: 'Block', query: blockQuery as { data: { row: unknown }[] | undefined },
+		{
+			id: 'block',
+			label: 'Block',
+			query: blockQuery as { data: { row: unknown }[] | undefined },
 		},
 	])
 	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
@@ -76,8 +82,7 @@
 				BlockEntry | undefined,
 				Set<ChainTransactionEntry>
 			>()
-			if (blockRow && txRow)
-				inner.set(blockRow, new Set([txRow]))
+			if (blockRow && txRow) inner.set(blockRow, new Set([txRow]))
 			else if (blockRow) inner.set(blockRow, new Set())
 			return inner
 		})(),
@@ -115,24 +120,26 @@
 	$effect(() => {
 		const url = rpcUrls[data.chainId]
 		if (!url) return
-		getCurrentBlockNumber(createHttpProvider(url)).then((h) => {
-			height = h
-		}).catch(() => {})
+		getCurrentBlockNumber(createHttpProvider(url))
+			.then((h) => {
+				height = h
+			})
+			.catch(() => {})
 	})
 </script>
 
+
 <svelte:head>
 	<title>
-		Transaction {data.transactionId.slice(0, 10)}… · Block {data.blockNumberParam} · {data.config.name}
+		Transaction {data.transactionId.slice(0, 10)}… · Block {data.blockNumberParam}
+		· {data.config.name}
 	</title>
 </svelte:head>
+
 
 <div data-column="gap-2" {@attach liveQueryAttachment}>
 	<p>
 		<a href={showContextUrl} data-link>Show Context</a>
 	</p>
-	<Network
-		data={networkData}
-		placeholderBlockIds={placeholderBlockIds}
-	/>
+	<Network data={networkData} {placeholderBlockIds} />
 </div>

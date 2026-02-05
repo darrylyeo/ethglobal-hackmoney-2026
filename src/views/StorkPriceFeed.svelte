@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { StorkPriceRow } from '$/collections/stork-prices'
 
@@ -56,6 +54,8 @@
 		<span data-muted>Waiting for price feed</span>
 	{/if}
 </div>
+
+
 
 
 <style>

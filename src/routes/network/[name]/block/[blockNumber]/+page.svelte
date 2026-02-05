@@ -93,11 +93,14 @@
 	$effect(() => {
 		const url = rpcUrls[data.chainId]
 		if (!url) return
-		getCurrentBlockNumber(createHttpProvider(url)).then((h) => {
-			height = h
-		}).catch(() => {})
+		getCurrentBlockNumber(createHttpProvider(url))
+			.then((h) => {
+				height = h
+			})
+			.catch(() => {})
 	})
 </script>
+
 
 <svelte:head>
 	<title>
@@ -105,12 +108,10 @@
 	</title>
 </svelte:head>
 
+
 <div data-column="gap-2" {@attach liveQueryAttachment}>
 	<p>
 		<a href={showContextUrl} data-link>Show Context</a>
 	</p>
-	<Network
-		data={networkData}
-		placeholderBlockIds={placeholderBlockIds}
-	/>
+	<Network data={networkData} {placeholderBlockIds} />
 </div>

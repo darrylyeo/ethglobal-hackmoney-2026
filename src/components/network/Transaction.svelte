@@ -8,6 +8,7 @@
 	import Event from '$/components/network/Event.svelte'
 	import { getTxUrl } from '$/constants/explorers'
 
+
 	// Props
 	let {
 		data,
@@ -24,21 +25,31 @@
 		visiblePlaceholderEventIds?: number[]
 	} = $props()
 
-	const entry = $derived([...data.values()][0] ?? { trace: undefined, events: [] })
+	const entry = $derived(
+		[...data.values()][0] ?? { trace: undefined, events: [] },
+	)
 	const tx = $derived([...data.keys()][0])
 	const events = $derived(entry.events ?? [])
 	const trace = $derived(entry.trace)
 	const eventsSet = $derived(new Set(events))
 	const defaultPlaceholderEventIds = $derived(
-		events.length ? new Set<number | [number, number]>([[0, Math.max(0, events.length - 1)]]) : new Set<number | [number, number]>([0]),
+		events.length
+			? new Set<number | [number, number]>([
+					[0, Math.max(0, events.length - 1)],
+				])
+			: new Set<number | [number, number]>([0]),
 	)
-	const placeholderKeys = $derived(placeholderEventIds ?? defaultPlaceholderEventIds)
+	const placeholderKeys = $derived(
+		placeholderEventIds ?? defaultPlaceholderEventIds,
+	)
 </script>
+
 
 <details data-card="secondary radius-2 padding-4">
 	<summary data-row="gap-2 align-center">
 		{#if tx}
-			<code id="transaction:{tx.$id.txHash}">{tx.$id.txHash.slice(0, 18)}…</code>
+			<code id="transaction:{tx.$id.txHash}">{tx.$id.txHash.slice(0, 18)}…</code
+			>
 			<span>from {tx.from.slice(0, 10)}…</span>
 			<span>value {tx.value}</span>
 		{:else}
@@ -50,7 +61,11 @@
 			<dl data-column="gap-1">
 				<dt>Hash</dt>
 				<dd>
-					<a href={getTxUrl(chainId, tx.$id.txHash)} target="_blank" rel="noopener noreferrer">{tx.$id.txHash}</a>
+					<a
+						href={getTxUrl(chainId, tx.$id.txHash)}
+						target="_blank"
+						rel="noopener noreferrer">{tx.$id.txHash}</a
+					>
 				</dd>
 				<dt>Block</dt>
 				<dd>{tx.blockNumber}</dd>
@@ -65,7 +80,7 @@
 		{#if trace}
 			<section>
 				<h3>Trace</h3>
-				<Trace trace={trace} />
+				<Trace {trace} />
 			</section>
 		{/if}
 		<section>
@@ -74,7 +89,7 @@
 				items={eventsSet}
 				getKey={(e) => parseInt(e.logIndex, 16)}
 				getSortValue={(e) => parseInt(e.logIndex, 16)}
-				placeholderKeys={placeholderKeys}
+				{placeholderKeys}
 				bind:visiblePlaceholderEventIds
 				scrollPosition="End"
 			>

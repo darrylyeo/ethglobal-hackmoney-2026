@@ -27,15 +27,19 @@ export type TransferEventRow = {
 } & NormalizedTransferEvent
 
 export type TransferEventsMetaRow = {
-	$id: { symbol: string; period: string; chainId: -1; blockNumber: -1; logIndex: -1 }
+	$id: {
+		symbol: string
+		period: string
+		chainId: -1
+		blockNumber: -1
+		logIndex: -1
+	}
 	$source: DataSource
 	isLoading: boolean
 	error: string | null
 }
 
-function getKey(
-	row: TransferEventRow | TransferEventsMetaRow,
-): string {
+function getKey(row: TransferEventRow | TransferEventsMetaRow): string {
 	const { symbol, period, chainId, blockNumber, logIndex } = row.$id
 	return (chainId as number) === -1
 		? `${symbol}:${period}:meta`
@@ -48,6 +52,17 @@ export const transferEventsCollection = createCollection(
 		getKey,
 	}),
 )
+
+export const ensureTransferEventsForPlaceholders = (
+	symbol: CoinPageSymbol,
+	period: string,
+	placeholderKeys: string[],
+): void => {
+	const missing = placeholderKeys.some(
+		(key) => !transferEventsCollection.state.get(key),
+	)
+	if (missing) fetchTransferEvents(symbol, period).catch(() => {})
+}
 
 export async function fetchTransferEvents(
 	symbol: CoinPageSymbol,
@@ -131,6 +146,8 @@ export async function fetchTransferEvents(
 	}
 }
 
-export function transferEventsQueryKey(period: string): readonly [string, string] {
+export function transferEventsQueryKey(
+	period: string,
+): readonly [string, string] {
 	return ['transfer-events', period] as const
 }

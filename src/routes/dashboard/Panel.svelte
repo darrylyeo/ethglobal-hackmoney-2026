@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type {
 		DashboardPanelNode,
@@ -210,6 +208,7 @@
 		</footer>
 	{/if}
 </section>
+
 
 
 <style>

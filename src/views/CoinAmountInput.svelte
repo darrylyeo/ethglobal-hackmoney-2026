@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Coin } from '$/constants/coins'
 
@@ -125,6 +123,8 @@
 		}%`}
 	/>
 </div>
+
+
 
 
 <style>

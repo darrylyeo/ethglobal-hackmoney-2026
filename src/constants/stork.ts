@@ -79,10 +79,14 @@ const storkApiBaseUrlByRegionTransport = Object.fromEntries(
 export const storkDefaultRegion: StorkApiRegion = StorkApiRegion.Jp
 
 export const storkRestBaseUrl =
-	storkApiBaseUrlByRegionTransport[`${storkDefaultRegion}:${StorkApiTransport.Rest}`]
+	storkApiBaseUrlByRegionTransport[
+		`${storkDefaultRegion}:${StorkApiTransport.Rest}`
+	]
 
 export const storkWebsocketBaseUrl =
-	storkApiBaseUrlByRegionTransport[`${storkDefaultRegion}:${StorkApiTransport.Websocket}`]
+	storkApiBaseUrlByRegionTransport[
+		`${storkDefaultRegion}:${StorkApiTransport.Websocket}`
+	]
 
 export const storkWebsocketUrl = `${storkWebsocketBaseUrl}/evm/subscribe`
 

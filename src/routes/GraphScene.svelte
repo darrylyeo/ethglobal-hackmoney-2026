@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Attributes } from 'graphology-types'
 	import type { DisplayData } from 'sigma/types'
@@ -3043,7 +3041,10 @@
 					</button>
 				{/each}
 			</div>
-			<div class="graph-scene-legend graph-scene-legend-sources" data-row="wrap gap-1">
+			<div
+				class="graph-scene-legend graph-scene-legend-sources"
+				data-row="wrap gap-1"
+			>
 				<span class="graph-scene-legend-label">By source:</span>
 				{#each ENTITY_SOURCE_COMBOS as combo (comboKey(combo.entityType, combo.source))}
 					{@const key = comboKey(combo.entityType, combo.source)}
@@ -3102,6 +3103,7 @@
 		</footer>
 	</details>
 {/if}
+
 
 
 <style>

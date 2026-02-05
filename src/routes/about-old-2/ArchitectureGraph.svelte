@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
 	import type {
@@ -1017,6 +1015,7 @@
 		{/if}
 	</div>
 </div>
+
 
 
 <style>

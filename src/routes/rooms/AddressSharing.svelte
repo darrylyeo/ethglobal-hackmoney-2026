@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { RoomPeerRow } from '$/collections/room-peers'
 	import type { SiweChallengeRow } from '$/collections/siwe-challenges'

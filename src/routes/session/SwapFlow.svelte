@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
@@ -79,7 +77,6 @@
 		buildSessionHash,
 		createTransactionSession,
 		forkTransactionSession,
-		getTransactionSession,
 		parseSessionHash,
 		updateTransactionSessionParams,
 	} from '$/lib/transaction-sessions'
@@ -129,6 +126,7 @@
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 
 	let activeSessionId = $state<string | null>(null)
+	let lookupSessionId = $state<string | null>(null)
 	let executing = $state(false)
 	let executionRef = $state<{
 		execute: () => Promise<{ txHash?: `0x${string}` } | void>
@@ -148,6 +146,15 @@
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
 	)
+	const lookupSessionQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.id, lookupSessionId ?? ''))
+				.select(({ row }) => ({ row })),
+		[() => lookupSessionId],
+	)
+	const lookupSession = $derived(lookupSessionQuery.data?.[0]?.row ?? null)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionParams = $derived(getSwapSessionParams(session))
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
@@ -291,6 +298,20 @@
 	)
 
 	$effect(() => {
+		if (!lookupSessionId || !lookupSessionQuery.isReady) return
+		if (lookupSession) {
+			activeSessionId = lookupSessionId
+		} else {
+			activateSession(
+				createTransactionSession({
+					actions: ['swap'],
+					params: {},
+				}).id,
+			)
+			lookupSessionId = null
+		}
+	})
+	$effect(() => {
 		const hash = hashSource.enabled
 			? effectiveHash
 			: typeof window !== 'undefined'
@@ -298,19 +319,10 @@
 				: ''
 		const parsed = parseSessionHash(hash)
 		if (parsed.kind === 'session') {
-			if (parsed.sessionId === activeSessionId && session) return
-			if (getTransactionSession(parsed.sessionId)) {
-				activeSessionId = parsed.sessionId
-				return
-			}
-			activateSession(
-				createTransactionSession({
-					actions: ['swap'],
-					params: {},
-				}).id,
-			)
+			lookupSessionId = parsed.sessionId
 			return
 		}
+		lookupSessionId = null
 		activateSession(
 			createTransactionSession({
 				actions:
@@ -328,19 +340,10 @@
 		const handleHash = () => {
 			const parsed = parseSessionHash(window.location.hash)
 			if (parsed.kind === 'session') {
-				if (parsed.sessionId === activeSessionId && session) return
-				if (getTransactionSession(parsed.sessionId)) {
-					activeSessionId = parsed.sessionId
-					return
-				}
-				activateSession(
-					createTransactionSession({
-						actions: ['swap'],
-						params: {},
-					}).id,
-				)
+				lookupSessionId = parsed.sessionId
 				return
 			}
+			lookupSessionId = null
 			activateSession(
 				createTransactionSession({
 					actions:

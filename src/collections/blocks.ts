@@ -30,6 +30,17 @@ export const blocksCollection = createCollection(
 	}),
 )
 
+export const ensureBlocksForPlaceholders = (
+	chainId: ChainId,
+	blockNumbers: number[],
+): void => {
+	for (const blockNumber of blockNumbers) {
+		const key = `${chainId}:${blockNumber}`
+		if (!blocksCollection.state.get(key))
+			fetchBlock(chainId, blockNumber).catch(() => {})
+	}
+}
+
 export const fetchBlock = async (
 	chainId: ChainId,
 	blockNumber: number,

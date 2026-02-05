@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { YellowChannelRow } from '$/collections/yellow-channels'
 	import type { YellowChannelStateRow } from '$/collections/yellow-channel-states'
@@ -391,6 +389,7 @@
 		<TransferDialog channel={transferChannel} bind:open={transferOpen} />
 	{/if}
 </div>
+
 
 
 <style>

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Coin } from '$/constants/coins'
@@ -36,7 +34,6 @@
 		createSessionId,
 		createTransactionSessionSimulation,
 		createTransactionSessionWithId,
-		getTransactionSession,
 		parseSessionHash,
 		updateTransactionSession,
 	} from '$/lib/transaction-sessions'
@@ -100,6 +97,7 @@
 	let activeSessionId = $state<string | null>(null)
 	let pendingSessionId = $state<string | null>(null)
 	let localParams = $state<TransferSessionParams | null>(null)
+	let lookupSessionId = $state<string | null>(null)
 
 	const setLocalParamsIfChanged = (next: TransferSessionParams) => {
 		if (localParams && stringify(localParams) === stringify(next)) return
@@ -124,6 +122,15 @@
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
 	)
+	const lookupSessionQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.id, lookupSessionId ?? ''))
+				.select(({ row }) => ({ row })),
+		[() => lookupSessionId],
+	)
+	const lookupSession = $derived(lookupSessionQuery.data?.[0]?.row ?? null)
 	const liveQueryEntries = [
 		{
 			id: 'transfer-action-session',
@@ -182,9 +189,7 @@
 	}
 	const persistDraft = () => {
 		const nextParams = normalizeTransferParams(settings, settings)
-		const current = activeSessionId
-			? getTransactionSession(activeSessionId)
-			: null
+		const current = session
 		const shouldCreate = !current || current.lockedAt
 		const sessionId = shouldCreate
 			? (pendingSessionId ?? createSessionId())
@@ -208,9 +213,7 @@
 	}
 	const persistSimulation = (result: unknown) => {
 		const nextParams = normalizeTransferParams(settings, settings)
-		const current = activeSessionId
-			? getTransactionSession(activeSessionId)
-			: null
+		const current = session
 		const shouldCreate = !current || current.lockedAt
 		const sessionId = shouldCreate
 			? (pendingSessionId ?? createSessionId())
@@ -246,9 +249,7 @@
 	}
 	const persistExecution = (txHash?: `0x${string}`) => {
 		const nextParams = normalizeTransferParams(settings, settings)
-		const current = activeSessionId
-			? getTransactionSession(activeSessionId)
-			: null
+		const current = session
 		const shouldCreate = !current || current.lockedAt
 		const sessionId = shouldCreate
 			? (pendingSessionId ?? createSessionId())
@@ -290,20 +291,10 @@
 				: ''
 		const parsed = parseSessionHash(hash)
 		if (parsed.kind === 'session') {
-			const existing = getTransactionSession(parsed.sessionId)
-			if (existing) {
-				setActiveSessionId(parsed.sessionId)
-				setPendingSessionId(null)
-				setLocalParamsIfChanged(
-					normalizeTransferParams(existing.params ?? null, transferDefaults),
-				)
-				return
-			}
-			setActiveSessionId(null)
-			setPendingSessionId(parsed.sessionId)
-			setLocalParamsIfChanged(normalizeTransferParams(null, transferDefaults))
+			lookupSessionId = parsed.sessionId
 			return
 		}
+		lookupSessionId = null
 		setActiveSessionId(null)
 		setPendingSessionId(null)
 		setLocalParamsIfChanged(
@@ -314,25 +305,30 @@
 		)
 	})
 	$effect(() => {
+		if (!lookupSessionId || !lookupSessionQuery.isReady) return
+		const existing = lookupSession
+		if (existing) {
+			setActiveSessionId(lookupSessionId)
+			setPendingSessionId(null)
+			setLocalParamsIfChanged(
+				normalizeTransferParams(existing.params ?? null, transferDefaults),
+			)
+		} else {
+			setActiveSessionId(null)
+			setPendingSessionId(lookupSessionId)
+			setLocalParamsIfChanged(normalizeTransferParams(null, transferDefaults))
+		}
+	})
+	$effect(() => {
 		if (hashSource.enabled) return
 		if (typeof window === 'undefined') return
 		const handleHash = () => {
 			const parsed = parseSessionHash(window.location.hash)
 			if (parsed.kind === 'session') {
-				const existing = getTransactionSession(parsed.sessionId)
-				if (existing) {
-					setActiveSessionId(parsed.sessionId)
-					setPendingSessionId(null)
-					setLocalParamsIfChanged(
-						normalizeTransferParams(existing.params ?? null, transferDefaults),
-					)
-					return
-				}
-				setActiveSessionId(null)
-				setPendingSessionId(parsed.sessionId)
-				setLocalParamsIfChanged(normalizeTransferParams(null, transferDefaults))
+				lookupSessionId = parsed.sessionId
 				return
 			}
+			lookupSessionId = null
 			setActiveSessionId(null)
 			setPendingSessionId(null)
 			setLocalParamsIfChanged(

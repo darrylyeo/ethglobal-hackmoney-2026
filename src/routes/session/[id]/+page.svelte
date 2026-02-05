@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { goto } from '$app/navigation'

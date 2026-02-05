@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { IntentDragPayload } from '$/lib/intents/types'
@@ -33,7 +31,6 @@
 	import {
 		buildSessionHash,
 		createTransactionSession,
-		getTransactionSession,
 		parseSessionHash,
 		updateTransactionSessionParams,
 	} from '$/lib/transaction-sessions'
@@ -65,6 +62,7 @@
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
 	let activeSessionId = $state<string | null>(null)
+	let lookupSessionId = $state<string | null>(null)
 	let transferAmountInput = $state('')
 
 	const setPayload = (placement: 'from' | 'to', payload: IntentDragPayload) => {
@@ -139,6 +137,15 @@
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
 	)
+	const lookupSessionQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.id, lookupSessionId ?? ''))
+				.select(({ row }) => ({ row })),
+		[() => lookupSessionId],
+	)
+	const lookupSession = $derived(lookupSessionQuery.data?.[0]?.row ?? null)
 	const balancesQuery = useLiveQuery((q) =>
 		q
 			.from({ row: actorCoinsCollection })
@@ -516,23 +523,28 @@
 	)
 
 	$effect(() => {
+		if (!lookupSessionId || !lookupSessionQuery.isReady) return
+		if (lookupSession) {
+			activeSessionId = lookupSessionId
+		} else {
+			activateSession(
+				createTransactionSession({
+					actions: ['intent'],
+					params: normalizeIntentParams(null),
+				}).id,
+			)
+			lookupSessionId = null
+		}
+	})
+	$effect(() => {
 		if (typeof window === 'undefined') return
 		const handleHash = () => {
 			const parsed = parseSessionHash(window.location.hash)
 			if (parsed.kind === 'session') {
-				if (parsed.sessionId === activeSessionId && session) return
-				if (getTransactionSession(parsed.sessionId)) {
-					activeSessionId = parsed.sessionId
-					return
-				}
-				activateSession(
-					createTransactionSession({
-						actions: ['intent'],
-						params: normalizeIntentParams(null),
-					}).id,
-				)
+				lookupSessionId = parsed.sessionId
 				return
 			}
+			lookupSessionId = null
 			activateSession(
 				createTransactionSession({
 					actions:
@@ -772,6 +784,8 @@
 		</section>
 	{/if}
 </main>
+
+
 
 
 <style>

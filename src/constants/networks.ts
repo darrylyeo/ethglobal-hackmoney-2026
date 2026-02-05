@@ -404,7 +404,9 @@ export const networkConfigsByChainId: Partial<Record<ChainId, NetworkConfig>> =
  * Approximate average transactions per block for placeholder counts when block is unknown.
  * Based on typical chain activity (Ethereum ~150–200, L2s lower). Default 150.
  */
-export const averageTransactionsPerBlockByChainId: Partial<Record<ChainId, number>> = {
+export const averageTransactionsPerBlockByChainId: Partial<
+	Record<ChainId, number>
+> = {
 	[ChainId.Ethereum]: 180,
 	[ChainId.Optimism]: 80,
 	[ChainId.Arbitrum]: 100,
@@ -417,7 +419,8 @@ export const averageTransactionsPerBlockByChainId: Partial<Record<ChainId, numbe
 }
 const DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK = 150
 export const getAverageTransactionsPerBlock = (chainId: ChainId): number =>
-	averageTransactionsPerBlockByChainId[chainId] ?? DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK
+	averageTransactionsPerBlockByChainId[chainId] ??
+	DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK
 
 export const networksByChainId: Partial<Record<ChainId, Network>> =
 	Object.fromEntries(networks.map((network) => [network.id, network]))

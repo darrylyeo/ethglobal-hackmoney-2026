@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeSessionParams } from '$/lib/transaction-session-params'
@@ -221,6 +219,7 @@
 		</Dialog.Content>
 	</Dialog.Portal>
 </Dialog.Root>
+
 
 
 <style>

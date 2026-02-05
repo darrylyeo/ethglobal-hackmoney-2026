@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Components
 	import { toasts } from '$/lib/toast.svelte'
 	import Toast from '$/components/Toast.svelte'
@@ -26,6 +24,8 @@
 		<Toast {toast} onDismiss={() => toasts.dismiss(toast.id)} />
 	{/each}
 </div>
+
+
 
 
 <style>

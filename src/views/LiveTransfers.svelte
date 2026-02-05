@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { browser } from '$app/environment'
 	import type { Coin } from '$/constants/coins'
@@ -20,11 +18,13 @@
 		graph,
 		period,
 		periods,
+		showHeader = true,
 	}: {
 		coin: Coin
 		graph: TransferGraph
 		period: string
 		periods: readonly { value: string; label: string; ms: number }[]
+		showHeader?: boolean
 	} = $props()
 
 	// (Derived) layout: nodes in circle
@@ -101,20 +101,22 @@
 
 
 <div class="live-transfers">
-	<header class="transfers-header">
-		<h2>Live transfers – {coin.symbol}</h2>
-		<nav class="period-selector" aria-label="Time period">
-			{#each periods as p (p.value)}
-				<a
-					class="period-link"
-					href="?period={p.value}"
-					data-active={period === p.value ? '' : undefined}
-				>
-					{p.label}
-				</a>
-			{/each}
-		</nav>
-	</header>
+	{#if showHeader}
+		<header class="transfers-header">
+			<h2>Live transfers – {coin.symbol}</h2>
+			<nav class="period-selector" aria-label="Time period">
+				{#each periods as p (p.value)}
+					<a
+						class="period-link"
+						href="?period={p.value}"
+						data-active={period === p.value ? '' : undefined}
+					>
+						{p.label}
+					</a>
+				{/each}
+			</nav>
+		</header>
+	{/if}
 
 	<div class="viz-container">
 		{#if browser}
@@ -165,6 +167,8 @@
 		</p>
 	{/if}
 </div>
+
+
 
 
 <style>

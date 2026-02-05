@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type {
 		DashboardNode,
@@ -187,9 +185,10 @@
 {/if}
 
 
+
 <style>
 	.dashboard-split {
-		--split-gutter-size: 1.5rem;
+		--split-gutter-size: 1rem;
 		--ratio-track: calc(100% - var(--split-gutter-size));
 		--ratio-thumb-offset: calc(
 			50% - var(--ratio) * var(--ratio-track) - var(--split-gutter-size) / 2
@@ -201,8 +200,11 @@
 
 		&[data-direction='horizontal'] {
 			grid-template:
-				1fr / minmax(0, var(--col-1)) var(--split-gutter-size)
-				minmax(0, var(--col-2));
+				1fr
+				/ minmax(0, var(--col-1)) var(--split-gutter-size) minmax(
+					0,
+					var(--col-2)
+				);
 
 			& > input[type='range'] {
 				cursor: ew-resize;

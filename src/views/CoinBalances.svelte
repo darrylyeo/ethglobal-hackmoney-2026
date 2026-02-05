@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { IntentDragPayload } from '$/lib/intents/types'
 	import { CoinType, ercTokens } from '$/constants/coins'
@@ -416,6 +414,8 @@
 		</section>
 	{/if}
 </div>
+
+
 
 
 <style>

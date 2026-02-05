@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type {
 		DashboardNode,
@@ -441,6 +439,7 @@
 		</section>
 	</main>
 {/if}
+
 
 
 <style>

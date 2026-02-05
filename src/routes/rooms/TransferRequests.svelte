@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 
@@ -244,6 +242,7 @@
 		</p>
 	{/if}
 </section>
+
 
 
 <style>

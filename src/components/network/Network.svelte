@@ -29,6 +29,7 @@
 	)
 </script>
 
+
 <details data-card="secondary radius-2 padding-4" open>
 	<summary data-row="gap-2 align-center">
 		{#if network}
@@ -65,11 +66,11 @@
 						{#if isPlaceholder}
 							<code>Block #{key} (loading…)</code>
 						{:else}
-							{@const blockData = new Map<BlockEntry | undefined, Set<ChainTransactionEntry>>([[item, innerMap.get(item) ?? new Set()]])}
-							<Block
-								data={blockData}
-								chainId={item.$id.chainId}
-							/>
+							{@const blockData = new Map<
+								BlockEntry | undefined,
+								Set<ChainTransactionEntry>
+							>([[item, innerMap.get(item) ?? new Set()]])}
+							<Block data={blockData} chainId={item.$id.chainId} />
 						{/if}
 					</span>
 				{/snippet}

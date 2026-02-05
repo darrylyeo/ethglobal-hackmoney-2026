@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
@@ -257,9 +255,9 @@
 		</section>
 
 		{#if connectionsForAccount.length > 0}
-		<section class="account-section">
-			<h2>Wallet connections</h2>
-			<ul class="connections-list">
+			<section class="account-section">
+				<h2>Wallet connections</h2>
+				<ul class="connections-list">
 					{#each connectionsForAccount as conn (conn.$id.wallet$id.rdns)}
 						{@const wallet =
 							conn.transport === WalletConnectionTransport.None
@@ -278,35 +276,42 @@
 						</li>
 					{/each}
 				</ul>
-		</section>
+			</section>
 		{/if}
 		{#if sharedRowsForAccount.length > 0}
-		<section class="account-section">
-			<h2>Room / peer connections</h2>
-			<ul class="connections-list">
-				{#each sharedRowsForAccount as s (s.id)}
-					{@const room = roomsById.get(s.roomId)}
-					{@const peer = peersByRoomAndPeer.get(`${s.roomId}:${s.peerId}`)}
-					{@const verificationStatus = getVerificationStatus(s.roomId, s.peerId)}
-					<li class="connection-item">
-						<a href="/rooms/{s.roomId}" class="connection-name">
-							{room?.name ?? s.roomId}
-						</a>
-						<span class="connection-status">
-							{peer?.displayName ?? s.peerId.slice(0, 8)}
-						</span>
-						{#if verificationStatus}
-							<span class="connection-badge" data-verification={verificationStatus}>
-								{verificationStatus}
+			<section class="account-section">
+				<h2>Room / peer connections</h2>
+				<ul class="connections-list">
+					{#each sharedRowsForAccount as s (s.id)}
+						{@const room = roomsById.get(s.roomId)}
+						{@const peer = peersByRoomAndPeer.get(`${s.roomId}:${s.peerId}`)}
+						{@const verificationStatus = getVerificationStatus(
+							s.roomId,
+							s.peerId,
+						)}
+						<li class="connection-item">
+							<a href="/rooms/{s.roomId}" class="connection-name">
+								{room?.name ?? s.roomId}
+							</a>
+							<span class="connection-status">
+								{peer?.displayName ?? s.peerId.slice(0, 8)}
 							</span>
-						{/if}
-					</li>
-				{/each}
-			</ul>
-		</section>
+							{#if verificationStatus}
+								<span
+									class="connection-badge"
+									data-verification={verificationStatus}
+								>
+									{verificationStatus}
+								</span>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			</section>
 		{/if}
 	{/if}
 </div>
+
 
 
 <style>

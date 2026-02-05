@@ -9,6 +9,25 @@ export const PROXY_ALLOWED_ORIGINS = new Set<string>([
 
 export const PROXY_API_PREFIX = '/api/proxy'
 
-export const PROXY_BACKEND_BASE_URLS: Record<string, string> = {
-	stork: storkRestBaseUrl,
+export type ProxyTarget = {
+	id: string
+	origin: string
+	tokenEnvKey?: string
+}
+
+export const PROXY_TARGETS: ProxyTarget[] = [
+	{
+		id: 'stork',
+		origin: storkRestBaseUrl,
+		tokenEnvKey: 'STORK_REST_TOKEN',
+	},
+]
+
+const proxyTargetById = new Map(PROXY_TARGETS.map((t) => [t.id, t]))
+
+export const getProxyTarget = (id: string) => proxyTargetById.get(id)
+
+export const getProxyOrigin = (id: string) => {
+	if (typeof window === 'undefined') return null
+	return `${window.location.origin}${PROXY_API_PREFIX}/${id}`
 }

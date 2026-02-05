@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
 	import type { ArchitectureEdge, ArchitectureNode } from './architecture-graph'
@@ -700,6 +698,7 @@
 <div class="sr-only" aria-live="polite">
 	{selectionAnnouncement}
 </div>
+
 
 
 <style>

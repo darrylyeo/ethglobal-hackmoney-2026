@@ -4,6 +4,7 @@
 	let { trace }: { trace: TraceType } = $props()
 </script>
 
+
 <details data-card="secondary radius-2 padding-2">
 	<summary data-row="gap-2 align-center">
 		<code>Trace #{trace.index}</code>

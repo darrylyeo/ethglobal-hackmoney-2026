@@ -1,6 +1,4 @@
 <script lang="ts" generics="Item extends { address: `0x${string}` }">
-
-
 	// Types/constants
 	import type { Snippet } from 'svelte'
 	import type { Network$Id } from '$/data/Network'
@@ -75,6 +73,8 @@
 	{ariaLabel}
 	Item={ItemSnippet ?? defaultItem}
 />
+
+
 
 
 <style>

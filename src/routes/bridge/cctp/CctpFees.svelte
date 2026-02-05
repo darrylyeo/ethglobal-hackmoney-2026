@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 
@@ -102,6 +100,7 @@
 		<small data-muted>Select a valid chain pair to load fees.</small>
 	{/if}
 </div>
+
 
 
 <style>

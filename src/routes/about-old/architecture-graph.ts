@@ -410,7 +410,7 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 			'Typecheck + Format',
 			'tooling',
 			{
-				description: 'svelte-check, prettier, section spacing',
+				description: 'svelte-check, section spacing',
 			},
 		),
 		node(

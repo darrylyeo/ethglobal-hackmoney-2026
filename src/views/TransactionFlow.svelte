@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { VoltaireProvider } from '$/api/voltaire'
 	import type { ConnectedWallet } from '$/collections/wallet-connections'

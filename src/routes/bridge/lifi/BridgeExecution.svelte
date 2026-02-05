@@ -207,6 +207,7 @@
 {/if}
 
 
+
 <style>
 	.muted {
 		opacity: 0.6;

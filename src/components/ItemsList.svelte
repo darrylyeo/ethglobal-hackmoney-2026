@@ -1,6 +1,4 @@
 <script lang="ts" generics="_Item, Key = string | number">
-
-
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
@@ -99,6 +97,7 @@
 	)
 </script>
 
+
 <!--
   scrollPosition: 'Start' | 'End' | 'Auto'
   Preserves scroll position across layout shifts via CSS overflow-anchor.
@@ -122,13 +121,19 @@
 				{Item(payload)}
 			</li>
 		{:else}
-			{@const payload = { key: row.key, item: row.item, isPlaceholder: true as const }}
+			{@const payload = {
+				key: row.key,
+				item: row.item,
+				isPlaceholder: true as const,
+			}}
 			<li data-items-list-row>
 				{Item(payload)}
 			</li>
 		{/if}
 	{/each}
 </ul>
+
+
 
 <style>
 	ul[data-scroll-position='start'] > li:first-child {

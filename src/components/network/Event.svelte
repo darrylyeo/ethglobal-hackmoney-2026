@@ -4,6 +4,7 @@
 	let { event }: { event: EthLog } = $props()
 </script>
 
+
 <details data-card="secondary radius-2 padding-2">
 	<summary data-row="gap-2 align-center">
 		<code>#{event.logIndex}</code>
@@ -17,7 +18,10 @@
 		<dd><code>{event.topics.length}</code></dd>
 		{#if event.data !== '0x'}
 			<dt>Data</dt>
-			<dd><code>{event.data.slice(0, 66)}{event.data.length > 66 ? '…' : ''}</code></dd>
+			<dd>
+				<code>{event.data.slice(0, 66)}{event.data.length > 66 ? '…' : ''}</code
+				>
+			</dd>
 		{/if}
 	</dl>
 </details>

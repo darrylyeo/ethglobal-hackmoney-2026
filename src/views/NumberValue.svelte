@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Props
 	let {
 		value,
@@ -30,6 +28,8 @@
 		>
 	{/each}
 </output>
+
+
 
 
 <style>

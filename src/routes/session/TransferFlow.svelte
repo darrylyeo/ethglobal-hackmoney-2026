@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Coin } from '$/constants/coins'
@@ -59,6 +57,7 @@
 		typeof value === 'string' && value.startsWith('0x')
 
 	let activeSessionId = $state<string | null>(null)
+	let lookupSessionId = $state<string | null>(null)
 
 
 	// (Derived)
@@ -70,6 +69,15 @@
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
 	)
+	const lookupSessionQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.id, lookupSessionId ?? ''))
+				.select(({ row }) => ({ row })),
+		[() => lookupSessionId],
+	)
+	const lookupSession = $derived(lookupSessionQuery.data?.[0]?.row ?? null)
 	const liveQueryEntries = [
 		{
 			id: 'transfer-flow-session',
@@ -139,18 +147,10 @@
 	}
 
 	$effect(() => {
-		const hash = hashSource.enabled
-			? effectiveHash
-			: typeof window !== 'undefined'
-				? window.location.hash
-				: ''
-		const parsed = parseSessionHash(hash)
-		if (parsed.kind === 'session') {
-			if (parsed.sessionId === activeSessionId && session) return
-			if (getTransactionSession(parsed.sessionId)) {
-				activeSessionId = parsed.sessionId
-				return
-			}
+		if (!lookupSessionId || !lookupSessionQuery.isReady) return
+		if (lookupSession) {
+			activeSessionId = lookupSessionId
+		} else {
 			activateSession(
 				createTransactionSession({
 					actions: ['transfer'],
@@ -158,8 +158,21 @@
 					defaults: { transfer: transferDefaults },
 				}).id,
 			)
+			lookupSessionId = null
+		}
+	})
+	$effect(() => {
+		const hash = hashSource.enabled
+			? effectiveHash
+			: typeof window !== 'undefined'
+				? window.location.hash
+				: ''
+		const parsed = parseSessionHash(hash)
+		if (parsed.kind === 'session') {
+			lookupSessionId = parsed.sessionId
 			return
 		}
+		lookupSessionId = null
 		activateSession(
 			createTransactionSession({
 				actions:
@@ -180,20 +193,10 @@
 		const handleHash = () => {
 			const parsed = parseSessionHash(window.location.hash)
 			if (parsed.kind === 'session') {
-				if (parsed.sessionId === activeSessionId && session) return
-				if (getTransactionSession(parsed.sessionId)) {
-					activeSessionId = parsed.sessionId
-					return
-				}
-				activateSession(
-					createTransactionSession({
-						actions: ['transfer'],
-						params: transferDefaults,
-						defaults: { transfer: transferDefaults },
-					}).id,
-				)
+				lookupSessionId = parsed.sessionId
 				return
 			}
+			lookupSessionId = null
 			activateSession(
 				createTransactionSession({
 					actions:
@@ -224,7 +227,6 @@
 	import {
 		buildSessionHash,
 		createTransactionSession,
-		getTransactionSession,
 		parseSessionHash,
 	} from '$/lib/transaction-sessions'
 

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { IntentRoute, IntentRouteStep } from '$/lib/intents/routes'
 	import type { IntentDragPayload, IntentResolution } from '$/lib/intents/types'
@@ -500,6 +498,7 @@
 		{/snippet}
 	</DragArrow>
 {/if}
+
 
 
 <style>

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
@@ -788,6 +786,7 @@
 		</section>
 	{/if}
 </div>
+
 
 
 <style>

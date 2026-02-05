@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute } from '$/data/BridgeRoute'
@@ -48,11 +46,10 @@
 		normalizeAddress,
 	} from '$/lib/address'
 	import {
+		buildSessionHash,
 		createSessionId,
 		createTransactionSessionSimulation,
 		createTransactionSessionWithId,
-		getTransactionSession,
-		buildSessionHash,
 		parseSessionHash,
 		updateTransactionSession,
 	} from '$/lib/transaction-sessions'
@@ -101,6 +98,7 @@
 	// State
 	let activeSessionId = $state<string | null>(null)
 	let pendingSessionId = $state<string | null>(null)
+	let lookupSessionId = $state<string | null>(null)
 	let invalidAmountInput = $state(false)
 	let slippageInput = $state('')
 	let localParams = $state<BridgeSessionParams | null>(null)
@@ -116,6 +114,15 @@
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
 	)
+	const lookupSessionQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionSessionsCollection })
+				.where(({ row }) => eq(row.id, lookupSessionId ?? ''))
+				.select(({ row }) => ({ row })),
+		[() => lookupSessionId],
+	)
+	const lookupSession = $derived(lookupSessionQuery.data?.[0]?.row ?? null)
 	const liveQueryEntries = [
 		{
 			id: 'session-unified-bridge-session',
@@ -230,9 +237,7 @@
 	}
 	const persistDraft = () => {
 		const nextParams = normalizeBridgeSessionParams(settings)
-		const current = activeSessionId
-			? getTransactionSession(activeSessionId)
-			: null
+		const current = session
 		const shouldCreate = !current || current.lockedAt
 		const sessionId = shouldCreate
 			? (pendingSessionId ?? createSessionId())
@@ -253,9 +258,7 @@
 	}
 	const persistSimulation = (result: unknown) => {
 		const nextParams = normalizeBridgeSessionParams(settings)
-		const current = activeSessionId
-			? getTransactionSession(activeSessionId)
-			: null
+		const current = session
 		const shouldCreate = !current || current.lockedAt
 		const sessionId = shouldCreate
 			? (pendingSessionId ?? createSessionId())
@@ -291,9 +294,7 @@
 		chainId?: number
 	}) => {
 		const nextParams = normalizeBridgeSessionParams(settings)
-		const current = activeSessionId
-			? getTransactionSession(activeSessionId)
-			: null
+		const current = session
 		const shouldCreate = !current || current.lockedAt
 		const sessionId = shouldCreate
 			? (pendingSessionId ?? createSessionId())
@@ -351,20 +352,10 @@
 				: ''
 		const parsed = parseSessionHash(hash)
 		if (parsed.kind === 'session') {
-			const existing = getTransactionSession(parsed.sessionId)
-			if (existing) {
-				useGlobalNetworkType = false
-				setActiveSessionId(parsed.sessionId)
-				setPendingSessionId(null)
-				updateParams(normalizeBridgeSessionParams(existing.params ?? null))
-				return
-			}
-			useGlobalNetworkType = true
-			setActiveSessionId(null)
-			setPendingSessionId(parsed.sessionId)
-			updateParams(normalizeBridgeSessionParams(null, bridgeDefaults))
+			lookupSessionId = parsed.sessionId
 			return
 		}
+		lookupSessionId = null
 		useGlobalNetworkType = true
 		setActiveSessionId(null)
 		setPendingSessionId(null)
@@ -376,25 +367,30 @@
 		)
 	})
 	$effect(() => {
+		if (!lookupSessionId || !lookupSessionQuery.isReady) return
+		const existing = lookupSession
+		if (existing) {
+			useGlobalNetworkType = false
+			setActiveSessionId(lookupSessionId)
+			setPendingSessionId(null)
+			updateParams(normalizeBridgeSessionParams(existing.params ?? null))
+		} else {
+			useGlobalNetworkType = true
+			setActiveSessionId(null)
+			setPendingSessionId(lookupSessionId)
+			updateParams(normalizeBridgeSessionParams(null, bridgeDefaults))
+		}
+	})
+	$effect(() => {
 		if (hashSource.enabled) return
 		if (typeof window === 'undefined') return
 		const handleHash = () => {
 			const parsed = parseSessionHash(window.location.hash)
 			if (parsed.kind === 'session') {
-				const existing = getTransactionSession(parsed.sessionId)
-				if (existing) {
-					useGlobalNetworkType = false
-					setActiveSessionId(parsed.sessionId)
-					setPendingSessionId(null)
-					updateParams(normalizeBridgeSessionParams(existing.params ?? null))
-					return
-				}
-				useGlobalNetworkType = true
-				setActiveSessionId(null)
-				setPendingSessionId(parsed.sessionId)
-				updateParams(normalizeBridgeSessionParams(null, bridgeDefaults))
+				lookupSessionId = parsed.sessionId
 				return
 			}
+			lookupSessionId = null
 			useGlobalNetworkType = true
 			setActiveSessionId(null)
 			setPendingSessionId(null)

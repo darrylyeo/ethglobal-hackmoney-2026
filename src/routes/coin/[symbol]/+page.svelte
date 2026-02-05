@@ -7,13 +7,19 @@
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import {
 		transferEventsCollection,
+		ensureTransferEventsForPlaceholders,
 		fetchTransferEvents,
 		type TransferEventRow,
 		type TransferEventsMetaRow,
 	} from '$/collections/transfer-events'
+	import {
+		transferGraphsCollection,
+		fetchTransferGraph,
+	} from '$/collections/transfer-graphs'
 	import { toasts } from '$/lib/toast.svelte'
 	import Boundary from '$/components/Boundary.svelte'
 	import ItemsList from '$/components/ItemsList.svelte'
+	import LiveTransfers from '$/views/LiveTransfers.svelte'
 
 	// Props (from load)
 	let { data }: { data: { symbol: CoinPageSymbol } } = $props()
@@ -32,11 +38,31 @@
 				.select(({ row }) => ({ row })),
 		[() => symbol, () => period],
 	)
+	const graphQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transferGraphsCollection })
+				.where(({ row }) =>
+					and(eq(row.$id.symbol, symbol), eq(row.$id.period, period)),
+				)
+				.select(({ row }) => ({ row })),
+		[() => symbol, () => period],
+	)
+	const graphRow = $derived(
+		(graphQuery.data ?? [])[0] as
+			| { row: import('$/collections/transfer-graphs').TransferGraphRow }
+			| undefined,
+	)
 	const liveQueryEntries = $derived([
 		{
 			id: `transfer-events-${symbol}-${period}`,
 			label: 'Transfer Events',
 			query: eventsQuery,
+		},
+		{
+			id: `transfer-graph-${symbol}-${period}`,
+			label: 'Transfer Graph',
+			query: graphQuery,
 		},
 	])
 	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
@@ -50,9 +76,8 @@
 		),
 	)
 	const metaRow = $derived(
-		allRows.find(
-			(r) => (r.row as TransferEventsMetaRow).$id?.chainId === -1,
-		)?.row as TransferEventsMetaRow | undefined,
+		allRows.find((r) => (r.row as TransferEventsMetaRow).$id?.chainId === -1)
+			?.row as TransferEventsMetaRow | undefined,
 	)
 	const eventsSet = $derived(new Set(eventRows.map((r) => r.row)))
 	const loading = $derived(metaRow?.isLoading ?? true)
@@ -68,11 +93,12 @@
 	$effect(() => {
 		fetchTransferEvents(symbol, period).catch(() => {})
 	})
+	$effect(() => {
+		fetchTransferGraph(symbol, period).catch(() => {})
+	})
 
 	$effect(() => {
-		for (const key of visiblePlaceholderKeys)
-			if (!transferEventsCollection.state.get(key))
-				fetchTransferEvents(symbol, period).catch(() => {})
+		ensureTransferEventsForPlaceholders(symbol, period, visiblePlaceholderKeys)
 	})
 
 	let lastToastedError = $state<string | null>(null)
@@ -115,9 +141,11 @@
 	}
 </script>
 
+
 <svelte:head>
 	<title>{symbol} – Coin</title>
 </svelte:head>
+
 
 <main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 	<section data-scroll-item>
@@ -138,6 +166,21 @@
 		{#if loading && eventsSet.size === 0}
 			<p class="transfers-loading" data-transfers-loading aria-live="polite">
 				Loading transfers…
+			</p>
+		{/if}
+		{#if graphRow?.row && !graphRow.row.isLoading && graphRow.row.error == null}
+			<div class="graph-viz" data-transfer-graph>
+				<LiveTransfers
+					{coin}
+					graph={graphRow.row.graph}
+					period={graphRow.row.period}
+					periods={graphRow.row.periods}
+					showHeader={false}
+				/>
+			</div>
+		{:else if graphRow?.row?.error != null}
+			<p class="transfers-loading" data-graph-error>
+				Graph unavailable: {graphRow.row.error}
 			</p>
 		{/if}
 		<Boundary>
@@ -177,7 +220,12 @@
 								<dl data-row="wrap gap-2">
 									<dt>Tx</dt>
 									<dd>
-										<code>{item.transactionHash.slice(0, 10)}…{item.transactionHash.slice(-8)}</code>
+										<code
+											>{item.transactionHash.slice(
+												0,
+												10,
+											)}…{item.transactionHash.slice(-8)}</code
+										>
 									</dd>
 									<dt>From</dt>
 									<dd><code>{item.fromAddress.slice(0, 10)}…</code></dd>
@@ -209,6 +257,8 @@
 		</Boundary>
 	</section>
 </main>
+
+
 
 <style>
 	.transfers-header {
@@ -243,5 +293,9 @@
 
 	.transfers-error {
 		padding: 1rem;
+	}
+
+	.graph-viz {
+		margin-bottom: 1rem;
 	}
 </style>

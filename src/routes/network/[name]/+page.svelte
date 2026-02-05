@@ -5,11 +5,14 @@
 	import { networksByChainId } from '$/constants/networks'
 	import { rpcUrls } from '$/constants/rpc-endpoints'
 	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire'
-	import { fetchBlock } from '$/collections/blocks'
-	import { blocksCollection } from '$/collections/blocks'
+	import {
+		blocksCollection,
+		ensureBlocksForPlaceholders,
+	} from '$/collections/blocks'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import Network from '$/components/network/Network.svelte'
+
 
 	// Props
 	let {
@@ -23,6 +26,7 @@
 			caip2: string
 		}
 	} = $props()
+
 
 	// State
 	let height = $state(0)
@@ -81,23 +85,25 @@
 		const url = rpcUrls[data.chainId]
 		if (!url) return
 		const provider = createHttpProvider(url)
-		getCurrentBlockNumber(provider).then((h) => {
-			height = h
-		}).catch(() => {})
+		getCurrentBlockNumber(provider)
+			.then((h) => {
+				height = h
+			})
+			.catch(() => {})
 	})
 
 	$effect(() => {
 		if (height <= 0) return
 		const lo = Math.max(0, height - 10)
-		for (let i = lo; i <= height; i++) fetchBlock(data.chainId, i).catch(() => {})
+		const blockNumbers = Array.from(
+			{ length: height - lo + 1 },
+			(_, j) => lo + j,
+		)
+		ensureBlocksForPlaceholders(data.chainId, blockNumbers)
 	})
 
 	$effect(() => {
-		for (const blockNumber of visiblePlaceholderBlockIds) {
-			const key = `${data.chainId}:${blockNumber}`
-			if (!blocksCollection.state.get(key))
-				fetchBlock(data.chainId, blockNumber).catch(() => {})
-		}
+		ensureBlocksForPlaceholders(data.chainId, visiblePlaceholderBlockIds)
 	})
 
 	const explorerBlockListUrl = $derived(
@@ -105,9 +111,11 @@
 	)
 </script>
 
+
 <svelte:head>
 	<title>{data.config.name} · Network</title>
 </svelte:head>
+
 
 <div data-column="gap-2" {@attach liveQueryAttachment}>
 	<header class="network-header">
@@ -147,10 +155,12 @@
 
 	<Network
 		data={networkData}
-		placeholderBlockIds={placeholderBlockIds}
+		{placeholderBlockIds}
 		bind:visiblePlaceholderBlockIds
 	/>
 </div>
+
+
 
 <style>
 	.network-header {

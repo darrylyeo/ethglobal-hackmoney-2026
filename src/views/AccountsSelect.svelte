@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type {
 		ConnectedWallet,
@@ -1020,6 +1018,8 @@
 		</Dropdown>
 	{/if}
 </div>
+
+
 
 
 <style>

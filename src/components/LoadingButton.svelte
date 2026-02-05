@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Components
 	import { Button } from 'bits-ui'
 	import Spinner from './Spinner.svelte'
@@ -34,6 +32,7 @@
 		{@render children()}
 	{/if}
 </Button.Root>
+
 
 
 <style>

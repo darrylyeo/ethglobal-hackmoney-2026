@@ -1,8 +1,8 @@
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
-import { stringify } from 'devalue'
+import { parse, stringify } from 'devalue'
 import { decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
 import { toBytes } from '@tevm/voltaire/Hex'
 import { env } from '$env/dynamic/public'
@@ -14,6 +14,7 @@ import type {
 	StorkPriceTransport,
 } from '$/data/StorkPrice'
 import { rpcUrls } from '$/constants/rpc-endpoints'
+import { getProxyOrigin } from '$/constants/proxy'
 import {
 	storkEncodedAssetIdByAssetId,
 	storkRestBaseUrl,
@@ -43,9 +44,11 @@ const toBigInt = (value: unknown): bigint | null =>
 	typeof value === 'string' || typeof value === 'number' ? BigInt(value) : null
 
 const storkPricesCollection = createCollection(
-	localOnlyCollectionOptions({
+	localStorageCollectionOptions({
 		id: 'stork-prices',
+		storageKey: 'stork-prices',
 		getKey: (row: StorkPriceRow) => stringify(row.$id),
+		parser: { stringify, parse },
 	}),
 )
 
@@ -152,10 +155,13 @@ const parseRestPricePayloads = (value: unknown): StorkPricePayload[] => {
 	})
 }
 
+const getStorkRestBaseUrl = () => getProxyOrigin('stork') ?? storkRestBaseUrl
+
 const fetchRestPrices = async (assetIds: string[]) => {
-	const token = env.PUBLIC_STORK_REST_TOKEN
-	const baseUrl = env.PUBLIC_STORK_REST_URL ?? storkRestBaseUrl
-	if (!token) {
+	const baseUrl = getStorkRestBaseUrl()
+	const useProxy = baseUrl !== storkRestBaseUrl
+	const token = useProxy ? undefined : env.PUBLIC_STORK_REST_TOKEN
+	if (!useProxy && !token) {
 		for (const assetId of assetIds) {
 			setStorkPriceError(
 				{ assetId, transport: 'rest' },
@@ -168,9 +174,11 @@ const fetchRestPrices = async (assetIds: string[]) => {
 	const url = new URL('/v1/prices/latest', baseUrl)
 	url.searchParams.set('assets', assetIds.join(','))
 	const response = await fetch(url.toString(), {
-		headers: {
-			Authorization: `Basic ${token}`,
-		},
+		headers: token
+			? {
+					Authorization: `Basic ${token}`,
+				}
+			: undefined,
 	})
 	if (!response.ok) throw new Error(`Stork REST error: ${response.status}`)
 	const data = await response.json()
@@ -217,12 +225,10 @@ let storkDeployments: Map<number, string> | null = null
 
 const fetchStorkDeployments = async () => {
 	if (storkDeployments) return storkDeployments
-	const baseUrl = env.PUBLIC_STORK_REST_URL ?? storkRestBaseUrl
-	if (baseUrl === storkRestBaseUrl && env.PUBLIC_STORK_REST_URL == null) {
-		throw new Error('Missing PUBLIC_STORK_REST_URL for Stork deployments')
-	}
+	const baseUrl = getStorkRestBaseUrl()
+	const useProxy = baseUrl !== storkRestBaseUrl
+	const token = useProxy ? undefined : env.PUBLIC_STORK_REST_TOKEN
 	const url = new URL('/v1/deployments/evm', baseUrl)
-	const token = env.PUBLIC_STORK_REST_TOKEN
 	const response = await fetch(url.toString(), {
 		headers: token
 			? {
@@ -387,18 +393,14 @@ const storkWebsocketState: StorkWebsocketState = {
 	connecting: false,
 }
 
-const getWebsocketUrl = () => env.PUBLIC_STORK_WS_URL ?? storkWebsocketUrl
-
 const ensureWebsocketConnection = () => {
 	if (storkWebsocketState.socket || storkWebsocketState.connecting) return
-	const url = getWebsocketUrl()
 	if (typeof WebSocket === 'undefined') return
-	if (url === storkWebsocketUrl && !env.PUBLIC_STORK_WS_URL) {
-		// TODO: use a proxy to add Authorization headers for browser WebSocket clients.
+	if (!env.PUBLIC_STORK_REST_TOKEN) {
 		return
 	}
 	storkWebsocketState.connecting = true
-	const socket = new WebSocket(url)
+	const socket = new WebSocket(storkWebsocketUrl)
 	storkWebsocketState.socket = socket
 	socket.onopen = () => {
 		storkWebsocketState.connecting = false
@@ -438,14 +440,12 @@ const updateWebsocketSubscriptions = () => {
 }
 
 const createWebsocketSubscription = (assetIds: string[]) => {
-	const needsProxy =
-		getWebsocketUrl() === storkWebsocketUrl && env.PUBLIC_STORK_WS_URL == null
-	if (needsProxy) {
+	if (!env.PUBLIC_STORK_REST_TOKEN) {
 		for (const assetId of assetIds) {
 			setStorkPriceError(
 				{ assetId, transport: 'websocket' },
 				storkEncodedAssetIdByAssetId[assetId] ?? null,
-				'Websocket auth requires PUBLIC_STORK_WS_URL',
+				'Websocket requires PUBLIC_STORK_REST_TOKEN',
 			)
 		}
 		return () => {}

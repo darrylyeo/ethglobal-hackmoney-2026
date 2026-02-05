@@ -1,13 +1,13 @@
 /**
  * ActorCoin: Balance of a token for an address on a chain.
- * In-memory cache, no persistence needed.
+ * Persisted to localStorage across sessions.
  */
 
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
-import { stringify } from 'devalue'
+import { parse, stringify } from 'devalue'
 import { DataSource } from '$/constants/data-sources'
 import { ercTokens } from '$/constants/coins'
 import type { ChainId } from '$/constants/networks'
@@ -30,9 +30,11 @@ const actorCoinKeyParts = (
 const actorCoinKey = (row: ActorCoinRow) => actorCoinKeyParts(row.$id)
 
 export const actorCoinsCollection = createCollection(
-	localOnlyCollectionOptions({
+	localStorageCollectionOptions({
 		id: 'actorCoins',
+		storageKey: 'actor-coins',
 		getKey: actorCoinKey,
+		parser: { stringify, parse },
 	}),
 )
 

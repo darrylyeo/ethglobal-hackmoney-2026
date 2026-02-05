@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { RoomPeer } from '$/collections/room-peers'
 	import { peerNameToEmoji, peerNameToHue } from '$/lib/room'
@@ -56,6 +54,7 @@
 		{/if}
 	{/if}
 </span>
+
 
 
 <style>

@@ -1,6 +1,4 @@
 <script lang="ts" generics="Item">
-
-
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
@@ -301,6 +299,7 @@
 		{/if}
 	</Select.Root>
 {/if}
+
 
 
 <style>

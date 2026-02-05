@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 	import { networkConfigs, toNetworkSlug } from '$/constants/networks'
@@ -427,6 +425,7 @@
 		/>
 	</div>
 </Tooltip.Provider>
+
 
 
 <style>

@@ -11,6 +11,7 @@
 ></span>
 
 
+
 <style>
 	.spinner {
 		display: inline-block;
