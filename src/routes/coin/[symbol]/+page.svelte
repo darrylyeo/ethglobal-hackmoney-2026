@@ -2,7 +2,7 @@
 	// Types/constants
 	import { page } from '$app/state'
 	import { env } from '$env/dynamic/public'
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins'
 	import {
 		getCoinForCoinPage,
@@ -19,7 +19,7 @@
 	} from '$/collections/transfer-graphs'
 	import { toasts } from '$/lib/toast.svelte'
 	import Boundary from '$/components/Boundary.svelte'
-	import LiveTransfers from '$/routes/explore/usdc/LiveTransfers.svelte'
+	import LiveTransfers from '$/views/LiveTransfers.svelte'
 
 	// Props (from load)
 	let { data }: { data: { symbol: CoinPageSymbol } } = $props()
@@ -36,9 +36,8 @@
 	const graphQuery = useLiveQuery((q) =>
 		q
 			.from({ row: transferGraphsCollection })
-			.where(
-				({ row }) =>
-					row.$id.symbol === symbol && row.period === period,
+			.where(({ row }) =>
+				and(eq(row.$id.symbol, symbol), eq(row.period, period)),
 			)
 			.select(({ row }) => ({ row })),
 	)
