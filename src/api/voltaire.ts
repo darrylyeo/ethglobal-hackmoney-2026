@@ -147,6 +147,83 @@ export async function getBlockByNumber(
 	}
 }
 
+export async function getCurrentBlockNumber(
+	provider: VoltaireProvider,
+): Promise<number> {
+	const { number } = await getBlockByNumber(provider, 'latest')
+	return Number(number)
+}
+
+export async function getBlockTransactionCount(
+	provider: VoltaireProvider,
+	blockNum: bigint | 'latest',
+): Promise<number> {
+	const blockHex =
+		blockNum === 'latest' ? 'latest' : `0x${blockNum.toString(16)}`
+	const res = await provider.request({
+		method: 'eth_getBlockTransactionCountByNumber',
+		params: [blockHex],
+	})
+	const hex = res as string | null
+	if (hex == null) return 0
+	return parseInt(hex, 16)
+}
+
+export async function getBlockTransactionHashes(
+	provider: VoltaireProvider,
+	blockNum: bigint | 'latest',
+): Promise<`0x${string}`[]> {
+	const blockHex =
+		blockNum === 'latest' ? 'latest' : `0x${blockNum.toString(16)}`
+	const res = await provider.request({
+		method: 'eth_getBlockByNumber',
+		params: [blockHex, true],
+	})
+	const block = res as { transactions?: { hash: string }[] } | null
+	const txs = block?.transactions
+	if (!Array.isArray(txs)) return []
+	return txs.map((tx) => (typeof tx === 'string' ? tx : tx.hash) as `0x${string}`)
+}
+
+export type EthTransaction = {
+	hash: string
+	blockNumber: string
+	blockHash: string
+	from: string
+	to: string | null
+	value: string
+	gas: string
+	gasPrice: string
+}
+
+export async function getTransactionByHash(
+	provider: VoltaireProvider,
+	hash: `0x${string}`,
+): Promise<EthTransaction | null> {
+	const res = await provider.request({
+		method: 'eth_getTransactionByHash',
+		params: [hash],
+	})
+	const tx = res as EthTransaction | null
+	return tx ?? null
+}
+
+export type EthTransactionReceipt = {
+	logs: EthLog[]
+}
+
+export async function getTransactionReceipt(
+	provider: VoltaireProvider,
+	hash: `0x${string}`,
+): Promise<EthTransactionReceipt | null> {
+	const res = await provider.request({
+		method: 'eth_getTransactionReceipt',
+		params: [hash],
+	})
+	const receipt = res as EthTransactionReceipt | null
+	return receipt ?? null
+}
+
 const BINARY_SEARCH_MAX_ITER = 30
 
 /** Resolve block number at or before targetTimestamp (ms) via binary search. */

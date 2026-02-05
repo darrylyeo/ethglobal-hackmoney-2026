@@ -11,7 +11,11 @@ import { DataSource } from '$/constants/data-sources'
 import type { ChainId } from '$/constants/networks'
 import { rpcUrls } from '$/constants/rpc-endpoints'
 import type { BlockEntry, Block$Id } from '$/data/Block'
-import { createHttpProvider, getBlockByNumber } from '$/api/voltaire'
+import {
+	createHttpProvider,
+	getBlockByNumber,
+	getBlockTransactionCount,
+} from '$/api/voltaire'
 
 export type BlockRow = BlockEntry & {
 	$source: DataSource
@@ -63,11 +67,15 @@ export const fetchBlock = async (
 		const provider = createHttpProvider(url)
 		const blockNum =
 			blockNumber >= 0 ? BigInt(blockNumber) : ('latest' as const)
-		const block = await getBlockByNumber(provider, blockNum)
+		const [block, transactionCount] = await Promise.all([
+			getBlockByNumber(provider, blockNum),
+			getBlockTransactionCount(provider, blockNum),
+		])
 		const row: BlockRow = {
 			$id: { chainId, blockNumber },
 			number: block.number,
 			timestamp: block.timestamp,
+			transactionCount,
 			$source: DataSource.Voltaire,
 			isLoading: false,
 			error: null,
@@ -75,6 +83,7 @@ export const fetchBlock = async (
 		blocksCollection.update(key, (draft) => {
 			draft.number = row.number
 			draft.timestamp = row.timestamp
+			draft.transactionCount = transactionCount
 			draft.isLoading = false
 			draft.error = null
 		})
@@ -82,6 +91,7 @@ export const fetchBlock = async (
 			$id: row.$id,
 			number: row.number,
 			timestamp: row.timestamp,
+			transactionCount,
 		}
 	} catch (e) {
 		const message = e instanceof Error ? e.message : String(e)

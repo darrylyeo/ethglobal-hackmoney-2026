@@ -105,34 +105,44 @@ Behavior:
 
 ## Acceptance criteria
 
-- [ ] Components `<Network>`, `<Block>`, `<Transaction>`, `<Trace>`, and `<Event>`
+- [x] Components `<Network>`, `<Block>`, `<Transaction>`, `<Trace>`, and `<Event>`
   are implemented using `<details>` and `<ItemsList>`.
-- [ ] `Map` keys set to `undefined` render as placeholders.
-- [ ] `<Network>` renders metadata and a list of `<Block>` items with
+- [x] `Map` keys set to `undefined` render as placeholders.
+- [x] `<Network>` renders metadata and a list of `<Block>` items with
   `placeholderBlockIds` defaulting to `[0, height]`.
-- [ ] `<Block>` renders metadata and a list of `<Transaction>` items with
+- [x] `<Block>` renders metadata and a list of `<Transaction>` items with
   `placeholderTransactionIds` defaulting to a block’s transaction count, or to
   network-specific averages when unknown.
-- [ ] `<Transaction>` renders metadata, a `<Trace>` section, and a list of
+- [x] `<Transaction>` renders metadata, a `<Trace>` section, and a list of
   `<Event>` items using placeholder IDs derived from trace metadata.
-- [ ] `<Trace>` renders recursively for child traces.
-- [ ] `/network/[chainId]` reads current height, upserts blocks in
+- [x] `<Trace>` renders recursively for child traces.
+- [x] `/network/[chainId]` reads current height, upserts blocks in
   `[height - 10, height]`, and uses `$effect` to query/insert visible placeholder
   keys.
-- [ ] `/network/[chainId]/block/[blockId]` upserts the block, displays
+- [x] `/network/[chainId]/block/[blockId]` upserts the block, displays
   `<Network>` with `placeholderBlockIds` for adjacent blocks, and includes a
   "Show Context" link to `/network/[chainId]#block:[blockId]`.
-- [ ] `/network/[chainId]/block/[blockId]/transaction/[transactionId]` upserts
+- [x] `/network/[chainId]/block/[blockId]/transaction/[transactionId]` upserts
   transaction + block in parallel, displays `<Network>` with adjacent
   `placeholderBlockIds`, and includes a "Show Context" link to
   `/network/[chainId]/block/[blockId]#transaction:[transactionId]`.
-- [ ] `/network/[chainId]/transaction/[transactionId]` upserts transaction then
+- [x] `/network/[chainId]/transaction/[transactionId]` upserts transaction then
   block, displays `<Network>` with adjacent `placeholderBlockIds`, and includes
   a "Show Context" link to
   `/network/[chainId]/block/[blockId]#transaction:[transactionId]`.
-- [ ] Semantic HTML is used, and component primitives from
+- [x] Semantic HTML is used, and component primitives from
   `src/styles/components.css` are leveraged.
-- [ ] Anchor hash links work via `id` attributes on list items.
+- [x] Anchor hash links work via `id` attributes on list items.
+
+## Status
+
+Complete. 2026-02-05 (PROMPT_build): Network, Block, Transaction, Trace, Event in
+`src/components/network/` using `<details>` and ItemsList; placeholder keys from
+Maps; average tx counts in `src/constants/networks`; Voltaire getCurrentBlockNumber,
+getBlockTransactionCount, getTransactionByHash, getTransactionReceipt, getBlockTransactionHashes;
+blocks + chain-transactions collections; routes `/network/[name]`, block/[blockNumber],
+transaction/[transactionId]; Show Context links; id attributes for hash links.
+test:unit 44 Deno + 101 Vitest passed; build passed.
 
 ## TODOs
 

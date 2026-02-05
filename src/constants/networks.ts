@@ -400,6 +400,25 @@ export const networks: readonly Network[] = networkConfigs.map((config) => ({
 export const networkConfigsByChainId: Partial<Record<ChainId, NetworkConfig>> =
 	Object.fromEntries(networkConfigs.map((config) => [config.chainId, config]))
 
+/**
+ * Approximate average transactions per block for placeholder counts when block is unknown.
+ * Based on typical chain activity (Ethereum ~150–200, L2s lower). Default 150.
+ */
+export const averageTransactionsPerBlockByChainId: Partial<Record<ChainId, number>> = {
+	[ChainId.Ethereum]: 180,
+	[ChainId.Optimism]: 80,
+	[ChainId.Arbitrum]: 100,
+	[ChainId.Polygon]: 120,
+	[ChainId.Base]: 60,
+	[ChainId.Linea]: 40,
+	[ChainId.EthereumSepolia]: 30,
+	[ChainId.ArbitrumSepolia]: 20,
+	[ChainId.BaseSepolia]: 15,
+}
+const DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK = 150
+export const getAverageTransactionsPerBlock = (chainId: ChainId): number =>
+	averageTransactionsPerBlockByChainId[chainId] ?? DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK
+
 export const networksByChainId: Partial<Record<ChainId, Network>> =
 	Object.fromEntries(networks.map((network) => [network.id, network]))
 
@@ -499,11 +518,22 @@ export type ParsedNetworkParam = {
 	caip2: string
 }
 
-/** Resolve [name] from /network/[name]: slug or eip155:chainId. */
+/** Resolve [name] from /network/[name]: slug, eip155:chainId, or numeric chainId. */
 export const parseNetworkNameParam = (
 	name: string,
 ): ParsedNetworkParam | null => {
 	const decoded = decodeURIComponent(name)
+	if (/^\d+$/.test(decoded)) {
+		const config = networkConfigsByChainId[Number(decoded) as ChainId] ?? null
+		return config
+			? {
+					chainId: config.chainId,
+					config,
+					slug: toNetworkSlug(config.name),
+					caip2: toCaip2(config.chainId),
+				}
+			: null
+	}
 	if (decoded.includes(':')) {
 		const config = getNetworkByCaip2(decoded)
 		return config

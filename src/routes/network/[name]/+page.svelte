@@ -1,9 +1,15 @@
 <script lang="ts">
-
-
-	// Types/constants
-	import type { NetworkConfig } from '$/constants/networks'
-
+	import type { BlockEntry } from '$/data/Block'
+	import type { ChainTransactionEntry } from '$/data/ChainTransaction'
+	import type { Network } from '$/constants/networks'
+	import { networksByChainId } from '$/constants/networks'
+	import { rpcUrls } from '$/constants/rpc-endpoints'
+	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire'
+	import { fetchBlock } from '$/collections/blocks'
+	import { blocksCollection } from '$/collections/blocks'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
+	import Network from '$/components/network/Network.svelte'
 
 	// Props
 	let {
@@ -12,26 +18,98 @@
 		data: {
 			nameParam: string
 			chainId: number
-			config: NetworkConfig
+			config: { name: string; explorerUrl?: string; type: string }
 			slug: string
 			caip2: string
 		}
 	} = $props()
 
+	// State
+	let height = $state(0)
+	let visiblePlaceholderBlockIds = $state<number[]>([])
 
-	// (Derived)
+	const blocksQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: blocksCollection })
+				.where(({ row }) => eq(row.$id.chainId, data.chainId))
+				.select(({ row }) => ({ row })),
+		[() => data.chainId],
+	)
+	const liveQueryEntries = $derived([
+		{
+			id: 'blocks',
+			label: 'Blocks',
+			query: blocksQuery as { data: { row: unknown }[] | undefined },
+		},
+	])
+	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
+		() => liveQueryEntries,
+	)
+
+	const network = $derived(networksByChainId[data.chainId] ?? null)
+	const blockRows = $derived(
+		(blocksQuery.data ?? []).map((r) => r.row as BlockEntry),
+	)
+	const blocksMap = $derived(
+		(() => {
+			const inner = new Map<
+				BlockEntry | undefined,
+				Set<ChainTransactionEntry>
+			>()
+			for (const row of blockRows) inner.set(row, new Set())
+			return inner
+		})(),
+	)
+	const networkData = $derived(
+		(() => {
+			const m = new Map<
+				Network | undefined,
+				Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
+			>()
+			m.set(network ?? undefined, blocksMap)
+			return m
+		})(),
+	)
+	const placeholderBlockIds = $derived(
+		height > 0
+			? new Set<number | [number, number]>([[0, height]])
+			: new Set<number | [number, number]>([0]),
+	)
+
+	$effect(() => {
+		const url = rpcUrls[data.chainId]
+		if (!url) return
+		const provider = createHttpProvider(url)
+		getCurrentBlockNumber(provider).then((h) => {
+			height = h
+		}).catch(() => {})
+	})
+
+	$effect(() => {
+		if (height <= 0) return
+		const lo = Math.max(0, height - 10)
+		for (let i = lo; i <= height; i++) fetchBlock(data.chainId, i).catch(() => {})
+	})
+
+	$effect(() => {
+		for (const blockNumber of visiblePlaceholderBlockIds) {
+			const key = `${data.chainId}:${blockNumber}`
+			if (!blocksCollection.state.get(key))
+				fetchBlock(data.chainId, blockNumber).catch(() => {})
+		}
+	})
+
 	const explorerBlockListUrl = $derived(
 		data.config.explorerUrl ? `${data.config.explorerUrl}/blocks` : null,
 	)
 </script>
 
-
 <svelte:head>
 	<title>{data.config.name} · Network</title>
 </svelte:head>
 
-
-<div data-column="gap-2">
+<div data-column="gap-2" {@attach liveQueryAttachment}>
 	<header class="network-header">
 		<h1>Network</h1>
 		<div class="network-identity" data-row="gap-2 align-center">
@@ -43,9 +121,6 @@
 		</div>
 		<p class="network-meta">
 			Chain ID {data.chainId}
-			{#if data.config.nativeCurrency}
-				· {data.config.nativeCurrency.symbol}
-			{/if}
 		</p>
 	</header>
 
@@ -69,8 +144,13 @@
 			</a>
 		{/if}
 	</nav>
-</div>
 
+	<Network
+		data={networkData}
+		placeholderBlockIds={placeholderBlockIds}
+		bind:visiblePlaceholderBlockIds
+	/>
+</div>
 
 <style>
 	.network-header {

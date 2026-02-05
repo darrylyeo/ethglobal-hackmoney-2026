@@ -6,7 +6,9 @@
 	import { rpcUrls } from '$/constants/rpc-endpoints'
 	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire'
 	import { fetchBlock } from '$/collections/blocks'
+	import { fetchChainTransaction } from '$/collections/chain-transactions'
 	import { blocksCollection } from '$/collections/blocks'
+	import { chainTransactionsCollection } from '$/collections/chain-transactions'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import Network from '$/components/network/Network.svelte'
@@ -18,8 +20,9 @@
 			nameParam: string
 			blockNumberParam: string
 			blockNumber: number
+			transactionId: `0x${string}`
 			chainId: number
-			config: { name: string; explorerUrl?: string }
+			config: { name: string }
 			slug: string
 			caip2: string
 		}
@@ -27,6 +30,19 @@
 
 	let height = $state(0)
 
+	const txQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: chainTransactionsCollection })
+				.where(({ row }) =>
+					and(
+						eq(row.$id.chainId, data.chainId),
+						eq(row.$id.txHash, data.transactionId),
+					),
+				)
+				.select(({ row }) => ({ row })),
+		[() => data.chainId, () => data.transactionId],
+	)
 	const blockQuery = useLiveQuery(
 		(q) =>
 			q
@@ -41,25 +57,28 @@
 		[() => data.chainId, () => data.blockNumber],
 	)
 	const liveQueryEntries = $derived([
-		{
-			id: 'block',
-			label: 'Block',
-			query: blockQuery as { data: { row: unknown }[] | undefined },
+		{ id: 'tx', label: 'Transaction', query: txQuery as { data: { row: unknown }[] | undefined },
+		},
+		{ id: 'block', label: 'Block', query: blockQuery as { data: { row: unknown }[] | undefined },
 		},
 	])
 	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
 		() => liveQueryEntries,
 	)
 
+	const txRow = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
 	const blockRow = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
 	const network = $derived(networksByChainId[data.chainId] ?? null)
+
 	const blocksMap = $derived(
 		(() => {
 			const inner = new Map<
 				BlockEntry | undefined,
 				Set<ChainTransactionEntry>
 			>()
-			if (blockRow) inner.set(blockRow, new Set())
+			if (blockRow && txRow)
+				inner.set(blockRow, new Set([txRow]))
+			else if (blockRow) inner.set(blockRow, new Set())
 			return inner
 		})(),
 	)
@@ -84,11 +103,14 @@
 	)
 
 	const showContextUrl = $derived(
-		`/network/${data.nameParam}#block:${data.blockNumber}`,
+		`/network/${data.nameParam}/block/${data.blockNumberParam}#transaction:${data.transactionId}`,
 	)
 
 	$effect(() => {
-		fetchBlock(data.chainId, data.blockNumber).catch(() => {})
+		Promise.all([
+			fetchChainTransaction(data.chainId, data.transactionId),
+			fetchBlock(data.chainId, data.blockNumber),
+		]).catch(() => {})
 	})
 	$effect(() => {
 		const url = rpcUrls[data.chainId]
@@ -101,7 +123,7 @@
 
 <svelte:head>
 	<title>
-		Block {data.blockNumberParam} · {data.config.name}
+		Transaction {data.transactionId.slice(0, 10)}… · Block {data.blockNumberParam} · {data.config.name}
 	</title>
 </svelte:head>
 
