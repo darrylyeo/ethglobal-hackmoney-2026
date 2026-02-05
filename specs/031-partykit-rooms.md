@@ -13,13 +13,40 @@ peers using SIWE (Sign-In with Ethereum) for cryptographic proof of ownership.
 
 Users join "rooms" identified by a unique room code. Within a room, users can share
 a subset of their connected wallet addresses with other participants. Address
-sharing requires cryptographic verification:
+sharing requires cryptographic verification.
 
-1. Sharer requests a unique SIWE challenge from each peer
-2. Each peer generates a nonce-bearing message
-3. Sharer signs each peer's message using Voltaire
-4. Peers validate the signature matches the claimed address
-5. Verified addresses are visible to all room participants
+**Share modes:**
+
+- **Share with all** – Share an address with every peer in the room; each peer may
+  request verification independently.
+- **Share** (with specific peer) – Share an address with one chosen peer only;
+  only that peer sees it and can request verification.
+
+Only one share mode applies per action; the UI shows both "Share with all" and
+"Share" (e.g. per-peer "Share" in the peer list or a peer picker).
+
+**Verification flow (per peer that has the address shared with them):**
+
+1. Peer (verifier) requests a unique SIWE challenge for that address
+2. Server (or sharer) generates a nonce-bearing message for that verifier
+3. Sharer signs the message using Voltaire **only if** their wallet connection
+   supports signing (EIP-1193); read-only/watch-only connections cannot sign
+4. Verifier validates the signature matches the claimed address
+5. Verification result is stored in the **verifications** collection with date and
+   signature
+
+Peers may **request verification as many times as they want** (e.g. re-verify
+after expiry or to refresh proof). No single-request limit per address.
+
+**Wallet connection transport and actions:**
+
+- **EIP-1193 (signing capable)** – Can sign SIWE challenges; can verify addresses
+  they own; sees "Sign" for pending challenges and can complete verification.
+- **Read-only / watch-only (e.g. `WalletConnectionTransport.None`)** – Cannot
+  sign. UI must only show appropriate actions: do not show "Sign" for pending
+  challenges for that address; show verification status as **Unverifiable** for
+  that peer/address. Do not offer verify/sign actions that require signing when
+  the selected wallet is read-only.
 
 ## Collections
 
@@ -62,11 +89,11 @@ const roomPeersCollection = createCollection<RoomPeer>({
 
 ```typescript
 type SharedAddress = {
-  id: string // `${roomId}:${peerId}:${address}`
+  id: string // `${roomId}:${peerId}:${address}:${targetPeerIds === null ? 'all' : targetPeerIds.join(',')}`
   roomId: string
-  peerId: string
+  peerId: string // sharer
   address: `0x${string}`
-  verifiedBy: string[] // peerIds who have verified
+  targetPeerIds: string[] | null // null = shared with all; [peerId] = shared with that peer only
   sharedAt: number
 }
 
@@ -75,6 +102,45 @@ const sharedAddressesCollection = createCollection<SharedAddress>({
   getId: (sa) => sa.id,
 })
 ```
+
+Verification status and who verified are **not** stored on `SharedAddress`; they
+come from the **verifications** collection. Derive "verified by N peers" or
+"Verified by you" from verifications where `address`, `roomId`, `verifiedPeerId`
+match and `status === 'verified'`.
+
+### `src/collections/verifications.ts`
+
+Verifications are a **separate DB collection**. One row per verification
+request/outcome (verifier + address + verified peer); peers may request multiple
+times.
+
+```typescript
+type VerificationStatus = 'unverifiable' | 'verifying' | 'verified'
+
+type Verification = {
+  id: string // unique per request, e.g. `${roomId}:${verifierPeerId}:${verifiedPeerId}:${address}:${requestedAt}` or UUID
+  roomId: string
+  verifierPeerId: string // peer who requested / performs verification
+  verifiedPeerId: string // peer who owns the address (sharer)
+  address: `0x${string}`
+  status: VerificationStatus
+  requestedAt: number
+  verifiedAt?: number // set when status becomes 'verified'
+  signature?: `0x${string}` // SIWE signature; persisted when status === 'verified'
+  challengeId?: string // link to siwe-challenges for in-flight requests
+}
+
+const verificationsCollection = createCollection<Verification>({
+  id: 'verifications',
+  getId: (v) => v.id,
+})
+```
+
+- **Unverifiable** – Verifier requested but sharer’s wallet is read-only;
+  cannot sign; record created with `status: 'unverifiable'`.
+- **Verifying** – Challenge issued, waiting for signature; `status: 'verifying'`.
+- **Verified** – Signature received and validated; `status: 'verified'`,
+  `verifiedAt` and `signature` set.
 
 ### `src/collections/siwe-challenges.ts`
 
@@ -109,11 +175,12 @@ import type * as Party from 'partykit/server'
 type RoomMessage =
   | { type: 'join'; displayName?: string }
   | { type: 'leave' }
-  | { type: 'share-address'; address: `0x${string}` }
+  | { type: 'share-address'; address: `0x${string}`; targetPeerIds?: string[] }
   | { type: 'request-challenge'; address: `0x${string}`; fromPeerId: string }
   | { type: 'challenge'; challenge: SiweChallenge }
   | { type: 'submit-signature'; challengeId: string; signature: `0x${string}` }
   | { type: 'verify-result'; challengeId: string; verified: boolean }
+  | { type: 'verification-record'; verification: Verification }
   | { type: 'sync'; state: RoomState }
 
 type RoomState = {
@@ -121,6 +188,7 @@ type RoomState = {
   peers: RoomPeer[]
   sharedAddresses: SharedAddress[]
   challenges: SiweChallenge[]
+  verifications: Verification[]
 }
 
 export default class RoomServer implements Party.Server {
@@ -322,6 +390,7 @@ import { roomsCollection } from '$/collections/rooms'
 import { roomPeersCollection } from '$/collections/room-peers'
 import { sharedAddressesCollection } from '$/collections/shared-addresses'
 import { siweChallengesCollection } from '$/collections/siwe-challenges'
+import { verificationsCollection } from '$/collections/verifications'
 
 type RoomState = {
   connection: RoomConnection | null
@@ -364,13 +433,16 @@ export const leaveRoom = () => {
 const handleServerMessage = (msg: RoomMessage) => {
   switch (msg.type) {
     case 'sync':
-      // Bulk update all collections from server state
+      // Bulk update all collections from server state (including verifications)
       break
     case 'challenge':
       siweChallengesCollection.insert(msg.challenge)
       break
     case 'verify-result':
       siweChallengesCollection.update(msg.challengeId, { verified: msg.verified })
+      break
+    case 'verification-record':
+      verificationsCollection.upsert(msg.verification)
       break
     // ...
   }
@@ -402,9 +474,9 @@ Main room interface:
 **Sections:**
 1. Room header (name, code, share link)
 2. Peer list with connection status
-3. My addresses (from `actorsCollection`) with share toggles
-4. Shared addresses from other peers with verification status
-5. Pending challenges to sign/verify
+3. My addresses (from `actorsCollection`) with **Share with all** and **Share** (per peer)
+4. Shared addresses from other peers with **verification status** from `verificationsCollection`: Unverifiable, Verifying, Verified (with date and signature persisted)
+5. Pending challenges to sign/verify – **only show Sign when** the wallet connection for that address supports signing (e.g. EIP-1193); hide or disable for read-only
 
 ### `src/routes/rooms/PeerList.svelte`
 
@@ -430,7 +502,9 @@ Main room interface:
 
 ### `src/routes/rooms/AddressSharing.svelte`
 
-Address sharing with SIWE verification flow:
+Address sharing with SIWE verification flow. **Share with all** vs **Share** (with
+specific peer); show **only actions allowed by wallet transport** (e.g. no Sign
+for read-only).
 
 ```svelte
 <script lang="ts">
@@ -440,32 +514,37 @@ Address sharing with SIWE verification flow:
   import { siweChallengesCollection } from '$/collections/siwe-challenges'
   import { roomState } from '$/state/room.svelte'
   import { signSiweMessage } from '$/lib/siwe'
+  // Wallet connection transport: only show Sign when transport supports signing (e.g. EIP-1193)
 
-  let { roomId }: { roomId: string } = $props()
+  let { roomId, walletConnection }: { roomId: string; walletConnection: ... } = $props()
+
+  const canSign = $derived(walletConnection?.connection?.transport === 'Eip1193')
 
   // My connected addresses
   const actorsQuery = useLiveQuery(() => actorsCollection.query({}))
 
-  // Addresses I've shared
+  // Addresses I've shared (with all or specific peers)
   const mySharedQuery = useLiveQuery(() => (
     sharedAddressesCollection.query({
       where: { roomId, peerId: roomState.peerId },
     })
   ))
 
-  // Pending challenges for me to sign
+  // Pending challenges for me to sign (only show Sign button when canSign)
   const pendingChallengesQuery = useLiveQuery(() => (
     siweChallengesCollection.query({
       where: { roomId, fromPeerId: roomState.peerId, verified: false },
     })
   ))
 
-  // Share an address (initiates verification with all peers)
-  const shareAddress = async (address: `0x${string}`) => {
+  const shareWithAll = (address: `0x${string}`) => {
     roomState.connection?.send({ type: 'share-address', address })
   }
 
-  // Sign a challenge from a peer
+  const shareWithPeer = (address: `0x${string}`, targetPeerId: string) => {
+    roomState.connection?.send({ type: 'share-address', address, targetPeerIds: [targetPeerId] })
+  }
+
   const signChallenge = async (challenge: SiweChallenge, provider: EIP1193Provider) => {
     const signature = await signSiweMessage({
       provider,
@@ -483,12 +562,16 @@ Address sharing with SIWE verification flow:
 <section data-my-addresses>
   <h3>My Addresses</h3>
   {#each actorsQuery.data ?? [] as actor (actor.id)}
-    {@const isShared = mySharedQuery.data?.some((s) => s.address === actor.address)}
+    {@const sharedWithAll = mySharedQuery.data?.some(
+      (s) => s.address === actor.address && s.targetPeerIds === null,
+    )}
     <div data-address>
       <Address address={actor.address} />
-      <Button onclick={() => shareAddress(actor.address)} disabled={isShared}>
-        {isShared ? 'Shared' : 'Share'}
+      <Button onclick={() => shareWithAll(actor.address)} disabled={sharedWithAll}>
+        Share with all
       </Button>
+      <!-- Per-peer Share, e.g. dropdown or peer list actions -->
+      <!-- shareWithPeer(actor.address, peerId) for each peer -->
     </div>
   {/each}
 </section>
@@ -498,9 +581,12 @@ Address sharing with SIWE verification flow:
   {#each pendingChallengesQuery.data ?? [] as challenge (challenge.id)}
     <div data-challenge>
       <p>Sign for peer {challenge.toPeerId.slice(0, 8)}</p>
-      <Button onclick={() => signChallenge(challenge, provider)}>
-        Sign
-      </Button>
+      <!-- Only show Sign when wallet can sign (not read-only) -->
+      {#if canSign}
+        <Button onclick={() => signChallenge(challenge, provider)}>Sign</Button>
+      {:else}
+        <span data-unverifiable>Unverifiable (read-only wallet)</span>
+      {/if}
     </div>
   {/each}
 </section>
@@ -508,18 +594,27 @@ Address sharing with SIWE verification flow:
 
 ### `src/routes/rooms/SharedAddresses.svelte`
 
-Display verified shared addresses from all peers:
+Display shared addresses from other peers. **Verification status** comes from
+`verificationsCollection`; show **Unverifiable**, **Verifying**, or **Verified**
+clearly; persist and display **date** (`verifiedAt`) and **signature** (e.g. in
+tooltip or detail).
 
 ```svelte
 <script lang="ts">
   import { useLiveQuery } from '$/svelte/live-query-context.svelte'
   import { sharedAddressesCollection } from '$/collections/shared-addresses'
+  import { verificationsCollection } from '$/collections/verifications'
   import { roomPeersCollection } from '$/collections/room-peers'
+  import { roomState } from '$/state/room.svelte'
 
   let { roomId }: { roomId: string } = $props()
 
   const sharedQuery = useLiveQuery(() => (
     sharedAddressesCollection.query({ where: { roomId } })
+  ))
+
+  const verificationsQuery = useLiveQuery(() => (
+    verificationsCollection.query({ where: { roomId } })
   ))
 
   const peersQuery = useLiveQuery(() => (
@@ -529,18 +624,46 @@ Display verified shared addresses from all peers:
   const getPeerName = (peerId: string) => (
     peersQuery.data?.find((p) => p.peerId === peerId)?.displayName ?? peerId.slice(0, 8)
   )
+
+  // For each shared address visible to me, get my verification (as verifier)
+  const getMyVerification = (shared: SharedAddress) => (
+    roomState.peerId
+      ? verificationsQuery.data?.find(
+          (v) =>
+            v.verifiedPeerId === shared.peerId &&
+            v.address === shared.address &&
+            v.verifierPeerId === roomState.peerId,
+        )
+      : null
+  )
 </script>
 
 <section data-shared-addresses>
   <h3>Shared Addresses</h3>
   {#each sharedQuery.data ?? [] as shared (shared.id)}
-    {@const verificationCount = shared.verifiedBy.length}
-    {@const peerCount = (peersQuery.data?.length ?? 1) - 1}
-    <div data-shared-address data-fully-verified={verificationCount === peerCount}>
+    {@const myVerification = getMyVerification(shared)}
+    <div
+      data-shared-address
+      data-verification-status={myVerification?.status ?? null}
+    >
       <span data-peer-name>{getPeerName(shared.peerId)}</span>
       <Address address={shared.address} />
       <span data-verification>
-        {verificationCount}/{peerCount} verified
+        {#if !myVerification}
+          —
+        {:else if myVerification.status === 'unverifiable'}
+          Unverifiable
+        {:else if myVerification.status === 'verifying'}
+          Verifying
+        {:else}
+          Verified
+          {#if myVerification.verifiedAt != null}
+            <time datetime={new Date(myVerification.verifiedAt).toISOString()}>
+              {formatDate(myVerification.verifiedAt)}
+            </time>
+          {/if}
+          <!-- signature available as myVerification.signature (e.g. tooltip) -->
+        {/if}
       </span>
     </div>
   {/each}
@@ -549,13 +672,18 @@ Display verified shared addresses from all peers:
 
 ## Verification flow
 
+Peers may **request verification as many times as they want** (e.g. re-request
+after expiry or to refresh). Each request creates/updates a verification record
+with status Unverifiable, Verifying, or Verified; when Verified, **verifiedAt**
+and **signature** are persisted in `verificationsCollection`.
+
 ### Sequence diagram
 
 ```
 Sharer                    Server                    Peer A                   Peer B
    |                         |                         |                        |
-   |-- share-address(0x123) ->|                        |                        |
-   |                         |-- request-challenge --->|                        |
+   |-- share-address(0x123) ->|  (or targetPeerIds)     |                        |
+   |                         |-- request-challenge --->|  (Peer A can repeat)  |
    |                         |-- request-challenge --------------------------->|
    |                         |                         |                        |
    |                         |<-- challenge(nonceA) ---|                        |
@@ -564,11 +692,11 @@ Sharer                    Server                    Peer A                   Pee
    |<-- challenge(nonceA) ---|                         |                        |
    |<-- challenge(nonceB) ---|                         |                        |
    |                         |                         |                        |
-   |  [signs both messages]  |                         |                        |
+   |  [signs if EIP-1193]    |  (read-only → unverifiable)                     |
    |                         |                         |                        |
    |-- submit-sig(A, sigA) ->|                         |                        |
    |-- submit-sig(B, sigB) ->|                         |                        |
-   |                         |                         |                        |
+   |                         |-- verification-record ->| (verifiedAt, signature)|
    |                         |-- verify(sigA) -------->|                        |
    |                         |-- verify(sigB) ---------------------------->|
    |                         |                         |                        |
@@ -594,6 +722,7 @@ Sharer                    Server                    Peer A                   Pee
 - [x] `roomPeersCollection` in `src/collections/room-peers.ts`
 - [x] `sharedAddressesCollection` in `src/collections/shared-addresses.ts`
 - [x] `siweChallengesCollection` in `src/collections/siwe-challenges.ts`
+- [ ] `verificationsCollection` in `src/collections/verifications.ts` (separate from shared-addresses; stores status, verifiedAt, signature; peers may request multiple times)
 - [x] Unit tests for collection normalizers
 
 ### PartyKit server
@@ -618,21 +747,23 @@ Sharer                    Server                    Peer A                   Pee
 - [x] `src/routes/rooms/+page.svelte` – lobby
 - [x] `src/routes/rooms/[roomId]/+page.svelte` – room view
 - [x] Peer list with connection status
+- [ ] **Share with all** and **Share** (with specific peer) – distinct actions per address
 - [x] Address sharing toggle per address
-- [x] Pending challenge signing UI
-- [x] Shared addresses display with verification count
+- [ ] Pending challenge signing UI – **only show Sign when** wallet connection supports signing (EIP-1193); show Unverifiable for read-only
+- [ ] Shared addresses display – verification status from `verificationsCollection`: **Unverifiable**, **Verifying**, **Verified**; show **date** (`verifiedAt`) and **signature** (persisted)
 - [x] Navigation link added
 
 ### Verification flow
 - [x] Per-peer challenge generation
-- [x] Sharer signs each peer's challenge
+- [x] Sharer signs each peer's challenge (when wallet can sign)
+- [ ] **Peers may request verification as many times as they want**
 - [x] Peers validate signatures
-- [x] Address marked verified per peer
+- [ ] Verification records in **separate** `verificationsCollection` with status, **verifiedAt**, **signature**
 - [x] Challenge expiration enforced
 
 ## Status
 
-Complete. Collections (rooms, room-peers, shared-addresses, siwe-challenges) with key helpers in *-keys.ts and Deno unit tests. PartyKit server partykit/room.ts: onConnect/onClose/onMessage, join/leave/share-address, generateChallenge (SIWE message inline), submit-signature forwarded to verifier, verify-result broadcast; state sync on connect. Client: src/lib/partykit.ts (connectToRoom, createRoom, generateRoomCode), src/lib/siwe.ts (createSiweMessage, signSiweMessage via personal_sign, verifySiweSignature via viem recoverMessageAddress). State: src/state/room.svelte.ts (joinRoom, leaveRoom, handleServerMessage with sync/challenge/verify-result/submit-signature). UI: rooms/+page.svelte (lobby create/join), rooms/[roomId]/+page.svelte (room view, AccountsSelect, PeerList, AddressSharing, SharedAddresses), PeerList.svelte, AddressSharing.svelte, SharedAddresses.svelte; Rooms nav link in +layout.svelte.
+Complete for initial implementation. Spec updated 2026-02-05: **Share with all** vs **Share** (specific peer); **wallet transport** – only show Sign/verify when connection supports signing (read-only → Unverifiable); **verification status** Unverifiable / Verifying / Verified with **verifiedAt** and **signature** persisted; **verifications** as **separate** `verificationsCollection`; peers may **request verification as many times as they want**. Collections (rooms, room-peers, shared-addresses, siwe-challenges) with key helpers in *-keys.ts and Deno unit tests. PartyKit server partykit/room.ts: onConnect/onClose/onMessage, join/leave/share-address, generateChallenge (SIWE message inline), submit-signature forwarded to verifier, verify-result broadcast; state sync on connect. Client: src/lib/partykit.ts (connectToRoom, createRoom, generateRoomCode), src/lib/siwe.ts (createSiweMessage, signSiweMessage via personal_sign, verifySiweSignature via viem recoverMessageAddress). State: src/state/room.svelte.ts (joinRoom, leaveRoom, handleServerMessage with sync/challenge/verify-result/submit-signature). UI: rooms/+page.svelte (lobby create/join), rooms/[roomId]/+page.svelte (room view, AccountsSelect, PeerList, AddressSharing, SharedAddresses), PeerList.svelte, AddressSharing.svelte, SharedAddresses.svelte; Rooms nav link in +layout.svelte. **TODO (per AC):** verificationsCollection; share-with-all vs share-with-peer UI; transport-gated Sign/Unverifiable; SharedAddresses from verifications with Unverifiable/Verifying/Verified and date/signature; server to emit verification-record and persist verifiedAt/signature.
 
 ## Output when complete
 

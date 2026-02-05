@@ -53,6 +53,24 @@ following where applicable:
 Use entity metadata (source, status, chain, token, direction, confidence,
 recency) to encode differences across these dimensions.
 
+## Entity/source visibility
+
+- The global graph supports disabling specific entity types and, where
+  applicable, (entity type, data source) combinations (e.g. hide TokenLists
+  coins but keep other coins).
+- Visibility state is persisted (e.g. session or local storage) so toggles
+  survive navigation and refresh.
+- **Default visibility:** On first load, the following are **disabled** (hidden):
+  - Token list coins (entity type TokenListCoin / source TokenLists).
+  - Entity types largely unrelated to the current user: Wallet, WalletConnection,
+    BridgeRoute, SwapQuote, UniswapPool, UniswapPosition, CctpAllowance, CctpFee,
+    Transaction, TransferGraph, YellowChannel, YellowChannelState, YellowDeposit,
+    YellowTransfer, SiweChallenge, DashboardPanel.
+- **Default visible:** User-centric types remain enabled: Actor, ActorCoin,
+  ActorAllowance, Room, RoomPeer, SharedAddress, TransactionSession,
+  TransferRequest, Network, Coin, StorkPrice, TransactionSessionSimulation (and
+  any other in-graph types not listed as disabled above).
+
 ## Acceptance criteria
 
 - [x] G6 view supports intent drag between graph nodes with the same intent
@@ -64,6 +82,17 @@ recency) to encode differences across these dimensions.
 - [x] Each entity type uses a unique combination of G6 visual dimensions.
 - [x] Node and edge state styles cover hover, active, selected, and disabled.
 - [x] Reduced motion preferences disable or simplify animations.
+- [x] Graph scene allows toggling visibility per entity type; visibility state
+  persists across navigation/refresh (localStorage key `graph-visible-entities`).
+- [x] Initial default visibility: TokenListCoin and non-user entity types
+  (Wallet, WalletConnection, BridgeRoute, SwapQuote, UniswapPool, UniswapPosition,
+  CctpAllowance, CctpFee, Transaction, TransferGraph, Yellow*, SiweChallenge,
+  DashboardPanel) are disabled; user-centric types (Actor, ActorCoin,
+  ActorAllowance, Room, RoomPeer, SharedAddress, TransactionSession,
+  TransferRequest, Network, Coin, StorkPrice, TransactionSessionSimulation) are
+  enabled.
+- [ ] (Optional) Support (entity type, data source) combo toggles so e.g.
+  TokenLists-sourced entities can be hidden independently of other sources.
 
 ## TODOs
 
@@ -73,7 +102,10 @@ recency) to encode differences across these dimensions.
 
 ## Status
 
-Complete.
+In progress. Entity/source visibility and default-disabled behaviour implemented:
+GraphScene initializes `visibleCollections` from `DEFAULT_VISIBLE_ENTITY_TYPES`
+(user-centric only), reads/writes `graph-visible-entities` in localStorage;
+optional (entity, source) combo toggles not implemented.
 
 ## Output when complete
 

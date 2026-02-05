@@ -64,8 +64,8 @@ explicitly tracking each file as a formatting task.
 - [x] `src/routes/dashboard/route-map.ts`
 - [x] `src/routes/dashboard/SvelteKitRoute.svelte`
 - [x] `src/routes/dashboard/+page.svelte`
-- [x] `src/routes/explore/usdc/LiveTransfers.svelte`
-- [x] `src/routes/explore/usdc/+page.svelte`
+- [x] `src/views/LiveTransfers.svelte`
+- [x] `src/routes/coin/[symbol]/+page.svelte`
 - [x] `src/routes/about/ArchitectureGraph.svelte`
 - [x] `src/routes/about/architecture-graph.ts`
 - [x] `src/routes/about/+page.svelte`
@@ -94,7 +94,7 @@ explicitly tracking each file as a formatting task.
 - [x] `src/routes/bridge/cctp/CctpBalances.svelte`
 - [x] `src/routes/bridge/cctp/CctpBridgeFlow.svelte`
 - [x] `src/lib/address.ts`
-- [x] `src/views/Balances.svelte`
+- [x] `src/views/CoinBalances.svelte`
 - [x] `src/views/TransactionFlow.svelte`
 - [x] `src/views/AccountsSelect.svelte`
 - [x] `src/views/CoinInput.svelte`

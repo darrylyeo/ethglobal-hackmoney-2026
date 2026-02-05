@@ -33,7 +33,7 @@ Main bridge interface with:
 
 Wallet discovery and connection via EIP-6963.
 
-### `src/views/Balances.svelte`
+### `src/views/CoinBalances.svelte`
 
 USDC balance display per chain.
 
@@ -60,7 +60,7 @@ Transaction execution with status tracking.
 ### Integration
 
 - [x] `AccountsSelect.svelte` handles wallet discovery and connection.
-- [x] `Balances.svelte` displays USDC balances.
+- [x] `CoinBalances.svelte` displays USDC balances.
 - [x] `TokenApproval.svelte` handles ERC20 approvals.
 - [x] `BridgeExecution.svelte` executes selected route.
 
@@ -76,7 +76,7 @@ Complete. Full bridge flow with wallet connection, balance display, route compar
 approval, execution, and transaction history. Re-verification 2026-02-05 (PROMPT_build):
 all UI/integration AC verified in code; e2e/bridge.test.ts runs (select chains, amount passes);
 routes auto-fetch e2e skipped (LI.FI request not triggered in test env; TODO in test).
-test:unit 41 Deno + 101 Vitest passed. Re-verification 2026-02-05 (PROMPT_build execute one spec): no incomplete specs; re-verified 004; entry via session#bridge (view/bridge.svelte + UnifiedBridgeFlow/BridgeFlow); Bits UI (Select, Popover, Button, Dialog); chain filters, amount validation, bridgeRoutesCollection, route comparison, confirmation dialog, errors inline; AccountsSelect, Balances, TokenApproval, BridgeExecution; e2e/bridge.test.ts runs (select chains, amount passes; routes test skipped per TODO); test:unit 41 Deno + 101 Vitest passed; test:e2e bridge.test.ts 1 passed, 1 skipped. Re-verification 2026-02-05 (PROMPT_build one spec, all specs complete): re-verified 004; all UI/integration/E2E AC confirmed in code; test:unit 41 Deno + 101 Vitest passed; e2e bridge 1 passed, 1 skipped.
+test:unit 41 Deno + 101 Vitest passed. Re-verification 2026-02-05 (PROMPT_build execute one spec): no incomplete specs; re-verified 004; entry via session#bridge (view/bridge.svelte + UnifiedBridgeFlow/BridgeFlow); Bits UI (Select, Popover, Button, Dialog); chain filters, amount validation, bridgeRoutesCollection, route comparison, confirmation dialog, errors inline; AccountsSelect, CoinBalances, TokenApproval, BridgeExecution; e2e/bridge.test.ts runs (select chains, amount passes; routes test skipped per TODO); test:unit 41 Deno + 101 Vitest passed; test:e2e bridge.test.ts 1 passed, 1 skipped. Re-verification 2026-02-05 (PROMPT_build one spec, all specs complete): re-verified 004; all UI/integration/E2E AC confirmed in code; test:unit 41 Deno + 101 Vitest passed; e2e bridge 1 passed, 1 skipped.
 
 ## Output when complete
 

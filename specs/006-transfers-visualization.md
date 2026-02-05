@@ -88,7 +88,7 @@ to cover all coins matching the symbol across chains.
 ## Implementation notes
 
 - Use `src/constants/coins` to resolve coins by symbol.
-- Reuse `src/routes/explore/usdc/LiveTransfers.svelte` if compatible; otherwise
+- Reuse `src/views/LiveTransfers.svelte` if compatible; otherwise
   create a minimal coin-aware wrapper.
 - Keep Threlte scene minimal (nodes as meshes or points, edges as lines or
   tubes; optional instancing for many nodes/edges).

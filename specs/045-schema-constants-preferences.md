@@ -19,6 +19,25 @@ reuse of existing domain types, and single-purpose derived indices.
 - One derived index object per distinct lookup; no combined or overloaded
   indices.
 - Keep constant values aligned with current upstream documentation.
+- Prefer discrete TypeScript enums over string unions for fixed sets of
+  values; enums may be used as discriminants in `src/constants` object
+  arrays.
+
+## Enum preference
+
+For a fixed set of string values, use a string enum with values equal to
+member names:
+
+```ts
+enum EnumName {
+	EnumValue1 = 'EnumValue1',
+	EnumValue2 = 'EnumValue2',
+}
+```
+
+Prefer this over TypeScript string unions (e.g. `'a' | 'b'`). These enums
+may be used as discriminant fields in `src/constants` object arrays (e.g.
+`target: IconTarget.Chain`, `source: DataSource.LiFi`).
 
 ## Non-goals
 
@@ -48,6 +67,13 @@ reuse of existing domain types, and single-purpose derived indices.
   primary context, that is represented explicitly (e.g. optional
   `oracleChainId`).
 - [x] Data values are consistent with current upstream docs.
+
+### Enum usage
+
+- [ ] Fixed sets of string values are expressed as string enums (member
+  `= 'MemberName'`) in `src/constants/`, not as string unions.
+- [ ] Discriminant fields in `src/constants` object arrays use enum values
+  (e.g. `target: IconTarget.Chain`) where an enum exists for that domain.
 
 ## Status
 

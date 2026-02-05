@@ -151,9 +151,9 @@ Loading states are shown inline:
 </Button.Root>
 ```
 
-### Balances.svelte
+### CoinBalances.svelte
 
-Balances component shows loading state per-chain via `isLoading` from
+CoinBalances component shows loading state per-chain via `isLoading` from
 `actorCoinsCollection`.
 
 ## Acceptance criteria
@@ -175,8 +175,7 @@ Balances component shows loading state per-chain via `isLoading` from
 
 ### Balance loading
 - [x] Skeleton grid shown before any balances load
-- [x] Individual balances show spinner while refreshing
-- [x] Stale balance shown during refresh (optimistic)
+- [x] Individual balances show skeleton while refreshing
 
 ### Route loading
 - [x] Skeleton route cards shown while fetching
@@ -194,15 +193,15 @@ Complete. `src/components/Skeleton.svelte`, `src/components/Spinner.svelte`,
 `src/components/LoadingButton.svelte`. BridgeFlow.svelte: routes loading shows
 "(loading…)" in header, "Finding routes…" + 3 skeleton route cards while fetching,
 quote refresh shows "Refreshing…", Send button shows "Bridging…" when executing,
-button disabled during loading states. Balances.svelte: skeleton grid (6 items)
-when balancesQuery.isLoading and no balances; Spinner + "Loading…" per balance
-while refreshing. Re-verification 2026-02-05 (PROMPT_build execute one spec): all
+button disabled during loading states. CoinBalances.svelte: skeleton grid (6 items)
+when balancesQuery.isLoading and no balances; per-balance skeleton while refreshing.
+Re-verification 2026-02-05 (PROMPT_build execute one spec): all
 AC re-verified; skeleton route cards and balance skeleton grid added; test:unit
 41 Deno + 101 Vitest passed. Re-verification 2026-02-05 (PROMPT_build.md execute
 one spec, re-verify): all 18 AC confirmed (Skeleton/Spinner/LoadingButton,
 BridgeFlow routes header "(loading…)", Finding routes…, 3 skeleton cards,
-Refreshing…, Bridging…, Balances 6-item skeleton grid, per-balance Spinner +
-Loading…, form disabled/double-submit); test:unit 41 Deno + 101 Vitest passed.
+Refreshing…, Bridging…, Balances 6-item skeleton grid, per-balance skeleton,
+form disabled/double-submit); test:unit 41 Deno + 101 Vitest passed.
 
 ## Output when complete
 

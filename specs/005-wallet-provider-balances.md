@@ -89,7 +89,7 @@ type ActorCoin = {
 ### Bridge page integration
 
 - [x] Bridge page uses `AccountsSelect.svelte` for wallet management
-- [x] `Balances.svelte` displays USDC balances per chain
+- [x] `CoinBalances.svelte` displays USDC balances per chain
 - [x] Balances fetched automatically when wallet connects
 - [x] Balances displayed in grid with chain name and amount
 - [x] Loading states shown while fetching
@@ -172,16 +172,16 @@ disconnect, and balances tests skipped in CI (manual verification).
 Re-verification 2026-02-05 (PROMPT_build one spec): all AC re-verified. Wallet
 component (AccountsSelect), collections (actors, actor-coins), fetchActorCoinBalance
 and fetchAllBalancesForAddress, bridge view (bridge.svelte) with AccountsSelect and
-Balances, balances fetched on connect, grid with chain name and amount. Added
-loading state (Loading…) and per-chain error display in Balances.svelte. test:unit
+CoinBalances, balances fetched on connect, grid with chain name and amount. Added
+loading state (Loading…) and per-chain error display in CoinBalances.svelte. test:unit
 41 Deno + 101 Vitest passed; test:e2e wallet.test.ts 4 passed. Re-verification
 2026-02-05 (PROMPT_build execute one spec): no incomplete specs; re-verified spec
-005; all 17 AC confirmed (AccountsSelect, collections, bridge view, Balances
+005; all 17 AC confirmed (AccountsSelect, collections, bridge view, CoinBalances
 effect, e2e wallet tests); test:unit 41 Deno + 101 Vitest passed; test:e2e 4 passed.
 Re-verification 2026-02-05 (PROMPT_build execute one spec): all 17 AC re-verified
 (AccountsSelect, wallets/walletConnections collections, bridgeSettingsState,
 actors/actorCoins, fetchActorCoinBalance/fetchAllBalancesForAddress, bridge page
-AccountsSelect+Balances, fetch on connect, grid+loading+error); test:unit 41 Deno +
+AccountsSelect+CoinBalances, fetch on connect, grid+loading+error); test:unit 41 Deno +
 101 Vitest passed; test:e2e wallet.test.ts 4 passed. Re-verification 2026-02-05
 (PROMPT_build one spec): re-verified 005; all 17 AC in code; test:unit 41 Deno +
 101 Vitest passed; e2e wallet.test.ts 4 passed.

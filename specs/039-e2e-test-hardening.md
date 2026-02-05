@@ -16,7 +16,7 @@ while reducing flakiness and runtime.
 
 - Playwright E2E tests in `e2e/`
 - Shared test fixtures and mocks
-- Route coverage: `/`, `/bridge`, `/explore/usdc`, `/rooms`, `/rooms/[roomId]`
+- Route coverage: `/`, `/bridge`, `/coin/USDC`, `/rooms`, `/rooms/[roomId]`
 - Cross-cutting checks: accessibility, responsiveness, and error states
 
 ## Non-goals
@@ -87,7 +87,7 @@ deno task test:e2e
 
 ## Status
 
-Complete. Single fixture in `e2e/test-setup.ts`: `addMockWallet`, `injectMockWalletInPage`, `addLifiRoutesMock`, `addCctpMocks`, `addNetworkMocks`. Wallet mock injected via `page.evaluate` after goto so EIP-6963 announce is received in page context. Route-coverage: Home nav uses `.first()` for duplicate links; USDC (`/explore/usdc`) asserts `#main`-scoped period/loading text. All e2e tests pass. Playwright config: trace on-first-retry, screenshot only-on-failure, video on-first-retry.
+Complete. Single fixture in `e2e/test-setup.ts`: `addMockWallet`, `injectMockWalletInPage`, `addLifiRoutesMock`, `addCctpMocks`, `addNetworkMocks`. Wallet mock injected via `page.evaluate` after goto so EIP-6963 announce is received in page context. Route-coverage: Home nav uses `.first()` for duplicate links; USDC (`/coin/USDC`) asserts `#main`-scoped period/loading text. All e2e tests pass. Playwright config: trace on-first-retry, screenshot only-on-failure, video on-first-retry.
 
 ## Output when complete
 
