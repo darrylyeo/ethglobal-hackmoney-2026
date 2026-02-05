@@ -1,28 +1,14 @@
 /**
- * Minimal EIP-1193-style RPC and ERC20 balanceOf helpers using @tevm/voltaire.
- * Uses Abi/Hex subpaths only (main package and provider use bun:ffi and are Deno-incompatible; deno.json maps bun:ffi to a stub for unit tests).
- * Builtins available but not used here: @tevm/voltaire ERC20 (encodeBalanceOf, decodeUint256),
- * @tevm/voltaire/provider HttpProvider (timeout, retries).
+ * Minimal EIP-1193-style RPC and ERC20 helpers using @tevm/voltaire.
+ * Uses ERC20 SELECTORS, decodeUint256; we use fetch-based createHttpProvider for compatibility (upstream provider may use native bindings).
  */
-import { decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
-import { toBytes } from '@tevm/voltaire/Hex'
+import { ERC20 } from '@tevm/voltaire'
 
 export type VoltaireProvider = {
 	request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
 	on: (event: string, listener: () => void) => VoltaireProvider
 	removeListener: (event: string, listener: () => void) => VoltaireProvider
 }
-
-const ERC20_BALANCE_OF_ABI = [
-	{
-		type: 'function' as const,
-		name: 'balanceOf',
-		stateMutability: 'view' as const,
-		inputs: [{ type: 'address', name: 'account' }],
-		outputs: [{ type: 'uint256', name: '' }],
-	},
-] as const
-const BALANCE_OF_OUTPUTS = [{ type: 'uint256' as const, name: '' }] as const
 
 export function getChainId(provider: VoltaireProvider): Promise<bigint> {
 	return provider
@@ -33,15 +19,12 @@ export function getChainId(provider: VoltaireProvider): Promise<bigint> {
 }
 
 export function encodeBalanceOfCall(account: `0x${string}`): `0x${string}` {
-	return encodeFunction(ERC20_BALANCE_OF_ABI, 'balanceOf', [
-		account,
-	]) as `0x${string}`
+	return (ERC20.SELECTORS.balanceOf +
+		account.slice(2).toLowerCase().padStart(64, '0')) as `0x${string}`
 }
 
 export function decodeBalanceOfResult(hex: string): bigint {
-	const bytes = toBytes(hex as `0x${string}`)
-	const [balance] = decodeParameters(BALANCE_OF_OUTPUTS, bytes) as [bigint]
-	return balance
+	return ERC20.decodeUint256(hex)
 }
 
 export async function getErc20Balance(
@@ -50,30 +33,24 @@ export async function getErc20Balance(
 	accountAddress: `0x${string}`,
 ): Promise<bigint> {
 	const data = encodeBalanceOfCall(accountAddress)
-
 	const res = await provider.request({
 		method: 'eth_call',
 		params: [{ to: contractAddress, data }, 'latest'],
 	})
-
 	if (typeof res !== 'string') throw new Error('eth_call returned invalid data')
 	if (!res || res === '0x' || res.length < 66) return 0n
-
 	return decodeBalanceOfResult(res)
 }
 
-const ALLOWANCE_SELECTOR = '0xdd62ed3e'
-const APPROVE_SELECTOR = '0x095ea7b3'
-const TRANSFER_SELECTOR = '0xa9059cbb'
 export const MAX_UINT256 = 2n ** 256n - 1n
 
 export function encodeAllowanceCall(
 	owner: `0x${string}`,
 	spender: `0x${string}`,
 ): `0x${string}` {
-	const paddedOwner = owner.slice(2).toLowerCase().padStart(64, '0')
-	const paddedSpender = spender.slice(2).toLowerCase().padStart(64, '0')
-	return `${ALLOWANCE_SELECTOR}${paddedOwner}${paddedSpender}` as `0x${string}`
+	return (ERC20.SELECTORS.allowance +
+		owner.slice(2).toLowerCase().padStart(64, '0') +
+		spender.slice(2).toLowerCase().padStart(64, '0')) as `0x${string}`
 }
 
 export async function getErc20Allowance(
@@ -85,37 +62,36 @@ export async function getErc20Allowance(
 	const result = await provider.request({
 		method: 'eth_call',
 		params: [
-			{
-				to: tokenAddress,
-				data: encodeAllowanceCall(owner, spender),
-			},
+			{ to: tokenAddress, data: encodeAllowanceCall(owner, spender) },
 			'latest',
 		],
 	})
 	if (typeof result !== 'string' || !result)
 		throw new Error('eth_call returned invalid data')
-	return BigInt(result)
+	return ERC20.decodeUint256(result)
 }
 
 export function encodeApproveCall(
 	spender: `0x${string}`,
 	amount: bigint,
 ): `0x${string}` {
-	const paddedSpender = spender.slice(2).toLowerCase().padStart(64, '0')
-	const paddedAmount = amount.toString(16).padStart(64, '0')
-	return `${APPROVE_SELECTOR}${paddedSpender}${paddedAmount}` as `0x${string}`
+	return (ERC20.SELECTORS.approve +
+		spender.slice(2).toLowerCase().padStart(64, '0') +
+		amount.toString(16).padStart(64, '0')) as `0x${string}`
 }
 
 export function encodeTransferCall(
 	recipient: `0x${string}`,
 	amount: bigint,
 ): string {
-	const paddedRecipient = recipient.slice(2).toLowerCase().padStart(64, '0')
-	const paddedAmount = amount.toString(16).padStart(64, '0')
-	return `${TRANSFER_SELECTOR}${paddedRecipient}${paddedAmount}`
+	return (
+		ERC20.SELECTORS.transfer +
+		recipient.slice(2).toLowerCase().padStart(64, '0') +
+		amount.toString(16).padStart(64, '0')
+	)
 }
 
-/** ERC20 Transfer(address,address,uint256) topic0 */
+/** ERC20 Transfer(address,address,uint256) topic0; not ERC20.EVENTS.Transfer (package has typo) */
 export const TRANSFER_TOPIC =
 	'0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4d52336f2' as const
 
@@ -128,6 +104,19 @@ export type EthLog = {
 	logIndex: string
 }
 
+function parseBlockNumber(
+	v: string | number | undefined | null,
+): bigint | undefined {
+	if (v === undefined || v === null) return undefined
+	return BigInt(v)
+}
+function parseBlockTimestampMs(
+	v: string | number | undefined | null,
+): number | undefined {
+	if (v === undefined || v === null) return undefined
+	return typeof v === 'number' ? v * 1000 : parseInt(v, 16) * 1000
+}
+
 export async function getBlockByNumber(
 	provider: VoltaireProvider,
 	blockNum: bigint | 'latest',
@@ -138,13 +127,19 @@ export async function getBlockByNumber(
 		method: 'eth_getBlockByNumber',
 		params: [blockHex, false],
 	})
-	const block = res as { number?: string; timestamp?: string } | null
-	if (!block?.number || !block?.timestamp)
+	const block = res as {
+		number?: string | number
+		timestamp?: string | number
+	} | null
+	if (block == null || typeof block !== 'object') {
 		throw new Error('eth_getBlockByNumber returned invalid block')
-	return {
-		number: BigInt(block.number),
-		timestamp: parseInt(block.timestamp, 16) * 1000,
 	}
+	const number = parseBlockNumber(block.number)
+	const timestampMs = parseBlockTimestampMs(block.timestamp)
+	if (number === undefined || timestampMs === undefined) {
+		throw new Error('eth_getBlockByNumber returned invalid block')
+	}
+	return { number, timestamp: timestampMs }
 }
 
 export async function getCurrentBlockNumber(
@@ -182,7 +177,9 @@ export async function getBlockTransactionHashes(
 	const block = res as { transactions?: { hash: string }[] } | null
 	const txs = block?.transactions
 	if (!Array.isArray(txs)) return []
-	return txs.map((tx) => (typeof tx === 'string' ? tx : tx.hash) as `0x${string}`)
+	return txs.map(
+		(tx) => (typeof tx === 'string' ? tx : tx.hash) as `0x${string}`,
+	)
 }
 
 export type EthTransaction = {
