@@ -9,7 +9,12 @@
 	import { resolve } from '$app/paths'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { roomPeersCollection } from '$/collections/room-peers'
-	import { roomState, joinRoom, leaveRoom } from '$/state/room.svelte'
+	import {
+	roomState,
+	joinRoom,
+	leaveRoom,
+	partyKitStatusLabel,
+} from '$/state/room.svelte'
 
 	// Props
 	let { data }: { data: { roomId: string } } = $props()
@@ -108,7 +113,14 @@
 	<section data-scroll-item>
 		<h1>{roomDisplayName}</h1>
 
-		<p>
+		<p data-row="wrap gap-2 align-center">
+			<span
+				data-partykit-status
+				data-status={roomState.connectionStatus}
+				title="PartyKit connection"
+			>
+				{partyKitStatusLabel(roomState.connectionStatus)}
+			</span>
 			<a href={resolve(`/rooms/${roomId}/channels`)}>Channels</a>
 			·
 			<a

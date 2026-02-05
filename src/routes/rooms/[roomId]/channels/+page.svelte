@@ -9,7 +9,12 @@
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
 	import { walletsCollection } from '$/collections/wallets'
-	import { roomState, joinRoom, leaveRoom } from '$/state/room.svelte'
+	import {
+	roomState,
+	joinRoom,
+	leaveRoom,
+	partyKitStatusLabel,
+} from '$/state/room.svelte'
 
 	// Props
 	let { data }: { data: { roomId: string } } = $props()
@@ -94,7 +99,14 @@
 <main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
 		<h1>Channels – {roomDisplayName}</h1>
 
-		<p>
+		<p data-row="wrap gap-2 align-center">
+			<span
+				data-partykit-status
+				data-status={roomState.connectionStatus}
+				title="PartyKit connection"
+			>
+				{partyKitStatusLabel(roomState.connectionStatus)}
+			</span>
 			<a href={resolve(`/rooms/${roomId}`)}>Back to room</a>
 			·
 			<a href="/channels/yellow">Yellow Channels</a>

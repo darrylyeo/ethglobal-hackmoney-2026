@@ -218,20 +218,51 @@ function handleServerMessage(msg: RoomMessage) {
 	}
 }
 
+export type PartyKitStatus =
+	| 'idle'
+	| 'connecting'
+	| 'connected'
+	| 'disconnected'
+	| 'error'
+
+export const partyKitStatusLabel = (s: PartyKitStatus): string =>
+	s === 'idle' ?
+		'—'
+	: s === 'connecting' ?
+		'Connecting…'
+	: s === 'connected' ?
+		'Connected'
+	: s === 'disconnected' ?
+		'Disconnected'
+	: 'Error'
+
 export type RoomState = {
 	connection: RoomConnection | null
+	connectionStatus: PartyKitStatus
 	roomId: string | null
 	peerId: string | null
 }
 
 export const roomState = $state<RoomState>({
 	connection: null,
+	connectionStatus: 'idle',
 	roomId: null,
 	peerId: null,
 })
 
 export const joinRoom = (roomId: string, displayName?: string) => {
 	const conn = connectToRoom(roomId)
+	roomState.connectionStatus = 'connecting'
+	conn.socket.addEventListener('open', () => {
+		if (roomState.connection === conn) roomState.connectionStatus = 'connected'
+	})
+	conn.socket.addEventListener('close', () => {
+		roomState.connectionStatus =
+			roomState.connection === conn ? 'disconnected' : roomState.connectionStatus
+	})
+	conn.socket.addEventListener('error', () => {
+		roomState.connectionStatus = 'error'
+	})
 	conn.socket.addEventListener('message', (event: MessageEvent) => {
 		const data = typeof event.data === 'string' ? event.data : ''
 		try {
@@ -251,6 +282,7 @@ export const leaveRoom = () => {
 	roomState.connection?.send({ type: 'leave' })
 	roomState.connection?.close()
 	roomState.connection = null
+	roomState.connectionStatus = 'idle'
 	roomState.roomId = null
 	roomState.peerId = null
 }
