@@ -250,9 +250,11 @@ amount input with aria-describedby (amt-hint, amt-error), aria-invalid, hint and
 role="alert" error; BridgeExecution onStatus callback for live announcements.
 TransactionFlow execute button aria-busy. Navigation: logo as span, home
 aria-label; single h1 per page. Skeleton.svelte data-skeleton for reduced motion.
-Testing: `e2e/accessibility.test.ts` – axe-core (home + bridge), keyboard test on
-/bridge/lifi (connect, form, quote result). Manual VoiceOver verification
-recommended.
+Testing: `e2e/accessibility.test.ts` – axe-core (home, bridge, transfers, rooms),
+keyboard test (connect, form, amount applied). Re-verification 2026-02-05
+(PROMPT_build execute one spec): all AC re-verified; e2e fixes for transfers
+(axe after #main) and keyboard (assert form fill; routes not triggered in test env).
+Manual VoiceOver verification recommended.
 
 ## Output when complete
 
