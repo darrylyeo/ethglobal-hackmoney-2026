@@ -81,10 +81,10 @@ reusing existing components where possible.
 - [x] The page shows balances using existing `CoinBalances.svelte` and TanStack DB.
 - [x] The page shows indexed transactions from `transactionsCollection`.
 - [x] The page lists wallet connections that include the account.
-- [ ] **Wallet connections module** is shown **only when** the address appears in
+- [x] **Wallet connections module** is shown **only when** the address appears in
   `walletConnectionsCollection` (i.e. in some connection’s `actors`); otherwise
   the section is omitted. Reuse existing list/card pattern.
-- [ ] **Room/peer connections module** is shown **only when** the address appears
+- [x] **Room/peer connections module** is shown **only when** the address appears
   in `sharedAddressesCollection` (or `verificationsCollection` when implemented).
   Content: room link, peer display name, verification state; reuse patterns from
   `SharedAddresses.svelte` / `PeerList.svelte` / room collections.
@@ -103,9 +103,12 @@ reusing existing components where possible.
 
 ## Status
 
-Complete for initial implementation. Spec updated: wallet connections and
-room/peer connections as conditional modules (show only when address is in the
-relevant collections); room/peer module to reuse existing room components.
+Complete. Wallet connections section omitted when address not in
+walletConnectionsCollection; room/peer connections section omitted when address
+not in sharedAddressesCollection. Room/peer module shows room link, peer
+display name (roomPeersCollection), verification status (verificationsCollection).
+Re-verification 2026-02-05 (PROMPT_build execute one spec): both conditional
+modules implemented; test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 

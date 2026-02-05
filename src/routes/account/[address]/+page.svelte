@@ -7,7 +7,11 @@
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins'
 	import { networksByChainId } from '$/constants/networks'
+	import { roomPeersCollection } from '$/collections/room-peers'
+	import { roomsCollection } from '$/collections/rooms'
+	import { sharedAddressesCollection } from '$/collections/shared-addresses'
 	import { transactionsCollection } from '$/collections/transactions'
+	import { verificationsCollection } from '$/collections/verifications'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
 	import { walletsCollection } from '$/collections/wallets'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
@@ -53,6 +57,38 @@
 				.select(({ row }) => ({ row })),
 		[],
 	)
+	const sharedAddressesQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: sharedAddressesCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const roomsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: roomsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const roomPeersQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: roomPeersCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const verificationsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: verificationsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+				.select(({ row }) => ({ row })),
+		[],
+	)
 	const liveQueryEntries = [
 		{
 			id: 'account-transactions',
@@ -65,6 +101,18 @@
 			query: connectionsQuery,
 		},
 		{ id: 'account-wallets', label: 'Wallets', query: walletsQuery },
+		{
+			id: 'account-shared-addresses',
+			label: 'Shared Addresses',
+			query: sharedAddressesQuery,
+		},
+		{ id: 'account-rooms', label: 'Rooms', query: roomsQuery },
+		{ id: 'account-room-peers', label: 'Room Peers', query: roomPeersQuery },
+		{
+			id: 'account-verifications',
+			label: 'Verifications',
+			query: verificationsQuery,
+		},
 	]
 	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
 		() => liveQueryEntries,
@@ -94,6 +142,38 @@
 					)
 			: [],
 	)
+	const sharedRowsForAccount = $derived(
+		normalizedAddress
+			? (sharedAddressesQuery.data ?? [])
+					.map((r) => r.row)
+					.filter(
+						(row) =>
+							row.address.toLowerCase() === normalizedAddress.toLowerCase(),
+					)
+			: [],
+	)
+	const roomsById = $derived(
+		new Map((roomsQuery.data ?? []).map((r) => [r.row.id, r.row])),
+	)
+	const peersByRoomAndPeer = $derived(
+		new Map(
+			(roomPeersQuery.data ?? []).map((r) => [
+				`${r.row.roomId}:${r.row.peerId}`,
+				r.row,
+			]),
+		),
+	)
+	const verificationsList = $derived(
+		(verificationsQuery.data ?? []).map((r) => r.row),
+	)
+	const getVerificationStatus = (roomId: string, peerId: string) =>
+		verificationsList.find(
+			(v) =>
+				v.roomId === roomId &&
+				v.verifiedPeerId === peerId &&
+				normalizedAddress != null &&
+				v.address.toLowerCase() === normalizedAddress.toLowerCase(),
+		)?.status ?? null
 
 
 	// Components
@@ -176,12 +256,10 @@
 			{/if}
 		</section>
 
+		{#if connectionsForAccount.length > 0}
 		<section class="account-section">
 			<h2>Wallet connections</h2>
-			{#if connectionsForAccount.length === 0}
-				<p data-muted>No connected wallets include this account.</p>
-			{:else}
-				<ul class="connections-list">
+			<ul class="connections-list">
 					{#each connectionsForAccount as conn (conn.$id.wallet$id.rdns)}
 						{@const wallet =
 							conn.transport === WalletConnectionTransport.None
@@ -200,8 +278,33 @@
 						</li>
 					{/each}
 				</ul>
-			{/if}
 		</section>
+		{/if}
+		{#if sharedRowsForAccount.length > 0}
+		<section class="account-section">
+			<h2>Room / peer connections</h2>
+			<ul class="connections-list">
+				{#each sharedRowsForAccount as s (s.id)}
+					{@const room = roomsById.get(s.roomId)}
+					{@const peer = peersByRoomAndPeer.get(`${s.roomId}:${s.peerId}`)}
+					{@const verificationStatus = getVerificationStatus(s.roomId, s.peerId)}
+					<li class="connection-item">
+						<a href="/rooms/{s.roomId}" class="connection-name">
+							{room?.name ?? s.roomId}
+						</a>
+						<span class="connection-status">
+							{peer?.displayName ?? s.peerId.slice(0, 8)}
+						</span>
+						{#if verificationStatus}
+							<span class="connection-badge" data-verification={verificationStatus}>
+								{verificationStatus}
+							</span>
+						{/if}
+					</li>
+				{/each}
+			</ul>
+		</section>
+		{/if}
 	{/if}
 </div>
 
@@ -279,6 +382,15 @@
 	.tx-chains,
 	.connection-name {
 		font-weight: 500;
+	}
+
+	.connection-name[href] {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.connection-name[href]:hover {
+		text-decoration: underline;
 	}
 
 	.tx-status,
