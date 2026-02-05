@@ -1,6 +1,6 @@
 /**
  * Legacy: fetch chain SVG icons to static/networks/. Prefer running scripts/_fetch-icons.ts (writes to static/icons/chains/).
- * Run: bun run scripts/_fetch-chain-icons.ts then deno task icons:optimize (svgo).
+ * Run: deno run -A scripts/_fetch-chain-icons.ts then deno task icons:optimize (svgo).
  */
 
 import { unzipSync } from 'npm:fflate'

@@ -59,8 +59,6 @@
 		"fflate": "^0.8.2",
 		"partykit": "^0.0.115",
 		"playwright": "1.57.0",
-		"prettier": "^3.8.1",
-		"prettier-plugin-svelte": "^3.4.1",
 		"svelte": "^5.45.6",
 		"svelte-check": "^4.3.4",
 		"svgo": "^4.0.0",

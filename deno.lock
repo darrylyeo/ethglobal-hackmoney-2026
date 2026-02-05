@@ -43,9 +43,6 @@
     "npm:partysocket@^1.1.11": "1.1.11",
     "npm:perfect-arrows@~0.3.7": "0.3.7",
     "npm:playwright@1.57.0": "1.57.0",
-    "npm:prettier-plugin-svelte@^3.4.1": "3.4.1_prettier@3.8.1_svelte@5.46.1__acorn@8.15.0",
-    "npm:prettier@*": "3.8.1",
-    "npm:prettier@^3.8.1": "3.8.1",
     "npm:runed@~0.37.1": "0.37.1_@sveltejs+kit@2.49.2__@sveltejs+vite-plugin-svelte@6.2.1___svelte@5.46.1____acorn@8.15.0___vite@7.3.0____picomatch@4.0.3__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3__acorn@8.15.0_svelte@5.46.1__acorn@8.15.0_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3_vite@7.3.0__picomatch@4.0.3",
     "npm:set-cookie-parser@^2.7.2": "2.7.2",
     "npm:sigma@^3.0.2": "3.0.2_graphology-types@0.24.8",
@@ -5577,17 +5574,6 @@
     "prelude-ls@1.2.1": {
       "integrity": "sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g=="
     },
-    "prettier-plugin-svelte@3.4.1_prettier@3.8.1_svelte@5.46.1__acorn@8.15.0": {
-      "integrity": "sha512-xL49LCloMoZRvSwa6IEdN2GV6cq2IqpYGstYtMT+5wmml1/dClEoI0MZR78MiVPpu6BdQFfN0/y73yO6+br5Pg==",
-      "dependencies": [
-        "prettier",
-        "svelte"
-      ]
-    },
-    "prettier@3.8.1": {
-      "integrity": "sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==",
-      "bin": true
-    },
     "printable-characters@1.0.42": {
       "integrity": "sha512-dKp+C4iXWK4vVYZmYSd0KBH5F/h1HoZRsbJ82AVKRO3PEo8L4lBS/vLwhVtpwwuYcoIsVY+1JYKR268yn480uQ=="
     },
@@ -6970,8 +6956,6 @@
         "npm:partysocket@^1.1.11",
         "npm:perfect-arrows@~0.3.7",
         "npm:playwright@1.57.0",
-        "npm:prettier-plugin-svelte@^3.4.1",
-        "npm:prettier@^3.8.1",
         "npm:runed@~0.37.1",
         "npm:sigma@^3.0.2",
         "npm:svelte-check@^4.3.4",

@@ -1,7 +1,0 @@
-node_modules
-.svelte-kit
-build
-static/networks
-*.min.js
-deno.lock
-pnpm-lock.yaml
