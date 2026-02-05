@@ -275,24 +275,30 @@
 							source: 'balances',
 						},
 					} satisfies IntentDragPayload}
-					<div class="balance-item">
+					<div class="balance-item" data-balance-item>
 						<dt>{network.name}</dt>
-						<Tooltip contentProps={{ side: 'top' }}>
-							{#snippet Content()}
-								<StorkPriceFeed symbol={b.symbol} {priceRow} />
-							{/snippet}
-							<EntityId
-								className="balance-intent"
-								draggableText={`${b.symbol} ${b.$id.address}`}
-								{intent}
-							>
-								<CoinAmount {coin} amount={b.balance} draggable={false} />
-							</EntityId>
-						</Tooltip>
-						{#if balanceUsdValue !== null}
-							<small data-muted>
-								≈ ${formatSmallestToDecimal(balanceUsdValue, 18, 2)}
-							</small>
+						{#if b.isLoading}
+							<span class="balance-loading" aria-busy="true">Loading…</span>
+						{:else if b.error}
+							<span class="balance-error" data-balance-error>{b.error}</span>
+						{:else}
+							<Tooltip contentProps={{ side: 'top' }}>
+								{#snippet Content()}
+									<StorkPriceFeed symbol={b.symbol} {priceRow} />
+								{/snippet}
+								<EntityId
+									className="balance-intent"
+									draggableText={`${b.symbol} ${b.$id.address}`}
+									{intent}
+								>
+									<CoinAmount {coin} amount={b.balance} draggable={false} />
+								</EntityId>
+							</Tooltip>
+							{#if balanceUsdValue !== null}
+								<small data-muted>
+									≈ ${formatSmallestToDecimal(balanceUsdValue, 18, 2)}
+								</small>
+							{/if}
 						{/if}
 					</div>
 				{/if}
@@ -334,5 +340,15 @@
 			font-size: 0.75em;
 			opacity: 0.7;
 		}
+	}
+
+	.balance-loading {
+		font-size: 0.875em;
+		opacity: 0.8;
+	}
+
+	.balance-error {
+		font-size: 0.75em;
+		color: var(--error, #c00);
 	}
 </style>
