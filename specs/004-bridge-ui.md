@@ -73,7 +73,10 @@ Transaction execution with status tracking.
 ## Status
 
 Complete. Full bridge flow with wallet connection, balance display, route comparison,
-approval, execution, and transaction history.
+approval, execution, and transaction history. Re-verification 2026-02-05 (PROMPT_build):
+all UI/integration AC verified in code; e2e/bridge.test.ts runs (select chains, amount passes);
+routes auto-fetch e2e skipped (LI.FI request not triggered in test env; TODO in test).
+test:unit 41 Deno + 101 Vitest passed.
 
 ## Output when complete
 

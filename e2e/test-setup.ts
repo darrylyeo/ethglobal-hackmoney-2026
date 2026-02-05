@@ -286,10 +286,16 @@ export async function addLifiRoutesMock(
 		(url: URL) =>
 			url.href.includes('li.quest') || url.href.includes('api.li.fi'),
 		(route) => {
+			const req = route.request()
+			const u = new URL(req.url())
+			const isRoutes =
+				req.method() === 'POST' && u.pathname.includes('/advanced/routes')
 			route.fulfill({
 				status: 200,
 				contentType: 'application/json',
-				body: JSON.stringify(body),
+				body: JSON.stringify(
+					isRoutes ? body : { chains: [] },
+				),
 			})
 		},
 	)
