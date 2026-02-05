@@ -30,3 +30,9 @@ export const getTxUrl = (chainId: number, txHash: string): string =>
 
 export const getAddressUrl = (chainId: number, address: string): string =>
 	`${explorerUrls[chainId] ?? 'https://blockscan.com'}/address/${address}`
+
+export const getBlockUrl = (
+	chainId: number,
+	blockNumber: number | string,
+): string =>
+	`${explorerUrls[chainId] ?? 'https://blockscan.com'}/block/${blockNumber}`
