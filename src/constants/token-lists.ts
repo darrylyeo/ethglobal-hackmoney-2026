@@ -16,7 +16,7 @@ export const tokenLists = [
 	},
 	{
 		id: TokenListId.Aave,
-		url: 'https://tokenlist.aave.com',
+		url: 'https://raw.githubusercontent.com/bgd-labs/aave-address-book/main/tokenlist.json',
 	},
 	{
 		id: TokenListId.Compound,
