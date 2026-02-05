@@ -212,9 +212,8 @@ export const ensureWalletConnected = async (
 	if (await connectTrigger.count()) {
 		await connectTrigger.click()
 		const providerOption = page.locator('[data-wallet-provider-option]').first()
-		if (await providerOption.count()) {
-			await providerOption.click()
-		}
+		await providerOption.waitFor({ state: 'visible', timeout: 15_000 })
+		await providerOption.click()
 	}
 	await walletAddress.waitFor({ state: 'visible', timeout: 20_000 })
 }
@@ -283,24 +282,17 @@ export async function addLifiRoutesMock(
 	page: import('@playwright/test').Page,
 	body: unknown = mockLifiRoutes,
 ) {
-	await page.route('**/api.li.fi/**', (route) => {
-		if (route.request().method() === 'POST') {
+	await page.route(
+		(url: URL) =>
+			url.href.includes('li.quest') || url.href.includes('api.li.fi'),
+		(route) => {
 			route.fulfill({
 				status: 200,
 				contentType: 'application/json',
 				body: JSON.stringify(body),
 			})
-		} else {
-			route.continue()
-		}
-	})
-	await page.route('**/li.quest/**', (route) => {
-		route.fulfill({
-			status: 200,
-			contentType: 'application/json',
-			body: JSON.stringify(body),
-		})
-	})
+		},
+	)
 }
 
 export async function addCctpMocks(page: import('@playwright/test').Page) {

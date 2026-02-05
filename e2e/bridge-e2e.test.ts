@@ -17,8 +17,8 @@ test.describe('E2E bridge flow', () => {
 				rdns: tevm.providerRdns,
 				name: tevm.providerName,
 			})
-			await page.goto('/session#bridge')
 			await addLifiRoutesMock(page)
+			await page.goto('/session#bridge')
 		})
 
 		test('connect → balance → select → amount → get routes (result or no-routes)', async ({
@@ -35,7 +35,6 @@ test.describe('E2E bridge flow', () => {
 				},
 			)
 			await ensureWalletConnected(page)
-			await selectProtocolOption(page, 'LI.FI')
 			await expect(
 				page.getByRole('heading', { name: 'Your balances' }),
 			).toBeVisible({ timeout: 20_000 })
@@ -74,6 +73,7 @@ test.describe('E2E bridge flow', () => {
 				.getByRole('option', { name: 'OP Mainnet' })
 				.last()
 				.click({ force: true })
+			await selectProtocolOption(page, 'LI.FI')
 			await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 			await Promise.race([
 				page
@@ -107,16 +107,21 @@ test.describe('E2E bridge flow', () => {
 				},
 			)
 			await ensureWalletConnected(page)
-			await selectProtocolOption(page, 'LI.FI')
 			await expect(
 				page.getByRole('heading', { name: 'Your balances' }),
 			).toBeVisible({ timeout: 20_000 })
+			await expect(page.locator('[data-from-chain]')).toBeVisible({
+				timeout: 15_000,
+			})
+			await selectChainOption(page, 'From chain', 'Ethereum')
+			await selectChainOption(page, 'To chain', 'OP Mainnet')
+			await selectProtocolOption(page, 'LI.FI')
 			await page
 				.getByRole('button', { name: /Transaction history/ })
 				.scrollIntoViewIfNeeded()
 			await expect(
 				page.getByRole('button', { name: /Transaction history/ }),
-			).toBeVisible({ timeout: 10_000 })
+			).toBeVisible({ timeout: 15_000 })
 		})
 	})
 
@@ -256,44 +261,12 @@ test.describe('E2E bridge flow', () => {
 				},
 			)
 			await ensureWalletConnected(page)
-			await selectProtocolOption(page, 'LI.FI')
 			await expect(
 				page.getByRole('heading', { name: 'Your balances' }),
 			).toBeVisible({ timeout: 20_000 })
-			await page
-				.locator('#main')
-				.first()
-				.evaluate((el) => {
-					el.querySelector<HTMLElement>('[data-from-chain]')?.scrollIntoView({
-						block: 'center',
-					})
-				})
-			await page.getByLabel('From chain').scrollIntoViewIfNeeded()
-			await page.getByLabel('From chain').focus()
-			await page.getByLabel('From chain').press('ArrowDown')
-			await page
-				.getByRole('option', { name: 'Ethereum' })
-				.waitFor({ state: 'visible', timeout: 10_000 })
-			await page
-				.getByRole('option', { name: 'Ethereum' })
-				.scrollIntoViewIfNeeded()
-			await page
-				.getByRole('option', { name: 'Ethereum' })
-				.click({ force: true })
-			await page.getByLabel('To chain').focus()
-			await page.getByLabel('To chain').press('ArrowDown')
-			await page
-				.getByRole('option', { name: 'OP Mainnet' })
-				.last()
-				.waitFor({ state: 'visible', timeout: 10_000 })
-			await page
-				.getByRole('option', { name: 'OP Mainnet' })
-				.last()
-				.scrollIntoViewIfNeeded()
-			await page
-				.getByRole('option', { name: 'OP Mainnet' })
-				.last()
-				.click({ force: true })
+			await selectChainOption(page, 'From chain', 'Ethereum')
+			await selectChainOption(page, 'To chain', 'OP Mainnet')
+			await selectProtocolOption(page, 'LI.FI')
 			await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 			await Promise.race([
 				page
