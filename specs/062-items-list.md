@@ -32,25 +32,22 @@ preservation across layout shifts.
 
 ## Acceptance criteria
 
-- [ ] `ItemsList` accepts the generic `_Item` and the full prop surface described
+- [x] `ItemsList` accepts the generic `_Item` and the full prop surface described
   in the scope.
-- [ ] `getKey` is used to derive stable keys for items and placeholders.
-- [ ] `getSortValue` is used to sort items before render.
-- [ ] `getGroupKey` + `getGroupLabel` enable grouped rendering using
+- [x] `getKey` is used to derive stable keys for items and placeholders.
+- [x] `getSortValue` is used to sort items before render.
+- [x] `getGroupKey` + `getGroupLabel` enable grouped rendering using
   `Map.groupBy` semantics when provided, otherwise render as a single list.
-- [ ] `placeholderKeys` accepts both explicit keys and numeric key ranges
+- [x] `placeholderKeys` accepts both explicit keys and numeric key ranges
   (`[number, number]`), with visible placeholders derived by `visiblePlaceholderKeys`.
-- [ ] `Item` snippet receives `{ key }` and the discriminated union of
+- [x] `Item` snippet receives `{ key }` and the discriminated union of
   `{ item?: never, isPlaceholder: false } | { item: _Item, isPlaceholder: true }`.
-- [ ] `scrollPosition` determines which CSS property is used to preserve scroll
+- [x] `scrollPosition` determines which CSS property is used to preserve scroll
   position across layout shifts, with behavior documented in the component.
 
-## TODOs
+## Status
 
-- TODO: Define the exact CSS property mapping for `scrollPosition` in
-  `ItemsList.svelte` and document the rationale.
-- TODO: Confirm the preferred key type (`Key`) usage in existing list components
-  before wiring it in.
+Complete. ItemsList.svelte in src/components/ with generics _Item and Key; getKey, getSortValue, getGroupKey, getGroupLabel, placeholderKeys (Set with range expansion), visiblePlaceholderKeys (bindable), scrollPosition, Item snippet. Sorted and optionally grouped via Map.groupBy; placeholders filtered by expanded keys. scrollPosition mapped to overflow-anchor (Start=first child, End=last child, Auto=default). Re-verification 2026-02-05 (PROMPT_build execute one spec): all 7 AC verified; test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 
