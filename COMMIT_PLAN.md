@@ -67,7 +67,7 @@ DONE (b10e0c5): `Navigation: add accounts and USDC routes`
 - Files: `src/views/Navigation.svelte`, `src/views/NavigationItem.svelte`
 - Files: `src/routes/about-old/+page.svelte`, `src/routes/about-old-2/+page.svelte`
 - Files: `src/routes/about/ArchitectureGraph.svelte`, `src/routes/about/architecture-graph.ts`
-- Files: `src/routes/explore/usdc/+page.svelte`, `src/routes/explore/usdc/LiveTransfers.svelte`
+- Files: `src/routes/coin/[symbol]/+page.svelte`, `src/views/LiveTransfers.svelte`
 - Files: `src/routes/transfers/+page.svelte`
 - Dependency: Phase 8
 
@@ -100,6 +100,84 @@ DONE (15c576d): `Specs: document accounts + routes updates`
 DONE (dba00df): `history: record e2e reverify blocks`
 - Files: `history/2026-02-04-build-reverify-005-e2e-blocked.md`, `history/2026-02-05-build-reverify-002-e2e-blocked.md`, `history/2026-02-05-build-reverify-039-e2e-blocked.md`
 - Dependency: Phase 11
+
+## Phase 14: Proxy + network plumbing
+
+DONE (0360a28): `Proxy: add backend forwarding`
+- Files: `src/constants/proxy.ts`, `src/hooks.server.ts`, `src/routes/api/proxy/[...path]/+server.ts`
+- Dependency: none
+
+DONE (c32eedc): `Networks: add slug and CAIP-2 helpers`
+- Files: `src/constants/networks.ts`
+- Dependency: none
+
+DONE (7508236): `Constants: use enum token list IDs`
+- Files: `src/constants/token-lists.ts`
+- Dependency: none
+
+## Phase 15: Blocks + network pages
+
+DONE (ee84c1a): `Blocks: add entity and collection`
+- Files: `src/data/Block.ts`, `src/data/$EntityType.ts`, `src/collections/blocks.ts`, `src/constants/explorers.ts`
+- Dependency: Phase 14
+
+DONE (2770053): `Network: add network and block pages`
+- Files: `src/routes/network/[name]/+page.ts`, `src/routes/network/[name]/+page.svelte`, `src/routes/network/[name]/block/[blockNumber]/+page.ts`, `src/routes/network/[name]/block/[blockNumber]/+page.svelte`
+- Dependency: Phase 14, Phase 15
+
+## Phase 16: Graph visibility defaults
+
+DONE (012df41): `GraphScene: persist entity visibility defaults`
+- Files: `src/routes/GraphScene.svelte`
+- Dependency: Phase 15
+
+## Phase 17: Coin balances + pricing
+
+DONE (d458f31): `Balances: rename CoinBalances and wire price tooltip`
+- Files: `src/views/CoinBalances.svelte`, `src/views/CoinAmount.svelte`, `src/collections/stork-prices.ts`, `src/routes/bridge/cctp/CctpBalances.svelte`, `src/view/bridge.svelte`, `src/view/swap.svelte`, `src/routes/account/[address]/+page.svelte`
+- Dependency: Phase 15
+
+## Phase 18: Coin transfers + navigation
+
+DONE (aff4bb4): `Transfers: move LiveTransfers view`
+- Files: `src/views/LiveTransfers.svelte`, `src/routes/coin/[symbol]/+page.svelte`
+- Dependency: Phase 17
+
+DONE (c965e47): `Routing: redirect /explore/usdc to /coin/USDC`
+- Files: `src/routes/explore/usdc/+page.ts`, `src/routes/explore/usdc/+page.svelte` (delete)
+- Dependency: Phase 18
+
+DONE (581760f): `Navigation: expand Explore section`
+- Files: `src/routes/+layout.svelte`, `src/routes/+page.svelte`, `src/routes/about-old/+page.svelte`, `src/routes/about-old-2/+page.svelte`, `src/routes/about/architecture-graph.ts`, `src/routes/transfers/+page.svelte`
+- Dependency: Phase 14, Phase 18
+
+## Phase 19: Rooms status + peers
+
+DONE (28fcd0e): `Rooms: surface PartyKit connection status`
+- Files: `src/state/room.svelte.ts`, `src/routes/rooms/[roomId]/+page.svelte`, `src/routes/rooms/[roomId]/channels/+page.svelte`
+- Dependency: none
+
+## Phase 20: E2E route updates
+
+DONE (08b6d0a): `e2e: update USDC route coverage`
+- Files: `e2e/accessibility.test.ts`, `e2e/coverage-manifest.ts`, `e2e/responsive.test.ts`, `e2e/route-coverage.test.ts`
+- Dependency: Phase 18
+
+## Phase 21: Spec updates
+
+DONE (1b6d4bf): `Specs: align docs with coin, rooms, and graph updates`
+- Files: `specs/004-bridge-ui.md`, `specs/005-wallet-provider-balances.md`, `specs/006-transfers-visualization.md`, `specs/014-e2e-bridge-flow.md`, `specs/017-loading-states.md`, `specs/031-partykit-rooms.md`, `specs/033-stork-prices.md`, `specs/039-e2e-test-hardening.md`, `specs/042-entity-data-sources.md`, `specs/045-schema-constants-preferences.md`, `specs/046-transaction-sessions.md`, `specs/048-g6-graph-intents-and-schema.md`, `specs/053-e2e-coverage-mandate.md`, `specs/056-formatting-enforcement.md`, `specs/059-account-pages.md`
+- Dependency: Phases 14-19
+
+DONE (eb2c858): `Specs: add network/block/transaction docs`
+- Files: `specs/060-network-and-block-pages.md`, `specs/061-nav-peers-verified-accounts.md`, `specs/062-items-list.md`, `specs/063-network-block-transaction-components.md`, `specs/064-coin-transfer-events.md`
+- Dependency: Phase 15
+
+## Phase 22: Commit plan
+
+- Commit: `chore: update commit plan`
+- Files: `COMMIT_PLAN.md`
+- Dependency: Phases 14-21
 
 ## Commit later
 
