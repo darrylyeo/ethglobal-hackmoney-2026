@@ -18,10 +18,22 @@
 	import { setIntentNavigateTo } from '$/state/intent-navigation.svelte'
 
 	// Functions
-	import { buildRoutePath, defaultRoutePath } from './route-map'
+	import { buildRoutePath, defaultRoutePath, routeEntries } from './route-map'
 
 	// Components
 	import PanelTree from './PanelTree.svelte'
+
+	// Props
+	let {
+		data = {},
+	}: {
+		data?: Record<string, unknown>
+	} = $props()
+
+	const embeddedInPanel = $derived(data?.embeddedInPanel === true)
+	const panelRouteLinks = $derived(
+		routeEntries.filter((entry) => entry.path !== '/dashboard'),
+	)
 
 	const createPanelNode = (
 		route: DashboardPanelRoute,
@@ -352,6 +364,7 @@
 	})
 
 	$effect(() => {
+		if (embeddedInPanel) return () => setIntentNavigateTo(null)
 		setIntentNavigateTo((path, hash) => {
 			const previousPanelIds = listPanelIds(root)
 			const nextRoot = splitPanel(
@@ -381,28 +394,43 @@
 	<title>Dashboard</title>
 </svelte:head>
 
-<main id="main" class="dashboard" data-sticky-container>
-	<section data-scroll-item class="dashboard-tree">
-		<PanelTree
-			{root}
-			{focusedPanelId}
-			{splitRatioOverrides}
-			onFocus={focusPanel}
-			onSplit={splitFocusedPanel}
-			onRemove={removePanelById}
-			onSwap={swapPanel}
-			onUpdateRoute={updatePanelRoute}
-			onAppendHash={appendPanelHash}
-			onSetPanelHash={setPanelHash}
-			onNavigate={navigatePanel}
-			onOpenInNewPanel={openInNewPanel}
-			onSetSplitRatio={updateSplitRatio}
-			onSetSplitRatioOverride={setSplitRatioOverride}
-			onClearSplitRatioOverride={clearSplitRatioOverride}
-			onToggleSplitDirection={flipSplitDirection}
-		/>
-	</section>
-</main>
+{#if embeddedInPanel}
+	<main id="main" class="dashboard dashboard-embedded" data-sticky-container>
+		<nav class="dashboard-route-grid" aria-label="Routes">
+			{#each panelRouteLinks as entry (entry.path)}
+				<a
+					href={resolve(buildRoutePath({ path: entry.path, params: {} }))}
+					class="dashboard-route-link"
+				>
+					{entry.path === '/' ? 'Home' : entry.path}
+				</a>
+			{/each}
+		</nav>
+	</main>
+{:else}
+	<main id="main" class="dashboard" data-sticky-container>
+		<section data-scroll-item class="dashboard-tree">
+			<PanelTree
+				{root}
+				{focusedPanelId}
+				{splitRatioOverrides}
+				onFocus={focusPanel}
+				onSplit={splitFocusedPanel}
+				onRemove={removePanelById}
+				onSwap={swapPanel}
+				onUpdateRoute={updatePanelRoute}
+				onAppendHash={appendPanelHash}
+				onSetPanelHash={setPanelHash}
+				onNavigate={navigatePanel}
+				onOpenInNewPanel={openInNewPanel}
+				onSetSplitRatio={updateSplitRatio}
+				onSetSplitRatioOverride={setSplitRatioOverride}
+				onClearSplitRatioOverride={clearSplitRatioOverride}
+				onToggleSplitDirection={flipSplitDirection}
+			/>
+		</section>
+	</main>
+{/if}
 
 <style>
 	.dashboard {
@@ -415,5 +443,29 @@
 	.dashboard-tree {
 		flex: 1 1 0;
 		min-height: 0;
+	}
+
+	.dashboard-embedded {
+		padding: 1rem;
+	}
+
+	.dashboard-route-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+		gap: 0.5rem;
+	}
+
+	.dashboard-route-link {
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.35rem;
+		border: 1px solid color-mix(in oklab, currentColor 25%, transparent);
+		background: color-mix(in oklab, currentColor 6%, transparent);
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.dashboard-route-link:hover {
+		background: color-mix(in oklab, currentColor 12%, transparent);
+		border-color: color-mix(in oklab, currentColor 40%, transparent);
 	}
 </style>

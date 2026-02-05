@@ -41,8 +41,8 @@ const toSegments = (routePath: string) =>
 						: { type: 'static', value: segment }
 				})
 
-export const routeEntries: RouteEntry[] = Object.entries(routeImports)
-	.map(([filePath, load]) => {
+const allRouteEntries: RouteEntry[] = Object.entries(routeImports).map(
+	([filePath, load]) => {
 		const path = toRoutePath(filePath)
 		const segments = toSegments(path)
 		return {
@@ -53,12 +53,18 @@ export const routeEntries: RouteEntry[] = Object.entries(routeImports)
 				segment.type === 'static' ? [] : [segment.name],
 			),
 		}
-	})
-	.filter((entry) => !entry.path.startsWith('/dashboard'))
+	},
+)
+
+export const routeEntries: RouteEntry[] = allRouteEntries
+
+const panelRouteEntries = allRouteEntries.filter(
+	(entry) => !entry.path.startsWith('/dashboard'),
+)
 
 export const defaultRoutePath =
-	routeEntries.find((entry) => entry.path === '/')?.path ??
-	routeEntries[0]?.path ??
+	panelRouteEntries.find((entry) => entry.path === '/')?.path ??
+	panelRouteEntries[0]?.path ??
 	'/'
 
 export const buildRoutePath = (route: RoutePathInput) =>

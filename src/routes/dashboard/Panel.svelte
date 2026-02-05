@@ -161,8 +161,8 @@
 			<button type="button" onclick={() => onSplit(panel.id, 'vertical')}>
 				Split ↓
 			</button>
-			<button type="button" onclick={() => onSwap(panel.id)}> Swap </button>
-			<button type="button" onclick={() => onRemove(panel.id)}> Remove </button>
+			<button type="button" onclick={() => onSwap(panel.id)}>Swap ↔</button>
+			<button type="button" onclick={() => onRemove(panel.id)}>Close</button>
 		</div>
 	</header>
 
@@ -181,6 +181,7 @@
 					route={panel.route}
 					entry={routeEntry}
 					extraData={{
+						embeddedInPanel: true,
 						panelHash: panelHash ?? null,
 						setPanelHash,
 					}}
