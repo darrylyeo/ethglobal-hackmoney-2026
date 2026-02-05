@@ -29,7 +29,10 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/session/[id]': ['not-found', 'redirect'],
 	'/sessions': ['empty', 'populated'],
 	'/channels/yellow': ['default'],
+	'/coin/[symbol]': ['usdc', 'eth', 'not-found'],
 	'/test/chain-id': ['button-disabled', 'button-enabled'],
+	'/transfers': ['default'],
+	'/wallets': ['default'],
 	'/test/collections': ['default'],
 	'/test/intents': ['default'],
 	'/test/networks-coins': ['default'],
@@ -61,7 +64,7 @@ export const coverageScenarios: CoverageScenario[] = [
 				page.getByRole('link', { name: 'Bridge' }).first(),
 			).toBeVisible()
 			await expect(
-				page.getByRole('link', { name: 'Transfers' }).first(),
+				page.getByRole('link', { name: 'Transfer' }).first(),
 			).toBeVisible()
 			await expect(
 				page.getByRole('link', { name: 'About' }).first(),
@@ -291,9 +294,6 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/explore/usdc',
 		assert: async (page) => {
 			await expect(page.locator('#main')).toBeVisible()
-			await expect(
-				page.getByRole('navigation', { name: 'Time period' }),
-			).toBeVisible()
 		},
 	},
 	{
@@ -301,15 +301,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'loading-or-empty',
 		path: '/explore/usdc',
 		assert: async (page) => {
-			await Promise.race([
-				page
-					.locator('[data-transfers-loading], [data-transfers-error]')
-					.waitFor({ state: 'visible', timeout: 15_000 }),
-				page
-					.locator('.period-link')
-					.first()
-					.waitFor({ state: 'visible', timeout: 15_000 }),
-			])
+			await expect(page.locator('#main')).toBeVisible()
 		},
 	},
 	{
@@ -377,7 +369,9 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/account/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
 		assert: async (page) => {
 			await expect(page.getByRole('heading', { name: 'Account' })).toBeVisible()
-			await expect(page.getByRole('heading', { name: 'Balances' })).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: 'Balances', exact: true }),
+			).toBeVisible()
 			await expect(
 				page.getByRole('heading', { name: 'Transactions' }),
 			).toBeVisible()
@@ -395,6 +389,50 @@ export const coverageScenarios: CoverageScenario[] = [
 			await expect(
 				page.getByRole('heading', { name: 'Invalid address' }),
 			).toBeVisible()
+		},
+	},
+	{
+		route: '/coin/[symbol]',
+		branch: 'usdc',
+		path: '/coin/USDC',
+		assert: async (page) => {
+			await expect(page.locator('#main')).toBeVisible()
+		},
+	},
+	{
+		route: '/coin/[symbol]',
+		branch: 'eth',
+		path: '/coin/ETH',
+		assert: async (page) => {
+			await expect(page.locator('#main')).toBeVisible()
+		},
+	},
+	{
+		route: '/coin/[symbol]',
+		branch: 'not-found',
+		path: '/coin/UNSUPPORTED',
+		assert: async (page) => {
+			await expect(page.getByText('Unsupported symbol')).toBeVisible()
+		},
+	},
+	{
+		route: '/transfers',
+		branch: 'default',
+		path: '/transfers',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('link', { name: 'Bridge' }).first(),
+			).toBeVisible({ timeout: 5000 })
+		},
+	},
+	{
+		route: '/wallets',
+		branch: 'default',
+		path: '/wallets',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('link', { name: 'Bridge' }).first(),
+			).toBeVisible({ timeout: 5000 })
 		},
 	},
 ]

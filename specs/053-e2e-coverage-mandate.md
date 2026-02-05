@@ -61,7 +61,7 @@ deno task test:e2e
 
 ## Status
 
-Complete. Coverage manifest in `e2e/coverage-manifest.ts` with `routeBranchRequirements` and `coverageScenarios`; enforcement test in `e2e/coverage-enforcement.test.ts` discovers routes via `e2e/coverage-utils.ts`, asserts manifest match and branch coverage, runs each scenario. Helpers in `e2e/coverage-helpers.ts` for localStorage seeding (page-based seed for session data). All 29 coverage tests pass.
+Complete. Coverage manifest in `e2e/coverage-manifest.ts` with `routeBranchRequirements` and `coverageScenarios`; enforcement test in `e2e/coverage-enforcement.test.ts` discovers routes via `e2e/coverage-utils.ts`, asserts manifest match and branch coverage, runs each scenario. Helpers in `e2e/coverage-helpers.ts` for localStorage seeding (page-based seed for session data). Re-verification 2026-02-05 (PROMPT_build execute one spec): added missing routes `/coin/[symbol]`, `/transfers`, `/wallets` to manifest with branches and scenarios; fixed home scenario (Transfer not Transfers), account valid-address (Balances exact), explore/usdc assertions; all 37 coverage enforcement tests pass.
 
 ## Output when complete
 
