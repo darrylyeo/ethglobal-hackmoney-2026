@@ -257,6 +257,8 @@ keyboard test (connect, form, amount applied). Re-verification 2026-02-05
 (axe after #main) and keyboard (assert form fill; routes not triggered in test env).
 Re-verification 2026-02-05 (PROMPT_build one spec, no incomplete specs): re-verified 022; added UnifiedBridgeFlow amount field aria-describedby (amt-hint, amt-error), aria-invalid, role=alert on errors, sr-only hint; test:unit 41 Deno + 101 Vitest passed; e2e accessibility 5/5 passed.
 Manual VoiceOver verification recommended.
+Re-verification 2026-02-05 (PROMPT_build execute one spec): All 22 AC re-verified; src/styles/accessibility.css, +layout.svelte skip-link and main#main, UnifiedBridgeFlow amt-hint/amt-error/aria, BridgeFlow aria-live; e2e/accessibility.test.ts 5/5 passed; test:unit 44 Deno + 101 Vitest passed.
+Re-verification 2026-02-05 (PROMPT_build re-verify one spec): All 22 AC confirmed; test:unit 44 Deno + 101 Vitest passed; e2e accessibility 5/5 passed.
 
 ## Output when complete
 
