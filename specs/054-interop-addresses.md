@@ -58,7 +58,7 @@ constants, entity identifiers, and drag payloads.
 
 ## Status
 
-Complete. `@wonderland/interop-addresses` in dependencies; `src/constants/interop.ts` with toInteropName, toInteropHex, fromInteropBinary, interopFormatConfig. Actor, ActorCoin, TokenListCoin, ActorAllowance, Coin $id types include optional interopAddress; collections set it on insert/upsert. Intent drag uses withInteropAddress in setIntentDragData; getIntentDragPayload accepts legacy and interop payloads; resolve-intent uses interop (and tokenInteropAddress) for equality. setActorAllowance uses allowanceKeyParts and sets interopAddress. Unit tests: interop.spec.ts (actor + token/coin formatting), drag.spec.ts (round-trip and legacy).
+Complete. `@wonderland/interop-addresses` in dependencies; `src/constants/interop.ts` with toInteropName, toInteropHex, fromInteropBinary, interopFormatConfig. Actor, ActorCoin, TokenListCoin, ActorAllowance, Coin $id types include optional interopAddress; collections set it on insert/upsert. Intent drag uses withInteropAddress in setIntentDragData; getIntentDragPayload accepts legacy and interop payloads; resolve-intent uses interop (and tokenInteropAddress) for equality. setActorAllowance uses allowanceKeyParts and sets interopAddress. Unit tests: interop.spec.ts (actor + token/coin formatting), drag.spec.ts (round-trip and legacy). Re-verification 2026-02-05 (PROMPT_build): all acceptance criteria confirmed; test:unit 41 Deno + 101 Vitest passed.
 
 ## Output when complete
 
