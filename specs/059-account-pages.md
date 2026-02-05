@@ -55,12 +55,12 @@ reusing existing components where possible.
 
 ## Acceptance criteria
 
-- [ ] `/account/[address]` renders for both interop and raw `0x` addresses.
-- [ ] The page shows balances using existing `Balances.svelte` and TanStack DB.
-- [ ] The page shows indexed transactions from `transactionsCollection`.
-- [ ] The page lists wallet connections that include the account.
-- [ ] Accounts nav items (flattened, with icon and tag) link to the account route.
-- [ ] No direct RPC fetches are introduced in the account page (TanStack DB only).
+- [x] `/account/[address]` renders for both interop and raw `0x` addresses.
+- [x] The page shows balances using existing `Balances.svelte` and TanStack DB.
+- [x] The page shows indexed transactions from `transactionsCollection`.
+- [x] The page lists wallet connections that include the account.
+- [x] Accounts nav items (flattened, with icon and tag) link to the account route.
+- [x] No direct RPC fetches are introduced in the account page (TanStack DB only).
 
 ## TODOs
 
@@ -70,7 +70,7 @@ reusing existing components where possible.
 
 ## Status
 
-Planned.
+Complete.
 
 ## Output when complete
 
