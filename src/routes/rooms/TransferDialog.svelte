@@ -120,7 +120,6 @@
 </Dialog.Root>
 
 
-
 <style>
 	.transfer-balance {
 		margin: 0.5rem 0;
