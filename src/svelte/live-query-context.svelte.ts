@@ -1,10 +1,9 @@
 /**
  * Live query shared state: tracks a stack of reactive TanStack DB queries.
- * Components register queries via attachments for visualization.
+ * Components register queries via $effect for visualization.
  */
 
 import { untrack } from 'svelte'
-import { createAttachmentKey, type Attachment } from 'svelte/attachments'
 
 export type LiveQueryEntry = {
 	id: string
@@ -58,86 +57,25 @@ const removeRegistry = (ctx: LiveQueryContext, id: string) => {
 }
 
 /**
- * Creates an attachment that registers a live query to the global stack.
- * Query is registered when element mounts, unregistered on unmount.
+ * Registers a live query stack for visualization via $effect.
+ * Call once per component in the <script> block; the stack updates
+ * reactively and cleans up on component teardown.
  */
-const createLiveQueryAttachment = (
-	ctx: LiveQueryContext,
-	entry: LiveQueryEntry,
-): Attachment => {
-	return () => {
-		updateRegistry(ctx, entry.id, [entry])
-
-		return () => {
-			removeRegistry(ctx, entry.id)
-		}
-	}
-}
-
-export const liveQueryAttachment = (entry: LiveQueryEntry): Attachment =>
-	createLiveQueryAttachment(useLiveQueryContext(), entry)
-
-export const liveQueryLocalAttachment = (entry: LiveQueryEntry): Attachment =>
-	createLiveQueryAttachment(useLocalLiveQueryContext(), entry)
-
-/**
- * Creates an attachment that syncs multiple entries (derived from getEntries) to the stack.
- * Use when a component has several live queries and should register them as one unit.
- */
-const createLiveQueryAttachmentFrom = (
+const registerLiveQueryStack = (
 	ctx: LiveQueryContext,
 	getEntries: () => LiveQueryEntry[],
-): Attachment => {
-	return () => {
-		const id = crypto.randomUUID()
-		const destroy = $effect.root(() => {
-			$effect(() => {
-				updateRegistry(ctx, id, getEntries())
-				return () => {
-					removeRegistry(ctx, id)
-				}
-			})
-		})
-		return () => {
-			destroy()
-		}
-	}
-}
-
-export const liveQueryAttachmentFrom = (
-	getEntries: () => LiveQueryEntry[],
-): Attachment =>
-	createLiveQueryAttachmentFrom(useLiveQueryContext(), getEntries)
-
-export const liveQueryLocalAttachmentFrom = (
-	getEntries: () => LiveQueryEntry[],
-): Attachment =>
-	createLiveQueryAttachmentFrom(useLocalLiveQueryContext(), getEntries)
-
-/**
- * Creates props with attachment keys for spreading onto an element.
- * Allows registering multiple queries at once.
- */
-const createLiveQueryProps = (
-	ctx: LiveQueryContext,
-	entries: LiveQueryEntry[],
 ) => {
-	return Object.fromEntries(
-		entries.map((entry) => [
-			createAttachmentKey(),
-			() => {
-				updateRegistry(ctx, entry.id, [entry])
-
-				return () => {
-					removeRegistry(ctx, entry.id)
-				}
-			},
-		]),
-	)
+	const id = crypto.randomUUID()
+	$effect(() => {
+		updateRegistry(ctx, id, getEntries())
+		return () => removeRegistry(ctx, id)
+	})
 }
 
-export const liveQueryProps = (entries: LiveQueryEntry[]) =>
-	createLiveQueryProps(useLiveQueryContext(), entries)
+export const registerGlobalLiveQueryStack = (
+	getEntries: () => LiveQueryEntry[],
+) => registerLiveQueryStack(useLiveQueryContext(), getEntries)
 
-export const liveQueryLocalProps = (entries: LiveQueryEntry[]) =>
-	createLiveQueryProps(useLocalLiveQueryContext(), entries)
+export const registerLocalLiveQueryStack = (
+	getEntries: () => LiveQueryEntry[],
+) => registerLiveQueryStack(useLocalLiveQueryContext(), getEntries)
