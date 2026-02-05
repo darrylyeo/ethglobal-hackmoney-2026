@@ -171,7 +171,7 @@ const fetchRestPrices = async (assetIds: string[]) => {
 		}
 		return
 	}
-	const url = new URL('/v1/prices/latest', baseUrl)
+	const url = new URL('v1/prices/latest', `${baseUrl}/`)
 	url.searchParams.set('assets', assetIds.join(','))
 	const response = await fetch(url.toString(), {
 		headers: token
@@ -228,7 +228,7 @@ const fetchStorkDeployments = async () => {
 	const baseUrl = getStorkRestBaseUrl()
 	const useProxy = baseUrl !== storkRestBaseUrl
 	const token = useProxy ? undefined : env.PUBLIC_STORK_REST_TOKEN
-	const url = new URL('/v1/deployments/evm', baseUrl)
+	const url = new URL('v1/deployments/evm', `${baseUrl}/`)
 	const response = await fetch(url.toString(), {
 		headers: token
 			? {
