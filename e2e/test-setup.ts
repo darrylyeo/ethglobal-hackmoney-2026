@@ -278,25 +278,47 @@ const mockLifiRoutes = {
 	],
 }
 
+const lifiRoutesHandler = (body: unknown) => (
+	route: import('@playwright/test').Route,
+) => {
+	const req = route.request()
+	if (req.method() === 'OPTIONS') {
+		route.fulfill({
+			status: 204,
+			headers: {
+				'Access-Control-Allow-Origin': '*',
+				'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+				'Access-Control-Allow-Headers': 'Content-Type',
+			},
+		})
+		return
+	}
+	const u = new URL(req.url())
+	const isRoutes =
+		req.method() === 'POST' &&
+		(u.pathname.includes('/advanced/routes') || u.pathname.includes('/routes'))
+	route.fulfill({
+		status: 200,
+		headers: { 'Access-Control-Allow-Origin': '*' },
+		contentType: 'application/json',
+		body: JSON.stringify(isRoutes ? body : { chains: [] }),
+	})
+}
+
+const LIFI_ROUTE_GLOB = /li\.quest|api\.li\.fi|li-fi/
+
 export async function addLifiRoutesMock(
 	page: import('@playwright/test').Page,
 	body: unknown = mockLifiRoutes,
 ) {
-	await page.route(
-		(url: URL) =>
-			url.href.includes('li.quest') || url.href.includes('api.li.fi'),
-		(route) => {
-			const req = route.request()
-			const u = new URL(req.url())
-			const isRoutes =
-				req.method() === 'POST' && u.pathname.includes('/advanced/routes')
-			route.fulfill({
-				status: 200,
-				contentType: 'application/json',
-				body: JSON.stringify(isRoutes ? body : { chains: [] }),
-			})
-		},
-	)
+	await page.route(LIFI_ROUTE_GLOB, lifiRoutesHandler(body))
+}
+
+export async function addLifiRoutesMockToContext(
+	context: import('@playwright/test').BrowserContext,
+	body: unknown = mockLifiRoutes,
+) {
+	await context.route(LIFI_ROUTE_GLOB, lifiRoutesHandler(body))
 }
 
 export async function addCctpMocks(page: import('@playwright/test').Page) {

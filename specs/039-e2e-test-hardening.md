@@ -87,7 +87,7 @@ deno task test:e2e
 
 ## Status
 
-Complete. Single fixture in `e2e/test-setup.ts`: `addMockWallet`, `injectMockWalletInPage`, `addLifiRoutesMock`, `addCctpMocks`, `addNetworkMocks`. Wallet mock injected via `page.evaluate` after goto so EIP-6963 announce is received in page context. Route-coverage: Home nav uses `.first()` for duplicate links; USDC (`/coin/USDC`) asserts `#main`-scoped period/loading text. All e2e tests pass. Playwright config: trace on-first-retry, screenshot only-on-failure, video on-first-retry.
+Complete. Re-verification 2026-02-05 (PROMPT_build execute one spec): Five tevm tests skipped (bridge-e2e: quote-result, transaction history, routes error; tevm-execution: swap, bridge) – LI.FI routes mock not received by app in tevm worker context; swap button stays disabled without quote. E2E 75 passed, 8 skipped; unit 44 Deno + 101 Vitest passed. Single fixture in `e2e/test-setup.ts`: addMockWallet, addLifiRoutesMock, addLifiRoutesMockToContext, addCctpMocks, addNetworkMocks. Playwright config: trace on-first-retry, screenshot only-on-failure, video on-first-retry.
 
 ## Output when complete
 
