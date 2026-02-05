@@ -10,8 +10,10 @@ import {
 } from '../src/constants/chain-icon-fetch-items.ts'
 import {
 	coinIconFetchItems,
+	FetchTypeKind,
 	iconFilename,
 	IconKind,
+	IconTarget,
 	isDefaultIcon,
 	providerIconFetchItems,
 	type IconFetchItem,
@@ -69,10 +71,11 @@ async function main() {
 		const { target, id, kind, style, fetch: f } = item
 		const kindNorm = kind ?? IconKind.Logo
 		const filename = iconFilename(id, kindNorm, style)
-		const dirUrl = new URL(`${target}s/`, OUT_BASE)
+		const targetKey = target.toLowerCase()
+		const dirUrl = new URL(`${targetKey}s/`, OUT_BASE)
 		const path = new URL(filename, dirUrl)
 		try {
-			if (f.fetchType === 'zip') {
+			if (f.fetchType === FetchTypeKind.Zip) {
 				let unzipped = zipCache.get(f.zipUrl)
 				if (!unzipped) {
 					const res = await fetch(f.zipUrl, { redirect: 'follow' })
@@ -88,32 +91,32 @@ async function main() {
 				if (!entry) throw new Error(`missing in zip: ${f.pathInZip}`)
 				const svg = new TextDecoder().decode(entry)
 				await Deno.writeTextFile(path, svg)
-				writtenByTarget[target].add(filename)
-				if (target === 'chain' && isDefaultIcon(kindNorm, style))
+				writtenByTarget[targetKey].add(filename)
+				if (target === IconTarget.Chain && isDefaultIcon(kindNorm, style))
 					defaultSvgByChainId.set(Number(id), svg)
-				console.log(`OK ${target}s/${filename} (from ZIP)`)
-			} else if (f.fetchType === 'png') {
+				console.log(`OK ${targetKey}s/${filename} (from ZIP)`)
+			} else if (f.fetchType === FetchTypeKind.Png) {
 				const res = await fetch(f.url, { redirect: 'follow' })
 				if (!res.ok) throw new Error(`${f.url} ${res.status}`)
 				const buf = await res.arrayBuffer()
 				const b64 = btoa(String.fromCharCode(...new Uint8Array(buf)))
 				const svg = pngToSvgWrapper(b64)
 				await Deno.writeTextFile(path, svg)
-				writtenByTarget[target].add(filename)
-				if (target === 'chain' && isDefaultIcon(kindNorm, style))
+				writtenByTarget[targetKey].add(filename)
+				if (target === IconTarget.Chain && isDefaultIcon(kindNorm, style))
 					defaultSvgByChainId.set(Number(id), svg)
-				console.log(`OK ${target}s/${filename} (PNG wrapped)`)
+				console.log(`OK ${targetKey}s/${filename} (PNG wrapped)`)
 			} else {
 				const svg = await fetchSvg(f.url)
 				await Deno.writeTextFile(path, svg)
-				writtenByTarget[target].add(filename)
-				if (target === 'chain' && isDefaultIcon(kindNorm, style))
+				writtenByTarget[targetKey].add(filename)
+				if (target === IconTarget.Chain && isDefaultIcon(kindNorm, style))
 					defaultSvgByChainId.set(Number(id), svg)
-				console.log(`OK ${target}s/${filename}`)
+				console.log(`OK ${targetKey}s/${filename}`)
 			}
 		} catch (e) {
 			console.warn(
-				`SKIP ${target}s/${filename} (${f.fetchType}): ${e instanceof Error ? e.message : e}`,
+				`SKIP ${targetKey}s/${filename} (${f.fetchType}): ${e instanceof Error ? e.message : e}`,
 			)
 		}
 	}

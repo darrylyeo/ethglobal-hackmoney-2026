@@ -5,9 +5,15 @@
 import { ChainId } from '$/constants/networks'
 import type { Coin, Erc20Token } from '$/constants/coins'
 
-export type StorkApiRegion = 'jp' | 'dev'
+export enum StorkApiRegion {
+	Jp = 'Jp',
+	Dev = 'Dev',
+}
 
-export type StorkApiTransport = 'rest' | 'websocket'
+export enum StorkApiTransport {
+	Rest = 'Rest',
+	Websocket = 'Websocket',
+}
 
 export enum StorkNetworkEnvironment {
 	Mainnet = 'Mainnet',
@@ -47,18 +53,18 @@ export type StorkNetworkDeployment = {
 
 export const storkApiEndpoints = [
 	{
-		region: 'jp',
-		transport: 'rest',
+		region: StorkApiRegion.Jp,
+		transport: StorkApiTransport.Rest,
 		baseUrl: 'https://rest.jp.stork-oracle.network',
 	},
 	{
-		region: 'dev',
-		transport: 'rest',
+		region: StorkApiRegion.Dev,
+		transport: StorkApiTransport.Rest,
 		baseUrl: 'https://rest.dev.stork-oracle.network',
 	},
 	{
-		region: 'jp',
-		transport: 'websocket',
+		region: StorkApiRegion.Jp,
+		transport: StorkApiTransport.Websocket,
 		baseUrl: 'wss://api.jp.stork-oracle.network',
 	},
 ] as const satisfies readonly StorkApiEndpoint[]
@@ -70,13 +76,13 @@ const storkApiBaseUrlByRegionTransport = Object.fromEntries(
 	]),
 ) satisfies Record<string, string>
 
-export const storkDefaultRegion: StorkApiRegion = 'jp'
+export const storkDefaultRegion: StorkApiRegion = StorkApiRegion.Jp
 
 export const storkRestBaseUrl =
-	storkApiBaseUrlByRegionTransport[`${storkDefaultRegion}:rest`]
+	storkApiBaseUrlByRegionTransport[`${storkDefaultRegion}:${StorkApiTransport.Rest}`]
 
 export const storkWebsocketBaseUrl =
-	storkApiBaseUrlByRegionTransport[`${storkDefaultRegion}:websocket`]
+	storkApiBaseUrlByRegionTransport[`${storkDefaultRegion}:${StorkApiTransport.Websocket}`]
 
 export const storkWebsocketUrl = `${storkWebsocketBaseUrl}/evm/subscribe`
 

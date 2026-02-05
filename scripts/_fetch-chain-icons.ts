@@ -8,7 +8,12 @@ import {
 	chainIconAliases,
 	chainIconFetchItems,
 } from '../src/constants/chain-icon-fetch-items.ts'
-import { iconSuffix, IconKind, isDefaultIcon } from '../src/constants/icons.ts'
+import {
+	FetchTypeKind,
+	iconSuffix,
+	IconKind,
+	isDefaultIcon,
+} from '../src/constants/icons.ts'
 
 const OUT_DIR = new URL('../static/networks/', import.meta.url)
 
@@ -44,7 +49,7 @@ async function main() {
 		const numId = Number(id)
 		const iconKind = kind ?? IconKind.Logo
 		try {
-			if (f.fetchType === 'zip') {
+			if (f.fetchType === FetchTypeKind.Zip) {
 				let unzipped = zipCache.get(f.zipUrl)
 				if (!unzipped) {
 					const res = await fetch(f.zipUrl, { redirect: 'follow' })
@@ -66,7 +71,7 @@ async function main() {
 				written.add(filename)
 				if (isDefaultIcon(iconKind, style)) defaultSvgByChainId.set(numId, svg)
 				console.log(`OK ${filename} (from ZIP)`)
-			} else if (f.fetchType === 'png') {
+			} else if (f.fetchType === FetchTypeKind.Png) {
 				const res = await fetch(f.url, { redirect: 'follow' })
 				if (!res.ok) throw new Error(`${f.url} ${res.status}`)
 				const buf = await res.arrayBuffer()

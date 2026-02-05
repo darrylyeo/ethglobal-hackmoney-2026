@@ -70,14 +70,14 @@ may be used as discriminant fields in `src/constants` object arrays (e.g.
 
 ### Enum usage
 
-- [ ] Fixed sets of string values are expressed as string enums (member
+- [x] Fixed sets of string values are expressed as string enums (member
   `= 'MemberName'`) in `src/constants/`, not as string unions.
-- [ ] Discriminant fields in `src/constants` object arrays use enum values
+- [x] Discriminant fields in `src/constants` object arrays use enum values
   (e.g. `target: IconTarget.Chain`) where an enum exists for that domain.
 
 ## Status
 
-Complete.
+Complete. 2026-02-05 (PROMPT_build execute one spec): Enum usage AC implemented. stork.ts: StorkApiRegion (Jp, Dev), StorkApiTransport (Rest, Websocket) as string enums; storkApiEndpoints and storkDefaultRegion use enum values. icons.ts: IconTarget (Chain, Coin, Provider), FetchTypeKind (Zip, Png, Url) as string enums; IconFetchItem/coinIconFetchItems/providerIconFetchItems use enum discriminants. chain-icon-fetch-items.ts: target IconTarget.Chain, fetchType FetchTypeKind.* throughout. Scripts _fetch-icons.ts and _fetch-chain-icons.ts updated to use FetchTypeKind and IconTarget. test:unit 41 Deno + 101 Vitest passed.
 
 ## Output when complete
 
