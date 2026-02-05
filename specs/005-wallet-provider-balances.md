@@ -178,6 +178,11 @@ loading state (Loading…) and per-chain error display in Balances.svelte. test:
 2026-02-05 (PROMPT_build execute one spec): no incomplete specs; re-verified spec
 005; all 17 AC confirmed (AccountsSelect, collections, bridge view, Balances
 effect, e2e wallet tests); test:unit 41 Deno + 101 Vitest passed; test:e2e 4 passed.
+Re-verification 2026-02-05 (PROMPT_build execute one spec): all 17 AC re-verified
+(AccountsSelect, wallets/walletConnections collections, bridgeSettingsState,
+actors/actorCoins, fetchActorCoinBalance/fetchAllBalancesForAddress, bridge page
+AccountsSelect+Balances, fetch on connect, grid+loading+error); test:unit 41 Deno +
+101 Vitest passed; test:e2e wallet.test.ts 4 passed.
 
 ## Output when complete
 
