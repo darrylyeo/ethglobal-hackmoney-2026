@@ -26,9 +26,10 @@ test.describe('Bridge UI (Spec 004)', () => {
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
+		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 		await expect(page.locator('#main').first()).toContainText(
 			/USDC Bridge|Connect a wallet/,
-			{ timeout: 45_000 },
+			{ timeout: 15_000 },
 		)
 		await ensureWalletConnected(page)
 		await selectProtocolOption(page, 'LI.FI')

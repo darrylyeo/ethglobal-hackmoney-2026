@@ -73,10 +73,7 @@ Transaction execution with status tracking.
 ## Status
 
 Complete. Full bridge flow with wallet connection, balance display, route comparison,
-approval, execution, and transaction history. Re-verification 2026-02-05 (PROMPT_build):
-all UI/integration AC verified in code; e2e/bridge.test.ts runs (select chains, amount passes);
-routes auto-fetch e2e skipped (LI.FI request not triggered in test env; TODO in test).
-test:unit 41 Deno + 101 Vitest passed. Re-verification 2026-02-05 (PROMPT_build execute one spec): no incomplete specs; re-verified 004; entry via session#bridge (view/bridge.svelte + UnifiedBridgeFlow/BridgeFlow); Bits UI (Select, Popover, Button, Dialog); chain filters, amount validation, bridgeRoutesCollection, route comparison, confirmation dialog, errors inline; AccountsSelect, CoinBalances, TokenApproval, BridgeExecution; e2e/bridge.test.ts runs (select chains, amount passes; routes test skipped per TODO); test:unit 41 Deno + 101 Vitest passed; test:e2e bridge.test.ts 1 passed, 1 skipped. Re-verification 2026-02-05 (PROMPT_build one spec, all specs complete): re-verified 004; all UI/integration/E2E AC confirmed in code; test:unit 41 Deno + 101 Vitest passed; e2e bridge 1 passed, 1 skipped.
+approval, execution, and transaction history. Re-verification 2026-02-05 (PROMPT_build one spec): no incomplete specs; re-verified 004; all UI/integration/E2E AC confirmed; e2e/bridge.test.ts waits for Loading... to be hidden then asserts USDC Bridge|Connect a wallet; test:unit 44 Deno + 101 Vitest passed; test:e2e bridge 1 passed, 1 skipped.
 
 ## Output when complete
 
