@@ -111,7 +111,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/dashboard',
 		assert: async (page) => {
-			await expect(page.locator('#main')).toBeVisible()
+			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
 				page.getByRole('button', { name: 'Split →' }).first(),
 			).toBeVisible()
@@ -395,7 +395,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'usdc',
 		path: '/coin/USDC',
 		assert: async (page) => {
-			await expect(page.locator('#main')).toBeVisible()
+			await expect(page.locator('#main').first()).toBeVisible()
 		},
 	},
 	{
@@ -403,7 +403,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'eth',
 		path: '/coin/ETH',
 		assert: async (page) => {
-			await expect(page.locator('#main')).toBeVisible()
+			await expect(page.locator('#main').first()).toBeVisible()
 		},
 	},
 	{
@@ -439,7 +439,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/network/1',
 		assert: async (page) => {
-			await expect(page.locator('#main')).toBeVisible({ timeout: 15_000 })
+			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -447,7 +447,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/network/1/block/1',
 		assert: async (page) => {
-			await expect(page.locator('#main')).toBeVisible({ timeout: 15_000 })
+			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -455,7 +455,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/network/1/block/1/transaction/0x0',
 		assert: async (page) => {
-			await expect(page.locator('#main')).toBeVisible({ timeout: 15_000 })
+			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -463,7 +463,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/network/1/transaction/0x0',
 		assert: async (page) => {
-			await expect(page.locator('#main')).toBeVisible({ timeout: 15_000 })
+			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 ]

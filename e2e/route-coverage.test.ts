@@ -9,7 +9,7 @@ import { addTevmWallet } from './test-setup.js'
 test.describe('Home (/)', () => {
 	test('renders nav and key CTAs without errors', async ({ page }) => {
 		await page.goto('/')
-		await expect(page.locator('#main h1')).toBeVisible({
+		await expect(page.locator('#main').first().locator('h1')).toBeVisible({
 			timeout: 20_000,
 		})
 		await expect(
