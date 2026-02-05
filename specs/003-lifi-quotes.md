@@ -62,6 +62,7 @@ fetchBridgeRoutes in collections uses getRoutesForUsdcBridge + TanStack Query ca
 executeSelectedRoute provider/chain/execution, extractFeeBreakdown, lifi.spec.ts);
 test:unit 41 Deno + 98 Vitest passed. Re-verification 2026-02-05 (execute one spec):
 all 8 AC re-verified in lifi.ts and bridge-routes.ts; test:unit 41 Deno + 101 Vitest passed.
+Re-verification 2026-02-05 (PROMPT_build execute one spec): no incomplete specs; re-verified 003; all 8 AC (lifi.ts exports, getRoutesForUsdcBridge, NormalizedRoute, USDC from coins, fetchBridgeRoutes via getRoutesForUsdcBridge + collection, executeSelectedRoute, extractFeeBreakdown, lifi.spec.ts); test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 
