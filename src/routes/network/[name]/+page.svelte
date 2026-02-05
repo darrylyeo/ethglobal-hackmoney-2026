@@ -118,7 +118,7 @@
 
 
 <div data-column="gap-2" {@attach liveQueryAttachment}>
-	<header class="network-header">
+	<header data-column="gap-2">
 		<h1>Network</h1>
 		<div class="network-identity" data-row="gap-2 align-center">
 			<code class="caip2">{data.caip2}</code>
@@ -163,11 +163,6 @@
 
 
 <style>
-	.network-header {
-		display: grid;
-		gap: 0.5rem;
-	}
-
 	.network-identity {
 		font-size: 1rem;
 	}

@@ -101,7 +101,7 @@
 			</p>
 		{/if}
 
-		<div class="transfer-actions">
+		<div data-row="gap-2" class="transfer-actions">
 			<Button.Root
 				type="button"
 				onclick={() => {
@@ -126,8 +126,6 @@
 		margin: 0.5rem 0;
 	}
 	.transfer-actions {
-		display: flex;
-		gap: 0.5rem;
 		margin-top: 1rem;
 	}
 	.transfer-error {

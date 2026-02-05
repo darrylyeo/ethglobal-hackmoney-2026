@@ -95,6 +95,7 @@
 	</dl>
 
 	<form
+		data-row="gap-2"
 		onsubmit={(e) => {
 			e.preventDefault()
 			handleDeposit()
@@ -110,6 +111,7 @@
 	</form>
 
 	<form
+		data-row="gap-2"
 		onsubmit={(e) => {
 			e.preventDefault()
 			handleWithdraw()
@@ -135,8 +137,6 @@
 		margin: 0.5rem 0;
 	}
 	.deposit-manager form {
-		display: flex;
-		gap: 0.5rem;
 		margin: 0.5rem 0;
 	}
 </style>

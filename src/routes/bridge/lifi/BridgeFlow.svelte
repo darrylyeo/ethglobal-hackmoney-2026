@@ -790,21 +790,6 @@
 
 
 <style>
-	.summary {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		gap: 0.25em 1em;
-
-		dt,
-		dd {
-			margin: 0;
-		}
-
-		dt {
-			opacity: 0.7;
-		}
-	}
-
 	.route-card {
 		display: flex;
 		flex-direction: column;

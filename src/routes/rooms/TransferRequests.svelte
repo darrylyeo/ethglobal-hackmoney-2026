@@ -171,6 +171,8 @@
 	</div>
 
 	<form
+		class="transfer-form"
+		data-column="gap-2"
 		onsubmit={(e) => {
 			e.preventDefault()
 			proposeTransfer()
@@ -198,7 +200,7 @@
 	{#if incoming.length > 0}
 		<h4>Incoming Requests</h4>
 		{#each incoming as request (request.id)}
-			<div class="transfer-request">
+			<div data-row="wrap gap-2">
 				<Address network={1} address={request.from} />
 				<span>
 					requested {request.allocations[0]?.amount ?? '0'}
@@ -217,7 +219,7 @@
 	{#if outgoing.length > 0}
 		<h4>Outgoing Requests</h4>
 		{#each outgoing as request (request.id)}
-			<div class="transfer-request">
+			<div data-row="wrap gap-2">
 				<Address network={1} address={request.to} />
 				<span>
 					{request.allocations[0]?.amount ?? '0'}
@@ -253,18 +255,8 @@
 	.available-balance {
 		margin-bottom: 0.5rem;
 	}
-	.transfer-requests form {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
+	.transfer-form {
 		max-width: 20rem;
-	}
-	.transfer-request {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		flex-wrap: wrap;
-		margin: 0.5rem 0;
 	}
 	.transfer-error {
 		color: var(--color-error, red);

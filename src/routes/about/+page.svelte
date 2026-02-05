@@ -71,7 +71,7 @@
 		aria-label="Diagram legend"
 	>
 		<h2>Legend</h2>
-		<div class="about__legend-grid">
+		<div data-grid="columns-auto column-min-12 gap-3" class="about__legend-grid">
 			{#each legendItems as item (item.id)}
 				<div class="about__legend-item">
 					<span
@@ -84,7 +84,7 @@
 			{/each}
 		</div>
 
-		<div class="about__legend-grid">
+		<div data-grid="columns-auto column-min-12 gap-3" class="about__legend-grid">
 			<div class="about__legend-item">
 				<span class="about__legend-swatch" data-shape="rect"></span>
 				<span>Flow / service node</span>
@@ -144,9 +144,7 @@
 	}
 
 	.about__legend-grid {
-		display: grid;
-		gap: 0.75rem 1.5rem;
-		grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+		column-gap: 1.5rem;
 	}
 
 	.about__legend-item {

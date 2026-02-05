@@ -404,7 +404,7 @@
 
 {#if embeddedInPanel}
 	<main id="main" class="dashboard dashboard-embedded" data-sticky-container>
-		<nav class="dashboard-route-grid" aria-label="Routes">
+		<nav data-grid="columns-auto gap-2" aria-label="Routes">
 			{#each panelRouteLinks as entry (entry.path)}
 				<a
 					href={resolve(buildRoutePath({ path: entry.path, params: {} }))}
@@ -457,12 +457,6 @@
 
 	.dashboard-embedded {
 		padding: 1rem;
-	}
-
-	.dashboard-route-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
-		gap: 0.5rem;
 	}
 
 	.dashboard-route-link {

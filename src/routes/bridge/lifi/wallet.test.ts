@@ -65,10 +65,10 @@ test.describe('WalletProvider', () => {
 		})
 
 		test('balances section appears after connection', async ({ page }) => {
-			await expect(page.locator('[data-balances-grid]')).not.toBeVisible()
+			await expect(page.locator('[data-balances]')).not.toBeVisible()
 			await page.locator('[data-wallet-connect-trigger]').click()
 			await page.locator('[data-wallet-provider-option]').click()
-			await expect(page.locator('[data-balances-grid]')).toBeVisible({
+			await expect(page.locator('[data-balances]')).toBeVisible({
 				timeout: 15_000,
 			})
 			await expect(page.locator('[data-balance-item]').first()).toBeVisible({
@@ -136,6 +136,6 @@ test.describe('WalletProvider', () => {
 	})
 
 	test('balances section not visible when not connected', async ({ page }) => {
-		await expect(page.locator('[data-balances-grid]')).not.toBeVisible()
+		await expect(page.locator('[data-balances]')).not.toBeVisible()
 	})
 })

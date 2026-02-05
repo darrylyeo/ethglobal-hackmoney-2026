@@ -32,14 +32,14 @@
 		</div>
 	</header>
 
-	<div data-session-action-columns>
-		<section data-session-column="params" data-column="gap-3">
+	<div data-grid="columns-auto column-min-16 gap-6">
+		<section data-column="gap-3">
 			{@render Params?.()}
 		</section>
-		<section data-session-column="protocol" data-column="gap-3">
+		<section data-column="gap-3">
 			{@render Protocol?.()}
 		</section>
-		<section data-session-column="preview" data-column="gap-3">
+		<section data-column="gap-3">
 			{@render Preview?.()}
 		</section>
 	</div>

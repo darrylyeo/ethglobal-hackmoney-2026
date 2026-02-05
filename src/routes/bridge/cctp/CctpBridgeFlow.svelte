@@ -205,7 +205,7 @@
 					to {toNetwork.name}. Recipient: {formatAddress(recipient)}.
 				</Dialog.Description>
 			{/if}
-			<div class="dialog-actions">
+			<div data-row="gap-2" class="dialog-actions">
 				<Button.Root
 					type="button"
 					onclick={() => {
@@ -223,24 +223,7 @@
 
 
 <style>
-	.bridge-summary {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		gap: 0.25em 1em;
-
-		dt,
-		dd {
-			margin: 0;
-		}
-
-		dt {
-			opacity: 0.7;
-		}
-	}
-
 	.dialog-actions {
-		display: flex;
-		gap: 0.5rem;
 		margin-top: 1rem;
 	}
 </style>

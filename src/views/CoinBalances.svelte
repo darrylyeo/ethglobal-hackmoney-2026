@@ -246,7 +246,7 @@
 			{/if}
 			<Boundary>
 				{#if balancesQuery.isLoading && balances.length === 0}
-					<div class="balances-grid" data-balances-grid data-balances-skeleton>
+					<div data-balances data-grid="columns-auto column-min-8 gap-3" data-balances-skeleton>
 						{#each skeletonRows as token, i (i)}
 							{@const coin = token
 								? {
@@ -285,7 +285,7 @@
 						{/each}
 					</div>
 				{:else}
-					<div class="balances-grid" data-balances-grid>
+					<div data-balances data-grid="columns-auto column-min-8 gap-3">
 						{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
 							{@const token = displayTokens.find(
 								(entry) =>
@@ -371,7 +371,7 @@
 				{/if}
 
 				{#snippet Pending()}
-					<div class="balances-grid" data-balances-grid data-balances-skeleton>
+					<div data-balances data-grid="columns-auto column-min-8 gap-3" data-balances-skeleton>
 						{#each skeletonRows as token, i (i)}
 							{@const coin = token
 								? {
@@ -433,12 +433,6 @@
 	.net-worth {
 		margin: 0 0 0.75em;
 		font-weight: 600;
-	}
-
-	.balances-grid {
-		display: grid;
-		gap: 0.75em;
-		grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
 	}
 
 	.balance-item {

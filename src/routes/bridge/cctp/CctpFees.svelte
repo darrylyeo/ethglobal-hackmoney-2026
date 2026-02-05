@@ -105,18 +105,6 @@
 
 <style>
 	.fee-summary {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		gap: 0.25em 1em;
 		margin: 0;
-
-		dt,
-		dd {
-			margin: 0;
-		}
-
-		dt {
-			opacity: 0.7;
-		}
 	}
 </style>

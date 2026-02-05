@@ -191,9 +191,9 @@
 		<h1>Invalid address</h1>
 		<p>The address in the URL could not be parsed.</p>
 	{:else}
-		<header class="account-header">
+		<header data-column="gap-2">
 			<h1>Account</h1>
-			<div class="account-address" data-account-header>
+			<div data-row="wrap gap-2" class="account-address" data-account-header>
 				{#if parsed.interopAddress}
 					<code class="interop">{parsed.interopAddress}</code>
 				{/if}
@@ -224,17 +224,17 @@
 			</div>
 		</header>
 
-		<section class="account-section">
+		<section data-column="gap-2" class="account-section">
 			<h2>Balances</h2>
 			<CoinBalances selectedActor={normalizedAddress} {balanceTokens} />
 		</section>
 
-		<section class="account-section">
+		<section data-column="gap-2" class="account-section">
 			<h2>Transactions</h2>
 			{#if transactions.length === 0}
 				<p data-muted>No indexed transactions for this account.</p>
 			{:else}
-				<ul class="tx-list">
+				<ul data-column="gap-2" data-list="unstyled" class="tx-list">
 					{#each transactions as tx (tx.$id.sourceTxHash + tx.$id.createdAt)}
 						{@const fromNet = networksByChainId[tx.fromChainId]}
 						{@const toNet = networksByChainId[tx.toChainId]}
@@ -255,9 +255,9 @@
 		</section>
 
 		{#if connectionsForAccount.length > 0}
-			<section class="account-section">
+			<section data-column="gap-2" class="account-section">
 				<h2>Wallet connections</h2>
-				<ul class="connections-list">
+				<ul data-column="gap-2" data-list="unstyled" class="connections-list">
 					{#each connectionsForAccount as conn (conn.$id.wallet$id.rdns)}
 						{@const wallet =
 							conn.transport === WalletConnectionTransport.None
@@ -279,9 +279,9 @@
 			</section>
 		{/if}
 		{#if sharedRowsForAccount.length > 0}
-			<section class="account-section">
+			<section data-column="gap-2" class="account-section">
 				<h2>Room / peer connections</h2>
-				<ul class="connections-list">
+				<ul data-column="gap-2" data-list="unstyled" class="connections-list">
 					{#each sharedRowsForAccount as s (s.id)}
 						{@const room = roomsById.get(s.roomId)}
 						{@const peer = peersByRoomAndPeer.get(`${s.roomId}:${s.peerId}`)}
@@ -315,16 +315,7 @@
 
 
 <style>
-	.account-header {
-		display: grid;
-		gap: 0.5rem;
-	}
-
 	.account-address {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.5rem;
 		font-size: 0.9em;
 	}
 
@@ -354,23 +345,9 @@
 		background: var(--color-border);
 	}
 
-	.account-section {
-		display: grid;
-		gap: 0.5rem;
-	}
-
 	.account-section h2 {
 		font-size: 1rem;
 		margin: 0;
-	}
-
-	.tx-list,
-	.connections-list {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		gap: 0.5rem;
 	}
 
 	.tx-item,

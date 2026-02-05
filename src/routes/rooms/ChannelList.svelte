@@ -123,7 +123,7 @@
 	{#each roomChannels as channel (channel.id)}
 		{@const counterparty = getCounterparty(channel)}
 		{@const myBalance = getMyBalance(channel)}
-		<div class="channel" data-status={channel.status}>
+		<div data-row="wrap gap-2" data-status={channel.status}>
 			<Address network={channel.chainId} address={counterparty} />
 			<span class="channel-balance">
 				{formatSmallestToDecimal(myBalance, 6)} USDC
@@ -168,12 +168,6 @@
 <style>
 	.channel-list h3 {
 		margin-bottom: 0.5rem;
-	}
-	.channel {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		flex-wrap: wrap;
 	}
 	.channel-balance {
 		font-variant-numeric: tabular-nums;

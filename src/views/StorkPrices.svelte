@@ -63,6 +63,7 @@
 <section
 	class="stork-prices"
 	data-card="secondary"
+	data-column="gap-3"
 	{@attach liveQueryAttachment}
 >
 	<header data-row="gap-2 align-center justify-between">
@@ -104,9 +105,6 @@
 
 <style>
 	.stork-prices {
-		display: grid;
-		gap: 0.75rem;
-
 		h3 {
 			margin: 0;
 			font-size: 1em;

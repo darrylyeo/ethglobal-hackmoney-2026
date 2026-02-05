@@ -151,7 +151,7 @@
 	<section data-scroll-item>
 		<header class="transfers-header" data-row="wrap gap-2 align-center">
 			<h2>Transfers – {coin.symbol}</h2>
-			<nav class="period-selector" aria-label="Time period">
+			<nav data-row="start gap-2" aria-label="Time period">
 				{#each TIME_PERIODS as p (p.value)}
 					<a
 						class="period-link"
@@ -261,18 +261,6 @@
 
 
 <style>
-	.transfers-header {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 1rem;
-	}
-
-	.period-selector {
-		display: flex;
-		gap: 0.5rem;
-	}
-
 	.period-link {
 		padding: 0.25em 0.5em;
 		border-radius: 0.25em;

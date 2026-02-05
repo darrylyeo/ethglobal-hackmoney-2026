@@ -98,10 +98,10 @@
 </script>
 
 
-<div class="live-transfers">
-	<header class="transfers-header">
+<div data-column="gap-4">
+	<header data-row="wrap gap-4">
 		<h2>Live transfers – {coin.symbol}</h2>
-		<nav class="period-selector" aria-label="Time period">
+		<nav data-row="start gap-2" aria-label="Time period">
 			{#each periods as p (p.value)}
 				<a
 					class="period-link"
@@ -168,24 +168,6 @@
 
 
 <style>
-	.live-transfers {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-
-	.transfers-header {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 1rem;
-	}
-
-	.period-selector {
-		display: flex;
-		gap: 0.5rem;
-	}
-
 	.period-link {
 		padding: 0.25em 0.5em;
 		border-radius: 0.25em;

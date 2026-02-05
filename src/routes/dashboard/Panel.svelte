@@ -121,8 +121,8 @@
 	onpointerdown={() => onFocus(panel.id)}
 	onfocusin={() => onFocus(panel.id)}
 >
-	<header class="dashboard-panel-header">
-		<div class="dashboard-panel-title">
+	<header data-row="wrap gap-3">
+		<div data-row="wrap start gap-2" data-row-item="flexible" class="dashboard-panel-title">
 			<select
 				class="dashboard-panel-route"
 				value={panel.route.path}
@@ -161,7 +161,7 @@
 				onblur={commitHash}
 			/>
 		</div>
-		<div class="dashboard-panel-controls">
+		<div data-row="wrap start gap-2">
 			<button type="button" onclick={() => onSplit(panel.id, 'horizontal')}>
 				Split →
 			</button>
@@ -175,6 +175,7 @@
 
 	<section
 		class="dashboard-panel-body"
+		data-column="gap-2"
 		data-scroll-container="block"
 		data-sticky-container
 		role="presentation"
@@ -182,7 +183,7 @@
 		onclick={handlePanelClick}
 		onkeydown={() => undefined}
 	>
-		<section data-scroll-item class="dashboard-panel-route-body">
+		<section data-scroll-item data-column="gap-2" class="dashboard-panel-route-body">
 			{#key routeKey}
 				<SvelteKitRoute
 					route={panel.route}
@@ -198,7 +199,7 @@
 	</section>
 
 	{#if panel.hashHistory.length > 0}
-		<footer class="dashboard-panel-history">
+		<footer data-column="gap-1" class="dashboard-panel-history">
 			<span>History</span>
 			<ul>
 				{#each panel.hashHistory as hash, index (index)}
@@ -230,61 +231,28 @@
 		}
 	}
 
-	.dashboard-panel-header {
-		display: flex;
-		justify-content: space-between;
-		gap: 0.75rem;
-		align-items: center;
-		flex-wrap: wrap;
-	}
-
 	.dashboard-panel-title {
-		display: flex;
-		gap: 0.35rem;
-		align-items: center;
-		flex-wrap: wrap;
-		flex: 1;
 		min-width: 0;
-	}
 
-	.dashboard-panel-title > select.dashboard-panel-route {
-		min-width: 6rem;
-	}
+		> select.dashboard-panel-route {
+			min-width: 6rem;
+		}
 
-	.dashboard-panel-title > input.dashboard-panel-hash {
-		min-width: 5rem;
-	}
-
-	.dashboard-panel-controls {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.35rem;
+		> input.dashboard-panel-hash {
+			min-width: 5rem;
+		}
 	}
 
 	.dashboard-panel-body {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
 		flex: 1 1 0;
 		min-height: 0;
 	}
 
 	.dashboard-panel-route-body {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
 		min-height: 0;
 	}
 
 	.dashboard-panel-history {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
 		font-size: 0.85rem;
-	}
-
-	.dashboard-panel-history ul {
-		margin: 0;
-		padding-left: 1.25rem;
 	}
 </style>
