@@ -38,6 +38,7 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/test/networks-coins': ['default'],
 	'/accounts': ['default'],
 	'/account/[address]': ['valid-address', 'invalid-address'],
+	'/peers': ['default'],
 }
 
 const seedSessions = async (page: Page, rows: TransactionSessionRow[]) => {
@@ -119,6 +120,14 @@ export const coverageScenarios: CoverageScenario[] = [
 		assert: async (page) => {
 			await expect(page.getByRole('heading', { name: 'Accounts' })).toBeVisible()
 			await expect(page.locator('[data-wallet-connect-trigger]')).toBeAttached()
+		},
+	},
+	{
+		route: '/peers',
+		branch: 'default',
+		path: '/peers',
+		assert: async (page) => {
+			await expect(page.getByRole('heading', { name: 'Peers' })).toBeVisible()
 		},
 	},
 	{

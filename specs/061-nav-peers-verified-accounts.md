@@ -111,25 +111,23 @@ A page that shows the same verified accounts with more detail and actions:
 
 ## Acceptance criteria
 
-- [ ] **Nav:** Multiplayer has a “Peers” item; its children are verified
+- [x] **Nav:** Multiplayer has a “Peers” item; its children are verified
   accounts (with persisted peer info), each linking to `/account/[address]`.
-- [ ] **Tags:** Each entry shows connection status (Connected / Disconnected) and
+- [x] **Tags:** Each entry shows connection status (Connected / Disconnected) and
   verification status (e.g. Verified) as tags or badges.
-- [ ] **Persistence:** Room sync does not delete `roomPeersCollection` rows for
+- [x] **Persistence:** Room sync does not delete `roomPeersCollection` rows for
   peers that have at least one verification by the current user (me as verifier).
-- [ ] **Forget:** User can forget a peer (delete their room-peer row(s) from
+- [x] **Forget:** User can forget a peer (delete their room-peer row(s) from
   local DB) only when that peer is disconnected; after forget, they disappear
   from the Peers list until seen again.
-- [ ] **Click:** Clicking a peer/account in the nav or on the Peers page
+- [x] **Click:** Clicking a peer/account in the nav or on the Peers page
   navigates to `/account/[address]`.
-- [ ] **Route:** A Peers list page exists (e.g. `/peers`) with the list, tags,
+- [x] **Route:** A Peers list page exists (e.g. `/peers`) with the list, tags,
   and Forget action for disconnected peers.
 
 ## Status
 
-Not started. Blocked on verifications collection and “verified by me” query (spec
-031). Room sync persistence rule and Forget behaviour require changes in
-`src/state/room.svelte.ts` and a small Peers UI + nav wiring.
+Complete. 2026-02-05 (PROMPT_build): myPeerIdsCollection in src/collections/my-peer-ids.ts (persist peerId per room on join). room.svelte.ts: joinRoom upserts my peer id; syncStateToCollections skips deleting roomPeersCollection rows for verified-by-me peers; forgetPeer(peerId) deletes all room-peer rows for that peer. Layout: verificationsQuery, roomPeersQuery, myPeerIdsQuery; derived peersNavItems (verified by me + has room peer), Peers under Multiplayer with children and tag count. Route /peers: +page.svelte with list, connection/Verified tags, Forget when disconnected (confirm), link to /account/[address]. E2e coverage manifest: /peers default branch. test:unit 41 Deno + 101 Vitest passed. verifications collection and “verified by me” query (spec
 
 ## Output when complete
 

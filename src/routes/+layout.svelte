@@ -9,8 +9,11 @@
 
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { myPeerIdsCollection } from '$/collections/my-peer-ids'
+	import { roomPeersCollection } from '$/collections/room-peers'
 	import { roomsCollection } from '$/collections/rooms'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { verificationsCollection } from '$/collections/verifications'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
 	import { walletsCollection } from '$/collections/wallets'
 	import {
@@ -75,6 +78,24 @@
 				.select(({ row }) => ({ row })),
 		[],
 	)
+	const verificationsQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: verificationsCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+	const roomPeersQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: roomPeersCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+	const myPeerIdsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: myPeerIdsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.Local))
+				.select(({ row }) => ({ row })),
+		[],
+	)
 	const layoutLiveQueryEntries = [
 		{ id: 'layout-rooms', label: 'Rooms', query: roomsQuery },
 		{ id: 'layout-sessions', label: 'Sessions', query: sessionsQuery },
@@ -84,6 +105,9 @@
 			label: 'Wallet Connections',
 			query: walletConnectionsQuery,
 		},
+		{ id: 'layout-verifications', label: 'Verifications', query: verificationsQuery },
+		{ id: 'layout-room-peers', label: 'Room Peers', query: roomPeersQuery },
+		{ id: 'layout-my-peer-ids', label: 'My Peer IDs', query: myPeerIdsQuery },
 	]
 	const liveQueryAttachment = liveQueryAttachmentFrom(
 		() => layoutLiveQueryEntries,
@@ -136,6 +160,44 @@
 				networkConfigs.find((c) => c.chainId === chainId),
 			)
 			.filter((c): c is NonNullable<typeof c> => c != null),
+	)
+	const myPeerIdsSet = $derived(
+		new Set((myPeerIdsQuery.data ?? []).map((r) => r.row.peerId)),
+	)
+	const verifiedByMeVerifications = $derived(
+		(verificationsQuery.data ?? []).filter(
+			(r) =>
+				myPeerIdsSet.has(r.row.verifierPeerId) &&
+				r.row.status === 'verified',
+		),
+	)
+	const peerIdToRoomPeers = $derived(
+		(roomPeersQuery.data ?? []).reduce(
+			(acc, { row }) => {
+				const list = acc.get(row.peerId) ?? []
+				list.push(row)
+				acc.set(row.peerId, list)
+				return acc
+			},
+			new Map<string, { displayName?: string; isConnected: boolean }[]>(),
+		),
+	)
+	const peersNavItems = $derived(
+		verifiedByMeVerifications
+			.filter((v) => peerIdToRoomPeers.has(v.row.verifiedPeerId))
+			.map((v) => {
+				const peers = peerIdToRoomPeers.get(v.row.verifiedPeerId)!
+				const roomPeer = peers[0]
+				return {
+					id: `peer-${v.row.verifiedPeerId}-${v.row.address}`,
+					title:
+						roomPeer.displayName ?? formatAddress(v.row.address),
+					href: `/account/${encodeURIComponent(v.row.address)}`,
+					tag: peers.some((p) => p.isConnected)
+						? 'Connected'
+						: 'Disconnected',
+				}
+			}),
 	)
 	const accountNavItems = $derived(
 		connectedWalletConnections.flatMap((connection) => {
@@ -249,6 +311,13 @@
 							title: room.name ?? roomIdToDisplayName(room.id),
 							href: `/rooms/${room.id}`,
 						})),
+				},
+				{
+					id: 'peers',
+					title: 'Peers',
+					href: '/peers',
+					tag: String(peersNavItems.length),
+					children: peersNavItems,
 				},
 				{
 					id: 'channels-yellow',

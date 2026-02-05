@@ -3,6 +3,7 @@
  */
 
 import { DataSource } from '$/constants/data-sources'
+import { myPeerIdsCollection } from '$/collections/my-peer-ids'
 import { transferRequestsCollection } from '$/collections/transfer-requests'
 import { roomsCollection } from '$/collections/rooms'
 import { roomPeersCollection } from '$/collections/room-peers'
@@ -75,8 +76,23 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 			(r) => r.id,
 		)
 	}
+	const myPeerIds = new Set(
+		[...myPeerIdsCollection.state.values()].map((r) => r.peerId),
+	)
+	const verifiedByMePeerIds = new Set(
+		[...verificationsCollection.state.values()]
+			.filter(
+				(row) =>
+					myPeerIds.has(row.verifierPeerId) && row.status === 'verified',
+			)
+			.map((row) => row.verifiedPeerId),
+	)
 	for (const [key, row] of roomPeersCollection.state) {
-		if (row.roomId === roomId && !peerIds.has(key))
+		if (
+			row.roomId === roomId &&
+			!peerIds.has(key) &&
+			!verifiedByMePeerIds.has(row.peerId)
+		)
 			roomPeersCollection.delete(key)
 	}
 	for (const s of state.sharedAddresses) {
@@ -301,6 +317,11 @@ export const joinRoom = (roomId: string, displayName?: string) => {
 	roomState.connection = conn
 	roomState.roomId = roomId
 	roomState.peerId = conn.peerId
+	upsert(
+		myPeerIdsCollection,
+		{ roomId, peerId: conn.peerId, $source: DataSource.Local },
+		(r) => r.roomId,
+	)
 }
 
 export const leaveRoom = () => {
@@ -310,4 +331,10 @@ export const leaveRoom = () => {
 	roomState.connectionStatus = 'idle'
 	roomState.roomId = null
 	roomState.peerId = null
+}
+
+export const forgetPeer = (peerId: string) => {
+	for (const [key, row] of roomPeersCollection.state) {
+		if (row.peerId === peerId) roomPeersCollection.delete(key)
+	}
 }
