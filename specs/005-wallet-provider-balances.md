@@ -182,7 +182,9 @@ Re-verification 2026-02-05 (PROMPT_build execute one spec): all 17 AC re-verifie
 (AccountsSelect, wallets/walletConnections collections, bridgeSettingsState,
 actors/actorCoins, fetchActorCoinBalance/fetchAllBalancesForAddress, bridge page
 AccountsSelect+Balances, fetch on connect, grid+loading+error); test:unit 41 Deno +
-101 Vitest passed; test:e2e wallet.test.ts 4 passed.
+101 Vitest passed; test:e2e wallet.test.ts 4 passed. Re-verification 2026-02-05
+(PROMPT_build one spec): re-verified 005; all 17 AC in code; test:unit 41 Deno +
+101 Vitest passed; e2e wallet.test.ts 4 passed.
 
 ## Output when complete
 
