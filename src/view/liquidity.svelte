@@ -19,7 +19,7 @@
 	<section data-scroll-item>
 		<details open data-card>
 			<summary>
-				<header data-card="secondary" data-row="wrap gap-2">
+				<header data-card data-row="wrap gap-2">
 					<AccountsSelect
 						bind:connectedWallets
 						bind:selectedActor
@@ -29,7 +29,7 @@
 			</summary>
 
 			<div data-column="gap-6">
-				<h1>Liquidity</h1>
+				<h1>Add Liquidity</h1>
 				<LiquidityFlow
 					selectedWallets={connectedWallets}
 					{selectedActor}

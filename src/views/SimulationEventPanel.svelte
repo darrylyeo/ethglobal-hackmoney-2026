@@ -74,9 +74,9 @@
 	{#if filteredList.length === 0}
 		<p data-muted>No events.</p>
 	{:else}
-		<ul data-column="gap-2" style="list-style: none; padding: 0;">
+		<ul data-list="unstyled" data-column="gap-2">
 			{#each filteredList as ev, i (showRaw ? ev.address + ev.data : ev.address + ev.topics.join('') + i)}
-				<li data-event data-card="secondary" data-column="gap-1">
+				<li data-event data-card data-column="gap-1">
 					<div data-row="gap-2 align-center">
 						<code>{formatAddress(ev.address)}</code>
 						{#if !showRaw && (ev as TevmSimulationDecodedEvent).signature}

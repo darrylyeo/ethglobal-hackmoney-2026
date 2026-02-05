@@ -87,10 +87,11 @@
 	data-stack
 	data-invalid={invalid ? '' : undefined}
 >
-	<div class="coin-amount-row">
+	<div class="coin-amount-row" data-row="gap-2">
 		<input
 			{id}
 			class="coin-amount-input"
+			data-row-item="flexible"
 			type="text"
 			inputmode="decimal"
 			{placeholder}
@@ -133,17 +134,8 @@
 		gap: 0.25em;
 
 		> .coin-amount-row {
-			display: flex;
-			gap: 0.5em;
-			align-items: center;
-
 			> .coin-amount-input {
-				flex: 1;
 				padding-bottom: 1.1em;
-			}
-
-			> .coin-amount-select {
-				flex: 0 0 auto;
 			}
 		}
 

@@ -28,6 +28,7 @@
 <span data-row="wrap gap-2 align-center">
 	<span
 		class="peer-avatar"
+		data-row="center"
 		role="img"
 		aria-hidden="true"
 		style="background: {bg};"
@@ -59,9 +60,6 @@
 
 <style>
 	.peer-avatar {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
 		width: 2rem;
 		height: 2rem;
 		border-radius: 50%;

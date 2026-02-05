@@ -37,22 +37,11 @@
 
 
 	// (Derived)
-	const protocolLabel = $derived(
-		activeProtocol === 'cctp'
-			? 'CCTP'
-			: activeProtocol === 'lifi'
-				? 'LI.FI'
-				: '—',
-	)
+	const bothSupported = $derived(cctpPairSupported && lifiPairSupported)
 	const protocolOptions = $derived(
 		(
 			[
-				{
-					id: 'cctp',
-					label: 'CCTP',
-					detail: 'Native USDC',
-					enabled: cctpPairSupported,
-				},
+				{ id: 'cctp', label: 'CCTP', detail: 'Native USDC', enabled: cctpPairSupported },
 				{
 					id: 'lifi',
 					label: 'LI.FI',
@@ -78,34 +67,26 @@
 
 
 <section data-card data-column="gap-3">
-	<h3>Protocol Selection</h3>
-	<div data-column="gap-2">
-		<span class="protocol-badge" data-protocol={activeProtocol ?? undefined}>
-			{protocolLabel}
-		</span>
-		<small data-muted>{protocolReason}</small>
-	</div>
-
-	{#if cctpPairSupported || lifiPairSupported}
+	{#if bothSupported}
+		<h3>Protocol</h3>
 		<div data-column="gap-2">
-			<div data-row="gap-2 align-center justify-between">
-				<strong>Available routes</strong>
-				{#if cctpPairSupported && lifiPairSupported}
-					<Button.Root
-						type="button"
-						data-selected={protocolIntent === null ? '' : undefined}
-						{disabled}
-						onclick={() => {
-							onProtocolIntent(null)
-						}}
-					>
-						Auto
-					</Button.Root>
-				{/if}
+			<div data-row="gap-2 align-center">
+				<Button.Root
+					type="button"
+					data-selected={protocolIntent === null ? '' : undefined}
+					{disabled}
+					onclick={() => {
+						onProtocolIntent(null)
+					}}
+				>
+					Auto
+				</Button.Root>
+				<span data-muted>or pick one:</span>
 			</div>
-			<div data-column="gap-2">
+			<div data-row="gap-2 wrap">
 				{#each protocolOptions as option (option.id)}
 					<button
+						data-card="radius-6 padding-3"
 						class="protocol-card"
 						type="button"
 						data-selected={option.id === activeProtocol ? '' : undefined}
@@ -117,9 +98,9 @@
 						<div data-row="gap-2 align-center justify-between">
 							<strong>{option.label}</strong>
 							{#if protocolIntent === null && option.id === activeProtocol}
-								<span class="protocol-tag">Best</span>
+								<span data-tag class="protocol-tag">Best</span>
 							{:else if protocolIntent === option.id}
-								<span class="protocol-tag" data-variant="selected"
+								<span data-tag class="protocol-tag" data-variant="selected"
 									>Selected</span
 								>
 							{/if}
@@ -129,10 +110,12 @@
 				{/each}
 			</div>
 		</div>
-	{/if}
-
-	{#if fromNetwork && toNetwork && activeProtocol === null}
+	{:else if activeProtocol}
+		<p data-muted>Using {activeProtocol === 'cctp' ? 'CCTP' : 'LI.FI'}</p>
+	{:else if fromNetwork && toNetwork}
 		<p data-error>This chain pair is not supported by CCTP or LI.FI.</p>
+	{:else}
+		<p data-muted>{protocolReason}</p>
 	{/if}
 
 	{#if !selectedWallet}
@@ -144,34 +127,9 @@
 
 
 <style>
-	.protocol-badge {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 999px;
-		padding: 0.25em 0.75em;
-		background: var(--color-bg-subtle);
-		font-size: 0.8em;
-		font-weight: 600;
-
-		&[data-protocol='cctp'] {
-			background: var(--color-info-bg);
-			color: var(--color-info);
-		}
-
-		&[data-protocol='lifi'] {
-			background: var(--color-accent-bg);
-			color: var(--color-primary);
-		}
-	}
-
 	.protocol-card {
-		display: grid;
 		gap: 0.35em;
 		border: 1px solid transparent;
-		border-radius: 0.75em;
-		padding: 0.75em;
-		background: var(--color-bg-subtle);
 		text-align: left;
 		transition:
 			border 0.2s ease,
@@ -189,12 +147,10 @@
 	}
 
 	.protocol-tag {
-		border-radius: 999px;
+		font-size: 0.75em;
 		padding: 0.15em 0.6em;
 		background: var(--color-success-bg);
 		color: var(--color-success);
-		font-size: 0.75em;
-		font-weight: 600;
 
 		&[data-variant='selected'] {
 			background: var(--color-bg-subtle);

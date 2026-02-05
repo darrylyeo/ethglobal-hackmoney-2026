@@ -604,6 +604,7 @@
 		<div data-row="gap-3 wrap">
 			<div
 				class="intent-slot"
+				data-card="padding-4"
 				ondrop={onDrop('from')}
 				ondragover={onDragOver}
 				role="button"
@@ -618,6 +619,7 @@
 			</div>
 			<div
 				class="intent-slot"
+				data-card="padding-4"
 				ondrop={onDrop('to')}
 				ondragover={onDragOver}
 				role="button"
@@ -788,10 +790,7 @@
 <style>
 	.intent-slot {
 		min-height: 140px;
-		padding: 1em;
 		border: 1px dashed var(--color-border);
-		border-radius: 0.5em;
-		background: var(--surface-1);
 	}
 
 	:global(.intent-entity) {

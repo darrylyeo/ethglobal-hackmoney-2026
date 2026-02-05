@@ -419,7 +419,7 @@
 														checked,
 													})}
 												{:else}
-													<span class="dropdown-radio-item">
+													<span data-row="start gap-2">
 														<span
 															class="dropdown-radio-check"
 															aria-hidden="true"
@@ -514,7 +514,7 @@
 											checked,
 										})}
 									{:else}
-										<span class="dropdown-radio-item">
+										<span data-row="start gap-2">
 											<span
 												class="dropdown-radio-check"
 												aria-hidden="true"
@@ -554,11 +554,6 @@
 
 
 <style>
-	.dropdown-radio-item {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5em;
-	}
 	.dropdown-radio-check {
 		display: inline-flex;
 		inline-size: 1em;

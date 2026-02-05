@@ -21,7 +21,7 @@
 <div data-column="center gap-4">
 	<h1>USDC Tools</h1>
 	<p>Bridge and track USDC across supported chains.</p>
-	<nav aria-label="App routes" data-grid="columns-auto" class="route-cards">
+	<nav aria-label="App routes" data-grid="columns-autofit" class="route-cards">
 		{#each routes as { href, title }}
 			<a href={resolve(href)} data-card data-column="gap-1">
 				<span>{title}</span>

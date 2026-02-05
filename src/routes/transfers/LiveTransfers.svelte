@@ -114,7 +114,7 @@
 		</nav>
 	</header>
 
-	<div class="viz-container">
+	<div class="viz-container" data-card>
 		{#if browser}
 			<Canvas aria-label="Transfer graph" role="img">
 				<T.PerspectiveCamera makeDefault position={[0, 0, 20]} />
@@ -184,8 +184,6 @@
 	.viz-container {
 		width: 100%;
 		height: 400px;
-		background: var(--color-bg-subtle);
-		border-radius: 0.5em;
 		overflow: hidden;
 
 		:global(canvas) {

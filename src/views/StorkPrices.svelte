@@ -60,7 +60,7 @@
 
 <section
 	class="stork-prices"
-	data-card="secondary"
+	data-card
 	data-column="gap-3"
 >
 	<header data-row="gap-2 align-center justify-between">

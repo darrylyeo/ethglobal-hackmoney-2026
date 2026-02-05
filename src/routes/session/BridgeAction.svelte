@@ -596,70 +596,67 @@
 				{canSendAmount}
 			/>
 
-			{#if activeProtocol === 'lifi'}
-				<div data-card="secondary" data-column="gap-2">
-					<h3>LI.FI settings</h3>
-					<div data-row="gap-1">
-						{#each slippagePresets as preset (preset.id)}
+			{#if activeProtocol}
+				<div data-card data-column="gap-2">
+					<h3>Settings</h3>
+					{#if activeProtocol === 'lifi'}
+						<div data-row="gap-1">
+							{#each slippagePresets as preset (preset.id)}
+								<Button.Root
+									type="button"
+									onclick={() =>
+										updateParams({ ...settings, slippage: preset.value })}
+									data-selected={settings.slippage === preset.value
+										? ''
+										: undefined}
+								>
+									{formatSlippagePercent(preset.value)}
+								</Button.Root>
+							{/each}
+						</div>
+						<input
+							placeholder="Custom %"
+							bind:value={slippageInput}
+							onchange={() => {
+								const nextSlippage = parseSlippagePercent(slippageInput)
+								if (nextSlippage !== null)
+									updateParams({ ...settings, slippage: nextSlippage })
+							}}
+						/>
+					{:else if activeProtocol === 'cctp'}
+						<div data-row="gap-2">
 							<Button.Root
 								type="button"
+								data-selected={settings.transferSpeed === 'fast' ? '' : undefined}
 								onclick={() =>
-									updateParams({ ...settings, slippage: preset.value })}
-								data-selected={settings.slippage === preset.value
+									updateParams({ ...settings, transferSpeed: 'fast' })}
+							>
+								Fast
+							</Button.Root>
+							<Button.Root
+								type="button"
+								data-selected={settings.transferSpeed === 'standard'
 									? ''
 									: undefined}
+								onclick={() =>
+									updateParams({ ...settings, transferSpeed: 'standard' })}
 							>
-								{formatSlippagePercent(preset.value)}
+								Standard
 							</Button.Root>
-						{/each}
-					</div>
-					<input
-						placeholder="Custom %"
-						bind:value={slippageInput}
-						onchange={() => {
-							const nextSlippage = parseSlippagePercent(slippageInput)
-							if (nextSlippage !== null)
-								updateParams({ ...settings, slippage: nextSlippage })
-						}}
-					/>
-				</div>
-			{/if}
-
-			{#if activeProtocol === 'cctp'}
-				<div data-card="secondary" data-column="gap-2">
-					<h3>CCTP settings</h3>
-					<div data-row="gap-2">
-						<Button.Root
-							type="button"
-							data-selected={settings.transferSpeed === 'fast' ? '' : undefined}
-							onclick={() =>
-								updateParams({ ...settings, transferSpeed: 'fast' })}
-						>
-							Fast
-						</Button.Root>
-						<Button.Root
-							type="button"
-							data-selected={settings.transferSpeed === 'standard'
-								? ''
-								: undefined}
-							onclick={() =>
-								updateParams({ ...settings, transferSpeed: 'standard' })}
-						>
-							Standard
-						</Button.Root>
-					</div>
-					<label data-row="gap-2 align-center">
-						<Switch.Root
-							bind:checked={
-								() => settings.forwardingEnabled,
-								(c) =>
-									updateParams({ ...settings, forwardingEnabled: c ?? false })
-							}
-						>
-							<Switch.Thumb />
-						</Switch.Root>
-						Use Forwarding Service
-					</label>
+						</div>
+						<label data-row="gap-2 align-center">
+							<Switch.Root
+								bind:checked={
+									() => settings.forwardingEnabled,
+									(c) =>
+										updateParams({ ...settings, forwardingEnabled: c ?? false })
+								}
+							>
+								<Switch.Thumb />
+							</Switch.Root>
+							Use Forwarding Service
+						</label>
+					{/if}
 				</div>
 			{/if}
 		{/snippet}

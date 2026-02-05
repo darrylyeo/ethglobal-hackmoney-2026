@@ -639,7 +639,11 @@
 			}}
 		></div>
 
-		<aside class="architecture-graph__details" aria-live="polite">
+		<aside
+			class="architecture-graph__details"
+			data-column="gap-2"
+			aria-live="polite"
+		>
 			<h3>Details</h3>
 			<p class="architecture-graph__selection">{selectionSummary}</p>
 			{#if hoveredItem}
@@ -724,9 +728,6 @@
 		border: 1px solid var(--color-border);
 		background: var(--color-bg-page);
 		padding: 1rem;
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
 	}
 
 	.architecture-graph__selection {

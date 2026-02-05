@@ -791,7 +791,7 @@
 
 		{#if asNonEmpty(chainCoins) && tokenInSelection && tokenOutSelection}
 			<div data-column="gap-2">
-				<div data-card="secondary" data-column="gap-2">
+				<div data-card data-column="gap-2">
 					<div data-row="gap-2 align-center justify-between">
 						<label for="swap-amount-in">From</label>
 						{#if tokenInBalance !== null}
@@ -847,7 +847,7 @@
 					</Button.Root>
 				</div>
 
-				<div data-card="secondary" data-column="gap-2">
+				<div data-card data-column="gap-2">
 					<label for="swap-token-out">To</label>
 					<div data-row="gap-2 align-center wrap">
 						<div data-row-item="flexible">
@@ -880,7 +880,7 @@
 	{/snippet}
 
 	{#snippet Protocol()}
-		<div data-card="secondary" data-column="gap-2">
+		<div data-card data-column="gap-2">
 			<div data-row="gap-2 align-center justify-between">
 				<h3>Protocol</h3>
 				<span data-muted>Uniswap</span>
@@ -966,7 +966,7 @@
 		{/if}
 
 		{#if quote && tokenInSelection && tokenOutSelection}
-			<div data-card="secondary" data-column="gap-2">
+			<div data-card data-column="gap-2">
 				<dl class="summary">
 					{#if tokenInPriceRow && tokenOutPriceRow}
 						<dt>Market vs quote</dt>

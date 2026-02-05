@@ -34,7 +34,7 @@
 		{#if Failed}
 			{@render Failed(error, retry)}
 		{:else}
-			<div data-card="secondary" data-column="gap-1">
+			<div data-card data-column="gap-1">
 				<header data-row="wrap">
 					<h3>Error</h3>
 

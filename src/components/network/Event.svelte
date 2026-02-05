@@ -5,7 +5,7 @@
 </script>
 
 
-<details data-card="secondary radius-2 padding-2">
+<details data-card="radius-2 padding-2">
 	<summary data-row="gap-2 align-center">
 		<code>#{event.logIndex}</code>
 		<span>{event.address}</span>

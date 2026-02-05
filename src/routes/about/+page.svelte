@@ -71,11 +71,12 @@
 		aria-label="Diagram legend"
 	>
 		<h2>Legend</h2>
-		<div data-grid="columns-auto column-min-12 gap-3" class="about__legend-grid">
+		<div data-grid="columns-autofit column-min-12 gap-3" class="about__legend-grid">
 			{#each legendItems as item (item.id)}
-				<div class="about__legend-item">
+				<div class="about__legend-item" data-row="start gap-2">
 					<span
 						class="about__legend-swatch"
+						data-row="center"
 						style:background={item.color}
 						data-shape="rect"
 					></span>
@@ -84,29 +85,29 @@
 			{/each}
 		</div>
 
-		<div data-grid="columns-auto column-min-12 gap-3" class="about__legend-grid">
-			<div class="about__legend-item">
-				<span class="about__legend-swatch" data-shape="rect"></span>
+		<div data-grid="columns-autofit column-min-12 gap-3" class="about__legend-grid">
+			<div class="about__legend-item" data-row="start gap-2">
+				<span class="about__legend-swatch" data-row="center" data-shape="rect"></span>
 				<span>Flow / service node</span>
 			</div>
-			<div class="about__legend-item">
-				<span class="about__legend-swatch" data-shape="circle"></span>
+			<div class="about__legend-item" data-row="start gap-2">
+				<span class="about__legend-swatch" data-row="center" data-shape="circle"></span>
 				<span>State or data node</span>
 			</div>
-			<div class="about__legend-item">
-				<span class="about__legend-swatch" data-shape="diamond"></span>
+			<div class="about__legend-item" data-row="start gap-2">
+				<span class="about__legend-swatch" data-row="center" data-shape="diamond"></span>
 				<span>Wallet / channel node</span>
 			</div>
-			<div class="about__legend-item">
-				<span class="about__legend-swatch" data-shape="image"></span>
+			<div class="about__legend-item" data-row="start gap-2">
+				<span class="about__legend-swatch" data-row="center" data-shape="image"></span>
 				<span>Chain icon node</span>
 			</div>
-			<div class="about__legend-item">
-				<span class="about__legend-swatch" data-shape="line"></span>
+			<div class="about__legend-item" data-row="start gap-2">
+				<span class="about__legend-swatch" data-row="center" data-shape="line"></span>
 				<span>Directional flow</span>
 			</div>
-			<div class="about__legend-item">
-				<span class="about__legend-swatch" data-shape="dashed"></span>
+			<div class="about__legend-item" data-row="start gap-2">
+				<span class="about__legend-swatch" data-row="center" data-shape="dashed"></span>
 				<span>Optional / enrichment path</span>
 			</div>
 		</div>
@@ -139,7 +140,6 @@
 	}
 
 	.about__legend {
-		display: grid;
 		gap: 1.5rem;
 	}
 
@@ -148,9 +148,6 @@
 	}
 
 	.about__legend-item {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
 		font-size: 0.9rem;
 	}
 
@@ -160,9 +157,6 @@
 		border-radius: 0.25rem;
 		border: 1px solid var(--color-border);
 		background: var(--color-bg-subtle);
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
 
 		&[data-shape='circle'] {
 			border-radius: 50%;

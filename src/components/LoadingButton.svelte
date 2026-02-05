@@ -21,6 +21,7 @@
 
 <Button.Root
 	{...props}
+	data-row="start gap-2"
 	class="loading-button"
 	disabled={loading || disabled}
 	aria-busy={loading || undefined}
@@ -35,10 +36,3 @@
 
 
 
-<style>
-	:global(.loading-button) {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5em;
-	}
-</style>

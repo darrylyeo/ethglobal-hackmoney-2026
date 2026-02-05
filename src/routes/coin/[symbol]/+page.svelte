@@ -212,7 +212,7 @@
 						{#if isPlaceholder && item}
 							<article
 								id="transfer:{key}"
-								data-card="secondary radius-2 padding-2"
+								data-card="radius-2 padding-2"
 								data-column="gap-1"
 							>
 								<dl data-row="wrap gap-2">

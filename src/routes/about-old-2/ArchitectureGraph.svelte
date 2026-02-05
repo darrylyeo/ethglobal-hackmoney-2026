@@ -1035,11 +1035,6 @@
 		outline: 1px solid var(--color-border, #e2e8f0);
 		touch-action: none;
 	}
-	:global([data-theme='dark']) .graph-container,
-	:global(.dark) .graph-container {
-		--color-surface: #1e293b;
-		--color-border: #334155;
-	}
 	@media (prefers-color-scheme: dark) {
 		.graph-container {
 			--color-surface: #1e293b;

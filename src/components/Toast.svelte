@@ -24,7 +24,7 @@
 
 <div
 	class="toast-root"
-	data-card="secondary"
+	data-card
 	data-row="gap-3"
 	data-type={toast.type}
 	role="alert"

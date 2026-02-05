@@ -36,7 +36,7 @@
 </script>
 
 
-<details data-card="secondary radius-2 padding-4">
+<details data-card="radius-2 padding-4">
 	<summary data-row="gap-2 align-center">
 		{#if block}
 			<code id="block:{block.$id.blockNumber}">#{block.$id.blockNumber}</code>

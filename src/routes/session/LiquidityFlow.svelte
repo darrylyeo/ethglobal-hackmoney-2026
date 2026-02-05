@@ -458,7 +458,7 @@
 
 	{#if asNonEmpty(chainCoins) && token0Selection && token1Selection}
 		<div data-card data-column="gap-3">
-			<div data-card="secondary" data-column="gap-2">
+			<div data-card data-column="gap-2">
 				<div data-row="gap-2 align-center justify-between">
 					<label for="liq-amount-0">Token 0</label>
 					{#if token0Balance !== null}
@@ -496,7 +496,7 @@
 				{/if}
 			</div>
 
-			<div data-card="secondary" data-column="gap-2">
+			<div data-card data-column="gap-2">
 				<div data-row="gap-2 align-center justify-between">
 					<label for="liq-amount-1">Token 1</label>
 					{#if token1Balance !== null}
@@ -582,7 +582,7 @@
 		</div>
 
 		{#if needsChainSwitch && network && selectedEip1193Wallet}
-			<div data-card="secondary" data-row="gap-2 align-center">
+			<div data-card data-row="gap-2 align-center">
 				<span>Switch to {network.name}</span>
 				<Button.Root
 					type="button"

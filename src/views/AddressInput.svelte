@@ -55,7 +55,7 @@
 </script>
 
 {#snippet defaultItem(shared: Item, selected: boolean)}
-	<span class="address-input-item" data-selected={selected}>
+	<span data-row="start gap-0" data-selected={selected}>
 		<Address {network} address={shared.address} />
 	</span>
 {/snippet}
@@ -77,9 +77,3 @@
 
 
 
-<style>
-	.address-input-item {
-		display: inline-flex;
-		align-items: center;
-	}
-</style>

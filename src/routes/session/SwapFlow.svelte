@@ -682,7 +682,7 @@
 	{#if asNonEmpty(chainCoins) && tokenInSelection && tokenOutSelection}
 		<section data-column="gap-2">
 			<div
-				data-card="secondary"
+				data-card
 				data-column="gap-2"
 				data-intent-transition="source"
 			>
@@ -744,7 +744,7 @@
 			</div>
 
 			<div
-				data-card="secondary"
+				data-card
 				data-column="gap-2"
 				data-intent-transition="target"
 			>

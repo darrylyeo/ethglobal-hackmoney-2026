@@ -10,19 +10,24 @@
 		Params,
 		Protocol,
 		Preview,
-		onSubmit,
+		onsubmit,
 	}: {
 		title: string
 		description?: string
 		Params?: Snippet
 		Protocol?: Snippet
 		Preview?: Snippet
-		onSubmit?: (event: SubmitEvent) => void
+		onsubmit?: (event: SubmitEvent) => void
 	} = $props()
 </script>
 
 
-<form data-session-action data-card data-column="gap-3" onsubmit={onSubmit}>
+<form
+	data-session-action
+	data-card
+	data-column="gap-3"
+	{onsubmit}
+>
 	<header data-row="gap-2 align-center justify-between">
 		<div data-column="gap-1">
 			<h2>{title}</h2>
@@ -32,14 +37,14 @@
 		</div>
 	</header>
 
-	<div data-grid="columns-auto column-min-16 gap-6">
-		<section data-column="gap-3">
+	<div data-grid="columns-autofit column-min-16 gap-6">
+		<section data-card data-column="gap-3">
 			{@render Params?.()}
 		</section>
-		<section data-column="gap-3">
+		<section data-card data-column="gap-3">
 			{@render Protocol?.()}
 		</section>
-		<section data-column="gap-3">
+		<section data-card data-column="gap-3">
 			{@render Preview?.()}
 		</section>
 	</div>

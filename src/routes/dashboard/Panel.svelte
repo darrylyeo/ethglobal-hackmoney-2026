@@ -115,6 +115,7 @@
 
 <section
 	class="dashboard-panel"
+	data-column="gap-2"
 	data-focused={isFocused}
 	role="group"
 	aria-label="Panel"
@@ -214,9 +215,6 @@
 
 <style>
 	.dashboard-panel {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
 		padding: 0.5rem;
 		border-radius: 0.5rem;
 		border: 1px solid color-mix(in oklab, currentColor 18%, transparent);

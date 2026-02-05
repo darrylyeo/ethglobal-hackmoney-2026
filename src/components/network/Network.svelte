@@ -30,7 +30,7 @@
 </script>
 
 
-<details data-card="secondary radius-2 padding-4" open>
+<details data-card="radius-2 padding-4" open>
 	<summary data-row="gap-2 align-center">
 		{#if network}
 			<code id="network:{network.id}">{network.name}</code>

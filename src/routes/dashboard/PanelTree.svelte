@@ -103,7 +103,11 @@
 				{onToggleSplitDirection}
 			/>
 		</section>
-		<div class="dashboard-split-gutter" data-direction={root.direction}>
+		<div
+			class="dashboard-split-gutter"
+			data-row="center"
+			data-direction={root.direction}
+		>
 			<Tooltip.Root delayDuration={80}>
 				<Tooltip.Trigger>
 					{#snippet child({ props })}
@@ -298,12 +302,6 @@
 				border-radius: 0;
 			}
 		}
-	}
-
-	.dashboard-split-gutter {
-		display: flex;
-		align-items: center;
-		justify-content: center;
 	}
 
 	.dashboard-gutter-trigger {

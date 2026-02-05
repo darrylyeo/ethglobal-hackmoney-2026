@@ -45,7 +45,7 @@
 			? networks.filter((network) => network.id === value)
 			: []}
 	{#if selectedNetworks.length > 0}
-		<span class="network-input-icons">
+		<span data-row="start gap-2">
 			{#each selectedNetworks as network (network.id)}
 				<span class="network-input-icon">
 					<Icon
@@ -61,7 +61,7 @@
 {/snippet}
 
 {#snippet networkItem(network: Network, selected: boolean)}
-	<span class="network-input-item" data-selected={selected}>
+	<span data-row="start gap-2" data-selected={selected}>
 		<span class="network-input-icon">
 			<Icon
 				src={networkConfigsByChainId[network.id]?.icon ??
@@ -114,18 +114,6 @@
 
 
 <style>
-	.network-input-icons {
-		display: inline-flex;
-		gap: 0.35rem;
-		align-items: center;
-	}
-
-	.network-input-item {
-		display: inline-flex;
-		gap: 0.5rem;
-		align-items: center;
-	}
-
 	.network-input-icon {
 		width: 16px;
 		height: 16px;

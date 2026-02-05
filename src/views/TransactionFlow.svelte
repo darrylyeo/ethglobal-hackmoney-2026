@@ -596,7 +596,7 @@
 								{simulationExplain.error ?? 'Explanation failed.'}
 							</p>
 						{:else if simulationExplain.status === 'success'}
-							<div data-card="secondary" data-column="gap-2">
+							<div data-card data-column="gap-2">
 								<p>{simulationExplain.record?.text}</p>
 								{#if simulationExplain.record}
 									<small data-muted>
@@ -657,7 +657,7 @@
 					{#if executionExplain.status === 'error'}
 						<p data-error>{executionExplain.error ?? 'Explanation failed.'}</p>
 					{:else if executionExplain.status === 'success'}
-						<div data-card="secondary" data-column="gap-2">
+						<div data-card data-column="gap-2">
 							<p>{executionExplain.record?.text}</p>
 							{#if executionExplain.record}
 								<small data-muted>
@@ -670,7 +670,7 @@
 				{/if}
 
 				{#if needsChainSwitch && walletProvider}
-					<div data-card="secondary" data-row="gap-2 align-center">
+					<div data-card data-row="gap-2 align-center">
 						<span>Switch to {network?.name ?? `Chain ${tx.chainId}`}</span>
 						<Button.Root
 							type="button"

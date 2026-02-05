@@ -157,7 +157,7 @@
 </search>
 
 {#snippet navigationItems(items: NavigationItem[])}
-	<menu>
+	<menu data-column="gap-0">
 		{#each effectiveSearchValue ? items.filter( (item) => matchesSearch(item, effectiveSearchValue), ) : items as item (item.id)}
 			<li>
 				{@render navigationItem(item)}
@@ -183,7 +183,7 @@
 			}
 			data-sticky-container
 		>
-			<summary data-sticky>
+			<summary data-sticky data-row="start gap-2">
 				{@render linkable(item)}
 			</summary>
 
@@ -196,6 +196,7 @@
 	{#if item.href}
 		<a
 			href={item.href}
+			data-row="start gap-2"
 			aria-current={currentPathname === item.href ? 'page' : undefined}
 			onmouseenter={() => {
 				if (item.href && !item.href.startsWith('http')) {
@@ -221,18 +222,20 @@
 			{/if}
 		</a>
 	{:else}
-		{#if item.icon}
-			<Icon class="icon" {...navIconProps(item.icon)} />
-		{/if}
+		<span data-row="start gap-2">
+			{#if item.icon}
+				<Icon class="icon" {...navIconProps(item.icon)} />
+			{/if}
 
-		<span
-			>{@html effectiveSearchValue
-				? highlightText(item.title, effectiveSearchValue)
-				: escapeHtml(item.title)}</span
-		>
-		{#if item.tag}
-			<span data-tag={item.tag}>{item.tag}</span>
-		{/if}
+			<span
+				>{@html effectiveSearchValue
+					? highlightText(item.title, effectiveSearchValue)
+					: escapeHtml(item.title)}</span
+			>
+			{#if item.tag}
+				<span data-tag={item.tag}>{item.tag}</span>
+			{/if}
+		</span>
 	{/if}
 {/snippet}
 
@@ -242,7 +245,6 @@
 <style>
 	.nav-items {
 		menu {
-			display: grid;
 			gap: 2px;
 			list-style: none;
 			font-size: 0.975em;
@@ -274,10 +276,6 @@
 
 		summary,
 		a {
-			display: flex;
-			align-items: center;
-			gap: 0.5rem;
-
 			> .icon {
 				display: flex;
 				font-size: 1.25em;

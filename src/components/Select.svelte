@@ -159,7 +159,7 @@
 											disabled={item.disabled}
 										>
 											{#snippet children({ selected })}
-												<span class="select-item-inner">
+												<span data-row="start gap-2">
 													<span
 														class="select-item-check"
 														aria-hidden="true"
@@ -186,7 +186,7 @@
 									disabled={item.disabled}
 								>
 									{#snippet children({ selected })}
-										<span class="select-item-inner">
+										<span data-row="start gap-2">
 											<span
 												class="select-item-check"
 												aria-hidden="true"
@@ -248,7 +248,7 @@
 											disabled={item.disabled}
 										>
 											{#snippet children({ selected })}
-												<span class="select-item-inner">
+												<span data-row="start gap-2">
 													<span
 														class="select-item-check"
 														aria-hidden="true"
@@ -275,7 +275,7 @@
 									disabled={item.disabled}
 								>
 									{#snippet children({ selected })}
-										<span class="select-item-inner">
+										<span data-row="start gap-2">
 											<span
 												class="select-item-check"
 												aria-hidden="true"
@@ -303,11 +303,6 @@
 
 
 <style>
-	.select-item-inner {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5em;
-	}
 	.select-item-check {
 		display: inline-flex;
 		inline-size: 1em;

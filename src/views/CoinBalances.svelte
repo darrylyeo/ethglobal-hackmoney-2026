@@ -232,7 +232,7 @@
 
 
 	{#if selectedActor}
-		<section class="balances">
+		<section class="balances" data-card>
 			<h3>Your balances</h3>
 			{#if balances.length > 0}
 				{#if netWorthUsd !== null}
@@ -243,7 +243,7 @@
 			{/if}
 			<Boundary>
 				{#if balancesQuery.isLoading && balances.length === 0}
-					<div data-balances data-grid="columns-auto column-min-8 gap-3" data-balances-skeleton>
+					<div data-balances data-grid="columns-autofit column-min-8 gap-3" data-balances-skeleton>
 						{#each skeletonRows as token, i (i)}
 							{@const coin = token
 								? {
@@ -282,7 +282,7 @@
 						{/each}
 					</div>
 				{:else}
-					<div data-balances data-grid="columns-auto column-min-8 gap-3">
+					<div data-balances data-grid="columns-autofit column-min-8 gap-3">
 						{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
 							{@const token = displayTokens.find(
 								(entry) =>
@@ -368,7 +368,7 @@
 				{/if}
 
 				{#snippet Pending()}
-					<div data-balances data-grid="columns-auto column-min-8 gap-3" data-balances-skeleton>
+					<div data-balances data-grid="columns-autofit column-min-8 gap-3" data-balances-skeleton>
 						{#each skeletonRows as token, i (i)}
 							{@const coin = token
 								? {
@@ -415,12 +415,6 @@
 
 
 <style>
-	.balances {
-		padding: 1em;
-		background: var(--surface-1);
-		border-radius: 0.5em;
-	}
-
 	.balances h3 {
 		margin: 0 0 0.75em;
 		font-size: 1em;

@@ -32,14 +32,20 @@
 	data-sticky-container
 >
 	<header data-sticky="block" data-row data-scroll-container>
-		<a href="/" aria-label="USDC Tools home">
+		<a href="/" aria-label="USDC Tools home" data-row="start gap-0">
 			<span class="logo" data-row="gap-1">
 				<span class="title">USDC</span>
 				<span class="nav-tag">Tools</span>
 			</span>
 		</a>
 
-		<a href="/about" class="about-link" aria-label="About" title="About">
+		<a
+			href="/about"
+			class="about-link"
+			data-row="center"
+			aria-label="About"
+			title="About"
+		>
 			<Icon class="icon" icon="ℹ" label="About" />
 		</a>
 
@@ -92,13 +98,10 @@
 			padding: 1rem;
 
 			a {
-				display: flex;
 				text-decoration: none;
 			}
 
 			.about-link {
-				align-items: center;
-				justify-content: center;
 				padding: 0.35rem;
 				border-radius: 0.375rem;
 				color: inherit;

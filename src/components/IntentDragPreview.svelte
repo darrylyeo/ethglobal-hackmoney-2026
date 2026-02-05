@@ -447,12 +447,14 @@
 		{#snippet tooltipContent()}
 			<div
 				class="intent-drag-tooltip"
+				data-card="padding-3 radius-6"
+				data-column="gap-3"
 				data-state={intentDragPreviewState.status}
 				data-interactive={isInteractive ? 'true' : 'false'}
 				bind:this={tooltipContentRef}
 			>
 				{#if resolution && resolution.status === 'valid' && resolution.kind}
-					<header>
+					<header data-row="gap-4">
 						<strong>
 							{resolution.kind.replaceAll('+', ' + ')}
 						</strong>
@@ -461,11 +463,12 @@
 						>
 					</header>
 					{#if routes.length > 0}
-						<ol>
+						<ol data-list="unstyled" data-column="gap-2">
 							{#each routes as route (route.id)}
 								<li>
 									<button
 										type="button"
+										data-row="gap-4"
 										onclick={() => selectRoute(route)}
 										disabled={!isInteractive}
 									>
@@ -489,7 +492,7 @@
 						<p data-muted>No routes available yet.</p>
 					{/if}
 				{:else if resolution}
-					<header>
+					<header data-row="gap-4">
 						<strong data-muted>Intent unavailable</strong>
 					</header>
 					<p data-muted>{resolution.reason ?? 'Select compatible entities.'}</p>
@@ -503,13 +506,7 @@
 
 <style>
 	.intent-drag-tooltip {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		padding: 0.75rem;
 		min-width: 240px;
-		border-radius: 0.75rem;
-		background: var(--color-bg-card);
 		border: 1px solid var(--color-border);
 		box-shadow: var(--shadow-md);
 		color: var(--color-fg);
@@ -521,27 +518,17 @@
 	}
 
 	.intent-drag-tooltip header {
-		display: flex;
-		justify-content: space-between;
-		gap: 1rem;
 		align-items: baseline;
 	}
 
 	.intent-drag-tooltip ol {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
 		margin: 0;
 		padding: 0;
-		list-style: none;
 	}
 
 	.intent-drag-tooltip button {
 		width: 100%;
-		display: flex;
 		align-items: baseline;
-		justify-content: space-between;
-		gap: 1rem;
 		padding: 0.5rem 0.75rem;
 		border-radius: 0.5rem;
 		border: 1px solid transparent;

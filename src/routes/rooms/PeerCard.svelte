@@ -145,7 +145,7 @@
 
 <article
 	data-peer-card
-	data-card="secondary"
+	data-card
 	data-connected={peer.isConnected}
 >
 	<header data-peer-card-header data-row="wrap gap-2 align-center">

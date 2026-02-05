@@ -100,11 +100,11 @@
 </script>
 
 
-<div class="live-transfers">
+<div class="live-transfers" data-column="gap-4">
 	{#if showHeader}
-		<header class="transfers-header">
+		<header class="transfers-header" data-row="wrap gap-4">
 			<h2>Live transfers – {coin.symbol}</h2>
-			<nav class="period-selector" aria-label="Time period">
+			<nav class="period-selector" data-row="gap-2" aria-label="Time period">
 				{#each periods as p (p.value)}
 					<a
 						class="period-link"
@@ -118,7 +118,7 @@
 		</header>
 	{/if}
 
-	<div class="viz-container">
+	<div class="viz-container" data-card>
 		{#if browser}
 			<Canvas aria-label="Transfer graph" role="img">
 				<T.PerspectiveCamera makeDefault position={[0, 0, 20]} />
@@ -172,24 +172,6 @@
 
 
 <style>
-	.live-transfers {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-
-	.transfers-header {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 1rem;
-	}
-
-	.period-selector {
-		display: flex;
-		gap: 0.5rem;
-	}
-
 	.period-link {
 		padding: 0.25em 0.5em;
 		border-radius: 0.25em;
@@ -206,8 +188,6 @@
 	.viz-container {
 		width: 100%;
 		height: 400px;
-		background: var(--color-bg-subtle);
-		border-radius: 0.5em;
 		overflow: hidden;
 
 		:global(canvas) {

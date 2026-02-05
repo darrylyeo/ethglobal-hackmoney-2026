@@ -141,7 +141,7 @@
 		</p>
 	</section>
 
-	<section data-scroll-item data-card="secondary" data-room-share>
+	<section data-scroll-item data-card data-room-share>
 		<h2>Share</h2>
 		<div data-row="wrap gap-3">
 			<div data-qr>
@@ -164,7 +164,7 @@
 	<section data-scroll-item>
 		<details open data-card>
 			<summary>
-				<header data-card="secondary" data-row="wrap gap-2">
+				<header data-card data-row="wrap gap-2">
 					<AccountsSelect
 						bind:connectedWallets
 						bind:selectedActor
@@ -175,7 +175,7 @@
 			</summary>
 
 			<div data-column="gap-6" data-room-structure>
-				<section data-me data-card="secondary">
+				<section data-me data-card>
 					<h2>Me</h2>
 					{#if roomState.peerId}
 						{@const me = {

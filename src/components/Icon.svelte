@@ -46,6 +46,7 @@
 <span
 	{...rootProps}
 	class={`icon${className ? ` ${className}` : ''}`}
+	data-row="center"
 	style={`--icon-size: ${typeof size === 'number' ? `${size}px` : size}`}
 	aria-label={a11yLabel || undefined}
 	aria-hidden={a11yLabel ? undefined : true}
@@ -74,9 +75,6 @@
 
 <style>
 	.icon {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
 		width: var(--icon-size);
 		height: var(--icon-size);
 		line-height: 1;

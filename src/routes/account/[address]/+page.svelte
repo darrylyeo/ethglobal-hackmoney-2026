@@ -236,7 +236,7 @@
 					{#each transactions as tx (tx.$id.sourceTxHash + tx.$id.createdAt)}
 						{@const fromNet = networksByChainId[tx.fromChainId]}
 						{@const toNet = networksByChainId[tx.toChainId]}
-						<li class="tx-item" data-tag={tx.status} data-row="gap-3 align-center">
+						<li class="tx-item" data-card="padding-2 radius-4" data-tag={tx.status} data-row="gap-3 align-center">
 							<span class="tx-chains">
 								{fromNet?.name ?? tx.fromChainId} → {toNet?.name ??
 									tx.toChainId}
@@ -263,6 +263,7 @@
 								: walletsByRdns.get(conn.$id.wallet$id.rdns)}
 						<li
 							class="connection-item"
+							data-card="padding-2 radius-4"
 							data-tag={conn.status}
 							data-row="gap-3 align-center"
 						>
@@ -294,7 +295,7 @@
 							s.roomId,
 							s.peerId,
 						)}
-						<li class="connection-item" data-row="gap-3 align-center">
+						<li class="connection-item" data-card="padding-2 radius-4" data-row="gap-3 align-center">
 							<a
 								href="/rooms/{s.roomId}"
 								class="connection-name"
@@ -357,13 +358,6 @@
 	.account-section h2 {
 		font-size: 1rem;
 		margin: 0;
-	}
-
-	.tx-item,
-	.connection-item {
-		padding: 0.5rem;
-		background: var(--surface-1);
-		border-radius: 0.5rem;
 	}
 
 	.tx-chains,

@@ -69,7 +69,7 @@
 			coin.icon?.original?.url ??
 			coin.icon?.thumbnail?.url ??
 			coin.icon?.low?.url}
-		<span class="coin-input-item" data-selected={selected}>
+		<span data-row="start gap-2" class="coin-input-item" data-selected={selected}>
 			{#if iconUrl}
 				<span class="coin-input-icon">
 					<Icon src={iconUrl} alt={coin.symbol} size="1rem" />
@@ -92,9 +92,6 @@
 
 <style>
 	.coin-input-item {
-		display: inline-flex;
-		gap: 0.5rem;
-		align-items: center;
 		min-height: 1.5rem;
 
 		> small {

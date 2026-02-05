@@ -23,7 +23,7 @@
 	{#snippet Context()}
 		<details open data-card>
 			<summary>
-				<header data-card="secondary" data-row="wrap gap-2">
+				<header data-card data-row="wrap gap-2">
 					<AccountsSelect bind:connectedWallets bind:selectedActor />
 				</header>
 			</summary>

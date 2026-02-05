@@ -49,7 +49,7 @@
 			{#snippet Content()}
 				<StorkPriceFeed symbol={coin.symbol} {priceRow} />
 			{/snippet}
-			<span class="coin-amount">
+			<span class="coin-amount" data-row="start gap-2">
 				{#if amount !== undefined}
 					<span class="balance">
 						{#each new Intl.NumberFormat( undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6, compactDisplay: 'short' }, ).formatToParts(coin.decimals ? Number(amount) / Math.pow(10, coin.decimals) : Number(amount)) as part}
@@ -58,7 +58,7 @@
 					</span>
 				{/if}
 
-				<span class="coin" data-row="wrap">
+				<span class="coin" data-row="wrap gap-2">
 					{#if coin.icon?.original?.url}
 						{@const networkIconSrc =
 							networkConfigsByChainId[coin.chainId]?.icon ??
@@ -66,7 +66,7 @@
 						{@const networkName =
 							networkConfigsByChainId[coin.chainId]?.name ??
 							`Chain ${coin.chainId}`}
-						<span class="coin-icon">
+						<span class="coin-icon" data-row="center">
 							<Icon
 								src={coin.icon.original.url}
 								alt={coin.symbol ?? ''}
@@ -100,7 +100,7 @@
 			</span>
 		</Tooltip>
 	{:else}
-		<span class="coin-amount">
+		<span class="coin-amount" data-row="start gap-2">
 			{#if amount !== undefined}
 				<span class="balance">
 					{#each new Intl.NumberFormat( undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6, compactDisplay: 'short' }, ).formatToParts(coin.decimals ? Number(amount) / Math.pow(10, coin.decimals) : Number(amount)) as part}
@@ -109,7 +109,7 @@
 				</span>
 			{/if}
 
-			<span class="coin" data-row="wrap">
+			<span class="coin" data-row="wrap gap-2">
 				{#if coin.icon?.original?.url}
 					{@const networkIconSrc =
 						networkConfigsByChainId[coin.chainId]?.icon ??
@@ -117,7 +117,7 @@
 					{@const networkName =
 						networkConfigsByChainId[coin.chainId]?.name ??
 						`Chain ${coin.chainId}`}
-					<span class="coin-icon">
+					<span class="coin-icon" data-row="center">
 						<Icon
 							src={coin.icon.original.url}
 							alt={coin.symbol ?? ''}
@@ -156,12 +156,6 @@
 
 
 <style>
-	.coin-amount {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.35em;
-	}
-
 	.balance {
 		font-weight: 600;
 		font-variant-numeric: tabular-nums;
@@ -174,16 +168,10 @@
 	.coin {
 		color: var(--text-secondary);
 		font-size: smaller;
-		display: inline-flex;
-		gap: 0.35em;
-		align-items: center;
 	}
 
 	.coin-icon {
 		position: relative;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
 	}
 
 	.network-icon {

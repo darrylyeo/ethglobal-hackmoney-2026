@@ -195,7 +195,7 @@
 
 
 <div data-row="wrap align-start">
-	<details data-row-item="flexible" data-card="secondary radius-4" open>
+	<details data-row-item="flexible" data-card="radius-4" open>
 		<summary data-row="gap-2 align-center wrap">
 			<div data-row>
 				<div data-row="gap-2 align-center">
@@ -251,7 +251,7 @@
 			{#each readOnlyChips as { wallet, connection } (wallet.$id.rdns)}
 				<li>
 					<div
-						data-card="secondary padding-2 radius-3"
+						data-card="padding-2 radius-3"
 						data-row="gap-2 align-center wrap"
 					>
 						{#if connection.activeActor}
@@ -275,7 +275,7 @@
 		</ul>
 	</details>
 
-	<details data-row-item="flexible" data-card="secondary radius-4" open>
+	<details data-row-item="flexible" data-card="radius-4" open>
 		<summary>
 			<div data-row>
 				<div data-row="gap-2 align-center">
@@ -326,7 +326,7 @@
 					: null}
 
 				<li>
-					<details data-card="secondary radius-2" open>
+					<details data-card="radius-2" open>
 						<summary data-status={status}>
 							<div data-row>
 								<div data-row>
