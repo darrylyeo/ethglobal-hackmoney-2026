@@ -31,7 +31,7 @@ Chain and token constants for USDC bridging.
 
 ## Status
 
-Complete. ~40 chains with Mainnet/Testnet classification. Re-verification 2026-02-04: all 6 acceptance criteria confirmed in networks.ts and coins.ts (NetworkType, ChainId, networks, ercTokens, networksByChainId, ercTokensBySymbolByChainId); test:unit passed. Re-verification 2026-02-05 (PROMPT_build): same criteria re-checked; test:unit 41 Deno + 98 Vitest passed. Re-verification 2026-02-05 (PROMPT_build iteration): all 6 AC confirmed; test:unit 41 Deno + 101 Vitest passed. Re-verification 2026-02-05 (PROMPT_build one spec): all 6 AC confirmed; test:unit 41 Deno + 101 Vitest passed. Re-verification 2026-02-05 (single spec): all 6 AC confirmed; test:unit passed.
+Complete. ~40 chains with Mainnet/Testnet classification. Re-verification 2026-02-04: all 6 acceptance criteria confirmed in networks.ts and coins.ts (NetworkType, ChainId, networks, ercTokens, networksByChainId, ercTokensBySymbolByChainId); test:unit passed. Re-verification 2026-02-05 (PROMPT_build): same criteria re-checked; test:unit 41 Deno + 98 Vitest passed. Re-verification 2026-02-05 (PROMPT_build iteration): all 6 AC confirmed; test:unit 41 Deno + 101 Vitest passed. Re-verification 2026-02-05 (PROMPT_build one spec): all 6 AC confirmed; test:unit 41 Deno + 101 Vitest passed. Re-verification 2026-02-05 (single spec): all 6 AC confirmed; test:unit passed. Re-verification 2026-02-05 (PROMPT_build one spec execute): all 6 AC confirmed in networks.ts and coins.ts; test:unit 41 Deno + 101 Vitest passed.
 
 ## Output when complete
 
