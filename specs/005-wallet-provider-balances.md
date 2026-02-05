@@ -184,7 +184,8 @@ actors/actorCoins, fetchActorCoinBalance/fetchAllBalancesForAddress, bridge page
 AccountsSelect+CoinBalances, fetch on connect, grid+loading+error); test:unit 41 Deno +
 101 Vitest passed; test:e2e wallet.test.ts 4 passed. Re-verification 2026-02-05
 (PROMPT_build one spec): re-verified 005; all 17 AC in code; test:unit 41 Deno +
-101 Vitest passed; e2e wallet.test.ts 4 passed.
+101 Vitest passed; e2e wallet.test.ts 4 passed. Re-verification 2026-02-05 (execute one spec): all 17 AC confirmed; test:unit 44 Deno +
+101 Vitest passed; e2e 4 passed (Playwright pinned to 1.57.0 to fix runner describe error).
 
 ## Output when complete
 
