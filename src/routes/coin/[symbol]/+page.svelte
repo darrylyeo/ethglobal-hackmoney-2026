@@ -2,9 +2,16 @@
 	// Types/constants
 	import { page } from '$app/state'
 	import { env } from '$env/dynamic/public'
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins'
-	import { fetchTransfersGraph, TIME_PERIODS } from '$/api/transfers-indexer'
+	import {
+		getCoinForCoinPage,
+		type CoinPageSymbol,
+	} from '$/constants/coins'
+	import {
+	fetchTransfersGraph,
+	TIME_PERIODS,
+} from '$/api/transfers-indexer'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import {
 		transferGraphsCollection,
@@ -12,18 +19,20 @@
 	} from '$/collections/transfer-graphs'
 	import { toasts } from '$/lib/toast.svelte'
 	import Boundary from '$/components/Boundary.svelte'
-	import LiveTransfers from './LiveTransfers.svelte'
+	import LiveTransfers from '$/routes/explore/usdc/LiveTransfers.svelte'
 
-	// State
+	// Props (from load)
+	let { data }: { data: { symbol: CoinPageSymbol } } = $props()
+
+	const symbol = $derived(data.symbol)
+	const period = $derived(page.url.searchParams.get('period') ?? '1d')
+	const coin = $derived(getCoinForCoinPage(symbol))
+
 	const USDC_CHAINS = ercTokens.map((t) => ({
 		chainId: t.chainId,
 		contractAddress: t.address,
 	}))
-	const coin = $derived(ercTokens[0])
-	const period = $derived(page.url.searchParams.get('period') ?? '1d')
 
-	// Queries (reactive): source-tagged transfer graph from collection
-	const symbol = 'USDC'
 	const graphQuery = useLiveQuery((q) =>
 		q
 			.from({ row: transferGraphsCollection })
@@ -33,30 +42,26 @@
 			)
 			.select(({ row }) => ({ row })),
 	)
-	const liveQueryEntries = [
+	const liveQueryEntries = $derived([
 		{
-			id: 'transfers-graph',
+			id: `transfers-graph-${symbol}`,
 			label: 'Transfer Graphs',
 			query: graphQuery,
 		},
-	]
+	])
 	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
 		() => liveQueryEntries,
 	)
 	const graphRow = $derived(graphQuery.data?.[0]?.row ?? null)
 
-	// (Derived) fetch into collection when period changes
 	$effect(() => {
-		const p = period
-		fetchTransferGraph('USDC', p).catch(() => {})
+		fetchTransferGraph(symbol, period).catch(() => {})
 	})
 
-	// (Derived) optional Covalent indexer enrichment (non-blocking)
 	$effect(() => {
 		const apiKey = env.PUBLIC_COVALENT_API_KEY ?? ''
-		if (apiKey.length === 0) return
-		const p = period
-		fetchTransfersGraph(p, apiKey, USDC_CHAINS).catch(() => {})
+		if (apiKey.length === 0 || symbol !== 'USDC') return
+		fetchTransfersGraph(period, apiKey, USDC_CHAINS).catch(() => {})
 	})
 
 	const graph = $derived(graphRow?.graph ?? { nodes: [], edges: [] })
@@ -70,10 +75,10 @@
 			: errorMessage,
 	)
 
-	// Non-blocking: toast on fetch error, do not replace view
 	let lastToastedError = $state<string | null>(null)
 	$effect(() => {
 		period
+		symbol
 		lastToastedError = null
 	})
 	$effect(() => {
@@ -85,7 +90,7 @@
 				label: 'Retry',
 				onClick: () => {
 					lastToastedError = null
-					fetchTransferGraph('USDC', period).catch(() => {})
+					fetchTransferGraph(symbol, period).catch(() => {})
 				},
 			},
 			dismissible: true,
@@ -94,7 +99,7 @@
 </script>
 
 <svelte:head>
-	<title>USDC – USDC Tools</title>
+	<title>{symbol} – Coin</title>
 </svelte:head>
 
 <main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>

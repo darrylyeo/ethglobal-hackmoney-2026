@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { browser } from '$app/environment'
-	import type { Erc20Token } from '$/constants/coins'
+	import type { Coin } from '$/constants/coins'
 	import type { TransferGraph } from '$/api/transfers-indexer'
 	import { Canvas, T } from '@threlte/core'
 	import * as THREE from 'three'
@@ -18,7 +18,7 @@
 		period,
 		periods,
 	}: {
-		coin: Erc20Token
+		coin: Coin
 		graph: TransferGraph
 		period: string
 		periods: readonly { value: string; label: string; ms: number }[]

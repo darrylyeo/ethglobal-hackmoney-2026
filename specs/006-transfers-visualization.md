@@ -74,15 +74,15 @@ to cover all coins matching the symbol across chains.
 
 ## Acceptance criteria
 
-- [ ] Route `/coin/[symbol]` exists and renders the visualization for supported
+- [x] Route `/coin/[symbol]` exists and renders the visualization for supported
       symbols.
-- [ ] Supported symbols at launch: **USDC** and **ETH**.
-- [ ] Time period selector offers: 1h, 6h, 12h, 1d, 3d, 7d.
-- [ ] Transfers/bridges for the selected period are derived from TanStack DB
+- [x] Supported symbols at launch: **USDC** and **ETH**.
+- [x] Time period selector offers: 1h, 6h, 12h, 1d, 3d, 7d.
+- [x] Transfers/bridges for the selected period are derived from TanStack DB
       collections sourced by existing APIs (Voltaire/indexers).
-- [ ] Unique actor addresses are rendered as nodes; flows are rendered as edges.
-- [ ] Chain information is reflected in the visualization.
-- [ ] Errors (e.g. RPC down, no data) are handled with `<svelte:boundary>` and a
+- [x] Unique actor addresses are rendered as nodes; flows are rendered as edges.
+- [x] Chain information is reflected in the visualization.
+- [x] Errors (e.g. RPC down, no data) are handled with `<svelte:boundary>` and a
       clear message.
 
 ## Implementation notes
@@ -95,7 +95,10 @@ to cover all coins matching the symbol across chains.
 
 ## Status
 
-Planned.
+Complete. Route `src/routes/coin/[symbol]/+page.svelte` with load validation for
+USDC/ETH; transfer-graphs collection keyed by (symbol, period); fetchTransferGraph(symbol, period)
+with USDC from Voltaire, ETH empty graph; TIME_PERIODS 1h–7d; LiveTransfers reused with Coin prop;
+Boundary for errors; GraphScene updated for symbol+period $id.
 
 ## Output when complete
 

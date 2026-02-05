@@ -1691,7 +1691,7 @@
 		if (visibleCollections.has(EntityType.TransferGraph)) {
 			const graphs = take(transferGraphsQuery.data)
 			graphs.forEach(({ row }, i) => {
-				const graphId = `transfer-graph:${row.$id.period}`
+				const graphId = `transfer-graph:${row.$id.symbol}:${row.$id.period}`
 				if (g.hasNode(graphId)) return
 				const pos = positionInRing(
 					collections[EntityType.TransferGraph].ring,
@@ -1700,7 +1700,7 @@
 				)
 				addNode({
 					id: graphId,
-					label: row.period,
+					label: `${row.$id.symbol} ${row.period}`,
 					...pos,
 					size: collections[EntityType.TransferGraph].size,
 					color: collections[EntityType.TransferGraph].color,
@@ -2253,11 +2253,15 @@
 								? toNodeId('cctp-fee', rowIdRecord)
 								: toNodeId('cctp-allowance', rowIdRecord),
 						)
-					} else if ('period' in rowIdRecord) {
-						const period = rowIdRecord.period
-						if (typeof period === 'string') {
-							nodes.push(`transfer-graph:${period}`)
-						}
+					} else if (
+						'period' in rowIdRecord &&
+						'symbol' in rowIdRecord &&
+						typeof rowIdRecord.period === 'string' &&
+						typeof rowIdRecord.symbol === 'string'
+					) {
+						nodes.push(
+							`transfer-graph:${rowIdRecord.symbol}:${rowIdRecord.period}`,
+						)
 					} else if ('id' in rowIdRecord) {
 						nodes.push(toNodeId('dashboard', rowIdRecord))
 					}

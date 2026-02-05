@@ -282,3 +282,17 @@ export const ercTokensBySymbolByChainId = Object.fromEntries(
 			Object.fromEntries(tokens.map((token) => [token.symbol, token])),
 		]),
 )
+
+export const COIN_PAGE_SYMBOLS = ['USDC', 'ETH'] as const
+export type CoinPageSymbol = (typeof COIN_PAGE_SYMBOLS)[number]
+
+export function getCoinForCoinPage(symbol: CoinPageSymbol): Coin {
+	if (symbol === 'USDC') return ercTokens[0]
+	return {
+		type: CoinType.Native,
+		chainId: ChainId.Ethereum,
+		address: '0x0000000000000000000000000000000000000000',
+		symbol: 'ETH',
+		decimals: 18,
+	}
+}
