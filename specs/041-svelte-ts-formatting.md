@@ -20,6 +20,7 @@ Ensure Svelte and TypeScript are formatted to match the repository preferences.
 - [x] TypeScript files use `'` for strings, no statement `;`, and
   prefer implicit return types.
 - [x] Types avoid assertions and inline single-use variables/types.
+- [x] A formatting pass inlines every single-use variable and type (const/let/type alias used only once) at the single use site; avoid inlining when it would harm readability.
 - [x] Multi-line expressions follow the repo style for line breaks,
   indentation, and trailing commas.
 
@@ -38,7 +39,7 @@ Ensure Svelte and TypeScript are formatted to match the repository preferences.
 
 ## Status
 
-Complete. 2026-02-05 (PROMPT_build): Prettier (.prettierrc: singleQuote, semi: false, trailingComma, useTabs) enforces TS/Svelte formatting; `scripts/_svelte-section-spacing.mjs` enforces two empty lines between top-level sections (script/head/markup/style) and between comment-delimited groups inside `<script>`. Format + section script run across src; unit tests (41 Deno + 101 Vitest) pass.
+Complete. 2026-02-05 (PROMPT_build): Formatting is manual to repo preferences. `deno task format` runs only `scripts/_svelte-section-spacing.ts`, which enforces exactly two empty lines between top-level sections (script/head/markup/style) and between comment-delimited groups inside `<script>`. TS/Svelte style (quotes, semicolons, trailing commas, useTabs, multi-line, etc.) is applied by hand or by the formatter subagent. Formatter subagent (`.cursor/agents/formatter.md`) includes an explicit pass to inline single-use variables and types.
 
 ## Output when complete
 

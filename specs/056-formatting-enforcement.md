@@ -30,9 +30,10 @@ explicitly tracking each file as a formatting task.
   multiple props.
 - [x] CSS files follow repo style rules and primitives usage guidelines.
 - [x] TypeScript files follow repo formatting: single quotes, no semicolons,
-  trailing commas, and preferred type style rules.
+  trailing commas, preferred type style rules, and inlining of single-use
+  variables and types.
 
-All files below verified by `deno task format` (Prettier + scripts/_svelte-section-spacing.mjs).
+All files below verified by manual formatting to repo preferences and `deno task format` (scripts/_svelte-section-spacing.ts).
 
 - [x] `e2e/accessibility.test.ts`
 - [x] `e2e/bridge-e2e.test.ts`
@@ -57,7 +58,7 @@ All files below verified by `deno task format` (Prettier + scripts/_svelte-secti
 - [x] `scripts/_e2e-bridge-mainnet.ts`
 - [x] `scripts/_fetch-chain-icons.ts`
 - [x] `scripts/_fetch-icons.ts`
-- [x] `scripts/_svelte-section-spacing.mjs`
+- [x] `scripts/_svelte-section-spacing.ts`
 - [x] `scripts/check-bundle-size.mjs`
 - [x] `scripts/check-performance.mjs`
 - [x] `src/api/approval.ts`
@@ -368,7 +369,7 @@ All files below verified by `deno task format` (Prettier + scripts/_svelte-secti
 
 ## Status
 
-Complete. 2026-02-05 (PROMPT_build): Format task in deno.json runs Prettier on src, e2e, scripts, partykit, env.d.ts, reset.d.ts, playwright.config.ts, playwright.e2e.config.ts, vite.config.ts, vitest.config.ts then node scripts/_svelte-section-spacing.mjs for two empty lines between Svelte sections and comment groups. All listed files verified; test:unit 41 Deno + 101 Vitest passed.
+Complete. 2026-02-05 (PROMPT_build): Formatting is manual to repo preferences. Format task runs only scripts/_svelte-section-spacing.ts, which normalizes to exactly two empty lines between Svelte sections and between comment groups in <script>. All listed files verified; test:unit 41 Deno + 101 Vitest passed. Formatter subagent includes a pass to inline single-use variables and types (see spec 041).
 
 ## Output when complete
 

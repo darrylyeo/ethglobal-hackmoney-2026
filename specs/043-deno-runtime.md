@@ -1,29 +1,30 @@
-# Spec 043: Deno as primary runtime
+# Spec 043: Deno-exclusive runtime and packages
 
-Use Deno instead of npm, pnpm, or bun for running scripts, tasks, and installing dependencies.
+Use Deno exclusively for task running and package management. No bun, pnpm, or npm as runtimes; no lockfiles other than `deno.lock`.
 
 ## Scope
 
-- Define Deno as the preferred way to run dev, build, test, and one-off scripts.
-- Dependencies are declared in `deno.json` (import map / npm specifiers) and installed via `deno install` or `deno cache`.
-- Use `deno task`, `deno run`, or `deno test` rather than `npm run`, `pnpx`, `npx`, or `bun` when invoking project tooling.
+- All scripts, dev, build, test, and one-off tasks run via `deno task`, `deno run -A`, or `deno test -A`.
+- Dependencies are declared in `deno.json` (import map / npm specifiers) and installed/cached with `deno install` or `deno cache`; the only lockfile is `deno.lock`.
+- No references to `bun`, `pnpm`, `pnpx`, `npx`, or `npm run` in tasks, docs, or code comments (except historical `history/` files).
+- Remove `bun.lock` and `pnpm-lock.yaml`; ignore them in `.gitignore` so they are not recreated.
+- The `deno.json` import map entry `"bun:ffi": "./shims/bun-ffi.js"` is a Deno stub for `@tevm/voltaire` (which requests that specifier); it is not a bun runtime dependency.
 
 ## Non-goals
 
-- Do not remove `package.json` / `pnpm-lock.yaml` if still required by Vite, SvelteKit, or other tooling that expects Node.
-- Do not rewrite application runtime to Deno; the app can remain a Vite/SvelteKit app run via `deno task dev`.
+- Do not rewrite the app runtime to Deno; the app remains a Vite/SvelteKit app run via `deno task dev`. `package.json` may remain for Vite/SvelteKit metadata and tooling that reads it; installation and execution use Deno only.
 
 ## Acceptance criteria
 
-- [x] All documented and scripted commands use Deno: `deno task <name>`, `deno run -A`, or `deno test -A` as appropriate.
-- [x] New dependencies are added to `deno.json` imports (e.g. `"pkg": "npm:pkg"`) and cached with `deno cache` or `deno install`.
-- [x] One-off or temporary scripts are run with `deno run -A` (or `deno task` if added to `deno.json` tasks); prefix temporary scripts with `_` per project convention.
-- [x] Unit/spec tests that can run under Deno use `deno test -A`; e2e may still use Node/Playwright as needed.
-- [x] README, AGENTS.md, or other contributor docs state that Deno is the primary way to run commands (with fallbacks only where necessary).
+- [x] All `deno.json` tasks use only `deno task`, `deno run -A`, or `deno test -A` (no `node`, `bun`, `pnpm`, `npx` in task commands).
+- [x] New dependencies are added via `deno.json` imports (e.g. `"pkg": "npm:pkg"`) and cached with `deno cache` or `deno install`.
+- [x] Only lockfile in the repo is `deno.lock`; `bun.lock` and `pnpm-lock.yaml` are deleted and listed in `.gitignore`.
+- [x] README, AGENTS.md, and other contributor-facing docs describe only Deno commands (no bun/pnpm/npx).
+- [x] Scripts and source comments do not mention running with bun or pnpm (legacy `history/` files unchanged).
 
 ## Status
 
-Complete. Re-verification 2026-02-05 (PROMPT_build execute one spec, re-verify): re-verified 043; all 5 AC confirmed (deno.json tasks/imports, README deno task dev/build, constitution Deno test); test:unit 44 Deno + 101 Vitest passed. Previous: Re-verification 2026-02-05 (PROMPT_build execute one spec): re-verified 043; all 5 AC confirmed (deno.json tasks/imports, README deno task dev/build, constitution Deno test); test:unit 44 Deno + 101 Vitest passed; test:e2e 75 passed, 8 skipped. Previous: Deno-first commands; test:e2e uses playwright.e2e.config.ts (workers:1, webServer timeout 240s, TEVM env) for stable E2E runs via Node/Playwright.
+Complete. Deno-only tasks; format script ported to Deno (_svelte-section-spacing.ts); e2e via `deno run -A npm:@playwright/test`; lockfiles purged; .gitignore updated.
 
 ## Output when complete
 
