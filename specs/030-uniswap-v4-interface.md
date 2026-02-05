@@ -198,29 +198,34 @@ Handles swap execution similar to `BridgeExecution.svelte`:
 - Inserts transaction into `transactionsCollection`
 - Toast notifications for success/failure
 
-### Page route: `src/routes/liquidity/+page.svelte`
+### Add Liquidity (session action)
 
-Entry point for liquidity management.
+**Naming:** The action is "Add Liquidity" (not "Manage liquidity"). Navigation and view titles use "Add Liquidity".
 
-### `src/routes/liquidity/LiquidityFlow.svelte`
+**Entry:** Session route `/session#liquidity`; view in `src/view/liquidity.svelte` composing `LiquidityFlow.svelte`.
 
-Liquidity provision interface:
+### `src/routes/liquidity/LiquidityFlow.svelte` (or session `LiquidityFlow.svelte`)
 
-**State (via `liquiditySettingsState`):**
+Add-liquidity interface with protocol explicit and clear layout.
+
+**State (via `liquiditySettingsState` / session params):**
+- `protocol` – selected protocol id (e.g. `'uniswap-v4'`); single option for now
 - `chainId` – selected chain
 - `token0` – first token
 - `token1` – second token
 - `fee` – fee tier selection
 - `tickLower` / `tickUpper` – price range
 
-**UI sections:**
-1. Chain and token pair selection
-2. Fee tier selector (0.01%, 0.05%, 0.3%, 1%)
-3. Price range selector (full range / concentrated)
-4. Deposit amounts for each token
-5. Current pool price display
-6. Position preview
-7. Add liquidity button
+**UI sections (order and layout):**
+1. **Protocol selector** – Single choice for now: Uniswap v4. Rendered prominently so the protocol in use is obvious (e.g. card or dropdown; one item: "Uniswap v4"). Extensible for future protocols.
+2. **Chain and token pair** – Chain selector, then token0 / token1 inputs (pair selection).
+3. **Fee tier** – Selector for 0.01%, 0.05%, 0.3%, 1%.
+4. **Price range** – Full range vs concentrated (tick range).
+5. **Deposit amounts** – Amount inputs for each token with balance display.
+6. **Pool price and position preview** – Current pool price, then position preview.
+7. **Add liquidity** – Primary action button.
+
+Layout: group protocol + chain/tokens at top; fee + range next; amounts and preview in a clear block; primary action fixed or at bottom. Use existing card/section patterns; avoid crowding.
 
 ### `src/routes/liquidity/Positions.svelte`
 
@@ -304,14 +309,16 @@ const TICK_SPACINGS: Record<number, number> = {
 - [x] Approval flow before swap
 - [x] Swap execution with status tracking
 
-### Liquidity UI
-- [x] `src/routes/liquidity/+page.svelte` renders LiquidityFlow
+### Add Liquidity UI
+- [x] Session action "Add Liquidity" at `/session#liquidity` (view: `liquidity.svelte` + LiquidityFlow)
+- [ ] Protocol selector with one option: Uniswap v4 (protocol clearly indicated in UI)
 - [x] Token pair selection
 - [x] Fee tier selector
 - [x] Price range selector (full/concentrated)
 - [x] Deposit amount inputs
 - [x] Add liquidity execution
 - [x] Position list with collect/remove actions
+- [ ] Layout: protocol + chain/tokens grouped at top; fee + range; amounts + preview; primary action
 
 ### Integration
 - [x] Reuses `AccountsSelect.svelte` for connection
@@ -321,7 +328,7 @@ const TICK_SPACINGS: Record<number, number> = {
 
 ## Status
 
-Complete. Collections (uniswap-pools, uniswap-positions, swap-quotes) with normalizers and Deno unit tests. API uniswap.ts: getUniswapSdk (stub until @uniswap/v4-sdk), fetchPools, getSwapQuote (stub quote), executeSwap/addLiquidity/removeLiquidity (throw when SDK not loaded). Swap: +page.svelte, SwapFlow (chain, tokens, amount, direction toggle, debounced quote, price impact, slippage, TokenApproval, SwapExecution), SwapExecution (createOptimisticAction, insertTransaction). Liquidity: +page.svelte, LiquidityFlow (chain, token pair, fee tier, tick range, amounts), Positions (list with collect/remove). Navigation: Swap and Liquidity links in +layout.svelte.
+Collections and API complete. Swap UI complete. Add Liquidity: renamed from "Manage liquidity"; nav and view use "Add Liquidity". LiquidityFlow has chain, token pair, fee tier, range, amounts, Positions (collect/remove). Remaining: protocol selector (one option: Uniswap v4) and layout pass (protocol + chain/tokens at top, then fee + range, amounts + preview, primary action).
 
 ## Output when complete
 

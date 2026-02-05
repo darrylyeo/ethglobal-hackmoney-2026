@@ -162,7 +162,7 @@ const needsChainSwitch = $derived(Boolean(
 
 <!-- Chain switch prompt -->
 {#if needsChainSwitch && fromNetwork && selectedWallet}
-  <div data-card="secondary" data-row="gap-2 align-center">
+  <div data-card data-row="gap-2 align-center">
     <span>Switch to {fromNetwork.name}</span>
     <Button.Root onclick={() => selectedWallet && switchWalletChain(selectedWallet.wallet.provider, fromNetwork.id)}>
       Switch
