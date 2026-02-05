@@ -28,9 +28,7 @@
 	)
 	const transactionsQuery = useLiveQuery(
 		(q) =>
-			q
-				.from({ row: transactionsCollection })
-				.select(({ row }) => ({ row })),
+			q.from({ row: transactionsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const connectionsQuery = useLiveQuery(
@@ -50,7 +48,11 @@
 		[],
 	)
 	const liveQueryEntries = [
-		{ id: 'account-transactions', label: 'Transactions', query: transactionsQuery },
+		{
+			id: 'account-transactions',
+			label: 'Transactions',
+			query: transactionsQuery,
+		},
 		{
 			id: 'account-connections',
 			label: 'Wallet Connections',
@@ -67,8 +69,7 @@
 					.map((r) => r.row)
 					.filter(
 						(row) =>
-							row.$id.address.toLowerCase() ===
-							normalizedAddress.toLowerCase(),
+							row.$id.address.toLowerCase() === normalizedAddress.toLowerCase(),
 					)
 					.sort((a, b) => b.$id.createdAt - a.$id.createdAt)
 			: [],
@@ -121,10 +122,7 @@
 					Copy
 				</button>
 				{#if parsed.chainId}
-					{@const explorerUrl = getAddressUrl(
-						parsed.chainId,
-						parsed.address,
-					)}
+					{@const explorerUrl = getAddressUrl(parsed.chainId, parsed.address)}
 					{#if explorerUrl}
 						<a
 							href={explorerUrl}
@@ -155,7 +153,8 @@
 						{@const toNet = networksByChainId[tx.toChainId]}
 						<li class="tx-item" data-tag={tx.status}>
 							<span class="tx-chains">
-								{fromNet?.name ?? tx.fromChainId} → {toNet?.name ?? tx.toChainId}
+								{fromNet?.name ?? tx.fromChainId} → {toNet?.name ??
+									tx.toChainId}
 							</span>
 							<span class="tx-amount">
 								{formatSmallestToDecimal(tx.fromAmount, 6, 2)} →
@@ -183,7 +182,7 @@
 							<span class="connection-name">
 								{conn.transport === WalletConnectionTransport.None
 									? 'Watching'
-									: wallet?.name ?? conn.$id.wallet$id.rdns}
+									: (wallet?.name ?? conn.$id.wallet$id.rdns)}
 							</span>
 							<span class="connection-status">{conn.status}</span>
 							{#if conn.selected}

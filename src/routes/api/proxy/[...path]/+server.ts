@@ -13,30 +13,23 @@ export const GET: RequestHandler = async ({ params, url }) => {
 	const rest = segments.slice(1)
 	const targetPath = rest.length > 0 ? `/${rest.join('/')}` : '/'
 	const target = new URL(targetPath + url.search, baseUrl)
-	const token =
-		backend === 'stork' ? privateEnv.STORK_REST_TOKEN : undefined
+	const token = backend === 'stork' ? privateEnv.STORK_REST_TOKEN : undefined
 	const response = await fetch(target.toString(), {
-		headers: (
-			token ?
-				{
+		headers: token
+			? {
 					Authorization: `Basic ${token}`,
 				}
-			:
-				undefined
-		),
+			: undefined,
 	})
 	const contentType = response.headers.get('content-type')
 	const body = await response.arrayBuffer()
 	return new Response(body, {
 		status: response.status,
 		statusText: response.statusText,
-		headers: (
-			contentType ?
-				{
+		headers: contentType
+			? {
 					'Content-Type': contentType,
 				}
-			:
-				{}
-		),
+			: {},
 	})
 }

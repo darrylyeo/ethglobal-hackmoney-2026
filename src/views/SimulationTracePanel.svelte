@@ -14,8 +14,12 @@
 	const filteredTrace = $derived(
 		trace.filter(
 			(call) =>
-				(!contractFilter || call.to.toLowerCase().includes(contractFilter.toLowerCase())) &&
-				(!selectorFilter || (call.selector ?? call.data?.slice(0, 10) ?? '').toLowerCase().includes(selectorFilter.toLowerCase())),
+				(!contractFilter ||
+					call.to.toLowerCase().includes(contractFilter.toLowerCase())) &&
+				(!selectorFilter ||
+					(call.selector ?? call.data?.slice(0, 10) ?? '')
+						.toLowerCase()
+						.includes(selectorFilter.toLowerCase())),
 		),
 	)
 
@@ -69,7 +73,10 @@
 						<p data-error>{call.revert}</p>
 					{/if}
 					{#if call.children?.length}
-						<ul data-column="gap-1" style="list-style: none; padding-left: 1rem;">
+						<ul
+							data-column="gap-1"
+							style="list-style: none; padding-left: 1rem;"
+						>
 							{#each call.children as child (child.to + child.data)}
 								<li data-trace-call data-column="gap-0">
 									<div data-row="gap-2 align-center wrap">

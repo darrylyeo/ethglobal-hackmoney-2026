@@ -515,11 +515,9 @@
 						() => invalidAmountInput,
 						(nextInvalid) => (invalidAmountInput = nextInvalid)
 					}
-					ariaDescribedby={
-						invalidAmountInput || validation.error
-							? 'amt-hint amt-error'
-							: 'amt-hint'
-					}
+					ariaDescribedby={invalidAmountInput || validation.error
+						? 'amt-hint amt-error'
+						: 'amt-hint'}
 					ariaInvalid={invalidAmountInput || !!validation.error}
 				/>
 				{#if invalidAmountInput}

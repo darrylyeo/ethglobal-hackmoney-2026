@@ -55,7 +55,11 @@
 	})
 </script>
 
-<section class="stork-prices" data-card="secondary" {@attach liveQueryAttachment}>
+<section
+	class="stork-prices"
+	data-card="secondary"
+	{@attach liveQueryAttachment}
+>
 	<header data-row="gap-2 align-center justify-between">
 		<h3>{title}</h3>
 		<span data-muted>{assetIds.length} feeds</span>

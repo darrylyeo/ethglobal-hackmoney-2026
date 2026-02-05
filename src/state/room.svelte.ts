@@ -59,9 +59,7 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 	const peerIds = new Set(state.peers.map((p) => `${roomId}:${p.peerId}`))
 	const sharedIds = new Set(state.sharedAddresses.map((s) => s.id))
 	const challengeIds = new Set(state.challenges.map((c) => c.id))
-	const verificationIds = new Set(
-		(state.verifications ?? []).map((v) => v.id),
-	)
+	const verificationIds = new Set((state.verifications ?? []).map((v) => v.id))
 
 	upsert(
 		roomsCollection,
@@ -82,8 +80,7 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 	const verifiedByMePeerIds = new Set(
 		[...verificationsCollection.state.values()]
 			.filter(
-				(row) =>
-					myPeerIds.has(row.verifierPeerId) && row.status === 'verified',
+				(row) => myPeerIds.has(row.verifierPeerId) && row.status === 'verified',
 			)
 			.map((row) => row.verifiedPeerId),
 	)
@@ -267,15 +264,15 @@ export type PartyKitStatus =
 	| 'error'
 
 export const partyKitStatusLabel = (s: PartyKitStatus): string =>
-	s === 'idle' ?
-		'—'
-	: s === 'connecting' ?
-		'Connecting…'
-	: s === 'connected' ?
-		'Connected'
-	: s === 'disconnected' ?
-		'Disconnected'
-	: 'Error'
+	s === 'idle'
+		? '—'
+		: s === 'connecting'
+			? 'Connecting…'
+			: s === 'connected'
+				? 'Connected'
+				: s === 'disconnected'
+					? 'Disconnected'
+					: 'Error'
 
 export type RoomState = {
 	connection: RoomConnection | null
@@ -299,7 +296,9 @@ export const joinRoom = (roomId: string, displayName?: string) => {
 	})
 	conn.socket.addEventListener('close', () => {
 		roomState.connectionStatus =
-			roomState.connection === conn ? 'disconnected' : roomState.connectionStatus
+			roomState.connection === conn
+				? 'disconnected'
+				: roomState.connectionStatus
 	})
 	conn.socket.addEventListener('error', () => {
 		roomState.connectionStatus = 'error'

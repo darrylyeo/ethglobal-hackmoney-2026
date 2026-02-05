@@ -293,9 +293,7 @@ export async function addLifiRoutesMock(
 			route.fulfill({
 				status: 200,
 				contentType: 'application/json',
-				body: JSON.stringify(
-					isRoutes ? body : { chains: [] },
-				),
+				body: JSON.stringify(isRoutes ? body : { chains: [] }),
 			})
 		},
 	)

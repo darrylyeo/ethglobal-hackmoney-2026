@@ -42,7 +42,7 @@
 	})
 	let localHash = $state('')
 	const effectiveHash = $derived(
-		hashSource.enabled ? hashSource.panelHash ?? '' : localHash,
+		hashSource.enabled ? (hashSource.panelHash ?? '') : localHash,
 	)
 	const parsedHash = $derived(parseSessionHash(effectiveHash))
 	setContext(SESSION_HASH_SOURCE_KEY, hashSource)
@@ -52,7 +52,7 @@
 	)
 	const hashAction = $derived(
 		parsedHash.kind === 'actions'
-			? parsedHash.actions[0]?.action ?? 'swap'
+			? (parsedHash.actions[0]?.action ?? 'swap')
 			: parsedHash.kind === 'empty'
 				? 'swap'
 				: null,

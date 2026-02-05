@@ -10,11 +10,11 @@
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
 	import { walletsCollection } from '$/collections/wallets'
 	import {
-	roomState,
-	joinRoom,
-	leaveRoom,
-	partyKitStatusLabel,
-} from '$/state/room.svelte'
+		roomState,
+		joinRoom,
+		leaveRoom,
+		partyKitStatusLabel,
+	} from '$/state/room.svelte'
 
 	// Props
 	let { data }: { data: { roomId: string } } = $props()
@@ -97,24 +97,24 @@
 </svelte:head>
 
 <main id="main" data-column data-sticky-container {@attach liveQueryAttachment}>
-		<h1>Channels – {roomDisplayName}</h1>
+	<h1>Channels – {roomDisplayName}</h1>
 
-		<p data-row="wrap gap-2 align-center">
-			<span
-				data-partykit-status
-				data-status={roomState.connectionStatus}
-				title="PartyKit connection"
-			>
-				{partyKitStatusLabel(roomState.connectionStatus)}
-			</span>
-			<a href={resolve(`/rooms/${roomId}`)}>Back to room</a>
-			·
-			<a href="/channels/yellow">Yellow Channels</a>
-		</p>
+	<p data-row="wrap gap-2 align-center">
+		<span
+			data-partykit-status
+			data-status={roomState.connectionStatus}
+			title="PartyKit connection"
+		>
+			{partyKitStatusLabel(roomState.connectionStatus)}
+		</span>
+		<a href={resolve(`/rooms/${roomId}`)}>Back to room</a>
+		·
+		<a href="/channels/yellow">Yellow Channels</a>
+	</p>
 
-		<section data-column="gap-6">
-			<DepositManager {provider} />
-			<TransferRequests {roomId} />
-			<ChannelList {roomId} />
-		</section>
+	<section data-column="gap-6">
+		<DepositManager {provider} />
+		<TransferRequests {roomId} />
+		<ChannelList {roomId} />
+	</section>
 </main>

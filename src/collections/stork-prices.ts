@@ -224,14 +224,11 @@ const fetchStorkDeployments = async () => {
 	const url = new URL('/v1/deployments/evm', baseUrl)
 	const token = env.PUBLIC_STORK_REST_TOKEN
 	const response = await fetch(url.toString(), {
-		headers: (
-			token ?
-				{
+		headers: token
+			? {
 					Authorization: `Basic ${token}`,
 				}
-			:
-				undefined
-		),
+			: undefined,
 	})
 	if (!response.ok)
 		throw new Error(`Stork deployments error: ${response.status}`)

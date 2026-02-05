@@ -10,11 +10,11 @@
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import { roomPeersCollection } from '$/collections/room-peers'
 	import {
-	roomState,
-	joinRoom,
-	leaveRoom,
-	partyKitStatusLabel,
-} from '$/state/room.svelte'
+		roomState,
+		joinRoom,
+		leaveRoom,
+		partyKitStatusLabel,
+	} from '$/state/room.svelte'
 
 	// Props
 	let { data }: { data: { roomId: string } } = $props()
@@ -69,8 +69,7 @@
 	): wallet is Extract<
 		ConnectedWallet,
 		{ connection: { transport: WalletConnectionTransport.Eip1193 } }
-	> =>
-		wallet.connection.transport === WalletConnectionTransport.Eip1193
+	> => wallet.connection.transport === WalletConnectionTransport.Eip1193
 	const provider = $derived(
 		selectedWallets.find(isEip1193Wallet)?.wallet.provider ?? null,
 	)
@@ -185,7 +184,12 @@
 						<header data-row="wrap gap-2 align-center">
 							<Peer peer={me} />
 						</header>
-						<AddressSharing {roomId} addresses={selectedAddresses} {provider} peers={others} />
+						<AddressSharing
+							{roomId}
+							addresses={selectedAddresses}
+							{provider}
+							peers={others}
+						/>
 					{:else}
 						<p>Connecting…</p>
 					{/if}

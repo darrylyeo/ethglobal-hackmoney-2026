@@ -91,9 +91,8 @@
 			: escapeHtml(text)
 	}
 
-	const navIconProps = (icon: string) => (
+	const navIconProps = (icon: string) =>
 		icon.startsWith('data:') ? { src: icon } : { icon }
-	)
 
 	// Components
 	import Icon from '$/components/Icon.svelte'

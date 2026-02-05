@@ -114,7 +114,11 @@
 						networkConfigsByChainId[coin.chainId]?.name ??
 						`Chain ${coin.chainId}`}
 					<span class="coin-icon">
-						<Icon src={coin.icon.original.url} alt={coin.symbol ?? ''} size={16} />
+						<Icon
+							src={coin.icon.original.url}
+							alt={coin.symbol ?? ''}
+							size={16}
+						/>
 						{#if networkIconSrc}
 							<span class="network-icon">
 								<Icon

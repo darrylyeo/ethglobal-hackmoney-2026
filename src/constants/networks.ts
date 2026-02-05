@@ -483,13 +483,13 @@ const slugToChainId: Partial<Record<string, ChainId>> = Object.fromEntries(
 
 export const getNetworkBySlug = (slug: string): NetworkConfig | null => {
 	const chainId = slugToChainId[slug.toLowerCase()]
-	return chainId != null ? networkConfigsByChainId[chainId] ?? null : null
+	return chainId != null ? (networkConfigsByChainId[chainId] ?? null) : null
 }
 
 export const getNetworkByCaip2 = (caip2: string): NetworkConfig | null => {
 	const match = /^eip155:(\d+)$/.exec(caip2)
 	const chainId = match ? (Number(match[1]) as ChainId) : null
-	return chainId != null ? networkConfigsByChainId[chainId] ?? null : null
+	return chainId != null ? (networkConfigsByChainId[chainId] ?? null) : null
 }
 
 export type ParsedNetworkParam = {

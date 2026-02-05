@@ -37,12 +37,12 @@
 </script>
 
 <section data-peer-list {@attach liveQueryAttachment}>
-		<h3>Peers</h3>
-		<ul>
-			{#each peers as peer (peer.id)}
-				<li data-peer data-connected={peer.isConnected}>
-					<Peer {peer} showStatus={true} />
-				</li>
-			{/each}
-		</ul>
-	</section>
+	<h3>Peers</h3>
+	<ul>
+		{#each peers as peer (peer.id)}
+			<li data-peer data-connected={peer.isConnected}>
+				<Peer {peer} showStatus={true} />
+			</li>
+		{/each}
+	</ul>
+</section>

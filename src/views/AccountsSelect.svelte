@@ -405,546 +405,540 @@
 	aria-label="Network settings"
 	{@attach liveQueryAttachment}
 >
-		<label data-row="gap-2" aria-label="Network type">
-			<Switch.Root
-				bind:checked={
-					() => settings.isTestnet, (c) => toggleTestnet(c ?? false)
-				}
-				aria-label="Mainnets / Testnets"
-				data-wallet-network-testnet={!settings.isTestnet}
-				data-wallet-network-mainnet={settings.isTestnet}
-			>
-				<Switch.Thumb />
-			</Switch.Root>
-			<span data-wallet-network-label
-				>{settings.isTestnet ? 'Testnet' : 'Mainnet'}</span
-			>
-		</label>
-		<div data-row-item="flexible">
-			<NetworkInput
-				networks={filteredNetworks}
-				bind:value={() => settings.fromChainId, onNetworkValueChange}
-				placeholder="Select network"
-				ariaLabel="Network"
-			/>
-		</div>
+	<label data-row="gap-2" aria-label="Network type">
+		<Switch.Root
+			bind:checked={() => settings.isTestnet, (c) => toggleTestnet(c ?? false)}
+			aria-label="Mainnets / Testnets"
+			data-wallet-network-testnet={!settings.isTestnet}
+			data-wallet-network-mainnet={settings.isTestnet}
+		>
+			<Switch.Thumb />
+		</Switch.Root>
+		<span data-wallet-network-label
+			>{settings.isTestnet ? 'Testnet' : 'Mainnet'}</span
+		>
+	</label>
+	<div data-row-item="flexible">
+		<NetworkInput
+			networks={filteredNetworks}
+			bind:value={() => settings.fromChainId, onNetworkValueChange}
+			placeholder="Select network"
+			ariaLabel="Network"
+		/>
 	</div>
+</div>
 
-	<div data-row>
-		{#if walletChips.length > 0}
-			{#if eip1193WalletChips.length > 0}
-				<div class="wallet-section">
-					{#if selectionMode === 'single'}
-						<ToggleGroup.Root
-							type="single"
-							bind:value={
-								() => selectedConnection?.wallet.$id.rdns ?? '',
-								onSingleSelectionChange
-							}
-							data-row="wrap gap-2"
-						>
-							{#each eip1193WalletChips as { wallet, connection, status } (wallet.$id.rdns)}
-								{@const isConnected = status === 'connected'}
-								{@const isReadOnly =
-									connection.transport === WalletConnectionTransport.None}
-								{@const statusLabel =
-									status === 'connecting'
-										? connection.activeActor
-											? 'Reconnecting'
-											: 'Connecting…'
-										: status === 'error'
-											? (connection.error ?? null)
-											: null}
-								{@const chainId = connection.chainId}
-								{@const networkName = chainId
-									? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
-									: null}
-								{@const networkIconSrc = chainId
-									? (networkConfigsByChainId[chainId]?.icon ??
-										`/icons/chains/${chainId}.svg`)
-									: null}
-								{@const walletChipClass =
-									status === 'connecting'
-										? 'wallet-chip wallet-connecting'
-										: status === 'error'
-											? 'wallet-chip wallet-failed'
-											: 'wallet-chip'}
-								{@const walletMenuItems = getWalletMenuEntries(
-									wallet,
-									connection,
-									status,
-								)}
-								<ToggleGroup.Item
-									value={wallet.$id.rdns}
-									data-tag="wallet-type"
-									data-connecting={status === 'connecting'}
-									data-failed={status === 'error'}
-									class="wallet-connection-item"
-								>
-									<span class={walletChipClass}>
-										{#if wallet.icon}
-											<Icon src={wallet.icon} size={16} />
+<div data-row>
+	{#if walletChips.length > 0}
+		{#if eip1193WalletChips.length > 0}
+			<div class="wallet-section">
+				{#if selectionMode === 'single'}
+					<ToggleGroup.Root
+						type="single"
+						bind:value={
+							() => selectedConnection?.wallet.$id.rdns ?? '',
+							onSingleSelectionChange
+						}
+						data-row="wrap gap-2"
+					>
+						{#each eip1193WalletChips as { wallet, connection, status } (wallet.$id.rdns)}
+							{@const isConnected = status === 'connected'}
+							{@const isReadOnly =
+								connection.transport === WalletConnectionTransport.None}
+							{@const statusLabel =
+								status === 'connecting'
+									? connection.activeActor
+										? 'Reconnecting'
+										: 'Connecting…'
+									: status === 'error'
+										? (connection.error ?? null)
+										: null}
+							{@const chainId = connection.chainId}
+							{@const networkName = chainId
+								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
+								: null}
+							{@const networkIconSrc = chainId
+								? (networkConfigsByChainId[chainId]?.icon ??
+									`/icons/chains/${chainId}.svg`)
+								: null}
+							{@const walletChipClass =
+								status === 'connecting'
+									? 'wallet-chip wallet-connecting'
+									: status === 'error'
+										? 'wallet-chip wallet-failed'
+										: 'wallet-chip'}
+							{@const walletMenuItems = getWalletMenuEntries(
+								wallet,
+								connection,
+								status,
+							)}
+							<ToggleGroup.Item
+								value={wallet.$id.rdns}
+								data-tag="wallet-type"
+								data-connecting={status === 'connecting'}
+								data-failed={status === 'error'}
+								class="wallet-connection-item"
+							>
+								<span class={walletChipClass}>
+									{#if wallet.icon}
+										<Icon src={wallet.icon} size={16} />
+									{/if}
+									{#if networkIconSrc}
+										<Icon
+											src={networkIconSrc}
+											size={16}
+											class="wallet-network-icon"
+											title={networkName ?? 'Unknown network'}
+										/>
+									{/if}
+									<span class="wallet-details">
+										{#if connection.activeActor}
+											<span data-wallet-address>
+												<Address
+													network={chainId ?? selectedChainIdDerived ?? 1}
+													address={connection.activeActor}
+													linked={false}
+												/>
+											</span>
+											{#if statusLabel}
+												<span class="wallet-status">{statusLabel}</span>
+											{/if}
+										{:else}
+											<span class="wallet-status">{statusLabel ?? '—'}</span>
 										{/if}
-										{#if networkIconSrc}
-											<Icon
-												src={networkIconSrc}
-												size={16}
-												class="wallet-network-icon"
-												title={networkName ?? 'Unknown network'}
-											/>
-										{/if}
-										<span class="wallet-details">
-											{#if connection.activeActor}
-												<span data-wallet-address>
+									</span>
+									<Dropdown
+										items={walletMenuItems}
+										triggerAriaLabel="Wallet menu"
+										triggerProps={{
+											'data-wallet-menu-trigger': true,
+											onclick: (event: MouseEvent) => event.stopPropagation(),
+										}}
+									>
+										{#snippet Trigger()}
+											<svg
+												width="12"
+												height="12"
+												viewBox="0 0 12 12"
+												fill="currentColor"
+											>
+												<circle cx="6" cy="2" r="1.5" />
+												<circle cx="6" cy="6" r="1.5" />
+												<circle cx="6" cy="10" r="1.5" />
+											</svg>
+										{/snippet}
+										{#snippet Item(item)}
+											{#if item.kind === 'actor'}
+												<span class="wallet-menu-option">
 													<Address
 														network={chainId ?? selectedChainIdDerived ?? 1}
-														address={connection.activeActor}
+														address={item.actor}
 														linked={false}
 													/>
 												</span>
-												{#if statusLabel}
-													<span class="wallet-status">{statusLabel}</span>
-												{/if}
+											{:else if item.kind === 'network'}
+												<span class="wallet-menu-option">
+													<Icon
+														src={networkConfigsByChainId[item.network.id]
+															?.icon ?? `/icons/chains/${item.network.id}.svg`}
+														size={16}
+														class="wallet-network-icon"
+													/>
+													<span>{item.network.name}</span>
+												</span>
+											{:else if item.kind === 'disconnect'}
+												<span data-wallet-disconnect>{item.label}</span>
 											{:else}
-												<span class="wallet-status">{statusLabel ?? '—'}</span>
+												{item.label}
 											{/if}
-										</span>
-										<Dropdown
-											items={walletMenuItems}
-											triggerAriaLabel="Wallet menu"
-											triggerProps={{
-												'data-wallet-menu-trigger': true,
-												onclick: (event: MouseEvent) => event.stopPropagation(),
-											}}
-										>
-											{#snippet Trigger()}
-												<svg
-													width="12"
-													height="12"
-													viewBox="0 0 12 12"
-													fill="currentColor"
-												>
-													<circle cx="6" cy="2" r="1.5" />
-													<circle cx="6" cy="6" r="1.5" />
-													<circle cx="6" cy="10" r="1.5" />
-												</svg>
-											{/snippet}
-											{#snippet Item(item)}
-												{#if item.kind === 'actor'}
-													<span class="wallet-menu-option">
-														<Address
-															network={chainId ?? selectedChainIdDerived ?? 1}
-															address={item.actor}
-															linked={false}
-														/>
-													</span>
-												{:else if item.kind === 'network'}
-													<span class="wallet-menu-option">
-														<Icon
-															src={networkConfigsByChainId[item.network.id]
-																?.icon ??
-																`/icons/chains/${item.network.id}.svg`}
-															size={16}
-															class="wallet-network-icon"
-														/>
-														<span>{item.network.name}</span>
-													</span>
-												{:else if item.kind === 'disconnect'}
-													<span data-wallet-disconnect>{item.label}</span>
-												{:else}
-													{item.label}
-												{/if}
-											{/snippet}
-										</Dropdown>
+										{/snippet}
+									</Dropdown>
+								</span>
+							</ToggleGroup.Item>
+						{/each}
+					</ToggleGroup.Root>
+				{:else}
+					<ToggleGroup.Root
+						type="multiple"
+						bind:value={() => selectedRdns, onMultipleSelectionChange}
+						data-row="wrap gap-2"
+					>
+						{#each eip1193WalletChips as { wallet, connection, status } (wallet.$id.rdns)}
+							{@const isConnected = status === 'connected'}
+							{@const isReadOnly =
+								connection.transport === WalletConnectionTransport.None}
+							{@const statusLabel =
+								status === 'connecting'
+									? connection.activeActor
+										? 'Reconnecting'
+										: 'Connecting…'
+									: status === 'error'
+										? (connection.error ?? null)
+										: null}
+							{@const chainId = connection.chainId}
+							{@const networkName = chainId
+								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
+								: null}
+							{@const networkIconSrc = chainId
+								? (networkConfigsByChainId[chainId]?.icon ??
+									`/icons/chains/${chainId}.svg`)
+								: null}
+							{@const walletChipClass =
+								status === 'connecting'
+									? 'wallet-chip wallet-connecting'
+									: status === 'error'
+										? 'wallet-chip wallet-failed'
+										: 'wallet-chip'}
+							{@const walletMenuItems = getWalletMenuEntries(
+								wallet,
+								connection,
+								status,
+							)}
+							<ToggleGroup.Item
+								value={wallet.$id.rdns}
+								data-tag="wallet-type"
+								data-connecting={status === 'connecting'}
+								data-failed={status === 'error'}
+								class="wallet-connection-item"
+							>
+								<span class={walletChipClass}>
+									{#if wallet.icon}
+										<Icon src={wallet.icon} size={16} />
+									{/if}
+									{#if networkIconSrc}
+										<Icon
+											src={networkIconSrc}
+											size={16}
+											class="wallet-network-icon"
+											title={networkName ?? 'Unknown network'}
+										/>
+									{/if}
+									<span class="wallet-details">
+										{#if connection.activeActor}
+											<span data-wallet-address>
+												<Address
+													network={chainId ?? selectedChainIdDerived ?? 1}
+													address={connection.activeActor}
+													linked={false}
+												/>
+											</span>
+											{#if statusLabel}
+												<span class="wallet-status">{statusLabel}</span>
+											{/if}
+										{:else}
+											<span class="wallet-status">{statusLabel ?? '—'}</span>
+										{/if}
 									</span>
-								</ToggleGroup.Item>
-							{/each}
-						</ToggleGroup.Root>
-					{:else}
-						<ToggleGroup.Root
-							type="multiple"
-							bind:value={() => selectedRdns, onMultipleSelectionChange}
-							data-row="wrap gap-2"
-						>
-							{#each eip1193WalletChips as { wallet, connection, status } (wallet.$id.rdns)}
-								{@const isConnected = status === 'connected'}
-								{@const isReadOnly =
-									connection.transport === WalletConnectionTransport.None}
-								{@const statusLabel =
-									status === 'connecting'
-										? connection.activeActor
-											? 'Reconnecting'
-											: 'Connecting…'
-										: status === 'error'
-											? (connection.error ?? null)
-											: null}
-								{@const chainId = connection.chainId}
-								{@const networkName = chainId
-									? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
-									: null}
-								{@const networkIconSrc = chainId
-									? (networkConfigsByChainId[chainId]?.icon ??
-										`/icons/chains/${chainId}.svg`)
-									: null}
-								{@const walletChipClass =
-									status === 'connecting'
-										? 'wallet-chip wallet-connecting'
-										: status === 'error'
-											? 'wallet-chip wallet-failed'
-											: 'wallet-chip'}
-								{@const walletMenuItems = getWalletMenuEntries(
-									wallet,
-									connection,
-									status,
-								)}
-								<ToggleGroup.Item
-									value={wallet.$id.rdns}
-									data-tag="wallet-type"
-									data-connecting={status === 'connecting'}
-									data-failed={status === 'error'}
-									class="wallet-connection-item"
-								>
-									<span class={walletChipClass}>
-										{#if wallet.icon}
-											<Icon src={wallet.icon} size={16} />
-										{/if}
-										{#if networkIconSrc}
-											<Icon
-												src={networkIconSrc}
-												size={16}
-												class="wallet-network-icon"
-												title={networkName ?? 'Unknown network'}
-											/>
-										{/if}
-										<span class="wallet-details">
-											{#if connection.activeActor}
-												<span data-wallet-address>
+									<Dropdown
+										items={walletMenuItems}
+										triggerAriaLabel="Wallet menu"
+										triggerProps={{
+											'data-wallet-menu-trigger': true,
+											onclick: (event: MouseEvent) => event.stopPropagation(),
+										}}
+									>
+										{#snippet Trigger()}
+											<svg
+												width="12"
+												height="12"
+												viewBox="0 0 12 12"
+												fill="currentColor"
+											>
+												<circle cx="6" cy="2" r="1.5" />
+												<circle cx="6" cy="6" r="1.5" />
+												<circle cx="6" cy="10" r="1.5" />
+											</svg>
+										{/snippet}
+										{#snippet Item(item)}
+											{#if item.kind === 'actor'}
+												<span class="wallet-menu-option">
 													<Address
 														network={chainId ?? selectedChainIdDerived ?? 1}
-														address={connection.activeActor}
+														address={item.actor}
 														linked={false}
 													/>
 												</span>
-												{#if statusLabel}
-													<span class="wallet-status">{statusLabel}</span>
-												{/if}
-											{:else}
-												<span class="wallet-status">{statusLabel ?? '—'}</span>
-											{/if}
-										</span>
-										<Dropdown
-											items={walletMenuItems}
-											triggerAriaLabel="Wallet menu"
-											triggerProps={{
-												'data-wallet-menu-trigger': true,
-												onclick: (event: MouseEvent) => event.stopPropagation(),
-											}}
-										>
-											{#snippet Trigger()}
-												<svg
-													width="12"
-													height="12"
-													viewBox="0 0 12 12"
-													fill="currentColor"
-												>
-													<circle cx="6" cy="2" r="1.5" />
-													<circle cx="6" cy="6" r="1.5" />
-													<circle cx="6" cy="10" r="1.5" />
-												</svg>
-											{/snippet}
-											{#snippet Item(item)}
-												{#if item.kind === 'actor'}
-													<span class="wallet-menu-option">
-														<Address
-															network={chainId ?? selectedChainIdDerived ?? 1}
-															address={item.actor}
-															linked={false}
-														/>
-													</span>
-												{:else if item.kind === 'network'}
-													<span class="wallet-menu-option">
-														<Icon
-															src={networkConfigsByChainId[item.network.id]
-																?.icon ??
-																`/icons/chains/${item.network.id}.svg`}
-															size={16}
-															class="wallet-network-icon"
-														/>
-														<span>{item.network.name}</span>
-													</span>
-												{:else if item.kind === 'disconnect'}
-													<span data-wallet-disconnect>{item.label}</span>
-												{:else}
-													{item.label}
-												{/if}
-											{/snippet}
-										</Dropdown>
-									</span>
-								</ToggleGroup.Item>
-							{/each}
-						</ToggleGroup.Root>
-					{/if}
-				</div>
-			{/if}
-
-			{#if readOnlyWalletChips.length > 0}
-				<div class="wallet-section">
-					{#if selectionMode === 'single'}
-						<ToggleGroup.Root
-							type="single"
-							bind:value={
-								() => selectedConnection?.wallet.$id.rdns ?? '',
-								onSingleSelectionChange
-							}
-							data-row="wrap gap-2"
-						>
-							{#each readOnlyWalletChips as { wallet, connection, status } (wallet.$id.rdns)}
-								{@const isConnected = status === 'connected'}
-								{@const isReadOnly =
-									connection.transport === WalletConnectionTransport.None}
-								{@const statusLabel =
-									status === 'connecting'
-										? connection.activeActor
-											? 'Reconnecting'
-											: 'Connecting…'
-										: status === 'error'
-											? (connection.error ?? null)
-											: null}
-								{@const chainId = connection.chainId}
-								{@const networkName = chainId
-									? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
-									: null}
-								{@const networkIconSrc = chainId
-									? (networkConfigsByChainId[chainId]?.icon ??
-										`/icons/chains/${chainId}.svg`)
-									: null}
-								{@const walletChipClass =
-									status === 'connecting'
-										? 'wallet-chip wallet-connecting'
-										: status === 'error'
-											? 'wallet-chip wallet-failed'
-											: 'wallet-chip'}
-								{@const walletMenuItems = getWalletMenuEntries(
-									wallet,
-									connection,
-									status,
-								)}
-								<ToggleGroup.Item
-									value={wallet.$id.rdns}
-									data-tag="wallet-type"
-									data-connecting={status === 'connecting'}
-									data-failed={status === 'error'}
-									class="wallet-connection-item"
-								>
-									<span class={walletChipClass}>
-										{#if wallet.icon}
-											<Icon src={wallet.icon} size={16} />
-										{/if}
-										{#if networkIconSrc}
-											<Icon
-												src={networkIconSrc}
-												size={16}
-												class="wallet-network-icon"
-												title={networkName ?? 'Unknown network'}
-											/>
-										{/if}
-										<span class="wallet-details">
-											{#if connection.activeActor}
-												<span data-wallet-address>
-													<Address
-														network={chainId ?? selectedChainIdDerived ?? 1}
-														address={connection.activeActor}
-														linked={false}
+											{:else if item.kind === 'network'}
+												<span class="wallet-menu-option">
+													<Icon
+														src={networkConfigsByChainId[item.network.id]
+															?.icon ?? `/icons/chains/${item.network.id}.svg`}
+														size={16}
+														class="wallet-network-icon"
 													/>
+													<span>{item.network.name}</span>
 												</span>
-												{#if statusLabel}
-													<span class="wallet-status">{statusLabel}</span>
-												{/if}
+											{:else if item.kind === 'disconnect'}
+												<span data-wallet-disconnect>{item.label}</span>
 											{:else}
-												<span class="wallet-status">{statusLabel ?? '—'}</span>
+												{item.label}
 											{/if}
-										</span>
-										<Dropdown
-											items={walletMenuItems}
-											triggerAriaLabel="Wallet menu"
-											triggerProps={{
-												'data-wallet-menu-trigger': true,
-												onclick: (event: MouseEvent) => event.stopPropagation(),
-											}}
-										>
-											{#snippet Trigger()}
-												<svg
-													width="12"
-													height="12"
-													viewBox="0 0 12 12"
-													fill="currentColor"
-												>
-													<circle cx="6" cy="2" r="1.5" />
-													<circle cx="6" cy="6" r="1.5" />
-													<circle cx="6" cy="10" r="1.5" />
-												</svg>
-											{/snippet}
-											{#snippet Item(item)}
-												{#if item.kind === 'actor'}
-													<span class="wallet-menu-option">
-														<Address
-															network={chainId ?? selectedChainIdDerived ?? 1}
-															address={item.actor}
-															linked={false}
-														/>
-													</span>
-												{:else if item.kind === 'network'}
-													<span class="wallet-menu-option">
-														<Icon
-															src={networkConfigsByChainId[item.network.id]
-																?.icon ??
-																`/icons/chains/${item.network.id}.svg`}
-															size={16}
-															class="wallet-network-icon"
-														/>
-														<span>{item.network.name}</span>
-													</span>
-												{:else if item.kind === 'disconnect'}
-													<span data-wallet-disconnect>{item.label}</span>
-												{:else}
-													{item.label}
-												{/if}
-											{/snippet}
-										</Dropdown>
-									</span>
-								</ToggleGroup.Item>
-							{/each}
-						</ToggleGroup.Root>
-					{:else}
-						<ToggleGroup.Root
-							type="multiple"
-							bind:value={() => selectedRdns, onMultipleSelectionChange}
-							data-row="wrap gap-2"
-						>
-							{#each readOnlyWalletChips as { wallet, connection, status } (wallet.$id.rdns)}
-								{@const isConnected = status === 'connected'}
-								{@const isReadOnly =
-									connection.transport === WalletConnectionTransport.None}
-								{@const statusLabel =
-									status === 'connecting'
-										? connection.activeActor
-											? 'Reconnecting'
-											: 'Connecting…'
-										: status === 'error'
-											? (connection.error ?? null)
-											: null}
-								{@const chainId = connection.chainId}
-								{@const networkName = chainId
-									? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
-									: null}
-								{@const networkIconSrc = chainId
-									? (networkConfigsByChainId[chainId]?.icon ??
-										`/icons/chains/${chainId}.svg`)
-									: null}
-								{@const walletChipClass =
-									status === 'connecting'
-										? 'wallet-chip wallet-connecting'
-										: status === 'error'
-											? 'wallet-chip wallet-failed'
-											: 'wallet-chip'}
-								{@const walletMenuItems = getWalletMenuEntries(
-									wallet,
-									connection,
-									status,
-								)}
-								<ToggleGroup.Item
-									value={wallet.$id.rdns}
-									data-tag="wallet-type"
-									data-connecting={status === 'connecting'}
-									data-failed={status === 'error'}
-									class="wallet-connection-item"
-								>
-									<span class={walletChipClass}>
-										{#if wallet.icon}
-											<Icon src={wallet.icon} size={16} />
-										{/if}
-										{#if networkIconSrc}
-											<Icon
-												src={networkIconSrc}
-												size={16}
-												class="wallet-network-icon"
-												title={networkName ?? 'Unknown network'}
-											/>
-										{/if}
-										<span class="wallet-details">
-											{#if connection.activeActor}
-												<span data-wallet-address>
-													<Address
-														network={chainId ?? selectedChainIdDerived ?? 1}
-														address={connection.activeActor}
-														linked={false}
-													/>
-												</span>
-												{#if statusLabel}
-													<span class="wallet-status">{statusLabel}</span>
-												{/if}
-											{:else}
-												<span class="wallet-status">{statusLabel ?? '—'}</span>
-											{/if}
-										</span>
-										<Dropdown
-											items={walletMenuItems}
-											triggerAriaLabel="Wallet menu"
-											triggerProps={{
-												'data-wallet-menu-trigger': true,
-												onclick: (event: MouseEvent) => event.stopPropagation(),
-											}}
-										>
-											{#snippet Trigger()}
-												<svg
-													width="12"
-													height="12"
-													viewBox="0 0 12 12"
-													fill="currentColor"
-												>
-													<circle cx="6" cy="2" r="1.5" />
-													<circle cx="6" cy="6" r="1.5" />
-													<circle cx="6" cy="10" r="1.5" />
-												</svg>
-											{/snippet}
-											{#snippet Item(item)}
-												{#if item.kind === 'actor'}
-													<span class="wallet-menu-option">
-														<Address
-															network={chainId ?? selectedChainIdDerived ?? 1}
-															address={item.actor}
-															linked={false}
-														/>
-													</span>
-												{:else if item.kind === 'network'}
-													<span class="wallet-menu-option">
-														<Icon
-															src={networkConfigsByChainId[item.network.id]
-																?.icon ??
-																`/icons/chains/${item.network.id}.svg`}
-															size={16}
-															class="wallet-network-icon"
-														/>
-														<span>{item.network.name}</span>
-													</span>
-												{:else if item.kind === 'disconnect'}
-													<span data-wallet-disconnect>{item.label}</span>
-												{:else}
-													{item.label}
-												{/if}
-											{/snippet}
-										</Dropdown>
-									</span>
-								</ToggleGroup.Item>
-							{/each}
-						</ToggleGroup.Root>
-					{/if}
-				</div>
-			{/if}
+										{/snippet}
+									</Dropdown>
+								</span>
+							</ToggleGroup.Item>
+						{/each}
+					</ToggleGroup.Root>
+				{/if}
+			</div>
 		{/if}
 
-		{#if true}
-			{@const walletConnectItems: WalletConnectEntry[] = (
+		{#if readOnlyWalletChips.length > 0}
+			<div class="wallet-section">
+				{#if selectionMode === 'single'}
+					<ToggleGroup.Root
+						type="single"
+						bind:value={
+							() => selectedConnection?.wallet.$id.rdns ?? '',
+							onSingleSelectionChange
+						}
+						data-row="wrap gap-2"
+					>
+						{#each readOnlyWalletChips as { wallet, connection, status } (wallet.$id.rdns)}
+							{@const isConnected = status === 'connected'}
+							{@const isReadOnly =
+								connection.transport === WalletConnectionTransport.None}
+							{@const statusLabel =
+								status === 'connecting'
+									? connection.activeActor
+										? 'Reconnecting'
+										: 'Connecting…'
+									: status === 'error'
+										? (connection.error ?? null)
+										: null}
+							{@const chainId = connection.chainId}
+							{@const networkName = chainId
+								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
+								: null}
+							{@const networkIconSrc = chainId
+								? (networkConfigsByChainId[chainId]?.icon ??
+									`/icons/chains/${chainId}.svg`)
+								: null}
+							{@const walletChipClass =
+								status === 'connecting'
+									? 'wallet-chip wallet-connecting'
+									: status === 'error'
+										? 'wallet-chip wallet-failed'
+										: 'wallet-chip'}
+							{@const walletMenuItems = getWalletMenuEntries(
+								wallet,
+								connection,
+								status,
+							)}
+							<ToggleGroup.Item
+								value={wallet.$id.rdns}
+								data-tag="wallet-type"
+								data-connecting={status === 'connecting'}
+								data-failed={status === 'error'}
+								class="wallet-connection-item"
+							>
+								<span class={walletChipClass}>
+									{#if wallet.icon}
+										<Icon src={wallet.icon} size={16} />
+									{/if}
+									{#if networkIconSrc}
+										<Icon
+											src={networkIconSrc}
+											size={16}
+											class="wallet-network-icon"
+											title={networkName ?? 'Unknown network'}
+										/>
+									{/if}
+									<span class="wallet-details">
+										{#if connection.activeActor}
+											<span data-wallet-address>
+												<Address
+													network={chainId ?? selectedChainIdDerived ?? 1}
+													address={connection.activeActor}
+													linked={false}
+												/>
+											</span>
+											{#if statusLabel}
+												<span class="wallet-status">{statusLabel}</span>
+											{/if}
+										{:else}
+											<span class="wallet-status">{statusLabel ?? '—'}</span>
+										{/if}
+									</span>
+									<Dropdown
+										items={walletMenuItems}
+										triggerAriaLabel="Wallet menu"
+										triggerProps={{
+											'data-wallet-menu-trigger': true,
+											onclick: (event: MouseEvent) => event.stopPropagation(),
+										}}
+									>
+										{#snippet Trigger()}
+											<svg
+												width="12"
+												height="12"
+												viewBox="0 0 12 12"
+												fill="currentColor"
+											>
+												<circle cx="6" cy="2" r="1.5" />
+												<circle cx="6" cy="6" r="1.5" />
+												<circle cx="6" cy="10" r="1.5" />
+											</svg>
+										{/snippet}
+										{#snippet Item(item)}
+											{#if item.kind === 'actor'}
+												<span class="wallet-menu-option">
+													<Address
+														network={chainId ?? selectedChainIdDerived ?? 1}
+														address={item.actor}
+														linked={false}
+													/>
+												</span>
+											{:else if item.kind === 'network'}
+												<span class="wallet-menu-option">
+													<Icon
+														src={networkConfigsByChainId[item.network.id]
+															?.icon ?? `/icons/chains/${item.network.id}.svg`}
+														size={16}
+														class="wallet-network-icon"
+													/>
+													<span>{item.network.name}</span>
+												</span>
+											{:else if item.kind === 'disconnect'}
+												<span data-wallet-disconnect>{item.label}</span>
+											{:else}
+												{item.label}
+											{/if}
+										{/snippet}
+									</Dropdown>
+								</span>
+							</ToggleGroup.Item>
+						{/each}
+					</ToggleGroup.Root>
+				{:else}
+					<ToggleGroup.Root
+						type="multiple"
+						bind:value={() => selectedRdns, onMultipleSelectionChange}
+						data-row="wrap gap-2"
+					>
+						{#each readOnlyWalletChips as { wallet, connection, status } (wallet.$id.rdns)}
+							{@const isConnected = status === 'connected'}
+							{@const isReadOnly =
+								connection.transport === WalletConnectionTransport.None}
+							{@const statusLabel =
+								status === 'connecting'
+									? connection.activeActor
+										? 'Reconnecting'
+										: 'Connecting…'
+									: status === 'error'
+										? (connection.error ?? null)
+										: null}
+							{@const chainId = connection.chainId}
+							{@const networkName = chainId
+								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
+								: null}
+							{@const networkIconSrc = chainId
+								? (networkConfigsByChainId[chainId]?.icon ??
+									`/icons/chains/${chainId}.svg`)
+								: null}
+							{@const walletChipClass =
+								status === 'connecting'
+									? 'wallet-chip wallet-connecting'
+									: status === 'error'
+										? 'wallet-chip wallet-failed'
+										: 'wallet-chip'}
+							{@const walletMenuItems = getWalletMenuEntries(
+								wallet,
+								connection,
+								status,
+							)}
+							<ToggleGroup.Item
+								value={wallet.$id.rdns}
+								data-tag="wallet-type"
+								data-connecting={status === 'connecting'}
+								data-failed={status === 'error'}
+								class="wallet-connection-item"
+							>
+								<span class={walletChipClass}>
+									{#if wallet.icon}
+										<Icon src={wallet.icon} size={16} />
+									{/if}
+									{#if networkIconSrc}
+										<Icon
+											src={networkIconSrc}
+											size={16}
+											class="wallet-network-icon"
+											title={networkName ?? 'Unknown network'}
+										/>
+									{/if}
+									<span class="wallet-details">
+										{#if connection.activeActor}
+											<span data-wallet-address>
+												<Address
+													network={chainId ?? selectedChainIdDerived ?? 1}
+													address={connection.activeActor}
+													linked={false}
+												/>
+											</span>
+											{#if statusLabel}
+												<span class="wallet-status">{statusLabel}</span>
+											{/if}
+										{:else}
+											<span class="wallet-status">{statusLabel ?? '—'}</span>
+										{/if}
+									</span>
+									<Dropdown
+										items={walletMenuItems}
+										triggerAriaLabel="Wallet menu"
+										triggerProps={{
+											'data-wallet-menu-trigger': true,
+											onclick: (event: MouseEvent) => event.stopPropagation(),
+										}}
+									>
+										{#snippet Trigger()}
+											<svg
+												width="12"
+												height="12"
+												viewBox="0 0 12 12"
+												fill="currentColor"
+											>
+												<circle cx="6" cy="2" r="1.5" />
+												<circle cx="6" cy="6" r="1.5" />
+												<circle cx="6" cy="10" r="1.5" />
+											</svg>
+										{/snippet}
+										{#snippet Item(item)}
+											{#if item.kind === 'actor'}
+												<span class="wallet-menu-option">
+													<Address
+														network={chainId ?? selectedChainIdDerived ?? 1}
+														address={item.actor}
+														linked={false}
+													/>
+												</span>
+											{:else if item.kind === 'network'}
+												<span class="wallet-menu-option">
+													<Icon
+														src={networkConfigsByChainId[item.network.id]
+															?.icon ?? `/icons/chains/${item.network.id}.svg`}
+														size={16}
+														class="wallet-network-icon"
+													/>
+													<span>{item.network.name}</span>
+												</span>
+											{:else if item.kind === 'disconnect'}
+												<span data-wallet-disconnect>{item.label}</span>
+											{:else}
+												{item.label}
+											{/if}
+										{/snippet}
+									</Dropdown>
+								</span>
+							</ToggleGroup.Item>
+						{/each}
+					</ToggleGroup.Root>
+				{/if}
+			</div>
+		{/if}
+	{/if}
+
+	{#if true}
+		{@const walletConnectItems: WalletConnectEntry[] = (
 			[
 				...(
 					availableWallets.length > 0 ?
@@ -973,54 +967,51 @@
 				{ type: 'separator', id: 'wallet-connect-sep' },
 			]
 		)}
-			<Dropdown
-				items={walletConnectItems}
-				triggerLabel={walletChips.length > 0 ? '+' : 'Connect Wallet'}
-				triggerAriaLabel="Connect wallet"
-				triggerProps={{
-					'data-wallet-connect-trigger': true,
-				}}
-				contentProps={{
-					'data-wallet-popover': true,
-				}}
+		<Dropdown
+			items={walletConnectItems}
+			triggerLabel={walletChips.length > 0 ? '+' : 'Connect Wallet'}
+			triggerAriaLabel="Connect wallet"
+			triggerProps={{
+				'data-wallet-connect-trigger': true,
+			}}
+			contentProps={{
+				'data-wallet-popover': true,
+			}}
+		>
+			{#snippet Item(item)}
+				{#if item.kind === 'wallet'}
+					<span class="wallet-menu-option" data-wallet-provider-option>
+						{#if item.wallet.icon}
+							<Icon src={item.wallet.icon} size={20} />
+						{/if}
+						<span>{item.wallet.name}</span>
+					</span>
+				{:else}
+					<span data-wallet-empty>{item.label}</span>
+				{/if}
+			{/snippet}
+			<form
+				class="account-watching"
+				onsubmit={(event) => (event.preventDefault(), connectReadOnlyAddress())}
 			>
-				{#snippet Item(item)}
-					{#if item.kind === 'wallet'}
-						<span class="wallet-menu-option" data-wallet-provider-option>
-							{#if item.wallet.icon}
-								<Icon src={item.wallet.icon} size={20} />
-							{/if}
-							<span>{item.wallet.name}</span>
-						</span>
-					{:else}
-						<span data-wallet-empty>{item.label}</span>
-					{/if}
-				{/snippet}
-				<form
-					class="account-watching"
-					onsubmit={(event) => (
-						event.preventDefault(),
-						connectReadOnlyAddress()
-					)}
-				>
-					<label class="account-watching-label" for="account-watching-address">
-						Watching address
-					</label>
-					<div class="account-watching-field">
-						<input
-							id="account-watching-address"
-							name="watching-address"
-							type="text"
-							placeholder="0x..."
-							class="account-watching-input"
-							value={readOnlyAddress}
-							oninput={onReadOnlyInput}
-						/>
-						<Button.Root type="submit">Add</Button.Root>
-					</div>
-				</form>
-			</Dropdown>
-		{/if}
+				<label class="account-watching-label" for="account-watching-address">
+					Watching address
+				</label>
+				<div class="account-watching-field">
+					<input
+						id="account-watching-address"
+						name="watching-address"
+						type="text"
+						placeholder="0x..."
+						class="account-watching-input"
+						value={readOnlyAddress}
+						oninput={onReadOnlyInput}
+					/>
+					<Button.Root type="submit">Add</Button.Root>
+				</div>
+			</form>
+		</Dropdown>
+	{/if}
 </div>
 
 <style>

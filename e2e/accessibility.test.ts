@@ -113,8 +113,6 @@ test.describe('Keyboard navigation', () => {
 		await selectChainOption(page, 'From chain', 'Ethereum')
 		await selectChainOption(page, 'To chain', 'OP Mainnet')
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
-		await expect(page.getByRole('textbox', { name: 'Amount' })).toHaveValue(
-			'1',
-		)
+		await expect(page.getByRole('textbox', { name: 'Amount' })).toHaveValue('1')
 	})
 })

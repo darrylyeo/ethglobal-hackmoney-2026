@@ -74,25 +74,32 @@ const runTevmSimulation = async (body: {
 	const execResult = runResult.execResult
 	const reverted = Boolean(execResult.exceptionError)
 	const summaryStatus: TevmSimulationResult['summaryStatus'] = reverted
-		? (execResult.exceptionError?.error?.message?.toLowerCase().includes('revert')
-				? 'revert'
-				: 'error')
+		? execResult.exceptionError?.error?.message
+				?.toLowerCase()
+				.includes('revert')
+			? 'revert'
+			: 'error'
 		: 'success'
 
 	let revertReason: string | undefined
 	let errorSelector: string | undefined
-	if (execResult.exceptionError && execResult.returnValue && execResult.returnValue.length >= 4) {
+	if (
+		execResult.exceptionError &&
+		execResult.returnValue &&
+		execResult.returnValue.length >= 4
+	) {
 		errorSelector = toHex(execResult.returnValue.slice(0, 4))
 		if (execResult.returnValue.length > 4) {
 			revertReason = toHex(execResult.returnValue)
 		}
 	}
 	if (!revertReason && execResult.exceptionError) {
-		revertReason = execResult.exceptionError.error?.message ?? String(execResult.exceptionError)
+		revertReason =
+			execResult.exceptionError.error?.message ??
+			String(execResult.exceptionError)
 	}
 
-	const forkBlockNumber =
-		typeof blockTag === 'number' ? blockTag : 0
+	const forkBlockNumber = typeof blockTag === 'number' ? blockTag : 0
 
 	const trace: TevmSimulationTraceCall[] = [
 		{
@@ -105,11 +112,13 @@ const runTevmSimulation = async (body: {
 		},
 	]
 
-	const rawLogs = (execResult.logs ?? []).map((log: { address: Uint8Array; topics: Uint8Array[]; data: Uint8Array }) => ({
-		address: toHex(log.address),
-		topics: log.topics.map((t: Uint8Array) => toHex(t)),
-		data: bytesToHex(log.data),
-	}))
+	const rawLogs = (execResult.logs ?? []).map(
+		(log: { address: Uint8Array; topics: Uint8Array[]; data: Uint8Array }) => ({
+			address: toHex(log.address),
+			topics: log.topics.map((t: Uint8Array) => toHex(t)),
+			data: bytesToHex(log.data),
+		}),
+	)
 
 	const events: TevmSimulationDecodedEvent[] = rawLogs.map((log) => ({
 		address: log.address,

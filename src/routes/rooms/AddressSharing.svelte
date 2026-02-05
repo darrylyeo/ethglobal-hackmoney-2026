@@ -46,7 +46,11 @@
 	)
 	const liveQueryEntries = [
 		{ id: 'address-sharing', label: 'Shared Addresses', query: mySharedQuery },
-		{ id: 'address-sharing-challenges', label: 'SIWE Challenges', query: challengesQuery },
+		{
+			id: 'address-sharing-challenges',
+			label: 'SIWE Challenges',
+			query: challengesQuery,
+		},
 	]
 	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
 		() => liveQueryEntries,
@@ -141,7 +145,9 @@
 								onclick={() => shareWithPeer(address, peer.peerId)}
 								disabled={sharedWithThis}
 							>
-								{sharedWithThis ? `Shared (${peer.displayName ?? peer.peerId.slice(0, 8)})` : `Share (${peer.displayName ?? peer.peerId.slice(0, 8)})`}
+								{sharedWithThis
+									? `Shared (${peer.displayName ?? peer.peerId.slice(0, 8)})`
+									: `Share (${peer.displayName ?? peer.peerId.slice(0, 8)})`}
 							</Button.Root>
 						{/each}
 					</div>
@@ -160,18 +166,12 @@
 					<Address network={1} address={ch.address} />
 					<span>Requested by {ch.fromPeerId.slice(0, 8)}</span>
 					{#if canSign}
-						<Button.Root
-							type="button"
-							onclick={() => signChallenge(ch)}
-						>
+						<Button.Root type="button" onclick={() => signChallenge(ch)}>
 							Sign
 						</Button.Root>
 					{:else}
 						<span data-unverifiable>Unverifiable (read-only wallet)</span>
-						<Button.Root
-							type="button"
-							onclick={() => markUnverifiable(ch.id)}
-						>
+						<Button.Root type="button" onclick={() => markUnverifiable(ch.id)}>
 							Mark unverifiable
 						</Button.Root>
 					{/if}

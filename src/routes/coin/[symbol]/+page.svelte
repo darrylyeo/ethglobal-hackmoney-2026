@@ -4,14 +4,8 @@
 	import { env } from '$env/dynamic/public'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins'
-	import {
-		getCoinForCoinPage,
-		type CoinPageSymbol,
-	} from '$/constants/coins'
-	import {
-	fetchTransfersGraph,
-	TIME_PERIODS,
-} from '$/api/transfers-indexer'
+	import { getCoinForCoinPage, type CoinPageSymbol } from '$/constants/coins'
+	import { fetchTransfersGraph, TIME_PERIODS } from '$/api/transfers-indexer'
 	import { liveQueryLocalAttachmentFrom } from '$/svelte/live-query-context.svelte'
 	import {
 		transferGraphsCollection,

@@ -17,9 +17,7 @@
 
 	// (Derived)
 	const explorerBlockListUrl = $derived(
-		data.config.explorerUrl
-			? `${data.config.explorerUrl}/blocks`
-			: null,
+		data.config.explorerUrl ? `${data.config.explorerUrl}/blocks` : null,
 	)
 </script>
 

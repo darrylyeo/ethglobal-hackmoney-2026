@@ -791,12 +791,8 @@
 		typeof value === 'object' && value !== null
 
 	const getChainName = (chainId: number) =>
-		(
-			Object.values(networksByChainId)
-				.find((entry) => entry?.id === chainId)
-				?.name
-			?? `Chain ${chainId}`
-		)
+		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
+			?.name ?? `Chain ${chainId}`
 
 	const toNodeId = (prefix: string, id: unknown) => `${prefix}:${stringify(id)}`
 
@@ -2578,39 +2574,40 @@
 		label: string
 		collection: string
 	}
-	const selectionItems = $derived.by((): (SelectionNodeItem | SelectionEdgeItem)[] => {
-		if (!graphModel) return []
-		const items: (SelectionNodeItem | SelectionEdgeItem)[] = selectedNodes.map(
-			(nodeId): SelectionNodeItem => {
-				const attrs = graphModel.graph.getNodeAttributes(nodeId)
-				const label = typeof attrs.label === 'string' ? attrs.label : nodeId
-				const collection =
-					typeof attrs.collection === 'string' ? attrs.collection : 'node'
-				const details = isRecord(attrs.details) ? attrs.details : null
-				let href: string | undefined
-				if (collection === EntityType.Network && details?.slug) {
-					href = `/network/${details.slug}`
-				} else if (
-					collection === EntityType.Block &&
-					details?.networkSlug != null &&
-					details?.blockNumber != null
-				) {
-					href = `/network/${details.networkSlug}/block/${details.blockNumber}`
-				}
-				return { id: nodeId, kind: 'node', label, collection, href }
-			},
-		)
-		for (const edgeId of selectedEdges) {
-			const edge = graphModel.edges.find((entry) => entry.id === edgeId)
-			items.push({
-				id: edgeId,
-				kind: 'edge',
-				label: edge?.relation ?? 'edge',
-				collection: edge?.relation ?? 'edge',
-			})
-		}
-		return items
-	})
+	const selectionItems = $derived.by(
+		(): (SelectionNodeItem | SelectionEdgeItem)[] => {
+			if (!graphModel) return []
+			const items: (SelectionNodeItem | SelectionEdgeItem)[] =
+				selectedNodes.map((nodeId): SelectionNodeItem => {
+					const attrs = graphModel.graph.getNodeAttributes(nodeId)
+					const label = typeof attrs.label === 'string' ? attrs.label : nodeId
+					const collection =
+						typeof attrs.collection === 'string' ? attrs.collection : 'node'
+					const details = isRecord(attrs.details) ? attrs.details : null
+					let href: string | undefined
+					if (collection === EntityType.Network && details?.slug) {
+						href = `/network/${details.slug}`
+					} else if (
+						collection === EntityType.Block &&
+						details?.networkSlug != null &&
+						details?.blockNumber != null
+					) {
+						href = `/network/${details.networkSlug}/block/${details.blockNumber}`
+					}
+					return { id: nodeId, kind: 'node', label, collection, href }
+				})
+			for (const edgeId of selectedEdges) {
+				const edge = graphModel.edges.find((entry) => entry.id === edgeId)
+				items.push({
+					id: edgeId,
+					kind: 'edge',
+					label: edge?.relation ?? 'edge',
+					collection: edge?.relation ?? 'edge',
+				})
+			}
+			return items
+		},
+	)
 
 	// Actions
 	const toggleCollection = (key: string) => {

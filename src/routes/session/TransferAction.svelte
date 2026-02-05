@@ -417,7 +417,7 @@
 </script>
 
 <div style="display: contents" {@attach liveQueryAttachment}>
-<SessionAction
+	<SessionAction
 		title="Transfer"
 		description={sessionLocked ? 'Last saved session is locked.' : undefined}
 		{onSubmit}
@@ -488,5 +488,5 @@
 				]}
 			/>
 		{/snippet}
-</SessionAction>
+	</SessionAction>
 </div>

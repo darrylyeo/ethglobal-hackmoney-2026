@@ -65,7 +65,11 @@
 	const liveQueryEntries = [
 		{ id: 'peer-card-shared', label: 'Shared Addresses', query: sharedQuery },
 		{ id: 'peer-card-siwe', label: 'SIWE Challenges', query: challengesQuery },
-		{ id: 'peer-card-verifications', label: 'Verifications', query: verificationsQuery },
+		{
+			id: 'peer-card-verifications',
+			label: 'Verifications',
+			query: verificationsQuery,
+		},
 	]
 	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
 		() => liveQueryEntries,
@@ -76,11 +80,16 @@
 		allShared.filter(
 			(s) =>
 				s.targetPeerIds === null ||
-				(roomState.peerId != null && s.targetPeerIds.includes(roomState.peerId)),
+				(roomState.peerId != null &&
+					s.targetPeerIds.includes(roomState.peerId)),
 		),
 	)
-	const verifications = $derived((verificationsQuery.data ?? []).map((r) => r.row))
-	const getMyVerification = (address: `0x${string}`): VerificationRow | undefined =>
+	const verifications = $derived(
+		(verificationsQuery.data ?? []).map((r) => r.row),
+	)
+	const getMyVerification = (
+		address: `0x${string}`,
+	): VerificationRow | undefined =>
 		roomState.peerId == null
 			? undefined
 			: [...verifications]
@@ -172,8 +181,13 @@
 						{:else}
 							Verified
 							{#if myVerification.verifiedAt != null}
-								<time datetime={new Date(myVerification.verifiedAt).toISOString()}>
-									{new Date(myVerification.verifiedAt).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
+								<time
+									datetime={new Date(myVerification.verifiedAt).toISOString()}
+								>
+									{new Date(myVerification.verifiedAt).toLocaleString(
+										undefined,
+										{ dateStyle: 'short', timeStyle: 'short' },
+									)}
 								</time>
 							{/if}
 							<Button.Root
@@ -198,10 +212,7 @@
 					<li data-challenge>
 						<Address network={1} address={ch.address} />
 						{#if canSign}
-							<Button.Root
-								type="button"
-								onclick={() => signChallenge(ch)}
-							>
+							<Button.Root type="button" onclick={() => signChallenge(ch)}>
 								Sign to verify
 							</Button.Root>
 						{:else}

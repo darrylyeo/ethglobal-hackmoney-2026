@@ -118,7 +118,9 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/accounts',
 		assert: async (page) => {
-			await expect(page.getByRole('heading', { name: 'Accounts' })).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: 'Accounts' }),
+			).toBeVisible()
 			await expect(page.locator('[data-wallet-connect-trigger]')).toBeAttached()
 		},
 	},

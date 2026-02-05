@@ -1,10 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
-	import {
-		networkConfigs,
-		toNetworkSlug,
-	} from '$/constants/networks'
+	import { networkConfigs, toNetworkSlug } from '$/constants/networks'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
 	// Context
@@ -84,8 +81,7 @@
 		[],
 	)
 	const roomPeersQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: roomPeersCollection }).select(({ row }) => ({ row })),
+		(q) => q.from({ row: roomPeersCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const myPeerIdsQuery = useLiveQuery(
@@ -105,7 +101,11 @@
 			label: 'Wallet Connections',
 			query: walletConnectionsQuery,
 		},
-		{ id: 'layout-verifications', label: 'Verifications', query: verificationsQuery },
+		{
+			id: 'layout-verifications',
+			label: 'Verifications',
+			query: verificationsQuery,
+		},
 		{ id: 'layout-room-peers', label: 'Room Peers', query: roomPeersQuery },
 		{ id: 'layout-my-peer-ids', label: 'My Peer IDs', query: myPeerIdsQuery },
 	]
@@ -151,14 +151,11 @@
 				}
 				return ids
 			}),
-		]
-			.filter((id) => Number.isSafeInteger(id) && id > 0),
+		].filter((id) => Number.isSafeInteger(id) && id > 0),
 	)
 	const relevantNetworkConfigs = $derived(
 		[...new Set(relevantChainIds)]
-			.map((chainId) =>
-				networkConfigs.find((c) => c.chainId === chainId),
-			)
+			.map((chainId) => networkConfigs.find((c) => c.chainId === chainId))
 			.filter((c): c is NonNullable<typeof c> => c != null),
 	)
 	const myPeerIdsSet = $derived(
@@ -167,20 +164,16 @@
 	const verifiedByMeVerifications = $derived(
 		(verificationsQuery.data ?? []).filter(
 			(r) =>
-				myPeerIdsSet.has(r.row.verifierPeerId) &&
-				r.row.status === 'verified',
+				myPeerIdsSet.has(r.row.verifierPeerId) && r.row.status === 'verified',
 		),
 	)
 	const peerIdToRoomPeers = $derived(
-		(roomPeersQuery.data ?? []).reduce(
-			(acc, { row }) => {
-				const list = acc.get(row.peerId) ?? []
-				list.push(row)
-				acc.set(row.peerId, list)
-				return acc
-			},
-			new Map<string, { displayName?: string; isConnected: boolean }[]>(),
-		),
+		(roomPeersQuery.data ?? []).reduce((acc, { row }) => {
+			const list = acc.get(row.peerId) ?? []
+			list.push(row)
+			acc.set(row.peerId, list)
+			return acc
+		}, new Map<string, { displayName?: string; isConnected: boolean }[]>()),
 	)
 	const peersNavItems = $derived(
 		verifiedByMeVerifications
@@ -190,12 +183,9 @@
 				const roomPeer = peers[0]
 				return {
 					id: `peer-${v.row.verifiedPeerId}-${v.row.address}`,
-					title:
-						roomPeer.displayName ?? formatAddress(v.row.address),
+					title: roomPeer.displayName ?? formatAddress(v.row.address),
 					href: `/account/${encodeURIComponent(v.row.address)}`,
-					tag: peers.some((p) => p.isConnected)
-						? 'Connected'
-						: 'Disconnected',
+					tag: peers.some((p) => p.isConnected) ? 'Connected' : 'Disconnected',
 				}
 			}),
 	)
@@ -205,18 +195,18 @@
 			const wallet =
 				connection.transport === WalletConnectionTransport.None
 					? { name: 'Watching', rdns, icon: undefined as string | undefined }
-					: walletsByRdns.get(rdns) ?? { name: rdns, rdns, icon: undefined as string | undefined }
+					: (walletsByRdns.get(rdns) ?? {
+							name: rdns,
+							rdns,
+							icon: undefined as string | undefined,
+						})
 
 			return connection.actors.map((actor) => ({
 				id: `account-${wallet.rdns}-${actor}`,
 				title: formatAddress(actor),
 				href: `/account/${encodeURIComponent(
 					connection.chainId != null
-						? toInteropName(
-								connection.chainId,
-								actor,
-								interopFormatConfig,
-							)
+						? toInteropName(connection.chainId, actor, interopFormatConfig)
 						: actor,
 				)}`,
 				tag: connection.status,
@@ -387,36 +377,36 @@
 
 		<Navigation {navigationItems}></Navigation>
 
-			<main id="main" tabindex="-1" data-sticky-container>
-				<section data-scroll-item>
-					<Boundary>
-						{@render children()}
+		<main id="main" tabindex="-1" data-sticky-container>
+			<section data-scroll-item>
+				<Boundary>
+					{@render children()}
 
-						{#snippet Failed(error, retry)}
-							<div data-column>
-								<h2>Error</h2>
-								<p>{error instanceof Error ? error.message : String(error)}</p>
-								<button type="button" onclick={retry}>Retry</button>
-							</div>
-						{/snippet}
-					</Boundary>
-				</section>
-			</main>
+					{#snippet Failed(error, retry)}
+						<div data-column>
+							<h2>Error</h2>
+							<p>{error instanceof Error ? error.message : String(error)}</p>
+							<button type="button" onclick={retry}>Retry</button>
+						</div>
+					{/snippet}
+				</Boundary>
+			</section>
+		</main>
 
-			<IntentDragPreview />
+		<IntentDragPreview />
 
-			<ToastContainer position="bottom-right" />
+		<ToastContainer position="bottom-right" />
 
-			<button
-				type="button"
-				class="graph-toggle"
-				onclick={() => {
-					showGraph = !showGraph
-				}}
-				title={showGraph ? 'Hide data graph' : 'Show data graph'}
-			>
-				{showGraph ? '✕' : '◉'}
-			</button>
+		<button
+			type="button"
+			class="graph-toggle"
+			onclick={() => {
+				showGraph = !showGraph
+			}}
+			title={showGraph ? 'Hide data graph' : 'Show data graph'}
+		>
+			{showGraph ? '✕' : '◉'}
+		</button>
 
 		<GraphScene
 			visible={showGraph}

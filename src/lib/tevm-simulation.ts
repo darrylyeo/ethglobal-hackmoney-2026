@@ -19,7 +19,10 @@ export type TevmSimulationPayload = {
 
 export const runTevmSimulationFromClient = async (
 	payload: TevmSimulationPayload,
-): Promise<{ result: TevmSimulationResult; summary: TransactionSessionSimulationSummary }> => {
+): Promise<{
+	result: TevmSimulationResult
+	summary: TransactionSessionSimulationSummary
+}> => {
 	const res = await fetch('/api/simulate', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },

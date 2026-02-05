@@ -241,9 +241,11 @@
 	)
 	const latestSimulation = $derived(simulationQuery.data?.[0]?.row ?? null)
 	const simulationResult = $derived(
-		latestSimulation?.result as
-			| { trace?: unknown[]; events?: unknown[]; rawLogs?: unknown[] }
-			| null,
+		latestSimulation?.result as {
+			trace?: unknown[]
+			events?: unknown[]
+			rawLogs?: unknown[]
+		} | null,
 	)
 	const liveQueryEntries = [
 		{
@@ -470,7 +472,10 @@
 			lockedAt: session.lockedAt ?? Date.now(),
 			updatedAt: Date.now(),
 		}))
-		const tevmResult = result as { summaryStatus?: string; revertReason?: string }
+		const tevmResult = result as {
+			summaryStatus?: string
+			revertReason?: string
+		}
 		const simStatus =
 			tevmResult.summaryStatus === 'success' ? 'success' : 'failed'
 		const simulationId = createTransactionSessionSimulation({
@@ -720,9 +725,10 @@
 			const rpcUrl = rpcUrls[settings.chainId]
 			const from = selectedActor
 			const router = UNIVERSAL_ROUTER_ADDRESS[settings.chainId]
-			const to = router && router !== '0x0000000000000000000000000000000000000000'
-				? router
-				: quote.tokenIn
+			const to =
+				router && router !== '0x0000000000000000000000000000000000000000'
+					? router
+					: quote.tokenIn
 			if (rpcUrl && from) {
 				void runTevmSimulationFromClient({
 					rpcUrl,
@@ -732,7 +738,9 @@
 					data: '0x',
 					value: '0',
 					gasLimit: quote.gasEstimate.toString(),
-				}).then(({ result: tevmResult }) => persistSimulation(tevmResult)).catch(() => persistSimulation(quote))
+				})
+					.then(({ result: tevmResult }) => persistSimulation(tevmResult))
+					.catch(() => persistSimulation(quote))
 			} else {
 				persistSimulation(quote)
 			}
@@ -753,7 +761,7 @@
 </script>
 
 <div style="display: contents" {@attach liveQueryAttachment}>
-<SessionAction
+	<SessionAction
 		title="Swap"
 		description={sessionLocked ? 'Last saved session is locked.' : undefined}
 		{onSubmit}
@@ -1026,7 +1034,7 @@
 				</Button.Root>
 			</div>
 		{/snippet}
-</SessionAction>
+	</SessionAction>
 
 	{#if simulationResult?.trace?.length || simulationResult?.events?.length}
 		<section data-column="gap-3" data-simulation-panels>
@@ -1036,7 +1044,11 @@
 			{#if simulationResult.events?.length || simulationResult.rawLogs?.length}
 				<SimulationEventPanel
 					events={simulationResult.events ?? []}
-					rawLogs={(simulationResult.rawLogs ?? []) as { address: string; topics: string[]; data: string }[]}
+					rawLogs={(simulationResult.rawLogs ?? []) as {
+						address: string
+						topics: string[]
+						data: string
+					}[]}
 				/>
 			{/if}
 		</section>

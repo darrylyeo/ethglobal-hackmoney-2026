@@ -16,8 +16,7 @@
 		[],
 	)
 	const roomPeersQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: roomPeersCollection }).select(({ row }) => ({ row })),
+		(q) => q.from({ row: roomPeersCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const myPeerIdsQuery = useLiveQuery(
@@ -34,23 +33,16 @@
 	const verifiedByMeVerifications = $derived(
 		(verificationsQuery.data ?? []).filter(
 			(r) =>
-				myPeerIdsSet.has(r.row.verifierPeerId) &&
-				r.row.status === 'verified',
+				myPeerIdsSet.has(r.row.verifierPeerId) && r.row.status === 'verified',
 		),
 	)
 	const peerIdToRoomPeers = $derived(
-		(roomPeersQuery.data ?? []).reduce(
-			(acc, { row }) => {
-				const list = acc.get(row.peerId) ?? []
-				list.push(row)
-				acc.set(row.peerId, list)
-				return acc
-			},
-			new Map<
-				string,
-				{ displayName?: string; isConnected: boolean; peerId: string }[]
-			>(),
-		),
+		(roomPeersQuery.data ?? []).reduce((acc, { row }) => {
+			const list = acc.get(row.peerId) ?? []
+			list.push(row)
+			acc.set(row.peerId, list)
+			return acc
+		}, new Map<string, { displayName?: string; isConnected: boolean; peerId: string }[]>()),
 	)
 	const peersList = $derived(
 		verifiedByMeVerifications
@@ -67,25 +59,21 @@
 			}),
 	)
 	const peersByPeerId = $derived(
-		peersList.reduce(
-			(acc, p) => {
-				const list = acc.get(p.peerId) ?? []
-				list.push(p)
-				acc.set(p.peerId, list)
-				return acc
-			},
-			new Map<
-				string,
-				{ address: `0x${string}`; displayName?: string; isConnected: boolean }[]
-			>(),
-		),
+		peersList.reduce((acc, p) => {
+			const list = acc.get(p.peerId) ?? []
+			list.push(p)
+			acc.set(p.peerId, list)
+			return acc
+		}, new Map<string, { address: `0x${string}`; displayName?: string; isConnected: boolean }[]>()),
 	)
 
 	// Actions
 	const handleForget = (peerId: string) => {
 		if (
 			!peersByPeerId.get(peerId)?.every((p) => !p.isConnected) ||
-			!confirm('Remove this peer from your list? They will reappear if you meet again in a room.')
+			!confirm(
+				'Remove this peer from your list? They will reappear if you meet again in a room.',
+			)
 		)
 			return
 		forgetPeer(peerId)
@@ -124,6 +112,8 @@
 	</ul>
 
 	{#if peersList.length === 0}
-		<p data-muted>No verified peers. Verify an address in a room to see them here.</p>
+		<p data-muted>
+			No verified peers. Verify an address in a room to see them here.
+		</p>
 	{/if}
 </main>

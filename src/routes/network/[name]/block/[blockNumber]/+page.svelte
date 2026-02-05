@@ -57,13 +57,9 @@
 		fetchBlock(data.chainId, data.blockNumber).catch(() => {})
 	})
 
-	const blockUrl = $derived(
-		getBlockUrl(data.chainId, data.blockNumber),
-	)
+	const blockUrl = $derived(getBlockUrl(data.chainId, data.blockNumber))
 	const timestampLabel = $derived(
-		blockRow?.timestamp
-			? new Date(blockRow.timestamp).toISOString()
-			: null,
+		blockRow?.timestamp ? new Date(blockRow.timestamp).toISOString() : null,
 	)
 </script>
 

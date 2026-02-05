@@ -591,18 +591,225 @@
 </script>
 
 <section data-card data-column="gap-4" {@attach liveQueryAttachment}>
-		{#snippet swapSummary()}
-			{#if quote && tokenInSelection && tokenOutSelection}
-				<dl class="summary">
-					<dt>You send</dt>
+	{#snippet swapSummary()}
+		{#if quote && tokenInSelection && tokenOutSelection}
+			<dl class="summary">
+				<dt>You send</dt>
+				<dd>
+					{formatTokenAmount(settings.amount, tokenInSelection.decimals)}
+					{tokenInSelection.symbol}
+				</dd>
+				<dt>You receive</dt>
+				<dd>
+					~{formatTokenAmount(quote.amountOut, tokenOutSelection.decimals)}
+					{tokenOutSelection.symbol}
+				</dd>
+				{#if minOutput !== null}
+					<dt>Min received</dt>
 					<dd>
-						{formatTokenAmount(settings.amount, tokenInSelection.decimals)}
-						{tokenInSelection.symbol}
-					</dd>
-					<dt>You receive</dt>
-					<dd>
-						~{formatTokenAmount(quote.amountOut, tokenOutSelection.decimals)}
+						{formatTokenAmount(minOutput, tokenOutSelection.decimals)}
 						{tokenOutSelection.symbol}
+					</dd>
+				{/if}
+				<dt>Price impact</dt>
+				<dd>{quote.priceImpact.toFixed(2)}%</dd>
+				<dt>Slippage</dt>
+				<dd>{formatSlippagePercent(settings.slippage)}</dd>
+			</dl>
+		{/if}
+	{/snippet}
+
+	{#snippet swapDetails(_tx: unknown, _state: unknown)}
+		{#if needsApproval && selectedActor && selectedEip1193Wallet && routerAddress}
+			<TokenApproval
+				chainId={settings.chainId}
+				tokenAddress={settings.tokenIn}
+				spenderAddress={routerAddress}
+				amount={settings.amount}
+				provider={selectedEip1193Wallet.provider}
+				ownerAddress={selectedActor}
+			/>
+		{/if}
+
+		{#if quote && selectedActor && selectedEip1193Wallet}
+			<SwapExecution
+				{quote}
+				walletProvider={selectedEip1193Wallet.provider}
+				walletAddress={selectedActor}
+				amount={settings.amount}
+				bind:executing
+				bind:this={executionRef}
+			/>
+		{/if}
+	{/snippet}
+
+	<div data-row="gap-2 align-center justify-between">
+		<h2 data-intent-transition="route">Swap</h2>
+		<div data-row="gap-2 align-center">
+			{#if sessionLocked}
+				<Button.Root type="button" onclick={forkSession}>New draft</Button.Root>
+			{/if}
+			<NetworkInput
+				networks={filteredNetworks}
+				bind:value={
+					() => settings.chainId,
+					(value) => {
+						const nextChainId = Array.isArray(value)
+							? (value[0] ?? null)
+							: value
+						if (nextChainId === null || nextChainId === settings.chainId) return
+						updateSessionParams({ ...settings, chainId: nextChainId })
+					}
+				}
+				disabled={sessionLocked}
+			/>
+		</div>
+	</div>
+
+	{#if asNonEmpty(chainCoins) && tokenInSelection && tokenOutSelection}
+		<section data-column="gap-2">
+			<div
+				data-card="secondary"
+				data-column="gap-2"
+				data-intent-transition="source"
+			>
+				<div data-row="gap-2 align-center justify-between">
+					<label for="swap-amount-in">From</label>
+					{#if tokenInBalance !== null}
+						<Button.Root
+							type="button"
+							onclick={() => updateAmount(tokenInBalance)}
+							disabled={sessionLocked || tokenInBalance === 0n}
+						>
+							Max
+						</Button.Root>
+					{/if}
+				</div>
+				<CoinAmountInput
+					id="swap-amount-in"
+					coins={chainCoins}
+					bind:coin={tokenInSelection}
+					min={0n}
+					max={tokenInBalance ?? 0n}
+					bind:value={() => settings.amount, updateAmount}
+					disabled={sessionLocked}
+					bind:invalid={
+						() => invalidAmountInput,
+						(invalid) => (invalidAmountInput = invalid)
+					}
+					ariaLabel="Token in"
+				/>
+				{#if tokenInBalance !== null}
+					<small data-muted>
+						Balance: {formatSmallestToDecimal(
+							tokenInBalance,
+							tokenInSelection.decimals,
+							4,
+						)}
+						{tokenInSelection.symbol}
+					</small>
+				{/if}
+			</div>
+
+			<div data-row="center">
+				<Button.Root
+					type="button"
+					onclick={() => {
+						if (!tokenInSelection || !tokenOutSelection) return
+						updateSessionParams({
+							...settings,
+							tokenIn: tokenOutSelection.address,
+							tokenOut: tokenInSelection.address,
+							amount: 0n,
+						})
+					}}
+					disabled={sessionLocked}
+					aria-label="Swap direction"
+				>
+					↕
+				</Button.Root>
+			</div>
+
+			<div
+				data-card="secondary"
+				data-column="gap-2"
+				data-intent-transition="target"
+			>
+				<label for="swap-token-out">To</label>
+				<div data-row="gap-2 align-center wrap">
+					<div data-row-item="flexible">
+						{#if quote}
+							<CoinAmount
+								coin={tokenOutSelection}
+								amount={quote.amountOut}
+								draggable={false}
+							/>
+						{:else if isQuotePending}
+							<span data-muted>Fetching quote…</span>
+						{:else}
+							<span data-muted>0</span>
+						{/if}
+					</div>
+					<div data-row-item="basis-3">
+						<CoinInput
+							coins={chainCoins}
+							bind:value={tokenOutSelection}
+							id="swap-token-out"
+							ariaLabel="Token out"
+							disabled={sessionLocked}
+						/>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section data-card data-column="gap-3">
+			<div data-row="gap-2 align-center justify-between">
+				<h3>Quote details</h3>
+				{#if isQuotePending}
+					<span data-muted>Refreshing…</span>
+				{/if}
+			</div>
+
+			<Popover.Root>
+				<Popover.Trigger data-row="gap-1" disabled={sessionLocked}
+					>Slippage: <strong>{formatSlippagePercent(settings.slippage)}</strong
+					></Popover.Trigger
+				>
+				<Popover.Content data-column="gap-2">
+					<div data-row="gap-1">
+						{#each slippagePresets as preset (preset.id)}
+							<Button.Root
+								onclick={() => updateSlippage(preset.value)}
+								data-selected={settings.slippage === preset.value
+									? ''
+									: undefined}
+								disabled={sessionLocked}
+							>
+								{formatSlippagePercent(preset.value)}
+							</Button.Root>
+						{/each}
+					</div>
+					<input
+						placeholder="Custom %"
+						bind:value={slippageInput}
+						disabled={sessionLocked}
+						onchange={() => {
+							const nextSlippage = parseSlippagePercent(slippageInput)
+							if (nextSlippage !== null) updateSlippage(nextSlippage)
+						}}
+					/>
+				</Popover.Content>
+			</Popover.Root>
+
+			{#if quote}
+				<dl class="summary">
+					<dt>Price impact</dt>
+					<dd>
+						{quote.priceImpact.toFixed(2)}%
+						{#if priceImpactWarning}
+							<span data-error>High impact</span>
+						{/if}
 					</dd>
 					{#if minOutput !== null}
 						<dt>Min received</dt>
@@ -611,291 +818,80 @@
 							{tokenOutSelection.symbol}
 						</dd>
 					{/if}
-					<dt>Price impact</dt>
-					<dd>{quote.priceImpact.toFixed(2)}%</dd>
-					<dt>Slippage</dt>
-					<dd>{formatSlippagePercent(settings.slippage)}</dd>
-				</dl>
-			{/if}
-		{/snippet}
-
-		{#snippet swapDetails(_tx: unknown, _state: unknown)}
-			{#if needsApproval && selectedActor && selectedEip1193Wallet && routerAddress}
-				<TokenApproval
-					chainId={settings.chainId}
-					tokenAddress={settings.tokenIn}
-					spenderAddress={routerAddress}
-					amount={settings.amount}
-					provider={selectedEip1193Wallet.provider}
-					ownerAddress={selectedActor}
-				/>
-			{/if}
-
-			{#if quote && selectedActor && selectedEip1193Wallet}
-				<SwapExecution
-					{quote}
-					walletProvider={selectedEip1193Wallet.provider}
-					walletAddress={selectedActor}
-					amount={settings.amount}
-					bind:executing
-					bind:this={executionRef}
-				/>
-			{/if}
-		{/snippet}
-
-		<div data-row="gap-2 align-center justify-between">
-			<h2 data-intent-transition="route">Swap</h2>
-			<div data-row="gap-2 align-center">
-				{#if sessionLocked}
-					<Button.Root type="button" onclick={forkSession}>
-						New draft
-					</Button.Root>
-				{/if}
-				<NetworkInput
-					networks={filteredNetworks}
-					bind:value={
-						() => settings.chainId,
-						(value) => {
-							const nextChainId = Array.isArray(value)
-								? (value[0] ?? null)
-								: value
-							if (nextChainId === null || nextChainId === settings.chainId)
-								return
-							updateSessionParams({ ...settings, chainId: nextChainId })
-						}
-					}
-					disabled={sessionLocked}
-				/>
-			</div>
-		</div>
-
-		{#if asNonEmpty(chainCoins) && tokenInSelection && tokenOutSelection}
-			<section data-column="gap-2">
-				<div
-					data-card="secondary"
-					data-column="gap-2"
-					data-intent-transition="source"
-				>
-					<div data-row="gap-2 align-center justify-between">
-						<label for="swap-amount-in">From</label>
-						{#if tokenInBalance !== null}
-							<Button.Root
-								type="button"
-								onclick={() => updateAmount(tokenInBalance)}
-								disabled={sessionLocked || tokenInBalance === 0n}
-							>
-								Max
-							</Button.Root>
-						{/if}
-					</div>
-					<CoinAmountInput
-						id="swap-amount-in"
-						coins={chainCoins}
-						bind:coin={tokenInSelection}
-						min={0n}
-						max={tokenInBalance ?? 0n}
-						bind:value={() => settings.amount, updateAmount}
-						disabled={sessionLocked}
-						bind:invalid={
-							() => invalidAmountInput,
-							(invalid) => (invalidAmountInput = invalid)
-						}
-						ariaLabel="Token in"
-					/>
-					{#if tokenInBalance !== null}
-						<small data-muted>
-							Balance: {formatSmallestToDecimal(
-								tokenInBalance,
-								tokenInSelection.decimals,
-								4,
-							)}
-							{tokenInSelection.symbol}
-						</small>
-					{/if}
-				</div>
-
-				<div data-row="center">
-					<Button.Root
-						type="button"
-						onclick={() => {
-							if (!tokenInSelection || !tokenOutSelection) return
-							updateSessionParams({
-								...settings,
-								tokenIn: tokenOutSelection.address,
-								tokenOut: tokenInSelection.address,
-								amount: 0n,
-							})
-						}}
-						disabled={sessionLocked}
-						aria-label="Swap direction"
-					>
-						↕
-					</Button.Root>
-				</div>
-
-				<div
-					data-card="secondary"
-					data-column="gap-2"
-					data-intent-transition="target"
-				>
-					<label for="swap-token-out">To</label>
-					<div data-row="gap-2 align-center wrap">
-						<div data-row-item="flexible">
-							{#if quote}
-								<CoinAmount
-									coin={tokenOutSelection}
-									amount={quote.amountOut}
-									draggable={false}
-								/>
-							{:else if isQuotePending}
-								<span data-muted>Fetching quote…</span>
-							{:else}
-								<span data-muted>0</span>
-							{/if}
-						</div>
-						<div data-row-item="basis-3">
-							<CoinInput
-								coins={chainCoins}
-								bind:value={tokenOutSelection}
-								id="swap-token-out"
-								ariaLabel="Token out"
-								disabled={sessionLocked}
-							/>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<section data-card data-column="gap-3">
-				<div data-row="gap-2 align-center justify-between">
-					<h3>Quote details</h3>
-					{#if isQuotePending}
-						<span data-muted>Refreshing…</span>
-					{/if}
-				</div>
-
-				<Popover.Root>
-					<Popover.Trigger data-row="gap-1" disabled={sessionLocked}
-						>Slippage: <strong
-							>{formatSlippagePercent(settings.slippage)}</strong
-						></Popover.Trigger
-					>
-					<Popover.Content data-column="gap-2">
-						<div data-row="gap-1">
-							{#each slippagePresets as preset (preset.id)}
-								<Button.Root
-									onclick={() => updateSlippage(preset.value)}
-									data-selected={settings.slippage === preset.value
-										? ''
-										: undefined}
-									disabled={sessionLocked}
-								>
-									{formatSlippagePercent(preset.value)}
-								</Button.Root>
-							{/each}
-						</div>
-						<input
-							placeholder="Custom %"
-							bind:value={slippageInput}
-							disabled={sessionLocked}
-							onchange={() => {
-								const nextSlippage = parseSlippagePercent(slippageInput)
-								if (nextSlippage !== null) updateSlippage(nextSlippage)
-							}}
-						/>
-					</Popover.Content>
-				</Popover.Root>
-
-				{#if quote}
-					<dl class="summary">
-						<dt>Price impact</dt>
+					{#if quote.route.length > 0}
+						<dt>Route</dt>
 						<dd>
-							{quote.priceImpact.toFixed(2)}%
-							{#if priceImpactWarning}
-								<span data-error>High impact</span>
-							{/if}
+							{#each quote.route as step, index (step.poolId)}
+								{@const tokenInSymbol =
+									chainSymbols.get(step.tokenIn.toLowerCase()) ??
+									step.tokenIn.slice(0, 6)}
+								{@const tokenOutSymbol =
+									chainSymbols.get(step.tokenOut.toLowerCase()) ??
+									step.tokenOut.slice(0, 6)}
+								<span>
+									{tokenInSymbol} → {tokenOutSymbol} ({step.fee / 100}%)
+									{index < quote.route.length - 1 ? ' · ' : ''}
+								</span>
+							{/each}
 						</dd>
-						{#if minOutput !== null}
-							<dt>Min received</dt>
-							<dd>
-								{formatTokenAmount(minOutput, tokenOutSelection.decimals)}
-								{tokenOutSelection.symbol}
-							</dd>
-						{/if}
-						{#if quote.route.length > 0}
-							<dt>Route</dt>
-							<dd>
-								{#each quote.route as step, index (step.poolId)}
-									{@const tokenInSymbol =
-										chainSymbols.get(step.tokenIn.toLowerCase()) ??
-										step.tokenIn.slice(0, 6)}
-									{@const tokenOutSymbol =
-										chainSymbols.get(step.tokenOut.toLowerCase()) ??
-										step.tokenOut.slice(0, 6)}
+					{/if}
+					{#if tokenInPriceRow && tokenOutPriceRow}
+						<dt>Market vs quote</dt>
+						<dd>
+							<span data-row="gap-1 align-center wrap">
+								<span>
+									Stork: 1 {tokenInSelection.symbol} ≈ {formatSmallestToDecimal(
+										storkRate ?? 0n,
+										18,
+										6,
+									)}
+									{tokenOutSelection.symbol}
+								</span>
+								{#if quoteRate !== null}
 									<span>
-										{tokenInSymbol} → {tokenOutSymbol} ({step.fee / 100}%)
-										{index < quote.route.length - 1 ? ' · ' : ''}
-									</span>
-								{/each}
-							</dd>
-						{/if}
-						{#if tokenInPriceRow && tokenOutPriceRow}
-							<dt>Market vs quote</dt>
-							<dd>
-								<span data-row="gap-1 align-center wrap">
-									<span>
-										Stork: 1 {tokenInSelection.symbol} ≈ {formatSmallestToDecimal(
-											storkRate ?? 0n,
+										Quote: 1 {tokenInSelection.symbol} ≈ {formatSmallestToDecimal(
+											quoteRate,
 											18,
 											6,
 										)}
 										{tokenOutSelection.symbol}
 									</span>
-									{#if quoteRate !== null}
-										<span>
-											Quote: 1 {tokenInSelection.symbol} ≈ {formatSmallestToDecimal(
-												quoteRate,
-												18,
-												6,
-											)}
-											{tokenOutSelection.symbol}
-										</span>
-										{#if rateDeltaPercent !== null}
-											<span>Δ {rateDeltaPercent.toFixed(2)}%</span>
-										{/if}
+									{#if rateDeltaPercent !== null}
+										<span>Δ {rateDeltaPercent.toFixed(2)}%</span>
 									{/if}
-								</span>
-							</dd>
-						{/if}
-					</dl>
-				{/if}
-			</section>
+								{/if}
+							</span>
+						</dd>
+					{/if}
+				</dl>
+			{/if}
+		</section>
 
-			<TransactionFlow
-				walletConnection={selectedWallet}
-				Summary={swapSummary}
-				transactions={quote
-					? [
-							{
-								id: 'swap',
-								chainId: settings.chainId,
-								title: 'Swap',
-								actionLabel: executing ? 'Swapping…' : 'Swap',
-								canExecute:
-									Boolean(canSwap && selectedActor && selectedEip1193Wallet) &&
-									!executing,
-								execute: (_args) =>
-									executionRef ? executionRef.execute() : Promise.resolve(),
-								Details: swapDetails,
-								requiresConfirmation: priceImpactWarning,
-								confirmationLabel: priceImpactWarning
-									? 'I understand this trade has high price impact'
-									: undefined,
-							},
-						]
-					: []}
-			/>
-		{:else}
-			<p data-muted>No tokens available for this network.</p>
-		{/if}
+		<TransactionFlow
+			walletConnection={selectedWallet}
+			Summary={swapSummary}
+			transactions={quote
+				? [
+						{
+							id: 'swap',
+							chainId: settings.chainId,
+							title: 'Swap',
+							actionLabel: executing ? 'Swapping…' : 'Swap',
+							canExecute:
+								Boolean(canSwap && selectedActor && selectedEip1193Wallet) &&
+								!executing,
+							execute: (_args) =>
+								executionRef ? executionRef.execute() : Promise.resolve(),
+							Details: swapDetails,
+							requiresConfirmation: priceImpactWarning,
+							confirmationLabel: priceImpactWarning
+								? 'I understand this trade has high price impact'
+								: undefined,
+						},
+					]
+				: []}
+		/>
+	{:else}
+		<p data-muted>No tokens available for this network.</p>
+	{/if}
 </section>

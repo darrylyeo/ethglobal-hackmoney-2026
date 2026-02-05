@@ -303,42 +303,42 @@
 </script>
 
 {#snippet transferSummary()}
-		<dl class="summary">
-			<dt>From</dt>
-			<dd data-intent-transition="source">
-				{formatAddress(settings.fromActor)}
-			</dd>
-			<dt>To</dt>
-			<dd data-intent-transition="target">{formatAddress(settings.toActor)}</dd>
-			<dt>Network</dt>
-			<dd>{chainLabel}</dd>
-			<dt>Amount</dt>
-			<dd>
-				<CoinAmount
-					coin={transferCoin}
-					amount={settings.amount}
-					draggable={false}
-				/>
-			</dd>
-			<dt>Mode</dt>
-			<dd>{settings.mode === 'channel' ? 'Channel (Yellow)' : 'Direct'}</dd>
-		</dl>
+	<dl class="summary">
+		<dt>From</dt>
+		<dd data-intent-transition="source">
+			{formatAddress(settings.fromActor)}
+		</dd>
+		<dt>To</dt>
+		<dd data-intent-transition="target">{formatAddress(settings.toActor)}</dd>
+		<dt>Network</dt>
+		<dd>{chainLabel}</dd>
+		<dt>Amount</dt>
+		<dd>
+			<CoinAmount
+				coin={transferCoin}
+				amount={settings.amount}
+				draggable={false}
+			/>
+		</dd>
+		<dt>Mode</dt>
+		<dd>{settings.mode === 'channel' ? 'Channel (Yellow)' : 'Direct'}</dd>
+	</dl>
 {/snippet}
 
 {#snippet transferDetails()}
-		<dl class="summary">
-			<dt>Token</dt>
-			<dd>{settings.tokenSymbol} ({formatAddress(settings.tokenAddress)})</dd>
-			<dt>Transfer amount</dt>
-			<dd>{amountLabel} {settings.tokenSymbol}</dd>
-		</dl>
-		{#if settings.mode === 'channel' && !yellowState.clearnodeConnection}
-			<p data-muted>Connect a Yellow clearnode to send.</p>
-		{/if}
+	<dl class="summary">
+		<dt>Token</dt>
+		<dd>{settings.tokenSymbol} ({formatAddress(settings.tokenAddress)})</dd>
+		<dt>Transfer amount</dt>
+		<dd>{amountLabel} {settings.tokenSymbol}</dd>
+	</dl>
+	{#if settings.mode === 'channel' && !yellowState.clearnodeConnection}
+		<p data-muted>Connect a Yellow clearnode to send.</p>
+	{/if}
 {/snippet}
 
 <div style="display: contents" {@attach liveQueryAttachment}>
-{#if sessionLocked}
+	{#if sessionLocked}
 		<div data-row="gap-2 align-center">
 			<Button.Root type="button" onclick={forkSession}>New draft</Button.Root>
 		</div>
@@ -361,5 +361,5 @@
 				Details: transferDetails,
 			},
 		]}
-/>
+	/>
 </div>

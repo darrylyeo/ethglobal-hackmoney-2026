@@ -58,8 +58,16 @@
 	const liveQueryEntries = [
 		{ id: 'shared-addresses', label: 'Shared Addresses', query: sharedQuery },
 		{ id: 'shared-addresses-peers', label: 'Room Peers', query: peersQuery },
-		{ id: 'shared-addresses-verifications', label: 'Verifications', query: verificationsQuery },
-		{ id: 'shared-addresses-challenges', label: 'SIWE Challenges', query: challengesQuery },
+		{
+			id: 'shared-addresses-verifications',
+			label: 'Verifications',
+			query: verificationsQuery,
+		},
+		{
+			id: 'shared-addresses-challenges',
+			label: 'SIWE Challenges',
+			query: challengesQuery,
+		},
 	]
 	const liveQueryAttachment = liveQueryLocalAttachmentFrom(
 		() => liveQueryEntries,
@@ -71,11 +79,14 @@
 			(s) =>
 				s.peerId !== roomState.peerId &&
 				(s.targetPeerIds === null ||
-					(roomState.peerId != null && s.targetPeerIds.includes(roomState.peerId))),
+					(roomState.peerId != null &&
+						s.targetPeerIds.includes(roomState.peerId))),
 		),
 	)
 	const peers = $derived((peersQuery.data ?? []).map((r) => r.row))
-	const verifications = $derived((verificationsQuery.data ?? []).map((r) => r.row))
+	const verifications = $derived(
+		(verificationsQuery.data ?? []).map((r) => r.row),
+	)
 	const challenges = $derived((challengesQuery.data ?? []).map((r) => r.row))
 	const getPeerName = (peerId: string) =>
 		peerId === roomState.peerId
@@ -103,7 +114,9 @@
 				!c.verified &&
 				!c.signature,
 		)
-	const getStatus = (s: SharedAddress): 'none' | 'unverifiable' | 'verifying' | 'verified' => {
+	const getStatus = (
+		s: SharedAddress,
+	): 'none' | 'unverifiable' | 'verifying' | 'verified' => {
 		const v = getMyVerification(s)
 		if (v) return v.status
 		return hasPendingChallenge(s) ? 'verifying' : 'none'
@@ -136,10 +149,7 @@
 			{#each sharedVisibleToMe as s (s.id)}
 				{@const myVerification = getMyVerification(s)}
 				{@const status = getStatus(s)}
-				<li
-					data-shared-address
-					data-verification-status={status}
-				>
+				<li data-shared-address data-verification-status={status}>
 					<span data-peer-name>{getPeerName(s.peerId)}</span>
 					<Address network={1} address={s.address} />
 					<span data-verification>
@@ -164,7 +174,9 @@
 						{:else}
 							Verified
 							{#if myVerification?.verifiedAt != null}
-								<time datetime={new Date(myVerification.verifiedAt).toISOString()}>
+								<time
+									datetime={new Date(myVerification.verifiedAt).toISOString()}
+								>
 									{formatDate(myVerification.verifiedAt)}
 								</time>
 							{/if}

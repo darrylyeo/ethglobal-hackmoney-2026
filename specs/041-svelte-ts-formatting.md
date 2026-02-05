@@ -27,14 +27,18 @@ Ensure Svelte and TypeScript are formatted to match the repository preferences.
 
 - [x] Svelte component sections are ordered as: module script, instance script,
   head, markup, style (with two empty lines between sections).
+- [x] Within `<script>`, comment-delimited groups (Types/constants, IDs,
+  Context, Props, etc.) have two empty lines between each group.
 - [x] Svelte scripts use the required import grouping and ordering, and avoid
   Svelte 4 constructs (`onMount`, `$:`, `writable()`).
+- [x] In the template, one prop (attribute) per line when an element has
+  multiple props.
 - [x] Component-local styles follow the CSS rules (classes for overrides,
   data-attribute variants via nested `&[data-*]` rules).
 
 ## Status
 
-Complete. Prettier config (`.prettierrc`): singleQuote, semi: false, trailingComma: all, useTabs; prettier-plugin-svelte. `deno task format` formats src, e2e, scripts. Script `scripts/_svelte-section-spacing.mjs` enforces two empty lines between Svelte sections (script, head, markup, style). Fixed unescaped quote in `src/lib/yellow/index.ts`. Style guide (user rules) documents implicit return types, no assertions, inline single-use; Svelte section order and import grouping already followed in codebase. Re-verification 2026-02-04 (PROMPT_build): all acceptance criteria verified; test:unit passed.
+Complete. 2026-02-05 (PROMPT_build): Prettier (.prettierrc: singleQuote, semi: false, trailingComma, useTabs) enforces TS/Svelte formatting; `scripts/_svelte-section-spacing.mjs` enforces two empty lines between top-level sections (script/head/markup/style) and between comment-delimited groups inside `<script>`. Format + section script run across src; unit tests (41 Deno + 101 Vitest) pass.
 
 ## Output when complete
 

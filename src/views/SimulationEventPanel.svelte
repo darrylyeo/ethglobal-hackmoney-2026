@@ -19,13 +19,25 @@
 		showRaw
 			? rawLogs.filter(
 					(log) =>
-						(!contractFilter || log.address.toLowerCase().includes(contractFilter.toLowerCase())) &&
-						(!selectorFilter || (log.topics[0] ?? '').toLowerCase().includes(selectorFilter.toLowerCase())),
+						(!contractFilter ||
+							log.address
+								.toLowerCase()
+								.includes(contractFilter.toLowerCase())) &&
+						(!selectorFilter ||
+							(log.topics[0] ?? '')
+								.toLowerCase()
+								.includes(selectorFilter.toLowerCase())),
 				)
 			: events.filter(
 					(ev) =>
-						(!contractFilter || ev.address.toLowerCase().includes(contractFilter.toLowerCase())) &&
-						(!selectorFilter || (ev.topics[0] ?? '').toLowerCase().includes(selectorFilter.toLowerCase())),
+						(!contractFilter ||
+							ev.address
+								.toLowerCase()
+								.includes(contractFilter.toLowerCase())) &&
+						(!selectorFilter ||
+							(ev.topics[0] ?? '')
+								.toLowerCase()
+								.includes(selectorFilter.toLowerCase())),
 				),
 	)
 
@@ -37,10 +49,7 @@
 	<header data-row="gap-2 align-center justify-between">
 		<h3>Events</h3>
 		<div data-row="gap-2 align-center">
-			<button
-				type="button"
-				onclick={() => (showRaw = !showRaw)}
-			>
+			<button type="button" onclick={() => (showRaw = !showRaw)}>
 				{showRaw ? 'Decoded' : 'Raw'}
 			</button>
 			<label for="events-contract" class="sr-only">Filter by contract</label>
@@ -70,7 +79,9 @@
 					<div data-row="gap-2 align-center">
 						<code>{formatAddress(ev.address)}</code>
 						{#if !showRaw && (ev as TevmSimulationDecodedEvent).signature}
-							<span data-muted>{(ev as TevmSimulationDecodedEvent).signature}</span>
+							<span data-muted
+								>{(ev as TevmSimulationDecodedEvent).signature}</span
+							>
 						{/if}
 					</div>
 					{#if ev.topics?.length}

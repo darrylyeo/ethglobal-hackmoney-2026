@@ -1,7 +1,4 @@
-export type VerificationStatus =
-	| 'unverifiable'
-	| 'verifying'
-	| 'verified'
+export type VerificationStatus = 'unverifiable' | 'verifying' | 'verified'
 
 export type Verification = {
 	id: string

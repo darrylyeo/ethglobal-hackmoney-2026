@@ -29,8 +29,7 @@ export type TransferGraphRow = {
 export const transferGraphsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: 'transfer-graphs',
-		getKey: (row: TransferGraphRow) =>
-			`${row.$id.symbol}:${row.$id.period}`,
+		getKey: (row: TransferGraphRow) => `${row.$id.symbol}:${row.$id.period}`,
 	}),
 )
 
@@ -96,9 +95,7 @@ export const fetchTransferGraph = async (
 			TIME_PERIODS.find((p) => p.value === period) ?? TIME_PERIODS[3]
 		const result =
 			symbol === 'USDC'
-				? await withRetry(() =>
-						fetchTransfersGraphFromVoltaire(period),
-					)
+				? await withRetry(() => fetchTransfersGraphFromVoltaire(period))
 				: {
 						graph: { nodes: [], edges: [] } as TransferGraph,
 						period: periodDef.value,
