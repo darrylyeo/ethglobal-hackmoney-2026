@@ -202,26 +202,26 @@ label:has(> input:is([type='checkbox'], [type='radio'])) {
 	transition-duration: var(--pressable-transitionOutDuration);
 
 	&:active:is(
-			label:has(> input:is([type='checkbox'], [type='radio']), button),
-			:not(
-				:has(
+		label:has(> input:is([type='checkbox'], [type='radio']), button),
+		:not(
+			:has(
+				:where(
+					[data-pressable],
+					[role='button'],
+					[draggable],
 					:where(
-						[data-pressable],
-						[role='button'],
-						[draggable],
-						:where(
-							summary,
-							a,
-							select,
-							option,
-							button,
-							input,
-							label:has(> input:is([type='checkbox'], [type='radio']), button)
-						)
-					):active
-				)
+						summary,
+						a,
+						select,
+						option,
+						button,
+						input,
+						label:has(> input:is([type='checkbox'], [type='radio']), button)
+					)
+				):active
 			)
-		) {
+		)
+	) {
 		transition-duration: var(--pressable-transitionInDuration);
 		opacity: var(--pressable-pressed-opacity);
 
@@ -424,11 +424,6 @@ summary {
 	border-radius: var(--card-radius);
 	padding: var(--card-padding);
 
-	&[data-card~='secondary'] {
-		--card-backgroundColor: var(--color-bg-page);
-		border: 1px solid var(--color-border);
-	}
-
 	&[data-card~='radius-1'] {
 		--card-radius: 0.125em;
 	}
@@ -479,6 +474,18 @@ summary {
 	&[data-card~='border-accent'] {
 		border: 2px solid color-mix(in srgb, var(--color-accent) 90%, transparent);
 	}
+
+	[data-card] & {
+		--card-backgroundColor: var(--color-bg-muted);
+		--card-radius: 0.375em;
+	}
+}
+
+[data-card] [data-card] {
+	--card-backgroundColor: light-dark(
+		var(--color-bg-muted),
+		color-mix(in srgb, var(--color-bg-page) 35%, var(--color-bg-card))
+	);
 }
 
 [data-badge] {
@@ -820,12 +827,13 @@ ol {
 
 dl {
 	display: grid;
-	grid-template-columns: auto 1fr;
-	row-gap: 0.25em;
+	grid-template-columns: minmax(0, auto) minmax(0, auto);
+	row-gap: 0.5em;
 	column-gap: 1em;
 
 	dt {
 		color: var(--color-text-muted);
+		text-align: end;
 	}
 }
 
@@ -1301,8 +1309,17 @@ dl {
 	display: grid;
 	gap: 1em;
 
-	&[data-grid~='columns-auto'] {
-		grid-template-columns: repeat(auto-fill, minmax(var(--grid-col-min), 1fr));
+	&[data-grid~='columns-autofit'] {
+		grid-template-columns: repeat(auto-fit, minmax(var(--grid-col-min), 1fr));
+	}
+	&[data-grid~='columns-2'] {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	&[data-grid~='columns-3'] {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+	&[data-grid~='columns-4'] {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
 	}
 
 	&[data-grid~='column-min-6'] {
@@ -1319,16 +1336,6 @@ dl {
 	}
 	&[data-grid~='column-min-16'] {
 		--grid-col-min: 16rem;
-	}
-
-	&[data-grid~='columns-2'] {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-	&[data-grid~='columns-3'] {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-	}
-	&[data-grid~='columns-4'] {
-		grid-template-columns: repeat(4, minmax(0, 1fr));
 	}
 
 	&[data-grid~='gap-0'] {
