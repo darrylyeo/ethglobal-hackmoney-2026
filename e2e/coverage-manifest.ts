@@ -36,7 +36,6 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/test/collections': ['default'],
 	'/test/intents': ['default'],
 	'/test/networks-coins': ['default'],
-	'/explore/usdc': ['nav', 'loading-or-empty'],
 	'/accounts': ['default'],
 	'/account/[address]': ['valid-address', 'invalid-address'],
 }
@@ -286,22 +285,6 @@ export const coverageScenarios: CoverageScenario[] = [
 			).toBeVisible()
 			await expect(page.getByText('Total:')).toBeVisible()
 			await expect(page.getByLabel('Status')).toBeVisible()
-		},
-	},
-	{
-		route: '/explore/usdc',
-		branch: 'nav',
-		path: '/explore/usdc',
-		assert: async (page) => {
-			await expect(page.locator('#main')).toBeVisible()
-		},
-	},
-	{
-		route: '/explore/usdc',
-		branch: 'loading-or-empty',
-		path: '/explore/usdc',
-		assert: async (page) => {
-			await expect(page.locator('#main')).toBeVisible()
 		},
 	},
 	{

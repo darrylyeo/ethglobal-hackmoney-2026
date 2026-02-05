@@ -64,11 +64,11 @@ test.describe('Session (bridge)', () => {
 	})
 })
 
-test.describe('USDC (/explore/usdc)', () => {
+test.describe('USDC (/coin/USDC)', () => {
 	test('transfers page renders with period selector and content area', async ({
 		page,
 	}) => {
-		await page.goto('/explore/usdc')
+		await page.goto('/coin/USDC')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
@@ -78,7 +78,7 @@ test.describe('USDC (/explore/usdc)', () => {
 	})
 
 	test('empty or loading state shows without crashing', async ({ page }) => {
-		await page.goto('/explore/usdc')
+		await page.goto('/coin/USDC')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})

@@ -46,7 +46,7 @@ test.describe('Accessibility (axe-core)', () => {
 	})
 
 	test('transfers page has no critical violations', async ({ page }) => {
-		await page.goto('/explore/usdc')
+		await page.goto('/coin/USDC')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
