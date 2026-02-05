@@ -68,9 +68,8 @@
 			items={navigationItems}
 			currentPathname={page.url.pathname}
 		/>
+		<footer data-sticky></footer>
 	</div>
-
-	<footer data-sticky></footer>
 </nav>
 
 
@@ -133,6 +132,8 @@
 		}
 
 		#nav-menu {
+			display: flex;
+			flex-direction: column;
 			padding: 1rem 0.75rem;
 
 			&[data-sticky-container] {
@@ -142,10 +143,14 @@
 				--sticky-marginInlineEnd: 0.75rem;
 				--sticky-paddingBlockStart: 5rem;
 			}
-		}
 
-		footer {
-			padding: 1rem;
+			> :first-child {
+				flex: 1;
+			}
+
+			footer {
+				padding: 1rem;
+			}
 		}
 	}
 

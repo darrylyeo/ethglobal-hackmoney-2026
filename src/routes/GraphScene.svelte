@@ -3274,7 +3274,7 @@
 			}
 		}
 
-		> footer {
+		> .graph-scene-footer {
 			padding: 0.5rem 0.625rem;
 			border-top: 1px solid var(--color-border);
 			background: var(--color-bg-subtle);
