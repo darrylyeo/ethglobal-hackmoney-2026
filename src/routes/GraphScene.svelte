@@ -13,6 +13,7 @@
 	import { actorAllowancesCollection } from '$/collections/actor-allowances'
 	import { actorCoinsCollection } from '$/collections/actor-coins'
 	import { actorsCollection } from '$/collections/actors'
+	import { blocksCollection } from '$/collections/blocks'
 	import { bridgeRouteItemsCollection } from '$/collections/bridge-routes'
 	import { cctpAllowanceCollection } from '$/collections/cctp-allowance'
 	import { cctpFeesCollection } from '$/collections/cctp-fees'
@@ -39,13 +40,33 @@
 	import { yellowChannelsCollection } from '$/collections/yellow-channels'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
 	import { yellowTransfersCollection } from '$/collections/yellow-transfers'
-	import { NetworkType, networksByChainId } from '$/constants/networks'
+	import {
+		NetworkType,
+		networksByChainId,
+		toCaip2,
+		toNetworkSlug,
+	} from '$/constants/networks'
 	import { EntityType } from '$/data/$EntityType'
 	import {
 		entityTypes,
 		type GraphSceneEntityType,
 	} from '$/constants/entity-types'
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits'
+
+	const DEFAULT_VISIBLE_ENTITY_TYPES: GraphSceneEntityType[] = [
+		EntityType.Actor,
+		EntityType.ActorCoin,
+		EntityType.ActorAllowance,
+		EntityType.Room,
+		EntityType.RoomPeer,
+		EntityType.SharedAddress,
+		EntityType.TransactionSession,
+		EntityType.TransferRequest,
+		EntityType.Network,
+		EntityType.Coin,
+		EntityType.StorkPrice,
+		EntityType.TransactionSessionSimulation,
+	]
 
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
@@ -82,15 +103,17 @@
 	// State
 	let hoveredNode: string | undefined = $state(undefined)
 	let expanded = $state(true)
+	const inGraphTypeSet = new Set(
+		(entityTypes as Array<{ type: string; inGraph?: boolean }>)
+			.filter((e) => e.inGraph === true)
+			.map((e) => e.type),
+	)
 	let visibleCollections: Set<string> = $state(
-		new Set(
-			entityTypes
-				.filter((e): e is typeof e & { inGraph: true } => e.inGraph)
-				.map((e) => e.type),
-		),
+		new Set(DEFAULT_VISIBLE_ENTITY_TYPES),
 	)
 	let graphFramework = $state<GraphFramework>('g6')
 	let frameworkReadFromStorage = $state(false)
+	let visibilityReadFromStorage = $state(false)
 	let selectedNodes = $state<string[]>([])
 	let selectedEdges = $state<string[]>([])
 
@@ -107,6 +130,32 @@
 	$effect(() => {
 		if (!visible) return
 		localStorage.setItem('graph-framework', graphFramework)
+	})
+
+	$effect(() => {
+		if (!visible) return
+		if (visibilityReadFromStorage) return
+		visibilityReadFromStorage = true
+		const stored = localStorage.getItem('graph-visible-entities')
+		if (stored) {
+			try {
+				const arr = JSON.parse(stored) as unknown
+				if (Array.isArray(arr)) {
+					const set = new Set(
+						(arr as string[]).filter((s) => inGraphTypeSet.has(s)),
+					)
+					if (set.size > 0) visibleCollections = set
+				}
+			} catch {}
+		}
+	})
+
+	$effect(() => {
+		if (!visible) return
+		localStorage.setItem(
+			'graph-visible-entities',
+			JSON.stringify([...visibleCollections]),
+		)
 	})
 
 	const walletsQuery = useLiveQuery((q) =>
@@ -129,6 +178,9 @@
 	)
 	const txQuery = useLiveQuery((q) =>
 		q.from({ row: transactionsCollection }).select(({ row }) => ({ row })),
+	)
+	const blocksQuery = useLiveQuery((q) =>
+		q.from({ row: blocksCollection }).select(({ row }) => ({ row })),
 	)
 	const networksQuery = useLiveQuery((q) =>
 		q.from({ row: networksCollection }).select(({ row }) => ({ row })),
@@ -356,6 +408,18 @@
 				labelPlacement: 'top',
 				ports: [{ placement: 'top' }, { placement: 'bottom' }],
 				opacity: 0.7,
+			},
+		},
+		[EntityType.Block]: {
+			color: '#64748b',
+			label: 'Blocks',
+			size: 10,
+			ring: 2.8,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 4,
+				labelPlacement: 'right',
+				lineDash: [2, 2],
 			},
 		},
 		[EntityType.Network]: {
@@ -700,6 +764,7 @@
 		[EntityType.CctpFee]: cctpFeesQuery.data?.length ?? 0,
 		[EntityType.Coin]: coinsQuery.data?.length ?? 0,
 		[EntityType.DashboardPanel]: dashboardPanelsQuery.data?.length ?? 0,
+		[EntityType.Block]: blocksQuery.data?.length ?? 0,
 		[EntityType.Network]: networksQuery.data?.length ?? 0,
 		[EntityType.Room]: roomsQuery.data?.length ?? 0,
 		[EntityType.RoomPeer]: roomPeersQuery.data?.length ?? 0,
@@ -1081,8 +1146,58 @@
 						chainId: row.id,
 						type: row.type,
 						name: row.name,
+						caip2: toCaip2(row.id),
+						slug: toNetworkSlug(row.name),
 					},
 				})
+			})
+		}
+
+		if (visibleCollections.has(EntityType.Block)) {
+			const blocks = take(blocksQuery.data)
+			blocks.forEach(({ row }, i) => {
+				const blockId = `block:${row.$id.chainId}:${row.$id.blockNumber}`
+				if (g.hasNode(blockId)) return
+				const pos = positionInRing(
+					collections[EntityType.Block].ring,
+					i,
+					blocks.length,
+				)
+				addNode({
+					id: blockId,
+					label: `#${row.$id.blockNumber}`,
+					...pos,
+					size: collections[EntityType.Block].size,
+					color: collections[EntityType.Block].color,
+					type: 'rect',
+					collection: EntityType.Block,
+					g6Type: collections[EntityType.Block].g6Type,
+					g6Style: collections[EntityType.Block].g6Style,
+					details: {
+						chainId: row.$id.chainId,
+						blockNumber: row.$id.blockNumber,
+						timestamp: row.timestamp,
+						networkSlug: toNetworkSlug(
+							networksByChainId[row.$id.chainId]?.name ?? '',
+						),
+					},
+				})
+			})
+			blocks.forEach(({ row }) => {
+				const blockId = `block:${row.$id.chainId}:${row.$id.blockNumber}`
+				const networkId = `network:${row.$id.chainId}`
+				if (g.hasNode(networkId)) {
+					addEdge({
+						id: `edge:${edgeIndex++}`,
+						source: networkId,
+						target: blockId,
+						size: 1,
+						color: edgeColors.coin,
+						type: 'line',
+						relation: 'block',
+						g6Style: edgeStyles.coin,
+					})
+				}
 			})
 		}
 
@@ -2451,15 +2566,41 @@
 			edgeCount > 0 ? `${edgeCount} edge${edgeCount === 1 ? '' : 's'}` : ''
 		return `Selected ${nodeLabel}${nodeLabel && edgeLabel ? ' and ' : ''}${edgeLabel}`
 	})
-	const selectionItems = $derived.by(() => {
+	type SelectionNodeItem = {
+		id: string
+		kind: 'node'
+		label: string
+		collection: string
+		href?: string
+	}
+	type SelectionEdgeItem = {
+		id: string
+		kind: 'edge'
+		label: string
+		collection: string
+	}
+	const selectionItems = $derived.by((): (SelectionNodeItem | SelectionEdgeItem)[] => {
 		if (!graphModel) return []
-		const items = selectedNodes.map((nodeId) => {
-			const attrs = graphModel.graph.getNodeAttributes(nodeId)
-			const label = typeof attrs.label === 'string' ? attrs.label : nodeId
-			const collection =
-				typeof attrs.collection === 'string' ? attrs.collection : 'node'
-			return { id: nodeId, kind: 'node', label, collection }
-		})
+		const items: (SelectionNodeItem | SelectionEdgeItem)[] = selectedNodes.map(
+			(nodeId): SelectionNodeItem => {
+				const attrs = graphModel.graph.getNodeAttributes(nodeId)
+				const label = typeof attrs.label === 'string' ? attrs.label : nodeId
+				const collection =
+					typeof attrs.collection === 'string' ? attrs.collection : 'node'
+				const details = isRecord(attrs.details) ? attrs.details : null
+				let href: string | undefined
+				if (collection === EntityType.Network && details?.slug) {
+					href = `/network/${details.slug}`
+				} else if (
+					collection === EntityType.Block &&
+					details?.networkSlug != null &&
+					details?.blockNumber != null
+				) {
+					href = `/network/${details.networkSlug}/block/${details.blockNumber}`
+				}
+				return { id: nodeId, kind: 'node', label, collection, href }
+			},
+		)
 		for (const edgeId of selectedEdges) {
 			const edge = graphModel.edges.find((entry) => entry.id === edgeId)
 			items.push({
@@ -2490,6 +2631,7 @@
 			allowancesQuery.data?.length,
 			routesQuery.data?.length,
 			txQuery.data?.length,
+			blocksQuery.data?.length,
 			cctpAllowanceQuery.data?.length,
 			cctpFeesQuery.data?.length,
 			networksQuery.data?.length,
@@ -2669,24 +2811,36 @@
 					<ul data-column="gap-1">
 						{#each selectionItems as item (item.id)}
 							<li>
-								<button
-									type="button"
-									data-kind={item.kind}
-									data-row="gap-2 align-center"
-									onclick={() => {
-										if (item.kind === 'node') {
-											selectedNodes = [item.id]
-											selectedEdges = []
-											hoveredNode = item.id
-										} else {
-											selectedEdges = [item.id]
-											selectedNodes = []
-										}
-									}}
-								>
-									<strong data-row-item="flexible">{item.label}</strong>
-									<span>{item.collection}</span>
-								</button>
+								{#if item.kind === 'node' && 'href' in item && item.href}
+									<a
+										href={item.href}
+										data-kind={item.kind}
+										data-row="gap-2 align-center"
+										class="graph-scene-selection-link"
+									>
+										<strong data-row-item="flexible">{item.label}</strong>
+										<span>{item.collection}</span>
+									</a>
+								{:else}
+									<button
+										type="button"
+										data-kind={item.kind}
+										data-row="gap-2 align-center"
+										onclick={() => {
+											if (item.kind === 'node') {
+												selectedNodes = [item.id]
+												selectedEdges = []
+												hoveredNode = item.id
+											} else {
+												selectedEdges = [item.id]
+												selectedNodes = []
+											}
+										}}
+									>
+										<strong data-row-item="flexible">{item.label}</strong>
+										<span>{item.collection}</span>
+									</button>
+								{/if}
 							</li>
 						{/each}
 					</ul>
@@ -2912,20 +3066,33 @@
 
 				button {
 					width: 100%;
+				}
 
-					strong {
-						font-weight: 600;
-						overflow: hidden;
-						text-overflow: ellipsis;
-						white-space: nowrap;
-					}
+				.graph-scene-selection-link {
+					width: 100%;
+					display: block;
+					color: inherit;
+					text-decoration: none;
+				}
 
-					span {
-						opacity: 0.5;
-						font-size: 0.5625rem;
-						text-transform: uppercase;
-						letter-spacing: 0.04em;
-					}
+				.graph-scene-selection-link:hover {
+					text-decoration: underline;
+				}
+
+				button strong,
+				.graph-scene-selection-link strong {
+					font-weight: 600;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+
+				button span,
+				.graph-scene-selection-link span {
+					opacity: 0.5;
+					font-size: 0.5625rem;
+					text-transform: uppercase;
+					letter-spacing: 0.04em;
 				}
 			}
 		}
