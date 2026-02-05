@@ -61,7 +61,7 @@ deno task test:e2e
 
 ## Status
 
-Complete. Coverage manifest in `e2e/coverage-manifest.ts` with `routeBranchRequirements` and `coverageScenarios`; enforcement test in `e2e/coverage-enforcement.test.ts` discovers routes via `e2e/coverage-utils.ts`, asserts manifest match and branch coverage, runs each scenario. Helpers in `e2e/coverage-helpers.ts` for localStorage seeding (page-based seed for session data). Re-verification 2026-02-05 (PROMPT_build execute one spec): added missing routes `/coin/[symbol]`, `/transfers`, `/wallets` to manifest with branches and scenarios; fixed home scenario (Transfer not Transfers), account valid-address (Balances exact), coin/USDC assertions; all 37 coverage enforcement tests pass.
+Complete. Coverage manifest in `e2e/coverage-manifest.ts` with `routeBranchRequirements` and `coverageScenarios`; enforcement test in `e2e/coverage-enforcement.test.ts` discovers routes via `e2e/coverage-utils.ts`, asserts manifest match and branch coverage, runs each scenario. Helpers in `e2e/coverage-helpers.ts` for localStorage seeding (page-based seed for session data). Re-verification 2026-02-05 (PROMPT_build execute one spec): peers-empty scenario fixed—use hex room id `/rooms/e2e0001` so roomIdToDisplayName does not throw; 40 coverage enforcement tests + full e2e 75 passed, 8 skipped; test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 

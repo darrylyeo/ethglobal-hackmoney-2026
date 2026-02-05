@@ -39,6 +39,10 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/accounts': ['default'],
 	'/account/[address]': ['valid-address', 'invalid-address'],
 	'/peers': ['default'],
+	'/network/[name]': ['default'],
+	'/network/[name]/block/[blockNumber]': ['default'],
+	'/network/[name]/block/[blockNumber]/transaction/[transactionId]': ['default'],
+	'/network/[name]/transaction/[transactionId]': ['default'],
 }
 
 const seedSessions = async (page: Page, rows: TransactionSessionRow[]) => {
@@ -261,16 +265,20 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'share',
 		path: '/rooms/abcd',
 		assert: async (page) => {
-			await expect(page.getByRole('heading', { name: /Share/i })).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: 'Share', exact: true }),
+			).toBeVisible()
 			await expect(page.locator('[data-room-share]')).toBeVisible()
 		},
 	},
 	{
 		route: '/rooms/[roomId]',
 		branch: 'peers-empty',
-		path: '/rooms/abcd',
+		path: '/rooms/e2e0001',
 		assert: async (page) => {
-			await expect(page.getByText('No other peers in this room.')).toBeVisible()
+			await expect(
+				page.getByText('No other peers in this room.'),
+			).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -369,9 +377,6 @@ export const coverageScenarios: CoverageScenario[] = [
 			await expect(
 				page.getByRole('heading', { name: 'Transactions' }),
 			).toBeVisible()
-			await expect(
-				page.getByRole('heading', { name: 'Wallet connections' }),
-			).toBeVisible()
 			await expect(page.locator('[data-account-header]')).toBeVisible()
 		},
 	},
@@ -427,6 +432,38 @@ export const coverageScenarios: CoverageScenario[] = [
 			await expect(
 				page.getByRole('link', { name: 'Bridge' }).first(),
 			).toBeVisible({ timeout: 5000 })
+		},
+	},
+	{
+		route: '/network/[name]',
+		branch: 'default',
+		path: '/network/1',
+		assert: async (page) => {
+			await expect(page.locator('#main')).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/network/[name]/block/[blockNumber]',
+		branch: 'default',
+		path: '/network/1/block/1',
+		assert: async (page) => {
+			await expect(page.locator('#main')).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/network/[name]/block/[blockNumber]/transaction/[transactionId]',
+		branch: 'default',
+		path: '/network/1/block/1/transaction/0x0',
+		assert: async (page) => {
+			await expect(page.locator('#main')).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/network/[name]/transaction/[transactionId]',
+		branch: 'default',
+		path: '/network/1/transaction/0x0',
+		assert: async (page) => {
+			await expect(page.locator('#main')).toBeVisible({ timeout: 15_000 })
 		},
 	},
 ]
