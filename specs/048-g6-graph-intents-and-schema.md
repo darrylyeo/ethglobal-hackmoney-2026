@@ -91,7 +91,7 @@ recency) to encode differences across these dimensions.
   ActorAllowance, Room, RoomPeer, SharedAddress, TransactionSession,
   TransferRequest, Network, Coin, StorkPrice, TransactionSessionSimulation) are
   enabled.
-- [ ] (Optional) Support (entity type, data source) combo toggles so e.g.
+- [x] (Optional) Support (entity type, data source) combo toggles so e.g.
   TokenLists-sourced entities can be hidden independently of other sources.
 
 ## TODOs
@@ -102,10 +102,14 @@ recency) to encode differences across these dimensions.
 
 ## Status
 
-In progress. Entity/source visibility and default-disabled behaviour implemented:
-GraphScene initializes `visibleCollections` from `DEFAULT_VISIBLE_ENTITY_TYPES`
-(user-centric only), reads/writes `graph-visible-entities` in localStorage;
-optional (entity, source) combo toggles not implemented.
+Complete. Entity/source visibility and default-disabled behaviour implemented.
+GraphScene initializes `visibleCollections` from `DEFAULT_VISIBLE_ENTITY_TYPES`,
+reads/writes `graph-visible-entities` and `graph-hidden-entity-sources` in
+localStorage. (Entity type, data source) combo toggles: `hiddenEntitySources`
+Set, persisted as `graph-hidden-entity-sources`; node inclusion uses
+`isEntitySourceVisible(entityType, row.$source)`; legend "By source" row with
+toggles per ENTITY_SOURCE_COMBOS. 2026-02-05 PROMPT_build: optional AC
+implemented; test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 
