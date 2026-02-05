@@ -174,7 +174,10 @@ component (AccountsSelect), collections (actors, actor-coins), fetchActorCoinBal
 and fetchAllBalancesForAddress, bridge view (bridge.svelte) with AccountsSelect and
 Balances, balances fetched on connect, grid with chain name and amount. Added
 loading state (Loading…) and per-chain error display in Balances.svelte. test:unit
-41 Deno + 101 Vitest passed; test:e2e wallet.test.ts 4 passed.
+41 Deno + 101 Vitest passed; test:e2e wallet.test.ts 4 passed. Re-verification
+2026-02-05 (PROMPT_build execute one spec): no incomplete specs; re-verified spec
+005; all 17 AC confirmed (AccountsSelect, collections, bridge view, Balances
+effect, e2e wallet tests); test:unit 41 Deno + 101 Vitest passed; test:e2e 4 passed.
 
 ## Output when complete
 
