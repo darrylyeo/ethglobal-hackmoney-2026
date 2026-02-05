@@ -19,7 +19,7 @@ test.describe('Home (/)', () => {
 			page.getByRole('link', { name: 'Bridge' }).first(),
 		).toBeVisible()
 		await expect(
-			page.getByRole('link', { name: 'Transfers' }).first(),
+			page.getByRole('link', { name: 'Transfer' }).first(),
 		).toBeVisible()
 		await expect(
 			page.getByRole('link', { name: 'About' }).first(),
