@@ -500,6 +500,7 @@
 
 			<div data-column="gap-1">
 				<label for="amt">Amount</label>
+				<p id="amt-hint" class="sr-only">Enter the amount of USDC to bridge</p>
 				<CoinAmountInput
 					id="amt"
 					coins={[usdcToken]}
@@ -514,17 +515,29 @@
 						() => invalidAmountInput,
 						(nextInvalid) => (invalidAmountInput = nextInvalid)
 					}
+					ariaDescribedby={
+						invalidAmountInput || validation.error
+							? 'amt-hint amt-error'
+							: 'amt-hint'
+					}
+					ariaInvalid={invalidAmountInput || !!validation.error}
 				/>
 				{#if invalidAmountInput}
-					<small data-error
+					<small id="amt-error" data-error role="alert"
 						>Invalid amount (use numbers and up to 6 decimals)</small
 					>
 				{:else if validation.error === 'too_low'}
-					<small data-error>Min {validation.minAmount} USDC</small>
+					<small id="amt-error" data-error role="alert"
+						>Min {validation.minAmount} USDC</small
+					>
 				{:else if validation.error === 'too_high'}
-					<small data-error>Max {validation.maxAmount} USDC</small>
+					<small id="amt-error" data-error role="alert"
+						>Max {validation.maxAmount} USDC</small
+					>
 				{:else if validation.error === 'invalid'}
-					<small data-error>Enter a valid amount</small>
+					<small id="amt-error" data-error role="alert"
+						>Enter a valid amount</small
+					>
 				{/if}
 			</div>
 
