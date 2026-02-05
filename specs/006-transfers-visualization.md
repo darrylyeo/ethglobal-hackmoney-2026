@@ -98,7 +98,7 @@ to cover all coins matching the symbol across chains.
 Complete. Route `src/routes/coin/[symbol]/+page.svelte` with load validation for
 USDC/ETH; transfer-graphs collection keyed by (symbol, period); fetchTransferGraph(symbol, period)
 with USDC from Voltaire, ETH empty graph; TIME_PERIODS 1h–7d; LiveTransfers reused with Coin prop;
-Boundary for errors; GraphScene updated for symbol+period $id.
+Boundary for errors; GraphScene updated for symbol+period $id. Re-verification 2026-02-05 (PROMPT_build): all 7 acceptance criteria confirmed (route, USDC/ETH, period selector 1h–7d, TanStack DB/Voltaire, nodes/edges, chain in viz, svelte:boundary); test:unit passed.
 
 ## Output when complete
 
