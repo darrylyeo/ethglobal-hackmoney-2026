@@ -1,13 +1,10 @@
 /**
- * Live query context: tracks a stack of reactive TanStack DB queries.
+ * Live query shared state: tracks a stack of reactive TanStack DB queries.
  * Components register queries via attachments for visualization.
  */
 
-import { getContext, hasContext, setContext } from 'svelte'
+import { untrack } from 'svelte'
 import { createAttachmentKey, type Attachment } from 'svelte/attachments'
-
-export const LIVE_QUERY_CONTEXT_KEY = 'live-query-stack'
-export const LIVE_QUERY_LOCAL_CONTEXT_KEY = 'live-query-stack-local'
 
 export type LiveQueryEntry = {
 	id: string
@@ -15,7 +12,13 @@ export type LiveQueryEntry = {
 	query: { data: { row: unknown }[] | undefined }
 }
 
+type LiveQueryRegistryEntry = {
+	id: string
+	entries: LiveQueryEntry[]
+}
+
 class LiveQueryContextState {
+	registry: LiveQueryRegistryEntry[] = $state([])
 	stack: LiveQueryEntry[] = $state([])
 }
 
@@ -23,15 +26,36 @@ export type LiveQueryContext = LiveQueryContextState
 
 const createLiveQueryContext = () => new LiveQueryContextState()
 
-export const useLiveQueryContext = () =>
-	hasContext(LIVE_QUERY_CONTEXT_KEY)
-		? getContext<LiveQueryContext>(LIVE_QUERY_CONTEXT_KEY)
-		: setContext(LIVE_QUERY_CONTEXT_KEY, createLiveQueryContext())
+const globalLiveQueryContext = createLiveQueryContext()
+const localLiveQueryContext = createLiveQueryContext()
 
-export const useLocalLiveQueryContext = () =>
-	hasContext(LIVE_QUERY_LOCAL_CONTEXT_KEY)
-		? getContext<LiveQueryContext>(LIVE_QUERY_LOCAL_CONTEXT_KEY)
-		: setContext(LIVE_QUERY_LOCAL_CONTEXT_KEY, createLiveQueryContext())
+export const useLiveQueryContext = () => globalLiveQueryContext
+
+export const useLocalLiveQueryContext = () => localLiveQueryContext
+
+const syncStack = (ctx: LiveQueryContext) => {
+	ctx.stack = untrack(() => ctx.registry).flatMap((entry) => entry.entries)
+}
+
+const updateRegistry = (
+	ctx: LiveQueryContext,
+	id: string,
+	entries: LiveQueryEntry[],
+) => {
+	ctx.registry = [
+		...untrack(() => ctx.registry).filter((entry) => entry.id !== id),
+		{
+			id,
+			entries,
+		},
+	]
+	syncStack(ctx)
+}
+
+const removeRegistry = (ctx: LiveQueryContext, id: string) => {
+	ctx.registry = untrack(() => ctx.registry).filter((entry) => entry.id !== id)
+	syncStack(ctx)
+}
 
 /**
  * Creates an attachment that registers a live query to the global stack.
@@ -42,11 +66,10 @@ const createLiveQueryAttachment = (
 	entry: LiveQueryEntry,
 ): Attachment => {
 	return () => {
-		ctx.stack.push(entry)
+		updateRegistry(ctx, entry.id, [entry])
 
 		return () => {
-			const idx = ctx.stack.findIndex((e) => e.id === entry.id)
-			if (idx !== -1) ctx.stack.splice(idx, 1)
+			removeRegistry(ctx, entry.id)
 		}
 	}
 }
@@ -66,15 +89,12 @@ const createLiveQueryAttachmentFrom = (
 	getEntries: () => LiveQueryEntry[],
 ): Attachment => {
 	return () => {
+		const id = crypto.randomUUID()
 		const destroy = $effect.root(() => {
 			$effect(() => {
-				const entries = getEntries()
-				entries.forEach((e) => ctx.stack.push(e))
+				updateRegistry(ctx, id, getEntries())
 				return () => {
-					entries.forEach((e) => {
-						const idx = ctx.stack.findIndex((x) => x.id === e.id)
-						if (idx !== -1) ctx.stack.splice(idx, 1)
-					})
+					removeRegistry(ctx, id)
 				}
 			})
 		})
@@ -106,11 +126,10 @@ const createLiveQueryProps = (
 		entries.map((entry) => [
 			createAttachmentKey(),
 			() => {
-				ctx.stack.push(entry)
+				updateRegistry(ctx, entry.id, [entry])
 
 				return () => {
-					const idx = ctx.stack.findIndex((e) => e.id === entry.id)
-					if (idx !== -1) ctx.stack.splice(idx, 1)
+					removeRegistry(ctx, entry.id)
 				}
 			},
 		]),
