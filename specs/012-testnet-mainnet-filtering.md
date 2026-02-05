@@ -64,7 +64,7 @@ appropriate defaults for the new network type.
 Complete. Testnet/mainnet toggle managed via `bridgeSettingsState` (persisted).
 BridgeFlow.svelte: `filteredNetworks` derived from `settings.isTestnet` and
 `NetworkType`, `$effect` resets fromChainId/toChainId when not in filtered list.
-Routes and balances refetch when filter changes.
+Routes and balances refetch when filter changes. Re-verification 2026-02-05 (PROMPT_build one spec): all 6 AC re-verified—filtering in UnifiedBridgeFlow.svelte, AccountsSelect.svelte, CctpBridgeFlow; chain reset $effect in UnifiedBridgeFlow and AccountsSelect; persistence via bridgeSettingsState (PersistedState); default isTestnet: false in defaultBridgeSettings. test:unit 41 Deno + 101 Vitest passed; e2e bridge-e2e testnet/mainnet toggle scenarios passed.
 
 ## Output when complete
 
