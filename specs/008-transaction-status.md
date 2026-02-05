@@ -207,6 +207,7 @@ Complete. `src/constants/explorers.ts` with explorer URLs and getTxUrl/getAddres
 `src/lib/tx-status.ts` with TxStatus, BridgeStatus types and mapLifiProcessStatus.
 `src/routes/bridge/BridgeExecution.svelte` handles execution with status tracking
 and transaction persistence via TanStack DB. Toast notifications for success/error.
+Re-verification 2026-02-05 (PROMPT_build): all acceptance criteria confirmed; explorers from networkConfigs; executeQuoteWithStatus/executeSelectedRoute with StatusCallback; BridgeExecution insert/update transaction and toasts; test:unit 41 Deno + 101 Vitest passed.
 
 ## Output when complete
 
