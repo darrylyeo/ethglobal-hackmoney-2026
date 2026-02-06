@@ -66,7 +66,7 @@ export const verifySiweSignature = async (params: {
 }
 
 export type EIP1193Provider = {
-	request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
+	request: (args: { method: string, params?: unknown[] }) => Promise<unknown>
 }
 
 export const signSiweMessage = async (params: {
