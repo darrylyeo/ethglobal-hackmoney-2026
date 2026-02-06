@@ -1,10 +1,10 @@
+import { DataSource } from '$/constants/data-sources'
+import type { CctpAllowance, CctpAllowance$Id } from '$/data/CctpAllowance'
+import { stringify } from 'devalue'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { stringify } from 'devalue'
-import { DataSource } from '$/constants/data-sources'
-import type { CctpAllowance, CctpAllowance$Id } from '$/data/CctpAllowance'
 
 export type CctpAllowanceRow = CctpAllowance & { $source: DataSource }
 
@@ -22,8 +22,7 @@ export const fetchCctpAllowance = async (
 	$id: CctpAllowance$Id,
 ): Promise<CctpAllowanceRow> => {
 	const key = stringify($id)
-	const existing = cctpAllowanceCollection.state.get(key)
-	if (existing) {
+	if (cctpAllowanceCollection.state.get(key)) {
 		cctpAllowanceCollection.update(key, (draft) => {
 			draft.isLoading = true
 			draft.error = null
