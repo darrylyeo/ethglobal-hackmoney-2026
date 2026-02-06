@@ -49,7 +49,7 @@ export type TransactionSessionDefaults = Partial<{
 	swap: SwapSessionParams
 	bridge: BridgeSessionParams
 	transfer: TransferSessionParams
-	liquidity: LiquiditySessionParams
+	liquidity: LiquiditySessionParams,
 }>
 
 export const defaultSwapSessionParams: SwapSessionParams = {
