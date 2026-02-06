@@ -3,6 +3,9 @@
   "specifiers": {
     "jsr:@std/assert@*": "1.0.18",
     "jsr:@std/internal@^1.0.12": "1.0.12",
+    "npm:@ai-sdk/anthropic@^3.0.37": "3.0.37_zod@4.3.6",
+    "npm:@ai-sdk/google@^3.0.21": "3.0.21_zod@4.3.6",
+    "npm:@ai-sdk/openai@^3.0.25": "3.0.25_zod@4.3.6",
     "npm:@antv/g6@^5.0.51": "5.0.51",
     "npm:@antv/layout@1.2.14-beta.8": "1.2.14-beta.8",
     "npm:@axe-core/playwright@^4.11.0": "4.11.0_playwright-core@1.57.0",
@@ -27,6 +30,7 @@
     "npm:@types/dom-chromium-ai@^0.0.13": "0.0.13",
     "npm:@types/three@0.182": "0.182.0",
     "npm:@wonderland/interop-addresses@0.3": "0.3.0_typescript@5.9.3_zod@3.24.3",
+    "npm:ai@^6.0.73": "6.0.73_zod@4.3.6",
     "npm:arktype@^2.1.29": "2.1.29",
     "npm:bits-ui@^2.15.5": "2.15.5_@internationalized+date@3.10.1_svelte@5.46.1__acorn@8.15.0_@sveltejs+kit@2.49.2__@sveltejs+vite-plugin-svelte@6.2.1___svelte@5.46.1____acorn@8.15.0___vite@7.3.0____picomatch@4.0.3__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3__acorn@8.15.0_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___picomatch@4.0.3_vite@7.3.0__picomatch@4.0.3",
     "npm:chrome-devtools-mcp@latest": "0.12.1",
@@ -93,6 +97,54 @@
     },
     "@adraffy/ens-normalize@1.11.1": {
       "integrity": "sha512-nhCBV3quEgesuf7c7KYfperqSS14T8bYuvJ8PcLJp6znkZpFc0AuW4qBtr8eKVyPPe/8RSr7sglCWPU5eaxwKQ=="
+    },
+    "@ai-sdk/anthropic@3.0.37_zod@4.3.6": {
+      "integrity": "sha512-tEgcJPw+a6obbF+SHrEiZsx3DNxOHqeY8bK4IpiNsZ8YPZD141R34g3lEAaQnmNN5mGsEJ8SXoEDabuzi8wFJQ==",
+      "dependencies": [
+        "@ai-sdk/provider",
+        "@ai-sdk/provider-utils",
+        "zod@4.3.6"
+      ]
+    },
+    "@ai-sdk/gateway@3.0.36_zod@4.3.6": {
+      "integrity": "sha512-2r1Q6azvqMYxQ1hqfWZmWg4+8MajoldD/ty65XdhCaCoBfvDu7trcvxXDfTSU+3/wZ1JIDky46SWYFOHnTbsBw==",
+      "dependencies": [
+        "@ai-sdk/provider",
+        "@ai-sdk/provider-utils",
+        "@vercel/oidc",
+        "zod@4.3.6"
+      ]
+    },
+    "@ai-sdk/google@3.0.21_zod@4.3.6": {
+      "integrity": "sha512-qQuvcbDqDPZojtoT45UFCQVH2w3m6KJKKjqJduUsvhN5ZqOXste0h4HgHK8hwGuDfv96Jr9QQEpspbgp6iu5Uw==",
+      "dependencies": [
+        "@ai-sdk/provider",
+        "@ai-sdk/provider-utils",
+        "zod@4.3.6"
+      ]
+    },
+    "@ai-sdk/openai@3.0.25_zod@4.3.6": {
+      "integrity": "sha512-DsaN46R98+D1W3lU3fKuPU3ofacboLaHlkAwxJPgJ8eup1AJHmPK1N1y10eJJbJcF6iby8Tf/vanoZxc9JPUfw==",
+      "dependencies": [
+        "@ai-sdk/provider",
+        "@ai-sdk/provider-utils",
+        "zod@4.3.6"
+      ]
+    },
+    "@ai-sdk/provider-utils@4.0.13_zod@4.3.6": {
+      "integrity": "sha512-HHG72BN4d+OWTcq2NwTxOm/2qvk1duYsnhCDtsbYwn/h/4zeqURu1S0+Cn0nY2Ysq9a9HGKvrYuMn9bgFhR2Og==",
+      "dependencies": [
+        "@ai-sdk/provider",
+        "@standard-schema/spec",
+        "eventsource-parser",
+        "zod@4.3.6"
+      ]
+    },
+    "@ai-sdk/provider@3.0.7": {
+      "integrity": "sha512-VkPLrutM6VdA924/mG8OS+5frbVTcu6e046D2bgDo00tehBANR1QBJ/mPcZ9tXMFOsVcm6SQArOregxePzTFPw==",
+      "dependencies": [
+        "json-schema"
+      ]
     },
     "@alcalzone/ansi-tokenize@0.2.4": {
       "integrity": "sha512-HTgrrTgZ9Jgeo6Z3oqbQ7lifOVvRR14vaDuBGPPUxk9Thm+vObaO4QfYYYWw4Zo5CWQDBEfsinFA6Gre+AqwNQ==",
@@ -1284,6 +1336,9 @@
     },
     "@open-draft/deferred-promise@2.2.0": {
       "integrity": "sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA=="
+    },
+    "@opentelemetry/api@1.9.0": {
+      "integrity": "sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg=="
     },
     "@openzeppelin/contracts@5.4.0": {
       "integrity": "sha512-eCYgWnLg6WO+X52I16TZt8uEjbtdkgLC0SUX/xnAksjjrQI4Xfn4iBRoI5j55dmlOhDv1Y7BoR3cU7e3WWhC6A=="
@@ -2821,6 +2876,9 @@
         "@types/node@24.10.9"
       ]
     },
+    "@vercel/oidc@3.1.0": {
+      "integrity": "sha512-Fw28YZpRnA3cAHHDlkt7xQHiJ0fcL+NRcIqsocZQUSmbzeIKRpwttJjik5ZGanXP+vlA4SbTg+AbA3bP363l+w=="
+    },
     "@vitest/expect@3.2.4": {
       "integrity": "sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==",
       "dependencies": [
@@ -3179,6 +3237,16 @@
       "integrity": "sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ==",
       "dependencies": [
         "humanize-ms"
+      ]
+    },
+    "ai@6.0.73_zod@4.3.6": {
+      "integrity": "sha512-p2/ICXIjAM4+bIFHEkAB+l58zq+aTmxAkotsb6doNt/CEms72zt6gxv2ky1fQDwU4ecMOcmMh78VJUSEKECzlg==",
+      "dependencies": [
+        "@ai-sdk/gateway",
+        "@ai-sdk/provider",
+        "@ai-sdk/provider-utils",
+        "@opentelemetry/api",
+        "zod@4.3.6"
       ]
     },
     "ajv-formats@2.1.1_ajv@8.17.1": {
@@ -4294,6 +4362,9 @@
     "events@3.3.0": {
       "integrity": "sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q=="
     },
+    "eventsource-parser@3.0.6": {
+      "integrity": "sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg=="
+    },
     "execa@8.0.1": {
       "integrity": "sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg==",
       "dependencies": [
@@ -4963,6 +5034,9 @@
     },
     "json-schema-traverse@1.0.0": {
       "integrity": "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="
+    },
+    "json-schema@0.4.0": {
+      "integrity": "sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA=="
     },
     "json-stable-stringify-without-jsonify@1.0.1": {
       "integrity": "sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw=="
@@ -6928,6 +7002,9 @@
     ],
     "packageJson": {
       "dependencies": [
+        "npm:@ai-sdk/anthropic@^3.0.37",
+        "npm:@ai-sdk/google@^3.0.21",
+        "npm:@ai-sdk/openai@^3.0.25",
         "npm:@antv/g6@^5.0.51",
         "npm:@antv/layout@1.2.14-beta.8",
         "npm:@axe-core/playwright@^4.11.0",
@@ -6946,6 +7023,7 @@
         "npm:@types/dom-chromium-ai@^0.0.13",
         "npm:@types/three@0.182",
         "npm:@wonderland/interop-addresses@0.3",
+        "npm:ai@^6.0.73",
         "npm:arktype@^2.1.29",
         "npm:bits-ui@^2.15.5",
         "npm:devalue@^5.6.2",

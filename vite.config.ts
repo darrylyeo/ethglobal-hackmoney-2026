@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => ({
 		],
 	},
 	preview: {
-		port: 5000,
+		port: 4173,
 	},
 	server: {
 		...mode === 'development' && {
