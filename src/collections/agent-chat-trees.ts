@@ -1,10 +1,10 @@
+import { DataSource } from '$/constants/data-sources'
+import type { AgentChatTree } from '$/data/AgentChatTree'
 import {
 	createCollection,
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
-import { stringify, parse } from 'devalue'
-import { DataSource } from '$/constants/data-sources'
-import type { AgentChatTree } from '$/data/AgentChatTree'
+import { parse, stringify } from 'devalue'
 
 export type AgentChatTreeRow = AgentChatTree & { $source: DataSource }
 
