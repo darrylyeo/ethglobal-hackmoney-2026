@@ -4,6 +4,14 @@
 
 | # | SHA      | Message |
 |---|----------|---------|
+| 1 | efac457  | lib: add session/, bridge/, llm-provider; fix BridgeAction and retry.spec imports |
+| 2 | 8e918d5  | lib: remove bridge-errors, explain, dashboard-panel-hash, transaction-session-params, transaction-sessions, tx-status (flat); retry, agent-chat use new lib |
+| 3 | 53ce816  | routes, views, api, collections, data: use lib/session and lib/bridge; Draggable + spec 073; spec doc updates |
+
+## Completed (previous run)
+
+| # | SHA      | Message |
+|---|----------|---------|
 | 1 | f643e82  | lib: bridge-errors and retry.spec use bridge-errors |
 | 2 | 3027ce3  | lib: remove errors.ts and errors.spec (replaced by bridge-errors) |
 | 3 | 12b2367  | api: simulate + llm as modules; remove api routes simulate, llm/zen, proxy |
@@ -14,6 +22,7 @@
 | 8 | 1af060c  | routes, views, components, api, lib: agent-chat wiring, session, settings, transfers-logs, stork, explain |
 | 9 | 7ebae77  | config: env, package, deno.lock, vite |
 | 10 | 7be49ed  | specs: updates and 068–072 (evmactor, nav icons, llm config, richtextarea, bind) |
+| 11 | 95ab8f5  | chore: update commit plan |
 
 ## Completed (previous run)
 
@@ -55,6 +64,8 @@
 
 - `.cursor/agents/`, `.cursor/rules/`, `.cursor/skills/`
 - `history/*.md`, `e2e/prompt-input.test.ts`, `playwright.no-server.config.ts`, `.specify/memory/richtextarea.md`
+- `src/lib/room.ts`, `src/lib/siwe.ts`, `src/lib/rooms/`, `src/state/room.svelte.ts`
+- `specs/008`, `013`, `030`, `031`; `src/api/lifi.ts`; routes/rooms, channels/yellow; views, components (EntityId, etc.)
 
 ## Completed (previous runs)
 
