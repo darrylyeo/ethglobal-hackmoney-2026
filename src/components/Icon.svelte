@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Props
 	let {
 		class: className,
@@ -38,6 +40,8 @@
 		[key: string]: unknown
 	} = $props()
 
+
+	// (Derived)
 	const a11yLabel = label ?? alt
 	const resolvedTitle = title ?? (alt || undefined)
 </script>
