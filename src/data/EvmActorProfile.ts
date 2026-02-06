@@ -12,3 +12,4 @@ export type EvmActorProfile = {
 	avatarUrl?: string
 	$source: DataSource
 }
+
