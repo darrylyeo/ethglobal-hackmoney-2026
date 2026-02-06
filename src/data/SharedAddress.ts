@@ -4,5 +4,5 @@ export type SharedAddress = {
 	peerId: string
 	address: `0x${string}`
 	targetPeerIds: string[] | null
-	sharedAt: number
+	sharedAt: number,
 }
