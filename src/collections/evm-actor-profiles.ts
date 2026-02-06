@@ -4,19 +4,19 @@
  */
 
 import {
-	createCollection,
-	localOnlyCollectionOptions,
-} from '@tanstack/svelte-db'
-import { createHttpProvider } from '$/api/voltaire'
-import {
 	resolveEnsForward,
 	resolveEnsReverse,
 } from '$/api/identity-resolve'
+import { createHttpProvider } from '$/api/voltaire'
 import { DataSource } from '$/constants/data-sources'
 import { identityResolvers } from '$/constants/identity-resolver'
-import { rpcUrls } from '$/constants/rpc-endpoints'
 import type { ChainId } from '$/constants/networks'
+import { rpcUrls } from '$/constants/rpc-endpoints'
 import type { EvmActorProfile, EvmActorProfile$Id } from '$/data/EvmActorProfile'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
 export type EvmActorProfileRow = EvmActorProfile & {
 	isLoading?: boolean
@@ -42,7 +42,9 @@ export const ensureEvmActorProfile = (
 	address: `0x${string}`,
 ): void => {
 	const normalized = address.toLowerCase() as `0x${string}`
-	const key = `${chainId}:${normalized}`
+	const key = `${chainId}:${normalized}` as unknown as Parameters<
+		typeof evmActorProfilesCollection.state.get
+	>[0]
 	if (!evmActorProfilesCollection.state.get(key))
 		fetchEvmActorProfile(chainId, normalized).catch(() => {})
 }
@@ -51,7 +53,9 @@ export const fetchEvmActorProfile = async (
 	chainId: ChainId,
 	address: `0x${string}`,
 ): Promise<EvmActorProfile> => {
-	const key = `${chainId}:${address.toLowerCase()}`
+	const key = `${chainId}:${address.toLowerCase()}` as unknown as Parameters<
+		typeof evmActorProfilesCollection.state.get
+	>[0]
 	const existing = evmActorProfilesCollection.state.get(key)
 	const $id: EvmActorProfile$Id = { chainId, address }
 
