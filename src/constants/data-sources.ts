@@ -9,4 +9,5 @@ export enum DataSource {
 	Voltaire = 'Voltaire',
 	PartyKit = 'PartyKit',
 	Covalent = 'Covalent',
+	Llm = 'Llm',
 }
