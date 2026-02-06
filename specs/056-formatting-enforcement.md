@@ -72,7 +72,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `scripts/_e2e-bridge-mainnet.ts`
 - [x] `scripts/_fetch-chain-icons.ts`
 - [ ] `scripts/_fetch-icons.ts`
-- [ ] `scripts/_svelte-section-spacing.ts`
+- [x] `scripts/_svelte-section-spacing.ts`
 - [ ] `scripts/_yellow-demo.ts`
 - [ ] `scripts/check-bundle-size.mjs`
 - [ ] `scripts/check-performance.mjs`

@@ -29,24 +29,25 @@ async function walk(
 }
 
 const root = `${Deno.cwd()}/src`
-const svelteFiles = await walk(root, ['.svelte'])
+const svelteFiles = await walk(root, ['.svelte', ])
 let changed = 0
 for (const file of svelteFiles) {
 	let content = await Deno.readTextFile(file)
 	const before = content
 	content = content.replace(
 		/(<\/script>)\s*\n+(\s*<)/g,
-		(_, close, next) => `${close}${TWO_BLANK}${next}`,
+		(_, close, next) => (`${close}${TWO_BLANK}${next}`),
 	)
 	content = content.replace(
 		/(<\/svelte:head>)\s*\n+(\s*<)/g,
-		(_, close, next) => `${close}${TWO_BLANK}${next}`,
+		(_, close, next) => (`${close}${TWO_BLANK}${next}`),
 	)
 	content = content.replace(/\n+(\s*<style>)/g, `${TWO_BLANK}$1`)
 	content = content.replace(
 		/(<script[\s\S]*?>)([\s\S]*?)(<\/script>)/g,
-		(_, open: string, body: string, close: string) =>
-			open + normalizeScriptGroupSpacing(body) + close,
+		(_, open: string, body: string, close: string) => (
+			open + normalizeScriptGroupSpacing(body) + close
+		),
 	)
 	if (content !== before) {
 		await Deno.writeTextFile(file, content)
