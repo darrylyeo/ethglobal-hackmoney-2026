@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import type { Coin } from '$/constants/coins'
+	import type { Coin } from '$/constants/coins.ts'
 
 
 	// Props
@@ -42,7 +42,7 @@
 		formatSmallestToDecimal,
 		isValidDecimalInput,
 		parseDecimalToSmallest,
-	} from '$/lib/format'
+	} from '$/lib/format.ts'
 
 
 	// (Derived)

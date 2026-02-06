@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { TevmSimulationDecodedEvent } from '$/data/TevmSimulationResult'
+	import type { TevmSimulationDecodedEvent } from '$/data/TevmSimulationResult.ts'
 
 	let {
 		events = [],

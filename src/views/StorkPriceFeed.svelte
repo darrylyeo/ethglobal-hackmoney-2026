@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import type { StorkPriceRow } from '$/collections/stork-prices'
+	import type { StorkPriceRow } from '$/collections/stork-prices.ts'
 
 
 	// Props
@@ -16,7 +16,7 @@
 
 
 	// Functions
-	import { formatRelativeTime } from '$/lib/format-relative-time'
+	import { formatRelativeTime } from '$/lib/format-relative-time.ts'
 </script>
 
 

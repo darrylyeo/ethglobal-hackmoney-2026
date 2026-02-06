@@ -2,10 +2,9 @@
 
 
 	// Types/constants
-	import { type Coin, CoinType } from '$/constants/coins'
-	import type { StorkPriceRow } from '$/collections/stork-prices'
-	import { networkConfigsByChainId } from '$/constants/networks'
-	import { getAssetUrl } from '$lib/assets/urls'
+	import { type Coin, CoinType } from '$/constants/coins.ts'
+	import type { StorkPriceRow } from '$/collections/stork-prices.ts'
+	import { networkConfigsByChainId } from '$/constants/networks.ts'
 
 
 	// Props
@@ -30,7 +29,7 @@
 
 	// Functions
 	import { draggable as draggableAttachment } from '$/components/Draggable.svelte'
-	import { stringify } from '$/lib/stringify'
+	import { stringify } from '$/lib/stringify.ts'
 
 
 	// Components
@@ -61,10 +60,7 @@
 
 				<span class="coin" data-row="wrap gap-2">
 					{#if coin.icon?.original?.url}
-						{@const networkIconSrc =
-							getAssetUrl(networkConfigsByChainId[coin.chainId]?.icon ?? '') ??
-							networkConfigsByChainId[coin.chainId]?.icon ??
-							`/icons/chains/${coin.chainId}.svg`}
+						{@const networkIconSrc = networkConfigsByChainId[coin.chainId]?.icon}
 						{@const networkName =
 							networkConfigsByChainId[coin.chainId]?.name ??
 							`Chain ${coin.chainId}`}
@@ -113,9 +109,7 @@
 
 			<span class="coin" data-row="wrap gap-2">
 				{#if coin.icon?.original?.url}
-					{@const networkIconSrc =
-						networkConfigsByChainId[coin.chainId]?.icon ??
-						`/icons/chains/${coin.chainId}.svg`}
+					{@const networkIconSrc = networkConfigsByChainId[coin.chainId]?.icon}
 					{@const networkName =
 						networkConfigsByChainId[coin.chainId]?.name ??
 						`Chain ${coin.chainId}`}

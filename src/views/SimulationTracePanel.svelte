@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { TevmSimulationTraceCall } from '$/data/TevmSimulationResult'
+	import type { TevmSimulationTraceCall } from '$/data/TevmSimulationResult.ts'
 
 	let {
 		trace = [],

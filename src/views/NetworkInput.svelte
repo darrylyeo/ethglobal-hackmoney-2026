@@ -2,9 +2,8 @@
 
 
 	// Types/constants
-	import { networkConfigsByChainId } from '$/constants/networks'
-	import type { Network } from '$/constants/networks'
-	import { getAssetUrl } from '$lib/assets/urls'
+	import { networkConfigsByChainId } from '$/constants/networks.ts'
+	import type { Network } from '$/constants/networks.ts'
 
 
 	// Props
@@ -124,6 +123,18 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 	// Components
 	import Select from '$/components/Select.svelte'
 	import Icon from '$/components/Icon.svelte'
@@ -140,13 +151,11 @@
 	{#if selectedNetworks.length > 0}
 		<span data-row="start gap-2">
 			{#each selectedNetworks as network (network.id)}
+				{@const icon = networkConfigsByChainId[network.id]?.icon}
 				<span class="network-input-icon">
-					<Icon
-						src={networkConfigsByChainId[network.id]?.icon ??
-							`/icons/chains/${network.id}.svg`}
-						size={16}
-						title={network.name}
-					/>
+					{#if icon}
+						<Icon src={icon} size={16} title={network.name} />
+					{/if}
 				</span>
 			{/each}
 		</span>
@@ -154,14 +163,12 @@
 {/snippet}
 
 {#snippet networkItem(network: Network, selected: boolean)}
+	{@const icon = networkConfigsByChainId[network.id]?.icon}
 	<span data-row="start gap-2" data-selected={selected}>
 		<span class="network-input-icon">
-			<Icon
-				src={getAssetUrl(networkConfigsByChainId[network.id]?.icon ?? '') ??
-					networkConfigsByChainId[network.id]?.icon ??
-					`/icons/chains/${network.id}.svg`}
-				size={16}
-			/>
+			{#if icon}
+				<Icon src={icon} size={16} />
+			{/if}
 		</span>
 		<span>{network.name}</span>
 	</span>

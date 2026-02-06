@@ -2,20 +2,20 @@
 
 
 	// Types/constants
-	import type { VoltaireProvider } from '$/api/voltaire'
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
+	import type { VoltaireProvider } from '$/api/voltaire.ts'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
 	import type {
 		ExplainAvailability,
 		ExplainContext,
-	} from '$/lib/llm-provider'
-	import type { AgentChatTurn } from '$/data/AgentChatTurn'
-	import type { EIP1193Provider } from '$/lib/wallet'
+	} from '$/lib/llm-provider.ts'
+	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
+	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import type { Snippet } from 'svelte'
-	import { networksByChainId } from '$/constants/networks'
-	import { rpcUrls } from '$/constants/rpc-endpoints'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
-	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
-	import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
+	import { networksByChainId } from '$/constants/networks.ts'
+	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm.ts'
+	import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config.ts'
 
 	type ExecutionStatus =
 		| 'idle'
@@ -103,10 +103,10 @@
 
 
 	// Functions
-	import { createHttpProvider } from '$/api/voltaire'
-	import { createExplainProvider, submitExplainTurn } from '$/lib/llm-provider'
-	import { agentChatTurnsCollection } from '$/collections/agent-chat-turns'
-	import { getE2eProvider, switchWalletChain } from '$/lib/wallet'
+	import { createHttpProvider } from '$/api/voltaire.ts'
+	import { createExplainProvider, submitExplainTurn } from '$/lib/llm-provider.ts'
+	import { agentChatTurnsCollection } from '$/collections/agent-chat-turns.ts'
+	import { getE2eProvider, switchWalletChain } from '$/lib/wallet.ts'
 
 
 	// Props

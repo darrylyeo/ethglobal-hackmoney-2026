@@ -2,12 +2,12 @@
 
 
 	// Types/constants
-	import type { IntentDragPayload } from '$/lib/intents/types'
-	import { CoinType, ercTokens } from '$/constants/coins'
-	import { DataSource } from '$/constants/data-sources'
-	import { MediaType } from '$/constants/media'
-	import { networksByChainId } from '$/constants/networks'
-	import { EntityType } from '$/data/$EntityType'
+	import type { IntentDragPayload } from '$/lib/intents/types.ts'
+	import { CoinType, ercTokens } from '$/constants/coins.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { MediaType } from '$/constants/media.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 
 	type DisplayToken = (typeof displayTokens)[number]
 
@@ -31,18 +31,18 @@
 
 
 	// Functions
-	import { formatSmallestToDecimal } from '$/lib/format'
-	import { getStorkAssetIdForSymbol } from '$/lib/stork'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { getStorkAssetIdForSymbol } from '$/lib/stork.ts'
 
 
 	// State
-	import { actorCoinsCollection } from '$/collections/actor-coins'
+	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
 	import {
 		storkPricesCollection,
 		subscribeStorkPrices,
 		getBestStorkPrice,
-	} from '$/collections/stork-prices'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
+	} from '$/collections/stork-prices.ts'
+	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
 
 
 	// (Derived)

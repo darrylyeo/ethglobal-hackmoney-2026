@@ -3,8 +3,8 @@
 
 	// Types/constants
 	import type { Snippet } from 'svelte'
-	import type { Network$Id } from '$/data/Network'
-	import { normalizeAddress } from '$/lib/address'
+	import type { Network$Id } from '$/data/Network.ts'
+	import { normalizeAddress } from '$/lib/address.ts'
 
 
 	// Props

@@ -2,9 +2,9 @@
 
 
 	// Types/constants
-	import type { Coin } from '$/constants/coins'
-	import { CoinType } from '$/constants/coins'
-	import { networksByChainId } from '$/constants/networks'
+	import type { Coin } from '$/constants/coins.ts'
+	import { CoinType } from '$/constants/coins.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 
 
 	// Props

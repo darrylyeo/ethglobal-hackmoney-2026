@@ -3,8 +3,8 @@
 
 	// Types/constants
 	import { browser } from '$app/environment'
-	import type { Coin } from '$/constants/coins'
-	import type { TransferGraph } from '$/api/transfers-indexer'
+	import type { Coin } from '$/constants/coins.ts'
+	import type { TransferGraph } from '$/api/transfers-indexer.ts'
 	import { Canvas, T } from '@threlte/core'
 	import * as THREE from 'three'
 

@@ -2,8 +2,8 @@
 
 
 	// Types/constants
-	import { DataSource } from '$/constants/data-sources'
-	import type { StorkPriceRow } from '$/collections/stork-prices'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import type { StorkPriceRow } from '$/collections/stork-prices.ts'
 
 
 	// Context
@@ -24,13 +24,13 @@
 
 
 	// Functions
-	import { formatSmallestToDecimal } from '$/lib/format'
-	import { formatRelativeTime } from '$/lib/format-relative-time'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { formatRelativeTime } from '$/lib/format-relative-time.ts'
 	import {
 		getBestStorkPrice,
 		storkPricesCollection,
 		subscribeStorkPrices,
-	} from '$/collections/stork-prices'
+	} from '$/collections/stork-prices.ts'
 
 
 	// State

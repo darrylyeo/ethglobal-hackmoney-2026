@@ -6,12 +6,12 @@
 		ConnectedWallet,
 		ReadOnlyWalletRow,
 		WalletConnectionRow,
-	} from '$/collections/wallet-connections'
+	} from '$/collections/wallet-connections.ts'
 	import type {
 		WalletConnectionEip1193,
 		WalletConnectionNone,
-	} from '$/data/WalletConnection'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	} from '$/data/WalletConnection.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import {
 		mainnetForTestnet,
 		NetworkType,
@@ -19,9 +19,8 @@
 		networks,
 		networksByChainId,
 		testnetsForMainnet,
-	} from '$/constants/networks'
-	import { DataSource } from '$/constants/data-sources'
-	import { getAssetUrl } from '$lib/assets/urls'
+	} from '$/constants/networks.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
@@ -37,8 +36,8 @@
 		setSelectedConnections,
 		disconnectWallet,
 		connectReadOnly,
-	} from '$/collections/wallet-connections'
-	import type { WalletRow } from '$/collections/wallets'
+	} from '$/collections/wallet-connections.ts'
+	import type { WalletRow } from '$/collections/wallets.ts'
 	type NetworkInfo = (typeof networks)[number]
 	type WalletMenuItem = {
 		kind: string
@@ -137,7 +136,7 @@
 				type: string
 				id?: string
 		  }
-	import { upsertWallet, walletsCollection } from '$/collections/wallets'
+	import { upsertWallet, walletsCollection } from '$/collections/wallets.ts'
 	import {
 		bridgeSettingsState,
 		defaultBridgeSettings,
@@ -146,7 +145,7 @@
 		swapSettingsState,
 		defaultSwapSettings,
 	} from '$/state/swap-settings.svelte'
-	import { switchWalletChain } from '$/lib/wallet'
+	import { switchWalletChain } from '$/lib/wallet.ts'
 
 	useWalletSubscriptions()
 
@@ -460,8 +459,7 @@
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
 							{@const networkIconSrc = chainId
-								? (networkConfigsByChainId[chainId]?.icon ??
-									`/icons/chains/${chainId}.svg`)
+								? networkConfigsByChainId[chainId]?.icon
 								: null}
 							{@const walletChipClass =
 								status === 'connecting'
@@ -539,14 +537,15 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
+												{@const networkIcon = networkConfigsByChainId[item.network.id]?.icon}
 												<span class="wallet-menu-option" data-row="start gap-2">
-													<Icon
-														src={getAssetUrl(networkConfigsByChainId[item.network.id]?.icon ?? '') ??
-															networkConfigsByChainId[item.network.id]?.icon ??
-															`/icons/chains/${item.network.id}.svg`}
-														size={16}
-														class="wallet-network-icon"
-													/>
+													{#if networkIcon}
+														<Icon
+															src={networkIcon}
+															size={16}
+															class="wallet-network-icon"
+														/>
+													{/if}
 													<span>{item.network.name}</span>
 												</span>
 											{:else if item.kind === 'disconnect'}
@@ -583,8 +582,7 @@
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
 							{@const networkIconSrc = chainId
-								? (networkConfigsByChainId[chainId]?.icon ??
-									`/icons/chains/${chainId}.svg`)
+								? networkConfigsByChainId[chainId]?.icon
 								: null}
 							{@const walletChipClass =
 								status === 'connecting'
@@ -662,14 +660,15 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
+												{@const networkIcon = networkConfigsByChainId[item.network.id]?.icon}
 												<span class="wallet-menu-option" data-row="start gap-2">
-													<Icon
-														src={getAssetUrl(networkConfigsByChainId[item.network.id]?.icon ?? '') ??
-															networkConfigsByChainId[item.network.id]?.icon ??
-															`/icons/chains/${item.network.id}.svg`}
-														size={16}
-														class="wallet-network-icon"
-													/>
+													{#if networkIcon}
+														<Icon
+															src={networkIcon}
+															size={16}
+															class="wallet-network-icon"
+														/>
+													{/if}
 													<span>{item.network.name}</span>
 												</span>
 											{:else if item.kind === 'disconnect'}
@@ -715,8 +714,7 @@
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
 							{@const networkIconSrc = chainId
-								? (networkConfigsByChainId[chainId]?.icon ??
-									`/icons/chains/${chainId}.svg`)
+								? networkConfigsByChainId[chainId]?.icon
 								: null}
 							{@const walletChipClass =
 								status === 'connecting'
@@ -794,14 +792,15 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
+												{@const networkIcon = networkConfigsByChainId[item.network.id]?.icon}
 												<span class="wallet-menu-option" data-row="start gap-2">
-													<Icon
-														src={getAssetUrl(networkConfigsByChainId[item.network.id]?.icon ?? '') ??
-															networkConfigsByChainId[item.network.id]?.icon ??
-															`/icons/chains/${item.network.id}.svg`}
-														size={16}
-														class="wallet-network-icon"
-													/>
+													{#if networkIcon}
+														<Icon
+															src={networkIcon}
+															size={16}
+															class="wallet-network-icon"
+														/>
+													{/if}
 													<span>{item.network.name}</span>
 												</span>
 											{:else if item.kind === 'disconnect'}
@@ -838,8 +837,7 @@
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
 							{@const networkIconSrc = chainId
-								? (networkConfigsByChainId[chainId]?.icon ??
-									`/icons/chains/${chainId}.svg`)
+								? networkConfigsByChainId[chainId]?.icon
 								: null}
 							{@const walletChipClass =
 								status === 'connecting'
@@ -917,14 +915,15 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
+												{@const networkIcon = networkConfigsByChainId[item.network.id]?.icon}
 												<span class="wallet-menu-option" data-row="start gap-2">
-													<Icon
-														src={getAssetUrl(networkConfigsByChainId[item.network.id]?.icon ?? '') ??
-															networkConfigsByChainId[item.network.id]?.icon ??
-															`/icons/chains/${item.network.id}.svg`}
-														size={16}
-														class="wallet-network-icon"
-													/>
+													{#if networkIcon}
+														<Icon
+															src={networkIcon}
+															size={16}
+															class="wallet-network-icon"
+														/>
+													{/if}
 													<span>{item.network.name}</span>
 												</span>
 											{:else if item.kind === 'disconnect'}
