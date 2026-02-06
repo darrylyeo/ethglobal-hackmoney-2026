@@ -1,4 +1,200 @@
-export type ExplainAvailability = 'available' | 'downloading' | 'unavailable'
+// Part 1: generic Llm provider abstraction
+
+export type LlmAvailability = 'available' | 'downloading' | 'unavailable'
+
+export type LlmGenerateInput = {
+	systemPrompt: string
+	userPrompt: string
+	onProgress?: (progress: number) => void
+}
+
+export type LlmGenerateOutput = {
+	text: string
+	providerId: string
+}
+
+export type LlmProvider = {
+	availability: () => Promise<LlmAvailability>
+	generate: (input: LlmGenerateInput) => Promise<LlmGenerateOutput>
+	cancel?: () => void
+}
+
+const PROMPT_OPTIONS = {
+	expectedInputs: [
+		{ type: 'text', languages: ['en'] as const },
+	],
+	expectedOutputs: [
+		{ type: 'text', languages: ['en'] as const },
+	],
+}
+
+const getPromptApi = () =>
+	typeof globalThis === 'undefined'
+		? null
+		: (globalThis.ai?.languageModel ?? null)
+
+export const createPromptApiLlmProvider = (
+	onProgress?: (progress: number) => void,
+): LlmProvider => {
+	let controller: AbortController | null = null
+	let session: LanguageModelSession | null = null
+	const reset = () => {
+		controller = null
+		session?.destroy()
+		session = null
+	}
+
+	return {
+		availability: async () => {
+			const languageModel = getPromptApi()
+			return languageModel
+				? await languageModel.availability(PROMPT_OPTIONS)
+				: 'unavailable'
+		},
+		generate: async (input) => {
+			const languageModel = getPromptApi()
+			if (!languageModel) throw new Error('Prompt API is unavailable.')
+			controller = new AbortController()
+			session = await languageModel.create({
+				...PROMPT_OPTIONS,
+				monitor: (monitor) => {
+					monitor.addEventListener('downloadprogress', (event) => {
+						if (typeof event.loaded === 'number') input.onProgress?.(event.loaded)
+					})
+				},
+				initialPrompts: [
+					{ role: 'system', content: input.systemPrompt },
+				],
+				signal: controller.signal,
+			})
+			try {
+				const text = await session.prompt([
+					{ role: 'user', content: input.userPrompt },
+				])
+				return { text, providerId: 'prompt-api' }
+			} finally {
+				reset()
+			}
+		},
+		cancel: () => {
+			controller?.abort()
+			reset()
+		},
+	}
+}
+
+const getHostedLlmConfig = () =>
+	typeof import.meta === 'undefined' || !import.meta.env
+		? null
+		: import.meta.env.PUBLIC_LLM_ENDPOINT
+			? {
+					endpoint: import.meta.env.PUBLIC_LLM_ENDPOINT,
+					apiKey: import.meta.env.PUBLIC_LLM_API_KEY,
+				}
+			: null
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+	typeof value === 'object' && value !== null
+
+export const createHostedLlmProvider = (config: {
+	endpoint: string
+	apiKey?: string
+}): LlmProvider => ({
+	availability: async () => 'available',
+	generate: async (input) => {
+		const response = await fetch(config.endpoint, {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json',
+				...(config.apiKey
+					? { authorization: `Bearer ${config.apiKey}` }
+					: {}),
+			},
+			body: JSON.stringify({
+				systemPrompt: input.systemPrompt,
+				userPrompt: input.userPrompt,
+			}),
+		})
+		if (!response.ok) {
+			throw new Error(`Hosted Llm failed (${response.status})`)
+		}
+		const body = await response.json()
+		return {
+			providerId: 'hosted',
+			text: isRecord(body) && typeof body.text === 'string' ? body.text : '',
+		}
+	},
+})
+
+const ZEN_LLM_PATH = '/api/llm/zen'
+
+const createZenLlmProvider = (): LlmProvider => ({
+	availability: async () => {
+		try {
+			const res = await fetch(ZEN_LLM_PATH, { method: 'GET' })
+			if (!res.ok) return 'unavailable'
+			const data = await res.json()
+			return isRecord(data) && data.available === true ? 'available' : 'unavailable'
+		} catch {
+			return 'unavailable'
+		}
+	},
+	generate: async (input) => {
+		const response = await fetch(ZEN_LLM_PATH, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				systemPrompt: input.systemPrompt,
+				userPrompt: input.userPrompt,
+			}),
+		})
+		if (!response.ok) {
+			throw new Error(`OpenCode Zen failed (${response.status})`)
+		}
+		const body = await response.json()
+		return {
+			providerId: isRecord(body) && typeof body.providerId === 'string' ? body.providerId : 'zen',
+			text: isRecord(body) && typeof body.text === 'string' ? body.text : '',
+		}
+	},
+})
+
+export const createLlmProvider = (
+	options: { onProgress?: (progress: number) => void } = {},
+): LlmProvider => {
+	const promptProvider = createPromptApiLlmProvider(options.onProgress)
+	const hostedConfig = getHostedLlmConfig()
+	const hostedProvider = hostedConfig
+		? createHostedLlmProvider(hostedConfig)
+		: null
+	const zenProvider = createZenLlmProvider()
+
+	const pickProvider = async (): Promise<LlmProvider> => {
+		const promptAvailability = await promptProvider.availability()
+		if (promptAvailability !== 'unavailable') return promptProvider
+		if (hostedProvider) return hostedProvider
+		const zenAvailability = await zenProvider.availability()
+		return zenAvailability === 'available' ? zenProvider : promptProvider
+	}
+
+	return {
+		availability: async () => {
+			const promptAvailability = await promptProvider.availability()
+			if (promptAvailability !== 'unavailable') return promptAvailability
+			if (hostedProvider) return hostedProvider.availability()
+			return zenProvider.availability()
+		},
+		generate: async (input) => (await pickProvider()).generate(input),
+		cancel: () => {
+			promptProvider.cancel?.()
+			hostedProvider?.cancel?.()
+		},
+	}
+}
+
+// Part 2: transaction/simulation explanation feature
+
+export type ExplainAvailability = LlmAvailability
 
 export type ExplainContext = {
 	kind: 'simulation' | 'execution'
@@ -28,13 +224,8 @@ export type ExplainInput = {
 }
 
 export type ExplainOutput = {
-	provider: 'prompt-api' | 'hosted'
+	provider: string
 	text: string
-}
-
-export type ExplainRecord = ExplainOutput & {
-	createdAt: string
-	promptVersion: string
 }
 
 export type ExplainProvider = {
@@ -43,27 +234,12 @@ export type ExplainProvider = {
 	cancel?: () => void
 }
 
-const PROMPT_VERSION = '2026-02-03'
-const SYSTEM_PROMPT =
+export const EXPLAIN_SYSTEM_PROMPT =
 	'You explain transaction results concisely and factually. Focus on outcomes, gas usage, and any errors. Avoid speculation.'
-const PROMPT_OPTIONS = {
-	expectedInputs: [
-		{
-			type: 'text',
-			languages: ['en'],
-		},
-	],
-	expectedOutputs: [
-		{
-			type: 'text',
-			languages: ['en'],
-		},
-	],
-}
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-	typeof value === 'object' && value !== null
-const buildExplainPrompt = (context: ExplainContext) =>
+export const EXPLAIN_PROMPT_VERSION = '2026-02-03'
+
+export const buildExplainUserPrompt = (context: ExplainContext) =>
 	[
 		`Kind: ${context.kind}`,
 		`Status: ${context.status}`,
@@ -86,143 +262,109 @@ const buildExplainPrompt = (context: ExplainContext) =>
 		.filter((line): line is string => Boolean(line))
 		.join('\n')
 
-const getPromptApi = () =>
-	typeof globalThis === 'undefined'
-		? null
-		: (globalThis.ai?.languageModel ?? null)
-const getHostedConfig = () =>
-	typeof import.meta === 'undefined' || !import.meta.env
-		? null
-		: import.meta.env.PUBLIC_EXPLAIN_LLM_ENDPOINT
-			? {
-					endpoint: import.meta.env.PUBLIC_EXPLAIN_LLM_ENDPOINT,
-					apiKey: import.meta.env.PUBLIC_EXPLAIN_LLM_API_KEY,
-				}
-			: null
-
-const createPromptApiProvider = (
-	onProgress?: (progress: number) => void,
-): ExplainProvider => {
-	let controller: AbortController | null = null
-	let session: LanguageModelSession | null = null
-	const reset = () => {
-		controller = null
-		session?.destroy()
-		session = null
-	}
-
-	return {
-		availability: async () => {
-			const languageModel = getPromptApi()
-			return languageModel
-				? await languageModel.availability(PROMPT_OPTIONS)
-				: 'unavailable'
-		},
-		explain: async (input) => {
-			const languageModel = getPromptApi()
-			if (!languageModel) throw new Error('Prompt API is unavailable.')
-			controller = new AbortController()
-			session = await languageModel.create({
-				...PROMPT_OPTIONS,
-				monitor: (monitor) => {
-					monitor.addEventListener('downloadprogress', (event) => {
-						if (typeof event.loaded === 'number') onProgress?.(event.loaded)
-					})
-				},
-				initialPrompts: [
-					{
-						role: 'system',
-						content: SYSTEM_PROMPT,
-					},
-				],
-				signal: controller.signal,
-			})
-			// TODO: Tune max token usage once prompt budgets are finalized.
-			try {
-				const text = await session.prompt([
-					{
-						role: 'user',
-						content: buildExplainPrompt(input.context),
-					},
-				])
-				return {
-					provider: 'prompt-api',
-					text,
-				}
-			} finally {
-				reset()
-			}
-		},
-		cancel: () => {
-			controller?.abort()
-			reset()
-		},
-	}
-}
-
-const createHostedProvider = (config: {
-	endpoint: string
-	apiKey?: string
-}) => {
-	const provider: ExplainProvider = {
-		availability: async () => 'available',
-		explain: async (input) => {
-			const response = await fetch(config.endpoint, {
-				method: 'POST',
-				headers: {
-					'content-type': 'application/json',
-					...(config.apiKey
-						? { authorization: `Bearer ${config.apiKey}` }
-						: {}),
-				},
-				body: JSON.stringify(input),
-			})
-			if (!response.ok) {
-				throw new Error(`Hosted explain failed (${response.status})`)
-			}
-			const body = await response.json()
-			return {
-				provider: 'hosted',
-				text: isRecord(body) && typeof body.text === 'string' ? body.text : '',
-			}
-		},
-	}
-	return provider
-}
-
 export const createExplainProvider = (
 	options: { onProgress?: (progress: number) => void } = {},
 ): ExplainProvider => {
-	const promptProvider = createPromptApiProvider(options.onProgress)
-	const hostedConfig = getHostedConfig()
-	const hostedProvider = hostedConfig
-		? createHostedProvider(hostedConfig)
-		: null
-
-	const pickProvider = async () => {
-		const availability = await promptProvider.availability()
-		return availability === 'unavailable' && hostedProvider
-			? hostedProvider
-			: promptProvider
-	}
-
+	const llmProvider = createLlmProvider(options)
 	return {
-		availability: async () => {
-			const availability = await promptProvider.availability()
-			return availability === 'unavailable' && hostedProvider
-				? hostedProvider.availability()
-				: availability
+		availability: () => llmProvider.availability(),
+		explain: async (input) => {
+			const output = await llmProvider.generate({
+				systemPrompt: EXPLAIN_SYSTEM_PROMPT,
+				userPrompt: buildExplainUserPrompt(input.context),
+				onProgress: options?.onProgress,
+			})
+			return {
+				provider: output.providerId,
+				text: output.text,
+			}
 		},
-		explain: async (input) => (await pickProvider()).explain(input),
-		cancel: () => {
-			promptProvider.cancel?.()
-			hostedProvider?.cancel?.()
-		},
+		cancel: () => llmProvider.cancel?.(),
 	}
 }
 
-export const createExplainRecord = (output: ExplainOutput): ExplainRecord => ({
-	...output,
-	createdAt: new Date().toISOString(),
-	promptVersion: PROMPT_VERSION,
-})
+// Dialogue-backed explain: creates a DialogueTurn for the explanation
+import type { EntityRef } from '$/data/EntityRef'
+import { EntityType } from '$/data/$EntityType'
+import { DataSource } from '$/constants/data-sources'
+import { dialogueTreesCollection } from '$/collections/dialogue-trees'
+import { dialogueTurnsCollection } from '$/collections/dialogue-turns'
+
+export const submitExplainTurn = (options: {
+	context: ExplainContext
+	sessionId: string
+	onProgress?: (progress: number) => void
+}) => {
+	const treeId = `explain-${options.sessionId}`
+
+	if (!dialogueTreesCollection.state.has(treeId)) {
+		dialogueTreesCollection.insert({
+			id: treeId,
+			name: `Explain: ${options.sessionId.slice(0, 8)}`,
+			pinned: false,
+			systemPrompt: EXPLAIN_SYSTEM_PROMPT,
+			createdAt: Date.now(),
+			updatedAt: Date.now(),
+			$source: DataSource.Llm,
+		})
+	}
+
+	const turnId = crypto.randomUUID()
+	const entityRefs: EntityRef[] = [
+		...(
+			options.context.txHash
+				? [{
+					entityType: EntityType.Transaction,
+					entityId: `${options.context.chainId}:${options.context.txHash}`,
+					displayLabel: `@${options.context.txHash.slice(0, 10)}…`,
+				}]
+				: []
+		),
+		...(
+			options.context.sessionId
+				? [{
+					entityType: EntityType.TransactionSession,
+					entityId: options.context.sessionId,
+					displayLabel: `@session:${options.context.sessionId.slice(0, 8)}`,
+				}]
+				: []
+		),
+	]
+
+	dialogueTurnsCollection.insert({
+		id: turnId,
+		treeId,
+		parentId: null,
+		userPrompt: buildExplainUserPrompt(options.context),
+		entityRefs,
+		assistantText: null,
+		providerId: null,
+		status: 'generating',
+		createdAt: Date.now(),
+		promptVersion: EXPLAIN_PROMPT_VERSION,
+		$source: DataSource.Llm,
+	})
+
+	const provider = createExplainProvider({ onProgress: options.onProgress })
+
+	const promise = provider.explain({
+		context: options.context,
+		language: 'en',
+	}).then((output) => {
+		dialogueTurnsCollection.update(turnId, (draft) => {
+			draft.assistantText = output.text
+			draft.providerId = output.provider
+			draft.status = 'complete'
+		})
+		dialogueTreesCollection.update(treeId, (draft) => {
+			draft.updatedAt = Date.now()
+		})
+	}).catch((error) => {
+		dialogueTurnsCollection.update(turnId, (draft) => {
+			draft.status = 'error'
+			draft.error = error instanceof Error ? error.message : String(error)
+		})
+	})
+
+	return { turnId, treeId, cancel: provider.cancel, promise }
+}
