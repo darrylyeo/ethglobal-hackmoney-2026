@@ -24,6 +24,6 @@ export const tokenLists = [
 	},
 ] as const satisfies readonly TokenList[]
 
-export const tokenListUrls: readonly string[] = tokenLists.map(
-	(list) => list.url,
-)
+export const tokenListUrls: readonly string[] = tokenLists
+	.map((list) => list.url)
+
