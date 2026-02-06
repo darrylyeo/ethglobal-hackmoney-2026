@@ -2,10 +2,10 @@
  * Public RPC endpoints by chain: url, serviceProvider, transportType.
  */
 
-import type { RpcEndpoint } from '$/constants/networks'
-import { ChainId, ServiceProvider, TransportType } from '$/constants/networks'
-import { E2E_TEVM_CHAIN_ID } from '$/lib/e2e/tevm-config'
-import { E2E_TEVM_ENABLED, E2E_TEVM_RPC_URL } from '$/lib/e2e/tevm'
+import type { RpcEndpoint } from '$/constants/networks.ts'
+import { ChainId, ServiceProvider, TransportType } from '$/constants/networks.ts'
+import { E2E_TEVM_CHAIN_ID } from '$/lib/e2e/tevm-config.ts'
+import { E2E_TEVM_ENABLED, E2E_TEVM_RPC_URL } from '$/lib/e2e/tevm.ts'
 
 export const rpcEndpoints: readonly RpcEndpoint[] = [
 	{
@@ -258,3 +258,4 @@ export const rpcUrls: Partial<Record<number, string>> =
 	E2E_TEVM_ENABLED && E2E_TEVM_RPC_URL
 		? { ...baseRpcUrls, [E2E_TEVM_CHAIN_ID]: E2E_TEVM_RPC_URL }
 		: baseRpcUrls
+
