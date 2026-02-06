@@ -1,6 +1,6 @@
-import { type Handle, error, json } from '@sveltejs/kit'
 import { env as privateEnv } from '$env/dynamic/private'
-import { PROXY_TARGETS } from '$/constants/proxy'
+import { PROXY_TARGETS } from '$/constants/proxy.ts'
+import { type Handle, error, json } from '@sveltejs/kit'
 
 const PROXY_PATH = '/api-proxy/'
 
@@ -16,7 +16,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (event.url.pathname.startsWith(PROXY_PATH)) {
 		const url = new URL(`${event.url.pathname.replace(PROXY_PATH, '')}${event.url.search}`)
 
-		if(!PROXY_ALLOWED_ORIGINS.has(url.origin))
+		if (!PROXY_ALLOWED_ORIGINS.has(url.origin))
 			error(403, 'Request Forbidden.')
 
 		const target = proxyTargetByOrigin.get(url.origin)
@@ -34,7 +34,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 				: undefined,
 		})
 
-		if(!response.ok){
+		if (!response.ok) {
 			const result = await response.text()
 
 			try {
@@ -44,12 +44,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 			}
 		}
 
-		return (
-			json(
-				await response.json()
-			)
-		)
+		return json(await response.json())
 	}
 
 	return await resolve(event)
 }
+
