@@ -1,4 +1,4 @@
-import { ChainId } from '$/constants/networks'
+import { ChainId } from '$/constants/networks.ts'
 
 export const CCTP_TOKEN_MESSENGER_MAINNET =
 	'0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d' as const
@@ -127,3 +127,4 @@ export const getCctpMessageTransmitter = (
 			? CCTP_MESSAGE_TRANSMITTER_TESTNET
 			: CCTP_MESSAGE_TRANSMITTER_MAINNET
 		: null
+
