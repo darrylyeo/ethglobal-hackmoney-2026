@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Trace as TraceType } from '$/data/Trace'
 	import type { ChainId } from '$/constants/networks'
@@ -19,8 +21,8 @@
 		trace,
 		chainId,
 	}: {
-		trace: TraceType
-		chainId: ChainId
+		trace: TraceType,
+		chainId: ChainId,
 	} = $props()
 </script>
 
