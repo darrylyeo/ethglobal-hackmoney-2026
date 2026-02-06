@@ -2,8 +2,8 @@
  * Stork endpoints, asset registry, and pushed assets.
  */
 
-import type { Coin, Erc20Token } from '$/constants/coins'
-import { ChainId } from '$/constants/networks'
+import type { Coin, Erc20Token } from '$/constants/coins.ts'
+import { ChainId } from '$/constants/networks.ts'
 
 export enum StorkApiRegion {
 	Jp = 'Jp',
@@ -1432,3 +1432,4 @@ export const storkOracleChainIdsByAssetId = Object.fromEntries(
 export const storkPushedAssetIds: readonly string[] = [
 	...new Set(storkPushedAssets.map((asset) => asset.assetId)),
 ]
+
