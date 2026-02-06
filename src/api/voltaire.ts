@@ -95,7 +95,7 @@ export function encodeTransferCall(
 export const TRANSFER_TOPIC =
 	'0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4d52336f2' as const
 
-export type EthLog = {
+export type EvmLog = {
 	address: string
 	topics: string[]
 	data: string
@@ -117,29 +117,62 @@ function parseBlockTimestampMs(
 	return typeof v === 'number' ? v * 1000 : parseInt(v, 16) * 1000
 }
 
+export type EvmBlock = {
+	number: bigint
+	timestamp: number
+	hash?: `0x${string}`
+	parentHash?: `0x${string}`
+	miner?: `0x${string}`
+	gasUsed?: bigint
+	gasLimit?: bigint
+	baseFeePerGas?: bigint
+}
+
+const parseHexAddress = (v: unknown): `0x${string}` | undefined => (
+	typeof v === 'string' && v.startsWith('0x')
+		? v as `0x${string}`
+	:
+		undefined
+)
+
+const parseHexBigInt = (v: unknown): bigint | undefined => (
+	typeof v === 'string'
+		? BigInt(v)
+	: typeof v === 'number'
+		? BigInt(v)
+	:
+		undefined
+)
+
 export async function getBlockByNumber(
 	provider: VoltaireProvider,
 	blockNum: bigint | 'latest',
-): Promise<{ number: bigint; timestamp: number }> {
+): Promise<EthBlock> {
 	const blockHex =
 		blockNum === 'latest' ? 'latest' : `0x${blockNum.toString(16)}`
 	const res = await provider.request({
 		method: 'eth_getBlockByNumber',
 		params: [blockHex, false],
 	})
-	const block = res as {
-		number?: string | number
-		timestamp?: string | number
-	} | null
+	const block = res as Record<string, unknown> | null
 	if (block == null || typeof block !== 'object') {
 		throw new Error('eth_getBlockByNumber returned invalid block')
 	}
-	const number = parseBlockNumber(block.number)
-	const timestampMs = parseBlockTimestampMs(block.timestamp)
+	const number = parseBlockNumber(block.number as string | number | undefined | null)
+	const timestampMs = parseBlockTimestampMs(block.timestamp as string | number | undefined | null)
 	if (number === undefined || timestampMs === undefined) {
 		throw new Error('eth_getBlockByNumber returned invalid block')
 	}
-	return { number, timestamp: timestampMs }
+	return {
+		number,
+		timestamp: timestampMs,
+		hash: parseHexAddress(block.hash),
+		parentHash: parseHexAddress(block.parentHash),
+		miner: parseHexAddress(block.miner),
+		gasUsed: parseHexBigInt(block.gasUsed),
+		gasLimit: parseHexBigInt(block.gasLimit),
+		baseFeePerGas: parseHexBigInt(block.baseFeePerGas),
+	}
 }
 
 export async function getCurrentBlockNumber(
@@ -182,31 +215,42 @@ export async function getBlockTransactionHashes(
 	)
 }
 
-export type EthTransaction = {
+export type EvmTransaction = {
 	hash: string
 	blockNumber: string
 	blockHash: string
+	transactionIndex: string
 	from: string
 	to: string | null
 	value: string
+	nonce: string
+	input: string
 	gas: string
 	gasPrice: string
+	type?: string
+	maxFeePerGas?: string
+	maxPriorityFeePerGas?: string
 }
 
 export async function getTransactionByHash(
 	provider: VoltaireProvider,
 	hash: `0x${string}`,
-): Promise<EthTransaction | null> {
+): Promise<EvmTransaction | null> {
 	const res = await provider.request({
 		method: 'eth_getTransactionByHash',
 		params: [hash],
 	})
-	const tx = res as EthTransaction | null
+	const tx = res as EvmTransaction | null
 	return tx ?? null
 }
 
-export type EthTransactionReceipt = {
-	logs: EthLog[]
+export type EvmTransactionReceipt = {
+	status: string
+	gasUsed: string
+	contractAddress: string | null
+	effectiveGasPrice?: string
+	cumulativeGasUsed?: string
+	logs: EvmLog[]
 }
 
 export async function getTransactionReceipt(
@@ -217,7 +261,7 @@ export async function getTransactionReceipt(
 		method: 'eth_getTransactionReceipt',
 		params: [hash],
 	})
-	const receipt = res as EthTransactionReceipt | null
+	const receipt = res as EvmTransactionReceipt | null
 	return receipt ?? null
 }
 
@@ -249,13 +293,42 @@ export async function getLogs(
 		fromBlock?: string
 		toBlock?: string
 	},
-): Promise<EthLog[]> {
+): Promise<EvmLog[]> {
 	const res = await provider.request({
 		method: 'eth_getLogs',
 		params: [filter],
 	})
-	const logs = res as EthLog[] | null
+	const logs = res as EvmLog[] | null
 	return Array.isArray(logs) ? logs : []
+}
+
+export type RawTrace = {
+	type?: string
+	from?: string
+	to?: string
+	value?: string
+	gas?: string
+	gasUsed?: string
+	input?: string
+	output?: string
+	error?: string
+	calls?: RawTrace[]
+}
+
+/** Attempt debug_traceTransaction (callTracer). Returns null if unsupported. */
+export async function debugTraceTransaction(
+	provider: VoltaireProvider,
+	hash: `0x${string}`,
+): Promise<RawTrace | null> {
+	try {
+		const res = await provider.request({
+			method: 'debug_traceTransaction',
+			params: [hash, { tracer: 'callTracer' }],
+		})
+		return (res as RawTrace) ?? null
+	} catch {
+		return null
+	}
 }
 
 export function createHttpProvider(url: string): VoltaireProvider {
