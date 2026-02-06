@@ -2,8 +2,8 @@ import { expect, test } from '@playwright/test'
 import {
 	coverageScenarios,
 	routeBranchRequirements,
-} from './coverage-manifest.js'
-import { listAppRoutes } from './coverage-utils.js'
+} from './coverage-manifest.ts'
+import { listAppRoutes } from './coverage-utils.ts'
 
 test('coverage manifest matches app routes', () => {
 	const appRoutes = new Set(listAppRoutes())

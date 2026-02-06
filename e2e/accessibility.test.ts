@@ -1,12 +1,12 @@
 import { AxeBuilder } from '@axe-core/playwright'
-import { expect, test } from './fixtures/tevm.js'
+import { expect, test } from './fixtures/tevm.ts'
 import {
 	addLifiRoutesMock,
 	addTevmWallet,
 	ensureWalletConnected,
 	selectProtocolOption,
 	selectChainOption,
-} from './test-setup.js'
+} from './test-setup.ts'
 
 test.describe('Accessibility (axe-core)', () => {
 	test('home page has no critical violations', async ({ page }) => {

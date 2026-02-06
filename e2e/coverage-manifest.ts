@@ -4,7 +4,7 @@ import {
 	buildSessionRow,
 	seedLocalStorageCollectionViaPage,
 	type TransactionSessionRow,
-} from './coverage-helpers.js'
+} from './coverage-helpers.ts'
 
 const coverageBaseURL = 'http://localhost:4173'
 

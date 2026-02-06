@@ -13,7 +13,7 @@ import {
 	E2E_TEVM_PROVIDER_RDNS,
 	E2E_TEVM_RECIPIENT_ADDRESS,
 	E2E_TEVM_WALLET_ADDRESS,
-} from '../../src/lib/e2e/tevm-config.js'
+} from '../../src/lib/e2e/tevm-config.ts'
 
 type TevmFixture = {
 	rpcUrl: string

@@ -3,8 +3,8 @@
  * Liquidity: load with hash params → connect tevm wallet → Add Liquidity → tx hash + status.
  */
 
-import { expect, test } from './fixtures/tevm.js'
-import { addTevmWallet, ensureWalletConnected } from './test-setup.js'
+import { expect, test } from './fixtures/tevm.ts'
+import { addTevmWallet, ensureWalletConnected } from './test-setup.ts'
 
 const isHexHash = (value: string | null): value is `0x${string}` =>
 	typeof value === 'string' && value.startsWith('0x')

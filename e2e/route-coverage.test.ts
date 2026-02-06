@@ -3,8 +3,8 @@
  * Spec 039: Each core route has at least one happy-path and one error or empty-state test.
  */
 
-import { expect, test } from './fixtures/tevm.js'
-import { addTevmWallet } from './test-setup.js'
+import { expect, test } from './fixtures/tevm.ts'
+import { addTevmWallet } from './test-setup.ts'
 
 test.describe('Home (/)', () => {
 	test('renders nav and key CTAs without errors', async ({ page }) => {

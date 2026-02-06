@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures/tevm.js'
+import { expect, test } from './fixtures/tevm.ts'
 
 const MOBILE = { width: 375, height: 667, }
 const DESKTOP = { width: 1280, height: 800, }

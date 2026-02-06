@@ -1,10 +1,10 @@
-import { expect, test } from './fixtures/tevm.js'
+import { expect, test } from './fixtures/tevm.ts'
 import {
 	addTevmWallet,
 	ensureWalletConnected,
 	selectProtocolOption,
 	selectChainOption,
-} from './test-setup.js'
+} from './test-setup.ts'
 
 test.describe('Unified Bridge (Spec 037)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {

@@ -1,5 +1,5 @@
-import { expect, test } from './fixtures/tevm.js'
-import { addTevmWallet } from './test-setup.js'
+import { expect, test } from './fixtures/tevm.ts'
+import { addTevmWallet } from './test-setup.ts'
 
 test.describe('Intents / drag (test page)', () => {
 	test.beforeEach(async ({ page }) => {

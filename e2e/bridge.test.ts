@@ -1,11 +1,11 @@
-import { expect, test } from './fixtures/tevm.js'
+import { expect, test } from './fixtures/tevm.ts'
 import {
 	addLifiRoutesMock,
 	addTevmWallet,
 	ensureWalletConnected,
 	selectProtocolOption,
 	selectChainOption,
-} from './test-setup.js'
+} from './test-setup.ts'
 
 test.describe('Bridge UI (Spec 004)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {

@@ -1,5 +1,5 @@
-import { expect, test } from './fixtures/tevm.js'
-import { addTevmWallet, ensureWalletConnected } from './test-setup.js'
+import { expect, test } from './fixtures/tevm.ts'
+import { addTevmWallet, ensureWalletConnected } from './test-setup.ts'
 
 test.describe('Wallet provider & balances (Spec 005)', () => {
 	test('network toggle switches between Mainnet/Testnet label', async ({
