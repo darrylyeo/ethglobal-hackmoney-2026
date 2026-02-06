@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
 import type { BridgeError } from './bridge/errors.ts'
 import { ErrorCode } from './bridge/errors.ts'
 import { withRetry } from './retry.ts'
+import { describe, expect, it } from 'vitest'
 
 describe('withRetry', () => {
 	it('returns result on success', async () => {
