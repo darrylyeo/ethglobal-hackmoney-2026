@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Network } from '$/constants/networks'
 	import type { BlockEntry } from '$/data/Block'
@@ -22,7 +24,7 @@
 			Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
 		>
 		placeholderBlockIds?: Set<number | [number, number]>
-		visiblePlaceholderBlockIds?: number[]
+		visiblePlaceholderBlockIds?: number[],
 	} = $props()
 
 
