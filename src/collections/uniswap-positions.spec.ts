@@ -1,7 +1,7 @@
 /// <reference lib='deno.ns' />
-import { assertEquals, assertExists } from 'jsr:@std/assert'
 import type { UniswapPosition } from '$/data/UniswapPosition'
 import { normalizeUniswapPosition } from './uniswap-positions-normalize.ts'
+import { assertEquals, assertExists } from 'jsr:@std/assert'
 
 Deno.test(
 	'normalizeUniswapPosition returns position with bigint liquidity and owed',
