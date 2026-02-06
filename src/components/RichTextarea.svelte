@@ -1,4 +1,6 @@
 <script lang="ts" generics="Ref extends { displayLabel: string, trigger?: string }, Item extends { ref: Ref }">
+
+
 	// Types/constants
 	import { tick } from 'svelte'
 
@@ -6,6 +8,8 @@
 		string,
 		{ getSuggestions: (query: string) => Item[], pattern?: RegExp }
 	>
+
+
 	// Props
 	let {
 		segments = $bindable<string[]>(['']),
@@ -35,6 +39,8 @@
 		autofocus?: boolean
 	} = $props()
 
+
+	// (Derived)
 	const defaultTrigger = $derived(
 		(Object.keys(triggerConfig)[0] as string) ?? '@',
 	)
@@ -246,6 +252,8 @@
 		}
 	}
 
+
+	// (Derived)
 	$effect(() => {
 		if (autofocus && editEl)
 			editEl.focus()
@@ -255,6 +263,7 @@
 	// Components
 	import RichTextareaReference from '$/components/RichTextareaReference.svelte'
 </script>
+
 
 <div
 	bind:this={editEl}
@@ -295,6 +304,7 @@
 		{/if}
 	{/each}
 </div>
+
 
 <style>
 	.rich-textarea {
