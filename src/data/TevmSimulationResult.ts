@@ -7,14 +7,14 @@
 export type TevmSimulationForkMetadata = {
 	blockNumber: number
 	rpcUrl: string
-	timestamp?: number
+	timestamp?: number,
 }
 
 export type TevmSimulationSummaryStatus = 'success' | 'revert' | 'error'
 
 export type TevmSimulationGasTotals = {
 	used: string
-	refund?: string
+	refund?: string,
 }
 
 export type TevmSimulationTraceCall = {
@@ -24,7 +24,7 @@ export type TevmSimulationTraceCall = {
 	gasUsed: string
 	revert?: string
 	selector?: string
-	children?: TevmSimulationTraceCall[]
+	children?: TevmSimulationTraceCall[],
 }
 
 export type TevmSimulationDecodedEvent = {
@@ -32,7 +32,7 @@ export type TevmSimulationDecodedEvent = {
 	topics: string[]
 	data: string
 	signature?: string
-	args?: Record<string, unknown>
+	args?: Record<string, unknown>,
 }
 
 export type TevmSimulationResult = {
@@ -43,5 +43,6 @@ export type TevmSimulationResult = {
 	errorSelector?: string
 	trace?: TevmSimulationTraceCall[]
 	events?: TevmSimulationDecodedEvent[]
-	rawLogs?: { address: string; topics: string[]; data: string }[]
+	rawLogs?: { address: string; topics: string[]; data: string }[],
 }
+
