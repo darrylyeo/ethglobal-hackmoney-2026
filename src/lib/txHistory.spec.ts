@@ -4,7 +4,7 @@ import {
 	saveTransaction,
 	updateTransactionStatus,
 	type StoredTransaction,
-} from './tx-history.ts'
+} from './txHistory.ts'
 
 const testAddress =
 	'0x1234567890123456789012345678901234567890' as `0x${string}`

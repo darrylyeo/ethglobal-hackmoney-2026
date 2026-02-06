@@ -15,3 +15,4 @@ export type ActorAllowance = {
 	error: string | null
 	lastChecked: number
 }
+
