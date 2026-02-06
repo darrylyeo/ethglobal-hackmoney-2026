@@ -34,7 +34,7 @@ which chains, and how to translate normalized input into resolved identity data.
 
 ## Data model sketch
 
-```ts
+```typescript
 enum IdentityInputKind {
 	Address = 'Address',
 	EnsName = 'EnsName',

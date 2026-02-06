@@ -67,7 +67,7 @@ Each `TransactionFlowItem` includes:
   snippet.
 - Remove the bridge-specific chain switching UI in favor of TransactionFlow.
 
-## Acceptance Criteria
+## Acceptance criteria
 
 - `TransactionFlow.svelte` exists with the documented props and handles chain
   switching, simulation, and execution state per transaction.

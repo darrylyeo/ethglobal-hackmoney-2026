@@ -246,7 +246,7 @@ Reuse existing components and utilities:
 - `transactionsCollection` – transaction history
 - `bridgeSettingsState` pattern for `swapSettingsState` / `liquiditySettingsState`
 - `$/lib/format.ts` – amount formatting
-- `$/lib/errors.ts` – error categorization
+- `$/lib/bridge-errors.ts` – bridge/transaction error categorization
 - `$/constants/explorers.ts` – tx links
 
 ## Constants
@@ -310,7 +310,7 @@ const TICK_SPACINGS: Record<number, number> = {
 - [x] Swap execution with status tracking
 
 ### Add Liquidity UI
-- [x] Session action "Add Liquidity" at `/session#liquidity` (view: `liquidity.svelte` + LiquidityFlow)
+- [x] Session action "Add Liquidity" at `/session#liquidity` (view: `Liquidity.svelte` + LiquidityFlow)
 - [x] Protocol selector with one option: Uniswap v4 (protocol clearly indicated in UI)
 - [x] Token pair selection
 - [x] Fee tier selector

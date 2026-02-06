@@ -11,7 +11,7 @@ routes from existing flow data.
 
 Intent entities are references to TanStack DB rows:
 
-```ts
+```typescript
 type IntentEntityRef = {
 	collection: string
 	id: Record<string, unknown>
@@ -48,7 +48,7 @@ If required dimensions are missing, the intent is invalid.
 
 Drag payloads include a minimal intent context:
 
-```ts
+```typescript
 type IntentDragPayload = {
 	entity: IntentEntityRef
 	context?: {

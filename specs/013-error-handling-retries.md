@@ -35,38 +35,38 @@ retry capabilities.
 
 ## Implementation
 
-### `src/lib/errors.ts`
+### `src/lib/bridge-errors.ts`
 
 ```typescript
 export enum ErrorCode {
-  // Network
-  NETWORK = 'NETWORK',
-  TIMEOUT = 'TIMEOUT',
-  RATE_LIMITED = 'RATE_LIMITED',
-  RPC_ERROR = 'RPC_ERROR',
+	// Network
+	Network = 'Network',
+	Timeout = 'Timeout',
+	RateLimited = 'RateLimited',
+	RpcError = 'RpcError',
 
-  // Wallet
-  USER_REJECTED = 'USER_REJECTED',
-  WALLET_DISCONNECTED = 'WALLET_DISCONNECTED',
-  WRONG_CHAIN = 'WRONG_CHAIN',
-  CHAIN_NOT_SUPPORTED = 'CHAIN_NOT_SUPPORTED',
+	// Wallet
+	UserRejected = 'UserRejected',
+	WalletDisconnected = 'WalletDisconnected',
+	WrongChain = 'WrongChain',
+	ChainNotSupported = 'ChainNotSupported',
 
-  // Transaction
-  INSUFFICIENT_FUNDS = 'INSUFFICIENT_FUNDS',
-  INSUFFICIENT_GAS = 'INSUFFICIENT_GAS',
-  APPROVAL_FAILED = 'APPROVAL_FAILED',
-  EXECUTION_FAILED = 'EXECUTION_FAILED',
-  EXECUTION_REVERTED = 'EXECUTION_REVERTED',
-  SLIPPAGE_EXCEEDED = 'SLIPPAGE_EXCEEDED',
+	// Transaction
+	InsufficientFunds = 'InsufficientFunds',
+	InsufficientGas = 'InsufficientGas',
+	ApprovalFailed = 'ApprovalFailed',
+	ExecutionFailed = 'ExecutionFailed',
+	ExecutionReverted = 'ExecutionReverted',
+	SlippageExceeded = 'SlippageExceeded',
 
-  // Quote/Route
-  NO_ROUTES = 'NO_ROUTES',
-  QUOTE_EXPIRED = 'QUOTE_EXPIRED',
-  AMOUNT_TOO_LOW = 'AMOUNT_TOO_LOW',
-  AMOUNT_TOO_HIGH = 'AMOUNT_TOO_HIGH',
+	// Quote/Route
+	NoRoutes = 'NoRoutes',
+	QuoteExpired = 'QuoteExpired',
+	AmountTooLow = 'AmountTooLow',
+	AmountTooHigh = 'AmountTooHigh',
 
-  // Generic
-  UNKNOWN = 'UNKNOWN',
+	// Generic
+	Unknown = 'Unknown',
 }
 
 export type BridgeError = {
@@ -85,7 +85,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /user rejected|user denied|rejected by user|cancelled/i,
     {
-      code: ErrorCode.USER_REJECTED,
+      code: ErrorCode.UserRejected,
       title: 'Transaction cancelled',
       message: 'You declined the transaction in your wallet.',
       suggestion: 'Click the button again when ready.',
@@ -97,7 +97,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /insufficient funds|exceeds balance|not enough/i,
     {
-      code: ErrorCode.INSUFFICIENT_FUNDS,
+      code: ErrorCode.InsufficientFunds,
       title: 'Insufficient funds',
       message: 'Your wallet doesn\'t have enough tokens for this transfer.',
       suggestion: 'Reduce the amount or add funds to your wallet.',
@@ -109,7 +109,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /insufficient.*gas|gas too low|out of gas/i,
     {
-      code: ErrorCode.INSUFFICIENT_GAS,
+      code: ErrorCode.InsufficientGas,
       title: 'Insufficient gas',
       message: 'Your wallet doesn\'t have enough native tokens to pay for gas.',
       suggestion: 'Add ETH (or native token) to your wallet for gas fees.',
@@ -121,7 +121,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /no routes|no quotes|route not found|path not found/i,
     {
-      code: ErrorCode.NO_ROUTES,
+      code: ErrorCode.NoRoutes,
       title: 'No routes available',
       message: 'No bridge routes found for this transfer.',
       suggestion: 'Try a different chain pair, amount, or wait and retry.',
@@ -133,7 +133,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /quote expired|quote.*stale|price changed/i,
     {
-      code: ErrorCode.QUOTE_EXPIRED,
+      code: ErrorCode.QuoteExpired,
       title: 'Quote expired',
       message: 'The quote has expired. Prices may have changed.',
       suggestion: 'Get a new quote and try again.',
@@ -145,7 +145,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /slippage|price impact|output.*less than/i,
     {
-      code: ErrorCode.SLIPPAGE_EXCEEDED,
+      code: ErrorCode.SlippageExceeded,
       title: 'Slippage too high',
       message: 'Price moved too much during the transaction.',
       suggestion: 'Increase slippage tolerance or try a smaller amount.',
@@ -157,7 +157,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /rate limit|too many requests|429/i,
     {
-      code: ErrorCode.RATE_LIMITED,
+      code: ErrorCode.RateLimited,
       title: 'Too many requests',
       message: 'Please wait a moment before trying again.',
       suggestion: 'Wait 30 seconds, then retry.',
@@ -170,7 +170,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /network|fetch|timeout|ECONNREFUSED|ETIMEDOUT/i,
     {
-      code: ErrorCode.NETWORK,
+      code: ErrorCode.Network,
       title: 'Network error',
       message: 'Unable to connect to the network.',
       suggestion: 'Check your internet connection and try again.',
@@ -182,7 +182,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /rpc|eth_|call exception|execution reverted/i,
     {
-      code: ErrorCode.RPC_ERROR,
+      code: ErrorCode.RpcError,
       title: 'Blockchain error',
       message: 'Error communicating with the blockchain.',
       suggestion: 'Try again in a few seconds.',
@@ -195,7 +195,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /chain.*not.*support|unsupported.*chain/i,
     {
-      code: ErrorCode.CHAIN_NOT_SUPPORTED,
+      code: ErrorCode.ChainNotSupported,
       title: 'Chain not supported',
       message: 'This chain is not supported by the bridge.',
       suggestion: 'Select a different chain.',
@@ -207,7 +207,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /wrong.*chain|chain.*mismatch|switch.*chain/i,
     {
-      code: ErrorCode.WRONG_CHAIN,
+      code: ErrorCode.WrongChain,
       title: 'Wrong network',
       message: 'Your wallet is connected to the wrong network.',
       suggestion: 'Switch to the correct network in your wallet.',
@@ -219,7 +219,7 @@ const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
   [
     /reverted|revert|execution failed/i,
     {
-      code: ErrorCode.EXECUTION_REVERTED,
+      code: ErrorCode.ExecutionReverted,
       title: 'Transaction failed',
       message: 'The transaction was rejected by the blockchain.',
       suggestion: 'The route may have changed. Get a new quote.',
@@ -235,7 +235,7 @@ export const categorizeError = (error: unknown): BridgeError => {
   for (const [pattern, errorInfo] of ERROR_PATTERNS) {
     if (pattern.test(rawMessage)) {
       return {
-        code: errorInfo.code ?? ErrorCode.UNKNOWN,
+        code: errorInfo.code ?? ErrorCode.Unknown,
         title: errorInfo.title ?? 'Error',
         message: errorInfo.message ?? rawMessage,
         suggestion: errorInfo.suggestion ?? 'Please try again.',
@@ -248,7 +248,7 @@ export const categorizeError = (error: unknown): BridgeError => {
 
   // Default unknown error
   return {
-    code: ErrorCode.UNKNOWN,
+    code: ErrorCode.Unknown,
     title: 'Something went wrong',
     message: 'An unexpected error occurred.',
     suggestion: 'Please try again. If the problem persists, refresh the page.',
@@ -276,14 +276,14 @@ Errors from route fetching are shown inline:
 <!-- Routes error -->
 {#if routesRow?.error}
   <div data-card data-error>
-    {routesRow.error.code === ErrorCode.NO_ROUTES
+    {routesRow.error.code === ErrorCode.NoRoutes
       ? 'No routes available for this transfer.'
       : routesRow.error.message}
   </div>
 {/if}
 ```
 
-Error categorization uses `ErrorCode` from `$/lib/errors` to provide
+Error categorization uses `ErrorCode` from `$/lib/bridge-errors` to provide
 user-friendly messages.
 
 ### Auto-retry with backoff
@@ -361,7 +361,7 @@ displayed inline with appropriate messaging based on `ErrorCode`.
 
 ## Status
 
-Complete. `src/lib/errors.ts` with ErrorCode enum and categorizeError function.
+Complete. `src/lib/bridge-errors.ts` with ErrorCode enum and categorizeError function.
 Errors stored in `bridgeRoutesCollection` and displayed inline in BridgeFlow.svelte.
 Retry via refresh button. `withRetry` utility in `retry.ts` for exponential backoff.
 

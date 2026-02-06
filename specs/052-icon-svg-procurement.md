@@ -14,7 +14,7 @@ Per spec 045: types live alongside constants in `src/constants/`; minimal
 schema; one array per type; reuse existing domain types.
 
 - **`src/constants/icons.ts`**
-	- **Types:** `IconTarget` (`'chain' | 'coin' | 'provider'`), `IconKind` enum
+	- **Types:** `IconTarget` enum (Chain, Coin, Provider), `IconKind` enum
 	  (Logo, Wordmark, LogoAndWordmark), `IconStyle` (string), `FetchType` (discriminant
 	  union: `url` | `png` | `zip` with respective fields), `IconFetchItem` (target, id,
 	  kind?, style?, fetch), `IconAlias` (target, fromId, toId).

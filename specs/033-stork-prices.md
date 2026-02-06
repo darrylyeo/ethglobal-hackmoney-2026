@@ -25,7 +25,7 @@
 - Use Stork prices in balances to compute net worth in USD.
 - Use Stork prices in swap to compare the implied quote rate vs Stork USD prices.
 
-## Acceptance Criteria
+## Acceptance criteria
 - [x] A new spec file exists at `specs/033-stork-prices.md` with the content above.
 - [x] `stork-prices` TanStack DB collection stores REST, websocket, and RPC price rows.
 - [x] REST transport uses Stork REST latest prices with auth token.

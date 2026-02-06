@@ -33,7 +33,7 @@ singular-noun naming convention (`Block`, `Transaction`, `Room`).
 
 ### `AgentChatTurn` (`src/data/AgentChatTurn.ts`)
 
-```ts
+```typescript
 type AgentChatTurnStatus =
 	| 'pending'
 	| 'generating'
@@ -74,7 +74,7 @@ type AgentChatTurn = {
 
 ### `AgentChatTree` (`src/data/AgentChatTree.ts`)
 
-```ts
+```typescript
 type AgentChatTree = {
 	id: string
 	name: string | null
@@ -94,7 +94,7 @@ type AgentChatTree = {
 
 ### `EntityRef` (`src/data/EntityRef.ts`)
 
-```ts
+```typescript
 type EntityRef = {
 	entityType: EntityType
 	entityId: string
@@ -129,14 +129,14 @@ type EntityRef = {
 
 Add to `src/data/$EntityType.ts`:
 
-```ts
+```typescript
 AgentChatTree = 'AgentChatTree',
 AgentChatTurn = 'AgentChatTurn',
 ```
 
 With metadata entries:
 
-```ts
+```typescript
 { type: EntityType.AgentChatTree, label: 'Agent chat', labelPlural: 'Agent chats', inGraph: false },
 { type: EntityType.AgentChatTurn, label: 'Turn', labelPlural: 'Turns', inGraph: false },
 ```
@@ -150,7 +150,7 @@ rows produced by LLM generation.
 
 ### `buildAgentChatMessages` (`src/lib/agent-chat.ts`)
 
-```ts
+```typescript
 const buildAgentChatMessages = (
 	turns: AgentChatTurn[],
 	turn: AgentChatTurn,
@@ -188,7 +188,7 @@ Convenience function that:
 
 When a turn has `status === 'error'`, the UI can call:
 
-```ts
+```typescript
 retryAgentChatTurn(options: {
 	turnId: string
 	allTurns: AgentChatTurn[]

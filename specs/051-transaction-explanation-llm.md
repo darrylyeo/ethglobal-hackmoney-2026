@@ -32,7 +32,7 @@ and interprets responses.
 
 ### Availability
 
-```ts
+```typescript
 type LlmAvailability = 'available' | 'downloading' | 'unavailable'
 ```
 
@@ -44,7 +44,7 @@ type LlmAvailability = 'available' | 'downloading' | 'unavailable'
 
 ### Provider interface
 
-```ts
+```typescript
 type LlmGenerateInput = {
 	systemPrompt: string
 	userPrompt: string
@@ -110,7 +110,7 @@ Structured snapshot of a simulation or execution result, stripped of secrets,
 used to build the user prompt. This is **feature** contract, not part of the
 abstraction.
 
-```ts
+```typescript
 type ExplainContext = {
 	kind: 'simulation' | 'execution'
 	sessionId: string

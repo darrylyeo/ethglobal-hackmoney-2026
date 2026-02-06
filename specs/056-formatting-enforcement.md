@@ -15,6 +15,12 @@ explicitly tracking each file as a formatting task.
 
 ## Acceptance criteria
 
+### Spec doc conventions (specs/*.md)
+
+- Code blocks containing TypeScript/TS: use fence `ts` (not `typescript`) and tab
+  indentation (see spec 045).
+- Section heading for criteria: `## Acceptance criteria` (lowercase “criteria”).
+
 ### Formatting standards
 
 - [x] Svelte files use section order: module script, instance script,
@@ -73,6 +79,8 @@ All files below verified by manual formatting to repo preferences and `deno task
 - [x] `src/api/voltaire.spec.ts`
 - [x] `src/api/voltaire.ts`
 - [x] `src/api/yellow.ts`
+- [x] `src/api/llm/zen.ts`
+- [x] `src/api/simulate.ts`
 - [x] `src/app.d.ts`
 - [x] `src/collections/actor-allowances.ts`
 - [x] `src/collections/actor-coins.spec.ts`
@@ -209,8 +217,8 @@ All files below verified by manual formatting to repo preferences and `deno task
 - [x] `src/lib/debounce.ts`
 - [x] `src/lib/e2e/tevm-config.ts`
 - [x] `src/lib/e2e/tevm.ts`
-- [x] `src/lib/errors.spec.ts`
-- [x] `src/lib/errors.ts`
+- [x] `src/lib/bridge-errors.spec.ts`
+- [x] `src/lib/bridge-errors.ts`
 - [x] `src/lib/explain.ts`
 - [x] `src/lib/format.spec.ts`
 - [x] `src/lib/format.ts`
@@ -224,6 +232,7 @@ All files below verified by manual formatting to repo preferences and `deno task
 - [x] `src/lib/intents/types.ts`
 - [x] `src/lib/nitro-rpc.spec.ts`
 - [x] `src/lib/nitro-rpc.ts`
+- [x] `src/lib/proxyFetch.ts`
 - [x] `src/lib/retry.spec.ts`
 - [x] `src/lib/retry.ts`
 - [x] `src/lib/room.ts`
@@ -256,8 +265,6 @@ All files below verified by manual formatting to repo preferences and `deno task
 - [x] `src/routes/account/[address]/+page.svelte`
 - [x] `src/routes/account/[address]/+page.ts`
 - [x] `src/routes/accounts/+page.svelte`
-- [x] `src/routes/api/proxy/[...path]/+server.ts`
-- [x] `src/routes/api/simulate/+server.ts`
 - [x] `src/routes/bridge/cctp/CctpAllowance.svelte`
 - [x] `src/routes/bridge/cctp/CctpAttestation.svelte`
 - [x] `src/routes/bridge/cctp/CctpBalances.svelte`
@@ -340,10 +347,10 @@ All files below verified by manual formatting to repo preferences and `deno task
 - [x] `src/styles/responsive.css`
 - [x] `src/svelte/live-query-context.svelte.ts`
 - [x] `src/svelte/useContext.ts`
-- [x] `src/view/bridge.svelte`
-- [x] `src/view/liquidity.svelte`
-- [x] `src/view/swap.svelte`
-- [x] `src/view/transfer.svelte`
+- [x] `src/routes/session/Bridge.svelte`
+- [x] `src/routes/session/Liquidity.svelte`
+- [x] `src/routes/session/Swap.svelte`
+- [x] `src/routes/session/Transfer.svelte`
 - [x] `src/views/AccountsSelect.svelte`
 - [x] `src/views/AddressInput.svelte`
 - [x] `src/views/CoinAmount.svelte`

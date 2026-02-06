@@ -25,10 +25,10 @@ reuse of existing domain types, and single-purpose derived indices.
 
 ## Enum preference
 
-For a fixed set of string values, use a string enum with values equal to
-member names:
+Enums: always TitleCase; same key as value (member name equals string value).
+In spec doc code blocks use `ts` (not `typescript`) and tab indentation.
 
-```ts
+```typescript
 enum EnumName {
 	EnumValue1 = 'EnumValue1',
 	EnumValue2 = 'EnumValue2',

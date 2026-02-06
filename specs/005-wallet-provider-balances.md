@@ -171,7 +171,7 @@ Complete. Re-verification 2026-02-06 (PROMPT_build execute one spec, re-verify 0
 disconnect, and balances tests skipped in CI (manual verification).
 Re-verification 2026-02-05 (PROMPT_build one spec): all AC re-verified. Wallet
 component (AccountsSelect), collections (actors, actor-coins), fetchActorCoinBalance
-and fetchAllBalancesForAddress, bridge view (bridge.svelte) with AccountsSelect and
+and fetchAllBalancesForAddress, bridge view (Bridge.svelte in session) with AccountsSelect and
 CoinBalances, balances fetched on connect, grid with chain name and amount. Added
 loading state (Loading…) and per-chain error display in CoinBalances.svelte. test:unit
 41 Deno + 101 Vitest passed; test:e2e wallet.test.ts 4 passed. Re-verification

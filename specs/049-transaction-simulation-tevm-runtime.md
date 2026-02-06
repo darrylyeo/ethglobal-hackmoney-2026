@@ -130,7 +130,7 @@ Simulation payloads must be constructed from the union of the following sources:
 
 ## Status
 
-Complete. POST /api/simulate uses Tevm createTevmNode + fork + runTx with impersonation; returns forkMetadata, summaryStatus, gasTotals, trace, events, rawLogs. Client runTevmSimulationFromClient + extractSimulationSummary in src/lib/tevm-simulation.ts. TransactionSession.simulation optional summary; SwapAction calls API when Simulate clicked (rpcUrl + selectedActor), persists Tevm result and summary. SimulationTracePanel and SimulationEventPanel with contract/selector filters; raw toggle on events. Re-simulation creates new simulation row and updates latestSimulationId/simulation without changing params. tevm in dependencies for server.
+Complete. Simulation runs client-side: runTevmSimulation in src/api/simulate.ts (Tevm fork + runTx with impersonation); runTevmSimulationFromClient in src/lib/tevm-simulation.ts calls it in-browser. Returns forkMetadata, summaryStatus, gasTotals, trace, events, rawLogs. TransactionSession.simulation optional summary; SwapAction calls when Simulate clicked (rpcUrl + selectedActor), persists Tevm result and summary. SimulationTracePanel and SimulationEventPanel with contract/selector filters; raw toggle on events. Re-simulation creates new simulation row and updates latestSimulationId/simulation without changing params. tevm in dependencies.
 
 ## Output when complete
 

@@ -36,7 +36,7 @@ actions (swap, transfer, bridge) that together define the user flow.
 
 ## Data model sketch
 
-```ts
+```typescript
 type TransactionSession = {
 	id: string
 	actions: (
@@ -113,7 +113,7 @@ type TransactionSession = {
 - Introduce a dedicated sessions route: `/session`.
 - Replace dedicated action routes (`/swap`, `/bridge`, `/transfer`) with the
   single `/session` route.
-- Move action views to `src/view/[action-slug]` and have `/session` consume them.
+- Action views colocated in `src/routes/session/` (Bridge.svelte, Liquidity.svelte, Swap.svelte, Transfer.svelte); `/session` consumes them.
 - Navigation structure (in `+layout.svelte`): **Actions** (defaultOpen; children: Transfer, Swap, Bridge, Add Liquidity) above **Sessions** (defaultOpen: false; tag = session count); **Accounts** (defaultOpen; flattened list of wallet + watching accounts, each with icon when available and tag = wallet name or "Watching", href `/accounts`); **Explore** (defaultOpen; children: **Coins** with USDC → `/coin/USDC`, **Networks** with one per relevant network from wallet connections/sessions → `/network/{slug}`); **Multiplayer** (defaultOpen; children: Rooms with count tag, Yellow Channels); **Tests** (defaultOpen).
 - Sessions parent has `[data-tag]` with session count; session child items have `[data-tag]` for status. Rooms shows room count in `[data-tag]`. Accounts shows count and each account item has tag (wallet name or Watching) and optional icon.
 - Session navigation items resolve to `/session#[action-slug]` (and session list to `/sessions`).
@@ -155,8 +155,7 @@ type TransactionSession = {
 - [x] Session child items and Sessions/Rooms parents include `[data-tag]` (status or count).
 - [x] Legacy hash formats are removed without backward compatibility shims.
 - [x] `/session` is the single base route for all action flows.
-- [x] Action views live in `src/view/[action-slug]` and are composed by
-  `/session`.
+- [x] Action views live in `src/routes/session/` (Bridge, Liquidity, Swap, Transfer) and are composed by `/session`.
 - [x] Navigation items (Swap, Transfer, Bridge) target `/session#[action-slug]`.
 - [x] Session bootstrap supports multi-action hash syntax and JSON params.
 
@@ -168,7 +167,7 @@ type TransactionSession = {
 
 ## Status
 
-Complete. Single base route `/session`; action views in `src/view/` (bridge.svelte, swap.svelte, transfer.svelte, liquidity.svelte) composed by session +page. Nav items target `/session#[action-slug]`. Bootstrap: hash `#action`, `#action|action2`, `#action:{JSON}` or empty creates session and replaces hash with `#session:<id>`.
+Complete. Single base route `/session`; action views colocated in `src/routes/session/` (Bridge.svelte, Liquidity.svelte, Swap.svelte, Transfer.svelte) composed by session +page. Nav items target `/session#[action-slug]`. Bootstrap: hash `#action`, `#action|action2`, `#action:{JSON}` or empty creates session and replaces hash with `#session:<id>`.
 
 ## Output when complete
 

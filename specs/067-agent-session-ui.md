@@ -1,8 +1,8 @@
 # Spec 067: Agent session UI and routes
 
 Implement the agent session UI: entity-referencing prompt input (contenteditable
-with nested @-combobox), dialogue tree and turn node components, `<Tabs>` when
-multiple children or Reply, routes for listing and viewing dialogue trees, and
+with nested @-combobox), agent chat tree and turn node components, `<Tabs>` when
+multiple children or Reply, routes for listing and viewing agent chat trees, and
 nav integration for pinned trees. Built on the data model from spec 066 and the
 `LlmProvider` abstraction from spec 051.
 
@@ -10,7 +10,8 @@ nav integration for pinned trees. Built on the data model from spec 066 and the
 
 - `EntityRefPattern` enum and config for pattern matching entity references.
 - `<EntityRefInput>` component with `@`-triggered inline combobox.
-- `<DialogueTreeView>` and `<DialogueTurnNode>` components.
+- `<AgentChatTree>` and `<AgentChatTurnNode>` components (colocated in
+  `src/routes/agents/[nodeId]/`).
 - When a turn has more than one “item” (child nodes or the Reply input when
   shown), use the `<Tabs>` component (one tab per child + optional Reply tab).
 - `/agents`, `/agents/new`, and `/agents/[nodeId]` routes.
@@ -29,18 +30,18 @@ nav integration for pinned trees. Built on the data model from spec 066 and the
 
 ### `EntityRefPattern` (`src/constants/entity-ref-patterns.ts`)
 
-```ts
+```typescript
 enum EntityRefPattern {
-	EvmAddress = 'evmAddress',
-	EvmBlockNumber = 'evmBlockNumber',
-	EvmTransactionHash = 'evmTransactionHash',
-	EntityId = 'entityId',
+	EvmAddress = 'EvmAddress',
+	EvmBlockNumber = 'EvmBlockNumber',
+	EvmTransactionHash = 'EvmTransactionHash',
+	EntityId = 'EntityId',
 }
 ```
 
 Each pattern has:
 
-```ts
+```typescript
 type EntityRefPatternConfig = {
 	label: string
 	placeholder: string
@@ -118,36 +119,39 @@ Props:
 Consumers use `<Tabs tabs={tabItems} bind:value={activeTab}>` with
 `{#snippet content(item)} ... {/snippet}`. No bits-ui Tabs imports in app code.
 
-### `DialogueTreeView.svelte` (`src/components/agent/DialogueTreeView.svelte`)
+### `AgentChatTree.svelte` (`src/routes/agents/[nodeId]/AgentChatTree.svelte`)
 
 Props:
 
-- `tree: DialogueTree`
-- `turns: DialogueTurn[]` — all turns in this tree.
+- `tree: AgentChatTree`
+- `turns: AgentChatTurn[]` — all turns in this tree.
+- `connections?: LlmConnectionRow[]` — for default model selector.
 
 Behavior:
 
 - Shows tree name (editable inline), “New conversation” button, and pin
   toggle (bits-ui `Button.Root`).
+- Optional default model selector (`<ModelInput>`) when connections exist.
 - System prompt in a collapsible `<details>`.
 - Derives root turn (`parentId === null`) and renders root
-  `<DialogueTurnNode>`.
-- ID: `dialogue:{tree.id}` for anchor linking.
+  `<AgentChatTurnNode>`.
+- ID: `agent-chat:{tree.id}` for anchor linking.
 
-### `DialogueTurnNode.svelte` (`src/components/agent/DialogueTurnNode.svelte`)
+### `AgentChatTurnNode.svelte` (`src/routes/agents/[nodeId]/AgentChatTurnNode.svelte`)
 
 Props:
 
-- `turn: DialogueTurn`
-- `allTurns: DialogueTurn[]` — all turns in the tree (for deriving children).
-- `tree: DialogueTree` — for system prompt and tree metadata.
+- `turn: AgentChatTurn`
+- `allTurns: AgentChatTurn[]` — all turns in the tree (for deriving children).
+- `tree: AgentChatTree` — for system prompt and tree metadata.
+- `connections?: LlmConnectionRow[]` — for per-reply model selector.
 
 Behavior:
 
 - **Card** (section with class `turn-card`): user prompt, Delete button,
   assistant response or status (generating / error / cancelled). When
   `status === 'error'`, show error message and a **Retry** button that calls
-  `retryDialogueTurn({ turnId, allTurns, systemPrompt: tree.systemPrompt })`.
+  `retryAgentChatTurn({ turnId, allTurns, systemPrompt: tree.systemPrompt })`.
 - **Reply form**: Disabled when `turn.status === 'error'` (user must Retry
   first).
 - **Reply link**: When the prompt form is not shown and turn is complete/error,
@@ -160,17 +164,19 @@ Behavior:
   is visible, a “Reply” item. If `tabItems.length > 1`, render `<Tabs>`
   with `tabs={tabItems}`, `bind:value={activeTab}`, and a `content(item)`
   snippet that branches on `item.type` ('reply' → `<EntityRefInput>`, 'child'
-  → `<DialogueTurnNode>`). Active tab is synced from URL hash
+  → `<AgentChatTurnNode>`). Active tab is synced from URL hash
   (`#turn:{turn.id}` → Reply, `#turn:{childId}` → that child). If only one
   item, render that item directly (no Tabs).
 - **Prompt form**: Shown only when (turn complete or error) and (this node is
   the hash target `#turn:{turn.id}` or the form is dirty). When shown,
+  optional `<ModelInput>` when connections exist, then
   `<EntityRefInput>` with `autofocus={isTarget}` and `disabled={turn.status === 'error'}`.
-- **On submit**: Call `submitDialogueTurn` with `parentId` set to this turn;
-  then `goto(\`${pathname}#turn:${newTurnId}\`, { replaceState: true })` — no
+- **On submit**: Call `submitAgentChatTurn` with `parentId` set to this turn
+  (and optional `connectionId`/`modelId` from ModelInput); then
+  `goto(\`${pathname}#turn:${newTurnId}\`, { replaceState: true })` — no
   path change, only hash update so the new turn is targeted and its form
   appears with focus.
-- **Delete**: Button calls `deleteDialogueTurn(turn.id, allTurns)` (deletes
+- **Delete**: Button calls `deleteAgentChatTurn(turn.id, allTurns)` (deletes
   turn and all descendants). If the current hash was one of the deleted ids,
   navigate to parent turn hash or pathname.
 - ID: `turn:{turn.id}` for anchor linking.
@@ -181,7 +187,7 @@ Behavior:
 
 ### `/agents` (`src/routes/agents/+page.svelte`)
 
-- Live query all `DialogueTree` rows from `dialogueTreesCollection`, sorted
+- Live query all `AgentChatTree` rows from `agentChatTreesCollection`, sorted
   by `updatedAt` desc.
 - List: each row is a link to `/agents/{tree.id}` plus a Pin/Unpin button
   (bits-ui `Button.Root`); display tree name (or “Untitled”), updated date,
@@ -190,17 +196,17 @@ Behavior:
 
 ### `/agents/new` (`src/routes/agents/new/+page.svelte`)
 
-- On load: create a new `DialogueTree` (default `systemPrompt`, `pinned:
+- On load: create a new `AgentChatTree` (default `systemPrompt`, `pinned:
   false`, `name: null`), then `goto(\`/agents/${tree.id}\`, { replaceState:
   true })` so the user lands on the new tree (no turns yet; page shows first
   prompt input).
 
 ### `/agents/[nodeId]` (`src/routes/agents/[nodeId]/+page.svelte`)
 
-- `nodeId` is a `DialogueTurn.id` or a `DialogueTree.id`.
+- `nodeId` is a `AgentChatTurn.id` or a `AgentChatTree.id`.
 - Resolve tree: if `nodeId` matches a tree ID, use it; else if it matches a
   turn ID, use that turn’s `treeId`. Load tree and all turns for that tree.
-- Render `<DialogueTreeView tree turns>`. No `focusTurnId`; which turn is
+- Render `<AgentChatTree tree turns connections={llmConnections}>`. No `focusTurnId`; which turn is
   “targeted” is determined by the URL hash `#turn:{turnId}`. The turn with
   matching id shows its prompt form (when complete/error) and receives
   autofocus.
@@ -217,14 +223,14 @@ Params available via `$page.params.nodeId` (optional `+page.ts` load may pass
 In `src/routes/+layout.svelte`, add an “Agents” section to `navigationItems`
 after “Sessions”:
 
-```ts
+```typescript
 {
 	id: 'agents',
 	title: 'Agents',
 	href: '/agents',
 	children: [
 		{ id: 'agents-new', title: 'New conversation', href: '/agents/new' },
-		...pinnedDialogueTrees.map((tree) => ({
+		...pinnedAgentChatTrees.map((tree) => ({
 			id: `agent-${tree.id}`,
 			title: tree.name ?? 'Untitled',
 			href: `/agents/${tree.id}`,
@@ -233,7 +239,7 @@ after “Sessions”:
 }
 ```
 
-`pinnedDialogueTrees`: live query on `dialogueTreesCollection` with `pinned ===
+`pinnedAgentChatTrees`: live query on `agentChatTreesCollection` with `pinned ===
 true`, sorted by `updatedAt` desc.
 
 ## Prompt submission flow
@@ -241,23 +247,23 @@ true`, sorted by `updatedAt` desc.
 1. User types in `<EntityRefInput>`, optionally referencing entities with `@`.
 2. On submit:
    a. Parse `@` tokens into `EntityRef[]` (via `EntityRefPattern` regexes).
-   b. Call `submitDialogueTurn` (from spec 066) with `parentId` set to the
+   b. Call `submitAgentChatTurn` (from spec 066) with `parentId` set to the
       current turn (or `null` if creating root), `userPrompt`, `entityRefs`.
-3. `submitDialogueTurn` inserts a `DialogueTurn` with `status: 'generating'`,
-   builds context via `buildDialogueMessages`, calls `LlmProvider.generate()`,
+3. `submitAgentChatTurn` inserts an `AgentChatTurn` with `status: 'generating'`,
+   builds context via `buildAgentChatMessages`, calls `LlmProvider.generate()`,
    and updates the turn.
 4. Update URL only by hash: `goto(\`${pathname}#turn:${newTurnId}\`, {
    replaceState: true })` (or on first prompt,
    `goto(\`/agents/${tree.id}#turn:${turnId}\`, { replaceState: true })`). No
    path change; the new turn becomes the target and its form is shown with
    focus.
-5. UI reactively updates via live query on `dialogueTurnsCollection`.
+5. UI reactively updates via live query on `agentChatTurnsCollection`.
 
 ## Styles
 
 - **bits-ui Tabs**: `[data-tabs-root]`, `[data-tabs-list]`, `[data-tabs-trigger]`,
   `[data-tabs-content]` in `src/styles/bits-ui.css`.
-- **Dialogue turn card**: In `DialogueTurnNode.svelte`, `.turn-card` (position
+- **Agent chat turn card**: In `AgentChatTurnNode.svelte`, `.turn-card` (position
   relative, padding, border, radius; `[data-status='generating']` pulse,
   `[data-status='error']` error border), `.turn-card-reply` (position absolute,
   inset 0). Reply link text in `<span class="sr-only">`.
@@ -274,14 +280,17 @@ true`, sorted by `updatedAt` desc.
   nested in same wrapper (caret-positioned list), Delete/Backspace when query
   empty closes dropdown leaving `@`; plaintext-only and paste as plain text;
   optional `suggestions` and `autofocus` props.
-- [x] `<DialogueTreeView>` renders tree metadata, New conversation link, pin
-  toggle, system prompt, and root `<DialogueTurnNode>`.
-- [x] `<DialogueTurnNode>`: card with user/assistant, Reply overlay when form
-  hidden, Delete, children; when (children + Reply when shown) count > 1,
-  `<Tabs>` with one tab per child + Reply tab; prompt form disabled on error,
-  Retry button and `retryDialogueTurn` on error; prompt form only when
-  `#turn:{id}` or dirty; autofocus when target; submit updates hash only.
-- [x] Delete turn (and descendants) via `deleteDialogueTurn`; hash redirect
+- [x] `<AgentChatTree>` (colocated in `agents/[nodeId]/`) renders tree
+  metadata, default model selector, New conversation link, pin toggle, system
+  prompt, and root `<AgentChatTurnNode>`.
+- [x] `<AgentChatTurnNode>` (colocated in `agents/[nodeId]/`): card with
+  user/assistant, Reply overlay when form hidden, Delete, children; when
+  (children + Reply when shown) count > 1, `<Tabs>` with one tab per child +
+  Reply tab; prompt form disabled on error, Retry button and
+  `retryAgentChatTurn` on error; prompt form only when `#turn:{id}` or dirty;
+  autofocus when target; submit updates hash only; optional ModelInput for
+  reply.
+- [x] Delete turn (and descendants) via `deleteAgentChatTurn`; hash redirect
   if current target was deleted.
 - [x] `/agents` lists trees with Pin/Unpin per row; “New conversation” links
   to `/agents/new`.
@@ -289,22 +298,23 @@ true`, sorted by `updatedAt` desc.
 - [x] `/agents/[nodeId]` resolves tree/turn, renders tree; hash `#turn:{id}`
   drives target and form visibility.
 - [x] Pinned trees and “New conversation” in nav under Agents.
-- [x] `<Tabs>` component encapsulates bits-ui Tabs; DialogueTurnNode uses it
+- [x] `<Tabs>` component encapsulates bits-ui Tabs; AgentChatTurnNode uses it
   with snippet only. Tabs and turn card styles (bits-ui.css and
   component-scoped).
 
 ## Sources
 
-- Spec 066: Dialogue tree data model and collections.
+- Spec 066: Agent chat data model and collections.
 - Spec 051 Part 1: `LlmProvider` abstraction.
 - Spec 063: Network/Block/Transaction component hierarchy pattern.
 
 ## Status
 
-Complete. Dialogue turn component is named `DialogueTurnNode`; `<Tabs>` wraps
-bits-ui Tabs (consumers use snippet only). EntityRefInput: contenteditable +
-@-combobox; Delete/Backspace when query empty leaves `@`. Reply disabled and
-Retry on error; hash-driven target; submit updates hash only; Delete cascades.
+Complete. Agent chat components are `AgentChatTree` and `AgentChatTurnNode`,
+colocated in `src/routes/agents/[nodeId]/`. `<Tabs>` wraps bits-ui Tabs
+(consumers use snippet only). EntityRefInput: contenteditable + @-combobox;
+Delete/Backspace when query empty leaves `@`. Reply disabled and Retry on
+error; hash-driven target; submit updates hash only; Delete cascades.
 
 ## Output when complete
 
