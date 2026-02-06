@@ -7,5 +7,6 @@ export type UniswapPosition = {
 	tickUpper: number
 	liquidity: bigint
 	token0Owed: bigint
-	token1Owed: bigint
+	token1Owed: bigint,
 }
+
