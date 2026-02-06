@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction'
 	import type { Trace as TraceType } from '$/data/Trace'
@@ -29,11 +31,11 @@
 	}: {
 		data: Map<
 			ChainTransactionEntry | undefined,
-			{ trace?: TraceType; events?: EvmLog[] }
-		>
-		chainId: ChainId
-		placeholderEventIds?: Set<number | [number, number]>
-		visiblePlaceholderEventIds?: number[]
+			{ trace?: TraceType; events?: EvmLog[] },
+		>,
+		chainId: ChainId,
+		placeholderEventIds?: Set<number | [number, number]>,
+		visiblePlaceholderEventIds?: number[],
 	} = $props()
 
 
