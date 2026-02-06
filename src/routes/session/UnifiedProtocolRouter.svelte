@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Network } from '$/constants/networks'
@@ -122,8 +124,6 @@
 		<p data-muted>Connect a wallet to continue</p>
 	{/if}
 </section>
-
-
 
 
 <style>

@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { architectureGraph } from './architecture-graph'
 
@@ -127,7 +129,6 @@
 		</dl>
 	</section>
 </section>
-
 
 
 <style>

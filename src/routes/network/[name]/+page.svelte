@@ -1,77 +1,62 @@
 <script lang="ts">
+	import type { ChainId } from '$/constants/networks'
 	import type { BlockEntry } from '$/data/Block'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction'
-	import type { Network } from '$/constants/networks'
-	import { networksByChainId } from '$/constants/networks'
+	import { createHttpProvider } from '$/api/voltaire'
+	import { page } from '$app/state'
+	import { blocksCollection, ensureBlocksForPlaceholders } from '$/collections/blocks'
+	import NetworkView from '$/components/network/Network.svelte'
+	import { networksByChainId, parseNetworkNameParam } from '$/constants/networks'
 	import { rpcUrls } from '$/constants/rpc-endpoints'
-	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire'
-	import {
-		blocksCollection,
-		ensureBlocksForPlaceholders,
-	} from '$/collections/blocks'
-	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import Network from '$/components/network/Network.svelte'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { BlockStream } from '@tevm/voltaire/block'
 
 
-	// Props
-	let {
-		data,
-	}: {
-		data: {
-			nameParam: string
-			chainId: number
-			config: { name: string; explorerUrl?: string; type: string }
-			slug: string
-			caip2: string
-		}
-	} = $props()
+	// (Derived)
+	const nameParam = $derived(page.params.name ?? '')
+	const parsed = $derived(parseNetworkNameParam(nameParam))
+	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
+	const config = $derived(parsed?.config ?? { name: '', type: '' })
+	const slug = $derived(parsed?.slug ?? '')
+	const caip2 = $derived(parsed?.caip2 ?? '')
 
 
 	// State
 	let height = $state(0)
 	let visiblePlaceholderBlockIds = $state<number[]>([])
 
+
+	// (Derived)
 	const blocksQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: blocksCollection })
-				.where(({ row }) => eq(row.$id.chainId, data.chainId))
+				.where(({ row }) => eq(row.$id.chainId, chainId))
 				.select(({ row }) => ({ row })),
-		[() => data.chainId],
+		[() => chainId],
 	)
-	const liveQueryEntries = $derived([
+	registerLocalLiveQueryStack(() => [
 		{
 			id: 'blocks',
 			label: 'Blocks',
 			query: blocksQuery as { data: { row: unknown }[] | undefined },
 		},
 	])
-	registerLocalLiveQueryStack(() => liveQueryEntries)
 
-	const network = $derived(networksByChainId[data.chainId] ?? null)
-	const blockRows = $derived(
-		(blocksQuery.data ?? []).map((r) => r.row as BlockEntry),
-	)
 	const blocksMap = $derived(
 		(() => {
 			const inner = new Map<
 				BlockEntry | undefined,
 				Set<ChainTransactionEntry>
 			>()
-			for (const row of blockRows) inner.set(row, new Set())
+			for (const row of (blocksQuery.data ?? []).map((r) => r.row as BlockEntry))
+				inner.set(row, new Set())
 			return inner
 		})(),
 	)
 	const networkData = $derived(
-		(() => {
-			const m = new Map<
-				Network | undefined,
-				Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
-			>()
-			m.set(network ?? undefined, blocksMap)
-			return m
-		})(),
+		new Map([[networksByChainId[chainId] ?? undefined, blocksMap]]),
 	)
 	const placeholderBlockIds = $derived(
 		height > 0
@@ -80,84 +65,95 @@
 	)
 
 	$effect(() => {
-		const url = rpcUrls[data.chainId]
+		const url = rpcUrls[chainId]
 		if (!url) return
 		const provider = createHttpProvider(url)
-		getCurrentBlockNumber(provider)
-			.then((h) => {
-				height = h
-			})
-			.catch(() => {})
+		const stream = BlockStream({
+			provider: provider as Parameters<typeof BlockStream>[0]['provider'],
+		})
+		const controller = new AbortController()
+		;(async () => {
+			try {
+				for await (const event of stream.watch({
+					signal: controller.signal,
+					include: 'header',
+					pollingInterval: 12_000,
+				}))
+					height = Number(event.metadata.chainHead)
+			} catch {
+				// aborted or stream error
+			}
+		})()
+		return () => controller.abort()
 	})
 
 	$effect(() => {
 		if (height <= 0) return
 		const lo = Math.max(0, height - 10)
-		const blockNumbers = Array.from(
-			{ length: height - lo + 1 },
-			(_, j) => lo + j,
+		ensureBlocksForPlaceholders(
+			chainId,
+			Array.from({ length: height - lo + 1 }, (_, j) => lo + j),
 		)
-		ensureBlocksForPlaceholders(data.chainId, blockNumbers)
 	})
 
 	$effect(() => {
-		ensureBlocksForPlaceholders(data.chainId, visiblePlaceholderBlockIds)
+		ensureBlocksForPlaceholders(chainId, visiblePlaceholderBlockIds)
 	})
-
-	const explorerBlockListUrl = $derived(
-		data.config.explorerUrl ? `${data.config.explorerUrl}/blocks` : null,
-	)
 </script>
 
 
 <svelte:head>
-	<title>{data.config.name} · Network</title>
+	<title>{parsed ? `${config.name} · Network` : 'Network'}</title>
 </svelte:head>
 
 
 <div data-column="gap-2">
-	<header data-column="gap-2">
-		<h1>Network</h1>
-		<div class="network-identity" data-row="gap-2 align-center">
-			<code class="caip2">{data.caip2}</code>
-			<span class="network-name">{data.config.name}</span>
-			<span class="network-type" data-tag={data.config.type}>
-				{data.config.type}
-			</span>
-		</div>
-		<p class="network-meta">
-			Chain ID {data.chainId}
-		</p>
-	</header>
+	{#if !parsed}
+		<h1>Network not found</h1>
+		<p>The network "{nameParam}" could not be resolved.</p>
+	{:else}
+		<header data-column="gap-2">
+			<h1>Network</h1>
+			<div class="network-identity" data-row="gap-2 align-center">
+				<code class="caip2">{caip2}</code>
+				<span class="network-name">{config.name}</span>
+				<span class="network-type" data-tag={config.type}>
+					{config.type}
+				</span>
+			</div>
+			<p class="network-meta">
+				Chain ID {chainId}
+			</p>
+		</header>
 
-	<nav class="network-actions" data-row="wrap gap-2">
-		{#if data.config.explorerUrl}
-			<a
-				href={explorerBlockListUrl ?? ''}
-				target="_blank"
-				rel="noopener noreferrer"
-				class="action-link"
-			>
-				Blocks
-			</a>
-			<a
-				href={data.config.explorerUrl}
-				target="_blank"
-				rel="noopener noreferrer"
-				class="action-link"
-			>
-				Explorer
-			</a>
-		{/if}
-	</nav>
+		<nav class="network-actions" data-row="wrap gap-2">
+			{#if config.explorerUrl}
+				<a
+					href={(config.explorerUrl ? `${config.explorerUrl}/blocks` : null) ?? ''}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="action-link"
+				>
+					Blocks
+				</a>
+				<a
+					href={config.explorerUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="action-link"
+				>
+					Explorer
+				</a>
+			{/if}
+		</nav>
 
-	<Network
-		data={networkData}
-		{placeholderBlockIds}
-		bind:visiblePlaceholderBlockIds
-	/>
+		<NetworkView
+			data={networkData}
+			{placeholderBlockIds}
+			bind:visiblePlaceholderBlockIds
+		/>
+	{/if}
 </div>
-
 
 
 <style>

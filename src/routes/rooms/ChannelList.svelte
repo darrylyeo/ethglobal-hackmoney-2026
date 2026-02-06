@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { YellowChannelRow } from '$/collections/yellow-channels'
 	import { DataSource } from '$/constants/data-sources'
@@ -160,7 +162,6 @@
 {#if transferChannel}
 	<TransferDialog channel={transferChannel} bind:open={transferOpen} />
 {/if}
-
 
 
 <style>

@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { page } from '$app/state'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -209,7 +211,7 @@
 					scrollPosition="End"
 				>
 					{#snippet Item({ key, item, isPlaceholder })}
-						{#if isPlaceholder && item}
+						{#if !isPlaceholder}
 							<article
 								id="transfer:{key}"
 								data-card="radius-2 padding-2"
@@ -255,7 +257,6 @@
 		</Boundary>
 	</section>
 </main>
-
 
 
 <style>

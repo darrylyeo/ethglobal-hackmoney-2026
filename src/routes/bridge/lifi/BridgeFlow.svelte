@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
@@ -116,9 +118,7 @@
 	let invalidAmountInput = $state(false)
 	let selectedRouteId = $state<string | null>(null)
 	let executing = $state(false)
-	let executionRef = $state<{
-		execute: () => Promise<{ txHash?: `0x${string}` } | void>
-	} | null>(null)
+	let executeFunction = $state<(() => Promise<{ txHash?: `0x${string}` } | void>) | null>(null)
 	let executionStatus = $state<BridgeStatus>({ overall: 'idle', steps: [] })
 	let now = $state(Date.now())
 
@@ -642,7 +642,6 @@
 
 				{#if selectedEip1193Wallet && selectedActor}
 					<BridgeExecution
-						bind:this={executionRef}
 						route={selectedRoute}
 						walletRow={selectedEip1193Wallet}
 						walletAddress={selectedActor}
@@ -652,6 +651,9 @@
 						bind:executing
 						onStatus={(s) => {
 							executionStatus = s
+						}}
+						onExecute={(executeFn) => {
+							executeFunction = executeFn
 						}}
 					/>
 				{/if}
@@ -729,7 +731,7 @@
 								!quoteExpired,
 							) && !executing,
 						execute: (_args) =>
-							executionRef ? executionRef.execute() : Promise.resolve(),
+							executeFunction ? executeFunction() : Promise.resolve(),
 						requiresConfirmation: true,
 						confirmationLabel: 'I understand this transaction is irreversible',
 						Details: bridgeDetails,
@@ -788,7 +790,6 @@
 			{/if}
 		</section>
 	{/if}
-
 
 
 <style>

@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
@@ -128,9 +130,7 @@
 	let activeSessionId = $state<string | null>(null)
 	let lookupSessionId = $state<string | null>(null)
 	let executing = $state(false)
-	let executionRef = $state<{
-		execute: () => Promise<{ txHash?: `0x${string}` } | void>
-	} | null>(null)
+	let executeFunction = $state<(() => Promise<{ txHash?: `0x${string}` } | void>) | null>(null)
 	let invalidAmountInput = $state(false)
 	let slippageInput = $state('')
 	let tokenInSelection = $state<Coin | null>(null)
@@ -651,7 +651,9 @@
 				walletAddress={selectedActor}
 				amount={settings.amount}
 				bind:executing
-				bind:this={executionRef}
+				onExecute={(executeFn) => {
+					executeFunction = executeFn
+				}}
 			/>
 		{/if}
 	{/snippet}
@@ -894,7 +896,7 @@
 								Boolean(canSwap && selectedActor && selectedEip1193Wallet) &&
 								!executing,
 							execute: (_args) =>
-								executionRef ? executionRef.execute() : Promise.resolve(),
+								executeFunction ? executeFunction() : Promise.resolve(),
 							Details: swapDetails,
 							requiresConfirmation: priceImpactWarning,
 							confirmationLabel: priceImpactWarning

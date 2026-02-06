@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { IntentDragPayload } from '$/lib/intents/types'
@@ -783,8 +785,6 @@
 		</section>
 	{/if}
 </main>
-
-
 
 
 <style>

@@ -23,12 +23,14 @@
 		walletAddress,
 		amount,
 		executing = $bindable(false),
+		onExecute,
 	}: {
 		quote: SwapQuote
 		walletProvider: EIP1193Provider
 		walletAddress: `0x${string}`
 		amount: bigint
 		executing?: boolean
+		onExecute?: (fn: () => Promise<{ txHash?: `0x${string}` } | undefined>) => void
 	} = $props()
 
 	let status = $state<SwapExecutionStatus>({ overall: 'idle' })
@@ -76,7 +78,7 @@
 		},
 	})
 
-	export const execute = async () => {
+	const execute = async () => {
 		status = { overall: 'in_progress' }
 		const loadingId = toasts.loading('Submitting swap…')
 		actionTx = runExecute({
@@ -104,6 +106,18 @@
 		}
 		return { txHash: status.txHash }
 	}
+
+	// Execute function for parent component
+	const handleExecute = async () => {
+		return await execute()
+	}
+
+	// Provide execute function to parent
+	$effect(() => {
+		if (onExecute) {
+			onExecute(handleExecute)
+		}
+	})
 </script>
 
 {#if status.overall !== 'idle'}

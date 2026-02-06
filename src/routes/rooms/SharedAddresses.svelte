@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { SharedAddress } from '$/data/SharedAddress'
 	import type { VerificationRow } from '$/collections/verifications'

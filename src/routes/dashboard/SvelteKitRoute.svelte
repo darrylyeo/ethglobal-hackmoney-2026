@@ -1,16 +1,22 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { RouteEntry, RoutePathInput } from './route-map'
+
 
 	// Context
 	import { preloadData } from '$app/navigation'
 	import { resolve } from '$app/paths'
 
+
 	// Functions
 	import { buildRoutePath } from './route-map'
 
+
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
+
 
 	// Props
 	let {
@@ -22,6 +28,7 @@
 		entry: RouteEntry | null
 		extraData?: Record<string, unknown>
 	} = $props()
+
 
 	// (Derived)
 	const routeKey = $derived(route.path + '\0' + JSON.stringify(route.params))

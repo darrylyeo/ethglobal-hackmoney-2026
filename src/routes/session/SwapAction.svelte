@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
@@ -142,9 +144,7 @@
 	let tokenOutSelection = $state<Coin | null>(null)
 	let localParams = $state<SwapSessionParams>(normalizeSwapParams(null))
 	let executing = $state(false)
-	let executionRef = $state<{
-		execute: () => Promise<{ txHash?: `0x${string}` } | void>
-	} | null>(null)
+	let executeFunction = $state<(() => Promise<{ txHash?: `0x${string}` } | void>) | null>(null)
 
 	const setLocalParamsIfChanged = (next: SwapSessionParams) => {
 		if (untrack(() => stringify(localParams)) === stringify(next)) return
@@ -754,7 +754,7 @@
 		if (intent === 'submit') {
 			if (!executionRef) return
 			try {
-				const result = await executionRef.execute()
+				const result = await executeFunction!()
 				persistExecution(
 					typeof result === 'object' && result ? result.txHash : undefined,
 				)
@@ -961,7 +961,9 @@
 				walletAddress={selectedActor}
 				amount={settings.amount}
 				bind:executing
-				bind:this={executionRef}
+				onExecute={(executeFn) => {
+					executeFunction = executeFn
+				}}
 			/>
 		{/if}
 

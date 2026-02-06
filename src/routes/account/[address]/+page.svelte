@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
@@ -321,7 +323,6 @@
 		{/if}
 	{/if}
 </div>
-
 
 
 <style>

@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 	import { networkConfigs, toNetworkSlug } from '$/constants/networks'
@@ -10,6 +12,7 @@
 	import { myPeerIdsCollection } from '$/collections/my-peer-ids'
 	import { roomPeersCollection } from '$/collections/room-peers'
 	import { roomsCollection } from '$/collections/rooms'
+	import { dialogueTreesCollection } from '$/collections/dialogue-trees'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 	import { verificationsCollection } from '$/collections/verifications'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
@@ -63,6 +66,19 @@
 				.where(({ row }) => eq(row.$source, DataSource.Local))
 				.select(({ row }) => ({ row })),
 		[],
+	)
+	const dialogueTreesQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: dialogueTreesCollection })
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const pinnedDialogueTrees = $derived(
+		(dialogueTreesQuery.data ?? [])
+			.map((result) => result.row)
+			.filter((tree) => tree.pinned)
+			.sort((a, b) => b.updatedAt - a.updatedAt),
 	)
 	const walletsQuery = useLiveQuery(
 		(q) =>
@@ -262,6 +278,20 @@
 				})),
 		},
 		{
+			id: 'agents',
+			title: 'Agents',
+			href: '/agents',
+			defaultOpen: true,
+			children: [
+				{ id: 'agents-new', title: 'New conversation', href: '/agents/new' },
+				...pinnedDialogueTrees.map((tree) => ({
+					id: `agent-${tree.id}`,
+					title: tree.name ?? 'Untitled',
+					href: `/agents/${tree.id}`,
+				})),
+			],
+		},
+		{
 			id: 'explore',
 			title: 'Explore',
 			defaultOpen: true,
@@ -325,11 +355,6 @@
 			defaultOpen: true,
 			children: [
 				{
-					id: 'test-collections',
-					title: 'Collections',
-					href: '/test/collections',
-				},
-				{
 					id: 'test-networks-coins',
 					title: 'Networks & coins',
 					href: '/test/networks-coins',
@@ -338,6 +363,11 @@
 					id: 'test-chain-id',
 					title: 'Chain ID (Voltaire)',
 					href: '/test/chain-id',
+				},
+				{
+					id: 'test-intents',
+					title: 'Intents',
+					href: '/test/intents',
 				},
 			],
 		},
@@ -425,7 +455,6 @@
 </Tooltip.Provider>
 
 
-
 <style>
 	.layout {
 		/* Constants */
@@ -435,8 +464,12 @@
 		/* Rules */
 		width: 100dvw;
 		height: 100dvh;
-		padding: var(--safeArea-insetTop) var(--safeArea-insetRight)
-			var(--safeArea-insetBottom) var(--safeArea-insetLeft);
+		padding:
+			var(--safeArea-insetTop)
+			var(--safeArea-insetRight)
+			var(--safeArea-insetBottom)
+			var(--safeArea-insetLeft)
+		;
 		display: grid;
 		align-items: start;
 		gap: var(--separator-width);
@@ -451,7 +484,8 @@
 		@media not (max-width: 1024px) {
 			grid-template:
 				'Nav Main' 100dvh
-				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr);
+				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr)
+			;
 
 			&[data-sticky-container] {
 				--sticky-marginInlineStart: var(--separator-width);

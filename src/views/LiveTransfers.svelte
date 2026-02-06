@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { browser } from '$app/environment'
 	import type { Coin } from '$/constants/coins'
@@ -167,8 +169,6 @@
 		</p>
 	{/if}
 </div>
-
-
 
 
 <style>

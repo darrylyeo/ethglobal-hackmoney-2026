@@ -1,12 +1,14 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { VoltaireProvider } from '$/api/voltaire'
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type {
 		ExplainAvailability,
 		ExplainContext,
-		ExplainRecord,
 	} from '$/lib/explain'
+	import type { DialogueTurn } from '$/data/DialogueTurn'
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import type { Snippet } from 'svelte'
 	import { networksByChainId } from '$/constants/networks'
@@ -40,7 +42,7 @@
 		status: 'idle' | 'loading' | 'success' | 'error'
 		error: string | null
 		progress: number | null
-		record: ExplainRecord | null
+		turnId: string | null
 		cancel?: () => void
 	}
 	type ExplainDetails = {
@@ -102,7 +104,8 @@
 
 	// Functions
 	import { createHttpProvider } from '$/api/voltaire'
-	import { createExplainProvider, createExplainRecord } from '$/lib/explain'
+	import { createExplainProvider, submitExplainTurn } from '$/lib/explain'
+	import { dialogueTurnsCollection } from '$/collections/dialogue-turns'
 	import { getE2eProvider, switchWalletChain } from '$/lib/wallet'
 
 
@@ -150,8 +153,12 @@
 		status: 'idle',
 		error: null,
 		progress: null,
-		record: null,
+		turnId: null,
 	})
+	const getDialogueTurn = (turnId: string | null): DialogueTurn | null =>
+		turnId
+			? (dialogueTurnsCollection.state.get(turnId) ?? null)
+			: null
 	const createInitialState = (): TransactionFlowItemState => ({
 		simulation: {
 			status: 'idle',
@@ -330,7 +337,10 @@
 		tx: TransactionFlowItem,
 		kind: ExplainTarget,
 	) => {
-		const provider = createExplainProvider({
+		const context = buildExplainContext(tx, getTxState(tx.id), kind)
+		const { turnId, cancel, promise } = submitExplainTurn({
+			context,
+			sessionId: tx.id,
 			onProgress: (progress) => {
 				updateExplainState(tx.id, kind, (state) => ({
 					...state,
@@ -343,37 +353,24 @@
 			status: 'loading',
 			error: null,
 			progress: null,
-			cancel: provider.cancel,
+			turnId,
+			cancel,
 		}))
-		try {
-			const availability = await provider.availability()
-			explainAvailability = availability
-			if (availability === 'unavailable') {
-				updateExplainState(tx.id, kind, (state) => ({
-					...state,
-					status: 'error',
-					error: 'Explain results unavailable.',
-					cancel: undefined,
-				}))
-				return
-			}
-			const output = await provider.explain({
-				context: buildExplainContext(tx, getTxState(tx.id), kind),
-				language: 'en',
-			})
+		await promise
+		const turn = getDialogueTurn(turnId)
+		if (turn?.status === 'complete') {
 			updateExplainState(tx.id, kind, (state) => ({
 				...state,
 				status: 'success',
 				error: null,
 				progress: null,
-				record: createExplainRecord(output),
 				cancel: undefined,
 			}))
-		} catch (error) {
+		} else if (turn?.status === 'error') {
 			updateExplainState(tx.id, kind, (state) => ({
 				...state,
 				status: 'error',
-				error: error instanceof Error ? error.message : String(error),
+				error: turn.error ?? 'Explanation failed.',
 				progress: null,
 				cancel: undefined,
 			}))
@@ -591,21 +588,22 @@
 								</Button.Root>
 							{/if}
 						</div>
-						{#if simulationExplain.status === 'error'}
-							<p data-error>
-								{simulationExplain.error ?? 'Explanation failed.'}
-							</p>
-						{:else if simulationExplain.status === 'success'}
+					{#if simulationExplain.status === 'error'}
+						<p data-error>
+							{simulationExplain.error ?? 'Explanation failed.'}
+						</p>
+					{:else if simulationExplain.status === 'success'}
+						{@const turn = getDialogueTurn(simulationExplain.turnId)}
+						{#if turn?.assistantText}
 							<div data-card data-column="gap-2">
-								<p>{simulationExplain.record?.text}</p>
-								{#if simulationExplain.record}
-									<small data-muted>
-										{simulationExplain.record.provider} ·
-										{simulationExplain.record.createdAt}
-									</small>
-								{/if}
+								<p>{turn.assistantText}</p>
+								<small data-muted>
+									{turn.providerId ?? 'unknown'} ·
+									{new Date(turn.createdAt).toISOString()}
+								</small>
 							</div>
 						{/if}
+					{/if}
 					{/if}
 				{/if}
 
@@ -654,19 +652,20 @@
 							</Button.Root>
 						{/if}
 					</div>
-					{#if executionExplain.status === 'error'}
-						<p data-error>{executionExplain.error ?? 'Explanation failed.'}</p>
-					{:else if executionExplain.status === 'success'}
+				{#if executionExplain.status === 'error'}
+					<p data-error>{executionExplain.error ?? 'Explanation failed.'}</p>
+				{:else if executionExplain.status === 'success'}
+					{@const turn = getDialogueTurn(executionExplain.turnId)}
+					{#if turn?.assistantText}
 						<div data-card data-column="gap-2">
-							<p>{executionExplain.record?.text}</p>
-							{#if executionExplain.record}
-								<small data-muted>
-									{executionExplain.record.provider} ·
-									{executionExplain.record.createdAt}
-								</small>
-							{/if}
+							<p>{turn.assistantText}</p>
+							<small data-muted>
+								{turn.providerId ?? 'unknown'} ·
+								{new Date(turn.createdAt).toISOString()}
+							</small>
 						</div>
 					{/if}
+				{/if}
 				{/if}
 
 				{#if needsChainSwitch && walletProvider}

@@ -1,4 +1,6 @@
 <script lang="ts" generics="_CoinType extends CoinType = CoinType">
+
+
 	// Types/constants
 	import { type Coin, CoinType } from '$/constants/coins'
 	import type { StorkPriceRow } from '$/collections/stork-prices'
@@ -151,8 +153,6 @@
 		</span>
 	{/if}
 </div>
-
-
 
 
 <style>

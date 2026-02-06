@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Coin } from '$/constants/coins'
 	import { CoinType } from '$/constants/coins'
@@ -86,8 +88,6 @@
 		</span>
 	{/snippet}
 </Combobox>
-
-
 
 
 <style>

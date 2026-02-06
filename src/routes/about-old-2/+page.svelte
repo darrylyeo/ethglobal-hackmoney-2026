@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Context
 	import { resolve } from '$app/paths'
 
@@ -79,8 +81,8 @@
 			Enable the hosted explanation fallback by setting the following env vars:
 		</p>
 		<ul data-list="gap-1">
-			<li><code>PUBLIC_EXPLAIN_LLM_ENDPOINT</code></li>
-			<li><code>PUBLIC_EXPLAIN_LLM_API_KEY</code> (optional)</li>
+			<li><code>PUBLIC_LLM_ENDPOINT</code></li>
+			<li><code>PUBLIC_LLM_API_KEY</code> (optional)</li>
 		</ul>
 	</section>
 	<section data-column="gap-2">
@@ -94,7 +96,6 @@
 		</ul>
 	</section>
 </section>
-
 
 
 <style>

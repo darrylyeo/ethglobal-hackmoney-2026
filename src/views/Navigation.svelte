@@ -31,8 +31,16 @@
 	data-scroll-container
 	data-sticky-container
 >
-	<header data-sticky="block" data-row data-scroll-container>
-		<a href="/" aria-label="USDC Tools home" data-row="start gap-0">
+	<header
+		data-sticky="block"
+		data-row
+		data-scroll-container
+	>
+		<a
+			href="/"
+			aria-label="USDC Tools home"
+			data-row="start gap-0"
+		>
 			<span class="logo" data-row="gap-1">
 				<span class="title">USDC</span>
 				<span class="nav-tag">Tools</span>
@@ -77,8 +85,6 @@
 		<footer data-sticky></footer>
 	</div>
 </nav>
-
-
 
 
 <style>

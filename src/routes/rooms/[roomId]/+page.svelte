@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import { DataSource } from '$/constants/data-sources'

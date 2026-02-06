@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { networkConfigsByChainId } from '$/constants/networks'
 	import type { Network } from '$/constants/networks'
@@ -29,6 +31,10 @@
 
 
 	// (Derived)
+
+
+
+
 
 
 	// Components
@@ -109,8 +115,6 @@
 	Before={networkIcons}
 	Item={networkItem}
 ></Select>
-
-
 
 
 <style>

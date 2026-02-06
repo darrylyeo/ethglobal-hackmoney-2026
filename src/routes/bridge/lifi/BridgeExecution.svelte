@@ -26,6 +26,7 @@
 		amount,
 		executing = $bindable(false),
 		onStatus,
+		onExecute,
 	}: {
 		route: BridgeRoute
 		walletRow: WalletRow
@@ -35,6 +36,7 @@
 		amount: bigint
 		executing?: boolean
 		onStatus?: (s: BridgeStatus) => void
+		onExecute?: (fn: () => Promise<{ txHash?: `0x${string}` } | undefined>) => void
 	} = $props()
 
 	// Build compatible ProviderDetailType for API
@@ -53,6 +55,18 @@
 
 	// Current action transaction for state tracking
 	let actionTx = $state<Transaction<Record<string, unknown>> | null>(null)
+
+	// Execute function for parent component
+	const handleExecute = async () => {
+		return await execute()
+	}
+
+	// Provide execute function to parent
+	$effect(() => {
+		if (onExecute) {
+			onExecute(handleExecute)
+		}
+	})
 
 	// Sync executing prop with action state
 	$effect(() => {
@@ -140,7 +154,7 @@
 	// Derived state from action transaction
 	const failed = $derived(actionTx?.state === 'failed')
 
-	export const execute = async () => {
+	const execute = async () => {
 		status = { overall: 'in_progress', steps: [] }
 
 		const loadingId = toasts.loading('Submitting transaction…')
@@ -205,7 +219,6 @@
 {#if failed}
 	<p class="error">Transaction failed</p>
 {/if}
-
 
 
 <style>

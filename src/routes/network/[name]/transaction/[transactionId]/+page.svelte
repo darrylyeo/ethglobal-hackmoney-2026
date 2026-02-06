@@ -1,17 +1,15 @@
 <script lang="ts">
 	import type { BlockEntry } from '$/data/Block'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction'
-	import type { Network } from '$/constants/networks'
+	import type { ChainId } from '$/constants/networks'
 	import { networksByChainId } from '$/constants/networks'
 	import { rpcUrls } from '$/constants/rpc-endpoints'
 	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire'
-	import { fetchBlock } from '$/collections/blocks'
-	import { fetchChainTransaction } from '$/collections/chain-transactions'
-	import { blocksCollection } from '$/collections/blocks'
-	import { chainTransactionsCollection } from '$/collections/chain-transactions'
+	import { fetchBlock, blocksCollection } from '$/collections/blocks'
+	import { fetchChainTransaction, chainTransactionsCollection } from '$/collections/chain-transactions'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import Network from '$/components/network/Network.svelte'
+	import NetworkView from '$/components/network/Network.svelte'
 
 	let {
 		data,
@@ -19,7 +17,7 @@
 		data: {
 			nameParam: string
 			transactionId: `0x${string}`
-			chainId: number
+			chainId: ChainId
 			config: { name: string }
 			slug: string
 			caip2: string
@@ -85,14 +83,7 @@
 		})(),
 	)
 	const networkData = $derived(
-		(() => {
-			const m = new Map<
-				Network | undefined,
-				Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
-			>()
-			m.set(network ?? undefined, blocksMap)
-			return m
-		})(),
+		new Map([[network ?? undefined, blocksMap]]),
 	)
 	const placeholderBlockIds = $derived(
 		(() => {
@@ -143,5 +134,5 @@
 	<p>
 		<a href={showContextUrl} data-link>Show Context</a>
 	</p>
-	<Network data={networkData} {placeholderBlockIds} />
+	<NetworkView data={networkData} {placeholderBlockIds} />
 </div>

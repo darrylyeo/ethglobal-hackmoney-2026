@@ -1,32 +1,42 @@
 <script lang="ts">
 	import type { BlockEntry } from '$/data/Block'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction'
-	import type { Network } from '$/constants/networks'
-	import { networksByChainId } from '$/constants/networks'
+	import type { ChainId } from '$/constants/networks'
+	import { page } from '$app/state'
+	import { networksByChainId, parseNetworkNameParam } from '$/constants/networks'
 	import { rpcUrls } from '$/constants/rpc-endpoints'
 	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire'
-	import { fetchBlock } from '$/collections/blocks'
-	import { fetchChainTransaction } from '$/collections/chain-transactions'
-	import { blocksCollection } from '$/collections/blocks'
-	import { chainTransactionsCollection } from '$/collections/chain-transactions'
+	import { fetchBlock, blocksCollection } from '$/collections/blocks'
+	import { fetchChainTransaction, chainTransactionsCollection } from '$/collections/chain-transactions'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import Network from '$/components/network/Network.svelte'
+	import NetworkView from '$/components/network/Network.svelte'
 
-	let {
-		data,
-	}: {
-		data: {
-			nameParam: string
-			blockNumberParam: string
-			blockNumber: number
-			transactionId: `0x${string}`
-			chainId: number
-			config: { name: string }
-			slug: string
-			caip2: string
-		}
-	} = $props()
+	const DECIMAL_ONLY = /^\d+$/
+	const TX_HASH = /^0x[a-fA-F0-9]{64}$/
+
+	const nameParam = $derived(page.params.name ?? '')
+	const blockNumberParam = $derived(page.params.blockNumber ?? '')
+	const transactionIdParam = $derived(page.params.transactionId ?? '')
+	const parsed = $derived(parseNetworkNameParam(nameParam))
+	const blockNumberValid =
+		blockNumberParam !== '' &&
+		DECIMAL_ONLY.test(blockNumberParam) &&
+		Number.isSafeInteger(parseInt(blockNumberParam, 10)) &&
+		parseInt(blockNumberParam, 10) >= 0
+	const blockNumber = $derived(
+		blockNumberValid ? parseInt(blockNumberParam, 10) : 0,
+	)
+	const transactionId = $derived(
+		transactionIdParam && TX_HASH.test(transactionIdParam)
+			? (transactionIdParam as `0x${string}`)
+			: null,
+	)
+	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
+	const config = $derived(parsed?.config ?? { name: '' })
+	const valid = $derived(
+		!!parsed && blockNumberValid && transactionId !== null,
+	)
 
 	let height = $state(0)
 
@@ -36,12 +46,12 @@
 				.from({ row: chainTransactionsCollection })
 				.where(({ row }) =>
 					and(
-						eq(row.$id.chainId, data.chainId),
-						eq(row.$id.txHash, data.transactionId),
+						eq(row.$id.chainId, chainId),
+						eq(row.$id.txHash, transactionId ?? ''),
 					),
 				)
 				.select(({ row }) => ({ row })),
-		[() => data.chainId, () => data.transactionId],
+		[() => chainId, () => transactionId],
 	)
 	const blockQuery = useLiveQuery(
 		(q) =>
@@ -49,12 +59,12 @@
 				.from({ row: blocksCollection })
 				.where(({ row }) =>
 					and(
-						eq(row.$id.chainId, data.chainId),
-						eq(row.$id.blockNumber, data.blockNumber),
+						eq(row.$id.chainId, chainId),
+						eq(row.$id.blockNumber, blockNumber),
 					),
 				)
 				.select(({ row }) => ({ row })),
-		[() => data.chainId, () => data.blockNumber],
+		[() => chainId, () => blockNumber],
 	)
 	const liveQueryEntries = $derived([
 		{
@@ -72,7 +82,7 @@
 
 	const txRow = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
 	const blockRow = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
-	const network = $derived(networksByChainId[data.chainId] ?? null)
+	const network = $derived(networksByChainId[chainId] ?? null)
 
 	const blocksMap = $derived(
 		(() => {
@@ -86,37 +96,33 @@
 		})(),
 	)
 	const networkData = $derived(
-		(() => {
-			const m = new Map<
-				Network | undefined,
-				Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
-			>()
-			m.set(network ?? undefined, blocksMap)
-			return m
-		})(),
+		new Map([[network ?? undefined, blocksMap]]),
 	)
 	const placeholderBlockIds = $derived(
 		(() => {
 			const adj = new Set<number>()
-			if (data.blockNumber > 0) adj.add(data.blockNumber - 1)
-			const next = data.blockNumber + 1
+			if (blockNumber > 0) adj.add(blockNumber - 1)
+			const next = blockNumber + 1
 			if (height <= 0 || next <= height) adj.add(next)
 			return new Set<number | [number, number]>(adj)
 		})(),
 	)
 
 	const showContextUrl = $derived(
-		`/network/${data.nameParam}/block/${data.blockNumberParam}#transaction:${data.transactionId}`,
+		transactionId
+			? `/network/${nameParam}/block/${blockNumberParam}#transaction:${transactionId}`
+			: '',
 	)
 
 	$effect(() => {
-		Promise.all([
-			fetchChainTransaction(data.chainId, data.transactionId),
-			fetchBlock(data.chainId, data.blockNumber),
-		]).catch(() => {})
+		if (valid && transactionId)
+			Promise.all([
+				fetchChainTransaction(chainId, transactionId),
+				fetchBlock(chainId, blockNumber),
+			]).catch(() => {})
 	})
 	$effect(() => {
-		const url = rpcUrls[data.chainId]
+		const url = rpcUrls[chainId]
 		if (!url) return
 		getCurrentBlockNumber(createHttpProvider(url))
 			.then((h) => {
@@ -139,5 +145,5 @@
 	<p>
 		<a href={showContextUrl} data-link>Show Context</a>
 	</p>
-	<Network data={networkData} {placeholderBlockIds} />
+	<NetworkView data={networkData} {placeholderBlockIds} />
 </div>
