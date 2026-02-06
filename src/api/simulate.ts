@@ -1,7 +1,7 @@
 /**
- * POST /api/simulate – run a transaction in a Tevm-forked node and return
- * result with fork metadata, status, gas, trace, and events.
- * Body: { rpcUrl: string, chainId: number, from: string, to?: string, data?: string, value?: string, gasLimit?: string, blockTag?: number | 'latest' }
+ * Run a transaction in a Tevm-forked node and return result with fork metadata,
+ * status, gas, trace, and events. Runs client-side in browser (tevm fork uses
+ * http transport to RPC).
  */
 
 import type {
@@ -9,15 +9,13 @@ import type {
 	TevmSimulationResult,
 	TevmSimulationTraceCall,
 } from '$/data/TevmSimulationResult'
-import { json } from '@sveltejs/kit'
-import type { RequestHandler } from './$types'
 
 const toHex = (bytes: Uint8Array): string =>
 	`0x${Array.from(bytes)
 		.map((b) => b.toString(16).padStart(2, '0'))
 		.join('')}`
 
-const runTevmSimulation = async (body: {
+export type SimulatePayload = {
 	rpcUrl: string
 	chainId: number
 	from: string
@@ -26,7 +24,11 @@ const runTevmSimulation = async (body: {
 	value?: string
 	gasLimit?: string
 	blockTag?: number | 'latest'
-}): Promise<TevmSimulationResult> => {
+}
+
+export const runTevmSimulation = async (
+	body: SimulatePayload,
+): Promise<TevmSimulationResult> => {
 	const { createTevmNode, http, createAddress } = await import('tevm')
 	const { createImpersonatedTx } = await import('tevm/tx')
 	const { bytesToHex } = await import('tevm/utils')
@@ -142,31 +144,5 @@ const runTevmSimulation = async (body: {
 		trace,
 		events,
 		rawLogs,
-	}
-}
-
-export const POST: RequestHandler = async ({ request }) => {
-	try {
-		const body = await request.json()
-		if (!body?.rpcUrl || typeof body.chainId !== 'number' || !body?.from) {
-			return json(
-				{ error: 'Missing or invalid body: rpcUrl, chainId, from required' },
-				{ status: 400 },
-			)
-		}
-		const result = await runTevmSimulation({
-			rpcUrl: String(body.rpcUrl),
-			chainId: Number(body.chainId),
-			from: String(body.from),
-			to: body.to != null ? String(body.to) : undefined,
-			data: body.data != null ? String(body.data) : undefined,
-			value: body.value != null ? String(body.value) : undefined,
-			gasLimit: body.gasLimit != null ? String(body.gasLimit) : undefined,
-			blockTag: body.blockTag,
-		})
-		return json(result)
-	} catch (err) {
-		const message = err instanceof Error ? err.message : String(err)
-		return json({ error: message }, { status: 500 })
 	}
 }
