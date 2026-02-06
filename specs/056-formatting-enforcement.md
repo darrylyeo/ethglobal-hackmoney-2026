@@ -221,7 +221,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/data/EntityRef.ts`
 - [x] `src/data/EvmActorProfile.ts`
 - [x] `src/data/LlmConnection.ts`
-- [ ] `src/data/Network.ts`
+- [x] `src/data/Network.ts`
 - [ ] `src/data/Room.ts`
 - [ ] `src/data/RoomPeer.ts`
 - [ ] `src/data/SharedAddress.ts`
