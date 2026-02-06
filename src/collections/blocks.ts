@@ -15,7 +15,9 @@ import {
 	createHttpProvider,
 	getBlockByNumber,
 	getBlockTransactionCount,
+	getBlockTransactionHashes,
 } from '$/api/voltaire'
+import { fetchChainTransaction } from '$/collections/chain-transactions'
 
 export type BlockRow = BlockEntry & {
 	$source: DataSource
@@ -85,23 +87,43 @@ export const fetchBlock = async (
 		const row: BlockRow = {
 			$id: { chainId, blockNumber },
 			number: block.number,
+			hash: block.hash,
+			parentHash: block.parentHash,
 			timestamp: block.timestamp,
+			miner: block.miner,
+			gasUsed: block.gasUsed,
+			gasLimit: block.gasLimit,
+			baseFeePerGas: block.baseFeePerGas,
 			transactionCount,
 			$source: DataSource.Voltaire,
 			isLoading: false,
 			error: null,
 		}
 		blocksCollection.update(key, (draft) => {
-			draft.number = row.number
-			draft.timestamp = row.timestamp
-			draft.transactionCount = transactionCount
-			draft.isLoading = false
-			draft.error = null
+			Object.assign(draft, {
+				number: row.number,
+				hash: row.hash,
+				parentHash: row.parentHash,
+				timestamp: row.timestamp,
+				miner: row.miner,
+				gasUsed: row.gasUsed,
+				gasLimit: row.gasLimit,
+				baseFeePerGas: row.baseFeePerGas,
+				transactionCount,
+				isLoading: false,
+				error: null,
+			})
 		})
 		return {
 			$id: row.$id,
 			number: row.number,
+			hash: row.hash,
+			parentHash: row.parentHash,
 			timestamp: row.timestamp,
+			miner: row.miner,
+			gasUsed: row.gasUsed,
+			gasLimit: row.gasLimit,
+			baseFeePerGas: row.baseFeePerGas,
 			transactionCount,
 		}
 	} catch (e) {
@@ -112,4 +134,18 @@ export const fetchBlock = async (
 		})
 		throw e
 	}
+}
+
+/** Fetch transaction hashes for a block, then upsert each into chainTransactionsCollection. */
+export const fetchBlockTransactions = async (
+	chainId: ChainId,
+	blockNumber: number,
+): Promise<void> => {
+	const url = rpcUrls[chainId]
+	if (!url) return
+	const provider = createHttpProvider(url)
+	const hashes = await getBlockTransactionHashes(provider, BigInt(blockNumber))
+	await Promise.allSettled(
+		hashes.map((hash) => fetchChainTransaction(chainId, hash)),
+	)
 }
