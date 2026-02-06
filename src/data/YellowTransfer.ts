@@ -6,5 +6,6 @@ export type YellowTransfer = {
 	amount: bigint
 	turnNum: number
 	timestamp: number
-	status: 'pending' | 'confirmed' | 'failed'
+	status: 'pending' | 'confirmed' | 'failed',
 }
+
