@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Toast as ToastType } from '$/lib/toast.svelte'
 
@@ -8,8 +10,8 @@
 		toast,
 		onDismiss,
 	}: {
-		toast: ToastType
-		onDismiss: () => void
+		toast: ToastType,
+		onDismiss: () => void,
 	} = $props()
 
 

@@ -1,8 +1,11 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
 	import type { FetchSwapQuoteParams } from '$/data/SwapQuote'
+	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
 	import type { Coin } from '$/constants/coins'
 	import { CoinType } from '$/constants/coins'
 	import { DataSource } from '$/constants/data-sources'
@@ -64,7 +67,6 @@
 
 
 	// Functions
-	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
 	import { debounce } from '$/lib/debounce'
 	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
 	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format'

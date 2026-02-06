@@ -1,11 +1,13 @@
 <script lang="ts">
+
+
 	// Types/constants
+	import { sendTransfer } from '$/api/yellow'
 	import { DataSource } from '$/constants/data-sources'
 
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { sendTransfer } from '$/api/yellow'
 	import { sharedAddressesCollection } from '$/collections/shared-addresses'
 	import { transferRequestsCollection } from '$/collections/transfer-requests'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits'

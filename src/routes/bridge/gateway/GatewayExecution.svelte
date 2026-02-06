@@ -115,6 +115,7 @@
 	export { depositTxHash, mintTxHash, step, error, execute }
 </script>
 
+
 <div data-column="gap-2">
 	<strong>Status</strong>
 	<ol class="gateway-status">
@@ -150,6 +151,7 @@
 		<small data-error>{error}</small>
 	{/if}
 </div>
+
 
 <style>
 	.gateway-status {

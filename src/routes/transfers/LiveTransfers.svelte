@@ -1,8 +1,10 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { browser } from '$app/environment'
-	import type { Erc20Token } from '$/constants/coins'
 	import type { TransferGraph } from '$/api/transfers-indexer'
+	import type { Erc20Token } from '$/constants/coins'
 	import { Canvas, T } from '@threlte/core'
 	import * as THREE from 'three'
 

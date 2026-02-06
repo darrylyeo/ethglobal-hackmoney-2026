@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { IntentDragPayload } from '$/lib/intents/types'
@@ -6,11 +8,16 @@
 		IntentRouteStep,
 		IntentBridgeRouteOption,
 	} from '$/lib/intents/routes'
+	import type { BridgeRoute } from '$/data/BridgeRoute'
 	import type { Transaction$Id } from '$/data/Transaction'
 	import { EntityType } from '$/data/$EntityType'
+	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	import { encodeTransferCall } from '$/api/voltaire'
+	import { executeSelectedRoute } from '$/api/lifi'
+	import { executeSwap } from '$/api/uniswap'
+	import { sendTransfer } from '$/api/yellow'
 	import { DataSource } from '$/constants/data-sources'
 	import { networksByChainId } from '$/constants/networks'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
 	type IntentSessionParams = {
 		from: IntentDragPayload | null
@@ -39,10 +46,6 @@
 		isValidDecimalInput,
 		parseDecimalToSmallest,
 	} from '$/lib/format'
-	import { executeSwap } from '$/api/uniswap'
-	import { executeSelectedRoute } from '$/api/lifi'
-	import { sendTransfer } from '$/api/yellow'
-	import { encodeTransferCall } from '$/api/voltaire'
 	const resolveChainName = (chainId: number) =>
 		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
 			?.name ?? `Chain ${chainId}`
@@ -312,7 +315,7 @@
 	}
 
 	const executeBridgeStep = async (
-		step: Extract<IntentRouteStep, { type: 'bridge' }>,
+		step: Extract<IntentRouteStep, { type: 'bridge'; route: BridgeRoute }>,
 		{
 			walletAddress,
 			onStatus,
@@ -505,14 +508,20 @@
 			}) =>
 				step.type === 'swap'
 					? executeSwapStep(step, args)
-					: step.type === 'bridge'
+					: step.type === 'bridge' && 'route' in step
 						? executeBridgeStep(step, {
 								walletAddress: args.walletAddress,
 								onStatus: args.onStatus,
 							})
-						: step.mode === 'channel'
-							? executeChannelTransferStep(step)
-							: executeDirectTransferStep(step, args),
+						: step.type === 'bridge' &&
+								'protocol' in step &&
+								step.protocol === 'gateway'
+							? Promise.resolve({ txHash: undefined })
+							: step.type === 'transfer'
+								? step.mode === 'channel'
+									? executeChannelTransferStep(step)
+									: executeDirectTransferStep(step, args)
+								: Promise.resolve({ txHash: undefined }),
 		}
 	}
 
@@ -737,7 +746,11 @@
 								6,
 							)}… on {resolveChainName(step.chainId)}
 						{:else if step.type === 'bridge'}
-							Bridge {step.route.fromChainId} → {step.route.toChainId}
+							Bridge
+							{'protocol' in step && step.protocol === 'gateway'
+								? ' (Gateway)'
+								: ''}
+							{step.fromChainId} → {step.toChainId}
 						{:else}
 							Transfer ({step.mode}) {step.fromActor.slice(0, 6)}… → {step.toActor.slice(
 								0,

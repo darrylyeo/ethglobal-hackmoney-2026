@@ -1,4 +1,5 @@
 import { ChainId, networkConfigsByChainId } from '$/constants/networks'
+import { getAssetUrl } from '$lib/assets/urls'
 
 export type ArchitectureNodeCategory =
 	| 'ui'

@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { VoltaireProvider } from '$/api/voltaire'
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
@@ -723,6 +725,7 @@
 						disabled={executeDisabled}
 						onclick={() => executeTransaction(tx)}
 						data-row-item="flexible"
+						data-testid={tx.dataTestId ?? undefined}
 						aria-busy={hasPendingExecution ? 'true' : undefined}
 					>
 						{tx.actionLabel}

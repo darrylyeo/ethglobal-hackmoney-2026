@@ -1,9 +1,11 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { page } from '$app/state'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { getCoinForCoinPage, type CoinPageSymbol } from '$/constants/coins'
 	import { TIME_PERIODS } from '$/api/transfers-indexer'
+	import { getCoinForCoinPage, type CoinPageSymbol } from '$/constants/coins'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import {
 		transferEventsCollection,

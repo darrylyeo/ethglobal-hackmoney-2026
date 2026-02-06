@@ -1,15 +1,18 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { YellowChannelRow } from '$/collections/yellow-channels'
 	import type { YellowChannelStateRow } from '$/collections/yellow-channel-states'
-	import { DataSource } from '$/constants/data-sources'
 	import type { ChannelStatus } from '$/data/YellowChannel'
 	import type { EIP1193Provider } from '$/lib/wallet'
+	import { closeChannel, challengeChannel, openChannel, sendTransfer } from '$/api/yellow'
+	import { getUsdcAddress } from '$/api/lifi'
+	import { DataSource } from '$/constants/data-sources'
 
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { closeChannel, challengeChannel } from '$/api/yellow'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import { yellowChannelsCollection } from '$/collections/yellow-channels'
 	import { yellowChannelStatesCollection } from '$/collections/yellow-channel-states'
@@ -189,7 +192,62 @@
 		roomsById.get(roomId)?.name ?? roomIdToDisplayName(roomId)
 
 
+	// State (connection + channel creation)
+	import { connectToYellow, disconnectFromYellow } from '$/state/yellow.svelte'
+
+	let connecting = $state(false)
+	let connectError = $state<string | null>(null)
+	let creatingChannel = $state(false)
+	let createError = $state<string | null>(null)
+
+	const isConnected = $derived(yellowState.clearnodeConnection !== null)
+
+
 	// Actions
+	const handleConnect = async () => {
+		if (!walletProvider || !selectedConnection) {
+			connectError = 'Connect a wallet first'
+			return
+		}
+		connecting = true
+		connectError = null
+		try {
+			await connectToYellow(
+				1,
+				walletProvider,
+				selectedConnection.$id.address as `0x${string}`,
+			)
+		} catch (err) {
+			connectError = err instanceof Error ? err.message : 'Connection failed'
+		} finally {
+			connecting = false
+		}
+	}
+
+	const handleDisconnect = () => {
+		disconnectFromYellow()
+	}
+
+	const handleCreateChannel = async () => {
+		if (!yellowState.clearnodeConnection || !yellowState.chainId) {
+			createError = 'Connect to Yellow first'
+			return
+		}
+		creatingChannel = true
+		createError = null
+		try {
+			await openChannel({
+				clearnodeConnection: yellowState.clearnodeConnection,
+				chainId: yellowState.chainId,
+				token: getUsdcAddress(yellowState.chainId),
+			})
+		} catch (err) {
+			createError = err instanceof Error ? err.message : 'Channel creation failed'
+		} finally {
+			creatingChannel = false
+		}
+	}
+
 	const handleClose = async (ch: YellowChannelRow) => {
 		if (!yellowState.clearnodeConnection || !yellowState.address) {
 			actionError = 'Connect to Yellow before closing'
@@ -224,7 +282,8 @@
 		try {
 			await challengeChannel({
 				provider: walletProvider,
-				channelId: ch.id,
+				chainId: ch.chainId,
+				channelId: ch.id as `0x${string}`,
 				latestState: {
 					id: latestState.id,
 					channelId: latestState.channelId,
@@ -262,6 +321,39 @@
 
 <main id="main" data-column data-sticky-container>
 		<h1>Yellow Channels</h1>
+
+		<section class="connection" data-row="gap-4" data-yellow-connection>
+			{#if isConnected}
+				<span data-yellow-status="connected">Connected</span>
+				<Button.Root type="button" onclick={handleDisconnect} data-yellow-disconnect>
+					Disconnect
+				</Button.Root>
+				<Button.Root
+					type="button"
+					disabled={creatingChannel}
+					onclick={handleCreateChannel}
+					data-yellow-create-channel
+				>
+					{creatingChannel ? 'Creating…' : 'Create Channel'}
+				</Button.Root>
+			{:else}
+				<span data-yellow-status="disconnected">Disconnected</span>
+				<Button.Root
+					type="button"
+					disabled={connecting || !walletProvider}
+					onclick={handleConnect}
+					data-yellow-connect
+				>
+					{connecting ? 'Connecting…' : 'Connect to Yellow'}
+				</Button.Root>
+			{/if}
+			{#if connectError}
+				<span class="action-error" role="alert">{connectError}</span>
+			{/if}
+			{#if createError}
+				<span class="action-error" role="alert">{createError}</span>
+			{/if}
+		</section>
 
 		<section class="summary" data-row="gap-4">
 			<p>Total: {totalChannels}</p>

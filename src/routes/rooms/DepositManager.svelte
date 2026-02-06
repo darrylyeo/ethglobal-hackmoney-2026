@@ -1,6 +1,10 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { EIP1193Provider } from '$/lib/wallet'
+	import { depositToCustody, withdrawFromCustody } from '$/api/yellow'
+	import { getUsdcAddress } from '$/api/lifi'
 	import { DataSource } from '$/constants/data-sources'
 
 
@@ -13,7 +17,6 @@
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
 	import { yellowState } from '$/state/yellow.svelte'
-	import { depositToCustody, withdrawFromCustody } from '$/api/yellow'
 	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format'
 
 	const depositQuery = useLiveQuery((q) =>
@@ -53,11 +56,12 @@
 		if (!provider || !yellowState.chainId) return
 		loading = true
 		try {
-			await depositToCustody({
-				provider,
-				chainId: yellowState.chainId,
-				amount: parseDecimalToSmallest(depositAmount, 6),
-			})
+		await depositToCustody({
+			provider,
+			chainId: yellowState.chainId,
+			token: getUsdcAddress(yellowState.chainId),
+			amount: parseDecimalToSmallest(depositAmount, 6),
+		})
 			depositAmount = ''
 		} finally {
 			loading = false
@@ -68,11 +72,12 @@
 		if (!provider || !yellowState.chainId) return
 		loading = true
 		try {
-			await withdrawFromCustody({
-				provider,
-				chainId: yellowState.chainId,
-				amount: parseDecimalToSmallest(withdrawAmount, 6),
-			})
+		await withdrawFromCustody({
+			provider,
+			chainId: yellowState.chainId,
+			token: getUsdcAddress(yellowState.chainId),
+			amount: parseDecimalToSmallest(withdrawAmount, 6),
+		})
 			withdrawAmount = ''
 		} finally {
 			loading = false

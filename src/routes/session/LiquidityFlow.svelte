@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
@@ -59,7 +61,7 @@
 
 
 	// Functions
-	import { requestE2eTevmContractTx } from '$/lib/e2e/tevm'
+	import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm'
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import {
 		type LiquiditySessionParams,
@@ -111,10 +113,22 @@
 
 
 	// State
+	import {
+		addLiquidity,
+		fetchPools,
+		fetchPositions,
+		initializePool,
+	} from '$/api/uniswap'
+	import { TICK_SPACINGS } from '$/constants/uniswap'
 	import { actorCoinsCollection } from '$/collections/actor-coins'
 	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 	import { uniswapPositionsCollection } from '$/collections/uniswap-positions'
+	import {
+		fetchUniswapPools,
+		uniswapPoolsCollection,
+	} from '$/collections/uniswap-pools'
+	import { fetchUniswapPositions } from '$/collections/uniswap-positions'
 
 	let activeSessionId = $state<string | null>(null)
 	let lookupSessionId = $state<string | null>(null)
@@ -165,6 +179,12 @@
 			: null,
 	)
 
+	const poolsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: uniswapPoolsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Uniswap))
+			.select(({ row }) => ({ row })),
+	)
 	const positionsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: uniswapPositionsCollection })
@@ -183,11 +203,25 @@
 			.where(({ row }) => eq(row.$source, DataSource.TokenLists))
 			.select(({ row }) => ({ row })),
 	)
+	const matchingPool = $derived(
+		(poolsQuery.data ?? []).find(
+			(r: { row: UniswapPoolRow }) =>
+				r.row.chainId === settings.chainId &&
+				r.row.token0.toLowerCase() === settings.token0.toLowerCase() &&
+				r.row.token1.toLowerCase() === settings.token1.toLowerCase() &&
+				r.row.fee === settings.fee,
+		)?.row ?? null,
+	)
 	const liveQueryEntries = [
 		{
 			id: 'liquidity-flow-session',
 			label: 'Session',
 			query: sessionQuery,
+		},
+		{
+			id: 'liquidity-flow-pools',
+			label: 'Uniswap Pools',
+			query: poolsQuery,
 		},
 		{
 			id: 'liquidity-flow-positions',
@@ -288,6 +322,10 @@
 		if (!session) return
 		activateSession(forkTransactionSession(session).id)
 	}
+	const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as const
+	const SQRT_PRICE_X96_DEFAULT = 2n ** 96n
+	const deadline = () => Math.floor(Date.now() / 1000) + 1200
+
 	const executeLiquidity = async (args: ExecutionArgs) => {
 		if (
 			selectedActor &&
@@ -299,10 +337,40 @@
 		}
 		e2eLiquidityStatus = null
 		try {
-			const txHash = await requestE2eTevmContractTx({
+			if (E2E_TEVM_ENABLED) {
+				const txHash = await requestE2eTevmContractTx({
+					provider: args.provider,
+					from: args.walletAddress,
+					value: settings.amount0 + settings.amount1,
+				})
+				e2eLiquidityStatus = { txHash, message: 'Liquidity added.' }
+				return { txHash }
+			}
+			let poolId = matchingPool?.id ?? null
+			if (!poolId) {
+				await initializePool({
+					provider: args.provider,
+					chainId: settings.chainId,
+					token0: settings.token0,
+					token1: settings.token1,
+					fee: settings.fee,
+					tickSpacing: (TICK_SPACINGS as Record<number, number>)[settings.fee] ?? 60,
+					sqrtPriceX96: SQRT_PRICE_X96_DEFAULT,
+					hooks: ZERO_ADDRESS,
+				})
+				poolId = `pool-${settings.chainId}-${settings.token0}-${settings.token1}-${settings.fee}`
+			}
+			const { txHash } = await addLiquidity({
 				provider: args.provider,
-				from: args.walletAddress,
-				value: settings.amount0 + settings.amount1,
+				poolId,
+				tickLower: settings.tickLower,
+				tickUpper: settings.tickUpper,
+				amount0Desired: settings.amount0,
+				amount1Desired: settings.amount1,
+				amount0Min: 0n,
+				amount1Min: 0n,
+				recipient: args.walletAddress,
+				deadline: deadline(),
 			})
 			e2eLiquidityStatus = { txHash, message: 'Liquidity added.' }
 			return { txHash }
@@ -418,6 +486,23 @@
 		if (!nextChainId) return
 		if (filteredNetworks.some((n) => n.id === settings.chainId)) return
 		updateSessionParams({ ...settings, chainId: nextChainId })
+	})
+
+	$effect(() => {
+		const { chainId, token0, token1 } = settings
+		if (!chainId || !token0 || !token1 || token0 === token1) return
+		fetchUniswapPools(
+			{ chainId, token0: token0 as `0x${string}`, token1: token1 as `0x${string}` },
+			fetchPools,
+		).catch(() => {})
+	})
+
+	$effect(() => {
+		if (!selectedActor || !settings.chainId) return
+		fetchUniswapPositions(
+			{ chainId: settings.chainId, owner: selectedActor },
+			fetchPositions,
+		).catch(() => {})
 	})
 
 
@@ -655,12 +740,13 @@
 					id: `liquidity-${settings.chainId}-${settings.token0}-${settings.token1}`,
 					chainId: settings.chainId,
 					title: 'Add liquidity',
-					actionLabel: 'Add liquidity',
+					actionLabel: 'Add Liquidity',
+					dataTestId: 'add-liquidity-submit',
 					canExecute:
 						(settings.amount0 > 0n || settings.amount1 > 0n) &&
 						Boolean(selectedActor),
 					execute: executeLiquidity,
-					executionModes: ['e2e'],
+					executionModes: ['e2e', 'wallet'],
 				},
 			]}
 		/>
@@ -675,5 +761,10 @@
 		{/if}
 	</div>
 
-	<Positions {positions} chainId={settings.chainId} />
+	<Positions
+		{positions}
+		chainId={settings.chainId}
+		provider={selectedEip1193Wallet?.provider ?? null}
+		owner={selectedActor}
+	/>
 </div>

@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
@@ -12,6 +14,8 @@
 		type WalletConnectionEip1193,
 		WalletConnectionTransport,
 	} from '$/data/WalletConnection'
+	import { extractFeeBreakdown, getUsdcAddress } from '$/api/lifi'
+	import { getTxReceiptStatus } from '$/api/approval'
 	import { DataSource } from '$/constants/data-sources'
 	import { networksByChainId } from '$/constants/networks'
 	import {
@@ -36,9 +40,7 @@
 
 	// Functions
 	import { resolve } from '$app/paths'
-	import { extractFeeBreakdown, getUsdcAddress } from '$/api/lifi'
 	import { getTxUrl } from '$/constants/explorers'
-	import { getTxReceiptStatus } from '$/api/approval'
 	import { formatRelativeTime } from '$/lib/format-relative-time'
 	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
 import type { BridgeStatus } from '$/lib/bridge/tx-status'

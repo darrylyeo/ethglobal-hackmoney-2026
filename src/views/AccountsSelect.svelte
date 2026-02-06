@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type {
 		ConnectedWallet,
@@ -19,6 +21,7 @@
 		testnetsForMainnet,
 	} from '$/constants/networks'
 	import { DataSource } from '$/constants/data-sources'
+	import { getAssetUrl } from '$lib/assets/urls'
 
 
 	// Context
@@ -538,8 +541,9 @@
 											{:else if item.kind === 'network'}
 												<span class="wallet-menu-option" data-row="start gap-2">
 													<Icon
-														src={networkConfigsByChainId[item.network.id]
-															?.icon ?? `/icons/chains/${item.network.id}.svg`}
+														src={getAssetUrl(networkConfigsByChainId[item.network.id]?.icon ?? '') ??
+															networkConfigsByChainId[item.network.id]?.icon ??
+															`/icons/chains/${item.network.id}.svg`}
 														size={16}
 														class="wallet-network-icon"
 													/>
@@ -660,8 +664,9 @@
 											{:else if item.kind === 'network'}
 												<span class="wallet-menu-option" data-row="start gap-2">
 													<Icon
-														src={networkConfigsByChainId[item.network.id]
-															?.icon ?? `/icons/chains/${item.network.id}.svg`}
+														src={getAssetUrl(networkConfigsByChainId[item.network.id]?.icon ?? '') ??
+															networkConfigsByChainId[item.network.id]?.icon ??
+															`/icons/chains/${item.network.id}.svg`}
 														size={16}
 														class="wallet-network-icon"
 													/>
@@ -791,8 +796,9 @@
 											{:else if item.kind === 'network'}
 												<span class="wallet-menu-option" data-row="start gap-2">
 													<Icon
-														src={networkConfigsByChainId[item.network.id]
-															?.icon ?? `/icons/chains/${item.network.id}.svg`}
+														src={getAssetUrl(networkConfigsByChainId[item.network.id]?.icon ?? '') ??
+															networkConfigsByChainId[item.network.id]?.icon ??
+															`/icons/chains/${item.network.id}.svg`}
 														size={16}
 														class="wallet-network-icon"
 													/>
@@ -913,8 +919,9 @@
 											{:else if item.kind === 'network'}
 												<span class="wallet-menu-option" data-row="start gap-2">
 													<Icon
-														src={networkConfigsByChainId[item.network.id]
-															?.icon ?? `/icons/chains/${item.network.id}.svg`}
+														src={getAssetUrl(networkConfigsByChainId[item.network.id]?.icon ?? '') ??
+															networkConfigsByChainId[item.network.id]?.icon ??
+															`/icons/chains/${item.network.id}.svg`}
 														size={16}
 														class="wallet-network-icon"
 													/>

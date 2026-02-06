@@ -1,8 +1,11 @@
 <script lang="ts" generics="_CoinType extends CoinType = CoinType">
+
+
 	// Types/constants
 	import { type Coin, CoinType } from '$/constants/coins'
 	import type { StorkPriceRow } from '$/collections/stork-prices'
 	import { networkConfigsByChainId } from '$/constants/networks'
+	import { getAssetUrl } from '$lib/assets/urls'
 
 
 	// Props
@@ -59,6 +62,7 @@
 				<span class="coin" data-row="wrap gap-2">
 					{#if coin.icon?.original?.url}
 						{@const networkIconSrc =
+							getAssetUrl(networkConfigsByChainId[coin.chainId]?.icon ?? '') ??
 							networkConfigsByChainId[coin.chainId]?.icon ??
 							`/icons/chains/${coin.chainId}.svg`}
 						{@const networkName =

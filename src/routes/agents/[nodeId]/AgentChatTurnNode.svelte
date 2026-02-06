@@ -1,8 +1,11 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { LlmConnectionRow } from '$/collections/llm-connections'
 	import type { AgentChatTree } from '$/data/AgentChatTree'
 	import type { AgentChatTurn } from '$/data/AgentChatTurn'
+
 
 	// Props
 	let {
@@ -136,6 +139,7 @@
 	import { expoOut } from 'svelte/easing'
 </script>
 
+
 <section
 	data-status={turn.status}
 	data-column="gap-2"
@@ -250,6 +254,7 @@
 		</div>
 	{/if}
 </section>
+
 
 <style>
 	.turn-card {

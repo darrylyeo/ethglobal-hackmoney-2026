@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Context
 	import { setContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'

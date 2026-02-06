@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import {
@@ -14,13 +16,13 @@
 		sendApproval,
 		waitForApprovalConfirmation,
 	} from '$/api/approval'
-	import { switchWalletChain } from '$/lib/wallet'
+	import { getUsdcAddress } from '$/api/lifi'
 	import {
 		getCctpDomainId,
 		getCctpTokenMessenger,
 		getCctpMessageTransmitter,
 	} from '$/constants/cctp'
-	import { getUsdcAddress } from '$/api/lifi'
+	import { switchWalletChain } from '$/lib/wallet'
 
 
 	// Props

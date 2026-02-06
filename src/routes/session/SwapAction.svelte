@@ -1,10 +1,13 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Coin } from '$/constants/coins'
 	import type { FetchSwapQuoteParams } from '$/data/SwapQuote'
 	import type { SwapSessionParams } from '$/lib/session/params'
+	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
 	import { CoinType } from '$/constants/coins'
 	import { DataSource } from '$/constants/data-sources'
 	import { MediaType } from '$/constants/media'
@@ -36,7 +39,6 @@
 
 
 	// Functions
-	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
 	import { rpcUrls } from '$/constants/rpc-endpoints'
 	import { debounce } from '$/lib/debounce'
 	import {

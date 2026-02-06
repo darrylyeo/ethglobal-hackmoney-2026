@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
+	import { coinAssetUrl, getAssetUrl } from '$lib/assets/urls'
 	import { networkConfigs, toNetworkSlug } from '$/constants/networks'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 
@@ -310,8 +313,18 @@
 					title: 'Coins',
 					icon: '🪙',
 					children: [
-						{ id: 'usdc', title: 'USDC', href: '/coin/USDC', icon: '💵' },
-						{ id: 'eth', title: 'ETH', href: '/coin/ETH', icon: '⟠' },
+						{
+							id: 'usdc',
+							title: 'USDC',
+							href: '/coin/USDC',
+							icon: coinAssetUrl('usdc'),
+						},
+						{
+							id: 'eth',
+							title: 'ETH',
+							href: '/coin/ETH',
+							icon: coinAssetUrl('eth'),
+						},
 					],
 				},
 				{
@@ -323,7 +336,7 @@
 						id: `network-${config.chainId}`,
 						title: config.name,
 						href: `/network/${toNetworkSlug(config.name)}`,
-						icon: config.icon ?? '🌐',
+						icon: getAssetUrl(config.icon ?? '') ?? config.icon ?? '🌐',
 					})),
 				},
 			],

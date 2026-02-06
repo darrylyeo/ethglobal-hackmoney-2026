@@ -1,7 +1,10 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import { networkConfigsByChainId } from '$/constants/networks'
 	import type { Network } from '$/constants/networks'
+	import { getAssetUrl } from '$lib/assets/urls'
 
 
 	// Props
@@ -29,6 +32,92 @@
 
 
 	// (Derived)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -68,7 +157,8 @@
 	<span data-row="start gap-2" data-selected={selected}>
 		<span class="network-input-icon">
 			<Icon
-				src={networkConfigsByChainId[network.id]?.icon ??
+				src={getAssetUrl(networkConfigsByChainId[network.id]?.icon ?? '') ??
+					networkConfigsByChainId[network.id]?.icon ??
 					`/icons/chains/${network.id}.svg`}
 				size={16}
 			/>

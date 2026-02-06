@@ -1,3 +1,4 @@
+import { providerAssetUrl } from '$lib/assets/urls'
 import { networkConfigs } from '$/constants/networks'
 
 export type ArchitectureLayer =
@@ -81,7 +82,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.client,
 		y: rowY(0),
 		size: 58,
-		shape: 'rect',
+		shape: 'image',
+		icon: providerAssetUrl('svelte'),
 		badge: '/session • /rooms',
 		priority: 'primary',
 		details: {
@@ -97,7 +99,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.client,
 		y: rowY(1),
 		size: 46,
-		shape: 'rect',
+		shape: 'image',
+		icon: providerAssetUrl('svelte'),
 		badge: 'Panel tree',
 		priority: 'secondary',
 		details: {
@@ -112,7 +115,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.client,
 		y: rowY(2),
 		size: 48,
-		shape: 'ellipse',
+		shape: 'image',
+		icon: providerAssetUrl('threlte'),
 		badge: 'G6 / Sigma / Threlte',
 		priority: 'secondary',
 		details: {
@@ -203,7 +207,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.state,
 		y: rowY(4),
 		size: 48,
-		shape: 'ellipse',
+		shape: 'image',
+		icon: providerAssetUrl('tanstack'),
 		badge: 'TanStack DB',
 		priority: 'primary',
 		details: {
@@ -293,7 +298,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.services,
 		y: rowY(1),
 		size: 48,
-		shape: 'rect',
+		shape: 'image',
+		icon: providerAssetUrl('voltaire'),
 		badge: 'ABI + JSON-RPC',
 		priority: 'primary',
 		details: {
@@ -323,7 +329,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.services,
 		y: rowY(3),
 		size: 48,
-		shape: 'rect',
+		shape: 'image',
+		icon: providerAssetUrl('lifi'),
 		badge: 'Routes + Execute',
 		priority: 'primary',
 		details: {
@@ -338,7 +345,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.services,
 		y: rowY(4),
 		size: 48,
-		shape: 'rect',
+		shape: 'image',
+		icon: providerAssetUrl('circle'),
 		badge: 'Burn / Attest / Mint',
 		priority: 'primary',
 		details: {
@@ -353,7 +361,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.services,
 		y: rowY(5),
 		size: 50,
-		shape: 'rect',
+		shape: 'image',
+		icon: providerAssetUrl('uniswap'),
 		badge: 'Uniswap V4',
 		priority: 'secondary',
 		details: {
@@ -368,7 +377,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.services,
 		y: rowY(6),
 		size: 46,
-		shape: 'ellipse',
+		shape: 'image',
+		icon: providerAssetUrl('voltaire'),
 		badge: 'Logs + Graphs',
 		priority: 'secondary',
 		details: {
@@ -473,7 +483,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.external,
 		y: rowY(1),
 		size: 42,
-		shape: 'rect',
+		shape: 'image',
+		icon: providerAssetUrl('lifi'),
 		badge: 'Routes + Status',
 		priority: 'primary',
 		details: {
@@ -488,7 +499,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.external,
 		y: rowY(2),
 		size: 42,
-		shape: 'rect',
+		shape: 'image',
+		icon: providerAssetUrl('circle'),
 		badge: 'Burn + Mint',
 		priority: 'primary',
 		details: {
@@ -518,7 +530,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.external,
 		y: rowY(4),
 		size: 40,
-		shape: 'rect',
+		shape: 'image',
+		icon: providerAssetUrl('uniswap'),
 		badge: 'Pool Manager',
 		priority: 'secondary',
 		details: {
@@ -638,7 +651,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.tooling,
 		y: rowY(6, 120, 120),
 		size: 44,
-		shape: 'circle',
+		shape: 'image',
+		icon: providerAssetUrl('deno'),
 		badge: 'Tasks + Scripts',
 		priority: 'secondary',
 		details: {
@@ -668,7 +682,8 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		x: layerX.tooling,
 		y: rowY(8, 120, 120),
 		size: 40,
-		shape: 'diamond',
+		shape: 'image',
+		icon: providerAssetUrl('voltaire'),
 		badge: 'Simulation',
 		priority: 'optional',
 		details: {

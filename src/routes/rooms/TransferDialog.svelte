@@ -1,6 +1,9 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { YellowChannelRow } from '$/collections/yellow-channels'
+	import { sendTransfer } from '$/api/yellow'
 
 
 	// Props
@@ -15,7 +18,6 @@
 
 	// State
 	import { yellowState } from '$/state/yellow.svelte'
-	import { sendTransfer } from '$/api/yellow'
 	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format'
 
 	let amount = $state('')

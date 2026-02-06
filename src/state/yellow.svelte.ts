@@ -209,11 +209,13 @@ export const connectToYellow = async (
 	chainId: number,
 	provider: EIP1193Provider,
 	address: `0x${string}`,
+	wsUrl?: string,
 ) => {
 	const connection = await connectClearnode({
 		chainId,
 		signer: provider,
 		address,
+		wsUrl,
 	})
 	connection.onMessage((msg) => {
 		try {

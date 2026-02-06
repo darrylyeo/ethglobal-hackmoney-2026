@@ -1,10 +1,14 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Coin } from '$/constants/coins'
+	import type { TransferSessionParams } from '$/lib/session/params'
+	import { encodeTransferCall } from '$/api/voltaire'
+	import { sendTransfer } from '$/api/yellow'
 	import { CoinType } from '$/constants/coins'
 	import { networksByChainId } from '$/constants/networks'
-	import type { TransferSessionParams } from '$/lib/session/params'
 
 
 	// Context
@@ -215,8 +219,6 @@
 
 
 	// Functions
-	import { encodeTransferCall } from '$/api/voltaire'
-	import { sendTransfer } from '$/api/yellow'
 	import { requestE2eTevmValueTransfer } from '$/lib/e2e/tevm'
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { getTransferSessionParams } from '$/lib/session/params'

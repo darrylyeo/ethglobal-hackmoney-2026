@@ -1,11 +1,15 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { LlmConnectionRow } from '$/collections/llm-connections'
 	import {
 		type LlmConnectionProviderType,
 		LlmConnectionProvider,
 	} from '$/data/LlmConnection'
+	import { getModelsForConnection } from '$/api/llm/connection-provider'
 	import { DataSource } from '$/constants/data-sources'
+
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -17,7 +21,6 @@
 		updateLlmConnection,
 		PROVIDER_LABELS,
 	} from '$/collections/llm-connections'
-	import { getModelsForConnection } from '$/api/llm/connection-provider'
 
 	const connectionsQuery = useLiveQuery((q) =>
 		q
@@ -43,7 +46,7 @@
 				LlmConnectionProvider.Hosted,
 			] as LlmConnectionProviderType[]
 		).map((provider) => ({
-			type: 'item',
+			type: 'item' as const,
 			id: `add-${provider}`,
 			item: { provider, label: PROVIDER_LABELS[provider] ?? provider },
 			onSelect: () => {
@@ -62,6 +65,7 @@
 	const needsEndpoint = (provider: LlmConnectionProviderType) =>
 		provider === LlmConnectionProvider.Hosted
 
+
 	// Actions
 	const handleRemove = (id: string) => removeLlmConnection(id)
 	const handleLabelChange = (id: string, value: string) =>
@@ -73,10 +77,12 @@
 	const handleDefaultModelChange = (id: string, value: string) =>
 		updateLlmConnection(id, { defaultModelId: value || undefined })
 
+
 	// Components
 	import Dropdown from '$/components/Dropdown.svelte'
 	import { Button } from 'bits-ui'
 </script>
+
 
 <div data-row="wrap align-start">
 	<details data-row-item="flexible" data-card="radius-4" open>
@@ -162,7 +168,7 @@
 									<input
 										id="llm-apikey-zen-{conn.id}"
 										type="password"
-										placeholder="Optional if PUBLIC_OPENCODE_ZEN_API_KEY set"
+										placeholder="Optional if PUBLIC_OPENCODE_API_KEY set"
 										bind:value={() => conn.apiKey ?? '', (v) =>
 											handleApiKeyChange(conn.id, v)}
 									/>

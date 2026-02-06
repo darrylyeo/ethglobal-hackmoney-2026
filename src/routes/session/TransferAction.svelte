@@ -1,9 +1,13 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Coin } from '$/constants/coins'
 	import type { Transaction$Id } from '$/data/Transaction'
 	import type { TransferSessionParams } from '$/lib/session/params'
+	import { encodeTransferCall } from '$/api/voltaire'
+	import { sendTransfer } from '$/api/yellow'
 	import { CoinType } from '$/constants/coins'
 	import { networksByChainId } from '$/constants/networks'
 
@@ -21,8 +25,90 @@
 
 
 	// Functions
-	import { encodeTransferCall } from '$/api/voltaire'
-	import { sendTransfer } from '$/api/yellow'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	// Components
 	import Address from '$/components/Address.svelte'
 	import LoadingButton from '$/components/LoadingButton.svelte'

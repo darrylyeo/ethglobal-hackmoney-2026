@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { StorkPriceRow } from '$/collections/stork-prices'
 
