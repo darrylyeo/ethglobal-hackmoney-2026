@@ -2,12 +2,12 @@
  * SIWE challenges collection: per-peer sign-in challenges for address verification.
  */
 
+import { DataSource } from '$/constants/data-sources'
+import type { SiweChallenge } from '$/data/SiweChallenge'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { DataSource } from '$/constants/data-sources'
-import type { SiweChallenge } from '$/data/SiweChallenge'
 
 export type SiweChallengeRow = SiweChallenge & { $source: DataSource }
 
