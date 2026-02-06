@@ -77,3 +77,30 @@ export const isValidDecimalInput = (
 	const [, fraction = ''] = cleaned.split('.')
 	return fraction.length <= decimals
 }
+
+/** Convert hex Wei string (e.g. "0x38d7ea4c68000") or bigint to ETH display. */
+export const formatWei = (
+	value: string | bigint,
+	maxFractionDigits = 6,
+): string => {
+	const wei = (
+		typeof value === 'bigint'
+			? value
+		: typeof value === 'string' && value.startsWith('0x')
+			? BigInt(value)
+		:
+			BigInt(value || '0')
+	)
+	if (wei === 0n) return '0'
+	return formatSmallestToDecimal(wei, 18, maxFractionDigits)
+}
+
+/** Format a bigint gas value with locale grouping. */
+export const formatGas = (value: bigint, locale?: string): string => (
+	new Intl.NumberFormat(locale, { useGrouping: true }).format(value)
+)
+
+/** Format Gwei from a Wei bigint. */
+export const formatGwei = (wei: bigint, maxFractionDigits = 2): string => (
+	formatSmallestToDecimal(wei, 9, maxFractionDigits)
+)
