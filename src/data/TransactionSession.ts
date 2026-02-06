@@ -10,7 +10,7 @@ export type TransactionSessionAction =
 export type TransactionSessionSimulationSummary = {
 	forkMetadata: { blockNumber: number; rpcUrl: string; timestamp?: number }
 	summaryStatus: 'success' | 'revert' | 'error'
-	gasTotals: { used: string; refund?: string }
+	gasTotals: { used: string; refund?: string },
 }
 
 export type TransactionSession = {
@@ -27,10 +27,11 @@ export type TransactionSession = {
 	execution?: {
 		submittedAt: number
 		txHash?: `0x${string}`
-		chainId?: number
+		chainId?: number,
 	}
 	finalization?: {
 		at: number
-		receipt?: Record<string, unknown>
-	}
+		receipt?: Record<string, unknown>,
+	},
 }
+
