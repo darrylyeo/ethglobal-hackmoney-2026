@@ -1,10 +1,10 @@
+import { DataSource } from '$/constants/data-sources'
+import type { CctpFee, CctpFee$Id, CctpFeeItem } from '$/data/CctpFee'
+import { stringify } from 'devalue'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { stringify } from 'devalue'
-import { DataSource } from '$/constants/data-sources'
-import type { CctpFee, CctpFee$Id, CctpFeeItem } from '$/data/CctpFee'
 
 export type CctpFeeRow = CctpFee & { $source: DataSource }
 
@@ -28,8 +28,7 @@ export const cctpFeesCollection = createCollection(
 
 export const fetchCctpFees = async ($id: CctpFee$Id): Promise<CctpFeeRow> => {
 	const key = stringify($id)
-	const existing = cctpFeesCollection.state.get(key)
-	if (existing) {
+	if (cctpFeesCollection.state.get(key)) {
 		cctpFeesCollection.update(key, (draft) => {
 			draft.isLoading = true
 			draft.error = null
@@ -50,17 +49,20 @@ export const fetchCctpFees = async ($id: CctpFee$Id): Promise<CctpFeeRow> => {
 			`${$id.apiHost}/v2/burn/USDC/fees/${$id.fromDomain}/${$id.toDomain}`,
 			{ headers: { Accept: 'application/json' } },
 		)
-		if (!response.ok) throw new Error(`Fee request failed (${response.status})`)
+		if (!response.ok)
+			throw new Error(`Fee request failed (${response.status})`)
 		const data = await response.json()
-		const rows = Array.isArray(data)
-			? data
+		const rows = (
+			Array.isArray(data) ?
+				data
 					.map(toCctpFeeItem)
 					.filter((row): row is CctpFeeItem => row !== null)
-			: []
-		const fetchedAt = Date.now()
+			:
+				[]
+		)
 		cctpFeesCollection.update(key, (draft) => {
 			draft.rows = rows
-			draft.fetchedAt = fetchedAt
+			draft.fetchedAt = Date.now()
 			draft.isLoading = false
 			draft.error = null
 		})
