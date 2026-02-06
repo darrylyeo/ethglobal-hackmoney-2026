@@ -484,7 +484,8 @@ export const testnetIdsForMainnetId = Object.fromEntries(
 		Map.groupBy(
 			mainnetTestnetMappings,
 			(mapping) => mapping.mainnetChainId,
-		).entries(),
+		)
+			.entries(),
 		([mainnetId, mappings]) => [
 			mainnetId,
 			mappings.map((m) => m.testnetChainId),
