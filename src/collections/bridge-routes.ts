@@ -9,14 +9,13 @@ import {
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
+import { getRoutesForUsdcBridge, type NormalizedRoute } from '$/api/lifi'
 import { DataSource } from '$/constants/data-sources'
 import type {
 	BridgeRoute,
 	BridgeRoutes,
 	BridgeRoutes$Id,
 } from '$/data/BridgeRoute'
-import { getRoutesForUsdcBridge, type NormalizedRoute } from '$/api/lifi'
-import type { BridgeError } from '$/lib/bridge/errors'
 import { categorizeError, isBridgeError } from '$/lib/bridge/errors'
 
 export type BridgeRoutesRow = BridgeRoutes & { $source: DataSource }

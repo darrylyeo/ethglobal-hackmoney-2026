@@ -11,3 +11,4 @@ export const normalizeSwapQuote = (entry: SwapQuote): SwapQuote => ({
 	route: entry.route.map((r) => ({ ...r })),
 	gasEstimate: BigInt(entry.gasEstimate),
 })
+

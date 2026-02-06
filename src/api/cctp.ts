@@ -1,7 +1,7 @@
 /**
  * Circle CCTP API: fees, allowance, messages/attestation, and contract call encoding.
  */
-import { encodeFunction } from '@tevm/voltaire/Abi'
+import { Abi, encodeFunction } from '@tevm/voltaire/Abi'
 
 export type CctpMessageResponse = {
 	messages?: {
@@ -21,11 +21,11 @@ export function addressToBytes32(addr: `0x${string}`): `0x${string}` {
 	return `0x${hex}` as `0x${string}`
 }
 
-const DEPOSIT_FOR_BURN_ABI = [
+const DEPOSIT_FOR_BURN_ABI = Abi([
 	{
-		type: 'function' as const,
+		type: 'function',
 		name: 'depositForBurn',
-		stateMutability: 'payable' as const,
+		stateMutability: 'payable',
 		inputs: [
 			{ type: 'uint256', name: 'amount' },
 			{ type: 'uint32', name: 'destinationDomain' },
@@ -33,24 +33,24 @@ const DEPOSIT_FOR_BURN_ABI = [
 			{ type: 'address', name: 'burnToken' },
 			{ type: 'bytes32', name: 'destinationCaller' },
 			{ type: 'uint256', name: 'maxFee' },
-			{ type: 'uint32', name: 'minFinalityThreshold', },
+			{ type: 'uint32', name: 'minFinalityThreshold' },
 		],
-		outputs: [{ type: 'uint64', name: 'nonce', }],
+		outputs: [{ type: 'uint64', name: 'nonce' }],
 	},
-] as const
+]) as unknown as Abi
 
-const RECEIVE_MESSAGE_ABI = [
+const RECEIVE_MESSAGE_ABI = Abi([
 	{
-		type: 'function' as const,
+		type: 'function',
 		name: 'receiveMessage',
-		stateMutability: 'nonpayable' as const,
+		stateMutability: 'nonpayable',
 		inputs: [
 			{ type: 'bytes', name: 'message' },
 			{ type: 'bytes', name: 'attestation' },
 		],
 		outputs: [],
 	},
-] as const
+]) as unknown as Abi
 
 export function encodeDepositForBurn(
 	amount: bigint,

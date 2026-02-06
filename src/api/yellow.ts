@@ -7,13 +7,16 @@ import type { EIP1193Provider } from '$/lib/wallet'
 import { createWalletClientForChain } from '$/lib/wallet'
 import type { YellowChannelState } from '$/data/YellowChannelState'
 import {
-	CUSTODY_CONTRACT_ADDRESS,
+	yellowDeploymentByChainId,
 	YellowEnvironment,
 	yellowClearnodeEndpointByEnvironment,
+	CHALLENGE_PERIOD,
 } from '$/constants/yellow'
 import { NetworkType, networkConfigsByChainId } from '$/constants/networks'
+import { rpcUrls } from '$/constants/rpc-endpoints'
 import { parseDecimalToSmallest } from '$/lib/format'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { createPublicClient, http } from 'viem'
 
 export type ClearnodeConnection = {
 	close: () => void
@@ -33,6 +36,7 @@ export const connectClearnode = async (params: {
 	signer: EIP1193Provider
 	address: `0x${string}`
 	environment?: YellowEnvironment
+	wsUrl?: string
 }): Promise<ClearnodeConnection> => {
 	const {
 		createAuthRequestMessage,
@@ -42,7 +46,9 @@ export const connectClearnode = async (params: {
 		createGetLedgerBalancesMessage,
 	} = await getYellowSdk()
 	const wsUrl =
-		yellowClearnodeEndpointByEnvironment[
+		params.wsUrl
+		?? (typeof globalThis.window !== 'undefined' && (globalThis.window as unknown as Record<string, unknown>).__E2E_CLEARNODE_WS_URL__ as string | undefined)
+		?? yellowClearnodeEndpointByEnvironment[
 			params.environment ??
 				(networkConfigsByChainId[params.chainId]?.type === NetworkType.Testnet ?
 					YellowEnvironment.Sandbox
@@ -210,64 +216,66 @@ export const connectClearnode = async (params: {
 	}
 }
 
+const createNitroliteClient = async (
+	provider: EIP1193Provider,
+	chainId: number,
+) => {
+	const deployment = yellowDeploymentByChainId[chainId]
+	if (!deployment) {
+		throw new Error('Yellow contracts not deployed on this chain')
+	}
+	const rpcUrl = rpcUrls[chainId]
+	if (!rpcUrl) {
+		throw new Error('No RPC endpoint for this chain')
+	}
+	const { NitroliteClient, WalletStateSigner } = await getYellowSdk()
+	const walletClient = createWalletClientForChain(provider, chainId)
+	const accounts = (await provider.request({
+		method: 'eth_accounts',
+		params: [],
+	})) as `0x${string}`[]
+	const account = accounts[0]
+	if (!account) {
+		throw new Error('No connected account')
+	}
+	const publicClient = createPublicClient({ transport: http(rpcUrl) })
+	return new NitroliteClient({
+		publicClient,
+		walletClient: Object.assign(walletClient, {
+			account: { address: account, type: 'json-rpc' as const },
+		}),
+		stateSigner: new WalletStateSigner(
+			Object.assign(walletClient, {
+				account: { address: account, type: 'json-rpc' as const },
+			}),
+		),
+		addresses: {
+			custody: deployment.custody,
+			adjudicator: deployment.adjudicator,
+		},
+		chainId,
+		challengeDuration: BigInt(CHALLENGE_PERIOD ?? 86400),
+	})
+}
+
 export const depositToCustody = async (params: {
 	provider: EIP1193Provider
 	chainId: number
+	token: `0x${string}`
 	amount: bigint
 }): Promise<{ txHash: `0x${string}` }> => {
-	if (!CUSTODY_CONTRACT_ADDRESS[params.chainId]) {
-		throw new Error('Yellow Custody Contract not configured for this chain')
-	}
-	const sdk = await getYellowSdk()
-	if (
-		sdk &&
-		typeof (
-			sdk as {
-				depositToCustody?: (
-					p: typeof params,
-				) => Promise<{ txHash: `0x${string}` }>
-			}
-		).depositToCustody === 'function'
-	) {
-		return (
-			sdk as unknown as {
-				depositToCustody: (
-					p: typeof params,
-				) => Promise<{ txHash: `0x${string}` }>
-			}
-		).depositToCustody(params)
-	}
-	throw new Error('Yellow SDK not loaded; deposit when configured')
+	const client = await createNitroliteClient(params.provider, params.chainId)
+	return { txHash: await client.deposit(params.token, params.amount) }
 }
 
 export const withdrawFromCustody = async (params: {
 	provider: EIP1193Provider
 	chainId: number
+	token: `0x${string}`
 	amount: bigint
 }): Promise<{ txHash: `0x${string}` }> => {
-	if (!CUSTODY_CONTRACT_ADDRESS[params.chainId]) {
-		throw new Error('Yellow Custody Contract not configured for this chain')
-	}
-	const sdk = await getYellowSdk()
-	if (
-		sdk &&
-		typeof (
-			sdk as {
-				withdrawFromCustody?: (
-					p: typeof params,
-				) => Promise<{ txHash: `0x${string}` }>
-			}
-		).withdrawFromCustody === 'function'
-	) {
-		return (
-			sdk as unknown as {
-				withdrawFromCustody: (
-					p: typeof params,
-				) => Promise<{ txHash: `0x${string}` }>
-			}
-		).withdrawFromCustody(params)
-	}
-	throw new Error('Yellow SDK not loaded; withdraw when configured')
+	const client = await createNitroliteClient(params.provider, params.chainId)
+	return { txHash: await client.withdrawal(params.token, params.amount) }
 }
 
 export const getAvailableBalance = async (params: {
@@ -427,27 +435,25 @@ export const closeChannel = async (params: {
 
 export const challengeChannel = async (params: {
 	provider: EIP1193Provider
-	channelId: string
+	chainId: number
+	channelId: `0x${string}`
 	latestState: YellowChannelState
 }): Promise<{ txHash: `0x${string}` }> => {
-	const sdk = await getYellowSdk()
-	if (
-		sdk &&
-		typeof (
-			sdk as {
-				challengeChannel?: (
-					p: typeof params,
-				) => Promise<{ txHash: `0x${string}` }>
-			}
-		).challengeChannel === 'function'
-	) {
-		return (
-			sdk as unknown as {
-				challengeChannel: (
-					p: typeof params,
-				) => Promise<{ txHash: `0x${string}` }>
-			}
-		).challengeChannel(params)
+	const client = await createNitroliteClient(params.provider, params.chainId)
+	return {
+		txHash: await client.challengeChannel({
+			channelId: params.channelId,
+			candidateState: {
+				intent: params.latestState.intent,
+				version: BigInt(params.latestState.version),
+				data: params.latestState.stateData,
+				allocations: params.latestState.allocations.map((a) => ({
+					destination: a.destination,
+					token: a.token,
+					amount: a.amount,
+				})),
+				sigs: params.latestState.signatures,
+			},
+		}),
 	}
-	throw new Error('Yellow SDK not loaded; challenge channel when configured')
 }

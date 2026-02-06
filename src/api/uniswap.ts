@@ -5,6 +5,7 @@
  */
 
 import type { UniswapPool } from '$/data/UniswapPool'
+import type { UniswapPosition } from '$/data/UniswapPosition'
 import type { SwapQuote, SwapRoute } from '$/data/SwapQuote'
 import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap'
 import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm'
@@ -18,6 +19,11 @@ export type FetchPoolsParams = {
 	chainId: number
 	token0: `0x${string}`
 	token1: `0x${string}`
+}
+
+export type FetchPositionsParams = {
+	chainId: number
+	owner: `0x${string}`
 }
 
 export type GetSwapQuoteParams = {
@@ -64,6 +70,38 @@ export type RemoveLiquidityParams = {
 	deadline: number
 }
 
+export type CreatePoolParams = {
+	provider: EIP1193Provider
+	chainId: number
+	token0: `0x${string}`
+	token1: `0x${string}`
+	fee: number
+	tickSpacing: number
+	sqrtPriceX96: bigint
+	hooks?: `0x${string}`
+}
+
+export type InitializePoolParams = CreatePoolParams
+
+export type CollectFeesParams = {
+	provider: EIP1193Provider
+	positionId: string
+	recipient: `0x${string}`
+	amount0Max: bigint
+	amount1Max: bigint
+	deadline: number
+}
+
+export type IncreaseLiquidityParams = {
+	provider: EIP1193Provider
+	positionId: string
+	amount0Desired: bigint
+	amount1Desired: bigint
+	amount0Min: bigint
+	amount1Min: bigint
+	deadline: number
+}
+
 export const getUniswapSdk = async (): Promise<unknown> => null
 
 export const fetchPools = async (
@@ -79,6 +117,31 @@ export const fetchPools = async (
 		return (
 			sdk as { fetchPools: (p: FetchPoolsParams) => Promise<UniswapPool[]> }
 		).fetchPools(params)
+	}
+	return []
+}
+
+export const fetchPositions = async (
+	params: FetchPositionsParams,
+): Promise<UniswapPosition[]> => {
+	const sdk = await getUniswapSdk()
+	if (
+		sdk &&
+		typeof (
+			sdk as {
+				fetchPositions?: (
+					p: FetchPositionsParams,
+				) => Promise<UniswapPosition[]>
+			}
+		).fetchPositions === 'function'
+	) {
+		return (
+			sdk as {
+				fetchPositions: (
+					p: FetchPositionsParams,
+				) => Promise<UniswapPosition[]>
+			}
+		).fetchPositions(params)
 	}
 	return []
 }
@@ -228,5 +291,141 @@ export const removeLiquidity = async (
 		).removeLiquidity(params)
 	}
 	throw new Error('Uniswap V4 SDK not loaded; remove liquidity when configured')
+}
+
+export const createPool = async (
+	params: CreatePoolParams,
+): Promise<{ txHash: `0x${string}`; poolId?: string }> => {
+	if (E2E_TEVM_ENABLED) {
+		return {
+			txHash: await requestE2eTevmContractTx({
+				provider: params.provider,
+				from: E2E_TEVM_WALLET_ADDRESS,
+				value: 0n,
+			}),
+		}
+	}
+	const sdk = await getUniswapSdk()
+	if (
+		sdk &&
+		typeof (
+			sdk as {
+				createPool?: (
+					p: CreatePoolParams,
+				) => Promise<{ txHash: `0x${string}`; poolId?: string }>
+			}
+		).createPool === 'function'
+	) {
+		return (
+			sdk as {
+				createPool: (
+					p: CreatePoolParams,
+				) => Promise<{ txHash: `0x${string}`; poolId?: string }>
+			}
+		).createPool(params)
+	}
+	throw new Error('Uniswap V4 SDK not loaded; create pool when configured')
+}
+
+export const initializePool = async (
+	params: InitializePoolParams,
+): Promise<{ txHash: `0x${string}` }> => {
+	if (E2E_TEVM_ENABLED) {
+		return {
+			txHash: await requestE2eTevmContractTx({
+				provider: params.provider,
+				from: E2E_TEVM_WALLET_ADDRESS,
+				value: 0n,
+			}),
+		}
+	}
+	const sdk = await getUniswapSdk()
+	if (
+		sdk &&
+		typeof (
+			sdk as {
+				initializePool?: (
+					p: InitializePoolParams,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).initializePool === 'function'
+	) {
+		return (
+			sdk as {
+				initializePool: (
+					p: InitializePoolParams,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).initializePool(params)
+	}
+	throw new Error('Uniswap V4 SDK not loaded; initialize pool when configured')
+}
+
+export const collectFees = async (
+	params: CollectFeesParams,
+): Promise<{ txHash: `0x${string}` }> => {
+	if (E2E_TEVM_ENABLED) {
+		return {
+			txHash: await requestE2eTevmContractTx({
+				provider: params.provider,
+				from: params.recipient,
+				value: 0n,
+			}),
+		}
+	}
+	const sdk = await getUniswapSdk()
+	if (
+		sdk &&
+		typeof (
+			sdk as {
+				collectFees?: (
+					p: CollectFeesParams,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).collectFees === 'function'
+	) {
+		return (
+			sdk as {
+				collectFees: (
+					p: CollectFeesParams,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).collectFees(params)
+	}
+	throw new Error('Uniswap V4 SDK not loaded; collect fees when configured')
+}
+
+export const increaseLiquidity = async (
+	params: IncreaseLiquidityParams,
+): Promise<{ txHash: `0x${string}` }> => {
+	if (E2E_TEVM_ENABLED) {
+		return {
+			txHash: await requestE2eTevmContractTx({
+				provider: params.provider,
+				from: E2E_TEVM_WALLET_ADDRESS,
+				value: params.amount0Desired + params.amount1Desired,
+			}),
+		}
+	}
+	const sdk = await getUniswapSdk()
+	if (
+		sdk &&
+		typeof (
+			sdk as {
+				increaseLiquidity?: (
+					p: IncreaseLiquidityParams,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).increaseLiquidity === 'function'
+	) {
+		return (
+			sdk as {
+				increaseLiquidity: (
+					p: IncreaseLiquidityParams,
+				) => Promise<{ txHash: `0x${string}` }>
+			}
+		).increaseLiquidity(params)
+	}
+	throw new Error('Uniswap V4 SDK not loaded; increase liquidity when configured')
 }
 

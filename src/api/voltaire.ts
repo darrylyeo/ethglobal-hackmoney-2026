@@ -10,6 +10,65 @@ export type VoltaireProvider = {
 	removeListener: (event: string, listener: () => void) => VoltaireProvider
 }
 
+export type EvmLog = {
+	address: string
+	topics: string[]
+	data: string
+	blockNumber: string
+	transactionHash: string
+	logIndex: string
+}
+
+export type EvmBlock = {
+	number: bigint
+	timestamp: number
+	hash?: `0x${string}`
+	parentHash?: `0x${string}`
+	miner?: `0x${string}`
+	gasUsed?: bigint
+	gasLimit?: bigint
+	baseFeePerGas?: bigint
+}
+
+export type EvmTransaction = {
+	hash: string
+	blockNumber: string
+	blockHash: string
+	transactionIndex: string
+	from: string
+	to: string | null
+	value: string
+	nonce: string
+	input: string
+	gas: string
+	gasPrice: string
+	type?: string
+	maxFeePerGas?: string
+	maxPriorityFeePerGas?: string
+}
+
+export type EvmTransactionReceipt = {
+	status: string
+	gasUsed: string
+	contractAddress: string | null
+	effectiveGasPrice?: string
+	cumulativeGasUsed?: string
+	logs: EvmLog[]
+}
+
+export type RawTrace = {
+	type?: string
+	from?: string
+	to?: string
+	value?: string
+	gas?: string
+	gasUsed?: string
+	input?: string
+	output?: string
+	error?: string
+	calls?: RawTrace[]
+}
+
 export function getChainId(provider: VoltaireProvider): Promise<bigint> {
 	return provider
 		.request({ method: 'eth_chainId', params: [] })
@@ -95,15 +154,6 @@ export function encodeTransferCall(
 export const TRANSFER_TOPIC =
 	'0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4d52336f2' as const
 
-export type EvmLog = {
-	address: string
-	topics: string[]
-	data: string
-	blockNumber: string
-	transactionHash: string
-	logIndex: string
-}
-
 function parseBlockNumber(
 	v: string | number | undefined | null,
 ): bigint | undefined {
@@ -115,17 +165,6 @@ function parseBlockTimestampMs(
 ): number | undefined {
 	if (v === undefined || v === null) return undefined
 	return typeof v === 'number' ? v * 1000 : parseInt(v, 16) * 1000
-}
-
-export type EvmBlock = {
-	number: bigint
-	timestamp: number
-	hash?: `0x${string}`
-	parentHash?: `0x${string}`
-	miner?: `0x${string}`
-	gasUsed?: bigint
-	gasLimit?: bigint
-	baseFeePerGas?: bigint
 }
 
 const parseHexAddress = (v: unknown): `0x${string}` | undefined => (
@@ -147,7 +186,7 @@ const parseHexBigInt = (v: unknown): bigint | undefined => (
 export async function getBlockByNumber(
 	provider: VoltaireProvider,
 	blockNum: bigint | 'latest',
-): Promise<EthBlock> {
+): Promise<EvmBlock> {
 	const blockHex =
 		blockNum === 'latest' ? 'latest' : `0x${blockNum.toString(16)}`
 	const res = await provider.request({
@@ -215,23 +254,6 @@ export async function getBlockTransactionHashes(
 	)
 }
 
-export type EvmTransaction = {
-	hash: string
-	blockNumber: string
-	blockHash: string
-	transactionIndex: string
-	from: string
-	to: string | null
-	value: string
-	nonce: string
-	input: string
-	gas: string
-	gasPrice: string
-	type?: string
-	maxFeePerGas?: string
-	maxPriorityFeePerGas?: string
-}
-
 export async function getTransactionByHash(
 	provider: VoltaireProvider,
 	hash: `0x${string}`,
@@ -244,19 +266,10 @@ export async function getTransactionByHash(
 	return tx ?? null
 }
 
-export type EvmTransactionReceipt = {
-	status: string
-	gasUsed: string
-	contractAddress: string | null
-	effectiveGasPrice?: string
-	cumulativeGasUsed?: string
-	logs: EvmLog[]
-}
-
 export async function getTransactionReceipt(
 	provider: VoltaireProvider,
 	hash: `0x${string}`,
-): Promise<EthTransactionReceipt | null> {
+): Promise<EvmTransactionReceipt | null> {
 	const res = await provider.request({
 		method: 'eth_getTransactionReceipt',
 		params: [hash],
@@ -300,19 +313,6 @@ export async function getLogs(
 	})
 	const logs = res as EvmLog[] | null
 	return Array.isArray(logs) ? logs : []
-}
-
-export type RawTrace = {
-	type?: string
-	from?: string
-	to?: string
-	value?: string
-	gas?: string
-	gasUsed?: string
-	input?: string
-	output?: string
-	error?: string
-	calls?: RawTrace[]
 }
 
 /** Attempt debug_traceTransaction (callTracer). Returns null if unsupported. */

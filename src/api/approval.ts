@@ -1,3 +1,4 @@
+import { rpcUrls } from '$/constants/rpc-endpoints'
 import type { EIP1193Provider } from '$/lib/wallet'
 import {
 	createHttpProvider,
@@ -5,7 +6,6 @@ import {
 	getErc20Allowance,
 	MAX_UINT256,
 } from './voltaire'
-import { rpcUrls } from '$/constants/rpc-endpoints'
 
 export type ApprovalState =
 	| 'unknown'

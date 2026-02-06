@@ -7,10 +7,6 @@ import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { DataSource } from '$/constants/data-sources'
-import type { ChainId } from '$/constants/networks'
-import { rpcUrls } from '$/constants/rpc-endpoints'
-import type { BlockEntry, Block$Id } from '$/data/Block'
 import {
 	createHttpProvider,
 	getBlockByNumber,
@@ -18,6 +14,10 @@ import {
 	getBlockTransactionHashes,
 } from '$/api/voltaire'
 import { fetchChainTransaction } from '$/collections/chain-transactions'
+import { DataSource } from '$/constants/data-sources'
+import type { ChainId } from '$/constants/networks'
+import { rpcUrls } from '$/constants/rpc-endpoints'
+import type { BlockEntry, Block$Id } from '$/data/Block'
 
 export type BlockRow = BlockEntry & {
 	$source: DataSource
@@ -37,7 +37,9 @@ export const ensureBlocksForPlaceholders = (
 	blockNumbers: number[],
 ): void => {
 	for (const blockNumber of blockNumbers) {
-		const key = `${chainId}:${blockNumber}`
+		const key = `${chainId}:${blockNumber}` as unknown as Parameters<
+			typeof blocksCollection.state.get
+		>[0]
 		if (!blocksCollection.state.get(key))
 			fetchBlock(chainId, blockNumber).catch(() => {})
 	}
@@ -47,7 +49,9 @@ export const fetchBlock = async (
 	chainId: ChainId,
 	blockNumber: number,
 ): Promise<BlockEntry> => {
-	const key = `${chainId}:${blockNumber}`
+	const key = `${chainId}:${blockNumber}` as unknown as Parameters<
+		typeof blocksCollection.state.get
+	>[0]
 	const existing = blocksCollection.state.get(key)
 
 	if (existing) {

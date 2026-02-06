@@ -1,7 +1,7 @@
 /// <reference lib='deno.ns' />
-import { assertEquals } from 'jsr:@std/assert'
 import { IdentityInputKind } from '$/constants/identity-resolver'
 import { normalizeIdentity } from './identity-resolve.ts'
+import { assertEquals } from 'jsr:@std/assert'
 
 Deno.test('normalizeIdentity: empty string returns Address kind', () => {
 	const { kind, normalized } = normalizeIdentity('  ')

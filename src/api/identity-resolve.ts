@@ -24,7 +24,7 @@ const ENS_REGISTRY_ABI = Abi([
 		inputs: [{ type: 'bytes32', name: 'node', }],
 		outputs: [{ type: 'address', name: '', }],
 	},
-])
+]) as unknown as import('@tevm/voltaire/Abi').Abi
 const RESOLVER_ADDR_ABI = Abi([
 	{
 		type: 'function',
@@ -33,7 +33,7 @@ const RESOLVER_ADDR_ABI = Abi([
 		inputs: [{ type: 'bytes32', name: 'node', }],
 		outputs: [{ type: 'address', name: '', }],
 	},
-])
+]) as unknown as import('@tevm/voltaire/Abi').Abi
 const RESOLVER_TEXT_ABI = Abi([
 	{
 		type: 'function',
@@ -45,7 +45,7 @@ const RESOLVER_TEXT_ABI = Abi([
 		],
 		outputs: [{ type: 'string', name: '' }],
 	},
-])
+]) as unknown as import('@tevm/voltaire/Abi').Abi
 const ADDRESS_OUTPUT = [{ type: 'address' as const, name: '' }] as const
 const STRING_OUTPUT = [{ type: 'string' as const, name: '' }] as const
 
@@ -100,7 +100,7 @@ async function getResolverAddress(
 	const [addr] = decodeParameters(
 		ADDRESS_OUTPUT,
 		toBytes(res as `0x${string}`),
-	) as [`0x${string}`]
+	) as unknown as [`0x${string}`]
 	const zero = '0x0000000000000000000000000000000000000000'
 	return addr && addr.toLowerCase() !== zero ? addr : null
 }
@@ -120,7 +120,7 @@ async function resolveAddr(
 	const [addr] = decodeParameters(
 		ADDRESS_OUTPUT,
 		toBytes(res as `0x${string}`),
-	) as [`0x${string}`]
+	) as unknown as [`0x${string}`]
 	const zero = '0x0000000000000000000000000000000000000000'
 	return addr && addr.toLowerCase() !== zero ? addr : null
 }
@@ -199,7 +199,7 @@ export async function resolveEnsReverse(
 			inputs: [{ type: 'bytes32', name: 'node' }],
 			outputs: [{ type: 'string', name: '' }],
 		},
-	])
+	]) as unknown as import('@tevm/voltaire/Abi').Abi
 	const data = encodeFunction(nameResolverAbi, 'name', [node])
 	const res = await provider.request({
 		method: 'eth_call',

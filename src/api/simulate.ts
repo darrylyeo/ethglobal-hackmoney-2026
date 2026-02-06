@@ -29,7 +29,7 @@ export type SimulatePayload = {
 export const runTevmSimulation = async (
 	body: SimulatePayload,
 ): Promise<TevmSimulationResult> => {
-	const { createTevmNode, http, createAddress } = await import('tevm')
+	const { createTevmNode, http, getAddress } = await import('tevm')
 	const { createImpersonatedTx } = await import('tevm/tx')
 	const { bytesToHex } = await import('tevm/utils')
 
@@ -43,15 +43,18 @@ export const runTevmSimulation = async (
 	await node.ready()
 
 	const vm = await node.getVm()
-	const fromAddress = createAddress(body.from)
+	const fromAddress = getAddress(body.from as `0x${string}`)
 
-	node.setImpersonatedAccount(fromAddress)
+	node.setImpersonatedAccount(
+		fromAddress as unknown as Parameters<typeof node.setImpersonatedAccount>[0],
+	)
 
 	const value = body.value ? BigInt(body.value) : 0n
 	const gasLimit = body.gasLimit ? BigInt(body.gasLimit) : 3_000_000n
 	const data = (body.data ?? '0x') as `0x${string}`
-	const to = body.to ? createAddress(body.to) : undefined
+	const to = body.to ? getAddress(body.to as `0x${string}`) : undefined
 
+	type TevmAddress = Parameters<typeof createImpersonatedTx>[0]['impersonatedAddress']
 	const tx = createImpersonatedTx(
 		{
 			chainId: BigInt(body.chainId),
@@ -62,9 +65,9 @@ export const runTevmSimulation = async (
 			maxFeePerGas: 10n ** 9n,
 			maxPriorityFeePerGas: 10n ** 8n,
 			nonce: 0n,
-			impersonatedAddress: fromAddress,
+			impersonatedAddress: fromAddress as unknown as TevmAddress,
 		},
-		{ common: vm.common },
+		{ common: vm.common } as unknown as Parameters<typeof createImpersonatedTx>[1],
 	)
 
 	const runResult = await vm.runTx({
@@ -75,16 +78,12 @@ export const runTevmSimulation = async (
 
 	const execResult = runResult.execResult
 	const reverted = Boolean(execResult.exceptionError)
+	const errMessage =
+		(execResult.exceptionError as unknown as { error?: { message?: string } } | undefined)
+			?.error?.message
 	const summaryStatus: TevmSimulationResult['summaryStatus'] = (
 		reverted ?
-			(
-				execResult.exceptionError?.error?.message
-					?.toLowerCase()
-					.includes('revert') ?
-				'revert'
-			:
-				'error'
-			)
+			(errMessage?.toLowerCase().includes('revert') ? 'revert' : 'error')
 		:
 			'success'
 	)
@@ -103,8 +102,8 @@ export const runTevmSimulation = async (
 	}
 	if (!revertReason && execResult.exceptionError) {
 		revertReason =
-			execResult.exceptionError.error?.message ??
-			String(execResult.exceptionError)
+			(execResult.exceptionError as unknown as { error?: { message?: string } })
+				.error?.message ?? String(execResult.exceptionError)
 	}
 
 	const forkBlockNumber = typeof blockTag === 'number' ? blockTag : 0
@@ -120,13 +119,16 @@ export const runTevmSimulation = async (
 		},
 	]
 
-	const rawLogs = (execResult.logs ?? []).map(
-		(log: { address: Uint8Array; topics: Uint8Array[]; data: Uint8Array }) => ({
-			address: toHex(log.address),
-			topics: log.topics.map((t: Uint8Array) => toHex(t)),
-			data: bytesToHex(log.data),
-		}),
-	)
+	const logs = (execResult.logs ?? []) as unknown as {
+		address: Uint8Array
+		topics: Uint8Array[]
+		data: Uint8Array
+	}[]
+	const rawLogs = logs.map((log) => ({
+		address: toHex(log.address),
+		topics: log.topics.map((t) => toHex(t)),
+		data: bytesToHex(log.data),
+	}))
 
 	const events: TevmSimulationDecodedEvent[] = rawLogs.map((log) => ({
 		address: log.address,

@@ -31,6 +31,19 @@ export type TransferGraph = {
 	edges: TransferEdge[]
 }
 
+export type ChainContract = {
+	chainId: number
+	contractAddress: string
+}
+
+export type TimePeriodEntry = { value: string; label: string; ms: number }
+
+export type TransfersGraphResult = {
+	graph: TransferGraph
+	period: string
+	periods: readonly TimePeriodEntry[]
+}
+
 const COVALENT_BASE = 'https://api.covalenthq.com'
 
 type CovalentTransferItem = {
@@ -94,8 +107,6 @@ export async function fetchTransfersForChain(
 		})
 		.slice(0, COVALENT_TRANSFERS_MAX)
 }
-
-export type ChainContract = { chainId: number; contractAddress: string }
 
 export async function fetchAllTransfers(
 	chains: ChainContract[],
@@ -177,13 +188,7 @@ export function periodToRange(periodMs: number): {
 	end: number
 } {
 	const end = Date.now()
-	return { start: end - periodMs, end }
-}
-
-export type TransfersGraphResult = {
-	graph: TransferGraph
-	period: string
-	periods: typeof TIME_PERIODS
+	return { start: end - periodMs, end, }
 }
 
 const FETCH_TIMEOUT_MS = 30_000

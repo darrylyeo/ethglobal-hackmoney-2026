@@ -4,6 +4,21 @@
  * SDK is lazy-loaded so non-bridge routes stay light.
  */
 
+import { ercTokensBySymbolByChainId } from '$/constants/coins'
+import { ChainId } from '$/constants/networks'
+import {
+	type BridgeStatus,
+	mapLifiProcessStatus,
+	type TxStatus,
+} from '$/lib/bridge/tx-status'
+import { queryClient } from '$/lib/db/query-client'
+import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm'
+import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
+import {
+	createWalletClientForChain,
+	type ProviderDetailType,
+	switchWalletChain,
+} from '$/lib/wallet'
 import type {
 	Execution,
 	LiFiStep,
@@ -11,45 +26,19 @@ import type {
 	Route,
 	RouteExtended,
 } from '@lifi/sdk'
-import { queryClient } from '$/lib/db/query-client'
-import { ChainId } from '$/constants/networks'
-import { ercTokensBySymbolByChainId } from '$/constants/coins'
-import {
-	createWalletClientForChain,
-	type ProviderDetailType,
-	switchWalletChain,
-} from '$/lib/wallet'
-import {
-	type BridgeStatus,
-	mapLifiProcessStatus,
-	type TxStatus,
-} from '$/lib/bridge/tx-status'
-import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm'
-import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
 
 const ROUTES_STALE_MS = 30_000
 
-let lifiSdk: Promise<{
-	config: { setProviders: (p: unknown[]) => void }
-	convertQuoteToRoute: (step: LiFiStep) => RouteExtended
-	createConfig: (opts: { integrator: string }) => void
-	EVM: (opts: unknown) => unknown
-	executeRoute: (
-		route: RouteExtended,
-		opts?: { updateRouteHook?: (r: RouteExtended) => void },
-	) => Promise<RouteExtended>
-	getQuote: (params: unknown) => Promise<LiFiStep>
-	getRoutes: (params: unknown) => Promise<{ routes: Route[] }>
-}> | null = null
+let lifiSdk: Promise<typeof import('@lifi/sdk')> | null = null
 
-const getLifiSdk = async () => {
+const getLifiSdk = async (): Promise<typeof import('@lifi/sdk')> => {
 	if (!lifiSdk) {
 		lifiSdk = import('@lifi/sdk').then((m) => {
-			m.createConfig({ integrator: 'ethglobal-hackmoney-26' })
+			m.createConfig({ integrator: 'ethglobal-hackmoney-26', })
 			return m
 		})
 	}
-	return lifiSdk
+	return lifiSdk!
 }
 
 export type StatusCallback = (status: BridgeStatus) => void
@@ -69,6 +58,57 @@ export type FeeBreakdown = {
 	}[]
 	totalUsd: string
 	percentOfTransfer: number
+}
+
+export type QuoteStep = {
+	fromChainId: number
+	toChainId: number
+	fromAmount: string
+	toAmount: string
+	estimatedGasCosts?: {
+		amount: string
+		token: { symbol: string; decimals?: number }
+	}[]
+}
+export type NormalizedQuote = {
+	steps: QuoteStep[]
+	fromChainId: number
+	toChainId: number
+	fromAmount: string
+	toAmount: string
+	estimatedToAmount: string
+	fees: { amount: string; token: { symbol: string; decimals?: number } }[]
+}
+
+export type QuoteParams = {
+	fromChain: number
+	toChain: number
+	fromAmount: string
+	fromAddress: `0x${string}`
+	toAddress?: `0x${string}`
+	slippage?: number
+}
+
+export type NormalizedRoute = {
+	id: string
+	originalRoute: Route
+	steps: {
+		tool: string
+		toolName: string
+		type: 'bridge' | 'swap' | 'cross'
+		fromChainId: number
+		toChainId: number
+		fromAmount: string
+		toAmount: string
+	}[]
+	fromChainId: number
+	toChainId: number
+	fromAmount: string
+	toAmount: string
+	toAmountMin: string
+	gasCostUsd: string
+	estimatedDurationSeconds: number
+	tags: ('BEST' | 'CHEAPEST' | 'FASTEST' | 'RECOMMENDED')[]
 }
 
 type RouteLike = {
@@ -141,25 +181,6 @@ export const extractFeeBreakdown = (route: RouteLike): FeeBreakdown => {
 	}
 }
 
-export type QuoteStep = {
-	fromChainId: number
-	toChainId: number
-	fromAmount: string
-	toAmount: string
-	estimatedGasCosts?: {
-		amount: string
-		token: { symbol: string; decimals?: number }
-	}[]
-}
-export type NormalizedQuote = {
-	steps: QuoteStep[]
-	fromChainId: number
-	toChainId: number
-	fromAmount: string
-	toAmount: string
-	estimatedToAmount: string
-	fees: { amount: string; token: { symbol: string; decimals?: number } }[]
-}
 function actionAmounts(action: LiFiStep['action']): {
 	fromAmount: string
 	toAmount: string
@@ -211,37 +232,6 @@ export function normalizeQuote(step: LiFiStep): NormalizedQuote {
 				: { symbol: 'unknown' },
 		})),
 	}
-}
-
-export type QuoteParams = {
-	fromChain: number
-	toChain: number
-	fromAmount: string
-	fromAddress: `0x${string}`
-	toAddress?: `0x${string}`
-	slippage?: number
-}
-
-export type NormalizedRoute = {
-	id: string
-	originalRoute: Route
-	steps: {
-		tool: string
-		toolName: string
-		type: 'bridge' | 'swap' | 'cross'
-		fromChainId: number
-		toChainId: number
-		fromAmount: string
-		toAmount: string
-	}[]
-	fromChainId: number
-	toChainId: number
-	fromAmount: string
-	toAmount: string
-	toAmountMin: string
-	gasCostUsd: string
-	estimatedDurationSeconds: number
-	tags: ('BEST' | 'CHEAPEST' | 'FASTEST' | 'RECOMMENDED')[]
 }
 
 const ROUTE_TAG_ORDER = ['RECOMMENDED', 'CHEAPEST', 'FASTEST'] as const
@@ -415,7 +405,7 @@ export async function executeQuote(
 		sdk.EVM({
 			getWalletClient: () =>
 				Promise.resolve(createWalletClientForChain(provider, params.fromChain)),
-			switchChain: async (chainId) => {
+			switchChain: async (chainId: number) => {
 				await switchWalletChain(provider, chainId)
 				return createWalletClientForChain(provider, chainId)
 			},
@@ -552,7 +542,7 @@ export async function executeSelectedRoute(
 				Promise.resolve(
 					createWalletClientForChain(provider, route.fromChainId),
 				),
-			switchChain: async (chainId) => {
+			switchChain: async (chainId: number) => {
 				await switchWalletChain(provider, chainId)
 				return createWalletClientForChain(provider, chainId)
 			},

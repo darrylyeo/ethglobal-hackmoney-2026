@@ -1,6 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
-import type { LiFiStep } from '@lifi/sdk'
 import { queryClient } from '$/lib/db/query-client'
+import type { LiFiStep, Route } from '@lifi/sdk'
 import {
 	extractFeeBreakdown,
 	fetchQuoteCached,
@@ -11,7 +10,7 @@ import {
 	normalizeQuote,
 	normalizeRoute,
 } from './lifi'
-import type { Route } from '@lifi/sdk'
+import { describe, expect, it, vi } from 'vitest'
 vi.mock('@lifi/sdk', () => {
 	const mockStep: LiFiStep = {
 		action: {
@@ -29,7 +28,7 @@ vi.mock('@lifi/sdk', () => {
 			gasCosts: [
 				{
 					amount: '150000',
-					token: { symbol: 'ETH', address: '0x', chainId: 1, decimals: 18 },
+					token: { symbol: 'ETH', address: '0x', chainId: 1, decimals: 18, },
 				},
 			],
 		},
@@ -38,7 +37,7 @@ vi.mock('@lifi/sdk', () => {
 	} as LiFiStep
 	const mockRoute: Route = {
 		id: 'route-1',
-		insurance: { state: 'NOT_INSURABLE', feeAmountUsd: '0' },
+		insurance: { state: 'NOT_INSURABLE', feeAmountUsd: '0', },
 		fromChainId: 1,
 		fromAmountUSD: '1',
 		fromAmount: '1000000',
@@ -52,7 +51,7 @@ vi.mock('@lifi/sdk', () => {
 		steps: [
 			{
 				...mockStep,
-				toolDetails: { key: 'stargate', name: 'Stargate', logoURI: '' },
+				toolDetails: { key: 'stargate', name: 'Stargate', logoURI: '', },
 				estimate: {
 					...mockStep.estimate,
 					executionDuration: 120,
@@ -60,22 +59,22 @@ vi.mock('@lifi/sdk', () => {
 				},
 			} as Route['steps'][0],
 		],
-		tags: ['RECOMMENDED'],
+		tags: ['RECOMMENDED', ],
 	}
 	return {
 		createConfig: vi.fn(),
 		getQuote: vi.fn(() => Promise.resolve(mockStep)),
 		getRoutes: vi.fn(() =>
 			Promise.resolve({
-				routes: [mockRoute],
-				unavailableRoutes: { filteredOut: [], failed: [] },
+				routes: [mockRoute, ],
+				unavailableRoutes: { filteredOut: [], failed: [], },
 			}),
 		),
 		convertQuoteToRoute: vi.fn((step: unknown) => ({
 			...(step as object),
 			originalRoute: mockRoute,
 		})),
-		config: { setProviders: vi.fn() },
+		config: { setProviders: vi.fn(), },
 		EVM: vi.fn(),
 		executeRoute: vi.fn((r: unknown) => Promise.resolve(r)),
 	}
@@ -95,7 +94,7 @@ const mockLiFiStep: LiFiStep = {
 		gasCosts: [
 			{
 				amount: '150000',
-				token: { symbol: 'ETH', address: '0x', chainId: 1, decimals: 18 },
+				token: { symbol: 'ETH', address: '0x', chainId: 1, decimals: 18, },
 			},
 		],
 	},
@@ -112,7 +111,7 @@ describe('LI.FI routes and quotes', () => {
 					toChainId: 42161,
 					fromAmount: '1000000',
 					toAmount: '998500',
-					estimatedGasCosts: [{ amount: '150000', token: { symbol: 'ETH' } }],
+					estimatedGasCosts: [{ amount: '150000', token: { symbol: 'ETH', }, }],
 				},
 			],
 			fromChainId: 1,
@@ -120,7 +119,7 @@ describe('LI.FI routes and quotes', () => {
 			fromAmount: '1000000',
 			toAmount: '998500',
 			estimatedToAmount: '998500',
-			fees: [{ amount: '150000', token: { symbol: 'ETH' } }],
+			fees: [{ amount: '150000', token: { symbol: 'ETH', }, }],
 		} satisfies Partial<NormalizedQuote>)
 		expect(out.steps).toHaveLength(1)
 		expect(typeof out.estimatedToAmount).toBe('string')
@@ -167,7 +166,7 @@ describe('LI.FI routes and quotes', () => {
 			fromAmount: '1000000',
 			toAmount: '998500',
 			estimatedToAmount: '998500',
-			fees: [{ amount: '150000', token: { symbol: 'ETH' } }],
+			fees: [{ amount: '150000', token: { symbol: 'ETH', }, }],
 		} satisfies Partial<NormalizedQuote>)
 		const cached = await fetchQuoteCached(params)
 		expect(cached).toStrictEqual(result)
