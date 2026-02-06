@@ -46,7 +46,6 @@ export const parseSlippagePercent = (value: string): number | null => {
 export const calculateMinOutput = (
 	estimatedOutput: bigint,
 	slippage: number,
-): bigint => {
-	const factor = BigInt(Math.floor((1 - slippage) * 1_000_000))
-	return (estimatedOutput * factor) / 1_000_000n
-}
+): bigint =>
+	(estimatedOutput * BigInt(Math.floor((1 - slippage) * 1_000_000))) /
+	1_000_000n
