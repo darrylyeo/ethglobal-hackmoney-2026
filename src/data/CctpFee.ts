@@ -1,12 +1,12 @@
 export type CctpFee$Id = {
 	apiHost: string
 	fromDomain: number
-	toDomain: number
+	toDomain: number,
 }
 
 export type CctpFeeItem = {
 	finalityThreshold: number
-	minimumFee: number
+	minimumFee: number,
 }
 
 export type CctpFee = {
@@ -14,5 +14,5 @@ export type CctpFee = {
 	rows: CctpFeeItem[]
 	fetchedAt: number
 	isLoading: boolean
-	error: string | null
+	error: string | null,
 }
