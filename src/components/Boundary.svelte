@@ -1,8 +1,15 @@
 <script lang="ts">
-	// Props
+
+
+	// Types/constants
 	import type { Snippet } from 'svelte'
+
+
+	// Functions
 	import { stringify } from '$/lib/stringify'
 
+
+	// Props
 	let {
 		children,
 		Pending,
@@ -42,7 +49,7 @@
 				</header>
 
 				<div class="error-content">
-					{#if console.error(error) || error instanceof Error}
+					{#if error instanceof Error}
 						<p>{error.message}</p>
 
 						{#if error.stack}
