@@ -4,7 +4,7 @@ import {
 	toInteropName,
 	toInteropHex,
 	fromInteropBinary,
-} from './interop'
+} from './interop.ts'
 
 describe('toInteropAddressText', () => {
 	it('returns eip155 text representation for chainId and address', () => {
