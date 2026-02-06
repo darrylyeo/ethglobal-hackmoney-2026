@@ -2,12 +2,12 @@
 
 
 	// Types/constants
-	import type { Trace as TraceType } from '$/data/Trace'
-	import type { ChainId } from '$/constants/networks'
+	import type { Trace as TraceType } from '$/data/Trace.ts'
+	import type { ChainId } from '$/constants/networks.ts'
 
 
 	// Functions
-	import { formatWei, formatGas } from '$/lib/format'
+	import { formatWei, formatGas } from '$/lib/format.ts'
 
 
 	// Components

@@ -2,8 +2,8 @@
 
 
 	// Types/constants
-	import type { EvmLog } from '$/api/voltaire'
-	import type { ChainId } from '$/constants/networks'
+	import type { EvmLog } from '$/api/voltaire.ts'
+	import type { ChainId } from '$/constants/networks.ts'
 
 
 	// Components

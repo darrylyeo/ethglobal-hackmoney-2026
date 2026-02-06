@@ -24,7 +24,7 @@
 
 
 	// Functions
-	import { formatRelativeTime } from '$/lib/format-relative-time'
+	import { formatRelativeTime } from '$/lib/format-relative-time.ts'
 
 
 	// State

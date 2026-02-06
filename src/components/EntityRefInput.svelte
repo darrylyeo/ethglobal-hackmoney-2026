@@ -2,15 +2,15 @@
 
 
 	// Types/constants
-	import type { EntityRef } from '$/data/EntityRef'
-	import type { EntitySuggestion } from '$/lib/entity-suggestions'
-	import { EntityType } from '$/data/$EntityType'
-	import { getEntitySuggestionsFromCache } from '$/lib/entity-suggestions'
+	import type { EntityRef } from '$/data/EntityRef.ts'
+	import type { EntitySuggestion } from '$/lib/entity-suggestions.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { getEntitySuggestionsFromCache } from '$/lib/entity-suggestions.ts'
 	import {
 		buildDefaultEntityTriggerConfig,
 		getValueFromSegmentsAndRefs,
 		parseValueToSegmentsAndRefs,
-	} from '$/lib/prompt-value'
+	} from '$/lib/prompt-value.ts'
 
 	const DEFAULT_TRIGGER = '@'
 	const PLACEHOLDER_REF: EntityRef = {

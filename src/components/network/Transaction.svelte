@@ -2,16 +2,16 @@
 
 
 	// Types/constants
-	import type { ChainTransactionEntry } from '$/data/ChainTransaction'
-	import type { Trace as TraceType } from '$/data/Trace'
-	import type { EvmLog } from '$/api/voltaire'
-	import type { ChainId } from '$/constants/networks'
+	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
+	import type { Trace as TraceType } from '$/data/Trace.ts'
+	import type { EvmLog } from '$/api/voltaire.ts'
+	import type { ChainId } from '$/constants/networks.ts'
 
 
 	// Functions
-	import { getTxUrl } from '$/constants/explorers'
-	import { formatWei, formatGas, formatGwei } from '$/lib/format'
-	import { fetchChainTransaction } from '$/collections/chain-transactions'
+	import { getTxUrl } from '$/constants/explorers.ts'
+	import { formatWei, formatGas, formatGwei } from '$/lib/format.ts'
+	import { fetchChainTransaction } from '$/collections/chain-transactions.ts'
 
 
 	// Components
@@ -29,13 +29,10 @@
 		placeholderEventIds,
 		visiblePlaceholderEventIds = $bindable([] as number[]),
 	}: {
-		data: Map<
-			ChainTransactionEntry | undefined,
-			{ trace?: TraceType; events?: EvmLog[] },
-		>,
-		chainId: ChainId,
-		placeholderEventIds?: Set<number | [number, number]>,
-		visiblePlaceholderEventIds?: number[],
+		data: Map<ChainTransactionEntry | undefined, { trace?: TraceType; events?: EvmLog[] }>
+		chainId: ChainId
+		placeholderEventIds?: Set<number | [number, number]>
+		visiblePlaceholderEventIds?: number[]
 	} = $props()
 
 

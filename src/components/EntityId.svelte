@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import type { IntentDragPayload } from '$/lib/intents/types'
+	import type { IntentDragPayload } from '$/lib/intents/types.ts'
 
 
 	// Props

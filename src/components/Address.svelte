@@ -13,9 +13,9 @@
 
 
 	// Types/constants
-	import type { Network$Id } from '$/data/Network'
-	import type { IntentDragPayload } from '$/lib/intents/types'
-	import { EntityType } from '$/data/$EntityType'
+	import type { Network$Id } from '$/data/Network.ts'
+	import type { IntentDragPayload } from '$/lib/intents/types.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 
 
 	// Props

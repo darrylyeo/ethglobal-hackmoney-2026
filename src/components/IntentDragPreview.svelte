@@ -2,10 +2,10 @@
 
 
 	// Types/constants
-	import type { IntentRoute, IntentRouteStep } from '$/lib/intents/routes'
-	import type { IntentDragPayload, IntentResolution } from '$/lib/intents/types'
-	import { DataSource } from '$/constants/data-sources'
-	import { NetworkType, networksByChainId } from '$/constants/networks'
+	import type { IntentRoute, IntentRouteStep } from '$/lib/intents/routes.ts'
+	import type { IntentDragPayload, IntentResolution } from '$/lib/intents/types.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { NetworkType, networksByChainId } from '$/constants/networks.ts'
 	import { defaultBridgeSettings } from '$/state/bridge-settings.svelte'
 	import { defaultSwapSettings } from '$/state/swap-settings.svelte'
 
@@ -16,9 +16,9 @@
 
 
 	// Functions
-	import { buildIntentRoutes } from '$/lib/intents/routes'
-	import { resolveIntent } from '$/lib/intents/resolve-intent'
-	import { stringify } from '$/lib/stringify'
+	import { buildIntentRoutes } from '$/lib/intents/routes.ts'
+	import { resolveIntent } from '$/lib/intents/resolve-intent.ts'
+	import { stringify } from '$/lib/stringify.ts'
 	import {
 		clearIntentDragPreview,
 		finalizeIntentDragPreview,
@@ -34,10 +34,10 @@
 
 
 	// State
-	import { actorCoinsCollection } from '$/collections/actor-coins'
-	import { bridgeRoutesCollection } from '$/collections/bridge-routes'
-	import { swapQuotesCollection } from '$/collections/swap-quotes'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
+	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
+	import { bridgeRoutesCollection } from '$/collections/bridge-routes.ts'
+	import { swapQuotesCollection } from '$/collections/swap-quotes.ts'
+	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
 
 	const isTestnetChain = (chainId: number) =>
 		Object.values(networksByChainId).find((entry) => entry?.id === chainId)

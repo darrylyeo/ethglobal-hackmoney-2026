@@ -1,5 +1,5 @@
-import type { IntentDragPayload } from '$/lib/intents/types'
-import { setIntentDragData } from '$/lib/intents/drag'
+import type { IntentDragPayload } from '$/lib/intents/types.ts'
+import { setIntentDragData } from '$/lib/intents/drag.ts'
 import {
 	startIntentDragPreview,
 	updateIntentDragTarget,

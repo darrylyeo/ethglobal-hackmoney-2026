@@ -2,8 +2,8 @@
 
 
 	// Types/constants
-	import type { LlmConnectionRow } from '$/collections/llm-connections'
-	import { getModelsForConnection } from '$/api/llm/connection-provider'
+	import type { LlmConnectionRow } from '$/collections/llm-connections.ts'
+	import { getModelsForConnection } from '$/api/llm/connection-provider.ts'
 
 
 	// Props

@@ -2,12 +2,12 @@
 
 
 	// Types/constants
-	import type { Network$Id } from '$/data/Network'
+	import type { Network$Id } from '$/data/Network.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import {
 		ensureEvmActorProfile,
 		evmActorProfilesCollection,
-	} from '$/collections/evm-actor-profiles'
+	} from '$/collections/evm-actor-profiles.ts'
 
 
 	// Components

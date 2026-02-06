@@ -2,16 +2,16 @@
 
 
 	// Types/constants
-	import type { BlockEntry } from '$/data/Block'
-	import type { ChainTransactionEntry } from '$/data/ChainTransaction'
-	import type { ChainId } from '$/constants/networks'
+	import type { BlockEntry } from '$/data/Block.ts'
+	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
+	import type { ChainId } from '$/constants/networks.ts'
 
 
 	// Functions
-	import { getAverageTransactionsPerBlock } from '$/constants/networks'
-	import { getBlockUrl } from '$/constants/explorers'
-	import { formatGas, formatGwei } from '$/lib/format'
-	import { fetchBlockTransactions } from '$/collections/blocks'
+	import { getAverageTransactionsPerBlock } from '$/constants/networks.ts'
+	import { getBlockUrl } from '$/constants/explorers.ts'
+	import { formatGas, formatGwei } from '$/lib/format.ts'
+	import { fetchBlockTransactions } from '$/collections/blocks.ts'
 	import { TimestampFormat } from '$/components/Timestamp.svelte'
 
 

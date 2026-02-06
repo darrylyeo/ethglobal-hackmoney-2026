@@ -3,13 +3,13 @@
 
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
-	import type { GraphModel } from '$/lib/graph-model'
-	import { entityTypes } from '$/constants/entity-types'
+	import type { GraphModel } from '$/lib/graph-model.ts'
+	import { entityTypes } from '$/constants/entity-types.ts'
 
 
 	// Functions
 	import { Graph, EdgeEvent, NodeEvent } from '@antv/g6'
-	import { EntityType } from '$/data/$EntityType'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import {
 		finalizeIntentDragPreview,
 		startIntentDragPreview,

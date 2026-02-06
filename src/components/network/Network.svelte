@@ -2,10 +2,10 @@
 
 
 	// Types/constants
-	import type { Network } from '$/constants/networks'
-	import type { BlockEntry } from '$/data/Block'
-	import type { ChainTransactionEntry } from '$/data/ChainTransaction'
-	import { networkConfigsByChainId } from '$/constants/networks'
+	import type { Network } from '$/constants/networks.ts'
+	import type { BlockEntry } from '$/data/Block.ts'
+	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
+	import { networkConfigsByChainId } from '$/constants/networks.ts'
 
 
 	// Components

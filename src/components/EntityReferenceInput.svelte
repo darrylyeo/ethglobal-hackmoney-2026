@@ -2,8 +2,8 @@
 
 
 	// Types/constants
-	import type { EntityRef } from '$/data/EntityRef'
-	import type { EntitySuggestion } from '$/lib/entity-suggestions'
+	import type { EntityRef } from '$/data/EntityRef.ts'
+	import type { EntitySuggestion } from '$/lib/entity-suggestions.ts'
 
 
 	// Components

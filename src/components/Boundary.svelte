@@ -6,7 +6,7 @@
 
 
 	// Functions
-	import { stringify } from '$/lib/stringify'
+	import { stringify } from '$/lib/stringify.ts'
 
 
 	// Props
