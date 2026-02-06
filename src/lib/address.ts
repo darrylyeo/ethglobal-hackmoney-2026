@@ -23,9 +23,9 @@ export const formatAddress = (address: string, chars = 6): string =>
 export const parseAccountAddressParam = (
 	param: string,
 ): {
-	address: `0x${string}`
-	interopAddress?: string
-	chainId?: number
+	address: `0x${string}`,
+	interopAddress?: string,
+	chainId?: number,
 } | null => {
 	const decoded = decodeURIComponent(param)
 	if (decoded.includes('@')) {
