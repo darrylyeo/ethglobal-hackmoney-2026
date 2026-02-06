@@ -1,33 +1,10 @@
 <script lang="ts" generics="Item">
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
-
-	// Components
-	import { Combobox } from 'bits-ui'
-
 	const defaultItemLabel = (item: Item) => String(item)
-	const isRecord = (value: unknown): value is Record<string, unknown> =>
-		typeof value === 'object' && value !== null
-	const isGroup = (
-		value: unknown,
-	): value is {
-		id?: string
-		label: string
-		items: readonly Item[]
-	} =>
-		isRecord(value) &&
-		typeof value.label === 'string' &&
-		Array.isArray(value.items)
-	const isGroupedItems = (
-		value:
-			| readonly Item[]
-			| readonly { id?: string; label: string; items: readonly Item[] }[],
-	): value is readonly {
-		id?: string
-		label: string
-		items: readonly Item[]
-	}[] => value.length > 0 && isGroup(value[0])
 
 
 	// Props
@@ -70,6 +47,30 @@
 		inputValue?: string
 		[key: string]: unknown
 	} = $props()
+
+
+	// Functions
+	const isRecord = (value: unknown): value is Record<string, unknown> =>
+		typeof value === 'object' && value !== null
+	const isGroup = (
+		value: unknown,
+	): value is {
+		id?: string
+		label: string
+		items: readonly Item[]
+	} =>
+		isRecord(value) &&
+		typeof value.label === 'string' &&
+		Array.isArray(value.items)
+	const isGroupedItems = (
+		value:
+			| readonly Item[]
+			| readonly { id?: string; label: string; items: readonly Item[] }[],
+	): value is readonly {
+		id?: string
+		label: string
+		items: readonly Item[]
+	}[] => value.length > 0 && isGroup(value[0])
 
 
 	// State
@@ -159,7 +160,12 @@
 			if (nextItem) inputValue = nextItem.label
 		}
 	}
+
+
+	// Components
+	import { Combobox } from 'bits-ui'
 </script>
+
 
 {#if type === 'multiple'}
 	<Combobox.Root
