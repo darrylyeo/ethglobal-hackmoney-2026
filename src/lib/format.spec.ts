@@ -55,3 +55,4 @@ describe('formatTokenAmount', () => {
 		expect(formatTokenAmount('100500000', 6)).toBe('100.5')
 	})
 })
+
