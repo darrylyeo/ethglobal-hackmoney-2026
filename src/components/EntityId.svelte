@@ -1,10 +1,8 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { IntentDragPayload } from '$/lib/intents/types'
-
-
-	// Functions
-	import { draggable } from '$/components/Draggable.svelte'
 
 
 	// Props
@@ -23,7 +21,12 @@
 		children?: import('svelte').Snippet
 		[key: string]: unknown
 	} = $props()
+
+
+	// Functions
+	import { draggable } from '$/components/Draggable.svelte'
 </script>
+
 
 {#if link}
 	<a
