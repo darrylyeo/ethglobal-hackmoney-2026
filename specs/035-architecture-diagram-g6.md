@@ -10,7 +10,7 @@ and runtime dependencies at a glance.
 - **Route:** `src/routes/about/+page.svelte`
 - **Graph component:** `src/routes/about/ArchitectureGraph.svelte`
 - **Diagram model:** `src/routes/about/architecture-graph.ts` (normalized nodes/edges)
-- **Icons:** use asset pipeline in `scripts/_sync-assets.ts` and `src/lib/assets/` (chains/, coins/, providers/)
+- **Icons:** use asset pipeline in `scripts/_sync-assets.ts` and `src/assets/` (networks/, coins/, providers/)
 
 ## Diagram contents
 
@@ -61,7 +61,7 @@ and runtime dependencies at a glance.
 
 ## Icon sourcing and attribution
 
-- **Chains/brands:** use `src/lib/assets/chains/`, `src/lib/assets/providers/` (and coins/) synced by
+- **Chains/brands:** use `src/assets/networks/`, `src/assets/providers/` (and coins/) synced by
   `scripts/_sync-assets.ts`. If a required asset is missing, add it to the relevant array in `src/constants/assets.ts`
   with a source comment; run `deno run -A scripts/_sync-assets.ts` to sync.
 - **Non-chain icons:** prefer simple geometric shapes + labels; brand assets use the same sync script.
@@ -74,7 +74,7 @@ and runtime dependencies at a glance.
       legend that explains node/edge styling.
 - [x] Nodes include all core systems listed above (runtime + tooling) and are
       connected by the listed edges.
-- [x] The diagram uses chain/brand assets from `src/lib/assets/` for network and service nodes.
+- [x] The diagram uses chain/brand assets from `src/assets/` for network and service nodes.
 - [x] Pan/zoom, selection, hover details, and keyboard shortcuts work.
 - [x] Reduced motion is respected (no animated transitions).
 - [x] The diagram remains readable in both light and dark themes.

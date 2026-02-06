@@ -203,7 +203,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/constants/slippage.ts`
 - [x] `src/constants/stork.ts`
 - [x] `src/constants/token-lists.ts`
-- [ ] `src/constants/uniswap.ts`
+- [x] `src/constants/uniswap.ts`
 - [ ] `src/constants/yellow.ts`
 - [ ] `src/data/$EntityType.ts`
 - [ ] `src/data/Actor.ts`

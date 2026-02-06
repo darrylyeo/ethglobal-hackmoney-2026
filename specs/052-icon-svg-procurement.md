@@ -20,33 +20,30 @@ Types follow spec 045 (cf. spec 001, 042).
 
 ### Output structure
 
-- Assets under `src/lib/assets/` with subdirectories: `chains/`, `coins/`, `providers/` (importable; bundled via glob).
+- Assets under `src/assets/` with subdirectories: `networks/`, `coins/`, `providers/` (importable; bundled via glob).
 - Naming: `{id}.svg` or `{id}-{suffix}.svg`. Alias copy: testnet reuses mainnet default SVG when missing.
 
 ### Sync script
 
-- **`scripts/_sync-assets.ts`:** Imports all sources from `src/constants/assets.ts`; writes to `src/lib/assets/{chains|coins|providers}/`.
+- **`scripts/_sync-assets.ts`:** Imports all sources from `src/constants/assets.ts`; writes to `src/assets/{networks|coins|providers}/`.
 - Only syncs sources not yet present on disk; skips existing files (package-manager style).
 - Optional CLI arg `chain` | `coin` | `provider` to limit to one subject.
 - PNG wrapping when SVG unavailable; ZIP fetched once per URL and cached in memory.
 - Logs OK/SKIP/COPY per file; final count by directory.
 
-### URL resolution (src/lib/assets/urls.ts)
+### URL resolution
 
-- Resolved via `import.meta.glob` (eager, `?url`): `getAssetUrl(path)`, `chainAssetUrl()`, `coinAssetUrl()`, `providerAssetUrl()`.
-- No path construction at runtime; assets bundled via glob.
-
-### Integration
-
-- UI uses `$lib/assets/urls`: `getAssetUrl(path)` for config paths, `chainAssetUrl()` / `coinAssetUrl()` / `providerAssetUrl()` for ids.
+- Inline `await import('path to file')`: every constant that needs an icon reference uses `(await import('$/assets/.../file.svg?url')).default` at that site. No helper string builders.
+- Network config: `src/constants/networks.ts` uses top-level `await import(...)` in each `networkConfigs` entry that has an `icon`. Layout/views use `config.icon` or `networkConfigsByChainId[id]?.icon` directly.
+- Coins/providers: layout and architecture graph use top-level `await import(...)` for each coin/provider icon and assign to a const, then use that const where the nav/graph node needs the icon.
 
 ## Acceptance criteria
 
 - [x] Shared schema (AssetSubject, AssetSource, FetchType) used for chains, coins, and brands.
 - [x] All sources and discovery documentation in `src/constants/assets.ts`.
-- [x] Sync script writes to `src/lib/assets/`, skips existing, runs svgo on new SVGs.
+- [x] Sync script writes to `src/assets/`, skips existing, runs svgo on new SVGs.
 - [x] Chain alias copy (testnet/mainnet reuse) supported.
-- [x] UI uses import-based resolution ($lib/assets/urls); no remote asset URLs.
+- [x] UI uses inline static imports (?url) for icons; no remote asset URLs, no path builder helpers.
 
 ## Testing
 
@@ -54,4 +51,4 @@ Types follow spec 045 (cf. spec 001, 042).
 
 ## Status
 
-Complete. Schema and all sources in `src/constants/assets.ts`; URL resolution in `src/lib/assets/urls.ts`. Single script `_sync-assets.ts` syncs only missing assets; optional subject arg.
+Complete. Schema and all sources in `src/constants/assets.ts`; URL resolution was in `src/lib/assets/urls.ts` (removed; inline await import now). Single script `_sync-assets.ts` syncs only missing assets; optional subject arg.
