@@ -1,8 +1,9 @@
+import type { IntentResolution, RouteStepKey } from './types.ts'
 import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute.ts'
 import type { SwapQuote } from '$/data/SwapQuote.ts'
-import type { IntentResolution } from './types.ts'
-import { NetworkType, networksByChainId } from '$/constants/networks.ts'
 import { isGatewaySupportedChain } from '$/constants/gateway.ts'
+import { NetworkType, networksByChainId } from '$/constants/networks.ts'
+import { intentDefinitions } from './registry.ts'
 
 export type IntentRouteStep =
 	| {
@@ -12,14 +13,14 @@ export type IntentRouteStep =
 			chainId: number
 			fromActor: `0x${string}`
 			toActor: `0x${string}`
-			tokenAddress: `0x${string}`
+			tokenAddress: `0x${string}`,
 	  }
 	| {
 			id: string
 			type: 'swap'
 			chainId: number
 			actor: `0x${string}`
-			quote: SwapQuote
+			quote: SwapQuote,
 	  }
 	| {
 			id: string
@@ -28,7 +29,7 @@ export type IntentRouteStep =
 			toChainId: number
 			actor: `0x${string}`
 			route: BridgeRoute
-			rowId: BridgeRoutes$Id
+			rowId: BridgeRoutes$Id,
 	  }
 	| {
 			id: string
@@ -36,23 +37,23 @@ export type IntentRouteStep =
 			fromChainId: number
 			toChainId: number
 			actor: `0x${string}`
-			protocol: 'gateway'
+			protocol: 'gateway',
 	  }
 
 export type IntentRoute = {
 	id: string
 	label: string
-	steps: IntentRouteStep[]
+	steps: IntentRouteStep[],
 }
 
 export type IntentBridgeRouteOption = {
 	rowId: BridgeRoutes$Id
-	route: BridgeRoute
+	route: BridgeRoute,
 }
 
 type IntentRouteInputs = {
 	swapQuotes: SwapQuote[]
-	bridgeRoutes: IntentBridgeRouteOption[]
+	bridgeRoutes: IntentBridgeRouteOption[],
 }
 
 const productRoutes = (steps: IntentRouteStep[][]) =>
@@ -74,6 +75,10 @@ export const buildIntentRoutes = (
 	{ swapQuotes, bridgeRoutes }: IntentRouteInputs,
 ): IntentRoute[] => {
 	if (resolution.status !== 'valid' || !resolution.kind) return []
+
+	const definition = intentDefinitions.find((d) => d.kind === resolution.kind)
+	if (!definition || definition.sequences.length === 0) return []
+
 	const from = resolution.from.dimensions
 	const to = resolution.to.dimensions
 	if (!from.actor || !from.chainId || !from.tokenAddress) return []
@@ -156,70 +161,32 @@ export const buildIntentRoutes = (
 		to.chainId !== null &&
 		isGatewaySupportedChain(from.chainId, isTestnet) &&
 		isGatewaySupportedChain(to.chainId, isTestnet)
-	const bridge = [
-		...bridgeOnChain(from.chainId, to.chainId, from.actor),
-		...(gatewayBridgeSupported && from.chainId !== null && to.chainId !== null
-			? [
-					{
+
+	const stepOptions: Record<RouteStepKey, IntentRouteStep[]> = {
+		swapSource: swapOnChain(from.chainId, from.tokenAddress, to.tokenAddress, from.actor),
+		swapDest: swapOnChain(to.chainId, from.tokenAddress, to.tokenAddress, to.actor),
+		bridge: [
+			...bridgeOnChain(from.chainId, to.chainId, from.actor),
+			...(gatewayBridgeSupported
+				? [{
 						id: `bridge:gateway:${from.chainId}:${to.chainId}`,
-						type: 'bridge',
+						type: 'bridge' as const,
 						fromChainId: from.chainId,
 						toChainId: to.chainId,
 						actor: from.actor,
-						protocol: 'gateway',
-					},
-				]
-			: []),
-	]
-	const swapSource = swapOnChain(
-		from.chainId,
-		from.tokenAddress,
-		to.tokenAddress,
-		from.actor,
-	)
-	const swapDest = swapOnChain(
-		to.chainId,
-		from.tokenAddress,
-		to.tokenAddress,
-		to.actor,
-	)
+						protocol: 'gateway' as const,
+					}]
+				: []),
+		],
+		transferFromToken: transferStepOptions(from.chainId, from.tokenAddress),
+		transferToTokenOnSource: transferStepOptions(from.chainId, to.tokenAddress),
+		transferToTokenOnDest: transferStepOptions(to.chainId, to.tokenAddress),
+		transferFromTokenOnDest: transferStepOptions(to.chainId, from.tokenAddress),
+	}
 
-	const transferFromToken = transferStepOptions(from.chainId, from.tokenAddress)
-	const transferToTokenOnSource = transferStepOptions(
-		from.chainId,
-		to.tokenAddress,
-	)
-	const transferToTokenOnDest = transferStepOptions(to.chainId, to.tokenAddress)
-	const transferFromTokenOnDest = transferStepOptions(
-		to.chainId,
-		from.tokenAddress,
-	)
-
-	const sequences: IntentRouteStep[][][] = (
-		resolution.kind === 'transfer'
-			? [[transferFromToken]]
-			: resolution.kind === 'swap'
-				? [[swapSource]]
-				: resolution.kind === 'bridge'
-					? [[bridge]]
-					: resolution.kind === 'transfer+swap'
-						? [
-								[swapSource, transferToTokenOnSource],
-								[transferFromToken, swapDest],
-							]
-						: resolution.kind === 'swap+bridge'
-							? [
-									[swapSource, bridge],
-									[bridge, swapDest],
-								]
-							: resolution.kind === 'transfer+bridge'
-								? [[bridge, transferToTokenOnDest]]
-								: [
-										[swapSource, bridge, transferToTokenOnDest],
-										[bridge, swapDest, transferToTokenOnDest],
-										[bridge, transferFromTokenOnDest, swapDest],
-									]
-	).filter((sequence) => sequence.every((options) => options.length > 0))
+	const sequences = definition.sequences
+		.map((seq) => seq.map((key) => stepOptions[key]))
+		.filter((seq) => seq.every((options) => options.length > 0))
 
 	return sequences
 		.flatMap((sequence) => productRoutes(sequence))
@@ -228,4 +195,6 @@ export const buildIntentRoutes = (
 			label: buildRouteLabel(steps),
 			steps,
 		}))
+
 }
+
