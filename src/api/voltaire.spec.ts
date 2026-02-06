@@ -9,6 +9,7 @@ import {
 	getErc20Balance,
 	type VoltaireProvider,
 } from './voltaire.ts'
+
 Deno.test(
 	'getChainId: calls eth_chainId and returns chain ID as bigint',
 	async () => {
