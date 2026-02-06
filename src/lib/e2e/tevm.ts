@@ -1,5 +1,5 @@
 import { encodeFunction } from '@tevm/voltaire/Abi'
-import { E2E_TEVM_CONTRACT_ADDRESS } from './tevm-config'
+import { DEFAULT_E2E_TEVM_RPC_URL, E2E_TEVM_CONTRACT_ADDRESS } from './tevm-config'
 
 declare global {
 	interface Window {
@@ -32,9 +32,9 @@ export const E2E_TEVM_ENABLED =
 export const E2E_TEVM_RPC_URL =
 	typeof window !== 'undefined' && window.__E2E_TEVM_RPC_URL__
 		? window.__E2E_TEVM_RPC_URL__
-		: typeof import.meta.env !== 'undefined'
-			? import.meta.env.PUBLIC_E2E_TEVM_RPC_URL
-			: undefined
+		: (typeof import.meta.env !== 'undefined'
+				? import.meta.env.PUBLIC_E2E_TEVM_RPC_URL
+				: undefined) ?? DEFAULT_E2E_TEVM_RPC_URL
 
 export const requestE2eTevmContractTx = async (args: {
 	provider: {
