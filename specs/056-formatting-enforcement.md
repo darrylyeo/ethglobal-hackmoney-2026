@@ -121,7 +121,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/collections/shared-addresses.spec.ts`
 - [x] `src/collections/shared-addresses.ts`
 - [x] `src/collections/siwe-challenges-keys.ts`
-- [ ] `src/collections/siwe-challenges.spec.ts`
+- [x] `src/collections/siwe-challenges.spec.ts`
 - [ ] `src/collections/siwe-challenges.ts`
 - [ ] `src/collections/stork-prices.ts`
 - [ ] `src/collections/swap-quotes-normalize.ts`

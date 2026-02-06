@@ -10,7 +10,8 @@ Deno.test('siweChallengeKey generates correct composite key', () => {
 })
 
 Deno.test('siweChallengeKey normalizes address to lowercase', () => {
-	const k1 = siweChallengeKey('R', 'a', 'b', '0xABCD')
-	const k2 = siweChallengeKey('R', 'a', 'b', '0xabcd')
-	assertEquals(k1, k2)
+	assertEquals(
+		siweChallengeKey('R', 'a', 'b', '0xABCD'),
+		siweChallengeKey('R', 'a', 'b', '0xabcd'),
+	)
 })
