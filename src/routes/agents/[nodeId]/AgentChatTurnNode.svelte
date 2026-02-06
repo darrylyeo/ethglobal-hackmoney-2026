@@ -1,20 +1,20 @@
 <script lang="ts">
-
-
 	// Types/constants
-	import type { DialogueTree } from '$/data/DialogueTree'
-	import type { DialogueTurn } from '$/data/DialogueTurn'
-
+	import type { LlmConnectionRow } from '$/collections/llm-connections'
+	import type { AgentChatTree } from '$/data/AgentChatTree'
+	import type { AgentChatTurn } from '$/data/AgentChatTurn'
 
 	// Props
 	let {
 		turn,
 		allTurns,
 		tree,
+		connections = [],
 	}: {
-		turn: DialogueTurn
-		allTurns: DialogueTurn[]
-		tree: DialogueTree
+		turn: AgentChatTurn
+		allTurns: AgentChatTurn[]
+		tree: AgentChatTree
+		connections?: readonly LlmConnectionRow[]
 	} = $props()
 
 
@@ -24,7 +24,7 @@
 	)
 
 	type TabItem =
-		| { id: string, label: string, type: 'child', child: DialogueTurn }
+		| { id: string, label: string, type: 'child', child: AgentChatTurn }
 		| { id: string, label: string, type: 'reply' }
 
 	const tabItems = $derived.by((): TabItem[] => {
@@ -48,31 +48,40 @@
 
 	// Functions
 	import {
-		collectDialogueTurnDescendantIds,
-		deleteDialogueTurn,
-		retryDialogueTurn,
-		submitDialogueTurn,
-	} from '$/lib/dialogue'
+		collectAgentChatTurnDescendantIds,
+		deleteAgentChatTurn,
+		retryAgentChatTurn,
+		submitAgentChatTurn,
+	} from '$/lib/agent-chat'
 	import { goto } from '$app/navigation'
 
 	const handleDelete = () => {
-		const ids = collectDialogueTurnDescendantIds(turn.id, allTurns)
+		const ids = collectAgentChatTurnDescendantIds(turn.id, allTurns)
 		const currentHash = $page.url.hash
 		const hashWasDeleted = [...ids].some((id) => currentHash === `#turn:${id}`)
-		deleteDialogueTurn(turn.id, allTurns)
+		deleteAgentChatTurn(turn.id, allTurns)
 		if (hashWasDeleted && turn.parentId)
 			goto(`${$page.url.pathname}#turn:${turn.parentId}`, { replaceState: true })
 		else if (hashWasDeleted)
 			goto($page.url.pathname, { replaceState: true })
 	}
 
+	function parseModelValue(v: string): [string | null, string | null] {
+		if (!v || !v.includes(':')) return [null, null]
+		const [a, b] = v.split(':')
+		return [a?.trim() ?? null, b?.trim() ?? null]
+	}
+
 	const handleSubmit = async (value: string, entityRefs: import('$/data/EntityRef').EntityRef[]) => {
-		const turnId = await submitDialogueTurn({
+		const [connectionId, modelId] = parseModelValue(modelValue)
+		const turnId = await submitAgentChatTurn({
 			treeId: tree.id,
 			parentId: turn.id,
 			userPrompt: value,
 			entityRefs,
 			systemPrompt: tree.systemPrompt,
+			connectionId: connectionId ?? tree.defaultConnectionId ?? null,
+			modelId: modelId ?? tree.defaultModelId ?? null,
 		})
 		goto(`${$page.url.pathname}#turn:${turnId}`, { replaceState: true })
 	}
@@ -80,6 +89,7 @@
 
 	// State
 	let promptValue = $state('')
+	let modelValue = $state('')
 	let activeTab = $state('')
 
 	const isTarget = $derived($page.url.hash === `#turn:${turn.id}`)
@@ -106,7 +116,7 @@
 	)
 
 	const handleRetry = () => {
-		retryDialogueTurn({
+		retryAgentChatTurn({
 			turnId: turn.id,
 			allTurns,
 			systemPrompt: tree.systemPrompt,
@@ -115,16 +125,16 @@
 
 
 	// Components
+	import ModelInput from '$/components/ModelInput.svelte'
 	import Tabs from '$/components/Tabs.svelte'
-	import DialogueTurnNode from '$/components/agent/DialogueTurnNode.svelte'
 	import EntityRefInput from '$/components/EntityRefInput.svelte'
+	import AgentChatTurnNode from './AgentChatTurnNode.svelte'
 
 
 	// Transitions/animations
 	import { flip } from 'svelte/animate'
 	import { expoOut } from 'svelte/easing'
 </script>
-
 
 <section
 	data-status={turn.status}
@@ -170,21 +180,34 @@
 		>
 			{#snippet content(item)}
 				{#if item.type === 'reply'}
-					<EntityRefInput
-						bind:value={promptValue}
-						disabled={turn.status === 'error'}
-						autofocus={isTarget}
-						onsubmit={(value, entityRefs) => {
-							handleSubmit(value, entityRefs)
-							promptValue = ''
-						}}
-						placeholder="Continue the conversation…"
-					/>
+					<div data-column="gap-2">
+						{#if connections.length > 0}
+							<div data-row="gap-2 align-center">
+								<ModelInput
+									connections={connections}
+									bind:value={modelValue}
+									placeholder="Model (optional)"
+									ariaLabel="Model"
+								/>
+							</div>
+						{/if}
+						<EntityRefInput
+							bind:value={promptValue}
+							disabled={turn.status === 'error'}
+							autofocus={isTarget}
+							onsubmit={(value, entityRefs) => {
+								handleSubmit(value, entityRefs)
+								promptValue = ''
+							}}
+							placeholder="Continue the conversation…"
+						/>
+					</div>
 				{:else}
-					<DialogueTurnNode
+					<AgentChatTurnNode
 						turn={item.child}
 						{allTurns}
 						{tree}
+						{connections}
 					/>
 				{/if}
 			{/snippet}
@@ -193,28 +216,40 @@
 		<div data-column="gap-2">
 			{#each children as child (child.id)}
 				<div animate:flip={{ duration: 250, easing: expoOut }}>
-					<DialogueTurnNode
+					<AgentChatTurnNode
 						turn={child}
 						{allTurns}
 						{tree}
+						{connections}
 					/>
 				</div>
 			{/each}
 		</div>
 	{:else if showPromptForm}
-		<EntityRefInput
-			bind:value={promptValue}
-			disabled={turn.status === 'error'}
-			autofocus={isTarget}
-			onsubmit={(value, entityRefs) => {
-				handleSubmit(value, entityRefs)
-				promptValue = ''
-			}}
-			placeholder="Continue the conversation…"
-		/>
+		<div data-column="gap-2">
+			{#if connections.length > 0}
+				<div data-row="gap-2 align-center">
+					<ModelInput
+						connections={connections}
+						bind:value={modelValue}
+						placeholder="Model (optional)"
+						ariaLabel="Model"
+					/>
+				</div>
+			{/if}
+			<EntityRefInput
+				bind:value={promptValue}
+				disabled={turn.status === 'error'}
+				autofocus={isTarget}
+				onsubmit={(value, entityRefs) => {
+					handleSubmit(value, entityRefs)
+					promptValue = ''
+				}}
+				placeholder="Continue the conversation…"
+			/>
+		</div>
 	{/if}
 </section>
-
 
 <style>
 	.turn-card {

@@ -1,12 +1,49 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { EntityRef } from '$/data/EntityRef'
+	import type { EntitySuggestion } from '$/lib/entity-suggestions'
+	import { EntityType } from '$/data/$EntityType'
+	import { getEntitySuggestionsFromCache } from '$/lib/entity-suggestions'
 	import {
+		buildDefaultEntityTriggerConfig,
 		getValueFromSegmentsAndRefs,
 		parseValueToSegmentsAndRefs,
 	} from '$/lib/prompt-value'
+
+	const DEFAULT_TRIGGER = '@'
+	const PLACEHOLDER_REF: EntityRef = {
+		entityType: EntityType.AgentChatTurn,
+		entityId: '__placeholder__',
+		displayLabel: DEFAULT_TRIGGER,
+		trigger: DEFAULT_TRIGGER,
+	}
+
+	const entityTriggerParseConfig = buildDefaultEntityTriggerConfig()
+	const triggerConfig = {
+		[DEFAULT_TRIGGER]: {
+			getSuggestions: getEntitySuggestionsFromCache,
+		},
+	} satisfies Record<string, { getSuggestions: (query: string) => EntitySuggestion[] }>
+	const getPlaceholderRef = (trigger: string): EntityRef => ({ ...PLACEHOLDER_REF, trigger })
+
+	function serializeRef(ref: EntityRef): Record<string, string> {
+		return {
+			displayLabel: ref.displayLabel,
+			entityId: ref.entityId,
+			entityType: ref.entityType,
+			...(ref.trigger != null && { trigger: ref.trigger }),
+		}
+	}
+
+	function parseRef(el: HTMLElement): EntityRef | null {
+		if (!el.hasAttribute('data-ref-chip')) return null
+		const displayLabel = el.getAttribute('data-ref-display-label')
+		const entityId = el.getAttribute('data-ref-entity-id')
+		const entityType = el.getAttribute('data-ref-entity-type') as EntityRef['entityType'] | null
+		if (displayLabel == null || entityId == null || entityType == null) return null
+		const trigger = el.getAttribute('data-ref-trigger') ?? undefined
+		return { entityType, entityId, displayLabel, ...(trigger && { trigger }) }
+	}
 
 
 	// Props
@@ -47,7 +84,7 @@
 		if (hasPlaceholder) return
 		const current = getValueFromSegmentsAndRefs(textSegments, refs)
 		if (value === current) return
-		const { segments, refs: parsed } = parseValueToSegmentsAndRefs(value)
+		const { segments, refs: parsed } = parseValueToSegmentsAndRefs(value, entityTriggerParseConfig)
 		textSegments = segments
 		refs = parsed
 	})
@@ -63,11 +100,13 @@
 		placeholder ?? 'Type a message… Use @ to reference entities',
 	)
 
+	const getItemId = (s: EntitySuggestion) => `${s.ref.entityType}:${s.ref.entityId}`
+	const getItemLabel = (s: EntitySuggestion) => s.label
+
 
 	// Components
-	import PromptInput from '$/components/PromptInput.svelte'
+	import RichTextarea from '$/components/RichTextarea.svelte'
 </script>
-
 
 <form
 	data-row="gap-2"
@@ -78,16 +117,23 @@
 	}}
 >
 	<div data-row-item="flexible">
-		<PromptInput
-			bind:textSegments
-			bind:entityRefs={refs}
+		<RichTextarea
+			bind:segments={textSegments}
+			bind:refs={refs}
+			{isPlaceholder}
+			{getPlaceholderRef}
+			{triggerConfig}
+			{getItemId}
+			{getItemLabel}
+			{serializeRef}
+			{parseRef}
 			placeholder={computedPlaceholder}
 			{disabled}
 			{autofocus}
 		/>
 	</div>
 
-	<button type="submit" {disabled}>
+	<button type="submit" disabled={disabled || hasPlaceholder}>
 		Send
 	</button>
 </form>
