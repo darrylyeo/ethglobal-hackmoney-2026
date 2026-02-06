@@ -1,27 +1,27 @@
-# Spec 066: Dialogue tree data model and collections
+# Spec 066: Agent chat data model and collections
 
 Define the data model and TanStack DB collections for tree-structured LLM
-conversations ("dialogue trees"). Each tree is a rooted DAG of prompt-response
-pairs ("dialogue turns") with optional entity references. The generic
+conversations ("agent chat trees"). Each tree is a rooted DAG of prompt-response
+pairs ("agent chat turns") with optional entity references. The generic
 `LlmProvider` abstraction from spec 051 (Part 1) is the generation backend.
-Port the "explain transaction" feature to write dialogue turns instead of
+Port the "explain transaction" feature to write agent chat turns instead of
 ephemeral component state.
 
 ## Naming rationale
 
 "Turn" is established terminology (Open Assistant, Graphlit) for a
-prompt-response pair. "Dialogue" distinguishes from the existing
+prompt-response pair. "Agent chat" distinguishes from the existing
 `TransactionSession` concept while staying domain-neutral. Fits the codebase's
 singular-noun naming convention (`Block`, `Transaction`, `Room`).
 
 ## Scope
 
-- Data types: `DialogueTree`, `DialogueTurn`, `EntityRef`.
-- TanStack DB collections: `dialogueTreesCollection`, `dialogueTurnsCollection`.
+- Data types: `AgentChatTree`, `AgentChatTurn`, `EntityRef`.
+- TanStack DB collections: `agentChatTreesCollection`, `agentChatTurnsCollection`.
 - `EntityType` enum additions.
 - `DataSource.Llm` addition.
-- `buildDialogueMessages` helper for context assembly.
-- Port "explain transaction" to write `DialogueTurn` nodes.
+- `buildAgentChatMessages` helper for context assembly.
+- Port "explain transaction" to write `AgentChatTurn` nodes.
 
 ## Non-goals
 
@@ -31,17 +31,17 @@ singular-noun naming convention (`Block`, `Transaction`, `Room`).
 
 ## Data types
 
-### `DialogueTurn` (`src/data/DialogueTurn.ts`)
+### `AgentChatTurn` (`src/data/AgentChatTurn.ts`)
 
 ```ts
-type DialogueTurnStatus =
+type AgentChatTurnStatus =
 	| 'pending'
 	| 'generating'
 	| 'complete'
 	| 'error'
 	| 'cancelled'
 
-type DialogueTurn = {
+type AgentChatTurn = {
 	id: string
 	treeId: string
 	parentId: string | null
@@ -50,7 +50,7 @@ type DialogueTurn = {
 	assistantText: string | null
 	providerId: string | null
 	providerConfig?: { model?: string }
-	status: DialogueTurnStatus
+	status: AgentChatTurnStatus
 	error?: string
 	createdAt: number
 	promptVersion: string
@@ -58,8 +58,8 @@ type DialogueTurn = {
 ```
 
 - `id` — UUID.
-- `treeId` — FK to `DialogueTree`.
-- `parentId` — FK to parent `DialogueTurn`; `null` for root turns.
+- `treeId` — FK to `AgentChatTree`.
+- `parentId` — FK to parent `AgentChatTurn`; `null` for root turns.
 - `userPrompt` — the user's prompt text (may contain entity references as
   `@EntityType:key` tokens).
 - `entityRefs` — parsed entity references extracted from `userPrompt`.
@@ -72,10 +72,10 @@ type DialogueTurn = {
 - `createdAt` — epoch ms.
 - `promptVersion` — version string of the system prompt template used.
 
-### `DialogueTree` (`src/data/DialogueTree.ts`)
+### `AgentChatTree` (`src/data/AgentChatTree.ts`)
 
 ```ts
-type DialogueTree = {
+type AgentChatTree = {
 	id: string
 	name: string | null
 	pinned: boolean
@@ -109,19 +109,19 @@ type EntityRef = {
 
 ## Collections
 
-### `dialogueTreesCollection` (`src/collections/dialogue-trees.ts`)
+### `agentChatTreesCollection` (`src/collections/agent-chat-trees.ts`)
 
 - `localStorageCollectionOptions`
-- `id: 'dialogue-trees'`
-- `storageKey: 'dialogue-trees'`
+- `id: 'agent-chat-trees'`
+- `storageKey: 'agent-chat-trees'`
 - `getKey: (row) => row.id`
 - `parser: { stringify, parse }` from `devalue`
 
-### `dialogueTurnsCollection` (`src/collections/dialogue-turns.ts`)
+### `agentChatTurnsCollection` (`src/collections/agent-chat-turns.ts`)
 
 - `localStorageCollectionOptions`
-- `id: 'dialogue-turns'`
-- `storageKey: 'dialogue-turns'`
+- `id: 'agent-chat-turns'`
+- `storageKey: 'agent-chat-turns'`
 - `getKey: (row) => row.id`
 - `parser: { stringify, parse }` from `devalue`
 
@@ -130,15 +130,15 @@ type EntityRef = {
 Add to `src/data/$EntityType.ts`:
 
 ```ts
-DialogueTree = 'DialogueTree',
-DialogueTurn = 'DialogueTurn',
+AgentChatTree = 'AgentChatTree',
+AgentChatTurn = 'AgentChatTurn',
 ```
 
 With metadata entries:
 
 ```ts
-{ type: EntityType.DialogueTree, label: 'Dialogue', labelPlural: 'Dialogues', inGraph: false },
-{ type: EntityType.DialogueTurn, label: 'Turn', labelPlural: 'Turns', inGraph: false },
+{ type: EntityType.AgentChatTree, label: 'Agent chat', labelPlural: 'Agent chats', inGraph: false },
+{ type: EntityType.AgentChatTurn, label: 'Turn', labelPlural: 'Turns', inGraph: false },
 ```
 
 ## DataSource addition
@@ -148,12 +148,12 @@ rows produced by LLM generation.
 
 ## LLM harness integration
 
-### `buildDialogueMessages` (`src/lib/dialogue.ts`)
+### `buildAgentChatMessages` (`src/lib/agent-chat.ts`)
 
 ```ts
-const buildDialogueMessages = (
-	turns: DialogueTurn[],
-	turn: DialogueTurn,
+const buildAgentChatMessages = (
+	turns: AgentChatTurn[],
+	turn: AgentChatTurn,
 	systemPrompt: string,
 ): LlmGenerateInput => ...
 ```
@@ -170,13 +170,13 @@ include the `displayLabel` verbatim.
 
 Returns `{ systemPrompt, userPrompt }` ready for `LlmProvider.generate()`.
 
-### `submitDialogueTurn` (`src/lib/dialogue.ts`)
+### `submitAgentChatTurn` (`src/lib/agent-chat.ts`)
 
 Convenience function that:
 
-1. Inserts a new `DialogueTurn` into `dialogueTurnsCollection` with
+1. Inserts a new `AgentChatTurn` into `agentChatTurnsCollection` with
    `status: 'generating'`.
-2. Calls `buildDialogueMessages(allTurns, newTurn, tree.systemPrompt)`.
+2. Calls `buildAgentChatMessages(allTurns, newTurn, tree.systemPrompt)`.
 3. Calls `createLlmProvider().generate(messages)`.
 4. On success: updates the turn with `assistantText`, `providerId`,
    `status: 'complete'`.
@@ -184,14 +184,14 @@ Convenience function that:
 6. Updates `tree.updatedAt`.
 7. Returns the turn `id`.
 
-### `retryDialogueTurn` (`src/lib/dialogue.ts`)
+### `retryAgentChatTurn` (`src/lib/agent-chat.ts`)
 
 When a turn has `status === 'error'`, the UI can call:
 
 ```ts
-retryDialogueTurn(options: {
+retryAgentChatTurn(options: {
 	turnId: string
-	allTurns: DialogueTurn[]
+	allTurns: AgentChatTurn[]
 	systemPrompt: string
 	onProgress?: (progress: number) => void
 })
@@ -199,58 +199,58 @@ retryDialogueTurn(options: {
 
 Behavior: no-op if the turn is missing or not in `'error'` status. Otherwise
 sets the turn to `status: 'generating'` and clears `error`, then runs the same
-flow as `submitDialogueTurn` (build messages from ancestors, call
+flow as `submitAgentChatTurn` (build messages from ancestors, call
 `LlmProvider.generate()`, update turn on success or error, update
-`tree.updatedAt`). Used by the Retry button in `DialogueTurnNode`.
+`tree.updatedAt`). Used by the Retry button in `AgentChatTurnNode`.
 
-### Delete helpers (`src/lib/dialogue.ts`)
+### Delete helpers (`src/lib/agent-chat.ts`)
 
-- **`collectDialogueTurnDescendantIds(turnId, allTurns)`** — Returns a `Set<string>` of `turnId` and all descendant turn ids (BFS via `parentId`).
-- **`deleteDialogueTurn(turnId, allTurns)`** — Calls `dialogueTurnsCollection.delete(id)` for the turn and every descendant (from `collectDialogueTurnDescendantIds`). Used by the UI to remove a branch.
+- **`collectAgentChatTurnDescendantIds(turnId, allTurns)`** — Returns a `Set<string>` of `turnId` and all descendant turn ids (BFS via `parentId`).
+- **`deleteAgentChatTurn(turnId, allTurns)`** — Calls `agentChatTurnsCollection.delete(id)` for the turn and every descendant (from `collectAgentChatTurnDescendantIds`). Used by the UI to remove a branch.
 
 ## Porting "explain transaction"
 
 The existing `createExplainProvider` / `explainTransaction` flow stores results
 in ephemeral component state (`txOverrides` in `TransactionFlow.svelte`). Port
-to write `DialogueTurn` nodes:
+to write `AgentChatTurn` nodes:
 
-- When user clicks "Explain results," create a `DialogueTree` (or reuse one
+- When user clicks "Explain results," create an `AgentChatTree` (or reuse one
   per `TransactionSession`) with `systemPrompt` set to `EXPLAIN_SYSTEM_PROMPT`
-  and insert a root `DialogueTurn` with:
+  and insert a root `AgentChatTurn` with:
   - `userPrompt` built from `buildExplainUserPrompt(context)`.
   - `entityRefs` pointing to the transaction / simulation entity.
 - On completion, update the turn's `assistantText`, `providerId`, `status`.
-- `TransactionFlow.svelte` reads the turn from `dialogueTurnsCollection` via
+- `TransactionFlow.svelte` reads the turn from `agentChatTurnsCollection` via
   live query instead of component state. Existing UI (button, loading, cancel,
   result display) stays the same; only the storage layer changes.
-- `ExplainRecord` type is retired; `DialogueTurn` subsumes it (`createdAt`,
+- `ExplainRecord` type is retired; `AgentChatTurn` subsumes it (`createdAt`,
   `promptVersion`, `providerId`, `assistantText`).
 - `ExplainAvailability`, `ExplainContext`, `ExplainInput`, `ExplainOutput`,
   `ExplainProvider`, `createExplainProvider`, `buildExplainUserPrompt` remain
   in `src/lib/explain.ts` as the feature-specific layer that wraps
   `LlmProvider` and builds domain prompts. The only change is that the result
-  is persisted as a `DialogueTurn` instead of returned as an `ExplainRecord`.
+  is persisted as an `AgentChatTurn` instead of returned as an `ExplainRecord`.
 
 ## Acceptance criteria
 
-- [x] `DialogueTree` and `DialogueTurn` data types defined in `src/data/`.
+- [x] `AgentChatTree` and `AgentChatTurn` data types defined in `src/data/`.
 - [x] `EntityRef` type defined in `src/data/EntityRef.ts`.
-- [x] `dialogueTreesCollection` and `dialogueTurnsCollection` created with
+- [x] `agentChatTreesCollection` and `agentChatTurnsCollection` created with
   localStorage persistence in `src/collections/`.
-- [x] `EntityType.DialogueTree` and `EntityType.DialogueTurn` added to
+- [x] `EntityType.AgentChatTree` and `EntityType.AgentChatTurn` added to
   `$EntityType.ts`.
 - [x] `DataSource.Llm` added to `src/constants/data-sources.ts`.
-- [x] `buildDialogueMessages` helper walks the parent chain (entity ref
+- [x] `buildAgentChatMessages` helper walks the parent chain (entity ref
   resolution inline is optional; current impl uses prompts as-is).
-- [x] `submitDialogueTurn` helper inserts a turn, calls `LlmProvider`, and
+- [x] `submitAgentChatTurn` helper inserts a turn, calls `LlmProvider`, and
   updates the turn on completion/error.
-- [x] "Explain transaction" writes `DialogueTurn` nodes instead of ephemeral
+- [x] "Explain transaction" writes `AgentChatTurn` nodes instead of ephemeral
   state; existing UI unchanged.
 - [x] `ExplainRecord` type retired; explain reads from
-  `dialogueTurnsCollection`.
-- [x] `collectDialogueTurnDescendantIds` and `deleteDialogueTurn` implemented
+  `agentChatTurnsCollection`.
+- [x] `collectAgentChatTurnDescendantIds` and `deleteAgentChatTurn` implemented
   for cascade delete.
-- [x] `retryDialogueTurn` implemented for re-running generation on failed turns.
+- [x] `retryAgentChatTurn` implemented for re-running generation on failed turns.
 
 ## Sources
 
@@ -261,9 +261,9 @@ to write `DialogueTurn` nodes:
 
 ## Status
 
-Complete. Explain flow ported to DialogueTurn in `explain.ts`; TransactionFlow
-reads from `dialogueTurnsCollection`. Optional: resolve entity refs to cached
-summaries inside `buildDialogueMessages`.
+Complete. Explain flow ported to AgentChatTurn in `explain.ts`; TransactionFlow
+reads from `agentChatTurnsCollection`. Optional: resolve entity refs to cached
+summaries inside `buildAgentChatMessages`.
 
 ## Output when complete
 

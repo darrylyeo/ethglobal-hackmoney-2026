@@ -1,8 +1,8 @@
 export enum EntityRefPattern {
-	EvmAddress = 'evmAddress',
-	EvmBlockNumber = 'evmBlockNumber',
-	EvmTransactionHash = 'evmTransactionHash',
-	EntityId = 'entityId',
+	EvmAddress = 'EvmAddress',
+	EvmBlockNumber = 'EvmBlockNumber',
+	EvmTransactionHash = 'EvmTransactionHash',
+	EntityId = 'EntityId',
 }
 
 export type EntityRefPatternConfig = {

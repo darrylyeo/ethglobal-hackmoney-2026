@@ -1,13 +1,13 @@
 import type { EntityRef } from '$/data/EntityRef'
 
-export type DialogueTurnStatus =
+export type AgentChatTurnStatus =
 	| 'pending'
 	| 'generating'
 	| 'complete'
 	| 'error'
 	| 'cancelled'
 
-export type DialogueTurn = {
+export type AgentChatTurn = {
 	id: string
 	treeId: string
 	parentId: string | null
@@ -15,8 +15,8 @@ export type DialogueTurn = {
 	entityRefs: EntityRef[]
 	assistantText: string | null
 	providerId: string | null
-	providerConfig?: { model?: string }
-	status: DialogueTurnStatus
+	providerConfig?: { connectionId?: string, modelId?: string }
+	status: AgentChatTurnStatus
 	error?: string
 	createdAt: number
 	promptVersion: string
