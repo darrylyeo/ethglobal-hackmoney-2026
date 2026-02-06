@@ -1,4 +1,6 @@
 <script module lang="ts">
+
+
 	// Types/constants
 	export enum TimestampFormat {
 		Absolute = 'absolute',
@@ -9,13 +11,15 @@
 
 
 <script lang="ts">
+
+
 	// Props
 	let {
 		timestamp,
 		format = TimestampFormat.Absolute,
 	}: {
-		timestamp: number
-		format?: TimestampFormat
+		timestamp: number,
+		format?: TimestampFormat,
 	} = $props()
 
 
@@ -28,6 +32,8 @@
 		Date.now()
 	)
 
+
+	// (Derived)
 	const date = $derived(
 		typeof timestamp === 'number' ?
 			new Date(timestamp)
@@ -65,9 +71,18 @@
 
 
 {#if format === TimestampFormat.Absolute}
-	<time datetime={isoString} title={relativeTime}>{absoluteTime}</time>
+	<time
+		datetime={isoString}
+		title={relativeTime}
+	>{absoluteTime}</time>
 {:else if format === TimestampFormat.Relative}
-	<time datetime={isoString} title={absoluteTime}>{relativeTime}</time>
+	<time
+		datetime={isoString}
+		title={absoluteTime}
+	>{relativeTime}</time>
 {:else if format === TimestampFormat.Both}
-	<time datetime={isoString} title={`${absoluteTime} (${relativeTime})`}>{absoluteTime} ({relativeTime})</time>
+	<time
+		datetime={isoString}
+		title={`${absoluteTime} (${relativeTime})`}
+	>{absoluteTime} ({relativeTime})</time>
 {/if}
