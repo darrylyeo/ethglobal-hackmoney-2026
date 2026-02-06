@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { EntityRef } from '$/data/EntityRef'
 	import type { EntitySuggestion } from '$/lib/entity-suggestions'
@@ -26,24 +28,9 @@
 	} satisfies Record<string, { getSuggestions: (query: string) => EntitySuggestion[] }>
 	const getPlaceholderRef = (trigger: string): EntityRef => ({ ...PLACEHOLDER_REF, trigger })
 
-	function serializeRef(ref: EntityRef): Record<string, string> {
-		return {
-			displayLabel: ref.displayLabel,
-			entityId: ref.entityId,
-			entityType: ref.entityType,
-			...(ref.trigger != null && { trigger: ref.trigger }),
-		}
-	}
 
-	function parseRef(el: HTMLElement): EntityRef | null {
-		if (!el.hasAttribute('data-ref-chip')) return null
-		const displayLabel = el.getAttribute('data-ref-display-label')
-		const entityId = el.getAttribute('data-ref-entity-id')
-		const entityType = el.getAttribute('data-ref-entity-type') as EntityRef['entityType'] | null
-		if (displayLabel == null || entityId == null || entityType == null) return null
-		const trigger = el.getAttribute('data-ref-trigger') ?? undefined
-		return { entityType, entityId, displayLabel, ...(trigger && { trigger }) }
-	}
+	// Components
+	import RichTextarea from '$/components/RichTextarea.svelte'
 
 
 	// Props
@@ -64,10 +51,33 @@
 	} = $props()
 
 
+	// Functions
+	function serializeRef(ref: EntityRef): Record<string, string> {
+		return {
+			displayLabel: ref.displayLabel,
+			entityId: ref.entityId,
+			entityType: ref.entityType,
+			...(ref.trigger != null && { trigger: ref.trigger }),
+		}
+	}
+
+	function parseRef(el: HTMLElement): EntityRef | null {
+		if (!el.hasAttribute('data-ref-chip')) return null
+		const displayLabel = el.getAttribute('data-ref-display-label')
+		const entityId = el.getAttribute('data-ref-entity-id')
+		const entityType = el.getAttribute('data-ref-entity-type') as EntityRef['entityType'] | null
+		if (displayLabel == null || entityId == null || entityType == null) return null
+		const trigger = el.getAttribute('data-ref-trigger') ?? undefined
+		return { entityType, entityId, displayLabel, ...(trigger && { trigger }) }
+	}
+
+
 	// State
 	let textSegments = $state<string[]>([''])
 	let refs = $state<EntityRef[]>([])
 
+
+	// (Derived)
 	const isPlaceholder = (r: EntityRef) => r.entityId === '__placeholder__'
 	const hasPlaceholder = $derived(refs.some(isPlaceholder))
 	const resolvedRefs = $derived(refs.filter((r) => !isPlaceholder(r)))
@@ -89,24 +99,22 @@
 		refs = parsed
 	})
 
+	const computedPlaceholder = $derived(
+		placeholder ?? 'Type a message… Use @ to reference entities',
+	)
+	const getItemId = (s: EntitySuggestion) => `${s.ref.entityType}:${s.ref.entityId}`
+	const getItemLabel = (s: EntitySuggestion) => s.label
+
+
+	// Actions
 	const handleSubmit = () => {
 		if (hasPlaceholder) return
 		const v = getValueFromSegmentsAndRefs(textSegments, refs)
 		if (!v.trim()) return
 		onsubmit?.(v, resolvedRefs)
 	}
-
-	const computedPlaceholder = $derived(
-		placeholder ?? 'Type a message… Use @ to reference entities',
-	)
-
-	const getItemId = (s: EntitySuggestion) => `${s.ref.entityType}:${s.ref.entityId}`
-	const getItemLabel = (s: EntitySuggestion) => s.label
-
-
-	// Components
-	import RichTextarea from '$/components/RichTextarea.svelte'
 </script>
+
 
 <form
 	data-row="gap-2"
