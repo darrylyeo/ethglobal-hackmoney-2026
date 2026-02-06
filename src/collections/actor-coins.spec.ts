@@ -11,11 +11,12 @@ const formatBalance = (balance: bigint, decimals: number) => {
 	const divisor = 10n ** BigInt(decimals)
 	const integerPart = balance / divisor
 	const fractionalPart = balance % divisor
-	const fractionalStr = fractionalPart
-		.toString()
-		.padStart(decimals, '0')
-		.slice(0, 4)
-	return `${integerPart}.${fractionalStr}`
+	return (
+		`${integerPart}.${fractionalPart
+			.toString()
+			.padStart(decimals, '0')
+			.slice(0, 4)}`
+	)
 }
 
 Deno.test('actorCoinKey generates correct composite key', () => {
