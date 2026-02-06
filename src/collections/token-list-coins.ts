@@ -1,12 +1,12 @@
-import { createCollection } from '@tanstack/svelte-db'
-import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { DataSource } from '$/constants/data-sources'
-import { tokenListUrls } from '$/constants/token-lists'
 import { toInteropName } from '$/constants/interop'
+import { TOKEN_LIST_MAX_ENTRIES } from '$/constants/query-limits'
+import { tokenListUrls } from '$/constants/token-lists'
 import type { TokenListCoin } from '$/data/TokenListCoin'
 import { normalizeAddress } from '$/lib/address'
 import { queryClient } from '$/lib/db/query-client'
-import { TOKEN_LIST_MAX_ENTRIES } from '$/constants/query-limits'
+import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import { createCollection } from '@tanstack/svelte-db'
 
 export type TokenListCoinRow = TokenListCoin & { $source: DataSource }
 
