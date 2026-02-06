@@ -1,6 +1,6 @@
 import type { EntityRef } from '$/data/EntityRef'
 import { EntityType } from '$/data/$EntityType'
-import { dialogueTurnsCollection } from '$/collections/dialogue-turns'
+	import { agentChatTurnsCollection } from '$/collections/agent-chat-turns'
 import { actorsCollection } from '$/collections/actors'
 import { actorKey } from '$/collections/actors'
 import { blocksCollection } from '$/collections/blocks'
@@ -9,9 +9,9 @@ import { stringify } from 'devalue'
 
 export type EntitySuggestion = { ref: EntityRef, label: string }
 
-const dialogueTurnToSuggestion = (turn: { id: string, userPrompt: string }): EntitySuggestion => ({
+const agentChatTurnToSuggestion = (turn: { id: string, userPrompt: string }): EntitySuggestion => ({
 	ref: {
-		entityType: EntityType.DialogueTurn,
+		entityType: EntityType.AgentChatTurn,
 		entityId: turn.id,
 		displayLabel: `@${turn.id}`,
 	},
@@ -58,8 +58,8 @@ export function getEntitySuggestionsFromCache(query: string): EntitySuggestion[]
 	const q = query.trim().toLowerCase()
 	const results: EntitySuggestion[] = []
 
-	for (const turn of dialogueTurnsCollection.state.values())
-		results.push(dialogueTurnToSuggestion(turn))
+	for (const turn of agentChatTurnsCollection.state.values())
+		results.push(agentChatTurnToSuggestion(turn))
 
 	for (const row of actorsCollection.state.values())
 		results.push(actorToSuggestion(row))
