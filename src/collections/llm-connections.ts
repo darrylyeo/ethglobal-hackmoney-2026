@@ -1,13 +1,13 @@
-import {
-	createCollection,
-	localStorageCollectionOptions,
-} from '@tanstack/svelte-db'
-import { stringify, parse } from 'devalue'
 import { DataSource } from '$/constants/data-sources'
 import {
 	type LlmConnection,
 	LlmConnectionProvider,
 } from '$/data/LlmConnection'
+import {
+	createCollection,
+	localStorageCollectionOptions,
+} from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 
 export type LlmConnectionRow = LlmConnection & { $source: DataSource }
 
