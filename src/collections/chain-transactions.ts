@@ -4,21 +4,18 @@
  */
 
 import {
-	createCollection,
-	localOnlyCollectionOptions,
-} from '@tanstack/svelte-db'
-import { DataSource } from '$/constants/data-sources'
-import type { ChainId } from '$/constants/networks'
-import { rpcUrls } from '$/constants/rpc-endpoints'
-import type {
-	ChainTransactionEntry,
-	ChainTransaction$Id,
-} from '$/data/ChainTransaction'
-import {
 	createHttpProvider,
 	getTransactionByHash,
 	getTransactionReceipt,
 } from '$/api/voltaire'
+import { DataSource } from '$/constants/data-sources'
+import type { ChainId } from '$/constants/networks'
+import { rpcUrls } from '$/constants/rpc-endpoints'
+import type { ChainTransactionEntry } from '$/data/ChainTransaction'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
 const getKey = (row: ChainTransactionEntry) =>
 	`${row.$id.chainId}:${row.$id.txHash}`
@@ -41,9 +38,7 @@ export const fetchChainTransaction = async (
 	txHash: `0x${string}`,
 ): Promise<ChainTransactionEntry> => {
 	const key = `${chainId}:${txHash}`
-	const existing = chainTransactionsCollection.state.get(key)
-
-	if (existing) {
+	if (chainTransactionsCollection.state.get(key)) {
 		chainTransactionsCollection.update(key, (draft) => {
 			draft.isLoading = true
 			draft.error = null
