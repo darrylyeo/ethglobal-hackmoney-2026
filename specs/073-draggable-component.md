@@ -50,14 +50,18 @@ function draggable(options: DraggableOptions): Attachment
 
 ## Acceptance criteria
 
-- [ ] A `draggable(options)` attachment factory exists; it returns an attachment that runs on mount and when options (or state read inside it) change, and returns a cleanup function.
-- [ ] When `enabled` is true, the element has `draggable={true}` and ondragstart sets `text/plain` from `text`; if `href`, also sets `text/uri-list`.
-- [ ] When `intent` is provided and enabled, ondragstart calls `setIntentDragData` and `startIntentDragPreview`; ondragover and ondrop call `updateIntentDragTarget` with the element.
-- [ ] When `enabled` is false, the element is not draggable and no drag handlers are attached.
-- [ ] EntityId is refactored to use `{@attach draggable({ text: draggableText, href: link, intent })}` on its root `<a>`/`<span>` without changing public EntityId props or behavior.
-- [ ] CoinAmount is refactored to use `{@attach draggable({ text: stringify(coin), enabled: draggable })}` on its root element; `draggable` and plain-text payload unchanged.
-- [ ] All existing call sites that pass `draggable={false}` or `draggableText`/intent continue to work (no regression in flows, CoinBalances, Address, test intents page).
-- [ ] Existing drag-related tests (e.g. intent drag spec) still pass.
+- [x] A `draggable(options)` attachment factory exists; it returns an attachment that runs on mount and when options (or state read inside it) change, and returns a cleanup function.
+- [x] When `enabled` is true, the element has `draggable={true}` and ondragstart sets `text/plain` from `text`; if `href`, also sets `text/uri-list`.
+- [x] When `intent` is provided and enabled, ondragstart calls `setIntentDragData` and `startIntentDragPreview`; ondragover and ondrop call `updateIntentDragTarget` with the element.
+- [x] When `enabled` is false, the element is not draggable and no drag handlers are attached.
+- [x] EntityId is refactored to use `{@attach draggable({ text: draggableText, href: link, intent })}` on its root `<a>`/`<span>` without changing public EntityId props or behavior.
+- [x] CoinAmount is refactored to use `{@attach draggable({ text: stringify(coin), enabled: draggable })}` on its root element; `draggable` and plain-text payload unchanged.
+- [x] All existing call sites that pass `draggable={false}` or `draggableText`/intent continue to work (no regression in flows, CoinBalances, Address, test intents page).
+- [x] Existing drag-related tests (e.g. intent drag spec) still pass.
+
+## Status
+
+Complete. 2026-02-06 (PROMPT_build execute one spec): Draggable.svelte.ts attachment factory with text/href/intent/enabled; enabled=false sets element.draggable=false and returns no-op cleanup. EntityId and CoinAmount already used {@attach draggable(...)}. Unit tests (drag.spec.ts, test:unit) pass. Build fix in src/api/yellow.ts (PendingEntry type) unblocked e2e config.
 
 ## Completion signal
 

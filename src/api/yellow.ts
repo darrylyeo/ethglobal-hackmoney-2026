@@ -52,12 +52,13 @@ export const connectClearnode = async (params: {
 		throw new Error('Missing clearnode endpoint for chain')
 	}
 
+	type PendingEntry = {
+		resolve: (value: unknown) => void
+		reject: (error: Error) => void
+	}
 	const socket = new WebSocket(wsUrl)
 	const handlers = new Set<(msg: unknown) => void>()
-	const pending = new Map<
-		number,
-		{ resolve: (value: unknown) => void; reject: (error: Error) => void },
-	>()
+	const pending = new Map<number, PendingEntry>()
 	let requestId = 1
 	let sessionSigner: ((payload: unknown[]) => Promise<`0x${string}`>) | null =
 		null

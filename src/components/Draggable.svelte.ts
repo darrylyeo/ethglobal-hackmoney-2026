@@ -20,35 +20,37 @@ export const draggable: (options: DraggableOptions) => Attachment<HTMLElement> =
 	options,
 ) => (element) => {
 	const { text, href, intent, enabled = true } = options
-	if (!enabled) return
-	const controller = new AbortController()
-	element.draggable = true
-	const ondragstart = (e: DragEvent) => {
-		e.dataTransfer?.setData('text/plain', text)
-		if (href) e.dataTransfer?.setData('text/uri-list', href)
-		if (intent) {
-			setIntentDragData(e, intent)
-			const el = toElement(e)
-			if (el) startIntentDragPreview({ payload: intent, element: el })
-		}
-	}
-	const ondragover = (e: DragEvent) => {
-		if (!intent) return
-		e.preventDefault()
-		const el = toElement(e)
-		if (el) updateIntentDragTarget({ payload: intent, element: el })
-	}
-	const ondrop = (e: DragEvent) => {
-		if (!intent) return
-		e.preventDefault()
-		const el = toElement(e)
-		if (el) updateIntentDragTarget({ payload: intent, element: el })
-	}
-	element.addEventListener('dragstart', ondragstart, { signal: controller.signal })
-	element.addEventListener('dragover', ondragover, { signal: controller.signal })
-	element.addEventListener('drop', ondrop, { signal: controller.signal })
-	controller.signal.addEventListener('abort', () => {
+	if (!enabled) {
 		element.draggable = false
-	}, { once: true })
+		return () => {}
+	}
+	const controller = new AbortController()
+	const { signal } = controller
+	element.draggable = true
+	element.addEventListener(
+		'dragstart',
+		(e: DragEvent) => {
+			e.dataTransfer?.setData('text/plain', text)
+			if (href) e.dataTransfer?.setData('text/uri-list', href)
+			if (intent) {
+				setIntentDragData(e, intent)
+				const el = toElement(e)
+				if (el) startIntentDragPreview({ payload: intent, element: el })
+			}
+		},
+		{ signal },
+	)
+	if (intent) {
+		const onIntentTarget = (e: DragEvent) => {
+			e.preventDefault()
+			const el = toElement(e)
+			if (el) updateIntentDragTarget({ payload: intent, element: el })
+		}
+		element.addEventListener('dragover', onIntentTarget, { signal })
+		element.addEventListener('drop', onIntentTarget, { signal })
+	}
+	signal.addEventListener('abort', () => (element.draggable = false), {
+		once: true,
+	})
 	return () => controller.abort()
 }
