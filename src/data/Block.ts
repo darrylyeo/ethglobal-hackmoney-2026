@@ -15,5 +15,6 @@ export type BlockEntry = {
 	gasUsed?: bigint
 	gasLimit?: bigint
 	baseFeePerGas?: bigint
-	transactionCount?: number
+	transactionCount?: number,
 }
+
