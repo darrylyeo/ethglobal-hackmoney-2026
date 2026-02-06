@@ -1,8 +1,11 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute } from '$/data/BridgeRoute'
 	import type { BridgeSessionParams } from '$/lib/session/params'
+	import { getUsdcAddress } from '$/api/lifi'
 	import {
 		calculateMinOutput,
 		formatSlippagePercent,
@@ -15,6 +18,7 @@
 		validateBridgeAmount,
 	} from '$/constants/bridge-limits'
 	import { isCctpSupportedChain } from '$/constants/cctp'
+	import { isGatewaySupportedChain } from '$/constants/gateway'
 	import { ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
 	import {
 		ChainId,
@@ -39,7 +43,6 @@
 
 
 	// Functions
-	import { getUsdcAddress } from '$/api/lifi'
 	import { isValidAddress, normalizeAddress } from '$/lib/address'
 	import {
 		buildSessionHash,
@@ -66,6 +69,7 @@
 	import SessionAction from '$/views/SessionAction.svelte'
 	import UnifiedProtocolRouter from './UnifiedProtocolRouter.svelte'
 	import CctpBridgeFlow from '$/routes/bridge/cctp/CctpBridgeFlow.svelte'
+	import GatewayBridgeFlow from '$/routes/bridge/gateway/GatewayBridgeFlow.svelte'
 	import BridgeFlow from '$/routes/bridge/lifi/BridgeFlow.svelte'
 
 
@@ -168,27 +172,44 @@
 	const lifiPairSupported = $derived(
 		settings.fromChainId !== null && settings.toChainId !== null,
 	)
+	const gatewayPairSupported = $derived(
+		settings.fromChainId !== null &&
+			settings.toChainId !== null &&
+			isGatewaySupportedChain(settings.fromChainId, effectiveIsTestnet) &&
+			isGatewaySupportedChain(settings.toChainId, effectiveIsTestnet),
+	)
 	const activeProtocol = $derived(
-		cctpPairSupported && !lifiPairSupported
+		cctpPairSupported && !lifiPairSupported && !gatewayPairSupported
 			? 'cctp'
-			: lifiPairSupported && !cctpPairSupported
+			: lifiPairSupported && !cctpPairSupported && !gatewayPairSupported
 				? 'lifi'
-				: cctpPairSupported && lifiPairSupported
-					? (settings.protocolIntent ?? 'cctp')
-					: null,
+				: gatewayPairSupported && !cctpPairSupported && !lifiPairSupported
+					? 'gateway'
+					: cctpPairSupported || lifiPairSupported || gatewayPairSupported
+						? (settings.protocolIntent ??
+								(cctpPairSupported
+									? 'cctp'
+									: gatewayPairSupported
+										? 'gateway'
+										: 'lifi'))
+						: null,
 	)
 	const protocolReason = $derived(
 		!settings.fromChainId || !settings.toChainId
 			? 'Select chains to choose a protocol'
-			: cctpPairSupported && !lifiPairSupported
+			: cctpPairSupported && !lifiPairSupported && !gatewayPairSupported
 				? 'Only CCTP supports this pair'
-				: lifiPairSupported && !cctpPairSupported
+				: lifiPairSupported && !cctpPairSupported && !gatewayPairSupported
 					? 'Only LI.FI supports this pair'
-					: settings.protocolIntent === 'cctp'
-						? 'Using CCTP (your preference)'
-						: settings.protocolIntent === 'lifi'
-							? 'Using LI.FI (your preference)'
-							: 'Using CCTP (best route)',
+					: gatewayPairSupported && !cctpPairSupported && !lifiPairSupported
+						? 'Only Gateway supports this pair'
+						: settings.protocolIntent === 'cctp'
+							? 'Using CCTP (your preference)'
+							: settings.protocolIntent === 'lifi'
+								? 'Using LI.FI (your preference)'
+								: settings.protocolIntent === 'gateway'
+									? 'Using Gateway (your preference)'
+									: 'Using CCTP (best route)',
 	)
 	const recipient = $derived(
 		settings.useCustomRecipient
@@ -582,6 +603,7 @@
 				{protocolReason}
 				{cctpPairSupported}
 				{lifiPairSupported}
+				{gatewayPairSupported}
 				{selectedWallet}
 				{fromNetwork}
 				{toNetwork}
@@ -693,6 +715,19 @@
 						})}
 					{recipient}
 					{minOutput}
+					bind:balanceTokens
+				/>
+			{:else if activeProtocol === 'gateway'}
+				<GatewayBridgeFlow
+					{selectedWallets}
+					{selectedActor}
+					{settings}
+					{recipient}
+					onExecutionSuccess={({ txHash }) =>
+						persistExecution({
+							txHash,
+							chainId: settings.fromChainId ?? undefined,
+						})}
 					bind:balanceTokens
 				/>
 			{/if}

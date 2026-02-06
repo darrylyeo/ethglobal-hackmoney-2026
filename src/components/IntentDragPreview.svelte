@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { IntentRoute, IntentRouteStep } from '$/lib/intents/routes'
 	import type { IntentDragPayload, IntentResolution } from '$/lib/intents/types'
@@ -114,17 +116,40 @@
 	})
 	const buildBridgeParams = (
 		step: Extract<IntentRouteStep, { type: 'bridge' }>,
-	) => ({
-		slippage: step.rowId.slippage ?? defaultBridgeSettings.slippage,
-		isTestnet: isTestnetChain(step.fromChainId),
-		sortBy: defaultBridgeSettings.sortBy,
-		fromChainId: step.fromChainId,
-		toChainId: step.toChainId,
-		amount: step.route.fromAmount,
-		useCustomRecipient: false,
-		customRecipient: '',
-		protocolIntent: null,
-	})
+	) =>
+		'protocol' in step && step.protocol === 'gateway'
+			? {
+					...defaultBridgeSettings,
+					isTestnet: isTestnetChain(step.fromChainId),
+					fromChainId: step.fromChainId,
+					toChainId: step.toChainId,
+					amount: 0n,
+					useCustomRecipient: false,
+					customRecipient: '',
+					protocolIntent: 'gateway' as const,
+				}
+			: 'route' in step
+				? {
+						slippage: step.rowId.slippage ?? defaultBridgeSettings.slippage,
+						isTestnet: isTestnetChain(step.fromChainId),
+						sortBy: defaultBridgeSettings.sortBy,
+						fromChainId: step.fromChainId,
+						toChainId: step.toChainId,
+						amount: step.route.fromAmount,
+						useCustomRecipient: false,
+						customRecipient: '',
+						protocolIntent: null,
+					}
+				: {
+						...defaultBridgeSettings,
+						isTestnet: isTestnetChain(step.fromChainId),
+						fromChainId: step.fromChainId,
+						toChainId: step.toChainId,
+						amount: 0n,
+						useCustomRecipient: false,
+						customRecipient: '',
+						protocolIntent: 'gateway' as const,
+					}
 	const buildTransferParams = (
 		step: Extract<IntentRouteStep, { type: 'transfer' }>,
 	) => {

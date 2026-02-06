@@ -25,7 +25,7 @@ export type SwapSessionParams = {
 }
 
 export type BridgeSessionParams = BridgeSettings & {
-	protocolIntent: 'cctp' | 'lifi' | null
+	protocolIntent: 'cctp' | 'lifi' | 'gateway' | null
 	transferSpeed: 'fast' | 'standard'
 	forwardingEnabled: boolean
 }
@@ -165,7 +165,9 @@ export const normalizeBridgeSessionParams = (
 				? params.customRecipient
 				: defaults.customRecipient,
 		protocolIntent:
-			params?.protocolIntent === 'cctp' || params?.protocolIntent === 'lifi'
+			params?.protocolIntent === 'cctp' ||
+			params?.protocolIntent === 'lifi' ||
+			params?.protocolIntent === 'gateway'
 				? params.protocolIntent
 				: params?.protocolIntent === null
 					? null

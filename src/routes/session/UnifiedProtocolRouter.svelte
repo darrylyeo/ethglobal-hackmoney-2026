@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Network } from '$/constants/networks'
@@ -16,17 +18,19 @@
 		disabled = false,
 		cctpPairSupported,
 		lifiPairSupported,
+		gatewayPairSupported,
 		selectedWallet,
 		fromNetwork,
 		toNetwork,
 		canSendAmount,
 	}: {
-		activeProtocol: 'cctp' | 'lifi' | null
+		activeProtocol: 'cctp' | 'lifi' | 'gateway' | null
 		protocolReason: string
-		protocolIntent?: 'cctp' | 'lifi' | null
+		protocolIntent?: 'cctp' | 'lifi' | 'gateway' | null
 		disabled?: boolean
 		cctpPairSupported: boolean
 		lifiPairSupported: boolean
+		gatewayPairSupported: boolean
 		selectedWallet: ConnectedWallet | null
 		fromNetwork: Network | null
 		toNetwork: Network | null
@@ -35,7 +39,10 @@
 
 
 	// (Derived)
-	const bothSupported = $derived(cctpPairSupported && lifiPairSupported)
+	const anyMultiple = $derived(
+		[cctpPairSupported, lifiPairSupported, gatewayPairSupported].filter(Boolean)
+			.length > 1,
+	)
 	const protocolOptions = $derived(
 		(
 			[
@@ -46,8 +53,14 @@
 					detail: 'Aggregated routes',
 					enabled: lifiPairSupported,
 				},
+				{
+					id: 'gateway',
+					label: 'Gateway',
+					detail: 'Unified balance, instant transfer',
+					enabled: gatewayPairSupported,
+				},
 			] satisfies {
-				id: 'cctp' | 'lifi'
+				id: 'cctp' | 'lifi' | 'gateway'
 				label: string
 				detail: string
 				enabled: boolean
@@ -57,12 +70,14 @@
 
 
 	// Actions
-	const onProtocolIntent = (value: 'cctp' | 'lifi' | null) => (protocolIntent = value)
+	const onProtocolIntent = (
+		value: 'cctp' | 'lifi' | 'gateway' | null,
+	) => (protocolIntent = value)
 </script>
 
 
 <section data-card data-column="gap-3">
-	{#if bothSupported}
+	{#if anyMultiple}
 		<h3>Protocol</h3>
 		<div data-column="gap-2">
 			<div data-row="gap-2 align-center">
@@ -106,9 +121,16 @@
 			</div>
 		</div>
 	{:else if activeProtocol}
-		<p data-muted>Using {activeProtocol === 'cctp' ? 'CCTP' : 'LI.FI'}</p>
+		<p data-muted>
+			Using
+			{activeProtocol === 'cctp'
+				? 'CCTP'
+				: activeProtocol === 'lifi'
+					? 'LI.FI'
+					: 'Gateway'}
+		</p>
 	{:else if fromNetwork && toNetwork}
-		<p data-error>This chain pair is not supported by CCTP or LI.FI.</p>
+		<p data-error>This chain pair is not supported by CCTP, LI.FI, or Gateway.</p>
 	{:else}
 		<p data-muted>{protocolReason}</p>
 	{/if}

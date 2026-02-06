@@ -1,6 +1,8 @@
 import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
 import type { SwapQuote } from '$/data/SwapQuote'
 import type { IntentResolution } from './types'
+import { NetworkType, networksByChainId } from '$/constants/networks'
+import { isGatewaySupportedChain } from '$/constants/gateway'
 
 export type IntentRouteStep =
 	| {
@@ -27,6 +29,14 @@ export type IntentRouteStep =
 			actor: `0x${string}`
 			route: BridgeRoute
 			rowId: BridgeRoutes$Id
+	  }
+	| {
+			id: string
+			type: 'bridge'
+			fromChainId: number
+			toChainId: number
+			actor: `0x${string}`
+			protocol: 'gateway'
 	  }
 
 export type IntentRoute = {
@@ -138,6 +148,29 @@ export const buildIntentRoutes = (
 		},
 	]
 
+	const isTestnet =
+		from.chainId !== null &&
+		networksByChainId[from.chainId]?.type === NetworkType.Testnet
+	const gatewayBridgeSupported =
+		from.chainId !== null &&
+		to.chainId !== null &&
+		isGatewaySupportedChain(from.chainId, isTestnet) &&
+		isGatewaySupportedChain(to.chainId, isTestnet)
+	const bridge = [
+		...bridgeOnChain(from.chainId, to.chainId, from.actor),
+		...(gatewayBridgeSupported && from.chainId !== null && to.chainId !== null
+			? [
+					{
+						id: `bridge:gateway:${from.chainId}:${to.chainId}`,
+						type: 'bridge',
+						fromChainId: from.chainId,
+						toChainId: to.chainId,
+						actor: from.actor,
+						protocol: 'gateway',
+					},
+				]
+			: []),
+	]
 	const swapSource = swapOnChain(
 		from.chainId,
 		from.tokenAddress,
@@ -150,7 +183,6 @@ export const buildIntentRoutes = (
 		to.tokenAddress,
 		to.actor,
 	)
-	const bridge = bridgeOnChain(from.chainId, to.chainId, from.actor)
 
 	const transferFromToken = transferStepOptions(from.chainId, from.tokenAddress)
 	const transferToTokenOnSource = transferStepOptions(
