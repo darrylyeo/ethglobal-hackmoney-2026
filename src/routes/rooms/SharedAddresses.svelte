@@ -20,7 +20,7 @@
 
 
 	// Functions
-	import { getOrCreatePeerDisplayName } from '$/lib/room'
+	import { getOrCreatePeerDisplayName } from '$/lib/rooms/room'
 
 	const sharedQuery = useLiveQuery(
 		(q) =>

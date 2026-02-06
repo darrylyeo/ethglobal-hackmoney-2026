@@ -23,7 +23,7 @@
 
 	// Functions
 	import { formatSmallestToDecimal } from '$/lib/format'
-	import { formatRelativeTime } from '$/lib/formatRelativeTime'
+	import { formatRelativeTime } from '$/lib/format-relative-time'
 	import {
 		getBestStorkPrice,
 		storkPricesCollection,

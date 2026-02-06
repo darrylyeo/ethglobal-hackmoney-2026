@@ -23,7 +23,7 @@ import {
 	type BridgeStatus,
 	mapLifiProcessStatus,
 	type TxStatus,
-} from '$/lib/tx-status'
+} from '$/lib/bridge/tx-status'
 import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm'
 import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
 

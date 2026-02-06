@@ -20,7 +20,7 @@
 
 
 	// Functions
-	import { formatRelativeTime } from '$/lib/formatRelativeTime'
+	import { formatRelativeTime } from '$/lib/format-relative-time'
 
 
 	// State

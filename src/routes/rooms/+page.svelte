@@ -5,7 +5,7 @@
 
 
 	// Functions
-	import { createRoom, normalizeRoomInput } from '$/lib/room'
+	import { createRoom, normalizeRoomInput } from '$/lib/rooms/room'
 
 
 	// State

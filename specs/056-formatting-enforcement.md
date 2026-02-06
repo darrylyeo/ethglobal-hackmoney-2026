@@ -230,9 +230,9 @@ All files below verified by manual formatting to repo preferences and `deno task
 - [x] `src/lib/intents/resolve-intent.ts`
 - [x] `src/lib/intents/routes.ts`
 - [x] `src/lib/intents/types.ts`
-- [x] `src/lib/nitro-rpc.spec.ts`
-- [x] `src/lib/nitro-rpc.ts`
-- [x] `src/lib/proxyFetch.ts`
+- [x] `src/state/nitro-rpc.spec.ts`
+- [x] `src/state/nitro-rpc.ts`
+- [x] `src/lib/proxy-fetch.ts`
 - [x] `src/lib/retry.spec.ts`
 - [x] `src/lib/retry.ts`
 - [x] `src/lib/rooms/room.ts`

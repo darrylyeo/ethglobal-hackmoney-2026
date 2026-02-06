@@ -26,6 +26,7 @@
 
 
 	// Functions
+	import { draggable as draggableAttachment } from '$/components/Draggable.svelte'
 	import { stringify } from '$/lib/stringify'
 
 
@@ -38,12 +39,7 @@
 
 <div
 	role="term"
-	{draggable}
-	ondragstart={draggable
-		? (e) => {
-				e.dataTransfer?.setData('text/plain', stringify(coin))
-			}
-		: undefined}
+	{@attach draggableAttachment({ text: stringify(coin), enabled: draggable })}
 	data-row="inline wrap gap-1"
 >
 	{#if showPriceTooltip}

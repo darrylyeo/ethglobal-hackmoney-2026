@@ -28,7 +28,7 @@
 
 	// Functions
 	import { renderSVG } from 'uqr'
-	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/room'
+	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/rooms/room'
 	import { untrack } from 'svelte'
 
 

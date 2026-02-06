@@ -302,7 +302,7 @@ const generateRoomCode = () => (
 )
 ```
 
-### `src/lib/siwe.ts`
+### `src/lib/rooms/siwe.ts`
 
 SIWE message construction and verification using Voltaire:
 
@@ -513,7 +513,7 @@ for read-only).
   import { sharedAddressesCollection } from '$/collections/shared-addresses'
   import { siweChallengesCollection } from '$/collections/siwe-challenges'
   import { roomState } from '$/state/room.svelte'
-  import { signSiweMessage } from '$/lib/siwe'
+  import { signSiweMessage } from '$/lib/rooms/siwe'
   // Wallet connection transport: only show Sign when transport supports signing (e.g. EIP-1193)
 
   let { roomId, walletConnection }: { roomId: string; walletConnection: ... } = $props()
@@ -734,7 +734,7 @@ Sharer                    Server                    Peer A                   Pee
 
 ### Client API
 - [x] `src/lib/partykit.ts` with `connectToRoom`, `createRoom`
-- [x] `src/lib/siwe.ts` with `createSiweMessage`, `signSiweMessage`, `verifySiweSignature`
+- [x] `src/lib/rooms/siwe.ts` with `createSiweMessage`, `signSiweMessage`, `verifySiweSignature`
 - [x] SIWE signing via Voltaire `personal_sign`
 - [x] Signature recovery via Voltaire `recoverAddress`
 

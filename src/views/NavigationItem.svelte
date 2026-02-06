@@ -96,7 +96,9 @@
 	}
 
 	const navIconProps = (icon: string) =>
-		icon.startsWith('data:') ? { src: icon } : { icon }
+		icon.startsWith('data:') || icon.startsWith('/')
+			? { src: icon }
+			: { icon }
 
 
 	// Components

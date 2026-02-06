@@ -237,11 +237,13 @@
 			id: 'dashboard',
 			title: 'Dashboard',
 			href: '/dashboard',
+			icon: '📊',
 		},
 		{
 			id: 'accounts',
 			title: 'Accounts',
 			href: '/accounts',
+			icon: '👥',
 			defaultOpen: true,
 			tag: String(accountNavItems.length),
 			children: accountNavItems,
@@ -249,23 +251,26 @@
 		{
 			id: 'actions',
 			title: 'Actions',
+			icon: '⚡',
 			defaultOpen: true,
 			children: [
-				{ id: 'transfer', title: 'Transfer', href: '/session#transfer' },
-				{ id: 'swap', title: 'Swap', href: '/session#swap' },
-				{ id: 'bridge', title: 'Bridge', href: '/session#bridge' },
+				{ id: 'transfer', title: 'Transfer', href: '/session#transfer', icon: '💸' },
+				{ id: 'swap', title: 'Swap', href: '/session#swap', icon: '🔄' },
+				{ id: 'bridge', title: 'Bridge', href: '/session#bridge', icon: '🌉' },
 				{
 					id: 'liquidity',
 					title: 'Add Liquidity',
 					href: '/session#liquidity',
+					icon: '💧',
 				},
 			],
 		},
 		{
 			id: 'sessions',
 			title: 'Sessions',
-			defaultOpen: false,
 			href: '/sessions',
+			icon: '📋',
+			defaultOpen: false,
 			children: (sessionsQuery.data ?? [])
 				.map((result) => result.row)
 				.sort((a, b) => b.updatedAt - a.updatedAt)
@@ -274,44 +279,51 @@
 					title: sessionTitle(session),
 					href: sessionHref(session),
 					tag: session.status,
+					icon: '📋',
 				})),
 		},
 		{
 			id: 'agents',
 			title: 'Agents',
 			href: '/agents',
+			icon: '🤖',
 			defaultOpen: true,
 			children: [
-				{ id: 'agents-new', title: 'New conversation', href: '/agents/new' },
-				{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm' },
+				{ id: 'agents-new', title: 'New conversation', href: '/agents/new', icon: '✨' },
+				{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm', icon: '🔑' },
 				...pinnedAgentChatTrees.map((tree) => ({
 					id: `agent-${tree.id}`,
 					title: tree.name ?? 'Untitled',
 					href: `/agents/${tree.id}`,
+					icon: '🤖',
 				})),
 			],
 		},
 		{
 			id: 'explore',
 			title: 'Explore',
+			icon: '🔍',
 			defaultOpen: true,
 			children: [
 				{
 					id: 'coins',
 					title: 'Coins',
+					icon: '🪙',
 					children: [
-						{ id: 'usdc', title: 'USDC', href: '/coin/USDC' },
-						{ id: 'eth', title: 'ETH', href: '/coin/ETH' },
+						{ id: 'usdc', title: 'USDC', href: '/coin/USDC', icon: '💵' },
+						{ id: 'eth', title: 'ETH', href: '/coin/ETH', icon: '⟠' },
 					],
 				},
 				{
 					id: 'networks',
 					title: 'Networks',
+					icon: '🌐',
 					defaultOpen: false,
 					children: relevantNetworkConfigs.map((config) => ({
 						id: `network-${config.chainId}`,
 						title: config.name,
 						href: `/network/${toNetworkSlug(config.name)}`,
+						icon: config.icon ?? '🌐',
 					})),
 				},
 			],
@@ -319,12 +331,14 @@
 		{
 			id: 'multiplayer',
 			title: 'Multiplayer',
+			icon: '🎮',
 			defaultOpen: true,
 			children: [
 				{
 					id: 'rooms',
 					title: 'Rooms',
 					href: '/rooms',
+					icon: '🏠',
 					tag: String((roomsQuery.data ?? []).length),
 					children: (roomsQuery.data ?? [])
 						.map((result) => result.row)
@@ -333,12 +347,14 @@
 							id: `room-${room.id}`,
 							title: room.name ?? roomIdToDisplayName(room.id),
 							href: `/rooms/${room.id}`,
+							icon: '🏠',
 						})),
 				},
 				{
 					id: 'peers',
 					title: 'Peers',
 					href: '/peers',
+					icon: '🤝',
 					tag: String(peersNavItems.length),
 					children: peersNavItems,
 				},
@@ -346,28 +362,33 @@
 					id: 'channels-yellow',
 					title: 'Yellow Channels',
 					href: '/channels/yellow',
+					icon: '💛',
 				},
 			],
 		},
 		{
 			id: 'tests',
 			title: 'Tests',
+			icon: '🧪',
 			defaultOpen: true,
 			children: [
 				{
 					id: 'test-networks-coins',
 					title: 'Networks & coins',
 					href: '/test/networks-coins',
+					icon: '🔗',
 				},
 				{
 					id: 'test-chain-id',
 					title: 'Chain ID (Voltaire)',
 					href: '/test/chain-id',
+					icon: '#️⃣',
 				},
 				{
 					id: 'test-intents',
 					title: 'Intents',
 					href: '/test/intents',
+					icon: '📌',
 				},
 			],
 		},

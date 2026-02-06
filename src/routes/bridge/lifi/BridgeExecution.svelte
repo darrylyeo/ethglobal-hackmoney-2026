@@ -2,7 +2,7 @@
 	import type { BridgeRoute } from '$/data/BridgeRoute'
 	import type { WalletRow } from '$/collections/wallets'
 	import type { EIP1193Provider } from '$/lib/wallet'
-	import type { BridgeStatus } from '$/lib/tx-status'
+	import type { BridgeStatus } from '$/lib/bridge/tx-status'
 	import type { Transaction } from '@tanstack/db'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
 	import { executeSelectedRoute } from '$/api/lifi'

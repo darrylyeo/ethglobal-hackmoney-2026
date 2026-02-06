@@ -246,7 +246,7 @@ Reuse existing components and utilities:
 - `transactionsCollection` – transaction history
 - `bridgeSettingsState` pattern for `swapSettingsState` / `liquiditySettingsState`
 - `$/lib/format.ts` – amount formatting
-- `$/lib/bridge-errors.ts` – bridge/transaction error categorization
+- `$/lib/bridge/errors.ts` – bridge/transaction error categorization
 - `$/constants/explorers.ts` – tx links
 
 ## Constants

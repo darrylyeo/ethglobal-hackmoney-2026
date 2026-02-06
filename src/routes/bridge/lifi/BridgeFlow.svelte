@@ -39,7 +39,7 @@
 	import { extractFeeBreakdown, getUsdcAddress } from '$/api/lifi'
 	import { getTxUrl } from '$/constants/explorers'
 	import { getTxReceiptStatus } from '$/api/approval'
-	import { formatRelativeTime } from '$/lib/formatRelativeTime'
+	import { formatRelativeTime } from '$/lib/format-relative-time'
 	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
 import type { BridgeStatus } from '$/lib/bridge/tx-status'
 import { ErrorCode } from '$/lib/bridge/errors'

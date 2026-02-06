@@ -23,7 +23,7 @@
 
 
 	// Functions
-	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/room'
+	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/rooms/room'
 	import { untrack } from 'svelte'
 
 	const isEip1193Provider = (value: unknown): value is EIP1193Provider =>

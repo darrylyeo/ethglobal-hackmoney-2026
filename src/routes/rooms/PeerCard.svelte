@@ -3,7 +3,7 @@
 	import type { RoomPeerRow } from '$/collections/room-peers'
 	import type { SiweChallengeRow } from '$/collections/siwe-challenges'
 	import type { VerificationRow } from '$/collections/verifications'
-	import type { EIP1193Provider } from '$/lib/siwe'
+	import type { EIP1193Provider } from '$/lib/rooms/siwe'
 	import { DataSource } from '$/constants/data-sources'
 
 
@@ -25,7 +25,7 @@
 	import { siweChallengesCollection } from '$/collections/siwe-challenges'
 	import { verificationsCollection } from '$/collections/verifications'
 	import { roomState } from '$/state/room.svelte'
-	import { signSiweMessage } from '$/lib/siwe'
+	import { signSiweMessage } from '$/lib/rooms/siwe'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 

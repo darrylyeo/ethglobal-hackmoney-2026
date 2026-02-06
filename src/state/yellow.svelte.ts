@@ -14,7 +14,7 @@ import {
 	type ClearnodeConnection,
 } from '$/api/yellow'
 import type { EIP1193Provider } from '$/lib/wallet'
-import { decodeNitroRpc, type NitroRpcMessage } from '$/lib/nitro-rpc'
+import { decodeNitroRpc, type NitroRpcMessage } from '$/state/nitro-rpc'
 import { parseDecimalToSmallest } from '$/lib/format'
 
 const pendingChannelRooms = new Map<string, string>()

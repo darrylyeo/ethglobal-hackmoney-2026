@@ -18,7 +18,7 @@
 	import { walletsCollection } from '$/collections/wallets'
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { yellowState } from '$/state/yellow.svelte'
-	import { roomIdToDisplayName } from '$/lib/room'
+	import { roomIdToDisplayName } from '$/lib/rooms/room'
 
 	const isEip1193Provider = (value: unknown): value is EIP1193Provider =>
 		typeof value === 'object' &&

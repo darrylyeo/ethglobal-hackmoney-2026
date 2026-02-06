@@ -14,8 +14,8 @@ import {
 	connectToRoom,
 	type RoomConnection,
 	type RoomMessage,
-} from '$/lib/room'
-import { verifySiweSignature } from '$/lib/siwe'
+} from '$/lib/rooms/room'
+import { verifySiweSignature } from '$/lib/rooms/siwe'
 import type { TransferRequest } from '$/data/TransferRequest'
 import type { Room } from '$/data/Room'
 import type { RoomPeer } from '$/data/RoomPeer'

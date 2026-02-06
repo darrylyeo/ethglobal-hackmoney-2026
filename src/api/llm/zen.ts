@@ -8,7 +8,7 @@ import {
 	getZenFreeModel,
 	OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID,
 } from '$/constants/opencode-zen'
-import { proxyFetch } from '$/lib/proxyFetch'
+import { proxyFetch } from '$/lib/proxy-fetch'
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null

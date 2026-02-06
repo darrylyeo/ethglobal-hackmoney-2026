@@ -256,7 +256,7 @@ const challengeChannel = async (params: {
 }): Promise<{ txHash: `0x${string}` }>
 ```
 
-### `src/lib/nitro-rpc.ts`
+### `src/state/nitro-rpc.ts`
 
 Nitro RPC message handling:
 
@@ -811,7 +811,7 @@ If counterparty is unresponsive or disputes:
 - [x] `yellowChannelStatesCollection` in `src/collections/yellow-channel-states.ts`
 - [x] `yellowTransfersCollection` in `src/collections/yellow-transfers.ts`
 - [x] `transferRequestsCollection` in `src/collections/transfer-requests.ts`
-- [x] Unit tests for collection normalizers (nitro-rpc.spec.ts: encode/decode/hashChannelState)
+- [x] Unit tests for collection normalizers (state/nitro-rpc.spec.ts: encode/decode/hashChannelState)
 
 ### Constants
 - [x] `src/constants/yellow/*` with contract addresses, endpoints, limits
@@ -827,7 +827,7 @@ If counterparty is unresponsive or disputes:
 - [x] `sendTransfer` uses Nitro RPC transfer (unified balance)
 - [x] `closeChannel` cooperative close
 - [x] `challengeChannel` dispute path
-- [x] `src/lib/nitro-rpc.ts` envelope encode/decode + packedState stubs
+- [x] `src/state/nitro-rpc.ts` envelope encode/decode + packedState stubs
 
 ### State management
 - [x] `src/state/yellow.svelte.ts` with Clearnode connection

@@ -21,6 +21,7 @@ export const draggable: (options: DraggableOptions) => Attachment<HTMLElement> =
 ) => (element) => {
 	const { text, href, intent, enabled = true } = options
 	if (!enabled) return
+	const controller = new AbortController()
 	element.draggable = true
 	const ondragstart = (e: DragEvent) => {
 		e.dataTransfer?.setData('text/plain', text)
@@ -43,13 +44,11 @@ export const draggable: (options: DraggableOptions) => Attachment<HTMLElement> =
 		const el = toElement(e)
 		if (el) updateIntentDragTarget({ payload: intent, element: el })
 	}
-	element.addEventListener('dragstart', ondragstart)
-	element.addEventListener('dragover', ondragover)
-	element.addEventListener('drop', ondrop)
-	return () => {
+	element.addEventListener('dragstart', ondragstart, { signal: controller.signal })
+	element.addEventListener('dragover', ondragover, { signal: controller.signal })
+	element.addEventListener('drop', ondrop, { signal: controller.signal })
+	controller.signal.addEventListener('abort', () => {
 		element.draggable = false
-		element.removeEventListener('dragstart', ondragstart)
-		element.removeEventListener('dragover', ondragover)
-		element.removeEventListener('drop', ondrop)
-	}
+	}, { once: true })
+	return () => controller.abort()
 }

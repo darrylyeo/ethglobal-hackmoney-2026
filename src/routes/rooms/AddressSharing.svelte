@@ -2,7 +2,7 @@
 	// Types/constants
 	import type { RoomPeerRow } from '$/collections/room-peers'
 	import type { SiweChallengeRow } from '$/collections/siwe-challenges'
-	import type { EIP1193Provider } from '$/lib/siwe'
+	import type { EIP1193Provider } from '$/lib/rooms/siwe'
 	import { DataSource } from '$/constants/data-sources'
 
 
@@ -25,7 +25,7 @@
 	import { sharedAddressesCollection } from '$/collections/shared-addresses'
 	import { siweChallengesCollection } from '$/collections/siwe-challenges'
 	import { roomState } from '$/state/room.svelte'
-	import { signSiweMessage } from '$/lib/siwe'
+	import { signSiweMessage } from '$/lib/rooms/siwe'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 	const mySharedQuery = useLiveQuery(

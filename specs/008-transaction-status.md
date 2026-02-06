@@ -70,7 +70,7 @@ export const getAddressUrl = (chainId: number, address: string): string => (
 )
 ```
 
-### `src/lib/tx-status.ts`
+### `src/lib/bridge/tx-status.ts`
 
 ```typescript
 export type TxStep = 'approve' | 'send' | 'confirm' | 'complete'
@@ -204,7 +204,7 @@ export async function executeQuoteWithStatus(
 ## Status
 
 Complete. Re-verification 2026-02-06 (PROMPT_build execute one spec, re-verify): re-verified 008; all AC—explorers.ts from networkConfigs, getTxUrl/getAddressUrl (explorers.spec.ts), TxStatus/BridgeStatus/mapLifiProcessStatus (tx-status.ts + tx-status.spec.ts), BridgeExecution executeSelectedRoute/onStatus/insertTransaction/updateTransaction/toasts/getTxUrl, lifi StatusCallback/executeSelectedRoute; test:unit 44 Deno + 101 Vitest passed. Previous: Re-verification 2026-02-05 (PROMPT_build execute one spec, no incomplete specs): re-verified 008; explorers.ts from networkConfigs (mainnet + testnet), getTxUrl(1|10|999999)/getAddressUrl, TxStatus/BridgeStatus/mapLifiProcessStatus in tx-status.ts + tx-status.spec.ts, BridgeExecution executeSelectedRoute/onStatus/insertTransaction/updateTransaction/toasts/getTxUrl links, lifi StatusCallback. test:unit 44 Deno + 101 Vitest passed. Previous: `src/constants/explorers.ts` with explorer URLs and getTxUrl/getAddressUrl.
-`src/lib/tx-status.ts` with TxStatus, BridgeStatus types and mapLifiProcessStatus.
+`src/lib/bridge/tx-status.ts` with TxStatus, BridgeStatus types and mapLifiProcessStatus.
 `src/routes/bridge/BridgeExecution.svelte` handles execution with status tracking
 and transaction persistence via TanStack DB. Toast notifications for success/error.
 Re-verification 2026-02-05 (PROMPT_build): all acceptance criteria confirmed; explorers from networkConfigs; executeQuoteWithStatus/executeSelectedRoute with StatusCallback; BridgeExecution insert/update transaction and toasts; test:unit 41 Deno + 101 Vitest passed. Re-verification 2026-02-05 (PROMPT_build execute one spec): all AC re-verified (explorers.ts from networkConfigs, getTxUrl/getAddressUrl, TxStatus/BridgeStatus/mapLifiProcessStatus, BridgeExecution executeSelectedRoute/callback/insert/update/toasts, lifi StatusCallback); test:unit 41 Deno + 101 Vitest passed.

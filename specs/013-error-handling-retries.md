@@ -35,7 +35,7 @@ retry capabilities.
 
 ## Implementation
 
-### `src/lib/bridge-errors.ts`
+### `src/lib/bridge/errors.ts`
 
 ```typescript
 export enum ErrorCode {
@@ -361,7 +361,7 @@ displayed inline with appropriate messaging based on `ErrorCode`.
 
 ## Status
 
-Complete. `src/lib/bridge-errors.ts` with ErrorCode enum and categorizeError function.
+Complete. `src/lib/bridge/errors.ts` with ErrorCode enum and categorizeError function.
 Errors stored in `bridgeRoutesCollection` and displayed inline in BridgeFlow.svelte.
 Retry via refresh button. `withRetry` utility in `retry.ts` for exponential backoff.
 

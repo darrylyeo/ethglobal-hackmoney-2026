@@ -66,21 +66,24 @@ available, else 🌐.
 
 ## Acceptance criteria
 
-- [ ] Every top-level nav item (Dashboard, Accounts, Actions, Sessions,
+- [x] Every top-level nav item (Dashboard, Accounts, Actions, Sessions,
   Agents, Explore, Multiplayer, Tests) has an `icon` and displays it in the
   sidebar.
-- [ ] Every nested nav item (Transfer, Swap, Bridge, Add Liquidity; session
+- [x] Every nested nav item (Transfer, Swap, Bridge, Add Liquidity; session
   rows; New conversation + pinned agents; Coins, USDC, ETH, Networks + network
   rows; Rooms + room rows, Peers + peer rows, Yellow Channels; test routes)
   has an `icon` and displays it.
-- [ ] Account items still use wallet icon when available, with a fallback
+- [x] Account items still use wallet icon when available, with a fallback
   emoji when not.
-- [ ] Icons are visually appropriate (emoji or existing asset) and consistent
+- [x] Icons are visually appropriate (emoji or existing asset) and consistent
   with the mapping above (or documented equivalent).
 
 ## Status
 
-In progress.
+Complete. Icons added in `+layout.svelte` for all nav items; account fallback
+👤; peersNavItems and network rows use type icons; network rows use
+`config.icon ?? '🌐'`. `NavigationItem.svelte` updated so paths (`/icons/...`)
+are passed as `src` to Icon for chain SVGs.
 
 ## Output when complete
 
