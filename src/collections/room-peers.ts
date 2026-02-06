@@ -2,12 +2,12 @@
  * Room peers collection: participants in a PartyKit room (in-memory, synced from server).
  */
 
+import { DataSource } from '$/constants/data-sources'
+import type { RoomPeer } from '$/data/RoomPeer'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { DataSource } from '$/constants/data-sources'
-import type { RoomPeer } from '$/data/RoomPeer'
 
 export type RoomPeerRow = RoomPeer & { $source: DataSource }
 
