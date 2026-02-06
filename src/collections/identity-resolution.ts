@@ -4,12 +4,12 @@
  * loading/error state is query/mutation state, not persisted on the entity.
  */
 
+import { DataSource } from '$/constants/data-sources'
+import type { IdentityResolution } from '$/constants/identity-resolver'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { DataSource } from '$/constants/data-sources'
-import type { IdentityResolution } from '$/constants/identity-resolver'
 
 export type IdentityResolutionRow = IdentityResolution & { $source: DataSource }
 
