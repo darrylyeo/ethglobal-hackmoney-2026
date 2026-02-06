@@ -3,59 +3,61 @@
  * ENS forward (name → address + text) and reverse (address → name).
  */
 
-import { decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
-import { namehash } from '@tevm/voltaire/Ens'
-import { fromBytes as hexFromBytes, toBytes } from '@tevm/voltaire/Hex'
 import type { VoltaireProvider } from '$/api/voltaire'
-import { ChainId } from '$/constants/networks'
+import { DataSource } from '$/constants/data-sources'
 import {
 	IdentityInputKind,
 	identityResolversByKind,
 	type IdentityResolution,
 } from '$/constants/identity-resolver'
-import { DataSource } from '$/constants/data-sources'
+import { ChainId } from '$/constants/networks'
 import { isValidAddress } from '$/lib/address'
+import { Abi, decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
+import { namehash } from '@tevm/voltaire/Ens'
+import { fromBytes as hexFromBytes, toBytes } from '@tevm/voltaire/Hex'
 
-const ENS_REGISTRY_ABI = [
+const ENS_REGISTRY_ABI = Abi([
 	{
-		type: 'function' as const,
+		type: 'function',
 		name: 'resolver',
-		stateMutability: 'view' as const,
-		inputs: [{ type: 'bytes32', name: 'node' }],
-		outputs: [{ type: 'address', name: '' }],
+		stateMutability: 'view',
+		inputs: [{ type: 'bytes32', name: 'node', }],
+		outputs: [{ type: 'address', name: '', }],
 	},
-] as const
-const RESOLVER_ADDR_ABI = [
+])
+const RESOLVER_ADDR_ABI = Abi([
 	{
-		type: 'function' as const,
+		type: 'function',
 		name: 'addr',
-		stateMutability: 'view' as const,
-		inputs: [{ type: 'bytes32', name: 'node' }],
-		outputs: [{ type: 'address', name: '' }],
+		stateMutability: 'view',
+		inputs: [{ type: 'bytes32', name: 'node', }],
+		outputs: [{ type: 'address', name: '', }],
 	},
-] as const
-const RESOLVER_TEXT_ABI = [
+])
+const RESOLVER_TEXT_ABI = Abi([
 	{
-		type: 'function' as const,
+		type: 'function',
 		name: 'text',
-		stateMutability: 'view' as const,
+		stateMutability: 'view',
 		inputs: [
 			{ type: 'bytes32', name: 'node' },
 			{ type: 'string', name: 'key' },
 		],
 		outputs: [{ type: 'string', name: '' }],
 	},
-] as const
+])
 const ADDRESS_OUTPUT = [{ type: 'address' as const, name: '' }] as const
 const STRING_OUTPUT = [{ type: 'string' as const, name: '' }] as const
 
 function bytes32FromNamehash(nodeBytes: Uint8Array): `0x${string}` {
 	const hex = hexFromBytes(nodeBytes)
-	return hex.length === 66
-		? (hex as `0x${string}`)
-		: (`0x${Array.from(nodeBytes)
-				.map((b) => b.toString(16).padStart(2, '0'))
-				.join('')}` as `0x${string}`)
+	return (
+		hex.length === 66
+			? (hex as `0x${string}`)
+			: (`0x${Array.from(nodeBytes)
+					.map((b) => b.toString(16).padStart(2, '0'))
+					.join('')}` as `0x${string}`)
+	)
 }
 
 export function normalizeIdentity(raw: string): {
@@ -91,7 +93,7 @@ async function getResolverAddress(
 	const data = encodeFunction(ENS_REGISTRY_ABI, 'resolver', [node])
 	const res = await provider.request({
 		method: 'eth_call',
-		params: [{ to: registryAddress, data }, 'latest'],
+		params: [{ to: registryAddress, data, }, 'latest', ],
 	})
 	if (typeof res !== 'string' || !res || res === '0x' || res.length < 66)
 		return null
@@ -111,7 +113,7 @@ async function resolveAddr(
 	const data = encodeFunction(RESOLVER_ADDR_ABI, 'addr', [node])
 	const res = await provider.request({
 		method: 'eth_call',
-		params: [{ to: resolverAddress, data }, 'latest'],
+		params: [{ to: resolverAddress, data, }, 'latest', ],
 	})
 	if (typeof res !== 'string' || !res || res === '0x' || res.length < 66)
 		return null
@@ -132,7 +134,7 @@ async function resolveText(
 	const data = encodeFunction(RESOLVER_TEXT_ABI, 'text', [node, key])
 	const res = await provider.request({
 		method: 'eth_call',
-		params: [{ to: resolverAddress, data }, 'latest'],
+		params: [{ to: resolverAddress, data, }, 'latest', ],
 	})
 	if (typeof res !== 'string' || !res || res === '0x') return ''
 	const [str] = decodeParameters(
@@ -146,7 +148,7 @@ export async function resolveEnsForward(
 	provider: VoltaireProvider,
 	registryAddress: `0x${string}`,
 	name: string,
-	textKeys: string[] = ['avatar'],
+	textKeys: string[] = ['avatar', ],
 ): Promise<{
 	address: `0x${string}` | null
 	textRecords: Record<string, string>
@@ -189,19 +191,19 @@ export async function resolveEnsReverse(
 		node,
 	)
 	if (!resolverAddress) return null
-	const nameResolverAbi = [
+	const nameResolverAbi = Abi([
 		{
-			type: 'function' as const,
+			type: 'function',
 			name: 'name',
-			stateMutability: 'view' as const,
+			stateMutability: 'view',
 			inputs: [{ type: 'bytes32', name: 'node' }],
 			outputs: [{ type: 'string', name: '' }],
 		},
-	] as const
+	])
 	const data = encodeFunction(nameResolverAbi, 'name', [node])
 	const res = await provider.request({
 		method: 'eth_call',
-		params: [{ to: resolverAddress, data }, 'latest'],
+		params: [{ to: resolverAddress, data, }, 'latest', ],
 	})
 	if (typeof res !== 'string' || !res || res === '0x') return null
 	const [nameStr] = decodeParameters(
