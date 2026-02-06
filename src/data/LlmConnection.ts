@@ -17,5 +17,5 @@ export type LlmConnection = {
 	defaultModelId?: string
 	endpoint?: string
 	createdAt: number
-	updatedAt: number
+	updatedAt: number,
 }
