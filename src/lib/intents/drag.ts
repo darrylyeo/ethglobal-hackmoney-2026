@@ -1,5 +1,5 @@
-import { toInteropName } from '$/constants/interop.ts'
 import type { IntentDragPayload } from './types.ts'
+import { toInteropName } from '$/constants/interop.ts'
 
 export const INTENT_MIME = 'application/x-entity-intent'
 
@@ -57,3 +57,4 @@ export const getIntentDragPayload = (
 		return null
 	}
 }
+
