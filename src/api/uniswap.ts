@@ -4,18 +4,67 @@
  * execute via Universal Router when contracts are configured.
  */
 
-import type { UniswapPool } from '$/collections/uniswap-pools'
+import type { UniswapPool } from '$/data/UniswapPool'
 import type { SwapQuote, SwapRoute } from '$/data/SwapQuote'
 import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap'
 import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm'
 import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
-export const getUniswapSdk = async (): Promise<unknown> => null
+
+type EIP1193Provider = {
+	request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
+}
 
 export type FetchPoolsParams = {
 	chainId: number
 	token0: `0x${string}`
 	token1: `0x${string}`
 }
+
+export type GetSwapQuoteParams = {
+	chainId: number
+	tokenIn: `0x${string}`
+	tokenOut: `0x${string}`
+	amountIn: bigint
+	slippage: number
+}
+
+export type SwapStatus = {
+	overall: 'idle' | 'in_progress' | 'completed' | 'failed'
+	txHash?: `0x${string}`
+	error?: string
+}
+
+export type ExecuteSwapParams = {
+	provider: EIP1193Provider
+	quote: SwapQuote
+	recipient: `0x${string}`
+	deadline: number
+	onStatusChange?: (status: SwapStatus) => void
+}
+
+export type AddLiquidityParams = {
+	provider: EIP1193Provider
+	poolId: string
+	tickLower: number
+	tickUpper: number
+	amount0Desired: bigint
+	amount1Desired: bigint
+	amount0Min: bigint
+	amount1Min: bigint
+	recipient: `0x${string}`
+	deadline: number
+}
+
+export type RemoveLiquidityParams = {
+	provider: EIP1193Provider
+	positionId: string
+	liquidity: bigint
+	amount0Min: bigint
+	amount1Min: bigint
+	deadline: number
+}
+
+export const getUniswapSdk = async (): Promise<unknown> => null
 
 export const fetchPools = async (
 	params: FetchPoolsParams,
@@ -32,14 +81,6 @@ export const fetchPools = async (
 		).fetchPools(params)
 	}
 	return []
-}
-
-export type GetSwapQuoteParams = {
-	chainId: number
-	tokenIn: `0x${string}`
-	tokenOut: `0x${string}`
-	amountIn: bigint
-	slippage: number
 }
 
 export const getSwapQuoteId = (p: GetSwapQuoteParams) =>
@@ -72,20 +113,6 @@ export const getSwapQuote = async (
 		gasEstimate: 150_000n,
 		timestamp: Date.now(),
 	}
-}
-
-export type SwapStatus = {
-	overall: 'idle' | 'in_progress' | 'completed' | 'failed'
-	txHash?: `0x${string}`
-	error?: string
-}
-
-export type ExecuteSwapParams = {
-	provider: EIP1193Provider
-	quote: SwapQuote
-	recipient: `0x${string}`
-	deadline: number
-	onStatusChange?: (status: SwapStatus) => void
 }
 
 export const executeSwap = async (
@@ -135,19 +162,6 @@ export const executeSwap = async (
 	)
 }
 
-export type AddLiquidityParams = {
-	provider: EIP1193Provider
-	poolId: string
-	tickLower: number
-	tickUpper: number
-	amount0Desired: bigint
-	amount1Desired: bigint
-	amount0Min: bigint
-	amount1Min: bigint
-	recipient: `0x${string}`
-	deadline: number
-}
-
 export const addLiquidity = async (
 	params: AddLiquidityParams,
 ): Promise<{ txHash: `0x${string}`; tokenId?: bigint }> => {
@@ -180,15 +194,6 @@ export const addLiquidity = async (
 		).addLiquidity(params)
 	}
 	throw new Error('Uniswap V4 SDK not loaded; add liquidity when configured')
-}
-
-export type RemoveLiquidityParams = {
-	provider: EIP1193Provider
-	positionId: string
-	liquidity: bigint
-	amount0Min: bigint
-	amount1Min: bigint
-	deadline: number
 }
 
 export const removeLiquidity = async (
@@ -225,6 +230,3 @@ export const removeLiquidity = async (
 	throw new Error('Uniswap V4 SDK not loaded; remove liquidity when configured')
 }
 
-type EIP1193Provider = {
-	request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
-}

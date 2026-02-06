@@ -87,7 +87,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/api/simulate.ts`
 - [x] `src/api/transfers-indexer.ts`
 - [x] `src/api/transfers-logs.ts`
-- [ ] `src/api/uniswap.ts`
+- [x] `src/api/uniswap.ts`
 - [ ] `src/api/voltaire.spec.ts`
 - [ ] `src/api/voltaire.ts`
 - [ ] `src/api/yellow.ts`
