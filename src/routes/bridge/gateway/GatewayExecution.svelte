@@ -2,8 +2,8 @@
 
 
 	// Types/constants
-	import type { EIP1193Provider } from '$/lib/wallet'
-	import { executeGatewayTransfer } from '$/api/gateway-execution'
+	import type { EIP1193Provider } from '$/lib/wallet.ts'
+	import { executeGatewayTransfer } from '$/api/gateway-execution.ts'
 
 
 	// Props

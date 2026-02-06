@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import { fetchCctpMessages, getAttestationFromMessages } from '$/api/cctp'
+	import { fetchCctpMessages, getAttestationFromMessages } from '$/api/cctp.ts'
 
 
 	// Props

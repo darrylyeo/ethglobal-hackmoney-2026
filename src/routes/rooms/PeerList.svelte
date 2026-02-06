@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import { DataSource } from '$/constants/data-sources'
+	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Props
@@ -11,7 +11,7 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { roomPeersCollection } from '$/collections/room-peers'
+	import { roomPeersCollection } from '$/collections/room-peers.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 

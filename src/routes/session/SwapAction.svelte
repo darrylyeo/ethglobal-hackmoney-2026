@@ -2,28 +2,28 @@
 
 
 	// Types/constants
-	import type { TokenListCoinRow } from '$/collections/token-list-coins'
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { Coin } from '$/constants/coins'
-	import type { FetchSwapQuoteParams } from '$/data/SwapQuote'
-	import type { SwapSessionParams } from '$/lib/session/params'
-	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
-	import { CoinType } from '$/constants/coins'
-	import { DataSource } from '$/constants/data-sources'
-	import { MediaType } from '$/constants/media'
+	import type { TokenListCoinRow } from '$/collections/token-list-coins.ts'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { Coin } from '$/constants/coins.ts'
+	import type { FetchSwapQuoteParams } from '$/data/SwapQuote.ts'
+	import type { SwapSessionParams } from '$/lib/session/params.ts'
+	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap.ts'
+	import { CoinType } from '$/constants/coins.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { MediaType } from '$/constants/media.ts'
 	import {
 		NetworkType,
 		networks,
 		networksByChainId,
-	} from '$/constants/networks'
+	} from '$/constants/networks.ts'
 	import {
 		calculateMinOutput,
 		formatSlippagePercent,
 		parseSlippagePercent,
 		slippagePresets,
-	} from '$/constants/slippage'
-	import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	} from '$/constants/slippage.ts'
+	import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 
 
 	// Context
@@ -35,20 +35,20 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/session/panel-hash'
+	} from '$/lib/session/panel-hash.ts'
 
 
 	// Functions
-	import { rpcUrls } from '$/constants/rpc-endpoints'
-	import { debounce } from '$/lib/debounce'
+	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+	import { debounce } from '$/lib/debounce.ts'
 	import {
 		extractSimulationSummary,
 		runTevmSimulationFromClient,
-	} from '$/lib/tevm-simulation'
-	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format'
-	import { getStorkAssetIdForSymbol } from '$/lib/stork'
-	import { stringify } from '$/lib/stringify'
-	import { normalizeSwapSessionParams } from '$/lib/session/params'
+	} from '$/lib/tevm-simulation.ts'
+	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format.ts'
+	import { getStorkAssetIdForSymbol } from '$/lib/stork.ts'
+	import { stringify } from '$/lib/stringify.ts'
+	import { normalizeSwapSessionParams } from '$/lib/session/params.ts'
 	import {
 		buildSessionHash,
 		createSessionId,
@@ -56,27 +56,27 @@
 		createTransactionSessionWithId,
 		parseSessionHash,
 		updateTransactionSession,
-	} from '$/lib/session/sessions'
+	} from '$/lib/session/sessions.ts'
 
 
 	// State
-	import { actorAllowancesCollection } from '$/collections/actor-allowances'
+	import { actorAllowancesCollection } from '$/collections/actor-allowances.ts'
 	import {
 		actorCoinsCollection,
 		fetchActorCoinBalance,
-	} from '$/collections/actor-coins'
+	} from '$/collections/actor-coins.ts'
 	import {
 		getBestStorkPrice,
 		storkPricesCollection,
 		subscribeStorkPrices,
-	} from '$/collections/stork-prices'
+	} from '$/collections/stork-prices.ts'
 	import {
 		fetchSwapQuote,
 		swapQuotesCollection,
-	} from '$/collections/swap-quotes'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
-	import { transactionSessionSimulationsCollection } from '$/collections/transaction-session-simulations'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	} from '$/collections/swap-quotes.ts'
+	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
+	import { transactionSessionSimulationsCollection } from '$/collections/transaction-session-simulations.ts'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 
 
 	// Components
@@ -214,7 +214,7 @@
 			: null,
 	)
 	const hashSource = getContext<
-		import('$/lib/session/panel-hash').SessionHashSource
+		import('$/lib/session/panel-hash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 

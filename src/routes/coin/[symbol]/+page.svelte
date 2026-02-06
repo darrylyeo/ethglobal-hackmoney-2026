@@ -4,8 +4,8 @@
 	// Types/constants
 	import { page } from '$app/state'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { TIME_PERIODS } from '$/api/transfers-indexer'
-	import { getCoinForCoinPage, type CoinPageSymbol } from '$/constants/coins'
+	import { TIME_PERIODS } from '$/api/transfers-indexer.ts'
+	import { getCoinForCoinPage, type CoinPageSymbol } from '$/constants/coins.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import {
 		transferEventsCollection,
@@ -13,11 +13,11 @@
 		fetchTransferEvents,
 		type TransferEventRow,
 		type TransferEventsMetaRow,
-	} from '$/collections/transfer-events'
+	} from '$/collections/transfer-events.ts'
 	import {
 		transferGraphsCollection,
 		fetchTransferGraph,
-	} from '$/collections/transfer-graphs'
+	} from '$/collections/transfer-graphs.ts'
 	import { toasts } from '$/lib/toast.svelte'
 	import Boundary from '$/components/Boundary.svelte'
 	import ItemsList from '$/components/ItemsList.svelte'
@@ -52,7 +52,7 @@
 	)
 	const graphRow = $derived(
 		(graphQuery.data ?? [])[0] as
-			| { row: import('$/collections/transfer-graphs').TransferGraphRow }
+			| { row: import('$/collections/transfer-graphs.ts').TransferGraphRow }
 			| undefined,
 	)
 	const liveQueryEntries = $derived([

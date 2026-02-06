@@ -1,5 +1,4 @@
-import { ChainId, networkConfigsByChainId } from '$/constants/networks'
-import { getAssetUrl } from '$lib/assets/urls'
+import { ChainId, networkConfigsByChainId } from '$/constants/networks.ts'
 
 export type ArchitectureNodeCategory =
 	| 'ui'
@@ -370,8 +369,7 @@ export const getArchitectureGraphModel = (): ArchitectureGraphModel => {
 				networkConfigsByChainId[chainId]?.name ?? String(chainId),
 				'network',
 				{ chainId: String(chainId) },
-				networkConfigsByChainId[chainId]?.icon ??
-					`/icons/chains/${chainId}.svg`,
+				networkConfigsByChainId[chainId]?.icon,
 			),
 		),
 		node(

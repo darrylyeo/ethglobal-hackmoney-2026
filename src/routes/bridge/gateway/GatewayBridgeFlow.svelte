@@ -2,12 +2,12 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { BridgeSessionParams } from '$/lib/session/params'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
-	import { fetchGatewayUnifiedBalance } from '$/api/gateway'
-	import { getGatewayWalletAddress } from '$/constants/gateway'
-	import { networksByChainId } from '$/constants/networks'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { BridgeSessionParams } from '$/lib/session/params.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+	import { fetchGatewayUnifiedBalance } from '$/api/gateway.ts'
+	import { getGatewayWalletAddress } from '$/constants/gateway.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 
 
 	// Context
@@ -15,8 +15,8 @@
 
 
 	// Functions
-	import { formatAddress } from '$/lib/address'
-	import { formatSmallestToDecimal } from '$/lib/format'
+	import { formatAddress } from '$/lib/address.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { toasts } from '$/lib/toast.svelte'
 
 

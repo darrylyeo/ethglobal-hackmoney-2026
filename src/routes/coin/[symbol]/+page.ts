@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit'
-import type { CoinPageSymbol } from '$/constants/coins'
-import { COIN_PAGE_SYMBOLS } from '$/constants/coins'
+import type { CoinPageSymbol } from '$/constants/coins.ts'
+import { COIN_PAGE_SYMBOLS } from '$/constants/coins.ts'
 
 export function load({ params }) {
 	const symbol = params.symbol?.toUpperCase()

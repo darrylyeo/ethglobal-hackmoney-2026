@@ -2,24 +2,24 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { BridgeRoute } from '$/data/BridgeRoute'
-	import type { BridgeSessionParams } from '$/lib/session/params'
-	import { getUsdcAddress } from '$/api/lifi'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { BridgeRoute } from '$/data/BridgeRoute.ts'
+	import type { BridgeSessionParams } from '$/lib/session/params.ts'
+	import { getUsdcAddress } from '$/api/lifi.ts'
 	import {
 		calculateMinOutput,
 		formatSlippagePercent,
 		parseSlippagePercent,
 		slippagePresets,
-	} from '$/constants/slippage'
+	} from '$/constants/slippage.ts'
 	import {
 		USDC_MAX_AMOUNT,
 		USDC_MIN_AMOUNT,
 		validateBridgeAmount,
-	} from '$/constants/bridge-limits'
-	import { isCctpSupportedChain } from '$/constants/cctp'
-	import { isGatewaySupportedChain } from '$/constants/gateway'
-	import { ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins'
+	} from '$/constants/bridge-limits.ts'
+	import { isCctpSupportedChain } from '$/constants/cctp.ts'
+	import { isGatewaySupportedChain } from '$/constants/gateway.ts'
+	import { ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins.ts'
 	import {
 		ChainId,
 		mainnetForTestnet,
@@ -27,7 +27,7 @@
 		networks,
 		networksByChainId,
 		testnetsForMainnet,
-	} from '$/constants/networks'
+	} from '$/constants/networks.ts'
 
 
 	// Context
@@ -39,11 +39,11 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/session/panel-hash'
+	} from '$/lib/session/panel-hash.ts'
 
 
 	// Functions
-	import { isValidAddress, normalizeAddress } from '$/lib/address'
+	import { isValidAddress, normalizeAddress } from '$/lib/address.ts'
 	import {
 		buildSessionHash,
 		createSessionId,
@@ -51,14 +51,14 @@
 		createTransactionSessionWithId,
 		parseSessionHash,
 		updateTransactionSession,
-	} from '$/lib/session/sessions'
-	import { normalizeBridgeSessionParams } from '$/lib/session/params'
-	import { stringify } from '$/lib/stringify'
+	} from '$/lib/session/sessions.ts'
+	import { normalizeBridgeSessionParams } from '$/lib/session/params.ts'
+	import { stringify } from '$/lib/stringify.ts'
 
 
 	// State
 	import { bridgeSettingsState } from '$/state/bridge-settings.svelte'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 
 
 	// Components
@@ -231,7 +231,7 @@
 		Boolean(activeProtocol === 'lifi' ? previewResult : recipient),
 	)
 	const hashSource = getContext<
-		import('$/lib/session/panel-hash').SessionHashSource
+		import('$/lib/session/panel-hash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 

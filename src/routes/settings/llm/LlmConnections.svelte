@@ -2,13 +2,13 @@
 
 
 	// Types/constants
-	import type { LlmConnectionRow } from '$/collections/llm-connections'
+	import type { LlmConnectionRow } from '$/collections/llm-connections.ts'
 	import {
 		type LlmConnectionProviderType,
 		LlmConnectionProvider,
-	} from '$/data/LlmConnection'
-	import { getModelsForConnection } from '$/api/llm/connection-provider'
-	import { DataSource } from '$/constants/data-sources'
+	} from '$/data/LlmConnection.ts'
+	import { getModelsForConnection } from '$/api/llm/connection-provider.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
@@ -20,7 +20,7 @@
 		removeLlmConnection,
 		updateLlmConnection,
 		PROVIDER_LABELS,
-	} from '$/collections/llm-connections'
+	} from '$/collections/llm-connections.ts'
 
 	const connectionsQuery = useLiveQuery((q) =>
 		q

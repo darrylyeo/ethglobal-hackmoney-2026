@@ -7,7 +7,7 @@
 		DashboardPanelNode,
 		DashboardPanelRoute,
 		DashboardSplitNode,
-	} from '$/data/DashboardPanel'
+	} from '$/data/DashboardPanel.ts'
 
 	import { untrack } from 'svelte'
 	import { pushState, replaceState } from '$app/navigation'
@@ -16,12 +16,12 @@
 		ensureDashboardState,
 		setDashboardFocus,
 		setDashboardRoot,
-	} from '$/collections/dashboard-panels'
+	} from '$/collections/dashboard-panels.ts'
 	import { setIntentNavigateTo } from '$/state/intent-navigation.svelte'
 
 
 	// Functions
-	import { buildRoutePath, defaultRoutePath, routeEntries } from './route-map'
+	import { buildRoutePath, defaultRoutePath, routeEntries } from './route-map.ts'
 
 
 	// Components

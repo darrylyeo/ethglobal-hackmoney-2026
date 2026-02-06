@@ -2,11 +2,11 @@
 
 
 	// Types/constants
-	import type { RoomPeerRow } from '$/collections/room-peers'
-	import type { SiweChallengeRow } from '$/collections/siwe-challenges'
-	import type { VerificationRow } from '$/collections/verifications'
-	import type { EIP1193Provider } from '$/lib/rooms/siwe'
-	import { DataSource } from '$/constants/data-sources'
+	import type { RoomPeerRow } from '$/collections/room-peers.ts'
+	import type { SiweChallengeRow } from '$/collections/siwe-challenges.ts'
+	import type { VerificationRow } from '$/collections/verifications.ts'
+	import type { EIP1193Provider } from '$/lib/rooms/siwe.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Props
@@ -23,11 +23,11 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses'
-	import { siweChallengesCollection } from '$/collections/siwe-challenges'
-	import { verificationsCollection } from '$/collections/verifications'
+	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
+	import { siweChallengesCollection } from '$/collections/siwe-challenges.ts'
+	import { verificationsCollection } from '$/collections/verifications.ts'
 	import { roomState } from '$/state/room.svelte'
-	import { signSiweMessage } from '$/lib/rooms/siwe'
+	import { signSiweMessage } from '$/lib/rooms/siwe.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 

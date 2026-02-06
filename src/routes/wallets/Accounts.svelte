@@ -6,15 +6,15 @@
 		ConnectedWallet,
 		ReadOnlyWalletRow,
 		WalletConnectionRow,
-	} from '$/collections/wallet-connections'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	} from '$/collections/wallet-connections.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import {
 		NetworkType,
 		networkConfigsByChainId,
 		networks,
 		networksByChainId,
-	} from '$/constants/networks'
-	import { DataSource } from '$/constants/data-sources'
+	} from '$/constants/networks.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 	type WalletConnectItem =
 		| { kind: 'wallet'; wallet: WalletRow }
 		| { kind: 'empty'; label: string }
@@ -39,14 +39,14 @@
 		switchActiveActor,
 		disconnectWallet,
 		connectReadOnly,
-	} from '$/collections/wallet-connections'
-	import type { WalletRow } from '$/collections/wallets'
-	import { walletsCollection } from '$/collections/wallets'
+	} from '$/collections/wallet-connections.ts'
+	import type { WalletRow } from '$/collections/wallets.ts'
+	import { walletsCollection } from '$/collections/wallets.ts'
 	import {
 		bridgeSettingsState,
 		defaultBridgeSettings,
 	} from '$/state/bridge-settings.svelte'
-	import { switchWalletChain } from '$/lib/wallet'
+	import { switchWalletChain } from '$/lib/wallet.ts'
 
 	useWalletSubscriptions()
 

@@ -9,11 +9,11 @@
 
 
 	// Functions
-	import { buildSessionHash } from '$/lib/session/sessions'
+	import { buildSessionHash } from '$/lib/session/sessions.ts'
 
 
 	// State
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 
 	const sessionId = $derived(page.params.id ?? '')
 	const sessionQuery = useLiveQuery(

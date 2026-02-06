@@ -2,12 +2,12 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import { ercTokens } from '$/constants/coins'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import { ercTokens } from '$/constants/coins.ts'
 
 
 	// State
-	import { fetchAllBalancesForAddress } from '$/collections/actor-coins'
+	import { fetchAllBalancesForAddress } from '$/collections/actor-coins.ts'
 
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)

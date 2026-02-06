@@ -5,11 +5,11 @@
 	import type {
 		DashboardPanelNode,
 		DashboardPanelRoute,
-	} from '$/data/DashboardPanel'
+	} from '$/data/DashboardPanel.ts'
 
 
 	// Functions
-	import { routeEntries, toPanelNavigation } from './route-map'
+	import { routeEntries, toPanelNavigation } from './route-map.ts'
 
 
 	// Components

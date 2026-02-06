@@ -2,22 +2,22 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { IntentDragPayload } from '$/lib/intents/types'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { IntentDragPayload } from '$/lib/intents/types.ts'
 	import type {
 		IntentRouteStep,
 		IntentBridgeRouteOption,
-	} from '$/lib/intents/routes'
-	import type { BridgeRoute } from '$/data/BridgeRoute'
-	import type { Transaction$Id } from '$/data/Transaction'
-	import { EntityType } from '$/data/$EntityType'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
-	import { encodeTransferCall } from '$/api/voltaire'
-	import { executeSelectedRoute } from '$/api/lifi'
-	import { executeSwap } from '$/api/uniswap'
-	import { sendTransfer } from '$/api/yellow'
-	import { DataSource } from '$/constants/data-sources'
-	import { networksByChainId } from '$/constants/networks'
+	} from '$/lib/intents/routes.ts'
+	import type { BridgeRoute } from '$/data/BridgeRoute.ts'
+	import type { Transaction$Id } from '$/data/Transaction.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+	import { encodeTransferCall } from '$/api/voltaire.ts'
+	import { executeSelectedRoute } from '$/api/lifi.ts'
+	import { executeSwap } from '$/api/uniswap.ts'
+	import { sendTransfer } from '$/api/yellow.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 
 	type IntentSessionParams = {
 		from: IntentDragPayload | null
@@ -32,34 +32,34 @@
 
 
 	// Functions
-	import { resolveIntent } from '$/lib/intents/resolve-intent'
-	import { buildIntentRoutes } from '$/lib/intents/routes'
-	import { getIntentDragPayload } from '$/lib/intents/drag'
+	import { resolveIntent } from '$/lib/intents/resolve-intent.ts'
+	import { buildIntentRoutes } from '$/lib/intents/routes.ts'
+	import { getIntentDragPayload } from '$/lib/intents/drag.ts'
 	import {
 		buildSessionHash,
 		createTransactionSession,
 		parseSessionHash,
 		updateTransactionSessionParams,
-	} from '$/lib/session/sessions'
+	} from '$/lib/session/sessions.ts'
 	import {
 		formatSmallestToDecimal,
 		isValidDecimalInput,
 		parseDecimalToSmallest,
-	} from '$/lib/format'
+	} from '$/lib/format.ts'
 	const resolveChainName = (chainId: number) =>
 		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
 			?.name ?? `Chain ${chainId}`
 
 
 	// State
-	import { actorCoinsCollection } from '$/collections/actor-coins'
-	import { bridgeRoutesCollection } from '$/collections/bridge-routes'
-	import { swapQuotesCollection } from '$/collections/swap-quotes'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
+	import { bridgeRoutesCollection } from '$/collections/bridge-routes.ts'
+	import { swapQuotesCollection } from '$/collections/swap-quotes.ts'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 	import {
 		insertTransaction,
 		updateTransaction,
-	} from '$/collections/transactions'
+	} from '$/collections/transactions.ts'
 	import { yellowState } from '$/state/yellow.svelte'
 
 	let connectedWallets = $state<ConnectedWallet[]>([])

@@ -2,19 +2,19 @@
 
 
 	// Types/constants
-	import { DataSource } from '$/constants/data-sources'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { ercTokens } from '$/constants/coins'
-	import { networksByChainId } from '$/constants/networks'
-	import { fetchAllBalancesForAddress } from '$/collections/actor-coins'
-	import { roomPeersCollection } from '$/collections/room-peers'
-	import { roomsCollection } from '$/collections/rooms'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses'
-	import { transactionsCollection } from '$/collections/transactions'
-	import { verificationsCollection } from '$/collections/verifications'
-	import { walletConnectionsCollection } from '$/collections/wallet-connections'
-	import { walletsCollection } from '$/collections/wallets'
+	import { ercTokens } from '$/constants/coins.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
+	import { fetchAllBalancesForAddress } from '$/collections/actor-coins.ts'
+	import { roomPeersCollection } from '$/collections/room-peers.ts'
+	import { roomsCollection } from '$/collections/rooms.ts'
+	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
+	import { transactionsCollection } from '$/collections/transactions.ts'
+	import { verificationsCollection } from '$/collections/verifications.ts'
+	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
+	import { walletsCollection } from '$/collections/wallets.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
@@ -23,9 +23,9 @@
 
 
 	// Functions
-	import { formatAddress, parseAccountAddressParam } from '$/lib/address'
-	import { formatSmallestToDecimal } from '$/lib/format'
-	import { getAddressUrl } from '$/constants/explorers'
+	import { formatAddress, parseAccountAddressParam } from '$/lib/address.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { getAddressUrl } from '$/constants/explorers.ts'
 
 
 	// (Derived)

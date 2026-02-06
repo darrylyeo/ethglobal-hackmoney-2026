@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { DataSource } from '$/constants/data-sources'
+	import { DataSource } from '$/constants/data-sources.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import { networksCollection } from '$/collections/networks'
-	import { coinsCollection } from '$/collections/coins'
+	import { networksCollection } from '$/collections/networks.ts'
+	import { coinsCollection } from '$/collections/coins.ts'
 
 	const networksQuery = useLiveQuery((q) =>
 		q

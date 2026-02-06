@@ -1,5 +1,13 @@
-import { providerAssetUrl } from '$lib/assets/urls'
-import { networkConfigs } from '$/constants/networks'
+import { networkConfigs } from '$/constants/networks.ts'
+
+const iconCircle = (await import('$/assets/providers/circle.svg?url')).default
+const iconDeno = (await import('$/assets/providers/deno.svg?url')).default
+const iconLifi = (await import('$/assets/providers/lifi.svg?url')).default
+const iconSvelte = (await import('$/assets/providers/svelte.svg?url')).default
+const iconTanstack = (await import('$/assets/providers/tanstack.svg?url')).default
+const iconThrelte = (await import('$/assets/providers/threlte.svg?url')).default
+const iconUniswap = (await import('$/assets/providers/uniswap.svg?url')).default
+const iconVoltaire = (await import('$/assets/providers/voltaire.svg?url')).default
 
 export type ArchitectureLayer =
 	| 'client'
@@ -83,7 +91,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(0),
 		size: 58,
 		shape: 'image',
-		icon: providerAssetUrl('svelte'),
+		icon: iconSvelte,
 		badge: '/session • /rooms',
 		priority: 'primary',
 		details: {
@@ -100,7 +108,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(1),
 		size: 46,
 		shape: 'image',
-		icon: providerAssetUrl('svelte'),
+		icon: iconSvelte,
 		badge: 'Panel tree',
 		priority: 'secondary',
 		details: {
@@ -116,7 +124,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(2),
 		size: 48,
 		shape: 'image',
-		icon: providerAssetUrl('threlte'),
+		icon: iconThrelte,
 		badge: 'G6 / Sigma / Threlte',
 		priority: 'secondary',
 		details: {
@@ -208,7 +216,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(4),
 		size: 48,
 		shape: 'image',
-		icon: providerAssetUrl('tanstack'),
+		icon: iconTanstack,
 		badge: 'TanStack DB',
 		priority: 'primary',
 		details: {
@@ -299,7 +307,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(1),
 		size: 48,
 		shape: 'image',
-		icon: providerAssetUrl('voltaire'),
+		icon: iconVoltaire,
 		badge: 'ABI + JSON-RPC',
 		priority: 'primary',
 		details: {
@@ -330,7 +338,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(3),
 		size: 48,
 		shape: 'image',
-		icon: providerAssetUrl('lifi'),
+		icon: iconLifi,
 		badge: 'Routes + Execute',
 		priority: 'primary',
 		details: {
@@ -346,7 +354,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(4),
 		size: 48,
 		shape: 'image',
-		icon: providerAssetUrl('circle'),
+		icon: iconCircle,
 		badge: 'Burn / Attest / Mint',
 		priority: 'primary',
 		details: {
@@ -362,7 +370,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(5),
 		size: 50,
 		shape: 'image',
-		icon: providerAssetUrl('uniswap'),
+		icon: iconUniswap,
 		badge: 'Uniswap V4',
 		priority: 'secondary',
 		details: {
@@ -378,7 +386,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(6),
 		size: 46,
 		shape: 'image',
-		icon: providerAssetUrl('voltaire'),
+		icon: iconVoltaire,
 		badge: 'Logs + Graphs',
 		priority: 'secondary',
 		details: {
@@ -484,7 +492,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(1),
 		size: 42,
 		shape: 'image',
-		icon: providerAssetUrl('lifi'),
+		icon: iconLifi,
 		badge: 'Routes + Status',
 		priority: 'primary',
 		details: {
@@ -500,7 +508,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(2),
 		size: 42,
 		shape: 'image',
-		icon: providerAssetUrl('circle'),
+		icon: iconCircle,
 		badge: 'Burn + Mint',
 		priority: 'primary',
 		details: {
@@ -531,7 +539,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(4),
 		size: 40,
 		shape: 'image',
-		icon: providerAssetUrl('uniswap'),
+		icon: iconUniswap,
 		badge: 'Pool Manager',
 		priority: 'secondary',
 		details: {
@@ -652,7 +660,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(6, 120, 120),
 		size: 44,
 		shape: 'image',
-		icon: providerAssetUrl('deno'),
+		icon: iconDeno,
 		badge: 'Tasks + Scripts',
 		priority: 'secondary',
 		details: {
@@ -683,7 +691,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		y: rowY(8, 120, 120),
 		size: 40,
 		shape: 'image',
-		icon: providerAssetUrl('voltaire'),
+		icon: iconVoltaire,
 		badge: 'Simulation',
 		priority: 'optional',
 		details: {

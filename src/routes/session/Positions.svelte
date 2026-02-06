@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { UniswapPosition } from '$/data/UniswapPosition'
+	import type { UniswapPosition } from '$/data/UniswapPosition.ts'
 	import {
 		collectFees,
 		increaseLiquidity,
 		removeLiquidity,
-	} from '$/api/uniswap'
+	} from '$/api/uniswap.ts'
 	import { Button } from 'bits-ui'
 
 	let {

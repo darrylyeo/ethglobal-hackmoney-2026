@@ -2,16 +2,16 @@
 
 
 	// Types/constants
-	import type { YellowChannelRow } from '$/collections/yellow-channels'
-	import { closeChannel } from '$/api/yellow'
-	import { DataSource } from '$/constants/data-sources'
+	import type { YellowChannelRow } from '$/collections/yellow-channels.ts'
+	import { closeChannel } from '$/api/yellow.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { yellowChannelsCollection } from '$/collections/yellow-channels'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses'
-	import { formatSmallestToDecimal } from '$/lib/format'
+	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
+	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { yellowState } from '$/state/yellow.svelte'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 

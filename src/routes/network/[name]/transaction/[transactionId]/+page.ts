@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit'
-import { parseNetworkNameParam } from '$/constants/networks'
+import { parseNetworkNameParam } from '$/constants/networks.ts'
 
 const TX_HASH = /^0x[a-fA-F0-9]{64}$/
 

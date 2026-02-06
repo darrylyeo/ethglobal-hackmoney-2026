@@ -2,34 +2,34 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
-	import type { WalletRow } from '$/collections/wallets'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute.ts'
+	import type { WalletRow } from '$/collections/wallets.ts'
 	import {
 		type BridgeSessionParams,
 		normalizeBridgeSessionParams,
-	} from '$/lib/session/params'
+	} from '$/lib/session/params.ts'
 	import { BridgeRouteSort } from '$/state/bridge-settings.svelte'
 	import {
 		type WalletConnectionEip1193,
 		WalletConnectionTransport,
-	} from '$/data/WalletConnection'
-	import { extractFeeBreakdown, getUsdcAddress } from '$/api/lifi'
-	import { getTxReceiptStatus } from '$/api/approval'
-	import { DataSource } from '$/constants/data-sources'
-	import { networksByChainId } from '$/constants/networks'
+	} from '$/data/WalletConnection.ts'
+	import { extractFeeBreakdown, getUsdcAddress } from '$/api/lifi.ts'
+	import { getTxReceiptStatus } from '$/api/approval.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 	import {
 		calculateMinOutput,
 		formatSlippagePercent,
 		parseSlippagePercent,
 		slippagePresets,
-	} from '$/constants/slippage'
+	} from '$/constants/slippage.ts'
 	import {
 		extractRouteLimits,
 		USDC_MAX_AMOUNT,
 		USDC_MIN_AMOUNT,
 		validateBridgeAmount,
-	} from '$/constants/bridge-limits'
+	} from '$/constants/bridge-limits.ts'
 
 
 	// Context
@@ -40,32 +40,32 @@
 
 	// Functions
 	import { resolve } from '$app/paths'
-	import { getTxUrl } from '$/constants/explorers'
-	import { formatRelativeTime } from '$/lib/format-relative-time'
-	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
-import type { BridgeStatus } from '$/lib/bridge/tx-status'
-import { ErrorCode } from '$/lib/bridge/errors'
-	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format'
+	import { getTxUrl } from '$/constants/explorers.ts'
+	import { formatRelativeTime } from '$/lib/format-relative-time.ts'
+	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm.ts'
+import type { BridgeStatus } from '$/lib/bridge/tx-status.ts'
+import { ErrorCode } from '$/lib/bridge/errors.ts'
+	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format.ts'
 	import {
 		formatAddress,
 		isValidAddress,
 		normalizeAddress,
-	} from '$/lib/address'
-	import { debounce } from '$/lib/debounce'
+	} from '$/lib/address.ts'
+	import { debounce } from '$/lib/debounce.ts'
 	import { stringify } from 'devalue'
 
 
 	// State
-	import { actorAllowancesCollection } from '$/collections/actor-allowances'
-	import { actorCoinsCollection } from '$/collections/actor-coins'
+	import { actorAllowancesCollection } from '$/collections/actor-allowances.ts'
+	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
 	import {
 		bridgeRoutesCollection,
 		fetchBridgeRoutes,
-	} from '$/collections/bridge-routes'
+	} from '$/collections/bridge-routes.ts'
 	import {
 		transactionsCollection,
 		updateTransaction,
-	} from '$/collections/transactions'
+	} from '$/collections/transactions.ts'
 
 
 	// Components

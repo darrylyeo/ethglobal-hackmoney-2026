@@ -5,7 +5,7 @@
 	import type {
 		DashboardNode,
 		DashboardPanelRoute,
-	} from '$/data/DashboardPanel'
+	} from '$/data/DashboardPanel.ts'
 
 
 	// Props

@@ -2,13 +2,13 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { Coin } from '$/constants/coins'
-	import type { TransferSessionParams } from '$/lib/session/params'
-	import { encodeTransferCall } from '$/api/voltaire'
-	import { sendTransfer } from '$/api/yellow'
-	import { CoinType } from '$/constants/coins'
-	import { networksByChainId } from '$/constants/networks'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { Coin } from '$/constants/coins.ts'
+	import type { TransferSessionParams } from '$/lib/session/params.ts'
+	import { encodeTransferCall } from '$/api/voltaire.ts'
+	import { sendTransfer } from '$/api/yellow.ts'
+	import { CoinType } from '$/constants/coins.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 
 
 	// Context
@@ -20,7 +20,7 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/session/panel-hash'
+	} from '$/lib/session/panel-hash.ts'
 
 
 	// Props
@@ -106,7 +106,7 @@
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
 	const hashSource = getContext<
-		import('$/lib/session/panel-hash').SessionHashSource
+		import('$/lib/session/panel-hash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 	const amountLabel = $derived(
@@ -219,23 +219,23 @@
 
 
 	// Functions
-	import { requestE2eTevmValueTransfer } from '$/lib/e2e/tevm'
-	import { formatSmallestToDecimal } from '$/lib/format'
-	import { getTransferSessionParams } from '$/lib/session/params'
+	import { requestE2eTevmValueTransfer } from '$/lib/e2e/tevm.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { getTransferSessionParams } from '$/lib/session/params.ts'
 	import {
 		buildSessionHash,
 		createTransactionSession,
 		parseSessionHash,
-	} from '$/lib/session/sessions'
+	} from '$/lib/session/sessions.ts'
 
 
 	// State
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 	import {
 		insertTransaction,
 		updateTransaction,
-	} from '$/collections/transactions'
-	import type { Transaction$Id } from '$/data/Transaction'
+	} from '$/collections/transactions.ts'
+	import type { Transaction$Id } from '$/data/Transaction.ts'
 
 
 	// Actions

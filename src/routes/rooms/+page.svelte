@@ -7,7 +7,7 @@
 
 
 	// Functions
-	import { createRoom, normalizeRoomInput } from '$/lib/rooms/room'
+	import { createRoom, normalizeRoomInput } from '$/lib/rooms/room.ts'
 
 
 	// State

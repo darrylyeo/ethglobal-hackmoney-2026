@@ -2,8 +2,8 @@
 
 
 	// Types/constants
-	import type { RoomPeer } from '$/collections/room-peers'
-	import { peerNameToEmoji, peerNameToHue } from '$/lib/rooms/room'
+	import type { RoomPeer } from '$/collections/room-peers.ts'
+	import { peerNameToEmoji, peerNameToHue } from '$/lib/rooms/room.ts'
 
 
 	// Props

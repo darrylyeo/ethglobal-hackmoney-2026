@@ -7,7 +7,7 @@
 		ArchitectureEdge,
 		ArchitectureNode,
 		ArchitectureNodeCategory,
-	} from '../about-old/architecture-graph'
+	} from '../about-old/architecture-graph.ts'
 
 	type TooltipItem = {
 		id: string
@@ -21,7 +21,7 @@
 	// Functions
 	import { Graph, EdgeEvent, NodeEvent } from '@antv/g6'
 	import { ConcentricLayout, ForceLayout } from '@antv/layout'
-	import { getArchitectureGraphModel } from '../about-old/architecture-graph'
+	import { getArchitectureGraphModel } from '../about-old/architecture-graph.ts'
 
 	const getEventTargetId = (event: unknown): string | null =>
 		typeof event === 'object' &&

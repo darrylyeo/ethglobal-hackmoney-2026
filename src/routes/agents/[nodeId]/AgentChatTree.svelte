@@ -2,9 +2,9 @@
 
 
 	// Types/constants
-	import type { LlmConnectionRow } from '$/collections/llm-connections'
-	import type { AgentChatTree } from '$/data/AgentChatTree'
-	import type { AgentChatTurn } from '$/data/AgentChatTurn'
+	import type { LlmConnectionRow } from '$/collections/llm-connections.ts'
+	import type { AgentChatTree } from '$/data/AgentChatTree.ts'
+	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 
 
 	// Props
@@ -26,7 +26,7 @@
 
 
 	// Functions
-	import { agentChatTreesCollection } from '$/collections/agent-chat-trees'
+	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
 
 	const updateTreeName = (name: string) => {
 		agentChatTreesCollection.update(tree.id, (draft) => {

@@ -3,11 +3,11 @@
 
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { agentChatTreesCollection } from '$/collections/agent-chat-trees'
+	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
 
 
 	// Functions
-	import { deleteAgentChatTree } from '$/lib/agent-chat'
+	import { deleteAgentChatTree } from '$/lib/agent-chat.ts'
 
 	const togglePin = (treeId: string) => {
 		agentChatTreesCollection.update(treeId, (draft) => {

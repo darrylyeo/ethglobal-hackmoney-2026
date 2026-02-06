@@ -2,27 +2,27 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { TokenListCoinRow } from '$/collections/token-list-coins'
-	import type { FetchSwapQuoteParams } from '$/data/SwapQuote'
-	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap'
-	import type { Coin } from '$/constants/coins'
-	import { CoinType } from '$/constants/coins'
-	import { DataSource } from '$/constants/data-sources'
-	import { MediaType } from '$/constants/media'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { TokenListCoinRow } from '$/collections/token-list-coins.ts'
+	import type { FetchSwapQuoteParams } from '$/data/SwapQuote.ts'
+	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap.ts'
+	import type { Coin } from '$/constants/coins.ts'
+	import { CoinType } from '$/constants/coins.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { MediaType } from '$/constants/media.ts'
 	import {
 		NetworkType,
 		networks,
 		networksByChainId,
-	} from '$/constants/networks'
+	} from '$/constants/networks.ts'
 	import {
 		slippagePresets,
 		calculateMinOutput,
 		formatSlippagePercent,
 		parseSlippagePercent,
-	} from '$/constants/slippage'
-	import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	} from '$/constants/slippage.ts'
+	import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 
 
 	// Context
@@ -34,7 +34,7 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/session/panel-hash'
+	} from '$/lib/session/panel-hash.ts'
 
 
 	// Props
@@ -67,21 +67,21 @@
 
 
 	// Functions
-	import { debounce } from '$/lib/debounce'
-	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
-	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format'
-	import { getStorkAssetIdForSymbol } from '$/lib/stork'
+	import { debounce } from '$/lib/debounce.ts'
+	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm.ts'
+	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format.ts'
+	import { getStorkAssetIdForSymbol } from '$/lib/stork.ts'
 	import {
 		type SwapSessionParams,
 		getSwapSessionParams,
-	} from '$/lib/session/params'
+	} from '$/lib/session/params.ts'
 	import {
 		buildSessionHash,
 		createTransactionSession,
 		forkTransactionSession,
 		parseSessionHash,
 		updateTransactionSessionParams,
-	} from '$/lib/session/sessions'
+	} from '$/lib/session/sessions.ts'
 
 	const asNonEmpty = (coins: Coin[]): coins is [Coin, ...Coin[]] =>
 		coins.length > 0
@@ -110,22 +110,22 @@
 
 
 	// State
-	import { actorAllowancesCollection } from '$/collections/actor-allowances'
+	import { actorAllowancesCollection } from '$/collections/actor-allowances.ts'
 	import {
 		actorCoinsCollection,
 		fetchActorCoinBalance,
-	} from '$/collections/actor-coins'
+	} from '$/collections/actor-coins.ts'
 	import {
 		getBestStorkPrice,
 		storkPricesCollection,
 		subscribeStorkPrices,
-	} from '$/collections/stork-prices'
+	} from '$/collections/stork-prices.ts'
 	import {
 		fetchSwapQuote,
 		swapQuotesCollection,
-	} from '$/collections/swap-quotes'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	} from '$/collections/swap-quotes.ts'
+	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 
 	let activeSessionId = $state<string | null>(null)
 	let lookupSessionId = $state<string | null>(null)
@@ -160,7 +160,7 @@
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
 	const hashSource = getContext<
-		import('$/lib/session/panel-hash').SessionHashSource
+		import('$/lib/session/panel-hash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 	const filteredNetworks = $derived(

@@ -2,17 +2,17 @@
 
 
 	// Types/constants
-	import type { AgentChatTree } from '$/data/AgentChatTree'
+	import type { AgentChatTree } from '$/data/AgentChatTree.ts'
 
 
 	
 	// Context
 	import { page } from '$app/state'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { DataSource } from '$/constants/data-sources'
-	import { agentChatTreesCollection } from '$/collections/agent-chat-trees'
-	import { agentChatTurnsCollection } from '$/collections/agent-chat-turns'
-	import { llmConnectionsCollection } from '$/collections/llm-connections'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
+	import { agentChatTurnsCollection } from '$/collections/agent-chat-turns.ts'
+	import { llmConnectionsCollection } from '$/collections/llm-connections.ts'
 
 
 	// Props
@@ -85,9 +85,9 @@
 
 	// Functions
 	import { goto } from '$app/navigation'
-	import { createAgentChatTree, submitAgentChatTurn } from '$/lib/agent-chat'
+	import { createAgentChatTree, submitAgentChatTurn } from '$/lib/agent-chat.ts'
 
-	const handleFirstPrompt = async (value: string, entityRefs: import('$/data/EntityRef').EntityRef[]) => {
+	const handleFirstPrompt = async (value: string, entityRefs: import('$/data/EntityRef.ts').EntityRef[]) => {
 		const effectiveTree = tree ?? createAgentChatTree({ id: nodeId })
 		const [connectionId, modelId] = parseModelValue(modelValue)
 		const turnId = await submitAgentChatTurn({

@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import { DataSource } from '$/constants/data-sources'
+	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
@@ -14,7 +14,7 @@
 	import {
 		buildSessionHash,
 		deleteTransactionSession,
-	} from '$/lib/session/sessions'
+	} from '$/lib/session/sessions.ts'
 
 	const actionLabel = (action: string) =>
 		action.length > 0
@@ -27,7 +27,7 @@
 
 
 	// State
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 
 	const sessionsQuery = useLiveQuery(
 		(q) =>

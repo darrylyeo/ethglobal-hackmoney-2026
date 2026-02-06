@@ -1,18 +1,18 @@
 <script lang="ts">
-	import type { BridgeRoute } from '$/data/BridgeRoute'
-	import type { WalletRow } from '$/collections/wallets'
-	import type { EIP1193Provider } from '$/lib/wallet'
-	import type { BridgeStatus } from '$/lib/bridge/tx-status'
+	import type { BridgeRoute } from '$/data/BridgeRoute.ts'
+	import type { WalletRow } from '$/collections/wallets.ts'
+	import type { EIP1193Provider } from '$/lib/wallet.ts'
+	import type { BridgeStatus } from '$/lib/bridge/tx-status.ts'
 	import type { Transaction } from '@tanstack/db'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
-	import { executeSelectedRoute } from '$/api/lifi'
-	import { getTxUrl } from '$/constants/explorers'
+	import { executeSelectedRoute } from '$/api/lifi.ts'
+	import { getTxUrl } from '$/constants/explorers.ts'
 	import { toasts } from '$/lib/toast.svelte'
 	import {
 		insertTransaction,
 		updateTransaction,
-	} from '$/collections/transactions'
-	import type { Transaction$Id } from '$/data/Transaction'
+	} from '$/collections/transactions.ts'
+	import type { Transaction$Id } from '$/data/Transaction.ts'
 
 	const isHexHash = (value: unknown): value is `0x${string}` =>
 		typeof value === 'string' && value.startsWith('0x')

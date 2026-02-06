@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import type { EIP1193Provider } from '$/lib/wallet'
+	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import {
 		addressToBytes32,
 		encodeDepositForBurn,
@@ -10,19 +10,19 @@
 		fetchCctpMessages,
 		getAttestationFromMessages,
 		zeroBytes32,
-	} from '$/api/cctp'
+	} from '$/api/cctp.ts'
 	import {
 		checkApproval,
 		sendApproval,
 		waitForApprovalConfirmation,
-	} from '$/api/approval'
-	import { getUsdcAddress } from '$/api/lifi'
+	} from '$/api/approval.ts'
+	import { getUsdcAddress } from '$/api/lifi.ts'
 	import {
 		getCctpDomainId,
 		getCctpTokenMessenger,
 		getCctpMessageTransmitter,
-	} from '$/constants/cctp'
-	import { switchWalletChain } from '$/lib/wallet'
+	} from '$/constants/cctp.ts'
+	import { switchWalletChain } from '$/lib/wallet.ts'
 
 
 	// Props

@@ -2,16 +2,16 @@
 
 
 	// Types/constants
-	import type { EIP1193Provider } from '$/lib/wallet'
-	import { DataSource } from '$/constants/data-sources'
+	import type { EIP1193Provider } from '$/lib/wallet.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import { walletConnectionsCollection } from '$/collections/wallet-connections'
-	import { walletsCollection } from '$/collections/wallets'
+	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
+	import { walletsCollection } from '$/collections/wallets.ts'
 	import {
 		roomState,
 		joinRoom,
@@ -25,7 +25,7 @@
 
 
 	// Functions
-	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/rooms/room'
+	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/rooms/room.ts'
 	import { untrack } from 'svelte'
 
 	const isEip1193Provider = (value: unknown): value is EIP1193Provider =>

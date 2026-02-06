@@ -2,20 +2,20 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { TokenListCoinRow } from '$/collections/token-list-coins'
-	import type { Coin } from '$/constants/coins'
-	import { CoinType } from '$/constants/coins'
-	import { DataSource } from '$/constants/data-sources'
-	import { MediaType } from '$/constants/media'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { TokenListCoinRow } from '$/collections/token-list-coins.ts'
+	import type { Coin } from '$/constants/coins.ts'
+	import { CoinType } from '$/constants/coins.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { MediaType } from '$/constants/media.ts'
 	import {
 		NetworkType,
 		networks,
 		networksByChainId,
-	} from '$/constants/networks'
-	import type { UniswapFeeTier } from '$/constants/uniswap'
-	import { uniswapFeeTiers } from '$/constants/uniswap'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	} from '$/constants/networks.ts'
+	import type { UniswapFeeTier } from '$/constants/uniswap.ts'
+	import { uniswapFeeTiers } from '$/constants/uniswap.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 
 
 	// Context
@@ -27,7 +27,7 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/session/panel-hash'
+	} from '$/lib/session/panel-hash.ts'
 
 
 	// Props
@@ -55,26 +55,26 @@
 			: null,
 	)
 	const hashSource = getContext<
-		import('$/lib/session/panel-hash').SessionHashSource
+		import('$/lib/session/panel-hash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 
 
 	// Functions
-	import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm'
-	import { formatSmallestToDecimal } from '$/lib/format'
+	import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import {
 		type LiquiditySessionParams,
 		getLiquiditySessionParams,
-	} from '$/lib/session/params'
+	} from '$/lib/session/params.ts'
 	import {
 		buildSessionHash,
 		createTransactionSession,
 		forkTransactionSession,
 		parseSessionHash,
 		updateTransactionSessionParams,
-	} from '$/lib/session/sessions'
-	import { switchWalletChain } from '$/lib/wallet'
+	} from '$/lib/session/sessions.ts'
+	import { switchWalletChain } from '$/lib/wallet.ts'
 
 	type ExecutionArgs = {
 		provider: {
@@ -118,17 +118,17 @@
 		fetchPools,
 		fetchPositions,
 		initializePool,
-	} from '$/api/uniswap'
-	import { TICK_SPACINGS } from '$/constants/uniswap'
-	import { actorCoinsCollection } from '$/collections/actor-coins'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
-	import { uniswapPositionsCollection } from '$/collections/uniswap-positions'
+	} from '$/api/uniswap.ts'
+	import { TICK_SPACINGS } from '$/constants/uniswap.ts'
+	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
+	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+	import { uniswapPositionsCollection } from '$/collections/uniswap-positions.ts'
 	import {
 		fetchUniswapPools,
 		uniswapPoolsCollection,
-	} from '$/collections/uniswap-pools'
-	import { fetchUniswapPositions } from '$/collections/uniswap-positions'
+	} from '$/collections/uniswap-pools.ts'
+	import { fetchUniswapPositions } from '$/collections/uniswap-positions.ts'
 
 	let activeSessionId = $state<string | null>(null)
 	let lookupSessionId = $state<string | null>(null)

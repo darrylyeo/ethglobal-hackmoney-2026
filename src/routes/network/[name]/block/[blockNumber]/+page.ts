@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit'
-import { parseNetworkNameParam } from '$/constants/networks'
+import { parseNetworkNameParam } from '$/constants/networks.ts'
 
 const DECIMAL_ONLY = /^\d+$/
 

@@ -2,8 +2,8 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { Network } from '$/constants/networks'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { Network } from '$/constants/networks.ts'
 
 
 	// Context

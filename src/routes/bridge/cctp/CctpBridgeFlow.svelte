@@ -2,15 +2,15 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { BridgeSessionParams } from '$/lib/session/params'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { BridgeSessionParams } from '$/lib/session/params.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import {
 		CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS,
 		CCTP_FORWARDING_CHAIN_IDS,
 		getCctpDomainId,
-	} from '$/constants/cctp'
-	import { networksByChainId } from '$/constants/networks'
+	} from '$/constants/cctp.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 
 
 	// Context
@@ -18,8 +18,8 @@
 
 
 	// Functions
-	import { formatAddress } from '$/lib/address'
-	import { formatSmallestToDecimal } from '$/lib/format'
+	import { formatAddress } from '$/lib/address.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
 
 
 	// Components

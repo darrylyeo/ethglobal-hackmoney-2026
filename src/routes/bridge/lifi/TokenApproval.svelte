@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { Button, Switch } from 'bits-ui'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { sendApproval, waitForApprovalConfirmation } from '$/api/approval'
+	import { sendApproval, waitForApprovalConfirmation } from '$/api/approval.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import { DataSource } from '$/constants/data-sources'
-	import { getTxUrl } from '$/constants/explorers'
-	import type { EIP1193Provider } from '$/lib/wallet'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { getTxUrl } from '$/constants/explorers.ts'
+	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import {
 		actorAllowancesCollection,
 		fetchActorAllowance,
 		setActorAllowance,
 		toActorAllowance$Id,
-	} from '$/collections/actor-allowances'
-	import type { ActorAllowance$Id } from '$/data/ActorAllowance'
+	} from '$/collections/actor-allowances.ts'
+	import type { ActorAllowance$Id } from '$/data/ActorAllowance.ts'
 
 	let {
 		chainId,

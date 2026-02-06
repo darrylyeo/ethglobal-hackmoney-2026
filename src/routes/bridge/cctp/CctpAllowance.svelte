@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import { DataSource } from '$/constants/data-sources'
+	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
@@ -10,7 +10,7 @@
 	import {
 		cctpAllowanceCollection,
 		fetchCctpAllowance,
-	} from '$/collections/cctp-allowance'
+	} from '$/collections/cctp-allowance.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 

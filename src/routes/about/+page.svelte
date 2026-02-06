@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import { architectureGraph } from './architecture-graph'
+	import { architectureGraph } from './architecture-graph.ts'
 
 
 	// Components

@@ -2,14 +2,14 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { Coin } from '$/constants/coins'
-	import type { Transaction$Id } from '$/data/Transaction'
-	import type { TransferSessionParams } from '$/lib/session/params'
-	import { encodeTransferCall } from '$/api/voltaire'
-	import { sendTransfer } from '$/api/yellow'
-	import { CoinType } from '$/constants/coins'
-	import { networksByChainId } from '$/constants/networks'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { Coin } from '$/constants/coins.ts'
+	import type { Transaction$Id } from '$/data/Transaction.ts'
+	import type { TransferSessionParams } from '$/lib/session/params.ts'
+	import { encodeTransferCall } from '$/api/voltaire.ts'
+	import { sendTransfer } from '$/api/yellow.ts'
+	import { CoinType } from '$/constants/coins.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 
 
 	// Context
@@ -21,10 +21,22 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/session/panel-hash'
+	} from '$/lib/session/panel-hash.ts'
 
 
 	// Functions
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -113,10 +125,10 @@
 	import Address from '$/components/Address.svelte'
 	import LoadingButton from '$/components/LoadingButton.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
-	import { requestE2eTevmValueTransfer } from '$/lib/e2e/tevm'
-	import { formatSmallestToDecimal } from '$/lib/format'
-	import { stringify } from '$/lib/stringify'
-	import { normalizeTransferSessionParams } from '$/lib/session/params'
+	import { requestE2eTevmValueTransfer } from '$/lib/e2e/tevm.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { stringify } from '$/lib/stringify.ts'
+	import { normalizeTransferSessionParams } from '$/lib/session/params.ts'
 	import {
 		buildSessionHash,
 		createSessionId,
@@ -124,15 +136,15 @@
 		createTransactionSessionWithId,
 		parseSessionHash,
 		updateTransactionSession,
-	} from '$/lib/session/sessions'
+	} from '$/lib/session/sessions.ts'
 
 
 	// State
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 	import {
 		insertTransaction,
 		updateTransaction,
-	} from '$/collections/transactions'
+	} from '$/collections/transactions.ts'
 
 
 	import CoinAmount from '$/views/CoinAmount.svelte'
@@ -263,7 +275,7 @@
 				: true),
 	)
 	const hashSource = getContext<
-		import('$/lib/session/panel-hash').SessionHashSource
+		import('$/lib/session/panel-hash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 

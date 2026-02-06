@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit'
-import { parseNetworkNameParam } from '$/constants/networks'
+import { parseNetworkNameParam } from '$/constants/networks.ts'
 
 export function load({ params }) {
 	const parsed = parseNetworkNameParam(params.name)

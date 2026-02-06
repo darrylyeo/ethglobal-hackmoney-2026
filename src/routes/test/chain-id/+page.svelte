@@ -3,8 +3,8 @@
 
 	// Functions
 	import { Button } from 'bits-ui'
-	import { createHttpProvider, getChainId } from '$/api/voltaire'
-	import { formatInteger } from '$/lib/format'
+	import { createHttpProvider, getChainId } from '$/api/voltaire.ts'
+	import { formatInteger } from '$/lib/format.ts'
 
 
 	// State

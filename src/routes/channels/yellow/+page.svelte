@@ -2,26 +2,26 @@
 
 
 	// Types/constants
-	import type { YellowChannelRow } from '$/collections/yellow-channels'
-	import type { YellowChannelStateRow } from '$/collections/yellow-channel-states'
-	import type { ChannelStatus } from '$/data/YellowChannel'
-	import type { EIP1193Provider } from '$/lib/wallet'
-	import { closeChannel, challengeChannel, openChannel, sendTransfer } from '$/api/yellow'
-	import { getUsdcAddress } from '$/api/lifi'
-	import { DataSource } from '$/constants/data-sources'
+	import type { YellowChannelRow } from '$/collections/yellow-channels.ts'
+	import type { YellowChannelStateRow } from '$/collections/yellow-channel-states.ts'
+	import type { ChannelStatus } from '$/data/YellowChannel.ts'
+	import type { EIP1193Provider } from '$/lib/wallet.ts'
+	import { closeChannel, challengeChannel, openChannel, sendTransfer } from '$/api/yellow.ts'
+	import { getUsdcAddress } from '$/api/lifi.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import { yellowChannelsCollection } from '$/collections/yellow-channels'
-	import { yellowChannelStatesCollection } from '$/collections/yellow-channel-states'
-	import { roomsCollection } from '$/collections/rooms'
-	import { walletConnectionsCollection } from '$/collections/wallet-connections'
-	import { walletsCollection } from '$/collections/wallets'
-	import { formatSmallestToDecimal } from '$/lib/format'
+	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
+	import { yellowChannelStatesCollection } from '$/collections/yellow-channel-states.ts'
+	import { roomsCollection } from '$/collections/rooms.ts'
+	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
+	import { walletsCollection } from '$/collections/wallets.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { yellowState } from '$/state/yellow.svelte'
-	import { roomIdToDisplayName } from '$/lib/rooms/room'
+	import { roomIdToDisplayName } from '$/lib/rooms/room.ts'
 
 	const isEip1193Provider = (value: unknown): value is EIP1193Provider =>
 		typeof value === 'object' &&
@@ -102,7 +102,13 @@
 	const walletProvider = $derived(
 		selectedWallet && isEip1193Provider(selectedWallet.provider)
 			? selectedWallet.provider
-			: null,
+		: wallets.find((w) => isEip1193Provider(w.provider))?.provider as EIP1193Provider | null
+			?? null
+	)
+	const connectedAddress = $derived(
+		selectedConnection?.activeActor
+		?? connections.find((c) => c.activeActor)?.activeActor
+		?? null
 	)
 	const allChannels = $derived((channelsQuery.data ?? []).map((r) => r.row))
 	const channelStatesByChannelId = $derived(
@@ -202,10 +208,22 @@
 
 	const isConnected = $derived(yellowState.clearnodeConnection !== null)
 
+	// Expose for e2e testing
+	if (typeof globalThis.window !== 'undefined' && (globalThis.window as Record<string, unknown>).__E2E_TEVM__) {
+		Object.assign(globalThis.window, {
+			__yellowConnectToYellow__: connectToYellow,
+			__yellowDisconnectFromYellow__: disconnectFromYellow,
+			__yellowOpenChannel__: (...args: Parameters<typeof openChannel>) => openChannel(...args),
+			__yellowSendTransfer__: (...args: Parameters<typeof sendTransfer>) => sendTransfer(...args),
+			__yellowCloseChannel__: (...args: Parameters<typeof closeChannel>) => closeChannel(...args),
+			__yellowState__: yellowState,
+		})
+	}
+
 
 	// Actions
 	const handleConnect = async () => {
-		if (!walletProvider || !selectedConnection) {
+		if (!walletProvider || !connectedAddress) {
 			connectError = 'Connect a wallet first'
 			return
 		}
@@ -215,7 +233,7 @@
 			await connectToYellow(
 				1,
 				walletProvider,
-				selectedConnection.$id.address as `0x${string}`,
+				connectedAddress,
 			)
 		} catch (err) {
 			connectError = err instanceof Error ? err.message : 'Connection failed'
@@ -340,9 +358,9 @@
 				<span data-yellow-status="disconnected">Disconnected</span>
 				<Button.Root
 					type="button"
-					disabled={connecting || !walletProvider}
-					onclick={handleConnect}
-					data-yellow-connect
+				disabled={connecting || !walletProvider || !connectedAddress}
+				onclick={handleConnect}
+				data-yellow-connect
 				>
 					{connecting ? 'Connecting…' : 'Connect to Yellow'}
 				</Button.Root>

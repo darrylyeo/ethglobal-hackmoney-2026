@@ -12,12 +12,12 @@
 		getEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 		type SessionHashSource,
-	} from '$/lib/session/panel-hash'
-	import { parseSessionHash } from '$/lib/session/sessions'
+	} from '$/lib/session/panel-hash.ts'
+	import { parseSessionHash } from '$/lib/session/sessions.ts'
 
 
 	// State
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 
 
 	// Props

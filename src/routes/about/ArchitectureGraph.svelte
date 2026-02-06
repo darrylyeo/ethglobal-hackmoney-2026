@@ -3,10 +3,10 @@
 
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
-	import type { ArchitectureEdge, ArchitectureNode } from './architecture-graph'
+	import type { ArchitectureEdge, ArchitectureNode } from './architecture-graph.ts'
 	import { ComboEvent, EdgeEvent, Graph, NodeEvent } from '@antv/g6'
 	import { ForceLayout } from '@antv/layout'
-	import { architectureGraph } from './architecture-graph'
+	import { architectureGraph } from './architecture-graph.ts'
 
 
 	// Props

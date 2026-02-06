@@ -2,16 +2,16 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import { DataSource } from '$/constants/data-sources'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import { roomPeersCollection } from '$/collections/room-peers'
+	import { roomPeersCollection } from '$/collections/room-peers.ts'
 	import {
 		roomState,
 		joinRoom,
@@ -30,7 +30,7 @@
 
 	// Functions
 	import { renderSVG } from 'uqr'
-	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/rooms/room'
+	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/rooms/room.ts'
 	import { untrack } from 'svelte'
 
 

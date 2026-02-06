@@ -4,11 +4,11 @@
 	// Context
 	import { resolve } from '$app/paths'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { DataSource } from '$/constants/data-sources'
-	import { myPeerIdsCollection } from '$/collections/my-peer-ids'
-	import { roomPeersCollection } from '$/collections/room-peers'
-	import { verificationsCollection } from '$/collections/verifications'
-	import { formatAddress } from '$/lib/address'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { myPeerIdsCollection } from '$/collections/my-peer-ids.ts'
+	import { roomPeersCollection } from '$/collections/room-peers.ts'
+	import { verificationsCollection } from '$/collections/verifications.ts'
+	import { formatAddress } from '$/lib/address.ts'
 	import { forgetPeer } from '$/state/room.svelte'
 
 

@@ -2,9 +2,9 @@
 
 
 	// Types/constants
-	import type { LlmConnectionRow } from '$/collections/llm-connections'
-	import type { AgentChatTree } from '$/data/AgentChatTree'
-	import type { AgentChatTurn } from '$/data/AgentChatTurn'
+	import type { LlmConnectionRow } from '$/collections/llm-connections.ts'
+	import type { AgentChatTree } from '$/data/AgentChatTree.ts'
+	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 
 
 	// Props
@@ -55,7 +55,7 @@
 		deleteAgentChatTurn,
 		retryAgentChatTurn,
 		submitAgentChatTurn,
-	} from '$/lib/agent-chat'
+	} from '$/lib/agent-chat.ts'
 	import { goto } from '$app/navigation'
 
 	const handleDelete = () => {
@@ -75,7 +75,7 @@
 		return [a?.trim() ?? null, b?.trim() ?? null]
 	}
 
-	const handleSubmit = async (value: string, entityRefs: import('$/data/EntityRef').EntityRef[]) => {
+	const handleSubmit = async (value: string, entityRefs: import('$/data/EntityRef.ts').EntityRef[]) => {
 		const [connectionId, modelId] = parseModelValue(modelValue)
 		const turnId = await submitAgentChatTurn({
 			treeId: tree.id,

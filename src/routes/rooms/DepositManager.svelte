@@ -2,10 +2,10 @@
 
 
 	// Types/constants
-	import type { EIP1193Provider } from '$/lib/wallet'
-	import { depositToCustody, withdrawFromCustody } from '$/api/yellow'
-	import { getUsdcAddress } from '$/api/lifi'
-	import { DataSource } from '$/constants/data-sources'
+	import type { EIP1193Provider } from '$/lib/wallet.ts'
+	import { depositToCustody, withdrawFromCustody } from '$/api/yellow.ts'
+	import { getUsdcAddress } from '$/api/lifi.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Props
@@ -15,9 +15,9 @@
 	// State
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
+	import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
 	import { yellowState } from '$/state/yellow.svelte'
-	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format'
+	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format.ts'
 
 	const depositQuery = useLiveQuery((q) =>
 		q

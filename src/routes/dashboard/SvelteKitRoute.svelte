@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import type { RouteEntry, RoutePathInput } from './route-map'
+	import type { RouteEntry, RoutePathInput } from './route-map.ts'
 
 
 	// Context
@@ -11,7 +11,7 @@
 
 
 	// Functions
-	import { buildRoutePath } from './route-map'
+	import { buildRoutePath } from './route-map.ts'
 
 
 	// Components

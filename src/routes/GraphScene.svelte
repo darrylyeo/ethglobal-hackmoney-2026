@@ -11,50 +11,50 @@
 		GraphModel,
 		GraphNode,
 		GraphNodeStyle,
-	} from '$/lib/graph-model'
-	import { actorAllowancesCollection } from '$/collections/actor-allowances'
-	import { actorCoinsCollection } from '$/collections/actor-coins'
-	import { actorsCollection } from '$/collections/actors'
-	import { blocksCollection } from '$/collections/blocks'
-	import { bridgeRouteItemsCollection } from '$/collections/bridge-routes'
-	import { cctpAllowanceCollection } from '$/collections/cctp-allowance'
-	import { cctpFeesCollection } from '$/collections/cctp-fees'
-	import { coinsCollection } from '$/collections/coins'
-	import { dashboardPanelsCollection } from '$/collections/dashboard-panels'
-	import { networksCollection } from '$/collections/networks'
-	import { roomPeersCollection } from '$/collections/room-peers'
-	import { roomsCollection } from '$/collections/rooms'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses'
-	import { siweChallengesCollection } from '$/collections/siwe-challenges'
-	import { storkPricesCollection } from '$/collections/stork-prices'
-	import { swapQuotesCollection } from '$/collections/swap-quotes'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins'
-	import { transactionSessionSimulationsCollection } from '$/collections/transaction-session-simulations'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
-	import { transactionsCollection } from '$/collections/transactions'
-	import { transferGraphsCollection } from '$/collections/transfer-graphs'
-	import { transferRequestsCollection } from '$/collections/transfer-requests'
-	import { uniswapPoolsCollection } from '$/collections/uniswap-pools'
-	import { uniswapPositionsCollection } from '$/collections/uniswap-positions'
-	import { walletConnectionsCollection } from '$/collections/wallet-connections'
-	import { walletsCollection } from '$/collections/wallets'
-	import { yellowChannelStatesCollection } from '$/collections/yellow-channel-states'
-	import { yellowChannelsCollection } from '$/collections/yellow-channels'
-	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
-	import { yellowTransfersCollection } from '$/collections/yellow-transfers'
-	import { DataSource } from '$/constants/data-sources'
+	} from '$/lib/graph-model.ts'
+	import { actorAllowancesCollection } from '$/collections/actor-allowances.ts'
+	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
+	import { actorsCollection } from '$/collections/actors.ts'
+	import { blocksCollection } from '$/collections/blocks.ts'
+	import { bridgeRouteItemsCollection } from '$/collections/bridge-routes.ts'
+	import { cctpAllowanceCollection } from '$/collections/cctp-allowance.ts'
+	import { cctpFeesCollection } from '$/collections/cctp-fees.ts'
+	import { coinsCollection } from '$/collections/coins.ts'
+	import { dashboardPanelsCollection } from '$/collections/dashboard-panels.ts'
+	import { networksCollection } from '$/collections/networks.ts'
+	import { roomPeersCollection } from '$/collections/room-peers.ts'
+	import { roomsCollection } from '$/collections/rooms.ts'
+	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
+	import { siweChallengesCollection } from '$/collections/siwe-challenges.ts'
+	import { storkPricesCollection } from '$/collections/stork-prices.ts'
+	import { swapQuotesCollection } from '$/collections/swap-quotes.ts'
+	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
+	import { transactionSessionSimulationsCollection } from '$/collections/transaction-session-simulations.ts'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+	import { transactionsCollection } from '$/collections/transactions.ts'
+	import { transferGraphsCollection } from '$/collections/transfer-graphs.ts'
+	import { transferRequestsCollection } from '$/collections/transfer-requests.ts'
+	import { uniswapPoolsCollection } from '$/collections/uniswap-pools.ts'
+	import { uniswapPositionsCollection } from '$/collections/uniswap-positions.ts'
+	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
+	import { walletsCollection } from '$/collections/wallets.ts'
+	import { yellowChannelStatesCollection } from '$/collections/yellow-channel-states.ts'
+	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
+	import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
+	import { yellowTransfersCollection } from '$/collections/yellow-transfers.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 	import {
 		NetworkType,
 		networksByChainId,
 		toCaip2,
 		toNetworkSlug,
-	} from '$/constants/networks'
-	import { EntityType } from '$/data/$EntityType'
+	} from '$/constants/networks.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import {
 		entityTypes,
 		type GraphSceneEntityType,
-	} from '$/constants/entity-types'
-	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits'
+	} from '$/constants/entity-types.ts'
+	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits.ts'
 
 	const DEFAULT_VISIBLE_ENTITY_TYPES: GraphSceneEntityType[] = [
 		EntityType.Actor,
@@ -115,8 +115,8 @@
 
 	// Functions
 	import Graph from 'graphology'
-	import { formatSmallestToDecimal } from '$/lib/format'
-	import { stringify } from '$/lib/stringify'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { stringify } from '$/lib/stringify.ts'
 
 
 	// Components

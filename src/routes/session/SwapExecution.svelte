@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { SwapQuote } from '$/data/SwapQuote'
-	import type { EIP1193Provider } from '$/lib/wallet'
+	import type { SwapQuote } from '$/data/SwapQuote.ts'
+	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
-	import { executeSwap } from '$/api/uniswap'
-	import { getTxUrl } from '$/constants/explorers'
+	import { executeSwap } from '$/api/uniswap.ts'
+	import { getTxUrl } from '$/constants/explorers.ts'
 	import { toasts } from '$/lib/toast.svelte'
 	import {
 		insertTransaction,
 		updateTransaction,
-	} from '$/collections/transactions'
-	import type { Transaction$Id } from '$/data/Transaction'
+	} from '$/collections/transactions.ts'
+	import type { Transaction$Id } from '$/data/Transaction.ts'
 
 	type SwapExecutionStatus = {
 		overall: 'idle' | 'in_progress' | 'completed' | 'failed'

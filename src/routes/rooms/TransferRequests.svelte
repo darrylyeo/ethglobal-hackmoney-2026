@@ -2,16 +2,16 @@
 
 
 	// Types/constants
-	import { sendTransfer } from '$/api/yellow'
-	import { DataSource } from '$/constants/data-sources'
+	import { sendTransfer } from '$/api/yellow.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses'
-	import { transferRequestsCollection } from '$/collections/transfer-requests'
-	import { yellowDepositsCollection } from '$/collections/yellow-deposits'
-	import { formatSmallestToDecimal } from '$/lib/format'
+	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
+	import { transferRequestsCollection } from '$/collections/transfer-requests.ts'
+	import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { roomState } from '$/state/room.svelte'
 	import { yellowState } from '$/state/yellow.svelte'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'

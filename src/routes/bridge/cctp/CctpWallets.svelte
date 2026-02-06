@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections'
+	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
 
 
 	// Props

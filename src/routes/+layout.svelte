@@ -1,23 +1,26 @@
 <script lang="ts">
-
+	// Polyfills (run before other imports that may use crypto.randomUUID)
+	import '$/lib/random-uuid.ts'
 
 	// Types/constants
-	import { DataSource } from '$/constants/data-sources'
-	import { coinAssetUrl, getAssetUrl } from '$lib/assets/urls'
-	import { networkConfigs, toNetworkSlug } from '$/constants/networks'
-	import { WalletConnectionTransport } from '$/data/WalletConnection'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { networkConfigs, toNetworkSlug } from '$/constants/networks.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+
+	const iconEth = (await import('$/assets/coins/eth.svg?url')).default
+	const iconUsdc = (await import('$/assets/coins/usdc.svg?url')).default
 
 
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { myPeerIdsCollection } from '$/collections/my-peer-ids'
-	import { roomPeersCollection } from '$/collections/room-peers'
-	import { roomsCollection } from '$/collections/rooms'
-	import { agentChatTreesCollection } from '$/collections/agent-chat-trees'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
-	import { verificationsCollection } from '$/collections/verifications'
-	import { walletConnectionsCollection } from '$/collections/wallet-connections'
-	import { walletsCollection } from '$/collections/wallets'
+	import { myPeerIdsCollection } from '$/collections/my-peer-ids.ts'
+	import { roomPeersCollection } from '$/collections/room-peers.ts'
+	import { roomsCollection } from '$/collections/rooms.ts'
+	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+	import { verificationsCollection } from '$/collections/verifications.ts'
+	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
+	import { walletsCollection } from '$/collections/wallets.ts'
 	import {
 		registerGlobalLiveQueryStack,
 		useLiveQueryContext,
@@ -26,10 +29,10 @@
 
 
 	// Functions
-	import { formatAddress } from '$/lib/address'
-	import { roomIdToDisplayName } from '$/lib/rooms/room'
-	import { buildSessionHash } from '$/lib/session/sessions'
-	import { interopFormatConfig, toInteropName } from '$/constants/interop'
+	import { formatAddress } from '$/lib/address.ts'
+	import { roomIdToDisplayName } from '$/lib/rooms/room.ts'
+	import { buildSessionHash } from '$/lib/session/sessions.ts'
+	import { interopFormatConfig, toInteropName } from '$/constants/interop.ts'
 
 	const actionLabel = (action: string) =>
 		action.length > 0
@@ -317,13 +320,13 @@
 							id: 'usdc',
 							title: 'USDC',
 							href: '/coin/USDC',
-							icon: coinAssetUrl('usdc'),
+							icon: iconUsdc,
 						},
 						{
 							id: 'eth',
 							title: 'ETH',
 							href: '/coin/ETH',
-							icon: coinAssetUrl('eth'),
+							icon: iconEth,
 						},
 					],
 				},
@@ -336,7 +339,7 @@
 						id: `network-${config.chainId}`,
 						title: config.name,
 						href: `/network/${toNetworkSlug(config.name)}`,
-						icon: getAssetUrl(config.icon ?? '') ?? config.icon ?? '🌐',
+						icon: config.icon ?? '🌐',
 					})),
 				},
 			],
@@ -418,7 +421,7 @@
 
 
 	// Images
-	import favicon from '$/lib/assets/favicon.svg'
+	import favicon from '$/assets/favicon.svg'
 
 
 	// Styles
