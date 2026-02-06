@@ -3,18 +3,18 @@
  * Used by the transfers page to build the graph from JSON-RPC (primary source).
  */
 
-import { ercTokens } from '$/constants/coins'
-import { rpcUrls } from '$/constants/rpc-endpoints'
 import {
+	type VoltaireProvider,
 	createHttpProvider,
 	getBlockByNumber,
 	getBlockNumberByTimestamp,
 	getLogs,
 	TRANSFER_TOPIC,
-	type VoltaireProvider,
 } from '$/api/voltaire'
-import { TIME_PERIODS, periodToRange } from '$/api/transfers-indexer'
+import { type ChainContract, TIME_PERIODS, periodToRange } from '$/api/transfers-indexer'
+import { ercTokens } from '$/constants/coins'
 import { TRANSFER_EVENTS_MAX_TOTAL } from '$/constants/query-limits'
+import { rpcUrls } from '$/constants/rpc-endpoints'
 
 export type NormalizedTransferEvent = {
 	transactionHash: string
@@ -39,14 +39,16 @@ function parseTransferLog(
 	blockTimestampMs: number,
 ): NormalizedTransferEvent | null {
 	if (!log.topics?.[1] || !log.topics?.[2] || !log.data) return null
-	const from = `0x${log.topics[1].slice(-40)}` as `0x${string}`
-	const to = `0x${log.topics[2].slice(-40)}` as `0x${string}`
 	const amount = BigInt(log.data)
 	if (amount === 0n) return null
 	return {
 		transactionHash: log.transactionHash,
-		fromAddress: from.toLowerCase(),
-		toAddress: to.toLowerCase(),
+		fromAddress: (
+			`0x${log.topics[1].slice(-40)}` as `0x${string}`
+		).toLowerCase(),
+		toAddress: (
+			`0x${log.topics[2].slice(-40)}` as `0x${string}`
+		).toLowerCase(),
 		amount: amount.toString(),
 		timestamp: blockTimestampMs,
 		chainId,
@@ -111,8 +113,6 @@ async function fetchTransferLogsForChain(
 		.filter((t): t is NormalizedTransferEvent => t !== null)
 }
 
-export type ChainContract = { chainId: number; contractAddress: string }
-
 const USDC_CHAINS: ChainContract[] = ercTokens.map((t) => ({
 	chainId: t.chainId,
 	contractAddress: t.address,
@@ -162,9 +162,9 @@ export async function fetchTransferEventsForPeriod(
 	const results = await Promise.allSettled(
 		ranges
 			.filter(
-				(
-					r,
-				): r is typeof r & { range: { fromBlock: bigint; toBlock: bigint } } =>
+				(r): r is typeof r & {
+					range: { fromBlock: bigint; toBlock: bigint }
+				} =>
 					r.range != null,
 			)
 			.map((r) => {
