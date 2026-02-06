@@ -1,9 +1,16 @@
-<script lang="ts"
+<script
+	lang="ts"
 	generics="
 		Ref extends { displayLabel: string, trigger?: string },
 		Item extends { ref: Ref }
 	"
 >
+
+
+	// Components
+	import Combobox from '$/components/Combobox.svelte'
+
+
 	// Props
 	let {
 		ref: refValue,
@@ -32,7 +39,7 @@
 		onMoveCaret?: (dir: 'left' | 'right') => void
 		onClose?: () => void
 		onCloseEmpty?: () => void
-		onBlur?: () => void
+		onBlur?: () => void,
 	} = $props()
 
 
@@ -56,10 +63,6 @@
 	// Functions
 	const camelToKebab = (s: string) =>
 		s.replace(/([A-Z])/g, (m) => `-${m.toLowerCase()}`)
-
-
-	// Components
-	import Combobox from '$/components/Combobox.svelte'
 </script>
 
 
