@@ -3,7 +3,7 @@ import {
 	getRetryDelay,
 	isRetryable,
 	type BridgeError,
-} from '$/lib/bridge-errors'
+} from '$/lib/bridge/errors'
 
 export const withRetry = async <T>(
 	fn: () => Promise<T>,

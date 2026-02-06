@@ -1,11 +1,11 @@
 import type { AgentChatTree } from '$/data/AgentChatTree'
 import type { AgentChatTurn } from '$/data/AgentChatTurn'
 import type { EntityRef } from '$/data/EntityRef'
-import type { LlmGenerateInput } from '$/lib/explain'
+import type { LlmGenerateInput } from '$/lib/llm-provider'
 import { DataSource } from '$/constants/data-sources'
 import { agentChatTreesCollection } from '$/collections/agent-chat-trees'
 import { agentChatTurnsCollection } from '$/collections/agent-chat-turns'
-import { createLlmProvider } from '$/lib/explain'
+import { createLlmProvider } from '$/lib/llm-provider'
 
 export const DEFAULT_SYSTEM_PROMPT =
 	'You are a helpful assistant that answers questions about blockchain transactions, tokens, and protocols. Be concise and factual.'
