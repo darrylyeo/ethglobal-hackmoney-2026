@@ -3,13 +3,13 @@
  * In-memory only (providers are runtime objects, can't be serialized).
  */
 
+import { DataSource } from '$/constants/data-sources'
+import type { Wallet, Wallet$Id } from '$/data/Wallet'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
-import { DataSource } from '$/constants/data-sources'
-import type { Wallet, Wallet$Id } from '$/data/Wallet'
 
 export type WalletRow = Wallet & { $source: DataSource }
 
