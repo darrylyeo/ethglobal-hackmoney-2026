@@ -1,10 +1,10 @@
-import { createCollection } from '@tanstack/svelte-db'
-import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { DataSource } from '$/constants/data-sources'
-import { networks } from '$/constants/networks'
 import type { Network } from '$/constants/networks'
+import { networks } from '$/constants/networks'
 import type { NetworkEntry } from '$/data/Network'
 import { queryClient } from '$/lib/db/query-client'
+import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import { createCollection } from '@tanstack/svelte-db'
 
 export type NetworkRow = NetworkEntry & { $source: DataSource }
 
