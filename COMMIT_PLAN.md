@@ -33,6 +33,20 @@
 ---
 
 ## Completed (SHAs)
+- 3868791 spec 052: add src/assets (networks, coins, providers, favicon) from sync
+- 74cf1ad spec 052: remove legacy src/lib/assets (chains, coins, providers, urls)
+- 8d18bff spec 056: format .cursor, COMMIT_PLAN, deno.json, scripts/_sync-assets
+- c540968 spec 056: format e2e
+- 001677c spec 056: format specs
+- ae26efe spec 056: format src/api
+- 0bb981c spec 056: format src/collections
+- a6ab49e spec 056: format src/components
+- d224e92 spec 056: format src/constants
+- cffacfa spec 056: format src/data
+- c95c33e spec 056: format src/lib
+- ecb9234 spec 056: format src/routes
+- e6477ff spec 056: format src/state
+- da0fa31 spec 056: format src/views
 - e6315bf spec 052: add asset schema, lib resolver, chain/coin/provider SVGs, sync script; remove fetch scripts
 - 138f9a8 spec 052: remove icons/chain-icon-fetch constants; wire networks, coins, bridge-limits, stork, yellow, proxy, rpc, identity-resolver to assets
 - 0a407fa spec 052: switch layout, views, components, routes to asset URLs (getAssetUrl, coinAssetUrl)
