@@ -1,6 +1,4 @@
 <script lang="ts" generics="_CoinType extends CoinType = CoinType">
-
-
 	// Types/constants
 	import { type Coin, CoinType } from '$/constants/coins'
 	import type { StorkPriceRow } from '$/collections/stork-prices'
@@ -13,6 +11,7 @@
 		amount,
 		draggable = true,
 		showLabel = true,
+		symbolOnly = false,
 		priceRow = null,
 		showPriceTooltip = priceRow !== null,
 	}: {
@@ -20,6 +19,7 @@
 		amount?: bigint
 		draggable?: boolean
 		showLabel?: boolean
+		symbolOnly?: boolean
 		priceRow?: StorkPriceRow | null
 		showPriceTooltip?: boolean
 	} = $props()
@@ -93,9 +93,9 @@
 								? 'Native Currency'
 								: coin.address}
 						>
-							{coin.name && coin.symbol
-								? `${coin.symbol} (${coin.name})`
-								: coin.symbol}
+							{symbolOnly || !(coin.name && coin.symbol)
+								? coin.symbol
+								: `${coin.symbol} (${coin.name})`}
 						</abbr>
 					{/if}
 				</span>
@@ -144,9 +144,9 @@
 							? 'Native Currency'
 							: coin.address}
 					>
-						{coin.name && coin.symbol
-							? `${coin.symbol} (${coin.name})`
-							: coin.symbol}
+						{symbolOnly || !(coin.name && coin.symbol)
+							? coin.symbol
+							: `${coin.symbol} (${coin.name})`}
 					</abbr>
 				{/if}
 			</span>

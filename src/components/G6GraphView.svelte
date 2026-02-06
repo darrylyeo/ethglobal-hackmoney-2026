@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
 	import type { GraphModel } from '$/lib/graph-model'
@@ -23,10 +21,7 @@
 		refreshKey,
 		highlightedNodes = [],
 		globalHighlightedNodes = [],
-		selectedNodes = [],
-		selectedEdges = [],
-		selectionCount = 0,
-		onSelectionChange,
+		selection = $bindable({ nodes: [] as string[], edges: [] as string[] }),
 		onNodeEnter,
 		onNodeLeave,
 	}: {
@@ -34,16 +29,13 @@
 		refreshKey?: unknown
 		highlightedNodes?: string[]
 		globalHighlightedNodes?: string[]
-		selectedNodes?: string[]
-		selectedEdges?: string[]
-		selectionCount?: number
-		onSelectionChange?: (selection: {
-			nodes: string[]
-			edges: string[]
-		}) => void
+		selection?: { nodes: string[]; edges: string[] }
 		onNodeEnter?: (node: string) => void
 		onNodeLeave?: (node: string) => void
 	} = $props()
+
+	// (Derived)
+	const selectionCount = $derived(selection.nodes.length + selection.edges.length)
 </script>
 
 
@@ -280,8 +272,8 @@
 		}
 
 		const getDragSourceId = (nodeId: string) => {
-			if (selectedNodes.length > 1 && selectedNodes.includes(nodeId)) {
-				const primary = selectedNodes[0]
+			if (selection.nodes.length > 1 && selection.nodes.includes(nodeId)) {
+				const primary = selection.nodes[0]
 				if (primary && getIntentPayload(primary)) return primary
 			}
 			return nodeId
@@ -329,10 +321,12 @@
 			const nodes = graph
 				.getElementDataByState('node', 'selected')
 				.map((node) => node.id)
+				.filter((id): id is string => id != null)
 			const edges = graph
 				.getElementDataByState('edge', 'selected')
 				.map((edge) => edge.id)
-			onSelectionChange?.({ nodes, edges })
+				.filter((id): id is string => id != null)
+			selection = { nodes, edges }
 		}
 
 		const updateHighlightStates = () => {
@@ -354,8 +348,8 @@
 
 		const updateSelectionStates = () => {
 			if (!graph) return
-			const selectedNodeSet = new Set(selectedNodes ?? [])
-			const selectedEdgeSet = new Set(selectedEdges ?? [])
+			const selectedNodeSet = new Set(selection.nodes)
+			const selectedEdgeSet = new Set(selection.edges)
 			for (const node of model.nodes) {
 				const states = graph
 					.getElementState(node.id)
@@ -420,12 +414,12 @@
 					.filter((state) => state !== 'selected')
 				graph.setElementState(edge.id, states)
 			}
-			onSelectionChange?.({ nodes: [], edges: [] })
+			selection = { nodes: [], edges: [] }
 		}
 
 		const focusSelection = () => {
-			if (!graph || selectedNodes.length === 0) return
-			const [first] = selectedNodes
+			if (!graph || selection.nodes.length === 0) return
+			const [first] = selection.nodes
 			const focusElement = graph.focusElement
 			if (typeof focusElement === 'function' && first) {
 				focusElement.call(graph, first)

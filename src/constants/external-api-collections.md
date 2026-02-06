@@ -18,6 +18,7 @@ Every external API that provides data to the UI or routes must be cached in a Ta
 | Uniswap (quote)                    | `swap-quotes.ts`                                 | `fetchSwapQuote` → upsert                         |
 | Transfers indexer / logs           | `transfer-events.ts`                             | `fetchTransferEventsForPeriod` (api) → collection |
 | Identity (RPC / resolver)          | `identity-resolution.ts`                         | fetch → upsert                                    |
+| Voltaire (ENS reverse + forward)   | `evm-actor-profiles.ts`                          | `fetchEvmActorProfile` → upsert                   |
 | Networks (constant + optional RPC) | `networks.ts`                                    | queryFn / constant                                |
 | PartyKit (rooms, peers, etc.)      | `rooms.ts`, `room-peers.ts`, etc.                | subscription → upsert                             |
 | Yellow (channels, deposits, etc.)  | `yellow-channels.ts`, `yellow-deposits.ts`, etc. | subscription / fetch → upsert                     |

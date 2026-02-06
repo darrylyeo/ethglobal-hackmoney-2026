@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Coin } from '$/constants/coins'
 	import { CoinType } from '$/constants/coins'
@@ -34,6 +32,10 @@
 		`${coin.chainId}-${coin.type}-${
 			coin.type === CoinType.Native ? 'native' : coin.address.toLowerCase()
 		}`
+	const coinIconUrl = (coin: Coin) =>
+		coin.icon?.original?.url ??
+		coin.icon?.thumbnail?.url ??
+		coin.icon?.low?.url
 
 
 	// Components
@@ -42,35 +44,43 @@
 </script>
 
 
+{#snippet selectedCoinIcon()}
+	{#if value}
+		{@const iconUrl = coinIconUrl(value)}
+		{#if iconUrl}
+			<span class="coin-input-icon">
+				<Icon src={iconUrl} alt={value.symbol} size="1rem" />
+			</span>
+		{:else}
+			<span class="coin-input-placeholder" aria-hidden="true"></span>
+		{/if}
+	{/if}
+{/snippet}
+
 <Combobox
 	{...rootProps}
 	items={coins}
 	type="single"
-	value={value
-		? `${value.chainId}-${value.type}-${
-				value.type === CoinType.Native ? 'native' : value.address.toLowerCase()
-			}`
-		: ''}
+	bind:value={() =>
+		value
+			? `${value.chainId}-${value.type}-${
+					value.type === CoinType.Native ? 'native' : value.address.toLowerCase()
+				}`
+			: '', (nextValue: string | string[]) =>
+		(value = Array.isArray(nextValue)
+			? (coins.find((coin) => toCoinId(coin) === (nextValue[0] ?? '')) ?? null)
+			: (coins.find((coin) => toCoinId(coin) === nextValue) ?? null))}
 	{placeholder}
 	{disabled}
 	{name}
 	{id}
 	{ariaLabel}
-	onValueChange={(nextValue: string | string[]) =>
-		(value = Array.isArray(nextValue)
-			? (coins.find((coin) => toCoinId(coin) === (nextValue[0] ?? '')) ?? null)
-			: (coins.find((coin) => toCoinId(coin) === nextValue) ?? null))}
 	getItemId={toCoinId}
-	getItemLabel={(coin) =>
-		`${coin.symbol} (${networksByChainId[coin.chainId]?.name ?? coin.chainId} · ${
-			coin.type === CoinType.Native ? 'Native' : 'ERC-20'
-		})`}
+	getItemLabel={(coin) => coin.symbol}
+	Before={selectedCoinIcon}
 >
 	{#snippet Item(coin, selected)}
-		{@const iconUrl =
-			coin.icon?.original?.url ??
-			coin.icon?.thumbnail?.url ??
-			coin.icon?.low?.url}
+		{@const iconUrl = coinIconUrl(coin)}
 		<span data-row="start gap-2" class="coin-input-item" data-selected={selected}>
 			{#if iconUrl}
 				<span class="coin-input-icon">
@@ -80,6 +90,9 @@
 				<span class="coin-input-placeholder" aria-hidden="true"></span>
 			{/if}
 			<span>{coin.symbol}</span>
+			{#if coin.name}
+				<span data-muted>{coin.name}</span>
+			{/if}
 			<small data-muted>
 				{networksByChainId[coin.chainId]?.name ?? `Chain ${coin.chainId}`}
 				·

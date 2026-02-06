@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type {
 		ConnectedWallet,
@@ -376,9 +374,6 @@
 	}
 	const onMultipleSelectionChange = (value: string[] | null) =>
 		setSelectedConnections(new Set(value ?? []))
-	const onReadOnlyInput = (
-		event: Event & { currentTarget: HTMLInputElement },
-	) => (readOnlyAddress = event.currentTarget.value)
 	const switchNetwork = (
 		connection: WalletConnectionEip1193 | WalletConnectionNone,
 		wallet: WalletRow | ReadOnlyWalletRow,
@@ -1014,8 +1009,7 @@
 						placeholder="0x..."
 						class="account-watching-input"
 						data-row-item="flexible"
-						value={readOnlyAddress}
-						oninput={onReadOnlyInput}
+						bind:value={readOnlyAddress}
 					/>
 					<Button.Root type="submit">Add</Button.Root>
 				</div>

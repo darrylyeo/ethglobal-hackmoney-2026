@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Coin } from '$/constants/coins'
 
@@ -52,10 +50,8 @@
 
 
 	// Actions
-	const onTextInput = (event: Event & { currentTarget: HTMLInputElement }) => {
-		const cleaned = event.currentTarget.value
-			.replace(/[^0-9.,]/g, '')
-			.replace(/,/g, '')
+	const setAmountFromInput = (raw: string) => {
+		const cleaned = raw.replace(/[^0-9.,]/g, '').replace(/,/g, '')
 		if (cleaned === '') {
 			invalid = false
 			value = 0n
@@ -67,12 +63,6 @@
 			return
 		}
 		invalid = true
-	}
-	const onSliderInput = (
-		event: Event & { currentTarget: HTMLInputElement },
-	) => {
-		invalid = false
-		value = BigInt(event.currentTarget.value)
 	}
 </script>
 
@@ -94,8 +84,8 @@
 		aria-label={ariaLabel}
 		aria-describedby={ariaDescribedby}
 		aria-invalid={ariaInvalid}
-		value={value === 0n ? '' : formatSmallestToDecimal(value, coin.decimals)}
-		oninput={onTextInput}
+		bind:value={() =>
+			value === 0n ? '' : formatSmallestToDecimal(value, coin.decimals), setAmountFromInput}
 	/>
 	<input
 		class="token-amount-slider"
@@ -103,9 +93,11 @@
 		min={sliderMin}
 		max={sliderMax}
 		step="1"
-		value={sliderValue}
+		bind:value={() => String(sliderValue), (v) => {
+			invalid = false
+			value = BigInt(v)
+		}}
 		{disabled}
-		oninput={onSliderInput}
 		style={`--slider-progress:${
 			sliderMax > sliderMin
 				? ((sliderValue - sliderMin) / (sliderMax - sliderMin)) * 100

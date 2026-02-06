@@ -1,6 +1,4 @@
 <script lang="ts" generics="Item">
-
-
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
@@ -359,10 +357,9 @@
 							{:else if item.kind === 'checkbox'}
 								{@const checkboxItem = item}
 								<DropdownMenu.CheckboxItem
-									checked={checkboxItem.checked}
+									bind:checked={() => checkboxItem.checked, (c) =>
+										checkboxItem.onCheckedChange?.(c)}
 									disabled={checkboxItem.disabled}
-									onCheckedChange={(checked) =>
-										checkboxItem.onCheckedChange?.(checked)}
 								>
 									{#if CheckboxItem}
 										{@render CheckboxItem({
@@ -382,10 +379,9 @@
 									{/if}
 									{#each item.checkboxes as groupItem (groupItem.id)}
 										<DropdownMenu.CheckboxItem
-											checked={groupItem.checked}
+											bind:checked={() => groupItem.checked, (c) =>
+												groupItem.onCheckedChange?.(c)}
 											disabled={groupItem.disabled}
-											onCheckedChange={(checked) =>
-												groupItem.onCheckedChange?.(checked)}
 										>
 											{#if CheckboxItem}
 												{@render CheckboxItem({
@@ -400,8 +396,7 @@
 								</DropdownMenu.Group>
 							{:else if item.kind === 'radio-group'}
 								<DropdownMenu.RadioGroup
-									value={item.value}
-									onValueChange={item.onValueChange}
+									bind:value={() => item.value, (v) => item.onValueChange?.(v)}
 								>
 									{#if item.label}
 										<DropdownMenu.Item disabled data-dropdown-label>
@@ -455,10 +450,9 @@
 				{:else if entry.kind === 'checkbox'}
 					{@const checkboxItem = entry}
 					<DropdownMenu.CheckboxItem
-						checked={checkboxItem.checked}
+						bind:checked={() => checkboxItem.checked, (c) =>
+							checkboxItem.onCheckedChange?.(c)}
 						disabled={checkboxItem.disabled}
-						onCheckedChange={(checked) =>
-							checkboxItem.onCheckedChange?.(checked)}
 					>
 						{#if CheckboxItem}
 							{@render CheckboxItem({
@@ -478,9 +472,9 @@
 						{/if}
 						{#each entry.checkboxes as item (item.id)}
 							<DropdownMenu.CheckboxItem
-								checked={item.checked}
+								bind:checked={() => item.checked, (c) =>
+									item.onCheckedChange?.(c)}
 								disabled={item.disabled}
-								onCheckedChange={(checked) => item.onCheckedChange?.(checked)}
 							>
 								{#if CheckboxItem}
 									{@render CheckboxItem({
@@ -495,8 +489,7 @@
 					</DropdownMenu.Group>
 				{:else if entry.kind === 'radio-group'}
 					<DropdownMenu.RadioGroup
-						value={entry.value}
-						onValueChange={entry.onValueChange}
+						bind:value={() => entry.value, (v) => entry.onValueChange?.(v)}
 					>
 						{#if entry.label}
 							<DropdownMenu.Item disabled data-dropdown-label>

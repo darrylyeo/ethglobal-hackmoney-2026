@@ -1,11 +1,12 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
 	import type { WalletRow } from '$/collections/wallets'
-	import type { BridgeSessionParams } from '$/lib/transaction-session-params'
+	import {
+		type BridgeSessionParams,
+		normalizeBridgeSessionParams,
+	} from '$/lib/transaction-session-params'
 	import { BridgeRouteSort } from '$/state/bridge-settings.svelte'
 	import {
 		type WalletConnectionEip1193,
@@ -41,7 +42,7 @@
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
 	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
 	import type { BridgeStatus } from '$/lib/tx-status'
-	import { ErrorCode } from '$/lib/errors'
+	import { ErrorCode } from '$/lib/bridge-errors'
 	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format'
 	import {
 		formatAddress,
@@ -78,17 +79,15 @@
 	let {
 		selectedWallets,
 		selectedActor,
-		settings,
-		onSettingsChange,
-		onPreviewChange,
+		settings = $bindable(normalizeBridgeSessionParams(null)),
+		preview = $bindable(null as BridgeRoute | null),
 		onExecutionSuccess,
 		balanceTokens = $bindable([]),
 	}: {
 		selectedWallets: ConnectedWallet[]
 		selectedActor: `0x${string}` | null
-		settings: BridgeSessionParams
-		onSettingsChange: (next: BridgeSessionParams) => void
-		onPreviewChange?: (route: BridgeRoute | null) => void
+		settings?: BridgeSessionParams
+		preview?: BridgeRoute | null
 		onExecutionSuccess?: (args: { txHash?: `0x${string}` }) => void
 		balanceTokens?: {
 			chainId: number
@@ -345,7 +344,7 @@
 		selectedRouteId = null
 	})
 	$effect(() => {
-		onPreviewChange?.(selectedRoute)
+		preview = selectedRoute
 	})
 	$effect(() => {
 		const list = transactions.filter((tx) => tx.status === 'pending')
@@ -433,17 +432,17 @@
 			data-card
 			data-error
 			data-error-display
-			data-no-routes={routesRow.error.code === ErrorCode.NO_ROUTES
+			data-no-routes={routesRow.error.code === ErrorCode.NoRoutes
 				? ''
 				: undefined}
 			data-column="gap-2"
 		>
 			<span
-				>{routesRow.error.code === ErrorCode.NO_ROUTES
+				>{routesRow.error.code === ErrorCode.NoRoutes
 					? 'No routes available for this transfer.'
 					: routesRow.error.message}</span
 			>
-			{#if routesRow.error.code === ErrorCode.NO_ROUTES}
+			{#if routesRow.error.code === ErrorCode.NoRoutes}
 				<ul data-no-routes-guidance>
 					<li>Try a different amount (min ~1 USDC, max varies by route)</li>
 					<li>Try a different chain pair</li>
@@ -486,7 +485,7 @@
 								if (!v) return
 								const option = sortOptions.find((entry) => entry.id === v)
 								if (!option) return
-								onSettingsChange({ ...settings, sortBy: option.id })
+								settings = { ...settings, sortBy: option.id }
 							}
 						}
 						getItemId={(option) => option.id}
@@ -585,10 +584,10 @@
 						{#each slippagePresets as preset (preset.id)}
 							<Button.Root
 								onclick={() => {
-									onSettingsChange({
+									settings = {
 										...settings,
 										slippage: preset.value,
-									})
+									}
 								}}
 								data-selected={settings.slippage === preset.value
 									? ''
@@ -603,7 +602,7 @@
 						bind:value={slippageInput}
 						onchange={() => {
 							const p = parseSlippagePercent(slippageInput)
-							if (p) onSettingsChange({ ...settings, slippage: p })
+							if (p) settings = { ...settings, slippage: p }
 						}}
 					/>
 				</Popover.Content>
@@ -644,14 +643,12 @@
 					<BridgeExecution
 						route={selectedRoute}
 						walletRow={selectedEip1193Wallet}
+						bind:status={executionStatus}
 						walletAddress={selectedActor}
 						fromChainId={fromNetwork.id}
 						toChainId={toNetwork.id}
 						amount={settings.amount}
 						bind:executing
-						onStatus={(s) => {
-							executionStatus = s
-						}}
 						onExecute={(executeFn) => {
 							executeFunction = executeFn
 						}}

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute } from '$/data/BridgeRoute'
@@ -42,11 +40,7 @@
 
 	// Functions
 	import { getUsdcAddress } from '$/api/lifi'
-	import {
-		formatAddress,
-		isValidAddress,
-		normalizeAddress,
-	} from '$/lib/address'
+	import { isValidAddress, normalizeAddress } from '$/lib/address'
 	import {
 		buildSessionHash,
 		createSessionId,
@@ -65,9 +59,11 @@
 
 
 	// Components
+	import Address from '$/components/Address.svelte'
+	import LoadingButton from '$/components/LoadingButton.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
-	import BridgeAction from '$/views/SessionAction.svelte'
+	import SessionAction from '$/views/SessionAction.svelte'
 	import UnifiedProtocolRouter from './UnifiedProtocolRouter.svelte'
 	import CctpBridgeFlow from '$/routes/bridge/cctp/CctpBridgeFlow.svelte'
 	import BridgeFlow from '$/routes/bridge/lifi/BridgeFlow.svelte'
@@ -462,7 +458,7 @@
 </script>
 
 
-<BridgeAction
+<SessionAction
 		title="Bridge"
 		description={sessionLocked ? 'Last saved session is locked.' : undefined}
 		onsubmit={onSubmit}
@@ -564,19 +560,14 @@
 					<input
 						type="text"
 						placeholder="0x..."
-						value={settings.customRecipient}
-						oninput={(e) => {
-							updateParams({
-								...settings,
-								customRecipient: (e.target as HTMLInputElement).value,
-							})
-						}}
+						bind:value={() => settings.customRecipient, (v) =>
+							updateParams({ ...settings, customRecipient: v })}
 					/>
 					{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}
 						<small data-error>Invalid address</small>
 					{/if}
-				{:else if selectedActor}
-					<small data-muted>To: {formatAddress(selectedActor)}</small>
+				{:else if selectedActor && settings.fromChainId !== null}
+					<small data-muted>To: <Address network={settings.fromChainId} address={selectedActor} /></small>
 				{:else}
 					<small data-muted>To: Connect wallet</small>
 				{/if}
@@ -585,8 +576,7 @@
 
 		{#snippet Protocol()}
 			<UnifiedProtocolRouter
-				protocolIntent={settings.protocolIntent}
-				onProtocolIntentChange={(next) =>
+				bind:protocolIntent={() => settings.protocolIntent, (next) =>
 					updateParams({ ...settings, protocolIntent: next })}
 				{activeProtocol}
 				{protocolReason}
@@ -665,28 +655,25 @@
 
 		{#snippet Preview()}
 			<div data-row="gap-2 align-center wrap">
-				<Button.Root type="submit" name="intent" value="save">
+				<LoadingButton type="submit" name="intent" value="save">
 					Save Draft
-				</Button.Root>
-				<Button.Root
+				</LoadingButton>
+				<LoadingButton
 					type="submit"
 					name="intent"
 					value="simulate"
 					disabled={!previewAvailable}
 				>
 					Simulate
-				</Button.Root>
+				</LoadingButton>
 			</div>
 
 			{#if activeProtocol === 'lifi'}
 				<BridgeFlow
 					{selectedWallets}
 					{selectedActor}
-					{settings}
-					onSettingsChange={updateParams}
-					onPreviewChange={(route) => {
-						previewResult = route
-					}}
+					bind:settings={() => settings, updateParams}
+					bind:preview={previewResult}
 					onExecutionSuccess={({ txHash }) =>
 						persistExecution({
 							txHash,
@@ -710,4 +697,4 @@
 				/>
 			{/if}
 		{/snippet}
-	</BridgeAction>
+	</SessionAction>

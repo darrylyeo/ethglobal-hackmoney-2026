@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
@@ -80,6 +78,8 @@
 
 
 	// Components
+	import LoadingButton from '$/components/LoadingButton.svelte'
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import TokenApproval from '$/routes/bridge/lifi/TokenApproval.svelte'
 	import CoinAmount from '$/views/CoinAmount.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
@@ -1002,14 +1002,23 @@
 						<dt>Route</dt>
 						<dd>
 							{#each quote.route as step, index (step.poolId)}
-								{@const tokenInSymbol =
-									chainSymbols.get(step.tokenIn.toLowerCase()) ??
-									step.tokenIn.slice(0, 6)}
-								{@const tokenOutSymbol =
-									chainSymbols.get(step.tokenOut.toLowerCase()) ??
-									step.tokenOut.slice(0, 6)}
+								{@const tokenInLabel =
+									chainSymbols.get(step.tokenIn.toLowerCase()) ?? null}
+								{@const tokenOutLabel =
+									chainSymbols.get(step.tokenOut.toLowerCase()) ?? null}
 								<span>
-									{tokenInSymbol} → {tokenOutSymbol} ({step.fee / 100}%)
+									{#if tokenInLabel}
+										{tokenInLabel}
+									{:else}
+										<TruncatedValue value={step.tokenIn} />
+									{/if}
+									→
+									{#if tokenOutLabel}
+										{tokenOutLabel}
+									{:else}
+										<TruncatedValue value={step.tokenOut} />
+									{/if}
+									({step.fee / 100}%)
 									{index < quote.route.length - 1 ? ' · ' : ''}
 								</span>
 							{/each}
@@ -1020,25 +1029,27 @@
 		{/if}
 
 		<div data-row="gap-2 align-center wrap">
-			<Button.Root type="submit" name="intent" value="save">
+			<LoadingButton type="submit" name="intent" value="save">
 				Save Draft
-			</Button.Root>
-			<Button.Root
+			</LoadingButton>
+			<LoadingButton
 				type="submit"
 				name="intent"
 				value="simulate"
 				disabled={!quote}
 			>
 				Simulate
-			</Button.Root>
-			<Button.Root
+			</LoadingButton>
+			<LoadingButton
 				type="submit"
 				name="intent"
 				value="submit"
 				disabled={!canSwap || executing}
+				loading={executing}
+				loadingText="Swapping…"
 			>
-				{executing ? 'Swapping…' : 'Sign and Submit'}
-			</Button.Root>
+				Sign and Submit
+			</LoadingButton>
 		</div>
 	{/snippet}
 </SessionAction>

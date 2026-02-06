@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { IntentDragPayload } from '$/lib/intents/types'
@@ -760,10 +758,7 @@
 						type="text"
 						inputmode="decimal"
 						placeholder="0.00"
-						value={transferAmountInput}
-						oninput={(event: Event & { currentTarget: HTMLInputElement }) => {
-							transferAmountInput = event.currentTarget.value
-						}}
+						bind:value={transferAmountInput}
 					/>
 				</label>
 				{#if isTransferOnly && selectedRoute.steps[0]?.type === 'transfer'}

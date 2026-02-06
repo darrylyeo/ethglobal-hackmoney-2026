@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
@@ -424,6 +422,7 @@
 
 
 	// Components
+	import LoadingButton from '$/components/LoadingButton.svelte'
 	import Select from '$/components/Select.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
@@ -436,7 +435,7 @@
 	<div data-row="gap-2 align-center justify-between">
 		<h2>Add Liquidity</h2>
 		{#if sessionLocked}
-			<Button.Root type="button" onclick={forkSession}>New draft</Button.Root>
+			<LoadingButton type="button" onclick={forkSession}>New draft</LoadingButton>
 		{/if}
 	</div>
 
@@ -528,22 +527,20 @@
 					<input
 						id="liq-tick-lower"
 						type="number"
-						value={settings.tickLower}
-						oninput={(e) => {
-							const v = Number((e.target as HTMLInputElement).value)
-							if (Number.isNaN(v)) return
-							updateSessionParams({ ...settings, tickLower: v })
+						bind:value={() => String(settings.tickLower), (v) => {
+							const n = Number(v)
+							if (!Number.isNaN(n))
+								updateSessionParams({ ...settings, tickLower: n })
 						}}
 						disabled={sessionLocked}
 					/>
 					<span>—</span>
 					<input
 						type="number"
-						value={settings.tickUpper}
-						oninput={(e) => {
-							const v = Number((e.target as HTMLInputElement).value)
-							if (Number.isNaN(v)) return
-							updateSessionParams({ ...settings, tickUpper: v })
+						bind:value={() => String(settings.tickUpper), (v) => {
+							const n = Number(v)
+							if (!Number.isNaN(n))
+								updateSessionParams({ ...settings, tickUpper: n })
 						}}
 						disabled={sessionLocked}
 					/>

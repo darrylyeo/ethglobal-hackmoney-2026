@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Components
 	import Accounts from '$/routes/wallets/Accounts.svelte'
 </script>

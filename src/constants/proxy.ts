@@ -1,13 +1,6 @@
 import { storkRestBaseUrl } from '$/constants/stork'
 
-export const PROXY_ALLOWED_ORIGINS = new Set<string>([
-	'http://localhost:5000',
-	'http://localhost:5173',
-	'http://127.0.0.1:5000',
-	'http://127.0.0.1:5173',
-])
-
-export const PROXY_API_PREFIX = '/api/proxy'
+export const PROXY_PATH_PREFIX = '/api-proxy/'
 
 export type ProxyTarget = {
 	id: string
@@ -15,11 +8,17 @@ export type ProxyTarget = {
 	tokenEnvKey?: string
 }
 
+const OPENCODE_ZEN_ORIGIN = 'https://opencode.ai'
+
 export const PROXY_TARGETS: ProxyTarget[] = [
 	{
 		id: 'stork',
 		origin: storkRestBaseUrl,
 		tokenEnvKey: 'STORK_REST_TOKEN',
+	},
+	{
+		id: 'opencode',
+		origin: OPENCODE_ZEN_ORIGIN,
 	},
 ]
 
@@ -29,5 +28,8 @@ export const getProxyTarget = (id: string) => proxyTargetById.get(id)
 
 export const getProxyOrigin = (id: string) => {
 	if (typeof window === 'undefined') return null
-	return `${window.location.origin}${PROXY_API_PREFIX}/${id}`
+	const target = getProxyTarget(id)
+	return target
+		? `${window.location.origin}${PROXY_PATH_PREFIX}${target.origin}`
+		: null
 }

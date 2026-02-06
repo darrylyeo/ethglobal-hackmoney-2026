@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { IntentDragPayload } from '$/lib/intents/types'
 	import { CoinType, ercTokens } from '$/constants/coins'
@@ -36,10 +34,7 @@
 
 
 	// State
-	import {
-		actorCoinsCollection,
-		fetchAllBalancesForAddress,
-	} from '$/collections/actor-coins'
+	import { actorCoinsCollection } from '$/collections/actor-coins'
 	import {
 		storkPricesCollection,
 		subscribeStorkPrices,
@@ -202,15 +197,6 @@
 
 	// Actions
 	$effect(() => {
-		if (selectedActor && balanceTokenListCoins.length > 0)
-			fetchAllBalancesForAddress(
-				selectedActor,
-				undefined,
-				balanceTokenListCoins,
-			)
-	})
-
-	$effect(() => {
 		const assetIds = balanceAssetIds
 		if (assetIds.length === 0) return
 		const unsubscribers = [
@@ -354,6 +340,7 @@
 												{coin}
 												amount={b.balance}
 												draggable={false}
+												symbolOnly
 												{priceRow}
 											/>
 										</EntityId>

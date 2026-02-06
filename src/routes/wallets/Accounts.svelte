@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type {
 		ConnectedWallet,
@@ -156,9 +154,6 @@
 		'provider' in wallet
 			? switchWalletChain(wallet.provider, chainId)
 			: Promise.resolve()
-	const onReadOnlyInput = (
-		event: Event & { currentTarget: HTMLInputElement },
-	) => (readOnlyAddress = event.currentTarget.value)
 	const connectReadOnlyAddress = () => {
 		if (connectReadOnly({ address: readOnlyAddress.trim() })) {
 			readOnlyAddress = ''
@@ -237,8 +232,7 @@
 										name="watching-address"
 										type="text"
 										placeholder="0x..."
-										value={readOnlyAddress}
-										oninput={onReadOnlyInput}
+										bind:value={readOnlyAddress}
 									/>
 								</span>
 								<Button.Root type="submit">Add</Button.Root>

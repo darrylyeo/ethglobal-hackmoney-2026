@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { networkConfigsByChainId } from '$/constants/networks'
 	import type { Network } from '$/constants/networks'
@@ -83,19 +81,14 @@
 	{...rootProps}
 	items={networks}
 	type={multiple ? 'multiple' : 'single'}
-	value={multiple
-		? Array.isArray(value)
-			? value.map(String)
-			: []
-		: typeof value === 'number'
-			? String(value)
-			: ''}
-	{placeholder}
-	{disabled}
-	{name}
-	{id}
-	{ariaLabel}
-	onValueChange={(nextValue: string | string[]) =>
+	bind:value={() =>
+		multiple
+			? Array.isArray(value)
+				? value.map(String)
+				: []
+			: typeof value === 'number'
+				? String(value)
+				: '', (nextValue: string | string[]) =>
 		(value = multiple
 			? Array.isArray(nextValue)
 				? nextValue
@@ -110,6 +103,11 @@
 				? (networks.find((network) => String(network.id) === nextValue)?.id ??
 					null)
 				: null)}
+	{placeholder}
+	{disabled}
+	{name}
+	{id}
+	{ariaLabel}
 	getItemId={(network) => String(network.id)}
 	getItemLabel={(network) => network.name}
 	Before={networkIcons}

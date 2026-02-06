@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction'
 	import type { Trace as TraceType } from '$/data/Trace'

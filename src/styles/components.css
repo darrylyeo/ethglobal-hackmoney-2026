@@ -720,7 +720,6 @@ ol {
 	/* Rules */
 	display: grid;
 	gap: var(--list-gap);
-	list-style-type: disc;
 	list-style-position: outside;
 	padding-inline-start: var(--list-marker-inlineSize);
 
@@ -787,34 +786,36 @@ ol {
 		position: relative;
 
 		/* &::marker {
-    	content: '●' ' ';
-    	font-size: 1em;
-    }
-    &[data-list-item-marker]::marker {
-    	content: attr(data-list-item-marker);
-    	font-size: 0.875em;
-    }
-
-    @supports not selector(::before::marker) { */
-		&::marker {
-			color: transparent;
+			content: '●' ' ';
+			font-size: 1em;
 		}
-
-		&::before {
-			position: absolute;
-			margin-inline-start: calc(
-				-1 * var(--list-marker-inlineSize) - var(--list-markerGap)
-			);
-			width: var(--list-marker-inlineSize);
-
-			content: '●';
-			font-size: 0.6em;
-			line-height: calc(1.25em / 0.6);
-			text-align: center;
-		}
-		&[data-list-item-marker]::before {
+		&[data-list-item-marker]::marker {
 			content: attr(data-list-item-marker);
+			font-size: 0.875em;
 		}
+
+		@supports not selector(::before::marker) { */
+			&:is(ul) {
+				&::marker {
+					color: transparent;
+				}
+
+				&::before {
+					position: absolute;
+					margin-inline-start: calc(
+						-1 * var(--list-marker-inlineSize) - var(--list-markerGap)
+					);
+					width: var(--list-marker-inlineSize);
+
+					content: '●';
+					font-size: 0.6em;
+					line-height: calc(1.25em / 0.6);
+					text-align: center;
+				}
+				&[data-list-item-marker]::before {
+					content: attr(data-list-item-marker);
+				}
+			}
 		/* } */
 
 		padding-inline-start: var(--list-markerGap);

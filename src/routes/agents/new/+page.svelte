@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
-	import { createDialogueTree } from '$/lib/dialogue'
+	import { createAgentChatTree } from '$/lib/agent-chat'
 
 	let started = $state(false)
 	$effect(() => {
 		if (started) return
 		started = true
-		const tree = createDialogueTree()
+		const tree = createAgentChatTree()
 		goto(`/agents/${tree.id}`, { replaceState: true })
 	})
 </script>

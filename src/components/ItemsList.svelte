@@ -6,8 +6,6 @@
 		_GroupKey extends string | number = string | number
 	"
 >
-
-
 	// Types/constants
 	import type { Snippet } from 'svelte'
 

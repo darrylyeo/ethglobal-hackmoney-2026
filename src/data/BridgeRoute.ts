@@ -1,5 +1,5 @@
 import type { Route } from '@lifi/sdk'
-import type { BridgeError } from '$/lib/errors'
+import type { BridgeError } from '$/lib/bridge-errors'
 
 export type BridgeRoutes$Id = {
 	fromChainId: number

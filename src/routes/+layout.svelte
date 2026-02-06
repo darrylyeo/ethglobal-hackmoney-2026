@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 	import { networkConfigs, toNetworkSlug } from '$/constants/networks'
@@ -12,7 +10,7 @@
 	import { myPeerIdsCollection } from '$/collections/my-peer-ids'
 	import { roomPeersCollection } from '$/collections/room-peers'
 	import { roomsCollection } from '$/collections/rooms'
-	import { dialogueTreesCollection } from '$/collections/dialogue-trees'
+	import { agentChatTreesCollection } from '$/collections/agent-chat-trees'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions'
 	import { verificationsCollection } from '$/collections/verifications'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections'
@@ -67,15 +65,15 @@
 				.select(({ row }) => ({ row })),
 		[],
 	)
-	const dialogueTreesQuery = useLiveQuery(
+	const agentChatTreesQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: dialogueTreesCollection })
+				.from({ row: agentChatTreesCollection })
 				.select(({ row }) => ({ row })),
 		[],
 	)
-	const pinnedDialogueTrees = $derived(
-		(dialogueTreesQuery.data ?? [])
+	const pinnedAgentChatTrees = $derived(
+		(agentChatTreesQuery.data ?? [])
 			.map((result) => result.row)
 			.filter((tree) => tree.pinned)
 			.sort((a, b) => b.updatedAt - a.updatedAt),
@@ -284,7 +282,8 @@
 			defaultOpen: true,
 			children: [
 				{ id: 'agents-new', title: 'New conversation', href: '/agents/new' },
-				...pinnedDialogueTrees.map((tree) => ({
+				{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm' },
+				...pinnedAgentChatTrees.map((tree) => ({
 					id: `agent-${tree.id}`,
 					title: tree.name ?? 'Untitled',
 					href: `/agents/${tree.id}`,

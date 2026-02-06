@@ -55,6 +55,13 @@ function parseTransferLog(
 	}
 }
 
+const PRUNED_EARLIEST_RE = /earliest available is (\d+)/i
+
+function parsePrunedEarliestBlock(message: string): bigint | null {
+	const m = message.match(PRUNED_EARLIEST_RE)
+	return m ? BigInt(m[1]) : null
+}
+
 async function fetchTransferLogsForChain(
 	chainId: number,
 	contractAddress: `0x${string}`,
@@ -63,12 +70,27 @@ async function fetchTransferLogsForChain(
 	rpcUrl: string,
 ): Promise<NormalizedTransferEvent[]> {
 	const provider = createHttpProvider(rpcUrl)
-	const logs = await getLogs(provider, {
-		address: contractAddress,
-		topics: [TRANSFER_TOPIC],
-		fromBlock: `0x${fromBlock.toString(16)}`,
-		toBlock: `0x${toBlock.toString(16)}`,
-	})
+	let logs: Awaited<ReturnType<typeof getLogs>>
+	try {
+		logs = await getLogs(provider, {
+			address: contractAddress,
+			topics: [TRANSFER_TOPIC],
+			fromBlock: `0x${fromBlock.toString(16)}`,
+			toBlock: `0x${toBlock.toString(16)}`,
+		})
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e)
+		const earliest = parsePrunedEarliestBlock(msg)
+		if (earliest == null) throw e
+		const clampedFrom = fromBlock < earliest ? earliest : fromBlock
+		if (clampedFrom > toBlock) return []
+		logs = await getLogs(provider, {
+			address: contractAddress,
+			topics: [TRANSFER_TOPIC],
+			fromBlock: `0x${clampedFrom.toString(16)}`,
+			toBlock: `0x${toBlock.toString(16)}`,
+		})
+	}
 	if (logs.length === 0) return []
 	const blockNumbers = [
 		...new Set(logs.map((l) => parseInt(l.blockNumber, 16))),
@@ -105,7 +127,15 @@ async function resolveBlockRange(
 	const rpcUrl = rpcUrls[chainId]
 	if (!rpcUrl) return null
 	const provider = createHttpProvider(rpcUrl)
-	const fromBlock = await getBlockNumberByTimestamp(provider, startMs)
+	let fromBlock: bigint
+	try {
+		fromBlock = await getBlockNumberByTimestamp(provider, startMs)
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e)
+		const earliest = parsePrunedEarliestBlock(msg)
+		if (earliest == null) throw e
+		fromBlock = earliest
+	}
 	const toBlock = await getBlockNumberByTimestamp(provider, endMs)
 	if (fromBlock > toBlock) return { fromBlock: toBlock, toBlock: fromBlock }
 	return { fromBlock, toBlock }

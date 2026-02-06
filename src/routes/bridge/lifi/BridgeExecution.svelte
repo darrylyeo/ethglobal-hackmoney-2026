@@ -25,7 +25,7 @@
 		toChainId,
 		amount,
 		executing = $bindable(false),
-		onStatus,
+		status = $bindable({ overall: 'idle', steps: [] } as BridgeStatus),
 		onExecute,
 	}: {
 		route: BridgeRoute
@@ -35,7 +35,7 @@
 		toChainId: number
 		amount: bigint
 		executing?: boolean
-		onStatus?: (s: BridgeStatus) => void
+		status?: BridgeStatus
 		onExecute?: (fn: () => Promise<{ txHash?: `0x${string}` } | undefined>) => void
 	} = $props()
 
@@ -49,9 +49,6 @@
 		},
 		provider: walletRow.provider,
 	})
-
-	// Progress state (updated via callback, not persisted)
-	let status = $state<BridgeStatus>({ overall: 'idle', steps: [] })
 
 	// Current action transaction for state tracking
 	let actionTx = $state<Transaction<Record<string, unknown>> | null>(null)
@@ -166,10 +163,7 @@
 			fromChainId,
 			toChainId,
 			amount,
-			onStatus: (s) => {
-				status = s
-				onStatus?.(s)
-			},
+			onStatus: (s) => (status = s),
 		})
 
 		try {

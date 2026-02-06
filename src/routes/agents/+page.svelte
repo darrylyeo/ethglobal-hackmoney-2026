@@ -1,14 +1,14 @@
 <script lang="ts">
-
-
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { dialogueTreesCollection } from '$/collections/dialogue-trees'
+	import { agentChatTreesCollection } from '$/collections/agent-chat-trees'
 
 
 	// Functions
+	import { deleteAgentChatTree } from '$/lib/agent-chat'
+
 	const togglePin = (treeId: string) => {
-		dialogueTreesCollection.update(treeId, (draft) => {
+		agentChatTreesCollection.update(treeId, (draft) => {
 			draft.pinned = !draft.pinned
 			draft.updatedAt = Date.now()
 		})
@@ -19,7 +19,7 @@
 	const treesQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: dialogueTreesCollection })
+				.from({ row: agentChatTreesCollection })
 				.select(({ row }) => ({ row })),
 		[],
 	)
@@ -58,15 +58,26 @@
 						<span data-muted>Pinned</span>
 					{/if}
 				</a>
-				<Button.Root
-				onclick={(e: MouseEvent) => {
-					e.preventDefault()
-					e.stopPropagation()
-					togglePin(tree.id)
-				}}
-				>
-					{tree.pinned ? 'Unpin' : 'Pin'}
-				</Button.Root>
+				<span data-row="gap-2">
+					<Button.Root
+						onclick={(e: MouseEvent) => {
+							e.preventDefault()
+							e.stopPropagation()
+							togglePin(tree.id)
+						}}
+					>
+						{tree.pinned ? 'Unpin' : 'Pin'}
+					</Button.Root>
+					<Button.Root
+						onclick={(e: MouseEvent) => {
+							e.preventDefault()
+							e.stopPropagation()
+							deleteAgentChatTree(tree.id)
+						}}
+					>
+						Delete
+					</Button.Root>
+				</span>
 			</div>
 		{/each}
 	{/if}

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Attributes } from 'graphology-types'
 	import type { DisplayData } from 'sigma/types'
@@ -157,8 +155,12 @@
 	let frameworkReadFromStorage = $state(false)
 	let visibilityReadFromStorage = $state(false)
 	let entitySourcesReadFromStorage = $state(false)
-	let selectedNodes = $state<string[]>([])
-	let selectedEdges = $state<string[]>([])
+	let selection = $state<{ nodes: string[]; edges: string[] }>({
+		nodes: [],
+		edges: [],
+	})
+	const selectedNodes = $derived(selection.nodes)
+	const selectedEdges = $derived(selection.edges)
 
 	$effect(() => {
 		if (!visible) return
@@ -2956,13 +2958,7 @@
 					{refreshKey}
 					{highlightedNodes}
 					{globalHighlightedNodes}
-					{selectedNodes}
-					{selectedEdges}
-					{selectionCount}
-					onSelectionChange={({ nodes, edges }) => {
-						selectedNodes = nodes
-						selectedEdges = edges
-					}}
+					bind:selection
 					onNodeEnter={(node) => {
 						hoveredNode = node
 					}}
@@ -2984,12 +2980,10 @@
 						hoveredNode = undefined
 					}}
 					onNodeClick={(node) => {
-						selectedNodes = [node]
-						selectedEdges = []
+						selection = { nodes: [node], edges: [] }
 					}}
 					onEdgeClick={(edge) => {
-						selectedEdges = [edge]
-						selectedNodes = []
+						selection = { nodes: [], edges: [edge] }
 					}}
 				/>
 			{/if}
@@ -3084,12 +3078,16 @@
 										data-row="gap-2 align-center"
 										onclick={() => {
 											if (item.kind === 'node') {
-												selectedNodes = [item.id]
-												selectedEdges = []
+												selection = {
+													nodes: [item.id],
+													edges: [],
+												}
 												hoveredNode = item.id
 											} else {
-												selectedEdges = [item.id]
-												selectedNodes = []
+												selection = {
+													nodes: [],
+													edges: [item.id],
+												}
 											}
 										}}
 									>

@@ -1,6 +1,4 @@
 <script lang="ts" generics="Item">
-
-
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
@@ -49,6 +47,7 @@
 		After,
 		Item,
 		children,
+		inputValue = $bindable(''),
 		...rootProps
 	}: {
 		items:
@@ -68,12 +67,12 @@
 		After?: Snippet
 		Item?: Snippet<[item: Item, selected: boolean]>
 		children?: Snippet
+		inputValue?: string
 		[key: string]: unknown
 	} = $props()
 
 
 	// State
-	let inputValue = $state('')
 	let isFocused = $state(false)
 	let open = $state(false)
 
@@ -153,7 +152,7 @@
 		if (!(target instanceof HTMLInputElement)) return
 		inputValue = target.value
 	}
-	const onValueChangeInternal = (nextValue: string | string[]) => {
+	const setValue = (nextValue: string | string[]) => {
 		value = nextValue
 		if (typeof nextValue === 'string') {
 			const nextItem = normalizedItems.find((item) => item.id === nextValue)
@@ -167,12 +166,11 @@
 		{...rootProps}
 		type="multiple"
 		bind:open
-		value={Array.isArray(value) ? value : []}
+		bind:value={() => (Array.isArray(value) ? value : []), setValue}
 		{disabled}
 		{name}
 		items={rootItems}
 		{inputValue}
-		onValueChange={onValueChangeInternal}
 	>
 		{#if children}
 			{@render children()}
@@ -263,12 +261,11 @@
 		{...rootProps}
 		type="single"
 		bind:open
-		value={typeof value === 'string' ? value : ''}
+		bind:value={() => (typeof value === 'string' ? value : ''), setValue}
 		{disabled}
 		{name}
 		items={rootItems}
 		{inputValue}
-		onValueChange={onValueChangeInternal}
 	>
 		{#if children}
 			{@render children()}

@@ -58,7 +58,7 @@
 	// Components
 	import { Button } from 'bits-ui'
 	import ModelInput from '$/components/ModelInput.svelte'
-	import AgentChatNode from './AgentChatNode.svelte'
+	import AgentChatTurnNode from './AgentChatTurnNode.svelte'
 </script>
 
 <div data-column="gap-4" id="agent-chat:{tree.id}">

@@ -1,12 +1,11 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins'
 	import { networksByChainId } from '$/constants/networks'
+	import { fetchAllBalancesForAddress } from '$/collections/actor-coins'
 	import { roomPeersCollection } from '$/collections/room-peers'
 	import { roomsCollection } from '$/collections/rooms'
 	import { sharedAddressesCollection } from '$/collections/shared-addresses'
@@ -36,6 +35,10 @@
 	const balanceTokens = $derived(
 		ercTokens.map((t) => ({ chainId: t.chainId, tokenAddress: t.address })),
 	)
+	$effect(() => {
+		if (!normalizedAddress) return
+		void fetchAllBalancesForAddress(normalizedAddress, undefined, ercTokens)
+	})
 	const transactionsQuery = useLiveQuery(
 		(q) =>
 			q.from({ row: transactionsCollection }).select(({ row }) => ({ row })),
@@ -175,6 +178,7 @@
 
 
 	// Components
+	import EvmActor from '$/components/EvmActor.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
 </script>
 
@@ -193,6 +197,10 @@
 	{:else}
 		<header data-column="gap-2">
 			<h1>Account</h1>
+			<EvmActor
+				network={parsed.chainId ?? 1}
+				address={parsed.address}
+			/>
 			<div data-row="wrap gap-2" class="account-address" data-account-header>
 				{#if parsed.interopAddress}
 					<code class="interop">{parsed.interopAddress}</code>

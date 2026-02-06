@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Coin } from '$/constants/coins'
@@ -13,7 +11,6 @@
 	// Context
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { Button } from 'bits-ui'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import { yellowState } from '$/state/yellow.svelte'
 	import {
@@ -26,7 +23,10 @@
 	// Functions
 	import { encodeTransferCall } from '$/api/voltaire'
 	import { sendTransfer } from '$/api/yellow'
-	import { formatAddress } from '$/lib/address'
+	// Components
+	import Address from '$/components/Address.svelte'
+	import LoadingButton from '$/components/LoadingButton.svelte'
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import { requestE2eTevmValueTransfer } from '$/lib/e2e/tevm'
 	import { formatSmallestToDecimal } from '$/lib/format'
 	import { stringify } from '$/lib/stringify'
@@ -49,7 +49,6 @@
 	} from '$/collections/transactions'
 
 
-	// Components
 	import CoinAmount from '$/views/CoinAmount.svelte'
 	import SessionAction from '$/views/SessionAction.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
@@ -430,11 +429,11 @@
 		<dl class="summary">
 			<dt>From</dt>
 			<dd data-intent-transition="source">
-				{formatAddress(settings.fromActor)}
+				<Address network={settings.chainId} address={settings.fromActor} />
 			</dd>
 			<dt>To</dt>
 			<dd data-intent-transition="target">
-				{formatAddress(settings.toActor)}
+				<Address network={settings.chainId} address={settings.toActor} />
 			</dd>
 			<dt>Network</dt>
 			<dd>{chainLabel}</dd>
@@ -454,7 +453,7 @@
 	{#snippet Protocol()}
 		<dl class="summary">
 			<dt>Token</dt>
-			<dd>{settings.tokenSymbol} ({formatAddress(settings.tokenAddress)})</dd>
+			<dd>{settings.tokenSymbol} (<TruncatedValue value={settings.tokenAddress} />)</dd>
 			<dt>Transfer amount</dt>
 			<dd>{amountLabel} {settings.tokenSymbol}</dd>
 		</dl>
@@ -465,9 +464,9 @@
 
 	{#snippet Preview()}
 		<div data-row="gap-2 align-center wrap">
-			<Button.Root type="submit" name="intent" value="save">
+			<LoadingButton type="submit" name="intent" value="save">
 				Save Draft
-			</Button.Root>
+			</LoadingButton>
 		</div>
 
 		<TransactionFlow

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { EvmLog } from '$/api/voltaire'
 	import type { ChainId } from '$/constants/networks'

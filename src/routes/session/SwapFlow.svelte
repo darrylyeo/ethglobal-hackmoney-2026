@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins'
@@ -593,6 +591,8 @@
 
 
 	// Components
+	import LoadingButton from '$/components/LoadingButton.svelte'
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import CoinAmount from '$/views/CoinAmount.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import CoinInput from '$/views/CoinInput.svelte'
@@ -662,7 +662,7 @@
 		<h2 data-intent-transition="route">Swap</h2>
 		<div data-row="gap-2 align-center">
 			{#if sessionLocked}
-				<Button.Root type="button" onclick={forkSession}>New draft</Button.Root>
+				<LoadingButton type="button" onclick={forkSession}>New draft</LoadingButton>
 			{/if}
 			<NetworkInput
 				networks={filteredNetworks}
@@ -837,14 +837,23 @@
 						<dt>Route</dt>
 						<dd>
 							{#each quote.route as step, index (step.poolId)}
-								{@const tokenInSymbol =
-									chainSymbols.get(step.tokenIn.toLowerCase()) ??
-									step.tokenIn.slice(0, 6)}
-								{@const tokenOutSymbol =
-									chainSymbols.get(step.tokenOut.toLowerCase()) ??
-									step.tokenOut.slice(0, 6)}
+								{@const tokenInLabel =
+									chainSymbols.get(step.tokenIn.toLowerCase()) ?? null}
+								{@const tokenOutLabel =
+									chainSymbols.get(step.tokenOut.toLowerCase()) ?? null}
 								<span>
-									{tokenInSymbol} → {tokenOutSymbol} ({step.fee / 100}%)
+									{#if tokenInLabel}
+										{tokenInLabel}
+									{:else}
+										<TruncatedValue value={step.tokenIn} />
+									{/if}
+									→
+									{#if tokenOutLabel}
+										{tokenOutLabel}
+									{:else}
+										<TruncatedValue value={step.tokenOut} />
+									{/if}
+									({step.fee / 100}%)
 									{index < quote.route.length - 1 ? ' · ' : ''}
 								</span>
 							{/each}

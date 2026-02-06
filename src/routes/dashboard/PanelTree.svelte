@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type {
 		DashboardNode,
@@ -170,13 +168,9 @@
 			min="0.2"
 			max="0.8"
 			step="0.01"
-			value={displayRatio}
+			bind:value={() => displayRatio, (v) =>
+				onSetSplitRatioOverride?.(root.id, Number(v))}
 			onmousedown={() => onSetSplitRatioOverride?.(root.id, displayRatio)}
-			oninput={(event) => {
-				const target = event.currentTarget
-				if (!(target instanceof HTMLInputElement)) return
-				onSetSplitRatioOverride?.(root.id, Number(target.value))
-			}}
 			onmouseup={() => {
 				onSetSplitRatio(root.id, displayRatio)
 				onClearSplitRatioOverride?.(root.id)

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Network } from '$/constants/networks'
@@ -15,7 +13,6 @@
 		activeProtocol,
 		protocolReason,
 		protocolIntent = $bindable(null),
-		onProtocolIntentChange = null,
 		disabled = false,
 		cctpPairSupported,
 		lifiPairSupported,
@@ -27,7 +24,6 @@
 		activeProtocol: 'cctp' | 'lifi' | null
 		protocolReason: string
 		protocolIntent?: 'cctp' | 'lifi' | null
-		onProtocolIntentChange?: ((value: 'cctp' | 'lifi' | null) => void) | null
 		disabled?: boolean
 		cctpPairSupported: boolean
 		lifiPairSupported: boolean
@@ -61,10 +57,7 @@
 
 
 	// Actions
-	const onProtocolIntent = (value: 'cctp' | 'lifi' | null) => (
-		onProtocolIntentChange?.(value),
-		(protocolIntent = value)
-	)
+	const onProtocolIntent = (value: 'cctp' | 'lifi' | null) => (protocolIntent = value)
 </script>
 
 

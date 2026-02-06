@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { page } from '$app/state'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'

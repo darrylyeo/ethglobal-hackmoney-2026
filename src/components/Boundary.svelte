@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Props
 	import type { Snippet } from 'svelte'
 	import { stringify } from '$/lib/stringify'

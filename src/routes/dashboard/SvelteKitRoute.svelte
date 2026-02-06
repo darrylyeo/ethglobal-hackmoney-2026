@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { RouteEntry, RoutePathInput } from './route-map'
 

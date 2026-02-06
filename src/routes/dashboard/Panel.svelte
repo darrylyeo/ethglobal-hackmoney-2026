@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type {
 		DashboardPanelNode,
@@ -128,12 +126,7 @@
 		<div data-row="wrap start gap-2" data-row-item="flexible" class="dashboard-panel-title">
 			<select
 				class="dashboard-panel-route"
-				value={panel.route.path}
-				onchange={(event) => {
-					const target = event.currentTarget
-					if (!(target instanceof HTMLSelectElement)) return
-					setRoutePath(target.value)
-				}}
+				bind:value={() => panel.route.path, setRoutePath}
 			>
 				{#each routeEntries as entry (entry.path)}
 					<option value={entry.path}>{entry.path}</option>
@@ -145,12 +138,7 @@
 					<input
 						type="text"
 						placeholder={key}
-						value={panel.route.params[key] ?? ''}
-						oninput={(event) => {
-							const target = event.currentTarget
-							if (!(target instanceof HTMLInputElement)) return
-							updateParam(key, target.value)
-						}}
+						bind:value={() => panel.route.params[key] ?? '', (v) => updateParam(key, v)}
 					/>
 				{/each}
 			{/if}

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Context
 	import { setContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
@@ -106,10 +104,10 @@
 
 
 	// Components
-	import BridgeView from '$/view/bridge.svelte'
-	import LiquidityView from '$/view/liquidity.svelte'
-	import SwapView from '$/view/swap.svelte'
-	import TransferView from '$/view/transfer.svelte'
+	import BridgeView from './Bridge.svelte'
+	import LiquidityView from './Liquidity.svelte'
+	import SwapView from './Swap.svelte'
+	import TransferView from './Transfer.svelte'
 </script>
 
 

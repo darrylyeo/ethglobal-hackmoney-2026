@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { BlockEntry } from '$/data/Block'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction'

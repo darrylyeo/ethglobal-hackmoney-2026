@@ -1,8 +1,9 @@
 /**
- * Client-side helper to run Tevm simulation via /api/simulate and return
- * result plus session summary for persisting on TransactionSession.simulation.
+ * Client-side helper to run Tevm simulation in-browser and return result plus
+ * session summary for persisting on TransactionSession.simulation.
  */
 
+import { runTevmSimulation } from '$/api/simulate'
 import type { TransactionSessionSimulationSummary } from '$/data/TransactionSession'
 import type { TevmSimulationResult } from '$/data/TevmSimulationResult'
 
@@ -23,25 +24,16 @@ export const runTevmSimulationFromClient = async (
 	result: TevmSimulationResult
 	summary: TransactionSessionSimulationSummary
 }> => {
-	const res = await fetch('/api/simulate', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			rpcUrl: payload.rpcUrl,
-			chainId: payload.chainId,
-			from: payload.from,
-			to: payload.to,
-			data: payload.data,
-			value: payload.value,
-			gasLimit: payload.gasLimit,
-			blockTag: payload.blockTag,
-		}),
+	const result = await runTevmSimulation({
+		rpcUrl: payload.rpcUrl,
+		chainId: payload.chainId,
+		from: payload.from,
+		to: payload.to,
+		data: payload.data,
+		value: payload.value,
+		gasLimit: payload.gasLimit,
+		blockTag: payload.blockTag,
 	})
-	if (!res.ok) {
-		const err = await res.json().catch(() => ({}))
-		throw new Error(err?.error ?? res.statusText)
-	}
-	const result = (await res.json()) as TevmSimulationResult
 	const summary: TransactionSessionSimulationSummary = {
 		forkMetadata: result.forkMetadata,
 		summaryStatus: result.summaryStatus,

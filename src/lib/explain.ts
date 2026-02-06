@@ -1,5 +1,7 @@
 // Part 1: generic Llm provider abstraction
 
+import { zenClientAvailability, zenClientGenerate } from '$/api/llm/zen'
+
 export type LlmAvailability = 'available' | 'downloading' | 'unavailable'
 
 export type LlmGenerateInput = {
@@ -126,41 +128,29 @@ export const createHostedLlmProvider = (config: {
 	},
 })
 
-const ZEN_LLM_PATH = '/api/llm/zen'
-
 const createZenLlmProvider = (): LlmProvider => ({
 	availability: async () => {
-		try {
-			const res = await fetch(ZEN_LLM_PATH, { method: 'GET' })
-			if (!res.ok) return 'unavailable'
-			const data = await res.json()
-			return isRecord(data) && data.available === true ? 'available' : 'unavailable'
-		} catch {
-			return 'unavailable'
-		}
+		const status = zenClientAvailability()
+		return status.available ? 'available' : 'unavailable'
 	},
 	generate: async (input) => {
-		const response = await fetch(ZEN_LLM_PATH, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({
-				systemPrompt: input.systemPrompt,
-				userPrompt: input.userPrompt,
-			}),
+		const result = await zenClientGenerate({
+			systemPrompt: input.systemPrompt,
+			userPrompt: input.userPrompt,
 		})
-		if (!response.ok) {
-			throw new Error(`OpenCode Zen failed (${response.status})`)
-		}
-		const body = await response.json()
 		return {
-			providerId: isRecord(body) && typeof body.providerId === 'string' ? body.providerId : 'zen',
-			text: isRecord(body) && typeof body.text === 'string' ? body.text : '',
+			providerId: result.providerId,
+			text: result.text,
 		}
 	},
 })
 
 export const createLlmProvider = (
-	options: { onProgress?: (progress: number) => void } = {},
+	options: {
+		onProgress?: (progress: number) => void
+		connectionId?: string | null
+		modelId?: string | null
+	} = {},
 ): LlmProvider => {
 	const promptProvider = createPromptApiLlmProvider(options.onProgress)
 	const hostedConfig = getHostedLlmConfig()
@@ -177,14 +167,31 @@ export const createLlmProvider = (
 		return zenAvailability === 'available' ? zenProvider : promptProvider
 	}
 
+	const connectionProvider = async (): Promise<LlmProvider | null> => {
+		if (options.connectionId == null || options.connectionId === '') return null
+		const { llmConnectionsCollection } = await import('$/collections/llm-connections')
+		const connection = llmConnectionsCollection.state.get(options.connectionId)
+		if (!connection) return null
+		const { createLlmProviderFromConnection } = await import(
+			'$/api/llm/connection-provider'
+		)
+		return createLlmProviderFromConnection(connection, options.modelId)
+	}
+
 	return {
 		availability: async () => {
+			const conn = await connectionProvider()
+			if (conn) return conn.availability()
 			const promptAvailability = await promptProvider.availability()
 			if (promptAvailability !== 'unavailable') return promptAvailability
 			if (hostedProvider) return hostedProvider.availability()
 			return zenProvider.availability()
 		},
-		generate: async (input) => (await pickProvider()).generate(input),
+		generate: async (input) => {
+			const conn = await connectionProvider()
+			if (conn) return conn.generate(input)
+			return (await pickProvider()).generate(input)
+		},
 		cancel: () => {
 			promptProvider.cancel?.()
 			hostedProvider?.cancel?.()
@@ -283,12 +290,12 @@ export const createExplainProvider = (
 	}
 }
 
-// Dialogue-backed explain: creates a DialogueTurn for the explanation
+// Agent-chat-backed explain: creates an AgentChatTurn for the explanation
 import type { EntityRef } from '$/data/EntityRef'
 import { EntityType } from '$/data/$EntityType'
 import { DataSource } from '$/constants/data-sources'
-import { dialogueTreesCollection } from '$/collections/dialogue-trees'
-import { dialogueTurnsCollection } from '$/collections/dialogue-turns'
+import { agentChatTreesCollection } from '$/collections/agent-chat-trees'
+import { agentChatTurnsCollection } from '$/collections/agent-chat-turns'
 
 export const submitExplainTurn = (options: {
 	context: ExplainContext
@@ -297,8 +304,8 @@ export const submitExplainTurn = (options: {
 }) => {
 	const treeId = `explain-${options.sessionId}`
 
-	if (!dialogueTreesCollection.state.has(treeId)) {
-		dialogueTreesCollection.insert({
+	if (!agentChatTreesCollection.state.has(treeId)) {
+		agentChatTreesCollection.insert({
 			id: treeId,
 			name: `Explain: ${options.sessionId.slice(0, 8)}`,
 			pinned: false,
@@ -331,7 +338,7 @@ export const submitExplainTurn = (options: {
 		),
 	]
 
-	dialogueTurnsCollection.insert({
+	agentChatTurnsCollection.insert({
 		id: turnId,
 		treeId,
 		parentId: null,
@@ -351,16 +358,16 @@ export const submitExplainTurn = (options: {
 		context: options.context,
 		language: 'en',
 	}).then((output) => {
-		dialogueTurnsCollection.update(turnId, (draft) => {
+		agentChatTurnsCollection.update(turnId, (draft) => {
 			draft.assistantText = output.text
 			draft.providerId = output.provider
 			draft.status = 'complete'
 		})
-		dialogueTreesCollection.update(treeId, (draft) => {
+		agentChatTreesCollection.update(treeId, (draft) => {
 			draft.updatedAt = Date.now()
 		})
 	}).catch((error) => {
-		dialogueTurnsCollection.update(turnId, (draft) => {
+		agentChatTurnsCollection.update(turnId, (draft) => {
 			draft.status = 'error'
 			draft.error = error instanceof Error ? error.message : String(error)
 		})

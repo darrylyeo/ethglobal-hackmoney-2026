@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources'
 	import type { StorkPriceRow } from '$/collections/stork-prices'

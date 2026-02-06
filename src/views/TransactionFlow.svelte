@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { VoltaireProvider } from '$/api/voltaire'
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
@@ -8,7 +6,7 @@
 		ExplainAvailability,
 		ExplainContext,
 	} from '$/lib/explain'
-	import type { DialogueTurn } from '$/data/DialogueTurn'
+	import type { AgentChatTurn } from '$/data/AgentChatTurn'
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import type { Snippet } from 'svelte'
 	import { networksByChainId } from '$/constants/networks'
@@ -105,7 +103,7 @@
 	// Functions
 	import { createHttpProvider } from '$/api/voltaire'
 	import { createExplainProvider, submitExplainTurn } from '$/lib/explain'
-	import { dialogueTurnsCollection } from '$/collections/dialogue-turns'
+	import { agentChatTurnsCollection } from '$/collections/agent-chat-turns'
 	import { getE2eProvider, switchWalletChain } from '$/lib/wallet'
 
 
@@ -155,9 +153,9 @@
 		progress: null,
 		turnId: null,
 	})
-	const getDialogueTurn = (turnId: string | null): DialogueTurn | null =>
+	const getAgentChatTurn = (turnId: string | null): AgentChatTurn | null =>
 		turnId
-			? (dialogueTurnsCollection.state.get(turnId) ?? null)
+			? (agentChatTurnsCollection.state.get(turnId) ?? null)
 			: null
 	const createInitialState = (): TransactionFlowItemState => ({
 		simulation: {
@@ -357,7 +355,7 @@
 			cancel,
 		}))
 		await promise
-		const turn = getDialogueTurn(turnId)
+		const turn = getAgentChatTurn(turnId)
 		if (turn?.status === 'complete') {
 			updateExplainState(tx.id, kind, (state) => ({
 				...state,
@@ -593,7 +591,7 @@
 							{simulationExplain.error ?? 'Explanation failed.'}
 						</p>
 					{:else if simulationExplain.status === 'success'}
-						{@const turn = getDialogueTurn(simulationExplain.turnId)}
+						{@const turn = getAgentChatTurn(simulationExplain.turnId)}
 						{#if turn?.assistantText}
 							<div data-card data-column="gap-2">
 								<p>{turn.assistantText}</p>
@@ -655,7 +653,7 @@
 				{#if executionExplain.status === 'error'}
 					<p data-error>{executionExplain.error ?? 'Explanation failed.'}</p>
 				{:else if executionExplain.status === 'success'}
-					{@const turn = getDialogueTurn(executionExplain.turnId)}
+					{@const turn = getAgentChatTurn(executionExplain.turnId)}
 					{#if turn?.assistantText}
 						<div data-card data-column="gap-2">
 							<p>{turn.assistantText}</p>

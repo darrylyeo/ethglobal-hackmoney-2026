@@ -17,6 +17,7 @@ import { rpcUrls } from '$/constants/rpc-endpoints'
 import { getProxyOrigin } from '$/constants/proxy'
 import {
 	storkEncodedAssetIdByAssetId,
+	storkOracleAddressByChainId,
 	storkRestBaseUrl,
 	storkWebsocketUrl,
 } from '$/constants/stork'
@@ -223,6 +224,12 @@ const createRestSubscription = (assetIds: string[]) => {
 
 let storkDeployments: Map<number, string> | null = null
 
+const staticDeployments = new Map(
+	(Object.entries(storkOracleAddressByChainId) as [string, string][]).map(
+		([chainId, addr]) => [Number(chainId), addr],
+	),
+)
+
 const fetchStorkDeployments = async () => {
 	if (storkDeployments) return storkDeployments
 	const baseUrl = getStorkRestBaseUrl()
@@ -236,21 +243,23 @@ const fetchStorkDeployments = async () => {
 				}
 			: undefined,
 	})
-	if (!response.ok)
-		throw new Error(`Stork deployments error: ${response.status}`)
-	const data = await response.json()
-	const rows = isRecord(data) && Array.isArray(data.data) ? data.data : []
-	const deployments = new Map<number, string>()
-	for (const entry of rows) {
-		if (!isRecord(entry)) continue
-		const chainId = entry.chain_id
-		const proxyAddress = entry.proxy_address
-		if (typeof chainId !== 'number' || typeof proxyAddress !== 'string')
-			continue
-		deployments.set(chainId, proxyAddress)
+	if (response.ok) {
+		const data = await response.json()
+		const rows = isRecord(data) && Array.isArray(data.data) ? data.data : []
+		const deployments = new Map<number, string>()
+		for (const entry of rows) {
+			if (!isRecord(entry)) continue
+			const chainId = entry.chain_id
+			const proxyAddress = entry.proxy_address
+			if (typeof chainId !== 'number' || typeof proxyAddress !== 'string')
+				continue
+			deployments.set(chainId, proxyAddress)
+		}
+		storkDeployments = deployments
+		return deployments
 	}
-	storkDeployments = deployments
-	return deployments
+	storkDeployments = staticDeployments
+	return storkDeployments
 }
 
 const STORK_VALUE_ABI = [
@@ -550,21 +559,18 @@ export const getBestStorkPrice = (
 			(row.transport !== 'rpc' ||
 				(chainId !== null && row.chainId === chainId)),
 	)
-	if (candidates.length === 0) return null
-	const readyCandidates = candidates.filter(
+	const ready = candidates.filter(
 		(row) => !row.isLoading && row.error === null,
 	)
-	const pool = readyCandidates.length > 0 ? readyCandidates : candidates
+	if (ready.length === 0) return null
 	const priority = ['rpc', 'websocket', 'rest'] as const
 	for (const transport of priority) {
-		const best = pool
+		const best = ready
 			.filter((row) => row.transport === transport)
 			.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0]
 		if (best) return best
 	}
-	return (
-		pool.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0] ?? null
-	)
+	return ready.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0] ?? null
 }
 
 export { storkPricesCollection }

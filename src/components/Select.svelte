@@ -1,6 +1,4 @@
 <script lang="ts" generics="Item">
-
-
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
@@ -126,12 +124,11 @@
 	<Select.Root
 		{...rootProps}
 		type="multiple"
-		value={Array.isArray(value) ? value : []}
+		bind:value={() => (Array.isArray(value) ? value : []), (v) => (value = v)}
 		{disabled}
 		{name}
 		{allowDeselect}
 		items={rootItems}
-		onValueChange={(v) => (value = v)}
 	>
 		{#if children}
 			{@render children()}
@@ -215,12 +212,11 @@
 	<Select.Root
 		{...rootProps}
 		type="single"
-		value={typeof value === 'string' ? value : ''}
+		bind:value={() => (typeof value === 'string' ? value : ''), (v) => (value = v)}
 		{disabled}
 		{name}
 		{allowDeselect}
 		items={rootItems}
-		onValueChange={(v) => (value = v)}
 	>
 		{#if children}
 			{@render children()}
