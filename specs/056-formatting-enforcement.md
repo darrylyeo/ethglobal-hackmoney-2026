@@ -194,7 +194,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/constants/media.ts`
 - [x] `src/constants/networks.ts`
 - [x] `src/constants/opencode-zen.ts`
-- [ ] `src/constants/peer-display-names.ts`
+- [x] `src/constants/peer-display-names.ts`
 - [ ] `src/constants/proxy.ts`
 - [ ] `src/constants/query-limits.ts`
 - [ ] `src/constants/room-display-names.ts`
