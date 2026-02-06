@@ -1,7 +1,7 @@
 import type { EIP1193Provider } from '$/lib/wallet.ts'
 
 export type Wallet$Id = {
-	rdns: string
+	rdns: string,
 }
 
 export type Wallet = {
@@ -9,5 +9,5 @@ export type Wallet = {
 	name: string
 	icon: string
 	rdns: string
-	provider: EIP1193Provider
+	provider: EIP1193Provider,
 }
