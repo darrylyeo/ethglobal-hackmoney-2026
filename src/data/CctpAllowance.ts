@@ -1,5 +1,5 @@
 export type CctpAllowance$Id = {
-	apiHost: string
+	apiHost: string,
 }
 
 export type CctpAllowance = {
@@ -8,5 +8,5 @@ export type CctpAllowance = {
 	lastUpdated: string | null
 	fetchedAt: number
 	isLoading: boolean
-	error: string | null
+	error: string | null,
 }
