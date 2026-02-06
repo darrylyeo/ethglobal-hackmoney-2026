@@ -1,12 +1,15 @@
 <script lang="ts">
+
+
+	// Props
 	let {
 		width = '100%',
 		height = '1em',
 		rounded = '0.25em',
 	}: {
-		width?: string
-		height?: string
-		rounded?: string
+		width?: string,
+		height?: string,
+		rounded?: string,
 	} = $props()
 </script>
 
