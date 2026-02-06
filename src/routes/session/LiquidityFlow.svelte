@@ -435,34 +435,126 @@
 <div data-column="gap-4">
 	<div data-row="gap-2 align-center justify-between">
 		<h2>Add Liquidity</h2>
-		<div data-row="gap-2 align-center">
-			{#if sessionLocked}
-				<Button.Root type="button" onclick={forkSession}>New draft</Button.Root>
-			{/if}
-			<NetworkInput
-				networks={filteredNetworks}
-				bind:value={
-					() => settings.chainId,
-					(value) => {
-						const nextChainId = Array.isArray(value)
-							? (value[0] ?? null)
-							: value
-						if (nextChainId === null || nextChainId === settings.chainId) return
-						updateSessionParams({ ...settings, chainId: nextChainId })
-					}
-				}
-				placeholder="—"
-				id="liq-chain"
-				disabled={sessionLocked}
-			/>
-		</div>
+		{#if sessionLocked}
+			<Button.Root type="button" onclick={forkSession}>New draft</Button.Root>
+		{/if}
+	</div>
+
+	<div data-protocol data-card data-row="gap-2 align-center">
+		<span data-muted>Protocol</span>
+		<strong>Uniswap v4</strong>
 	</div>
 
 	{#if asNonEmpty(chainCoins) && token0Selection && token1Selection}
-		<div data-card data-column="gap-3">
+		<div data-card data-column="gap-3" data-section="chain-tokens">
+			<div data-row="gap-2 align-center wrap">
+				<div data-column="gap-1">
+					<label for="liq-chain">Chain</label>
+					<NetworkInput
+						networks={filteredNetworks}
+						bind:value={
+							() => settings.chainId,
+							(value) => {
+								const nextChainId = Array.isArray(value)
+									? (value[0] ?? null)
+									: value
+								if (nextChainId === null || nextChainId === settings.chainId) return
+								updateSessionParams({ ...settings, chainId: nextChainId })
+							}
+						}
+						placeholder="—"
+						id="liq-chain"
+						disabled={sessionLocked}
+					/>
+				</div>
+				<div data-column="gap-1">
+					<label for="liq-token0">Token 0</label>
+					<Select
+						items={chainCoins}
+						bind:value={
+							() => token0Address ?? '',
+							(value) => {
+								const coin = chainCoins.find((c) => c.address === value)
+								if (coin) token0Selection = coin
+							}
+						}
+						getItemId={(c) => c.address}
+						getItemLabel={(c) => c.symbol}
+						id="liq-token0"
+						disabled={sessionLocked}
+					/>
+				</div>
+				<div data-column="gap-1">
+					<label for="liq-token1">Token 1</label>
+					<Select
+						items={chainCoins}
+						bind:value={
+							() => token1Address ?? '',
+							(value) => {
+								const coin = chainCoins.find((c) => c.address === value)
+								if (coin) token1Selection = coin
+							}
+						}
+						getItemId={(c) => c.address}
+						getItemLabel={(c) => c.symbol}
+						id="liq-token1"
+						disabled={sessionLocked}
+					/>
+				</div>
+			</div>
+		</div>
+
+		<div data-card data-column="gap-3" data-section="fee-range">
+			<div data-column="gap-2">
+				<label for="liq-fee">Fee tier</label>
+				<Select
+					items={uniswapFeeTiers}
+					bind:value={
+						() => String(settings.fee),
+						(value) => {
+							if (!value) return
+							updateSessionParams({ ...settings, fee: Number(value) })
+						}
+					}
+					getItemId={(fee) => String(fee.feeTier)}
+					getItemLabel={(fee) => feeLabel(fee)}
+					id="liq-fee"
+					disabled={sessionLocked}
+				/>
+			</div>
+			<div data-column="gap-2">
+				<label for="liq-tick-lower">Price range (tick)</label>
+				<div data-row="gap-2">
+					<input
+						id="liq-tick-lower"
+						type="number"
+						value={settings.tickLower}
+						oninput={(e) => {
+							const v = Number((e.target as HTMLInputElement).value)
+							if (Number.isNaN(v)) return
+							updateSessionParams({ ...settings, tickLower: v })
+						}}
+						disabled={sessionLocked}
+					/>
+					<span>—</span>
+					<input
+						type="number"
+						value={settings.tickUpper}
+						oninput={(e) => {
+							const v = Number((e.target as HTMLInputElement).value)
+							if (Number.isNaN(v)) return
+							updateSessionParams({ ...settings, tickUpper: v })
+						}}
+						disabled={sessionLocked}
+					/>
+				</div>
+			</div>
+		</div>
+
+		<div data-card data-column="gap-3" data-section="amounts-preview">
 			<div data-card data-column="gap-2">
 				<div data-row="gap-2 align-center justify-between">
-					<label for="liq-amount-0">Token 0</label>
+					<label for="liq-amount-0">Amount 0</label>
 					{#if token0Balance !== null}
 						<Button.Root
 							type="button"
@@ -500,7 +592,7 @@
 
 			<div data-card data-column="gap-2">
 				<div data-row="gap-2 align-center justify-between">
-					<label for="liq-amount-1">Token 1</label>
+					<label for="liq-amount-1">Amount 1</label>
 					{#if token1Balance !== null}
 						<Button.Root
 							type="button"
@@ -536,50 +628,9 @@
 				{/if}
 			</div>
 
-			<div data-column="gap-2">
-				<label for="liq-fee">Fee tier</label>
-				<Select
-					items={uniswapFeeTiers}
-					bind:value={
-						() => String(settings.fee),
-						(value) => {
-							if (!value) return
-							updateSessionParams({ ...settings, fee: Number(value) })
-						}
-					}
-					getItemId={(fee) => String(fee.feeTier)}
-					getItemLabel={(fee) => feeLabel(fee)}
-					id="liq-fee"
-					disabled={sessionLocked}
-				/>
-			</div>
-
-			<div data-column="gap-2">
-				<label for="liq-tick-lower">Price range (tick)</label>
-				<div data-row="gap-2">
-					<input
-						id="liq-tick-lower"
-						type="number"
-						value={settings.tickLower}
-						oninput={(e) => {
-							const v = Number((e.target as HTMLInputElement).value)
-							if (Number.isNaN(v)) return
-							updateSessionParams({ ...settings, tickLower: v })
-						}}
-						disabled={sessionLocked}
-					/>
-					<span>—</span>
-					<input
-						type="number"
-						value={settings.tickUpper}
-						oninput={(e) => {
-							const v = Number((e.target as HTMLInputElement).value)
-							if (Number.isNaN(v)) return
-							updateSessionParams({ ...settings, tickUpper: v })
-						}}
-						disabled={sessionLocked}
-					/>
-				</div>
+			<div data-muted data-row="gap-1">
+				<span>Pool price / position preview</span>
+				<span>—</span>
 			</div>
 		</div>
 
@@ -599,31 +650,33 @@
 		<p data-muted>No tokens available for this network.</p>
 	{/if}
 
-	<TransactionFlow
-		walletConnection={selectedWallet}
-		transactions={[
-			{
-				id: `liquidity-${settings.chainId}-${settings.token0}-${settings.token1}`,
-				chainId: settings.chainId,
-				title: 'Add liquidity',
-				actionLabel: 'Add liquidity',
-				canExecute:
-					(settings.amount0 > 0n || settings.amount1 > 0n) &&
-					Boolean(selectedActor),
-				execute: executeLiquidity,
-				executionModes: ['e2e'],
-			},
-		]}
-	/>
-	{#if e2eLiquidityStatus}
-		<p
+	<div data-section="primary-action">
+		<TransactionFlow
+			walletConnection={selectedWallet}
+			transactions={[
+				{
+					id: `liquidity-${settings.chainId}-${settings.token0}-${settings.token1}`,
+					chainId: settings.chainId,
+					title: 'Add liquidity',
+					actionLabel: 'Add liquidity',
+					canExecute:
+						(settings.amount0 > 0n || settings.amount1 > 0n) &&
+						Boolean(selectedActor),
+					execute: executeLiquidity,
+					executionModes: ['e2e'],
+				},
+			]}
+		/>
+		{#if e2eLiquidityStatus}
+			<p
 			data-e2e-liquidity-status
 			data-tx-hash={e2eLiquidityStatus.txHash ?? undefined}
 			data-error={e2eLiquidityStatus.txHash ? undefined : ''}
-		>
-			{e2eLiquidityStatus.message}
-		</p>
-	{/if}
+			>
+				{e2eLiquidityStatus.message}
+			</p>
+		{/if}
+	</div>
 
 	<Positions {positions} chainId={settings.chainId} />
 </div>

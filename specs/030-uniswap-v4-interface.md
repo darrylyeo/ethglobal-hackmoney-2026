@@ -311,14 +311,14 @@ const TICK_SPACINGS: Record<number, number> = {
 
 ### Add Liquidity UI
 - [x] Session action "Add Liquidity" at `/session#liquidity` (view: `liquidity.svelte` + LiquidityFlow)
-- [ ] Protocol selector with one option: Uniswap v4 (protocol clearly indicated in UI)
+- [x] Protocol selector with one option: Uniswap v4 (protocol clearly indicated in UI)
 - [x] Token pair selection
 - [x] Fee tier selector
 - [x] Price range selector (full/concentrated)
 - [x] Deposit amount inputs
 - [x] Add liquidity execution
 - [x] Position list with collect/remove actions
-- [ ] Layout: protocol + chain/tokens grouped at top; fee + range; amounts + preview; primary action
+- [x] Layout: protocol + chain/tokens grouped at top; fee + range; amounts + preview; primary action
 
 ### Integration
 - [x] Reuses `AccountsSelect.svelte` for connection
@@ -328,7 +328,7 @@ const TICK_SPACINGS: Record<number, number> = {
 
 ## Status
 
-Collections and API complete. Swap UI complete. Add Liquidity: renamed from "Manage liquidity"; nav and view use "Add Liquidity". LiquidityFlow has chain, token pair, fee tier, range, amounts, Positions (collect/remove). Remaining: protocol selector (one option: Uniswap v4) and layout pass (protocol + chain/tokens at top, then fee + range, amounts + preview, primary action).
+Complete. LiquidityFlow: protocol card (Uniswap v4) at top; chain + token pair in one section; fee + range; amounts + pool/position preview placeholder; primary action. Protocol clearly indicated; layout matches spec. test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 
