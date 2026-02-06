@@ -5,7 +5,7 @@ export type StorkPriceTransport = 'rest' | 'websocket' | 'rpc'
 export type StorkPrice$Id = {
 	assetId: string
 	transport: StorkPriceTransport
-	chainId?: ChainId
+	chainId?: ChainId,
 }
 
 export type StorkPrice = {
@@ -18,5 +18,5 @@ export type StorkPrice = {
 	timestampNs: bigint
 	updatedAt: number
 	isLoading: boolean
-	error: string | null
+	error: string | null,
 }
