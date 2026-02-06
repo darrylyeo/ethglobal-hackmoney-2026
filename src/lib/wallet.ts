@@ -1,5 +1,6 @@
 import { createWalletClient, custom } from 'viem'
 import type { Chain, WalletClient } from 'viem'
+import type { Network } from '$/constants/networks'
 import {
 	networkConfigsByChainId,
 	networksByChainId,
@@ -151,8 +152,10 @@ export const addChainToWallet = async (
 const PROVIDER_ANNOUNCE = 'eip6963:announceProvider'
 const PROVIDER_REQUEST = 'eip6963:requestProvider'
 
-const MINIMAL_CHAINS = new Map<number, Chain>(
-	Object.entries(networksByChainId).map(([idStr, n]) => [
+const MINIMAL_CHAINS = new Map(
+	(
+		Object.entries(networksByChainId) as unknown as [string, Network | undefined][]
+	).filter((entry): entry is [string, Network] => entry[1] != null).map(([idStr, n]) => [
 		Number(idStr),
 		{
 			id: n.id,
