@@ -147,7 +147,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/collections/wallets.ts`
 - [x] `src/collections/yellow-channel-states.ts`
 - [x] `src/collections/yellow-channels.ts`
-- [ ] `src/collections/yellow-deposits.ts`
+- [x] `src/collections/yellow-deposits.ts`
 - [ ] `src/collections/yellow-transfers.ts`
 - [ ] `src/components/Address.svelte`
 - [ ] `src/components/Boundary.svelte`
