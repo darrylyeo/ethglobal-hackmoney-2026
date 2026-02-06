@@ -23,7 +23,7 @@
 		value: string
 		startLength?: number
 		endLength?: number
-		format?: TruncatedValueFormat
+		format?: TruncatedValueFormat,
 	} = $props()
 
 
