@@ -2,20 +2,20 @@
  * Yellow state: Clearnode connection and channel/deposit sync.
  */
 
-import { DataSource } from '$/constants/data-sources'
-import { yellowDepositsCollection } from '$/collections/yellow-deposits'
-import { yellowChannelsCollection } from '$/collections/yellow-channels'
-import { yellowTransfersCollection } from '$/collections/yellow-transfers'
-import type { YellowChannelRow } from '$/collections/yellow-channels'
-import type { YellowTransferRow } from '$/collections/yellow-transfers'
+import { DataSource } from '$/constants/data-sources.ts'
+import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
+import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
+import { yellowTransfersCollection } from '$/collections/yellow-transfers.ts'
+import type { YellowChannelRow } from '$/collections/yellow-channels.ts'
+import type { YellowTransferRow } from '$/collections/yellow-transfers.ts'
 import {
 	connectClearnode,
 	getAvailableBalance,
 	type ClearnodeConnection,
-} from '$/api/yellow'
-import type { EIP1193Provider } from '$/lib/wallet'
-import { decodeNitroRpc, type NitroRpcMessage } from '$/state/nitro-rpc'
-import { parseDecimalToSmallest } from '$/lib/format'
+} from '$/api/yellow.ts'
+import type { EIP1193Provider } from '$/lib/wallet.ts'
+import { decodeNitroRpc, type NitroRpcMessage } from '$/state/nitro-rpc.ts'
+import { parseDecimalToSmallest } from '$/lib/format.ts'
 
 const pendingChannelRooms = new Map<string, string>()
 

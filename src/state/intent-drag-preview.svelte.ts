@@ -1,4 +1,4 @@
-import type { IntentDragPayload } from '$/lib/intents/types'
+import type { IntentDragPayload } from '$/lib/intents/types.ts'
 
 export type IntentDragEndpoint = {
 	payload: IntentDragPayload

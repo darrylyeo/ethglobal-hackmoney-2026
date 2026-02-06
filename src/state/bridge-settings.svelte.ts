@@ -5,7 +5,7 @@
 
 import { PersistedState } from 'runed'
 import { stringify, parse } from 'devalue'
-import { ChainId } from '$/constants/networks'
+import { ChainId } from '$/constants/networks.ts'
 
 export enum BridgeRouteSort {
 	Recommended = 'recommended',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { encodeNitroRpc, decodeNitroRpc, hashChannelState } from './nitro-rpc'
+import { encodeNitroRpc, decodeNitroRpc, hashChannelState } from './nitro-rpc.ts'
 
 describe('nitro-rpc', () => {
 	describe('encodeNitroRpc', () => {

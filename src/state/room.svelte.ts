@@ -2,26 +2,26 @@
  * Room state: PartyKit connection, join/leave, sync from server to collections.
  */
 
-import { DataSource } from '$/constants/data-sources'
-import { myPeerIdsCollection } from '$/collections/my-peer-ids'
-import { transferRequestsCollection } from '$/collections/transfer-requests'
-import { roomsCollection } from '$/collections/rooms'
-import { roomPeersCollection } from '$/collections/room-peers'
-import { sharedAddressesCollection } from '$/collections/shared-addresses'
-import { siweChallengesCollection } from '$/collections/siwe-challenges'
-import { verificationsCollection } from '$/collections/verifications'
+import { DataSource } from '$/constants/data-sources.ts'
+import { myPeerIdsCollection } from '$/collections/my-peer-ids.ts'
+import { transferRequestsCollection } from '$/collections/transfer-requests.ts'
+import { roomsCollection } from '$/collections/rooms.ts'
+import { roomPeersCollection } from '$/collections/room-peers.ts'
+import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
+import { siweChallengesCollection } from '$/collections/siwe-challenges.ts'
+import { verificationsCollection } from '$/collections/verifications.ts'
 import {
 	connectToRoom,
 	type RoomConnection,
 	type RoomMessage,
-} from '$/lib/rooms/room'
-import { verifySiweSignature } from '$/lib/rooms/siwe'
-import type { TransferRequest } from '$/data/TransferRequest'
-import type { Room } from '$/data/Room'
-import type { RoomPeer } from '$/data/RoomPeer'
-import type { SharedAddress } from '$/data/SharedAddress'
-import type { SiweChallenge } from '$/data/SiweChallenge'
-import type { Verification } from '$/data/Verification'
+} from '$/lib/rooms/room.ts'
+import { verifySiweSignature } from '$/lib/rooms/siwe.ts'
+import type { TransferRequest } from '$/data/TransferRequest.ts'
+import type { Room } from '$/data/Room.ts'
+import type { RoomPeer } from '$/data/RoomPeer.ts'
+import type { SharedAddress } from '$/data/SharedAddress.ts'
+import type { SiweChallenge } from '$/data/SiweChallenge.ts'
+import type { Verification } from '$/data/Verification.ts'
 
 const SIWE_DEBUG =
 	typeof import.meta !== 'undefined' &&

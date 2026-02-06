@@ -5,7 +5,7 @@
 import type {
 	YellowChannelAllocation,
 	YellowChannelState,
-} from '$/data/YellowChannelState'
+} from '$/data/YellowChannelState.ts'
 
 export type NitroRpcPayload = [number, string, Record<string, unknown>, number]
 export type NitroRpcMessage = NitroRpcPayload
