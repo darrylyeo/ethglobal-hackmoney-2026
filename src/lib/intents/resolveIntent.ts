@@ -1,11 +1,13 @@
-import { toInteropName } from '$/constants/interop.ts'
-import { normalizeAddress } from '$/lib/address.ts'
-import { EntityType } from '$/data/$EntityType.ts'
 import type {
 	IntentDimensions,
 	IntentEntityRef,
+	IntentEquality,
 	IntentResolution,
 } from './types.ts'
+import { findIntentDefinition } from './registry.ts'
+import { toInteropName } from '$/constants/interop.ts'
+import { EntityType } from '$/data/$EntityType.ts'
+import { normalizeAddress } from '$/lib/address.ts'
 
 const getNumber = (value: unknown): number | null =>
 	typeof value === 'number' && Number.isFinite(value) ? value : null
@@ -26,8 +28,15 @@ const getTokenInteropFromId = (
 		: undefined
 }
 
-const resolveDimensions = (ref: IntentEntityRef): IntentDimensions => {
+export const resolveDimensions = (ref: IntentEntityRef): IntentDimensions => {
 	const id = ref.id
+	if (ref.type === EntityType.RoomPeer) {
+		return {
+			actor: null,
+			chainId: null,
+			tokenAddress: null,
+		}
+	}
 	if (ref.type === EntityType.ActorCoin) {
 		return {
 			actor: getAddress(id.address),
@@ -63,7 +72,7 @@ const resolveDimensions = (ref: IntentEntityRef): IntentDimensions => {
 const isMissingDimensions = (dimensions: IntentDimensions) =>
 	!dimensions.actor || !dimensions.chainId || !dimensions.tokenAddress
 
-const resolveEquality = (from: IntentDimensions, to: IntentDimensions) => ({
+export const resolveEquality = (from: IntentDimensions, to: IntentDimensions): IntentEquality => ({
 	actor:
 		from.interopAddress && to.interopAddress
 			? from.interopAddress === to.interopAddress
@@ -89,6 +98,18 @@ export const resolveIntent = (
 	const from = { ref: fromRef, dimensions: resolveDimensions(fromRef) }
 	const to = { ref: toRef, dimensions: resolveDimensions(toRef) }
 	const equality = resolveEquality(from.dimensions, to.dimensions)
+	const ctx = { from, to, equality }
+
+	const definition = findIntentDefinition(ctx)
+
+	if (definition?.kind === 'share') {
+		const roomId = typeof toRef.id.roomId === 'string' ? toRef.id.roomId : null
+		const peerId = typeof toRef.id.peerId === 'string' ? toRef.id.peerId : null
+		return roomId && peerId
+			? { status: 'valid', kind: 'share', from, to, equality }
+			: { status: 'invalid', reason: 'Missing room or peer.', from, to, equality }
+	}
+
 	if (
 		isMissingDimensions(from.dimensions) ||
 		isMissingDimensions(to.dimensions)
@@ -101,6 +122,7 @@ export const resolveIntent = (
 			equality,
 		}
 	}
+
 	if (equality.actor && equality.chain && equality.token) {
 		return {
 			status: 'invalid',
@@ -110,26 +132,20 @@ export const resolveIntent = (
 			equality,
 		}
 	}
-	const sameActor = equality.actor === true
-	const sameChain = equality.chain === true
-	const sameToken = equality.token === true
-	const kind =
-		sameActor && sameChain && !sameToken
-			? 'swap'
-			: sameActor && !sameChain && sameToken
-				? 'bridge'
-				: sameActor && !sameChain && !sameToken
-					? 'swap+bridge'
-					: !sameActor && sameChain && sameToken
-						? 'transfer'
-						: !sameActor && sameChain && !sameToken
-							? 'transfer+swap'
-							: !sameActor && !sameChain && sameToken
-								? 'transfer+bridge'
-								: 'transfer+swap+bridge'
+
+	if (definition) {
+		return {
+			status: 'valid',
+			kind: definition.kind,
+			from,
+			to,
+			equality,
+		}
+	}
+
 	return {
-		status: 'valid',
-		kind,
+		status: 'invalid',
+		reason: 'No matching intent.',
 		from,
 		to,
 		equality,
