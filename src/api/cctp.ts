@@ -3,6 +3,19 @@
  */
 import { encodeFunction } from '@tevm/voltaire/Abi'
 
+export type CctpMessageResponse = {
+	messages?: {
+		message: string
+		attestation?: string
+		eventNonce?: string
+		decodedMessage?: {
+			sourceDomain: string
+			destinationDomain: string
+			nonce: string
+		}
+	}[]
+}
+
 export function addressToBytes32(addr: `0x${string}`): `0x${string}` {
 	const hex = addr.slice(2).toLowerCase().padStart(64, '0')
 	return `0x${hex}` as `0x${string}`
@@ -20,9 +33,9 @@ const DEPOSIT_FOR_BURN_ABI = [
 			{ type: 'address', name: 'burnToken' },
 			{ type: 'bytes32', name: 'destinationCaller' },
 			{ type: 'uint256', name: 'maxFee' },
-			{ type: 'uint32', name: 'minFinalityThreshold' },
+			{ type: 'uint32', name: 'minFinalityThreshold', },
 		],
-		outputs: [{ type: 'uint64', name: 'nonce' }],
+		outputs: [{ type: 'uint64', name: 'nonce', }],
 	},
 ] as const
 
@@ -76,19 +89,6 @@ export function zeroBytes32(): `0x${string}` {
 	return ZERO_BYTES32
 }
 
-export type CctpMessageResponse = {
-	messages?: Array<{
-		message: string
-		attestation?: string
-		eventNonce?: string
-		decodedMessage?: {
-			sourceDomain: string
-			destinationDomain: string
-			nonce: string
-		}
-	}>
-}
-
 export async function fetchCctpMessages(
 	apiHost: string,
 	sourceDomain: number,
@@ -96,7 +96,7 @@ export async function fetchCctpMessages(
 ): Promise<CctpMessageResponse> {
 	const res = await fetch(
 		`${apiHost}/v2/messages/${sourceDomain}?transactionHash=${encodeURIComponent(transactionHash)}`,
-		{ headers: { Accept: 'application/json' } },
+		{ headers: { Accept: 'application/json', }, },
 	)
 	if (res.status === 404) return { messages: [] }
 	if (!res.ok) throw new Error(`Messages request failed (${res.status})`)

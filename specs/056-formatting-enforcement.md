@@ -77,7 +77,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `scripts/check-bundle-size.mjs`
 - [x] `scripts/check-performance.mjs`
 - [x] `src/api/approval.ts`
-- [ ] `src/api/cctp.ts`
+- [x] `src/api/cctp.ts`
 - [ ] `src/api/identity-resolve.spec.ts`
 - [ ] `src/api/identity-resolve.ts`
 - [ ] `src/api/lifi.spec.ts`
@@ -429,7 +429,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 
 ## Status
 
-Incomplete. Tasks reset; execution rule: one file per run. Formatting is manual to repo preferences; `deno task format` runs scripts/_svelte-section-spacing.ts (two empty lines between Svelte sections and comment groups in <script>). Formatter subagent may inline single-use variables/types (spec 041). 2026-02-06 (PROMPT_build execute one spec): src/api/approval.ts verified to repo preferences, box checked; test:unit 44 Deno + 101 Vitest passed.
+Incomplete. Tasks reset; execution rule: one file per run. Formatting is manual to repo preferences; `deno task format` runs scripts/_svelte-section-spacing.ts (two empty lines between Svelte sections and comment groups in <script>). Formatter subagent may inline single-use variables/types (spec 041). 2026-02-06 (PROMPT_build execute one spec): src/api/cctp.ts formatted (T[] over Array<T>), box checked; test:unit 44 Deno + 101 Vitest passed. Previous: src/api/approval.ts verified to repo preferences, box checked; test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 
