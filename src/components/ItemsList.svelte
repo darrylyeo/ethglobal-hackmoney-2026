@@ -2,12 +2,15 @@
 	lang="ts"
 	generics="
 		_Item,
-		_Key extends PropertyKey = PropertyKey,
-		_GroupKey extends PropertyKey = PropertyKey
+		_Key extends string | number = string | number,
+		_GroupKey extends string | number = string | number
 	"
 >
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
+
 
 	// Props
 	let {
@@ -37,8 +40,8 @@
 				{
 					key: _Key
 				} & (
-					| { item: _Item; isPlaceholder: true }
-					| { item?: never; isPlaceholder: false }
+					| { item: _Item; isPlaceholder: false }
+					| { item?: never; isPlaceholder: true }
 				),
 			]
 		>
@@ -47,67 +50,68 @@
 
 
 	// (Derived)
-	const allRows = $derived(
-		(() => {
-			const expanded = new Set(
-				[...placeholderKeys].flatMap((el) =>
-					Array.isArray(el)
-						? Array.from(
-								{ length: el[1] - el[0] + 1 },
-								(_, i) => (el[0] + i) as _Key,
-							)
-						: [el],
-				),
+	const isPlaceholderKey = (key: _Key): boolean => {
+		for (const entry of placeholderKeys)
+			if (
+				Array.isArray(entry)
+					? typeof key === 'number' && key >= entry[0] && key <= entry[1]
+					: key === entry
 			)
-			const sorted = [...items].sort((a, b) => {
-				const va = getSortValue(a)
-				const vb = getSortValue(b)
-				return va < vb ? -1 : va > vb ? 1 : 0
-			})
-			const grouped =
-				getGroupKey && getGroupLabel
-					? Map.groupBy(sorted, getGroupKey)
-					: null
-			return [
-				...(grouped
-					? [...grouped.entries()].flatMap(([groupKey, groupItems]) => [
-							{ type: 'group' as const, groupKey },
-							...groupItems.map((item) => ({
-								type: 'item' as const,
-								key: getKey(item),
-								item,
-								isPlaceholder: true as const,
-							})),
-						])
-					: sorted.map((item) => ({
-							type: 'item' as const,
-							key: getKey(item),
-							item,
-							isPlaceholder: true as const,
-						}))),
-				...visiblePlaceholderKeys
-					.filter((key) => expanded.has(key))
-					.map((key) => ({
-						type: 'placeholder' as const,
-						key,
+				return true
+		return false
+	}
+	const sortedItems = $derived(
+		[...items].sort((itemA, itemB) => {
+			const sortValueA = getSortValue(itemA)
+			const sortValueB = getSortValue(itemB)
+			return sortValueA < sortValueB ? -1 : sortValueA > sortValueB ? 1 : 0
+		}),
+	)
+	const hasGrouping = $derived(Boolean(getGroupKey && getGroupLabel))
+	const groupEntries = $derived(
+		hasGrouping ? [...Map.groupBy(sortedItems, getGroupKey!).entries()] : null,
+	)
+	const itemRows = $derived(
+		groupEntries
+			? groupEntries.flatMap(([groupKey, groupItems]) => [
+					{ type: 'group' as const, groupKey },
+					...groupItems.map((item) => ({
+						type: 'item' as const,
+						key: getKey(item),
+						item,
 						isPlaceholder: false as const,
 					})),
-			]
-		})(),
+				])
+			: sortedItems.map((item) => ({
+					type: 'item' as const,
+					key: getKey(item),
+					item,
+					isPlaceholder: false as const,
+				})),
 	)
+	const placeholderRows = $derived(
+		visiblePlaceholderKeys
+			.filter((key) => isPlaceholderKey(key))
+			.map((key) => ({
+				type: 'placeholder' as const,
+				key,
+				isPlaceholder: true as const,
+			})),
+	)
+	const allRows = $derived([...itemRows, ...placeholderRows])
 </script>
 
 
 <!-- scrollPosition: Start/End = overflow-anchor on first/last li; Auto = browser default -->
 <ul
-	data-items-list
+	class="items-list"
 	data-sticky-container
 	data-scroll-position={scrollPosition.toLowerCase()}
 	{...rootProps}
 >
 	{#each allRows as row (row.type === 'group' ? `group:${row.groupKey}` : row.key)}
 		{#if row.type === 'group'}
-			<li data-items-list-row data-group-label data-sticky>
+			<li data-sticky>
 				{#if GroupHeader}
 					{@render GroupHeader({ groupKey: row.groupKey })}
 				{:else}
@@ -115,15 +119,15 @@
 				{/if}
 			</li>
 		{:else if row.type === 'placeholder'}
-			<li data-items-list-row data-placeholder>
-				{@render Item({ key: row.key, isPlaceholder: false as const })}
+			<li data-placeholder>
+				{@render Item({ key: row.key, isPlaceholder: true as const })}
 			</li>
 		{:else}
-			<li data-items-list-row>
+			<li>
 				{@render Item({
 					key: row.key,
 					item: row.item,
-					isPlaceholder: true as const,
+					isPlaceholder: false as const,
 				})}
 			</li>
 		{/if}
@@ -131,9 +135,8 @@
 </ul>
 
 
-
 <style>
-	ul[data-items-list] {
+	.items-list {
 		&[data-scroll-position='start'] > li:first-child {
 			overflow-anchor: auto;
 		}

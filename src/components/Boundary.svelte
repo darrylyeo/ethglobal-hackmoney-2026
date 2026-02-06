@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Props
 	import type { Snippet } from 'svelte'
 	import { stringify } from '$/lib/stringify'
@@ -34,7 +36,7 @@
 		{#if Failed}
 			{@render Failed(error, retry)}
 		{:else}
-			<div data-card data-column="gap-1">
+			<div data-card>
 				<header data-row="wrap">
 					<h3>Error</h3>
 
@@ -42,7 +44,7 @@
 				</header>
 
 				<div class="error-content">
-					{#if error instanceof Error}
+					{#if console.error(error) || error instanceof Error}
 						<p>{error.message}</p>
 
 						{#if error.stack}
@@ -59,7 +61,6 @@
 		{/if}
 	{/snippet}
 </svelte:boundary>
-
 
 
 <style>

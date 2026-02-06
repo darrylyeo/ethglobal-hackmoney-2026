@@ -1,4 +1,6 @@
 <script module lang="ts">
+
+
 	// Types/constants
 	export enum AddressFormat {
 		Full = 'full',
@@ -8,6 +10,8 @@
 
 
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Network$Id } from '$/data/Network'
 	import { EntityType } from '$/data/$EntityType'

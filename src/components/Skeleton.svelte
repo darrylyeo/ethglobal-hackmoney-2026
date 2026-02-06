@@ -20,7 +20,6 @@
 ></span>
 
 
-
 <style>
 	.skeleton {
 		display: inline-block;

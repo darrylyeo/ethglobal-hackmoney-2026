@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type Graph from 'graphology'
 	import type { Attributes } from 'graphology-types'
@@ -310,7 +312,6 @@
 		}
 	}}
 ></div>
-
 
 
 <style>

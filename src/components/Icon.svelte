@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Props
 	let {
 		class: className,
@@ -70,7 +72,6 @@
 		{icon}
 	{/if}
 </span>
-
 
 
 <style>
