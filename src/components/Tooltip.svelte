@@ -17,15 +17,15 @@
 		children,
 		...rootProps
 	}: {
-		content?: string
-		triggerLabel?: string
-		triggerProps?: Record<string, unknown>
-		contentProps?: Record<string, unknown>
-		portalProps?: Record<string, unknown>
-		Trigger?: Snippet
-		Content?: Snippet
-		children?: Snippet
-		[key: string]: unknown
+		content?: string,
+		triggerLabel?: string,
+		triggerProps?: Record<string, unknown>,
+		contentProps?: Record<string, unknown>,
+		portalProps?: Record<string, unknown>,
+		Trigger?: Snippet,
+		Content?: Snippet,
+		children?: Snippet,
+		[key: string]: unknown,
 	} = $props()
 
 
