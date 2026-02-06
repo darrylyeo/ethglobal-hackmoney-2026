@@ -114,7 +114,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/collections/networks.spec.ts`
 - [x] `src/collections/networks.ts`
 - [x] `src/collections/room-peers-keys.ts`
-- [ ] `src/collections/room-peers.spec.ts`
+- [x] `src/collections/room-peers.spec.ts`
 - [ ] `src/collections/room-peers.ts`
 - [ ] `src/collections/rooms.ts`
 - [ ] `src/collections/shared-addresses-keys.ts`
