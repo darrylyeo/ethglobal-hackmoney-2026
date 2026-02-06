@@ -73,7 +73,7 @@ Transaction execution with status tracking.
 ## Status
 
 Complete. Full bridge flow with wallet connection, balance display, route comparison,
-approval, execution, and transaction history. Re-verification 2026-02-05 (PROMPT_build one spec): no incomplete specs; re-verified 004; all UI/integration/E2E AC confirmed; e2e/bridge.test.ts waits for Loading... to be hidden then asserts USDC Bridge|Connect a wallet; test:unit 44 Deno + 101 Vitest passed; test:e2e bridge 1 passed, 1 skipped.
+approval, execution, and transaction history. Re-verification 2026-02-06 (PROMPT_build execute one spec): no incomplete specs; re-verified 004; all 14 AC—BridgeFlow/AccountsSelect/CoinBalances/TokenApproval/BridgeExecution in session flow, Bits UI, bridgeRoutesCollection, e2e/bridge.test.ts (select chains, amount, address); test:unit 44 Deno + 101 Vitest passed. Previous: Re-verification 2026-02-05 (PROMPT_build one spec): no incomplete specs; re-verified 004; all UI/integration/E2E AC confirmed; e2e/bridge.test.ts waits for Loading... to be hidden then asserts USDC Bridge|Connect a wallet; test:unit 44 Deno + 101 Vitest passed; test:e2e bridge 1 passed, 1 skipped.
 
 ## Output when complete
 
