@@ -9,31 +9,32 @@ import {
 } from '$/constants/peer-display-names.ts'
 import {
 	adjectives as roomAdjectives,
+	colors as roomColors,
 	nouns as roomNouns,
 } from '$/constants/room-display-names.ts'
 
 export type RoomMessage =
-	| { type: 'join'; displayName?: string }
+	| { type: 'join', displayName?: string }
 	| { type: 'leave' }
 	| {
 			type: 'share-address'
 			address: `0x${string}`
-			targetPeerIds?: string[] | null
+			targetPeerIds?: string[] | null,
 	  }
-	| { type: 'request-challenge'; address: `0x${string}`; fromPeerId: string }
-	| { type: 'challenge'; challenge: unknown }
-	| { type: 'submit-signature'; challengeId: string; signature: `0x${string}` }
-	| { type: 'verify-result'; challengeId: string; verified: boolean }
+	| { type: 'request-challenge', address: `0x${string}`, fromPeerId: string }
+	| { type: 'challenge', challenge: unknown }
+	| { type: 'submit-signature', challengeId: string, signature: `0x${string}` }
+	| { type: 'verify-result', challengeId: string, verified: boolean }
 	| {
 			type: 'verification-record'
-			verification: import('$/data/Verification.ts').Verification
+			verification: import('$/data/Verification.ts').Verification,
 	  }
-	| { type: 'mark-unverifiable'; challengeId: string }
-	| { type: 'sync'; state: unknown }
+	| { type: 'mark-unverifiable', challengeId: string }
+	| { type: 'sync', state: unknown }
 	| {
 			type: 'propose-transfer'
 			to: `0x${string}`
-			allocations: { asset: string; amount: string }[]
+			allocations: { asset: string, amount: string }[],
 	  }
 	| {
 			type: 'transfer-request'
@@ -43,15 +44,15 @@ export type RoomMessage =
 				roomId: string
 				from: `0x${string}`
 				to: `0x${string}`
-				allocations: { asset: string; amount: string }[]
+				allocations: { asset: string, amount: string }[]
 				status: string
 				createdAt: number
-				expiresAt: number
-			}
+				expiresAt: number,
+			},
 	  }
-	| { type: 'accept-transfer'; requestId: string }
-	| { type: 'reject-transfer'; requestId: string; reason?: string }
-	| { type: 'transfer-sent'; requestId: string }
+	| { type: 'accept-transfer', requestId: string }
+	| { type: 'reject-transfer', requestId: string, reason?: string }
+	| { type: 'transfer-sent', requestId: string }
 
 const envHost =
 	typeof import.meta.env !== 'undefined'
@@ -68,61 +69,99 @@ const browserHost =
 const PARTYKIT_HOST =
 	envHost ?? (browserHost ? `${browserHost}:1999` : 'localhost:1999')
 
+const PERSISTENT_PEER_ID_KEY = 'room-persistent-peer-id'
+
+const getOrCreatePersistentPeerId = (): string => {
+	if (typeof localStorage === 'undefined') return crypto.randomUUID()
+	let id = localStorage.getItem(PERSISTENT_PEER_ID_KEY)
+	if (!id) {
+		id = crypto.randomUUID()
+		localStorage.setItem(PERSISTENT_PEER_ID_KEY, id)
+	}
+	return id
+}
+
 export type RoomConnection = {
 	socket: PartySocket
 	roomId: string
 	peerId: string
 	send: (msg: RoomMessage) => void
-	close: () => void
+	close: () => void,
 }
 
 export const connectToRoom = (roomId: string): RoomConnection => {
+	const peerId = getOrCreatePersistentPeerId()
 	const socket = new PartySocket({
 		host: PARTYKIT_HOST,
 		room: roomId,
+		id: peerId,
 	})
 	return {
 		socket,
 		roomId,
-		peerId: socket.id ?? '',
+		peerId: socket.id ?? peerId,
 		send: (msg) => socket.send(JSON.stringify(msg)),
 		close: () => socket.close(),
 	}
 }
 
-// Room ID encoding: hex string <-> human-readable "Adjective Noun" pairs
-// Each pair encodes `adjectives.length * nouns.length` values (~2352 with current lists)
-
-const ROOM_PAIR_BASE = BigInt(roomAdjectives.length * roomNouns.length)
-const ROOM_ID_BYTES = 4
-const ROOM_ID_MIN_PAIRS = 2
+// Room ID encoding: hex string <-> human-readable "Adjective Color Place" triplets
+const ROOM_TRIPLET_BASE = BigInt(
+	roomColors.length * roomAdjectives.length * roomNouns.length,
+)
+const ROOM_TRIPLET_BASE_N = roomColors.length * roomAdjectives.length * roomNouns.length
+const ROOM_ID_MIN_TRIPLETS = 1
+const ADJ_NOUN_BASE = roomAdjectives.length * roomNouns.length
 
 export const generateRoomId = () => {
-	const bytes = crypto.getRandomValues(new Uint8Array(ROOM_ID_BYTES))
-	return [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('')
+	const bytes = crypto.getRandomValues(new Uint8Array(3))
+	const n = (bytes[0] << 16) | (bytes[1] << 8) | bytes[2]
+	const value = n % ROOM_TRIPLET_BASE_N
+	return value.toString(16).padStart(6, '0')
 }
 
 export const roomIdToDisplayName = (roomId: string) => {
 	const value = BigInt(`0x${roomId}`)
-	const pairs: string[] = []
+	const triplets: string[] = []
 	let remaining = value
 
 	do {
-		const pairIndex = Number(remaining % ROOM_PAIR_BASE)
-		const adjIndex = Math.floor(pairIndex / roomNouns.length)
-		const nounIndex = pairIndex % roomNouns.length
-		pairs.push(
-			`${roomAdjectives[adjIndex].adjective} ${roomNouns[nounIndex].noun}`,
+		const tripletIndex = Number(remaining % ROOM_TRIPLET_BASE)
+		const colorIndex = Math.floor(tripletIndex / ADJ_NOUN_BASE)
+		const pairRem = tripletIndex % ADJ_NOUN_BASE
+		const adjIndex = Math.floor(pairRem / roomNouns.length)
+		const nounIndex = pairRem % roomNouns.length
+		triplets.push(
+			`${roomAdjectives[adjIndex].adjective} ${roomColors[colorIndex].color} ${roomNouns[nounIndex].noun}`,
 		)
-		remaining = remaining / ROOM_PAIR_BASE
+		remaining = remaining / ROOM_TRIPLET_BASE
 	} while (remaining > 0n)
 
-	while (pairs.length < ROOM_ID_MIN_PAIRS)
-		pairs.push(`${roomAdjectives[0].adjective} ${roomNouns[0].noun}`)
+	while (triplets.length < ROOM_ID_MIN_TRIPLETS)
+		triplets.push(
+			`${roomAdjectives[0].adjective} ${roomColors[0].color} ${roomNouns[0].noun}`,
+		)
 
-	return pairs.reverse().join(' ')
+	return triplets.reverse().join(' ')
 }
 
+export const roomIdToPlaceEmoji = (roomId: string): string => {
+	const value = BigInt(`0x${roomId}`)
+	let remaining = value
+	let lastIcon = roomNouns[0].icon
+	do {
+		const tripletIndex = Number(remaining % ROOM_TRIPLET_BASE)
+		const pairRem = tripletIndex % ADJ_NOUN_BASE
+		const nounIndex = pairRem % roomNouns.length
+		lastIcon = roomNouns[nounIndex].icon
+		remaining = remaining / ROOM_TRIPLET_BASE
+	} while (remaining > 0n)
+	return lastIcon
+}
+
+const roomColorIndex = new Map(
+	roomColors.map((entry, index) => [entry.color.toLowerCase(), index]),
+)
 const roomAdjectiveIndex = new Map(
 	roomAdjectives.map((entry, index) => [entry.adjective.toLowerCase(), index]),
 )
@@ -132,22 +171,30 @@ const roomNounIndex = new Map(
 
 export const displayNameToRoomId = (displayName: string) => {
 	const words = displayName.trim().toLowerCase().split(/\s+/).filter(Boolean)
-	if (words.length === 0 || words.length % 2 !== 0) return null
+	if (words.length === 0 || words.length % 3 !== 0) return null
 
-	const pairs: number[] = []
-	for (let i = 0; i < words.length; i += 2) {
+	const triplets: number[] = []
+	for (let i = 0; i < words.length; i += 3) {
 		const adjIdx = roomAdjectiveIndex.get(words[i])
-		const nounIdx = roomNounIndex.get(words[i + 1])
-		if (adjIdx === undefined || nounIdx === undefined) return null
-		pairs.push(adjIdx * roomNouns.length + nounIdx)
+		const colorIdx = roomColorIndex.get(words[i + 1])
+		const nounIdx = roomNounIndex.get(words[i + 2])
+		if (
+			colorIdx === undefined ||
+			adjIdx === undefined ||
+			nounIdx === undefined
+		)
+			return null
+		triplets.push(
+			colorIdx * ADJ_NOUN_BASE + adjIdx * roomNouns.length + nounIdx,
+		)
 	}
 
 	let value = 0n
-	for (const pairIndex of pairs) {
-		value = value * ROOM_PAIR_BASE + BigInt(pairIndex)
+	for (const tripletIndex of triplets) {
+		value = value * ROOM_TRIPLET_BASE + BigInt(tripletIndex)
 	}
 
-	return value.toString(16).padStart(ROOM_ID_BYTES * 2, '0')
+	return value.toString(16).padStart(6, '0')
 }
 
 export const normalizeRoomInput = (input: string) => {
