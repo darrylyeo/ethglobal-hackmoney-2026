@@ -2,8 +2,8 @@
  * Token entries per network from Circle USDC contract addresses.
  */
 
-import type { Media } from '$/constants/media'
-import { ChainId } from '$/constants/networks'
+import type { Media } from '$/constants/media.ts'
+import { ChainId } from '$/constants/networks.ts'
 
 export enum CoinType {
 	Native = 'Native',
@@ -297,3 +297,4 @@ export function getCoinForCoinPage(symbol: CoinPageSymbol): Coin {
 		decimals: 18,
 	}
 }
+
