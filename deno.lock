@@ -9,6 +9,7 @@
     "npm:@erc7824/nitrolite@~0.5.3": "0.5.3_typescript@5.9.3_zod@3.25.76",
     "npm:@floating-ui/dom@^1.7.5": "1.7.5",
     "npm:@lifi/sdk@^3.15.4": "3.15.4_@solana+wallet-adapter-base@0.9.27__@solana+web3.js@1.98.4___typescript@5.9.3__typescript@5.9.3_@solana+web3.js@1.98.4__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_bs58@6.0.0_typescript@5.9.3",
+    "npm:@playwright/test@*": "1.57.0",
     "npm:@playwright/test@1.57.0": "1.57.0",
     "npm:@sigma/edge-curve@^3.1.0": "3.1.0_sigma@3.0.2__graphology-types@0.24.8_graphology-types@0.24.8",
     "npm:@sigma/node-image@3": "3.0.0_sigma@3.0.2__graphology-types@0.24.8_graphology-types@0.24.8",
