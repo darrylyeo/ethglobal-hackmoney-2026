@@ -73,7 +73,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `scripts/_fetch-chain-icons.ts`
 - [x] `scripts/_fetch-icons.ts`
 - [x] `scripts/_svelte-section-spacing.ts`
-- [ ] `scripts/_yellow-demo.ts`
+- [x] `scripts/_yellow-demo.ts`
 - [ ] `scripts/check-bundle-size.mjs`
 - [ ] `scripts/check-performance.mjs`
 - [ ] `src/api/approval.ts`
@@ -429,7 +429,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 
 ## Status
 
-Incomplete. Tasks reset; execution rule: one file per run. Formatting is manual to repo preferences; `deno task format` runs scripts/_svelte-section-spacing.ts (two empty lines between Svelte sections and comment groups in <script>). Formatter subagent may inline single-use variables/types (spec 041).
+Incomplete. Tasks reset; execution rule: one file per run. Formatting is manual to repo preferences; `deno task format` runs scripts/_svelte-section-spacing.ts (two empty lines between Svelte sections and comment groups in <script>). Formatter subagent may inline single-use variables/types (spec 041). 2026-02-06 (PROMPT_build execute one spec): formatted scripts/_yellow-demo.ts (trailing commas in Promise callback).
 
 ## Output when complete
 
