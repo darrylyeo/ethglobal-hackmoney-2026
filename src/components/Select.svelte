@@ -1,11 +1,11 @@
 <script lang="ts" generics="Item">
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
 
-	// Components
-	import { Select } from 'bits-ui'
-
+	// Functions
 	const defaultItemLabel = (item: Item) => String(item)
 	const isRecord = (value: unknown): value is Record<string, unknown> =>
 		typeof value === 'object' && value !== null
@@ -52,22 +52,22 @@
 	}: {
 		items:
 			| readonly Item[]
-			| readonly { id?: string; label: string; items: readonly Item[] }[]
-		value?: string | string[]
-		type?: 'single' | 'multiple'
-		placeholder?: string
-		disabled?: boolean
-		name?: string
-		allowDeselect?: boolean
-		id?: string
-		ariaLabel?: string
-		getItemId?: (item: Item) => string
-		getItemLabel?: (item: Item) => string
-		getItemDisabled?: (item: Item) => boolean
-		Before?: Snippet
-		After?: Snippet
-		Item?: Snippet<[item: Item, selected: boolean]>
-		children?: Snippet
+			| readonly { id?: string; label: string; items: readonly Item[] }[],
+		value?: string | string[],
+		type?: 'single' | 'multiple',
+		placeholder?: string,
+		disabled?: boolean,
+		name?: string,
+		allowDeselect?: boolean,
+		id?: string,
+		ariaLabel?: string,
+		getItemId?: (item: Item) => string,
+		getItemLabel?: (item: Item) => string,
+		getItemDisabled?: (item: Item) => boolean,
+		Before?: Snippet,
+		After?: Snippet,
+		Item?: Snippet<[item: Item, selected: boolean]>,
+		children?: Snippet,
 		[key: string]: unknown
 	} = $props()
 
@@ -118,6 +118,10 @@
 			disabled: item.disabled,
 		})),
 	)
+
+
+	// Components
+	import { Select } from 'bits-ui'
 </script>
 
 {#if type === 'multiple'}
