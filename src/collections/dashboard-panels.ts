@@ -3,11 +3,6 @@
  * Persisted to localStorage across sessions.
  */
 
-import {
-	createCollection,
-	localStorageCollectionOptions,
-} from '@tanstack/svelte-db'
-import { parse, stringify } from 'devalue'
 import { DataSource } from '$/constants/data-sources'
 import type {
 	DashboardNode,
@@ -15,6 +10,11 @@ import type {
 	DashboardState,
 	DashboardState$Id,
 } from '$/data/DashboardPanel'
+import { parse, stringify } from 'devalue'
+import {
+	createCollection,
+	localStorageCollectionOptions,
+} from '@tanstack/svelte-db'
 
 export type DashboardStateRow = DashboardState & { $source: DataSource }
 
