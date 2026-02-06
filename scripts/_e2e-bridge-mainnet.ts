@@ -12,10 +12,10 @@
 
 import { createConfig, getQuote, getStatus } from '@lifi/sdk'
 import { PrivateKeySignerImpl } from '@tevm/voltaire/signers'
-import { ChainId } from '../src/constants/networks.ts'
 import { ercTokensBySymbolByChainId } from '../src/constants/coins.ts'
+import { ChainId } from '../src/constants/networks.ts'
 
-createConfig({ integrator: 'ethglobal-hackmoney-26' })
+createConfig({ integrator: 'ethglobal-hackmoney-26', })
 
 const RPC_URLS: Record<number, string> = {
 	[ChainId.Base]: 'https://mainnet.base.org',
@@ -33,7 +33,7 @@ class JsonRpcProvider {
 	}): Promise<T> {
 		const response = await fetch(this.url, {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', },
 			body: JSON.stringify({
 				jsonrpc: '2.0',
 				id: Date.now(),
@@ -55,7 +55,7 @@ const ERC20_ABI = [
 			{ name: 'spender', type: 'address' },
 			{ name: 'amount', type: 'uint256' },
 		],
-		outputs: [{ type: 'bool' }],
+		outputs: [{ type: 'bool', }],
 	},
 	{
 		name: 'allowance',
@@ -64,9 +64,9 @@ const ERC20_ABI = [
 			{ name: 'owner', type: 'address' },
 			{ name: 'spender', type: 'address' },
 		],
-		outputs: [{ type: 'uint256' }],
+		outputs: [{ type: 'uint256', }],
 	},
-] as const
+,] as const
 
 type BridgeParams = {
 	fromChain: ChainId
@@ -124,7 +124,7 @@ async function runBridge(params: BridgeParams) {
 		])
 		const allowanceResult = await provider.request({
 			method: 'eth_call',
-			params: [{ to: fromToken, data: allowanceData }, 'latest'],
+			params: [{ to: fromToken, data: allowanceData, }, 'latest', ],
 		})
 		const currentAllowance = BigInt(allowanceResult as string)
 		const requiredAmount = BigInt(fromAmount)
@@ -142,7 +142,7 @@ async function runBridge(params: BridgeParams) {
 			// Get nonce and gas price
 			const nonce = await provider.request({
 				method: 'eth_getTransactionCount',
-				params: [fromAddress, 'latest'],
+				params: [fromAddress, 'latest', ],
 			})
 			const gasPrice = await provider.request({
 				method: 'eth_gasPrice',

@@ -63,14 +63,14 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `e2e/tevm-execution.test.ts`
 - [x] `e2e/unified-bridge.test.ts`
 - [x] `e2e/wallet.test.ts`
-- [ ] `env.d.ts`
-- [ ] `partykit/room.ts`
-- [ ] `playwright.config.ts`
-- [ ] `playwright.e2e.config.ts`
-- [ ] `playwright.no-server.config.ts`
-- [ ] `reset.d.ts`
-- [ ] `scripts/_e2e-bridge-mainnet.ts`
-- [ ] `scripts/_fetch-chain-icons.ts`
+- [x] `env.d.ts`
+- [x] `partykit/room.ts`
+- [x] `playwright.config.ts`
+- [x] `playwright.e2e.config.ts`
+- [x] `playwright.no-server.config.ts`
+- [x] `reset.d.ts`
+- [x] `scripts/_e2e-bridge-mainnet.ts`
+- [x] `scripts/_fetch-chain-icons.ts`
 - [ ] `scripts/_fetch-icons.ts`
 - [ ] `scripts/_svelte-section-spacing.ts`
 - [ ] `scripts/_yellow-demo.ts`

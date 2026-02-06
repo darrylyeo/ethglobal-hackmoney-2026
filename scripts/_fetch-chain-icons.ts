@@ -28,7 +28,7 @@ function isSvgContent(text: string): boolean {
 
 async function fetchSvg(url: string): Promise<string> {
 	const res = await fetch(url, {
-		headers: { Accept: 'image/svg+xml' },
+		headers: { Accept: 'image/svg+xml', },
 		redirect: 'follow',
 	})
 	if (!res.ok) throw new Error(`${url} ${res.status}`)
@@ -52,7 +52,7 @@ async function main() {
 			if (f.fetchType === FetchTypeKind.Zip) {
 				let unzipped = zipCache.get(f.zipUrl)
 				if (!unzipped) {
-					const res = await fetch(f.zipUrl, { redirect: 'follow' })
+					const res = await fetch(f.zipUrl, { redirect: 'follow', })
 					if (!res.ok) throw new Error(`${f.zipUrl} ${res.status}`)
 					const buf = await res.arrayBuffer()
 					unzipped = unzipSync(new Uint8Array(buf)) as Record<
@@ -72,7 +72,7 @@ async function main() {
 				if (isDefaultIcon(iconKind, style)) defaultSvgByChainId.set(numId, svg)
 				console.log(`OK ${filename} (from ZIP)`)
 			} else if (f.fetchType === FetchTypeKind.Png) {
-				const res = await fetch(f.url, { redirect: 'follow' })
+				const res = await fetch(f.url, { redirect: 'follow', })
 				if (!res.ok) throw new Error(`${f.url} ${res.status}`)
 				const buf = await res.arrayBuffer()
 				const b64 = Buffer.from(buf).toString('base64')
