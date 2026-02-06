@@ -2,17 +2,19 @@
  * Swap quotes collection. In-memory cache keyed by quote id (hash of params).
  */
 
-import {
-	createCollection,
-	localOnlyCollectionOptions,
-} from '@tanstack/svelte-db'
 import { DataSource } from '$/constants/data-sources'
 import type {
 	FetchSwapQuoteParams,
 	SwapQuote,
 	SwapRoute,
 } from '$/data/SwapQuote'
+import {
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 import { normalizeSwapQuote } from './swap-quotes-normalize'
+
+export type SwapQuoteRow = SwapQuote & { $source: DataSource }
 
 export const swapQuotesCollection = createCollection(
 	localOnlyCollectionOptions({
@@ -20,8 +22,6 @@ export const swapQuotesCollection = createCollection(
 		getKey: (row: SwapQuoteRow) => row.id,
 	}),
 )
-
-export type SwapQuoteRow = SwapQuote & { $source: DataSource }
 
 export const fetchSwapQuote = async (
 	params: FetchSwapQuoteParams,
