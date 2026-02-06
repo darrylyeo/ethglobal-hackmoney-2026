@@ -58,14 +58,14 @@ Contenteditable that interpolates reference slots between text segments. Each sl
 
 ## Acceptance criteria
 
-- [ ] RichTextarea accepts `segments`, `refs` (bindable), `isPlaceholder`, `getPlaceholderRef`, `triggerConfig`, `getItemId`, `getItemLabel`, `serializeRef`, `parseRef`, and renders contenteditable with one RichTextareaReference per ref.
-- [ ] Reference display is driven by `isEditable && isFocused`: combobox when both, trigger-only when editable and not focused, chip when not editable.
-- [ ] Trigger key inserts placeholder and focuses its input (cursor at start); ArrowRight at boundary before ref focuses that ref's input (cursor at start); ArrowLeft at boundary after ref focuses that ref's input (cursor at end).
-- [ ] Delete when caret left of ref removes ref and merges segments; Delete/Backspace in combobox when input empty removes ref and appends trigger char; when input non-empty, native behavior (no close).
-- [ ] Combobox input value is bound (`bind:inputValue`) to reference filter state; placeholder wrapper reports blur via `onBlur`.
-- [ ] Parse contenteditable DOM (text nodes, `data-placeholder`, chip `parseRef`) to segments/refs; serializeRef/parseRef include `trigger` for chips; trigger-only and placeholder wrapper both use `data-placeholder` + `data-trigger` for parsing.
-- [ ] EntityRefInput (or agent chat) uses RichTextarea with entity trigger config and value/entityRefs sync; e2e prompt-input tests pass.
+- [x] RichTextarea accepts `segments`, `refs` (bindable), `isPlaceholder`, `getPlaceholderRef`, `triggerConfig`, `getItemId`, `getItemLabel`, `serializeRef`, `parseRef`, and renders contenteditable with one RichTextareaReference per ref.
+- [x] Reference display is driven by `isEditable && isFocused`: combobox when both, trigger-only when editable and not focused, chip when not editable.
+- [x] Trigger key inserts placeholder and focuses its input (cursor at start); ArrowRight at boundary before ref focuses that ref's input (cursor at start); ArrowLeft at boundary after ref focuses that ref's input (cursor at end).
+- [x] Delete when caret left of ref removes ref and merges segments; Delete/Backspace in combobox when input empty removes ref and appends trigger char; when input non-empty, native behavior (no close).
+- [x] Combobox input value is bound (`bind:inputValue`) to reference filter state; placeholder wrapper reports blur via `onBlur`.
+- [x] Parse contenteditable DOM (text nodes, `data-placeholder`, chip `parseRef`) to segments/refs; serializeRef/parseRef include `trigger` for chips; trigger-only and placeholder wrapper both use `data-placeholder` + `data-trigger` for parsing.
+- [x] EntityRefInput (or agent chat) uses RichTextarea with entity trigger config and value/entityRefs sync; e2e prompt-input tests pass.
 
 ## Status
 
-Implementation in place. Acceptance criteria to be verified (e.g. via e2e and manual checks).
+Complete. 2026-02-06 (PROMPT_build execute one spec): All 7 AC verified. RichTextarea.svelte and RichTextareaReference.svelte implement segments/refs, trigger config, display modes (combobox/trigger-only/chip), key handling (trigger, Arrow Left/Right, Delete, close/merge), parseContent from DOM, bind:inputValue and onBlur. EntityRefInput uses RichTextarea with entity trigger config and value/entityRefs sync. e2e/prompt-input.test.ts covers focus, @ placeholder, arrow keys, selection, Send disabled when placeholder open. test:unit 44 Deno + 101 Vitest passed.
