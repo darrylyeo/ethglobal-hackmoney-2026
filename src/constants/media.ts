@@ -13,7 +13,7 @@ export type Media = {
 	low?: MediaObject
 	medium?: MediaObject
 	high?: MediaObject
-	hash?: string
+	hash?: string,
 }
 
 export type MediaObject = {
@@ -21,5 +21,5 @@ export type MediaObject = {
 	width?: number
 	height?: number
 	mimeType?: string
-	size?: number
+	size?: number,
 }

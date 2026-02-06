@@ -191,7 +191,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/constants/identity-resolver.ts`
 - [x] `src/constants/interop.spec.ts`
 - [x] `src/constants/interop.ts`
-- [ ] `src/constants/media.ts`
+- [x] `src/constants/media.ts`
 - [ ] `src/constants/networks.ts`
 - [ ] `src/constants/opencode-zen.ts`
 - [ ] `src/constants/peer-display-names.ts`
