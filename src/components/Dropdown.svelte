@@ -1,9 +1,11 @@
 <script lang="ts" generics="Item">
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
 	type DropdownActionItem<Item> = {
-		type: string
+		type: 'item'
 		item: Item
 		id?: string
 		label?: string
@@ -12,12 +14,12 @@
 	}
 
 	type DropdownSeparator = {
-		type: string
+		type: 'separator'
 		id?: string
 	}
 
 	type DropdownCheckboxItem = {
-		type: string
+		type: 'checkbox'
 		id?: string
 		label: string
 		checked: boolean
@@ -26,7 +28,7 @@
 	}
 
 	type DropdownCheckboxGroup = {
-		type: string
+		type: 'checkbox-group'
 		id?: string
 		label?: string
 		items: readonly {
@@ -39,7 +41,7 @@
 	}
 
 	type DropdownRadioGroup = {
-		type: string
+		type: 'radio-group'
 		id?: string
 		label?: string
 		value: string
@@ -332,7 +334,10 @@
 
 
 <DropdownMenu.Root {...rootProps}>
-	<DropdownMenu.Trigger aria-label={triggerAriaLabel} {...triggerProps}>
+	<DropdownMenu.Trigger
+		aria-label={triggerAriaLabel}
+		{...triggerProps}
+	>
 		{#if Trigger}
 			{@render Trigger()}
 		{:else}
@@ -340,14 +345,19 @@
 		{/if}
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Portal>
-		<DropdownMenu.Content {...contentProps}>
+		<DropdownMenu.Content
+			{...contentProps}
+		>
 			{#each normalizedEntries as entry (entry.id)}
 				{#if entry.kind === 'separator'}
 					<DropdownMenu.Separator />
 				{:else if entry.kind === 'group'}
 					<DropdownMenu.Group>
 						{#if entry.label}
-							<DropdownMenu.Item disabled data-dropdown-label>
+							<DropdownMenu.Item
+								disabled
+								data-dropdown-label
+							>
 								{entry.label}
 							</DropdownMenu.Item>
 						{/if}
@@ -373,7 +383,10 @@
 							{:else if item.kind === 'checkbox-group'}
 								<DropdownMenu.Group>
 									{#if item.label}
-										<DropdownMenu.Item disabled data-dropdown-label>
+										<DropdownMenu.Item
+											disabled
+											data-dropdown-label
+										>
 											{item.label}
 										</DropdownMenu.Item>
 									{/if}
@@ -399,7 +412,10 @@
 									bind:value={() => item.value, (v) => item.onValueChange?.(v)}
 								>
 									{#if item.label}
-										<DropdownMenu.Item disabled data-dropdown-label>
+										<DropdownMenu.Item
+											disabled
+											data-dropdown-label
+										>
 											{item.label}
 										</DropdownMenu.Item>
 									{/if}
@@ -416,7 +432,9 @@
 														checked,
 													})}
 												{:else}
-													<span data-row="start gap-2">
+													<span
+														data-row="start gap-2"
+													>
 														<span
 															class="dropdown-radio-check"
 															aria-hidden="true"
@@ -466,7 +484,10 @@
 				{:else if entry.kind === 'checkbox-group'}
 					<DropdownMenu.Group>
 						{#if entry.label}
-							<DropdownMenu.Item disabled data-dropdown-label>
+							<DropdownMenu.Item
+								disabled
+								data-dropdown-label
+							>
 								{entry.label}
 							</DropdownMenu.Item>
 						{/if}
@@ -492,7 +513,10 @@
 						bind:value={() => entry.value, (v) => entry.onValueChange?.(v)}
 					>
 						{#if entry.label}
-							<DropdownMenu.Item disabled data-dropdown-label>
+							<DropdownMenu.Item
+								disabled
+								data-dropdown-label
+							>
 								{entry.label}
 							</DropdownMenu.Item>
 						{/if}
@@ -509,7 +533,9 @@
 											checked,
 										})}
 									{:else}
-										<span data-row="start gap-2">
+										<span
+											data-row="start gap-2"
+										>
 											<span
 												class="dropdown-radio-check"
 												aria-hidden="true"
