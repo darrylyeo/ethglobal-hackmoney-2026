@@ -6,6 +6,8 @@
 		_GroupKey extends string | number = string | number
 	"
 >
+
+
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
@@ -47,7 +49,7 @@
 	} = $props()
 
 
-	// (Derived)
+	// Functions
 	const isPlaceholderKey = (key: _Key): boolean => {
 		for (const entry of placeholderKeys)
 			if (
@@ -58,6 +60,9 @@
 				return true
 		return false
 	}
+
+
+	// (Derived)
 	const sortedItems = $derived(
 		[...items].sort((itemA, itemB) => {
 			const sortValueA = getSortValue(itemA)
