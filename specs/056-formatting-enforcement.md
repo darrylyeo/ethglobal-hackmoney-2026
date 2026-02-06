@@ -80,10 +80,10 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/api/cctp.ts`
 - [x] `src/api/identity-resolve.spec.ts`
 - [x] `src/api/identity-resolve.ts`
-- [ ] `src/api/lifi.spec.ts`
-- [ ] `src/api/lifi.ts`
-- [ ] `src/api/llm/connection-provider.ts`
-- [ ] `src/api/llm/zen.ts`
+- [x] `src/api/lifi.spec.ts`
+- [x] `src/api/lifi.ts`
+- [x] `src/api/llm/connection-provider.ts`
+- [x] `src/api/llm/zen.ts`
 - [ ] `src/api/simulate.ts`
 - [x] `src/api/transfers-indexer.ts`
 - [ ] `src/api/transfers-logs.ts`
@@ -429,7 +429,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 
 ## Status
 
-Incomplete. Tasks reset; execution rule: one file per run. Formatting is manual to repo preferences; `deno task format` runs scripts/_svelte-section-spacing.ts (two empty lines between Svelte sections and comment groups in <script>). Formatter subagent may inline single-use variables/types (spec 041). 2026-02-06 (PROMPT_build execute one spec): src/api/identity-resolve.ts formatted (chained call break in bytes32FromNamehash), box checked; test:unit 44 Deno + 101 Vitest passed. Previous: src/api/cctp.ts formatted (T[] over Array<T>), box checked; test:unit 44 Deno + 101 Vitest passed.
+Incomplete. Tasks reset; execution rule: one file per run. Formatting is manual to repo preferences; `deno task format` runs scripts/_svelte-section-spacing.ts (two empty lines between Svelte sections and comment groups in <script>). Formatter subagent may inline single-use variables/types (spec 041). 2026-02-06 (PROMPT_build execute one spec): src/api/llm/zen.ts verified compliant, box checked; test:unit 44 Deno + 101 Vitest passed. Previous: src/api/identity-resolve.ts formatted (chained call break in bytes32FromNamehash), box checked; test:unit 44 Deno + 101 Vitest passed. Previous: src/api/cctp.ts formatted (T[] over Array<T>), box checked; test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 
