@@ -2,12 +2,12 @@
  * Yellow channels: payment channels between actors (in-memory, synced from Clearnode).
  */
 
+import { DataSource } from '$/constants/data-sources'
+import type { YellowChannel } from '$/data/YellowChannel'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { DataSource } from '$/constants/data-sources'
-import type { YellowChannel } from '$/data/YellowChannel'
 
 export type YellowChannelRow = YellowChannel & { $source: DataSource }
 
