@@ -3,15 +3,14 @@
  * Fetched and upserted for the coin page; list reads from this collection.
  */
 
+import type { NormalizedTransferEvent } from '$/api/transfers-logs'
+import { fetchTransferEventsForPeriod } from '$/api/transfers-logs'
+import type { CoinPageSymbol } from '$/constants/coins'
+import { DataSource } from '$/constants/data-sources'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { DataSource } from '$/constants/data-sources'
-import type { CoinPageSymbol } from '$/constants/coins'
-import type { NormalizedTransferEvent } from '$/api/transfers-logs'
-import { fetchTransferEventsForPeriod } from '$/api/transfers-logs'
-import { TIME_PERIODS } from '$/api/transfers-indexer'
 
 export type TransferEvent$Id = {
 	symbol: string
