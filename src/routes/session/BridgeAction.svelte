@@ -2,7 +2,7 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { BridgeRoute } from '$/data/BridgeRoute'
-	import type { BridgeSessionParams } from '$/lib/transaction-session-params'
+	import type { BridgeSessionParams } from '$/lib/session/params'
 	import {
 		calculateMinOutput,
 		formatSlippagePercent,
@@ -35,7 +35,7 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/dashboard-panel-hash'
+	} from '$/lib/session/panel-hash'
 
 
 	// Functions
@@ -48,8 +48,8 @@
 		createTransactionSessionWithId,
 		parseSessionHash,
 		updateTransactionSession,
-	} from '$/lib/transaction-sessions'
-	import { normalizeBridgeSessionParams } from '$/lib/transaction-session-params'
+	} from '$/lib/session/sessions'
+	import { normalizeBridgeSessionParams } from '$/lib/session/params'
 	import { stringify } from '$/lib/stringify'
 
 
@@ -210,7 +210,7 @@
 		Boolean(activeProtocol === 'lifi' ? previewResult : recipient),
 	)
 	const hashSource = getContext<
-		import('$/lib/dashboard-panel-hash').SessionHashSource
+		import('$/lib/session/panel-hash').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 

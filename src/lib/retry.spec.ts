@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { BridgeError } from './bridge-errors'
-import { ErrorCode } from './bridge-errors'
+import type { BridgeError } from './bridge/errors'
+import { ErrorCode } from './bridge/errors'
 import { withRetry } from './retry'
 
 describe('withRetry', () => {
