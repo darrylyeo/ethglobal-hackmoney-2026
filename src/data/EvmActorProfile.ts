@@ -1,5 +1,5 @@
-import type { DataSource } from '$/constants/data-sources'
-import type { ChainId } from '$/constants/networks'
+import type { DataSource } from '$/constants/data-sources.ts'
+import type { ChainId } from '$/constants/networks.ts'
 
 export type EvmActorProfile$Id = {
 	chainId: ChainId

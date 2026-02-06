@@ -1,4 +1,4 @@
-import type { Erc20Token } from '$/constants/coins'
+import type { Erc20Token } from '$/constants/coins.ts'
 
 export type Coin$Id = {
 	network: number

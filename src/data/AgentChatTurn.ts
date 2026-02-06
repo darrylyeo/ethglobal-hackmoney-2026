@@ -1,4 +1,4 @@
-import type { EntityRef } from '$/data/EntityRef'
+import type { EntityRef } from '$/data/EntityRef.ts'
 
 export type AgentChatTurnStatus =
 	| 'pending'

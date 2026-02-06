@@ -1,4 +1,4 @@
-import type { ChainId } from '$/constants/networks'
+import type { ChainId } from '$/constants/networks.ts'
 
 export type ActorAllowance$Id = {
 	chainId: ChainId

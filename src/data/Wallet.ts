@@ -1,4 +1,4 @@
-import type { EIP1193Provider } from '$/lib/wallet'
+import type { EIP1193Provider } from '$/lib/wallet.ts'
 
 export type Wallet$Id = {
 	rdns: string

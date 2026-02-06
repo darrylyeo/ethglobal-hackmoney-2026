@@ -1,5 +1,5 @@
-import type { ChainId } from '$/constants/networks'
-import type { Network } from '$/constants/networks'
+import type { ChainId } from '$/constants/networks.ts'
+import type { Network } from '$/constants/networks.ts'
 
 export type Network$Id = ChainId
 

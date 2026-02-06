@@ -1,4 +1,4 @@
-import type { ChainId } from '$/constants/networks'
+import type { ChainId } from '$/constants/networks.ts'
 
 export type Block$Id = {
 	chainId: ChainId

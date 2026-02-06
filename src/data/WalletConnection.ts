@@ -1,5 +1,5 @@
-import type { ChainId } from '$/constants/networks'
-import type { Wallet$Id, Wallet } from './Wallet'
+import type { ChainId } from '$/constants/networks.ts'
+import type { Wallet$Id, Wallet } from './Wallet.ts'
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'error'
 
