@@ -9,5 +9,5 @@ export type SiweChallenge = {
 	issuedAt: number
 	expiresAt: number
 	signature?: `0x${string}`
-	verified: boolean
+	verified: boolean,
 }
