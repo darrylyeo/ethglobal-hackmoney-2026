@@ -1,11 +1,11 @@
-import { createCollection } from '@tanstack/svelte-db'
-import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { DataSource } from '$/constants/data-sources'
-import { ercTokens } from '$/constants/coins'
 import type { Erc20Token } from '$/constants/coins'
+import { ercTokens } from '$/constants/coins'
 import { toInteropName } from '$/constants/interop'
 import type { CoinEntry } from '$/data/Coin'
 import { queryClient } from '$/lib/db/query-client'
+import { createCollection } from '@tanstack/svelte-db'
+import { queryCollectionOptions } from '@tanstack/query-db-collection'
 
 export type CoinRow = CoinEntry & { $source: DataSource }
 
