@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { BridgeError } from './errors'
-import { ErrorCode } from './errors'
+import type { BridgeError } from './bridge-errors'
+import { ErrorCode } from './bridge-errors'
 import { withRetry } from './retry'
 
 describe('withRetry', () => {
@@ -31,7 +31,7 @@ describe('withRetry', () => {
 				{ maxAttempts: 3, getDelay: () => 0 },
 			),
 		).rejects.toMatchObject({
-			code: ErrorCode.NETWORK,
+			code: ErrorCode.Network,
 			title: 'Network error',
 			retryable: true,
 		})
@@ -49,7 +49,7 @@ describe('withRetry', () => {
 				{ maxAttempts: 3 },
 			),
 		).rejects.toMatchObject({
-			code: ErrorCode.INSUFFICIENT_FUNDS,
+			code: ErrorCode.InsufficientFunds,
 			retryable: false,
 		})
 		expect(attempts).toBe(1)
@@ -72,7 +72,7 @@ describe('withRetry', () => {
 		).rejects.toBeDefined()
 		expect(errors).toHaveLength(2)
 		expect(
-			errors.every((e) => (e as BridgeError).code === ErrorCode.NETWORK),
+			errors.every((e) => (e as BridgeError).code === ErrorCode.Network),
 		).toBe(true)
 	})
 })
