@@ -10,7 +10,8 @@ Deno.test('verificationKey generates correct composite key', () => {
 })
 
 Deno.test('verificationKey normalizes address to lowercase', () => {
-	const k1 = verificationKey('R', 'v', 's', '0xABCDEF', 1)
-	const k2 = verificationKey('R', 'v', 's', '0xabcdef', 1)
-	assertEquals(k1, k2)
+	assertEquals(
+		verificationKey('R', 'v', 's', '0xABCDEF', 1),
+		verificationKey('R', 'v', 's', '0xabcdef', 1),
+	)
 })
