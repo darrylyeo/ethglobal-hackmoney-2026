@@ -143,7 +143,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/collections/verifications-keys.ts`
 - [x] `src/collections/verifications.spec.ts`
 - [x] `src/collections/verifications.ts`
-- [ ] `src/collections/wallet-connections.ts`
+- [x] `src/collections/wallet-connections.ts`
 - [ ] `src/collections/wallets.ts`
 - [ ] `src/collections/yellow-channel-states.ts`
 - [ ] `src/collections/yellow-channels.ts`
