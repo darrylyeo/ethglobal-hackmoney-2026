@@ -4,9 +4,18 @@
 
 | # | SHA      | Message |
 |---|----------|---------|
+| 1 | 50f4095  | lib + state: add format-relative-time, proxy-fetch, rooms/, nitro-rpc in state |
+| 2 | 60a9b2c  | lib: remove formatRelativeTime, proxyFetch, room, siwe, nitro-rpc, yellow/index (moved to …) |
+| 3 | 63c8d26  | routes, views, state, api, components: use format-relative-time, proxy-fetch, rooms/siwe, state/nitro-rpc; config and spec doc updates |
+
+## Completed (previous run)
+
+| # | SHA      | Message |
+|---|----------|---------|
 | 1 | efac457  | lib: add session/, bridge/, llm-provider; fix BridgeAction and retry.spec imports |
 | 2 | 8e918d5  | lib: remove bridge-errors, explain, dashboard-panel-hash, transaction-session-params, transaction-sessions, tx-status (flat); retry, agent-chat use new lib |
 | 3 | 53ce816  | routes, views, api, collections, data: use lib/session and lib/bridge; Draggable + spec 073; spec doc updates |
+| 4 | dd5080c  | chore: update commit plan |
 
 ## Completed (previous run)
 
@@ -64,8 +73,7 @@
 
 - `.cursor/agents/`, `.cursor/rules/`, `.cursor/skills/`
 - `history/*.md`, `e2e/prompt-input.test.ts`, `playwright.no-server.config.ts`, `.specify/memory/richtextarea.md`
-- `src/lib/room.ts`, `src/lib/siwe.ts`, `src/lib/rooms/`, `src/state/room.svelte.ts`
-- `specs/008`, `013`, `030`, `031`; `src/api/lifi.ts`; routes/rooms, channels/yellow; views, components (EntityId, etc.)
+- `history/*.md`, `e2e/*.test.ts`, `playwright.no-server.config.ts`, `.specify/memory/richtextarea.md`, `scripts/_yellow-demo.ts`
 
 ## Completed (previous runs)
 
