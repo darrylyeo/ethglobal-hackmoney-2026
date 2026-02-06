@@ -9,5 +9,5 @@ export type Trace = {
 	input?: string
 	output?: string
 	error?: string
-	children?: Trace[]
+	children?: Trace[],
 }
