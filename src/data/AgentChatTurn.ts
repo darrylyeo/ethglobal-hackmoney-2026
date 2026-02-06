@@ -15,7 +15,7 @@ export type AgentChatTurn = {
 	entityRefs: EntityRef[]
 	assistantText: string | null
 	providerId: string | null
-	providerConfig?: { connectionId?: string, modelId?: string }
+	providerConfig?: { connectionId?: string, modelId?: string, }
 	status: AgentChatTurnStatus
 	error?: string
 	createdAt: number
