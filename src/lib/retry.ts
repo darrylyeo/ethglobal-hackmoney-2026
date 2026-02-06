@@ -11,7 +11,7 @@ export const withRetry = async <T>(
 		maxAttempts?: number
 		shouldRetry?: (error: BridgeError) => boolean
 		onError?: (error: BridgeError, attempt: number) => void
-		getDelay?: (error: BridgeError, attempt: number) => number
+		getDelay?: (error: BridgeError, attempt: number) => number,
 	} = {},
 ): Promise<T> => {
 	const {
