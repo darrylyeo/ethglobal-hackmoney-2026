@@ -78,7 +78,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `scripts/check-performance.mjs`
 - [x] `src/api/approval.ts`
 - [x] `src/api/cctp.ts`
-- [ ] `src/api/identity-resolve.spec.ts`
+- [x] `src/api/identity-resolve.spec.ts`
 - [ ] `src/api/identity-resolve.ts`
 - [ ] `src/api/lifi.spec.ts`
 - [ ] `src/api/lifi.ts`
