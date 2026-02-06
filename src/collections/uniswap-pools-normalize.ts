@@ -9,3 +9,4 @@ export const normalizeUniswapPool = (entry: UniswapPool): UniswapPool => ({
 	sqrtPriceX96: BigInt(entry.sqrtPriceX96),
 	liquidity: BigInt(entry.liquidity),
 })
+
