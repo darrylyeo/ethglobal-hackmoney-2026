@@ -1,13 +1,20 @@
 <script lang="ts">
+
+
+	// Props
 	let {
 		size = '1em',
 	}: {
-		size?: string
+		size?: string,
 	} = $props()
 </script>
 
 
-<span class="spinner" style:width={size} style:height={size} aria-hidden="true"
+<span
+	class="spinner"
+	style:width={size}
+	style:height={size}
+	aria-hidden="true"
 ></span>
 
 
