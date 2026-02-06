@@ -10,5 +10,6 @@ export type Verification = {
 	requestedAt: number
 	verifiedAt?: number
 	signature?: `0x${string}`
-	challengeId?: string
+	challengeId?: string,
 }
+
