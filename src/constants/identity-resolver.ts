@@ -4,8 +4,8 @@
  * resolution API (Voltaire).
  */
 
-import { DataSource } from '$/constants/data-sources'
-import { ChainId } from '$/constants/networks'
+import { DataSource } from '$/constants/data-sources.ts'
+import { ChainId } from '$/constants/networks.ts'
 
 export enum IdentityInputKind {
 	Address = 'Address',
@@ -35,7 +35,7 @@ export type IdentityResolution = {
 	name?: string
 	textRecords?: Record<string, string>
 	avatarUrl?: string
-	source: DataSource
+	source: DataSource,
 }
 
 export type IdentityResolver = {
@@ -45,7 +45,7 @@ export type IdentityResolver = {
 	source: DataSource
 	ensRegistry?: `0x${string}`
 	ensUniversalResolver?: `0x${string}`
-	textRecordKeys?: string[]
+	textRecordKeys?: string[],
 }
 
 export const IDENTITY_INPUT_KINDS: readonly IdentityInputKind[] = [
@@ -80,15 +80,15 @@ export const identityResolvers: readonly IdentityResolver[] = [
 	},
 ] as const
 
-const byId = new Map<string, IdentityResolver>(
+export const identityResolversById = new Map<string, IdentityResolver>(
 	identityResolvers.map((r) => [r.id, r]),
 )
-const byKind = new Map<IdentityInputKind, IdentityResolver[]>(
+export const identityResolversByKind = new Map<
+	IdentityInputKind,
+	IdentityResolver[]
+>(
 	IDENTITY_INPUT_KINDS.map((k) => [
 		k,
 		identityResolvers.filter((r) => r.kind === k),
 	]),
 )
-
-export const identityResolversById = byId
-export const identityResolversByKind = byKind
