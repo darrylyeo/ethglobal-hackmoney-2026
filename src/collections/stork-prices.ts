@@ -1,26 +1,26 @@
-import {
-	createCollection,
-	localStorageCollectionOptions,
-} from '@tanstack/svelte-db'
-import { parse, stringify } from 'devalue'
-import { decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
-import { toBytes } from '@tevm/voltaire/Hex'
-import { env } from '$env/dynamic/public'
 import { createHttpProvider } from '$/api/voltaire'
 import { DataSource } from '$/constants/data-sources'
-import type {
-	StorkPrice,
-	StorkPrice$Id,
-	StorkPriceTransport,
-} from '$/data/StorkPrice'
-import { rpcUrls } from '$/constants/rpc-endpoints'
 import { getProxyOrigin } from '$/constants/proxy'
+import { rpcUrls } from '$/constants/rpc-endpoints'
 import {
 	storkEncodedAssetIdByAssetId,
 	storkOracleAddressByChainId,
 	storkRestBaseUrl,
 	storkWebsocketUrl,
 } from '$/constants/stork'
+import type {
+	StorkPrice,
+	StorkPrice$Id,
+	StorkPriceTransport,
+} from '$/data/StorkPrice'
+import {
+	createCollection,
+	localStorageCollectionOptions,
+} from '@tanstack/svelte-db'
+import { Abi, decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
+import { toBytes } from '@tevm/voltaire/Hex'
+import { parse, stringify } from 'devalue'
+import { env } from '$env/dynamic/public'
 
 export type StorkPriceRow = StorkPrice & { $source: DataSource }
 
@@ -44,7 +44,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const toBigInt = (value: unknown): bigint | null =>
 	typeof value === 'string' || typeof value === 'number' ? BigInt(value) : null
 
-const storkPricesCollection = createCollection(
+export const storkPricesCollection = createCollection(
 	localStorageCollectionOptions({
 		id: 'stork-prices',
 		storageKey: 'stork-prices',
@@ -225,9 +225,9 @@ const createRestSubscription = (assetIds: string[]) => {
 let storkDeployments: Map<number, string> | null = null
 
 const staticDeployments = new Map(
-	(Object.entries(storkOracleAddressByChainId) as [string, string][]).map(
-		([chainId, addr]) => [Number(chainId), addr],
-	),
+	(
+		Object.entries(storkOracleAddressByChainId) as unknown as [string, string][]
+	).map(([chainId, addr]) => [Number(chainId), addr]),
 )
 
 const fetchStorkDeployments = async () => {
@@ -262,11 +262,11 @@ const fetchStorkDeployments = async () => {
 	return storkDeployments
 }
 
-const STORK_VALUE_ABI = [
+const STORK_VALUE_ABI = Abi([
 	{
-		type: 'function' as const,
+		type: 'function',
 		name: 'getTemporalNumericValueV1',
-		stateMutability: 'view' as const,
+		stateMutability: 'view',
 		inputs: [{ name: 'id', type: 'bytes32' }],
 		outputs: [
 			{
@@ -279,7 +279,7 @@ const STORK_VALUE_ABI = [
 			},
 		],
 	},
-] as const
+]) as unknown as import('@tevm/voltaire/Abi').Abi
 
 const STORK_VALUE_OUTPUTS = [
 	{
@@ -572,5 +572,3 @@ export const getBestStorkPrice = (
 	}
 	return ready.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0] ?? null
 }
-
-export { storkPricesCollection }
