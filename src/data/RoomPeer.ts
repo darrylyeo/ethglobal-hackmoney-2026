@@ -7,5 +7,5 @@ export type RoomPeer = {
 	lastSeenAt: number
 	connectedAt?: number
 	disconnectedAt?: number
-	isConnected: boolean
+	isConnected: boolean,
 }
