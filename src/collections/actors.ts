@@ -3,10 +3,10 @@
  * $id: { network, address, interopAddress }
  */
 
-import { DataSource } from '$/constants/data-sources'
-import { toInteropName } from '$/constants/interop'
-import type { Actor } from '$/data/Actor'
-import { queryClient } from '$/lib/db/query-client'
+import { DataSource } from '$/constants/data-sources.ts'
+import { toInteropName } from '$/constants/interop.ts'
+import type { Actor } from '$/data/Actor.ts'
+import { queryClient } from '$/lib/db/query-client.ts'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { createCollection } from '@tanstack/svelte-db'
 

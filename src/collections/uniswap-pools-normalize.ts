@@ -2,7 +2,7 @@
  * Uniswap V4 pool normalizer (no svelte-db dependency for Deno tests).
  */
 
-import type { UniswapPool } from '$/data/UniswapPool'
+import type { UniswapPool } from '$/data/UniswapPool.ts'
 
 export const normalizeUniswapPool = (entry: UniswapPool): UniswapPool => ({
 	...entry,

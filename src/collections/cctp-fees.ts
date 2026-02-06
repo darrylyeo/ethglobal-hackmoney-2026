@@ -1,5 +1,5 @@
-import { DataSource } from '$/constants/data-sources'
-import type { CctpFee, CctpFee$Id, CctpFeeItem } from '$/data/CctpFee'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { CctpFee, CctpFee$Id, CctpFeeItem } from '$/data/CctpFee.ts'
 import { stringify } from 'devalue'
 import {
 	createCollection,

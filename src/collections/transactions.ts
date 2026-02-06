@@ -3,8 +3,8 @@
  * Persists to localStorage across sessions.
  */
 
-import { DataSource } from '$/constants/data-sources'
-import type { Transaction, Transaction$Id } from '$/data/Transaction'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { Transaction, Transaction$Id } from '$/data/Transaction.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,

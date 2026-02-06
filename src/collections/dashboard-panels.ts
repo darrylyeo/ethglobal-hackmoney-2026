@@ -3,13 +3,13 @@
  * Persisted to localStorage across sessions.
  */
 
-import { DataSource } from '$/constants/data-sources'
+import { DataSource } from '$/constants/data-sources.ts'
 import type {
 	DashboardNode,
 	DashboardPanelNode,
 	DashboardState,
 	DashboardState$Id,
-} from '$/data/DashboardPanel'
+} from '$/data/DashboardPanel.ts'
 import { parse, stringify } from 'devalue'
 import {
 	createCollection,

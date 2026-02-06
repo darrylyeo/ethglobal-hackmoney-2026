@@ -2,7 +2,7 @@
  * Uniswap V4 position normalizer (no svelte-db dependency for Deno tests).
  */
 
-import type { UniswapPosition } from '$/data/UniswapPosition'
+import type { UniswapPosition } from '$/data/UniswapPosition.ts'
 
 export const normalizeUniswapPosition = (
 	entry: UniswapPosition,

@@ -2,8 +2,8 @@
  * Yellow transfers: off-chain transfers within channels (in-memory).
  */
 
-import { DataSource } from '$/constants/data-sources'
-import type { YellowTransfer } from '$/data/YellowTransfer'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { YellowTransfer } from '$/data/YellowTransfer.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,

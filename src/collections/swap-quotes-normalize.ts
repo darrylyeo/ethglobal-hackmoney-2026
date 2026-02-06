@@ -2,7 +2,7 @@
  * Swap quote normalizer (no svelte-db dependency for Deno tests).
  */
 
-import type { SwapQuote } from '$/data/SwapQuote'
+import type { SwapQuote } from '$/data/SwapQuote.ts'
 
 export const normalizeSwapQuote = (entry: SwapQuote): SwapQuote => ({
 	...entry,

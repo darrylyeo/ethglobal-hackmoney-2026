@@ -1,5 +1,5 @@
 /// <reference lib='deno.ns' />
-import type { UniswapPosition } from '$/data/UniswapPosition'
+import type { UniswapPosition } from '$/data/UniswapPosition.ts'
 import { normalizeUniswapPosition } from './uniswap-positions-normalize.ts'
 import { assertEquals, assertExists } from 'jsr:@std/assert'
 

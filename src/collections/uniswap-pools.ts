@@ -2,13 +2,13 @@
  * Uniswap V4 pools collection. In-memory cache keyed by pool id.
  */
 
-import { DataSource } from '$/constants/data-sources'
-import type { UniswapPool } from '$/data/UniswapPool'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { UniswapPool } from '$/data/UniswapPool.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { normalizeUniswapPool } from './uniswap-pools-normalize'
+import { normalizeUniswapPool } from './uniswap-pools-normalize.ts'
 
 export type UniswapPoolRow = UniswapPool & { $source: DataSource }
 

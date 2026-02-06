@@ -7,11 +7,11 @@ import {
 	createHttpProvider,
 	getTransactionByHash,
 	getTransactionReceipt,
-} from '$/api/voltaire'
-import { DataSource } from '$/constants/data-sources'
-import type { ChainId } from '$/constants/networks'
-import { rpcUrls } from '$/constants/rpc-endpoints'
-import type { ChainTransactionEntry } from '$/data/ChainTransaction'
+} from '$/api/voltaire.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { ChainId } from '$/constants/networks.ts'
+import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,

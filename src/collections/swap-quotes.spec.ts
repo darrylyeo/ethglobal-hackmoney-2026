@@ -1,5 +1,5 @@
 /// <reference lib='deno.ns' />
-import type { SwapQuote } from '$/data/SwapQuote'
+import type { SwapQuote } from '$/data/SwapQuote.ts'
 import { normalizeSwapQuote } from './swap-quotes-normalize.ts'
 import { assertEquals, assertExists } from 'jsr:@std/assert'
 

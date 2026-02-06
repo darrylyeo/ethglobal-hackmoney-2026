@@ -2,8 +2,8 @@
  * SIWE challenges collection: per-peer sign-in challenges for address verification.
  */
 
-import { DataSource } from '$/constants/data-sources'
-import type { SiweChallenge } from '$/data/SiweChallenge'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { SiweChallenge } from '$/data/SiweChallenge.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
@@ -18,4 +18,4 @@ export const siweChallengesCollection = createCollection(
 	}),
 )
 
-export { siweChallengeKey } from './siwe-challenges-keys'
+export { siweChallengeKey } from './siwe-challenges-keys.ts'

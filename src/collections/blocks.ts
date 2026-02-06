@@ -12,12 +12,12 @@ import {
 	getBlockByNumber,
 	getBlockTransactionCount,
 	getBlockTransactionHashes,
-} from '$/api/voltaire'
-import { fetchChainTransaction } from '$/collections/chain-transactions'
-import { DataSource } from '$/constants/data-sources'
-import type { ChainId } from '$/constants/networks'
-import { rpcUrls } from '$/constants/rpc-endpoints'
-import type { BlockEntry, Block$Id } from '$/data/Block'
+} from '$/api/voltaire.ts'
+import { fetchChainTransaction } from '$/collections/chain-transactions.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { ChainId } from '$/constants/networks.ts'
+import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import type { BlockEntry, Block$Id } from '$/data/Block.ts'
 
 export type BlockRow = BlockEntry & {
 	$source: DataSource

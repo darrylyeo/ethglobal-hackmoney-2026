@@ -2,7 +2,7 @@
  * My peer IDs: persisted peerId(s) for "me" per room (used to derive "verified by me").
  */
 
-import { DataSource } from '$/constants/data-sources'
+import { DataSource } from '$/constants/data-sources.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,

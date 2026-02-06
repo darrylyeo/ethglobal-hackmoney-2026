@@ -3,10 +3,10 @@
  * Fetched and upserted for the coin page; list reads from this collection.
  */
 
-import type { NormalizedTransferEvent } from '$/api/transfers-logs'
-import { fetchTransferEventsForPeriod } from '$/api/transfers-logs'
-import type { CoinPageSymbol } from '$/constants/coins'
-import { DataSource } from '$/constants/data-sources'
+import type { NormalizedTransferEvent } from '$/api/transfers-logs.ts'
+import { fetchTransferEventsForPeriod } from '$/api/transfers-logs.ts'
+import type { CoinPageSymbol } from '$/constants/coins.ts'
+import { DataSource } from '$/constants/data-sources.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,

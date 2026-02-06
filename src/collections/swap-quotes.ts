@@ -2,17 +2,17 @@
  * Swap quotes collection. In-memory cache keyed by quote id (hash of params).
  */
 
-import { DataSource } from '$/constants/data-sources'
+import { DataSource } from '$/constants/data-sources.ts'
 import type {
 	FetchSwapQuoteParams,
 	SwapQuote,
 	SwapRoute,
-} from '$/data/SwapQuote'
+} from '$/data/SwapQuote.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { normalizeSwapQuote } from './swap-quotes-normalize'
+import { normalizeSwapQuote } from './swap-quotes-normalize.ts'
 
 export type SwapQuoteRow = SwapQuote & { $source: DataSource }
 

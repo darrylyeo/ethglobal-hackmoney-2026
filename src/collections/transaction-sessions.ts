@@ -8,8 +8,8 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
-import { DataSource } from '$/constants/data-sources'
-import type { TransactionSession } from '$/data/TransactionSession'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { TransactionSession } from '$/data/TransactionSession.ts'
 
 export type TransactionSessionRow = TransactionSession & { $source: DataSource }
 

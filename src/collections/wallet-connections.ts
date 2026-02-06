@@ -10,18 +10,18 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
-import { DataSource } from '$/constants/data-sources'
-import { type WalletRow, getWallet } from '$/collections/wallets'
+import { DataSource } from '$/constants/data-sources.ts'
+import { type WalletRow, getWallet } from '$/collections/wallets.ts'
 import type {
 	ReadOnlyWallet,
 	WalletConnection$Id,
 	WalletConnectionEip1193,
 	WalletConnectionNone,
-} from '$/data/WalletConnection'
-import { WalletConnectionTransport } from '$/data/WalletConnection'
-import type { Wallet$Id } from '$/data/Wallet'
-import { normalizeAddress } from '$/lib/address'
-import { connectProvider, getWalletChainId } from '$/lib/wallet'
+} from '$/data/WalletConnection.ts'
+import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+import type { Wallet$Id } from '$/data/Wallet.ts'
+import { normalizeAddress } from '$/lib/address.ts'
+import { connectProvider, getWalletChainId } from '$/lib/wallet.ts'
 
 export type WalletConnectionRow = (
 	| WalletConnectionEip1193

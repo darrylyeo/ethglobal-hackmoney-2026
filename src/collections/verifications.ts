@@ -7,8 +7,8 @@ import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { DataSource } from '$/constants/data-sources'
-import type { Verification } from '$/data/Verification'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { Verification } from '$/data/Verification.ts'
 
 export type VerificationRow = Verification & { $source: DataSource }
 
@@ -19,4 +19,4 @@ export const verificationsCollection = createCollection(
 	}),
 )
 
-export { verificationKey } from './verifications-keys'
+export { verificationKey } from './verifications-keys.ts'

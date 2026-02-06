@@ -9,9 +9,9 @@ import {
 	type TransfersGraphResult,
 	fetchTransfersGraphFromVoltaire,
 	TIME_PERIODS,
-} from '$/api/transfers-indexer'
-import { DataSource } from '$/constants/data-sources'
-import type { CoinPageSymbol } from '$/constants/coins'
+} from '$/api/transfers-indexer.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { CoinPageSymbol } from '$/constants/coins.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,

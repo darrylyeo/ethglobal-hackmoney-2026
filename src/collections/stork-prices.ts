@@ -1,18 +1,18 @@
-import { createHttpProvider } from '$/api/voltaire'
-import { DataSource } from '$/constants/data-sources'
-import { getProxyOrigin } from '$/constants/proxy'
-import { rpcUrls } from '$/constants/rpc-endpoints'
+import { createHttpProvider } from '$/api/voltaire.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import { getProxyOrigin } from '$/constants/proxy.ts'
+import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import {
 	storkEncodedAssetIdByAssetId,
 	storkOracleAddressByChainId,
 	storkRestBaseUrl,
 	storkWebsocketUrl,
-} from '$/constants/stork'
+} from '$/constants/stork.ts'
 import type {
 	StorkPrice,
 	StorkPrice$Id,
 	StorkPriceTransport,
-} from '$/data/StorkPrice'
+} from '$/data/StorkPrice.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,

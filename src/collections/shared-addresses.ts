@@ -6,8 +6,8 @@ import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { DataSource } from '$/constants/data-sources'
-import type { SharedAddress } from '$/data/SharedAddress'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { SharedAddress } from '$/data/SharedAddress.ts'
 
 export type SharedAddressRow = SharedAddress & { $source: DataSource }
 
@@ -18,4 +18,4 @@ export const sharedAddressesCollection = createCollection(
 	}),
 )
 
-export { sharedAddressKey } from './shared-addresses-keys'
+export { sharedAddressKey } from './shared-addresses-keys.ts'

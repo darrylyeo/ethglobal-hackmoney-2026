@@ -6,13 +6,13 @@
 import {
 	resolveEnsForward,
 	resolveEnsReverse,
-} from '$/api/identity-resolve'
-import { createHttpProvider } from '$/api/voltaire'
-import { DataSource } from '$/constants/data-sources'
-import { identityResolvers } from '$/constants/identity-resolver'
-import type { ChainId } from '$/constants/networks'
-import { rpcUrls } from '$/constants/rpc-endpoints'
-import type { EvmActorProfile, EvmActorProfile$Id } from '$/data/EvmActorProfile'
+} from '$/api/identity-resolve.ts'
+import { createHttpProvider } from '$/api/voltaire.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import { identityResolvers } from '$/constants/identity-resolver.ts'
+import type { ChainId } from '$/constants/networks.ts'
+import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import type { EvmActorProfile, EvmActorProfile$Id } from '$/data/EvmActorProfile.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,

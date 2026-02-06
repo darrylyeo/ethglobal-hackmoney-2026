@@ -8,11 +8,11 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
-import { createHttpProvider, getErc20Allowance } from '$/api/voltaire'
-import { DataSource } from '$/constants/data-sources'
-import { toInteropName } from '$/constants/interop'
-import { rpcUrls } from '$/constants/rpc-endpoints'
-import type { ActorAllowance, ActorAllowance$Id } from '$/data/ActorAllowance'
+import { createHttpProvider, getErc20Allowance } from '$/api/voltaire.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import { toInteropName } from '$/constants/interop.ts'
+import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import type { ActorAllowance, ActorAllowance$Id } from '$/data/ActorAllowance.ts'
 
 export type ActorAllowanceRow = ActorAllowance & { $source: DataSource }
 

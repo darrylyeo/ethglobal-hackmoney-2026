@@ -2,8 +2,8 @@
  * Yellow channel states: signed state updates (in-memory).
  */
 
-import { DataSource } from '$/constants/data-sources'
-import type { YellowChannelState } from '$/data/YellowChannelState'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { YellowChannelState } from '$/data/YellowChannelState.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,

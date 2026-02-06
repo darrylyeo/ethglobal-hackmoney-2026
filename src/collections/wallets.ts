@@ -3,8 +3,8 @@
  * In-memory only (providers are runtime objects, can't be serialized).
  */
 
-import { DataSource } from '$/constants/data-sources'
-import type { Wallet, Wallet$Id } from '$/data/Wallet'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { Wallet, Wallet$Id } from '$/data/Wallet.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,

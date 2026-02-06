@@ -4,8 +4,8 @@
  * loading/error state is query/mutation state, not persisted on the entity.
  */
 
-import { DataSource } from '$/constants/data-sources'
-import type { IdentityResolution } from '$/constants/identity-resolver'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { IdentityResolution } from '$/constants/identity-resolver.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,

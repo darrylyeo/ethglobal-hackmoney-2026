@@ -2,14 +2,14 @@
  * Uniswap V4 positions (NFTs) collection. In-memory cache keyed by position id.
  */
 
-import type { FetchPositionsParams } from '$/api/uniswap'
-import { DataSource } from '$/constants/data-sources'
-import type { UniswapPosition } from '$/data/UniswapPosition'
+import type { FetchPositionsParams } from '$/api/uniswap.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { UniswapPosition } from '$/data/UniswapPosition.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-import { normalizeUniswapPosition } from './uniswap-positions-normalize'
+import { normalizeUniswapPosition } from './uniswap-positions-normalize.ts'
 
 export type UniswapPositionRow = UniswapPosition & { $source: DataSource }
 

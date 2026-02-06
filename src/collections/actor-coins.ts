@@ -8,13 +8,13 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
-import { createHttpProvider, getErc20Balance } from '$/api/voltaire'
-import { DataSource } from '$/constants/data-sources'
-import { ercTokens } from '$/constants/coins'
-import type { ChainId } from '$/constants/networks'
-import { toInteropName } from '$/constants/interop'
-import { rpcUrls } from '$/constants/rpc-endpoints'
-import type { ActorCoin, ActorCoin$Id, ActorCoinToken } from '$/data/ActorCoin'
+import { createHttpProvider, getErc20Balance } from '$/api/voltaire.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import { ercTokens } from '$/constants/coins.ts'
+import type { ChainId } from '$/constants/networks.ts'
+import { toInteropName } from '$/constants/interop.ts'
+import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import type { ActorCoin, ActorCoin$Id, ActorCoinToken } from '$/data/ActorCoin.ts'
 
 export type ActorCoinRow = ActorCoin & { $source: DataSource }
 

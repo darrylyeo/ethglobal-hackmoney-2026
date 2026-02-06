@@ -1,6 +1,6 @@
 /// <reference lib='deno.ns' />
 import { assertEquals, assertExists } from 'jsr:@std/assert'
-import { NetworkType } from '$/constants/networks'
+import { NetworkType } from '$/constants/networks.ts'
 import { normalizeNetwork } from './networks.ts'
 
 Deno.test(

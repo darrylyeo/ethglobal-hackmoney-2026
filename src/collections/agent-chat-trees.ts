@@ -1,5 +1,5 @@
-import { DataSource } from '$/constants/data-sources'
-import type { AgentChatTree } from '$/data/AgentChatTree'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { AgentChatTree } from '$/data/AgentChatTree.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,

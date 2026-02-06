@@ -1,8 +1,8 @@
-import { DataSource } from '$/constants/data-sources'
+import { DataSource } from '$/constants/data-sources.ts'
 import {
 	type LlmConnection,
 	LlmConnectionProvider,
-} from '$/data/LlmConnection'
+} from '$/data/LlmConnection.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,

@@ -3,8 +3,8 @@
  * Persists to localStorage across sessions.
  */
 
-import { DataSource } from '$/constants/data-sources'
-import type { TransactionSessionSimulation } from '$/data/TransactionSessionSimulation'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { TransactionSessionSimulation } from '$/data/TransactionSessionSimulation.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,

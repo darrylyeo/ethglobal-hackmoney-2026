@@ -2,8 +2,8 @@
  * Room peers collection: participants in a PartyKit room (in-memory, synced from server).
  */
 
-import { DataSource } from '$/constants/data-sources'
-import type { RoomPeer } from '$/data/RoomPeer'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { RoomPeer } from '$/data/RoomPeer.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
@@ -18,4 +18,4 @@ export const roomPeersCollection = createCollection(
 	}),
 )
 
-export { roomPeerKey } from './room-peers-keys'
+export { roomPeerKey } from './room-peers-keys.ts'
