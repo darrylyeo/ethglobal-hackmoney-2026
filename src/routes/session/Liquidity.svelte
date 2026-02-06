@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 
@@ -13,7 +11,7 @@
 
 	// Components
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
-	import LiquidityFlow from '$/routes/session/LiquidityFlow.svelte'
+	import LiquidityFlow from './LiquidityFlow.svelte'
 </script>
 
 

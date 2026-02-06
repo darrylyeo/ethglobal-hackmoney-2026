@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import { ercTokens } from '$/constants/coins'
@@ -24,9 +22,9 @@
 
 
 	// Components
-	import Session from '$/views/Session.svelte'
+	import TransferAction from './TransferAction.svelte'
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
-	import TransferAction from '$/routes/session/TransferAction.svelte'
+	import Session from '$/views/Session.svelte'
 </script>
 
 

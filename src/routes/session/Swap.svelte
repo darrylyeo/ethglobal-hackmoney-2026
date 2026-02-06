@@ -1,12 +1,11 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
+	import { ercTokens } from '$/constants/coins'
 
 
 	// State
-	import { bridgeSettingsState } from '$/state/bridge-settings.svelte'
+	import { fetchAllBalancesForAddress } from '$/collections/actor-coins'
 
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
@@ -14,18 +13,42 @@
 		{ chainId: number; tokenAddress: `0x${string}` }[]
 	>([])
 
-	const globalIsTestnet = $derived(bridgeSettingsState.current.isTestnet)
+	const balanceTokensToFetch = $derived(
+		(() => {
+			const resolved =
+				balanceTokens.length > 0
+					? balanceTokens.flatMap((t) => {
+							const e = ercTokens.find(
+								(e) =>
+									e.chainId === t.chainId &&
+									e.address.toLowerCase() ===
+										t.tokenAddress.toLowerCase(),
+							)
+							return e ? [e] : []
+						})
+					: ercTokens
+			return resolved.length > 0 ? resolved : ercTokens
+		})(),
+	)
+	$effect(() => {
+		if (!selectedActor || balanceTokensToFetch.length === 0) return
+		void fetchAllBalancesForAddress(
+			selectedActor,
+			undefined,
+			balanceTokensToFetch,
+		)
+	})
 
 
 	// Components
+	import SwapAction from './SwapAction.svelte'
+	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
 	import Session from '$/views/Session.svelte'
-	import AccountsSelect from '$/views/AccountsSelect.svelte'
-	import BridgeAction from '$/routes/session/BridgeAction.svelte'
 </script>
 
 
-<Session title="USDC Bridge">
+<Session title="Swap">
 	{#snippet Context()}
 		<details open data-card>
 			<summary>
@@ -40,10 +63,9 @@
 	{/snippet}
 
 	{#snippet Actions()}
-		<BridgeAction
+		<SwapAction
 			selectedWallets={connectedWallets}
 			{selectedActor}
-			{globalIsTestnet}
 			bind:balanceTokens
 		/>
 	{/snippet}
