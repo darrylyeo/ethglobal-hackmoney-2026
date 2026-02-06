@@ -9,15 +9,15 @@ import {
 	chainIconFetchItems,
 } from '../src/constants/chain-icon-fetch-items.ts'
 import {
-	coinIconFetchItems,
 	FetchTypeKind,
-	iconFilename,
 	IconKind,
 	IconTarget,
-	isDefaultIcon,
-	providerIconFetchItems,
 	type IconFetchItem,
 	type IconStyle,
+	coinIconFetchItems,
+	iconFilename,
+	isDefaultIcon,
+	providerIconFetchItems,
 } from '../src/constants/icons.ts'
 
 const OUT_BASE = new URL('../static/icons/', import.meta.url)
@@ -33,7 +33,7 @@ function isSvgContent(text: string): boolean {
 
 async function fetchSvg(url: string): Promise<string> {
 	const res = await fetch(url, {
-		headers: { Accept: 'image/svg+xml' },
+		headers: { Accept: 'image/svg+xml', },
 		redirect: 'follow',
 	})
 	if (!res.ok) throw new Error(`${url} ${res.status}`)
@@ -64,7 +64,7 @@ async function main() {
 	const dirs = ['chains', 'coins', 'providers'] as const
 	for (const d of dirs) {
 		const dirUrl = new URL(d + '/', OUT_BASE)
-		await Deno.mkdir(dirUrl, { recursive: true })
+		await Deno.mkdir(dirUrl, { recursive: true, })
 	}
 
 	for (const item of allItems) {
@@ -78,7 +78,7 @@ async function main() {
 			if (f.fetchType === FetchTypeKind.Zip) {
 				let unzipped = zipCache.get(f.zipUrl)
 				if (!unzipped) {
-					const res = await fetch(f.zipUrl, { redirect: 'follow' })
+					const res = await fetch(f.zipUrl, { redirect: 'follow', })
 					if (!res.ok) throw new Error(`${f.zipUrl} ${res.status}`)
 					const buf = await res.arrayBuffer()
 					unzipped = unzipSync(new Uint8Array(buf)) as Record<
@@ -96,7 +96,7 @@ async function main() {
 					defaultSvgByChainId.set(Number(id), svg)
 				console.log(`OK ${targetKey}s/${filename} (from ZIP)`)
 			} else if (f.fetchType === FetchTypeKind.Png) {
-				const res = await fetch(f.url, { redirect: 'follow' })
+				const res = await fetch(f.url, { redirect: 'follow', })
 				if (!res.ok) throw new Error(`${f.url} ${res.status}`)
 				const buf = await res.arrayBuffer()
 				const b64 = btoa(String.fromCharCode(...new Uint8Array(buf)))
