@@ -24,5 +24,6 @@ export const OPENCODE_ZEN_FREE_MODELS: OpenCodeZenFreeModel[] = [
 
 export const OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID = OPENCODE_ZEN_FREE_MODELS[0].id
 
-export const getZenFreeModel = (modelId: string) =>
+export const getZenFreeModel = (modelId: string) => (
 	OPENCODE_ZEN_FREE_MODELS.find((m) => m.id === modelId) ?? OPENCODE_ZEN_FREE_MODELS[0]
+)
