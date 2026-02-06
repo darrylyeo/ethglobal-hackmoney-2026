@@ -163,7 +163,7 @@ test("balances display after wallet connection", async ({ page }) => {
 
 ## Status
 
-Complete. `AccountsSelect.svelte` in `src/views/` with TanStack DB collections
+Complete. Re-verification 2026-02-06 (PROMPT_build execute one spec, re-verify 005): all 17 AC confirmed in code (AccountsSelect, wallets/walletConnections/actors/actorCoins collections, bridgeSettingsState, fetchActorCoinBalance/fetchAllBalancesForAddress, bridge.svelte with AccountsSelect+CoinBalances, fetch on connect, grid+loading+error, e2e/wallet.test.ts). test:unit 44 Deno + 101 Vitest passed. Previous: `AccountsSelect.svelte` in `src/views/` with TanStack DB collections
 (`walletsCollection`, `walletConnectionsCollection`).
 `actorsCollection` and `actorCoinsCollection` for balances.
 `bridgeSettingsState` for testnet/mainnet toggle. E2E tests in
