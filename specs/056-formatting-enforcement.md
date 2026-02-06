@@ -245,7 +245,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/data/YellowDeposit.ts`
 - [x] `src/data/YellowTransfer.ts`
 - [x] `src/hooks.server.ts`
-- [ ] `src/lib/address.spec.ts`
+- [x] `src/lib/address.spec.ts`
 - [ ] `src/lib/address.ts`
 - [ ] `src/lib/agent-chat.ts`
 - [ ] `src/lib/bridge/errors.spec.ts`
