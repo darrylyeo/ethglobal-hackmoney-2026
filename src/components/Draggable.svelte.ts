@@ -1,16 +1,16 @@
-import type { Attachment } from 'svelte/attachments'
 import type { IntentDragPayload } from '$/lib/intents/types'
 import { setIntentDragData } from '$/lib/intents/drag'
 import {
 	startIntentDragPreview,
 	updateIntentDragTarget,
 } from '$/state/intent-drag-preview.svelte'
+import type { Attachment } from 'svelte/attachments'
 
 export type DraggableOptions = {
 	text: string
 	href?: string
 	intent?: IntentDragPayload
-	enabled?: boolean
+	enabled?: boolean,
 }
 
 const toElement = (e: DragEvent): HTMLElement | null =>
