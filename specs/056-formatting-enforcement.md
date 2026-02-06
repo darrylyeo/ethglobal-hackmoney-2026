@@ -119,7 +119,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/collections/rooms.ts`
 - [x] `src/collections/shared-addresses-keys.ts`
 - [x] `src/collections/shared-addresses.spec.ts`
-- [ ] `src/collections/shared-addresses.ts`
+- [x] `src/collections/shared-addresses.ts`
 - [ ] `src/collections/siwe-challenges-keys.ts`
 - [ ] `src/collections/siwe-challenges.spec.ts`
 - [ ] `src/collections/siwe-challenges.ts`
