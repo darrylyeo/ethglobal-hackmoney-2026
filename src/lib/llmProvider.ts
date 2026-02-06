@@ -7,18 +7,18 @@ export type LlmAvailability = 'available' | 'downloading' | 'unavailable'
 export type LlmGenerateInput = {
 	systemPrompt: string
 	userPrompt: string
-	onProgress?: (progress: number) => void
+	onProgress?: (progress: number) => void,
 }
 
 export type LlmGenerateOutput = {
 	text: string
-	providerId: string
+	providerId: string,
 }
 
 export type LlmProvider = {
 	availability: () => Promise<LlmAvailability>
 	generate: (input: LlmGenerateInput) => Promise<LlmGenerateOutput>
-	cancel?: () => void
+	cancel?: () => void,
 }
 
 const PROMPT_OPTIONS = {
@@ -100,7 +100,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 export const createHostedLlmProvider = (config: {
 	endpoint: string
-	apiKey?: string
+	apiKey?: string,
 }): LlmProvider => ({
 	availability: async () => 'available',
 	generate: async (input) => {
@@ -149,7 +149,7 @@ export const createLlmProvider = (
 	options: {
 		onProgress?: (progress: number) => void
 		connectionId?: string | null
-		modelId?: string | null
+		modelId?: string | null,
 	} = {},
 ): LlmProvider => {
 	const promptProvider = createPromptApiLlmProvider(options.onProgress)
@@ -213,32 +213,32 @@ export type ExplainContext = {
 	summary: string
 	gas: {
 		used?: string
-		estimated?: string
+		estimated?: string,
 	}
 	errors?: {
 		revertReason?: string
-		errorSelector?: string
+		errorSelector?: string,
 	}
 	traceSummary?: string
 	eventSummary?: string
-	txHash?: `0x${string}`
+	txHash?: `0x${string}`,
 }
 
 export type ExplainInput = {
 	context: ExplainContext
 	language: 'en'
-	maxTokens?: number
+	maxTokens?: number,
 }
 
 export type ExplainOutput = {
 	provider: string
-	text: string
+	text: string,
 }
 
 export type ExplainProvider = {
 	availability: () => Promise<ExplainAvailability>
 	explain: (input: ExplainInput) => Promise<ExplainOutput>
-	cancel?: () => void
+	cancel?: () => void,
 }
 
 export const EXPLAIN_SYSTEM_PROMPT =
@@ -291,16 +291,16 @@ export const createExplainProvider = (
 }
 
 // Agent-chat-backed explain: creates an AgentChatTurn for the explanation
-import type { EntityRef } from '$/data/EntityRef.ts'
-import { EntityType } from '$/data/$EntityType.ts'
-import { DataSource } from '$/constants/data-sources.ts'
 import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
 import { agentChatTurnsCollection } from '$/collections/agent-chat-turns.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { EntityRef } from '$/data/EntityRef.ts'
+import { EntityType } from '$/data/$EntityType.ts'
 
 export const submitExplainTurn = (options: {
 	context: ExplainContext
 	sessionId: string
-	onProgress?: (progress: number) => void
+	onProgress?: (progress: number) => void,
 }) => {
 	const treeId = `explain-${options.sessionId}`
 
