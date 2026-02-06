@@ -19,6 +19,7 @@ When invoked:
 - No semicolon or comma after `type`/`interface` properties.
 - Prefer implicit return types; avoid type assertions; inline single-use variables and types.
 - Prefer `??` over `||`, `.` over `?.`, `T[]` over `Array<T>`.
+- Imports: always include file extensions in import paths (e.g. `.ts`, `.svelte`).
 - Multi-line: one line break between array items, object properties, parameters, arguments; trailing comma after last item; leading `&`/`|` for union/intersection; break chained calls onto a new indented line.
 - Ternary: indent like if/else; `?` at end of line, `:` at start of next; use `=> ( expression )` for single-expression returns.
 

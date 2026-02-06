@@ -1,89 +1,43 @@
 # Atomic commit plan
 
-## Completed (this run)
+## Phases (topological order)
 
-| # | SHA      | Message |
-|---|----------|---------|
-| 1 | 50f4095  | lib + state: add format-relative-time, proxy-fetch, rooms/, nitro-rpc in state |
-| 2 | 60a9b2c  | lib: remove formatRelativeTime, proxyFetch, room, siwe, nitro-rpc, yellow/index (moved to …) |
-| 3 | 63c8d26  | routes, views, state, api, components: use format-relative-time, proxy-fetch, rooms/siwe, state/nitro-rpc; config and spec doc updates |
+### Phase 1: Asset system (spec 052)
+- **Commit 1:** Add asset schema, lib resolver, SVGs, sync script; remove fetch scripts
+- New: `src/constants/assets.ts`, `src/lib/assets/urls.ts`, `src/lib/assets/{chains,coins,providers}/`, `static/icons/coins/*.svg`, `static/icons/providers/*.svg`, `scripts/_sync-assets.ts`
+- Deleted: `scripts/_fetch-chain-icons.ts`, `scripts/_fetch-icons.ts`
 
-## Completed (previous run)
+### Phase 2: Constants — remove old icons, wire to assets
+- **Commit 2:** Delete `src/constants/icons.ts`, `src/constants/chain-icon-fetch-items.ts`; update `networks.ts`, `coins.ts`, `bridge-limits.ts`, `stork.ts`, `yellow.ts`, `proxy.ts`, `rpc-endpoints.ts`, `identity-resolver.ts`
 
-| # | SHA      | Message |
-|---|----------|---------|
-| 1 | efac457  | lib: add session/, bridge/, llm-provider; fix BridgeAction and retry.spec imports |
-| 2 | 8e918d5  | lib: remove bridge-errors, explain, dashboard-panel-hash, transaction-session-params, transaction-sessions, tx-status (flat); retry, agent-chat use new lib |
-| 3 | 53ce816  | routes, views, api, collections, data: use lib/session and lib/bridge; Draggable + spec 073; spec doc updates |
-| 4 | dd5080c  | chore: update commit plan |
+### Phase 3: App consumers (layout, views, components, routes)
+- **Commit 3:** All files using getAssetUrl/chainAssetUrl/coinAssetUrl or config.icon: `+layout.svelte`, views/*, components/*, routes/* (all touched by icon/asset refactor)
 
-## Completed (previous run)
+### Phase 4: API and collections
+- **Commit 4:** `src/api/*`, `src/collections/*`
 
-| # | SHA      | Message |
-|---|----------|---------|
-| 1 | f643e82  | lib: bridge-errors and retry.spec use bridge-errors |
-| 2 | 3027ce3  | lib: remove errors.ts and errors.spec (replaced by bridge-errors) |
-| 3 | 12b2367  | api: simulate + llm as modules; remove api routes simulate, llm/zen, proxy |
-| 4 | 894580c  | data: agent-chat (AgentChatTree, AgentChatTurn), EvmActorProfile, LlmConnection, EntityRef; spec 066 |
-| 5 | 7b90e32  | collections + lib: agent-chat, evm-actor-profiles, llm-connections, proxyFetch; remove dialogue |
-| 6 | a1e86ef  | components: RichTextarea, EvmActor, ModelInput, Tabs, EntityRef; agents AgentChatTree; remove PromptInput, Dialogue* |
-| 7 | 600bb0a  | session: move view (bridge, liquidity, swap, transfer) into routes/session |
-| 8 | 1af060c  | routes, views, components, api, lib: agent-chat wiring, session, settings, transfers-logs, stork, explain |
-| 9 | 7ebae77  | config: env, package, deno.lock, vite |
-| 10 | 7be49ed  | specs: updates and 068–072 (evmactor, nav icons, llm config, richtextarea, bind) |
-| 11 | 95ab8f5  | chore: update commit plan |
+### Phase 5: e2e and Playwright
+- **Commit 5:** `e2e/*.ts`, `playwright.config.ts`, `playwright.e2e.config.ts`, `src/lib/e2e/tevm.ts`
 
-## Completed (previous run)
+### Phase 6: Specs
+- **Commit 6:** `specs/*.md`
 
-| # | SHA      | Message |
-|---|----------|---------|
-| 1 | 2b79fa8  | Env: e2e TEVM RPC, Stork token; env.d.ts |
-| 2 | 5ab7b4b  | Voltaire: block timestamp, EthTransaction, getLogs |
-| 3 | 0577924  | Data: Block, ChainTransaction, Trace, $EntityType |
-| 4 | 2fa7329  | Collections: blocks, chain-transactions |
-| 5 | 62c491c  | Format: formatWei, formatGas, formatGwei |
-| 6 | 176b1ee  | Constants: DataSource.Llm |
-| 7 | abc2c3d  | Explain: Llm* abstraction, Explain* types |
-| 8 | d3d293e  | E2E: tevm config and client |
-| 9 | a3773d5  | Vite: preview port, dev allowedHosts |
-| 10 | c7caff6  | Network: Block, Event, Network, Trace, Transaction |
-| 11 | 7f790ec  | Components: section spacing |
-| 12 | 05011b1  | Routes, views, layout: section spacing and usage |
-| 13 | dbe4463  | Styles: bits-ui |
-| 14 | 389bfdf  | Specs: 051, 063 |
+### Phase 7: Config and tooling
+- **Commit 7:** `deno.json`, `deno.lock`, `package.json`, `.env.example`, `env.d.ts`, `scripts/check-bundle-size.mjs`, `scripts/check-performance.mjs`, `scripts/_yellow-demo.ts`, `partykit/room.ts`
 
-## Completed (previous run)
+---
 
-| # | SHA      | Message |
-|---|----------|---------|
-| 1 | 39e586b  | Live query: register via $effect, remove attachment API |
-| 2 | 1710f20  | Routes, views, layout: use register*LiveQueryStack, remove @attach |
-| 3 | d0888ee  | Remove LiveQueryScope (unused) |
-| 4 | 4779502  | Session: rename UnifiedBridgeFlow to BridgeAction |
-| 5 | 70ff904  | Theme: use light-dark(), remove app theme script |
-| 6 | 89ce25c  | Proxy: allow requests with no Origin |
-| 7 | 4dcae72  | Stork: default Dev region, websocket fallback, fix price URL |
-| 8 | ac8d6f5  | Layout: "Add Liquidity" label |
-| 9 | 1409f93  | Styles: data-* primitives and ItemsList |
-| 10 | 1194701  | Components, routes, views: use data-* primitives |
-| 11 | 084ccae  | Specs: doc updates |
-| 12 | 09ecf8f  | chore: update commit plan |
+## Commit later / ignore
+- Untracked: `history/`, `.specify/memory/*.md`, `playwright.no-server.config.ts`, `src/view/`
 
-## Commit later / uncommitted
+---
 
-- `.cursor/agents/`, `.cursor/rules/`, `.cursor/skills/`
-- `history/*.md`, `e2e/prompt-input.test.ts`, `playwright.no-server.config.ts`, `.specify/memory/richtextarea.md`
-- `history/*.md`, `e2e/*.test.ts`, `playwright.no-server.config.ts`, `.specify/memory/richtextarea.md`, `scripts/_yellow-demo.ts`
-
-## Completed (previous runs)
-
-| # | SHA      | Message |
-|---|----------|---------|
-| 1 | 02d2731  | Voltaire: use ERC20 SELECTORS and decodeUint256 |
-| 2 | 1c74df9  | Format: Deno-only section spacing script, remove Prettier and other lockfiles |
-| 3 | 4911403  | Specs 041, 043, 056: completion and AC for manual formatting and Deno-only runtime |
-| 4 | 180f743  | Format: apply section spacing to src |
-| 5 | a16b3cf  | Env: add PUBLIC_STORK_REST_TOKEN to .env.example |
-| 6 | 5eaf4f8  | Styles: add data-grid primitive and dl, remove data-balances-grid |
-| 7 | be88995  | Routes, views: migrate to data-grid; e2e use data-balances |
-| 8 | b84795e  | TransferDialog: remove extra blank line |
+## Completed (SHAs)
+- e6315bf spec 052: add asset schema, lib resolver, chain/coin/provider SVGs, sync script; remove fetch scripts
+- 138f9a8 spec 052: remove icons/chain-icon-fetch constants; wire networks, coins, bridge-limits, stork, yellow, proxy, rpc, identity-resolver to assets
+- 0a407fa spec 052: switch layout, views, components, routes to asset URLs (getAssetUrl, coinAssetUrl)
+- fef0ef8 api + collections: lifi, cctp, yellow, voltaire, uniswap, identity-resolve, simulate, transfers-indexer, approval; blocks, bridge-routes, uniswap-pools, uniswap-positions, swap-quotes-normalize
+- 40b537b e2e: update tests, coverage, fixtures, tevm; playwright config
+- 96080f3 specs: update 030, 035, 045, 052, 056, 074
+- 8b23da3 config: deno, package, env, env.d, check scripts, partykit
+- cd93a58 lib: wallet.ts update

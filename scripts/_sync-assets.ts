@@ -1,6 +1,6 @@
 /**
- * Sync asset SVGs (chains, coins, brands): download/unpack/optimize only sources not yet synced.
- * Writes to src/lib/assets/{chains|coins|providers}/. Like a package manager: skip existing files.
+ * Sync asset SVGs (networks, coins, brands): download/unpack/optimize only sources not yet synced.
+ * Writes to src/assets/{networks|coins|providers}/. Like a package manager: skip existing files.
  * Usage: deno run -A scripts/_sync-assets.ts [chain|coin|provider]
  */
 
@@ -19,12 +19,12 @@ import {
 } from '../src/constants/assets.ts'
 
 const subjectToDirKey = {
-	Network: 'chain',
+	Network: 'network',
 	Coin: 'coin',
 	Brand: 'provider',
 } as const
 
-const OUT_BASE = new URL('../src/lib/assets/', import.meta.url)
+const OUT_BASE = new URL('../src/assets/', import.meta.url)
 
 const allSources: AssetSource[] = [
 	...chainAssetSources,
@@ -72,14 +72,14 @@ async function main() {
 		: allSources
 
 	const writtenByDir = {
-		chains: new Set<string>(),
+		networks: new Set<string>(),
 		coins: new Set<string>(),
 		providers: new Set<string>(),
 	}
 	const defaultSvgByChainId = new Map<number, string>()
 	const zipCache = new Map<string, Record<string, Uint8Array>>()
 
-	const dirs = ['chains', 'coins', 'providers'] as const
+	const dirs = ['networks', 'coins', 'providers'] as const
 	for (const d of dirs) {
 		await Deno.mkdir(new URL(d + '/', OUT_BASE), { recursive: true })
 	}
@@ -96,7 +96,7 @@ async function main() {
 			if (exists) {
 				console.log(`SKIP ${dirName}/${filename} (exists)`)
 				writtenByDir[dirName].add(filename)
-				if (subject === AssetSubject.Network && isDefaultAsset(kindNorm, style)) {
+				if (subject === 'Network' && isDefaultAsset(kindNorm, style)) {
 					const existing = await Deno.readTextFile(path)
 					defaultSvgByChainId.set(Number(id), existing)
 				}
@@ -129,7 +129,7 @@ async function main() {
 			const optimized = optimizeSvg(svg)
 			await Deno.writeTextFile(path, optimized)
 			writtenByDir[dirName].add(filename)
-			if (subject === AssetSubject.Network && isDefaultAsset(kindNorm, style))
+			if (subject === 'Network' && isDefaultAsset(kindNorm, style))
 				defaultSvgByChainId.set(Number(id), optimized)
 			console.log(`OK ${dirName}/${filename}`)
 		} catch (e) {
@@ -145,18 +145,18 @@ async function main() {
 			const mid = Number(toId)
 			const svg = defaultSvgByChainId.get(mid)
 			if (!svg) continue
-			const dest = new URL(`chains/${tid}.svg`, OUT_BASE)
+			const dest = new URL(`networks/${tid}.svg`, OUT_BASE)
 			try {
 				const exists = await Deno.stat(dest).then(() => true).catch(() => false)
 				if (exists) {
-					console.log(`SKIP chains/${tid}.svg (exists)`)
-					writtenByDir.chains.add(`${tid}.svg`)
+					console.log(`SKIP networks/${tid}.svg (exists)`)
+					writtenByDir.networks.add(`${tid}.svg`)
 					continue
 				}
 				const optimized = optimizeSvg(svg)
 				await Deno.writeTextFile(dest, optimized)
-				writtenByDir.chains.add(`${tid}.svg`)
-				console.log(`COPY chains/${tid}.svg <- ${mid}`)
+				writtenByDir.networks.add(`${tid}.svg`)
+				console.log(`COPY networks/${tid}.svg <- ${mid}`)
 			} catch {
 				// ignore
 			}
@@ -164,11 +164,11 @@ async function main() {
 	}
 
 	const total =
-		writtenByDir.chains.size +
+		writtenByDir.networks.size +
 		writtenByDir.coins.size +
 		writtenByDir.providers.size
 	console.log(
-		`Done. ${total} files (chains: ${writtenByDir.chains.size}, coins: ${writtenByDir.coins.size}, providers: ${writtenByDir.providers.size}).`,
+		`Done. ${total} files (networks: ${writtenByDir.networks.size}, coins: ${writtenByDir.coins.size}, providers: ${writtenByDir.providers.size}).`,
 	)
 }
 
