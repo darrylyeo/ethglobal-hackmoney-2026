@@ -14,10 +14,10 @@ export default defineConfig({
 	webServer: {
 		command: 'deno task build && deno task preview',
 		url: 'http://localhost:4173/',
-		timeout: 120_000,
+		timeout: 300_000,
 		reuseExistingServer: true,
 	},
-	reporter: [['html', { open: 'never' }], ['list']],
+	reporter: [['html', { open: 'never', }], ['list'],],
 	fullyParallel: true,
-	expect: { timeout: 10_000 },
+	expect: { timeout: 10_000, },
 })

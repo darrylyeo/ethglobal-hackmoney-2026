@@ -80,4 +80,3 @@ export const buildSessionRow = (
 		$source: DataSource.Local,
 		...overrides,
 	}
-}

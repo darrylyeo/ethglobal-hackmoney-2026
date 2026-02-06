@@ -39,7 +39,7 @@ test.describe('E2E bridge flow', () => {
 			)
 			await ensureWalletConnected(page)
 			await expect(
-				page.getByRole('heading', { name: 'Your balances' }),
+				page.getByRole('heading', { name: 'Your balances', }),
 			).toBeVisible({ timeout: 20_000 })
 			await expect(
 				page.locator('#main').first().getByRole('heading', {
@@ -54,30 +54,30 @@ test.describe('E2E bridge flow', () => {
 			await page.getByLabel('From chain').focus()
 			await page.getByLabel('From chain').press('ArrowDown')
 			await page
-				.getByRole('option', { name: 'Ethereum' })
+				.getByRole('option', { name: 'Ethereum', })
 				.waitFor({ state: 'visible', timeout: 10_000 })
 			await page
-				.getByRole('option', { name: 'Ethereum' })
+				.getByRole('option', { name: 'Ethereum', })
 				.scrollIntoViewIfNeeded()
 			await page
-				.getByRole('option', { name: 'Ethereum' })
+				.getByRole('option', { name: 'Ethereum', })
 				.click({ force: true })
 			await page.getByLabel('To chain').focus()
 			await page.getByLabel('To chain').press('ArrowDown')
 			await page
-				.getByRole('option', { name: 'OP Mainnet' })
+				.getByRole('option', { name: 'OP Mainnet', })
 				.last()
 				.waitFor({ state: 'visible', timeout: 10_000 })
 			await page
-				.getByRole('option', { name: 'OP Mainnet' })
+				.getByRole('option', { name: 'OP Mainnet', })
 				.last()
 				.scrollIntoViewIfNeeded()
 			await page
-				.getByRole('option', { name: 'OP Mainnet' })
+				.getByRole('option', { name: 'OP Mainnet', })
 				.last()
 				.click({ force: true })
 			await selectProtocolOption(page, 'LI.FI')
-			await page.getByRole('textbox', { name: 'Amount' }).fill('1')
+			await page.getByRole('textbox', { name: 'Amount', }).fill('1')
 			await Promise.race([
 				page
 					.locator('[data-testid="quote-result"]')
@@ -112,7 +112,7 @@ test.describe('E2E bridge flow', () => {
 			)
 			await ensureWalletConnected(page)
 			await expect(
-				page.getByRole('heading', { name: 'Your balances' }),
+				page.getByRole('heading', { name: 'Your balances', }),
 			).toBeVisible({ timeout: 20_000 })
 			await expect(page.locator('[data-from-chain]')).toBeVisible({
 				timeout: 15_000,
@@ -121,10 +121,10 @@ test.describe('E2E bridge flow', () => {
 			await selectChainOption(page, 'To chain', 'OP Mainnet')
 			await selectProtocolOption(page, 'LI.FI')
 			await page
-				.getByRole('button', { name: /Transaction history/ })
+				.getByRole('button', { name: /Transaction history/, })
 				.scrollIntoViewIfNeeded()
 			await expect(
-				page.getByRole('button', { name: /Transaction history/ }),
+				page.getByRole('button', { name: /Transaction history/, }),
 			).toBeVisible({ timeout: 15_000 })
 		})
 	})
@@ -158,7 +158,7 @@ test.describe('E2E bridge flow', () => {
 			await ensureWalletConnected(page)
 			await selectProtocolOption(page, 'LI.FI')
 			await expect(
-				page.getByRole('heading', { name: 'Your balances' }),
+				page.getByRole('heading', { name: 'Your balances', }),
 			).toBeVisible({ timeout: 20_000 })
 			await page.locator('[data-from-chain]').scrollIntoViewIfNeeded()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText(
@@ -190,7 +190,7 @@ test.describe('E2E bridge flow', () => {
 			await ensureWalletConnected(page)
 			await selectProtocolOption(page, 'LI.FI')
 			await expect(
-				page.getByRole('heading', { name: 'Your balances' }),
+				page.getByRole('heading', { name: 'Your balances', }),
 			).toBeVisible({ timeout: 20_000 })
 			await page
 				.locator('#main')
@@ -203,13 +203,13 @@ test.describe('E2E bridge flow', () => {
 			await page.getByLabel('From chain').focus()
 			await page.getByLabel('From chain').press('ArrowDown')
 			await page
-				.getByRole('option', { name: 'Ethereum' })
+				.getByRole('option', { name: 'Ethereum', })
 				.waitFor({ state: 'visible', timeout: 10_000 })
 			await page
-				.getByRole('option', { name: 'Ethereum' })
+				.getByRole('option', { name: 'Ethereum', })
 				.scrollIntoViewIfNeeded()
 			await page
-				.getByRole('option', { name: 'Ethereum' })
+				.getByRole('option', { name: 'Ethereum', })
 				.click({ force: true })
 			await page.locator('[data-wallet-network-testnet]').click()
 			await expect(page.locator('[data-wallet-network-label]')).toHaveText(
@@ -269,12 +269,12 @@ test.describe('E2E bridge flow', () => {
 			)
 			await ensureWalletConnected(page)
 			await expect(
-				page.getByRole('heading', { name: 'Your balances' }),
+				page.getByRole('heading', { name: 'Your balances', }),
 			).toBeVisible({ timeout: 20_000 })
 			await selectChainOption(page, 'From chain', 'Ethereum')
 			await selectChainOption(page, 'To chain', 'OP Mainnet')
 			await selectProtocolOption(page, 'LI.FI')
-			await page.getByRole('textbox', { name: 'Amount' }).fill('1')
+			await page.getByRole('textbox', { name: 'Amount', }).fill('1')
 			await Promise.race([
 				page
 					.locator('[data-testid="quote-result"]')
@@ -290,7 +290,7 @@ test.describe('E2E bridge flow', () => {
 				await expect(
 					page
 						.locator('[data-error-display]')
-						.getByRole('button', { name: /retry|dismiss/i })
+						.getByRole('button', { name: /retry|dismiss/i, })
 						.first(),
 				).toBeVisible({ timeout: 5_000 })
 			}

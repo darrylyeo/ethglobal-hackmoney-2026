@@ -1,9 +1,9 @@
 import { test as base, expect } from '@playwright/test'
-import { createMemoryClient, http } from 'tevm'
-import { createHttpHandler } from 'tevm/server'
 import { createServer } from 'node:http'
+import { createMemoryClient, http } from 'tevm'
 import { mainnet } from 'tevm/common'
 import { SimpleContract } from 'tevm/contract'
+import { createHttpHandler } from 'tevm/server'
 import type { Log, TransactionReceipt } from 'viem'
 import { parseEther } from 'viem'
 import {
@@ -38,15 +38,15 @@ export const test = base.extend<{ tevm: TevmFixture }>({
 			const forkUrl = process.env.E2E_TEVM_FORK_URL
 			const client = createMemoryClient({
 				common: mainnet,
-				mining: { auto: true },
-				...(forkUrl
-					? {
-							fork: {
-								transport: http(forkUrl)({}),
-								blockTag: process.env.E2E_TEVM_FORK_BLOCK_TAG ?? '0x1',
-							},
-						}
-					: {}),
+				mining: { auto: true, },
+			...(forkUrl
+				? {
+						fork: {
+							transport: http(forkUrl)({}),
+							blockTag: process.env.E2E_TEVM_FORK_BLOCK_TAG ?? '0x1',
+						},
+					}
+				: {}),
 			})
 			await client.tevmReady()
 			await client.tevmSetAccount({
@@ -122,7 +122,7 @@ export const test = base.extend<{ tevm: TevmFixture }>({
 				server.close(() => resolve())
 			})
 		},
-		{ scope: 'worker' },
+		{ scope: 'worker', },
 	],
 })
 

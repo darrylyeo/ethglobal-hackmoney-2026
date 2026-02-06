@@ -1,7 +1,7 @@
 import { expect, test } from './fixtures/tevm.js'
 
-const MOBILE = { width: 375, height: 667 }
-const DESKTOP = { width: 1280, height: 800 }
+const MOBILE = { width: 375, height: 667, }
+const DESKTOP = { width: 1280, height: 800, }
 
 async function assertNoHorizontalOverflow(
 	page: import('@playwright/test').Page,

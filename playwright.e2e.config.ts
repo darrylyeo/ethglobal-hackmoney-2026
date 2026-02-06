@@ -14,8 +14,7 @@ export default defineConfig({
 	webServer: {
 		command: 'deno task build && deno task preview',
 		env: {
-			PUBLIC_E2E_TEVM: '1',
-			PUBLIC_E2E_TEVM_RPC_URL: 'http://127.0.0.1:8545',
+			PUBLIC_TEVM_RPC_URL: 'http://127.0.0.1:8545',
 		},
 		url: 'http://localhost:4173/',
 		timeout: 240_000,

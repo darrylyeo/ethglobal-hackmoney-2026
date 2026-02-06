@@ -13,16 +13,16 @@ test.describe('Home (/)', () => {
 			timeout: 20_000,
 		})
 		await expect(
-			page.getByRole('heading', { name: 'USDC Tools' }),
+			page.getByRole('heading', { name: 'USDC Tools', }),
 		).toBeVisible()
 		await expect(
-			page.getByRole('link', { name: 'Bridge' }).first(),
+			page.getByRole('link', { name: 'Bridge', }).first(),
 		).toBeVisible()
 		await expect(
-			page.getByRole('link', { name: 'Transfer' }).first(),
+			page.getByRole('link', { name: 'Transfer', }).first(),
 		).toBeVisible()
 		await expect(
-			page.getByRole('link', { name: 'About' }).first(),
+			page.getByRole('link', { name: 'About', }).first(),
 		).toBeVisible()
 	})
 })
@@ -44,10 +44,10 @@ test.describe('Session (bridge)', () => {
 			timeout: 30_000,
 		})
 		await expect(
-			page.getByRole('heading', { name: 'USDC Bridge', level: 1 }),
-		).toBeVisible({ timeout: 50_000 })
+			page.getByRole('heading', { name: 'USDC Bridge', level: 1, }),
+		).toBeVisible({ timeout: 50_000, })
 		await expect(
-			page.getByRole('heading', { name: 'Protocol Selection' }),
+			page.getByRole('heading', { name: 'Protocol Selection', }),
 		).toBeVisible()
 		await expect(page.getByLabel('From chain')).toBeAttached()
 		await expect(page.getByLabel('To chain')).toBeAttached()
@@ -73,8 +73,8 @@ test.describe('USDC (/coin/USDC)', () => {
 			timeout: 30_000,
 		})
 		await expect(
-			page.getByRole('navigation', { name: 'Time period' }),
-		).toBeVisible({ timeout: 20_000 })
+			page.getByRole('navigation', { name: 'Time period', }),
+		).toBeVisible({ timeout: 20_000, })
 	})
 
 	test('empty or loading state shows without crashing', async ({ page }) => {
@@ -101,15 +101,15 @@ test.describe('Rooms (/rooms)', () => {
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.getByRole('heading', { name: 'Rooms' })).toBeVisible({
+		await expect(page.getByRole('heading', { name: 'Rooms', })).toBeVisible({
 			timeout: 15_000,
 		})
 		await expect(
-			page.getByRole('heading', { name: 'Create room' }),
+			page.getByRole('heading', { name: 'Create room', }),
 		).toBeVisible()
-		await expect(page.getByRole('heading', { name: 'Join room' })).toBeVisible()
+		await expect(page.getByRole('heading', { name: 'Join room', })).toBeVisible()
 		await expect(
-			page.getByRole('button', { name: /Create room/ }),
+			page.getByRole('button', { name: /Create room/, }),
 		).toBeVisible()
 	})
 

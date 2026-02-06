@@ -142,7 +142,7 @@ test.describe('E2E Tevm walletless execution', () => {
 		})
 		await page.goto(`/session${hash}`)
 		await ensureWalletConnected(page)
-		const addButton = page.getByRole('button', { name: 'Add Liquidity' })
+		const addButton = page.getByTestId('add-liquidity-submit')
 		await expect(addButton).toBeEnabled({ timeout: 20_000 })
 		await addButton.click()
 		const txHash = await getTxHash(

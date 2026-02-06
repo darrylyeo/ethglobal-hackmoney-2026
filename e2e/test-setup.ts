@@ -215,7 +215,7 @@ export const ensureWalletConnected = async (
 		await providerOption.waitFor({ state: 'visible', timeout: 15_000 })
 		await providerOption.click()
 	}
-	await walletAddress.waitFor({ state: 'visible', timeout: 20_000 })
+	await walletAddress.waitFor({ state: 'visible', timeout: 20_000, })
 }
 
 export const selectChainOption = async (
@@ -226,19 +226,33 @@ export const selectChainOption = async (
 	const trigger = page.getByLabel(label)
 	await trigger.focus()
 	await trigger.press('ArrowDown')
-	const option = page.getByRole('option', { name: optionName }).first()
-	await option.waitFor({ state: 'visible', timeout: 15_000 })
+	const option = page.getByRole('option', { name: optionName, }).first()
+	await option.waitFor({ state: 'visible', timeout: 15_000, })
 	await option.click()
 	await page.keyboard.press('Escape')
 }
 
 export const selectProtocolOption = async (
 	page: import('@playwright/test').Page,
-	label: 'CCTP' | 'LI.FI',
+	label: 'CCTP' | 'LI.FI' | 'Gateway',
 ) => {
-	const option = page.getByRole('button', { name: label }).first()
-	await option.waitFor({ state: 'visible', timeout: 15_000 })
+	const option = page.getByRole('button', { name: label, }).first()
+	await option.waitFor({ state: 'visible', timeout: 15_000, })
 	await option.click()
+}
+
+export async function addGatewayMocks(page: import('@playwright/test').Page) {
+	await page.route('**/gateway-api-testnet.circle.com/v1/balances', (route) => {
+		if (route.request().method() !== 'POST') return route.continue()
+		route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				token: 'USDC',
+				balances: [{ domain: 26, depositor: '0x0000000000000000000000000000000000000000', balance: '0' }],
+			}),
+		})
+	})
 }
 
 export async function addMockWallet(
@@ -346,7 +360,7 @@ export async function addCctpMocks(page: import('@playwright/test').Page) {
 
 export async function addNetworkMocks(
 	page: import('@playwright/test').Page,
-	opts: { lifi?: boolean; cctp?: boolean } = { lifi: true, cctp: false },
+	opts: { lifi?: boolean; cctp?: boolean } = { lifi: true, cctp: false, },
 ) {
 	if (opts.lifi) await addLifiRoutesMock(page)
 	if (opts.cctp) await addCctpMocks(page)

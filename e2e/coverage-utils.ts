@@ -4,7 +4,7 @@ import path from 'node:path'
 const routesRoot = path.join(process.cwd(), 'src', 'routes')
 
 const walk = (dir: string, files: string[] = []) => {
-	for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+	for (const entry of fs.readdirSync(dir, { withFileTypes: true, })) {
 		const nextPath = path.join(dir, entry.name)
 		if (entry.isDirectory()) {
 			walk(nextPath, files)

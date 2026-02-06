@@ -1,4 +1,4 @@
-import { encodeFunction } from '@tevm/voltaire/Abi'
+import { Abi, encodeFunction } from '@tevm/voltaire/Abi'
 import { DEFAULT_E2E_TEVM_RPC_URL, E2E_TEVM_CONTRACT_ADDRESS } from './tevm-config'
 
 declare global {
@@ -8,18 +8,15 @@ declare global {
 	}
 }
 
-const E2E_SIMPLE_CONTRACT_ABI = [
+const E2E_SIMPLE_CONTRACT_ABI = Abi([
 	{
-		type: 'function' as const,
+		type: 'function',
 		name: 'set',
-		stateMutability: 'nonpayable' as const,
+		stateMutability: 'nonpayable',
 		inputs: [{ type: 'uint256', name: 'newValue' }],
 		outputs: [],
 	},
-] as const
-
-const isE2eFlag = (value: string | undefined) =>
-	value === '1' || value === 'true'
+]) as unknown as import('@tevm/voltaire/Abi').Abi
 
 const isHexString = (value: unknown): value is `0x${string}` =>
 	typeof value === 'string' && value.startsWith('0x')
@@ -27,13 +24,13 @@ const isHexString = (value: unknown): value is `0x${string}` =>
 export const E2E_TEVM_ENABLED =
 	(typeof window !== 'undefined' && window.__E2E_TEVM__ === true) ||
 	(typeof import.meta.env !== 'undefined' &&
-		isE2eFlag(import.meta.env.PUBLIC_E2E_TEVM))
+		!!import.meta.env.PUBLIC_TEVM_RPC_URL)
 
 export const E2E_TEVM_RPC_URL =
 	typeof window !== 'undefined' && window.__E2E_TEVM_RPC_URL__
 		? window.__E2E_TEVM_RPC_URL__
 		: (typeof import.meta.env !== 'undefined'
-				? import.meta.env.PUBLIC_E2E_TEVM_RPC_URL
+				? import.meta.env.PUBLIC_TEVM_RPC_URL
 				: undefined) ?? DEFAULT_E2E_TEVM_RPC_URL
 
 export const requestE2eTevmContractTx = async (args: {

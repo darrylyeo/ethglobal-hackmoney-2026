@@ -26,14 +26,14 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		})
 		await expect(page.locator('#main').first()).toContainText(
 			/USDC Bridge|Connect a wallet/,
-			{ timeout: 45_000 },
+			{ timeout: 45_000, },
 		)
 		await expect(
-			page.getByRole('heading', { name: 'Bridge', level: 2 }),
+			page.getByRole('heading', { name: 'Bridge', level: 2, }),
 		).toBeVisible()
 		await expect(page.getByLabel('From chain')).toBeAttached()
 		await expect(page.getByLabel('To chain')).toBeAttached()
-		await expect(page.getByRole('textbox', { name: 'Amount' })).toBeAttached()
+		await expect(page.getByRole('textbox', { name: 'Amount', })).toBeAttached()
 		await expect(
 			page.getByRole('heading', { name: 'Protocol Selection' }),
 		).toBeVisible()
@@ -79,8 +79,8 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		await page.getByLabel('To chain').focus()
 		await page.getByLabel('To chain').press('ArrowDown')
 		await page.getByLabel('To chain').fill('ZKsync')
-		const zkOption = page.getByRole('option', { name: 'ZKsync Era' }).first()
-		await zkOption.waitFor({ state: 'visible', timeout: 10_000 })
+		const zkOption = page.getByRole('option', { name: 'ZKsync Era', }).first()
+		await zkOption.waitFor({ state: 'visible', timeout: 10_000, })
 		await zkOption.evaluate((el) => (el as HTMLElement).click())
 		await expect(page.locator('[data-protocol="lifi"]')).toContainText('LI.FI')
 		await expect(page.getByText(/Only LI.FI supports this pair/)).toBeVisible()
@@ -101,9 +101,9 @@ test.describe('Unified Bridge (Spec 037)', () => {
 			page
 				.locator('section')
 				.filter({
-					has: page.getByRole('heading', { name: 'Protocol Selection' }),
+					has: page.getByRole('heading', { name: 'Protocol Selection', }),
 				})
 				.getByText('LI.FI'),
-		).toBeVisible({ timeout: 10_000 })
+		).toBeVisible({ timeout: 10_000, })
 	})
 })

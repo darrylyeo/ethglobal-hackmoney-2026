@@ -19,11 +19,11 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			timeout: 30_000,
 		})
 		await expect(
-			page.getByRole('heading', { name: 'USDC Bridge', level: 1 }),
-		).toBeVisible({ timeout: 60_000 })
+			page.getByRole('heading', { name: 'USDC Bridge', level: 1, }),
+		).toBeVisible({ timeout: 60_000, })
 		await expect(page.locator('[data-wallet-network-label]')).toHaveText(
 			'Mainnet',
-			{ timeout: 15_000 },
+			{ timeout: 15_000, },
 		)
 		await page.locator('[data-wallet-network-testnet]').click()
 		await expect(page.locator('[data-wallet-network-label]')).toHaveText(
@@ -38,6 +38,7 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			{
 				timeout: 5_000,
 			},
+		),
 		)
 	})
 
@@ -51,8 +52,8 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 		})
 		await page.goto('/session#bridge')
 		await expect(
-			page.getByRole('heading', { name: 'USDC Bridge', level: 1 }),
-		).toBeVisible({ timeout: 60_000 })
+			page.getByRole('heading', { name: 'USDC Bridge', level: 1, }),
+		).toBeVisible({ timeout: 60_000, })
 		await ensureWalletConnected(page)
 		await page.locator('[data-wallet-menu-trigger]').click()
 		await expect(page.locator('[data-wallet-disconnect]')).toBeVisible({
