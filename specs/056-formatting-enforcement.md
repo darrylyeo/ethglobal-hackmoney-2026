@@ -229,7 +229,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/data/StorkPrice.ts`
 - [x] `src/data/SwapQuote.ts`
 - [x] `src/data/TevmSimulationResult.ts`
-- [ ] `src/data/TokenListCoin.ts`
+- [x] `src/data/TokenListCoin.ts`
 - [ ] `src/data/Trace.ts`
 - [ ] `src/data/Transaction.ts`
 - [ ] `src/data/TransactionSession.ts`

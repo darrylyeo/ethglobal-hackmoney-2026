@@ -3,7 +3,7 @@ import type { ChainId } from '$/constants/networks.ts'
 export type TokenListCoin$Id = {
 	chainId: ChainId
 	address: `0x${string}`
-	interopAddress?: string
+	interopAddress?: string,
 }
 
 export type TokenListCoin = {
@@ -13,5 +13,5 @@ export type TokenListCoin = {
 	symbol: string
 	name: string
 	decimals: number
-	logoURI?: string
+	logoURI?: string,
 }
