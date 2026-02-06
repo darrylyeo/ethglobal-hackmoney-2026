@@ -227,7 +227,7 @@ to write `AgentChatTurn` nodes:
   `promptVersion`, `providerId`, `assistantText`).
 - `ExplainAvailability`, `ExplainContext`, `ExplainInput`, `ExplainOutput`,
   `ExplainProvider`, `createExplainProvider`, `buildExplainUserPrompt` remain
-  in `src/lib/explain.ts` as the feature-specific layer that wraps
+  in `src/lib/llm-provider.ts` as the feature-specific layer that wraps
   `LlmProvider` and builds domain prompts. The only change is that the result
   is persisted as an `AgentChatTurn` instead of returned as an `ExplainRecord`.
 
@@ -261,7 +261,7 @@ to write `AgentChatTurn` nodes:
 
 ## Status
 
-Complete. Explain flow ported to AgentChatTurn in `explain.ts`; TransactionFlow
+Complete. Explain flow ported to AgentChatTurn in `llm-provider.ts`; TransactionFlow
 reads from `agentChatTurnsCollection`. Optional: resolve entity refs to cached
 summaries inside `buildAgentChatMessages`.
 

@@ -5,7 +5,7 @@
 	import type {
 		ExplainAvailability,
 		ExplainContext,
-	} from '$/lib/explain'
+	} from '$/lib/llm-provider'
 	import type { AgentChatTurn } from '$/data/AgentChatTurn'
 	import type { EIP1193Provider } from '$/lib/wallet'
 	import type { Snippet } from 'svelte'
@@ -102,7 +102,7 @@
 
 	// Functions
 	import { createHttpProvider } from '$/api/voltaire'
-	import { createExplainProvider, submitExplainTurn } from '$/lib/explain'
+	import { createExplainProvider, submitExplainTurn } from '$/lib/llm-provider'
 	import { agentChatTurnsCollection } from '$/collections/agent-chat-turns'
 	import { getE2eProvider, switchWalletChain } from '$/lib/wallet'
 

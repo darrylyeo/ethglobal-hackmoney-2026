@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
-	import type { BridgeSessionParams } from '$/lib/transaction-session-params'
+	import type { BridgeSessionParams } from '$/lib/session/params'
 	import { WalletConnectionTransport } from '$/data/WalletConnection'
 	import {
 		CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS,

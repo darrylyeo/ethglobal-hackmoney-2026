@@ -4,7 +4,7 @@
 	import type { ConnectedWallet } from '$/collections/wallet-connections'
 	import type { Coin } from '$/constants/coins'
 	import type { FetchSwapQuoteParams } from '$/data/SwapQuote'
-	import type { SwapSessionParams } from '$/lib/transaction-session-params'
+	import type { SwapSessionParams } from '$/lib/session/params'
 	import { CoinType } from '$/constants/coins'
 	import { DataSource } from '$/constants/data-sources'
 	import { MediaType } from '$/constants/media'
@@ -32,7 +32,7 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/dashboard-panel-hash'
+	} from '$/lib/session/panel-hash'
 
 
 	// Functions
@@ -46,7 +46,7 @@
 	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format'
 	import { getStorkAssetIdForSymbol } from '$/lib/stork'
 	import { stringify } from '$/lib/stringify'
-	import { normalizeSwapSessionParams } from '$/lib/transaction-session-params'
+	import { normalizeSwapSessionParams } from '$/lib/session/params'
 	import {
 		buildSessionHash,
 		createSessionId,
@@ -54,7 +54,7 @@
 		createTransactionSessionWithId,
 		parseSessionHash,
 		updateTransactionSession,
-	} from '$/lib/transaction-sessions'
+	} from '$/lib/session/sessions'
 
 
 	// State
@@ -212,7 +212,7 @@
 			: null,
 	)
 	const hashSource = getContext<
-		import('$/lib/dashboard-panel-hash').SessionHashSource
+		import('$/lib/session/panel-hash').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 

@@ -9,8 +9,8 @@ import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import type { LlmConnection } from '$/data/LlmConnection'
 import { LlmConnectionProvider } from '$/data/LlmConnection'
-import type { LlmProvider, LlmGenerateInput, LlmAvailability } from '$/lib/explain'
-import { createHostedLlmProvider } from '$/lib/explain'
+import type { LlmProvider, LlmGenerateInput, LlmAvailability } from '$/lib/llm-provider'
+import { createHostedLlmProvider } from '$/lib/llm-provider'
 import {
 	zenClientGenerateWithKey,
 	zenAvailability,

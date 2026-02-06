@@ -31,7 +31,7 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/dashboard-panel-hash'
+	} from '$/lib/session/panel-hash'
 
 
 	// Props
@@ -72,14 +72,14 @@
 	import {
 		type SwapSessionParams,
 		getSwapSessionParams,
-	} from '$/lib/transaction-session-params'
+	} from '$/lib/session/params'
 	import {
 		buildSessionHash,
 		createTransactionSession,
 		forkTransactionSession,
 		parseSessionHash,
 		updateTransactionSessionParams,
-	} from '$/lib/transaction-sessions'
+	} from '$/lib/session/sessions'
 
 	const asNonEmpty = (coins: Coin[]): coins is [Coin, ...Coin[]] =>
 		coins.length > 0
@@ -158,7 +158,7 @@
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
 	const hashSource = getContext<
-		import('$/lib/dashboard-panel-hash').SessionHashSource
+		import('$/lib/session/panel-hash').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 	const filteredNetworks = $derived(

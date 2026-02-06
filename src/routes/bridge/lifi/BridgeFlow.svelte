@@ -6,7 +6,7 @@
 	import {
 		type BridgeSessionParams,
 		normalizeBridgeSessionParams,
-	} from '$/lib/transaction-session-params'
+	} from '$/lib/session/params'
 	import { BridgeRouteSort } from '$/state/bridge-settings.svelte'
 	import {
 		type WalletConnectionEip1193,
@@ -41,8 +41,8 @@
 	import { getTxReceiptStatus } from '$/api/approval'
 	import { formatRelativeTime } from '$/lib/formatRelativeTime'
 	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm'
-	import type { BridgeStatus } from '$/lib/tx-status'
-	import { ErrorCode } from '$/lib/bridge-errors'
+import type { BridgeStatus } from '$/lib/bridge/tx-status'
+import { ErrorCode } from '$/lib/bridge/errors'
 	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format'
 	import {
 		formatAddress,

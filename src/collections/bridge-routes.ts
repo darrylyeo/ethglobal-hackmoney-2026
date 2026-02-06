@@ -16,8 +16,8 @@ import type {
 	BridgeRoutes$Id,
 } from '$/data/BridgeRoute'
 import { getRoutesForUsdcBridge, type NormalizedRoute } from '$/api/lifi'
-import type { BridgeError } from '$/lib/bridge-errors'
-import { categorizeError, isBridgeError } from '$/lib/bridge-errors'
+import type { BridgeError } from '$/lib/bridge/errors'
+import { categorizeError, isBridgeError } from '$/lib/bridge/errors'
 
 export type BridgeRoutesRow = BridgeRoutes & { $source: DataSource }
 export type BridgeRouteItemRow = BridgeRoute & {

@@ -4,7 +4,7 @@
 	import type { Coin } from '$/constants/coins'
 	import { CoinType } from '$/constants/coins'
 	import { networksByChainId } from '$/constants/networks'
-	import type { TransferSessionParams } from '$/lib/transaction-session-params'
+	import type { TransferSessionParams } from '$/lib/session/params'
 
 
 	// Context
@@ -16,7 +16,7 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/dashboard-panel-hash'
+	} from '$/lib/session/panel-hash'
 
 
 	// Props
@@ -102,7 +102,7 @@
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
 	const hashSource = getContext<
-		import('$/lib/dashboard-panel-hash').SessionHashSource
+		import('$/lib/session/panel-hash').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 	const amountLabel = $derived(
@@ -219,12 +219,12 @@
 	import { sendTransfer } from '$/api/yellow'
 	import { requestE2eTevmValueTransfer } from '$/lib/e2e/tevm'
 	import { formatSmallestToDecimal } from '$/lib/format'
-	import { getTransferSessionParams } from '$/lib/transaction-session-params'
+	import { getTransferSessionParams } from '$/lib/session/params'
 	import {
 		buildSessionHash,
 		createTransactionSession,
 		parseSessionHash,
-	} from '$/lib/transaction-sessions'
+	} from '$/lib/session/sessions'
 
 
 	// State

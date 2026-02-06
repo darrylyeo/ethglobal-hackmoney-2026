@@ -12,7 +12,7 @@
 	import {
 		buildSessionHash,
 		deleteTransactionSession,
-	} from '$/lib/transaction-sessions'
+	} from '$/lib/session/sessions'
 
 	const actionLabel = (action: string) =>
 		action.length > 0

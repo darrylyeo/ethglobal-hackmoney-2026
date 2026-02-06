@@ -7,7 +7,7 @@
 
 
 	// Functions
-	import { buildSessionHash } from '$/lib/transaction-sessions'
+	import { buildSessionHash } from '$/lib/session/sessions'
 
 
 	// State

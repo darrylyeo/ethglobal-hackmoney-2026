@@ -33,7 +33,7 @@
 		createTransactionSession,
 		parseSessionHash,
 		updateTransactionSessionParams,
-	} from '$/lib/transaction-sessions'
+	} from '$/lib/session/sessions'
 	import {
 		formatSmallestToDecimal,
 		isValidDecimalInput,

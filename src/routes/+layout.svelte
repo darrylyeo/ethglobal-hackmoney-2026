@@ -24,8 +24,8 @@
 
 	// Functions
 	import { formatAddress } from '$/lib/address'
-	import { roomIdToDisplayName } from '$/lib/room'
-	import { buildSessionHash } from '$/lib/transaction-sessions'
+	import { roomIdToDisplayName } from '$/lib/rooms/room'
+	import { buildSessionHash } from '$/lib/session/sessions'
 	import { interopFormatConfig, toInteropName } from '$/constants/interop'
 
 	const actionLabel = (action: string) =>
@@ -203,6 +203,7 @@
 					title: roomPeer.displayName ?? formatAddress(v.row.address),
 					href: `/account/${encodeURIComponent(v.row.address)}`,
 					tag: peers.some((p) => p.isConnected) ? 'Connected' : 'Disconnected',
+					icon: '🤝',
 				}
 			}),
 	)
@@ -227,7 +228,7 @@
 						: actor,
 				)}`,
 				tag: connection.status,
-				icon: wallet.icon ?? undefined,
+				icon: wallet.icon ?? '👤',
 			}))
 		}),
 	)

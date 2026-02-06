@@ -10,8 +10,8 @@
 		getEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 		type SessionHashSource,
-	} from '$/lib/dashboard-panel-hash'
-	import { parseSessionHash } from '$/lib/transaction-sessions'
+	} from '$/lib/session/panel-hash'
+	import { parseSessionHash } from '$/lib/session/sessions'
 
 
 	// State
