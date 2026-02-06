@@ -13,3 +13,4 @@ export const COVALENT_TRANSFERS_MAX = 1000
 
 /** Max token list entries kept after merging lists (per chain-address uniqueness). */
 export const TOKEN_LIST_MAX_ENTRIES = 2000
+
