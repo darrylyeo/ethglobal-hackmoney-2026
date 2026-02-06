@@ -3,15 +3,15 @@
  * ENS forward (name → address + text) and reverse (address → name).
  */
 
-import type { VoltaireProvider } from '$/api/voltaire'
-import { DataSource } from '$/constants/data-sources'
+import type { VoltaireProvider } from '$/api/voltaire.ts'
+import { DataSource } from '$/constants/data-sources.ts'
 import {
 	IdentityInputKind,
 	identityResolversByKind,
 	type IdentityResolution,
-} from '$/constants/identity-resolver'
-import { ChainId } from '$/constants/networks'
-import { isValidAddress } from '$/lib/address'
+} from '$/constants/identity-resolver.ts'
+import { ChainId } from '$/constants/networks.ts'
+import { isValidAddress } from '$/lib/address.ts'
 import { Abi, decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
 import { namehash } from '@tevm/voltaire/Ens'
 import { fromBytes as hexFromBytes, toBytes } from '@tevm/voltaire/Hex'

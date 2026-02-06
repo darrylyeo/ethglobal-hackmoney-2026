@@ -2,7 +2,7 @@
  * Fetch and normalize USDC transfer events from Covalent (or compatible indexer).
  * Single module so endpoint/pagination can be adapted without changing callers.
  */
-import { COVALENT_TRANSFERS_MAX } from '$/constants/query-limits'
+import { COVALENT_TRANSFERS_MAX } from '$/constants/query-limits.ts'
 
 export type NormalizedTransfer = {
 	fromAddress: string
@@ -197,7 +197,7 @@ const FETCH_TIMEOUT_MS = 30_000
 export async function fetchTransfersGraphFromVoltaire(
 	period: string,
 ): Promise<TransfersGraphResult> {
-	const { fetchTransferEventsForPeriod } = await import('$/api/transfers-logs')
+	const { fetchTransferEventsForPeriod } = await import('$/api/transfers-logs.ts')
 	const periodDef =
 		TIME_PERIODS.find((p) => p.value === period) ?? TIME_PERIODS[3]
 	const events = await fetchTransferEventsForPeriod(period)

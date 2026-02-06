@@ -1,5 +1,5 @@
 /// <reference lib='deno.ns' />
-import { IdentityInputKind } from '$/constants/identity-resolver'
+import { IdentityInputKind } from '$/constants/identity-resolver.ts'
 import { normalizeIdentity } from './identity-resolve.ts'
 import { assertEquals } from 'jsr:@std/assert'
 

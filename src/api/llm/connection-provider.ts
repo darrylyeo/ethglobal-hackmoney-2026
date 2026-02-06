@@ -6,12 +6,12 @@
 import {
 	zenClientGenerateWithKey,
 	zenAvailability,
-} from '$/api/llm/zen'
-import { OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID } from '$/constants/opencode-zen'
-import type { LlmConnection } from '$/data/LlmConnection'
-import { LlmConnectionProvider } from '$/data/LlmConnection'
-import type { LlmProvider, LlmGenerateInput, LlmAvailability } from '$/lib/llm-provider'
-import { createHostedLlmProvider } from '$/lib/llm-provider'
+} from '$/api/llm/zen.ts'
+import { OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID } from '$/constants/opencode-zen.ts'
+import type { LlmConnection } from '$/data/LlmConnection.ts'
+import { LlmConnectionProvider } from '$/data/LlmConnection.ts'
+import type { LlmProvider, LlmGenerateInput, LlmAvailability } from '$/lib/llm-provider.ts'
+import { createHostedLlmProvider } from '$/lib/llm-provider.ts'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createOpenAI } from '@ai-sdk/openai'

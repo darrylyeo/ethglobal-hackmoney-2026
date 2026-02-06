@@ -8,7 +8,7 @@ import type {
 	TevmSimulationDecodedEvent,
 	TevmSimulationResult,
 	TevmSimulationTraceCall,
-} from '$/data/TevmSimulationResult'
+} from '$/data/TevmSimulationResult.ts'
 
 const toHex = (bytes: Uint8Array): string =>
 	`0x${Array.from(bytes)

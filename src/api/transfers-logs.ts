@@ -10,11 +10,11 @@ import {
 	getBlockNumberByTimestamp,
 	getLogs,
 	TRANSFER_TOPIC,
-} from '$/api/voltaire'
-import { type ChainContract, TIME_PERIODS, periodToRange } from '$/api/transfers-indexer'
-import { ercTokens } from '$/constants/coins'
-import { TRANSFER_EVENTS_MAX_TOTAL } from '$/constants/query-limits'
-import { rpcUrls } from '$/constants/rpc-endpoints'
+} from '$/api/voltaire.ts'
+import { type ChainContract, TIME_PERIODS, periodToRange } from '$/api/transfers-indexer.ts'
+import { ercTokens } from '$/constants/coins.ts'
+import { TRANSFER_EVENTS_MAX_TOTAL } from '$/constants/query-limits.ts'
+import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 
 export type NormalizedTransferEvent = {
 	transactionHash: string

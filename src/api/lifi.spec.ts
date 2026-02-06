@@ -1,4 +1,4 @@
-import { queryClient } from '$/lib/db/query-client'
+import { queryClient } from '$/lib/db/query-client.ts'
 import type { LiFiStep, Route } from '@lifi/sdk'
 import {
 	extractFeeBreakdown,
@@ -9,7 +9,7 @@ import {
 	type NormalizedRoute,
 	normalizeQuote,
 	normalizeRoute,
-} from './lifi'
+} from './lifi.ts'
 import { describe, expect, it, vi } from 'vitest'
 vi.mock('@lifi/sdk', () => {
 	const mockStep: LiFiStep = {

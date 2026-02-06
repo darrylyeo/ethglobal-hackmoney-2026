@@ -3,7 +3,7 @@
  * https://developers.circle.com/gateway
  */
 
-import { getGatewayApiBase } from '$/constants/gateway'
+import { getGatewayApiBase } from '$/constants/gateway.ts'
 
 export type GatewayBalanceItem = {
 	domain: number

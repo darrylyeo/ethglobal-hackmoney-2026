@@ -2,28 +2,28 @@
  * Gateway execution: deposit (if needed), sign burn intent, get attestation, mint on destination.
  */
 
-import type { EIP1193Provider } from '$/lib/wallet'
+import type { EIP1193Provider } from '$/lib/wallet.ts'
 import { Abi, encodeFunction } from '@tevm/voltaire/Abi'
 import {
 	checkApproval,
 	sendApproval,
 	waitForApprovalConfirmation,
-} from '$/api/approval'
-import { getUsdcAddress } from '$/api/lifi'
+} from '$/api/approval.ts'
+import { getUsdcAddress } from '$/api/lifi.ts'
 import {
 	createGatewayTransferAttestation,
 	fetchGatewayUnifiedBalance,
 	type GatewayBurnIntentRequest,
 	type GatewayTransferSpec,
-} from '$/api/gateway'
+} from '$/api/gateway.ts'
 import {
 	getGatewayDomainId,
 	getGatewayMinterAddress,
 	getGatewayWalletAddress,
-} from '$/constants/gateway'
-import { createHttpProvider } from '$/api/voltaire'
-import { rpcUrls } from '$/constants/rpc-endpoints'
-import { switchWalletChain } from '$/lib/wallet'
+} from '$/constants/gateway.ts'
+import { createHttpProvider } from '$/api/voltaire.ts'
+import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { switchWalletChain } from '$/lib/wallet.ts'
 
 const GATEWAY_WALLET_DEPOSIT_ABI = Abi([
 	{

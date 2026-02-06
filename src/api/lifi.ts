@@ -4,21 +4,21 @@
  * SDK is lazy-loaded so non-bridge routes stay light.
  */
 
-import { ercTokensBySymbolByChainId } from '$/constants/coins'
-import { ChainId } from '$/constants/networks'
+import { ercTokensBySymbolByChainId } from '$/constants/coins.ts'
+import { ChainId } from '$/constants/networks.ts'
 import {
 	type BridgeStatus,
 	mapLifiProcessStatus,
 	type TxStatus,
-} from '$/lib/bridge/tx-status'
-import { queryClient } from '$/lib/db/query-client'
-import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm'
-import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
+} from '$/lib/bridge/tx-status.ts'
+import { queryClient } from '$/lib/db/query-client.ts'
+import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm.ts'
+import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config.ts'
 import {
 	createWalletClientForChain,
 	type ProviderDetailType,
 	switchWalletChain,
-} from '$/lib/wallet'
+} from '$/lib/wallet.ts'
 import type {
 	Execution,
 	LiFiStep,

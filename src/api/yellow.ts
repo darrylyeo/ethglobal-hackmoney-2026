@@ -3,20 +3,20 @@
  * SDK lazy-loaded when available; stubs allow UI to render.
  */
 
-import type { EIP1193Provider } from '$/lib/wallet'
-import { createWalletClientForChain } from '$/lib/wallet'
-import type { YellowChannelState } from '$/data/YellowChannelState'
+import type { EIP1193Provider } from '$/lib/wallet.ts'
+import { createWalletClientForChain } from '$/lib/wallet.ts'
+import type { YellowChannelState } from '$/data/YellowChannelState.ts'
 import {
 	yellowDeploymentByChainId,
 	YellowEnvironment,
 	yellowClearnodeEndpointByEnvironment,
 	CHALLENGE_PERIOD,
-} from '$/constants/yellow'
-import { NetworkType, networkConfigsByChainId } from '$/constants/networks'
-import { rpcUrls } from '$/constants/rpc-endpoints'
-import { parseDecimalToSmallest } from '$/lib/format'
+} from '$/constants/yellow.ts'
+import { NetworkType, networkConfigsByChainId } from '$/constants/networks.ts'
+import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { parseDecimalToSmallest } from '$/lib/format.ts'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, createWalletClient, custom, http } from 'viem'
 
 export type ClearnodeConnection = {
 	close: () => void
@@ -121,6 +121,7 @@ export const connectClearnode = async (params: {
 
 	const authReady = new Promise<void>((resolve, reject) => {
 		socket.addEventListener('message', async (event) => {
+		  try {
 			const data = typeof event.data === 'string' ? event.data : ''
 			let parsed: { res?: unknown[] } | null = null
 			try {
@@ -136,10 +137,11 @@ export const connectClearnode = async (params: {
 			}
 			const [id, method, result] = response
 			if (method === 'auth_challenge' || method === 'auth_request') {
-				const walletClient = createWalletClientForChain(
-					params.signer,
-					params.chainId,
-				)
+				const walletClient = createWalletClient({
+					account: params.address,
+					chain: createWalletClientForChain(params.signer, params.chainId).chain,
+					transport: custom(params.signer),
+				})
 				const signer = createEIP712AuthMessageSigner(walletClient, authParams, {
 					name: authParams.application,
 				})
@@ -199,6 +201,9 @@ export const connectClearnode = async (params: {
 				}
 			}
 			handlers.forEach((handler) => handler(event.data))
+		  } catch (err) {
+			reject(err instanceof Error ? err : new Error(String(err)))
+		  }
 		})
 	})
 

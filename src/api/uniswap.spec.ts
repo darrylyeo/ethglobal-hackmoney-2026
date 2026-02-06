@@ -4,7 +4,7 @@ import {
 	fetchPositions,
 	increaseLiquidity,
 	removeLiquidity,
-} from './uniswap'
+} from './uniswap.ts'
 import { describe, expect, it } from 'vitest'
 
 const mockProvider = {

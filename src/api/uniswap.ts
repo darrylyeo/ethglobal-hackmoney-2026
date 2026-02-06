@@ -4,12 +4,12 @@
  * execute via Universal Router when contracts are configured.
  */
 
-import type { UniswapPool } from '$/data/UniswapPool'
-import type { UniswapPosition } from '$/data/UniswapPosition'
-import type { SwapQuote, SwapRoute } from '$/data/SwapQuote'
-import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap'
-import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm'
-import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config'
+import type { UniswapPool } from '$/data/UniswapPool.ts'
+import type { UniswapPosition } from '$/data/UniswapPosition.ts'
+import type { SwapQuote, SwapRoute } from '$/data/SwapQuote.ts'
+import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap.ts'
+import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm.ts'
+import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config.ts'
 
 type EIP1193Provider = {
 	request: (args: { method: string; params?: unknown[] }) => Promise<unknown>

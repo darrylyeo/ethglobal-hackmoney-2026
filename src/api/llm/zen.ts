@@ -7,8 +7,8 @@
 import {
 	getZenFreeModel,
 	OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID,
-} from '$/constants/opencode-zen'
-import { proxyFetch } from '$/lib/proxy-fetch'
+} from '$/constants/opencode-zen.ts'
+import { proxyFetch } from '$/lib/proxy-fetch.ts'
 
 export type ZenAvailability = { available: boolean }
 
