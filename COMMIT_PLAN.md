@@ -4,6 +4,21 @@
 
 | # | SHA      | Message |
 |---|----------|---------|
+| 1 | f643e82  | lib: bridge-errors and retry.spec use bridge-errors |
+| 2 | 3027ce3  | lib: remove errors.ts and errors.spec (replaced by bridge-errors) |
+| 3 | 12b2367  | api: simulate + llm as modules; remove api routes simulate, llm/zen, proxy |
+| 4 | 894580c  | data: agent-chat (AgentChatTree, AgentChatTurn), EvmActorProfile, LlmConnection, EntityRef; spec 066 |
+| 5 | 7b90e32  | collections + lib: agent-chat, evm-actor-profiles, llm-connections, proxyFetch; remove dialogue |
+| 6 | a1e86ef  | components: RichTextarea, EvmActor, ModelInput, Tabs, EntityRef; agents AgentChatTree; remove PromptInput, Dialogue* |
+| 7 | 600bb0a  | session: move view (bridge, liquidity, swap, transfer) into routes/session |
+| 8 | 1af060c  | routes, views, components, api, lib: agent-chat wiring, session, settings, transfers-logs, stork, explain |
+| 9 | 7ebae77  | config: env, package, deno.lock, vite |
+| 10 | 7be49ed  | specs: updates and 068–072 (evmactor, nav icons, llm config, richtextarea, bind) |
+
+## Completed (previous run)
+
+| # | SHA      | Message |
+|---|----------|---------|
 | 1 | 2b79fa8  | Env: e2e TEVM RPC, Stork token; env.d.ts |
 | 2 | 5ab7b4b  | Voltaire: block timestamp, EthTransaction, getLogs |
 | 3 | 0577924  | Data: Block, ChainTransaction, Trace, $EntityType |
@@ -39,14 +54,7 @@
 ## Commit later / uncommitted
 
 - `.cursor/agents/`, `.cursor/rules/`, `.cursor/skills/`
-- `history/2026-02-05-build-reverify-039-e2e-partial.md`
-- `specs/065-external-api-cache-live-queries.md`, `specs/066-dialogue-tree-data-model.md`, `specs/067-agent-session-ui.md`
-- `src/collections/dialogue-trees.ts`, `src/collections/dialogue-turns.ts`
-- `src/components/EntityRefInput.svelte`, `EntityReferenceInput.svelte`, `PromptInput.svelte`, `Tabs.svelte`, `src/components/agent/`
-- `src/constants/entity-ref-patterns.ts`, `src/constants/opencode-zen.ts`
-- `src/data/DialogueTree.ts`, `DialogueTurn.ts`, `EntityRef.ts`
-- `src/lib/dialogue.ts`, `entity-suggestions.ts`, `prompt-value.ts`
-- `src/routes/agents/`, `src/routes/api/llm/`
+- `history/*.md`, `e2e/prompt-input.test.ts`, `playwright.no-server.config.ts`, `.specify/memory/richtextarea.md`
 
 ## Completed (previous runs)
 
