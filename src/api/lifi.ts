@@ -10,10 +10,10 @@ import {
 	type BridgeStatus,
 	mapLifiProcessStatus,
 	type TxStatus,
-} from '$/lib/bridge/tx-status.ts'
-import { queryClient } from '$/lib/db/query-client.ts'
-import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm.ts'
-import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config.ts'
+} from '$/lib/bridge/txStatus.ts'
+import { queryClient } from '$/lib/db/queryClient.ts'
+import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/tests/tevm.ts'
+import { E2E_TEVM_WALLET_ADDRESS } from '$/tests/tevmConfig.ts'
 import {
 	createWalletClientForChain,
 	type ProviderDetailType,

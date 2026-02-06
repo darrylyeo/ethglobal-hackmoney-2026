@@ -29,7 +29,7 @@ import {
 	subscribeChainChanged,
 	subscribeAccountsChanged,
 } from '$/lib/wallet.ts'
-import { E2E_TEVM_PROVIDER_RDNS } from '$/lib/e2e/tevm-config.ts'
+import { E2E_TEVM_PROVIDER_RDNS } from '$/tests/tevmConfig.ts'
 
 let walletSubscriptionsReady = false
 

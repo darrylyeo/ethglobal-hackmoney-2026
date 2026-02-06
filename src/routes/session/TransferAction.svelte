@@ -21,10 +21,12 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/session/panel-hash.ts'
+	} from '$/lib/session/panelHash.ts'
 
 
 	// Functions
+
+
 
 
 
@@ -125,7 +127,7 @@
 	import Address from '$/components/Address.svelte'
 	import LoadingButton from '$/components/LoadingButton.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
-	import { requestE2eTevmValueTransfer } from '$/lib/e2e/tevm.ts'
+	import { requestE2eTevmValueTransfer } from '$/tests/tevm.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { stringify } from '$/lib/stringify.ts'
 	import { normalizeTransferSessionParams } from '$/lib/session/params.ts'
@@ -275,7 +277,7 @@
 				: true),
 	)
 	const hashSource = getContext<
-		import('$/lib/session/panel-hash.ts').SessionHashSource
+		import('$/lib/session/panelHash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 

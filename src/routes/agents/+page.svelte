@@ -7,7 +7,7 @@
 
 
 	// Functions
-	import { deleteAgentChatTree } from '$/lib/agent-chat.ts'
+	import { deleteAgentChatTree } from '$/lib/agentChat.ts'
 
 	const togglePin = (treeId: string) => {
 		agentChatTreesCollection.update(treeId, (draft) => {

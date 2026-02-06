@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Polyfills (run before other imports that may use crypto.randomUUID)
-	import '$/lib/random-uuid.ts'
+	import '$/lib/randomUuid.ts'
+
 
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'

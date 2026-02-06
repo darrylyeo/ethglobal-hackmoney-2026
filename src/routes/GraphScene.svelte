@@ -11,7 +11,7 @@
 		GraphModel,
 		GraphNode,
 		GraphNodeStyle,
-	} from '$/lib/graph-model.ts'
+	} from '$/lib/graphModel.ts'
 	import { actorAllowancesCollection } from '$/collections/actor-allowances.ts'
 	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
 	import { actorsCollection } from '$/collections/actors.ts'

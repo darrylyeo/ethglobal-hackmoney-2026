@@ -6,7 +6,7 @@
 	import type { Attributes } from 'graphology-types'
 	import type { DisplayData } from 'sigma/types'
 	import type { Sigma } from 'sigma'
-	import type { GraphModel } from '$/lib/graph-model.ts'
+	import type { GraphModel } from '$/lib/graphModel.ts'
 
 
 	// Props

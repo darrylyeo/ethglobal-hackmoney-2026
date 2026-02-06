@@ -7,15 +7,15 @@
 	import type {
 		ExplainAvailability,
 		ExplainContext,
-	} from '$/lib/llm-provider.ts'
+	} from '$/lib/llmProvider.ts'
 	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import type { Snippet } from 'svelte'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
-	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm.ts'
-	import { E2E_TEVM_WALLET_ADDRESS } from '$/lib/e2e/tevm-config.ts'
+	import { E2E_TEVM_ENABLED } from '$/tests/tevm.ts'
+	import { E2E_TEVM_WALLET_ADDRESS } from '$/tests/tevmConfig.ts'
 
 	type ExecutionStatus =
 		| 'idle'
@@ -104,7 +104,7 @@
 
 	// Functions
 	import { createHttpProvider } from '$/api/voltaire.ts'
-	import { createExplainProvider, submitExplainTurn } from '$/lib/llm-provider.ts'
+	import { createExplainProvider, submitExplainTurn } from '$/lib/llmProvider.ts'
 	import { agentChatTurnsCollection } from '$/collections/agent-chat-turns.ts'
 	import { getE2eProvider, switchWalletChain } from '$/lib/wallet.ts'
 

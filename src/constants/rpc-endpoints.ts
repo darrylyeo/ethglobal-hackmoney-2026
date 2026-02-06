@@ -4,8 +4,8 @@
 
 import type { RpcEndpoint } from '$/constants/networks.ts'
 import { ChainId, ServiceProvider, TransportType } from '$/constants/networks.ts'
-import { E2E_TEVM_CHAIN_ID } from '$/lib/e2e/tevm-config.ts'
-import { E2E_TEVM_ENABLED, E2E_TEVM_RPC_URL } from '$/lib/e2e/tevm.ts'
+import { E2E_TEVM_CHAIN_ID } from '$/tests/tevmConfig.ts'
+import { E2E_TEVM_ENABLED, E2E_TEVM_RPC_URL } from '$/tests/tevm.ts'
 
 export const rpcEndpoints: readonly RpcEndpoint[] = [
 	{

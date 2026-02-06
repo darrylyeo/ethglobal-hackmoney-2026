@@ -25,7 +25,7 @@
 
 	// Functions
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
-	import { formatRelativeTime } from '$/lib/format-relative-time.ts'
+	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 	import {
 		getBestStorkPrice,
 		storkPricesCollection,

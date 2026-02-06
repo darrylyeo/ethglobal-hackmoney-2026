@@ -12,7 +12,7 @@
 		getEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 		type SessionHashSource,
-	} from '$/lib/session/panel-hash.ts'
+	} from '$/lib/session/panelHash.ts'
 	import { parseSessionHash } from '$/lib/session/sessions.ts'
 
 

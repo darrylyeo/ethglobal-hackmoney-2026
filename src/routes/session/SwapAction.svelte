@@ -35,7 +35,7 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/session/panel-hash.ts'
+	} from '$/lib/session/panelHash.ts'
 
 
 	// Functions
@@ -44,7 +44,7 @@
 	import {
 		extractSimulationSummary,
 		runTevmSimulationFromClient,
-	} from '$/lib/tevm-simulation.ts'
+	} from '$/api/tevm/tevmSimulation.ts'
 	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format.ts'
 	import { getStorkAssetIdForSymbol } from '$/lib/stork.ts'
 	import { stringify } from '$/lib/stringify.ts'
@@ -214,7 +214,7 @@
 			: null,
 	)
 	const hashSource = getContext<
-		import('$/lib/session/panel-hash.ts').SessionHashSource
+		import('$/lib/session/panelHash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 

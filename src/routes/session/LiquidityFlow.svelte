@@ -27,7 +27,7 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/session/panel-hash.ts'
+	} from '$/lib/session/panelHash.ts'
 
 
 	// Props
@@ -55,13 +55,13 @@
 			: null,
 	)
 	const hashSource = getContext<
-		import('$/lib/session/panel-hash.ts').SessionHashSource
+		import('$/lib/session/panelHash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 
 
 	// Functions
-	import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/lib/e2e/tevm.ts'
+	import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/tests/tevm.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import {
 		type LiquiditySessionParams,

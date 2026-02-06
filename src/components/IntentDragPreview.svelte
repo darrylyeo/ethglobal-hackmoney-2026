@@ -17,7 +17,7 @@
 
 	// Functions
 	import { buildIntentRoutes } from '$/lib/intents/routes.ts'
-	import { resolveIntent } from '$/lib/intents/resolve-intent.ts'
+	import { resolveIntent } from '$/lib/intents/resolveIntent.ts'
 	import { stringify } from '$/lib/stringify.ts'
 	import {
 		clearIntentDragPreview,

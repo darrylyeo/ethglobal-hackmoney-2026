@@ -20,7 +20,7 @@
 		getEffectiveHash,
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
-	} from '$/lib/session/panel-hash.ts'
+	} from '$/lib/session/panelHash.ts'
 
 
 	// Props
@@ -106,7 +106,7 @@
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const settings = $derived(sessionParams)
 	const hashSource = getContext<
-		import('$/lib/session/panel-hash.ts').SessionHashSource
+		import('$/lib/session/panelHash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 	const amountLabel = $derived(
@@ -219,7 +219,7 @@
 
 
 	// Functions
-	import { requestE2eTevmValueTransfer } from '$/lib/e2e/tevm.ts'
+	import { requestE2eTevmValueTransfer } from '$/tests/tevm.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { getTransferSessionParams } from '$/lib/session/params.ts'
 	import {

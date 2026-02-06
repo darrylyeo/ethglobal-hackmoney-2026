@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
-	import { createAgentChatTree } from '$/lib/agent-chat.ts'
+	import { createAgentChatTree } from '$/lib/agentChat.ts'
 
 	let started = $state(false)
 	$effect(() => {

@@ -41,9 +41,9 @@
 	// Functions
 	import { resolve } from '$app/paths'
 	import { getTxUrl } from '$/constants/explorers.ts'
-	import { formatRelativeTime } from '$/lib/format-relative-time.ts'
-	import { E2E_TEVM_ENABLED } from '$/lib/e2e/tevm.ts'
-import type { BridgeStatus } from '$/lib/bridge/tx-status.ts'
+	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
+	import { E2E_TEVM_ENABLED } from '$/tests/tevm.ts'
+import type { BridgeStatus } from '$/lib/bridge/txStatus.ts'
 import { ErrorCode } from '$/lib/bridge/errors.ts'
 	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format.ts'
 	import {

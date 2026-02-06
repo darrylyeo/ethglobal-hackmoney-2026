@@ -2,7 +2,7 @@
 	import type { BridgeRoute } from '$/data/BridgeRoute.ts'
 	import type { WalletRow } from '$/collections/wallets.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
-	import type { BridgeStatus } from '$/lib/bridge/tx-status.ts'
+	import type { BridgeStatus } from '$/lib/bridge/txStatus.ts'
 	import type { Transaction } from '@tanstack/db'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
 	import { executeSelectedRoute } from '$/api/lifi.ts'

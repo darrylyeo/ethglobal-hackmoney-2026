@@ -9,7 +9,7 @@ import {
 	E2E_TEVM_WALLET_ADDRESS,
 	E2E_TEVM_PROVIDER_NAME,
 	E2E_TEVM_PROVIDER_RDNS,
-} from '../src/lib/e2e/tevm-config.ts'
+} from '../src/tests/tevmConfig.ts'
 
 const addYellowWallet = async (
 	context: {

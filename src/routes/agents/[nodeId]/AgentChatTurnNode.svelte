@@ -55,7 +55,7 @@
 		deleteAgentChatTurn,
 		retryAgentChatTurn,
 		submitAgentChatTurn,
-	} from '$/lib/agent-chat.ts'
+	} from '$/lib/agentChat.ts'
 	import { goto } from '$app/navigation'
 
 	const handleDelete = () => {

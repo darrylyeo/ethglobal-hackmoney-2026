@@ -32,7 +32,7 @@
 
 
 	// Functions
-	import { resolveIntent } from '$/lib/intents/resolve-intent.ts'
+	import { resolveIntent } from '$/lib/intents/resolveIntent.ts'
 	import { buildIntentRoutes } from '$/lib/intents/routes.ts'
 	import { getIntentDragPayload } from '$/lib/intents/drag.ts'
 	import {

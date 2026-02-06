@@ -6,13 +6,13 @@ import {
 	networksByChainId,
 } from '$/constants/networks.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
-import { E2E_TEVM_RPC_URL } from '$/lib/e2e/tevm.ts'
+import { E2E_TEVM_RPC_URL } from '$/tests/tevm.ts'
 import {
 	E2E_TEVM_CHAIN_ID,
 	E2E_TEVM_PROVIDER_NAME,
 	E2E_TEVM_PROVIDER_RDNS,
 	E2E_TEVM_WALLET_ADDRESS,
-} from '$/lib/e2e/tevm-config.ts'
+} from '$/tests/tevmConfig.ts'
 
 export type EIP1193Provider = {
 	request(args: { method: string; params?: unknown[] }): Promise<unknown>
