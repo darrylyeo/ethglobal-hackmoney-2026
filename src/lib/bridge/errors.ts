@@ -31,7 +31,7 @@ export type BridgeError = {
 	suggestion: string
 	retryable: boolean
 	retryDelay?: number
-	originalError?: Error
+	originalError?: Error,
 }
 
 const ERROR_PATTERNS: [RegExp, Partial<BridgeError>][] = [
