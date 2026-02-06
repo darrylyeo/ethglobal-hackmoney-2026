@@ -8,7 +8,7 @@ declare global {
 		interface PageState {
 			panelId?: string
 			hash?: string | null
-			route?: string
+			route?: string,
 		}
 		// interface Platform {}
 	}
