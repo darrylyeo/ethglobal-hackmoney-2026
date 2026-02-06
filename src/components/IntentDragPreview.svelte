@@ -462,6 +462,7 @@
 	})
 </script>
 
+
 {#if isActive && intentDragPreviewState.source && effectiveTargetRect}
 	<DragArrow
 		sourceRect={intentDragPreviewState.source.rect}
