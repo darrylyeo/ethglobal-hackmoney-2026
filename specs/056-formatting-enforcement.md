@@ -197,7 +197,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/constants/peer-display-names.ts`
 - [x] `src/constants/proxy.ts`
 - [x] `src/constants/query-limits.ts`
-- [ ] `src/constants/room-display-names.ts`
+- [x] `src/constants/room-display-names.ts`
 - [ ] `src/constants/rpc-endpoints.ts`
 - [ ] `src/constants/slippage.spec.ts`
 - [ ] `src/constants/slippage.ts`
