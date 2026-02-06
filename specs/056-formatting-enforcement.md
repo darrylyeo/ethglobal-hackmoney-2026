@@ -181,7 +181,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/components/Tooltip.svelte`
 - [x] `src/components/TruncatedValue.svelte`
 - [x] `src/constants/bridge-limits.spec.ts`
-- [ ] `src/constants/bridge-limits.ts`
+- [x] `src/constants/bridge-limits.ts`
 - [ ] `src/constants/cctp.ts`
 - [ ] `src/constants/chain-icon-fetch-items.ts`
 - [ ] `src/constants/coins.ts`
