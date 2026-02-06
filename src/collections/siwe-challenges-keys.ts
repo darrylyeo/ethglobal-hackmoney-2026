@@ -3,4 +3,5 @@ export const siweChallengeKey = (
 	fromPeerId: string,
 	toPeerId: string,
 	address: `0x${string}`,
-) => `${roomId}:${fromPeerId}:${toPeerId}:${address.toLowerCase()}`
+) =>
+	`${roomId}:${fromPeerId}:${toPeerId}:${address.toLowerCase()}`
