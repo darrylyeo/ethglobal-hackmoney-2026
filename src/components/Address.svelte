@@ -1,4 +1,6 @@
 <script module lang="ts">
+
+
 	// Types/constants
 	export enum AddressFormat {
 		Full = 'full',
@@ -8,10 +10,12 @@
 
 
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Network$Id } from '$/data/Network'
-	import { EntityType } from '$/data/$EntityType'
 	import type { IntentDragPayload } from '$/lib/intents/types'
+	import { EntityType } from '$/data/$EntityType'
 
 
 	// Props
@@ -52,7 +56,11 @@
 </script>
 
 
-<EntityId draggableText={address} className="address" {intent}>
+<EntityId
+	draggableText={address}
+	className="address"
+	{intent}
+>
 	{#if !ensName}
 		<TruncatedValue value={address} />
 	{:else}
