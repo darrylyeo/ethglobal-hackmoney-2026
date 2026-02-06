@@ -9,7 +9,7 @@ export enum WalletConnectionTransport {
 }
 
 export type WalletConnection$Id = {
-	wallet$id: Wallet$Id
+	wallet$id: Wallet$Id,
 }
 
 export type WalletConnectionBase = {
@@ -20,22 +20,22 @@ export type WalletConnectionBase = {
 	chainId: ChainId | null
 	selected: boolean
 	error: string | null
-	connectedAt: number
+	connectedAt: number,
 }
 
 export type WalletConnectionEip1193 = WalletConnectionBase & {
-	transport: WalletConnectionTransport.Eip1193
+	transport: WalletConnectionTransport.Eip1193,
 }
 
 export type WalletConnectionNone = WalletConnectionBase & {
-	transport: WalletConnectionTransport.None
+	transport: WalletConnectionTransport.None,
 }
 
 export type ReadOnlyWallet = {
 	$id: Wallet$Id
 	name: string
 	icon: string
-	rdns: string
+	rdns: string,
 }
 
 export type ConnectedWallet =
