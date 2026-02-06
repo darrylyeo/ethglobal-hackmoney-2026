@@ -10,15 +10,12 @@ import {
 	type InteroperableAddressText,
 } from '@wonderland/interop-addresses'
 
-const EIP155_VERSION = 1 as const
-const CHAIN_TYPE = 'eip155' as const
-
 export const toInteropAddressText = (
 	chainId: number,
 	address: `0x${string}`,
 ): InteroperableAddressText => ({
-	version: EIP155_VERSION,
-	chainType: CHAIN_TYPE,
+	version: 1,
+	chainType: 'eip155',
 	chainReference: String(chainId),
 	address,
 })
