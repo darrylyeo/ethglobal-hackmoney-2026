@@ -1,7 +1,13 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { EntityRef } from '$/data/EntityRef'
 	import type { EntitySuggestion } from '$/lib/entity-suggestions'
+
+
+	// Components
+	import Combobox from '$/components/Combobox.svelte'
 
 
 	// Props
@@ -18,22 +24,22 @@
 	} = $props()
 
 
-	// State
-	let selectedId = $state('')
-
+	// Functions
 	const getItemId = (s: EntitySuggestion) => `${s.ref.entityType}:${s.ref.entityId}`
 	const getItemLabel = (s: EntitySuggestion) => s.label
 
+
+	// State
+	let selectedId = $state('')
+
+
+	// (Derived)
 	$effect(() => {
 		if (!selectedId) return
 		const s = suggestions.find((x) => getItemId(x) === selectedId)
 		if (s) onselect?.(s.ref)
 		selectedId = ''
 	})
-
-
-	// Components
-	import Combobox from '$/components/Combobox.svelte'
 </script>
 
 
