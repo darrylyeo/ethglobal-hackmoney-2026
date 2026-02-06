@@ -243,3 +243,4 @@ export type GraphSceneEntityType = Extract<
 	(typeof entityTypes)[number],
 	{ inGraph: true }
 >['type']
+
