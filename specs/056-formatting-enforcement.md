@@ -241,7 +241,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/data/Wallet.ts`
 - [x] `src/data/WalletConnection.ts`
 - [x] `src/data/YellowChannel.ts`
-- [ ] `src/data/YellowChannelState.ts`
+- [x] `src/data/YellowChannelState.ts`
 - [ ] `src/data/YellowDeposit.ts`
 - [ ] `src/data/YellowTransfer.ts`
 - [x] `src/hooks.server.ts`
