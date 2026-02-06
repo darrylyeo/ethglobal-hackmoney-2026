@@ -1,11 +1,19 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte'
+
+
+	// Types/constants
 	import type { Network } from '$/constants/networks'
 	import type { BlockEntry } from '$/data/Block'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction'
+	import { networkConfigsByChainId } from '$/constants/networks'
+
+
+	// Components
 	import ItemsList from '$/components/ItemsList.svelte'
 	import Block from '$/components/network/Block.svelte'
 
+
+	// Props
 	let {
 		data,
 		placeholderBlockIds,
@@ -19,8 +27,10 @@
 		visiblePlaceholderBlockIds?: number[]
 	} = $props()
 
-	const innerMap = $derived([...data.values()][0] ?? new Map())
+
+	// (Derived)
 	const network = $derived([...data.keys()][0])
+	const innerMap = $derived([...data.values()][0] ?? new Map())
 	const blocksSet = $derived(
 		new Set([...innerMap.keys()].filter((b): b is BlockEntry => b != null)),
 	)
@@ -30,35 +40,46 @@
 </script>
 
 
-<details data-card="radius-2 padding-4" open>
+<details data-card="radius-2 padding-4" open id={network ? `network:${network.id}` : undefined}>
 	<summary data-row="gap-2 align-center">
 		{#if network}
-			<code id="network:{network.id}">{network.name}</code>
-			<span>Chain ID {network.id}</span>
-			<span>{network.type}</span>
+			<strong>{network.name}</strong>
+			<code>eip155:{network.id}</code>
+			<span data-tag>{network.type}</span>
 		{:else}
 			<code>Loading network…</code>
 		{/if}
 	</summary>
+
 	<div data-column="gap-4">
 		{#if network}
-			<dl data-column="gap-1">
-				<dt>Name</dt>
-				<dd>{network.name}</dd>
-				<dt>Chain ID</dt>
-				<dd><code>{network.id}</code></dd>
-				<dt>Type</dt>
-				<dd>{network.type}</dd>
+			{@const config = networkConfigsByChainId[network.id]}
+			<dl data-row="wrap gap-4">
+				<div>
+					<dt>Chain ID</dt>
+					<dd><code>{network.id}</code></dd>
+				</div>
+				<div>
+					<dt>Type</dt>
+					<dd>{network.type}</dd>
+				</div>
+				{#if config?.nativeCurrency}
+					<div>
+						<dt>Currency</dt>
+						<dd>{config.nativeCurrency.symbol}</dd>
+					</div>
+				{/if}
 			</dl>
 		{/if}
+
 		<section>
-			<h2>Blocks</h2>
+			<h2>Blocks ({blocksSet.size})</h2>
 			<ItemsList
 				items={blocksSet}
 				getKey={(b) => b.$id.blockNumber}
 				getSortValue={(b) => -Number(b.number)}
 				placeholderKeys={defaultPlaceholderBlockIds}
-				bind:visiblePlaceholderBlockIds
+				bind:visiblePlaceholderKeys={visiblePlaceholderBlockIds}
 				scrollPosition="Start"
 			>
 				{#snippet Item({ key, item, isPlaceholder })}

@@ -1,26 +1,57 @@
 <script lang="ts">
-	import type { EthLog } from '$/api/voltaire'
 
-	let { event }: { event: EthLog } = $props()
+
+	// Types/constants
+	import type { EvmLog } from '$/api/voltaire'
+	import type { ChainId } from '$/constants/networks'
+
+
+	// Components
+	import Address from '$/components/Address.svelte'
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
+
+
+	// Props
+	let {
+		event,
+		chainId,
+	}: {
+		event: EvmLog
+		chainId: ChainId
+	} = $props()
+
+
+	// (Derived)
+	const logIndex = $derived(parseInt(event.logIndex, 16))
 </script>
 
 
-<details data-card="radius-2 padding-2">
+<details data-card="radius-2 padding-2" id="event:{logIndex}">
 	<summary data-row="gap-2 align-center">
-		<code>#{event.logIndex}</code>
-		<span>{event.address}</span>
-		<span>{event.transactionHash.slice(0, 18)}…</span>
+		<code>#{logIndex}</code>
+		<Address network={chainId} address={event.address as `0x${string}`} />
+		{#if event.topics[0]}
+			<TruncatedValue value={event.topics[0]} startLength={10} endLength={4} />
+		{/if}
 	</summary>
-	<dl data-column="gap-1">
+
+	<dl>
+		<dt>Log Index</dt>
+		<dd>{logIndex}</dd>
+
 		<dt>Address</dt>
-		<dd><code>{event.address}</code></dd>
-		<dt>Topics</dt>
-		<dd><code>{event.topics.length}</code></dd>
+		<dd><Address network={chainId} address={event.address as `0x${string}`} /></dd>
+
+		{#each event.topics as topic, i}
+			<dt>Topic {i}</dt>
+			<dd><TruncatedValue value={topic} /></dd>
+		{/each}
+
 		{#if event.data !== '0x'}
 			<dt>Data</dt>
 			<dd>
-				<code>{event.data.slice(0, 66)}{event.data.length > 66 ? '…' : ''}</code
-				>
+				<TruncatedValue value={event.data} startLength={10} endLength={8} />
+				<span>({Math.max(0, (event.data.length - 2) / 2)} bytes)</span>
 			</dd>
 		{/if}
 	</dl>
