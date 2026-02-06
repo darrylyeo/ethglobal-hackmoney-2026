@@ -4,4 +4,9 @@ export const sharedAddressKey = (
 	address: `0x${string}`,
 	targetPeerIds: string[] | null,
 ) =>
-	`${roomId}:${peerId}:${address.toLowerCase()}:${targetPeerIds === null ? 'all' : targetPeerIds.join(',')}`
+	`${roomId}:${peerId}:${address.toLowerCase()}:${
+		targetPeerIds === null ?
+			'all'
+		:
+			targetPeerIds.join(',')
+	}`
