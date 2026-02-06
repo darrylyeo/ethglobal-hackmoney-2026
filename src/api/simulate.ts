@@ -75,13 +75,19 @@ export const runTevmSimulation = async (
 
 	const execResult = runResult.execResult
 	const reverted = Boolean(execResult.exceptionError)
-	const summaryStatus: TevmSimulationResult['summaryStatus'] = reverted
-		? execResult.exceptionError?.error?.message
-				?.toLowerCase()
-				.includes('revert')
-			? 'revert'
-			: 'error'
-		: 'success'
+	const summaryStatus: TevmSimulationResult['summaryStatus'] = (
+		reverted ?
+			(
+				execResult.exceptionError?.error?.message
+					?.toLowerCase()
+					.includes('revert') ?
+				'revert'
+			:
+				'error'
+			)
+		:
+			'success'
+	)
 
 	let revertReason: string | undefined
 	let errorSelector: string | undefined
