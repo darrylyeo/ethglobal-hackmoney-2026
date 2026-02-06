@@ -3,8 +3,8 @@
  * SDK lazy-loaded when available; stubs allow UI to render.
  */
 
-import { createWalletClientForChain } from '$/lib/wallet'
 import type { EIP1193Provider } from '$/lib/wallet'
+import { createWalletClientForChain } from '$/lib/wallet'
 import type { YellowChannelState } from '$/data/YellowChannelState'
 import {
 	CUSTODY_CONTRACT_ADDRESS,
@@ -44,9 +44,9 @@ export const connectClearnode = async (params: {
 	const wsUrl =
 		yellowClearnodeEndpointByEnvironment[
 			params.environment ??
-				(networkConfigsByChainId[params.chainId]?.type === NetworkType.Testnet
-					? YellowEnvironment.Sandbox
-					: YellowEnvironment.Production)
+				(networkConfigsByChainId[params.chainId]?.type === NetworkType.Testnet ?
+					YellowEnvironment.Sandbox
+				: YellowEnvironment.Production)
 		]
 	if (!wsUrl) {
 		throw new Error('Missing clearnode endpoint for chain')
@@ -56,7 +56,7 @@ export const connectClearnode = async (params: {
 	const handlers = new Set<(msg: unknown) => void>()
 	const pending = new Map<
 		number,
-		{ resolve: (value: unknown) => void; reject: (error: Error) => void }
+		{ resolve: (value: unknown) => void; reject: (error: Error) => void },
 	>()
 	let requestId = 1
 	let sessionSigner: ((payload: unknown[]) => Promise<`0x${string}`>) | null =
@@ -72,7 +72,10 @@ export const connectClearnode = async (params: {
 			const id = requestId++
 			buildMessage(id)
 				.then((message) => {
-					pending.set(id, { resolve, reject })
+					pending.set(id, {
+						resolve: resolve as (value: unknown) => void,
+						reject,
+					})
 					sendRaw(message)
 				})
 				.catch((error: unknown) => {
@@ -134,13 +137,14 @@ export const connectClearnode = async (params: {
 					name: authParams.application,
 				})
 				const challenge =
-					result && typeof result === 'object' && 'challenge_message' in result
-						? result.challenge_message
-						: result &&
-							  typeof result === 'object' &&
-							  'challengeMessage' in result
-							? result.challengeMessage
-							: null
+					result && typeof result === 'object' && 'challenge_message' in result ?
+						result.challenge_message
+					: result &&
+							typeof result === 'object' &&
+							'challengeMessage' in result ?
+						result.challengeMessage
+					:
+						null
 				if (typeof challenge === 'string') {
 					const verifyMessage = await createAuthVerifyMessageFromChallenge(
 						signer,
@@ -150,14 +154,16 @@ export const connectClearnode = async (params: {
 				}
 			} else if (method === 'auth_verify') {
 				const success =
-					result && typeof result === 'object' && 'success' in result
-						? Boolean(result.success)
-						: false
+					result && typeof result === 'object' && 'success' in result ?
+						Boolean(result.success)
+					:
+						false
 				if (success) {
-					sessionSigner = createECDSAMessageSigner(sessionPrivateKey)
+					const signer = createECDSAMessageSigner(sessionPrivateKey)
+					sessionSigner = signer as (payload: unknown[]) => Promise<`0x${string}`>
 					sessionKey = sessionAccount.address
 					const balancesMessage = await createGetLedgerBalancesMessage(
-						sessionSigner,
+						signer,
 						params.address,
 						requestId++,
 					)
@@ -174,9 +180,10 @@ export const connectClearnode = async (params: {
 				if (entry) {
 					if (method === 'error') {
 						const message =
-							result && typeof result === 'object' && 'error' in result
-								? String(result.error)
-								: 'Yellow request failed'
+							result && typeof result === 'object' && 'error' in result ?
+								String(result.error)
+							:
+								'Yellow request failed'
 						entry.reject(new Error(message))
 					} else {
 						entry.resolve(result)
@@ -222,7 +229,7 @@ export const depositToCustody = async (params: {
 		).depositToCustody === 'function'
 	) {
 		return (
-			sdk as {
+			sdk as unknown as {
 				depositToCustody: (
 					p: typeof params,
 				) => Promise<{ txHash: `0x${string}` }>
@@ -252,7 +259,7 @@ export const withdrawFromCustody = async (params: {
 		).withdrawFromCustody === 'function'
 	) {
 		return (
-			sdk as {
+			sdk as unknown as {
 				withdrawFromCustody: (
 					p: typeof params,
 				) => Promise<{ txHash: `0x${string}` }>
@@ -292,9 +299,10 @@ export const getAvailableBalance = async (params: {
 			String(entry.asset).toLowerCase() === 'usdc',
 	)
 	const amount =
-		usdc && typeof usdc === 'object' && 'amount' in usdc
-			? String(usdc.amount)
-			: '0'
+		usdc && typeof usdc === 'object' && 'amount' in usdc ?
+			String(usdc.amount)
+		:
+			'0'
 	return parseDecimalToSmallest(amount, 6)
 }
 
@@ -322,11 +330,12 @@ export const openChannel = async (params: {
 		),
 	)
 	const channelId =
-		result && typeof result === 'object' && 'channelId' in result
-			? String(result.channelId)
-			: result && typeof result === 'object' && 'channel_id' in result
-				? String(result.channel_id)
-				: ''
+		result && typeof result === 'object' && 'channelId' in result ?
+			String(result.channelId)
+		: result && typeof result === 'object' && 'channel_id' in result ?
+			String(result.channel_id)
+		:
+			''
 	if (!channelId) throw new Error('Missing channel id from clearnode')
 	// TODO: submit channel + initial state to custody contract
 	return { channelId }
@@ -385,9 +394,10 @@ export const sendTransfer = async (params: {
 	)
 	return {
 		turnNum:
-			result && typeof result === 'object' && 'version' in result
-				? Number(result.version)
-				: 0,
+			result && typeof result === 'object' && 'version' in result ?
+				Number(result.version)
+			:
+				0,
 	}
 }
 
@@ -431,7 +441,7 @@ export const challengeChannel = async (params: {
 		).challengeChannel === 'function'
 	) {
 		return (
-			sdk as {
+			sdk as unknown as {
 				challengeChannel: (
 					p: typeof params,
 				) => Promise<{ txHash: `0x${string}` }>
