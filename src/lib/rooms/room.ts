@@ -6,11 +6,11 @@ import PartySocket from 'partysocket'
 import {
 	adjectives as peerAdjectives,
 	nouns as peerNouns,
-} from '$/constants/peer-display-names'
+} from '$/constants/peer-display-names.ts'
 import {
 	adjectives as roomAdjectives,
 	nouns as roomNouns,
-} from '$/constants/room-display-names'
+} from '$/constants/room-display-names.ts'
 
 export type RoomMessage =
 	| { type: 'join'; displayName?: string }
@@ -26,7 +26,7 @@ export type RoomMessage =
 	| { type: 'verify-result'; challengeId: string; verified: boolean }
 	| {
 			type: 'verification-record'
-			verification: import('$/data/Verification').Verification
+			verification: import('$/data/Verification.ts').Verification
 	  }
 	| { type: 'mark-unverifiable'; challengeId: string }
 	| { type: 'sync'; state: unknown }

@@ -1,6 +1,6 @@
 // Part 1: generic Llm provider abstraction
 
-import { zenClientAvailability, zenClientGenerate } from '$/api/llm/zen'
+import { zenClientAvailability, zenClientGenerate } from '$/api/llm/zen.ts'
 
 export type LlmAvailability = 'available' | 'downloading' | 'unavailable'
 
@@ -169,11 +169,11 @@ export const createLlmProvider = (
 
 	const connectionProvider = async (): Promise<LlmProvider | null> => {
 		if (options.connectionId == null || options.connectionId === '') return null
-		const { llmConnectionsCollection } = await import('$/collections/llm-connections')
+		const { llmConnectionsCollection } = await import('$/collections/llm-connections.ts')
 		const connection = llmConnectionsCollection.state.get(options.connectionId)
 		if (!connection) return null
 		const { createLlmProviderFromConnection } = await import(
-			'$/api/llm/connection-provider'
+			'$/api/llm/connection-provider.ts'
 		)
 		return createLlmProviderFromConnection(connection, options.modelId)
 	}
@@ -291,11 +291,11 @@ export const createExplainProvider = (
 }
 
 // Agent-chat-backed explain: creates an AgentChatTurn for the explanation
-import type { EntityRef } from '$/data/EntityRef'
-import { EntityType } from '$/data/$EntityType'
-import { DataSource } from '$/constants/data-sources'
-import { agentChatTreesCollection } from '$/collections/agent-chat-trees'
-import { agentChatTurnsCollection } from '$/collections/agent-chat-turns'
+import type { EntityRef } from '$/data/EntityRef.ts'
+import { EntityType } from '$/data/$EntityType.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
+import { agentChatTurnsCollection } from '$/collections/agent-chat-turns.ts'
 
 export const submitExplainTurn = (options: {
 	context: ExplainContext

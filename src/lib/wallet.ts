@@ -1,18 +1,18 @@
 import { createWalletClient, custom } from 'viem'
 import type { Chain, WalletClient } from 'viem'
-import type { Network } from '$/constants/networks'
+import type { Network } from '$/constants/networks.ts'
 import {
 	networkConfigsByChainId,
 	networksByChainId,
-} from '$/constants/networks'
-import { rpcUrls } from '$/constants/rpc-endpoints'
-import { E2E_TEVM_RPC_URL } from '$/lib/e2e/tevm'
+} from '$/constants/networks.ts'
+import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { E2E_TEVM_RPC_URL } from '$/lib/e2e/tevm.ts'
 import {
 	E2E_TEVM_CHAIN_ID,
 	E2E_TEVM_PROVIDER_NAME,
 	E2E_TEVM_PROVIDER_RDNS,
 	E2E_TEVM_WALLET_ADDRESS,
-} from '$/lib/e2e/tevm-config'
+} from '$/lib/e2e/tevm-config.ts'
 
 export type EIP1193Provider = {
 	request(args: { method: string; params?: unknown[] }): Promise<unknown>

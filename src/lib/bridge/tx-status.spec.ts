@@ -5,7 +5,7 @@ import {
 	mapLifiProcessStatus,
 	type BridgeStatus,
 	type TxStatus,
-} from './tx-status'
+} from './tx-status.ts'
 
 Deno.test('createInitialStatus returns idle with empty steps', () => {
 	const status = createInitialStatus()

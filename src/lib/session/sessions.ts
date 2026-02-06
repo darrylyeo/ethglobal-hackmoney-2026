@@ -1,17 +1,17 @@
-import { transactionSessionSimulationsCollection } from '$/collections/transaction-session-simulations'
-import { transactionSessionsCollection } from '$/collections/transaction-sessions'
-import { DataSource } from '$/constants/data-sources'
+import { transactionSessionSimulationsCollection } from '$/collections/transaction-session-simulations.ts'
+import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+import { DataSource } from '$/constants/data-sources.ts'
 import type {
 	TransactionSession,
 	TransactionSessionAction,
 	TransactionSessionStatus,
-} from '$/data/TransactionSession'
-import type { TransactionSessionSimulationStatus } from '$/data/TransactionSessionSimulation'
+} from '$/data/TransactionSession.ts'
+import type { TransactionSessionSimulationStatus } from '$/data/TransactionSessionSimulation.ts'
 import {
 	normalizeTransactionSessionParams,
 	type TransactionSessionDefaults,
-} from '$/lib/session/params'
-import { stringify } from '$/lib/stringify'
+} from '$/lib/session/params.ts'
+import { stringify } from '$/lib/stringify.ts'
 
 export type SessionHashResult =
 	| {

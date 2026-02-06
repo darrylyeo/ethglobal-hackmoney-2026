@@ -1,5 +1,5 @@
 import { Abi, encodeFunction } from '@tevm/voltaire/Abi'
-import { DEFAULT_E2E_TEVM_RPC_URL, E2E_TEVM_CONTRACT_ADDRESS } from './tevm-config'
+import { DEFAULT_E2E_TEVM_RPC_URL, E2E_TEVM_CONTRACT_ADDRESS } from './tevm-config.ts'
 
 declare global {
 	interface Window {

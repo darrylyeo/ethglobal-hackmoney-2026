@@ -5,7 +5,7 @@ import {
 	isValidAddress,
 	normalizeAddress,
 	parseAccountAddressParam,
-} from './address'
+} from './address.ts'
 
 describe('isValidAddress', () => {
 	it('returns true for valid 40-char hex with 0x', () => {

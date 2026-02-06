@@ -3,7 +3,7 @@
  * does not support CORS. Use for REST calls that would otherwise be blocked.
  */
 
-import { getProxyOrigin, getProxyTarget } from '$/constants/proxy'
+import { getProxyOrigin, getProxyTarget } from '$/constants/proxy.ts'
 
 export const proxyFetch = (
 	targetId: string,

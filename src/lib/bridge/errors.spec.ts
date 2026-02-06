@@ -5,7 +5,7 @@ import {
 	getRetryDelay,
 	isBridgeError,
 	isRetryable,
-} from './errors'
+} from './errors.ts'
 
 describe('categorizeError', () => {
 	it('maps user rejection to USER_REJECTED with "Transaction cancelled"', () => {

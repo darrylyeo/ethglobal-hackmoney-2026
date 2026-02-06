@@ -1,9 +1,9 @@
-import type { EntityRef } from '$/data/EntityRef'
-import { EntityType } from '$/data/$EntityType'
+import type { EntityRef } from '$/data/EntityRef.ts'
+import { EntityType } from '$/data/$EntityType.ts'
 import {
 	EntityRefPattern,
 	entityRefPatternsConfig,
-} from '$/constants/entity-ref-patterns'
+} from '$/constants/entity-ref-patterns.ts'
 
 export type EntityRefTriggerConfig = Record<
 	string,

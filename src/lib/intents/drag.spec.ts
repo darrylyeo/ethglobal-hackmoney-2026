@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { EntityType } from '$/data/$EntityType'
-import { INTENT_MIME, getIntentDragPayload, setIntentDragData } from './drag'
-import type { IntentDragPayload } from './types'
+import { EntityType } from '$/data/$EntityType.ts'
+import { INTENT_MIME, getIntentDragPayload, setIntentDragData } from './drag.ts'
+import type { IntentDragPayload } from './types.ts'
 
 const mockDataTransfer = () => {
 	let stored = ''

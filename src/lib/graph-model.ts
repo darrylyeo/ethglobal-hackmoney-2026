@@ -1,6 +1,6 @@
 import type Graph from 'graphology'
-import type { EntityType } from '$/data/$EntityType'
-import type { IntentDragPayload } from '$/lib/intents/types'
+import type { EntityType } from '$/data/$EntityType.ts'
+import type { IntentDragPayload } from '$/lib/intents/types.ts'
 
 export type GraphNodeStyle = Record<string, unknown>
 export type GraphEdgeStyle = Record<string, unknown>

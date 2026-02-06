@@ -2,8 +2,8 @@ import { type } from 'arktype'
 import type {
 	TransactionSession,
 	TransactionSessionAction,
-} from '$/data/TransactionSession'
-import { normalizeAddress } from '$/lib/address'
+} from '$/data/TransactionSession.ts'
+import { normalizeAddress } from '$/lib/address.ts'
 import {
 	type BridgeSettings,
 	BridgeRouteSort,

@@ -1,11 +1,11 @@
-import { toInteropName } from '$/constants/interop'
-import { normalizeAddress } from '$/lib/address'
-import { EntityType } from '$/data/$EntityType'
+import { toInteropName } from '$/constants/interop.ts'
+import { normalizeAddress } from '$/lib/address.ts'
+import { EntityType } from '$/data/$EntityType.ts'
 import type {
 	IntentDimensions,
 	IntentEntityRef,
 	IntentResolution,
-} from './types'
+} from './types.ts'
 
 const getNumber = (value: unknown): number | null =>
 	typeof value === 'number' && Number.isFinite(value) ? value : null

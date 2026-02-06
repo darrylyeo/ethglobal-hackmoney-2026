@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { EIP1193Provider } from './wallet'
+import type { EIP1193Provider } from './wallet.ts'
 import {
 	createWalletState,
 	getWalletChainId,
 	subscribeChainChanged,
 	switchWalletChain,
 	addChainToWallet,
-} from './wallet'
+} from './wallet.ts'
 
 describe('getWalletChainId', () => {
 	it('returns current chain as number', async () => {

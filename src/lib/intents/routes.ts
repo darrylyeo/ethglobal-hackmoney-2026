@@ -1,8 +1,8 @@
-import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute'
-import type { SwapQuote } from '$/data/SwapQuote'
-import type { IntentResolution } from './types'
-import { NetworkType, networksByChainId } from '$/constants/networks'
-import { isGatewaySupportedChain } from '$/constants/gateway'
+import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute.ts'
+import type { SwapQuote } from '$/data/SwapQuote.ts'
+import type { IntentResolution } from './types.ts'
+import { NetworkType, networksByChainId } from '$/constants/networks.ts'
+import { isGatewaySupportedChain } from '$/constants/gateway.ts'
 
 export type IntentRouteStep =
 	| {

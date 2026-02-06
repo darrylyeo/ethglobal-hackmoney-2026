@@ -3,9 +3,9 @@
  * session summary for persisting on TransactionSession.simulation.
  */
 
-import { runTevmSimulation } from '$/api/simulate'
-import type { TransactionSessionSimulationSummary } from '$/data/TransactionSession'
-import type { TevmSimulationResult } from '$/data/TevmSimulationResult'
+import { runTevmSimulation } from '$/api/simulate.ts'
+import type { TransactionSessionSimulationSummary } from '$/data/TransactionSession.ts'
+import type { TevmSimulationResult } from '$/data/TevmSimulationResult.ts'
 
 export type TevmSimulationPayload = {
 	rpcUrl: string

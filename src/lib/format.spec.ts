@@ -4,7 +4,7 @@ import {
 	formatSmallestToDecimal,
 	isValidDecimalInput,
 	formatTokenAmount,
-} from './format'
+} from './format.ts'
 
 describe('parseDecimalToSmallest', () => {
 	it('returns 0n for empty string', () => {
