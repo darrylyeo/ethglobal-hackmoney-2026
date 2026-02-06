@@ -3,13 +3,13 @@
  * Persists to localStorage across sessions.
  */
 
+import { DataSource } from '$/constants/data-sources'
+import type { Transaction, Transaction$Id } from '$/data/Transaction'
 import {
 	createCollection,
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
-import { stringify, parse } from 'devalue'
-import { DataSource } from '$/constants/data-sources'
-import type { Transaction, Transaction$Id } from '$/data/Transaction'
+import { parse, stringify } from 'devalue'
 
 export type TransactionRow = Transaction & { $source: DataSource }
 
@@ -18,7 +18,7 @@ export const transactionsCollection = createCollection(
 		id: 'transactions',
 		storageKey: 'bridge-transactions',
 		getKey: (row: TransactionRow) => stringify(row.$id),
-		parser: { stringify, parse },
+		parser: { parse, stringify },
 	}),
 )
 
