@@ -1,7 +1,10 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { LlmConnectionRow } from '$/collections/llm-connections'
 	import { getModelsForConnection } from '$/api/llm/connection-provider'
+
 
 	// Props
 	let {
@@ -22,6 +25,7 @@
 		[key: string]: unknown
 	} = $props()
 
+
 	// (Derived)
 	type ModelOption = { value: string, label: string }
 	const options = $derived.by((): ModelOption[] => {
@@ -37,9 +41,11 @@
 		return opts
 	})
 
+
 	// Components
 	import Select from '$/components/Select.svelte'
 </script>
+
 
 <Select
 	{...rootProps}
