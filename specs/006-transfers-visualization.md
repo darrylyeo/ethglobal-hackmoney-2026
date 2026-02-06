@@ -98,7 +98,7 @@ to cover all coins matching the symbol across chains.
 Complete. Route `src/routes/coin/[symbol]/+page.svelte` with load validation for
 USDC/ETH; transfer-graphs collection keyed by (symbol, period); fetchTransferGraph(symbol, period)
 with USDC from Voltaire, ETH empty graph; TIME_PERIODS 1h–7d; LiveTransfers reused with Coin prop;
-Boundary for errors; GraphScene updated for symbol+period $id. Re-verification 2026-02-06 (PROMPT_build execute one spec): no incomplete specs; re-verified 006; all 7 AC (route /coin/[symbol], COIN_PAGE_SYMBOLS USDC/ETH, TIME_PERIODS 1h–7d, transferGraphsCollection/fetchTransferGraph/Voltaire, nodes/edges in LiveTransfers, chainColor(node.chainIds[0]) in viz, Boundary Failed snippet); test:unit 44 Deno + 101 Vitest passed. Re-verification 2026-02-06 (PROMPT_build execute one spec, re-verify 006): all 7 AC confirmed in code; test:unit 44 Deno + 101 Vitest passed.
+Boundary for errors; GraphScene updated for symbol+period $id. Re-verification 2026-02-06 (PROMPT_build execute one spec): no incomplete specs; re-verified 006; all 7 AC (route /coin/[symbol], COIN_PAGE_SYMBOLS USDC/ETH, TIME_PERIODS 1h–7d, transferGraphsCollection/fetchTransferGraph/Voltaire, nodes/edges in LiveTransfers, chainColor(node.chainIds[0]) in viz, Boundary Failed snippet); test:unit 44 Deno + 101 Vitest passed. Re-verification 2026-02-06 (PROMPT_build execute one spec, re-verify 006): all 7 AC confirmed in code; test:unit 44 Deno + 101 Vitest passed. Re-verification 2026-02-06 (PROMPT_build execute one spec): re-verified 006; all 7 AC; test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 
