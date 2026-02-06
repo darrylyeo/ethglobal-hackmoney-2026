@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type Graph from 'graphology'
 	import type { Attributes } from 'graphology-types'
@@ -43,7 +45,7 @@
 		onNodeLeave?: (node: string) => void
 		onEdgeClick?: (edge: string) => void
 		onEdgeEnter?: (edge: string) => void
-		onEdgeLeave?: (edge: string) => void
+		onEdgeLeave?: (edge: string) => void,
 	} = $props()
 </script>
 
