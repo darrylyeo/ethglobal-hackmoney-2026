@@ -16,3 +16,4 @@ export const debounce = <T extends (...args: Parameters<T>) => void>(
 	}
 	return run
 }
+

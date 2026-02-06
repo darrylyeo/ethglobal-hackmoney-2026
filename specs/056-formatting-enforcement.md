@@ -252,7 +252,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/lib/bridge/txStatus.spec.ts`
 - [x] `src/lib/bridge/txStatus.ts`
 - [x] `src/lib/db/queryClient.ts`
-- [ ] `src/lib/debounce.ts`
+- [x] `src/lib/debounce.ts`
 - [ ] `src/lib/e2e/tevm-config.ts`
 - [ ] `src/lib/e2e/tevm.ts`
 - [ ] `src/lib/entity-suggestions.ts`
