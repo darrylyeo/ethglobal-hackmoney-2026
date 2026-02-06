@@ -3,7 +3,7 @@ import type { EvmLog } from '$/api/voltaire.ts'
 
 export type ChainTransaction$Id = {
 	chainId: ChainId
-	txHash: `0x${string}`
+	txHash: `0x${string}`,
 }
 
 export type ChainTransactionEntry = {
@@ -23,5 +23,5 @@ export type ChainTransactionEntry = {
 	gasUsed?: bigint
 	contractAddress?: string | null
 	effectiveGasPrice?: bigint
-	logs: EvmLog[]
+	logs: EvmLog[],
 }
