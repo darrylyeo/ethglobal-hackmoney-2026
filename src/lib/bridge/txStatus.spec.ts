@@ -1,10 +1,10 @@
 /// <reference lib="deno.ns" />
 import { assertEquals } from 'jsr:@std/assert'
 import {
-	createInitialStatus,
-	mapLifiProcessStatus,
 	type BridgeStatus,
 	type TxStatus,
+	createInitialStatus,
+	mapLifiProcessStatus,
 } from './txStatus.ts'
 
 Deno.test('createInitialStatus returns idle with empty steps', () => {
