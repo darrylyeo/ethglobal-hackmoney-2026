@@ -8,13 +8,13 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
+import { createHttpProvider, getErc20Balance } from '$/api/voltaire'
 import { DataSource } from '$/constants/data-sources'
 import { ercTokens } from '$/constants/coins'
 import type { ChainId } from '$/constants/networks'
 import { toInteropName } from '$/constants/interop'
-import type { ActorCoin, ActorCoin$Id, ActorCoinToken } from '$/data/ActorCoin'
 import { rpcUrls } from '$/constants/rpc-endpoints'
-import { createHttpProvider, getErc20Balance } from '$/api/voltaire'
+import type { ActorCoin, ActorCoin$Id, ActorCoinToken } from '$/data/ActorCoin'
 
 export type ActorCoinRow = ActorCoin & { $source: DataSource }
 
@@ -58,23 +58,21 @@ export const fetchActorCoinBalance = async (
 	decimals: number,
 ): Promise<ActorCoinRow> => {
 	const key = actorCoinKeyParts($id)
-	const existing = actorCoinsCollection.state.get(key)
 
 	// Set loading state
-	if (existing) {
+	if (actorCoinsCollection.state.get(key)) {
 		actorCoinsCollection.update(key, (draft) => {
 			draft.$source = DataSource.Voltaire
 			draft.isLoading = true
 			draft.error = null
 		})
 	} else {
-		const full$id: ActorCoin$Id = {
-			...$id,
-			interopAddress:
-				$id.interopAddress ?? toInteropName($id.chainId, $id.address),
-		}
 		actorCoinsCollection.insert({
-			$id: full$id,
+			$id: {
+				...$id,
+				interopAddress:
+					$id.interopAddress ?? toInteropName($id.chainId, $id.address),
+			},
 			$source: DataSource.Voltaire,
 			symbol,
 			decimals,
