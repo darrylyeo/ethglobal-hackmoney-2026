@@ -1,4 +1,4 @@
-import { storkRestBaseUrl } from '$/constants/stork'
+import { storkRestBaseUrl } from '$/constants/stork.ts'
 
 export type ProxyTarget = {
 	id: string
