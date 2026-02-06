@@ -2,7 +2,7 @@ export type SwapRoute = {
 	poolId: string
 	tokenIn: `0x${string}`
 	tokenOut: `0x${string}`
-	fee: number
+	fee: number,
 }
 
 export type SwapQuote = {
@@ -15,7 +15,7 @@ export type SwapQuote = {
 	priceImpact: number
 	route: SwapRoute[]
 	gasEstimate: bigint
-	timestamp: number
+	timestamp: number,
 }
 
 export type FetchSwapQuoteParams = {
@@ -23,5 +23,6 @@ export type FetchSwapQuoteParams = {
 	tokenIn: `0x${string}`
 	tokenOut: `0x${string}`
 	amountIn: bigint
-	slippage: number
+	slippage: number,
 }
+
