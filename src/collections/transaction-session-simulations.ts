@@ -3,13 +3,13 @@
  * Persists to localStorage across sessions.
  */
 
+import { DataSource } from '$/constants/data-sources'
+import type { TransactionSessionSimulation } from '$/data/TransactionSessionSimulation'
 import {
 	createCollection,
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
-import { stringify, parse } from 'devalue'
-import { DataSource } from '$/constants/data-sources'
-import type { TransactionSessionSimulation } from '$/data/TransactionSessionSimulation'
+import { parse, stringify } from 'devalue'
 
 export type TransactionSessionSimulationRow = TransactionSessionSimulation & {
 	$source: DataSource
