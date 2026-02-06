@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { EvmLog } from '$/api/voltaire'
 	import type { ChainId } from '$/constants/networks'
@@ -14,8 +16,8 @@
 		event,
 		chainId,
 	}: {
-		event: EvmLog
-		chainId: ChainId
+		event: EvmLog,
+		chainId: ChainId,
 	} = $props()
 
 
