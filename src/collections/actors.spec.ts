@@ -9,13 +9,9 @@ Deno.test('actorKey generates correct composite key', () => {
 })
 
 Deno.test('actorKey normalizes address to lowercase', () => {
-	const key1 = actorKey(1, '0xABCDEF')
-	const key2 = actorKey(1, '0xabcdef')
-	assertEquals(key1, key2)
+	assertEquals(actorKey(1, '0xABCDEF'), actorKey(1, '0xabcdef'))
 })
 
 Deno.test('actorKey differentiates by chainId', () => {
-	const key1 = actorKey(1, '0xabc')
-	const key2 = actorKey(10, '0xabc')
-	assertEquals(key1 !== key2, true)
+	assertEquals(actorKey(1, '0xabc') !== actorKey(10, '0xabc'), true)
 })
