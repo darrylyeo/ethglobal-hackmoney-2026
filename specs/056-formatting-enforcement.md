@@ -92,7 +92,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/api/voltaire.ts`
 - [x] `src/api/yellow.ts`
 - [x] `src/app.d.ts`
-- [ ] `src/collections/actor-allowances.ts`
+- [x] `src/collections/actor-allowances.ts`
 - [ ] `src/collections/actor-coins.spec.ts`
 - [ ] `src/collections/actor-coins.ts`
 - [ ] `src/collections/actors.spec.ts`
@@ -429,7 +429,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 
 ## Status
 
-Incomplete. Tasks reset; execution rule: one file per run. 2026-02-06 (PROMPT_build execute one spec): src/app.d.ts formatted (trailing comma in PageState), box checked. Previous: src/api/voltaire.ts verified compliant, box checked. Previous: src/api/yellow.ts formatted (ternary style, trailing comma in Map type), box checked. Formatting is manual to repo preferences; `deno task format` runs scripts/_svelte-section-spacing.ts (two empty lines between Svelte sections and comment groups in <script>). Formatter subagent may inline single-use variables/types (spec 041). 2026-02-06 (PROMPT_build execute one spec): src/api/voltaire.spec.ts verified compliant, box checked. Previous: src/api/simulate.ts formatted (ternary style), box checked. Previous: src/api/llm/zen.ts verified compliant, box checked; test:unit 44 Deno + 101 Vitest passed. Previous: src/api/identity-resolve.ts formatted (chained call break in bytes32FromNamehash), box checked; test:unit 44 Deno + 101 Vitest passed. Previous: src/api/cctp.ts formatted (T[] over Array<T>), box checked; test:unit 44 Deno + 101 Vitest passed.
+Incomplete. Tasks reset; execution rule: one file per run. 2026-02-06 (PROMPT_build execute one spec): src/collections/actor-allowances.ts formatted (ternary style), box checked. Previous: src/app.d.ts formatted (trailing comma in PageState), box checked. Previous: src/api/voltaire.ts verified compliant, box checked. Previous: src/api/yellow.ts formatted (ternary style, trailing comma in Map type), box checked. Formatting is manual to repo preferences; `deno task format` runs scripts/_svelte-section-spacing.ts (two empty lines between Svelte sections and comment groups in <script>). Formatter subagent may inline single-use variables/types (spec 041). 2026-02-06 (PROMPT_build execute one spec): src/api/voltaire.spec.ts verified compliant, box checked. Previous: src/api/simulate.ts formatted (ternary style), box checked. Previous: src/api/llm/zen.ts verified compliant, box checked; test:unit 44 Deno + 101 Vitest passed. Previous: src/api/identity-resolve.ts formatted (chained call break in bytes32FromNamehash), box checked; test:unit 44 Deno + 101 Vitest passed. Previous: src/api/cctp.ts formatted (T[] over Array<T>), box checked; test:unit 44 Deno + 101 Vitest passed.
 
 ## Output when complete
 

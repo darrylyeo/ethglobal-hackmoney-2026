@@ -8,11 +8,11 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
+import { createHttpProvider, getErc20Allowance } from '$/api/voltaire'
 import { DataSource } from '$/constants/data-sources'
 import { toInteropName } from '$/constants/interop'
-import type { ActorAllowance, ActorAllowance$Id } from '$/data/ActorAllowance'
 import { rpcUrls } from '$/constants/rpc-endpoints'
-import { createHttpProvider, getErc20Allowance } from '$/api/voltaire'
+import type { ActorAllowance, ActorAllowance$Id } from '$/data/ActorAllowance'
 
 export type ActorAllowanceRow = ActorAllowance & { $source: DataSource }
 
@@ -114,7 +114,11 @@ export const fetchActorAllowance = async (
 		actorAllowancesCollection.update(key, (draft) => {
 			draft.$source = DataSource.Voltaire
 			draft.isLoading = false
-			draft.error = e instanceof Error ? e.message : String(e)
+			draft.error = (
+				e instanceof Error
+					? e.message
+					: String(e)
+			)
 			draft.lastChecked = Date.now()
 		})
 		return actorAllowancesCollection.state.get(key)!
@@ -124,7 +128,11 @@ export const fetchActorAllowance = async (
 // Check if allowance is sufficient for amount
 export const hasApproval = ($id: ActorAllowance$Id, amount: bigint) => {
 	const row = getActorAllowance($id)
-	return row ? row.allowance >= amount : false
+	return (
+		row
+			? row.allowance >= amount
+			: false
+	)
 }
 
 // Update allowance after successful approval tx (optimistic)
