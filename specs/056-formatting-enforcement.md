@@ -219,7 +219,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/data/Coin.ts`
 - [x] `src/data/DashboardPanel.ts`
 - [x] `src/data/EntityRef.ts`
-- [ ] `src/data/EvmActorProfile.ts`
+- [x] `src/data/EvmActorProfile.ts`
 - [ ] `src/data/LlmConnection.ts`
 - [ ] `src/data/Network.ts`
 - [ ] `src/data/Room.ts`

@@ -38,7 +38,7 @@
     "assets:optimize": "deno run -A npm:svgo src/assets/networks/*.svg src/assets/coins/*.svg src/assets/providers/*.svg",
     "assets": "deno task assets:sync && deno task assets:optimize",
     "test": "deno task test:unit && deno task test:e2e",
-    "test:unit": "deno test -A --no-check src/collections/actors.spec.ts src/collections/actor-coins.spec.ts src/collections/room-peers.spec.ts src/collections/shared-addresses.spec.ts src/collections/siwe-challenges.spec.ts src/collections/verifications.spec.ts src/collections/uniswap-pools.spec.ts src/collections/uniswap-positions.spec.ts src/collections/swap-quotes.spec.ts src/lib/bridge/tx-status.spec.ts src/api/voltaire.spec.ts src/api/identity-resolve.spec.ts && deno run -A npm:vitest run",
+    "test:unit": "deno test -A --no-check src/collections/actors.spec.ts src/collections/actor-coins.spec.ts src/collections/room-peers.spec.ts src/collections/shared-addresses.spec.ts src/collections/siwe-challenges.spec.ts src/collections/verifications.spec.ts src/collections/uniswap-pools.spec.ts src/collections/uniswap-positions.spec.ts src/collections/swap-quotes.spec.ts src/lib/bridge/txStatus.spec.ts src/api/voltaire.spec.ts src/api/identity-resolve.spec.ts && deno run -A npm:vitest run",
     "test:e2e": "deno run -A npm:@playwright/test test -c playwright.e2e.config.ts"
   }
 }
