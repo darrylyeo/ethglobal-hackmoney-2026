@@ -3,7 +3,7 @@ import {
 	formatSlippagePercent,
 	parseSlippagePercent,
 	calculateMinOutput,
-} from './slippage'
+} from './slippage.ts'
 
 describe('formatSlippagePercent', () => {
 	it('formats 0.005 as 0.5%', () => {

@@ -8,7 +8,7 @@
  * Sync: run scripts/_sync-assets.ts to download/unpack/optimize only sources not yet synced.
  */
 
-import { ChainId } from './networks'
+import { ChainId } from './networks.ts'
 
 export enum AssetSubject {
 	Network = 'Network',

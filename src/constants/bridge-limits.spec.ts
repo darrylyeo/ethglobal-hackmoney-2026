@@ -4,7 +4,7 @@ import {
 	extractRouteLimits,
 	USDC_MIN_AMOUNT,
 	USDC_MAX_AMOUNT,
-} from './bridge-limits'
+} from './bridge-limits.ts'
 
 describe('validateBridgeAmount', () => {
 	it('returns valid for amounts in range', () => {

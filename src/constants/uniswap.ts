@@ -3,7 +3,7 @@
  * PoolManager and Universal Router addresses per chain (placeholder until V4 deployment).
  */
 
-import { ChainId } from '$/constants/networks'
+import { ChainId } from '$/constants/networks.ts'
 
 type Address = `0x${string}`
 

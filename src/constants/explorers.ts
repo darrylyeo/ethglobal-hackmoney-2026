@@ -3,7 +3,7 @@
  * Spec 008: Transaction status tracking.
  */
 
-import { ChainId, networkConfigs } from '$/constants/networks'
+import { ChainId, networkConfigs } from '$/constants/networks.ts'
 
 export type ExplorerEntry = {
 	chainId: ChainId

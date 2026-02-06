@@ -2,7 +2,7 @@
  * Yellow Network constants aligned to current docs.
  */
 
-import { ChainId } from '$/constants/networks'
+import { ChainId } from '$/constants/networks.ts'
 
 export enum YellowEnvironment {
 	Production = 'Production',

@@ -1,4 +1,4 @@
-import { ChainId } from '$/constants/networks'
+import { ChainId } from '$/constants/networks.ts'
 
 /**
  * Circle Gateway domain IDs per chain (EVM only; same domain IDs as CCTP where overlapping).

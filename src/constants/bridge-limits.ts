@@ -2,7 +2,7 @@
  * USDC bridge amount limits and validation. Amounts in smallest units (6 decimals).
  */
 
-import { formatSmallestToDecimal } from '$/lib/format'
+import { formatSmallestToDecimal } from '$/lib/format.ts'
 
 export enum BridgeAsset {
 	Usdc = 'USDC',

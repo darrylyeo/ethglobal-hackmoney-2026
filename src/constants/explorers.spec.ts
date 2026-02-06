@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getTxUrl, getAddressUrl } from './explorers'
+import { getTxUrl, getAddressUrl } from './explorers.ts'
 
 describe('explorers', () => {
 	describe('getTxUrl', () => {
