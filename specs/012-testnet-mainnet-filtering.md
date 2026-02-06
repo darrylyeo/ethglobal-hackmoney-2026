@@ -61,10 +61,7 @@ appropriate defaults for the new network type.
 
 ## Status
 
-Complete. Testnet/mainnet toggle managed via `bridgeSettingsState` (persisted).
-BridgeFlow.svelte: `filteredNetworks` derived from `settings.isTestnet` and
-`NetworkType`, `$effect` resets fromChainId/toChainId when not in filtered list.
-Routes and balances refetch when filter changes. Re-verification 2026-02-05 (PROMPT_build execute one spec, re-verify): all 6 AC re-verified—filteredNetworks in UnifiedBridgeFlow.svelte, AccountsSelect.svelte, Accounts.svelte, CctpBridgeFlow; chain reset $effect in UnifiedBridgeFlow and AccountsSelect; bridgeSettingsState (PersistedState) with defaultBridgeSettings.isTestnet: false; test:unit 44 Deno + 101 Vitest passed; e2e 75 passed 8 skipped (bridge-e2e testnet/mainnet toggle 2 tests, wallet network toggle 1 test passed).
+Complete. Re-verification 2026-02-06 (PROMPT_build execute one spec, re-verify 012): all 6 AC confirmed—filteredNetworks in BridgeAction.svelte, AccountsSelect.svelte, Accounts.svelte, CctpBridgeFlow; chain reset $effect in AccountsSelect and BridgeAction; bridgeSettingsState (PersistedState) with defaultBridgeSettings.isTestnet: false; dropdowns and balances use filteredNetworks; test:unit 44 Deno + 101 Vitest passed. Previous: Testnet/mainnet toggle managed via `bridgeSettingsState` (persisted). BridgeFlow.svelte: `filteredNetworks` derived from `settings.isTestnet` and `NetworkType`, `$effect` resets fromChainId/toChainId when not in filtered list. Routes and balances refetch when filter changes. Re-verification 2026-02-05 (PROMPT_build execute one spec, re-verify): all 6 AC re-verified—filteredNetworks in UnifiedBridgeFlow.svelte, AccountsSelect.svelte, Accounts.svelte, CctpBridgeFlow; chain reset $effect in UnifiedBridgeFlow and AccountsSelect; bridgeSettingsState (PersistedState) with defaultBridgeSettings.isTestnet: false; test:unit 44 Deno + 101 Vitest passed; e2e 75 passed 8 skipped (bridge-e2e testnet/mainnet toggle 2 tests, wallet network toggle 1 test passed).
 
 ## Output when complete
 
