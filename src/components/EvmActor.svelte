@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
 	// Types/constants
 	import type { Network$Id } from '$/data/Network'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -6,6 +8,11 @@
 		ensureEvmActorProfile,
 		evmActorProfilesCollection,
 	} from '$/collections/evm-actor-profiles'
+
+
+	// Components
+	import Address from '$/components/Address.svelte'
+	import Icon from '$/components/Icon.svelte'
 
 
 	// Props
@@ -44,11 +51,6 @@
 	const profile = $derived(
 		profileProp ?? profileQuery.data?.[0]?.row,
 	)
-
-
-	// Components
-	import Address from '$/components/Address.svelte'
-	import Icon from '$/components/Icon.svelte'
 </script>
 
 
