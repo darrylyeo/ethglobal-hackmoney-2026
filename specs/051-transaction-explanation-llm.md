@@ -1,20 +1,19 @@
-# Spec 051: LLM explanations for simulations and transactions
+# Spec 051: Llm explanations for simulations and transactions
 
 Enable on-demand natural language explanations for simulation results and
-executed transactions using a minimal inference adapter. Default to Chrome's
-built-in Prompt API when available, with an optional hosted fallback for
-environments that cannot run on-device inference.
+executed transactions. The implementation uses a **generic AI provider
+abstraction** (Part 1) and a **transaction-explanation feature** (Part 2) that
+consumes it.
 
 ## Scope
 
-- Provide an on-demand "Explain results" action for:
-  - Simulation results (draft session simulations).
-  - Executed transactions (receipt/finalization results).
-- Define a minimal inference adapter interface with availability detection and
-  a single `explain` entry point.
-- Default provider uses Chrome Prompt API (Gemini Nano on-device).
-- Optional hosted LLM adapter may be configured via API key or server endpoint.
-- Persist explanations only when requested by the user.
+- **Part 1 (abstraction):** Define a minimal, feature-agnostic inference
+  adapter with availability detection and a single generate entry point. Default
+  implementation uses Chrome's Prompt API; optional hosted adapter may be
+  configured. Other features may reuse this abstraction.
+- **Part 2 (feature):** Provide an on-demand "Explain results" action for
+  simulation results and executed transactions, using the abstraction. Define
+  explanation payload shape, prompt construction, UI, and persistence.
 
 ## Non-goals
 
@@ -23,30 +22,95 @@ environments that cannot run on-device inference.
 - No new telemetry, analytics, or usage tracking.
 - No provider selection beyond primary + optional fallback.
 
-## Definitions
+---
 
-### Explanation request
+## Part 1: AI provider abstraction
 
-A single user-initiated prompt that requests a summary/explanation of a specific
-simulation or transaction result.
+A minimal adapter for on-device or hosted Llm inference. No domain-specific
+types (e.g. no "simulation" or "execution"); the feature layer supplies prompts
+and interprets responses.
 
-### Provider availability
-
-One of `available`, `downloading`, or `unavailable`, aligned to the Prompt API
-availability checks.
-
-### Explanation payload
-
-A structured snapshot of simulation or execution results, stripped of secrets,
-used to build the model prompt.
-
-## Adapter design
-
-### Minimal interface
+### Availability
 
 ```ts
-type ExplainAvailability = 'available' | 'downloading' | 'unavailable'
+type LlmAvailability = 'available' | 'downloading' | 'unavailable'
+```
 
+- `available`: Ready to generate.
+- `downloading`: Model is downloading (e.g. Prompt API); generation not yet
+  available; optional progress may be reported.
+- `unavailable`: No provider ready (e.g. Prompt API not present, hosted not
+  configured).
+
+### Provider interface
+
+```ts
+type LlmGenerateInput = {
+	systemPrompt: string
+	userPrompt: string
+	onProgress?: (progress: number) => void
+}
+
+type LlmGenerateOutput = {
+	text: string
+	providerId: string
+}
+
+type LlmProvider = {
+	availability: () => Promise<LlmAvailability>
+	generate: (input: LlmGenerateInput) => Promise<LlmGenerateOutput>
+	cancel?: () => void
+}
+```
+
+- `availability()`: Current state; may change over time (e.g. after download).
+- `generate(input)`: One-shot generation. Uses same options as used for
+  availability checks where applicable (e.g. Prompt API).
+- `cancel()`: Abort in-flight generation if supported.
+
+### Default: Prompt API adapter
+
+- Backed by Chrome's built-in Prompt API (`globalThis.ai?.languageModel`).
+- Use `LanguageModel.availability(options)` with the same options passed to
+  `create()` / `prompt()`.
+- Require user activation before `LanguageModel.create()`.
+- Handle `downloading` and surface progress via `onProgress` when supported.
+- Keep sessions short-lived (create per request, destroy after).
+- TypeScript: `@types/dom-chromium-ai`; project references via
+  `src/prompt-api.d.ts`.
+
+### Optional: Hosted adapter
+
+- Disabled by default; requires explicit configuration (e.g. endpoint + optional
+  API key).
+- Exposes the same `LlmProvider` interface. `availability()` returns
+  `'available'` when configured; `generate()` POSTs a JSON payload (e.g.
+  `{ systemPrompt, userPrompt }`) and expects `{ text }` (or equivalent).
+- No domain-specific fields in the abstraction; the hosted endpoint may be
+  feature-agnostic or feature-specific.
+
+### Provider selection
+
+- Primary: Prompt API adapter.
+- Fallback: If Prompt API `availability()` is `'unavailable'` and a hosted
+  adapter is configured, use the hosted adapter. No UI to switch providers;
+  selection is automatic.
+
+---
+
+## Part 2: Transaction/simulation explanation feature
+
+Uses the AI provider abstraction to explain transaction simulation results and
+executed transaction outcomes. Defines domain types, prompt construction, UI,
+and persistence.
+
+### Explanation context (domain payload)
+
+Structured snapshot of a simulation or execution result, stripped of secrets,
+used to build the user prompt. This is **feature** contract, not part of the
+abstraction.
+
+```ts
 type ExplainContext = {
 	kind: 'simulation' | 'execution'
 	sessionId: string
@@ -55,88 +119,86 @@ type ExplainContext = {
 	chainId?: number
 	status: 'success' | 'revert' | 'error'
 	summary: string
-	gas: {
-		used?: string
-		estimated?: string
-	}
-	errors?: {
-		revertReason?: string
-		errorSelector?: string
-	}
+	gas: { used?: string; estimated?: string }
+	errors?: { revertReason?: string; errorSelector?: string }
 	traceSummary?: string
 	eventSummary?: string
 	txHash?: `0x${string}`
 }
-
-type ExplainInput = {
-	context: ExplainContext
-	language: 'en'
-	maxTokens?: number
-}
-
-type ExplainOutput = {
-	provider: 'prompt-api' | 'hosted'
-	text: string
-}
-
-type ExplainProvider = {
-	availability: () => Promise<ExplainAvailability>
-	explain: (input: ExplainInput) => Promise<ExplainOutput>
-	cancel?: () => void
-}
 ```
 
-### Prompt API adapter (default)
+### Prompt construction (feature)
 
-- Use `LanguageModel.availability()` with matching options used in `prompt()`.
-- Require user activation before `LanguageModel.create()`.
-- Handle `downloading` state and surface progress to the user.
-- Keep per-request sessions short-lived to avoid long-lived context.
-- Use `@types/dom-chromium-ai` for TypeScript types.
+- **System prompt:** Fixed instruction, e.g. explain concisely and factually;
+  focus on outcomes, gas, errors; no speculation.
+- **User prompt:** Derived from `ExplainContext` (kind, status, chain, tx hash,
+  gas, revert/error details, trace/event summary). No raw private keys, full
+  RPC payloads, or unredacted user data.
+- Token budget: TBD (TODO in implementation).
 
-### Hosted LLM adapter (optional)
+### Explain API (feature entry point)
 
-- Disabled by default and requires explicit configuration.
-- Should expose a single HTTP endpoint or SDK call matching `ExplainInput`.
-- Must respect the same payload constraints and output expectations.
+The feature exposes an `ExplainProvider` (or equivalent) that wraps the
+generic `LlmProvider`:
 
-## Prompt payload
+- `availability()` delegates to the underlying `LlmProvider.availability()`.
+- `explain(input: ExplainInput)` builds `systemPrompt` and `userPrompt` from
+  `input.context`, calls `LlmProvider.generate()`, and returns an
+  `ExplainOutput` (e.g. `{ provider: output.providerId, text: output.text }`).
+- `ExplainInput` contains `context: ExplainContext`, `language: 'en'`,
+  optional `maxTokens`.
+- Optional `cancel()` delegates to the underlying provider.
 
-- Use the minimal summarized payload from the session or execution record.
-- Include status, gas totals, revert reasons, and high-level trace/event summary.
-- Do not include raw private keys, full RPC payloads, or unredacted user data.
-- Provide a fixed system instruction to keep outputs concise and factual.
+So the **abstraction** stays generic (prompts in, text out); the **feature**
+defines ExplainContext, ExplainInput, ExplainOutput, and how they map to/from
+the abstraction.
 
-## UI integration (high level)
+### UI integration
 
-- Add an "Explain results" action in simulation and execution views.
-- Show availability state:
-  - Available: action enabled.
-  - Downloading: show progress and disable until ready.
-  - Unavailable: show a short tooltip and link to optional fallback setup.
+- Add an "Explain results" action in simulation and execution views (where
+  simulation has completed or execution has completed/failed).
+- Availability state:
+  - **Available:** action enabled.
+  - **Downloading:** show progress, disable action until ready.
+  - **Unavailable:** short tooltip and link to optional fallback setup
+    (e.g. `/about#explain-results-fallback`).
 - Allow cancellation while the explanation is being generated.
 
-## Persistence
+### Persistence
 
-- Store explanation results alongside their source record:
-  - Simulation: attach to session simulation entry.
-  - Execution: attach to execution/finalization entry.
-- Record provider, prompt version, createdAt, and response text.
+- Store explanation results only when the user requests an explanation.
+- Attach to the source record: simulation → session simulation entry;
+  execution → execution/finalization entry.
+- Record: provider id, prompt version, createdAt, response text. Overwrite vs
+  multiple explanations per result: TBD (TODO).
+
+---
 
 ## Acceptance criteria
 
+### Part 1 (abstraction)
+
+- [x] A minimal `LlmProvider`-style interface exists with `availability()`,
+  `generate()`, and optional `cancel()`.
+- [x] Prompt API adapter implements it; uses `LanguageModel.availability()` and
+  matching options for `create()`/`prompt()`.
+- [x] Hosted adapter is optional and implements the same interface; used only
+  when configured and Prompt API is unavailable.
+
+### Part 2 (feature)
+
 - [x] Simulation results and executed transactions expose an on-demand
   "Explain results" action.
-- [x] A minimal adapter interface exists with `availability()` and `explain()`.
-- [x] Chrome Prompt API is the default provider when available.
-- [x] Hosted fallback adapter is optional and disabled by default.
-- [x] Explanation payloads omit secrets and raw RPC data.
-- [x] Explanations are persisted only after a user request.
+- [x] Explanation payloads use `ExplainContext` and omit secrets and raw RPC
+  data.
+- [x] Explanations are persisted only after a user request (stored with
+  provider, promptVersion, createdAt, text).
 
 ## TODOs
 
-- TODO: Define the exact prompt template and token budget.
-- TODO: Decide whether to store multiple explanations per result or overwrite.
+- Define the exact prompt template and token budget (feature).
+- Decide whether to store multiple explanations per result or overwrite
+  (feature).
 
 ## Sources
 
