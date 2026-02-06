@@ -20,8 +20,12 @@ interface Array<T> {
 }
 
 interface ImportMetaEnv {
-	readonly PUBLIC_EXPLAIN_LLM_ENDPOINT?: string
-	readonly PUBLIC_EXPLAIN_LLM_API_KEY?: string
+	readonly PUBLIC_E2E_TEVM?: string
+	readonly PUBLIC_E2E_TEVM_RPC_URL?: string
+	readonly PUBLIC_LLM_API_KEY?: string
+	readonly PUBLIC_LLM_ENDPOINT?: string
+	readonly PUBLIC_PARTYKIT_HOST?: string
+	readonly PUBLIC_STORK_REST_TOKEN?: string
 }
 
 interface ImportMeta {
