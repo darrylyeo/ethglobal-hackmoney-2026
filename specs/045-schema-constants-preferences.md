@@ -37,7 +37,7 @@ enum EnumName {
 
 Prefer this over TypeScript string unions (e.g. `'a' | 'b'`). These enums
 may be used as discriminant fields in `src/constants` object arrays (e.g.
-`target: IconTarget.Chain`, `source: DataSource.LiFi`).
+`subject: AssetSubject.Network`, `source: DataSource.LiFi`).
 
 ## Non-goals
 
@@ -73,11 +73,11 @@ may be used as discriminant fields in `src/constants` object arrays (e.g.
 - [x] Fixed sets of string values are expressed as string enums (member
   `= 'MemberName'`) in `src/constants/`, not as string unions.
 - [x] Discriminant fields in `src/constants` object arrays use enum values
-  (e.g. `target: IconTarget.Chain`) where an enum exists for that domain.
+  (e.g. `subject: AssetSubject.Network`) where an enum exists for that domain.
 
 ## Status
 
-Complete. 2026-02-05 (PROMPT_build execute one spec): Enum usage AC implemented. stork.ts: StorkApiRegion (Jp, Dev), StorkApiTransport (Rest, Websocket) as string enums; storkApiEndpoints and storkDefaultRegion use enum values. icons.ts: IconTarget (Chain, Coin, Provider), FetchTypeKind (Zip, Png, Url) as string enums; IconFetchItem/coinIconFetchItems/providerIconFetchItems use enum discriminants. chain-icon-fetch-items.ts: target IconTarget.Chain, fetchType FetchTypeKind.* throughout. Scripts _fetch-icons.ts and _fetch-chain-icons.ts updated to use FetchTypeKind and IconTarget. test:unit 41 Deno + 101 Vitest passed.
+Complete. 2026-02-05 (PROMPT_build execute one spec): Enum usage AC implemented. stork.ts: StorkApiRegion (Jp, Dev), StorkApiTransport (Rest, Websocket) as string enums; storkApiEndpoints and storkDefaultRegion use enum values. assets.ts: AssetSubject (Network, Coin, Brand), FetchTypeKind (Zip, Png, Url); AssetSource uses subject. Script _sync-assets.ts uses FetchTypeKind and AssetSubject (see spec 052). test:unit 41 Deno + 101 Vitest passed.
 
 ## Output when complete
 

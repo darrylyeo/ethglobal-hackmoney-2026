@@ -107,11 +107,10 @@ const getUniswapSdk = async () => {
 }
 
 // Fetch pools for a token pair
-const fetchPools = async (params: {
-  chainId: number
-  token0: `0x${string}`
-  token1: `0x${string}`
-}): Promise<UniswapPool[]>
+const fetchPools = async (params: FetchPoolsParams): Promise<UniswapPool[]>
+
+// Fetch positions for an owner on a chain
+const fetchPositions = async (params: { chainId: number; owner: `0x${string}` }): Promise<UniswapPosition[]>
 
 // Get swap quote (best route)
 const getSwapQuote = async (params: {
@@ -154,15 +153,29 @@ const removeLiquidity = async (params: {
   amount1Min: bigint
   deadline: number
 }): Promise<{ txHash: `0x${string}` }>
+
+// Create pool
+const createPool = async (params: CreatePoolParams): Promise<{ txHash: `0x${string}`; poolId?: string }>
+
+// Initialize pool (first liquidity)
+const initializePool = async (params: InitializePoolParams): Promise<{ txHash: `0x${string}` }>
+
+// Collect fees from position
+const collectFees = async (params: CollectFeesParams): Promise<{ txHash: `0x${string}` }>
+
+// Increase liquidity for position
+const increaseLiquidity = async (params: IncreaseLiquidityParams): Promise<{ txHash: `0x${string}` }>
 ```
+
+Pools for the selected chain and token pair are fetched via `fetchUniswapPools` (in `src/collections/uniswap-pools.ts`) and upserted into `uniswapPoolsCollection` when the liquidity flow has chain and token0/token1 set.
 
 ## UI
 
-### Page route: `src/routes/swap/+page.svelte`
+### Swap route: `/session#swap`
 
-Entry point that renders `SwapFlow.svelte`.
+Session page with hash `#swap`; renders `SwapFlow.svelte` and swap action from `src/routes/session/`.
 
-### `src/routes/swap/SwapFlow.svelte`
+### `src/routes/session/SwapFlow.svelte`
 
 Main swap interface, similar architecture to `BridgeFlow.svelte`:
 
@@ -227,13 +240,13 @@ Add-liquidity interface with protocol explicit and clear layout.
 
 Layout: group protocol + chain/tokens at top; fee + range next; amounts and preview in a clear block; primary action fixed or at bottom. Use existing card/section patterns; avoid crowding.
 
-### `src/routes/liquidity/Positions.svelte`
+### `src/routes/session/Positions.svelte`
 
-Display user's existing positions:
+Display user's existing positions (used by LiquidityFlow):
 
-- List of positions from `uniswapPositionsCollection`
-- Position details: tokens, range, liquidity, fees earned
-- Actions: collect fees, increase liquidity, remove liquidity
+- List of positions from `uniswapPositionsCollection` (filtered by chain and owner)
+- Position details: pool id, tick range, liquidity
+- Actions (when provider and owner are set): **Collect** (collect fees), **Remove** (remove liquidity), **Increase** (inline amount inputs then Add)
 
 ## Shared infrastructure
 
@@ -292,14 +305,16 @@ const TICK_SPACINGS: Record<number, number> = {
 
 ### API
 - [x] `src/api/uniswap.ts` with lazy-loaded SDK
-- [x] `fetchPools` returns pools for token pair
-- [x] `getSwapQuote` returns best route and amounts
+- [x] `fetchPools` / `fetchPositions` return pools and positions (empty when SDK not loaded)
+- [x] `getSwapQuote` returns best route and amounts (stub when SDK not loaded)
 - [x] `executeSwap` executes via Universal Router
-- [x] `addLiquidity` / `removeLiquidity` for position management
-- [x] Unit tests for quote calculation
+- [x] `addLiquidity` / `removeLiquidity` / `collectFees` / `increaseLiquidity` for position management
+- [x] `createPool` / `initializePool` for pool creation (stub when SDK not loaded)
+- [x] `fetchUniswapPools` / `fetchUniswapPositions` upsert into collections
+- [x] Unit tests for API (fetchPositions, createPool, collectFees, increaseLiquidity, removeLiquidity throw when SDK not loaded)
 
 ### Swap UI
-- [x] `src/routes/swap/+page.svelte` renders SwapFlow
+- [x] Swap at `/session#swap` renders SwapFlow
 - [x] Chain selector (single chain)
 - [x] Token input/output with balances
 - [x] Swap direction toggle
@@ -316,8 +331,9 @@ const TICK_SPACINGS: Record<number, number> = {
 - [x] Fee tier selector
 - [x] Price range selector (full/concentrated)
 - [x] Deposit amount inputs
-- [x] Add liquidity execution
-- [x] Position list with collect/remove actions
+- [x] Add liquidity execution (uses poolId from collection or calls initializePool then addLiquidity; runs in wallet and e2e mode)
+- [x] Pools fetched for selected chain/token pair and positions fetched for selected owner/chain
+- [x] Position list with Collect, Remove, Increase (inline amount inputs) actions when provider/owner set
 - [x] Layout: protocol + chain/tokens grouped at top; fee + range; amounts + preview; primary action
 
 ### Integration
@@ -328,7 +344,7 @@ const TICK_SPACINGS: Record<number, number> = {
 
 ## Status
 
-Complete. LiquidityFlow: protocol card (Uniswap v4) at top; chain + token pair in one section; fee + range; amounts + pool/position preview placeholder; primary action. Protocol clearly indicated; layout matches spec. test:unit 44 Deno + 101 Vitest passed.
+Complete. Full execution path: Add liquidity uses matching pool from `uniswapPoolsCollection` or calls `initializePool` then `addLiquidity`; pools and positions are fetched via `fetchUniswapPools` / `fetchUniswapPositions` when chain and token pair (or owner) are set. Positions.svelte exposes Collect, Remove, and Increase (with inline amount inputs). TokenApproval for swap uses Universal Router. Unit tests: 44 Deno + 106 Vitest passed.
 
 ## Output when complete
 

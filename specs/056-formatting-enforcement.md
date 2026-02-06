@@ -40,8 +40,8 @@ explicitly tracking each file as a formatting task.
   multiple props.
 - [x] CSS files follow repo style rules and primitives usage guidelines.
 - [x] TypeScript files follow repo formatting: single quotes, no semicolons,
-  trailing commas, preferred type style rules, and inlining of single-use
-  variables and types.
+  trailing commas, preferred type style rules, inlining of single-use
+  variables and types, and file extensions always included in import paths.
 
 All files below: one file per run; format to repo preferences and `deno task format` (scripts/_svelte-section-spacing.ts), then check.
 

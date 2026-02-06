@@ -1,75 +1,57 @@
-# Spec 052: Icon SVG procurement
+# Spec 052: Asset (icon) procurement
 
-Unify and generify SVG procurement for chain, coin, and API provider icons. The
-pipeline reuses one schema and script to fetch, normalize, and store icons
-locally. Types and constants follow spec 045 (schema + constants preferences)
-and live in `src/constants/` alongside other domain constants (cf. spec 001,
-042).
+Unify and generify SVG procurement for chain, coin, and brand assets. All sources
+and discovery documentation live in `src/constants/assets.ts`. One sync script
+downloads/unpacks/optimizes only sources not yet synced (like a package manager).
+Types follow spec 045 (cf. spec 001, 042).
 
 ## Implementation
 
-### Constants and schema (src/constants/)
+### Constants and schema (src/constants/assets.ts)
 
-Per spec 045: types live alongside constants in `src/constants/`; minimal
-schema; one array per type; reuse existing domain types.
-
-- **`src/constants/icons.ts`**
-	- **Types:** `IconTarget` enum (Chain, Coin, Provider), `IconKind` enum
-	  (Logo, Wordmark, LogoAndWordmark), `IconStyle` (string), `FetchType` (discriminant
-	  union: `url` | `png` | `zip` with respective fields), `IconFetchItem` (target, id,
-	  kind?, style?, fetch), `IconAlias` (target, fromId, toId).
-	- **Reuse:** `id` for chains uses `ChainId` (from `networks.ts`); coin/provider id
-	  as string (align with `DataSource` or token list keys where applicable).
-	- **Path helpers:** deterministic filename from id/kind/style; `chainIconPath`,
-	  `coinIconPath`, `providerIconPath` resolving to `/icons/chains|coins|providers/{filename}`.
-	- **Canonical arrays:** one array per target — e.g. `coinIconFetchItems`, `providerIconFetchItems`
-	  with `as const satisfies readonly IconFetchItem[]`; chain icon items remain in
-	  `scripts/_fetch-chain-icons.ts` as the canonical chain-only source (size/source).
-	- No duplicated type definitions; no separate schema layer outside constants.
+- **Types:** `AssetSubject` (Network, Coin, Brand), `AssetKind` (Logo, Wordmark, LogoAndWordmark),
+  `AssetStyle` (string), `FetchType` (Url | Png | Zip), `AssetSource` (subject, id, kind?, style?, fetch),
+  `AssetAlias` (subject, fromId, toId).
+- **IDs:** chains use `ChainId`; coins and brands use string (lowercase).
+- **Helpers:** `assetFilename(id, kind?, style?)`, `assetSuffix()`, `isDefaultAsset()`.
+- **Sources:** `chainAssetSources`, `chainAssetAliases`, `coinAssetSources`, `providerAssetSources`;
+  all with documented source comments (discovery: chain registries, brand kits, token lists, Simple Icons, etc.).
+- **Discovery:** Documented in file header and per-entry comments; fetch URL is source of truth.
 
 ### Output structure
 
-- Icons under `static/icons/` with subdirectories: `chains/`, `coins/`, `providers/`.
-- Naming: same suffix rule for kind/style across targets (e.g. `{id}.svg`, `{id}-wordmark.svg`).
-- Fetcher supports reusing a default SVG for testnet/alias targets.
+- Assets under `src/lib/assets/` with subdirectories: `chains/`, `coins/`, `providers/` (importable; bundled via glob).
+- Naming: `{id}.svg` or `{id}-{suffix}.svg`. Alias copy: testnet reuses mainnet default SVG when missing.
 
-### Sources and registries
+### Sync script
 
-- Coin and provider icon fetch items live in `src/constants/icons.ts` (or a single
-  registries export therefrom). Chain icon items stay in the script.
-- Prefer official brand assets or token list sources over block explorers.
-- Document source (URL/repo) in comments per entry.
+- **`scripts/_sync-assets.ts`:** Imports all sources from `src/constants/assets.ts`; writes to `src/lib/assets/{chains|coins|providers}/`.
+- Only syncs sources not yet present on disk; skips existing files (package-manager style).
+- Optional CLI arg `chain` | `coin` | `provider` to limit to one subject.
+- PNG wrapping when SVG unavailable; ZIP fetched once per URL and cached in memory.
+- Logs OK/SKIP/COPY per file; final count by directory.
 
-### Script behavior
+### URL resolution (src/lib/assets/urls.ts)
 
-- `scripts/_fetch-icons.ts` imports types and path helpers from `src/constants/icons.ts`,
-  chain items (and testnet alias list) from `scripts/_fetch-chain-icons.ts`, coin/provider
-  arrays from constants; writes to `static/icons/{chains|coins|providers}/`.
-- PNG wrapping when SVG unavailable; ZIP cache reused across assets.
-- Summary of written files and skips, grouped by target.
+- Resolved via `import.meta.glob` (eager, `?url`): `getAssetUrl(path)`, `chainAssetUrl()`, `coinAssetUrl()`, `providerAssetUrl()`.
+- No path construction at runtime; assets bundled via glob.
 
 ### Integration
 
-- UI resolves chain/coin/provider icons via the path helpers in `src/constants/icons.ts`
-  and uses local `static/icons/*` assets only (no remote URLs for these).
+- UI uses `$lib/assets/urls`: `getAssetUrl(path)` for config paths, `chainAssetUrl()` / `coinAssetUrl()` / `providerAssetUrl()` for ids.
 
 ## Acceptance criteria
 
-- [x] A shared icon fetch schema exists and is used for chains, coins, and providers.
-- [x] A generic fetch script writes assets under `static/icons/*`.
-- [x] Coin and provider icon registries exist with documented sources.
-- [x] Testnet/provider alias reuse is supported by the fetcher.
-- [x] UI icon rendering relies on local static assets for chains/coins/providers.
-- [x] `deno run -A scripts/_fetch-icons.ts` completes without errors and produces SVGs in all three directories.
+- [x] Shared schema (AssetSubject, AssetSource, FetchType) used for chains, coins, and brands.
+- [x] All sources and discovery documentation in `src/constants/assets.ts`.
+- [x] Sync script writes to `src/lib/assets/`, skips existing, runs svgo on new SVGs.
+- [x] Chain alias copy (testnet/mainnet reuse) supported.
+- [x] UI uses import-based resolution ($lib/assets/urls); no remote asset URLs.
 
 ## Testing
 
-- `deno run -A scripts/_fetch-icons.ts`
+- `deno run -A scripts/_sync-assets.ts` (all) or `... _sync-assets.ts coin`, etc.
 
 ## Status
 
-Complete. All icon data in constants: `src/constants/icons.ts` (types, path helpers, coinIconFetchItems, providerIconFetchItems); `src/constants/chain-icon-fetch-items.ts` (chainIconFetchItems, chainIconAliases). Scripts `_fetch-icons.ts` and `_fetch-chain-icons.ts` import from constants. Output under `static/icons/chains|coins|providers/`; UI uses `/icons/chains/`. Aligned with spec 045/001/042.
-
-## Output when complete
-
-`DONE`
+Complete. Schema and all sources in `src/constants/assets.ts`; URL resolution in `src/lib/assets/urls.ts`. Single script `_sync-assets.ts` syncs only missing assets; optional subject arg.

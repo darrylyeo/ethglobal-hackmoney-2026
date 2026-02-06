@@ -135,7 +135,7 @@ equivalent) on destination.
 - [x] Intent resolution: bridge intent with both chains Gateway-supported
   includes a Gateway route; selecting it opens session with
   `protocolIntent: 'gateway'` and same from/to/amount/recipient.
-- [ ] E2E (optional for first iteration): session with Gateway selected,
+- [x] E2E (optional for first iteration): session with Gateway selected,
   chain pair Gateway-supported, amount entered; balance/estimate or deposit
   step exercised (can be mocked for attestation/mint).
 
@@ -148,7 +148,7 @@ equivalent) on destination.
 - [x] Extend UnifiedProtocolRouter and BridgeAction for Gateway flow and
   execution.
 - [x] Add Gateway route to intent resolution when pair is Gateway-supported.
-- [ ] E2E for Gateway bridge flow (mock or testnet) — optional first iteration.
+- [x] E2E for Gateway bridge flow (mock or testnet) — optional first iteration.
 
 ## Status
 
@@ -156,8 +156,8 @@ Complete. Constants, API client, params, UnifiedProtocolRouter, BridgeAction
 Gateway flow (balance + deposit/instant message), intent route, and execution
 path (deposit via Gateway Wallet when needed, wait for balance, build/sign burn
 intent EIP-712, create transfer attestation, gatewayMint on destination; status
-and errors in GatewayBridgeFlow + GatewayExecution). E2E optional for first
-iteration.
+and errors in GatewayBridgeFlow + GatewayExecution). E2E: e2e/gateway-bridge.test.ts
+with addGatewayMocks; selectProtocolOption extended for Gateway.
 
 ## Output when complete
 
