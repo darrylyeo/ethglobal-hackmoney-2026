@@ -1,5 +1,5 @@
 import type { ChainId } from '$/constants/networks'
-import type { EthLog } from '$/api/voltaire'
+import type { EvmLog } from '$/api/voltaire'
 
 export type ChainTransaction$Id = {
 	chainId: ChainId
@@ -10,8 +10,18 @@ export type ChainTransactionEntry = {
 	$id: ChainTransaction$Id
 	blockNumber: number
 	blockHash: string
+	transactionIndex?: number
 	from: string
 	to: string | null
 	value: string
-	logs: EthLog[]
+	nonce?: number
+	input?: string
+	gas?: bigint
+	gasPrice?: bigint
+	type?: number
+	status?: number
+	gasUsed?: bigint
+	contractAddress?: string | null
+	effectiveGasPrice?: bigint
+	logs: EvmLog[]
 }

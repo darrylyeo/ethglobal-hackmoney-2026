@@ -13,6 +13,8 @@ export enum EntityType {
 	ChannelProposal = 'ChannelProposal',
 	Coin = 'Coin',
 	DashboardPanel = 'DashboardPanel',
+	DialogueTree = 'DialogueTree',
+	DialogueTurn = 'DialogueTurn',
 	Network = 'Network',
 	Room = 'Room',
 	RoomPeer = 'RoomPeer',
@@ -96,6 +98,18 @@ export const entityTypes = [
 		label: 'Panel',
 		labelPlural: 'Panels',
 		inGraph: true as const,
+	},
+	{
+		type: EntityType.DialogueTree,
+		label: 'Dialogue',
+		labelPlural: 'Dialogues',
+		inGraph: false as const,
+	},
+	{
+		type: EntityType.DialogueTurn,
+		label: 'Turn',
+		labelPlural: 'Turns',
+		inGraph: false as const,
 	},
 	{
 		type: EntityType.Network,
