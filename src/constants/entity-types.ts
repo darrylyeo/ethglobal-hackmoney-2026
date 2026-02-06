@@ -2,4 +2,4 @@ export {
 	EntityType,
 	entityTypes,
 	type GraphSceneEntityType,
-} from '$/data/$EntityType'
+} from '$/data/$EntityType.ts'
