@@ -12,7 +12,7 @@ function collectInitialPaths(manifest, pathByBasename, pathToEntry) {
 	)
 	const node0 = Object.values(manifest).find((e) => e.name === 'nodes/0')
 	const node2 = Object.values(manifest).find((e) => e.name === 'nodes/2')
-	const startPaths = [appEntry, node0, node2]
+	const startPaths = [appEntry, node0, node2, ]
 		.filter(Boolean)
 		.map((e) => path.join(clientDir, e.file))
 
@@ -91,7 +91,7 @@ let total = 0
 for (const f of paths) {
 	if (!fs.existsSync(f)) continue
 	const buf = fs.readFileSync(f)
-	total += zlib.gzipSync(buf, { level: 9 }).length
+	total += zlib.gzipSync(buf, { level: 9, }).length
 }
 
 const kb = (total / 1024).toFixed(1)

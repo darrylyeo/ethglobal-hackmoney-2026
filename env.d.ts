@@ -1,11 +1,11 @@
 interface ObjectConstructor {
-	keys<T extends Record<PropertyKey, unknown>>(obj: T): Array<keyof T>
+	keys<T extends Record<PropertyKey, unknown>>(obj: T): (keyof T)[]
 
-	values<T extends Record<PropertyKey, unknown>>(obj: T): Array<T[keyof T]>
+	values<T extends Record<PropertyKey, unknown>>(obj: T): (T[keyof T])[]
 
 	entries<T extends Record<PropertyKey, unknown>>(
 		obj: T,
-	): Array<{ [K in keyof T]: [K, T[K]] }[keyof T]>
+	): ({ [K in keyof T]: [K, T[K]] }[keyof T])[]
 
 	fromEntries<K extends PropertyKey, V>(
 		entries: ReadonlyArray<readonly [K, V]>,
@@ -20,8 +20,7 @@ interface Array<T> {
 }
 
 interface ImportMetaEnv {
-	readonly PUBLIC_E2E_TEVM?: string
-	readonly PUBLIC_E2E_TEVM_RPC_URL?: string
+	readonly PUBLIC_TEVM_RPC_URL?: string
 	readonly PUBLIC_LLM_API_KEY?: string
 	readonly PUBLIC_LLM_ENDPOINT?: string
 	readonly PUBLIC_PARTYKIT_HOST?: string

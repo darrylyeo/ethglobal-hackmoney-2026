@@ -23,7 +23,7 @@ function runLighthouse(baseUrl) {
 	try {
 		execSync(
 			`deno run -A npm:lighthouse "${url}" --output=json --output-path="${reportPath}" --only-categories=performance --form-factor=mobile --chrome-flags="--headless --no-sandbox --disable-gpu"`,
-			{ stdio: 'inherit', maxBuffer: 10 * 1024 * 1024 },
+			{ stdio: 'inherit', maxBuffer: 10 * 1024 * 1024, },
 		)
 		return true
 	} catch (e) {

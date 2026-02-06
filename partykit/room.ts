@@ -231,10 +231,10 @@ export default class RoomServer implements Party.Server {
 			peerId,
 			displayName: undefined,
 			joinedAt: now,
-			lastSeenAt: now,
-			connectedAt: now,
-			isConnected: true,
-		}
+		lastSeenAt: now,
+		connectedAt: now,
+		isConnected: true,
+	}
 		const existingIdx = state.peers.findIndex((p) => p.peerId === peerId)
 		if (existingIdx >= 0) {
 			const existing = state.peers[existingIdx]

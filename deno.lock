@@ -11,7 +11,7 @@
     "npm:@axe-core/playwright@^4.11.0": "4.11.0_playwright-core@1.57.0",
     "npm:@erc7824/nitrolite@~0.5.3": "0.5.3_typescript@5.9.3_zod@3.25.76",
     "npm:@floating-ui/dom@^1.7.5": "1.7.5",
-    "npm:@lifi/sdk@^3.15.4": "3.15.4_@solana+wallet-adapter-base@0.9.27__@solana+web3.js@1.98.4___typescript@5.9.3__typescript@5.9.3_@solana+web3.js@1.98.4__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_bs58@6.0.0_typescript@5.9.3",
+    "npm:@lifi/sdk@^3.15.4": "3.15.4_@solana+wallet-adapter-base@0.9.27__@solana+web3.js@1.98.4___typescript@5.9.3__typescript@5.9.3_@solana+web3.js@1.98.4__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3_bs58@6.0.0_typescript@5.9.3",
     "npm:@playwright/test@*": "1.57.0",
     "npm:@playwright/test@1.57.0": "1.57.0",
     "npm:@sigma/edge-curve@^3.1.0": "3.1.0_sigma@3.0.2__graphology-types@0.24.8_graphology-types@0.24.8",
@@ -29,6 +29,7 @@
     "npm:@total-typescript/ts-reset@*": "0.6.1",
     "npm:@types/dom-chromium-ai@^0.0.13": "0.0.13",
     "npm:@types/three@0.182": "0.182.0",
+    "npm:@types/ws@^8.18.1": "8.18.1",
     "npm:@wonderland/interop-addresses@0.3": "0.3.0_typescript@5.9.3_zod@3.24.3",
     "npm:ai@^6.0.73": "6.0.73_zod@4.3.6",
     "npm:arktype@^2.1.29": "2.1.29",
@@ -54,17 +55,19 @@
     "npm:style-to-object@^1.0.14": "1.0.14",
     "npm:svelte-check@^4.3.4": "4.3.5_svelte@5.46.1__acorn@8.15.0_typescript@5.9.3",
     "npm:svelte@^5.45.6": "5.46.1_acorn@8.15.0",
+    "npm:svgo@*": "4.0.0",
     "npm:svgo@4": "4.0.0",
     "npm:tabbable@^6.4.0": "6.4.0",
-    "npm:tevm@^1.0.0-next.149": "1.0.0-next.149_@tevm+ts-plugin@1.0.0-next.148__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+    "npm:tevm@^1.0.0-next.149": "1.0.0-next.149_@tevm+ts-plugin@1.0.0-next.148__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
     "npm:three@0.182": "0.182.0",
     "npm:typescript@^5.9.3": "5.9.3",
     "npm:uqr@~0.1.2": "0.1.2",
-    "npm:viem@^2.45.1": "2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+    "npm:viem@^2.45.1": "2.45.1_typescript@5.9.3_ws@8.18.3",
     "npm:vite-plugin-devtools-json@1": "1.0.0_vite@7.3.0__picomatch@4.0.3",
     "npm:vite@^7.2.6": "7.3.0_picomatch@4.0.3",
     "npm:vitest@*": "4.0.18_vite@7.3.0__picomatch@4.0.3",
-    "npm:vitest@^4.0.18": "4.0.18_vite@7.3.0__picomatch@4.0.3"
+    "npm:vitest@^4.0.18": "4.0.18_vite@7.3.0__picomatch@4.0.3",
+    "npm:ws@^8.19.0": "8.19.0_bufferutil@4.1.0_utf-8-validate@5.0.10"
   },
   "jsr": {
     "@std/assert@1.0.18": {
@@ -579,7 +582,7 @@
       "integrity": "sha512-6bKQHt43D5ilIWJrhyOy7nYcniEZidq/ApOQ4WBqp5zzH+Bo8hWYl5sHmZ55DVSiNDfAEnthvzxmlEvNdVI5Xw==",
       "dependencies": [
         "abitype@1.2.3_typescript@5.9.3_zod@3.25.76",
-        "viem@2.45.1_typescript@5.9.3_zod@3.25.76_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+        "viem@2.45.1_typescript@5.9.3_zod@3.25.76_ws@8.18.3",
         "zod@3.25.76"
       ]
     },
@@ -1202,7 +1205,7 @@
         "@lezer/common"
       ]
     },
-    "@lifi/sdk@3.15.4_@solana+wallet-adapter-base@0.9.27__@solana+web3.js@1.98.4___typescript@5.9.3__typescript@5.9.3_@solana+web3.js@1.98.4__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_bs58@6.0.0_typescript@5.9.3": {
+    "@lifi/sdk@3.15.4_@solana+wallet-adapter-base@0.9.27__@solana+web3.js@1.98.4___typescript@5.9.3__typescript@5.9.3_@solana+web3.js@1.98.4__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3_bs58@6.0.0_typescript@5.9.3": {
       "integrity": "sha512-6/BrtIie/EE1hBFYCLJvkEwR2tMUW9oQZqNfcA1h5V8+cXhoTFwaXhm2qCQLknY9U40ooZtdw1kUyFbBom7WCQ==",
       "dependencies": [
         "@bigmi/core",
@@ -1216,13 +1219,13 @@
         "bech32",
         "bitcoinjs-lib",
         "bs58@6.0.0",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
     "@lifi/types@17.57.0_typescript@5.9.3": {
       "integrity": "sha512-zfLyJIJfNr9dvIxfsVkhXRZvh7+rZ9o1gUTgHs2MPtf5dLMhUrHY6DdE1qejw7ckBRkJCZ2wXM5sQ19yRsPOUw==",
       "dependencies": [
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
     "@marijn/find-cluster-break@1.0.2": {
@@ -1356,31 +1359,31 @@
     "@polka/url@1.0.0-next.29": {
       "integrity": "sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww=="
     },
-    "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10": {
+    "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3": {
       "integrity": "sha512-ins3XXzm+2jMGa0aTc1N10JG0Sau9Vvk71llOatkEOkncMne9m/mMYxJsV6WfRaZGlo4FB8OoRM6DVPHZlRGHA==",
       "dependencies": [
         "typescript",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ],
       "optionalPeers": [
         "typescript"
       ]
     },
-    "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6": {
+    "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3_zod@4.3.6": {
       "integrity": "sha512-ins3XXzm+2jMGa0aTc1N10JG0Sau9Vvk71llOatkEOkncMne9m/mMYxJsV6WfRaZGlo4FB8OoRM6DVPHZlRGHA==",
       "dependencies": [
         "typescript",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10_zod@4.3.6"
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3_zod@4.3.6"
       ],
       "optionalPeers": [
         "typescript"
       ]
     },
-    "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6": {
+    "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6": {
       "integrity": "sha512-ins3XXzm+2jMGa0aTc1N10JG0Sau9Vvk71llOatkEOkncMne9m/mMYxJsV6WfRaZGlo4FB8OoRM6DVPHZlRGHA==",
       "dependencies": [
         "typescript",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ],
       "optionalPeers": [
         "typescript"
@@ -1803,64 +1806,64 @@
         "svelte"
       ]
     },
-    "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3": {
+    "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_zod@4.3.6_typescript@5.9.3": {
       "integrity": "sha512-cFM2HVYg/rXykL83QFGqIU6Eg7M1d0/O67f2tbrakQAJOpMRzW3lwEDjpuRp154t4aPwrmGDOzQCI3DAH94tng==",
       "dependencies": [
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3",
         "zod@4.3.6"
       ]
     },
-    "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3": {
+    "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3": {
       "integrity": "sha512-cFM2HVYg/rXykL83QFGqIU6Eg7M1d0/O67f2tbrakQAJOpMRzW3lwEDjpuRp154t4aPwrmGDOzQCI3DAH94tng==",
       "dependencies": [
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3",
         "zod@4.3.6"
       ]
     },
-    "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-yBPMy8DbveoM/+lyvYtS+Pjdehi3la9Ppxtt7+YMwDkmZZlcx53Ws1qByIaaiDjFsq0ZhWHGSagOfpUS3kRjDg==",
       "dependencies": [
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-yBPMy8DbveoM/+lyvYtS+Pjdehi3la9Ppxtt7+YMwDkmZZlcx53Ws1qByIaaiDjFsq0ZhWHGSagOfpUS3kRjDg==",
       "dependencies": [
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
     "@tevm/base-bundler@1.0.0-next.149": {
@@ -1879,54 +1882,54 @@
         "solidity-ast"
       ]
     },
-    "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-HQbwKIaoWzXGdAfSR7SyhMHP+0Dx6ObRL4ealAU7zpfd3PqQIB4Ga7hIDDxox0YYkaNmFvJKKq3jjKdplk7FrQ==",
       "dependencies": [
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/rlp",
         "@tevm/trie",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3"
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3"
       ]
     },
-    "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-HQbwKIaoWzXGdAfSR7SyhMHP+0Dx6ObRL4ealAU7zpfd3PqQIB4Ga7hIDDxox0YYkaNmFvJKKq3jjKdplk7FrQ==",
       "dependencies": [
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/rlp",
         "@tevm/trie",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6"
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6"
       ]
     },
-    "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-y7evKF2TVtYNCjM3744R6eVQyeoyhdo4J4eOH4IdMpR4YIfoa1QueJ7vNftvzp0BHhjMRoz8WXdTZrUwsh9lYw==",
       "dependencies": [
         "@ethereumjs/blockchain",
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/logger",
         "@tevm/trie",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-y7evKF2TVtYNCjM3744R6eVQyeoyhdo4J4eOH4IdMpR4YIfoa1QueJ7vNftvzp0BHhjMRoz8WXdTZrUwsh9lYw==",
       "dependencies": [
         "@ethereumjs/blockchain",
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/logger",
         "@tevm/trie",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
     "@tevm/bun-plugin@1.0.0-next.148": {
@@ -1955,19 +1958,19 @@
         "typescript"
       ]
     },
-    "@tevm/cli@1.0.0-next.148_react@19.2.4_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_ink@6.6.0__react@19.2.4_typescript@5.9.3": {
+    "@tevm/cli@1.0.0-next.148_react@19.2.4_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_ink@6.6.0__react@19.2.4_typescript@5.9.3": {
       "integrity": "sha512-mMXqaoN8RY3NMl+9rLTIEx4nuqtfGxfhdBuWq4Z7OUU9aZlXlUg3sa3lqx7KweAHcAfV9XlY7zPuJJcW3H7csQ==",
       "dependencies": [
         "@tanstack/react-query",
-        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
+        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
         "@tevm/base-bundler",
         "@tevm/bundler-cache",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/config",
-        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/server@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/server@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@types/glob",
         "@types/json-bigint",
         "effect@3.18.1",
@@ -1983,47 +1986,47 @@
         "pastel",
         "react",
         "solc",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3",
         "zod@4.3.6",
         "zustand"
       ],
       "bin": true
     },
-    "@tevm/client-types@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/client-types@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-GOgZ38g/zRlb2jYOEBnZjZ9FmkiWb3pHcBPIWerNgPbLpkD3pPDHkxuTQ0Xw6Q5qqtJRFe4P++rAIDFNpCDh8g==",
       "dependencies": [
-        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3"
+        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3"
       ]
     },
-    "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-JFi0FJRsSjR8lEeS5U2CYM8u5HZh0mijZADjHjh89yohfV4SATolHJ5wdKGkoa4Y4HGA+qXs62BX7HsgKFj/TA==",
       "dependencies": [
         "@ethereumjs/common",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/logger",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-JFi0FJRsSjR8lEeS5U2CYM8u5HZh0mijZADjHjh89yohfV4SATolHJ5wdKGkoa4Y4HGA+qXs62BX7HsgKFj/TA==",
       "dependencies": [
         "@ethereumjs/common",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/logger",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
-    "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-JFi0FJRsSjR8lEeS5U2CYM8u5HZh0mijZADjHjh89yohfV4SATolHJ5wdKGkoa4Y4HGA+qXs62BX7HsgKFj/TA==",
       "dependencies": [
         "@ethereumjs/common",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/logger",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
     "@tevm/compiler@1.0.0-next.148": {
@@ -2048,45 +2051,45 @@
         "zod@4.3.6"
       ]
     },
-    "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-mMkiO4cg5XggXW+ihsw5L5IW3KuImOZgNE756VTAEN8jexpSXR+XyCTADyxSZKdDFsrKkaqHtRwo559bTDE1IA==",
       "dependencies": [
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3"
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3"
       ]
     },
-    "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-mMkiO4cg5XggXW+ihsw5L5IW3KuImOZgNE756VTAEN8jexpSXR+XyCTADyxSZKdDFsrKkaqHtRwo559bTDE1IA==",
       "dependencies": [
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6"
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6"
       ]
     },
-    "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-gopWEBlub28wBDZ0XZb3O5bFtblh+lBNE/Srf1hSvr2sYrt6xTLXf098vnJMQbCZAV/nRlTRjZg1kKlXVCa9+A==",
       "dependencies": [
-        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3": {
+    "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_zod@4.3.6_typescript@5.9.3": {
       "integrity": "sha512-gopWEBlub28wBDZ0XZb3O5bFtblh+lBNE/Srf1hSvr2sYrt6xTLXf098vnJMQbCZAV/nRlTRjZg1kKlXVCa9+A==",
       "dependencies": [
-        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
-    "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3": {
+    "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3": {
       "integrity": "sha512-gopWEBlub28wBDZ0XZb3O5bFtblh+lBNE/Srf1hSvr2sYrt6xTLXf098vnJMQbCZAV/nRlTRjZg1kKlXVCa9+A==",
       "dependencies": [
-        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
     "@tevm/effect@1.0.0-next.148": {
@@ -2097,25 +2100,25 @@
         "resolve"
       ]
     },
-    "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-/VspnlMGtHPtT6AYJX2xSBLK+kohNvC3gX872q13YH7/XtiVmrJVlsa6zrpD1Uw4Ln567yoLfGYI2SelYkFY3w==",
       "dependencies": [
         "@ethereumjs/evm",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-/VspnlMGtHPtT6AYJX2xSBLK+kohNvC3gX872q13YH7/XtiVmrJVlsa6zrpD1Uw4Ln567yoLfGYI2SelYkFY3w==",
       "dependencies": [
         "@ethereumjs/evm",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
-    "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-/VspnlMGtHPtT6AYJX2xSBLK+kohNvC3gX872q13YH7/XtiVmrJVlsa6zrpD1Uw4Ln567yoLfGYI2SelYkFY3w==",
       "dependencies": [
         "@ethereumjs/evm",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
     "@tevm/esbuild-plugin@1.0.0-next.148": {
@@ -2124,62 +2127,62 @@
         "@tevm/unplugin"
       ]
     },
-    "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-r92OtsI3oE996AZw1xpbgbpwZYZYAtLAs3CzuQXTz2PjpW2jNFbrcN3VCQz3/f1rzCO7dOXRfqQfYbO60mROaA==",
       "dependencies": [
         "@ethereumjs/evm",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/logger",
-        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3"
+        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3"
       ]
     },
-    "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-r92OtsI3oE996AZw1xpbgbpwZYZYAtLAs3CzuQXTz2PjpW2jNFbrcN3VCQz3/f1rzCO7dOXRfqQfYbO60mROaA==",
       "dependencies": [
         "@ethereumjs/evm",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/logger",
-        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6"
+        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6"
       ]
     },
-    "@tevm/http-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/http-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-XMHnVR/YeJiTbWx5/sVu4tbgQ2nxeQxWjcYMcoxppO/k/NAh1v5IAfCBVp5W1aaTvfUXZfykoXUIPnsZ7sedNA==",
       "dependencies": [
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/viem",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-e+Sln2MzdjvdgRpbu5iGui8YNbUo/riPMu+BSu5feCnVurEtCo0RYZ6ineOK1j2pKSIan3d9aAHqvwFlGJIsbQ==",
       "dependencies": [
-        "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3",
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-e+Sln2MzdjvdgRpbu5iGui8YNbUo/riPMu+BSu5feCnVurEtCo0RYZ6ineOK1j2pKSIan3d9aAHqvwFlGJIsbQ==",
       "dependencies": [
-        "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3_zod@4.3.6",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
-    "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-e+Sln2MzdjvdgRpbu5iGui8YNbUo/riPMu+BSu5feCnVurEtCo0RYZ6ineOK1j2pKSIan3d9aAHqvwFlGJIsbQ==",
       "dependencies": [
-        "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
     "@tevm/logger@1.0.0-next.148": {
@@ -2188,160 +2191,160 @@
         "pino"
       ]
     },
-    "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-4aMYnKMJtGXdmZDAuNpoYuu+InK1QOZ6eIGMzzkcgwOHyOSSzaq3eMbyHLQ4hDYxgQPDbSRHYmy5l8ltymce8A==",
       "dependencies": [
-        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "kzg-wasm",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3",
         "vitest@3.2.4_vite@7.3.0__picomatch@4.0.3"
       ]
     },
-    "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3": {
+    "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_zod@4.3.6_typescript@5.9.3": {
       "integrity": "sha512-4aMYnKMJtGXdmZDAuNpoYuu+InK1QOZ6eIGMzzkcgwOHyOSSzaq3eMbyHLQ4hDYxgQPDbSRHYmy5l8ltymce8A==",
       "dependencies": [
-        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "kzg-wasm",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3",
         "vitest@3.2.4_vite@7.3.0__picomatch@4.0.3"
       ]
     },
-    "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3": {
+    "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3": {
       "integrity": "sha512-4aMYnKMJtGXdmZDAuNpoYuu+InK1QOZ6eIGMzzkcgwOHyOSSzaq3eMbyHLQ4hDYxgQPDbSRHYmy5l8ltymce8A==",
       "dependencies": [
-        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "kzg-wasm",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3",
         "vitest@3.2.4_vite@7.3.0__picomatch@4.0.3"
       ]
     },
-    "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-xzMjuUgzTlGzryJfoNqlfqAWJHDgHlNJSj4zuHiK/24dJXWN0Gs3jsHln4bASZJhn+1IPT/qSNfifrwBeNZ9ug==",
       "dependencies": [
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/logger",
-        "@tevm/precompiles@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/sync-storage-persister@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/precompiles@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/sync-storage-persister@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-xzMjuUgzTlGzryJfoNqlfqAWJHDgHlNJSj4zuHiK/24dJXWN0Gs3jsHln4bASZJhn+1IPT/qSNfifrwBeNZ9ug==",
       "dependencies": [
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/logger",
-        "@tevm/precompiles@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/sync-storage-persister@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/precompiles@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/sync-storage-persister@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
-    "@tevm/precompiles@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/precompiles@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-uteo0jtWqNe5B1PJUPX5vMfk4PvLKJo+hDcHnB1/XOAmnq4eawA6czbcDZC/gRZbZzE8Gjb3tT2+MD8oBUJEIw==",
       "dependencies": [
         "@noble/curves@2.0.1",
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3"
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3"
       ]
     },
-    "@tevm/precompiles@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/precompiles@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-uteo0jtWqNe5B1PJUPX5vMfk4PvLKJo+hDcHnB1/XOAmnq4eawA6czbcDZC/gRZbZzE8Gjb3tT2+MD8oBUJEIw==",
       "dependencies": [
         "@noble/curves@2.0.1",
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6"
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6"
       ]
     },
-    "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-h95fBhVIsADvbkVIkZ8kWxXnmmhPc6bCTtgL224or3OjFvrJIjV6OfiNR6thmmRQiZmybApg0qpbyeA9jNRmvw==",
       "dependencies": [
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3"
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3"
       ]
     },
-    "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-h95fBhVIsADvbkVIkZ8kWxXnmmhPc6bCTtgL224or3OjFvrJIjV6OfiNR6thmmRQiZmybApg0qpbyeA9jNRmvw==",
       "dependencies": [
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6"
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6"
       ]
     },
-    "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-81ScweBmdzZET8HZ0CIWnzof7t4T0TMrEkrO1syARIpcKuvuhsoyIrkCEFmUbU7T/TxAeHGMFVep7skT1me2ZA==",
       "dependencies": [
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/rlp",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3"
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3"
       ]
     },
-    "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-81ScweBmdzZET8HZ0CIWnzof7t4T0TMrEkrO1syARIpcKuvuhsoyIrkCEFmUbU7T/TxAeHGMFVep7skT1me2ZA==",
       "dependencies": [
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/rlp",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6"
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6"
       ]
     },
     "@tevm/resolutions@1.0.0-next.148": {
@@ -2380,27 +2383,27 @@
         "effect@3.18.1"
       ]
     },
-    "@tevm/server@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/server@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-cdDpFT/Ci+jQFkuor7yQKUVh0m6S/j9631RLZGaBGN034J9d3tM98F0f2/NI+60Fqa/2JFB5ytl6TFJApyF/MQ==",
       "dependencies": [
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "zod@4.3.6"
       ]
     },
-    "@tevm/server@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/server@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-cdDpFT/Ci+jQFkuor7yQKUVh0m6S/j9631RLZGaBGN034J9d3tM98F0f2/NI+60Fqa/2JFB5ytl6TFJApyF/MQ==",
       "dependencies": [
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "zod@4.3.6"
       ]
     },
@@ -2411,68 +2414,68 @@
         "@tevm/tsupconfig"
       ]
     },
-    "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-by8U3/fAGKf8HTdRAANePMwGdzDLb+Kz5shH0+p5Qd4BOef70/7Cwy/HovwF4gAFA59GsAQrE51ZSPIWJzfqwg==",
       "dependencies": [
         "@ethereumjs/statemanager",
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/logger",
         "@tevm/rlp",
-        "@tevm/test-utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/test-utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "ethereum-cryptography@3.2.0",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-by8U3/fAGKf8HTdRAANePMwGdzDLb+Kz5shH0+p5Qd4BOef70/7Cwy/HovwF4gAFA59GsAQrE51ZSPIWJzfqwg==",
       "dependencies": [
         "@ethereumjs/statemanager",
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/logger",
         "@tevm/rlp",
-        "@tevm/test-utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/test-utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "ethereum-cryptography@3.2.0",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
-    "@tevm/sync-storage-persister@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/sync-storage-persister@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-UHqWFKpHKDzRcb09J8Qo49z2x0wTl4YSCKkwz1pUNpRrOjuiqcVywh/Q+3iwvWC88gxSWsrIG7kQz1Iave6v/Q==",
       "dependencies": [
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3"
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3"
       ]
     },
-    "@tevm/sync-storage-persister@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/sync-storage-persister@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-UHqWFKpHKDzRcb09J8Qo49z2x0wTl4YSCKkwz1pUNpRrOjuiqcVywh/Q+3iwvWC88gxSWsrIG7kQz1Iave6v/Q==",
       "dependencies": [
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6"
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6"
       ]
     },
-    "@tevm/test-utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/test-utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-K86d7NO12S3Us5TD92nma5jbvQK/ovwX1uu3CUsBBy+WS25Dz0FC9Lw4+5aI/EM198FP4CfdCe7O9Qt6Pk8tsw==",
       "dependencies": [
         "@openzeppelin/contracts",
-        "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/esbuild-plugin",
         "@tevm/ts-plugin",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/test-utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/test-utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-K86d7NO12S3Us5TD92nma5jbvQK/ovwX1uu3CUsBBy+WS25Dz0FC9Lw4+5aI/EM198FP4CfdCe7O9Qt6Pk8tsw==",
       "dependencies": [
         "@openzeppelin/contracts",
-        "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@ponder/utils@0.2.17_typescript@5.9.3_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_zod@4.3.6",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/esbuild-plugin",
         "@tevm/ts-plugin",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
     "@tevm/trie@1.0.0-next.148": {
@@ -2506,47 +2509,47 @@
         "@types/node@24.10.9"
       ]
     },
-    "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-omQMr5cOVVFulrc2jFJHdlLm9Dck1uRGOHtrJO+BGHo9NaMu6vE+rhfOkUiBpGSUvxdVtgyp9eoFehnvu1MNYw==",
       "dependencies": [
         "@ethereumjs/tx",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3"
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3"
       ]
     },
-    "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-omQMr5cOVVFulrc2jFJHdlLm9Dck1uRGOHtrJO+BGHo9NaMu6vE+rhfOkUiBpGSUvxdVtgyp9eoFehnvu1MNYw==",
       "dependencies": [
         "@ethereumjs/tx",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6"
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6"
       ]
     },
-    "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-/RJ/4eJ4fl4VUk9GaCqOuNem0OyF6kkePAh/n2BjDH6KiEwQ54Wn3xknJZwZKHYHYJBzZGE0VtDGlSl86PPtnA==",
       "dependencies": [
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "qheap"
       ]
     },
-    "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-/RJ/4eJ4fl4VUk9GaCqOuNem0OyF6kkePAh/n2BjDH6KiEwQ54Wn3xknJZwZKHYHYJBzZGE0VtDGlSl86PPtnA==",
       "dependencies": [
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "qheap"
       ]
     },
@@ -2563,43 +2566,43 @@
         "zod@4.3.6"
       ]
     },
-    "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-J5uXzviEo8e2Mhp+Rpapi5fT/DO5EwNsqtJCvZKbeCWcROpTwfWR7CqEFWuU7MYf05T1sWtaqWudP7Tf/KQN7w==",
       "dependencies": [
         "@ethereumjs/evm",
         "@ethereumjs/util@10.1.1",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "abitype@1.2.3_typescript@5.9.3_zod@3.25.76",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-J5uXzviEo8e2Mhp+Rpapi5fT/DO5EwNsqtJCvZKbeCWcROpTwfWR7CqEFWuU7MYf05T1sWtaqWudP7Tf/KQN7w==",
       "dependencies": [
         "@ethereumjs/evm",
         "@ethereumjs/util@10.1.1",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "abitype@1.2.3_typescript@5.9.3_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
-    "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-J5uXzviEo8e2Mhp+Rpapi5fT/DO5EwNsqtJCvZKbeCWcROpTwfWR7CqEFWuU7MYf05T1sWtaqWudP7Tf/KQN7w==",
       "dependencies": [
         "@ethereumjs/evm",
         "@ethereumjs/util@10.1.1",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "abitype@1.2.3_typescript@5.9.3_zod@4.3.6",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
-    "@tevm/viem@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/viem@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-+EQzYbtuY2yAPjxS8nGUHt/O9Po0n4q/pzFQAHSx3KDtK8LmNmJS+jX1lH3yXcKnx0h5DJmzTqswMDcmrap8DQ==",
       "dependencies": [
-        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
     "@tevm/vite-plugin@1.0.0-next.148": {
@@ -2608,40 +2611,40 @@
         "@tevm/unplugin"
       ]
     },
-    "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-OHca31KH6soIlOaN2RyFqh9iX2QuuMdPf38W7Wlt3tBssujrq6Xwi9Mv5qXiK8BfM/ysTjoTREXv5nPNnE4Xvg==",
       "dependencies": [
         "@ethereumjs/vm",
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/rlp",
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/trie",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "eventemitter3",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ]
     },
-    "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6": {
+    "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6": {
       "integrity": "sha512-OHca31KH6soIlOaN2RyFqh9iX2QuuMdPf38W7Wlt3tBssujrq6Xwi9Mv5qXiK8BfM/ysTjoTREXv5nPNnE4Xvg==",
       "dependencies": [
         "@ethereumjs/vm",
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/rlp",
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/trie",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__zod@4.3.6__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "eventemitter3",
-        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3"
       ]
     },
     "@tevm/voltaire@0.2.28_typescript@5.9.3": {
@@ -4828,7 +4831,7 @@
         "type-fest",
         "widest-line",
         "wrap-ansi@9.0.2",
-        "ws@8.18.3_bufferutil@4.1.0_utf-8-validate@5.0.10",
+        "ws@8.19.0_bufferutil@4.1.0_utf-8-validate@5.0.10",
         "yoga-layout"
       ]
     },
@@ -4960,10 +4963,10 @@
         "ws@8.18.1"
       ]
     },
-    "isows@1.0.7_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10": {
+    "isows@1.0.7_ws@8.18.3": {
       "integrity": "sha512-I1fSfDCZL5P0v33sVqeTDSpcstAg/N+wF5HS033mogOVIp4B+oHC7oOCsA3axAbBSGTJ8QubbNmnIRN/h8U7hg==",
       "dependencies": [
-        "ws@8.18.3_bufferutil@4.1.0_utf-8-validate@5.0.10"
+        "ws@8.18.3"
       ]
     },
     "jackspeak@4.1.1": {
@@ -5196,7 +5199,7 @@
         "stoppable",
         "undici@5.29.0",
         "workerd",
-        "ws@8.18.3_bufferutil@4.1.0_utf-8-validate@5.0.10",
+        "ws@8.19.0_bufferutil@4.1.0_utf-8-validate@5.0.10",
         "youch",
         "zod@3.25.76"
       ],
@@ -5833,7 +5836,7 @@
         "buffer",
         "eventemitter3",
         "uuid@8.3.2",
-        "ws@8.18.3_bufferutil@4.1.0_utf-8-validate@5.0.10"
+        "ws@8.19.0_bufferutil@4.1.0_utf-8-validate@5.0.10"
       ],
       "optionalDependencies": [
         "bufferutil",
@@ -6323,52 +6326,52 @@
       ],
       "bin": true
     },
-    "tevm@1.0.0-next.149_@tevm+ts-plugin@1.0.0-next.148__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3": {
+    "tevm@1.0.0-next.149_@tevm+ts-plugin@1.0.0-next.148__typescript@5.9.3_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3": {
       "integrity": "sha512-3/9T8BogaN5LuqdOCkSonjyWcO7wmo+cap+jps3L3FjYl87SvcozXWLTUM4aTxS0G6HJTlJBIVEUqvvndwDKWw==",
       "dependencies": [
-        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_zod@4.3.6_typescript@5.9.3",
-        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/actions@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_zod@4.3.6_typescript@5.9.3",
+        "@tevm/address@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/base-bundler",
-        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/block@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/blockchain@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/bun-plugin",
         "@tevm/bundler-cache",
         "@tevm/cli",
         "@tevm/client-types",
-        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/common@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/compiler",
         "@tevm/config",
-        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/contract@1.0.0-next.149_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/decorators@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/errors@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/esbuild-plugin",
-        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/evm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/http-client",
-        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/precompiles@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/jsonrpc@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/memory-client@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/node@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/precompiles@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/predeploys@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/receipt-manager@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/rollup-plugin",
         "@tevm/rspack-plugin",
-        "@tevm/server@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3_zod@4.3.6",
+        "@tevm/server@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3_zod@4.3.6",
         "@tevm/solc",
-        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/sync-storage-persister@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/state@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/sync-storage-persister@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/ts-plugin",
-        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
-        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/tx@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/txpool@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
+        "@tevm/utils@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/viem",
         "@tevm/vite-plugin",
-        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3___bufferutil@4.1.0___utf-8-validate@5.0.10_typescript@5.9.3",
+        "@tevm/vm@1.0.0-next.148_viem@2.45.1__typescript@5.9.3__ws@8.18.3_typescript@5.9.3",
         "@tevm/webpack-plugin",
         "commander@14.0.2",
         "effect@3.18.1",
         "glob",
         "solc",
-        "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10"
+        "viem@2.45.1_typescript@5.9.3_ws@8.18.3"
       ],
       "bin": true
     },
@@ -6621,7 +6624,7 @@
         "typescript"
       ]
     },
-    "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10": {
+    "viem@2.45.1_typescript@5.9.3_ws@8.18.3": {
       "integrity": "sha512-LN6Pp7vSfv50LgwhkfSbIXftAM5J89lP9x8TeDa8QM7o41IxlHrDh0F9X+FfnCWtsz11pEVV5sn+yBUoOHNqYA==",
       "dependencies": [
         "@noble/curves@1.9.1",
@@ -6629,16 +6632,16 @@
         "@scure/bip32@1.7.0",
         "@scure/bip39@1.6.0",
         "abitype@1.2.3_typescript@5.9.3_zod@3.25.76",
-        "isows@1.0.7_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+        "isows@1.0.7_ws@8.18.3",
         "ox@0.11.3_typescript@5.9.3",
         "typescript",
-        "ws@8.18.3_bufferutil@4.1.0_utf-8-validate@5.0.10"
+        "ws@8.18.3"
       ],
       "optionalPeers": [
         "typescript"
       ]
     },
-    "viem@2.45.1_typescript@5.9.3_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10_zod@4.3.6": {
+    "viem@2.45.1_typescript@5.9.3_ws@8.18.3_zod@4.3.6": {
       "integrity": "sha512-LN6Pp7vSfv50LgwhkfSbIXftAM5J89lP9x8TeDa8QM7o41IxlHrDh0F9X+FfnCWtsz11pEVV5sn+yBUoOHNqYA==",
       "dependencies": [
         "@noble/curves@1.9.1",
@@ -6646,16 +6649,16 @@
         "@scure/bip32@1.7.0",
         "@scure/bip39@1.6.0",
         "abitype@1.2.3_typescript@5.9.3_zod@3.25.76_zod@4.3.6",
-        "isows@1.0.7_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+        "isows@1.0.7_ws@8.18.3",
         "ox@0.11.3_typescript@5.9.3_zod@4.3.6",
         "typescript",
-        "ws@8.18.3_bufferutil@4.1.0_utf-8-validate@5.0.10"
+        "ws@8.18.3"
       ],
       "optionalPeers": [
         "typescript"
       ]
     },
-    "viem@2.45.1_typescript@5.9.3_zod@3.25.76_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10": {
+    "viem@2.45.1_typescript@5.9.3_zod@3.25.76_ws@8.18.3": {
       "integrity": "sha512-LN6Pp7vSfv50LgwhkfSbIXftAM5J89lP9x8TeDa8QM7o41IxlHrDh0F9X+FfnCWtsz11pEVV5sn+yBUoOHNqYA==",
       "dependencies": [
         "@noble/curves@1.9.1",
@@ -6663,16 +6666,16 @@
         "@scure/bip32@1.7.0",
         "@scure/bip39@1.6.0",
         "abitype@1.2.3_typescript@5.9.3_zod@3.25.76",
-        "isows@1.0.7_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+        "isows@1.0.7_ws@8.18.3",
         "ox@0.11.3_typescript@5.9.3_zod@3.25.76",
         "typescript",
-        "ws@8.18.3_bufferutil@4.1.0_utf-8-validate@5.0.10"
+        "ws@8.18.3"
       ],
       "optionalPeers": [
         "typescript"
       ]
     },
-    "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10": {
+    "viem@2.45.1_typescript@5.9.3_zod@4.3.6_ws@8.18.3": {
       "integrity": "sha512-LN6Pp7vSfv50LgwhkfSbIXftAM5J89lP9x8TeDa8QM7o41IxlHrDh0F9X+FfnCWtsz11pEVV5sn+yBUoOHNqYA==",
       "dependencies": [
         "@noble/curves@1.9.1",
@@ -6680,10 +6683,10 @@
         "@scure/bip32@1.7.0",
         "@scure/bip39@1.6.0",
         "abitype@1.2.3_typescript@5.9.3_zod@4.3.6",
-        "isows@1.0.7_ws@8.18.3__bufferutil@4.1.0__utf-8-validate@5.0.10",
+        "isows@1.0.7_ws@8.18.3",
         "ox@0.11.3_typescript@5.9.3_zod@4.3.6",
         "typescript",
-        "ws@8.18.3_bufferutil@4.1.0_utf-8-validate@5.0.10"
+        "ws@8.18.3"
       ],
       "optionalPeers": [
         "typescript"
@@ -6924,8 +6927,19 @@
     "ws@8.18.1": {
       "integrity": "sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w=="
     },
-    "ws@8.18.3_bufferutil@4.1.0_utf-8-validate@5.0.10": {
+    "ws@8.18.3": {
       "integrity": "sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==",
+      "dependencies": [
+        "bufferutil",
+        "utf-8-validate"
+      ],
+      "optionalPeers": [
+        "bufferutil",
+        "utf-8-validate"
+      ]
+    },
+    "ws@8.19.0_bufferutil@4.1.0_utf-8-validate@5.0.10": {
+      "integrity": "sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==",
       "dependencies": [
         "bufferutil",
         "utf-8-validate"
@@ -7022,6 +7036,7 @@
         "npm:@threlte/core@^8.3.1",
         "npm:@types/dom-chromium-ai@^0.0.13",
         "npm:@types/three@0.182",
+        "npm:@types/ws@^8.18.1",
         "npm:@wonderland/interop-addresses@0.3",
         "npm:ai@^6.0.73",
         "npm:arktype@^2.1.29",
@@ -7047,7 +7062,8 @@
         "npm:viem@^2.45.1",
         "npm:vite-plugin-devtools-json@1",
         "npm:vite@^7.2.6",
-        "npm:vitest@^4.0.18"
+        "npm:vitest@^4.0.18",
+        "npm:ws@^8.19.0"
       ]
     }
   }

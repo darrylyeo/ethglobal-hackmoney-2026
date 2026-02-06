@@ -114,11 +114,9 @@ const client = new NitroliteClient({
 	addresses: {
 		custody: '0x019B65A265EB3363822f2752141b3dF16131b262',
 		adjudicator: '0x7c7ccbc98469190849BCC6c926307794fDfB11F2',
-		,
 	},
 	chainId: sepolia.id,
 	challengeDuration: 3600n, // 1 hour challenge period
-	,
 })
 console.log('✓ Client initialized')
 console.log('  Wallet Address:', account.address)
