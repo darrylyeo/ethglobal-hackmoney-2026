@@ -17,7 +17,8 @@ Deno.test('sharedAddressKey share with specific peers', () => {
 })
 
 Deno.test('sharedAddressKey normalizes address to lowercase', () => {
-	const k1 = sharedAddressKey('R', 'p', '0xABCDEF', null)
-	const k2 = sharedAddressKey('R', 'p', '0xabcdef', null)
-	assertEquals(k1, k2)
+	assertEquals(
+		sharedAddressKey('R', 'p', '0xABCDEF', null),
+		sharedAddressKey('R', 'p', '0xabcdef', null),
+	)
 })
