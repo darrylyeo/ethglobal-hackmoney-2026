@@ -5,5 +5,6 @@ export type EntityRef = {
 	entityId: string
 	displayLabel: string
 	/** Trigger character for this reference (e.g. '@', '#'); used for display and parsing. */
-	trigger?: string
+	trigger?: string,
 }
+
