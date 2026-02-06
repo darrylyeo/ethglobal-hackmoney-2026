@@ -2,8 +2,8 @@
  * Stork endpoints, asset registry, and pushed assets.
  */
 
-import { ChainId } from '$/constants/networks'
 import type { Coin, Erc20Token } from '$/constants/coins'
+import { ChainId } from '$/constants/networks'
 
 export enum StorkApiRegion {
 	Jp = 'Jp',
@@ -515,15 +515,17 @@ export const storkAssets = [
 	},
 ] as const satisfies readonly StorkAsset[]
 
-export const storkEncodedAssetIdByAssetId = Object.fromEntries(
-	storkAssets.map((asset) => [asset.assetId, asset.encodedAssetId]),
-) satisfies Record<string, string>
+export const storkEncodedAssetIdByAssetId: Record<string, string> =
+	Object.fromEntries(
+		storkAssets.map((asset) => [asset.assetId, asset.encodedAssetId]),
+	)
 
-export const storkAssetIdByTokenSymbol = Object.fromEntries(
-	storkAssets
-		.filter((asset) => asset.quoteSymbol === 'USD')
-		.map((asset) => [asset.baseSymbol, asset.assetId]),
-) satisfies Record<string, string>
+export const storkAssetIdByTokenSymbol: Record<string, string> =
+	Object.fromEntries(
+		storkAssets
+			.filter((asset) => asset.quoteSymbol === 'USD')
+			.map((asset) => [asset.baseSymbol, asset.assetId]),
+	)
 
 // TODO: add ChainId entries for EDU Chain, Fuel, Mitosis, and TAC.
 export const storkNetworkDeployments = [
@@ -1411,7 +1413,10 @@ const storkAssetChainEntries: [StorkAsset['assetId'], ChainId][] =
 	storkPushedAssets.flatMap((asset) => {
 		const key = `${asset.network}:${asset.environment}`
 		const config = storkNetworkDeploymentByKey[key]
-		const chainId = config?.oracleChainId ?? config?.chainId
+		const chainId =
+			(config != null && 'oracleChainId' in config && config.oracleChainId != null
+				? config.oracleChainId
+				: config?.chainId ?? null) as ChainId | null
 		return chainId == null ? [] : [[asset.assetId, chainId]]
 	})
 

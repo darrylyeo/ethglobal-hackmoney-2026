@@ -89,6 +89,18 @@ export type NetworkConfig = {
 	icon?: string
 }
 
+export type MainnetTestnetMapping = {
+	mainnetChainId: ChainId
+	testnetChainId: ChainId
+}
+
+export type ParsedNetworkParam = {
+	chainId: ChainId
+	config: NetworkConfig
+	slug: string
+	caip2: string
+}
+
 export const networkConfigs: readonly NetworkConfig[] = [
 	{
 		chainId: ChainId.Ethereum,
@@ -397,7 +409,7 @@ export const networks: readonly Network[] = networkConfigs.map((config) => ({
 	type: config.type,
 }))
 
-export const networkConfigsByChainId: Partial<Record<ChainId, NetworkConfig>> =
+export const networkConfigsByChainId: Partial<Record<number, NetworkConfig>> =
 	Object.fromEntries(networkConfigs.map((config) => [config.chainId, config]))
 
 /**
@@ -422,13 +434,8 @@ export const getAverageTransactionsPerBlock = (chainId: ChainId): number =>
 	averageTransactionsPerBlockByChainId[chainId] ??
 	DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK
 
-export const networksByChainId: Partial<Record<ChainId, Network>> =
+export const networksByChainId: Partial<Record<number, Network>> =
 	Object.fromEntries(networks.map((network) => [network.id, network]))
-
-export type MainnetTestnetMapping = {
-	mainnetChainId: ChainId
-	testnetChainId: ChainId
-}
 
 export const mainnetTestnetMappings: readonly MainnetTestnetMapping[] = [
 	{ mainnetChainId: ChainId.Ethereum, testnetChainId: ChainId.EthereumSepolia },
@@ -512,13 +519,6 @@ export const getNetworkByCaip2 = (caip2: string): NetworkConfig | null => {
 	const match = /^eip155:(\d+)$/.exec(caip2)
 	const chainId = match ? (Number(match[1]) as ChainId) : null
 	return chainId != null ? (networkConfigsByChainId[chainId] ?? null) : null
-}
-
-export type ParsedNetworkParam = {
-	chainId: ChainId
-	config: NetworkConfig
-	slug: string
-	caip2: string
 }
 
 /** Resolve [name] from /network/[name]: slug, eip155:chainId, or numeric chainId. */

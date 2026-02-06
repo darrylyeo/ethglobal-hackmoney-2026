@@ -1,12 +1,12 @@
 import { storkRestBaseUrl } from '$/constants/stork'
 
-export const PROXY_PATH_PREFIX = '/api-proxy/'
-
 export type ProxyTarget = {
 	id: string
 	origin: string
 	tokenEnvKey?: string
 }
+
+export const PROXY_PATH_PREFIX = '/api-proxy/'
 
 const OPENCODE_ZEN_ORIGIN = 'https://opencode.ai'
 

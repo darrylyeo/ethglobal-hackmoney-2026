@@ -25,6 +25,17 @@ export type YellowCustodyContract = {
 	address: `0x${string}`
 }
 
+export type YellowAdjudicatorContract = {
+	chainId: ChainId
+	address: `0x${string}`
+}
+
+export type YellowContractDeployment = {
+	chainId: ChainId
+	custody: `0x${string}`
+	adjudicator: `0x${string}`
+}
+
 export type YellowChallengePeriodLimitEntry = {
 	limit: YellowChallengePeriodLimit
 	seconds: number
@@ -41,9 +52,48 @@ export const yellowClearnodeEndpoints = [
 	},
 ] as const satisfies readonly YellowClearnodeEndpoint[]
 
-// TODO: populate custody contract deployments when published by Yellow.
-export const yellowCustodyContracts =
-	[] as const satisfies readonly YellowCustodyContract[]
+export const yellowContractDeployments = [
+	{
+		chainId: ChainId.Ethereum,
+		custody: '0x6F71a38d919ad713D0AfE0eB712b95064Fc2616f',
+		adjudicator: '0x7de4A0736Cf5740fD3Ca2F2e9cc85c9AC223eF0C',
+	},
+	{
+		chainId: ChainId.Polygon,
+		custody: '0x490fb189DdE3a01B00be9BA5F41e3447FbC838b6',
+		adjudicator: '0x7de4A0736Cf5740fD3Ca2F2e9cc85c9AC223eF0C',
+	},
+	{
+		chainId: ChainId.Base,
+		custody: '0x490fb189DdE3a01B00be9BA5F41e3447FbC838b6',
+		adjudicator: '0x7de4A0736Cf5740fD3Ca2F2e9cc85c9AC223eF0C',
+	},
+	{
+		chainId: ChainId.Linea,
+		custody: '0x6F71a38d919ad713D0AfE0eB712b95064Fc2616f',
+		adjudicator: '0x7de4A0736Cf5740fD3Ca2F2e9cc85c9AC223eF0C',
+	},
+	{
+		chainId: ChainId.EthereumSepolia,
+		custody: '0x019B65A265EB3363822f2752141b3dF16131b262',
+		adjudicator: '0x019B65A265EB3363822f2752141b3dF16131b262',
+	},
+	{
+		chainId: ChainId.BaseSepolia,
+		custody: '0x019B65A265EB3363822f2752141b3dF16131b262',
+		adjudicator: '0x019B65A265EB3363822f2752141b3dF16131b262',
+	},
+	{
+		chainId: ChainId.PolygonAmoy,
+		custody: '0x019B65A265EB3363822f2752141b3dF16131b262',
+		adjudicator: '0x019B65A265EB3363822f2752141b3dF16131b262',
+	},
+] as const satisfies readonly YellowContractDeployment[]
+
+export const yellowCustodyContracts = yellowContractDeployments.map((d) => ({
+	chainId: d.chainId,
+	address: d.custody,
+})) satisfies readonly YellowCustodyContract[]
 
 export const yellowChallengePeriodLimits = [
 	{
@@ -67,9 +117,15 @@ export const yellowClearnodeEndpointByEnvironment: Partial<
 )
 
 export const yellowCustodyContractByChainId: Partial<
-	Record<ChainId, `0x${string}`>
+	Record<number, `0x${string}`>
 > = Object.fromEntries(
 	yellowCustodyContracts.map((entry) => [entry.chainId, entry.address]),
+)
+
+export const yellowDeploymentByChainId: Partial<
+	Record<number, YellowContractDeployment>
+> = Object.fromEntries(
+	yellowContractDeployments.map((d) => [d.chainId, d]),
 )
 
 export const yellowChallengePeriodByLimit: Partial<

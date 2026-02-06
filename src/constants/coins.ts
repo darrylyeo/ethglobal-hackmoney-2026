@@ -2,8 +2,8 @@
  * Token entries per network from Circle USDC contract addresses.
  */
 
-import { ChainId } from '$/constants/networks'
 import type { Media } from '$/constants/media'
+import { ChainId } from '$/constants/networks'
 
 export enum CoinType {
 	Native = 'Native',
@@ -31,6 +31,10 @@ export type Erc20Token = {
 }
 
 export type Coin = NativeCurrency | Erc20Token
+
+export type CoinPageSymbol = 'USDC' | 'ETH'
+
+export const COIN_PAGE_SYMBOLS: readonly CoinPageSymbol[] = ['USDC', 'ETH']
 
 export const ercTokens = (
 	[
@@ -282,9 +286,6 @@ export const ercTokensBySymbolByChainId = Object.fromEntries(
 			Object.fromEntries(tokens.map((token) => [token.symbol, token])),
 		]),
 )
-
-export const COIN_PAGE_SYMBOLS = ['USDC', 'ETH'] as const
-export type CoinPageSymbol = (typeof COIN_PAGE_SYMBOLS)[number]
 
 export function getCoinForCoinPage(symbol: CoinPageSymbol): Coin {
 	if (symbol === 'USDC') return ercTokens[0]

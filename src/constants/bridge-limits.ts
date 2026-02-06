@@ -14,21 +14,6 @@ export type BridgeLimit = {
 	maxAmount: bigint
 }
 
-export const bridgeAssets = [
-	{
-		asset: BridgeAsset.Usdc,
-		minAmount: 1_000_000n,
-		maxAmount: 1_000_000_000_000n,
-	},
-] as const satisfies readonly BridgeLimit[]
-
-export const bridgeAssetsByAsset = Object.fromEntries(
-	bridgeAssets.map((limit) => [limit.asset, limit]),
-)
-
-export const USDC_MIN_AMOUNT = bridgeAssetsByAsset[BridgeAsset.Usdc].minAmount
-export const USDC_MAX_AMOUNT = bridgeAssetsByAsset[BridgeAsset.Usdc].maxAmount
-
 export enum AmountValidationError {
 	TooLow = 'too_low',
 	TooHigh = 'too_high',
@@ -46,6 +31,21 @@ export type RouteLimits = {
 	minAmount: bigint | null
 	maxAmount: bigint | null
 }
+
+export const bridgeAssets = [
+	{
+		asset: BridgeAsset.Usdc,
+		minAmount: 1_000_000n,
+		maxAmount: 1_000_000_000_000n,
+	},
+] as const satisfies readonly BridgeLimit[]
+
+export const bridgeAssetsByAsset = Object.fromEntries(
+	bridgeAssets.map((limit) => [limit.asset, limit]),
+)
+
+export const USDC_MIN_AMOUNT = bridgeAssetsByAsset[BridgeAsset.Usdc].minAmount
+export const USDC_MAX_AMOUNT = bridgeAssetsByAsset[BridgeAsset.Usdc].maxAmount
 
 export const validateBridgeAmount = (
 	amount: bigint,

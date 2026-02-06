@@ -5,7 +5,6 @@
  */
 
 import { DataSource } from '$/constants/data-sources'
-import type { ChainId } from '$/constants/networks'
 import { ChainId } from '$/constants/networks'
 
 export enum IdentityInputKind {
