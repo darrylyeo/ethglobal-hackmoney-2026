@@ -10,3 +10,4 @@ export type UniswapPool = {
 	liquidity: bigint
 	tick: number
 }
+
