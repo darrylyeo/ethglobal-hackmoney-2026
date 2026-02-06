@@ -4,23 +4,24 @@
  */
 
 import {
-	createCollection,
-	localOnlyCollectionOptions,
-} from '@tanstack/svelte-db'
+	type TimePeriodEntry,
+	type TransferGraph,
+	type TransfersGraphResult,
+	fetchTransfersGraphFromVoltaire,
+	TIME_PERIODS,
+} from '$/api/transfers-indexer'
 import { DataSource } from '$/constants/data-sources'
 import type { CoinPageSymbol } from '$/constants/coins'
 import {
-	fetchTransfersGraphFromVoltaire,
-	TIME_PERIODS,
-	type TransferGraph,
-	type TransfersGraphResult,
-} from '$/api/transfers-indexer'
+	createCollection,
+	localOnlyCollectionOptions,
+} from '@tanstack/svelte-db'
 
 export type TransferGraphRow = {
 	$id: { symbol: string; period: string }
 	graph: TransferGraph
 	period: string
-	periods: typeof TIME_PERIODS
+	periods: readonly TimePeriodEntry[]
 	$source: DataSource
 	isLoading: boolean
 	error: string | null
@@ -69,7 +70,9 @@ export const fetchTransferGraph = async (
 	symbol: CoinPageSymbol,
 	period: string,
 ) => {
-	const key = `${symbol}:${period}`
+	const key = `${symbol}:${period}` as unknown as Parameters<
+		typeof transferGraphsCollection.state.get
+	>[0]
 	const existing = transferGraphsCollection.state.get(key)
 
 	if (existing) {
@@ -96,17 +99,17 @@ export const fetchTransferGraph = async (
 		const result =
 			symbol === 'USDC'
 				? await withRetry(() => fetchTransfersGraphFromVoltaire(period))
-				: {
-						graph: { nodes: [], edges: [] } as TransferGraph,
-						period: periodDef.value,
-						periods: TIME_PERIODS,
-					}
+		: {
+					graph: { nodes: [], edges: [] } as TransferGraph,
+					period: periodDef.value,
+					periods: TIME_PERIODS,
+				}
 		const normalized = normalizeResult(symbol, result)
 		transferGraphsCollection.update(key, (draft) => {
 			draft.$source = DataSource.Voltaire
 			draft.graph = normalized.graph
 			draft.period = normalized.period
-			draft.periods = normalized.periods
+			draft.periods = [...normalized.periods]
 			draft.isLoading = false
 			draft.error = null
 		})
