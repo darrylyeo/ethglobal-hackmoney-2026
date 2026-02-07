@@ -35,7 +35,10 @@
 		<details open data-card>
 			<summary>
 				<header data-card data-row="wrap gap-2">
-					<AccountsSelect bind:connectedWallets bind:selectedActor />
+					<AccountsSelect
+					bind:connectedWallets
+					bind:selectedActor
+				/>
 				</header>
 			</summary>
 		</details>
@@ -55,3 +58,4 @@
 		/>
 	{/snippet}
 </Session>
+
