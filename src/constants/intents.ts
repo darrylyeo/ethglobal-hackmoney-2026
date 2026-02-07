@@ -68,6 +68,17 @@ export enum ActionType {
 	CloseChannel = 'CloseChannel',
 	AddLiquidity = 'AddLiquidity',
 	RemoveLiquidity = 'RemoveLiquidity',
+	CollectFees = 'CollectFees',
+	IncreaseLiquidity = 'IncreaseLiquidity',
+	ShareAddress = 'ShareAddress',
+	ProposeTransfer = 'ProposeTransfer',
+	RequestVerification = 'RequestVerification',
+	DepositToCustody = 'DepositToCustody',
+	WithdrawFromCustody = 'WithdrawFromCustody',
+	ResizeChannel = 'ResizeChannel',
+	CreatePool = 'CreatePool',
+	AcceptTransfer = 'AcceptTransfer',
+	RejectTransfer = 'RejectTransfer',
 }
 
 export enum Protocol {
@@ -75,6 +86,8 @@ export enum Protocol {
 	LiFi = 'LiFi',
 	Yellow = 'Yellow',
 	Cctp = 'Cctp',
+	PartyKit = 'PartyKit',
+	Gateway = 'Gateway',
 }
 
 export type ProtocolAction<
@@ -120,6 +133,46 @@ export type ProtocolActionPayload<
 			position: Record<string, unknown>
 			actor: Record<string, unknown>
 		}
+		[ActionType.CollectFees]: {
+			position: Record<string, unknown>
+			actor: Record<string, unknown>
+		}
+		[ActionType.IncreaseLiquidity]: {
+			actorCoin: Record<string, unknown>
+			position: Record<string, unknown>
+		}
+		[ActionType.ShareAddress]: {
+			actor: Record<string, unknown>
+			room: Record<string, unknown>
+		}
+		[ActionType.ProposeTransfer]: {
+			fromActorCoin: Record<string, unknown>
+			toPeer: Record<string, unknown>
+		}
+		[ActionType.RequestVerification]: {
+			actor: Record<string, unknown>
+			peer: Record<string, unknown>
+		}
+		[ActionType.DepositToCustody]: {
+			actorCoin: Record<string, unknown>
+		}
+		[ActionType.WithdrawFromCustody]: {
+			actorCoin: Record<string, unknown>
+		}
+		[ActionType.ResizeChannel]: {
+			channel: Record<string, unknown>
+			actorCoin: Record<string, unknown>
+		}
+		[ActionType.CreatePool]: {
+			token0: Record<string, unknown>
+			token1: Record<string, unknown>
+		}
+		[ActionType.AcceptTransfer]: {
+			transferRequest: Record<string, unknown>
+		}
+		[ActionType.RejectTransfer]: {
+			transferRequest: Record<string, unknown>
+		}
 	}[_ProtocolAction['action']]
 }
 
@@ -154,12 +207,25 @@ export const protocolActions = [
 	{ action: ActionType.Swap, protocol: Protocol.LiFi },
 	{ action: ActionType.Bridge, protocol: Protocol.Cctp },
 	{ action: ActionType.Bridge, protocol: Protocol.LiFi },
+	{ action: ActionType.Bridge, protocol: Protocol.Gateway },
 	{ action: ActionType.Transfer, protocol: Protocol.Yellow },
+	{ action: ActionType.Transfer, protocol: Protocol.LiFi },
 	{ action: ActionType.CreateChannel, protocol: Protocol.Yellow },
 	{ action: ActionType.AddChannelMember, protocol: Protocol.Yellow },
 	{ action: ActionType.CloseChannel, protocol: Protocol.Yellow },
 	{ action: ActionType.AddLiquidity, protocol: Protocol.UniswapV4 },
 	{ action: ActionType.RemoveLiquidity, protocol: Protocol.UniswapV4 },
+	{ action: ActionType.CollectFees, protocol: Protocol.UniswapV4 },
+	{ action: ActionType.IncreaseLiquidity, protocol: Protocol.UniswapV4 },
+	{ action: ActionType.ShareAddress, protocol: Protocol.PartyKit },
+	{ action: ActionType.ProposeTransfer, protocol: Protocol.PartyKit },
+	{ action: ActionType.RequestVerification, protocol: Protocol.PartyKit },
+	{ action: ActionType.DepositToCustody, protocol: Protocol.Yellow },
+	{ action: ActionType.WithdrawFromCustody, protocol: Protocol.Yellow },
+	{ action: ActionType.ResizeChannel, protocol: Protocol.Yellow },
+	{ action: ActionType.CreatePool, protocol: Protocol.UniswapV4 },
+	{ action: ActionType.AcceptTransfer, protocol: Protocol.PartyKit },
+	{ action: ActionType.RejectTransfer, protocol: Protocol.PartyKit },
 ] as const satisfies ProtocolAction[]
 
 export const intents: IntentDefinition[] = [
