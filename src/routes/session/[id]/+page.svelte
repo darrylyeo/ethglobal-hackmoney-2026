@@ -2,9 +2,9 @@
 
 
 	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { goto } from '$app/navigation'
 	import { page } from '$app/state'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
@@ -15,6 +15,8 @@
 	// State
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 
+
+	// (Derived)
 	const sessionId = $derived(page.params.id ?? '')
 	const sessionQuery = useLiveQuery(
 		(q) =>
@@ -34,6 +36,8 @@
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 
+
+	// Actions
 	$effect(() => {
 		if (!session) return
 		goto(`/session${buildSessionHash(session.id)}`, {
@@ -48,7 +52,11 @@
 </svelte:head>
 
 
-<main id="main" data-column data-sticky-container>
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
 	<section data-scroll-item>
 		{#if session}
 			<p data-muted>Redirecting to session…</p>
