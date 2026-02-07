@@ -32,7 +32,7 @@
 	let {
 		data = {},
 	}: {
-		data?: Record<string, unknown>
+		data?: Record<string, unknown>,
 	} = $props()
 
 	const embeddedInPanel = $derived(data?.embeddedInPanel === true)
@@ -405,8 +405,15 @@
 </svelte:head>
 
 {#if embeddedInPanel}
-	<main id="main" class="dashboard dashboard-embedded" data-sticky-container>
-		<nav data-grid="columns-autofit gap-2" aria-label="Routes">
+	<main
+		id="main"
+		class="dashboard dashboard-embedded"
+		data-sticky-container
+	>
+		<nav
+			data-grid="columns-autofit gap-2"
+			aria-label="Routes"
+		>
 			{#each panelRouteLinks as entry (entry.path)}
 				<a
 					href={resolve(buildRoutePath({ path: entry.path, params: {} }))}
@@ -418,8 +425,15 @@
 		</nav>
 	</main>
 {:else}
-	<main id="main" class="dashboard" data-sticky-container>
-		<section data-scroll-item class="dashboard-tree">
+	<main
+		id="main"
+		class="dashboard"
+		data-sticky-container
+	>
+		<section
+			data-scroll-item
+			class="dashboard-tree"
+		>
 			<PanelTree
 				{root}
 				{focusedPanelId}
