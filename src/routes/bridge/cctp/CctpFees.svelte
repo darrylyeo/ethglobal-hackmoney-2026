@@ -19,11 +19,11 @@
 		fastBps = $bindable(null as number | null),
 		standardBps = $bindable(null as number | null),
 	}: {
-		fromDomain: number | null
-		toDomain: number | null
-		apiHost: string
-		fastBps?: number | null
-		standardBps?: number | null
+		fromDomain: number | null,
+		toDomain: number | null,
+		apiHost: string,
+		fastBps?: number | null,
+		standardBps?: number | null,
 	} = $props()
 
 	// (Derived) filter by source; then pick row matching apiHost/fromDomain/toDomain
