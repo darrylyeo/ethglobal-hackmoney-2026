@@ -2,18 +2,17 @@
 
 
 	// Types/constants
+	import { getModelsForConnection } from '$/api/llm/connection-provider.ts'
 	import type { LlmConnectionRow } from '$/collections/llm-connections.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 	import {
 		type LlmConnectionProviderType,
 		LlmConnectionProvider,
 	} from '$/data/LlmConnection.ts'
-	import { getModelsForConnection } from '$/api/llm/connection-provider.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import {
 		llmConnectionsCollection,
 		addLlmConnection,
@@ -21,6 +20,7 @@
 		updateLlmConnection,
 		PROVIDER_LABELS,
 	} from '$/collections/llm-connections.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 	const connectionsQuery = useLiveQuery((q) =>
 		q
@@ -32,10 +32,11 @@
 		{ id: 'llm-connections', label: 'LLM Connections', query: connectionsQuery },
 	])
 
+
+	// (Derived)
 	const connections = $derived(
 		(connectionsQuery.data ?? []).map((r) => r.row).filter(Boolean) as LlmConnectionRow[],
 	)
-
 	const addItems = $derived(
 		(
 			[
@@ -58,6 +59,8 @@
 		})),
 	)
 
+
+	// Functions
 	const needsApiKey = (provider: LlmConnectionProviderType) =>
 		provider === LlmConnectionProvider.OpenAI ||
 		provider === LlmConnectionProvider.Anthropic ||
