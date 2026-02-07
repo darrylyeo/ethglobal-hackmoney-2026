@@ -10,8 +10,8 @@
 		connectedWallets = $bindable([]),
 		selectedActor = $bindable(null as `0x${string}` | null),
 	}: {
-		connectedWallets?: ConnectedWallet[]
-		selectedActor?: `0x${string}` | null
+		connectedWallets?: ConnectedWallet[],
+		selectedActor?: `0x${string}` | null,
 	} = $props()
 
 
@@ -20,4 +20,7 @@
 </script>
 
 
-<AccountsSelect bind:connectedWallets bind:selectedActor />
+<AccountsSelect
+	bind:connectedWallets
+	bind:selectedActor
+/>
