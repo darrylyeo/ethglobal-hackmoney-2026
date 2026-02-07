@@ -91,19 +91,16 @@ export type ProtocolActionPayload<
 	protocolAction: _ProtocolAction
 	payload: {
 		[ActionType.Swap]: {
-			fromActor: Record<string, unknown>
-			toActor: Record<string, unknown>
-			coin: Record<string, unknown>
+			fromActorCoin: Record<string, unknown>
+			toActorCoin: Record<string, unknown>
 		}
 		[ActionType.Bridge]: {
-			fromActor: Record<string, unknown>
-			toActor: Record<string, unknown>
-			coin: Record<string, unknown>
+			fromActorCoin: Record<string, unknown>
+			toActorCoin: Record<string, unknown>
 		}
 		[ActionType.Transfer]: {
-			fromActor: Record<string, unknown>
-			toActor: Record<string, unknown>
-			coin: Record<string, unknown>
+			fromActorCoin: Record<string, unknown>
+			toActorCoin: Record<string, unknown>
 		}
 		[ActionType.CreateChannel]: {
 			actor: Record<string, unknown>
@@ -113,6 +110,7 @@ export type ProtocolActionPayload<
 		}
 		[ActionType.CloseChannel]: {
 			channel: Record<string, unknown>
+			actor: Record<string, unknown>
 		}
 		[ActionType.AddLiquidity]: {
 			actorCoin: Record<string, unknown>
@@ -190,11 +188,11 @@ export const intents: IntentDefinition[] = [
 				actions: [
 					{
 						protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi },
-						payload: { fromActor: fromActorCoin, toActor: toActorNetwork, coin: fromActorCoin },
+						payload: { fromActorCoin, toActorCoin: toActorNetwork },
 					},
 					{
 						protocolAction: { action: ActionType.Bridge, protocol: Protocol.LiFi },
-						payload: { fromActor: fromActorCoin, toActor: toActorNetwork, coin: fromActorCoin },
+						payload: { fromActorCoin, toActorCoin: toActorNetwork },
 					},
 				],
 			},
@@ -203,11 +201,11 @@ export const intents: IntentDefinition[] = [
 				actions: [
 					{
 						protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 },
-						payload: { fromActor: fromActorCoin, toActor: toActorNetwork, coin: fromActorCoin },
+						payload: { fromActorCoin, toActorCoin: toActorNetwork },
 					},
 					{
 						protocolAction: { action: ActionType.Bridge, protocol: Protocol.Cctp },
-						payload: { fromActor: fromActorCoin, toActor: toActorNetwork, coin: fromActorCoin },
+						payload: { fromActorCoin, toActorCoin: toActorNetwork },
 					},
 				],
 			},
@@ -283,7 +281,7 @@ export const intents: IntentDefinition[] = [
 					},
 					{
 						protocolAction: { action: ActionType.Transfer, protocol: Protocol.Yellow },
-						payload: { fromActor: fromActorCoin, toActor, coin: fromActorCoin },
+						payload: { fromActorCoin, toActorCoin: toActor },
 					},
 				],
 			},
