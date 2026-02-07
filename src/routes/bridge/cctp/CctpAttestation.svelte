@@ -11,13 +11,13 @@
 		sourceDomain,
 		apiHost,
 		attestationPayload = $bindable(
-			null as { message: string; attestation: string } | null,
+			null as { message: string, attestation: string } | null,
 		),
 	}: {
-		burnTxHash?: string | null
-		sourceDomain: number | null
-		apiHost: string
-		attestationPayload?: { message: string; attestation: string } | null
+		burnTxHash?: string | null,
+		sourceDomain: number | null,
+		apiHost: string,
+		attestationPayload?: { message: string, attestation: string } | null,
 	} = $props()
 
 
@@ -25,6 +25,8 @@
 	let status = $state<'idle' | 'pending' | 'ready'>('idle')
 	let error = $state<string | null>(null)
 
+
+	// Actions
 	$effect(() => {
 		const txHash = burnTxHash
 		const domain = sourceDomain
