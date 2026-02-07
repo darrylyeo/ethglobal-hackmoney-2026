@@ -4,24 +4,24 @@
 
 import { DataSource } from '$/constants/data-sources.ts'
 import { myPeerIdsCollection } from '$/collections/my-peer-ids.ts'
-import { transferRequestsCollection } from '$/collections/transfer-requests.ts'
-import { roomsCollection } from '$/collections/rooms.ts'
 import { roomPeersCollection } from '$/collections/room-peers.ts'
+import { roomsCollection } from '$/collections/rooms.ts'
 import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
 import { siweChallengesCollection } from '$/collections/siwe-challenges.ts'
+import { transferRequestsCollection } from '$/collections/transfer-requests.ts'
 import { verificationsCollection } from '$/collections/verifications.ts'
-import {
-	connectToRoom,
-	type RoomConnection,
-	type RoomMessage,
-} from '$/lib/rooms/room.ts'
-import { verifySiweSignature } from '$/lib/rooms/siwe.ts'
-import type { TransferRequest } from '$/data/TransferRequest.ts'
 import type { Room } from '$/data/Room.ts'
 import type { RoomPeer } from '$/data/RoomPeer.ts'
 import type { SharedAddress } from '$/data/SharedAddress.ts'
 import type { SiweChallenge } from '$/data/SiweChallenge.ts'
+import type { TransferRequest } from '$/data/TransferRequest.ts'
 import type { Verification } from '$/data/Verification.ts'
+import {
+	type RoomConnection,
+	type RoomMessage,
+	connectToRoom,
+} from '$/lib/rooms/room.ts'
+import { verifySiweSignature } from '$/lib/rooms/siwe.ts'
 
 const SIWE_DEBUG =
 	typeof import.meta !== 'undefined' &&
@@ -32,14 +32,14 @@ type RoomStateSync = {
 	peers: RoomPeer[]
 	sharedAddresses: SharedAddress[]
 	challenges: SiweChallenge[]
-	verifications?: Verification[]
+	verifications?: Verification[],
 }
 
 function upsert<T extends object>(
 	col: {
 		state: Map<string, T>
 		insert: (row: T) => void
-		update: (key: string, fn: (draft: T) => void) => void
+		update: (key: string, fn: (draft: T) => void) => void,
 	},
 	row: T,
 	getKey: (row: T) => string,
@@ -278,7 +278,7 @@ export type RoomState = {
 	connection: RoomConnection | null
 	connectionStatus: PartyKitStatus
 	roomId: string | null
-	peerId: string | null
+	peerId: string | null,
 }
 
 export const roomState = $state<RoomState>({
@@ -337,3 +337,4 @@ export const forgetPeer = (peerId: string) => {
 		if (row.peerId === peerId) roomPeersCollection.delete(key)
 	}
 }
+
