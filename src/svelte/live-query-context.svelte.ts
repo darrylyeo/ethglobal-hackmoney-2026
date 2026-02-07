@@ -28,9 +28,9 @@ const createLiveQueryContext = () => new LiveQueryContextState()
 const globalLiveQueryContext = createLiveQueryContext()
 const localLiveQueryContext = createLiveQueryContext()
 
-export const useLiveQueryContext = () => globalLiveQueryContext
+export const useGlobalQueries = () => globalLiveQueryContext
 
-export const useLocalLiveQueryContext = () => localLiveQueryContext
+export const useLocalQueries = () => localLiveQueryContext
 
 const syncStack = (ctx: LiveQueryContext) => {
 	ctx.stack = untrack(() => ctx.registry).flatMap((entry) => entry.entries)
@@ -74,8 +74,8 @@ const registerLiveQueryStack = (
 
 export const registerGlobalLiveQueryStack = (
 	getEntries: () => LiveQueryEntry[],
-) => registerLiveQueryStack(useLiveQueryContext(), getEntries)
+) => registerLiveQueryStack(useGlobalQueries(), getEntries)
 
 export const registerLocalLiveQueryStack = (
 	getEntries: () => LiveQueryEntry[],
-) => registerLiveQueryStack(useLocalLiveQueryContext(), getEntries)
+) => registerLiveQueryStack(useLocalQueries(), getEntries)
