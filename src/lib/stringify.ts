@@ -9,3 +9,4 @@ export const stringify: typeof JSON.stringify = (value, replacer, space) =>
 					: val,
 		space,
 	)
+
