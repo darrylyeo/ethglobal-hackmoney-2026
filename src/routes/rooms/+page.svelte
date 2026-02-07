@@ -43,18 +43,35 @@
 </svelte:head>
 
 
-<main id="main" data-sticky-container data-column>
+<main
+	id="main"
+	data-sticky-container
+	data-column
+>
 	<h1>Rooms</h1>
 
-	<div data-scroll-item data-row>
-		<section data-row-item="flexible" data-card>
+	<div
+		data-scroll-item
+		data-row
+	>
+		<section
+			data-row-item="flexible"
+			data-card
+		>
 			<h2>Create room</h2>
-			<button type="button" disabled={creating} onclick={handleCreate}>
+			<button
+				type="button"
+				disabled={creating}
+				onclick={handleCreate}
+			>
 				{creating ? 'Creating…' : 'Create room'}
 			</button>
 		</section>
 
-		<section data-row-item="flexible" data-card>
+		<section
+			data-row-item="flexible"
+			data-card
+		>
 			<h2>Join room</h2>
 			<form
 				onsubmit={(e) => {
@@ -72,10 +89,14 @@
 					maxlength="80"
 					aria-label="Room code"
 				/>
-				<button type="submit" disabled={joining || !joinCode.trim()}>
+				<button
+					type="submit"
+					disabled={joining || !joinCode.trim()}
+				>
 					{joining ? 'Joining…' : 'Join'}
 				</button>
 			</form>
 		</section>
 	</div>
 </main>
+
