@@ -15,11 +15,11 @@ When the user says **"format"** (or "format the code", "format my changes", etc.
 
 ## Acceptance criteria
 
-- [ ] On "format", scope is defined (changed files or user path).
-- [ ] Each file in scope is formatted by hand to formatter.md / specs 041, 056.
-- [ ] `deno task format` is run so Svelte section spacing is applied.
-- [ ] No Prettier or other formatter is run.
+- [x] On "format", scope is defined (changed files or user path).
+- [x] Each file in scope is formatted by hand to formatter.md / specs 041, 056.
+- [x] `deno task format` is run so Svelte section spacing is applied.
+- [x] No Prettier or other formatter is run.
 
 ## Status
 
-Spec created from `.cursor/rules/format.mdc`. Cursor rule references this spec.
+Complete. `.cursor/rules/format.mdc` defines scope (changed files or user path), manual formatting to formatter.md/specs 041 and 056, and running `deno task format` for Svelte section spacing; it explicitly forbids Prettier and other formatters. `.cursor/agents/formatter.md` holds the detailed rules. Cursor rule references this spec.
