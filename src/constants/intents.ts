@@ -186,10 +186,16 @@ export type IntentOption = {
 
 export enum IntentType {
 	SwapAndBridge = 'SwapAndBridge',
+	SendFunds = 'SendFunds',
+	SwapToCoin = 'SwapToCoin',
 	CreateChannelAndAddMember = 'CreateChannelAndAddMember',
 	CreateChannelAddMemberAndTransfer = 'CreateChannelAddMemberAndTransfer',
 	AddLiquidity = 'AddLiquidity',
-	RemoveLiquidity = 'RemoveLiquidity',
+	ManagePosition = 'ManagePosition',
+	IncreasePositionLiquidity = 'IncreasePositionLiquidity',
+	ShareAddressInRoom = 'ShareAddressInRoom',
+	ProposeRoomTransfer = 'ProposeRoomTransfer',
+	RequestPeerVerification = 'RequestPeerVerification',
 }
 
 export type IntentDefinition<
@@ -227,6 +233,10 @@ export const protocolActions = [
 	{ action: ActionType.AcceptTransfer, protocol: Protocol.PartyKit },
 	{ action: ActionType.RejectTransfer, protocol: Protocol.PartyKit },
 ] as const satisfies ProtocolAction[]
+
+const eqAddr = (a: unknown, b: unknown) => (
+	typeof a === 'string' && typeof b === 'string' && a.toLowerCase() === b.toLowerCase()
+)
 
 export const intents: IntentDefinition[] = [
 	{
@@ -272,6 +282,128 @@ export const intents: IntentDefinition[] = [
 					{
 						protocolAction: { action: ActionType.Bridge, protocol: Protocol.Cctp },
 						payload: { fromActorCoin, toActorCoin: toActorNetwork },
+					},
+				],
+			},
+			{
+				label: 'Bridge via Circle Gateway',
+				actions: [
+					{
+						protocolAction: { action: ActionType.Bridge, protocol: Protocol.Gateway },
+						payload: { fromActorCoin, toActorCoin: toActorNetwork },
+					},
+				],
+			},
+		],
+	},
+
+	{
+		type: IntentType.SendFunds,
+		label: 'Send',
+
+		invocations: [
+			{
+				modality: IntentInvocationModality.DragAndDrop,
+				entities: {
+					dragTarget: 'from',
+					dropTarget: 'to',
+				},
+			},
+		],
+
+		entities: [
+			{ name: 'from', type: EntityType.ActorCoin },
+			{ name: 'to', type: EntityType.ActorCoin },
+		],
+
+		resolveOptions: ({ from, to }) => {
+			const sameActor = eqAddr(from.address, to.address)
+			const sameNetwork = from.chainId === to.chainId
+			const sameCoin = eqAddr(from.tokenAddress, to.tokenAddress)
+
+			if (sameActor && sameNetwork && sameCoin)
+				throw new Error('Source and destination are identical')
+
+			const payload = { fromActorCoin: from, toActorCoin: to }
+
+			return [
+				// LiFi handles swap + bridge + cross-actor delivery natively via toAddress
+				...(!sameCoin || !sameNetwork ? [{
+					label: [!sameCoin && 'Swap', !sameNetwork && 'Bridge'].filter(Boolean).join(' + ') + ' via LiFi',
+					actions: [
+						...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi }, payload }] : []),
+						...(!sameNetwork ? [{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.LiFi }, payload }] : []),
+					],
+				}] : []),
+
+				// Uniswap V4 swap + CCTP bridge (mintRecipient handles cross-actor)
+				...(!sameCoin || !sameNetwork ? [{
+					label: 'Via ' + [!sameCoin && 'Uniswap V4', !sameNetwork && 'CCTP'].filter(Boolean).join(' + '),
+					actions: [
+						...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload }] : []),
+						...(!sameNetwork ? [{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Cctp }, payload }] : []),
+					],
+				}] : []),
+
+				// Gateway bridge (destinationRecipient handles cross-actor)
+				...(!sameNetwork ? [{
+					label: 'Via ' + [!sameCoin && 'Uniswap V4', 'Gateway'].filter(Boolean).join(' + '),
+					actions: [
+						...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload }] : []),
+						{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Gateway }, payload },
+					],
+				}] : []),
+
+				// Transfer only (same coin + same network + different actor)
+				...(sameCoin && sameNetwork && !sameActor ? [
+					{
+						label: 'Transfer via LiFi',
+						actions: [{ protocolAction: { action: ActionType.Transfer, protocol: Protocol.LiFi }, payload }],
+					},
+					{
+						label: 'Transfer via Yellow',
+						actions: [{ protocolAction: { action: ActionType.Transfer, protocol: Protocol.Yellow }, payload }],
+					},
+				] : []),
+			]
+		},
+	},
+
+	{
+		type: IntentType.SwapToCoin,
+		label: 'Swap',
+
+		invocations: [
+			{
+				modality: IntentInvocationModality.DragAndDrop,
+				entities: {
+					dragTarget: 'actorCoin',
+					dropTarget: 'coin',
+				},
+			},
+		],
+
+		entities: [
+			{ name: 'actorCoin', type: EntityType.ActorCoin },
+			{ name: 'coin', type: EntityType.Coin },
+		],
+
+		resolveOptions: ({ actorCoin, coin }) => [
+			{
+				label: 'Swap via Uniswap V4',
+				actions: [
+					{
+						protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 },
+						payload: { fromActorCoin: actorCoin, toActorCoin: coin },
+					},
+				],
+			},
+			{
+				label: 'Swap via LiFi',
+				actions: [
+					{
+						protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi },
+						payload: { fromActorCoin: actorCoin, toActorCoin: coin },
 					},
 				],
 			},
@@ -387,8 +519,8 @@ export const intents: IntentDefinition[] = [
 	},
 
 	{
-		type: IntentType.RemoveLiquidity,
-		label: 'Remove Liquidity',
+		type: IntentType.ManagePosition,
+		label: 'Manage Position',
 
 		invocations: [
 			{
@@ -407,11 +539,148 @@ export const intents: IntentDefinition[] = [
 
 		resolveOptions: ({ position, actor }) => [
 			{
+				label: 'Collect fees via Uniswap V4',
+				actions: [
+					{
+						protocolAction: { action: ActionType.CollectFees, protocol: Protocol.UniswapV4 },
+						payload: { position, actor },
+					},
+				],
+			},
+			{
 				label: 'Remove liquidity via Uniswap V4',
 				actions: [
 					{
 						protocolAction: { action: ActionType.RemoveLiquidity, protocol: Protocol.UniswapV4 },
 						payload: { position, actor },
+					},
+				],
+			},
+		],
+	},
+
+	{
+		type: IntentType.IncreasePositionLiquidity,
+		label: 'Increase Liquidity',
+
+		invocations: [
+			{
+				modality: IntentInvocationModality.DragAndDrop,
+				entities: {
+					dragTarget: 'actorCoin',
+					dropTarget: 'position',
+				},
+			},
+		],
+
+		entities: [
+			{ name: 'actorCoin', type: EntityType.ActorCoin },
+			{ name: 'position', type: EntityType.UniswapPosition },
+		],
+
+		resolveOptions: ({ actorCoin, position }) => [
+			{
+				label: 'Increase liquidity via Uniswap V4',
+				actions: [
+					{
+						protocolAction: { action: ActionType.IncreaseLiquidity, protocol: Protocol.UniswapV4 },
+						payload: { actorCoin, position },
+					},
+				],
+			},
+		],
+	},
+
+	{
+		type: IntentType.ShareAddressInRoom,
+		label: 'Share Address',
+
+		invocations: [
+			{
+				modality: IntentInvocationModality.DragAndDrop,
+				entities: {
+					dragTarget: 'actor',
+					dropTarget: 'room',
+				},
+			},
+		],
+
+		entities: [
+			{ name: 'actor', type: EntityType.Actor },
+			{ name: 'room', type: EntityType.Room },
+		],
+
+		resolveOptions: ({ actor, room }) => [
+			{
+				label: 'Share address in room via PartyKit',
+				actions: [
+					{
+						protocolAction: { action: ActionType.ShareAddress, protocol: Protocol.PartyKit },
+						payload: { actor, room },
+					},
+				],
+			},
+		],
+	},
+
+	{
+		type: IntentType.ProposeRoomTransfer,
+		label: 'Propose Transfer',
+
+		invocations: [
+			{
+				modality: IntentInvocationModality.DragAndDrop,
+				entities: {
+					dragTarget: 'actorCoin',
+					dropTarget: 'peer',
+				},
+			},
+		],
+
+		entities: [
+			{ name: 'actorCoin', type: EntityType.ActorCoin },
+			{ name: 'peer', type: EntityType.RoomPeer },
+		],
+
+		resolveOptions: ({ actorCoin, peer }) => [
+			{
+				label: 'Propose transfer to peer via PartyKit',
+				actions: [
+					{
+						protocolAction: { action: ActionType.ProposeTransfer, protocol: Protocol.PartyKit },
+						payload: { fromActorCoin: actorCoin, toPeer: peer },
+					},
+				],
+			},
+		],
+	},
+
+	{
+		type: IntentType.RequestPeerVerification,
+		label: 'Request Verification',
+
+		invocations: [
+			{
+				modality: IntentInvocationModality.DragAndDrop,
+				entities: {
+					dragTarget: 'actor',
+					dropTarget: 'peer',
+				},
+			},
+		],
+
+		entities: [
+			{ name: 'actor', type: EntityType.Actor },
+			{ name: 'peer', type: EntityType.RoomPeer },
+		],
+
+		resolveOptions: ({ actor, peer }) => [
+			{
+				label: 'Request SIWE verification via PartyKit',
+				actions: [
+					{
+						protocolAction: { action: ActionType.RequestVerification, protocol: Protocol.PartyKit },
+						payload: { actor, peer },
 					},
 				],
 			},
