@@ -3,7 +3,16 @@
 
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import { Protocol, protocolSpecs } from '$/constants/intents.ts'
 	import type { Network } from '$/constants/networks.ts'
+
+	type BridgeProtocolId = 'cctp' | 'lifi' | 'gateway'
+
+	const bridgeProtocolForId: Record<BridgeProtocolId, Protocol> = {
+		cctp: Protocol.Cctp,
+		lifi: Protocol.LiFi,
+		gateway: Protocol.Gateway,
+	}
 
 
 	// Context
@@ -24,9 +33,9 @@
 		toNetwork,
 		canSendAmount,
 	}: {
-		activeProtocol: 'cctp' | 'lifi' | 'gateway' | null
+		activeProtocol: BridgeProtocolId | null
 		protocolReason: string
-		protocolIntent?: 'cctp' | 'lifi' | 'gateway' | null
+		protocolIntent?: BridgeProtocolId | null
 		disabled?: boolean
 		cctpPairSupported: boolean
 		lifiPairSupported: boolean
@@ -34,7 +43,7 @@
 		selectedWallet: ConnectedWallet | null
 		fromNetwork: Network | null
 		toNetwork: Network | null
-		canSendAmount: boolean
+		canSendAmount: boolean,
 	} = $props()
 
 
@@ -44,34 +53,22 @@
 			.length > 1,
 	)
 	const protocolOptions = $derived(
-		(
-			[
-				{ id: 'cctp', label: 'CCTP', detail: 'Native USDC', enabled: cctpPairSupported },
-				{
-					id: 'lifi',
-					label: 'LI.FI',
-					detail: 'Aggregated routes',
-					enabled: lifiPairSupported,
-				},
-				{
-					id: 'gateway',
-					label: 'Gateway',
-					detail: 'Unified balance, instant transfer',
-					enabled: gatewayPairSupported,
-				},
-			] satisfies {
-				id: 'cctp' | 'lifi' | 'gateway'
-				label: string
-				detail: string
-				enabled: boolean
-			}[]
-		).filter((option) => option.enabled),
+		([
+			{ id: 'cctp' as const, enabled: cctpPairSupported },
+			{ id: 'lifi' as const, enabled: lifiPairSupported },
+			{ id: 'gateway' as const, enabled: gatewayPairSupported },
+		])
+			.filter(p => p.enabled)
+			.map(p => ({
+				...p,
+				...protocolSpecs[bridgeProtocolForId[p.id]],
+			})),
 	)
 
 
 	// Actions
 	const onProtocolIntent = (
-		value: 'cctp' | 'lifi' | 'gateway' | null,
+		value: BridgeProtocolId | null,
 	) => (protocolIntent = value)
 </script>
 
@@ -93,42 +90,42 @@
 				</Button.Root>
 				<span data-muted>or pick one:</span>
 			</div>
-			<div data-row="gap-2 wrap">
-				{#each protocolOptions as option (option.id)}
-					<button
-						data-card="radius-6 padding-3"
-						class="protocol-card"
-						type="button"
-						data-selected={option.id === activeProtocol ? '' : undefined}
-						{disabled}
-						onclick={() => {
-							onProtocolIntent(option.id)
-						}}
-					>
-						<div data-row="gap-2 align-center justify-between">
-							<strong>{option.label}</strong>
-							{#if protocolIntent === null && option.id === activeProtocol}
-								<span data-tag class="protocol-tag">Best</span>
-							{:else if protocolIntent === option.id}
-								<span data-tag class="protocol-tag" data-variant="selected"
-									>Selected</span
-								>
-							{/if}
-						</div>
-						<div data-muted>{option.detail}</div>
-					</button>
-				{/each}
-			</div>
+		<div data-row="gap-2 wrap">
+			{#each protocolOptions as option (option.id)}
+				<button
+					data-card="radius-6 padding-3"
+					class="protocol-card"
+					type="button"
+					data-selected={option.id === activeProtocol ? '' : undefined}
+					{disabled}
+					onclick={() => {
+						onProtocolIntent(option.id)
+					}}
+				>
+					<div data-row="gap-2 align-center justify-between">
+						<strong>{option.shortLabel}</strong>
+						{#if protocolIntent === null && option.id === activeProtocol}
+							<span
+								data-tag
+								class="protocol-tag"
+								>Best</span
+							>
+						{:else if protocolIntent === option.id}
+							<span
+								data-tag
+								class="protocol-tag"
+								data-variant="selected"
+								>Selected</span
+							>
+						{/if}
+					</div>
+					<div data-muted>{option.detail}</div>
+				</button>
+			{/each}
+		</div>
 		</div>
 	{:else if activeProtocol}
-		<p data-muted>
-			Using
-			{activeProtocol === 'cctp'
-				? 'CCTP'
-				: activeProtocol === 'lifi'
-					? 'LI.FI'
-					: 'Gateway'}
-		</p>
+		<p data-muted>Using {protocolSpecs[bridgeProtocolForId[activeProtocol]].shortLabel}</p>
 	{:else if fromNetwork && toNetwork}
 		<p data-error>This chain pair is not supported by CCTP, LI.FI, or Gateway.</p>
 	{:else}
