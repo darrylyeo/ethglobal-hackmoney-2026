@@ -8,6 +8,7 @@ export default defineConfig({
 			'src/api/**/*.spec.ts',
 			'src/constants/**/*.spec.ts',
 			'src/lib/**/*.spec.ts',
+			'src/lib/**/*.test.ts',
 			'src/state/**/*.spec.ts',
 		],
 		exclude: [

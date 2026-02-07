@@ -66,6 +66,73 @@ test.describe('Session action routing', () => {
 		).toBeVisible({ timeout: 20_000 })
 	})
 
+	test('session#collectFees renders liquidity view', async ({ page }) => {
+		await page.goto('/session#collectFees')
+		await waitForMain(page)
+		await expect(
+			page.getByRole('heading', { level: 1 }).first(),
+		).toBeVisible({ timeout: 20_000 })
+	})
+
+	test('session#increaseLiquidity renders liquidity view', async ({ page }) => {
+		await page.goto('/session#increaseLiquidity')
+		await waitForMain(page)
+		await expect(
+			page.getByRole('heading', { level: 1 }).first(),
+		).toBeVisible({ timeout: 20_000 })
+	})
+
+	test('session#shareAddress renders Share Address heading', async ({
+		page,
+	}) => {
+		await page.goto('/session#shareAddress')
+		await waitForMain(page)
+		await expect(
+			page.getByRole('heading', { name: 'Share Address', level: 1 }),
+		).toBeVisible()
+		await expect(
+			page.getByText('Room action. Protocol: PartyKit.'),
+		).toBeVisible()
+	})
+
+	test('session#proposeTransfer renders Propose Transfer heading', async ({
+		page,
+	}) => {
+		await page.goto('/session#proposeTransfer')
+		await waitForMain(page)
+		await expect(
+			page.getByRole('heading', { name: 'Propose Transfer', level: 1 }),
+		).toBeVisible()
+		await expect(
+			page.getByText('Room action. Protocol: PartyKit.'),
+		).toBeVisible()
+	})
+
+	test('session#requestVerification renders Request Verification heading', async ({
+		page,
+	}) => {
+		await page.goto('/session#requestVerification')
+		await waitForMain(page)
+		await expect(
+			page.getByRole('heading', { name: 'Request Verification', level: 1 }),
+		).toBeVisible()
+		await expect(
+			page.getByText('Room action. Protocol: PartyKit.'),
+		).toBeVisible()
+	})
+
+	test('compound hash routes to session with multiple actions', async ({
+		page,
+	}) => {
+		await page.goto(
+			'/session#createChannel:%7B%22actor%22%3A%7B%7D%7D|addChannelMember:%7B%22actor%22%3A%7B%7D%7D',
+		)
+		await waitForMain(page)
+		await expect(
+			page.getByRole('heading', { level: 1 }).first(),
+		).toBeVisible({ timeout: 20_000 })
+	})
+
 	test('session with unsupported hash shows fallback', async ({ page }) => {
 		await page.goto('/session#unknownAction')
 		await waitForMain(page)

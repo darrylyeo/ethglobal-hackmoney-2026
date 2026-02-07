@@ -3,6 +3,9 @@ import {
 	ActionType,
 	IntentType,
 	Protocol,
+	actionSpecs,
+	protocolActions,
+	protocolSpecs,
 	type IntentEntityRef,
 } from '$/constants/intents.ts'
 import {
@@ -10,6 +13,8 @@ import {
 	intentEntityTypes,
 	protocolsByAction,
 	resolveIntentForDrag,
+	specBySessionAction,
+	validSessionActions,
 } from '$/lib/intents.ts'
 import { describe, expect, it } from 'vitest'
 
@@ -290,6 +295,24 @@ describe('resolveIntentForDrag', () => {
 		expect(result.matched).toBe(false)
 	})
 
+	it('respects entity match predicates', () => {
+		const result = resolveIntentForDrag(
+			ref(EntityType.Actor, { address: '0xaaa' }),
+			ref(EntityType.Actor, { address: '0xbbb', rejectMatch: true }),
+		)
+		expect(result.matched).toBe(false)
+	})
+
+	it('returns matched:true with error when resolveOptions throws', () => {
+		const result = resolveIntentForDrag(
+			ref(EntityType.ActorCoin, { chainId: 1, address: '0xaaa', tokenAddress: '0xusdc' }),
+			ref(EntityType.ActorCoin, { chainId: 1, address: '0xaaa', tokenAddress: '0xusdc' }),
+		)
+		expect(result.matched).toBe(true)
+		expect(result.options).toEqual([])
+		expect(result.error).toBeInstanceOf(Error)
+	})
+
 	it('returns matched:false for Coin → Coin (no intent)', () => {
 		const result = resolveIntentForDrag(
 			ref(EntityType.Coin, { address: '0xaaa' }),
@@ -383,5 +406,60 @@ describe('derived lookups', () => {
 		expect(intentEntityTypes.has(EntityType.RoomPeer)).toBe(true)
 		expect(intentEntityTypes.has(EntityType.Coin)).toBe(true)
 		expect(intentEntityTypes.has(EntityType.Network)).toBe(false)
+	})
+})
+
+
+describe('action and protocol specs', () => {
+	it('actionSpecs covers all ActionType values', () => {
+		for (const actionType of Object.values(ActionType)) {
+			expect(actionSpecs[actionType]).toBeDefined()
+			expect(actionSpecs[actionType].label).toBeTruthy()
+			expect(actionSpecs[actionType].sessionAction).toBeTruthy()
+			expect(actionSpecs[actionType].category).toBeTruthy()
+		}
+	})
+
+	it('protocolSpecs covers all Protocol values', () => {
+		for (const protocol of Object.values(Protocol)) {
+			expect(protocolSpecs[protocol]).toBeDefined()
+			expect(protocolSpecs[protocol].label).toBeTruthy()
+			expect(protocolSpecs[protocol].shortLabel).toBeTruthy()
+		}
+	})
+
+	it('all protocolActions have supportsRecipient defined', () => {
+		for (const pa of protocolActions) {
+			expect(typeof pa.supportsRecipient).toBe('boolean')
+		}
+	})
+
+	it('Swap and Bridge protocols support recipient', () => {
+		for (const pa of protocolActions) {
+			if (pa.action === ActionType.Swap || pa.action === ActionType.Bridge)
+				expect(pa.supportsRecipient).toBe(true)
+		}
+	})
+
+	it('specBySessionAction maps back to correct ActionType', () => {
+		for (const [actionType, spec] of Object.entries(actionSpecs) as [ActionType, typeof actionSpecs[ActionType]][]) {
+			const lookup = specBySessionAction[spec.sessionAction]
+			expect(lookup).toBeDefined()
+			expect(lookup.actionType).toBe(actionType)
+		}
+	})
+
+	it('navigable actions have unique sessionActions', () => {
+		const sessionActions = Object.values(actionSpecs)
+			.filter(s => s.navigable)
+			.map(s => s.sessionAction)
+		expect(new Set(sessionActions).size).toBe(sessionActions.length)
+	})
+
+	it('validSessionActions includes all spec session actions plus legacy aliases', () => {
+		for (const spec of Object.values(actionSpecs))
+			expect(validSessionActions.has(spec.sessionAction)).toBe(true)
+		expect(validSessionActions.has('liquidity')).toBe(true)
+		expect(validSessionActions.has('intent')).toBe(true)
 	})
 })

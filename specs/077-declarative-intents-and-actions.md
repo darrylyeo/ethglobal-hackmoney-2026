@@ -154,51 +154,51 @@ hashes.
 
 ### Definition layer
 
-- [ ] `ActionType` enum includes Swap, Bridge, Transfer, CreateChannel,
+- [x] `ActionType` enum includes Swap, Bridge, Transfer, CreateChannel,
   AddChannelMember, CloseChannel, AddLiquidity, RemoveLiquidity.
-- [ ] `Protocol` enum includes UniswapV4, LiFi, Yellow, Cctp.
-- [ ] `protocolActions` const array pairs each action with its supported
+- [x] `Protocol` enum includes UniswapV4, LiFi, Yellow, Cctp.
+- [x] `protocolActions` const array pairs each action with its supported
   protocols.
-- [ ] `intents` array declares all 5 intents from the table above, each with
+- [x] `intents` array declares all 5 intents from the table above, each with
   `type`, `label`, `invocations`, `entities`, and `resolveOptions`.
-- [ ] `ProtocolActionPayload` type narrows `payload` shape per `ActionType` via
+- [x] `ProtocolActionPayload` type narrows `payload` shape per `ActionType` via
   indexed access.
-- [ ] `IntentDefinition` generic links entity names across `invocations`,
+- [x] `IntentDefinition` generic links entity names across `invocations`,
   `entities`, and `resolveOptions`.
-- [ ] `actionsByProtocol` and `protocolsByAction` are derived from
+- [x] `actionsByProtocol` and `protocolsByAction` are derived from
   `protocolActions`.
 
 ### Resolution
 
-- [ ] `resolveIntentForDrag` returns `{ matched: true, intent, options }` when
+- [x] `resolveIntentForDrag` returns `{ matched: true, intent, options }` when
   source and target entity types match an invocation.
-- [ ] `resolveIntentForDrag` returns `{ matched: false }` for unregistered
+- [x] `resolveIntentForDrag` returns `{ matched: false }` for unregistered
   entity-type pairs.
-- [ ] `resolveIntentForDrag` returns `{ matched: true, ..., error }` when
+- [x] `resolveIntentForDrag` returns `{ matched: true, ..., error }` when
   `resolveOptions` throws.
-- [ ] Entity `match` predicates are called and can reject a match.
-- [ ] `intentEntityTypes` set is derived from all intent entity definitions.
+- [x] Entity `match` predicates are called and can reject a match.
+- [x] `intentEntityTypes` set is derived from all intent entity definitions.
 
 ### Drag-and-drop UI
 
-- [ ] Dragging an intent-eligible entity shows a live arrow to the pointer.
-- [ ] Dropping on a compatible entity resolves the intent and shows a tooltip
+- [x] Dragging an intent-eligible entity shows a live arrow to the pointer.
+- [x] Dropping on a compatible entity resolves the intent and shows a tooltip
   with the intent label, option count, and selectable option buttons.
-- [ ] Dropping on an incompatible entity shows "No matching intent".
-- [ ] Selecting an option navigates to `/session` with a hash encoding the
+- [x] Dropping on an incompatible entity shows "No matching intent".
+- [x] Selecting an option navigates to `/session` with a hash encoding the
   action sequence.
-- [ ] Escape or clicking outside dismisses the tooltip.
-- [ ] View transitions connect drag endpoints to session form fields.
+- [x] Escape or clicking outside dismisses the tooltip.
+- [x] View transitions connect drag endpoints to session form fields.
 
 ### Session routing
 
-- [ ] `TransactionSessionAction` type includes createChannel,
+- [x] `TransactionSessionAction` type includes createChannel,
   addChannelMember, closeChannel, addLiquidity, removeLiquidity.
-- [ ] `parseSessionHash` parses the new action strings.
-- [ ] `/session` routes addLiquidity/removeLiquidity to LiquidityView.
-- [ ] `/session` routes createChannel/addChannelMember/closeChannel to a
+- [x] `parseSessionHash` parses the new action strings.
+- [x] `/session` routes addLiquidity/removeLiquidity to LiquidityView.
+- [x] `/session` routes createChannel/addChannelMember/closeChannel to a
   channel view.
-- [ ] Navigation sidebar lists Transfer, Swap, Bridge, Add Liquidity, Remove
+- [x] Navigation sidebar lists Transfer, Swap, Bridge, Add Liquidity, Remove
   Liquidity, Create Channel, Close Channel.
 
 ## E2E test requirements
@@ -312,7 +312,7 @@ test('dropping entities into slots resolves intent')
 
 ## Status
 
-In progress.
+Complete. Declarative intents in `src/constants/intents.ts` (ActionType, Protocol, protocolActions, intents with resolveOptions); `src/lib/intents.ts` (resolveIntentForDrag, actionsByProtocol, protocolsByAction, intentEntityTypes). Entity match predicate on CreateChannelAndAddMember toActor; unit tests in `src/lib/intents.test.ts` and `src/lib/intents/resolve.spec.ts`. IntentDragPreview builds session hash; session routing and nav links verified. E2E: session-actions (createChannel, addLiquidity, removeLiquidity, compound hash), navigation (sidebar/home links), intents-drag (registered intents, slots). Vitest includes `src/lib/**/*.test.ts`.
 
 ## Output when complete
 

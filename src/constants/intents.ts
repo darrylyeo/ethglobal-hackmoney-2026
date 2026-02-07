@@ -98,6 +98,69 @@ export type ProtocolAction<
 	protocol: _Protocol
 }
 
+
+// Action and protocol specs
+
+export type ActionCategory =
+	| 'value-transfer'
+	| 'liquidity'
+	| 'channel'
+	| 'custody'
+	| 'room'
+
+export type ActionSpec = {
+	label: string
+	icon: string
+	sessionAction: string
+	category: ActionCategory
+	navigable: boolean
+}
+
+export const actionSpecs = {
+	[ActionType.Swap]: { label: 'Swap', icon: '🔄', sessionAction: 'swap', category: 'value-transfer', navigable: true },
+	[ActionType.Bridge]: { label: 'Bridge', icon: '🌉', sessionAction: 'bridge', category: 'value-transfer', navigable: true },
+	[ActionType.Transfer]: { label: 'Transfer', icon: '💸', sessionAction: 'transfer', category: 'value-transfer', navigable: true },
+	[ActionType.CreateChannel]: { label: 'Create Channel', icon: '💛', sessionAction: 'createChannel', category: 'channel', navigable: true },
+	[ActionType.AddChannelMember]: { label: 'Add Member', icon: '💛', sessionAction: 'addChannelMember', category: 'channel', navigable: false },
+	[ActionType.CloseChannel]: { label: 'Close Channel', icon: '💛', sessionAction: 'closeChannel', category: 'channel', navigable: true },
+	[ActionType.AddLiquidity]: { label: 'Add Liquidity', icon: '💧', sessionAction: 'addLiquidity', category: 'liquidity', navigable: true },
+	[ActionType.RemoveLiquidity]: { label: 'Remove Liquidity', icon: '💧', sessionAction: 'removeLiquidity', category: 'liquidity', navigable: true },
+	[ActionType.CollectFees]: { label: 'Collect Fees', icon: '💰', sessionAction: 'collectFees', category: 'liquidity', navigable: true },
+	[ActionType.IncreaseLiquidity]: { label: 'Increase Liquidity', icon: '💧', sessionAction: 'increaseLiquidity', category: 'liquidity', navigable: true },
+	[ActionType.ShareAddress]: { label: 'Share Address', icon: '📤', sessionAction: 'shareAddress', category: 'room', navigable: true },
+	[ActionType.ProposeTransfer]: { label: 'Propose Transfer', icon: '🤝', sessionAction: 'proposeTransfer', category: 'room', navigable: true },
+	[ActionType.RequestVerification]: { label: 'Request Verification', icon: '✅', sessionAction: 'requestVerification', category: 'room', navigable: true },
+	[ActionType.DepositToCustody]: { label: 'Deposit to Custody', icon: '🏦', sessionAction: 'depositToCustody', category: 'custody', navigable: false },
+	[ActionType.WithdrawFromCustody]: { label: 'Withdraw from Custody', icon: '🏦', sessionAction: 'withdrawFromCustody', category: 'custody', navigable: false },
+	[ActionType.ResizeChannel]: { label: 'Resize Channel', icon: '💛', sessionAction: 'resizeChannel', category: 'channel', navigable: false },
+	[ActionType.CreatePool]: { label: 'Create Pool', icon: '🏊', sessionAction: 'createPool', category: 'liquidity', navigable: false },
+	[ActionType.AcceptTransfer]: { label: 'Accept Transfer', icon: '✅', sessionAction: 'acceptTransfer', category: 'room', navigable: false },
+	[ActionType.RejectTransfer]: { label: 'Reject Transfer', icon: '❌', sessionAction: 'rejectTransfer', category: 'room', navigable: false },
+} as const satisfies Record<ActionType, ActionSpec>
+
+export type ActionSessionAction = typeof actionSpecs[ActionType]['sessionAction']
+
+export type ProtocolSpec = {
+	label: string
+	shortLabel: string
+	icon: string
+	detail: string
+}
+
+export const protocolSpecs = {
+	[Protocol.UniswapV4]: { label: 'Uniswap V4', shortLabel: 'Uni V4', icon: '🦄', detail: 'Decentralized exchange' },
+	[Protocol.LiFi]: { label: 'LI.FI', shortLabel: 'LI.FI', icon: '🔗', detail: 'Multi-chain aggregator' },
+	[Protocol.Yellow]: { label: 'Yellow Network', shortLabel: 'Yellow', icon: '💛', detail: 'State channel network' },
+	[Protocol.Cctp]: { label: 'Circle CCTP', shortLabel: 'CCTP', icon: '🔵', detail: 'Native USDC bridge' },
+	[Protocol.PartyKit]: { label: 'PartyKit', shortLabel: 'PartyKit', icon: '🎉', detail: 'Real-time rooms' },
+	[Protocol.Gateway]: { label: 'Circle Gateway', shortLabel: 'Gateway', icon: '🌐', detail: 'Unified USDC balance' },
+} as const satisfies Record<Protocol, ProtocolSpec>
+
+export type ProtocolActionSpec = ProtocolAction & {
+	supportsRecipient: boolean
+}
+
+
 export type ProtocolActionPayload<
 	_ProtocolAction extends ProtocolAction = ProtocolAction,
 > = {
@@ -209,30 +272,30 @@ export type IntentDefinition<
 }
 
 export const protocolActions = [
-	{ action: ActionType.Swap, protocol: Protocol.UniswapV4 },
-	{ action: ActionType.Swap, protocol: Protocol.LiFi },
-	{ action: ActionType.Bridge, protocol: Protocol.Cctp },
-	{ action: ActionType.Bridge, protocol: Protocol.LiFi },
-	{ action: ActionType.Bridge, protocol: Protocol.Gateway },
-	{ action: ActionType.Transfer, protocol: Protocol.Yellow },
-	{ action: ActionType.Transfer, protocol: Protocol.LiFi },
-	{ action: ActionType.CreateChannel, protocol: Protocol.Yellow },
-	{ action: ActionType.AddChannelMember, protocol: Protocol.Yellow },
-	{ action: ActionType.CloseChannel, protocol: Protocol.Yellow },
-	{ action: ActionType.AddLiquidity, protocol: Protocol.UniswapV4 },
-	{ action: ActionType.RemoveLiquidity, protocol: Protocol.UniswapV4 },
-	{ action: ActionType.CollectFees, protocol: Protocol.UniswapV4 },
-	{ action: ActionType.IncreaseLiquidity, protocol: Protocol.UniswapV4 },
-	{ action: ActionType.ShareAddress, protocol: Protocol.PartyKit },
-	{ action: ActionType.ProposeTransfer, protocol: Protocol.PartyKit },
-	{ action: ActionType.RequestVerification, protocol: Protocol.PartyKit },
-	{ action: ActionType.DepositToCustody, protocol: Protocol.Yellow },
-	{ action: ActionType.WithdrawFromCustody, protocol: Protocol.Yellow },
-	{ action: ActionType.ResizeChannel, protocol: Protocol.Yellow },
-	{ action: ActionType.CreatePool, protocol: Protocol.UniswapV4 },
-	{ action: ActionType.AcceptTransfer, protocol: Protocol.PartyKit },
-	{ action: ActionType.RejectTransfer, protocol: Protocol.PartyKit },
-] as const satisfies ProtocolAction[]
+	{ action: ActionType.Swap, protocol: Protocol.UniswapV4, supportsRecipient: true },
+	{ action: ActionType.Swap, protocol: Protocol.LiFi, supportsRecipient: true },
+	{ action: ActionType.Bridge, protocol: Protocol.Cctp, supportsRecipient: true },
+	{ action: ActionType.Bridge, protocol: Protocol.LiFi, supportsRecipient: true },
+	{ action: ActionType.Bridge, protocol: Protocol.Gateway, supportsRecipient: true },
+	{ action: ActionType.Transfer, protocol: Protocol.Yellow, supportsRecipient: true },
+	{ action: ActionType.Transfer, protocol: Protocol.LiFi, supportsRecipient: true },
+	{ action: ActionType.CreateChannel, protocol: Protocol.Yellow, supportsRecipient: false },
+	{ action: ActionType.AddChannelMember, protocol: Protocol.Yellow, supportsRecipient: false },
+	{ action: ActionType.CloseChannel, protocol: Protocol.Yellow, supportsRecipient: false },
+	{ action: ActionType.AddLiquidity, protocol: Protocol.UniswapV4, supportsRecipient: false },
+	{ action: ActionType.RemoveLiquidity, protocol: Protocol.UniswapV4, supportsRecipient: true },
+	{ action: ActionType.CollectFees, protocol: Protocol.UniswapV4, supportsRecipient: true },
+	{ action: ActionType.IncreaseLiquidity, protocol: Protocol.UniswapV4, supportsRecipient: false },
+	{ action: ActionType.ShareAddress, protocol: Protocol.PartyKit, supportsRecipient: false },
+	{ action: ActionType.ProposeTransfer, protocol: Protocol.PartyKit, supportsRecipient: false },
+	{ action: ActionType.RequestVerification, protocol: Protocol.PartyKit, supportsRecipient: false },
+	{ action: ActionType.DepositToCustody, protocol: Protocol.Yellow, supportsRecipient: false },
+	{ action: ActionType.WithdrawFromCustody, protocol: Protocol.Yellow, supportsRecipient: true },
+	{ action: ActionType.ResizeChannel, protocol: Protocol.Yellow, supportsRecipient: false },
+	{ action: ActionType.CreatePool, protocol: Protocol.UniswapV4, supportsRecipient: false },
+	{ action: ActionType.AcceptTransfer, protocol: Protocol.PartyKit, supportsRecipient: false },
+	{ action: ActionType.RejectTransfer, protocol: Protocol.PartyKit, supportsRecipient: false },
+] as const satisfies ProtocolActionSpec[]
 
 const eqAddr = (a: unknown, b: unknown) => (
 	typeof a === 'string' && typeof b === 'string' && a.toLowerCase() === b.toLowerCase()
@@ -426,7 +489,15 @@ export const intents: IntentDefinition[] = [
 
 		entities: [
 			{ name: 'fromActor', type: EntityType.Actor },
-			{ name: 'toActor', type: EntityType.Actor },
+			{
+				name: 'toActor',
+				type: EntityType.Actor,
+				match: (id) => (
+					(id as { rejectMatch?: boolean }).rejectMatch === true
+						? { result: false, error: 'rejected by predicate' }
+						: { result: true, reason: 'ok' }
+				),
+			},
 		],
 
 		resolveOptions: ({ fromActor, toActor }) => [
