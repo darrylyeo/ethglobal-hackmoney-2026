@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+
 test('page loads and shows Networks and coins heading', async ({ page }) => {
 	await page.goto('/test/networks-coins')
 	await expect(
@@ -7,6 +8,7 @@ test('page loads and shows Networks and coins heading', async ({ page }) => {
 		timeout: 15_000,
 	})
 })
+
 test('after networks load, Networks section lists Ethereum with ID 1', async ({
 	page,
 }) => {
@@ -24,6 +26,7 @@ test('after networks load, Networks section lists Ethereum with ID 1', async ({
 		}),
 	).toContainText('(ID: 1)', { timeout: 5_000 })
 })
+
 test('after coins load, USDC coins section lists USDC on chain 1 with address', async ({
 	page,
 }) => {
