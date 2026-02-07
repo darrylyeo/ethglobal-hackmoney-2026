@@ -10,6 +10,17 @@
 	import { CoinType } from '$/constants/coins.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 
+	type ExecutionArgs = {
+		provider: {
+			request: (args: {
+				method: string
+				params?: unknown[]
+			}) => Promise<unknown>
+		}
+		walletAddress: `0x${string}`
+		mode: 'wallet' | 'e2e'
+	}
+
 
 	// Context
 	import { getContext } from 'svelte'
@@ -43,24 +54,42 @@
 		tokenSymbol?: string
 		tokenDecimals?: number
 		tokenAddress: `0x${string}`
-		mode?: 'direct' | 'channel'
+		mode?: 'direct' | 'channel',
 	} = $props()
 
-	type ExecutionArgs = {
-		provider: {
-			request: (args: {
-				method: string
-				params?: unknown[]
-			}) => Promise<unknown>
-		}
-		walletAddress: `0x${string}`
-		mode: 'wallet' | 'e2e'
-	}
+
+	// Functions
+	import { requestE2eTevmValueTransfer } from '$/tests/tevm.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { getTransferSessionParams } from '$/lib/session/params.ts'
+	import {
+		buildSessionHash,
+		createTransactionSession,
+		parseSessionHash,
+	} from '$/lib/session/sessions.ts'
+
 	const isHexString = (value: unknown): value is `0x${string}` =>
 		typeof value === 'string' && value.startsWith('0x')
 
+
+	// State
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+	import {
+		insertTransaction,
+		updateTransaction,
+	} from '$/collections/transactions.ts'
+	import type { Transaction$Id } from '$/data/Transaction.ts'
+
 	let activeSessionId = $state<string | null>(null)
 	let lookupSessionId = $state<string | null>(null)
+
+
+	// Components
+	import Address from '$/components/Address.svelte'
+	import LoadingButton from '$/components/LoadingButton.svelte'
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
+	import CoinAmount from '$/views/CoinAmount.svelte'
+	import TransactionFlow from '$/views/TransactionFlow.svelte'
 
 
 	// (Derived)
@@ -218,26 +247,6 @@
 	})
 
 
-	// Functions
-	import { requestE2eTevmValueTransfer } from '$/tests/tevm.ts'
-	import { formatSmallestToDecimal } from '$/lib/format.ts'
-	import { getTransferSessionParams } from '$/lib/session/params.ts'
-	import {
-		buildSessionHash,
-		createTransactionSession,
-		parseSessionHash,
-	} from '$/lib/session/sessions.ts'
-
-
-	// State
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
-	import {
-		insertTransaction,
-		updateTransaction,
-	} from '$/collections/transactions.ts'
-	import type { Transaction$Id } from '$/data/Transaction.ts'
-
-
 	// Actions
 	const executeChannelTransfer = async () => {
 		if (!yellowState.clearnodeConnection) {
@@ -304,25 +313,23 @@
 		updateTransaction(txId, { status: 'completed', destTxHash: txHash })
 		return { txHash }
 	}
-
-
-	// Components
-	import Address from '$/components/Address.svelte'
-	import LoadingButton from '$/components/LoadingButton.svelte'
-	import TruncatedValue from '$/components/TruncatedValue.svelte'
-	import CoinAmount from '$/views/CoinAmount.svelte'
-	import TransactionFlow from '$/views/TransactionFlow.svelte'
 </script>
 
 {#snippet transferSummary()}
 	<dl class="summary">
 		<dt>From</dt>
 		<dd data-intent-transition="source">
-			<Address network={settings.chainId} address={settings.fromActor} />
+			<Address
+				network={settings.chainId}
+				address={settings.fromActor}
+			/>
 		</dd>
 		<dt>To</dt>
 		<dd data-intent-transition="target">
-			<Address network={settings.chainId} address={settings.toActor} />
+			<Address
+				network={settings.chainId}
+				address={settings.toActor}
+			/>
 		</dd>
 		<dt>Network</dt>
 		<dd>{chainLabel}</dd>
@@ -353,7 +360,12 @@
 
 {#if sessionLocked}
 	<div data-row="gap-2 align-center">
-		<LoadingButton type="button" onclick={forkSession}>New draft</LoadingButton>
+		<LoadingButton
+			type="button"
+			onclick={forkSession}
+		>
+			New draft
+		</LoadingButton>
 	</div>
 {/if}
 
