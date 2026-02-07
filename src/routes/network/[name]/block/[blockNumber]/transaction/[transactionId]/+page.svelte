@@ -1,4 +1,7 @@
 <script lang="ts">
+
+
+	// Types/constants
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import type { ChainId } from '$/constants/networks.ts'
@@ -15,6 +18,24 @@
 	const DECIMAL_ONLY = /^\d+$/
 	const TX_HASH = /^0x[a-fA-F0-9]{64}$/
 
+
+	// Context
+
+
+	// Props
+	let {
+		data,
+	}: {
+		data: {
+			nameParam: string
+			blockNumberParam: string
+			transactionId: `0x${string}`
+			config: { name: string }
+		}
+	} = $props()
+
+
+	// (Derived)
 	const nameParam = $derived(page.params.name ?? '')
 	const blockNumberParam = $derived(page.params.blockNumber ?? '')
 	const transactionIdParam = $derived(page.params.transactionId ?? '')
@@ -38,8 +59,12 @@
 		!!parsed && blockNumberValid && transactionId !== null,
 	)
 
+
+	// State
 	let height = $state(0)
 
+
+	// (Derived)
 	const txQuery = useLiveQuery(
 		(q) =>
 			q
@@ -145,5 +170,8 @@
 	<p>
 		<a href={showContextUrl} data-link>Show Context</a>
 	</p>
-	<NetworkView data={networkData} {placeholderBlockIds} />
+	<NetworkView
+		data={networkData}
+		{placeholderBlockIds}
+	/>
 </div>
