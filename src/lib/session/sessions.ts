@@ -15,18 +15,18 @@ import { stringify } from '$/lib/stringify.ts'
 
 export type SessionHashResult =
 	| {
-			kind: 'empty'
+			kind: 'empty',
 	  }
 	| {
-			kind: 'session'
-			sessionId: string
+			kind: 'session',
+			sessionId: string,
 	  }
 	| {
-			kind: 'actions'
+			kind: 'actions',
 			actions: {
-				action: TransactionSessionAction
-				params: Record<string, unknown> | null
-			}[]
+				action: TransactionSessionAction,
+				params: Record<string, unknown> | null,
+			}[],
 	  }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -235,3 +235,4 @@ export const createTransactionSessionSimulation = (args: {
 	})
 	return simulationId
 }
+
