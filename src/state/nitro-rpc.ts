@@ -104,3 +104,4 @@ export const verifyStateSignature = async (_params: {
 	// Stub: real implementation would recover signer from signature and compare
 	return false
 }
+
