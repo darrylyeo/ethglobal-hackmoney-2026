@@ -6,15 +6,19 @@
 	import { ercTokens } from '$/constants/coins.ts'
 
 
-	// State
+	// Functions
 	import { fetchAllBalancesForAddress } from '$/collections/actor-coins.ts'
 
+
+	// State
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
 	let balanceTokens = $state<
 		{ chainId: number; tokenAddress: `0x${string}` }[]
 	>([])
 
+
+	// (Derived)
 	const balanceTokensToFetch = $derived(
 		(() => {
 			const resolved =
@@ -52,14 +56,26 @@
 
 <Session title="Swap">
 	{#snippet Context()}
-		<details open data-card>
+		<details
+			open
+			data-card
+		>
 			<summary>
-				<header data-card data-row="wrap gap-2">
-					<AccountsSelect bind:connectedWallets bind:selectedActor />
+				<header
+					data-card
+					data-row="wrap gap-2"
+				>
+					<AccountsSelect
+						bind:connectedWallets
+						bind:selectedActor
+					/>
 				</header>
 			</summary>
 			<div data-column="gap-3">
-				<CoinBalances {selectedActor} {balanceTokens} />
+				<CoinBalances
+					{selectedActor}
+					{balanceTokens}
+				/>
 			</div>
 		</details>
 	{/snippet}
