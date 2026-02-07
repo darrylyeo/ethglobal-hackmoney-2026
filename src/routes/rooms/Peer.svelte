@@ -11,19 +11,21 @@
 		peer,
 		showStatus = false,
 	}: {
-		peer: RoomPeer
-		showStatus?: boolean
+		peer: RoomPeer,
+		showStatus?: boolean,
 	} = $props()
+
+
+	// (Derived)
+	const name = $derived(peer.displayName ?? peer.peerId.slice(0, 8))
+	const hue = $derived(peerNameToHue(peer.displayName ?? peer.peerId))
+	const emoji = $derived(peerNameToEmoji(peer.displayName, peer.peerId))
+	const bg = $derived(`oklch(0.65 0.2 ${hue})`)
 
 
 	// Components
 	import Timestamp from '$/components/Timestamp.svelte'
 	import { TimestampFormat } from '$/components/Timestamp.svelte'
-
-	const name = $derived(peer.displayName ?? peer.peerId.slice(0, 8))
-	const hue = $derived(peerNameToHue(peer.displayName ?? peer.peerId))
-	const emoji = $derived(peerNameToEmoji(peer.displayName, peer.peerId))
-	const bg = $derived(`oklch(0.65 0.2 ${hue})`)
 </script>
 
 
@@ -42,7 +44,10 @@
 			{emoji}
 		</span>
 		{#if showStatus}
-			<span class="peer-avatar-dot" aria-hidden="true" />
+			<span
+				class="peer-avatar-dot"
+				aria-hidden="true"
+			/>
 		{/if}
 	</span>
 	<span data-peer-name>{name}</span>
@@ -51,19 +56,19 @@
 			{peer.isConnected ? 'Connected' : 'Disconnected'}
 		</span>
 		{#if peer.isConnected && peer.connectedAt != null}
-			<small
-				>since <Timestamp
+			<small>
+				since <Timestamp
 					timestamp={peer.connectedAt}
 					format={TimestampFormat.Relative}
-				/></small
-			>
+				/>
+			</small>
 		{:else if peer.disconnectedAt != null}
-			<small
-				>left <Timestamp
+			<small>
+				left <Timestamp
 					timestamp={peer.disconnectedAt}
 					format={TimestampFormat.Relative}
-				/></small
-			>
+				/>
+			</small>
 		{/if}
 	{/if}
 </span>
