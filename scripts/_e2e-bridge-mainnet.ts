@@ -12,8 +12,8 @@
 
 import { createConfig, getQuote, getStatus } from '@lifi/sdk'
 import { PrivateKeySignerImpl } from '@tevm/voltaire/signers'
-import { ercTokensBySymbolByChainId } from '../src/constants/coins.ts'
-import { ChainId } from '../src/constants/networks.ts'
+import { ercTokensBySymbolByChainId } from '$/constants/coins.ts'
+import { ChainId } from '$/constants/networks.ts'
 
 createConfig({ integrator: 'ethglobal-hackmoney-26', })
 

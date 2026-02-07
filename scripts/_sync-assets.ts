@@ -16,7 +16,7 @@ import {
 	isDefaultAsset,
 	providerAssetSources,
 	type AssetSource,
-} from '../src/constants/assets.ts'
+} from '$/constants/assets.ts'
 
 const subjectToDirKey = {
 	Network: 'network',

@@ -1,5 +1,6 @@
 import { expect, type BrowserContext, type Page } from '@playwright/test'
-import { ActionType } from '../src/constants/intents.ts'
+import { APP_NAME } from '$/constants/app.ts'
+import { ActionType } from '$/constants/intents.ts'
 import {
 	buildLocalStoragePayload,
 	buildSessionRow,
@@ -64,7 +65,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/',
 		assert: async (page) => {
 			await expect(
-				page.getByRole('heading', { name: 'USDC Tools', level: 1, }),
+				page.getByRole('heading', { name: APP_NAME, level: 1, }),
 			).toBeVisible()
 			await expect(
 				page.getByRole('link', { name: 'Bridge', }).first(),

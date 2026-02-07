@@ -1,7 +1,7 @@
 import { stringify } from 'devalue'
-import { ActionType } from '../src/constants/intents.ts'
-import { DataSource } from '../src/constants/data-sources.ts'
-import type { TransactionSession } from '../src/data/TransactionSession.ts'
+import { ActionType } from '$/constants/intents.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import type { TransactionSession } from '$/data/TransactionSession.ts'
 
 const encodeStorageKey = (key: string | number) =>
 	typeof key === 'number' ? `n:${key}` : `s:${key}`

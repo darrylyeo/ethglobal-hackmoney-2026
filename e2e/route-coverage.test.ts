@@ -3,6 +3,7 @@
  * Spec 039: Each core route has at least one happy-path and one error or empty-state test.
  */
 
+import { APP_NAME } from '$/constants/app.ts'
 import { expect, test } from './fixtures/tevm.ts'
 import { addTevmWallet } from './test-setup.ts'
 
@@ -13,7 +14,7 @@ test.describe('Home (/)', () => {
 			timeout: 20_000,
 		})
 		await expect(
-			page.getByRole('heading', { name: 'USDC Tools', }),
+			page.getByRole('heading', { name: APP_NAME, }),
 		).toBeVisible()
 		await expect(
 			page.getByRole('link', { name: 'Bridge', }).first(),

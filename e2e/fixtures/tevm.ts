@@ -13,7 +13,7 @@ import {
 	E2E_TEVM_PROVIDER_RDNS,
 	E2E_TEVM_RECIPIENT_ADDRESS,
 	E2E_TEVM_WALLET_ADDRESS,
-} from '../../src/tests/tevmConfig.ts'
+} from '$/tests/tevmConfig.ts'
 
 type TevmFixture = {
 	rpcUrl: string
@@ -122,7 +122,7 @@ export const test = base.extend<{ tevm: TevmFixture }>({
 				server.close(() => resolve())
 			})
 		},
-		{ scope: 'worker', },
+		{ scope: 'worker' },
 	],
 })
 
