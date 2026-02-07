@@ -5,6 +5,11 @@ export type TransactionSessionAction =
 	| 'bridge'
 	| 'transfer'
 	| 'liquidity'
+	| 'createChannel'
+	| 'addChannelMember'
+	| 'closeChannel'
+	| 'addLiquidity'
+	| 'removeLiquidity'
 	| 'intent'
 
 export type TransactionSessionSimulationSummary = {
