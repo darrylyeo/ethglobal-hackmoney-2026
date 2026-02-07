@@ -3,14 +3,14 @@ import type { IntentDragPayload } from '$/constants/intents.ts'
 export type IntentDragEndpoint = {
 	payload: IntentDragPayload
 	element: HTMLElement
-	rect: DOMRect
+	rect: DOMRect,
 }
 
 export type IntentDragPreviewState = {
 	status: 'idle' | 'dragging' | 'selected'
 	source: IntentDragEndpoint | null
 	target: IntentDragEndpoint | null
-	selectedRouteId: string | null
+	selectedRouteId: string | null,
 }
 
 export const intentDragPreviewState = $state<IntentDragPreviewState>({
@@ -31,7 +31,7 @@ const toEndpoint = (
 
 export const startIntentDragPreview = (args: {
 	payload: IntentDragPayload
-	element: HTMLElement
+	element: HTMLElement,
 }) => {
 	intentDragPreviewState.status = 'dragging'
 	intentDragPreviewState.source = toEndpoint(args.payload, args.element)
@@ -41,7 +41,7 @@ export const startIntentDragPreview = (args: {
 
 export const updateIntentDragTarget = (args: {
 	payload: IntentDragPayload
-	element: HTMLElement
+	element: HTMLElement,
 }) => {
 	if (intentDragPreviewState.status === 'idle') return
 	if (!intentDragPreviewState.source) return
@@ -73,3 +73,4 @@ export const clearIntentDragPreview = () => {
 export const selectIntentDragRoute = (routeId: string | null) => {
 	intentDragPreviewState.selectedRouteId = routeId
 }
+
