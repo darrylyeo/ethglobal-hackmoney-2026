@@ -2,16 +2,16 @@
  * Shared swap settings state.
  */
 
-import { PersistedState } from 'runed'
-import { stringify, parse } from 'devalue'
 import { ChainId } from '$/constants/networks.ts'
+import { parse, stringify } from 'devalue'
+import { PersistedState } from 'runed'
 
 export type SwapSettings = {
 	chainId: number
 	tokenIn: `0x${string}`
 	tokenOut: `0x${string}`
 	amount: bigint
-	slippage: number
+	slippage: number,
 }
 
 export const defaultSwapSettings: SwapSettings = {
