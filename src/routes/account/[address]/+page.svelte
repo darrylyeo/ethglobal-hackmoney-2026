@@ -16,6 +16,7 @@
 	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
 	import { walletsCollection } from '$/collections/wallets.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 
 
 	// Props
@@ -344,6 +345,9 @@
 				</ul>
 			</section>
 		{/if}
+		<section data-scroll-item>
+			<LocalGraphScene />
+		</section>
 	{/if}
 </div>
 
