@@ -469,7 +469,7 @@
 	const isQuotePending = $derived(Boolean(quoteParams && !quote))
 
 
-	// Actions
+	// (Derived)
 	const fetchQuote = debounce(() => {
 		if (quoteParams) fetchSwapQuote(quoteParams, getSwapQuote).catch(() => {})
 	}, 500)
@@ -664,7 +664,10 @@
 		<h2 data-intent-transition="route">Swap</h2>
 		<div data-row="gap-2 align-center">
 			{#if sessionLocked}
-				<LoadingButton type="button" onclick={forkSession}>New draft</LoadingButton>
+				<LoadingButton
+					type="button"
+					onclick={forkSession}
+				>New draft</LoadingButton>
 			{/if}
 			<NetworkInput
 				networks={filteredNetworks}
@@ -694,10 +697,10 @@
 					<label for="swap-amount-in">From</label>
 					{#if tokenInBalance !== null}
 						<Button.Root
-							type="button"
-							onclick={() => updateAmount(tokenInBalance)}
-							disabled={sessionLocked || tokenInBalance === 0n}
-						>
+						type="button"
+						onclick={() => updateAmount(tokenInBalance)}
+						disabled={sessionLocked || tokenInBalance === 0n}
+					>
 							Max
 						</Button.Root>
 					{/if}
@@ -789,11 +792,15 @@
 			</div>
 
 			<Popover.Root>
-				<Popover.Trigger data-row="gap-1" disabled={sessionLocked}
-					>Slippage: <strong>{formatSlippagePercent(settings.slippage)}</strong
-					></Popover.Trigger
+			<Popover.Trigger
+				data-row="gap-1"
+				disabled={sessionLocked}
+			>
+				Slippage: <strong>{formatSlippagePercent(settings.slippage)}</strong>
+			</Popover.Trigger>
+				<Popover.Content
+					data-column="gap-2"
 				>
-				<Popover.Content data-column="gap-2">
 					<div data-row="gap-1">
 						{#each slippagePresets as preset (preset.id)}
 							<Button.Root
