@@ -2,6 +2,7 @@
 
 
 	// Types/constants
+	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
 	import type { LlmConnectionRow } from '$/collections/llm-connections.ts'
 	import type { AgentChatTree } from '$/data/AgentChatTree.ts'
 	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
@@ -23,23 +24,20 @@
 	const rootTurn = $derived(
 		turns.find((t) => t.parentId === null),
 	)
+	const treeModelValue = $derived(
+		tree.defaultConnectionId && tree.defaultModelId
+			? `${tree.defaultConnectionId}:${tree.defaultModelId}`
+			: '',
+	)
 
 
 	// Functions
-	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
-
 	const updateTreeName = (name: string) => {
 		agentChatTreesCollection.update(tree.id, (draft) => {
 			draft.name = name || null
 			draft.updatedAt = Date.now()
 		})
 	}
-
-	const treeModelValue = $derived(
-		tree.defaultConnectionId && tree.defaultModelId
-			? `${tree.defaultConnectionId}:${tree.defaultModelId}`
-			: '',
-	)
 	const updateTreeModel = (v: string) => {
 		const [connectionId, modelId] =
 			v && v.includes(':') ? v.split(':').map((s) => s?.trim() ?? null) : [null, null]
@@ -49,7 +47,6 @@
 			draft.updatedAt = Date.now()
 		})
 	}
-
 	const togglePin = () => {
 		agentChatTreesCollection.update(tree.id, (draft) => {
 			draft.pinned = !draft.pinned
@@ -65,7 +62,10 @@
 </script>
 
 
-<div data-column="gap-4" id="agent-chat:{tree.id}">
+<div
+	data-column="gap-4"
+	id="agent-chat:{tree.id}"
+>
 	<div data-row="gap-2 align-center">
 		<input
 			type="text"
