@@ -15,11 +15,11 @@ import {
 } from '$/tests/tevmConfig.ts'
 
 export type EIP1193Provider = {
-	request(args: { method: string; params?: unknown[] }): Promise<unknown>
+	request(args: { method: string, params?: unknown[] }): Promise<unknown>
 }
 
 export type ProviderDetailType = {
-	info: Readonly<{ uuid: string; name: string; icon: string; rdns: string }>
+	info: Readonly<{ uuid: string, name: string, icon: string, rdns: string }>
 	provider: EIP1193Provider
 }
 
@@ -218,7 +218,7 @@ export const ensureE2eProvider = () => {
 		for (const handler of handlers) handler(payload)
 	}
 	const provider = {
-		request: async (args: { method: string; params?: unknown[] }) => {
+		request: async (args: { method: string, params?: unknown[] }) => {
 			if (args.method === 'eth_chainId') {
 				return `0x${activeChainId.toString(16)}`
 			}
@@ -422,3 +422,4 @@ export function createWalletState(): WalletState {
 		error: null,
 	}
 }
+
