@@ -7,7 +7,6 @@
 	import type { Transaction$Id } from '$/data/Transaction.ts'
 	import type { WalletRow } from '$/collections/wallets.ts'
 	import type { BridgeStatus } from '$/lib/bridge/txStatus.ts'
-	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import {
 		insertTransaction,
 		updateTransaction,
@@ -53,42 +52,18 @@
 		provider: walletRow.provider,
 	})
 
+
 	// State
 	let actionTx = $state<Transaction<Record<string, unknown>> | null>(null)
-
-
-	// Actions
-	const handleExecute = async () => {
-		return await execute()
-	}
-
-	$effect(() => {
-		if (onExecute) {
-			onExecute(handleExecute)
-		}
-	})
-
-	$effect(() => {
-		executing =
-			actionTx?.state === 'pending' || actionTx?.state === 'persisting'
-	})
-
-
-	// (Derived)
-	const failed = $derived(actionTx?.state === 'failed')
-
-
-	// State
 	const executeBridge = createOptimisticAction<{
-		route: BridgeRoute
-		providerDetail: typeof providerDetail
-		walletAddress: `0x${string}`
-		fromChainId: number
-		toChainId: number
-		amount: bigint
-		onStatus: (s: BridgeStatus) => void
+		route: BridgeRoute,
+		providerDetail: typeof providerDetail,
+		walletAddress: `0x${string}`,
+		fromChainId: number,
+		toChainId: number,
+		amount: bigint,
+		onStatus: (s: BridgeStatus) => void,
 	}>({
-		// No optimistic insert - we don't have the tx hash yet
 		onMutate: () => {},
 		mutationFn: async ({
 			route,
@@ -132,8 +107,8 @@
 					.flatMap(
 						(s) =>
 							(s.execution?.process ?? []) as {
-								txHash?: string
-								chainId?: number
+								txHash?: string,
+								chainId?: number,
 							}[],
 					)
 					.find((p) => p.chainId === toChainId)?.txHash
@@ -153,6 +128,25 @@
 				throw err
 			}
 		},
+	})
+
+
+	// (Derived)
+	const failed = $derived(actionTx?.state === 'failed')
+
+
+	// Actions
+	const handleExecute = async () => (await execute())
+
+	$effect(() => {
+		if (onExecute) {
+			onExecute(handleExecute)
+		}
+	})
+
+	$effect(() => {
+		executing =
+			actionTx?.state === 'pending' || actionTx?.state === 'persisting'
 	})
 
 	const execute = async () => {
@@ -183,9 +177,15 @@
 			})
 		}
 		const txHash = status.steps.find((step) => step.txHash)?.txHash
-		return { txHash: isHexHash(txHash) ? txHash : undefined }
+		return {
+			txHash:
+				typeof txHash === 'string' && txHash.startsWith('0x') ?
+					txHash
+				:	undefined,
+		}
 	}
 </script>
+
 
 {#if status.overall !== 'idle'}
 	<div data-column="gap-1">
@@ -203,8 +203,8 @@
 						href={getTxUrl(step.chainId ?? fromChainId, step.txHash)}
 						target="_blank"
 						rel="noopener noreferrer"
-						data-tx-hash={step.txHash}>{step.txHash.slice(0, 8)}…</a
-					>
+						data-tx-hash={step.txHash}
+					>{step.txHash.slice(0, 8)}…</a>
 				{/if}
 			</div>
 		{/each}
