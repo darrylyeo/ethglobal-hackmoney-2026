@@ -35,8 +35,8 @@ test.describe('bridge flow', () => {
 			timeout: 30_000,
 		})
 		await expect(
-			page.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
-		).toBeVisible({ timeout: 45_000 })
+			page.getByRole('heading', { level: 1, name: 'USDC Bridge', }),
+		).toBeVisible({ timeout: 45_000, })
 	})
 
 	test.describe('with mock wallet', () => {
@@ -47,17 +47,17 @@ test.describe('bridge flow', () => {
 				timeout: 30_000,
 			})
 			await expect(
-				page.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
-			).toBeVisible({ timeout: 45_000 })
-			await page.getByRole('button', { name: 'Connect Wallet' }).click()
+				page.getByRole('heading', { level: 1, name: 'USDC Bridge', }),
+			).toBeVisible({ timeout: 45_000, })
+			await page.getByRole('button', { name: 'Connect Wallet', }).click()
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toBeVisible({
 				timeout: 10_000,
 			})
-			await page.getByRole('button', { name: 'LI.FI' }).click()
+			await page.getByRole('button', { name: 'LI.FI', }).click()
 			await page
 				.getByText('Loading networks…')
-				.waitFor({ state: 'hidden', timeout: 15_000 })
+				.waitFor({ state: 'hidden', timeout: 15_000, })
 		})
 
 		test('select source and destination chain, enter amount', async ({
@@ -67,14 +67,14 @@ test.describe('bridge flow', () => {
 				timeout: 5_000,
 			})
 			await page.getByLabel('From chain').click()
-			await expect(page.getByRole('listbox')).toBeVisible({ timeout: 5_000 })
+			await expect(page.getByRole('listbox')).toBeVisible({ timeout: 5_000, })
 			await page
-				.getByRole('option', { name: 'Ethereum' })
-				.click({ force: true })
+				.getByRole('option', { name: 'Ethereum', })
+				.click({ force: true, })
 			await page.getByLabel('To chain').click()
 			await page
-				.getByRole('option', { name: 'OP Mainnet' })
-				.click({ force: true })
+				.getByRole('option', { name: 'OP Mainnet', })
+				.click({ force: true, })
 			await page.getByLabel('Amount').fill('1')
 		})
 
@@ -84,23 +84,23 @@ test.describe('bridge flow', () => {
 			})
 			await page.getByLabel('From chain').click()
 			await page
-				.getByRole('option', { name: 'Ethereum' })
-				.click({ force: true })
+				.getByRole('option', { name: 'Ethereum', })
+				.click({ force: true, })
 			await page.getByLabel('To chain').click()
 			await page
-				.getByRole('option', { name: 'OP Mainnet' })
-				.click({ force: true })
+				.getByRole('option', { name: 'OP Mainnet', })
+				.click({ force: true, })
 			await page.getByLabel('Amount').fill('1')
 			await Promise.race([
 				page
 					.locator('[data-testid="quote-result"]')
-					.waitFor({ state: 'visible', timeout: 25_000 }),
+					.waitFor({ state: 'visible', timeout: 25_000, }),
 				page
 					.locator('[data-no-routes]')
-					.waitFor({ state: 'visible', timeout: 25_000 }),
+					.waitFor({ state: 'visible', timeout: 25_000, }),
 				page
 					.locator('[data-error-display]')
-					.waitFor({ state: 'visible', timeout: 25_000 }),
+					.waitFor({ state: 'visible', timeout: 25_000, }),
 			])
 			const hasResult =
 				(await page.locator('[data-testid="quote-result"]').count()) > 0 ||
