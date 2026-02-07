@@ -25,3 +25,7 @@ Let users configure LLM connections (OpenAI, Anthropic, Google, OpenCode Zen, ho
 - [x] Vercel AI SDK used for OpenAI, Anthropic, Google; `createLlmProvider({ connectionId?, modelId? })` uses selected connection when given.
 - [x] `<ModelInput>` component: value = selected connection+model; options = models from all configured connections; bindable value.
 - [x] AgentChatTree and AgentChatTurnNode let user choose model via ModelInput; selection stored and used when generating (submitAgentChatTurn / createLlmProvider).
+
+## Status
+
+Complete. 2026-02-07 (PROMPT_build execute one spec): All 5 AC verified. `LlmConnection` type and `llmConnectionsCollection` in `src/data/LlmConnection.ts` and `src/collections/llm-connections.ts` with localStorage persistence. Settings route `/settings/llm` with LlmConnections.svelte (list, add by provider dropdown, remove, edit API key/endpoint/defaultModelId). Vercel AI SDK in `connection-provider.ts`; `createLlmProvider({ connectionId?, modelId? })` in `llmProvider.ts` uses selected connection when given. ModelInput.svelte with bindable connection+model value; AgentChatTree, AgentChatTurnNode, and agents +page use ModelInput; selection passed to submitAgentChatTurn/createLlmProvider.
