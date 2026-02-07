@@ -8,29 +8,33 @@
  */
 
 // Context
-import { useLiveQuery, eq } from '@tanstack/svelte-db'
+import { eq, useLiveQuery } from '@tanstack/svelte-db'
 import { DataSource } from '$/constants/data-sources.ts'
 
+
 // Collections
-import { walletsCollection, upsertWallet } from '$/collections/wallets.ts'
+import { upsertWallet, walletsCollection } from '$/collections/wallets.ts'
 import {
-	walletConnectionsCollection,
-	updateWalletChain,
-	updateConnectionActors,
-	requestWalletConnection,
 	reconnectWallet,
+	requestWalletConnection,
+	updateConnectionActors,
+	updateWalletChain,
+	walletConnectionsCollection,
 } from '$/collections/wallet-connections.ts'
+
 
 // Functions
 import {
 	ensureE2eProvider,
-	subscribeProviders,
 	getWalletChainId,
-	subscribeChainChanged,
 	subscribeAccountsChanged,
+	subscribeChainChanged,
+	subscribeProviders,
 } from '$/lib/wallet.ts'
 import { E2E_TEVM_PROVIDER_RDNS } from '$/tests/tevmConfig.ts'
 
+
+// State
 let walletSubscriptionsReady = false
 
 const createWalletContext = () => {
