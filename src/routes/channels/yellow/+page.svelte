@@ -20,7 +20,11 @@
 	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
 	import { walletsCollection } from '$/collections/wallets.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
-	import { yellowState } from '$/state/yellow.svelte'
+	import {
+		connectToYellow,
+		disconnectFromYellow,
+		yellowState,
+	} from '$/state/yellow.svelte'
 	import { roomIdToDisplayName } from '$/lib/rooms/room.ts'
 
 	const isEip1193Provider = (value: unknown): value is EIP1193Provider =>
@@ -144,6 +148,7 @@
 	let challengeChannelId = $state<string | null>(null)
 	let actionError = $state<string | null>(null)
 
+
 	// (Derived) filtered list
 	const statusMatches = (status: ChannelStatus) =>
 		statusFilter === 'all' ||
@@ -199,8 +204,6 @@
 
 
 	// State (connection + channel creation)
-	import { connectToYellow, disconnectFromYellow } from '$/state/yellow.svelte'
-
 	let connecting = $state(false)
 	let connectError = $state<string | null>(null)
 	let creatingChannel = $state(false)
