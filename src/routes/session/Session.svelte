@@ -7,6 +7,7 @@
 	import { createSessionAction } from '$/data/TransactionSession.ts'
 	import { ActionType } from '$/constants/intents.ts'
 	import { ercTokens } from '$/constants/coins.ts'
+	import { NetworkType, networks } from '$/constants/networks.ts'
 
 
 	// Context
@@ -59,22 +60,35 @@
 		sessionCtx.sessionId = session.id
 	})
 
+	const filteredNetworks = $derived(
+		networks.filter((n) =>
+			bridgeSettingsState.current.isTestnet
+				? n.type === NetworkType.Testnet
+				: n.type === NetworkType.Mainnet,
+		),
+	)
+	const defaultBalanceTokens = $derived(
+		ercTokens
+			.filter((t) => filteredNetworks.some((n) => n.id === t.chainId))
+			.map((t) => ({ chainId: t.chainId, tokenAddress: t.address })),
+	)
 	const balanceTokensToFetch = $derived(
-		(() => {
-			const resolved =
-				balanceTokens.length > 0
-					? balanceTokens.flatMap((t) => {
-							const e = ercTokens.find(
-								(e) =>
-									e.chainId === t.chainId &&
-									e.address.toLowerCase() ===
-										t.tokenAddress.toLowerCase(),
-							)
-							return e ? [e] : []
-						})
-					: ercTokens
-			return resolved.length > 0 ? resolved : ercTokens
-		})(),
+		balanceTokens.length > 0
+			? balanceTokens.flatMap((t) => {
+					const e = ercTokens.find(
+						(e) =>
+							e.chainId === t.chainId &&
+							e.address.toLowerCase() ===
+								t.tokenAddress.toLowerCase(),
+					)
+					return e ? [e] : []
+				})
+			: ercTokens.filter((t) =>
+					filteredNetworks.some((n) => n.id === t.chainId),
+				),
+	)
+	const effectiveBalanceTokens = $derived(
+		balanceTokens.length > 0 ? balanceTokens : defaultBalanceTokens,
 	)
 
 	$effect(() => {
@@ -153,7 +167,7 @@
 			<div data-column="gap-3">
 				<CoinBalances
 					{selectedActor}
-					{balanceTokens}
+					balanceTokens={effectiveBalanceTokens}
 				/>
 			</div>
 		</details>
