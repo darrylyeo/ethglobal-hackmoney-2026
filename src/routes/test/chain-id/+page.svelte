@@ -32,10 +32,18 @@
 </script>
 
 
-<main id="main" data-column data-sticky-container>
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
 	<section data-scroll-item>
 		<h1>Tests</h1>
-		<section data-card data-column="gap-4" aria-labelledby="chainid-heading">
+		<section
+			data-card
+			data-column="gap-4"
+			aria-labelledby="chainid-heading"
+		>
 			<h2 id="chainid-heading">Chain ID (Voltaire)</h2>
 			<form
 				aria-labelledby="chainid-heading"
@@ -46,8 +54,14 @@
 			>
 				<fieldset data-row="gap-2">
 					<legend class="sr-only">RPC URL</legend>
-					<label for="rpc-url" class="sr-only">RPC URL</label>
-					<div data-column="gap-2" data-row-item="flexible">
+					<label
+						for="rpc-url"
+						class="sr-only"
+					>RPC URL</label>
+					<div
+						data-column="gap-2"
+						data-row-item="flexible"
+					>
 						<input
 							id="rpc-url"
 							type="url"
@@ -55,7 +69,10 @@
 							placeholder="RPC URL (https://…)"
 						/>
 					</div>
-					<Button.Root type="submit" disabled={loading || !rpcUrl.trim()}>
+					<Button.Root
+						type="submit"
+						disabled={loading || !rpcUrl.trim()}
+					>
 						{loading ? 'Loading…' : 'Get chain ID'}
 					</Button.Root>
 				</fieldset>
@@ -65,8 +82,7 @@
 			{/if}
 			{#if chainIdResult !== null}
 				<p>
-					<output for="rpc-url">Chain ID: {formatInteger(chainIdResult)}</output
-					>
+					<output for="rpc-url">Chain ID: {formatInteger(chainIdResult)}</output>
 				</p>
 			{/if}
 		</section>
