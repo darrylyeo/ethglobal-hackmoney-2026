@@ -26,7 +26,7 @@
 	}: {
 		route: RoutePathInput
 		entry: RouteEntry | null
-		extraData?: Record<string, unknown>
+		extraData?: Record<string, unknown>,
 	} = $props()
 
 
