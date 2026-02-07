@@ -108,8 +108,8 @@
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import {
-		useLiveQueryContext,
-		useLocalLiveQueryContext,
+		useGlobalQueries,
+		useLocalQueries,
 		type LiveQueryEntry,
 	} from '$/svelte/live-query-context.svelte'
 
@@ -126,8 +126,8 @@
 
 
 	// Context
-	const globalLiveQueryCtx = useLiveQueryContext()
-	const localLiveQueryCtx = useLocalLiveQueryContext()
+	const globalLiveQueryCtx = useGlobalQueries()
+	const localLiveQueryCtx = useLocalQueries()
 
 
 	// Props
@@ -138,7 +138,7 @@
 	}: {
 		visible?: boolean
 		queryStack?: LiveQueryEntry[]
-		globalQueryStack?: LiveQueryEntry[]
+		globalQueryStack?: LiveQueryEntry[],
 	} = $props()
 
 
@@ -2898,6 +2898,7 @@
 		].join(':'),
 	)
 </script>
+
 
 {#if visible && graphModel}
 	<details
