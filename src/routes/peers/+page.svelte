@@ -9,7 +9,7 @@
 	import { roomPeersCollection } from '$/collections/room-peers.ts'
 	import { verificationsCollection } from '$/collections/verifications.ts'
 	import { formatAddress } from '$/lib/address.ts'
-	import { forgetPeer } from '$/state/room.svelte'
+	import { forgetPeer } from '$/state/room.svelte.ts'
 
 
 	// (Derived)

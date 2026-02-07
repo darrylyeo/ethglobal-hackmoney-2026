@@ -13,7 +13,7 @@
 	import { fetchBlock, blocksCollection } from '$/collections/blocks.ts'
 	import { fetchChainTransaction, chainTransactionsCollection } from '$/collections/chain-transactions.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import NetworkView from '$/components/network/Network.svelte'
 
 	const DECIMAL_ONLY = /^\d+$/

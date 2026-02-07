@@ -12,9 +12,9 @@
 	import { transferRequestsCollection } from '$/collections/transfer-requests.ts'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
-	import { roomState } from '$/state/room.svelte'
-	import { yellowState } from '$/state/yellow.svelte'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { roomState } from '$/state/room.svelte.ts'
+	import { yellowState } from '$/state/yellow.svelte.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 
 	// Props

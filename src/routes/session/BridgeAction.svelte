@@ -36,7 +36,7 @@
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Switch } from 'bits-ui'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import {
 		getEffectiveHash,
 		setEffectiveHash,
@@ -62,7 +62,7 @@
 
 
 	// State
-	import { bridgeSettingsState } from '$/state/bridge-settings.svelte'
+	import { bridgeSettingsState } from '$/state/bridge-settings.svelte.ts'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 
 

@@ -3,7 +3,7 @@ import { setIntentDragData } from '$/lib/intents/drag.ts'
 import {
 	startIntentDragPreview,
 	updateIntentDragTarget,
-} from '$/state/intent-drag-preview.svelte'
+} from '$/state/intent-drag-preview.svelte.ts'
 import type { Attachment } from 'svelte/attachments'
 
 export type DraggableOptions = {

@@ -25,8 +25,8 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { useWalletSubscriptions } from '$/state/wallet.svelte'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { useWalletSubscriptions } from '$/state/wallet.svelte.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 	import {
 		walletConnectionsCollection,
@@ -140,11 +140,11 @@
 	import {
 		bridgeSettingsState,
 		defaultBridgeSettings,
-	} from '$/state/bridge-settings.svelte'
+	} from '$/state/bridge-settings.svelte.ts'
 	import {
 		swapSettingsState,
 		defaultSwapSettings,
-	} from '$/state/swap-settings.svelte'
+	} from '$/state/swap-settings.svelte.ts'
 	import { switchWalletChain } from '$/lib/wallet.ts'
 
 	useWalletSubscriptions()

@@ -12,8 +12,8 @@
 	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
 	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
-	import { yellowState } from '$/state/yellow.svelte'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { yellowState } from '$/state/yellow.svelte.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 
 	// Props

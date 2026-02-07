@@ -13,7 +13,7 @@
 		finalizeIntentDragPreview,
 		startIntentDragPreview,
 		updateIntentDragTarget,
-	} from '$/state/intent-drag-preview.svelte'
+	} from '$/state/intent-drag-preview.svelte.ts'
 
 
 	// Props

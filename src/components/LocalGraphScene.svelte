@@ -2,7 +2,7 @@
 
 
 	// Context
-	import { useLocalQueries } from '$/svelte/live-query-context.svelte'
+	import { useLocalQueries } from '$/svelte/live-query-context.svelte.ts'
 
 
 	// Components

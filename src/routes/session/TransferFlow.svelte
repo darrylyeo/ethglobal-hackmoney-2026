@@ -26,8 +26,8 @@
 	import { page } from '$app/state'
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import { yellowState } from '$/state/yellow.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { yellowState } from '$/state/yellow.svelte.ts'
 	import {
 		getEffectiveHash,
 		setEffectiveHash,

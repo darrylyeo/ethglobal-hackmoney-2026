@@ -13,7 +13,7 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
 	import { yellowChannelStatesCollection } from '$/collections/yellow-channel-states.ts'
 	import { roomsCollection } from '$/collections/rooms.ts'
@@ -24,7 +24,7 @@
 		connectToYellow,
 		disconnectFromYellow,
 		yellowState,
-	} from '$/state/yellow.svelte'
+	} from '$/state/yellow.svelte.ts'
 	import { roomIdToDisplayName } from '$/lib/rooms/room.ts'
 
 	const isEip1193Provider = (value: unknown): value is EIP1193Provider =>

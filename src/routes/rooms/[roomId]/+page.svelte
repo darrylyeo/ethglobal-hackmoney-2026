@@ -10,7 +10,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 	import { roomPeersCollection } from '$/collections/room-peers.ts'
 	import {
@@ -18,7 +18,7 @@
 		joinRoom,
 		leaveRoom,
 		partyKitStatusLabel,
-	} from '$/state/room.svelte'
+	} from '$/state/room.svelte.ts'
 
 
 	// Props

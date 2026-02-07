@@ -31,7 +31,7 @@
 		setLocalLiveQueryContext,
 		useGlobalQueries,
 		useLocalQueries,
-	} from '$/svelte/live-query-context.svelte'
+	} from '$/svelte/live-query-context.svelte.ts'
 
 
 	// Functions

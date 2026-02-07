@@ -6,7 +6,7 @@
 
 
 	// Context
-	import { yellowState } from '$/state/yellow.svelte'
+	import { yellowState } from '$/state/yellow.svelte.ts'
 
 
 	// Props

@@ -59,8 +59,8 @@
 		finalizeIntentDragPreview,
 		intentDragPreviewState,
 		selectIntentDragRoute,
-	} from '$/state/intent-drag-preview.svelte'
-	import { getIntentNavigationStore } from '$/state/intent-navigation.svelte'
+	} from '$/state/intent-drag-preview.svelte.ts'
+	import { getIntentNavigationStore } from '$/state/intent-navigation.svelte.ts'
 
 	let tooltipContentRef = $state<HTMLDivElement | null>(null)
 	let prefersReducedMotion = $state(false)

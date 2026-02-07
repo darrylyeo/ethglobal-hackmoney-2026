@@ -16,7 +16,7 @@
 	// Functions
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { getIntentDragPayload } from '$/lib/intents/drag.ts'
-	import { entityIntent } from '$/lib/intents/intentDraggable.svelte'
+	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
 	import { resolveIntentForDrag } from '$/lib/intents.ts'
 
 	const resolveChainName = (chainId: number) =>

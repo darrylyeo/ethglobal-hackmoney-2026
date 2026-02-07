@@ -10,7 +10,7 @@
 		updateTransaction,
 	} from '$/collections/transactions.ts'
 	import { getTxUrl } from '$/constants/explorers.ts'
-	import { toasts } from '$/lib/toast.svelte'
+	import { toasts } from '$/lib/toast.svelte.ts'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
 	import { executeSwap } from '$/api/uniswap.ts'
 

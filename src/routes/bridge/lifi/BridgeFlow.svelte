@@ -10,7 +10,7 @@
 		type BridgeSessionParams,
 		normalizeBridgeSessionParams,
 	} from '$/lib/session/params.ts'
-	import { BridgeRouteSort } from '$/state/bridge-settings.svelte'
+	import { BridgeRouteSort } from '$/state/bridge-settings.svelte.ts'
 	import {
 		type WalletConnectionEip1193,
 		WalletConnectionTransport,
@@ -37,7 +37,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Popover } from 'bits-ui'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 
 	// Functions

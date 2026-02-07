@@ -18,7 +18,7 @@
 	// Context
 	import { Button, Switch } from 'bits-ui'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 
 	// Props

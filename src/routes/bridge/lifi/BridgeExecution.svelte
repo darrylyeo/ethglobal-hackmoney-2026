@@ -13,7 +13,7 @@
 	} from '$/collections/transactions.ts'
 	import { executeSelectedRoute } from '$/api/lifi.ts'
 	import { getTxUrl } from '$/constants/explorers.ts'
-	import { toasts } from '$/lib/toast.svelte'
+	import { toasts } from '$/lib/toast.svelte.ts'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
 
 

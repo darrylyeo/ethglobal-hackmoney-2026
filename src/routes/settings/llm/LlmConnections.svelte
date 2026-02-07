@@ -20,7 +20,7 @@
 		updateLlmConnection,
 		PROVIDER_LABELS,
 	} from '$/collections/llm-connections.ts'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 	const connectionsQuery = useLiveQuery((q) =>
 		q

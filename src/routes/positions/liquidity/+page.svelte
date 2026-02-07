@@ -7,7 +7,7 @@
 
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { uniswapPositionsCollection } from '$/collections/uniswap-positions.ts'
 	import { fetchUniswapPositions } from '$/collections/uniswap-positions.ts'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'

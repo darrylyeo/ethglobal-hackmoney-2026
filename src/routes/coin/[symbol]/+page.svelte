@@ -6,7 +6,7 @@
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { TIME_PERIODS } from '$/api/transfers-indexer.ts'
 	import { getCoinForCoinPage, type CoinPageSymbol } from '$/constants/coins.ts'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import {
 		transferEventsCollection,
 		ensureTransferEventsForPlaceholders,
@@ -18,7 +18,7 @@
 		transferGraphsCollection,
 		fetchTransferGraph,
 	} from '$/collections/transfer-graphs.ts'
-	import { toasts } from '$/lib/toast.svelte'
+	import { toasts } from '$/lib/toast.svelte.ts'
 	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
 	import Boundary from '$/components/Boundary.svelte'
 	import ItemsList from '$/components/ItemsList.svelte'

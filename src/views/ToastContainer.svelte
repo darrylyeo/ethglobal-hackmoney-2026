@@ -2,7 +2,7 @@
 
 
 	// Components
-	import { toasts } from '$/lib/toast.svelte'
+	import { toasts } from '$/lib/toast.svelte.ts'
 	import Toast from '$/components/Toast.svelte'
 
 

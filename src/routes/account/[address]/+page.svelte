@@ -17,7 +17,7 @@
 	import { walletsCollection } from '$/collections/wallets.ts'
 	import { uniswapPositionsCollection } from '$/collections/uniswap-positions.ts'
 	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 
 

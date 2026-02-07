@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import type { Toast as ToastType } from '$/lib/toast.svelte'
+	import type { Toast as ToastType } from '$/lib/toast.svelte.ts'
 
 
 	// Props

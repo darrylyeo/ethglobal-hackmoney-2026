@@ -8,12 +8,12 @@ import {
 	type BridgeSettings,
 	BridgeRouteSort,
 	defaultBridgeSettings,
-} from '$/state/bridge-settings.svelte'
+} from '$/state/bridge-settings.svelte.ts'
 import {
 	type LiquiditySettings,
 	defaultLiquiditySettings,
-} from '$/state/liquidity-settings.svelte'
-import { defaultSwapSettings } from '$/state/swap-settings.svelte'
+} from '$/state/liquidity-settings.svelte.ts'
+import { defaultSwapSettings } from '$/state/swap-settings.svelte.ts'
 
 export type SwapSessionParams = {
 	chainId: number

@@ -54,7 +54,7 @@
 		EntityType,
 		graphSceneEntityTypes,
 	} from '$/data/$EntityType.ts'
-	import { entityIntent } from '$/lib/intents/intentDraggable.svelte'
+	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits.ts'
 	import { graphSceneState } from '$/state/graph-scene.svelte.ts'
 
@@ -65,7 +65,7 @@
 		useGlobalQueries,
 		useLocalQueries,
 		type LiveQueryEntry,
-	} from '$/svelte/live-query-context.svelte'
+	} from '$/svelte/live-query-context.svelte.ts'
 
 
 	// Functions

@@ -14,9 +14,9 @@
 	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
 	import { siweChallengesCollection } from '$/collections/siwe-challenges.ts'
 	import { verificationsCollection } from '$/collections/verifications.ts'
-	import { roomState } from '$/state/room.svelte'
+	import { roomState } from '$/state/room.svelte.ts'
 	import { signSiweMessage } from '$/lib/rooms/siwe.ts'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 
 	// Components

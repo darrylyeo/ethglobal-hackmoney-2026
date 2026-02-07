@@ -11,7 +11,7 @@
 
 	// Context
 	import { setContext } from 'svelte'
-	import { bridgeSettingsState } from '$/state/bridge-settings.svelte'
+	import { bridgeSettingsState } from '$/state/bridge-settings.svelte.ts'
 	import {
 		SESSION_CONTEXT_KEY,
 		type SessionContext,

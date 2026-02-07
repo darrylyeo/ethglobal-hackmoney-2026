@@ -15,8 +15,8 @@
 		joinRoom,
 		leaveRoom,
 		partyKitStatusLabel,
-	} from '$/state/room.svelte'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	} from '$/state/room.svelte.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
 

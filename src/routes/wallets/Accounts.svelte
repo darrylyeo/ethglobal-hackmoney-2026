@@ -44,9 +44,9 @@
 	import {
 		bridgeSettingsState,
 		defaultBridgeSettings,
-	} from '$/state/bridge-settings.svelte'
-	import { useWalletSubscriptions } from '$/state/wallet.svelte'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	} from '$/state/bridge-settings.svelte.ts'
+	import { useWalletSubscriptions } from '$/state/wallet.svelte.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	useWalletSubscriptions()
 
 	const walletsQuery = useLiveQuery((q) =>

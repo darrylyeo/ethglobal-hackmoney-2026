@@ -8,9 +8,9 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
-	import { yellowState } from '$/state/yellow.svelte'
+	import { yellowState } from '$/state/yellow.svelte.ts'
 	import { depositToCustody, withdrawFromCustody } from '$/api/yellow.ts'
 	import { getUsdcAddress } from '$/api/lifi.ts'
 	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format.ts'

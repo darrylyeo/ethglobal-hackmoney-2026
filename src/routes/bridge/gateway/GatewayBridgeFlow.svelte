@@ -17,7 +17,7 @@
 	// Functions
 	import { formatAddress } from '$/lib/address.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
-	import { toasts } from '$/lib/toast.svelte'
+	import { toasts } from '$/lib/toast.svelte.ts'
 
 
 	// Components

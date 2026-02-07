@@ -11,7 +11,7 @@
 		cctpAllowanceCollection,
 		fetchCctpAllowance,
 	} from '$/collections/cctp-allowance.ts'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 
 	// Props

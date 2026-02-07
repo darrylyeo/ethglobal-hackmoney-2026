@@ -20,9 +20,9 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { siweChallengesCollection } from '$/collections/siwe-challenges.ts'
-	import { roomState } from '$/state/room.svelte'
+	import { roomState } from '$/state/room.svelte.ts'
 	import { signSiweMessage } from '$/lib/rooms/siwe.ts'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 	const challengesQuery = useLiveQuery(
 		(q) =>
