@@ -3,22 +3,24 @@
 
 	// Types/constants
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
+
+
+	// Context
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
+	import { yellowState } from '$/state/yellow.svelte'
 	import { depositToCustody, withdrawFromCustody } from '$/api/yellow.ts'
 	import { getUsdcAddress } from '$/api/lifi.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format.ts'
 
 
 	// Props
 	let { provider }: { provider: EIP1193Provider | null } = $props()
 
 
-	// State
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
-	import { yellowState } from '$/state/yellow.svelte'
-	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format.ts'
-
+	// (Derived)
 	const depositQuery = useLiveQuery((q) =>
 		q
 			.from({ row: yellowDepositsCollection })
@@ -33,7 +35,6 @@
 		},
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
-
 	const depositRow = $derived(
 		yellowState.chainId && yellowState.address
 			? (depositQuery.data ?? [])
@@ -48,36 +49,39 @@
 	const availableBalance = $derived(depositRow?.availableBalance ?? 0n)
 	const lockedBalance = $derived(depositRow?.lockedBalance ?? 0n)
 
+
+	// State
 	let depositAmount = $state('')
 	let withdrawAmount = $state('')
 	let loading = $state(false)
 
+
+	// Actions
 	const handleDeposit = async () => {
 		if (!provider || !yellowState.chainId) return
 		loading = true
 		try {
-		await depositToCustody({
-			provider,
-			chainId: yellowState.chainId,
-			token: getUsdcAddress(yellowState.chainId),
-			amount: parseDecimalToSmallest(depositAmount, 6),
-		})
+			await depositToCustody({
+				provider,
+				chainId: yellowState.chainId,
+				token: getUsdcAddress(yellowState.chainId),
+				amount: parseDecimalToSmallest(depositAmount, 6),
+			})
 			depositAmount = ''
 		} finally {
 			loading = false
 		}
 	}
-
 	const handleWithdraw = async () => {
 		if (!provider || !yellowState.chainId) return
 		loading = true
 		try {
-		await withdrawFromCustody({
-			provider,
-			chainId: yellowState.chainId,
-			token: getUsdcAddress(yellowState.chainId),
-			amount: parseDecimalToSmallest(withdrawAmount, 6),
-		})
+			await withdrawFromCustody({
+				provider,
+				chainId: yellowState.chainId,
+				token: getUsdcAddress(yellowState.chainId),
+				amount: parseDecimalToSmallest(withdrawAmount, 6),
+			})
 			withdrawAmount = ''
 		} finally {
 			loading = false
@@ -110,7 +114,12 @@
 			bind:value={depositAmount}
 			inputmode="decimal"
 		/>
-		<button type="submit" disabled={loading}>Deposit</button>
+		<button
+			type="submit"
+			disabled={loading}
+		>
+			Deposit
+		</button>
 	</form>
 
 	<form
@@ -126,7 +135,12 @@
 			bind:value={withdrawAmount}
 			inputmode="decimal"
 		/>
-		<button type="submit" disabled={loading}>Withdraw</button>
+		<button
+			type="submit"
+			disabled={loading}
+		>
+			Withdraw
+		</button>
 	</form>
 </section>
 
