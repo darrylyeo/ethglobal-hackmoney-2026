@@ -1,3 +1,4 @@
+import { env } from '$env/dynamic/public'
 import { Abi, encodeFunction } from '@tevm/voltaire/Abi'
 import { DEFAULT_E2E_TEVM_RPC_URL, E2E_TEVM_CONTRACT_ADDRESS } from './tevmConfig.ts'
 
@@ -23,15 +24,12 @@ const isHexString = (value: unknown): value is `0x${string}` =>
 
 export const E2E_TEVM_ENABLED =
 	(typeof window !== 'undefined' && window.__E2E_TEVM__ === true) ||
-	(typeof import.meta.env !== 'undefined' &&
-		!!import.meta.env.PUBLIC_TEVM_RPC_URL)
+	!!env.PUBLIC_TEVM_RPC_URL
 
 export const E2E_TEVM_RPC_URL =
-	typeof window !== 'undefined' && window.__E2E_TEVM_RPC_URL__
+	(typeof window !== 'undefined' && window.__E2E_TEVM_RPC_URL__
 		? window.__E2E_TEVM_RPC_URL__
-		: (typeof import.meta.env !== 'undefined'
-				? import.meta.env.PUBLIC_TEVM_RPC_URL
-				: undefined) ?? DEFAULT_E2E_TEVM_RPC_URL
+		: env.PUBLIC_TEVM_RPC_URL) ?? DEFAULT_E2E_TEVM_RPC_URL
 
 export const requestE2eTevmContractTx = async (args: {
 	provider: {

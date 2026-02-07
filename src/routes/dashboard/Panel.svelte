@@ -89,10 +89,13 @@
 		hashInput.trim().length === 0
 			? undefined
 			: (() => {
-					const normalized = hashInput.startsWith('#')
-						? hashInput
-						: `#${hashInput}`
-					onAppendHash(panel.id, normalized)
+					const raw = hashInput.trim()
+					const hash = raw.startsWith('#/')
+						? raw
+						: raw.startsWith('#')
+							? `#/${raw.slice(1)}`
+							: `#/${raw}`
+					onAppendHash(panel.id, hash)
 					hashInput = ''
 				})()
 

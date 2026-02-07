@@ -7,7 +7,7 @@ import type {
 	TransactionSessionStatus,
 } from '$/data/TransactionSession.ts'
 import type { TransactionSessionSimulationStatus } from '$/data/TransactionSessionSimulation.ts'
-import { validSessionActions } from '$/lib/intents.ts'
+import { validActionTypes } from '$/lib/intents.ts'
 import {
 	normalizeTransactionSessionParams,
 	type TransactionSessionDefaults,
@@ -33,10 +33,10 @@ export type SessionHashResult =
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null && !Array.isArray(value)
 
-export const buildSessionHash = (sessionId: string) => `#session:${sessionId}`
+export const buildSessionHash = (sessionId: string) => `#/session:${sessionId}`
 
 export const parseSessionHash = (hash: string): SessionHashResult => {
-	const normalized = hash.startsWith('#') ? hash.slice(1) : hash
+	const normalized = hash.startsWith('#/') ? hash.slice(2) : hash.startsWith('#') ? hash.slice(1) : hash
 	if (!normalized) return { kind: 'empty' }
 	if (normalized.startsWith('session:')) {
 		const sessionId = normalized.slice('session:'.length)
@@ -50,7 +50,7 @@ export const parseSessionHash = (hash: string): SessionHashResult => {
 			const action = (
 				separatorIndex === -1 ? entry : entry.slice(0, separatorIndex)
 			).trim() as TransactionSessionAction
-			if (!validSessionActions.has(action))
+			if (!validActionTypes.has(action))
 				return null
 			if (separatorIndex === -1) {
 				return {

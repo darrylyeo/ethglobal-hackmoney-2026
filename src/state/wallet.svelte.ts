@@ -8,6 +8,7 @@
  */
 
 // Context
+import { dev } from '$env/dynamic/public'
 import { eq, useLiveQuery } from '@tanstack/svelte-db'
 import { DataSource } from '$/constants/data-sources.ts'
 
@@ -95,7 +96,7 @@ const createWalletContext = () => {
 				const rdns = p.info?.rdns
 				if (typeof rdns !== 'string' || rdns.length === 0 || !p.provider)
 					continue
-				if (import.meta.env?.DEV) {
+				if (dev) {
 					console.debug('[EIP-6963] upsertWallet', rdns, p.info.name)
 				}
 				upsertWallet({

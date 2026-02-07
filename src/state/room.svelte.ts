@@ -23,9 +23,7 @@ import {
 } from '$/lib/rooms/room.ts'
 import { verifySiweSignature } from '$/lib/rooms/siwe.ts'
 
-const SIWE_DEBUG =
-	typeof import.meta !== 'undefined' &&
-	(import.meta as { env?: { DEV?: boolean } }).env?.DEV
+const SIWE_DEBUG = dev
 
 type RoomStateSync = {
 	room: Room

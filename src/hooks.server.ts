@@ -24,15 +24,22 @@ export const handle: Handle = async ({ event, resolve }) => {
 			? (privateEnv[target.tokenEnvKey] as string | undefined)
 			: undefined
 
-		const response = await event.fetch(url, {
-			body: event.request.body,
-			method: event.request.method,
-			headers: token
-				? {
-						Authorization: `Basic ${token}`,
-					}
-				: undefined,
-		})
+		let response: Response
+		try {
+			response = await event.fetch(url, {
+				body: event.request.body,
+				method: event.request.method,
+				headers: token
+					? {
+							Authorization: `Basic ${token}`,
+						}
+					: undefined,
+			})
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : 'Upstream request failed'
+			return error(502, { message })
+		}
 
 		if (!response.ok) {
 			const result = await response.text()

@@ -3,6 +3,7 @@
  * Uses Vercel AI SDK for OpenAI and Anthropic.
  */
 
+import { env } from '$env/dynamic/public'
 import {
 	zenClientGenerateWithKey,
 	zenAvailability,
@@ -100,9 +101,7 @@ export const createLlmProviderFromConnection = (
 	if (connection.provider === LlmConnectionProvider.Zen) {
 		const apiKey =
 			connection.apiKey?.trim() ||
-			(typeof import.meta !== 'undefined' && import.meta.env?.PUBLIC_OPENCODE_API_KEY != null
-				? String(import.meta.env.PUBLIC_OPENCODE_API_KEY)
-				: undefined)
+			(env.PUBLIC_OPENCODE_API_KEY != null ? String(env.PUBLIC_OPENCODE_API_KEY) : undefined)
 		return {
 			availability: async (): Promise<LlmAvailability> =>
 				zenAvailability(apiKey).available ? 'available' : 'unavailable',

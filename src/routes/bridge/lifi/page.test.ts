@@ -28,7 +28,7 @@ async function addMockWallet(context: {
 }
 
 test('bridge page loads and shows USDC Bridge heading', async ({ page }) => {
-	await page.goto('/session#bridge')
+	await page.goto('/session#/Bridge')
 	await expect(page.locator('#main')).toBeAttached({ timeout: 30_000, })
 	await expect(
 		page.getByRole('heading', { level: 1, name: 'USDC Bridge', }),
@@ -38,7 +38,7 @@ test('bridge page loads and shows USDC Bridge heading', async ({ page }) => {
 test.describe('with mock wallet and networks loaded', () => {
 	test.beforeEach(async ({ context, page }) => {
 		await addMockWallet(context)
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})

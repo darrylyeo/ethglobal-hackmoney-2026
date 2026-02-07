@@ -1,3 +1,4 @@
+import { dev } from '$env/dynamic/public'
 import { createWalletClient, custom } from 'viem'
 import type { Chain, WalletClient } from 'viem'
 import type { Network } from '$/constants/networks.ts'
@@ -184,8 +185,7 @@ const eip6963ByRdns = new Map<string, ProviderDetailType>()
 let eip6963Listener: ((providers: ProviderDetailType[]) => void) | null = null
 let eip6963Installed = false
 
-const EIP6963_DEBUG =
-	typeof import.meta.env !== 'undefined' && import.meta.env.DEV
+const EIP6963_DEBUG = dev
 
 export const ensureE2eProvider = () => {
 	if (typeof window === 'undefined') return

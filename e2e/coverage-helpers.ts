@@ -1,4 +1,5 @@
 import { stringify } from 'devalue'
+import { ActionType } from '../src/constants/intents.ts'
 import { DataSource } from '../src/constants/data-sources.ts'
 import type { TransactionSession } from '../src/data/TransactionSession.ts'
 
@@ -72,7 +73,7 @@ export const buildSessionRow = (
 	const now = 1_720_000_000_000
 	return {
 		id: 'session-seed',
-		actions: ['bridge'],
+		actions: [ActionType.Bridge],
 		status: 'Draft',
 		createdAt: now,
 		updatedAt: now,

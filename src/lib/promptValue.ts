@@ -1,9 +1,6 @@
 import type { EntityRef } from '$/data/EntityRef.ts'
 import { EntityType } from '$/data/$EntityType.ts'
-import {
-	EntityRefPattern,
-	entityRefPatternsConfig,
-} from '$/constants/entity-ref-patterns.ts'
+import { PatternType, patterns } from '$/constants/patterns.ts'
 
 export type EntityRefTriggerConfig = Record<
 	string,
@@ -12,33 +9,29 @@ export type EntityRefTriggerConfig = Record<
 
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-const patternToEntityType = (pattern: EntityRefPattern): EntityType => (
-	pattern === EntityRefPattern.EvmAddress
+const patternToEntityType = (type: PatternType): EntityType => (
+	type === PatternType.EvmAddress
 		? EntityType.Actor
-		: pattern === EntityRefPattern.EvmBlockNumber
+		: type === PatternType.EvmBlockNumber
 			? EntityType.Block
-			: pattern === EntityRefPattern.EvmTransactionHash
+			: type === PatternType.EvmTransactionHash
 				? EntityType.Transaction
 				: EntityType.AgentChatTurn
 )
 
 const entityPatternSource = (() => {
-	const parts = Object.values(EntityRefPattern)
-		.sort((a, b) => (
-			entityRefPatternsConfig[b].matchComplexity - entityRefPatternsConfig[a].matchComplexity
-		))
-		.map((p) => `(?<${p}>${entityRefPatternsConfig[p].pattern.source})`)
+	const parts = [...patterns]
+		.sort((a, b) => (b.matchComplexity - a.matchComplexity))
+		.map((p) => `(?<${p.type}>${p.pattern.source})`)
 	return `(?:${parts.join('|')})`
 })()
 
 function buildEntityRefFromGroups(trigger: string, groups: Record<string, string>): EntityRef {
-	const matchedPattern = (Object.values(EntityRefPattern) as EntityRefPattern[]).find(
-		(p) => groups[p],
-	)
-	if (!matchedPattern) throw new Error('No matching group')
-	const value = groups[matchedPattern]
+	const matched = patterns.find((p) => groups[p.type])
+	if (!matched) throw new Error('No matching group')
+	const value = groups[matched.type]
 	return {
-		entityType: patternToEntityType(matchedPattern),
+		entityType: patternToEntityType(matched.type),
 		entityId: value,
 		displayLabel: `${trigger}${value}`,
 		trigger,

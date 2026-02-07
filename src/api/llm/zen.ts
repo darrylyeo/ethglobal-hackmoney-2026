@@ -4,6 +4,7 @@
  * @see https://opencode.ai/docs/zen/
  */
 
+import { PUBLIC_OPENCODE_API_KEY } from '$env/static/public'
 import {
 	getZenFreeModel,
 	OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID,
@@ -135,9 +136,7 @@ export const zenGenerate = async (
 }
 
 const getZenClientKey = (): string | undefined =>
-	typeof import.meta !== 'undefined' && import.meta.env?.PUBLIC_OPENCODE_API_KEY != null
-		? String(import.meta.env.PUBLIC_OPENCODE_API_KEY)
-		: undefined
+	env.PUBLIC_OPENCODE_API_KEY != null ? String(env.PUBLIC_OPENCODE_API_KEY) : undefined
 
 export const zenClientAvailability = (): ZenAvailability =>
 	getZenClientKey() ? { available: true } : { available: false }

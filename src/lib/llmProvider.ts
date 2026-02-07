@@ -1,5 +1,6 @@
 // Part 1: generic Llm provider abstraction
 
+import { env } from '$env/dynamic/public'
 import { zenClientAvailability, zenClientGenerate } from '$/api/llm/zen.ts'
 
 export type LlmAvailability = 'available' | 'downloading' | 'unavailable'
@@ -86,14 +87,12 @@ export const createPromptApiLlmProvider = (
 }
 
 const getHostedLlmConfig = () =>
-	typeof import.meta === 'undefined' || !import.meta.env
-		? null
-		: import.meta.env.PUBLIC_LLM_ENDPOINT
-			? {
-					endpoint: import.meta.env.PUBLIC_LLM_ENDPOINT,
-					apiKey: import.meta.env.PUBLIC_LLM_API_KEY,
-				}
-			: null
+	env.PUBLIC_LLM_ENDPOINT
+		? {
+				endpoint: env.PUBLIC_LLM_ENDPOINT,
+				apiKey: env.PUBLIC_LLM_API_KEY,
+			}
+		: null
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null

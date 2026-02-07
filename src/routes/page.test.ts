@@ -32,7 +32,7 @@ test('bridge: get quote flow selects options and shows result or error', async (
 			)
 		})
 	})
-	await page.goto('/session#bridge')
+	await page.goto('/session#/Bridge')
 	await expect(
 		page.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
 	).toBeVisible({

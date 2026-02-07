@@ -2,6 +2,7 @@
  * PartyKit client: connect to room, create room, send messages.
  */
 
+import { PUBLIC_PARTYKIT_HOST } from '$env/static/public'
 import PartySocket from 'partysocket'
 import {
 	adjectives as peerAdjectives,
@@ -54,11 +55,7 @@ export type RoomMessage =
 	| { type: 'reject-transfer', requestId: string, reason?: string }
 	| { type: 'transfer-sent', requestId: string }
 
-const envHost =
-	typeof import.meta.env !== 'undefined'
-		? (import.meta.env as { PUBLIC_PARTYKIT_HOST?: string })
-				.PUBLIC_PARTYKIT_HOST
-		: undefined
+const envHost = PUBLIC_PARTYKIT_HOST
 const browserHost =
 	typeof globalThis !== 'undefined' &&
 	'location' in globalThis &&

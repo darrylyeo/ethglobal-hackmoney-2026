@@ -2,6 +2,7 @@
  * SIWE (EIP-4361): message construction, signing via EIP-1193, verification via viem.
  */
 
+import { dev } from '$env/dynamic/public'
 import { recoverMessageAddress } from 'viem'
 
 export type SiweMessageParams = {
@@ -39,9 +40,7 @@ export const createSiweMessage = (params: SiweMessageParams): string => {
 	return lines.join('\n')
 }
 
-const SIWE_DEBUG =
-	typeof window !== 'undefined' &&
-	(import.meta as { env?: { DEV?: boolean } }).env?.DEV
+const SIWE_DEBUG = typeof window !== 'undefined' && dev
 
 export const verifySiweSignature = async (params: {
 	message: string
