@@ -4,6 +4,7 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins.ts'
+	import type { UniswapPoolRow } from '$/collections/uniswap-pools.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import { CoinType } from '$/constants/coins.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
@@ -30,15 +31,60 @@
 	} from '$/lib/session/panelHash.ts'
 
 
+	// Functions
+	import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/tests/tevm.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import {
+		type LiquiditySessionParams,
+		getLiquiditySessionParams,
+	} from '$/lib/session/params.ts'
+	import {
+		buildSessionHash,
+		createTransactionSession,
+		forkTransactionSession,
+		parseSessionHash,
+		updateTransactionSessionParams,
+	} from '$/lib/session/sessions.ts'
+	import { switchWalletChain } from '$/lib/wallet.ts'
+
+
+	// State
+	import {
+		addLiquidity,
+		fetchPools,
+		fetchPositions,
+		initializePool,
+	} from '$/api/uniswap.ts'
+	import { TICK_SPACINGS } from '$/constants/uniswap.ts'
+	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
+	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+	import { uniswapPositionsCollection } from '$/collections/uniswap-positions.ts'
+	import {
+		fetchUniswapPools,
+		uniswapPoolsCollection,
+	} from '$/collections/uniswap-pools.ts'
+	import { fetchUniswapPositions } from '$/collections/uniswap-positions.ts'
+
+
+	// Components
+	import LoadingButton from '$/components/LoadingButton.svelte'
+	import Select from '$/components/Select.svelte'
+	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
+	import NetworkInput from '$/views/NetworkInput.svelte'
+	import TransactionFlow from '$/views/TransactionFlow.svelte'
+	import Positions from './Positions.svelte'
+
+
 	// Props
 	let {
 		selectedWallets,
 		selectedActor,
 		selectedChainId,
 	}: {
-		selectedWallets: ConnectedWallet[]
-		selectedActor: `0x${string}` | null
-		selectedChainId: number | null
+		selectedWallets: ConnectedWallet[],
+		selectedActor: `0x${string}` | null,
+		selectedChainId: number | null,
 	} = $props()
 
 
@@ -61,21 +107,6 @@
 
 
 	// Functions
-	import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/tests/tevm.ts'
-	import { formatSmallestToDecimal } from '$/lib/format.ts'
-	import {
-		type LiquiditySessionParams,
-		getLiquiditySessionParams,
-	} from '$/lib/session/params.ts'
-	import {
-		buildSessionHash,
-		createTransactionSession,
-		forkTransactionSession,
-		parseSessionHash,
-		updateTransactionSessionParams,
-	} from '$/lib/session/sessions.ts'
-	import { switchWalletChain } from '$/lib/wallet.ts'
-
 	type ExecutionArgs = {
 		provider: {
 			request: (args: {
@@ -113,23 +144,6 @@
 
 
 	// State
-	import {
-		addLiquidity,
-		fetchPools,
-		fetchPositions,
-		initializePool,
-	} from '$/api/uniswap.ts'
-	import { TICK_SPACINGS } from '$/constants/uniswap.ts'
-	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
-	import { uniswapPositionsCollection } from '$/collections/uniswap-positions.ts'
-	import {
-		fetchUniswapPools,
-		uniswapPoolsCollection,
-	} from '$/collections/uniswap-pools.ts'
-	import { fetchUniswapPositions } from '$/collections/uniswap-positions.ts'
-
 	let activeSessionId = $state<string | null>(null)
 	let lookupSessionId = $state<string | null>(null)
 	let invalidAmount0 = $state(false)
@@ -504,15 +518,6 @@
 			fetchPositions,
 		).catch(() => {})
 	})
-
-
-	// Components
-	import LoadingButton from '$/components/LoadingButton.svelte'
-	import Select from '$/components/Select.svelte'
-	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
-	import NetworkInput from '$/views/NetworkInput.svelte'
-	import TransactionFlow from '$/views/TransactionFlow.svelte'
-	import Positions from './Positions.svelte'
 </script>
 
 
