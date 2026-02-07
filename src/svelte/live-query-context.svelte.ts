@@ -1,9 +1,10 @@
 /**
  * Live query shared state: tracks a stack of reactive TanStack DB queries.
  * Components register queries via $effect for visualization.
+ * Root layout must provide context via setGlobalLiveQueryContext / setLocalLiveQueryContext.
  */
 
-import { untrack } from 'svelte'
+import { getContext, setContext, untrack } from 'svelte'
 
 export type LiveQueryEntry = {
 	id: string
@@ -23,14 +24,22 @@ class LiveQueryContextState {
 
 export type LiveQueryContext = LiveQueryContextState
 
-const createLiveQueryContext = () => new LiveQueryContextState()
+const GLOBAL_LIVE_QUERY_KEY = Symbol('global-live-query')
+const LOCAL_LIVE_QUERY_KEY = Symbol('local-live-query')
 
-const globalLiveQueryContext = createLiveQueryContext()
-const localLiveQueryContext = createLiveQueryContext()
+export const createLiveQueryContext = () => new LiveQueryContextState()
 
-export const useGlobalQueries = () => globalLiveQueryContext
+export const setGlobalLiveQueryContext = (ctx: LiveQueryContext) =>
+	setContext(GLOBAL_LIVE_QUERY_KEY, ctx)
 
-export const useLocalQueries = () => localLiveQueryContext
+export const setLocalLiveQueryContext = (ctx: LiveQueryContext) =>
+	setContext(LOCAL_LIVE_QUERY_KEY, ctx)
+
+export const useGlobalQueries = (): LiveQueryContext =>
+	getContext<LiveQueryContext>(GLOBAL_LIVE_QUERY_KEY)
+
+export const useLocalQueries = (): LiveQueryContext =>
+	getContext<LiveQueryContext>(LOCAL_LIVE_QUERY_KEY)
 
 const syncStack = (ctx: LiveQueryContext) => {
 	ctx.stack = untrack(() => ctx.registry).flatMap((entry) => entry.entries)
@@ -79,4 +88,3 @@ export const registerGlobalLiveQueryStack = (
 export const registerLocalLiveQueryStack = (
 	getEntries: () => LiveQueryEntry[],
 ) => registerLiveQueryStack(useLocalQueries(), getEntries)
-
