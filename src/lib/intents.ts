@@ -2,6 +2,7 @@ import {
 	ActionType,
 	IntentInvocationModality,
 	Protocol,
+	actionSpecs,
 	protocolActions,
 	intents,
 	type Entity,
@@ -9,6 +10,9 @@ import {
 	type IntentEntityRef,
 	type IntentOption,
 } from '$/constants/intents.ts'
+
+
+// Derived lookups from protocolActions
 
 export const actionsByProtocol = Object.fromEntries(
 	Object.values(Protocol).map(protocol => [
@@ -31,6 +35,23 @@ export const protocolsByAction = Object.fromEntries(
 export const intentEntityTypes = new Set(
 	intents.flatMap(def => def.entities.map(e => e.type)),
 )
+
+
+// Derived lookups from actionSpecs
+
+export const specBySessionAction = Object.fromEntries(
+	(Object.entries(actionSpecs) as [ActionType, typeof actionSpecs[ActionType]][])
+		.map(([actionType, spec]) => [
+			spec.sessionAction,
+			{ ...spec, actionType },
+		]),
+) as Record<string, typeof actionSpecs[ActionType] & { actionType: ActionType }>
+
+export const validSessionActions = new Set<string>([
+	...Object.values(actionSpecs).map(s => s.sessionAction),
+	'liquidity',
+	'intent',
+])
 
 export type IntentDragResolution =
 	| {
