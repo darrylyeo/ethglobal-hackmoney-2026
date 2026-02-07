@@ -9,20 +9,8 @@
 	import { DataSource } from '$/constants/data-sources.ts'
 
 
-	// Props
-	let {
-		peer,
-		roomId,
-		provider,
-	}: {
-		peer: RoomPeerRow
-		roomId: string
-		provider: EIP1193Provider | null
-	} = $props()
-
-
 	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
 	import { siweChallengesCollection } from '$/collections/siwe-challenges.ts'
 	import { verificationsCollection } from '$/collections/verifications.ts'
@@ -36,6 +24,20 @@
 	import Peer from './Peer.svelte'
 	import { Button } from 'bits-ui'
 
+
+	// Props
+	let {
+		peer,
+		roomId,
+		provider,
+	}: {
+		peer: RoomPeerRow,
+		roomId: string,
+		provider: EIP1193Provider | null,
+	} = $props()
+
+
+	// State
 	const sharedQuery = useLiveQuery(
 		(q) =>
 			q
@@ -78,6 +80,8 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
+
+	// (Derived)
 	const allShared = $derived((sharedQuery.data ?? []).map((r) => r.row))
 	const addressesVisibleToMe = $derived(
 		allShared.filter(
@@ -90,6 +94,20 @@
 	const verifications = $derived(
 		(verificationsQuery.data ?? []).map((r) => r.row),
 	)
+	const awaitingMySignature = $derived(
+		(challengesQuery.data ?? [])
+			.map((r) => r.row)
+			.filter(
+				(ch: SiweChallengeRow) =>
+					ch.toPeerId === peer.peerId &&
+					ch.fromPeerId === roomState.peerId &&
+					!ch.signature,
+			),
+	)
+	const canSign = $derived(provider != null)
+
+
+	// Functions
 	const getMyVerification = (
 		address: `0x${string}`,
 	): VerificationRow | undefined =>
@@ -103,17 +121,9 @@
 							v.address.toLowerCase() === address.toLowerCase(),
 					)
 					.sort((a, b) => b.requestedAt - a.requestedAt)[0]
-	const awaitingMySignature = $derived(
-		(challengesQuery.data ?? [])
-			.map((r) => r.row)
-			.filter(
-				(ch: SiweChallengeRow) =>
-					ch.toPeerId === peer.peerId &&
-					ch.fromPeerId === roomState.peerId &&
-					!ch.signature,
-			),
-	)
-	const canSign = $derived(provider != null)
+
+
+	// Actions
 	const signChallenge = async (challenge: SiweChallengeRow) => {
 		if (!provider) return
 		try {
@@ -145,12 +155,26 @@
 </script>
 
 
-<article data-peer-card data-connected={peer.isConnected}>
+<article
+	data-peer-card
+	data-connected={peer.isConnected}
+>
 	<div data-row="gap-4 align-start">
-		<div data-row="flexible" data-card data-row-item="flexible">
-			<Peer {peer} showStatus={true} />
+		<div
+			data-row="flexible"
+			data-card
+			data-row-item="flexible"
+		>
+			<Peer
+				peer={peer}
+				showStatus={true}
+			/>
 		</div>
-		<div data-row="flexible" data-card data-row-item="flexible">
+		<div
+			data-row="flexible"
+			data-card
+			data-row-item="flexible"
+		>
 			{#if addressesVisibleToMe.length > 0}
 				<ul data-peer-addresses>
 					{#each addressesVisibleToMe as s (s.id)}
@@ -159,7 +183,10 @@
 							data-shared-address
 							data-verification-status={myVerification?.status ?? null}
 						>
-							<Address network={1} address={s.address} />
+							<Address
+								network={1}
+								address={s.address}
+							/>
 							<span data-verification>
 								{#if myVerification == null}
 									Not verified
@@ -211,9 +238,15 @@
 					<ul>
 						{#each awaitingMySignature as ch (ch.id)}
 							<li data-challenge>
-								<Address network={1} address={ch.address} />
+								<Address
+									network={1}
+									address={ch.address}
+								/>
 								{#if canSign}
-									<Button.Root type="button" onclick={() => signChallenge(ch)}>
+									<Button.Root
+										type="button"
+										onclick={() => signChallenge(ch)}
+									>
 										Sign to verify
 									</Button.Root>
 								{:else}
@@ -233,3 +266,4 @@
 		</div>
 	</div>
 </article>
+
