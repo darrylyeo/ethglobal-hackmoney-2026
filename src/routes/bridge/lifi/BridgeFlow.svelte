@@ -5,6 +5,7 @@
 	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute.ts'
 	import type { WalletRow } from '$/collections/wallets.ts'
+	import type { BridgeStatus } from '$/lib/bridge/txStatus.ts'
 	import {
 		type BridgeSessionParams,
 		normalizeBridgeSessionParams,
@@ -16,6 +17,13 @@
 	} from '$/data/WalletConnection.ts'
 	import { extractFeeBreakdown, getUsdcAddress } from '$/api/lifi.ts'
 	import { getTxReceiptStatus } from '$/api/approval.ts'
+	import { ErrorCode } from '$/lib/bridge/errors.ts'
+	import {
+		extractRouteLimits,
+		USDC_MAX_AMOUNT,
+		USDC_MIN_AMOUNT,
+		validateBridgeAmount,
+	} from '$/constants/bridge-limits.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import {
@@ -24,12 +32,6 @@
 		parseSlippagePercent,
 		slippagePresets,
 	} from '$/constants/slippage.ts'
-	import {
-		extractRouteLimits,
-		USDC_MAX_AMOUNT,
-		USDC_MIN_AMOUNT,
-		validateBridgeAmount,
-	} from '$/constants/bridge-limits.ts'
 
 
 	// Context
@@ -41,18 +43,32 @@
 	// Functions
 	import { resolve } from '$app/paths'
 	import { getTxUrl } from '$/constants/explorers.ts'
-	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
-	import { E2E_TEVM_ENABLED } from '$/tests/tevm.ts'
-import type { BridgeStatus } from '$/lib/bridge/txStatus.ts'
-import { ErrorCode } from '$/lib/bridge/errors.ts'
-	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format.ts'
 	import {
 		formatAddress,
 		isValidAddress,
 		normalizeAddress,
 	} from '$/lib/address.ts'
 	import { debounce } from '$/lib/debounce.ts'
+	import { formatSmallestToDecimal, formatTokenAmount } from '$/lib/format.ts'
+	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 	import { stringify } from 'devalue'
+	import { E2E_TEVM_ENABLED } from '$/tests/tevm.ts'
+
+	const resolveNetwork = (chainId: number | null) =>
+		chainId !== null
+			? (Object.values(networksByChainId).find(
+					(entry) => entry?.id === chainId,
+				) ?? null)
+			: null
+	const resolveNetworkName = (chainId: number) =>
+		resolveNetwork(chainId)?.name ?? `Chain ${chainId}`
+	const isEip1193Wallet = (
+		wallet: ConnectedWallet | null,
+	): wallet is { wallet: WalletRow; connection: WalletConnectionEip1193 } =>
+		Boolean(
+			wallet &&
+			wallet.connection.transport === WalletConnectionTransport.Eip1193,
+		)
 
 
 	// State
@@ -96,22 +112,6 @@ import { ErrorCode } from '$/lib/bridge/errors.ts'
 			tokenAddress: `0x${string}`
 		}[]
 	} = $props()
-
-	const resolveNetwork = (chainId: number | null) =>
-		chainId !== null
-			? (Object.values(networksByChainId).find(
-					(entry) => entry?.id === chainId,
-				) ?? null)
-			: null
-	const resolveNetworkName = (chainId: number) =>
-		resolveNetwork(chainId)?.name ?? `Chain ${chainId}`
-	const isEip1193Wallet = (
-		wallet: ConnectedWallet | null,
-	): wallet is { wallet: WalletRow; connection: WalletConnectionEip1193 } =>
-		Boolean(
-			wallet &&
-			wallet.connection.transport === WalletConnectionTransport.Eip1193,
-		)
 
 
 	// State
@@ -434,9 +434,9 @@ import { ErrorCode } from '$/lib/bridge/errors.ts'
 			data-card
 			data-error
 			data-error-display
-			data-no-routes={routesRow.error.code === ErrorCode.NoRoutes
-				? ''
-				: undefined}
+			data-no-routes={
+				routesRow.error.code === ErrorCode.NoRoutes ? '' : undefined
+			}
 			data-column="gap-2"
 		>
 			<span
@@ -469,7 +469,11 @@ import { ErrorCode } from '$/lib/bridge/errors.ts'
 	{/if}
 
 	{#if sortedRoutes.length > 0 || routesRow?.isLoading}
-		<section data-card data-column="gap-3" data-testid="quote-result">
+		<section
+			data-card
+			data-column="gap-3"
+			data-testid="quote-result"
+		>
 			<div data-row="gap-2 align-center justify-between">
 				<h3>
 					Routes {routesRow?.isLoading
@@ -571,9 +575,12 @@ import { ErrorCode } from '$/lib/bridge/errors.ts'
 					{:else if quoteRemaining !== null}
 						{quoteExpired ? 'Expired' : `${quoteRemaining}s`}
 					{/if}
-					<Button.Root onclick={onRefresh} disabled={routesRow?.isLoading}
-						>↻</Button.Root
+					<Button.Root
+						onclick={onRefresh}
+						disabled={routesRow?.isLoading}
 					>
+						↻
+					</Button.Root>
 				</div>
 			</div>
 
@@ -689,8 +696,10 @@ import { ErrorCode } from '$/lib/bridge/errors.ts'
 					</dd>
 					<dt>Slippage</dt>
 					<dd>{formatSlippagePercent(settings.slippage)}</dd>
-					{#if fees}<dt>Fees</dt>
-						<dd>~${fees.totalUsd}</dd>{/if}
+					{#if fees}
+						<dt>Fees</dt>
+						<dd>~${fees.totalUsd}</dd>
+					{/if}
 				</dl>
 				{#if warnDifferentRecipient || warnHighSlippage || warnLargeAmount}
 					<div class="warnings" data-column="gap-1">

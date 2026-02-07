@@ -1,19 +1,27 @@
 <script lang="ts">
-	import { Button, Switch } from 'bits-ui'
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { sendApproval, waitForApprovalConfirmation } from '$/api/approval.ts'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import { DataSource } from '$/constants/data-sources.ts'
-	import { getTxUrl } from '$/constants/explorers.ts'
+
+
+	// Types/constants
+	import type { ActorAllowance$Id } from '$/data/ActorAllowance.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
+	import { sendApproval, waitForApprovalConfirmation } from '$/api/approval.ts'
 	import {
 		actorAllowancesCollection,
 		fetchActorAllowance,
 		setActorAllowance,
 		toActorAllowance$Id,
 	} from '$/collections/actor-allowances.ts'
-	import type { ActorAllowance$Id } from '$/data/ActorAllowance.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
+	import { getTxUrl } from '$/constants/explorers.ts'
 
+
+	// Context
+	import { Button, Switch } from 'bits-ui'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+
+
+	// Props
 	let {
 		chainId,
 		tokenAddress,
@@ -27,10 +35,11 @@
 		spenderAddress: `0x${string}`
 		amount: bigint
 		provider: EIP1193Provider
-		ownerAddress: `0x${string}`
+		ownerAddress: `0x${string}`,
 	} = $props()
 
-	// Query allowances collection
+
+	// (Derived)
 	const allowancesQuery = useLiveQuery((q) =>
 		q
 			.from({ row: actorAllowancesCollection })
@@ -46,7 +55,6 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
-	// Derive allowance ID and row
 	const allowanceId = $derived(
 		toActorAllowance$Id(chainId, ownerAddress, tokenAddress, spenderAddress),
 	)
@@ -61,7 +69,6 @@
 		)?.row ?? null,
 	)
 
-	// Derive state from collection
 	const isChecking = $derived(allowanceRow?.isLoading ?? true)
 	const hasError = $derived(allowanceRow?.error !== null)
 	const errorMessage = $derived(allowanceRow?.error ?? null)
@@ -69,13 +76,15 @@
 		allowanceRow ? allowanceRow.allowance >= amount : false,
 	)
 
-	// Local UI state
+
+	// State
 	let txHash = $state<`0x${string}` | null>(null)
 	let unlimited = $state(false)
 	let isApproving = $state(false)
 	let approvalError = $state<string | null>(null)
 
-	// Fetch allowance on mount and when deps change
+
+	// Actions
 	$effect(() => {
 		fetchActorAllowance(allowanceId).catch(() => {})
 	})
@@ -120,11 +129,15 @@
 	{:else if isApproving}
 		<p data-muted>
 			Approving…
-			{#if txHash}<a
+			{#if txHash}
+				<a
 					href={getTxUrl(chainId, txHash)}
 					target="_blank"
-					rel="noopener noreferrer">View tx</a
-				>{/if}
+					rel="noopener noreferrer"
+				>
+					View tx
+				</a>
+			{/if}
 		</p>
 	{:else if approvalError}
 		<div data-column="gap-2">
@@ -134,18 +147,20 @@
 	{:else if hasError}
 		<div data-column="gap-2">
 			<p data-error>{errorMessage ?? 'Failed to check approval'}</p>
-			<Button.Root onclick={() => fetchActorAllowance(allowanceId)}
-				>Retry</Button.Root
-			>
+			<Button.Root onclick={() => fetchActorAllowance(allowanceId)}>
+				Retry
+			</Button.Root>
 		</div>
 	{:else if hasSufficientAllowance}
 		<p class="approval-success">✓ Approved</p>
 	{:else}
 		<div data-column="gap-2">
 			<label data-row="gap-2 align-center" data-muted>
-				<Switch.Root bind:checked={() => unlimited, (c) => (unlimited = c)}
-					><Switch.Thumb /></Switch.Root
+				<Switch.Root
+					bind:checked={() => unlimited, (c) => (unlimited = c)}
 				>
+					<Switch.Thumb />
+				</Switch.Root>
 				Unlimited approval
 			</label>
 			<Button.Root onclick={handleApprove}>Approve USDC</Button.Root>
