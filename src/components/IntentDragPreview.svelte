@@ -3,10 +3,9 @@
 
 	// Types/constants
 	import {
-		ActionType,
+		actionSpecs,
 		type IntentOption,
 	} from '$/constants/intents.ts'
-	import type { TransactionSessionAction } from '$/data/TransactionSession.ts'
 
 
 	// Context
@@ -24,32 +23,10 @@
 	} from '$/state/intent-drag-preview.svelte'
 	import { getIntentNavigationStore } from '$/state/intent-navigation.svelte'
 
-	const actionTypeToSessionAction: Record<ActionType, TransactionSessionAction> = {
-		[ActionType.Swap]: 'swap',
-		[ActionType.Bridge]: 'bridge',
-		[ActionType.Transfer]: 'transfer',
-		[ActionType.CreateChannel]: 'createChannel',
-		[ActionType.AddChannelMember]: 'addChannelMember',
-		[ActionType.CloseChannel]: 'closeChannel',
-		[ActionType.AddLiquidity]: 'addLiquidity',
-		[ActionType.RemoveLiquidity]: 'removeLiquidity',
-		[ActionType.CollectFees]: 'collectFees',
-		[ActionType.IncreaseLiquidity]: 'increaseLiquidity',
-		[ActionType.ShareAddress]: 'shareAddress',
-		[ActionType.ProposeTransfer]: 'proposeTransfer',
-		[ActionType.RequestVerification]: 'requestVerification',
-		[ActionType.DepositToCustody]: 'depositToCustody',
-		[ActionType.WithdrawFromCustody]: 'withdrawFromCustody',
-		[ActionType.ResizeChannel]: 'resizeChannel',
-		[ActionType.CreatePool]: 'createPool',
-		[ActionType.AcceptTransfer]: 'acceptTransfer',
-		[ActionType.RejectTransfer]: 'rejectTransfer',
-	}
-
 	const toActionHash = (option: IntentOption) => (
 		`#${option.actions
 			.map(({ protocolAction, payload }) => {
-				const sessionAction = actionTypeToSessionAction[protocolAction.action]
+				const sessionAction = actionSpecs[protocolAction.action].sessionAction
 				const encoded = Object.keys(payload).length > 0
 					? `${sessionAction}:${encodeURIComponent(stringify(payload))}`
 					: sessionAction
