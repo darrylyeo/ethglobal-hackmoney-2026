@@ -1,18 +1,28 @@
 <script lang="ts">
+
+
+	// Types/constants
+	import type { ChainId } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import type { ChainId } from '$/constants/networks.ts'
-	import { page } from '$app/state'
 	import { networksByChainId, parseNetworkNameParam } from '$/constants/networks.ts'
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire.ts'
 	import { fetchBlock, blocksCollection } from '$/collections/blocks.ts'
-	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
-	import NetworkView from '$/components/network/Network.svelte'
-
 	const DECIMAL_ONLY = /^\d+$/
 
+
+	// Context
+	import { page } from '$app/state'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+
+
+	// Components
+	import NetworkView from '$/components/network/Network.svelte'
+
+
+	// (Derived)
 	const nameParam = $derived(page.params.name ?? '')
 	const blockNumberParam = $derived(page.params.blockNumber ?? '')
 	const parsed = $derived(parseNetworkNameParam(nameParam))
@@ -30,8 +40,12 @@
 	const caip2 = $derived(parsed?.caip2 ?? '')
 	const valid = $derived(!!parsed && blockNumberValid)
 
+
+	// State
 	let height = $state(0)
 
+
+	// (Derived)
 	const blockQuery = useLiveQuery(
 		(q) =>
 			q
@@ -119,6 +133,9 @@
 		<p>
 			<a href={showContextUrl} data-link>Show Context</a>
 		</p>
-		<NetworkView data={networkData} {placeholderBlockIds} />
+		<NetworkView
+			data={networkData}
+			{placeholderBlockIds}
+		/>
 	{/if}
 </div>
