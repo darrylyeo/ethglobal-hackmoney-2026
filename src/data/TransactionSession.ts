@@ -10,6 +10,17 @@ export type TransactionSessionAction =
 	| 'closeChannel'
 	| 'addLiquidity'
 	| 'removeLiquidity'
+	| 'collectFees'
+	| 'increaseLiquidity'
+	| 'shareAddress'
+	| 'proposeTransfer'
+	| 'requestVerification'
+	| 'depositToCustody'
+	| 'withdrawFromCustody'
+	| 'resizeChannel'
+	| 'createPool'
+	| 'acceptTransfer'
+	| 'rejectTransfer'
 	| 'intent'
 
 export type TransactionSessionSimulationSummary = {
