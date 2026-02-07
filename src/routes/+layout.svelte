@@ -5,6 +5,7 @@
 
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
+	import { actionSpecs } from '$/constants/intents.ts'
 	import { networkConfigs, toNetworkSlug } from '$/constants/networks.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 
@@ -21,8 +22,8 @@
 	import { walletsCollection } from '$/collections/wallets.ts'
 	import {
 		registerGlobalLiveQueryStack,
-		useLiveQueryContext,
-		useLocalLiveQueryContext,
+		useGlobalQueries,
+		useLocalQueries,
 	} from '$/svelte/live-query-context.svelte'
 
 
@@ -51,8 +52,8 @@
 
 	// State
 	let showGraph = $state(false)
-	const globalLiveQueryCtx = useLiveQueryContext()
-	const localLiveQueryCtx = useLocalLiveQueryContext()
+	const globalLiveQueryCtx = useGlobalQueries()
+	const localLiveQueryCtx = useLocalQueries()
 
 
 	// (Derived)
@@ -118,24 +119,11 @@
 				.select(({ row }) => ({ row })),
 		[],
 	)
-	const layoutLiveQueryEntries = [
-		{ id: 'layout-rooms', label: 'Rooms', query: roomsQuery },
+	registerGlobalLiveQueryStack(() => [
+		{ id: 'layout-wallet-connections', label: 'Wallet Connections', query: walletConnectionsQuery },
 		{ id: 'layout-sessions', label: 'Sessions', query: sessionsQuery },
 		{ id: 'layout-wallets', label: 'Wallets', query: walletsQuery },
-		{
-			id: 'layout-wallet-connections',
-			label: 'Wallet Connections',
-			query: walletConnectionsQuery,
-		},
-		{
-			id: 'layout-verifications',
-			label: 'Verifications',
-			query: verificationsQuery,
-		},
-		{ id: 'layout-room-peers', label: 'Room Peers', query: roomPeersQuery },
-		{ id: 'layout-my-peer-ids', label: 'My Peer IDs', query: myPeerIdsQuery },
-	]
-	registerGlobalLiveQueryStack(() => layoutLiveQueryEntries)
+	])
 	const walletsByRdns = $derived(
 		new Map(
 			(walletsQuery.data ?? []).map((result) => [
@@ -260,15 +248,14 @@
 			title: 'Actions',
 			icon: '⚡',
 			defaultOpen: true,
-			children: [
-				{ id: 'transfer', title: 'Transfer', href: '/session#transfer', icon: '💸' },
-				{ id: 'swap', title: 'Swap', href: '/session#swap', icon: '🔄' },
-				{ id: 'bridge', title: 'Bridge', href: '/session#bridge', icon: '🌉' },
-				{ id: 'addLiquidity', title: 'Add Liquidity', href: '/session#addLiquidity', icon: '💧' },
-				{ id: 'removeLiquidity', title: 'Remove Liquidity', href: '/session#removeLiquidity', icon: '💧' },
-				{ id: 'createChannel', title: 'Create Channel', href: '/session#createChannel', icon: '💛' },
-				{ id: 'closeChannel', title: 'Close Channel', href: '/session#closeChannel', icon: '💛' },
-			],
+			children: Object.values(actionSpecs)
+				.filter(spec => spec.navigable)
+				.map(spec => ({
+					id: spec.sessionAction,
+					title: spec.label,
+					href: `/session#${spec.sessionAction}`,
+					icon: spec.icon,
+				})),
 		},
 		{
 			id: 'sessions',
