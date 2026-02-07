@@ -1,7 +1,15 @@
 <script lang="ts">
+
+
+	// Context
 	import { goto } from '$app/navigation'
+
+
+	// Functions
 	import { createAgentChatTree } from '$/lib/agentChat.ts'
 
+
+	// State
 	let started = $state(false)
 	$effect(() => {
 		if (started) return
