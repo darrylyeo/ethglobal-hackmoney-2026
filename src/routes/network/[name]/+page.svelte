@@ -1,16 +1,31 @@
 <script lang="ts">
+
+
+	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { createHttpProvider } from '$/api/voltaire.ts'
-	import { page } from '$app/state'
-	import { blocksCollection, ensureBlocksForPlaceholders } from '$/collections/blocks.ts'
-	import NetworkView from '$/components/network/Network.svelte'
 	import { networksByChainId, parseNetworkNameParam } from '$/constants/networks.ts'
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+
+
+	// Context
+	import { page } from '$app/state'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+
+
+	// Functions
+	import { createHttpProvider } from '$/api/voltaire.ts'
 	import { BlockStream } from '@tevm/voltaire/block'
+
+
+	// State
+	import { blocksCollection, ensureBlocksForPlaceholders } from '$/collections/blocks.ts'
+
+
+	// Components
+	import NetworkView from '$/components/network/Network.svelte'
 
 
 	// (Derived)
