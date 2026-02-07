@@ -80,13 +80,13 @@
 		globalIsTestnet = false,
 		balanceTokens = $bindable([]),
 	}: {
-		selectedWallets: ConnectedWallet[]
-		selectedActor: `0x${string}` | null
-		globalIsTestnet?: boolean
+		selectedWallets: ConnectedWallet[],
+		selectedActor: `0x${string}` | null,
+		globalIsTestnet?: boolean,
 		balanceTokens?: {
-			chainId: number
-			tokenAddress: `0x${string}`
-		}[]
+			chainId: number,
+			tokenAddress: `0x${string}`,
+		}[],
 	} = $props()
 
 	const resolveNetwork = (chainId: number | null) =>
@@ -235,6 +235,8 @@
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 
+
+	// Actions
 	const updateParams = (nextParams: BridgeSessionParams) => {
 		if (localParams && stringify(localParams) === stringify(nextParams)) return
 		localParams = nextParams
@@ -486,7 +488,11 @@
 	>
 		{#snippet Params()}
 			<div data-row="gap-4">
-				<div data-column="gap-1" style="flex:1" data-from-chain>
+				<div
+				data-column="gap-1"
+				style="flex:1"
+				data-from-chain
+			>
 					<label for="from">From</label>
 					<NetworkInput
 						networks={filteredNetworks}
@@ -502,7 +508,11 @@
 						ariaLabel="From chain"
 					/>
 				</div>
-				<div data-column="gap-1" style="flex:1" data-to-chain>
+				<div
+					data-column="gap-1"
+					style="flex:1"
+					data-to-chain
+				>
 					<label for="to">To</label>
 					<NetworkInput
 						networks={filteredNetworks}
@@ -522,7 +532,10 @@
 
 			<div data-column="gap-1">
 				<label for="amt">Amount</label>
-				<p id="amt-hint" class="sr-only">Enter the amount of USDC to bridge</p>
+				<p
+					id="amt-hint"
+					class="sr-only"
+				>Enter the amount of USDC to bridge</p>
 				<CoinAmountInput
 					id="amt"
 					coins={[usdcToken]}
@@ -543,20 +556,32 @@
 					ariaInvalid={invalidAmountInput || !!validation.error}
 				/>
 				{#if invalidAmountInput}
-					<small id="amt-error" data-error role="alert"
-						>Invalid amount (use numbers and up to 6 decimals)</small
+					<small
+						id="amt-error"
+						data-error
+						role="alert"
+					>Invalid amount (use numbers and up to 6 decimals)</small
 					>
 				{:else if validation.error === 'too_low'}
-					<small id="amt-error" data-error role="alert"
-						>Min {validation.minAmount} USDC</small
+					<small
+						id="amt-error"
+						data-error
+						role="alert"
+					>Min {validation.minAmount} USDC</small
 					>
 				{:else if validation.error === 'too_high'}
-					<small id="amt-error" data-error role="alert"
-						>Max {validation.maxAmount} USDC</small
+					<small
+						id="amt-error"
+						data-error
+						role="alert"
+					>Max {validation.maxAmount} USDC</small
 					>
 				{:else if validation.error === 'invalid'}
-					<small id="amt-error" data-error role="alert"
-						>Enter a valid amount</small
+					<small
+						id="amt-error"
+						data-error
+						role="alert"
+					>Enter a valid amount</small
 					>
 				{/if}
 			</div>
@@ -588,7 +613,10 @@
 						<small data-error>Invalid address</small>
 					{/if}
 				{:else if selectedActor && settings.fromChainId !== null}
-					<small data-muted>To: <Address network={settings.fromChainId} address={selectedActor} /></small>
+					<small data-muted>To: <Address
+						network={settings.fromChainId}
+						address={selectedActor}
+					/></small>
 				{:else}
 					<small data-muted>To: Connect wallet</small>
 				{/if}
@@ -611,7 +639,10 @@
 			/>
 
 			{#if activeProtocol}
-				<div data-card data-column="gap-2">
+				<div
+					data-card
+					data-column="gap-2"
+				>
 					<h3>Settings</h3>
 					{#if activeProtocol === 'lifi'}
 						<div data-row="gap-1">
@@ -677,7 +708,11 @@
 
 		{#snippet Preview()}
 			<div data-row="gap-2 align-center wrap">
-				<LoadingButton type="submit" name="intent" value="save">
+				<LoadingButton
+					type="submit"
+					name="intent"
+					value="save"
+				>
 					Save Draft
 				</LoadingButton>
 				<LoadingButton
