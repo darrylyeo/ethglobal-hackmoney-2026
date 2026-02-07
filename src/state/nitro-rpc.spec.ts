@@ -66,3 +66,4 @@ describe('nitro-rpc', () => {
 		})
 	})
 })
+
