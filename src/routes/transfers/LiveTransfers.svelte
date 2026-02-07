@@ -27,6 +27,7 @@
 		periods: readonly { value: string; label: string; ms: number }[]
 	} = $props()
 
+
 	// (Derived) layout: nodes in circle
 	const radius = 8
 	const nodePositionByAddress = $derived(
@@ -57,6 +58,7 @@
 		graph.edges.reduce((s, e) => s + e.totalAmount, 0),
 	)
 
+
 	// State: stagger edges by timestamp over 2s
 	let visibleEdgeCount = $state(0)
 	$effect(() => {
@@ -72,6 +74,7 @@
 		}, step)
 		return () => clearInterval(id)
 	})
+
 
 	const visibleEdges = $derived(sortedEdges.slice(0, visibleEdgeCount))
 	const edgeGeometry = $derived(
