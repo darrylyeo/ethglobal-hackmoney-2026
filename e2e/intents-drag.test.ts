@@ -27,16 +27,22 @@ test.describe('Intents test page (/test/intents)', () => {
 		).toBeVisible()
 	})
 
-	test('shows all 5 registered intents', async ({ page }) => {
+	test('shows all 11 registered intents', async ({ page }) => {
 		await expect(
-			page.getByRole('heading', { name: 'Registered intents (5)' }),
+			page.getByRole('heading', { name: 'Registered intents (11)' }),
 		).toBeVisible()
 
 		await expect(page.getByText('Swap + Bridge')).toBeVisible()
+		await expect(page.getByText('Send').first()).toBeVisible()
+		await expect(page.getByText('Swap').first()).toBeVisible()
 		await expect(page.getByText('Create Channel').first()).toBeVisible()
 		await expect(page.getByText('Create Channel + Transfer')).toBeVisible()
 		await expect(page.getByText('Add Liquidity').first()).toBeVisible()
-		await expect(page.getByText('Remove Liquidity').first()).toBeVisible()
+		await expect(page.getByText('Manage Position')).toBeVisible()
+		await expect(page.getByText('Increase Liquidity').first()).toBeVisible()
+		await expect(page.getByText('Share Address').first()).toBeVisible()
+		await expect(page.getByText('Propose Transfer').first()).toBeVisible()
+		await expect(page.getByText('Request Verification').first()).toBeVisible()
 	})
 
 	test('intent slots show drop placeholders', async ({ page }) => {
