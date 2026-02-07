@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "deno task dev",
 		"dev:partykit": "deno task dev:partykit",
+		"deploy:partykit": "pnpx partykit deploy",
 		"build": "deno task build",
 		"preview": "deno task preview",
 		"prepare": "deno task prepare",

@@ -25,6 +25,7 @@
   "tasks": {
     "dev": "vite dev",
     "dev:partykit": "partykit dev",
+    "deploy:partykit": "pnpx partykit deploy",
     "build": "vite build",
     "preview": "vite preview",
     "install": "deno install",
