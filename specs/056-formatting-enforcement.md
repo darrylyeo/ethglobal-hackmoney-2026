@@ -327,7 +327,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/routes/page.test.ts`
 - [x] `src/routes/peers/+page.svelte`
 - [x] `src/routes/rooms/[roomId]/+page.svelte`
-- [ ] `src/routes/rooms/[roomId]/+page.ts`
+- [x] `src/routes/rooms/[roomId]/+page.ts`
 - [ ] `src/routes/rooms/[roomId]/channels/+page.svelte`
 - [ ] `src/routes/rooms/[roomId]/channels/+page.ts`
 - [ ] `src/routes/rooms/+page.svelte`
