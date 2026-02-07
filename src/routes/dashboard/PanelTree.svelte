@@ -27,32 +27,34 @@
 		onClearSplitRatioOverride,
 		onToggleSplitDirection,
 	}: {
-		root: DashboardNode
-		focusedPanelId: string
-		splitRatioOverrides?: Record<string, number>
-		onFocus: (panelId: string) => void
-		onSplit: (panelId: string, direction: 'horizontal' | 'vertical') => void
-		onRemove: (panelId: string) => void
-		onSwap: (panelId: string) => void
-		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void
-		onAppendHash: (panelId: string, hash: string) => void
-		onSetPanelHash: (panelId: string, hash: string, replace?: boolean) => void
+		root: DashboardNode,
+		focusedPanelId: string,
+		splitRatioOverrides?: Record<string, number>,
+		onFocus: (panelId: string) => void,
+		onSplit: (panelId: string, direction: 'horizontal' | 'vertical') => void,
+		onRemove: (panelId: string) => void,
+		onSwap: (panelId: string) => void,
+		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void,
+		onAppendHash: (panelId: string, hash: string) => void,
+		onSetPanelHash: (panelId: string, hash: string, replace?: boolean) => void,
 		onNavigate: (
 			panelId: string,
 			route: DashboardPanelRoute,
 			hash: string | null,
-		) => void
+		) => void,
 		onOpenInNewPanel: (
 			panelId: string,
 			route: DashboardPanelRoute,
 			hash: string | null,
-		) => void
-		onSetSplitRatio: (splitId: string, ratio: number) => void
-		onSetSplitRatioOverride?: (splitId: string, value: number) => void
-		onClearSplitRatioOverride?: (splitId: string) => void
-		onToggleSplitDirection: (splitId: string) => void
+		) => void,
+		onSetSplitRatio: (splitId: string, ratio: number) => void,
+		onSetSplitRatioOverride?: (splitId: string, value: number) => void,
+		onClearSplitRatioOverride?: (splitId: string) => void,
+		onToggleSplitDirection: (splitId: string) => void,
 	} = $props()
 
+
+	// (Derived)
 	const displayRatio = $derived(
 		root.type === 'split' ? (splitRatioOverrides[root.id] ?? root.ratio) : 0.5,
 	)
@@ -63,6 +65,7 @@
 	import PanelTree from './PanelTree.svelte'
 	import PanelView from './Panel.svelte'
 </script>
+
 
 {#if root.type === 'panel'}
 	<PanelView
