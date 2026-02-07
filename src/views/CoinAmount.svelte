@@ -28,7 +28,7 @@
 
 
 	// Functions
-	import { draggable as draggableAttachment } from '$/components/Draggable.svelte'
+	import { draggable as draggableAttachment } from '$/components/Draggable.svelte.ts'
 	import { stringify } from '$/lib/stringify.ts'
 
 

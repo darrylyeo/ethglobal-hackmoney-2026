@@ -29,7 +29,7 @@
 
 	// Functions
 	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
-	import { draggable } from '$/components/Draggable.svelte'
+	import { draggable } from '$/components/Draggable.svelte.ts'
 
 
 	// (Derived)
