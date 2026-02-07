@@ -287,15 +287,7 @@ Deno.test('encodeApproveCall generates correct calldata', () => {
 
 ## Status
 
-Complete. Voltaire: encodeAllowanceCall, getErc20Allowance, encodeApproveCall,
-MAX_UINT256. approval.ts: sendApproval, waitForApprovalConfirmation.
-TokenApproval.svelte with Switch, states checking/needed/approving/approved/error,
-explorer link, reactive allowance from actorAllowancesCollection.
-BridgeFlow.svelte: approvalAddress from route, TokenApproval shown when needed,
-approval state derived from allowancesQuery. getUsdcAddress exported from lifi.
-Unit tests in voltaire.spec.ts. Re-verification 2026-02-04 (PROMPT_build): all
-acceptance criteria verified in src/api/voltaire.ts, src/api/approval.ts,
-src/routes/bridge/lifi/TokenApproval.svelte, BridgeFlow.svelte; test:unit passed.
+Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, re-verify 009): all 21 AC confirmed—src/api/voltaire.ts (encodeAllowanceCall, getErc20Allowance, encodeApproveCall, MAX_UINT256); voltaire.spec.ts (encodeAllowanceCall, encodeApproveCall calldata); src/api/approval.ts (checkApproval, sendApproval, waitForApprovalConfirmation, error handling); TokenApproval.svelte (Checking approval…, Approve USDC, unlimited Switch, Approving… + View tx, ✓ Approved, error + Retry, setActorAllowance); BridgeFlow.svelte (approvalAddress from route, needsApproval/approved/canSend, TokenApproval when needsApproval && !approved, Bridge gated by canSend); route change resets approval via derived allowanceKey. test:unit 44 Deno + 159 Vitest passed. Previous: Voltaire: encodeAllowanceCall, getErc20Allowance, encodeApproveCall, MAX_UINT256. approval.ts: sendApproval, waitForApprovalConfirmation. TokenApproval.svelte with Switch, states; BridgeFlow.svelte approval flow; test:unit passed.
 
 ## Output when complete
 
