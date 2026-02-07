@@ -7,9 +7,7 @@
 
 
 	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
 	import { walletsCollection } from '$/collections/wallets.ts'
 	import {
@@ -18,10 +16,17 @@
 		leaveRoom,
 		partyKitStatusLabel,
 	} from '$/state/room.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
 
 	// Props
 	let { data }: { data: { roomId: string } } = $props()
+
+
+	// (Derived)
+	const roomId = $derived(data.roomId)
+	const roomDisplayName = $derived(roomIdToDisplayName(roomId))
 
 
 	// Functions
@@ -35,9 +40,7 @@
 		typeof value.request === 'function'
 
 
-	// (Derived)
-	const roomId = $derived(data.roomId)
-	const roomDisplayName = $derived(roomIdToDisplayName(roomId))
+	// State
 	const walletsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: walletsCollection })
@@ -50,6 +53,9 @@
 			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
+
+
+	// (Derived)
 	const liveQueryEntries = [
 		{
 			id: 'room-channels-wallets',
@@ -103,7 +109,11 @@
 </svelte:head>
 
 
-<main id="main" data-column data-sticky-container>
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
 	<h1>Channels – {roomDisplayName}</h1>
 
 	<p data-row="wrap gap-2 align-center">
