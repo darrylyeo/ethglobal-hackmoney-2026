@@ -8,6 +8,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 
 
 	// Functions
@@ -41,6 +42,9 @@
 		{ id: 'sessions-list', label: 'Sessions', query: sessionsQuery },
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
+
+
+	// (Derived)
 	const sessions = $derived(
 		(sessionsQuery.data ?? [])
 			.map((result) => result.row)
@@ -54,8 +58,15 @@
 </svelte:head>
 
 
-<main id="main" data-column data-sticky-container>
-	<section data-scroll-item data-column="gap-3">
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
+	<section
+		data-scroll-item
+		data-column="gap-3"
+	>
 		<h1>Sessions</h1>
 		{#if sessions.length === 0}
 			<p data-muted>No sessions yet.</p>
@@ -76,5 +87,8 @@
 				{/each}
 			</ul>
 		{/if}
+	</section>
+	<section data-scroll-item>
+		<LocalGraphScene />
 	</section>
 </main>
