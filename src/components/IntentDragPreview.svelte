@@ -33,6 +33,17 @@
 		[ActionType.CloseChannel]: 'closeChannel',
 		[ActionType.AddLiquidity]: 'addLiquidity',
 		[ActionType.RemoveLiquidity]: 'removeLiquidity',
+		[ActionType.CollectFees]: 'collectFees',
+		[ActionType.IncreaseLiquidity]: 'increaseLiquidity',
+		[ActionType.ShareAddress]: 'shareAddress',
+		[ActionType.ProposeTransfer]: 'proposeTransfer',
+		[ActionType.RequestVerification]: 'requestVerification',
+		[ActionType.DepositToCustody]: 'depositToCustody',
+		[ActionType.WithdrawFromCustody]: 'withdrawFromCustody',
+		[ActionType.ResizeChannel]: 'resizeChannel',
+		[ActionType.CreatePool]: 'createPool',
+		[ActionType.AcceptTransfer]: 'acceptTransfer',
+		[ActionType.RejectTransfer]: 'rejectTransfer',
 	}
 
 	const toActionHash = (option: IntentOption) => (
