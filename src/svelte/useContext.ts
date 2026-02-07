@@ -7,3 +7,4 @@ export const useContext = <T>(key: string, getInitialValue: () => T) => {
 		? setContext(key, getInitialValue())
 		: existing
 }
+

@@ -79,3 +79,4 @@ export const registerGlobalLiveQueryStack = (
 export const registerLocalLiveQueryStack = (
 	getEntries: () => LiveQueryEntry[],
 ) => registerLiveQueryStack(useLocalQueries(), getEntries)
+
