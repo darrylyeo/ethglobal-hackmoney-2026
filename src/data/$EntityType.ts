@@ -1,12 +1,47 @@
 /**
- * Entity type enum and metadata: label (singular), labelPlural, and whether the type is in the graph scene.
- * Singular entity type names for collections; use these instead of ad-hoc strings.
+ * Entity type enum and metadata: label (singular) and labelPlural for UI.
+ * Use these instead of ad-hoc strings.
  */
+
+import type { Actor, Actor$Id } from '$/data/Actor.ts'
+import type { ActorAllowance, ActorAllowance$Id } from '$/data/ActorAllowance.ts'
+import type { ActorCoin, ActorCoin$Id } from '$/data/ActorCoin.ts'
+import type { AgentChatTree } from '$/data/AgentChatTree.ts'
+import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
+import type { BlockEntry, Block$Id } from '$/data/Block.ts'
+import type { BridgeRoute } from '$/data/BridgeRoute.ts'
+import type { CctpAllowance, CctpAllowance$Id } from '$/data/CctpAllowance.ts'
+import type { CctpFee, CctpFee$Id } from '$/data/CctpFee.ts'
+import type { CoinEntry, Coin$Id } from '$/data/Coin.ts'
+import type { DashboardState, DashboardState$Id } from '$/data/DashboardPanel.ts'
+import type { NetworkEntry, Network$Id } from '$/data/Network.ts'
+import type { Room } from '$/data/Room.ts'
+import type { RoomPeer } from '$/data/RoomPeer.ts'
+import type { SharedAddress } from '$/data/SharedAddress.ts'
+import type { SiweChallenge } from '$/data/SiweChallenge.ts'
+import type { StorkPrice, StorkPrice$Id } from '$/data/StorkPrice.ts'
+import type { SwapQuote } from '$/data/SwapQuote.ts'
+import type { TokenListCoin, TokenListCoin$Id } from '$/data/TokenListCoin.ts'
+import type { Transaction, Transaction$Id } from '$/data/Transaction.ts'
+import type { TransactionSession } from '$/data/TransactionSession.ts'
+import type { TransactionSessionSimulation } from '$/data/TransactionSessionSimulation.ts'
+import type { TransferRequest } from '$/data/TransferRequest.ts'
+import type { UniswapPool } from '$/data/UniswapPool.ts'
+import type { UniswapPosition } from '$/data/UniswapPosition.ts'
+import type { Wallet, Wallet$Id } from '$/data/Wallet.ts'
+import type { WalletConnectionBase, WalletConnection$Id } from '$/data/WalletConnection.ts'
+import type { YellowChannel } from '$/data/YellowChannel.ts'
+import type { YellowChannelState } from '$/data/YellowChannelState.ts'
+import type { YellowDeposit } from '$/data/YellowDeposit.ts'
+import type { YellowTransfer } from '$/data/YellowTransfer.ts'
+
 export enum EntityType {
 	Actor = 'Actor',
 	ActorAllowance = 'ActorAllowance',
 	ActorCoin = 'ActorCoin',
 	ActorNetwork = 'ActorNetwork',
+	AgentChatTree = 'AgentChatTree',
+	AgentChatTurn = 'AgentChatTurn',
 	Block = 'Block',
 	BridgeRoute = 'BridgeRoute',
 	CctpAllowance = 'CctpAllowance',
@@ -14,8 +49,6 @@ export enum EntityType {
 	ChannelProposal = 'ChannelProposal',
 	Coin = 'Coin',
 	DashboardPanel = 'DashboardPanel',
-	AgentChatTree = 'AgentChatTree',
-	AgentChatTurn = 'AgentChatTurn',
 	Network = 'Network',
 	Room = 'Room',
 	RoomPeer = 'RoomPeer',
@@ -39,215 +72,150 @@ export enum EntityType {
 	YellowTransfer = 'YellowTransfer',
 }
 
-export const entityTypes = [
-	{
-		type: EntityType.Actor,
-		label: 'Account',
-		labelPlural: 'Accounts',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.ActorAllowance,
-		label: 'Approval',
-		labelPlural: 'Approvals',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.ActorCoin,
-		label: 'Balance',
-		labelPlural: 'Balances',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.BridgeRoute,
-		label: 'Route',
-		labelPlural: 'Routes',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.CctpAllowance,
-		label: 'CCTP Allowance',
-		labelPlural: 'CCTP Allowances',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.CctpFee,
-		label: 'CCTP Fee',
-		labelPlural: 'CCTP Fees',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.ChannelProposal,
-		label: 'Channel Proposal',
-		labelPlural: 'Channel Proposals',
-		inGraph: false as const,
-	},
-	{
-		type: EntityType.Coin,
-		label: 'Coin',
-		labelPlural: 'Coins',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.ActorNetwork,
-		label: 'Account Network',
-		labelPlural: 'Account Networks',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.Block,
-		label: 'Block',
-		labelPlural: 'Blocks',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.DashboardPanel,
-		label: 'Panel',
-		labelPlural: 'Panels',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.AgentChatTree,
-		label: 'Agent chat',
-		labelPlural: 'Agent chats',
-		inGraph: false as const,
-	},
-	{
-		type: EntityType.AgentChatTurn,
-		label: 'Turn',
-		labelPlural: 'Turns',
-		inGraph: false as const,
-	},
-	{
-		type: EntityType.Network,
-		label: 'Network',
-		labelPlural: 'Networks',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.Room,
-		label: 'Room',
-		labelPlural: 'Rooms',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.RoomPeer,
-		label: 'Room Peer',
-		labelPlural: 'Room Peers',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.SharedAddress,
-		label: 'Shared Address',
-		labelPlural: 'Shared Addresses',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.SiweChallenge,
-		label: 'SIWE',
-		labelPlural: 'SIWE',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.StorkPrice,
-		label: 'Stork Price',
-		labelPlural: 'Stork Prices',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.SwapQuote,
-		label: 'Swap Quote',
-		labelPlural: 'Swap Quotes',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.TokenListCoin,
-		label: 'Token List',
-		labelPlural: 'Token Lists',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.Transaction,
-		label: 'Transaction',
-		labelPlural: 'Transactions',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.TransactionSession,
-		label: 'Session',
-		labelPlural: 'Sessions',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.TransactionSessionSimulation,
-		label: 'Simulation',
-		labelPlural: 'Simulations',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.TransferGraph,
-		label: 'Transfer Graph',
-		labelPlural: 'Transfer Graphs',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.TransferRequest,
-		label: 'Transfer Request',
-		labelPlural: 'Transfer Requests',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.UniswapPool,
-		label: 'Pool',
-		labelPlural: 'Pools',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.UniswapPosition,
-		label: 'Position',
-		labelPlural: 'Positions',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.Wallet,
-		label: 'Wallet',
-		labelPlural: 'Wallets',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.WalletConnection,
-		label: 'Session',
-		labelPlural: 'Sessions',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.YellowChannel,
-		label: 'Yellow Channel',
-		labelPlural: 'Yellow Channels',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.YellowChannelState,
-		label: 'Yellow State',
-		labelPlural: 'Yellow States',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.YellowDeposit,
-		label: 'Yellow Deposit',
-		labelPlural: 'Yellow Deposits',
-		inGraph: true as const,
-	},
-	{
-		type: EntityType.YellowTransfer,
-		label: 'Yellow Transfer',
-		labelPlural: 'Yellow Transfers',
-		inGraph: true as const,
-	},
+export const graphSceneEntityTypes = [
+	EntityType.Actor,
+	EntityType.ActorAllowance,
+	EntityType.ActorCoin,
+	EntityType.ActorNetwork,
+	EntityType.Block,
+	EntityType.BridgeRoute,
+	EntityType.CctpAllowance,
+	EntityType.CctpFee,
+	EntityType.Coin,
+	EntityType.DashboardPanel,
+	EntityType.Network,
+	EntityType.Room,
+	EntityType.RoomPeer,
+	EntityType.SharedAddress,
+	EntityType.SiweChallenge,
+	EntityType.StorkPrice,
+	EntityType.SwapQuote,
+	EntityType.TokenListCoin,
+	EntityType.Transaction,
+	EntityType.TransactionSession,
+	EntityType.TransactionSessionSimulation,
+	EntityType.TransferGraph,
+	EntityType.TransferRequest,
+	EntityType.UniswapPool,
+	EntityType.UniswapPosition,
+	EntityType.Wallet,
+	EntityType.WalletConnection,
+	EntityType.YellowChannel,
+	EntityType.YellowChannelState,
+	EntityType.YellowDeposit,
+	EntityType.YellowTransfer,
 ] as const
 
-export type GraphSceneEntityType = Extract<
-	(typeof entityTypes)[number],
-	{ inGraph: true }
->['type']
+export const entityTypes = [
+	{ type: EntityType.Actor, label: 'Account', labelPlural: 'Accounts' },
+	{ type: EntityType.ActorAllowance, label: 'Allowance', labelPlural: 'Allowances' },
+	{ type: EntityType.ActorCoin, label: 'Token balance', labelPlural: 'Token balances' },
+	{ type: EntityType.ActorNetwork, label: 'Network account', labelPlural: 'Network accounts' },
+	{ type: EntityType.AgentChatTree, label: 'Agent conversation', labelPlural: 'Agent conversations' },
+	{ type: EntityType.AgentChatTurn, label: 'Chat turn', labelPlural: 'Chat turns' },
+	{ type: EntityType.Block, label: 'Block', labelPlural: 'Blocks' },
+	{ type: EntityType.BridgeRoute, label: 'Bridge route', labelPlural: 'Bridge routes' },
+	{ type: EntityType.CctpAllowance, label: 'CCTP allowance', labelPlural: 'CCTP allowances' },
+	{ type: EntityType.CctpFee, label: 'CCTP fee', labelPlural: 'CCTP fees' },
+	{ type: EntityType.ChannelProposal, label: 'Channel proposal', labelPlural: 'Channel proposals' },
+	{ type: EntityType.Coin, label: 'Token', labelPlural: 'Tokens' },
+	{ type: EntityType.DashboardPanel, label: 'Dashboard panel', labelPlural: 'Dashboard panels' },
+	{ type: EntityType.Network, label: 'Network', labelPlural: 'Networks' },
+	{ type: EntityType.Room, label: 'Room', labelPlural: 'Rooms' },
+	{ type: EntityType.RoomPeer, label: 'Room peer', labelPlural: 'Room peers' },
+	{ type: EntityType.SharedAddress, label: 'Shared address', labelPlural: 'Shared addresses' },
+	{ type: EntityType.SiweChallenge, label: 'SIWE challenge', labelPlural: 'SIWE challenges' },
+	{ type: EntityType.StorkPrice, label: 'Price feed', labelPlural: 'Price feeds' },
+	{ type: EntityType.SwapQuote, label: 'Swap quote', labelPlural: 'Swap quotes' },
+	{ type: EntityType.TokenListCoin, label: 'Listed token', labelPlural: 'Listed tokens' },
+	{ type: EntityType.Transaction, label: 'Bridge transaction', labelPlural: 'Bridge transactions' },
+	{ type: EntityType.TransactionSession, label: 'Transaction session', labelPlural: 'Transaction sessions' },
+	{ type: EntityType.TransactionSessionSimulation, label: 'Session simulation', labelPlural: 'Session simulations' },
+	{ type: EntityType.TransferGraph, label: 'Transfer graph', labelPlural: 'Transfer graphs' },
+	{ type: EntityType.TransferRequest, label: 'Transfer request', labelPlural: 'Transfer requests' },
+	{ type: EntityType.UniswapPool, label: 'Liquidity pool', labelPlural: 'Liquidity pools' },
+	{ type: EntityType.UniswapPosition, label: 'Liquidity position', labelPlural: 'Liquidity positions' },
+	{ type: EntityType.Wallet, label: 'Wallet', labelPlural: 'Wallets' },
+	{ type: EntityType.WalletConnection, label: 'Wallet connection', labelPlural: 'Wallet connections' },
+	{ type: EntityType.YellowChannel, label: 'State channel', labelPlural: 'State channels' },
+	{ type: EntityType.YellowChannelState, label: 'Channel state', labelPlural: 'Channel states' },
+	{ type: EntityType.YellowDeposit, label: 'Channel deposit', labelPlural: 'Channel deposits' },
+	{ type: EntityType.YellowTransfer, label: 'Channel transfer', labelPlural: 'Channel transfers' },
+] as const
+
+type StringId = { id: string }
+
+export type Entity<_EntityType extends EntityType = EntityType> = {
+	[EntityType.Actor]: Actor
+	[EntityType.ActorAllowance]: ActorAllowance
+	[EntityType.ActorCoin]: ActorCoin
+	[EntityType.ActorNetwork]: Record<string, unknown>
+	[EntityType.AgentChatTree]: AgentChatTree
+	[EntityType.AgentChatTurn]: AgentChatTurn
+	[EntityType.Block]: BlockEntry
+	[EntityType.BridgeRoute]: BridgeRoute
+	[EntityType.CctpAllowance]: CctpAllowance
+	[EntityType.CctpFee]: CctpFee
+	[EntityType.ChannelProposal]: Record<string, unknown>
+	[EntityType.Coin]: CoinEntry
+	[EntityType.DashboardPanel]: DashboardState
+	[EntityType.Network]: NetworkEntry
+	[EntityType.Room]: Room
+	[EntityType.RoomPeer]: RoomPeer
+	[EntityType.SharedAddress]: SharedAddress
+	[EntityType.SiweChallenge]: SiweChallenge
+	[EntityType.StorkPrice]: StorkPrice
+	[EntityType.SwapQuote]: SwapQuote
+	[EntityType.TokenListCoin]: TokenListCoin
+	[EntityType.Transaction]: Transaction
+	[EntityType.TransactionSession]: TransactionSession
+	[EntityType.TransactionSessionSimulation]: TransactionSessionSimulation
+	[EntityType.TransferGraph]: Record<string, unknown>
+	[EntityType.TransferRequest]: TransferRequest
+	[EntityType.UniswapPool]: UniswapPool
+	[EntityType.UniswapPosition]: UniswapPosition
+	[EntityType.Wallet]: Wallet
+	[EntityType.WalletConnection]: WalletConnectionBase
+	[EntityType.YellowChannel]: YellowChannel
+	[EntityType.YellowChannelState]: YellowChannelState
+	[EntityType.YellowDeposit]: YellowDeposit
+	[EntityType.YellowTransfer]: YellowTransfer
+}[_EntityType]
+
+export type EntityId<_EntityType extends EntityType = EntityType> = {
+	[EntityType.Actor]: Actor$Id
+	[EntityType.ActorAllowance]: ActorAllowance$Id
+	[EntityType.ActorCoin]: ActorCoin$Id
+	[EntityType.ActorNetwork]: Record<string, unknown>
+	[EntityType.AgentChatTree]: StringId
+	[EntityType.AgentChatTurn]: StringId
+	[EntityType.Block]: Block$Id
+	[EntityType.BridgeRoute]: StringId
+	[EntityType.CctpAllowance]: CctpAllowance$Id
+	[EntityType.CctpFee]: CctpFee$Id
+	[EntityType.ChannelProposal]: Record<string, unknown>
+	[EntityType.Coin]: Coin$Id
+	[EntityType.DashboardPanel]: DashboardState$Id
+	[EntityType.Network]: Network$Id
+	[EntityType.Room]: StringId
+	[EntityType.RoomPeer]: StringId
+	[EntityType.SharedAddress]: StringId
+	[EntityType.SiweChallenge]: StringId
+	[EntityType.StorkPrice]: StorkPrice$Id
+	[EntityType.SwapQuote]: StringId
+	[EntityType.TokenListCoin]: TokenListCoin$Id
+	[EntityType.Transaction]: Transaction$Id
+	[EntityType.TransactionSession]: StringId
+	[EntityType.TransactionSessionSimulation]: StringId
+	[EntityType.TransferGraph]: Record<string, unknown>
+	[EntityType.TransferRequest]: StringId
+	[EntityType.UniswapPool]: StringId
+	[EntityType.UniswapPosition]: StringId
+	[EntityType.Wallet]: Wallet$Id
+	[EntityType.WalletConnection]: WalletConnection$Id
+	[EntityType.YellowChannel]: StringId
+	[EntityType.YellowChannelState]: StringId
+	[EntityType.YellowDeposit]: StringId
+	[EntityType.YellowTransfer]: StringId
+}[_EntityType]
 

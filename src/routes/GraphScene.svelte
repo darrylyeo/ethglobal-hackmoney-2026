@@ -42,6 +42,7 @@
 	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
 	import { yellowTransfersCollection } from '$/collections/yellow-transfers.ts'
+	import { entitySourcesCollection } from '$/collections/_entity-sources.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import {
 		NetworkType,
@@ -49,61 +50,13 @@
 		toCaip2,
 		toNetworkSlug,
 	} from '$/constants/networks.ts'
-	import { EntityType } from '$/data/$EntityType.ts'
-	import { entityIntent } from '$/lib/intents/intentDraggable.svelte'
 	import {
-		entityTypes,
-		type GraphSceneEntityType,
-	} from '$/constants/entity-types.ts'
+		EntityType,
+		graphSceneEntityTypes,
+	} from '$/data/$EntityType.ts'
+	import { entityIntent } from '$/lib/intents/intentDraggable.svelte'
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits.ts'
-
-	const DEFAULT_VISIBLE_ENTITY_TYPES: GraphSceneEntityType[] = [
-		EntityType.Actor,
-		EntityType.ActorCoin,
-		EntityType.ActorAllowance,
-		EntityType.Room,
-		EntityType.RoomPeer,
-		EntityType.SharedAddress,
-		EntityType.TransactionSession,
-		EntityType.TransferRequest,
-		EntityType.Network,
-		EntityType.Coin,
-		EntityType.StorkPrice,
-		EntityType.TransactionSessionSimulation,
-	]
-
-	const ENTITY_SOURCE_COMBOS: ReadonlyArray<{
-		entityType: GraphSceneEntityType
-		source: DataSource
-	}> = [
-		{ entityType: EntityType.TokenListCoin, source: DataSource.TokenLists },
-		{ entityType: EntityType.Coin, source: DataSource.Local },
-		{ entityType: EntityType.StorkPrice, source: DataSource.Stork },
-		{ entityType: EntityType.ActorCoin, source: DataSource.Voltaire },
-		{ entityType: EntityType.ActorAllowance, source: DataSource.Voltaire },
-		{ entityType: EntityType.BridgeRoute, source: DataSource.LiFi },
-		{ entityType: EntityType.Actor, source: DataSource.Local },
-		{ entityType: EntityType.Wallet, source: DataSource.Local },
-		{ entityType: EntityType.WalletConnection, source: DataSource.Local },
-		{ entityType: EntityType.Network, source: DataSource.Local },
-		{ entityType: EntityType.Transaction, source: DataSource.Local },
-		{ entityType: EntityType.Block, source: DataSource.Voltaire },
-		{ entityType: EntityType.CctpAllowance, source: DataSource.Cctp },
-		{ entityType: EntityType.CctpFee, source: DataSource.Cctp },
-		{ entityType: EntityType.TransferGraph, source: DataSource.Voltaire },
-		{ entityType: EntityType.Room, source: DataSource.PartyKit },
-		{ entityType: EntityType.RoomPeer, source: DataSource.PartyKit },
-		{ entityType: EntityType.SharedAddress, source: DataSource.PartyKit },
-		{ entityType: EntityType.YellowChannel, source: DataSource.Yellow },
-		{ entityType: EntityType.YellowChannelState, source: DataSource.Yellow },
-		{ entityType: EntityType.YellowDeposit, source: DataSource.Yellow },
-		{ entityType: EntityType.YellowTransfer, source: DataSource.Yellow },
-		{ entityType: EntityType.DashboardPanel, source: DataSource.Local },
-		{ entityType: EntityType.SwapQuote, source: DataSource.Uniswap },
-		{ entityType: EntityType.UniswapPool, source: DataSource.Uniswap },
-		{ entityType: EntityType.UniswapPosition, source: DataSource.Uniswap },
-	]
-
+	import { graphSceneState } from '$/state/graph-scene.svelte.ts'
 
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
@@ -145,19 +98,18 @@
 	// State
 	let hoveredNode: string | undefined = $state(undefined)
 	let expanded = $state(true)
-	const inGraphTypeSet = new Set(
-		(entityTypes as Array<{ type: string; inGraph?: boolean }>)
-			.filter((e) => e.inGraph === true)
-			.map((e) => e.type),
+	const inGraphTypeSet = new Set(graphSceneEntityTypes)
+	const visibleCollections = $derived(
+		new Set(
+			graphSceneState.current.visibleEntities.filter((s) =>
+				graphSceneEntityTypes.includes(s as (typeof graphSceneEntityTypes)[number]),
+			),
+		),
 	)
-	let visibleCollections: Set<string> = $state(
-		new Set(DEFAULT_VISIBLE_ENTITY_TYPES),
+	const hiddenEntitySources = $derived(
+		new Set(graphSceneState.current.hiddenEntitySources.filter(Boolean)),
 	)
-	let hiddenEntitySources: Set<string> = $state(new Set<string>())
-	let graphFramework = $state<GraphFramework>('g6')
-	let frameworkReadFromStorage = $state(false)
-	let visibilityReadFromStorage = $state(false)
-	let entitySourcesReadFromStorage = $state(false)
+	const graphFramework = $derived(graphSceneState.current.graphFramework)
 	let selection = $state<{ nodes: string[]; edges: string[] }>({
 		nodes: [],
 		edges: [],
@@ -165,71 +117,12 @@
 	const selectedNodes = $derived(selection.nodes)
 	const selectedEdges = $derived(selection.edges)
 
-	$effect(() => {
-		if (!visible) return
-		if (frameworkReadFromStorage) return
-		frameworkReadFromStorage = true
-		const stored = localStorage.getItem('graph-framework')
-		if (stored === 'sigma' || stored === 'g6') {
-			graphFramework = stored
-		}
-	})
-
-	$effect(() => {
-		if (!visible) return
-		localStorage.setItem('graph-framework', graphFramework)
-	})
-
-	$effect(() => {
-		if (!visible) return
-		if (visibilityReadFromStorage) return
-		visibilityReadFromStorage = true
-		const stored = localStorage.getItem('graph-visible-entities')
-		if (stored) {
-			try {
-				const arr = JSON.parse(stored) as unknown
-				if (Array.isArray(arr)) {
-					const set = new Set(
-						(arr as string[]).filter((s) => inGraphTypeSet.has(s)),
-					)
-					if (set.size > 0) visibleCollections = set
-				}
-			} catch {}
-		}
-	})
-
-	$effect(() => {
-		if (!visible) return
-		localStorage.setItem(
-			'graph-visible-entities',
-			JSON.stringify([...visibleCollections]),
-		)
-	})
-
-	$effect(() => {
-		if (!visible) return
-		if (entitySourcesReadFromStorage) return
-		entitySourcesReadFromStorage = true
-		const stored = localStorage.getItem('graph-hidden-entity-sources')
-		if (stored) {
-			try {
-				const arr = JSON.parse(stored) as unknown
-				if (Array.isArray(arr))
-					hiddenEntitySources = new Set((arr as string[]).filter(Boolean))
-			} catch {}
-		}
-	})
-	$effect(() => {
-		if (!visible) return
-		localStorage.setItem(
-			'graph-hidden-entity-sources',
-			JSON.stringify([...hiddenEntitySources]),
-		)
-	})
-
 	const isEntitySourceVisible = (entityType: string, source: string) =>
 		visibleCollections.has(entityType) &&
 		!hiddenEntitySources.has(`${entityType}:${source}`)
+
+	const skipRow = (entityType: string, source: string | undefined) =>
+		source != null && !isEntitySourceVisible(entityType, source)
 
 	const walletsQuery = useLiveQuery((q) =>
 		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
@@ -327,7 +220,83 @@
 	const yellowTransfersQuery = useLiveQuery((q) =>
 		q.from({ row: yellowTransfersCollection }).select(({ row }) => ({ row })),
 	)
+	const entitySourcesQuery = useLiveQuery((q) =>
+		q.from({ row: entitySourcesCollection }).select(({ row }) => ({ row })),
+	)
 
+	const queryByEntityType: Partial<
+		Record<EntityType, { data?: { row: unknown }[] }>
+	> = {
+		[EntityType.Wallet]: walletsQuery,
+		[EntityType.WalletConnection]: connectionsQuery,
+		[EntityType.Actor]: actorsQuery,
+		[EntityType.ActorCoin]: actorCoinsQuery,
+		[EntityType.ActorAllowance]: allowancesQuery,
+		[EntityType.BridgeRoute]: routesQuery,
+		[EntityType.Transaction]: txQuery,
+		[EntityType.CctpAllowance]: cctpAllowanceQuery,
+		[EntityType.CctpFee]: cctpFeesQuery,
+		[EntityType.Coin]: coinsQuery,
+		[EntityType.DashboardPanel]: dashboardPanelsQuery,
+		[EntityType.Block]: blocksQuery,
+		[EntityType.Network]: networksQuery,
+		[EntityType.Room]: roomsQuery,
+		[EntityType.RoomPeer]: roomPeersQuery,
+		[EntityType.SharedAddress]: sharedAddressesQuery,
+		[EntityType.SiweChallenge]: siweChallengesQuery,
+		[EntityType.StorkPrice]: storkPricesQuery,
+		[EntityType.SwapQuote]: swapQuotesQuery,
+		[EntityType.TokenListCoin]: tokenListCoinsQuery,
+		[EntityType.TransactionSession]: transactionSessionsQuery,
+		[EntityType.TransactionSessionSimulation]: transactionSessionSimulationsQuery,
+		[EntityType.TransferGraph]: transferGraphsQuery,
+		[EntityType.TransferRequest]: transferRequestsQuery,
+		[EntityType.UniswapPool]: uniswapPoolsQuery,
+		[EntityType.UniswapPosition]: uniswapPositionsQuery,
+		[EntityType.YellowChannel]: yellowChannelsQuery,
+		[EntityType.YellowChannelState]: yellowChannelStatesQuery,
+		[EntityType.YellowDeposit]: yellowDepositsQuery,
+		[EntityType.YellowTransfer]: yellowTransfersQuery,
+	}
+	const graphQueries = [
+		walletsQuery,
+		connectionsQuery,
+		actorsQuery,
+		actorCoinsQuery,
+		allowancesQuery,
+		routesQuery,
+		txQuery,
+		blocksQuery,
+		cctpAllowanceQuery,
+		cctpFeesQuery,
+		networksQuery,
+		coinsQuery,
+		tokenListCoinsQuery,
+		storkPricesQuery,
+		swapQuotesQuery,
+		uniswapPoolsQuery,
+		uniswapPositionsQuery,
+		transactionSessionsQuery,
+		transactionSessionSimulationsQuery,
+		transferGraphsQuery,
+		transferRequestsQuery,
+		roomsQuery,
+		roomPeersQuery,
+		sharedAddressesQuery,
+		siweChallengesQuery,
+		yellowChannelsQuery,
+		yellowChannelStatesQuery,
+		yellowDepositsQuery,
+		yellowTransfersQuery,
+		dashboardPanelsQuery,
+	]
+
+	const entitySourceCombos = $derived(
+		(entitySourcesQuery.data ?? []).map(({ row }) => ({
+			entityType: row.entityType,
+			source: row.source,
+		})),
+	)
 
 	// Types/constants
 	type CollectionStyle = {
@@ -339,7 +308,7 @@
 		g6Style: GraphNodeStyle
 	}
 
-	const collections: Record<GraphSceneEntityType, CollectionStyle> = {
+	const collections: Record<EntityType, CollectionStyle> = {
 		[EntityType.Wallet]: {
 			color: '#3b82f6',
 			label: 'Wallets',
@@ -378,6 +347,18 @@
 				halo: true,
 				haloStroke: '#fbbf24',
 				haloLineWidth: 6,
+			},
+		},
+		[EntityType.ActorNetwork]: {
+			color: '#84cc16',
+			label: 'Account Networks',
+			size: 14,
+			ring: 2.5,
+			g6Type: 'circle',
+			g6Style: {
+				lineDash: [4, 2],
+				labelPlacement: 'right',
+				opacity: 0.9,
 			},
 		},
 		[EntityType.ActorCoin]: {
@@ -730,6 +711,30 @@
 				lineWidth: 2,
 			},
 		},
+		[EntityType.AgentChatTree]: {
+			color: '#94a3b8',
+			label: 'Agent conversations',
+			size: 8,
+			ring: 9,
+			g6Type: 'circle',
+			g6Style: { labelPlacement: 'bottom' },
+		},
+		[EntityType.AgentChatTurn]: {
+			color: '#94a3b8',
+			label: 'Chat turns',
+			size: 6,
+			ring: 9.2,
+			g6Type: 'circle',
+			g6Style: { labelPlacement: 'bottom' },
+		},
+		[EntityType.ChannelProposal]: {
+			color: '#94a3b8',
+			label: 'Channel proposals',
+			size: 8,
+			ring: 9.4,
+			g6Type: 'circle',
+			g6Style: { labelPlacement: 'bottom' },
+		},
 	}
 
 	const edgeColors = {
@@ -827,39 +832,14 @@
 
 
 	// (Derived)
-	const counts: Record<GraphSceneEntityType, number> = $derived({
-		[EntityType.Wallet]: walletsQuery.data?.length ?? 0,
-		[EntityType.WalletConnection]: connectionsQuery.data?.length ?? 0,
-		[EntityType.Actor]: actorsQuery.data?.length ?? 0,
-		[EntityType.ActorCoin]: actorCoinsQuery.data?.length ?? 0,
-		[EntityType.ActorAllowance]: allowancesQuery.data?.length ?? 0,
-		[EntityType.BridgeRoute]: routesQuery.data?.length ?? 0,
-		[EntityType.Transaction]: txQuery.data?.length ?? 0,
-		[EntityType.CctpAllowance]: cctpAllowanceQuery.data?.length ?? 0,
-		[EntityType.CctpFee]: cctpFeesQuery.data?.length ?? 0,
-		[EntityType.Coin]: coinsQuery.data?.length ?? 0,
-		[EntityType.DashboardPanel]: dashboardPanelsQuery.data?.length ?? 0,
-		[EntityType.Block]: blocksQuery.data?.length ?? 0,
-		[EntityType.Network]: networksQuery.data?.length ?? 0,
-		[EntityType.Room]: roomsQuery.data?.length ?? 0,
-		[EntityType.RoomPeer]: roomPeersQuery.data?.length ?? 0,
-		[EntityType.SharedAddress]: sharedAddressesQuery.data?.length ?? 0,
-		[EntityType.SiweChallenge]: siweChallengesQuery.data?.length ?? 0,
-		[EntityType.StorkPrice]: storkPricesQuery.data?.length ?? 0,
-		[EntityType.SwapQuote]: swapQuotesQuery.data?.length ?? 0,
-		[EntityType.TokenListCoin]: tokenListCoinsQuery.data?.length ?? 0,
-		[EntityType.TransactionSession]: transactionSessionsQuery.data?.length ?? 0,
-		[EntityType.TransactionSessionSimulation]:
-			transactionSessionSimulationsQuery.data?.length ?? 0,
-		[EntityType.TransferGraph]: transferGraphsQuery.data?.length ?? 0,
-		[EntityType.TransferRequest]: transferRequestsQuery.data?.length ?? 0,
-		[EntityType.UniswapPool]: uniswapPoolsQuery.data?.length ?? 0,
-		[EntityType.UniswapPosition]: uniswapPositionsQuery.data?.length ?? 0,
-		[EntityType.YellowChannel]: yellowChannelsQuery.data?.length ?? 0,
-		[EntityType.YellowChannelState]: yellowChannelStatesQuery.data?.length ?? 0,
-		[EntityType.YellowDeposit]: yellowDepositsQuery.data?.length ?? 0,
-		[EntityType.YellowTransfer]: yellowTransfersQuery.data?.length ?? 0,
-	})
+	const counts = $derived(
+		Object.fromEntries(
+			(Object.keys(collections) as EntityType[]).map((t) => [
+				t,
+				queryByEntityType[t]?.data?.length ?? 0,
+			]),
+		) as Record<EntityType, number>,
+	)
 
 
 	// Functions
@@ -874,6 +854,20 @@
 
 	const toIntentPayload = (type: EntityType, id: Record<string, unknown>) =>
 		entityIntent(type, id, 'graph')
+
+	const baseNode = (
+		entityType: EntityType,
+		pos: { x: number; y: number },
+		overrides: Partial<GraphNode> & { id: string },
+	): GraphNode => ({
+		...pos,
+		size: collections[entityType].size,
+		color: collections[entityType].color,
+		collection: entityType,
+		g6Type: collections[entityType].g6Type,
+		g6Style: collections[entityType].g6Style,
+		...overrides,
+	})
 
 
 	// (Derived)
@@ -913,11 +907,7 @@
 		if (visibleCollections.has(EntityType.Wallet)) {
 			const wallets = take(walletsQuery.data)
 			wallets.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.Wallet, row.$source)
-				)
-					return
+				if (skipRow(EntityType.Wallet, row.$source)) return
 				const rdns = row.$id?.rdns
 				if (!rdns) return
 				const pos = positionInRing(
@@ -925,19 +915,16 @@
 					i,
 					wallets.length,
 				)
-				addNode({
-					id: `wallet:${rdns}`,
-					label: row.name,
-					...pos,
-					size: collections[EntityType.Wallet].size,
-					color: collections[EntityType.Wallet].color,
-					type: row.icon ? 'image' : 'circle',
-					image: row.icon || undefined,
-					collection: EntityType.Wallet,
-					g6Type: row.icon ? 'image' : collections[EntityType.Wallet].g6Type,
-					g6Style: collections[EntityType.Wallet].g6Style,
-					details: { rdns: row.rdns },
-				})
+				addNode(
+					baseNode(EntityType.Wallet, pos, {
+						id: `wallet:${rdns}`,
+						label: row.name,
+						type: row.icon ? 'image' : 'circle',
+						image: row.icon || undefined,
+						g6Type: row.icon ? 'image' : collections[EntityType.Wallet].g6Type,
+						details: { rdns: row.rdns },
+					}),
+				)
 			})
 		}
 
@@ -945,11 +932,7 @@
 		if (visibleCollections.has(EntityType.WalletConnection)) {
 			const connections = take(connectionsQuery.data)
 			connections.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.WalletConnection, row.$source)
-				)
-					return
+				if (skipRow(EntityType.WalletConnection, row.$source)) return
 				const rdns = row.$id?.wallet$id?.rdns
 				if (!rdns) return
 				const connId = `connection:${rdns}`
@@ -1019,11 +1002,7 @@
 			const actors = take(actorsQuery.data)
 			const connections = take(connectionsQuery.data)
 			actors.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.Actor, row.$source)
-				)
-					return
+				if (skipRow(EntityType.Actor, row.$source)) return
 				const actorId = `actor:${row.$id.network}:${row.address}`
 				if (g.hasNode(actorId)) return
 				const pos = positionInRing(
@@ -1032,23 +1011,19 @@
 					actors.length,
 				)
 				const chainName = getChainName(row.$id.network)
-				addNode({
-					id: actorId,
-					label: `${row.address.slice(0, 6)}…${row.address.slice(-4)}`,
-					...pos,
-					size: collections[EntityType.Actor].size,
-					color: collections[EntityType.Actor].color,
-					type: 'circle',
-					collection: EntityType.Actor,
-					g6Type: collections[EntityType.Actor].g6Type,
-					g6Style: collections[EntityType.Actor].g6Style,
-					intent: toIntentPayload(EntityType.Actor, row.$id),
-					details: {
-						address: row.address,
-						chain: chainName,
-						chainId: row.$id.network,
-					},
-				})
+				addNode(
+					baseNode(EntityType.Actor, pos, {
+						id: actorId,
+						label: `${row.address.slice(0, 6)}…${row.address.slice(-4)}`,
+						type: 'circle',
+						intent: toIntentPayload(EntityType.Actor, row.$id),
+						details: {
+							address: row.address,
+							chain: chainName,
+							chainId: row.$id.network,
+						},
+					}),
+				)
 				// Connect actor to connection
 				if (visibleCollections.has(EntityType.WalletConnection)) {
 					for (const { row: conn } of connections) {
@@ -1076,11 +1051,7 @@
 		if (visibleCollections.has(EntityType.ActorCoin)) {
 			const coins = take(actorCoinsQuery.data)
 			coins.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.ActorCoin, row.$source)
-				)
-					return
+				if (skipRow(EntityType.ActorCoin, row.$source)) return
 				const coinId = `coin:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}`
 				if (g.hasNode(coinId)) return
 				const pos = positionInRing(
@@ -1145,11 +1116,7 @@
 		if (visibleCollections.has(EntityType.ActorAllowance)) {
 			const allowances = take(allowancesQuery.data)
 			allowances.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.ActorAllowance, row.$source)
-				)
-					return
+				if (skipRow(EntityType.ActorAllowance, row.$source)) return
 				const allowanceId = `allowance:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}:${row.$id.spenderAddress}`
 				if (g.hasNode(allowanceId)) return
 				const pos = positionInRing(
@@ -1209,11 +1176,7 @@
 		if (visibleCollections.has(EntityType.Network)) {
 			const networks = take(networksQuery.data)
 			networks.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.Network, row.$source)
-				)
-					return
+				if (skipRow(EntityType.Network, row.$source)) return
 				const networkId = `network:${row.$id}`
 				if (g.hasNode(networkId)) return
 				const pos = positionInRing(
@@ -1221,42 +1184,35 @@
 					i,
 					networks.length,
 				)
-				addNode({
-					id: networkId,
-					label: row.name,
-					...pos,
-					size: collections[EntityType.Network].size,
-					color: collections[EntityType.Network].color,
-					type: 'circle',
-					collection: EntityType.Network,
-					g6Type: collections[EntityType.Network].g6Type,
-					g6Style: {
-						...collections[EntityType.Network].g6Style,
-						badge: {
-							text: row.type === NetworkType.Testnet ? 'TEST' : 'MAIN',
+				addNode(
+					baseNode(EntityType.Network, pos, {
+						id: networkId,
+						label: row.name,
+						type: 'circle',
+						g6Style: {
+							...collections[EntityType.Network].g6Style,
+							badge: {
+								text: row.type === NetworkType.Testnet ? 'TEST' : 'MAIN',
+							},
+							lineDash: row.type === NetworkType.Testnet ? [3, 3] : undefined,
+							opacity: row.type === NetworkType.Testnet ? 0.7 : 1,
 						},
-						lineDash: row.type === NetworkType.Testnet ? [3, 3] : undefined,
-						opacity: row.type === NetworkType.Testnet ? 0.7 : 1,
-					},
-					details: {
-						chainId: row.id,
-						type: row.type,
-						name: row.name,
-						caip2: toCaip2(row.id),
-						slug: toNetworkSlug(row.name),
-					},
-				})
+						details: {
+							chainId: row.id,
+							type: row.type,
+							name: row.name,
+							caip2: toCaip2(row.id),
+							slug: toNetworkSlug(row.name),
+						},
+					}),
+				)
 			})
 		}
 
 		if (visibleCollections.has(EntityType.Block)) {
 			const blocks = take(blocksQuery.data)
 			blocks.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.Block, row.$source)
-				)
-					return
+				if (skipRow(EntityType.Block, row.$source)) return
 				const blockId = `block:${row.$id.chainId}:${row.$id.blockNumber}`
 				if (g.hasNode(blockId)) return
 				const pos = positionInRing(
@@ -1306,11 +1262,7 @@
 		if (visibleCollections.has(EntityType.BridgeRoute)) {
 			const routes = take(routesQuery.data)
 			routes.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.BridgeRoute, row.$source)
-				)
-					return
+				if (skipRow(EntityType.BridgeRoute, row.$source)) return
 				const routeId = `route:${row.$id.routeId}`
 				if (g.hasNode(routeId)) return
 				const pos = positionInRing(
@@ -1390,11 +1342,7 @@
 		if (visibleCollections.has(EntityType.Transaction)) {
 			const txs = take(txQuery.data)
 			txs.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.Transaction, row.$source)
-				)
-					return
+				if (skipRow(EntityType.Transaction, row.$source)) return
 				const txId = `tx:${row.$id.sourceTxHash}`
 				if (g.hasNode(txId)) return
 				const pos = positionInRing(
@@ -1458,11 +1406,7 @@
 		if (visibleCollections.has(EntityType.Coin)) {
 			const coins = take(coinsQuery.data)
 			coins.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.Coin, row.$source)
-				)
-					return
+				if (skipRow(EntityType.Coin, row.$source)) return
 				const coinId = `erc20:${row.$id.network}:${row.$id.address}`
 				if (g.hasNode(coinId)) return
 				const pos = positionInRing(
@@ -1509,11 +1453,7 @@
 		if (visibleCollections.has(EntityType.TokenListCoin)) {
 			const tokens = take(tokenListCoinsQuery.data)
 			tokens.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.TokenListCoin, row.$source)
-				)
-					return
+				if (skipRow(EntityType.TokenListCoin, row.$source)) return
 				const tokenId = `token:${row.$id.chainId}:${row.$id.address}`
 				if (g.hasNode(tokenId)) return
 				const pos = positionInRing(
@@ -1560,11 +1500,7 @@
 		if (visibleCollections.has(EntityType.StorkPrice)) {
 			const prices = take(storkPricesQuery.data)
 			prices.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.StorkPrice, row.$source)
-				)
-					return
+				if (skipRow(EntityType.StorkPrice, row.$source)) return
 				const priceId = toNodeId('stork', row.$id)
 				if (g.hasNode(priceId)) return
 				const pos = positionInRing(
@@ -1614,11 +1550,7 @@
 		if (visibleCollections.has(EntityType.SwapQuote)) {
 			const quotes = take(swapQuotesQuery.data)
 			quotes.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.SwapQuote, row.$source)
-				)
-					return
+				if (skipRow(EntityType.SwapQuote, row.$source)) return
 				const quoteId = `swap:${row.id}`
 				if (g.hasNode(quoteId)) return
 				const pos = positionInRing(
@@ -1676,11 +1608,7 @@
 		if (visibleCollections.has(EntityType.UniswapPool)) {
 			const pools = take(uniswapPoolsQuery.data)
 			pools.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.UniswapPool, row.$source)
-				)
-					return
+				if (skipRow(EntityType.UniswapPool, row.$source)) return
 				const poolId = `pool:${row.id}`
 				if (g.hasNode(poolId)) return
 				const pos = positionInRing(
@@ -1732,11 +1660,7 @@
 		if (visibleCollections.has(EntityType.UniswapPosition)) {
 			const positions = take(uniswapPositionsQuery.data)
 			positions.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.UniswapPosition, row.$source)
-				)
-					return
+				if (skipRow(EntityType.UniswapPosition, row.$source)) return
 				const positionId = `position:${row.id}`
 				if (g.hasNode(positionId)) return
 				const pos = positionInRing(
@@ -1780,11 +1704,7 @@
 		if (visibleCollections.has(EntityType.CctpAllowance)) {
 			const allowances = take(cctpAllowanceQuery.data)
 			allowances.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.CctpAllowance, row.$source)
-				)
-					return
+				if (skipRow(EntityType.CctpAllowance, row.$source)) return
 				const allowanceId = toNodeId('cctp-allowance', row.$id)
 				if (g.hasNode(allowanceId)) return
 				const pos = positionInRing(
@@ -1819,11 +1739,7 @@
 		if (visibleCollections.has(EntityType.CctpFee)) {
 			const fees = take(cctpFeesQuery.data)
 			fees.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.CctpFee, row.$source)
-				)
-					return
+				if (skipRow(EntityType.CctpFee, row.$source)) return
 				const feeId = toNodeId('cctp-fee', row.$id)
 				if (g.hasNode(feeId)) return
 				const pos = positionInRing(
@@ -1855,11 +1771,7 @@
 		if (visibleCollections.has(EntityType.TransactionSession)) {
 			const sessions = take(transactionSessionsQuery.data)
 			sessions.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.TransactionSession, row.$source)
-				)
-					return
+				if (skipRow(EntityType.TransactionSession, row.$source)) return
 				const sessionId = `session:${row.id}`
 				if (g.hasNode(sessionId)) return
 				const pos = positionInRing(
@@ -1913,14 +1825,7 @@
 		if (visibleCollections.has(EntityType.TransactionSessionSimulation)) {
 			const simulations = take(transactionSessionSimulationsQuery.data)
 			simulations.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(
-						EntityType.TransactionSessionSimulation,
-						row.$source,
-					)
-				)
-					return
+				if (skipRow(EntityType.TransactionSessionSimulation, row.$source)) return
 				const simulationId = `simulation:${row.id}`
 				if (g.hasNode(simulationId)) return
 				const pos = positionInRing(
@@ -1970,11 +1875,7 @@
 		if (visibleCollections.has(EntityType.TransferGraph)) {
 			const graphs = take(transferGraphsQuery.data)
 			graphs.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.TransferGraph, row.$source)
-				)
-					return
+				if (skipRow(EntityType.TransferGraph, row.$source)) return
 				const graphId = `transfer-graph:${row.$id.symbol}:${row.$id.period}`
 				if (g.hasNode(graphId)) return
 				const pos = positionInRing(
@@ -2006,11 +1907,7 @@
 		if (visibleCollections.has(EntityType.Room)) {
 			const rooms = take(roomsQuery.data)
 			rooms.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.Room, row.$source)
-				)
-					return
+				if (skipRow(EntityType.Room, row.$source)) return
 				const roomId = `room:${row.id}`
 				if (g.hasNode(roomId)) return
 				const pos = positionInRing(
@@ -2040,11 +1937,7 @@
 		if (visibleCollections.has(EntityType.RoomPeer)) {
 			const peers = take(roomPeersQuery.data)
 			peers.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.RoomPeer, row.$source)
-				)
-					return
+				if (skipRow(EntityType.RoomPeer, row.$source)) return
 				const peerId = `peer:${row.id}`
 				if (g.hasNode(peerId)) return
 				const pos = positionInRing(
@@ -2149,11 +2042,7 @@
 		if (visibleCollections.has(EntityType.SiweChallenge)) {
 			const challenges = take(siweChallengesQuery.data)
 			challenges.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.SiweChallenge, row.$source)
-				)
-					return
+				if (skipRow(EntityType.SiweChallenge, row.$source)) return
 				const challengeId = `siwe:${row.id}`
 				if (g.hasNode(challengeId)) return
 				const pos = positionInRing(
@@ -2204,11 +2093,7 @@
 		if (visibleCollections.has(EntityType.TransferRequest)) {
 			const requests = transferRequestsQuery.data ?? []
 			requests.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.TransferRequest, row.$source)
-				)
-					return
+				if (skipRow(EntityType.TransferRequest, row.$source)) return
 				const requestId = `transfer-request:${row.id}`
 				if (g.hasNode(requestId)) return
 				const pos = positionInRing(
@@ -2260,11 +2145,7 @@
 		if (visibleCollections.has(EntityType.YellowChannel)) {
 			const channels = take(yellowChannelsQuery.data)
 			channels.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.YellowChannel, row.$source)
-				)
-					return
+				if (skipRow(EntityType.YellowChannel, row.$source)) return
 				const channelId = `yellow:${row.id}`
 				if (g.hasNode(channelId)) return
 				const pos = positionInRing(
@@ -2317,11 +2198,7 @@
 		if (visibleCollections.has(EntityType.YellowChannelState)) {
 			const states = take(yellowChannelStatesQuery.data)
 			states.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.YellowChannelState, row.$source)
-				)
-					return
+				if (skipRow(EntityType.YellowChannelState, row.$source)) return
 				const stateId = `yellow-state:${row.id}`
 				if (g.hasNode(stateId)) return
 				const pos = positionInRing(
@@ -2372,11 +2249,7 @@
 		if (visibleCollections.has(EntityType.YellowDeposit)) {
 			const deposits = take(yellowDepositsQuery.data)
 			deposits.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.YellowDeposit, row.$source)
-				)
-					return
+				if (skipRow(EntityType.YellowDeposit, row.$source)) return
 				const depositId = `yellow-deposit:${row.id}`
 				if (g.hasNode(depositId)) return
 				const pos = positionInRing(
@@ -2425,11 +2298,7 @@
 		if (visibleCollections.has(EntityType.YellowTransfer)) {
 			const transfers = take(yellowTransfersQuery.data)
 			transfers.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.YellowTransfer, row.$source)
-				)
-					return
+				if (skipRow(EntityType.YellowTransfer, row.$source)) return
 				const transferId = `yellow-transfer:${row.id}`
 				if (g.hasNode(transferId)) return
 				const pos = positionInRing(
@@ -2480,11 +2349,7 @@
 		if (visibleCollections.has(EntityType.DashboardPanel)) {
 			const panels = take(dashboardPanelsQuery.data)
 			panels.forEach(({ row }, i) => {
-				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.DashboardPanel, row.$source)
-				)
-					return
+				if (skipRow(EntityType.DashboardPanel, row.$source)) return
 				const panelId = toNodeId('dashboard', row.$id)
 				if (g.hasNode(panelId)) return
 				const pos = positionInRing(
@@ -2842,10 +2707,13 @@
 
 	// Actions
 	const toggleCollection = (key: string) => {
-		const next = new Set(visibleCollections)
+		const next = new Set(graphSceneState.current.visibleEntities)
 		if (next.has(key)) next.delete(key)
 		else next.add(key)
-		visibleCollections = next
+		graphSceneState.current = {
+			...graphSceneState.current,
+			visibleEntities: [...next],
+		}
 	}
 
 	const comboKey = (entityType: string, source: string) =>
@@ -2853,46 +2721,27 @@
 
 	const toggleEntitySource = (entityType: string, source: string) => {
 		const key = comboKey(entityType, source)
-		const next = new Set(hiddenEntitySources)
+		const next = new Set(graphSceneState.current.hiddenEntitySources)
 		if (next.has(key)) next.delete(key)
 		else next.add(key)
-		hiddenEntitySources = next
+		graphSceneState.current = {
+			...graphSceneState.current,
+			hiddenEntitySources: [...next],
+		}
+	}
+
+	const setGraphFramework = (framework: GraphFramework) => {
+		graphSceneState.current = {
+			...graphSceneState.current,
+			graphFramework: framework,
+		}
 	}
 
 
 	// (Derived)
 	const refreshKey = $derived(
 		[
-			walletsQuery.data?.length,
-			connectionsQuery.data?.length,
-			actorsQuery.data?.length,
-			actorCoinsQuery.data?.length,
-			allowancesQuery.data?.length,
-			routesQuery.data?.length,
-			txQuery.data?.length,
-			blocksQuery.data?.length,
-			cctpAllowanceQuery.data?.length,
-			cctpFeesQuery.data?.length,
-			networksQuery.data?.length,
-			coinsQuery.data?.length,
-			tokenListCoinsQuery.data?.length,
-			storkPricesQuery.data?.length,
-			swapQuotesQuery.data?.length,
-			uniswapPoolsQuery.data?.length,
-			uniswapPositionsQuery.data?.length,
-			transactionSessionsQuery.data?.length,
-			transactionSessionSimulationsQuery.data?.length,
-			transferGraphsQuery.data?.length,
-			transferRequestsQuery.data?.length,
-			roomsQuery.data?.length,
-			roomPeersQuery.data?.length,
-			sharedAddressesQuery.data?.length,
-			siweChallengesQuery.data?.length,
-			yellowChannelsQuery.data?.length,
-			yellowChannelStatesQuery.data?.length,
-			yellowDepositsQuery.data?.length,
-			yellowTransfersQuery.data?.length,
-			dashboardPanelsQuery.data?.length,
+			...graphQueries.map((q) => q.data?.length),
 			[...visibleCollections].join(','),
 			[...hiddenEntitySources].sort().join(','),
 		].join(':'),
@@ -2920,9 +2769,7 @@
 					type="button"
 					data-active={graphFramework === 'sigma'}
 					aria-pressed={graphFramework === 'sigma'}
-					onclick={() => {
-						graphFramework = 'sigma'
-					}}
+					onclick={() => setGraphFramework('sigma')}
 				>
 					Sigma
 				</button>
@@ -2930,9 +2777,7 @@
 					type="button"
 					data-active={graphFramework === 'g6'}
 					aria-pressed={graphFramework === 'g6'}
-					onclick={() => {
-						graphFramework = 'g6'
-					}}
+					onclick={() => setGraphFramework('g6')}
 				>
 					G6
 				</button>
@@ -3043,7 +2888,7 @@
 				data-row="wrap gap-1"
 			>
 				<span class="graph-scene-legend-label">By source:</span>
-				{#each ENTITY_SOURCE_COMBOS as combo (comboKey(combo.entityType, combo.source))}
+				{#each entitySourceCombos as combo (comboKey(combo.entityType, combo.source))}
 					{@const key = comboKey(combo.entityType, combo.source)}
 					{@const isVisible = !hiddenEntitySources.has(key)}
 					<button

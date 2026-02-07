@@ -2,10 +2,7 @@
 
 
 	// Types/constants
-	import {
-		actionSpecs,
-		type IntentOption,
-	} from '$/constants/intents.ts'
+	import type { IntentOption } from '$/constants/intents.ts'
 
 
 	// Context
@@ -15,22 +12,14 @@
 	// Functions
 	import { resolveIntentForDrag } from '$/lib/intents.ts'
 	import { stringify } from '$/lib/stringify.ts'
-	import {
-		clearIntentDragPreview,
-		finalizeIntentDragPreview,
-		intentDragPreviewState,
-		selectIntentDragRoute,
-	} from '$/state/intent-drag-preview.svelte'
-	import { getIntentNavigationStore } from '$/state/intent-navigation.svelte'
 
 	const toActionHash = (option: IntentOption) => (
-		`#${option.actions
+		`#/${option.actions
 			.map(({ protocolAction, payload }) => {
-				const sessionAction = actionSpecs[protocolAction.action].sessionAction
-				const encoded = Object.keys(payload).length > 0
-					? `${sessionAction}:${encodeURIComponent(stringify(payload))}`
-					: sessionAction
-				return encoded
+				const actionType = protocolAction.action
+				return Object.keys(payload).length > 0
+					? `${actionType}:${encodeURIComponent(stringify(payload))}`
+					: actionType
 			})
 			.join('|')}`
 	)
@@ -62,22 +51,16 @@
 		await goto(`${path}${hash}`)
 	}
 
-	const selectOption = async (option: IntentOption, index: number) => {
-		selectIntentDragRoute(String(index))
-
-		await runWithViewTransition(async () => {
-			await navigateTo('/session', toActionHash(option))
-		})
-
-		clearIntentDragPreview()
-	}
-
-
-	// Components
-	import DragArrow from '$/components/DragArrow.svelte'
-
 
 	// State
+	import {
+		clearIntentDragPreview,
+		finalizeIntentDragPreview,
+		intentDragPreviewState,
+		selectIntentDragRoute,
+	} from '$/state/intent-drag-preview.svelte'
+	import { getIntentNavigationStore } from '$/state/intent-navigation.svelte'
+
 	let tooltipContentRef = $state<HTMLDivElement | null>(null)
 	let prefersReducedMotion = $state(false)
 	let pointerPosition = $state<{ x: number; y: number } | null>(null)
@@ -102,8 +85,6 @@
 				: null),
 	)
 
-
-	// Effects
 	$effect(() => {
 		if (typeof window === 'undefined') return
 		if (intentDragPreviewState.status !== 'dragging') {
@@ -190,6 +171,22 @@
 		lastSource = source
 		lastTarget = target
 	})
+
+
+	// Actions
+	const selectOption = async (option: IntentOption, index: number) => {
+		selectIntentDragRoute(String(index))
+
+		await runWithViewTransition(async () => {
+			await navigateTo('/session', toActionHash(option))
+		})
+
+		clearIntentDragPreview()
+	}
+
+
+	// Components
+	import DragArrow from '$/components/DragArrow.svelte'
 </script>
 
 
