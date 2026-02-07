@@ -2,28 +2,19 @@
 
 
 	// Types/constants
-	import type { IntentRoute, IntentRouteStep } from '$/lib/intents/routes.ts'
 	import {
-		IntentKind,
-		IntentPlacement,
-		intents,
-		type IntentDragPayload,
-		type IntentResolution,
+		ActionType,
+		type IntentOption,
 	} from '$/constants/intents.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
-	import { NetworkType, networksByChainId } from '$/constants/networks.ts'
-	import { defaultBridgeSettings } from '$/state/bridge-settings.svelte'
-	import { defaultSwapSettings } from '$/state/swap-settings.svelte'
+	import type { TransactionSessionAction } from '$/data/TransactionSession.ts'
 
 
 	// Context
 	import { goto } from '$app/navigation'
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Functions
-	import { buildIntentRoutes } from '$/lib/intents/routes.ts'
-	import { resolveIntent } from '$/lib/intents/resolveIntent.ts'
+	import { resolveIntentForDrag } from '$/lib/intents.ts'
 	import { stringify } from '$/lib/stringify.ts'
 	import {
 		clearIntentDragPreview,
@@ -32,55 +23,36 @@
 		selectIntentDragRoute,
 	} from '$/state/intent-drag-preview.svelte'
 	import { getIntentNavigationStore } from '$/state/intent-navigation.svelte'
-	import { tick } from 'svelte'
 
+	const actionTypeToSessionAction: Record<ActionType, TransactionSessionAction> = {
+		[ActionType.Swap]: 'swap',
+		[ActionType.Bridge]: 'bridge',
+		[ActionType.Transfer]: 'transfer',
+		[ActionType.CreateChannel]: 'createChannel',
+		[ActionType.AddChannelMember]: 'addChannelMember',
+		[ActionType.CloseChannel]: 'closeChannel',
+		[ActionType.AddLiquidity]: 'addLiquidity',
+		[ActionType.RemoveLiquidity]: 'removeLiquidity',
+	}
 
-	// Components
-	import DragArrow from '$/components/DragArrow.svelte'
-
-
-	// State
-	import { actorsCollection } from '$/collections/actors.ts'
-	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
-	import { bridgeRoutesCollection } from '$/collections/bridge-routes.ts'
-	import { roomPeersCollection } from '$/collections/room-peers.ts'
-	import { swapQuotesCollection } from '$/collections/swap-quotes.ts'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
-	import { roomState } from '$/state/room.svelte'
-
-	const isTestnetChain = (chainId: number) =>
-		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
-			?.type === NetworkType.Testnet
-	const withPlacement = (
-		payload: IntentDragPayload,
-		placement: IntentPlacement,
-	): IntentDragPayload => ({
-		...payload,
-		context: {
-			...payload.context,
-			placement,
-		},
-	})
-	const toActionHash = (
-		actions: {
-			action: 'swap' | 'bridge' | 'transfer' | 'intent'
-			params: Record<string, unknown>
-		}[],
-	) =>
-		`#${actions
-			.map((entry) =>
-				Object.keys(entry.params).length > 0
-					? `${entry.action}:${encodeURIComponent(stringify(entry.params))}`
-					: entry.action,
-			)
+	const toActionHash = (option: IntentOption) => (
+		`#${option.actions
+			.map(({ protocolAction, payload }) => {
+				const sessionAction = actionTypeToSessionAction[protocolAction.action]
+				const encoded = Object.keys(payload).length > 0
+					? `${sessionAction}:${encodeURIComponent(stringify(payload))}`
+					: sessionAction
+				return encoded
+			})
 			.join('|')}`
+	)
+
 	const hasViewTransition = (
 		value: Document,
 	): value is Document & {
-		startViewTransition: (update: () => void | Promise<void>) => {
-			finished: Promise<unknown>
-		}
+		startViewTransition: (update: () => void | Promise<void>) => { finished: Promise<unknown> }
 	} => 'startViewTransition' in value
+
 	const runWithViewTransition = async (action: () => void | Promise<void>) => {
 		if (typeof document === 'undefined' || prefersReducedMotion) {
 			await action()
@@ -92,6 +64,7 @@
 		}
 		document.startViewTransition(() => action())
 	}
+
 	const navigateTo = async (path: string, hash: string) => {
 		const handler = getIntentNavigationStore().fn
 		if (handler) {
@@ -100,252 +73,23 @@
 		}
 		await goto(`${path}${hash}`)
 	}
-	const tokenMatch = (address: string, tokenAddress: string) =>
-		address.toLowerCase() === tokenAddress.toLowerCase()
-	const getTransferTokenMeta = (chainId: number, tokenAddress: string) =>
-		tokenListCoins.find(
-			(token) =>
-				token.chainId === chainId && tokenMatch(token.address, tokenAddress),
-		) ??
-		actorCoins.find(
-			(coin) =>
-				coin.$id.chainId === chainId &&
-				tokenMatch(coin.$id.tokenAddress, tokenAddress),
-		) ??
-		null
-	const buildSwapParams = (
-		step: Extract<IntentRouteStep, { type: 'swap' }>,
-	) => ({
-		chainId: step.chainId,
-		tokenIn: step.quote.tokenIn,
-		tokenOut: step.quote.tokenOut,
-		amount: step.quote.amountIn,
-		slippage: defaultSwapSettings.slippage,
-		isTestnet: isTestnetChain(step.chainId),
-	})
-	const buildBridgeParams = (
-		step: Extract<IntentRouteStep, { type: 'bridge' }>,
-	) =>
-		'protocol' in step && step.protocol === 'gateway'
-			? {
-					...defaultBridgeSettings,
-					isTestnet: isTestnetChain(step.fromChainId),
-					fromChainId: step.fromChainId,
-					toChainId: step.toChainId,
-					amount: 0n,
-					useCustomRecipient: false,
-					customRecipient: '',
-					protocolIntent: 'gateway' as const,
-				}
-			: 'route' in step
-				? {
-						slippage: step.rowId.slippage ?? defaultBridgeSettings.slippage,
-						isTestnet: isTestnetChain(step.fromChainId),
-						sortBy: defaultBridgeSettings.sortBy,
-						fromChainId: step.fromChainId,
-						toChainId: step.toChainId,
-						amount: step.route.fromAmount,
-						useCustomRecipient: false,
-						customRecipient: '',
-						protocolIntent: null,
-					}
-				: {
-						...defaultBridgeSettings,
-						isTestnet: isTestnetChain(step.fromChainId),
-						fromChainId: step.fromChainId,
-						toChainId: step.toChainId,
-						amount: 0n,
-						useCustomRecipient: false,
-						customRecipient: '',
-						protocolIntent: 'gateway' as const,
-					}
-	const buildTransferParams = (
-		step: Extract<IntentRouteStep, { type: 'transfer' }>,
-	) => {
-		const token = getTransferTokenMeta(step.chainId, step.tokenAddress)
-		return {
-			fromActor: step.fromActor,
-			toActor: step.toActor,
-			chainId: step.chainId,
-			amount: 0n,
-			tokenSymbol: token?.symbol ?? 'USDC',
-			tokenDecimals: token?.decimals ?? 6,
-			tokenAddress: step.tokenAddress,
-			mode: step.mode,
-		}
-	}
-	const buildIntentParams = (route: IntentRoute) =>
-		sourcePayload && targetPayload
-			? {
-					from: withPlacement(sourcePayload, 'from'),
-					to: withPlacement(targetPayload, 'to'),
-					routeId: route.id,
-				}
-			: {}
-	const buildRouteNavigation = (
-		route: IntentRoute,
-		resolution: IntentResolution | null,
-	) => {
-		if (route.steps.length > 0) {
-			const actions = route.steps.map((step) =>
-				step.type === 'swap'
-					? { action: 'swap', params: buildSwapParams(step) }
-					: step.type === 'bridge'
-						? { action: 'bridge', params: buildBridgeParams(step) }
-						: { action: 'transfer', params: buildTransferParams(step) },
-			) satisfies {
-				action: 'swap' | 'bridge' | 'transfer'
-				params: Record<string, unknown>
-			}[]
-			return { path: '/session', hash: toActionHash(actions) }
-		}
-		if (
-			route.steps.length === 0 &&
-			resolution?.status === 'valid' &&
-			resolution.kind
-		) {
-			const { from, to } = resolution
-			const fd = from.dimensions
-			const td = to.dimensions
-			if (
-				resolution.kind === IntentKind.Swap &&
-				fd.chainId !== null &&
-				fd.tokenAddress &&
-				td.tokenAddress
-			) {
-				return {
-					path: '/session',
-					hash: toActionHash([
-						{
-							action: 'swap',
-							params: {
-								chainId: fd.chainId,
-								tokenIn: fd.tokenAddress,
-								tokenOut: td.tokenAddress,
-								amount: 0n,
-								slippage: defaultSwapSettings.slippage,
-								isTestnet: isTestnetChain(fd.chainId),
-							},
-						},
-					]),
-				}
-			}
-			if (
-				resolution.kind === 'bridge' &&
-				fd.chainId !== null &&
-				td.chainId !== null &&
-				fd.actor
-			) {
-				return {
-					path: '/session',
-					hash: toActionHash([
-						{
-							action: 'bridge',
-							params: {
-								...defaultBridgeSettings,
-								fromChainId: fd.chainId,
-								toChainId: td.chainId,
-								amount: 0n,
-								isTestnet: isTestnetChain(fd.chainId),
-							},
-						},
-					]),
-				}
-			}
-			if (
-				resolution.kind === IntentKind.Transfer &&
-				fd.actor &&
-				td.actor &&
-				fd.chainId !== null &&
-				fd.tokenAddress
-			) {
-				const token = getTransferTokenMeta(fd.chainId, fd.tokenAddress)
-				return {
-					path: '/session',
-					hash: toActionHash([
-						{
-							action: 'transfer',
-							params: {
-								fromActor: fd.actor,
-								toActor: td.actor,
-								chainId: fd.chainId,
-								amount: 0n,
-								tokenSymbol: token?.symbol ?? 'USDC',
-								tokenDecimals: token?.decimals ?? 6,
-								tokenAddress: fd.tokenAddress,
-								mode: 'direct' as const,
-							},
-						},
-					]),
-				}
-			}
-		}
-		return {
-			path: '/test/intents',
-			hash: toActionHash([
-				{
-					action: 'intent',
-					params: buildIntentParams(route),
-				},
-			]),
-		}
-	}
-	const selectRoute = async (route: IntentRoute) => {
-		selectIntentDragRoute(route.id)
-		await tick()
-		if (route.id === IntentKind.Share && resolution?.kind === IntentKind.Share) {
-			const address = resolution.from.dimensions.actor
-			const peerId = resolution.to.ref.id.peerId as string
-			if (address && roomState.connection)
-				roomState.connection.send({
-					type: 'share-address',
-					address,
-					targetPeerIds: [peerId],
-				})
-			clearIntentDragPreview()
-			return
-		}
+
+	const selectOption = async (option: IntentOption, index: number) => {
+		selectIntentDragRoute(String(index))
+
 		await runWithViewTransition(async () => {
-			const navigation = buildRouteNavigation(route, resolution)
-			await navigateTo(navigation.path, navigation.hash)
+			await navigateTo('/session', toActionHash(option))
 		})
+
 		clearIntentDragPreview()
 	}
 
-	const swapQuotesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: swapQuotesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Uniswap))
-			.select(({ row }) => ({ row })),
-	)
-	const bridgeRoutesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: bridgeRoutesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.LiFi))
-			.select(({ row }) => ({ row })),
-	)
-	const tokenListQuery = useLiveQuery((q) =>
-		q
-			.from({ row: tokenListCoinsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.TokenLists))
-			.select(({ row }) => ({ row })),
-	)
-	const actorCoinsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: actorCoinsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
-			.select(({ row }) => ({ row })),
-	)
-	const localActorsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: actorsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
-	)
-	const roomPeersQuery = useLiveQuery((q) =>
-		q.from({ row: roomPeersCollection }).select(({ row }) => ({ row })),
-	)
 
+	// Components
+	import DragArrow from '$/components/DragArrow.svelte'
+
+
+	// State
 	let tooltipContentRef = $state<HTMLDivElement | null>(null)
 	let prefersReducedMotion = $state(false)
 	let pointerPosition = $state<{ x: number; y: number } | null>(null)
@@ -354,86 +98,13 @@
 	// (Derived)
 	const sourcePayload = $derived(intentDragPreviewState.source?.payload ?? null)
 	const targetPayload = $derived(intentDragPreviewState.target?.payload ?? null)
-	const swapQuotes = $derived((swapQuotesQuery.data ?? []).map((r) => r.row))
-	const tokenListCoins = $derived((tokenListQuery.data ?? []).map((r) => r.row))
-	const actorCoins = $derived((actorCoinsQuery.data ?? []).map((r) => r.row))
-	const bridgeRouteOptions = $derived(
-		(bridgeRoutesQuery.data ?? []).flatMap((entry) =>
-			entry.row.routes.map((route) => ({
-				rowId: entry.row.$id,
-				route,
-			})),
-		),
-	)
+
 	const resolution = $derived(
 		sourcePayload && targetPayload
-			? resolveIntent(sourcePayload.entity, targetPayload.entity)
+			? resolveIntentForDrag(sourcePayload.entity, targetPayload.entity)
 			: null,
 	)
-	const definition = $derived(
-		resolution?.kind
-			? intents.find((d) => d.kind === resolution.kind) ?? null
-			: null,
-	)
-	const localActorAddresses = $derived(
-		(localActorsQuery.data ?? []).map((r) => r.row.$id.address.toLowerCase()),
-	)
-	const roomPeers = $derived((roomPeersQuery.data ?? []).map((r) => r.row))
-	const shareRoutes = $derived(
-		(() => {
-			if (
-				!resolution ||
-				resolution.status !== 'valid' ||
-				resolution.kind !== IntentKind.Share ||
-				!resolution.from.dimensions.actor
-			)
-				return []
-			const roomId = resolution.to.ref.id.roomId as string
-			const peerId = resolution.to.ref.id.peerId as string
-			if (roomState.roomId !== roomId) return []
-			if (
-				!localActorAddresses.includes(
-					resolution.from.dimensions.actor.toLowerCase(),
-				)
-			)
-				return []
-			const peer = roomPeers.find(
-				(p) => p.roomId === roomId && p.peerId === peerId,
-			)
-			return [
-				{
-					id: IntentKind.Share,
-					label: `Share with ${peer?.displayName ?? peerId}`,
-					steps: [] as IntentRouteStep[],
-				} satisfies IntentRoute,
-			]
-		})(),
-	)
-	const routes = $derived(
-		resolution && resolution.status === 'valid'
-			? resolution.kind === IntentKind.Share
-				? shareRoutes
-				: buildIntentRoutes(resolution, {
-						swapQuotes,
-						bridgeRoutes: bridgeRouteOptions,
-					})
-			: [],
-	)
-	const displayRoutes = $derived(
-		(definition &&
-		resolution?.status === 'valid' &&
-		definition.sequences.length === 1 &&
-		definition.sequences[0].length === 1
-			? [
-					{
-						id: `open-${definition.kind}`,
-						label: definition.label,
-						steps: [] as IntentRouteStep[],
-					} satisfies IntentRoute,
-				]
-			: []
-		).concat(routes),
-	)
+
 	const isActive = $derived(intentDragPreviewState.status !== 'idle')
 	const isInteractive = $derived(intentDragPreviewState.status === 'selected')
 	const effectiveTargetRect = $derived(
@@ -442,6 +113,7 @@
 				? new DOMRect(pointerPosition.x - 0.5, pointerPosition.y - 0.5, 1, 1)
 				: null),
 	)
+
 
 	// Effects
 	$effect(() => {
@@ -549,53 +221,50 @@
 				data-interactive={isInteractive ? 'true' : 'false'}
 				bind:this={tooltipContentRef}
 			>
-			{#if resolution && resolution.status === 'valid' && definition && (definition.kind !== IntentKind.Share || routes.length > 0)}
-				<header data-row="gap-4">
-					<strong>
-						{definition.label}
-					</strong>
-						<span data-muted
-							>{routes.length} route{routes.length === 1 ? '' : 's'}</span
-						>
+				{#if resolution?.matched}
+					<header data-row="gap-4">
+						<strong>{resolution.intent.label}</strong>
+						<span data-muted>
+							{resolution.options.length} option{resolution.options.length === 1 ? '' : 's'}
+						</span>
 					</header>
-					{#if routes.length > 0}
+
+					{#if resolution.options.length > 0}
 						<ol data-list="unstyled" data-column="gap-2">
-							{#each routes as route (route.id)}
+							{#each resolution.options as option, i (i)}
 								<li>
 									<button
 										type="button"
 										data-row="gap-4"
-										onclick={() => selectRoute(route)}
+										onclick={() => selectOption(option, i)}
 										disabled={!isInteractive}
 									>
 										<span
-											data-intent-transition={intentDragPreviewState.selectedRouteId ===
-											route.id
-												? 'route'
-												: undefined}
+											data-intent-transition={intentDragPreviewState.selectedRouteId === String(i) ? 'route' : undefined}
 										>
-											{route.label}
+											{option.label}
 										</span>
 										<small data-muted>
-											{route.steps.length}
-											{route.steps.length === 1 ? 'step' : 'steps'}
+											{option.actions.length} {option.actions.length === 1 ? 'step' : 'steps'}
 										</small>
 									</button>
 								</li>
 							{/each}
 						</ol>
+					{:else if resolution.error}
+						<p data-muted>{resolution.error instanceof Error ? resolution.error.message : String(resolution.error)}</p>
 					{:else}
-						<p data-muted>No routes available yet.</p>
+						<p data-muted>No options available.</p>
 					{/if}
-				{:else if resolution}
+				{:else if sourcePayload && targetPayload}
 					<header data-row="gap-4">
-						<strong data-muted>Intent unavailable</strong>
+						<strong data-muted>No matching intent</strong>
 					</header>
-					<p data-muted>
-						{resolution.kind === IntentKind.Share && routes.length === 0
-							? 'Share only with peers in the same room; address must be yours.'
-							: resolution.reason ?? 'Select compatible entities.'}
-					</p>
+					<p data-muted>These entities can't be combined.</p>
+				{:else}
+					<header data-row="gap-4">
+						<strong data-muted>Drop on a target</strong>
+					</header>
 				{/if}
 			</div>
 		{/snippet}
