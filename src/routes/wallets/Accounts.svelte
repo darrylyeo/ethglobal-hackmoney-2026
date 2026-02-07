@@ -7,14 +7,15 @@
 		ReadOnlyWalletRow,
 		WalletConnectionRow,
 	} from '$/collections/wallet-connections.ts'
-	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+	import type { WalletRow } from '$/collections/wallets.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 	import {
 		NetworkType,
 		networkConfigsByChainId,
 		networks,
 		networksByChainId,
 	} from '$/constants/networks.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	type WalletConnectItem =
 		| { kind: 'wallet'; wallet: WalletRow }
 		| { kind: 'empty'; label: string }
@@ -30,24 +31,22 @@
 
 
 	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { useWalletSubscriptions } from '$/state/wallet.svelte'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import {
-		walletConnectionsCollection,
+		connectReadOnly,
+		disconnectWallet,
 		requestWalletConnection,
 		switchActiveActor,
-		disconnectWallet,
-		connectReadOnly,
+		walletConnectionsCollection,
 	} from '$/collections/wallet-connections.ts'
-	import type { WalletRow } from '$/collections/wallets.ts'
 	import { walletsCollection } from '$/collections/wallets.ts'
+	import { switchWalletChain } from '$/lib/wallet.ts'
 	import {
 		bridgeSettingsState,
 		defaultBridgeSettings,
 	} from '$/state/bridge-settings.svelte'
-	import { switchWalletChain } from '$/lib/wallet.ts'
-
+	import { useWalletSubscriptions } from '$/state/wallet.svelte'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	useWalletSubscriptions()
 
 	const walletsQuery = useLiveQuery((q) =>
@@ -72,6 +71,8 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
+
+	// (Derived)
 	const settings = $derived(
 		bridgeSettingsState.current ?? defaultBridgeSettings,
 	)
@@ -87,6 +88,8 @@
 	)
 	const walletsByRdns = $derived(new Map(wallets.map((w) => [w.$id.rdns, w])))
 
+
+	// Functions
 	const joinWallet = (c: WalletConnectionRow): ConnectedWallet | null =>
 		c.transport === WalletConnectionTransport.None
 			? {
@@ -103,6 +106,8 @@
 					walletsByRdns.get(c.$id.wallet$id.rdns),
 				)
 
+
+	// (Derived)
 	const walletChips = $derived<
 		(ConnectedWallet & { status: 'connected' | 'connecting' | 'error' })[]
 	>(
@@ -141,6 +146,8 @@
 		),
 	)
 
+
+	// State
 	let readOnlyAddress = $state('')
 
 
@@ -162,6 +169,8 @@
 		}
 	}
 
+
+	// (Derived)
 	const walletConnectItems = $derived<WalletConnectEntry[]>([
 		...(availableWallets.length > 0
 			? availableWallets.map((wallet) => ({
