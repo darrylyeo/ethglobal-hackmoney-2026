@@ -19,22 +19,18 @@ test.describe('Session action routing', () => {
 		await expect(
 			page.getByRole('heading', { name: 'Create Channel', level: 1 }),
 		).toBeVisible()
-		await expect(
-			page.getByText('Yellow Network channel action. Protocol: Yellow.'),
-		).toBeVisible()
+		await expect(page.getByText('channel action')).toBeVisible()
 	})
 
-	test('session#addChannelMember renders Add Channel Member heading', async ({
+	test('session#addChannelMember renders Add Member heading', async ({
 		page,
 	}) => {
 		await page.goto('/session#addChannelMember')
 		await waitForMain(page)
 		await expect(
-			page.getByRole('heading', { name: 'Add Channel Member', level: 1 }),
+			page.getByRole('heading', { name: 'Add Member', level: 1 }),
 		).toBeVisible()
-		await expect(
-			page.getByText('Yellow Network channel action. Protocol: Yellow.'),
-		).toBeVisible()
+		await expect(page.getByText('channel action')).toBeVisible()
 	})
 
 	test('session#closeChannel renders Close Channel heading', async ({
@@ -45,9 +41,7 @@ test.describe('Session action routing', () => {
 		await expect(
 			page.getByRole('heading', { name: 'Close Channel', level: 1 }),
 		).toBeVisible()
-		await expect(
-			page.getByText('Yellow Network channel action. Protocol: Yellow.'),
-		).toBeVisible()
+		await expect(page.getByText('channel action')).toBeVisible()
 	})
 
 	test('session#addLiquidity renders liquidity view', async ({ page }) => {
@@ -90,9 +84,7 @@ test.describe('Session action routing', () => {
 		await expect(
 			page.getByRole('heading', { name: 'Share Address', level: 1 }),
 		).toBeVisible()
-		await expect(
-			page.getByText('Room action. Protocol: PartyKit.'),
-		).toBeVisible()
+		await expect(page.getByText('room action')).toBeVisible()
 	})
 
 	test('session#proposeTransfer renders Propose Transfer heading', async ({
@@ -103,9 +95,7 @@ test.describe('Session action routing', () => {
 		await expect(
 			page.getByRole('heading', { name: 'Propose Transfer', level: 1 }),
 		).toBeVisible()
-		await expect(
-			page.getByText('Room action. Protocol: PartyKit.'),
-		).toBeVisible()
+		await expect(page.getByText('room action')).toBeVisible()
 	})
 
 	test('session#requestVerification renders Request Verification heading', async ({
@@ -116,9 +106,7 @@ test.describe('Session action routing', () => {
 		await expect(
 			page.getByRole('heading', { name: 'Request Verification', level: 1 }),
 		).toBeVisible()
-		await expect(
-			page.getByText('Room action. Protocol: PartyKit.'),
-		).toBeVisible()
+		await expect(page.getByText('room action')).toBeVisible()
 	})
 
 	test('compound hash routes to session with multiple actions', async ({

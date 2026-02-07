@@ -25,7 +25,7 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/rooms': ['join-disabled', 'join-enabled'],
 	'/rooms/[roomId]': ['share', 'peers-empty'],
 	'/rooms/[roomId]/channels': ['default'],
-	'/session': ['swap', 'bridge', 'transfer', 'liquidity', 'createChannel', 'addChannelMember', 'closeChannel', 'addLiquidity', 'removeLiquidity', 'unsupported'],
+	'/session': ['swap', 'bridge', 'transfer', 'liquidity', 'createChannel', 'addChannelMember', 'closeChannel', 'addLiquidity', 'removeLiquidity', 'collectFees', 'increaseLiquidity', 'shareAddress', 'proposeTransfer', 'requestVerification', 'unsupported'],
 	'/session/[id]': ['not-found', 'redirect'],
 	'/sessions': ['empty', 'populated'],
 	'/channels/yellow': ['default'],
@@ -224,7 +224,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/session#addChannelMember',
 		assert: async (page) => {
 			await expect(
-				page.getByRole('heading', { name: 'Add Channel Member', level: 1 }),
+				page.getByRole('heading', { name: 'Add Member', level: 1 }),
 			).toBeVisible()
 		},
 	},
@@ -255,6 +255,56 @@ export const coverageScenarios: CoverageScenario[] = [
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { level: 1 }).first(),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/session',
+		branch: 'collectFees',
+		path: '/session#collectFees',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { level: 1 }).first(),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/session',
+		branch: 'increaseLiquidity',
+		path: '/session#increaseLiquidity',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { level: 1 }).first(),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/session',
+		branch: 'shareAddress',
+		path: '/session#shareAddress',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Share Address', level: 1 }),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/session',
+		branch: 'proposeTransfer',
+		path: '/session#proposeTransfer',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Propose Transfer', level: 1 }),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/session',
+		branch: 'requestVerification',
+		path: '/session#requestVerification',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Request Verification', level: 1 }),
 			).toBeVisible()
 		},
 	},

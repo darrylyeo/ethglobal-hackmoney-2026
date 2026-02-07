@@ -16,7 +16,10 @@ test.describe('Home page action links', () => {
 	for (const { name, href } of [
 		{ name: 'Add Liquidity', href: '/session#addLiquidity' },
 		{ name: 'Remove Liquidity', href: '/session#removeLiquidity' },
+		{ name: 'Collect Fees', href: '/session#collectFees' },
+		{ name: 'Increase Liquidity', href: '/session#increaseLiquidity' },
 		{ name: 'Create Channel', href: '/session#createChannel' },
+		{ name: 'Share Address', href: '/session#shareAddress' },
 		{ name: 'Bridge', href: '/session#bridge' },
 		{ name: 'Swap', href: '/session#swap' },
 		{ name: 'Transfer', href: '/session#transfer' },
@@ -46,8 +49,13 @@ test.describe('Sidebar action links', () => {
 		'Bridge',
 		'Add Liquidity',
 		'Remove Liquidity',
+		'Collect Fees',
+		'Increase Liquidity',
 		'Create Channel',
 		'Close Channel',
+		'Share Address',
+		'Propose Transfer',
+		'Request Verification',
 	]) {
 		test(`sidebar contains "${title}" link`, async ({ page }) => {
 			const link = page.getByRole('link', { name: title, exact: true }).first()
