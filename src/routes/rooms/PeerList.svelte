@@ -5,19 +5,17 @@
 	import { DataSource } from '$/constants/data-sources.ts'
 
 
-	// Props
-	let { roomId }: { roomId: string } = $props()
-
-
 	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { roomPeersCollection } from '$/collections/room-peers.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
-	// Components
-	import Peer from './Peer.svelte'
+	// Props
+	let { roomId }: { roomId: string, } = $props()
 
+
+	// State
 	const peersQuery = useLiveQuery(
 		(q) =>
 			q
@@ -36,7 +34,13 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
+
+	// (Derived)
 	const peers = $derived((peersQuery.data ?? []).map((r) => r.row))
+
+
+	// Components
+	import Peer from './Peer.svelte'
 </script>
 
 
@@ -44,8 +48,14 @@
 	<h3>Peers</h3>
 	<ul>
 		{#each peers as peer (peer.id)}
-			<li data-peer data-connected={peer.isConnected}>
-				<Peer {peer} showStatus={true} />
+			<li
+				data-peer
+				data-connected={peer.isConnected}
+			>
+				<Peer
+					{peer}
+					showStatus={true}
+				/>
 			</li>
 		{/each}
 	</ul>
