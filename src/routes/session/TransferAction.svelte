@@ -11,6 +11,17 @@
 	import { CoinType } from '$/constants/coins.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 
+	type ExecutionArgs = {
+		provider: {
+			request: (args: {
+				method: string
+				params?: unknown[]
+			}) => Promise<unknown>
+		}
+		walletAddress: `0x${string}`
+		mode: 'wallet' | 'e2e'
+	}
+
 
 	// Context
 	import { getContext } from 'svelte'
@@ -22,199 +33,6 @@
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 	} from '$/lib/session/panelHash.ts'
-
-
-	// Functions
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	// Components
-	import Address from '$/components/Address.svelte'
-	import LoadingButton from '$/components/LoadingButton.svelte'
-	import TruncatedValue from '$/components/TruncatedValue.svelte'
-	import { requestE2eTevmValueTransfer } from '$/tests/tevm.ts'
-	import { formatSmallestToDecimal } from '$/lib/format.ts'
-	import { stringify } from '$/lib/stringify.ts'
-	import { normalizeTransferSessionParams } from '$/lib/session/params.ts'
-	import {
-		buildSessionHash,
-		createSessionId,
-		createTransactionSessionSimulation,
-		createTransactionSessionWithId,
-		parseSessionHash,
-		updateTransactionSession,
-	} from '$/lib/session/sessions.ts'
-
-
-	// State
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
-	import {
-		insertTransaction,
-		updateTransaction,
-	} from '$/collections/transactions.ts'
-
-
-	import CoinAmount from '$/views/CoinAmount.svelte'
-	import SessionAction from '$/views/SessionAction.svelte'
-	import TransactionFlow from '$/views/TransactionFlow.svelte'
-
-	type ExecutionArgs = {
-		provider: {
-			request: (args: {
-				method: string
-				params?: unknown[]
-			}) => Promise<unknown>
-		}
-		walletAddress: `0x${string}`
-		mode: 'wallet' | 'e2e'
-	}
 
 
 	// Props
@@ -240,6 +58,21 @@
 		mode?: 'direct' | 'channel'
 	} = $props()
 
+
+	// Functions
+	import { requestE2eTevmValueTransfer } from '$/tests/tevm.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { stringify } from '$/lib/stringify.ts'
+	import { normalizeTransferSessionParams } from '$/lib/session/params.ts'
+	import {
+		buildSessionHash,
+		createSessionId,
+		createTransactionSessionSimulation,
+		createTransactionSessionWithId,
+		parseSessionHash,
+		updateTransactionSession,
+	} from '$/lib/session/sessions.ts'
+
 	const isHexString = (value: unknown): value is `0x${string}` =>
 		typeof value === 'string' && value.startsWith('0x')
 	const normalizeTransferParams = (
@@ -247,23 +80,27 @@
 		defaults: TransferSessionParams,
 	): TransferSessionParams => normalizeTransferSessionParams(params, defaults)
 
+
+	// State
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+	import {
+		insertTransaction,
+		updateTransaction,
+	} from '$/collections/transactions.ts'
+
+
+	// Components
+	import Address from '$/components/Address.svelte'
+	import LoadingButton from '$/components/LoadingButton.svelte'
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
+	import CoinAmount from '$/views/CoinAmount.svelte'
+	import SessionAction from '$/views/SessionAction.svelte'
+	import TransactionFlow from '$/views/TransactionFlow.svelte'
+
 	let activeSessionId = $state<string | null>(null)
 	let pendingSessionId = $state<string | null>(null)
 	let localParams = $state<TransferSessionParams | null>(null)
 	let lookupSessionId = $state<string | null>(null)
-
-	const setLocalParamsIfChanged = (next: TransferSessionParams) => {
-		if (localParams && stringify(localParams) === stringify(next)) return
-		localParams = next
-	}
-	const setActiveSessionId = (next: string | null) => {
-		if (activeSessionId === next) return
-		activeSessionId = next
-	}
-	const setPendingSessionId = (next: string | null) => {
-		if (pendingSessionId === next) return
-		pendingSessionId = next
-	}
 
 
 	// (Derived)
@@ -333,6 +170,20 @@
 	>(SESSION_HASH_SOURCE_KEY)
 	const effectiveHash = $derived(getEffectiveHash(hashSource))
 
+
+	// Actions
+	const setLocalParamsIfChanged = (next: TransferSessionParams) => {
+		if (localParams && stringify(localParams) === stringify(next)) return
+		localParams = next
+	}
+	const setActiveSessionId = (next: string | null) => {
+		if (activeSessionId === next) return
+		activeSessionId = next
+	}
+	const setPendingSessionId = (next: string | null) => {
+		if (pendingSessionId === next) return
+		pendingSessionId = next
+	}
 	const setSessionHash = (sessionId: string) => {
 		activeSessionId = sessionId
 		pendingSessionId = null
