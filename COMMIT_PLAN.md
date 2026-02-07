@@ -1,57 +1,111 @@
 # Atomic commit plan
 
-## Phases (topological order)
+## Phase 1: Docs and tooling
 
-### Phase 1: Asset system (spec 052)
-- **Commit 1:** Add asset schema, lib resolver, SVGs, sync script; remove fetch scripts
-- New: `src/constants/assets.ts`, `src/lib/assets/urls.ts`, `src/lib/assets/{chains,coins,providers}/`, `static/icons/coins/*.svg`, `static/icons/providers/*.svg`, `scripts/_sync-assets.ts`
-- Deleted: `scripts/_fetch-chain-icons.ts`, `scripts/_fetch-icons.ts`
+| # | Commit message | Files |
+|---|----------------|--------|
+| 1 | specs: add 075 format, 076 import extensions, 077 declarative intents | specs/075-format-command.md, specs/076-import-path-extensions.md, specs/077-declarative-intents-and-actions.md |
+| 2 | cursor rules: add spec refs, fix format globs | .cursor/rules/format.mdc, .cursor/rules/import-extensions.mdc |
 
-### Phase 2: Constants — remove old icons, wire to assets
-- **Commit 2:** Delete `src/constants/icons.ts`, `src/constants/chain-icon-fetch-items.ts`; update `networks.ts`, `coins.ts`, `bridge-limits.ts`, `stork.ts`, `yellow.ts`, `proxy.ts`, `rpc-endpoints.ts`, `identity-resolver.ts`
+## Phase 2: Data and session types
 
-### Phase 3: App consumers (layout, views, components, routes)
-- **Commit 3:** All files using getAssetUrl/chainAssetUrl/coinAssetUrl or config.icon: `+layout.svelte`, views/*, components/*, routes/* (all touched by icon/asset refactor)
+| # | Commit message | Files |
+|---|----------------|--------|
+| 3 | data: add ActorNetwork entity type | src/data/$EntityType.ts |
+| 4 | data: add session actions createChannel, addChannelMember, closeChannel, addLiquidity, removeLiquidity | src/data/TransactionSession.ts |
+| 5 | session: parse and normalize new session hash actions | src/lib/session/params.ts, src/lib/session/sessions.ts |
 
-### Phase 4: API and collections
-- **Commit 4:** `src/api/*`, `src/collections/*`
+## Phase 3: Declarative intents (topological)
 
-### Phase 5: e2e and Playwright
-- **Commit 5:** `e2e/*.ts`, `playwright.config.ts`, `playwright.e2e.config.ts`, `src/lib/e2e/tevm.ts`
+| # | Commit message | Files |
+|---|----------------|--------|
+| 6 | intents: declarative model (ActionType, Protocol, IntentOption, intents) | src/constants/intents.ts |
+| 7 | intents: add lib/intents.ts and resolve.spec | src/lib/intents.ts, src/lib/intents/resolve.spec.ts |
+| 8 | intentDraggable: use intentEntityTypes from lib/intents | src/lib/intents/intentDraggable.svelte.ts |
+| 9 | IntentDragPreview: use resolveIntentForDrag and IntentOption | src/components/IntentDragPreview.svelte |
+| 9b | intents: remove registry, resolveIntent, routes | D src/lib/intents/registry.ts, D src/lib/intents/resolveIntent.ts, D src/lib/intents/routes.ts |
 
-### Phase 6: Specs
-- **Commit 6:** `specs/*.md`
+## Phase 4: Routes and layout
 
-### Phase 7: Config and tooling
-- **Commit 7:** `deno.json`, `deno.lock`, `package.json`, `.env.example`, `env.d.ts`, `scripts/check-bundle-size.mjs`, `scripts/check-performance.mjs`, `scripts/_yellow-demo.ts`, `partykit/room.ts`
+| # | Commit message | Files |
+|---|----------------|--------|
+| 10 | layout: session nav addLiquidity, removeLiquidity, createChannel, closeChannel; move asset imports | src/routes/+layout.svelte |
+| 11 | session: wire new hash branches in session page | src/routes/session/+page.svelte |
+| 12 | routes: +page and test intents page use new intents | src/routes/+page.svelte, src/routes/test/intents/+page.svelte |
+
+(Execute 9b after 12 so no file imports deleted modules.)
+
+## Phase 5: E2E
+
+| # | Commit message | Files |
+|---|----------------|--------|
+| 13 | e2e: coverage manifest and intents-drag tests for declarative intents | e2e/coverage-manifest.ts, e2e/intents-drag.test.ts |
+| 14 | e2e: add navigation and session-actions tests | e2e/navigation.test.ts, e2e/session-actions.test.ts |
+
+## Phase 6: Intent audit – payload renames, new actions, new intents
+
+| # | Commit message | Files | Depends on |
+|---|----------------|--------|------------|
+| 15 | intents: rename payload fields fromActor/toActor/coin → fromActorCoin/toActorCoin | src/constants/intents.ts | 6 |
+| 16 | intents: add ActionType, Protocol enums, payload types, and protocolActions | src/constants/intents.ts | 15 |
+| 17 | data: add session action types for new actions | src/data/TransactionSession.ts | 4 |
+| 18 | session: recognize new action types in hash parser | src/lib/session/sessions.ts | 17 |
+| 19 | intents: add SendFunds, SwapToCoin, ManagePosition, and room/peer intents | src/constants/intents.ts | 16 |
+| 20 | IntentDragPreview: map all ActionType values to session actions | src/components/IntentDragPreview.svelte | 16, 17 |
+| 21 | intents: update resolve.spec for new intents and protocol mappings | src/lib/intents/resolve.spec.ts | 19 |
+| 22 | e2e: update intents-drag test for 11 registered intents | e2e/intents-drag.test.ts | 19 |
 
 ---
 
-## Commit later / ignore
-- Untracked: `history/`, `.specify/memory/*.md`, `playwright.no-server.config.ts`, `src/view/`
+Phase 6 completed SHAs:
+
+| # | SHA | Message |
+|---|-----|---------|
+| 15 | 18bff15 | intents: rename payload fields fromActor/toActor/coin → fromActorCoin/toActorCoin |
+| 16 | 59abfa4 | intents: add ActionType, Protocol enums, payload types, and protocolActions |
+| 17 | a8a4f6d | data: add session action types for new actions |
+| 18 | 1a834d5 | session: recognize new action types in hash parser |
+| 19 | 16aec54 | intents: add SendFunds, SwapToCoin, ManagePosition, and room/peer intents |
+| 20 | 642a2f4 | IntentDragPreview: map all ActionType values to session actions |
+| 21 | 027a55f | intents: update resolve.spec for new intents and protocol mappings |
+| 22 | 45ba709 | e2e: update intents-drag test for 11 registered intents |
 
 ---
 
 ## Completed (SHAs)
-- 3868791 spec 052: add src/assets (networks, coins, providers, favicon) from sync
-- 74cf1ad spec 052: remove legacy src/lib/assets (chains, coins, providers, urls)
-- 8d18bff spec 056: format .cursor, COMMIT_PLAN, deno.json, scripts/_sync-assets
-- c540968 spec 056: format e2e
-- 001677c spec 056: format specs
-- ae26efe spec 056: format src/api
-- 0bb981c spec 056: format src/collections
-- a6ab49e spec 056: format src/components
-- d224e92 spec 056: format src/constants
-- cffacfa spec 056: format src/data
-- c95c33e spec 056: format src/lib
-- ecb9234 spec 056: format src/routes
-- e6477ff spec 056: format src/state
-- da0fa31 spec 056: format src/views
-- e6315bf spec 052: add asset schema, lib resolver, chain/coin/provider SVGs, sync script; remove fetch scripts
-- 138f9a8 spec 052: remove icons/chain-icon-fetch constants; wire networks, coins, bridge-limits, stork, yellow, proxy, rpc, identity-resolver to assets
-- 0a407fa spec 052: switch layout, views, components, routes to asset URLs (getAssetUrl, coinAssetUrl)
-- fef0ef8 api + collections: lifi, cctp, yellow, voltaire, uniswap, identity-resolve, simulate, transfers-indexer, approval; blocks, bridge-routes, uniswap-pools, uniswap-positions, swap-quotes-normalize
-- 40b537b e2e: update tests, coverage, fixtures, tevm; playwright config
-- 96080f3 specs: update 030, 035, 045, 052, 056, 074
-- 8b23da3 config: deno, package, env, env.d, check scripts, partykit
-- cd93a58 lib: wallet.ts update
+
+| # | SHA | Message |
+|---|-----|---------|
+| 1 | cb62d48 | specs: add 075 format, 076 import extensions, 077 declarative intents |
+| 2 | adcc2f0 | cursor rules: add spec refs, fix format globs |
+| 3 | 3bb3bb7 | data: add ActorNetwork entity type |
+| 4 | 88d5bcf | data: add session actions createChannel, addChannelMember, closeChannel, addLiquidity, removeLiquidity |
+| 5 | 8be2bee | session: parse and normalize new session hash actions |
+| 6 | 63d3156 | intents: declarative model (ActionType, Protocol, IntentOption, intents) |
+| 7 | 774c84e | intents: add lib/intents.ts and resolve.spec |
+| 8 | fecf360 | intentDraggable: use intentEntityTypes from lib/intents |
+| 9 | d49d038 | IntentDragPreview: use resolveIntentForDrag and IntentOption |
+| 10 | 9070e5f | layout: session nav addLiquidity, removeLiquidity, createChannel, closeChannel; move asset imports |
+| 11 | 677a0a0 | session: wire new hash branches in session page |
+| 12 | 4ff8857 | routes: +page and test intents page use new intents |
+| 9b | d87cda4 | intents: remove registry, resolveIntent, routes |
+| 13 | 3458d8a | e2e: coverage manifest and intents-drag tests for declarative intents |
+| 14 | 1498994 | e2e: add navigation and session-actions tests |
+
+## Commit later / ignore
+
+- COMMIT_PLAN.md (this file)
+- specs/058-graphscene-local-query-stacks.md
+- src/components/LocalGraphScene.svelte
+- src/routes/GraphScene.svelte
+- src/routes/+layout.svelte
+- src/routes/+page.svelte
+- src/routes/account/[address]/+page.svelte
+- src/routes/rooms/[roomId]/+page.svelte
+- src/routes/session/+page.svelte
+- src/routes/sessions/+page.svelte
+- src/svelte/live-query-context.svelte.ts
+- e2e/coverage-manifest.ts
+- e2e/navigation.test.ts
+- e2e/session-actions.test.ts
+- src/lib/session/params.ts

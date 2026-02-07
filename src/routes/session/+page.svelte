@@ -2,6 +2,7 @@
 
 
 	// Context
+	import { page } from '$app/state'
 	import { setContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
@@ -45,13 +46,12 @@
 		hashSource.panelHash = null
 		hashSource.setPanelHash = () => {}
 	})
-	let localHash = $state('')
 	setContext(SESSION_HASH_SOURCE_KEY, hashSource)
 
 
 	// (Derived)
 	const effectiveHash = $derived(
-		hashSource.enabled ? (hashSource.panelHash ?? '') : localHash,
+		hashSource.enabled ? (hashSource.panelHash ?? '') : page.url.hash,
 	)
 	const parsedHash = $derived(parseSessionHash(effectiveHash))
 	const activeSessionId = $derived(
@@ -86,17 +86,6 @@
 		activeAction ? specBySessionAction[activeAction] ?? null : null,
 	)
 	const pageTitle = $derived(activeSpec?.label ?? 'Session')
-
-	$effect(() => {
-		if (hashSource.enabled) return
-		if (typeof window === 'undefined') return
-		const updateHash = () => {
-			localHash = window.location.hash
-		}
-		updateHash()
-		window.addEventListener('hashchange', updateHash)
-		return () => window.removeEventListener('hashchange', updateHash)
-	})
 
 
 	// Components

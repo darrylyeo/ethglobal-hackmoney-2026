@@ -26,6 +26,7 @@
 
 
 	// Context
+	import { page } from '$app/state'
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Popover } from 'bits-ui'
@@ -162,7 +163,7 @@
 	const hashSource = getContext<
 		import('$/lib/session/panelHash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
-	const effectiveHash = $derived(getEffectiveHash(hashSource))
+	const effectiveHash = $derived(getEffectiveHash(hashSource, page.url.hash))
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
 			sessionParams.isTestnet
@@ -310,12 +311,7 @@
 		}
 	})
 	$effect(() => {
-		const hash = hashSource.enabled
-			? effectiveHash
-			: typeof window !== 'undefined'
-				? window.location.hash
-				: ''
-		const parsed = parseSessionHash(hash)
+		const parsed = parseSessionHash(effectiveHash)
 		if (parsed.kind === 'session') {
 			lookupSessionId = parsed.sessionId
 			return
@@ -331,31 +327,6 @@
 					parsed.kind === 'actions' ? (parsed.actions[0]?.params ?? {}) : {},
 			}).id,
 		)
-	})
-	$effect(() => {
-		if (hashSource.enabled) return
-		if (typeof window === 'undefined') return
-		const handleHash = () => {
-			const parsed = parseSessionHash(window.location.hash)
-			if (parsed.kind === 'session') {
-				lookupSessionId = parsed.sessionId
-				return
-			}
-			lookupSessionId = null
-			activateSession(
-				createTransactionSession({
-					actions:
-						parsed.kind === 'actions'
-							? parsed.actions.map((action) => action.action)
-							: ['swap'],
-					params:
-						parsed.kind === 'actions' ? (parsed.actions[0]?.params ?? {}) : {},
-				}).id,
-			)
-		}
-		handleHash()
-		window.addEventListener('hashchange', handleHash)
-		return () => window.removeEventListener('hashchange', handleHash)
 	})
 	const quote = $derived(quoteRow ?? null)
 	const balances = $derived(

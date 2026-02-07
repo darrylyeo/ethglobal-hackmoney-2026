@@ -31,6 +31,7 @@
 
 
 	// Context
+	import { page } from '$app/state'
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Switch } from 'bits-ui'
@@ -233,7 +234,7 @@
 	const hashSource = getContext<
 		import('$/lib/session/panelHash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
-	const effectiveHash = $derived(getEffectiveHash(hashSource))
+	const effectiveHash = $derived(getEffectiveHash(hashSource, page.url.hash))
 
 
 	// Actions
@@ -364,12 +365,7 @@
 	$effect(() => {
 		if (!localParams)
 			updateParams(normalizeBridgeSessionParams(null, bridgeDefaults))
-		const hash = hashSource.enabled
-			? effectiveHash
-			: typeof window !== 'undefined'
-				? window.location.hash
-				: ''
-		const parsed = parseSessionHash(hash)
+		const parsed = parseSessionHash(effectiveHash)
 		if (parsed.kind === 'session') {
 			lookupSessionId = parsed.sessionId
 			return
@@ -399,32 +395,6 @@
 			setPendingSessionId(lookupSessionId)
 			updateParams(normalizeBridgeSessionParams(null, bridgeDefaults))
 		}
-	})
-	$effect(() => {
-		if (hashSource.enabled) return
-		if (typeof window === 'undefined') return
-		const handleHash = () => {
-			const parsed = parseSessionHash(window.location.hash)
-			if (parsed.kind === 'session') {
-				lookupSessionId = parsed.sessionId
-				return
-			}
-			lookupSessionId = null
-			useGlobalNetworkType = true
-			setActiveSessionId(null)
-			setPendingSessionId(null)
-			updateParams(
-				normalizeBridgeSessionParams(
-					parsed.kind === 'actions'
-						? (parsed.actions[0]?.params ?? null)
-						: null,
-					bridgeDefaults,
-				),
-			)
-		}
-		handleHash()
-		window.addEventListener('hashchange', handleHash)
-		return () => window.removeEventListener('hashchange', handleHash)
 	})
 
 	$effect(() => {

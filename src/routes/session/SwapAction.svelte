@@ -27,6 +27,7 @@
 
 
 	// Context
+	import { page } from '$app/state'
 	import { getContext, untrack } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { Button, Popover } from 'bits-ui'
@@ -216,7 +217,7 @@
 	const hashSource = getContext<
 		import('$/lib/session/panelHash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
-	const effectiveHash = $derived(getEffectiveHash(hashSource))
+	const effectiveHash = $derived(getEffectiveHash(hashSource, page.url.hash))
 
 	const quotesQuery = useLiveQuery((q) =>
 		q
@@ -545,12 +546,7 @@
 	}, 500)
 
 	$effect(() => {
-		const hash = hashSource.enabled
-			? effectiveHash
-			: typeof window !== 'undefined'
-				? window.location.hash
-				: ''
-		const parsed = parseSessionHash(hash)
+		const parsed = parseSessionHash(effectiveHash)
 		if (parsed.kind === 'session') {
 			lookupSessionId = parsed.sessionId
 			return
@@ -576,30 +572,6 @@
 			setPendingSessionId(lookupSessionId)
 			setLocalParamsIfChanged(normalizeSwapParams(null))
 		}
-	})
-	$effect(() => {
-		if (hashSource.enabled) return
-		if (typeof window === 'undefined') return
-		const handleHash = () => {
-			const parsed = parseSessionHash(window.location.hash)
-			if (parsed.kind === 'session') {
-				lookupSessionId = parsed.sessionId
-				return
-			}
-			lookupSessionId = null
-			setActiveSessionId(null)
-			setPendingSessionId(null)
-			setLocalParamsIfChanged(
-				normalizeSwapParams(
-					parsed.kind === 'actions'
-						? (parsed.actions[0]?.params ?? null)
-						: null,
-				),
-			)
-		}
-		handleHash()
-		window.addEventListener('hashchange', handleHash)
-		return () => window.removeEventListener('hashchange', handleHash)
 	})
 
 	$effect(() => {

@@ -8,7 +8,7 @@
 
 
 	// Context
-	import { page } from '$app/stores'
+	import { page } from '$app/state'
 
 
 	// Props
@@ -60,13 +60,13 @@
 
 	const handleDelete = () => {
 		const ids = collectAgentChatTurnDescendantIds(turn.id, allTurns)
-		const currentHash = $page.url.hash
+		const currentHash = page.url.hash
 		const hashWasDeleted = [...ids].some((id) => currentHash === `#turn:${id}`)
 		deleteAgentChatTurn(turn.id, allTurns)
 		if (hashWasDeleted && turn.parentId)
-			goto(`${$page.url.pathname}#turn:${turn.parentId}`, { replaceState: true })
+			goto(`${page.url.pathname}#turn:${turn.parentId}`, { replaceState: true })
 		else if (hashWasDeleted)
-			goto($page.url.pathname, { replaceState: true })
+			goto(page.url.pathname, { replaceState: true })
 	}
 
 	function parseModelValue(v: string): [string | null, string | null] {
@@ -86,7 +86,7 @@
 			connectionId: connectionId ?? tree.defaultConnectionId ?? null,
 			modelId: modelId ?? tree.defaultModelId ?? null,
 		})
-		goto(`${$page.url.pathname}#turn:${turnId}`, { replaceState: true })
+		goto(`${page.url.pathname}#turn:${turnId}`, { replaceState: true })
 	}
 
 
@@ -95,11 +95,11 @@
 	let modelValue = $state('')
 	let activeTab = $state('')
 
-	const isTarget = $derived($page.url.hash === `#turn:${turn.id}`)
+	const isTarget = $derived(page.url.hash === `#turn:${turn.id}`)
 
 	$effect(() => {
 		if (!useTabs) return
-		const hash = $page.url.hash
+		const hash = page.url.hash
 		if (hash === `#turn:${turn.id}` && showPromptForm)
 			activeTab = 'reply'
 		else if (hash?.startsWith('#turn:')) {

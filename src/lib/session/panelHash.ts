@@ -10,12 +10,15 @@ export type SessionHashSource = {
 
 export const getEffectiveHash = (
 	source: SessionHashSource | undefined,
+	urlHash?: string,
 ): string =>
 	source?.enabled
 		? (source.panelHash ?? '')
-		: typeof window !== 'undefined'
-			? window.location.hash
-			: ''
+		: urlHash !== undefined
+			? urlHash
+			: typeof window !== 'undefined'
+				? window.location.hash
+				: ''
 
 export const setEffectiveHash = (
 	source: SessionHashSource | undefined,

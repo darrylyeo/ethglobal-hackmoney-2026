@@ -24,6 +24,7 @@
 
 
 	// Context
+	import { page } from '$app/state'
 	import { getContext } from 'svelte'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
@@ -168,7 +169,7 @@
 	const hashSource = getContext<
 		import('$/lib/session/panelHash.ts').SessionHashSource
 	>(SESSION_HASH_SOURCE_KEY)
-	const effectiveHash = $derived(getEffectiveHash(hashSource))
+	const effectiveHash = $derived(getEffectiveHash(hashSource, page.url.hash))
 
 
 	// Actions
@@ -286,12 +287,7 @@
 	$effect(() => {
 		if (!localParams)
 			setLocalParamsIfChanged(normalizeTransferParams(null, transferDefaults))
-		const hash = hashSource.enabled
-			? effectiveHash
-			: typeof window !== 'undefined'
-				? window.location.hash
-				: ''
-		const parsed = parseSessionHash(hash)
+		const parsed = parseSessionHash(effectiveHash)
 		if (parsed.kind === 'session') {
 			lookupSessionId = parsed.sessionId
 			return
@@ -321,32 +317,6 @@
 			setLocalParamsIfChanged(normalizeTransferParams(null, transferDefaults))
 		}
 	})
-	$effect(() => {
-		if (hashSource.enabled) return
-		if (typeof window === 'undefined') return
-		const handleHash = () => {
-			const parsed = parseSessionHash(window.location.hash)
-			if (parsed.kind === 'session') {
-				lookupSessionId = parsed.sessionId
-				return
-			}
-			lookupSessionId = null
-			setActiveSessionId(null)
-			setPendingSessionId(null)
-			setLocalParamsIfChanged(
-				normalizeTransferParams(
-					parsed.kind === 'actions'
-						? (parsed.actions[0]?.params ?? null)
-						: null,
-					transferDefaults,
-				),
-			)
-		}
-		handleHash()
-		window.addEventListener('hashchange', handleHash)
-		return () => window.removeEventListener('hashchange', handleHash)
-	})
-
 	const executeChannelTransfer = async () => {
 		if (!yellowState.clearnodeConnection) {
 			throw new Error('Connect a Yellow clearnode to transfer.')
