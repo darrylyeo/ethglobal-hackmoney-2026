@@ -238,7 +238,7 @@ export const normalizeTransactionSessionParams = (
 			params,
 			defaults?.bridge ?? defaultBridgeSettings,
 		)
-	if (action === 'liquidity')
+	if (action === 'liquidity' || action === 'addLiquidity' || action === 'removeLiquidity')
 		return normalizeLiquiditySessionParams(
 			params,
 			defaults?.liquidity ?? defaultLiquiditySessionParams,

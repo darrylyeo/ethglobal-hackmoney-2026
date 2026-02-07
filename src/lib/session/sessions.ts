@@ -54,6 +54,11 @@ export const parseSessionHash = (hash: string): SessionHashResult => {
 				action !== 'bridge' &&
 				action !== 'transfer' &&
 				action !== 'liquidity' &&
+				action !== 'createChannel' &&
+				action !== 'addChannelMember' &&
+				action !== 'closeChannel' &&
+				action !== 'addLiquidity' &&
+				action !== 'removeLiquidity' &&
 				action !== 'intent'
 			)
 				return null
