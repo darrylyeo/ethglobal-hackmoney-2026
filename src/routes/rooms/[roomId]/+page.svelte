@@ -11,6 +11,7 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
+	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 	import { roomPeersCollection } from '$/collections/room-peers.ts'
 	import {
 		roomState,
@@ -21,7 +22,7 @@
 
 
 	// Props
-	let { data }: { data: { roomId: string } } = $props()
+	let { data }: { data: { roomId: string }, } = $props()
 
 
 	// (Derived)
@@ -89,6 +90,8 @@
 			: resolve(`/rooms/${roomId}`),
 	)
 
+
+	// Actions
 	$effect(() => {
 		leaveToken++
 		const id = roomId
@@ -118,8 +121,16 @@
 </svelte:head>
 
 
-<main id="main" data-column data-sticky-container>
-	<header data-scroll-item data-room-header data-row="wrap gap-4 align-center">
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
+	<header
+		data-scroll-item
+		data-room-header
+		data-row="wrap gap-4 align-center"
+	>
 		<div data-row="gap-2 align-center">
 			<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
 			<h1 data-room-title>{roomDisplayName}</h1>
@@ -139,19 +150,32 @@
 			>
 				Room link
 			</a>
-			<a data-button href={resolve(`/rooms/${roomId}/channels`)}>
+			<a
+				data-button
+				href={resolve(`/rooms/${roomId}/channels`)}
+			>
 				Channels
 			</a>
-			<a data-button href={resolve('/rooms')} onclick={() => leaveRoom()}>
+			<a
+				data-button
+				href={resolve('/rooms')}
+				onclick={() => leaveRoom()}
+			>
 				Leave room
 			</a>
 		</nav>
 	</header>
 
 	<section data-scroll-item>
-		<details open data-card>
+		<details
+			open
+			data-card
+		>
 			<summary>
-				<header data-card data-row="wrap gap-2">
+				<header
+					data-card
+					data-row="wrap gap-2"
+				>
 					<AccountsSelect
 						bind:connectedWallets
 						bind:selectedActor
@@ -161,7 +185,10 @@
 				</header>
 			</summary>
 
-			<div data-column="gap-6" data-room-structure>
+			<div
+				data-column="gap-6"
+				data-room-structure
+			>
 				<section data-me>
 					<h2>Me</h2>
 					{#if roomState.peerId}
@@ -217,6 +244,9 @@
 				</section>
 			</div>
 		</details>
+	</section>
+	<section data-scroll-item>
+		<LocalGraphScene />
 	</section>
 </main>
 
