@@ -1,15 +1,18 @@
 <script lang="ts">
+
+
+	// Types/constants
 	import type { SwapQuote } from '$/data/SwapQuote.ts'
+	import type { Transaction$Id } from '$/data/Transaction.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
-	import { createOptimisticAction } from '@tanstack/svelte-db'
-	import { executeSwap } from '$/api/uniswap.ts'
-	import { getTxUrl } from '$/constants/explorers.ts'
-	import { toasts } from '$/lib/toast.svelte'
 	import {
 		insertTransaction,
 		updateTransaction,
 	} from '$/collections/transactions.ts'
-	import type { Transaction$Id } from '$/data/Transaction.ts'
+	import { getTxUrl } from '$/constants/explorers.ts'
+	import { toasts } from '$/lib/toast.svelte'
+	import { createOptimisticAction } from '@tanstack/svelte-db'
+	import { executeSwap } from '$/api/uniswap.ts'
 
 	type SwapExecutionStatus = {
 		overall: 'idle' | 'in_progress' | 'completed' | 'failed'
@@ -17,6 +20,8 @@
 		error?: string
 	}
 
+
+	// Props
 	let {
 		quote,
 		walletProvider,
@@ -33,13 +38,19 @@
 		onExecute?: (fn: () => Promise<{ txHash?: `0x${string}` } | undefined>) => void
 	} = $props()
 
+
+	// State
 	let status = $state<SwapExecutionStatus>({ overall: 'idle' })
 	let actionTx = $state<ReturnType<typeof runExecute> | null>(null)
 
+
+	// (Derived)
 	$effect(() => {
 		executing = status.overall === 'in_progress'
 	})
 
+
+	// Functions
 	const runExecute = createOptimisticAction<{
 		quote: SwapQuote
 		provider: EIP1193Provider
@@ -107,18 +118,17 @@
 		return { txHash: status.txHash }
 	}
 
-	// Execute function for parent component
-	const handleExecute = async () => {
-		return await execute()
-	}
 
-	// Provide execute function to parent
+	// Actions
+	const handleExecute = async () => await execute()
+
 	$effect(() => {
 		if (onExecute) {
 			onExecute(handleExecute)
 		}
 	})
 </script>
+
 
 {#if status.overall !== 'idle'}
 	<div data-column="gap-1">
@@ -127,8 +137,8 @@
 				href={getTxUrl(quote.chainId, status.txHash)}
 				target="_blank"
 				rel="noopener noreferrer"
-				data-tx-hash={status.txHash}>{status.txHash.slice(0, 8)}…</a
-			>
+				data-tx-hash={status.txHash}
+			>{status.txHash.slice(0, 8)}…</a>
 		{/if}
 		{#if status.overall === 'completed'}
 			<p>Swap complete!</p>
