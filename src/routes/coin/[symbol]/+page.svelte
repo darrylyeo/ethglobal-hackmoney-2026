@@ -23,13 +23,18 @@
 	import ItemsList from '$/components/ItemsList.svelte'
 	import LiveTransfers from '$/views/LiveTransfers.svelte'
 
-	// Props (from load)
-	let { data }: { data: { symbol: CoinPageSymbol } } = $props()
 
+	// Props (from load)
+	let { data }: { data: { symbol: CoinPageSymbol }, } = $props()
+
+
+	// (Derived)
 	const symbol = $derived(data.symbol)
 	const period = $derived(page.url.searchParams.get('period') ?? '1d')
 	const coin = $derived(getCoinForCoinPage(symbol))
 
+
+	// State
 	const eventsQuery = useLiveQuery(
 		(q) =>
 			q
@@ -50,6 +55,9 @@
 				.select(({ row }) => ({ row })),
 		[() => symbol, () => period],
 	)
+
+
+	// (Derived)
 	const graphRow = $derived(
 		(graphQuery.data ?? [])[0] as
 			| { row: import('$/collections/transfer-graphs.ts').TransferGraphRow }
@@ -88,8 +96,13 @@
 			: errorMessage,
 	)
 
-	let visiblePlaceholderKeys = $state<string[]>([])
 
+	// State
+	let visiblePlaceholderKeys = $state<string[]>([])
+	let lastToastedError = $state<string | null>(null)
+
+
+	// (Derived) / effects
 	$effect(() => {
 		fetchTransferEvents(symbol, period).catch(() => {})
 	})
@@ -100,8 +113,6 @@
 	$effect(() => {
 		ensureTransferEventsForPlaceholders(symbol, period, visiblePlaceholderKeys)
 	})
-
-	let lastToastedError = $state<string | null>(null)
 	$effect(() => {
 		period
 		symbol
@@ -123,6 +134,8 @@
 		})
 	})
 
+
+	// Functions
 	function getEventKey(row: TransferEventRow): string {
 		return `${row.transactionHash}:${row.logIndex}`
 	}
@@ -220,12 +233,12 @@
 								<dl data-row="wrap gap-2">
 									<dt>Tx</dt>
 									<dd>
-										<code
-											>{item.transactionHash.slice(
+											<code>
+											{item.transactionHash.slice(
 												0,
 												10,
-											)}…{item.transactionHash.slice(-8)}</code
-										>
+											)}…{item.transactionHash.slice(-8)}
+										</code>
 									</dd>
 									<dt>From</dt>
 									<dd><code>{item.fromAddress.slice(0, 10)}…</code></dd>
