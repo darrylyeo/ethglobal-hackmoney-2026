@@ -1,10 +1,12 @@
 ---
 description: When the user says "format", apply repo formatting to changed files
-globs: 
+globs:
 alwaysApply: false
 ---
 
 # Format command
+
+**Spec:** [075-format-command.md](../../specs/075-format-command.md)
 
 When the user says **"format"** (or "format the code", "format my changes", etc.):
 
