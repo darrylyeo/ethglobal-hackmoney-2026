@@ -50,7 +50,7 @@ export type ArchitectureEdge = {
 	opacity?: number
 	relation: string
 	priority?: 'primary' | 'secondary' | 'optional'
-	controlPoints?: { x: number; y: number }[]
+	controlPoints?: { x: number, y: number }[]
 	bidirectional?: boolean
 }
 
