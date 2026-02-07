@@ -155,7 +155,7 @@ Deno.test('isValidDecimalInput validates correctly', () => {
 
 ## Status
 
-Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomplete specs; re-verify 007): all 15 AC confirmed—format.ts parseDecimalToSmallest/formatSmallestToDecimal/isValidDecimalInput; format.spec.ts (Vitest); BridgeFlow sourceBalance/exceedsBalance/canSendAmount/settings.amount; BridgeAction CoinAmountInput with format helpers; quote params and submit gating. test:unit 44 Deno + 159 Vitest passed. Previous: format.ts helpers, amount input in BridgeFlow/BridgeAction, format.spec.ts.
+Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, re-verify mode—all specs complete): all 15 AC confirmed—format.ts parseDecimalToSmallest/formatSmallestToDecimal/isValidDecimalInput; format.spec.ts (Vitest) covers AC 1–6; BridgeFlow sourceBalance/exceedsBalance/canSendAmount/settings.amount/quoteParams; BridgeAction CoinAmountInput (format helpers), validation errors, canSendAmount to UnifiedProtocolRouter; submit gated by canSendAmount. test:unit 44 Deno + 159 Vitest passed. Previous: format.ts helpers, amount input in BridgeFlow/BridgeAction, format.spec.ts.
 
 ## Output when complete
 
