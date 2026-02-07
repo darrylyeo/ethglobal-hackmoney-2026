@@ -32,7 +32,6 @@
     "prepare": "svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "format": "deno run -A scripts/_svelte-section-spacing.ts",
     "check:size": "deno task build && deno run -A scripts/check-bundle-size.mjs",
     "check:perf": "deno run -A scripts/check-performance.mjs",
     "assets:sync": "deno run -A scripts/_sync-assets.ts",

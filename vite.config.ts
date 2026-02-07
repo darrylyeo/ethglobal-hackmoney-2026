@@ -10,12 +10,21 @@ export default defineConfig(({ mode }) => ({
 	],
 	optimizeDeps: {
 		include: [
+			'@antv/g6',
+			'@antv/layout',
+			'@antv/util',
+			'@antv/g-math',
 			'sigma',
 			'sigma/rendering',
 			'@sigma/node-image',
 			'@sigma/edge-curve',
 			'graphology-layout-forceatlas2',
 			'graphology-layout-forceatlas2/worker',
+		],
+	},
+	ssr: {
+		noExternal: [
+			/^@antv\//
 		],
 	},
 	preview: {
@@ -38,4 +47,3 @@ export default defineConfig(({ mode }) => ({
 		},
 	},
 }))
-
