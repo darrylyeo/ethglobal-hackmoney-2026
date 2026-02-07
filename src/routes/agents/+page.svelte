@@ -1,6 +1,9 @@
 <script lang="ts">
 
 
+	// Types/constants
+
+
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
@@ -38,7 +41,11 @@
 </script>
 
 
-<main id="main" data-column="gap-4" data-sticky-container>
+<main
+	id="main"
+	data-column="gap-4"
+	data-sticky-container
+>
 	<div data-row="gap-2 align-center justify-between">
 		<h1>Agents</h1>
 		<Button.Root href="/agents/new">
@@ -50,8 +57,15 @@
 		<p data-muted>No conversations yet.</p>
 	{:else}
 		{#each trees as tree (tree.id)}
-			<div data-card data-row="gap-2 align-center justify-between">
-				<a href="/agents/{tree.id}" data-row="gap-2 align-center" data-row-item="flexible">
+			<div
+				data-card
+				data-row="gap-2 align-center justify-between"
+			>
+				<a
+					href="/agents/{tree.id}"
+					data-row="gap-2 align-center"
+					data-row-item="flexible"
+				>
 					<div data-column="gap-1">
 						<strong>{tree.name ?? 'Untitled'}</strong>
 						<small data-muted>{new Date(tree.updatedAt).toLocaleString()}</small>
