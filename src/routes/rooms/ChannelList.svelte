@@ -123,8 +123,14 @@
 	{#each roomChannels as channel (channel.id)}
 		{@const counterparty = getCounterparty(channel)}
 		{@const myBalance = getMyBalance(channel)}
-		<div data-row="wrap gap-2" data-status={channel.status}>
-			<Address network={channel.chainId} address={counterparty} />
+		<div
+			data-row="wrap gap-2"
+			data-status={channel.status}
+		>
+			<Address
+				network={channel.chainId}
+				address={counterparty}
+			/>
 			<span class="channel-balance">
 				{formatSmallestToDecimal(myBalance, 6)} USDC
 			</span>
@@ -135,8 +141,10 @@
 					onclick={() => {
 						transferChannel = channel
 						transferOpen = true
-					}}>Send</Button.Root
+					}}
 				>
+					Send
+				</Button.Root>
 				<Button.Root
 					type="button"
 					disabled={closingChannelId === channel.id}
