@@ -215,7 +215,10 @@
 
 
 <svelte:boundary>
-	<div class="architecture-graph" style:height>
+	<div
+		class="architecture-graph"
+		style:height
+	>
 		<div
 			class="architecture-graph__canvas"
 			role="application"
@@ -696,12 +699,18 @@
 		<div data-card>
 			<h3>Architecture graph error</h3>
 			<p>{error instanceof Error ? error.message : String(error)}</p>
-			<button type="button" onclick={reset}>Retry</button>
+			<button
+				type="button"
+				onclick={reset}
+			>Retry</button>
 		</div>
 	{/snippet}
 </svelte:boundary>
 
-<div class="sr-only" aria-live="polite">
+<div
+	class="sr-only"
+	aria-live="polite"
+>
 	{selectionAnnouncement}
 </div>
 
