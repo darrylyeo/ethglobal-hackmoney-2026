@@ -7,27 +7,27 @@
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
-	// Functions
-	import {
-		getEffectiveHash,
-		SESSION_HASH_SOURCE_KEY,
-		type SessionHashSource,
-	} from '$/lib/session/panelHash.ts'
-	import { parseSessionHash } from '$/lib/session/sessions.ts'
-
-
-	// State
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
-
-
 	// Props
 	let {
 		panelHash,
 		setPanelHash,
 	}: {
-		panelHash?: string | null
-		setPanelHash?: (hash: string, replace?: boolean) => void
+		panelHash?: string | null,
+		setPanelHash?: (hash: string, replace?: boolean) => void,
 	} = $props()
+
+
+	// Functions
+	import {
+		SESSION_HASH_SOURCE_KEY,
+		type SessionHashSource,
+	} from '$/lib/session/panelHash.ts'
+	import { specBySessionAction } from '$/lib/intents.ts'
+	import { parseSessionHash } from '$/lib/session/sessions.ts'
+
+
+	// State
+	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 
 	const hashSource = $state<SessionHashSource>({
 		enabled: false,
@@ -46,12 +46,14 @@
 		hashSource.setPanelHash = () => {}
 	})
 	let localHash = $state('')
+	setContext(SESSION_HASH_SOURCE_KEY, hashSource)
+
+
+	// (Derived)
 	const effectiveHash = $derived(
 		hashSource.enabled ? (hashSource.panelHash ?? '') : localHash,
 	)
 	const parsedHash = $derived(parseSessionHash(effectiveHash))
-	setContext(SESSION_HASH_SOURCE_KEY, hashSource)
-
 	const activeSessionId = $derived(
 		parsedHash.kind === 'session' ? parsedHash.sessionId : null,
 	)
@@ -62,7 +64,6 @@
 				? 'swap'
 				: null,
 	)
-
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
@@ -81,18 +82,10 @@
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const activeAction = $derived(session?.actions[0] ?? hashAction ?? 'swap')
-	const pageTitles: Record<string, string> = {
-		swap: 'Swap',
-		bridge: 'USDC Bridge',
-		transfer: 'Transfer',
-		liquidity: 'Liquidity',
-		createChannel: 'Create Channel',
-		addChannelMember: 'Add Channel Member',
-		closeChannel: 'Close Channel',
-		addLiquidity: 'Add Liquidity',
-		removeLiquidity: 'Remove Liquidity',
-	}
-	const pageTitle = $derived(pageTitles[activeAction ?? ''] ?? 'Session')
+	const activeSpec = $derived(
+		activeAction ? specBySessionAction[activeAction] ?? null : null,
+	)
+	const pageTitle = $derived(activeSpec?.label ?? 'Session')
 
 	$effect(() => {
 		if (hashSource.enabled) return
@@ -107,6 +100,7 @@
 
 
 	// Components
+	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 	import BridgeView from './Bridge.svelte'
 	import LiquidityView from './Liquidity.svelte'
 	import SwapView from './Swap.svelte'
@@ -119,26 +113,50 @@
 </svelte:head>
 
 
-{#if activeAction === 'swap'}
-	<SwapView />
-{:else if activeAction === 'bridge'}
-	<BridgeView />
-{:else if activeAction === 'transfer'}
-	<TransferView />
-{:else if activeAction === 'liquidity' || activeAction === 'addLiquidity' || activeAction === 'removeLiquidity'}
-	<LiquidityView />
-{:else if activeAction === 'createChannel' || activeAction === 'addChannelMember' || activeAction === 'closeChannel'}
-	<main id="main" data-column data-sticky-container>
-		<section data-scroll-item data-column="gap-3">
-			<h1>{pageTitle}</h1>
-			<p data-muted>Yellow Network channel action. Protocol: Yellow.</p>
-		</section>
-	</main>
-{:else}
-	<main id="main" data-column data-sticky-container>
-		<section data-scroll-item data-column="gap-3">
-			<h1>Session</h1>
-			<p data-muted>Unsupported session action.</p>
-		</section>
-	</main>
-{/if}
+<div
+	data-column
+	data-sticky-container
+>
+	{#if activeAction === 'swap'}
+		<SwapView />
+	{:else if activeAction === 'bridge'}
+		<BridgeView />
+	{:else if activeAction === 'transfer'}
+		<TransferView />
+	{:else if activeSpec?.category === 'liquidity' || activeAction === 'liquidity'}
+		<LiquidityView />
+	{:else if activeSpec}
+		<main
+			id="main"
+			data-column
+			data-sticky-container
+		>
+			<section
+				data-scroll-item
+				data-column="gap-3"
+			>
+				<h1>{activeSpec.label}</h1>
+				<p data-muted>{activeSpec.category} action</p>
+			</section>
+		</main>
+	{:else}
+		<main
+			id="main"
+			data-column
+			data-sticky-container
+		>
+			<section
+				data-scroll-item
+				data-column="gap-3"
+			>
+				<h1>Session</h1>
+				<p data-muted>Unsupported session action.</p>
+			</section>
+		</main>
+	{/if}
+	<section
+		data-scroll-item
+	>
+		<LocalGraphScene />
+	</section>
+</div>
