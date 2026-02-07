@@ -6,6 +6,7 @@ export enum EntityType {
 	Actor = 'Actor',
 	ActorAllowance = 'ActorAllowance',
 	ActorCoin = 'ActorCoin',
+	ActorNetwork = 'ActorNetwork',
 	Block = 'Block',
 	BridgeRoute = 'BridgeRoute',
 	CctpAllowance = 'CctpAllowance',
@@ -85,6 +86,12 @@ export const entityTypes = [
 		type: EntityType.Coin,
 		label: 'Coin',
 		labelPlural: 'Coins',
+		inGraph: true as const,
+	},
+	{
+		type: EntityType.ActorNetwork,
+		label: 'Account Network',
+		labelPlural: 'Account Networks',
 		inGraph: true as const,
 	},
 	{
