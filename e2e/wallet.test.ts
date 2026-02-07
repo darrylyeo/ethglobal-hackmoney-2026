@@ -38,7 +38,6 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			{
 				timeout: 5_000,
 			},
-		),
 		)
 	})
 
