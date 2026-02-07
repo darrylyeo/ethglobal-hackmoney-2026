@@ -2,10 +2,7 @@
 
 
 	// Types/constants
-	import type {
-		DashboardNode,
-		DashboardPanelRoute,
-	} from '$/data/DashboardPanel.ts'
+	import type { PanelRoute, PanelTreeNode } from '$/data/PanelTree.ts'
 
 
 	// Props
@@ -27,24 +24,24 @@
 		onClearSplitRatioOverride,
 		onToggleSplitDirection,
 	}: {
-		root: DashboardNode,
+		root: PanelTreeNode,
 		focusedPanelId: string,
 		splitRatioOverrides?: Record<string, number>,
 		onFocus: (panelId: string) => void,
 		onSplit: (panelId: string, direction: 'horizontal' | 'vertical') => void,
 		onRemove: (panelId: string) => void,
 		onSwap: (panelId: string) => void,
-		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void,
+		onUpdateRoute: (panelId: string, route: PanelRoute) => void,
 		onAppendHash: (panelId: string, hash: string) => void,
 		onSetPanelHash: (panelId: string, hash: string, replace?: boolean) => void,
 		onNavigate: (
 			panelId: string,
-			route: DashboardPanelRoute,
+			route: PanelRoute,
 			hash: string | null,
 		) => void,
 		onOpenInNewPanel: (
 			panelId: string,
-			route: DashboardPanelRoute,
+			route: PanelRoute,
 			hash: string | null,
 		) => void,
 		onSetSplitRatio: (splitId: string, ratio: number) => void,
@@ -83,12 +80,12 @@
 	/>
 {:else}
 	<section
-		class="dashboard-split"
+		class="split-tree"
 		data-direction={root.direction}
 		style="--ratio: {displayRatio}; --ratio-min: 0.2; --ratio-max: 0.8; --col-1: {displayRatio}fr; --col-2: {1 -
 			displayRatio}fr"
 	>
-		<section class="dashboard-split-pane">
+		<section class="split-tree-pane">
 			<PanelTree
 				root={root.first}
 				{focusedPanelId}
@@ -109,7 +106,7 @@
 			/>
 		</section>
 		<div
-			class="dashboard-split-gutter"
+			class="split-tree-gutter"
 			data-row="center"
 			data-direction={root.direction}
 		>
@@ -119,7 +116,7 @@
 						<button
 							{...props}
 							type="button"
-							class="dashboard-gutter-trigger"
+							class="split-tree-gutter-trigger"
 							aria-label="Split controls"
 						></button>
 					{/snippet}
@@ -147,7 +144,7 @@
 				</Tooltip.Portal>
 			</Tooltip.Root>
 		</div>
-		<section class="dashboard-split-pane">
+		<section class="split-tree-pane">
 			<PanelTree
 				root={root.second}
 				{focusedPanelId}
@@ -191,7 +188,7 @@
 
 
 <style>
-	.dashboard-split {
+	.split-tree {
 		--split-gutter-size: 1rem;
 		--ratio-track: calc(100% - var(--split-gutter-size));
 		--ratio-thumb-offset: calc(
@@ -266,7 +263,7 @@
 			}
 		}
 
-		& > .dashboard-split-pane {
+		& > .split-tree-pane {
 			position: relative;
 			z-index: 0;
 		}
@@ -304,7 +301,7 @@
 		}
 	}
 
-	.dashboard-gutter-trigger {
+	.split-tree-gutter-trigger {
 		width: 0.7rem;
 		height: 0.7rem;
 		border-radius: 999px;
