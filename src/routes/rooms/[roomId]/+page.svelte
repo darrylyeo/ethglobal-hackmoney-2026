@@ -29,8 +29,11 @@
 
 
 	// Functions
-	import { renderSVG } from 'uqr'
-	import { getOrCreatePeerDisplayName, roomIdToDisplayName } from '$/lib/rooms/room.ts'
+	import {
+		getOrCreatePeerDisplayName,
+		roomIdToDisplayName,
+		roomIdToPlaceEmoji,
+	} from '$/lib/rooms/room.ts'
 	import { untrack } from 'svelte'
 
 
@@ -67,9 +70,6 @@
 	const selectedWallets = $derived(
 		connectedWallets.filter((w) => w.connection.selected),
 	)
-	const selectedAddresses = $derived([
-		...new Set(selectedWallets.flatMap((w) => w.connection.actors ?? [])),
-	])
 	const isEip1193Wallet = (
 		wallet: ConnectedWallet,
 	): wallet is Extract<
@@ -80,6 +80,7 @@
 		selectedWallets.find(isEip1193Wallet)?.wallet.provider ?? null,
 	)
 	const roomDisplayName = $derived(roomIdToDisplayName(roomId))
+	const roomPlaceEmoji = $derived(roomIdToPlaceEmoji(roomId))
 	const roomShareUrl = $derived(
 		typeof globalThis !== 'undefined' &&
 			'location' in globalThis &&
@@ -106,10 +107,9 @@
 
 	// Components
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
-	import AddressSharing from '../AddressSharing.svelte'
+	import PendingSignatures from '../PendingSignatures.svelte'
 	import Peer from '../Peer.svelte'
 	import PeerCard from '../PeerCard.svelte'
-	import SharedAddresses from '../SharedAddresses.svelte'
 </script>
 
 
@@ -119,49 +119,34 @@
 
 
 <main id="main" data-column data-sticky-container>
-	<section data-scroll-item>
-		<h1>{roomDisplayName}</h1>
-
-		<p data-row="wrap gap-2 align-center">
+	<header data-scroll-item data-room-header data-row="wrap gap-4 align-center">
+		<div data-row="gap-2 align-center">
+			<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
+			<h1 data-room-title>{roomDisplayName}</h1>
 			<span
-				data-partykit-status
-				data-status={roomState.connectionStatus}
-				title="PartyKit connection"
+				data-tag
+				data-connection-status={roomState.connectionStatus}
+				title="Room connection"
 			>
 				{partyKitStatusLabel(roomState.connectionStatus)}
 			</span>
-			<a href={resolve(`/rooms/${roomId}/channels`)}>Channels</a>
-			·
+		</div>
+		<nav data-row="gap-2 align-center wrap">
 			<a
-				href={resolve('/rooms')}
-				onclick={() => {
-					leaveRoom()
-				}}
+				data-button
+				href={resolve(`/rooms/${roomId}`)}
+				title={roomShareUrl}
 			>
+				Room link
+			</a>
+			<a data-button href={resolve(`/rooms/${roomId}/channels`)}>
+				Channels
+			</a>
+			<a data-button href={resolve('/rooms')} onclick={() => leaveRoom()}>
 				Leave room
 			</a>
-		</p>
-	</section>
-
-	<section data-scroll-item data-card data-room-share>
-		<h2>Share</h2>
-		<div data-row="wrap gap-3">
-			<div data-qr>
-				<img
-					alt={`${roomDisplayName} QR code`}
-					src={roomShareUrl
-						? `data:image/svg+xml;utf8,${encodeURIComponent(renderSVG(roomShareUrl))}`
-						: ''}
-				/>
-			</div>
-			<div data-column="gap-2">
-				<p>{roomDisplayName}</p>
-				<a href={resolve(`/rooms/${roomId}`)} title={roomShareUrl}>
-					Open room link
-				</a>
-			</div>
-		</div>
-	</section>
+		</nav>
+	</header>
 
 	<section data-scroll-item>
 		<details open data-card>
@@ -177,7 +162,7 @@
 			</summary>
 
 			<div data-column="gap-6" data-room-structure>
-				<section data-me data-card>
+				<section data-me>
 					<h2>Me</h2>
 					{#if roomState.peerId}
 						{@const me = {
@@ -190,23 +175,15 @@
 							connectedAt: 0,
 							isConnected: true,
 						}}
-						<header data-row="wrap gap-2 align-center">
+						<div data-card>
 							<Peer peer={me} />
-						</header>
-						<AddressSharing
-							{roomId}
-							addresses={selectedAddresses}
-							{provider}
-							peers={others}
-						/>
+						</div>
 					{:else}
 						<p>Connecting…</p>
 					{/if}
 				</section>
 
-				<section data-shared-from-others>
-					<SharedAddresses {roomId} />
-				</section>
+				<PendingSignatures {roomId} {provider} />
 
 				<section data-peers>
 					<h2>Peers</h2>
@@ -242,3 +219,11 @@
 		</details>
 	</section>
 </main>
+
+
+<style>
+	.room-place-emoji {
+		font-size: 1.25em;
+		line-height: 1;
+	}
+</style>

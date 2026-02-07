@@ -29,17 +29,27 @@
 
 <span data-row="wrap gap-2 align-center">
 	<span
-		class="peer-avatar"
-		data-row="center"
-		role="img"
-		aria-hidden="true"
-		style="background: {bg};"
+		class="peer-avatar-wrap"
+		data-connected={showStatus ? peer.isConnected : undefined}
 	>
-		{emoji}
+		<span
+			class="peer-avatar"
+			data-row="center"
+			role="img"
+			aria-hidden="true"
+			style="background: {bg};"
+		>
+			{emoji}
+		</span>
+		{#if showStatus}
+			<span class="peer-avatar-dot" aria-hidden="true" />
+		{/if}
 	</span>
 	<span data-peer-name>{name}</span>
 	{#if showStatus}
-		<span data-status>{peer.isConnected ? '●' : '○'}</span>
+		<span data-tag={peer.isConnected ? 'Connected' : 'Disconnected'}>
+			{peer.isConnected ? 'Connected' : 'Disconnected'}
+		</span>
 		{#if peer.isConnected && peer.connectedAt != null}
 			<small
 				>since <Timestamp
@@ -60,12 +70,38 @@
 
 
 <style>
+	.peer-avatar-wrap {
+		position: relative;
+		flex-shrink: 0;
+	}
+
 	.peer-avatar {
 		width: 2rem;
 		height: 2rem;
 		border-radius: 50%;
 		font-size: 1rem;
 		line-height: 1;
-		flex-shrink: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.peer-avatar-dot {
+		position: absolute;
+		inset-block-end: 0;
+		inset-inline-end: 0;
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 50%;
+		border: 2px solid var(--color-bg);
+		background: var(--color-fg-muted);
+	}
+
+	.peer-avatar-wrap[data-connected='true'] > .peer-avatar-dot {
+		background: var(--color-success, oklch(0.6 0.2 145));
+	}
+
+	.peer-avatar-wrap[data-connected='false'] > .peer-avatar-dot {
+		background: var(--color-fg-muted);
 	}
 </style>
