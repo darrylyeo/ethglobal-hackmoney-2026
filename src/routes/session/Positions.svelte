@@ -1,4 +1,7 @@
 <script lang="ts">
+
+
+	// Types/constants
 	import type { UniswapPosition } from '$/data/UniswapPosition.ts'
 	import {
 		collectFees,
@@ -7,6 +10,8 @@
 	} from '$/api/uniswap.ts'
 	import { Button } from 'bits-ui'
 
+
+	// Props
 	let {
 		positions,
 		chainId,
@@ -18,23 +23,41 @@
 		provider?: {
 			request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
 		} | null
-		owner?: `0x${string}` | null
+		owner?: `0x${string}` | null,
 	} = $props()
 
+
+	// (Derived)
 	const filtered = $derived(
 		chainId !== null ? positions.filter((p) => p.chainId === chainId) : [],
 	)
 
-	const deadline = () => Math.floor(Date.now() / 1000) + 1200
 
+	// Functions
+	const deadline = () => Math.floor(Date.now() / 1000) + 1200
+	const parseBigInt = (s: string) => {
+		try {
+			const t = s.trim()
+			return t === '' ? 0n : BigInt(t)
+		} catch {
+			return 0n
+		}
+	}
+
+
+	// State
 	let increasePositionId = $state<string | null>(null)
 	let increaseAmount0 = $state('0')
 	let increaseAmount1 = $state('0')
 	let actionError = $state<string | null>(null)
 	let loadingAction = $state<string | null>(null)
 
+
+	// (Derived)
 	const canAct = $derived(Boolean(provider && owner))
 
+
+	// Actions
 	const doCollect = async (position: UniswapPosition) => {
 		if (!provider || !owner) return
 		actionError = null
@@ -54,7 +77,6 @@
 			loadingAction = null
 		}
 	}
-
 	const doRemove = async (position: UniswapPosition) => {
 		if (!provider) return
 		actionError = null
@@ -72,15 +94,6 @@
 			actionError = e instanceof Error ? e.message : String(e)
 		} finally {
 			loadingAction = null
-		}
-	}
-
-	const parseBigInt = (s: string) => {
-		try {
-			const t = s.trim()
-			return t === '' ? 0n : BigInt(t)
-		} catch {
-			return 0n
 		}
 	}
 	const doIncrease = async (position: UniswapPosition) => {
@@ -111,15 +124,30 @@
 	}
 </script>
 
+
 {#if filtered.length > 0}
-	<section data-card data-column="gap-2">
+	<section
+		data-card
+		data-column="gap-2"
+	>
 		<h3>Your positions</h3>
 		{#if actionError}
-			<p data-muted role="alert">{actionError}</p>
+			<p
+				data-muted
+				role="alert"
+			>
+				{actionError}
+			</p>
 		{/if}
-		<ul data-column="gap-2" style="list-style: none; padding: 0; margin: 0;">
+		<ul
+			data-column="gap-2"
+			style="list-style: none; padding: 0; margin: 0;"
+		>
 			{#each filtered as position (position.id)}
-				<li data-card data-column="gap-2">
+				<li
+					data-card
+					data-column="gap-2"
+				>
 					<div data-row="gap-2 align-center justify-between wrap">
 						<span data-muted>Pool {position.poolId.slice(0, 10)}…</span>
 						<span>ticks {position.tickLower} – {position.tickUpper}</span>
