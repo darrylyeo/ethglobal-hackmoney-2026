@@ -81,17 +81,18 @@
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const activeAction = $derived(session?.actions[0] ?? hashAction ?? 'swap')
-	const pageTitle = $derived(
-		activeAction === 'bridge'
-			? 'USDC Bridge'
-			: activeAction === 'transfer'
-				? 'Transfer'
-				: activeAction === 'swap'
-					? 'Swap'
-					: activeAction === 'liquidity'
-						? 'Liquidity'
-						: 'Session',
-	)
+	const pageTitles: Record<string, string> = {
+		swap: 'Swap',
+		bridge: 'USDC Bridge',
+		transfer: 'Transfer',
+		liquidity: 'Liquidity',
+		createChannel: 'Create Channel',
+		addChannelMember: 'Add Channel Member',
+		closeChannel: 'Close Channel',
+		addLiquidity: 'Add Liquidity',
+		removeLiquidity: 'Remove Liquidity',
+	}
+	const pageTitle = $derived(pageTitles[activeAction ?? ''] ?? 'Session')
 
 	$effect(() => {
 		if (hashSource.enabled) return
@@ -124,8 +125,15 @@
 	<BridgeView />
 {:else if activeAction === 'transfer'}
 	<TransferView />
-{:else if activeAction === 'liquidity'}
+{:else if activeAction === 'liquidity' || activeAction === 'addLiquidity' || activeAction === 'removeLiquidity'}
 	<LiquidityView />
+{:else if activeAction === 'createChannel' || activeAction === 'addChannelMember' || activeAction === 'closeChannel'}
+	<main id="main" data-column data-sticky-container>
+		<section data-scroll-item data-column="gap-3">
+			<h1>{pageTitle}</h1>
+			<p data-muted>Yellow Network channel action. Protocol: Yellow.</p>
+		</section>
+	</main>
 {:else}
 	<main id="main" data-column data-sticky-container>
 		<section data-scroll-item data-column="gap-3">
