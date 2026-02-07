@@ -14,7 +14,7 @@ export type LiquiditySettings = {
 	tickLower: number
 	tickUpper: number
 	amount0: bigint
-	amount1: bigint
+	amount1: bigint,
 }
 
 export const defaultLiquiditySettings: LiquiditySettings = {
