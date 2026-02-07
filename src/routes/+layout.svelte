@@ -8,9 +8,6 @@
 	import { networkConfigs, toNetworkSlug } from '$/constants/networks.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 
-	const iconEth = (await import('$/assets/coins/eth.svg?url')).default
-	const iconUsdc = (await import('$/assets/coins/usdc.svg?url')).default
-
 
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -267,12 +264,10 @@
 				{ id: 'transfer', title: 'Transfer', href: '/session#transfer', icon: '💸' },
 				{ id: 'swap', title: 'Swap', href: '/session#swap', icon: '🔄' },
 				{ id: 'bridge', title: 'Bridge', href: '/session#bridge', icon: '🌉' },
-				{
-					id: 'liquidity',
-					title: 'Add Liquidity',
-					href: '/session#liquidity',
-					icon: '💧',
-				},
+				{ id: 'addLiquidity', title: 'Add Liquidity', href: '/session#addLiquidity', icon: '💧' },
+				{ id: 'removeLiquidity', title: 'Remove Liquidity', href: '/session#removeLiquidity', icon: '💧' },
+				{ id: 'createChannel', title: 'Create Channel', href: '/session#createChannel', icon: '💛' },
+				{ id: 'closeChannel', title: 'Close Channel', href: '/session#closeChannel', icon: '💛' },
 			],
 		},
 		{
@@ -416,6 +411,8 @@
 
 
 	// Components
+	import iconEth from '$/assets/coins/eth.svg?url'
+	import iconUsdc from '$/assets/coins/usdc.svg?url'
 	import { Tooltip } from 'bits-ui'
 	import Boundary from '$/components/Boundary.svelte'
 	import IntentDragPreview from '$/components/IntentDragPreview.svelte'
