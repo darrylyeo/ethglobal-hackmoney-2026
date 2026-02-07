@@ -1,4 +1,7 @@
 <script lang="ts">
+
+
+	// Types/constants
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import type { ChainId } from '$/constants/networks.ts'
@@ -11,6 +14,11 @@
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import NetworkView from '$/components/network/Network.svelte'
 
+
+	// Context
+
+
+	// Props
 	let {
 		data,
 	}: {
@@ -21,12 +29,16 @@
 			config: { name: string }
 			slug: string
 			caip2: string
-		}
+		},
 	} = $props()
 
+
+	// State
 	let height = $state(0)
 	let blockNumber = $state(0)
 
+
+	// (Derived)
 	const txQuery = useLiveQuery(
 		(q) =>
 			q
@@ -134,5 +146,8 @@
 	<p>
 		<a href={showContextUrl} data-link>Show Context</a>
 	</p>
-	<NetworkView data={networkData} {placeholderBlockIds} />
+	<NetworkView
+		data={networkData}
+		{placeholderBlockIds}
+	/>
 </div>
