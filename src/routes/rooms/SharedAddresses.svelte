@@ -7,23 +7,25 @@
 	import { DataSource } from '$/constants/data-sources.ts'
 
 
-	// Props
-	let { roomId }: { roomId: string } = $props()
-
-
 	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { roomPeersCollection } from '$/collections/room-peers.ts'
+	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
 	import { siweChallengesCollection } from '$/collections/siwe-challenges.ts'
 	import { verificationsCollection } from '$/collections/verifications.ts'
 	import { roomState } from '$/state/room.svelte'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 
 
+	// Props
+	let { roomId }: { roomId: string } = $props()
+
+
 	// Functions
 	import { getOrCreatePeerDisplayName } from '$/lib/rooms/room.ts'
 
+
+	// State
 	const sharedQuery = useLiveQuery(
 		(q) =>
 			q
@@ -76,6 +78,8 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
+
+	// (Derived)
 	const sharedRows = $derived((sharedQuery.data ?? []).map((r) => r.row))
 	const sharedVisibleToMe = $derived(
 		sharedRows.filter(
@@ -91,6 +95,9 @@
 		(verificationsQuery.data ?? []).map((r) => r.row),
 	)
 	const challenges = $derived((challengesQuery.data ?? []).map((r) => r.row))
+
+
+	// Functions
 	const getPeerName = (peerId: string) =>
 		peerId === roomState.peerId
 			? getOrCreatePeerDisplayName()
@@ -124,6 +131,14 @@
 		if (v) return v.status
 		return hasPendingChallenge(s) ? 'verifying' : 'none'
 	}
+	const formatDate = (ts: number) =>
+		new Date(ts).toLocaleString(undefined, {
+			dateStyle: 'short',
+			timeStyle: 'short',
+		})
+
+
+	// Actions
 	const requestVerification = (address: `0x${string}`) => {
 		if (roomState.peerId == null) return
 		roomState.connection?.send({
@@ -132,11 +147,6 @@
 			fromPeerId: roomState.peerId,
 		})
 	}
-	const formatDate = (ts: number) =>
-		new Date(ts).toLocaleString(undefined, {
-			dateStyle: 'short',
-			timeStyle: 'short',
-		})
 
 
 	// Components
@@ -154,9 +164,15 @@
 			{#each sharedVisibleToMe as s (s.id)}
 				{@const myVerification = getMyVerification(s)}
 				{@const status = getStatus(s)}
-				<li data-shared-address data-verification-status={status}>
+				<li
+					data-shared-address
+					data-verification-status={status}
+				>
 					<span data-peer-name>{getPeerName(s.peerId)}</span>
-					<Address network={1} address={s.address} />
+					<Address
+						network={1}
+						address={s.address}
+					/>
 					<span data-verification>
 						{#if status === 'none'}
 							—
@@ -186,7 +202,10 @@
 								</time>
 							{/if}
 							{#if myVerification?.signature != null}
-								<span title={myVerification.signature} data-signature-tooltip>
+								<span
+									title={myVerification.signature}
+									data-signature-tooltip
+								>
 									(signature)
 								</span>
 							{/if}
