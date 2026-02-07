@@ -121,7 +121,11 @@
 </script>
 
 
-<main id="main" data-column="gap-4" data-sticky-container>
+<main
+	id="main"
+	data-column="gap-4"
+	data-sticky-container
+>
 	{#if tree}
 		{#if turns.length > 0}
 			<AgentChatTree
