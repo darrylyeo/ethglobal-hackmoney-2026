@@ -259,10 +259,7 @@ implementation uses:
 
 ## Status
 
-Complete. `src/api/lifi.ts`: getRoutesForUsdcBridge, normalizeRoute, executeSelectedRoute.
-Routes fetched into `bridgeRoutesCollection`, displayed inline in BridgeFlow.svelte.
-Sort dropdown persisted via `bridgeSettingsState.sortBy`. Selected route used for
-approval check and execution via TokenApproval and BridgeExecution components.
+Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomplete specs; re-verify 010): all 21 AC confirmed—lifi.ts getRoutesForUsdcBridge/normalizeRoute/executeSelectedRoute/NormalizedRoute with originalRoute; bridge-routes.ts uses getRoutesForUsdcBridge; BridgeFlow.svelte sortedRoutes, selectedRouteId, first-route auto-select, route cards (output amount, tool names, time, gas USD, data-selected), Sort dropdown (Recommended/Output/Fees/Speed), loading state; BridgeExecution uses executeSelectedRoute. test:unit 44 Deno + 159 Vitest passed. Previous: `src/api/lifi.ts`: getRoutesForUsdcBridge, normalizeRoute, executeSelectedRoute. Routes fetched into `bridgeRoutesCollection`, displayed inline in BridgeFlow.svelte. Sort dropdown persisted via `bridgeSettingsState.sortBy`. Selected route used for approval check and execution via TokenApproval and BridgeExecution components.
 
 ## Output when complete
 
