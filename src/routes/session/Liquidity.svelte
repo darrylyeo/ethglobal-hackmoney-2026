@@ -17,11 +17,21 @@
 </script>
 
 
-<main id="main" data-column data-sticky-container>
+<main
+	id="main"
+	data-column
+	data-sticky-container
+>
 	<section data-scroll-item>
-		<details open data-card>
+		<details
+			open
+			data-card
+		>
 			<summary>
-				<header data-card data-row="wrap gap-2">
+				<header
+					data-card
+					data-row="wrap gap-2"
+				>
 					<AccountsSelect
 						bind:connectedWallets
 						bind:selectedActor
