@@ -4,6 +4,22 @@ export type TransactionSessionStatus = 'Draft' | 'Submitted' | 'Finalized'
 
 export type TransactionSessionAction = ActionType | 'liquidity' | 'intent'
 
+export type SessionAction = {
+	type: TransactionSessionAction
+	params: Record<string, unknown>
+}
+
+export const sessionActionType = (action: SessionAction | TransactionSessionAction) =>
+	typeof action === 'string' ? action : action.type
+
+export const toSessionAction = (action: SessionAction | TransactionSessionAction): SessionAction =>
+	typeof action === 'string' ? { type: action, params: {} } : action
+
+export const createSessionAction = (type: TransactionSessionAction): SessionAction => ({
+	type,
+	params: {},
+})
+
 export type TransactionSessionSimulationSummary = {
 	forkMetadata: { blockNumber: number; rpcUrl: string; timestamp?: number }
 	summaryStatus: 'success' | 'revert' | 'error'
@@ -12,7 +28,8 @@ export type TransactionSessionSimulationSummary = {
 
 export type TransactionSession = {
 	id: string
-	actions: TransactionSessionAction[]
+	name?: string
+	actions: SessionAction[]
 	status: TransactionSessionStatus
 	createdAt: number
 	updatedAt: number

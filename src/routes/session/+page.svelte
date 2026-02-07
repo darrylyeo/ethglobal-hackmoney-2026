@@ -20,12 +20,22 @@
 
 	// Functions
 	import { ActionType } from '$/constants/intents.ts'
+	import type { TransactionSession } from '$/data/TransactionSession.ts'
+	import {
+		createSessionAction,
+		sessionActionType,
+		toSessionAction,
+	} from '$/data/TransactionSession.ts'
 	import { specForAction } from '$/lib/intents.ts'
 	import {
 		SESSION_HASH_SOURCE_KEY,
 		type SessionHashSource,
 	} from '$/lib/session/panelHash.ts'
-	import { parseSessionHash } from '$/lib/session/sessions.ts'
+	import {
+		buildSessionHash,
+		createTransactionSession,
+		parseSessionHash,
+	} from '$/lib/session/sessions.ts'
 
 
 	// State
@@ -49,6 +59,8 @@
 	})
 	setContext(SESSION_HASH_SOURCE_KEY, hashSource)
 
+	let activeSession = $state<TransactionSession | null>(null)
+
 
 	// (Derived)
 	const effectiveHash = $derived(
@@ -58,13 +70,7 @@
 	const activeSessionId = $derived(
 		parsedHash.kind === 'session' ? parsedHash.sessionId : null,
 	)
-	const hashAction = $derived(
-		parsedHash.kind === 'actions'
-			? (parsedHash.actions[0]?.action ?? ActionType.Swap)
-			: parsedHash.kind === 'empty'
-				? ActionType.Swap
-				: null,
-	)
+
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
@@ -81,20 +87,43 @@
 		},
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
-	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
-	const activeAction = $derived(session?.actions[0] ?? hashAction ?? ActionType.Swap)
-	const activeSpec = $derived(
-		activeAction ? specForAction(activeAction) ?? null : null,
+
+	const dbSession = $derived(sessionQuery.data?.[0]?.row ?? null)
+
+	$effect(() => {
+		if (dbSession) {
+			activeSession = dbSession
+			return
+		}
+
+		if (parsedHash.kind === 'actions') {
+			const created = createTransactionSession({
+				actions: parsedHash.actions.map((a) => toSessionAction(a.action)),
+				params: parsedHash.actions[0]?.params ?? {},
+			})
+			activeSession = created
+			return
+		}
+
+		if (parsedHash.kind === 'empty') {
+			const created = createTransactionSession({
+				actions: [ActionType.Swap],
+			})
+			activeSession = created
+			return
+		}
+	})
+
+	const pageTitle = $derived(
+		activeSession?.actions[0]
+			? (specForAction(sessionActionType(activeSession.actions[0]))?.label ?? 'Session')
+			: 'Session',
 	)
-	const pageTitle = $derived(activeSpec?.label ?? 'Session')
 
 
 	// Components
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
-	import BridgeView from './Bridge.svelte'
-	import LiquidityView from './Liquidity.svelte'
-	import SwapView from './Swap.svelte'
-	import TransferView from './Transfer.svelte'
+	import SessionView from './Session.svelte'
 </script>
 
 
@@ -107,28 +136,8 @@
 	data-column
 	data-sticky-container
 >
-	{#if activeAction === ActionType.Swap}
-		<SwapView />
-	{:else if activeAction === ActionType.Bridge}
-		<BridgeView />
-	{:else if activeAction === ActionType.Transfer}
-		<TransferView />
-	{:else if activeSpec?.category === 'liquidity' || activeAction === 'liquidity'}
-		<LiquidityView />
-	{:else if activeSpec}
-		<main
-			id="main"
-			data-column
-			data-sticky-container
-		>
-			<section
-				data-scroll-item
-				data-column="gap-3"
-			>
-				<h1>{activeSpec.label}</h1>
-				<p data-muted>{activeSpec.category} action</p>
-			</section>
-		</main>
+	{#if activeSession}
+		<SessionView bind:session={activeSession} />
 	{:else}
 		<main
 			id="main"
@@ -140,13 +149,11 @@
 				data-column="gap-3"
 			>
 				<h1>Session</h1>
-				<p data-muted>Unsupported session action.</p>
+				<p data-muted>Loading session…</p>
 			</section>
 		</main>
 	{/if}
-	<section
-		data-scroll-item
-	>
+	<section data-scroll-item>
 		<LocalGraphScene />
 	</section>
 </div>

@@ -12,6 +12,7 @@
 	import { getTxUrl } from '$/constants/explorers.ts'
 	import { formatWei, formatGas, formatGwei } from '$/lib/format.ts'
 	import { fetchChainTransaction } from '$/collections/chain-transactions.ts'
+	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
 
 
 	// Components
@@ -20,6 +21,7 @@
 	import ItemsList from '$/components/ItemsList.svelte'
 	import Trace from '$/components/network/Trace.svelte'
 	import EventView from '$/components/network/Event.svelte'
+	import FlowArrow from '$/components/FlowArrow.svelte'
 
 
 	// Props
@@ -65,11 +67,50 @@
 
 	// State
 	let hasFetched = $state(false)
+	let isOpen = $state(false)
+	let fromRef = $state<HTMLElement | null>(null)
+	let toRef = $state<HTMLElement | null>(null)
+	let cardRef = $state<HTMLElement | null>(null)
+	let arrowRects = $state<{ from: DOMRect; to: DOMRect; card: DOMRect } | null>(null)
+	let ethIconSrc = $state<string | undefined>(undefined)
+
+	getCoinIconUrl('eth').then((url) => { ethIconSrc = url })
+
+	const measureRects = () => {
+		if (!fromRef || !toRef || !cardRef || !isOpen) {
+			arrowRects = null
+			return
+		}
+		const cardRect = cardRef.getBoundingClientRect()
+		const fromRect = fromRef.getBoundingClientRect()
+		const toRect = toRef.getBoundingClientRect()
+		arrowRects = {
+			from: new DOMRect(
+				fromRect.left - cardRect.left,
+				fromRect.top - cardRect.top,
+				fromRect.width,
+				fromRect.height,
+			),
+			to: new DOMRect(
+				toRect.left - cardRect.left,
+				toRect.top - cardRect.top,
+				toRect.width,
+				toRect.height,
+			),
+			card: cardRect,
+		}
+	}
+
+	$effect(() => {
+		if (!isOpen) { arrowRects = null; return }
+		measureRects()
+	})
 
 
 	// Actions
 	const onToggle = (e: Event) => {
 		const details = e.currentTarget as HTMLDetailsElement
+		isOpen = details.open
 		if (!details.open || hasFetched || !tx) return
 		if (tx.status != null) {
 			hasFetched = true
@@ -81,7 +122,7 @@
 </script>
 
 
-<details data-card="radius-2 padding-4" id={tx ? `transaction:${tx.$id.txHash}` : undefined} ontoggle={onToggle}>
+<details data-card="radius-2 padding-4" id={tx ? `transaction:${tx.$id.txHash}` : undefined} ontoggle={onToggle} bind:this={cardRef} class="transaction-card">
 	<summary data-row="gap-2 align-center">
 		{#if tx}
 			{#if tx.status != null}
@@ -132,10 +173,10 @@
 				{/if}
 
 				<dt>From</dt>
-				<dd><Address network={tx.$id.chainId} address={tx.from as `0x${string}`} /></dd>
+				<dd bind:this={fromRef}><Address network={tx.$id.chainId} address={tx.from as `0x${string}`} /></dd>
 
 				<dt>To</dt>
-				<dd>
+				<dd bind:this={toRef}>
 					{#if tx.contractAddress}
 						<Address network={tx.$id.chainId} address={tx.contractAddress as `0x${string}`} /> (contract created)
 					{:else if tx.to}
@@ -182,6 +223,20 @@
 					</dd>
 				{/if}
 			</dl>
+
+			{#if arrowRects && (tx.to || tx.contractAddress)}
+				<FlowArrow
+					sourceRect={arrowRects.from}
+					targetRect={arrowRects.to}
+					gap={4}
+					arrowHeadSize={8}
+					strokeWidth={1.5}
+					strokeColor="var(--color-accent)"
+					flowIconSrc={tx.value !== '0x0' && tx.value !== '0x' ? ethIconSrc : undefined}
+					flowIconSize={16}
+					relative
+				/>
+			{/if}
 		{/if}
 
 		{#if trace}
@@ -214,3 +269,10 @@
 		</section>
 	</div>
 </details>
+
+
+<style>
+	.transaction-card {
+		position: relative;
+	}
+</style>

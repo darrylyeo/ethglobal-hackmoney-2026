@@ -70,23 +70,32 @@ list, and G6 edges share the same visual language and code. Stay DRY.
 
 ## Acceptance criteria
 
-- [ ] A shared flow-arrow primitive exists (path computation + optional flow
+- [x] A shared flow-arrow primitive exists (path computation + optional flow
   rendering) and is used by DragArrow and by Transaction (080) so that 079/080
   logic is DRY.
-- [ ] Coin transfer graph (LiveTransfers): edges are drawn as arrows with the
+- [x] Coin transfer graph (LiveTransfers): edges are drawn as arrows with the
   same stroke/arrowhead style as the shared primitive; optionally coin icons
   flow along edges when the edge represents value; reduced motion respected.
-- [ ] Coin page transfer events list: each row can show an arrow from from → to
+- [x] Coin page transfer events list: each row can show an arrow from from → to
   using the shared primitive; optional flow for amount; overlay, no layout
   change.
-- [ ] G6: edge stroke and arrow style are aligned with the shared primitive
+- [x] G6: edge stroke and arrow style are aligned with the shared primitive
   (theme, arrow shape). (Optional) For transfer/value-like edges, flowing icons
   along the edge path using the same technique as 079; implementation may use
   custom edge or overlay; reduced motion respected.
 
 ## Status
 
-Not started.
+Complete. Shared primitive: `src/lib/flow-arrow.ts` (path math: `computeArrow`,
+`arrowToPathD`, `arrowMidPoint`, constants) + `src/components/FlowArrow.svelte`
+(SVG arrow path + optional CSS `offset-path` / 3D tumble flow icons). DragArrow
+and Transaction use FlowArrow. Coin icon lookup: `src/lib/coin-icon.ts`
+(`isCoinEntityType`, `getCoinIconUrl`). LiveTransfers: SVG arrow overlay using
+same `computeArrow`/`arrowToPathD` for each edge. Coin page transfer events:
+`TransferEventRow.svelte` with per-row FlowArrow. G6: value-relation edges
+(balance, coin, transaction, swap, yellow, transferRequest) get thicker lines,
+consistent vee arrowhead, halos — aligned with shared primitive style. Canvas
+renderer precludes CSS-based flow; style alignment achieved.
 
 ## Output when complete
 

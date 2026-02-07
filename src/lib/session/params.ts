@@ -227,7 +227,7 @@ export const normalizeTransactionSessionParams = (
 	params: Record<string, unknown> | null,
 	defaults?: TransactionSessionDefaults,
 ) => {
-	const action = actions[0] ?? null
+	const action = (actions[0] ?? '').toLowerCase()
 	if (action === 'swap')
 		return normalizeSwapSessionParams(
 			params,
@@ -238,7 +238,7 @@ export const normalizeTransactionSessionParams = (
 			params,
 			defaults?.bridge ?? defaultBridgeSettings,
 		)
-	if (action === 'liquidity' || action === 'addLiquidity' || action === 'removeLiquidity' || action === 'collectFees' || action === 'increaseLiquidity')
+	if (action === 'liquidity' || action === 'addliquidity' || action === 'removeliquidity' || action === 'collectfees' || action === 'increaseliquidity')
 		return normalizeLiquiditySessionParams(
 			params,
 			defaults?.liquidity ?? defaultLiquiditySessionParams,

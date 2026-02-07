@@ -3,6 +3,7 @@
 
 	// Types/constants
 	import type { IntentOption } from '$/constants/intents.ts'
+	import { isCoinEntityType, getCoinIconUrl } from '$/lib/coin-icon.ts'
 
 
 	// Context
@@ -64,6 +65,7 @@
 	let tooltipContentRef = $state<HTMLDivElement | null>(null)
 	let prefersReducedMotion = $state(false)
 	let pointerPosition = $state<{ x: number; y: number } | null>(null)
+	let flowIconSrc = $state<string | undefined>(undefined)
 
 
 	// (Derived)
@@ -84,6 +86,15 @@
 				? new DOMRect(pointerPosition.x - 0.5, pointerPosition.y - 0.5, 1, 1)
 				: null),
 	)
+
+	$effect(() => {
+		if (!sourcePayload || !isCoinEntityType(sourcePayload.entity.type)) {
+			flowIconSrc = undefined
+			return
+		}
+		const symbol = (sourcePayload.entity.id as Record<string, unknown>).symbol as string | undefined
+		getCoinIconUrl(symbol).then((url) => { flowIconSrc = url })
+	})
 
 	$effect(() => {
 		if (typeof window === 'undefined') return
@@ -196,6 +207,7 @@
 		targetRect={effectiveTargetRect}
 		gap={8}
 		interactive={isInteractive}
+		{flowIconSrc}
 	>
 		{#snippet tooltipContent()}
 			<div

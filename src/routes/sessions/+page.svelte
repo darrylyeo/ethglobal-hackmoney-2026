@@ -17,13 +17,15 @@
 		deleteTransactionSession,
 	} from '$/lib/session/sessions.ts'
 
+	import type { SessionAction } from '$/data/TransactionSession.ts'
+
 	const actionLabel = (action: string) =>
 		action.length > 0
 			? `${action[0].toUpperCase()}${action.slice(1)}`
 			: 'Session'
-	const sessionTitle = (session: { id: string; actions: string[] }) =>
-		`${actionLabel(session.actions[0] ?? '')} ${session.id.slice(0, 6)}`
-	const sessionHref = (session: { id: string; actions: string[] }) =>
+	const sessionTitle = (session: { id: string; actions: SessionAction[] }) =>
+		`${actionLabel(session.actions[0]?.type ?? '')} ${session.id.slice(0, 6)}`
+	const sessionHref = (session: { id: string }) =>
 		`/session${buildSessionHash(session.id)}`
 
 

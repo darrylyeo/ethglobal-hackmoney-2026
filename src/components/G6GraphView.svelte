@@ -131,10 +131,15 @@
 			}
 		}
 
+		const VALUE_RELATIONS = new Set([
+			'balance', 'coin', 'transaction', 'swap', 'yellow', 'transferRequest',
+		])
+
 		const getEdgeData = (edge: GraphModel['edges'][number]): EdgeData => {
 			const relation = edge.relation ?? 'edge'
 			const directed = getEdgeArrow(edge.type) ?? relation !== 'connection'
 			const isAllowance = relation === 'allowance'
+			const isValue = VALUE_RELATIONS.has(relation)
 			return {
 				id: edge.id,
 				source: edge.source,
@@ -146,16 +151,17 @@
 				},
 				style: {
 					stroke: edge.color ?? '#94a3b8',
-					lineWidth: edge.size ?? 1,
+					lineWidth: isValue ? Math.max(edge.size ?? 1, 1.5) : (edge.size ?? 1),
 					endArrow: directed,
 					endArrowType: isAllowance ? 'triangle' : 'vee',
 					endArrowSize: isAllowance ? 10 : 8,
 					lineDash: isAllowance ? [4, 4] : undefined,
-					zIndex: isAllowance ? 2 : 1,
-					halo: isAllowance,
-					haloLineWidth: isAllowance ? 4 : undefined,
-					haloStroke: isAllowance ? (edge.color ?? '#94a3b8') : undefined,
-					haloStrokeOpacity: isAllowance ? 0.25 : undefined,
+					lineDashOffset: isValue && !reducedMotion ? 0 : undefined,
+					zIndex: isAllowance ? 2 : isValue ? 1.5 : 1,
+					halo: isAllowance || isValue,
+					haloLineWidth: isAllowance ? 4 : isValue ? 3 : undefined,
+					haloStroke: (isAllowance || isValue) ? (edge.color ?? '#94a3b8') : undefined,
+					haloStrokeOpacity: isAllowance ? 0.25 : isValue ? 0.15 : undefined,
 					shadowBlur: relation !== 'edge' && !isAllowance ? 4 : undefined,
 					shadowColor:
 						relation !== 'edge' && !isAllowance

@@ -3,11 +3,16 @@
 
 	// Types/constants
 	import type { Snippet } from 'svelte'
-	import { getBoxToBoxArrow } from 'perfect-arrows'
+	import {
+		computeArrow,
+		arrowToPathD,
+		arrowMidPoint,
+	} from '$/lib/flow-arrow.ts'
 
 
 	// Components
 	import { Tooltip } from 'bits-ui'
+	import FlowArrow from '$/components/FlowArrow.svelte'
 
 
 	// Props
@@ -18,6 +23,7 @@
 		arrowHeadSize = 12,
 		tooltipContent,
 		interactive = false,
+		flowIconSrc,
 	}: {
 		sourceRect: DOMRect
 		targetRect: DOMRect
@@ -25,33 +31,20 @@
 		arrowHeadSize?: number
 		tooltipContent: Snippet
 		interactive?: boolean
+		flowIconSrc?: string
 	} = $props()
 
 
 	// (Derived)
 	const arrowData = $derived(
-		getBoxToBoxArrow(
-			sourceRect.left,
-			sourceRect.top,
-			sourceRect.width,
-			sourceRect.height,
-			targetRect.left,
-			targetRect.top,
-			targetRect.width,
-			targetRect.height,
-			{
-				padStart: gap,
-				padEnd: arrowHeadSize,
-			},
-		),
+		computeArrow(sourceRect, targetRect, { padStart: gap, padEnd: arrowHeadSize }),
 	)
 	const pathD = $derived(
-		`M ${arrowData[0]} ${arrowData[1]} Q ${arrowData[2]} ${arrowData[3]} ${arrowData[4]} ${arrowData[5]}`,
+		arrowToPathD(arrowData),
 	)
-	const midPoint = $derived({
-		x: 0.25 * arrowData[0] + 0.5 * arrowData[2] + 0.25 * arrowData[4],
-		y: 0.25 * arrowData[1] + 0.5 * arrowData[3] + 0.25 * arrowData[5],
-	})
+	const midPoint = $derived(
+		arrowMidPoint(arrowData),
+	)
 	const tooltipSide = $derived(
 		(() => {
 			const midX = midPoint.x
@@ -75,27 +68,13 @@
 	data-interactive={interactive ? 'true' : 'false'}
 	aria-hidden={interactive ? 'false' : 'true'}
 >
-	<svg class="drag-arrow-svg" aria-hidden="true">
-		<defs>
-			<marker
-				id="drag-arrow-head"
-				markerWidth="12"
-				markerHeight="12"
-				viewBox="0 0 12 12"
-				refX="10"
-				refY="6"
-				orient="auto"
-			>
-				<path d="M 0 0 L 12 6 L 0 12 z" fill="currentColor" />
-			</marker>
-		</defs>
-		<path
-			class="drag-arrow-path"
-			d={pathD}
-			marker-end="url(#drag-arrow-head)"
-			vector-effect="non-scaling-stroke"
-		/>
-	</svg>
+	<FlowArrow
+		{sourceRect}
+		{targetRect}
+		{gap}
+		{arrowHeadSize}
+		{flowIconSrc}
+	/>
 
 	<Tooltip.Root open={true} delayDuration={0} disableHoverableContent={false}>
 		<Tooltip.Trigger>
@@ -129,23 +108,6 @@
 		z-index: 50;
 		pointer-events: none;
 		color: var(--color-accent);
-	}
-
-	.drag-arrow-svg {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		pointer-events: none;
-		color: inherit;
-	}
-
-	.drag-arrow-path {
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 2;
-		stroke-linecap: round;
-		stroke-linejoin: round;
 	}
 
 	:global(.drag-arrow-tooltip-no-events) {

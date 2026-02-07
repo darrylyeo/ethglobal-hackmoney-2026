@@ -359,7 +359,6 @@
 						spacing: 24,
 						nodeSize: getLayoutSize,
 					outerLayout: new ForceLayout({
-						animated: !reducedMotion,
 						preventOverlap: true,
 						nodeSpacing: 18,
 						nodeSize: getLayoutSize,

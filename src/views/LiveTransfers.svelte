@@ -5,6 +5,7 @@
 	import { browser } from '$app/environment'
 	import type { Coin } from '$/constants/coins.ts'
 	import type { TransferGraph } from '$/api/transfers-indexer.ts'
+	import { arrowToPathD, computeArrow } from '$/lib/flow-arrow.ts'
 	import { Canvas, T } from '@threlte/core'
 	import * as THREE from 'three'
 
@@ -75,6 +76,40 @@
 		return () => clearInterval(id)
 	})
 
+	let vizWidth = $state(400)
+	let vizHeight = $state(400)
+
+	const node2d = $derived(
+		new Map(
+			graph.nodes.map((n, i) => {
+				const count = graph.nodes.length || 1
+				const angle = (2 * Math.PI * i) / count
+				const r = Math.min(vizWidth, vizHeight) * 0.35
+				return [
+					n.address,
+					{
+						x: vizWidth / 2 + r * Math.cos(angle),
+						y: vizHeight / 2 + r * Math.sin(angle),
+					},
+				]
+			}),
+		),
+	)
+
+	const edgeArrowPaths = $derived(
+		visibleEdgeCount > 0
+			? sortedEdges.slice(0, visibleEdgeCount).flatMap((e) => {
+					const from = node2d.get(e.fromAddress)
+					const to = node2d.get(e.toAddress)
+					if (!from || !to) return []
+					const s = 6
+					const sourceRect = { left: from.x - s, top: from.y - s, width: s * 2, height: s * 2 }
+					const targetRect = { left: to.x - s, top: to.y - s, width: s * 2, height: s * 2 }
+					return [arrowToPathD(computeArrow(sourceRect, targetRect, { padStart: 4, padEnd: 8 }))]
+				})
+			: [],
+	)
+
 	const visibleEdges = $derived(sortedEdges.slice(0, visibleEdgeCount))
 	const edgeGeometry = $derived(
 		(() => {
@@ -120,7 +155,7 @@
 		</header>
 	{/if}
 
-	<div class="viz-container" data-card>
+	<div class="viz-container" data-card bind:clientWidth={vizWidth} bind:clientHeight={vizHeight}>
 		{#if browser}
 			<Canvas aria-label="Transfer graph" role="img">
 				<T.PerspectiveCamera makeDefault position={[0, 0, 20]} />
@@ -152,6 +187,36 @@
 			</Canvas>
 		{:else}
 			<p class="transfers-loading">Loading visualization…</p>
+		{/if}
+
+		{#if edgeArrowPaths.length > 0}
+			<svg class="edge-arrows-overlay" aria-hidden="true">
+				<defs>
+					<marker
+						id="transfer-arrow-head"
+						markerWidth="10"
+						markerHeight="10"
+						viewBox="0 0 12 12"
+						refX="10"
+						refY="6"
+						orient="auto"
+					>
+						<path d="M 0 0 L 12 6 L 0 12 z" fill="var(--color-accent, #60a5fa)" />
+					</marker>
+				</defs>
+				{#each edgeArrowPaths as d (d)}
+					<path
+						{d}
+						fill="none"
+						stroke="var(--color-accent, #60a5fa)"
+						stroke-width="1.5"
+						stroke-linecap="round"
+						marker-end="url(#transfer-arrow-head)"
+						vector-effect="non-scaling-stroke"
+						opacity="0.6"
+					/>
+				{/each}
+			</svg>
 		{/if}
 	</div>
 
@@ -186,6 +251,7 @@
 	}
 
 	.viz-container {
+		position: relative;
 		width: 100%;
 		height: 400px;
 		overflow: hidden;
@@ -195,6 +261,15 @@
 			width: 100%;
 			height: 100%;
 		}
+	}
+
+	.edge-arrows-overlay {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+		overflow: visible;
 	}
 
 	.transfers-loading,

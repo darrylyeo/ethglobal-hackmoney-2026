@@ -2,10 +2,12 @@ import { transactionSessionSimulationsCollection } from '$/collections/transacti
 import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type {
+	SessionAction,
 	TransactionSession,
 	TransactionSessionAction,
 	TransactionSessionStatus,
 } from '$/data/TransactionSession.ts'
+import { sessionActionType, toSessionAction } from '$/data/TransactionSession.ts'
 import type { TransactionSessionSimulationStatus } from '$/data/TransactionSessionSimulation.ts'
 import { validActionTypes } from '$/lib/intents.ts'
 import {
@@ -88,8 +90,8 @@ export const createSessionId = () =>
 		: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 
 export const createTransactionSession = (args: {
-	actions: TransactionSessionAction[]
-	params: Record<string, unknown>
+	actions: (SessionAction | TransactionSessionAction)[]
+	params?: Record<string, unknown>
 	status?: TransactionSessionStatus
 	defaults?: TransactionSessionDefaults
 }) => createTransactionSessionWithId(createSessionId(), args)
@@ -97,21 +99,23 @@ export const createTransactionSession = (args: {
 export const createTransactionSessionWithId = (
 	id: string,
 	args: {
-		actions: TransactionSessionAction[]
-		params: Record<string, unknown>
+		actions: (SessionAction | TransactionSessionAction)[]
+		params?: Record<string, unknown>
 		status?: TransactionSessionStatus
 		defaults?: TransactionSessionDefaults
 	},
 ) => {
 	const now = Date.now()
+	const sessionActions = args.actions.map(toSessionAction)
+	const actionTypes = sessionActions.map((a) => a.type)
 	const normalizedParams = normalizeTransactionSessionParams(
-		args.actions,
-		args.params,
+		actionTypes,
+		args.params ?? sessionActions[0]?.params ?? {},
 		args.defaults,
 	)
 	const session: TransactionSession = {
 		id,
-		actions: args.actions,
+		actions: sessionActions,
 		status: args.status ?? 'Draft',
 		createdAt: now,
 		updatedAt: now,
@@ -159,7 +163,7 @@ export const updateTransactionSessionParams = (
 	updateTransactionSession(sessionId, (session) => ({
 		...session,
 		params: normalizeTransactionSessionParams(
-			session.actions,
+			session.actions.map((a) => sessionActionType(a)),
 			params,
 			defaults,
 		),

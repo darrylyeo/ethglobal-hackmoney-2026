@@ -453,289 +453,289 @@
 
 
 <SessionAction
-		title="Bridge"
-		description={sessionLocked ? 'Last saved session is locked.' : undefined}
-		onsubmit={onSubmit}
-	>
-		{#snippet Params()}
-			<div data-row="gap-4">
-				<div
+	title="Bridge"
+	description={sessionLocked ? 'Last saved session is locked.' : undefined}
+	onsubmit={onSubmit}
+>
+	{#snippet Params()}
+		<div data-row="gap-4">
+			<div
 				data-column="gap-1"
 				style="flex:1"
 				data-from-chain
 			>
-					<label for="from">From</label>
-					<NetworkInput
-						networks={filteredNetworks}
-						bind:value={
-							() => settings.fromChainId,
-							(v) =>
-								typeof v === 'number'
-									? updateParams({ ...settings, fromChainId: v })
-									: null
-						}
-						placeholder="—"
-						id="from"
-						ariaLabel="From chain"
-					/>
-				</div>
-				<div
-					data-column="gap-1"
-					style="flex:1"
-					data-to-chain
-				>
-					<label for="to">To</label>
-					<NetworkInput
-						networks={filteredNetworks}
-						bind:value={
-							() => settings.toChainId,
-							(v) =>
-								typeof v === 'number'
-									? updateParams({ ...settings, toChainId: v })
-									: null
-						}
-						placeholder="—"
-						id="to"
-						ariaLabel="To chain"
-					/>
-				</div>
-			</div>
-
-			<div data-column="gap-1">
-				<label for="amt">Amount</label>
-				<p
-					id="amt-hint"
-					class="sr-only"
-				>Enter the amount of USDC to bridge</p>
-				<CoinAmountInput
-					id="amt"
-					coins={[usdcToken]}
-					coin={usdcToken}
-					min={USDC_MIN_AMOUNT}
-					max={USDC_MAX_AMOUNT}
+				<label for="from">From</label>
+				<NetworkInput
+					networks={filteredNetworks}
 					bind:value={
-						() => settings.amount,
-						(nextAmount) => updateParams({ ...settings, amount: nextAmount })
+						() => settings.fromChainId,
+						(v) =>
+							typeof v === 'number'
+								? updateParams({ ...settings, fromChainId: v })
+								: null
 					}
-					bind:invalid={
-						() => invalidAmountInput,
-						(nextInvalid) => (invalidAmountInput = nextInvalid)
-					}
-					ariaDescribedby={invalidAmountInput || validation.error
-						? 'amt-hint amt-error'
-						: 'amt-hint'}
-					ariaInvalid={invalidAmountInput || !!validation.error}
+					placeholder="—"
+					id="from"
+					ariaLabel="From chain"
 				/>
-				{#if invalidAmountInput}
-					<small
-						id="amt-error"
-						data-error
-						role="alert"
-					>Invalid amount (use numbers and up to 6 decimals)</small
-					>
-				{:else if validation.error === 'too_low'}
-					<small
-						id="amt-error"
-						data-error
-						role="alert"
-					>Min {validation.minAmount} USDC</small
-					>
-				{:else if validation.error === 'too_high'}
-					<small
-						id="amt-error"
-						data-error
-						role="alert"
-					>Max {validation.maxAmount} USDC</small
-					>
-				{:else if validation.error === 'invalid'}
-					<small
-						id="amt-error"
-						data-error
-						role="alert"
-					>Enter a valid amount</small
-					>
-				{/if}
 			</div>
-
-			<div data-column="gap-1">
-				<label data-row="gap-2 align-center">
-					<Switch.Root
-						bind:checked={
-							() => settings.useCustomRecipient,
-							(c) =>
-								updateParams({
-									...settings,
-									useCustomRecipient: c ?? false,
-								})
-						}
-					>
-						<Switch.Thumb />
-					</Switch.Root>
-					Different recipient
-				</label>
-				{#if settings.useCustomRecipient}
-					<input
-						type="text"
-						placeholder="0x..."
-						bind:value={() => settings.customRecipient, (v) =>
-							updateParams({ ...settings, customRecipient: v })}
-					/>
-					{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}
-						<small data-error>Invalid address</small>
-					{/if}
-				{:else if selectedActor && settings.fromChainId !== null}
-					<small data-muted>To: <Address
-						network={settings.fromChainId}
-						address={selectedActor}
-					/></small>
-				{:else}
-					<small data-muted>To: Connect wallet</small>
-				{/if}
+			<div
+				data-column="gap-1"
+				style="flex:1"
+				data-to-chain
+			>
+				<label for="to">To</label>
+				<NetworkInput
+					networks={filteredNetworks}
+					bind:value={
+						() => settings.toChainId,
+						(v) =>
+							typeof v === 'number'
+								? updateParams({ ...settings, toChainId: v })
+								: null
+					}
+					placeholder="—"
+					id="to"
+					ariaLabel="To chain"
+				/>
 			</div>
-		{/snippet}
+		</div>
 
-		{#snippet Protocol()}
-			<UnifiedProtocolRouter
-				bind:protocolIntent={() => settings.protocolIntent, (next) =>
-					updateParams({ ...settings, protocolIntent: next })}
-				{activeProtocol}
-				{protocolReason}
-				{cctpPairSupported}
-				{lifiPairSupported}
-				{gatewayPairSupported}
-				{selectedWallet}
-				{fromNetwork}
-				{toNetwork}
-				{canSendAmount}
+		<div data-column="gap-1">
+			<label for="amt">Amount</label>
+			<p
+				id="amt-hint"
+				class="sr-only"
+			>Enter the amount of USDC to bridge</p>
+			<CoinAmountInput
+				id="amt"
+				coins={[usdcToken]}
+				coin={usdcToken}
+				min={USDC_MIN_AMOUNT}
+				max={USDC_MAX_AMOUNT}
+				bind:value={
+					() => settings.amount,
+					(nextAmount) => updateParams({ ...settings, amount: nextAmount })
+				}
+				bind:invalid={
+					() => invalidAmountInput,
+					(nextInvalid) => (invalidAmountInput = nextInvalid)
+				}
+				ariaDescribedby={invalidAmountInput || validation.error
+					? 'amt-hint amt-error'
+					: 'amt-hint'}
+				ariaInvalid={invalidAmountInput || !!validation.error}
 			/>
-
-			{#if activeProtocol}
-				<div
-					data-card
-					data-column="gap-2"
+			{#if invalidAmountInput}
+				<small
+					id="amt-error"
+					data-error
+					role="alert"
+				>Invalid amount (use numbers and up to 6 decimals)</small
 				>
-					<h3>Settings</h3>
-					{#if activeProtocol === 'lifi'}
-						<div data-row="gap-1">
-							{#each slippagePresets as preset (preset.id)}
-								<Button.Root
-									type="button"
-									onclick={() =>
-										updateParams({ ...settings, slippage: preset.value })}
-									data-selected={settings.slippage === preset.value
-										? ''
-										: undefined}
-								>
-									{formatSlippagePercent(preset.value)}
-								</Button.Root>
-							{/each}
-						</div>
-						<input
-							placeholder="Custom %"
-							bind:value={slippageInput}
-							onchange={() => {
-								const nextSlippage = parseSlippagePercent(slippageInput)
-								if (nextSlippage !== null)
-									updateParams({ ...settings, slippage: nextSlippage })
-							}}
-						/>
-					{:else if activeProtocol === 'cctp'}
-						<div data-row="gap-2">
+			{:else if validation.error === 'too_low'}
+				<small
+					id="amt-error"
+					data-error
+					role="alert"
+				>Min {validation.minAmount} USDC</small
+				>
+			{:else if validation.error === 'too_high'}
+				<small
+					id="amt-error"
+					data-error
+					role="alert"
+				>Max {validation.maxAmount} USDC</small
+				>
+			{:else if validation.error === 'invalid'}
+				<small
+					id="amt-error"
+					data-error
+					role="alert"
+				>Enter a valid amount</small
+				>
+			{/if}
+		</div>
+
+		<div data-column="gap-1">
+			<label data-row="gap-2 align-center">
+				<Switch.Root
+					bind:checked={
+						() => settings.useCustomRecipient,
+						(c) =>
+							updateParams({
+								...settings,
+								useCustomRecipient: c ?? false,
+							})
+					}
+				>
+					<Switch.Thumb />
+				</Switch.Root>
+				Different recipient
+			</label>
+			{#if settings.useCustomRecipient}
+				<input
+					type="text"
+					placeholder="0x..."
+					bind:value={() => settings.customRecipient, (v) =>
+						updateParams({ ...settings, customRecipient: v })}
+				/>
+				{#if settings.customRecipient && !isValidAddress(settings.customRecipient)}
+					<small data-error>Invalid address</small>
+				{/if}
+			{:else if selectedActor && settings.fromChainId !== null}
+				<small data-muted>To: <Address
+					network={settings.fromChainId}
+					address={selectedActor}
+				/></small>
+			{:else}
+				<small data-muted>To: Connect wallet</small>
+			{/if}
+		</div>
+	{/snippet}
+
+	{#snippet Protocol()}
+		<UnifiedProtocolRouter
+			bind:protocolIntent={() => settings.protocolIntent, (next) =>
+				updateParams({ ...settings, protocolIntent: next })}
+			{activeProtocol}
+			{protocolReason}
+			{cctpPairSupported}
+			{lifiPairSupported}
+			{gatewayPairSupported}
+			{selectedWallet}
+			{fromNetwork}
+			{toNetwork}
+			{canSendAmount}
+		/>
+
+		{#if activeProtocol}
+			<div
+				data-card
+				data-column="gap-2"
+			>
+				<h3>Settings</h3>
+				{#if activeProtocol === 'lifi'}
+					<div data-row="gap-1">
+						{#each slippagePresets as preset (preset.id)}
 							<Button.Root
 								type="button"
-								data-selected={settings.transferSpeed === 'fast' ? '' : undefined}
 								onclick={() =>
-									updateParams({ ...settings, transferSpeed: 'fast' })}
-							>
-								Fast
-							</Button.Root>
-							<Button.Root
-								type="button"
-								data-selected={settings.transferSpeed === 'standard'
+									updateParams({ ...settings, slippage: preset.value })}
+								data-selected={settings.slippage === preset.value
 									? ''
 									: undefined}
-								onclick={() =>
-									updateParams({ ...settings, transferSpeed: 'standard' })}
 							>
-								Standard
+								{formatSlippagePercent(preset.value)}
 							</Button.Root>
-						</div>
-						<label data-row="gap-2 align-center">
-							<Switch.Root
-								bind:checked={
-									() => settings.forwardingEnabled,
-									(c) =>
-										updateParams({ ...settings, forwardingEnabled: c ?? false })
-								}
-							>
-								<Switch.Thumb />
-							</Switch.Root>
-							Use Forwarding Service
-						</label>
-					{/if}
-				</div>
-			{/if}
-		{/snippet}
-
-		{#snippet Preview()}
-			<div data-row="gap-2 align-center wrap">
-				<LoadingButton
-					type="submit"
-					name="intent"
-					value="save"
-				>
-					Save Draft
-				</LoadingButton>
-				<LoadingButton
-					type="submit"
-					name="intent"
-					value="simulate"
-					disabled={!previewAvailable}
-				>
-					Simulate
-				</LoadingButton>
+						{/each}
+					</div>
+					<input
+						placeholder="Custom %"
+						bind:value={slippageInput}
+						onchange={() => {
+							const nextSlippage = parseSlippagePercent(slippageInput)
+							if (nextSlippage !== null)
+								updateParams({ ...settings, slippage: nextSlippage })
+						}}
+					/>
+				{:else if activeProtocol === 'cctp'}
+					<div data-row="gap-2">
+						<Button.Root
+							type="button"
+							data-selected={settings.transferSpeed === 'fast' ? '' : undefined}
+							onclick={() =>
+								updateParams({ ...settings, transferSpeed: 'fast' })}
+						>
+							Fast
+						</Button.Root>
+						<Button.Root
+							type="button"
+							data-selected={settings.transferSpeed === 'standard'
+								? ''
+								: undefined}
+							onclick={() =>
+								updateParams({ ...settings, transferSpeed: 'standard' })}
+						>
+							Standard
+						</Button.Root>
+					</div>
+					<label data-row="gap-2 align-center">
+						<Switch.Root
+							bind:checked={
+								() => settings.forwardingEnabled,
+								(c) =>
+									updateParams({ ...settings, forwardingEnabled: c ?? false })
+							}
+						>
+							<Switch.Thumb />
+						</Switch.Root>
+						Use Forwarding Service
+					</label>
+				{/if}
 			</div>
+		{/if}
+	{/snippet}
 
-			{#if activeProtocol === 'lifi'}
-				<BridgeFlow
-					{selectedWallets}
-					{selectedActor}
-					bind:settings={() => settings, updateParams}
-					bind:preview={previewResult}
-					onExecutionSuccess={({ txHash }) =>
-						persistExecution({
-							txHash,
-							chainId: settings.fromChainId ?? undefined,
-						})}
-					bind:balanceTokens
-				/>
-			{:else if activeProtocol === 'cctp'}
-				<CctpBridgeFlow
-					{selectedWallets}
-					{selectedActor}
-					{settings}
-					onExecutionSuccess={({ txHash }) =>
-						persistExecution({
-							txHash,
-							chainId: settings.fromChainId ?? undefined,
-						})}
-					{recipient}
-					{minOutput}
-					bind:balanceTokens
-				/>
-			{:else if activeProtocol === 'gateway'}
-				<GatewayBridgeFlow
-					{selectedWallets}
-					{selectedActor}
-					{settings}
-					{recipient}
-					onExecutionSuccess={({ txHash }) =>
-						persistExecution({
-							txHash,
-							chainId: settings.fromChainId ?? undefined,
-						})}
-					bind:balanceTokens
-				/>
-			{/if}
-		{/snippet}
-	</SessionAction>
+	{#snippet Preview()}
+		<div data-row="gap-2 align-center wrap">
+			<LoadingButton
+				type="submit"
+				name="intent"
+				value="save"
+			>
+				Save Draft
+			</LoadingButton>
+			<LoadingButton
+				type="submit"
+				name="intent"
+				value="simulate"
+				disabled={!previewAvailable}
+			>
+				Simulate
+			</LoadingButton>
+		</div>
+
+		{#if activeProtocol === 'lifi'}
+			<BridgeFlow
+				{selectedWallets}
+				{selectedActor}
+				bind:settings={() => settings, updateParams}
+				bind:preview={previewResult}
+				onExecutionSuccess={({ txHash }) =>
+					persistExecution({
+						txHash,
+						chainId: settings.fromChainId ?? undefined,
+					})}
+				bind:balanceTokens
+			/>
+		{:else if activeProtocol === 'cctp'}
+			<CctpBridgeFlow
+				{selectedWallets}
+				{selectedActor}
+				{settings}
+				onExecutionSuccess={({ txHash }) =>
+					persistExecution({
+						txHash,
+						chainId: settings.fromChainId ?? undefined,
+					})}
+				{recipient}
+				{minOutput}
+				bind:balanceTokens
+			/>
+		{:else if activeProtocol === 'gateway'}
+			<GatewayBridgeFlow
+				{selectedWallets}
+				{selectedActor}
+				{settings}
+				{recipient}
+				onExecutionSuccess={({ txHash }) =>
+					persistExecution({
+						txHash,
+						chainId: settings.fromChainId ?? undefined,
+					})}
+				bind:balanceTokens
+			/>
+		{/if}
+	{/snippet}
+</SessionAction>

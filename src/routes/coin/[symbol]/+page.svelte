@@ -11,7 +11,7 @@
 		transferEventsCollection,
 		ensureTransferEventsForPlaceholders,
 		fetchTransferEvents,
-		type TransferEventRow,
+		type TransferEventRow as _TransferEventRow,
 		type TransferEventsMetaRow,
 	} from '$/collections/transfer-events.ts'
 	import {
@@ -19,9 +19,11 @@
 		fetchTransferGraph,
 	} from '$/collections/transfer-graphs.ts'
 	import { toasts } from '$/lib/toast.svelte'
+	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
 	import Boundary from '$/components/Boundary.svelte'
 	import ItemsList from '$/components/ItemsList.svelte'
 	import LiveTransfers from '$/views/LiveTransfers.svelte'
+	import TransferEventRow from '$/components/TransferEventRow.svelte'
 
 
 	// Props (from load)
@@ -79,8 +81,8 @@
 	const allRows = $derived(eventsQuery.data ?? [])
 	const eventRows = $derived(
 		allRows.filter(
-			(r): r is { row: TransferEventRow } =>
-				(r.row as TransferEventRow).$id.chainId !== -1,
+			(r): r is { row: _TransferEventRow } =>
+				(r.row as _TransferEventRow).$id.chainId !== -1,
 		),
 	)
 	const metaRow = $derived(
@@ -100,6 +102,11 @@
 	// State
 	let visiblePlaceholderKeys = $state<string[]>([])
 	let lastToastedError = $state<string | null>(null)
+	let coinIconSrc = $state<string | undefined>(undefined)
+
+	$effect(() => {
+		getCoinIconUrl(symbol).then((url) => { coinIconSrc = url })
+	})
 
 
 	// (Derived) / effects
@@ -136,7 +143,7 @@
 
 
 	// Functions
-	function getEventKey(row: TransferEventRow): string {
+	function getEventKey(row: _TransferEventRow): string {
 		return `${row.transactionHash}:${row.logIndex}`
 	}
 	function formatAmount(amount: string): string {
@@ -225,31 +232,15 @@
 				>
 					{#snippet Item({ key, item, isPlaceholder })}
 						{#if !isPlaceholder}
-							<article
-								id="transfer:{key}"
-								data-card="radius-2 padding-2"
-								data-column="gap-1"
-							>
-								<dl data-row="wrap gap-2">
-									<dt>Tx</dt>
-									<dd>
-											<code>
-											{item.transactionHash.slice(
-												0,
-												10,
-											)}…{item.transactionHash.slice(-8)}
-										</code>
-									</dd>
-									<dt>From</dt>
-									<dd><code>{item.fromAddress.slice(0, 10)}…</code></dd>
-									<dt>To</dt>
-									<dd><code>{item.toAddress.slice(0, 10)}…</code></dd>
-									<dt>Amount</dt>
-									<dd>{formatAmount(item.amount)} {coin.symbol}</dd>
-									<dt>Time</dt>
-									<dd>{formatTime(item.timestamp)}</dd>
-								</dl>
-							</article>
+							<span id="transfer:{key}">
+								<TransferEventRow
+									{item}
+									{coin}
+									{formatAmount}
+									{formatTime}
+									{coinIconSrc}
+								/>
+							</span>
 						{:else}
 							<span id="transfer:{key}" data-placeholder>Loading…</span>
 						{/if}

@@ -52,23 +52,29 @@ transfer/swap/bridge semantics.
 
 ## Acceptance criteria
 
-- [ ] When the drag source entity type is ActorCoin, Coin, or TokenListCoin,
+- [x] When the drag source entity type is ActorCoin, Coin, or TokenListCoin,
   coin icons are visible along the intent arrow path during drag.
-- [ ] Icons use the coin asset for the dragged coin when available (per 052);
+- [x] Icons use the coin asset for the dragged coin when available (per 052);
   fallback when asset is missing.
-- [ ] Icons animate along the path from source toward target using CSS
+- [x] Icons animate along the path from source toward target using CSS
   `offset-path` / `offset-distance` (or equivalent path-based motion); animation
   loops while the drag is active.
-- [ ] Icons rotate in all three dimensions (3D tumble) as they flow, using
+- [x] Icons rotate in all three dimensions (3D tumble) as they flow, using
   `perspective` and `rotateX` / `rotateY` / `rotateZ` (or `rotate3d`).
-- [ ] When `prefers-reduced-motion: reduce` is set, the flowing animation is
+- [x] When `prefers-reduced-motion: reduce` is set, the flowing animation is
   disabled (static icon at midpoint or no coin flow).
-- [ ] No functional change to arrow or tooltip; non-coin drag sources show no
+- [x] No functional change to arrow or tooltip; non-coin drag sources show no
   coin flow.
 
 ## Status
 
-Not started.
+Complete. Shared flow-arrow primitive in `src/lib/flow-arrow.ts` + `FlowArrow.svelte`.
+`DragArrow` refactored to use `FlowArrow`. `IntentDragPreview` resolves coin
+icon via `isCoinEntityType` + `getCoinIconUrl` and passes `flowIconSrc` to
+`DragArrow`. `FlowArrow` uses CSS `offset-path: path(...)`, `offset-distance`,
+`animation-delay` for staggered icons, and `rotateX`/`rotateY`/`rotateZ`
+keyframes for 3D tumble. `@media (prefers-reduced-motion: reduce)` hides
+all but first icon and sets it static at 50% offset-distance.
 
 ## Output when complete
 

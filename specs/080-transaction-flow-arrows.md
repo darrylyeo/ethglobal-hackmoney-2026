@@ -49,19 +49,23 @@ flowing along the path when `tx.value` is non-zero, consistent with
 
 ## Acceptance criteria
 
-- [ ] When Transaction details are open and `tx` has From and To, an arrow is
+- [x] When Transaction details are open and `tx` has From and To, an arrow is
   drawn from the From address area to the To address area using the same visual
   style as the intent drag arrow (Bezier path, arrowhead, theme stroke).
-- [ ] Arrow is an overlay that does not affect the existing &lt;dl&gt; layout.
-- [ ] (Optional) When `tx.value` is non-zero, ETH/icons flow along the arrow
+- [x] Arrow is an overlay that does not affect the existing &lt;dl&gt; layout.
+- [x] (Optional) When `tx.value` is non-zero, ETH/icons flow along the arrow
   path with the same modern CSS path + 3D tumble as spec 079; reduced motion
   disables or simplifies the flow.
-- [ ] Contract-creation case (no `to`, but `contractAddress`) is handled
+- [x] Contract-creation case (no `to`, but `contractAddress`) is handled
   (arrow to contract-creation label or omitted per implementation choice).
 
 ## Status
 
-Not started.
+Complete. Transaction card is `position: relative`; From and To `<dd>` elements
+bound via refs. On details open, rects measured relative to card. `FlowArrow`
+rendered with `relative` mode, same stroke/arrowhead. ETH icon flows when
+`tx.value` is non-zero. Contract creation: arrow draws to the
+`contractAddress` `<dd>`.
 
 ## Output when complete
 
