@@ -1,7 +1,7 @@
 import type { EntityType } from '$/data/$EntityType.ts'
 import type { IntentDragPayload } from '$/constants/intents.ts'
 import { draggable } from '$/components/Draggable.svelte'
-import { intentEntityTypes } from './registry.ts'
+import { intentEntityTypes } from '$/lib/intents.ts'
 import type { Attachment } from 'svelte/attachments'
 
 export const entityIntent = (
