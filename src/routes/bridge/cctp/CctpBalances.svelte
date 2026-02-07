@@ -6,11 +6,11 @@
 		selectedActor,
 		balanceTokens = [],
 	}: {
-		selectedActor: `0x${string}` | null
+		selectedActor: `0x${string}` | null,
 		balanceTokens?: {
-			chainId: number
-			tokenAddress: `0x${string}`
-		}[]
+			chainId: number,
+			tokenAddress: `0x${string}`,
+		}[],
 	} = $props()
 
 
@@ -19,4 +19,7 @@
 </script>
 
 
-<CoinBalances {selectedActor} {balanceTokens} />
+<CoinBalances
+	{selectedActor}
+	{balanceTokens}
+/>
