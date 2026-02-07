@@ -1,3 +1,5 @@
+// Types/constants
+
 export type ToastType = 'info' | 'success' | 'warning' | 'error' | 'loading'
 
 export type Toast = {
@@ -10,16 +12,22 @@ export type Toast = {
 		label: string
 		onClick: () => void
 	}
-	dismissible?: boolean
+	dismissible?: boolean,
 }
 
 type ToastState = {
-	toasts: Toast[]
+	toasts: Toast[],
 }
+
+
+// State
 
 let state = $state<ToastState>({ toasts: [] })
 
 const timeouts = new Map<string, ReturnType<typeof setTimeout>>()
+
+
+// Functions
 
 const add = (toast: Omit<Toast, 'id'>): string => {
 	const id = crypto.randomUUID()

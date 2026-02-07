@@ -272,7 +272,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/lib/stork.ts`
 - [x] `src/lib/stringify.ts`
 - [ ] `src/lib/tevm-simulation.ts`
-- [ ] `src/lib/toast.svelte.ts`
+- [x] `src/lib/toast.svelte.ts`
 - [ ] `src/lib/tx-history.spec.ts`
 - [ ] `src/lib/tx-history.ts`
 - [ ] `src/lib/wallet.spec.ts`
