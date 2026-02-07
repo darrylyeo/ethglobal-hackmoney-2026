@@ -11,13 +11,17 @@
 
 
 	// Context
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
 	import { myPeerIdsCollection } from '$/collections/my-peer-ids.ts'
 	import { roomPeersCollection } from '$/collections/room-peers.ts'
 	import { roomsCollection } from '$/collections/rooms.ts'
 	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 	import { verificationsCollection } from '$/collections/verifications.ts'
+	import {
+		dashboardPanelsCollection,
+		ensureDefaultRow,
+	} from '$/collections/dashboard-panels.ts'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
 	import { walletsCollection } from '$/collections/wallets.ts'
 	import {
@@ -123,6 +127,43 @@
 				.where(({ row }) => eq(row.$source, DataSource.Local))
 				.select(({ row }) => ({ row })),
 		[],
+	)
+	const dashboardsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: dashboardPanelsCollection })
+				.where(({ row }) => not(eq(row.$id.id, '__default__')))
+				.select(({ row }) => ({
+					id: row.$id.id,
+					name: 'name' in row ? row.name : undefined,
+				})),
+		[],
+	)
+	const defaultDashboardRowQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: dashboardPanelsCollection })
+				.where(({ row }) => eq(row.$id.id, '__default__'))
+				.select(({ row }) =>
+					'defaultDashboardId' in row
+						? { defaultDashboardId: row.defaultDashboardId }
+						: { defaultDashboardId: undefined as string | undefined },
+				),
+		[],
+	)
+	$effect(() => {
+		ensureDefaultRow()
+	})
+	const defaultDashboardId = $derived(
+		defaultDashboardRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
+	)
+	const dashboardNavItems = $derived(
+		(dashboardsQuery.data ?? []).map(({ id, name }) => ({
+			id: `dashboard-${id}`,
+			title: name ?? (id === 'default' ? 'My Dashboard' : 'Unnamed'),
+			href: id === defaultDashboardId ? '/dashboard' : `/dashboard?d=${id}`,
+			icon: id === defaultDashboardId ? '★' : '📊',
+		})),
 	)
 	registerGlobalLiveQueryStack(() => [
 		{ id: 'layout-wallet-connections', label: 'Wallet Connections', query: walletConnectionsQuery },
@@ -234,10 +275,12 @@
 	)
 	const navigationItems = $derived([
 		{
-			id: 'dashboard',
-			title: 'Dashboard',
-			href: '/dashboard',
+			id: 'dashboards',
+			title: 'Dashboards',
+			href: '/dashboards',
 			icon: '📊',
+			defaultOpen: true,
+			children: dashboardNavItems,
 		},
 		{
 			id: 'accounts',

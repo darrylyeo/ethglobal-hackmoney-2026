@@ -27,11 +27,12 @@
 	const nameParam = $derived(page.params.name ?? '')
 	const blockNumberParam = $derived(page.params.blockNumber ?? '')
 	const parsed = $derived(parseNetworkNameParam(nameParam))
-	const blockNumberValid =
+	const blockNumberValid = $derived(
 		blockNumberParam !== '' &&
 		DECIMAL_ONLY.test(blockNumberParam) &&
 		Number.isSafeInteger(parseInt(blockNumberParam, 10)) &&
-		parseInt(blockNumberParam, 10) >= 0
+		parseInt(blockNumberParam, 10) >= 0,
+	)
 	const blockNumber = $derived(
 		blockNumberValid ? parseInt(blockNumberParam, 10) : 0,
 	)

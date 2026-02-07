@@ -58,8 +58,9 @@
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits.ts'
 	import { graphSceneState } from '$/state/graph-scene.svelte.ts'
 
+
 	// Context
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
 	import {
 		useGlobalQueries,
 		useLocalQueries,
@@ -204,7 +205,10 @@
 		q.from({ row: transferRequestsCollection }).select(({ row }) => ({ row })),
 	)
 	const dashboardPanelsQuery = useLiveQuery((q) =>
-		q.from({ row: dashboardPanelsCollection }).select(({ row }) => ({ row })),
+		q
+			.from({ row: dashboardPanelsCollection })
+			.where(({ row }) => not(eq(row.$id.id, '__default__')))
+			.select(({ row }) => ({ row })),
 	)
 	const yellowChannelsQuery = useLiveQuery((q) =>
 		q.from({ row: yellowChannelsCollection }).select(({ row }) => ({ row })),
@@ -297,6 +301,7 @@
 			source: row.source,
 		})),
 	)
+
 
 	// Types/constants
 	type CollectionStyle = {
