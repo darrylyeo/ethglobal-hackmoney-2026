@@ -3,9 +3,9 @@
 
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
-	import type { ArchitectureEdge, ArchitectureNode } from './architecture-graph.ts'
 	import { ComboEvent, EdgeEvent, Graph, NodeEvent } from '@antv/g6'
 	import { ForceLayout } from '@antv/layout'
+	import type { ArchitectureEdge, ArchitectureNode } from './architecture-graph.ts'
 	import { architectureGraph } from './architecture-graph.ts'
 
 
@@ -194,14 +194,18 @@
 		details?: Record<string, string>
 		relation?: string
 		priority?: string
-	} | null>(null)
+	} | null>(
+		null,
+	)
 	let selectedItem = $state<{
 		kind: 'node' | 'edge' | 'combo'
 		label: string
 		details?: Record<string, string>
 		relation?: string
 		priority?: string
-	} | null>(null)
+	} | null>(
+		null,
+	)
 	let selectionSummary = $state('No selection')
 
 
@@ -354,15 +358,16 @@
 						comboPadding: 28,
 						spacing: 24,
 						nodeSize: getLayoutSize,
-						outerLayout: new ForceLayout({
-							preventOverlap: true,
-							nodeSpacing: 18,
-							nodeSize: getLayoutSize,
-							nodeStrength: -220,
-							edgeStrength: 0.15,
-							gravity: 0.1,
-							damping: 0.9,
-						}),
+					outerLayout: new ForceLayout({
+						animated: !reducedMotion,
+						preventOverlap: true,
+						nodeSpacing: 18,
+						nodeSize: getLayoutSize,
+						nodeStrength: -220,
+						edgeStrength: 0.15,
+						gravity: 0.1,
+						damping: 0.9,
+					}),
 					},
 					node: {
 						state: {

@@ -2,11 +2,11 @@
 
 
 	// Types/constants
-	import { architectureGraph } from './architecture-graph.ts'
+	import { architectureGraph } from '$/views/architecture-graph.ts'
 
 
 	// Components
-	import ArchitectureGraph from './ArchitectureGraph.svelte'
+	import ArchitectureGraph from '$/views/ArchitectureGraph.svelte'
 
 
 	// (Derived)
