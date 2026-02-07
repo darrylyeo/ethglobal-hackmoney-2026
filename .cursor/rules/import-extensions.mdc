@@ -1,0 +1,11 @@
+---
+description: Mandate file extensions on import paths
+globs: "**/*.{ts,svelte}"
+alwaysApply: true
+---
+
+# Import path extensions
+
+- **`$/` alias:** Always include the file extension: `.ts` for TypeScript/JS modules, `.svelte` for Svelte components, `.svg` (or `?url`) for assets. Example: `from '$/constants/intents.ts'`, `from '$/views/Navigation.svelte'`.
+- **Relative imports:** Prefer explicit extensions (`.ts`, `.svelte`) for consistency and to satisfy tooling.
+- The project uses `allowImportingTsExtensions: true` in tsconfig; the bundler resolves these paths.
