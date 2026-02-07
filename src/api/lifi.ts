@@ -14,11 +14,9 @@ import {
 import { queryClient } from '$/lib/db/query-client.ts'
 import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/tests/tevm.ts'
 import { E2E_TEVM_WALLET_ADDRESS } from '$/tests/tevmConfig.ts'
-import {
-	createWalletClientForChain,
-	type ProviderDetailType,
-	switchWalletChain,
-} from '$/lib/wallet.ts'
+import { createWalletClientForChain } from '$/api/viem-client.ts'
+import type { ProviderDetailType } from '$/lib/wallet.ts'
+import { switchWalletChain } from '$/lib/wallet.ts'
 import type {
 	Execution,
 	LiFiStep,

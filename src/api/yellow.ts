@@ -4,7 +4,10 @@
  */
 
 import type { EIP1193Provider } from '$/lib/wallet.ts'
-import { createWalletClientForChain } from '$/lib/wallet.ts'
+import {
+	createWalletClientForChain,
+	getChainFor,
+} from '$/api/viem-client.ts'
 import type { YellowChannelState } from '$/data/YellowChannelState.ts'
 import {
 	yellowDeploymentByChainId,
@@ -14,8 +17,10 @@ import {
 } from '$/constants/yellow.ts'
 import { NetworkType, networkConfigsByChainId } from '$/constants/networks.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { Address } from '@tevm/voltaire/Address'
+import { Hex } from '@tevm/voltaire/Hex'
+import { PrivateKey } from '@tevm/voltaire/PrivateKey'
 import { parseDecimalToSmallest } from '$/lib/format.ts'
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { createPublicClient, createWalletClient, custom, http } from 'viem'
 
 export type ClearnodeConnection = {
@@ -105,11 +110,11 @@ export const connectClearnode = async (params: {
 
 	await awaitOpen
 
-	const sessionPrivateKey = generatePrivateKey()
-	const sessionAccount = privateKeyToAccount(sessionPrivateKey)
+	const sessionPkHex = Hex.random(32) as `0x${string}`
+	const sessionAddressHex = Address.toHex(PrivateKey.toAddress(sessionPkHex))
 	const authParams = {
 		address: params.address,
-		session_key: sessionAccount.address,
+		session_key: sessionAddressHex,
 		application: 'ethglobal-hackmoney-2026',
 		allowances: [],
 		expires_at: BigInt(Math.floor(Date.now() / 1000) + 60 * 60),
@@ -139,7 +144,7 @@ export const connectClearnode = async (params: {
 			if (method === 'auth_challenge' || method === 'auth_request') {
 				const walletClient = createWalletClient({
 					account: params.address,
-					chain: createWalletClientForChain(params.signer, params.chainId).chain,
+					chain: getChainFor(params.chainId),
 					transport: custom(params.signer),
 				})
 				const signer = createEIP712AuthMessageSigner(walletClient, authParams, {
@@ -168,9 +173,9 @@ export const connectClearnode = async (params: {
 					:
 						false
 				if (success) {
-					const signer = createECDSAMessageSigner(sessionPrivateKey)
+					const signer = createECDSAMessageSigner(sessionPkHex)
 					sessionSigner = signer as (payload: unknown[]) => Promise<`0x${string}`>
-					sessionKey = sessionAccount.address
+					sessionKey = sessionAddressHex
 					const balancesMessage = await createGetLedgerBalancesMessage(
 						signer,
 						params.address,

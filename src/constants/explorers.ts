@@ -11,11 +11,11 @@ export type ExplorerEntry = {
 }
 
 export const explorerEntries = networkConfigs.flatMap((config) =>
-	config.explorerUrl
+	config.explorerUrls?.[0]
 		? [
 				{
 					chainId: config.chainId,
-					url: config.explorerUrl,
+					url: config.explorerUrls[0],
 				},
 			]
 		: [],

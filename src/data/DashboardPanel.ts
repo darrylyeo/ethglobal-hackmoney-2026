@@ -1,33 +1,17 @@
-export type DashboardPanelRoute = {
-	path: string,
-	params: Record<string, string>,
-}
+import type {
+	PanelNode,
+	PanelRoute,
+	PanelTreeNode,
+	PanelTreeState,
+	PanelTreeState$Id,
+	SplitNode,
+} from '$/data/PanelTree.ts'
 
-export type DashboardPanelNode = {
-	id: string,
-	type: 'panel',
-	route: DashboardPanelRoute,
-	hashHistory: string[],
-}
+export type DashboardPanelRoute = PanelRoute
+export type DashboardPanelNode = PanelNode
+export type DashboardSplitNode = SplitNode
+export type DashboardNode = PanelTreeNode
 
-export type DashboardSplitNode = {
-	id: string,
-	type: 'split',
-	direction: 'horizontal' | 'vertical',
-	ratio: number,
-	first: DashboardNode,
-	second: DashboardNode,
-}
+export type DashboardState$Id = PanelTreeState$Id
 
-export type DashboardNode = DashboardPanelNode | DashboardSplitNode
-
-export type DashboardState$Id = {
-	id: 'default',
-}
-
-export type DashboardState = {
-	$id: DashboardState$Id,
-	root: DashboardNode,
-	focusedPanelId: string,
-}
-
+export type DashboardState = PanelTreeState & { $id: DashboardState$Id }

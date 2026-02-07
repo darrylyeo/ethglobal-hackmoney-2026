@@ -1,5 +1,5 @@
 /**
- * Dashboard panels collection: tiling tree + focus + panel history.
+ * Dashboard panels collection: one row per dashboard + sentinel row for default id.
  * Persisted to localStorage across sessions.
  */
 
@@ -18,8 +18,21 @@ import {
 
 export type DashboardStateRow = DashboardState & { $source: DataSource }
 
-export const dashboardStateId: DashboardState$Id = { id: 'default' }
-const dashboardStateKey = stringify(dashboardStateId)
+const DEFAULT_SENTINEL_ID = '__default__' as const
+type DefaultDashboardRow = {
+	$id: { id: typeof DEFAULT_SENTINEL_ID },
+	defaultDashboardId: string,
+	$source: DataSource,
+}
+
+export type DashboardRow = DashboardStateRow | DefaultDashboardRow
+
+const isDefaultRow = (row: DashboardRow): row is DefaultDashboardRow =>
+	row.$id.id === DEFAULT_SENTINEL_ID
+
+const defaultRowKey = stringify({ id: DEFAULT_SENTINEL_ID })
+
+const getRowKey = (row: DashboardRow) => stringify(row.$id)
 
 const createPanelNode = (routePath: string): DashboardPanelNode => ({
 	id: crypto.randomUUID(),
@@ -31,7 +44,9 @@ const createPanelNode = (routePath: string): DashboardPanelNode => ({
 	hashHistory: [],
 })
 
-const createDefaultState = (_routePath: string): DashboardStateRow => {
+const DEFAULT_DASHBOARD_NAME = 'My Dashboard'
+
+const createDefaultTree = (routePath: string): DashboardStateRow => {
 	const sessionPanel = createPanelNode('/session')
 	const sessionsPanel = createPanelNode('/sessions')
 	const root: DashboardNode = {
@@ -43,18 +58,28 @@ const createDefaultState = (_routePath: string): DashboardStateRow => {
 		second: sessionsPanel,
 	}
 	return {
-		$id: dashboardStateId,
+		$id: { id: 'default' },
 		$source: DataSource.Local,
 		root,
 		focusedPanelId: sessionPanel.id,
 	}
 }
 
+const createDashboardRow = (
+	id: string,
+	routePath: string,
+	name?: string,
+): DashboardStateRow => ({
+	...createDefaultTree(routePath),
+	$id: { id },
+	name,
+})
+
 export const dashboardPanelsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: 'dashboardPanels',
 		storageKey: 'dashboard-panels',
-		getKey: (row: DashboardStateRow) => stringify(row.$id),
+		getKey: (row: DashboardRow) => getRowKey(row),
 		parser: { stringify, parse },
 	}),
 )
@@ -67,36 +92,159 @@ for (const [key, row] of dashboardPanelsCollection.state) {
 	}
 }
 
-export const ensureDashboardState = (routePath: string) =>
-	dashboardPanelsCollection.state.get(dashboardStateKey) ??
-	(() => {
-		const created = createDefaultState(routePath)
-		dashboardPanelsCollection.insert(created)
-		return created
-	})()
+export const ensureDefaultRow = () => {
+	if (dashboardPanelsCollection.state.get(defaultRowKey)) return
+	const firstDashboardKey = [...dashboardPanelsCollection.state].find(
+		([, row]) => !isDefaultRow(row),
+	)?.[0]
+	const defaultId =
+		firstDashboardKey != null
+			? (parse(firstDashboardKey) as DashboardState$Id).id
+			: (() => {
+					const created = createDashboardRow(
+						'default',
+						'/session',
+						DEFAULT_DASHBOARD_NAME,
+					)
+					dashboardPanelsCollection.insert(created)
+					return 'default'
+				})()
+	dashboardPanelsCollection.insert({
+		$id: { id: DEFAULT_SENTINEL_ID },
+		defaultDashboardId: defaultId,
+		$source: DataSource.Local,
+	})
+}
 
-export const getDashboardState = () =>
-	dashboardPanelsCollection.state.get(dashboardStateKey)
+export const getDefaultDashboardId = (): string => {
+	ensureDefaultRow()
+	return (
+		(dashboardPanelsCollection.state.get(defaultRowKey) as
+			| DefaultDashboardRow
+			| undefined)?.defaultDashboardId ?? 'default'
+	)
+}
+
+export const setDefaultDashboardId = (id: string) => {
+	ensureDefaultRow()
+	const key = defaultRowKey
+	dashboardPanelsCollection.update(key, (draft) => {
+		;(draft as DefaultDashboardRow).defaultDashboardId = id
+	})
+}
+
+export const listDashboards = (): { id: string, name?: string }[] => {
+	ensureDefaultRow()
+	return [...dashboardPanelsCollection.state]
+		.filter(([, row]) => !isDefaultRow(row))
+		.map(([, row]) => ({
+			id: (row as DashboardStateRow).$id.id,
+			name: (row as DashboardStateRow).name,
+		}))
+}
+
+const stateKey = (id: string) => stringify({ id })
+
+export const getDashboardState = (id: string): DashboardStateRow | undefined =>
+	dashboardPanelsCollection.state.get(stateKey(id)) as
+		| DashboardStateRow
+		| undefined
+
+export const ensureDashboardState = (
+	routePath: string,
+	dashboardId?: string,
+): DashboardStateRow => {
+	ensureDefaultRow()
+	const id = dashboardId ?? getDefaultDashboardId()
+	const key = stateKey(id)
+	const existing = dashboardPanelsCollection.state.get(key) as
+		| DashboardStateRow
+		| undefined
+	if (existing) return existing
+	const created = createDashboardRow(
+		id,
+		routePath,
+		id === 'default' ? DEFAULT_DASHBOARD_NAME : undefined,
+	)
+	dashboardPanelsCollection.insert(created)
+	if (id === getDefaultDashboardId()) return created
+	return created
+}
 
 export const updateDashboardState = (
+	id: string,
 	apply: (state: DashboardStateRow) => DashboardStateRow,
-) =>
-	dashboardPanelsCollection.state.get(dashboardStateKey)
-		? dashboardPanelsCollection.update(dashboardStateKey, (draft) => {
-				Object.assign(draft, apply(draft))
-			})
-		: undefined
+) => {
+	const key = stateKey(id)
+	const row = dashboardPanelsCollection.state.get(key) as
+		| DashboardStateRow
+		| undefined
+	if (!row) return undefined
+	dashboardPanelsCollection.update(key, (draft) => {
+		Object.assign(draft, apply(draft as DashboardStateRow))
+	})
+	return undefined
+}
 
-export const setDashboardRoot = (root: DashboardNode) =>
-	dashboardPanelsCollection.state.get(dashboardStateKey)
-		? dashboardPanelsCollection.update(dashboardStateKey, (draft) => {
-				draft.root = root
-			})
-		: undefined
+export const setDashboardRoot = (id: string, root: DashboardNode) => {
+	const key = stateKey(id)
+	const row = dashboardPanelsCollection.state.get(key) as
+		| DashboardStateRow
+		| undefined
+	if (!row) return undefined
+	dashboardPanelsCollection.update(key, (draft) => {
+		;(draft as DashboardStateRow).root = root
+	})
+	return undefined
+}
 
-export const setDashboardFocus = (panelId: string) =>
-	dashboardPanelsCollection.state.get(dashboardStateKey)
-		? dashboardPanelsCollection.update(dashboardStateKey, (draft) => {
-				draft.focusedPanelId = panelId
-			})
-		: undefined
+export const setDashboardFocus = (id: string, panelId: string) => {
+	const key = stateKey(id)
+	const row = dashboardPanelsCollection.state.get(key) as
+		| DashboardStateRow
+		| undefined
+	if (!row) return undefined
+	dashboardPanelsCollection.update(key, (draft) => {
+		;(draft as DashboardStateRow).focusedPanelId = panelId
+	})
+	return undefined
+}
+
+export const createDashboard = (name?: string): string => {
+	ensureDefaultRow()
+	const id = crypto.randomUUID()
+	const row = createDashboardRow(id, '/session', name)
+	dashboardPanelsCollection.insert(row)
+	return id
+}
+
+export const deleteDashboard = (id: string): boolean => {
+	ensureDefaultRow()
+	const defaultId = getDefaultDashboardId()
+	const keys = [...dashboardPanelsCollection.state]
+		.filter(([, row]) => !isDefaultRow(row))
+		.map(([k]) => k)
+	if (keys.length <= 1) return false
+	const key = stateKey(id)
+	if (!dashboardPanelsCollection.state.get(key)) return false
+	if (id === defaultId) {
+		const other = keys.find((k) => k !== key)
+		if (other != null) setDefaultDashboardId((parse(other) as { id: string }).id)
+	}
+	dashboardPanelsCollection.delete(key)
+	return true
+}
+
+export const renameDashboard = (id: string, name: string) => {
+	const key = stateKey(id)
+	const row = dashboardPanelsCollection.state.get(key) as
+		| DashboardStateRow
+		| undefined
+	if (!row) return undefined
+	dashboardPanelsCollection.update(key, (draft) => {
+		;(draft as DashboardStateRow).name = name
+	})
+	return undefined
+}
+
+export const dashboardStateId: DashboardState$Id = { id: 'default' }
