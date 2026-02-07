@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+
 test('page loads and shows Test collections heading', async ({ page }) => {
 	await page.goto('/test/collections')
 	await expect(
@@ -7,6 +8,7 @@ test('page loads and shows Test collections heading', async ({ page }) => {
 		timeout: 15_000,
 	})
 })
+
 test('page links to Networks and coins', async ({ page }) => {
 	await page.goto('/test/collections')
 	await expect(
