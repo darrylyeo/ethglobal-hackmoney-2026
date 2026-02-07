@@ -3,7 +3,10 @@
 
 	// Types/constants
 	import type { YellowChannelRow } from '$/collections/yellow-channels.ts'
-	import { sendTransfer } from '$/api/yellow.ts'
+
+
+	// Context
+	import { yellowState } from '$/state/yellow.svelte'
 
 
 	// Props
@@ -11,19 +14,26 @@
 		channel,
 		open = $bindable(false),
 	}: {
-		channel: YellowChannelRow
-		open: boolean
+		channel: YellowChannelRow,
+		open: boolean,
 	} = $props()
 
 
-	// State
-	import { yellowState } from '$/state/yellow.svelte'
-	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format.ts'
+	// Functions
+	import { sendTransfer } from '$/api/yellow.ts'
+	import {
+		formatSmallestToDecimal,
+		parseDecimalToSmallest,
+	} from '$/lib/format.ts'
 
+
+	// State
 	let amount = $state('')
 	let sending = $state(false)
 	let error = $state<string | null>(null)
 
+
+	// (Derived)
 	const myBalance = $derived(
 		yellowState.address &&
 			channel.participant0.toLowerCase() === yellowState.address.toLowerCase()
@@ -31,6 +41,8 @@
 			: channel.balance1,
 	)
 
+
+	// Actions
 	const handleSend = async () => {
 		if (!yellowState.clearnodeConnection) return
 		if (!yellowState.address) {
@@ -98,18 +110,26 @@
 		/>
 
 		{#if error}
-			<p class="transfer-error" role="alert">
+			<p
+				class="transfer-error"
+				role="alert"
+			>
 				{error}
 			</p>
 		{/if}
 
-		<div data-row="gap-2" class="transfer-actions">
+		<div
+			data-row="gap-2"
+			class="transfer-actions"
+		>
 			<Button.Root
 				type="button"
 				onclick={() => {
 					open = false
-				}}>Cancel</Button.Root
+				}}
 			>
+				Cancel
+			</Button.Root>
 			<Button.Root
 				type="button"
 				onclick={handleSend}
