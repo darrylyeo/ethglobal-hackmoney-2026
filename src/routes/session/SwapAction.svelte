@@ -102,9 +102,9 @@
 		selectedWallets: ConnectedWallet[]
 		selectedActor: `0x${string}` | null
 		balanceTokens?: {
-			chainId: number
-			tokenAddress: `0x${string}`
-		}[]
+			chainId: number,
+			tokenAddress: `0x${string}`,
+		}[],
 	} = $props()
 
 	const asNonEmpty = (coins: Coin[]): coins is [Coin, ...Coin[]] =>
@@ -432,6 +432,8 @@
 	)
 	const isQuotePending = $derived(Boolean(quoteParams && !quote))
 
+
+	// Actions
 	const updateParams = (nextParams: SwapSessionParams) => {
 		setLocalParamsIfChanged(nextParams)
 	}
@@ -1031,7 +1033,11 @@
 		{/if}
 
 		<div data-row="gap-2 align-center wrap">
-			<LoadingButton type="submit" name="intent" value="save">
+			<LoadingButton
+				type="submit"
+				name="intent"
+				value="save"
+			>
 				Save Draft
 			</LoadingButton>
 			<LoadingButton
