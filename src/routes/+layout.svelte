@@ -31,7 +31,10 @@
 
 	// Functions
 	import { formatAddress } from '$/lib/address.ts'
-	import { roomIdToDisplayName } from '$/lib/rooms/room.ts'
+	import {
+		roomIdToDisplayName,
+		roomIdToPlaceEmoji,
+	} from '$/lib/rooms/room.ts'
 	import { buildSessionHash } from '$/lib/session/sessions.ts'
 	import { interopFormatConfig, toInteropName } from '$/constants/interop.ts'
 
@@ -364,7 +367,7 @@
 							id: `room-${room.id}`,
 							title: room.name ?? roomIdToDisplayName(room.id),
 							href: `/rooms/${room.id}`,
-							icon: '🏠',
+							icon: roomIdToPlaceEmoji(room.id),
 						})),
 				},
 				{
@@ -437,7 +440,10 @@
 
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link
+		rel="icon"
+		href={favicon}
+	/>
 </svelte:head>
 
 
@@ -448,11 +454,18 @@
 		data-scroll-container
 		data-sticky-container
 	>
-		<a href="#main" class="skip-link">Skip to main content</a>
+		<a
+			href="#main"
+			class="skip-link"
+		>Skip to main content</a>
 
 		<Navigation {navigationItems}></Navigation>
 
-		<main id="main" tabindex="-1" data-sticky-container>
+		<main
+			id="main"
+			tabindex="-1"
+			data-sticky-container
+		>
 			<section data-scroll-item>
 				<Boundary>
 					{@render children()}
@@ -461,7 +474,10 @@
 						<div data-column>
 							<h2>Error</h2>
 							<p>{error instanceof Error ? error.message : String(error)}</p>
-							<button type="button" onclick={retry}>Retry</button>
+							<button
+								type="button"
+								onclick={retry}
+							>Retry</button>
 						</div>
 					{/snippet}
 				</Boundary>
