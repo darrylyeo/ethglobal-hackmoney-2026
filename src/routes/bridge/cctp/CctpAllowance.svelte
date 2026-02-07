@@ -19,8 +19,8 @@
 		fastTransferSupported,
 		apiHost,
 	}: {
-		fastTransferSupported: boolean
-		apiHost: string
+		fastTransferSupported: boolean,
+		apiHost: string,
 	} = $props()
 
 	// (Derived) filter by source; then pick row matching apiHost
