@@ -7,6 +7,10 @@
 	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 
 
+	// Context
+	import { page } from '$app/stores'
+
+
 	// Props
 	let {
 		turn,
@@ -43,10 +47,6 @@
 	})
 
 	const useTabs = $derived(tabItems.length > 1)
-
-
-	// Context
-	import { page } from '$app/stores'
 
 
 	// Functions
@@ -113,11 +113,16 @@
 		if (useTabs && !activeTab && tabItems.length > 0)
 			activeTab = tabItems[0].id
 	})
+
+
+	// (Derived)
 	const showPromptForm = $derived(
 		(turn.status === 'complete' || turn.status === 'error')
 			&& (isTarget || promptValue.trim() !== ''),
 	)
 
+
+	// Actions
 	const handleRetry = () => {
 		retryAgentChatTurn({
 			turnId: turn.id,
@@ -147,7 +152,10 @@
 	class="turn-card"
 >
 	{#if (turn.status === 'complete' || turn.status === 'error') && !showPromptForm}
-		<a href="#turn:{turn.id}" class="turn-card-reply"><span class="sr-only">Reply</span></a>
+		<a
+			href="#turn:{turn.id}"
+			class="turn-card-reply"
+		><span class="sr-only">Reply</span></a>
 	{/if}
 
 	<div data-row="gap-2 align-center justify-between">
@@ -155,7 +163,10 @@
 			<strong>User</strong>
 			<p>{turn.userPrompt}</p>
 		</div>
-		<button type="button" onclick={handleDelete}>Delete</button>
+		<button
+			type="button"
+			onclick={handleDelete}
+		>Delete</button>
 	</div>
 
 	{#if turn.status === 'generating'}
@@ -163,7 +174,10 @@
 	{:else if turn.status === 'error'}
 		<div data-row="gap-2 align-center">
 			<p data-error>{turn.error ?? 'Generation failed.'}</p>
-			<button type="button" onclick={handleRetry}>Retry</button>
+			<button
+				type="button"
+				onclick={handleRetry}
+			>Retry</button>
 		</div>
 	{:else if turn.status === 'cancelled'}
 		<p data-muted>Cancelled.</p>
