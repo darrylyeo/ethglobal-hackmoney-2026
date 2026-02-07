@@ -66,7 +66,7 @@ test.describe('Intents test page (/test/intents)', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})

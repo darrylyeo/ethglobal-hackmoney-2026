@@ -3,7 +3,7 @@ import {
 	ActionType,
 	IntentType,
 	Protocol,
-	actionSpecs,
+	actionTypeDefinitionByActionType,
 	protocolActions,
 	protocolSpecs,
 	type IntentEntityRef,
@@ -13,8 +13,9 @@ import {
 	intentEntityTypes,
 	protocolsByAction,
 	resolveIntentForDrag,
-	specBySessionAction,
-	validSessionActions,
+	specByActionType,
+	specForAction,
+	validActionTypes,
 } from '$/lib/intents.ts'
 import { describe, expect, it } from 'vitest'
 
@@ -411,12 +412,12 @@ describe('derived lookups', () => {
 
 
 describe('action and protocol specs', () => {
-	it('actionSpecs covers all ActionType values', () => {
+	it('actionTypeDefinitionByActionType covers all ActionType values', () => {
 		for (const actionType of Object.values(ActionType)) {
-			expect(actionSpecs[actionType]).toBeDefined()
-			expect(actionSpecs[actionType].label).toBeTruthy()
-			expect(actionSpecs[actionType].sessionAction).toBeTruthy()
-			expect(actionSpecs[actionType].category).toBeTruthy()
+			expect(actionTypeDefinitionByActionType[actionType]).toBeDefined()
+			expect(actionTypeDefinitionByActionType[actionType].label).toBeTruthy()
+			expect(actionTypeDefinitionByActionType[actionType].type).toBe(actionType)
+			expect(actionTypeDefinitionByActionType[actionType].category).toBeTruthy()
 		}
 	})
 
@@ -441,25 +442,24 @@ describe('action and protocol specs', () => {
 		}
 	})
 
-	it('specBySessionAction maps back to correct ActionType', () => {
-		for (const [actionType, spec] of Object.entries(actionSpecs) as [ActionType, typeof actionSpecs[ActionType]][]) {
-			const lookup = specBySessionAction[spec.sessionAction]
+	it('specByActionType maps each ActionType to its spec', () => {
+		for (const spec of Object.values(actionTypeDefinitionByActionType)) {
+			const lookup = specByActionType[spec.type]
 			expect(lookup).toBeDefined()
-			expect(lookup.actionType).toBe(actionType)
+			expect(lookup.type).toBe(spec.type)
 		}
 	})
 
-	it('navigable actions have unique sessionActions', () => {
-		const sessionActions = Object.values(actionSpecs)
-			.filter(s => s.navigable)
-			.map(s => s.sessionAction)
-		expect(new Set(sessionActions).size).toBe(sessionActions.length)
+	it('specForAction returns spec for ActionType and null for liquidity/intent', () => {
+		expect(specForAction(ActionType.Swap)).toBe(specByActionType[ActionType.Swap])
+		expect(specForAction('liquidity')).toBeNull()
+		expect(specForAction('intent')).toBeNull()
 	})
 
-	it('validSessionActions includes all spec session actions plus legacy aliases', () => {
-		for (const spec of Object.values(actionSpecs))
-			expect(validSessionActions.has(spec.sessionAction)).toBe(true)
-		expect(validSessionActions.has('liquidity')).toBe(true)
-		expect(validSessionActions.has('intent')).toBe(true)
+	it('validActionTypes includes all ActionType values plus liquidity and intent', () => {
+		for (const spec of Object.values(actionTypeDefinitionByActionType))
+			expect(validActionTypes.has(spec.type)).toBe(true)
+		expect(validActionTypes.has('liquidity')).toBe(true)
+		expect(validActionTypes.has('intent')).toBe(true)
 	})
 })

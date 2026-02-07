@@ -184,7 +184,7 @@
 		} else {
 			activateSession(
 				createTransactionSession({
-					actions: ['transfer'],
+					actions: [ActionType.Transfer],
 					params: transferDefaults,
 					defaults: { transfer: transferDefaults },
 				}).id,
@@ -204,7 +204,7 @@
 				actions:
 					parsed.kind === 'actions'
 						? parsed.actions.map((action) => action.action)
-						: ['transfer'],
+						: [ActionType.Transfer],
 				params:
 					parsed.kind === 'actions'
 						? (parsed.actions[0]?.params ?? transferDefaults)

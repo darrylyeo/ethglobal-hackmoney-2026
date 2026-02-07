@@ -16,7 +16,7 @@ test.describe('Gateway Bridge (Spec 074)', () => {
 			name: tevm.providerName,
 		})
 		await addGatewayMocks(page)
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 	})
 
 	test('select Gateway, chain pair, enter amount and see balance or deposit message', async ({

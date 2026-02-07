@@ -15,7 +15,7 @@ test.describe('Unified Bridge (Spec 037)', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 	})
 
 	test('unified bridge renders with chain selects, amount, protocol section', async ({

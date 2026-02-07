@@ -3,7 +3,7 @@ import {
 	ActionType,
 	IntentType,
 	Protocol,
-	actionSpecs,
+	actionTypeDefinitionByActionType,
 	protocolActions,
 	protocolSpecs,
 	type IntentEntityRef,
@@ -13,8 +13,8 @@ import {
 	intentEntityTypes,
 	protocolsByAction,
 	resolveIntentForDrag,
-	specBySessionAction,
-	validSessionActions,
+	specByActionType,
+	validActionTypes,
 } from '$/lib/intents.ts'
 import { describe, expect, it } from 'vitest'
 

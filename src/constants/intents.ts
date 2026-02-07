@@ -1,4 +1,4 @@
-import { EntityType } from '$/data/$EntityType.ts'
+import { EntityType, type Entity } from '$/data/$EntityType.ts'
 
 
 // Drag payload types (used by drag infrastructure)
@@ -41,9 +41,6 @@ export type IntentInvocationDefinition<_IntentEntityName extends string = string
 
 // Intent entities
 
-// TODO: map per EntityType when entity schemas are formalized
-export type Entity = Record<string, unknown>
-
 export type IntentEntity<
 	_IntentEntityName extends string = string,
 	_EntityType extends EntityType = EntityType,
@@ -57,7 +54,7 @@ export type IntentEntity<
 }
 
 
-// Actions and protocols
+// Actions
 
 export enum ActionType {
 	Swap = 'Swap',
@@ -81,6 +78,145 @@ export enum ActionType {
 	RejectTransfer = 'RejectTransfer',
 }
 
+export enum ActionCategory {
+	ValueTransfer = 'value-transfer',
+	Liquidity = 'liquidity',
+	Channel = 'channel',
+	Custody = 'custody',
+	Room = 'room',
+}
+
+export type ActionTypeDefinition = {
+	type: ActionType
+	label: string
+	icon: string
+	category: ActionCategory
+}
+
+export const actionTypes: readonly ActionTypeDefinition[] = [
+	{
+		type: ActionType.Swap,
+		label: 'Swap',
+		icon: '🔄',
+		category: ActionCategory.ValueTransfer,
+	},
+	{
+		type: ActionType.Bridge,
+		label: 'Bridge',
+		icon: '🌉',
+		category: ActionCategory.ValueTransfer,
+	},
+	{
+		type: ActionType.Transfer,
+		label: 'Transfer',
+		icon: '💸',
+		category: ActionCategory.ValueTransfer,
+	},
+	{
+		type: ActionType.CreateChannel,
+		label: 'Create Channel',
+		icon: '💛',
+		category: ActionCategory.Channel,
+	},
+	{
+		type: ActionType.AddChannelMember,
+		label: 'Add Member',
+		icon: '💛',
+		category: ActionCategory.Channel,
+	},
+	{
+		type: ActionType.CloseChannel,
+		label: 'Close Channel',
+		icon: '💛',
+		category: ActionCategory.Channel,
+	},
+	{
+		type: ActionType.AddLiquidity,
+		label: 'Add Liquidity',
+		icon: '💧',
+		category: ActionCategory.Liquidity,
+	},
+	{
+		type: ActionType.RemoveLiquidity,
+		label: 'Remove Liquidity',
+		icon: '💧',
+		category: ActionCategory.Liquidity,
+	},
+	{
+		type: ActionType.CollectFees,
+		label: 'Collect Fees',
+		icon: '💰',
+		category: ActionCategory.Liquidity,
+	},
+	{
+		type: ActionType.IncreaseLiquidity,
+		label: 'Increase Liquidity',
+		icon: '💧',
+		category: ActionCategory.Liquidity,
+	},
+	{
+		type: ActionType.ShareAddress,
+		label: 'Share Address',
+		icon: '📤',
+		category: ActionCategory.Room,
+	},
+	{
+		type: ActionType.ProposeTransfer,
+		label: 'Propose Transfer',
+		icon: '🤝',
+		category: ActionCategory.Room,
+	},
+	{
+		type: ActionType.RequestVerification,
+		label: 'Request Verification',
+		icon: '✅',
+		category: ActionCategory.Room,
+	},
+	{
+		type: ActionType.DepositToCustody,
+		label: 'Deposit to Custody',
+		icon: '🏦',
+		category: ActionCategory.Custody,
+	},
+	{
+		type: ActionType.WithdrawFromCustody,
+		label: 'Withdraw from Custody',
+		icon: '🏦',
+		category: ActionCategory.Custody,
+	},
+	{
+		type: ActionType.ResizeChannel,
+		label: 'Resize Channel',
+		icon: '💛',
+		category: ActionCategory.Channel,
+	},
+	{
+		type: ActionType.CreatePool,
+		label: 'Create Pool',
+		icon: '🏊',
+		category: ActionCategory.Liquidity,
+	},
+	{
+		type: ActionType.AcceptTransfer,
+		label: 'Accept Transfer',
+		icon: '✅',
+		category: ActionCategory.Room,
+	},
+	{
+		type: ActionType.RejectTransfer,
+		label: 'Reject Transfer',
+		icon: '❌',
+		category: ActionCategory.Room,
+	},
+] as const
+
+export const actionTypeDefinitionByActionType = Object.fromEntries(
+	actionTypes.map(spec => [spec.type, spec]),
+) as Record<ActionType, ActionTypeDefinition>
+
+
+// Protocols
+
 export enum Protocol {
 	UniswapV4 = 'UniswapV4',
 	LiFi = 'LiFi',
@@ -99,47 +235,6 @@ export type ProtocolAction<
 }
 
 
-// Action and protocol specs
-
-export type ActionCategory =
-	| 'value-transfer'
-	| 'liquidity'
-	| 'channel'
-	| 'custody'
-	| 'room'
-
-export type ActionSpec = {
-	label: string
-	icon: string
-	sessionAction: string
-	category: ActionCategory
-	navigable: boolean
-}
-
-export const actionSpecs = {
-	[ActionType.Swap]: { label: 'Swap', icon: '🔄', sessionAction: 'swap', category: 'value-transfer', navigable: true },
-	[ActionType.Bridge]: { label: 'Bridge', icon: '🌉', sessionAction: 'bridge', category: 'value-transfer', navigable: true },
-	[ActionType.Transfer]: { label: 'Transfer', icon: '💸', sessionAction: 'transfer', category: 'value-transfer', navigable: true },
-	[ActionType.CreateChannel]: { label: 'Create Channel', icon: '💛', sessionAction: 'createChannel', category: 'channel', navigable: true },
-	[ActionType.AddChannelMember]: { label: 'Add Member', icon: '💛', sessionAction: 'addChannelMember', category: 'channel', navigable: false },
-	[ActionType.CloseChannel]: { label: 'Close Channel', icon: '💛', sessionAction: 'closeChannel', category: 'channel', navigable: true },
-	[ActionType.AddLiquidity]: { label: 'Add Liquidity', icon: '💧', sessionAction: 'addLiquidity', category: 'liquidity', navigable: true },
-	[ActionType.RemoveLiquidity]: { label: 'Remove Liquidity', icon: '💧', sessionAction: 'removeLiquidity', category: 'liquidity', navigable: true },
-	[ActionType.CollectFees]: { label: 'Collect Fees', icon: '💰', sessionAction: 'collectFees', category: 'liquidity', navigable: true },
-	[ActionType.IncreaseLiquidity]: { label: 'Increase Liquidity', icon: '💧', sessionAction: 'increaseLiquidity', category: 'liquidity', navigable: true },
-	[ActionType.ShareAddress]: { label: 'Share Address', icon: '📤', sessionAction: 'shareAddress', category: 'room', navigable: true },
-	[ActionType.ProposeTransfer]: { label: 'Propose Transfer', icon: '🤝', sessionAction: 'proposeTransfer', category: 'room', navigable: true },
-	[ActionType.RequestVerification]: { label: 'Request Verification', icon: '✅', sessionAction: 'requestVerification', category: 'room', navigable: true },
-	[ActionType.DepositToCustody]: { label: 'Deposit to Custody', icon: '🏦', sessionAction: 'depositToCustody', category: 'custody', navigable: false },
-	[ActionType.WithdrawFromCustody]: { label: 'Withdraw from Custody', icon: '🏦', sessionAction: 'withdrawFromCustody', category: 'custody', navigable: false },
-	[ActionType.ResizeChannel]: { label: 'Resize Channel', icon: '💛', sessionAction: 'resizeChannel', category: 'channel', navigable: false },
-	[ActionType.CreatePool]: { label: 'Create Pool', icon: '🏊', sessionAction: 'createPool', category: 'liquidity', navigable: false },
-	[ActionType.AcceptTransfer]: { label: 'Accept Transfer', icon: '✅', sessionAction: 'acceptTransfer', category: 'room', navigable: false },
-	[ActionType.RejectTransfer]: { label: 'Reject Transfer', icon: '❌', sessionAction: 'rejectTransfer', category: 'room', navigable: false },
-} as const satisfies Record<ActionType, ActionSpec>
-
-export type ActionSessionAction = typeof actionSpecs[ActionType]['sessionAction']
-
 export type ProtocolSpec = {
 	label: string
 	shortLabel: string
@@ -147,19 +242,56 @@ export type ProtocolSpec = {
 	detail: string
 }
 
+const iconCircle = (await import('$/assets/providers/circle.svg?url')).default
+const iconCctp = (await import('$/assets/providers/cctp.svg?url')).default
+const iconLifi = (await import('$/assets/providers/lifi.svg?url')).default
+const iconUniswap = (await import('$/assets/providers/uniswap.svg?url')).default
+
 export const protocolSpecs = {
-	[Protocol.UniswapV4]: { label: 'Uniswap V4', shortLabel: 'Uni V4', icon: '🦄', detail: 'Decentralized exchange' },
-	[Protocol.LiFi]: { label: 'LI.FI', shortLabel: 'LI.FI', icon: '🔗', detail: 'Multi-chain aggregator' },
-	[Protocol.Yellow]: { label: 'Yellow Network', shortLabel: 'Yellow', icon: '💛', detail: 'State channel network' },
-	[Protocol.Cctp]: { label: 'Circle CCTP', shortLabel: 'CCTP', icon: '🔵', detail: 'Native USDC bridge' },
-	[Protocol.PartyKit]: { label: 'PartyKit', shortLabel: 'PartyKit', icon: '🎉', detail: 'Real-time rooms' },
-	[Protocol.Gateway]: { label: 'Circle Gateway', shortLabel: 'Gateway', icon: '🌐', detail: 'Unified USDC balance' },
+	[Protocol.UniswapV4]: {
+		label: 'Uniswap V4',
+		shortLabel: 'Uni V4',
+		icon: iconUniswap,
+		detail: 'Decentralized exchange',
+	},
+	[Protocol.LiFi]: {
+		label: 'LI.FI',
+		shortLabel: 'LI.FI',
+		icon: iconLifi,
+		detail: 'Multi-chain aggregator',
+	},
+	[Protocol.Yellow]: {
+		label: 'Yellow Network',
+		shortLabel: 'Yellow',
+		icon: '💛',
+		detail: 'State channel network',
+	},
+	[Protocol.Cctp]: {
+		label: 'Circle CCTP',
+		shortLabel: 'CCTP',
+		icon: iconCctp,
+		detail: 'Native USDC bridge',
+	},
+	[Protocol.PartyKit]: {
+		label: 'PartyKit',
+		shortLabel: 'PartyKit',
+		icon: '🎉',
+		detail: 'Real-time rooms',
+	},
+	[Protocol.Gateway]: {
+		label: 'Circle Gateway',
+		shortLabel: 'Gateway',
+		icon: iconCircle,
+		detail: 'Unified USDC balance',
+	},
 } as const satisfies Record<Protocol, ProtocolSpec>
+
+
+// Protocol–Actions
 
 export type ProtocolActionSpec = ProtocolAction & {
 	supportsRecipient: boolean
 }
-
 
 export type ProtocolActionPayload<
 	_ProtocolAction extends ProtocolAction = ProtocolAction,
@@ -239,38 +371,6 @@ export type ProtocolActionPayload<
 	}[_ProtocolAction['action']]
 }
 
-export type IntentOption = {
-	label: string
-	actions: ProtocolActionPayload[]
-}
-
-
-// Intent definitions
-
-export enum IntentType {
-	SwapAndBridge = 'SwapAndBridge',
-	SendFunds = 'SendFunds',
-	SwapToCoin = 'SwapToCoin',
-	CreateChannelAndAddMember = 'CreateChannelAndAddMember',
-	CreateChannelAddMemberAndTransfer = 'CreateChannelAddMemberAndTransfer',
-	AddLiquidity = 'AddLiquidity',
-	ManagePosition = 'ManagePosition',
-	IncreasePositionLiquidity = 'IncreasePositionLiquidity',
-	ShareAddressInRoom = 'ShareAddressInRoom',
-	ProposeRoomTransfer = 'ProposeRoomTransfer',
-	RequestPeerVerification = 'RequestPeerVerification',
-}
-
-export type IntentDefinition<
-	_IntentEntityName extends string = string,
-> = {
-	type: IntentType
-	label: string
-	invocations: IntentInvocationDefinition<_IntentEntityName>[]
-	entities: IntentEntity<_IntentEntityName>[]
-	resolveOptions?: (entities: Record<_IntentEntityName, Entity>) => IntentOption[]
-}
-
 export const protocolActions = [
 	{ action: ActionType.Swap, protocol: Protocol.UniswapV4, supportsRecipient: true },
 	{ action: ActionType.Swap, protocol: Protocol.LiFi, supportsRecipient: true },
@@ -296,6 +396,37 @@ export const protocolActions = [
 	{ action: ActionType.AcceptTransfer, protocol: Protocol.PartyKit, supportsRecipient: false },
 	{ action: ActionType.RejectTransfer, protocol: Protocol.PartyKit, supportsRecipient: false },
 ] as const satisfies ProtocolActionSpec[]
+
+
+// Intents
+export enum IntentType {
+	SwapAndBridge = 'SwapAndBridge',
+	SendFunds = 'SendFunds',
+	SwapToCoin = 'SwapToCoin',
+	CreateChannelAndAddMember = 'CreateChannelAndAddMember',
+	CreateChannelAddMemberAndTransfer = 'CreateChannelAddMemberAndTransfer',
+	AddLiquidity = 'AddLiquidity',
+	ManagePosition = 'ManagePosition',
+	IncreasePositionLiquidity = 'IncreasePositionLiquidity',
+	ShareAddressInRoom = 'ShareAddressInRoom',
+	ProposeRoomTransfer = 'ProposeRoomTransfer',
+	RequestPeerVerification = 'RequestPeerVerification',
+}
+
+export type IntentDefinition<
+	_IntentEntityName extends string = string,
+> = {
+	type: IntentType
+	label: string
+	invocations: IntentInvocationDefinition<_IntentEntityName>[]
+	entities: IntentEntity<_IntentEntityName>[]
+	resolveOptions?: (entities: Record<_IntentEntityName, Entity>) => IntentOption[]
+}
+
+export type IntentOption = {
+	label: string
+	actions: ProtocolActionPayload[]
+}
 
 const eqAddr = (a: unknown, b: unknown) => (
 	typeof a === 'string' && typeof b === 'string' && a.toLowerCase() === b.toLowerCase()

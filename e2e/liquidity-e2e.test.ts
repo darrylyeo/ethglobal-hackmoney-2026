@@ -1,5 +1,5 @@
 /**
- * E2E: Uniswap V4 flows — swap route and liquidity (session#swap, session#liquidity).
+ * E2E: Uniswap V4 flows — swap route and liquidity (session#Swap, session#liquidity).
  * Liquidity: load with hash params → connect tevm wallet → Add Liquidity → tx hash + status.
  */
 
@@ -12,11 +12,11 @@ const isHexHash = (value: string | null): value is `0x${string}` =>
 const buildActionHash = (
 	action: 'liquidity',
 	params: Record<string, unknown>,
-) => `#${action}:${encodeURIComponent(JSON.stringify(params))}`
+) => `#/${action}:${encodeURIComponent(JSON.stringify(params))}`
 
 test.describe('Swap route', () => {
-	test('session#swap loads and shows swap form', async ({ page }) => {
-		await page.goto('/session#swap')
+	test('session#Swap loads and shows swap form', async ({ page }) => {
+		await page.goto('/session#/Swap')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
 		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 20_000 })
 		await expect(

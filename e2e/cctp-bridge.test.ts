@@ -16,7 +16,7 @@ test.describe('CCTP Bridge (Spec 036)', () => {
 			name: tevm.providerName,
 		})
 		await addCctpMocks(page)
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 	})
 
 	test('select chains, enter amount', async ({ page }) => {

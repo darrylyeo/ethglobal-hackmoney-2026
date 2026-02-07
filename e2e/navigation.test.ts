@@ -5,26 +5,26 @@
 
 import { expect, test } from '@playwright/test'
 
-test.describe('Home page action links', () => {
+test.describe('Actions page action links', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/')
+		await page.goto('/actions')
 		await expect(
-			page.getByRole('heading', { name: 'USDC Tools', level: 1 }),
+			page.getByRole('heading', { name: 'Actions', level: 1 }),
 		).toBeVisible({ timeout: 20_000 })
 	})
 
 	for (const { name, href } of [
-		{ name: 'Add Liquidity', href: '/session#addLiquidity' },
-		{ name: 'Remove Liquidity', href: '/session#removeLiquidity' },
-		{ name: 'Collect Fees', href: '/session#collectFees' },
-		{ name: 'Increase Liquidity', href: '/session#increaseLiquidity' },
-		{ name: 'Create Channel', href: '/session#createChannel' },
-		{ name: 'Share Address', href: '/session#shareAddress' },
-		{ name: 'Bridge', href: '/session#bridge' },
-		{ name: 'Swap', href: '/session#swap' },
-		{ name: 'Transfer', href: '/session#transfer' },
+		{ name: 'Add Liquidity', href: '/session#/addLiquidity' },
+		{ name: 'Remove Liquidity', href: '/session#/removeLiquidity' },
+		{ name: 'Collect Fees', href: '/session#/collectFees' },
+		{ name: 'Increase Liquidity', href: '/session#/increaseLiquidity' },
+		{ name: 'Create Channel', href: '/session#/createChannel' },
+		{ name: 'Share Address', href: '/session#/shareAddress' },
+		{ name: 'Bridge', href: '/session#/Bridge' },
+		{ name: 'Swap', href: '/session#/Swap' },
+		{ name: 'Transfer', href: '/session#/Transfer' },
 	]) {
-		test(`home page has "${name}" link pointing to ${href}`, async ({
+		test(`actions page has "${name}" link pointing to ${href}`, async ({
 			page,
 		}) => {
 			const link = page.getByRole('link', { name, exact: true }).first()

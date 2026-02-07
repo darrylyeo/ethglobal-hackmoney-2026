@@ -9,6 +9,7 @@
 	import type { SwapSessionParams } from '$/lib/session/params.ts'
 	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap.ts'
 	import { CoinType } from '$/constants/coins.ts'
+	import { ActionType } from '$/constants/intents.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { MediaType } from '$/constants/media.ts'
 	import {
@@ -456,7 +457,7 @@
 			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
-				actions: ['swap'],
+				actions: [ActionType.Swap],
 				params: nextParams,
 			})
 		} else {
@@ -477,7 +478,7 @@
 			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
-				actions: ['swap'],
+				actions: [ActionType.Swap],
 				params: nextParams,
 			})
 		}
@@ -519,7 +520,7 @@
 			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
-				actions: ['swap'],
+				actions: [ActionType.Swap],
 				params: nextParams,
 			})
 		}

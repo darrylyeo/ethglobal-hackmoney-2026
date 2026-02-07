@@ -1,4 +1,5 @@
 import { expect, type BrowserContext, type Page } from '@playwright/test'
+import { ActionType } from '../src/constants/intents.ts'
 import {
 	buildLocalStoragePayload,
 	buildSessionRow,
@@ -28,7 +29,8 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/session': ['swap', 'bridge', 'transfer', 'liquidity', 'createChannel', 'addChannelMember', 'closeChannel', 'addLiquidity', 'removeLiquidity', 'collectFees', 'increaseLiquidity', 'shareAddress', 'proposeTransfer', 'requestVerification', 'unsupported'],
 	'/session/[id]': ['not-found', 'redirect'],
 	'/sessions': ['empty', 'populated'],
-	'/channels/yellow': ['default'],
+	'/positions/channels': ['default'],
+	'/positions/liquidity': ['default'],
 	'/coin/[symbol]': ['usdc', 'eth', 'not-found'],
 	'/test/chain-id': ['button-disabled', 'button-enabled'],
 	'/transfers': ['default'],
@@ -153,7 +155,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/sessions',
 		setup: async (_context, page) => {
 			await seedSessions(page, [
-				buildSessionRow({ id: 'session-list-1', actions: ['bridge'] }),
+				buildSessionRow({ id: 'session-list-1', actions: [ActionType.Bridge] }),
 			])
 		},
 		assert: async (page) => {
@@ -171,7 +173,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'swap',
-		path: '/session#swap',
+		path: '/session#/Swap',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'Swap', level: 1 }),
@@ -181,7 +183,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'bridge',
-		path: '/session#bridge',
+		path: '/session#/Bridge',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'USDC Bridge', level: 1, }),
@@ -191,7 +193,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'transfer',
-		path: '/session#transfer',
+		path: '/session#/Transfer',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'Transfer', level: 1, }),
@@ -201,7 +203,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'liquidity',
-		path: '/session#liquidity',
+		path: '/session#/liquidity',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'Liquidity', level: 1, }),
@@ -211,7 +213,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'createChannel',
-		path: '/session#createChannel',
+		path: '/session#/createChannel',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'Create Channel', level: 1 }),
@@ -221,7 +223,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'addChannelMember',
-		path: '/session#addChannelMember',
+		path: '/session#/addChannelMember',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'Add Member', level: 1 }),
@@ -231,7 +233,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'closeChannel',
-		path: '/session#closeChannel',
+		path: '/session#/closeChannel',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'Close Channel', level: 1 }),
@@ -241,7 +243,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'addLiquidity',
-		path: '/session#addLiquidity',
+		path: '/session#/addLiquidity',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { level: 1 }).first(),
@@ -251,7 +253,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'removeLiquidity',
-		path: '/session#removeLiquidity',
+		path: '/session#/removeLiquidity',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { level: 1 }).first(),
@@ -261,7 +263,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'collectFees',
-		path: '/session#collectFees',
+		path: '/session#/collectFees',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { level: 1 }).first(),
@@ -271,7 +273,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'increaseLiquidity',
-		path: '/session#increaseLiquidity',
+		path: '/session#/increaseLiquidity',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { level: 1 }).first(),
@@ -281,7 +283,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'shareAddress',
-		path: '/session#shareAddress',
+		path: '/session#/shareAddress',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'Share Address', level: 1 }),
@@ -291,7 +293,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'proposeTransfer',
-		path: '/session#proposeTransfer',
+		path: '/session#/proposeTransfer',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'Propose Transfer', level: 1 }),
@@ -301,7 +303,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'requestVerification',
-		path: '/session#requestVerification',
+		path: '/session#/requestVerification',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'Request Verification', level: 1 }),
@@ -311,7 +313,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'unsupported',
-		path: '/session#intent',
+		path: '/session#/intent',
 		assert: async (page) => {
 			await expect(page.getByRole('heading', { name: 'Session' })).toBeVisible()
 			await expect(page.getByText('Unsupported session action.')).toBeVisible()
@@ -334,11 +336,11 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/session/session-redirect',
 		setup: async (_context, page) => {
 			await seedSessions(page, [
-				buildSessionRow({ id: 'session-redirect', actions: ['bridge'] }),
+				buildSessionRow({ id: 'session-redirect', actions: [ActionType.Bridge] }),
 			])
 		},
 		assert: async (page) => {
-			await page.waitForURL(/\/session#session:/, { timeout: 10_000, })
+			await page.waitForURL(/\/session#\/session:/, { timeout: 10_000, })
 		},
 	},
 	{
@@ -395,15 +397,25 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/channels/yellow',
+		route: '/positions/channels',
 		branch: 'default',
-		path: '/channels/yellow',
+		path: '/positions/channels',
 		assert: async (page) => {
 			await expect(
-				page.getByRole('heading', { name: 'Yellow Channels', }),
+				page.getByRole('heading', { name: 'Channels', }),
 			).toBeVisible()
 			await expect(page.getByText('Total:')).toBeVisible()
 			await expect(page.getByLabel('Status')).toBeVisible()
+		},
+	},
+	{
+		route: '/positions/liquidity',
+		branch: 'default',
+		path: '/positions/liquidity',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Liquidity', }),
+			).toBeVisible()
 		},
 	},
 	{

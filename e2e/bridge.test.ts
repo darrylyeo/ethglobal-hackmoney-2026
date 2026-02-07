@@ -17,7 +17,7 @@ test.describe('Bridge UI (Spec 004)', () => {
 			name: tevm.providerName,
 		})
 		await addLifiRoutesMock(page)
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 	})
 
 	test('select source chain, destination chain, enter amount and address', async ({

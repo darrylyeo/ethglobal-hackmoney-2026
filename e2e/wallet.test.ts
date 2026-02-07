@@ -14,7 +14,7 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
@@ -49,7 +49,7 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 		await expect(
 			page.getByRole('heading', { name: 'USDC Bridge', level: 1, }),
 		).toBeVisible({ timeout: 60_000, })
@@ -69,7 +69,7 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 				rdns: tevm.providerRdns,
 				name: tevm.providerName,
 			})
-			await page.goto('/session#bridge')
+			await page.goto('/session#/Bridge')
 			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})

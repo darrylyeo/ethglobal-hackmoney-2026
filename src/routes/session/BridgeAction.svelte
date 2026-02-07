@@ -17,6 +17,7 @@
 		USDC_MIN_AMOUNT,
 		validateBridgeAmount,
 	} from '$/constants/bridge-limits.ts'
+	import { ActionType } from '$/constants/intents.ts'
 	import { isCctpSupportedChain } from '$/constants/cctp.ts'
 	import { isGatewaySupportedChain } from '$/constants/gateway.ts'
 	import { ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins.ts'
@@ -264,7 +265,7 @@
 			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
-				actions: ['bridge'],
+				actions: [ActionType.Bridge],
 				params: nextParams,
 			})
 		} else {
@@ -285,7 +286,7 @@
 			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
-				actions: ['bridge'],
+				actions: [ActionType.Bridge],
 				params: nextParams,
 			})
 		}
@@ -321,7 +322,7 @@
 			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
-				actions: ['bridge'],
+				actions: [ActionType.Bridge],
 				params: nextParams,
 			})
 		}

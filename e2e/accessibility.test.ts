@@ -25,7 +25,7 @@ test.describe('Accessibility (axe-core)', () => {
 	})
 
 	test('bridge page has no critical violations', async ({ page }) => {
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
@@ -89,7 +89,7 @@ test.describe('Keyboard navigation', () => {
 			name: tevm.providerName,
 		})
 		await addLifiRoutesMock(page)
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})

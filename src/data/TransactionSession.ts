@@ -1,11 +1,8 @@
-import type { ActionSessionAction } from '$/constants/intents.ts'
+import type { ActionType } from '$/constants/intents.ts'
 
 export type TransactionSessionStatus = 'Draft' | 'Submitted' | 'Finalized'
 
-export type TransactionSessionAction =
-	| ActionSessionAction
-	| 'liquidity'
-	| 'intent'
+export type TransactionSessionAction = ActionType | 'liquidity' | 'intent'
 
 export type TransactionSessionSimulationSummary = {
 	forkMetadata: { blockNumber: number; rpcUrl: string; timestamp?: number }

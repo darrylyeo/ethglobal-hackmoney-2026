@@ -8,6 +8,7 @@
 	import type { TransferSessionParams } from '$/lib/session/params.ts'
 	import { encodeTransferCall } from '$/api/voltaire.ts'
 	import { sendTransfer } from '$/api/yellow.ts'
+	import { ActionType } from '$/constants/intents.ts'
 	import { CoinType } from '$/constants/coins.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 
@@ -199,7 +200,7 @@
 			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
-				actions: ['transfer'],
+				actions: [ActionType.Transfer],
 				params: nextParams,
 				defaults: {
 					transfer: nextParams,
@@ -223,7 +224,7 @@
 			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
-				actions: ['transfer'],
+				actions: [ActionType.Transfer],
 				params: nextParams,
 				defaults: {
 					transfer: nextParams,
@@ -259,7 +260,7 @@
 			: current.id
 		if (shouldCreate) {
 			createTransactionSessionWithId(sessionId, {
-				actions: ['transfer'],
+				actions: [ActionType.Transfer],
 				params: nextParams,
 				defaults: {
 					transfer: nextParams,

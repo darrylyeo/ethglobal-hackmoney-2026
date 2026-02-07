@@ -39,7 +39,7 @@ test.describe('Session (bridge)', () => {
 	})
 
 	test('unified bridge renders with protocol selection', async ({ page }) => {
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
@@ -54,7 +54,7 @@ test.describe('Session (bridge)', () => {
 	})
 
 	test('auto-connected wallet shows address', async ({ page }) => {
-		await page.goto('/session#bridge')
+		await page.goto('/session#/Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})

@@ -303,7 +303,7 @@
 		} else {
 			activateSession(
 				createTransactionSession({
-					actions: ['swap'],
+					actions: [ActionType.Swap],
 					params: {},
 				}).id,
 			)
@@ -322,7 +322,7 @@
 				actions:
 					parsed.kind === 'actions'
 						? parsed.actions.map((action) => action.action)
-						: ['swap'],
+						: [ActionType.Swap],
 				params:
 					parsed.kind === 'actions' ? (parsed.actions[0]?.params ?? {}) : {},
 			}).id,

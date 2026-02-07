@@ -5,7 +5,7 @@
 
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
-	import { actionSpecs } from '$/constants/intents.ts'
+	import { ActionType, actionTypeDefinitionByActionType } from '$/constants/intents.ts'
 	import { networkConfigs, toNetworkSlug } from '$/constants/networks.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 
@@ -21,7 +21,10 @@
 	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
 	import { walletsCollection } from '$/collections/wallets.ts'
 	import {
+		createLiveQueryContext,
 		registerGlobalLiveQueryStack,
+		setGlobalLiveQueryContext,
+		setLocalLiveQueryContext,
 		useGlobalQueries,
 		useLocalQueries,
 	} from '$/svelte/live-query-context.svelte'
@@ -52,8 +55,10 @@
 
 	// State
 	let showGraph = $state(false)
-	const globalLiveQueryCtx = useGlobalQueries()
-	const localLiveQueryCtx = useLocalQueries()
+	const globalLiveQueryCtx = createLiveQueryContext()
+	const localLiveQueryCtx = createLiveQueryContext()
+	setGlobalLiveQueryContext(globalLiveQueryCtx)
+	setLocalLiveQueryContext(localLiveQueryCtx)
 
 
 	// (Derived)
@@ -246,16 +251,33 @@
 		{
 			id: 'actions',
 			title: 'Actions',
+			href: '/actions',
 			icon: '⚡',
 			defaultOpen: true,
-			children: Object.values(actionSpecs)
-				.filter(spec => spec.navigable)
-				.map(spec => ({
-					id: spec.sessionAction,
+			children: (
+				[
+					ActionType.Swap,
+					ActionType.Bridge,
+					ActionType.Transfer,
+					ActionType.CreateChannel,
+					ActionType.CloseChannel,
+					ActionType.AddLiquidity,
+					ActionType.RemoveLiquidity,
+					ActionType.CollectFees,
+					ActionType.IncreaseLiquidity,
+					ActionType.ShareAddress,
+					ActionType.ProposeTransfer,
+					ActionType.RequestVerification,
+				] as const
+			).map((actionType) => {
+				const spec = actionTypeDefinitionByActionType[actionType]
+				return {
+					id: spec.type,
 					title: spec.label,
-					href: `/session#${spec.sessionAction}`,
+					href: `/session#/${spec.type}`,
 					icon: spec.icon,
-				})),
+				}
+			}),
 		},
 		{
 			id: 'sessions',
@@ -331,6 +353,26 @@
 			],
 		},
 		{
+			id: 'positions',
+			title: 'Positions',
+			icon: '📍',
+			defaultOpen: true,
+			children: [
+				{
+					id: 'positions-liquidity',
+					title: 'Liquidity',
+					href: '/positions/liquidity',
+					icon: '💧',
+				},
+				{
+					id: 'positions-channels',
+					title: 'Channels',
+					href: '/positions/channels',
+					icon: '💛',
+				},
+			],
+		},
+		{
 			id: 'multiplayer',
 			title: 'Multiplayer',
 			icon: '🎮',
@@ -359,12 +401,6 @@
 					icon: '🤝',
 					tag: String(peersNavItems.length),
 					children: peersNavItems,
-				},
-				{
-					id: 'channels-yellow',
-					title: 'Yellow Channels',
-					href: '/channels/yellow',
-					icon: '💛',
 				},
 			],
 		},

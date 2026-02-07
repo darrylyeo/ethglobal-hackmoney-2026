@@ -19,11 +19,12 @@
 
 
 	// Functions
+	import { ActionType } from '$/constants/intents.ts'
+	import { specForAction } from '$/lib/intents.ts'
 	import {
 		SESSION_HASH_SOURCE_KEY,
 		type SessionHashSource,
 	} from '$/lib/session/panelHash.ts'
-	import { specBySessionAction } from '$/lib/intents.ts'
 	import { parseSessionHash } from '$/lib/session/sessions.ts'
 
 
@@ -59,9 +60,9 @@
 	)
 	const hashAction = $derived(
 		parsedHash.kind === 'actions'
-			? (parsedHash.actions[0]?.action ?? 'swap')
+			? (parsedHash.actions[0]?.action ?? ActionType.Swap)
 			: parsedHash.kind === 'empty'
-				? 'swap'
+				? ActionType.Swap
 				: null,
 	)
 	const sessionQuery = useLiveQuery(
@@ -81,9 +82,9 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const session = $derived(sessionQuery.data?.[0]?.row ?? null)
-	const activeAction = $derived(session?.actions[0] ?? hashAction ?? 'swap')
+	const activeAction = $derived(session?.actions[0] ?? hashAction ?? ActionType.Swap)
 	const activeSpec = $derived(
-		activeAction ? specBySessionAction[activeAction] ?? null : null,
+		activeAction ? specForAction(activeAction) ?? null : null,
 	)
 	const pageTitle = $derived(activeSpec?.label ?? 'Session')
 
@@ -106,11 +107,11 @@
 	data-column
 	data-sticky-container
 >
-	{#if activeAction === 'swap'}
+	{#if activeAction === ActionType.Swap}
 		<SwapView />
-	{:else if activeAction === 'bridge'}
+	{:else if activeAction === ActionType.Bridge}
 		<BridgeView />
-	{:else if activeAction === 'transfer'}
+	{:else if activeAction === ActionType.Transfer}
 		<TransferView />
 	{:else if activeSpec?.category === 'liquidity' || activeAction === 'liquidity'}
 		<LiquidityView />
