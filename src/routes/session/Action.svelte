@@ -51,7 +51,7 @@
 	import BridgeAction from './BridgeAction.svelte'
 	import SwapAction from './SwapAction.svelte'
 	import TransferAction from './TransferAction.svelte'
-	import LiquidityFlow from './LiquidityFlow.svelte'
+	import LiquidityAction from './LiquidityAction.svelte'
 </script>
 
 
@@ -74,34 +74,38 @@
 		{/if}
 	</header>
 
-	{#if action.type === ActionType.Swap}
-		<SwapAction
-			selectedWallets={sessionCtx.connectedWallets}
-			selectedActor={sessionCtx.selectedActor}
-		/>
-	{:else if action.type === ActionType.Bridge}
-		<BridgeAction
-			selectedWallets={sessionCtx.connectedWallets}
-			selectedActor={sessionCtx.selectedActor}
-			globalIsTestnet={sessionCtx.isTestnet}
-		/>
-	{:else if action.type === ActionType.Transfer}
-		{@const defaultAddress = sessionCtx.selectedActor ?? '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as `0x${string}`}
-		<TransferAction
-			walletConnection={null}
-			fromActor={defaultAddress}
-			toActor={defaultAddress}
-			chainId={sessionCtx.selectedChainId ?? 1}
-			tokenAddress={'0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as `0x${string}`}
-		/>
-	{:else if action.type === ActionType.AddLiquidity || action.type === ActionType.RemoveLiquidity || action.type === ('liquidity' as typeof action.type)}
-		<LiquidityFlow
-			selectedWallets={sessionCtx.connectedWallets}
-			selectedActor={sessionCtx.selectedActor}
-			selectedChainId={sessionCtx.selectedChainId}
-		/>
-	{:else if activeSpec}
-		<div data-grid="columns-autofit column-min-16 gap-6">
+	<div data-grid="columns-autofit column-min-16 gap-6">
+		{#if action.type === ActionType.Swap}
+			<SwapAction
+				selectedWallets={sessionCtx.connectedWallets}
+				selectedActor={sessionCtx.selectedActor}
+				bind:params={action.params}
+			/>
+		{:else if action.type === ActionType.Bridge}
+			<BridgeAction
+				selectedWallets={sessionCtx.connectedWallets}
+				selectedActor={sessionCtx.selectedActor}
+				globalIsTestnet={sessionCtx.isTestnet}
+				bind:params={action.params}
+			/>
+		{:else if action.type === ActionType.Transfer}
+			{@const defaultAddress = sessionCtx.selectedActor ?? '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as `0x${string}`}
+			<TransferAction
+				walletConnection={null}
+				fromActor={defaultAddress}
+				toActor={defaultAddress}
+				chainId={sessionCtx.selectedChainId ?? 1}
+				tokenAddress={'0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as `0x${string}`}
+				bind:params={action.params}
+			/>
+		{:else if action.type === ActionType.AddLiquidity || action.type === ActionType.RemoveLiquidity || action.type === ('liquidity' as typeof action.type)}
+			<LiquidityAction
+				selectedWallets={sessionCtx.connectedWallets}
+				selectedActor={sessionCtx.selectedActor}
+				selectedChainId={sessionCtx.selectedChainId}
+				bind:params={action.params}
+			/>
+		{:else if activeSpec}
 			<section data-card data-column="gap-3">
 				<p data-muted>{activeSpec.label} action</p>
 			</section>
@@ -111,6 +115,6 @@
 			<section data-card data-column="gap-3">
 				<p data-muted>Preview</p>
 			</section>
-		</div>
-	{/if}
+		{/if}
+	</div>
 </div>

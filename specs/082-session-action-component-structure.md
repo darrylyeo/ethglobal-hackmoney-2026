@@ -167,28 +167,28 @@ happens at the `Session` level via `$effect` that syncs the bound session object
 
 ## Acceptance criteria
 
-- [ ] `ItemsListOperation` enum exists with `Add`, `Delete`, `Duplicate`,
+- [x] `ItemsListOperation` enum exists with `Add`, `Delete`, `Duplicate`,
   `Reorder` values.
-- [ ] `EditableItemsList` component exists in `src/components/` with
+- [x] `EditableItemsList` component exists in `src/components/` with
   `operations` prop controlling which operations are available per item.
-- [ ] `SessionAction` type defined with `type` and `params` fields;
+- [x] `SessionAction` type defined with `type` and `params` fields;
   `TransactionSession.actions` uses it.
-- [ ] `Session.svelte` in `src/routes/session/` renders editable name,
+- [x] `Session.svelte` in `src/routes/session/` renders editable name,
   `<AccountsSelect>`, testnet toggle, and `<ActionsSequence>`.
-- [ ] `ActionsSequence` renders `<EditableItemsList>` of `<Action>` components
+- [x] `ActionsSequence` renders `<EditableItemsList>` of `<Action>` components
   bound to `session.actions`.
-- [ ] `Action` renders `<Select>` for `ActionType` and the three-column flow
+- [x] `Action` renders `<Select>` for `ActionType` and the three-column flow
   grid.
-- [ ] Changing action type via `<Select>` updates the bound action entry.
-- [ ] Type-specific components (BridgeAction, SwapAction, TransferAction,
+- [x] Changing action type via `<Select>` updates the bound action entry.
+- [x] Type-specific components (BridgeAction, SwapAction, TransferAction,
   LiquidityAction) render their column content and bind to `action.params`.
-- [ ] Reorder via `lib/reorder` rearranges `session.actions` array order.
-- [ ] Add / Delete / Duplicate operations modify `session.actions` correctly.
-- [ ] Existing bridge, swap, transfer, liquidity functionality is preserved
+- [x] Reorder via `lib/reorder` rearranges `session.actions` array order.
+- [x] Add / Delete / Duplicate operations modify `session.actions` correctly.
+- [x] Existing bridge, swap, transfer, liquidity functionality is preserved
   (quotes, execution, simulation, protocol selection).
-- [ ] Obsolete wrapper components are removed.
-- [ ] URL hash session bootstrap and navigation still works.
+- [x] Obsolete wrapper components are removed.
+- [x] URL hash session bootstrap and navigation still works.
 
 ## Status
 
-Pending.
+Complete. 2026-02-07 (PROMPT_build execute one spec): All 14 AC—ItemsListOperation in EditableItemsList.svelte; EditableItemsList with operations; SessionAction in TransactionSession.ts, TransactionSession.actions; Session.svelte with name, AccountsSelect, testnet toggle (Switch), ActionsSequence; ActionsSequence with EditableItemsList of Action; Action with Select and data-grid three-column; type change updates action; BridgeAction/SwapAction/TransferAction/LiquidityAction bind:params, inline three-column (SessionAction removed); EditableItemsList reorder (drag); Add/Delete/Duplicate in EditableItemsList; bridge/swap/transfer/liquidity preserved; views/Session.svelte and views/SessionAction.svelte removed, view/bridge uses routes/session/Session; URL hash bootstrap unchanged in +page.svelte. Build and Vitest (159) passed.

@@ -42,6 +42,9 @@
 		setEffectiveHash,
 		SESSION_HASH_SOURCE_KEY,
 	} from '$/lib/session/panelHash.ts'
+	import { SESSION_CONTEXT_KEY, type SessionContext } from './session-context.ts'
+
+	const sessionCtx = getContext<SessionContext | undefined>(SESSION_CONTEXT_KEY)
 
 
 	// Functions
@@ -68,7 +71,6 @@
 	import LoadingButton from '$/components/LoadingButton.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
-	import SessionAction from '$/views/SessionAction.svelte'
 	import UnifiedProtocolRouter from './UnifiedProtocolRouter.svelte'
 	import CctpBridgeFlow from '$/routes/bridge/cctp/CctpBridgeFlow.svelte'
 	import GatewayBridgeFlow from '$/routes/bridge/gateway/GatewayBridgeFlow.svelte'
@@ -81,6 +83,7 @@
 		selectedActor,
 		globalIsTestnet = false,
 		balanceTokens = $bindable([]),
+		params = $bindable(),
 	}: {
 		selectedWallets: ConnectedWallet[],
 		selectedActor: `0x${string}` | null,
@@ -89,6 +92,7 @@
 			chainId: number,
 			tokenAddress: `0x${string}`,
 		}[],
+		params?: Record<string, unknown>,
 	} = $props()
 
 	const resolveNetwork = (chainId: number | null) =>
@@ -146,7 +150,14 @@
 	const fallbackParams = $derived(
 		normalizeBridgeSessionParams(null, bridgeDefaults),
 	)
-	const settings = $derived(localParams ?? fallbackParams)
+	const settingsFromParams = $derived(
+		params !== undefined
+			? normalizeBridgeSessionParams(params, bridgeDefaults)
+			: null,
+	)
+	const settings = $derived(
+		localParams ?? settingsFromParams ?? fallbackParams,
+	)
 	let useGlobalNetworkType = $state(true)
 	const effectiveIsTestnet = $derived(
 		useGlobalNetworkType ? globalIsTestnet : settings.isTestnet,
@@ -240,6 +251,10 @@
 
 	// Actions
 	const updateParams = (nextParams: BridgeSessionParams) => {
+		if (params !== undefined) {
+			params = { ...nextParams } as unknown as Record<string, unknown>
+			return
+		}
 		if (localParams && stringify(localParams) === stringify(nextParams)) return
 		localParams = nextParams
 	}
@@ -258,6 +273,15 @@
 	}
 	const persistDraft = () => {
 		const nextParams = normalizeBridgeSessionParams(settings)
+		const boundSessionId = sessionCtx?.sessionId ?? null
+		if (boundSessionId) {
+			updateTransactionSession(boundSessionId, (s) => ({
+				...s,
+				params: nextParams,
+				updatedAt: Date.now(),
+			}))
+			return
+		}
 		const current = session
 		const shouldCreate = !current || current.lockedAt
 		const sessionId = shouldCreate
@@ -269,8 +293,8 @@
 				params: nextParams,
 			})
 		} else {
-			updateTransactionSession(sessionId, (session) => ({
-				...session,
+			updateTransactionSession(sessionId, (s) => ({
+				...s,
 				params: nextParams,
 				updatedAt: Date.now(),
 			}))
@@ -279,21 +303,25 @@
 	}
 	const persistSimulation = (result: unknown) => {
 		const nextParams = normalizeBridgeSessionParams(settings)
-		const current = session
-		const shouldCreate = !current || current.lockedAt
-		const sessionId = shouldCreate
-			? (pendingSessionId ?? createSessionId())
-			: current.id
-		if (shouldCreate) {
-			createTransactionSessionWithId(sessionId, {
-				actions: [ActionType.Bridge],
-				params: nextParams,
-			})
-		}
-		updateTransactionSession(sessionId, (session) => ({
-			...session,
+		const boundSessionId = sessionCtx?.sessionId ?? null
+		const sessionId = boundSessionId ?? (() => {
+			const current = session
+			const shouldCreate = !current || current.lockedAt
+			const id = shouldCreate
+				? (pendingSessionId ?? createSessionId())
+				: current.id
+			if (shouldCreate) {
+				createTransactionSessionWithId(id, {
+					actions: [ActionType.Bridge],
+					params: nextParams,
+				})
+			}
+			return id
+		})()
+		updateTransactionSession(sessionId, (s) => ({
+			...s,
 			params: nextParams,
-			lockedAt: session.lockedAt ?? Date.now(),
+			lockedAt: s.lockedAt ?? Date.now(),
 			updatedAt: Date.now(),
 		}))
 		const simulationId = createTransactionSessionSimulation({
@@ -302,43 +330,47 @@
 			status: 'success',
 			result,
 		})
-		updateTransactionSession(sessionId, (session) => ({
-			...session,
+		updateTransactionSession(sessionId, (s) => ({
+			...s,
 			latestSimulationId: simulationId,
-			simulationCount: (session.simulationCount ?? 0) + 1,
+			simulationCount: (s.simulationCount ?? 0) + 1,
 			updatedAt: Date.now(),
 		}))
-		setSessionHash(sessionId)
+		if (!boundSessionId) setSessionHash(sessionId)
 	}
 	const persistExecution = (args: {
 		txHash?: `0x${string}`
 		chainId?: number
 	}) => {
 		const nextParams = normalizeBridgeSessionParams(settings)
-		const current = session
-		const shouldCreate = !current || current.lockedAt
-		const sessionId = shouldCreate
-			? (pendingSessionId ?? createSessionId())
-			: current.id
-		if (shouldCreate) {
-			createTransactionSessionWithId(sessionId, {
-				actions: [ActionType.Bridge],
-				params: nextParams,
-			})
-		}
-		updateTransactionSession(sessionId, (session) => ({
-			...session,
+		const boundSessionId = sessionCtx?.sessionId ?? null
+		const sessionId = boundSessionId ?? (() => {
+			const current = session
+			const shouldCreate = !current || current.lockedAt
+			const id = shouldCreate
+				? (pendingSessionId ?? createSessionId())
+				: current.id
+			if (shouldCreate) {
+				createTransactionSessionWithId(id, {
+					actions: [ActionType.Bridge],
+					params: nextParams,
+				})
+			}
+			return id
+		})()
+		updateTransactionSession(sessionId, (s) => ({
+			...s,
 			params: nextParams,
 			status: 'Submitted',
-			lockedAt: session.lockedAt ?? Date.now(),
+			lockedAt: s.lockedAt ?? Date.now(),
 			execution: {
-				submittedAt: session.execution?.submittedAt ?? Date.now(),
-				chainId: args.chainId ?? session.execution?.chainId,
-				txHash: args.txHash ?? session.execution?.txHash,
+				submittedAt: s.execution?.submittedAt ?? Date.now(),
+				chainId: args.chainId ?? s.execution?.chainId,
+				txHash: args.txHash ?? s.execution?.txHash,
 			},
 			updatedAt: Date.now(),
 		}))
-		setSessionHash(sessionId)
+		if (!boundSessionId) setSessionHash(sessionId)
 	}
 
 	const onSubmit = (event: SubmitEvent) => {
@@ -364,6 +396,10 @@
 	}
 
 	$effect(() => {
+		if (params !== undefined && sessionCtx?.sessionId) {
+			setActiveSessionId(sessionCtx.sessionId)
+			return
+		}
 		if (!localParams)
 			updateParams(normalizeBridgeSessionParams(null, bridgeDefaults))
 		const parsed = parseSessionHash(effectiveHash)
@@ -452,12 +488,23 @@
 </script>
 
 
-<SessionAction
-	title="Bridge"
-	description={sessionLocked ? 'Last saved session is locked.' : undefined}
+<form
+	data-session-action
+	data-card
+	data-column="gap-3"
 	onsubmit={onSubmit}
 >
-	{#snippet Params()}
+	<header data-row="gap-2 align-center justify-between">
+		<div data-column="gap-1">
+			<h2>Bridge</h2>
+			{#if sessionLocked}
+				<p data-muted>Last saved session is locked.</p>
+			{/if}
+		</div>
+	</header>
+
+	<div data-grid="columns-autofit column-min-16 gap-6">
+		<section data-card data-column="gap-3">
 		<div data-row="gap-4">
 			<div
 				data-column="gap-1"
@@ -592,9 +639,9 @@
 				<small data-muted>To: Connect wallet</small>
 			{/if}
 		</div>
-	{/snippet}
+		</section>
 
-	{#snippet Protocol()}
+		<section data-card data-column="gap-3">
 		<UnifiedProtocolRouter
 			bind:protocolIntent={() => settings.protocolIntent, (next) =>
 				updateParams({ ...settings, protocolIntent: next })}
@@ -675,9 +722,9 @@
 				{/if}
 			</div>
 		{/if}
-	{/snippet}
+		</section>
 
-	{#snippet Preview()}
+		<section data-card data-column="gap-3">
 		<div data-row="gap-2 align-center wrap">
 			<LoadingButton
 				type="submit"
@@ -737,5 +784,6 @@
 				bind:balanceTokens
 			/>
 		{/if}
-	{/snippet}
-</SessionAction>
+		</section>
+	</div>
+</form>

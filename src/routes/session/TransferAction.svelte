@@ -48,6 +48,7 @@
 		tokenDecimals = 6,
 		tokenAddress,
 		mode = 'channel',
+		params = $bindable(),
 	}: {
 		walletConnection: ConnectedWallet | null
 		fromActor: `0x${string}`
@@ -58,6 +59,7 @@
 		tokenDecimals?: number
 		tokenAddress: `0x${string}`
 		mode?: 'direct' | 'channel'
+		params?: Record<string, unknown>,
 	} = $props()
 
 
@@ -96,7 +98,6 @@
 	import LoadingButton from '$/components/LoadingButton.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import CoinAmount from '$/views/CoinAmount.svelte'
-	import SessionAction from '$/views/SessionAction.svelte'
 	import TransactionFlow from '$/views/TransactionFlow.svelte'
 
 	let activeSessionId = $state<string | null>(null)
@@ -394,12 +395,23 @@
 </script>
 
 
-<SessionAction
-	title="Transfer"
-	description={sessionLocked ? 'Last saved session is locked.' : undefined}
+<form
+	data-session-action
+	data-card
+	data-column="gap-3"
 	onsubmit={onSubmit}
 >
-	{#snippet Params()}
+	<header data-row="gap-2 align-center justify-between">
+		<div data-column="gap-1">
+			<h2>Transfer</h2>
+			{#if sessionLocked}
+				<p data-muted>Last saved session is locked.</p>
+			{/if}
+		</div>
+	</header>
+
+	<div data-grid="columns-autofit column-min-16 gap-6">
+		<section data-card data-column="gap-3">
 		<dl class="summary">
 			<dt>From</dt>
 			<dd data-intent-transition="source">
@@ -422,9 +434,9 @@
 			<dt>Mode</dt>
 			<dd>{settings.mode === 'channel' ? 'Channel (Yellow)' : 'Direct'}</dd>
 		</dl>
-	{/snippet}
+		</section>
 
-	{#snippet Protocol()}
+		<section data-card data-column="gap-3">
 		<dl class="summary">
 			<dt>Token</dt>
 			<dd>{settings.tokenSymbol} (<TruncatedValue value={settings.tokenAddress} />)</dd>
@@ -434,9 +446,9 @@
 		{#if settings.mode === 'channel' && !yellowState.clearnodeConnection}
 			<p data-muted>Connect a Yellow clearnode to send.</p>
 		{/if}
-	{/snippet}
+		</section>
 
-	{#snippet Preview()}
+		<section data-card data-column="gap-3">
 		<div data-row="gap-2 align-center wrap">
 			<LoadingButton type="submit" name="intent" value="save">
 				Save Draft
@@ -464,5 +476,6 @@
 				},
 			]}
 		/>
-	{/snippet}
-</SessionAction>
+		</section>
+	</div>
+</form>

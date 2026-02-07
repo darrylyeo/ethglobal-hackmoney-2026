@@ -89,7 +89,6 @@
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import CoinInput from '$/views/CoinInput.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
-	import SessionAction from '$/views/SessionAction.svelte'
 	import SimulationEventPanel from '$/views/SimulationEventPanel.svelte'
 	import SimulationTracePanel from '$/views/SimulationTracePanel.svelte'
 	import SwapExecution from './SwapExecution.svelte'
@@ -100,13 +99,15 @@
 		selectedWallets,
 		selectedActor,
 		balanceTokens = $bindable([]),
+		params = $bindable(),
 	}: {
 		selectedWallets: ConnectedWallet[]
 		selectedActor: `0x${string}` | null
 		balanceTokens?: {
 			chainId: number,
 			tokenAddress: `0x${string}`,
-		}[],
+		}[]
+		params?: Record<string, unknown>,
 	} = $props()
 
 	const asNonEmpty = (coins: Coin[]): coins is [Coin, ...Coin[]] =>
@@ -743,12 +744,23 @@
 </script>
 
 
-<SessionAction
-	title="Swap"
-	description={sessionLocked ? 'Last saved session is locked.' : undefined}
+<form
+	data-session-action
+	data-card
+	data-column="gap-3"
 	onsubmit={onSubmit}
 >
-	{#snippet Params()}
+	<header data-row="gap-2 align-center justify-between">
+		<div data-column="gap-1">
+			<h2>Swap</h2>
+			{#if sessionLocked}
+				<p data-muted>Last saved session is locked.</p>
+			{/if}
+		</div>
+	</header>
+
+	<div data-grid="columns-autofit column-min-16 gap-6">
+		<section data-card data-column="gap-3">
 		<div data-row="gap-2 align-center justify-between">
 			<NetworkInput
 				networks={filteredNetworks}
@@ -854,9 +866,9 @@
 		{:else}
 			<p data-muted>No tokens available for this network.</p>
 		{/if}
-	{/snippet}
+		</section>
 
-	{#snippet Protocol()}
+		<section data-card data-column="gap-3">
 		<div data-card data-column="gap-2">
 			<div data-row="gap-2 align-center justify-between">
 				<h3>Protocol</h3>
@@ -891,9 +903,9 @@
 				</Popover.Content>
 			</Popover.Root>
 		</div>
-	{/snippet}
+		</section>
 
-	{#snippet Preview()}
+		<section data-card data-column="gap-3">
 		{#if quote && tokenInSelection && tokenOutSelection}
 			<dl class="summary">
 				<dt>You send</dt>
@@ -1032,8 +1044,9 @@
 				Sign and Submit
 			</LoadingButton>
 		</div>
-	{/snippet}
-</SessionAction>
+		</section>
+	</div>
+</form>
 
 {#if simulationResult?.trace?.length || simulationResult?.events?.length}
 	<section data-column="gap-3" data-simulation-panels>

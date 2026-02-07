@@ -2,77 +2,31 @@
 
 
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
-	import { ercTokens } from '$/constants/coins.ts'
+	import type { TransactionSession } from '$/data/TransactionSession.ts'
+	import { createSessionAction } from '$/data/TransactionSession.ts'
+	import { ActionType } from '$/constants/intents.ts'
+	import {
+		createSessionId,
+		createTransactionSessionWithId,
+		getTransactionSession,
+	} from '$/lib/session/sessions.ts'
 
 
 	// State
-	import { fetchAllBalancesForAddress } from '$/collections/actor-coins.ts'
-	import { bridgeSettingsState } from '$/state/bridge-settings.svelte'
-
-	let connectedWallets = $state<ConnectedWallet[]>([])
-	let selectedActor = $state<`0x${string}` | null>(null)
-	let balanceTokens = $state<
-		{ chainId: number; tokenAddress: `0x${string}` }[]
-	>([])
-
-	const balanceTokensToFetch = $derived(
+	let session = $state<TransactionSession>(
 		(() => {
-			const resolved =
-				balanceTokens.length > 0
-					? balanceTokens.flatMap((t) => {
-							const e = ercTokens.find(
-								(e) =>
-									e.chainId === t.chainId &&
-									e.address.toLowerCase() ===
-										t.tokenAddress.toLowerCase(),
-							)
-							return e ? [e] : []
-						})
-					: ercTokens
-			return resolved.length > 0 ? resolved : ercTokens
+			const id = createSessionId()
+			createTransactionSessionWithId(id, {
+				actions: [createSessionAction(ActionType.Bridge)],
+			})
+			return getTransactionSession(id)!
 		})(),
 	)
-	$effect(() => {
-		if (!selectedActor || balanceTokensToFetch.length === 0) return
-		void fetchAllBalancesForAddress(
-			selectedActor,
-			undefined,
-			balanceTokensToFetch,
-		)
-	})
-
-	const globalIsTestnet = $derived(bridgeSettingsState.current.isTestnet)
 
 
 	// Components
-	import CoinBalances from '$/views/CoinBalances.svelte'
-	import Session from '$/views/Session.svelte'
-	import AccountsSelect from '$/views/AccountsSelect.svelte'
-	import BridgeAction from '$/routes/session/BridgeAction.svelte'
+	import Session from '$/routes/session/Session.svelte'
 </script>
 
 
-<Session title="USDC Bridge">
-	{#snippet Context()}
-		<details open data-card>
-			<summary>
-				<header data-card data-row="wrap gap-2">
-					<AccountsSelect bind:connectedWallets bind:selectedActor />
-				</header>
-			</summary>
-			<div data-column="gap-3">
-				<CoinBalances {selectedActor} {balanceTokens} />
-			</div>
-		</details>
-	{/snippet}
-
-	{#snippet Actions()}
-		<BridgeAction
-			selectedWallets={connectedWallets}
-			{selectedActor}
-			{globalIsTestnet}
-			bind:balanceTokens
-		/>
-	{/snippet}
-</Session>
+<Session bind:session />

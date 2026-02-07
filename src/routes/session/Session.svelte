@@ -43,6 +43,8 @@
 		selectedActor: null,
 		selectedChainId: null,
 		isTestnet: false,
+		session: null,
+		sessionId: null,
 	})
 	setContext(SESSION_CONTEXT_KEY, sessionCtx)
 
@@ -53,6 +55,8 @@
 		sessionCtx.selectedActor = selectedActor
 		sessionCtx.selectedChainId = selectedChainId
 		sessionCtx.isTestnet = bridgeSettingsState.current.isTestnet
+		sessionCtx.session = session
+		sessionCtx.sessionId = session.id
 	})
 
 	const balanceTokensToFetch = $derived(
@@ -92,7 +96,17 @@
 	})
 
 
+	// Actions
+	const setTestnet = (checked: boolean) => {
+		bridgeSettingsState.current = {
+			...bridgeSettingsState.current,
+			isTestnet: checked,
+		}
+	}
+
+
 	// Components
+	import { Switch } from 'bits-ui'
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
 	import ActionsSequence from './ActionsSequence.svelte'
@@ -109,6 +123,15 @@
 				aria-label="Session name"
 				data-row-item="flexible"
 			/>
+			<label data-row="gap-2 align-center">
+				<Switch.Root
+					checked={bridgeSettingsState.current.isTestnet}
+					onCheckedChange={(c) => setTestnet(c ?? false)}
+				>
+					<Switch.Thumb />
+				</Switch.Root>
+				Testnet
+			</label>
 		</header>
 
 		<details
