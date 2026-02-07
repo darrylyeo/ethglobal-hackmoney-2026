@@ -48,7 +48,7 @@
 			panelId: string,
 			route: DashboardPanelRoute,
 			hash: string | null,
-		) => void
+		) => void,
 	} = $props()
 
 
