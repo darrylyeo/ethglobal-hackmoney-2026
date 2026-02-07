@@ -361,9 +361,7 @@ displayed inline with appropriate messaging based on `ErrorCode`.
 
 ## Status
 
-Complete. `src/lib/bridge/errors.ts` with ErrorCode enum and categorizeError function.
-Errors stored in `bridgeRoutesCollection` and displayed inline in BridgeFlow.svelte.
-Retry via refresh button. `withRetry` utility in `retry.ts` for exponential backoff.
+Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomplete specs; re-verify 013): all 19 AC confirmed—errors.ts ErrorCode + 16 ERROR_PATTERNS, categorizeError/isRetryable/getRetryDelay; user rejection/insufficient funds/no routes/network/rate limit/quote expired/slippage/unknown; BridgeFlow.svelte routesRow?.error, NoRoutes message, generic message, Retry (onRefresh), Dismiss; retry.ts withRetry maxAttempts 3, exponential backoff, onError; bridge-routes fetchBridgeRoutes sets draft.error; errors.spec.ts + retry.spec.ts. test:unit 44 Deno + 159 Vitest passed. Previous: `src/lib/bridge/errors.ts` with ErrorCode enum and categorizeError function. Errors stored in `bridgeRoutesCollection` and displayed inline in BridgeFlow.svelte. Retry via refresh button. `withRetry` utility in `retry.ts` for exponential backoff.
 
 ## Output when complete
 
