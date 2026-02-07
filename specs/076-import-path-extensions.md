@@ -16,12 +16,12 @@ Mandate file extensions on import paths and consistent asset import style. Appli
 
 ## Acceptance criteria
 
-- [ ] Every `$/` import includes the correct extension (`.ts`, `.svelte`, or asset with `.svg` / `?url`).
-- [ ] Relative imports use explicit extensions where applicable.
-- [ ] Constants/TS modules that reference assets use inline `(await import('$/assets/...')).default`.
-- [ ] Components that reference assets use top-level `import x from '$/assets/...'`.
-- [ ] No path builder helpers or remote asset URLs for bundled icons/assets.
+- [x] Every `$/` import includes the correct extension (`.ts`, `.svelte`, or asset with `.svg` / `?url`).
+- [x] Relative imports use explicit extensions where applicable.
+- [x] Constants/TS modules that reference assets use inline `(await import('$/assets/...')).default`.
+- [x] Components that reference assets use top-level `import x from '$/assets/...'`.
+- [x] No path builder helpers or remote asset URLs for bundled icons/assets.
 
 ## Status
 
-Spec created from `.cursor/rules/import-extensions.mdc`. Cursor rule references this spec.
+Complete. Audited: all `$/` imports in `**/*.{ts,svelte}` use `.ts`, `.svelte`, or `.svg`/`?url`; relative imports use explicit extensions; `src/constants/networks.ts` and `src/routes/about/architecture-graph.ts` use inline `(await import('$/assets/...')).default`; Svelte components (e.g. `+layout.svelte`) use top-level asset imports; no path builder helpers or remote asset URLs. tsconfig has `allowImportingTsExtensions: true`. test:unit passed.
