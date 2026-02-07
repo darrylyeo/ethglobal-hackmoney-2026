@@ -157,9 +157,9 @@ test.describe('Yellow state channel lifecycle (Spec 032)', () => {
 		})
 
 		// Navigate to channels page
-		await page.goto('/channels/yellow')
+		await page.goto('/positions/channels')
 		await expect(
-			page.getByRole('heading', { name: 'Yellow Channels', level: 1 }),
+			page.getByRole('heading', { name: 'Channels', level: 1 }),
 		).toBeVisible({ timeout: 60_000 })
 
 		// Verify disconnected state
@@ -224,9 +224,9 @@ test.describe('Yellow state channel lifecycle (Spec 032)', () => {
 			clearnodeWsUrl: mockClearnode.wsUrl,
 		})
 
-		await page.goto('/channels/yellow')
+		await page.goto('/positions/channels')
 		await expect(
-			page.getByRole('heading', { name: 'Yellow Channels', level: 1 }),
+			page.getByRole('heading', { name: 'Channels', level: 1 }),
 		).toBeVisible({ timeout: 60_000 })
 
 		// Button should be disabled without wallet
@@ -249,9 +249,9 @@ test.describe('Yellow state channel lifecycle (Spec 032)', () => {
 			clearnodeWsUrl: mockClearnode.wsUrl,
 		})
 
-		await page.goto('/channels/yellow')
+		await page.goto('/positions/channels')
 		await expect(
-			page.getByRole('heading', { name: 'Yellow Channels', level: 1 }),
+			page.getByRole('heading', { name: 'Channels', level: 1 }),
 		).toBeVisible({ timeout: 60_000 })
 
 		// Connect via evaluate

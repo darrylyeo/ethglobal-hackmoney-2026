@@ -15,6 +15,8 @@
 	import { verificationsCollection } from '$/collections/verifications.ts'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
 	import { walletsCollection } from '$/collections/wallets.ts'
+	import { uniswapPositionsCollection } from '$/collections/uniswap-positions.ts'
+	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte'
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 
@@ -95,6 +97,12 @@
 				.select(({ row }) => ({ row })),
 		[],
 	)
+	const uniswapPositionsQuery = useLiveQuery((q) =>
+		q.from({ row: uniswapPositionsCollection }).select(({ row }) => ({ row })),
+	)
+	const yellowChannelsQuery = useLiveQuery((q) =>
+		q.from({ row: yellowChannelsCollection }).select(({ row }) => ({ row })),
+	)
 	const liveQueryEntries = [
 		{
 			id: 'account-transactions',
@@ -118,6 +126,16 @@
 			id: 'account-verifications',
 			label: 'Verifications',
 			query: verificationsQuery,
+		},
+		{
+			id: 'account-uniswap-positions',
+			label: 'Uniswap Positions',
+			query: uniswapPositionsQuery,
+		},
+		{
+			id: 'account-yellow-channels',
+			label: 'Yellow Channels',
+			query: yellowChannelsQuery,
 		},
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
@@ -178,9 +196,37 @@
 				normalizedAddress != null &&
 				v.address.toLowerCase() === normalizedAddress.toLowerCase(),
 		)?.status ?? null
+	const accountLiquidityPositions = $derived(
+		normalizedAddress
+			? (uniswapPositionsQuery.data ?? [])
+					.map((r) => r.row)
+					.filter(
+						(row) =>
+							row.owner.toLowerCase() === normalizedAddress.toLowerCase(),
+					)
+					.sort((a, b) =>
+						a.chainId !== b.chainId
+							? a.chainId - b.chainId
+							: a.id.localeCompare(b.id),
+					)
+			: [],
+	)
+	const accountChannels = $derived(
+		normalizedAddress
+			? (yellowChannelsQuery.data ?? [])
+					.map((r) => r.row)
+					.filter(
+						(row) =>
+							row.participant0.toLowerCase() === normalizedAddress.toLowerCase() ||
+							row.participant1.toLowerCase() === normalizedAddress.toLowerCase(),
+					)
+					.sort((a, b) => b.updatedAt - a.updatedAt)
+			: [],
+	)
 
 
 	// Components
+	import Address from '$/components/Address.svelte'
 	import EvmActor from '$/components/EvmActor.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
 </script>
@@ -345,6 +391,54 @@
 				</ul>
 			</section>
 		{/if}
+		{#if accountLiquidityPositions.length > 0}
+			<section data-column="gap-2" class="account-section">
+				<h2>Liquidity positions</h2>
+				<ul data-column="gap-2" data-list="unstyled" class="positions-list">
+					{#each accountLiquidityPositions as pos (pos.id)}
+						{@const net = networksByChainId[pos.chainId]}
+						<li
+							data-card="padding-2 radius-4"
+							data-row="gap-3 align-center wrap"
+						>
+							<span class="position-id" title={pos.id}>{pos.id.slice(0, 10)}…</span>
+							<span>{net?.name ?? pos.chainId}</span>
+							<a href="/positions/liquidity">View all</a>
+							<a href="/session#/AddLiquidity">Manage</a>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+		{#if accountChannels.length > 0}
+			<section data-column="gap-2" class="account-section">
+				<h2>Channels</h2>
+				<ul data-column="gap-2" data-list="unstyled" class="channels-list">
+					{#each accountChannels as ch (ch.id)}
+						{@const counterparty =
+							ch.participant0.toLowerCase() === normalizedAddress?.toLowerCase()
+								? ch.participant1
+								: ch.participant0}
+						<li
+							data-card="padding-2 radius-4"
+							data-row="gap-3 align-center wrap"
+							data-status={ch.status}
+						>
+							<span class="channel-id" title={ch.id}>{ch.id.slice(0, 10)}…</span>
+							<Address network={ch.chainId} address={counterparty} />
+							<span>{formatSmallestToDecimal(
+								ch.participant0.toLowerCase() === normalizedAddress?.toLowerCase()
+									? ch.balance0
+									: ch.balance1,
+								6,
+							)} USDC</span>
+							<span data-status>{ch.status}</span>
+							<a href="/positions/channels">View all</a>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
 		<section data-scroll-item>
 			<LocalGraphScene />
 		</section>
@@ -411,5 +505,17 @@
 	.connection-badge {
 		font-size: 0.75em;
 		opacity: 0.9;
+	}
+
+	.positions-list,
+	.channels-list {
+		margin: 0;
+		padding: 0;
+	}
+
+	.position-id,
+	.channel-id {
+		font-family: ui-monospace, monospace;
+		font-size: 0.9em;
 	}
 </style>

@@ -65,27 +65,27 @@
 	)
 	const liveQueryEntries = [
 		{
-			id: 'yellow-channels',
+			id: 'positions-channels-list',
 			label: 'Yellow Channels',
 			query: channelsQuery,
 		},
 		{
-			id: 'yellow-channel-states',
+			id: 'positions-channel-states',
 			label: 'Channel States',
 			query: statesQuery,
 		},
 		{
-			id: 'yellow-rooms',
+			id: 'positions-channels-rooms',
 			label: 'Rooms',
 			query: roomsQuery,
 		},
 		{
-			id: 'yellow-connections',
+			id: 'positions-channels-connections',
 			label: 'Wallet Connections',
 			query: connectionsQuery,
 		},
 		{
-			id: 'yellow-wallets',
+			id: 'positions-channels-wallets',
 			label: 'Wallets',
 			query: walletsQuery,
 		},
@@ -93,6 +93,12 @@
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const connections = $derived((connectionsQuery.data ?? []).map((r) => r.row))
 	const wallets = $derived((walletsQuery.data ?? []).map((r) => r.row))
+	const connectedConnections = $derived(
+		connections.filter((c) => c.status === 'connected'),
+	)
+	const allActorsLower = $derived(
+		new Set(connectedConnections.flatMap((c) => c.actors.map((a) => a.toLowerCase()))),
+	)
 	const selectedConnection = $derived(
 		connections.find((c) => c.selected) ?? null,
 	)
@@ -115,6 +121,13 @@
 		?? null
 	)
 	const allChannels = $derived((channelsQuery.data ?? []).map((r) => r.row))
+	const channelsForConnectedAccounts = $derived(
+		allChannels.filter(
+			(ch) =>
+				allActorsLower.has(ch.participant0.toLowerCase()) ||
+				allActorsLower.has(ch.participant1.toLowerCase()),
+		),
+	)
 	const channelStatesByChannelId = $derived(
 		(statesQuery.data ?? []).reduce<Record<string, YellowChannelStateRow>>(
 			(acc, { row }) => {
@@ -158,7 +171,7 @@
 		(statusFilter === 'final' && status === 'closed') ||
 		(statusFilter === 'initial' && status === 'pending')
 	const filteredChannels = $derived(
-		allChannels.filter((ch) => {
+		channelsForConnectedAccounts.filter((ch) => {
 			if (!statusMatches(ch.status)) return false
 			if (originFilter === 'room' && !ch.roomId) return false
 			if (originFilter === 'external' && ch.roomId) return false
@@ -171,12 +184,12 @@
 			return true
 		}),
 	)
-	const totalChannels = $derived(allChannels.length)
+	const totalChannels = $derived(channelsForConnectedAccounts.length)
 	const activeChannels = $derived(
-		allChannels.filter((ch) => ch.status === 'active').length,
+		channelsForConnectedAccounts.filter((ch) => ch.status === 'active').length,
 	)
 	const roomChannelsCount = $derived(
-		allChannels.filter((ch) => ch.roomId != null).length,
+		channelsForConnectedAccounts.filter((ch) => ch.roomId != null).length,
 	)
 
 
@@ -212,7 +225,7 @@
 	const isConnected = $derived(yellowState.clearnodeConnection !== null)
 
 	// Expose for e2e testing
-	if (typeof globalThis.window !== 'undefined' && (globalThis.window as Record<string, unknown>).__E2E_TEVM__) {
+	if (typeof globalThis.window !== 'undefined' && (globalThis.window as unknown as Record<string, unknown>).__E2E_TEVM__) {
 		Object.assign(globalThis.window, {
 			__yellowConnectToYellow__: connectToYellow,
 			__yellowDisconnectFromYellow__: disconnectFromYellow,
@@ -336,12 +349,13 @@
 
 
 <svelte:head>
-	<title>Yellow Channels</title>
+	<title>Channels</title>
 </svelte:head>
 
 
 <main id="main" data-column data-sticky-container>
-		<h1>Yellow Channels</h1>
+	<h1>Channels</h1>
+	<p data-muted>Yellow payment channels for all connected accounts.</p>
 
 		<section class="connection" data-row="gap-4" data-yellow-connection>
 			{#if isConnected}
