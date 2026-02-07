@@ -1,44 +1,49 @@
 import type { EntityRef } from '$/data/EntityRef.ts'
 import { EntityType } from '$/data/$EntityType.ts'
-import { PatternType, patterns } from '$/constants/patterns.ts'
+import { PatternType, patternByPatternType } from '$/constants/patterns.ts'
 
 export type EntityRefTriggerConfig = Record<
 	string,
 	{ pattern: RegExp, buildRef: (value: string) => EntityRef }
 >
 
+export const entityRefPatternTypes: readonly PatternType[] = [
+	PatternType.EvmTransactionHash,
+	PatternType.EvmAddress,
+	PatternType.EntityId,
+	PatternType.EvmBlockNumber,
+]
+
+const entityRefPatternTypeToEntityType = {
+	[PatternType.EvmAddress]: EntityType.Actor,
+	[PatternType.EvmBlockNumber]: EntityType.Block,
+	[PatternType.EvmTransactionHash]: EntityType.Transaction,
+	[PatternType.EntityId]: EntityType.AgentChatTurn,
+} as const satisfies Record<PatternType, EntityType>
+
+const entityRefConfigs = entityRefPatternTypes
+	.map((t) => patternByPatternType[t])
+	.sort((a, b) => (b.matchComplexity - a.matchComplexity))
+
+const entityPatternSource = `(?:${entityRefConfigs
+	.map((p) => `(?<${p.type}>${p.pattern.source})`)
+	.join('|')})`
+
+const entityValuePattern = new RegExp('^(?:' + entityPatternSource + ')$')
+
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-const patternToEntityType = (type: PatternType): EntityType => (
-	type === PatternType.EvmAddress
-		? EntityType.Actor
-		: type === PatternType.EvmBlockNumber
-			? EntityType.Block
-			: type === PatternType.EvmTransactionHash
-				? EntityType.Transaction
-				: EntityType.AgentChatTurn
-)
-
-const entityPatternSource = (() => {
-	const parts = [...patterns]
-		.sort((a, b) => (b.matchComplexity - a.matchComplexity))
-		.map((p) => `(?<${p.type}>${p.pattern.source})`)
-	return `(?:${parts.join('|')})`
-})()
-
 function buildEntityRefFromGroups(trigger: string, groups: Record<string, string>): EntityRef {
-	const matched = patterns.find((p) => groups[p.type])
+	const matched = entityRefConfigs.find((p) => groups[p.type])
 	if (!matched) throw new Error('No matching group')
 	const value = groups[matched.type]
 	return {
-		entityType: patternToEntityType(matched.type),
+		entityType: entityRefPatternTypeToEntityType[matched.type],
 		entityId: value,
 		displayLabel: `${trigger}${value}`,
 		trigger,
 	}
 }
-
-const entityValuePattern = new RegExp('^(?:' + entityPatternSource + ')$')
 
 export function buildDefaultEntityTriggerConfig(): EntityRefTriggerConfig {
 	return {
@@ -46,12 +51,13 @@ export function buildDefaultEntityTriggerConfig(): EntityRefTriggerConfig {
 			pattern: new RegExp(entityPatternSource),
 			buildRef: (value: string) => {
 				const m = value.match(entityValuePattern)
-				if (!m?.groups) return {
-					entityType: EntityType.AgentChatTurn,
-					entityId: value,
-					displayLabel: `@${value}`,
-					trigger: '@',
-				}
+				if (!m?.groups)
+					return {
+						entityType: EntityType.AgentChatTurn,
+						entityId: value,
+						displayLabel: `@${value}`,
+						trigger: '@',
+					}
 				return buildEntityRefFromGroups('@', m.groups as Record<string, string>)
 			},
 		},
@@ -62,8 +68,7 @@ export function parseValueToSegmentsAndRefs(
 	value: string,
 	triggerConfig: EntityRefTriggerConfig,
 ): { segments: string[], refs: EntityRef[] } {
-	type Match = { index: number, trigger: string, fullMatch: string, value: string }
-	const allMatches: Match[] = []
+	const allMatches: { index: number, trigger: string, fullMatch: string, value: string }[] = []
 	for (const trigger of Object.keys(triggerConfig)) {
 		const { pattern } = triggerConfig[trigger]
 		const re = new RegExp(escapeRegex(trigger) + '(' + pattern.source + ')', 'g')
@@ -98,11 +103,12 @@ export function getValueFromSegmentsAndRefs(
 	refs: EntityRef[],
 ): string {
 	if (segments.length !== refs.length + 1) return segments.join('')
-	return segments
-		.reduce(
-			(acc, seg, i) => (
-				i < refs.length ? acc + seg + refs[i].displayLabel : acc + seg
-			),
-			'',
-		)
+	return segments.reduce(
+		(acc, seg, i) => (
+			i < refs.length
+				? acc + seg + refs[i].displayLabel
+				: acc + seg
+		),
+		'',
+	)
 }

@@ -1,9 +1,14 @@
 /**
- * SIWE (EIP-4361): message construction, signing via EIP-1193, verification via viem.
+ * SIWE (EIP-4361): message construction via @tevm/voltaire/Siwe, signing via EIP-1193, verification via @tevm/voltaire/Siwe.
  */
 
-import { dev } from '$env/dynamic/public'
-import { recoverMessageAddress } from 'viem'
+import { Address } from '@tevm/voltaire/Address'
+import { Hex } from '@tevm/voltaire/Hex'
+import * as Siwe from '@tevm/voltaire/Siwe'
+import { dev } from '$app/environment'
+import type { EIP1193Provider } from '$/lib/wallet.ts'
+
+export type { EIP1193Provider }
 
 export type SiweMessageParams = {
 	domain: string
@@ -17,28 +22,20 @@ export type SiweMessageParams = {
 	resources?: string[]
 }
 
-export const createSiweMessage = (params: SiweMessageParams): string => {
-	const lines = [
-		`${params.domain} wants you to sign in with your Ethereum account:`,
-		params.address,
-		'',
-		params.statement,
-		'',
-		`URI: ${params.uri}`,
-		`Version: 1`,
-		`Chain ID: ${params.chainId}`,
-		`Nonce: ${params.nonce}`,
-		`Issued At: ${params.issuedAt}`,
-	]
-	if (params.expirationTime) {
-		lines.push(`Expiration Time: ${params.expirationTime}`)
-	}
-	if (params.resources?.length) {
-		lines.push('Resources:')
-		params.resources.forEach((r) => lines.push(`- ${r}`))
-	}
-	return lines.join('\n')
-}
+export const createSiweMessage = (params: SiweMessageParams): string =>
+	Siwe.format(
+		Siwe.create({
+			domain: params.domain,
+			address: Address.fromHex(params.address),
+			uri: params.uri,
+			chainId: params.chainId,
+			statement: params.statement,
+			nonce: params.nonce,
+			issuedAt: params.issuedAt,
+			expirationTime: params.expirationTime,
+			resources: params.resources,
+		}),
+	)
 
 const SIWE_DEBUG = typeof window !== 'undefined' && dev
 
@@ -47,25 +44,28 @@ export const verifySiweSignature = async (params: {
 	signature: `0x${string}`
 	expectedAddress: `0x${string}`
 }): Promise<boolean> => {
-	const recovered = await recoverMessageAddress({
-		message: params.message,
-		signature: params.signature,
-	})
-	const ok = recovered.toLowerCase() === params.expectedAddress.toLowerCase()
+	const parsed = Siwe.parse(params.message)
+	const expected = params.expectedAddress.toLowerCase()
+	const messageAddress = Address.toHex(parsed.address).toLowerCase()
+	if (messageAddress !== expected) {
+		if (SIWE_DEBUG)
+			console.debug('[SIWE] verify address mismatch', {
+				expected: params.expectedAddress,
+				messageAddress,
+			})
+		return false
+	}
+	const sigBytes = Hex.from(params.signature).toBytes()
+	const result = Siwe.verifyMessage(parsed, sigBytes)
 	if (SIWE_DEBUG) {
 		console.debug('[SIWE] verify', {
 			expected: params.expectedAddress,
-			recovered,
-			ok,
+			ok: result.valid,
 			messagePreview:
 				params.message.slice(0, 80) + (params.message.length > 80 ? '…' : ''),
 		})
 	}
-	return ok
-}
-
-export type EIP1193Provider = {
-	request: (args: { method: string, params?: unknown[] }) => Promise<unknown>
+	return result.valid
 }
 
 export const signSiweMessage = async (params: {

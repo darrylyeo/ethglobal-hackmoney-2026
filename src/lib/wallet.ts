@@ -1,11 +1,5 @@
-import { dev } from '$env/dynamic/public'
-import { createWalletClient, custom } from 'viem'
-import type { Chain, WalletClient } from 'viem'
-import type { Network } from '$/constants/networks.ts'
-import {
-	networkConfigsByChainId,
-	networksByChainId,
-} from '$/constants/networks.ts'
+import { dev } from '$app/environment'
+import { networkConfigsByChainId } from '$/constants/networks.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import { E2E_TEVM_RPC_URL } from '$/tests/tevm.ts'
 import {
@@ -142,9 +136,7 @@ export const addChainToWallet = async (
 					decimals: 18,
 				},
 				rpcUrls: [rpcUrl],
-				blockExplorerUrls: config.explorerUrl
-					? [config.explorerUrl]
-					: undefined,
+				blockExplorerUrls: config.explorerUrls,
 			},
 		],
 	})
@@ -152,33 +144,6 @@ export const addChainToWallet = async (
 
 const PROVIDER_ANNOUNCE = 'eip6963:announceProvider'
 const PROVIDER_REQUEST = 'eip6963:requestProvider'
-
-const MINIMAL_CHAINS = new Map(
-	(
-		Object.entries(networksByChainId) as unknown as [string, Network | undefined][]
-	).filter((entry): entry is [string, Network] => entry[1] != null).map(([idStr, n]) => [
-		Number(idStr),
-		{
-			id: n.id,
-			name: n.name,
-			nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-			rpcUrls: { default: { http: [] } },
-		} as Chain,
-	]),
-)
-
-function chainFor(chainId: number): Chain {
-	const c = MINIMAL_CHAINS.get(chainId)
-	return (
-		c ??
-		({
-			id: chainId,
-			name: `Chain ${chainId}`,
-			nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-			rpcUrls: { default: { http: [] } },
-		} as Chain)
-	)
-}
 
 // EIP-6963: single listener for page lifetime; DApp MUST NOT remove it (spec). Key by rdns (stable across sessions).
 const eip6963ByRdns = new Map<string, ProviderDetailType>()
@@ -375,16 +340,6 @@ export async function connectProvider(
 	const addr = accounts[0]
 	if (!addr || !addr.startsWith('0x')) throw new Error('No account returned')
 	return addr as `0x${string}`
-}
-
-export function createWalletClientForChain(
-	provider: EIP1193Provider,
-	chainId: number,
-): WalletClient {
-	return createWalletClient({
-		chain: chainFor(chainId),
-		transport: custom(provider),
-	})
 }
 
 export const switchWalletChain = async (
