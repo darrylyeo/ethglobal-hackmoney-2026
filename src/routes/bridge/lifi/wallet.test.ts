@@ -7,7 +7,7 @@ test.describe('WalletProvider', () => {
 			timeout: 30_000,
 		})
 		await expect(
-			page.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
+			page.getByRole('heading', { level: 1, name: 'USDC Bridge', }),
 		).toBeVisible({
 			timeout: 45_000,
 		})
@@ -28,10 +28,9 @@ test.describe('WalletProvider', () => {
 									rdns: 'com.mock',
 								},
 								provider: {
-									request: async ({ method }: { method: string }) => {
-										if (method === 'eth_requestAccounts') return [MOCK]
-										return null
-									},
+									request: async ({ method }: { method: string }) => (
+										method === 'eth_requestAccounts' ? [MOCK] : null
+									),
 								},
 							},
 						}),
@@ -45,7 +44,7 @@ test.describe('WalletProvider', () => {
 			await page.locator('[data-wallet-connect-trigger]').click()
 			await page
 				.locator('[data-wallet-provider-option]')
-				.waitFor({ timeout: 10_000 })
+				.waitFor({ timeout: 10_000, })
 			await page.locator('[data-wallet-provider-option]').click()
 			await expect(page.locator('[data-wallet-address]')).toContainText(
 				'0x1234',
