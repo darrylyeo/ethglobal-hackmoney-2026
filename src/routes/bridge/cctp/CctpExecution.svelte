@@ -40,22 +40,22 @@
 		executing = $bindable(false),
 		onStatus,
 	}: {
-		walletProvider: EIP1193Provider | null
-		senderAddress: `0x${string}` | null
-		fromChainId: number | null
-		toChainId: number | null
-		amount: bigint
-		mintRecipient: `0x${string}`
-		minFinalityThreshold: number
-		feeBps: number
-		isTestnet: boolean
-		runAt?: number
-		executing?: boolean
+		walletProvider: EIP1193Provider | null,
+		senderAddress: `0x${string}` | null,
+		fromChainId: number | null,
+		toChainId: number | null,
+		amount: bigint,
+		mintRecipient: `0x${string}`,
+		minFinalityThreshold: number,
+		feeBps: number,
+		isTestnet: boolean,
+		runAt?: number,
+		executing?: boolean,
 		onStatus?: (
 			step: 'burn' | 'attestation' | 'mint',
 			status: 'pending' | 'done' | 'error',
 			detail?: string,
-		) => void
+		) => void,
 	} = $props()
 
 
@@ -90,6 +90,8 @@
 			: 'https://iris-api.circle.com',
 	)
 
+
+	// Functions
 	async function pollAttestation(): Promise<{
 		message: string
 		attestation: string
@@ -106,6 +108,8 @@
 		throw new Error('Attestation timeout')
 	}
 
+
+	// Actions
 	async function execute() {
 		if (
 			!walletProvider ||
@@ -232,10 +236,16 @@
 		>
 			Burn on source chain {burnTxHash ? `(${burnTxHash.slice(0, 10)}…)` : ''}
 		</li>
-		<li class="cctp-status-step" data-done={attestationPayload !== null}>
+		<li
+			class="cctp-status-step"
+			data-done={attestationPayload !== null}
+		>
 			Attestation {attestationPayload ? 'ready' : 'pending…'}
 		</li>
-		<li class="cctp-status-step" data-done={mintTxHash !== null}>
+		<li
+			class="cctp-status-step"
+			data-done={mintTxHash !== null}
+		>
 			Mint on destination chain {mintTxHash
 				? `(${mintTxHash.slice(0, 10)}…)`
 				: ''}
