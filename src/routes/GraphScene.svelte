@@ -98,7 +98,6 @@
 
 	// State
 	let hoveredNode: string | undefined = $state(undefined)
-	let expanded = $state(true)
 	const inGraphTypeSet = new Set(graphSceneEntityTypes)
 	const visibleCollections = $derived(
 		new Set(
@@ -2758,7 +2757,6 @@
 	<details
 		class="graph-scene"
 		data-card="padding-0 radius-6"
-		bind:open={expanded}
 	>
 		<summary class="graph-scene-header" data-row="gap-2 align-center">
 			<h4 data-row-item="flexible">Data Graph</h4>

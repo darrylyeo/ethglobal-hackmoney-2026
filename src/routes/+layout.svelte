@@ -41,15 +41,16 @@
 		roomIdToPlaceEmoji,
 	} from '$/lib/rooms/room.ts'
 	import { buildSessionHash } from '$/lib/session/sessions.ts'
+	import type { SessionAction } from '$/data/TransactionSession.ts'
 	import { interopFormatConfig, toInteropName } from '$/constants/interop.ts'
 
 	const actionLabel = (action: string) =>
 		action.length > 0
 			? `${action[0].toUpperCase()}${action.slice(1)}`
 			: 'Session'
-	const sessionTitle = (session: { id: string; actions: string[] }) =>
-		`${actionLabel(session.actions[0] ?? '')} ${session.id.slice(0, 6)}`
-	const sessionHref = (session: { id: string; actions: string[] }) =>
+	const sessionTitle = (session: { id: string; actions: SessionAction[] }) =>
+		`${actionLabel(session.actions[0]?.type ?? '')} ${session.id.slice(0, 6)}`
+	const sessionHref = (session: { id: string }) =>
 		`/session${buildSessionHash(session.id)}`
 
 
@@ -58,7 +59,6 @@
 
 
 	// State
-	let showGraph = $state(false)
 	const globalLiveQueryCtx = createLiveQueryContext()
 	const localLiveQueryCtx = createLiveQueryContext()
 	setGlobalLiveQueryContext(globalLiveQueryCtx)
@@ -514,8 +514,6 @@
 	<div
 		id="layout"
 		class="layout"
-		data-scroll-container
-		data-sticky-container
 	>
 		<a
 			href="#main"
@@ -524,50 +522,48 @@
 
 		<Navigation {navigationItems}></Navigation>
 
-		<main
-			id="main"
-			tabindex="-1"
+		<div
+			class="layout-main"
+			data-scroll-container
 			data-sticky-container
 		>
-			<section data-scroll-item>
-				<Boundary>
-					{@render children()}
+			<aside
+				class="layout-aside"
+				data-sticky="backdrop-none"
+			>
+				<GraphScene
+					visible={true}
+					queryStack={localLiveQueryCtx.stack}
+					globalQueryStack={globalLiveQueryCtx.stack}
+				/>
+			</aside>
 
-					{#snippet Failed(error, retry)}
-						<div data-column>
-							<h2>Error</h2>
-							<p>{error instanceof Error ? error.message : String(error)}</p>
-							<button
-								type="button"
-								onclick={retry}
-							>Retry</button>
-						</div>
-					{/snippet}
-				</Boundary>
-			</section>
-		</main>
+			<main
+				id="main"
+				tabindex="-1"
+			>
+				<section data-scroll-item>
+					<Boundary>
+						{@render children()}
+
+						{#snippet Failed(error, retry)}
+							<div data-column>
+								<h2>Error</h2>
+								<p>{error instanceof Error ? error.message : String(error)}</p>
+								<button
+									type="button"
+									onclick={retry}
+								>Retry</button>
+							</div>
+						{/snippet}
+					</Boundary>
+				</section>
+			</main>
+		</div>
 
 		<IntentDragPreview />
 
 		<ToastContainer position="bottom-right" />
-
-		<button
-			type="button"
-			class="graph-toggle"
-			data-row="center"
-			onclick={() => {
-				showGraph = !showGraph
-			}}
-			title={showGraph ? 'Hide data graph' : 'Show data graph'}
-		>
-			{showGraph ? '✕' : '◉'}
-		</button>
-
-		<GraphScene
-			visible={showGraph}
-			queryStack={localLiveQueryCtx.stack}
-			globalQueryStack={globalLiveQueryCtx.stack}
-		/>
 	</div>
 </Tooltip.Provider>
 
@@ -628,39 +624,115 @@
 				box-shadow: 0 0 0 var(--separator-width) var(--color-border);
 			}
 
-			> main {
+			> .layout-main {
 				grid-area: Main;
+				min-height: 0;
+			}
 
-				&[data-sticky-container] {
-					--scrollItem-inlineDetached-maxSize: 54rem;
-					--scrollItem-inlineDetached-paddingStart: 2rem;
-					--scrollItem-inlineDetached-maxPaddingMatchStart: 5rem;
-					--scrollItem-inlineDetached-paddingEnd: 2rem;
-					--scrollItem-inlineDetached-maxPaddingMatchEnd: 5rem;
+			> .layout-main[data-scroll-container] {
+				--sticky-paddingBlockStart: var(--safeArea-insetTop);
+				--sticky-paddingBlockEnd: var(--safeArea-insetBottom);
+				--sticky-paddingInlineStart: var(--safeArea-insetLeft);
+				--sticky-paddingInlineEnd: var(--safeArea-insetRight);
+			}
+
+			@media not (max-width: 1024px) {
+				> .layout-main[data-sticky-container] {
+					--sticky-marginInlineStart: var(--separator-width);
+					--sticky-paddingInlineStart: var(--navigation-desktop-inlineSize);
+				}
+			}
+
+			@media (max-width: 1024px) {
+				> .layout-main[data-sticky-container] {
+					--sticky-marginBlockStart: var(--separator-width);
+					--sticky-paddingBlockStart: var(--navigation-mobile-blockSize);
+				}
+			}
+
+			> .layout-main > main {
+				--scrollItem-inlineDetached-maxSize: 54rem;
+				--scrollItem-inlineDetached-paddingStart: 2rem;
+				--scrollItem-inlineDetached-maxPaddingMatchStart: 5rem;
+				--scrollItem-inlineDetached-paddingEnd: 2rem;
+				--scrollItem-inlineDetached-maxPaddingMatchEnd: 5rem;
+				--graph-scroll-blur-size: 48px;
+				position: relative;
+				isolation: isolate;
+
+				&::before,
+				&::after {
+					content: '';
+					position: absolute;
+					left: 0;
+					right: 0;
+					height: var(--graph-scroll-blur-size);
+					pointer-events: none;
+					mask-size: 100% 100%;
+					mask-repeat: no-repeat;
+				}
+
+				&::before {
+					top: calc(-1 * var(--graph-scroll-blur-size));
+					backdrop-filter: blur(calc(8px * (1 - var(--graph-scroll-progress, 0))));
+					-webkit-backdrop-filter: blur(calc(8px * (1 - var(--graph-scroll-progress, 0))));
+					mask-image: linear-gradient(
+						to bottom,
+						transparent 0%,
+						black 100%
+					);
+					mask-position: 0 0;
+				}
+
+				&::after {
+					bottom: calc(-1 * var(--graph-scroll-blur-size));
+					backdrop-filter: blur(calc(8px * var(--graph-scroll-progress, 0)));
+					-webkit-backdrop-filter: blur(calc(8px * var(--graph-scroll-progress, 0)));
+					mask-image: linear-gradient(
+						to top,
+						transparent 0%,
+						black 100%
+					);
+					mask-position: 0 100%;
 				}
 			}
 		}
 	}
 
-	.graph-toggle {
-		position: fixed;
-		bottom: 1rem;
-		right: 460px;
-		width: 2rem;
-		height: 2rem;
-		border-radius: 50%;
-		background: var(--color-bg-page);
-		border: 1px solid var(--color-border);
-		box-shadow: var(--shadow-md);
-		cursor: pointer;
-		font-size: 0.75rem;
-		z-index: 1;
-		transition: all 0.2s ease;
+	.layout-main {
+		--graph-scroll-progress: 0;
+		animation: graph-scroll-driver linear;
+		animation-timeline: scroll(self block);
+		animation-range: 0% 100%;
+	}
 
-		&:hover {
-			transform: scale(1.1);
-			box-shadow: var(--shadow-lg);
-			background: var(--color-bg-subtle);
+	@keyframes graph-scroll-driver {
+		from {
+			--graph-scroll-progress: 0;
 		}
+		to {
+			--graph-scroll-progress: 1;
+		}
+	}
+
+	.layout-aside {
+		block-size: var(--sticky-sizeBlock);
+		min-block-size: var(--sticky-sizeBlock);
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
+	}
+
+	:global(.layout-main > .layout-aside details.graph-scene) {
+		position: relative;
+		inset: auto;
+		left: auto;
+		right: auto;
+		bottom: auto;
+		flex: 1;
+		min-block-size: 0;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
 	}
 </style>

@@ -41,9 +41,13 @@ No JS; purely CSS so that scrolling main content over the sticky canvas creates 
 
 ## Acceptance criteria
 
-- [ ] Main grid area is a scroll container using `data-scroll-container` and `data-sticky-container`; its first child is an aside with `data-sticky`, then main.
-- [ ] Aside contains `<details>`; the graph (GraphScene) is inside the details content; no Svelte state or button controls open/closed.
-- [ ] Layout uses only layout/sticky primitives from `src/styles/components.css` (no ad-hoc sticky/scroll logic).
-- [ ] Main has `:global` styles for `::before` and `::after`: negative inset, masked gradient, and `backdrop-filter: blur(...)` so content scrolling over the canvas shows a ramped blur.
-- [ ] Scroll-driven animation sets at least one CSS variable (e.g. scroll progress or visible block) that the canvas (or wrapper) can use for its bounding rect.
-- [ ] Graph toggle button and `showGraph` state are removed from the layout.
+- [x] Main grid area is a scroll container using `data-scroll-container` and `data-sticky-container`; its first child is an aside with `data-sticky`, then main.
+- [x] Aside contains `<details>`; the graph (GraphScene) is inside the details content; no Svelte state or button controls open/closed.
+- [x] Layout uses only layout/sticky primitives from `src/styles/components.css` (no ad-hoc sticky/scroll logic).
+- [x] Main has `:global` styles for `::before` and `::after`: negative inset, masked gradient, and `backdrop-filter: blur(...)` so content scrolling over the canvas shows a ramped blur.
+- [x] Scroll-driven animation sets at least one CSS variable (e.g. scroll progress or visible block) that the canvas (or wrapper) can use for its bounding rect.
+- [x] Graph toggle button and `showGraph` state are removed from the layout.
+
+## Status
+
+Complete. 2026-02-07: Main grid area (layout-main) has data-scroll-container and data-sticky-container; first child aside with data-sticky, then main. GraphScene (root is details) in aside; removed bind:open/expanded from GraphScene so details is native-only. Layout uses components.css primitives only. Main has :global ::before/::after with negative inset, masked gradient, backdrop-filter blur; --graph-scroll-progress set by scroll-driven animation on layout-main. No graph toggle or showGraph in layout. test:unit Vitest 159 passed; Deno 40 passed (identity-resolve.spec pre-existing failure).
