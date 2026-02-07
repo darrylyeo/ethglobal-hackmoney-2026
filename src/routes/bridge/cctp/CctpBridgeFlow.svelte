@@ -47,7 +47,7 @@
 		balanceTokens?: {
 			chainId: number
 			tokenAddress: `0x${string}`
-		}[]
+		}[],
 	} = $props()
 
 
@@ -110,6 +110,8 @@
 			: settings.amount,
 	)
 
+
+	// Actions
 	const onConfirmBridge = () => {
 		confirmOpen = true
 	}
@@ -127,6 +129,7 @@
 			onExecutionSuccess?.({ txHash: detail as `0x${string}` })
 	}
 </script>
+
 
 {#if recipient && fromNetwork && toNetwork}
 	<div data-preview data-column="gap-1">
@@ -207,16 +210,20 @@
 					to {toNetwork.name}. Recipient: {formatAddress(recipient)}.
 				</Dialog.Description>
 			{/if}
-			<div data-row="gap-2" class="dialog-actions">
+			<div
+				data-row="gap-2"
+				class="dialog-actions"
+			>
 				<Button.Root
 					type="button"
 					onclick={() => {
 						confirmOpen = false
-					}}>Cancel</Button.Root
-				>
-				<Button.Root type="button" onclick={onConfirmSubmit}
-					>Confirm</Button.Root
-				>
+					}}
+				>Cancel</Button.Root>
+				<Button.Root
+					type="button"
+					onclick={onConfirmSubmit}
+				>Confirm</Button.Root>
 			</div>
 		</Dialog.Content>
 	</Dialog.Portal>
