@@ -22,8 +22,9 @@ sharing requires cryptographic verification.
 - **Share** (with specific peer) – Share an address with one chosen peer only;
   only that peer sees it and can request verification.
 
-Only one share mode applies per action; the UI shows both "Share with all" and
-"Share" (e.g. per-peer "Share" in the peer list or a peer picker).
+Only one share mode applies per action. The UI uses a **share intent**: addresses
+are draggable; drop zones are "All" and each peer; a DragArrow shows during drag
+from address to target; drop performs the share (no per-peer Share buttons).
 
 **Verification flow (per peer that has the address shared with them):**
 
@@ -302,6 +303,8 @@ const generateRoomCode = () => (
 )
 ```
 
+**Room display name mapping** (`src/constants/room-display-names.ts`, `src/lib/rooms/room.ts`): Room IDs are 4-byte hex. Human-readable display names map to/from hex via wordlist triplets. Format: **[Adjective] [Color] [Place name]** (e.g. "Ancient Amber Academy"). Wordlists: `colors`, `adjectives`, `nouns` (place names with `icon` emoji per noun, e.g. Academy 🏫, Garden 🌿). Each triplet encodes one segment; minimum one triplet (3 words), more as needed for larger IDs. `roomIdToDisplayName(roomId)` and `displayNameToRoomId(displayName)` round-trip; `normalizeRoomInput(input)` accepts hex or display name. **`roomIdToPlaceEmoji(roomId)`** returns the place (noun) emoji for the room for use in nav items and room page header. **Persistent peer ID:** client stores a peer id in `localStorage` (`room-persistent-peer-id`) and passes it to PartySocket as `id` so refresh reuses the same peer identity.
+
 ### `src/lib/rooms/siwe.ts`
 
 SIWE message construction and verification using Voltaire:
@@ -457,218 +460,36 @@ Room lobby – create or join a room.
 
 ### `src/routes/rooms/[roomId]/+page.svelte`
 
-Room view with peer list and address sharing.
+Room view: header, then (inside an expandable details) wallet/accounts select, **Me** section, **Peers** section.
 
-### `src/routes/rooms/RoomLobby.svelte`
+**Header** (`data-room-header`): single row with `data-row="wrap gap-4 align-center"`. Title block: place emoji (`roomIdToPlaceEmoji(roomId)`), `<h1>` room display name, connection status as `data-tag` with `data-connection-status`. Nav: `<a data-button>` links – Room link, Channels, Leave room. No separate “Share” section (room link is in header).
 
-```svelte
-<!-- Create room form -->
-<!-- Join room form (enter code) -->
-<!-- Recent rooms list -->
-```
+**Layout:** **Me** and **Peers** sections. Each block (Me, each peer) is a row of two columns; each column has `data-row="flexible"` and `data-card`. Left column: avatar + peer details; right column: addresses and verification/actions.
 
-### `src/routes/rooms/RoomView.svelte`
+- **Me:** left = Peer (avatar + “Me” details), right = AddressSharing (my addresses + share intent + pending signatures).
+- **Peers:** list of PeerCards. Each **PeerCard**: left = Peer (avatar with connection status dot, name, `data-tag` Connected/Disconnected); right = that peer’s shared addresses + verification status and Request/Re-verify actions + “Awaiting your signature” when applicable.
 
-Main room interface:
+**Share intent (AddressSharing):** My addresses are **draggable**. Drop zones: “All” and one per peer. On drag, **DragArrow** shows from address to current drop target (or pointer); tooltip shows “Share with all” / “Share with &lt;peer&gt;”. Drop performs `shareWithAll` or `shareWithPeer`. Pending signatures section unchanged (Sign when `canSign`, Unverifiable + Mark unverifiable when read-only).
 
-**Sections:**
-1. Room header (name, code, share link)
-2. Peer list with connection status
-3. My addresses (from `actorsCollection`) with **Share with all** and **Share** (per peer)
-4. Shared addresses from other peers with **verification status** from `verificationsCollection`: Unverifiable, Verifying, Verified (with date and signature persisted)
-5. Pending challenges to sign/verify – **only show Sign when** the wallet connection for that address supports signing (e.g. EIP-1193); hide or disable for read-only
+### `src/routes/rooms/Peer.svelte`
+
+Avatar (emoji + hue background), display name. When `showStatus`: connection status as **`data-tag`** (Connected / Disconnected) and a **status dot on the avatar** (green when connected, muted when not); optional “since” / “left” timestamp.
 
 ### `src/routes/rooms/PeerList.svelte`
 
-```svelte
-<script lang="ts">
-  import { useLiveQuery } from '$/svelte/live-query-context.svelte'
-  import { roomPeersCollection } from '$/collections/room-peers'
-
-  let { roomId }: { roomId: string } = $props()
-
-  const peersQuery = useLiveQuery(() => (
-    roomPeersCollection.query({ where: { roomId } })
-  ))
-</script>
-
-{#each peersQuery.data ?? [] as peer (peer.id)}
-  <div data-peer data-connected={peer.isConnected}>
-    <span>{peer.displayName ?? peer.peerId.slice(0, 8)}</span>
-    <span data-status>{peer.isConnected ? '●' : '○'}</span>
-  </div>
-{/each}
-```
+List of peers; each item uses Peer with `showStatus={true}`. Used where a simple peer list is needed (e.g. other views).
 
 ### `src/routes/rooms/AddressSharing.svelte`
 
-Address sharing with SIWE verification flow. **Share with all** vs **Share** (with
-specific peer); show **only actions allowed by wallet transport** (e.g. no Sign
-for read-only).
-
-```svelte
-<script lang="ts">
-  import { useLiveQuery } from '$/svelte/live-query-context.svelte'
-  import { actorsCollection } from '$/collections/actors'
-  import { sharedAddressesCollection } from '$/collections/shared-addresses'
-  import { siweChallengesCollection } from '$/collections/siwe-challenges'
-  import { roomState } from '$/state/room.svelte'
-  import { signSiweMessage } from '$/lib/rooms/siwe'
-  // Wallet connection transport: only show Sign when transport supports signing (e.g. EIP-1193)
-
-  let { roomId, walletConnection }: { roomId: string; walletConnection: ... } = $props()
-
-  const canSign = $derived(walletConnection?.connection?.transport === 'Eip1193')
-
-  // My connected addresses
-  const actorsQuery = useLiveQuery(() => actorsCollection.query({}))
-
-  // Addresses I've shared (with all or specific peers)
-  const mySharedQuery = useLiveQuery(() => (
-    sharedAddressesCollection.query({
-      where: { roomId, peerId: roomState.peerId },
-    })
-  ))
-
-  // Pending challenges for me to sign (only show Sign button when canSign)
-  const pendingChallengesQuery = useLiveQuery(() => (
-    siweChallengesCollection.query({
-      where: { roomId, fromPeerId: roomState.peerId, verified: false },
-    })
-  ))
-
-  const shareWithAll = (address: `0x${string}`) => {
-    roomState.connection?.send({ type: 'share-address', address })
-  }
-
-  const shareWithPeer = (address: `0x${string}`, targetPeerId: string) => {
-    roomState.connection?.send({ type: 'share-address', address, targetPeerIds: [targetPeerId] })
-  }
-
-  const signChallenge = async (challenge: SiweChallenge, provider: EIP1193Provider) => {
-    const signature = await signSiweMessage({
-      provider,
-      message: challenge.message,
-      address: challenge.address,
-    })
-    roomState.connection?.send({
-      type: 'submit-signature',
-      challengeId: challenge.id,
-      signature,
-    })
-  }
-</script>
-
-<section data-my-addresses>
-  <h3>My Addresses</h3>
-  {#each actorsQuery.data ?? [] as actor (actor.id)}
-    {@const sharedWithAll = mySharedQuery.data?.some(
-      (s) => s.address === actor.address && s.targetPeerIds === null,
-    )}
-    <div data-address>
-      <Address address={actor.address} />
-      <Button onclick={() => shareWithAll(actor.address)} disabled={sharedWithAll}>
-        Share with all
-      </Button>
-      <!-- Per-peer Share, e.g. dropdown or peer list actions -->
-      <!-- shareWithPeer(actor.address, peerId) for each peer -->
-    </div>
-  {/each}
-</section>
-
-<section data-pending-signatures>
-  <h3>Pending Signatures</h3>
-  {#each pendingChallengesQuery.data ?? [] as challenge (challenge.id)}
-    <div data-challenge>
-      <p>Sign for peer {challenge.toPeerId.slice(0, 8)}</p>
-      <!-- Only show Sign when wallet can sign (not read-only) -->
-      {#if canSign}
-        <Button onclick={() => signChallenge(challenge, provider)}>Sign</Button>
-      {:else}
-        <span data-unverifiable>Unverifiable (read-only wallet)</span>
-      {/if}
-    </div>
-  {/each}
-</section>
-```
+**Share intent:** Addresses from selected wallets; each address is draggable unless already “Shared with all”. Drop zones: “Share with:” then [All] and one button per peer. MIME `application/x-room-share` with JSON `{ address, roomId }`. On drag, local state tracks source rect and drop target (or pointer); **DragArrow** with tooltip “Share with all” / “Share with &lt;peer&gt;”. On drop, call `shareWithAll(address)` or `shareWithPeer(address, peerId)`. **Pending signatures** section: list of challenges for me to sign; only show Sign when wallet supports signing (EIP-1193); otherwise Unverifiable + Mark unverifiable.
 
 ### `src/routes/rooms/SharedAddresses.svelte`
 
-Display shared addresses from other peers. **Verification status** comes from
-`verificationsCollection`; show **Unverifiable**, **Verifying**, or **Verified**
-clearly; persist and display **date** (`verifiedAt`) and **signature** (e.g. in
-tooltip or detail).
+Standalone component that lists shared addresses from others in the room with verification status. Not used on the main room page (per-peer addresses live in PeerCard); may be used on account or other pages.
 
-```svelte
-<script lang="ts">
-  import { useLiveQuery } from '$/svelte/live-query-context.svelte'
-  import { sharedAddressesCollection } from '$/collections/shared-addresses'
-  import { verificationsCollection } from '$/collections/verifications'
-  import { roomPeersCollection } from '$/collections/room-peers'
-  import { roomState } from '$/state/room.svelte'
+### `src/routes/rooms/PeerCard.svelte`
 
-  let { roomId }: { roomId: string } = $props()
-
-  const sharedQuery = useLiveQuery(() => (
-    sharedAddressesCollection.query({ where: { roomId } })
-  ))
-
-  const verificationsQuery = useLiveQuery(() => (
-    verificationsCollection.query({ where: { roomId } })
-  ))
-
-  const peersQuery = useLiveQuery(() => (
-    roomPeersCollection.query({ where: { roomId } })
-  ))
-
-  const getPeerName = (peerId: string) => (
-    peersQuery.data?.find((p) => p.peerId === peerId)?.displayName ?? peerId.slice(0, 8)
-  )
-
-  // For each shared address visible to me, get my verification (as verifier)
-  const getMyVerification = (shared: SharedAddress) => (
-    roomState.peerId
-      ? verificationsQuery.data?.find(
-          (v) =>
-            v.verifiedPeerId === shared.peerId &&
-            v.address === shared.address &&
-            v.verifierPeerId === roomState.peerId,
-        )
-      : null
-  )
-</script>
-
-<section data-shared-addresses>
-  <h3>Shared Addresses</h3>
-  {#each sharedQuery.data ?? [] as shared (shared.id)}
-    {@const myVerification = getMyVerification(shared)}
-    <div
-      data-shared-address
-      data-verification-status={myVerification?.status ?? null}
-    >
-      <span data-peer-name>{getPeerName(shared.peerId)}</span>
-      <Address address={shared.address} />
-      <span data-verification>
-        {#if !myVerification}
-          —
-        {:else if myVerification.status === 'unverifiable'}
-          Unverifiable
-        {:else if myVerification.status === 'verifying'}
-          Verifying
-        {:else}
-          Verified
-          {#if myVerification.verifiedAt != null}
-            <time datetime={new Date(myVerification.verifiedAt).toISOString()}>
-              {formatDate(myVerification.verifiedAt)}
-            </time>
-          {/if}
-          <!-- signature available as myVerification.signature (e.g. tooltip) -->
-        {/if}
-      </span>
-    </div>
-  {/each}
-</section>
-```
+Per-peer card: two columns (`data-row="flexible" data-card`). Left: Peer (avatar with status dot, name, Connected/Disconnected tag). Right: that peer’s shared addresses (visible to me) with verification status and Request verification / Re-verify buttons; plus “Awaiting your signature” block when there are pending challenges for me to sign.
 
 ## Verification flow
 
@@ -745,13 +566,12 @@ Sharer                    Server                    Peer A                   Pee
 
 ### UI
 - [x] `src/routes/rooms/+page.svelte` – lobby
-- [x] `src/routes/rooms/[roomId]/+page.svelte` – room view
-- [x] Peer list with connection status
-- [x] **Share with all** and **Share** (with specific peer) – distinct actions per address
-- [x] Address sharing toggle per address
-- [x] Pending challenge signing UI – **only show Sign when** wallet connection supports signing (EIP-1193); show Unverifiable for read-only
-- [x] Shared addresses display – verification status from `verificationsCollection`: **Unverifiable**, **Verifying**, **Verified**; show **date** (`verifiedAt`) and **signature** (persisted)
-- [x] Navigation link added
+- [x] `src/routes/rooms/[roomId]/+page.svelte` – room view with header (place emoji, title, connection status tag, Room link / Channels / Leave room), Me + Peers sections, two-column cards
+- [x] Peer list / PeerCard with connection status (`data-tag` Connected/Disconnected, status dot on avatar)
+- [x] **Share intent** – draggable addresses, drop zones (All + per peer), DragArrow during drag, drop performs share (no Share buttons)
+- [x] Pending challenge signing UI – **only show Sign when** wallet supports signing (EIP-1193); show Unverifiable + Mark unverifiable for read-only
+- [x] Per-peer shared addresses and verification in PeerCard – **Unverifiable**, **Verifying**, **Verified**; **date** (`verifiedAt`) and **signature** (persisted)
+- [x] Navigation link; room nav items use place emoji (`roomIdToPlaceEmoji`); persistent peer ID across refresh
 
 ### Verification flow
 - [x] Per-peer challenge generation
@@ -763,7 +583,7 @@ Sharer                    Server                    Peer A                   Pee
 
 ## Status
 
-Complete. 2026-02-05 (PROMPT_build execute one spec): All acceptance criteria implemented. verificationsCollection in src/collections/verifications.ts with verificationKey in verifications-keys.ts; verifications.spec.ts (Deno). SharedAddress now targetPeerIds (null = share with all, [peerId] = share with peer); sharedAddressKey(roomId, peerId, address, targetPeerIds). PartyKit: share-address accepts targetPeerIds; request-challenge flow (verifier requests, server generates challenge, sends to sharer and verifier; peers may request multiple times); verify-result creates Verification (verifiedAt, signature) and broadcasts verification-record; mark-unverifiable creates unverifiable Verification and broadcasts; state.verifications synced on connect. Client: room.svelte.ts handles verification-record (upsert verificationsCollection), sync includes verifications. AddressSharing: Share with all + Share(peer) per peer; pending challenges section – Sign when canSign (provider), Unverifiable + Mark unverifiable when read-only. SharedAddresses + PeerCard: verification status from verificationsCollection (Unverifiable, Verifying, Verified); verifiedAt and signature; Request verification / Re-verify. test:unit 44 Deno + 101 Vitest passed.
+Complete. 2026-02-05: All acceptance criteria implemented. UI updated: room page header (place emoji, title, connection status as data-tag, data-button links); Me and Peers sections with two-column cards (avatar+details left, addresses+verification right); share intent via drag-and-drop (draggable addresses, drop zones All/peer, DragArrow); Peer/PeerCard use data-tag for connection state and status dot on avatar; roomIdToPlaceEmoji for nav and header; persistent peer ID (localStorage) so refresh reuses identity. verificationsCollection, SharedAddress targetPeerIds, PartyKit flow, AddressSharing (share intent + pending signatures), PeerCard verification UI as previously implemented.
 
 ## Output when complete
 

@@ -40,7 +40,7 @@ below is the intended mapping.
 | USDC / ETH (coins)   | use coin asset or 💵 / ⟠ |
 | Networks             | 🌐 |
 | Multiplayer          | 👥 or 🎮 |
-| Rooms                | 🏠 |
+| Rooms                | place-based (see below) |
 | Peers                | 🤝 |
 | Yellow Channels      | 💛 or ⚡ |
 | Tests                | 🧪 |
@@ -49,17 +49,19 @@ below is the intended mapping.
 | Intents (test)       | 📌 |
 
 Account items: keep `wallet.icon` when present; otherwise fallback emoji (e.g.
-👤). Session/room/peer items: one shared icon per type (e.g. 📋 for sessions,
-🏠 for rooms, 🤝 for peers). Network items: chain icon from config when
-available, else 🌐.
+👤). Session/peer items: one shared icon per type (e.g. 📋 for sessions, 🤝 for
+peers). **Room items:** use **place-based emoji** from the room’s display name
+via `roomIdToPlaceEmoji(room.id)` in `src/lib/rooms/room.ts` (nouns in
+`room-display-names.ts` have an `icon` per place, e.g. Garden 🌿, Bridge 🌉).
+Network items: chain icon from config when available, else 🌐.
 
 ## Implementation
 
 - In `+layout.svelte`, add `icon` to every entry in `navigationItems` and to
   every derived child array (sessions, pinned agents, explore coins/networks,
-  multiplayer rooms/peers, test links). Use the mapping above; for dynamic
-  items use the same icon as their parent section or the type-specific icon
-  listed.
+  multiplayer rooms/peers, test links). Use the mapping above; for **room**
+  children use `roomIdToPlaceEmoji(room.id)`; for other dynamic items use the
+  same icon as their parent section or the type-specific icon listed.
 - Ensure account nav items continue to use `wallet.icon ?? fallback` (e.g. 👤).
 - No change to `NavigationItem.svelte` or `Icon.svelte` required; they already
   support optional `icon` and render it.
@@ -81,7 +83,8 @@ available, else 🌐.
 ## Status
 
 Complete. Icons added in `+layout.svelte` for all nav items; account fallback
-👤; peersNavItems and network rows use type icons; network rows use
+👤; room rows use **place-based emoji** (`roomIdToPlaceEmoji(room.id)`);
+peersNavItems and network rows use type icons; network rows use
 `config.icon ?? '🌐'`. `NavigationItem.svelte` updated so paths (`/icons/...`)
 are passed as `src` to Icon for chain SVGs.
 
