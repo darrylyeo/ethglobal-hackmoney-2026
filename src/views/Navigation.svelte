@@ -1,6 +1,9 @@
 <script lang="ts">
-	// Types
+
+
+	// Types/constants
 	import type { Snippet } from 'svelte'
+	import { APP_NAME } from '$/constants/app.ts'
 
 
 	// Context
@@ -38,7 +41,7 @@
 	>
 		<a
 			href="/"
-			aria-label="USDC Tools home"
+			aria-label="{APP_NAME} home"
 			data-row="start gap-0"
 		>
 			<span class="logo" data-row="gap-1">
@@ -48,7 +51,7 @@
 		</a>
 
 		<a
-			href="/about"
+			href="/#about"
 			class="about-link"
 			data-row="center"
 			aria-label="About"
@@ -82,8 +85,9 @@
 			items={navigationItems}
 			currentPathname={page.url.pathname}
 		/>
-		<footer data-sticky></footer>
 	</div>
+
+	<footer data-sticky></footer>
 </nav>
 
 

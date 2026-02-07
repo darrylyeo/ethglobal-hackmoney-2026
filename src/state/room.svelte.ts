@@ -22,6 +22,7 @@ import {
 	connectToRoom,
 } from '$/lib/rooms/room.ts'
 import { verifySiweSignature } from '$/lib/rooms/siwe.ts'
+import { dev } from '$app/environment'
 
 const SIWE_DEBUG = dev
 

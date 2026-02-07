@@ -8,7 +8,7 @@
  */
 
 // Context
-import { dev } from '$env/dynamic/public'
+import { dev } from '$app/environment'
 import { eq, useLiveQuery } from '@tanstack/svelte-db'
 import { DataSource } from '$/constants/data-sources.ts'
 
