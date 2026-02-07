@@ -3,7 +3,13 @@
 
 	// Types/constants
 	import type { IntentRoute, IntentRouteStep } from '$/lib/intents/routes.ts'
-	import type { IntentDragPayload, IntentResolution } from '$/lib/intents/types.ts'
+	import {
+		IntentKind,
+		IntentPlacement,
+		intents,
+		type IntentDragPayload,
+		type IntentResolution,
+	} from '$/constants/intents.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { NetworkType, networksByChainId } from '$/constants/networks.ts'
 	import { defaultBridgeSettings } from '$/state/bridge-settings.svelte'
@@ -34,17 +40,20 @@
 
 
 	// State
+	import { actorsCollection } from '$/collections/actors.ts'
 	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
 	import { bridgeRoutesCollection } from '$/collections/bridge-routes.ts'
+	import { roomPeersCollection } from '$/collections/room-peers.ts'
 	import { swapQuotesCollection } from '$/collections/swap-quotes.ts'
 	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
+	import { roomState } from '$/state/room.svelte'
 
 	const isTestnetChain = (chainId: number) =>
 		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
 			?.type === NetworkType.Testnet
 	const withPlacement = (
 		payload: IntentDragPayload,
-		placement: 'from' | 'to',
+		placement: IntentPlacement,
 	): IntentDragPayload => ({
 		...payload,
 		context: {
@@ -199,7 +208,7 @@
 			const fd = from.dimensions
 			const td = to.dimensions
 			if (
-				resolution.kind === 'swap' &&
+				resolution.kind === IntentKind.Swap &&
 				fd.chainId !== null &&
 				fd.tokenAddress &&
 				td.tokenAddress
@@ -244,7 +253,7 @@
 				}
 			}
 			if (
-				resolution.kind === 'transfer' &&
+				resolution.kind === IntentKind.Transfer &&
 				fd.actor &&
 				td.actor &&
 				fd.chainId !== null &&
@@ -284,6 +293,18 @@
 	const selectRoute = async (route: IntentRoute) => {
 		selectIntentDragRoute(route.id)
 		await tick()
+		if (route.id === IntentKind.Share && resolution?.kind === IntentKind.Share) {
+			const address = resolution.from.dimensions.actor
+			const peerId = resolution.to.ref.id.peerId as string
+			if (address && roomState.connection)
+				roomState.connection.send({
+					type: 'share-address',
+					address,
+					targetPeerIds: [peerId],
+				})
+			clearIntentDragPreview()
+			return
+		}
 		await runWithViewTransition(async () => {
 			const navigation = buildRouteNavigation(route, resolution)
 			await navigateTo(navigation.path, navigation.hash)
@@ -315,6 +336,15 @@
 			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
 			.select(({ row }) => ({ row })),
 	)
+	const localActorsQuery = useLiveQuery((q) =>
+		q
+			.from({ row: actorsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Local))
+			.select(({ row }) => ({ row })),
+	)
+	const roomPeersQuery = useLiveQuery((q) =>
+		q.from({ row: roomPeersCollection }).select(({ row }) => ({ row })),
+	)
 
 	let tooltipContentRef = $state<HTMLDivElement | null>(null)
 	let prefersReducedMotion = $state(false)
@@ -340,24 +370,64 @@
 			? resolveIntent(sourcePayload.entity, targetPayload.entity)
 			: null,
 	)
+	const definition = $derived(
+		resolution?.kind
+			? intents.find((d) => d.kind === resolution.kind) ?? null
+			: null,
+	)
+	const localActorAddresses = $derived(
+		(localActorsQuery.data ?? []).map((r) => r.row.$id.address.toLowerCase()),
+	)
+	const roomPeers = $derived((roomPeersQuery.data ?? []).map((r) => r.row))
+	const shareRoutes = $derived(
+		(() => {
+			if (
+				!resolution ||
+				resolution.status !== 'valid' ||
+				resolution.kind !== IntentKind.Share ||
+				!resolution.from.dimensions.actor
+			)
+				return []
+			const roomId = resolution.to.ref.id.roomId as string
+			const peerId = resolution.to.ref.id.peerId as string
+			if (roomState.roomId !== roomId) return []
+			if (
+				!localActorAddresses.includes(
+					resolution.from.dimensions.actor.toLowerCase(),
+				)
+			)
+				return []
+			const peer = roomPeers.find(
+				(p) => p.roomId === roomId && p.peerId === peerId,
+			)
+			return [
+				{
+					id: IntentKind.Share,
+					label: `Share with ${peer?.displayName ?? peerId}`,
+					steps: [] as IntentRouteStep[],
+				} satisfies IntentRoute,
+			]
+		})(),
+	)
 	const routes = $derived(
 		resolution && resolution.status === 'valid'
-			? buildIntentRoutes(resolution, {
-					swapQuotes,
-					bridgeRoutes: bridgeRouteOptions,
-				})
+			? resolution.kind === IntentKind.Share
+				? shareRoutes
+				: buildIntentRoutes(resolution, {
+						swapQuotes,
+						bridgeRoutes: bridgeRouteOptions,
+					})
 			: [],
 	)
 	const displayRoutes = $derived(
-		(resolution?.status === 'valid' &&
-		resolution.kind &&
-		(resolution.kind === 'swap' ||
-			resolution.kind === 'bridge' ||
-			resolution.kind === 'transfer')
+		(definition &&
+		resolution?.status === 'valid' &&
+		definition.sequences.length === 1 &&
+		definition.sequences[0].length === 1
 			? [
 					{
-						id: `open-${resolution.kind}`,
-						label: resolution.kind.replaceAll('+', ' + '),
+						id: `open-${definition.kind}`,
+						label: definition.label,
 						steps: [] as IntentRouteStep[],
 					} satisfies IntentRoute,
 				]
@@ -479,11 +549,11 @@
 				data-interactive={isInteractive ? 'true' : 'false'}
 				bind:this={tooltipContentRef}
 			>
-				{#if resolution && resolution.status === 'valid' && resolution.kind}
-					<header data-row="gap-4">
-						<strong>
-							{resolution.kind.replaceAll('+', ' + ')}
-						</strong>
+			{#if resolution && resolution.status === 'valid' && definition && (definition.kind !== IntentKind.Share || routes.length > 0)}
+				<header data-row="gap-4">
+					<strong>
+						{definition.label}
+					</strong>
 						<span data-muted
 							>{routes.length} route{routes.length === 1 ? '' : 's'}</span
 						>
@@ -521,7 +591,11 @@
 					<header data-row="gap-4">
 						<strong data-muted>Intent unavailable</strong>
 					</header>
-					<p data-muted>{resolution.reason ?? 'Select compatible entities.'}</p>
+					<p data-muted>
+						{resolution.kind === IntentKind.Share && routes.length === 0
+							? 'Share only with peers in the same room; address must be yours.'
+							: resolution.reason ?? 'Select compatible entities.'}
+					</p>
 				{/if}
 			</div>
 		{/snippet}

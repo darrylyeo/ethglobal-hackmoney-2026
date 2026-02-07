@@ -3,7 +3,7 @@
 
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
-	import type { IntentDragPayload } from '$/lib/intents/types.ts'
+	import type { IntentDragPayload } from '$/constants/intents.ts'
 	import type {
 		IntentRouteStep,
 		IntentBridgeRouteOption,
@@ -11,6 +11,7 @@
 	import type { BridgeRoute } from '$/data/BridgeRoute.ts'
 	import type { Transaction$Id } from '$/data/Transaction.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+	import { entityIntent } from '$/lib/intents/intentDraggable.svelte'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import { encodeTransferCall } from '$/api/voltaire.ts'
 	import { executeSelectedRoute } from '$/api/lifi.ts'
@@ -650,28 +651,23 @@
 			<p data-muted>No cached balances yet.</p>
 		{:else}
 			<div data-column="gap-2">
-				{#each actorCoins as row (row.$id.chainId + row.$id.address + row.$id.tokenAddress)}
-					{@const intent = {
-						entity: {
-							type: EntityType.ActorCoin,
-							id: row.$id,
-						},
-						context: {
-							source: 'intent-test',
-						},
-					}}
-					<div data-row="gap-2 align-center">
-						<EntityId
-							className="intent-entity"
-							draggableText={`${row.symbol} ${row.$id.address}`}
-							{intent}
-						>
-							<span>
-								{row.symbol} · {resolveChainName(row.$id.chainId)}
-								· {row.$id.address.slice(0, 8)}…{row.$id.address.slice(-4)}
-								· {formatSmallestToDecimal(row.balance, row.decimals, 4)}
-							</span>
-						</EntityId>
+			{#each actorCoins as row (row.$id.chainId + row.$id.address + row.$id.tokenAddress)}
+				{@const intent = entityIntent(EntityType.ActorCoin, row.$id, 'intent-test')}
+				<div data-row="gap-2 align-center">
+					<EntityId
+						className="intent-entity"
+						draggableText={`${row.symbol} ${row.$id.address}`}
+						entityType={EntityType.ActorCoin}
+						entityId={row.$id}
+						source="intent-test"
+					>
+						<span>
+							{row.symbol} · {resolveChainName(row.$id.chainId)}
+							· {row.$id.address.slice(0, 8)}…{row.$id.address.slice(-4)}
+							· {formatSmallestToDecimal(row.balance, row.decimals, 4)}
+						</span>
+					</EntityId>
+					{#if intent}
 						<button
 							type="button"
 							onclick={() =>
@@ -692,7 +688,8 @@
 						>
 							To
 						</button>
-					</div>
+					{/if}
+				</div>
 				{/each}
 			</div>
 		{/if}

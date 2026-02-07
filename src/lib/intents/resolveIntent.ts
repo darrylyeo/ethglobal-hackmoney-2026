@@ -3,7 +3,7 @@ import type {
 	IntentEntityRef,
 	IntentEquality,
 	IntentResolution,
-} from './types.ts'
+} from '$/constants/intents.ts'
 import { findIntentDefinition } from './registry.ts'
 import { toInteropName } from '$/constants/interop.ts'
 import { EntityType } from '$/data/$EntityType.ts'
@@ -102,11 +102,11 @@ export const resolveIntent = (
 
 	const definition = findIntentDefinition(ctx)
 
-	if (definition?.kind === 'share') {
+	if (definition?.kind === IntentKind.Share) {
 		const roomId = typeof toRef.id.roomId === 'string' ? toRef.id.roomId : null
 		const peerId = typeof toRef.id.peerId === 'string' ? toRef.id.peerId : null
 		return roomId && peerId
-			? { status: 'valid', kind: 'share', from, to, equality }
+			? { status: 'valid', kind: IntentKind.Share, from, to, equality }
 			: { status: 'invalid', reason: 'Missing room or peer.', from, to, equality }
 	}
 

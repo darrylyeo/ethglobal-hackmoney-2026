@@ -1,9 +1,9 @@
-import type { IntentResolution, RouteStepKey } from './types.ts'
+import { RouteStepKey, type IntentResolution } from '$/constants/intents.ts'
 import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute.ts'
 import type { SwapQuote } from '$/data/SwapQuote.ts'
 import { isGatewaySupportedChain } from '$/constants/gateway.ts'
 import { NetworkType, networksByChainId } from '$/constants/networks.ts'
-import { intentDefinitions } from './registry.ts'
+import { intents } from '$/constants/intents.ts'
 
 export type IntentRouteStep =
 	| {
@@ -76,7 +76,7 @@ export const buildIntentRoutes = (
 ): IntentRoute[] => {
 	if (resolution.status !== 'valid' || !resolution.kind) return []
 
-	const definition = intentDefinitions.find((d) => d.kind === resolution.kind)
+	const definition = intents.find((d) => d.kind === resolution.kind)
 	if (!definition || definition.sequences.length === 0) return []
 
 	const from = resolution.from.dimensions
@@ -163,9 +163,9 @@ export const buildIntentRoutes = (
 		isGatewaySupportedChain(to.chainId, isTestnet)
 
 	const stepOptions: Record<RouteStepKey, IntentRouteStep[]> = {
-		swapSource: swapOnChain(from.chainId, from.tokenAddress, to.tokenAddress, from.actor),
-		swapDest: swapOnChain(to.chainId, from.tokenAddress, to.tokenAddress, to.actor),
-		bridge: [
+		[RouteStepKey.SwapSource]: swapOnChain(from.chainId, from.tokenAddress, to.tokenAddress, from.actor),
+		[RouteStepKey.SwapDest]: swapOnChain(to.chainId, from.tokenAddress, to.tokenAddress, to.actor),
+		[RouteStepKey.Bridge]: [
 			...bridgeOnChain(from.chainId, to.chainId, from.actor),
 			...(gatewayBridgeSupported
 				? [{
@@ -178,10 +178,10 @@ export const buildIntentRoutes = (
 					}]
 				: []),
 		],
-		transferFromToken: transferStepOptions(from.chainId, from.tokenAddress),
-		transferToTokenOnSource: transferStepOptions(from.chainId, to.tokenAddress),
-		transferToTokenOnDest: transferStepOptions(to.chainId, to.tokenAddress),
-		transferFromTokenOnDest: transferStepOptions(to.chainId, from.tokenAddress),
+		[RouteStepKey.TransferFromToken]: transferStepOptions(from.chainId, from.tokenAddress),
+		[RouteStepKey.TransferToTokenOnSource]: transferStepOptions(from.chainId, to.tokenAddress),
+		[RouteStepKey.TransferToTokenOnDest]: transferStepOptions(to.chainId, to.tokenAddress),
+		[RouteStepKey.TransferFromTokenOnDest]: transferStepOptions(to.chainId, from.tokenAddress),
 	}
 
 	const sequences = definition.sequences

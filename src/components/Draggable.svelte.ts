@@ -1,4 +1,4 @@
-import type { IntentDragPayload } from '$/lib/intents/types.ts'
+import type { IntentDragPayload } from '$/constants/intents.ts'
 import { setIntentDragData } from '$/lib/intents/drag.ts'
 import {
 	startIntentDragPreview,

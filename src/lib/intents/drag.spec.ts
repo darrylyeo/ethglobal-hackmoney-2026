@@ -1,6 +1,6 @@
 import { EntityType } from '$/data/$EntityType.ts'
 import { INTENT_MIME, getIntentDragPayload, setIntentDragData } from './drag.ts'
-import type { IntentDragPayload } from './types.ts'
+import type { IntentDragPayload } from '$/constants/intents.ts'
 import { describe, expect, it } from 'vitest'
 
 const mockDataTransfer = () => {
