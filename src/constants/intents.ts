@@ -1,19 +1,11 @@
 import { EntityType } from '$/data/$EntityType.ts'
 
+
+// Drag payload types (used by drag infrastructure)
+
 export enum IntentPlacement {
 	From = 'from',
 	To = 'to',
-}
-
-export enum IntentKind {
-	Share = 'share',
-	Transfer = 'transfer',
-	Swap = 'swap',
-	Bridge = 'bridge',
-	TransferSwap = 'transfer+swap',
-	TransferBridge = 'transfer+bridge',
-	SwapBridge = 'swap+bridge',
-	TransferSwapBridge = 'transfer+swap+bridge',
 }
 
 export type IntentEntityRef = {
@@ -31,152 +23,334 @@ export type IntentDragPayload = {
 	context?: IntentEntityContext
 }
 
-export type IntentDimensions = {
-	actor: `0x${string}` | null
-	chainId: number | null
-	tokenAddress: `0x${string}` | null
-	interopAddress?: string
-	tokenInteropAddress?: string
+
+// Intent invocation
+
+export enum IntentInvocationModality {
+	DragAndDrop = 'DragAndDrop',
 }
 
-export type IntentResolvedEntity = {
-	ref: IntentEntityRef
-	dimensions: IntentDimensions
+export type IntentInvocationDefinition<_IntentEntityName extends string = string> = {
+	modality: IntentInvocationModality
+	entities: {
+		dragTarget: _IntentEntityName
+		dropTarget: _IntentEntityName
+	}
 }
 
-export type IntentEquality = {
-	actor: boolean | null
-	chain: boolean | null
-	token: boolean | null
+
+// Intent entities
+
+// TODO: map per EntityType when entity schemas are formalized
+export type Entity = Record<string, unknown>
+
+export type IntentEntity<
+	_IntentEntityName extends string = string,
+	_EntityType extends EntityType = EntityType,
+> = {
+	name: _IntentEntityName
+	type: _EntityType
+	match?: (entityId: Record<string, unknown>) => (
+		| { result: true; reason: string }
+		| { result: false; error: string }
+	)
 }
 
-export type IntentResolution = {
-	status: 'valid' | 'invalid'
-	kind?: IntentKind
-	reason?: string
-	from: IntentResolvedEntity
-	to: IntentResolvedEntity
-	equality: IntentEquality
+
+// Actions and protocols
+
+export enum ActionType {
+	Swap = 'Swap',
+	Bridge = 'Bridge',
+	Transfer = 'Transfer',
+	CreateChannel = 'CreateChannel',
+	AddChannelMember = 'AddChannelMember',
+	CloseChannel = 'CloseChannel',
+	AddLiquidity = 'AddLiquidity',
+	RemoveLiquidity = 'RemoveLiquidity',
 }
 
-export type IntentMatchContext = {
-	from: IntentResolvedEntity
-	to: IntentResolvedEntity
-	equality: IntentEquality
+export enum Protocol {
+	UniswapV4 = 'UniswapV4',
+	LiFi = 'LiFi',
+	Yellow = 'Yellow',
+	Cctp = 'Cctp',
 }
 
-export enum RouteStepKey {
-	SwapSource = 'swapSource',
-	SwapDest = 'swapDest',
-	Bridge = 'bridge',
-	TransferFromToken = 'transferFromToken',
-	TransferToTokenOnSource = 'transferToTokenOnSource',
-	TransferToTokenOnDest = 'transferToTokenOnDest',
-	TransferFromTokenOnDest = 'transferFromTokenOnDest',
+export type ProtocolAction<
+	_ActionType extends ActionType = ActionType,
+	_Protocol extends Protocol = Protocol,
+> = {
+	action: _ActionType
+	protocol: _Protocol
 }
 
-export type IntentDefinition = {
-	kind: IntentKind
+export type ProtocolActionPayload<
+	_ProtocolAction extends ProtocolAction = ProtocolAction,
+> = {
+	protocolAction: _ProtocolAction
+	payload: {
+		[ActionType.Swap]: {
+			fromActor: Record<string, unknown>
+			toActor: Record<string, unknown>
+			coin: Record<string, unknown>
+		}
+		[ActionType.Bridge]: {
+			fromActor: Record<string, unknown>
+			toActor: Record<string, unknown>
+			coin: Record<string, unknown>
+		}
+		[ActionType.Transfer]: {
+			fromActor: Record<string, unknown>
+			toActor: Record<string, unknown>
+			coin: Record<string, unknown>
+		}
+		[ActionType.CreateChannel]: {
+			actor: Record<string, unknown>
+		}
+		[ActionType.AddChannelMember]: {
+			actor: Record<string, unknown>
+		}
+		[ActionType.CloseChannel]: {
+			channel: Record<string, unknown>
+		}
+		[ActionType.AddLiquidity]: {
+			actorCoin: Record<string, unknown>
+			pool: Record<string, unknown>
+		}
+		[ActionType.RemoveLiquidity]: {
+			position: Record<string, unknown>
+			actor: Record<string, unknown>
+		}
+	}[_ProtocolAction['action']]
+}
+
+export type IntentOption = {
 	label: string
-	match: (ctx: IntentMatchContext) => boolean
-	sequences: RouteStepKey[][]
-	sourceTypes: EntityType[]
-	targetTypes: EntityType[]
+	actions: ProtocolActionPayload[]
 }
+
+
+// Intent definitions
+
+export enum IntentType {
+	SwapAndBridge = 'SwapAndBridge',
+	CreateChannelAndAddMember = 'CreateChannelAndAddMember',
+	CreateChannelAddMemberAndTransfer = 'CreateChannelAddMemberAndTransfer',
+	AddLiquidity = 'AddLiquidity',
+	RemoveLiquidity = 'RemoveLiquidity',
+}
+
+export type IntentDefinition<
+	_IntentEntityName extends string = string,
+> = {
+	type: IntentType
+	label: string
+	invocations: IntentInvocationDefinition<_IntentEntityName>[]
+	entities: IntentEntity<_IntentEntityName>[]
+	resolveOptions?: (entities: Record<_IntentEntityName, Entity>) => IntentOption[]
+}
+
+export const protocolActions = [
+	{ action: ActionType.Swap, protocol: Protocol.UniswapV4 },
+	{ action: ActionType.Swap, protocol: Protocol.LiFi },
+	{ action: ActionType.Bridge, protocol: Protocol.Cctp },
+	{ action: ActionType.Bridge, protocol: Protocol.LiFi },
+	{ action: ActionType.Transfer, protocol: Protocol.Yellow },
+	{ action: ActionType.CreateChannel, protocol: Protocol.Yellow },
+	{ action: ActionType.AddChannelMember, protocol: Protocol.Yellow },
+	{ action: ActionType.CloseChannel, protocol: Protocol.Yellow },
+	{ action: ActionType.AddLiquidity, protocol: Protocol.UniswapV4 },
+	{ action: ActionType.RemoveLiquidity, protocol: Protocol.UniswapV4 },
+] as const satisfies ProtocolAction[]
 
 export const intents: IntentDefinition[] = [
 	{
-		kind: IntentKind.Share,
-		label: 'Share',
-		match: ({ from, to }: IntentMatchContext) => (
-			from.ref.type === EntityType.Actor
-			&& to.ref.type === EntityType.RoomPeer
-			&& !!from.dimensions.actor
-		),
-		sequences: [],
-		sourceTypes: [EntityType.Actor],
-		targetTypes: [EntityType.RoomPeer],
-	},
-	{
-		kind: IntentKind.Transfer,
-		label: 'Transfer',
-		match: ({ equality: { actor, chain, token } }: IntentMatchContext) => (
-			actor === false && chain === true && token === true
-		),
-		sequences: [[RouteStepKey.TransferFromToken]],
-		sourceTypes: [EntityType.ActorCoin],
-		targetTypes: [EntityType.ActorCoin, EntityType.Actor],
-	},
-	{
-		kind: IntentKind.Swap,
-		label: 'Swap',
-		match: ({ equality: { actor, chain, token } }: IntentMatchContext) => (
-			actor === true && chain === true && token === false
-		),
-		sequences: [[RouteStepKey.SwapSource]],
-		sourceTypes: [EntityType.ActorCoin, EntityType.Coin, EntityType.TokenListCoin],
-		targetTypes: [EntityType.ActorCoin, EntityType.Coin, EntityType.TokenListCoin],
-	},
-	{
-		kind: IntentKind.Bridge,
-		label: 'Bridge',
-		match: ({ equality: { actor, chain, token } }: IntentMatchContext) => (
-			actor === true && chain === false && token === true
-		),
-		sequences: [[RouteStepKey.Bridge]],
-		sourceTypes: [EntityType.ActorCoin],
-		targetTypes: [EntityType.ActorCoin],
-	},
-	{
-		kind: IntentKind.TransferSwap,
-		label: 'Transfer + Swap',
-		match: ({ equality: { actor, chain, token } }: IntentMatchContext) => (
-			actor === false && chain === true && token === false
-		),
-		sequences: [
-			[RouteStepKey.SwapSource, RouteStepKey.TransferToTokenOnSource],
-			[RouteStepKey.TransferFromToken, RouteStepKey.SwapDest],
-		],
-		sourceTypes: [EntityType.ActorCoin],
-		targetTypes: [EntityType.ActorCoin],
-	},
-	{
-		kind: IntentKind.SwapBridge,
+		type: IntentType.SwapAndBridge,
 		label: 'Swap + Bridge',
-		match: ({ equality: { actor, chain, token } }: IntentMatchContext) => (
-			actor === true && chain === false && token === false
-		),
-		sequences: [
-			[RouteStepKey.SwapSource, RouteStepKey.Bridge],
-			[RouteStepKey.Bridge, RouteStepKey.SwapDest],
+
+		invocations: [
+			{
+				modality: IntentInvocationModality.DragAndDrop,
+				entities: {
+					dragTarget: 'fromActorCoin',
+					dropTarget: 'toActorNetwork',
+				},
+			},
 		],
-		sourceTypes: [EntityType.ActorCoin],
-		targetTypes: [EntityType.ActorCoin],
+
+		entities: [
+			{ name: 'fromActorCoin', type: EntityType.ActorCoin },
+			{ name: 'toActorNetwork', type: EntityType.ActorNetwork },
+		],
+
+		resolveOptions: ({ fromActorCoin, toActorNetwork }) => [
+			{
+				label: 'Swap + Bridge via LiFi',
+				actions: [
+					{
+						protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi },
+						payload: { fromActor: fromActorCoin, toActor: toActorNetwork, coin: fromActorCoin },
+					},
+					{
+						protocolAction: { action: ActionType.Bridge, protocol: Protocol.LiFi },
+						payload: { fromActor: fromActorCoin, toActor: toActorNetwork, coin: fromActorCoin },
+					},
+				],
+			},
+			{
+				label: 'Swap via Uniswap V4 + Bridge via CCTP',
+				actions: [
+					{
+						protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 },
+						payload: { fromActor: fromActorCoin, toActor: toActorNetwork, coin: fromActorCoin },
+					},
+					{
+						protocolAction: { action: ActionType.Bridge, protocol: Protocol.Cctp },
+						payload: { fromActor: fromActorCoin, toActor: toActorNetwork, coin: fromActorCoin },
+					},
+				],
+			},
+		],
 	},
+
 	{
-		kind: IntentKind.TransferBridge,
-		label: 'Transfer + Bridge',
-		match: ({ equality: { actor, chain, token } }: IntentMatchContext) => (
-			actor === false && chain === false && token === true
-		),
-		sequences: [
-			[RouteStepKey.Bridge, RouteStepKey.TransferToTokenOnDest],
+		type: IntentType.CreateChannelAndAddMember,
+		label: 'Create Channel',
+
+		invocations: [
+			{
+				modality: IntentInvocationModality.DragAndDrop,
+				entities: {
+					dragTarget: 'fromActor',
+					dropTarget: 'toActor',
+				},
+			},
 		],
-		sourceTypes: [EntityType.ActorCoin],
-		targetTypes: [EntityType.ActorCoin],
+
+		entities: [
+			{ name: 'fromActor', type: EntityType.Actor },
+			{ name: 'toActor', type: EntityType.Actor },
+		],
+
+		resolveOptions: ({ fromActor, toActor }) => [
+			{
+				label: 'Create Yellow channel + Add member',
+				actions: [
+					{
+						protocolAction: { action: ActionType.CreateChannel, protocol: Protocol.Yellow },
+						payload: { actor: fromActor },
+					},
+					{
+						protocolAction: { action: ActionType.AddChannelMember, protocol: Protocol.Yellow },
+						payload: { actor: toActor },
+					},
+				],
+			},
+		],
 	},
+
 	{
-		kind: IntentKind.TransferSwapBridge,
-		label: 'Transfer + Swap + Bridge',
-		match: ({ equality: { actor, chain, token } }: IntentMatchContext) => (
-			actor === false && chain === false && token === false
-		),
-		sequences: [
-			[RouteStepKey.SwapSource, RouteStepKey.Bridge, RouteStepKey.TransferToTokenOnDest],
-			[RouteStepKey.Bridge, RouteStepKey.SwapDest, RouteStepKey.TransferToTokenOnDest],
-			[RouteStepKey.Bridge, RouteStepKey.TransferFromTokenOnDest, RouteStepKey.SwapDest],
+		type: IntentType.CreateChannelAddMemberAndTransfer,
+		label: 'Create Channel + Transfer',
+
+		invocations: [
+			{
+				modality: IntentInvocationModality.DragAndDrop,
+				entities: {
+					dragTarget: 'fromActorCoin',
+					dropTarget: 'toActor',
+				},
+			},
 		],
-		sourceTypes: [EntityType.ActorCoin],
-		targetTypes: [EntityType.ActorCoin],
+
+		entities: [
+			{ name: 'fromActorCoin', type: EntityType.ActorCoin },
+			{ name: 'toActor', type: EntityType.Actor },
+		],
+
+		resolveOptions: ({ fromActorCoin, toActor }) => [
+			{
+				label: 'Create Yellow channel + Add member + Transfer',
+				actions: [
+					{
+						protocolAction: { action: ActionType.CreateChannel, protocol: Protocol.Yellow },
+						payload: { actor: fromActorCoin },
+					},
+					{
+						protocolAction: { action: ActionType.AddChannelMember, protocol: Protocol.Yellow },
+						payload: { actor: toActor },
+					},
+					{
+						protocolAction: { action: ActionType.Transfer, protocol: Protocol.Yellow },
+						payload: { fromActor: fromActorCoin, toActor, coin: fromActorCoin },
+					},
+				],
+			},
+		],
+	},
+
+	{
+		type: IntentType.AddLiquidity,
+		label: 'Add Liquidity',
+
+		invocations: [
+			{
+				modality: IntentInvocationModality.DragAndDrop,
+				entities: {
+					dragTarget: 'actorCoin',
+					dropTarget: 'pool',
+				},
+			},
+		],
+
+		entities: [
+			{ name: 'actorCoin', type: EntityType.ActorCoin },
+			{ name: 'pool', type: EntityType.UniswapPool },
+		],
+
+		resolveOptions: ({ actorCoin, pool }) => [
+			{
+				label: 'Add liquidity via Uniswap V4',
+				actions: [
+					{
+						protocolAction: { action: ActionType.AddLiquidity, protocol: Protocol.UniswapV4 },
+						payload: { actorCoin, pool },
+					},
+				],
+			},
+		],
+	},
+
+	{
+		type: IntentType.RemoveLiquidity,
+		label: 'Remove Liquidity',
+
+		invocations: [
+			{
+				modality: IntentInvocationModality.DragAndDrop,
+				entities: {
+					dragTarget: 'position',
+					dropTarget: 'actor',
+				},
+			},
+		],
+
+		entities: [
+			{ name: 'position', type: EntityType.UniswapPosition },
+			{ name: 'actor', type: EntityType.Actor },
+		],
+
+		resolveOptions: ({ position, actor }) => [
+			{
+				label: 'Remove liquidity via Uniswap V4',
+				actions: [
+					{
+						protocolAction: { action: ActionType.RemoveLiquidity, protocol: Protocol.UniswapV4 },
+						payload: { position, actor },
+					},
+				],
+			},
+		],
 	},
 ]
