@@ -9,3 +9,4 @@ export const getIntentNavigationStore = () => intentNavigationStore
 export const setIntentNavigateTo = (fn: IntentNavigateTo | null) => {
 	intentNavigationStore.fn = fn
 }
+
