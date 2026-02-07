@@ -22,4 +22,4 @@ When the user says **"format"** (or "format the code", "format my changes", etc.
 
 ## Status
 
-Complete. `.cursor/rules/format.mdc` defines scope (changed files or user path), manual formatting to formatter.md/specs 041 and 056, and running `deno task format` for Svelte section spacing; it explicitly forbids Prettier and other formatters. `.cursor/agents/formatter.md` holds the detailed rules. Cursor rule references this spec.
+Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomplete specs; re-verify 075): all 4 AC confirmed in .cursor/rules/format.mdc (scope, manual formatting to formatter.md/specs 041 and 056, deno task format, no Prettier). test:unit 44 Deno + 159 Vitest passed. Previous: `.cursor/rules/format.mdc` defines scope (changed files or user path), manual formatting to formatter.md/specs 041 and 056, and running `deno task format` for Svelte section spacing; it explicitly forbids Prettier and other formatters. `.cursor/agents/formatter.md` holds the detailed rules. Cursor rule references this spec.
