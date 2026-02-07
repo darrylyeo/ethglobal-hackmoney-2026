@@ -22,7 +22,7 @@ export type BridgeSettings = {
 	toChainId: number | null
 	amount: bigint
 	useCustomRecipient: boolean
-	customRecipient: string
+	customRecipient: string,
 }
 
 export const defaultBridgeSettings: BridgeSettings = {
