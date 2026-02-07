@@ -2,12 +2,12 @@
 
 
 	// Types/constants
-	import { sendTransfer } from '$/api/yellow.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { sendTransfer } from '$/api/yellow.ts'
 	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
 	import { transferRequestsCollection } from '$/collections/transfer-requests.ts'
 	import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
@@ -18,7 +18,11 @@
 
 
 	// Props
-	let { roomId }: { roomId: string } = $props()
+	let {
+		roomId,
+	}: {
+		roomId: string,
+	} = $props()
 
 
 	// State
@@ -192,7 +196,10 @@
 			inputmode="decimal"
 		/>
 
-		<Button.Root type="submit" disabled={!selectedAddress || !amount.trim()}>
+		<Button.Root
+			type="submit"
+			disabled={!selectedAddress || !amount.trim()}
+		>
 			Request Transfer
 		</Button.Root>
 	</form>
@@ -201,17 +208,26 @@
 		<h4>Incoming Requests</h4>
 		{#each incoming as request (request.id)}
 			<div data-row="wrap gap-2">
-				<Address network={1} address={request.from} />
+				<Address
+					network={1}
+					address={request.from}
+				/>
 				<span>
 					requested {request.allocations[0]?.amount ?? '0'}
 					{request.allocations[0]?.asset ?? 'usdc'}
 				</span>
-				<Button.Root type="button" onclick={() => acceptRequest(request.id)}
-					>Accept</Button.Root
+				<Button.Root
+					type="button"
+					onclick={() => acceptRequest(request.id)}
 				>
-				<Button.Root type="button" onclick={() => rejectRequest(request.id)}
-					>Reject</Button.Root
+					Accept
+				</Button.Root>
+				<Button.Root
+					type="button"
+					onclick={() => rejectRequest(request.id)}
 				>
+					Reject
+				</Button.Root>
 			</div>
 		{/each}
 	{/if}
@@ -220,7 +236,10 @@
 		<h4>Outgoing Requests</h4>
 		{#each outgoing as request (request.id)}
 			<div data-row="wrap gap-2">
-				<Address network={1} address={request.to} />
+				<Address
+					network={1}
+					address={request.to}
+				/>
 				<span>
 					{request.allocations[0]?.amount ?? '0'}
 					{request.allocations[0]?.asset ?? 'usdc'} ({request.status})
@@ -239,7 +258,10 @@
 	{/if}
 
 	{#if sendError}
-		<p class="transfer-error" role="alert">
+		<p
+			class="transfer-error"
+			role="alert"
+		>
 			{sendError}
 		</p>
 	{/if}
