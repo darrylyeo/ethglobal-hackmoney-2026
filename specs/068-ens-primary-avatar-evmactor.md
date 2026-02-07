@@ -78,6 +78,10 @@ type EvmActorProfile = {
 
 - [x] At least one route or view uses `<EvmActor>` with data from the new collection (e.g. account page, transfer list, or peers).
 
+## Status
+
+Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomplete specs; re-verify 068): all 9 AC confirmed—EvmActorProfile$Id/EvmActorProfile in src/data/EvmActorProfile.ts; evmActorProfilesCollection getKey chainId:address (lowercase); ensureEvmActorProfile/fetchEvmActorProfile use resolveEnsReverse then resolveEnsForward(['avatar']); normalization at collection boundary; EvmActor Icon+Address+(primaryName), live query+ensure; account page uses EvmActor. test:unit 44 Deno + 159 Vitest passed. Previous: 2026-02-07 (PROMPT_build execute one spec): All 9 AC verified. `EvmActorProfile$Id` and `EvmActorProfile` in `src/data/EvmActorProfile.ts` ($id, primaryName?, avatarUrl?, $source). `evmActorProfilesCollection` in `src/collections/evm-actor-profiles.ts` with getKey `chainId:address` (lowercase); `ensureEvmActorProfile` / `fetchEvmActorProfile` use Voltaire (resolveEnsReverse → primary name, resolveEnsForward with `['avatar']`); normalization at collection boundary; reads via live query. `<EvmActor>` in `src/components/EvmActor.svelte`: Icon (avatar) + Address + (primaryName) when resolved; network and address props; profile from collection (live query + ensure). Account page `src/routes/account/[address]/+page.svelte` uses EvmActor.
+
 ## References
 
 - Spec 055 (identity input + resolver): existing `resolveEnsForward`, `resolveEnsReverse`, identity resolvers.
