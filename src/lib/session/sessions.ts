@@ -59,6 +59,17 @@ export const parseSessionHash = (hash: string): SessionHashResult => {
 				action !== 'closeChannel' &&
 				action !== 'addLiquidity' &&
 				action !== 'removeLiquidity' &&
+				action !== 'collectFees' &&
+				action !== 'increaseLiquidity' &&
+				action !== 'shareAddress' &&
+				action !== 'proposeTransfer' &&
+				action !== 'requestVerification' &&
+				action !== 'depositToCustody' &&
+				action !== 'withdrawFromCustody' &&
+				action !== 'resizeChannel' &&
+				action !== 'createPool' &&
+				action !== 'acceptTransfer' &&
+				action !== 'rejectTransfer' &&
 				action !== 'intent'
 			)
 				return null
