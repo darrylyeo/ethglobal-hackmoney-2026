@@ -25,7 +25,7 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/rooms': ['join-disabled', 'join-enabled'],
 	'/rooms/[roomId]': ['share', 'peers-empty'],
 	'/rooms/[roomId]/channels': ['default'],
-	'/session': ['swap', 'bridge', 'transfer', 'liquidity', 'unsupported'],
+	'/session': ['swap', 'bridge', 'transfer', 'liquidity', 'createChannel', 'addChannelMember', 'closeChannel', 'addLiquidity', 'removeLiquidity', 'unsupported'],
 	'/session/[id]': ['not-found', 'redirect'],
 	'/sessions': ['empty', 'populated'],
 	'/channels/yellow': ['default'],
@@ -205,6 +205,56 @@ export const coverageScenarios: CoverageScenario[] = [
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'Liquidity', level: 1, }),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/session',
+		branch: 'createChannel',
+		path: '/session#createChannel',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Create Channel', level: 1 }),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/session',
+		branch: 'addChannelMember',
+		path: '/session#addChannelMember',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Add Channel Member', level: 1 }),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/session',
+		branch: 'closeChannel',
+		path: '/session#closeChannel',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Close Channel', level: 1 }),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/session',
+		branch: 'addLiquidity',
+		path: '/session#addLiquidity',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { level: 1 }).first(),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/session',
+		branch: 'removeLiquidity',
+		path: '/session#removeLiquidity',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { level: 1 }).first(),
 			).toBeVisible()
 		},
 	},
