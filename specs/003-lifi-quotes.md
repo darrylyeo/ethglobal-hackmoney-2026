@@ -52,7 +52,7 @@ enable comparison and execution.
 
 ## Status
 
-Complete. Re-verification 2026-02-06 (PROMPT_build execute one spec): re-verified 003; all 8 AC (lifi.ts: StatusCallback, FeeBreakdown, NormalizedRoute, getLifiSdk internal, getRoutesForUsdcBridge with queryClient.fetchQuery, normalizeRoute, extractFeeBreakdown, executeSelectedRoute; USDC from ercTokensBySymbolByChainId; fetchBridgeRoutes in bridge-routes.ts calls getRoutesForUsdcBridge and stores in bridgeRoutesCollection; lifi.spec.ts mocks LI.FI and asserts normalized shape). test:unit 44 Deno + 101 Vitest passed.
+Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomplete specs; re-verify 003): all 8 AC confirmed—lifi.ts (StatusCallback, FeeBreakdown, NormalizedRoute, getLifiSdk, getRoutesForUsdcBridge, normalizeRoute, extractFeeBreakdown, executeSelectedRoute); USDC from ercTokensBySymbolByChainId; fetchBridgeRoutes in bridge-routes.ts uses getRoutesForUsdcBridge and bridgeRoutesCollection; lifi.spec.ts mocks and asserts normalized shape. test:unit 44 Deno + 159 Vitest passed.
 
 ## Output when complete
 
