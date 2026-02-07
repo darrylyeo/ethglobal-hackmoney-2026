@@ -50,7 +50,11 @@
 </svelte:head>
 
 
-<section class="about" data-scroll-item data-column="gap-4">
+<section
+	class="about"
+	data-scroll-item
+	data-column="gap-4"
+>
 	<header class="about__header" data-column="gap-2">
 		<h1>About</h1>
 		<p>

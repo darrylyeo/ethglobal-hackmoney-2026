@@ -2,7 +2,7 @@
 
 
 	// Types/constants
-	import type { IntentDragPayload } from '$/lib/intents/types.ts'
+	import type { EntityType } from '$/data/$EntityType.ts'
 
 
 	// Props
@@ -10,21 +10,32 @@
 		link,
 		draggableText,
 		className,
-		intent,
+		entityType,
+		entityId,
+		source,
 		children,
 		...rest
 	}: {
 		link?: string
 		draggableText: string
 		className: string
-		intent?: IntentDragPayload
+		entityType?: EntityType
+		entityId?: Record<string, unknown>
+		source?: string
 		children?: import('svelte').Snippet
 		[key: string]: unknown
 	} = $props()
 
 
 	// Functions
+	import { entityIntent } from '$/lib/intents/intentDraggable.svelte'
 	import { draggable } from '$/components/Draggable.svelte'
+
+
+	// (Derived)
+	const intent = $derived(
+		entityType && entityId ? entityIntent(entityType, entityId, source) : undefined,
+	)
 </script>
 
 

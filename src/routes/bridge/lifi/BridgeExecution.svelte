@@ -1,22 +1,24 @@
 <script lang="ts">
+
+
+	// Types/constants
 	import type { BridgeRoute } from '$/data/BridgeRoute.ts'
-	import type { WalletRow } from '$/collections/wallets.ts'
-	import type { EIP1193Provider } from '$/lib/wallet.ts'
-	import type { BridgeStatus } from '$/lib/bridge/txStatus.ts'
 	import type { Transaction } from '@tanstack/db'
-	import { createOptimisticAction } from '@tanstack/svelte-db'
-	import { executeSelectedRoute } from '$/api/lifi.ts'
-	import { getTxUrl } from '$/constants/explorers.ts'
-	import { toasts } from '$/lib/toast.svelte'
+	import type { Transaction$Id } from '$/data/Transaction.ts'
+	import type { WalletRow } from '$/collections/wallets.ts'
+	import type { BridgeStatus } from '$/lib/bridge/txStatus.ts'
+	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import {
 		insertTransaction,
 		updateTransaction,
 	} from '$/collections/transactions.ts'
-	import type { Transaction$Id } from '$/data/Transaction.ts'
+	import { executeSelectedRoute } from '$/api/lifi.ts'
+	import { getTxUrl } from '$/constants/explorers.ts'
+	import { toasts } from '$/lib/toast.svelte'
+	import { createOptimisticAction } from '@tanstack/svelte-db'
 
-	const isHexHash = (value: unknown): value is `0x${string}` =>
-		typeof value === 'string' && value.startsWith('0x')
 
+	// Props
 	let {
 		route,
 		walletRow,
@@ -28,18 +30,19 @@
 		status = $bindable({ overall: 'idle', steps: [] } as BridgeStatus),
 		onExecute,
 	}: {
-		route: BridgeRoute
-		walletRow: WalletRow
-		walletAddress: `0x${string}`
-		fromChainId: number
-		toChainId: number
-		amount: bigint
-		executing?: boolean
-		status?: BridgeStatus
-		onExecute?: (fn: () => Promise<{ txHash?: `0x${string}` } | undefined>) => void
+		route: BridgeRoute,
+		walletRow: WalletRow,
+		walletAddress: `0x${string}`,
+		fromChainId: number,
+		toChainId: number,
+		amount: bigint,
+		executing?: boolean,
+		status?: BridgeStatus,
+		onExecute?: (fn: () => Promise<{ txHash?: `0x${string}` } | undefined>) => void,
 	} = $props()
 
-	// Build compatible ProviderDetailType for API
+
+	// (Derived)
 	const providerDetail = $derived({
 		info: {
 			uuid: walletRow.$id.rdns,
@@ -50,28 +53,32 @@
 		provider: walletRow.provider,
 	})
 
-	// Current action transaction for state tracking
+	// State
 	let actionTx = $state<Transaction<Record<string, unknown>> | null>(null)
 
-	// Execute function for parent component
+
+	// Actions
 	const handleExecute = async () => {
 		return await execute()
 	}
 
-	// Provide execute function to parent
 	$effect(() => {
 		if (onExecute) {
 			onExecute(handleExecute)
 		}
 	})
 
-	// Sync executing prop with action state
 	$effect(() => {
 		executing =
 			actionTx?.state === 'pending' || actionTx?.state === 'persisting'
 	})
 
-	// Define the bridge action
+
+	// (Derived)
+	const failed = $derived(actionTx?.state === 'failed')
+
+
+	// State
 	const executeBridge = createOptimisticAction<{
 		route: BridgeRoute
 		providerDetail: typeof providerDetail
@@ -147,9 +154,6 @@
 			}
 		},
 	})
-
-	// Derived state from action transaction
-	const failed = $derived(actionTx?.state === 'failed')
 
 	const execute = async () => {
 		status = { overall: 'in_progress', steps: [] }

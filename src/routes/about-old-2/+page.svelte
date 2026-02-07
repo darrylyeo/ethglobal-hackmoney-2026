@@ -15,7 +15,10 @@
 </svelte:head>
 
 
-<section data-scroll-item data-column="center gap-4">
+<section
+		data-scroll-item
+		data-column="center gap-4"
+	>
 	<h1>About</h1>
 	<p>
 		USDC Tools is a SvelteKit app for bridging, swapping, and tracking USDC
@@ -42,7 +45,11 @@
 			<li>Build, test, and performance tooling</li>
 		</ul>
 	</section>
-	<section data-column="gap-2" class="legend" aria-label="Diagram legend">
+	<section
+		data-column="gap-2"
+		class="legend"
+		aria-label="Diagram legend"
+	>
 		<h2>Architecture diagram</h2>
 		<dl data-row="wrap gap-x-4 gap-y-1">
 			<dt>Nodes</dt>
@@ -68,7 +75,10 @@
 			</dd>
 		</dl>
 	</section>
-	<section class="diagram-section" aria-label="Architecture diagram">
+	<section
+		class="diagram-section"
+		aria-label="Architecture diagram"
+	>
 		<ArchitectureGraph />
 	</section>
 	<section

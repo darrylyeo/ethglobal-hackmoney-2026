@@ -14,7 +14,6 @@
 
 	// Types/constants
 	import type { Network$Id } from '$/data/Network.ts'
-	import type { IntentDragPayload } from '$/lib/intents/types.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 
 
@@ -35,21 +34,6 @@
 	} = $props()
 
 
-	// (Derived)
-	const intent = $derived<IntentDragPayload>({
-		entity: {
-			type: EntityType.Actor,
-			id: {
-				network,
-				address,
-			},
-		},
-		context: {
-			source: 'address',
-		},
-	})
-
-
 	// Components
 	import EntityId from './EntityId.svelte'
 	import TruncatedValue from './TruncatedValue.svelte'
@@ -59,7 +43,9 @@
 <EntityId
 	draggableText={address}
 	className="address"
-	{intent}
+	entityType={EntityType.Actor}
+	entityId={{ network, address }}
+	source="address"
 >
 	{#if !ensName}
 		<TruncatedValue value={address} />

@@ -50,6 +50,7 @@
 		toNetworkSlug,
 	} from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+	import { entityIntent } from '$/lib/intents/intentDraggable.svelte'
 	import {
 		entityTypes,
 		type GraphSceneEntityType,
@@ -871,15 +872,8 @@
 
 	const toNodeId = (prefix: string, id: unknown) => `${prefix}:${stringify(id)}`
 
-	const toIntentPayload = (type: EntityType, id: Record<string, unknown>) => ({
-		entity: {
-			type,
-			id,
-		},
-		context: {
-			source: 'graph',
-		},
-	})
+	const toIntentPayload = (type: EntityType, id: Record<string, unknown>) =>
+		entityIntent(type, id, 'graph')
 
 
 	// (Derived)
@@ -2074,6 +2068,10 @@
 						opacity: row.isConnected ? 1 : 0.6,
 					},
 					disabled: !row.isConnected,
+					intent: toIntentPayload(EntityType.RoomPeer, {
+						roomId: row.roomId,
+						peerId: row.peerId,
+					}),
 					details: {
 						roomId: row.roomId,
 						peerId: row.peerId,

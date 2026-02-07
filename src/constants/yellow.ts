@@ -111,25 +111,25 @@ export const yellowChallengePeriodLimits = [
 ] as const satisfies readonly YellowChallengePeriodLimitEntry[]
 
 export const yellowClearnodeEndpointByEnvironment: Partial<
-	Record<YellowEnvironment, string>,
+	Record<YellowEnvironment, string>
 > = Object.fromEntries(
 	yellowClearnodeEndpoints.map((entry) => [entry.environment, entry.url]),
 )
 
 export const yellowCustodyContractByChainId: Partial<
-	Record<number, `0x${string}`>,
+	Record<number, `0x${string}`>
 > = Object.fromEntries(
 	yellowCustodyContracts.map((entry) => [entry.chainId, entry.address]),
 )
 
 export const yellowDeploymentByChainId: Partial<
-	Record<number, YellowContractDeployment>,
+	Record<number, YellowContractDeployment>
 > = Object.fromEntries(
 	yellowContractDeployments.map((d) => [d.chainId, d]),
 )
 
 export const yellowChallengePeriodByLimit: Partial<
-	Record<YellowChallengePeriodLimit, number>,
+	Record<YellowChallengePeriodLimit, number>
 > = Object.fromEntries(
 	yellowChallengePeriodLimits.map((entry) => [entry.limit, entry.seconds]),
 )

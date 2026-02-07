@@ -2,7 +2,6 @@
 
 
 	// Types/constants
-	import type { IntentDragPayload } from '$/lib/intents/types.ts'
 	import { CoinType, ercTokens } from '$/constants/coins.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { MediaType } from '$/constants/media.ts'
@@ -313,15 +312,6 @@
 									}}
 							{@const network = networksByChainId[b.$id.chainId]}
 							{#if network}
-								{@const intent = {
-									entity: {
-										type: EntityType.ActorCoin,
-										id: b.$id,
-									},
-									context: {
-										source: 'balances',
-									},
-								} satisfies IntentDragPayload}
 								<div class="balance-item" data-balance-item data-column>
 									<dt>{network.name}</dt>
 									{#if b.isLoading}
@@ -336,7 +326,9 @@
 										<EntityId
 											className="balance-intent"
 											draggableText={`${b.symbol} ${b.$id.address}`}
-											{intent}
+											entityType={EntityType.ActorCoin}
+											entityId={b.$id}
+											source="balances"
 										>
 											<CoinAmount
 												{coin}

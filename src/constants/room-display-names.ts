@@ -1,10 +1,88 @@
 /**
  * Room display name word lists for human-friendly room codes.
+ * Format: [Adjective] [Color] [Place name]
  */
 
 export type RoomLandmarkEntry = {
 	landmark: string
 }
+
+export const colors = [
+	{ color: 'Amber' },
+	{ color: 'Apricot' },
+	{ color: 'Aqua' },
+	{ color: 'Azure' },
+	{ color: 'Beige' },
+	{ color: 'Black' },
+	{ color: 'Blush' },
+	{ color: 'Blue' },
+	{ color: 'Bronze' },
+	{ color: 'Brown' },
+	{ color: 'Cerulean' },
+	{ color: 'Champagne' },
+	{ color: 'Charcoal' },
+	{ color: 'Chocolate' },
+	{ color: 'Cobalt' },
+	{ color: 'Coral' },
+	{ color: 'Copper' },
+	{ color: 'Cream' },
+	{ color: 'Crimson' },
+	{ color: 'Cyan' },
+	{ color: 'Denim' },
+	{ color: 'Ebony' },
+	{ color: 'Fuchsia' },
+	{ color: 'Gold' },
+	{ color: 'Garnet' },
+	{ color: 'Graphite' },
+	{ color: 'Gray' },
+	{ color: 'Green' },
+	{ color: 'Hazel' },
+	{ color: 'Honey' },
+	{ color: 'Indigo' },
+	{ color: 'Ivory' },
+	{ color: 'Jade' },
+	{ color: 'Lavender' },
+	{ color: 'Lilac' },
+	{ color: 'Lime' },
+	{ color: 'Magenta' },
+	{ color: 'Mahogany' },
+	{ color: 'Maroon' },
+	{ color: 'Mauve' },
+	{ color: 'Mint' },
+	{ color: 'Mustard' },
+	{ color: 'Navy' },
+	{ color: 'Olive' },
+	{ color: 'Onyx' },
+	{ color: 'Orange' },
+	{ color: 'Peach' },
+	{ color: 'Pearl' },
+	{ color: 'Pewter' },
+	{ color: 'Pink' },
+	{ color: 'Plum' },
+	{ color: 'Purple' },
+	{ color: 'Rose' },
+	{ color: 'Ruby' },
+	{ color: 'Saffron' },
+	{ color: 'Salmon' },
+	{ color: 'Sand' },
+	{ color: 'Sapphire' },
+	{ color: 'Scarlet' },
+	{ color: 'Silver' },
+	{ color: 'Slate' },
+	{ color: 'Snow' },
+	{ color: 'Tan' },
+	{ color: 'Teal' },
+	{ color: 'Turquoise' },
+	{ color: 'Umber' },
+	{ color: 'Vermillion' },
+	{ color: 'Violet' },
+	{ color: 'Wheat' },
+	{ color: 'White' },
+] as const
+
+export const colorsByIndex = Object.fromEntries(
+	colors.map((entry, index) => [index, entry]),
+)
 
 export const adjectives = [
 	{ adjective: 'Ancient' },
