@@ -7,6 +7,7 @@ import type {
 	TransactionSessionStatus,
 } from '$/data/TransactionSession.ts'
 import type { TransactionSessionSimulationStatus } from '$/data/TransactionSessionSimulation.ts'
+import { validSessionActions } from '$/lib/intents.ts'
 import {
 	normalizeTransactionSessionParams,
 	type TransactionSessionDefaults,
@@ -49,29 +50,7 @@ export const parseSessionHash = (hash: string): SessionHashResult => {
 			const action = (
 				separatorIndex === -1 ? entry : entry.slice(0, separatorIndex)
 			).trim() as TransactionSessionAction
-			if (
-				action !== 'swap' &&
-				action !== 'bridge' &&
-				action !== 'transfer' &&
-				action !== 'liquidity' &&
-				action !== 'createChannel' &&
-				action !== 'addChannelMember' &&
-				action !== 'closeChannel' &&
-				action !== 'addLiquidity' &&
-				action !== 'removeLiquidity' &&
-				action !== 'collectFees' &&
-				action !== 'increaseLiquidity' &&
-				action !== 'shareAddress' &&
-				action !== 'proposeTransfer' &&
-				action !== 'requestVerification' &&
-				action !== 'depositToCustody' &&
-				action !== 'withdrawFromCustody' &&
-				action !== 'resizeChannel' &&
-				action !== 'createPool' &&
-				action !== 'acceptTransfer' &&
-				action !== 'rejectTransfer' &&
-				action !== 'intent'
-			)
+			if (!validSessionActions.has(action))
 				return null
 			if (separatorIndex === -1) {
 				return {

@@ -1,26 +1,10 @@
+import type { ActionSessionAction } from '$/constants/intents.ts'
+
 export type TransactionSessionStatus = 'Draft' | 'Submitted' | 'Finalized'
 
 export type TransactionSessionAction =
-	| 'swap'
-	| 'bridge'
-	| 'transfer'
+	| ActionSessionAction
 	| 'liquidity'
-	| 'createChannel'
-	| 'addChannelMember'
-	| 'closeChannel'
-	| 'addLiquidity'
-	| 'removeLiquidity'
-	| 'collectFees'
-	| 'increaseLiquidity'
-	| 'shareAddress'
-	| 'proposeTransfer'
-	| 'requestVerification'
-	| 'depositToCustody'
-	| 'withdrawFromCustody'
-	| 'resizeChannel'
-	| 'createPool'
-	| 'acceptTransfer'
-	| 'rejectTransfer'
 	| 'intent'
 
 export type TransactionSessionSimulationSummary = {
