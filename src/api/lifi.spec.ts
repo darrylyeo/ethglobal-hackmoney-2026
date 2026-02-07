@@ -1,4 +1,4 @@
-import { queryClient } from '$/lib/db/queryClient.ts'
+import { queryClient } from '$/lib/db/query-client.ts'
 import type { LiFiStep, Route } from '@lifi/sdk'
 import {
 	extractFeeBreakdown,

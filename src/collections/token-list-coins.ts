@@ -4,7 +4,7 @@ import { TOKEN_LIST_MAX_ENTRIES } from '$/constants/query-limits.ts'
 import { tokenListUrls } from '$/constants/token-lists.ts'
 import type { TokenListCoin } from '$/data/TokenListCoin.ts'
 import { normalizeAddress } from '$/lib/address.ts'
-import { queryClient } from '$/lib/db/queryClient.ts'
+import { queryClient } from '$/lib/db/query-client.ts'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { createCollection } from '@tanstack/svelte-db'
 
