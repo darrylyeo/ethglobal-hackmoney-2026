@@ -90,14 +90,24 @@
 </svelte:head>
 
 
-<main id="main" data-sticky-container data-column>
+<main
+	id="main"
+	data-sticky-container
+	data-column
+>
 	<h1>Peers</h1>
 
 	<p>Verified accounts (addresses you have verified in a room).</p>
 
-	<ul data-column="gap-2" data-card>
+	<ul
+		data-column="gap-2"
+		data-card
+	>
 		{#each peersList as entry (entry.peerId + entry.address)}
-			<li data-row="gap-2" data-list-row>
+			<li
+				data-row="gap-2"
+				data-list-row
+			>
 				<a href={resolve(`/account/${encodeURIComponent(entry.address)}`)}>
 					<span>{entry.displayName ?? formatAddress(entry.address)}</span>
 					<span data-muted>{formatAddress(entry.address)}</span>
@@ -123,3 +133,4 @@
 		</p>
 	{/if}
 </main>
+
