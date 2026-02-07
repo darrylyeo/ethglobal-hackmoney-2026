@@ -3,25 +3,25 @@
 
 	// Types/constants
 	import type { IntentDragPayload } from '$/constants/intents.ts'
-	import { intents, IntentPlacement } from '$/constants/intents.ts'
-	import { EntityType } from '$/data/$EntityType.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
+	import { intents, IntentPlacement } from '$/constants/intents.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
-
-
-	// Functions
-	import { entityIntent } from '$/lib/intents/intentDraggable.svelte'
-	import { resolveIntentForDrag } from '$/lib/intents.ts'
-	import { getIntentDragPayload } from '$/lib/intents/drag.ts'
-	import { formatSmallestToDecimal } from '$/lib/format.ts'
-
-	const resolveChainName = (chainId: number) =>
-		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
-			?.name ?? `Chain ${chainId}`
+	import { EntityType } from '$/data/$EntityType.ts'
 
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+
+
+	// Functions
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { getIntentDragPayload } from '$/lib/intents/drag.ts'
+	import { entityIntent } from '$/lib/intents/intentDraggable.svelte'
+	import { resolveIntentForDrag } from '$/lib/intents.ts'
+
+	const resolveChainName = (chainId: number) =>
+		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
+			?.name ?? `Chain ${chainId}`
 
 
 	// State
@@ -29,22 +29,6 @@
 
 	let fromPayload = $state<IntentDragPayload | null>(null)
 	let toPayload = $state<IntentDragPayload | null>(null)
-
-	const setPayload = (placement: 'from' | 'to', payload: IntentDragPayload) => {
-		if (placement === 'from') fromPayload = payload
-		else toPayload = payload
-	}
-
-	const onDrop = (placement: 'from' | 'to') => (event: DragEvent) => {
-		event.preventDefault()
-		const payload = getIntentDragPayload(event)
-		if (!payload) return
-		setPayload(placement, payload)
-	}
-
-	const onDragOver = (event: DragEvent) => {
-		event.preventDefault()
-	}
 
 	const actorCoinsQuery = useLiveQuery((q) =>
 		q
@@ -62,6 +46,24 @@
 			? resolveIntentForDrag(fromPayload.entity, toPayload.entity)
 			: null,
 	)
+
+
+	// Actions
+	const setPayload = (placement: 'from' | 'to', payload: IntentDragPayload) => {
+		if (placement === 'from') fromPayload = payload
+		else toPayload = payload
+	}
+
+	const onDrop = (placement: 'from' | 'to') => (event: DragEvent) => {
+		event.preventDefault()
+		const payload = getIntentDragPayload(event)
+		if (!payload) return
+		setPayload(placement, payload)
+	}
+
+	const onDragOver = (event: DragEvent) => {
+		event.preventDefault()
+	}
 
 
 	// Components
@@ -239,3 +241,4 @@
 		cursor: grabbing;
 	}
 </style>
+
