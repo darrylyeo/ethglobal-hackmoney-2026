@@ -28,7 +28,7 @@
 		targetRect: DOMRect
 		gap?: number
 		arrowHeadSize?: number
-		tooltipContent: Snippet
+		tooltipContent?: Snippet
 		interactive?: boolean
 		flowIconSrc?: string
 	} = $props()
@@ -75,6 +75,7 @@
 		{flowIconSrc}
 	/>
 
+{#if tooltipContent}
 	<Tooltip.Root open={true} delayDuration={0} disableHoverableContent={false}>
 		<Tooltip.Trigger>
 			{#snippet child({ props })}
@@ -97,6 +98,7 @@
 			</Tooltip.Content>
 		</Tooltip.Portal>
 	</Tooltip.Root>
+{/if}
 </div>
 
 

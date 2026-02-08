@@ -14,17 +14,9 @@
 
 	// Functions
 	import { resolveIntentForDrag } from '$/lib/intents.ts'
-	import { stringify } from '$/lib/stringify.ts'
 
-	const toActionHash = (option: IntentOption) => (
-		`#/${option.actions
-			.map(({ protocolAction, payload }) => {
-				const actionType = protocolAction.action
-				return Object.keys(payload).length > 0
-					? `${actionType}:${encodeURIComponent(stringify(payload))}`
-					: actionType
-			})
-			.join('|')}`
+	const toActionSearch = (option: IntentOption) => (
+		`?template=${option.sessionTemplate.actions[0]?.type ?? 'Swap'}`
 	)
 
 	const hasViewTransition = (
@@ -131,6 +123,7 @@
 	$effect(() => {
 		if (typeof window === 'undefined') return
 		const onDragEnd = () => {
+			if (!intentDragPreviewState.target) pointerPosition = null
 			finalizeIntentDragPreview()
 		}
 		window.addEventListener('dragend', onDragEnd)
@@ -216,7 +209,7 @@
 		selectIntentDragRoute(String(index))
 
 		await runWithViewTransition(async () => {
-			await navigateTo('/session', toActionHash(option))
+			await navigateTo('/session', toActionSearch(option))
 		})
 
 		clearIntentDragPreview()
@@ -229,72 +222,78 @@
 
 
 {#if isActive && intentDragPreviewState.source && effectiveTargetRect}
-	<DragArrow
-		sourceRect={intentDragPreviewState.source.rect}
-		targetRect={effectiveTargetRect}
-		gap={8}
-		interactive={isInteractive}
-		{flowIconSrc}
-	>
-		{#snippet tooltipContent()}
-			<div
-				class="intent-drag-tooltip"
-				data-card="padding-3"
-				data-column="gap-3"
-				data-state={intentDragPreviewState.status}
-				data-interactive={isInteractive ? 'true' : 'false'}
-				bind:this={tooltipContentRef}
-			>
-				{#if resolution?.matched}
-					<header data-row="gap-4 align-baseline">
-						<strong>{resolution.intent.label}</strong>
-						<span data-muted>
-							{resolution.options.length} option{resolution.options.length === 1 ? '' : 's'}
-						</span>
-					</header>
+	{#if resolution?.matched || (sourcePayload && targetPayload)}
+		<DragArrow
+			sourceRect={intentDragPreviewState.source.rect}
+			targetRect={effectiveTargetRect}
+			gap={8}
+			interactive={isInteractive}
+			{flowIconSrc}
+		>
+			{#snippet tooltipContent()}
+				<div
+					class="intent-drag-tooltip"
+					data-card="padding-3"
+					data-column="gap-3"
+					data-state={intentDragPreviewState.status}
+					data-interactive={isInteractive ? 'true' : 'false'}
+					bind:this={tooltipContentRef}
+				>
+					{#if resolution?.matched}
+						<header data-row="gap-4 align-baseline">
+							<strong>{resolution.intent.label}</strong>
+							<span data-muted>
+								{resolution.options.length} option{resolution.options.length === 1 ? '' : 's'}
+							</span>
+						</header>
 
-					{#if resolution.options.length > 0}
-						<ol data-list="unstyled" data-column="gap-2">
-							{#each resolution.options as option, i (i)}
-								<li>
-									<button
-										type="button"
-										data-block
-										data-muted
-										data-row="gap-4 align-baseline"
-										onclick={() => selectOption(option, i)}
-										disabled={!isInteractive}
-									>
-										<span
-											data-intent-transition={intentDragPreviewState.selectedRouteId === String(i) ? 'route' : undefined}
+						{#if resolution.options.length > 0}
+							<ol data-list="unstyled" data-column="gap-2">
+								{#each resolution.options as option, i (i)}
+									<li>
+										<button
+											type="button"
+											data-block
+											data-muted
+											data-row="gap-4 align-baseline"
+											onclick={() => selectOption(option, i)}
+											disabled={!isInteractive}
 										>
-											{option.label}
-										</span>
-										<small data-muted>
-											{option.actions.length} {option.actions.length === 1 ? 'step' : 'steps'}
-										</small>
-									</button>
-								</li>
-							{/each}
-						</ol>
-					{:else if resolution.error}
-						<p data-muted>{resolution.error instanceof Error ? resolution.error.message : String(resolution.error)}</p>
-					{:else}
-						<p data-muted>No options available.</p>
+											<span
+												data-intent-transition={intentDragPreviewState.selectedRouteId === String(i) ? 'route' : undefined}
+											>
+												{option.name}
+											</span>
+											<small data-muted>
+												{option.sessionTemplate.actions.length} {option.sessionTemplate.actions.length === 1 ? 'step' : 'steps'}
+											</small>
+										</button>
+									</li>
+								{/each}
+							</ol>
+						{:else if resolution.error}
+							<p data-muted>{resolution.error instanceof Error ? resolution.error.message : String(resolution.error)}</p>
+						{:else}
+							<p data-muted>No options available.</p>
+						{/if}
+					{:else if sourcePayload && targetPayload}
+						<header data-row="gap-4">
+							<strong data-muted>No matching intent</strong>
+						</header>
+						<p data-muted>These entities can't be combined.</p>
 					{/if}
-				{:else if sourcePayload && targetPayload}
-					<header data-row="gap-4">
-						<strong data-muted>No matching intent</strong>
-					</header>
-					<p data-muted>These entities can't be combined.</p>
-				{:else}
-					<header data-row="gap-4 align-baseline">
-						<strong data-muted>Drop on a target</strong>
-					</header>
-				{/if}
-			</div>
-		{/snippet}
-	</DragArrow>
+				</div>
+			{/snippet}
+		</DragArrow>
+	{:else}
+		<DragArrow
+			sourceRect={intentDragPreviewState.source.rect}
+			targetRect={effectiveTargetRect}
+			gap={8}
+			interactive={isInteractive}
+			{flowIconSrc}
+		/>
+	{/if}
 {/if}
 
 

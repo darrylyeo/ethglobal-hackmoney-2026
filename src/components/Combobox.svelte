@@ -23,6 +23,10 @@
 		Item,
 		children,
 		inputValue = $bindable(''),
+		getDisplayValue,
+		onInputBlur,
+		onInputKeydown,
+		Input,
 		...rootProps
 	}: {
 		items:
@@ -43,6 +47,10 @@
 		Item?: Snippet<[item: Item, selected: boolean]>
 		children?: Snippet
 		inputValue?: string
+		getDisplayValue?: (value: string) => string
+		onInputBlur?: () => void
+		onInputKeydown?: (e: KeyboardEvent) => void
+		Input?: Snippet<[props: Record<string, unknown>]>
 		[key: string]: unknown
 	} = $props()
 
@@ -134,7 +142,9 @@
 			type === 'multiple'
 				? ''
 				: typeof value === 'string'
-					? (normalizedItems.find((item) => item.id === value)?.label ?? '')
+					? (normalizedItems.find((item) => item.id === value)?.label ??
+						getDisplayValue?.(value) ??
+						'')
 					: ''
 		if (inputValue !== nextValue) inputValue = nextValue
 	})
@@ -162,7 +172,9 @@
 		value = nextValue
 		if (typeof nextValue === 'string') {
 			const nextItem = normalizedItems.find((item) => item.id === nextValue)
-			if (nextItem) inputValue = nextItem.label
+			inputValue = nextItem
+				? nextItem.label
+				: (getDisplayValue?.(nextValue) ?? nextValue)
 		} else if (nextArr.length > prevArr.length) {
 			queueMicrotask(() => (inputValue = ''))
 		}
@@ -321,23 +333,51 @@
 		{#if children}
 			{@render children()}
 		{:else}
-			<div data-row="gap-1 align-center">
+			<div
+				data-combobox-single
+				data-has-before={!!Before}
+				data-row="gap-1 align-center"
+			>
 				{#if Before}
-					{@render Before()}
+					<span data-combobox-before>
+						{@render Before()}
+					</span>
 				{/if}
 				<Combobox.Input
 					{id}
 					aria-label={ariaLabel}
 					{placeholder}
-					oninput={onInput}
-					onfocus={() => {
-						isFocused = true
-						open = true
-					}}
-					onblur={() => {
-						isFocused = false
-					}}
-				/>
+				>
+					{#snippet child({ props }: { props: Record<string, unknown> })}
+						{@const mergedProps = {
+							...props,
+							onfocus: () => {
+								;(props.onfocus as (() => void) | undefined)?.()
+								isFocused = true
+								open = true
+							},
+							onblur: () => {
+								;(props.onblur as (() => void) | undefined)?.()
+								isFocused = false
+								onInputBlur?.()
+							},
+							onkeydown: (e: KeyboardEvent) => {
+								;(props.onkeydown as ((e: KeyboardEvent) => void) | undefined)?.(e)
+								onInputKeydown?.(e)
+							},
+							oninput: (e: Event) => {
+								onInput(e)
+								typeof props.oninput === 'function' &&
+									(props.oninput as (e: Event) => void)(e)
+							},
+						}}
+						{#if Input}
+							{@render Input(mergedProps)}
+						{:else}
+							<input {...mergedProps} />
+						{/if}
+					{/snippet}
+				</Combobox.Input>
 				{#if After}
 					<Combobox.Trigger aria-label={ariaLabel ?? 'Open'}>
 						{@render After()}

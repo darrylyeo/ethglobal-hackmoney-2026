@@ -31,15 +31,13 @@
 	import Icon from '$/components/Icon.svelte'
 </script>
 
-{#if src}
-	<Icon
-		{src}
-		{alt}
-		title={resolvedTitle}
-		{size}
-		shape={IconShape.Square}
-		{backgroundColor}
-		{subicon}
-		class={className}
-	/>
-{/if}
+<Icon
+	{src}
+	{alt}
+	title={resolvedTitle}
+	{size}
+	shape={IconShape.Square}
+	backgroundColor={src ? undefined : backgroundColor}
+	{subicon}
+	class={className}
+/>

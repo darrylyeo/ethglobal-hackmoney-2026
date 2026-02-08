@@ -6,6 +6,7 @@
 		string,
 		{ getSuggestions: (query: string) => Item[], pattern?: RegExp }
 	>
+
 	// Props
 	let {
 		segments = $bindable<string[]>(['']),
@@ -35,17 +36,14 @@
 		autofocus?: boolean
 	} = $props()
 
-
 	// (Derived)
 	const defaultTrigger = $derived(
 		(Object.keys(triggerConfig)[0] as string) ?? '@',
 	)
 
-
 	// State
 	let editEl = $state<HTMLDivElement | null>(null)
 	let placeholderFocused = $state(false)
-
 
 	// Functions
 	function parseContent(container: HTMLElement): { segments: string[], refs: Ref[] } {
@@ -76,7 +74,9 @@
 		return { segments: outSegments, refs: outRefs }
 	}
 
-	function getSegmentIndexAndOffset(container: HTMLElement): { segmentIndex: number, offset: number } | null {
+	function getSegmentIndexAndOffset(
+		container: HTMLElement,
+	): { segmentIndex: number, offset: number } | null {
 		const sel = document.getSelection()
 		if (!sel || sel.rangeCount === 0) return null
 		const anchor = sel.anchorNode
@@ -189,14 +189,14 @@
 		const i = refs.findIndex(isPlaceholder)
 		if (i < 0) return
 		placeholderFocused = false
-		const offset = segments[i].length
+		const merged = segments[i] + segments[i + 1]
 		segments = [
 			...segments.slice(0, i),
-			segments[i] + segments[i + 1],
+			merged,
 			...segments.slice(i + 2),
 		]
 		refs = refs.filter((_, idx) => idx !== i)
-		focusEditableAt(i, offset)
+		focusEditableAt(i, merged.length)
 	}
 
 	function closeComboboxAndAppendAt() {
@@ -204,23 +204,28 @@
 		if (i < 0) return
 		placeholderFocused = false
 		const triggerChar = refs[i].trigger ?? defaultTrigger
-		const offset = segments[i].length + triggerChar.length
+		const merged = segments[i] + triggerChar + segments[i + 1]
 		segments = [
 			...segments.slice(0, i),
-			segments[i] + triggerChar + segments[i + 1],
+			merged,
 			...segments.slice(i + 2),
 		]
 		refs = refs.filter((_, idx) => idx !== i)
-		focusEditableAt(i, offset)
+		focusEditableAt(i, merged.length)
 	}
 
 	function moveCaretFromCombobox(direction: 'left' | 'right') {
 		const i = refs.findIndex(isPlaceholder)
 		if (i < 0) return
-		if (direction === 'left')
-			focusEditableAt(i, segments[i].length)
-		else
-			focusEditableAt(i + 1, 0)
+		if (direction === 'left') closeComboboxAndFocusEditable()
+		else closeComboboxAndAppendAt()
+	}
+
+	function handlePaste(e: ClipboardEvent) {
+		const text = e.clipboardData?.getData('text/plain')
+		if (text == null) return
+		e.preventDefault()
+		document.execCommand?.('insertText', false, text)
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -248,18 +253,14 @@
 		}
 	}
 
-
 	// (Derived)
 	$effect(() => {
-		if (autofocus && editEl)
-			editEl.focus()
+		if (autofocus && editEl) editEl.focus()
 	})
-
 
 	// Components
 	import RichTextareaReference from '$/components/RichTextareaReference.svelte'
 </script>
-
 
 <div
 	bind:this={editEl}
@@ -273,6 +274,7 @@
 	aria-label={placeholderText}
 	tabindex="0"
 	oninput={handleInput}
+	onpaste={handlePaste}
 	onkeydown={handleKeydown}
 >
 	{#each segments as segment, i (i)}
@@ -300,7 +302,6 @@
 		{/if}
 	{/each}
 </div>
-
 
 <style>
 	.rich-textarea {

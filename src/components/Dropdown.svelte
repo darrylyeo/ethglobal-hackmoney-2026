@@ -451,7 +451,7 @@
 								{@const menuItem = item}
 								<DropdownMenu.Item
 									disabled={menuItem.disabled}
-									onclick={() =>
+									onSelect={() =>
 										onItemSelectInternal(menuItem.item, menuItem.onSelect)}
 								>
 									{#if Item}
@@ -552,7 +552,7 @@
 					{@const menuItem = entry}
 					<DropdownMenu.Item
 						disabled={menuItem.disabled}
-						onclick={() =>
+						onSelect={() =>
 							onItemSelectInternal(menuItem.item, menuItem.onSelect)}
 					>
 						{#if Item}

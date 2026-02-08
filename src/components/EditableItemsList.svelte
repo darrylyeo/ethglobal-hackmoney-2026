@@ -28,7 +28,7 @@
 			ItemsListOperation.Reorder,
 		],
 		createItem,
-		duplicateItem = (item: _Item) => structuredClone(item),
+		duplicateItem = (item: _Item) => structuredClone($state.snapshot(item) as _Item),
 		Item,
 	}: {
 		items: _Item[]

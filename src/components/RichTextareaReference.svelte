@@ -8,7 +8,6 @@
 	// Components
 	import Combobox from '$/components/Combobox.svelte'
 
-
 	// Props
 	let {
 		ref: refValue,
@@ -37,14 +36,12 @@
 		onMoveCaret?: (dir: 'left' | 'right') => void
 		onClose?: () => void
 		onCloseEmpty?: () => void
-		onBlur?: () => void,
+		onBlur?: () => void
 	} = $props()
-
 
 	// State
 	let filterValue = $state('')
 	let selectedId = $state('')
-
 
 	// (Derived)
 	const items = $derived(getSuggestions(filterValue))
@@ -57,12 +54,27 @@
 		selectedId = ''
 	})
 
-
 	// Functions
 	const camelToKebab = (s: string) =>
 		s.replace(/([A-Z])/g, (m) => `-${m.toLowerCase()}`)
-</script>
 
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'ArrowLeft') {
+			e.preventDefault()
+			onMoveCaret?.('left')
+		} else if (e.key === 'ArrowRight') {
+			e.preventDefault()
+			onMoveCaret?.('right')
+		} else if ((e.key === 'Delete' || e.key === 'Backspace') && filterValue === '') {
+			e.preventDefault()
+			onCloseEmpty?.()
+		}
+	}
+
+	function handleFocusout(container: HTMLElement, e: FocusEvent) {
+		if (!container.contains(e.relatedTarget as Node)) onBlur?.()
+	}
+</script>
 
 <span data-ref>
 	{#if isEditable && isFocused}
@@ -70,34 +82,20 @@
 			data-placeholder
 			data-trigger={triggerCharacter}
 			role="presentation"
-			{@attach (element) => {
-				const keyHandler = (e: KeyboardEvent) => {
-					if (e.key === 'ArrowLeft') {
-						e.preventDefault()
-						onMoveCaret?.('left')
-					} else if (e.key === 'ArrowRight') {
-						e.preventDefault()
-						onMoveCaret?.('right')
-					} else if ((e.key === 'Delete' || e.key === 'Backspace') && filterValue === '') {
-						e.preventDefault()
-						onCloseEmpty?.()
-					}
-				}
-				const blurHandler = (e: FocusEvent) => {
-					if (!element.contains(e.relatedTarget as Node)) onBlur?.()
-				}
-				element.addEventListener('keydown', keyHandler, true)
-				element.addEventListener('focusout', blurHandler, true)
+			{@attach (el) => {
+				const blur = (e: FocusEvent) => handleFocusout(el, e)
+				el.addEventListener('keydown', handleKeydown, true)
+				el.addEventListener('focusout', blur, true)
 				return () => {
-					element.removeEventListener('keydown', keyHandler, true)
-					element.removeEventListener('focusout', blurHandler, true)
+					el.removeEventListener('keydown', handleKeydown, true)
+					el.removeEventListener('focusout', blur, true)
 				}
 			}}
 		>
 			<Combobox
 				items={items}
-				getItemId={getItemId}
-				getItemLabel={getItemLabel}
+				{getItemId}
+				{getItemLabel}
 				bind:value={selectedId}
 				bind:inputValue={filterValue}
 				placeholder=""
@@ -122,19 +120,18 @@
 	{/if}
 </span>
 
-
 <style>
 	[data-ref] {
 		[data-placeholder] {
 			display: inline;
+		}
 
-			&::before {
-				content: attr(data-trigger);
-			}
+		[data-placeholder]::before {
+			content: attr(data-trigger);
+		}
 
-			& :global(input) {
-				field-sizing: content;
-			}
+		[data-placeholder] :global(input) {
+			field-sizing: content;
 		}
 
 		[data-ref-chip] {

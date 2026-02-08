@@ -8,11 +8,13 @@
 >
 	// Types/constants
 	import type { Snippet } from 'svelte'
-
+	
 
 	// Props
+    import { SvelteSet } from 'svelte/reactivity'
+
 	let {
-		items,
+		items = $bindable(new SvelteSet()),
 		getKey,
 		getSortValue,
 		getGroupKey,
