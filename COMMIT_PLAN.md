@@ -12,7 +12,7 @@
 | # | Commit message | Files |
 |---|----------------|--------|
 | 3 | data: add ActorNetwork entity type | src/data/$EntityType.ts |
-| 4 | data: add session actions createChannel, addChannelMember, closeChannel, addLiquidity, removeLiquidity | src/data/TransactionSession.ts |
+| 4 | data: add session actions createChannel, addChannelMember, closeChannel, addLiquidity, removeLiquidity | src/data/Session.ts |
 | 5 | session: parse and normalize new session hash actions | src/lib/session/params.ts, src/lib/session/sessions.ts |
 
 ## Phase 3: Declarative intents (topological)
@@ -48,7 +48,7 @@
 |---|----------------|--------|------------|
 | 15 | intents: rename payload fields fromActor/toActor/coin → fromActorCoin/toActorCoin | src/constants/intents.ts | 6 |
 | 16 | intents: add ActionType, Protocol enums, payload types, and protocolActions | src/constants/intents.ts | 15 |
-| 17 | data: add session action types for new actions | src/data/TransactionSession.ts | 4 |
+| 17 | data: add session action types for new actions | src/data/Session.ts | 4 |
 | 18 | session: recognize new action types in hash parser | src/lib/session/sessions.ts | 17 |
 | 19 | intents: add SendFunds, SwapToCoin, ManagePosition, and room/peer intents | src/constants/intents.ts | 16 |
 | 20 | IntentDragPreview: map all ActionType values to session actions | src/components/IntentDragPreview.svelte | 16, 17 |
