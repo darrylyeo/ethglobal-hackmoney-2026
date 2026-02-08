@@ -4,8 +4,8 @@
 	import { networksByChainId } from '$/constants/networks.ts'
 	import {
 		ensureTransactionsForAddresses,
-		transactionsCollection,
-	} from '$/collections/Transactions.ts'
+		bridgeTransactionsCollection,
+	} from '$/collections/BridgeTransactions.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 
@@ -39,7 +39,7 @@
 	)
 	const query = useLiveQuery(
 		(q) =>
-			q.from({ row: transactionsCollection }).select(({ row }) => ({ row })),
+			q.from({ row: bridgeTransactionsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	registerLocalLiveQueryStack(() => [

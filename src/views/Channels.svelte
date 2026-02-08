@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { yellowChannelsCollection } from '$/collections/YellowChannels.ts'
+	import { stateChannelsCollection } from '$/collections/StateChannels.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 
@@ -23,7 +23,7 @@
 
 	// State
 	const query = useLiveQuery((q) =>
-		q.from({ row: yellowChannelsCollection }).select(({ row }) => ({ row })),
+		q.from({ row: stateChannelsCollection }).select(({ row }) => ({ row })),
 	)
 	registerLocalLiveQueryStack(() => [
 		{ id: 'yellow-channels', label: 'Yellow Channels', query },

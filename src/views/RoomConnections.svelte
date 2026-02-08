@@ -2,10 +2,10 @@
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { roomPeersCollection } from '$/collections/RoomPeers.ts'
-	import { roomsCollection } from '$/collections/Rooms.ts'
+	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
+	import { partykitRoomsCollection } from '$/collections/PartykitRooms.ts'
 	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
-	import { verificationsCollection } from '$/collections/Verifications.ts'
+	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 
@@ -33,7 +33,7 @@
 	const roomsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: roomsCollection })
+				.from({ row: partykitRoomsCollection })
 				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.select(({ row }) => ({ row })),
 		[],
@@ -41,7 +41,7 @@
 	const roomPeersQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: roomPeersCollection })
+				.from({ row: partykitRoomPeersCollection })
 				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.select(({ row }) => ({ row })),
 		[],
@@ -49,7 +49,7 @@
 	const verificationsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: verificationsCollection })
+				.from({ row: siweVerificationsCollection })
 				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.select(({ row }) => ({ row })),
 		[],
