@@ -129,6 +129,27 @@
 						event.metaKey || event.ctrlKey ? onOpenInNewPanel : onNavigate
 					action(panel.id, navigation.route, navigation.hash)
 				})()
+
+	const handleDragOver = (event: DragEvent) => {
+		const dt = event.dataTransfer
+		if (
+			dt?.types.includes('text/uri-list') ||
+			dt?.types.includes('text/plain')
+		) {
+			event.preventDefault()
+			dt.dropEffect = 'link'
+		}
+	}
+
+	const handleDrop = (event: DragEvent) => {
+		const raw =
+			event.dataTransfer?.getData('text/uri-list')?.trim().split(/\r?\n/)[0] ??
+			event.dataTransfer?.getData('text/plain')?.trim()
+		if (!raw) return
+		event.preventDefault()
+		const navigation = toPanelNavigation(raw, location.origin)
+		if (navigation) onNavigate(panel.id, navigation.route, navigation.hash)
+	}
 </script>
 
 
@@ -140,6 +161,8 @@
 	aria-label="Panel"
 	onpointerdown={() => onFocus(panel.id)}
 	onfocusin={() => onFocus(panel.id)}
+	ondragover={handleDragOver}
+	ondrop={handleDrop}
 >
 	<header data-row="wrap gap-3" data-scroll-container="inline">
 		<div data-row="wrap start gap-2" data-row-item="flexible" class="dashboard-panel-title">
@@ -147,7 +170,7 @@
 				class="dashboard-panel-route"
 				bind:value={() => panel.route.path, setRoutePath}
 			>
-				{#each routeEntriesForPanel as entry (entry.path)}
+				{#each routeEntriesForPanel.filter((entry) => !entry.path.includes('[')) as entry (entry.path)}
 					<option value={entry.path}>{entry.path}</option>
 				{/each}
 			</select>
@@ -162,14 +185,14 @@
 				{/each}
 			{/if}
 
-			<input
+			<!-- <input
 				type="text"
 				class="dashboard-panel-hash"
 				placeholder="#hash"
 				bind:value={hashInput}
 				onchange={commitHash}
 				onblur={commitHash}
-			/>
+			/> -->
 		</div>
 		<div data-row="wrap start gap-2" class="dashboard-panel-controls">
 			<button type="button" onclick={() => onSplit(panel.id, 'horizontal')} title="Split horizontal">

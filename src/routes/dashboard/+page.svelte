@@ -495,7 +495,7 @@
 			data-grid="columns-autofit gap-2"
 			aria-label="Routes"
 		>
-			{#each panelRouteLinks as entry (entry.path)}
+			{#each panelRouteLinks.filter((entry) => !entry.path.includes('[') && !entry.path.includes('/test')) as entry (entry.path)}
 				<a
 					href={resolve(buildRoutePath({ path: entry.path, params: {} }))}
 					class="dashboard-route-link"

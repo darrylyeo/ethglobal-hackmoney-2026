@@ -119,13 +119,15 @@ export const toPanelNavigation = (href: string, origin: string) =>
 		if (!url || url.origin !== origin) return null
 		if (url.pathname === '/' || url.pathname === '') return null
 		const match = matchRoutePath(url.pathname)
+		const hashPart =
+			(url.search ? '#' + url.search.slice(1) : '') + url.hash
 		return match
 			? {
 					route: {
 						path: match.entry.path,
 						params: match.params,
 					},
-					hash: url.hash.length > 0 ? url.hash : null,
+					hash: hashPart || null,
 				}
 			: null
 	})()

@@ -117,7 +117,7 @@
 		</section>
 		<div
 			class="split-tree-gutter"
-			data-row="center"
+			data-row
 			data-direction={root.direction}
 		>
 			<Tooltip.Root delayDuration={80}>
