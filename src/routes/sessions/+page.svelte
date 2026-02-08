@@ -6,7 +6,6 @@
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 
 
 	// Functions
@@ -106,8 +105,5 @@
 				{/each}
 			</ul>
 		{/if}
-	</section>
-	<section data-scroll-item>
-		<LocalGraphScene />
 	</section>
 </main>

@@ -9,7 +9,6 @@
 	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 
 
 	// Context
@@ -162,9 +161,6 @@
 			<RoomConnections selectedActor={normalizedAddress} />
 			<LiquidityPositions selectedActor={normalizedAddress} />
 			<Channels selectedActor={normalizedAddress} />
-			<section data-scroll-item>
-				<LocalGraphScene />
-			</section>
 		</div>
 	{/if}
 </main>

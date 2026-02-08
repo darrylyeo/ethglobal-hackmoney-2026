@@ -10,7 +10,6 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 	import WatchButton from '$/components/WatchButton.svelte'
 	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
 	import {
@@ -254,9 +253,6 @@
 				</section>
 			</div>
 		</details>
-	</section>
-	<section data-scroll-item>
-		<LocalGraphScene />
 	</section>
 </main>
 

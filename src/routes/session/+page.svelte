@@ -199,7 +199,6 @@
 
 
 	// Components
-	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 	import SessionView from './Session.svelte'
 </script>
 
@@ -231,7 +230,4 @@
 			<p data-muted>Loading session…</p>
 		</section>
 	{/if}
-	<section data-scroll-item>
-		<LocalGraphScene />
-	</section>
 </main>
