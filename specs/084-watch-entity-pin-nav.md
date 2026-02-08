@@ -13,16 +13,18 @@ leaves the set:
 |---|---|---|---|
 | `wallet-connection` | `Actor` | Account appears in a connected `WalletConnection` with `status === 'connected'` | Connection disconnected or removed |
 | `session-active` | `TransactionSession` | Session `status` is `'Draft'` or `'Submitted'` | Session becomes `'Finalized'` |
-| `transaction-recent` | `Transaction` | Transaction `status` changes to `'completed'` or `'failed'` | TODO: manual unwatch or TTL expiry |
+| `transaction-recent` | `Transaction` | Transaction `status` changes to `'completed'` or `'failed'` | Manual unwatch or TTL expiry |
+| `verified-peer` | `Actor` | Peer verified by me in a room (`Verification.status === 'verified'` where `verifierPeerId ∈ myPeerIds`) | Verification revoked or peer removed |
 | `manual` | any watchable | User clicks Watch on a single-entity page header | User clicks Unwatch |
 
-Automatic sources (`wallet-connection`, `session-active`, `transaction-recent`)
-are **derived**; they do NOT write rows to `watchedEntitiesCollection`.
-`manual` watches persist in `watchedEntitiesCollection` (localStorage) as today.
+Automatic sources (`wallet-connection`, `session-active`, `transaction-recent`,
+`verified-peer`) are **derived**; they do NOT write rows to
+`watchedEntitiesCollection`. `manual` watches persist in
+`watchedEntitiesCollection` (localStorage) as today.
 
 ### Unified view
 
-A single derived `$derived` (or reactive helper) merges all four sources into
+A single derived `$derived` (or reactive helper) merges all five sources into
 one `WatchedEntity[]`:
 
 ```ts
@@ -31,7 +33,12 @@ type WatchedEntity = {
 	id: string
 	label: string
 	href: string
-	source: 'wallet-connection' | 'session-active' | 'transaction-recent' | 'manual'
+	source:
+		| 'wallet-connection'
+		| 'session-active'
+		| 'transaction-recent'
+		| 'verified-peer'
+		| 'manual'
 	addedAt: number
 }
 ```
@@ -65,6 +72,33 @@ The existing `walletConnectionsQuery`, `sessionsQuery`, `walletsQuery` in layout
 remain (they feed other derivations like `relevantNetworkConfigs`), but nav and
 graph consumers read from the single unified watched view.
 
+## Nav item visibility: watched vs. current-page expansion
+
+Each nav section has two pools of children:
+
+- **All children:** the full set of entities for that section (e.g. all sessions,
+  all rooms, all networks with data).
+- **Watched children:** only those in the watched entity set.
+
+The nav shows:
+
+| Condition | Children shown |
+|---|---|
+| **Current page is within the section** (the section href or any descendant href matches `$page.url.pathname`) | **All children** (full list) |
+| **Current page is elsewhere** | **Watched children** only |
+
+This means:
+- Navigating to `/sessions` expands the Sessions section to show all sessions.
+- Navigating away collapses it to show only active (watched) sessions.
+- Navigating to `/rooms/abc` shows all rooms under Multiplayer > Rooms.
+- Static nav items (Actions, Positions, Tests, etc.) are unaffected — they
+  always show their hardcoded children.
+
+Implementation: each nav section that has dynamic children builds both `children`
+(watched) and `allChildren` (full list). The `NavigationItem` type gains an
+optional `allChildren` field. `NavigationItem.svelte` picks `allChildren` when
+the section contains the current page, `children` otherwise.
+
 ## Nav placement
 
 Watched entities appear as children under the **most relevant existing nav
@@ -72,7 +106,9 @@ section**, determined by entity type:
 
 | Entity type | Nav section |
 |---|---|
-| `Actor` | **Accounts** |
+| `Actor` (wallet-connection) | **Accounts** |
+| `Actor` (verified-peer) | **Multiplayer > Peers** |
+| `Actor` (manual) | **Accounts** |
 | `TransactionSession` | **Sessions** |
 | `Transaction` | **Sessions** (or a "Recent" sub-section) |
 | `Network` | **Explore > Networks** |
@@ -113,14 +149,18 @@ type WatchedEntityRow = {
 
 ## Acceptance criteria
 
-- [ ] Unified `WatchedEntity[]` derived once in layout from four sources.
+- [ ] Unified `WatchedEntity[]` derived once in layout from five sources.
 - [ ] `wallet-connection` accounts auto-watched; appear under Accounts nav.
 - [ ] `session-active` sessions (Draft/Submitted) auto-watched; appear under
   Sessions nav.
 - [ ] `transaction-recent` transactions auto-watched on completion; appear in
   nav.
+- [ ] `verified-peer` accounts auto-watched; appear under Multiplayer > Peers
+  nav.
 - [ ] Manual watches appear under the most relevant nav section (not a separate
   top-level "Watched" section).
+- [ ] Nav sections show all children when current page is within them, watched
+  children only when elsewhere.
 - [ ] Global graph query stack (spec 058) built from watched entities.
 - [ ] GraphScene (spec 083) default scope is watched entities; toggles/filters
   control additional entities.
