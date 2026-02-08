@@ -49,8 +49,10 @@
 	const sessions = $derived(
 		(sessionsQuery.data ?? [])
 			.map((result) => result.row)
-			.sort((a, b) => b.updatedAt - a.updatedAt),
+			.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)),
 	)
+	const formatSessionDate = (ms: number | undefined) =>
+		ms ? new Date(ms).toLocaleString() : '—'
 </script>
 
 
@@ -74,9 +76,14 @@
 		{:else}
 			<ul data-column="gap-2">
 				{#each sessions as session (session.id)}
-					<li data-row="gap-2 align-center">
-						<a href={sessionHref(session)}>{sessionTitle(session)}</a>
-						<span data-tag={session.status}>{session.status}</span>
+					<li data-column="gap-0" data-row="gap-2 align-center wrap">
+						<span data-row="gap-2 align-center">
+							<a href={sessionHref(session)}>{sessionTitle(session)}</a>
+							<span data-tag={session.status}>{session.status}</span>
+						</span>
+						<small data-muted>
+							Created {formatSessionDate(session.createdAt)} · Updated {formatSessionDate(session.updatedAt)}
+						</small>
 						<button
 							type="button"
 							aria-label="Delete session"

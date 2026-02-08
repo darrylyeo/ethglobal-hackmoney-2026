@@ -2,20 +2,11 @@
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins.ts'
-	import { networksByChainId } from '$/constants/networks.ts'
 	import { fetchAllBalancesForAddress } from '$/collections/actor-coins.ts'
-	import { roomPeersCollection } from '$/collections/room-peers.ts'
-	import { roomsCollection } from '$/collections/rooms.ts'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
-	import { transactionsCollection } from '$/collections/transactions.ts'
 	import { verificationsCollection } from '$/collections/verifications.ts'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
-	import { walletsCollection } from '$/collections/wallets.ts'
-	import { uniswapPositionsCollection } from '$/collections/uniswap-positions.ts'
-	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 
@@ -30,7 +21,6 @@
 
 	// Functions
 	import { formatAddress, parseAccountAddressParam } from '$/lib/address.ts'
-	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { getAddressUrl } from '$/constants/explorers.ts'
 
 
@@ -47,48 +37,11 @@
 		if (!normalizedAddress) return
 		void fetchAllBalancesForAddress(normalizedAddress, undefined, ercTokens)
 	})
-	const transactionsQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: transactionsCollection }).select(({ row }) => ({ row })),
-		[],
-	)
 	const connectionsQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: walletConnectionsCollection })
 				.where(({ row }) => eq(row.$source, DataSource.Local))
-				.select(({ row }) => ({ row })),
-		[],
-	)
-	const walletsQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: walletsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Local))
-				.select(({ row }) => ({ row })),
-		[],
-	)
-	const sharedAddressesQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: sharedAddressesCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
-				.select(({ row }) => ({ row })),
-		[],
-	)
-	const roomsQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: roomsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
-				.select(({ row }) => ({ row })),
-		[],
-	)
-	const roomPeersQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: roomPeersCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.select(({ row }) => ({ row })),
 		[],
 	)
@@ -100,62 +53,10 @@
 				.select(({ row }) => ({ row })),
 		[],
 	)
-	const uniswapPositionsQuery = useLiveQuery((q) =>
-		q.from({ row: uniswapPositionsCollection }).select(({ row }) => ({ row })),
-	)
-	const yellowChannelsQuery = useLiveQuery((q) =>
-		q.from({ row: yellowChannelsCollection }).select(({ row }) => ({ row })),
-	)
-	const liveQueryEntries = [
-		{
-			id: 'account-transactions',
-			label: 'Transactions',
-			query: transactionsQuery,
-		},
-		{
-			id: 'account-connections',
-			label: 'Wallet Connections',
-			query: connectionsQuery,
-		},
-		{ id: 'account-wallets', label: 'Wallets', query: walletsQuery },
-		{
-			id: 'account-shared-addresses',
-			label: 'Shared Addresses',
-			query: sharedAddressesQuery,
-		},
-		{ id: 'account-rooms', label: 'Rooms', query: roomsQuery },
-		{ id: 'account-room-peers', label: 'Room Peers', query: roomPeersQuery },
-		{
-			id: 'account-verifications',
-			label: 'Verifications',
-			query: verificationsQuery,
-		},
-		{
-			id: 'account-uniswap-positions',
-			label: 'Uniswap Positions',
-			query: uniswapPositionsQuery,
-		},
-		{
-			id: 'account-yellow-channels',
-			label: 'Yellow Channels',
-			query: yellowChannelsQuery,
-		},
-	]
-	registerLocalLiveQueryStack(() => liveQueryEntries)
-	const transactions = $derived(
-		normalizedAddress
-			? (transactionsQuery.data ?? [])
-					.map((r) => r.row)
-					.filter(
-						(row) =>
-							row.$id.address.toLowerCase() === normalizedAddress.toLowerCase(),
-					)
-					.sort((a, b) => b.$id.createdAt - a.$id.createdAt)
-			: [],
-	)
-	const walletsByRdns = $derived(
-		new Map((walletsQuery.data ?? []).map((r) => [r.row.$id.rdns, r.row])),
-	)
+	registerLocalLiveQueryStack(() => [
+		{ id: 'account-connections', label: 'Wallet Connections', query: connectionsQuery },
+		{ id: 'account-verifications', label: 'Verifications', query: verificationsQuery },
+	])
 	const connectionsForAccount = $derived(
 		normalizedAddress
 			? (connectionsQuery.data ?? [])
@@ -167,72 +68,30 @@
 					)
 			: [],
 	)
-	const sharedRowsForAccount = $derived(
-		normalizedAddress
-			? (sharedAddressesQuery.data ?? [])
-					.map((r) => r.row)
-					.filter(
-						(row) =>
-							row.address.toLowerCase() === normalizedAddress.toLowerCase(),
-					)
-			: [],
-	)
-	const roomsById = $derived(
-		new Map((roomsQuery.data ?? []).map((r) => [r.row.id, r.row])),
-	)
-	const peersByRoomAndPeer = $derived(
-		new Map(
-			(roomPeersQuery.data ?? []).map((r) => [
-				`${r.row.roomId}:${r.row.peerId}`,
-				r.row,
-			]),
-		),
-	)
 	const verificationsList = $derived(
 		(verificationsQuery.data ?? []).map((r) => r.row),
 	)
-	const getVerificationStatus = (roomId: string, peerId: string) =>
-		verificationsList.find(
-			(v) =>
-				v.roomId === roomId &&
-				v.verifiedPeerId === peerId &&
-				normalizedAddress != null &&
-				v.address.toLowerCase() === normalizedAddress.toLowerCase(),
-		)?.status ?? null
-	const accountLiquidityPositions = $derived(
-		normalizedAddress
-			? (uniswapPositionsQuery.data ?? [])
-					.map((r) => r.row)
-					.filter(
-						(row) =>
-							row.owner.toLowerCase() === normalizedAddress.toLowerCase(),
-					)
-					.sort((a, b) =>
-						a.chainId !== b.chainId
-							? a.chainId - b.chainId
-							: a.id.localeCompare(b.id),
-					)
-			: [],
-	)
-	const accountChannels = $derived(
-		normalizedAddress
-			? (yellowChannelsQuery.data ?? [])
-					.map((r) => r.row)
-					.filter(
-						(row) =>
-							row.participant0.toLowerCase() === normalizedAddress.toLowerCase() ||
-							row.participant1.toLowerCase() === normalizedAddress.toLowerCase(),
-					)
-					.sort((a, b) => b.updatedAt - a.updatedAt)
-			: [],
+	const autoWatched = $derived(
+		connectionsForAccount.some((c) => c.status === 'connected') ||
+			(normalizedAddress != null &&
+				verificationsList.some(
+					(v) =>
+						v.status === 'verified' &&
+						v.address.toLowerCase() === normalizedAddress.toLowerCase(),
+				)),
 	)
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import { AddressFormat } from '$/components/Address.svelte'
 	import EvmActor from '$/components/EvmActor.svelte'
 	import WatchButton from '$/components/WatchButton.svelte'
+	import Channels from '$/views/Channels.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
+	import LiquidityPositions from '$/views/LiquidityPositions.svelte'
+	import RoomConnections from '$/views/RoomConnections.svelte'
+	import Transactions from '$/views/Transactions.svelte'
+	import WalletConnections from '$/views/WalletConnections.svelte'
 </script>
 
 
@@ -254,6 +113,7 @@
 					<EvmActor
 						network={parsed.chainId ?? 1}
 						address={parsed.address}
+						format={AddressFormat.Full}
 						vertical
 					/>
 				</h1>
@@ -263,7 +123,7 @@
 					id={parsed.interopAddress ?? parsed.address}
 					label={formatAddress(parsed.address)}
 					href={resolve(`/account/${data.addressParam}`)}
-					autoWatched={connectionsForAccount.some((c) => c.status === 'connected') || verificationsList.some((v) => v.status === 'verified' && normalizedAddress != null && v.address.toLowerCase() === normalizedAddress.toLowerCase())}
+					{autoWatched}
 				/>
 			</div>
 			<nav data-row="wrap gap-2">
@@ -296,163 +156,17 @@
 			</nav>
 		</header>
 
-		<section data-column="gap-2" class="account-section">
-			<h2>Balances</h2>
+		<div data-grid="columns-autofit column-min-16 gap-6">
 			<CoinBalances selectedActor={normalizedAddress} {balanceTokens} />
-		</section>
-
-		<section data-column="gap-2" class="account-section">
-			<h2>Transactions</h2>
-			{#if transactions.length === 0}
-				<p data-muted>No indexed transactions for this account.</p>
-			{:else}
-				<ul data-column="gap-2" data-list="unstyled" class="tx-list">
-					{#each transactions as tx (tx.$id.sourceTxHash + tx.$id.createdAt)}
-						{@const fromNet = networksByChainId[tx.fromChainId]}
-						{@const toNet = networksByChainId[tx.toChainId]}
-						<li
-							class="tx-item"
-							data-card="padding-2 radius-4"
-							data-tag={tx.status}
-							data-row="gap-3 align-center"
-						>
-							<span class="tx-chains">
-								{fromNet?.name ?? tx.fromChainId} → {toNet?.name ??
-									tx.toChainId}
-							</span>
-							<span class="tx-amount" data-row-item="flexible">
-								{formatSmallestToDecimal(tx.fromAmount, 6, 2)} →
-								{formatSmallestToDecimal(tx.toAmount, 6, 2)}
-							</span>
-							<span class="tx-status">{tx.status}</span>
-						</li>
-					{/each}
-				</ul>
-			{/if}
-		</section>
-
-		{#if connectionsForAccount.length > 0}
-			<section data-column="gap-2" class="account-section">
-				<h2>Wallet connections</h2>
-				<ul data-column="gap-2" data-list="unstyled" class="connections-list">
-					{#each connectionsForAccount as conn (conn.$id.wallet$id.rdns)}
-						{@const wallet =
-							conn.transport === WalletConnectionTransport.None
-								? null
-								: walletsByRdns.get(conn.$id.wallet$id.rdns)}
-						<li
-							class="connection-item"
-							data-card="padding-2 radius-4"
-							data-tag={conn.status}
-							data-row="gap-3 align-center"
-						>
-							<span
-								class="connection-name"
-								data-row-item="flexible"
-							>
-								{conn.transport === WalletConnectionTransport.None
-									? 'Watching'
-									: (wallet?.name ?? conn.$id.wallet$id.rdns)}
-							</span>
-							<span class="connection-status">{conn.status}</span>
-							{#if conn.selected}
-								<span class="connection-badge">Selected</span>
-							{/if}
-						</li>
-					{/each}
-				</ul>
+			<Transactions selectedActor={normalizedAddress} />
+			<WalletConnections selectedActor={normalizedAddress} />
+			<RoomConnections selectedActor={normalizedAddress} />
+			<LiquidityPositions selectedActor={normalizedAddress} />
+			<Channels selectedActor={normalizedAddress} />
+			<section data-scroll-item>
+				<LocalGraphScene />
 			</section>
-		{/if}
-		{#if sharedRowsForAccount.length > 0}
-			<section data-column="gap-2" class="account-section">
-				<h2>Room / peer connections</h2>
-				<ul data-column="gap-2" data-list="unstyled" class="connections-list">
-					{#each sharedRowsForAccount as s (s.id)}
-						{@const room = roomsById.get(s.roomId)}
-						{@const peer = peersByRoomAndPeer.get(`${s.roomId}:${s.peerId}`)}
-						{@const verificationStatus = getVerificationStatus(
-							s.roomId,
-							s.peerId,
-						)}
-						<li
-							class="connection-item"
-							data-card="padding-2 radius-4"
-							data-row="gap-3 align-center"
-						>
-							<a
-								href="/rooms/{s.roomId}"
-								class="connection-name"
-								data-row-item="flexible"
-							>
-								{room?.name ?? s.roomId}
-							</a>
-							<span class="connection-status">
-								{peer?.displayName ?? s.peerId.slice(0, 8)}
-							</span>
-							{#if verificationStatus}
-								<span
-									class="connection-badge"
-									data-verification={verificationStatus}
-								>
-									{verificationStatus}
-								</span>
-							{/if}
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/if}
-		{#if accountLiquidityPositions.length > 0}
-			<section data-column="gap-2" class="account-section">
-				<h2>Liquidity positions</h2>
-				<ul data-column="gap-2" data-list="unstyled" class="positions-list">
-					{#each accountLiquidityPositions as pos (pos.id)}
-						{@const net = networksByChainId[pos.chainId]}
-						<li
-							data-card="padding-2 radius-4"
-							data-row="gap-3 align-center wrap"
-						>
-							<span class="position-id" title={pos.id}>{pos.id.slice(0, 10)}…</span>
-							<span>{net?.name ?? pos.chainId}</span>
-							<a href="/positions/liquidity">View all</a>
-							<a href="/session#/AddLiquidity">Manage</a>
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/if}
-		{#if accountChannels.length > 0}
-			<section data-column="gap-2" class="account-section">
-				<h2>Channels</h2>
-				<ul data-column="gap-2" data-list="unstyled" class="channels-list">
-					{#each accountChannels as ch (ch.id)}
-						{@const counterparty =
-							ch.participant0.toLowerCase() === normalizedAddress?.toLowerCase()
-								? ch.participant1
-								: ch.participant0}
-						<li
-							data-card="padding-2 radius-4"
-							data-row="gap-3 align-center wrap"
-							data-status={ch.status}
-						>
-							<span class="channel-id" title={ch.id}>{ch.id.slice(0, 10)}…</span>
-							<Address network={ch.chainId} address={counterparty} />
-							<span>{formatSmallestToDecimal(
-								ch.participant0.toLowerCase() === normalizedAddress?.toLowerCase()
-									? ch.balance0
-									: ch.balance1,
-								6,
-							)} USDC</span>
-							<span data-status>{ch.status}</span>
-							<a href="/positions/channels">View all</a>
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/if}
-		<section data-scroll-item>
-			<LocalGraphScene />
-		</section>
+		</div>
 	{/if}
 </main>
 
@@ -473,47 +187,5 @@
 	.copy-btn:hover,
 	.explorer-link:hover {
 		background: var(--color-border);
-	}
-
-	.account-section h2 {
-		font-size: 1rem;
-		margin: 0;
-	}
-
-	.tx-chains,
-	.connection-name {
-		font-weight: 500;
-	}
-
-	.connection-name[href] {
-		color: inherit;
-		text-decoration: none;
-	}
-
-	.connection-name[href]:hover {
-		text-decoration: underline;
-	}
-
-	.tx-status,
-	.connection-status {
-		font-size: 0.85em;
-		opacity: 0.8;
-	}
-
-	.connection-badge {
-		font-size: 0.75em;
-		opacity: 0.9;
-	}
-
-	.positions-list,
-	.channels-list {
-		margin: 0;
-		padding: 0;
-	}
-
-	.position-id,
-	.channel-id {
-		font-family: ui-monospace, monospace;
-		font-size: 0.9em;
 	}
 </style>

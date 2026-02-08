@@ -7,6 +7,7 @@
 	} from '$/collections/wallet-connections.ts'
 	import type { WalletRow } from '$/collections/wallets.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
+	import { networkColorByChainId } from '$/constants/colors.ts'
 	import {
 		NetworkType,
 		networkConfigsByChainId,
@@ -39,10 +40,12 @@
 	} from '$/collections/wallet-connections.ts'
 	import { walletsCollection } from '$/collections/wallets.ts'
 	import { switchWalletChain } from '$/lib/wallet.ts'
+	import { NetworkEnvironment } from '$/constants/network-environment.ts'
 	import {
 		bridgeSettingsState,
 		defaultBridgeSettings,
 	} from '$/state/bridge-settings.svelte.ts'
+	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	useWalletSubscriptions()
@@ -138,7 +141,7 @@
 	)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			settings.isTestnet
+			networkEnvironmentState.current === NetworkEnvironment.Testnet
 				? n.type === NetworkType.Testnet
 				: n.type === NetworkType.Mainnet,
 		),
@@ -284,7 +287,7 @@
 		<summary>
 			<div data-row>
 				<div data-row="gap-2 align-center">
-					<h4>Wallet Connections</h4>
+					<h3 class="section-heading">Wallet Connections</h3>
 
 					<span
 						data-badge="small"
@@ -329,6 +332,7 @@
 					? (networksByChainId[connection.chainId]?.name ??
 						`Chain ${connection.chainId}`)
 					: null}
+				{@const chainIcon = networkConfigsByChainId[chainId]?.icon}
 
 				<li>
 					<details data-card="radius-2" open>
@@ -337,7 +341,20 @@
 								<div data-row>
 									<span data-row="gap-2 align-center">
 										{#if wallet.icon}
-											<Icon src={wallet.icon} size={20} />
+											<Icon
+												src={wallet.icon}
+												size={20}
+												subicon={
+													chainIcon
+														? {
+																src: chainIcon,
+																alt: '',
+																backgroundColor:
+																	networkColorByChainId[chainId],
+															}
+														: undefined
+												}
+											/>
 										{/if}
 										<span>{wallet.name}</span>
 									</span>

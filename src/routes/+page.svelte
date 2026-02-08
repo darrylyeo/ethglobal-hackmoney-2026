@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { PanelTreeNode } from '$/data/PanelTree.ts'
+	import mascot from '$/assets/blockhead-mascot.jpg'
 	import { APP_NAME } from '$/constants/app.ts'
 	import { architectureGraph } from '$/views/architecture-graph.ts'
 
@@ -146,6 +147,7 @@
 <main>
 	<article class="landing">
 	<header class="landing-hero" data-column="center gap-4">
+		<img src={mascot} alt="" class="landing-mascot" width="240" height="240" />
 		<h1>{APP_NAME}</h1>
 		<p class="landing-tagline">
 			Local-first GUI client for blockchain exploration, onchain assets, and
@@ -351,6 +353,13 @@
 				transparent 70%
 			);
 			border-radius: 0 0 1.5rem 1.5rem;
+
+			& .landing-mascot {
+				inline-size: clamp(8rem, 20vw, 15rem);
+				block-size: auto;
+				border-radius: 50%;
+				object-fit: cover;
+			}
 
 			& h1 {
 				font-size: clamp(2rem, 5vw, 2.75rem);

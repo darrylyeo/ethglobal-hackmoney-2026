@@ -1,6 +1,10 @@
 <script lang="ts">
 	// Types/constants
-	import type { PanelRoute, PanelTreeNode } from '$/data/PanelTree.ts'
+	import type {
+		PanelRoute,
+		PanelTreeNode,
+		SplitNode,
+	} from '$/data/PanelTree.ts'
 
 
 	// Props
@@ -21,6 +25,8 @@
 		onSetSplitRatioOverride,
 		onClearSplitRatioOverride,
 		onToggleSplitDirection,
+		parentSplit,
+		indexInParent,
 	}: {
 		root: PanelTreeNode,
 		focusedPanelId: string,
@@ -46,6 +52,8 @@
 		onSetSplitRatioOverride?: (splitId: string, value: number) => void,
 		onClearSplitRatioOverride?: (splitId: string) => void,
 		onToggleSplitDirection: (splitId: string) => void,
+		parentSplit?: SplitNode,
+		indexInParent?: 0 | 1,
 	} = $props()
 
 
@@ -75,6 +83,8 @@
 		{onSetPanelHash}
 		{onNavigate}
 		{onOpenInNewPanel}
+		parent={parentSplit}
+		indexInParent={indexInParent}
 	/>
 {:else}
 	<section
@@ -101,6 +111,8 @@
 				{onSetSplitRatioOverride}
 				{onClearSplitRatioOverride}
 				{onToggleSplitDirection}
+				parentSplit={root}
+				indexInParent={0}
 			/>
 		</section>
 		<div
@@ -160,6 +172,8 @@
 				{onSetSplitRatioOverride}
 				{onClearSplitRatioOverride}
 				{onToggleSplitDirection}
+				parentSplit={root}
+				indexInParent={1}
 			/>
 		</section>
 		<input

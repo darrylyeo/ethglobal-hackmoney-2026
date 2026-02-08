@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { RoomPeer } from '$/collections/room-peers.ts'
-	import { peerNameToEmoji, peerNameToHue } from '$/lib/rooms/room.ts'
+	import { peerNameToEmoji } from '$/lib/rooms/room.ts'
 
 
 	// Props
@@ -16,12 +16,11 @@
 
 	// (Derived)
 	const name = $derived(peer.displayName ?? peer.peerId.slice(0, 8))
-	const hue = $derived(peerNameToHue(peer.displayName ?? peer.peerId))
 	const emoji = $derived(peerNameToEmoji(peer.displayName, peer.peerId))
-	const bg = $derived(`oklch(0.65 0.2 ${hue})`)
 
 
 	// Components
+	import Avatar from '$/components/Avatar.svelte'
 	import Timestamp from '$/components/Timestamp.svelte'
 	import { TimestampFormat } from '$/components/Timestamp.svelte'
 </script>
@@ -32,15 +31,7 @@
 		class="peer-avatar-wrap"
 		data-connected={showStatus ? peer.isConnected : undefined}
 	>
-		<span
-			class="peer-avatar"
-			data-row="center"
-			role="img"
-			aria-hidden="true"
-			style="background: {bg};"
-		>
-			{emoji}
-		</span>
+		<Avatar {name} {emoji} />
 		{#if showStatus}
 			<span
 				class="peer-avatar-dot"
@@ -76,17 +67,6 @@
 	.peer-avatar-wrap {
 		position: relative;
 		flex-shrink: 0;
-	}
-
-	.peer-avatar {
-		width: 2rem;
-		height: 2rem;
-		border-radius: 50%;
-		font-size: 1rem;
-		line-height: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 	}
 
 	.peer-avatar-dot {

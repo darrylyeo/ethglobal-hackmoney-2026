@@ -21,7 +21,7 @@
 	import { toasts } from '$/lib/toast.svelte.ts'
 	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
 	import Boundary from '$/components/Boundary.svelte'
-	import ItemsList from '$/components/ItemsList.svelte'
+	import ItemsListView from '$/components/ItemsListView.svelte'
 	import WatchButton from '$/components/WatchButton.svelte'
 	import LiveTransfers from '$/views/LiveTransfers.svelte'
 	import TransferEventRow from '$/components/TransferEventRow.svelte'
@@ -232,7 +232,9 @@
 					</button>
 				</div>
 			{:else}
-				<ItemsList
+				<ItemsListView
+					heading="Transfers"
+					loaded={eventsSet.size}
 					items={eventsSet}
 					getKey={getEventKey}
 					getSortValue={(row) => -row.timestamp}
@@ -255,7 +257,7 @@
 							<span id="transfer:{key}" data-placeholder>Loading…</span>
 						{/if}
 					{/snippet}
-				</ItemsList>
+				</ItemsListView>
 			{/if}
 
 			{#snippet Failed(error, retryFn)}

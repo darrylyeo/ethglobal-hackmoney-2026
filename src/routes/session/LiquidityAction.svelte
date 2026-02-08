@@ -8,11 +8,13 @@
 		selectedWallets,
 		selectedActor,
 		selectedChainId,
+		globalIsTestnet = false,
 		params = $bindable(),
 	}: {
 		selectedWallets: ConnectedWallet[]
 		selectedActor: `0x${string}` | null
 		selectedChainId: number | null
+		globalIsTestnet?: boolean
 		params?: Record<string, unknown>,
 	} = $props()
 
@@ -26,4 +28,5 @@
 	{selectedWallets}
 	{selectedActor}
 	{selectedChainId}
+	{globalIsTestnet}
 />

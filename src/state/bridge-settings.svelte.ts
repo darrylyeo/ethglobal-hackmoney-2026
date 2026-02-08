@@ -16,7 +16,6 @@ export enum BridgeRouteSort {
 
 export type BridgeSettings = {
 	slippage: number
-	isTestnet: boolean
 	sortBy: BridgeRouteSort
 	fromChainId: number | null
 	toChainId: number | null
@@ -27,7 +26,6 @@ export type BridgeSettings = {
 
 export const defaultBridgeSettings: BridgeSettings = {
 	slippage: 0.005,
-	isTestnet: false,
 	sortBy: BridgeRouteSort.Recommended,
 	fromChainId: ChainId.Ethereum,
 	toChainId: ChainId.Optimism,

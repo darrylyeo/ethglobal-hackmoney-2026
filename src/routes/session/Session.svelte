@@ -12,11 +12,12 @@
 	// Context
 	import { setContext } from 'svelte'
 	import { resolve } from '$app/paths'
-	import { bridgeSettingsState } from '$/state/bridge-settings.svelte.ts'
 	import {
 		SESSION_CONTEXT_KEY,
 		type SessionContext,
 	} from './session-context.ts'
+	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
+	import { NetworkEnvironment } from '$/constants/network-environment.ts'
 
 
 	// Props
@@ -52,18 +53,21 @@
 
 
 	// (Derived)
+	const isTestnet = $derived(
+		networkEnvironmentState.current === NetworkEnvironment.Testnet,
+	)
 	$effect(() => {
 		sessionCtx.connectedWallets = connectedWallets
 		sessionCtx.selectedActor = selectedActor
 		sessionCtx.selectedChainId = selectedChainId
-		sessionCtx.isTestnet = bridgeSettingsState.current.isTestnet
+		sessionCtx.isTestnet = isTestnet
 		sessionCtx.session = session
 		sessionCtx.sessionId = session.id
 	})
 
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			bridgeSettingsState.current.isTestnet
+			isTestnet
 				? n.type === NetworkType.Testnet
 				: n.type === NetworkType.Mainnet,
 		),
@@ -111,17 +115,7 @@
 	})
 
 
-	// Actions
-	const setTestnet = (checked: boolean) => {
-		bridgeSettingsState.current = {
-			...bridgeSettingsState.current,
-			isTestnet: checked,
-		}
-	}
-
-
 	// Components
-	import { Switch } from 'bits-ui'
 	import WatchButton from '$/components/WatchButton.svelte'
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
@@ -151,15 +145,6 @@
 				href={`${resolve('/session')}${buildSessionHash(session.id)}`}
 				autoWatched={session.status === 'Draft' || session.status === 'Submitted'}
 			/>
-			<label data-row="gap-2 align-center">
-				<Switch.Root
-					checked={bridgeSettingsState.current.isTestnet}
-					onCheckedChange={(c) => setTestnet(c ?? false)}
-				>
-					<Switch.Thumb />
-				</Switch.Root>
-				Testnet
-			</label>
 		</header>
 
 		<details
@@ -182,7 +167,9 @@
 				<CoinBalances
 					{selectedActor}
 					balanceTokens={effectiveBalanceTokens}
-					availableAccounts={connectedWallets.map((w) => w.address)}
+					availableAccounts={connectedWallets
+					.map((w) => w.connection.activeActor)
+					.filter((a): a is `0x${string}` => a != null)}
 				/>
 			</div>
 		</details>

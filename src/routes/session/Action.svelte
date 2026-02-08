@@ -77,6 +77,7 @@
 			<SwapAction
 				selectedWallets={sessionCtx.connectedWallets}
 				selectedActor={sessionCtx.selectedActor}
+				globalIsTestnet={sessionCtx.isTestnet}
 				bind:params={action.params}
 			/>
 		{:else if action.type === ActionType.Bridge}
@@ -101,6 +102,7 @@
 				selectedWallets={sessionCtx.connectedWallets}
 				selectedActor={sessionCtx.selectedActor}
 				selectedChainId={sessionCtx.selectedChainId}
+				globalIsTestnet={sessionCtx.isTestnet}
 				bind:params={action.params}
 			/>
 		{:else if activeSpec}

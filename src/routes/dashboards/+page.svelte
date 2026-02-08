@@ -5,6 +5,7 @@
 		dashboardPanelsCollection,
 		deleteDashboard,
 		renameDashboard,
+		setDashboardIcon,
 		setDefaultDashboardId,
 	} from '$/collections/dashboard-panels.ts'
 	import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
@@ -21,6 +22,7 @@
 				.select(({ row }) => ({
 					id: row.$id.id,
 					name: 'name' in row ? row.name : undefined,
+					icon: 'icon' in row ? row.icon : undefined,
 				})),
 		[],
 	)
@@ -70,6 +72,9 @@
 
 	const displayName = (d: { id: string, name?: string }) =>
 		d.name ?? (d.id === 'default' ? 'My Dashboard' : 'Unnamed')
+
+	const handleSetIcon = (id: string, icon: string) =>
+		setDashboardIcon(id, icon.trim())
 </script>
 
 
@@ -118,12 +123,24 @@
 						</button>
 					</form>
 				{:else}
+					<span class="dashboard-icon" aria-hidden="true">
+						{dashboard.icon ?? (dashboard.id === defaultId ? '★' : '📊')}
+					</span>
 					<a
 						href={resolve(`/dashboard?d=${dashboard.id}`)}
 						class="dashboard-name-link"
 					>
 						{displayName(dashboard)}
 					</a>
+					<input
+						type="text"
+						class="dashboard-icon-input"
+						placeholder="📊"
+						value={dashboard.icon ?? ''}
+						onchange={(e) => handleSetIcon(dashboard.id, e.currentTarget.value)}
+						aria-label="Dashboard icon (emoji)"
+						maxlength="4"
+					/>
 					{#if dashboard.id === defaultId}
 						<span aria-hidden="true">★ default</span>
 					{/if}
@@ -178,5 +195,16 @@
 
 	.dashboard-rename-input {
 		min-width: 10rem;
+	}
+
+	.dashboard-icon {
+		font-size: 1.25em;
+		line-height: 1;
+	}
+
+	.dashboard-icon-input {
+		width: 2.5em;
+		text-align: center;
+		font-size: 1.1em;
 	}
 </style>

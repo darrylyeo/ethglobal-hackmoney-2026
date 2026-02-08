@@ -186,7 +186,7 @@
 	const settings = $derived(localParams)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			settings.isTestnet
+			globalIsTestnet
 				? n.type === NetworkType.Testnet
 				: n.type === NetworkType.Mainnet,
 		),

@@ -179,7 +179,7 @@
 	const settings = $derived(sessionParams)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			sessionParams.isTestnet
+			globalIsTestnet
 				? n.type === NetworkType.Testnet
 				: n.type === NetworkType.Mainnet,
 		),

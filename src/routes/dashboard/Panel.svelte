@@ -3,6 +3,7 @@
 	import type {
 		DashboardPanelNode,
 		DashboardPanelRoute,
+		DashboardSplitNode,
 	} from '$/data/DashboardPanel.ts'
 
 
@@ -27,6 +28,8 @@
 		onSetPanelHash,
 		onNavigate,
 		onOpenInNewPanel,
+		parent,
+		indexInParent,
 	}: {
 		panel: DashboardPanelNode
 		isFocused: boolean
@@ -46,11 +49,24 @@
 			panelId: string,
 			route: DashboardPanelRoute,
 			hash: string | null,
-		) => void,
+		) => void
+		parent?: DashboardSplitNode
+		indexInParent?: 0 | 1,
 	} = $props()
 
 
 	// (Derived)
+	const swapIcon = $derived(
+		parent != null && indexInParent != null
+			? indexInParent === 0 && parent.direction === 'horizontal'
+				? '⇄'
+				: indexInParent === 1 && parent.direction === 'horizontal'
+					? '⇆'
+					: indexInParent === 0 && parent.direction === 'vertical'
+						? '⇵'
+						: '⇅'
+			: '⇄',
+	)
 	const routeEntry = $derived(
 		routeEntriesForPanel.find((entry) => entry.path === panel.route.path) ?? null,
 	)
@@ -157,13 +173,13 @@
 		</div>
 		<div data-row="wrap start gap-2" class="dashboard-panel-controls">
 			<button type="button" onclick={() => onSplit(panel.id, 'horizontal')} title="Split horizontal">
-				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">▌▐</span>
+				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">→</span>
 			</button>
 			<button type="button" onclick={() => onSplit(panel.id, 'vertical')} title="Split vertical">
-				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">▀▄</span>
+				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">↓</span>
 			</button>
 			<button type="button" onclick={() => onSwap(panel.id)} title="Swap">
-				<span class="dashboard-panel-btn-text">Swap </span><span class="dashboard-panel-btn-icon" aria-hidden="true">↔</span>
+				<span class="dashboard-panel-btn-text">Swap </span><span class="dashboard-panel-btn-icon" aria-hidden="true">{swapIcon}</span>
 			</button>
 			<button type="button" onclick={() => onRemove(panel.id)} title="Close">
 				<span class="dashboard-panel-btn-text">Close</span><span class="dashboard-panel-btn-icon" aria-hidden="true">×</span>

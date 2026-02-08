@@ -2,13 +2,21 @@
 	// Polyfills (run before other imports that may use crypto.randomUUID)
 	import '$/lib/randomUuid.ts'
 
+	// Profiles (boot/migrate before collections read from localStorage; browser-only)
+	import { browser } from '$app/environment'
+	import { ensureProfilesMeta } from '$/lib/profile.ts'
+	if (browser) ensureProfilesMeta()
+
 
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { ActionType, actionTypeDefinitionByActionType } from '$/constants/intents.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { networkConfigs, toNetworkSlug } from '$/constants/networks.ts'
-	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+	import {
+		WalletConnectionTransport,
+		toWalletConnectionStatus,
+	} from '$/data/WalletConnection.ts'
 
 
 	// Context
@@ -153,6 +161,7 @@
 				.select(({ row }) => ({
 					id: row.$id.id,
 					name: 'name' in row ? row.name : undefined,
+					icon: 'icon' in row ? row.icon : undefined,
 				})),
 		[],
 	)
@@ -175,11 +184,13 @@
 		defaultDashboardRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
 	)
 	const dashboardNavItems = $derived(
-		(dashboardsQuery.data ?? []).map(({ id, name }) => ({
+		(dashboardsQuery.data ?? []).map(({ id, name, icon }) => ({
 			id: `dashboard-${id}`,
 			title: name ?? (id === 'default' ? 'My Dashboard' : 'Unnamed'),
 			href: id === defaultDashboardId ? '/dashboard' : `/dashboard?d=${id}`,
-			icon: id === defaultDashboardId ? '★' : '📊',
+			icon:
+				icon ??
+				(id === defaultDashboardId ? '★' : '📊'),
 		})),
 	)
 	registerGlobalLiveQueryStack(() => [
@@ -282,13 +293,21 @@
 			return connection.actors.map((actor) => ({
 				id: `account-${wallet.rdns}-${actor}`,
 				title: formatAddress(actor),
+				address: {
+					network: connection.chainId ?? undefined,
+					address: actor as `0x${string}`,
+				},
 				href: `/account/${encodeURIComponent(
 					connection.chainId != null
-						? toInteropName(connection.chainId, actor, interopFormatConfig)
+						? toInteropName(
+								connection.chainId,
+								actor,
+								interopFormatConfig,
+							)
 						: actor,
 				)}`,
-				tag: connection.status,
-				icon: wallet.icon ?? '👤',
+				tag: toWalletConnectionStatus(connection.status),
+				tagIcon: wallet.icon,
 			}))
 		}),
 	)
@@ -297,7 +316,7 @@
 	const allSessionNavItems = $derived(
 		(sessionsQuery.data ?? [])
 			.map((r) => r.row)
-			.sort((a, b) => b.updatedAt - a.updatedAt)
+			.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
 			.map((session) => ({
 				id: `session-${session.id}`,
 				title: sessionTitle(session),
@@ -358,8 +377,16 @@
 			...(watchedEntitiesQuery.data ?? []).map((r) => r.row.href),
 		]),
 	)
+	const manualWatchedHrefs = $derived(
+		new Set((watchedEntitiesQuery.data ?? []).map((r) => r.row.href)),
+	)
 	const filterWatched = <T extends { href: string }>(items: T[]) =>
 		items.filter((item) => watchedHrefs.has(item.href))
+	const withManualWatch = <T extends { href: string }>(items: T[]) =>
+		items.map((item) => ({
+			...item,
+			manualWatch: manualWatchedHrefs.has(item.href),
+		}))
 
 	const navigationItems = $derived([
 		{
@@ -368,16 +395,16 @@
 			href: '/dashboards',
 			icon: '📊',
 			defaultOpen: true,
-			children: dashboardNavItems,
+			children: withManualWatch(dashboardNavItems),
 		},
 		{
 			id: 'accounts',
 			title: 'Accounts',
 			href: '/accounts',
-			icon: '👥',
+			icon: '👤',
 			defaultOpen: true,
 			tag: String(accountNavItems.length),
-			children: accountNavItems,
+			children: withManualWatch(accountNavItems),
 		},
 		{
 			id: 'actions',
@@ -390,15 +417,7 @@
 					ActionType.Swap,
 					ActionType.Bridge,
 					ActionType.Transfer,
-					ActionType.CreateChannel,
-					ActionType.CloseChannel,
 					ActionType.AddLiquidity,
-					ActionType.RemoveLiquidity,
-					ActionType.CollectFees,
-					ActionType.IncreaseLiquidity,
-					ActionType.ShareAddress,
-					ActionType.ProposeTransfer,
-					ActionType.RequestVerification,
 				] as const
 			).map((actionType) => {
 				const spec = actionTypeDefinitionByActionType[actionType]
@@ -416,8 +435,8 @@
 			href: '/sessions',
 			icon: '📋',
 			defaultOpen: false,
-			children: filterWatched(allSessionNavItems),
-			allChildren: allSessionNavItems,
+			children: withManualWatch(filterWatched(allSessionNavItems)),
+			allChildren: withManualWatch(allSessionNavItems),
 		},
 		{
 			id: 'agents',
@@ -428,18 +447,18 @@
 			children: [
 				{ id: 'agents-new', title: 'New conversation', href: '/agents/new', icon: '✨' },
 				{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm', icon: '🔑' },
-				...filterWatched(allAgentTreeNavItems),
+				...withManualWatch(filterWatched(allAgentTreeNavItems)),
 			],
 			allChildren: [
 				{ id: 'agents-new', title: 'New conversation', href: '/agents/new', icon: '✨' },
 				{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm', icon: '🔑' },
-				...allAgentTreeNavItems,
+				...withManualWatch(allAgentTreeNavItems),
 			],
 		},
 		{
 			id: 'explore',
 			title: 'Explore',
-			icon: '🔍',
+			icon: '🧭',
 			defaultOpen: true,
 			children: [
 				{
@@ -464,10 +483,10 @@
 				{
 					id: 'networks',
 					title: 'Networks',
-					icon: '🌐',
+					icon: '⛓️',
 					defaultOpen: false,
-					children: filterWatched(allNetworkNavItems),
-					allChildren: allNetworkNavItems,
+					children: withManualWatch(filterWatched(allNetworkNavItems)),
+					allChildren: withManualWatch(allNetworkNavItems),
 				},
 			],
 		},
@@ -481,67 +500,67 @@
 					id: 'positions-liquidity',
 					title: 'Liquidity',
 					href: '/positions/liquidity',
-					icon: '💧',
+					icon: '🪣',
 				},
 				{
 					id: 'positions-channels',
 					title: 'Channels',
 					href: '/positions/channels',
-					icon: '💛',
+					icon: '↔️',
 				},
 			],
 		},
 		{
 			id: 'multiplayer',
 			title: 'Multiplayer',
-			icon: '🎮',
+			icon: '🤝',
 			defaultOpen: true,
 			children: [
 				{
 					id: 'rooms',
 					title: 'Rooms',
 					href: '/rooms',
-					icon: '🏠',
+					icon: '🏘️',
 					tag: String(allRoomNavItems.length),
-					children: filterWatched(allRoomNavItems),
-					allChildren: allRoomNavItems,
+					children: withManualWatch(filterWatched(allRoomNavItems)),
+					allChildren: withManualWatch(allRoomNavItems),
 				},
 				{
 					id: 'peers',
 					title: 'Peers',
 					href: '/peers',
-					icon: '🤝',
+					icon: '👥',
 					tag: String(peersNavItems.length),
-					children: peersNavItems,
+					children: withManualWatch(peersNavItems),
 				},
 			],
 		},
-		{
-			id: 'tests',
-			title: 'Tests',
-			icon: '🧪',
-			defaultOpen: true,
-			children: [
-				{
-					id: 'test-networks-coins',
-					title: 'Networks & coins',
-					href: '/test/networks-coins',
-					icon: '🔗',
-				},
-				{
-					id: 'test-chain-id',
-					title: 'Chain ID (Voltaire)',
-					href: '/test/chain-id',
-					icon: '#️⃣',
-				},
-				{
-					id: 'test-intents',
-					title: 'Intents',
-					href: '/test/intents',
-					icon: '📌',
-				},
-			],
-		},
+		// {
+		// 	id: 'tests',
+		// 	title: 'Tests',
+		// 	icon: '🧪',
+		// 	defaultOpen: true,
+		// 	children: [
+		// 		{
+		// 			id: 'test-networks-coins',
+		// 			title: 'Networks & coins',
+		// 			href: '/test/networks-coins',
+		// 			icon: '🔗',
+		// 		},
+		// 		{
+		// 			id: 'test-chain-id',
+		// 			title: 'Chain ID (Voltaire)',
+		// 			href: '/test/chain-id',
+		// 			icon: '#️⃣',
+		// 		},
+		// 		{
+		// 			id: 'test-intents',
+		// 			title: 'Intents',
+		// 			href: '/test/intents',
+		// 			icon: '📌',
+		// 		},
+		// 	],
+		// },
 	])
 
 

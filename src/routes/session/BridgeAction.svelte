@@ -141,6 +141,7 @@
 	const sessionLocked = $derived(Boolean(session?.lockedAt))
 	const bridgeDefaults = $derived({
 		...bridgeSettingsState.current,
+		isTestnet: globalIsTestnet,
 		protocolIntent: null as BridgeSessionParams['protocolIntent'],
 		transferSpeed: 'fast' as const,
 		forwardingEnabled: false,
@@ -156,13 +157,9 @@
 	const settings = $derived(
 		localParams ?? settingsFromParams ?? fallbackParams,
 	)
-	let useGlobalNetworkType = $state(true)
-	const effectiveIsTestnet = $derived(
-		useGlobalNetworkType ? globalIsTestnet : settings.isTestnet,
-	)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			effectiveIsTestnet
+			globalIsTestnet
 				? n.type === NetworkType.Testnet
 				: n.type === NetworkType.Mainnet,
 		),
@@ -186,8 +183,8 @@
 	const gatewayPairSupported = $derived(
 		settings.fromChainId !== null &&
 			settings.toChainId !== null &&
-			isGatewaySupportedChain(settings.fromChainId, effectiveIsTestnet) &&
-			isGatewaySupportedChain(settings.toChainId, effectiveIsTestnet),
+			isGatewaySupportedChain(settings.fromChainId, globalIsTestnet) &&
+			isGatewaySupportedChain(settings.toChainId, globalIsTestnet),
 	)
 	const activeProtocol = $derived(
 		cctpPairSupported && !lifiPairSupported && !gatewayPairSupported
@@ -433,9 +430,7 @@
 	})
 
 	$effect(() => {
-		const isTestnet = useGlobalNetworkType
-			? globalIsTestnet
-			: settings.isTestnet
+		const isTestnet = globalIsTestnet
 		if (filteredNetworks.length === 0) return
 		if (
 			settings.fromChainId !== null &&
