@@ -126,13 +126,13 @@
 				{/if}
 			</dl>
 
-			<a
+			<!-- <a
 				href={getBlockUrl(chainId, block.$id.blockNumber)}
 				target="_blank"
 				rel="noopener noreferrer"
 			>
 				View on explorer ↗
-			</a>
+			</a> -->
 		{/if}
 
 		<ItemsListView
