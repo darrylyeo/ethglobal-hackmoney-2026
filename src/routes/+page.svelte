@@ -59,21 +59,78 @@
 	)
 
 	const noop = () => {}
+	const valuePhrases = [
+		'Thoughtfully crafted affordances',
+		'Good defaults',
+		'Visualization & simulation',
+		'Confidence without hiding complexity',
+	]
+	const features = [
+		{
+			title: 'Dashboards',
+			summary: 'Resizable split-view panels that navigate to any page in the app.',
+			href: '/dashboards',
+		},
+		{
+			title: 'Accounts',
+			summary: 'Watch addresses or connect many wallets (EIP-6963). Per account: coin balances, transactions, DeFi positions.',
+			href: '/accounts',
+		},
+		{
+			title: 'Actions',
+			summary: 'Start a session from an action type: swap, bridge, transfer, channels, liquidity, and more.',
+			href: '/actions',
+		},
+		{
+			title: 'Drag-and-drop intents',
+			summary: 'Drag entities across the UI to start a session with the right action sequence — transfer, swap, or bridge.',
+			href: '/session',
+		},
+		{
+			title: 'Sessions',
+			summary: 'Draft, preview, simulate and sign action sequences; state saved locally and synced to onchain.',
+			href: '/sessions',
+		},
+		{
+			title: 'Agents',
+			summary: '@-mention entities as context in agent-assisted research; new conversations, API keys, pinned chats.',
+			href: '/agents',
+		},
+		{
+			title: 'Explore',
+			summary: 'Browse coins (USDC, ETH) and networks; view chain, block and transaction data.',
+			href: '/coin/USDC',
+		},
+		{
+			title: 'Positions',
+			summary: 'Uniswap V4 liquidity positions and Yellow state-channels.',
+			href: '/positions/liquidity',
+		},
+		{
+			title: 'Rooms',
+			summary: 'Real-time multiplayer rooms; channels, shared addresses, transfer requests.',
+			href: '/rooms',
+		},
+		{
+			title: 'Entity cache',
+			summary: 'Metadata as entity objects in collections (local storage); TanStack DB query subscriptions.',
+			href: '/test/collections',
+		},
+		{
+			title: 'About',
+			summary: 'Architecture diagram: data flows, services, and external dependencies.',
+			href: '/about',
+		},
+		{
+			title: 'Real-time & optimistic',
+			summary: 'Live data updates and fast optimistic navigation.',
+		},
+	]
 	const heroCtas = [
 		{ href: '/session', label: 'Start session', primary: true },
 		{ href: '/dashboard', label: 'Dashboard' },
 		{ href: '/coin/USDC', label: 'USDC' },
 		{ href: '/rooms', label: 'Rooms' },
-	]
-	const routes = [
-		{ href: '/dashboard', title: 'Dashboard' },
-		{ href: '/accounts', title: 'Accounts' },
-		{ href: '/sessions', title: 'Sessions' },
-		{ href: '/actions', title: 'Actions' },
-		{ href: '/session', title: 'Session' },
-		{ href: '/coin/USDC', title: 'USDC' },
-		{ href: '/rooms', title: 'Rooms' },
-		{ href: '/test/collections', title: 'Tests' },
 	]
 	const legendItems = [
 		{ id: 'client', label: 'Client UI', color: architectureGraph.layerColors.client },
@@ -91,8 +148,14 @@
 	<header class="landing-hero" data-column="center gap-4">
 		<h1>{APP_NAME}</h1>
 		<p class="landing-tagline">
-			{APP_NAME} is a local-first object-oriented GUI client for blockchain
-			exploration, DeFi and AI agents.
+			Local-first GUI client for blockchain exploration, onchain assets, and
+			peer-to-peer DeFi.
+		</p>
+		<p class="landing-value" aria-hidden="true">
+			{#each valuePhrases as phrase, i (i)}
+				{#if i > 0}<span class="landing-value-sep" aria-hidden="true"> · </span>{/if}
+				{phrase}
+			{/each}
 		</p>
 		<nav aria-label="Primary actions" data-column="center gap-3">
 			<div data-grid="columns-autofit gap-2 column-min-6">
@@ -144,22 +207,33 @@
 	</header>
 
 	<section
-		class="landing-routes"
+		class="landing-features"
 		data-scroll-item
-		data-column="center gap-4"
-		aria-label="All routes"
+		data-column="gap-4"
+		aria-label="Features"
 	>
-		<h2 class="landing-routes-title">Explore</h2>
-		<nav
-			aria-label="App routes"
-			data-grid="columns-autofit gap-3 column-min-8"
-		>
-			{#each routes as { href, title }}
-				<a href={resolve(href)} data-card="padding-3 radius-3" data-column="gap-1">
-					<span>{title}</span>
-				</a>
+		<h2 class="landing-features-title">Features</h2>
+		<ul class="landing-features-list" data-grid="columns-autofit gap-3 column-min-18">
+			{#each features as { title, summary, href }}
+				<li>
+					{#if href}
+						<a
+							href={resolve(href)}
+							data-card="padding-3 radius-3"
+							data-column="gap-1"
+						>
+							<strong>{title}</strong>
+							<p class="landing-features-summary">{summary}</p>
+						</a>
+					{:else}
+						<div data-card="padding-3 radius-3" data-column="gap-1">
+							<strong>{title}</strong>
+							<p class="landing-features-summary">{summary}</p>
+						</div>
+					{/if}
+				</li>
 			{/each}
-		</nav>
+		</ul>
 	</section>
 
 	<section
@@ -330,6 +404,17 @@
 			line-height: 1.5;
 		}
 
+		& .landing-value {
+			max-inline-size: 56ch;
+			font-size: 0.9rem;
+			line-height: 1.5;
+			color: var(--color-text-muted);
+		}
+
+		& .landing-value-sep {
+			opacity: 0.7;
+		}
+
 		& .landing-dashboard-preview {
 			display: block;
 			text-decoration: none;
@@ -395,38 +480,6 @@
 			}
 		}
 
-		& .landing-routes {
-			view-timeline: --routes block;
-			animation: routes-reveal linear;
-			animation-timeline: view(--routes);
-			animation-range: entry 5% entry 40%;
-			animation-fill-mode: both;
-			padding-block: 3rem 1rem;
-			border-block-start: 1px solid var(--color-border);
-
-			& .landing-routes-title {
-				font-size: 0.8125rem;
-				font-weight: 600;
-				text-transform: uppercase;
-				letter-spacing: 0.08em;
-				color: var(--color-text-muted);
-				margin-block-end: 0.5rem;
-			}
-
-			& nav a[data-card] {
-				text-decoration: none;
-				color: inherit;
-				transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-				border: 1px solid transparent;
-
-				&:hover {
-					background-color: var(--color-bg-muted);
-					box-shadow: var(--shadow-sm);
-					border-color: var(--color-border);
-				}
-			}
-		}
-
 		@keyframes routes-reveal {
 			from {
 				opacity: 0;
@@ -436,6 +489,54 @@
 				opacity: 1;
 				transform: translateY(0);
 			}
+		}
+
+		& .landing-features {
+			view-timeline: --features block;
+			animation: routes-reveal linear;
+			animation-timeline: view(--features);
+			animation-range: entry 5% entry 40%;
+			animation-fill-mode: both;
+			padding-block: 3rem 1rem;
+			border-block-start: 1px solid var(--color-border);
+		}
+
+		& .landing-features-title {
+			font-size: 0.8125rem;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			color: var(--color-text-muted);
+			margin-block-end: 0.5rem;
+		}
+
+		& .landing-features-list {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		& .landing-features-list li > a,
+		& .landing-features-list li > div {
+			display: block;
+			text-decoration: none;
+			color: inherit;
+			transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+			border: 1px solid transparent;
+		}
+
+		& .landing-features-list li > a:hover,
+		& .landing-features-list li > div:hover {
+			background-color: var(--color-bg-muted);
+			box-shadow: var(--shadow-sm);
+			border-color: var(--color-border);
+		}
+
+		& .landing-features-summary {
+			margin: 0;
+			font-size: 0.9rem;
+			color: var(--color-text-muted);
+			line-height: 1.45;
 		}
 
 		& .landing-about {
