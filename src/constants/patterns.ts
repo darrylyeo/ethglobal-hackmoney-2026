@@ -1,5 +1,6 @@
 export enum PatternType {
 	EvmAddress = 'EvmAddress',
+	EnsName = 'EnsName',
 	EvmBlockNumber = 'EvmBlockNumber',
 	EvmTransactionHash = 'EvmTransactionHash',
 	EntityId = 'EntityId',
@@ -22,6 +23,14 @@ export const patterns: PatternConfig[] = [
 		pattern: /^0x[0-9a-fA-F]{40}$/,
 		matchComplexity: 2,
 		isHumanReadable: false,
+	},
+	{
+		type: PatternType.EnsName,
+		label: 'ENS',
+		placeholder: 'name.eth',
+		pattern: /^.+\.[a-z0-9-]+$/i,
+		matchComplexity: 1,
+		isHumanReadable: true,
 	},
 	{
 		type: PatternType.EvmBlockNumber,

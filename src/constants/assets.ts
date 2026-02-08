@@ -3868,8 +3868,23 @@ export const coinAssetSources = [
 	},
 ] as const satisfies readonly AssetSource[]
 
-/** Provider/brand icon fetch list: id = lowercase provider name. Sources: official brand kits, simpleicons, vectorlogo.zone. */
+/**
+ * Provider/brand icon fetch list (Spec 052). id = lowercase filename stem → providers/{id}.svg.
+ * Protocol enum mapping: UniswapV4→uniswap, LiFi→lifi, Cctp→cctp, Gateway→circle; Yellow/PartyKit use emoji.
+ * Sources: blockhead (icons), official brand kits, Simple Icons, VectorLogo.zone.
+ */
 export const providerAssetSources = [
+	/** Protocol.UniswapV4 — blockhead icons/Uniswap.svg */
+	{
+		subject: AssetSubject.Brand,
+		id: 'uniswap',
+		kind: AssetKind.Logo,
+		fetch: {
+			fetchType: FetchTypeKind.Url,
+			url: 'https://raw.githubusercontent.com/darrylyeo/blockhead/main/src/assets/icons/Uniswap.svg',
+		},
+	},
+	/** Protocol.LiFi — LI.FI official branding */
 	{
 		subject: AssetSubject.Brand,
 		id: 'lifi',
@@ -3879,6 +3894,7 @@ export const providerAssetSources = [
 			url: 'https://li.fi/assets/branding/svg/logo_lifi_dark.svg',
 		},
 	},
+	/** Protocol.Cctp — Circle icon via VectorLogo.zone */
 	{
 		subject: AssetSubject.Brand,
 		id: 'cctp',
@@ -3887,6 +3903,7 @@ export const providerAssetSources = [
 			url: 'https://www.vectorlogo.zone/logos/circle/circle-icon.svg',
 		},
 	},
+	/** Protocol.CircleGateway (Circle Gateway) — Circle icon via VectorLogo.zone */
 	{
 		subject: AssetSubject.Brand,
 		id: 'circle',
@@ -3895,15 +3912,7 @@ export const providerAssetSources = [
 			url: 'https://www.vectorlogo.zone/logos/circle/circle-icon.svg',
 		},
 	},
-	{
-		subject: AssetSubject.Brand,
-		id: 'uniswap',
-		kind: AssetKind.Logo,
-		fetch: {
-			fetchType: FetchTypeKind.Png,
-			url: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png',
-		},
-	},
+	/** Other brands (architecture graph etc.): Simple Icons / VectorLogo.zone */
 	{
 		subject: AssetSubject.Brand,
 		id: 'ens',

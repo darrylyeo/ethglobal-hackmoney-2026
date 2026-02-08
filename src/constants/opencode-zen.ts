@@ -20,12 +20,6 @@ const ZEN_BASE = 'https://opencode.ai/zen/v1'
 
 export const zenFreeModels: readonly ZenFreeModel[] = [
 	{
-		id: 'gpt-5-nano',
-		label: 'GPT 5 Nano',
-		endpoint: `${ZEN_BASE}/responses`,
-		kind: ZenEndpointKind.Responses,
-	},
-	{
 		id: 'minimax-m2.1-free',
 		label: 'MiniMax M2.1 Free',
 		endpoint: `${ZEN_BASE}/messages`,
@@ -36,6 +30,12 @@ export const zenFreeModels: readonly ZenFreeModel[] = [
 		label: 'GLM 4.7 Free',
 		endpoint: `${ZEN_BASE}/chat/completions`,
 		kind: ZenEndpointKind.ChatCompletions,
+	},
+	{
+		id: 'gpt-5-nano',
+		label: 'GPT 5 Nano',
+		endpoint: `${ZEN_BASE}/responses`,
+		kind: ZenEndpointKind.Responses,
 	},
 	{
 		id: 'kimi-k2.5-free',

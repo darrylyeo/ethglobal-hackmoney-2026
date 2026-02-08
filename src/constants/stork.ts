@@ -30,6 +30,11 @@ export type StorkAsset = {
 	quoteSymbol: StorkAssetSymbol
 }
 
+export type StorkOracleContract = {
+	chainId: ChainId
+	address: `0x${string}`
+}
+
 export type StorkPushedAsset = {
 	chainId: ChainId
 	assetId: StorkAsset['assetId']
@@ -47,11 +52,11 @@ export const storkApiEndpoints = [
 		transport: StorkApiTransport.Rest,
 		baseUrl: 'https://rest.jp.stork-oracle.network',
 	},
-	{
-		region: StorkApiRegion.Dev,
-		transport: StorkApiTransport.Rest,
-		baseUrl: 'https://rest.dev.stork-oracle.network',
-	},
+	// {
+	// 	region: StorkApiRegion.Dev,
+	// 	transport: StorkApiTransport.Rest,
+	// 	baseUrl: 'https://rest.dev.stork-oracle.network',
+	// },
 	{
 		region: StorkApiRegion.Jp,
 		transport: StorkApiTransport.Websocket,
@@ -84,30 +89,36 @@ export const storkWebsocketBaseUrl =
 export const storkWebsocketUrl = `${storkWebsocketBaseUrl}/evm/subscribe`
 
 /** Fallback Stork oracle contract addresses by chain (RPC-only when REST/token unavailable). From https://docs.stork.network/resources/contract-addresses/evm */
-export const storkOracleAddressByChainId: Partial<Record<ChainId, `0x${string}`>> = {
-	[ChainId.Ethereum]: '0x035B5438444f26e6Aab81E91d475b7B1Ac4Fb22b',
-	[ChainId.Optimism]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.Arbitrum]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.ArbitrumSepolia]: '0x7Bb9740FdcbD91866CaFEd099C36445Ea8140627',
-	[ChainId.Avalanche]: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6',
-	[ChainId.Base]: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6',
-	[ChainId.BaseSepolia]: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6',
-	[ChainId.Polygon]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.PolygonAmoy]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.Monad]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.MonadTestnet]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.Plume]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.PlumeTestnet]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.UnichainSepolia]: '0x266795f5A45AEc26aBF7E1c923dC15Cbb1A4Ed96',
-	[ChainId.ZkSyncEra]: '0xedea47572301271280a39F8A7378C7dc54fe5F1E',
-	[ChainId.ZkSyncEraSepolia]: '0xa4EdaB501dD4B3aD9Ad6d30dE1B3a29b8d9a9858',
-	[ChainId.ArcTestnet]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.EduChain]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.Mitosis]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.MitosisTestnet]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.RiseTestnet]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-	[ChainId.Tac]: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62',
-}
+export const storkOracleContracts = [
+	{ chainId: ChainId.Ethereum, address: '0x035B5438444f26e6Aab81E91d475b7B1Ac4Fb22b' },
+	{ chainId: ChainId.Optimism, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.Arbitrum, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.ArbitrumSepolia, address: '0x7Bb9740FdcbD91866CaFEd099C36445Ea8140627' },
+	{ chainId: ChainId.Avalanche, address: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6' },
+	{ chainId: ChainId.Base, address: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6' },
+	{ chainId: ChainId.BaseSepolia, address: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6' },
+	{ chainId: ChainId.Polygon, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.PolygonAmoy, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.Monad, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.MonadTestnet, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.Plume, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.PlumeTestnet, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.UnichainSepolia, address: '0x266795f5A45AEc26aBF7E1c923dC15Cbb1A4Ed96' },
+	{ chainId: ChainId.ZkSyncEra, address: '0xedea47572301271280a39F8A7378C7dc54fe5F1E' },
+	{ chainId: ChainId.ZkSyncEraSepolia, address: '0xa4EdaB501dD4B3aD9Ad6d30dE1B3a29b8d9a9858' },
+	{ chainId: ChainId.ArcTestnet, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.EduChain, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.Mitosis, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.MitosisTestnet, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.RiseTestnet, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ chainId: ChainId.Tac, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+] as const satisfies readonly StorkOracleContract[]
+
+export const storkOracleContractsByChainId: Partial<
+	Record<ChainId, `0x${string}`>
+> = Object.fromEntries(
+	storkOracleContracts.map((c) => [c.chainId, c.address]),
+)
 
 /** EVM Stork aggregator public key for signature verification. From https://docs.stork.network/resources/public-keys */
 export const storkEvmAggregatorPublicKey: `0x${string}` =

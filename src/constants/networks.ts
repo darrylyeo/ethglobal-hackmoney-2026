@@ -240,6 +240,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'CELO', symbol: 'CELO' },
 		explorerUrls: ['https://celoscan.io'],
+		icon: (await import('$/assets/networks/Celo.svg?url')).default,
 	},
 	{
 		chainId: ChainId.AvalancheFuji,
@@ -372,7 +373,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'CELO', symbol: 'CELO' },
 		explorerUrls: ['https://celo-sepolia.blockscout.com'],
-		icon: (await import('$/assets/networks/11142220.svg?url')).default,
+		icon: (await import('$/assets/networks/Celo.svg?url')).default,
 	},
 	{
 		chainId: ChainId.EthereumSepolia,

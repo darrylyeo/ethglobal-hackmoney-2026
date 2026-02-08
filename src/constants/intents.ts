@@ -1,3 +1,16 @@
+import {
+	ActionType,
+	actionTypeDefinitionByActionType,
+	createAction,
+} from '$/constants/actions.ts'
+import {
+	getActionType,
+	getProtocolAction,
+	protocolActions,
+} from '$/constants/protocolActions.ts'
+import { Protocol, protocolsById } from '$/constants/protocols.ts'
+import type { ProtocolAction } from '$/constants/protocolActions.ts'
+import type { SessionTemplate } from '$/data/Session.ts'
 import { EntityType, type Entity } from '$/data/$EntityType.ts'
 
 
@@ -54,237 +67,19 @@ export type IntentEntity<
 }
 
 
-// Actions
-
-export enum ActionType {
-	Swap = 'Swap',
-	Bridge = 'Bridge',
-	Transfer = 'Transfer',
-	CreateChannel = 'CreateChannel',
-	AddChannelMember = 'AddChannelMember',
-	CloseChannel = 'CloseChannel',
-	AddLiquidity = 'AddLiquidity',
-	RemoveLiquidity = 'RemoveLiquidity',
-	CollectFees = 'CollectFees',
-	IncreaseLiquidity = 'IncreaseLiquidity',
-	ShareAddress = 'ShareAddress',
-	ProposeTransfer = 'ProposeTransfer',
-	RequestVerification = 'RequestVerification',
-	DepositToCustody = 'DepositToCustody',
-	WithdrawFromCustody = 'WithdrawFromCustody',
-	ResizeChannel = 'ResizeChannel',
-	CreatePool = 'CreatePool',
-	AcceptTransfer = 'AcceptTransfer',
-	RejectTransfer = 'RejectTransfer',
-}
-
-export enum ActionCategory {
-	ValueTransfer = 'value-transfer',
-	Liquidity = 'liquidity',
-	Channel = 'channel',
-	Custody = 'custody',
-	Room = 'room',
-}
-
-export type ActionTypeDefinition = {
-	type: ActionType
-	label: string
-	icon: string
-	category: ActionCategory
-}
-
-export const actionTypes: readonly ActionTypeDefinition[] = [
-	{
-		type: ActionType.Swap,
-		label: 'Swap',
-		icon: '🔄',
-		category: ActionCategory.ValueTransfer,
-	},
-	{
-		type: ActionType.Bridge,
-		label: 'Bridge',
-		icon: '🌉',
-		category: ActionCategory.ValueTransfer,
-	},
-	{
-		type: ActionType.Transfer,
-		label: 'Transfer',
-		icon: '💸',
-		category: ActionCategory.ValueTransfer,
-	},
-	{
-		type: ActionType.CreateChannel,
-		label: 'Create Channel',
-		icon: '💛',
-		category: ActionCategory.Channel,
-	},
-	{
-		type: ActionType.AddChannelMember,
-		label: 'Add Member',
-		icon: '💛',
-		category: ActionCategory.Channel,
-	},
-	{
-		type: ActionType.CloseChannel,
-		label: 'Close Channel',
-		icon: '💛',
-		category: ActionCategory.Channel,
-	},
-	{
-		type: ActionType.AddLiquidity,
-		label: 'Add Liquidity',
-		icon: '💧',
-		category: ActionCategory.Liquidity,
-	},
-	{
-		type: ActionType.RemoveLiquidity,
-		label: 'Remove Liquidity',
-		icon: '💧',
-		category: ActionCategory.Liquidity,
-	},
-	{
-		type: ActionType.CollectFees,
-		label: 'Collect Fees',
-		icon: '💰',
-		category: ActionCategory.Liquidity,
-	},
-	{
-		type: ActionType.IncreaseLiquidity,
-		label: 'Increase Liquidity',
-		icon: '💧',
-		category: ActionCategory.Liquidity,
-	},
-	{
-		type: ActionType.ShareAddress,
-		label: 'Share Address',
-		icon: '📤',
-		category: ActionCategory.Room,
-	},
-	{
-		type: ActionType.ProposeTransfer,
-		label: 'Propose Transfer',
-		icon: '🤝',
-		category: ActionCategory.Room,
-	},
-	{
-		type: ActionType.RequestVerification,
-		label: 'Request Verification',
-		icon: '✅',
-		category: ActionCategory.Room,
-	},
-	{
-		type: ActionType.DepositToCustody,
-		label: 'Deposit to Custody',
-		icon: '🏦',
-		category: ActionCategory.Custody,
-	},
-	{
-		type: ActionType.WithdrawFromCustody,
-		label: 'Withdraw from Custody',
-		icon: '🏦',
-		category: ActionCategory.Custody,
-	},
-	{
-		type: ActionType.ResizeChannel,
-		label: 'Resize Channel',
-		icon: '💛',
-		category: ActionCategory.Channel,
-	},
-	{
-		type: ActionType.CreatePool,
-		label: 'Create Pool',
-		icon: '🏊',
-		category: ActionCategory.Liquidity,
-	},
-	{
-		type: ActionType.AcceptTransfer,
-		label: 'Accept Transfer',
-		icon: '✅',
-		category: ActionCategory.Room,
-	},
-	{
-		type: ActionType.RejectTransfer,
-		label: 'Reject Transfer',
-		icon: '❌',
-		category: ActionCategory.Room,
-	},
-] as const
-
-export const actionTypeDefinitionByActionType = Object.fromEntries(
-	actionTypes.map(spec => [spec.type, spec]),
-) as Record<ActionType, ActionTypeDefinition>
+// Re-export action constants for consumers that import from intents
+export {
+	ActionType,
+	actionTypeDefinitionByActionType,
+	actionTypes,
+	type ActionTypeDefinition,
+} from '$/constants/actions.ts'
 
 
-// Protocols
-
-export enum Protocol {
-	UniswapV4 = 'UniswapV4',
-	LiFi = 'LiFi',
-	Yellow = 'Yellow',
-	Cctp = 'Cctp',
-	PartyKit = 'PartyKit',
-	Gateway = 'Gateway',
-}
-
-export type ProtocolAction<
-	_ActionType extends ActionType = ActionType,
-	_Protocol extends Protocol = Protocol,
-> = {
-	action: _ActionType
-	protocol: _Protocol
-}
-
-
-export type ProtocolSpec = {
-	label: string
-	shortLabel: string
-	icon: string
-	detail: string
-}
-
-const iconCircle = (await import('$/assets/providers/circle.svg?url')).default
-const iconCctp = (await import('$/assets/providers/cctp.svg?url')).default
-const iconLifi = (await import('$/assets/providers/lifi.svg?url')).default
-const iconUniswap = (await import('$/assets/providers/uniswap.svg?url')).default
-
-export const protocolSpecs = {
-	[Protocol.UniswapV4]: {
-		label: 'Uniswap V4',
-		shortLabel: 'Uni V4',
-		icon: iconUniswap,
-		detail: 'Decentralized exchange',
-	},
-	[Protocol.LiFi]: {
-		label: 'LI.FI',
-		shortLabel: 'LI.FI',
-		icon: iconLifi,
-		detail: 'Multi-chain aggregator',
-	},
-	[Protocol.Eip7824]: {
-		label: 'EIP-7824',
-		shortLabel: 'EIP-7824',
-		icon: '💛',
-		detail: 'State channel network',
-	},
-	[Protocol.Cctp]: {
-		label: 'Circle CCTP',
-		shortLabel: 'CCTP',
-		icon: iconCctp,
-		detail: 'Native USDC bridge',
-	},
-	[Protocol.PartyKit]: {
-		label: 'PartyKit',
-		shortLabel: 'PartyKit',
-		icon: '🎉',
-		detail: 'Real-time rooms',
-	},
-	[Protocol.Gateway]: {
-		label: 'Circle Gateway',
-		shortLabel: 'Gateway',
-		icon: iconCircle,
-		detail: 'Unified USDC balance',
-	},
-} as const satisfies Record<Protocol, ProtocolSpec>
+export { protocolActions } from '$/constants/protocolActions.ts'
+export type { ProtocolAction } from '$/constants/protocolActions.ts'
+export { Protocol, protocolsById as protocolSpecs } from '$/constants/protocols.ts'
+export type { ProtocolDefinition as ProtocolSpec } from '$/constants/protocols.ts'
 
 const listFormatUnit = new Intl.ListFormat('en', { type: 'unit', style: 'long' })
 
@@ -292,138 +87,27 @@ export function formatIntentOptionLabel(protocolActions: readonly ProtocolAction
 	if (protocolActions.length === 0) return ''
 	const first = protocolActions[0]
 	if (protocolActions.length === 1)
-		return `${actionTypeDefinitionByActionType[first.action].label} via ${protocolSpecs[first.protocol].label}`
-	const sameProtocol = protocolActions.every((pa) => pa.protocol === first.protocol)
+		return `${actionTypeDefinitionByActionType[first.id.actionType].label} via ${protocolsById[first.id.protocol].label}`
+	const sameProtocol = protocolActions.every((pa) => pa.id.protocol === first.id.protocol)
 	if (sameProtocol)
 		return (
 			protocolActions
 				.map((pa, i) => (
 					i === 0
-						? actionTypeDefinitionByActionType[pa.action].label
-						: actionTypeDefinitionByActionType[pa.action].label.toLowerCase()
+						? actionTypeDefinitionByActionType[pa.id.actionType].label
+						: actionTypeDefinitionByActionType[pa.id.actionType].label.toLowerCase()
 				))
 				.join(' then ')
-			+ ` via ${protocolSpecs[first.protocol].label}`
+			+ ` via ${protocolsById[first.id.protocol].label}`
 		)
 	const parts = protocolActions.map((pa, i) => (
 		(i === 0
-			? actionTypeDefinitionByActionType[pa.action].label
-			: actionTypeDefinitionByActionType[pa.action].label.toLowerCase())
-		+ ` via ${protocolSpecs[pa.protocol].label}`
+			? actionTypeDefinitionByActionType[pa.id.actionType].label
+			: actionTypeDefinitionByActionType[pa.id.actionType].label.toLowerCase())
+		+ ` via ${protocolsById[pa.id.protocol].label}`
 	))
 	return listFormatUnit.format(parts)
 }
-
-// Protocol–Actions
-
-export type ProtocolActionSpec = ProtocolAction & {
-	supportsRecipient: boolean
-}
-
-export type ProtocolActionPayload<
-	_ProtocolAction extends ProtocolAction = ProtocolAction,
-> = {
-	protocolAction: _ProtocolAction
-	payload: {
-		[ActionType.Swap]: {
-			fromActorCoin: Record<string, unknown>
-			toActorCoin: Record<string, unknown>
-		}
-		[ActionType.Bridge]: {
-			fromActorCoin: Record<string, unknown>
-			toActorCoin: Record<string, unknown>
-		}
-		[ActionType.Transfer]: {
-			fromActorCoin: Record<string, unknown>
-			toActorCoin: Record<string, unknown>
-		}
-		[ActionType.CreateChannel]: {
-			actor: Record<string, unknown>
-		}
-		[ActionType.AddChannelMember]: {
-			actor: Record<string, unknown>
-		}
-		[ActionType.CloseChannel]: {
-			channel: Record<string, unknown>
-			actor: Record<string, unknown>
-		}
-		[ActionType.AddLiquidity]: {
-			actorCoin: Record<string, unknown>
-			pool: Record<string, unknown>
-		}
-		[ActionType.RemoveLiquidity]: {
-			position: Record<string, unknown>
-			actor: Record<string, unknown>
-		}
-		[ActionType.CollectFees]: {
-			position: Record<string, unknown>
-			actor: Record<string, unknown>
-		}
-		[ActionType.IncreaseLiquidity]: {
-			actorCoin: Record<string, unknown>
-			position: Record<string, unknown>
-		}
-		[ActionType.ShareAddress]: {
-			actor: Record<string, unknown>
-			room: Record<string, unknown>
-		}
-		[ActionType.ProposeTransfer]: {
-			fromActorCoin: Record<string, unknown>
-			toPeer: Record<string, unknown>
-		}
-		[ActionType.RequestVerification]: {
-			actor: Record<string, unknown>
-			peer: Record<string, unknown>
-		}
-		[ActionType.DepositToCustody]: {
-			actorCoin: Record<string, unknown>
-		}
-		[ActionType.WithdrawFromCustody]: {
-			actorCoin: Record<string, unknown>
-		}
-		[ActionType.ResizeChannel]: {
-			channel: Record<string, unknown>
-			actorCoin: Record<string, unknown>
-		}
-		[ActionType.CreatePool]: {
-			token0: Record<string, unknown>
-			token1: Record<string, unknown>
-		}
-		[ActionType.AcceptTransfer]: {
-			transferRequest: Record<string, unknown>
-		}
-		[ActionType.RejectTransfer]: {
-			transferRequest: Record<string, unknown>
-		}
-	}[_ProtocolAction['action']]
-}
-
-export const protocolActions = [
-	{ action: ActionType.Swap, protocol: Protocol.UniswapV4, supportsRecipient: true },
-	{ action: ActionType.Swap, protocol: Protocol.LiFi, supportsRecipient: true },
-	{ action: ActionType.Bridge, protocol: Protocol.Cctp, supportsRecipient: true },
-	{ action: ActionType.Bridge, protocol: Protocol.LiFi, supportsRecipient: true },
-	{ action: ActionType.Bridge, protocol: Protocol.Gateway, supportsRecipient: true },
-	{ action: ActionType.Transfer, protocol: Protocol.Eip7824, supportsRecipient: true },
-	{ action: ActionType.Transfer, protocol: Protocol.LiFi, supportsRecipient: true },
-	{ action: ActionType.CreateChannel, protocol: Protocol.Eip7824, supportsRecipient: false },
-	{ action: ActionType.AddChannelMember, protocol: Protocol.Eip7824, supportsRecipient: false },
-	{ action: ActionType.CloseChannel, protocol: Protocol.Eip7824, supportsRecipient: false },
-	{ action: ActionType.AddLiquidity, protocol: Protocol.UniswapV4, supportsRecipient: false },
-	{ action: ActionType.RemoveLiquidity, protocol: Protocol.UniswapV4, supportsRecipient: true },
-	{ action: ActionType.CollectFees, protocol: Protocol.UniswapV4, supportsRecipient: true },
-	{ action: ActionType.IncreaseLiquidity, protocol: Protocol.UniswapV4, supportsRecipient: false },
-	{ action: ActionType.ShareAddress, protocol: Protocol.PartyKit, supportsRecipient: false },
-	{ action: ActionType.ProposeTransfer, protocol: Protocol.PartyKit, supportsRecipient: false },
-	{ action: ActionType.RequestVerification, protocol: Protocol.PartyKit, supportsRecipient: false },
-	{ action: ActionType.DepositToCustody, protocol: Protocol.Eip7824, supportsRecipient: false },
-	{ action: ActionType.WithdrawFromCustody, protocol: Protocol.Eip7824, supportsRecipient: true },
-	{ action: ActionType.ResizeChannel, protocol: Protocol.Eip7824, supportsRecipient: false },
-	{ action: ActionType.CreatePool, protocol: Protocol.UniswapV4, supportsRecipient: false },
-	{ action: ActionType.AcceptTransfer, protocol: Protocol.PartyKit, supportsRecipient: false },
-	{ action: ActionType.RejectTransfer, protocol: Protocol.PartyKit, supportsRecipient: false },
-] as const satisfies ProtocolActionSpec[]
-
 
 // Intents
 export enum IntentType {
@@ -451,9 +135,26 @@ export type IntentDefinition<
 }
 
 export type IntentOption = {
-	label: string
-	actions: ProtocolActionPayload[]
+	name: string
+	sessionTemplate: SessionTemplate
 }
+
+type ProtocolActionWithPayload = {
+	protocolAction: (typeof protocolActions)[number]
+	payload: Record<string, unknown>
+}
+
+const toIntentOption = (
+	name: string,
+	protocolActions: ProtocolActionWithPayload[],
+): IntentOption => ({
+	name,
+	sessionTemplate: {
+		name,
+		actions: protocolActions.map(({ protocolAction }) =>
+			createAction(getActionType(protocolAction))),
+	},
+})
 
 const eqAddr = (a: unknown, b: unknown) => (
 	typeof a === 'string' && typeof b === 'string' && a.toLowerCase() === b.toLowerCase()
@@ -482,20 +183,20 @@ export const intents: IntentDefinition[] = [
 		resolveOptions: ({ fromActorCoin, toActorNetwork }) => {
 			const payload = { fromActorCoin, toActorCoin: toActorNetwork }
 			const lifi = [
-				{ protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi }, payload },
-				{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.LiFi }, payload },
+				{ protocolAction: getProtocolAction(ActionType.Swap, Protocol.LiFi), payload },
+				{ protocolAction: getProtocolAction(ActionType.Bridge, Protocol.LiFi), payload },
 			]
 			const uniswapCctp = [
-				{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload },
-				{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Cctp }, payload },
+				{ protocolAction: getProtocolAction(ActionType.Swap, Protocol.UniswapV4), payload },
+				{ protocolAction: getProtocolAction(ActionType.Bridge, Protocol.Cctp), payload },
 			]
 			const gateway = [
-				{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Gateway }, payload },
+				{ protocolAction: getProtocolAction(ActionType.Bridge, Protocol.CircleGatewayateway), payload },
 			]
 			return [
-				{ label: formatIntentOptionLabel(lifi.map((a) => a.protocolAction)), actions: lifi },
-				{ label: formatIntentOptionLabel(uniswapCctp.map((a) => a.protocolAction)), actions: uniswapCctp },
-				{ label: formatIntentOptionLabel(gateway.map((a) => a.protocolAction)), actions: gateway },
+				toIntentOption(formatIntentOptionLabel(lifi.map((a) => a.protocolAction)), lifi),
+				toIntentOption(formatIntentOptionLabel(uniswapCctp.map((a) => a.protocolAction)), uniswapCctp),
+				toIntentOption(formatIntentOptionLabel(gateway.map((a) => a.protocolAction)), gateway),
 			]
 		},
 	},
@@ -530,39 +231,24 @@ export const intents: IntentDefinition[] = [
 			const payload = { fromActorCoin: from, toActorCoin: to }
 
 			const lifiActions = [
-				...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi }, payload }] : []),
-				...(!sameNetwork ? [{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.LiFi }, payload }] : []),
+				...(!sameCoin ? [{ protocolAction: getProtocolAction(ActionType.Swap, Protocol.LiFi), payload }] : []),
+				...(!sameNetwork ? [{ protocolAction: getProtocolAction(ActionType.Bridge, Protocol.LiFi), payload }] : []),
 			]
 			const uniswapCctpActions = [
-				...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload }] : []),
-				...(!sameNetwork ? [{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Cctp }, payload }] : []),
+				...(!sameCoin ? [{ protocolAction: getProtocolAction(ActionType.Swap, Protocol.UniswapV4), payload }] : []),
+				...(!sameNetwork ? [{ protocolAction: getProtocolAction(ActionType.Bridge, Protocol.Cctp), payload }] : []),
 			]
 			const gatewayActions = [
-				...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload }] : []),
-				{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Gateway }, payload },
+				...(!sameCoin ? [{ protocolAction: getProtocolAction(ActionType.Swap, Protocol.UniswapV4), payload }] : []),
+				{ protocolAction: getProtocolAction(ActionType.Bridge, Protocol.CircleGatewayateway), payload },
 			]
 			return [
-				...(!sameCoin || !sameNetwork ? [{
-					label: formatIntentOptionLabel(lifiActions.map((a) => a.protocolAction)),
-					actions: lifiActions,
-				}] : []),
-				...(!sameCoin || !sameNetwork ? [{
-					label: formatIntentOptionLabel(uniswapCctpActions.map((a) => a.protocolAction)),
-					actions: uniswapCctpActions,
-				}] : []),
-				...(!sameNetwork ? [{
-					label: formatIntentOptionLabel(gatewayActions.map((a) => a.protocolAction)),
-					actions: gatewayActions,
-				}] : []),
+				...(!sameCoin || !sameNetwork ? [toIntentOption(formatIntentOptionLabel(lifiActions.map((a) => a.protocolAction)), lifiActions)] : []),
+				...(!sameCoin || !sameNetwork ? [toIntentOption(formatIntentOptionLabel(uniswapCctpActions.map((a) => a.protocolAction)), uniswapCctpActions)] : []),
+				...(!sameNetwork ? [toIntentOption(formatIntentOptionLabel(gatewayActions.map((a) => a.protocolAction)), gatewayActions)] : []),
 				...(sameCoin && sameNetwork && !sameActor ? [
-					{
-						label: formatIntentOptionLabel([{ action: ActionType.Transfer, protocol: Protocol.LiFi }]),
-						actions: [{ protocolAction: { action: ActionType.Transfer, protocol: Protocol.LiFi }, payload }],
-					},
-					{
-						label: formatIntentOptionLabel([{ action: ActionType.Transfer, protocol: Protocol.Eip7824 }]),
-						actions: [{ protocolAction: { action: ActionType.Transfer, protocol: Protocol.Eip7824 }, payload }],
-					},
+					toIntentOption(formatIntentOptionLabel([getProtocolAction(ActionType.Transfer, Protocol.LiFi)]), [{ protocolAction: getProtocolAction(ActionType.Transfer, Protocol.LiFi), payload }]),
+					toIntentOption(formatIntentOptionLabel([getProtocolAction(ActionType.Transfer, Protocol.Yellow)]), [{ protocolAction: getProtocolAction(ActionType.Transfer, Protocol.Yellow), payload }]),
 				] : []),
 			]
 		},
@@ -589,11 +275,11 @@ export const intents: IntentDefinition[] = [
 
 		resolveOptions: ({ actorCoin, coin }) => {
 			const payload = { fromActorCoin: actorCoin, toActorCoin: coin }
-			const uniswap = [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload }]
-			const lifi = [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi }, payload }]
+			const uniswap = [{ protocolAction: getProtocolAction(ActionType.Swap, Protocol.UniswapV4), payload }]
+			const lifi = [{ protocolAction: getProtocolAction(ActionType.Swap, Protocol.LiFi), payload }]
 			return [
-				{ label: formatIntentOptionLabel(uniswap.map((a) => a.protocolAction)), actions: uniswap },
-				{ label: formatIntentOptionLabel(lifi.map((a) => a.protocolAction)), actions: lifi },
+				toIntentOption(formatIntentOptionLabel(uniswap.map((a) => a.protocolAction)), uniswap),
+				toIntentOption(formatIntentOptionLabel(lifi.map((a) => a.protocolAction)), lifi),
 			]
 		},
 	},
@@ -626,19 +312,16 @@ export const intents: IntentDefinition[] = [
 		],
 
 		resolveOptions: ({ fromActor, toActor }) => [
-			{
-				label: 'Create EIP-7824 channel + Add member',
-				actions: [
-					{
-						protocolAction: { action: ActionType.CreateChannel, protocol: Protocol.Eip7824 },
-						payload: { actor: fromActor },
-					},
-					{
-						protocolAction: { action: ActionType.AddChannelMember, protocol: Protocol.Eip7824 },
-						payload: { actor: toActor },
-					},
-				],
-			},
+			toIntentOption('Create EIP-7824 channel + Add member', [
+				{
+					protocolAction: getProtocolAction(ActionType.CreateChannel, Protocol.Yellow),
+					payload: { actor: fromActor },
+				},
+				{
+					protocolAction: getProtocolAction(ActionType.AddChannelMember, Protocol.Yellow),
+					payload: { actor: toActor },
+				},
+			]),
 		],
 	},
 
@@ -662,23 +345,20 @@ export const intents: IntentDefinition[] = [
 		],
 
 		resolveOptions: ({ fromActorCoin, toActor }) => [
-			{
-				label: 'Create EIP-7824 channel + Add member + Transfer',
-				actions: [
-					{
-						protocolAction: { action: ActionType.CreateChannel, protocol: Protocol.Eip7824 },
-						payload: { actor: fromActorCoin },
-					},
-					{
-						protocolAction: { action: ActionType.AddChannelMember, protocol: Protocol.Eip7824 },
-						payload: { actor: toActor },
-					},
-					{
-						protocolAction: { action: ActionType.Transfer, protocol: Protocol.Eip7824 },
-						payload: { fromActorCoin, toActorCoin: toActor },
-					},
-				],
-			},
+			toIntentOption('Create EIP-7824 channel + Add member + Transfer', [
+				{
+					protocolAction: getProtocolAction(ActionType.CreateChannel, Protocol.Yellow),
+					payload: { actor: fromActorCoin },
+				},
+				{
+					protocolAction: getProtocolAction(ActionType.AddChannelMember, Protocol.Yellow),
+					payload: { actor: toActor },
+				},
+				{
+					protocolAction: getProtocolAction(ActionType.Transfer, Protocol.Yellow),
+					payload: { fromActorCoin, toActorCoin: toActor },
+				},
+			]),
 		],
 	},
 
@@ -702,15 +382,12 @@ export const intents: IntentDefinition[] = [
 		],
 
 		resolveOptions: ({ actorCoin, pool }) => [
-			{
-				label: 'Add liquidity via Uniswap V4',
-				actions: [
-					{
-						protocolAction: { action: ActionType.AddLiquidity, protocol: Protocol.UniswapV4 },
-						payload: { actorCoin, pool },
-					},
-				],
-			},
+			toIntentOption('Add liquidity via Uniswap V4', [
+				{
+					protocolAction: getProtocolAction(ActionType.AddLiquidity, Protocol.UniswapV4),
+					payload: { actorCoin, pool },
+				},
+			]),
 		],
 	},
 
@@ -734,24 +411,18 @@ export const intents: IntentDefinition[] = [
 		],
 
 		resolveOptions: ({ position, actor }) => [
-			{
-				label: 'Collect fees via Uniswap V4',
-				actions: [
-					{
-						protocolAction: { action: ActionType.CollectFees, protocol: Protocol.UniswapV4 },
-						payload: { position, actor },
-					},
-				],
-			},
-			{
-				label: 'Remove liquidity via Uniswap V4',
-				actions: [
-					{
-						protocolAction: { action: ActionType.RemoveLiquidity, protocol: Protocol.UniswapV4 },
-						payload: { position, actor },
-					},
-				],
-			},
+			toIntentOption('Collect fees via Uniswap V4', [
+				{
+					protocolAction: getProtocolAction(ActionType.CollectFees, Protocol.UniswapV4),
+					payload: { position, actor },
+				},
+			]),
+			toIntentOption('Remove liquidity via Uniswap V4', [
+				{
+					protocolAction: getProtocolAction(ActionType.RemoveLiquidity, Protocol.UniswapV4),
+					payload: { position, actor },
+				},
+			]),
 		],
 	},
 
@@ -775,15 +446,12 @@ export const intents: IntentDefinition[] = [
 		],
 
 		resolveOptions: ({ actorCoin, position }) => [
-			{
-				label: 'Increase liquidity via Uniswap V4',
-				actions: [
-					{
-						protocolAction: { action: ActionType.IncreaseLiquidity, protocol: Protocol.UniswapV4 },
-						payload: { actorCoin, position },
-					},
-				],
-			},
+			toIntentOption('Increase liquidity via Uniswap V4', [
+				{
+					protocolAction: getProtocolAction(ActionType.IncreaseLiquidity, Protocol.UniswapV4),
+					payload: { actorCoin, position },
+				},
+			]),
 		],
 	},
 
@@ -807,15 +475,12 @@ export const intents: IntentDefinition[] = [
 		],
 
 		resolveOptions: ({ actor, room }) => [
-			{
-				label: 'Share address in room via PartyKit',
-				actions: [
-					{
-						protocolAction: { action: ActionType.ShareAddress, protocol: Protocol.PartyKit },
-						payload: { actor, room },
-					},
-				],
-			},
+			toIntentOption('Share address in room via PartyKit', [
+				{
+					protocolAction: getProtocolAction(ActionType.ShareAddress, Protocol.PartyKit),
+					payload: { actor, room },
+				},
+			]),
 		],
 	},
 
@@ -839,15 +504,12 @@ export const intents: IntentDefinition[] = [
 		],
 
 		resolveOptions: ({ actorCoin, peer }) => [
-			{
-				label: 'Propose transfer to peer via PartyKit',
-				actions: [
-					{
-						protocolAction: { action: ActionType.ProposeTransfer, protocol: Protocol.PartyKit },
-						payload: { fromActorCoin: actorCoin, toPeer: peer },
-					},
-				],
-			},
+			toIntentOption('Propose transfer to peer via PartyKit', [
+				{
+					protocolAction: getProtocolAction(ActionType.ProposeTransfer, Protocol.PartyKit),
+					payload: { fromActorCoin: actorCoin, toPeer: peer },
+				},
+			]),
 		],
 	},
 
@@ -871,15 +533,12 @@ export const intents: IntentDefinition[] = [
 		],
 
 		resolveOptions: ({ actor, peer }) => [
-			{
-				label: 'Request SIWE verification via PartyKit',
-				actions: [
-					{
-						protocolAction: { action: ActionType.RequestVerification, protocol: Protocol.PartyKit },
-						payload: { actor, peer },
-					},
-				],
-			},
+			toIntentOption('Request SIWE verification via PartyKit', [
+				{
+					protocolAction: getProtocolAction(ActionType.RequestVerification, Protocol.PartyKit),
+					payload: { actor, peer },
+				},
+			]),
 		],
 	},
 ]
