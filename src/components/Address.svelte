@@ -1,6 +1,4 @@
 <script module lang="ts">
-
-
 	// Types/constants
 	export enum AddressFormat {
 		Full = 'full',
@@ -22,15 +20,16 @@
 		network,
 		address,
 		ensName,
-		// (View options)
 		format = AddressFormat.Full,
 		linked = true,
+		vertical = false,
 	}: {
 		network: Network$Id
 		address: `0x${string}`
 		ensName?: string
 		format?: AddressFormat
 		linked?: boolean
+		vertical?: boolean
 	} = $props()
 
 
@@ -46,10 +45,19 @@
 	entityType={EntityType.Actor}
 	entityId={{ network, address }}
 	source="address"
+	data-text={vertical ? 'vertical' : undefined}
 >
-	{#if !ensName}
-		<TruncatedValue value={address} />
-	{:else}
-		<span data-text="font-monospace">{ensName}</span>
-	{/if}
+	<span data-text="font-monospace">
+		<TruncatedValue
+			value={address}
+			startLength={format === AddressFormat.Full ? address.length : 6}
+			endLength={format === AddressFormat.Full ? 0 : 4}
+		/>
+	</span>
+
+	<small>
+		{#if ensName}
+			(<span data-text="font-monospace">{ensName}</span>)
+		{/if}
+	</small>
 </EntityId>
