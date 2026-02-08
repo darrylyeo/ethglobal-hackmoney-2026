@@ -1,4 +1,22 @@
 <script lang="ts">
+	// Components
+	import Icon from './Icon.svelte'
+
+	// Types/constants
+	export enum IconShape {
+		Square = 'square',
+		Circle = 'circle',
+	}
+	export type SubiconProps = {
+		icon?: string
+		html?: string
+		src?: string
+		alt?: string
+		size?: number | string
+		backgroundColor?: string
+		shape?: IconShape
+	}
+
 	// Props
 	let {
 		class: className,
@@ -9,6 +27,9 @@
 		label,
 		title = undefined,
 		size = '1em',
+		shape = IconShape.Square,
+		backgroundColor,
+		subicon,
 		loading = 'lazy',
 		decoding = 'async',
 		fetchPriority = 'auto',
@@ -23,6 +44,9 @@
 		label?: string
 		title?: string
 		size?: number | string
+		shape?: IconShape
+		backgroundColor?: string
+		subicon?: SubiconProps
 		loading?: 'lazy' | 'eager'
 		decoding?: 'async' | 'sync' | 'auto'
 		fetchPriority?: 'auto' | 'high' | 'low'
@@ -48,44 +72,81 @@
 <span
 	{...rootProps}
 	class={`icon${className ? ` ${className}` : ''}`}
+	data-icon-shape={shape}
 	data-row="center"
-	style={`--icon-size: ${typeof size === 'number' ? `${size}px` : size}`}
+	style={`--icon-size: ${typeof size === 'number' ? `${size}px` : size}${backgroundColor != null ? `; --icon-bg: ${backgroundColor}` : ''}`}
 	aria-label={a11yLabel || undefined}
 	aria-hidden={a11yLabel ? undefined : true}
 	title={resolvedTitle}
 	role={a11yLabel ? 'img' : undefined}
 >
-	{#if src}
-		<img
-			{src}
-			{alt}
-			width={typeof size === 'number' ? size : undefined}
-			height={typeof size === 'number' ? size : undefined}
-			{loading}
-			{decoding}
-			fetchpriority={fetchPriority}
-			referrerpolicy={referrerPolicy}
+	<span class="icon-main">
+		{#if src}
+			<img
+				{src}
+				{alt}
+				width={typeof size === 'number' ? size : undefined}
+				height={typeof size === 'number' ? size : undefined}
+				{loading}
+				{decoding}
+				fetchpriority={fetchPriority}
+				referrerpolicy={referrerPolicy}
+			/>
+		{:else if html}
+			{@html html}
+		{:else if icon}
+			{icon}
+		{/if}
+	</span>
+
+	{#if subicon}
+		<Icon
+			class="icon-subicon"
+			{...subicon}
+			size={subicon.size ?? '40%'}
+			shape={subicon.shape ?? IconShape.Square}
+			backgroundColor={subicon.backgroundColor}
 		/>
-	{:else if html}
-		{@html html}
-	{:else if icon}
-		{icon}
 	{/if}
 </span>
 
 
 <style>
 	.icon {
+		position: relative;
 		width: var(--icon-size);
 		height: var(--icon-size);
 		line-height: 1;
+		overflow: visible;
+		background-color: var(--icon-bg, transparent);
+		border-radius: inherit;
 
-		:global(img),
-		:global(svg) {
+		&[data-icon-shape='square'] {
+			border-radius: 5%;
+		}
+		&[data-icon-shape='circle'] {
+			border-radius: 50%;
+		}
+	}
+
+	.icon-main {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+		border-radius: inherit;
+
+		> :global(img),
+		> :global(svg) {
 			width: 100%;
 			height: 100%;
 			object-fit: contain;
 			border-radius: inherit;
 		}
+	}
+
+	.icon-subicon {
+		position: absolute;
+		inset-block-end: 0;
+		inset-inline-end: 0;
 	}
 </style>
