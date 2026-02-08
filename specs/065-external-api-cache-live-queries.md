@@ -65,7 +65,7 @@ Documentation: `src/constants/external-api-collections.md`.
 
 ## Status
 
-Complete. Routes and components no longer use `collection.state.get` or `getTransactionSession`; fetch/flow control moved to collection helpers (`ensureBlocksForPlaceholders`, `ensureTransferEventsForPlaceholders`) and session lookup via `useLiveQuery` + `lookupSessionId` pattern.
+Complete. Routes and components no longer use `collection.state.get` or `getSession`; fetch/flow control moved to collection helpers (`ensureBlocksForPlaceholders`, `ensureTransferEventsForPlaceholders`) and session lookup via `useLiveQuery` + `lookupSessionId` pattern.
 
 ## Output when complete
 

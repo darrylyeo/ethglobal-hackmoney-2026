@@ -33,18 +33,18 @@ those specs remain valid.
 
 ### SessionAction entity
 
-Currently `TransactionSession.actions` is `TransactionSessionAction[]` (array
+Currently `Session.actions` is `SessionAction[]` (array
 of type strings) with a single shared `params: Record<string, unknown>`. To
 support per-action state and `bind:`, each element becomes an object:
 
 ```typescript
 type SessionAction = {
-  type: TransactionSessionAction
+  type: SessionAction
   params: Record<string, unknown>
 }
 ```
 
-`TransactionSession.actions` becomes `SessionAction[]`. The session-level
+`Session.actions` becomes `SessionAction[]`. The session-level
 `params` field remains for backward compatibility and shared context; per-action
 params take precedence.
 
@@ -87,7 +87,7 @@ Replaces per-action wrappers (Bridge.svelte, Swap.svelte, Transfer.svelte,
 Liquidity.svelte).
 
 Props:
-- `session: TransactionSession` (bindable)
+- `session: Session` (bindable)
 
 Renders:
 - Editable session name (`<input>` bound to `session.id` label or a name field)
@@ -172,7 +172,7 @@ happens at the `Session` level via `$effect` that syncs the bound session object
 - [x] `EditableItemsList` component exists in `src/components/` with
   `operations` prop controlling which operations are available per item.
 - [x] `SessionAction` type defined with `type` and `params` fields;
-  `TransactionSession.actions` uses it.
+  `Session.actions` uses it.
 - [x] `Session.svelte` in `src/routes/session/` renders editable name,
   `<AccountsSelect>`, testnet toggle, and `<ActionsSequence>`.
 - [x] `ActionsSequence` renders `<EditableItemsList>` of `<Action>` components
@@ -191,4 +191,4 @@ happens at the `Session` level via `$effect` that syncs the bound session object
 
 ## Status
 
-Complete. 2026-02-07 (PROMPT_build execute one spec): All 14 AC—ItemsListOperation in EditableItemsList.svelte; EditableItemsList with operations; SessionAction in TransactionSession.ts, TransactionSession.actions; Session.svelte with name, AccountsSelect, testnet toggle (Switch), ActionsSequence; ActionsSequence with EditableItemsList of Action; Action with Select and data-grid three-column; type change updates action; BridgeAction/SwapAction/TransferAction/LiquidityAction bind:params, inline three-column (SessionAction removed); EditableItemsList reorder (drag); Add/Delete/Duplicate in EditableItemsList; bridge/swap/transfer/liquidity preserved; views/Session.svelte and views/SessionAction.svelte removed, view/bridge uses routes/session/Session; URL hash bootstrap unchanged in +page.svelte. Build and Vitest (159) passed.
+Complete. 2026-02-07 (PROMPT_build execute one spec): All 14 AC—ItemsListOperation in EditableItemsList.svelte; EditableItemsList with operations; SessionAction in Session.ts, Session.actions; Session.svelte with name, AccountsSelect, testnet toggle (Switch), ActionsSequence; ActionsSequence with EditableItemsList of Action; Action with Select and data-grid three-column; type change updates action; BridgeAction/SwapAction/TransferAction/LiquidityAction bind:params, inline three-column (SessionAction removed); EditableItemsList reorder (drag); Add/Delete/Duplicate in EditableItemsList; bridge/swap/transfer/liquidity preserved; views/Session.svelte and views/SessionAction.svelte removed, view/bridge uses routes/session/Session; URL hash bootstrap unchanged in +page.svelte. Build and Vitest (159) passed.

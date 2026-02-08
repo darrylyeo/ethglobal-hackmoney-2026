@@ -35,7 +35,7 @@ A decoded log timeline with indexed topics, arguments, and emitter metadata.
 
 Simulation payloads must be constructed from the union of the following sources:
 
-- Transaction session params (`TransactionSession.params`)
+- Transaction session params (`Session.params`)
 - Current flow-derived transaction request (to, data, value, gas)
 - Active wallet and chain selection (chain id, sender address)
 - Chain metadata (chain id, native token, RPC endpoints)
@@ -78,7 +78,7 @@ Simulation payloads must be constructed from the union of the following sources:
 ## Persistence
 
 - Store simulation result on the active transaction session under
-  `TransactionSession.simulation`.
+  `Session.simulation`.
 - Include both raw runtime output and decoded artifacts.
 - Persist the fork metadata (block number, rpc url, timestamp) for traceability.
 - Persist a summarized status (`success`, `revert`, `error`) and gas totals.
@@ -107,7 +107,7 @@ Simulation payloads must be constructed from the union of the following sources:
 
 - [x] Draft sessions can simulate using Tevm runtime with forked chain state.
 - [x] Simulation payload includes all sources listed in the data sources section.
-- [x] Simulation results persist on `TransactionSession.simulation` with fork
+- [x] Simulation results persist on `Session.simulation` with fork
   metadata, summary status, and gas totals.
 - [x] Trace panel renders a nested call tree with gas, value, and revert data.
 - [x] Event panel renders decoded logs with toggles for raw topics/data.
@@ -130,7 +130,7 @@ Simulation payloads must be constructed from the union of the following sources:
 
 ## Status
 
-Complete. Simulation runs client-side: runTevmSimulation in src/api/simulate.ts (Tevm fork + runTx with impersonation); runTevmSimulationFromClient in src/lib/tevm-simulation.ts calls it in-browser. Returns forkMetadata, summaryStatus, gasTotals, trace, events, rawLogs. TransactionSession.simulation optional summary; SwapAction calls when Simulate clicked (rpcUrl + selectedActor), persists Tevm result and summary. SimulationTracePanel and SimulationEventPanel with contract/selector filters; raw toggle on events. Re-simulation creates new simulation row and updates latestSimulationId/simulation without changing params. tevm in dependencies.
+Complete. Simulation runs client-side: runTevmSimulation in src/api/simulate.ts (Tevm fork + runTx with impersonation); runTevmSimulationFromClient in src/lib/tevm-simulation.ts calls it in-browser. Returns forkMetadata, summaryStatus, gasTotals, trace, events, rawLogs. Session.simulation optional summary; SwapAction calls when Simulate clicked (rpcUrl + selectedActor), persists Tevm result and summary. SimulationTracePanel and SimulationEventPanel with contract/selector filters; raw toggle on events. Re-simulation creates new simulation row and updates latestSimulationId/simulation without changing params. tevm in dependencies.
 
 ## Output when complete
 

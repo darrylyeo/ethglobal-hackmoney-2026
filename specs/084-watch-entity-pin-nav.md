@@ -12,7 +12,7 @@ leaves the set:
 | Source | Entity type | Enters when | Leaves when |
 |---|---|---|---|
 | `wallet-connection` | `Actor` | Account appears in a connected `WalletConnection` with `status === 'connected'` | Connection disconnected or removed |
-| `session-active` | `TransactionSession` | Session `status` is `'Draft'` or `'Submitted'` | Session becomes `'Finalized'` |
+| `session-active` | `Session` | Session `status` is `'Draft'` or `'Submitted'` | Session becomes `'Finalized'` |
 | `transaction-recent` | `Transaction` | Transaction `status` changes to `'completed'` or `'failed'` | Manual unwatch or TTL expiry |
 | `verified-peer` | `Actor` | Peer verified by me in a room (`Verification.status === 'verified'` where `verifierPeerId ∈ myPeerIds`) | Verification revoked or peer removed |
 | `manual` | any watchable | User clicks Watch on a single-entity page header | User clicks Unwatch |
@@ -56,7 +56,7 @@ This is computed **once** in `+layout.svelte` and consumed by:
 ### Eliminating redundant queries and derivations
 
 Today, `+layout.svelte` independently queries `walletConnectionsCollection`,
-`transactionSessionsCollection`, `walletsCollection`, and
+`SessionsCollection`, `walletsCollection`, and
 `watchedEntitiesCollection`, then builds separate `accountNavItems`,
 `watchedNavItems`, session nav children, etc. With this spec:
 
@@ -109,7 +109,7 @@ section**, determined by entity type:
 | `Actor` (wallet-connection) | **Accounts** |
 | `Actor` (verified-peer) | **Multiplayer > Peers** |
 | `Actor` (manual) | **Accounts** |
-| `TransactionSession` | **Sessions** |
+| `Session` | **Sessions** |
 | `Transaction` | **Sessions** (or a "Recent" sub-section) |
 | `Network` | **Explore > Networks** |
 | `Block` | **Explore > Networks** (as child of its network) |

@@ -11,7 +11,7 @@ ephemeral component state.
 
 "Turn" is established terminology (Open Assistant, Graphlit) for a
 prompt-response pair. "Agent chat" distinguishes from the existing
-`TransactionSession` concept while staying domain-neutral. Fits the codebase's
+`Session` concept while staying domain-neutral. Fits the codebase's
 singular-noun naming convention (`Block`, `Transaction`, `Room`).
 
 ## Scope
@@ -215,7 +215,7 @@ in ephemeral component state (`txOverrides` in `TransactionFlow.svelte`). Port
 to write `AgentChatTurn` nodes:
 
 - When user clicks "Explain results," create an `AgentChatTree` (or reuse one
-  per `TransactionSession`) with `systemPrompt` set to `EXPLAIN_SYSTEM_PROMPT`
+  per `Session`) with `systemPrompt` set to `EXPLAIN_SYSTEM_PROMPT`
   and insert a root `AgentChatTurn` with:
   - `userPrompt` built from `buildExplainUserPrompt(context)`.
   - `entityRefs` pointing to the transaction / simulation entity.

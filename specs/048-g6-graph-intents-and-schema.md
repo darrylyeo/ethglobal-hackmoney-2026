@@ -67,8 +67,8 @@ recency) to encode differences across these dimensions.
     Transaction, TransferGraph, YellowChannel, YellowChannelState, YellowDeposit,
     YellowTransfer, SiweChallenge, DashboardPanel.
 - **Default visible:** User-centric types remain enabled: Actor, ActorCoin,
-  ActorAllowance, Room, RoomPeer, SharedAddress, TransactionSession,
-  TransferRequest, Network, Coin, StorkPrice, TransactionSessionSimulation (and
+  ActorAllowance, Room, RoomPeer, SharedAddress, Session,
+  TransferRequest, Network, Coin, StorkPrice, SessionSimulation (and
   any other in-graph types not listed as disabled above).
 
 ## Acceptance criteria
@@ -88,8 +88,8 @@ recency) to encode differences across these dimensions.
   (Wallet, WalletConnection, BridgeRoute, SwapQuote, UniswapPool, UniswapPosition,
   CctpAllowance, CctpFee, Transaction, TransferGraph, Yellow*, SiweChallenge,
   DashboardPanel) are disabled; user-centric types (Actor, ActorCoin,
-  ActorAllowance, Room, RoomPeer, SharedAddress, TransactionSession,
-  TransferRequest, Network, Coin, StorkPrice, TransactionSessionSimulation) are
+  ActorAllowance, Room, RoomPeer, SharedAddress, Session,
+  TransferRequest, Network, Coin, StorkPrice, SessionSimulation) are
   enabled.
 - [x] (Optional) Support (entity type, data source) combo toggles so e.g.
   TokenLists-sourced entities can be hidden independently of other sources.

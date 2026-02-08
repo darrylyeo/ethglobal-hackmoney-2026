@@ -130,7 +130,7 @@ type IntentDefinition<_IntentEntityName extends string> = {
 
 ## Session integration
 
-`IntentDragPreview` maps each `ActionType` to a `TransactionSessionAction`
+`IntentDragPreview` maps each `ActionType` to a `SessionAction`
 string and builds a URL hash from the selected `IntentOption`:
 
 ```
@@ -192,7 +192,7 @@ hashes.
 
 ### Session routing
 
-- [x] `TransactionSessionAction` type includes createChannel,
+- [x] `SessionAction` type includes createChannel,
   addChannelMember, closeChannel, addLiquidity, removeLiquidity.
 - [x] `parseSessionHash` parses the new action strings.
 - [x] `/session` routes addLiquidity/removeLiquidity to LiquidityView.
