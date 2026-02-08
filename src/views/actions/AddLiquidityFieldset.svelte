@@ -25,7 +25,7 @@
 	import NetworkInput from '$/views/NetworkInput.svelte'
 </script>
 
-{#if action.type === ActionType.AddLiquidity}
+{#if action.type === ActionType.AddLiquidity || action.type === ActionType.RemoveLiquidity || action.type === ActionType.CollectFees || action.type === ActionType.IncreaseLiquidity}
 	{@const p = (action.params as { chainId: number; token0: `0x${string}`; token1: `0x${string}`; fee: number; amount0: bigint; amount1: bigint })}
 	{@const coins = chainCoins(p.chainId)}
 	{@const token0Coin = coins.find((c) => c.address.toLowerCase() === p.token0.toLowerCase()) ?? coins[0]}

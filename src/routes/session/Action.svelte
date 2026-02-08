@@ -284,14 +284,14 @@
 						{chainCoins}
 						{asNonEmptyCoins}
 					/>
-				{:else if action.type === ActionType.AddLiquidity}
+				{:else if action.type === ActionType.AddLiquidity || action.type === ActionType.RemoveLiquidity || action.type === ActionType.CollectFees || action.type === ActionType.IncreaseLiquidity}
 					<AddLiquidityFieldset
 						bind:action
 						{filteredNetworks}
 						{chainCoins}
 						{asNonEmptyCoins}
 					/>
-				{:else if activeSpec}
+				{:else if activeSpec && Object.keys((action.params as object) ?? {}).length > 0}
 					<p data-muted>{activeSpec.label} params</p>
 				{/if}
 			</section>
