@@ -9,11 +9,13 @@
 		id,
 		label,
 		href,
+		autoWatched = false,
 	}: {
 		entityType: EntityType
 		id: string
 		label: string
 		href: string
+		autoWatched?: boolean
 	} = $props()
 
 
@@ -37,21 +39,28 @@
 				.select(({ row }) => ({ row })),
 		[() => entityType, () => id],
 	)
-	const isWatched = $derived((watchedQuery.data ?? []).length > 0)
+	const isManuallyWatched = $derived((watchedQuery.data ?? []).length > 0)
 
 
 	// Actions
 	const toggle = () =>
-		isWatched
+		isManuallyWatched
 			? unwatchEntity(entityType, id)
 			: watchEntity({ entityType, id, label, href })
 </script>
 
-<button
-	type="button"
-	aria-label={isWatched ? 'Unwatch (remove from nav)' : 'Watch (pin to nav)'}
-	title={isWatched ? 'Unwatch' : 'Watch'}
-	onclick={toggle}
->
-	{isWatched ? 'Unwatch' : 'Watch'}
-</button>
+{#if autoWatched}
+	<span
+		aria-label="Watching (automatic)"
+		title="Watching"
+	>Watching</span>
+{:else}
+	<button
+		type="button"
+		aria-label={isManuallyWatched ? 'Unwatch (remove from nav)' : 'Watch (pin to nav)'}
+		title={isManuallyWatched ? 'Unwatch' : 'Watch'}
+		onclick={toggle}
+	>
+		{isManuallyWatched ? 'Unwatch' : 'Watch'}
+	</button>
+{/if}
