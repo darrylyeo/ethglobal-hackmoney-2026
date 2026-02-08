@@ -3,6 +3,26 @@ import type { Wallet$Id, Wallet } from './Wallet.ts'
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'error'
 
+/** Display enum for wallet connection status in the UI. */
+export enum WalletConnectionStatus {
+	Connecting = 'Connecting',
+	Connected = 'Connected',
+	Error = 'Error',
+}
+
+export function toWalletConnectionStatus(status: ConnectionStatus): WalletConnectionStatus {
+	switch (status) {
+		case 'connecting':
+			return WalletConnectionStatus.Connecting
+		case 'connected':
+			return WalletConnectionStatus.Connected
+		case 'error':
+			return WalletConnectionStatus.Error
+		default:
+			return WalletConnectionStatus.Error
+	}
+}
+
 export enum WalletConnectionTransport {
 	Eip1193 = 'eip1193',
 	None = 'none',

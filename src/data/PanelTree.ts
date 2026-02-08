@@ -28,6 +28,7 @@ export type PanelTreeState$Id = {
 export type PanelTreeState = {
 	$id: PanelTreeState$Id,
 	name?: string,
+	icon?: string,
 	root: PanelTreeNode,
 	focusedPanelId: string,
 }

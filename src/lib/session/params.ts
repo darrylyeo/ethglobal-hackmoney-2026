@@ -25,6 +25,7 @@ export type SwapSessionParams = {
 }
 
 export type BridgeSessionParams = BridgeSettings & {
+	isTestnet: boolean
 	protocolIntent: 'cctp' | 'lifi' | 'gateway' | null
 	transferSpeed: 'fast' | 'standard'
 	forwardingEnabled: boolean
@@ -54,7 +55,7 @@ export type TransactionSessionDefaults = Partial<{
 
 export const defaultSwapSessionParams: SwapSessionParams = {
 	...defaultSwapSettings,
-	isTestnet: defaultBridgeSettings.isTestnet,
+	isTestnet: false,
 }
 
 export const defaultLiquiditySessionParams: LiquiditySessionParams = {
@@ -144,6 +145,7 @@ export const normalizeBridgeSessionParams = (
 	params: Record<string, unknown> | null,
 	defaults: BridgeSessionParams = {
 		...defaultBridgeSettings,
+		isTestnet: false,
 		protocolIntent: null,
 		transferSpeed: 'fast',
 		forwardingEnabled: false,

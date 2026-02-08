@@ -247,4 +247,16 @@ export const renameDashboard = (id: string, name: string) => {
 	return undefined
 }
 
+export const setDashboardIcon = (id: string, icon: string) => {
+	const key = stateKey(id)
+	const row = dashboardPanelsCollection.state.get(key) as
+		| DashboardStateRow
+		| undefined
+	if (!row) return undefined
+	dashboardPanelsCollection.update(key, (draft) => {
+		;(draft as DashboardStateRow).icon = icon
+	})
+	return undefined
+}
+
 export const dashboardStateId: DashboardState$Id = { id: 'default' }

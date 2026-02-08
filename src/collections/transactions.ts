@@ -10,6 +10,7 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
+import { getTransactions } from '$/lib/txHistory.ts'
 
 export type TransactionRow = Transaction & { $source: DataSource }
 
@@ -52,4 +53,56 @@ export const updateTransaction = (
 		if (changes.destTxHash !== undefined) draft.destTxHash = changes.destTxHash
 		draft.updatedAt = Date.now()
 	})
+}
+
+export const upsertTransaction = (tx: Omit<Transaction, 'updatedAt'>) => {
+	const key = stringify(tx.$id)
+	const existing = transactionsCollection.state.get(key)
+	if (existing) {
+		transactionsCollection.update(key, (draft) => {
+			draft.$source = DataSource.Local
+			draft.status = tx.status
+			draft.destTxHash = tx.destTxHash ?? draft.destTxHash
+			draft.updatedAt = Date.now()
+		})
+	} else {
+		insertTransaction(tx)
+	}
+}
+
+/**
+ * Migrate legacy per-address tx history (bridge-tx-history-${address}) into
+ * transactionsCollection and upsert. Idempotent; safe to call when querying by address.
+ */
+export const migrateLegacyTxHistoryForAddress = (
+	address: `0x${string}`,
+): void => {
+	const legacy = getTransactions(address)
+	for (const t of legacy) {
+		upsertTransaction({
+			$id: {
+				address: t.address,
+				sourceTxHash: t.sourceTxHash,
+				createdAt: t.createdAt,
+			},
+			fromChainId: t.fromChainId,
+			toChainId: t.toChainId,
+			fromAmount: BigInt(t.fromAmount),
+			toAmount: BigInt(t.toAmount),
+			destTxHash: t.destTxHash ?? null,
+			status: t.status,
+		})
+	}
+}
+
+/**
+ * Trigger migration from legacy tx history for each address. Call when transactions
+ * are queried (e.g. Transactions view with actors) so the collection stays in sync.
+ */
+export const ensureTransactionsForAddresses = (
+	addresses: `0x${string}`[],
+): void => {
+	for (const address of addresses) {
+		migrateLegacyTxHistoryForAddress(address)
+	}
 }

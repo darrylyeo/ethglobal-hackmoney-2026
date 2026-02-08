@@ -144,8 +144,8 @@ export const updateTransactionSession = (
 		})
 		draft.actions = next.actions
 		draft.status = next.status
-		draft.createdAt = next.createdAt
-		draft.updatedAt = next.updatedAt
+		draft.createdAt = next.createdAt ?? draft.createdAt ?? Date.now()
+		draft.updatedAt = Date.now()
 		draft.lockedAt = next.lockedAt
 		draft.params = next.params
 		draft.latestSimulationId = next.latestSimulationId
