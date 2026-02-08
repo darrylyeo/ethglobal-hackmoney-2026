@@ -263,6 +263,7 @@
 					id={parsed.interopAddress ?? parsed.address}
 					label={formatAddress(parsed.address)}
 					href={resolve(`/account/${data.addressParam}`)}
+					autoWatched={connectionsForAccount.some((c) => c.status === 'connected') || verificationsList.some((v) => v.status === 'verified' && normalizedAddress != null && v.address.toLowerCase() === normalizedAddress.toLowerCase())}
 				/>
 			</div>
 			<nav data-row="wrap gap-2">

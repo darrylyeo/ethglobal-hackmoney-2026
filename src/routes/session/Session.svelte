@@ -149,6 +149,7 @@
 				id={session.id}
 				label={session.name || 'Session'}
 				href={`${resolve('/session')}${buildSessionHash(session.id)}`}
+				autoWatched={session.status === 'Draft' || session.status === 'Submitted'}
 			/>
 			<label data-row="gap-2 align-center">
 				<Switch.Root
