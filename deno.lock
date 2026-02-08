@@ -36,6 +36,7 @@
     "npm:blo@2": "2.0.0",
     "npm:chrome-devtools-mcp@latest": "0.12.1",
     "npm:clsx@*": "2.1.1",
+    "npm:cookie@*": "0.7.2",
     "npm:devalue@^5.6.2": "5.6.2",
     "npm:fflate@*": "0.8.2",
     "npm:fflate@~0.8.2": "0.8.2",
@@ -7013,6 +7014,7 @@
     "dependencies": [
       "npm:@total-typescript/ts-reset@*",
       "npm:clsx@*",
+      "npm:cookie@*",
       "npm:set-cookie-parser@*"
     ],
     "packageJson": {

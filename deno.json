@@ -5,6 +5,7 @@
     "@total-typescript/ts-reset": "npm:@total-typescript/ts-reset",
     "bun:ffi": "./shims/bun-ffi.js",
     "clsx": "npm:clsx",
+    "cookie": "npm:cookie",
     "set-cookie-parser": "npm:set-cookie-parser"
   },
   "lint": {
