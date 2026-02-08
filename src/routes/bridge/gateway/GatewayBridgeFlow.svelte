@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
-	import type { BridgeSessionParams } from '$/lib/session/params.ts'
+	import type { ActionParams } from '$/constants/actions.ts'
+	import { ActionType } from '$/constants/actions.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import { fetchGatewayUnifiedBalance } from '$/api/gateway.ts'
 	import { getGatewayWalletAddress } from '$/constants/gateway.ts'
@@ -33,7 +34,7 @@
 	}: {
 		selectedWallets: ConnectedWallet[]
 		selectedActor: `0x${string}` | null
-		settings: BridgeSessionParams
+		settings: ActionParams<ActionType.Bridge>
 		recipient: `0x${string}` | null
 		onExecutionSuccess?: (args: { txHash?: `0x${string}` }) => void
 		balanceTokens?: {

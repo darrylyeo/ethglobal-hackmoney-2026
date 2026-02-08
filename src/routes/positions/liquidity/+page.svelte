@@ -1,10 +1,9 @@
 <script lang="ts">
 	// Types/constants
-	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { uniswapPositionsCollection } from '$/collections/UniswapPositions.ts'
 	import { fetchUniswapPositions } from '$/collections/UniswapPositions.ts'
@@ -21,7 +20,6 @@
 		(q) =>
 			q
 				.from({ row: walletConnectionsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Local))
 				.select(({ row }) => ({ row })),
 		[],
 	)
@@ -97,7 +95,7 @@
 						<span class="position-chain">{net?.name ?? pos.chainId}</span>
 						<Address network={pos.chainId} address={pos.owner} />
 						<a href="/account/{pos.owner}">Account</a>
-						<a href="/session#/AddLiquidity">Manage</a>
+						<a href="/session?template=AddLiquidity">Manage</a>
 					</li>
 				{/each}
 			</ul>

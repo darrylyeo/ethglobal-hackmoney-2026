@@ -1,12 +1,8 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
-	import {
-		createSessionAction,
-		TransactionSessionStatus,
-		type TransactionSession,
-	} from '$/data/TransactionSession.ts'
-	import { ActionType } from '$/constants/intents.ts'
+	import { SessionStatus, type Session } from '$/data/Session.ts'
+	import { ActionType, createAction } from '$/constants/actions.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { NetworkType, networks } from '$/constants/networks.ts'
@@ -25,23 +21,29 @@
 
 	// Props
 	let {
+		onPersist,
 		session = $bindable(),
 	}: {
-		session: TransactionSession,
+		onPersist?: () => void
+		session: Session
 	} = $props()
 
 
 	// Functions
 	import { fetchAllBalancesForAddress } from '$/collections/ActorCoins.ts'
-	import { buildSessionHash } from '$/lib/session/sessions.ts'
+	import {
+		buildSessionHash,
+		formatSessionPlaceholderName,
+	} from '$/lib/session/sessions.ts'
 
 
 	// State
+	let persisted = $state(false)
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
 	let selectedChainId = $state<number | null>(null)
 	let balanceTokens = $state<
-		{ chainId: number, tokenAddress: `0x${string}` }[]
+		{ chainId: number; tokenAddress: `0x${string}` }[]
 	>([])
 
 	const sessionCtx: SessionContext = $state({
@@ -112,11 +114,18 @@
 		if (session.actions.length === 0) {
 			session = {
 				...session,
-				actions: [createSessionAction(ActionType.Swap)],
+				actions: [createAction(ActionType.Swap)],
 			}
 		}
 	})
 
+	const handleFormInteraction = () => {
+		if (persisted || !onPersist) return
+		persisted = true
+		onPersist()
+	}
+	const placeholderName = $derived(formatSessionPlaceholderName(session.actions))
+	const displayLabel = $derived(session.name || placeholderName)
 
 	// Components
 	import WatchButton from '$/components/WatchButton.svelte'
@@ -126,7 +135,13 @@
 </script>
 
 
-<main id="main" data-session data-column="gap-4" data-sticky-container>
+<main
+	id="main"
+	data-session
+	data-column="gap-4"
+	data-sticky-container
+	onfocusin={handleFormInteraction}
+>
 	<section data-scroll-item data-column="gap-2">
 		<header data-row="wrap gap-4 align-center">
 			<div data-column="gap-1" data-row-item="flexible">
@@ -135,18 +150,18 @@
 					<input
 						type="text"
 						bind:value={session.name}
-						placeholder="Session name"
+						placeholder={placeholderName}
 						aria-label="Session name"
 					/>
 				</h1>
 			</div>
 			<span data-text="annotation">Session</span>
 			<WatchButton
-				entityType={EntityType.TransactionSession}
+				entityType={EntityType.Session}
 				id={session.id}
-				label={session.name || 'Session'}
+				label={displayLabel}
 				href={`${resolve('/session')}${buildSessionHash(session.id)}`}
-				autoWatched={session.status === TransactionSessionStatus.Draft || session.status === TransactionSessionStatus.Submitted}
+				autoWatched={session.status === SessionStatus.Draft || session.status === SessionStatus.Submitted}
 			/>
 		</header>
 
@@ -155,10 +170,7 @@
 			data-card
 		>
 			<summary>
-				<header
-					data-card
-					data-row="wrap gap-2"
-				>
+				<header data-row="wrap gap-2">
 					<AccountsSelect
 						bind:connectedWallets
 						bind:selectedActor
@@ -171,8 +183,8 @@
 					{selectedActor}
 					balanceTokens={effectiveBalanceTokens}
 					availableAccounts={connectedWallets
-					.map((w) => w.connection.activeActor)
-					.filter((a): a is `0x${string}` => a != null)}
+						.map((w) => w.connection.activeActor)
+						.filter((a): a is `0x${string}` => a != null)}
 				/>
 			</div>
 		</details>

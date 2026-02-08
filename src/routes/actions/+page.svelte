@@ -1,30 +1,8 @@
 <script lang="ts">
 	// Types/constants
 	import { APP_NAME } from '$/constants/app.ts'
-	import {
-		ActionType,
-		actionTypeDefinitionByActionType,
-	} from '$/constants/intents.ts'
+	import { sessionTemplates } from '$/data/Session.ts'
 	import { resolve } from '$app/paths'
-
-	const navigableActionTypes = [
-		ActionType.Swap,
-		ActionType.Bridge,
-		ActionType.Transfer,
-		ActionType.CreateChannel,
-		ActionType.CloseChannel,
-		ActionType.AddLiquidity,
-		ActionType.RemoveLiquidity,
-		ActionType.CollectFees,
-		ActionType.IncreaseLiquidity,
-		ActionType.ShareAddress,
-		ActionType.ProposeTransfer,
-		ActionType.RequestVerification,
-	] as const
-
-	const navigableActions = navigableActionTypes.map(
-		(actionType) => actionTypeDefinitionByActionType[actionType],
-	)
 </script>
 
 
@@ -41,13 +19,13 @@
 		data-grid="columns-autofit"
 		class="route-cards"
 	>
-		{#each navigableActions as spec}
+		{#each sessionTemplates as template}
 			<a
-				href={resolve(`/session#/${spec.type}`)}
+				href={resolve(`/session?template=${template.actions[0].type}`)}
 				data-card
 				data-column="gap-1"
 			>
-				<span>{spec.label}</span>
+				<span>{template.name}</span>
 			</a>
 		{/each}
 	</nav>

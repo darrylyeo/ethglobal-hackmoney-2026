@@ -42,7 +42,6 @@
 		(q) =>
 			q
 				.from({ row: walletConnectionsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Local))
 				.select(({ row }) => ({ row })),
 		[],
 	)
@@ -50,7 +49,6 @@
 		(q) =>
 			q
 				.from({ row: siweVerificationsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.select(({ row }) => ({ row })),
 		[],
 	)

@@ -29,10 +29,7 @@
 	let toPayload = $state<IntentDragPayload | null>(null)
 
 	const actorCoinsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: actorCoinsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
-			.select(({ row }) => ({ row })),
+		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
 	)
 
 
@@ -203,12 +200,10 @@
 					<div data-column="gap-2">
 						{#each resolution.options as option, i (i)}
 							<div data-card="padding-2" data-column="gap-1">
-								<strong>{option.label}</strong>
+								<strong>{option.name}</strong>
 								<ol data-column="gap-1">
-									{#each option.actions as { protocolAction } (protocolAction.action + protocolAction.protocol)}
-										<li>
-											{protocolAction.action} via {protocolAction.protocol}
-										</li>
+									{#each option.sessionTemplate.actions as action (action.type)}
+										<li>{action.type}</li>
 									{/each}
 								</ol>
 							</div>

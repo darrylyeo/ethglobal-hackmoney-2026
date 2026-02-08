@@ -26,7 +26,6 @@
 		(q) =>
 			q
 				.from({ row: cctpAllowanceCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Cctp))
 				.select(({ row }) => ({ row })),
 		[() => apiHost],
 	)

@@ -8,11 +8,9 @@
 		createInitialStatus,
 		type BridgeStatus,
 	} from '$/lib/bridge/txStatus.ts'
-	import {
-		type BridgeSessionParams,
-		normalizeBridgeSessionParams,
-	} from '$/lib/session/params.ts'
-	import { BridgeRouteSort } from '$/state/bridge-settings.svelte.ts'
+	import type { ActionParams } from '$/constants/actions.ts'
+	import { ActionType, BridgeRouteSort } from '$/constants/actions.ts'
+	import { normalizeActionParams } from '$/lib/session/params.ts'
 	import {
 		type WalletConnectionEip1193,
 		WalletConnectionTransport,
@@ -100,14 +98,14 @@
 	let {
 		selectedWallets,
 		selectedActor,
-		settings = $bindable(normalizeBridgeSessionParams(null)),
+		settings = $bindable(normalizeActionParams(ActionType.Bridge, null)),
 		preview = $bindable(null as BridgeRoute | null),
 		onExecutionSuccess,
 		balanceTokens = $bindable([]),
 	}: {
 		selectedWallets: ConnectedWallet[]
 		selectedActor: `0x${string}` | null
-		settings?: BridgeSessionParams
+		settings?: ActionParams<ActionType.Bridge>
 		preview?: BridgeRoute | null
 		onExecutionSuccess?: (args: { txHash?: `0x${string}` }) => void
 		balanceTokens?: {
@@ -141,27 +139,19 @@
 	const toNetwork = $derived(resolveNetwork(settings.toChainId))
 
 	const routesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: bridgeRoutesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.LiFi))
-			.select(({ row }) => ({ row })),
+		q.from({ row: bridgeRoutesCollection }).select(({ row }) => ({ row })),
 	)
 	const balancesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: actorCoinsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
-			.select(({ row }) => ({ row })),
+		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
 	)
 	const allowancesQuery = useLiveQuery((q) =>
 		q
 			.from({ row: actorAllowancesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
 			.select(({ row }) => ({ row })),
 	)
 	const txQuery = useLiveQuery((q) =>
 		q
 			.from({ row: bridgeTransactionsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.orderBy(({ row }) => row.$id?.createdAt ?? 0, 'desc')
 			.select(({ row }) => ({ row })),
 	)
@@ -404,7 +394,7 @@
 	)
 	const quoteExpired = $derived(quoteRemaining !== null && quoteRemaining <= 0)
 
-	const sortOptions: { id: BridgeSessionParams['sortBy']; label: string }[] = [
+	const sortOptions: { id: ActionParams<ActionType.Bridge>['sortBy']; label: string }[] = [
 		{ id: BridgeRouteSort.Recommended, label: 'Recommended' },
 		{ id: BridgeRouteSort.Output, label: 'Best output' },
 		{ id: BridgeRouteSort.Fees, label: 'Lowest fees' },

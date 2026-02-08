@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('WalletProvider', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/session#/Bridge')
+		await page.goto('/session?template=Bridge')
 		await expect(page.locator('#main')).toBeAttached({
 			timeout: 30_000,
 		})
@@ -37,7 +37,7 @@ test.describe('WalletProvider', () => {
 					)
 				})
 			})
-			await page.goto('/session#/Bridge')
+			await page.goto('/session?template=Bridge')
 		})
 
 		test('after connection address displays in header', async ({ page }) => {

@@ -23,16 +23,12 @@
 		(q) =>
 			q
 				.from({ row: sharedAddressesCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
 	const channelsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: stateChannelsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Eip7824))
-			.select(({ row }) => ({ row })),
+		q.from({ row: stateChannelsCollection }).select(({ row }) => ({ row })),
 	)
 	const liveQueryEntries = [
 		{

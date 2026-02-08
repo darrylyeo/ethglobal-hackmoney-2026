@@ -1,5 +1,5 @@
 import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
-import type { TransactionSession } from '$/data/TransactionSession.ts'
+import type { Session } from '$/data/Session.ts'
 
 export const SESSION_CONTEXT_KEY = 'session-context'
 
@@ -8,6 +8,6 @@ export type SessionContext = {
 	selectedActor: `0x${string}` | null
 	selectedChainId: number | null
 	isTestnet: boolean
-	session: TransactionSession | null
+	session: Session | null
 	sessionId: string | null
 }

@@ -1,11 +1,10 @@
 <script lang="ts">
 	// Types/constants
 	import { APP_NAME } from '$/constants/app.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 
@@ -13,16 +12,20 @@
 	// Functions
 	import {
 		buildSessionHash,
-		deleteTransactionSession,
+		deleteAllDraftSessions,
+		deleteSession,
 	} from '$/lib/session/sessions.ts'
 
-	import type { SessionAction } from '$/data/TransactionSession.ts'
+	import {
+		type Action,
+		SessionStatus,
+	} from '$/data/Session.ts'
 
 	const actionLabel = (action: string) =>
 		action.length > 0
 			? `${action[0].toUpperCase()}${action.slice(1)}`
 			: 'Session'
-	const sessionTitle = (session: { id: string; actions: SessionAction[] }) =>
+	const sessionTitle = (session: { id: string; actions: Action[] }) =>
 		`${actionLabel(session.actions[0]?.type ?? '')} ${session.id.slice(0, 6)}`
 	const sessionHref = (session: { id: string }) =>
 		`/session${buildSessionHash(session.id)}`
@@ -33,10 +36,7 @@
 
 	const sessionsQuery = useLiveQuery(
 		(q) =>
-			q
-				.from({ row: sessionsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Local))
-				.select(({ row }) => ({ row })),
+			q.from({ row: sessionsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const liveQueryEntries = [
@@ -50,6 +50,9 @@
 		(sessionsQuery.data ?? [])
 			.map((result) => result.row)
 			.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)),
+	)
+	const draftCount = $derived(
+		sessions.filter((s) => s.status === SessionStatus.Draft).length,
 	)
 	const formatSessionDate = (ms: number | undefined) =>
 		ms ? new Date(ms).toLocaleString() : '—'
@@ -71,6 +74,14 @@
 		data-column="gap-3"
 	>
 		<h1>Sessions</h1>
+		{#if draftCount > 0}
+			<button
+				type="button"
+				onclick={() => deleteAllDraftSessions()}
+			>
+				Delete all drafts ({draftCount})
+			</button>
+		{/if}
 		{#if sessions.length === 0}
 			<p data-muted>No sessions yet.</p>
 		{:else}
@@ -87,7 +98,7 @@
 						<button
 							type="button"
 							aria-label="Delete session"
-							onclick={() => deleteTransactionSession(session.id)}
+							onclick={() => deleteSession(session.id)}
 						>
 							Delete
 						</button>

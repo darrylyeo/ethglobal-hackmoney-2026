@@ -22,7 +22,6 @@
 	const depositQuery = useLiveQuery((q) =>
 		q
 			.from({ row: stateChannelDepositsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Eip7824))
 			.select(({ row }) => ({ row })),
 	)
 	const liveQueryEntries = [

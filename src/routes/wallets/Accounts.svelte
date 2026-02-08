@@ -41,10 +41,6 @@
 	import { walletsCollection } from '$/collections/Wallets.ts'
 	import { switchWalletChain } from '$/lib/wallet.ts'
 	import { NetworkEnvironment } from '$/constants/network-environment.ts'
-	import {
-		bridgeSettingsState,
-		defaultBridgeSettings,
-	} from '$/state/bridge-settings.svelte.ts'
 	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
@@ -53,13 +49,11 @@
 	const walletsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: walletsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
 	const connectionsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: walletConnectionsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
 	const liveQueryEntries = [
@@ -74,9 +68,6 @@
 
 
 	// (Derived)
-	const settings = $derived(
-		bridgeSettingsState.current ?? defaultBridgeSettings,
-	)
 	const connections = $derived(
 		(connectionsQuery.data ?? [])
 			.map((c) => c.row)
@@ -149,7 +140,7 @@
 
 
 	// State
-	let readOnlyAddress = $state('')
+	let readOnlyAddress = $state<`0x${string}` | null>(null)
 
 
 	// Actions
@@ -165,8 +156,8 @@
 			? switchWalletChain(wallet.provider, chainId)
 			: Promise.resolve()
 	const connectReadOnlyAddress = () => {
-		if (connectReadOnly({ address: readOnlyAddress.trim() })) {
-			readOnlyAddress = ''
+		if (readOnlyAddress && connectReadOnly({ address: readOnlyAddress })) {
+			readOnlyAddress = null
 		}
 	}
 
@@ -198,6 +189,7 @@
 	import Address from '$/components/Address.svelte'
 	import Dropdown from '$/components/Dropdown.svelte'
 	import Icon from '$/components/Icon.svelte'
+	import AddressInput from '$/views/AddressInput.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import { Button } from 'bits-ui'
 </script>
@@ -236,18 +228,19 @@
 							data-column="gap-2"
 							onsubmit={(e) => (e.preventDefault(), connectReadOnlyAddress())}
 						>
-							<label for="accounts-add-watching">Watching address</label>
 							<div data-row="gap-2 align-center">
 								<span data-row-item="flexible">
-									<input
-										id="accounts-add-watching"
-										name="watching-address"
-										type="text"
-										placeholder="0x..."
+									<AddressInput
+										items={[]}
 										bind:value={readOnlyAddress}
+										placeholder="Address or ENS"
+										id="accounts-add-watching"
+										ariaLabel="Watching address"
 									/>
 								</span>
-								<Button.Root type="submit">Add</Button.Root>
+								<Button.Root type="submit" disabled={!readOnlyAddress}>
+									Add
+								</Button.Root>
 							</div>
 						</form>
 					{/snippet}

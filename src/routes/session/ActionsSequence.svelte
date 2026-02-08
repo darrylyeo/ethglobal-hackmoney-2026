@@ -1,8 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import type { SessionAction } from '$/data/TransactionSession.ts'
-	import { createSessionAction } from '$/data/TransactionSession.ts'
-	import { ActionType } from '$/constants/intents.ts'
+	import type { Action } from '$/constants/actions.ts'
+	import { createAction } from '$/constants/actions.ts'
+	import { ActionType } from '$/constants/actions.ts'
 	import { ItemsListOperation } from '$/components/EditableItemsList.svelte'
 
 
@@ -16,28 +16,26 @@
 			ItemsListOperation.Reorder,
 		],
 	}: {
-		actions: SessionAction[]
+		actions: Action[]
 		operations?: ItemsListOperation[]
 	} = $props()
 
 
-	// Functions
-	const createDefaultAction = (): SessionAction =>
-		createSessionAction(ActionType.Swap)
-
-
 	// Components
 	import EditableItemsList from '$/components/EditableItemsList.svelte'
-	import Action from './Action.svelte'
+	import ActionComponent from './Action.svelte'
 </script>
 
 
 <EditableItemsList
 	bind:items={actions}
 	{operations}
-	createItem={createDefaultAction}
+	createItem={() => createAction(ActionType.Swap)}
 >
 	{#snippet Item({ item, index })}
-		<Action bind:action={actions[index]} />
+		<ActionComponent
+			bind:action={actions[index]}
+			actionIndex={index}
+		/>
 	{/snippet}
 </EditableItemsList>

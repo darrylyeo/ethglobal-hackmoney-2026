@@ -29,7 +29,6 @@
 		(q) =>
 			q
 				.from({ row: sharedAddressesCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
@@ -38,7 +37,6 @@
 		(q) =>
 			q
 				.from({ row: partykitRoomPeersCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
@@ -47,7 +45,6 @@
 		(q) =>
 			q
 				.from({ row: siweVerificationsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
@@ -56,7 +53,6 @@
 		(q) =>
 			q
 				.from({ row: siweChallengesCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],

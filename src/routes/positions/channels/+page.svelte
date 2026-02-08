@@ -43,23 +43,16 @@
 	)
 	const roomsQuery = useLiveQuery(
 		(q) =>
-			q
-				.from({ row: partykitRoomsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
-				.select(({ row }) => ({ row })),
+			q.from({ row: partykitRoomsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const connectionsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: walletConnectionsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
 	const walletsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: walletsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
+		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
 	)
 	const liveQueryEntries = [
 		{

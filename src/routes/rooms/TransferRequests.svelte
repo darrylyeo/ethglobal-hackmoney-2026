@@ -35,7 +35,6 @@
 		(q) =>
 			q
 				.from({ row: sharedAddressesCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],
@@ -43,14 +42,12 @@
 	const depositQuery = useLiveQuery((q) =>
 		q
 			.from({ row: stateChannelDepositsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Eip7824))
 			.select(({ row }) => ({ row })),
 	)
 	const requestsQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: transferRequestsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],

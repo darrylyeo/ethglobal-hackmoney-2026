@@ -77,7 +77,6 @@
 	const llmConnectionsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: llmConnectionsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
 	const llmConnectionsRaw = $derived(

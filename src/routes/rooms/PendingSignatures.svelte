@@ -26,7 +26,6 @@
 		(q) =>
 			q
 				.from({ row: siweChallengesCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
 		[() => roomId],

@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
-	import type { BridgeSessionParams } from '$/lib/session/params.ts'
+	import type { ActionParams } from '$/constants/actions.ts'
+	import { ActionType } from '$/constants/actions.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import {
 		CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS,
@@ -38,7 +39,7 @@
 	}: {
 		selectedWallets: ConnectedWallet[]
 		selectedActor: `0x${string}` | null
-		settings: BridgeSessionParams
+		settings: ActionParams<ActionType.Bridge>
 		recipient: `0x${string}` | null
 		minOutput: bigint | null
 		onExecutionSuccess?: (args: { txHash?: `0x${string}` }) => void

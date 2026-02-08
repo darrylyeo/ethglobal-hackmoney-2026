@@ -41,7 +41,6 @@
 	const allowancesQuery = useLiveQuery((q) =>
 		q
 			.from({ row: actorAllowancesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Voltaire))
 			.select(({ row }) => ({ row })),
 	)
 	const liveQueryEntries = [

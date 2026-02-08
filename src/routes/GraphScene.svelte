@@ -52,7 +52,7 @@
 		EntityType,
 		graphSceneEntityTypes,
 	} from '$/data/$EntityType.ts'
-	import { TransactionSessionStatus } from '$/data/TransactionSession.ts'
+	import { SessionStatus } from '$/data/Session.ts'
 	import { untrack } from 'svelte'
 	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits.ts'
@@ -231,7 +231,7 @@
 	const siweChallengesQuery = useLiveQuery((q) =>
 		q.from({ row: siweChallengesCollection }).select(({ row }) => ({ row })),
 	)
-	const transactionSessionsQuery = useLiveQuery((q) =>
+	const SessionsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: sessionsCollection })
 			.select(({ row }) => ({ row })),
@@ -292,8 +292,8 @@
 		[EntityType.StorkPrice, storkPricesQuery],
 		[EntityType.SwapQuote, swapQuotesQuery],
 		[EntityType.TokenListCoin, tokenListCoinsQuery],
-		[EntityType.TransactionSession, transactionSessionsQuery],
-		[EntityType.TransactionSessionSimulation, sessionSimulationsQuery],
+		[EntityType.Session, SessionsQuery],
+		[EntityType.SessionSimulation, sessionSimulationsQuery],
 		[EntityType.TransferGraph, transferGraphsQuery],
 		[EntityType.TransferRequest, transferRequestsQuery],
 		[EntityType.UniswapPool, uniswapPoolsQuery],
@@ -626,7 +626,7 @@
 				lineDash: [2, 6],
 			},
 		},
-		[EntityType.TransactionSession]: {
+		[EntityType.Session]: {
 			color: '#22d3ee',
 			label: 'Sessions',
 			size: 12,
@@ -640,7 +640,7 @@
 				haloLineWidth: 6,
 			},
 		},
-		[EntityType.TransactionSessionSimulation]: {
+		[EntityType.SessionSimulation]: {
 			color: '#38bdf8',
 			label: 'Simulations',
 			size: 9,
@@ -1764,14 +1764,14 @@
 		}
 
 		// Add transaction session nodes
-		if (visibleCollections.has(EntityType.TransactionSession)) {
-			const sessions = take(transactionSessionsQuery.data)
+		if (visibleCollections.has(EntityType.Session)) {
+			const sessions = take(SessionsQuery.data)
 			sessions.forEach(({ row }, i) => {
-				if (skipRow(EntityType.TransactionSession, undefined)) return
+				if (skipRow(EntityType.Session, undefined)) return
 				const sessionId = `session:${row.id}`
 				if (g.hasNode(sessionId)) return
 				const pos = positionInRing(
-					collections[EntityType.TransactionSession].ring,
+					collections[EntityType.Session].ring,
 					i,
 					sessions.length,
 				)
@@ -1779,13 +1779,13 @@
 					id: sessionId,
 					label: `Session ${row.id.slice(0, 6)}`,
 					...pos,
-					size: collections[EntityType.TransactionSession].size,
-					color: collections[EntityType.TransactionSession].color,
+					size: collections[EntityType.Session].size,
+					color: collections[EntityType.Session].color,
 					type: 'rect',
-					collection: EntityType.TransactionSession,
-					g6Type: collections[EntityType.TransactionSession].g6Type,
+					collection: EntityType.Session,
+					g6Type: collections[EntityType.Session].g6Type,
 					g6Style: {
-						...collections[EntityType.TransactionSession].g6Style,
+						...collections[EntityType.Session].g6Style,
 						badge: { text: toStatusBadge(row.status) ?? 'LIVE' },
 						lineDash: statusLineDash(row.status),
 						opacity: statusOpacity(row.status),
@@ -1809,14 +1809,14 @@
 		}
 
 		// Add transaction session simulation nodes
-		if (visibleCollections.has(EntityType.TransactionSessionSimulation)) {
+		if (visibleCollections.has(EntityType.SessionSimulation)) {
 			const simulations = take(sessionSimulationsQuery.data)
 			simulations.forEach(({ row }, i) => {
-				if (skipRow(EntityType.TransactionSessionSimulation, undefined)) return
+				if (skipRow(EntityType.SessionSimulation, undefined)) return
 				const simulationId = `simulation:${row.id}`
 				if (g.hasNode(simulationId)) return
 				const pos = positionInRing(
-					collections[EntityType.TransactionSessionSimulation].ring,
+					collections[EntityType.SessionSimulation].ring,
 					i,
 					simulations.length,
 				)
@@ -1824,13 +1824,13 @@
 					id: simulationId,
 					label: `Sim ${row.id.slice(0, 6)}`,
 					...pos,
-					size: collections[EntityType.TransactionSessionSimulation].size,
-					color: collections[EntityType.TransactionSessionSimulation].color,
+					size: collections[EntityType.SessionSimulation].size,
+					color: collections[EntityType.SessionSimulation].color,
 					type: 'rect',
-					collection: EntityType.TransactionSessionSimulation,
-					g6Type: collections[EntityType.TransactionSessionSimulation].g6Type,
+					collection: EntityType.SessionSimulation,
+					g6Type: collections[EntityType.SessionSimulation].g6Type,
 					g6Style: {
-						...collections[EntityType.TransactionSessionSimulation].g6Style,
+						...collections[EntityType.SessionSimulation].g6Style,
 						badge: { text: toStatusBadge(row.status) ?? 'SIM' },
 						lineDash: statusLineDash(row.status),
 						opacity: statusOpacity(row.status),

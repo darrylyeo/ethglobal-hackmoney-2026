@@ -1,0 +1,58 @@
+<script lang="ts">
+	// Types/constants
+	import type { SessionActionTransaction } from '$/data/SessionActionTransaction.ts'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { SvelteSet } from 'svelte/reactivity'
+
+	import { sessionActionTransactionsCollection } from '$/collections/SessionActionTransactions.ts'
+	import ItemsList from '$/components/ItemsList.svelte'
+	import Transaction from './Transaction.svelte'
+
+
+	// Props
+	let {
+		sessionId,
+		actionIndex,
+	}: {
+		sessionId: string
+		actionIndex: number
+	} = $props()
+
+
+	// (Derived)
+	const transactionsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: sessionActionTransactionsCollection })
+				.where(({ row }) =>
+					and(eq(row.sessionId, sessionId), eq(row.actionIndex, actionIndex)),
+				)
+				.select(({ row }) => ({ row })),
+		[() => sessionId, () => actionIndex],
+	)
+	const items = $derived(
+		new SvelteSet(
+			(transactionsQuery.data?.map((d) => d.row) ?? []) as SessionActionTransaction[],
+		),
+	)
+</script>
+
+{#if items.size > 0}
+	<details data-card data-column="gap-2">
+		<summary data-text="annotation">Transactions</summary>
+		<ItemsList
+			items={items}
+			getKey={(item) => item.id}
+			getSortValue={(item) => -item.createdAt}
+			placeholderKeys={new Set()}
+		>
+			{#snippet Item({ key, item, isPlaceholder })}
+				{#if isPlaceholder}
+					<div data-placeholder>…</div>
+				{:else if item}
+					<Transaction transaction={item} />
+				{/if}
+			{/snippet}
+		</ItemsList>
+	</details>
+{/if}

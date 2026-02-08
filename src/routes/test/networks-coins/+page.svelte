@@ -13,14 +13,12 @@
 	const networksQuery = useLiveQuery((q) =>
 		q
 			.from({ row: networksCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.orderBy(({ row }) => row.id)
 			.select(({ row }) => ({ row })),
 	)
 	const coinsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: coinsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.orderBy(({ row }) => row.chainId)
 			.select(({ row }) => ({ row })),
 	)
