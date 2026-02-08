@@ -1,6 +1,8 @@
 <script lang="ts">
 	// Types/constants
 	import { page } from '$app/state'
+	import { resolve } from '$app/paths'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { TIME_PERIODS } from '$/api/transfers-indexer.ts'
 	import { getCoinForCoinPage, type CoinPageSymbol } from '$/constants/coins.ts'
@@ -20,6 +22,7 @@
 	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
 	import Boundary from '$/components/Boundary.svelte'
 	import ItemsList from '$/components/ItemsList.svelte'
+	import WatchButton from '$/components/WatchButton.svelte'
 	import LiveTransfers from '$/views/LiveTransfers.svelte'
 	import TransferEventRow from '$/components/TransferEventRow.svelte'
 
@@ -171,6 +174,12 @@
 			<div data-row="wrap gap-4 align-center">
 				<h1>{coin.symbol}</h1>
 				<span data-text="annotation">Coin</span>
+				<WatchButton
+					entityType={EntityType.Coin}
+					id={symbol}
+					label={coin.symbol}
+					href={resolve(`/coin/${symbol}`)}
+				/>
 			</div>
 			<nav data-row="start gap-2" aria-label="Time period">
 				{#each TIME_PERIODS as p (p.value)}

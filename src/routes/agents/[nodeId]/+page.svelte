@@ -1,11 +1,13 @@
 <script lang="ts">
 	// Types/constants
-	import type { AgentChatTree } from '$/data/AgentChatTree.ts'
+	import type { AgentChatTree as AgentChatTreeData } from '$/data/AgentChatTree.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 
 
 	
 	// Context
 	import { page } from '$app/state'
+	import { resolve } from '$app/paths'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
@@ -62,7 +64,7 @@
 		[],
 	)
 
-	const tree = $derived<AgentChatTree | null>(
+	const tree = $derived<AgentChatTreeData | null>(
 		treeQuery.data?.[0]?.row ?? null,
 	)
 
@@ -116,6 +118,7 @@
 	import ModelInput from '$/components/ModelInput.svelte'
 	import AgentChatTree from './AgentChatTree.svelte'
 	import EntityRefInput from '$/components/EntityRefInput.svelte'
+	import WatchButton from '$/components/WatchButton.svelte'
 </script>
 
 
@@ -136,6 +139,12 @@
 				<header data-row="wrap gap-4 align-center">
 					<h1>{tree.name ?? 'New conversation'}</h1>
 					<span data-text="annotation">Conversation</span>
+					<WatchButton
+						entityType={EntityType.AgentChatTree}
+						id={tree.id}
+						label={tree.name ?? 'New conversation'}
+						href={resolve(`/agents/${tree.id}`)}
+					/>
 				</header>
 				<p data-muted>Start the conversation by typing a prompt.</p>
 				<div data-row="gap-2 align-center">
@@ -161,6 +170,12 @@
 			<header data-row="wrap gap-4 align-center">
 				<h1>New conversation</h1>
 				<span data-text="annotation">Conversation</span>
+				<WatchButton
+					entityType={EntityType.AgentChatTree}
+					id={nodeId}
+					label="New conversation"
+					href={resolve(`/agents/${nodeId}`)}
+				/>
 			</header>
 			<p data-muted>Start the conversation by typing a prompt.</p>
 			<div data-row="gap-2 align-center">

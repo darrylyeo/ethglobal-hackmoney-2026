@@ -23,6 +23,7 @@
 		ensureDefaultRow,
 	} from '$/collections/dashboard-panels.ts'
 	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
+	import { watchedEntitiesCollection } from '$/collections/watched-entities.ts'
 	import { walletsCollection } from '$/collections/wallets.ts'
 	import {
 		createLiveQueryContext,
@@ -94,6 +95,24 @@
 			.map((result) => result.row)
 			.filter((tree) => tree.pinned)
 			.sort((a, b) => b.updatedAt - a.updatedAt),
+	)
+	const watchedEntitiesQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: watchedEntitiesCollection })
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const watchedNavItems = $derived(
+		(watchedEntitiesQuery.data ?? [])
+			.map((r) => r.row)
+			.sort((a, b) => b.addedAt - a.addedAt)
+			.map((row) => ({
+				id: `watched-${row.entityType}:${row.id}`,
+				title: row.label,
+				href: row.href,
+				icon: '📌',
+			})),
 	)
 	const walletsQuery = useLiveQuery(
 		(q) =>
@@ -274,6 +293,17 @@
 		}),
 	)
 	const navigationItems = $derived([
+		...(watchedNavItems.length > 0
+			? [
+					{
+						id: 'watched',
+						title: 'Watched',
+						icon: '📌',
+						defaultOpen: true,
+						children: watchedNavItems,
+					},
+				]
+			: []),
 		{
 			id: 'dashboards',
 			title: 'Dashboards',

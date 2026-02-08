@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
@@ -10,6 +11,7 @@
 
 	// Context
 	import { page } from '$app/state'
+	import { resolve } from '$app/paths'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
@@ -25,6 +27,7 @@
 
 	// Components
 	import NetworkView from '$/components/network/Network.svelte'
+	import WatchButton from '$/components/WatchButton.svelte'
 
 
 	// (Derived)
@@ -130,12 +133,18 @@
 			<div data-row="wrap gap-4 align-center">
 				<div data-column="gap-1">
 					<h1>{config.name}</h1>
-					<code data-text="vertical" data-text="font-monospace">{caip2}</code>
+					<code data-orient="vertical" data-text="font-monospace">{caip2}</code>
 					{#if config.type}
 						<span data-tag={config.type}>{config.type}</span>
 					{/if}
 				</div>
 				<span data-text="annotation">Network</span>
+				<WatchButton
+					entityType={EntityType.Network}
+					id={slug}
+					label={config.name}
+					href={resolve(`/network/${nameParam}`)}
+				/>
 			</div>
 			<p data-text="annotation">Chain ID {chainId}</p>
 		</header>

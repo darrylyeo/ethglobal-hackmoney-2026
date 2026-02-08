@@ -10,8 +10,11 @@
 	import { fetchChainTransaction, chainTransactionsCollection } from '$/collections/chain-transactions.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { resolve } from '$app/paths'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import EvmTransactionId from '$/components/EvmTransactionId.svelte'
 	import NetworkView from '$/components/network/Network.svelte'
+	import WatchButton from '$/components/WatchButton.svelte'
 
 
 	// Context
@@ -187,7 +190,7 @@
 
 <main data-column="gap-2">
 	<header data-row="wrap gap-4 align-center">
-		<h1 data-text="vertical">
+		<h1 data-orient="vertical">
 			<EvmTransactionId
 				chainId={data.chainId}
 				txHash={data.transactionId}
@@ -195,6 +198,12 @@
 			/>
 		</h1>
 		<span data-text="annotation">Transaction</span>
+		<WatchButton
+			entityType={EntityType.Transaction}
+			id={`${data.nameParam}:${data.transactionId}`}
+			label={`Tx ${data.transactionId.slice(0, 10)}… · ${data.config.name}`}
+			href={resolve(`/network/${data.nameParam}/transaction/${data.transactionId}`)}
+		/>
 	</header>
 	<p>
 		<a href={showContextUrl} data-link>Show Context</a>

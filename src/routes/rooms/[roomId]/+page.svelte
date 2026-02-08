@@ -2,6 +2,7 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 
 
@@ -10,6 +11,7 @@
 	import { resolve } from '$app/paths'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
+	import WatchButton from '$/components/WatchButton.svelte'
 	import { roomPeersCollection } from '$/collections/room-peers.ts'
 	import {
 		roomState,
@@ -144,6 +146,12 @@
 				</span>
 			</div>
 			<span data-text="annotation">Room</span>
+			<WatchButton
+				entityType={EntityType.Room}
+				id={roomId}
+				label={roomDisplayName}
+				href={resolve(`/rooms/${roomId}`)}
+			/>
 		</div>
 		<nav data-row="gap-2 align-center wrap">
 			<a

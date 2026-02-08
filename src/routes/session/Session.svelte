@@ -4,12 +4,14 @@
 	import type { TransactionSession } from '$/data/TransactionSession.ts'
 	import { createSessionAction } from '$/data/TransactionSession.ts'
 	import { ActionType } from '$/constants/intents.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { NetworkType, networks } from '$/constants/networks.ts'
 
 
 	// Context
 	import { setContext } from 'svelte'
+	import { resolve } from '$app/paths'
 	import { bridgeSettingsState } from '$/state/bridge-settings.svelte.ts'
 	import {
 		SESSION_CONTEXT_KEY,
@@ -27,6 +29,7 @@
 
 	// Functions
 	import { fetchAllBalancesForAddress } from '$/collections/actor-coins.ts'
+	import { buildSessionHash } from '$/lib/session/sessions.ts'
 
 
 	// State
@@ -119,6 +122,7 @@
 
 	// Components
 	import { Switch } from 'bits-ui'
+	import WatchButton from '$/components/WatchButton.svelte'
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
 	import ActionsSequence from './ActionsSequence.svelte'
@@ -140,6 +144,12 @@
 				</h1>
 			</div>
 			<span data-text="annotation">Session</span>
+			<WatchButton
+				entityType={EntityType.TransactionSession}
+				id={session.id}
+				label={session.name || 'Session'}
+				href={`${resolve('/session')}${buildSessionHash(session.id)}`}
+			/>
 			<label data-row="gap-2 align-center">
 				<Switch.Root
 					checked={bridgeSettingsState.current.isTestnet}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins.ts'
@@ -17,6 +18,10 @@
 	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
+
+
+	// Context
+	import { resolve } from '$app/paths'
 
 
 	// Props
@@ -226,6 +231,7 @@
 	// Components
 	import Address from '$/components/Address.svelte'
 	import EvmActor from '$/components/EvmActor.svelte'
+	import WatchButton from '$/components/WatchButton.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
 </script>
 
@@ -244,7 +250,7 @@
 	{:else}
 		<header data-column="gap-2">
 			<div data-row="wrap gap-4 align-center">
-				<h1 data-text="vertical">
+				<h1 data-orient="vertical">
 					<EvmActor
 						network={parsed.chainId ?? 1}
 						address={parsed.address}
@@ -252,6 +258,12 @@
 					/>
 				</h1>
 				<span data-text="annotation">Account</span>
+				<WatchButton
+					entityType={EntityType.Actor}
+					id={parsed.interopAddress ?? parsed.address}
+					label={formatAddress(parsed.address)}
+					href={resolve(`/account/${data.addressParam}`)}
+				/>
 			</div>
 			<nav data-row="wrap gap-2">
 				{#if parsed.interopAddress}
