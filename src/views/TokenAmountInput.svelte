@@ -43,12 +43,6 @@
 	} from '$/lib/format.ts'
 
 
-	// (Derived)
-	const sliderMin = $derived(Number(min))
-	const sliderMax = $derived(Number(max))
-	const sliderValue = $derived(Number(value))
-
-
 	// Actions
 	const setAmountFromInput = (raw: string) => {
 		const cleaned = raw.replace(/[^0-9.,]/g, '').replace(/,/g, '')
@@ -87,23 +81,6 @@
 		bind:value={() =>
 			value === 0n ? '' : formatSmallestToDecimal(value, coin.decimals), setAmountFromInput}
 	/>
-	<input
-		class="token-amount-slider"
-		type="range"
-		min={sliderMin}
-		max={sliderMax}
-		step="1"
-		bind:value={() => String(sliderValue), (v) => {
-			invalid = false
-			value = BigInt(v)
-		}}
-		{disabled}
-		style={`--slider-progress:${
-			sliderMax > sliderMin
-				? ((sliderValue - sliderMin) / (sliderMax - sliderMin)) * 100
-				: 0
-		}%`}
-	/>
 </div>
 
 
@@ -114,58 +91,6 @@
 
 		> .token-amount-input {
 			padding-bottom: 1.1em;
-		}
-
-		> .token-amount-slider {
-			appearance: none;
-			background: transparent;
-			padding: 0;
-			margin-top: -1.15em;
-			height: 1.25em;
-
-			&::-webkit-slider-runnable-track {
-				height: 0.3em;
-				border-radius: 999px;
-				background: linear-gradient(
-					to right,
-					var(--color-accent) 0%,
-					var(--color-accent) var(--slider-progress),
-					var(--color-border) var(--slider-progress),
-					var(--color-border) 100%
-				);
-			}
-
-			&::-webkit-slider-thumb {
-				appearance: none;
-				width: 0.9em;
-				height: 0.9em;
-				margin-top: -0.3em;
-				border-radius: 999px;
-				background-color: var(--color-bg);
-				border: 1px solid var(--color-border);
-				box-shadow: var(--shadow-sm);
-			}
-
-			&::-moz-range-track {
-				height: 0.3em;
-				border-radius: 999px;
-				background: linear-gradient(
-					to right,
-					var(--color-accent) 0%,
-					var(--color-accent) var(--slider-progress),
-					var(--color-border) var(--slider-progress),
-					var(--color-border) 100%
-				);
-			}
-
-			&::-moz-range-thumb {
-				width: 0.9em;
-				height: 0.9em;
-				border-radius: 999px;
-				background-color: var(--color-bg);
-				border: 1px solid var(--color-border);
-				box-shadow: var(--shadow-sm);
-			}
 		}
 	}
 </style>
