@@ -78,9 +78,13 @@
 			shadowBlur: isOptional ? 0 : 8,
 			shadowColor: 'rgba(15, 23, 42, 0.25)',
 			zIndex: node.zIndex ?? (isPrimary ? 5 : 3),
-			iconSrc: node.icon,
-			iconRadius: node.icon ? node.size * 0.35 : undefined,
-			iconOpacity: node.icon ? 1 : undefined,
+			...(node.shape !== 'image' && node.icon
+				? {
+						iconSrc: node.icon,
+						iconRadius: node.size * 0.35,
+						iconOpacity: 1,
+					}
+				: {}),
 			anchorPoints: [
 				[0, 0.5],
 				[1, 0.5],
