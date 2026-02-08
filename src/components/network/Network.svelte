@@ -7,7 +7,7 @@
 
 
 	// Components
-	import ItemsList from '$/components/ItemsList.svelte'
+	import ItemsListView from '$/components/ItemsListView.svelte'
 	import Block from '$/components/network/Block.svelte'
 
 
@@ -70,30 +70,29 @@
 			</dl>
 		{/if}
 
-		<section>
-			<h2>Blocks ({blocksSet.size})</h2>
-			<ItemsList
-				items={blocksSet}
-				getKey={(b) => b.$id.blockNumber}
-				getSortValue={(b) => -Number(b.number)}
-				placeholderKeys={defaultPlaceholderBlockIds}
-				bind:visiblePlaceholderKeys={visiblePlaceholderBlockIds}
-				scrollPosition="Start"
-			>
-				{#snippet Item({ key, item, isPlaceholder })}
-					<span id="block:{key}">
-						{#if isPlaceholder}
-							<code>Block #{key} (loading…)</code>
-						{:else}
-							{@const blockData = new Map<
-								BlockEntry | undefined,
-								Set<ChainTransactionEntry>
-							>([[item, innerMap.get(item) ?? new Set()]])}
-							<Block data={blockData} chainId={item.$id.chainId} />
-						{/if}
-					</span>
-				{/snippet}
-			</ItemsList>
-		</section>
+		<ItemsListView
+			title="Blocks"
+			loaded={blocksSet.size}
+			items={blocksSet}
+			getKey={(b) => b.$id.blockNumber}
+			getSortValue={(b) => -Number(b.number)}
+			placeholderKeys={defaultPlaceholderBlockIds}
+			bind:visiblePlaceholderKeys={visiblePlaceholderBlockIds}
+			scrollPosition="Start"
+		>
+			{#snippet Item({ key, item, isPlaceholder })}
+				<span id="block:{key}">
+					{#if isPlaceholder}
+						<code>Block #{key} (loading…)</code>
+					{:else}
+						{@const blockData = new Map<
+							BlockEntry | undefined,
+							Set<ChainTransactionEntry>
+						>([[item, innerMap.get(item) ?? new Set()]])}
+						<Block data={blockData} chainId={item.$id.chainId} />
+					{/if}
+				</span>
+			{/snippet}
+		</ItemsListView>
 	</div>
 </details>

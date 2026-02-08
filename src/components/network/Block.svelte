@@ -17,7 +17,7 @@
 	import Address from '$/components/Address.svelte'
 	import Timestamp from '$/components/Timestamp.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
-	import ItemsList from '$/components/ItemsList.svelte'
+	import ItemsListView from '$/components/ItemsListView.svelte'
 	import Transaction from '$/components/network/Transaction.svelte'
 
 
@@ -135,30 +135,30 @@
 			</a>
 		{/if}
 
-		<section>
-			<h3>Transactions ({transactionsSet.size})</h3>
-			<ItemsList
-				items={transactionsSet}
-				getKey={(tx) => tx.transactionIndex ?? 0}
-				getSortValue={(tx) => tx.transactionIndex ?? 0}
-				{placeholderKeys}
-				bind:visiblePlaceholderKeys={visiblePlaceholderTransactionIds}
-				scrollPosition="End"
-			>
-				{#snippet Item({ key, item, isPlaceholder })}
-					<span id="transaction:{key}">
-						{#if isPlaceholder}
-							<code>Transaction #{key} (loading…)</code>
-						{:else}
-							<Transaction
-								data={new Map([[item, { events: item.logs }]])}
-								{chainId}
-								visiblePlaceholderEventIds={[]}
-							/>
-						{/if}
-					</span>
-				{/snippet}
-			</ItemsList>
-		</section>
+		<ItemsListView
+			title="Transactions"
+			loaded={transactionsSet.size}
+			total={block ? (block.transactionCount ?? count) : undefined}
+			items={transactionsSet}
+			getKey={(tx) => tx.transactionIndex ?? 0}
+			getSortValue={(tx) => tx.transactionIndex ?? 0}
+			{placeholderKeys}
+			bind:visiblePlaceholderKeys={visiblePlaceholderTransactionIds}
+			scrollPosition="End"
+		>
+			{#snippet Item({ key, item, isPlaceholder })}
+				<span id="transaction:{key}">
+					{#if isPlaceholder}
+						<code>Transaction #{key} (loading…)</code>
+					{:else}
+						<Transaction
+							data={new Map([[item, { events: item.logs }]])}
+							{chainId}
+							visiblePlaceholderEventIds={[]}
+						/>
+					{/if}
+				</span>
+			{/snippet}
+		</ItemsListView>
 	</div>
 </details>

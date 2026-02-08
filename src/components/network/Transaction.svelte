@@ -16,7 +16,7 @@
 	// Components
 	import Address from '$/components/Address.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
-	import ItemsList from '$/components/ItemsList.svelte'
+	import ItemsListView from '$/components/ItemsListView.svelte'
 	import Trace from '$/components/network/Trace.svelte'
 	import EventView from '$/components/network/Event.svelte'
 	import FlowArrow from '$/components/FlowArrow.svelte'
@@ -244,27 +244,27 @@
 			</section>
 		{/if}
 
-		<section>
-			<h3>Events ({eventsSet.size})</h3>
-			<ItemsList
-				items={eventsSet}
-				getKey={(e) => parseInt(e.logIndex, 16)}
-				getSortValue={(e) => parseInt(e.logIndex, 16)}
-				{placeholderKeys}
-				bind:visiblePlaceholderKeys={visiblePlaceholderEventIds}
-				scrollPosition="End"
-			>
-				{#snippet Item({ key, item, isPlaceholder })}
-					<span id="event:{key}">
-						{#if isPlaceholder}
-							<code>Event #{key} (loading…)</code>
-						{:else}
-							<EventView event={item} {chainId} />
-						{/if}
-					</span>
-				{/snippet}
-			</ItemsList>
-		</section>
+		<ItemsListView
+			title="Events"
+			loaded={eventsSet.size}
+			total={events.length || undefined}
+			items={eventsSet}
+			getKey={(e) => parseInt(e.logIndex, 16)}
+			getSortValue={(e) => parseInt(e.logIndex, 16)}
+			{placeholderKeys}
+			bind:visiblePlaceholderKeys={visiblePlaceholderEventIds}
+			scrollPosition="End"
+		>
+			{#snippet Item({ key, item, isPlaceholder })}
+				<span id="event:{key}">
+					{#if isPlaceholder}
+						<code>Event #{key} (loading…)</code>
+					{:else}
+						<EventView event={item} {chainId} />
+					{/if}
+				</span>
+			{/snippet}
+		</ItemsListView>
 	</div>
 </details>
 

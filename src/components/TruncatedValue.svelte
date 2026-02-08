@@ -79,9 +79,33 @@
 			--isTruncated: 0;
 		}
 
-		&:not(:is(:active, :focus-within)) {
+		&:not(
+			:active,
+			:focus-within
+		) {
 			--isTruncated: 1;
 			cursor: zoom-in;
+		}
+
+		:global(
+			:is(
+				[data-pressable],
+				[role='button'],
+				[draggable],
+				:where(
+					summary,
+					a,
+					select,
+					option,
+					button,
+					input,
+					label:has(> input:is([type='checkbox'], [type='radio']), button),
+					::scroll-marker
+				)
+			)
+		) & {
+			--isTruncated: 1;
+			cursor: default;
 		}
 
 		* {

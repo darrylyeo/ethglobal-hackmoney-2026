@@ -139,14 +139,6 @@
 		if (inputValue !== nextValue) inputValue = nextValue
 	})
 
-	let prevMultipleLength = 0
-	$effect(() => {
-		if (type !== 'multiple') return
-		const arr = Array.isArray(value) ? value : []
-		if (arr.length > prevMultipleLength) inputValue = ''
-		prevMultipleLength = arr.length
-	})
-
 	const selectedChips = $derived(
 		(Array.isArray(value) ? value : []).map((id) => {
 			const n = normalizedItems.find((item) => item.id === id)
@@ -165,10 +157,14 @@
 		inputValue = target.value
 	}
 	const setValue = (nextValue: string | string[]) => {
+		const prevArr = Array.isArray(value) ? value : []
+		const nextArr = Array.isArray(nextValue) ? nextValue : []
 		value = nextValue
 		if (typeof nextValue === 'string') {
 			const nextItem = normalizedItems.find((item) => item.id === nextValue)
 			if (nextItem) inputValue = nextItem.label
+		} else if (nextArr.length > prevArr.length) {
+			queueMicrotask(() => (inputValue = ''))
 		}
 	}
 
@@ -218,7 +214,6 @@
 					data-combobox-multi-input
 					aria-label={ariaLabel}
 					{placeholder}
-					oninput={onInput}
 					onfocus={() => {
 						isFocused = true
 						open = true
@@ -226,7 +221,18 @@
 					onblur={() => {
 						isFocused = false
 					}}
-				/>
+				>
+					{#snippet child({ props })}
+						{@const libOnInput = typeof props.oninput === 'function' ? props.oninput : undefined}
+						<input
+							{...props}
+							oninput={(e) => {
+								onInput(e)
+								libOnInput?.(e)
+							}}
+						/>
+					{/snippet}
+				</Combobox.Input>
 				{#if After}
 					<Combobox.Trigger aria-label={ariaLabel ?? 'Open'}>
 						{@render After()}
