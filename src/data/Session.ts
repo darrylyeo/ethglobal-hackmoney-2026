@@ -48,6 +48,7 @@ export enum SessionTemplateId {
 	Bridge = 'Bridge',
 	Transfer = 'Transfer',
 	AddLiquidity = 'AddLiquidity',
+	CreateChannel = 'CreateChannel',
 }
 
 export type SessionTemplate = { id?: SessionTemplateId } & Pick<Session, 'name' | 'actions'>
@@ -79,6 +80,13 @@ export const sessionTemplates = [
 		name: 'Add Liquidity',
 		actions: [
 			createAction(ActionType.AddLiquidity),
+		],
+	},
+	{
+		id: SessionTemplateId.CreateChannel,
+		name: 'Create Channel',
+		actions: [
+			createAction(ActionType.CreateChannel),
 		],
 	},
 ] as const satisfies readonly SessionTemplate[]

@@ -151,7 +151,10 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 					? toInteropName(connection.chainId, actor, interopFormatConfig)
 					: actor,
 			)}`,
-			tag: toWalletConnectionStatus(connection.status),
+			tag:
+				connection.transport === WalletConnectionTransport.None
+					? 'Watching'
+					: toWalletConnectionStatus(connection.status),
 			tagIcon: wallet.icon,
 		}))
 	})
@@ -252,6 +255,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 					ActionType.Bridge,
 					ActionType.Transfer,
 					ActionType.AddLiquidity,
+					ActionType.CreateChannel,
 				] as const
 			).map((actionType) => {
 				const spec = actionTypeDefinitionByActionType[actionType]
