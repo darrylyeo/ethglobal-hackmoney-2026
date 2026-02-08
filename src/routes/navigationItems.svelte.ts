@@ -1,5 +1,5 @@
 import { ActionType, actionTypeDefinitionByActionType } from '$/constants/actions.ts'
-import { networkConfigs, toNetworkSlug } from '$/constants/networks.ts'
+import { ChainId, networkConfigs, toNetworkSlug } from '$/constants/networks.ts'
 import { interopFormatConfig, toInteropName } from '$/constants/interop.ts'
 import type { Action } from '$/data/Session.ts'
 import { SessionStatus } from '$/data/Session.ts'
@@ -145,7 +145,13 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 		return connection.actors.map((actor) => ({
 			id: `account-${wallet.rdns}-${actor}`,
 			title: formatAddress(actor),
-			address: { network: connection.chainId ?? undefined, address: actor },
+			address: {
+				network:
+					connection.transport === WalletConnectionTransport.None
+						? undefined
+						: connection.chainId ?? undefined,
+				address: actor,
+			},
 			href: `/account/${encodeURIComponent(
 				connection.chainId != null
 					? toInteropName(connection.chainId, actor, interopFormatConfig)
@@ -183,12 +189,25 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			href: `/rooms/${room.id}`,
 			icon: roomIdToPlaceEmoji(room.id),
 		}))
-	const allNetworkNavItems = relevantNetworkConfigs.map((config) => ({
+	const defaultNetworkChainIds: ChainId[] = [
+		ChainId.Ethereum,
+		ChainId.EthereumSepolia,
+	]
+	const defaultNetworkConfigs = defaultNetworkChainIds
+		.map((chainId) => networkConfigs.find((c) => c.chainId === chainId))
+		.filter((c): c is NonNullable<typeof c> => c != null)
+	const toNetworkNavItem = (config: (typeof relevantNetworkConfigs)[number]) => ({
 		id: `network-${config.chainId}`,
 		title: config.name,
 		href: `/network/${toNetworkSlug(config.name)}`,
 		icon: config.icon ?? '🌐',
-	}))
+	})
+	const allNetworkNavItems = [
+		...defaultNetworkConfigs.map(toNetworkNavItem),
+		...relevantNetworkConfigs
+			.filter((c) => !defaultNetworkChainIds.includes(c.chainId))
+			.map(toNetworkNavItem),
+	]
 	const allAgentTreeNavItems = agentChatTreesData
 		.map((r) => r.row)
 		.sort((a, b) => b.updatedAt - a.updatedAt)
@@ -267,7 +286,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			title: 'Sessions',
 			href: '/sessions',
 			icon: '📋',
-			defaultOpen: false,
+			defaultOpen: true,
 			children: withManualWatch(filterWatched(allSessionNavItems)),
 			allChildren: withManualWatch(allSessionNavItems),
 		},
@@ -298,6 +317,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 					id: 'coins',
 					title: 'Coins',
 					icon: '🪙',
+					defaultOpen: true,
 					children: [
 						{ id: 'usdc', title: 'USDC', href: '/coin/USDC', icon: coinIcons.usdc },
 						{ id: 'eth', title: 'ETH', href: '/coin/ETH', icon: coinIcons.eth },
@@ -307,7 +327,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 					id: 'networks',
 					title: 'Networks',
 					icon: '⛓️',
-					defaultOpen: false,
+					defaultOpen: true,
 					children: withManualWatch(filterWatched(allNetworkNavItems)),
 					allChildren: withManualWatch(allNetworkNavItems),
 				},
