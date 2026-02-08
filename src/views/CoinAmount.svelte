@@ -1,6 +1,4 @@
 <script lang="ts" generics="_CoinType extends CoinType = CoinType">
-
-
 	// Types/constants
 	import { type Coin, CoinType } from '$/constants/coins.ts'
 	import type { StorkPriceRow } from '$/collections/stork-prices.ts'
@@ -58,43 +56,40 @@
 					</span>
 				{/if}
 
-				<span class="coin" data-row="wrap gap-2">
-					{#if coin.icon?.original?.url}
-						{@const networkIconSrc = networkConfigsByChainId[coin.chainId]?.icon}
-						{@const networkName =
-							networkConfigsByChainId[coin.chainId]?.name ??
-							`Chain ${coin.chainId}`}
-						<span class="coin-icon" data-row="center">
-							<Icon
-								src={coin.icon.original.url}
-								alt={coin.symbol ?? ''}
-								size={16}
-							/>
-							{#if networkIconSrc}
-								<span class="network-icon">
-									<Icon
-										src={networkIconSrc}
-										alt={networkName}
-										title={networkName}
-										size={10}
-									/>
-								</span>
-							{/if}
-						</span>
-					{/if}
+				{#if showLabel && (coin.name || coin.symbol)}
+					<abbr
+						class="coin"
+						title={coin.type === CoinType.Native
+							? 'Native Currency'
+							: coin.address}
+					>
+						{symbolOnly || !(coin.name && coin.symbol)
+							? coin.symbol
+							: `${coin.symbol} (${coin.name})`}
+					</abbr>
+				{/if}
 
-					{#if showLabel && (coin.name || coin.symbol)}
-						<abbr
-							title={coin.type === CoinType.Native
-								? 'Native Currency'
-								: coin.address}
-						>
-							{symbolOnly || !(coin.name && coin.symbol)
-								? coin.symbol
-								: `${coin.symbol} (${coin.name})`}
-						</abbr>
-					{/if}
-				</span>
+				{#if coin.icon?.original?.url}
+					{@const networkIconSrc = networkConfigsByChainId[coin.chainId]?.icon}
+					{@const networkName =
+						networkConfigsByChainId[coin.chainId]?.name ??
+						`Chain ${coin.chainId}`}
+					<span class="coin-icons" data-row="center gap-1">
+						<Icon
+							src={coin.icon.original.url}
+							alt={coin.symbol ?? ''}
+							size={16}
+						/>
+						{#if networkIconSrc}
+							<Icon
+								src={networkIconSrc}
+								alt={networkName}
+								title={networkName}
+								size={10}
+							/>
+						{/if}
+					</span>
+				{/if}
 			</span>
 		</Tooltip>
 	{:else}
@@ -107,43 +102,40 @@
 				</span>
 			{/if}
 
-			<span class="coin" data-row="wrap gap-2">
-				{#if coin.icon?.original?.url}
-					{@const networkIconSrc = networkConfigsByChainId[coin.chainId]?.icon}
-					{@const networkName =
-						networkConfigsByChainId[coin.chainId]?.name ??
-						`Chain ${coin.chainId}`}
-					<span class="coin-icon" data-row="center">
-						<Icon
-							src={coin.icon.original.url}
-							alt={coin.symbol ?? ''}
-							size={16}
-						/>
-						{#if networkIconSrc}
-							<span class="network-icon">
-								<Icon
-									src={networkIconSrc}
-									alt={networkName}
-									title={networkName}
-									size={10}
-								/>
-							</span>
-						{/if}
-					</span>
-				{/if}
+			{#if showLabel && (coin.name || coin.symbol)}
+				<abbr
+					class="coin"
+					title={coin.type === CoinType.Native
+						? 'Native Currency'
+						: coin.address}
+				>
+					{symbolOnly || !(coin.name && coin.symbol)
+						? coin.symbol
+						: `${coin.symbol} (${coin.name})`}
+				</abbr>
+			{/if}
 
-				{#if showLabel && (coin.name || coin.symbol)}
-					<abbr
-						title={coin.type === CoinType.Native
-							? 'Native Currency'
-							: coin.address}
-					>
-						{symbolOnly || !(coin.name && coin.symbol)
-							? coin.symbol
-							: `${coin.symbol} (${coin.name})`}
-					</abbr>
-				{/if}
-			</span>
+			{#if coin.icon?.original?.url}
+				{@const networkIconSrc = networkConfigsByChainId[coin.chainId]?.icon}
+				{@const networkName =
+					networkConfigsByChainId[coin.chainId]?.name ??
+					`Chain ${coin.chainId}`}
+				<span class="coin-icons" data-row="center gap-1">
+					<Icon
+						src={coin.icon.original.url}
+						alt={coin.symbol ?? ''}
+						size={16}
+					/>
+					{#if networkIconSrc}
+						<Icon
+							src={networkIconSrc}
+							alt={networkName}
+							title={networkName}
+							size={10}
+						/>
+					{/if}
+				</span>
+			{/if}
 		</span>
 	{/if}
 </div>
@@ -159,23 +151,26 @@
 		}
 	}
 
+	.coin-amount {
+		position: relative;
+		padding-inline-end: 1.75em;
+		padding-block-end: 0.25em;
+	}
+
 	.coin {
 		color: var(--text-secondary);
 		font-size: smaller;
 	}
 
-	.coin-icon {
-		position: relative;
-	}
-
-	.network-icon {
+	.coin-icons {
 		position: absolute;
-		right: -3px;
-		bottom: -3px;
+		right: 0;
+		bottom: 0;
 		border-radius: 999px;
 		background: var(--surface-1);
 		box-shadow: 0 0 0 1px var(--color-border);
 		display: inline-flex;
+		padding: 1px;
 	}
 
 	abbr {

@@ -1,13 +1,14 @@
 <script lang="ts">
-
-
 	// Types/constants
+	import { BalanceDisplayType } from '$/views/balance-display-type.ts'
 	import { CoinType, ercTokens } from '$/constants/coins.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { MediaType } from '$/constants/media.ts'
-	import { networksByChainId } from '$/constants/networks.ts'
-	import { EntityType } from '$/data/$EntityType.ts'
-
+	import {
+		networkConfigsByChainId,
+		networksByChainId,
+	} from '$/constants/networks.ts'
 	type DisplayToken = (typeof displayTokens)[number]
 
 
@@ -20,16 +21,27 @@
 	let {
 		selectedActor,
 		balanceTokens = [],
+		filterChainIds = $bindable([] as string[]),
+		filterSymbols = $bindable([] as string[]),
+		filterAddresses = $bindable([] as `0x${string}`[]),
+		availableAccounts = [],
+		displayType = BalanceDisplayType.Card,
 	}: {
 		selectedActor: `0x${string}` | null
 		balanceTokens?: {
 			chainId: number
 			tokenAddress: `0x${string}`
 		}[]
+		filterChainIds?: string[]
+		filterSymbols?: string[]
+		filterAddresses?: `0x${string}`[]
+		availableAccounts?: `0x${string}`[]
+		displayType?: BalanceDisplayType
 	} = $props()
 
 
 	// Functions
+	import { intentDraggable } from '$/lib/intents/intentDraggable.svelte.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { getStorkAssetIdForSymbol } from '$/lib/stork.ts'
 
@@ -113,31 +125,65 @@
 			decimals: token.decimals,
 		})),
 	)
+	const actors = $derived(
+		filterAddresses.length > 0
+			? filterAddresses
+			: selectedActor
+				? [selectedActor]
+				: [],
+	)
+	const filterChainIdsNum = $derived(
+		filterChainIds.map((id) => Number(id)).filter((n) => !Number.isNaN(n)),
+	)
 	const balancesQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: actorCoinsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Voltaire))
-				.where(({ row }) =>
-					eq(
-						row.$id.address,
-						selectedActor ?? '0x0000000000000000000000000000000000000000',
-					),
-				)
-				.where(({ row }) =>
-					displayTokens.length > 0
-						? displayTokens
-								.map((token) =>
-									and(
-										eq(row.$id.chainId, token.chainId),
-										eq(row.$id.tokenAddress, token.address),
-									),
+				.where(({ row }) => {
+					const addrCondition =
+						actors.length === 0
+							? and(
+									eq(row.$id.address, '0x0000000000000000000000000000000000000000'),
+									eq(row.$id.address, '0x0000000000000000000000000000000000000001'),
 								)
-								.reduce((acc, filter) => or(acc, filter))
-						: and(eq(row.$id.chainId, -1), eq(row.$id.chainId, 0)),
-				)
+							: actors.length === 1
+								? eq(row.$id.address, actors[0])
+								: actors
+										.map((a) => eq(row.$id.address, a))
+										.reduce((acc, cond) => or(acc, cond))
+					const tokenCondition =
+						displayTokens.length > 0
+							? displayTokens
+									.map((token) =>
+										and(
+											eq(row.$id.chainId, token.chainId),
+											eq(row.$id.tokenAddress, token.address),
+										),
+									)
+									.reduce((acc, filter) => or(acc, filter))
+							: and(eq(row.$id.chainId, -1), eq(row.$id.chainId, 0))
+					const chainCondition =
+						filterChainIdsNum.length > 0
+							? filterChainIdsNum
+									.map((c) => eq(row.$id.chainId, c))
+									.reduce((acc, cond) => or(acc, cond))
+							: null
+					const symbolCondition =
+						filterSymbols.length > 0
+							? filterSymbols
+									.map((s) => eq(row.symbol, s))
+									.reduce((acc, cond) => or(acc, cond))
+							: null
+					return and(
+						eq(row.$source, DataSource.Voltaire),
+						addrCondition,
+						tokenCondition,
+						...(chainCondition ? [chainCondition] : []),
+						...(symbolCondition ? [symbolCondition] : []),
+					)
+				})
 				.select(({ row }) => ({ row })),
-		[() => selectedActor, () => displayTokens],
+		[() => actors, () => displayTokens, () => filterChainIdsNum, () => filterSymbols],
 	)
 	const pricesQuery = useLiveQuery((q) =>
 		q
@@ -194,6 +240,49 @@
 				}, 0n)
 			: null,
 	)
+	const networkFilterOptions = $derived(
+		[...new Set(balanceTokenListCoins.map((t) => t.chainId))].map((chainId) => ({
+			chainId,
+			name: networkConfigsByChainId[chainId]?.name ?? `Chain ${chainId}`,
+		})),
+	)
+	const symbolFilterOptions = $derived(
+		[...new Set(balanceTokenListCoins.map((t) => t.symbol))].sort(),
+	)
+	const singleNetwork = $derived(
+		filterChainIdsNum.length === 1 ? filterChainIdsNum[0] : null,
+	)
+	const singleSymbol = $derived(
+		filterSymbols.length === 1 ? filterSymbols[0] : null,
+	)
+	const singleAddress = $derived(
+		filterAddresses.length === 1 ? filterAddresses[0] : null,
+	)
+	const hasAnyFilter = $derived(
+		filterChainIdsNum.length > 0 ||
+			filterSymbols.length > 0 ||
+			filterAddresses.length > 0,
+	)
+	const useDynamicTitle = $derived(
+		hasAnyFilter &&
+			filterChainIdsNum.length <= 1 &&
+			filterSymbols.length <= 1 &&
+			filterAddresses.length <= 1,
+	)
+	const balancesTitlePrefix = $derived(
+		useDynamicTitle
+			? (() => {
+					const symbolPart =
+						singleSymbol !== null ? `${singleSymbol} Balances` : 'Balances'
+					const networkPart =
+						singleNetwork !== null
+							? ` on ${networkConfigsByChainId[singleNetwork]?.name ?? `Chain ${singleNetwork}`}`
+							: ''
+					const accountPart = singleAddress !== null ? ' for ' : ''
+					return symbolPart + networkPart + accountPart
+				})()
+			: 'Balances',
+	)
 
 
 	// Actions
@@ -214,22 +303,70 @@
 
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
-	import EntityId from '$/components/EntityId.svelte'
+	import Combobox from '$/components/Combobox.svelte'
+	import Icon from '$/components/Icon.svelte'
 	import Skeleton from '$/components/Skeleton.svelte'
+	import TruncatedValue, {
+		TruncatedValueFormat,
+	} from '$/components/TruncatedValue.svelte'
 	import CoinAmount from '$/views/CoinAmount.svelte'
 </script>
 
 
-	{#if selectedActor}
-		<section class="balances" data-card>
-			<h3>Your balances</h3>
-			{#if balances.length > 0}
-				{#if netWorthUsd !== null}
-					<p class="net-worth">
-						Net worth: ${formatSmallestToDecimal(netWorthUsd, 18, 2)}
-					</p>
-				{/if}
-			{/if}
+	{#if actors.length > 0}
+		<details class="balances" data-card>
+			<summary class="balances-summary">
+				<div data-row="gap-2 align-center">
+					<h3 data-row-item="flexible" class="balances-heading">
+						{balancesTitlePrefix}{#if singleAddress}<TruncatedValue
+							value={singleAddress}
+							startLength={6}
+							endLength={4}
+							format={TruncatedValueFormat.Abbr}
+						/>{/if}
+					</h3>
+					{#if balances.length > 0 && prices.length > 0 && netWorthUsd !== null}
+						<span class="net-worth">
+							Total value ≈ ${formatSmallestToDecimal(netWorthUsd, 18, 2)}
+						</span>
+					{/if}
+				</div>
+				<div
+					class="balances-filters"
+					data-row="gap-2 wrap align-center"
+					onclick={(e) => e.stopPropagation()}
+					onkeydown={(e) => e.stopPropagation()}
+				>
+					<Combobox
+						type="multiple"
+						items={networkFilterOptions}
+						bind:value={filterChainIds}
+						placeholder="Network"
+						ariaLabel="Filter by network"
+						getItemId={(n) => String(n.chainId)}
+						getItemLabel={(n) => n.name}
+					/>
+					<Combobox
+						type="multiple"
+						items={symbolFilterOptions}
+						bind:value={filterSymbols}
+						placeholder="Coin"
+						ariaLabel="Filter by coin"
+					/>
+					{#if availableAccounts.length > 0}
+						<Combobox
+							type="multiple"
+							items={availableAccounts}
+							bind:value={filterAddresses}
+							placeholder="Account"
+							ariaLabel="Filter by account"
+							getItemId={(addr) => addr}
+							getItemLabel={(addr) =>
+								`${addr.slice(0, 6)}…${addr.slice(-4)}`}
+						/>
+					{/if}
+				</div>
+			</summary>
 			<Boundary>
 				{#if balancesQuery.isLoading && balances.length === 0}
 					<div data-balances data-grid="columns-autofit column-min-8 gap-3" data-balances-skeleton>
@@ -252,7 +389,12 @@
 											: undefined,
 									}
 								: null}
-							<div class="balance-item balance-item-skeleton" data-column>
+							<div
+								class="balance-item balance-item-skeleton"
+								data-card
+								data-column
+								data-display-type={displayType}
+							>
 								<Skeleton width="4em" height="0.75em" rounded="0.2em" />
 								<div data-row="start gap-2">
 									{#if coin}
@@ -312,32 +454,43 @@
 									}}
 							{@const network = networksByChainId[b.$id.chainId]}
 							{#if network}
-								<div class="balance-item" data-balance-item data-column>
-									<dt>{network.name}</dt>
+								<div
+									class="balance-item"
+									data-balance-item
+									data-card
+									data-column
+									data-display-type={displayType}
+									data-text="font-monospace"
+									role="term"
+									{@attach intentDraggable({
+										type: EntityType.ActorCoin,
+										id: b.$id,
+										text: `${b.symbol} ${b.$id.address}`,
+										source: 'balances',
+									})}
+								>
+									<dt data-row="start gap-1 align-center">
+										{network.name}
+										{#if actors.length > 1}
+											<span data-muted class="balance-address">
+												{b.$id.address.slice(0, 6)}…{b.$id.address.slice(-4)}
+											</span>
+										{/if}
+									</dt>
 									{#if b.isLoading}
 										<span class="balance-loading" data-row="start gap-2" aria-busy="true">
 											<Skeleton width="6em" height="1.25em" rounded="0.25em" />
 										</span>
 									{:else if b.error}
-										<span class="balance-error" data-balance-error
-											>{b.error}</span
-										>
+										<span class="balance-error" data-balance-error>{b.error}</span>
 									{:else}
-										<EntityId
-											className="balance-intent"
-											draggableText={`${b.symbol} ${b.$id.address}`}
-											entityType={EntityType.ActorCoin}
-											entityId={b.$id}
-											source="balances"
-										>
-											<CoinAmount
-												{coin}
-												amount={b.balance}
-												draggable={false}
-												symbolOnly
-												{priceRow}
-											/>
-										</EntityId>
+										<CoinAmount
+											{coin}
+											amount={b.balance}
+											draggable={false}
+											symbolOnly
+											{priceRow}
+										/>
 										{#if balanceUsdValue !== null}
 											<small data-muted>
 												≈ ${formatSmallestToDecimal(balanceUsdValue, 18, 2)}
@@ -371,7 +524,12 @@
 											: undefined,
 									}
 								: null}
-							<div class="balance-item balance-item-skeleton" data-column>
+							<div
+								class="balance-item balance-item-skeleton"
+								data-card
+								data-column
+								data-display-type={displayType}
+							>
 								<Skeleton width="4em" height="0.75em" rounded="0.2em" />
 								<div data-row="start gap-2">
 									{#if coin}
@@ -391,25 +549,13 @@
 					</div>
 				{/snippet}
 			</Boundary>
-		</section>
+		</details>
 	{/if}
 
 
 <style>
-	.balances h3 {
-		margin: 0 0 0.75em;
-		font-size: 1em;
-	}
-
-	.net-worth {
-		margin: 0 0 0.75em;
-		font-weight: 600;
-	}
-
-	.balance-item {
-		dt {
-			font-size: 0.75em;
-		}
+	.balance-address {
+		font-size: 0.9em;
 	}
 
 	.balance-loading {

@@ -1,6 +1,5 @@
 import { createHttpProvider } from '$/api/voltaire.ts'
 import { DataSource } from '$/constants/data-sources.ts'
-import { getProxyOrigin } from '$/constants/proxy.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import {
 	storkEncodedAssetIdByAssetId,
@@ -156,13 +155,9 @@ const parseRestPricePayloads = (value: unknown): StorkPricePayload[] => {
 	})
 }
 
-const getStorkRestBaseUrl = () => getProxyOrigin('stork') ?? storkRestBaseUrl
-
 const fetchRestPrices = async (assetIds: string[]) => {
-	const baseUrl = getStorkRestBaseUrl()
-	const useProxy = baseUrl !== storkRestBaseUrl
-	const token = useProxy ? undefined : env.PUBLIC_STORK_REST_TOKEN
-	if (!useProxy && !token) {
+	const token = env.PUBLIC_STORK_REST_TOKEN
+	if (!token) {
 		for (const assetId of assetIds) {
 			setStorkPriceError(
 				{ assetId, transport: 'rest' },
@@ -172,14 +167,10 @@ const fetchRestPrices = async (assetIds: string[]) => {
 		}
 		return
 	}
-	const url = new URL('v1/prices/latest', `${baseUrl}/`)
+	const url = new URL('v1/prices/latest', `${storkRestBaseUrl}/`)
 	url.searchParams.set('assets', assetIds.join(','))
 	const response = await fetch(url.toString(), {
-		headers: token
-			? {
-					Authorization: `Basic ${token}`,
-				}
-			: undefined,
+		headers: { Authorization: `Basic ${token}` },
 	})
 	if (!response.ok) throw new Error(`Stork REST error: ${response.status}`)
 	const data = await response.json()
@@ -200,6 +191,16 @@ const fetchRestPrices = async (assetIds: string[]) => {
 }
 
 const createRestSubscription = (assetIds: string[]) => {
+	if (!env.PUBLIC_STORK_REST_TOKEN) {
+		for (const assetId of assetIds) {
+			setStorkPriceError(
+				{ assetId, transport: 'rest' },
+				storkEncodedAssetIdByAssetId[assetId] ?? null,
+				'Missing PUBLIC_STORK_REST_TOKEN',
+			)
+		}
+		return () => {}
+	}
 	for (const assetId of assetIds) {
 		setStorkPriceLoading(
 			{ assetId, transport: 'rest' },
@@ -232,16 +233,14 @@ const staticDeployments = new Map(
 
 const fetchStorkDeployments = async () => {
 	if (storkDeployments) return storkDeployments
-	const baseUrl = getStorkRestBaseUrl()
-	const useProxy = baseUrl !== storkRestBaseUrl
-	const token = useProxy ? undefined : env.PUBLIC_STORK_REST_TOKEN
-	const url = new URL('v1/deployments/evm', `${baseUrl}/`)
+	const token = env.PUBLIC_STORK_REST_TOKEN
+	if (!token) {
+		storkDeployments = staticDeployments
+		return storkDeployments
+	}
+	const url = new URL('v1/deployments/evm', `${storkRestBaseUrl}/`)
 	const response = await fetch(url.toString(), {
-		headers: token
-			? {
-					Authorization: `Basic ${token}`,
-				}
-			: undefined,
+		headers: { Authorization: `Basic ${token}` },
 	})
 	if (response.ok) {
 		const data = await response.json()
