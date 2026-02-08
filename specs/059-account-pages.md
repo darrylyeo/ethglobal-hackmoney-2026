@@ -46,6 +46,7 @@ reusing existing components where possible.
   - Display the raw `0x` address for copy/reference.
 - **Balances section:** reuse `CoinBalances.svelte` with `selectedActor` set to the
   normalized `0x` address and `balanceTokens` derived from existing token lists.
+  Component supports optional filters (network, coin, account) and a dynamic title.
 - **Transactions section:** render a list of indexed transactions for the
   account. Reuse an existing transaction list component if present; otherwise
   create a minimal `AccountTransactions.svelte` view that reads from

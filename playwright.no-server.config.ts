@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test'
 
-/** Use when server is already running: `pnpm run build && pnpm run preview` */
+/** Use when server is already running: `deno task build && deno task preview` */
 export default defineConfig({
 	timeout: 60_000,
 	testDir: 'e2e',

@@ -2,17 +2,7 @@
   "nodeModulesDir": "auto",
   "imports": {
     "$/": "./src/",
-    "@floating-ui/dom": "npm:@floating-ui/dom@^1.7.5",
-    "@tanstack/query-core": "npm:@tanstack/query-core",
-    "@tanstack/db": "npm:@tanstack/db@^0.5.25",
     "@total-typescript/ts-reset": "npm:@total-typescript/ts-reset",
-    "@tevm/voltaire": "npm:@tevm/voltaire@^0.2.28",
-    "clsx": "npm:clsx@^2.1.1",
-    "cookie": "npm:cookie@^0.7.2",
-    "mitt": "npm:mitt@^3.0.1",
-    "set-cookie-parser": "npm:set-cookie-parser@^2.7.2",
-    "style-to-object": "npm:style-to-object@^1.0.14",
-    "tabbable": "npm:tabbable@^6.4.0",
     "bun:ffi": "./shims/bun-ffi.js"
   },
   "lint": {
@@ -39,6 +29,7 @@
     "assets": "deno task assets:sync && deno task assets:optimize",
     "test": "deno task test:unit && deno task test:e2e",
     "test:unit": "deno test -A --no-check src/collections/actors.spec.ts src/collections/actor-coins.spec.ts src/collections/room-peers.spec.ts src/collections/shared-addresses.spec.ts src/collections/siwe-challenges.spec.ts src/collections/verifications.spec.ts src/collections/uniswap-pools.spec.ts src/collections/uniswap-positions.spec.ts src/collections/swap-quotes.spec.ts src/lib/bridge/txStatus.spec.ts src/api/voltaire.spec.ts src/api/identity-resolve.spec.ts && deno run -A npm:vitest run",
-    "test:e2e": "deno run -A npm:@playwright/test test -c playwright.e2e.config.ts"
+    "test:e2e": "deno run -A npm:@playwright/test test -c playwright.e2e.config.ts",
+    "test:e2e:prompt": "deno run -A npm:@playwright/test test e2e/prompt-input.test.ts -c playwright.no-server.config.ts"
   }
 }

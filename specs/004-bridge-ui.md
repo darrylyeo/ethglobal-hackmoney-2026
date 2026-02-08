@@ -35,7 +35,7 @@ Wallet discovery and connection via EIP-6963.
 
 ### `src/views/CoinBalances.svelte`
 
-USDC balance display per chain.
+USDC balance display per chain. Optional multi-select filters (network, coin, account) via Combobox; dynamic title (e.g. "Your balances" or "Balances · Ethereum · USDC"); bindable `filterChainIds`, `filterSymbols`, `filterAddresses` with default `[]`; when `availableAccounts` is passed, account filter is shown.
 
 ### `src/routes/bridge/lifi/TokenApproval.svelte`
 
