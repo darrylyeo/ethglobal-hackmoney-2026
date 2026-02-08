@@ -139,9 +139,8 @@
 		left: 0;
 		width: var(--flow-size, 20px);
 		height: var(--flow-size, 20px);
-		margin-top: calc(var(--flow-size, 20px) / -2);
-		margin-left: calc(var(--flow-size, 20px) / -2);
 		offset-path: var(--flow-path);
+		offset-anchor: center;
 		offset-rotate: 0deg;
 		animation:
 			flow-along var(--flow-dur, 1.8s) linear infinite,
