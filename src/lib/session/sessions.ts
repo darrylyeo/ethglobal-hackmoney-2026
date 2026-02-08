@@ -1,18 +1,20 @@
+import { sessionActionsCollection } from '$/collections/SessionActions.ts'
 import { sessionSimulationsCollection } from '$/collections/SessionSimulations.ts'
 import { sessionsCollection } from '$/collections/Sessions.ts'
 import {
-	type SessionAction,
-	type TransactionSession,
-	type TransactionSessionAction,
-	TransactionSessionStatus,
-} from '$/data/TransactionSession.ts'
-import { sessionActionType, toSessionAction } from '$/data/TransactionSession.ts'
-import { type TransactionSessionSimulationStatus } from '$/data/TransactionSessionSimulation.ts'
-import { validActionTypes } from '$/lib/intents.ts'
+	type Action,
+	type Session,
+	SessionStatus,
+} from '$/data/Session.ts'
 import {
-	normalizeTransactionSessionParams,
-	type TransactionSessionDefaults,
-} from '$/lib/session/params.ts'
+	actionTypeDefinitionByActionType,
+	createAction,
+} from '$/constants/actions.ts'
+import { ActionType } from '$/constants/actions.ts'
+import { type SessionSimulationStatus } from '$/data/SessionSimulation.ts'
+import { specForAction, validActionTypes } from '$/lib/intents.ts'
+import { type SessionDefaults } from '$/constants/actions.ts'
+import { normalizeSessionParams } from '$/lib/session/params.ts'
 import { stringify } from '$/lib/stringify.ts'
 
 export type SessionHashResult =
@@ -26,7 +28,7 @@ export type SessionHashResult =
 	| {
 			kind: 'actions',
 			actions: {
-				action: TransactionSessionAction,
+				action: Action['type'],
 				params: Record<string, unknown> | null,
 			}[],
 	  }
@@ -35,6 +37,15 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null && !Array.isArray(value)
 
 export const buildSessionHash = (sessionId: string) => `#/session:${sessionId}`
+
+export const parseTemplateParam = (template: string | null): SessionHashResult => {
+	if (!template || !validActionTypes.has(template as Action['type']))
+		return { kind: 'empty' }
+	return {
+		kind: 'actions',
+		actions: [{ action: template as Action['type'], params: null }],
+	}
+}
 
 export const parseSessionHash = (hash: string): SessionHashResult => {
 	const normalized = hash.startsWith('#/') ? hash.slice(2) : hash.startsWith('#') ? hash.slice(1) : hash
@@ -50,7 +61,7 @@ export const parseSessionHash = (hash: string): SessionHashResult => {
 			const separatorIndex = entry.indexOf(':')
 			const action = (
 				separatorIndex === -1 ? entry : entry.slice(0, separatorIndex)
-			).trim() as TransactionSessionAction
+			).trim() as Action['type']
 			if (!validActionTypes.has(action))
 				return null
 			if (separatorIndex === -1) {
@@ -83,62 +94,127 @@ export const parseSessionHash = (hash: string): SessionHashResult => {
 	return actions.length > 0 ? { kind: 'actions', actions } : { kind: 'empty' }
 }
 
+export const formatSessionPlaceholderName = (actions: Action[]): string => {
+	const labels = actions
+		.map((a) => (actionTypeDefinitionByActionType as Record<string, { label: string }>)[a.type]?.label)
+		.filter(Boolean) as string[]
+	return labels.length > 0 ? labels.join(' → ') : 'Session'
+}
+
+export const sessionFromParsedHash = (parsed: SessionHashResult): Session => {
+	const now = Date.now()
+	const actions: Action[] =
+		parsed.kind === 'empty'
+			? [createAction(ActionType.Swap)]
+			: parsed.kind === 'actions'
+				? parsed.actions.map((a) =>
+						createAction(a.action, (a.params ?? undefined) as Record<string, unknown>),
+					)
+				: [createAction(ActionType.Swap)]
+	const params = normalizeSessionParams(
+		actions,
+		actions[0]?.params ?? {},
+	)
+	return {
+		id: `ephemeral-${createSessionId()}`,
+		actions,
+		status: SessionStatus.Draft,
+		createdAt: now,
+		updatedAt: now,
+		params,
+	}
+}
+
 export const createSessionId = () =>
 	globalThis.crypto?.randomUUID
 		? globalThis.crypto.randomUUID()
 		: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 
-export const createTransactionSession = (args: {
-	actions: (SessionAction | TransactionSessionAction)[]
-	params?: Record<string, unknown>
-	status?: TransactionSessionStatus
-	defaults?: TransactionSessionDefaults
-}) => createTransactionSessionWithId(createSessionId(), args)
+export const getSessionActions = (sessionId: string): Action[] => {
+	const rows = [...sessionActionsCollection.state.values()]
+		.filter((row) => row.sessionId === sessionId)
+		.sort((a, b) => a.actionIndex - b.actionIndex)
+	return rows.map((row) => row.action)
+}
 
-export const createTransactionSessionWithId = (
+export const setSessionActions = (sessionId: string, actions: Action[]) => {
+	for (const [id, row] of sessionActionsCollection.state) {
+		if (row.sessionId === sessionId) sessionActionsCollection.delete(id)
+	}
+	actions.forEach((action, actionIndex) => {
+		sessionActionsCollection.insert({
+			id: createSessionId(),
+			sessionId,
+			actionIndex,
+			action,
+		})
+	})
+}
+
+export const createSession = (args: {
+	actions: (Action | Action['type'])[]
+	name?: string
+	params?: Record<string, unknown>
+	status?: SessionStatus
+	defaults?: SessionDefaults
+}) => createSessionWithId(createSessionId(), args)
+
+export const createSessionWithId = (
 	id: string,
 	args: {
-		actions: (SessionAction | TransactionSessionAction)[]
+		actions: (Action | Action['type'])[]
+		name?: string
 		params?: Record<string, unknown>
-		status?: TransactionSessionStatus
-		defaults?: TransactionSessionDefaults
+		status?: SessionStatus
+		defaults?: SessionDefaults
 	},
 ) => {
 	const now = Date.now()
-	const sessionActions = args.actions.map(toSessionAction)
-	const actionTypes = sessionActions.map((a) => a.type)
-	const normalizedParams = normalizeTransactionSessionParams(
-		actionTypes,
-		args.params ?? sessionActions[0]?.params ?? {},
+	const sessionActions = args.actions.map((a) =>
+		typeof a === 'string' ? createAction(a) : a,
+	)
+	const normalizedParams = normalizeSessionParams(
+		sessionActions,
+		args.params ?? (sessionActions[0]?.params ?? {}) as Record<string, unknown>,
 		args.defaults,
 	)
-	const session: TransactionSession = {
+	const session: Session = {
 		id,
+		name: args.name,
 		actions: sessionActions,
-		status: args.status ?? TransactionSessionStatus.Draft,
+		status: args.status ?? SessionStatus.Draft,
 		createdAt: now,
 		updatedAt: now,
 		params: normalizedParams,
 	}
 	sessionsCollection.insert(session)
+	setSessionActions(id, sessionActions)
 	return session
 }
 
-export const getTransactionSession = (sessionId: string) =>
-	sessionsCollection.state.get(sessionId) ?? null
+export const getSession = (sessionId: string): Session | null => {
+	const row = sessionsCollection.state.get(sessionId) ?? null
+	if (!row) return null
+	const actionsFromCollection = getSessionActions(sessionId)
+	const actions =
+		actionsFromCollection.length > 0 ? actionsFromCollection : row.actions
+	return { ...row, actions }
+}
 
-export const updateTransactionSession = (
+export const updateSession = (
 	sessionId: string,
-	update: (session: TransactionSession) => TransactionSession,
+	update: (session: Session) => Session,
 ) => {
-	const current = getTransactionSession(sessionId)
+	const current = getSession(sessionId)
 	if (!current) return
+	const next = update({
+		...current,
+		params: { ...current.params },
+	})
+	setSessionActions(sessionId, next.actions)
 	sessionsCollection.update(sessionId, (draft) => {
-		const next = update({
-			...current,
-			params: { ...current.params },
-		})
 		draft.actions = next.actions
+		draft.name = next.name
 		draft.status = next.status
 		draft.createdAt = next.createdAt ?? draft.createdAt ?? Date.now()
 		draft.updatedAt = Date.now()
@@ -151,51 +227,50 @@ export const updateTransactionSession = (
 	})
 }
 
-export const updateTransactionSessionParams = (
+export const updateSessionParams = (
 	sessionId: string,
 	params: Record<string, unknown>,
-	defaults?: TransactionSessionDefaults,
+	defaults?: SessionDefaults,
 ) =>
-	updateTransactionSession(sessionId, (session) => ({
+	updateSession(sessionId, (session) => ({
 		...session,
-		params: normalizeTransactionSessionParams(
-			session.actions.map((a) => sessionActionType(a)),
-			params,
-			defaults,
-		),
+		params: normalizeSessionParams(session.actions, params, defaults),
 		updatedAt: Date.now(),
 	}))
 
-export const lockTransactionSession = (sessionId: string) =>
-	updateTransactionSession(sessionId, (session) => ({
+export const lockSession = (sessionId: string) =>
+	updateSession(sessionId, (session) => ({
 		...session,
 		lockedAt: session.lockedAt ?? Date.now(),
 		updatedAt: Date.now(),
 	}))
 
-export const markTransactionSessionSubmitted = (
+export const markSessionSubmitted = (
 	sessionId: string,
-	execution: TransactionSession['execution'],
+	execution: Session['execution'],
 ) =>
-	updateTransactionSession(sessionId, (session) => ({
+	updateSession(sessionId, (session) => ({
 		...session,
-		status: 'Submitted',
+		status: SessionStatus.Submitted,
 		execution,
 		updatedAt: Date.now(),
 	}))
 
-export const markTransactionSessionFinalized = (
+export const markSessionFinalized = (
 	sessionId: string,
-	finalization: TransactionSession['finalization'],
+	finalization: Session['finalization'],
 ) =>
-	updateTransactionSession(sessionId, (session) => ({
+	updateSession(sessionId, (session) => ({
 		...session,
-		status: TransactionSessionStatus.Finalized,
+		status: SessionStatus.Finalized,
 		finalization,
 		updatedAt: Date.now(),
 	}))
 
-export const deleteTransactionSession = (sessionId: string) => {
+export const deleteSession = (sessionId: string) => {
+	for (const [id, row] of sessionActionsCollection.state) {
+		if (row.sessionId === sessionId) sessionActionsCollection.delete(id)
+	}
 	for (const [id, row] of sessionSimulationsCollection.state) {
 		if (row.sessionId === sessionId)
 			sessionSimulationsCollection.delete(id)
@@ -203,16 +278,23 @@ export const deleteTransactionSession = (sessionId: string) => {
 	sessionsCollection.delete(sessionId)
 }
 
-export const forkTransactionSession = (session: TransactionSession) =>
-	createTransactionSession({
+export const deleteAllDraftSessions = () => {
+	for (const [id, row] of sessionsCollection.state) {
+		if (row.status === SessionStatus.Draft)
+			deleteSession(id)
+	}
+}
+
+export const forkSession = (session: Session) =>
+	createSession({
 		actions: [...session.actions],
 		params: { ...session.params },
 	})
 
-export const createTransactionSessionSimulation = (args: {
+export const createSessionSimulation = (args: {
 	sessionId: string
 	params: Record<string, unknown>
-	status: TransactionSessionSimulationStatus
+	status: SessionSimulationStatus
 	result: unknown | null
 	error?: string
 }) => {

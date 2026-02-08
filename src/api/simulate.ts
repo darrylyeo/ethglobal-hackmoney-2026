@@ -33,6 +33,9 @@ export const runTevmSimulation = async (
 	const { createTevmNode, http, getAddress } = await import('tevm')
 	const { createImpersonatedTx } = await import('tevm/tx')
 	const { bytesToHex } = await import('tevm/utils')
+	const { Common, Mainnet, createCustomCommon } = await import(
+		'@ethereumjs/common',
+	)
 
 	const blockTag = body.blockTag ?? 'latest'
 	const node = createTevmNode({
@@ -55,6 +58,8 @@ export const runTevmSimulation = async (
 	const data = (body.data ?? '0x') as `0x${string}`
 	const to = body.to ? getAddress(body.to as `0x${string}`) : undefined
 
+	const common = createCustomCommon({ chainId: body.chainId }, Mainnet)
+
 	type TevmAddress = Parameters<typeof createImpersonatedTx>[0]['impersonatedAddress']
 	const tx = createImpersonatedTx(
 		{
@@ -68,7 +73,7 @@ export const runTevmSimulation = async (
 			nonce: 0n,
 			impersonatedAddress: fromAddress as unknown as TevmAddress,
 		},
-		{ common: vm.common } as unknown as Parameters<typeof createImpersonatedTx>[1],
+		{ common },
 	)
 
 	const runResult = await vm.runTx({
