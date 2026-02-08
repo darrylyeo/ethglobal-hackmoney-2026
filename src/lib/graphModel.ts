@@ -40,4 +40,7 @@ export type GraphModel = {
 	edges: GraphEdge[]
 }
 
-export type GraphFramework = 'sigma' | 'g6'
+export enum GraphFramework {
+	Sigma = 'sigma',
+	G6 = 'g6',
+}

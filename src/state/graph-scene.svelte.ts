@@ -2,12 +2,13 @@
  * Persisted graph scene UI state: framework, visible entity types, hidden entity sources.
  */
 
-import type { GraphFramework } from '$/lib/graphModel.ts'
+import { GraphFramework } from '$/lib/graphModel.ts'
 import { EntityType } from '$/data/$EntityType.ts'
 import { PersistedState } from 'runed'
 
 export type GraphScenePersisted = {
 	graphFramework: GraphFramework
+	isVisible?: boolean
 	visibleEntities: string[]
 	hiddenEntitySources: string[]
 }
@@ -28,7 +29,8 @@ export const defaultVisibleEntityTypes: EntityType[] = [
 ]
 
 const defaultValue: GraphScenePersisted = {
-	graphFramework: 'g6',
+	graphFramework: GraphFramework.G6,
+	isOpen: false,
 	visibleEntities: [...defaultVisibleEntityTypes],
 	hiddenEntitySources: [],
 }

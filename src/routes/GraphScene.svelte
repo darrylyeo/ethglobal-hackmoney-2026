@@ -1,17 +1,15 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Attributes } from 'graphology-types'
 	import type { DisplayData } from 'sigma/types'
 	import type {
 		GraphEdge,
 		GraphEdgeStyle,
-		GraphFramework,
 		GraphModel,
 		GraphNode,
 		GraphNodeStyle,
 	} from '$/lib/graphModel.ts'
+	import { GraphFramework } from '$/lib/graphModel.ts'
 	import { actorAllowancesCollection } from '$/collections/actor-allowances.ts'
 	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
 	import { actorsCollection } from '$/collections/actors.ts'
@@ -54,6 +52,7 @@
 		EntityType,
 		graphSceneEntityTypes,
 	} from '$/data/$EntityType.ts'
+	import { untrack } from 'svelte'
 	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits.ts'
 	import { graphSceneState } from '$/state/graph-scene.svelte.ts'
@@ -72,10 +71,14 @@
 	import Graph from 'graphology'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { stringify } from '$/lib/stringify.ts'
+	const comboKey = (entityType: string, source: string) =>
+		`${entityType}:${source}`
 
 
 	// Components
-	import G6GraphView from '$/components/G6GraphView.svelte'
+	import Combobox from '$/components/Combobox.svelte'
+	import G6Graph from '$/components/G6Graph.svelte'
+	import Select from '$/components/Select.svelte'
 	import SigmaGraphView from '$/components/SigmaGraphView.svelte'
 
 
@@ -86,11 +89,11 @@
 
 	// Props
 	let {
-		visible = false,
+		defaultIsVisible = false,
 		queryStack,
 		globalQueryStack,
 	}: {
-		visible?: boolean
+		defaultIsVisible?: boolean
 		queryStack?: LiveQueryEntry[]
 		globalQueryStack?: LiveQueryEntry[],
 	} = $props()
@@ -110,6 +113,46 @@
 		new Set(graphSceneState.current.hiddenEntitySources.filter(Boolean)),
 	)
 	const graphFramework = $derived(graphSceneState.current.graphFramework)
+	const isVisible = $derived(graphSceneState.current.isVisible ?? defaultIsVisible)
+	const graphFrameworkItems = [GraphFramework.Sigma, GraphFramework.G6] as const
+	let frameworkSelection = $state<GraphFramework>(graphSceneState.current.graphFramework)
+	$effect(() => {
+		const persisted = graphSceneState.current.graphFramework
+		untrack(() => {
+			if (frameworkSelection !== persisted)
+				frameworkSelection = persisted
+		})
+	})
+	$effect(() => {
+		const val = frameworkSelection
+		untrack(() => {
+			if (graphSceneState.current.graphFramework !== val)
+				graphSceneState.current = {
+					...graphSceneState.current,
+					graphFramework: val,
+				}
+		})
+	})
+	let visibleEntitiesSelection = $state<string[]>([...graphSceneState.current.visibleEntities])
+	let visibleSourceKeysSelection = $state<string[]>([])
+	$effect(() => {
+		const persisted = graphSceneState.current.visibleEntities
+		untrack(() => {
+			if (persisted.length !== visibleEntitiesSelection.length || persisted.some((v, i) => v !== visibleEntitiesSelection[i]))
+				visibleEntitiesSelection = [...persisted]
+		})
+	})
+	$effect(() => {
+		const val = visibleEntitiesSelection
+		untrack(() => {
+			const persisted = graphSceneState.current.visibleEntities
+			if (val.length !== persisted.length || val.some((v, i) => v !== persisted[i]))
+				graphSceneState.current = {
+					...graphSceneState.current,
+					visibleEntities: [...val],
+				}
+		})
+	})
 	let selection = $state<{ nodes: string[]; edges: string[] }>({
 		nodes: [],
 		edges: [],
@@ -300,7 +343,33 @@
 			source: row.source,
 		})),
 	)
-
+	const allSourceKeys = $derived(
+		entitySourceCombos.map((c) => comboKey(c.entityType, c.source)),
+	)
+	let sourceKeysInited = false
+	$effect(() => {
+		if (sourceKeysInited || allSourceKeys.length === 0) return
+		visibleSourceKeysSelection = allSourceKeys.filter(
+			(k) => !hiddenEntitySources.has(k),
+		)
+		sourceKeysInited = true
+	})
+	$effect(() => {
+		void visibleSourceKeysSelection
+		void allSourceKeys
+		if (!sourceKeysInited) return
+		untrack(() => {
+			const hidden = allSourceKeys.filter(
+				(k) => !visibleSourceKeysSelection.includes(k),
+			)
+			const persisted = graphSceneState.current.hiddenEntitySources
+			if (hidden.length !== persisted.length || hidden.some((v, i) => v !== persisted[i]))
+				graphSceneState.current = {
+					...graphSceneState.current,
+					hiddenEntitySources: hidden,
+				}
+		})
+	})
 
 	// Types/constants
 	type CollectionStyle = {
@@ -311,6 +380,7 @@
 		g6Type?: string
 		g6Style: GraphNodeStyle
 	}
+	type LegendEntityTypeItem = { id: EntityType; label: string; color: string }
 
 	const collections: Record<EntityType, CollectionStyle> = {
 		[EntityType.Wallet]: {
@@ -740,6 +810,15 @@
 			g6Style: { labelPlacement: 'bottom' },
 		},
 	}
+	const legendEntityTypeItems = $derived(
+		graphSceneEntityTypes
+			.filter((et) => et in collections)
+			.map((et) => ({
+				id: et,
+				label: collections[et].label,
+				color: collections[et].color,
+			})),
+	)
 
 	const edgeColors = {
 		owns: '#64748b',
@@ -876,7 +955,7 @@
 
 	// (Derived)
 	const graphModel = $derived.by(() => {
-		if (!visible) return null
+		if (!isVisible) return null
 
 		const take = <T,>(a: T[] | undefined) =>
 			(a ?? []).slice(0, GRAPH_SCENE_MAX_PER_COLLECTION)
@@ -902,8 +981,8 @@
 			const baseRadius = 35 + ring * 30
 			const angle = (index / Math.max(total, 1)) * Math.PI * 2 + ring * 0.3
 			return {
-				x: Math.cos(angle) * baseRadius + (Math.random() - 0.5) * 8,
-				y: Math.sin(angle) * baseRadius + (Math.random() - 0.5) * 8,
+				x: Math.cos(angle) * baseRadius + (((index * 7 + ring * 13) % 17) / 17 - 0.5) * 8,
+				y: Math.sin(angle) * baseRadius + (((index * 11 + ring * 23) % 19) / 19 - 0.5) * 8,
 			}
 		}
 
@@ -2371,9 +2450,10 @@
 					collection: EntityType.DashboardPanel,
 					g6Type: collections[EntityType.DashboardPanel].g6Type,
 					g6Style: collections[EntityType.DashboardPanel].g6Style,
-					details: {
-						focusedPanelId: row.focusedPanelId,
-					},
+					details:
+						'focusedPanelId' in row
+							? { focusedPanelId: row.focusedPanelId }
+							: {},
 				})
 			})
 		}
@@ -2709,39 +2789,6 @@
 	)
 
 
-	// Actions
-	const toggleCollection = (key: string) => {
-		const next = new Set(graphSceneState.current.visibleEntities)
-		if (next.has(key)) next.delete(key)
-		else next.add(key)
-		graphSceneState.current = {
-			...graphSceneState.current,
-			visibleEntities: [...next],
-		}
-	}
-
-	const comboKey = (entityType: string, source: string) =>
-		`${entityType}:${source}`
-
-	const toggleEntitySource = (entityType: string, source: string) => {
-		const key = comboKey(entityType, source)
-		const next = new Set(graphSceneState.current.hiddenEntitySources)
-		if (next.has(key)) next.delete(key)
-		else next.add(key)
-		graphSceneState.current = {
-			...graphSceneState.current,
-			hiddenEntitySources: [...next],
-		}
-	}
-
-	const setGraphFramework = (framework: GraphFramework) => {
-		graphSceneState.current = {
-			...graphSceneState.current,
-			graphFramework: framework,
-		}
-	}
-
-
 	// (Derived)
 	const refreshKey = $derived(
 		[
@@ -2753,247 +2800,243 @@
 </script>
 
 
-{#if visible && graphModel}
-	<details
-		class="graph-scene"
-		data-card="padding-0 radius-6"
+<details
+	class="graph-scene"
+	data-card="padding-0 radius-6"
+	bind:open={graphSceneState.current.isVisible}
+>
+	<summary
+		class="graph-scene-header"
+		data-row="gap-2 align-center"
 	>
-		<summary class="graph-scene-header" data-row="gap-2 align-center">
-			<h4 data-row-item="flexible">Data Graph</h4>
+		<h4 data-row-item="flexible">Data Graph</h4>
+		<Select
+			class="graph-scene-framework"
+			items={graphFrameworkItems}
+			bind:value={frameworkSelection}
+			getItemId={(x) => x}
+			getItemLabel={(x) => (x === GraphFramework.Sigma ? 'Sigma' : 'G6')}
+			ariaLabel="Graph framework"
+			onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => e.stopPropagation()}
+		/>
+		{#if graphModel}
 			<div
-				class="graph-scene-framework"
+				class="graph-scene-stats"
 				data-row="gap-1"
-				role="group"
-				aria-label="Graph framework"
-				onclick={(e) => e.stopPropagation()}
-				onkeydown={(e) => e.stopPropagation()}
 			>
-				<button
-					type="button"
-					data-active={graphFramework === 'sigma'}
-					aria-pressed={graphFramework === 'sigma'}
-					onclick={() => setGraphFramework('sigma')}
-				>
-					Sigma
-				</button>
-				<button
-					type="button"
-					data-active={graphFramework === 'g6'}
-					aria-pressed={graphFramework === 'g6'}
-					onclick={() => setGraphFramework('g6')}
-				>
-					G6
-				</button>
-			</div>
-			<div class="graph-scene-stats" data-row="gap-1">
 				{graphModel.graph.order} nodes · {graphModel.graph.size} edges
 				{#if highlightedSet.size > 0}
-					<span class="graph-scene-highlight" data-scope="local">
+					<span
+						class="graph-scene-highlight"
+						data-scope="local"
+					>
 						· {highlightedNodes.length} local
 					</span>
 				{/if}
 				{#if showGlobalHighlights && globalHighlightedSet.size > 0}
-					<span class="graph-scene-highlight" data-scope="global">
+					<span
+						class="graph-scene-highlight"
+						data-scope="global"
+					>
 						· {globalHighlightedNodes.length} global
 					</span>
 				{/if}
 			</div>
-		</summary>
+		{/if}
+	</summary>
 
-		<div class="graph-scene-container">
-			{#if graphFramework === 'g6'}
-				<G6GraphView
+	{#if graphModel}
+		<div class="graph-scene-body" data-row="gap-0 align-stretch">
+			<div class="graph-scene-container">
+				{#if graphFramework === GraphFramework.G6}
+				<G6Graph
 					model={graphModel}
-					{refreshKey}
 					{highlightedNodes}
 					{globalHighlightedNodes}
-					bind:selection
-					onNodeEnter={(node) => {
-						hoveredNode = node
-					}}
-					onNodeLeave={() => {
-						hoveredNode = undefined
-					}}
-				/>
-			{:else}
-				<SigmaGraphView
-					model={graphModel}
-					{refreshKey}
-					{highlightedNodes}
-					{nodeReducer}
-					{edgeReducer}
-					onNodeEnter={(node) => {
-						hoveredNode = node
-					}}
-					onNodeLeave={() => {
-						hoveredNode = undefined
-					}}
-					onNodeClick={(node) => {
-						selection = { nodes: [node], edges: [] }
-					}}
-					onEdgeClick={(edge) => {
-						selection = { nodes: [], edges: [edge] }
-					}}
-				/>
-			{/if}
+						bind:selection
+						onNodeEnter={(node) => {
+							hoveredNode = node
+						}}
+						onNodeLeave={() => {
+							hoveredNode = undefined
+						}}
+					/>
+				{:else}
+					<SigmaGraphView
+						model={graphModel}
+						{refreshKey}
+						{highlightedNodes}
+						{nodeReducer}
+						{edgeReducer}
+						onNodeEnter={(node) => {
+							hoveredNode = node
+						}}
+						onNodeLeave={() => {
+							hoveredNode = undefined
+						}}
+						onNodeClick={(node) => {
+							selection = { nodes: [node], edges: [] }
+						}}
+						onEdgeClick={(edge) => {
+							selection = { nodes: [], edges: [edge] }
+						}}
+					/>
+				{/if}
 
-			{#if hoveredNodeData}
-				<div class="graph-scene-hover">
-					<div class="graph-scene-hover-header">
-						<span
-							class="graph-scene-dot"
-							style="background: {hoveredNodeData.color}"
-						></span>
-						<strong>{hoveredNodeData.label}</strong>
+				{#if hoveredNodeData}
+					<div class="graph-scene-hover">
+						<div class="graph-scene-hover-header">
+							<span
+								class="graph-scene-dot"
+								style="background: {hoveredNodeData.color}"
+							></span>
+							<strong>{hoveredNodeData.label}</strong>
+						</div>
+						<small class="graph-scene-collection">
+							{hoveredNodeData.collection}
+						</small>
+						{#if hoveredNodeEntries.length > 0}
+							<dl class="graph-scene-details">
+								{#each hoveredNodeEntries as [key, value] (key)}
+									{#if value !== undefined && value !== null && value !== ''}
+										<dt>{key}</dt>
+										<dd>{value}</dd>
+									{/if}
+								{/each}
+							</dl>
+						{/if}
 					</div>
-					<small class="graph-scene-collection">
-						{hoveredNodeData.collection}
-					</small>
-					{#if hoveredNodeEntries.length > 0}
-						<dl class="graph-scene-details">
-							{#each hoveredNodeEntries as [key, value] (key)}
-								{#if value !== undefined && value !== null && value !== ''}
-									<dt>{key}</dt>
-									<dd>{value}</dd>
-								{/if}
-							{/each}
-						</dl>
+				{/if}
+
+				<div
+					class="sr-only"
+					aria-live="polite"
+				>
+					{selectionAnnouncement}
+				</div>
+			</div>
+
+			<aside class="graph-scene-sidebar" data-column="gap-2">
+				<div data-column="gap-1">
+					<label for="graph-scene-entity-types">Entity types</label>
+
+					{#if true}
+						<Combobox
+							id="graph-scene-entity-types"
+							type="multiple"
+							items={legendEntityTypeItems}
+							bind:value={visibleEntitiesSelection}
+							getItemId={(x) => x.id}
+							getItemLabel={(x) => x.label}
+							placeholder="Filter by type…"
+							aria-label="Visible entity types"
+						>
+							{#snippet Item(item: LegendEntityTypeItem, selected: boolean)}
+								<span
+									data-row="gap-2 align-center"
+									style="--color: {item.color}"
+								>
+									<span
+										class="graph-scene-dot"
+										style="background: {item.color}"
+									></span>
+									{item.label}
+									{#if counts[item.id] > 0}
+										<span data-tag="count">{counts[item.id]}</span>
+									{/if}
+								</span>
+							{/snippet}
+						</Combobox>
 					{/if}
 				</div>
-			{/if}
-
-			<div class="sr-only" aria-live="polite">
-				{selectionAnnouncement}
-			</div>
+				{#if entitySourceCombos.length > 0}
+					<div data-column="gap-1">
+						<label for="graph-scene-sources">By source</label>
+						<Combobox
+							id="graph-scene-sources"
+							type="multiple"
+							items={entitySourceCombos}
+							bind:value={visibleSourceKeysSelection}
+							getItemId={(c) => comboKey(c.entityType, c.source)}
+							getItemLabel={(c) =>
+								`${collections[c.entityType]?.label ?? c.entityType}: ${c.source}`}
+							placeholder="Filter by source…"
+							aria-label="Visible entity sources"
+						/>
+					</div>
+				{/if}
+				{#if selectionItems.length > 0}
+					<div class="graph-scene-selection" data-column="gap-2">
+						<h5>Selection</h5>
+						<ul data-column="gap-1">
+							{#each selectionItems as item (item.id)}
+								<li>
+									{#if item.kind === 'node' && 'href' in item && item.href}
+										<a
+											href={item.href}
+											data-kind={item.kind}
+											data-row="gap-2 align-center"
+											class="graph-scene-selection-link"
+										>
+											<strong data-row-item="flexible">{item.label}</strong>
+											<span>{item.collection}</span>
+										</a>
+									{:else}
+										<button
+											type="button"
+											data-kind={item.kind}
+											data-row="gap-2 align-center"
+											onclick={() => {
+												if (item.kind === 'node') {
+													selection = {
+														nodes: [item.id],
+														edges: [],
+													}
+													hoveredNode = item.id
+												} else {
+													selection = {
+														nodes: [],
+														edges: [item.id],
+													}
+												}
+											}}
+										>
+											<strong data-row-item="flexible">{item.label}</strong>
+											<span>{item.collection}</span>
+										</button>
+									{/if}
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
+			</aside>
 		</div>
-
-		<footer class="graph-scene-footer">
-			<div class="graph-scene-legend" data-row="wrap gap-1">
-				{#each Object.entries(collections) as [key, config] (key)}
-					{@const entityType = key}
-					{@const count = counts[entityType]}
-					<button
-						type="button"
-						style="--color: {config.color}"
-						data-active={visibleCollections.has(entityType)}
-						onclick={() => toggleCollection(entityType)}
-					>
-						<span class="graph-scene-dot"></span>
-						{config.label}
-						{#if count > 0}
-							<span class="graph-scene-count">{count}</span>
-						{/if}
-					</button>
-				{/each}
-			</div>
-			<div
-				class="graph-scene-legend graph-scene-legend-sources"
-				data-row="wrap gap-1"
-			>
-				<span class="graph-scene-legend-label">By source:</span>
-				{#each entitySourceCombos as combo (comboKey(combo.entityType, combo.source))}
-					{@const key = comboKey(combo.entityType, combo.source)}
-					{@const isVisible = !hiddenEntitySources.has(key)}
-					<button
-						type="button"
-						data-active={isVisible}
-						onclick={() => toggleEntitySource(combo.entityType, combo.source)}
-						title="{combo.entityType} from {combo.source}"
-					>
-						{collections[combo.entityType]?.label ?? combo.entityType}: {combo.source}
-					</button>
-				{/each}
-			</div>
-			{#if selectionItems.length > 0}
-				<div class="graph-scene-selection" data-column="gap-2">
-					<h5>Selection</h5>
-					<ul data-column="gap-1">
-						{#each selectionItems as item (item.id)}
-							<li>
-								{#if item.kind === 'node' && 'href' in item && item.href}
-									<a
-										href={item.href}
-										data-kind={item.kind}
-										data-row="gap-2 align-center"
-										class="graph-scene-selection-link"
-									>
-										<strong data-row-item="flexible">{item.label}</strong>
-										<span>{item.collection}</span>
-									</a>
-								{:else}
-									<button
-										type="button"
-										data-kind={item.kind}
-										data-row="gap-2 align-center"
-										onclick={() => {
-											if (item.kind === 'node') {
-												selection = {
-													nodes: [item.id],
-													edges: [],
-												}
-												hoveredNode = item.id
-											} else {
-												selection = {
-													nodes: [],
-													edges: [item.id],
-												}
-											}
-										}}
-									>
-										<strong data-row-item="flexible">{item.label}</strong>
-										<span>{item.collection}</span>
-									</button>
-								{/if}
-							</li>
-						{/each}
-					</ul>
-				</div>
-			{/if}
-		</footer>
-	</details>
-{/if}
+	{/if}
+</details>
 
 
 <style>
 	details.graph-scene {
-		--graph-scene-canvas-bg: linear-gradient(
-			145deg,
-			#f8fafc 0%,
-			#f1f5f9 50%,
-			#e2e8f0 100%
+		--graph-scene-canvas-bg: light-dark(
+			linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%),
+			linear-gradient(145deg, #1f2937 0%, #111827 50%, #0f172a 100%)
 		);
-		--graph-scene-hover-bg: rgba(255, 255, 255, 0.97);
-		--graph-scene-hover-border: rgba(0, 0, 0, 0.06);
-		--graph-scene-details-border: rgba(0, 0, 0, 0.06);
+		--graph-scene-hover-bg: light-dark(rgba(255, 255, 255, 0.97), rgba(31, 41, 55, 0.97));
+		--graph-scene-hover-border: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
+		--graph-scene-details-border: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
 		--graph-scene-legend-active-bg: color-mix(in srgb, var(--color) 8%, white);
 		--graph-scene-legend-count-bg: color-mix(in srgb, var(--color) 15%, white);
 		--graph-scene-framework-active-bg: var(--color-text);
 		--graph-scene-framework-active-border: var(--color-text);
 		--graph-scene-framework-active-fg: var(--color-text-inverted);
 
-		position: fixed;
-		bottom: 1rem;
-		left: var(--safeArea-insetLeft);
-		right: var(--safeArea-insetRight);
-		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-		display: flex;
-		flex-direction: column;
-		z-index: 50;
-		transition: height 0.2s ease;
-
-		@media not (max-width: 1024px) {
-			left: calc(
-				var(--safeArea-insetLeft) + var(--navigation-desktop-inlineSize) +
-					var(--separator-width)
-			);
-		}
-
-		&[open] {
-			height: 380px;
-		}
-
-		&:not([open]) {
-			height: auto;
+		&:open .graph-scene-body {
+			min-height: 380px;
+			display: flex;
+			flex-direction: row;
+			min-width: 0;
 		}
 
 		> summary {
@@ -3049,8 +3092,9 @@
 			content: '▲';
 		}
 
-		> .graph-scene-container {
+		> .graph-scene-body > .graph-scene-container {
 			flex: 1;
+			min-width: 0;
 			min-height: 0;
 			position: relative;
 			background: var(--graph-scene-canvas-bg);
@@ -3063,7 +3107,7 @@
 				backdrop-filter: blur(12px);
 				padding: 0.5rem 0.75rem;
 				border-radius: 0.5rem;
-				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+				box-shadow: 0 4px 12px light-dark(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.35));
 				display: flex;
 				flex-direction: column;
 				gap: 0.25rem;
@@ -3124,39 +3168,40 @@
 			}
 		}
 
-		> .graph-scene-footer {
+		> .graph-scene-body > .graph-scene-sidebar {
+			width: 16rem;
+			flex-shrink: 0;
 			padding: 0.5rem 0.625rem;
-			border-top: 1px solid var(--color-border);
+			border-inline-start: 1px solid var(--color-border);
 			background: var(--color-bg-subtle);
-			border-radius: 0 0 0.75rem 0.75rem;
+			overflow-y: auto;
 
-			> .graph-scene-legend {
-				> button[data-active='true'] {
-					background: var(--graph-scene-legend-active-bg);
-					border-color: color-mix(in srgb, var(--color) 30%, transparent);
-				}
+			> [data-column] > label {
+				font-size: 0.625rem;
+				text-transform: uppercase;
+				letter-spacing: 0.04em;
+				opacity: 0.6;
+			}
 
-				> button .graph-scene-dot {
-					width: 6px;
-					height: 6px;
-					border-radius: 50%;
-					background: var(--color);
-				}
+			.graph-scene-dot {
+				width: 6px;
+				height: 6px;
+				border-radius: 50%;
+				flex-shrink: 0;
+			}
 
-				> button .graph-scene-count {
-					font-size: 0.5625rem;
-					font-weight: 600;
-					background: var(--graph-scene-legend-count-bg);
-					color: var(--color);
-					padding: 0.0625rem 0.25rem;
-					border-radius: 0.75rem;
-					min-width: 1rem;
-					text-align: center;
-				}
+			[data-tag~='count'] {
+				font-size: 0.5625rem;
+				font-weight: 600;
+				background: var(--graph-scene-legend-count-bg);
+				color: var(--color);
+				padding: 0.0625rem 0.25rem;
+				border-radius: 0.75rem;
+				min-width: 1rem;
+				text-align: center;
 			}
 
 			> .graph-scene-selection {
-				margin-top: 0.5rem;
 				border-top: 1px solid var(--color-border);
 				padding-top: 0.5rem;
 
@@ -3199,33 +3244,6 @@
 					letter-spacing: 0.04em;
 				}
 			}
-		}
-	}
-
-	@media (prefers-color-scheme: dark) {
-		details.graph-scene {
-			--graph-scene-canvas-bg: linear-gradient(
-				145deg,
-				#1e293b 0%,
-				#0f172a 50%,
-				#020617 100%
-			);
-			--graph-scene-hover-bg: rgba(30, 41, 59, 0.97);
-			--graph-scene-hover-border: rgba(255, 255, 255, 0.06);
-			--graph-scene-details-border: rgba(255, 255, 255, 0.06);
-			--graph-scene-legend-active-bg: color-mix(
-				in srgb,
-				var(--color) 15%,
-				#1e293b
-			);
-			--graph-scene-legend-count-bg: color-mix(
-				in srgb,
-				var(--color) 20%,
-				#1e293b
-			);
-			--graph-scene-framework-active-bg: var(--color-border);
-			--graph-scene-framework-active-border: var(--color-border);
-			--graph-scene-framework-active-fg: var(--color-text);
 		}
 	}
 </style>
