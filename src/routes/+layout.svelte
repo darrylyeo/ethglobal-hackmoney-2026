@@ -6,6 +6,7 @@
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { ActionType, actionTypeDefinitionByActionType } from '$/constants/intents.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import { networkConfigs, toNetworkSlug } from '$/constants/networks.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 
@@ -16,6 +17,7 @@
 	import { roomPeersCollection } from '$/collections/room-peers.ts'
 	import { roomsCollection } from '$/collections/rooms.ts'
 	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
+	import { transactionsCollection } from '$/collections/transactions.ts'
 	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
 	import { verificationsCollection } from '$/collections/verifications.ts'
 	import {
@@ -103,16 +105,12 @@
 				.select(({ row }) => ({ row })),
 		[],
 	)
-	const watchedNavItems = $derived(
-		(watchedEntitiesQuery.data ?? [])
-			.map((r) => r.row)
-			.sort((a, b) => b.addedAt - a.addedAt)
-			.map((row) => ({
-				id: `watched-${row.entityType}:${row.id}`,
-				title: row.label,
-				href: row.href,
-				icon: '📌',
-			})),
+	const recentTransactionsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: transactionsCollection })
+				.select(({ row }) => ({ row })),
+		[],
 	)
 	const walletsQuery = useLiveQuery(
 		(q) =>
@@ -188,6 +186,8 @@
 		{ id: 'layout-wallet-connections', label: 'Wallet Connections', query: walletConnectionsQuery },
 		{ id: 'layout-sessions', label: 'Sessions', query: sessionsQuery },
 		{ id: 'layout-wallets', label: 'Wallets', query: walletsQuery },
+		{ id: 'layout-transactions', label: 'Transactions', query: recentTransactionsQuery },
+		{ id: 'layout-watched', label: 'Watched Entities', query: watchedEntitiesQuery },
 	])
 	const walletsByRdns = $derived(
 		new Map(
@@ -292,18 +292,76 @@
 			}))
 		}),
 	)
+
+	// Full entity lists (allChildren — shown when section contains current page)
+	const allSessionNavItems = $derived(
+		(sessionsQuery.data ?? [])
+			.map((r) => r.row)
+			.sort((a, b) => b.updatedAt - a.updatedAt)
+			.map((session) => ({
+				id: `session-${session.id}`,
+				title: sessionTitle(session),
+				href: sessionHref(session),
+				tag: session.status,
+				icon: '📋',
+			})),
+	)
+	const allRoomNavItems = $derived(
+		(roomsQuery.data ?? [])
+			.map((r) => r.row)
+			.sort((a, b) => a.createdAt - b.createdAt)
+			.map((room) => ({
+				id: `room-${room.id}`,
+				title: room.name ?? roomIdToDisplayName(room.id),
+				href: `/rooms/${room.id}`,
+				icon: roomIdToPlaceEmoji(room.id),
+			})),
+	)
+	const allNetworkNavItems = $derived(
+		relevantNetworkConfigs.map((config) => ({
+			id: `network-${config.chainId}`,
+			title: config.name,
+			href: `/network/${toNetworkSlug(config.name)}`,
+			icon: config.icon ?? '🌐',
+		})),
+	)
+	const allAgentTreeNavItems = $derived(
+		(agentChatTreesQuery.data ?? [])
+			.map((r) => r.row)
+			.sort((a, b) => b.updatedAt - a.updatedAt)
+			.map((tree) => ({
+				id: `agent-${tree.id}`,
+				title: tree.name ?? 'Untitled',
+				href: `/agents/${tree.id}`,
+				icon: '🤖',
+			})),
+	)
+
+	// Watched entity hrefs (auto-watch sources + manual)
+	const watchedHrefs = $derived(
+		new Set([
+			...accountNavItems.map((item) => item.href),
+			...(sessionsQuery.data ?? [])
+				.filter((r) => r.row.status === 'Draft' || r.row.status === 'Submitted')
+				.map((r) => sessionHref(r.row)),
+			...(recentTransactionsQuery.data ?? [])
+				.filter((r) => r.row.status === 'completed' || r.row.status === 'failed')
+				.flatMap((r) => {
+					const config = networkConfigs.find((c) => c.chainId === r.row.fromChainId)
+					return config
+						? [`/network/${toNetworkSlug(config.name)}/transaction/${r.row.$id.sourceTxHash}`]
+						: []
+				}),
+			...peersNavItems.map((item) => item.href),
+			...pinnedAgentChatTrees.map((tree) => `/agents/${tree.id}`),
+			...relevantNetworkConfigs.map((c) => `/network/${toNetworkSlug(c.name)}`),
+			...(watchedEntitiesQuery.data ?? []).map((r) => r.row.href),
+		]),
+	)
+	const filterWatched = <T extends { href: string }>(items: T[]) =>
+		items.filter((item) => watchedHrefs.has(item.href))
+
 	const navigationItems = $derived([
-		...(watchedNavItems.length > 0
-			? [
-					{
-						id: 'watched',
-						title: 'Watched',
-						icon: '📌',
-						defaultOpen: true,
-						children: watchedNavItems,
-					},
-				]
-			: []),
 		{
 			id: 'dashboards',
 			title: 'Dashboards',
@@ -358,16 +416,8 @@
 			href: '/sessions',
 			icon: '📋',
 			defaultOpen: false,
-			children: (sessionsQuery.data ?? [])
-				.map((result) => result.row)
-				.sort((a, b) => b.updatedAt - a.updatedAt)
-				.map((session) => ({
-					id: `session-${session.id}`,
-					title: sessionTitle(session),
-					href: sessionHref(session),
-					tag: session.status,
-					icon: '📋',
-				})),
+			children: filterWatched(allSessionNavItems),
+			allChildren: allSessionNavItems,
 		},
 		{
 			id: 'agents',
@@ -378,12 +428,12 @@
 			children: [
 				{ id: 'agents-new', title: 'New conversation', href: '/agents/new', icon: '✨' },
 				{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm', icon: '🔑' },
-				...pinnedAgentChatTrees.map((tree) => ({
-					id: `agent-${tree.id}`,
-					title: tree.name ?? 'Untitled',
-					href: `/agents/${tree.id}`,
-					icon: '🤖',
-				})),
+				...filterWatched(allAgentTreeNavItems),
+			],
+			allChildren: [
+				{ id: 'agents-new', title: 'New conversation', href: '/agents/new', icon: '✨' },
+				{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm', icon: '🔑' },
+				...allAgentTreeNavItems,
 			],
 		},
 		{
@@ -416,12 +466,8 @@
 					title: 'Networks',
 					icon: '🌐',
 					defaultOpen: false,
-					children: relevantNetworkConfigs.map((config) => ({
-						id: `network-${config.chainId}`,
-						title: config.name,
-						href: `/network/${toNetworkSlug(config.name)}`,
-						icon: config.icon ?? '🌐',
-					})),
+					children: filterWatched(allNetworkNavItems),
+					allChildren: allNetworkNavItems,
 				},
 			],
 		},
@@ -456,16 +502,9 @@
 					title: 'Rooms',
 					href: '/rooms',
 					icon: '🏠',
-					tag: String((roomsQuery.data ?? []).length),
-					children: (roomsQuery.data ?? [])
-						.map((result) => result.row)
-						.sort((a, b) => a.createdAt - b.createdAt)
-						.map((room) => ({
-							id: `room-${room.id}`,
-							title: room.name ?? roomIdToDisplayName(room.id),
-							href: `/rooms/${room.id}`,
-							icon: roomIdToPlaceEmoji(room.id),
-						})),
+					tag: String(allRoomNavItems.length),
+					children: filterWatched(allRoomNavItems),
+					allChildren: allRoomNavItems,
 				},
 				{
 					id: 'peers',
