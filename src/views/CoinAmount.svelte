@@ -1,7 +1,7 @@
 <script lang="ts" generics="_CoinType extends CoinType = CoinType">
 	// Types/constants
 	import { type Coin, CoinType } from '$/constants/coins.ts'
-	import type { StorkPriceRow } from '$/collections/stork-prices.ts'
+	import type { StorkPriceRow } from '$/collections/StorkPrices.ts'
 
 
 	// Props

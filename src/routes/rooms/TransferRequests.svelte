@@ -6,9 +6,9 @@
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { sendTransfer } from '$/api/yellow.ts'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
-	import { transferRequestsCollection } from '$/collections/transfer-requests.ts'
-	import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
+	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
+	import { transferRequestsCollection } from '$/collections/TransferRequests.ts'
+	import { yellowDepositsCollection } from '$/collections/YellowDeposits.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { roomState } from '$/state/room.svelte.ts'
 	import { yellowState } from '$/state/yellow.svelte.ts'

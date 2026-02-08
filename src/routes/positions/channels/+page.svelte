@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { YellowChannelRow } from '$/collections/yellow-channels.ts'
-	import type { YellowChannelStateRow } from '$/collections/yellow-channel-states.ts'
+	import type { YellowChannelRow } from '$/collections/YellowChannels.ts'
+	import type { YellowChannelStateRow } from '$/collections/YellowChannelStates.ts'
 	import type { ChannelStatus } from '$/data/YellowChannel.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import { closeChannel, challengeChannel, openChannel, sendTransfer } from '$/api/yellow.ts'
@@ -12,11 +12,11 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
-	import { yellowChannelStatesCollection } from '$/collections/yellow-channel-states.ts'
-	import { roomsCollection } from '$/collections/rooms.ts'
-	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
-	import { walletsCollection } from '$/collections/wallets.ts'
+	import { yellowChannelsCollection } from '$/collections/YellowChannels.ts'
+	import { yellowChannelStatesCollection } from '$/collections/YellowChannelStates.ts'
+	import { roomsCollection } from '$/collections/Rooms.ts'
+	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
+	import { walletsCollection } from '$/collections/Wallets.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import {
 		connectToYellow,

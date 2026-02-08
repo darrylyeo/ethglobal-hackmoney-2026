@@ -1,6 +1,6 @@
 /// <reference lib='deno.ns' />
 import { assertEquals } from 'jsr:@std/assert'
-import { verificationKey } from './verifications-keys.ts'
+import { verificationKey } from './VerificationsKeys.ts'
 
 Deno.test('verificationKey generates correct composite key', () => {
 	assertEquals(

@@ -14,14 +14,14 @@ import { DataSource } from '$/constants/data-sources.ts'
 
 
 // Collections
-import { upsertWallet, walletsCollection } from '$/collections/wallets.ts'
+import { upsertWallet, walletsCollection } from '$/collections/Wallets.ts'
 import {
 	reconnectWallet,
 	requestWalletConnection,
 	updateConnectionActors,
 	updateWalletChain,
 	walletConnectionsCollection,
-} from '$/collections/wallet-connections.ts'
+} from '$/collections/WalletConnections.ts'
 
 
 // Functions

@@ -9,7 +9,7 @@
 	import { getAverageTransactionsPerBlock } from '$/constants/networks.ts'
 	import { getBlockUrl } from '$/constants/explorers.ts'
 	import { formatGas, formatGwei } from '$/lib/format.ts'
-	import { fetchBlockTransactions } from '$/collections/blocks.ts'
+	import { fetchBlockTransactions } from '$/collections/Blocks.ts'
 	import { TimestampFormat } from '$/components/Timestamp.svelte'
 
 

@@ -22,7 +22,7 @@
 
 
 	// State
-	import { blocksCollection, ensureBlocksForPlaceholders } from '$/collections/blocks.ts'
+	import { blocksCollection, ensureBlocksForPlaceholders } from '$/collections/Blocks.ts'
 
 
 	// Components

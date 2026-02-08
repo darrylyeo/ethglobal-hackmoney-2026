@@ -6,13 +6,14 @@
  */
 
 import { goto } from '$app/navigation'
+import { CollectionId } from '$/constants/collections.ts'
+import {
+	NetworkEnvironment,
+} from '$/constants/network-environment.ts'
 import {
 	generatePeerDisplayName,
 	peerNameToEmoji,
 } from '$/lib/rooms/room.ts'
-import {
-	NetworkEnvironment,
-} from '$/constants/network-environment.ts'
 
 export type Profile = {
 	id: string
@@ -44,17 +45,17 @@ export const nsKeyEnv = (
  * Global/cached collections (actor-coins, stork-prices, etc.) are excluded.
  */
 export const PROFILE_SCOPED_STORAGE_KEYS = [
-	'wallet-connections',
-	'transaction-sessions',
-	'watched-entities',
-	'dashboard-panels',
-	'agent-chat-trees',
-	'agent-chat-turns',
-	'llm-connections',
-	'bridge-transactions',
-	'transaction-session-simulations',
-	'entity-sources',
-	'room-persistent-peer-id',
+	CollectionId.WalletConnections,
+	CollectionId.TransactionSessions,
+	CollectionId.WatchedEntities,
+	CollectionId.DashboardPanels,
+	CollectionId.AgentChatTrees,
+	CollectionId.AgentChatTurns,
+	CollectionId.LlmConnections,
+	CollectionId.BridgeTransactions,
+	CollectionId.TransactionSessionSimulations,
+	CollectionId.EntitySources,
+	CollectionId.RoomPersistentPeerId,
 ] as const
 
 /**
@@ -64,9 +65,9 @@ export const PROFILE_SCOPED_STORAGE_KEYS = [
  * (not environment-specific).
  */
 export const NETWORK_ENVIRONMENT_SCOPED_STORAGE_KEYS = [
-	'transaction-sessions',
-	'bridge-transactions',
-	'transaction-session-simulations',
+	CollectionId.TransactionSessions,
+	CollectionId.BridgeTransactions,
+	CollectionId.TransactionSessionSimulations,
 ] as const
 
 const isEnvScoped = (key: string) =>

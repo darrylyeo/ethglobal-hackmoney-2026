@@ -16,7 +16,7 @@
 	import {
 		ensureEvmActorProfile,
 		evmActorProfilesCollection,
-	} from '$/collections/evm-actor-profiles.ts'
+	} from '$/collections/EvmActorProfiles.ts'
 	import { networkColorByChainId } from '$/constants/colors.ts'
 	import { networkConfigsByChainId } from '$/constants/networks.ts'
 	import { blo } from 'blo'

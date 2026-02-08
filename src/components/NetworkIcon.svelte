@@ -2,7 +2,7 @@
 	// Types/constants
 	import { networkColorByChainId } from '$/constants/colors.ts'
 	import { networkConfigsByChainId } from '$/constants/networks.ts'
-	import { IconShape } from '$/components/Icon.svelte'
+	import { type SubiconProps, IconShape } from '$/components/icon.ts'
 
 	// Props
 	let {
@@ -18,7 +18,7 @@
 		size?: number | string
 		title?: string
 		alt?: string
-		subicon?: import('$/components/Icon.svelte').SubiconProps
+		subicon?: SubiconProps
 	} = $props()
 
 	// (Derived)

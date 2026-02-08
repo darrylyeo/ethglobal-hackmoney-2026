@@ -1,3 +1,4 @@
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { Network } from '$/constants/networks.ts'
 import { networks } from '$/constants/networks.ts'
@@ -15,7 +16,7 @@ export const normalizeNetwork = (entry: Network): NetworkEntry => ({
 
 export const networksCollection = createCollection(
 	queryCollectionOptions({
-		id: 'networks',
+		id: CollectionId.Networks,
 		queryKey: ['networks'],
 		queryFn: () =>
 			Promise.resolve(

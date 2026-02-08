@@ -8,7 +8,7 @@
 	import {
 		cctpAllowanceCollection,
 		fetchCctpAllowance,
-	} from '$/collections/cctp-allowance.ts'
+	} from '$/collections/CctpAllowance.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 

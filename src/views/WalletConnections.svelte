@@ -3,8 +3,8 @@
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
-	import { walletsCollection } from '$/collections/wallets.ts'
+	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
+	import { walletsCollection } from '$/collections/Wallets.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 

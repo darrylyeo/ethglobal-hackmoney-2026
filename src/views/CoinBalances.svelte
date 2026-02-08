@@ -47,13 +47,13 @@
 
 
 	// State
-	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
+	import { actorCoinsCollection } from '$/collections/ActorCoins.ts'
 	import {
 		storkPricesCollection,
 		subscribeStorkPrices,
 		getBestStorkPrice,
-	} from '$/collections/stork-prices.ts'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
+	} from '$/collections/StorkPrices.ts'
+	import { tokenListCoinsCollection } from '$/collections/TokenListCoins.ts'
 
 
 	// (Derived)

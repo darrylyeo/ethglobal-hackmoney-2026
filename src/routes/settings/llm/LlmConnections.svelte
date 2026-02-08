@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { getModelsForConnection } from '$/api/llm/connection-provider.ts'
-	import type { LlmConnectionRow } from '$/collections/llm-connections.ts'
+	import type { LlmConnectionRow } from '$/collections/LlmConnections.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import {
 		type LlmConnectionProviderType,
@@ -17,7 +17,7 @@
 		removeLlmConnection,
 		updateLlmConnection,
 		PROVIDER_LABELS,
-	} from '$/collections/llm-connections.ts'
+	} from '$/collections/LlmConnections.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 	const connectionsQuery = useLiveQuery((q) =>

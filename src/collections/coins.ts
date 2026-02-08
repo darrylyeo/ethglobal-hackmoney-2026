@@ -1,3 +1,4 @@
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { Erc20Token } from '$/constants/coins.ts'
 import { ercTokens } from '$/constants/coins.ts'
@@ -20,7 +21,7 @@ export const normalizeCoin = (entry: Erc20Token): CoinEntry => ({
 
 export const coinsCollection = createCollection(
 	queryCollectionOptions({
-		id: 'coins',
+		id: CollectionId.Coins,
 		queryKey: ['coins'],
 		queryFn: () =>
 			Promise.resolve(

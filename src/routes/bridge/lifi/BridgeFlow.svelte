@@ -1,8 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute.ts'
-	import type { WalletRow } from '$/collections/wallets.ts'
+	import type { WalletRow } from '$/collections/Wallets.ts'
 	import type { BridgeStatus } from '$/lib/bridge/txStatus.ts'
 	import {
 		type BridgeSessionParams,
@@ -70,16 +70,16 @@
 
 
 	// State
-	import { actorAllowancesCollection } from '$/collections/actor-allowances.ts'
-	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
+	import { actorAllowancesCollection } from '$/collections/ActorAllowances.ts'
+	import { actorCoinsCollection } from '$/collections/ActorCoins.ts'
 	import {
 		bridgeRoutesCollection,
 		fetchBridgeRoutes,
-	} from '$/collections/bridge-routes.ts'
+	} from '$/collections/BridgeRoutes.ts'
 	import {
 		transactionsCollection,
 		updateTransaction,
-	} from '$/collections/transactions.ts'
+	} from '$/collections/Transactions.ts'
 
 
 	// Components

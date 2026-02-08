@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { YellowChannelRow } from '$/collections/yellow-channels.ts'
+	import type { YellowChannelRow } from '$/collections/YellowChannels.ts'
 
 
 	// Context

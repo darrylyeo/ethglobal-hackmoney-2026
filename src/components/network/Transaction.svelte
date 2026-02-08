@@ -9,7 +9,7 @@
 	// Functions
 	import { getTxUrl } from '$/constants/explorers.ts'
 	import { formatWei, formatGas, formatGwei } from '$/lib/format.ts'
-	import { fetchChainTransaction } from '$/collections/chain-transactions.ts'
+	import { fetchChainTransaction } from '$/collections/ChainTransactions.ts'
 	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
 
 

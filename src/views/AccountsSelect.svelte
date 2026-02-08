@@ -4,7 +4,7 @@
 		ConnectedWallet,
 		ReadOnlyWalletRow,
 		WalletConnectionRow,
-	} from '$/collections/wallet-connections.ts'
+	} from '$/collections/WalletConnections.ts'
 	import type {
 		WalletConnectionEip1193,
 		WalletConnectionNone,
@@ -35,8 +35,8 @@
 		setSelectedConnections,
 		disconnectWallet,
 		connectReadOnly,
-	} from '$/collections/wallet-connections.ts'
-	import type { WalletRow } from '$/collections/wallets.ts'
+	} from '$/collections/WalletConnections.ts'
+	import type { WalletRow } from '$/collections/Wallets.ts'
 	type NetworkInfo = (typeof networks)[number]
 	type WalletMenuItem = {
 		kind: string
@@ -135,7 +135,7 @@
 				type: string
 				id?: string
 		  }
-	import { upsertWallet, walletsCollection } from '$/collections/wallets.ts'
+	import { upsertWallet, walletsCollection } from '$/collections/Wallets.ts'
 	import {
 		bridgeSettingsState,
 		defaultBridgeSettings,

@@ -2,7 +2,7 @@
 	// Types/constants
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { uniswapPositionsCollection } from '$/collections/uniswap-positions.ts'
+	import { uniswapPositionsCollection } from '$/collections/UniswapPositions.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 

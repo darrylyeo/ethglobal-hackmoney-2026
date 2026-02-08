@@ -168,7 +168,7 @@ export const createLlmProvider = (
 
 	const connectionProvider = async (): Promise<LlmProvider | null> => {
 		if (options.connectionId == null || options.connectionId === '') return null
-		const { llmConnectionsCollection } = await import('$/collections/llm-connections.ts')
+		const { llmConnectionsCollection } = await import('$/collections/LlmConnections.ts')
 		const connection = llmConnectionsCollection.state.get(options.connectionId)
 		if (!connection) return null
 		const { createLlmProviderFromConnection } = await import(
@@ -290,8 +290,8 @@ export const createExplainProvider = (
 }
 
 // Agent-chat-backed explain: creates an AgentChatTurn for the explanation
-import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
-import { agentChatTurnsCollection } from '$/collections/agent-chat-turns.ts'
+import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
+import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { EntityRef } from '$/data/EntityRef.ts'
 import { EntityType } from '$/data/$EntityType.ts'

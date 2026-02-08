@@ -4,9 +4,9 @@
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins.ts'
-	import { fetchAllBalancesForAddress } from '$/collections/actor-coins.ts'
-	import { verificationsCollection } from '$/collections/verifications.ts'
-	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
+	import { fetchAllBalancesForAddress } from '$/collections/ActorCoins.ts'
+	import { verificationsCollection } from '$/collections/Verifications.ts'
+	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 

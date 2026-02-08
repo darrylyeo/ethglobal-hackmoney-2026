@@ -3,8 +3,8 @@ import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 import type { EntityRef } from '$/data/EntityRef.ts'
 import type { LlmGenerateInput } from '$/lib/llmProvider.ts'
 import { DataSource } from '$/constants/data-sources.ts'
-import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
-import { agentChatTurnsCollection } from '$/collections/agent-chat-turns.ts'
+import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
+import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
 import { createLlmProvider } from '$/lib/llmProvider.ts'
 
 export const DEFAULT_SYSTEM_PROMPT =

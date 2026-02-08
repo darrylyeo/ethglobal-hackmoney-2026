@@ -5,7 +5,7 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { cctpFeesCollection, fetchCctpFees } from '$/collections/cctp-fees.ts'
+	import { cctpFeesCollection, fetchCctpFees } from '$/collections/CctpFees.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 

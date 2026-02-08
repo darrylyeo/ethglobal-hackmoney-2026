@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { StorkPriceRow } from '$/collections/stork-prices.ts'
+	import type { StorkPriceRow } from '$/collections/StorkPrices.ts'
 
 
 	// Props

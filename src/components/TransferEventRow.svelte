@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { TransferEventRow } from '$/collections/transfer-events.ts'
+	import type { TransferEventRow } from '$/collections/TransferEvents.ts'
 	import type { Coin } from '$/constants/coins.ts'
 
 

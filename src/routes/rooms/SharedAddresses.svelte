@@ -1,16 +1,16 @@
 <script lang="ts">
 	// Types/constants
 	import type { SharedAddress } from '$/data/SharedAddress.ts'
-	import type { VerificationRow } from '$/collections/verifications.ts'
+	import type { VerificationRow } from '$/collections/Verifications.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { roomPeersCollection } from '$/collections/room-peers.ts'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
-	import { siweChallengesCollection } from '$/collections/siwe-challenges.ts'
-	import { verificationsCollection } from '$/collections/verifications.ts'
+	import { roomPeersCollection } from '$/collections/RoomPeers.ts'
+	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
+	import { siweChallengesCollection } from '$/collections/SiweChallenges.ts'
+	import { verificationsCollection } from '$/collections/Verifications.ts'
 	import { roomState } from '$/state/room.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 

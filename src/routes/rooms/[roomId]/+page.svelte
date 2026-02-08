@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
@@ -12,7 +12,7 @@
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 	import WatchButton from '$/components/WatchButton.svelte'
-	import { roomPeersCollection } from '$/collections/room-peers.ts'
+	import { roomPeersCollection } from '$/collections/RoomPeers.ts'
 	import {
 		roomState,
 		joinRoom,

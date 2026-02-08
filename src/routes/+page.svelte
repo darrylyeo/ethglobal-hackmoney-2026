@@ -12,7 +12,7 @@
 	import {
 		dashboardPanelsCollection,
 		ensureDefaultRow,
-	} from '$/collections/dashboard-panels.ts'
+	} from '$/collections/DashboardPanels.ts'
 	import PanelTree from '$/routes/dashboard/PanelTree.svelte'
 	import ArchitectureGraph from '$/views/ArchitectureGraph.svelte'
 

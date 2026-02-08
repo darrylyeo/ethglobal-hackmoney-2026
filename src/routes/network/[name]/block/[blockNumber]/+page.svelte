@@ -8,7 +8,7 @@
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire.ts'
-	import { fetchBlock, blocksCollection } from '$/collections/blocks.ts'
+	import { fetchBlock, blocksCollection } from '$/collections/Blocks.ts'
 	const DECIMAL_ONLY = /^\d+$/
 
 

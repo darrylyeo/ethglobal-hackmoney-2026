@@ -5,7 +5,7 @@
 	import {
 		ensureTransactionsForAddresses,
 		transactionsCollection,
-	} from '$/collections/transactions.ts'
+	} from '$/collections/Transactions.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 

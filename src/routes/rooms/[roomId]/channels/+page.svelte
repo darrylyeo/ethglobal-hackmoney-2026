@@ -6,8 +6,8 @@
 
 	// Context
 	import { resolve } from '$app/paths'
-	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
-	import { walletsCollection } from '$/collections/wallets.ts'
+	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
+	import { walletsCollection } from '$/collections/Wallets.ts'
 	import {
 		roomState,
 		joinRoom,

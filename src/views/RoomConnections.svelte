@@ -2,10 +2,10 @@
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { roomPeersCollection } from '$/collections/room-peers.ts'
-	import { roomsCollection } from '$/collections/rooms.ts'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
-	import { verificationsCollection } from '$/collections/verifications.ts'
+	import { roomPeersCollection } from '$/collections/RoomPeers.ts'
+	import { roomsCollection } from '$/collections/Rooms.ts'
+	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
+	import { verificationsCollection } from '$/collections/Verifications.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 

@@ -3,12 +3,12 @@
 	import type { BridgeRoute } from '$/data/BridgeRoute.ts'
 	import type { Transaction } from '@tanstack/db'
 	import type { Transaction$Id } from '$/data/Transaction.ts'
-	import type { WalletRow } from '$/collections/wallets.ts'
+	import type { WalletRow } from '$/collections/Wallets.ts'
 	import type { BridgeStatus } from '$/lib/bridge/txStatus.ts'
 	import {
 		insertTransaction,
 		updateTransaction,
-	} from '$/collections/transactions.ts'
+	} from '$/collections/Transactions.ts'
 	import { executeSelectedRoute } from '$/api/lifi.ts'
 	import { getTxUrl } from '$/constants/explorers.ts'
 	import { toasts } from '$/lib/toast.svelte.ts'

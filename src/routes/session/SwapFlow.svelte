@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
-	import type { TokenListCoinRow } from '$/collections/token-list-coins.ts'
+	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
+	import type { TokenListCoinRow } from '$/collections/TokenListCoins.ts'
 	import type { FetchSwapQuoteParams } from '$/data/SwapQuote.ts'
 	import { getSwapQuote, getSwapQuoteId } from '$/api/uniswap.ts'
 	import type { Coin } from '$/constants/coins.ts'
@@ -109,22 +109,22 @@
 
 
 	// State
-	import { actorAllowancesCollection } from '$/collections/actor-allowances.ts'
+	import { actorAllowancesCollection } from '$/collections/ActorAllowances.ts'
 	import {
 		actorCoinsCollection,
 		fetchActorCoinBalance,
-	} from '$/collections/actor-coins.ts'
+	} from '$/collections/ActorCoins.ts'
 	import {
 		getBestStorkPrice,
 		storkPricesCollection,
 		subscribeStorkPrices,
-	} from '$/collections/stork-prices.ts'
+	} from '$/collections/StorkPrices.ts'
 	import {
 		fetchSwapQuote,
 		swapQuotesCollection,
-	} from '$/collections/swap-quotes.ts'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+	} from '$/collections/SwapQuotes.ts'
+	import { tokenListCoinsCollection } from '$/collections/TokenListCoins.ts'
+	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
 
 	let activeSessionId = $state<string | null>(null)
 	let lookupSessionId = $state<string | null>(null)

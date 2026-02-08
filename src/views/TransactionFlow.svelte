@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { VoltaireProvider } from '$/api/voltaire.ts'
-	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type {
 		ExplainAvailability,
 		ExplainContext,
@@ -103,7 +103,7 @@
 	// Functions
 	import { createHttpProvider } from '$/api/voltaire.ts'
 	import { createExplainProvider, submitExplainTurn } from '$/lib/llmProvider.ts'
-	import { agentChatTurnsCollection } from '$/collections/agent-chat-turns.ts'
+	import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
 	import { getE2eProvider, switchWalletChain } from '$/lib/wallet.ts'
 
 

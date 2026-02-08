@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
-	import type { LlmConnectionRow } from '$/collections/llm-connections.ts'
+	import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
+	import type { LlmConnectionRow } from '$/collections/LlmConnections.ts'
 	import type { AgentChatTree } from '$/data/AgentChatTree.ts'
 	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 

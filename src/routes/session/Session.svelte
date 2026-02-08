@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { TransactionSession } from '$/data/TransactionSession.ts'
 	import { createSessionAction } from '$/data/TransactionSession.ts'
 	import { ActionType } from '$/constants/intents.ts'
@@ -29,7 +29,7 @@
 
 
 	// Functions
-	import { fetchAllBalancesForAddress } from '$/collections/actor-coins.ts'
+	import { fetchAllBalancesForAddress } from '$/collections/ActorCoins.ts'
 	import { buildSessionHash } from '$/lib/session/sessions.ts'
 
 

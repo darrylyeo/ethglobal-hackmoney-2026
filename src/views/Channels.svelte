@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
+	import { yellowChannelsCollection } from '$/collections/YellowChannels.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 

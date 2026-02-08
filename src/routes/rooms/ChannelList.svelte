@@ -1,14 +1,14 @@
 <script lang="ts">
 	// Types/constants
-	import type { YellowChannelRow } from '$/collections/yellow-channels.ts'
+	import type { YellowChannelRow } from '$/collections/YellowChannels.ts'
 	import { closeChannel } from '$/api/yellow.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { yellowChannelsCollection } from '$/collections/yellow-channels.ts'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
+	import { yellowChannelsCollection } from '$/collections/YellowChannels.ts'
+	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { yellowState } from '$/state/yellow.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'

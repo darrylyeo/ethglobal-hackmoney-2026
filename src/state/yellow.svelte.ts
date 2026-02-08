@@ -7,15 +7,15 @@ import { DataSource } from '$/constants/data-sources.ts'
 
 
 // Collections
-import { yellowDepositsCollection } from '$/collections/yellow-deposits.ts'
+import { yellowDepositsCollection } from '$/collections/YellowDeposits.ts'
 import {
 	yellowChannelsCollection,
 	type YellowChannelRow,
-} from '$/collections/yellow-channels.ts'
+} from '$/collections/YellowChannels.ts'
 import {
 	yellowTransfersCollection,
 	type YellowTransferRow,
-} from '$/collections/yellow-transfers.ts'
+} from '$/collections/YellowTransfers.ts'
 
 
 // Functions

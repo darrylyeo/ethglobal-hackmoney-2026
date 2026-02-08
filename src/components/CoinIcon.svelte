@@ -19,7 +19,7 @@
 		size?: number | string
 		title?: string
 		alt?: string
-		subicon?: import('$/components/Icon.svelte').SubiconProps
+		subicon?: SubiconProps
 	} = $props()
 
 	// (Derived)

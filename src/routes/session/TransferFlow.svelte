@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import type { TransferSessionParams } from '$/lib/session/params.ts'
 	import { encodeTransferCall } from '$/api/voltaire.ts'
@@ -72,11 +72,11 @@
 
 
 	// State
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
 	import {
 		insertTransaction,
 		updateTransaction,
-	} from '$/collections/transactions.ts'
+	} from '$/collections/Transactions.ts'
 	import type { Transaction$Id } from '$/data/Transaction.ts'
 
 	let activeSessionId = $state<string | null>(null)

@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { SiweChallengeRow } from '$/collections/siwe-challenges.ts'
+	import type { SiweChallengeRow } from '$/collections/SiweChallenges.ts'
 	import type { EIP1193Provider } from '$/lib/rooms/siwe.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 
@@ -17,7 +17,7 @@
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { siweChallengesCollection } from '$/collections/siwe-challenges.ts'
+	import { siweChallengesCollection } from '$/collections/SiweChallenges.ts'
 	import { roomState } from '$/state/room.svelte.ts'
 	import { signSiweMessage } from '$/lib/rooms/siwe.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'

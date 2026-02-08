@@ -1,10 +1,10 @@
 import type { EntityRef } from '$/data/EntityRef.ts'
 import { EntityType } from '$/data/$EntityType.ts'
-	import { agentChatTurnsCollection } from '$/collections/agent-chat-turns.ts'
-import { actorsCollection } from '$/collections/actors.ts'
-import { actorKey } from '$/collections/actors.ts'
-import { blocksCollection } from '$/collections/blocks.ts'
-import { transactionsCollection } from '$/collections/transactions.ts'
+	import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
+import { actorsCollection } from '$/collections/Actors.ts'
+import { actorKey } from '$/collections/Actors.ts'
+import { blocksCollection } from '$/collections/Blocks.ts'
+import { transactionsCollection } from '$/collections/Transactions.ts'
 import { stringify } from 'devalue'
 
 export type EntitySuggestion = { ref: EntityRef, label: string }

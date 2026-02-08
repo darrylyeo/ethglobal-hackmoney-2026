@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { BridgeSessionParams } from '$/lib/session/params.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import {

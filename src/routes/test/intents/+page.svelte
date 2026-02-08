@@ -23,7 +23,7 @@
 
 
 	// State
-	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
+	import { actorCoinsCollection } from '$/collections/ActorCoins.ts'
 
 	let fromPayload = $state<IntentDragPayload | null>(null)
 	let toPayload = $state<IntentDragPayload | null>(null)

@@ -8,7 +8,7 @@
 		fetchActorAllowance,
 		setActorAllowance,
 		toActorAllowance$Id,
-	} from '$/collections/actor-allowances.ts'
+	} from '$/collections/ActorAllowances.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { getTxUrl } from '$/constants/explorers.ts'
 

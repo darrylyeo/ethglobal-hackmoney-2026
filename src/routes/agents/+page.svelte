@@ -5,7 +5,7 @@
 
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
+	import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 
 
 	// Functions

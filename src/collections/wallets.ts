@@ -3,6 +3,7 @@
  * In-memory only (providers are runtime objects, can't be serialized).
  */
 
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { Wallet, Wallet$Id } from '$/data/Wallet.ts'
 import {
@@ -15,7 +16,7 @@ export type WalletRow = Wallet & { $source: DataSource }
 
 export const walletsCollection = createCollection(
 	localOnlyCollectionOptions({
-		id: 'wallets',
+		id: CollectionId.Wallets,
 		getKey: (row: WalletRow) => stringify(row.$id),
 	}),
 )

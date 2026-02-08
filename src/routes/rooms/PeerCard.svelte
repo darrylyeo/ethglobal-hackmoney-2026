@@ -1,17 +1,17 @@
 <script lang="ts">
 	// Types/constants
-	import type { RoomPeerRow } from '$/collections/room-peers.ts'
-	import type { SiweChallengeRow } from '$/collections/siwe-challenges.ts'
-	import type { VerificationRow } from '$/collections/verifications.ts'
+	import type { RoomPeerRow } from '$/collections/RoomPeers.ts'
+	import type { SiweChallengeRow } from '$/collections/SiweChallenges.ts'
+	import type { VerificationRow } from '$/collections/Verifications.ts'
 	import type { EIP1193Provider } from '$/lib/rooms/siwe.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { sharedAddressesCollection } from '$/collections/shared-addresses.ts'
-	import { siweChallengesCollection } from '$/collections/siwe-challenges.ts'
-	import { verificationsCollection } from '$/collections/verifications.ts'
+	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
+	import { siweChallengesCollection } from '$/collections/SiweChallenges.ts'
+	import { verificationsCollection } from '$/collections/Verifications.ts'
 	import { roomState } from '$/state/room.svelte.ts'
 	import { signSiweMessage } from '$/lib/rooms/siwe.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'

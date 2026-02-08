@@ -1,4 +1,4 @@
-import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 import type { TransactionSession } from '$/data/TransactionSession.ts'
 
 export const SESSION_CONTEXT_KEY = 'session-context'

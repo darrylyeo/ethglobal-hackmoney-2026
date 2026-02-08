@@ -29,7 +29,7 @@
 
 
 	// State
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
 
 	const sessionsQuery = useLiveQuery(
 		(q) =>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
-	import type { StorkPriceRow } from '$/collections/stork-prices.ts'
+	import type { StorkPriceRow } from '$/collections/StorkPrices.ts'
 
 
 	// Context
@@ -28,7 +28,7 @@
 		getBestStorkPrice,
 		storkPricesCollection,
 		subscribeStorkPrices,
-	} from '$/collections/stork-prices.ts'
+	} from '$/collections/StorkPrices.ts'
 
 
 	// State

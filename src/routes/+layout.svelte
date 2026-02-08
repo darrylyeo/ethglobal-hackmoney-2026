@@ -21,20 +21,20 @@
 
 	// Context
 	import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
-	import { myPeerIdsCollection } from '$/collections/my-peer-ids.ts'
-	import { roomPeersCollection } from '$/collections/room-peers.ts'
-	import { roomsCollection } from '$/collections/rooms.ts'
-	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
-	import { transactionsCollection } from '$/collections/transactions.ts'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
-	import { verificationsCollection } from '$/collections/verifications.ts'
+	import { myPeerIdsCollection } from '$/collections/MyPeerIds.ts'
+	import { roomPeersCollection } from '$/collections/RoomPeers.ts'
+	import { roomsCollection } from '$/collections/Rooms.ts'
+	import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
+	import { transactionsCollection } from '$/collections/Transactions.ts'
+	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
+	import { verificationsCollection } from '$/collections/Verifications.ts'
 	import {
 		dashboardPanelsCollection,
 		ensureDefaultRow,
-	} from '$/collections/dashboard-panels.ts'
-	import { walletConnectionsCollection } from '$/collections/wallet-connections.ts'
-	import { watchedEntitiesCollection } from '$/collections/watched-entities.ts'
-	import { walletsCollection } from '$/collections/wallets.ts'
+	} from '$/collections/DashboardPanels.ts'
+	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
+	import { watchedEntitiesCollection } from '$/collections/WatchedEntities.ts'
+	import { walletsCollection } from '$/collections/Wallets.ts'
 	import {
 		createLiveQueryContext,
 		registerGlobalLiveQueryStack,

@@ -25,7 +25,7 @@
 		watchedEntitiesCollection,
 		watchEntity,
 		unwatchEntity,
-	} from '$/collections/watched-entities.ts'
+	} from '$/collections/WatchedEntities.ts'
 
 
 	// (Derived)

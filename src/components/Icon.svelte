@@ -1,21 +1,7 @@
 <script lang="ts">
 	// Components
 	import Icon from './Icon.svelte'
-
-	// Types/constants
-	export enum IconShape {
-		Square = 'square',
-		Circle = 'circle',
-	}
-	export type SubiconProps = {
-		icon?: string
-		html?: string
-		src?: string
-		alt?: string
-		size?: number | string
-		backgroundColor?: string
-		shape?: IconShape
-	}
+	import { type SubiconProps, IconShape } from './icon.ts'
 
 	// Props
 	let {

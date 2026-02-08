@@ -1,7 +1,7 @@
 /// <reference lib='deno.ns' />
 import { assertEquals, assertExists } from 'jsr:@std/assert'
 import { NetworkType } from '$/constants/networks.ts'
-import { normalizeNetwork } from './networks.ts'
+import { normalizeNetwork } from './Networks.ts'
 
 Deno.test(
 	'networks collection normalization: returns one network row with $id, id, name and type',

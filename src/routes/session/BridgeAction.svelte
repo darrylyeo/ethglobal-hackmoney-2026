@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { BridgeRoute } from '$/data/BridgeRoute.ts'
 	import type { BridgeSessionParams } from '$/lib/session/params.ts'
 	import { getUsdcAddress } from '$/api/lifi.ts'
@@ -61,7 +61,7 @@
 
 	// State
 	import { bridgeSettingsState } from '$/state/bridge-settings.svelte.ts'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
 
 
 	// Components

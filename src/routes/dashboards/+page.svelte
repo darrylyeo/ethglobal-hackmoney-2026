@@ -7,7 +7,7 @@
 		renameDashboard,
 		setDashboardIcon,
 		setDefaultDashboardId,
-	} from '$/collections/dashboard-panels.ts'
+	} from '$/collections/DashboardPanels.ts'
 	import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'

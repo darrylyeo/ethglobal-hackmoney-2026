@@ -10,9 +10,9 @@
 	import { resolve } from '$app/paths'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { DataSource } from '$/constants/data-sources.ts'
-	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
-	import { agentChatTurnsCollection } from '$/collections/agent-chat-turns.ts'
-	import { llmConnectionsCollection } from '$/collections/llm-connections.ts'
+	import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
+	import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
+	import { llmConnectionsCollection } from '$/collections/LlmConnections.ts'
 
 
 	// Props

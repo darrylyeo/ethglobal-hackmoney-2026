@@ -1,8 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
-	import type { TokenListCoinRow } from '$/collections/token-list-coins.ts'
-	import type { UniswapPoolRow } from '$/collections/uniswap-pools.ts'
+	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
+	import type { TokenListCoinRow } from '$/collections/TokenListCoins.ts'
+	import type { UniswapPoolRow } from '$/collections/UniswapPools.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import { CoinType } from '$/constants/coins.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
@@ -55,15 +55,15 @@
 		initializePool,
 	} from '$/api/uniswap.ts'
 	import { TICK_SPACINGS } from '$/constants/uniswap.ts'
-	import { actorCoinsCollection } from '$/collections/actor-coins.ts'
-	import { tokenListCoinsCollection } from '$/collections/token-list-coins.ts'
-	import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
-	import { uniswapPositionsCollection } from '$/collections/uniswap-positions.ts'
+	import { actorCoinsCollection } from '$/collections/ActorCoins.ts'
+	import { tokenListCoinsCollection } from '$/collections/TokenListCoins.ts'
+	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
+	import { uniswapPositionsCollection } from '$/collections/UniswapPositions.ts'
 	import {
 		fetchUniswapPools,
 		uniswapPoolsCollection,
-	} from '$/collections/uniswap-pools.ts'
-	import { fetchUniswapPositions } from '$/collections/uniswap-positions.ts'
+	} from '$/collections/UniswapPools.ts'
+	import { fetchUniswapPositions } from '$/collections/UniswapPositions.ts'
 
 
 	// Components

@@ -13,11 +13,11 @@
 		fetchTransferEvents,
 		type TransferEventRow as _TransferEventRow,
 		type TransferEventsMetaRow,
-	} from '$/collections/transfer-events.ts'
+	} from '$/collections/TransferEvents.ts'
 	import {
 		transferGraphsCollection,
 		fetchTransferGraph,
-	} from '$/collections/transfer-graphs.ts'
+	} from '$/collections/TransferGraphs.ts'
 	import { toasts } from '$/lib/toast.svelte.ts'
 	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
 	import Boundary from '$/components/Boundary.svelte'
@@ -63,7 +63,7 @@
 	// (Derived)
 	const graphRow = $derived(
 		(graphQuery.data ?? [])[0] as
-			| { row: import('$/collections/transfer-graphs.ts').TransferGraphRow }
+			| { row: import('$/collections/TransferGraphs.ts').TransferGraphRow }
 			| undefined,
 	)
 	const liveQueryEntries = $derived([

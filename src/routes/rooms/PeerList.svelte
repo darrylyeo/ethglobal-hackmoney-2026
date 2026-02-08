@@ -4,7 +4,7 @@
 
 
 	// Context
-	import { roomPeersCollection } from '$/collections/room-peers.ts'
+	import { roomPeersCollection } from '$/collections/RoomPeers.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 

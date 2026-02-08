@@ -1,5 +1,5 @@
-import { transactionSessionSimulationsCollection } from '$/collections/transaction-session-simulations.ts'
-import { transactionSessionsCollection } from '$/collections/transaction-sessions.ts'
+import { transactionSessionSimulationsCollection } from '$/collections/TransactionSessionSimulations.ts'
+import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type {
 	SessionAction,

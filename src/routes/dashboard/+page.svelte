@@ -17,7 +17,7 @@
 		ensureDashboardState,
 		setDashboardFocus,
 		setDashboardRoot,
-	} from '$/collections/dashboard-panels.ts'
+	} from '$/collections/DashboardPanels.ts'
 	import { setIntentNavigateTo } from '$/state/intent-navigation.svelte.ts'
 
 

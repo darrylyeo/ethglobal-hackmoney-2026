@@ -8,6 +8,7 @@ import {
 	adjectives as peerAdjectives,
 	nouns as peerNouns,
 } from '$/constants/peer-display-names.ts'
+import { CollectionId } from '$/constants/collections.ts'
 import {
 	adjectives as roomAdjectives,
 	colors as roomColors,
@@ -66,7 +67,7 @@ const browserHost =
 const PARTYKIT_HOST =
 	envHost ?? (browserHost ? `${browserHost}:1999` : 'localhost:1999')
 
-const PERSISTENT_PEER_ID_KEY = 'room-persistent-peer-id'
+const PERSISTENT_PEER_ID_KEY = CollectionId.RoomPersistentPeerId
 
 const getOrCreatePersistentPeerId = (): string => {
 	if (typeof localStorage === 'undefined') return crypto.randomUUID()

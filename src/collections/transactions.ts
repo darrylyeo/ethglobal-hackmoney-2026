@@ -3,6 +3,7 @@
  * Persists to localStorage across sessions.
  */
 
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { Transaction, Transaction$Id } from '$/data/Transaction.ts'
 import {
@@ -16,8 +17,8 @@ export type TransactionRow = Transaction & { $source: DataSource }
 
 export const transactionsCollection = createCollection(
 	localStorageCollectionOptions({
-		id: 'transactions',
-		storageKey: 'bridge-transactions',
+		id: CollectionId.Transactions,
+		storageKey: CollectionId.BridgeTransactions,
 		getKey: (row: TransactionRow) => stringify(row.$id),
 		parser: { parse, stringify },
 	}),

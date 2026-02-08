@@ -13,7 +13,7 @@ export type RoomRow = Room & { $source: DataSource }
 
 export const roomsCollection = createCollection(
 	localOnlyCollectionOptions({
-		id: 'rooms',
+		id: CollectionId.Rooms,
 		getKey: (row: RoomRow) => row.id,
 	}),
 )

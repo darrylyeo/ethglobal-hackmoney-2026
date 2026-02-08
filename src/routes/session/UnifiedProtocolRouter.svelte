@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
+	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import { Protocol, protocolSpecs } from '$/constants/intents.ts'
 	import type { Network } from '$/constants/networks.ts'
 

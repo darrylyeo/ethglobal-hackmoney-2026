@@ -6,7 +6,7 @@
 	import {
 		insertTransaction,
 		updateTransaction,
-	} from '$/collections/transactions.ts'
+	} from '$/collections/Transactions.ts'
 	import { getTxUrl } from '$/constants/explorers.ts'
 	import { toasts } from '$/lib/toast.svelte.ts'
 	import { createOptimisticAction } from '@tanstack/svelte-db'

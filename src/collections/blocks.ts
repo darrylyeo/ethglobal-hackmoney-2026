@@ -13,7 +13,7 @@ import {
 	getBlockTransactionCount,
 	getBlockTransactionHashes,
 } from '$/api/voltaire.ts'
-import { fetchChainTransaction } from '$/collections/chain-transactions.ts'
+import { fetchChainTransaction } from '$/collections/ChainTransactions.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { ChainId } from '$/constants/networks.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
@@ -27,7 +27,7 @@ export type BlockRow = BlockEntry & {
 
 export const blocksCollection = createCollection(
 	localOnlyCollectionOptions({
-		id: 'blocks',
+		id: CollectionId.Blocks,
 		getKey: (row: BlockRow) => `${row.$id.chainId}:${row.$id.blockNumber}`,
 	}),
 )
