@@ -165,10 +165,10 @@ describe('resolveIntentForDrag', () => {
 			if (!result.matched) return
 			expect(result.intent.type).toBe(IntentType.SendFunds)
 			expect(result.options.length).toBe(2)
-			expect(result.options[0].label).toBe('Swap via LiFi')
+			expect(result.options[0].label).toBe('Swap via LI.FI')
 			expect(result.options[0].actions.length).toBe(1)
 			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Swap)
-			expect(result.options[1].label).toBe('Via Uniswap V4')
+			expect(result.options[1].label).toBe('Swap via Uniswap V4')
 		})
 
 		it('same actor, different network, same coin → Bridge only', () => {
@@ -180,11 +180,11 @@ describe('resolveIntentForDrag', () => {
 			if (!result.matched) return
 			expect(result.intent.type).toBe(IntentType.SendFunds)
 			expect(result.options.length).toBe(3)
-			expect(result.options[0].label).toBe('Bridge via LiFi')
+			expect(result.options[0].label).toBe('Bridge via LI.FI')
 			expect(result.options[0].actions.length).toBe(1)
 			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Bridge)
-			expect(result.options[1].label).toBe('Via CCTP')
-			expect(result.options[2].label).toBe('Via Gateway')
+			expect(result.options[1].label).toBe('Bridge via Circle CCTP')
+			expect(result.options[2].label).toBe('Bridge via Circle Gateway')
 		})
 
 		it('same actor, different network, different coin → Swap + Bridge', () => {
@@ -196,13 +196,13 @@ describe('resolveIntentForDrag', () => {
 			if (!result.matched) return
 			expect(result.intent.type).toBe(IntentType.SendFunds)
 			expect(result.options.length).toBe(3)
-			expect(result.options[0].label).toBe('Swap + Bridge via LiFi')
+			expect(result.options[0].label).toBe('Swap then bridge via LI.FI')
 			expect(result.options[0].actions.length).toBe(2)
 			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Swap)
 			expect(result.options[0].actions[1].protocolAction.action).toBe(ActionType.Bridge)
 		})
 
-		it('different actor, same network, same coin → Transfer via LiFi + Yellow', () => {
+		it('different actor, same network, same coin → Transfer via LI.FI + Yellow', () => {
 			const result = resolveIntentForDrag(
 				ref(EntityType.ActorCoin, { chainId: 1, address: '0xaaa', tokenAddress: '0xusdc' }),
 				ref(EntityType.ActorCoin, { chainId: 1, address: '0xbbb', tokenAddress: '0xusdc' }),
@@ -211,15 +211,15 @@ describe('resolveIntentForDrag', () => {
 			if (!result.matched) return
 			expect(result.intent.type).toBe(IntentType.SendFunds)
 			expect(result.options.length).toBe(2)
-			expect(result.options[0].label).toBe('Transfer via LiFi')
+			expect(result.options[0].label).toBe('Transfer via LI.FI')
 			expect(result.options[0].actions.length).toBe(1)
 			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Transfer)
 			expect(result.options[0].actions[0].protocolAction.protocol).toBe(Protocol.LiFi)
-			expect(result.options[1].label).toBe('Transfer via Yellow')
+			expect(result.options[1].label).toBe('Transfer via Yellow Network')
 			expect(result.options[1].actions[0].protocolAction.protocol).toBe(Protocol.Yellow)
 		})
 
-		it('different actor, same network, different coin → Swap via LiFi (native recipient)', () => {
+		it('different actor, same network, different coin → Swap via LI.FI (native recipient)', () => {
 			const result = resolveIntentForDrag(
 				ref(EntityType.ActorCoin, { chainId: 1, address: '0xaaa', tokenAddress: '0xusdc' }),
 				ref(EntityType.ActorCoin, { chainId: 1, address: '0xbbb', tokenAddress: '0xweth' }),
@@ -228,10 +228,10 @@ describe('resolveIntentForDrag', () => {
 			if (!result.matched) return
 			expect(result.intent.type).toBe(IntentType.SendFunds)
 			expect(result.options.length).toBe(2)
-			expect(result.options[0].label).toBe('Swap via LiFi')
+			expect(result.options[0].label).toBe('Swap via LI.FI')
 			expect(result.options[0].actions.length).toBe(1)
 			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Swap)
-			expect(result.options[1].label).toBe('Via Uniswap V4')
+			expect(result.options[1].label).toBe('Swap via Uniswap V4')
 		})
 
 		it('different actor, different network, same coin → Bridge (native recipient)', () => {
@@ -243,9 +243,9 @@ describe('resolveIntentForDrag', () => {
 			if (!result.matched) return
 			expect(result.intent.type).toBe(IntentType.SendFunds)
 			expect(result.options.length).toBe(3)
-			expect(result.options[0].label).toBe('Bridge via LiFi')
-			expect(result.options[1].label).toBe('Via CCTP')
-			expect(result.options[2].label).toBe('Via Gateway')
+			expect(result.options[0].label).toBe('Bridge via LI.FI')
+			expect(result.options[1].label).toBe('Bridge via Circle CCTP')
+			expect(result.options[2].label).toBe('Bridge via Circle Gateway')
 		})
 
 		it('different actor, different network, different coin → Swap + Bridge (native recipient)', () => {
@@ -257,12 +257,12 @@ describe('resolveIntentForDrag', () => {
 			if (!result.matched) return
 			expect(result.intent.type).toBe(IntentType.SendFunds)
 			expect(result.options.length).toBe(3)
-			expect(result.options[0].label).toBe('Swap + Bridge via LiFi')
+			expect(result.options[0].label).toBe('Swap then bridge via LI.FI')
 			expect(result.options[0].actions.length).toBe(2)
 			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Swap)
 			expect(result.options[0].actions[1].protocolAction.action).toBe(ActionType.Bridge)
-			expect(result.options[1].label).toBe('Via Uniswap V4 + CCTP')
-			expect(result.options[2].label).toBe('Via Uniswap V4 + Gateway')
+			expect(result.options[1].label).toBe('Swap via Uniswap V4, bridge via Circle CCTP')
+			expect(result.options[2].label).toBe('Swap via Uniswap V4, bridge via Circle Gateway')
 		})
 
 		it('identical source and destination throws', () => {
@@ -284,7 +284,7 @@ describe('resolveIntentForDrag', () => {
 			expect(result.matched).toBe(true)
 			if (!result.matched) return
 			expect(result.intent.type).toBe(IntentType.SendFunds)
-			expect(result.options[0].label).toBe('Bridge via LiFi')
+			expect(result.options[0].label).toBe('Bridge via LI.FI')
 		})
 	})
 

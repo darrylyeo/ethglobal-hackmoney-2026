@@ -286,6 +286,33 @@ export const protocolSpecs = {
 	},
 } as const satisfies Record<Protocol, ProtocolSpec>
 
+const listFormatUnit = new Intl.ListFormat('en', { type: 'unit', style: 'long' })
+
+export function formatIntentOptionLabel(protocolActions: readonly ProtocolAction[]): string {
+	if (protocolActions.length === 0) return ''
+	const first = protocolActions[0]
+	if (protocolActions.length === 1)
+		return `${actionTypeDefinitionByActionType[first.action].label} via ${protocolSpecs[first.protocol].label}`
+	const sameProtocol = protocolActions.every((pa) => pa.protocol === first.protocol)
+	if (sameProtocol)
+		return (
+			protocolActions
+				.map((pa, i) => (
+					i === 0
+						? actionTypeDefinitionByActionType[pa.action].label
+						: actionTypeDefinitionByActionType[pa.action].label.toLowerCase()
+				))
+				.join(' then ')
+			+ ` via ${protocolSpecs[first.protocol].label}`
+		)
+	const parts = protocolActions.map((pa, i) => (
+		(i === 0
+			? actionTypeDefinitionByActionType[pa.action].label
+			: actionTypeDefinitionByActionType[pa.action].label.toLowerCase())
+		+ ` via ${protocolSpecs[pa.protocol].label}`
+	))
+	return listFormatUnit.format(parts)
+}
 
 // Protocol–Actions
 
@@ -452,43 +479,25 @@ export const intents: IntentDefinition[] = [
 			{ name: 'toActorNetwork', type: EntityType.ActorNetwork },
 		],
 
-		resolveOptions: ({ fromActorCoin, toActorNetwork }) => [
-			{
-				label: 'Swap + Bridge via LiFi',
-				actions: [
-					{
-						protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi },
-						payload: { fromActorCoin, toActorCoin: toActorNetwork },
-					},
-					{
-						protocolAction: { action: ActionType.Bridge, protocol: Protocol.LiFi },
-						payload: { fromActorCoin, toActorCoin: toActorNetwork },
-					},
-				],
-			},
-			{
-				label: 'Swap via Uniswap V4 + Bridge via CCTP',
-				actions: [
-					{
-						protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 },
-						payload: { fromActorCoin, toActorCoin: toActorNetwork },
-					},
-					{
-						protocolAction: { action: ActionType.Bridge, protocol: Protocol.Cctp },
-						payload: { fromActorCoin, toActorCoin: toActorNetwork },
-					},
-				],
-			},
-			{
-				label: 'Bridge via Circle Gateway',
-				actions: [
-					{
-						protocolAction: { action: ActionType.Bridge, protocol: Protocol.Gateway },
-						payload: { fromActorCoin, toActorCoin: toActorNetwork },
-					},
-				],
-			},
-		],
+		resolveOptions: ({ fromActorCoin, toActorNetwork }) => {
+			const payload = { fromActorCoin, toActorCoin: toActorNetwork }
+			const lifi = [
+				{ protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi }, payload },
+				{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.LiFi }, payload },
+			]
+			const uniswapCctp = [
+				{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload },
+				{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Cctp }, payload },
+			]
+			const gateway = [
+				{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Gateway }, payload },
+			]
+			return [
+				{ label: formatIntentOptionLabel(lifi.map((a) => a.protocolAction)), actions: lifi },
+				{ label: formatIntentOptionLabel(uniswapCctp.map((a) => a.protocolAction)), actions: uniswapCctp },
+				{ label: formatIntentOptionLabel(gateway.map((a) => a.protocolAction)), actions: gateway },
+			]
+		},
 	},
 
 	{
@@ -520,42 +529,38 @@ export const intents: IntentDefinition[] = [
 
 			const payload = { fromActorCoin: from, toActorCoin: to }
 
+			const lifiActions = [
+				...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi }, payload }] : []),
+				...(!sameNetwork ? [{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.LiFi }, payload }] : []),
+			]
+			const uniswapCctpActions = [
+				...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload }] : []),
+				...(!sameNetwork ? [{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Cctp }, payload }] : []),
+			]
+			const gatewayActions = [
+				...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload }] : []),
+				{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Gateway }, payload },
+			]
 			return [
-				// LiFi handles swap + bridge + cross-actor delivery natively via toAddress
 				...(!sameCoin || !sameNetwork ? [{
-					label: [!sameCoin && 'Swap', !sameNetwork && 'Bridge'].filter(Boolean).join(' + ') + ' via LiFi',
-					actions: [
-						...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi }, payload }] : []),
-						...(!sameNetwork ? [{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.LiFi }, payload }] : []),
-					],
+					label: formatIntentOptionLabel(lifiActions.map((a) => a.protocolAction)),
+					actions: lifiActions,
 				}] : []),
-
-				// Uniswap V4 swap + CCTP bridge (mintRecipient handles cross-actor)
 				...(!sameCoin || !sameNetwork ? [{
-					label: 'Via ' + [!sameCoin && 'Uniswap V4', !sameNetwork && 'CCTP'].filter(Boolean).join(' + '),
-					actions: [
-						...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload }] : []),
-						...(!sameNetwork ? [{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Cctp }, payload }] : []),
-					],
+					label: formatIntentOptionLabel(uniswapCctpActions.map((a) => a.protocolAction)),
+					actions: uniswapCctpActions,
 				}] : []),
-
-				// Gateway bridge (destinationRecipient handles cross-actor)
 				...(!sameNetwork ? [{
-					label: 'Via ' + [!sameCoin && 'Uniswap V4', 'Gateway'].filter(Boolean).join(' + '),
-					actions: [
-						...(!sameCoin ? [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload }] : []),
-						{ protocolAction: { action: ActionType.Bridge, protocol: Protocol.Gateway }, payload },
-					],
+					label: formatIntentOptionLabel(gatewayActions.map((a) => a.protocolAction)),
+					actions: gatewayActions,
 				}] : []),
-
-				// Transfer only (same coin + same network + different actor)
 				...(sameCoin && sameNetwork && !sameActor ? [
 					{
-						label: 'Transfer via LiFi',
+						label: formatIntentOptionLabel([{ action: ActionType.Transfer, protocol: Protocol.LiFi }]),
 						actions: [{ protocolAction: { action: ActionType.Transfer, protocol: Protocol.LiFi }, payload }],
 					},
 					{
-						label: 'Transfer via Yellow',
+						label: formatIntentOptionLabel([{ action: ActionType.Transfer, protocol: Protocol.Yellow }]),
 						actions: [{ protocolAction: { action: ActionType.Transfer, protocol: Protocol.Yellow }, payload }],
 					},
 				] : []),
@@ -582,26 +587,15 @@ export const intents: IntentDefinition[] = [
 			{ name: 'coin', type: EntityType.Coin },
 		],
 
-		resolveOptions: ({ actorCoin, coin }) => [
-			{
-				label: 'Swap via Uniswap V4',
-				actions: [
-					{
-						protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 },
-						payload: { fromActorCoin: actorCoin, toActorCoin: coin },
-					},
-				],
-			},
-			{
-				label: 'Swap via LiFi',
-				actions: [
-					{
-						protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi },
-						payload: { fromActorCoin: actorCoin, toActorCoin: coin },
-					},
-				],
-			},
-		],
+		resolveOptions: ({ actorCoin, coin }) => {
+			const payload = { fromActorCoin: actorCoin, toActorCoin: coin }
+			const uniswap = [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.UniswapV4 }, payload }]
+			const lifi = [{ protocolAction: { action: ActionType.Swap, protocol: Protocol.LiFi }, payload }]
+			return [
+				{ label: formatIntentOptionLabel(uniswap.map((a) => a.protocolAction)), actions: uniswap },
+				{ label: formatIntentOptionLabel(lifi.map((a) => a.protocolAction)), actions: lifi },
+			]
+		},
 	},
 
 	{
