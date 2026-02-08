@@ -1,8 +1,11 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
-	import type { TransactionSession } from '$/data/TransactionSession.ts'
-	import { createSessionAction } from '$/data/TransactionSession.ts'
+	import {
+		createSessionAction,
+		TransactionSessionStatus,
+		type TransactionSession,
+	} from '$/data/TransactionSession.ts'
 	import { ActionType } from '$/constants/intents.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { ercTokens } from '$/constants/coins.ts'
@@ -143,7 +146,7 @@
 				id={session.id}
 				label={session.name || 'Session'}
 				href={`${resolve('/session')}${buildSessionHash(session.id)}`}
-				autoWatched={session.status === 'Draft' || session.status === 'Submitted'}
+				autoWatched={session.status === TransactionSessionStatus.Draft || session.status === TransactionSessionStatus.Submitted}
 			/>
 		</header>
 

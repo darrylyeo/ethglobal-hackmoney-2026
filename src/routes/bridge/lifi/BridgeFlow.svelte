@@ -3,7 +3,11 @@
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute.ts'
 	import type { WalletRow } from '$/collections/Wallets.ts'
-	import type { BridgeStatus } from '$/lib/bridge/txStatus.ts'
+	import {
+		BridgeOverallStatus,
+		createInitialStatus,
+		type BridgeStatus,
+	} from '$/lib/bridge/txStatus.ts'
 	import {
 		type BridgeSessionParams,
 		normalizeBridgeSessionParams,
@@ -77,9 +81,10 @@
 		fetchBridgeRoutes,
 	} from '$/collections/BridgeRoutes.ts'
 	import {
-		transactionsCollection,
+		bridgeTransactionsCollection,
 		updateTransaction,
-	} from '$/collections/Transactions.ts'
+	} from '$/collections/BridgeTransactions.ts'
+	import { BridgeTransactionStatus } from '$/data/Transaction.ts'
 
 
 	// Components
@@ -118,7 +123,7 @@
 	let selectedRouteId = $state<string | null>(null)
 	let executing = $state(false)
 	let executeFunction = $state<(() => Promise<{ txHash?: `0x${string}` } | void>) | null>(null)
-	let executionStatus = $state<BridgeStatus>({ overall: 'idle', steps: [] })
+	let executionStatus = $state<BridgeStatus>(createInitialStatus())
 	let now = $state(Date.now())
 
 
@@ -155,7 +160,7 @@
 	)
 	const txQuery = useLiveQuery((q) =>
 		q
-			.from({ row: transactionsCollection })
+			.from({ row: bridgeTransactionsCollection })
 			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.orderBy(({ row }) => row.$id?.createdAt ?? 0, 'desc')
 			.select(({ row }) => ({ row })),
@@ -353,8 +358,10 @@
 			for (const tx of list) {
 				getTxReceiptStatus(tx.fromChainId, tx.$id.sourceTxHash)
 					.then((status) => {
-						if (status === 'failed')
-							updateTransaction(tx.$id, { status: 'failed' })
+						if (status === BridgeTransactionStatus.Failed)
+							updateTransaction(tx.$id, {
+								status: BridgeTransactionStatus.Failed,
+							})
 					})
 					.catch(() => {})
 			}
@@ -410,14 +417,14 @@
 
 
 	<div aria-live="polite" aria-atomic="true" class="sr-only">
-		{#if executionStatus.overall === 'in_progress'}
+		{#if executionStatus.overall === BridgeOverallStatus.InProgress}
 			{@const currentStep =
 				executionStatus.steps.find((s) => s.state === 'pending') ??
 				executionStatus.steps[executionStatus.steps.length - 1]}
 			Transaction in progress. {currentStep?.step ?? 'Sending'}
 		{:else if executionStatus.overall === 'completed'}
 			Bridge complete. Tokens sent successfully.
-		{:else if executionStatus.overall === 'failed'}
+		{:else if executionStatus.overall === BridgeOverallStatus.Failed}
 			Transaction failed. {executionStatus.steps.find((s) => s.error)?.error ??
 				'Unknown error'}
 		{/if}

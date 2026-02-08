@@ -13,11 +13,11 @@
 	import { pushState, replaceState } from '$app/navigation'
 	import { resolve } from '$app/paths'
 	import {
-		dashboardPanelsCollection,
+		dashboardsCollection,
 		ensureDashboardState,
 		setDashboardFocus,
 		setDashboardRoot,
-	} from '$/collections/DashboardPanels.ts'
+	} from '$/collections/Dashboards.ts'
 	import { setIntentNavigateTo } from '$/state/intent-navigation.svelte.ts'
 
 
@@ -182,7 +182,7 @@
 	const defaultDashboardRowQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: dashboardPanelsCollection })
+				.from({ row: dashboardsCollection })
 				.where(({ row }) => eq(row.$id.id, '__default__'))
 				.select(({ row }) =>
 					'defaultDashboardId' in row
@@ -200,7 +200,7 @@
 	const dashboardRowQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: dashboardPanelsCollection })
+				.from({ row: dashboardsCollection })
 				.where(({ row }) =>
 					and(
 						not(eq(row.$id.id, '__default__')),

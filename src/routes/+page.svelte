@@ -10,9 +10,9 @@
 	import { and, eq, not, useLiveQuery } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
 	import {
-		dashboardPanelsCollection,
+		dashboardsCollection,
 		ensureDefaultRow,
-	} from '$/collections/DashboardPanels.ts'
+	} from '$/collections/Dashboards.ts'
 	import PanelTree from '$/routes/dashboard/PanelTree.svelte'
 	import ArchitectureGraph from '$/views/ArchitectureGraph.svelte'
 
@@ -24,7 +24,7 @@
 	const defaultRowQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: dashboardPanelsCollection })
+				.from({ row: dashboardsCollection })
 				.where(({ row }) => eq(row.$id.id, '__default__'))
 				.select(({ row }) =>
 					'defaultDashboardId' in row
@@ -39,7 +39,7 @@
 	const dashboardRowQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: dashboardPanelsCollection })
+				.from({ row: dashboardsCollection })
 				.where(({ row }) =>
 					and(
 						not(eq(row.$id.id, '__default__')),

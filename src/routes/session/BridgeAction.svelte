@@ -16,6 +16,8 @@
 		validateBridgeAmount,
 	} from '$/constants/bridge-limits.ts'
 	import { ActionType } from '$/constants/intents.ts'
+	import { TransactionSessionStatus } from '$/data/TransactionSession.ts'
+	import { TransactionSessionSimulationStatus } from '$/data/TransactionSessionSimulation.ts'
 	import { isCctpSupportedChain } from '$/constants/cctp.ts'
 	import { isGatewaySupportedChain } from '$/constants/gateway.ts'
 	import { ercTokens, ercTokensBySymbolByChainId } from '$/constants/coins.ts'
@@ -61,7 +63,7 @@
 
 	// State
 	import { bridgeSettingsState } from '$/state/bridge-settings.svelte.ts'
-	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
+	import { sessionsCollection } from '$/collections/Sessions.ts'
 
 
 	// Components
@@ -115,7 +117,7 @@
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
@@ -123,7 +125,7 @@
 	const lookupSessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, lookupSessionId ?? ''))
 				.select(({ row }) => ({ row })),
 		[() => lookupSessionId],
@@ -356,7 +358,7 @@
 		updateTransactionSession(sessionId, (s) => ({
 			...s,
 			params: nextParams,
-			status: 'Submitted',
+			status: TransactionSessionStatus.Submitted,
 			lockedAt: s.lockedAt ?? Date.now(),
 			execution: {
 				submittedAt: s.execution?.submittedAt ?? Date.now(),

@@ -7,7 +7,7 @@
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire.ts'
 	import { fetchBlock, blocksCollection } from '$/collections/Blocks.ts'
-	import { fetchChainTransaction, chainTransactionsCollection } from '$/collections/ChainTransactions.ts'
+	import { fetchNetworkTransaction, networkTransactionsCollection } from '$/collections/NetworkTransactions.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { resolve } from '$app/paths'
@@ -88,7 +88,7 @@
 	const txQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: chainTransactionsCollection })
+				.from({ row: networkTransactionsCollection })
 				.where(({ row }) =>
 					and(
 						eq(row.$id.chainId, data.chainId),
@@ -161,7 +161,7 @@
 	)
 
 	$effect(() => {
-		fetchChainTransaction(data.chainId, data.transactionId).catch(() => {})
+		fetchNetworkTransaction(data.chainId, data.transactionId).catch(() => {})
 	})
 	$effect(() => {
 		if (txRow?.blockNumber != null) blockNumber = txRow.blockNumber

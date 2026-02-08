@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { YellowChannelRow } from '$/collections/YellowChannels.ts'
-	import type { YellowChannelStateRow } from '$/collections/YellowChannelStates.ts'
+	import type { StateChannelRow } from '$/collections/YellowChannels.ts'
+	import type { StateChannelStateRow } from '$/collections/YellowChannelStates.ts'
 	import type { ChannelStatus } from '$/data/YellowChannel.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import { closeChannel, challengeChannel, openChannel, sendTransfer } from '$/api/yellow.ts'
@@ -12,9 +12,9 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import { yellowChannelsCollection } from '$/collections/YellowChannels.ts'
-	import { yellowChannelStatesCollection } from '$/collections/YellowChannelStates.ts'
-	import { roomsCollection } from '$/collections/Rooms.ts'
+	import { stateChannelsCollection } from '$/collections/StateChannels.ts'
+	import { stateChannelStatesCollection } from '$/collections/StateChannelStates.ts'
+	import { partykitRoomsCollection } from '$/collections/PartykitRooms.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { walletsCollection } from '$/collections/Wallets.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
@@ -34,17 +34,17 @@
 
 	// (Derived)
 	const channelsQuery = useLiveQuery((q) =>
-		q.from({ row: yellowChannelsCollection }).select(({ row }) => ({ row })),
+		q.from({ row: stateChannelsCollection }).select(({ row }) => ({ row })),
 	)
 	const statesQuery = useLiveQuery((q) =>
 		q
-			.from({ row: yellowChannelStatesCollection })
+			.from({ row: stateChannelStatesCollection })
 			.select(({ row }) => ({ row })),
 	)
 	const roomsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: roomsCollection })
+				.from({ row: partykitRoomsCollection })
 				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.select(({ row }) => ({ row })),
 		[],
@@ -127,7 +127,7 @@
 		),
 	)
 	const channelStatesByChannelId = $derived(
-		(statesQuery.data ?? []).reduce<Record<string, YellowChannelStateRow>>(
+		(statesQuery.data ?? []).reduce<Record<string, StateChannelStateRow>>(
 			(acc, { row }) => {
 				const id = row.channelId
 				const existing = acc[id]
@@ -194,19 +194,19 @@
 	// Functions
 	const shortId = (id: string) =>
 		id.length > 14 ? `${id.slice(0, 6)}…${id.slice(-6)}` : id
-	const getCounterparty = (ch: YellowChannelRow) =>
+	const getCounterparty = (ch: StateChannelRow) =>
 		myAddress && ch.participant0.toLowerCase() === myAddress
 			? ch.participant1
 			: ch.participant0
-	const getMyBalance = (ch: YellowChannelRow) =>
+	const getMyBalance = (ch: StateChannelRow) =>
 		myAddress && ch.participant0.toLowerCase() === myAddress
 			? ch.balance0
 			: ch.balance1
-	const getCounterpartyBalance = (ch: YellowChannelRow) =>
+	const getCounterpartyBalance = (ch: StateChannelRow) =>
 		myAddress && ch.participant0.toLowerCase() === myAddress
 			? ch.balance1
 			: ch.balance0
-	const isParticipant = (ch: YellowChannelRow) =>
+	const isParticipant = (ch: StateChannelRow) =>
 		myAddress &&
 		(ch.participant0.toLowerCase() === myAddress ||
 			ch.participant1.toLowerCase() === myAddress)
@@ -280,7 +280,7 @@
 		}
 	}
 
-	const handleClose = async (ch: YellowChannelRow) => {
+	const handleClose = async (ch: StateChannelRow) => {
 		if (!yellowState.clearnodeConnection || !yellowState.address) {
 			actionError = 'Connect to Yellow before closing'
 			return
@@ -299,7 +299,7 @@
 			closingChannelId = null
 		}
 	}
-	const handleChallenge = async (ch: YellowChannelRow) => {
+	const handleChallenge = async (ch: StateChannelRow) => {
 		const latestState = channelStatesByChannelId[ch.id]
 		if (!latestState) {
 			actionError = 'No state available to challenge'
@@ -342,7 +342,7 @@
 	import TransferDialog from '$/routes/rooms/TransferDialog.svelte'
 
 	let transferOpen = $state(false)
-	let transferChannel = $state<YellowChannelRow | null>(null)
+	let transferChannel = $state<StateChannelRow | null>(null)
 </script>
 
 

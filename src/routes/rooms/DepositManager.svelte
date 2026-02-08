@@ -7,7 +7,7 @@
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import { yellowDepositsCollection } from '$/collections/YellowDeposits.ts'
+	import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'
 	import { yellowState } from '$/state/yellow.svelte.ts'
 	import { depositToCustody, withdrawFromCustody } from '$/api/yellow.ts'
 	import { getUsdcAddress } from '$/api/lifi.ts'
@@ -21,8 +21,8 @@
 	// (Derived)
 	const depositQuery = useLiveQuery((q) =>
 		q
-			.from({ row: yellowDepositsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Yellow))
+			.from({ row: stateChannelDepositsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Eip7824))
 			.select(({ row }) => ({ row })),
 	)
 	const liveQueryEntries = [

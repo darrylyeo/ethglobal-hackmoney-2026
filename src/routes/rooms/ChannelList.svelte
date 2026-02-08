@@ -1,13 +1,13 @@
 <script lang="ts">
 	// Types/constants
-	import type { YellowChannelRow } from '$/collections/YellowChannels.ts'
+	import type { StateChannelRow } from '$/collections/StateChannels.ts'
 	import { closeChannel } from '$/api/yellow.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { yellowChannelsCollection } from '$/collections/YellowChannels.ts'
+	import { stateChannelsCollection } from '$/collections/StateChannels.ts'
 	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { yellowState } from '$/state/yellow.svelte.ts'
@@ -30,8 +30,8 @@
 	)
 	const channelsQuery = useLiveQuery((q) =>
 		q
-			.from({ row: yellowChannelsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Yellow))
+			.from({ row: stateChannelsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Eip7824))
 			.select(({ row }) => ({ row })),
 	)
 	const liveQueryEntries = [
@@ -69,11 +69,11 @@
 
 
 	// Functions
-	const getCounterparty = (channel: YellowChannelRow) =>
+	const getCounterparty = (channel: StateChannelRow) =>
 		myAddress && channel.participant0.toLowerCase() === myAddress
 			? channel.participant1
 			: channel.participant0
-	const getMyBalance = (channel: YellowChannelRow) =>
+	const getMyBalance = (channel: StateChannelRow) =>
 		myAddress && channel.participant0.toLowerCase() === myAddress
 			? channel.balance0
 			: channel.balance1
@@ -81,13 +81,13 @@
 
 	// State
 	let transferOpen = $state(false)
-	let transferChannel = $state<YellowChannelRow | null>(null)
+	let transferChannel = $state<StateChannelRow | null>(null)
 	let closingChannelId = $state<string | null>(null)
 	let closeError = $state<string | null>(null)
 
 
 	// Actions
-	const settleAndClose = async (channel: YellowChannelRow) => {
+	const settleAndClose = async (channel: StateChannelRow) => {
 		if (!yellowState.clearnodeConnection || !yellowState.address) {
 			closeError = 'Connect to Yellow before closing'
 			return

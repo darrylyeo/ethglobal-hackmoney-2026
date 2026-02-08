@@ -12,6 +12,8 @@
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { ActionType, actionTypeDefinitionByActionType } from '$/constants/intents.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+	import { TransactionSessionStatus } from '$/data/TransactionSession.ts'
+	import { VerificationStatus } from '$/data/Verification.ts'
 	import { networkConfigs, toNetworkSlug } from '$/constants/networks.ts'
 	import {
 		WalletConnectionTransport,
@@ -22,16 +24,16 @@
 	// Context
 	import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
 	import { myPeerIdsCollection } from '$/collections/MyPeerIds.ts'
-	import { roomPeersCollection } from '$/collections/RoomPeers.ts'
-	import { roomsCollection } from '$/collections/Rooms.ts'
+	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
+	import { partykitRoomsCollection } from '$/collections/PartykitRooms.ts'
 	import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
-	import { transactionsCollection } from '$/collections/Transactions.ts'
-	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
-	import { verificationsCollection } from '$/collections/Verifications.ts'
+	import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
+	import { sessionsCollection } from '$/collections/Sessions.ts'
+	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 	import {
-		dashboardPanelsCollection,
-		ensureDefaultRow,
-	} from '$/collections/DashboardPanels.ts'
+	dashboardsCollection,
+	ensureDefaultRow,
+} from '$/collections/Dashboards.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { watchedEntitiesCollection } from '$/collections/WatchedEntities.ts'
 	import { walletsCollection } from '$/collections/Wallets.ts'
@@ -80,17 +82,14 @@
 	const roomsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: roomsCollection })
+				.from({ row: partykitRoomsCollection })
 				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.select(({ row }) => ({ row })),
 		[],
 	)
 	const sessionsQuery = useLiveQuery(
 		(q) =>
-			q
-				.from({ row: transactionSessionsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Local))
-				.select(({ row }) => ({ row })),
+			q.from({ row: sessionsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const agentChatTreesQuery = useLiveQuery(
@@ -116,47 +115,40 @@
 	const recentTransactionsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionsCollection })
+				.from({ row: bridgeTransactionsCollection })
 				.select(({ row }) => ({ row })),
 		[],
 	)
 	const walletsQuery = useLiveQuery(
 		(q) =>
-			q
-				.from({ row: walletsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Local))
-				.select(({ row }) => ({ row })),
+			q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const walletConnectionsQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: walletConnectionsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Local))
 				.select(({ row }) => ({ row })),
 		[],
 	)
 	const verificationsQuery = useLiveQuery(
 		(q) =>
-			q.from({ row: verificationsCollection }).select(({ row }) => ({ row })),
+			q.from({ row: siweVerificationsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const roomPeersQuery = useLiveQuery(
-		(q) => q.from({ row: roomPeersCollection }).select(({ row }) => ({ row })),
+		(q) => q.from({ row: partykitRoomPeersCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const myPeerIdsQuery = useLiveQuery(
 		(q) =>
-			q
-				.from({ row: myPeerIdsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Local))
-				.select(({ row }) => ({ row })),
+			q.from({ row: myPeerIdsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const dashboardsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: dashboardPanelsCollection })
+				.from({ row: dashboardsCollection })
 				.where(({ row }) => not(eq(row.$id.id, '__default__')))
 				.select(({ row }) => ({
 					id: row.$id.id,
@@ -168,7 +160,7 @@
 	const defaultDashboardRowQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: dashboardPanelsCollection })
+				.from({ row: dashboardsCollection })
 				.where(({ row }) => eq(row.$id.id, '__default__'))
 				.select(({ row }) =>
 					'defaultDashboardId' in row
@@ -361,7 +353,7 @@
 		new Set([
 			...accountNavItems.map((item) => item.href),
 			...(sessionsQuery.data ?? [])
-				.filter((r) => r.row.status === 'Draft' || r.row.status === 'Submitted')
+				.filter((r) => r.row.status === TransactionSessionStatus.Draft || r.row.status === TransactionSessionStatus.Submitted)
 				.map((r) => sessionHref(r.row)),
 			...(recentTransactionsQuery.data ?? [])
 				.filter((r) => r.row.status === 'completed' || r.row.status === 'failed')

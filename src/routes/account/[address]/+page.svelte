@@ -2,10 +2,11 @@
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+	import { VerificationStatus } from '$/data/Verification.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { fetchAllBalancesForAddress } from '$/collections/ActorCoins.ts'
-	import { verificationsCollection } from '$/collections/Verifications.ts'
+	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
@@ -48,7 +49,7 @@
 	const verificationsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: verificationsCollection })
+				.from({ row: siweVerificationsCollection })
 				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.select(({ row }) => ({ row })),
 		[],
@@ -76,7 +77,7 @@
 			(normalizedAddress != null &&
 				verificationsList.some(
 					(v) =>
-						v.status === 'verified' &&
+						v.status === VerificationStatus.Verified &&
 						v.address.toLowerCase() === normalizedAddress.toLowerCase(),
 				)),
 	)

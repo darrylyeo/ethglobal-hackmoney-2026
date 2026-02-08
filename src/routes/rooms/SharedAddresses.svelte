@@ -1,16 +1,17 @@
 <script lang="ts">
 	// Types/constants
 	import type { SharedAddress } from '$/data/SharedAddress.ts'
-	import type { VerificationRow } from '$/collections/Verifications.ts'
+	import { VerificationStatus } from '$/data/Verification.ts'
+	import type { VerificationRow } from '$/collections/SiweVerifications.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { roomPeersCollection } from '$/collections/RoomPeers.ts'
+	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
 	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
 	import { siweChallengesCollection } from '$/collections/SiweChallenges.ts'
-	import { verificationsCollection } from '$/collections/Verifications.ts'
+	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 	import { roomState } from '$/state/room.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
@@ -36,7 +37,7 @@
 	const peersQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: roomPeersCollection })
+				.from({ row: partykitRoomPeersCollection })
 				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
@@ -45,7 +46,7 @@
 	const verificationsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: verificationsCollection })
+				.from({ row: siweVerificationsCollection })
 				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
@@ -124,10 +125,10 @@
 		)
 	const getStatus = (
 		s: SharedAddress,
-	): 'none' | 'unverifiable' | 'verifying' | 'verified' => {
+	): VerificationStatus | 'none' => {
 		const v = getMyVerification(s)
 		if (v) return v.status
-		return hasPendingChallenge(s) ? 'verifying' : 'none'
+		return hasPendingChallenge(s) ? VerificationStatus.Verifying : 'none'
 	}
 	const formatDate = (ts: number) =>
 		new Date(ts).toLocaleString(undefined, {
@@ -188,7 +189,7 @@
 							>
 								Re-verify
 							</Button.Root>
-						{:else if status === 'verifying'}
+						{:else if status === VerificationStatus.Verifying}
 							Verifying
 						{:else}
 							Verified

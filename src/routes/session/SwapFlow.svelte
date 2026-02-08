@@ -124,7 +124,7 @@
 		swapQuotesCollection,
 	} from '$/collections/SwapQuotes.ts'
 	import { tokenListCoinsCollection } from '$/collections/TokenListCoins.ts'
-	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
+	import { sessionsCollection } from '$/collections/Sessions.ts'
 
 	let activeSessionId = $state<string | null>(null)
 	let lookupSessionId = $state<string | null>(null)
@@ -140,7 +140,7 @@
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
@@ -148,7 +148,7 @@
 	const lookupSessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, lookupSessionId ?? ''))
 				.select(({ row }) => ({ row })),
 		[() => lookupSessionId],

@@ -2,12 +2,12 @@
 	// State
 	import {
 		createDashboard,
-		dashboardPanelsCollection,
+		dashboardsCollection,
 		deleteDashboard,
 		renameDashboard,
 		setDashboardIcon,
 		setDefaultDashboardId,
-	} from '$/collections/DashboardPanels.ts'
+	} from '$/collections/Dashboards.ts'
 	import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
@@ -17,7 +17,7 @@
 	const dashboardsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: dashboardPanelsCollection })
+				.from({ row: dashboardsCollection })
 				.where(({ row }) => not(eq(row.$id.id, '__default__')))
 				.select(({ row }) => ({
 					id: row.$id.id,
@@ -29,7 +29,7 @@
 	const defaultRowQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: dashboardPanelsCollection })
+				.from({ row: dashboardsCollection })
 				.where(({ row }) => eq(row.$id.id, '__default__'))
 				.select(({ row }) =>
 					'defaultDashboardId' in row

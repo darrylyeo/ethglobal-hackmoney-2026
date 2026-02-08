@@ -18,28 +18,28 @@
 	import { cctpAllowanceCollection } from '$/collections/CctpAllowance.ts'
 	import { cctpFeesCollection } from '$/collections/CctpFees.ts'
 	import { coinsCollection } from '$/collections/Coins.ts'
-	import { dashboardPanelsCollection } from '$/collections/DashboardPanels.ts'
+	import { dashboardsCollection } from '$/collections/Dashboards.ts'
 	import { networksCollection } from '$/collections/Networks.ts'
-	import { roomPeersCollection } from '$/collections/RoomPeers.ts'
-	import { roomsCollection } from '$/collections/Rooms.ts'
+	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
+	import { partykitRoomsCollection } from '$/collections/PartykitRooms.ts'
 	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
 	import { siweChallengesCollection } from '$/collections/SiweChallenges.ts'
 	import { storkPricesCollection } from '$/collections/StorkPrices.ts'
 	import { swapQuotesCollection } from '$/collections/SwapQuotes.ts'
 	import { tokenListCoinsCollection } from '$/collections/TokenListCoins.ts'
-	import { transactionSessionSimulationsCollection } from '$/collections/TransactionSessionSimulations.ts'
-	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
-	import { transactionsCollection } from '$/collections/Transactions.ts'
+	import { sessionSimulationsCollection } from '$/collections/SessionSimulations.ts'
+	import { sessionsCollection } from '$/collections/Sessions.ts'
+	import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
 	import { transferGraphsCollection } from '$/collections/TransferGraphs.ts'
 	import { transferRequestsCollection } from '$/collections/TransferRequests.ts'
 	import { uniswapPoolsCollection } from '$/collections/UniswapPools.ts'
 	import { uniswapPositionsCollection } from '$/collections/UniswapPositions.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { walletsCollection } from '$/collections/Wallets.ts'
-	import { yellowChannelStatesCollection } from '$/collections/YellowChannelStates.ts'
-	import { yellowChannelsCollection } from '$/collections/YellowChannels.ts'
-	import { yellowDepositsCollection } from '$/collections/YellowDeposits.ts'
-	import { yellowTransfersCollection } from '$/collections/YellowTransfers.ts'
+	import { stateChannelStatesCollection } from '$/collections/StateChannelStates.ts'
+	import { stateChannelsCollection } from '$/collections/StateChannels.ts'
+	import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'
+	import { stateChannelTransfersCollection } from '$/collections/StateChannelTransfers.ts'
 	import { entitySourcesCollection } from '$/collections/_EntitySources.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import {
@@ -52,6 +52,7 @@
 		EntityType,
 		graphSceneEntityTypes,
 	} from '$/data/$EntityType.ts'
+	import { TransactionSessionStatus } from '$/data/TransactionSession.ts'
 	import { untrack } from 'svelte'
 	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits.ts'
@@ -186,7 +187,7 @@
 		q.from({ row: bridgeRouteItemsCollection }).select(({ row }) => ({ row })),
 	)
 	const txQuery = useLiveQuery((q) =>
-		q.from({ row: transactionsCollection }).select(({ row }) => ({ row })),
+		q.from({ row: bridgeTransactionsCollection }).select(({ row }) => ({ row })),
 	)
 	const blocksQuery = useLiveQuery((q) =>
 		q.from({ row: blocksCollection }).select(({ row }) => ({ row })),
@@ -219,10 +220,10 @@
 		q.from({ row: cctpFeesCollection }).select(({ row }) => ({ row })),
 	)
 	const roomsQuery = useLiveQuery((q) =>
-		q.from({ row: roomsCollection }).select(({ row }) => ({ row })),
+		q.from({ row: partykitRoomsCollection }).select(({ row }) => ({ row })),
 	)
 	const roomPeersQuery = useLiveQuery((q) =>
-		q.from({ row: roomPeersCollection }).select(({ row }) => ({ row })),
+		q.from({ row: partykitRoomPeersCollection }).select(({ row }) => ({ row })),
 	)
 	const sharedAddressesQuery = useLiveQuery((q) =>
 		q.from({ row: sharedAddressesCollection }).select(({ row }) => ({ row })),
@@ -232,12 +233,12 @@
 	)
 	const transactionSessionsQuery = useLiveQuery((q) =>
 		q
-			.from({ row: transactionSessionsCollection })
+			.from({ row: sessionsCollection })
 			.select(({ row }) => ({ row })),
 	)
-	const transactionSessionSimulationsQuery = useLiveQuery((q) =>
+	const sessionSimulationsQuery = useLiveQuery((q) =>
 		q
-			.from({ row: transactionSessionSimulationsCollection })
+			.from({ row: sessionSimulationsCollection })
 			.select(({ row }) => ({ row })),
 	)
 	const transferGraphsQuery = useLiveQuery((q) =>
@@ -246,96 +247,66 @@
 	const transferRequestsQuery = useLiveQuery((q) =>
 		q.from({ row: transferRequestsCollection }).select(({ row }) => ({ row })),
 	)
-	const dashboardPanelsQuery = useLiveQuery((q) =>
+	const dashboardsQuery = useLiveQuery((q) =>
 		q
-			.from({ row: dashboardPanelsCollection })
+			.from({ row: dashboardsCollection })
 			.where(({ row }) => not(eq(row.$id.id, '__default__')))
 			.select(({ row }) => ({ row })),
 	)
 	const yellowChannelsQuery = useLiveQuery((q) =>
-		q.from({ row: yellowChannelsCollection }).select(({ row }) => ({ row })),
+		q.from({ row: stateChannelsCollection }).select(({ row }) => ({ row })),
 	)
-	const yellowChannelStatesQuery = useLiveQuery((q) =>
+	const stateChannelStatesQuery = useLiveQuery((q) =>
 		q
-			.from({ row: yellowChannelStatesCollection })
+			.from({ row: stateChannelStatesCollection })
 			.select(({ row }) => ({ row })),
 	)
-	const yellowDepositsQuery = useLiveQuery((q) =>
-		q.from({ row: yellowDepositsCollection }).select(({ row }) => ({ row })),
+	const stateChannelDepositsQuery = useLiveQuery((q) =>
+		q.from({ row: stateChannelDepositsCollection }).select(({ row }) => ({ row })),
 	)
-	const yellowTransfersQuery = useLiveQuery((q) =>
-		q.from({ row: yellowTransfersCollection }).select(({ row }) => ({ row })),
+	const stateChannelTransfersQuery = useLiveQuery((q) =>
+		q.from({ row: stateChannelTransfersCollection }).select(({ row }) => ({ row })),
 	)
 	const entitySourcesQuery = useLiveQuery((q) =>
 		q.from({ row: entitySourcesCollection }).select(({ row }) => ({ row })),
 	)
 
-	const queryByEntityType: Partial<
-		Record<EntityType, { data?: { row: unknown }[] }>
-	> = {
-		[EntityType.Wallet]: walletsQuery,
-		[EntityType.WalletConnection]: connectionsQuery,
-		[EntityType.Actor]: actorsQuery,
-		[EntityType.ActorCoin]: actorCoinsQuery,
-		[EntityType.ActorAllowance]: allowancesQuery,
-		[EntityType.BridgeRoute]: routesQuery,
-		[EntityType.Transaction]: txQuery,
-		[EntityType.CctpAllowance]: cctpAllowanceQuery,
-		[EntityType.CctpFee]: cctpFeesQuery,
-		[EntityType.Coin]: coinsQuery,
-		[EntityType.DashboardPanel]: dashboardPanelsQuery,
-		[EntityType.Block]: blocksQuery,
-		[EntityType.Network]: networksQuery,
-		[EntityType.Room]: roomsQuery,
-		[EntityType.RoomPeer]: roomPeersQuery,
-		[EntityType.SharedAddress]: sharedAddressesQuery,
-		[EntityType.SiweChallenge]: siweChallengesQuery,
-		[EntityType.StorkPrice]: storkPricesQuery,
-		[EntityType.SwapQuote]: swapQuotesQuery,
-		[EntityType.TokenListCoin]: tokenListCoinsQuery,
-		[EntityType.TransactionSession]: transactionSessionsQuery,
-		[EntityType.TransactionSessionSimulation]: transactionSessionSimulationsQuery,
-		[EntityType.TransferGraph]: transferGraphsQuery,
-		[EntityType.TransferRequest]: transferRequestsQuery,
-		[EntityType.UniswapPool]: uniswapPoolsQuery,
-		[EntityType.UniswapPosition]: uniswapPositionsQuery,
-		[EntityType.YellowChannel]: yellowChannelsQuery,
-		[EntityType.YellowChannelState]: yellowChannelStatesQuery,
-		[EntityType.YellowDeposit]: yellowDepositsQuery,
-		[EntityType.YellowTransfer]: yellowTransfersQuery,
-	}
-	const graphQueries = [
-		walletsQuery,
-		connectionsQuery,
-		actorsQuery,
-		actorCoinsQuery,
-		allowancesQuery,
-		routesQuery,
-		txQuery,
-		blocksQuery,
-		cctpAllowanceQuery,
-		cctpFeesQuery,
-		networksQuery,
-		coinsQuery,
-		tokenListCoinsQuery,
-		storkPricesQuery,
-		swapQuotesQuery,
-		uniswapPoolsQuery,
-		uniswapPositionsQuery,
-		transactionSessionsQuery,
-		transactionSessionSimulationsQuery,
-		transferGraphsQuery,
-		transferRequestsQuery,
-		roomsQuery,
-		roomPeersQuery,
-		sharedAddressesQuery,
-		siweChallengesQuery,
-		yellowChannelsQuery,
-		yellowChannelStatesQuery,
-		yellowDepositsQuery,
-		yellowTransfersQuery,
-		dashboardPanelsQuery,
+	const entityQueryList: [EntityType, { data?: { row: unknown }[] }][] = [
+		[EntityType.Wallet, walletsQuery],
+		[EntityType.WalletConnection, connectionsQuery],
+		[EntityType.Actor, actorsQuery],
+		[EntityType.ActorCoin, actorCoinsQuery],
+		[EntityType.ActorAllowance, allowancesQuery],
+		[EntityType.BridgeRoute, routesQuery],
+		[EntityType.Transaction, txQuery],
+		[EntityType.CctpAllowance, cctpAllowanceQuery],
+		[EntityType.CctpFee, cctpFeesQuery],
+		[EntityType.Coin, coinsQuery],
+		[EntityType.Dashboard, dashboardsQuery],
+		[EntityType.Block, blocksQuery],
+		[EntityType.Network, networksQuery],
+		[EntityType.Room, roomsQuery],
+		[EntityType.RoomPeer, roomPeersQuery],
+		[EntityType.SharedAddress, sharedAddressesQuery],
+		[EntityType.SiweChallenge, siweChallengesQuery],
+		[EntityType.StorkPrice, storkPricesQuery],
+		[EntityType.SwapQuote, swapQuotesQuery],
+		[EntityType.TokenListCoin, tokenListCoinsQuery],
+		[EntityType.TransactionSession, transactionSessionsQuery],
+		[EntityType.TransactionSessionSimulation, sessionSimulationsQuery],
+		[EntityType.TransferGraph, transferGraphsQuery],
+		[EntityType.TransferRequest, transferRequestsQuery],
+		[EntityType.UniswapPool, uniswapPoolsQuery],
+		[EntityType.UniswapPosition, uniswapPositionsQuery],
+		[EntityType.StateChannel, yellowChannelsQuery],
+		[EntityType.StateChannelState, stateChannelStatesQuery],
+		[EntityType.StateChannelDeposit, stateChannelDepositsQuery],
+		[EntityType.StateChannelTransfer, stateChannelTransfersQuery],
 	]
+	const queryByEntityType = Object.fromEntries(entityQueryList) as Partial<
+		Record<EntityType, { data?: { row: unknown }[] }>
+	>
+	const graphQueries = entityQueryList.map(([, q]) => q)
 
 	const entitySourceCombos = $derived(
 		(entitySourcesQuery.data ?? []).map(({ row }) => ({
@@ -526,7 +497,7 @@
 				shadowColor: '#5eead4',
 			},
 		},
-		[EntityType.DashboardPanel]: {
+		[EntityType.Dashboard]: {
 			color: '#64748b',
 			label: 'Panels',
 			size: 11,
@@ -734,7 +705,7 @@
 				opacity: 0.85,
 			},
 		},
-		[EntityType.YellowChannel]: {
+		[EntityType.StateChannel]: {
 			color: '#fbbf24',
 			label: 'Yellow Channels',
 			size: 12,
@@ -747,7 +718,7 @@
 				shadowColor: '#fde68a',
 			},
 		},
-		[EntityType.YellowChannelState]: {
+		[EntityType.StateChannelState]: {
 			color: '#f59e0b',
 			label: 'Channel States',
 			size: 10,
@@ -760,7 +731,7 @@
 				opacity: 0.75,
 			},
 		},
-		[EntityType.YellowDeposit]: {
+		[EntityType.StateChannelDeposit]: {
 			color: '#fb923c',
 			label: 'Deposits',
 			size: 10,
@@ -773,7 +744,7 @@
 				shadowColor: '#fdba74',
 			},
 		},
-		[EntityType.YellowTransfer]: {
+		[EntityType.StateChannelTransfer]: {
 			color: '#f97316',
 			label: 'Transfers',
 			size: 10,
@@ -821,6 +792,7 @@
 	)
 
 	const edgeColors = {
+		block: '#64748b',
 		owns: '#64748b',
 		connection: '#22c55e',
 		balance: '#8b5cf6',
@@ -848,6 +820,7 @@
 	}
 
 	const edgeStyles: Record<string, GraphEdgeStyle> = {
+		block: { lineDash: [2, 2], labelPlacement: 'center' },
 		owns: { lineDash: [3, 3], labelPlacement: 'center' },
 		connection: { lineDash: [6, 3], endArrow: true, labelPlacement: 'center' },
 		balance: { lineWidth: 1.5, endArrow: true, labelPlacement: 'center' },
@@ -874,34 +847,27 @@
 		panel: { lineDash: [2, 2], labelPlacement: 'center' },
 	}
 
+	const normalizeStatus = (status?: string) => status?.toLowerCase() ?? ''
 	const toStatusBadge = (status?: string) => {
-		if (!status) return null
-		const normalized = status.toLowerCase()
-		if (normalized === 'pending') return 'PEND'
-		if (normalized === 'completed') return 'DONE'
-		if (normalized === 'failed') return 'FAIL'
-		if (normalized === 'finalized') return 'DONE'
-		if (normalized === 'open') return 'OPEN'
-		if (normalized === 'closed') return 'CLOSE'
-		return status.slice(0, 4).toUpperCase()
+		const n = normalizeStatus(status)
+		if (!n) return null
+		const map: Record<string, string> = {
+			pending: 'PEND',
+			completed: 'DONE',
+			failed: 'FAIL',
+			finalized: 'DONE',
+			open: 'OPEN',
+			closed: 'CLOSE',
+		}
+		return map[n] ?? (status ?? '').slice(0, 4).toUpperCase()
 	}
-
 	const statusLineDash = (status?: string) => {
-		if (!status) return undefined
-		const normalized = status.toLowerCase()
-		if (normalized === 'pending') return [4, 3]
-		if (normalized === 'failed') return [2, 2]
-		if (normalized === 'closed') return [6, 3]
-		return undefined
+		const n = normalizeStatus(status)
+		return n === 'pending' ? [4, 3] : n === 'failed' ? [2, 2] : n === 'closed' ? [6, 3] : undefined
 	}
-
 	const statusOpacity = (status?: string) => {
-		if (!status) return undefined
-		const normalized = status.toLowerCase()
-		if (normalized === 'failed') return 0.6
-		if (normalized === 'pending') return 0.85
-		if (normalized === 'closed') return 0.7
-		return undefined
+		const n = normalizeStatus(status)
+		return n === 'failed' ? 0.6 : n === 'pending' ? 0.85 : n === 'closed' ? 0.7 : undefined
 	}
 
 	const parseNumber = (value: unknown): number | null => {
@@ -975,6 +941,24 @@
 			g.addEdgeWithKey(id, source, target, attrs)
 			edges.push(edge)
 		}
+		type EdgeRelation = keyof typeof edgeColors
+		const addRelationEdge = (
+			relation: EdgeRelation,
+			source: string,
+			target: string,
+			opts?: Partial<GraphEdge>,
+		) =>
+			addEdge({
+				id: `edge:${edgeIndex++}`,
+				source,
+				target,
+				size: 1.5,
+				color: edgeColors[relation],
+				type: 'curvedArrow',
+				relation,
+				g6Style: edgeStyles[relation],
+				...opts,
+			})
 
 		// Position nodes in rings by collection type
 		const positionInRing = (ring: number, index: number, total: number) => {
@@ -990,7 +974,7 @@
 		if (visibleCollections.has(EntityType.Wallet)) {
 			const wallets = take(walletsQuery.data)
 			wallets.forEach(({ row }, i) => {
-				if (skipRow(EntityType.Wallet, row.$source)) return
+				if (skipRow(EntityType.Wallet, undefined)) return
 				const rdns = row.$id?.rdns
 				if (!rdns) return
 				const pos = positionInRing(
@@ -1015,7 +999,7 @@
 		if (visibleCollections.has(EntityType.WalletConnection)) {
 			const connections = take(connectionsQuery.data)
 			connections.forEach(({ row }, i) => {
-				if (skipRow(EntityType.WalletConnection, row.$source)) return
+				if (skipRow(EntityType.WalletConnection, undefined)) return
 				const rdns = row.$id?.wallet$id?.rdns
 				if (!rdns) return
 				const connId = `connection:${rdns}`
@@ -1177,17 +1161,11 @@
 				if (visibleCollections.has(EntityType.Actor)) {
 					const actorId = `actor:${row.$id.chainId}:${row.$id.address}`
 					if (g.hasNode(actorId)) {
-						addEdge({
-							id: `edge:${edgeIndex++}`,
-							source: actorId,
-							target: coinId,
+						addRelationEdge('balance', actorId, coinId, {
 							size: hasBalance ? 1.5 : 0.5,
 							color: hasBalance
 								? edgeColors.balance
 								: `${edgeColors.balance}33`,
-							type: 'curvedArrow',
-							relation: 'balance',
-							g6Style: edgeStyles.balance,
 							disabled: !hasBalance,
 						})
 					}
@@ -1237,17 +1215,11 @@
 				if (visibleCollections.has(EntityType.ActorCoin)) {
 					const coinId = `coin:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}`
 					if (g.hasNode(coinId)) {
-						addEdge({
-							id: `edge:${edgeIndex++}`,
-							source: coinId,
-							target: allowanceId,
+						addRelationEdge('allowance', coinId, allowanceId, {
 							size: hasAllowance ? 1 : 0.5,
 							color: hasAllowance
 								? edgeColors.allowance
 								: `${edgeColors.allowance}33`,
-							type: 'curvedArrow',
-							relation: 'allowance',
-							g6Style: edgeStyles.allowance,
 							disabled: !hasAllowance,
 						})
 					}
@@ -1394,28 +1366,10 @@
 					const fromNetworkId = `network:${row.fromChainId}`
 					const toNetworkId = `network:${row.toChainId}`
 					if (g.hasNode(fromNetworkId)) {
-						addEdge({
-							id: `edge:${edgeIndex++}`,
-							source: fromNetworkId,
-							target: routeId,
-							size: 1.5,
-							color: edgeColors.route,
-							type: 'curvedArrow',
-							relation: 'route',
-							g6Style: edgeStyles.route,
-						})
+						addRelationEdge('route', fromNetworkId, routeId)
 					}
 					if (g.hasNode(toNetworkId)) {
-						addEdge({
-							id: `edge:${edgeIndex++}`,
-							source: routeId,
-							target: toNetworkId,
-							size: 1.5,
-							color: edgeColors.route,
-							type: 'curvedArrow',
-							relation: 'route',
-							g6Style: edgeStyles.route,
-						})
+						addRelationEdge('route', routeId, toNetworkId)
 					}
 				}
 			})
@@ -1425,7 +1379,7 @@
 		if (visibleCollections.has(EntityType.Transaction)) {
 			const txs = take(txQuery.data)
 			txs.forEach(({ row }, i) => {
-				if (skipRow(EntityType.Transaction, row.$source)) return
+				if (skipRow(EntityType.Transaction, undefined)) return
 				const txId = `tx:${row.$id.sourceTxHash}`
 				if (g.hasNode(txId)) return
 				const pos = positionInRing(
@@ -1497,35 +1451,25 @@
 					i,
 					coins.length,
 				)
-				addNode({
-					id: coinId,
-					label: row.symbol,
-					...pos,
-					size: collections[EntityType.Coin].size,
-					color: collections[EntityType.Coin].color,
-					type: 'circle',
-					collection: EntityType.Coin,
-					g6Type: collections[EntityType.Coin].g6Type,
-					g6Style: collections[EntityType.Coin].g6Style,
-					intent: toIntentPayload(EntityType.Coin, row.$id),
-					details: {
-						address: row.$id.address,
-						chainId: row.$id.network,
-						symbol: row.symbol,
-					},
-				})
+				addNode(
+					baseNode(EntityType.Coin, pos, {
+						id: coinId,
+						label: row.symbol,
+						type: 'circle',
+						intent: toIntentPayload(EntityType.Coin, row.$id),
+						details: {
+							address: row.$id.address,
+							chainId: row.$id.network,
+							symbol: row.symbol,
+						},
+					}),
+				)
 				if (visibleCollections.has(EntityType.Network)) {
 					const networkId = `network:${row.$id.network}`
 					if (g.hasNode(networkId)) {
-						addEdge({
-							id: `edge:${edgeIndex++}`,
-							source: networkId,
-							target: coinId,
+						addRelationEdge('coin', networkId, coinId, {
 							size: 1,
-							color: edgeColors.coin,
 							type: 'line',
-							relation: 'coin',
-							g6Style: edgeStyles.coin,
 						})
 					}
 				}
@@ -1544,35 +1488,25 @@
 					i,
 					tokens.length,
 				)
-				addNode({
-					id: tokenId,
-					label: row.symbol,
-					...pos,
-					size: collections[EntityType.TokenListCoin].size,
-					color: collections[EntityType.TokenListCoin].color,
-					type: 'circle',
-					collection: EntityType.TokenListCoin,
-					g6Type: collections[EntityType.TokenListCoin].g6Type,
-					g6Style: collections[EntityType.TokenListCoin].g6Style,
-					intent: toIntentPayload(EntityType.TokenListCoin, row.$id),
-					details: {
-						address: row.$id.address,
-						chainId: row.$id.chainId,
-						symbol: row.symbol,
-					},
-				})
+				addNode(
+					baseNode(EntityType.TokenListCoin, pos, {
+						id: tokenId,
+						label: row.symbol,
+						type: 'circle',
+						intent: toIntentPayload(EntityType.TokenListCoin, row.$id),
+						details: {
+							address: row.$id.address,
+							chainId: row.$id.chainId,
+							symbol: row.symbol,
+						},
+					}),
+				)
 				if (visibleCollections.has(EntityType.Network)) {
 					const networkId = `network:${row.$id.chainId}`
 					if (g.hasNode(networkId)) {
-						addEdge({
-							id: `edge:${edgeIndex++}`,
-							source: networkId,
-							target: tokenId,
+						addRelationEdge('token', networkId, tokenId, {
 							size: 1,
-							color: edgeColors.token,
 							type: 'line',
-							relation: 'token',
-							g6Style: edgeStyles.token,
 						})
 					}
 				}
@@ -1613,15 +1547,9 @@
 				if (visibleCollections.has(EntityType.Network) && row.chainId) {
 					const networkId = `network:${row.chainId}`
 					if (g.hasNode(networkId)) {
-						addEdge({
-							id: `edge:${edgeIndex++}`,
-							source: networkId,
-							target: priceId,
+						addRelationEdge('stork', networkId, priceId, {
 							size: 1,
-							color: edgeColors.stork,
 							type: 'line',
-							relation: 'stork',
-							g6Style: edgeStyles.stork,
 							disabled: row.isLoading || row.error !== null,
 						})
 					}
@@ -1724,15 +1652,9 @@
 				if (visibleCollections.has(EntityType.Network)) {
 					const networkId = `network:${row.chainId}`
 					if (g.hasNode(networkId)) {
-						addEdge({
-							id: `edge:${edgeIndex++}`,
-							source: networkId,
-							target: poolId,
+						addRelationEdge('pool', networkId, poolId, {
 							size: 1.5,
-							color: edgeColors.pool,
 							type: 'line',
-							relation: 'pool',
-							g6Style: edgeStyles.pool,
 						})
 					}
 				}
@@ -1769,16 +1691,7 @@
 				})
 				const poolId = `pool:${row.poolId}`
 				if (g.hasNode(poolId)) {
-					addEdge({
-						id: `edge:${edgeIndex++}`,
-						source: poolId,
-						target: positionId,
-						size: 1.2,
-						color: edgeColors.position,
-						type: 'curvedArrow',
-						relation: 'position',
-						g6Style: edgeStyles.position,
-					})
+					addRelationEdge('position', poolId, positionId, { size: 1.2 })
 				}
 			})
 		}
@@ -1854,7 +1767,7 @@
 		if (visibleCollections.has(EntityType.TransactionSession)) {
 			const sessions = take(transactionSessionsQuery.data)
 			sessions.forEach(({ row }, i) => {
-				if (skipRow(EntityType.TransactionSession, row.$source)) return
+				if (skipRow(EntityType.TransactionSession, undefined)) return
 				const sessionId = `session:${row.id}`
 				if (g.hasNode(sessionId)) return
 				const pos = positionInRing(
@@ -1888,16 +1801,7 @@
 					if (row.execution?.chainId) {
 						const networkId = `network:${row.execution.chainId}`
 						if (g.hasNode(networkId)) {
-							addEdge({
-								id: `edge:${edgeIndex++}`,
-								source: networkId,
-								target: sessionId,
-								size: 1.5,
-								color: edgeColors.session,
-								type: 'curvedArrow',
-								relation: 'session',
-								g6Style: edgeStyles.session,
-							})
+							addRelationEdge('session', networkId, sessionId)
 						}
 					}
 				}
@@ -1906,9 +1810,9 @@
 
 		// Add transaction session simulation nodes
 		if (visibleCollections.has(EntityType.TransactionSessionSimulation)) {
-			const simulations = take(transactionSessionSimulationsQuery.data)
+			const simulations = take(sessionSimulationsQuery.data)
 			simulations.forEach(({ row }, i) => {
-				if (skipRow(EntityType.TransactionSessionSimulation, row.$source)) return
+				if (skipRow(EntityType.TransactionSessionSimulation, undefined)) return
 				const simulationId = `simulation:${row.id}`
 				if (g.hasNode(simulationId)) return
 				const pos = positionInRing(
@@ -1939,15 +1843,8 @@
 				})
 				const sessionId = `session:${row.sessionId}`
 				if (g.hasNode(sessionId)) {
-					addEdge({
-						id: `edge:${edgeIndex++}`,
-						source: sessionId,
-						target: simulationId,
+					addRelationEdge('simulation', sessionId, simulationId, {
 						size: 1,
-						color: edgeColors.simulation,
-						type: 'curvedArrow',
-						relation: 'simulation',
-						g6Style: edgeStyles.simulation,
 						disabled: row.status === 'failed',
 					})
 				}
@@ -2056,15 +1953,8 @@
 				})
 				const roomId = `room:${row.roomId}`
 				if (g.hasNode(roomId)) {
-					addEdge({
-						id: `edge:${edgeIndex++}`,
-						source: roomId,
-						target: peerId,
+					addRelationEdge('peer', roomId, peerId, {
 						size: 1,
-						color: edgeColors.peer,
-						type: 'curvedArrow',
-						relation: 'peer',
-						g6Style: edgeStyles.peer,
 						disabled: !row.isConnected,
 					})
 				}
@@ -2107,15 +1997,9 @@
 				})
 				const roomId = `room:${row.roomId}`
 				if (g.hasNode(roomId)) {
-					addEdge({
-						id: `edge:${edgeIndex++}`,
-						source: roomId,
-						target: sharedId,
+					addRelationEdge('shared', roomId, sharedId, {
 						size: 1,
-						color: edgeColors.shared,
 						type: 'line',
-						relation: 'shared',
-						g6Style: edgeStyles.shared,
 					})
 				}
 			})
@@ -2157,15 +2041,8 @@
 				})
 				const roomId = `room:${row.roomId}`
 				if (g.hasNode(roomId)) {
-					addEdge({
-						id: `edge:${edgeIndex++}`,
-						source: roomId,
-						target: challengeId,
+					addRelationEdge('siwe', roomId, challengeId, {
 						size: 1,
-						color: edgeColors.siwe,
-						type: 'curvedArrow',
-						relation: 'siwe',
-						g6Style: edgeStyles.siwe,
 						disabled: !row.verified,
 					})
 				}
@@ -2225,14 +2102,14 @@
 		}
 
 		// Add yellow channel nodes
-		if (visibleCollections.has(EntityType.YellowChannel)) {
+		if (visibleCollections.has(EntityType.StateChannel)) {
 			const channels = take(yellowChannelsQuery.data)
 			channels.forEach(({ row }, i) => {
-				if (skipRow(EntityType.YellowChannel, row.$source)) return
+				if (skipRow(EntityType.StateChannel, row.$source)) return
 				const channelId = `yellow:${row.id}`
 				if (g.hasNode(channelId)) return
 				const pos = positionInRing(
-					collections[EntityType.YellowChannel].ring,
+					collections[EntityType.StateChannel].ring,
 					i,
 					channels.length,
 				)
@@ -2240,13 +2117,13 @@
 					id: channelId,
 					label: `Channel ${row.id.slice(0, 6)}`,
 					...pos,
-					size: collections[EntityType.YellowChannel].size,
-					color: collections[EntityType.YellowChannel].color,
+					size: collections[EntityType.StateChannel].size,
+					color: collections[EntityType.StateChannel].color,
 					type: 'rect',
-					collection: EntityType.YellowChannel,
-					g6Type: collections[EntityType.YellowChannel].g6Type,
+					collection: EntityType.StateChannel,
+					g6Type: collections[EntityType.StateChannel].g6Type,
 					g6Style: {
-						...collections[EntityType.YellowChannel].g6Style,
+						...collections[EntityType.StateChannel].g6Style,
 						badge: { text: toStatusBadge(row.status) ?? 'LIVE' },
 						lineDash: statusLineDash(row.status),
 						opacity: statusOpacity(row.status),
@@ -2261,15 +2138,8 @@
 				if (visibleCollections.has(EntityType.Network)) {
 					const networkId = `network:${row.chainId}`
 					if (g.hasNode(networkId)) {
-						addEdge({
-							id: `edge:${edgeIndex++}`,
-							source: networkId,
-							target: channelId,
+						addRelationEdge('yellow', networkId, channelId, {
 							size: 1.5,
-							color: edgeColors.yellow,
-							type: 'curvedArrow',
-							relation: 'yellow',
-							g6Style: edgeStyles.yellow,
 							disabled: row.status === 'closed',
 						})
 					}
@@ -2278,14 +2148,14 @@
 		}
 
 		// Add yellow channel state nodes
-		if (visibleCollections.has(EntityType.YellowChannelState)) {
-			const states = take(yellowChannelStatesQuery.data)
+		if (visibleCollections.has(EntityType.StateChannelState)) {
+			const states = take(stateChannelStatesQuery.data)
 			states.forEach(({ row }, i) => {
-				if (skipRow(EntityType.YellowChannelState, row.$source)) return
+				if (skipRow(EntityType.StateChannelState, row.$source)) return
 				const stateId = `yellow-state:${row.id}`
 				if (g.hasNode(stateId)) return
 				const pos = positionInRing(
-					collections[EntityType.YellowChannelState].ring,
+					collections[EntityType.StateChannelState].ring,
 					i,
 					states.length,
 				)
@@ -2293,13 +2163,13 @@
 					id: stateId,
 					label: `State v${row.version}`,
 					...pos,
-					size: collections[EntityType.YellowChannelState].size,
-					color: collections[EntityType.YellowChannelState].color,
+					size: collections[EntityType.StateChannelState].size,
+					color: collections[EntityType.StateChannelState].color,
 					type: 'rect',
-					collection: EntityType.YellowChannelState,
-					g6Type: collections[EntityType.YellowChannelState].g6Type,
+					collection: EntityType.StateChannelState,
+					g6Type: collections[EntityType.StateChannelState].g6Type,
 					g6Style: {
-						...collections[EntityType.YellowChannelState].g6Style,
+						...collections[EntityType.StateChannelState].g6Style,
 						badge: { text: row.isFinal ? 'FINAL' : 'LIVE' },
 						lineDash: row.isFinal ? [6, 3] : undefined,
 						opacity: row.isFinal ? 0.75 : 1,
@@ -2313,15 +2183,8 @@
 				})
 				const channelId = `yellow:${row.channelId}`
 				if (g.hasNode(channelId)) {
-					addEdge({
-						id: `edge:${edgeIndex++}`,
-						source: channelId,
-						target: stateId,
+					addRelationEdge('yellow', channelId, stateId, {
 						size: 1,
-						color: edgeColors.yellow,
-						type: 'curvedArrow',
-						relation: 'yellow',
-						g6Style: edgeStyles.yellow,
 						disabled: row.isFinal,
 					})
 				}
@@ -2329,14 +2192,14 @@
 		}
 
 		// Add yellow deposit nodes
-		if (visibleCollections.has(EntityType.YellowDeposit)) {
-			const deposits = take(yellowDepositsQuery.data)
+		if (visibleCollections.has(EntityType.StateChannelDeposit)) {
+			const deposits = take(stateChannelDepositsQuery.data)
 			deposits.forEach(({ row }, i) => {
-				if (skipRow(EntityType.YellowDeposit, row.$source)) return
+				if (skipRow(EntityType.StateChannelDeposit, row.$source)) return
 				const depositId = `yellow-deposit:${row.id}`
 				if (g.hasNode(depositId)) return
 				const pos = positionInRing(
-					collections[EntityType.YellowDeposit].ring,
+					collections[EntityType.StateChannelDeposit].ring,
 					i,
 					deposits.length,
 				)
@@ -2344,13 +2207,13 @@
 					id: depositId,
 					label: `Deposit ${row.address.slice(0, 6)}…`,
 					...pos,
-					size: collections[EntityType.YellowDeposit].size,
-					color: collections[EntityType.YellowDeposit].color,
+					size: collections[EntityType.StateChannelDeposit].size,
+					color: collections[EntityType.StateChannelDeposit].color,
 					type: 'circle',
-					collection: EntityType.YellowDeposit,
-					g6Type: collections[EntityType.YellowDeposit].g6Type,
+					collection: EntityType.StateChannelDeposit,
+					g6Type: collections[EntityType.StateChannelDeposit].g6Type,
 					g6Style: {
-						...collections[EntityType.YellowDeposit].g6Style,
+						...collections[EntityType.StateChannelDeposit].g6Style,
 						badge: row.lockedBalance > 0n ? { text: 'LOCK' } : { text: 'FREE' },
 					},
 					details: {
@@ -2362,15 +2225,9 @@
 				if (visibleCollections.has(EntityType.Network)) {
 					const networkId = `network:${row.chainId}`
 					if (g.hasNode(networkId)) {
-						addEdge({
-							id: `edge:${edgeIndex++}`,
-							source: networkId,
-							target: depositId,
+						addRelationEdge('yellow', networkId, depositId, {
 							size: 1,
-							color: edgeColors.yellow,
 							type: 'line',
-							relation: 'yellow',
-							g6Style: edgeStyles.yellow,
 						})
 					}
 				}
@@ -2378,14 +2235,14 @@
 		}
 
 		// Add yellow transfer nodes
-		if (visibleCollections.has(EntityType.YellowTransfer)) {
-			const transfers = take(yellowTransfersQuery.data)
+		if (visibleCollections.has(EntityType.StateChannelTransfer)) {
+			const transfers = take(stateChannelTransfersQuery.data)
 			transfers.forEach(({ row }, i) => {
-				if (skipRow(EntityType.YellowTransfer, row.$source)) return
+				if (skipRow(EntityType.StateChannelTransfer, row.$source)) return
 				const transferId = `yellow-transfer:${row.id}`
 				if (g.hasNode(transferId)) return
 				const pos = positionInRing(
-					collections[EntityType.YellowTransfer].ring,
+					collections[EntityType.StateChannelTransfer].ring,
 					i,
 					transfers.length,
 				)
@@ -2393,13 +2250,13 @@
 					id: transferId,
 					label: `${row.status} transfer`,
 					...pos,
-					size: collections[EntityType.YellowTransfer].size,
-					color: collections[EntityType.YellowTransfer].color,
+					size: collections[EntityType.StateChannelTransfer].size,
+					color: collections[EntityType.StateChannelTransfer].color,
 					type: 'circle',
-					collection: EntityType.YellowTransfer,
-					g6Type: collections[EntityType.YellowTransfer].g6Type,
+					collection: EntityType.StateChannelTransfer,
+					g6Type: collections[EntityType.StateChannelTransfer].g6Type,
 					g6Style: {
-						...collections[EntityType.YellowTransfer].g6Style,
+						...collections[EntityType.StateChannelTransfer].g6Style,
 						badge: { text: toStatusBadge(row.status) ?? 'XFER' },
 						lineDash: statusLineDash(row.status),
 						opacity: statusOpacity(row.status),
@@ -2413,15 +2270,8 @@
 				})
 				const channelId = `yellow:${row.channelId}`
 				if (g.hasNode(channelId)) {
-					addEdge({
-						id: `edge:${edgeIndex++}`,
-						source: channelId,
-						target: transferId,
+					addRelationEdge('yellow', channelId, transferId, {
 						size: 1,
-						color: edgeColors.yellow,
-						type: 'curvedArrow',
-						relation: 'yellow',
-						g6Style: edgeStyles.yellow,
 						disabled: row.status === 'failed',
 					})
 				}
@@ -2429,14 +2279,14 @@
 		}
 
 		// Add dashboard panel nodes
-		if (visibleCollections.has(EntityType.DashboardPanel)) {
-			const panels = take(dashboardPanelsQuery.data)
+		if (visibleCollections.has(EntityType.Dashboard)) {
+			const panels = take(dashboardsQuery.data)
 			panels.forEach(({ row }, i) => {
-				if (skipRow(EntityType.DashboardPanel, row.$source)) return
+				if (skipRow(EntityType.Dashboard, undefined)) return
 				const panelId = toNodeId('dashboard', row.$id)
 				if (g.hasNode(panelId)) return
 				const pos = positionInRing(
-					collections[EntityType.DashboardPanel].ring,
+					collections[EntityType.Dashboard].ring,
 					i,
 					panels.length,
 				)
@@ -2444,12 +2294,12 @@
 					id: panelId,
 					label: `Dashboard ${row.$id.id}`,
 					...pos,
-					size: collections[EntityType.DashboardPanel].size,
-					color: collections[EntityType.DashboardPanel].color,
+					size: collections[EntityType.Dashboard].size,
+					color: collections[EntityType.Dashboard].color,
 					type: 'rect',
-					collection: EntityType.DashboardPanel,
-					g6Type: collections[EntityType.DashboardPanel].g6Type,
-					g6Style: collections[EntityType.DashboardPanel].g6Style,
+					collection: EntityType.Dashboard,
+					g6Type: collections[EntityType.Dashboard].g6Type,
+					g6Style: collections[EntityType.Dashboard].g6Style,
 					details:
 						'focusedPanelId' in row
 							? { focusedPanelId: row.focusedPanelId }

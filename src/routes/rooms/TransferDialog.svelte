@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { YellowChannelRow } from '$/collections/YellowChannels.ts'
+	import type { StateChannelRow } from '$/collections/StateChannels.ts'
 
 
 	// Context
@@ -12,7 +12,7 @@
 		channel,
 		open = $bindable(false),
 	}: {
-		channel: YellowChannelRow,
+		channel: StateChannelRow,
 		open: boolean,
 	} = $props()
 

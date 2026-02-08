@@ -57,7 +57,7 @@
 	import { TICK_SPACINGS } from '$/constants/uniswap.ts'
 	import { actorCoinsCollection } from '$/collections/ActorCoins.ts'
 	import { tokenListCoinsCollection } from '$/collections/TokenListCoins.ts'
-	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
+	import { sessionsCollection } from '$/collections/Sessions.ts'
 	import { uniswapPositionsCollection } from '$/collections/UniswapPositions.ts'
 	import {
 		fetchUniswapPools,
@@ -159,7 +159,7 @@
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
@@ -167,7 +167,7 @@
 	const lookupSessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, lookupSessionId ?? ''))
 				.select(({ row }) => ({ row })),
 		[() => lookupSessionId],

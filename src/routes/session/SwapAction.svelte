@@ -22,6 +22,9 @@
 		slippagePresets,
 	} from '$/constants/slippage.ts'
 	import { UNIVERSAL_ROUTER_ADDRESS } from '$/constants/uniswap.ts'
+	import { TransactionSessionStatus } from '$/data/TransactionSession.ts'
+	import { TransactionSessionSimulationStatus } from '$/data/TransactionSessionSimulation.ts'
+	import { TevmSimulationSummaryStatus } from '$/data/TevmSimulationResult.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 
 
@@ -75,8 +78,8 @@
 		swapQuotesCollection,
 	} from '$/collections/SwapQuotes.ts'
 	import { tokenListCoinsCollection } from '$/collections/TokenListCoins.ts'
-	import { transactionSessionSimulationsCollection } from '$/collections/TransactionSessionSimulations.ts'
-	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
+	import { sessionSimulationsCollection } from '$/collections/SessionSimulations.ts'
+	import { sessionsCollection } from '$/collections/Sessions.ts'
 
 
 	// Components
@@ -167,7 +170,7 @@
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
@@ -175,7 +178,7 @@
 	const lookupSessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, lookupSessionId ?? ''))
 				.select(({ row }) => ({ row })),
 		[() => lookupSessionId],
@@ -253,7 +256,7 @@
 	const simulationQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionSimulationsCollection })
+				.from({ row: sessionSimulationsCollection })
 				.where(({ row }) => eq(row.id, latestSimulationId))
 				.select(({ row }) => ({ row })),
 		[() => latestSimulationId],
@@ -488,11 +491,11 @@
 			updatedAt: Date.now(),
 		}))
 		const tevmResult = result as {
-			summaryStatus?: string
+			summaryStatus?: TevmSimulationSummaryStatus
 			revertReason?: string
 		}
 		const simStatus =
-			tevmResult.summaryStatus === 'success' ? 'success' : 'failed'
+			tevmResult.summaryStatus === TevmSimulationSummaryStatus.Success ? 'success' : 'failed'
 		const simulationId = createTransactionSessionSimulation({
 			sessionId,
 			params: nextParams,
@@ -526,7 +529,7 @@
 		updateTransactionSession(sessionId, (session) => ({
 			...session,
 			params: nextParams,
-			status: 'Finalized',
+			status: TransactionSessionStatus.Finalized,
 			lockedAt: session.lockedAt ?? Date.now(),
 			execution: {
 				submittedAt: session.execution?.submittedAt ?? Date.now(),

@@ -10,6 +10,8 @@
 	import { resolve } from '$app/paths'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { DataSource } from '$/constants/data-sources.ts'
+	import { ZEN_DEFAULT_CONNECTION_ID } from '$/constants/opencode-zen.ts'
+	import { PUBLIC_OPENCODE_API_KEY } from '$env/static/public'
 	import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 	import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
 	import { llmConnectionsCollection } from '$/collections/LlmConnections.ts'
@@ -78,8 +80,30 @@
 			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
-	const llmConnections = $derived(
+	const llmConnectionsRaw = $derived(
 		(llmConnectionsQuery.data ?? []).map((r) => r.row),
+	)
+	const hasZenConnection = $derived(
+		llmConnectionsRaw.some((c) => c.provider === 'zen'),
+	)
+	const llmConnections = $derived(
+		hasZenConnection
+			? llmConnectionsRaw
+			: [
+					...llmConnectionsRaw,
+					...(typeof PUBLIC_OPENCODE_API_KEY === 'string' && PUBLIC_OPENCODE_API_KEY.length > 0
+						? [
+								{
+									id: ZEN_DEFAULT_CONNECTION_ID,
+									provider: 'zen' as const,
+									label: 'OpenCode Zen',
+									createdAt: 0,
+									updatedAt: 0,
+									$source: DataSource.Local,
+								},
+							]
+						: []),
+				],
 	)
 
 

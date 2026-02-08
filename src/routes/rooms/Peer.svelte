@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { RoomPeer } from '$/collections/RoomPeers.ts'
+	import type { RoomPeer } from '$/data/RoomPeer.ts'
 	import { peerNameToEmoji } from '$/lib/rooms/room.ts'
 
 

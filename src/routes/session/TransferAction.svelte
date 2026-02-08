@@ -3,6 +3,8 @@
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import type { Transaction$Id } from '$/data/Transaction.ts'
+	import { TransactionSessionStatus } from '$/data/TransactionSession.ts'
+	import { TransactionSessionSimulationStatus } from '$/data/TransactionSessionSimulation.ts'
 	import type { TransferSessionParams } from '$/lib/session/params.ts'
 	import { encodeTransferCall } from '$/api/voltaire.ts'
 	import { sendTransfer } from '$/api/yellow.ts'
@@ -84,11 +86,11 @@
 
 
 	// State
-	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
+	import { sessionsCollection } from '$/collections/Sessions.ts'
 	import {
 		insertTransaction,
 		updateTransaction,
-	} from '$/collections/Transactions.ts'
+	} from '$/collections/BridgeTransactions.ts'
 
 
 	// Components
@@ -108,7 +110,7 @@
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],
@@ -116,7 +118,7 @@
 	const lookupSessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, lookupSessionId ?? ''))
 				.select(({ row }) => ({ row })),
 		[() => lookupSessionId],
@@ -269,7 +271,7 @@
 		updateTransactionSession(sessionId, (session) => ({
 			...session,
 			params: nextParams,
-			status: 'Finalized',
+			status: TransactionSessionStatus.Finalized,
 			lockedAt: session.lockedAt ?? Date.now(),
 			execution: {
 				submittedAt: session.execution?.submittedAt ?? Date.now(),

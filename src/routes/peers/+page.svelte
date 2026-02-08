@@ -1,11 +1,11 @@
 <script lang="ts">
 	// Context
 	import { resolve } from '$app/paths'
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { myPeerIdsCollection } from '$/collections/MyPeerIds.ts'
-	import { roomPeersCollection } from '$/collections/RoomPeers.ts'
-	import { verificationsCollection } from '$/collections/Verifications.ts'
+	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
+	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
+	import { VerificationStatus } from '$/data/Verification.ts'
 	import { formatAddress } from '$/lib/address.ts'
 	import { forgetPeer } from '$/state/room.svelte.ts'
 
@@ -13,19 +13,16 @@
 	// (Derived)
 	const verificationsQuery = useLiveQuery(
 		(q) =>
-			q.from({ row: verificationsCollection }).select(({ row }) => ({ row })),
+			q.from({ row: siweVerificationsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const roomPeersQuery = useLiveQuery(
-		(q) => q.from({ row: roomPeersCollection }).select(({ row }) => ({ row })),
+		(q) => q.from({ row: partykitRoomPeersCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const myPeerIdsQuery = useLiveQuery(
 		(q) =>
-			q
-				.from({ row: myPeerIdsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Local))
-				.select(({ row }) => ({ row })),
+			q.from({ row: myPeerIdsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const myPeerIdsSet = $derived(
@@ -34,7 +31,7 @@
 	const verifiedByMeVerifications = $derived(
 		(verificationsQuery.data ?? []).filter(
 			(r) =>
-				myPeerIdsSet.has(r.row.verifierPeerId) && r.row.status === 'verified',
+				myPeerIdsSet.has(r.row.verifierPeerId) && r.row.status === VerificationStatus.Verified,
 		),
 	)
 	const peerIdToRoomPeers = $derived(

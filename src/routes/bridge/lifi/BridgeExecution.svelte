@@ -2,13 +2,21 @@
 	// Types/constants
 	import type { BridgeRoute } from '$/data/BridgeRoute.ts'
 	import type { Transaction } from '@tanstack/db'
-	import type { Transaction$Id } from '$/data/Transaction.ts'
+	import {
+		BridgeTransactionStatus,
+		type Transaction$Id,
+	} from '$/data/Transaction.ts'
 	import type { WalletRow } from '$/collections/Wallets.ts'
-	import type { BridgeStatus } from '$/lib/bridge/txStatus.ts'
+	import {
+		BridgeOverallStatus,
+		createInitialStatus,
+		type BridgeStatus,
+		TxState,
+	} from '$/lib/bridge/txStatus.ts'
 	import {
 		insertTransaction,
 		updateTransaction,
-	} from '$/collections/Transactions.ts'
+	} from '$/collections/BridgeTransactions.ts'
 	import { executeSelectedRoute } from '$/api/lifi.ts'
 	import { getTxUrl } from '$/constants/explorers.ts'
 	import { toasts } from '$/lib/toast.svelte.ts'
@@ -95,7 +103,7 @@
 								fromAmount: amount,
 								toAmount: route.toAmount,
 								destTxHash: null,
-								status: 'pending',
+								status: BridgeTransactionStatus.Pending,
 							})
 						}
 					},
@@ -113,7 +121,7 @@
 
 				if (txId) {
 					updateTransaction(txId, {
-						status: 'completed',
+						status: BridgeTransactionStatus.Completed,
 						destTxHash: destHash ?? null,
 					})
 				}
@@ -121,7 +129,7 @@
 				return { txId, destHash }
 			} catch (err) {
 				if (txId) {
-					updateTransaction(txId, { status: 'failed' })
+					updateTransaction(txId, { status: BridgeTransactionStatus.Failed })
 				}
 				throw err
 			}
@@ -148,7 +156,7 @@
 	})
 
 	const execute = async () => {
-		status = { overall: 'in_progress', steps: [] }
+		status = { overall: BridgeOverallStatus.InProgress, steps: [] }
 
 		const loadingId = toasts.loading('Submitting transaction…')
 
@@ -165,7 +173,7 @@
 		try {
 			await actionTx!.isPersisted.promise
 			toasts.dismiss(loadingId)
-			if (status.overall === 'completed') {
+			if (status.overall === BridgeOverallStatus.Completed) {
 				toasts.success('Bridge complete!', { title: 'Success' })
 			}
 		} catch (e) {
@@ -190,9 +198,9 @@
 		{#each status.steps as step (step.step)}
 			<div
 				data-row="gap-1"
-				class:muted={step.state === 'pending'}
-				class:error={step.state === 'failed'}
-				class:success={step.state === 'success'}
+				class:muted={step.state === TxState.Pending}
+				class:error={step.state === TxState.Failed}
+				class:success={step.state === TxState.Success}
 			>
 				{step.state === 'success' ? '✓' : step.state === 'failed' ? '✗' : '…'}
 				{step.step}
@@ -206,7 +214,7 @@
 				{/if}
 			</div>
 		{/each}
-		{#if status.overall === 'completed'}
+		{#if status.overall === BridgeOverallStatus.Completed}
 			<p class="success">Bridge complete!</p>
 		{/if}
 	</div>

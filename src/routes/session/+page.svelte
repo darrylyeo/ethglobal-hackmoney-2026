@@ -41,7 +41,7 @@
 
 
 	// State
-	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
+	import { sessionsCollection } from '$/collections/Sessions.ts'
 
 	const hashSource = $state<SessionHashSource>({
 		enabled: false,
@@ -76,7 +76,7 @@
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
 				.select(({ row }) => ({ row })),
 		[() => activeSessionId],

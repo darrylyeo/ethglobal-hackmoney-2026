@@ -15,7 +15,7 @@
 
 
 	// State
-	import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
+	import { sessionsCollection } from '$/collections/Sessions.ts'
 
 
 	// (Derived)
@@ -23,7 +23,7 @@
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transactionSessionsCollection })
+				.from({ row: sessionsCollection })
 				.where(({ row }) => eq(row.id, sessionId))
 				.select(({ row }) => ({ row })),
 		[() => sessionId],

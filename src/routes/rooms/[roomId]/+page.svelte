@@ -12,7 +12,7 @@
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import LocalGraphScene from '$/components/LocalGraphScene.svelte'
 	import WatchButton from '$/components/WatchButton.svelte'
-	import { roomPeersCollection } from '$/collections/RoomPeers.ts'
+	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
 	import {
 		roomState,
 		joinRoom,
@@ -49,7 +49,7 @@
 	const peersQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: roomPeersCollection })
+				.from({ row: partykitRoomPeersCollection })
 				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),

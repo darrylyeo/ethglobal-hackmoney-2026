@@ -1,17 +1,18 @@
 <script lang="ts">
 	// Types/constants
-	import type { RoomPeerRow } from '$/collections/RoomPeers.ts'
+	import type { RoomPeerRow } from '$/collections/PartykitRoomPeers.ts'
 	import type { SiweChallengeRow } from '$/collections/SiweChallenges.ts'
-	import type { VerificationRow } from '$/collections/Verifications.ts'
+	import type { VerificationRow } from '$/collections/SiweVerifications.ts'
 	import type { EIP1193Provider } from '$/lib/rooms/siwe.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
+	import { VerificationStatus } from '$/data/Verification.ts'
 
 
 	// Context
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
 	import { siweChallengesCollection } from '$/collections/SiweChallenges.ts'
-	import { verificationsCollection } from '$/collections/Verifications.ts'
+	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 	import { roomState } from '$/state/room.svelte.ts'
 	import { signSiweMessage } from '$/lib/rooms/siwe.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
@@ -61,7 +62,7 @@
 	const verificationsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: verificationsCollection })
+				.from({ row: siweVerificationsCollection })
 				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.where(({ row }) => eq(row.roomId, roomId))
 				.select(({ row }) => ({ row })),
@@ -202,7 +203,7 @@
 									>
 										Re-verify
 									</Button.Root>
-								{:else if myVerification.status === 'verifying'}
+								{:else if myVerification.status === VerificationStatus.Verifying}
 									Verifying
 								{:else}
 									Verified

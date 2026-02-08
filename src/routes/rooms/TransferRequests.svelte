@@ -8,7 +8,7 @@
 	import { sendTransfer } from '$/api/yellow.ts'
 	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
 	import { transferRequestsCollection } from '$/collections/TransferRequests.ts'
-	import { yellowDepositsCollection } from '$/collections/YellowDeposits.ts'
+	import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { roomState } from '$/state/room.svelte.ts'
 	import { yellowState } from '$/state/yellow.svelte.ts'
@@ -42,8 +42,8 @@
 	)
 	const depositQuery = useLiveQuery((q) =>
 		q
-			.from({ row: yellowDepositsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Yellow))
+			.from({ row: stateChannelDepositsCollection })
+			.where(({ row }) => eq(row.$source, DataSource.Eip7824))
 			.select(({ row }) => ({ row })),
 	)
 	const requestsQuery = useLiveQuery(
