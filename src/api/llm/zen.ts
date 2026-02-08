@@ -6,8 +6,9 @@
 
 import { PUBLIC_OPENCODE_API_KEY } from '$env/static/public'
 import {
+	defaultZenFreeModelId,
 	getZenFreeModel,
-	OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID,
+	ZenEndpointKind,
 } from '$/constants/opencode-zen.ts'
 import { proxyFetch } from '$/lib/proxyFetch.ts'
 
@@ -70,14 +71,14 @@ export const zenGenerate = async (
 	const modelId =
 		typeof input.modelId === 'string' && input.modelId.length > 0
 			? input.modelId
-			: OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID
+			: defaultZenFreeModelId
 	const model = getZenFreeModel(modelId)
 	const headers: Record<string, string> = {
 		'content-type': 'application/json',
 		authorization: `Bearer ${input.apiKey}`,
 	}
 
-	if (model.kind === 'chat/completions') {
+	if (model.kind === ZenEndpointKind.ChatCompletions) {
 		const res = await fetch(model.endpoint, {
 			method: 'POST',
 			headers,
@@ -148,7 +149,7 @@ export const zenClientGenerateWithKey = async (
 	const modelId =
 		typeof input.modelId === 'string' && input.modelId.length > 0
 			? input.modelId
-			: OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID
+			: defaultZenFreeModelId
 	const model = getZenFreeModel(modelId)
 	const path = new URL(model.endpoint).pathname
 	const headers: Record<string, string> = {
@@ -179,7 +180,7 @@ export const zenClientGenerateWithKey = async (
 		}
 	}
 
-	if (model.kind === 'messages') {
+	if (model.kind === ZenEndpointKind.Messages) {
 		const res = await doFetch({
 			model: model.id,
 			max_tokens: 4096,

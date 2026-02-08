@@ -4,10 +4,11 @@
  * http transport to RPC).
  */
 
-import type {
-	TevmSimulationDecodedEvent,
-	TevmSimulationResult,
-	TevmSimulationTraceCall,
+import {
+	TevmSimulationSummaryStatus,
+	type TevmSimulationDecodedEvent,
+	type TevmSimulationResult,
+	type TevmSimulationTraceCall,
 } from '$/data/TevmSimulationResult.ts'
 
 const toHex = (bytes: Uint8Array): string =>
@@ -83,9 +84,11 @@ export const runTevmSimulation = async (
 			?.error?.message
 	const summaryStatus: TevmSimulationResult['summaryStatus'] = (
 		reverted ?
-			(errMessage?.toLowerCase().includes('revert') ? 'revert' : 'error')
+			(errMessage?.toLowerCase().includes('revert')
+				? TevmSimulationSummaryStatus.Revert
+				: TevmSimulationSummaryStatus.Error)
 		:
-			'success'
+			TevmSimulationSummaryStatus.Success
 	)
 
 	let revertReason: string | undefined

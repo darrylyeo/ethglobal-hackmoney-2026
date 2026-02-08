@@ -7,9 +7,12 @@
 import { ercTokensBySymbolByChainId } from '$/constants/coins.ts'
 import { ChainId } from '$/constants/networks.ts'
 import {
+	BridgeOverallStatus,
 	type BridgeStatus,
 	mapLifiProcessStatus,
+	TxState,
 	type TxStatus,
+	TxStep,
 } from '$/lib/bridge/txStatus.ts'
 import { queryClient } from '$/lib/db/query-client.ts'
 import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/tests/tevm.ts'
@@ -428,14 +431,14 @@ function routeToBridgeStatus(route: RouteExtended): BridgeStatus {
 			chainId: p.chainId,
 			error: p.error?.message,
 			startedAt: p.startedAt,
-			completedAt:
-				state !== 'pending'
+		completedAt:
+				state !== TxState.Pending
 					? (p.doneAt ?? p.failedAt ?? Date.now())
 					: undefined,
-		})
+	})
 	}
 	const steps = Array.from(stepMap.values())
-	const hasFailed = steps.some((s) => s.state === 'failed')
+	const hasFailed = steps.some((s) => s.state === TxState.Failed)
 	const allDone =
 		processes.length > 0 && processes.every((p) => p.status === 'DONE')
 	const estimatedDurationSeconds = route.steps.reduce(
@@ -443,7 +446,11 @@ function routeToBridgeStatus(route: RouteExtended): BridgeStatus {
 		0,
 	)
 	return {
-		overall: hasFailed ? 'failed' : allDone ? 'completed' : 'in_progress',
+		overall: hasFailed
+			? BridgeOverallStatus.Failed
+			: allDone
+				? BridgeOverallStatus.Completed
+				: BridgeOverallStatus.InProgress,
 		steps,
 		estimatedDurationSeconds: estimatedDurationSeconds || undefined,
 	}
@@ -478,11 +485,11 @@ export async function executeSelectedRoute(
 	if (E2E_TEVM_ENABLED) {
 		const startedAt = Date.now()
 		onStatusChange?.({
-			overall: 'in_progress',
+			overall: BridgeOverallStatus.InProgress,
 			steps: [
 				{
-					step: 'send',
-					state: 'pending',
+					step: TxStep.Send,
+					state: TxState.Pending,
 					chainId: route.fromChainId,
 					startedAt,
 				},
@@ -547,7 +554,7 @@ export async function executeSelectedRoute(
 		}),
 	])
 	const status: BridgeStatus = {
-		overall: 'in_progress',
+		overall: BridgeOverallStatus.InProgress,
 		steps: [],
 	}
 	if (onStatusChange) onStatusChange({ ...status })

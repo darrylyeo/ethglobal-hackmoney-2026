@@ -8,7 +8,10 @@ import {
 	zenClientGenerateWithKey,
 	zenAvailability,
 } from '$/api/llm/zen.ts'
-import { OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID } from '$/constants/opencode-zen.ts'
+import {
+	defaultZenFreeModelId,
+	zenFreeModelOptions,
+} from '$/constants/opencode-zen.ts'
 import type { LlmConnection } from '$/data/LlmConnection.ts'
 import { LlmConnectionProvider } from '$/data/LlmConnection.ts'
 import type { LlmProvider, LlmGenerateInput, LlmAvailability } from '$/lib/llmProvider.ts'
@@ -29,7 +32,7 @@ const effectiveModelId = (
 	overrideModelId?.trim() ||
 	connection.defaultModelId?.trim() ||
 	(connection.provider === LlmConnectionProvider.Zen
-		? OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID
+		? defaultZenFreeModelId
 		: connection.provider === LlmConnectionProvider.OpenAI
 			? OPENAI_DEFAULT_MODEL
 			: connection.provider === LlmConnectionProvider.Anthropic
@@ -136,7 +139,7 @@ export const createLlmProviderFromConnection = (
 
 export const getDefaultModelIdForProvider = (provider: LlmConnection['provider']) =>
 	provider === LlmConnectionProvider.Zen
-		? OPENCODE_ZEN_DEFAULT_FREE_MODEL_ID
+		? defaultZenFreeModelId
 		: provider === LlmConnectionProvider.OpenAI
 			? OPENAI_DEFAULT_MODEL
 			: provider === LlmConnectionProvider.Anthropic
@@ -147,15 +150,7 @@ export const getDefaultModelIdForProvider = (provider: LlmConnection['provider']
 
 export const getModelsForConnection = (connection: LlmConnection): { id: string, label: string, }[] => {
 	if (connection.provider === LlmConnectionProvider.Zen)
-		return [
-			...[
-				{ id: 'gpt-5-nano', label: 'GPT 5 Nano' },
-				{ id: 'minimax-m2.1-free', label: 'MiniMax M2.1 Free' },
-				{ id: 'glm-4.7-free', label: 'GLM 4.7 Free' },
-				{ id: 'kimi-k2.5-free', label: 'Kimi K2.5 Free' },
-				{ id: 'big-pickle', label: 'Big Pickle', },
-			],
-		]
+		return [...zenFreeModelOptions]
 	if (connection.provider === LlmConnectionProvider.OpenAI)
 		return [
 			{ id: 'gpt-4o-mini', label: 'GPT-4o mini' },
