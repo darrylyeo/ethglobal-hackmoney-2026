@@ -20,12 +20,12 @@ export const defaultVisibleEntityTypes: EntityType[] = [
 	EntityType.Room,
 	EntityType.RoomPeer,
 	EntityType.SharedAddress,
-	EntityType.TransactionSession,
+	EntityType.Session,
 	EntityType.TransferRequest,
 	EntityType.Network,
 	EntityType.Coin,
 	EntityType.StorkPrice,
-	EntityType.TransactionSessionSimulation,
+	EntityType.SessionSimulation,
 ]
 
 const defaultValue: GraphScenePersisted = {

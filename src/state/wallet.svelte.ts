@@ -9,8 +9,7 @@
 
 // Context
 import { dev } from '$app/environment'
-import { eq, useLiveQuery } from '@tanstack/svelte-db'
-import { DataSource } from '$/constants/data-sources.ts'
+import { useLiveQuery } from '@tanstack/svelte-db'
 import { ConnectionStatus } from '$/data/WalletConnection.ts'
 
 
@@ -42,15 +41,11 @@ let walletSubscriptionsReady = false
 const createWalletContext = () => {
 	// Queries for subscription effects
 	const walletsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: walletsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
+		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
 	)
 	const connectionsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: walletConnectionsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
 
@@ -108,10 +103,10 @@ const createWalletContext = () => {
 					provider: p.provider,
 				})
 			}
-			const connections = (connectionsQuery.data ?? []).filter(
-				(c) => c?.row?.$id?.wallet$id?.rdns,
-			)
-			for (const { row } of connections) {
+			const connectionRows = Array.from(
+				walletConnectionsCollection.state.values(),
+			).filter((row) => row.$id?.wallet$id?.rdns)
+			for (const row of connectionRows) {
 				const rdns = row.$id.wallet$id.rdns
 				if (!providerRdnsSet.has(rdns) || reconnectAttempted.has(rdns)) continue
 				reconnectAttempted.add(rdns)
