@@ -57,13 +57,17 @@
 			}
 			if (node.nodeType !== Node.ELEMENT_NODE) continue
 			const el = node as HTMLElement
-			if (el.dataset.placeholder !== undefined) {
+			const placeholderEl = el.querySelector?.('[data-placeholder]') as HTMLElement | null
+			const chipEl = el.querySelector?.('[data-ref-chip]') as HTMLElement | null
+			if (el.dataset.placeholder !== undefined || placeholderEl) {
+				const trigger =
+					(el.dataset.trigger ?? placeholderEl?.dataset.trigger ?? defaultTrigger) as string
 				outSegments.push(currentText)
 				currentText = ''
-				outRefs.push(getPlaceholderRef(el.dataset.trigger ?? defaultTrigger))
+				outRefs.push(getPlaceholderRef(trigger))
 				continue
 			}
-			const ref = parseRef(el)
+			const ref = chipEl ? parseRef(chipEl) : parseRef(el)
 			if (ref) {
 				outSegments.push(currentText)
 				currentText = ''
@@ -159,6 +163,12 @@
 		const pos = getSegmentIndexAndOffset(editEl)
 		const { segments: nextSegments, refs: nextRefs } = parseContent(editEl)
 		if (nextSegments.length !== nextRefs.length + 1) return
+		const same =
+			segments.length === nextSegments.length
+			&& refs.length === nextRefs.length
+			&& segments.every((s, i) => s === nextSegments[i])
+			&& refs.every((r, i) => r.displayLabel === nextRefs[i].displayLabel && r.entityId === nextRefs[i].entityId)
+		if (same) return
 		segments = nextSegments
 		refs = nextRefs
 		if (pos) tick().then(() => setCaret(editEl!, pos.segmentIndex, pos.offset))
