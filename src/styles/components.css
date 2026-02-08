@@ -165,7 +165,8 @@ details {
 select,
 button,
 input,
-label:has(> input:is([type='checkbox'], [type='radio'])) {
+label:has(> input:is([type='checkbox'], [type='radio'])),
+[contenteditable] {
 	cursor: pointer;
 
 	display: inline-flex;

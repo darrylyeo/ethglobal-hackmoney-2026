@@ -24,16 +24,27 @@ export const handle: Handle = async ({ event, resolve }) => {
 			? (privateEnv[target.tokenEnvKey] as string | undefined)
 			: undefined
 
+		const forwardHeaders = (): HeadersInit => {
+			if (token) return { Authorization: `Basic ${token}` }
+			const h: Record<string, string> = {}
+			event.request.headers.forEach((v, k) => {
+				if (
+					k !== 'host' &&
+					!k.startsWith('cf-') &&
+					!k.startsWith('x-vercel-') &&
+					k !== 'connection'
+				)
+					h[k] = v
+			})
+			return h
+		}
+
 		let response: Response
 		try {
 			response = await event.fetch(url, {
 				body: event.request.body,
 				method: event.request.method,
-				headers: token
-					? {
-							Authorization: `Basic ${token}`,
-						}
-					: undefined,
+				headers: forwardHeaders(),
 			})
 		} catch (err) {
 			const message =
