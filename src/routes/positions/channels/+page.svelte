@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { YellowChannelRow } from '$/collections/yellow-channels.ts'
 	import type { YellowChannelStateRow } from '$/collections/yellow-channel-states.ts'
@@ -535,12 +533,12 @@
 	.channel-list td {
 		padding: 0.25rem 0.5rem;
 		text-align: left;
-		border: 1px solid var(--color-border, #ccc);
+		border: 1px solid var(--color-border, light-dark(#e5e7eb, #374151));
 	}
 	.room-badge {
 		padding: 0.1rem 0.3rem;
 		border-radius: 0.2rem;
-		background: var(--color-surface-2, #eee);
+		background: var(--color-surface-2, light-dark(#f1f5f9, #374151));
 		border: none;
 		margin-inline-end: 0.25rem;
 	}

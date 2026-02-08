@@ -1,6 +1,4 @@
 <script lang="ts" generics="Ref extends { displayLabel: string, trigger?: string }, Item extends { ref: Ref }">
-
-
 	// Types/constants
 	import { tick } from 'svelte'
 
@@ -8,8 +6,6 @@
 		string,
 		{ getSuggestions: (query: string) => Item[], pattern?: RegExp }
 	>
-
-
 	// Props
 	let {
 		segments = $bindable<string[]>(['']),

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
@@ -20,6 +18,7 @@
 
 
 	// Components
+	import BlockNumber from '$/components/BlockNumber.svelte'
 	import NetworkView from '$/components/network/Network.svelte'
 
 
@@ -121,7 +120,7 @@
 </svelte:head>
 
 
-<div data-column="gap-2">
+<main data-column="gap-2">
 	{#if !valid}
 		<h1>Not found</h1>
 		<p>
@@ -132,6 +131,12 @@
 			{/if}
 		</p>
 	{:else}
+		<header data-row="wrap gap-4 align-center">
+			<h1>
+				<BlockNumber {chainId} blockNumber={blockNumber} />
+			</h1>
+			<span data-text="annotation">Block</span>
+		</header>
 		<p>
 			<a href={showContextUrl} data-link>Show Context</a>
 		</p>
@@ -140,4 +145,4 @@
 			{placeholderBlockIds}
 		/>
 	{/if}
-</div>
+</main>

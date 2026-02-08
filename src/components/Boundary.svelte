@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
@@ -49,7 +47,7 @@
 				</header>
 
 				<div class="error-content">
-					{#if error instanceof Error}
+					{#if console.error(error) || error instanceof Error}
 						<p>{error.message}</p>
 
 						{#if error.stack}

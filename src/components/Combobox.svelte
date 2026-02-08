@@ -1,6 +1,4 @@
 <script lang="ts" generics="Item">
-
-
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
@@ -134,17 +132,30 @@
 		if (isFocused) return
 		const nextValue =
 			type === 'multiple'
-				? Array.isArray(value)
-					? normalizedItems
-							.filter((item) => value.includes(item.id))
-							.map((item) => item.label)
-							.join(', ')
-					: ''
+				? ''
 				: typeof value === 'string'
 					? (normalizedItems.find((item) => item.id === value)?.label ?? '')
 					: ''
 		if (inputValue !== nextValue) inputValue = nextValue
 	})
+
+	let prevMultipleLength = 0
+	$effect(() => {
+		if (type !== 'multiple') return
+		const arr = Array.isArray(value) ? value : []
+		if (arr.length > prevMultipleLength) inputValue = ''
+		prevMultipleLength = arr.length
+	})
+
+	const selectedChips = $derived(
+		(Array.isArray(value) ? value : []).map((id) => {
+			const n = normalizedItems.find((item) => item.id === id)
+			return n ? { id: n.id, label: n.label } : null
+		}).filter(Boolean) as { id: string; label: string }[],
+	)
+	const removeChip = (id: string) => {
+		setValue((Array.isArray(value) ? value : []).filter((x) => x !== id))
+	}
 
 
 	// Actions
@@ -181,12 +192,30 @@
 		{#if children}
 			{@render children()}
 		{:else}
-			<div data-row="gap-1 align-center">
+			<div data-combobox-multi data-row="gap-1 align-center wrap start">
 				{#if Before}
 					{@render Before()}
 				{/if}
+				{#each selectedChips as chip (chip.id)}
+					<span data-badge="small" data-combobox-chip data-row="gap-1 align-center">
+						{chip.label}
+						<button
+							type="button"
+							aria-label="Remove {chip.label}"
+							data-combobox-chip-remove
+							onclick={(e) => {
+								e.preventDefault()
+								e.stopPropagation()
+								removeChip(chip.id)
+							}}
+						>
+							×
+						</button>
+					</span>
+				{/each}
 				<Combobox.Input
 					{id}
+					data-combobox-multi-input
 					aria-label={ariaLabel}
 					{placeholder}
 					oninput={onInput}
@@ -218,6 +247,11 @@
 											disabled={item.disabled}
 										>
 											{#snippet children({ selected })}
+												<span
+													data-combobox-item-indicator
+													data-selected={selected || undefined}
+													aria-hidden="true"
+												></span>
 												{#if Before}
 													{@render Before()}
 												{/if}
@@ -242,6 +276,11 @@
 									disabled={item.disabled}
 								>
 									{#snippet children({ selected })}
+										<span
+											data-combobox-item-indicator
+											data-selected={selected || undefined}
+											aria-hidden="true"
+										></span>
 										{#if Before}
 											{@render Before()}
 										{/if}

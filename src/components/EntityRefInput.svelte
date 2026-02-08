@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { EntityRef } from '$/data/EntityRef.ts'
 	import type { EntitySuggestion } from '$/lib/entitySuggestions.ts'

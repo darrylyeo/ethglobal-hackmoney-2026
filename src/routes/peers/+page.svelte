@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Context
 	import { resolve } from '$app/paths'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'

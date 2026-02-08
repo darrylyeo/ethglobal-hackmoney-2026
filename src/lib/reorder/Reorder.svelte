@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
 	import type { Snippet } from 'svelte'
 	import type { Attachment } from 'svelte/attachments'
 	import type { ItemState } from './item-state.svelte.ts'
@@ -18,10 +18,18 @@
 </script>
 
 
+<script lang="ts" generics="T">
+	let {
+		content,
+		children,
+	}: ReorderProps<T> = $props()
+
+	const { attach, createGetState } = createReorder(content)
 </script>
 
-{#snippet area(array: unknown[])}
-	<ListHost array={array} content={content} createGetState={createGetState} />
+
+{#snippet area(array: T[])}
+	<ListHost {array} {content} {createGetState} />
 {/snippet}
 
 {@render children(attach, area)}

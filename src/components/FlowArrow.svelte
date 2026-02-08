@@ -1,12 +1,12 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import {
+		arrowPathLength,
 		computeArrow,
 		arrowToPathD,
 		FLOW_ICON_COUNT,
-		FLOW_DURATION_S,
+		FLOW_MIN_DURATION_S,
+		FLOW_SPEED_PX_S,
 	} from '$/lib/flow-arrow.ts'
 
 
@@ -43,6 +43,9 @@
 	)
 	const markerId = $derived(
 		`flow-arrow-head-${Math.round(arrowData[0])}-${Math.round(arrowData[1])}`,
+	)
+	const flowDurationS = $derived(
+		Math.max(FLOW_MIN_DURATION_S, arrowPathLength(arrowData) / FLOW_SPEED_PX_S),
 	)
 </script>
 
@@ -81,7 +84,7 @@
 		class:flow-arrow-icons--relative={relative}
 		style:--flow-path="path('{pathD}')"
 		style:--flow-count="{FLOW_ICON_COUNT}"
-		style:--flow-dur="{FLOW_DURATION_S}s"
+		style:--flow-dur="{flowDurationS}s"
 		style:--flow-size="{flowIconSize}px"
 	>
 		{#each { length: FLOW_ICON_COUNT } as _, i (i)}
@@ -89,7 +92,7 @@
 				class="flow-arrow-icon"
 				src={flowIconSrc}
 				alt=""
-				style:animation-delay="{-(FLOW_DURATION_S / FLOW_ICON_COUNT) * i}s"
+				style:animation-delay="{-(flowDurationS / FLOW_ICON_COUNT) * i}s"
 			/>
 		{/each}
 	</div>

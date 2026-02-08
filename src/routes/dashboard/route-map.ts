@@ -58,14 +58,11 @@ const allRouteEntries: RouteEntry[] = Object.entries(routeImports).map(
 
 export const routeEntries: RouteEntry[] = allRouteEntries
 
-const panelRouteEntries = allRouteEntries.filter(
-	(entry) => !entry.path.startsWith('/dashboard'),
-)
+export const defaultRoutePath = '/dashboard'
 
-export const defaultRoutePath =
-	panelRouteEntries.find((entry) => entry.path === '/')?.path ??
-	panelRouteEntries[0]?.path ??
-	'/'
+export const routeEntriesForPanel: RouteEntry[] = allRouteEntries.filter(
+	(entry) => entry.path !== '/',
+)
 
 export const buildRoutePath = (route: RoutePathInput) =>
 	route.path === '/'
@@ -120,6 +117,7 @@ export const toPanelNavigation = (href: string, origin: string) =>
 	(() => {
 		const url = parsePanelHref(href, origin)
 		if (!url || url.origin !== origin) return null
+		if (url.pathname === '/' || url.pathname === '') return null
 		const match = matchRoutePath(url.pathname)
 		return match
 			? {

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Context
 	import { goto } from '$app/navigation'
 
@@ -20,4 +18,6 @@
 </script>
 
 
-<p data-muted>Starting new conversation…</p>
+<main>
+	<p data-muted>Starting new conversation…</p>
+</main>

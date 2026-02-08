@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { PanelTreeNode } from '$/data/PanelTree.ts'
 	import { APP_NAME } from '$/constants/app.ts'
@@ -61,8 +59,8 @@
 	)
 
 	const noop = () => {}
-	const primaryCta = { href: '/session', label: 'Start session' }
-	const secondaryCtas = [
+	const heroCtas = [
+		{ href: '/session', label: 'Start session', primary: true },
 		{ href: '/dashboard', label: 'Dashboard' },
 		{ href: '/coin/USDC', label: 'USDC' },
 		{ href: '/rooms', label: 'Rooms' },
@@ -88,7 +86,8 @@
 </script>
 
 
-<article class="landing">
+<main>
+	<article class="landing">
 	<header class="landing-hero" data-column="center gap-4">
 		<h1>{APP_NAME}</h1>
 		<p class="landing-tagline">
@@ -96,17 +95,19 @@
 			exploration, DeFi and AI agents.
 		</p>
 		<nav aria-label="Primary actions" data-column="center gap-3">
-			<a
-				href={resolve(primaryCta.href)}
-				data-card="border-accent padding-4 radius-4"
-				data-column="gap-1 center"
-				class="landing-cta-primary"
-			>
-				<span>{primaryCta.label}</span>
-			</a>
-			<div data-row="center wrap gap-2">
-				{#each secondaryCtas as { href, label }}
-					<a data-link href={resolve(href)}>{label}</a>
+			<div data-grid="columns-autofit gap-2 column-min-6">
+				{#each heroCtas as { href, label, primary }}
+					{#if primary}
+						<a
+							href={resolve(href)}
+							data-card="border-accent padding-4 radius-4"
+							data-column="gap-1 center"
+						>
+							<span>{label}</span>
+						</a>
+					{:else}
+						<a data-link href={resolve(href)}>{label}</a>
+					{/if}
 				{/each}
 			</div>
 		</nav>
@@ -117,8 +118,9 @@
 				class="landing-dashboard-preview"
 				aria-label="Open dashboard"
 			>
-				<div class="landing-dashboard-preview-inner">
-					<PanelTree
+				<div class="landing-dashboard-preview-zoom">
+					<div class="landing-dashboard-preview-inner">
+						<PanelTree
 						root={previewRoot}
 						focusedPanelId={previewFocusedPanelId}
 						onFocus={noop}
@@ -135,6 +137,7 @@
 						onClearSplitRatioOverride={noop}
 						onToggleSplitDirection={noop}
 					/>
+					</div>
 				</div>
 			</a>
 		{/if}
@@ -152,12 +155,7 @@
 			data-grid="columns-autofit gap-3 column-min-8"
 		>
 			{#each routes as { href, title }}
-				<a
-					href={resolve(href)}
-					data-card="padding-3 radius-3"
-					data-column="gap-1"
-					class="landing-route-card"
-				>
+				<a href={resolve(href)} data-card="padding-3 radius-3" data-column="gap-1">
 					<span>{title}</span>
 				</a>
 			{/each}
@@ -254,261 +252,269 @@
 			</dl>
 		</section>
 	</section>
-</article>
+	</article>
+</main>
 
 
 <style>
 	.landing {
 		padding-block: clamp(2rem, 10vh, 4rem);
 		padding-inline: 1rem;
-	}
 
-	.landing-hero {
-		view-timeline: --hero block;
-		animation: hero-reveal linear;
-		animation-timeline: view(--hero);
-		animation-range: entry 0% entry 50%;
-		animation-fill-mode: both;
-		align-content: center;
-		text-align: center;
-		min-block-size: 60vh;
-		padding-block: 2rem;
-		background: radial-gradient(
-			ellipse 80% 50% at 50% 0%,
-			var(--color-accent-bg) 0%,
-			transparent 70%
-		);
-		border-radius: 0 0 1.5rem 1.5rem;
-	}
+		& .landing-hero {
+			view-timeline: --hero block;
+			animation: hero-reveal linear;
+			animation-timeline: view(--hero);
+			animation-range: entry 0% entry 50%;
+			animation-fill-mode: both;
+			align-content: center;
+			text-align: center;
+			min-block-size: 60vh;
+			padding-block: 2rem;
+			background: radial-gradient(
+				ellipse 80% 50% at 50% 0%,
+				var(--color-accent-bg) 0%,
+				transparent 70%
+			);
+			border-radius: 0 0 1.5rem 1.5rem;
 
-	.landing-hero h1 {
-		font-size: clamp(2rem, 5vw, 2.75rem);
-		font-weight: 700;
-		letter-spacing: -0.02em;
-		line-height: 1.15;
-	}
+			& h1 {
+				font-size: clamp(2rem, 5vw, 2.75rem);
+				font-weight: 700;
+				letter-spacing: -0.02em;
+				line-height: 1.15;
+			}
 
-	@keyframes hero-reveal {
-		from {
-			opacity: 0;
-			transform: translateY(1.5rem);
+			& nav [data-grid] {
+				padding-block-start: 0.25rem;
+			}
+
+			& nav a[data-card] {
+				text-decoration: none;
+				color: var(--color-accent);
+				font-weight: 600;
+				transition: background-color 0.2s ease, box-shadow 0.2s ease;
+				box-shadow: var(--shadow-sm);
+
+				&:hover {
+					background-color: var(--color-accent-bg);
+					box-shadow: var(--shadow-md);
+				}
+			}
+
+			& nav a[data-link] {
+				padding: 0.35em 0.5em;
+				border-radius: 0.35em;
+
+				&:hover {
+					background-color: var(--color-bg-muted);
+				}
+			}
 		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
+
+		@keyframes hero-reveal {
+			from {
+				opacity: 0;
+				transform: translateY(1.5rem);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
 		}
-	}
 
-	.landing-tagline {
-		max-inline-size: 42ch;
-		color: var(--color-text-muted);
-		font-size: 1.1rem;
-		line-height: 1.5;
-	}
-
-	.landing-cta-primary {
-		text-decoration: none;
-		color: var(--color-accent);
-		font-weight: 600;
-		transition: background-color 0.2s ease, box-shadow 0.2s ease;
-		box-shadow: var(--shadow-sm);
-	}
-
-	.landing-cta-primary:hover {
-		background-color: var(--color-accent-bg);
-		box-shadow: var(--shadow-md);
-	}
-
-	.landing-hero nav > div {
-		padding-block-start: 0.25rem;
-	}
-
-	.landing-hero nav > div a {
-		padding: 0.35em 0.5em;
-		border-radius: 0.35em;
-	}
-
-	.landing-hero nav > div a:hover {
-		background-color: var(--color-bg-muted);
-	}
-
-	.landing-dashboard-preview {
-		display: block;
-		text-decoration: none;
-		color: inherit;
-		margin-block-start: 2rem;
-		perspective: 1200px;
-		transform-style: preserve-3d;
-	}
-
-	.landing-dashboard-preview-inner {
-		position: relative;
-		display: block;
-		width: min(90vw, 42rem);
-		height: min(50vh, 20rem);
-		margin-inline: auto;
-		transform: rotateX(10deg) rotateY(-6deg) scale(0.92);
-		transform-style: preserve-3d;
-		border-radius: 0.5rem;
-		box-shadow:
-			0 25px 50px -12px rgb(0 0 0 / 0.2),
-			0 0 0 1px var(--color-border);
-		overflow: hidden;
-		transition: transform 0.35s ease, box-shadow 0.35s ease;
-		pointer-events: none;
-	}
-
-	.landing-dashboard-preview:hover .landing-dashboard-preview-inner {
-		transform: rotateX(6deg) rotateY(-4deg) scale(0.95);
-		box-shadow:
-			0 32px 64px -12px rgb(0 0 0 / 0.25),
-			0 0 0 1px var(--color-border);
-	}
-
-	.landing-dashboard-preview-inner :global(.split-tree),
-	.landing-dashboard-preview-inner :global(.dashboard-panel) {
-		height: 100%;
-		min-height: 0;
-	}
-
-	.landing-dashboard-preview-inner :global(.dashboard-panel) {
-		font-size: 0.875rem;
-	}
-
-	.landing-dashboard-preview-inner :global(.dashboard-panel header) {
-		padding: 0.35rem 0.5rem;
-		gap: 0.35rem;
-	}
-
-	.landing-dashboard-preview-inner :global(.dashboard-panel-route),
-	.landing-dashboard-preview-inner :global(.dashboard-panel-hash) {
-		min-width: 0;
-		font-size: 0.75rem;
-	}
-
-	.landing-dashboard-preview-inner :global(.dashboard-panel-history) {
-		display: none;
-	}
-
-	.landing-routes {
-		view-timeline: --routes block;
-		animation: routes-reveal linear;
-		animation-timeline: view(--routes);
-		animation-range: entry 5% entry 40%;
-		animation-fill-mode: both;
-		padding-block: 3rem 1rem;
-		border-block-start: 1px solid var(--color-border);
-	}
-
-	@keyframes routes-reveal {
-		from {
-			opacity: 0;
-			transform: translateY(1rem);
+		& .landing-tagline {
+			max-inline-size: 42ch;
+			color: var(--color-text-muted);
+			font-size: 1.1rem;
+			line-height: 1.5;
 		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
+
+		& .landing-dashboard-preview {
+			display: block;
+			text-decoration: none;
+			color: inherit;
+			margin-block-start: 2rem;
+			perspective: 1200px;
+			transform-style: preserve-3d;
+
+			&:hover .landing-dashboard-preview-inner {
+				transform: rotateX(6deg) rotateY(-4deg) scale(0.95);
+				box-shadow:
+					0 32px 64px -12px rgb(0 0 0 / 0.25),
+					0 0 0 1px var(--color-border);
+			}
 		}
-	}
 
-	.landing-routes-title {
-		font-size: 0.8125rem;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-text-muted);
-		margin-block-end: 0.5rem;
-	}
+		& .landing-dashboard-preview-zoom {
+			zoom: 0.75;
+			width: min(180vw, 84rem);
+			height: min(100vh, 40rem);
+			margin-inline: auto;
+			overflow: hidden;
+		}
 
-	.landing-route-card {
-		text-decoration: none;
-		color: inherit;
-		transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-		border: 1px solid transparent;
-	}
+		& .landing-dashboard-preview-inner {
+			position: relative;
+			display: block;
+			width: 100%;
+			height: 100%;
+			transform: rotateX(10deg) rotateY(-6deg) scale(0.92);
+			transform-style: preserve-3d;
+			border-radius: 0.5rem;
+			box-shadow:
+				0 25px 50px -12px rgb(0 0 0 / 0.2),
+				0 0 0 1px var(--color-border);
+			overflow: hidden;
+			transition: transform 0.35s ease, box-shadow 0.35s ease;
+			pointer-events: none;
 
-	.landing-route-card:hover {
-		background-color: var(--color-bg-muted);
-		box-shadow: var(--shadow-sm);
-		border-color: var(--color-border);
-	}
+			& :global(.split-tree),
+			& :global(.dashboard-panel) {
+				height: 100%;
+				min-height: 0;
+			}
 
-	.landing-about {
-		width: 100%;
-		padding-block: 3rem 1rem;
-		border-block-start: 1px solid var(--color-border);
-	}
+			& :global(.dashboard-panel) {
+				font-size: 0.875rem;
+			}
 
-	.landing-about__header {
-		max-width: 46rem;
-	}
+			& :global(.dashboard-panel header) {
+				padding: 0.35rem 0.5rem;
+				gap: 0.35rem;
+			}
 
-	.landing-about__legend {
-		gap: 1.5rem;
-	}
+			& :global(.dashboard-panel-route),
+			& :global(.dashboard-panel-hash) {
+				min-width: 0;
+				font-size: 0.75rem;
+			}
 
-	.landing-about__legend-grid {
-		column-gap: 1.5rem;
-	}
+			& :global(.dashboard-panel-history) {
+				display: none;
+			}
+		}
 
-	.landing-about__legend-item {
-		font-size: 0.9rem;
-	}
+		& .landing-routes {
+			view-timeline: --routes block;
+			animation: routes-reveal linear;
+			animation-timeline: view(--routes);
+			animation-range: entry 5% entry 40%;
+			animation-fill-mode: both;
+			padding-block: 3rem 1rem;
+			border-block-start: 1px solid var(--color-border);
 
-	.landing-about__legend-swatch {
-		width: 1.15rem;
-		height: 1.15rem;
-		border-radius: 0.25rem;
-		border: 1px solid var(--color-border);
-		background: var(--color-bg-subtle);
-	}
+			& .landing-routes-title {
+				font-size: 0.8125rem;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+				color: var(--color-text-muted);
+				margin-block-end: 0.5rem;
+			}
 
-	.landing-about__legend-swatch[data-shape='circle'] {
-		border-radius: 50%;
-	}
+			& nav a[data-card] {
+				text-decoration: none;
+				color: inherit;
+				transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+				border: 1px solid transparent;
 
-	.landing-about__legend-swatch[data-shape='diamond'] {
-		transform: rotate(45deg);
-	}
+				&:hover {
+					background-color: var(--color-bg-muted);
+					box-shadow: var(--shadow-sm);
+					border-color: var(--color-border);
+				}
+			}
+		}
 
-	.landing-about__legend-swatch[data-shape='image'] {
-		border-style: dashed;
-	}
+		@keyframes routes-reveal {
+			from {
+				opacity: 0;
+				transform: translateY(1rem);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
 
-	.landing-about__legend-swatch[data-shape='line'] {
-		width: 1.6rem;
-		height: 0.2rem;
-		border: none;
-		background: var(--color-text);
-	}
+		& .landing-about {
+			width: 100%;
+			padding-block: 3rem 1rem;
+			border-block-start: 1px solid var(--color-border);
 
-	.landing-about__legend-swatch[data-shape='dashed'] {
-		width: 1.6rem;
-		height: 0.2rem;
-		border: none;
-		background: repeating-linear-gradient(
-			90deg,
-			var(--color-text) 0,
-			var(--color-text) 6px,
-			transparent 6px,
-			transparent 10px
-		);
-	}
+			& .landing-about__header {
+				max-width: 46rem;
+			}
 
-	.landing-about__legend-details {
-		font-size: 0.875rem;
-	}
+			& .landing-about__legend {
+				gap: 1.5rem;
 
-	.landing-about__legend-details dt {
-		font-weight: 600;
-	}
+				& .landing-about__legend-grid {
+					column-gap: 1.5rem;
+				}
 
-	.landing-about__legend-details dd {
-		margin: 0;
-	}
+				& .landing-about__legend-item {
+					font-size: 0.9rem;
+				}
 
-	.landing-about__diagram {
-		width: 100%;
-		min-height: 460px;
+				& .landing-about__legend-swatch {
+					width: 1.15rem;
+					height: 1.15rem;
+					border-radius: 0.25rem;
+					border: 1px solid var(--color-border);
+					background: var(--color-bg-subtle);
+
+					&[data-shape='circle'] {
+						border-radius: 50%;
+					}
+
+					&[data-shape='diamond'] {
+						transform: rotate(45deg);
+					}
+
+					&[data-shape='image'] {
+						border-style: dashed;
+					}
+
+					&[data-shape='line'] {
+						width: 1.6rem;
+						height: 0.2rem;
+						border: none;
+						background: var(--color-text);
+					}
+
+					&[data-shape='dashed'] {
+						width: 1.6rem;
+						height: 0.2rem;
+						border: none;
+						background: repeating-linear-gradient(
+							90deg,
+							var(--color-text) 0,
+							var(--color-text) 6px,
+							transparent 6px,
+							transparent 10px
+						);
+					}
+				}
+			}
+
+			& .landing-about__legend-details {
+				font-size: 0.875rem;
+
+				& dt {
+					font-weight: 600;
+				}
+
+				& dd {
+					margin: 0;
+				}
+			}
+		}
+
+		& .landing-about__diagram {
+			width: 100%;
+			min-height: 460px;
+		}
 	}
 </style>

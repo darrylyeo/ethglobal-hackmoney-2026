@@ -1,53 +1,5 @@
 <script lang="ts">
-
-
 	// Types/constants
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
@@ -83,6 +35,11 @@
 	// Components
 	import { Button } from 'bits-ui'
 </script>
+
+
+<svelte:head>
+	<title>Agents – USDC Tools</title>
+</svelte:head>
 
 
 <main

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { RoomPeer } from '$/collections/room-peers.ts'
 	import { peerNameToEmoji, peerNameToHue } from '$/lib/rooms/room.ts'

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'

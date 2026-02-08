@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Toast as ToastType } from '$/lib/toast.svelte.ts'
 

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type {
 		DashboardPanelNode,
@@ -9,7 +7,7 @@
 
 
 	// Functions
-	import { routeEntries, toPanelNavigation } from './route-map.ts'
+	import { routeEntriesForPanel, toPanelNavigation } from './route-map.ts'
 
 
 	// Components
@@ -54,7 +52,7 @@
 
 	// (Derived)
 	const routeEntry = $derived(
-		routeEntries.find((entry) => entry.path === panel.route.path) ?? null,
+		routeEntriesForPanel.find((entry) => entry.path === panel.route.path) ?? null,
 	)
 	const paramKeys = $derived(routeEntry?.paramKeys ?? [])
 	const routeKey = $derived(
@@ -127,13 +125,13 @@
 	onpointerdown={() => onFocus(panel.id)}
 	onfocusin={() => onFocus(panel.id)}
 >
-	<header data-row="wrap gap-3">
+	<header data-row="wrap gap-3" data-scroll-container="inline">
 		<div data-row="wrap start gap-2" data-row-item="flexible" class="dashboard-panel-title">
 			<select
 				class="dashboard-panel-route"
 				bind:value={() => panel.route.path, setRoutePath}
 			>
-				{#each routeEntries as entry (entry.path)}
+				{#each routeEntriesForPanel as entry (entry.path)}
 					<option value={entry.path}>{entry.path}</option>
 				{/each}
 			</select>
@@ -157,15 +155,19 @@
 				onblur={commitHash}
 			/>
 		</div>
-		<div data-row="wrap start gap-2">
-			<button type="button" onclick={() => onSplit(panel.id, 'horizontal')}>
-				Split →
+		<div data-row="wrap start gap-2" class="dashboard-panel-controls">
+			<button type="button" onclick={() => onSplit(panel.id, 'horizontal')} title="Split horizontal">
+				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">▌▐</span>
 			</button>
-			<button type="button" onclick={() => onSplit(panel.id, 'vertical')}>
-				Split ↓
+			<button type="button" onclick={() => onSplit(panel.id, 'vertical')} title="Split vertical">
+				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">▀▄</span>
 			</button>
-			<button type="button" onclick={() => onSwap(panel.id)}>Swap ↔</button>
-			<button type="button" onclick={() => onRemove(panel.id)}>Close</button>
+			<button type="button" onclick={() => onSwap(panel.id)} title="Swap">
+				<span class="dashboard-panel-btn-text">Swap </span><span class="dashboard-panel-btn-icon" aria-hidden="true">↔</span>
+			</button>
+			<button type="button" onclick={() => onRemove(panel.id)} title="Close">
+				<span class="dashboard-panel-btn-text">Close</span><span class="dashboard-panel-btn-icon" aria-hidden="true">×</span>
+			</button>
 		</div>
 	</header>
 
@@ -209,6 +211,8 @@
 
 <style>
 	.dashboard-panel {
+		container-type: inline-size;
+		container-name: panel;
 		padding: 0.5rem;
 		border-radius: 0.5rem;
 		border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
@@ -216,6 +220,9 @@
 		contain: layout paint;
 		height: 100%;
 		min-height: 0;
+		display: grid;
+		grid-template-rows: auto minmax(0, 1fr) auto;
+		gap: 0.5rem;
 
 		&[data-focused='true'] {
 			border-color: color-mix(in oklab, currentColor 45%, transparent);
@@ -225,6 +232,12 @@
 
 	.dashboard-panel-title {
 		min-width: 0;
+
+		> select.dashboard-panel-route,
+		> input.dashboard-panel-hash,
+		> input[type='text'] {
+			field-sizing: content;
+		}
 
 		> select.dashboard-panel-route {
 			min-width: 6rem;
@@ -236,7 +249,6 @@
 	}
 
 	.dashboard-panel-body {
-		flex: 1 1 0;
 		min-height: 0;
 	}
 
@@ -246,5 +258,18 @@
 
 	.dashboard-panel-history {
 		font-size: 0.85rem;
+	}
+
+	.dashboard-panel-controls {
+		@container panel (max-width: 16rem) {
+			& .dashboard-panel-btn-text {
+				display: none;
+			}
+
+			& button {
+				padding-inline: 0.5em;
+				min-inline-size: 2rem;
+			}
+		}
 	}
 </style>

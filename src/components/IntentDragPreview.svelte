@@ -1,9 +1,11 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { IntentOption } from '$/constants/intents.ts'
-	import { isCoinEntityType, getCoinIconUrl } from '$/lib/coin-icon.ts'
+	import {
+	getCoinIconUrl,
+	getSymbolForCoinEntity,
+	isCoinEntityType,
+} from '$/lib/coin-icon.ts'
 
 
 	// Context
@@ -92,7 +94,10 @@
 			flowIconSrc = undefined
 			return
 		}
-		const symbol = (sourcePayload.entity.id as Record<string, unknown>).symbol as string | undefined
+		const symbol = getSymbolForCoinEntity(
+			sourcePayload.entity.type,
+			sourcePayload.entity.id as Record<string, unknown>,
+		)
 		getCoinIconUrl(symbol).then((url) => { flowIconSrc = url })
 	})
 
@@ -158,6 +163,8 @@
 
 	let lastSource: HTMLElement | null = null
 	let lastTarget: HTMLElement | null = null
+	let lastSourceHighlight: HTMLElement | null = null
+	let lastTargetHighlight: HTMLElement | null = null
 
 	$effect(() => {
 		const source = intentDragPreviewState.source?.element ?? null
@@ -181,6 +188,26 @@
 		}
 		lastSource = source
 		lastTarget = target
+	})
+
+	$effect(() => {
+		const isActive = intentDragPreviewState.status !== 'idle'
+		const source = intentDragPreviewState.source?.element ?? null
+		const target = intentDragPreviewState.target?.element ?? null
+		if (lastSourceHighlight && (lastSourceHighlight !== source || !isActive)) {
+			lastSourceHighlight.removeAttribute('data-intent-drag-highlight')
+		}
+		if (lastTargetHighlight && (lastTargetHighlight !== target || !isActive)) {
+			lastTargetHighlight.removeAttribute('data-intent-drag-highlight')
+		}
+		if (isActive && source) {
+			source.dataset.intentDragHighlight = 'source'
+		}
+		if (isActive && target) {
+			target.dataset.intentDragHighlight = 'target'
+		}
+		lastSourceHighlight = isActive && source ? source : null
+		lastTargetHighlight = isActive && target ? target : null
 	})
 
 
@@ -212,7 +239,6 @@
 		{#snippet tooltipContent()}
 			<div
 				class="intent-drag-tooltip"
-				data-card="padding-3 radius-6"
 				data-column="gap-3"
 				data-state={intentDragPreviewState.status}
 				data-interactive={isInteractive ? 'true' : 'false'}
@@ -272,8 +298,7 @@
 <style>
 	.intent-drag-tooltip {
 		min-width: 240px;
-		border: 1px solid var(--color-border);
-		box-shadow: var(--shadow-md);
+		padding: 0.75rem;
 		color: var(--color-fg);
 		pointer-events: none;
 	}
@@ -309,6 +334,37 @@
 
 	.intent-drag-tooltip button:not(:disabled):hover {
 		border-color: color-mix(in oklab, var(--color-accent) 35%, transparent);
+	}
+
+	@keyframes intent-drag-glow {
+		0%, 100% {
+			filter:
+				brightness(1.12)
+				drop-shadow(0 0 6px color-mix(in oklab, var(--color-accent) 50%, transparent))
+				drop-shadow(0 0 24px color-mix(in oklab, var(--color-accent) 35%, transparent));
+		}
+		50% {
+			filter:
+				brightness(1.12)
+				drop-shadow(0 0 12px color-mix(in oklab, var(--color-accent) 55%, transparent))
+				drop-shadow(0 0 40px color-mix(in oklab, var(--color-accent) 40%, transparent));
+		}
+	}
+
+	:global([data-intent-drag-highlight='source']),
+	:global([data-intent-drag-highlight='target']) {
+		animation: intent-drag-glow 1.6s ease-in-out infinite;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		:global([data-intent-drag-highlight='source']),
+		:global([data-intent-drag-highlight='target']) {
+			animation: none;
+			filter:
+				brightness(1.12)
+				drop-shadow(0 0 10px color-mix(in oklab, var(--color-accent) 50%, transparent))
+				drop-shadow(0 0 32px color-mix(in oklab, var(--color-accent) 35%, transparent));
+		}
 	}
 
 	:global([data-intent-transition='source']) {

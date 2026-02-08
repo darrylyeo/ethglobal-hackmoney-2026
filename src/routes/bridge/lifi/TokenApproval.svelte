@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ActorAllowance$Id } from '$/data/ActorAllowance.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'

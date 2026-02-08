@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { IntentDragPayload } from '$/constants/intents.ts'
 	import { DataSource } from '$/constants/data-sources.ts'

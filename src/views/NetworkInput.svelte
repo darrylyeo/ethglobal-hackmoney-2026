@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { networkConfigsByChainId } from '$/constants/networks.ts'
 	import type { Network } from '$/constants/networks.ts'

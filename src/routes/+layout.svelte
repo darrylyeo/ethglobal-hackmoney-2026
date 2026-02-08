@@ -513,76 +513,63 @@
 <Tooltip.Provider>
 	<div
 		id="layout"
-		class="layout"
+		data-scroll-container
+		data-sticky-container
 	>
 		<a
 			href="#main"
 			class="skip-link"
 		>Skip to main content</a>
 
-		<Navigation {navigationItems}></Navigation>
+		<Navigation
+			{navigationItems}
+		/>
 
 		<div
 			class="layout-main"
-			data-scroll-container
 			data-sticky-container
+			data-column
 		>
 			<aside
-				class="layout-aside"
+				id="global-graph"
 				data-sticky="backdrop-none"
 			>
 				<GraphScene
-					visible={true}
 					queryStack={localLiveQueryCtx.stack}
 					globalQueryStack={globalLiveQueryCtx.stack}
 				/>
 			</aside>
 
-			<main
-				id="main"
-				tabindex="-1"
-			>
-				<section data-scroll-item>
-					<Boundary>
-						{@render children()}
+			<Boundary>
+				{@render children()}
 
-						{#snippet Failed(error, retry)}
-							<div data-column>
-								<h2>Error</h2>
-								<p>{error instanceof Error ? error.message : String(error)}</p>
-								<button
-									type="button"
-									onclick={retry}
-								>Retry</button>
-							</div>
-						{/snippet}
-					</Boundary>
-				</section>
-			</main>
+				{#snippet failed(error)}
+					<main data-column>
+						<h2>{(error as unknown as Error).status}</h2>
+
+						<p>{(error as unknown as Error).message}</p>
+					</main>
+				{/snippet}
+			</Boundary>
 		</div>
-
-		<IntentDragPreview />
-
-		<ToastContainer position="bottom-right" />
 	</div>
+
+	<IntentDragPreview />
+
+	<ToastContainer position="bottom-right" />
 </Tooltip.Provider>
 
 
 <style>
-	.layout {
+	#layout {
 		/* Constants */
-		--navigation-desktop-inlineSize: 20rem;
-		--navigation-mobile-blockSize: 4.16rem;
+		--navigation-desktop-inlineSize: 21rem;
+		--navigation-mobile-blockSize: 4rem;
 
 		/* Rules */
 		width: 100dvw;
 		height: 100dvh;
-		padding:
-			var(--safeArea-insetTop)
-			var(--safeArea-insetRight)
-			var(--safeArea-insetBottom)
-			var(--safeArea-insetLeft)
-		;
+		padding: var(--safeArea-insetTop) var(--safeArea-insetRight) var(--safeArea-insetBottom) var(--safeArea-insetLeft);
 		display: grid;
 		align-items: start;
 		gap: var(--separator-width);
@@ -594,10 +581,10 @@
 			--sticky-paddingInlineEnd: var(--safeArea-insetRight);
 		}
 
-		@media not (max-width: 1024px) {
+		@media (width >= 60rem) {
 			grid-template:
 				'Nav Main' 100dvh
-				/ var(--navigation-desktop-inlineSize) minmax(auto, 1fr)
+				/ auto minmax(auto, 1fr)
 			;
 
 			&[data-sticky-container] {
@@ -606,11 +593,12 @@
 			}
 		}
 
-		@media (max-width: 1024px) {
+		@media (width < 60rem) {
 			grid-template:
 				'Nav' var(--navigation-mobile-blockSize)
 				'Main' 1fr
-				/ minmax(auto, 1fr);
+				/ minmax(auto, 1fr)
+			;
 
 			&[data-sticky-container] {
 				--sticky-marginBlockStart: var(--separator-width);
@@ -618,64 +606,38 @@
 			}
 		}
 
-		:global {
-			> nav {
-				grid-area: Nav;
-				box-shadow: 0 0 0 var(--separator-width) var(--color-border);
-			}
+		> :global(nav) {
+			grid-area: Nav;
+			box-shadow: 0 0 0 var(--separator-width) var(--border-color);
 
-			> .layout-main {
-				grid-area: Main;
-				min-height: 0;
-			}
+			max-inline-size: var(--navigation-desktop-inlineSize);
+			resize: horizontal;
+		}
 
-			> .layout-main[data-scroll-container] {
-				--sticky-paddingBlockStart: var(--safeArea-insetTop);
-				--sticky-paddingBlockEnd: var(--safeArea-insetBottom);
-				--sticky-paddingInlineStart: var(--safeArea-insetLeft);
-				--sticky-paddingInlineEnd: var(--safeArea-insetRight);
-			}
+		> .main-area {
+			grid-area: Main;
 
-			@media not (max-width: 1024px) {
-				> .layout-main[data-sticky-container] {
-					--sticky-marginInlineStart: var(--separator-width);
-					--sticky-paddingInlineStart: var(--navigation-desktop-inlineSize);
-				}
-			}
+			--sticky-paddingInlineStart: clamp(1rem, 6cqi, 2rem);
+			--sticky-paddingInlineEnd: clamp(1rem, 6cqi, 2rem);
 
-			@media (max-width: 1024px) {
-				> .layout-main[data-sticky-container] {
-					--sticky-marginBlockStart: var(--separator-width);
-					--sticky-paddingBlockStart: var(--navigation-mobile-blockSize);
-				}
-			}
+			> :global(main) {
+				--graph-scroll-blur-size: 1rem;
 
-			> .layout-main > main {
-				--scrollItem-inlineDetached-maxSize: 54rem;
-				--scrollItem-inlineDetached-paddingStart: 2rem;
-				--scrollItem-inlineDetached-maxPaddingMatchStart: 5rem;
-				--scrollItem-inlineDetached-paddingEnd: 2rem;
-				--scrollItem-inlineDetached-maxPaddingMatchEnd: 5rem;
-				--graph-scroll-blur-size: 48px;
 				position: relative;
-				isolation: isolate;
+				min-height: 100dvh;
 
 				&::before,
 				&::after {
 					content: '';
 					position: absolute;
-					left: 0;
-					right: 0;
-					height: var(--graph-scroll-blur-size);
+					inset: calc(-1 * var(--graph-scroll-blur-size));
 					pointer-events: none;
 					mask-size: 100% 100%;
 					mask-repeat: no-repeat;
 				}
 
 				&::before {
-					top: calc(-1 * var(--graph-scroll-blur-size));
 					backdrop-filter: blur(calc(8px * (1 - var(--graph-scroll-progress, 0))));
-					-webkit-backdrop-filter: blur(calc(8px * (1 - var(--graph-scroll-progress, 0))));
 					mask-image: linear-gradient(
 						to bottom,
 						transparent 0%,
@@ -699,40 +661,7 @@
 		}
 	}
 
-	.layout-main {
-		--graph-scroll-progress: 0;
-		animation: graph-scroll-driver linear;
-		animation-timeline: scroll(self block);
-		animation-range: 0% 100%;
-	}
-
-	@keyframes graph-scroll-driver {
-		from {
-			--graph-scroll-progress: 0;
-		}
-		to {
-			--graph-scroll-progress: 1;
-		}
-	}
-
-	.layout-aside {
-		block-size: var(--sticky-sizeBlock);
-		min-block-size: var(--sticky-sizeBlock);
-		display: flex;
-		flex-direction: column;
-		min-height: 0;
-	}
-
-	:global(.layout-main > .layout-aside details.graph-scene) {
-		position: relative;
-		inset: auto;
-		left: auto;
-		right: auto;
-		bottom: auto;
-		flex: 1;
-		min-block-size: 0;
-		display: flex;
-		flex-direction: column;
-		height: 100%;
+	#global-graph {
+		z-index: -1;
 	}
 </style>

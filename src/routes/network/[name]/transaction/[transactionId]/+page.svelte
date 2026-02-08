@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
@@ -12,6 +10,7 @@
 	import { fetchChainTransaction, chainTransactionsCollection } from '$/collections/chain-transactions.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import EvmTransactionId from '$/components/EvmTransactionId.svelte'
 	import NetworkView from '$/components/network/Network.svelte'
 
 
@@ -186,7 +185,17 @@
 </svelte:head>
 
 
-<div data-column="gap-2">
+<main data-column="gap-2">
+	<header data-row="wrap gap-4 align-center">
+		<h1 data-text="vertical">
+			<EvmTransactionId
+				chainId={data.chainId}
+				txHash={data.transactionId}
+				vertical
+			/>
+		</h1>
+		<span data-text="annotation">Transaction</span>
+	</header>
 	<p>
 		<a href={showContextUrl} data-link>Show Context</a>
 	</p>
@@ -194,4 +203,4 @@
 		data={networkData}
 		{placeholderBlockIds}
 	/>
-</div>
+</main>

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Props
 	let {
 		size = '1em',

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { fetchCctpMessages, getAttestationFromMessages } from '$/api/cctp.ts'
 

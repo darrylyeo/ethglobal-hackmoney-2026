@@ -1,12 +1,11 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Snippet } from 'svelte'
 	import {
 		computeArrow,
 		arrowToPathD,
 		arrowMidPoint,
+		arrowTooltipAnchor,
 	} from '$/lib/flow-arrow.ts'
 
 
@@ -42,15 +41,15 @@
 	const pathD = $derived(
 		arrowToPathD(arrowData),
 	)
-	const midPoint = $derived(
-		arrowMidPoint(arrowData),
+	const tooltipOffset = 16
+	const arcMid = $derived(arrowMidPoint(arrowData))
+	const tooltipAnchor = $derived(
+		arrowTooltipAnchor(arrowData, tooltipOffset),
 	)
 	const tooltipSide = $derived(
 		(() => {
-			const midX = midPoint.x
-			const midY = midPoint.y
-			const dx = arrowData[2] - midX
-			const dy = arrowData[3] - midY
+			const dx = tooltipAnchor.x - arcMid.x
+			const dy = tooltipAnchor.y - arcMid.y
 			return Math.abs(dy) > Math.abs(dx)
 				? dy < 0
 					? 'bottom'
@@ -82,7 +81,7 @@
 				<div
 					{...props}
 					role="presentation"
-					style="position: fixed; left: {midPoint.x}px; top: {midPoint.y}px; width: 0; height: 0; pointer-events: none;"
+					style="position: fixed; left: {tooltipAnchor.x}px; top: {tooltipAnchor.y}px; width: 0; height: 0; pointer-events: none;"
 				></div>
 			{/snippet}
 		</Tooltip.Trigger>

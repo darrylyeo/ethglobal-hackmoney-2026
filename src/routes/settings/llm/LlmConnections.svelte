@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { getModelsForConnection } from '$/api/llm/connection-provider.ts'
 	import type { LlmConnectionRow } from '$/collections/llm-connections.ts'

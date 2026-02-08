@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
@@ -123,23 +121,23 @@
 </svelte:head>
 
 
-<div data-column="gap-2">
+<main data-column="gap-2">
 	{#if !parsed}
 		<h1>Network not found</h1>
 		<p>The network "{nameParam}" could not be resolved.</p>
 	{:else}
 		<header data-column="gap-2">
-			<h1>Network</h1>
-			<div class="network-identity" data-row="gap-2 align-center">
-				<code class="caip2">{caip2}</code>
-				<span class="network-name">{config.name}</span>
-				<span class="network-type" data-tag={config.type}>
-					{config.type}
-				</span>
+			<div data-row="wrap gap-4 align-center">
+				<div data-column="gap-1">
+					<h1>{config.name}</h1>
+					<code data-text="vertical" data-text="font-monospace">{caip2}</code>
+					{#if config.type}
+						<span data-tag={config.type}>{config.type}</span>
+					{/if}
+				</div>
+				<span data-text="annotation">Network</span>
 			</div>
-			<p class="network-meta">
-				Chain ID {chainId}
-			</p>
+			<p data-text="annotation">Chain ID {chainId}</p>
 		</header>
 
 		<nav class="network-actions" data-row="wrap gap-2">
@@ -169,32 +167,13 @@
 			bind:visiblePlaceholderBlockIds
 		/>
 	{/if}
-</div>
+</main>
 
 
 <style>
-	.network-identity {
-		font-size: 1rem;
-	}
-
-	.network-identity code.caip2 {
-		font-family: ui-monospace, monospace;
-		opacity: 0.85;
-	}
-
-	.network-name {
-		font-weight: 600;
-	}
-
-	.network-type[data-tag='Testnet'] {
+	[data-tag='Testnet'] {
 		opacity: 0.8;
 		font-size: 0.85em;
-	}
-
-	.network-meta {
-		margin: 0;
-		font-size: 0.9em;
-		opacity: 0.85;
 	}
 
 	.network-actions .action-link {

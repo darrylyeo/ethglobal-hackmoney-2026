@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { YellowChannelRow } from '$/collections/yellow-channels.ts'
 	import { closeChannel } from '$/api/yellow.ts'

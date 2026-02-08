@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
@@ -239,26 +237,26 @@
 </svelte:head>
 
 
-<div data-column="gap-2">
+<main data-column="gap-2">
 	{#if !parsed}
 		<h1>Invalid address</h1>
 		<p>The address in the URL could not be parsed.</p>
 	{:else}
 		<header data-column="gap-2">
-			<h1>Account</h1>
-			<EvmActor
-				network={parsed.chainId ?? 1}
-				address={parsed.address}
-			/>
-			<div
-				data-row="wrap gap-2"
-				class="account-address"
-				data-account-header
-			>
+			<div data-row="wrap gap-4 align-center">
+				<h1 data-text="vertical">
+					<EvmActor
+						network={parsed.chainId ?? 1}
+						address={parsed.address}
+						vertical
+					/>
+				</h1>
+				<span data-text="annotation">Account</span>
+			</div>
+			<nav data-row="wrap gap-2">
 				{#if parsed.interopAddress}
 					<code class="interop">{parsed.interopAddress}</code>
 				{/if}
-				<code class="raw" title={parsed.address}>{parsed.address}</code>
 				<button
 					type="button"
 					class="copy-btn"
@@ -282,7 +280,7 @@
 						</a>
 					{/if}
 				{/if}
-			</div>
+			</nav>
 		</header>
 
 		<section data-column="gap-2" class="account-section">
@@ -443,23 +441,10 @@
 			<LocalGraphScene />
 		</section>
 	{/if}
-</div>
+</main>
 
 
 <style>
-	.account-address {
-		font-size: 0.9em;
-	}
-
-	.account-address code {
-		font-family: ui-monospace, monospace;
-		word-break: break-all;
-	}
-
-	.account-address code.raw {
-		opacity: 0.85;
-	}
-
 	.copy-btn,
 	.explorer-link {
 		font-size: 0.85em;

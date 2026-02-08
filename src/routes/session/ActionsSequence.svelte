@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { SessionAction } from '$/data/TransactionSession.ts'
 	import { createSessionAction } from '$/data/TransactionSession.ts'

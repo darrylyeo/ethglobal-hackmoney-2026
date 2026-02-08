@@ -13,8 +13,6 @@
 
 
 <script lang="ts">
-
-
 	// Context
 	import { preloadData } from '$app/navigation'
 
@@ -98,7 +96,7 @@
 	}
 
 	const navIconProps = (icon: string) =>
-		icon.startsWith('data:') || icon.startsWith('/')
+		icon.startsWith('data:') || icon.includes('/')
 			? { src: icon }
 			: { icon }
 

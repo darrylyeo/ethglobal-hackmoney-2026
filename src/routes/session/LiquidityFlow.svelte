@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
 	import type { TokenListCoinRow } from '$/collections/token-list-coins.ts'

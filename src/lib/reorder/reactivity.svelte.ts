@@ -33,13 +33,19 @@ export function enterArea(getArea: () => AreaState<unknown>) {
 }
 
 function distance(
-	a: { x: number; y: number },
-	b: { x: number; y: number },
+	a: {
+		x: number
+		y: number
+	},
+	b: {
+		x: number
+		y: number
+	},
 ): number {
 	return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
 }
 
-export const targetItem = $derived.by(() => {
+const targetItem = $derived.by(() => {
 	if (!targeting.targetable) return undefined
 	let closest: ItemState<unknown> | undefined
 	let closestDistance = Infinity

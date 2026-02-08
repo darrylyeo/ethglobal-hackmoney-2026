@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
 	import { ComboEvent, EdgeEvent, Graph, NodeEvent } from '@antv/g6'
@@ -725,6 +723,10 @@
 		gap: 1.5rem;
 		grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
 		align-items: stretch;
+
+		:global(*) {
+			font-family: inherit !important;
+		}
 	}
 
 	.architecture-graph__canvas {

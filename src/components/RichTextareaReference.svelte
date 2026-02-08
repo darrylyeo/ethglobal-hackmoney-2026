@@ -5,8 +5,6 @@
 		Item extends { ref: Ref }
 	"
 >
-
-
 	// Components
 	import Combobox from '$/components/Combobox.svelte'
 

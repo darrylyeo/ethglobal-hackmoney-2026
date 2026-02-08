@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Context
 	import { page } from '$app/state'
 	import { setContext } from 'svelte'
@@ -132,28 +130,26 @@
 </svelte:head>
 
 
-<div
+<main
+	id="main"
 	data-column
 	data-sticky-container
 >
 	{#if activeSession}
 		<SessionView bind:session={activeSession} />
 	{:else}
-		<main
-			id="main"
-			data-column
-			data-sticky-container
+		<section
+			data-scroll-item
+			data-column="gap-3"
 		>
-			<section
-				data-scroll-item
-				data-column="gap-3"
-			>
+			<header data-row="wrap gap-4 align-center">
 				<h1>Session</h1>
-				<p data-muted>Loading session…</p>
-			</section>
-		</main>
+				<span data-text="annotation">Session</span>
+			</header>
+			<p data-muted>Loading session…</p>
+		</section>
 	{/if}
 	<section data-scroll-item>
 		<LocalGraphScene />
 	</section>
-</div>
+</main>

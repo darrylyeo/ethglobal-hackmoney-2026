@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { redirect } from '@sveltejs/kit'
 
@@ -11,3 +9,5 @@
 	}
 </script>
 
+
+<main></main>

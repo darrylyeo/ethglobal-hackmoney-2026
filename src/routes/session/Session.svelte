@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
 	import type { TransactionSession } from '$/data/TransactionSession.ts'
@@ -129,14 +127,19 @@
 
 <main id="main" data-session data-column="gap-4" data-sticky-container>
 	<section data-scroll-item data-column="gap-2">
-		<header data-row="gap-2 align-center justify-between wrap">
-			<input
-				type="text"
-				bind:value={session.name}
-				placeholder="Session name"
-				aria-label="Session name"
-				data-row-item="flexible"
-			/>
+		<header data-row="wrap gap-4 align-center">
+			<div data-column="gap-1" data-row-item="flexible">
+				<h1>
+					<span class="sr-only">Session</span>
+					<input
+						type="text"
+						bind:value={session.name}
+						placeholder="Session name"
+						aria-label="Session name"
+					/>
+				</h1>
+			</div>
+			<span data-text="annotation">Session</span>
 			<label data-row="gap-2 align-center">
 				<Switch.Root
 					checked={bridgeSettingsState.current.isTestnet}
@@ -168,6 +171,7 @@
 				<CoinBalances
 					{selectedActor}
 					balanceTokens={effectiveBalanceTokens}
+					availableAccounts={connectedWallets.map((w) => w.address)}
 				/>
 			</div>
 		</details>

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Context
 	import { useLocalQueries } from '$/svelte/live-query-context.svelte.ts'
 
@@ -23,7 +21,7 @@
 </button>
 {#if open}
 	<GraphScene
-		visible={true}
+		isVisible={true}
 		queryStack={localCtx.stack}
 		globalQueryStack={[]}
 	/>

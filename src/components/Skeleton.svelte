@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Props
 	let {
 		width = '100%',

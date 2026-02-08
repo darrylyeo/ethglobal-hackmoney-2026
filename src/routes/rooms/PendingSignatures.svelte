@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { SiweChallengeRow } from '$/collections/siwe-challenges.ts'
 	import type { EIP1193Provider } from '$/lib/rooms/siwe.ts'

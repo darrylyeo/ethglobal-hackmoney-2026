@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { BridgeRoute } from '$/data/BridgeRoute.ts'
 	import type { Transaction } from '@tanstack/db'

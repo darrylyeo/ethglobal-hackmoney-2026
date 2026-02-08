@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import {
 		ActionType,
@@ -34,7 +32,7 @@
 </svelte:head>
 
 
-<div data-column="center gap-4">
+<main data-column="center gap-4">
 	<h1>Actions</h1>
 	<p data-muted>Choose an action to start a session.</p>
 	<nav
@@ -52,7 +50,7 @@
 			</a>
 		{/each}
 	</nav>
-</div>
+</main>
 
 
 <style>

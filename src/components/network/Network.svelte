@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Network } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'

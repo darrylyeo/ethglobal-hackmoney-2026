@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Network$Id } from '$/data/Network.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -20,10 +18,14 @@
 		network,
 		address,
 		profile: profileProp,
+		format,
+		vertical = false,
 	}: {
 		network: Network$Id
 		address: `0x${string}`
 		profile?: { primaryName?: string; avatarUrl?: string }
+		format?: import('$/components/Address.svelte').AddressFormat
+		vertical?: boolean
 	} = $props()
 
 
@@ -55,17 +57,23 @@
 
 
 <div data-row="center gap-2" class="evm-actor">
-	<span class="evm-actor-avatar">
-		<Icon
-			src={profile?.avatarUrl}
-			alt=""
-			size="1.5em"
-		/>
-	</span>
-	<Address {network} {address} />
-	{#if profile?.primaryName}
-		<span class="evm-actor-name" data-text="muted">({profile.primaryName})</span>
+	{#if profile?.avatarUrl}
+		<span class="evm-actor-avatar">
+			<Icon
+				src={profile.avatarUrl}
+				alt=""
+				size="1.5em"
+			/>
+		</span>
 	{/if}
+
+	<Address
+		{network}
+		{address}
+		ensName={profile?.primaryName}
+		format={format}
+		{vertical}
+	/>
 </div>
 
 

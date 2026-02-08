@@ -1,6 +1,4 @@
 <script module lang="ts">
-
-
 	// Types/constants
 	export enum TruncatedValueFormat {
 		Abbr = 'Abbr',

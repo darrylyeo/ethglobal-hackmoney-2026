@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { UniswapPosition } from '$/data/UniswapPosition.ts'
 	import {

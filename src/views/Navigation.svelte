@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Snippet } from 'svelte'
 	import { APP_NAME } from '$/constants/app.ts'
@@ -80,19 +78,22 @@
 		</menu>
 	</header>
 
-	<div id="nav-menu" data-sticky-container>
+	<div
+		id="nav-menu"
+		data-sticky-container
+	>
 		<NavigationItems
 			items={navigationItems}
 			currentPathname={page.url.pathname}
 		/>
 	</div>
 
-	<footer data-sticky></footer>
+	<!-- <footer data-sticky></footer> -->
 </nav>
 
 
 <style>
-	.nav {
+	nav {
 		width: 100%;
 		height: 100dvh;
 		display: grid;
@@ -104,51 +105,56 @@
 
 		> header {
 			block-size: var(--navigation-mobile-blockSize);
-			box-shadow: 0 0 0 var(--separator-width) var(--color-border);
+			box-shadow: 0 0 0 var(--separator-width) var(--border-color);
+
 			padding: 1rem;
 
 			a {
+				display: flex;
 				text-decoration: none;
+
+				.logo {
+					font-size: 1.1em;
+					text-transform: uppercase;
+
+					.title {
+						letter-spacing: 0.08em;
+						font-weight: 700;
+					}
+
+					[data-tag] {
+						letter-spacing: 0.06em;
+						font-size: 0.6em;
+					}
+				}
 			}
 
-			.about-link {
-				padding: 0.35rem;
-				border-radius: 0.375rem;
-				color: inherit;
-
-				&:hover {
-					background-color: var(--background-primary);
-					color: var(--accent);
+			menu {
+				li {
+					display: contents;
 				}
 
-				& .icon {
-					font-size: 1.15em;
+				button {
+					svg {
+						width: 1.25em;
+						height: 1.25em;
+
+						transition-property: color;
+					}
 				}
-			}
 
-			.logo {
-				font-size: 1.1em;
-				text-transform: uppercase;
-			}
-
-			.title {
-				letter-spacing: 0.08em;
-				font-weight: 700;
-			}
-
-			.nav-tag {
-				letter-spacing: 0.06em;
-				font-size: 0.6em;
-			}
-
-			menu li {
-				display: contents;
+				#theme-toggle {
+					> :first-child {
+						color: light-dark(currentColor, transparent);
+					}
+					> :last-child {
+						color: light-dark(transparent, currentColor);
+					}
+				}
 			}
 		}
 
 		#nav-menu {
-			display: flex;
-			flex-direction: column;
 			padding: 1rem 0.75rem;
 
 			&[data-sticky-container] {
@@ -156,30 +162,35 @@
 				--sticky-marginBlockEnd: 1rem;
 				--sticky-marginInlineStart: 0.75rem;
 				--sticky-marginInlineEnd: 0.75rem;
+
 				--sticky-paddingBlockStart: 5rem;
 			}
+		}
 
-			> :first-child {
-				flex: 1;
-			}
+		footer {
+			padding: 1rem;
 
-			footer {
-				padding: 1rem;
+			p {
+				padding: 0.75rem 1rem;
+				line-height: 1.4;
+				background-color: var(--accent-backgroundColor);
+				border-radius: 0.5rem;
+				font-size: 0.875rem;
+				color: var(--text-secondary);
 			}
 		}
 	}
 
 	@media (width >= 60rem) {
-		.nav {
-			li:has(#menu-toggle) {
-				display: none;
-			}
+		li:has(#menu-toggle) {
+			display: none;
 		}
 	}
 
 	@media (width < 60rem) {
-		.nav {
+		nav {
 			transition-property: block-size;
+
 			block-size: auto;
 
 			&[popover]:not(:popover-open) {

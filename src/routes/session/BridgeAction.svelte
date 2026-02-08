@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
 	import type { BridgeRoute } from '$/data/BridgeRoute.ts'
@@ -83,10 +81,10 @@
 		selectedActor,
 		globalIsTestnet = false,
 		balanceTokens = $bindable([]),
-		params = $bindable(),
+		params = $bindable({}),
 	}: {
-		selectedWallets: ConnectedWallet[],
-		selectedActor: `0x${string}` | null,
+		selectedWallets: ConnectedWallet[]
+		selectedActor: `0x${string}` | null
 		globalIsTestnet?: boolean,
 		balanceTokens?: {
 			chainId: number,

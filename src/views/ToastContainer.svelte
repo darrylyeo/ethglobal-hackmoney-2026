@@ -1,9 +1,6 @@
 <script lang="ts">
-
-
-	// Components
+	// Context
 	import { toasts } from '$/lib/toast.svelte.ts'
-	import Toast from '$/components/Toast.svelte'
 
 
 	// Props
@@ -12,6 +9,10 @@
 	}: {
 		position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
 	} = $props()
+
+
+	// Components
+	import Toast from '$/components/Toast.svelte'
 </script>
 
 

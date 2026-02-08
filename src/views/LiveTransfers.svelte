@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { browser } from '$app/environment'
 	import type { Coin } from '$/constants/coins.ts'
@@ -201,14 +199,14 @@
 						refY="6"
 						orient="auto"
 					>
-						<path d="M 0 0 L 12 6 L 0 12 z" fill="var(--color-accent, #60a5fa)" />
+						<path d="M 0 0 L 12 6 L 0 12 z" fill="var(--color-accent, light-dark(#2563eb, #60a5fa))" />
 					</marker>
 				</defs>
 				{#each edgeArrowPaths as d (d)}
 					<path
 						{d}
 						fill="none"
-						stroke="var(--color-accent, #60a5fa)"
+						stroke="var(--color-accent, light-dark(#2563eb, #60a5fa))"
 						stroke-width="1.5"
 						stroke-linecap="round"
 						marker-end="url(#transfer-arrow-head)"

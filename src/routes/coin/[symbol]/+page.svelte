@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { page } from '$app/state'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -169,8 +167,11 @@
 
 <main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
-		<header class="transfers-header" data-row="wrap gap-2 align-center">
-			<h2>Transfers – {coin.symbol}</h2>
+		<header data-column="gap-2">
+			<div data-row="wrap gap-4 align-center">
+				<h1>{coin.symbol}</h1>
+				<span data-text="annotation">Coin</span>
+			</div>
 			<nav data-row="start gap-2" aria-label="Time period">
 				{#each TIME_PERIODS as p (p.value)}
 					<a

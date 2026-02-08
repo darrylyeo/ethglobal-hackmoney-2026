@@ -14,27 +14,40 @@
 	}
 </script>
 
-<script lang="ts">
+
+<script lang="ts" generics="T">
+	import { on } from 'svelte/events'
+	import { targeting } from './reactivity.svelte.ts'
+
 	let {
+		children,
+		args,
 		position,
 		offset,
 		min,
 		origin,
-		args,
-		children,
 		stop,
-	} = $props<{
-		children: Snippet<[unknown, ItemState<unknown>]>
-		args: [unknown, import('./item-state.svelte.ts').ItemState<unknown>]
-		position: { x: number; y: number }
-		offset: { x: number; y: number }
-		min: { width: number; height: number }
-		origin: { array: unknown[]; index: number; area: AreaState<unknown> }
-		stop: (e?: Event) => void
-	}>()
+	}: DragProps<T> = $props()
 
-	const x = $derived(position.x - offset.x)
-	const y = $derived(position.y - offset.y)
+	let x = $state(position.x - offset.x)
+	let y = $state(position.y - offset.y)
+
+	$effect(() => {
+		const cleanMove = on(document, 'pointermove', (e: PointerEvent) => {
+			x = e.clientX - offset.x
+			y = e.clientY - offset.y
+			targeting.position = { x: e.clientX, y: e.clientY, h: 0, w: 0 }
+		})
+		const cleanUp = on(document, 'pointerup', (e: PointerEvent) => {
+			cleanMove()
+			cleanUp()
+			stop(e)
+		})
+		return () => {
+			cleanMove()
+			cleanUp()
+		}
+	})
 </script>
 
 

@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/wallet-connections.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
@@ -129,18 +127,23 @@
 	<header
 		data-scroll-item
 		data-room-header
-		data-row="wrap gap-4 align-center"
+		data-column="gap-2"
 	>
-		<div data-row="gap-2 align-center">
-			<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
-			<h1 data-room-title>{roomDisplayName}</h1>
-			<span
-				data-tag
-				data-connection-status={roomState.connectionStatus}
-				title="Room connection"
-			>
-				{partyKitStatusLabel(roomState.connectionStatus)}
-			</span>
+		<div data-row="wrap gap-4 align-center">
+			<div data-column="gap-1">
+				<h1>
+					<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
+					{roomDisplayName}
+				</h1>
+				<span
+					data-tag
+					data-connection-status={roomState.connectionStatus}
+					title="Room connection"
+				>
+					{partyKitStatusLabel(roomState.connectionStatus)}
+				</span>
+			</div>
+			<span data-text="annotation">Room</span>
 		</div>
 		<nav data-row="gap-2 align-center wrap">
 			<a

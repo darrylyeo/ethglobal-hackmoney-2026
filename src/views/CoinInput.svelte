@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { Coin } from '$/constants/coins.ts'
 	import { CoinType } from '$/constants/coins.ts'

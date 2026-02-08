@@ -7,3 +7,6 @@
 		redirect(302, '/accounts')
 	}
 </script>
+
+
+<main></main>

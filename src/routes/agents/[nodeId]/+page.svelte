@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import type { AgentChatTree } from '$/data/AgentChatTree.ts'
 
@@ -135,7 +133,10 @@
 			/>
 		{:else}
 			<div data-column="gap-4">
-				<h1>{tree.name ?? 'New conversation'}</h1>
+				<header data-row="wrap gap-4 align-center">
+					<h1>{tree.name ?? 'New conversation'}</h1>
+					<span data-text="annotation">Conversation</span>
+				</header>
 				<p data-muted>Start the conversation by typing a prompt.</p>
 				<div data-row="gap-2 align-center">
 					<ModelInput
@@ -157,7 +158,10 @@
 		{/if}
 	{:else}
 		<div data-column="gap-4">
-			<h1>New conversation</h1>
+			<header data-row="wrap gap-4 align-center">
+				<h1>New conversation</h1>
+				<span data-text="annotation">Conversation</span>
+			</header>
 			<p data-muted>Start the conversation by typing a prompt.</p>
 			<div data-row="gap-2 align-center">
 				<ModelInput

@@ -8,14 +8,14 @@
 </script>
 
 
-<script
-	lang="ts"
+<script lang="ts"
 	generics="_Item"
 >
-
-
 	// Types/constants
+	import type { Attachment } from 'svelte/attachments'
 	import type { Snippet } from 'svelte'
+	import type { AreaOptions } from '$/lib/reorder/area-state.svelte.ts'
+	import type { ItemState } from '$/lib/reorder/item-state.svelte.ts'
 
 
 	// Props
@@ -64,108 +64,80 @@
 	}
 
 	const duplicateItemAt = (index: number) => {
-		const clone = duplicateItem(items[index])
 		items = [
 			...items.slice(0, index + 1),
-			clone,
+			duplicateItem(items[index]),
 			...items.slice(index + 1),
 		]
 	}
 
-	const moveItem = (fromIndex: number, toIndex: number) => {
-		if (fromIndex === toIndex) return
-		const next = [...items]
-		const [moved] = next.splice(fromIndex, 1)
-		next.splice(toIndex, 0, moved)
-		items = next
-	}
-
-
-	// State
-	let draggingIndex = $state<number | null>(null)
-	let dragOverIndex = $state<number | null>(null)
-
-	const onDragStart = (index: number) => (e: DragEvent) => {
-		draggingIndex = index
-		e.dataTransfer!.effectAllowed = 'move'
-	}
-
-	const onDragOver = (index: number) => (e: DragEvent) => {
-		e.preventDefault()
-		dragOverIndex = index
-	}
-
-	const onDrop = (index: number) => (e: DragEvent) => {
-		e.preventDefault()
-		if (draggingIndex !== null && draggingIndex !== index) {
-			moveItem(draggingIndex, index)
-		}
-		draggingIndex = null
-		dragOverIndex = null
-	}
-
-	const onDragEnd = () => {
-		draggingIndex = null
-		dragOverIndex = null
+	const onReorderDrop = () => {
+		items = [...items]
 	}
 
 
 	// Components
 	import { Button } from 'bits-ui'
+	import { Reorder } from '$/lib/reorder/index.ts'
 </script>
 
 
-<div class="editable-items-list" data-column="gap-2">
-	{#each items as item, index (index)}
-		<div
-			class="editable-item"
-			data-row="gap-2"
-			data-dragging={draggingIndex === index ? '' : undefined}
-			data-drag-over={dragOverIndex === index ? '' : undefined}
-			draggable={canReorder ? 'true' : undefined}
-			ondragstart={canReorder ? onDragStart(index) : undefined}
-			ondragover={canReorder ? onDragOver(index) : undefined}
-			ondrop={canReorder ? onDrop(index) : undefined}
-			ondragend={canReorder ? onDragEnd : undefined}
-			role="listitem"
-		>
-			{#if canReorder}
-				<span class="drag-handle" aria-hidden="true">⠿</span>
+{#snippet itemActions(index: number)}
+	{#if canDuplicate || canDelete}
+		<div class="editable-item-actions" data-row="gap-1">
+			{#if canDuplicate}
+				<Button.Root type="button" onclick={() => duplicateItemAt(index)} aria-label="Duplicate">⧉</Button.Root>
 			{/if}
-
-			<div class="editable-item-content" data-row-item="flexible">
-				{@render Item({ item, index })}
-			</div>
-
-			{#if canDuplicate || canDelete}
-				<div class="editable-item-actions" data-row="gap-1">
-					{#if canDuplicate}
-						<Button.Root
-							type="button"
-							onclick={() => duplicateItemAt(index)}
-							aria-label="Duplicate"
-						>⧉</Button.Root>
-					{/if}
-					{#if canDelete}
-						<Button.Root
-							type="button"
-							onclick={() => deleteItem(index)}
-							aria-label="Delete"
-						>✕</Button.Root>
-					{/if}
-				</div>
+			{#if canDelete}
+				<Button.Root type="button" onclick={() => deleteItem(index)} aria-label="Delete">✕</Button.Root>
 			{/if}
 		</div>
-	{/each}
-
-	{#if canAdd}
-		<Button.Root
-			type="button"
-			class="add-item-button"
-			onclick={addItem}
-		>+ Add</Button.Root>
 	{/if}
-</div>
+{/snippet}
+
+{#if canReorder}
+	<Reorder>
+		{#snippet content(item: _Item, state: ItemState<_Item>)}
+			{@const index = items.indexOf(item)}
+			<div class="editable-item" data-row="gap-2" use:state.anchor>
+				<span class="drag-handle" use:state.handle aria-hidden="true">⠿</span>
+				<div class="editable-item-content" data-row-item="flexible">
+					{@render Item({ item, index })}
+				</div>
+				{@render itemActions(index)}
+			</div>
+		{/snippet}
+
+		{#snippet children(
+			attach: (options?: AreaOptions<_Item>) => Attachment<HTMLElement>,
+			area: Snippet<[array: _Item[]]>,
+		)}
+			{@const areaAttachment = attach({ onDrop: onReorderDrop })}
+			<div class="editable-items-list" data-column="gap-2" {@attach areaAttachment}>
+				{@render area(items)}
+			</div>
+		{/snippet}
+	</Reorder>
+{:else}
+	<div class="editable-items-list" data-column="gap-2">
+		{#each items as item, index (index)}
+			<div class="editable-item" data-row="gap-2">
+				<div class="editable-item-content" data-row-item="flexible">
+					{@render Item({ item, index })}
+				</div>
+				{@render itemActions(index)}
+			</div>
+		{/each}
+	</div>
+{/if}
+
+{#if canAdd}
+	<Button.Root
+		type="button"
+		class="add-item-button"
+		onclick={addItem}
+	>+ Add</Button.Root>
+{/if}
 
 
 <style>
@@ -177,15 +149,6 @@
 
 	.editable-item {
 		align-items: start;
-		transition: opacity 0.15s;
-
-		&[data-dragging] {
-			opacity: 0.4;
-		}
-
-		&[data-drag-over] {
-			border-top: 2px solid var(--color-accent, currentColor);
-		}
 	}
 
 	.drag-handle {
