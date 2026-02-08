@@ -222,7 +222,7 @@
 			data-sticky-container
 			data-column
 		>
-			<aside
+			<!-- <aside
 				id="global-graph"
 				data-sticky="backdrop-none"
 			>
@@ -230,16 +230,15 @@
 					queryStack={localLiveQueryCtx.stack}
 					globalQueryStack={globalLiveQueryCtx.stack}
 				/>
-			</aside>
+			</aside> -->
 
 			<Boundary>
 				{@render children()}
 
 				{#snippet failed(error)}
 					<main data-column>
-						<h2>{(error as unknown as Error).status}</h2>
-
-						<p>{(error as unknown as Error).message}</p>
+						<h2>Error</h2>
+						<p>{error instanceof Error ? error.message : String(error)}</p>
 					</main>
 				{/snippet}
 			</Boundary>
@@ -312,7 +311,9 @@
 			--sticky-paddingInlineStart: clamp(1rem, 6cqi, 2rem);
 			--sticky-paddingInlineEnd: clamp(1rem, 6cqi, 2rem);
 
-			> :global(main) {
+			padding: 1.5rem;
+
+			/* > :global(main) {
 				--graph-scroll-blur-size: 1rem;
 
 				position: relative;
@@ -344,7 +345,7 @@
 					backdrop-filter: blur(calc(8px * var(--graph-scroll-progress, 0)));
 					-webkit-backdrop-filter: blur(calc(8px * var(--graph-scroll-progress, 0)));
 				}
-			}
+			} */
 		}
 	}
 

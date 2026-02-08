@@ -69,63 +69,73 @@
 	const features = [
 		{
 			title: 'Dashboards',
-			summary: 'Resizable split-view panels that navigate to any page in the app.',
+			summary: 'Resizable split-view panels; each panel navigates to any page in the app.',
 			href: '/dashboards',
 		},
 		{
 			title: 'Accounts',
-			summary: 'Watch addresses or connect many wallets (EIP-6963). Per account: coin balances, transactions, DeFi positions.',
+			summary: 'Watch "0x" or ENS addresses, or connect multiple wallets (EIP-6963). Per account: coin balances, transactions, DeFi positions.',
 			href: '/accounts',
 		},
 		{
-			title: 'Actions',
-			summary: 'Start a session from an action type: swap, bridge, transfer, channels, liquidity, and more.',
-			href: '/actions',
-		},
-		{
-			title: 'Drag-and-drop intents',
-			summary: 'Drag entities across the UI to start a session with the right action sequence — transfer, swap, or bridge.',
-			href: '/session',
-		},
-		{
-			title: 'Sessions',
-			summary: 'Draft, preview, simulate and sign action sequences; state saved locally and synced to onchain.',
-			href: '/sessions',
-		},
-		{
-			title: 'Agents',
-			summary: '@-mention entities as context in agent-assisted research; new conversations, API keys, pinned chats.',
-			href: '/agents',
-		},
-		{
 			title: 'Explore',
-			summary: 'Browse coins (USDC, ETH) and networks; view chain, block and transaction data.',
+			summary: 'Browse networks, accounts, blocks, transactions and onchain entities; watch any entity to pin to nav and graph.',
 			href: '/coin/USDC',
 		},
 		{
-			title: 'Positions',
-			summary: 'Uniswap V4 liquidity positions and Yellow state-channels.',
-			href: '/positions/liquidity',
+			title: 'Sessions',
+			summary: 'Draft, preview, simulate, sign and broadcast action sequences; local state, real-time onchain sync.',
+			href: '/sessions',
+		},
+		{
+			title: 'Simulations',
+			summary: 'Simulate transactions in session actions with a local chain fork (Tevm).',
+			href: '/session',
+		},
+		{
+			title: 'Drag-and-drop intents',
+			summary: 'Drag entities onto others to start sessions (e.g. transfer, swap, bridge).',
+			href: '/session',
+		},
+		{
+			title: 'Graph visualizations',
+			summary: 'Explore entity relationships; nodes and edges update as you navigate.',
+			href: '/dashboard',
 		},
 		{
 			title: 'Rooms',
-			summary: 'Real-time multiplayer rooms; channels, shared addresses, transfer requests.',
+			summary: 'Real-time multiplayer rooms (PartyKit): share addresses, Sign In with Ethereum, state channels, transfer requests.',
 			href: '/rooms',
 		},
 		{
-			title: 'Entity cache',
-			summary: 'Metadata as entity objects in collections (local storage); TanStack DB query subscriptions.',
-			href: '/test/collections',
+			title: 'State channels',
+			summary: 'ERC-7824 (Yellow): open, fund, off-chain transfers, settle; state synced locally.',
+			href: '/positions/channels',
 		},
 		{
-			title: 'About',
-			summary: 'Architecture diagram: data flows, services, and external dependencies.',
-			href: '/about',
+			title: 'Liquidity positions',
+			summary: 'Uniswap V4: add/remove liquidity, increase size, collect fees across watched accounts.',
+			href: '/positions/liquidity',
 		},
 		{
-			title: 'Real-time & optimistic',
-			summary: 'Live data updates and fast optimistic navigation.',
+			title: 'Agent chats',
+			summary: 'Chat with LLMs (bring your own API keys); @-mention entities for context, fork conversations.',
+			href: '/agents',
 		},
+		{
+			title: 'Local-first profiles',
+			summary: 'Wallet state, sessions, watched entities and history in browser; create, switch, export or delete profiles.',
+			href: '/accounts',
+		},
+		{
+			title: 'Network environments',
+			summary: 'Mainnet/testnet toggle; profile data segregated, UI adapts by environment.',
+		},
+		// {
+		// 	title: 'About',
+		// 	summary: 'Architecture diagram: data flows, services, and external dependencies.',
+		// 	href: '/about',
+		// },
 	]
 	const heroCtas = [
 		{ href: '/session', label: 'Start session', primary: true },
@@ -150,16 +160,16 @@
 		<img src={mascot} alt="" class="landing-mascot" width="240" height="240" />
 		<h1>{APP_NAME}</h1>
 		<p class="landing-tagline">
-			Local-first GUI client for blockchain exploration, onchain assets, and
-			peer-to-peer DeFi.
+			Local-first object-oriented GUI client for blockchain exploration, onchain
+			asset management and peer-to-peer DeFi interactions
 		</p>
-		<p class="landing-value" aria-hidden="true">
+		<!-- <p class="landing-value" aria-hidden="true">
 			{#each valuePhrases as phrase, i (i)}
 				{#if i > 0}<span class="landing-value-sep" aria-hidden="true"> · </span>{/if}
 				{phrase}
 			{/each}
-		</p>
-		<nav aria-label="Primary actions" data-column="center gap-3">
+		</p> -->
+		<!-- <nav aria-label="Primary actions" data-column="center gap-3">
 			<div data-grid="columns-autofit gap-2 column-min-6">
 				{#each heroCtas as { href, label, primary }}
 					{#if primary}
@@ -175,7 +185,7 @@
 					{/if}
 				{/each}
 			</div>
-		</nav>
+		</nav> -->
 
 		{#if previewRoot}
 			<a
@@ -272,7 +282,7 @@
 					<div class="landing-about__legend-item" data-row="start gap-2">
 						<span
 							class="landing-about__legend-swatch"
-							data-row="center"
+							data-row
 							style:background={item.color}
 							data-shape="rect"
 						></span>
@@ -283,27 +293,27 @@
 
 			<div data-grid="columns-autofit column-min-12 gap-3" class="landing-about__legend-grid">
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row="center" data-shape="rect"></span>
+					<span class="landing-about__legend-swatch" data-row data-shape="rect"></span>
 					<span>Flow / service node</span>
 				</div>
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row="center" data-shape="circle"></span>
+					<span class="landing-about__legend-swatch" data-row data-shape="circle"></span>
 					<span>State or data node</span>
 				</div>
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row="center" data-shape="diamond"></span>
+					<span class="landing-about__legend-swatch" data-row data-shape="diamond"></span>
 					<span>Wallet / channel node</span>
 				</div>
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row="center" data-shape="image"></span>
+					<span class="landing-about__legend-swatch" data-row data-shape="image"></span>
 					<span>Chain icon node</span>
 				</div>
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row="center" data-shape="line"></span>
+					<span class="landing-about__legend-swatch" data-row data-shape="line"></span>
 					<span>Directional flow</span>
 				</div>
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row="center" data-shape="dashed"></span>
+					<span class="landing-about__legend-swatch" data-row data-shape="dashed"></span>
 					<span>Optional / enrichment path</span>
 				</div>
 			</div>
@@ -523,11 +533,18 @@
 			list-style: none;
 			margin: 0;
 			padding: 0;
+
+			& li {
+				display: flex;
+			}
 		}
 
 		& .landing-features-list li > a,
 		& .landing-features-list li > div {
-			display: block;
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			min-height: 0;
 			text-decoration: none;
 			color: inherit;
 			transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
