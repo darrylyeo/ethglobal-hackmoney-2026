@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Types/constants
+	import { APP_NAME } from '$/constants/app.ts'
 	import {
 		ActionType,
 		actionTypeDefinitionByActionType,
@@ -28,7 +29,7 @@
 
 
 <svelte:head>
-	<title>Actions – USDC Tools</title>
+	<title>Actions – {APP_NAME}</title>
 </svelte:head>
 
 

@@ -1,4 +1,8 @@
 <script lang="ts">
+	// Types/constants
+	import { APP_NAME } from '$/constants/app.ts'
+
+
 	// Context
 	import { goto } from '$app/navigation'
 	import { page } from '$app/state'
@@ -46,7 +50,7 @@
 
 
 <svelte:head>
-	<title>Session – USDC Tools</title>
+	<title>Session – {APP_NAME}</title>
 </svelte:head>
 
 

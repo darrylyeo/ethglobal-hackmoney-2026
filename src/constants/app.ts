@@ -1,1 +1,1 @@
-export const APP_NAME = 'USDC Tools'
+export const APP_NAME = 'Blockhead'

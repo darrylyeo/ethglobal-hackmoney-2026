@@ -1,4 +1,8 @@
 <script lang="ts">
+	// Types/constants
+	import { APP_NAME } from '$/constants/app.ts'
+
+
 	// Context
 	import { page } from '$app/state'
 	import { setContext } from 'svelte'
@@ -126,7 +130,7 @@
 
 
 <svelte:head>
-	<title>{pageTitle} – USDC Tools</title>
+	<title>{pageTitle} – {APP_NAME}</title>
 </svelte:head>
 
 

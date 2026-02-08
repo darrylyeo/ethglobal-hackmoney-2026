@@ -1,5 +1,8 @@
 <script lang="ts">
 	// Types/constants
+	import { APP_NAME } from '$/constants/app.ts'
+
+
 	// Context
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { agentChatTreesCollection } from '$/collections/agent-chat-trees.ts'
@@ -38,7 +41,7 @@
 
 
 <svelte:head>
-	<title>Agents – USDC Tools</title>
+	<title>Agents – {APP_NAME}</title>
 </svelte:head>
 
 

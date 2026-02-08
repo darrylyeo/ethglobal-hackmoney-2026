@@ -42,9 +42,9 @@
 			aria-label="{APP_NAME} home"
 			data-row="start gap-0"
 		>
-			<span class="logo" data-row="gap-1">
-				<span class="title">USDC</span>
-				<span class="nav-tag">Tools</span>
+			<span data-card="padding-2" data-row="gap-1">
+				<span class="title">Blockhead</span>
+				<span data-tag>Vision</span>
 			</span>
 		</a>
 
@@ -113,7 +113,24 @@
 				display: flex;
 				text-decoration: none;
 
-				.logo {
+				[data-card] {
+					--bevel-highlight: light-dark(
+						color-mix(in srgb, var(--color-bg) 92%, white),
+						color-mix(in srgb, var(--color-bg) 95%, white)
+					);
+					--bevel-shadow: light-dark(
+						color-mix(in srgb, var(--color-bg) 95%, black),
+						color-mix(in srgb, var(--color-bg) 92%, black)
+					);
+					background: linear-gradient(
+						145deg,
+						var(--bevel-highlight) 0%,
+						var(--card-backgroundColor) 50%,
+						var(--bevel-shadow) 100%
+					);
+					box-shadow:
+						inset 1px 1px 0 var(--bevel-highlight),
+						inset -1px -1px 0 var(--bevel-shadow);
 					font-size: 1.1em;
 					text-transform: uppercase;
 

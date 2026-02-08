@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Types/constants
+	import { APP_NAME } from '$/constants/app.ts'
 	import { architectureGraph } from '$/views/architecture-graph.ts'
 
 
@@ -44,7 +45,7 @@
 
 
 <svelte:head>
-	<title>About | USDC Tools</title>
+	<title>About | {APP_NAME}</title>
 </svelte:head>
 
 
@@ -57,7 +58,7 @@
 	<header class="about__header" data-column="gap-2">
 		<h1>About</h1>
 		<p>
-			USDC Tools is a SvelteKit app for bridging, swapping, and tracking USDC
+			{APP_NAME} is a SvelteKit app for bridging, swapping, and tracking USDC
 			across supported chains. It combines TanStack DB collections, Voltaire
 			(RPC + ABI helpers), LI.FI routing, Circle CCTP, realtime PartyKit rooms,
 			Yellow state channels, and Stork price feeds. The diagram below maps

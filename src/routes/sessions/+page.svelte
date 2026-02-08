@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Types/constants
+	import { APP_NAME } from '$/constants/app.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 
 
@@ -54,7 +55,7 @@
 
 
 <svelte:head>
-	<title>Sessions – USDC Tools</title>
+	<title>Sessions – {APP_NAME}</title>
 </svelte:head>
 
 
