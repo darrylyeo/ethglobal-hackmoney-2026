@@ -3,7 +3,9 @@
   "imports": {
     "$/": "./src/",
     "@total-typescript/ts-reset": "npm:@total-typescript/ts-reset",
-    "bun:ffi": "./shims/bun-ffi.js"
+    "bun:ffi": "./shims/bun-ffi.js",
+    "clsx": "npm:clsx",
+    "set-cookie-parser": "npm:set-cookie-parser"
   },
   "lint": {
     "rules": {

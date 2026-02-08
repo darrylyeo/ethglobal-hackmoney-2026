@@ -12,7 +12,7 @@ export default defineConfig({
 		video: 'on-first-retry',
 	},
 	webServer: {
-		command: 'deno task build && deno task preview',
+		command: 'pnpm run build:vite && pnpm run preview:vite',
 		env: {
 			PUBLIC_TEVM_RPC_URL: 'http://127.0.0.1:8545',
 		},

@@ -12,7 +12,7 @@ export default defineConfig({
 		actionTimeout: 15_000,
 	},
 	webServer: {
-		command: 'deno task build && deno task preview',
+		command: 'pnpm run build:vite && pnpm run preview:vite',
 		url: 'http://localhost:4173/',
 		timeout: 300_000,
 		reuseExistingServer: true,
