@@ -232,68 +232,80 @@
 				rel: 'noopener noreferrer',
 			}}
 		>
-			{#if item.address}
-				<Address
-					network={item.address.network}
-					address={item.address.address}
-					format={AddressFormat.MiddleTruncated}
-					linked={false}
-					showAvatar={true}
-				/>
-			{:else if item.icon}
-				<Icon class="icon" {...navIconProps(item.icon)} />
-			{/if}
+			<span data-row="start gap-2" data-row-item="flexible">
+				{#if item.address}
+					<Address
+						network={item.address.network}
+						address={item.address.address}
+						format={AddressFormat.MiddleTruncated}
+						linked={false}
+						showAvatar={true}
+					/>
+				{:else if item.icon}
+					<Icon class="icon" {...navIconProps(item.icon)} />
+				{/if}
 
-			{#if !item.address}
-				<span
-					>{@html effectiveSearchValue
-						? highlightText(item.title, effectiveSearchValue)
-						: escapeHtml(item.title)}</span
-				>
-			{/if}
-			{#if item.tag}
-				<span data-tag={item.tag} data-row="start gap-1">
-					{#if item.tagIcon}
-						<Icon class="tag-icon" {...navIconProps(item.tagIcon)} />
+				{#if !item.address}
+					<span
+						>{@html effectiveSearchValue
+							? highlightText(item.title, effectiveSearchValue)
+							: escapeHtml(item.title)}</span
+					>
+				{/if}
+			</span>
+			{#if item.tag || item.manualWatch}
+				<span data-row="start gap-1">
+					{#if item.tag}
+						<span data-tag={item.tag} data-row="start gap-1">
+							{#if item.tagIcon}
+								<Icon class="tag-icon" {...navIconProps(item.tagIcon)} />
+							{/if}
+							{item.tag}
+						</span>
 					{/if}
-					{item.tag}
+					{#if item.manualWatch}
+						<Icon class="icon manual-watch" icon="★" aria-label="Pinned" />
+					{/if}
 				</span>
-			{/if}
-			{#if item.manualWatch}
-				<Icon class="icon manual-watch" icon="★" aria-label="Pinned" />
 			{/if}
 		</a>
 	{:else}
 		<span data-row="start gap-2">
-			{#if item.address}
-				<Address
-					network={item.address.network}
-					address={item.address.address}
-					format={AddressFormat.MiddleTruncated}
-					linked={false}
-					showAvatar={true}
-				/>
-			{:else if item.icon}
-				<Icon class="icon" {...navIconProps(item.icon)} />
-			{/if}
+			<span data-row="start gap-2" data-row-item="flexible">
+				{#if item.address}
+					<Address
+						network={item.address.network}
+						address={item.address.address}
+						format={AddressFormat.MiddleTruncated}
+						linked={false}
+						showAvatar={true}
+					/>
+				{:else if item.icon}
+					<Icon class="icon" {...navIconProps(item.icon)} />
+				{/if}
 
-			{#if !item.address}
-				<span
-					>{@html effectiveSearchValue
-						? highlightText(item.title, effectiveSearchValue)
-						: escapeHtml(item.title)}</span
-				>
-			{/if}
-			{#if item.tag}
-				<span data-tag={item.tag} data-row="start gap-1">
-					{#if item.tagIcon}
-						<Icon class="tag-icon" {...navIconProps(item.tagIcon)} />
+				{#if !item.address}
+					<span
+						>{@html effectiveSearchValue
+							? highlightText(item.title, effectiveSearchValue)
+							: escapeHtml(item.title)}</span
+					>
+				{/if}
+			</span>
+			{#if item.tag || item.manualWatch}
+				<span data-row="start gap-1">
+					{#if item.tag}
+						<span data-tag={item.tag} data-row="start gap-1">
+							{#if item.tagIcon}
+								<Icon class="tag-icon" {...navIconProps(item.tagIcon)} />
+							{/if}
+							{item.tag}
+						</span>
 					{/if}
-					{item.tag}
+					{#if item.manualWatch}
+						<Icon class="icon manual-watch" icon="★" aria-label="Pinned" />
+					{/if}
 				</span>
-			{/if}
-			{#if item.manualWatch}
-				<Icon class="icon manual-watch" icon="★" aria-label="Pinned" />
 			{/if}
 		</span>
 	{/if}

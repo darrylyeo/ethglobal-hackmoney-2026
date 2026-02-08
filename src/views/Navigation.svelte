@@ -39,26 +39,18 @@
 		data-row
 		data-scroll-container
 	>
-		<a
-			href="/"
-			aria-label="{APP_NAME} home"
-			data-row="start gap-0"
-		>
-			<span data-card="padding-2" data-row="gap-1">
-				<span class="title">Blockhead</span>
-				<span data-badge>Vision</span>
-			</span>
-		</a>
-
-		<a
-			href="/#about"
-			class="about-link"
-			data-row="center"
-			aria-label="About"
-			title="About"
-		>
-			<Icon class="icon" icon="ℹ" label="About" />
-		</a>
+		<div data-row="start gap-2" data-row-item="flexible">
+			<a
+				href="/"
+				aria-label="{APP_NAME} home"
+				data-row="start gap-0"
+			>
+				<span data-card="padding-2" data-row="gap-1">
+					<span class="title">Blockhead</span>
+					<span data-badge>Vision</span>
+				</span>
+			</a>
+		</div>
 
 		<menu data-row="gap-2">
 			{#if headerActions}

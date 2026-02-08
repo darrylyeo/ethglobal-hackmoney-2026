@@ -98,7 +98,7 @@
 			<CoinInput {coins} bind:value={coin} {disabled} ariaLabel="Token" />
 		</div>
 	</div>
-	<input
+	<!-- <input
 		class="coin-amount-slider"
 		type="range"
 		min={sliderMin}
@@ -115,7 +115,7 @@
 				? ((sliderValue - sliderMin) / (sliderMax - sliderMin)) * 100
 				: 0
 		}%`}
-	/>
+	/> -->
 </div>
 
 

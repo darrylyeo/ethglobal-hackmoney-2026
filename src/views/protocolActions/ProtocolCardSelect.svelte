@@ -1,6 +1,9 @@
 <script lang="ts">
 	// Types/constants
-	import type { ProtocolDefinition } from '$/constants/protocols.ts'
+	import { ProtocolTag, protocolTagLabels, type ProtocolDefinition } from '$/constants/protocols.ts'
+
+	// Components
+	import Icon from '$/components/Icon.svelte'
 
 
 	// Props
@@ -11,8 +14,22 @@
 	}: {
 		options: readonly ProtocolDefinition[]
 		value?: string
-		onSelect: (protocol: string | null) => void
+		onSelect: (protocolOrTag: string | null) => void
 	} = $props()
+
+
+	// (Derived)
+	const rows = $derived([
+		{ type: 'auto' as const },
+		...options.map((option) => ({ type: 'protocol' as const, option })),
+	])
+	const resolvedProtocol = $derived(
+		value === ''
+			? null
+			: options.find((o) => o.id === value)
+				? value
+				: options.find((o) => o.tags?.includes(value as ProtocolTag))?.id ?? null,
+	)
 </script>
 
 {#if options.length === 0}
@@ -20,58 +37,85 @@
 {:else if options.length === 1}
 	<p data-muted>Using {options[0].label}</p>
 {:else}
-	<div data-column="gap-2">
-		<div data-row="gap-2 align-center">
-			<button
-				type="button"
-				data-card="radius-6 padding-3"
-				data-selected={value === '' ? '' : undefined}
-				onclick={() => onSelect(null)}
-			>
-				Auto
-			</button>
-			<span data-muted>or pick one:</span>
-		</div>
-		<div data-row="gap-2 wrap">
-			{#each options as option (option.id)}
+	<div data-column="gap-1">
+		{#each rows as row (row.type === 'auto' ? 'auto' : row.option.id)}
+			{#if row.type === 'auto'}
 				<button
 					type="button"
-					class="protocol-card"
+					class="protocol-row"
 					data-card="radius-6 padding-3"
-					data-selected={option.id === value ? '' : undefined}
-					onclick={() => onSelect(option.id)}
+					data-selected={value === '' ? '' : undefined}
+					onclick={() => onSelect(null)}
 				>
-					<div data-row="gap-2 align-center justify-between">
-						<strong>{option.label}</strong>
-						{#if value === option.id}
-							<span class="protocol-tag" data-tag data-variant="selected">Selected</span>
-						{/if}
-					</div>
-					<div data-muted>{option.detail}</div>
+					Auto
 				</button>
-			{/each}
-		</div>
+			{:else}
+				<div
+					class="protocol-row"
+					data-card="radius-6 padding-3"
+					data-row="gap-2 align-center wrap"
+					data-selected={
+						row.option.id === value || (resolvedProtocol === row.option.id && value !== '')
+							? ''
+							: undefined
+					}
+				>
+					<button
+						type="button"
+						class="protocol-row-main"
+						data-row="gap-2 align-center"
+						onclick={() => onSelect(row.option.id)}
+					>
+						{#if row.option.icon.includes('/')}
+							<Icon class="protocol-icon" src={row.option.icon} size={20} alt="" />
+						{:else}
+							<Icon class="protocol-icon" icon={row.option.icon} size={20} alt="" />
+						{/if}
+						<div data-column="gap-0">
+							<strong>{row.option.label}</strong>
+							<div data-muted>{row.option.detail}</div>
+						</div>
+					</button>
+					{#each row.option.tags ?? [] as tagId (tagId)}
+						<button
+							type="button"
+							class="protocol-tag"
+							data-tag
+							onclick={() => onSelect(tagId)}
+						>
+							{protocolTagLabels[tagId]}
+						</button>
+					{/each}
+				</div>
+			{/if}
+		{/each}
 	</div>
 {/if}
 
 <style>
-	.protocol-card {
+	.protocol-row {
 		gap: 0.35em;
 		border: 1px solid transparent;
 		text-align: left;
-		transition:
-			border 0.2s ease,
-			transform 0.2s ease,
-			box-shadow 0.2s ease;
+		transition: border 0.2s ease, box-shadow 0.2s ease;
 	}
 
-	.protocol-card:hover {
-		transform: translateY(-1px);
-	}
-
-	.protocol-card[data-selected] {
+	.protocol-row[data-selected] {
 		border-color: var(--color-border-input);
 		box-shadow: var(--shadow-lg);
+	}
+
+	.protocol-row-main {
+		background: none;
+		border: none;
+		padding: 0;
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.protocol-row :global(.protocol-icon) {
+		flex-shrink: 0;
 	}
 
 	.protocol-tag {
@@ -79,10 +123,6 @@
 		padding: 0.15em 0.6em;
 		background: var(--color-success-bg);
 		color: var(--color-success);
-	}
-
-	.protocol-tag[data-variant='selected'] {
-		background: var(--color-bg-subtle);
-		color: var(--color-text-muted);
+		cursor: pointer;
 	}
 </style>
