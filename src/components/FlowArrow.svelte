@@ -17,6 +17,8 @@
 		gap = 8,
 		arrowHeadSize = 12,
 		strokeColor,
+		sourceColor,
+		targetColor,
 		strokeWidth = 2,
 		flowIconSrc,
 		flowIconSize = 20,
@@ -27,6 +29,8 @@
 		gap?: number
 		arrowHeadSize?: number
 		strokeColor?: string
+		sourceColor?: string
+		targetColor?: string
 		strokeWidth?: number
 		flowIconSrc?: string
 		flowIconSize?: number
@@ -47,6 +51,14 @@
 	const flowDurationS = $derived(
 		Math.max(FLOW_MIN_DURATION_S, arrowPathLength(arrowData) / FLOW_SPEED_PX_S),
 	)
+	const useGradient = $derived(
+		!!(sourceColor ?? targetColor),
+	)
+	const gradientStart = $derived(sourceColor ?? 'var(--color-accent)')
+	const gradientEnd = $derived(targetColor ?? 'var(--color-accent)')
+	const gradientId = $derived(
+		`flow-arrow-gradient-${Math.round(arrowData[0])}-${Math.round(arrowData[1])}-${Math.round(arrowData[4])}-${Math.round(arrowData[5])}`,
+	)
 </script>
 
 
@@ -57,6 +69,19 @@
 	style:color={strokeColor}
 >
 	<defs>
+		{#if useGradient}
+			<linearGradient
+				id={gradientId}
+				gradientUnits="userSpaceOnUse"
+				x1={arrowData[0]}
+				y1={arrowData[1]}
+				x2={arrowData[4]}
+				y2={arrowData[5]}
+			>
+				<stop offset="0" stop-color={gradientStart} />
+				<stop offset="1" stop-color={gradientEnd} />
+			</linearGradient>
+		{/if}
 		<marker
 			id={markerId}
 			markerWidth="12"
@@ -66,7 +91,10 @@
 			refY="6"
 			orient="auto"
 		>
-			<path d="M 0 0 L 12 6 L 0 12 z" fill="currentColor" />
+			<path
+				d="M 0 0 L 12 6 L 0 12 z"
+				fill={useGradient ? gradientEnd : 'currentColor'}
+			/>
 		</marker>
 	</defs>
 	<path
@@ -74,6 +102,7 @@
 		d={pathD}
 		marker-end="url(#{markerId})"
 		vector-effect="non-scaling-stroke"
+		stroke={useGradient ? `url(#${gradientId})` : undefined}
 		style:stroke-width="{strokeWidth}px"
 	/>
 </svg>

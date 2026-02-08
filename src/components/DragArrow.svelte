@@ -20,6 +20,8 @@
 		targetRect,
 		gap = 8,
 		arrowHeadSize = 12,
+		sourceColor,
+		targetColor,
 		tooltipContent,
 		interactive = false,
 		flowIconSrc,
@@ -28,6 +30,8 @@
 		targetRect: DOMRect
 		gap?: number
 		arrowHeadSize?: number
+		sourceColor?: string
+		targetColor?: string
 		tooltipContent?: Snippet
 		interactive?: boolean
 		flowIconSrc?: string
@@ -72,6 +76,8 @@
 		{targetRect}
 		{gap}
 		{arrowHeadSize}
+		{sourceColor}
+		{targetColor}
 		{flowIconSrc}
 	/>
 

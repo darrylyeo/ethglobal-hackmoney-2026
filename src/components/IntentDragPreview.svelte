@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Types/constants
 	import type { IntentOption } from '$/constants/intents.ts'
-	import {
+	import { getEntityColor } from '$/lib/entity-color.ts'
+import {
 	getCoinIconUrl,
 	getSymbolForCoinEntity,
 	isCoinEntityType,
@@ -71,6 +72,8 @@
 			? resolveIntentForDrag(sourcePayload.entity, targetPayload.entity)
 			: null,
 	)
+	const sourceColor = $derived(sourcePayload ? getEntityColor(sourcePayload.entity) : undefined)
+	const targetColor = $derived(targetPayload ? getEntityColor(targetPayload.entity) : undefined)
 
 	const isActive = $derived(intentDragPreviewState.status !== 'idle')
 	const isInteractive = $derived(intentDragPreviewState.status === 'selected')
@@ -291,6 +294,8 @@
 			targetRect={effectiveTargetRect}
 			gap={8}
 			interactive={isInteractive}
+			{sourceColor}
+			{targetColor}
 			{flowIconSrc}
 		/>
 	{/if}
