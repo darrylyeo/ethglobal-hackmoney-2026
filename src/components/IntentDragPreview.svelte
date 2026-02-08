@@ -239,13 +239,14 @@
 		{#snippet tooltipContent()}
 			<div
 				class="intent-drag-tooltip"
+				data-card="padding-3"
 				data-column="gap-3"
 				data-state={intentDragPreviewState.status}
 				data-interactive={isInteractive ? 'true' : 'false'}
 				bind:this={tooltipContentRef}
 			>
 				{#if resolution?.matched}
-					<header data-row="gap-4">
+					<header data-row="gap-4 align-baseline">
 						<strong>{resolution.intent.label}</strong>
 						<span data-muted>
 							{resolution.options.length} option{resolution.options.length === 1 ? '' : 's'}
@@ -258,7 +259,9 @@
 								<li>
 									<button
 										type="button"
-										data-row="gap-4"
+										data-block
+										data-muted
+										data-row="gap-4 align-baseline"
 										onclick={() => selectOption(option, i)}
 										disabled={!isInteractive}
 									>
@@ -285,7 +288,7 @@
 					</header>
 					<p data-muted>These entities can't be combined.</p>
 				{:else}
-					<header data-row="gap-4">
+					<header data-row="gap-4 align-baseline">
 						<strong data-muted>Drop on a target</strong>
 					</header>
 				{/if}
@@ -298,42 +301,11 @@
 <style>
 	.intent-drag-tooltip {
 		min-width: 240px;
-		padding: 0.75rem;
-		color: var(--color-fg);
 		pointer-events: none;
 	}
 
 	.intent-drag-tooltip[data-interactive='true'] {
 		pointer-events: auto;
-	}
-
-	.intent-drag-tooltip header {
-		align-items: baseline;
-	}
-
-	.intent-drag-tooltip ol {
-		margin: 0;
-		padding: 0;
-	}
-
-	.intent-drag-tooltip button {
-		width: 100%;
-		align-items: baseline;
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.5rem;
-		border: 1px solid transparent;
-		background: var(--color-bg-muted);
-		color: inherit;
-		cursor: pointer;
-	}
-
-	.intent-drag-tooltip button:disabled {
-		cursor: default;
-		opacity: 0.6;
-	}
-
-	.intent-drag-tooltip button:not(:disabled):hover {
-		border-color: color-mix(in oklab, var(--color-accent) 35%, transparent);
 	}
 
 	@keyframes intent-drag-glow {
