@@ -55,6 +55,9 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			name: tevm.providerName,
 		})
 		await page.goto('/session#/Bridge')
+		await expect(page.locator('#main').first()).toBeAttached({
+			timeout: 30_000,
+		})
 		await expect(
 			page.getByRole('heading', { name: 'USDC Bridge', level: 1, }),
 		).toBeVisible({ timeout: 60_000, })

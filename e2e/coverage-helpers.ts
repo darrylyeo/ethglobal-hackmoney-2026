@@ -1,7 +1,7 @@
 import { stringify } from 'devalue'
 import { ActionType } from '$/constants/intents.ts'
 import { DataSource } from '$/constants/data-sources.ts'
-import type { TransactionSession } from '$/data/TransactionSession.ts'
+import type { Session } from '$/data/Session.ts'
 
 const encodeStorageKey = (key: string | number) =>
 	typeof key === 'number' ? `n:${key}` : `s:${key}`
@@ -65,11 +65,11 @@ export const seedLocalStorageCollectionViaPage = async (
 	)
 }
 
-export type TransactionSessionRow = TransactionSession & { $source: DataSource }
+export type SessionRow = Session & { $source: DataSource }
 
 export const buildSessionRow = (
-	overrides: Partial<TransactionSessionRow> = {},
-): TransactionSessionRow => {
+	overrides: Partial<SessionRow> = {},
+): SessionRow => {
 	const now = 1_720_000_000_000
 	return {
 		id: 'session-seed',

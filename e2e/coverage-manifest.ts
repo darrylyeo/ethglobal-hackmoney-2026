@@ -5,7 +5,7 @@ import {
 	buildLocalStoragePayload,
 	buildSessionRow,
 	seedLocalStorageCollectionViaPage,
-	type TransactionSessionRow,
+	type SessionRow,
 } from './coverage-helpers.ts'
 
 const coverageBaseURL = 'http://localhost:4173'
@@ -48,7 +48,7 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/network/[name]/transaction/[transactionId]': ['default'],
 }
 
-const seedSessions = async (page: Page, rows: TransactionSessionRow[]) => {
+const seedSessions = async (page: Page, rows: SessionRow[]) => {
 	const payload = buildLocalStoragePayload(rows, (row) => row.id)
 	await seedLocalStorageCollectionViaPage(
 		page,
