@@ -9,15 +9,15 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
-import type { TransactionSession } from '$/data/TransactionSession.ts'
+import type { Session } from '$/data/Session.ts'
 
-export type TransactionSessionRow = TransactionSession
+export type SessionRow = Session
 
 export const sessionsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.Sessions,
 		storageKey: CollectionId.Sessions,
-		getKey: (row: TransactionSessionRow) => row.id,
+		getKey: (row: SessionRow) => row.id,
 		parser: { stringify, parse },
 	}),
 )

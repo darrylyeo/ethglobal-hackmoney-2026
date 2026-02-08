@@ -4,20 +4,20 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import type { TransactionSessionSimulation } from '$/data/TransactionSessionSimulation.ts'
+import type { SessionSimulation } from '$/data/SessionSimulation.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 
-export type TransactionSessionSimulationRow = TransactionSessionSimulation
+export type SessionSimulationRow = SessionSimulation
 
 export const sessionSimulationsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.SessionSimulations,
 		storageKey: CollectionId.SessionSimulations,
-		getKey: (row: TransactionSessionSimulationRow) => row.id,
+		getKey: (row: SessionSimulationRow) => row.id,
 		parser: { stringify, parse },
 	}),
 )
