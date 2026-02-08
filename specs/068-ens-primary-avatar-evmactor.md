@@ -52,7 +52,7 @@ type EvmActorProfile = {
 ## Component: EvmActor
 
 - **Props**: `network: Network$Id`, `address: \`0x${string}\``, optional `profile` (primaryName, avatarUrl) or rely on live query from collection.
-- **Layout**: Avatar (left) + Address (middle) + if `primaryName` then ` (primaryName)` in parentheses. Use `<Icon>` for avatar (src = avatarUrl, or fallback: no image / placeholder). Use existing `<Address>` for the address segment (with optional `ensName` for tooltip/copy if desired; spec requires display of address + parens name).
+- **Layout**: Avatar (left) + Address (middle) + if `primaryName` then ` (primaryName)` in parentheses. Use `<Icon>` for avatar (src = avatarUrl, or fallback: no image / placeholder). Use existing `<Address>` for the address segment (with optional `ensName` for tooltip/copy if desired; spec requires display of address + parens name). **Address** (and thus EvmActor when it shows an address) uses Icon with optional network subicon and brand background color per Spec 086.
 - **Data**: Prefer passing resolved `primaryName` / `avatarUrl` from a parent that subscribes to the collection via `useLiveQuery` and calls `ensureEvmActorProfile(chainId, address)` so the row is fetched/upserted. Component can accept either pre-resolved props or address-only and subscribe internally.
 
 ## Acceptance criteria
@@ -87,6 +87,7 @@ Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomple
 - Spec 055 (identity input + resolver): existing `resolveEnsForward`, `resolveEnsReverse`, identity resolvers.
 - Spec 065 (external API cache): fetch-upsert in collection, read only via live query.
 - Spec 002 (TanStack DB collections), blocks collection (ensure + fetch pattern).
+- Spec 086 (Icon subicon, NetworkIcon, CoinIcon): Address avatar Icon with network subicon and brand colors.
 
 ## Output when complete
 

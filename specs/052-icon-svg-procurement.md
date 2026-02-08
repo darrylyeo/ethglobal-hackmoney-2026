@@ -34,8 +34,8 @@ Types follow spec 045 (cf. spec 001, 042).
 ### URL resolution
 
 - Inline `await import('path to file')`: every constant that needs an icon reference uses `(await import('$/assets/.../file.svg?url')).default` at that site. No helper string builders.
-- Network config: `src/constants/networks.ts` uses top-level `await import(...)` in each `networkConfigs` entry that has an `icon`. Layout/views use `config.icon` or `networkConfigsByChainId[id]?.icon` directly.
-- Coins/providers: layout and architecture graph use top-level `await import(...)` for each coin/provider icon and assign to a const, then use that const where the nav/graph node needs the icon.
+- Network config: `src/constants/networks.ts` uses top-level `await import(...)` in each `networkConfigs` entry that has an `icon`. Layout/views use `<NetworkIcon chainId={...} />` or `config.icon` / `networkConfigsByChainId[id]?.icon` where a raw URL is needed (see Spec 086).
+- Coins/providers: layout and architecture graph use `<CoinIcon src={...} symbol={...} />` or top-level `await import(...)` for each coin/provider icon (Spec 086). Brand colors for icon backgrounds come from `src/constants/colors.ts` (`networkColorByChainId`, `coinColorBySymbol`).
 
 ## Acceptance criteria
 
@@ -49,6 +49,10 @@ Types follow spec 045 (cf. spec 001, 042).
 
 - `deno run -A scripts/_sync-assets.ts` (all) or `... _sync-assets.ts coin`, etc.
 
+## References
+
+- Spec 086 (Icon subicon, NetworkIcon, CoinIcon): `<NetworkIcon>` and `<CoinIcon>` consume config icon URLs and `src/constants/colors.ts` for backgrounds.
+
 ## Status
 
-Complete. Schema and all sources in `src/constants/assets.ts`; URL resolution was in `src/lib/assets/urls.ts` (removed; inline await import now). Single script `_sync-assets.ts` syncs only missing assets; optional subject arg.
+Complete. Schema and all sources in `src/constants/assets.ts`; URL resolution was in `src/lib/assets/urls.ts` (removed; inline await import now). Single script `_sync-assets.ts` syncs only missing assets; optional subject arg. Network/coin UI icons use NetworkIcon/CoinIcon (Spec 086) with colors from `colors.ts`.
