@@ -29,7 +29,7 @@
 		{#if Pending}
 			{@render Pending()}
 		{:else}
-			<div data-card data-row="center" class="loading">
+			<div data-card data-row class="loading">
 				<p>Loading...</p>
 			</div>
 		{/if}
@@ -40,10 +40,13 @@
 			{@render Failed(error, retry)}
 		{:else}
 			<div data-card>
-				<header data-row="wrap">
-					<h3>Error</h3>
-
-					<button onclick={retry}>Retry</button>
+				<header data-row="wrap gap-2">
+					<div data-row="start gap-2" data-row-item="flexible">
+						<h3>Error</h3>
+					</div>
+					<div data-row="gap-2">
+						<button onclick={retry}>Retry</button>
+					</div>
 				</header>
 
 				<div class="error-content">

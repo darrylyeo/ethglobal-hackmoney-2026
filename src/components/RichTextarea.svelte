@@ -167,7 +167,11 @@
 			segments.length === nextSegments.length
 			&& refs.length === nextRefs.length
 			&& segments.every((s, i) => s === nextSegments[i])
-			&& refs.every((r, i) => r.displayLabel === nextRefs[i].displayLabel && r.entityId === nextRefs[i].entityId)
+			&& refs.every(
+				(r, i) => (
+					JSON.stringify(serializeRef(r)) === JSON.stringify(serializeRef(nextRefs[i]))
+				),
+			)
 		if (same) return
 		segments = nextSegments
 		refs = nextRefs

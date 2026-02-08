@@ -132,11 +132,13 @@
 {/if}
 
 {#if canAdd}
-	<Button.Root
-		type="button"
-		class="add-item-button"
-		onclick={addItem}
-	>+ Add</Button.Root>
+	<div data-row="end">
+		<Button.Root
+			type="button"
+			class="add-item-button"
+			onclick={addItem}
+		>+ Add</Button.Root>
+	</div>
 {/if}
 
 

@@ -49,12 +49,7 @@
 			: watchEntity({ entityType, id, label, href })
 </script>
 
-{#if autoWatched}
-	<span
-		aria-label="Watching (automatic)"
-		title="Watching"
-	>Watching</span>
-{:else}
+{#if !autoWatched}
 	<button
 		type="button"
 		aria-label={isManuallyWatched ? 'Unwatch (remove from nav)' : 'Watch (pin to nav)'}

@@ -75,7 +75,7 @@
 	{...rootProps}
 	class={`icon${className ? ` ${className}` : ''}`}
 	data-icon-shape={shape}
-	data-row="center"
+	data-row
 	style={`--icon-size: ${typeof size === 'number' ? `${size}px` : size}${backgroundColor != null ? `; --icon-bg: ${backgroundColor}` : ''}`}
 	aria-label={a11yLabel || undefined}
 	aria-hidden={a11yLabel ? undefined : true}
