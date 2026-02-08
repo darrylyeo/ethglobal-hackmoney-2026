@@ -67,6 +67,9 @@ export const actionTypeDefinitions = [
 			sortBy: type.valueOf(BridgeRouteSort).default(BridgeRouteSort.Recommended),
 			fromChainId: type('number.integer').or('null').default(ChainId.Ethereum),
 			toChainId: type('number.integer').or('null').default(ChainId.Optimism),
+			tokenAddress: address.default(usdc),
+			tokenSymbol: type('string').default('USDC'),
+			tokenDecimals: type('number.integer').default(6),
 			amount: type('bigint').default(1_000_000n),
 			useCustomRecipient: type('boolean').default(false),
 			customRecipient: type('string').default(''),
@@ -266,7 +269,8 @@ export type SessionDefaults = Partial<{
 export type Action<_ActionType extends ActionType = ActionType> = {
 	type: _ActionType
 	params: ActionParams<_ActionType>
-	protocolAction?: { action: _ActionType; protocol: string },
+	protocolAction?: { action: _ActionType; protocol: string }
+	protocolSelection?: string
 }
 
 export const createAction = <_ActionType extends ActionType>(

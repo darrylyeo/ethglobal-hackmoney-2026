@@ -55,7 +55,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Bridge,
-			protocol: Protocol.CircleGatewayateway,
+			protocol: Protocol.CircleGateway,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',

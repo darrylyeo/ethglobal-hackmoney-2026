@@ -191,7 +191,7 @@ export const intents: IntentDefinition[] = [
 				{ protocolAction: getProtocolAction(ActionType.Bridge, Protocol.Cctp), payload },
 			]
 			const gateway = [
-				{ protocolAction: getProtocolAction(ActionType.Bridge, Protocol.CircleGatewayateway), payload },
+				{ protocolAction: getProtocolAction(ActionType.Bridge, Protocol.CircleGateway), payload },
 			]
 			return [
 				toIntentOption(formatIntentOptionLabel(lifi.map((a) => a.protocolAction)), lifi),
@@ -240,7 +240,7 @@ export const intents: IntentDefinition[] = [
 			]
 			const gatewayActions = [
 				...(!sameCoin ? [{ protocolAction: getProtocolAction(ActionType.Swap, Protocol.UniswapV4), payload }] : []),
-				{ protocolAction: getProtocolAction(ActionType.Bridge, Protocol.CircleGatewayateway), payload },
+				{ protocolAction: getProtocolAction(ActionType.Bridge, Protocol.CircleGateway), payload },
 			]
 			return [
 				...(!sameCoin || !sameNetwork ? [toIntentOption(formatIntentOptionLabel(lifiActions.map((a) => a.protocolAction)), lifiActions)] : []),
