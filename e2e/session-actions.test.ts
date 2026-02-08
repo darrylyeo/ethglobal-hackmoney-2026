@@ -2,7 +2,7 @@
  * E2E: Session page routes new action types to correct views.
  */
 
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures/profile.ts'
 
 const waitForMain = async (page: import('@playwright/test').Page) => {
 	await expect(page.locator('#main').first()).toBeAttached({

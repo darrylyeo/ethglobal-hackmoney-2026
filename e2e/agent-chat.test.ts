@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures/profile.ts'
 
 const MOCK_LLM_RESPONSE = 'E2E mock response.'
 

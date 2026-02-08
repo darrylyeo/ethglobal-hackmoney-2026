@@ -3,7 +3,7 @@
  * Verifies home page route cards and sidebar action links.
  */
 
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures/profile.ts'
 
 test.describe('Actions page action links', () => {
 	test.beforeEach(async ({ page }) => {

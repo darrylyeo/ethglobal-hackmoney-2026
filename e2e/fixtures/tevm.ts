@@ -1,4 +1,4 @@
-import { test as base, expect } from '@playwright/test'
+import { test as base, expect, useProfileIsolation } from './profile.ts'
 import { createServer } from 'node:http'
 import { createMemoryClient, http } from 'tevm'
 import { mainnet } from 'tevm/common'
@@ -32,9 +32,13 @@ type TevmFixture = {
 	}) => Promise<Log[]>
 }
 
-export const test = base.extend<{ tevm: TevmFixture }>({
+export const test = base.extend<{ tevm: TevmFixture; _profile: void }>({
+	_profile: async ({ context }, use) => {
+		await useProfileIsolation(context)
+		await use(undefined)
+	},
 	tevm: [
-		async ({}, use, testInfo) => {
+		async ({ _profile }, use, testInfo) => {
 			const forkUrl = process.env.E2E_TEVM_FORK_URL
 			const client = createMemoryClient({
 				common: mainnet,

@@ -3,7 +3,7 @@
  * Simulates the Nitrolite RPC protocol without real auth verification.
  */
 
-import { test as base, expect } from '@playwright/test'
+import { test as base, expect } from './profile.ts'
 import { WebSocketServer, WebSocket } from 'ws'
 import { createServer } from 'node:http'
 

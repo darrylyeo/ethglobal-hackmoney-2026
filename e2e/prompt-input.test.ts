@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures/profile.ts'
 
 /** Returns the full display text of the prompt (segments + chip labels; when placeholder open, filter text is included). Spaces from empty segments are normalized. */
 async function getPromptText(page: import('@playwright/test').Page): Promise<string> {
