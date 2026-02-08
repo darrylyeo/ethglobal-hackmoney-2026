@@ -49,7 +49,7 @@ normalized into collections, and queries filter by source where applicable.
 
 ## Status
 
-Complete. DataSource enum (Local, LiFi, TokenLists, Stork, Uniswap, Yellow, Cctp, Voltaire, PartyKit, Covalent). All collections have $source; transfer-graphs collection; USDC page (`/coin/USDC`) uses collection; CctpFees/CctpAllowance filter by source. CoinBalances.svelte shows data-balances-grid when connected; CoinAmountInput range slider has aria-label for a11y; e2e fixes (chain select focus+ArrowDown/Enter, amount textbox selector, protocol badge selector). `deno task test:e2e` passes.
+Complete. DataSource enum (Local, LiFi, TokenLists, Stork, Uniswap, Yellow, Cctp, Voltaire, PartyKit, Covalent). Collections with multiple origins or API caches keep `$source`; exclusively Local or single-source collections (MyPeerIds, AgentChatTrees/Turns, Sessions, SessionSimulations, WatchedEntities, Dashboards, Wallets, WalletConnections, LlmConnections, BridgeTransactions) omit `$source`. Transfer-graphs collection; USDC page (`/coin/USDC`) uses collection; CctpFees/CctpAllowance filter by source. `deno task test:e2e` passes.
 
 ## Output when complete
 

@@ -539,7 +539,7 @@ Sharer                    Server                    Peer A                   Pee
 ## Acceptance criteria
 
 ### Collections
-- [x] `roomsCollection` in `src/collections/rooms.ts`
+- [x] `partykitRoomsCollection` in `src/collections/PartykitRooms.ts`
 - [x] `roomPeersCollection` in `src/collections/room-peers.ts`
 - [x] `sharedAddressesCollection` in `src/collections/shared-addresses.ts`
 - [x] `siweChallengesCollection` in `src/collections/siwe-challenges.ts`
