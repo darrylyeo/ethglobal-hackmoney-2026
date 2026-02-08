@@ -11,6 +11,7 @@
 import { dev } from '$app/environment'
 import { eq, useLiveQuery } from '@tanstack/svelte-db'
 import { DataSource } from '$/constants/data-sources.ts'
+import { ConnectionStatus } from '$/data/WalletConnection.ts'
 
 
 // Collections
@@ -138,7 +139,7 @@ const createWalletContext = () => {
 
 		const connectedRdns = new Set(
 			connections
-				.filter((c) => c.row.status === 'connected')
+				.filter((c) => c.row.status === ConnectionStatus.Connected)
 				.map((c) => c.row.$id.wallet$id.rdns),
 		)
 

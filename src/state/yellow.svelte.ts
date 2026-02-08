@@ -7,15 +7,16 @@ import { DataSource } from '$/constants/data-sources.ts'
 
 
 // Collections
-import { yellowDepositsCollection } from '$/collections/YellowDeposits.ts'
+import { Protocol } from '$/constants/protocol.ts'
+import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'
 import {
-	yellowChannelsCollection,
-	type YellowChannelRow,
-} from '$/collections/YellowChannels.ts'
+	stateChannelsCollection,
+	type StateChannelRow,
+} from '$/collections/StateChannels.ts'
 import {
-	yellowTransfersCollection,
-	type YellowTransferRow,
-} from '$/collections/YellowTransfers.ts'
+	stateChannelTransfersCollection,
+	type StateChannelTransferRow,
+} from '$/collections/StateChannelTransfers.ts'
 
 
 // Functions
@@ -35,28 +36,30 @@ export const tagChannelWithRoom = (channelId: string, roomId: string) => {
 	pendingChannelRooms.set(channelId, roomId)
 }
 
-function upsertChannel(row: YellowChannelRow) {
+function upsertChannel(row: StateChannelRow) {
 	const pendingRoomId = pendingChannelRooms.get(row.id)
 	if (pendingRoomId) pendingChannelRooms.delete(row.id)
-	const existing = yellowChannelsCollection.state.get(row.id)
+	const existing = stateChannelsCollection.state.get(row.id)
 	if (existing && row.turnNum < existing.turnNum) return
 	const roomId = row.roomId ?? pendingRoomId
 	if (existing) {
-		yellowChannelsCollection.update(row.id, (draft) => {
+		stateChannelsCollection.update(row.id, (draft) => {
 			Object.assign(draft, row)
-			draft.$source = DataSource.Yellow
+			draft.$source = DataSource.Eip7824
+			draft.protocol = Protocol.Yellow
 			if (roomId) draft.roomId = roomId
 		})
 	} else {
-		yellowChannelsCollection.insert({
+		stateChannelsCollection.insert({
 			...row,
-			$source: DataSource.Yellow,
+			$source: DataSource.Eip7824,
+			protocol: Protocol.Yellow,
 			...(roomId && { roomId }),
 		})
 	}
 }
 
-function normalizeChannelFromMessage(params: unknown): YellowChannelRow | null {
+function normalizeChannelFromMessage(params: unknown): StateChannelRow | null {
 	if (!params || typeof params !== 'object') return null
 	const p = params as Record<string, unknown>
 	const id = typeof p.id === 'string' ? p.id : null
@@ -76,7 +79,8 @@ function normalizeChannelFromMessage(params: unknown): YellowChannelRow | null {
 	if (!id || !participant0 || !participant1 || !asset) return null
 	return {
 		id,
-		$source: DataSource.Yellow,
+		$source: DataSource.Eip7824,
+		protocol: Protocol.Yellow,
 		chainId,
 		participant0,
 		participant1,
@@ -87,7 +91,7 @@ function normalizeChannelFromMessage(params: unknown): YellowChannelRow | null {
 		turnNum: Number(p.turnNum ?? 0),
 		status: (typeof p.status === 'string'
 			? p.status
-			: 'pending') as YellowChannelRow['status'],
+			: 'pending') as StateChannelRow['status'],
 		roomId: typeof p.roomId === 'string' ? p.roomId : undefined,
 		createdAt: Number(p.createdAt ?? 0),
 		updatedAt: Number(p.updatedAt ?? 0),
@@ -96,7 +100,7 @@ function normalizeChannelFromMessage(params: unknown): YellowChannelRow | null {
 
 function normalizeTransferFromMessage(
 	params: unknown,
-): YellowTransferRow | null {
+): StateChannelTransferRow | null {
 	if (!params || typeof params !== 'object') return null
 	const p = params as Record<string, unknown>
 	const id = typeof p.id === 'string' ? p.id : null
@@ -112,7 +116,8 @@ function normalizeTransferFromMessage(
 	if (!id || !channelId || !from || !to) return null
 	return {
 		id,
-		$source: DataSource.Yellow,
+		$source: DataSource.Eip7824,
+		protocol: Protocol.Yellow,
 		channelId,
 		from,
 		to,
@@ -176,24 +181,24 @@ function handleClearnodeMessage(msg: NitroRpcMessage) {
 		if (ch) upsertChannel(ch)
 	} else if (method === 'transfer_received' || method === 'tr') {
 		const t = normalizeTransferFromMessage(params)
-		if (t) yellowTransfersCollection.insert(t)
+		if (t) stateChannelTransfersCollection.insert(t)
 	} else if (method === 'bu') {
 		const update = normalizeBalanceUpdate(params)
 		if (update) {
 			const depositId = `${yellowState.chainId}:${update.address.toLowerCase()}`
-			const existing = yellowDepositsCollection.state.get(depositId)
+			const existing = stateChannelDepositsCollection.state.get(depositId)
 			const now = Date.now()
 			if (existing) {
-				yellowDepositsCollection.update(depositId, (draft) => {
-					draft.$source = DataSource.Yellow
+				stateChannelDepositsCollection.update(depositId, (draft) => {
+					draft.$source = DataSource.Eip7824
 					draft.availableBalance = update.availableBalance
 					draft.lockedBalance = update.lockedBalance
 					draft.lastUpdated = now
 				})
 			} else {
-				yellowDepositsCollection.insert({
+				stateChannelDepositsCollection.insert({
 					id: depositId,
-					$source: DataSource.Yellow,
+					$source: DataSource.Eip7824,
 					chainId: yellowState.chainId ?? 0,
 					address: update.address,
 					availableBalance: update.availableBalance,
@@ -246,18 +251,19 @@ export const connectToYellow = async (
 		address,
 	})
 	const depositId = `${chainId}:${address.toLowerCase()}`
-	const existing = yellowDepositsCollection.state.get(depositId)
+	const existing = stateChannelDepositsCollection.state.get(depositId)
 	const now = Date.now()
 	if (existing) {
-		yellowDepositsCollection.update(depositId, (draft) => {
-			draft.$source = DataSource.Yellow
+		stateChannelDepositsCollection.update(depositId, (draft) => {
+			draft.$source = DataSource.Eip7824
 			draft.availableBalance = balance
 			draft.lastUpdated = now
 		})
 	} else {
-		yellowDepositsCollection.insert({
+		stateChannelDepositsCollection.insert({
 			id: depositId,
-			$source: DataSource.Yellow,
+			$source: DataSource.Eip7824,
+			protocol: Protocol.Yellow,
 			chainId,
 			address,
 			availableBalance: balance,

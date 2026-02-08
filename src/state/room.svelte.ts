@@ -4,18 +4,18 @@
 
 import { DataSource } from '$/constants/data-sources.ts'
 import { myPeerIdsCollection } from '$/collections/MyPeerIds.ts'
-import { roomPeersCollection } from '$/collections/RoomPeers.ts'
-import { roomsCollection } from '$/collections/Rooms.ts'
+import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
+import { partykitRoomsCollection } from '$/collections/PartykitRooms.ts'
 import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
 import { siweChallengesCollection } from '$/collections/SiweChallenges.ts'
 import { transferRequestsCollection } from '$/collections/TransferRequests.ts'
-import { verificationsCollection } from '$/collections/Verifications.ts'
+import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 import type { Room } from '$/data/Room.ts'
 import type { RoomPeer } from '$/data/RoomPeer.ts'
 import type { SharedAddress } from '$/data/SharedAddress.ts'
 import type { SiweChallenge } from '$/data/SiweChallenge.ts'
 import type { TransferRequest } from '$/data/TransferRequest.ts'
-import type { Verification } from '$/data/Verification.ts'
+import { VerificationStatus, type Verification } from '$/data/Verification.ts'
 import {
 	type RoomConnection,
 	type RoomMessage,
@@ -61,14 +61,14 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 	const verificationIds = new Set((state.verifications ?? []).map((v) => v.id))
 
 	upsert(
-		roomsCollection,
+		partykitRoomsCollection,
 		{ ...state.room, $source: DataSource.PartyKit },
 		(r) => r.id,
 	)
 	for (const p of state.peers) {
 		if (p.peerId === roomState.peerId) continue
 		upsert(
-			roomPeersCollection,
+			partykitRoomPeersCollection,
 			{ ...p, $source: DataSource.PartyKit },
 			(r) => r.id,
 		)
@@ -77,19 +77,19 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 		[...myPeerIdsCollection.state.values()].map((r) => r.peerId),
 	)
 	const verifiedByMePeerIds = new Set(
-		[...verificationsCollection.state.values()]
+		[...siweVerificationsCollection.state.values()]
 			.filter(
-				(row) => myPeerIds.has(row.verifierPeerId) && row.status === 'verified',
+				(row) => myPeerIds.has(row.verifierPeerId) && row.status === VerificationStatus.Verified,
 			)
 			.map((row) => row.verifiedPeerId),
 	)
-	for (const [key, row] of roomPeersCollection.state) {
+	for (const [key, row] of partykitRoomPeersCollection.state) {
 		if (
 			row.roomId === roomId &&
 			!peerIds.has(key) &&
 			!verifiedByMePeerIds.has(row.peerId)
 		)
-			roomPeersCollection.delete(key)
+			partykitRoomPeersCollection.delete(key)
 	}
 	for (const s of state.sharedAddresses) {
 		upsert(
@@ -115,14 +115,14 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 	}
 	for (const v of state.verifications ?? []) {
 		upsert(
-			verificationsCollection,
+			siweVerificationsCollection,
 			{ ...v, $source: DataSource.PartyKit },
 			(r) => r.id,
 		)
 	}
-	for (const [key, row] of verificationsCollection.state) {
+	for (const [key, row] of siweVerificationsCollection.state) {
 		if (row.roomId === roomId && !verificationIds.has(row.id))
-			verificationsCollection.delete(key)
+			siweVerificationsCollection.delete(key)
 	}
 }
 
@@ -168,7 +168,7 @@ function handleServerMessage(msg: RoomMessage) {
 		}
 		case 'verification-record': {
 			upsert(
-				verificationsCollection,
+				siweVerificationsCollection,
 				{ ...msg.verification, $source: DataSource.PartyKit },
 				(r) => r.id,
 			)
@@ -317,7 +317,7 @@ export const joinRoom = (roomId: string, displayName?: string) => {
 	roomState.peerId = conn.peerId
 	upsert(
 		myPeerIdsCollection,
-		{ roomId, peerId: conn.peerId, $source: DataSource.Local },
+		{ roomId, peerId: conn.peerId },
 		(r) => r.roomId,
 	)
 }
@@ -332,8 +332,8 @@ export const leaveRoom = () => {
 }
 
 export const forgetPeer = (peerId: string) => {
-	for (const [key, row] of roomPeersCollection.state) {
-		if (row.peerId === peerId) roomPeersCollection.delete(key)
+	for (const [key, row] of partykitRoomPeersCollection.state) {
+		if (row.peerId === peerId) partykitRoomPeersCollection.delete(key)
 	}
 }
 
