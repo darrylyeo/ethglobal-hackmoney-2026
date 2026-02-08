@@ -1,9 +1,9 @@
+@import '@fontsource/ubuntu';
+@import '@fontsource/ubuntu/700.css';
+
 :root {
-	--fontFamily-sans:
-		ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-		'Segoe UI Symbol', 'Noto Color Emoji';
-	--fontFamily-mono:
-		ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+	--fontFamily-sans: 'Ubuntu', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+	--fontFamily-monospace: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 }
 
 :root {

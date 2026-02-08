@@ -19,7 +19,7 @@
 
 	--color-primary: light-dark(#2563eb, #3b82f6);
 	--color-primary-hover: light-dark(#1d4ed8, #2563eb);
-	--color-primary-foreground: #ffffff;
+	--color-primary-foreground: light-dark(#ffffff, #f9fafb);
 	--color-accent: var(--color-primary);
 	--color-accent-bg: light-dark(#dbeafe, rgba(59, 130, 246, 0.15));
 
