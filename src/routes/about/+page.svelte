@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	// Types/constants
 	import { architectureGraph } from '$/views/architecture-graph.ts'
 
@@ -50,11 +48,12 @@
 </svelte:head>
 
 
-<section
-	class="about"
-	data-scroll-item
-	data-column="gap-4"
->
+<main>
+	<section
+		class="about"
+		data-scroll-item
+		data-column="gap-4"
+	>
 	<header class="about__header" data-column="gap-2">
 		<h1>About</h1>
 		<p>
@@ -132,7 +131,8 @@
 			</dd>
 		</dl>
 	</section>
-</section>
+	</section>
+</main>
 
 
 <style>
