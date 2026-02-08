@@ -6,7 +6,10 @@
  */
 
 import { goto } from '$app/navigation'
-import { CollectionId } from '$/constants/collections.ts'
+import {
+	CollectionId,
+	ROOM_PERSISTENT_PEER_ID_STORAGE_KEY,
+} from '$/constants/collections.ts'
 import {
 	NetworkEnvironment,
 } from '$/constants/network-environment.ts'
@@ -46,16 +49,17 @@ export const nsKeyEnv = (
  */
 export const PROFILE_SCOPED_STORAGE_KEYS = [
 	CollectionId.WalletConnections,
-	CollectionId.TransactionSessions,
+	CollectionId.Sessions,
 	CollectionId.WatchedEntities,
-	CollectionId.DashboardPanels,
+	CollectionId.Dashboards,
 	CollectionId.AgentChatTrees,
 	CollectionId.AgentChatTurns,
 	CollectionId.LlmConnections,
 	CollectionId.BridgeTransactions,
-	CollectionId.TransactionSessionSimulations,
+	CollectionId.NetworkTransactions,
+	CollectionId.SessionSimulations,
 	CollectionId.EntitySources,
-	CollectionId.RoomPersistentPeerId,
+	ROOM_PERSISTENT_PEER_ID_STORAGE_KEY,
 ] as const
 
 /**
@@ -65,9 +69,10 @@ export const PROFILE_SCOPED_STORAGE_KEYS = [
  * (not environment-specific).
  */
 export const NETWORK_ENVIRONMENT_SCOPED_STORAGE_KEYS = [
-	CollectionId.TransactionSessions,
+	CollectionId.Sessions,
 	CollectionId.BridgeTransactions,
-	CollectionId.TransactionSessionSimulations,
+	CollectionId.NetworkTransactions,
+	CollectionId.SessionSimulations,
 ] as const
 
 const isEnvScoped = (key: string) =>

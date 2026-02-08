@@ -168,8 +168,25 @@ export const createLlmProvider = (
 
 	const connectionProvider = async (): Promise<LlmProvider | null> => {
 		if (options.connectionId == null || options.connectionId === '') return null
+		const { LLM_ZEN_DEFAULT_CONNECTION_ID } = await import(
+			'$/constants/opencode-zen.ts'
+		)
 		const { llmConnectionsCollection } = await import('$/collections/LlmConnections.ts')
-		const connection = llmConnectionsCollection.state.get(options.connectionId)
+		let connection = llmConnectionsCollection.state.get(options.connectionId)
+		if (
+			!connection &&
+			options.connectionId === LLM_ZEN_DEFAULT_CONNECTION_ID &&
+			env.PUBLIC_OPENCODE_API_KEY
+		) {
+			connection = {
+				id: ZEN_DEFAULT_CONNECTION_ID,
+				provider: 'zen',
+				label: 'OpenCode Zen',
+				apiKey: String(env.PUBLIC_OPENCODE_API_KEY),
+				createdAt: 0,
+				updatedAt: 0,
+			}
+		}
 		if (!connection) return null
 		const { createLlmProviderFromConnection } = await import(
 			'$/api/llm/connection-provider.ts'
@@ -292,7 +309,6 @@ export const createExplainProvider = (
 // Agent-chat-backed explain: creates an AgentChatTurn for the explanation
 import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
-import { DataSource } from '$/constants/data-sources.ts'
 import type { EntityRef } from '$/data/EntityRef.ts'
 import { EntityType } from '$/data/$EntityType.ts'
 
@@ -311,7 +327,6 @@ export const submitExplainTurn = (options: {
 			systemPrompt: EXPLAIN_SYSTEM_PROMPT,
 			createdAt: Date.now(),
 			updatedAt: Date.now(),
-			$source: DataSource.Llm,
 		})
 	}
 
@@ -348,7 +363,6 @@ export const submitExplainTurn = (options: {
 		status: 'generating',
 		createdAt: Date.now(),
 		promptVersion: EXPLAIN_PROMPT_VERSION,
-		$source: DataSource.Llm,
 	})
 
 	const provider = createExplainProvider({ onProgress: options.onProgress })

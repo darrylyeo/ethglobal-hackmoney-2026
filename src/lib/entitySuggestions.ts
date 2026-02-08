@@ -4,7 +4,7 @@ import { EntityType } from '$/data/$EntityType.ts'
 import { actorsCollection } from '$/collections/Actors.ts'
 import { actorKey } from '$/collections/Actors.ts'
 import { blocksCollection } from '$/collections/Blocks.ts'
-import { transactionsCollection } from '$/collections/Transactions.ts'
+import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
 import { stringify } from 'devalue'
 
 export type EntitySuggestion = { ref: EntityRef, label: string }
@@ -67,7 +67,7 @@ export function getEntitySuggestionsFromCache(query: string): EntitySuggestion[]
 	for (const row of blocksCollection.state.values())
 		results.push(blockToSuggestion(row))
 
-	for (const row of transactionsCollection.state.values())
+	for (const row of bridgeTransactionsCollection.state.values())
 		results.push(txToSuggestion(row))
 
 	if (q === '') return results.slice(0, 50)

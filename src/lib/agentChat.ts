@@ -2,7 +2,6 @@ import type { AgentChatTree } from '$/data/AgentChatTree.ts'
 import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 import type { EntityRef } from '$/data/EntityRef.ts'
 import type { LlmGenerateInput } from '$/lib/llmProvider.ts'
-import { DataSource } from '$/constants/data-sources.ts'
 import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
 import { createLlmProvider } from '$/lib/llmProvider.ts'
@@ -80,10 +79,7 @@ export const submitAgentChatTurn = async (options: {
 		promptVersion: AGENT_CHAT_PROMPT_VERSION,
 	}
 
-	agentChatTurnsCollection.insert({
-		...turn,
-		$source: DataSource.Llm,
-	})
+	agentChatTurnsCollection.insert(turn)
 
 	const allTurns = [...agentChatTurnsCollection.state.values()]
 		.filter((row) => row.treeId === options.treeId)
@@ -181,10 +177,7 @@ export const createAgentChatTree = (overrides?: Partial<AgentChatTree>) => {
 		...overrides,
 	}
 
-	agentChatTreesCollection.insert({
-		...tree,
-		$source: DataSource.Llm,
-	})
+	agentChatTreesCollection.insert(tree)
 
 	return tree
 }

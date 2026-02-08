@@ -1,6 +1,12 @@
 // Types/constants
 
-export type ToastType = 'info' | 'success' | 'warning' | 'error' | 'loading'
+export enum ToastType {
+	Info = 'info',
+	Success = 'success',
+	Warning = 'warning',
+	Error = 'error',
+	Loading = 'loading',
+}
 
 export type Toast = {
 	id: string
@@ -75,21 +81,21 @@ export const toasts = {
 	info: (
 		message: string,
 		options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>,
-	) => add({ type: 'info', message, ...options }),
+	) => add({ type: ToastType.Info, message, ...options }),
 	success: (
 		message: string,
 		options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>,
-	) => add({ type: 'success', message, ...options }),
+	) => add({ type: ToastType.Success, message, ...options }),
 	warning: (
 		message: string,
 		options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>,
-	) => add({ type: 'warning', message, ...options }),
+	) => add({ type: ToastType.Warning, message, ...options }),
 	error: (
 		message: string,
 		options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>,
-	) => add({ type: 'error', message, duration: 0, ...options }),
+	) => add({ type: ToastType.Error, message, duration: 0, ...options }),
 	loading: (
 		message: string,
 		options?: Partial<Omit<Toast, 'id' | 'type' | 'message'>>,
-	) => add({ type: 'loading', message, duration: 0, ...options }),
+	) => add({ type: ToastType.Loading, message, duration: 0, ...options }),
 }

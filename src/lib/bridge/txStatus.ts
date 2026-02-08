@@ -1,8 +1,19 @@
-export type TxStep = 'approve' | 'send' | 'confirm' | 'complete'
+export enum TxStep {
+	Approve = 'approve',
+	Send = 'send',
+	Confirm = 'confirm',
+	Complete = 'complete',
+}
+
+export enum TxState {
+	Pending = 'pending',
+	Success = 'success',
+	Failed = 'failed',
+}
 
 export type TxStatus = {
 	step: TxStep
-	state: 'pending' | 'success' | 'failed'
+	state: TxState
 	txHash?: string
 	chainId?: number
 	error?: string
@@ -10,36 +21,43 @@ export type TxStatus = {
 	completedAt?: number
 }
 
+export enum BridgeOverallStatus {
+	Idle = 'idle',
+	InProgress = 'in_progress',
+	Completed = 'completed',
+	Failed = 'failed',
+}
+
 export type BridgeStatus = {
-	overall: 'idle' | 'in_progress' | 'completed' | 'failed'
+	overall: BridgeOverallStatus
 	steps: TxStatus[]
 	estimatedDurationSeconds?: number
 }
 
 export const createInitialStatus = (): BridgeStatus => ({
-	overall: 'idle',
+	overall: BridgeOverallStatus.Idle,
 	steps: [],
 })
 
 export const mapLifiProcessStatus = (
 	processType: string,
 	status: string,
-): { step: TxStep; state: TxStatus['state'] } => {
+): { step: TxStep; state: TxState } => {
 	const step: TxStep =
 		processType === 'TOKEN_ALLOWANCE' || processType === 'PERMIT'
-			? 'approve'
+			? TxStep.Approve
 			: processType === 'SWAP' || processType === 'CROSS_CHAIN'
-				? 'send'
+				? TxStep.Send
 				: processType === 'RECEIVING_CHAIN'
-					? 'confirm'
-					: 'send'
-	const state: TxStatus['state'] =
+					? TxStep.Confirm
+					: TxStep.Send
+	const state: TxState =
 		status === 'DONE' ?
-			'success'
+			TxState.Success
 		: status === 'FAILED' ?
-			'failed'
+			TxState.Failed
 		:
-			'pending'
+			TxState.Pending
 	return { step, state }
 }
 

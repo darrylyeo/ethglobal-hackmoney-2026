@@ -1,14 +1,13 @@
-import { transactionSessionSimulationsCollection } from '$/collections/TransactionSessionSimulations.ts'
-import { transactionSessionsCollection } from '$/collections/TransactionSessions.ts'
-import { DataSource } from '$/constants/data-sources.ts'
-import type {
-	SessionAction,
-	TransactionSession,
-	TransactionSessionAction,
+import { sessionSimulationsCollection } from '$/collections/SessionSimulations.ts'
+import { sessionsCollection } from '$/collections/Sessions.ts'
+import {
+	type SessionAction,
+	type TransactionSession,
+	type TransactionSessionAction,
 	TransactionSessionStatus,
 } from '$/data/TransactionSession.ts'
 import { sessionActionType, toSessionAction } from '$/data/TransactionSession.ts'
-import type { TransactionSessionSimulationStatus } from '$/data/TransactionSessionSimulation.ts'
+import { type TransactionSessionSimulationStatus } from '$/data/TransactionSessionSimulation.ts'
 import { validActionTypes } from '$/lib/intents.ts'
 import {
 	normalizeTransactionSessionParams,
@@ -116,20 +115,17 @@ export const createTransactionSessionWithId = (
 	const session: TransactionSession = {
 		id,
 		actions: sessionActions,
-		status: args.status ?? 'Draft',
+		status: args.status ?? TransactionSessionStatus.Draft,
 		createdAt: now,
 		updatedAt: now,
 		params: normalizedParams,
 	}
-	transactionSessionsCollection.insert({
-		...session,
-		$source: DataSource.Local,
-	})
+	sessionsCollection.insert(session)
 	return session
 }
 
 export const getTransactionSession = (sessionId: string) =>
-	transactionSessionsCollection.state.get(sessionId) ?? null
+	sessionsCollection.state.get(sessionId) ?? null
 
 export const updateTransactionSession = (
 	sessionId: string,
@@ -137,7 +133,7 @@ export const updateTransactionSession = (
 ) => {
 	const current = getTransactionSession(sessionId)
 	if (!current) return
-	transactionSessionsCollection.update(sessionId, (draft) => {
+	sessionsCollection.update(sessionId, (draft) => {
 		const next = update({
 			...current,
 			params: { ...current.params },
@@ -194,17 +190,17 @@ export const markTransactionSessionFinalized = (
 ) =>
 	updateTransactionSession(sessionId, (session) => ({
 		...session,
-		status: 'Finalized',
+		status: TransactionSessionStatus.Finalized,
 		finalization,
 		updatedAt: Date.now(),
 	}))
 
 export const deleteTransactionSession = (sessionId: string) => {
-	for (const [id, row] of transactionSessionSimulationsCollection.state) {
+	for (const [id, row] of sessionSimulationsCollection.state) {
 		if (row.sessionId === sessionId)
-			transactionSessionSimulationsCollection.delete(id)
+			sessionSimulationsCollection.delete(id)
 	}
-	transactionSessionsCollection.delete(sessionId)
+	sessionsCollection.delete(sessionId)
 }
 
 export const forkTransactionSession = (session: TransactionSession) =>
@@ -222,7 +218,7 @@ export const createTransactionSessionSimulation = (args: {
 }) => {
 	const createdAt = Date.now()
 	const simulationId = createSessionId()
-	transactionSessionSimulationsCollection.insert({
+	sessionSimulationsCollection.insert({
 		id: simulationId,
 		sessionId: args.sessionId,
 		status: args.status,
@@ -230,7 +226,6 @@ export const createTransactionSessionSimulation = (args: {
 		paramsHash: stringify(args.params),
 		result: args.result,
 		error: args.error,
-		$source: DataSource.Local,
 	})
 	return simulationId
 }
