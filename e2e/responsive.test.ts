@@ -1,4 +1,9 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { useProfileIsolation } from './fixtures/profile.ts'
+
+test.beforeEach(async ({ context }) => {
+	await useProfileIsolation(context)
+})
 
 const MOBILE = { width: 375, height: 667, }
 const DESKTOP = { width: 1280, height: 800, }

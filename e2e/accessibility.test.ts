@@ -1,5 +1,6 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test } from './fixtures/tevm.ts'
+import { useProfileIsolation } from './fixtures/profile.ts'
 import {
 	addLifiRoutesMock,
 	addTevmWallet,
@@ -7,6 +8,10 @@ import {
 	selectProtocolOption,
 	selectChainOption,
 } from './test-setup.ts'
+
+test.beforeEach(async ({ context }) => {
+	await useProfileIsolation(context)
+})
 
 test.describe('Accessibility (axe-core)', () => {
 	test('home page has no critical violations', async ({ page }) => {

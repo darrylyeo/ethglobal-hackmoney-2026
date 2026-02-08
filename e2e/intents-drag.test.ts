@@ -1,5 +1,10 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { useProfileIsolation } from './fixtures/profile.ts'
 import { addTevmWallet } from './test-setup.ts'
+
+test.beforeEach(async ({ context }) => {
+	await useProfileIsolation(context)
+})
 
 test.describe('Intents test page (/test/intents)', () => {
 	test.beforeEach(async ({ page }) => {

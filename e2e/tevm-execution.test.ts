@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { useProfileIsolation } from './fixtures/profile.ts'
 import {
 	addLifiRoutesMock,
 	addLifiRoutesMockToContext,
@@ -7,6 +8,10 @@ import {
 	selectChainOption,
 	selectProtocolOption,
 } from './test-setup.ts'
+
+test.beforeEach(async ({ context }) => {
+	await useProfileIsolation(context)
+})
 
 const isHexHash = (value: string | null): value is `0x${string}` =>
 	typeof value === 'string' && value.startsWith('0x')

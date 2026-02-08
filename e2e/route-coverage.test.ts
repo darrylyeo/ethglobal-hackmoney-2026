@@ -5,7 +5,12 @@
 
 import { APP_NAME } from '$/constants/app.ts'
 import { expect, test } from './fixtures/tevm.ts'
+import { useProfileIsolation } from './fixtures/profile.ts'
 import { addTevmWallet } from './test-setup.ts'
+
+test.beforeEach(async ({ context }) => {
+	await useProfileIsolation(context)
+})
 
 test.describe('Home (/)', () => {
 	test('renders nav and key CTAs without errors', async ({ page }) => {

@@ -1,5 +1,10 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { useProfileIsolation } from './fixtures/profile.ts'
 import { addTevmWallet, ensureWalletConnected } from './test-setup.ts'
+
+test.beforeEach(async ({ context }) => {
+	await useProfileIsolation(context)
+})
 
 test.describe('Wallet provider & balances (Spec 005)', () => {
 	test('network toggle switches between Mainnet/Testnet label', async ({

@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { useProfileIsolation } from './fixtures/profile.ts'
 import {
 	addLifiRoutesMock,
 	addLifiRoutesMockToContext,
@@ -11,6 +12,7 @@ import {
 test.describe('E2E bridge flow', () => {
 	test.describe('happy path with tevm wallet', () => {
 		test.beforeEach(async ({ context, page, tevm }) => {
+			await useProfileIsolation(context)
 			await addLifiRoutesMockToContext(context)
 			await addTevmWallet(context, page, {
 				rpcUrl: tevm.rpcUrl,
@@ -131,6 +133,7 @@ test.describe('E2E bridge flow', () => {
 
 	test.describe('testnet/mainnet toggle', () => {
 		test.beforeEach(async ({ context, page, tevm }) => {
+			await useProfileIsolation(context)
 			await addTevmWallet(context, page, {
 				rpcUrl: tevm.rpcUrl,
 				chainId: tevm.chainId,

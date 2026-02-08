@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { useProfileIsolation } from './fixtures/profile.ts'
 import {
 	addCctpMocks,
 	addTevmWallet,
@@ -8,6 +9,7 @@ import {
 
 test.describe('CCTP Bridge (Spec 036)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {
+		await useProfileIsolation(context)
 		await addTevmWallet(context, page, {
 			rpcUrl: tevm.rpcUrl,
 			chainId: tevm.chainId,
