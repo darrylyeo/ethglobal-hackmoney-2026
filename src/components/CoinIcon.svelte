@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { coinColorBySymbol } from '$/constants/colors.ts'
-	import { IconShape } from '$/components/Icon.svelte'
+	import { type SubiconProps, IconShape } from '$/components/Icon.svelte'
 
 	// Props
 	let {

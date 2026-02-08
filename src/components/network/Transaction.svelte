@@ -9,7 +9,7 @@
 	// Functions
 	import { getTxUrl } from '$/constants/explorers.ts'
 	import { formatWei, formatGas, formatGwei } from '$/lib/format.ts'
-	import { fetchChainTransaction } from '$/collections/ChainTransactions.ts'
+	import { fetchNetworkTransaction } from '$/collections/NetworkTransactions.ts'
 	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
 
 
@@ -115,7 +115,7 @@
 			return
 		}
 		hasFetched = true
-		fetchChainTransaction(tx.$id.chainId, tx.$id.txHash).catch(() => {})
+		fetchNetworkTransaction(tx.$id.chainId, tx.$id.txHash).catch(() => {})
 	}
 </script>
 

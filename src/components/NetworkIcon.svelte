@@ -2,7 +2,7 @@
 	// Types/constants
 	import { networkColorByChainId } from '$/constants/colors.ts'
 	import { networkConfigsByChainId } from '$/constants/networks.ts'
-	import { type SubiconProps, IconShape } from '$/components/icon.ts'
+	import { type SubiconProps, IconShape } from '$/components/Icon.svelte'
 
 	// Props
 	let {

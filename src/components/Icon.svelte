@@ -1,7 +1,23 @@
+<script context="module" lang="ts">
+	export enum IconShape {
+		Square = 'square',
+		Circle = 'circle',
+	}
+	export type SubiconProps = {
+		icon?: string
+		html?: string
+		src?: string
+		alt?: string
+		size?: number | string
+		backgroundColor?: string
+		shape?: IconShape
+	}
+</script>
+
+
 <script lang="ts">
 	// Components
 	import Icon from './Icon.svelte'
-	import { type SubiconProps, IconShape } from './icon.ts'
 
 	// Props
 	let {

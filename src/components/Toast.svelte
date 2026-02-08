@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { Toast as ToastType } from '$/lib/toast.svelte.ts'
+	import { ToastType, type Toast } from '$/lib/toast.svelte.ts'
 
 
 	// Props
@@ -8,7 +8,7 @@
 		toast,
 		onDismiss,
 	}: {
-		toast: ToastType,
+		toast: Toast,
 		onDismiss: () => void,
 	} = $props()
 
@@ -36,7 +36,7 @@
 	}}
 >
 	<div class="toast-icon">
-		{#if toast.type === 'loading'}
+		{#if toast.type === ToastType.Loading}
 			<span class="toast-spinner" aria-hidden="true"></span>
 		{:else}
 			<Icon
