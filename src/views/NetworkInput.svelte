@@ -1,6 +1,5 @@
 <script lang="ts">
 	// Types/constants
-	import { networkConfigsByChainId } from '$/constants/networks.ts'
 	import type { Network } from '$/constants/networks.ts'
 
 
@@ -76,8 +75,8 @@
 
 
 	// Components
+	import NetworkIcon from '$/components/NetworkIcon.svelte'
 	import Select from '$/components/Select.svelte'
-	import Icon from '$/components/Icon.svelte'
 </script>
 
 {#snippet networkIcons()}
@@ -91,11 +90,8 @@
 	{#if selectedNetworks.length > 0}
 		<span data-row="start gap-2">
 			{#each selectedNetworks as network (network.id)}
-				{@const icon = networkConfigsByChainId[network.id]?.icon}
 				<span class="network-input-icon">
-					{#if icon}
-						<Icon src={icon} size={16} title={network.name} />
-					{/if}
+					<NetworkIcon chainId={network.id} size={16} title={network.name} />
 				</span>
 			{/each}
 		</span>
@@ -103,12 +99,9 @@
 {/snippet}
 
 {#snippet networkItem(network: Network, selected: boolean)}
-	{@const icon = networkConfigsByChainId[network.id]?.icon}
 	<span data-row="start gap-2" data-selected={selected}>
 		<span class="network-input-icon">
-			{#if icon}
-				<Icon src={icon} size={16} />
-			{/if}
+			<NetworkIcon chainId={network.id} size={16} />
 		</span>
 		<span>{network.name}</span>
 	</span>

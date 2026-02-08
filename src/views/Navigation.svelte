@@ -21,6 +21,8 @@
 	// Components
 	import Icon from '$/components/Icon.svelte'
 	import NavigationItems, { type NavigationItem } from './NavigationItem.svelte'
+	import NetworkEnvironmentInput from '$/views/NetworkEnvironmentInput.svelte'
+	import ProfileSwitcher from '$/views/ProfileSwitcher.svelte'
 </script>
 
 
@@ -44,7 +46,7 @@
 		>
 			<span data-card="padding-2" data-row="gap-1">
 				<span class="title">Blockhead</span>
-				<span data-tag>Vision</span>
+				<span data-badge>Vision</span>
 			</span>
 		</a>
 
@@ -88,7 +90,10 @@
 		/>
 	</div>
 
-	<!-- <footer data-sticky></footer> -->
+	<footer data-sticky data-row="gap-2 align-center">
+		<ProfileSwitcher />
+		<NetworkEnvironmentInput />
+	</footer>
 </nav>
 
 
@@ -139,7 +144,7 @@
 						font-weight: 700;
 					}
 
-					[data-tag] {
+					[data-badge] {
 						letter-spacing: 0.06em;
 						font-size: 0.6em;
 					}

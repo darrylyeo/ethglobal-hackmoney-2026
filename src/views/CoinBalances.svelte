@@ -305,6 +305,8 @@
 	import Boundary from '$/components/Boundary.svelte'
 	import Combobox from '$/components/Combobox.svelte'
 	import Icon from '$/components/Icon.svelte'
+	import CoinsInput from '$/views/CoinsInput.svelte'
+	import NetworksInput from '$/views/NetworksInput.svelte'
 	import Skeleton from '$/components/Skeleton.svelte'
 	import TruncatedValue, {
 		TruncatedValueFormat,
@@ -314,10 +316,10 @@
 
 
 	{#if actors.length > 0}
-		<details class="balances" data-card>
+		<details class="balances" data-card data-scroll-container open>
 			<summary class="balances-summary">
 				<div data-row="gap-2 align-center">
-					<h3 data-row-item="flexible" class="balances-heading">
+					<h3 data-row-item="flexible" class="section-heading">
 						{balancesTitlePrefix}{#if singleAddress}<TruncatedValue
 							value={singleAddress}
 							startLength={6}
@@ -331,25 +333,23 @@
 						</span>
 					{/if}
 				</div>
+				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 				<div
 					class="balances-filters"
+					role="group"
+					aria-label="Filters"
 					data-row="gap-2 wrap align-center"
 					onclick={(e) => e.stopPropagation()}
 					onkeydown={(e) => e.stopPropagation()}
 				>
-					<Combobox
-						type="multiple"
-						items={networkFilterOptions}
+					<NetworksInput
 						bind:value={filterChainIds}
 						placeholder="Network"
 						ariaLabel="Filter by network"
-						getItemId={(n) => String(n.chainId)}
-						getItemLabel={(n) => n.name}
 					/>
-					<Combobox
-						type="multiple"
-						items={symbolFilterOptions}
+					<CoinsInput
 						bind:value={filterSymbols}
+						items={symbolFilterOptions}
 						placeholder="Coin"
 						ariaLabel="Filter by coin"
 					/>
@@ -554,6 +554,11 @@
 
 
 <style>
+	.section-heading {
+		font-size: 1rem;
+		margin: 0;
+	}
+
 	.balance-address {
 		font-size: 0.9em;
 	}

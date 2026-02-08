@@ -1,12 +1,17 @@
 <script module lang="ts">
 	// Types
+	import type { Network$Id } from '$/data/Network.ts'
+
 	export type NavigationItem = {
 		id: string
 		title: string
 		icon?: string
+		address?: { network?: Network$Id, address: `0x${string}` }
 		href?: string
 		tag?: string
+		tagIcon?: string
 		defaultOpen?: boolean
+		manualWatch?: boolean
 		children?: NavigationItem[]
 		allChildren?: NavigationItem[]
 	}
@@ -115,7 +120,9 @@
 
 
 	// Components
+	import Address from '$/components/Address.svelte'
 	import Icon from '$/components/Icon.svelte'
+	import { AddressFormat } from '$/components/Address.svelte'
 </script>
 
 
@@ -183,7 +190,8 @@
 
 {#snippet navigationItem(item: NavigationItem)}
 	{@const children = effectiveChildren(item)}
-	{#if !children?.length}
+	{@const hasExpandable = ((item.allChildren ?? item.children)?.length ?? 0) > 0}
+	{#if !hasExpandable}
 		{@render linkable(item)}
 	{:else}
 		<details
@@ -203,7 +211,7 @@
 				{@render linkable(item)}
 			</summary>
 
-			{@render navigationItems(children)}
+			{@render navigationItems(children ?? [])}
 		</details>
 	{/if}
 {/snippet}
@@ -224,32 +232,68 @@
 				rel: 'noopener noreferrer',
 			}}
 		>
-			{#if item.icon}
+			{#if item.address}
+				<Address
+					network={item.address.network}
+					address={item.address.address}
+					format={AddressFormat.MiddleTruncated}
+					linked={false}
+					showAvatar={true}
+				/>
+			{:else if item.icon}
 				<Icon class="icon" {...navIconProps(item.icon)} />
 			{/if}
 
-			<span
-				>{@html effectiveSearchValue
-					? highlightText(item.title, effectiveSearchValue)
-					: escapeHtml(item.title)}</span
-			>
+			{#if !item.address}
+				<span
+					>{@html effectiveSearchValue
+						? highlightText(item.title, effectiveSearchValue)
+						: escapeHtml(item.title)}</span
+				>
+			{/if}
 			{#if item.tag}
-				<span data-tag={item.tag}>{item.tag}</span>
+				<span data-tag={item.tag} data-row="start gap-1">
+					{#if item.tagIcon}
+						<Icon class="tag-icon" {...navIconProps(item.tagIcon)} />
+					{/if}
+					{item.tag}
+				</span>
+			{/if}
+			{#if item.manualWatch}
+				<Icon class="icon manual-watch" icon="★" aria-label="Pinned" />
 			{/if}
 		</a>
 	{:else}
 		<span data-row="start gap-2">
-			{#if item.icon}
+			{#if item.address}
+				<Address
+					network={item.address.network}
+					address={item.address.address}
+					format={AddressFormat.MiddleTruncated}
+					linked={false}
+					showAvatar={true}
+				/>
+			{:else if item.icon}
 				<Icon class="icon" {...navIconProps(item.icon)} />
 			{/if}
 
-			<span
-				>{@html effectiveSearchValue
-					? highlightText(item.title, effectiveSearchValue)
-					: escapeHtml(item.title)}</span
-			>
+			{#if !item.address}
+				<span
+					>{@html effectiveSearchValue
+						? highlightText(item.title, effectiveSearchValue)
+						: escapeHtml(item.title)}</span
+				>
+			{/if}
 			{#if item.tag}
-				<span data-tag={item.tag}>{item.tag}</span>
+				<span data-tag={item.tag} data-row="start gap-1">
+					{#if item.tagIcon}
+						<Icon class="tag-icon" {...navIconProps(item.tagIcon)} />
+					{/if}
+					{item.tag}
+				</span>
+			{/if}
+			{#if item.manualWatch}
+				<Icon class="icon manual-watch" icon="★" aria-label="Pinned" />
 			{/if}
 		</span>
 	{/if}
@@ -304,6 +348,22 @@
 					height: 100%;
 				}
 			}
+		}
+
+		[data-tag] .tag-icon {
+			display: flex;
+			font-size: 0.9em;
+			width: 1em;
+			height: 1em;
+			line-height: 1;
+			flex-shrink: 0;
+		}
+
+		[data-tag] .tag-icon :global(img),
+		[data-tag] .tag-icon :global(svg) {
+			border-radius: 0.125rem;
+			width: 100%;
+			height: 100%;
 		}
 
 		:global(mark) {

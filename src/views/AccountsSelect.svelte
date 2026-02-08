@@ -10,6 +10,7 @@
 		WalletConnectionNone,
 	} from '$/data/WalletConnection.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+	import { NetworkEnvironment } from '$/constants/network-environment.ts'
 	import {
 		mainnetForTestnet,
 		NetworkType,
@@ -139,6 +140,7 @@
 		bridgeSettingsState,
 		defaultBridgeSettings,
 	} from '$/state/bridge-settings.svelte.ts'
+	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
 	import {
 		swapSettingsState,
 		defaultSwapSettings,
@@ -275,9 +277,12 @@
 		selectedConnection?.connection.chainId ?? null,
 	)
 
+	const networkEnvironment = $derived(
+		networkEnvironmentState.current,
+	)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			settings.isTestnet
+			networkEnvironment === NetworkEnvironment.Testnet
 				? n.type === NetworkType.Testnet
 				: n.type === NetworkType.Mainnet,
 		),
@@ -294,11 +299,12 @@
 			settings.fromChainId !== null
 				? networksByChainId[settings.fromChainId]
 				: null
-		const preferred = settings.isTestnet
-			? ((fromNet ? testnetsForMainnet.get(fromNet)?.[0]?.id : undefined) ??
-				filteredNetworks[0]?.id)
-			: ((fromNet ? mainnetForTestnet.get(fromNet)?.id : undefined) ??
-				filteredNetworks[0]?.id)
+		const preferred =
+			networkEnvironment === NetworkEnvironment.Testnet
+				? ((fromNet ? testnetsForMainnet.get(fromNet)?.[0]?.id : undefined) ??
+					filteredNetworks[0]?.id)
+				: ((fromNet ? mainnetForTestnet.get(fromNet)?.id : undefined) ??
+					filteredNetworks[0]?.id)
 		const nextChainId = filteredNetworks.some((n) => n.id === preferred)
 			? preferred
 			: filteredNetworks[0]?.id
@@ -356,8 +362,6 @@
 	// Actions
 	const connect = (rdns: string) =>
 		requestWalletConnection({ rdns }).catch(() => {})
-	const toggleTestnet = (checked: boolean) =>
-		(bridgeSettingsState.current = { ...settings, isTestnet: checked })
 	const selectNetwork = (chainId: number) => {
 		if (settings.fromChainId !== chainId)
 			bridgeSettingsState.current = { ...settings, fromChainId: chainId }
@@ -394,8 +398,9 @@
 	import Address from '$/components/Address.svelte'
 	import Dropdown from '$/components/Dropdown.svelte'
 	import Icon from '$/components/Icon.svelte'
+	import NetworkIcon from '$/components/NetworkIcon.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
-	import { Button, Switch, ToggleGroup } from 'bits-ui'
+	import { Button, ToggleGroup } from 'bits-ui'
 </script>
 
 
@@ -404,19 +409,6 @@
 	role="group"
 	aria-label="Network settings"
 >
-	<label data-row="gap-2" aria-label="Network type">
-		<Switch.Root
-			bind:checked={() => settings.isTestnet, (c) => toggleTestnet(c ?? false)}
-			aria-label="Mainnets / Testnets"
-			data-wallet-network-testnet={!settings.isTestnet}
-			data-wallet-network-mainnet={settings.isTestnet}
-		>
-			<Switch.Thumb />
-		</Switch.Root>
-		<span data-wallet-network-label
-			>{settings.isTestnet ? 'Testnet' : 'Mainnet'}</span
-		>
-	</label>
 	<div data-row-item="flexible">
 		<NetworkInput
 			networks={filteredNetworks}
@@ -456,9 +448,6 @@
 							{@const networkName = chainId
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
-							{@const networkIconSrc = chainId
-								? networkConfigsByChainId[chainId]?.icon
-								: null}
 							{@const walletChipClass =
 								status === 'connecting'
 									? 'wallet-chip wallet-connecting'
@@ -481,14 +470,12 @@
 									{#if wallet.icon}
 										<Icon src={wallet.icon} size={16} />
 									{/if}
-									{#if networkIconSrc}
-										<Icon
-											src={networkIconSrc}
-											size={16}
-											class="wallet-network-icon"
-											title={networkName ?? 'Unknown network'}
-										/>
-									{/if}
+									<NetworkIcon
+										chainId={chainId ?? selectedChainIdDerived ?? 1}
+										size={16}
+										class="wallet-network-icon"
+										title={networkName ?? 'Unknown network'}
+									/>
 									<span class="wallet-details" data-column="gap-0">
 										{#if connection.activeActor}
 											<span data-wallet-address>
@@ -535,15 +522,12 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												{@const networkIcon = networkConfigsByChainId[item.network.id]?.icon}
 												<span class="wallet-menu-option" data-row="start gap-2">
-													{#if networkIcon}
-														<Icon
-															src={networkIcon}
-															size={16}
-															class="wallet-network-icon"
-														/>
-													{/if}
+													<NetworkIcon
+														chainId={item.network.id}
+														size={16}
+														class="wallet-network-icon"
+													/>
 													<span>{item.network.name}</span>
 												</span>
 											{:else if item.kind === 'disconnect'}
@@ -579,9 +563,6 @@
 							{@const networkName = chainId
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
-							{@const networkIconSrc = chainId
-								? networkConfigsByChainId[chainId]?.icon
-								: null}
 							{@const walletChipClass =
 								status === 'connecting'
 									? 'wallet-chip wallet-connecting'
@@ -604,14 +585,12 @@
 									{#if wallet.icon}
 										<Icon src={wallet.icon} size={16} />
 									{/if}
-									{#if networkIconSrc}
-										<Icon
-											src={networkIconSrc}
-											size={16}
-											class="wallet-network-icon"
-											title={networkName ?? 'Unknown network'}
-										/>
-									{/if}
+									<NetworkIcon
+										chainId={chainId ?? selectedChainIdDerived ?? 1}
+										size={16}
+										class="wallet-network-icon"
+										title={networkName ?? 'Unknown network'}
+									/>
 									<span class="wallet-details" data-column="gap-0">
 										{#if connection.activeActor}
 											<span data-wallet-address>
@@ -658,15 +637,12 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												{@const networkIcon = networkConfigsByChainId[item.network.id]?.icon}
 												<span class="wallet-menu-option" data-row="start gap-2">
-													{#if networkIcon}
-														<Icon
-															src={networkIcon}
-															size={16}
-															class="wallet-network-icon"
-														/>
-													{/if}
+													<NetworkIcon
+														chainId={item.network.id}
+														size={16}
+														class="wallet-network-icon"
+													/>
 													<span>{item.network.name}</span>
 												</span>
 											{:else if item.kind === 'disconnect'}
@@ -711,9 +687,6 @@
 							{@const networkName = chainId
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
-							{@const networkIconSrc = chainId
-								? networkConfigsByChainId[chainId]?.icon
-								: null}
 							{@const walletChipClass =
 								status === 'connecting'
 									? 'wallet-chip wallet-connecting'
@@ -736,14 +709,12 @@
 									{#if wallet.icon}
 										<Icon src={wallet.icon} size={16} />
 									{/if}
-									{#if networkIconSrc}
-										<Icon
-											src={networkIconSrc}
-											size={16}
-											class="wallet-network-icon"
-											title={networkName ?? 'Unknown network'}
-										/>
-									{/if}
+									<NetworkIcon
+										chainId={chainId ?? selectedChainIdDerived ?? 1}
+										size={16}
+										class="wallet-network-icon"
+										title={networkName ?? 'Unknown network'}
+									/>
 									<span class="wallet-details" data-column="gap-0">
 										{#if connection.activeActor}
 											<span data-wallet-address>
@@ -790,15 +761,12 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												{@const networkIcon = networkConfigsByChainId[item.network.id]?.icon}
 												<span class="wallet-menu-option" data-row="start gap-2">
-													{#if networkIcon}
-														<Icon
-															src={networkIcon}
-															size={16}
-															class="wallet-network-icon"
-														/>
-													{/if}
+													<NetworkIcon
+														chainId={item.network.id}
+														size={16}
+														class="wallet-network-icon"
+													/>
 													<span>{item.network.name}</span>
 												</span>
 											{:else if item.kind === 'disconnect'}
@@ -834,9 +802,6 @@
 							{@const networkName = chainId
 								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
-							{@const networkIconSrc = chainId
-								? networkConfigsByChainId[chainId]?.icon
-								: null}
 							{@const walletChipClass =
 								status === 'connecting'
 									? 'wallet-chip wallet-connecting'
@@ -859,14 +824,12 @@
 									{#if wallet.icon}
 										<Icon src={wallet.icon} size={16} />
 									{/if}
-									{#if networkIconSrc}
-										<Icon
-											src={networkIconSrc}
-											size={16}
-											class="wallet-network-icon"
-											title={networkName ?? 'Unknown network'}
-										/>
-									{/if}
+									<NetworkIcon
+										chainId={chainId ?? selectedChainIdDerived ?? 1}
+										size={16}
+										class="wallet-network-icon"
+										title={networkName ?? 'Unknown network'}
+									/>
 									<span class="wallet-details" data-column="gap-0">
 										{#if connection.activeActor}
 											<span data-wallet-address>
@@ -913,15 +876,12 @@
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												{@const networkIcon = networkConfigsByChainId[item.network.id]?.icon}
 												<span class="wallet-menu-option" data-row="start gap-2">
-													{#if networkIcon}
-														<Icon
-															src={networkIcon}
-															size={16}
-															class="wallet-network-icon"
-														/>
-													{/if}
+													<NetworkIcon
+														chainId={item.network.id}
+														size={16}
+														class="wallet-network-icon"
+													/>
 													<span>{item.network.name}</span>
 												</span>
 											{:else if item.kind === 'disconnect'}

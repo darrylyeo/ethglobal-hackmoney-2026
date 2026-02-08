@@ -2,7 +2,6 @@
 	// Types/constants
 	import { type Coin, CoinType } from '$/constants/coins.ts'
 	import type { StorkPriceRow } from '$/collections/stork-prices.ts'
-	import { networkConfigsByChainId } from '$/constants/networks.ts'
 
 
 	// Props
@@ -31,7 +30,8 @@
 
 
 	// Components
-	import Icon from '$/components/Icon.svelte'
+	import CoinIcon from '$/components/CoinIcon.svelte'
+	import NetworkIcon from '$/components/NetworkIcon.svelte'
 	import Tooltip from '$/components/Tooltip.svelte'
 	import StorkPriceFeed from '$/views/StorkPriceFeed.svelte'
 </script>
@@ -70,24 +70,14 @@
 				{/if}
 
 				{#if coin.icon?.original?.url}
-					{@const networkIconSrc = networkConfigsByChainId[coin.chainId]?.icon}
-					{@const networkName =
-						networkConfigsByChainId[coin.chainId]?.name ??
-						`Chain ${coin.chainId}`}
 					<span class="coin-icons" data-row="center gap-1">
-						<Icon
+						<CoinIcon
 							src={coin.icon.original.url}
+							symbol={coin.symbol ?? ''}
 							alt={coin.symbol ?? ''}
 							size={16}
 						/>
-						{#if networkIconSrc}
-							<Icon
-								src={networkIconSrc}
-								alt={networkName}
-								title={networkName}
-								size={10}
-							/>
-						{/if}
+						<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} size={10} />
 					</span>
 				{/if}
 			</span>
@@ -116,24 +106,14 @@
 			{/if}
 
 			{#if coin.icon?.original?.url}
-				{@const networkIconSrc = networkConfigsByChainId[coin.chainId]?.icon}
-				{@const networkName =
-					networkConfigsByChainId[coin.chainId]?.name ??
-					`Chain ${coin.chainId}`}
 				<span class="coin-icons" data-row="center gap-1">
-					<Icon
+					<CoinIcon
 						src={coin.icon.original.url}
+						symbol={coin.symbol ?? ''}
 						alt={coin.symbol ?? ''}
 						size={16}
 					/>
-					{#if networkIconSrc}
-						<Icon
-							src={networkIconSrc}
-							alt={networkName}
-							title={networkName}
-							size={10}
-						/>
-					{/if}
+					<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} size={10} />
 				</span>
 			{/if}
 		</span>

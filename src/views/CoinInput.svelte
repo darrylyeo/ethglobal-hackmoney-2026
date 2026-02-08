@@ -39,8 +39,8 @@
 
 
 	// Components
+	import CoinIcon from '$/components/CoinIcon.svelte'
 	import Combobox from '$/components/Combobox.svelte'
-	import Icon from '$/components/Icon.svelte'
 </script>
 
 
@@ -49,7 +49,12 @@
 		{@const iconUrl = coinIconUrl(value)}
 		{#if iconUrl}
 			<span class="coin-input-icon">
-				<Icon src={iconUrl} alt={value.symbol} size="1rem" />
+				<CoinIcon
+					src={iconUrl}
+					symbol={value.symbol}
+					alt={value.symbol}
+					size="1rem"
+				/>
 			</span>
 		{:else}
 			<span class="coin-input-placeholder" aria-hidden="true"></span>
@@ -84,7 +89,12 @@
 		<span data-row="start gap-2" class="coin-input-item" data-selected={selected}>
 			{#if iconUrl}
 				<span class="coin-input-icon">
-					<Icon src={iconUrl} alt={coin.symbol} size="1rem" />
+					<CoinIcon
+						src={iconUrl}
+						symbol={coin.symbol}
+						alt={coin.symbol}
+						size="1rem"
+					/>
 				</span>
 			{:else}
 				<span class="coin-input-placeholder" aria-hidden="true"></span>
