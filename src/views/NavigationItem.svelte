@@ -8,6 +8,7 @@
 		tag?: string
 		defaultOpen?: boolean
 		children?: NavigationItem[]
+		allChildren?: NavigationItem[]
 	}
 </script>
 
@@ -38,9 +39,21 @@
 
 
 	// Functions
-	const hasCurrentPage = (item: NavigationItem) =>
-		currentPathname === item.href ||
-		(item.children?.some(hasCurrentPage) ?? false)
+	const hasCurrentPage = (item: NavigationItem): boolean => (
+		(
+			item.href != null &&
+			(
+				currentPathname === item.href.split('#')[0] ||
+				currentPathname.startsWith(item.href.split('#')[0] + '/')
+			)
+		) ||
+		(item.allChildren ?? item.children)?.some(hasCurrentPage) === true
+	)
+
+	const effectiveChildren = (item: NavigationItem) =>
+		item.allChildren && (effectiveSearchValue || hasCurrentPage(item))
+			? item.allChildren
+			: item.children
 
 	const fuzzyMatch = (
 		text: string,
@@ -71,7 +84,7 @@
 	const matchesSearch = (item: NavigationItem, query: string): boolean =>
 		!query ||
 		!!fuzzyMatch(item.title, query) ||
-		(item.children?.some((child) => matchesSearch(child, query)) ?? false)
+		(item.allChildren ?? item.children)?.some((child) => matchesSearch(child, query)) === true
 
 	const escapeHtml = (s: string) =>
 		s
@@ -169,7 +182,8 @@
 {/snippet}
 
 {#snippet navigationItem(item: NavigationItem)}
-	{#if !item.children?.length}
+	{@const children = effectiveChildren(item)}
+	{#if !children?.length}
 		{@render linkable(item)}
 	{:else}
 		<details
@@ -189,7 +203,7 @@
 				{@render linkable(item)}
 			</summary>
 
-			{@render navigationItems(item.children)}
+			{@render navigationItems(children)}
 		</details>
 	{/if}
 {/snippet}
