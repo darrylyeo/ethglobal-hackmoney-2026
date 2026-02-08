@@ -3,7 +3,7 @@
  */
 
 import type { Media } from '$/constants/media.ts'
-import { ChainId } from '$/constants/networks.ts'
+import { ChainId, networkConfigsByChainId } from '$/constants/networks.ts'
 
 export enum CoinType {
 	Native = 'Native',
@@ -35,6 +35,22 @@ export type Coin = NativeCurrency | Erc20Token
 export type CoinPageSymbol = 'USDC' | 'ETH'
 
 export const COIN_PAGE_SYMBOLS: readonly CoinPageSymbol[] = ['USDC', 'ETH']
+
+/** Primary brand color (hex) per coin symbol. */
+export const coinColors: readonly { symbol: string; color: string }[] = [
+	{ symbol: 'ETH', color: '#627EEA' },
+	{ symbol: 'USDC', color: '#2775CA' },
+	{ symbol: 'USDT', color: '#26A17B' },
+	{ symbol: 'MATIC', color: '#7B3FE4' },
+	{ symbol: 'AVAX', color: '#E84142' },
+	{ symbol: 'CELO', color: '#FCFF52' },
+	{ symbol: 'UNI', color: '#F50DB4' },
+	{ symbol: 'S', color: '#000000' },
+	{ symbol: 'XDC', color: '#254C81' },
+	{ symbol: 'EDU', color: '#7C3AED' },
+	{ symbol: 'MITO', color: '#6366F1' },
+	{ symbol: 'TAC', color: '#3B82F6' },
+]
 
 export const ercTokens = (
 	[
@@ -296,5 +312,24 @@ export function getCoinForCoinPage(symbol: CoinPageSymbol): Coin {
 		symbol: 'ETH',
 		decimals: 18,
 	}
+}
+
+const zeroAddress = '0x0000000000000000000000000000000000000000' as `0x${string}`
+
+export function getBridgeCoins(chainId: number): Coin[] {
+	const config = networkConfigsByChainId[chainId]
+	const bySymbol = ercTokensBySymbolByChainId[chainId]
+	const native: Coin | null =
+		config ?
+			{
+				type: CoinType.Native,
+				chainId: chainId as ChainId,
+				address: zeroAddress,
+				symbol: config.nativeCurrency.symbol,
+				decimals: 18,
+			}
+		: null
+	const usdc = bySymbol?.USDC ?? null
+	return [native, usdc].filter(Boolean) as Coin[]
 }
 

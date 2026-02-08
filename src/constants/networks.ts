@@ -49,6 +49,8 @@ export type NetworkConfig = {
 	nativeCurrency: NetworkCurrency
 	explorerUrls?: string[]
 	icon?: string
+	/** Primary brand color (hex). */
+	color?: string
 }
 
 export type MainnetTestnetMapping = {
@@ -71,6 +73,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://etherscan.io'],
 		icon: (await import('$/assets/networks/1-logo.svg?url')).default,
+		color: '#627EEA',
 	},
 	{
 		chainId: ChainId.Optimism,
@@ -79,6 +82,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://optimistic.etherscan.io'],
 		icon: (await import('$/assets/networks/10-symbol.svg?url')).default,
+		color: '#FF0823',
 	},
 	{
 		chainId: ChainId.XDC,
@@ -87,6 +91,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'XDC', symbol: 'XDC' },
 		explorerUrls: ['https://xdc.blocksscan.io'],
 		icon: (await import('$/assets/networks/50.svg?url')).default,
+		color: '#254C81',
 	},
 	{
 		chainId: ChainId.XDCApothem,
@@ -95,6 +100,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'XDC', symbol: 'XDC' },
 		explorerUrls: ['https://apothem.blocksscan.io'],
 		icon: (await import('$/assets/networks/51.svg?url')).default,
+		color: '#254C81',
 	},
 	{
 		chainId: ChainId.Unichain,
@@ -103,6 +109,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Unichain', symbol: 'UNI' },
 		explorerUrls: ['https://unichain.blockscout.com'],
 		icon: (await import('$/assets/networks/130.svg?url')).default,
+		color: '#F50DB4',
 	},
 	{
 		chainId: ChainId.UnichainSepolia,
@@ -111,6 +118,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Unichain', symbol: 'UNI' },
 		explorerUrls: ['https://sepolia.unichain.blockscout.com'],
 		icon: (await import('$/assets/networks/1301.svg?url')).default,
+		color: '#F50DB4',
 	},
 	{
 		chainId: ChainId.Polygon,
@@ -119,6 +127,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'MATIC', symbol: 'MATIC' },
 		explorerUrls: ['https://polygonscan.com'],
 		icon: (await import('$/assets/networks/137.svg?url')).default,
+		color: '#7B3FE4',
 	},
 	{
 		chainId: ChainId.PolygonAmoy,
@@ -127,6 +136,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'MATIC', symbol: 'MATIC' },
 		explorerUrls: ['https://amoy.polygonscan.com'],
 		icon: (await import('$/assets/networks/80002.svg?url')).default,
+		color: '#7B3FE4',
 	},
 	{
 		chainId: ChainId.Monad,
@@ -135,6 +145,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://explorer.monad.xyz'],
 		icon: (await import('$/assets/networks/143.svg?url')).default,
+		color: '#836EF9',
 	},
 	{
 		chainId: ChainId.MonadTestnet,
@@ -143,6 +154,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://testnet-explorer.monad.xyz'],
 		icon: (await import('$/assets/networks/143.svg?url')).default,
+		color: '#836EF9',
 	},
 	{
 		chainId: ChainId.Sonic,
@@ -151,6 +163,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'S', symbol: 'S' },
 		explorerUrls: ['https://sonicscan.org'],
 		icon: (await import('$/assets/networks/146.svg?url')).default,
+		color: '#000000',
 	},
 	{
 		chainId: ChainId.SonicTestnet,
@@ -159,6 +172,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'S', symbol: 'S' },
 		explorerUrls: ['https://testnet.sonicscan.org'],
 		icon: (await import('$/assets/networks/14601.svg?url')).default,
+		color: '#000000',
 	},
 	{
 		chainId: ChainId.ZkSyncEraSepolia,
@@ -166,6 +180,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://sepolia-era.zksync.network'],
+		color: '#8C8DFC',
 	},
 	{
 		chainId: ChainId.ZkSyncEra,
@@ -173,6 +188,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://era.zksync.network'],
+		color: '#8C8DFC',
 	},
 	{
 		chainId: ChainId.WorldChain,
@@ -180,6 +196,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://worldscan.org'],
+		color: '#111111',
 	},
 	{
 		chainId: ChainId.WorldChainSepolia,
@@ -187,6 +204,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://sepolia.worldscan.org'],
+		color: '#111111',
 	},
 	{
 		chainId: ChainId.HyperEVMTestnet,
@@ -195,6 +213,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://testnet.hyper.evm.cc'],
 		icon: (await import('$/assets/networks/999-symbol.svg?url')).default,
+		color: '#282828',
 	},
 	{
 		chainId: ChainId.HyperEVM,
@@ -203,6 +222,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://hyper.evm.cc'],
 		icon: (await import('$/assets/networks/999-symbol.svg?url')).default,
+		color: '#282828',
 	},
 	{
 		chainId: ChainId.SeiTestnet,
@@ -210,6 +230,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'SEI', symbol: 'SEI' },
 		explorerUrls: ['https://testnet.seitrace.com'],
+		color: '#C1121F',
 	},
 	{
 		chainId: ChainId.Sei,
@@ -217,6 +238,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'SEI', symbol: 'SEI' },
 		explorerUrls: ['https://seitrace.com'],
+		color: '#C1121F',
 	},
 	{
 		chainId: ChainId.Arbitrum,
@@ -225,6 +247,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://arbiscan.io'],
 		icon: (await import('$/assets/networks/42161-logo.svg?url')).default,
+		color: '#12AAFF',
 	},
 	{
 		chainId: ChainId.ArbitrumSepolia,
@@ -233,6 +256,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://sepolia.arbiscan.io'],
 		icon: (await import('$/assets/networks/42161-logo.svg?url')).default,
+		color: '#12AAFF',
 	},
 	{
 		chainId: ChainId.Celo,
@@ -241,6 +265,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'CELO', symbol: 'CELO' },
 		explorerUrls: ['https://celoscan.io'],
 		icon: (await import('$/assets/networks/Celo.svg?url')).default,
+		color: '#FCFF52',
 	},
 	{
 		chainId: ChainId.AvalancheFuji,
@@ -248,6 +273,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'AVAX', symbol: 'AVAX' },
 		explorerUrls: ['https://testnet.snowtrace.io'],
+		color: '#E84142',
 	},
 	{
 		chainId: ChainId.Avalanche,
@@ -255,6 +281,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'AVAX', symbol: 'AVAX' },
 		explorerUrls: ['https://snowtrace.io'],
+		color: '#E84142',
 	},
 	{
 		chainId: ChainId.Base,
@@ -262,6 +289,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://basescan.org'],
+		color: '#0052FF',
 	},
 	{
 		chainId: ChainId.BaseSepolia,
@@ -269,6 +297,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://sepolia.basescan.org'],
+		color: '#0052FF',
 	},
 	{
 		chainId: ChainId.Ink,
@@ -276,6 +305,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Mainnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://explorer.inkonchain.com'],
+		color: '#6366F1',
 	},
 	{
 		chainId: ChainId.LineaSepolia,
@@ -283,6 +313,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		type: NetworkType.Testnet,
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://sepolia.lineascan.build'],
+		color: '#61DFFF',
 	},
 	{
 		chainId: ChainId.Linea,
@@ -291,6 +322,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://lineascan.build'],
 		icon: (await import('$/assets/networks/59144-symbol.svg?url')).default,
+		color: '#61DFFF',
 	},
 	{
 		chainId: ChainId.InkTestnet,
@@ -299,6 +331,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://testnet.explorer.inkonchain.com'],
 		icon: (await import('$/assets/networks/763373.svg?url')).default,
+		color: '#6366F1',
 	},
 	{
 		chainId: ChainId.Codex,
@@ -307,6 +340,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://explorer.codexchain.io'],
 		icon: (await import('$/assets/networks/81224-logo-and-wordmark.svg?url')).default,
+		color: '#E5FF5D',
 	},
 	{
 		chainId: ChainId.CodexTestnet,
@@ -315,6 +349,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://testnet-explorer.codexchain.io'],
 		icon: (await import('$/assets/networks/81224-logo-and-wordmark.svg?url')).default,
+		color: '#E5FF5D',
 	},
 	{
 		chainId: ChainId.Plume,
@@ -323,6 +358,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://plume-explorer.alt.technology'],
 		icon: (await import('$/assets/networks/98866-dark.svg?url')).default,
+		color: '#E84142',
 	},
 	{
 		chainId: ChainId.PlumeTestnet,
@@ -331,6 +367,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://testnet-plume-explorer.alt.technology'],
 		icon: (await import('$/assets/networks/98867.svg?url')).default,
+		color: '#E84142',
 	},
 	{
 		chainId: ChainId.EduChain,
@@ -374,6 +411,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'CELO', symbol: 'CELO' },
 		explorerUrls: ['https://celo-sepolia.blockscout.com'],
 		icon: (await import('$/assets/networks/Celo.svg?url')).default,
+		color: '#FCFF52',
 	},
 	{
 		chainId: ChainId.EthereumSepolia,
@@ -382,6 +420,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://sepolia.etherscan.io'],
 		icon: (await import('$/assets/networks/1-logo.svg?url')).default,
+		color: '#627EEA',
 	},
 	{
 		chainId: ChainId.OPSepolia,
@@ -390,6 +429,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://sepolia-optimism.etherscan.io'],
 		icon: (await import('$/assets/networks/11155420.svg?url')).default,
+		color: '#FF0823',
 	},
 	{
 		chainId: ChainId.ArcTestnet,
@@ -398,6 +438,7 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		nativeCurrency: { name: 'Ether', symbol: 'ETH' },
 		explorerUrls: ['https://testnet.arcscan.io'],
 		icon: (await import('$/assets/networks/5042002.svg?url')).default,
+		color: '#94A3B8',
 	},
 ])()
 
