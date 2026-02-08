@@ -83,6 +83,31 @@ export const fetchActorCoinBalance = async (
 		})
 	}
 
+	const fullRow = (balance: bigint, error: string | null): ActorCoinRow => ({
+		$id: {
+			...$id,
+			interopAddress:
+				$id.interopAddress ?? toInteropName($id.chainId, $id.address),
+		},
+		$source: DataSource.Voltaire,
+		symbol,
+		decimals,
+		balance,
+		isLoading: false,
+		error,
+	})
+	const upsertResult = (balance: bigint, error: string | null) => {
+		const row = fullRow(balance, error)
+		if (actorCoinsCollection.state.get(key))
+			actorCoinsCollection.update(key, (draft) => {
+				draft.$source = row.$source
+				draft.balance = row.balance
+				draft.isLoading = row.isLoading
+				draft.error = row.error
+			})
+		else actorCoinsCollection.insert(row)
+		return actorCoinsCollection.state.get(key) ?? row
+	}
 	try {
 		const rpcUrl = rpcUrls[$id.chainId]
 		if (!rpcUrl) throw new Error(`No RPC URL for chain ${$id.chainId}`)
@@ -91,20 +116,12 @@ export const fetchActorCoinBalance = async (
 			$id.tokenAddress,
 			$id.address,
 		)
-		actorCoinsCollection.update(key, (draft) => {
-			draft.$source = DataSource.Voltaire
-			draft.balance = balance
-			draft.isLoading = false
-			draft.error = null
-		})
-		return actorCoinsCollection.state.get(key)!
+		return upsertResult(balance, null)
 	} catch (e) {
-		actorCoinsCollection.update(key, (draft) => {
-			draft.$source = DataSource.Voltaire
-			draft.isLoading = false
-			draft.error = e instanceof Error ? e.message : String(e)
-		})
-		return actorCoinsCollection.state.get(key)!
+		return upsertResult(
+			0n,
+			e instanceof Error ? e.message : String(e),
+		)
 	}
 }
 
