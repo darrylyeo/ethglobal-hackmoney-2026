@@ -149,6 +149,7 @@
 					<span class="sr-only">Session</span>
 					<input
 						type="text"
+						class="session-name-input"
 						bind:value={session.name}
 						placeholder={placeholderName}
 						aria-label="Session name"
@@ -194,3 +195,17 @@
 		<ActionsSequence bind:actions={session.actions} />
 	</section>
 </main>
+
+<style>
+	.session-name-input:placeholder-shown:not(:focus) {
+		border: none;
+		background: transparent;
+		padding: 0;
+		box-shadow: none;
+		outline: none;
+	}
+
+	.session-name-input:placeholder-shown:not(:focus)::placeholder {
+		color: inherit;
+	}
+</style>

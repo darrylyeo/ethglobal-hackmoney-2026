@@ -37,25 +37,24 @@
 	)
 </script>
 
-{#if items.size > 0}
-	<details data-card data-column="gap-2">
-		<summary>
-			<h4>Simulations</h4>
-		</summary>
 
-		<ItemsList
-			items={items}
-			getKey={(item) => item.id}
-			getSortValue={(item) => -item.createdAt}
-			placeholderKeys={new Set()}
-		>
-			{#snippet Item({ key, item, isPlaceholder })}
-				{#if isPlaceholder}
-					<div data-placeholder>…</div>
-				{:else if item}
-					<Simulation simulation={item} />
-				{/if}
-			{/snippet}
-		</ItemsList>
-	</details>
-{/if}
+<details data-card data-column="gap-2">
+	<summary>
+		<h4>Simulations</h4>
+	</summary>
+
+	<ItemsList
+		items={items}
+		getKey={(item) => item.id}
+		getSortValue={(item) => -item.createdAt}
+		placeholderKeys={new Set()}
+	>
+		{#snippet Item({ key, item, isPlaceholder })}
+			{#if isPlaceholder}
+				<div data-placeholder>…</div>
+			{:else if item}
+				<Simulation simulation={item} />
+			{/if}
+		{/snippet}
+	</ItemsList>
+</details>
