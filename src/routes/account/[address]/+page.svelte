@@ -82,6 +82,7 @@
 
 	// Components
 	import { AddressFormat } from '$/components/Address.svelte'
+	import Boundary from '$/components/Boundary.svelte'
 	import EvmActor from '$/components/EvmActor.svelte'
 	import WatchButton from '$/components/WatchButton.svelte'
 	import Channels from '$/views/Channels.svelte'
@@ -106,29 +107,33 @@
 		<p>The address in the URL could not be parsed.</p>
 	{:else}
 		<header data-column="gap-2">
-			<div data-row="wrap gap-4 align-center">
-				<h1 data-orient="vertical">
-					<EvmActor
-						network={parsed.chainId ?? 1}
-						address={parsed.address}
-						format={AddressFormat.Full}
-						vertical
+			<div data-row="wrap gap-4">
+				<div data-row="start gap-2" data-row-item="flexible">
+					<h1 data-orient="vertical">
+						<EvmActor
+							network={parsed.chainId ?? 1}
+							address={parsed.address}
+							format={AddressFormat.Full}
+							vertical
+						/>
+					</h1>
+					<WatchButton
+						entityType={EntityType.Actor}
+						id={parsed.interopAddress ?? parsed.address}
+						label={formatAddress(parsed.address)}
+						href={resolve(`/account/${data.addressParam}`)}
+						{autoWatched}
 					/>
-				</h1>
-				<span data-text="annotation">Account</span>
-				<WatchButton
-					entityType={EntityType.Actor}
-					id={parsed.interopAddress ?? parsed.address}
-					label={formatAddress(parsed.address)}
-					href={resolve(`/account/${data.addressParam}`)}
-					{autoWatched}
-				/>
+				</div>
+				<div data-row="gap-2">
+					<span data-text="annotation">Account</span>
+				</div>
 			</div>
 			<nav data-row="wrap gap-2">
 				{#if parsed.interopAddress}
-					<code class="interop">{parsed.interopAddress}</code>
+					Interop address: <code class="interop">{parsed.interopAddress}</code>
 				{/if}
-				<button
+				<!-- <button
 					type="button"
 					class="copy-btn"
 					title="Copy address"
@@ -137,8 +142,8 @@
 					}}
 				>
 					Copy
-				</button>
-				{#if parsed.chainId}
+				</button> -->
+				<!-- {#if parsed.chainId}
 					{@const explorerUrl = getAddressUrl(parsed.chainId, parsed.address)}
 					{#if explorerUrl}
 						<a
@@ -150,18 +155,30 @@
 							View on explorer
 						</a>
 					{/if}
-				{/if}
+				{/if} -->
 			</nav>
 		</header>
 
-		<div data-grid="columns-autofit column-min-16 gap-6">
-			<CoinBalances selectedActor={normalizedAddress} {balanceTokens} />
-			<Transactions selectedActor={normalizedAddress} />
-			<WalletConnections selectedActor={normalizedAddress} />
-			<RoomConnections selectedActor={normalizedAddress} />
-			<LiquidityPositions selectedActor={normalizedAddress} />
-			<Channels selectedActor={normalizedAddress} />
-		</div>
+		<!-- <div data-grid="columns-autofit column-min-16 gap-6"> -->
+			<Boundary>
+				<CoinBalances selectedActor={normalizedAddress} {balanceTokens} />
+			</Boundary>
+			<Boundary>
+				<Transactions selectedActor={normalizedAddress} />
+			</Boundary>
+			<Boundary>
+				<WalletConnections selectedActor={normalizedAddress} />
+			</Boundary>
+			<Boundary>
+				<RoomConnections selectedActor={normalizedAddress} />
+			</Boundary>
+			<Boundary>
+				<LiquidityPositions selectedActor={normalizedAddress} />
+			</Boundary>
+			<Boundary>
+				<Channels selectedActor={normalizedAddress} />
+			</Boundary>
+		<!-- </div> -->
 	{/if}
 </main>
 

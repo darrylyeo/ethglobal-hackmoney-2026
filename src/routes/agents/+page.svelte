@@ -50,12 +50,16 @@
 	data-column="gap-4"
 	data-sticky-container
 >
-	<div data-row="gap-2 align-center justify-between">
-		<h1>Agents</h1>
-		<Button.Root href="/agents/new">
-			New conversation
-		</Button.Root>
-	</div>
+	<header data-row="wrap gap-4">
+		<div data-row="start gap-2" data-row-item="flexible">
+			<h1>Agents</h1>
+		</div>
+		<div data-row="gap-2">
+			<Button.Root href="/agents/new">
+				New conversation
+			</Button.Root>
+		</div>
+	</header>
 
 	{#if trees.length === 0}
 		<p data-muted>No conversations yet.</p>

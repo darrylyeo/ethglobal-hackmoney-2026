@@ -103,18 +103,22 @@
 
 <div data-column="gap-4">
 	<header data-row="wrap gap-4">
-		<h2>Live transfers – {coin.symbol}</h2>
-		<nav data-row="start gap-2" aria-label="Time period">
-			{#each periods as p (p.value)}
-				<a
-					class="period-link"
-					href="?period={p.value}"
-					data-active={period === p.value ? '' : undefined}
-				>
-					{p.label}
-				</a>
-			{/each}
-		</nav>
+		<div data-row="start gap-2" data-row-item="flexible">
+			<h2>Live transfers – {coin.symbol}</h2>
+		</div>
+		<div data-row="gap-2">
+			<nav data-row="start gap-2" aria-label="Time period">
+				{#each periods as p (p.value)}
+					<a
+						class="period-link"
+						href="?period={p.value}"
+						data-active={period === p.value ? '' : undefined}
+					>
+						{p.label}
+					</a>
+				{/each}
+			</nav>
+		</div>
 	</header>
 
 	<div class="viz-container" data-card>

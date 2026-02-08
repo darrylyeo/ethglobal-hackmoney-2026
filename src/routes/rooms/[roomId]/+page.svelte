@@ -129,27 +129,31 @@
 		data-room-header
 		data-column="gap-2"
 	>
-		<div data-row="wrap gap-4 align-center">
-			<div data-column="gap-1">
-				<h1>
-					<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
-					{roomDisplayName}
-				</h1>
-				<span
-					data-tag
-					data-connection-status={roomState.connectionStatus}
-					title="Room connection"
-				>
-					{partyKitStatusLabel(roomState.connectionStatus)}
-				</span>
+		<div data-row="wrap gap-4">
+			<div data-row="start gap-2" data-row-item="flexible">
+				<div data-row="gap-2">
+					<h1>
+						<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
+						{roomDisplayName}
+					</h1>
+					<span
+						data-tag
+						data-connection-status={roomState.connectionStatus}
+						title="Room connection"
+					>
+						{partyKitStatusLabel(roomState.connectionStatus)}
+					</span>
+				</div>
+				<WatchButton
+					entityType={EntityType.Room}
+					id={roomId}
+					label={roomDisplayName}
+					href={resolve(`/rooms/${roomId}`)}
+				/>
 			</div>
-			<span data-text="annotation">Room</span>
-			<WatchButton
-				entityType={EntityType.Room}
-				id={roomId}
-				label={roomDisplayName}
-				href={resolve(`/rooms/${roomId}`)}
-			/>
+			<div data-row="gap-2">
+				<span data-text="annotation">Room</span>
+			</div>
 		</div>
 		<nav data-row="gap-2 align-center wrap">
 			<a

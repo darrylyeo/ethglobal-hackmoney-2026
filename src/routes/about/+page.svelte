@@ -82,7 +82,7 @@
 				<div class="about__legend-item" data-row="start gap-2">
 					<span
 						class="about__legend-swatch"
-						data-row="center"
+						data-row
 						style:background={item.color}
 						data-shape="rect"
 					></span>
@@ -93,27 +93,27 @@
 
 		<div data-grid="columns-autofit column-min-12 gap-3" class="about__legend-grid">
 			<div class="about__legend-item" data-row="start gap-2">
-				<span class="about__legend-swatch" data-row="center" data-shape="rect"></span>
+				<span class="about__legend-swatch" data-row data-shape="rect"></span>
 				<span>Flow / service node</span>
 			</div>
 			<div class="about__legend-item" data-row="start gap-2">
-				<span class="about__legend-swatch" data-row="center" data-shape="circle"></span>
+				<span class="about__legend-swatch" data-row data-shape="circle"></span>
 				<span>State or data node</span>
 			</div>
 			<div class="about__legend-item" data-row="start gap-2">
-				<span class="about__legend-swatch" data-row="center" data-shape="diamond"></span>
+				<span class="about__legend-swatch" data-row data-shape="diamond"></span>
 				<span>Wallet / channel node</span>
 			</div>
 			<div class="about__legend-item" data-row="start gap-2">
-				<span class="about__legend-swatch" data-row="center" data-shape="image"></span>
+				<span class="about__legend-swatch" data-row data-shape="image"></span>
 				<span>Chain icon node</span>
 			</div>
 			<div class="about__legend-item" data-row="start gap-2">
-				<span class="about__legend-swatch" data-row="center" data-shape="line"></span>
+				<span class="about__legend-swatch" data-row data-shape="line"></span>
 				<span>Directional flow</span>
 			</div>
 			<div class="about__legend-item" data-row="start gap-2">
-				<span class="about__legend-swatch" data-row="center" data-shape="dashed"></span>
+				<span class="about__legend-swatch" data-row data-shape="dashed"></span>
 				<span>Optional / enrichment path</span>
 			</div>
 		</div>

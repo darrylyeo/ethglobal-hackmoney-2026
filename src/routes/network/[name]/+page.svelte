@@ -130,21 +130,25 @@
 		<p>The network "{nameParam}" could not be resolved.</p>
 	{:else}
 		<header data-column="gap-2">
-			<div data-row="wrap gap-4 align-center">
-				<div data-column="gap-1">
-					<h1>{config.name}</h1>
-					<code data-orient="vertical" data-text="font-monospace">{caip2}</code>
-					{#if config.type}
-						<span data-tag={config.type}>{config.type}</span>
-					{/if}
+			<div data-row="wrap gap-4">
+				<div data-row="start gap-2" data-row-item="flexible">
+					<div data-column="gap-1">
+						<h1>{config.name}</h1>
+						<code data-orient="vertical" data-text="font-monospace">{caip2}</code>
+						{#if config.type}
+							<span data-tag={config.type}>{config.type}</span>
+						{/if}
+					</div>
+					<WatchButton
+						entityType={EntityType.Network}
+						id={slug}
+						label={config.name}
+						href={resolve(`/network/${nameParam}`)}
+					/>
 				</div>
-				<span data-text="annotation">Network</span>
-				<WatchButton
-					entityType={EntityType.Network}
-					id={slug}
-					label={config.name}
-					href={resolve(`/network/${nameParam}`)}
-				/>
+				<div data-row="gap-2">
+					<span data-text="annotation">Network</span>
+				</div>
 			</div>
 			<p data-text="annotation">Chain ID {chainId}</p>
 		</header>

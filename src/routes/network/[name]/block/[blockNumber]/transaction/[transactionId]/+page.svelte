@@ -215,23 +215,27 @@
 
 
 <main data-column="gap-2">
-	<header data-row="wrap gap-4 align-center">
-		<h1 data-orient="vertical">
-			<EvmTransactionId
-				chainId={chainId}
-				txHash={transactionId ?? ''}
-				vertical
+	<header data-row="wrap gap-4">
+		<div data-row="start gap-2" data-row-item="flexible">
+			<h1 data-orient="vertical">
+				<EvmTransactionId
+					chainId={chainId}
+					txHash={transactionId ?? ''}
+					vertical
+				/>
+			</h1>
+			<WatchButton
+				entityType={EntityType.Transaction}
+				id={`${nameParam}:${transactionId}`}
+				label={`Tx ${(transactionId ?? '').slice(0, 10)}… · ${data.config.name}`}
+				href={resolve(
+					`/network/${nameParam}/block/${blockNumberParam}/transaction/${transactionIdParam}`,
+				)}
 			/>
-		</h1>
-		<span data-text="annotation">Transaction</span>
-		<WatchButton
-			entityType={EntityType.Transaction}
-			id={`${nameParam}:${transactionId}`}
-			label={`Tx ${(transactionId ?? '').slice(0, 10)}… · ${data.config.name}`}
-			href={resolve(
-				`/network/${nameParam}/block/${blockNumberParam}/transaction/${transactionIdParam}`,
-			)}
-		/>
+		</div>
+		<div data-row="gap-2">
+			<span data-text="annotation">Transaction</span>
+		</div>
 	</header>
 	<p>
 		<a href={showContextUrl} data-link>Show Context</a>

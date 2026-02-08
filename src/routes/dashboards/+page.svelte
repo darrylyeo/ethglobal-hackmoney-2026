@@ -89,10 +89,14 @@
 	data-sticky-container
 	data-column
 >
-	<header data-row="gap-2 wrap">
-		<h1>Dashboards</h1>
-		<button type="button" onclick={handleCreate}>New dashboard</button>
-		<a href={resolve('/dashboard')}>Open default</a>
+	<header data-row="wrap gap-4">
+		<div data-row="start gap-2" data-row-item="flexible">
+			<h1>Dashboards</h1>
+		</div>
+		<div data-row="gap-2">
+			<button type="button" onclick={handleCreate}>New dashboard</button>
+			<a href={resolve('/dashboard')}>Open default</a>
+		</div>
 	</header>
 
 	<ul data-column="gap-2">

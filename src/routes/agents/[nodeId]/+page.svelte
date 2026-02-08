@@ -159,15 +159,19 @@
 			/>
 		{:else}
 			<div data-column="gap-4">
-				<header data-row="wrap gap-4 align-center">
-					<h1>{tree.name ?? 'New conversation'}</h1>
-					<span data-text="annotation">Conversation</span>
-					<WatchButton
-						entityType={EntityType.AgentChatTree}
-						id={tree.id}
-						label={tree.name ?? 'New conversation'}
-						href={resolve(`/agents/${tree.id}`)}
-					/>
+				<header data-row="wrap gap-4">
+					<div data-row="start gap-2" data-row-item="flexible">
+						<h1>{tree.name ?? 'New conversation'}</h1>
+						<WatchButton
+							entityType={EntityType.AgentChatTree}
+							id={tree.id}
+							label={tree.name ?? 'New conversation'}
+							href={resolve(`/agents/${tree.id}`)}
+						/>
+					</div>
+					<div data-row="gap-2">
+						<span data-text="annotation">Conversation</span>
+					</div>
 				</header>
 				<p data-muted>Start the conversation by typing a prompt.</p>
 				<div data-row="gap-2 align-center">
@@ -190,15 +194,19 @@
 		{/if}
 	{:else}
 		<div data-column="gap-4">
-			<header data-row="wrap gap-4 align-center">
-				<h1>New conversation</h1>
-				<span data-text="annotation">Conversation</span>
-				<WatchButton
-					entityType={EntityType.AgentChatTree}
-					id={nodeId}
-					label="New conversation"
-					href={resolve(`/agents/${nodeId}`)}
-				/>
+			<header data-row="wrap gap-4">
+				<div data-row="start gap-2" data-row-item="flexible">
+					<h1>New conversation</h1>
+					<WatchButton
+						entityType={EntityType.AgentChatTree}
+						id={nodeId}
+						label="New conversation"
+						href={resolve(`/agents/${nodeId}`)}
+					/>
+				</div>
+				<div data-row="gap-2">
+					<span data-text="annotation">Conversation</span>
+				</div>
 			</header>
 			<p data-muted>Start the conversation by typing a prompt.</p>
 			<div data-row="gap-2 align-center">

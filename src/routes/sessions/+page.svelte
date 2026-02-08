@@ -72,15 +72,21 @@
 		data-scroll-item
 		data-column="gap-3"
 	>
-		<h1>Sessions</h1>
-		{#if draftCount > 0}
-			<button
-				type="button"
-				onclick={() => deleteAllDraftSessions()}
-			>
-				Delete all drafts ({draftCount})
-			</button>
-		{/if}
+		<header data-row="wrap gap-4">
+			<div data-row="start gap-2" data-row-item="flexible">
+				<h1>Sessions</h1>
+			</div>
+			{#if draftCount > 0}
+				<div data-row="gap-2">
+					<button
+						type="button"
+						onclick={() => deleteAllDraftSessions()}
+					>
+						Delete all drafts ({draftCount})
+					</button>
+				</div>
+			{/if}
+		</header>
 		{#if sessions.length === 0}
 			<p data-muted>No sessions yet.</p>
 		{:else}

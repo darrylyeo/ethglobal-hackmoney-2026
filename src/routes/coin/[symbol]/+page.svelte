@@ -171,15 +171,19 @@
 <main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
 		<header data-column="gap-2">
-			<div data-row="wrap gap-4 align-center">
-				<h1>{coin.symbol}</h1>
-				<span data-text="annotation">Coin</span>
-				<WatchButton
-					entityType={EntityType.Coin}
-					id={symbol}
-					label={coin.symbol}
-					href={resolve(`/coin/${symbol}`)}
-				/>
+			<div data-row="wrap gap-4">
+				<div data-row="start gap-2" data-row-item="flexible">
+					<h1>{coin.symbol}</h1>
+					<WatchButton
+						entityType={EntityType.Coin}
+						id={symbol}
+						label={coin.symbol}
+						href={resolve(`/coin/${symbol}`)}
+					/>
+				</div>
+				<div data-row="gap-2">
+					<span data-text="annotation">Coin</span>
+				</div>
 			</div>
 			<nav data-row="start gap-2" aria-label="Time period">
 				{#each TIME_PERIODS as p (p.value)}

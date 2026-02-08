@@ -36,7 +36,7 @@ describe('resolveIntentForDrag', () => {
 		expect(result.intent.type).toBe(IntentType.SwapAndBridge)
 		expect(result.options.length).toBe(3)
 		expect(result.options[2].label).toBe('Bridge via Circle Gateway')
-		expect(result.options[2].actions[0].protocolAction.id.protocol).toBe(Protocol.CircleGatewayateway)
+		expect(result.options[2].actions[0].protocolAction.id.protocol).toBe(Protocol.CircleGateway)
 	})
 
 	it('matches Actor → Actor as CreateChannelAndAddMember', () => {
@@ -364,7 +364,7 @@ describe('derived lookups', () => {
 	})
 
 	it('actionsByProtocol maps Gateway to Bridge', () => {
-		const gatewayActions = actionsByProtocol[Protocol.CircleGatewayateway]
+		const gatewayActions = actionsByProtocol[Protocol.CircleGateway]
 		expect(gatewayActions).toContain(ActionType.Bridge)
 	})
 
@@ -378,7 +378,7 @@ describe('derived lookups', () => {
 		const bridgeProtocols = protocolsByAction[ActionType.Bridge]
 		expect(bridgeProtocols).toContain(Protocol.Cctp)
 		expect(bridgeProtocols).toContain(Protocol.LiFi)
-		expect(bridgeProtocols).toContain(Protocol.CircleGatewayateway)
+		expect(bridgeProtocols).toContain(Protocol.CircleGateway)
 	})
 
 	it('protocolsByAction maps Transfer to Yellow and LiFi', () => {

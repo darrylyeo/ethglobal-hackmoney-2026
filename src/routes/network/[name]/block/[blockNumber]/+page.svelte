@@ -134,17 +134,21 @@
 			{/if}
 		</p>
 	{:else}
-		<header data-row="wrap gap-4 align-center">
-			<h1>
-				<BlockNumber {chainId} blockNumber={blockNumber} />
-			</h1>
-			<span data-text="annotation">Block</span>
-			<WatchButton
-				entityType={EntityType.Block}
-				id={`${nameParam}:${blockNumber}`}
-				label={`Block ${blockNumber} · ${config.name}`}
-				href={resolve(`/network/${nameParam}/block/${blockNumberParam}`)}
-			/>
+		<header data-row="wrap gap-4">
+			<div data-row="start gap-2" data-row-item="flexible">
+				<h1>
+					<BlockNumber {chainId} blockNumber={blockNumber} />
+				</h1>
+				<WatchButton
+					entityType={EntityType.Block}
+					id={`${nameParam}:${blockNumber}`}
+					label={`Block ${blockNumber} · ${config.name}`}
+					href={resolve(`/network/${nameParam}/block/${blockNumberParam}`)}
+				/>
+			</div>
+			<div data-row="gap-2">
+				<span data-text="annotation">Block</span>
+			</div>
 		</header>
 		<p>
 			<a href={showContextUrl} data-link>Show Context</a>
