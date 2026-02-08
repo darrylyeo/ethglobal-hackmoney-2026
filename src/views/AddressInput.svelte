@@ -2,7 +2,13 @@
 	// Types/constants
 	import type { Snippet } from 'svelte'
 	import type { Network$Id } from '$/data/Network.ts'
-	import { normalizeAddress } from '$/lib/address.ts'
+	import { PatternType } from '$/constants/patterns.ts'
+	import { resolveIdentity } from '$/api/identity-resolve.ts'
+	import { IdentityInputKind } from '$/constants/identity-resolver.ts'
+	import { normalizeIdentity } from '$/api/identity-resolve.ts'
+	import { createHttpProvider } from '$/api/voltaire.ts'
+	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+	import { normalizeAddress, isValidAddress } from '$/lib/address.ts'
 
 
 	// Props
@@ -36,22 +42,41 @@
 
 
 	// State
-	let raw = $state('')
+	let inputValue = $state('')
 
 
 	// (Derived)
-	$effect(() => {
-		raw = value ?? ''
-	})
-	$effect(() => {
-		const next = raw === '' ? null : normalizeAddress(raw)
-		if (next !== null || raw === '') value = next
-	})
+	const addressStr = $derived(value ?? '')
+	const setAddressStr = (v: string) => {
+		value = v ? (v as `0x${string}`) : null
+	}
+
+
+	// Actions
+	const tryCommitCustomInput = () => {
+		const raw = inputValue.trim()
+		if (!raw) return
+		const { kind, normalized } = normalizeIdentity(raw)
+		if (kind === IdentityInputKind.Address && isValidAddress(normalized)) {
+			const addr = normalizeAddress(normalized)
+			if (addr) setAddressStr(addr)
+			return
+		}
+		if (kind === IdentityInputKind.EnsName) {
+			const url = rpcUrls[network]
+			if (!url) return
+			const provider = createHttpProvider(url)
+			resolveIdentity(provider, network, raw, null).then((res) => {
+				if (res.address) setAddressStr(res.address)
+			})
+		}
+	}
 
 
 	// Components
 	import Address from '$/components/Address.svelte'
-	import Select from '$/components/Select.svelte'
+	import Combobox from '$/components/Combobox.svelte'
+	import PatternInput from '$/components/PatternInput.svelte'
 </script>
 
 {#snippet defaultItem(shared: Item, selected: boolean)}
@@ -60,10 +85,18 @@
 	</span>
 {/snippet}
 
-<Select
+{#snippet customInput(props: Record<string, unknown>)}
+	<PatternInput
+		patternTypes={[PatternType.EvmAddress, PatternType.EnsName]}
+		{...props}
+	/>
+{/snippet}
+
+<Combobox
 	{...rootProps}
 	{items}
-	bind:value={raw}
+	bind:value={() => addressStr, setAddressStr}
+	bind:inputValue
 	{getItemId}
 	{getItemLabel}
 	{placeholder}
@@ -71,9 +104,11 @@
 	{name}
 	{id}
 	{ariaLabel}
+	getDisplayValue={(v) => (v)}
+	onInputBlur={tryCommitCustomInput}
+	onInputKeydown={(e) => {
+		if (e.key === 'Enter') tryCommitCustomInput()
+	}}
 	Item={ItemSnippet ?? defaultItem}
+	Input={customInput}
 />
-
-
-
-

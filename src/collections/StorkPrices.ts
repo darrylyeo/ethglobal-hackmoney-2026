@@ -4,7 +4,8 @@ import { DataSource } from '$/constants/data-sources.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import {
 	storkEncodedAssetIdByAssetId,
-	storkOracleAddressByChainId,
+	storkOracleContracts,
+	storkOracleContractsByChainId,
 	storkRestBaseUrl,
 	storkWebsocketUrl,
 } from '$/constants/stork.ts'
@@ -231,9 +232,7 @@ const createRestSubscription = (assetIds: string[]) => {
 let storkDeployments: Map<number, string> | null = null
 
 const staticDeployments = new Map(
-	(
-		Object.entries(storkOracleAddressByChainId) as unknown as [string, string][]
-	).map(([chainId, addr]) => [Number(chainId), addr]),
+	storkOracleContracts.map((c) => [c.chainId, c.address]),
 )
 
 const fetchStorkDeployments = async () => {

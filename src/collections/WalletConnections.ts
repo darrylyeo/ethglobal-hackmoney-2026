@@ -18,7 +18,10 @@ import type {
 	WalletConnectionEip1193,
 	WalletConnectionNone,
 } from '$/data/WalletConnection.ts'
-import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+import {
+	ConnectionStatus,
+	WalletConnectionTransport,
+} from '$/data/WalletConnection.ts'
 import type { Wallet$Id } from '$/data/Wallet.ts'
 import { normalizeAddress } from '$/lib/address.ts'
 import { connectProvider, getWalletChainId } from '$/lib/wallet.ts'

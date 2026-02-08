@@ -1,6 +1,7 @@
 /**
  * OpenCode Zen LLM. Server: pass apiKey. Client: set PUBLIC_OPENCODE_API_KEY
  * and use zenClientAvailability / zenClientGenerate (via proxy when CORS blocked).
+ * Model id in request body must be opencode/<id> per https://opencode.ai/docs/zen/
  * @see https://opencode.ai/docs/zen/
  */
 
@@ -11,6 +12,8 @@ import {
 	ZenEndpointKind,
 } from '$/constants/opencode-zen.ts'
 import { proxyFetch } from '$/lib/proxyFetch.ts'
+
+const ZEN_MODEL_PREFIX = 'opencode/'
 
 export type ZenAvailability = { available: boolean }
 
@@ -83,7 +86,7 @@ export const zenGenerate = async (
 			method: 'POST',
 			headers,
 			body: JSON.stringify({
-				model: model.id,
+				model: ZEN_MODEL_PREFIX + model.id,
 				messages: [
 					{ role: 'system', content: input.systemPrompt },
 					{ role: 'user', content: input.userPrompt },
@@ -103,7 +106,7 @@ export const zenGenerate = async (
 			method: 'POST',
 			headers,
 			body: JSON.stringify({
-				model: model.id,
+				model: ZEN_MODEL_PREFIX + model.id,
 				max_tokens: 4096,
 				system: input.systemPrompt,
 				messages: [{ role: 'user', content: input.userPrompt }],
@@ -121,7 +124,7 @@ export const zenGenerate = async (
 		method: 'POST',
 		headers,
 		body: JSON.stringify({
-			model: model.id,
+			model: ZEN_MODEL_PREFIX + model.id,
 			messages: [
 				{ role: 'system', content: input.systemPrompt },
 				{ role: 'user', content: input.userPrompt },
@@ -137,7 +140,7 @@ export const zenGenerate = async (
 }
 
 const getZenClientKey = (): string | undefined =>
-	env.PUBLIC_OPENCODE_API_KEY != null ? String(env.PUBLIC_OPENCODE_API_KEY) : undefined
+	PUBLIC_OPENCODE_API_KEY != null ? String(PUBLIC_OPENCODE_API_KEY) : undefined
 
 export const zenClientAvailability = (): ZenAvailability =>
 	getZenClientKey() ? { available: true } : { available: false }
@@ -166,7 +169,7 @@ export const zenClientGenerateWithKey = async (
 
 	if (model.kind === 'chat/completions') {
 		const res = await doFetch({
-			model: model.id,
+			model: ZEN_MODEL_PREFIX + model.id,
 			messages: [
 				{ role: 'system', content: input.systemPrompt },
 				{ role: 'user', content: input.userPrompt },
@@ -182,7 +185,7 @@ export const zenClientGenerateWithKey = async (
 
 	if (model.kind === ZenEndpointKind.Messages) {
 		const res = await doFetch({
-			model: model.id,
+			model: ZEN_MODEL_PREFIX + model.id,
 			max_tokens: 4096,
 			system: input.systemPrompt,
 			messages: [{ role: 'user', content: input.userPrompt }],
@@ -196,7 +199,7 @@ export const zenClientGenerateWithKey = async (
 	}
 
 	const res = await doFetch({
-		model: model.id,
+		model: ZEN_MODEL_PREFIX + model.id,
 		messages: [
 			{ role: 'system', content: input.systemPrompt },
 			{ role: 'user', content: input.userPrompt },

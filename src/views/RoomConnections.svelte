@@ -26,23 +26,18 @@
 		(q) =>
 			q
 				.from({ row: sharedAddressesCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.select(({ row }) => ({ row })),
 		[],
 	)
 	const roomsQuery = useLiveQuery(
 		(q) =>
-			q
-				.from({ row: partykitRoomsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
-				.select(({ row }) => ({ row })),
+			q.from({ row: partykitRoomsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	const roomPeersQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: partykitRoomPeersCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.select(({ row }) => ({ row })),
 		[],
 	)
@@ -50,7 +45,6 @@
 		(q) =>
 			q
 				.from({ row: siweVerificationsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
 				.select(({ row }) => ({ row })),
 		[],
 	)

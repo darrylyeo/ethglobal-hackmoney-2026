@@ -17,6 +17,8 @@
 
 
 <script lang="ts" generics="T">
+	import { tick } from 'svelte'
+
 	let {
 		array,
 		content,
@@ -33,13 +35,19 @@
 		if (!el?.parentElement) return
 		const parent = el.parentElement
 		if (!parent) return
-		const area = getAreaFromElement(parent) as AreaState<T> | undefined
-		if (!area) return
-		setAreaArray(area, array)
-		areaState = area
-		const get = createGetState(el, array, area)
-		getState = get
-		array.forEach((item, i) => get(item, i))
+		const apply = () => {
+			const area = getAreaFromElement(parent) as AreaState<T> | undefined
+			if (!area) return
+			setAreaArray(area, array)
+			areaState = area
+			const get = createGetState(el, array, area)
+			getState = get
+			array.forEach((item, i) => get(item, i))
+		}
+		apply()
+		if (!areaState) {
+			tick().then(apply)
+		}
 	})
 </script>
 

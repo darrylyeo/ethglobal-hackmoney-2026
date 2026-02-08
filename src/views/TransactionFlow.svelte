@@ -534,7 +534,7 @@
 				{/if}
 
 				{#if tx.simulate}
-					<div data-row="gap-2 align-center">
+					<div data-row="gap-2 align-center" data-e2e-simulation-status={txState.simulation.status}>
 						<Button.Root
 							type="button"
 							onclick={() => simulateTransaction(tx)}

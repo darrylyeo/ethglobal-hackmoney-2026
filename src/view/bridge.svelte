@@ -1,23 +1,23 @@
 <script lang="ts">
 	// Types/constants
-	import type { TransactionSession } from '$/data/TransactionSession.ts'
-	import { createSessionAction } from '$/data/TransactionSession.ts'
-	import { ActionType } from '$/constants/intents.ts'
+	import type { Session } from '$/data/Session.ts'
+	import { createAction } from '$/data/Session.ts'
+	import { ActionType } from '$/constants/actions.ts'
 	import {
 		createSessionId,
-		createTransactionSessionWithId,
-		getTransactionSession,
+		createSessionWithId,
+		getSession,
 	} from '$/lib/session/sessions.ts'
 
 
 	// State
-	let session = $state<TransactionSession>(
+	let session = $state<Session>(
 		(() => {
 			const id = createSessionId()
-			createTransactionSessionWithId(id, {
-				actions: [createSessionAction(ActionType.Bridge)],
+			createSessionWithId(id, {
+				actions: [createAction(ActionType.Bridge)],
 			})
-			return getTransactionSession(id)!
+			return getSession(id)!
 		})(),
 	)
 

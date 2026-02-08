@@ -344,7 +344,7 @@ export const submitExplainTurn = (options: {
 		...(
 			options.context.sessionId
 				? [{
-					entityType: EntityType.TransactionSession,
+					entityType: EntityType.Session,
 					entityId: options.context.sessionId,
 					displayLabel: `@session:${options.context.sessionId.slice(0, 8)}`,
 				}]

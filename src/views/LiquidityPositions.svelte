@@ -122,7 +122,7 @@
 							<span class="position-id" title={pos.id}>{pos.id.slice(0, 10)}…</span>
 							<span>{net?.name ?? pos.chainId}</span>
 							<a href="/positions/liquidity">View all</a>
-							<a href="/session#/AddLiquidity">Manage</a>
+							<a href="/session?template=AddLiquidity">Manage</a>
 						</li>
 					{/each}
 				</ul>

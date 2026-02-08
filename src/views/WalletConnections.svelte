@@ -25,16 +25,12 @@
 		(q) =>
 			q
 				.from({ row: walletConnectionsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Local))
 				.select(({ row }) => ({ row })),
 		[],
 	)
 	const walletsQuery = useLiveQuery(
 		(q) =>
-			q
-				.from({ row: walletsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Local))
-				.select(({ row }) => ({ row })),
+			q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
 	registerLocalLiveQueryStack(() => [

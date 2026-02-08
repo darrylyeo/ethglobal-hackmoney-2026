@@ -400,7 +400,7 @@
 		}
 
 		summary ~ * {
-			margin-inline-start: 1.25em;
+			margin-inline-start: 1em;
 			margin-block-start: 2px;
 			padding-inline-start: 0.75em;
 			box-shadow: -1px 0 var(--color-border);

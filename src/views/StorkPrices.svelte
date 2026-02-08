@@ -33,10 +33,7 @@
 
 	// State
 	const pricesQuery = useLiveQuery((q) =>
-		q
-			.from({ row: storkPricesCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Stork))
-			.select(({ row }) => ({ row })),
+		q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })),
 	)
 	const liveQueryEntries = [
 		{

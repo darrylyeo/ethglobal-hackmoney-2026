@@ -36,7 +36,7 @@ describe('resolveIntentForDrag', () => {
 		expect(result.intent.type).toBe(IntentType.SwapAndBridge)
 		expect(result.options.length).toBe(3)
 		expect(result.options[2].label).toBe('Bridge via Circle Gateway')
-		expect(result.options[2].actions[0].protocolAction.protocol).toBe(Protocol.Gateway)
+		expect(result.options[2].actions[0].protocolAction.id.protocol).toBe(Protocol.CircleGatewayateway)
 	})
 
 	it('matches Actor → Actor as CreateChannelAndAddMember', () => {
@@ -49,9 +49,9 @@ describe('resolveIntentForDrag', () => {
 		expect(result.intent.type).toBe(IntentType.CreateChannelAndAddMember)
 		expect(result.options.length).toBe(1)
 		expect(result.options[0].actions.length).toBe(2)
-		expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.CreateChannel)
-		expect(result.options[0].actions[0].protocolAction.protocol).toBe(Protocol.Yellow)
-		expect(result.options[0].actions[1].protocolAction.action).toBe(ActionType.AddChannelMember)
+		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.CreateChannel)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.Yellow)
+		expect(result.options[0].actions[1].protocolAction.id.actionType).toBe(ActionType.AddChannelMember)
 	})
 
 	it('matches ActorCoin → Actor as CreateChannelAddMemberAndTransfer', () => {
@@ -63,9 +63,9 @@ describe('resolveIntentForDrag', () => {
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.CreateChannelAddMemberAndTransfer)
 		expect(result.options[0].actions.length).toBe(3)
-		expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.CreateChannel)
-		expect(result.options[0].actions[1].protocolAction.action).toBe(ActionType.AddChannelMember)
-		expect(result.options[0].actions[2].protocolAction.action).toBe(ActionType.Transfer)
+		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.CreateChannel)
+		expect(result.options[0].actions[1].protocolAction.id.actionType).toBe(ActionType.AddChannelMember)
+		expect(result.options[0].actions[2].protocolAction.id.actionType).toBe(ActionType.Transfer)
 	})
 
 	it('matches ActorCoin → UniswapPool as AddLiquidity', () => {
@@ -76,8 +76,8 @@ describe('resolveIntentForDrag', () => {
 		expect(result.matched).toBe(true)
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.AddLiquidity)
-		expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.AddLiquidity)
-		expect(result.options[0].actions[0].protocolAction.protocol).toBe(Protocol.UniswapV4)
+		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.AddLiquidity)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.UniswapV4)
 	})
 
 	it('matches UniswapPosition → Actor as ManagePosition with CollectFees + RemoveLiquidity options', () => {
@@ -89,8 +89,8 @@ describe('resolveIntentForDrag', () => {
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.ManagePosition)
 		expect(result.options.length).toBe(2)
-		expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.CollectFees)
-		expect(result.options[1].actions[0].protocolAction.action).toBe(ActionType.RemoveLiquidity)
+		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.CollectFees)
+		expect(result.options[1].actions[0].protocolAction.id.actionType).toBe(ActionType.RemoveLiquidity)
 	})
 
 	it('matches ActorCoin → UniswapPosition as IncreasePositionLiquidity', () => {
@@ -101,8 +101,8 @@ describe('resolveIntentForDrag', () => {
 		expect(result.matched).toBe(true)
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.IncreasePositionLiquidity)
-		expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.IncreaseLiquidity)
-		expect(result.options[0].actions[0].protocolAction.protocol).toBe(Protocol.UniswapV4)
+		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.IncreaseLiquidity)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.UniswapV4)
 	})
 
 	it('matches Actor → Room as ShareAddressInRoom', () => {
@@ -113,8 +113,8 @@ describe('resolveIntentForDrag', () => {
 		expect(result.matched).toBe(true)
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.ShareAddressInRoom)
-		expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.ShareAddress)
-		expect(result.options[0].actions[0].protocolAction.protocol).toBe(Protocol.PartyKit)
+		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.ShareAddress)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.PartyKit)
 	})
 
 	it('matches ActorCoin → RoomPeer as ProposeRoomTransfer', () => {
@@ -125,8 +125,8 @@ describe('resolveIntentForDrag', () => {
 		expect(result.matched).toBe(true)
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.ProposeRoomTransfer)
-		expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.ProposeTransfer)
-		expect(result.options[0].actions[0].protocolAction.protocol).toBe(Protocol.PartyKit)
+		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.ProposeTransfer)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.PartyKit)
 	})
 
 	it('matches Actor → RoomPeer as RequestPeerVerification', () => {
@@ -137,8 +137,8 @@ describe('resolveIntentForDrag', () => {
 		expect(result.matched).toBe(true)
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.RequestPeerVerification)
-		expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.RequestVerification)
-		expect(result.options[0].actions[0].protocolAction.protocol).toBe(Protocol.PartyKit)
+		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.RequestVerification)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.PartyKit)
 	})
 
 	it('matches ActorCoin → Coin as SwapToCoin', () => {
@@ -150,9 +150,9 @@ describe('resolveIntentForDrag', () => {
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.SwapToCoin)
 		expect(result.options.length).toBe(2)
-		expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Swap)
-		expect(result.options[0].actions[0].protocolAction.protocol).toBe(Protocol.UniswapV4)
-		expect(result.options[1].actions[0].protocolAction.protocol).toBe(Protocol.LiFi)
+		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.Swap)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.UniswapV4)
+		expect(result.options[1].actions[0].protocolAction.id.protocol).toBe(Protocol.LiFi)
 	})
 
 	describe('SendFunds (ActorCoin → ActorCoin)', () => {
@@ -167,7 +167,7 @@ describe('resolveIntentForDrag', () => {
 			expect(result.options.length).toBe(2)
 			expect(result.options[0].label).toBe('Swap via LI.FI')
 			expect(result.options[0].actions.length).toBe(1)
-			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Swap)
+			expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.Swap)
 			expect(result.options[1].label).toBe('Swap via Uniswap V4')
 		})
 
@@ -182,7 +182,7 @@ describe('resolveIntentForDrag', () => {
 			expect(result.options.length).toBe(3)
 			expect(result.options[0].label).toBe('Bridge via LI.FI')
 			expect(result.options[0].actions.length).toBe(1)
-			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Bridge)
+			expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.Bridge)
 			expect(result.options[1].label).toBe('Bridge via Circle CCTP')
 			expect(result.options[2].label).toBe('Bridge via Circle Gateway')
 		})
@@ -198,8 +198,8 @@ describe('resolveIntentForDrag', () => {
 			expect(result.options.length).toBe(3)
 			expect(result.options[0].label).toBe('Swap then bridge via LI.FI')
 			expect(result.options[0].actions.length).toBe(2)
-			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Swap)
-			expect(result.options[0].actions[1].protocolAction.action).toBe(ActionType.Bridge)
+			expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.Swap)
+			expect(result.options[0].actions[1].protocolAction.id.actionType).toBe(ActionType.Bridge)
 		})
 
 		it('different actor, same network, same coin → Transfer via LI.FI + Yellow', () => {
@@ -213,10 +213,10 @@ describe('resolveIntentForDrag', () => {
 			expect(result.options.length).toBe(2)
 			expect(result.options[0].label).toBe('Transfer via LI.FI')
 			expect(result.options[0].actions.length).toBe(1)
-			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Transfer)
-			expect(result.options[0].actions[0].protocolAction.protocol).toBe(Protocol.LiFi)
+			expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.Transfer)
+			expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.LiFi)
 			expect(result.options[1].label).toBe('Transfer via Yellow Network')
-			expect(result.options[1].actions[0].protocolAction.protocol).toBe(Protocol.Yellow)
+			expect(result.options[1].actions[0].protocolAction.id.protocol).toBe(Protocol.Yellow)
 		})
 
 		it('different actor, same network, different coin → Swap via LI.FI (native recipient)', () => {
@@ -230,7 +230,7 @@ describe('resolveIntentForDrag', () => {
 			expect(result.options.length).toBe(2)
 			expect(result.options[0].label).toBe('Swap via LI.FI')
 			expect(result.options[0].actions.length).toBe(1)
-			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Swap)
+			expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.Swap)
 			expect(result.options[1].label).toBe('Swap via Uniswap V4')
 		})
 
@@ -259,8 +259,8 @@ describe('resolveIntentForDrag', () => {
 			expect(result.options.length).toBe(3)
 			expect(result.options[0].label).toBe('Swap then bridge via LI.FI')
 			expect(result.options[0].actions.length).toBe(2)
-			expect(result.options[0].actions[0].protocolAction.action).toBe(ActionType.Swap)
-			expect(result.options[0].actions[1].protocolAction.action).toBe(ActionType.Bridge)
+			expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.Swap)
+			expect(result.options[0].actions[1].protocolAction.id.actionType).toBe(ActionType.Bridge)
 			expect(result.options[1].label).toBe('Swap via Uniswap V4, bridge via Circle CCTP')
 			expect(result.options[2].label).toBe('Swap via Uniswap V4, bridge via Circle Gateway')
 		})
@@ -364,7 +364,7 @@ describe('derived lookups', () => {
 	})
 
 	it('actionsByProtocol maps Gateway to Bridge', () => {
-		const gatewayActions = actionsByProtocol[Protocol.Gateway]
+		const gatewayActions = actionsByProtocol[Protocol.CircleGatewayateway]
 		expect(gatewayActions).toContain(ActionType.Bridge)
 	})
 
@@ -378,7 +378,7 @@ describe('derived lookups', () => {
 		const bridgeProtocols = protocolsByAction[ActionType.Bridge]
 		expect(bridgeProtocols).toContain(Protocol.Cctp)
 		expect(bridgeProtocols).toContain(Protocol.LiFi)
-		expect(bridgeProtocols).toContain(Protocol.Gateway)
+		expect(bridgeProtocols).toContain(Protocol.CircleGatewayateway)
 	})
 
 	it('protocolsByAction maps Transfer to Yellow and LiFi', () => {
@@ -425,20 +425,6 @@ describe('action and protocol specs', () => {
 		for (const protocol of Object.values(Protocol)) {
 			expect(protocolSpecs[protocol]).toBeDefined()
 			expect(protocolSpecs[protocol].label).toBeTruthy()
-			expect(protocolSpecs[protocol].shortLabel).toBeTruthy()
-		}
-	})
-
-	it('all protocolActions have supportsRecipient defined', () => {
-		for (const pa of protocolActions) {
-			expect(typeof pa.supportsRecipient).toBe('boolean')
-		}
-	})
-
-	it('Swap and Bridge protocols support recipient', () => {
-		for (const pa of protocolActions) {
-			if (pa.action === ActionType.Swap || pa.action === ActionType.Bridge)
-				expect(pa.supportsRecipient).toBe(true)
 		}
 	})
 

@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Types/constants
+	import { dev } from '$app/environment'
 	import type {
 		ConnectedWallet,
 		ReadOnlyWalletRow,
@@ -19,11 +20,10 @@
 		networksByChainId,
 		testnetsForMainnet,
 	} from '$/constants/networks.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
 
 
 	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
@@ -136,30 +136,18 @@
 				id?: string
 		  }
 	import { upsertWallet, walletsCollection } from '$/collections/Wallets.ts'
-	import {
-		bridgeSettingsState,
-		defaultBridgeSettings,
-	} from '$/state/bridge-settings.svelte.ts'
 	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
-	import {
-		swapSettingsState,
-		defaultSwapSettings,
-	} from '$/state/swap-settings.svelte.ts'
 	import { switchWalletChain } from '$/lib/wallet.ts'
 
 	useWalletSubscriptions()
 
 	const walletsQuery = useLiveQuery((q) =>
-		q
-			.from({ row: walletsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
-			.select(({ row }) => ({ row })),
+		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
 	)
 
 	const connectionsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: walletConnectionsCollection })
-			.where(({ row }) => eq(row.$source, DataSource.Local))
 			.select(({ row }) => ({ row })),
 	)
 
@@ -172,13 +160,6 @@
 		},
 	]
 	registerLocalLiveQueryStack(() => walletsLiveQueryEntries)
-
-	const settings = $derived(
-		bridgeSettingsState.current ?? defaultBridgeSettings,
-	)
-	const swapSettings = $derived(
-		swapSettingsState.current ?? defaultSwapSettings,
-	)
 
 	const connections = $derived(
 		(connectionsQuery.data ?? [])
@@ -288,33 +269,6 @@
 		),
 	)
 
-	$effect(() => {
-		if (filteredNetworks.length === 0) return
-		if (
-			settings.fromChainId !== null &&
-			filteredNetworks.some((n) => n.id === settings.fromChainId)
-		)
-			return
-		const fromNet =
-			settings.fromChainId !== null
-				? networksByChainId[settings.fromChainId]
-				: null
-		const preferred =
-			networkEnvironment === NetworkEnvironment.Testnet
-				? ((fromNet ? testnetsForMainnet.get(fromNet)?.[0]?.id : undefined) ??
-					filteredNetworks[0]?.id)
-				: ((fromNet ? mainnetForTestnet.get(fromNet)?.id : undefined) ??
-					filteredNetworks[0]?.id)
-		const nextChainId = filteredNetworks.some((n) => n.id === preferred)
-			? preferred
-			: filteredNetworks[0]?.id
-		if (!nextChainId) return
-		if (settings.fromChainId !== nextChainId)
-			bridgeSettingsState.current = { ...settings, fromChainId: nextChainId }
-		if (swapSettings.chainId !== nextChainId)
-			swapSettingsState.current = { ...swapSettings, chainId: nextChainId }
-	})
-
 	const walletChips = $derived<
 		(ConnectedWallet & { status: 'connected' | 'connecting' | 'error' })[]
 	>([
@@ -360,16 +314,21 @@
 
 
 	// Actions
-	const connect = (rdns: string) =>
-		requestWalletConnection({ rdns }).catch(() => {})
-	const selectNetwork = (chainId: number) => {
-		if (settings.fromChainId !== chainId)
-			bridgeSettingsState.current = { ...settings, fromChainId: chainId }
-		if (swapSettings.chainId !== chainId)
-			swapSettingsState.current = { ...swapSettings, chainId }
+	const connect = (rdns: string) => {
+		queueMicrotask(() => {
+			requestWalletConnection({ rdns }).catch((e) => {
+				if (dev && typeof console !== 'undefined' && console.error)
+					console.error('[AccountsSelect] connect failed', rdns, e)
+			})
+		})
 	}
-	const onNetworkValueChange = (value: number | number[] | null) =>
-		typeof value === 'number' ? selectNetwork(value) : undefined
+	const onNetworkValueChange = (value: number | number[] | null) => {
+		if (typeof value !== 'number') return
+		selectedChainId = value
+		const sel = selectedConnection
+		if (sel)
+			switchNetwork(sel.connection, sel.wallet, value).catch(() => {})
+	}
 	const onSingleSelectionChange = (value: string | null) => {
 		if (!value) return
 		const chip = eip1193WalletChips.find((c) => c.wallet.$id.rdns === value)
@@ -412,7 +371,7 @@
 	<div data-row-item="flexible">
 		<NetworkInput
 			networks={filteredNetworks}
-			bind:value={() => settings.fromChainId, onNetworkValueChange}
+			bind:value={() => selectedChainId, onNetworkValueChange}
 			placeholder="Select network"
 			ariaLabel="Network"
 		/>
@@ -467,13 +426,14 @@
 								class="wallet-connection-item"
 							>
 								<span class={walletChipClass} data-row="start gap-1">
-									{#if wallet.icon}
-										<Icon src={wallet.icon} size={16} />
-									{/if}
 									<NetworkIcon
 										chainId={chainId ?? selectedChainIdDerived ?? 1}
 										size={16}
-										class="wallet-network-icon"
+										subicon={
+											wallet.icon
+												? { src: wallet.icon, size: '40%' }
+												: undefined
+										}
 										title={networkName ?? 'Unknown network'}
 									/>
 									<span class="wallet-details" data-column="gap-0">
@@ -526,7 +486,6 @@
 													<NetworkIcon
 														chainId={item.network.id}
 														size={16}
-														class="wallet-network-icon"
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -582,13 +541,14 @@
 								class="wallet-connection-item"
 							>
 								<span class={walletChipClass} data-row="start gap-1">
-									{#if wallet.icon}
-										<Icon src={wallet.icon} size={16} />
-									{/if}
 									<NetworkIcon
 										chainId={chainId ?? selectedChainIdDerived ?? 1}
 										size={16}
-										class="wallet-network-icon"
+										subicon={
+											wallet.icon
+												? { src: wallet.icon, size: '40%' }
+												: undefined
+										}
 										title={networkName ?? 'Unknown network'}
 									/>
 									<span class="wallet-details" data-column="gap-0">
@@ -641,7 +601,6 @@
 													<NetworkIcon
 														chainId={item.network.id}
 														size={16}
-														class="wallet-network-icon"
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -706,13 +665,14 @@
 								class="wallet-connection-item"
 							>
 								<span class={walletChipClass} data-row="start gap-1">
-									{#if wallet.icon}
-										<Icon src={wallet.icon} size={16} />
-									{/if}
 									<NetworkIcon
 										chainId={chainId ?? selectedChainIdDerived ?? 1}
 										size={16}
-										class="wallet-network-icon"
+										subicon={
+											wallet.icon
+												? { src: wallet.icon, size: '40%' }
+												: undefined
+										}
 										title={networkName ?? 'Unknown network'}
 									/>
 									<span class="wallet-details" data-column="gap-0">
@@ -765,7 +725,6 @@
 													<NetworkIcon
 														chainId={item.network.id}
 														size={16}
-														class="wallet-network-icon"
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -821,13 +780,14 @@
 								class="wallet-connection-item"
 							>
 								<span class={walletChipClass} data-row="start gap-1">
-									{#if wallet.icon}
-										<Icon src={wallet.icon} size={16} />
-									{/if}
 									<NetworkIcon
 										chainId={chainId ?? selectedChainIdDerived ?? 1}
 										size={16}
-										class="wallet-network-icon"
+										subicon={
+											wallet.icon
+												? { src: wallet.icon, size: '40%' }
+												: undefined
+										}
 										title={networkName ?? 'Unknown network'}
 									/>
 									<span class="wallet-details" data-column="gap-0">
@@ -880,7 +840,6 @@
 													<NetworkIcon
 														chainId={item.network.id}
 														size={16}
-														class="wallet-network-icon"
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -1001,12 +960,6 @@
 	.wallet-status {
 		font-size: 0.75em;
 		opacity: 0.7;
-	}
-
-	.wallet-network-icon {
-		border-radius: 9999px;
-		box-shadow: 0 0 0 1px
-			color-mix(in srgb, var(--color-border) 70%, transparent);
 	}
 
 	.wallet-menu-option {

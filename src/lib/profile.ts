@@ -7,12 +7,14 @@
 
 import { goto } from '$app/navigation'
 import {
+	defaultWatchedEntitiesBlob,
+	seedDefaultWatchedEntities,
+} from '$/collections/WatchedEntities.ts'
+import {
 	CollectionId,
 	ROOM_PERSISTENT_PEER_ID_STORAGE_KEY,
 } from '$/constants/collections.ts'
-import {
-	NetworkEnvironment,
-} from '$/constants/network-environment.ts'
+import { NetworkEnvironment } from '$/constants/network-environment.ts'
 import {
 	generatePeerDisplayName,
 	peerNameToEmoji,
@@ -78,7 +80,6 @@ export const NETWORK_ENVIRONMENT_SCOPED_STORAGE_KEYS = [
 const isEnvScoped = (key: string) =>
 	(NETWORK_ENVIRONMENT_SCOPED_STORAGE_KEYS as readonly string[]).includes(key)
 
-
 const isBrowser = () => typeof localStorage !== 'undefined'
 
 // --- Read ---
@@ -137,7 +138,22 @@ const defaultMetaStub = (): ProfilesMeta => ({
 export const ensureProfilesMeta = (): ProfilesMeta => {
 	if (!isBrowser()) return defaultMetaStub()
 	const existing = getProfilesMeta()
-	if (existing) return existing
+	if (existing) {
+		const profiles = Array.isArray(existing.profiles) ? existing.profiles : defaultMetaStub().profiles
+		const activeProfileId =
+			existing.activeProfileId && profiles.some((p) => p.id === existing.activeProfileId)
+				? existing.activeProfileId
+				: profiles[0]!.id
+		const meta: ProfilesMeta = {
+			version: existing.version ?? 1,
+			activeProfileId,
+			profiles,
+		}
+		if (profiles !== existing.profiles || activeProfileId !== existing.activeProfileId) {
+			setProfilesMeta(meta)
+		}
+		return meta
+	}
 
 	const profile = createDefaultProfile()
 
@@ -149,6 +165,8 @@ export const ensureProfilesMeta = (): ProfilesMeta => {
 			: nsKey('default', key)
 		localStorage.setItem(archiveKey, value)
 	}
+	if (localStorage.getItem(CollectionId.WatchedEntities) == null)
+		seedDefaultWatchedEntities()
 
 	const meta: ProfilesMeta = {
 		version: 1,
@@ -177,6 +195,10 @@ export const createProfile = (
 	}
 	meta.profiles.push(profile)
 	setProfilesMeta(meta)
+	localStorage.setItem(
+		nsKey(id, CollectionId.WatchedEntities),
+		defaultWatchedEntitiesBlob(),
+	)
 	return profile
 }
 

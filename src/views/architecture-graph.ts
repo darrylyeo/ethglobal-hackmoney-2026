@@ -160,7 +160,7 @@ const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		details: {
 			purpose:
 				'Settings for chains, amounts, slippage, recipient, and fee toggles',
-			tech: 'bridgeSettingsState + swapSettingsState + liquiditySettingsState',
+			tech: 'action params (bridge / swap / liquidity defaults)',
 		},
 	},
 	{

@@ -1,5 +1,5 @@
 import type { Entity } from '$/data/$EntityType.ts'
-import type { TransactionSessionAction } from '$/data/TransactionSession.ts'
+import type { Action } from '$/data/Session.ts'
 import {
 	ActionType,
 	IntentInvocationModality,
@@ -13,6 +13,7 @@ import {
 	type IntentOption,
 } from '$/constants/intents.ts'
 
+export { ActionType }
 
 // Derived lookups from protocolActions
 
@@ -29,8 +30,8 @@ export const protocolsByAction = Object.fromEntries(
 	Object.values(ActionType).map(action => [
 		action,
 		protocolActions
-			.filter(pa => pa.action === action)
-			.map(pa => pa.protocol),
+			.filter(pa => pa.id.actionType === action)
+			.map(pa => pa.id.protocol),
 	]),
 )
 
@@ -45,10 +46,10 @@ export const specByActionType = Object.fromEntries(
 	actionTypes.map((spec) => [spec.type, spec]),
 ) as Record<ActionType, ActionTypeDefinition>
 
-export const specForAction = (action: TransactionSessionAction) =>
+export const specForAction = (action: Action['type']) =>
 	action in ActionType ? specByActionType[action as ActionType] ?? null : null
 
-export const validActionTypes = new Set<TransactionSessionAction>([
+export const validActionTypes = new Set<Action['type']>([
 	...Object.values(ActionType),
 	'liquidity',
 	'intent',
