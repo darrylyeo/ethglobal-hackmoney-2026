@@ -39,7 +39,9 @@
 
 
 <details data-card data-column="gap-2">
-	<summary data-text="annotation">Transactions</summary>
+	<summary>
+		<h4>Submitted Transactions</h4>
+	</summary>
 	<ItemsList
 		items={items}
 		getKey={(item) => item.id}

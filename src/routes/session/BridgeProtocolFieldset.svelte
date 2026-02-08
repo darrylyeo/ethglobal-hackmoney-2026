@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type Action } from '$/constants/actions.ts'
-	import { Protocol, protocolsById } from '$/constants/protocols.ts'
+	import { Protocol, ProtocolTag, protocolTagLabels, protocolsById } from '$/constants/protocols.ts'
 	import { isCctpSupportedChain } from '$/constants/cctp.ts'
 	import { isGatewaySupportedChain } from '$/constants/gateway.ts'
 
@@ -94,6 +94,10 @@
 			})),
 	)
 	const anyMultiple = $derived(protocolOptions.length > 1)
+	const rows = $derived([
+		{ type: 'auto' as const },
+		...protocolOptions.map((o) => ({ type: 'protocol' as const, option: o })),
+	])
 
 
 	// Actions
@@ -111,6 +115,7 @@
 
 
 	// Components
+	import Icon from '$/components/Icon.svelte'
 	import CctpBridgeSettingsFieldset from './CctpBridgeSettingsFieldset.svelte'
 	import LifiBridgeSettingsFieldset from './LifiBridgeSettingsFieldset.svelte'
 </script>
@@ -118,42 +123,57 @@
 {#if action.type === ActionType.Bridge}
 	<div data-column="gap-3">
 	{#if anyMultiple}
-		<div data-column="gap-2">
-			<div data-row="gap-2 align-center">
-				<button
-					type="button"
-					data-card="radius-6 padding-3"
-					data-selected={protocolIntent === null ? '' : undefined}
-					onclick={() => setProtocolIntent(null)}
-				>
-					Auto
-				</button>
-				<span data-muted>or pick one:</span>
-			</div>
-			<div data-row="gap-2 wrap">
-				{#each protocolOptions as option (option.bridgeId)}
+		<div data-column="gap-1">
+			{#each rows as row (row.type === 'auto' ? 'auto' : row.option.bridgeId)}
+				{#if row.type === 'auto'}
 					<button
 						type="button"
-						class="protocol-card"
+						class="protocol-row"
 						data-card="radius-6 padding-3"
-						data-selected={option.bridgeId === activeProtocol ? '' : undefined}
-						onclick={() => setProtocolIntent(option.bridgeId)}
+						data-selected={protocolIntent === null ? '' : undefined}
+						onclick={() => setProtocolIntent(null)}
 					>
-						<div data-row="gap-2 align-center justify-between">
-							<strong>{option.shortLabel}</strong>
-							{#if protocolIntent === null && option.bridgeId === activeProtocol}
-								<span class="protocol-tag" data-tag>Best</span>
-							{:else if protocolIntent === option.bridgeId}
-								<span class="protocol-tag" data-tag data-variant="selected">Selected</span>
-							{/if}
-						</div>
-						<div data-muted>{option.detail}</div>
+						Auto
 					</button>
-				{/each}
-			</div>
+				{:else}
+					<div
+						class="protocol-row"
+						data-card="radius-6 padding-3"
+						data-row="gap-2 align-center wrap"
+						data-selected={row.option.bridgeId === activeProtocol ? '' : undefined}
+					>
+						<button
+							type="button"
+							class="protocol-row-main"
+							data-row="gap-2 align-center"
+							onclick={() => setProtocolIntent(row.option.bridgeId)}
+						>
+							{#if row.option.icon.includes('/')}
+								<Icon class="protocol-icon" src={row.option.icon} size={20} alt="" />
+							{:else}
+								<Icon class="protocol-icon" icon={row.option.icon} size={20} alt="" />
+							{/if}
+							<div data-column="gap-0">
+								<strong>{row.option.label}</strong>
+								<div data-muted>{row.option.detail}</div>
+							</div>
+						</button>
+						{#each ('tags' in row.option ? row.option.tags : []) as tagId (tagId)}
+							<button
+								type="button"
+								class="protocol-tag"
+								data-tag
+								onclick={() => setProtocolIntent(row.option.bridgeId)}
+							>
+								{protocolTagLabels[tagId as ProtocolTag]}
+							</button>
+						{/each}
+					</div>
+				{/if}
+			{/each}
 		</div>
 	{:else if activeProtocol}
-		<p data-muted>Using {protocolsById[bridgeIdToProtocol[activeProtocol]].shortLabel}</p>
+		<p data-muted>Using {protocolsById[bridgeIdToProtocol[activeProtocol]].label}</p>
 	{:else if fromChainId !== null && toChainId !== null}
 		<p data-error>This chain pair is not supported by CCTP, LI.FI, or Gateway.</p>
 	{:else}
@@ -169,34 +189,36 @@
 {/if}
 
 <style>
-	.protocol-card {
+	.protocol-row {
 		gap: 0.35em;
 		border: 1px solid transparent;
 		text-align: left;
-		transition:
-			border 0.2s ease,
-			transform 0.2s ease,
-			box-shadow 0.2s ease;
+		transition: border 0.2s ease, box-shadow 0.2s ease;
 	}
 
-	.protocol-card:hover {
-		transform: translateY(-1px);
-	}
-
-	.protocol-card[data-selected] {
+	.protocol-row[data-selected] {
 		border-color: var(--color-border-input);
 		box-shadow: var(--shadow-lg);
 	}
 
+	.protocol-row-main {
+		background: none;
+		border: none;
+		padding: 0;
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.protocol-row :global(.protocol-icon) {
+		flex-shrink: 0;
+	}
+
 	.protocol-tag {
+		cursor: pointer;
 		font-size: 0.75em;
 		padding: 0.15em 0.6em;
 		background: var(--color-success-bg);
 		color: var(--color-success);
-	}
-
-	.protocol-tag[data-variant='selected'] {
-		background: var(--color-bg-subtle);
-		color: var(--color-text-muted);
 	}
 </style>

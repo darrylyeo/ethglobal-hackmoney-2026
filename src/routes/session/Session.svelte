@@ -143,27 +143,31 @@
 	onfocusin={handleFormInteraction}
 >
 	<section data-scroll-item data-column="gap-2">
-		<header data-row="wrap gap-4 align-center">
-			<div data-column="gap-1" data-row-item="flexible">
-				<h1>
-					<span class="sr-only">Session</span>
-					<input
-						type="text"
-						class="session-name-input"
-						bind:value={session.name}
-						placeholder={placeholderName}
-						aria-label="Session name"
-					/>
-				</h1>
+		<header data-row="wrap gap-4">
+			<div data-row="start gap-2" data-row-item="flexible">
+				<div data-column="gap-1">
+					<h1>
+						<span class="sr-only">Session</span>
+						<input
+							type="text"
+							class="session-name-input"
+							bind:value={session.name}
+							placeholder={placeholderName}
+							aria-label="Session name"
+						/>
+					</h1>
+				</div>
+				<WatchButton
+					entityType={EntityType.Session}
+					id={session.id}
+					label={displayLabel}
+					href={`${resolve('/session')}${buildSessionHash(session.id)}`}
+					autoWatched={session.status === SessionStatus.Draft || session.status === SessionStatus.Submitted}
+				/>
 			</div>
-			<span data-text="annotation">Session</span>
-			<WatchButton
-				entityType={EntityType.Session}
-				id={session.id}
-				label={displayLabel}
-				href={`${resolve('/session')}${buildSessionHash(session.id)}`}
-				autoWatched={session.status === SessionStatus.Draft || session.status === SessionStatus.Submitted}
-			/>
+			<div data-row="gap-2">
+				<span data-text="annotation">Session</span>
+			</div>
 		</header>
 
 		<details

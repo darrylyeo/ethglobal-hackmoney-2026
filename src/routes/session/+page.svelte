@@ -34,7 +34,11 @@
 		type SessionHashSource,
 	} from '$/lib/session/panelHash.ts'
 	import { setEffectiveHash } from '$/lib/session/panelHash.ts'
-	import { mergeActionParams } from '$/constants/actions.ts'
+	import {
+		ActionType,
+		createAction,
+		mergeActionParams,
+	} from '$/constants/actions.ts'
 	import {
 		buildSessionHash,
 		createSession,
@@ -133,8 +137,10 @@
 				activeSession != null &&
 				activeSession.actions.length === actions.length &&
 				stringify(activeSession.actions) === stringify(actions)
+			const raw =
+				sameAsCurrent && activeSession ? activeSession.actions : actions
 			const actionsToUse =
-				(sameAsCurrent && activeSession ? activeSession.actions : actions)
+				raw.length > 0 ? raw : [createAction(ActionType.Swap)]
 			activeSession = {
 				...dbSession,
 				actions: actionsToUse,
@@ -223,9 +229,13 @@
 			data-scroll-item
 			data-column="gap-3"
 		>
-			<header data-row="wrap gap-4 align-center">
-				<h1>Session</h1>
-				<span data-text="annotation">Session</span>
+			<header data-row="wrap gap-4">
+				<div data-row="start gap-2" data-row-item="flexible">
+					<h1>Session</h1>
+				</div>
+				<div data-row="gap-2">
+					<span data-text="annotation">Session</span>
+				</div>
 			</header>
 			<p data-muted>Loading session…</p>
 		</section>

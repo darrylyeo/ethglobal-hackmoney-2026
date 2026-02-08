@@ -11,7 +11,7 @@
 	import type { Coin } from '$/constants/coins.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { protocolActions } from '$/constants/protocolActions.ts'
-	import { Protocol, protocolsById } from '$/constants/protocols.ts'
+	import { Protocol, ProtocolTag, protocolsById } from '$/constants/protocols.ts'
 	import { NetworkType, networks, networksByChainId } from '$/constants/networks.ts'
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
@@ -70,7 +70,18 @@
 			.map((pa) => protocolsById[pa.id.protocol])
 			.filter(Boolean),
 	)
-	const protocolValue = $derived(action.protocolAction?.protocol ?? '')
+	const resolveSelection = (sel: string, opts: readonly { id: string; tags?: readonly ProtocolTag[] }[]) =>
+		opts.find((o) => o.id === sel)
+			? sel
+			: opts.find((o) => o.tags?.includes(sel as ProtocolTag))?.id ?? sel
+	const resolvedProtocol = $derived(
+		(() => {
+			const sel = action.protocolSelection ?? action.protocolAction?.protocol ?? ''
+			if (!sel) return null
+			return resolveSelection(sel, protocolOptions) as Protocol | null
+		})(),
+	)
+	const protocolValue = $derived(action.protocolSelection ?? action.protocolAction?.protocol ?? '')
 	const paramsHash = $derived(stringify(action.params))
 	const sessionId = $derived(sessionCtx.sessionId ?? '')
 
@@ -125,28 +136,42 @@
 		const cached = paramsByType[nextType]
 		action = (
 			cached != null
-				? { type: nextType, params: cached, protocolAction: action.protocolAction }
+				? { type: nextType, params: cached, protocolAction: action.protocolAction, protocolSelection: undefined }
 				: {
 						type: nextType,
 						params: {
 							...actionTypeDefinitionByActionType[nextType].getDefaultParams(),
 						},
 						protocolAction: undefined,
+						protocolSelection: undefined,
 					}
 		) as Action
 	}
 
 	const onProtocolChange = (value: string | string[] | null) => {
-		if (typeof value !== 'string') {
-			action = { ...action, protocolAction: undefined }
+		if (typeof value !== 'string' || value === '') {
+			action = { ...action, protocolSelection: undefined, protocolAction: undefined }
 			return
 		}
-		const protocol = value as Protocol
+		const resolved = resolveSelection(value, protocolOptions)
+		const valid = protocolOptions.some((o) => o.id === resolved)
 		action = {
 			...action,
-			protocolAction: { action: action.type, protocol },
-		}
+			protocolSelection: value,
+			protocolAction: valid ? { action: action.type, protocol: resolved } : undefined,
+		} as Action
 	}
+
+	$effect(() => {
+		const sel = action.protocolSelection ?? action.protocolAction?.protocol ?? ''
+		if (!sel) return
+		const resolved = resolveSelection(sel, protocolOptions)
+		const valid = protocolOptions.some((o) => o.id === resolved)
+		if (valid && resolved !== action.protocolAction?.protocol)
+			action = { ...action, protocolAction: { action: action.type, protocol: resolved } } as Action
+		else if (!valid && action.protocolAction)
+			action = { ...action, protocolAction: undefined } as Action
+	})
 
 	const runSimulation = async () => {
 		if (!sessionId || signingPayloads.length === 0) return
@@ -310,12 +335,12 @@
 			</section>
 
 			<section data-card data-column="gap-2">
-				<h3>Transactions</h3>
+				<h3>Proposed Transactions</h3>
 				<TransactionSigningPayloadList
 					payloads={signingPayloads}
 					networksByChainId={networksByChainId}
 				/>
-				<div data-row="gap-2">
+				<div data-action-buttons data-grid="columns-2 gap-2">
 					<button
 						type="button"
 						disabled={
@@ -329,17 +354,17 @@
 						{simulateInProgress ? 'Simulating…' : 'Simulate'}
 					</button>
 					<button
-				type="button"
-				disabled={
-					!isParamsValid ||
-					!selectedConnectionSupportsSigning ||
-					signingPayloads.length === 0 ||
-					broadcastInProgress
-				}
-				onclick={broadcast}
-			>
-				{broadcastInProgress ? 'Signing and broadcasting…' : 'Sign and Broadcast'}
-			</button>
+						type="button"
+						disabled={
+							!isParamsValid ||
+							!selectedConnectionSupportsSigning ||
+							signingPayloads.length === 0 ||
+							broadcastInProgress
+						}
+						onclick={broadcast}
+					>
+						{broadcastInProgress ? 'Signing and broadcasting…' : 'Sign and Broadcast'}
+					</button>
 				</div>
 			</section>
 		</form>
@@ -356,3 +381,14 @@
 		{/if}
 	</div>
 </details>
+
+<style>
+	[data-action-buttons] {
+		justify-items: center;
+	}
+	[data-action-buttons] > button {
+		padding: 0.9em 1.2em;
+		font-size: 1em;
+		min-height: 2.75em;
+	}
+</style>
