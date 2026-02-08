@@ -1,5 +1,5 @@
 /**
- * Rooms collection: PartyKit room metadata (in-memory, synced from server).
+ * PartyKit rooms collection: room metadata (in-memory, synced from server).
  */
 
 import { CollectionId } from '$/constants/collections.ts'
@@ -12,11 +12,9 @@ import {
 
 export type RoomRow = Room & { $source: DataSource }
 
-export const roomsCollection = createCollection(
+export const partykitRoomsCollection = createCollection(
 	localOnlyCollectionOptions({
-		id: CollectionId.Rooms,
+		id: CollectionId.PartykitRooms,
 		getKey: (row: RoomRow) => row.id,
 	}),
 )
-
-export { partykitRoomsCollection } from './PartykitRooms.ts'

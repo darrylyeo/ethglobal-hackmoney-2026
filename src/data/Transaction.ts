@@ -4,6 +4,12 @@ export type Transaction$Id = {
 	createdAt: number
 }
 
+export enum BridgeTransactionStatus {
+	Pending = 'pending',
+	Completed = 'completed',
+	Failed = 'failed',
+}
+
 export type Transaction = {
 	$id: Transaction$Id
 	fromChainId: number
@@ -11,6 +17,6 @@ export type Transaction = {
 	fromAmount: bigint
 	toAmount: bigint
 	destTxHash: string | null
-	status: 'pending' | 'completed' | 'failed'
+	status: BridgeTransactionStatus
 	updatedAt: number
 }

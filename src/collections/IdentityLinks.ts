@@ -1,5 +1,5 @@
 /**
- * Identity resolution collection: normalized identity input and resolved
+ * Identity links collection: normalized identity input and resolved
  * payloads (address, name, text records). Uses TanStack DB; resolution
  * loading/error state is query/mutation state, not persisted on the entity.
  */
@@ -12,11 +12,11 @@ import {
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 
-export type IdentityResolutionRow = IdentityResolution & { $source: DataSource }
+export type IdentityLinkRow = IdentityResolution & { $source: DataSource }
 
-export const identityResolutionCollection = createCollection(
+export const identityLinksCollection = createCollection(
 	localOnlyCollectionOptions({
-		id: CollectionId.IdentityResolution,
-		getKey: (row: IdentityResolutionRow) => row.id,
+		id: CollectionId.IdentityLinks,
+		getKey: (row: IdentityLinkRow) => row.id,
 	}),
 )

@@ -3,6 +3,7 @@
  * $id: { network, address, interopAddress }
  */
 
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { toInteropName } from '$/constants/interop.ts'
 import type { Actor } from '$/data/Actor.ts'

@@ -1,6 +1,10 @@
 import type { ChainId } from '$/constants/networks.ts'
 
-export type StorkPriceTransport = 'rest' | 'websocket' | 'rpc'
+export enum StorkPriceTransport {
+	Rest = 'rest',
+	Websocket = 'websocket',
+	Rpc = 'rpc',
+}
 
 export type StorkPrice$Id = {
 	assetId: string

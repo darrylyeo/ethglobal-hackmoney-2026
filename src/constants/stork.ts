@@ -66,7 +66,7 @@ const storkApiBaseUrlByRegionTransport = Object.fromEntries(
 	]),
 ) satisfies Record<string, string>
 
-export const storkDefaultRegion: StorkApiRegion = StorkApiRegion.Dev
+export const storkDefaultRegion: StorkApiRegion = StorkApiRegion.Jp
 
 export const storkRestBaseUrl =
 	storkApiBaseUrlByRegionTransport[
@@ -191,6 +191,12 @@ export const storkAssets = [
 		assetId: 'EDUUSD',
 		encodedAssetId: '0x6ee0e88f0bfb4b16b8f3eff7a0480b3338eed0367c7343ebf55b8bde53c620ca',
 		baseSymbol: 'EDU',
+		quoteSymbol: 'USD',
+	},
+	{
+		assetId: 'EURUSD',
+		encodedAssetId: '0x0730076c3c0f5da594eb635c5d5a22116233bdb2a9c2977279cc348b8b8ce917',
+		baseSymbol: 'EUR',
 		quoteSymbol: 'USD',
 	},
 	{
@@ -578,6 +584,36 @@ export const storkPushedAssets = [
 	{
 		chainId: ChainId.EduChain,
 		assetId: 'USDTUSD',
+		maxStalenessSeconds: 3600,
+		minDeltaPercent: 0.5,
+	},
+	{
+		chainId: ChainId.ArcTestnet,
+		assetId: 'BTCUSD',
+		maxStalenessSeconds: 3600,
+		minDeltaPercent: 0.5,
+	},
+	{
+		chainId: ChainId.ArcTestnet,
+		assetId: 'ETHUSD',
+		maxStalenessSeconds: 3600,
+		minDeltaPercent: 0.5,
+	},
+	{
+		chainId: ChainId.ArcTestnet,
+		assetId: 'XAUUSD',
+		maxStalenessSeconds: 3600,
+		minDeltaPercent: 0.5,
+	},
+	{
+		chainId: ChainId.ArcTestnet,
+		assetId: 'EURUSD',
+		maxStalenessSeconds: 3600,
+		minDeltaPercent: 0.5,
+	},
+	{
+		chainId: ChainId.ArcTestnet,
+		assetId: 'USDCUSD',
 		maxStalenessSeconds: 3600,
 		minDeltaPercent: 0.5,
 	},

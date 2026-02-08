@@ -9,6 +9,7 @@ import {
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 import { createHttpProvider, getErc20Balance } from '$/api/voltaire.ts'
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { ercTokens } from '$/constants/coins.ts'
 import type { ChainId } from '$/constants/networks.ts'

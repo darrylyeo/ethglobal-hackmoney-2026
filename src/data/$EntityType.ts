@@ -48,7 +48,7 @@ export enum EntityType {
 	CctpFee = 'CctpFee',
 	ChannelProposal = 'ChannelProposal',
 	Coin = 'Coin',
-	DashboardPanel = 'DashboardPanel',
+	Dashboard = 'Dashboard',
 	Network = 'Network',
 	Room = 'Room',
 	RoomPeer = 'RoomPeer',
@@ -66,10 +66,10 @@ export enum EntityType {
 	UniswapPosition = 'UniswapPosition',
 	Wallet = 'Wallet',
 	WalletConnection = 'WalletConnection',
-	YellowChannel = 'YellowChannel',
-	YellowChannelState = 'YellowChannelState',
-	YellowDeposit = 'YellowDeposit',
-	YellowTransfer = 'YellowTransfer',
+	StateChannel = 'StateChannel',
+	StateChannelState = 'StateChannelState',
+	StateChannelDeposit = 'StateChannelDeposit',
+	StateChannelTransfer = 'StateChannelTransfer',
 }
 
 export const graphSceneEntityTypes = [
@@ -82,7 +82,7 @@ export const graphSceneEntityTypes = [
 	EntityType.CctpAllowance,
 	EntityType.CctpFee,
 	EntityType.Coin,
-	EntityType.DashboardPanel,
+	EntityType.Dashboard,
 	EntityType.Network,
 	EntityType.Room,
 	EntityType.RoomPeer,
@@ -100,10 +100,10 @@ export const graphSceneEntityTypes = [
 	EntityType.UniswapPosition,
 	EntityType.Wallet,
 	EntityType.WalletConnection,
-	EntityType.YellowChannel,
-	EntityType.YellowChannelState,
-	EntityType.YellowDeposit,
-	EntityType.YellowTransfer,
+	EntityType.StateChannel,
+	EntityType.StateChannelState,
+	EntityType.StateChannelDeposit,
+	EntityType.StateChannelTransfer,
 ] as const
 
 export const entityTypes = [
@@ -119,7 +119,7 @@ export const entityTypes = [
 	{ type: EntityType.CctpFee, label: 'CCTP fee', labelPlural: 'CCTP fees' },
 	{ type: EntityType.ChannelProposal, label: 'Channel proposal', labelPlural: 'Channel proposals' },
 	{ type: EntityType.Coin, label: 'Token', labelPlural: 'Tokens' },
-	{ type: EntityType.DashboardPanel, label: 'Dashboard panel', labelPlural: 'Dashboard panels' },
+	{ type: EntityType.Dashboard, label: 'Dashboard', labelPlural: 'Dashboards' },
 	{ type: EntityType.Network, label: 'Network', labelPlural: 'Networks' },
 	{ type: EntityType.Room, label: 'Room', labelPlural: 'Rooms' },
 	{ type: EntityType.RoomPeer, label: 'Room peer', labelPlural: 'Room peers' },
@@ -137,10 +137,10 @@ export const entityTypes = [
 	{ type: EntityType.UniswapPosition, label: 'Liquidity position', labelPlural: 'Liquidity positions' },
 	{ type: EntityType.Wallet, label: 'Wallet', labelPlural: 'Wallets' },
 	{ type: EntityType.WalletConnection, label: 'Wallet connection', labelPlural: 'Wallet connections' },
-	{ type: EntityType.YellowChannel, label: 'State channel', labelPlural: 'State channels' },
-	{ type: EntityType.YellowChannelState, label: 'Channel state', labelPlural: 'Channel states' },
-	{ type: EntityType.YellowDeposit, label: 'Channel deposit', labelPlural: 'Channel deposits' },
-	{ type: EntityType.YellowTransfer, label: 'Channel transfer', labelPlural: 'Channel transfers' },
+	{ type: EntityType.StateChannel, label: 'State channel', labelPlural: 'State channels' },
+	{ type: EntityType.StateChannelState, label: 'Channel state', labelPlural: 'Channel states' },
+	{ type: EntityType.StateChannelDeposit, label: 'Channel deposit', labelPlural: 'Channel deposits' },
+	{ type: EntityType.StateChannelTransfer, label: 'Channel transfer', labelPlural: 'Channel transfers' },
 ] as const
 
 type StringId = { id: string }
@@ -158,7 +158,7 @@ export type Entity<_EntityType extends EntityType = EntityType> = {
 	[EntityType.CctpFee]: CctpFee
 	[EntityType.ChannelProposal]: Record<string, unknown>
 	[EntityType.Coin]: CoinEntry
-	[EntityType.DashboardPanel]: DashboardState
+	[EntityType.Dashboard]: DashboardState
 	[EntityType.Network]: NetworkEntry
 	[EntityType.Room]: Room
 	[EntityType.RoomPeer]: RoomPeer
@@ -176,10 +176,10 @@ export type Entity<_EntityType extends EntityType = EntityType> = {
 	[EntityType.UniswapPosition]: UniswapPosition
 	[EntityType.Wallet]: Wallet
 	[EntityType.WalletConnection]: WalletConnectionBase
-	[EntityType.YellowChannel]: YellowChannel
-	[EntityType.YellowChannelState]: YellowChannelState
-	[EntityType.YellowDeposit]: YellowDeposit
-	[EntityType.YellowTransfer]: YellowTransfer
+	[EntityType.StateChannel]: YellowChannel
+	[EntityType.StateChannelState]: YellowChannelState
+	[EntityType.StateChannelDeposit]: YellowDeposit
+	[EntityType.StateChannelTransfer]: YellowTransfer
 }[_EntityType]
 
 export type EntityId<_EntityType extends EntityType = EntityType> = {
@@ -195,7 +195,7 @@ export type EntityId<_EntityType extends EntityType = EntityType> = {
 	[EntityType.CctpFee]: CctpFee$Id
 	[EntityType.ChannelProposal]: Record<string, unknown>
 	[EntityType.Coin]: Coin$Id
-	[EntityType.DashboardPanel]: DashboardState$Id
+	[EntityType.Dashboard]: DashboardState$Id
 	[EntityType.Network]: Network$Id
 	[EntityType.Room]: StringId
 	[EntityType.RoomPeer]: StringId
@@ -213,9 +213,9 @@ export type EntityId<_EntityType extends EntityType = EntityType> = {
 	[EntityType.UniswapPosition]: StringId
 	[EntityType.Wallet]: Wallet$Id
 	[EntityType.WalletConnection]: WalletConnection$Id
-	[EntityType.YellowChannel]: StringId
-	[EntityType.YellowChannelState]: StringId
-	[EntityType.YellowDeposit]: StringId
-	[EntityType.YellowTransfer]: StringId
+	[EntityType.StateChannel]: StringId
+	[EntityType.StateChannelState]: StringId
+	[EntityType.StateChannelDeposit]: StringId
+	[EntityType.StateChannelTransfer]: StringId
 }[_EntityType]
 

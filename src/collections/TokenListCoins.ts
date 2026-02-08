@@ -1,3 +1,4 @@
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { toInteropName } from '$/constants/interop.ts'
 import { TOKEN_LIST_MAX_ENTRIES } from '$/constants/query-limits.ts'

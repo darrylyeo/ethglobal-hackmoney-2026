@@ -1,7 +1,11 @@
 import type { ChainId } from '$/constants/networks.ts'
 import type { Wallet$Id, Wallet } from './Wallet.ts'
 
-export type ConnectionStatus = 'connecting' | 'connected' | 'error'
+export enum ConnectionStatus {
+	Connecting = 'connecting',
+	Connected = 'connected',
+	Error = 'error',
+}
 
 /** Display enum for wallet connection status in the UI. */
 export enum WalletConnectionStatus {
@@ -10,18 +14,12 @@ export enum WalletConnectionStatus {
 	Error = 'Error',
 }
 
-export function toWalletConnectionStatus(status: ConnectionStatus): WalletConnectionStatus {
-	switch (status) {
-		case 'connecting':
-			return WalletConnectionStatus.Connecting
-		case 'connected':
-			return WalletConnectionStatus.Connected
-		case 'error':
-			return WalletConnectionStatus.Error
-		default:
-			return WalletConnectionStatus.Error
-	}
-}
+export const toWalletConnectionStatus = (status: ConnectionStatus): WalletConnectionStatus =>
+	status === ConnectionStatus.Connecting
+		? WalletConnectionStatus.Connecting
+		: status === ConnectionStatus.Connected
+			? WalletConnectionStatus.Connected
+			: WalletConnectionStatus.Error
 
 export enum WalletConnectionTransport {
 	Eip1193 = 'eip1193',

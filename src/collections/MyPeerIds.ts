@@ -3,7 +3,6 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
@@ -12,7 +11,6 @@ import {
 export type MyPeerIdRow = {
 	roomId: string
 	peerId: string
-	$source: DataSource
 }
 
 export const myPeerIdsCollection = createCollection(

@@ -3,7 +3,6 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
 import { EntityType } from '$/data/$EntityType.ts'
 import {
 	createCollection,
@@ -17,7 +16,6 @@ export type WatchedEntityRow = {
 	label: string
 	href: string
 	addedAt: number
-	$source: DataSource
 }
 
 const getKey = (row: WatchedEntityRow) => `${row.entityType}:${row.id}`
@@ -48,7 +46,6 @@ export const watchEntity = (row: Omit<WatchedEntityRow, '$source' | 'addedAt'>) 
 	watchedEntitiesCollection.insert({
 		...row,
 		addedAt: now,
-		$source: DataSource.Local,
 	})
 }
 

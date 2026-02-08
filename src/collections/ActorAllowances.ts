@@ -9,6 +9,7 @@ import {
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
 import { createHttpProvider, getErc20Allowance } from '$/api/voltaire.ts'
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { toInteropName } from '$/constants/interop.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'

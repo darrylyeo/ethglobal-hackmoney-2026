@@ -1,6 +1,6 @@
 /**
  * Identity input and resolver: schema types, canonical kinds, and resolver config
- * for ENS (and future) resolution. Used by identity-resolution collection and
+ * for ENS (and future) resolution. Used by identity-links collection and
  * resolution API (Voltaire).
  */
 

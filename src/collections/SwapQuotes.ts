@@ -2,6 +2,7 @@
  * Swap quotes collection. In-memory cache keyed by quote id (hash of params).
  */
 
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type {
 	FetchSwapQuoteParams,

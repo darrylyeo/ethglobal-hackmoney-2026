@@ -1,4 +1,8 @@
-export type VerificationStatus = 'unverifiable' | 'verifying' | 'verified'
+export enum VerificationStatus {
+	Unverifiable = 'unverifiable',
+	Verifying = 'verifying',
+	Verified = 'verified',
+}
 
 export type Verification = {
 	id: string

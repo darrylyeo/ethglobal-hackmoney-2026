@@ -260,9 +260,9 @@ export const protocolSpecs = {
 		icon: iconLifi,
 		detail: 'Multi-chain aggregator',
 	},
-	[Protocol.Yellow]: {
-		label: 'Yellow Network',
-		shortLabel: 'Yellow',
+	[Protocol.Eip7824]: {
+		label: 'EIP-7824',
+		shortLabel: 'EIP-7824',
 		icon: '💛',
 		detail: 'State channel network',
 	},
@@ -404,11 +404,11 @@ export const protocolActions = [
 	{ action: ActionType.Bridge, protocol: Protocol.Cctp, supportsRecipient: true },
 	{ action: ActionType.Bridge, protocol: Protocol.LiFi, supportsRecipient: true },
 	{ action: ActionType.Bridge, protocol: Protocol.Gateway, supportsRecipient: true },
-	{ action: ActionType.Transfer, protocol: Protocol.Yellow, supportsRecipient: true },
+	{ action: ActionType.Transfer, protocol: Protocol.Eip7824, supportsRecipient: true },
 	{ action: ActionType.Transfer, protocol: Protocol.LiFi, supportsRecipient: true },
-	{ action: ActionType.CreateChannel, protocol: Protocol.Yellow, supportsRecipient: false },
-	{ action: ActionType.AddChannelMember, protocol: Protocol.Yellow, supportsRecipient: false },
-	{ action: ActionType.CloseChannel, protocol: Protocol.Yellow, supportsRecipient: false },
+	{ action: ActionType.CreateChannel, protocol: Protocol.Eip7824, supportsRecipient: false },
+	{ action: ActionType.AddChannelMember, protocol: Protocol.Eip7824, supportsRecipient: false },
+	{ action: ActionType.CloseChannel, protocol: Protocol.Eip7824, supportsRecipient: false },
 	{ action: ActionType.AddLiquidity, protocol: Protocol.UniswapV4, supportsRecipient: false },
 	{ action: ActionType.RemoveLiquidity, protocol: Protocol.UniswapV4, supportsRecipient: true },
 	{ action: ActionType.CollectFees, protocol: Protocol.UniswapV4, supportsRecipient: true },
@@ -416,9 +416,9 @@ export const protocolActions = [
 	{ action: ActionType.ShareAddress, protocol: Protocol.PartyKit, supportsRecipient: false },
 	{ action: ActionType.ProposeTransfer, protocol: Protocol.PartyKit, supportsRecipient: false },
 	{ action: ActionType.RequestVerification, protocol: Protocol.PartyKit, supportsRecipient: false },
-	{ action: ActionType.DepositToCustody, protocol: Protocol.Yellow, supportsRecipient: false },
-	{ action: ActionType.WithdrawFromCustody, protocol: Protocol.Yellow, supportsRecipient: true },
-	{ action: ActionType.ResizeChannel, protocol: Protocol.Yellow, supportsRecipient: false },
+	{ action: ActionType.DepositToCustody, protocol: Protocol.Eip7824, supportsRecipient: false },
+	{ action: ActionType.WithdrawFromCustody, protocol: Protocol.Eip7824, supportsRecipient: true },
+	{ action: ActionType.ResizeChannel, protocol: Protocol.Eip7824, supportsRecipient: false },
 	{ action: ActionType.CreatePool, protocol: Protocol.UniswapV4, supportsRecipient: false },
 	{ action: ActionType.AcceptTransfer, protocol: Protocol.PartyKit, supportsRecipient: false },
 	{ action: ActionType.RejectTransfer, protocol: Protocol.PartyKit, supportsRecipient: false },
@@ -560,8 +560,8 @@ export const intents: IntentDefinition[] = [
 						actions: [{ protocolAction: { action: ActionType.Transfer, protocol: Protocol.LiFi }, payload }],
 					},
 					{
-						label: formatIntentOptionLabel([{ action: ActionType.Transfer, protocol: Protocol.Yellow }]),
-						actions: [{ protocolAction: { action: ActionType.Transfer, protocol: Protocol.Yellow }, payload }],
+						label: formatIntentOptionLabel([{ action: ActionType.Transfer, protocol: Protocol.Eip7824 }]),
+						actions: [{ protocolAction: { action: ActionType.Transfer, protocol: Protocol.Eip7824 }, payload }],
 					},
 				] : []),
 			]
@@ -627,14 +627,14 @@ export const intents: IntentDefinition[] = [
 
 		resolveOptions: ({ fromActor, toActor }) => [
 			{
-				label: 'Create Yellow channel + Add member',
+				label: 'Create EIP-7824 channel + Add member',
 				actions: [
 					{
-						protocolAction: { action: ActionType.CreateChannel, protocol: Protocol.Yellow },
+						protocolAction: { action: ActionType.CreateChannel, protocol: Protocol.Eip7824 },
 						payload: { actor: fromActor },
 					},
 					{
-						protocolAction: { action: ActionType.AddChannelMember, protocol: Protocol.Yellow },
+						protocolAction: { action: ActionType.AddChannelMember, protocol: Protocol.Eip7824 },
 						payload: { actor: toActor },
 					},
 				],
@@ -663,18 +663,18 @@ export const intents: IntentDefinition[] = [
 
 		resolveOptions: ({ fromActorCoin, toActor }) => [
 			{
-				label: 'Create Yellow channel + Add member + Transfer',
+				label: 'Create EIP-7824 channel + Add member + Transfer',
 				actions: [
 					{
-						protocolAction: { action: ActionType.CreateChannel, protocol: Protocol.Yellow },
+						protocolAction: { action: ActionType.CreateChannel, protocol: Protocol.Eip7824 },
 						payload: { actor: fromActorCoin },
 					},
 					{
-						protocolAction: { action: ActionType.AddChannelMember, protocol: Protocol.Yellow },
+						protocolAction: { action: ActionType.AddChannelMember, protocol: Protocol.Eip7824 },
 						payload: { actor: toActor },
 					},
 					{
-						protocolAction: { action: ActionType.Transfer, protocol: Protocol.Yellow },
+						protocolAction: { action: ActionType.Transfer, protocol: Protocol.Eip7824 },
 						payload: { fromActorCoin, toActorCoin: toActor },
 					},
 				],

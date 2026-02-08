@@ -10,7 +10,11 @@ export type TevmSimulationForkMetadata = {
 	timestamp?: number,
 }
 
-export type TevmSimulationSummaryStatus = 'success' | 'revert' | 'error'
+export enum TevmSimulationSummaryStatus {
+	Success = 'success',
+	Revert = 'revert',
+	Error = 'error',
+}
 
 export type TevmSimulationGasTotals = {
 	used: string

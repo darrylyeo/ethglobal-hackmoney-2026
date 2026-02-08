@@ -7,7 +7,7 @@ Every external API that provides data to the UI or routes must be cached in a Ta
 | Voltaire (eth\_\*, RPC)            | `blocks.ts`                                      | `fetchBlock` → upsert                             |
 | Voltaire (eth\_\*, RPC)            | `actor-coins.ts`                                 | `fetchActorCoinBalance` → upsert                  |
 | Voltaire (eth\_\*, RPC)            | `actor-allowances.ts`                            | fetch → upsert                                    |
-| Voltaire (eth\_\*, RPC)            | `chain-transactions.ts`                          | fetch → upsert                                    |
+| Voltaire (eth\_\*, RPC)            | `NetworkTransactions.ts`                        | fetch → upsert                                    |
 | Voltaire (eth\_\*, RPC)            | `transfer-events.ts`                             | `fetchTransferEvents` → upsert                    |
 | Voltaire (eth\_\*, RPC)            | `transfer-graphs.ts`                             | `fetchTransferGraph` → upsert                     |
 | Stork (REST / WebSocket / RPC)     | `stork-prices.ts`                                | `subscribeStorkPrices` → upsert                   |
@@ -17,10 +17,10 @@ Every external API that provides data to the UI or routes must be cached in a Ta
 | Token list URLs                    | `token-list-coins.ts`                            | fetch → upsert                                    |
 | Uniswap (quote)                    | `swap-quotes.ts`                                 | `fetchSwapQuote` → upsert                         |
 | Transfers indexer / logs           | `transfer-events.ts`                             | `fetchTransferEventsForPeriod` (api) → collection |
-| Identity (RPC / resolver)          | `identity-resolution.ts`                         | fetch → upsert                                    |
+| Identity (RPC / resolver)          | `IdentityLinks.ts`                               | fetch → upsert                                    |
 | Voltaire (ENS reverse + forward)   | `evm-actor-profiles.ts`                          | `fetchEvmActorProfile` → upsert                   |
 | Networks (constant + optional RPC) | `networks.ts`                                    | queryFn / constant                                |
-| PartyKit (rooms, peers, etc.)      | `rooms.ts`, `room-peers.ts`, etc.                | subscription → upsert                             |
-| Yellow (channels, deposits, etc.)  | `yellow-channels.ts`, `yellow-deposits.ts`, etc. | subscription / fetch → upsert                     |
+| PartyKit (rooms, peers, etc.)      | `PartykitRooms.ts`, `PartykitRoomPeers.ts`, etc. | subscription → upsert                             |
+| Yellow / EIP-7824 (state channels) | `StateChannels.ts`, `StateChannelStates.ts`, `StateChannelDeposits.ts`, `StateChannelTransfers.ts` | subscription / fetch → upsert                     |
 
 Fetch and subscription logic lives in the collection module (or an api module called only from the collection). Components and routes use `useLiveQuery` (or derived live-query collections) only.

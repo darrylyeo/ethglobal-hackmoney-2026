@@ -1,10 +1,9 @@
 /**
- * Dashboard panels collection: one row per dashboard + sentinel row for default id.
+ * Dashboards collection: one row per dashboard + sentinel row for default id.
  * Persisted to localStorage across sessions.
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
 import type {
 	DashboardNode,
 	DashboardPanelNode,
@@ -17,13 +16,12 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 
-export type DashboardStateRow = DashboardState & { $source: DataSource }
+export type DashboardStateRow = DashboardState
 
 const DEFAULT_SENTINEL_ID = '__default__' as const
 type DefaultDashboardRow = {
 	$id: { id: typeof DEFAULT_SENTINEL_ID },
 	defaultDashboardId: string,
-	$source: DataSource,
 }
 
 export type DashboardRow = DashboardStateRow | DefaultDashboardRow
@@ -60,7 +58,6 @@ const createDefaultTree = (routePath: string): DashboardStateRow => {
 	}
 	return {
 		$id: { id: 'default' },
-		$source: DataSource.Local,
 		root,
 		focusedPanelId: sessionPanel.id,
 	}
@@ -76,26 +73,26 @@ const createDashboardRow = (
 	name,
 })
 
-export const dashboardPanelsCollection = createCollection(
+export const dashboardsCollection = createCollection(
 	localStorageCollectionOptions({
-		id: CollectionId.DashboardPanels,
-		storageKey: CollectionId.DashboardPanels,
+		id: CollectionId.Dashboards,
+		storageKey: CollectionId.Dashboards,
 		getKey: (row: DashboardRow) => getRowKey(row),
 		parser: { stringify, parse },
 	}),
 )
 
-for (const [key, row] of dashboardPanelsCollection.state) {
+for (const [key, row] of dashboardsCollection.state) {
 	if (row.$source !== DataSource.Local) {
-		dashboardPanelsCollection.update(key, (draft) => {
+		dashboardsCollection.update(key, (draft) => {
 			draft.$source = DataSource.Local
 		})
 	}
 }
 
 export const ensureDefaultRow = () => {
-	if (dashboardPanelsCollection.state.get(defaultRowKey)) return
-	const firstDashboardKey = [...dashboardPanelsCollection.state].find(
+	if (dashboardsCollection.state.get(defaultRowKey)) return
+	const firstDashboardKey = [...dashboardsCollection.state].find(
 		([, row]) => !isDefaultRow(row),
 	)?.[0]
 	const defaultId =
@@ -107,20 +104,19 @@ export const ensureDefaultRow = () => {
 						'/session',
 						DEFAULT_DASHBOARD_NAME,
 					)
-					dashboardPanelsCollection.insert(created)
+					dashboardsCollection.insert(created)
 					return 'default'
 				})()
-	dashboardPanelsCollection.insert({
+	dashboardsCollection.insert({
 		$id: { id: DEFAULT_SENTINEL_ID },
 		defaultDashboardId: defaultId,
-		$source: DataSource.Local,
 	})
 }
 
 export const getDefaultDashboardId = (): string => {
 	ensureDefaultRow()
 	return (
-		(dashboardPanelsCollection.state.get(defaultRowKey) as
+		(dashboardsCollection.state.get(defaultRowKey) as
 			| DefaultDashboardRow
 			| undefined)?.defaultDashboardId ?? 'default'
 	)
@@ -129,14 +125,14 @@ export const getDefaultDashboardId = (): string => {
 export const setDefaultDashboardId = (id: string) => {
 	ensureDefaultRow()
 	const key = defaultRowKey
-	dashboardPanelsCollection.update(key, (draft) => {
+	dashboardsCollection.update(key, (draft) => {
 		;(draft as DefaultDashboardRow).defaultDashboardId = id
 	})
 }
 
 export const listDashboards = (): { id: string, name?: string }[] => {
 	ensureDefaultRow()
-	return [...dashboardPanelsCollection.state]
+	return [...dashboardsCollection.state]
 		.filter(([, row]) => !isDefaultRow(row))
 		.map(([, row]) => ({
 			id: (row as DashboardStateRow).$id.id,
@@ -147,7 +143,7 @@ export const listDashboards = (): { id: string, name?: string }[] => {
 const stateKey = (id: string) => stringify({ id })
 
 export const getDashboardState = (id: string): DashboardStateRow | undefined =>
-	dashboardPanelsCollection.state.get(stateKey(id)) as
+	dashboardsCollection.state.get(stateKey(id)) as
 		| DashboardStateRow
 		| undefined
 
@@ -158,7 +154,7 @@ export const ensureDashboardState = (
 	ensureDefaultRow()
 	const id = dashboardId ?? getDefaultDashboardId()
 	const key = stateKey(id)
-	const existing = dashboardPanelsCollection.state.get(key) as
+	const existing = dashboardsCollection.state.get(key) as
 		| DashboardStateRow
 		| undefined
 	if (existing) return existing
@@ -167,7 +163,7 @@ export const ensureDashboardState = (
 		routePath,
 		id === 'default' ? DEFAULT_DASHBOARD_NAME : undefined,
 	)
-	dashboardPanelsCollection.insert(created)
+	dashboardsCollection.insert(created)
 	if (id === getDefaultDashboardId()) return created
 	return created
 }
@@ -177,11 +173,11 @@ export const updateDashboardState = (
 	apply: (state: DashboardStateRow) => DashboardStateRow,
 ) => {
 	const key = stateKey(id)
-	const row = dashboardPanelsCollection.state.get(key) as
+	const row = dashboardsCollection.state.get(key) as
 		| DashboardStateRow
 		| undefined
 	if (!row) return undefined
-	dashboardPanelsCollection.update(key, (draft) => {
+	dashboardsCollection.update(key, (draft) => {
 		Object.assign(draft, apply(draft as DashboardStateRow))
 	})
 	return undefined
@@ -189,11 +185,11 @@ export const updateDashboardState = (
 
 export const setDashboardRoot = (id: string, root: DashboardNode) => {
 	const key = stateKey(id)
-	const row = dashboardPanelsCollection.state.get(key) as
+	const row = dashboardsCollection.state.get(key) as
 		| DashboardStateRow
 		| undefined
 	if (!row) return undefined
-	dashboardPanelsCollection.update(key, (draft) => {
+	dashboardsCollection.update(key, (draft) => {
 		;(draft as DashboardStateRow).root = root
 	})
 	return undefined
@@ -201,11 +197,11 @@ export const setDashboardRoot = (id: string, root: DashboardNode) => {
 
 export const setDashboardFocus = (id: string, panelId: string) => {
 	const key = stateKey(id)
-	const row = dashboardPanelsCollection.state.get(key) as
+	const row = dashboardsCollection.state.get(key) as
 		| DashboardStateRow
 		| undefined
 	if (!row) return undefined
-	dashboardPanelsCollection.update(key, (draft) => {
+	dashboardsCollection.update(key, (draft) => {
 		;(draft as DashboardStateRow).focusedPanelId = panelId
 	})
 	return undefined
@@ -215,34 +211,34 @@ export const createDashboard = (name?: string): string => {
 	ensureDefaultRow()
 	const id = crypto.randomUUID()
 	const row = createDashboardRow(id, '/session', name)
-	dashboardPanelsCollection.insert(row)
+	dashboardsCollection.insert(row)
 	return id
 }
 
 export const deleteDashboard = (id: string): boolean => {
 	ensureDefaultRow()
 	const defaultId = getDefaultDashboardId()
-	const keys = [...dashboardPanelsCollection.state]
+	const keys = [...dashboardsCollection.state]
 		.filter(([, row]) => !isDefaultRow(row))
 		.map(([k]) => k)
 	if (keys.length <= 1) return false
 	const key = stateKey(id)
-	if (!dashboardPanelsCollection.state.get(key)) return false
+	if (!dashboardsCollection.state.get(key)) return false
 	if (id === defaultId) {
 		const other = keys.find((k) => k !== key)
 		if (other != null) setDefaultDashboardId((parse(other) as { id: string }).id)
 	}
-	dashboardPanelsCollection.delete(key)
+	dashboardsCollection.delete(key)
 	return true
 }
 
 export const renameDashboard = (id: string, name: string) => {
 	const key = stateKey(id)
-	const row = dashboardPanelsCollection.state.get(key) as
+	const row = dashboardsCollection.state.get(key) as
 		| DashboardStateRow
 		| undefined
 	if (!row) return undefined
-	dashboardPanelsCollection.update(key, (draft) => {
+	dashboardsCollection.update(key, (draft) => {
 		;(draft as DashboardStateRow).name = name
 	})
 	return undefined
@@ -250,11 +246,11 @@ export const renameDashboard = (id: string, name: string) => {
 
 export const setDashboardIcon = (id: string, icon: string) => {
 	const key = stateKey(id)
-	const row = dashboardPanelsCollection.state.get(key) as
+	const row = dashboardsCollection.state.get(key) as
 		| DashboardStateRow
 		| undefined
 	if (!row) return undefined
-	dashboardPanelsCollection.update(key, (draft) => {
+	dashboardsCollection.update(key, (draft) => {
 		;(draft as DashboardStateRow).icon = icon
 	})
 	return undefined

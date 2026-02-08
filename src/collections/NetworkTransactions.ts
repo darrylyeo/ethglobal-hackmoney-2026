@@ -1,6 +1,6 @@
 /**
- * Chain transactions fetched by chainId+txHash via Voltaire eth_getTransactionByHash + eth_getTransactionReceipt.
- * Used by network/block/transaction browsing (Spec 063).
+ * Network transactions fetched by chainId+txHash via Voltaire eth_getTransactionByHash + eth_getTransactionReceipt.
+ * Persisted (profile- and network-env–scoped) when associated with session flows or network/block browsing (Spec 063).
  */
 
 import {
@@ -15,8 +15,9 @@ import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 
 const getKey = (row: ChainTransactionEntry) =>
 	`${row.$id.chainId}:${row.$id.txHash}`
@@ -27,25 +28,27 @@ export type ChainTransactionRow = ChainTransactionEntry & {
 	error?: string | null
 }
 
-export const chainTransactionsCollection = createCollection(
-	localOnlyCollectionOptions({
-		id: CollectionId.ChainTransactions,
+export const networkTransactionsCollection = createCollection(
+	localStorageCollectionOptions({
+		id: CollectionId.NetworkTransactions,
+		storageKey: CollectionId.NetworkTransactions,
 		getKey: (row: ChainTransactionRow) => getKey(row),
+		parser: { stringify, parse },
 	}),
 )
 
-export const fetchChainTransaction = async (
+export const fetchNetworkTransaction = async (
 	chainId: ChainId,
 	txHash: `0x${string}`,
 ): Promise<ChainTransactionEntry> => {
 	const key = `${chainId}:${txHash}`
-	if (chainTransactionsCollection.state.get(key)) {
-		chainTransactionsCollection.update(key, (draft) => {
+	if (networkTransactionsCollection.state.get(key)) {
+		networkTransactionsCollection.update(key, (draft) => {
 			draft.isLoading = true
 			draft.error = null
 		})
 	} else {
-		chainTransactionsCollection.insert({
+		networkTransactionsCollection.insert({
 			$id: { chainId, txHash },
 			blockNumber: 0,
 			blockHash: '',
@@ -62,7 +65,7 @@ export const fetchChainTransaction = async (
 	const url = rpcUrls[chainId]
 	if (!url) {
 		const err = `No RPC URL for chain ${chainId}`
-		chainTransactionsCollection.update(key, (draft) => {
+		networkTransactionsCollection.update(key, (draft) => {
 			draft.isLoading = false
 			draft.error = err
 		})
@@ -76,7 +79,7 @@ export const fetchChainTransaction = async (
 			getTransactionReceipt(provider, txHash),
 		])
 		if (!tx) {
-			chainTransactionsCollection.update(key, (draft) => {
+			networkTransactionsCollection.update(key, (draft) => {
 				draft.isLoading = false
 				draft.error = 'Transaction not found'
 			})
@@ -104,7 +107,7 @@ export const fetchChainTransaction = async (
 			isLoading: false,
 			error: null,
 		}
-		chainTransactionsCollection.update(key, (draft) => {
+		networkTransactionsCollection.update(key, (draft) => {
 			Object.assign(draft, {
 				blockNumber: row.blockNumber,
 				blockHash: row.blockHash,
@@ -147,7 +150,7 @@ export const fetchChainTransaction = async (
 		}
 	} catch (e) {
 		const message = e instanceof Error ? e.message : String(e)
-		chainTransactionsCollection.update(key, (draft) => {
+		networkTransactionsCollection.update(key, (draft) => {
 			draft.isLoading = false
 			draft.error = message
 		})

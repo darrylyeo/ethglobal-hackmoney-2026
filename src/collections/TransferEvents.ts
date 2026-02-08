@@ -6,6 +6,7 @@
 import type { NormalizedTransferEvent } from '$/api/transfers-logs.ts'
 import { fetchTransferEventsForPeriod } from '$/api/transfers-logs.ts'
 import type { CoinPageSymbol } from '$/constants/coins.ts'
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import {
 	createCollection,

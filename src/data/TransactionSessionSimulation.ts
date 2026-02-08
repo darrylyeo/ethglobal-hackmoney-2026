@@ -1,4 +1,7 @@
-export type TransactionSessionSimulationStatus = 'success' | 'failed'
+export enum TransactionSessionSimulationStatus {
+	Success = 'success',
+	Failed = 'failed',
+}
 
 export type TransactionSessionSimulation = {
 	id: string,

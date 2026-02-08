@@ -13,7 +13,8 @@ import {
 	getBlockTransactionCount,
 	getBlockTransactionHashes,
 } from '$/api/voltaire.ts'
-import { fetchChainTransaction } from '$/collections/ChainTransactions.ts'
+import { fetchNetworkTransaction } from '$/collections/NetworkTransactions.ts'
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { ChainId } from '$/constants/networks.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
@@ -140,7 +141,7 @@ export const fetchBlock = async (
 	}
 }
 
-/** Fetch transaction hashes for a block, then upsert each into chainTransactionsCollection. */
+/** Fetch transaction hashes for a block, then upsert each into networkTransactionsCollection. */
 export const fetchBlockTransactions = async (
 	chainId: ChainId,
 	blockNumber: number,
@@ -150,6 +151,6 @@ export const fetchBlockTransactions = async (
 	const provider = createHttpProvider(url)
 	const hashes = await getBlockTransactionHashes(provider, BigInt(blockNumber))
 	await Promise.allSettled(
-		hashes.map((hash) => fetchChainTransaction(chainId, hash)),
+		hashes.map((hash) => fetchNetworkTransaction(chainId, hash)),
 	)
 }

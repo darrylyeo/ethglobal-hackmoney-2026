@@ -1,6 +1,11 @@
 import type { ActionType } from '$/constants/intents.ts'
+import type { TevmSimulationSummaryStatus } from '$/data/TevmSimulationResult.ts'
 
-export type TransactionSessionStatus = 'Draft' | 'Submitted' | 'Finalized'
+export enum TransactionSessionStatus {
+	Draft = 'Draft',
+	Submitted = 'Submitted',
+	Finalized = 'Finalized',
+}
 
 export type TransactionSessionAction = ActionType | 'liquidity' | 'intent'
 
@@ -22,7 +27,7 @@ export const createSessionAction = (type: TransactionSessionAction): SessionActi
 
 export type TransactionSessionSimulationSummary = {
 	forkMetadata: { blockNumber: number; rpcUrl: string; timestamp?: number }
-	summaryStatus: 'success' | 'revert' | 'error'
+	summaryStatus: TevmSimulationSummaryStatus
 	gasTotals: { used: string; refund?: string },
 }
 

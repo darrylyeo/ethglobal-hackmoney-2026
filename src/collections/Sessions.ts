@@ -1,10 +1,9 @@
 /**
- * Transaction sessions collection.
+ * Sessions collection (transaction/session flow state).
  * Persists to localStorage across sessions.
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,
@@ -12,12 +11,12 @@ import {
 import { stringify, parse } from 'devalue'
 import type { TransactionSession } from '$/data/TransactionSession.ts'
 
-export type TransactionSessionRow = TransactionSession & { $source: DataSource }
+export type TransactionSessionRow = TransactionSession
 
-export const transactionSessionsCollection = createCollection(
+export const sessionsCollection = createCollection(
 	localStorageCollectionOptions({
-		id: CollectionId.TransactionSessions,
-		storageKey: CollectionId.TransactionSessions,
+		id: CollectionId.Sessions,
+		storageKey: CollectionId.Sessions,
 		getKey: (row: TransactionSessionRow) => row.id,
 		parser: { stringify, parse },
 	}),

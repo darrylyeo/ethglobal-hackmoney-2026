@@ -1,5 +1,4 @@
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
 import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 import {
 	createCollection,
@@ -7,7 +6,7 @@ import {
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 
-export type AgentChatTurnRow = AgentChatTurn & { $source: DataSource }
+export type AgentChatTurnRow = AgentChatTurn
 
 export const agentChatTurnsCollection = createCollection(
 	localStorageCollectionOptions({

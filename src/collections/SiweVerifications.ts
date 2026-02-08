@@ -1,5 +1,5 @@
 /**
- * Verifications collection: per-peer verification requests/outcomes (separate from shared-addresses).
+ * SIWE verifications collection: per-peer verification requests/outcomes (separate from shared-addresses).
  * Peers may request verification multiple times per address.
  */
 
@@ -13,11 +13,18 @@ import type { Verification } from '$/data/Verification.ts'
 
 export type VerificationRow = Verification & { $source: DataSource }
 
-export const verificationsCollection = createCollection(
+export const siweVerificationsCollection = createCollection(
 	localOnlyCollectionOptions({
-		id: CollectionId.Verifications,
+		id: CollectionId.SiweVerifications,
 		getKey: (row: VerificationRow) => row.id,
 	}),
 )
 
-export { verificationKey } from './VerificationsKeys.ts'
+export const verificationKey = (
+	roomId: string,
+	verifierPeerId: string,
+	verifiedPeerId: string,
+	address: `0x${string}`,
+	requestedAt: number,
+) =>
+	`${roomId}:${verifierPeerId}:${verifiedPeerId}:${address.toLowerCase()}:${requestedAt}`

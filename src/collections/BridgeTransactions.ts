@@ -1,5 +1,5 @@
 /**
- * Transaction history collection.
+ * Bridge transaction history collection.
  * Persists to localStorage across sessions.
  */
 
@@ -15,30 +15,29 @@ import { getTransactions } from '$/lib/txHistory.ts'
 
 export type TransactionRow = Transaction & { $source: DataSource }
 
-export const transactionsCollection = createCollection(
+export const bridgeTransactionsCollection = createCollection(
 	localStorageCollectionOptions({
-		id: CollectionId.Transactions,
+		id: CollectionId.BridgeTransactions,
 		storageKey: CollectionId.BridgeTransactions,
 		getKey: (row: TransactionRow) => stringify(row.$id),
 		parser: { parse, stringify },
 	}),
 )
 
-for (const [key, row] of transactionsCollection.state) {
+for (const [key, row] of bridgeTransactionsCollection.state) {
 	if (row.$source !== DataSource.Local) {
-		transactionsCollection.update(key, (draft) => {
+		bridgeTransactionsCollection.update(key, (draft) => {
 			draft.$source = DataSource.Local
 		})
 	}
 }
 
 export const getTransaction = ($id: Transaction$Id) =>
-	transactionsCollection.state.get(stringify($id))
+	bridgeTransactionsCollection.state.get(stringify($id))
 
 export const insertTransaction = (tx: Omit<Transaction, 'updatedAt'>) =>
-	transactionsCollection.insert({
+	bridgeTransactionsCollection.insert({
 		...tx,
-		$source: DataSource.Local,
 		updatedAt: Date.now(),
 	})
 
@@ -46,9 +45,9 @@ export const updateTransaction = (
 	$id: Transaction$Id,
 	changes: Partial<Pick<TransactionRow, 'status' | 'destTxHash'>>,
 ) => {
-	const existing = transactionsCollection.state.get(stringify($id))
+	const existing = bridgeTransactionsCollection.state.get(stringify($id))
 	if (!existing) return
-	transactionsCollection.update(stringify($id), (draft) => {
+	bridgeTransactionsCollection.update(stringify($id), (draft) => {
 		draft.$source = DataSource.Local
 		if (changes.status !== undefined) draft.status = changes.status
 		if (changes.destTxHash !== undefined) draft.destTxHash = changes.destTxHash
@@ -58,10 +57,9 @@ export const updateTransaction = (
 
 export const upsertTransaction = (tx: Omit<Transaction, 'updatedAt'>) => {
 	const key = stringify(tx.$id)
-	const existing = transactionsCollection.state.get(key)
+	const existing = bridgeTransactionsCollection.state.get(key)
 	if (existing) {
-		transactionsCollection.update(key, (draft) => {
-			draft.$source = DataSource.Local
+		bridgeTransactionsCollection.update(key, (draft) => {
 			draft.status = tx.status
 			draft.destTxHash = tx.destTxHash ?? draft.destTxHash
 			draft.updatedAt = Date.now()
@@ -73,7 +71,7 @@ export const upsertTransaction = (tx: Omit<Transaction, 'updatedAt'>) => {
 
 /**
  * Migrate legacy per-address tx history (bridge-tx-history-${address}) into
- * transactionsCollection and upsert. Idempotent; safe to call when querying by address.
+ * bridgeTransactionsCollection and upsert. Idempotent; safe to call when querying by address.
  */
 export const migrateLegacyTxHistoryForAddress = (
 	address: `0x${string}`,
@@ -97,7 +95,7 @@ export const migrateLegacyTxHistoryForAddress = (
 }
 
 /**
- * Trigger migration from legacy tx history for each address. Call when transactions
+ * Trigger migration from legacy tx history for each address. Call when bridge transactions
  * are queried (e.g. Transactions view with actors) so the collection stays in sync.
  */
 export const ensureTransactionsForAddresses = (
