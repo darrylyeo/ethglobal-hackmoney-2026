@@ -1,7 +1,7 @@
 /**
  * Result of a Tevm-based transaction simulation.
- * Stored in TransactionSessionSimulation.result and optionally summarized on
- * TransactionSession.simulation.
+ * Stored in SessionSimulation.result and optionally summarized on
+ * Session.simulation.
  */
 
 export type TevmSimulationForkMetadata = {

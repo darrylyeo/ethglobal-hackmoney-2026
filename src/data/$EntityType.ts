@@ -23,8 +23,8 @@ import type { StorkPrice, StorkPrice$Id } from '$/data/StorkPrice.ts'
 import type { SwapQuote } from '$/data/SwapQuote.ts'
 import type { TokenListCoin, TokenListCoin$Id } from '$/data/TokenListCoin.ts'
 import type { Transaction, Transaction$Id } from '$/data/Transaction.ts'
-import type { TransactionSession } from '$/data/TransactionSession.ts'
-import type { TransactionSessionSimulation } from '$/data/TransactionSessionSimulation.ts'
+import type { Session } from '$/data/Session.ts'
+import type { SessionSimulation } from '$/data/SessionSimulation.ts'
 import type { TransferRequest } from '$/data/TransferRequest.ts'
 import type { UniswapPool } from '$/data/UniswapPool.ts'
 import type { UniswapPosition } from '$/data/UniswapPosition.ts'
@@ -58,8 +58,8 @@ export enum EntityType {
 	SwapQuote = 'SwapQuote',
 	TokenListCoin = 'TokenListCoin',
 	Transaction = 'Transaction',
-	TransactionSession = 'TransactionSession',
-	TransactionSessionSimulation = 'TransactionSessionSimulation',
+	Session = 'Session',
+	SessionSimulation = 'SessionSimulation',
 	TransferGraph = 'TransferGraph',
 	TransferRequest = 'TransferRequest',
 	UniswapPool = 'UniswapPool',
@@ -92,8 +92,8 @@ export const graphSceneEntityTypes = [
 	EntityType.SwapQuote,
 	EntityType.TokenListCoin,
 	EntityType.Transaction,
-	EntityType.TransactionSession,
-	EntityType.TransactionSessionSimulation,
+	EntityType.Session,
+	EntityType.SessionSimulation,
 	EntityType.TransferGraph,
 	EntityType.TransferRequest,
 	EntityType.UniswapPool,
@@ -129,8 +129,8 @@ export const entityTypes = [
 	{ type: EntityType.SwapQuote, label: 'Swap quote', labelPlural: 'Swap quotes' },
 	{ type: EntityType.TokenListCoin, label: 'Listed token', labelPlural: 'Listed tokens' },
 	{ type: EntityType.Transaction, label: 'Bridge transaction', labelPlural: 'Bridge transactions' },
-	{ type: EntityType.TransactionSession, label: 'Transaction session', labelPlural: 'Transaction sessions' },
-	{ type: EntityType.TransactionSessionSimulation, label: 'Session simulation', labelPlural: 'Session simulations' },
+	{ type: EntityType.Session, label: 'Transaction session', labelPlural: 'Transaction sessions' },
+	{ type: EntityType.SessionSimulation, label: 'Session simulation', labelPlural: 'Session simulations' },
 	{ type: EntityType.TransferGraph, label: 'Transfer graph', labelPlural: 'Transfer graphs' },
 	{ type: EntityType.TransferRequest, label: 'Transfer request', labelPlural: 'Transfer requests' },
 	{ type: EntityType.UniswapPool, label: 'Liquidity pool', labelPlural: 'Liquidity pools' },
@@ -168,8 +168,8 @@ export type Entity<_EntityType extends EntityType = EntityType> = {
 	[EntityType.SwapQuote]: SwapQuote
 	[EntityType.TokenListCoin]: TokenListCoin
 	[EntityType.Transaction]: Transaction
-	[EntityType.TransactionSession]: TransactionSession
-	[EntityType.TransactionSessionSimulation]: TransactionSessionSimulation
+	[EntityType.Session]: Session
+	[EntityType.SessionSimulation]: SessionSimulation
 	[EntityType.TransferGraph]: Record<string, unknown>
 	[EntityType.TransferRequest]: TransferRequest
 	[EntityType.UniswapPool]: UniswapPool
@@ -205,8 +205,8 @@ export type EntityId<_EntityType extends EntityType = EntityType> = {
 	[EntityType.SwapQuote]: StringId
 	[EntityType.TokenListCoin]: TokenListCoin$Id
 	[EntityType.Transaction]: Transaction$Id
-	[EntityType.TransactionSession]: StringId
-	[EntityType.TransactionSessionSimulation]: StringId
+	[EntityType.Session]: StringId
+	[EntityType.SessionSimulation]: StringId
 	[EntityType.TransferGraph]: Record<string, unknown>
 	[EntityType.TransferRequest]: StringId
 	[EntityType.UniswapPool]: StringId

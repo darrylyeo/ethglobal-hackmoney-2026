@@ -1,12 +1,12 @@
-export enum TransactionSessionSimulationStatus {
+export enum SessionSimulationStatus {
 	Success = 'success',
 	Failed = 'failed',
 }
 
-export type TransactionSessionSimulation = {
+export type SessionSimulation = {
 	id: string,
 	sessionId: string,
-	status: TransactionSessionSimulationStatus,
+	status: SessionSimulationStatus,
 	createdAt: number,
 	paramsHash: string,
 	result: unknown | null,
