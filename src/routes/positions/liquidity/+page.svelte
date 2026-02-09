@@ -42,12 +42,18 @@
 			...new Map(
 				connectedConnections.flatMap((c) => {
 					const chainId = c.chainId
-					return chainId != null
-						? c.actors.map((owner) => [
-								`${chainId}:${owner.toLowerCase()}`,
-								{ chainId, owner: owner as `0x${string}` },
-							])
-						: []
+					if (chainId == null) return []
+					return c.actors
+						.filter(
+							(owner): owner is `0x${string}` =>
+								typeof owner === 'string' &&
+								owner.startsWith('0x') &&
+								owner.length === 42,
+						)
+						.map((owner) => [
+							`${chainId}:${owner.toLowerCase()}`,
+							{ chainId, owner },
+						])
 				}),
 			).values(),
 		],
