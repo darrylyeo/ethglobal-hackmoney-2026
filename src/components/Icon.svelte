@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
 	export enum IconShape {
 		Square = 'square',
 		Circle = 'circle',
@@ -66,8 +66,8 @@
 
 
 	// (Derived)
-	const a11yLabel = label ?? alt
-	const resolvedTitle = title ?? (alt || undefined)
+	const a11yLabel = $derived(label ?? alt)
+	const resolvedTitle = $derived(title ?? (alt || undefined))
 </script>
 
 
