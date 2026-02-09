@@ -64,6 +64,40 @@ function parsePrunedEarliestBlock(message: string): bigint | null {
 	return m ? BigInt(m[1]) : null
 }
 
+const BLOCK_FETCH_CONCURRENCY = 3
+const BLOCK_FETCH_DELAY_MS = 180
+
+async function getBlockTimestampsBatched(
+	provider: VoltaireProvider,
+	blockNumbers: number[],
+): Promise<Map<number, number>> {
+	const out = new Map<number, number>()
+	const queue = [...blockNumbers]
+	async function runBatch() {
+		const chunk = queue.splice(0, BLOCK_FETCH_CONCURRENCY)
+		if (chunk.length === 0) return
+		await Promise.all(
+			chunk.map(async (num) => {
+				try {
+					const { timestamp } = await getBlockByNumber(
+						provider,
+						BigInt(num),
+					)
+					out.set(num, timestamp)
+				} catch {
+					out.set(num, 0)
+				}
+			}),
+		)
+		if (queue.length > 0) {
+			await new Promise((r) => setTimeout(r, BLOCK_FETCH_DELAY_MS))
+			await runBatch()
+		}
+	}
+	await runBatch()
+	return out
+}
+
 async function fetchTransferLogsForChain(
 	chainId: number,
 	contractAddress: `0x${string}`,
@@ -97,12 +131,9 @@ async function fetchTransferLogsForChain(
 	const blockNumbers = [
 		...new Set(logs.map((l) => parseInt(l.blockNumber, 16))),
 	]
-	const blockTimestamps = new Map<number, number>()
-	await Promise.all(
-		blockNumbers.map(async (num) => {
-			const { timestamp } = await getBlockByNumber(provider, BigInt(num))
-			blockTimestamps.set(num, timestamp)
-		}),
+	const blockTimestamps = await getBlockTimestampsBatched(
+		provider,
+		blockNumbers,
 	)
 	return logs
 		.map((l) => {
