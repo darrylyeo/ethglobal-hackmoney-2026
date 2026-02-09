@@ -9,6 +9,7 @@ import {
 	storkRestBaseUrl,
 	storkWebsocketUrl,
 } from '$/constants/stork.ts'
+import { proxyFetch } from '$/lib/proxyFetch.ts'
 import {
 	StorkPriceTransport,
 	type StorkPrice,
@@ -175,7 +176,7 @@ const fetchRestPrices = async (assetIds: string[]) => {
 	}
 	const url = new URL('v1/prices/latest', `${storkRestBaseUrl}/`)
 	url.searchParams.set('assets', assetIds.join(','))
-	const response = await fetch(url.toString(), {
+	const response = await proxyFetch(url.toString(), {
 		headers: { Authorization: `Basic ${token}` },
 	})
 	if (!response.ok) throw new Error(`Stork REST error: ${response.status}`)
@@ -243,7 +244,7 @@ const fetchStorkDeployments = async () => {
 		return storkDeployments
 	}
 	const url = new URL('v1/deployments/evm', `${storkRestBaseUrl}/`)
-	const response = await fetch(url.toString(), {
+	const response = await proxyFetch(url.toString(), {
 		headers: { Authorization: `Basic ${token}` },
 	})
 	if (response.ok) {
@@ -411,6 +412,8 @@ const ensureWebsocketConnection = () => {
 	if (!env.PUBLIC_STORK_REST_TOKEN) {
 		return
 	}
+	// Browser WebSocket API cannot set headers; Stork requires Authorization: Basic <token>.
+	// Authenticated WebSocket would require a server-side proxy that adds the header.
 	storkWebsocketState.connecting = true
 	const socket = new WebSocket(storkWebsocketUrl)
 	storkWebsocketState.socket = socket
