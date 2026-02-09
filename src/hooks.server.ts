@@ -1,4 +1,4 @@
-import { type Handle, error, json } from '@sveltejs/kit'
+import { type Handle, error } from '@sveltejs/kit'
 
 const PROXY_PATH = '/api-proxy/'
 
@@ -13,8 +13,11 @@ export const handle: Handle = async ({
 }) => {
 	if(!event.url.pathname.startsWith(PROXY_PATH))
 		return await resolve(event)
-	
-	const url = new URL(event.url.pathname.replace(PROXY_PATH, ''))
+
+	const url = new URL(
+		decodeURIComponent(event.url.pathname.replace(PROXY_PATH, ''))
+		+ event.url.search,
+	)
 
 	if(!(
 		allowedOrigins
@@ -22,18 +25,17 @@ export const handle: Handle = async ({
 	))
 		throw error(403, 'Request Forbidden.')
 
-	return (
-		json(
-			await event.fetch(
-				url,
-				{
-					...event.request,
-					headers: new Headers({
-						'Authorization': event.request.headers.get('Authorization')
-					})
-				}
-			)
-				.then(response => response.json())
+	try {
+		return await event.fetch(
+			url,
+			{
+				...event.request,
+				headers: new Headers({
+					'Authorization': event.request.headers.get('Authorization'),
+				}),
+			}
 		)
-	)
+	} catch (err) {
+		throw error(502, err instanceof Error ? err.message : 'Proxy upstream error')
+	}
 }
