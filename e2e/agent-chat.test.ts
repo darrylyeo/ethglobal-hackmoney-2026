@@ -6,7 +6,7 @@ function addMockLlmRoute(
 	page: import('@playwright/test').Page,
 	body: { text?: string } = { text: MOCK_LLM_RESPONSE },
 ) {
-	return page.route('**/api-proxy/**', (route) => {
+	return page.route('**/api-proxy*', (route) => {
 		const url = route.request().url()
 		if (
 			route.request().method() === 'POST' &&

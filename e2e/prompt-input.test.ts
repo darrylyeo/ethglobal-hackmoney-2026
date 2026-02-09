@@ -172,6 +172,25 @@ test.describe('Prompt input (textarea with combobox)', () => {
 		expect((await getPromptText(page)).replace(/\s+/g, ' ').trim()).toBe('a b')
 	})
 
+	test('Tab from textbox moves focus away (does not trap)', async ({ page }) => {
+		const textbox = page.locator('[data-entity-ref-input]').getByTestId('prompt-textbox')
+		await textbox.click()
+		await textbox.pressSequentially('hello')
+		await page.keyboard.press('Tab')
+		await expect(textbox).not.toBeFocused()
+	})
+
+	test('Arrow Left/Right move caret within text', async ({ page }) => {
+		const textbox = page.locator('[data-entity-ref-input]').getByTestId('prompt-textbox')
+		await textbox.click()
+		await textbox.pressSequentially('ab', { delay: 80 })
+		expect(await getPromptText(page)).toBe('ab')
+		await page.keyboard.press('ArrowLeft')
+		await page.keyboard.press('ArrowLeft')
+		await textbox.pressSequentially('X')
+		expect((await getPromptText(page)).replace(/\s+/g, ' ').trim()).toBe('aXb')
+	})
+
 	// type: [a][space][@][b][c][right][delete] → ArrowRight then Delete (e2e may close on arrow)
 	test('a space @ b c ArrowRight Delete', async ({ page }) => {
 		const textbox = page.locator('[data-entity-ref-input]').getByTestId('prompt-textbox')

@@ -341,7 +341,7 @@ export const coverageScenarios: CoverageScenario[] = [
 			])
 		},
 		assert: async (page) => {
-			await page.waitForURL(/\/session#\/session:/, { timeout: 10_000, })
+			await page.waitForURL(/\/session\/session-redirect/, { timeout: 10_000 })
 		},
 	},
 	{
