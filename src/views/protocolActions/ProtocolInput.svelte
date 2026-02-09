@@ -33,11 +33,11 @@
 </script>
 
 {#if options.length === 0}
-	<p data-muted>No protocol for this action</p>
+	<p data-text="muted">No protocol for this action</p>
 {:else if options.length === 1}
-	<p data-muted>Using {options[0].label}</p>
+	<p data-text="muted">Using {options[0].label}</p>
 {:else}
-	<div data-column="gap-1">
+	<div data-column="gap-2">
 		{#each rows as row (row.type === 'auto' ? 'auto' : row.option.id)}
 			{#if row.type === 'auto'}
 				<button
@@ -53,7 +53,7 @@
 				<div
 					class="protocol-row"
 					data-card="radius-6 padding-3"
-					data-row="gap-2 align-center wrap"
+					data-row="gap-2 wrap"
 					data-selected={
 						row.option.id === value || (resolvedProtocol === row.option.id && value !== '')
 							? ''
@@ -63,17 +63,18 @@
 					<button
 						type="button"
 						class="protocol-row-main"
-						data-row="gap-2 align-center"
+						data-row-item="flexible"
+						data-row="start gap-3"
 						onclick={() => onSelect(row.option.id)}
 					>
 						{#if row.option.icon.includes('/')}
-							<Icon class="protocol-icon" src={row.option.icon} size={20} alt="" />
+							<Icon class="protocol-icon" src={row.option.icon} size={22} alt="" />
 						{:else}
-							<Icon class="protocol-icon" icon={row.option.icon} size={20} alt="" />
+							<Icon class="protocol-icon" icon={row.option.icon} size={22} alt="" />
 						{/if}
-						<div data-column="gap-0">
+						<div data-column="gap-1">
 							<strong>{row.option.label}</strong>
-							<div data-muted>{row.option.detail}</div>
+							<small data-text="muted">{row.option.detail}</small>
 						</div>
 					</button>
 					{#each row.option.tags ?? [] as tagId (tagId)}
