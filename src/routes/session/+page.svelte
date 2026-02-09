@@ -7,18 +7,17 @@
 	import { replaceState } from '$app/navigation'
 	import { page } from '$app/state'
 	import { setContext } from 'svelte'
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { stringify } from 'devalue'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 
 	// Props
 	let {
 		panelHash,
 		setPanelHash,
+		setPanelRoute,
 	}: {
 		panelHash?: string | null
 		setPanelHash?: (hash: string, replace?: boolean) => void
+		setPanelRoute?: (path: string, params: Record<string, string>) => void
 	} = $props()
 
 
@@ -33,41 +32,38 @@
 		SESSION_HASH_SOURCE_KEY,
 		type SessionHashSource,
 	} from '$/lib/session/panelHash.ts'
-	import { setEffectiveHash } from '$/lib/session/panelHash.ts'
 	import {
 		ActionType,
 		createAction,
-		mergeActionParams,
 	} from '$/constants/actions.ts'
 	import {
-		buildSessionHash,
+		buildSessionPath,
 		createSession,
 		parseSessionHash,
 		parseTemplateParam,
 		sessionFromParsedHash,
-		setSessionActions,
 	} from '$/lib/session/sessions.ts'
 
 
 	// State
-	import { sessionActionsCollection } from '$/collections/SessionActions.ts'
-	import { sessionsCollection } from '$/collections/Sessions.ts'
-
 	const hashSource = $state<SessionHashSource>({
 		enabled: false,
 		panelHash: null,
 		setPanelHash: () => {},
+		setPanelRoute: undefined,
 	})
 	$effect(() => {
 		if (typeof setPanelHash === 'function') {
 			hashSource.enabled = true
 			hashSource.panelHash = panelHash ?? null
 			hashSource.setPanelHash = setPanelHash
+			hashSource.setPanelRoute = setPanelRoute
 			return
 		}
 		hashSource.enabled = false
 		hashSource.panelHash = null
 		hashSource.setPanelHash = () => {}
+		hashSource.setPanelRoute = undefined
 	})
 	setContext(SESSION_HASH_SOURCE_KEY, hashSource)
 
@@ -80,75 +76,14 @@
 		hashSource.enabled ? (hashSource.panelHash ?? '') : page.url.hash,
 	)
 	const templateParam = $derived(page.url.searchParams.get('template'))
-	const parsedFromHash = $derived(parseSessionHash(effectiveHash))
 	const parsedHash = $derived(
 		templateParam && templateParam.length > 0
 			? parseTemplateParam(templateParam)
-			: parsedFromHash,
-	)
-	const activeSessionId = $derived(
-		parsedFromHash.kind === 'session' ? parsedFromHash.sessionId : null,
-	)
-
-	const sessionQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: sessionsCollection })
-				.where(({ row }) => eq(row.id, activeSessionId ?? ''))
-				.select(({ row }) => ({ row })),
-		[() => activeSessionId],
-	)
-	const sessionActionsQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: sessionActionsCollection })
-				.where(({ row }) => eq(row.sessionId, activeSessionId ?? ''))
-				.select(({ row }) => ({ row })),
-		[() => activeSessionId],
-	)
-	const liveQueryEntries = [
-		{ id: 'session-page-session', label: 'Session', query: sessionQuery },
-		{
-			id: 'session-page-actions',
-			label: 'Session actions',
-			query: sessionActionsQuery,
-		},
-	]
-	registerLocalLiveQueryStack(() => liveQueryEntries)
-
-	const dbSession = $derived(sessionQuery.data?.[0]?.row ?? null)
-	const sessionActionsRows = $derived(
-		(sessionActionsQuery.data?.map((d) => d.row) ?? []).sort(
-			(a, b) => a.actionIndex - b.actionIndex,
-		),
-	)
-	const mergedActions = $derived(
-		sessionActionsRows.length > 0
-			? sessionActionsRows.map((r) => r.action)
-			: dbSession?.actions ?? [],
+			: parseSessionHash(effectiveHash),
 	)
 
 	const effectiveEphemeralKey = $derived(templateParam ?? effectiveHash)
-	let lastActionsHash = $state('')
 	$effect(() => {
-		if (parsedFromHash.kind === 'session' && dbSession) {
-			const actions = mergedActions.map((a) => mergeActionParams(a))
-			const sameAsCurrent =
-				activeSession != null &&
-				activeSession.actions.length === actions.length &&
-				stringify(activeSession.actions) === stringify(actions)
-			const raw =
-				sameAsCurrent && activeSession ? activeSession.actions : actions
-			const actionsToUse =
-				raw.length > 0 ? raw : [createAction(ActionType.Swap)]
-			activeSession = {
-				...dbSession,
-				actions: actionsToUse,
-			}
-			lastActionsHash = stringify(activeSession.actions)
-			lastEphemeralHash = null
-			return
-		}
 		if (
 			(parsedHash.kind === 'actions' || parsedHash.kind === 'empty') &&
 			effectiveEphemeralKey !== lastEphemeralHash
@@ -156,26 +91,18 @@
 			const base = sessionFromParsedHash(parsedHash)
 			const templateId = templateParam as SessionTemplateId | undefined
 			const template = templateId && sessionTemplatesById[templateId]
-			activeSession = template
-				? {
-						...base,
-						actions: template.actions.map((a) => ({
-							...a,
-							params: { ...a.params },
-						})),
-					}
-				: base
+			const templateActions = template
+				? template.actions.map((a) => ({
+						...a,
+						params: { ...a.params },
+					}))
+				: null
+			const actionsToUse =
+				(templateActions ?? base.actions).length > 0
+					? (templateActions ?? base.actions)
+					: [createAction(ActionType.Swap)]
+			activeSession = { ...base, actions: actionsToUse }
 			lastEphemeralHash = effectiveEphemeralKey
-		}
-	})
-
-	$effect(() => {
-		const s = activeSession
-		if (!s || s.id.startsWith('ephemeral-')) return
-		const hash = stringify(s.actions)
-		if (hash !== lastActionsHash) {
-			lastActionsHash = hash
-			setSessionActions(s.id, s.actions)
 		}
 	})
 
@@ -190,11 +117,12 @@
 			name: activeSession.name,
 			params: activeSession.params,
 		})
-		setEffectiveHash(hashSource, buildSessionHash(created.id))
-		replaceState(
-			`/session${buildSessionHash(created.id)}`,
-			{},
-		)
+		if (hashSource.setPanelRoute) {
+			hashSource.setPanelRoute('/session/[id]', { id: created.id })
+			hashSource.setPanelHash('')
+		} else {
+			replaceState(buildSessionPath(created.id), {})
+		}
 	}
 
 	const pageTitle = $derived(

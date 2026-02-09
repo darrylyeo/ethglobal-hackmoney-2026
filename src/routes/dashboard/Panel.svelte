@@ -77,6 +77,8 @@
 	const panelHash = $derived(panel.hashHistory.at(-1) ?? null)
 	const setPanelHash = (hash: string, replace = true) =>
 		onSetPanelHash(panel.id, hash, replace)
+	const setPanelRoute = (path: string, params: Record<string, string>) =>
+		onUpdateRoute(panel.id, { path, params })
 
 
 	// State
@@ -229,6 +231,7 @@
 						embeddedInPanel: true,
 						panelHash: panelHash ?? null,
 						setPanelHash,
+						setPanelRoute,
 					}}
 				/>
 			{/key}

@@ -36,7 +36,7 @@ export type SessionHashResult =
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null && !Array.isArray(value)
 
-export const buildSessionHash = (sessionId: string) => `#/session:${sessionId}`
+export const buildSessionPath = (sessionId: string) => `/session/${sessionId}`
 
 export const parseTemplateParam = (template: string | null): SessionHashResult => {
 	if (!template || !validActionTypes.has(template as Action['type']))
@@ -47,13 +47,10 @@ export const parseTemplateParam = (template: string | null): SessionHashResult =
 	}
 }
 
+/** Parses intent state from hash (reserved for state initialization from intents). */
 export const parseSessionHash = (hash: string): SessionHashResult => {
 	const normalized = hash.startsWith('#/') ? hash.slice(2) : hash.startsWith('#') ? hash.slice(1) : hash
 	if (!normalized) return { kind: 'empty' }
-	if (normalized.startsWith('session:')) {
-		const sessionId = normalized.slice('session:'.length)
-		return sessionId ? { kind: 'session', sessionId } : { kind: 'empty' }
-	}
 	const actions = normalized
 		.split('|')
 		.filter((entry) => entry.trim().length > 0)

@@ -14,7 +14,7 @@ import {
 	roomIdToPlaceEmoji,
 } from '$/lib/rooms/room.ts'
 import {
-	buildSessionHash,
+	buildSessionPath,
 	formatSessionPlaceholderName,
 } from '$/lib/session/sessions.ts'
 import type { NavigationItem } from '$/views/NavigationItem.svelte'
@@ -55,7 +55,7 @@ const sessionTitle = (session: { name?: string; actions: Action[] }) =>
 	session.name ?? formatSessionPlaceholderName(session.actions)
 const sessionIcon = (session: { actions: Action[] }) =>
 	(actionTypeDefinitionByActionType as Record<string, { icon: string }>)[session.actions[0]?.type]?.icon ?? '📋'
-const sessionHref = (session: { id: string }) => `/session${buildSessionHash(session.id)}`
+const sessionHref = (session: { id: string }) => buildSessionPath(session.id)
 
 export function getNavigationItems(input: NavigationItemsInput): NavigationItem[] {
 	const {

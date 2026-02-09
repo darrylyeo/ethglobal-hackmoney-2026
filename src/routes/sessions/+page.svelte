@@ -10,7 +10,7 @@
 
 	// Functions
 	import {
-		buildSessionHash,
+		buildSessionPath,
 		deleteAllDraftSessions,
 		deleteSession,
 	} from '$/lib/session/sessions.ts'
@@ -27,7 +27,7 @@
 	const sessionTitle = (session: { id: string; actions: Action[] }) =>
 		`${actionLabel(session.actions[0]?.type ?? '')} ${session.id.slice(0, 6)}`
 	const sessionHref = (session: { id: string }) =>
-		`/session${buildSessionHash(session.id)}`
+		buildSessionPath(session.id)
 
 
 	// State

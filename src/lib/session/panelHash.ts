@@ -6,6 +6,7 @@ export type SessionHashSource = {
 	enabled: boolean
 	panelHash: string | null
 	setPanelHash: (hash: string, replace?: boolean) => void
+	setPanelRoute?: (path: string, params: Record<string, string>) => void
 }
 
 export const getEffectiveHash = (
