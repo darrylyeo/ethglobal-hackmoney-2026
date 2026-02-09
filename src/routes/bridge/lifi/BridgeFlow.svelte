@@ -421,7 +421,7 @@
 	</div>
 
 	{#if !selectedWallet}
-		<p data-muted>Connect a wallet to get routes</p>
+		<p data-text="muted">Connect a wallet to get routes</p>
 	{/if}
 
 	{#if routesRow?.error}
@@ -498,7 +498,7 @@
 			{#if sortedRoutes.length > 0}
 				{@const limits = extractRouteLimits(sortedRoutes)}
 				{#if limits.minAmount !== null || limits.maxAmount !== null}
-					<p data-route-limits data-muted>
+					<p data-route-limits data-text="muted">
 						{#if limits.minAmount !== null}
 							Min: {formatSmallestToDecimal(limits.minAmount, 6)} USDC
 						{/if}
@@ -512,18 +512,18 @@
 			{/if}
 			<div data-column="gap-2">
 				{#if routesRow?.isLoading && sortedRoutes.length === 0}
-					<p data-muted>Finding routes…</p>
+					<p data-text="muted">Finding routes…</p>
 					{#each [1, 2, 3] as _}
 						<div
 							class="route-card route-card-skeleton"
 							data-card="radius-4 padding-3"
-							data-column="gap-1"
+							data-column="gap-2"
 						>
 							<div data-row="gap-2 align-center justify-between">
 								<Skeleton width="6em" height="1.25em" rounded="0.25em" />
 								<Skeleton width="4em" height="1em" rounded="0.25em" />
 							</div>
-							<div data-row="gap-2" data-muted>
+							<div data-row="gap-2" data-text="muted">
 								<Skeleton width="10em" height="1em" rounded="0.25em" />
 								<Skeleton width="3em" height="1em" rounded="0.25em" />
 							</div>
@@ -535,7 +535,7 @@
 							class="route-card"
 							type="button"
 							data-card="radius-4 padding-3"
-							data-column="gap-1"
+							data-column="gap-2"
 							data-selected={r.id === selectedRouteId ? '' : undefined}
 							onclick={() => {
 								selectedRouteId = r.id
@@ -543,9 +543,9 @@
 						>
 							<div data-row="gap-2 align-center justify-between">
 								<strong>{formatTokenAmount(r.toAmount, 6)} USDC</strong>
-								<span data-muted>${r.gasCostUsd.toFixed(2)} fees</span>
+								<span data-text="muted">${r.gasCostUsd.toFixed(2)} fees</span>
 							</div>
-							<div data-row="gap-2" data-muted>
+							<div data-row="gap-2" data-text="muted">
 								<span
 									>{[...new Set(r.steps.map((st) => st.toolName))].join(
 										' → ',
@@ -561,10 +561,10 @@
 	{/if}
 
 	{#if selectedRoute && fromNetwork && toNetwork}
-		<section data-card data-column="gap-3">
+		<section data-card data-column>
 			<div data-row="gap-2 align-center justify-between">
 				<h3>Quote Details</h3>
-				<div data-row="gap-2 align-center" data-muted>
+				<div data-row="gap-2 align-center" data-text="muted">
 					{#if routesRow?.isLoading}
 						Refreshing…
 					{:else if quoteRemaining !== null}
@@ -697,7 +697,7 @@
 					{/if}
 				</dl>
 				{#if warnDifferentRecipient || warnHighSlippage || warnLargeAmount}
-					<div class="warnings" data-column="gap-1">
+					<div class="warnings" data-column="gap-2">
 						{#if warnDifferentRecipient}
 							<p class="warning">Recipient is not your connected wallet.</p>
 						{/if}
@@ -746,13 +746,13 @@
 	{/if}
 
 	{#if selectedActor}
-		<section data-card data-column="gap-2">
+		<section data-card data-column>
 			<button class="heading" type="button"> Transaction history </button>
 			{#if transactions.length > 0}
-				<div data-column="gap-1">
+				<div data-column="gap-2">
 					{#each transactions as tx (stringify(tx.$id))}
 						<div class="tx-row" data-row="gap-2 align-center">
-							<span data-muted
+							<span data-text="muted"
 								>{formatRelativeTime(now - tx.$id.createdAt)}</span
 							>
 							<span
@@ -789,7 +789,7 @@
 					{/each}
 				</div>
 			{:else}
-				<p data-muted>No transactions yet</p>
+				<p data-text="muted">No transactions yet</p>
 			{/if}
 		</section>
 	{/if}

@@ -136,7 +136,7 @@
 			{@render children()}
 		{:else}
 			<Select.Trigger {id} aria-label={ariaLabel}>
-				<span data-row="gap-1 align-center">
+				<span data-row="gap-2">
 					{#if Before}
 						{@render Before()}
 					{/if}
@@ -224,7 +224,7 @@
 			{@render children()}
 		{:else}
 			<Select.Trigger {id} aria-label={ariaLabel}>
-				<span data-row="gap-1 align-center">
+				<span data-row="gap-2">
 					{#if Before}
 						{@render Before()}
 					{/if}

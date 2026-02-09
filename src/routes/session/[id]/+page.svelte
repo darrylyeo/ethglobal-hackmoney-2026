@@ -125,7 +125,7 @@
 		<SessionView bind:session={activeSession} />
 	{:else if sessionQueryResolved && dbSession === null}
 		<section data-scroll-item>
-			<p data-muted>Session not found.</p>
+			<p data-text="muted">Session not found.</p>
 			<a href="/sessions">Back to sessions</a>
 		</section>
 	{:else}
@@ -138,7 +138,7 @@
 					<span data-text="annotation">Session</span>
 				</div>
 			</header>
-			<p data-muted>Loading session…</p>
+			<p data-text="muted">Loading session…</p>
 		</section>
 	{/if}
 </main>

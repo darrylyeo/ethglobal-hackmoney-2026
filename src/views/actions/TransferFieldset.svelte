@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import { ActionType, type Action } from '$/constants/actions.ts'
+	import { ActionType, type Action, type ActionParams } from '$/constants/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import type { Network } from '$/constants/networks.ts'
 	import { PatternType } from '$/constants/patterns.ts'
@@ -13,7 +13,7 @@
 		chainCoins,
 		asNonEmptyCoins,
 	}: {
-		action: Action
+		action: Action<ActionType.Transfer>
 		filteredNetworks: readonly Network[]
 		chainCoins: (chainId: number) => Coin[]
 		asNonEmptyCoins: (coins: Coin[]) => coins is [Coin, ...Coin[]]
@@ -24,6 +24,12 @@
 	let invalid = $state(false)
 
 
+	// (Derived)
+	const p: ActionParams<ActionType.Transfer> = $derived.by(() => action.params)
+	const coins = $derived(chainCoins(p.chainId))
+	const tokenCoin = $derived(asNonEmptyCoins(coins) ? (coins.find((c) => c.address.toLowerCase() === p.tokenAddress.toLowerCase()) ?? coins[0]) : null)
+
+
 	// Components
 	import PatternInput from '$/components/PatternInput.svelte'
 	import CoinInput from '$/views/CoinInput.svelte'
@@ -32,11 +38,8 @@
 </script>
 
 {#if action.type === ActionType.Transfer}
-	{@const p = (action.params as { fromActor: `0x${string}`; toActor: `0x${string}`; chainId: number; amount: bigint; tokenAddress: `0x${string}` })}
-	{@const coins = chainCoins(p.chainId)}
-	{@const tokenCoin = asNonEmptyCoins(coins) ? (coins.find((c) => c.address.toLowerCase() === p.tokenAddress.toLowerCase()) ?? coins[0]) : null}
-	<div data-column="gap-3">
-	<label data-column="gap-0">
+	<div data-column>
+	<label data-column="gap-2">
 		<span>From</span>
 		<PatternInput
 			patternTypes={[PatternType.EvmAddress, PatternType.EnsName]}
@@ -44,7 +47,7 @@
 			ariaLabel="From address"
 		/>
 	</label>
-	<label data-column="gap-0">
+	<label data-column="gap-2">
 		<span>To</span>
 		<PatternInput
 			patternTypes={[PatternType.EvmAddress, PatternType.EnsName]}
@@ -52,7 +55,7 @@
 			ariaLabel="To address"
 		/>
 	</label>
-	<label data-column="gap-0">
+	<label data-column="gap-2">
 		<span>Network</span>
 		<NetworkInput
 			networks={filteredNetworks}
@@ -66,7 +69,7 @@
 			<CoinInput
 				coins={coins}
 				bind:value={() => tokenCoin, (c) => {
-					if (c) action = { ...action, params: { ...action.params, tokenAddress: c.address } } as Action
+					if (c) action = { ...action, params: { ...action.params, tokenAddress: c.address } }
 				}}
 				ariaLabel="Token"
 			/>
@@ -76,7 +79,7 @@
 			<CoinAmountInput
 				coins={coins}
 				bind:coin={() => tokenCoin, (c) => {
-					if (c) action = { ...action, params: { ...action.params, tokenAddress: c.address } } as Action
+					if (c) action = { ...action, params: { ...action.params, tokenAddress: c.address } }
 				}}
 				min={0n}
 				max={0n}
@@ -86,18 +89,18 @@
 			/>
 		</label>
 	{:else}
-		<label data-column="gap-0">
+		<label data-column="gap-2">
 			<span>Token address</span>
 			<input type="text" bind:value={p.tokenAddress} />
 		</label>
-		<label data-column="gap-0">
+		<label data-column="gap-2">
 			<span>Amount</span>
 			<input
 				type="text"
 				value={String(p.amount)}
 				oninput={(e) => {
 					const v = (e.currentTarget as HTMLInputElement).value
-					action = { ...action, params: { ...action.params, amount: BigInt(v || '0') } } as Action
+					action = { ...action, params: { ...action.params, amount: BigInt(v || '0') } }
 				}}
 			/>
 		</label>

@@ -26,13 +26,13 @@
 <article data-card data-column="gap-1 padding-2" data-transaction>
 	<div data-row="gap-2 align-center">
 		{#if txUrl}
-			<a href={txUrl} target="_blank" rel="noopener noreferrer" data-muted>
+			<a href={txUrl} target="_blank" rel="noopener noreferrer" data-text="muted">
 				{txShort}
 			</a>
 		{:else}
-			<span data-muted>{txShort}</span>
+			<span data-text="muted">{txShort}</span>
 		{/if}
-		<span data-muted>chain {transaction.chainId}</span>
+		<span data-text="muted">chain {transaction.chainId}</span>
 		<time datetime={new Date(transaction.createdAt).toISOString()}>{dateLabel}</time>
 	</div>
 </article>

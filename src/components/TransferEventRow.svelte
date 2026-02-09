@@ -56,7 +56,7 @@
 <article
 	bind:this={articleRef}
 	data-card="radius-2 padding-2"
-	data-column="gap-1"
+	data-column="gap-2"
 	class="transfer-event-row"
 >
 	<dl data-row="wrap gap-2">

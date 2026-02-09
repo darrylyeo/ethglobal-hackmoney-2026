@@ -7,13 +7,16 @@
 	} from '$/lib/session/payloadDisplay.ts'
 
 
+	// Components
+	import Address from '$/components/Address.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
+
+
 	// Props
 	let {
 		payload,
-		chainName = '',
 	}: {
 		payload: TransactionSigningPayload
-		chainName?: string
 	} = $props()
 
 
@@ -31,56 +34,48 @@
 	)
 </script>
 
-<article data-card data-column="gap-2 padding-2" data-signing-payload>
+<article data-card data-signing-payload data-column="gap-2 padding-3">
 	<div data-row="gap-2 align-center">
-		<span data-text="annotation">{payload.stepIndex + 1}.</span>
 		{#if payload.label}
-			<strong>{payload.label}</strong>
+			<h4>{payload.label}</h4>
 		{/if}
 	</div>
-	{#if chainName}
-		<p data-muted>{chainName} (Chain ID {payload.chainId})</p>
-	{:else}
-		<p data-muted>Chain ID {payload.chainId}</p>
-	{/if}
-	<dl class="payload-fields" data-column="gap-2">
-		<div data-column="gap-0">
-			<dt data-text="annotation">From</dt>
-			<dd><code class="payload-address" title={payload.from}>{payload.from}</code></dd>
-		</div>
+	<dl>
+		<dt>Network</dt>
+		<dd>
+			<NetworkName chainId={payload.chainId} showChainId={true} />
+		</dd>
+		<dt>From</dt>
+		<dd>
+			<Address
+				network={payload.chainId}
+				address={payload.from}
+				showAvatar={false}
+			/>
+		</dd>
 		{#if payload.to != null}
-			<div data-column="gap-0">
-				<dt data-text="annotation">To</dt>
-				<dd><code class="payload-address" title={payload.to}>{payload.to}</code></dd>
-			</div>
+			<dt>To</dt>
+			<dd>
+				<Address
+					network={payload.chainId}
+					address={payload.to}
+					showAvatar={false}
+				/>
+			</dd>
 		{/if}
-		<div data-column="gap-0">
-			<dt data-text="annotation">Value</dt>
-			<dd><code>{valueFormatted}</code></dd>
-		</div>
-		<div data-column="gap-0">
-			<dt data-text="annotation">Data</dt>
-			<dd><code class="payload-data-desc">{dataSummary}</code></dd>
-		</div>
+		<dt>Value</dt>
+		<dd data-text="font-monospace">{valueFormatted}</dd>
+		<dt>Data</dt>
+		<dd data-text="font-monospace">{dataSummary}</dd>
 		{#if payload.gasLimit != null && payload.gasLimit !== ''}
-			<div data-column="gap-0">
-				<dt data-text="annotation">Gas limit</dt>
-				<dd><code>{payload.gasLimit}</code></dd>
-			</div>
+			<dt>Gas limit</dt>
+			<dd data-text="font-monospace">{payload.gasLimit}</dd>
 		{/if}
 	</dl>
 </article>
 
 <style>
-	.payload-fields {
-		font-size: 0.9em;
-	}
-	.payload-fields dt {
-		opacity: 0.8;
-	}
-	.payload-address,
-	.payload-data-desc {
+	[data-signing-payload] dl dd {
 		word-break: break-all;
-		font-size: 0.95em;
 	}
 </style>

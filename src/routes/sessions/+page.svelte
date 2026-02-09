@@ -88,7 +88,7 @@
 			{/if}
 		</header>
 		{#if sessions.length === 0}
-			<p data-muted>No sessions yet.</p>
+			<p data-text="muted">No sessions yet.</p>
 		{:else}
 			<ul data-column="gap-2">
 				{#each sessions as session (session.id)}
@@ -97,7 +97,7 @@
 							<a href={sessionHref(session)}>{sessionTitle(session)}</a>
 							<span data-tag={session.status}>{session.status}</span>
 						</span>
-						<small data-muted>
+						<small data-text="muted">
 							Created {formatSessionDate(session.createdAt)} · Updated {formatSessionDate(session.updatedAt)}
 						</small>
 						<button

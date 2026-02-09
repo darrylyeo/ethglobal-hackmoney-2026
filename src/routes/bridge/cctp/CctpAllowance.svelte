@@ -67,19 +67,19 @@
 </script>
 
 
-<div data-column="gap-1">
+<div data-column="gap-2">
 	<strong>Fast transfer allowance</strong>
 	{#if !fastTransferSupported}
-		<small data-muted>Not required for this source chain.</small>
+		<small data-text="muted">Not required for this source chain.</small>
 	{:else if allowanceLoading}
-		<small data-muted>Loading allowance…</small>
+		<small data-text="muted">Loading allowance…</small>
 	{:else if allowanceError}
 		<small data-error>{allowanceError}</small>
 	{:else if allowance}
-		<small data-muted
+		<small data-text="muted"
 			>{allowance.value.toLocaleString()} USDC · Updated {allowance.lastUpdated}</small
 		>
 	{:else}
-		<small data-muted>Allowance unavailable.</small>
+		<small data-text="muted">Allowance unavailable.</small>
 	{/if}
 </div>

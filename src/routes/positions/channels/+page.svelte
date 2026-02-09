@@ -346,7 +346,7 @@
 
 <main id="main" data-column data-sticky-container>
 	<h1>Channels</h1>
-	<p data-muted>Yellow payment channels for all connected accounts.</p>
+	<p data-text="muted">Yellow payment channels for all connected accounts.</p>
 
 		<section class="connection" data-row="gap-4" data-yellow-connection>
 			{#if isConnected}

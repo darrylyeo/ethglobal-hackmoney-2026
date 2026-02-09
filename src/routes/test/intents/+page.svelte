@@ -73,7 +73,7 @@
 >
 	<section data-scroll-item data-column="gap-3">
 		<h1>Entity intents</h1>
-		<p data-muted>Drag balances into from/to slots to resolve intents.</p>
+		<p data-text="muted">Drag balances into from/to slots to resolve intents.</p>
 	</section>
 
 	<section data-scroll-item data-column="gap-3">
@@ -82,7 +82,7 @@
 			{#each intents as intent}
 				<div data-card="padding-3" data-column="gap-2">
 					<strong>{intent.label}</strong>
-					<small data-muted>{intent.type}</small>
+					<small data-text="muted">{intent.type}</small>
 					<div data-row="gap-2 wrap">
 						{#each intent.entities as entity}
 							<code>{entity.name}: {entity.type}</code>
@@ -90,7 +90,7 @@
 					</div>
 					<div data-row="gap-2 wrap">
 						{#each intent.invocations as invocation}
-							<span data-muted>
+							<span data-text="muted">
 								{invocation.modality}: {invocation.entities.dragTarget} → {invocation.entities.dropTarget}
 							</span>
 						{/each}
@@ -113,9 +113,9 @@
 			>
 				<strong>From (drag source)</strong>
 				{#if fromPayload}
-					<pre data-muted>{JSON.stringify(fromPayload, null, 2)}</pre>
+					<pre data-text="muted">{JSON.stringify(fromPayload, null, 2)}</pre>
 				{:else}
-					<p data-muted>Drop an entity</p>
+					<p data-text="muted">Drop an entity</p>
 				{/if}
 			</div>
 			<div
@@ -128,9 +128,9 @@
 			>
 				<strong>To (drop target)</strong>
 				{#if toPayload}
-					<pre data-muted>{JSON.stringify(toPayload, null, 2)}</pre>
+					<pre data-text="muted">{JSON.stringify(toPayload, null, 2)}</pre>
 				{:else}
-					<p data-muted>Drop an entity</p>
+					<p data-text="muted">Drop an entity</p>
 				{/if}
 			</div>
 		</div>
@@ -139,7 +139,7 @@
 	<section data-scroll-item data-column="gap-3">
 		<h2>Balances (TanStack DB cache)</h2>
 		{#if actorCoins.length === 0}
-			<p data-muted>No cached balances yet.</p>
+			<p data-text="muted">No cached balances yet.</p>
 		{:else}
 			<div data-column="gap-2">
 			{#each actorCoins as row (row.$id.chainId + row.$id.address + row.$id.tokenAddress)}
@@ -193,15 +193,15 @@
 				<strong>{resolution.intent.label}</strong>
 
 				{#if resolution.error}
-					<p data-muted>Error: {resolution.error instanceof Error ? resolution.error.message : String(resolution.error)}</p>
+					<p data-text="muted">Error: {resolution.error instanceof Error ? resolution.error.message : String(resolution.error)}</p>
 				{:else if resolution.options.length === 0}
-					<p data-muted>No options resolved.</p>
+					<p data-text="muted">No options resolved.</p>
 				{:else}
 					<div data-column="gap-2">
 						{#each resolution.options as option, i (i)}
-							<div data-card="padding-2" data-column="gap-1">
+							<div data-card="padding-2" data-column="gap-2">
 								<strong>{option.name}</strong>
-								<ol data-column="gap-1">
+								<ol data-column="gap-2">
 									{#each option.sessionTemplate.actions as action (action.type)}
 										<li>{action.type}</li>
 									{/each}
@@ -212,9 +212,9 @@
 				{/if}
 			</div>
 		{:else if resolution}
-			<p data-muted>No matching intent for these entity types.</p>
+			<p data-text="muted">No matching intent for these entity types.</p>
 		{:else}
-			<p data-muted>Select two entities.</p>
+			<p data-text="muted">Select two entities.</p>
 		{/if}
 	</section>
 </main>

@@ -33,9 +33,11 @@
 	createItem={() => createAction(ActionType.Swap)}
 >
 	{#snippet Item({ item, index })}
-		<ActionComponent
-			bind:action={actions[index]}
-			actionIndex={index}
-		/>
+		{#if item != null}
+			<ActionComponent
+				bind:action={actions[index]}
+				actionIndex={index}
+			/>
+		{/if}
 	{/snippet}
 </EditableItemsList>

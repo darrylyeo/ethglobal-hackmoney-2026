@@ -82,15 +82,3 @@
 			value === 0n ? '' : formatSmallestToDecimal(value, coin.decimals), setAmountFromInput}
 	/>
 </div>
-
-
-<style>
-	.token-amount {
-		display: grid;
-		gap: 0.25em;
-
-		> .token-amount-input {
-			padding-bottom: 1.1em;
-		}
-	}
-</style>

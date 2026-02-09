@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import { ActionType, type Action } from '$/constants/actions.ts'
+	import { ActionType, type Action, type ActionParams } from '$/constants/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import type { Network } from '$/constants/networks.ts'
 	import { formatSlippagePercent, slippagePresets } from '$/constants/slippage.ts'
@@ -13,7 +13,7 @@
 		chainCoins,
 		asNonEmptyCoins,
 	}: {
-		action: Action
+		action: Action<ActionType.Swap>
 		filteredNetworks: readonly Network[]
 		chainCoins: (chainId: number) => Coin[]
 		asNonEmptyCoins: (coins: Coin[]) => coins is [Coin, ...Coin[]]
@@ -24,6 +24,13 @@
 	let invalid = $state(false)
 
 
+	// (Derived)
+	const params = $derived(action.params) as ActionParams<ActionType.Swap>
+	const coins = $derived(chainCoins(params.chainId))
+	const tokenInCoin = $derived(coins.find((c) => c.address.toLowerCase() === params.tokenIn.toLowerCase()) ?? coins[0])
+	const tokenOutCoin = $derived(coins.find((c) => c.address.toLowerCase() === params.tokenOut.toLowerCase()) ?? (coins[1] ?? coins[0]))
+
+
 	// Components
 	import Select from '$/components/Select.svelte'
 	import CoinInput from '$/views/CoinInput.svelte'
@@ -32,16 +39,12 @@
 </script>
 
 {#if action.type === ActionType.Swap}
-	{@const p = (action.params as { chainId: number; tokenIn: `0x${string}`; tokenOut: `0x${string}`; amount: bigint; slippage: number })}
-	{@const coins = chainCoins(p.chainId)}
-	{@const tokenInCoin = coins.find((c) => c.address.toLowerCase() === p.tokenIn.toLowerCase()) ?? coins[0]}
-	{@const tokenOutCoin = coins.find((c) => c.address.toLowerCase() === p.tokenOut.toLowerCase()) ?? (coins[1] ?? coins[0])}
-	<div data-column="gap-3">
-	<label data-column="gap-0">
+	<div data-column>
+	<label data-column="gap-2">
 		<span>Network</span>
 		<NetworkInput
 			networks={filteredNetworks}
-			bind:value={p.chainId}
+			bind:value={params.chainId}
 			ariaLabel="Network"
 		/>
 	</label>
@@ -52,11 +55,11 @@
 				id="swap-amount-in"
 				coins={coins}
 				bind:coin={() => tokenInCoin ?? coins[0], (c) => {
-					if (c) action = { ...action, params: { ...action.params, tokenIn: c.address } } as Action
+					if (c) action = { ...action, params: { ...action.params, tokenIn: c.address } }
 				}}
 				min={0n}
 				max={0n}
-				bind:value={p.amount}
+				bind:value={params.amount}
 				bind:invalid={invalid}
 				ariaLabel="Amount in"
 			/>
@@ -67,7 +70,7 @@
 				id="swap-token-out"
 				coins={coins}
 				bind:value={() => tokenOutCoin, (c) => {
-					if (c) action = { ...action, params: { ...action.params, tokenOut: c.address } } as Action
+					if (c) action = { ...action, params: { ...action.params, tokenOut: c.address } }
 				}}
 				ariaLabel="Token out"
 			/>
@@ -79,11 +82,11 @@
 				items={slippagePresets}
 				getItemId={(x) => x.id}
 				getItemLabel={(x) => formatSlippagePercent(x.value)}
-				bind:value={() => slippagePresets.find((x) => Math.abs(x.value - p.slippage) < 1e-9)?.id ?? '', (v: string | string[]) => {
+				bind:value={() => slippagePresets.find((x) => Math.abs(x.value - params.slippage) < 1e-9)?.id ?? '', (v: string | string[]) => {
 					const preset = slippagePresets.find((x) => x.id === (typeof v === 'string' ? v : v[0]))
-					if (preset) action = { ...action, params: { ...action.params, slippage: preset.value } } as Action
+					if (preset) action = { ...action, params: { ...action.params, slippage: preset.value } }
 				}}
-				placeholder={formatSlippagePercent(p.slippage)}
+				placeholder={formatSlippagePercent(params.slippage)}
 				ariaLabel="Slippage"
 			/>
 		</div>

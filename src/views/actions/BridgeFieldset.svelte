@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import { ActionType, type Action } from '$/constants/actions.ts'
+	import { ActionType, type Action, type ActionParams } from '$/constants/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import { getBridgeCoins } from '$/constants/coins.ts'
 	import { ChainId } from '$/constants/networks.ts'
@@ -17,7 +17,7 @@
 		action = $bindable(),
 		filteredNetworks,
 	}: {
-		action: Action
+		action: Action<ActionType.Bridge>
 		filteredNetworks: readonly Network[]
 	} = $props()
 
@@ -27,19 +27,15 @@
 
 
 	// (Derived)
+	const p: ActionParams<ActionType.Bridge> = $derived.by(() => action.params)
+	const bridgeCoins = $derived(getBridgeCoins(p.fromChainId ?? ChainId.Ethereum))
+	const selectedCoin = $derived(bridgeCoins.find((c) => c.address.toLowerCase() === p.tokenAddress.toLowerCase()) ?? bridgeCoins[0])
+
 	$effect(() => {
-		if (action.type !== ActionType.Bridge) return
-		const p = action.params as {
-			fromChainId: number | null
-			tokenAddress: `0x${string}`
-			tokenSymbol: string
-			tokenDecimals: number
-		}
-		const coins = getBridgeCoins(p.fromChainId ?? ChainId.Ethereum)
-		if (coins.length === 0) return
-		const match = coins.find((c) => c.address.toLowerCase() === p.tokenAddress.toLowerCase())
+		if (bridgeCoins.length === 0) return
+		const match = bridgeCoins.find((c) => c.address.toLowerCase() === p.tokenAddress.toLowerCase())
 		if (match) return
-		const first = coins[0]
+		const first = bridgeCoins[0]
 		action = {
 			...action,
 			params: {
@@ -48,7 +44,7 @@
 				tokenSymbol: first.symbol,
 				tokenDecimals: first.decimals,
 			},
-		} as Action
+		}
 	})
 
 
@@ -58,18 +54,8 @@
 </script>
 
 {#if action.type === ActionType.Bridge}
-	{@const p = (action.params as {
-		fromChainId: number | null
-		toChainId: number | null
-		tokenAddress: `0x${string}`
-		tokenSymbol: string
-		tokenDecimals: number
-		amount: bigint
-	})}
-	{@const bridgeCoins = getBridgeCoins(p.fromChainId ?? ChainId.Ethereum)}
-	{@const selectedCoin = bridgeCoins.find((c) => c.address.toLowerCase() === p.tokenAddress.toLowerCase()) ?? bridgeCoins[0]}
-	<div data-column="gap-3">
-		<label data-column="gap-0">
+	<div data-column>
+		<label data-column="gap-2">
 			<span>From network</span>
 			<NetworkInput
 				networks={filteredNetworks}
@@ -92,13 +78,13 @@
 									tokenSymbol: c.symbol,
 									tokenDecimals: c.decimals,
 								},
-							} as Action
+							}
 					}}
 					ariaLabel="Coin"
 				/>
 			</label>
 		{/if}
-		<label data-column="gap-0">
+		<label data-column="gap-2">
 			<span>To network</span>
 			<NetworkInput
 				networks={filteredNetworks}
@@ -106,7 +92,7 @@
 				ariaLabel="To network"
 			/>
 		</label>
-		<label data-column="gap-0">
+		<label data-column="gap-2">
 			<span>Amount</span>
 			<input
 				type="text"
@@ -117,7 +103,7 @@
 					const raw = (e.currentTarget as HTMLInputElement).value
 					if (raw === '') {
 						invalid = false
-						action = { ...action, params: { ...action.params, amount: 0n } } as Action
+						action = { ...action, params: { ...action.params, amount: 0n } }
 						return
 					}
 					if (isValidDecimalInput(raw, p.tokenDecimals)) {
@@ -125,7 +111,7 @@
 						action = {
 							...action,
 							params: { ...action.params, amount: parseDecimalToSmallest(raw, p.tokenDecimals) },
-						} as Action
+						}
 						return
 					}
 					invalid = true

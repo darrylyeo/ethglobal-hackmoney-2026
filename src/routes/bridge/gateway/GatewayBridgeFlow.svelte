@@ -145,7 +145,7 @@
 </script>
 
 {#if recipient && fromNetwork && toNetwork}
-	<div data-preview data-column="gap-1">
+	<div data-preview data-column="gap-2">
 		<strong>Transfer preview</strong>
 		<dl class="bridge-summary">
 			<dt>From</dt>
@@ -163,19 +163,19 @@
 <div data-card data-column="gap-3">
 	<h3>Gateway</h3>
 	{#if balanceLoading}
-		<p data-muted>Loading unified balance…</p>
+		<p data-text="muted">Loading unified balance…</p>
 	{:else if balanceError}
 		<p data-error>{balanceError}</p>
 	{:else if unifiedBalance !== null}
-		<p data-muted>
+		<p data-text="muted">
 			Unified USDC balance:
 			{formatSmallestToDecimal(unifiedBalance, 6)}
 			USDC
 		</p>
 		{#if canInstantTransfer}
-			<p data-muted>Instant transfer: sign burn intent, then mint on destination.</p>
+			<p data-text="muted">Instant transfer: sign burn intent, then mint on destination.</p>
 		{:else if needsDeposit}
-			<p data-muted>
+			<p data-text="muted">
 				Deposit USDC to Gateway Wallet on
 				{fromNetwork?.name ?? 'source chain'}
 				first. Wallet contract:
@@ -183,9 +183,9 @@
 			</p>
 		{/if}
 	{:else if selectedActor}
-		<p data-muted>Connect wallet to see unified balance.</p>
+		<p data-text="muted">Connect wallet to see unified balance.</p>
 	{:else}
-		<p data-muted>Connect a wallet to continue.</p>
+		<p data-text="muted">Connect a wallet to continue.</p>
 	{/if}
 
 	<div data-column="gap-2">

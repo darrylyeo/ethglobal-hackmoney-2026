@@ -1,7 +1,9 @@
 <script lang="ts" generics="_CoinType extends CoinType = CoinType">
 	// Types/constants
 	import { type Coin, CoinType } from '$/constants/coins.ts'
+	import { networkConfigsByChainId } from '$/constants/networks.ts'
 	import type { StorkPriceRow } from '$/collections/StorkPrices.ts'
+	import { IconShape } from '$/components/Icon.svelte'
 
 
 	// Props
@@ -10,6 +12,7 @@
 		amount,
 		draggable = true,
 		showLabel = true,
+		showIcon = false,
 		symbolOnly = false,
 		priceRow = null,
 		showPriceTooltip = priceRow !== null,
@@ -18,10 +21,25 @@
 		amount?: bigint
 		draggable?: boolean
 		showLabel?: boolean
+		showIcon?: boolean
 		symbolOnly?: boolean
 		priceRow?: StorkPriceRow | null
 		showPriceTooltip?: boolean
 	} = $props()
+
+
+	// (Derived)
+	const networkConfig = $derived(networkConfigsByChainId[coin.chainId])
+	const networkSubicon = $derived(
+		networkConfig?.icon
+			? {
+					src: networkConfig.icon,
+					alt: coin.chainId.toString(),
+					size: 10,
+					shape: IconShape.Circle,
+				}
+			: undefined,
+	)
 
 
 	// Functions
@@ -42,12 +60,25 @@
 	{@attach draggableAttachment({ text: stringify(coin), enabled: draggable })}
 	data-row="inline wrap gap-1"
 >
-	{#if showPriceTooltip}
-		<Tooltip contentProps={{ side: 'top' }}>
-			{#snippet Content()}
-				<StorkPriceFeed symbol={coin.symbol} {priceRow} />
-			{/snippet}
-			<span class="coin-amount" data-row="start gap-2">
+	{#snippet coinAmountBody()}
+		<span class="coin-amount" data-row="inline gap-2">
+			{#if showIcon || coin.icon?.original?.url}
+				<span class="coin-icons" data-row="center gap-1">
+					{#if coin.icon?.original?.url}
+						<CoinIcon
+							src={coin.icon.original.url}
+							symbol={coin.symbol ?? ''}
+							alt={coin.symbol ?? ''}
+							size={16}
+							subicon={networkSubicon}
+						/>
+					{:else}
+						<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} size={10} />
+					{/if}
+				</span>
+			{/if}
+
+			<span data-row="inline align-baseline gap-1">
 				{#if amount !== undefined}
 					<span class="balance">
 						{#each new Intl.NumberFormat( undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6, compactDisplay: 'short' }, ).formatToParts(coin.decimals ? Number(amount) / Math.pow(10, coin.decimals) : Number(amount)) as part}
@@ -68,63 +99,19 @@
 							: `${coin.symbol} (${coin.name})`}
 					</abbr>
 				{/if}
-
-				{#if coin.icon?.original?.url || coin.chainId !== undefined}
-					<span class="coin-icons" data-row="center gap-1">
-						{#if coin.icon?.original?.url}
-							<CoinIcon
-								src={coin.icon.original.url}
-								symbol={coin.symbol ?? ''}
-								alt={coin.symbol ?? ''}
-								size={16}
-							/>
-						{/if}
-						{#if coin.chainId !== undefined}
-							<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} size={10} />
-						{/if}
-					</span>
-				{/if}
 			</span>
+		</span>
+	{/snippet}
+
+	{#if showPriceTooltip}
+		<Tooltip contentProps={{ side: 'top' }}>
+			{#snippet Content()}
+				<StorkPriceFeed symbol={coin.symbol} {priceRow} />
+			{/snippet}
+			{@render coinAmountBody()}
 		</Tooltip>
 	{:else}
-		<span class="coin-amount" data-row="start gap-2">
-			{#if amount !== undefined}
-				<span class="balance">
-					{#each new Intl.NumberFormat( undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6, compactDisplay: 'short' }, ).formatToParts(coin.decimals ? Number(amount) / Math.pow(10, coin.decimals) : Number(amount)) as part}
-						<span data-part={part.type}>{part.value}</span>
-					{/each}
-				</span>
-			{/if}
-
-			{#if showLabel && (coin.name || coin.symbol)}
-				<abbr
-					class="coin"
-					title={coin.type === CoinType.Native
-						? 'Native Currency'
-						: coin.address}
-				>
-					{symbolOnly || !(coin.name && coin.symbol)
-						? coin.symbol
-						: `${coin.symbol} (${coin.name})`}
-				</abbr>
-			{/if}
-
-			{#if coin.icon?.original?.url || coin.chainId !== undefined}
-				<span class="coin-icons" data-row="center gap-1">
-					{#if coin.icon?.original?.url}
-						<CoinIcon
-							src={coin.icon.original.url}
-							symbol={coin.symbol ?? ''}
-							alt={coin.symbol ?? ''}
-							size={16}
-						/>
-					{/if}
-					{#if coin.chainId !== undefined}
-						<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} size={10} />
-					{/if}
-				</span>
-			{/if}
-		</span>
+		{@render coinAmountBody()}
 	{/if}
 </div>
 
@@ -139,26 +126,10 @@
 		}
 	}
 
-	.coin-amount {
-		position: relative;
-		padding-inline-end: 1.75em;
-		padding-block-end: 0.25em;
-	}
 
 	.coin {
 		color: var(--text-secondary);
 		font-size: smaller;
-	}
-
-	.coin-icons {
-		position: absolute;
-		right: 0;
-		bottom: 0;
-		border-radius: 999px;
-		background: var(--surface-1);
-		box-shadow: 0 0 0 1px var(--color-border);
-		display: inline-flex;
-		padding: 1px;
 	}
 
 	abbr {

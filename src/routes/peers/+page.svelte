@@ -105,7 +105,7 @@
 			>
 				<a href={resolve(`/account/${encodeURIComponent(entry.address)}`)}>
 					<span>{entry.displayName ?? formatAddress(entry.address)}</span>
-					<span data-muted>{formatAddress(entry.address)}</span>
+					<span data-text="muted">{formatAddress(entry.address)}</span>
 				</a>
 				<span data-tag>{entry.isConnected ? 'Connected' : 'Disconnected'}</span>
 				<span data-tag>Verified</span>
@@ -123,7 +123,7 @@
 	</ul>
 
 	{#if peersList.length === 0}
-		<p data-muted>
+		<p data-text="muted">
 			No verified peers. Verify an address in a room to see them here.
 		</p>
 	{/if}

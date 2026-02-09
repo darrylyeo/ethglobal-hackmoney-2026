@@ -17,7 +17,7 @@
 
 {#if action.type === ActionType.Bridge && p}
 	<div data-card data-column="gap-2">
-		<h3 data-text="annotation">CCTP settings</h3>
+		<h3>CCTP settings</h3>
 		<div data-row="gap-2">
 			<button
 				type="button"

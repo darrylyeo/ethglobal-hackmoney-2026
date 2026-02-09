@@ -27,55 +27,9 @@
 	} = $props()
 
 
-	// (Derived)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	// Components
-	import NetworkIcon from '$/components/NetworkIcon.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
+    import NetworkIcon from '$/components/NetworkIcon.svelte'
 	import Select from '$/components/Select.svelte'
 </script>
 
@@ -90,65 +44,59 @@
 	{#if selectedNetworks.length > 0}
 		<span data-row="start gap-2">
 			{#each selectedNetworks as network (network.id)}
-				<span class="network-input-icon">
-					<NetworkIcon chainId={network.id} size={16} title={network.name} />
-				</span>
+				<NetworkIcon chainId={network.id} size={16} />
 			{/each}
 		</span>
 	{/if}
 {/snippet}
 
 {#snippet networkItem(network: Network, selected: boolean)}
-	<span data-row="start gap-2" data-selected={selected}>
-		<span class="network-input-icon">
-			<NetworkIcon chainId={network.id} size={16} />
-		</span>
-		<span>{network.name}</span>
-	</span>
+	<NetworkName chainId={network.id} />
 {/snippet}
 
-<Select
-	{...rootProps}
-	items={networks}
-	type={multiple ? 'multiple' : 'single'}
-	bind:value={() =>
-		multiple
-			? Array.isArray(value)
-				? value.map(String)
-				: []
-			: typeof value === 'number'
-				? String(value)
-				: '', (nextValue: string | string[]) =>
-		(value = multiple
-			? Array.isArray(nextValue)
-				? nextValue
-						.map(
-							(id) =>
-								networks.find((network) => String(network.id) === id)?.id ??
-								null,
-						)
-						.filter((id): id is Network['id'] => id !== null)
-				: []
-			: typeof nextValue === 'string'
-				? (networks.find((network) => String(network.id) === nextValue)?.id ??
-					null)
-				: null)}
-	{placeholder}
-	{disabled}
-	{name}
-	{id}
-	{ariaLabel}
-	getItemId={(network) => String(network.id)}
-	getItemLabel={(network) => network.name}
-	Before={networkIcons}
-	Item={networkItem}
-></Select>
-
-
-<style>
-	.network-input-icon {
-		width: 16px;
-		height: 16px;
-		border-radius: 999px;
-	}
-</style>
+{#if multiple}
+	<Select
+		{...rootProps}
+		items={networks}
+		type="multiple"
+		bind:value={() =>
+			(Array.isArray(value) ? value.map(String) : []),
+			(nextValue: string[]) =>
+				(value = nextValue
+					.map(
+						(id) =>
+							networks.find((network) => String(network.id) === id)?.id ?? null,
+					)
+					.filter((id): id is Network['id'] => id !== null))}
+		{placeholder}
+		{disabled}
+		{name}
+		{id}
+		{ariaLabel}
+		getItemId={(network) => String(network.id)}
+		getItemLabel={(network) => network.name}
+		Before={networkIcons}
+		Item={networkItem}
+	/>
+{:else}
+	<Select
+		{...rootProps}
+		items={networks}
+		type="single"
+		bind:value={() =>
+			(typeof value === 'number' ? String(value) : ''),
+			(nextValue: string) =>
+				(value =
+					networks.find((network) => String(network.id) === nextValue)?.id ??
+					null)}
+		{placeholder}
+		{disabled}
+		{name}
+		{id}
+		{ariaLabel}
+		getItemId={(network) => String(network.id)}
+		getItemLabel={(network) => network.name}
+		Before={networkIcons}
+		Item={networkItem}
+	/>
+{/if}

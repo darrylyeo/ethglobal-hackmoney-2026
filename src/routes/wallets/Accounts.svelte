@@ -386,13 +386,13 @@
 								</span>
 							</div>
 						</summary>
-						<div class="panel" data-column="gap-1">
+						<div class="panel" data-column="gap-2">
 							{#if (connection.actors ?? []).length > 0}
 								<details class="nested" open>
 									<summary>
 										Accounts ({connection.actors.length})
 									</summary>
-									<ul class="list" data-column="gap-1">
+									<ul class="list" data-column="gap-2">
 										{#each connection.actors ?? [] as actor}
 											<li>
 												<button

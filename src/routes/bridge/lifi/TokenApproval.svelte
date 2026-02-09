@@ -122,9 +122,9 @@
 
 
 	{#if isChecking}
-		<p data-muted>Checking approval…</p>
+		<p data-text="muted">Checking approval…</p>
 	{:else if isApproving}
-		<p data-muted>
+		<p data-text="muted">
 			Approving…
 			{#if txHash}
 				<a
@@ -152,7 +152,7 @@
 		<p class="approval-success">✓ Approved</p>
 	{:else}
 		<div data-column="gap-2">
-			<label data-row="gap-2 align-center" data-muted>
+			<label data-row="gap-2 align-center" data-text="muted">
 				<Switch.Root
 					bind:checked={() => unlimited, (c) => (unlimited = c)}
 				>

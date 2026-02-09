@@ -173,7 +173,7 @@
 						<span data-text="annotation">Conversation</span>
 					</div>
 				</header>
-				<p data-muted>Start the conversation by typing a prompt.</p>
+				<p data-text="muted">Start the conversation by typing a prompt.</p>
 				<div data-row="gap-2 align-center">
 					<ModelInput
 						connections={llmConnections}
@@ -208,7 +208,7 @@
 					<span data-text="annotation">Conversation</span>
 				</div>
 			</header>
-			<p data-muted>Start the conversation by typing a prompt.</p>
+			<p data-text="muted">Start the conversation by typing a prompt.</p>
 			<div data-row="gap-2 align-center">
 				<ModelInput
 					connections={llmConnections}

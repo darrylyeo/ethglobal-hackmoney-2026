@@ -102,10 +102,10 @@
 		{/if}
 		<span>{coin.symbol}</span>
 		{#if coin.name}
-			<span data-muted>{coin.name}</span>
+			<span data-text="muted">{coin.name}</span>
 		{/if}
 		{#if showNetworksAndProtocols}
-			<small data-muted>
+			<small data-text="muted">
 				{networksByChainId[coin.chainId]?.name ?? `Chain ${coin.chainId}`}
 				·
 				{coin.type === CoinType.Native ? 'Native' : 'ERC-20'}

@@ -117,7 +117,7 @@
 		</summary>
 		<Boundary>
 			{#if transactions.length === 0}
-				<p data-muted>No indexed transactions for this account.</p>
+				<p data-text="muted">No indexed transactions for this account.</p>
 			{:else}
 				<ul
 					data-columns="width-4 gap-2"

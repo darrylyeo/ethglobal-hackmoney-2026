@@ -165,7 +165,7 @@
 					<span data-text="annotation">Session</span>
 				</div>
 			</header>
-			<p data-muted>Loading session…</p>
+			<p data-text="muted">Loading session…</p>
 		</section>
 	{/if}
 </main>

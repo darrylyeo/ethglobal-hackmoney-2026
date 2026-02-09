@@ -484,7 +484,7 @@
 	{/if}
 
 	{#if transactions.length === 0}
-		<p data-muted>No transactions available.</p>
+		<p data-text="muted">No transactions available.</p>
 	{:else}
 		{#each transactions as tx (tx.id)}
 			{@const txState = getTxState(tx.id)}
@@ -525,7 +525,7 @@
 				<div data-row="gap-2 align-center justify-between">
 					<h3>{tx.title}</h3>
 					{#if txState.execution.status !== 'idle'}
-						<span data-muted>{txState.execution.status.replace('_', ' ')}</span>
+						<span data-text="muted">{txState.execution.status.replace('_', ' ')}</span>
 					{/if}
 				</div>
 
@@ -545,7 +545,7 @@
 								: 'Simulate'}
 						</Button.Root>
 						{#if txState.simulation.status === 'success'}
-							<span data-muted>Simulation ok</span>
+							<span data-text="muted">Simulation ok</span>
 						{:else if txState.simulation.status === 'failed'}
 							<span data-error>{txState.simulation.error}</span>
 						{/if}
@@ -563,15 +563,15 @@
 									: 'Explain results'}
 							</Button.Root>
 							{#if explainAvailability === 'downloading' && simulationExplain.status !== 'loading'}
-								<span data-muted>Model downloading…</span>
+								<span data-text="muted">Model downloading…</span>
 							{:else if explainAvailability === 'unavailable'}
-								<span data-muted>Explain unavailable.</span>
+								<span data-text="muted">Explain unavailable.</span>
 								<a href="/about#explain-results-fallback"
 									>Set up hosted fallback</a
 								>
 							{/if}
 							{#if simulationExplain.status === 'loading'}
-								<span data-muted>
+								<span data-text="muted">
 									{simulationExplain.progress !== null
 										? `Downloading model ${Math.round(
 												simulationExplain.progress * 100,
@@ -595,7 +595,7 @@
 						{#if turn?.assistantText}
 							<div data-card data-column="gap-2">
 								<p>{turn.assistantText}</p>
-								<small data-muted>
+								<small data-text="muted">
 									{turn.providerId ?? 'unknown'} ·
 									{new Date(turn.createdAt).toISOString()}
 								</small>
@@ -610,7 +610,7 @@
 				{/if}
 
 				{#if txState.execution.txHash}
-					<p data-muted data-tx-hash={txState.execution.txHash}>
+					<p data-text="muted" data-tx-hash={txState.execution.txHash}>
 						{txState.execution.txHash.slice(0, 8)}…
 					</p>
 				{/if}
@@ -627,15 +627,15 @@
 								: 'Explain results'}
 						</Button.Root>
 						{#if explainAvailability === 'downloading' && executionExplain.status !== 'loading'}
-							<span data-muted>Model downloading…</span>
+							<span data-text="muted">Model downloading…</span>
 						{:else if explainAvailability === 'unavailable'}
-							<span data-muted>Explain unavailable.</span>
+							<span data-text="muted">Explain unavailable.</span>
 							<a href="/about#explain-results-fallback"
 								>Set up hosted fallback</a
 							>
 						{/if}
 						{#if executionExplain.status === 'loading'}
-							<span data-muted>
+							<span data-text="muted">
 								{executionExplain.progress !== null
 									? `Downloading model ${Math.round(
 											executionExplain.progress * 100,
@@ -657,7 +657,7 @@
 					{#if turn?.assistantText}
 						<div data-card data-column="gap-2">
 							<p>{turn.assistantText}</p>
-							<small data-muted>
+							<small data-text="muted">
 								{turn.providerId ?? 'unknown'} ·
 								{new Date(turn.createdAt).toISOString()}
 							</small>
@@ -705,15 +705,15 @@
 
 				<div data-row="gap-2 align-center wrap">
 					{#if executionUnsupported}
-						<p data-muted>Execution not available for this mode.</p>
+						<p data-text="muted">Execution not available for this mode.</p>
 					{:else if !hasExecutionContext}
-						<p data-muted>
+						<p data-text="muted">
 							{E2E_TEVM_ENABLED
 								? 'E2E provider unavailable.'
 								: 'Connect a wallet to continue.'}
 						</p>
 					{:else if executionContext?.mode === 'wallet' && !hasWalletSigner}
-						<p data-muted>Connect a signing-capable wallet to continue.</p>
+						<p data-text="muted">Connect a signing-capable wallet to continue.</p>
 					{/if}
 				</div>
 

@@ -117,7 +117,7 @@
 		</summary>
 		<Boundary>
 			{#if connections.length === 0}
-				<p data-muted>No wallet connections for this account.</p>
+				<p data-text="muted">No wallet connections for this account.</p>
 			{:else}
 				<ul
 					data-columns="width-4 gap-2"

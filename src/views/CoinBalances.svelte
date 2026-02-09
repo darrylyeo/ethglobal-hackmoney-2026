@@ -470,7 +470,7 @@
 									<dt data-row="start gap-1 align-center">
 										{network.name}
 										{#if actors.length > 1}
-											<span data-muted class="balance-address">
+											<span data-text="muted" class="balance-address">
 												{b.$id.address.slice(0, 6)}…{b.$id.address.slice(-4)}
 											</span>
 										{/if}
@@ -486,11 +486,12 @@
 											{coin}
 											amount={b.balance}
 											draggable={false}
+											showIcon
 											symbolOnly
 											{priceRow}
 										/>
 										{#if balanceUsdValue !== null}
-											<small data-muted>
+											<small data-text="muted">
 												≈ ${formatSmallestToDecimal(balanceUsdValue, 18, 2)}
 											</small>
 										{/if}

@@ -172,7 +172,7 @@
 					/>
 				</header>
 			</summary>
-			<div data-column="gap-3">
+			<div data-column>
 				<CoinBalances
 					{selectedActor}
 					balanceTokens={effectiveBalanceTokens}

@@ -105,6 +105,6 @@
 			{connections}
 		/>
 	{:else}
-		<p data-muted>No messages yet. Type a prompt below to start.</p>
+		<p data-text="muted">No messages yet. Type a prompt below to start.</p>
 	{/if}
 </div>

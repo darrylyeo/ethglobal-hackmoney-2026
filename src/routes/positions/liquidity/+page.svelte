@@ -84,7 +84,7 @@
 
 <main id="main" data-column data-sticky-container>
 	<h1>Liquidity</h1>
-	<p data-muted>Uniswap V4 positions for all connected accounts.</p>
+	<p data-text="muted">Uniswap V4 positions for all connected accounts.</p>
 
 	{#if positions.length === 0}
 		<p>No liquidity positions found. Connect wallets and add liquidity via Session → Add Liquidity.</p>

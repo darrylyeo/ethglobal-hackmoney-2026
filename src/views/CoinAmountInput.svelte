@@ -84,6 +84,7 @@
 			{id}
 			class="coin-amount-input"
 			data-row-item="flexible"
+			data-text="align-end font-monospace"
 			type="text"
 			inputmode="decimal"
 			{placeholder}
@@ -98,7 +99,7 @@
 			<CoinInput {coins} bind:value={coin} {disabled} ariaLabel="Token" />
 		</div>
 	</div>
-	<!-- <input
+	<input
 		class="coin-amount-slider"
 		type="range"
 		min={sliderMin}
@@ -115,7 +116,7 @@
 				? ((sliderValue - sliderMin) / (sliderMax - sliderMin)) * 100
 				: 0
 		}%`}
-	/> -->
+	/>
 </div>
 
 
@@ -123,12 +124,6 @@
 	.coin-amount {
 		display: grid;
 		gap: 0.25em;
-
-		> .coin-amount-row {
-			> .coin-amount-input {
-				padding-bottom: 1.1em;
-			}
-		}
 
 		> .coin-amount-slider {
 			appearance: none;

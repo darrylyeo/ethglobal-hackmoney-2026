@@ -80,10 +80,10 @@
 </script>
 
 
-<div data-column="gap-1">
+<div data-column="gap-2">
 	<strong>Fees</strong>
 	{#if feeLoading}
-		<small data-muted>Loading fees…</small>
+		<small data-text="muted">Loading fees…</small>
 	{:else if feeError}
 		<small data-error>{feeError}</small>
 	{:else if feeFastBps !== null || feeStandardBps !== null}
@@ -94,7 +94,7 @@
 			<dd>{feeStandardBps ?? '—'} bps</dd>
 		</dl>
 	{:else}
-		<small data-muted>Select a valid chain pair to load fees.</small>
+		<small data-text="muted">Select a valid chain pair to load fees.</small>
 	{/if}
 </div>
 

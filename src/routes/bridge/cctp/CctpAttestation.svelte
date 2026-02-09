@@ -61,16 +61,16 @@
 </script>
 
 
-<div data-column="gap-1">
+<div data-column="gap-2">
 	<strong>Attestation</strong>
 	{#if status === 'idle'}
-		<small data-muted
+		<small data-text="muted"
 			>After burn, attestation will be polled automatically.</small
 		>
 	{:else if status === 'pending'}
-		<small data-muted>Waiting for attestation… (404 treated as pending)</small>
+		<small data-text="muted">Waiting for attestation… (404 treated as pending)</small>
 	{:else if status === 'ready'}
-		<small data-muted>Attestation ready. You can submit mint.</small>
+		<small data-text="muted">Attestation ready. You can submit mint.</small>
 	{:else if error}
 		<small data-error>{error}</small>
 	{/if}

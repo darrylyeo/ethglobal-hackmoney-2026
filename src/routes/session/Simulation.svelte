@@ -44,11 +44,11 @@
 		</span>
 		<time datetime={new Date(simulation.createdAt).toISOString()}>{dateLabel}</time>
 	</div>
-	<p data-muted>Params: {paramsShort}</p>
+	<p data-text="muted">Params: {paramsShort}</p>
 	{#if simulation.error && steps.length === 0}
 		<p data-error>{simulation.error}</p>
 	{:else if steps.length > 0}
-		<ol class="simulation-steps" data-column="gap-1">
+		<ol class="simulation-steps" data-column="gap-2">
 			{#each steps as step, i}
 				<li data-row="gap-2 align-center" class="simulation-step">
 					<span
@@ -57,8 +57,8 @@
 					>
 						{step.summaryStatus}
 					</span>
-					<span data-text="annotation">Step {i + 1}</span>
-					<span data-muted>Gas: {step.gasTotals.used}</span>
+					<span>Step {i + 1}</span>
+					<span data-text="muted">Gas: {step.gasTotals.used}</span>
 					{#if step.revertReason}
 						<code class="revert-reason" title={step.revertReason}>{step.revertReason.slice(0, 42)}{step.revertReason.length > 42 ? '…' : ''}</code>
 					{/if}
@@ -69,7 +69,7 @@
 			<p data-error>{simulation.error}</p>
 		{/if}
 	{:else if simulation.result != null}
-		<p data-muted>Result attached</p>
+		<p data-text="muted">Result attached</p>
 	{/if}
 </article>
 

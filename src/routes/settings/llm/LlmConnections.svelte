@@ -120,7 +120,7 @@
 						<summary data-row="gap-2 align-center justify-between wrap">
 							<span data-row="gap-2 align-center">
 								<strong>{conn.label}</strong>
-								<span data-muted>({PROVIDER_LABELS[conn.provider] ?? conn.provider})</span>
+								<span data-text="muted">({PROVIDER_LABELS[conn.provider] ?? conn.provider})</span>
 							</span>
 							<Button.Root
 								type="button"

@@ -132,7 +132,7 @@
 		<header data-column="gap-2">
 			<div data-row="wrap gap-4">
 				<div data-row="start gap-2" data-row-item="flexible">
-					<div data-column="gap-1">
+					<div data-column="gap-2">
 						<h1>{config.name}</h1>
 						<code data-orient="vertical" data-text="font-monospace">{caip2}</code>
 						{#if config.type}
@@ -150,7 +150,7 @@
 					<span data-text="annotation">Network</span>
 				</div>
 			</div>
-			<p data-text="annotation">Chain ID {chainId}</p>
+			<p>Chain ID {chainId}</p>
 		</header>
 
 		<nav class="network-actions" data-row="wrap gap-2">

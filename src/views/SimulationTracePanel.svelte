@@ -51,22 +51,22 @@
 		</div>
 	</header>
 	{#if filteredTrace.length === 0}
-		<p data-muted>No trace entries.</p>
+		<p data-text="muted">No trace entries.</p>
 	{:else}
-		<ul data-column="gap-1" style="list-style: none; padding: 0;">
+		<ul data-column="gap-2" style="list-style: none; padding: 0;">
 			{#each filteredTrace as call (call.to + call.data + call.gasUsed)}
 				<li data-trace-call data-column="gap-0">
 					<div data-row="gap-2 align-center wrap">
-						<span data-muted>to</span>
+						<span data-text="muted">to</span>
 						<code>{formatAddress(call.to)}</code>
 						{#if call.selector}
-							<span data-muted>selector</span>
+							<span data-text="muted">selector</span>
 							<code>{call.selector}</code>
 						{/if}
-						<span data-muted>gas</span>
+						<span data-text="muted">gas</span>
 						<code>{call.gasUsed}</code>
 						{#if call.value !== '0'}
-							<span data-muted>value</span>
+							<span data-text="muted">value</span>
 							<code>{call.value}</code>
 						{/if}
 					</div>
@@ -75,7 +75,7 @@
 					{/if}
 					{#if call.children?.length}
 						<ul
-							data-column="gap-1"
+							data-column="gap-2"
 							style="list-style: none; padding-left: 1rem;"
 						>
 							{#each call.children as child (child.to + child.data)}

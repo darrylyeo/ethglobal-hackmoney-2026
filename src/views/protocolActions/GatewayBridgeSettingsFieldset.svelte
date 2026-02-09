@@ -17,8 +17,8 @@
 
 {#if action.type === ActionType.Bridge && p}
 	<div data-card data-column="gap-2">
-		<h3 data-text="annotation">Gateway settings</h3>
-		<p data-muted>Gateway uses the amount and networks above.</p>
+		<h3>Gateway settings</h3>
+		<p data-text="muted">Gateway uses the amount and networks above.</p>
 		<label data-row="gap-2 align-center">
 			<input
 				type="checkbox"
@@ -33,7 +33,7 @@
 			Use custom recipient
 		</label>
 		{#if p.useCustomRecipient}
-			<label data-column="gap-0">
+			<label data-column="gap-2">
 				<span>Recipient address</span>
 				<input
 					type="text"

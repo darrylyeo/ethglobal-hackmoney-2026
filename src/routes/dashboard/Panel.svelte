@@ -239,7 +239,7 @@
 	</section>
 
 	{#if panel.hashHistory.length > 0}
-		<footer data-column="gap-1" class="dashboard-panel-history">
+		<footer data-column="gap-2" class="dashboard-panel-history">
 			<span>History</span>
 			<ul>
 				{#each panel.hashHistory as hash, index (index)}

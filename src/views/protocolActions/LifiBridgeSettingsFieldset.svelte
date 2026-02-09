@@ -26,7 +26,7 @@
 
 {#if action.type === ActionType.Bridge && p}
 	<div data-card data-column="gap-2">
-		<h3 data-text="annotation">LI.FI settings</h3>
+		<h3>LI.FI settings</h3>
 		<div data-row="gap-1">
 			{#each slippagePresets as preset (preset.id)}
 				<button
@@ -41,7 +41,7 @@
 				</button>
 			{/each}
 		</div>
-		<label data-column="gap-0">
+		<label data-column="gap-2">
 			<span>Custom %</span>
 			<input
 				type="text"

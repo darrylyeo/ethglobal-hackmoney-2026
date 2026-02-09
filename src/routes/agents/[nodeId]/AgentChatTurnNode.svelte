@@ -157,7 +157,7 @@
 	{/if}
 
 	<div data-row="gap-2 align-center justify-between">
-		<div data-column="gap-1" data-row-item="flexible">
+		<div data-column="gap-2" data-row-item="flexible">
 			<strong>User</strong>
 			<p>{turn.userPrompt}</p>
 		</div>
@@ -168,7 +168,7 @@
 	</div>
 
 	{#if turn.status === 'generating'}
-		<p data-muted>Generating…</p>
+		<p data-text="muted">Generating…</p>
 	{:else if turn.status === 'error'}
 		<div data-row="gap-2 align-center">
 			<p data-error>{turn.error ?? 'Generation failed.'}</p>
@@ -178,12 +178,12 @@
 			>Retry</button>
 		</div>
 	{:else if turn.status === 'cancelled'}
-		<p data-muted>Cancelled.</p>
+		<p data-text="muted">Cancelled.</p>
 	{:else if turn.assistantText}
-		<div data-column="gap-1">
+		<div data-column="gap-2">
 			<strong>Assistant</strong>
 			<p>{turn.assistantText}</p>
-			<small data-muted>
+			<small data-text="muted">
 				{turn.providerId ?? 'unknown'} · {new Date(turn.createdAt).toISOString()}
 			</small>
 		</div>

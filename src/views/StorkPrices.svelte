@@ -62,11 +62,11 @@
 >
 	<header data-row="gap-2 align-center justify-between">
 		<h3>{title}</h3>
-		<span data-muted>{assetIds.length} feeds</span>
+		<span data-text="muted">{assetIds.length} feeds</span>
 	</header>
 
 	{#if assetIds.length === 0}
-		<p data-muted>No Stork assets selected.</p>
+		<p data-text="muted">No Stork assets selected.</p>
 	{:else}
 		<ul data-column="gap-2">
 			{#each assetIds as assetId (assetId)}
@@ -80,13 +80,13 @@
 						<span data-tabular>
 							${formatSmallestToDecimal(best.price, 18, 6)}
 						</span>
-						<small data-muted>
+						<small data-text="muted">
 							{best.transport}{best.chainId ? ` · ${best.chainId}` : ''} · {formatRelativeTime(
 								Date.now() - best.updatedAt,
 							)}
 						</small>
 					{:else}
-						<small data-muted>Waiting for price…</small>
+						<small data-text="muted">Waiting for price…</small>
 					{/if}
 				</li>
 			{/each}

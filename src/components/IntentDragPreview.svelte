@@ -245,7 +245,7 @@ import {
 					{#if resolution?.matched}
 						<header data-row="gap-4 align-baseline">
 							<strong>{resolution.intent.label}</strong>
-							<span data-muted>
+							<span data-text="muted">
 								{resolution.options.length} option{resolution.options.length === 1 ? '' : 's'}
 							</span>
 						</header>
@@ -257,7 +257,7 @@ import {
 										<button
 											type="button"
 											data-block
-											data-muted
+											data-text="muted"
 											data-row="gap-4 align-baseline"
 											onclick={() => selectOption(option, i)}
 											disabled={!isInteractive}
@@ -267,7 +267,7 @@ import {
 											>
 												{option.name}
 											</span>
-											<small data-muted>
+											<small data-text="muted">
 												{option.sessionTemplate.actions.length} {option.sessionTemplate.actions.length === 1 ? 'step' : 'steps'}
 											</small>
 										</button>
@@ -275,15 +275,15 @@ import {
 								{/each}
 							</ol>
 						{:else if resolution.error}
-							<p data-muted>{resolution.error instanceof Error ? resolution.error.message : String(resolution.error)}</p>
+							<p data-text="muted">{resolution.error instanceof Error ? resolution.error.message : String(resolution.error)}</p>
 						{:else}
-							<p data-muted>No options available.</p>
+							<p data-text="muted">No options available.</p>
 						{/if}
 					{:else if sourcePayload && targetPayload}
 						<header data-row="gap-4">
-							<strong data-muted>No matching intent</strong>
+							<strong data-text="muted">No matching intent</strong>
 						</header>
-						<p data-muted>These entities can't be combined.</p>
+						<p data-text="muted">These entities can't be combined.</p>
 					{/if}
 				</div>
 			{/snippet}

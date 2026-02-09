@@ -72,30 +72,30 @@
 		</div>
 	</header>
 	{#if filteredList.length === 0}
-		<p data-muted>No events.</p>
+		<p data-text="muted">No events.</p>
 	{:else}
 		<ul data-list="unstyled" data-column="gap-2">
 			{#each filteredList as ev, i (showRaw ? ev.address + ev.data : ev.address + ev.topics.join('') + i)}
-				<li data-event data-card data-column="gap-1">
+				<li data-event data-card data-column="gap-2">
 					<div data-row="gap-2 align-center">
 						<code>{formatAddress(ev.address)}</code>
 						{#if !showRaw && (ev as TevmSimulationDecodedEvent).signature}
-							<span data-muted
+							<span data-text="muted"
 								>{(ev as TevmSimulationDecodedEvent).signature}</span
 							>
 						{/if}
 					</div>
 					{#if ev.topics?.length}
-						<div data-column="gap-0">
-							<span data-muted>Topics</span>
+						<div data-column="gap-1">
+							<span data-text="muted">Topics</span>
 							{#each ev.topics as topic}
 								<code style="word-break: break-all;">{topic}</code>
 							{/each}
 						</div>
 					{/if}
 					{#if ev.data}
-						<div data-column="gap-0">
-							<span data-muted>Data</span>
+						<div data-column="gap-1">
+							<span data-text="muted">Data</span>
 							<code style="word-break: break-all;">{ev.data}</code>
 						</div>
 					{/if}

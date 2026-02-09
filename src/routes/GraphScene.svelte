@@ -2768,7 +2768,7 @@
 			</div>
 
 			<aside class="graph-scene-sidebar" data-column="gap-2">
-				<div data-column="gap-1">
+				<div data-column="gap-2">
 					<label for="graph-scene-entity-types">Entity types</label>
 
 					{#if true}
@@ -2801,7 +2801,7 @@
 					{/if}
 				</div>
 				{#if entitySourceCombos.length > 0}
-					<div data-column="gap-1">
+					<div data-column="gap-2">
 						<label for="graph-scene-sources">By source</label>
 						<Combobox
 							id="graph-scene-sources"
@@ -2819,7 +2819,7 @@
 				{#if selectionItems.length > 0}
 					<div class="graph-scene-selection" data-column="gap-2">
 						<h5>Selection</h5>
-						<ul data-column="gap-1">
+						<ul data-column="gap-2">
 							{#each selectionItems as item (item.id)}
 								<li>
 									{#if item.kind === 'node' && 'href' in item && item.href}

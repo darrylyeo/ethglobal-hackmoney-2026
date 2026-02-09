@@ -13,7 +13,7 @@
 
 <main data-column="center gap-4">
 	<h1>Actions</h1>
-	<p data-muted>Choose an action to start a session.</p>
+	<p data-text="muted">Choose an action to start a session.</p>
 	<nav
 		aria-label="Session actions"
 		data-grid="columns-autofit"
@@ -23,7 +23,7 @@
 			<a
 				href={resolve(`/session?template=${template.actions[0].type}`)}
 				data-card
-				data-column="gap-1"
+				data-column="gap-2"
 			>
 				<span>{template.name}</span>
 			</a>

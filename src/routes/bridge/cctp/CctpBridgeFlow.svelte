@@ -131,7 +131,7 @@
 
 
 {#if recipient && fromNetwork && toNetwork}
-	<div data-preview data-column="gap-1">
+	<div data-preview data-column="gap-2">
 		<strong>Transfer preview</strong>
 		<dl class="bridge-summary">
 			<dt>Burn</dt>
@@ -152,13 +152,13 @@
 	</div>
 {/if}
 
-<section data-card data-column="gap-3">
+<section data-card data-column>
 	<h3>CCTP Execution</h3>
 	{#if !fastTransferSupported}
-		<p data-muted>Fast transfer is not supported for this source chain.</p>
+		<p data-text="muted">Fast transfer is not supported for this source chain.</p>
 	{/if}
 	{#if forwardingSupported && settings.forwardingEnabled}
-		<p data-muted>Forwarding service enabled.</p>
+		<p data-text="muted">Forwarding service enabled.</p>
 	{/if}
 
 	<CctpFees

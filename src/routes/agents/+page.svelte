@@ -62,7 +62,7 @@
 	</header>
 
 	{#if trees.length === 0}
-		<p data-muted>No conversations yet.</p>
+		<p data-text="muted">No conversations yet.</p>
 	{:else}
 		{#each trees as tree (tree.id)}
 			<div
@@ -74,12 +74,12 @@
 					data-row="gap-2 align-center"
 					data-row-item="flexible"
 				>
-					<div data-column="gap-1">
+					<div data-column="gap-2">
 						<strong>{tree.name ?? 'Untitled'}</strong>
-						<small data-muted>{new Date(tree.updatedAt).toLocaleString()}</small>
+						<small data-text="muted">{new Date(tree.updatedAt).toLocaleString()}</small>
 					</div>
 					{#if tree.pinned}
-						<span data-muted>Pinned</span>
+						<span data-text="muted">Pinned</span>
 					{/if}
 				</a>
 				<span data-row="gap-2">
