@@ -82,7 +82,7 @@
 	title={resolvedTitle}
 	role={a11yLabel ? 'img' : undefined}
 >
-	<span class="icon-main">
+	<span data-row class="icon-main">
 		{#if src}
 			<img
 				{src}
@@ -150,5 +150,6 @@
 		position: absolute;
 		inset-block-end: 0;
 		inset-inline-end: 0;
+		translate: 25% 25%;
 	}
 </style>

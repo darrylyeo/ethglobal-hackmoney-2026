@@ -359,6 +359,10 @@ summary {
 	align-items: center;
 	gap: 1em;
 
+	&[data-row~='inline'] {
+		display: inline flex;
+	}
+
 	&[data-row~='wrap'],
 	&:where(summary) {
 		flex-wrap: wrap;

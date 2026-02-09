@@ -31,6 +31,7 @@
 	import Icon from '$/components/Icon.svelte'
 </script>
 
+
 <Icon
 	{src}
 	{alt}

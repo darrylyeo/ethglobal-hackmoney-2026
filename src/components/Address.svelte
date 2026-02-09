@@ -67,19 +67,11 @@
 	})
 	const profile = $derived(profileQuery.data?.[0]?.row)
 	const ensName = $derived(ensNameProp ?? profile?.primaryName)
-	const avatarSrc = $derived(
-		showAvatar
-			? (profile?.avatarUrl ?? blo(address))
-			: undefined,
-	)
-	const networkIcon = $derived(
-		network != null ? networkConfigsByChainId[network]?.icon : undefined,
-	)
 
 
 	// Components
 	import EntityId from './EntityId.svelte'
-	import Icon from './Icon.svelte'
+	import Icon, { IconShape } from './Icon.svelte'
 	import TruncatedValue from './TruncatedValue.svelte'
 </script>
 
@@ -94,24 +86,27 @@
 	source="address"
 	data-text={vertical ? 'vertical' : undefined}
 >
-	<span data-row="gap-2">
-		{#if showAvatar && avatarSrc}
-			<span class="address-avatar">
-				<Icon
-					src={avatarSrc}
-					alt=""
-					size="1em"
-					subicon={
-						networkIcon && network != null
-							? {
-									src: networkIcon,
-									alt: '',
-									backgroundColor: networkColorByChainId[network],
-								}
-							: undefined
-					}
-				/>
-			</span>
+	<span data-row="inline gap-2">
+		{#if showAvatar}
+			{@const avatarSrc = profile?.avatarUrl ?? blo(address)}
+			{@const networkIcon = network != null ? networkConfigsByChainId[network]?.icon : undefined}
+			<Icon
+				shape={!profile?.avatarUrl ? IconShape.Square : IconShape.Circle}
+				src={avatarSrc}
+				alt=""
+				size="1em"
+				subicon={
+					network && networkIcon ?
+						{
+							src: networkIcon,
+							shape: IconShape.Circle,
+							alt: '',
+							backgroundColor: networkColorByChainId[network],
+						}
+					:
+						undefined
+				}
+			/>
 		{/if}
 
 		<span data-text="font-monospace">
@@ -129,15 +124,3 @@
 		</small>
 	</span>
 </EntityId>
-
-
-<style>
-	.address-avatar {
-		display: inline-flex;
-		inline-size: 1em;
-		block-size: 1em;
-		border-radius: 50%;
-		overflow: hidden;
-		flex-shrink: 0;
-	}
-</style>
