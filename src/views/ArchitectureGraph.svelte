@@ -1,8 +1,6 @@
 <script lang="ts">
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
-	import { ComboEvent, EdgeEvent, Graph, NodeEvent } from '@antv/g6'
-	import { ForceLayout } from '@antv/layout'
 	import type { ArchitectureEdge, ArchitectureNode } from './architecture-graph.ts'
 	import { architectureGraph } from './architecture-graph.ts'
 
@@ -225,25 +223,33 @@
 		class="architecture-graph"
 		style:height
 	>
+		<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 		<div
 			class="architecture-graph__canvas"
 			role="application"
 			tabindex="0"
 			aria-label="Architecture graph with selectable systems and flows"
 			{@attach (container) => {
-				let graph: G6Graph | undefined
-				let resizeObserver: ResizeObserver | undefined
-				const reducedMotion = window.matchMedia(
-					'(prefers-reduced-motion: reduce)',
-				).matches
-				const prefersDark = window.matchMedia(
-					'(prefers-color-scheme: dark)',
-				).matches
-				const theme = {
-					text: getThemeToken('--color-text'),
-					bgSubtle: getThemeToken('--color-bg-subtle'),
-				}
-				const { width, height } = container.getBoundingClientRect()
+				let cleanup: (() => void) | undefined
+				let cancelled = false
+				void (async () => {
+					const { Graph, ComboEvent, EdgeEvent, NodeEvent } = await import('@antv/g6')
+					const { ForceLayout } = await import('@antv/layout')
+					if (cancelled) return
+
+					let graph: G6Graph | undefined
+					let resizeObserver: ResizeObserver | undefined
+					const reducedMotion = window.matchMedia(
+						'(prefers-reduced-motion: reduce)',
+					).matches
+					const prefersDark = window.matchMedia(
+						'(prefers-color-scheme: dark)',
+					).matches
+					const theme = {
+						text: getThemeToken('--color-text'),
+						bgSubtle: getThemeToken('--color-bg-subtle'),
+					}
+					const { width, height } = container.getBoundingClientRect()
 
 				const comboIds = new Set(
 					architectureGraph.combos.map((combo) => combo.id),
@@ -306,12 +312,12 @@
 						? (getNumber(node.style.size) ?? 28)
 						: 28
 
-				graph = new Graph({
-					container,
-					width,
-					height,
-					autoFit: 'center',
-					data: {
+					graph = new Graph({
+						container,
+						width,
+						height,
+						autoFit: 'center',
+						data: {
 						nodes: [
 							...architectureGraph.nodes.map((node) =>
 								toNodeData(node, prefersDark, theme),
@@ -579,6 +585,11 @@
 						: null
 				}
 
+				if (cancelled || !container.isConnected) {
+					graph?.destroy()
+					return
+				}
+
 				graph.render()
 
 				graph.on(NodeEvent.CLICK, () => updateSelection())
@@ -641,11 +652,16 @@
 				})
 				resizeObserver.observe(container)
 
+					cleanup = () => {
+						container.removeEventListener('keydown', handleKeydown)
+						resizeObserver?.disconnect()
+						graph?.destroy()
+						graph = undefined
+					}
+				})()
 				return () => {
-					container.removeEventListener('keydown', handleKeydown)
-					resizeObserver?.disconnect()
-					graph?.destroy()
-					graph = undefined
+					cancelled = true
+					cleanup?.()
 				}
 			}}
 		></div>
