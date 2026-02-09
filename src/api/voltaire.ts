@@ -279,8 +279,15 @@ export async function getTransactionReceipt(
 }
 
 const BINARY_SEARCH_MAX_ITER = 30
+const PRUNED_EARLIEST_RE = /earliest available is (\d+)/i
 
-/** Resolve block number at or before targetTimestamp (ms) via binary search. */
+function parsePrunedEarliest(message: string): bigint | null {
+	const m = message.match(PRUNED_EARLIEST_RE)
+	return m ? BigInt(m[1]) : null
+}
+
+/** Resolve block number at or before targetTimestamp (ms) via binary search.
+ * On pruned nodes, avoids querying blocks below the node's earliest available block. */
 export async function getBlockNumberByTimestamp(
 	provider: VoltaireProvider,
 	targetTimestampMs: number,
@@ -291,7 +298,19 @@ export async function getBlockNumberByTimestamp(
 	let hi = latest.number
 	for (let i = 0; i < BINARY_SEARCH_MAX_ITER && lo <= hi; i++) {
 		const mid = (lo + hi) / 2n
-		const { timestamp } = await getBlockByNumber(provider, mid)
+		let timestamp: number
+		try {
+			;({ timestamp } = await getBlockByNumber(provider, mid))
+		} catch (e) {
+			const earliest = parsePrunedEarliest(
+				e instanceof Error ? e.message : String(e),
+			)
+			if (earliest != null) {
+				lo = lo < earliest ? earliest : lo
+				continue
+			}
+			throw e
+		}
 		if (timestamp <= targetTimestampMs) lo = mid + 1n
 		else hi = mid - 1n
 	}

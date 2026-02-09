@@ -136,7 +136,16 @@ async function resolveBlockRange(
 		if (earliest == null) throw e
 		fromBlock = earliest
 	}
-	const toBlock = await getBlockNumberByTimestamp(provider, endMs)
+	let toBlock: bigint
+	try {
+		toBlock = await getBlockNumberByTimestamp(provider, endMs)
+	} catch (e) {
+		const earliest = parsePrunedEarliestBlock(
+			e instanceof Error ? e.message : String(e),
+		)
+		if (earliest == null) throw e
+		;({ number: toBlock } = await getBlockByNumber(provider, 'latest'))
+	}
 	if (fromBlock > toBlock) return { fromBlock: toBlock, toBlock: fromBlock }
 	return { fromBlock, toBlock }
 }
