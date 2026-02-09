@@ -75,9 +75,9 @@ TanStack DB:
 ```svelte
 <!-- Transaction history -->
 {#if transactions.length > 0}
-  <section data-card data-column="gap-2">
+  <section data-card data-column>
     <h3>Recent Transactions</h3>
-    <div data-column="gap-1">
+    <div data-column="gap-2">
       {#each transactions as tx (tx.$id.sourceTxHash)}
         <div data-row="gap-2 align-center" data-tx-row>
           <span>{networksByChainId[tx.fromChainId]?.name} → {networksByChainId[tx.toChainId]?.name}</span>

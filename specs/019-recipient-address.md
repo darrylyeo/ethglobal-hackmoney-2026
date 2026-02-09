@@ -66,7 +66,7 @@ Recipient functionality is implemented inline in BridgeFlow using:
 
 ```svelte
 <!-- Recipient -->
-<div data-column="gap-1">
+<div data-column="gap-2">
   <label data-row="gap-2 align-center">
     <Switch.Root checked={settings.useCustomRecipient}
       onCheckedChange={(c) => { bridgeSettingsState.current = { ...settings, useCustomRecipient: c } }}>
@@ -81,9 +81,9 @@ Recipient functionality is implemented inline in BridgeFlow using:
       <small data-error>Invalid address</small>
     {/if}
   {:else if selectedActor}
-    <small data-muted>To: {formatAddress(selectedActor)}</small>
+    <small data-text="muted">To: {formatAddress(selectedActor)}</small>
   {:else}
-    <small data-muted>To: Connect wallet</small>
+    <small data-text="muted">To: Connect wallet</small>
   {/if}
 </div>
 ```

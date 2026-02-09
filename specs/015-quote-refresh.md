@@ -54,7 +54,7 @@ Quote expiration is implemented inline in BridgeFlow with:
 
 ```svelte
 <!-- Quote expiry display in Quote Details section -->
-<div data-row="gap-2 align-center" data-muted>
+<div data-row="gap-2 align-center" data-text="muted">
   {#if routesRow?.isLoading}
     Refreshing…
   {:else if quoteRemaining !== null}

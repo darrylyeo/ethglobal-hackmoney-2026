@@ -77,7 +77,7 @@ component. It uses:
 
 ```svelte
 <!-- Amount -->
-<div data-column="gap-1">
+<div data-column="gap-2">
   <label for="amt">Amount</label>
   <div data-row="gap-2">
     <input id="amt" type="text" inputmode="decimal" placeholder="0.00"
@@ -87,7 +87,7 @@ component. It uses:
       <Button.Root type="button" onclick={() => { bridgeSettingsState.current = { ...settings, amount: sourceBalance } }}>Max</Button.Root>
     {/if}
   </div>
-  {#if sourceBalance !== null}<small data-muted>Balance: {formatSmallestToDecimal(sourceBalance, 6, 4)} USDC</small>{/if}
+  {#if sourceBalance !== null}<small data-text="muted">Balance: {formatSmallestToDecimal(sourceBalance, 6, 4)} USDC</small>{/if}
   {#if exceedsBalance}<small data-error>Insufficient balance</small>
   {:else if validation.error === 'too_low'}<small data-error>Min {validation.minAmount} USDC</small>
   {:else if validation.error === 'too_high'}<small data-error>Max {validation.maxAmount} USDC</small>{/if}

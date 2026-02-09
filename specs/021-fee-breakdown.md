@@ -116,7 +116,7 @@ const fees = $derived(selectedRoute ? extractFeeBreakdown({
 Each route card shows fees inline:
 
 ```svelte
-<span data-muted>${r.gasCostUsd.toFixed(2)} fees</span>
+<span data-text="muted">${r.gasCostUsd.toFixed(2)} fees</span>
 ```
 
 ## Acceptance criteria

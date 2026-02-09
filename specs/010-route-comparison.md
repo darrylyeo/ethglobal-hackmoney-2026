@@ -163,7 +163,7 @@ implementation uses:
 ```svelte
 <!-- Routes list -->
 {#if sortedRoutes.length > 0 || routesRow?.isLoading}
-  <section data-card data-column="gap-3">
+  <section data-card data-column>
     <div data-row="gap-2 align-center justify-between">
       <h3>Routes {routesRow?.isLoading ? '(loading…)' : `(${sortedRoutes.length})`}</h3>
       <Select.Root ...>Sort: {settings.sortBy}</Select.Root>
@@ -175,9 +175,9 @@ implementation uses:
           onclick={() => { selectedRouteId = r.id }}>
           <div data-row="gap-2 align-center justify-between">
             <strong>{formatTokenAmount(r.toAmount, 6)} USDC</strong>
-            <span data-muted>${r.gasCostUsd.toFixed(2)} fees</span>
+            <span data-text="muted">${r.gasCostUsd.toFixed(2)} fees</span>
           </div>
-          <div data-row="gap-2" data-muted>
+          <div data-row="gap-2" data-text="muted">
             <span>{[...new Set(r.steps.map((st) => st.toolName))].join(' → ')}</span>
             <span>~{Math.ceil(r.estimatedDurationSeconds / 60)}m</span>
           </div>

@@ -8,7 +8,7 @@ Per constitution Re-Verification Mode: picked spec 014 (E2E bridge flow), re-ran
 
 ## Fixed
 
-1. **"Connect a wallet to get routes"** – E2E expected this text when no wallet; it was missing. Added `<p data-muted>Connect a wallet to get routes</p>` in `BridgeFlow.svelte` when `!selectedWallet`. Test "without wallet: clear message and connect prompt" now passes.
+1. **"Connect a wallet to get routes"** – E2E expected this text when no wallet; it was missing. Added `<p data-text="muted">Connect a wallet to get routes</p>` in `BridgeFlow.svelte` when `!selectedWallet`. Test "without wallet: clear message and connect prompt" now passes.
 2. **wallet.test.ts strict mode** – `beforeEach` used `.or(heading, getByText('Connect a wallet to get routes'))`; both are now visible so the locator resolved to 2 elements. Updated to wait for heading only.
 
 ## Still blocked
