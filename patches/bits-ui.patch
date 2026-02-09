@@ -1,0 +1,13 @@
+diff --git a/dist/bits/menu/menu.svelte.js b/dist/bits/menu/menu.svelte.js
+index d3f56cfb00ba7f148c9b2fd571cc02570f3efed2..ec49a124d17b9ccfff6dd169638738b601f83f02 100644
+--- a/dist/bits/menu/menu.svelte.js
++++ b/dist/bits/menu/menu.svelte.js
+@@ -239,7 +239,7 @@ export class MenuContentState {
+         const isKeydownInside = target.closest(`[${this.parentMenu.root.getBitsAttr("content")}]`)?.id ===
+             this.parentMenu.contentId.current;
+         const isModifierKey = e.ctrlKey || e.altKey || e.metaKey;
+-        const isCharacterKey = e.key.length === 1;
++        const isCharacterKey = typeof e.key === 'string' && e.key.length === 1;
+         const kbdFocusedEl = this.rovingFocusGroup.handleKeydown(target, e);
+         if (kbdFocusedEl)
+             return;
