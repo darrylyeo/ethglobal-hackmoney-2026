@@ -80,6 +80,9 @@
 	)
 	const roomDisplayName = $derived(roomIdToDisplayName(roomId))
 	const roomPlaceEmoji = $derived(roomIdToPlaceEmoji(roomId))
+	const connectionStatusLabel = $derived(
+		partyKitStatusLabel(roomState.connectionStatus),
+	)
 	const roomShareUrl = $derived(
 		typeof globalThis !== 'undefined' &&
 			'location' in globalThis &&
@@ -90,6 +93,9 @@
 
 
 	// Actions
+	$effect(() => {
+		document.title = roomDisplayName
+	})
 	$effect(() => {
 		leaveToken++
 		const id = roomId
@@ -114,11 +120,6 @@
 </script>
 
 
-<svelte:head>
-	<title>{roomDisplayName}</title>
-</svelte:head>
-
-
 <main
 	id="main"
 	data-column
@@ -141,7 +142,7 @@
 						data-connection-status={roomState.connectionStatus}
 						title="Room connection"
 					>
-						{partyKitStatusLabel(roomState.connectionStatus)}
+						{connectionStatusLabel}
 					</span>
 				</div>
 				<WatchButton
