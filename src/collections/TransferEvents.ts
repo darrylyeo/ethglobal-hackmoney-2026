@@ -1,6 +1,6 @@
 /**
- * Transfer events per symbol+period from Voltaire eth_getLogs.
- * Fetched and upserted for the coin page; list reads from this collection.
+ * Transfer events per symbol+period. Single RPC fetch; TanStack DB cache.
+ * Graph is derived from events and written to TransferGraphs (no extra fetch).
  */
 
 import type { NormalizedTransferEvent } from '$/api/transfers-logs.ts'
@@ -12,6 +12,7 @@ import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
+import { upsertGraphFromEvents } from '$/collections/TransferGraphs.ts'
 
 export type TransferEvent$Id = {
 	symbol: string
@@ -53,6 +54,20 @@ export const transferEventsCollection = createCollection(
 	}),
 )
 
+const inFlight = new Map<string, Promise<TransferEventRow[]>>()
+
+function hasValidCache(metaKey: string): boolean {
+	const meta = transferEventsCollection.state.get(metaKey) as
+		| TransferEventsMetaRow
+		| undefined
+	return !!(
+		meta &&
+		'isLoading' in meta &&
+		!meta.isLoading &&
+		meta.error === null
+	)
+}
+
 export const ensureTransferEventsForPlaceholders = (
 	symbol: CoinPageSymbol,
 	period: string,
@@ -67,37 +82,93 @@ export const ensureTransferEventsForPlaceholders = (
 export async function fetchTransferEvents(
 	symbol: CoinPageSymbol,
 	period: string,
+	options?: { force?: boolean },
 ): Promise<TransferEventRow[]> {
 	const metaKey = `${symbol}:${period}:meta`
-	const existingMeta = transferEventsCollection.state.get(metaKey)
-	if (existingMeta && 'isLoading' in existingMeta) {
-		transferEventsCollection.update(metaKey, (draft) => {
-			;(draft as TransferEventsMetaRow).isLoading = true
-			;(draft as TransferEventsMetaRow).error = null
-		})
-	} else {
-		transferEventsCollection.insert({
-			$id: { symbol, period, chainId: -1, blockNumber: -1, logIndex: -1 },
-			$source: DataSource.Voltaire,
-			isLoading: true,
-			error: null,
-		} as TransferEventsMetaRow)
+	const cacheKey = `${symbol}:${period}`
+
+	if (!options?.force && hasValidCache(metaKey)) {
+		const rows = [...transferEventsCollection.state.values()]
+			.filter(
+				(r): r is TransferEventRow =>
+					'chainId' in r && (r as TransferEventRow).$id.chainId !== -1,
+			)
+			.filter(
+				(r) => r.$id.symbol === symbol && r.$id.period === period,
+			) as TransferEventRow[]
+		upsertGraphFromEvents(symbol, period, rows)
+		return rows
 	}
 
-	if (symbol !== 'USDC') {
-		transferEventsCollection.update(metaKey, (draft) => {
-			;(draft as TransferEventsMetaRow).isLoading = false
-			;(draft as TransferEventsMetaRow).error = null
-		})
-		return []
-	}
+	const existing = inFlight.get(cacheKey)
+	if (existing) return existing
 
-	try {
-		const events = await fetchTransferEventsForPeriod(period)
-		for (const e of events) {
-			const key = `${symbol}:${period}:${e.chainId}:${e.blockNumber}:${e.logIndex}`
-			const existing = transferEventsCollection.state.get(key)
-			const row: TransferEventRow = {
+	const run = async (): Promise<TransferEventRow[]> => {
+		if (!hasValidCache(metaKey)) {
+			const existingMeta = transferEventsCollection.state.get(metaKey)
+			if (existingMeta && 'isLoading' in existingMeta)
+				transferEventsCollection.update(metaKey, (draft) => {
+					;(draft as TransferEventsMetaRow).isLoading = true
+					;(draft as TransferEventsMetaRow).error = null
+				})
+			else
+				transferEventsCollection.insert({
+					$id: {
+						symbol,
+						period,
+						chainId: -1,
+						blockNumber: -1,
+						logIndex: -1,
+					},
+					$source: DataSource.Voltaire,
+					isLoading: true,
+					error: null,
+				} as TransferEventsMetaRow)
+		}
+
+		if (symbol !== 'USDC') {
+			transferEventsCollection.update(metaKey, (draft) => {
+				;(draft as TransferEventsMetaRow).isLoading = false
+				;(draft as TransferEventsMetaRow).error = null
+			})
+			return []
+		}
+
+		try {
+			const events = await fetchTransferEventsForPeriod(period)
+			for (const e of events) {
+				const key = `${symbol}:${period}:${e.chainId}:${e.blockNumber}:${e.logIndex}`
+				const existingRow = transferEventsCollection.state.get(key)
+				const row: TransferEventRow = {
+					$id: {
+						symbol,
+						period,
+						chainId: e.chainId,
+						blockNumber: e.blockNumber,
+						logIndex: e.logIndex,
+					},
+					$source: DataSource.Voltaire,
+					transactionHash: e.transactionHash,
+					fromAddress: e.fromAddress,
+					toAddress: e.toAddress,
+					amount: e.amount,
+					timestamp: e.timestamp,
+					chainId: e.chainId,
+					blockNumber: e.blockNumber,
+					logIndex: e.logIndex,
+				}
+				if (existingRow)
+					transferEventsCollection.update(key, (draft) => {
+						Object.assign(draft, row)
+					})
+				else transferEventsCollection.insert(row)
+			}
+			transferEventsCollection.update(metaKey, (draft) => {
+				;(draft as TransferEventsMetaRow).isLoading = false
+				;(draft as TransferEventsMetaRow).error = null
+			})
+			upsertGraphFromEvents(symbol, period, events)
+			return events.map((e) => ({
 				$id: {
 					symbol,
 					period,
@@ -106,44 +177,23 @@ export async function fetchTransferEvents(
 					logIndex: e.logIndex,
 				},
 				$source: DataSource.Voltaire,
-				transactionHash: e.transactionHash,
-				fromAddress: e.fromAddress,
-				toAddress: e.toAddress,
-				amount: e.amount,
-				timestamp: e.timestamp,
-				chainId: e.chainId,
-				blockNumber: e.blockNumber,
-				logIndex: e.logIndex,
-			}
-			if (existing)
-				transferEventsCollection.update(key, (draft) => {
-					Object.assign(draft, row)
-				})
-			else transferEventsCollection.insert(row)
+				...e,
+			})) as TransferEventRow[]
+		} catch (e) {
+			const message = e instanceof Error ? e.message : String(e)
+			transferEventsCollection.update(metaKey, (draft) => {
+				;(draft as TransferEventsMetaRow).isLoading = false
+				;(draft as TransferEventsMetaRow).error = message
+			})
+			throw e
+		} finally {
+			inFlight.delete(cacheKey)
 		}
-		transferEventsCollection.update(metaKey, (draft) => {
-			;(draft as TransferEventsMetaRow).isLoading = false
-			;(draft as TransferEventsMetaRow).error = null
-		})
-		return events.map((e) => ({
-			$id: {
-				symbol,
-				period,
-				chainId: e.chainId,
-				blockNumber: e.blockNumber,
-				logIndex: e.logIndex,
-			},
-			$source: DataSource.Voltaire,
-			...e,
-		})) as TransferEventRow[]
-	} catch (e) {
-		const message = e instanceof Error ? e.message : String(e)
-		transferEventsCollection.update(metaKey, (draft) => {
-			;(draft as TransferEventsMetaRow).isLoading = false
-			;(draft as TransferEventsMetaRow).error = message
-		})
-		throw e
 	}
+
+	const promise = run()
+	inFlight.set(cacheKey, promise)
+	return promise
 }
 
 export function transferEventsQueryKey(
