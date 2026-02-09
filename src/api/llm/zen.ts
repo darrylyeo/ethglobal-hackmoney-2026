@@ -151,14 +151,13 @@ export const zenClientGenerateWithKey = async (
 			? input.modelId
 			: defaultZenFreeModelId
 	const model = getZenFreeModel(modelId)
-	const path = new URL(model.endpoint).pathname
 	const headers: Record<string, string> = {
 		'content-type': 'application/json',
 		authorization: `Bearer ${apiKey}`,
 	}
 
 	const doFetch = (body: unknown) =>
-		proxyFetch('opencode', path, {
+		proxyFetch(model.endpoint, {
 			method: 'POST',
 			headers,
 			body: JSON.stringify(body),
