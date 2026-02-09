@@ -273,6 +273,12 @@ export type Action<_ActionType extends ActionType = ActionType> = {
 	protocolSelection?: string
 }
 
+export type LiquidityAction =
+	| Action<ActionType.AddLiquidity>
+	| Action<ActionType.RemoveLiquidity>
+	| Action<ActionType.CollectFees>
+	| Action<ActionType.IncreaseLiquidity>
+
 export const createAction = <_ActionType extends ActionType>(
 	type: _ActionType,
 	params?: Partial<ActionParams<_ActionType>>,

@@ -288,6 +288,21 @@ export const ercTokens = (
 			symbol: 'USDC',
 			decimals: 6,
 		},
+		// WETH (and native-equivalent) for swap/liquidity/transfer/bridge
+		{ chainId: ChainId.Ethereum, address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.Optimism, address: '0x4200000000000000000000000000000000000006', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.Base, address: '0x4200000000000000000000000000000000000006', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.Arbitrum, address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.Polygon, address: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.Avalanche, address: '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB', symbol: 'WETH.e', decimals: 18 },
+		{ chainId: ChainId.Linea, address: '0xe5D7C2a6Ff5bbEcF3E41aF8F5b8e4B4e5e5e5e5', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.EthereumSepolia, address: '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.OPSepolia, address: '0x4200000000000000000000000000000000000006', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.BaseSepolia, address: '0x4200000000000000000000000000000000000006', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.ArbitrumSepolia, address: '0x980B62Da83eFf3D4576C647993b0c1D7faf17c73', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.PolygonAmoy, address: '0x7b79995e5f793A4712D92A3c7e7c1B945100F8d', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.LineaSepolia, address: '0x2C1b868d6596a18e32e61B901E4060C872647b6C', symbol: 'WETH', decimals: 18 },
+		{ chainId: ChainId.AvalancheFuji, address: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c', symbol: 'WETH', decimals: 18 },
 	] as const
 ).map((token) => ({
 	type: CoinType.Erc20,
@@ -318,7 +333,7 @@ const zeroAddress = '0x0000000000000000000000000000000000000000' as `0x${string}
 
 export function getBridgeCoins(chainId: number): Coin[] {
 	const config = networkConfigsByChainId[chainId]
-	const bySymbol = ercTokensBySymbolByChainId[chainId]
+	const chainTokens = ercTokens.filter((t) => t.chainId === chainId)
 	const native: Coin | null =
 		config ?
 			{
@@ -329,7 +344,6 @@ export function getBridgeCoins(chainId: number): Coin[] {
 				decimals: 18,
 			}
 		: null
-	const usdc = bySymbol?.USDC ?? null
-	return [native, usdc].filter(Boolean) as Coin[]
+	return [native, ...chainTokens].filter(Boolean) as Coin[]
 }
 

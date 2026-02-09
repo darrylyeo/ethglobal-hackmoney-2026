@@ -71,3 +71,18 @@ export const protocols = [
 export const protocolsById = Object.fromEntries(
 	protocols.map((protocol) => [protocol.id, protocol]),
 )
+
+export const bridgeProtocolIds = ['cctp', 'lifi', 'gateway'] as const
+export type BridgeProtocolId = (typeof bridgeProtocolIds)[number]
+
+export const bridgeIdToProtocol: Record<BridgeProtocolId, Protocol> = {
+	cctp: Protocol.Cctp,
+	lifi: Protocol.LiFi,
+	gateway: Protocol.CircleGateway,
+}
+
+export const protocolToBridgeId: Partial<Record<Protocol, BridgeProtocolId>> = {
+	[Protocol.Cctp]: 'cctp',
+	[Protocol.LiFi]: 'lifi',
+	[Protocol.CircleGateway]: 'gateway',
+}
