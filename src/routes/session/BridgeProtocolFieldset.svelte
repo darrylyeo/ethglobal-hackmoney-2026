@@ -121,9 +121,9 @@
 </script>
 
 {#if action.type === ActionType.Bridge}
-	<div data-column="gap-3">
+	<div data-column>
 	{#if anyMultiple}
-		<div data-column="gap-1">
+		<div data-column="gap-2">
 			{#each rows as row (row.type === 'auto' ? 'auto' : row.option.bridgeId)}
 				{#if row.type === 'auto'}
 					<button
@@ -153,9 +153,9 @@
 							{:else}
 								<Icon class="protocol-icon" icon={row.option.icon} size={20} alt="" />
 							{/if}
-							<div data-column="gap-0">
+							<div data-column="gap-2">
 								<strong>{row.option.label}</strong>
-								<div data-muted>{row.option.detail}</div>
+								<small data-text="muted">{row.option.detail}</small>
 							</div>
 						</button>
 						{#each ('tags' in row.option ? row.option.tags : []) as tagId (tagId)}
@@ -173,11 +173,11 @@
 			{/each}
 		</div>
 	{:else if activeProtocol}
-		<p data-muted>Using {protocolsById[bridgeIdToProtocol[activeProtocol]].label}</p>
+		<p data-text="muted">Using {protocolsById[bridgeIdToProtocol[activeProtocol]].label}</p>
 	{:else if fromChainId !== null && toChainId !== null}
 		<p data-error>This chain pair is not supported by CCTP, LI.FI, or Gateway.</p>
 	{:else}
-		<p data-muted>{protocolReason}</p>
+		<p data-text="muted">{protocolReason}</p>
 	{/if}
 
 	{#if activeProtocol === 'cctp'}

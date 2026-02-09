@@ -310,6 +310,18 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			],
 		},
 		{
+			id: 'coins',
+			title: 'Coins',
+			href: '/coins',
+			icon: '🪙',
+		},
+		{
+			id: 'networks',
+			title: 'Networks',
+			href: '/networks',
+			icon: '⛓️',
+		},
+		{
 			id: 'explore',
 			title: 'Explore',
 			icon: '🧭',
@@ -318,6 +330,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 				{
 					id: 'coins',
 					title: 'Coins',
+					href: '/coins',
 					icon: '🪙',
 					defaultOpen: true,
 					children: [
@@ -328,6 +341,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 				{
 					id: 'networks',
 					title: 'Networks',
+					href: '/networks',
 					icon: '⛓️',
 					defaultOpen: true,
 					children: withManualWatch(filterWatched(allNetworkNavItems)),

@@ -7,11 +7,20 @@
 		actionTypeDefinitionByActionType,
 		actionTypes,
 		type ActionTypeDefinition,
+		type LiquidityAction,
+		mergeActionParams,
 	} from '$/constants/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { protocolActions } from '$/constants/protocolActions.ts'
-	import { Protocol, ProtocolTag, protocolsById } from '$/constants/protocols.ts'
+	import {
+		Protocol,
+		ProtocolTag,
+		bridgeIdToProtocol,
+		protocolToBridgeId,
+		protocolsById,
+	} from '$/constants/protocols.ts'
+	import { getBridgeProtocolOptions } from '$/lib/protocols/bridgeProtocolOptions.ts'
 	import { NetworkType, networks, networksByChainId } from '$/constants/networks.ts'
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
@@ -53,6 +62,8 @@
 		{},
 	)
 	$effect(() => {
+		if (action == null) return
+		if (action.params == null) action = mergeActionParams(action as Action)
 		const t = action.type as ActionType
 		paramsByType[t] = { ...action.params } as Record<string, unknown>
 	})
@@ -68,10 +79,21 @@
 	const protocolsForAction = $derived(
 		protocolActions.filter((pa) => pa.id.actionType === action.type),
 	)
+	const bridgeParams = $derived(
+		action.type === ActionType.Bridge
+			? (action.params as { fromChainId: number | null; toChainId: number | null; protocolIntent?: 'cctp' | 'lifi' | 'gateway' | null })
+			: null,
+	)
 	const protocolOptions = $derived(
-		protocolsForAction
-			.map((pa) => protocolsById[pa.id.protocol])
-			.filter(Boolean),
+		action.type === ActionType.Bridge && bridgeParams
+			? getBridgeProtocolOptions(
+					bridgeParams.fromChainId ?? null,
+					bridgeParams.toChainId ?? null,
+					sessionCtx.isTestnet ?? false,
+				)
+			: (protocolsForAction
+					.map((pa) => protocolsById[pa.id.protocol])
+					.filter(Boolean) as import('$/constants/protocols.ts').ProtocolDefinition[]),
 	)
 	const resolveSelection = (sel: string, opts: readonly { id: string; tags?: readonly ProtocolTag[] }[]) =>
 		opts.find((o) => o.id === sel)
@@ -84,7 +106,13 @@
 			return resolveSelection(sel, protocolOptions) as Protocol | null
 		})(),
 	)
-	const protocolValue = $derived(action.protocolSelection ?? action.protocolAction?.protocol ?? '')
+	const protocolValue = $derived(
+		action.type === ActionType.Bridge && bridgeParams
+			? (bridgeParams.protocolIntent
+					? bridgeIdToProtocol[bridgeParams.protocolIntent]
+					: action.protocolAction?.protocol ?? '')
+			: (action.protocolSelection ?? action.protocolAction?.protocol ?? ''),
+	)
 	const paramsHash = $derived(stringify(action.params))
 	const sessionId = $derived(sessionCtx.sessionId ?? '')
 
@@ -113,6 +141,11 @@
 
 	const signingPayloads = $derived(
 		resolveSigningPayloads(action, rpcUrls ?? {}, sessionCtx.selectedActor),
+	)
+	const proposedTransactionsHeading = $derived(
+		new Intl.PluralRules('en').select(signingPayloads.length) === 'one'
+			? 'Proposed Transaction'
+			: 'Proposed Transactions',
 	)
 	const selectedConnection = $derived(
 		sessionCtx.connectedWallets.find((c) => c.connection.selected),
@@ -153,15 +186,27 @@
 
 	const onProtocolChange = (value: string | string[] | null) => {
 		if (typeof value !== 'string' || value === '') {
-			action = { ...action, protocolSelection: undefined, protocolAction: undefined }
+			action = {
+				...action,
+				protocolSelection: undefined,
+				protocolAction: undefined,
+				...(action.type === ActionType.Bridge && action.params && 'protocolIntent' in action.params
+					? { params: { ...action.params, protocolIntent: null } }
+					: {}),
+			} as Action
 			return
 		}
 		const resolved = resolveSelection(value, protocolOptions)
 		const valid = protocolOptions.some((o) => o.id === resolved)
+		const bridgeIntent =
+			action.type === ActionType.Bridge && valid ? protocolToBridgeId[resolved as Protocol] : undefined
 		action = {
 			...action,
 			protocolSelection: value,
 			protocolAction: valid ? { action: action.type, protocol: resolved } : undefined,
+			...(action.type === ActionType.Bridge && action.params && 'protocolIntent' in action.params
+				? { params: { ...action.params, protocolIntent: bridgeIntent ?? null } }
+				: {}),
 		} as Action
 	}
 
@@ -229,6 +274,12 @@
 		}
 	}
 
+	const onSubmit = (e: SubmitEvent) => {
+		e.preventDefault()
+		if ((e.submitter as HTMLButtonElement | undefined)?.value === 'broadcast') broadcast()
+		else runSimulation()
+	}
+
 	const broadcast = async () => {
 		if (!sessionId || !walletProvider || signingPayloads.length === 0) return
 		const payload = signingPayloads[0]
@@ -271,7 +322,7 @@
 	import SwapFieldset from '$/views/actions/SwapFieldset.svelte'
 	import TransferFieldset from '$/views/actions/TransferFieldset.svelte'
 	import BridgeProtocolFieldset from '$/views/protocolActions/BridgeProtocolFieldset.svelte'
-	import ProtocolCardSelect from '$/views/protocolActions/ProtocolCardSelect.svelte'
+	import ProtocolInput from '$/views/protocolActions/ProtocolInput.svelte'
 	import Simulations from './Simulations.svelte'
 	import TransactionSigningPayloadList from './TransactionSigningPayloadList.svelte'
 	import Transactions from './Transactions.svelte'
@@ -279,7 +330,6 @@
 
 
 <details
-	data-session-action
 	data-card
 	data-column="gap-3"
 	open
@@ -298,80 +348,77 @@
 	</summary>
 
 	<div data-column="gap-4">
-		<form data-grid="columns-autofit column-min-16 gap-4">
-			<section data-card data-column="gap-3">
+		<form data-grid="columns-autofit column-min-16 gap-4" onsubmit={onSubmit}>
+			<section data-card data-column>
 				<h3>Parameters</h3>
 				{#if action.type === ActionType.Swap}
 					<SwapFieldset
-						bind:action
+						bind:action={action as Action<ActionType.Swap>}
 						{filteredNetworks}
 						{chainCoins}
 						{asNonEmptyCoins}
 					/>
 				{:else if action.type === ActionType.Bridge}
-					<BridgeFieldset bind:action {filteredNetworks} />
+					<BridgeFieldset bind:action={action as Action<ActionType.Bridge>} {filteredNetworks} />
 				{:else if action.type === ActionType.Transfer}
 					<TransferFieldset
-						bind:action
+						bind:action={action as Action<ActionType.Transfer>}
 						{filteredNetworks}
 						{chainCoins}
 						{asNonEmptyCoins}
 					/>
 				{:else if action.type === ActionType.AddLiquidity || action.type === ActionType.RemoveLiquidity || action.type === ActionType.CollectFees || action.type === ActionType.IncreaseLiquidity}
 					<AddLiquidityFieldset
-						bind:action
+						bind:action={action as LiquidityAction}
 						{filteredNetworks}
 						{chainCoins}
 						{asNonEmptyCoins}
 					/>
 				{:else if activeSpec && Object.keys((action.params as object) ?? {}).length > 0}
-					<p data-muted>{activeSpec.label} params</p>
+					<p data-text="muted">{activeSpec.label} params</p>
 				{/if}
 			</section>
 
-			<section data-card data-column="gap-2">
+			<section data-card data-column>
 				<h3>Protocol</h3>
+				<ProtocolInput
+					options={protocolOptions}
+					value={protocolValue}
+					onSelect={(protocol) => onProtocolChange(protocol ?? null)}
+				/>
 				{#if action.type === ActionType.Bridge}
 					<BridgeProtocolFieldset bind:action isTestnet={sessionCtx.isTestnet} />
-				{:else}
-					<ProtocolCardSelect
-						options={protocolOptions}
-						value={protocolValue}
-						onSelect={(protocol) => onProtocolChange(protocol ?? null)}
-					/>
 				{/if}
 			</section>
 
-			<section data-card data-column="gap-2" data-proposed-txs>
-				<h3>Proposed Transactions</h3>
-				<TransactionSigningPayloadList
-					payloads={signingPayloads}
-					networksByChainId={networksByChainId}
-				/>
-				<div data-action-buttons data-grid="columns-2 gap-2">
+			<section data-card data-column>
+				<h3>{proposedTransactionsHeading}</h3>
+				<div data-row="center">
 					<button
-						type="button"
+						type="submit"
+						name="action"
+						value="simulate"
 						disabled={
 							!isParamsValid ||
 							signingPayloads.length === 0 ||
 							signingPayloads.every((p) => !p.rpcUrl) ||
 							simulateInProgress
 						}
-						onclick={runSimulation}
 					>
 						{simulateInProgress ? 'Simulating…' : 'Simulate'}
 					</button>
 					<button
-						type="button"
+						type="submit"
+						name="action"
+						value="broadcast"
 						disabled={
 							!isParamsValid ||
 							!selectedConnectionSupportsSigning ||
 							signingPayloads.length === 0 ||
 							broadcastInProgress
 						}
-						onclick={broadcast}
 					>
-						{broadcastInProgress ? 'Signing and broadcasting…' : 'Sign and Broadcast'}
+						{broadcastInProgress ? 'Signing and broadcasting…' : 'Sign & Broadcast'}
 					</button>
 				</div>
 			</section>
@@ -391,12 +438,7 @@
 </details>
 
 <style>
-	[data-action-buttons] {
-		justify-items: center;
-	}
-	[data-action-buttons] > button {
-		padding: 0.9em 1.2em;
+	button {
 		font-size: 1em;
-		min-height: 2.75em;
 	}
 </style>
