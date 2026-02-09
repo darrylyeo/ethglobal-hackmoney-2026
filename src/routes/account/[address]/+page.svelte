@@ -101,7 +101,7 @@
 </svelte:head>
 
 
-<main data-column="gap-2">
+<main data-column="gap-4">
 	{#if !parsed}
 		<h1>Invalid address</h1>
 		<p>The address in the URL could not be parsed.</p>
@@ -161,7 +161,11 @@
 
 		<!-- <div data-grid="columns-autofit column-min-16 gap-6"> -->
 			<Boundary>
-				<CoinBalances selectedActor={normalizedAddress} {balanceTokens} />
+				<CoinBalances
+				selectedActor={normalizedAddress}
+				{balanceTokens}
+				availableAccounts={normalizedAddress ? [normalizedAddress] : []}
+			/>
 			</Boundary>
 			<Boundary>
 				<Transactions selectedActor={normalizedAddress} />

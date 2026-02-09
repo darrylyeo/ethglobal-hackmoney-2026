@@ -134,7 +134,7 @@
 	<section data-scroll-item data-column="gap-2">
 		<header data-row="wrap gap-4">
 			<div data-row="start gap-2" data-row-item="flexible">
-				<div data-column="gap-1">
+				<div data-row="gap-1">
 					<h1>
 						<span class="sr-only">Session</span>
 						<input
