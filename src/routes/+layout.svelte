@@ -282,6 +282,11 @@
 				--sticky-marginInlineStart: var(--separator-width);
 				--sticky-paddingInlineStart: var(--navigation-desktop-inlineSize);
 			}
+
+			> :global(nav) {
+				max-inline-size: var(--navigation-desktop-inlineSize);
+				resize: horizontal;
+			}
 		}
 
 		@media (width < 60rem) {
@@ -300,9 +305,6 @@
 		> :global(nav) {
 			grid-area: Nav;
 			box-shadow: 0 0 0 var(--separator-width) var(--border-color);
-
-			max-inline-size: var(--navigation-desktop-inlineSize);
-			resize: horizontal;
 		}
 
 		> .layout-main {
