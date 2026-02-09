@@ -8,6 +8,10 @@ import {
 	resolveEnsReverse,
 } from '$/api/identity-resolve.ts'
 import { createHttpProvider } from '$/api/voltaire.ts'
+import {
+	getCachedEnsAvatar,
+	setCachedEnsAvatar,
+} from '$/collections/EnsAvatars.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { identityResolvers } from '$/constants/identity-resolver.ts'
@@ -46,8 +50,18 @@ export const ensureEvmActorProfile = (
 	const key = `${chainId}:${normalized}` as unknown as Parameters<
 		typeof evmActorProfilesCollection.state.get
 	>[0]
-	if (!evmActorProfilesCollection.state.get(key))
-		fetchEvmActorProfile(chainId, normalized).catch(() => {})
+	if (evmActorProfilesCollection.state.get(key)) return
+	const cached = getCachedEnsAvatar(chainId, normalized)
+	if (cached) {
+		evmActorProfilesCollection.insert({
+			$id: { chainId, address: normalized },
+			primaryName: cached.primaryName,
+			avatarUrl: cached.avatarUrl,
+			$source: DataSource.Voltaire,
+		})
+		return
+	}
+	fetchEvmActorProfile(chainId, normalized).catch(() => {})
 }
 
 export const fetchEvmActorProfile = async (
@@ -114,6 +128,12 @@ export const fetchEvmActorProfile = async (
 		}
 		evmActorProfilesCollection.update(key, (draft) => {
 			Object.assign(draft, row)
+		})
+		setCachedEnsAvatar({
+			chainId,
+			address,
+			avatarUrl: row.avatarUrl,
+			primaryName: row.primaryName,
 		})
 		return {
 			$id: row.$id,

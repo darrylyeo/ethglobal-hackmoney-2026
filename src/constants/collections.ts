@@ -22,6 +22,7 @@ export enum CollectionId {
 	CctpFees = 'CctpFees',
 	Dashboards = 'Dashboards',
 	EntitySources = 'EntitySources',
+	EnsAvatars = 'EnsAvatars',
 	EvmActorProfiles = 'EvmActorProfiles',
 	IdentityLinks = 'IdentityLinks',
 	LlmConnections = 'LlmConnections',
