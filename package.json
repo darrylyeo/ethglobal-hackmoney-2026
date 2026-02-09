@@ -60,7 +60,7 @@
 	"devDependencies": {
 		"@axe-core/playwright": "^4.11.0",
 		"@playwright/test": "1.57.0",
-		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/adapter-auto": "^7.0.0",
 		"@sveltejs/kit": "^2.49.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
 		"@types/dom-chromium-ai": "^0.0.13",
