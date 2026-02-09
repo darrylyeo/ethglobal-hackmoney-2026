@@ -11,11 +11,31 @@
 }
 
 [data-select-trigger] {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75em;
 	background-color: var(--color-bg-muted);
 	border-radius: 0.375rem;
 	cursor: pointer;
-	min-width: var(--bits-select-anchor-width, 8rem);
+	min-width: var(--bits-select-anchor-width, 3rem);
 	padding: 0.375rem 0.75rem;
+
+	&::after {
+		content: '';
+		flex-shrink: 0;
+		width: 0.66em;
+		height: 1lh;
+		background-color: currentColor;
+		mask: var(--icon-chevron) no-repeat center;
+		opacity: 0.66;
+		transform: perspective(100px) rotateX(0deg);
+		transition-property: transform;
+	}
+
+	&[data-state='open']::after {
+		transform: perspective(100px) rotateX(180deg);
+	}
 
 	&[data-disabled] {
 		cursor: not-allowed;
@@ -25,7 +45,7 @@
 
 [data-combobox-multi],
 [data-combobox-single] {
-	min-width: var(--bits-select-anchor-width, 8rem);
+	min-width: var(--bits-select-anchor-width, 3rem);
 	padding: 0.25rem 0.5rem;
 	background-color: var(--color-bg-muted);
 	border: 1px solid var(--color-border);
@@ -96,11 +116,8 @@
 [data-combobox-content] {
 	background-color: var(--color-bg);
 	border-radius: 0.375rem;
-	overflow: hidden;
 	padding: 0.25rem;
-	width: var(--bits-select-anchor-width);
 	min-width: var(--bits-select-anchor-width);
-	max-width: var(--bits-select-anchor-width);
 }
 
 [data-select-viewport],
