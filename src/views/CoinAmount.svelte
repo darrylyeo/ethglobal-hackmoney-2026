@@ -69,15 +69,19 @@
 					</abbr>
 				{/if}
 
-				{#if coin.icon?.original?.url}
+				{#if coin.icon?.original?.url || coin.chainId !== undefined}
 					<span class="coin-icons" data-row="center gap-1">
-						<CoinIcon
-							src={coin.icon.original.url}
-							symbol={coin.symbol ?? ''}
-							alt={coin.symbol ?? ''}
-							size={16}
-						/>
-						<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} size={10} />
+						{#if coin.icon?.original?.url}
+							<CoinIcon
+								src={coin.icon.original.url}
+								symbol={coin.symbol ?? ''}
+								alt={coin.symbol ?? ''}
+								size={16}
+							/>
+						{/if}
+						{#if coin.chainId !== undefined}
+							<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} size={10} />
+						{/if}
 					</span>
 				{/if}
 			</span>
@@ -105,15 +109,19 @@
 				</abbr>
 			{/if}
 
-			{#if coin.icon?.original?.url}
+			{#if coin.icon?.original?.url || coin.chainId !== undefined}
 				<span class="coin-icons" data-row="center gap-1">
-					<CoinIcon
-						src={coin.icon.original.url}
-						symbol={coin.symbol ?? ''}
-						alt={coin.symbol ?? ''}
-						size={16}
-					/>
-					<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} size={10} />
+					{#if coin.icon?.original?.url}
+						<CoinIcon
+							src={coin.icon.original.url}
+							symbol={coin.symbol ?? ''}
+							alt={coin.symbol ?? ''}
+							size={16}
+						/>
+					{/if}
+					{#if coin.chainId !== undefined}
+						<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} size={10} />
+					{/if}
 				</span>
 			{/if}
 		</span>
