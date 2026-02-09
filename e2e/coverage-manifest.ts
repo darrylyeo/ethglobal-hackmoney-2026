@@ -483,14 +483,25 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'valid-address',
 		path: '/account/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
 		assert: async (page) => {
-			await expect(page.getByRole('heading', { name: 'Account', })).toBeVisible()
-			await expect(
-				page.getByRole('heading', { name: 'Balances', exact: true, }),
-			).toBeVisible()
-			await expect(
-				page.getByRole('heading', { name: 'Transactions', }),
-			).toBeVisible()
 			await expect(page.locator('[data-account-header]')).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: /^Balances/, }),
+			).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: /^Transactions/, }),
+			).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: /^Wallet connections/, }),
+			).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: /^Room \/ peer connections/, }),
+			).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: /^Liquidity positions/, }),
+			).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: /^Channels/, }),
+			).toBeVisible()
 		},
 	},
 	{

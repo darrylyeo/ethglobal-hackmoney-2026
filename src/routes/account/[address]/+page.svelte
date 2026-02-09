@@ -106,7 +106,7 @@
 		<h1>Invalid address</h1>
 		<p>The address in the URL could not be parsed.</p>
 	{:else}
-		<header data-column="gap-2">
+		<header data-account-header data-column="gap-2">
 			<div data-row="wrap gap-4">
 				<div data-row="start gap-2" data-row-item="flexible">
 					<h1 data-orient="vertical">
