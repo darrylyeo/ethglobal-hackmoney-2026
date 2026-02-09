@@ -29,9 +29,12 @@
 		stop,
 	}: DragProps<T> = $props()
 
-	let x = $state(position.x - offset.x)
-	let y = $state(position.y - offset.y)
-
+	let x = $state(0)
+	let y = $state(0)
+	$effect(() => {
+		x = position.x - offset.x
+		y = position.y - offset.y
+	})
 	$effect(() => {
 		const cleanMove = on(document, 'pointermove', (e: PointerEvent) => {
 			x = e.clientX - offset.x
