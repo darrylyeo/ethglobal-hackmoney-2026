@@ -371,7 +371,12 @@
 									</span>
 								</div>
 
-								<span class="disconnect" onclick={(e) => e.stopPropagation()}>
+								<span
+									class="disconnect"
+									role="group"
+									onclick={(e) => e.stopPropagation()}
+									onkeydown={(e) => e.stopPropagation()}
+								>
 									<Button.Root
 										type="button"
 										onclick={() => disconnectWallet(wallet.$id)}

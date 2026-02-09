@@ -36,7 +36,7 @@
 			<span
 				class="peer-avatar-dot"
 				aria-hidden="true"
-			/>
+			></span>
 		{/if}
 	</span>
 	<span data-peer-name>{name}</span>
