@@ -49,6 +49,8 @@ export type NavigationItemsInput = {
 	dashboardsData?: { id: string; name?: string; icon?: string }[]
 	defaultDashboardId: string
 	coinIcons: { eth: string; usdc: string }
+	/** When true, default nav networks show testnets (e.g. Ethereum Sepolia); otherwise mainnets (e.g. Ethereum). */
+	isTestnet: boolean
 }
 
 const sessionTitle = (session: { name?: string; actions: Action[] }) =>
@@ -72,6 +74,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 		dashboardsData = [],
 		defaultDashboardId,
 		coinIcons,
+		isTestnet,
 	} = input
 
 	const pinnedAgentChatTrees = agentChatTreesData
@@ -190,8 +193,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			icon: roomIdToPlaceEmoji(room.id),
 		}))
 	const defaultNetworkChainIds: ChainId[] = [
-		ChainId.Ethereum,
-		ChainId.EthereumSepolia,
+		isTestnet ? ChainId.EthereumSepolia : ChainId.Ethereum,
 	]
 	const defaultNetworkConfigs = defaultNetworkChainIds
 		.map((chainId) => networkConfigs.find((c) => c.chainId === chainId))

@@ -10,6 +10,8 @@
 
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
+	import { NetworkEnvironment } from '$/constants/network-environment.ts'
+	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
 
 
 	// Context
@@ -149,6 +151,9 @@
 		{ id: 'layout-transactions', label: 'Transactions', query: recentTransactionsQuery },
 		{ id: 'layout-watched', label: 'Watched Entities', query: watchedEntitiesQuery },
 	])
+	const isTestnet = $derived(
+		networkEnvironmentState.current === NetworkEnvironment.Testnet,
+	)
 	const navigationItems = $derived(
 		getNavigationItems({
 			sessionsData: sessionsQuery.data,
@@ -164,6 +169,7 @@
 			dashboardsData: dashboardsQuery.data,
 			defaultDashboardId,
 			coinIcons: { eth: iconEth, usdc: iconUsdc },
+			isTestnet,
 		}),
 	)
 
