@@ -24,7 +24,7 @@
 		children,
 	}: ReorderProps<T> = $props()
 
-	const { attach, createGetState } = createReorder(content)
+	const { attach, createGetState } = createReorder(() => content)
 </script>
 
 

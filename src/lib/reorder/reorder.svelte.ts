@@ -244,7 +244,7 @@ export function createReorder<T>(itemSnippet: ContentSnippet<T>) {
 					options: listOptions,
 					index,
 					areaState,
-					content: () => itemSnippet,
+					content: getContent,
 				}),
 			)
 	}
