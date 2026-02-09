@@ -1,6 +1,10 @@
 <script lang="ts">
 	// Types/constants
 	import type { TransactionSigningPayload } from '$/lib/session/resolveSigningPayloads.ts'
+	import {
+		describePayloadData,
+		formatPayloadValue,
+	} from '$/lib/session/payloadDisplay.ts'
 
 
 	// Props
@@ -14,24 +18,20 @@
 
 
 	// (Derived)
-	const toShort = $derived(
-		payload.to
-			? `${payload.to.slice(0, 6)}…${payload.to.slice(-4)}`
-			: '—',
-	)
-	const valueDisplay = $derived(
-		payload.value === '0' || !payload.value
-			? '0'
-			: payload.value.length <= 12
-				? payload.value
-				: `${payload.value.slice(0, 6)}…`,
-	)
-	const dataLabel = $derived(
-		!payload.data || payload.data === '0x' ? 'No data' : `Calldata ${payload.data.length} chars`,
+	const dataDesc = $derived(describePayloadData(payload))
+	const valueFormatted = $derived(formatPayloadValue(payload.value))
+	const dataSummary = $derived(
+		dataDesc.kind === 'empty'
+			? '—'
+			: dataDesc.kind === 'erc20_transfer'
+				? `transfer(${dataDesc.to.slice(0, 10)}…, ${dataDesc.amount})`
+				: dataDesc.kind === 'erc20_approve'
+					? `approve(${dataDesc.spender.slice(0, 10)}…, ${dataDesc.amount === 2n ** 256n - 1n ? 'unlimited' : dataDesc.amount})`
+					: `raw (${dataDesc.byteLength} bytes)`,
 	)
 </script>
 
-<article data-card data-column="gap-1 padding-2" data-signing-payload>
+<article data-card data-column="gap-2 padding-2" data-signing-payload>
 	<div data-row="gap-2 align-center">
 		<span data-text="annotation">{payload.stepIndex + 1}.</span>
 		{#if payload.label}
@@ -43,27 +43,44 @@
 	{:else}
 		<p data-muted>Chain ID {payload.chainId}</p>
 	{/if}
-	<dl data-row="gap-2 wrap" class="payload-meta">
+	<dl class="payload-fields" data-column="gap-2">
 		<div data-column="gap-0">
-			<dt data-text="annotation">To</dt>
-			<dd>{toShort}</dd>
+			<dt data-text="annotation">From</dt>
+			<dd><code class="payload-address" title={payload.from}>{payload.from}</code></dd>
 		</div>
+		{#if payload.to != null}
+			<div data-column="gap-0">
+				<dt data-text="annotation">To</dt>
+				<dd><code class="payload-address" title={payload.to}>{payload.to}</code></dd>
+			</div>
+		{/if}
 		<div data-column="gap-0">
 			<dt data-text="annotation">Value</dt>
-			<dd>{valueDisplay}</dd>
+			<dd><code>{valueFormatted}</code></dd>
 		</div>
 		<div data-column="gap-0">
 			<dt data-text="annotation">Data</dt>
-			<dd>{dataLabel}</dd>
+			<dd><code class="payload-data-desc">{dataSummary}</code></dd>
 		</div>
+		{#if payload.gasLimit != null && payload.gasLimit !== ''}
+			<div data-column="gap-0">
+				<dt data-text="annotation">Gas limit</dt>
+				<dd><code>{payload.gasLimit}</code></dd>
+			</div>
+		{/if}
 	</dl>
 </article>
 
 <style>
-	.payload-meta {
+	.payload-fields {
 		font-size: 0.9em;
 	}
-	.payload-meta dt {
+	.payload-fields dt {
 		opacity: 0.8;
+	}
+	.payload-address,
+	.payload-data-desc {
+		word-break: break-all;
+		font-size: 0.95em;
 	}
 </style>

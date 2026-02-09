@@ -20,7 +20,10 @@
 		type SessionActionTransactionSimulation,
 	} from '$/data/SessionActionTransactionSimulation.ts'
 	import { TevmSimulationSummaryStatus } from '$/data/TevmSimulationResult.ts'
-	import { runTevmSimulationFromClient } from '$/api/tevm/tevmSimulation.ts'
+	import {
+	runTevmSimulationFromClientBatch,
+	type TevmSimulationPayload,
+} from '$/api/tevm/tevmSimulation.ts'
 	import { resolveSigningPayloads } from '$/lib/session/resolveSigningPayloads.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import { sessionActionTransactionSimulationsCollection } from '$/collections/SessionActionTransactionSimulations.ts'
@@ -175,24 +178,29 @@
 
 	const runSimulation = async () => {
 		if (!sessionId || signingPayloads.length === 0) return
-		const payload = signingPayloads[0]
-		if (!payload.rpcUrl) return
+		const withRpc = signingPayloads.filter(
+			(p): p is typeof p & { rpcUrl: string } => Boolean(p.rpcUrl),
+		)
+		if (withRpc.length === 0) return
 		simulateInProgress = true
 		const id = globalThis.crypto?.randomUUID?.() ?? `sim-${Date.now()}`
 		try {
-			const { result } = await runTevmSimulationFromClient({
-				rpcUrl: payload.rpcUrl,
-				chainId: payload.chainId,
-				from: payload.from,
-				to: payload.to,
-				data: payload.data,
-				value: payload.value,
-				gasLimit: payload.gasLimit,
-			})
+			const payloads: TevmSimulationPayload[] = withRpc.map((p) => ({
+				rpcUrl: p.rpcUrl,
+				chainId: p.chainId,
+				from: p.from,
+				to: p.to,
+				data: p.data,
+				value: p.value,
+				gasLimit: p.gasLimit,
+			}))
+			const { result } = await runTevmSimulationFromClientBatch(payloads)
+			const steps = 'steps' in result ? result.steps : [result]
 			const status =
-				result.summaryStatus === TevmSimulationSummaryStatus.Success
+				steps.length > 0 && steps.every((s) => s.summaryStatus === TevmSimulationSummaryStatus.Success)
 					? SessionActionSimulationStatus.Success
 					: SessionActionSimulationStatus.Failed
+			const firstRevert = steps.find((s) => s.revertReason)?.revertReason
 			const row: SessionActionTransactionSimulation = {
 				id,
 				sessionId,
@@ -201,7 +209,7 @@
 				createdAt: Date.now(),
 				paramsHash,
 				result,
-				error: result.revertReason,
+				error: firstRevert,
 			}
 			sessionActionTransactionSimulationsCollection.insert(row)
 		} catch (err) {
@@ -334,7 +342,7 @@
 				{/if}
 			</section>
 
-			<section data-card data-column="gap-2">
+			<section data-card data-column="gap-2" data-proposed-txs>
 				<h3>Proposed Transactions</h3>
 				<TransactionSigningPayloadList
 					payloads={signingPayloads}
@@ -346,7 +354,7 @@
 						disabled={
 							!isParamsValid ||
 							signingPayloads.length === 0 ||
-							!signingPayloads[0]?.rpcUrl ||
+							signingPayloads.every((p) => !p.rpcUrl) ||
 							simulateInProgress
 						}
 						onclick={runSimulation}

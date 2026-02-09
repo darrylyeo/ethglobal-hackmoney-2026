@@ -2,7 +2,6 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import { SessionStatus, type Session } from '$/data/Session.ts'
-	import { ActionType, createAction } from '$/constants/actions.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { NetworkType, networks } from '$/constants/networks.ts'
@@ -32,7 +31,7 @@
 	// Functions
 	import { fetchAllBalancesForAddress } from '$/collections/ActorCoins.ts'
 	import {
-		buildSessionHash,
+		buildSessionPath,
 		formatSessionPlaceholderName,
 	} from '$/lib/session/sessions.ts'
 
@@ -110,15 +109,6 @@
 		)
 	})
 
-	$effect(() => {
-		if (session.actions.length === 0) {
-			session = {
-				...session,
-				actions: [createAction(ActionType.Swap)],
-			}
-		}
-	})
-
 	const handleFormInteraction = () => {
 		if (persisted || !onPersist) return
 		persisted = true
@@ -135,8 +125,7 @@
 </script>
 
 
-<main
-	id="main"
+<div
 	data-session
 	data-column="gap-4"
 	data-sticky-container
@@ -161,7 +150,7 @@
 					entityType={EntityType.Session}
 					id={session.id}
 					label={displayLabel}
-					href={`${resolve('/session')}${buildSessionHash(session.id)}`}
+					href={resolve(buildSessionPath(session.id))}
 					autoWatched={session.status === SessionStatus.Draft || session.status === SessionStatus.Submitted}
 				/>
 			</div>
@@ -198,7 +187,8 @@
 	<section data-scroll-item data-column="gap-4">
 		<ActionsSequence bind:actions={session.actions} />
 	</section>
-</main>
+</div>
+
 
 <style>
 	.session-name-input:placeholder-shown:not(:focus) {
