@@ -66,7 +66,7 @@
 
 
 {#if actors.length > 0}
-	<details class="liquidity-positions" data-card data-scroll-container open>
+	<details class="liquidity-positions" data-card data-scroll-container="block" open>
 		<summary class="section-summary">
 			<div data-row="gap-2 align-center">
 				<h3 data-row-item="flexible" class="section-heading">

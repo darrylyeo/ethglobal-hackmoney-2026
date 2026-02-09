@@ -311,54 +311,58 @@
 
 
 	{#if actors.length > 0}
-		<details class="balances" data-card data-scroll-container open>
+		<details class="balances" data-card data-scroll-container="block" open>
 			<summary class="balances-summary">
-				<div data-row="gap-2 align-center">
-					<h3 data-row-item="flexible" class="section-heading">
-						{balancesTitlePrefix}{#if singleAddress}<TruncatedValue
-							value={singleAddress}
-							startLength={6}
-							endLength={4}
-							format={TruncatedValueFormat.Abbr}
-						/>{/if}
-					</h3>
+				<div data-row="gap-4">
+					<div data-row="gap-4">
+						<h3 data-row-item="flexible" class="section-heading">
+							{balancesTitlePrefix}{#if singleAddress}<TruncatedValue
+								value={singleAddress}
+								startLength={6}
+								endLength={4}
+								format={TruncatedValueFormat.Abbr}
+							/>{/if}
+						</h3>
+
+						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+						<div
+							class="balances-filters"
+							role="group"
+							aria-label="Filters"
+							data-row="gap-2 wrap align-center"
+							onclick={(e) => e.stopPropagation()}
+							onkeydown={(e) => e.stopPropagation()}
+						>
+							<NetworksInput
+								bind:value={filterChainIds}
+								placeholder="Network"
+								ariaLabel="Filter by network"
+							/>
+							<CoinsInput
+								bind:value={filterSymbols}
+								items={symbolFilterOptions}
+								placeholder="Coin"
+								ariaLabel="Filter by coin"
+							/>
+							{#if availableAccounts.length > 0}
+								<Combobox
+									type="multiple"
+									items={availableAccounts}
+									bind:value={filterAddresses}
+									placeholder="Account"
+									ariaLabel="Filter by account"
+									getItemId={(addr) => addr}
+									getItemLabel={(addr) =>
+										`${addr.slice(0, 6)}…${addr.slice(-4)}`}
+								/>
+							{/if}
+						</div>
+					</div>
+
 					{#if balances.length > 0 && prices.length > 0 && netWorthUsd !== null}
 						<span class="net-worth">
 							Total value ≈ ${formatSmallestToDecimal(netWorthUsd, 18, 2)}
 						</span>
-					{/if}
-				</div>
-				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-				<div
-					class="balances-filters"
-					role="group"
-					aria-label="Filters"
-					data-row="gap-2 wrap align-center"
-					onclick={(e) => e.stopPropagation()}
-					onkeydown={(e) => e.stopPropagation()}
-				>
-					<NetworksInput
-						bind:value={filterChainIds}
-						placeholder="Network"
-						ariaLabel="Filter by network"
-					/>
-					<CoinsInput
-						bind:value={filterSymbols}
-						items={symbolFilterOptions}
-						placeholder="Coin"
-						ariaLabel="Filter by coin"
-					/>
-					{#if availableAccounts.length > 0}
-						<Combobox
-							type="multiple"
-							items={availableAccounts}
-							bind:value={filterAddresses}
-							placeholder="Account"
-							ariaLabel="Filter by account"
-							getItemId={(addr) => addr}
-							getItemLabel={(addr) =>
-								`${addr.slice(0, 6)}…${addr.slice(-4)}`}
-						/>
 					{/if}
 				</div>
 			</summary>
@@ -408,7 +412,7 @@
 						{/each}
 					</div>
 				{:else}
-					<div data-balances data-grid="columns-autofit column-min-8 gap-3">
+					<div data-balances data-grid="columns-autofit column-min-10 gap-3">
 						{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
 							{@const token = displayTokens.find(
 								(entry) =>
@@ -455,7 +459,6 @@
 									data-card
 									data-column
 									data-display-type={displayType}
-									data-text="font-monospace"
 									role="term"
 									{@attach intentDraggable({
 										type: EntityType.ActorCoin,

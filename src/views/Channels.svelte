@@ -67,80 +67,79 @@
 </script>
 
 
-{#if actors.length > 0}
-	<details class="channels" data-card data-scroll-container open>
-		<summary class="section-summary">
-			<div data-row="gap-2 align-center">
-				<h3 data-row-item="flexible" class="section-heading">
-					Channels{#if singleAddress}
-						{' '}for <TruncatedValue
-							value={singleAddress}
-							startLength={6}
-							endLength={4}
-							format={TruncatedValueFormat.Abbr}
-						/>
-					{/if}
-				</h3>
-			</div>
-			{#if availableAccounts.length > 0}
-				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-				<div
-					class="section-filters"
-					role="group"
-					aria-label="Filters"
-					data-row="gap-2 wrap align-center"
-					onclick={(e) => e.stopPropagation()}
-					onkeydown={(e) => e.stopPropagation()}
-				>
-					<Combobox
-						type="multiple"
-						items={availableAccounts}
-						bind:value={filterAddresses}
-						placeholder="Account"
-						ariaLabel="Filter by account"
-						getItemId={(addr) => addr}
-						getItemLabel={(addr) =>
-							`${addr.slice(0, 6)}…${addr.slice(-4)}`}
+<details class="channels" data-card data-scroll-container="block" open>
+	<summary class="section-summary">
+		<div data-row="gap-2 align-center">
+			<h3 data-row-item="flexible" class="section-heading">
+				Channels{#if singleAddress}
+					{' '}for <TruncatedValue
+						value={singleAddress}
+						startLength={6}
+						endLength={4}
+						format={TruncatedValueFormat.Abbr}
 					/>
-				</div>
-			{/if}
-		</summary>
-		<Boundary>
-			{#if channels.length === 0}
-				<p data-muted>No channels for this account.</p>
-			{:else}
-				<ul
-					data-columns="width-4 gap-2"
-					data-list="unstyled"
-					class="channels-list"
-				>
-					{#each channels as ch (ch.id)}
-						{@const isParticipant0 = actors.some(
-							(a) =>
-								ch.participant0.toLowerCase() === a.toLowerCase(),
-						)}
-						{@const participantAddr = isParticipant0
-							? ch.participant1
-							: ch.participant0}
-						{@const balance = isParticipant0 ? ch.balance0 : ch.balance1}
-						<li
-							data-columns-item
-							data-card="padding-2 radius-4"
-							data-row="gap-3 align-center wrap"
-							data-status={ch.status}
-						>
-							<span class="channel-id" title={ch.id}>{ch.id.slice(0, 10)}…</span>
-							<Address network={ch.chainId} address={participantAddr} />
-							<span>{formatSmallestToDecimal(balance, 6)} USDC</span>
-							<span data-status>{ch.status}</span>
-							<a href="/positions/channels">View all</a>
-						</li>
-					{/each}
-				</ul>
-			{/if}
-		</Boundary>
-	</details>
-{/if}
+				{/if}
+			</h3>
+		</div>
+		{#if availableAccounts.length > 0}
+			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+			<div
+				class="section-filters"
+				role="group"
+				aria-label="Filters"
+				data-row="gap-2 wrap align-center"
+				onclick={(e) => e.stopPropagation()}
+				onkeydown={(e) => e.stopPropagation()}
+			>
+				<Combobox
+					type="multiple"
+					items={availableAccounts}
+					bind:value={filterAddresses}
+					placeholder="Account"
+					ariaLabel="Filter by account"
+					getItemId={(addr) => addr}
+					getItemLabel={(addr) =>
+						`${addr.slice(0, 6)}…${addr.slice(-4)}`}
+				/>
+			</div>
+		{/if}
+	</summary>
+
+	<Boundary>
+		{#if channels.length === 0}
+			<p data-muted>No channels for this account.</p>
+		{:else}
+			<ul
+				data-columns="width-4 gap-2"
+				data-list="unstyled"
+				class="channels-list"
+			>
+				{#each channels as ch (ch.id)}
+					{@const isParticipant0 = actors.some(
+						(a) =>
+							ch.participant0.toLowerCase() === a.toLowerCase(),
+					)}
+					{@const participantAddr = isParticipant0
+						? ch.participant1
+						: ch.participant0}
+					{@const balance = isParticipant0 ? ch.balance0 : ch.balance1}
+					<li
+						data-columns-item
+						data-card="padding-2 radius-4"
+						data-row="gap-3 align-center wrap"
+						data-status={ch.status}
+					>
+						<span class="channel-id" title={ch.id}>{ch.id.slice(0, 10)}…</span>
+						<Address network={ch.chainId} address={participantAddr} />
+						<span>{formatSmallestToDecimal(balance, 6)} USDC</span>
+						<span data-status>{ch.status}</span>
+						<a href="/positions/channels">View all</a>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	</Boundary>
+</details>
 
 
 <style>
