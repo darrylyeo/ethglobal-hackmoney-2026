@@ -1,0 +1,17 @@
+name: ethglobal-hackmoney-2026
+icon: null
+processes:
+  Vite:
+    command: deno task dev --port 5000
+    working_dir: null
+    auto_start: true
+    auto_restart: true
+    restart_when_changed: []
+    env: {}
+  PartyKit:
+    command: deno task dev:partykit
+    working_dir: null
+    auto_start: true
+    auto_restart: true
+    restart_when_changed: []
+    env: {}
