@@ -10,7 +10,7 @@
 		decimals,
 		value = $bindable(0n),
 		invalid = $bindable(false),
-		withSlider = false,
+		withSlider = true,
 		id,
 		disabled,
 		name,
@@ -51,6 +51,10 @@
 	} from '$/lib/format.ts'
 
 
+	// State
+	let sliderEl = $state<HTMLInputElement | undefined>()
+	let textDragStarted = false
+
 	// Actions
 	const setAmountFromInput = (raw: string) => {
 		const cleaned = raw.replace(/[^0-9.,]/g, '').replace(/,/g, '')
@@ -66,6 +70,19 @@
 		}
 		invalid = true
 	}
+
+	const onTextPointerDown = () => {
+		textDragStarted = true
+	}
+	const onTextPointerMove = () => {
+		if (textDragStarted && withSlider && sliderEl) {
+			sliderEl.focus()
+			textDragStarted = false
+		}
+	}
+	const onTextPointerUp = () => {
+		textDragStarted = false
+	}
 </script>
 
 
@@ -77,6 +94,7 @@
 	<label
 		data-row-item="flexible"
 		data-column="gap-0"
+		class="number-input-label"
 		for={id ?? _id}
 	>
 		<div data-row="gap-2">
@@ -94,11 +112,16 @@
 				aria-describedby={ariaDescribedby}
 				aria-invalid={ariaInvalid}
 				bind:value={() => formatSmallestToDecimal(value, decimals), setAmountFromInput}
+				onpointerdown={onTextPointerDown}
+				onpointermove={onTextPointerMove}
+				onpointerup={onTextPointerUp}
+				onpointerleave={onTextPointerUp}
 			/>
 		</div>
 
 		{#if withSlider}
 			<input
+				bind:this={sliderEl}
 				name={_id}
 				class="number-input-slider"
 				type="range"
@@ -124,13 +147,24 @@
 
 <style>
 	.number-input {
+		.number-input-label {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			min-height: 0;
+		}
+
 		.number-input-slider {
 			appearance: none;
 			background-color: transparent;
 			padding: 0;
+			flex: 1;
+			width: 100%;
+			min-height: 1.5em;
 
 			&::-webkit-slider-runnable-track {
-				height: 0.3em;
+				width: 100%;
+				height: 100%;
 				border-radius: 999px;
 				background: linear-gradient(
 					to right,
@@ -153,7 +187,8 @@
 			}
 
 			&::-moz-range-track {
-				height: 0.3em;
+				width: 100%;
+				height: 100%;
 				border-radius: 999px;
 				background: linear-gradient(
 					to right,

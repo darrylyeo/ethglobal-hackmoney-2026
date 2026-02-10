@@ -39,6 +39,10 @@
 	} = $props()
 
 
+	// (Derived)
+	const effectiveCoin = $derived(coin ?? coins[0])
+
+
 	// Components
 	import CoinInput from '$/views/CoinInput.svelte'
 	import NumberInput from '$/views/NumberInput.svelte'
@@ -51,10 +55,11 @@
 	data-row="gap-2"
 	data-invalid={invalid ? '' : undefined}
 >
-	<NumberInput
-		{min}
-		{max}
-		decimals={coin.decimals}
+	{#if effectiveCoin}
+		<NumberInput
+			{min}
+			{max}
+			decimals={effectiveCoin.decimals}
 		bind:value
 		bind:invalid
 		{withSlider}
@@ -66,7 +71,15 @@
 		{ariaDescribedby}
 		{ariaInvalid}
 		data-row-item="flexible"
-	/>
+		/>
+	{:else}
+		<div
+			class="number-input"
+			data-column="gap-0"
+			data-row-item="flexible"
+			aria-hidden="true"
+		/>
+	{/if}
 
 	<CoinInput
 		{coins}
