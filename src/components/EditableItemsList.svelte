@@ -12,10 +12,10 @@
 	generics="_Item"
 >
 	// Types/constants
-	import type { Attachment } from 'svelte/attachments'
 	import type { Snippet } from 'svelte'
-	import type { AreaOptions } from '$/lib/reorder/area-state.svelte.ts'
-	import type { ItemState } from '$/lib/reorder/item-state.svelte.ts'
+	import type { ItemState } from '$/lib/reorder/index.ts'
+	import type { ContentSnippet } from '$/lib/reorder/index.ts'
+	import { createReorder } from '$/lib/reorder/index.ts'
 
 
 	// Props
@@ -30,12 +30,14 @@
 		createItem,
 		duplicateItem = (item: _Item) => structuredClone($state.snapshot(item) as _Item),
 		Item,
+		reorderContent,
 	}: {
 		items: _Item[]
 		operations?: ItemsListOperation[]
 		createItem: () => _Item
 		duplicateItem?: (item: _Item) => _Item
 		Item: Snippet<[{ item: _Item, index: number }]>
+		reorderContent?: ContentSnippet<_Item>
 	} = $props()
 
 
@@ -75,10 +77,22 @@
 		items = [...items]
 	}
 
+	// State
+	const reorderContentRef = { current: undefined as ContentSnippet<_Item> | undefined }
+	$effect(() => {
+		reorderContentRef.current = reorderContent
+	})
+	let reorder = $state<ReturnType<typeof createReorder<_Item>> | null>(null)
+	$effect(() => {
+		if (canReorder && reorderContentRef.current) {
+			if (!reorder) reorder = createReorder(() => reorderContentRef.current!)
+		} else {
+			reorder = null
+		}
+	})
 
 	// Components
 	import { Button } from 'bits-ui'
-	import { Reorder } from '$/lib/reorder/index.ts'
 </script>
 
 
@@ -95,29 +109,22 @@
 	{/if}
 {/snippet}
 
-{#if canReorder}
-	<Reorder>
-		{#snippet content(item: _Item, state: ItemState<_Item>)}
-			{@const index = items.indexOf(item)}
-			<div class="editable-item" data-row="gap-2" use:state.anchor>
-				<span class="drag-handle" use:state.handle aria-hidden="true">⠿</span>
+{#if canReorder && reorder}
+	<div
+		class="editable-items-list"
+		data-column="gap-2"
+		{@attach reorder.list({ getArray: () => items, onDrop: onReorderDrop })}
+	>
+		{#each items as value, i (value)}
+			<div class="editable-item" data-row="gap-2" {@attach reorder.item(value, i)}>
+				<span class="drag-handle" {@attach reorder.handle()} aria-hidden="true">⠿</span>
 				<div class="editable-item-content" data-row-item="flexible">
-					{@render Item({ item, index })}
+					{@render Item({ item: value, index: i })}
 				</div>
-				{@render itemActions(index)}
+				{@render itemActions(i)}
 			</div>
-		{/snippet}
-
-		{#snippet children(
-			attach: (options?: AreaOptions<_Item>) => Attachment<HTMLElement>,
-			area: Snippet<[array: _Item[]]>,
-		)}
-			{@const areaAttachment = attach({ onDrop: onReorderDrop })}
-			<div class="editable-items-list" data-column="gap-2" {@attach areaAttachment}>
-				{@render area(items)}
-			</div>
-		{/snippet}
-	</Reorder>
+		{/each}
+	</div>
 {:else}
 	<div class="editable-items-list" data-column="gap-2">
 		{#each items as item, index (index)}

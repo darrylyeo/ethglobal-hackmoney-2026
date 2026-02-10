@@ -1,10 +1,9 @@
-export { default as Reorder } from './Reorder.svelte'
-export {
-	type AreaRenderOptions,
-	type ContentSnippet,
-	createReorder,
-	getAreaFromElement,
-	setAreaArray,
-} from './reorder.svelte.ts'
-export type { AreaOptions, AreaState } from './area-state.svelte.ts'
-export type { HandleOptions, ItemState } from './item-state.svelte.ts'
+export { createReorder } from './attachments.svelte.ts'
+export type { ContentSnippet } from './attachments.svelte.ts'
+export type {
+	AreaState,
+	HandleOptions,
+	ListOptions,
+	Orientation,
+} from './state.svelte.ts'
+export type { ItemState } from './state.svelte.ts'

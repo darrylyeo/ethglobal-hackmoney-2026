@@ -1,6 +1,6 @@
 <script module lang="ts">
-	import type { ItemState } from './item-state.svelte.ts'
-	import type { AreaState } from './area-state.svelte.ts'
+	import type { ItemState } from './state.svelte.ts'
+	import type { AreaState } from './state.svelte.ts'
 	import type { Snippet } from 'svelte'
 
 	export type DragProps<T> = {

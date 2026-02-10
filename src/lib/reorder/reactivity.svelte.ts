@@ -1,6 +1,6 @@
 import { tick, untrack } from 'svelte'
-import type { ItemState } from './item-state.svelte.ts'
-import type { AreaState } from './area-state.svelte.ts'
+import type { ItemState } from './state.svelte.ts'
+import type { AreaState } from './state.svelte.ts'
 
 export const current = $state({
 	index: 0,
@@ -20,27 +20,14 @@ export const targeting = $state({
 	enteredArea: false,
 })
 
-export function resetDragTargeting() {
-	targeting.positionTrigger = true
-	targeting.position = { x: NaN, y: NaN, h: NaN, w: NaN }
-	targeting.targetable = false
-	targeting.enteredArea = false
-}
-
 export function enterArea(getArea: () => AreaState<unknown>) {
 	current.area = getArea()
 	targeting.enteredArea = true
 }
 
 function distance(
-	a: {
-		x: number
-		y: number
-	},
-	b: {
-		x: number
-		y: number
-	},
+	a: { x: number; y: number },
+	b: { x: number; y: number },
 ): number {
 	return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
 }
@@ -49,16 +36,11 @@ const targetItem = $derived.by(() => {
 	if (!targeting.targetable) return undefined
 	let closest: ItemState<unknown> | undefined
 	let closestDistance = Infinity
-
-	// consume
 	void targeting.position.y
 	void targeting.positionTrigger
-
 	if (Number.isNaN(targeting.position.x)) return undefined
-
 	void current.area
 	void current.area?.items?.size
-
 	untrack(() => {
 		for (const [, item] of current.area?.items ?? []) {
 			if (Number.isNaN(item.position.x)) continue
@@ -98,9 +80,16 @@ export function dragReactivity(enabled: () => boolean) {
 	function untick() {
 		if (!ticked) return
 		ticked = false
-		current.area?.items.forEach((i) => i.updatePosition())
+		current.area?.items.forEach((i) =>
+			i.updatePosition(
+				(el) => {
+					if (!el) return { x: NaN, y: NaN, h: NaN, w: NaN }
+					const r = el.getBoundingClientRect()
+					return { x: r.left, y: r.top, h: r.height, w: r.width }
+				},
+			),
+		)
 	}
-
 	let trigger = $state(false)
 	$effect(() => {
 		if (!enabled()) return
@@ -112,12 +101,10 @@ export function dragReactivity(enabled: () => boolean) {
 				targetIndex === lastSplice.index) ||
 			targetItem?.value === current.item
 		if (isSelf) return
-
 		untrack(() => {
 			if (ticked) return
 			ticked = true
 			requestAnimationFrame(untick)
-
 			const last =
 				targeting.enteredArea &&
 				targetIndex === current.area!.items.size - 1

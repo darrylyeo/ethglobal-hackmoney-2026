@@ -26,7 +26,7 @@ export function getPosition(node: HTMLElement | undefined): {
 export function trackPosition(
 	node: HTMLElement,
 	isEnabled: () => boolean,
-	setPosition: (position: { x: number; y: number; h: number; w: number }) => void
+	setPosition: (position: { x: number; y: number; h: number; w: number }) => void,
 ): () => void {
 	const update = () => {
 		if (isEnabled()) setPosition(getPosition(node))
