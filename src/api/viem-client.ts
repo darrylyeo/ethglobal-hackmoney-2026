@@ -1,10 +1,12 @@
 /**
- * Viem client creation at the API boundary. Wallet layer operates only on EIP-1193 providers.
+ * Viem client creation at the API boundary. RPC uses Voltaire (createHttpProvider);
+ * wallet layer operates only on EIP-1193 providers.
  */
 
 import type { Chain } from 'viem'
-import { createWalletClient, custom } from 'viem'
-import type { WalletClient } from 'viem'
+import { createPublicClient, createWalletClient, custom } from 'viem'
+import type { PublicClient, WalletClient } from 'viem'
+import { createHttpProvider } from '$/api/voltaire.ts'
 import { networkConfigsByChainId } from '$/constants/networks.ts'
 import type { EIP1193Provider } from '$/lib/wallet.ts'
 
@@ -43,4 +45,15 @@ export function createWalletClientForChain(
 
 export function getChainFor(chainId: number): Chain {
 	return chainFor(chainId)
+}
+
+/** PublicClient backed by Voltaire RPC (createHttpProvider). Use for spandex and other read-only chain access. */
+export function createPublicClientForChain(
+	chainId: number,
+	rpcUrl: string,
+): PublicClient {
+	return createPublicClient({
+		chain: chainFor(chainId),
+		transport: custom(createHttpProvider(rpcUrl) as EIP1193Provider),
+	})
 }

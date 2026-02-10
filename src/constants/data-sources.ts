@@ -7,6 +7,7 @@ export enum DataSource {
 	PartyKit = 'PartyKit',
 	Stork = 'Stork',
 	TokenLists = 'TokenLists',
+	Spandex = 'Spandex',
 	Uniswap = 'Uniswap',
 	Voltaire = 'Voltaire',
 	Yellow = 'Yellow',

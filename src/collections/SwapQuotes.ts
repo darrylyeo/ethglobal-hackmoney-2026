@@ -2,6 +2,11 @@
  * Swap quotes collection. In-memory cache keyed by quote id (hash of params).
  */
 
+import {
+	getSpandexQuote,
+	spandexQuoteToSwapQuote,
+	toSpandexSwapParams,
+} from '$/api/spandex.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type {
@@ -40,4 +45,28 @@ export const fetchSwapQuote = async (
 		swapQuotesCollection.insert(row)
 	}
 	return quote
+}
+
+export const fetchSpandexSwapQuote = async (
+	params: FetchSwapQuoteParams,
+	swapperAccount: `0x${string}`,
+): Promise<SwapQuote | null> => {
+	const swap = toSpandexSwapParams(params, swapperAccount)
+	const quote = await getSpandexQuote(swap, 'bestPrice')
+	if (!quote) return null
+	const normalized = spandexQuoteToSwapQuote(quote, params)
+	const row = {
+		...normalizeSwapQuote(normalized),
+		$source: DataSource.Spandex,
+	}
+	const key = normalized.id
+	const existing = swapQuotesCollection.state.get(key)
+	if (existing) {
+		swapQuotesCollection.update(key, (draft) => {
+			Object.assign(draft, row)
+		})
+	} else {
+		swapQuotesCollection.insert(row)
+	}
+	return normalized
 }
