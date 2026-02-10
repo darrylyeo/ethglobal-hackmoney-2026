@@ -66,6 +66,11 @@ const browserHost =
 		: undefined
 const PARTYKIT_HOST =
 	envHost ?? (browserHost ? `${browserHost}:1999` : 'localhost:1999')
+const isProductionHost =
+	envHost != null &&
+	envHost.length > 0 &&
+	!envHost.startsWith('localhost') &&
+	!envHost.startsWith('127.0.0.1')
 
 const PERSISTENT_PEER_ID_KEY = ROOM_PERSISTENT_PEER_ID_STORAGE_KEY
 
@@ -93,6 +98,7 @@ export const connectToRoom = (roomId: string): RoomConnection => {
 		host: PARTYKIT_HOST,
 		room: roomId,
 		id: peerId,
+		...(isProductionHost && { protocol: 'wss' }),
 	})
 	return {
 		socket,
