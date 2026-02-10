@@ -36,6 +36,7 @@
 		"@lifi/sdk": "^3.15.4",
 		"@sigma/edge-curve": "^3.1.0",
 		"@sigma/node-image": "^3.0.0",
+		"@spandex/core": "^0.4.0",
 		"@tanstack/query-db-collection": "^1.0.22",
 		"@tanstack/svelte-db": "^0.1.68",
 		"@tevm/voltaire": "^0.2.28",

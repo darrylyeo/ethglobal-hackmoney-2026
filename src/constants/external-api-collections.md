@@ -15,6 +15,8 @@ Every external API that provides data to the UI or routes must be cached in a Ta
 | CCTP (REST)                        | `cctp-fees.ts`                                   | fetch → upsert                                    |
 | CCTP (REST)                        | `cctp-allowance.ts`                              | fetch → upsert                                    |
 | Token list URLs                    | `token-list-coins.ts`                            | fetch → upsert                                    |
+| spanDEX (getQuotes / getQuote)     | `SpandexQuoteItems.ts`                           | `fetchSpandexQuotes` → upsert                     |
+| spanDEX (best quote → swap quote)  | `swap-quotes.ts`                                 | `fetchSpandexSwapQuote` → upsert                  |
 | Uniswap (quote)                    | `swap-quotes.ts`                                 | `fetchSwapQuote` → upsert                         |
 | Transfers indexer / logs           | `transfer-events.ts`                             | `fetchTransferEventsForPeriod` (api) → collection |
 | Identity (RPC / resolver)          | `IdentityLinks.ts`                               | fetch → upsert                                    |

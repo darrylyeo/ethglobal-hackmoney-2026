@@ -6,6 +6,7 @@
 		ActionType,
 		actionTypeDefinitionByActionType,
 		actionTypes,
+		type ActionParams,
 		type ActionTypeDefinition,
 		type LiquidityAction,
 		mergeActionParams,
@@ -321,6 +322,7 @@
 	import BridgeFieldset from '$/views/actions/BridgeFieldset.svelte'
 	import SwapFieldset from '$/views/actions/SwapFieldset.svelte'
 	import TransferFieldset from '$/views/actions/TransferFieldset.svelte'
+	import SpandexQuotesPanel from '$/views/actions/SpandexQuotesPanel.svelte'
 	import BridgeProtocolFieldset from '$/views/protocolActions/BridgeProtocolFieldset.svelte'
 	import ProtocolInput from '$/views/protocolActions/ProtocolInput.svelte'
 	import Simulations from './Simulations.svelte'
@@ -390,6 +392,13 @@
 					<BridgeProtocolFieldset bind:action isTestnet={sessionCtx.isTestnet} />
 				{/if}
 			</section>
+
+			{#if action.type === ActionType.Swap && resolvedProtocol === Protocol.Spandex}
+				<SpandexQuotesPanel
+					params={action.params as ActionParams<ActionType.Swap>}
+					swapperAccount={sessionCtx.selectedActor}
+				/>
+			{/if}
 
 			<section data-card data-column>
 				<h3>{proposedTransactionsHeading}</h3>

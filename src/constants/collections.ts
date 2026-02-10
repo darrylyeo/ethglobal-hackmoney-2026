@@ -32,6 +32,8 @@ export enum CollectionId {
 	PartykitRooms = 'PartykitRooms',
 	SharedAddresses = 'SharedAddresses',
 	SiweChallenges = 'SiweChallenges',
+	SpandexProviders = 'SpandexProviders',
+	SpandexQuoteItems = 'SpandexQuoteItems',
 	StorkPrices = 'StorkPrices',
 	SwapQuotes = 'SwapQuotes',
 	TokenListCoins = 'TokenListCoins',
