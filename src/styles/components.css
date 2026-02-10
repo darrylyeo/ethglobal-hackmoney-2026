@@ -173,6 +173,7 @@ label:has(> input:is([type='checkbox'], [type='radio'])),
 [contenteditable] {
 	cursor: pointer;
 
+	field-sizing: content;
 	display: inline-flex;
 	align-items: center;
 	padding: 0.66em;
@@ -228,7 +229,6 @@ label:has(> input:is([type='checkbox'], [type='radio'])) {
 	select,
 	option,
 	button,
-	input,
 	label:has(> input:is([type='checkbox'], [type='radio']), button),
 	::scroll-marker
 ) {
@@ -532,14 +532,21 @@ summary {
 	}
 
 	[data-card] & {
-		--card-backgroundColor: light-dark(
-			var(--color-bg-muted),
-			color-mix(in srgb, var(--color-bg-page) 35%, var(--color-bg-card))
-		);
+		--card-backgroundColor: light-dark(var(--color-bg-muted), color-mix(in srgb, var(--color-bg-page) 35%, var(--color-bg-card)));
 		--card-radius: 0.375em;
 	}
 
 	[data-card] [data-card] & {
+		--card-backgroundColor: var(--color-bg);
+		--card-radius: 0.5em;
+	}
+
+	[data-card] [data-card] [data-card] & {
+		--card-backgroundColor: light-dark(var(--color-bg-muted), color-mix(in srgb, var(--color-bg-page) 35%, var(--color-bg-card)));
+		--card-radius: 0.375em;
+	}
+
+	[data-card] [data-card] [data-card] [data-card] & {
 		--card-backgroundColor: var(--color-bg);
 		--card-radius: 0.5em;
 	}
