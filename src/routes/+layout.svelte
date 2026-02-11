@@ -239,10 +239,9 @@
 			</aside> -->
 
 			<Boundary>
-				{#snippet children()}
-					{@render page()}
-				{/snippet}
-				{#snippet failed(error)}
+				{@render children()}
+
+				{#snippet Failed(error)}
 					<main data-column>
 						<h2>Error</h2>
 						<p>{error instanceof Error ? error.message : String(error)}</p>
