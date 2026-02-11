@@ -70,8 +70,7 @@
 		{#if Title}
 			{@render Title({ title, countText })}
 		{:else}
-			{title}
-			({countText})
+			<h3>{title} ({countText})</h3>
 		{/if}
 	</summary>
 	<ItemsList

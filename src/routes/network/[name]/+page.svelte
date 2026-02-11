@@ -2,9 +2,6 @@
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import type { BlockEntry } from '$/data/Block.ts'
-	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { networksByChainId } from '$/constants/networks.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 
@@ -22,7 +19,11 @@
 
 
 	// State
-	import { blocksCollection, ensureBlocksForPlaceholders } from '$/collections/Blocks.ts'
+	import {
+		blocksCollection,
+		blocksViewFrom,
+		ensureBlocksForPlaceholders,
+	} from '$/collections/Blocks.ts'
 
 
 	// Components
@@ -53,6 +54,15 @@
 				.select(({ row }) => ({ row })),
 		[() => chainId],
 	)
+	const latestBlockQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: blocksCollection })
+				.where(({ row }) => eq(row.$id.chainId, chainId))
+				.orderBy(({ row }) => row.$id.blockNumber, 'desc')
+				.select(({ row }) => row.$id.blockNumber),
+		[() => chainId],
+	)
 	registerLocalLiveQueryStack(() => [
 		{
 			id: 'blocks',
@@ -61,24 +71,15 @@
 		},
 	])
 
-	const blocksMap = $derived(
-		(() => {
-			const inner = new Map<
-				BlockEntry | undefined,
-				Set<ChainTransactionEntry>
-			>()
-			for (const row of (blocksQuery.data ?? []).map((r) => r.row as BlockEntry))
-				inner.set(row, new Set())
-			return inner
-		})(),
-	)
-	const networkData = $derived(
-		new Map([[networksByChainId[chainId] ?? undefined, blocksMap]]),
-	)
+	const blocksView = $derived(blocksViewFrom(chainId, blocksQuery.data ?? []))
 	const placeholderBlockIds = $derived(
-		height > 0
-			? new Set<number | [number, number]>([[0, height]])
-			: new Set<number | [number, number]>([0]),
+		(() => {
+			const h: number =
+				height > 0 ? height : Number(latestBlockQuery.data?.[0] ?? 0)
+			return h > 0
+				? new Set<number | [number, number]>([[0, h]])
+				: new Set<number | [number, number]>([0])
+		})(),
 	)
 
 	$effect(() => {
@@ -175,7 +176,7 @@
 		</nav>
 
 		<NetworkView
-			data={networkData}
+			data={blocksView.networkData}
 			{placeholderBlockIds}
 			bind:visiblePlaceholderBlockIds
 		/>

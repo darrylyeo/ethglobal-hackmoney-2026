@@ -534,22 +534,31 @@ summary {
 
 	[data-card] & {
 		--card-backgroundColor: light-dark(var(--color-bg-muted), color-mix(in srgb, var(--color-bg-page) 35%, var(--color-bg-card)));
-		--card-radius: 0.375em;
 	}
-
 	[data-card] [data-card] & {
 		--card-backgroundColor: var(--color-bg);
-		--card-radius: 0.5em;
 	}
-
 	[data-card] [data-card] [data-card] & {
 		--card-backgroundColor: light-dark(var(--color-bg-muted), color-mix(in srgb, var(--color-bg-page) 35%, var(--color-bg-card)));
-		--card-radius: 0.375em;
 	}
-
 	[data-card] [data-card] [data-card] [data-card] & {
 		--card-backgroundColor: var(--color-bg);
-		--card-radius: 0.5em;
+	}
+
+	&:has([data-card]) {
+		border-radius: calc(var(--card-radius) + var(--card-padding));
+	}
+	&:has([data-card] [data-card]) {
+		border-radius: calc(var(--card-radius) + var(--card-padding) * 2);
+	}
+	&:has([data-card] [data-card] [data-card]) {
+		border-radius: calc(var(--card-radius) + var(--card-padding) * 3);
+	}
+	&:has([data-card] [data-card] [data-card] [data-card]) {
+		border-radius: calc(var(--card-radius) + var(--card-padding) * 4);
+	}
+	&:has([data-card] [data-card] [data-card] [data-card] [data-card]) {
+		border-radius: calc(var(--card-radius) + var(--card-padding) * 5);
 	}
 }
 
@@ -903,12 +912,24 @@ ol {
 dl {
 	display: grid;
 	grid-template-columns: minmax(0, auto) minmax(0, auto);
-	row-gap: 0.5em;
+	row-gap: 0.75em;
 	column-gap: 1em;
 
+	> div {
+		display: grid;
+		grid-template-columns: subgrid;
+		grid-column: 1 / -1;
+	}
+
 	dt {
+		grid-column: 1;
+
 		color: var(--color-text-muted);
 		text-align: end;
+	}
+
+	dd {
+		grid-column: 2;
 	}
 }
 

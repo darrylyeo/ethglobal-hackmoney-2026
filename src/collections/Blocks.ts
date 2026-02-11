@@ -1,12 +1,13 @@
 /**
  * Blocks fetched by chain+blockNumber via Voltaire eth_getBlockByNumber.
- * Cached for block page and graph display.
+ * Cached for block page and graph display. Persisted to localStorage.
  */
 
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 import {
 	createHttpProvider,
 	getBlockByNumber,
@@ -16,9 +17,11 @@ import {
 import { fetchNetworkTransaction } from '$/collections/NetworkTransactions.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
-import type { ChainId } from '$/constants/networks.ts'
+import type { ChainId, Network } from '$/constants/networks.ts'
+import { networksByChainId } from '$/constants/networks.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import type { BlockEntry, Block$Id } from '$/data/Block.ts'
+import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 
 export type BlockRow = BlockEntry & {
 	$source: DataSource
@@ -27,11 +30,35 @@ export type BlockRow = BlockEntry & {
 }
 
 export const blocksCollection = createCollection(
-	localOnlyCollectionOptions({
+	localStorageCollectionOptions({
 		id: CollectionId.Blocks,
+		storageKey: CollectionId.Blocks,
 		getKey: (row: BlockRow) => `${row.$id.chainId}:${row.$id.blockNumber}`,
+		parser: { stringify, parse },
 	}),
 )
+
+export function blocksViewFrom(
+	chainId: ChainId,
+	queryData: { row: BlockEntry }[],
+): {
+	blocksMap: Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
+	networkData: Map<
+		Network | undefined,
+		Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
+	>
+} {
+	const blocksMap = new Map<
+		BlockEntry | undefined,
+		Set<ChainTransactionEntry>
+	>()
+	for (const { row } of queryData) blocksMap.set(row, new Set())
+	const network = networksByChainId[chainId] ?? undefined
+	return {
+		blocksMap,
+		networkData: new Map([[network, blocksMap]]),
+	}
+}
 
 export const ensureBlocksForPlaceholders = (
 	chainId: ChainId,

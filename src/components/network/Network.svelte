@@ -35,15 +35,32 @@
 	const defaultPlaceholderBlockIds = $derived(
 		placeholderBlockIds ?? new Set<number | [number, number]>([0]),
 	)
+	const blocksTotal = $derived(
+		(() => {
+			const ids = defaultPlaceholderBlockIds
+			const range = [...ids].find((k): k is [number, number] =>
+				Array.isArray(k),
+			)
+			return range != null ? range[1] + 1 : (ids.size > 0 ? 1 : 0)
+		})(),
+	)
 </script>
 
 
 <details data-card="radius-2 padding-4" open id={network ? `network:${network.id}` : undefined}>
-	<summary data-row="gap-2 align-center">
+	<summary>
 		{#if network}
-			<strong>{network.name}</strong>
-			<code>eip155:{network.id}</code>
-			<span data-tag>{network.type}</span>
+			<div data-row>
+				<div data-row>
+					<div data-column>
+						<h2>{network.name}</h2>
+					</div>
+
+					<span data-tag>{network.type}</span>
+				</div>
+
+				<span data-text="annotation">EVM Network</span>
+			</div>
 		{:else}
 			<code>Loading network…</code>
 		{/if}
@@ -52,10 +69,15 @@
 	<div data-column="gap-4">
 		{#if network}
 			{@const config = networkConfigsByChainId[network.id]}
-			<dl data-row="wrap gap-4">
+
+			<dl>
 				<div>
 					<dt>Chain ID</dt>
 					<dd><code>{network.id}</code></dd>
+				</div>
+				<div>
+					<dt>Chain Agnostic ID</dt>
+					<dd><code>eip155:{network.id}</code></dd>
 				</div>
 				<div>
 					<dt>Type</dt>
@@ -72,7 +94,12 @@
 
 		<ItemsListView
 			title="Blocks"
+			detailsProps={{
+				open: true,
+				'data-card': '',
+			}}
 			loaded={blocksSet.size}
+			total={blocksTotal > 0 ? blocksTotal : undefined}
 			items={blocksSet}
 			getKey={(b) => b.$id.blockNumber}
 			getSortValue={(b) => -Number(b.number)}
