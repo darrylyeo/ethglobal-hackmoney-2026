@@ -9,8 +9,6 @@
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
-	// Components
-	import ItemsList from '$/components/ItemsList.svelte'
 
 	// Props
 	let {
@@ -58,22 +56,26 @@
 		>
 	} = $props()
 
-	// (Derived)
-	const countText = $derived(
-		total != null ? `${loaded}/${total}` : String(loaded),
-	)
+
+	// Components
+	import Heading from '$/components/Heading.svelte'
+	import HeadingLevelProvider from '$/components/HeadingLevelProvider.svelte'
+	import ItemsListView from '$/components/ItemsListView.svelte'
 </script>
 
 
-<details data-scroll-container="block snap-block" {...detailsProps}>
-	<summary {...summaryProps}>
-		{#if Title}
-			{@render Title({ title, countText })}
-		{:else}
-			<h3>{title} ({countText})</h3>
-		{/if}
-	</summary>
-	<ItemsList
+{#snippet defaultTitle({ title: t, countText: c }: { title: string; countText: string })}
+	<Heading>{t} ({c})</Heading>
+{/snippet}
+
+<HeadingLevelProvider>
+	<ItemsListView
+		{title}
+		Title={Title ?? defaultTitle}
+		{loaded}
+		{total}
+		{detailsProps}
+		{summaryProps}
 		{items}
 		{getKey}
 		{getSortValue}
@@ -85,4 +87,4 @@
 		{Item}
 		{GroupHeader}
 	/>
-</details>
+</HeadingLevelProvider>

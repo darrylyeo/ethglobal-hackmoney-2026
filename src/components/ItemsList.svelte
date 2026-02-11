@@ -114,7 +114,7 @@
 >
 	{#each allRows as row (row.type === 'group' ? `group:${row.groupKey}` : row.key)}
 		{#if row.type === 'group'}
-			<li data-sticky>
+			<li data-sticky data-scroll-item="snap-block-start">
 				{#if GroupHeader}
 					{@render GroupHeader({ groupKey: row.groupKey })}
 				{:else}
@@ -122,11 +122,11 @@
 				{/if}
 			</li>
 		{:else if row.type === 'placeholder'}
-			<li data-placeholder>
+			<li data-placeholder data-scroll-item="snap-block-start">
 				{@render Item({ key: row.key, isPlaceholder: true as const })}
 			</li>
 		{:else}
-			<li>
+			<li data-scroll-item="snap-block-start">
 				{@render Item({
 					key: row.key,
 					item: row.item,
