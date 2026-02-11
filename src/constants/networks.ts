@@ -562,3 +562,27 @@ export const getNetworkByCaip2 = (caip2: string): NetworkConfig | null => {
 	return chainId != null ? (networkConfigsByChainId[chainId] ?? null) : null
 }
 
+const slugForChain = (chainId: number): string | null =>
+	networkConfigsByChainId[chainId]
+		? toNetworkSlug(networkConfigsByChainId[chainId].name)
+		: null
+
+export const getTxPath = (chainId: number, txHash: string): string => {
+	const slug = slugForChain(chainId)
+	return slug != null
+		? `/network/${slug}/transaction/${txHash}`
+		: `/network/${chainId}/transaction/${txHash}`
+}
+
+export const getBlockPath = (
+	chainId: number,
+	blockNumber: number | string,
+): string => {
+	const slug = slugForChain(chainId)
+	return slug != null
+		? `/network/${slug}/block/${blockNumber}`
+		: `/network/${chainId}/block/${blockNumber}`
+}
+
+export const getAccountPath = (address: string): string => `/account/${address}`
+
