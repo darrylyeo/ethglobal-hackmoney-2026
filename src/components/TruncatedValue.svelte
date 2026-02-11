@@ -105,7 +105,7 @@
 			)
 		) & {
 			--isTruncated: 1;
-			cursor: default;
+			cursor: inherit;
 		}
 
 		* {
