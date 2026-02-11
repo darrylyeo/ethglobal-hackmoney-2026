@@ -43,7 +43,7 @@
 
 
 	// Props
-	let { children: page } = $props()
+	let { children } = $props()
 
 
 	// State
