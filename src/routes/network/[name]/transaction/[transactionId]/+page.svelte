@@ -12,9 +12,10 @@
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { resolve } from '$app/paths'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import EvmTransactionId from '$/components/EvmTransactionId.svelte'
-	import NetworkView from '$/components/network/Network.svelte'
-	import WatchButton from '$/components/WatchButton.svelte'
+	import EntityView from '$/components/EntityView.svelte'
+	import EvmTransactionId from '$/views/EvmTransactionId.svelte'
+	import NetworkView from '$/views/network/Network.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
 
 
 	// Context
@@ -189,31 +190,29 @@
 
 
 <main data-column="gap-2">
-	<header data-row="wrap gap-4">
-		<div data-row="start gap-2" data-row-item="flexible">
-			<h1 data-orient="vertical">
+	<EntityView
+		entityType={EntityType.Transaction}
+		idSerialized={`${data.nameParam}:${data.transactionId}`}
+		href={resolve(`/network/${data.nameParam}/transaction/${data.transactionId}`)}
+		label={`Tx ${data.transactionId.slice(0, 10)}… · ${data.config.name}`}
+		annotation="Transaction"
+	>
+		{#snippet Title()}
+			<span data-row="inline gap-2">
 				<EvmTransactionId
-					chainId={data.chainId}
 					txHash={data.transactionId}
+					chainId={data.chainId}
 					vertical
 				/>
-			</h1>
-			<WatchButton
-				entityType={EntityType.Transaction}
-				id={`${data.nameParam}:${data.transactionId}`}
-				label={`Tx ${data.transactionId.slice(0, 10)}… · ${data.config.name}`}
-				href={resolve(`/network/${data.nameParam}/transaction/${data.transactionId}`)}
-			/>
-		</div>
-		<div data-row="gap-2">
-			<span data-text="annotation">Transaction</span>
-		</div>
-	</header>
-	<p>
-		<a href={showContextUrl} data-link>Show Context</a>
-	</p>
-	<NetworkView
-		data={networkData}
-		{placeholderBlockIds}
-	/>
+				<NetworkName chainId={data.chainId} showIcon={false} />
+			</span>
+		{/snippet}
+		<p>
+			<a href={showContextUrl} data-link>Show Context</a>
+		</p>
+		<NetworkView
+			data={networkData}
+			{placeholderBlockIds}
+		/>
+	</EntityView>
 </main>

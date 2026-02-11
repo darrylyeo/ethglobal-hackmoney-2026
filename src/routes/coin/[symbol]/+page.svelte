@@ -5,7 +5,8 @@
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { TIME_PERIODS } from '$/api/transfers-indexer.ts'
 	import { getCoinForCoinPage, type CoinPageSymbol } from '$/constants/coins.ts'
-	import WatchButton from '$/components/WatchButton.svelte'
+	import EntityView from '$/components/EntityView.svelte'
+	import CoinAmount from '$/views/CoinAmount.svelte'
 	import CoinTransfers from '$/views/CoinTransfers.svelte'
 
 	// Props (from load)
@@ -23,21 +24,16 @@
 
 <main id="main" data-column data-sticky-container>
 	<section data-scroll-item>
-		<header data-column="gap-2">
-			<div data-row="wrap gap-4">
-				<div data-row="start gap-2" data-row-item="flexible">
-					<h1>{coin.symbol}</h1>
-					<WatchButton
-						entityType={EntityType.Coin}
-						id={symbol}
-						label={coin.symbol}
-						href={resolve(`/coin/${symbol}`)}
-					/>
-				</div>
-				<div data-row="gap-2">
-					<span data-text="annotation">Coin</span>
-				</div>
-			</div>
+		<EntityView
+			entityType={EntityType.Coin}
+			idSerialized={symbol}
+			href={resolve(`/coin/${symbol}`)}
+			label={coin.symbol}
+			annotation="Coin"
+		>
+			{#snippet Title()}
+				<CoinAmount coin={coin} showIcon symbolOnly />
+			{/snippet}
 			<nav data-row="start gap-2" aria-label="Time period">
 				{#each TIME_PERIODS as p (p.value)}
 					<a
@@ -49,8 +45,8 @@
 					</a>
 				{/each}
 			</nav>
-		</header>
-		<CoinTransfers {symbol} {period} />
+			<CoinTransfers {symbol} {period} />
+		</EntityView>
 	</section>
 </main>
 

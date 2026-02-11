@@ -18,7 +18,7 @@
 		updateTransaction,
 	} from '$/collections/BridgeTransactions.ts'
 	import { executeSelectedRoute } from '$/api/lifi.ts'
-	import { getTxUrl } from '$/constants/explorers.ts'
+	import { getTxPath } from '$/constants/networks.ts'
 	import { toasts } from '$/lib/toast.svelte.ts'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
 
@@ -206,7 +206,7 @@
 				{step.step}
 				{#if step.txHash}
 					<a
-						href={getTxUrl(step.chainId ?? fromChainId, step.txHash)}
+						href={getTxPath(step.chainId ?? fromChainId, step.txHash)}
 						target="_blank"
 						rel="noopener noreferrer"
 						data-tx-hash={step.txHash}

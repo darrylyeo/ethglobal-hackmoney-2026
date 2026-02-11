@@ -43,7 +43,7 @@
 
 
 	// Props
-	let { children } = $props()
+	let { children: page } = $props()
 
 
 	// State
@@ -239,8 +239,9 @@
 			</aside> -->
 
 			<Boundary>
-				{@render children()}
-
+				{#snippet children()}
+					{@render page()}
+				{/snippet}
 				{#snippet failed(error)}
 					<main data-column>
 						<h2>Error</h2>

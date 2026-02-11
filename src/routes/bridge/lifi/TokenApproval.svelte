@@ -10,7 +10,7 @@
 		toActorAllowance$Id,
 	} from '$/collections/ActorAllowances.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
-	import { getTxUrl } from '$/constants/explorers.ts'
+	import { getTxPath } from '$/constants/networks.ts'
 
 
 	// Context
@@ -128,7 +128,7 @@
 			Approving…
 			{#if txHash}
 				<a
-					href={getTxUrl(chainId, txHash)}
+					href={getTxPath(chainId, txHash)}
 					target="_blank"
 					rel="noopener noreferrer"
 				>

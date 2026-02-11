@@ -34,7 +34,7 @@
 
 	// Components
 	import Combobox from '$/components/Combobox.svelte'
-	import NetworkIcon from '$/components/NetworkIcon.svelte'
+	import NetworkIcon from '$/views/NetworkIcon.svelte'
 </script>
 
 {#snippet networkIcons()}

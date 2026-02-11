@@ -74,7 +74,7 @@
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 	import Combobox from '$/components/Combobox.svelte'
 	import PatternInput from '$/components/PatternInput.svelte'
 </script>

@@ -42,7 +42,7 @@
 
 	// Functions
 	import { resolve } from '$app/paths'
-	import { getTxUrl } from '$/constants/explorers.ts'
+	import { getTxPath } from '$/constants/networks.ts'
 	import {
 		formatAddress,
 		isValidAddress,
@@ -772,14 +772,14 @@
 								{tx.status}
 							</span>
 							<a
-								href={resolve(getTxUrl(tx.fromChainId, tx.$id.sourceTxHash))}
+								href={resolve(getTxPath(tx.fromChainId, tx.$id.sourceTxHash))}
 								target="_blank"
 								rel="noopener noreferrer"
 								aria-label="Source tx">↗</a
 							>
 							{#if tx.destTxHash}
 								<a
-									href={resolve(getTxUrl(tx.toChainId, tx.destTxHash))}
+									href={resolve(getTxPath(tx.toChainId, tx.destTxHash))}
 									target="_blank"
 									rel="noopener noreferrer"
 									aria-label="Dest tx">↗</a

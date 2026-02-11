@@ -7,18 +7,18 @@
 
 
 	// Functions
-	import { getTxUrl } from '$/constants/explorers.ts'
+	import { getTxPath } from '$/constants/networks.ts'
 	import { formatWei, formatGas, formatGwei } from '$/lib/format.ts'
 	import { fetchNetworkTransaction } from '$/collections/NetworkTransactions.ts'
 	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
-	import ItemsListView from '$/components/ItemsListView.svelte'
-	import Trace from '$/components/network/Trace.svelte'
-	import EventView from '$/components/network/Event.svelte'
+	import EntityList from '$/components/EntityList.svelte'
+	import Trace from '$/views/network/Trace.svelte'
+	import EventView from '$/views/network/Event.svelte'
 	import FlowArrow from '$/components/FlowArrow.svelte'
 
 
@@ -143,12 +143,8 @@
 			<dl>
 				<dt>Hash</dt>
 				<dd>
-					<a
-						href={getTxUrl(chainId, tx.$id.txHash)}
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<TruncatedValue value={tx.$id.txHash} /> ↗
+					<a href={getTxPath(chainId, tx.$id.txHash)}>
+						<TruncatedValue value={tx.$id.txHash} />
 					</a>
 				</dd>
 
@@ -244,7 +240,7 @@
 			</section>
 		{/if}
 
-		<ItemsListView
+		<EntityList
 			title="Events"
 			loaded={eventsSet.size}
 			total={events.length || undefined}
@@ -264,7 +260,7 @@
 					{/if}
 				</span>
 			{/snippet}
-		</ItemsListView>
+		</EntityList>
 	</div>
 </details>
 

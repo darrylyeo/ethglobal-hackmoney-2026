@@ -16,7 +16,7 @@
 
 
 	// Functions
-	import { getBlockUrl } from '$/constants/explorers.ts'
+	import { getBlockPath } from '$/constants/networks.ts'
 
 
 	// Components
@@ -25,7 +25,7 @@
 
 
 <EntityId
-	link={linked ? getBlockUrl(chainId, blockNumber) : undefined}
+	link={linked ? getBlockPath(chainId, blockNumber) : undefined}
 	draggableText={String(blockNumber)}
 	className="block-number"
 >

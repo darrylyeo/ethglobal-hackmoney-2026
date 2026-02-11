@@ -48,8 +48,8 @@
 
 
 	// Components
-	import CoinIcon from '$/components/CoinIcon.svelte'
-	import NetworkIcon from '$/components/NetworkIcon.svelte'
+	import CoinIcon from '$/views/CoinIcon.svelte'
+	import NetworkIcon from '$/views/NetworkIcon.svelte'
 	import Tooltip from '$/components/Tooltip.svelte'
 	import StorkPriceFeed from '$/views/StorkPriceFeed.svelte'
 </script>

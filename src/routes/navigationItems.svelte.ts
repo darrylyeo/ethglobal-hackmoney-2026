@@ -316,12 +316,6 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			icon: '🪙',
 		},
 		{
-			id: 'networks',
-			title: 'Networks',
-			href: '/networks',
-			icon: '⛓️',
-		},
-		{
 			id: 'explore',
 			title: 'Explore',
 			icon: '🧭',

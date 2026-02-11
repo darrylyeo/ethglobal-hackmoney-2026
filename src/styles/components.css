@@ -668,6 +668,11 @@ summary {
 		}
 	}
 
+	&[data-tag='Testnet'] {
+		opacity: 0.8;
+		font-size: 0.85em;
+	}
+
 	&[data-tag~='wallet-type'] {
 		--tag-backgroundColor: light-dark(oklch(0.95 0 0), oklch(0.25 0 0));
 		--tag-textColor: light-dark(oklch(0.65 0 0), oklch(0.8 0 0));
@@ -910,26 +915,50 @@ ol {
 }
 
 dl {
-	display: grid;
-	grid-template-columns: minmax(0, auto) minmax(0, auto);
-	row-gap: 0.75em;
-	column-gap: 1em;
-
-	> div {
+	&:not(
+		[data-definition-list~='vertical'],
+		[data-definition-list~='horizontal']
+	),
+	[data-definition-list~='vertical'] {
 		display: grid;
-		grid-template-columns: subgrid;
-		grid-column: 1 / -1;
+		grid-template-columns: minmax(0, auto) minmax(0, auto);
+		row-gap: 0.75em;
+		column-gap: 1em;
+
+		> div {
+			display: grid;
+			grid-template-columns: subgrid;
+			grid-column: 1 / -1;
+		}
+
+		dt {
+			grid-column: 1;
+			text-align: end;
+		}
+
+		dd {
+			grid-column: 2;
+		}
+	}
+	&[data-definition-list='horizontal'] {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em 1.5em;
+		row-gap: 0.5em;
+		column-gap: 1.5em;
+
+		> div {
+			display: inline-flex;
+			gap: 0.35em;
+		}
+
+		/* dt::after {
+			content: ':';
+		} */
 	}
 
 	dt {
-		grid-column: 1;
-
 		color: var(--color-text-muted);
-		text-align: end;
-	}
-
-	dd {
-		grid-column: 2;
 	}
 }
 
@@ -961,6 +990,9 @@ dl {
 		container-type: block-size;
 		container-type: scroll-state block-size;
 		overflow-x: auto;
+	}
+	&[data-scroll-container~='snap-block'] {
+		scroll-snap-type: y proximity;
 	}
 
 	/* Derived */

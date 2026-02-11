@@ -354,10 +354,10 @@
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 	import Dropdown from '$/components/Dropdown.svelte'
 	import Icon from '$/components/Icon.svelte'
-	import NetworkIcon from '$/components/NetworkIcon.svelte'
+	import NetworkIcon from '$/views/NetworkIcon.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import { Button, ToggleGroup } from 'bits-ui'
 </script>

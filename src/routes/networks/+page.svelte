@@ -6,8 +6,8 @@
 
 	// Components
 	import EntityId from '$/components/EntityId.svelte'
-	import NetworkIcon from '$/components/NetworkIcon.svelte'
 	import WatchButton from '$/components/WatchButton.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
 </script>
 
 
@@ -22,7 +22,6 @@
 		{#each networkConfigs as config (config.chainId)}
 			{@const slug = toNetworkSlug(config.name)}
 			<li data-row="start gap-2 align-center">
-				<NetworkIcon chainId={config.chainId} size={20} />
 				<EntityId
 					link={resolve(`/network/${slug}`)}
 					draggableText={config.name}
@@ -30,7 +29,7 @@
 					entityType={EntityType.Network}
 					entityId={{ chainId: config.chainId }}
 				>
-					{config.name}
+					<NetworkName chainId={config.chainId} />
 				</EntityId>
 				<WatchButton
 					entityType={EntityType.Network}

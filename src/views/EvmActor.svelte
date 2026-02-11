@@ -3,7 +3,7 @@
 	import type { Network$Id } from '$/data/Network.ts'
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 
 	// Props
 	let {
@@ -16,7 +16,7 @@
 		network: Network$Id
 		address: `0x${string}`
 		profile?: { primaryName?: string; avatarUrl?: string }
-		format?: import('$/components/Address.svelte').AddressFormat
+		format?: import('$/views/Address.svelte').AddressFormat
 		vertical?: boolean
 	} = $props()
 </script>

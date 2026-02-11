@@ -16,7 +16,7 @@
 	import Boundary from '$/components/Boundary.svelte'
 	import ItemsListView from '$/components/ItemsListView.svelte'
 	import LiveTransfers from '$/views/LiveTransfers.svelte'
-	import TransferEventRow from '$/components/TransferEventRow.svelte'
+	import TransferEventRow from '$/views/TransferEventRow.svelte'
 
 	// Props
 	let { symbol, period }: { symbol: CoinPageSymbol; period: string } = $props()

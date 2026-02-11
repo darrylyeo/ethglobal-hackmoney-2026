@@ -29,7 +29,7 @@
 
 	// Components
 	import NetworkName from '$/views/NetworkName.svelte'
-    import NetworkIcon from '$/components/NetworkIcon.svelte'
+    import NetworkIcon from '$/views/NetworkIcon.svelte'
 	import Select from '$/components/Select.svelte'
 </script>
 

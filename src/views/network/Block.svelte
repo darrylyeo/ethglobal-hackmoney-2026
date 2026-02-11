@@ -7,18 +7,17 @@
 
 	// Functions
 	import { getAverageTransactionsPerBlock } from '$/constants/networks.ts'
-	import { getBlockUrl } from '$/constants/explorers.ts'
 	import { formatGas, formatGwei } from '$/lib/format.ts'
 	import { fetchBlockTransactions } from '$/collections/Blocks.ts'
 	import { TimestampFormat } from '$/components/Timestamp.svelte'
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 	import Timestamp from '$/components/Timestamp.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
-	import ItemsListView from '$/components/ItemsListView.svelte'
-	import Transaction from '$/components/network/Transaction.svelte'
+	import EntityList from '$/components/EntityList.svelte'
+	import Transaction from '$/views/network/Transaction.svelte'
 
 
 	// Props
@@ -125,17 +124,9 @@
 					<dd>{formatGwei(block.baseFeePerGas)} Gwei</dd>
 				{/if}
 			</dl>
-
-			<!-- <a
-				href={getBlockUrl(chainId, block.$id.blockNumber)}
-				target="_blank"
-				rel="noopener noreferrer"
-			>
-				View on explorer ↗
-			</a> -->
 		{/if}
 
-		<ItemsListView
+		<EntityList
 			title="Transactions"
 			loaded={transactionsSet.size}
 			total={block ? (block.transactionCount ?? count) : undefined}
@@ -159,6 +150,6 @@
 					{/if}
 				</span>
 			{/snippet}
-		</ItemsListView>
+		</EntityList>
 	</div>
 </details>

@@ -21,7 +21,6 @@
 
 	// Functions
 	import { formatAddress, parseAccountAddressParam } from '$/lib/address.ts'
-	import { getAddressUrl } from '$/constants/explorers.ts'
 
 
 	// (Derived)
@@ -78,13 +77,19 @@
 						v.address.toLowerCase() === normalizedAddress.toLowerCase(),
 				)),
 	)
+	const idSerialized = $derived(parsed?.interopAddress ?? parsed?.address ?? '')
+	const metadata = $derived(
+		parsed?.interopAddress
+			? [{ term: 'Interop', detail: parsed.interopAddress }]
+			: [],
+	)
 
 
 	// Components
-	import { AddressFormat } from '$/components/Address.svelte'
+	import { AddressFormat } from '$/views/Address.svelte'
 	import Boundary from '$/components/Boundary.svelte'
-	import EvmActor from '$/components/EvmActor.svelte'
-	import WatchButton from '$/components/WatchButton.svelte'
+	import EntityView from '$/components/EntityView.svelte'
+	import EvmActor from '$/views/EvmActor.svelte'
 	import Channels from '$/views/Channels.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
 	import LiquidityPositions from '$/views/LiquidityPositions.svelte'
@@ -106,66 +111,30 @@
 		<h1>Invalid address</h1>
 		<p>The address in the URL could not be parsed.</p>
 	{:else}
-		<header data-account-header data-column="gap-2">
-			<div data-row="wrap gap-4">
-				<div data-row="start gap-2" data-row-item="flexible">
-					<h1 data-orient="vertical">
-						<EvmActor
-							network={parsed.chainId ?? 1}
-							address={parsed.address}
-							format={AddressFormat.Full}
-							vertical
-						/>
-					</h1>
-					<WatchButton
-						entityType={EntityType.Actor}
-						id={parsed.interopAddress ?? parsed.address}
-						label={formatAddress(parsed.address)}
-						href={resolve(`/account/${data.addressParam}`)}
-						{autoWatched}
-					/>
-				</div>
-				<div data-row="gap-2">
-					<span data-text="annotation">Account</span>
-				</div>
-			</div>
-			<nav data-row="wrap gap-2">
-				{#if parsed.interopAddress}
-					Interop address: <code class="interop">{parsed.interopAddress}</code>
-				{/if}
-				<!-- <button
-					type="button"
-					class="copy-btn"
-					title="Copy address"
-					onclick={() => {
-						navigator.clipboard.writeText(parsed.address)
-					}}
-				>
-					Copy
-				</button> -->
-				<!-- {#if parsed.chainId}
-					{@const explorerUrl = getAddressUrl(parsed.chainId, parsed.address)}
-					{#if explorerUrl}
-						<a
-							href={explorerUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="explorer-link"
-						>
-							View on explorer
-						</a>
-					{/if}
-				{/if} -->
-			</nav>
-		</header>
+		<EntityView
+			entityType={EntityType.Actor}
+			idSerialized={idSerialized}
+			href={resolve(`/account/${data.addressParam}`)}
+			label={formatAddress(parsed.address)}
+			{metadata}
+			annotation="Account"
+			{autoWatched}
+		>
+			{#snippet Title()}
+				<EvmActor
+					network={parsed.chainId ?? 1}
+					address={parsed.address}
+					format={AddressFormat.Full}
+					vertical
+				/>
+			{/snippet}
 
-		<!-- <div data-grid="columns-autofit column-min-16 gap-6"> -->
 			<Boundary>
 				<CoinBalances
-				selectedActor={normalizedAddress}
-				{balanceTokens}
-				availableAccounts={normalizedAddress ? [normalizedAddress] : []}
-			/>
+					selectedActor={normalizedAddress}
+					{balanceTokens}
+					availableAccounts={normalizedAddress ? [normalizedAddress] : []}
+				/>
 			</Boundary>
 			<Boundary>
 				<Transactions selectedActor={normalizedAddress} />
@@ -182,26 +151,6 @@
 			<Boundary>
 				<Channels selectedActor={normalizedAddress} />
 			</Boundary>
-		<!-- </div> -->
+		</EntityView>
 	{/if}
 </main>
-
-
-<style>
-	.copy-btn,
-	.explorer-link {
-		font-size: 0.85em;
-		padding: 0.2rem 0.5rem;
-		border-radius: 0.25rem;
-		border: 1px solid var(--color-border);
-		background: var(--color-bg-subtle);
-		color: inherit;
-		text-decoration: none;
-		cursor: pointer;
-	}
-
-	.copy-btn:hover,
-	.explorer-link:hover {
-		background: var(--color-border);
-	}
-</style>

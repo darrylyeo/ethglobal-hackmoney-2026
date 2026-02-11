@@ -120,9 +120,9 @@
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 	import Icon from '$/components/Icon.svelte'
-	import { AddressFormat } from '$/components/Address.svelte'
+	import { AddressFormat } from '$/views/Address.svelte'
 </script>
 
 

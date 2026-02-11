@@ -21,7 +21,7 @@
 
 
 	// Components
-	import NetworkIcon from '$/components/NetworkIcon.svelte'
+	import NetworkIcon from '$/views/NetworkIcon.svelte'
 </script>
 
 <span class="network-name" data-row="inline gap-2">

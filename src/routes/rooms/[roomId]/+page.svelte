@@ -10,7 +10,7 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import WatchButton from '$/components/WatchButton.svelte'
+	import EntityView from '$/components/EntityView.svelte'
 	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
 	import {
 		roomState,
@@ -125,37 +125,35 @@
 	data-column
 	data-sticky-container
 >
-	<header
+	<EntityView
 		data-scroll-item
-		data-room-header
-		data-column="gap-2"
+		entityType={EntityType.Room}
+		entity={{
+			id: roomId,
+			createdAt: 0,
+			createdBy: '',
+			name: roomDisplayName,
+			connectionStatusLabel,
+			connectionStatus: roomState.connectionStatus,
+		}}
+		idSerialized={roomId}
+		href={resolve(`/rooms/${roomId}`)}
+		label={roomDisplayName}
 	>
-		<div data-row="wrap gap-4">
-			<div data-row="start gap-2" data-row-item="flexible">
-				<div data-row="gap-2">
-					<h1>
-						<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
-						{roomDisplayName}
-					</h1>
-					<span
-						data-tag
-						data-connection-status={roomState.connectionStatus}
-						title="Room connection"
-					>
-						{connectionStatusLabel}
-					</span>
-				</div>
-				<WatchButton
-					entityType={EntityType.Room}
-					id={roomId}
-					label={roomDisplayName}
-					href={resolve(`/rooms/${roomId}`)}
-				/>
-			</div>
-			<div data-row="gap-2">
-				<span data-text="annotation">Room</span>
-			</div>
-		</div>
+		{#snippet AfterTitle({ entity })}
+			{#if entity?.connectionStatusLabel}
+				<span
+					data-tag
+					data-connection-status={entity.connectionStatus}
+				>
+					{entity.connectionStatusLabel}
+				</span>
+			{/if}
+		{/snippet}
+		{#snippet Title()}
+			<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
+			{roomDisplayName}
+		{/snippet}
 		<nav data-row="gap-2 align-center wrap">
 			<a
 				data-button
@@ -178,9 +176,7 @@
 				Leave room
 			</a>
 		</nav>
-	</header>
-
-	<section data-scroll-item>
+		<section data-scroll-item>
 		<details
 			open
 			data-card
@@ -259,6 +255,7 @@
 			</div>
 		</details>
 	</section>
+	</EntityView>
 </main>
 
 

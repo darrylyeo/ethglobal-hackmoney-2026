@@ -47,7 +47,7 @@
 
 
 	// Components
-	import CoinIcon from '$/components/CoinIcon.svelte'
+	import CoinIcon from '$/views/CoinIcon.svelte'
 	import Select from '$/components/Select.svelte'
 
 

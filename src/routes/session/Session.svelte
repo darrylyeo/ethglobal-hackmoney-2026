@@ -118,7 +118,7 @@
 	const displayLabel = $derived(session.name || placeholderName)
 
 	// Components
-	import WatchButton from '$/components/WatchButton.svelte'
+	import EntityView from '$/components/EntityView.svelte'
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
 	import ActionsSequence from './ActionsSequence.svelte'
@@ -131,38 +131,27 @@
 	data-sticky-container
 	onfocusin={handleFormInteraction}
 >
-	<section data-scroll-item data-column="gap-2">
-		<header data-row="wrap gap-4">
-			<div data-row="start gap-2" data-row-item="flexible">
-				<div data-row="gap-1">
-					<h1>
-						<span class="sr-only">Session</span>
-						<input
-							type="text"
-							class="session-name-input"
-							bind:value={session.name}
-							placeholder={placeholderName}
-							aria-label="Session name"
-						/>
-					</h1>
-				</div>
-				<WatchButton
-					entityType={EntityType.Session}
-					id={session.id}
-					label={displayLabel}
-					href={resolve(buildSessionPath(session.id))}
-					autoWatched={session.status === SessionStatus.Draft || session.status === SessionStatus.Submitted}
-				/>
-			</div>
-			<div data-row="gap-2">
-				<span data-text="annotation">Session</span>
-			</div>
-		</header>
-
-		<details
-			open
-			data-card
-		>
+	<EntityView
+		data-scroll-item
+		entityType={EntityType.Session}
+		idSerialized={session.id}
+		href={resolve(buildSessionPath(session.id))}
+		label={displayLabel}
+		annotation="Session"
+		anchorTitle={false}
+		autoWatched={session.status === SessionStatus.Draft || session.status === SessionStatus.Submitted}
+	>
+		{#snippet Title()}
+			<span class="sr-only">Session</span>
+			<input
+				type="text"
+				class="session-name-input"
+				bind:value={session.name}
+				placeholder={placeholderName}
+				aria-label="Session name"
+			/>
+		{/snippet}
+		<details open data-card>
 			<summary>
 				<header data-row="wrap gap-2">
 					<AccountsSelect
@@ -182,7 +171,7 @@
 				/>
 			</div>
 		</details>
-	</section>
+	</EntityView>
 
 	<section data-scroll-item data-column="gap-4">
 		<ActionsSequence bind:actions={session.actions} />

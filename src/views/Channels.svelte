@@ -58,7 +58,7 @@
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 	import Boundary from '$/components/Boundary.svelte'
 	import Combobox from '$/components/Combobox.svelte'
 	import TruncatedValue, {

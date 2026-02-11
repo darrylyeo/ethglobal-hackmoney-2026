@@ -70,9 +70,9 @@
 
 
 	// Components
-	import EntityId from './EntityId.svelte'
-	import Icon, { IconShape } from './Icon.svelte'
-	import TruncatedValue from './TruncatedValue.svelte'
+	import EntityId from '$/components/EntityId.svelte'
+	import Icon, { IconShape } from '$/components/Icon.svelte'
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
 </script>
 
 
