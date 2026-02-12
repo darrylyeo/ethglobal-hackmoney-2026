@@ -23,7 +23,6 @@
 	const TX_HASH = /^0x[a-fA-F0-9]{64}$/
 
 
-	// Context
 
 
 
@@ -53,34 +52,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	// Props
-	let {
-		data,
-	}: {
-		data: {
-			nameParam: string
-			blockNumberParam: string
-			transactionId: `0x${string}`
-			config: { name: string }
-		}
-	} = $props()
 
 
 	// (Derived)
@@ -120,7 +91,7 @@
 				.from({ row: networkTransactionsCollection })
 				.where(({ row }) =>
 					and(
-						eq(row.$id.chainId, chainId),
+						eq(row.$id.$network.chainId, chainId),
 						eq(row.$id.txHash, transactionId ?? ''),
 					),
 				)
@@ -133,7 +104,7 @@
 				.from({ row: blocksCollection })
 				.where(({ row }) =>
 					and(
-						eq(row.$id.chainId, chainId),
+						eq(row.$id.$network.chainId, chainId),
 						eq(row.$id.blockNumber, blockNumber),
 					),
 				)
@@ -209,26 +180,39 @@
 
 <svelte:head>
 	<title>
-		Transaction {data.transactionId.slice(0, 10)}… · Block {data.blockNumberParam}
-		· {data.config.name}
+		{valid && transactionId
+			? `Transaction ${transactionId.slice(0, 10)}… · Block ${blockNumberParam} · ${config.name}`
+			: 'Transaction'}
 	</title>
 </svelte:head>
 
 
 <main data-column="gap-2">
-	<EntityView
+	{#if !valid}
+		<h1>Not found</h1>
+		<p>
+			{#if !parsed}
+				Network "{nameParam}" could not be resolved.
+			{:else if !blockNumberValid}
+				Block number must be a non-negative decimal integer.
+			{:else}
+				Invalid transaction hash.
+			{/if}
+		</p>
+	{:else}
+		<EntityView
 		entityType={EntityType.Transaction}
 		idSerialized={`${nameParam}:${transactionId}`}
 		href={resolve(
 			`/network/${nameParam}/block/${blockNumberParam}/transaction/${transactionIdParam}`,
 		)}
-		label={`Tx ${(transactionId ?? '').slice(0, 10)}… · ${data.config.name}`}
+		label={`Tx ${transactionId!.slice(0, 10)}… · ${config.name}`}
 		annotation="Transaction"
 	>
 		{#snippet Title()}
 			<span data-row="inline gap-2">
 				<EvmTransactionId
-					txHash={transactionId ?? ''}
+					txHash={transactionId}
 					{chainId}
 					vertical
 				/>
@@ -243,4 +227,5 @@
 			{placeholderBlockIds}
 		/>
 	</EntityView>
+	{/if}
 </main>

@@ -12,11 +12,8 @@
 
 
 	// Context
+	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
-
-
-	// Props
-	let { data }: { data: { addressParam: string } } = $props()
 
 
 	// Functions
@@ -24,7 +21,8 @@
 
 
 	// (Derived)
-	const parsed = $derived(parseAccountAddressParam(data.addressParam))
+	const addressParam = $derived(page.params.address ?? '')
+	const parsed = $derived(parseAccountAddressParam(addressParam))
 	const normalizedAddress = $derived(parsed?.address ?? null)
 
 
@@ -95,6 +93,8 @@
 	import LiquidityPositions from '$/views/LiquidityPositions.svelte'
 	import RoomConnections from '$/views/RoomConnections.svelte'
 	import Transactions from '$/views/Transactions.svelte'
+	import AccountContracts from '$/views/AccountContracts.svelte'
+	import VerifiedContractSource from '$/views/VerifiedContractSource.svelte'
 	import WalletConnections from '$/views/WalletConnections.svelte'
 </script>
 
@@ -114,7 +114,7 @@
 		<EntityView
 			entityType={EntityType.Actor}
 			idSerialized={idSerialized}
-			href={resolve(`/account/${data.addressParam}`)}
+			href={resolve(`/account/${addressParam}`)}
 			label={formatAddress(parsed.address)}
 			{metadata}
 			annotation="Account"
@@ -125,7 +125,7 @@
 					network={parsed.chainId ?? 1}
 					address={parsed.address}
 					format={AddressFormat.Full}
-					vertical
+					isVertical
 				/>
 			{/snippet}
 
@@ -150,6 +150,15 @@
 			</Boundary>
 			<Boundary>
 				<Channels selectedActor={normalizedAddress} />
+			</Boundary>
+			<Boundary>
+				<VerifiedContractSource
+					chainId={parsed.chainId ?? 1}
+					address={parsed.address}
+				/>
+			</Boundary>
+			<Boundary>
+				<AccountContracts selectedActor={normalizedAddress} />
 			</Boundary>
 		</EntityView>
 	{/if}

@@ -10,16 +10,16 @@
 	import { fetchNetworkTransaction, networkTransactionsCollection } from '$/collections/NetworkTransactions.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
+	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import EntityView from '$/components/EntityView.svelte'
 	import EvmTransactionId from '$/views/EvmTransactionId.svelte'
 	import NetworkView from '$/views/network/Network.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
 
-
-	// Context
-
+	const TX_HASH = /^0x[a-fA-F0-9]{64}$/
 
 
 
@@ -53,31 +53,18 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-	// Props
-	let {
-		data,
-	}: {
-		data: {
-			nameParam: string
-			transactionId: `0x${string}`
-			chainId: ChainId
-			config: { name: string }
-			slug: string
-			caip2: string
-		},
-	} = $props()
+	// (Derived)
+	const nameParam = $derived(page.params.name ?? '')
+	const transactionIdParam = $derived(page.params.transactionId ?? '')
+	const parsed = $derived(parseNetworkNameParam(nameParam))
+	const transactionId = $derived(
+		transactionIdParam && TX_HASH.test(transactionIdParam)
+			? (transactionIdParam as `0x${string}`)
+			: null,
+	)
+	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
+	const config = $derived(parsed?.config ?? { name: '' })
+	const valid = $derived(!!parsed && !!transactionId)
 
 
 	// State
@@ -88,29 +75,39 @@
 	// (Derived)
 	const txQuery = useLiveQuery(
 		(q) =>
-			q
-				.from({ row: networkTransactionsCollection })
-				.where(({ row }) =>
-					and(
-						eq(row.$id.chainId, data.chainId),
-						eq(row.$id.txHash, data.transactionId),
-					),
-				)
-				.select(({ row }) => ({ row })),
-		[() => data.chainId, () => data.transactionId],
+			valid
+				? q
+						.from({ row: networkTransactionsCollection })
+						.where(({ row }) =>
+							and(
+								eq(row.$id.$network.chainId, chainId),
+								eq(row.$id.txHash, transactionId!),
+							),
+						)
+						.select(({ row }) => ({ row }))
+				: q
+						.from({ row: networkTransactionsCollection })
+						.where(({ row }) => eq(row.$id.$network.chainId, -1))
+						.select(({ row }) => ({ row })),
+		[() => chainId, () => transactionId, () => valid],
 	)
 	const blockQuery = useLiveQuery(
 		(q) =>
-			q
-				.from({ row: blocksCollection })
-				.where(({ row }) =>
-					and(
-						eq(row.$id.chainId, data.chainId),
-						eq(row.$id.blockNumber, blockNumber),
-					),
-				)
-				.select(({ row }) => ({ row })),
-		[() => data.chainId, () => blockNumber],
+			valid
+				? q
+						.from({ row: blocksCollection })
+						.where(({ row }) =>
+							and(
+								eq(row.$id.$network.chainId, chainId),
+								eq(row.$id.blockNumber, blockNumber),
+							),
+						)
+						.select(({ row }) => ({ row }))
+				: q
+						.from({ row: blocksCollection })
+						.where(({ row }) => eq(row.$id.$network.chainId, -1))
+						.select(({ row }) => ({ row })),
+		[() => chainId, () => blockNumber, () => valid],
 	)
 	const liveQueryEntries = $derived([
 		{
@@ -128,7 +125,7 @@
 
 	const txRow = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
 	const blockRow = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
-	const network = $derived(networksByChainId[data.chainId] ?? null)
+	const network = $derived(networksByChainId[chainId] ?? null)
 
 	const blocksMap = $derived(
 		(() => {
@@ -156,22 +153,22 @@
 	)
 
 	const showContextUrl = $derived(
-		blockNumber > 0
-			? `/network/${data.nameParam}/block/${blockNumber}#transaction:${data.transactionId}`
-			: `/network/${data.nameParam}`,
+		valid && blockNumber > 0
+			? `/network/${nameParam}/block/${blockNumber}#transaction:${transactionId}`
+			: `/network/${nameParam}`,
 	)
 
 	$effect(() => {
-		fetchNetworkTransaction(data.chainId, data.transactionId).catch(() => {})
+		if (valid) fetchNetworkTransaction(chainId, transactionId!).catch(() => {})
 	})
 	$effect(() => {
 		if (txRow?.blockNumber != null) blockNumber = txRow.blockNumber
 	})
 	$effect(() => {
-		if (blockNumber > 0) fetchBlock(data.chainId, blockNumber).catch(() => {})
+		if (valid && blockNumber > 0) fetchBlock(chainId, blockNumber).catch(() => {})
 	})
 	$effect(() => {
-		const url = rpcUrls[data.chainId]
+		const url = rpcUrls[chainId]
 		if (!url) return
 		getCurrentBlockNumber(createHttpProvider(url))
 			.then((h) => {
@@ -184,35 +181,48 @@
 
 <svelte:head>
 	<title>
-		Transaction {data.transactionId.slice(0, 10)}… · {data.config.name}
+		{valid
+			? `Transaction ${transactionId!.slice(0, 10)}… · ${config.name}`
+			: 'Transaction'}
 	</title>
 </svelte:head>
 
 
 <main data-column="gap-2">
-	<EntityView
-		entityType={EntityType.Transaction}
-		idSerialized={`${data.nameParam}:${data.transactionId}`}
-		href={resolve(`/network/${data.nameParam}/transaction/${data.transactionId}`)}
-		label={`Tx ${data.transactionId.slice(0, 10)}… · ${data.config.name}`}
-		annotation="Transaction"
-	>
-		{#snippet Title()}
-			<span data-row="inline gap-2">
-				<EvmTransactionId
-					txHash={data.transactionId}
-					chainId={data.chainId}
-					vertical
-				/>
-				<NetworkName chainId={data.chainId} showIcon={false} />
-			</span>
-		{/snippet}
+	{#if !valid}
+		<h1>Not found</h1>
 		<p>
-			<a href={showContextUrl} data-link>Show Context</a>
+			{#if !parsed}
+				Network "{nameParam}" could not be resolved.
+			{:else}
+				Invalid transaction hash.
+			{/if}
 		</p>
-		<NetworkView
-			data={networkData}
-			{placeholderBlockIds}
-		/>
-	</EntityView>
+	{:else}
+		<EntityView
+			entityType={EntityType.Transaction}
+			idSerialized={`${nameParam}:${transactionId}`}
+			href={resolve(`/network/${nameParam}/transaction/${transactionId}`)}
+			label={`Tx ${transactionId.slice(0, 10)}… · ${config.name}`}
+			annotation="Transaction"
+		>
+			{#snippet Title()}
+				<span data-row="inline gap-2">
+					<EvmTransactionId
+						txHash={transactionId}
+						chainId={chainId}
+						vertical
+					/>
+					<NetworkName chainId={chainId} showIcon={false} />
+				</span>
+			{/snippet}
+			<p>
+				<a href={showContextUrl} data-link>Show Context</a>
+			</p>
+			<NetworkView
+				data={networkData}
+				{placeholderBlockIds}
+			/>
+		</EntityView>
+	{/if}
 </main>

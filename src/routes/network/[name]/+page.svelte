@@ -31,8 +31,9 @@
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
-	import NetworkView from '$/views/network/Network.svelte'
-	import NetworkName from '$/views/NetworkName.svelte'
+import NetworkContracts from '$/views/network/NetworkContracts.svelte'
+		import NetworkView from '$/views/network/Network.svelte'
+		import NetworkName from '$/views/NetworkName.svelte'
 
 
 	// (Derived)
@@ -46,7 +47,7 @@
 		(q) =>
 			q
 				.from({ row: networksCollection })
-				.where(({ row }) => eq(row.$id, chainId))
+				.where(({ row }) => eq(row.$id.$network.chainId, chainId))
 				.select(({ row }) => ({ row })),
 		[() => chainId],
 	)
@@ -72,7 +73,7 @@
 		(q) =>
 			q
 				.from({ row: blocksCollection })
-				.where(({ row }) => eq(row.$id.chainId, chainId))
+				.where(({ row }) => eq(row.$id.$network.chainId, chainId))
 				.select(({ row }) => ({ row })),
 		[() => chainId],
 	)
@@ -80,7 +81,7 @@
 		(q) =>
 			q
 				.from({ row: blocksCollection })
-				.where(({ row }) => eq(row.$id.chainId, chainId))
+				.where(({ row }) => eq(row.$id.$network.chainId, chainId))
 				.orderBy(({ row }) => row.$id.blockNumber, 'desc')
 				.select(({ row }) => row.$id.blockNumber),
 		[() => chainId],
@@ -179,6 +180,10 @@
 					<span data-tag={entity.config.type}>{entity.config.type}</span>
 				{/if}
 			{/snippet}
+			<p>
+				<a href={resolve(`/network/${nameParam}/contracts`)} data-link>Contracts</a>
+			</p>
+			<NetworkContracts chainId={chainId} nameParam={nameParam} />
 			<NetworkView
 				data={blocksView.networkData}
 				{placeholderBlockIds}

@@ -57,7 +57,7 @@
 				.from({ row: blocksCollection })
 				.where(({ row }) =>
 					and(
-						eq(row.$id.chainId, chainId),
+						eq(row.$id.$network.chainId, chainId),
 						eq(row.$id.blockNumber, blockNumber),
 					),
 				)
