@@ -13,6 +13,8 @@ import {
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 import type { Network$Id } from '$/data/Network.ts'
+import { upsertBridgeTransferEvents } from '$/collections/BridgeTransferEvents.ts'
+import { upsertSwapTransferEvents } from '$/collections/SwapTransferEvents.ts'
 import { upsertGraphFromEvents } from '$/collections/TransferGraphs.ts'
 
 export type TransferEvent$Id = {
@@ -99,6 +101,8 @@ export async function fetchTransferEvents(
 				(r) => r.$id.symbol === symbol && r.$id.period === period,
 			) as TransferEventRow[]
 		upsertGraphFromEvents(symbol, period, rows)
+		upsertBridgeTransferEvents(symbol, period, rows)
+		upsertSwapTransferEvents(symbol, period, rows)
 		return rows
 	}
 
@@ -170,7 +174,7 @@ export async function fetchTransferEvents(
 				;(draft as TransferEventsMetaRow).error = null
 			})
 			upsertGraphFromEvents(symbol, period, events)
-			return events.map((e) => ({
+			const rows = events.map((e) => ({
 				$id: {
 					$network: { chainId: e.chainId },
 					symbol,
@@ -181,6 +185,9 @@ export async function fetchTransferEvents(
 				$source: DataSource.Voltaire,
 				...e,
 			})) as TransferEventRow[]
+			upsertBridgeTransferEvents(symbol, period, rows)
+			upsertSwapTransferEvents(symbol, period, rows)
+			return rows
 		} catch (e) {
 			const message = e instanceof Error ? e.message : String(e)
 			transferEventsCollection.update(metaKey, (draft) => {

@@ -15,6 +15,8 @@ import type { ContractEntry, Contract$Id } from '$/data/Contract.ts'
 const getKey = (row: ContractEntry) =>
 	`${row.$id.$network.chainId}:${row.$id.address.toLowerCase()}`
 
+const inFlight = new Set<string>()
+
 export const contractsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.Contracts,
@@ -29,9 +31,14 @@ export async function fetchContract(
 	address: `0x${string}`,
 	deployer?: `0x${string}`,
 ): Promise<ContractEntry | null> {
-	const key = `${chainId}:${address.toLowerCase()}` as unknown as Parameters<
+	const keyStr = `${chainId}:${address.toLowerCase()}`
+	const key = keyStr as unknown as Parameters<
 		typeof contractsCollection.state.get
 	>[0]
+
+	if (inFlight.has(keyStr)) {
+		return contractsCollection.state.get(key) ?? null
+	}
 
 	const existing = contractsCollection.state.get(key)
 	const entry: ContractEntry = {
@@ -50,6 +57,7 @@ export async function fetchContract(
 		contractsCollection.insert(entry)
 	}
 
+	inFlight.add(keyStr)
 	try {
 		const withAbi = await fetchContractWithAbi(chainId, address)
 		if (withAbi) {
@@ -62,6 +70,8 @@ export async function fetchContract(
 		return entry
 	} catch {
 		return entry
+	} finally {
+		inFlight.delete(keyStr)
 	}
 }
 
