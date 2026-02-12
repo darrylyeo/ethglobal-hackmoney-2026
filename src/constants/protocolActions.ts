@@ -15,16 +15,6 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Swap,
-			protocol: Protocol.Spandex,
-		},
-		payloadSchema: type({
-			fromActorCoin: 'object',
-			toActorCoin: 'object',
-		}),
-	},
-	{
-		id: {
-			actionType: ActionType.Swap,
 			protocol: Protocol.UniswapV4,
 		},
 		payloadSchema: type({
@@ -36,6 +26,36 @@ export const protocolActions = [
 		id: {
 			actionType: ActionType.Swap,
 			protocol: Protocol.LiFi,
+		},
+		payloadSchema: type({
+			fromActorCoin: 'object',
+			toActorCoin: 'object',
+		}),
+	},
+	{
+		id: {
+			actionType: ActionType.Swap,
+			protocol: Protocol.Odos,
+		},
+		payloadSchema: type({
+			fromActorCoin: 'object',
+			toActorCoin: 'object',
+		}),
+	},
+	{
+		id: {
+			actionType: ActionType.Swap,
+			protocol: Protocol.KyberSwap,
+		},
+		payloadSchema: type({
+			fromActorCoin: 'object',
+			toActorCoin: 'object',
+		}),
+	},
+	{
+		id: {
+			actionType: ActionType.Swap,
+			protocol: Protocol.Relay,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',

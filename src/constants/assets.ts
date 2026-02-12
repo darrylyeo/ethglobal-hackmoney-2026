@@ -3870,7 +3870,8 @@ export const coinAssetSources = [
 
 /**
  * Provider/brand icon fetch list (Spec 052). id = lowercase filename stem → providers/{id}.svg.
- * Protocol enum mapping: UniswapV4→uniswap, LiFi→lifi, Cctp→cctp, Gateway→circle; Yellow/PartyKit use emoji.
+ * Protocol enum mapping: UniswapV4→uniswap, LiFi→lifi, Odos→odos, KyberSwap→kyberswap,
+ * Relay→relay, Yellow→yellow, Cctp→cctp, PartyKit→partykit, CircleGateway→circle.
  * Sources: blockhead (icons), official brand kits, Simple Icons, VectorLogo.zone.
  */
 export const providerAssetSources = [
@@ -3894,6 +3895,46 @@ export const providerAssetSources = [
 			url: 'https://li.fi/assets/branding/svg/logo_lifi_dark.svg',
 		},
 	},
+	/** Protocol.Odos — Odos docs brand kit (symbol, black) */
+	{
+		subject: AssetSubject.Brand,
+		id: 'odos',
+		kind: AssetKind.Logo,
+		fetch: {
+			fetchType: FetchTypeKind.Url,
+			url: 'https://docs.odos.xyz/img/BrandAssets/Odos%20Symbol%20Black.svg',
+		},
+	},
+	/** Protocol.KyberSwap — official site logo-dark.svg */
+	{
+		subject: AssetSubject.Brand,
+		id: 'kyberswap',
+		kind: AssetKind.Logo,
+		fetch: {
+			fetchType: FetchTypeKind.Url,
+			url: 'https://kyberswap.com/logo-dark.svg',
+		},
+	},
+	/** Protocol.Relay — Relay docs brand assets (relay-black.svg) */
+	{
+		subject: AssetSubject.Brand,
+		id: 'relay',
+		kind: AssetKind.Logo,
+		fetch: {
+			fetchType: FetchTypeKind.Url,
+			url: 'https://mintcdn.com/unevenlabs/EQZvqdUTUiQuFwvU/logo/relay-black.svg?fit=max&auto=format&n=EQZvqdUTUiQuFwvU&q=85&s=898e63b17eddfca534404ed10f80e4f6',
+		},
+	},
+	/** Protocol.Yellow — yellow.org header logo */
+	{
+		subject: AssetSubject.Brand,
+		id: 'yellow',
+		kind: AssetKind.Logo,
+		fetch: {
+			fetchType: FetchTypeKind.Url,
+			url: 'https://yellow.org/images/header/yellow_logo_light.svg',
+		},
+	},
 	/** Protocol.Cctp — Circle icon via VectorLogo.zone */
 	{
 		subject: AssetSubject.Brand,
@@ -3910,6 +3951,16 @@ export const providerAssetSources = [
 		fetch: {
 			fetchType: FetchTypeKind.Url,
 			url: 'https://www.vectorlogo.zone/logos/circle/circle-icon.svg',
+		},
+	},
+	/** Protocol.PartyKit — PartyKit docs favicon (balloon mark) */
+	{
+		subject: AssetSubject.Brand,
+		id: 'partykit',
+		kind: AssetKind.Logo,
+		fetch: {
+			fetchType: FetchTypeKind.Url,
+			url: 'https://docs.partykit.io/favicon.svg',
 		},
 	},
 	/** Other brands (architecture graph etc.): Simple Icons / VectorLogo.zone */
