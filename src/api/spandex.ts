@@ -7,15 +7,22 @@ import {
 	createConfig,
 	executeQuote as executeQuoteCore,
 	getQuote as getQuoteCore,
+	getQuotes,
 	kyberswap,
 	lifi,
 	odos,
 	relay,
 } from '@spandex/core'
-import type { Config, SuccessfulSimulatedQuote, SwapParams } from '@spandex/core'
+import type {
+	Config,
+	ProviderKey,
+	SuccessfulSimulatedQuote,
+	SwapParams,
+} from '@spandex/core'
 import type { WalletClient } from 'viem'
 import { createPublicClientForChain } from '$/api/viem-client.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { ProtocolStrategy } from '$/constants/protocols.ts'
 import type { FetchSwapQuoteParams, SwapQuote } from '$/data/SwapQuote.ts'
 import { getSwapQuoteId } from '$/api/uniswap.ts'
 
@@ -54,9 +61,25 @@ export const toSpandexSwapParams = (
 
 export const getSpandexQuote = async (
 	swap: SwapParams,
-	strategy: 'bestPrice' | 'fastest' | 'estimatedGas' = 'bestPrice',
+	strategy: ProtocolStrategy = ProtocolStrategy.BestPrice,
 ): Promise<SuccessfulSimulatedQuote | null> =>
-	getQuoteCore({ config: spandexConfig, swap, strategy })
+	getQuoteCore({
+		config: spandexConfig,
+		swap,
+		strategy: strategy as QuoteSelectionName,
+	})
+
+export const getSpandexQuoteForProvider = async (
+	swap: SwapParams,
+	provider: ProviderKey,
+): Promise<SuccessfulSimulatedQuote | null> => {
+	const quotes = await getQuotes({ config: spandexConfig, swap })
+	const q = quotes.find(
+		(r): r is SuccessfulSimulatedQuote =>
+			r.success && (r as SuccessfulSimulatedQuote).provider === provider,
+	)
+	return q ?? null
+}
 
 export const spandexQuoteToSwapQuote = (
 	quote: SuccessfulSimulatedQuote,
