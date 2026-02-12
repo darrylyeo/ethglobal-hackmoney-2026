@@ -5,10 +5,7 @@
 
 import type { ChainId } from '$/constants/networks.ts'
 import type { ContractAbi } from '$/data/Contract.ts'
-import type {
-	VerifiedContractSourceEntry,
-	VerifiedContractSource$Id,
-} from '$/data/VerifiedContractSource.ts'
+import type { VerifiedContractSourceEntry } from '$/data/VerifiedContractSource.ts'
 
 const SOURCIFY_SERVER = 'https://sourcify.dev/server'
 
@@ -17,18 +14,16 @@ export type ContractWithAbi = {
 	source?: 'Sourcify'
 }
 
-/** Fetch contract metadata including ABI from Sourcify (fields=all). Returns null if not verified. */
+/** Fetch contract metadata including ABI from Sourcify. Returns null if not verified. */
 export async function fetchContractWithAbi(
 	chainId: ChainId,
 	address: `0x${string}`,
 ): Promise<ContractWithAbi | null> {
-	const url = `${SOURCIFY_SERVER}/v2/contract/${chainId}/${address}?fields=all`
+	const url = `${SOURCIFY_SERVER}/v2/contract/${chainId}/${address}?fields=abi`
 	const res = await fetch(url)
 	if (!res.ok) return null
-	const json = (await res.json()) as {
-		compilation_artifacts?: { abi?: unknown[] }
-	}
-	const abi = json.compilation_artifacts?.abi
+	const json = (await res.json()) as { abi?: unknown[] }
+	const abi = json.abi
 	if (!abi || !Array.isArray(abi)) return null
 	return {
 		abi: abi as ContractAbi,
@@ -45,7 +40,11 @@ export async function fetchVerifiedContract(
 	if (!res.ok) return null
 	const json = (await res.json()) as {
 		sources?: Record<string, { content?: string }>
-		compilation?: { language?: string; compilerVersion?: string }
+		compilation?: {
+			language?: string
+			compilerVersion?: string
+			fullyQualifiedName?: string
+		}
 	}
 	const sources = json.sources ?? {}
 	const files: Record<string, string> = {}
@@ -55,14 +54,15 @@ export async function fetchVerifiedContract(
 	if (Object.keys(files).length === 0) return null
 	return {
 		$id: {
-			chainId,
+			$network: { chainId },
 			address: address.toLowerCase() as `0x${string}`,
-		} as VerifiedContractSource$Id,
+		},
 		metadata: json.compilation
 			? {
 					compiler: json.compilation.compilerVersion,
 					language: json.compilation.language,
 					sources: json.compilation,
+					fullyQualifiedName: json.compilation.fullyQualifiedName,
 				}
 			: undefined,
 		files,

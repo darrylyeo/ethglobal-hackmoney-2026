@@ -7,6 +7,11 @@ export type VerifiedContractSource$Id = {
 
 export type VerifiedContractSourceEntry = {
 	$id: VerifiedContractSource$Id
-	metadata?: { compiler?: string; language?: string; sources?: Record<string, unknown> }
+	metadata?: {
+		compiler?: string
+		language?: string
+		sources?: Record<string, unknown>
+		fullyQualifiedName?: string
+	}
 	files: Record<string, string>
 }
