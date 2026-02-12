@@ -175,7 +175,7 @@
 					{#if primary}
 						<a
 							href={resolve(href)}
-							data-card="border-accent padding-4 radius-4"
+							data-card="border-accent"
 							data-column="gap-1 center"
 						>
 							<span>{label}</span>
@@ -231,14 +231,14 @@
 					{#if href}
 						<a
 							href={resolve(href)}
-							data-card="padding-3 radius-3"
+							data-card="padding-3"
 							data-column="gap-2"
 						>
 							<strong>{title}</strong>
 							<p class="landing-features-summary">{summary}</p>
 						</a>
 					{:else}
-						<div data-card="padding-3 radius-3" data-column="gap-2">
+						<div data-card="padding-3" data-column="gap-2">
 							<strong>{title}</strong>
 							<p class="landing-features-summary">{summary}</p>
 						</div>
