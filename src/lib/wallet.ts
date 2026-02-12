@@ -1,4 +1,3 @@
-import { dev } from '$app/environment'
 import {
 	networkConfigsByChainId,
 } from '$/constants/networks.ts'
@@ -155,8 +154,6 @@ const eip6963ByRdns = new Map<string, ProviderDetailType>()
 let eip6963Listener: ((providers: ProviderDetailType[]) => void) | null = null
 let eip6963Installed = false
 
-const EIP6963_DEBUG = dev
-
 export const ensureE2eProvider = () => {
 	if (typeof window === 'undefined') return
 	const existing = window.__E2E_TEVM_PROVIDER__
@@ -260,31 +257,12 @@ export const getE2eProvider = () =>
 
 function eip6963HandleAnnounce(e: Event) {
 	const { detail } = e as CustomEvent<ProviderDetailType>
-	if (EIP6963_DEBUG) {
-		const hasRdns = !!detail?.info?.rdns
-		const hasRequest = typeof detail?.provider?.request === 'function'
-		console.debug('[EIP-6963] announce', {
-			hasDetail: !!detail,
-			hasRdns,
-			rdns: detail?.info?.rdns,
-			hasRequest,
-			name: detail?.info?.name,
-			accepted: hasRdns && hasRequest,
-		})
-	}
 	if (detail?.info?.rdns && typeof detail.provider?.request === 'function') {
 		eip6963ByRdns.set(detail.info.rdns, {
 			info: detail.info,
 			provider: detail.provider,
 		})
-		const list = [...eip6963ByRdns.values()]
-		if (EIP6963_DEBUG)
-			console.debug(
-				'[EIP-6963] providers now',
-				list.length,
-				list.map((p) => p.info.name),
-			)
-		eip6963Listener?.(list)
+		eip6963Listener?.([...eip6963ByRdns.values()])
 	}
 }
 
@@ -305,34 +283,11 @@ export function subscribeProviders(
 		eip6963Installed = true
 		window.addEventListener(PROVIDER_ANNOUNCE, eip6963HandleAnnounce)
 		window.dispatchEvent(new Event(PROVIDER_REQUEST))
-		if (EIP6963_DEBUG)
-			console.debug('[EIP-6963] listener installed, request dispatched')
 	}
-	const list = [...eip6963ByRdns.values()]
-	if (EIP6963_DEBUG)
-		console.debug(
-			'[EIP-6963] subscribeProviders callback with',
-			list.length,
-			'providers',
-			list.map((p) => p.info.name),
-		)
-	listener(list)
+	listener([...eip6963ByRdns.values()])
 	return () => {
 		eip6963Listener = null
 	}
-}
-
-/** Re-dispatch eip6963:requestProvider (spec: DApp MAY re-initiate discovery). Call from console to debug. */
-export function requestEIP6963Providers(): void {
-	if (typeof window === 'undefined') return
-	window.dispatchEvent(new Event(PROVIDER_REQUEST))
-	if (EIP6963_DEBUG) console.debug('[EIP-6963] requestProvider dispatched')
-}
-
-if (typeof window !== 'undefined' && EIP6963_DEBUG) {
-	;(
-		window as unknown as { requestEIP6963Providers?: () => void }
-	).requestEIP6963Providers = requestEIP6963Providers
 }
 
 export async function connectProvider(
