@@ -4,12 +4,17 @@
 	import type { Trace as TraceType } from '$/data/Trace.ts'
 	import type { EvmLog } from '$/api/voltaire.ts'
 	import type { ChainId } from '$/constants/networks.ts'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Functions
-	import { getTxPath } from '$/constants/networks.ts'
+	import { getTxPath } from '$/lib/network-paths.ts'
 	import { formatWei, formatGas, formatGwei } from '$/lib/format.ts'
 	import { fetchNetworkTransaction } from '$/collections/NetworkTransactions.ts'
+	import {
+		fetchTransactionTrace,
+		transactionTracesCollection,
+	} from '$/collections/TransactionTraces.ts'
 	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
 
 
@@ -42,7 +47,29 @@
 	)
 	const tx = $derived([...data.keys()][0])
 	const events = $derived(entry.events ?? [])
-	const trace = $derived(entry.trace)
+	const traceQuery = useLiveQuery(
+		(q) =>
+			tx
+				? q
+						.from({ row: transactionTracesCollection })
+						.where(({ row }) =>
+							and(
+								eq(row.$id.$network.chainId, tx.$id.$network.chainId),
+								eq(row.$id.txHash, tx.$id.txHash),
+							),
+						)
+						.select(({ row }) => ({ row }))
+				: q
+						.from({ row: transactionTracesCollection })
+						.where(({ row }) => eq(row.$id.$network.chainId, -1))
+						.select(({ row }) => ({ row })),
+		[() => tx?.$id.$network.chainId ?? -1, () => tx?.$id.txHash ?? ''],
+	)
+	const traceRow = $derived(traceQuery.data?.[0]?.row)
+	const trace = $derived(
+		traceRow && !traceRow.unavailable ? traceRow.trace : entry.trace,
+	)
+	const traceUnavailable = $derived(traceRow?.unavailable === true)
 	const eventsSet = $derived(new Set(events))
 	const defaultPlaceholderEventIds = $derived(
 		events.length
@@ -65,6 +92,7 @@
 
 	// State
 	let hasFetched = $state(false)
+	let hasFetchedTrace = $state(false)
 	let isOpen = $state(false)
 	let fromRef = $state<HTMLElement | null>(null)
 	let toRef = $state<HTMLElement | null>(null)
@@ -109,13 +137,17 @@
 	const onToggle = (e: Event) => {
 		const details = e.currentTarget as HTMLDetailsElement
 		isOpen = details.open
-		if (!details.open || hasFetched || !tx) return
-		if (tx.status != null) {
+		if (!details.open || !tx) return
+		if (!hasFetched && tx.status == null) {
 			hasFetched = true
-			return
+			fetchNetworkTransaction(tx.$id.$network.chainId, tx.$id.txHash).catch(
+				() => {},
+			)
 		}
-		hasFetched = true
-		fetchNetworkTransaction(tx.$id.chainId, tx.$id.txHash).catch(() => {})
+		if (!hasFetchedTrace) {
+			hasFetchedTrace = true
+			fetchTransactionTrace(tx.$id.$network.chainId, tx.$id.txHash).catch(() => {})
+		}
 	}
 </script>
 
@@ -167,14 +199,14 @@
 				{/if}
 
 				<dt>From</dt>
-				<dd bind:this={fromRef}><Address network={tx.$id.chainId} address={tx.from as `0x${string}`} /></dd>
+				<dd bind:this={fromRef}><Address network={tx.$id.$network.chainId} address={tx.from as `0x${string}`} /></dd>
 
 				<dt>To</dt>
 				<dd bind:this={toRef}>
 					{#if tx.contractAddress}
-						<Address network={tx.$id.chainId} address={tx.contractAddress as `0x${string}`} /> (contract created)
+						<Address network={tx.$id.$network.chainId} address={tx.contractAddress as `0x${string}`} /> (contract created)
 					{:else if tx.to}
-						<Address network={tx.$id.chainId} address={tx.to as `0x${string}`} />
+						<Address network={tx.$id.$network.chainId} address={tx.to as `0x${string}`} />
 					{:else}
 						Contract creation
 					{/if}
@@ -233,14 +265,9 @@
 			{/if}
 		{/if}
 
-		{#if trace}
-			<section>
-				<h3>Trace</h3>
-				<Trace {trace} {chainId} />
-			</section>
-		{/if}
-
-		<EntityList
+		<details data-card="radius-2 padding-2">
+			<summary><h3>Detailed: Events</h3></summary>
+			<EntityList
 			title="Events"
 			loaded={eventsSet.size}
 			total={events.length || undefined}
@@ -261,6 +288,18 @@
 				</span>
 			{/snippet}
 		</EntityList>
+		</details>
+
+		<details data-card="radius-2 padding-2">
+			<summary><h3>Exhaustive: Trace</h3></summary>
+			{#if trace}
+				<Trace {trace} {chainId} />
+			{:else if traceUnavailable}
+				<p data-text="muted">Trace unavailable (RPC does not support debug_traceTransaction)</p>
+			{:else}
+				<p data-text="muted">Open transaction to load trace…</p>
+			{/if}
+		</details>
 	</div>
 </details>
 
