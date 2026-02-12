@@ -8,6 +8,7 @@ import {
 	toSpandexSwapParams,
 } from '$/api/spandex.ts'
 import { CollectionId } from '$/constants/collections.ts'
+import { ProtocolStrategy } from '$/constants/protocols.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type {
 	FetchSwapQuoteParams,
@@ -50,9 +51,10 @@ export const fetchSwapQuote = async (
 export const fetchSpandexSwapQuote = async (
 	params: FetchSwapQuoteParams,
 	swapperAccount: `0x${string}`,
+	strategy: ProtocolStrategy = ProtocolStrategy.BestPrice,
 ): Promise<SwapQuote | null> => {
 	const swap = toSpandexSwapParams(params, swapperAccount)
-	const quote = await getSpandexQuote(swap, 'bestPrice')
+	const quote = await getSpandexQuote(swap, strategy)
 	if (!quote) return null
 	const normalized = spandexQuoteToSwapQuote(quote, params)
 	const row = {

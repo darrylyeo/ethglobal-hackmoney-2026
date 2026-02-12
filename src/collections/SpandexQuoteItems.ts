@@ -3,8 +3,10 @@
  * quote vs simulation mismatches.
  */
 
-import { getQuotes } from '@spandex/core'
-import type { SimulatedQuote, SuccessfulSimulatedQuote } from '@spandex/core'
+import { getQuotes, sortQuotesByPerformance } from '@spandex/core'
+import type { ProviderKey, SimulatedQuote, SuccessfulSimulatedQuote } from '@spandex/core'
+import { ProtocolStrategy } from '$/constants/protocols.ts'
+import { spandexQuoteMetricByStrategy } from '$/constants/spandex-quote-strategies.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type {
@@ -16,7 +18,7 @@ import {
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
-import { spandexConfig } from '$/api/spandex.ts'
+import { getSpandexQuoteForProvider, spandexConfig } from '$/api/spandex.ts'
 import type { FetchSwapQuoteParams } from '$/data/SwapQuote.ts'
 
 export type SpandexQuoteItemRow = SpandexQuoteItem & { $source: DataSource }
@@ -109,9 +111,43 @@ export const spandexQuoteItemsCollection = createCollection(
 
 export type FetchSpandexQuotesParams = SpandexQuoteRequestId
 
-/** Fetch quotes from all providers, normalize, upsert to collection, return items. Best quote is highest simulatedOutputAmount among successful. */
+/** Fetch quote for a single provider, normalize, upsert to collection, return item or null. */
+export const fetchSpandexQuoteForProvider = async (
+	params: FetchSpandexQuotesParams,
+	provider: ProviderKey,
+): Promise<SpandexQuoteItem | null> => {
+	const swap = {
+		chainId: params.chainId,
+		inputToken: params.inputToken,
+		outputToken: params.outputToken,
+		mode: 'exactIn' as const,
+		inputAmount: params.amountIn,
+		slippageBps: params.slippageBps,
+		swapperAccount: params.swapperAccount,
+	}
+	const quote = await getSpandexQuoteForProvider(swap, provider)
+	if (!quote) return null
+	const fetchedAt = Date.now()
+	const row: SpandexQuoteItemRow = {
+		...normalizedItem(params, quote, fetchedAt),
+		$source: DataSource.Spandex,
+	}
+	const key = stringify(row.$id)
+	const existing = spandexQuoteItemsCollection.state.get(key)
+	if (existing) {
+		spandexQuoteItemsCollection.update(key, (draft) => {
+			Object.assign(draft, row)
+		})
+	} else {
+		spandexQuoteItemsCollection.insert(row)
+	}
+	return row
+}
+
+/** Fetch quotes from all providers, normalize, upsert to collection, return items. Optional strategy sorts successful quotes by that metric (best price, fastest, lowest gas). */
 export const fetchSpandexQuotes = async (
 	params: FetchSpandexQuotesParams,
+	options?: { strategy?: ProtocolStrategy },
 ): Promise<SpandexQuoteItem[]> => {
 	const swap = {
 		chainId: params.chainId,
@@ -125,7 +161,24 @@ export const fetchSpandexQuotes = async (
 	const quotes = await getQuotes({ config: spandexConfig, swap })
 	const fetchedAt = Date.now()
 	const reqKey = requestIdString(params)
-	const rows: SpandexQuoteItemRow[] = quotes.map((q) => ({
+	const successful = quotes.filter(
+		(q): q is SuccessfulSimulatedQuote =>
+			q.success && 'simulation' in q && (q as SuccessfulSimulatedQuote).simulation.success,
+	)
+	const failed = quotes.filter(
+		(q) => !q.success || !(q as SuccessfulSimulatedQuote).simulation?.success,
+	)
+	const orderedQuotes: SimulatedQuote[] =
+		options?.strategy && options.strategy !== ProtocolStrategy.Priority && successful.length > 0
+			? [
+					...sortQuotesByPerformance({
+						quotes: successful,
+						...spandexQuoteMetricByStrategy[options.strategy],
+					}),
+					...failed,
+				]
+			: [...successful, ...failed]
+	const rows: SpandexQuoteItemRow[] = orderedQuotes.map((q) => ({
 		...normalizedItem(params, q, fetchedAt),
 		$source: DataSource.Spandex,
 	}))

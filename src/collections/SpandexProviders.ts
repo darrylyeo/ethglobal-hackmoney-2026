@@ -4,6 +4,7 @@
 
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
+import { SpandexProviderId } from '$/constants/spandex-providers.ts'
 import type { SpandexProviderRow } from '$/data/SpandexProvider.ts'
 import {
 	createCollection,
@@ -14,17 +15,16 @@ export type SpandexProviderCollectionRow = SpandexProviderRow & {
 	$source: DataSource
 }
 
-const PROVIDER_IDS = [
-	'lifi',
-	'odos',
-	'kyberswap',
-	'relay',
-] as const
-
-const initialRows: SpandexProviderCollectionRow[] = PROVIDER_IDS.map(
-	(name) => ({
-		id: name,
-		name,
+const initialRows: SpandexProviderCollectionRow[] = (
+	[
+		SpandexProviderId.Lifi,
+		SpandexProviderId.Odos,
+		SpandexProviderId.KyberSwap,
+		SpandexProviderId.Relay,
+	] as const
+).map((id) => ({
+		id,
+		name: id,
 		enabled: true,
 		$source: DataSource.Spandex,
 	}),
