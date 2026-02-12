@@ -31,6 +31,19 @@ Types follow spec 045 (cf. spec 001, 042).
 - PNG wrapping when SVG unavailable; ZIP fetched once per URL and cached in memory.
 - Logs OK/SKIP/COPY per file; final count by directory.
 
+### Agent workflow (dedicated)
+
+When adding or replacing icons manually (outside `_sync-assets.ts`), agents must follow this sequence:
+
+1. **Source provenance first:** add/update the matching entry in `src/constants/assets.ts` (`chainAssetSources`, `coinAssetSources`, or `providerAssetSources`) with:
+   - canonical `id` used as filename stem
+   - `fetch.url` pointing to the authoritative source URL
+   - a concise per-entry comment naming source origin (official brand kit/site, registry, token list, etc.)
+2. **Store locally only:** save icon files under `src/assets/{networks|coins|providers}/`; do not use remote URLs in UI runtime.
+3. **Optimize SVGs:** run `svgo` on every newly added/updated SVG (either via sync script or direct `svgo` invocation).
+4. **Wire imports inline:** use `(await import('$/assets/.../*.svg?url')).default` at usage sites (no path builder helpers).
+5. **Verify:** confirm no lints in touched files and ensure final icons render from local assets.
+
 ### URL resolution
 
 - Inline `await import('path to file')`: every constant that needs an icon reference uses `(await import('$/assets/.../file.svg?url')).default` at that site. No helper string builders.
@@ -42,6 +55,7 @@ Types follow spec 045 (cf. spec 001, 042).
 - [x] Shared schema (AssetSubject, AssetSource, FetchType) used for chains, coins, and brands.
 - [x] All sources and discovery documentation in `src/constants/assets.ts`.
 - [x] Sync script writes to `src/assets/`, skips existing, runs svgo on new SVGs.
+- [x] Manual icon updates follow the dedicated agent workflow (source docs in `assets.ts`, local asset storage, svgo optimization, inline `?url` imports).
 - [x] Chain alias copy (testnet/mainnet reuse) supported.
 - [x] UI uses inline static imports (?url) for icons; no remote asset URLs, no path builder helpers.
 

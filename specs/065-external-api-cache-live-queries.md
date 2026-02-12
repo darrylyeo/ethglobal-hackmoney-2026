@@ -61,7 +61,34 @@ collection boundary. Loading state is not implemented manually in Svelte.
 - [x] No component or page introduces or uses a manual `$state()` (or equivalent) that represents “loading” or “error” for the same data that a TanStack DB live query already provides; loading/error are taken from the live query (or boundary) only.
 - [x] Unit or integration tests (or a short audit script) verify that: (a) no route/component imports and calls external fetch APIs directly for data that is then rendered, and (b) collection modules that own external fetches normalize and upsert into their collection.
 
-Documentation: `src/constants/external-api-collections.md`.
+## External APIs and collections (reference)
+
+Every external API that provides data to the UI or routes must be cached in a TanStack DB collection and read only via live queries. Normalization happens at the collection boundary.
+
+| External API / source              | Collection module                                | Sync / fetch                                      |
+| ---------------------------------- | ------------------------------------------------ | ------------------------------------------------- |
+| Voltaire (eth\_\*, RPC)            | `blocks.ts`                                      | `fetchBlock` → upsert                             |
+| Voltaire (eth\_\*, RPC)            | `actor-coins.ts`                                 | `fetchActorCoinBalance` → upsert                  |
+| Voltaire (eth\_\*, RPC)            | `actor-allowances.ts`                            | fetch → upsert                                    |
+| Voltaire (eth\_\*, RPC)            | `NetworkTransactions.ts`                        | fetch → upsert                                    |
+| Voltaire (eth\_\*, RPC)            | `transfer-events.ts`                             | `fetchTransferEvents` → upsert                    |
+| (derived from transfer-events)     | `transfer-graphs.ts`                             | `upsertGraphFromEvents` (from cache after fetch)  |
+| Stork (REST / WebSocket / RPC)     | `stork-prices.ts`                                | `subscribeStorkPrices` → upsert                   |
+| LI.FI (getQuote, routes)           | `bridge-routes.ts`                               | queryFn / fetch → upsert                          |
+| CCTP (REST)                        | `cctp-fees.ts`                                   | fetch → upsert                                    |
+| CCTP (REST)                        | `cctp-allowance.ts`                              | fetch → upsert                                    |
+| Token list URLs                    | `token-list-coins.ts`                            | fetch → upsert                                    |
+| spanDEX (getQuotes / getQuote)     | `SpandexQuoteItems.ts`                           | `fetchSpandexQuotes` (all; optional strategy sorts by bestPrice/fastest/estimatedGas) / `fetchSpandexQuoteForProvider` → upsert |
+| spanDEX (best quote → swap quote)  | `swap-quotes.ts`                                 | `fetchSpandexSwapQuote(strategy?)` → upsert (strategy from protocol tag) |
+| Uniswap (quote)                    | `swap-quotes.ts`                                 | `fetchSwapQuote` → upsert                         |
+| Transfers indexer / logs           | `transfer-events.ts`                             | `fetchTransferEventsForPeriod` (api) → collection |
+| Identity (RPC / resolver)          | `IdentityLinks.ts`                               | fetch → upsert                                    |
+| Voltaire (ENS reverse + forward)   | `evm-actor-profiles.ts`                          | `fetchEvmActorProfile` → upsert                   |
+| Networks (constant + optional RPC) | `networks.ts`                                    | queryFn / constant                                |
+| PartyKit (rooms, peers, etc.)      | `PartykitRooms.ts`, `PartykitRoomPeers.ts`, etc. | subscription → upsert                             |
+| Yellow / EIP-7824 (state channels) | `StateChannels.ts`, `StateChannelStates.ts`, `StateChannelDeposits.ts`, `StateChannelTransfers.ts` | subscription / fetch → upsert                     |
+
+Fetch and subscription logic lives in the collection module (or an api module called only from the collection). Components and routes use `useLiveQuery` (or derived live-query collections) only.
 
 ## Status
 
