@@ -297,6 +297,33 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 	])
 	const filterWatched = <T extends { href: string }>(items: T[]) =>
 		items.filter((item) => watchedHrefs.has(item.href))
+	const multiplayerChildren = [
+		...(allRoomNavItems.length > 0
+			? [
+					{
+						id: 'rooms',
+						title: 'Rooms',
+						href: '/rooms',
+						icon: '🏘️',
+						tag: String(allRoomNavItems.length),
+						children: withManualWatch(filterWatched(allRoomNavItems)),
+						allChildren: withManualWatch(allRoomNavItems),
+					},
+				]
+			: []),
+		...(peersNavItems.length > 0
+			? [
+					{
+						id: 'peers',
+						title: 'Peers',
+						href: '/peers',
+						icon: '👥',
+						tag: String(peersNavItems.length),
+						children: withManualWatch(peersNavItems),
+					},
+				]
+			: []),
+	]
 
 	return [
 		{
@@ -399,31 +426,17 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 				{ id: 'positions-channels', title: 'Channels', href: '/positions/channels', icon: '↔️' },
 			],
 		},
-		{
-			id: 'multiplayer',
-			title: 'Multiplayer',
-			icon: '🤝',
-			defaultIsOpen: true,
-			children: [
-				{
-					id: 'rooms',
-					title: 'Rooms',
-					href: '/rooms',
-					icon: '🏘️',
-					tag: String(allRoomNavItems.length),
-					children: withManualWatch(filterWatched(allRoomNavItems)),
-					allChildren: withManualWatch(allRoomNavItems),
-				},
-				{
-					id: 'peers',
-					title: 'Peers',
-					href: '/peers',
-					icon: '👥',
-					tag: String(peersNavItems.length),
-					children: withManualWatch(peersNavItems),
-				},
-			],
-		},
+		...(multiplayerChildren.length > 0
+			? [
+					{
+						id: 'multiplayer',
+						title: 'Multiplayer',
+						icon: '🤝',
+						defaultIsOpen: true,
+						children: multiplayerChildren,
+					},
+				]
+			: []),
 	]
 }
 
