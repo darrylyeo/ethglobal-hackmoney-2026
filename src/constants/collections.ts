@@ -44,6 +44,8 @@ export enum CollectionId {
 	SessionSimulations = 'SessionSimulations',
 	Sessions = 'Sessions',
 	TransferEvents = 'TransferEvents',
+	BridgeTransferEvents = 'BridgeTransferEvents',
+	SwapTransferEvents = 'SwapTransferEvents',
 	TransactionTraces = 'TransactionTraces',
 	TransferGraphs = 'TransferGraphs',
 	TransferRequests = 'TransferRequests',

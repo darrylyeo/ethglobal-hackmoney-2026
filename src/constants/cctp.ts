@@ -51,6 +51,30 @@ export const cctpDomainByChainId = Object.fromEntries(
 	cctpDomainEntries.map((e) => [e.chainId, e]),
 ) as Partial<Record<ChainId, (typeof cctpDomainEntries)[number]>>
 
+export const CCTP_TESTNET_CHAIN_IDS = new Set<ChainId>([
+	ChainId.ArcTestnet,
+	ChainId.ArbitrumSepolia,
+	ChainId.AvalancheFuji,
+	ChainId.BaseSepolia,
+	ChainId.CodexTestnet,
+	ChainId.EthereumSepolia,
+	ChainId.HyperEVMTestnet,
+	ChainId.InkTestnet,
+	ChainId.LineaSepolia,
+	ChainId.MonadTestnet,
+	ChainId.OPSepolia,
+	ChainId.PlumeTestnet,
+	ChainId.PolygonAmoy,
+	ChainId.SeiTestnet,
+	ChainId.SonicTestnet,
+	ChainId.UnichainSepolia,
+	ChainId.WorldChainSepolia,
+	ChainId.XDCApothem,
+])
+
+export const isCctpTestnetChain = (chainId: ChainId): boolean =>
+	CCTP_TESTNET_CHAIN_IDS.has(chainId)
+
 export const CCTP_FORWARDING_CHAIN_IDS = new Set<ChainId>([
 	ChainId.ArcTestnet,
 	ChainId.Arbitrum,
