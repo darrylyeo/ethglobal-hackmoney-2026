@@ -3,11 +3,10 @@
 	import { stringify } from 'devalue'
 	import type { Snippet } from 'svelte'
 
-
 	// Props
 	let {
 		items,
-		value = $bindable(null as _Item | null),
+		value = $bindable([] as _Item[]),
 		placeholder,
 		disabled,
 		name,
@@ -23,13 +22,10 @@
 		Item: ItemSnippet,
 		children,
 		inputValue = $bindable(''),
-		onInputBlur,
-		onInputKeydown,
-		Input,
 		...rootProps
 	}: {
 		items: readonly _Item[]
-		value?: _Item | null
+		value?: _Item[]
 		placeholder?: string
 		disabled?: boolean
 		name?: string
@@ -45,9 +41,6 @@
 		Item?: Snippet<[item: _Item, selected: boolean]>
 		children?: Snippet
 		inputValue?: string
-		onInputBlur?: () => void
-		onInputKeydown?: (e: KeyboardEvent) => void
-		Input?: Snippet<[props: Record<string, unknown>]>
 		[key: string]: unknown
 	} = $props()
 
@@ -56,6 +49,7 @@
 	let isFocused = $state(false)
 	let open = $state(false)
 
+
 	// (Derived)
 	const normalizedItems = $derived(
 		items.map((item) => ({
@@ -63,70 +57,66 @@
 			id: getItemId(item),
 			label: getItemLabel(item),
 			disabled: getItemDisabled ? getItemDisabled(item) : false,
-		}))
+		})),
 	)
 	const normalizedGroups = $derived(
-		getItemGroupId ?
-			Array.from(
-				items.reduce((m, item) => {
-					const gid = getItemGroupId!(item)
-					const arr = m.get(gid) ?? []
-					arr.push(item)
-					m.set(gid, arr)
-					return m
-				}, new Map<string, _Item[]>()),
-			).map(([id, groupItems]) => ({
-				id,
-				label: getGroupLabel(id),
-				items: groupItems.map((item) => ({
-					item,
-					id: getItemId(item),
-					label: getItemLabel(item),
-					disabled: getItemDisabled ? getItemDisabled(item) : false,
-				})),
-			}))
-		:
-			[]
+		getItemGroupId
+			? Array.from(
+					items.reduce((m, item) => {
+						const gid = getItemGroupId!(item)
+						const arr = m.get(gid) ?? []
+						arr.push(item)
+						m.set(gid, arr)
+						return m
+					}, new Map<string, _Item[]>()),
+				)
+					.map(([id, groupItems]) => ({
+						id,
+						label: getGroupLabel(id),
+						items: groupItems.map((item) => ({
+							item,
+							id: getItemId(item),
+							label: getItemLabel(item),
+							disabled: getItemDisabled ? getItemDisabled(item) : false,
+						})),
+					}))
+			: [],
 	)
 	const filteredItems = $derived(
-		inputValue === '' ?
-			normalizedItems
-		:
-			normalizedItems.filter((item) =>
-				item.label.toLowerCase().includes(inputValue.toLowerCase()),
-			)
+		inputValue === ''
+			? normalizedItems
+			: normalizedItems.filter((item) =>
+					item.label.toLowerCase().includes(inputValue.toLowerCase()),
+				),
 	)
 	const filteredGroups = $derived(
-		normalizedGroups.length > 0 ?
-			normalizedGroups
-				.map((group) => ({
-					...group,
-					items: group.items.filter((item) =>
-						item.label.toLowerCase().includes(inputValue.toLowerCase()),
-					),
-				}))
-				.filter((group) => group.items.length > 0)
-		:
-			[]
+		normalizedGroups.length > 0
+			? normalizedGroups
+					.map((group) => ({
+						...group,
+						items: group.items.filter((item) =>
+							item.label.toLowerCase().includes(inputValue.toLowerCase()),
+						),
+					}))
+					.filter((group) => group.items.length > 0)
+			: [],
 	)
 	const rootItems = $derived(
-		normalizedItems
-			.map((item) => ({
-				value: item.id,
-				label: item.label,
-				disabled: item.disabled,
-			}))
+		normalizedItems.map((item) => ({
+			value: item.id,
+			label: item.label,
+			disabled: item.disabled,
+		})),
 	)
-
-	$effect(() => {
-		if (isFocused) return
-		const nextValue =
-			normalizedItems.find((item) => {
-				const singleValue = value ?? null
-				return item.id === (singleValue ? getItemId(singleValue) : '')
-			})?.label ?? ''
-		if (inputValue !== nextValue) inputValue = nextValue
-	})
+	const selectedChips = $derived(
+		((value ?? []) as _Item[])
+			.map((entry) => getItemId(entry))
+			.map((id) => {
+				const n = normalizedItems.find((item) => item.id === id)
+				return n ? { id: n.id, label: n.label } : null
+			})
+			.filter(Boolean) as { id: string; label: string }[],
+	)
 
 
 	// Actions
@@ -135,10 +125,25 @@
 		if (!(target instanceof HTMLInputElement)) return
 		inputValue = target.value
 	}
-	const setValue = (nextValue: string) => {
-		value = normalizedItems.find((item) => item.id === nextValue)?.item ?? null
-		const nextItem = normalizedItems.find((item) => item.id === nextValue)
-		inputValue = nextItem ? nextItem.label : ''
+	const removeChip = (chipId: string) => {
+		value = ((value ?? []) as _Item[])
+			.map((entry) => getItemId(entry))
+			.filter((x) => x !== chipId)
+			.flatMap((id) => {
+				const item = normalizedItems.find((entry) => entry.id === id)
+				return item ? [item.item] : []
+			})
+	}
+	const setValue = (nextValue: string | string[]) => {
+		const prevArr = ((value ?? []) as _Item[]).map((entry) => getItemId(entry))
+		const nextArr = typeof nextValue === 'string' ? [] : nextValue
+		value = nextArr.flatMap((id) => {
+			const item = normalizedItems.find((entry) => entry.id === id)
+			return item ? [item.item] : []
+		})
+		if (nextArr.length > prevArr.length) {
+			queueMicrotask(() => (inputValue = ''))
+		}
 	}
 
 
@@ -149,11 +154,10 @@
 
 <Combobox.Root
 	{...rootProps}
-	type="single"
+	type="multiple"
 	bind:open
 	bind:value={() => {
-		const singleValue = value ?? null
-		return singleValue ? getItemId(singleValue) : ''
+		return ((value ?? []) as _Item[]).map((entry) => getItemId(entry))
 	}, (nextValue) => setValue(nextValue)}
 	{disabled}
 	{name}
@@ -163,47 +167,49 @@
 	{#if children}
 		{@render children()}
 	{:else}
-		<div
-			data-combobox-single
-			data-has-before={!!Before}
-			data-row="gap-1"
-		>
+		<div data-combobox-multi data-row="gap-1 wrap start">
 			{#if Before}
 				{@render Before()}
 			{/if}
+			{#each selectedChips as chip (chip.id)}
+				<span data-badge="small" data-row="gap-1">
+					{chip.label}
+					<button
+						type="button"
+						aria-label="Remove {chip.label}"
+						data-combobox-chip-remove
+						onclick={(e) => {
+							e.preventDefault()
+							e.stopPropagation()
+							removeChip(chip.id)
+						}}
+					>
+						×
+					</button>
+				</span>
+			{/each}
 			<Combobox.Input
 				{id}
+				data-combobox-multi-input
 				aria-label={ariaLabel}
 				{placeholder}
+				onfocus={() => {
+					isFocused = true
+					open = true
+				}}
+				onblur={() => {
+					isFocused = false
+				}}
 			>
-				{#snippet child({ props }: { props: Record<string, unknown> })}
-					{@const mergedProps = {
-						...props,
-						onfocus: () => {
-							;(props.onfocus as (() => void) | undefined)?.()
-							isFocused = true
-							open = true
-						},
-						onblur: () => {
-							;(props.onblur as (() => void) | undefined)?.()
-							isFocused = false
-							onInputBlur?.()
-						},
-						onkeydown: (e: KeyboardEvent) => {
-							;(props.onkeydown as ((e: KeyboardEvent) => void) | undefined)?.(e)
-							onInputKeydown?.(e)
-						},
-						oninput: (e: Event) => {
+				{#snippet child({ props })}
+					{@const libOnInput = typeof props.oninput === 'function' ? props.oninput : undefined}
+					<input
+						{...props}
+						oninput={(e) => {
 							onInput(e)
-							typeof props.oninput === 'function' &&
-								(props.oninput as (e: Event) => void)(e)
-						},
-					}}
-					{#if Input}
-						{@render Input(mergedProps)}
-					{:else}
-						<input {...mergedProps} />
-					{/if}
+							libOnInput?.(e)
+						}}
+					/>
 				{/snippet}
 			</Combobox.Input>
 			{#if After}
@@ -226,9 +232,11 @@
 										disabled={item.disabled}
 									>
 										{#snippet children({ selected })}
-											{#if Before}
-												{@render Before()}
-											{/if}
+											<span
+												data-combobox-item-indicator
+												data-selected={selected || undefined}
+												aria-hidden="true"
+											></span>
 											{#if ItemSnippet}
 												{@render ItemSnippet(item.item, selected)}
 											{:else}
@@ -250,9 +258,11 @@
 								disabled={item.disabled}
 							>
 								{#snippet children({ selected })}
-									{#if Before}
-										{@render Before()}
-									{/if}
+									<span
+										data-combobox-item-indicator
+										data-selected={selected || undefined}
+										aria-hidden="true"
+									></span>
 									{#if ItemSnippet}
 										{@render ItemSnippet(item.item, selected)}
 									{:else}

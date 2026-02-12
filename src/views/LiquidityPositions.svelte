@@ -2,7 +2,9 @@
 	// Types/constants
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { uniswapPositionsCollection } from '$/collections/UniswapPositions.ts'
+	import { fetchPositions } from '$/api/uniswap.ts'
+	import { fetchUniswapPositions, uniswapPositionsCollection } from '$/collections/UniswapPositions.ts'
+	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 
 
@@ -22,8 +24,16 @@
 	const query = useLiveQuery((q) =>
 		q.from({ row: uniswapPositionsCollection }).select(({ row }) => ({ row })),
 	)
+	const connectionsQuery = useLiveQuery((q) =>
+		q.from({ row: walletConnectionsCollection }).select(({ row }) => ({ row })),
+	)
 	registerLocalLiveQueryStack(() => [
 		{ id: 'uniswap-positions', label: 'Uniswap Positions', query },
+		{
+			id: 'liquidity-wallet-connections',
+			label: 'Wallet Connections',
+			query: connectionsQuery,
+		},
 	])
 
 
@@ -54,21 +64,47 @@
 	const singleAddress = $derived(
 		actors.length === 1 ? actors[0] : null,
 	)
+	const ownerChainPairs = $derived(
+		[
+			...new Map(
+				(connectionsQuery.data ?? [])
+					.map((r) => r.row)
+					.filter((c) => c.status === 'connected' && c.chainId != null)
+					.flatMap((c) =>
+						c.actors
+							.filter((actor) =>
+								actors.some((a) => a.toLowerCase() === actor.toLowerCase()),
+							)
+							.map((owner) => [
+								`${c.chainId}:${owner.toLowerCase()}`,
+								{ chainId: c.chainId!, owner },
+							]),
+					),
+			).values(),
+		],
+	)
+
+
+	// Actions
+	$effect(() => {
+		for (const { chainId, owner } of ownerChainPairs) {
+			void fetchUniswapPositions({ chainId, owner }, fetchPositions).catch(() => {})
+		}
+	})
 
 
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
-	import Combobox from '$/components/Combobox.svelte'
+	import ComboboxMultiple from '$/components/ComboboxMultiple.svelte'
 	import TruncatedValue, {
 		TruncatedValueFormat,
 	} from '$/components/TruncatedValue.svelte'
 </script>
 
 
-{#if actors.length > 0}
 	<details class="liquidity-positions" data-card data-scroll-container="block" open>
 		<summary class="section-summary">
-			<div data-row="gap-2 align-center">
+			<div data-row="gap-2">
 				<h3 data-row-item="flexible" class="section-heading">
 					Liquidity positions{#if singleAddress}
 						{' '}for <TruncatedValue
@@ -86,12 +122,11 @@
 					class="section-filters"
 					role="group"
 					aria-label="Filters"
-					data-row="gap-2 wrap align-center"
+					data-row="gap-2 wrap"
 					onclick={(e) => e.stopPropagation()}
 					onkeydown={(e) => e.stopPropagation()}
 				>
-					<Combobox
-						type="multiple"
+					<ComboboxMultiple
 						items={availableAccounts}
 						bind:value={filterAddresses}
 						placeholder="Account"
@@ -116,8 +151,8 @@
 						{@const net = networksByChainId[pos.chainId]}
 						<li
 							data-columns-item
-							data-card="padding-2 radius-4"
-							data-row="gap-3 align-center wrap"
+							data-card="padding-2"
+							data-row="gap-3 wrap"
 						>
 							<span class="position-id" title={pos.id}>{pos.id.slice(0, 10)}…</span>
 							<span>{net?.name ?? pos.chainId}</span>
@@ -129,7 +164,6 @@
 			{/if}
 		</Boundary>
 	</details>
-{/if}
 
 
 <style>

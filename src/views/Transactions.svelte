@@ -70,17 +70,16 @@
 
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
-	import Combobox from '$/components/Combobox.svelte'
+	import ComboboxMultiple from '$/components/ComboboxMultiple.svelte'
 	import TruncatedValue, {
 		TruncatedValueFormat,
 	} from '$/components/TruncatedValue.svelte'
 </script>
 
 
-{#if actors.length > 0}
 	<details class="transactions" data-card data-scroll-container="block" open>
 		<summary class="section-summary">
-			<div data-row="gap-2 align-center">
+			<div data-row="gap-2">
 				<h3 data-row-item="flexible" class="section-heading">
 					Transactions{#if singleAddress}
 						{' '}for <TruncatedValue
@@ -98,12 +97,11 @@
 					class="section-filters"
 					role="group"
 					aria-label="Filters"
-					data-row="gap-2 wrap align-center"
+					data-row="gap-2 wrap"
 					onclick={(e) => e.stopPropagation()}
 					onkeydown={(e) => e.stopPropagation()}
 				>
-					<Combobox
-						type="multiple"
+					<ComboboxMultiple
 						items={availableAccounts}
 						bind:value={filterAddresses}
 						placeholder="Account"
@@ -130,9 +128,9 @@
 						<li
 							class="tx-item"
 							data-columns-item
-							data-card="padding-2 radius-4"
+							data-card="padding-2"
 							data-tag={tx.status}
-							data-row="gap-3 align-center"
+							data-row="gap-3"
 						>
 							<span class="tx-chains">
 								{fromNet?.name ?? tx.fromChainId} → {toNet?.name ?? tx.toChainId}
@@ -148,7 +146,6 @@
 			{/if}
 		</Boundary>
 	</details>
-{/if}
 
 
 <style>

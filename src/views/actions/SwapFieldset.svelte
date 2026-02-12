@@ -49,7 +49,7 @@
 	import NetworkInput from '$/views/NetworkInput.svelte'
 </script>
 
-{#if action.type === ActionType.Swap && params != null}
+
 	<div data-column>
 		<label data-column="gap-2">
 			<span>Network</span>
@@ -114,4 +114,3 @@
 			<p data-muted>No tokens for this network.</p>
 		{/if}
 	</div>
-{/if}

@@ -115,7 +115,6 @@
 <Select
 	{...rootProps}
 	items={coins}
-	type="single"
 	bind:value={() =>
 		value ? toCoinId(value) : '', (nextValue: string | string[]) =>
 		(value =

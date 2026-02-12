@@ -53,12 +53,13 @@
 	const actions = $derived(
 		functions.filter((f) => isWritable(f)),
 	)
-	const methodGroups = $derived(
-		[
-			...(variables.length ? [{ label: 'Variables', items: variables }] : []),
-			...(queries.length ? [{ label: 'Queries', items: queries }] : []),
-			...(actions.length ? [{ label: 'Actions', items: actions }] : []),
-		] as const,
+	const methodItems = $derived([...variables, ...queries, ...actions])
+	const getItemGroupId = $derived((m: AbiFn) =>
+		variables.includes(m)
+			? 'Variables'
+			: queries.includes(m)
+				? 'Queries'
+				: 'Actions',
 	)
 	const rpcUrl = $derived(rpcUrls?.[chainId] ?? null)
 
@@ -242,18 +243,20 @@
 	const isReadOnly = $derived(selectedMethod && isReadable(selectedMethod))
 </script>
 
-<details data-card data-column="gap-3" open>
-	<summary data-row="gap-2 align-center justify-between">
-		<h3>Smart Contract Interactions</h3>
-	</summary>
 
-	<div data-column="gap-4">
+	<details>
+		<summary data-row="gap-2 justify-between">
+			<h3>Smart Contract Interactions</h3>
+		</summary>
+
+		<div data-column="gap-4">
 		<section data-card data-column>
 			<h4>Method</h4>
 			<Select
-				items={methodGroups}
+				items={methodItems}
 				getItemId={(m: AbiFn) => m.name}
 				getItemLabel={(m: AbiFn) => m.name}
+				getItemGroupId={getItemGroupId}
 				bind:value={() => methodValue, onMethodChange}
 				placeholder="Select method"
 				ariaLabel="Method"
@@ -265,7 +268,7 @@
 				<h4>Parameters</h4>
 				{#each (selectedMethod.inputs ?? []) as input, i}
 					{@const key = getInputKey(input.name ?? `param${i}`, i)}
-					<label data-row="gap-2 align-center">
+					<label data-row="gap-2">
 						<span>{input.name ?? `Param ${i + 1}`}</span>
 						{#if input.type === 'address'}
 							<PatternInput
@@ -295,7 +298,7 @@
 					</label>
 				{/each}
 				{#if selectedMethod.stateMutability === 'payable'}
-					<label data-row="gap-2 align-center">
+					<label data-row="gap-2">
 						<span>Value (wei)</span>
 						<input
 							type="text"
@@ -373,5 +376,5 @@
 				</section>
 			{/if}
 		{/if}
-	</div>
-</details>
+		</div>
+	</details>

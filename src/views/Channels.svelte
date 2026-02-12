@@ -60,7 +60,7 @@
 	// Components
 	import Address from '$/views/Address.svelte'
 	import Boundary from '$/components/Boundary.svelte'
-	import Combobox from '$/components/Combobox.svelte'
+	import ComboboxMultiple from '$/components/ComboboxMultiple.svelte'
 	import TruncatedValue, {
 		TruncatedValueFormat,
 	} from '$/components/TruncatedValue.svelte'
@@ -69,7 +69,7 @@
 
 <details class="channels" data-card data-scroll-container="block" open>
 	<summary class="section-summary">
-		<div data-row="gap-2 align-center">
+		<div data-row="gap-2">
 			<h3 data-row-item="flexible" class="section-heading">
 				Channels{#if singleAddress}
 					{' '}for <TruncatedValue
@@ -87,12 +87,11 @@
 				class="section-filters"
 				role="group"
 				aria-label="Filters"
-				data-row="gap-2 wrap align-center"
+				data-row="gap-2 wrap"
 				onclick={(e) => e.stopPropagation()}
 				onkeydown={(e) => e.stopPropagation()}
 			>
-				<Combobox
-					type="multiple"
+				<ComboboxMultiple
 					items={availableAccounts}
 					bind:value={filterAddresses}
 					placeholder="Account"
@@ -125,8 +124,8 @@
 					{@const balance = isParticipant0 ? ch.balance0 : ch.balance1}
 					<li
 						data-columns-item
-						data-card="padding-2 radius-4"
-						data-row="gap-3 align-center wrap"
+						data-card="padding-2"
+						data-row="gap-3 wrap"
 						data-status={ch.status}
 					>
 						<span class="channel-id" title={ch.id}>{ch.id.slice(0, 10)}…</span>

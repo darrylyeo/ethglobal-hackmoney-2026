@@ -31,16 +31,12 @@
 	import NetworkName from '$/views/NetworkName.svelte'
     import NetworkIcon from '$/views/NetworkIcon.svelte'
 	import Select from '$/components/Select.svelte'
+	import SelectMultiple from '$/components/SelectMultiple.svelte'
 </script>
 
+
 {#snippet networkIcons()}
-	{@const selectedNetworks = multiple
-		? networks.filter(
-				(network) => Array.isArray(value) && value.includes(network.id),
-			)
-		: typeof value === 'number'
-			? networks.filter((network) => network.id === value)
-			: []}
+	{@const selectedNetworks = multiple ? networks.filter((n) => (Array.isArray(value) ? value : []).includes(n.id)) : (typeof value === 'number' ? [networks.find((n) => n.id === value)].filter(Boolean) : []) as Network[]}
 	{#if selectedNetworks.length > 0}
 		<span data-row="start gap-2">
 			{#each selectedNetworks as network (network.id)}
@@ -55,17 +51,18 @@
 {/snippet}
 
 {#if multiple}
-	<Select
+	<SelectMultiple
 		{...rootProps}
 		items={networks}
-		type="multiple"
 		bind:value={() =>
-			(Array.isArray(value) ? value.map(String) : []),
-			(nextValue: string[]) =>
+			(Array.isArray(value)
+				? networks.filter((network) => value.includes(network.id))
+				: []),
+			(nextValue: Network[]) =>
 				(value = nextValue
 					.map(
-						(id) =>
-							networks.find((network) => String(network.id) === id)?.id ?? null,
+						(network) =>
+							networks.find((item) => item.id === network.id)?.id ?? null,
 					)
 					.filter((id): id is Network['id'] => id !== null))}
 		{placeholder}
@@ -82,12 +79,13 @@
 	<Select
 		{...rootProps}
 		items={networks}
-		type="single"
 		bind:value={() =>
-			(typeof value === 'number' ? String(value) : ''),
-			(nextValue: string) =>
+			(typeof value === 'number'
+				? networks.find((network) => network.id === value) ?? null
+				: null),
+			(nextValue: Network | null) =>
 				(value =
-					networks.find((network) => String(network.id) === nextValue)?.id ??
+					networks.find((network) => network.id === nextValue?.id)?.id ??
 					null)}
 		{placeholder}
 		{disabled}

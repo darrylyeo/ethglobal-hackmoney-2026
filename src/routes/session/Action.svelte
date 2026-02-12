@@ -331,25 +331,21 @@
 </script>
 
 
-<details
-	data-card
-	data-column="gap-3"
-	open
->
-	<summary data-row="gap-2 align-center justify-between">
-		<h3>
-			<Select
-				items={actionTypes as readonly ActionTypeDefinition[]}
-				getItemId={(item: ActionTypeDefinition) => item.type}
-				getItemLabel={(item: ActionTypeDefinition) => `${item.icon} ${item.label}`}
-				bind:value={() => actionTypeValue, onActionTypeChange}
-				placeholder="Select action"
-				ariaLabel="Action"
-			/>
-		</h3>
-	</summary>
+	<details>
+		<summary data-row="gap-2 justify-between">
+			<h3>
+				<Select
+					items={actionTypes as readonly ActionTypeDefinition[]}
+					getItemId={(item: ActionTypeDefinition) => item.type}
+					getItemLabel={(item: ActionTypeDefinition) => `${item.icon} ${item.label}`}
+					bind:value={() => actionTypeValue, onActionTypeChange}
+					placeholder="Select action"
+					ariaLabel="Action"
+				/>
+			</h3>
+		</summary>
 
-	<div data-column="gap-4">
+		<div data-column="gap-4">
 		<form data-grid="columns-autofit column-min-16 gap-4" onsubmit={onSubmit}>
 			<section data-card data-column>
 				<h3>Parameters</h3>
@@ -402,7 +398,7 @@
 
 			<section data-card data-column>
 				<h3>{proposedTransactionsHeading}</h3>
-				<div data-row="center">
+				<div data-row>
 					<button
 						type="submit"
 						name="action"
@@ -445,6 +441,7 @@
 		{/if}
 	</div>
 </details>
+
 
 <style>
 	button {

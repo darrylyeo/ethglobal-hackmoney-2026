@@ -6,7 +6,7 @@
 	// Props
 	let {
 		items,
-		value = $bindable(null as _Item | null),
+		value = $bindable([] as _Item[]),
 		placeholder,
 		disabled,
 		name,
@@ -25,7 +25,7 @@
 		...rootProps
 	}: {
 		items: readonly _Item[]
-		value?: _Item | null
+		value?: _Item[]
 		placeholder?: string
 		disabled?: boolean
 		name?: string
@@ -78,10 +78,12 @@
 			: [],
 	)
 	const triggerLabel = $derived(
-		normalizedItems.find((item) => {
-			const singleValue = value ?? null
-			return item.id === (singleValue ? getItemId(singleValue) : '')
-		})?.label ?? placeholder ?? '',
+		(value ?? []).length === 0
+			? (placeholder ?? '')
+			: (value ?? [])
+					.map((entry) => getItemId(entry))
+					.map((id) => normalizedItems.find((item) => item.id === id)?.label ?? '')
+					.join(', '),
 	)
 	const rootItems = $derived(
 		normalizedItems.map((item) => ({
@@ -99,12 +101,14 @@
 
 <Select.Root
 	{...rootProps}
-	type="single"
+	type="multiple"
 	bind:value={() => {
-		const singleValue = value ?? null
-		return singleValue ? getItemId(singleValue) : ''
+		return ((value ?? []) as _Item[]).map((entry) => getItemId(entry))
 	}, (v) => {
-		value = normalizedItems.find((item) => item.id === v)?.item ?? null
+		value = v.flatMap((id) => {
+			const item = normalizedItems.find((entry) => entry.id === id)
+			return item ? [item.item] : []
+		})
 	}}
 	{disabled}
 	{name}

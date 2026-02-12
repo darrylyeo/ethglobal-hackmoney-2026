@@ -5,7 +5,9 @@
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { walletsCollection } from '$/collections/Wallets.ts'
+	import { useWalletSubscriptions } from '$/state/wallet.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	useWalletSubscriptions()
 
 
 	// Props
@@ -70,17 +72,16 @@
 
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
-	import Combobox from '$/components/Combobox.svelte'
+	import ComboboxMultiple from '$/components/ComboboxMultiple.svelte'
 	import TruncatedValue, {
 		TruncatedValueFormat,
 	} from '$/components/TruncatedValue.svelte'
 </script>
 
 
-{#if actors.length > 0}
 	<details class="wallet-connections" data-card data-scroll-container="block" open>
 		<summary class="section-summary">
-			<div data-row="gap-2 align-center">
+			<div data-row="gap-2">
 				<h3 data-row-item="flexible" class="section-heading">
 					Wallet connections{#if singleAddress}
 						{' '}for <TruncatedValue
@@ -98,12 +99,11 @@
 					class="section-filters"
 					role="group"
 					aria-label="Filters"
-					data-row="gap-2 wrap align-center"
+					data-row="gap-2 wrap"
 					onclick={(e) => e.stopPropagation()}
 					onkeydown={(e) => e.stopPropagation()}
 				>
-					<Combobox
-						type="multiple"
+					<ComboboxMultiple
 						items={availableAccounts}
 						bind:value={filterAddresses}
 						placeholder="Account"
@@ -132,9 +132,9 @@
 						<li
 							class="connection-item"
 							data-columns-item
-							data-card="padding-2 radius-4"
+							data-card="padding-2"
 							data-tag={conn.status}
-							data-row="gap-3 align-center"
+							data-row="gap-3"
 						>
 							<span class="connection-name" data-row-item="flexible">
 								{conn.transport === WalletConnectionTransport.None
@@ -151,7 +151,6 @@
 			{/if}
 		</Boundary>
 	</details>
-{/if}
 
 
 <style>

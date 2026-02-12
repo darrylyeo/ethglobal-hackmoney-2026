@@ -25,19 +25,15 @@
 
 
 	// (Derived)
-	type ModelOption = { value: string, label: string }
-	const options = $derived.by((): ModelOption[] => {
-		const opts: ModelOption[] = [{ value: '', label: 'Default' }]
-		for (const conn of connections) {
-			const models = getModelsForConnection(conn)
-			for (const m of models)
-				opts.push({
-					value: `${conn.id}:${m.id}`,
-					label: `${conn.label} · ${m.label}`,
-				})
-		}
-		return opts
-	})
+	const modelItems = $derived(
+		connections.flatMap((conn) =>
+			getModelsForConnection(conn).map((model) => ({
+				value: `${conn.id}:${model.id}`,
+				label: `${conn.label} · ${model.label}`,
+			})),
+		),
+	)
+	const options = $derived(['', ...modelItems.map((item) => item.value)])
 
 
 	// Components
@@ -48,12 +44,13 @@
 <Select
 	{...rootProps}
 	items={options}
-	type="single"
 	bind:value
 	{placeholder}
 	{disabled}
 	{id}
 	{ariaLabel}
-	getItemId={(item) => item.value}
-	getItemLabel={(item) => item.label}
+	getItemLabel={(item) =>
+		item === ''
+			? 'Default'
+			: (modelItems.find((entry) => entry.value === item)?.label ?? item)}
 ></Select>
