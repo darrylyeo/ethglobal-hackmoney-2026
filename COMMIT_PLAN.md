@@ -8,7 +8,7 @@
 | 2 | docs: specs and history use data-text=muted and gap tokens | history/*.md, specs/*.md (7) | — |
 | 3 | api(transfers-logs): batched block timestamp fetch with concurrency limit | src/api/transfers-logs.ts | — |
 | 4 | data: TransferEvents cache + in-flight, TransferGraphs upsert from events | TransferEvents.ts, TransferGraphs.ts | 3 |
-| 5 | constants: LiquidityAction, WETH + getBridgeCoins, bridge protocol ids | actions.ts, coins.ts, protocols.ts, external-api-collections.md | — |
+| 5 | constants: LiquidityAction, WETH + getBridgeCoins, bridge protocol ids | actions.ts, coins.ts, protocols.ts | — |
 
 ## Phase 2: Protocol selection + coins/networks
 
@@ -36,6 +36,14 @@
 | 7 | 344554f |
 | 8 | d90877e |
 | 9 | 9acd2c6 |
+| 10 | 022b72b |
+| 11 | 2370a3b |
+| 12 | 994eeab |
+| 13 | e74bbdb |
+| 14 | 9816c46 |
+| 15 | 1236bfd |
+| 16 | e241ae6 |
+| 17 | e01ec84 |
 
 ## Commit later / ignore
 - (none)
