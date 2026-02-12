@@ -1,6 +1,8 @@
 import { ActionType, actionTypeDefinitionByActionType } from '$/constants/actions.ts'
-import { ChainId, networkConfigs, toNetworkSlug } from '$/constants/networks.ts'
+import { DataSource } from '$/constants/data-sources.ts'
+import { ChainId, networkConfigs } from '$/constants/networks.ts'
 import { interopFormatConfig, toInteropName } from '$/constants/interop.ts'
+import { EntityType } from '$/data/$EntityType.ts'
 import type { Action } from '$/data/Session.ts'
 import { SessionStatus } from '$/data/Session.ts'
 import {
@@ -8,6 +10,24 @@ import {
 	WalletConnectionTransport,
 	toWalletConnectionStatus,
 } from '$/data/WalletConnection.ts'
+import type { WatchedEntityRow } from '$/collections/WatchedEntities.ts'
+import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
+import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
+import {
+	dashboardsCollection,
+	ensureDefaultRow,
+} from '$/collections/Dashboards.ts'
+import { myPeerIdsCollection } from '$/collections/MyPeerIds.ts'
+import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
+import { partykitRoomsCollection } from '$/collections/PartykitRooms.ts'
+import { sessionsCollection } from '$/collections/Sessions.ts'
+import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
+import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
+import { walletsCollection } from '$/collections/Wallets.ts'
+import {
+	deriveWatchedEntityRow,
+	watchedEntitiesCollection,
+} from '$/collections/WatchedEntities.ts'
 import { formatAddress } from '$/lib/address.ts'
 import {
 	roomIdToDisplayName,
@@ -17,12 +37,16 @@ import {
 	buildSessionPath,
 	formatSessionPlaceholderName,
 } from '$/lib/session/sessions.ts'
+import { registerGlobalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 import type { NavigationItem } from '$/views/NavigationItem.svelte'
+import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
+
+import iconEth from '$/assets/coins/eth.svg?url'
+import iconUsdc from '$/assets/coins/usdc.svg?url'
 
 type SessionRow = { id: string; name?: string; actions: Action[]; status: string; updatedAt?: number; params?: Record<string, unknown>; execution?: { chainId?: number } }
 type RoomRow = { id: string; name?: string; createdAt: number }
 type AgentTreeRow = { id: string; name: string | null; pinned?: boolean; updatedAt: number }
-type WatchedRow = { href: string }
 type BridgeTxRow = { fromChainId: number; status: string; $id: { sourceTxHash: string } }
 type WalletRow = { $id: { rdns: string }; icon?: string }
 type WalletConnectionRow = {
@@ -39,7 +63,7 @@ export type NavigationItemsInput = {
 	sessionsData?: { row: SessionRow }[]
 	roomsData?: { row: RoomRow }[]
 	agentChatTreesData?: { row: AgentTreeRow }[]
-	watchedEntitiesData?: { row: WatchedRow }[]
+	watchedEntitiesData?: { row: WatchedEntityRow }[]
 	recentTransactionsData?: { row: BridgeTxRow }[]
 	walletsData?: { row: WalletRow }[]
 	walletConnectionsData?: { row: WalletConnectionRow }[]
@@ -198,12 +222,43 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 	const defaultNetworkConfigs = defaultNetworkChainIds
 		.map((chainId) => networkConfigs.find((c) => c.chainId === chainId))
 		.filter((c): c is NonNullable<typeof c> => c != null)
-	const toNetworkNavItem = (config: (typeof relevantNetworkConfigs)[number]) => ({
-		id: `network-${config.chainId}`,
-		title: config.name,
-		href: `/network/${toNetworkSlug(config.name)}`,
-		icon: config.icon ?? '🌐',
-	})
+	const watchedRows = (watchedEntitiesData ?? []).map((r) => r.row)
+	const watchedContracts = watchedRows.filter(
+		(row) => row.entityType === EntityType.Contract,
+	)
+	const manualWatchedHrefs = new Set(watchedRows.map((r) => r.href))
+	const withManualWatch = <T extends { href: string }>(items: T[]) =>
+		items.map((item) => ({ ...item, manualWatch: manualWatchedHrefs.has(item.href) }))
+	const toNetworkNavItem = (config: (typeof relevantNetworkConfigs)[number]) => {
+		const baseHref = `/network/${config.slug}`
+		const contractsOnNetwork = watchedContracts.filter(
+			(row) =>
+				row.href === `${baseHref}/contracts` ||
+				row.href.startsWith(`${baseHref}/contract/`),
+		)
+		return {
+			id: `network-${config.chainId}`,
+			title: config.name,
+			href: baseHref,
+			icon: config.icon ?? '🌐',
+			children: [
+				{
+					id: `network-${config.chainId}-contracts`,
+					title: 'Contracts',
+					href: `${baseHref}/contracts`,
+					icon: '📄',
+				},
+				...withManualWatch(
+					contractsOnNetwork.map((row) => ({
+						id: row.id,
+						title: row.label,
+						href: row.href,
+						icon: '📜' as string,
+					})),
+				),
+			],
+		}
+	}
 	const allNetworkNavItems = [
 		...defaultNetworkConfigs.map(toNetworkNavItem),
 		...relevantNetworkConfigs
@@ -232,19 +287,43 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			.flatMap((r) => {
 				const config = networkConfigs.find((c) => c.chainId === r.row.fromChainId)
 				return config
-					? [`/network/${toNetworkSlug(config.name)}/transaction/${r.row.$id.sourceTxHash}`]
+					? [`/network/${config.slug}/transaction/${r.row.$id.sourceTxHash}`]
 					: []
 			}),
 		...peersNavItems.map((item) => item.href),
 		...pinnedAgentChatTrees.map((tree) => `/agents/${tree.id}`),
-		...relevantNetworkConfigs.map((c) => `/network/${toNetworkSlug(c.name)}`),
-		...watchedEntitiesData.map((r) => r.row.href),
+		...relevantNetworkConfigs.map((c) => `/network/${c.slug}`),
+		...watchedRows.map((r) => r.href),
 	])
-	const manualWatchedHrefs = new Set(watchedEntitiesData.map((r) => r.row.href))
 	const filterWatched = <T extends { href: string }>(items: T[]) =>
 		items.filter((item) => watchedHrefs.has(item.href))
-	const withManualWatch = <T extends { href: string }>(items: T[]) =>
-		items.map((item) => ({ ...item, manualWatch: manualWatchedHrefs.has(item.href) }))
+	const multiplayerChildren = [
+		...(allRoomNavItems.length > 0
+			? [
+					{
+						id: 'rooms',
+						title: 'Rooms',
+						href: '/rooms',
+						icon: '🏘️',
+						tag: String(allRoomNavItems.length),
+						children: withManualWatch(filterWatched(allRoomNavItems)),
+						allChildren: withManualWatch(allRoomNavItems),
+					},
+				]
+			: []),
+		...(peersNavItems.length > 0
+			? [
+					{
+						id: 'peers',
+						title: 'Peers',
+						href: '/peers',
+						icon: '👥',
+						tag: String(peersNavItems.length),
+						children: withManualWatch(peersNavItems),
+					},
+				]
+			: []),
+	]
 
 	return [
 		{
@@ -252,7 +331,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			title: 'Dashboards',
 			href: '/dashboards',
 			icon: '📊',
-			defaultOpen: true,
+			defaultIsOpen: true,
 			children: withManualWatch(dashboardNavItems),
 		},
 		{
@@ -260,7 +339,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			title: 'Accounts',
 			href: '/accounts',
 			icon: '👤',
-			defaultOpen: true,
+			defaultIsOpen: true,
 			tag: String(accountNavItems.length),
 			children: withManualWatch(accountNavItems),
 		},
@@ -269,7 +348,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			title: 'Actions',
 			href: '/actions',
 			icon: '⚡',
-			defaultOpen: true,
+			defaultIsOpen: true,
 			children: (
 				[
 					ActionType.Swap,
@@ -288,7 +367,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			title: 'Sessions',
 			href: '/sessions',
 			icon: '📋',
-			defaultOpen: true,
+			defaultIsOpen: true,
 			children: withManualWatch(filterWatched(allSessionNavItems)),
 			allChildren: withManualWatch(allSessionNavItems),
 		},
@@ -297,7 +376,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			title: 'Agents',
 			href: '/agents',
 			icon: '🤖',
-			defaultOpen: true,
+			defaultIsOpen: true,
 			children: [
 				{ id: 'agents-new', title: 'New conversation', href: '/agents/new', icon: '✨' },
 				{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm', icon: '🔑' },
@@ -310,29 +389,17 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			],
 		},
 		{
-			id: 'coins',
-			title: 'Coins',
-			href: '/coins',
-			icon: '🪙',
-		},
-		{
-			id: 'networks',
-			title: 'Networks',
-			href: '/networks',
-			icon: '⛓️',
-		},
-		{
 			id: 'explore',
 			title: 'Explore',
 			icon: '🧭',
-			defaultOpen: true,
+			defaultIsOpen: true,
 			children: [
 				{
 					id: 'coins',
 					title: 'Coins',
 					href: '/coins',
 					icon: '🪙',
-					defaultOpen: true,
+					defaultIsOpen: true,
 					children: [
 						{ id: 'usdc', title: 'USDC', href: '/coin/USDC', icon: coinIcons.usdc },
 						{ id: 'eth', title: 'ETH', href: '/coin/ETH', icon: coinIcons.eth },
@@ -343,7 +410,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 					title: 'Networks',
 					href: '/networks',
 					icon: '⛓️',
-					defaultOpen: true,
+					defaultIsOpen: true,
 					children: withManualWatch(filterWatched(allNetworkNavItems)),
 					allChildren: withManualWatch(allNetworkNavItems),
 				},
@@ -353,36 +420,139 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			id: 'positions',
 			title: 'Positions',
 			icon: '📍',
-			defaultOpen: true,
+			defaultIsOpen: true,
 			children: [
 				{ id: 'positions-liquidity', title: 'Liquidity', href: '/positions/liquidity', icon: '🪣' },
 				{ id: 'positions-channels', title: 'Channels', href: '/positions/channels', icon: '↔️' },
 			],
 		},
-		{
-			id: 'multiplayer',
-			title: 'Multiplayer',
-			icon: '🤝',
-			defaultOpen: true,
-			children: [
-				{
-					id: 'rooms',
-					title: 'Rooms',
-					href: '/rooms',
-					icon: '🏘️',
-					tag: String(allRoomNavItems.length),
-					children: withManualWatch(filterWatched(allRoomNavItems)),
-					allChildren: withManualWatch(allRoomNavItems),
-				},
-				{
-					id: 'peers',
-					title: 'Peers',
-					href: '/peers',
-					icon: '👥',
-					tag: String(peersNavItems.length),
-					children: withManualWatch(peersNavItems),
-				},
-			],
-		},
+		...(multiplayerChildren.length > 0
+			? [
+					{
+						id: 'multiplayer',
+						title: 'Multiplayer',
+						icon: '🤝',
+						defaultIsOpen: true,
+						children: multiplayerChildren,
+					},
+				]
+			: []),
 	]
+}
+
+export function useNavigationItems(options: {
+	isTestnet: () => boolean
+}): NavigationItem[] {
+	const roomsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: partykitRoomsCollection })
+				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const sessionsQuery = useLiveQuery(
+		(q) => q.from({ row: sessionsCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+	const agentChatTreesQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: agentChatTreesCollection })
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const watchedEntitiesQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: watchedEntitiesCollection })
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const recentTransactionsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: bridgeTransactionsCollection })
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const walletsQuery = useLiveQuery(
+		(q) => q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+	const walletConnectionsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: walletConnectionsCollection })
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const verificationsQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: siweVerificationsCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+	const roomPeersQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: partykitRoomPeersCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+	const myPeerIdsQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: myPeerIdsCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+	const dashboardsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: dashboardsCollection })
+				.where(({ row }) => not(eq(row.$id.id, '__default__')))
+				.select(({ row }) => ({
+					id: row.$id.id,
+					name: 'name' in row ? row.name : undefined,
+					icon: 'icon' in row ? row.icon : undefined,
+				})),
+		[],
+	)
+	const defaultDashboardRowQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: dashboardsCollection })
+				.where(({ row }) => eq(row.$id.id, '__default__'))
+				.select(({ row }) =>
+					'defaultDashboardId' in row
+						? { defaultDashboardId: row.defaultDashboardId }
+						: { defaultDashboardId: undefined as string | undefined },
+				),
+		[],
+	)
+	$effect(() => {
+		ensureDefaultRow()
+	})
+	registerGlobalLiveQueryStack(() => [
+		{ id: 'layout-wallet-connections', label: 'Wallet Connections', query: walletConnectionsQuery },
+		{ id: 'layout-sessions', label: 'Sessions', query: sessionsQuery },
+		{ id: 'layout-wallets', label: 'Wallets', query: walletsQuery },
+		{ id: 'layout-transactions', label: 'Transactions', query: recentTransactionsQuery },
+		{ id: 'layout-watched', label: 'Watched Entities', query: watchedEntitiesQuery },
+	])
+	return getNavigationItems({
+		sessionsData: sessionsQuery.data,
+		roomsData: roomsQuery.data,
+		agentChatTreesData: agentChatTreesQuery.data,
+		watchedEntitiesData: (watchedEntitiesQuery.data ?? []).map((r) => ({
+			row: deriveWatchedEntityRow(r.row as Parameters<typeof deriveWatchedEntityRow>[0]),
+		})),
+		recentTransactionsData: recentTransactionsQuery.data,
+		walletsData: walletsQuery.data,
+		walletConnectionsData: walletConnectionsQuery.data,
+		verificationsData: verificationsQuery.data,
+		roomPeersData: roomPeersQuery.data,
+		myPeerIdsData: myPeerIdsQuery.data,
+		dashboardsData: dashboardsQuery.data,
+		defaultDashboardId:
+			defaultDashboardRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
+		coinIcons: { eth: iconEth, usdc: iconUsdc },
+		isTestnet: options.isTestnet(),
+	})
 }

@@ -2,7 +2,7 @@
 	// Types/constants
 	import { ActionType, type Action, type ActionParams } from '$/constants/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
-	import { getBridgeCoins } from '$/constants/coins.ts'
+	import { bridgeCoinsByChainId } from '$/constants/coins.ts'
 	import { ChainId } from '$/constants/networks.ts'
 	import type { Network } from '$/constants/networks.ts'
 	import {
@@ -28,7 +28,9 @@
 
 	// (Derived)
 	const p: ActionParams<ActionType.Bridge> = $derived.by(() => action.params)
-	const bridgeCoins = $derived(getBridgeCoins(p.fromChainId ?? ChainId.Ethereum))
+	const bridgeCoins = $derived(
+		bridgeCoinsByChainId[p.fromChainId ?? ChainId.Ethereum] ?? [],
+	)
 	const selectedCoin = $derived(bridgeCoins.find((c) => c.address.toLowerCase() === p.tokenAddress.toLowerCase()) ?? bridgeCoins[0])
 
 	$effect(() => {

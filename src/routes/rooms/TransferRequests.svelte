@@ -156,7 +156,7 @@
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 	import AddressInput from '$/views/AddressInput.svelte'
 	import { Button } from 'bits-ui'
 </script>

@@ -48,7 +48,7 @@ When adding or replacing icons manually (outside `_sync-assets.ts`), agents must
 
 - Inline `await import('path to file')`: every constant that needs an icon reference uses `(await import('$/assets/.../file.svg?url')).default` at that site. No helper string builders.
 - Network config: `src/constants/networks.ts` uses top-level `await import(...)` in each `networkConfigs` entry that has an `icon`. Layout/views use `<NetworkIcon chainId={...} />` or `config.icon` / `networkConfigsByChainId[id]?.icon` where a raw URL is needed (see Spec 086).
-- Coins/providers: layout and architecture graph use `<CoinIcon src={...} symbol={...} />` or top-level `await import(...)` for each coin/provider icon (Spec 086). Brand colors for icon backgrounds come from `src/constants/colors.ts` (`networkColorByChainId`, `coinColorBySymbol`).
+- Coins/providers: layout and architecture graph use `<CoinIcon src={...} symbol={...} />` or top-level `await import(...)` for each coin/provider icon (Spec 086). Brand colors: network from `networkConfigsByChainId[chainId]?.color`, coin from `coinColorBySymbol[symbol]?.color` (colors.ts re-exports from coins).
 
 ## Acceptance criteria
 

@@ -19,7 +19,7 @@
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 	import Peer from './Peer.svelte'
 	import { Button } from 'bits-ui'
 

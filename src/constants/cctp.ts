@@ -9,43 +9,71 @@ export const CCTP_TOKEN_MESSENGER_TESTNET =
 export const CCTP_MESSAGE_TRANSMITTER_TESTNET =
 	'0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275' as const
 
-export const CCTP_DOMAINS_BY_CHAIN_ID: Partial<Record<ChainId, number>> = {
-	[ChainId.Ethereum]: 0,
-	[ChainId.EthereumSepolia]: 0,
-	[ChainId.Avalanche]: 1,
-	[ChainId.AvalancheFuji]: 1,
-	[ChainId.Optimism]: 2,
-	[ChainId.OPSepolia]: 2,
-	[ChainId.Arbitrum]: 3,
-	[ChainId.ArbitrumSepolia]: 3,
-	[ChainId.Base]: 6,
-	[ChainId.BaseSepolia]: 6,
-	[ChainId.Polygon]: 7,
-	[ChainId.PolygonAmoy]: 7,
-	[ChainId.Unichain]: 10,
-	[ChainId.UnichainSepolia]: 10,
-	[ChainId.Linea]: 11,
-	[ChainId.LineaSepolia]: 11,
-	[ChainId.Codex]: 12,
-	[ChainId.CodexTestnet]: 12,
-	[ChainId.Sonic]: 13,
-	[ChainId.SonicTestnet]: 13,
-	[ChainId.WorldChain]: 14,
-	[ChainId.WorldChainSepolia]: 14,
-	[ChainId.Monad]: 15,
-	[ChainId.MonadTestnet]: 15,
-	[ChainId.Sei]: 16,
-	[ChainId.SeiTestnet]: 16,
-	[ChainId.XDC]: 18,
-	[ChainId.XDCApothem]: 18,
-	[ChainId.HyperEVM]: 19,
-	[ChainId.HyperEVMTestnet]: 19,
-	[ChainId.Ink]: 21,
-	[ChainId.InkTestnet]: 21,
-	[ChainId.Plume]: 22,
-	[ChainId.PlumeTestnet]: 22,
-	[ChainId.ArcTestnet]: 26,
-}
+export const cctpDomainEntries = [
+	{ chainId: ChainId.Ethereum, domain: 0 },
+	{ chainId: ChainId.EthereumSepolia, domain: 0 },
+	{ chainId: ChainId.Avalanche, domain: 1 },
+	{ chainId: ChainId.AvalancheFuji, domain: 1 },
+	{ chainId: ChainId.Optimism, domain: 2 },
+	{ chainId: ChainId.OPSepolia, domain: 2 },
+	{ chainId: ChainId.Arbitrum, domain: 3 },
+	{ chainId: ChainId.ArbitrumSepolia, domain: 3 },
+	{ chainId: ChainId.Base, domain: 6 },
+	{ chainId: ChainId.BaseSepolia, domain: 6 },
+	{ chainId: ChainId.Polygon, domain: 7 },
+	{ chainId: ChainId.PolygonAmoy, domain: 7 },
+	{ chainId: ChainId.Unichain, domain: 10 },
+	{ chainId: ChainId.UnichainSepolia, domain: 10 },
+	{ chainId: ChainId.Linea, domain: 11 },
+	{ chainId: ChainId.LineaSepolia, domain: 11 },
+	{ chainId: ChainId.Codex, domain: 12 },
+	{ chainId: ChainId.CodexTestnet, domain: 12 },
+	{ chainId: ChainId.Sonic, domain: 13 },
+	{ chainId: ChainId.SonicTestnet, domain: 13 },
+	{ chainId: ChainId.WorldChain, domain: 14 },
+	{ chainId: ChainId.WorldChainSepolia, domain: 14 },
+	{ chainId: ChainId.Monad, domain: 15 },
+	{ chainId: ChainId.MonadTestnet, domain: 15 },
+	{ chainId: ChainId.Sei, domain: 16 },
+	{ chainId: ChainId.SeiTestnet, domain: 16 },
+	{ chainId: ChainId.XDC, domain: 18 },
+	{ chainId: ChainId.XDCApothem, domain: 18 },
+	{ chainId: ChainId.HyperEVM, domain: 19 },
+	{ chainId: ChainId.HyperEVMTestnet, domain: 19 },
+	{ chainId: ChainId.Ink, domain: 21 },
+	{ chainId: ChainId.InkTestnet, domain: 21 },
+	{ chainId: ChainId.Plume, domain: 22 },
+	{ chainId: ChainId.PlumeTestnet, domain: 22 },
+	{ chainId: ChainId.ArcTestnet, domain: 26 },
+] as const satisfies readonly { chainId: ChainId; domain: number }[]
+
+export const cctpDomainByChainId = Object.fromEntries(
+	cctpDomainEntries.map((e) => [e.chainId, e]),
+) as Partial<Record<ChainId, (typeof cctpDomainEntries)[number]>>
+
+export const CCTP_TESTNET_CHAIN_IDS = new Set<ChainId>([
+	ChainId.ArcTestnet,
+	ChainId.ArbitrumSepolia,
+	ChainId.AvalancheFuji,
+	ChainId.BaseSepolia,
+	ChainId.CodexTestnet,
+	ChainId.EthereumSepolia,
+	ChainId.HyperEVMTestnet,
+	ChainId.InkTestnet,
+	ChainId.LineaSepolia,
+	ChainId.MonadTestnet,
+	ChainId.OPSepolia,
+	ChainId.PlumeTestnet,
+	ChainId.PolygonAmoy,
+	ChainId.SeiTestnet,
+	ChainId.SonicTestnet,
+	ChainId.UnichainSepolia,
+	ChainId.WorldChainSepolia,
+	ChainId.XDCApothem,
+])
+
+export const isCctpTestnetChain = (chainId: ChainId): boolean =>
+	CCTP_TESTNET_CHAIN_IDS.has(chainId)
 
 export const CCTP_FORWARDING_CHAIN_IDS = new Set<ChainId>([
 	ChainId.ArcTestnet,
@@ -101,30 +129,3 @@ export const CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS = new Set<ChainId>([
 	ChainId.WorldChain,
 	ChainId.WorldChainSepolia,
 ])
-
-export const getCctpDomainId = (chainId: ChainId | null): number | null =>
-	chainId === null ? null : (CCTP_DOMAINS_BY_CHAIN_ID[chainId] ?? null)
-
-export const isCctpSupportedChain = (chainId: ChainId | null): boolean =>
-	chainId !== null && CCTP_DOMAINS_BY_CHAIN_ID[chainId] !== undefined
-
-export const getCctpTokenMessenger = (
-	chainId: ChainId | null,
-	isTestnet: boolean,
-): `0x${string}` | null =>
-	chainId !== null && isCctpSupportedChain(chainId)
-		? isTestnet
-			? CCTP_TOKEN_MESSENGER_TESTNET
-			: CCTP_TOKEN_MESSENGER_MAINNET
-		: null
-
-export const getCctpMessageTransmitter = (
-	chainId: ChainId | null,
-	isTestnet: boolean,
-): `0x${string}` | null =>
-	chainId !== null && isCctpSupportedChain(chainId)
-		? isTestnet
-			? CCTP_MESSAGE_TRANSMITTER_TESTNET
-			: CCTP_MESSAGE_TRANSMITTER_MAINNET
-		: null
-

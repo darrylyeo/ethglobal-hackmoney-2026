@@ -3,7 +3,8 @@
 	import { ActionType, type Action, type ActionParams } from '$/constants/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import type { Network } from '$/constants/networks.ts'
-	import { formatSlippagePercent, slippagePresets } from '$/constants/slippage.ts'
+	import { slippagePresets } from '$/constants/slippage.ts'
+	import { formatSlippagePercent } from '$/lib/slippage.ts'
 
 
 	// Props
@@ -48,7 +49,7 @@
 	import NetworkInput from '$/views/NetworkInput.svelte'
 </script>
 
-{#if action.type === ActionType.Swap && params != null}
+
 	<div data-column>
 		<label data-column="gap-2">
 			<span>Network</span>
@@ -77,7 +78,7 @@
 						if (action?.params != null)
 							action = { ...action, params: { ...action.params, amount: v } }
 					}}
-					bind:invalid={invalid}
+					bind:isInvalid={invalid}
 					ariaLabel="Amount in"
 				/>
 			</div>
@@ -113,4 +114,3 @@
 			<p data-muted>No tokens for this network.</p>
 		{/if}
 	</div>
-{/if}

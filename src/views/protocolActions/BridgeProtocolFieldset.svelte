@@ -2,12 +2,12 @@
 	// Types/constants
 	import { ActionType, type Action } from '$/constants/actions.ts'
 	import {
-		type BridgeProtocolId,
+		BridgeProtocolId,
 		protocolToBridgeId,
 	} from '$/constants/bridge-protocol-intents.ts'
 	import { Protocol } from '$/constants/protocols.ts'
-	import { isCctpSupportedChain } from '$/constants/cctp.ts'
-	import { isGatewaySupportedChain } from '$/constants/gateway.ts'
+	import { isCctpSupportedChain } from '$/lib/cctp.ts'
+	import { isGatewaySupportedChain } from '$/lib/gateway.ts'
 
 
 	// Props
@@ -49,7 +49,7 @@
 			(action.protocolAction?.protocol != null
 				? (protocolToBridgeId[action.protocolAction.protocol as Protocol] ?? null)
 				: null) ??
-			(cctpPairSupported ? ('cctp' as const) : gatewayPairSupported ? ('gateway' as const) : lifiPairSupported ? ('lifi' as const) : null)) as BridgeProtocolId | null,
+			(cctpPairSupported ? BridgeProtocolId.Cctp : gatewayPairSupported ? BridgeProtocolId.Gateway : lifiPairSupported ? BridgeProtocolId.Lifi : null)) as BridgeProtocolId | null,
 	)
 
 
@@ -61,11 +61,11 @@
 
 {#if action.type === ActionType.Bridge}
 	<div data-column>
-		{#if activeProtocol === 'cctp'}
+		{#if activeProtocol === BridgeProtocolId.Cctp}
 			<CctpBridgeSettingsFieldset bind:action />
-		{:else if activeProtocol === 'lifi'}
+		{:else if activeProtocol === BridgeProtocolId.Lifi}
 			<LifiBridgeSettingsFieldset bind:action />
-		{:else if activeProtocol === 'gateway'}
+		{:else if activeProtocol === BridgeProtocolId.Gateway}
 			<GatewayBridgeSettingsFieldset bind:action />
 		{:else if fromChainId !== null && toChainId !== null}
 			<p data-error>This chain pair is not supported by CCTP, LI.FI, or Gateway.</p>

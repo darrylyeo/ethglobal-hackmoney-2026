@@ -14,15 +14,15 @@
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { resolve } from '$app/paths'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import EvmTransactionId from '$/components/EvmTransactionId.svelte'
-	import NetworkView from '$/components/network/Network.svelte'
-	import WatchButton from '$/components/WatchButton.svelte'
+	import EntityView from '$/components/EntityView.svelte'
+	import EvmTransactionId from '$/views/EvmTransactionId.svelte'
+	import NetworkView from '$/views/network/Network.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
 
 	const DECIMAL_ONLY = /^\d+$/
 	const TX_HASH = /^0x[a-fA-F0-9]{64}$/
 
 
-	// Context
 
 
 
@@ -52,34 +52,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	// Props
-	let {
-		data,
-	}: {
-		data: {
-			nameParam: string
-			blockNumberParam: string
-			transactionId: `0x${string}`
-			config: { name: string }
-		}
-	} = $props()
 
 
 	// (Derived)
@@ -119,7 +91,7 @@
 				.from({ row: networkTransactionsCollection })
 				.where(({ row }) =>
 					and(
-						eq(row.$id.chainId, chainId),
+						eq(row.$id.$network.chainId, chainId),
 						eq(row.$id.txHash, transactionId ?? ''),
 					),
 				)
@@ -132,7 +104,7 @@
 				.from({ row: blocksCollection })
 				.where(({ row }) =>
 					and(
-						eq(row.$id.chainId, chainId),
+						eq(row.$id.$network.chainId, chainId),
 						eq(row.$id.blockNumber, blockNumber),
 					),
 				)
@@ -208,40 +180,52 @@
 
 <svelte:head>
 	<title>
-		Transaction {data.transactionId.slice(0, 10)}… · Block {data.blockNumberParam}
-		· {data.config.name}
+		{valid && transactionId
+			? `Transaction ${transactionId.slice(0, 10)}… · Block ${blockNumberParam} · ${config.name}`
+			: 'Transaction'}
 	</title>
 </svelte:head>
 
 
 <main data-column="gap-2">
-	<header data-row="wrap gap-4">
-		<div data-row="start gap-2" data-row-item="flexible">
-			<h1 data-orient="vertical">
+	{#if !valid}
+		<h1>Not found</h1>
+		<p>
+			{#if !parsed}
+				Network "{nameParam}" could not be resolved.
+			{:else if !blockNumberValid}
+				Block number must be a non-negative decimal integer.
+			{:else}
+				Invalid transaction hash.
+			{/if}
+		</p>
+	{:else}
+		<EntityView
+		entityType={EntityType.Transaction}
+		idSerialized={`${nameParam}:${transactionId}`}
+		href={resolve(
+			`/network/${nameParam}/block/${blockNumberParam}/transaction/${transactionIdParam}`,
+		)}
+		label={`Tx ${transactionId!.slice(0, 10)}… · ${config.name}`}
+		annotation="Transaction"
+	>
+		{#snippet Title()}
+			<span data-row="inline gap-2">
 				<EvmTransactionId
-					chainId={chainId}
-					txHash={transactionId ?? ''}
+					txHash={transactionId}
+					{chainId}
 					vertical
 				/>
-			</h1>
-			<WatchButton
-				entityType={EntityType.Transaction}
-				id={`${nameParam}:${transactionId}`}
-				label={`Tx ${(transactionId ?? '').slice(0, 10)}… · ${data.config.name}`}
-				href={resolve(
-					`/network/${nameParam}/block/${blockNumberParam}/transaction/${transactionIdParam}`,
-				)}
-			/>
-		</div>
-		<div data-row="gap-2">
-			<span data-text="annotation">Transaction</span>
-		</div>
-	</header>
-	<p>
-		<a href={showContextUrl} data-link>Show Context</a>
-	</p>
-	<NetworkView
-		data={networkData}
-		{placeholderBlockIds}
-	/>
+				<NetworkName {chainId} showIcon={false} />
+			</span>
+		{/snippet}
+		<p>
+			<a href={showContextUrl} data-link>Show Context</a>
+		</p>
+		<NetworkView
+			data={networkData}
+			{placeholderBlockIds}
+		/>
+	</EntityView>
+	{/if}
 </main>

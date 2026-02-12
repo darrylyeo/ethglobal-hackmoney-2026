@@ -18,8 +18,8 @@ const agentChatTurnToSuggestion = (turn: { id: string, userPrompt: string }): En
 	label: turn.userPrompt.slice(0, 40) || turn.id,
 })
 
-const actorToSuggestion = (row: { $id: { network: number, address: `0x${string}` } }): EntitySuggestion => {
-	const id = actorKey(row.$id.network, row.$id.address)
+const actorToSuggestion = (row: { $id: { $network: { chainId: number }, address: `0x${string}` } }): EntitySuggestion => {
+	const id = actorKey(row.$id.$network.chainId, row.$id.address)
 	return {
 		ref: {
 			entityType: EntityType.Actor,
@@ -30,8 +30,8 @@ const actorToSuggestion = (row: { $id: { network: number, address: `0x${string}`
 	}
 }
 
-const blockToSuggestion = (row: { $id: { chainId: number, blockNumber: number } }): EntitySuggestion => {
-	const id = `${row.$id.chainId}:${row.$id.blockNumber}`
+const blockToSuggestion = (row: { $id: { $network: { chainId: number }, blockNumber: number } }): EntitySuggestion => {
+	const id = `${row.$id.$network.chainId}:${row.$id.blockNumber}`
 	return {
 		ref: {
 			entityType: EntityType.Block,

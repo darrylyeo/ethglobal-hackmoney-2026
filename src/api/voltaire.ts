@@ -3,6 +3,7 @@
  * Uses ERC20 SELECTORS, decodeUint256; we use fetch-based createHttpProvider for compatibility (upstream provider may use native bindings).
  */
 import { ERC20 } from '@tevm/voltaire'
+import type { Trace } from '$/data/Trace.ts'
 
 export type VoltaireProvider = {
 	request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
@@ -65,8 +66,28 @@ export type RawTrace = {
 	gasUsed?: string
 	input?: string
 	output?: string
+	output?: string
 	error?: string
 	calls?: RawTrace[]
+}
+
+/** Normalize RawTrace (callTracer output) to Trace. */
+export function rawTraceToTrace(raw: RawTrace, index = 0): Trace {
+	const parseHex = (v: string | undefined): bigint | undefined =>
+		v ? BigInt(v) : undefined
+	return {
+		index,
+		type: raw.type,
+		from: raw.from,
+		to: raw.to,
+		value: raw.value,
+		gas: parseHex(raw.gas),
+		gasUsed: parseHex(raw.gasUsed),
+		input: raw.input,
+		output: raw.output,
+		error: raw.error,
+		children: raw.calls?.map((c, i) => rawTraceToTrace(c, i)),
+	}
 }
 
 export function getChainId(provider: VoltaireProvider): Promise<bigint> {
@@ -348,6 +369,55 @@ export async function debugTraceTransaction(
 	} catch {
 		return null
 	}
+}
+
+export type EthCallParams = {
+	to: `0x${string}`
+	data: `0x${string}`
+	from?: `0x${string}`
+	value?: string | bigint
+	gas?: string | bigint
+	gasPrice?: string | bigint
+}
+
+/** Generic eth_call for contract reads. */
+export async function ethCall(
+	provider: VoltaireProvider,
+	params: EthCallParams,
+	blockTag: string | bigint = 'latest',
+): Promise<string> {
+	const blockHex =
+		blockTag === 'latest'
+			? 'latest'
+			: typeof blockTag === 'bigint'
+				? `0x${blockTag.toString(16)}`
+				: String(blockTag)
+	const tx: Record<string, unknown> = {
+		to: params.to,
+		data: params.data,
+	}
+	if (params.from != null) tx.from = params.from
+	if (params.value != null)
+		tx.value =
+			typeof params.value === 'bigint'
+				? `0x${params.value.toString(16)}`
+				: params.value
+	if (params.gas != null)
+		tx.gas =
+			typeof params.gas === 'bigint'
+				? `0x${params.gas.toString(16)}`
+				: params.gas
+	if (params.gasPrice != null)
+		tx.gasPrice =
+			typeof params.gasPrice === 'bigint'
+				? `0x${params.gasPrice.toString(16)}`
+				: params.gasPrice
+	const res = await provider.request({
+		method: 'eth_call',
+		params: [tx, blockHex],
+	})
+	if (typeof res !== 'string') throw new Error('eth_call returned invalid data')
+	return res
 }
 
 export function createHttpProvider(url: string): VoltaireProvider {

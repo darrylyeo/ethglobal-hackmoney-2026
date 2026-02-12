@@ -11,11 +11,8 @@
 
 
 	// Functions
-	import {
-		createAction,
-		mergeActionParams,
-	} from '$/constants/actions.ts'
 	import { ActionType } from '$/constants/actions.ts'
+	import { createAction, mergeActionParams } from '$/lib/actions.ts'
 	import type { Session } from '$/data/Session.ts'
 	import { formatSessionPlaceholderName } from '$/lib/session/sessions.ts'
 	import { setSessionActions } from '$/lib/session/sessions.ts'

@@ -16,6 +16,7 @@ export enum CollectionId {
 	BridgeRouteItems = 'BridgeRouteItems',
 	BridgeRoutes = 'BridgeRoutes',
 	BridgeTransactions = 'BridgeTransactions',
+	Contracts = 'Contracts',
 	NetworkTransactions = 'NetworkTransactions',
 	Coins = 'Coins',
 	CctpAllowance = 'CctpAllowance',
@@ -43,10 +44,14 @@ export enum CollectionId {
 	SessionSimulations = 'SessionSimulations',
 	Sessions = 'Sessions',
 	TransferEvents = 'TransferEvents',
+	BridgeTransferEvents = 'BridgeTransferEvents',
+	SwapTransferEvents = 'SwapTransferEvents',
+	TransactionTraces = 'TransactionTraces',
 	TransferGraphs = 'TransferGraphs',
 	TransferRequests = 'TransferRequests',
 	UniswapPositions = 'UniswapPositions',
 	UniswapPools = 'UniswapPools',
+	VerifiedContractSources = 'VerifiedContractSources',
 	SiweVerifications = 'SiweVerifications',
 	WalletConnections = 'WalletConnections',
 	Wallets = 'Wallets',
@@ -56,3 +61,11 @@ export enum CollectionId {
 	StateChannelDeposits = 'StateChannelDeposits',
 	StateChannelTransfers = 'StateChannelTransfers',
 }
+
+export const collectionEntries: readonly { id: CollectionId }[] = (
+	Object.values(CollectionId) as CollectionId[]
+).map((id) => ({ id }))
+
+export const collectionsById = Object.fromEntries(
+	collectionEntries.map((e) => [e.id, e]),
+) as Record<CollectionId, { id: CollectionId }>

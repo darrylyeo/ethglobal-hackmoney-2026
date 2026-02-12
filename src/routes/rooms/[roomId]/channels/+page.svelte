@@ -5,6 +5,7 @@
 
 
 	// Context
+	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { walletsCollection } from '$/collections/Wallets.ts'
@@ -18,12 +19,8 @@
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
 
-	// Props
-	let { data }: { data: { roomId: string } } = $props()
-
-
 	// (Derived)
-	const roomId = $derived(data.roomId)
+	const roomId = $derived(page.params.roomId ?? '')
 	const roomDisplayName = $derived(roomIdToDisplayName(roomId))
 
 

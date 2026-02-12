@@ -18,7 +18,7 @@
 		updateTransaction,
 	} from '$/collections/BridgeTransactions.ts'
 	import { executeSelectedRoute } from '$/api/lifi.ts'
-	import { getTxUrl } from '$/constants/explorers.ts'
+	import { getTxPath } from '$/lib/network-paths.ts'
 	import { toasts } from '$/lib/toast.svelte.ts'
 	import { createOptimisticAction } from '@tanstack/svelte-db'
 
@@ -31,7 +31,7 @@
 		fromChainId,
 		toChainId,
 		amount,
-		executing = $bindable(false),
+		isExecuting = $bindable(false),
 		status = $bindable({ overall: 'idle', steps: [] } as BridgeStatus),
 		onExecute,
 	}: {
@@ -41,7 +41,7 @@
 		fromChainId: number,
 		toChainId: number,
 		amount: bigint,
-		executing?: boolean,
+		isExecuting?: boolean,
 		status?: BridgeStatus,
 		onExecute?: (fn: () => Promise<{ txHash?: `0x${string}` } | undefined>) => void,
 	} = $props()
@@ -151,7 +151,7 @@
 	})
 
 	$effect(() => {
-		executing =
+		isExecuting =
 			actionTx?.state === 'pending' || actionTx?.state === 'persisting'
 	})
 
@@ -206,7 +206,7 @@
 				{step.step}
 				{#if step.txHash}
 					<a
-						href={getTxUrl(step.chainId ?? fromChainId, step.txHash)}
+						href={getTxPath(step.chainId ?? fromChainId, step.txHash)}
 						target="_blank"
 						rel="noopener noreferrer"
 						data-tx-hash={step.txHash}

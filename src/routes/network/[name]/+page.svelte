@@ -1,10 +1,9 @@
 <script lang="ts">
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
+	import type { Entity } from '$/data/$EntityType.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import type { BlockEntry } from '$/data/Block.ts'
-	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { networksByChainId } from '$/constants/networks.ts'
+	import type { ParsedNetworkParam } from '$/constants/networks.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 
@@ -22,21 +21,46 @@
 
 
 	// State
-	import { blocksCollection, ensureBlocksForPlaceholders } from '$/collections/Blocks.ts'
+	import {
+		blocksCollection,
+		blocksViewFrom,
+		ensureBlocksForPlaceholders,
+	} from '$/collections/Blocks.ts'
+	import { networksCollection } from '$/collections/Networks.ts'
 
 
 	// Components
-	import NetworkView from '$/components/network/Network.svelte'
-	import WatchButton from '$/components/WatchButton.svelte'
+	import EntityView from '$/components/EntityView.svelte'
+import NetworkContracts from '$/views/network/NetworkContracts.svelte'
+		import NetworkView from '$/views/network/Network.svelte'
+		import NetworkName from '$/views/NetworkName.svelte'
 
 
 	// (Derived)
 	const nameParam = $derived(page.params.name ?? '')
 	const parsed = $derived(parseNetworkNameParam(nameParam))
 	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
-	const config = $derived(parsed?.config ?? { name: '', type: '' })
+	const config = $derived(parsed?.config ?? ({ name: '', type: 'Mainnet' } as unknown as ParsedNetworkParam['config']))
 	const slug = $derived(parsed?.slug ?? '')
 	const caip2 = $derived(parsed?.caip2 ?? '')
+	const networkQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: networksCollection })
+				.where(({ row }) => eq(row.$id.$network.chainId, chainId))
+				.select(({ row }) => ({ row })),
+		[() => chainId],
+	)
+	const networkRow = $derived(networkQuery.data?.[0]?.row)
+	const networkEntity = $derived(
+		networkRow && parsed
+			? ({ ...networkRow, config: parsed.config, slug: parsed.slug, caip2: parsed.caip2 } as Entity<EntityType.Network> & {
+					config: typeof parsed.config
+					slug: string
+					caip2: string
+				})
+			: undefined,
+	)
 
 
 	// State
@@ -49,11 +73,25 @@
 		(q) =>
 			q
 				.from({ row: blocksCollection })
-				.where(({ row }) => eq(row.$id.chainId, chainId))
+				.where(({ row }) => eq(row.$id.$network.chainId, chainId))
 				.select(({ row }) => ({ row })),
 		[() => chainId],
 	)
+	const latestBlockQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: blocksCollection })
+				.where(({ row }) => eq(row.$id.$network.chainId, chainId))
+				.orderBy(({ row }) => row.$id.blockNumber, 'desc')
+				.select(({ row }) => row.$id.blockNumber),
+		[() => chainId],
+	)
 	registerLocalLiveQueryStack(() => [
+		{
+			id: 'network',
+			label: 'Network',
+			query: networkQuery as { data: { row: unknown }[] | undefined },
+		},
 		{
 			id: 'blocks',
 			label: 'Blocks',
@@ -61,24 +99,15 @@
 		},
 	])
 
-	const blocksMap = $derived(
-		(() => {
-			const inner = new Map<
-				BlockEntry | undefined,
-				Set<ChainTransactionEntry>
-			>()
-			for (const row of (blocksQuery.data ?? []).map((r) => r.row as BlockEntry))
-				inner.set(row, new Set())
-			return inner
-		})(),
-	)
-	const networkData = $derived(
-		new Map([[networksByChainId[chainId] ?? undefined, blocksMap]]),
-	)
+	const blocksView = $derived(blocksViewFrom(chainId, blocksQuery.data ?? []))
 	const placeholderBlockIds = $derived(
-		height > 0
-			? new Set<number | [number, number]>([[0, height]])
-			: new Set<number | [number, number]>([0]),
+		(() => {
+			const h: number =
+				height > 0 ? height : Number(latestBlockQuery.data?.[0] ?? 0)
+			return h > 0
+				? new Set<number | [number, number]>([[0, h]])
+				: new Set<number | [number, number]>([0])
+		})(),
 	)
 
 	$effect(() => {
@@ -129,77 +158,40 @@
 		<h1>Network not found</h1>
 		<p>The network "{nameParam}" could not be resolved.</p>
 	{:else}
-		<header data-column="gap-2">
-			<div data-row="wrap gap-4">
-				<div data-row="start gap-2" data-row-item="flexible">
-					<div data-column="gap-2">
-						<h1>{config.name}</h1>
-						<code data-orient="vertical" data-text="font-monospace">{caip2}</code>
-						{#if config.type}
-							<span data-tag={config.type}>{config.type}</span>
-						{/if}
-					</div>
-					<WatchButton
-						entityType={EntityType.Network}
-						id={slug}
-						label={config.name}
-						href={resolve(`/network/${nameParam}`)}
-					/>
-				</div>
-				<div data-row="gap-2">
-					<span data-text="annotation">Network</span>
-				</div>
-			</div>
-			<p>Chain ID {chainId}</p>
-		</header>
-
-		<nav class="network-actions" data-row="wrap gap-2">
-			{#if config.explorerUrl}
-				<a
-					href={(config.explorerUrl ? `${config.explorerUrl}/blocks` : null) ?? ''}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="action-link"
-				>
-					Blocks
-				</a>
-				<a
-					href={config.explorerUrl}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="action-link"
-				>
-					Explorer
-				</a>
-			{/if}
-		</nav>
-
-		<NetworkView
-			data={networkData}
-			{placeholderBlockIds}
-			bind:visiblePlaceholderBlockIds
-		/>
+		<EntityView
+			entityType={EntityType.Network}
+			entity={networkEntity}
+			idSerialized={slug}
+			href={resolve(`/network/${nameParam}`)}
+			label={config.name}
+			metadata={[
+				{ term: 'Chain ID', detail: String(chainId) },
+				{ term: 'CAIP-2', detail: caip2 },
+				...('nativeCurrency' in config && config.nativeCurrency
+					? [{ term: 'Currency', detail: config.nativeCurrency.symbol }]
+					: []),
+			]}
+		>
+			{#snippet Title()}
+				<NetworkName {chainId} />
+			{/snippet}
+			{#snippet AfterTitle({ entity })}
+				{#if entity && 'config' in entity && entity.config?.type}
+					<span data-tag={entity.config.type}>{entity.config.type}</span>
+				{/if}
+			{/snippet}
+			<p>
+				<a href={resolve(`/network/${nameParam}/contracts`)} data-link>Contracts</a>
+			</p>
+			<NetworkContracts chainId={chainId} nameParam={nameParam} />
+			<NetworkView
+				data={blocksView.networkData}
+				{placeholderBlockIds}
+				bind:visiblePlaceholderBlockIds
+				compact
+			/>
+		</EntityView>
 	{/if}
 </main>
 
 
-<style>
-	[data-tag='Testnet'] {
-		opacity: 0.8;
-		font-size: 0.85em;
-	}
-
-	.network-actions .action-link {
-		font-size: 0.9em;
-		padding: 0.25rem 0.5rem;
-		border-radius: 0.25rem;
-		border: 1px solid var(--color-border);
-		background: var(--color-bg-subtle);
-		color: inherit;
-		text-decoration: none;
-	}
-
-	.network-actions .action-link:hover {
-		background: var(--color-border);
-	}
-</style>

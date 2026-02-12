@@ -1,6 +1,6 @@
 /**
  * Actor: A unique account address on any chain.
- * $id: { network, address, interopAddress }
+ * $id: { $network: Network$Id, address, interopAddress? }
  */
 
 import { CollectionId } from '$/constants/collections.ts'
@@ -22,7 +22,7 @@ export const actorsCollection = createCollection(
 		queryKey: ['actors'],
 		queryFn: () => Promise.resolve<ActorRow[]>([]),
 		queryClient,
-		getKey: (row: ActorRow) => actorKey(row.$id.network, row.$id.address),
+		getKey: (row: ActorRow) => actorKey(row.$id.$network.chainId, row.$id.address),
 	}),
 )
 
@@ -37,13 +37,11 @@ export const insertActorsForAddress = (
 	for (const chainId of chainIds) {
 		actorsCollection.utils.writeUpsert({
 			$id: {
-				network: chainId,
+				$network: { chainId },
 				address,
 				interopAddress: toInteropName(chainId, address),
 			},
 			$source: DataSource.Local,
-			chainId,
-			address,
 		})
 	}
 }

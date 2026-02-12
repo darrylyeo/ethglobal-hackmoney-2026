@@ -20,7 +20,7 @@ import {
 import { parse, stringify } from 'devalue'
 
 const getKey = (row: ChainTransactionEntry) =>
-	`${row.$id.chainId}:${row.$id.txHash}`
+	`${row.$id.$network.chainId}:${row.$id.txHash}`
 
 export type ChainTransactionRow = ChainTransactionEntry & {
 	$source: DataSource
@@ -49,7 +49,7 @@ export const fetchNetworkTransaction = async (
 		})
 	} else {
 		networkTransactionsCollection.insert({
-			$id: { chainId, txHash },
+			$id: { $network: { chainId }, txHash },
 			blockNumber: 0,
 			blockHash: '',
 			from: '',
@@ -86,7 +86,7 @@ export const fetchNetworkTransaction = async (
 			throw new Error('Transaction not found')
 		}
 		const row: ChainTransactionRow = {
-			$id: { chainId, txHash },
+			$id: { $network: { chainId }, txHash },
 			blockNumber: parseInt(tx.blockNumber, 16),
 			blockHash: tx.blockHash,
 			transactionIndex: parseInt(tx.transactionIndex, 16),

@@ -116,11 +116,7 @@
 
 <form
 	data-row="gap-2"
-	data-entity-ref-input
-	onsubmit={(e) => {
-		e.preventDefault()
-		handleSubmit()
-	}}
+	onsubmit={(e) => (e.preventDefault(), handleSubmit())}
 >
 	<div data-row-item="flexible">
 		<RichTextarea

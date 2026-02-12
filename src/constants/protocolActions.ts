@@ -15,6 +15,16 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Swap,
+			protocol: Protocol.Spandex,
+		},
+		payloadSchema: type({
+			fromActorCoin: 'object',
+			toActorCoin: 'object',
+		}),
+	},
+	{
+		id: {
+			actionType: ActionType.Swap,
 			protocol: Protocol.UniswapV4,
 		},
 		payloadSchema: type({
@@ -268,13 +278,14 @@ export const protocolActions = [
 	},
 ] as const satisfies ProtocolAction[]
 
-export const getProtocolAction = (
-	action: ActionType,
-	protocol: Protocol,
-): (typeof protocolActions)[number] => {
-	const pa = protocolActions.find((p) => p.id.actionType === action && p.id.protocol === protocol)
-	if (!pa) throw new Error(`No protocol action for ${action}:${protocol}`)
-	return pa
-}
+export type ProtocolActionEntry = (typeof protocolActions)[number]
 
-export const getActionType = (pa: (typeof protocolActions)[number]): ActionType => pa.id.actionType
+export const protocolActionByActionAndProtocol: Partial<
+	Record<`${ActionType}:${Protocol}`, ProtocolActionEntry>
+> = Object.fromEntries(
+	protocolActions.map((pa) => [
+		`${pa.id.actionType}:${pa.id.protocol}` as `${ActionType}:${Protocol}`,
+		pa,
+	]),
+)
+

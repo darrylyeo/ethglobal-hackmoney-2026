@@ -73,7 +73,7 @@
 			.sort((a, b) => (a.chainId !== b.chainId ? a.chainId - b.chainId : a.id.localeCompare(b.id))),
 	)
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 </script>
 
 

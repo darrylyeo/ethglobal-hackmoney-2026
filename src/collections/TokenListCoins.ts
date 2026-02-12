@@ -42,12 +42,10 @@ const normalizeTokenListEntry = (
 	if (!normalized) return null
 	return {
 		$id: {
-			chainId: entry.chainId,
+			$network: { chainId: entry.chainId },
 			address: normalized,
 			interopAddress: toInteropName(entry.chainId, normalized),
 		},
-		chainId: entry.chainId,
-		address: normalized,
 		symbol: entry.symbol,
 		name: entry.name,
 		decimals: entry.decimals,
@@ -81,7 +79,10 @@ const fetchTokenListEntries = async (): Promise<TokenListCoinRow[]> => {
 	const unique = new Map<string, TokenListCoinRow>()
 	for (const row of rows) {
 		if (unique.size >= TOKEN_LIST_MAX_ENTRIES) break
-		unique.set(`${row.chainId}-${row.address}`, row)
+		unique.set(
+			`${row.$id.$network.chainId}-${row.$id.address.toLowerCase()}`,
+			row,
+		)
 	}
 	return [...unique.values()]
 }
@@ -93,6 +94,6 @@ export const tokenListCoinsCollection = createCollection(
 		queryFn: fetchTokenListEntries,
 		queryClient,
 		getKey: (row: TokenListCoinRow) =>
-			`${row.chainId}-${row.address.toLowerCase()}`,
+			`${row.$id.$network.chainId}-${row.$id.address.toLowerCase()}`,
 	}),
 )

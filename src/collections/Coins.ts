@@ -13,7 +13,7 @@ export type CoinRow = CoinEntry & { $source: DataSource }
 export const normalizeCoin = (entry: Erc20Token): CoinEntry => ({
 	...entry,
 	$id: {
-		network: entry.chainId,
+		$network: { chainId: entry.chainId },
 		address: entry.address,
 		interopAddress: toInteropName(entry.chainId, entry.address),
 	},
@@ -31,6 +31,6 @@ export const coinsCollection = createCollection(
 			),
 		queryClient,
 		getKey: (row: CoinRow) =>
-			`${row.$id.network}-${row.$id.address.toLowerCase()}`,
+			`${row.$id.$network.chainId}-${row.$id.address.toLowerCase()}`,
 	}),
 )

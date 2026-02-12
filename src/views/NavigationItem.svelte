@@ -10,7 +10,7 @@
 		href?: string
 		tag?: string
 		tagIcon?: string
-		defaultOpen?: boolean
+		defaultIsOpen?: boolean
 		manualWatch?: boolean
 		children?: NavigationItem[]
 		allChildren?: NavigationItem[]
@@ -19,110 +19,68 @@
 
 
 <script lang="ts">
-	// Context
+	import { page } from '$app/stores'
 	import { preloadData } from '$app/navigation'
-
+	import Address, { AddressFormat } from '$/views/Address.svelte'
+	import Icon from '$/components/Icon.svelte'
+	import TreeNode from '$/components/TreeNode.svelte'
 
 	// Props
 	let {
 		items,
 		currentPathname,
-	}: {
-		items: NavigationItem[]
-		currentPathname: string
-	} = $props()
-
+	}: { items: NavigationItem[], currentPathname?: string } = $props()
 
 	// State
-	import { SvelteMap } from 'svelte/reactivity'
-
-	let isOpen = $state(new SvelteMap<NavigationItem, boolean>())
-
 	let searchValue = $state('')
+	let treeOpenState = $state(new Map<string, boolean>())
 
-	let effectiveSearchValue = $derived(searchValue.trim().toLowerCase())
-
-
-	// Functions
-	const hasCurrentPage = (item: NavigationItem): boolean => (
-		(
-			item.href != null &&
-			(
-				currentPathname === item.href.split('#')[0] ||
-				currentPathname.startsWith(item.href.split('#')[0] + '/')
-			)
-		) ||
-		(item.allChildren ?? item.children)?.some(hasCurrentPage) === true
-	)
-
-	const effectiveChildren = (item: NavigationItem) =>
-		item.allChildren && (effectiveSearchValue || hasCurrentPage(item))
-			? item.allChildren
-			: item.children
-
-	const fuzzyMatch = (
-		text: string,
-		query: string,
-	): [number, number][] | undefined => {
-		const ranges: [number, number][] = []
-		let textIndex = 0
-
-		for (const char of query) {
-			textIndex = text.toLowerCase().indexOf(char, textIndex)
-
-			if (textIndex === -1) return
-
-			const lastRange = ranges.at(-1)
-
-			if (lastRange && lastRange[1] === textIndex) {
-				lastRange[1]++
-			} else {
-				ranges.push([textIndex, textIndex + 1])
-			}
-
-			textIndex++
-		}
-
-		return ranges
+	// (Derived)
+	const pathname = $derived(currentPathname ?? $page.url.pathname)
+	const effectiveSearchValue = $derived(searchValue.trim().toLowerCase())
+	const treeIsOpen = (item: NavigationItem) =>
+		treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false)
+	const treeOnOpenChange = (item: NavigationItem, open: boolean) => {
+		treeOpenState = new Map(treeOpenState).set(item.id, open)
 	}
+	const treeGetChildren = (item: NavigationItem) =>
+		item.children ?? item.allChildren ?? undefined
 
-	const matchesSearch = (item: NavigationItem, query: string): boolean =>
-		!query ||
-		!!fuzzyMatch(item.title, query) ||
-		(item.allChildren ?? item.children)?.some((child) => matchesSearch(child, query)) === true
+	function filterTree(nodes: NavigationItem[], query: string): NavigationItem[] {
+		if (!query) return nodes
+		const q = query.toLowerCase()
+		return nodes.flatMap((n) => {
+			const matches = n.title.toLowerCase().includes(q)
+			const children = treeGetChildren(n)
+			const filteredChildren = children ? filterTree(children, query) : []
+			return matches || filteredChildren.length > 0
+				? [{ ...n, children: filteredChildren.length ? filteredChildren : children }]
+				: []
+		})
+	}
+	const filteredItems = $derived(filterTree(items, effectiveSearchValue))
 
-	const escapeHtml = (s: string) =>
-		s
+	function escapeHtml(s: string): string {
+		return s
 			.replace(/&/g, '&amp;')
 			.replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;')
 			.replace(/"/g, '&quot;')
-			.replace(/'/g, '&#39;')
-
-	const highlightText = (text: string, query: string) => {
-		const ranges = fuzzyMatch(text, query)
-
-		return ranges
-			? [
-					...ranges.flatMap(([start, end], i, arr) => [
-						escapeHtml(text.slice(arr[i - 1]?.[1] ?? 0, start)),
-						`<mark>${escapeHtml(text.slice(start, end))}</mark>`,
-					]),
-					escapeHtml(text.slice(ranges.at(-1)?.[1] ?? 0)),
-				].join('')
-			: escapeHtml(text)
 	}
-
-	const navIconProps = (icon: string) =>
-		icon.startsWith('data:') || icon.includes('/')
+	function highlightText(text: string, query: string): string {
+		if (!query) return escapeHtml(text)
+		const esc = escapeHtml(text)
+		const re = new RegExp(`(${escapeRegex(query)})`, 'gi')
+		return esc.replace(re, '<mark>$1</mark>')
+	}
+	function escapeRegex(s: string): string {
+		return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+	}
+	function navIconProps(icon: string): { icon?: string; src?: string } {
+		return icon.startsWith('data:') || icon.startsWith('/') || icon.startsWith('http')
 			? { src: icon }
 			: { icon }
-
-
-	// Components
-	import Address from '$/components/Address.svelte'
-	import Icon from '$/components/Icon.svelte'
-	import { AddressFormat } from '$/components/Address.svelte'
+	}
 </script>
 
 
@@ -175,45 +133,22 @@
 		}}
 	/>
 
-	{@render navigationItems(items)}
+	<TreeNode
+		nodes={filteredItems}
+		getKey={(item) => item.id}
+		getChildren={treeGetChildren}
+		isOpen={treeIsOpen}
+		onOpenChange={treeOnOpenChange}
+		Content={navContent}
+		listTag="menu"
+		listAttrs={{ 'data-column': 'gap-0' }}
+		detailsAttrs={{ 'data-sticky-container': '' }}
+		summaryAttrs={{ 'data-sticky': '', 'data-row': 'start gap-2' }}
+	/>
 </search>
 
-{#snippet navigationItems(items: NavigationItem[])}
-	<menu data-column="gap-0">
-		{#each effectiveSearchValue ? items.filter( (item) => matchesSearch(item, effectiveSearchValue), ) : items as item (item.id)}
-			<li>
-				{@render navigationItem(item)}
-			</li>
-		{/each}
-	</menu>
-{/snippet}
-
-{#snippet navigationItem(item: NavigationItem)}
-	{@const children = effectiveChildren(item)}
-	{@const hasExpandable = ((item.allChildren ?? item.children)?.length ?? 0) > 0}
-	{#if !hasExpandable}
-		{@render linkable(item)}
-	{:else}
-		<details
-			bind:open={
-				() =>
-					effectiveSearchValue
-						? matchesSearch(item, effectiveSearchValue)
-						: hasCurrentPage(item) ||
-							(isOpen.get(item) ?? item.defaultOpen ?? false),
-				(_) => {
-					if (!effectiveSearchValue && _ !== undefined) isOpen.set(item, _)
-				}
-			}
-			data-sticky-container
-		>
-			<summary data-sticky data-row="start gap-2">
-				{@render linkable(item)}
-			</summary>
-
-			{@render navigationItems(children ?? [])}
-		</details>
-	{/if}
+{#snippet navContent({ node }: { node: NavigationItem })}
+	{@render linkable(node)}
 {/snippet}
 
 {#snippet linkable(item: NavigationItem)}
@@ -238,19 +173,18 @@
 						network={item.address.network}
 						address={item.address.address}
 						format={AddressFormat.MiddleTruncated}
-						linked={false}
+						isLinked={false}
 						showAvatar={true}
 					/>
 				{:else if item.icon}
-					<Icon class="icon" {...navIconProps(item.icon)} />
+					<Icon {...navIconProps(item.icon)} size="1em" />
 				{/if}
 
 				{#if !item.address}
 					<span
 						>{@html effectiveSearchValue
 							? highlightText(item.title, effectiveSearchValue)
-							: escapeHtml(item.title)}</span
-					>
+							: escapeHtml(item.title)}</span>
 				{/if}
 			</span>
 			{#if item.tag || item.manualWatch}
@@ -258,13 +192,13 @@
 					{#if item.tag}
 						<span data-tag={item.tag} data-row="start gap-1">
 							{#if item.tagIcon}
-								<Icon class="tag-icon" {...navIconProps(item.tagIcon)} />
+								<Icon {...navIconProps(item.tagIcon)} size="1em" />
 							{/if}
 							{item.tag}
 						</span>
 					{/if}
 					{#if item.manualWatch}
-						<Icon class="icon manual-watch" icon="★" aria-label="Pinned" />
+						<Icon icon="★" aria-label="Pinned" size="1em" />
 					{/if}
 				</span>
 			{/if}
@@ -277,19 +211,18 @@
 						network={item.address.network}
 						address={item.address.address}
 						format={AddressFormat.MiddleTruncated}
-						linked={false}
+						isLinked={false}
 						showAvatar={true}
 					/>
 				{:else if item.icon}
-					<Icon class="icon" {...navIconProps(item.icon)} />
+					<Icon {...navIconProps(item.icon)} size="1em" />
 				{/if}
 
 				{#if !item.address}
 					<span
 						>{@html effectiveSearchValue
 							? highlightText(item.title, effectiveSearchValue)
-							: escapeHtml(item.title)}</span
-					>
+							: escapeHtml(item.title)}</span>
 				{/if}
 			</span>
 			{#if item.tag || item.manualWatch}
@@ -297,13 +230,13 @@
 					{#if item.tag}
 						<span data-tag={item.tag} data-row="start gap-1">
 							{#if item.tagIcon}
-								<Icon class="tag-icon" {...navIconProps(item.tagIcon)} />
+								<Icon {...navIconProps(item.tagIcon)} size="1em" />
 							{/if}
 							{item.tag}
 						</span>
 					{/if}
 					{#if item.manualWatch}
-						<Icon class="icon manual-watch" icon="★" aria-label="Pinned" />
+						<Icon icon="★" aria-label="Pinned" size="1em" />
 					{/if}
 				</span>
 			{/if}
@@ -314,7 +247,7 @@
 
 <style>
 	.nav-items {
-		menu {
+		:global(menu) {
 			gap: 2px;
 			list-style: none;
 			font-size: 0.975em;
@@ -324,7 +257,7 @@
 			}
 		}
 
-		details[data-sticky-container] {
+		:global(details[data-sticky-container]) {
 			--sticky-marginBlockStart: 1.75rem;
 			--sticky-paddingBlockStart: 0.5rem;
 		}
@@ -344,49 +277,8 @@
 			}
 		}
 
-		summary,
-		a {
-			> .icon {
-				display: flex;
-				font-size: 1.25em;
-				width: 1em;
-				height: 1em;
-				line-height: 1;
-
-				:global(img),
-				:global(svg) {
-					border-radius: 0.125rem;
-					width: 100%;
-					height: 100%;
-				}
-			}
-		}
-
-		[data-tag] .tag-icon {
-			display: flex;
-			font-size: 0.9em;
-			width: 1em;
-			height: 1em;
-			line-height: 1;
-			flex-shrink: 0;
-		}
-
-		[data-tag] .tag-icon :global(img),
-		[data-tag] .tag-icon :global(svg) {
-			border-radius: 0.125rem;
-			width: 100%;
-			height: 100%;
-		}
-
-		:global(mark) {
-			font-weight: 600;
-			text-decoration: underline;
-			background-color: transparent;
-			color: inherit;
-		}
-
-		summary,
-		a:not(summary a) {
+		:global(summary),
+		a:not(:global(summary) a) {
 			padding: 0.45rem 0.45rem;
 			border-radius: 0.375rem;
 			font-weight: 500;
@@ -407,15 +299,22 @@
 			}
 		}
 
-		details:not([open]) > summary::after {
+		:global(details:not([open]) > summary::after) {
 			transform: perspective(100px) rotateX(180deg) rotate(-90deg);
 		}
 
-		summary ~ * {
+		:global(summary ~ *) {
 			margin-inline-start: 1em;
 			margin-block-start: 2px;
 			padding-inline-start: 0.75em;
 			box-shadow: -1px 0 var(--color-border);
+		}
+
+		:global(mark) {
+			font-weight: 600;
+			text-decoration: underline;
+			background-color: transparent;
+			color: inherit;
 		}
 	}
 </style>

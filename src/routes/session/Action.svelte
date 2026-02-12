@@ -9,8 +9,8 @@
 		type ActionParams,
 		type ActionTypeDefinition,
 		type LiquidityAction,
-		mergeActionParams,
 	} from '$/constants/actions.ts'
+	import { mergeActionParams } from '$/lib/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { protocolActions } from '$/constants/protocolActions.ts'
@@ -20,7 +20,7 @@
 	import {
 		Protocol,
 		ProtocolStrategy,
-		protocols,
+		protocolsById,
 	} from '$/constants/protocols.ts'
 	import { getBridgeProtocolOptions } from '$/lib/protocols/bridgeProtocolOptions.ts'
 	import { NetworkType, networks, networksByChainId } from '$/constants/networks.ts'
@@ -86,9 +86,6 @@
 			? (action.params as { fromChainId: number | null; toChainId: number | null; protocolIntent?: 'cctp' | 'lifi' | 'gateway' | null })
 			: null,
 	)
-	const protocolsById = Object.fromEntries(
-		protocols.map((protocol) => [protocol.id, protocol]),
-	) as Record<Protocol, import('$/constants/protocols.ts').ProtocolDefinition>
 	const protocolOptions = $derived(
 		action.type === ActionType.Bridge && bridgeParams
 			? getBridgeProtocolOptions(
@@ -346,25 +343,21 @@
 </script>
 
 
-<details
-	data-card
-	data-column="gap-3"
-	open
->
-	<summary data-row="gap-2 align-center justify-between">
-		<h3>
-			<Select
-				items={actionTypes as readonly ActionTypeDefinition[]}
-				getItemId={(item: ActionTypeDefinition) => item.type}
-				getItemLabel={(item: ActionTypeDefinition) => `${item.icon} ${item.label}`}
-				bind:value={() => actionTypeValue, onActionTypeChange}
-				placeholder="Select action"
-				ariaLabel="Action"
-			/>
-		</h3>
-	</summary>
+	<details>
+		<summary data-row="gap-2 justify-between">
+			<h3>
+				<Select
+					items={actionTypes as readonly ActionTypeDefinition[]}
+					getItemId={(item: ActionTypeDefinition) => item.type}
+					getItemLabel={(item: ActionTypeDefinition) => `${item.icon} ${item.label}`}
+					bind:value={() => actionTypeValue, onActionTypeChange}
+					placeholder="Select action"
+					ariaLabel="Action"
+				/>
+			</h3>
+		</summary>
 
-	<div data-column="gap-4">
+		<div data-column="gap-4">
 		<form data-grid="columns-autofit column-min-16 gap-4" onsubmit={onSubmit}>
 			<section data-card data-column>
 				<h3>Parameters</h3>
@@ -409,21 +402,19 @@
 				{/if}
 			</section>
 
-			{#if action.type === ActionType.Swap && resolvedProtocol && spandexSwapProtocols.includes(resolvedProtocol)}
+			{#if action.type === ActionType.Swap && resolvedProtocol && (resolvedProtocol === Protocol.Spandex || spandexSwapProtocols.includes(resolvedProtocol))}
 				{@const provider = protocolToSpandexProvider[resolvedProtocol]}
-				{#if provider}
-					<SpandexQuotesPanel
-						params={action.params as ActionParams<ActionType.Swap>}
-						provider={provider}
-						strategy={protocolStrategy}
-						swapperAccount={sessionCtx.selectedActor}
-					/>
-				{/if}
+				<SpandexQuotesPanel
+					params={action.params as ActionParams<ActionType.Swap>}
+					provider={provider ?? undefined}
+					strategy={protocolStrategy}
+					swapperAccount={sessionCtx.selectedActor}
+				/>
 			{/if}
 
 			<section data-card data-column>
 				<h3>{proposedTransactionsHeading}</h3>
-				<div data-row="center">
+				<div data-row>
 					<button
 						type="submit"
 						name="action"
@@ -466,6 +457,7 @@
 		{/if}
 	</div>
 </details>
+
 
 <style>
 	button {

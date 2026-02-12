@@ -330,7 +330,7 @@
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 	import { Button } from 'bits-ui'
 	import TransferDialog from '$/routes/rooms/TransferDialog.svelte'
 
@@ -501,7 +501,7 @@
 	</main>
 
 	{#if transferChannel}
-		<TransferDialog channel={transferChannel} bind:open={transferOpen} />
+		<TransferDialog channel={transferChannel} bind:isOpen={transferOpen} />
 	{/if}
 
 

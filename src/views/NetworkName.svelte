@@ -21,13 +21,13 @@
 
 
 	// Components
-	import NetworkIcon from '$/components/NetworkIcon.svelte'
+	import NetworkIcon from '$/views/NetworkIcon.svelte'
 </script>
 
 <span class="network-name" data-row="inline gap-2">
 	{#if showIcon}
 		<span class="icon" data-row="center">
-			<NetworkIcon chainId={chainId} alt={name} size={16} />
+			<NetworkIcon chainId={chainId} alt={name} />
 		</span>
 	{/if}
 	<span class="label">{name}</span>

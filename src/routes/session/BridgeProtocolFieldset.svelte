@@ -7,10 +7,10 @@
 	} from '$/constants/bridge-protocol-intents.ts'
 	import {
 		Protocol,
-		protocols,
+		protocolsById,
 	} from '$/constants/protocols.ts'
-	import { isCctpSupportedChain } from '$/constants/cctp.ts'
-	import { isGatewaySupportedChain } from '$/constants/gateway.ts'
+	import { isCctpSupportedChain } from '$/lib/cctp.ts'
+	import { isGatewaySupportedChain } from '$/lib/gateway.ts'
 
 
 	// Props
@@ -60,27 +60,6 @@
 								(cctpPairSupported ? ('cctp' as const) : gatewayPairSupported ? ('gateway' as const) : ('lifi' as const))),
 	)
 
-	const protocolReason = $derived(
-		!fromChainId || !toChainId
-			? 'Select chains to choose a protocol'
-			: cctpPairSupported && !lifiPairSupported && !gatewayPairSupported
-				? 'Only CCTP supports this pair'
-				: lifiPairSupported && !cctpPairSupported && !gatewayPairSupported
-					? 'Only LI.FI supports this pair'
-					: gatewayPairSupported && !cctpPairSupported && !lifiPairSupported
-						? 'Only Gateway supports this pair'
-						: protocolIntent === BridgeProtocolId.Cctp
-							? 'Using CCTP (your preference)'
-							: protocolIntent === BridgeProtocolId.Lifi
-								? 'Using LI.FI (your preference)'
-								: protocolIntent === BridgeProtocolId.Gateway
-									? 'Using Gateway (your preference)'
-									: 'Using CCTP (best route)',
-	)
-	const protocolsById = Object.fromEntries(
-		protocols.map((protocol) => [protocol.id, protocol]),
-	) as Record<Protocol, import('$/constants/protocols.ts').ProtocolDefinition>
-
 	const protocolOptions = $derived(
 		(
 			[
@@ -101,6 +80,23 @@
 		...protocolOptions.map((o) => ({ type: 'protocol' as const, option: o })),
 	])
 
+	const protocolReason = $derived(
+		!fromChainId || !toChainId
+			? 'Select chains to choose a protocol'
+			: cctpPairSupported && !lifiPairSupported && !gatewayPairSupported
+				? 'Only CCTP supports this pair'
+				: lifiPairSupported && !cctpPairSupported && !gatewayPairSupported
+					? 'Only LI.FI supports this pair'
+					: gatewayPairSupported && !cctpPairSupported && !lifiPairSupported
+						? 'Only Gateway supports this pair'
+						: protocolIntent === BridgeProtocolId.Cctp
+							? 'Using CCTP (your preference)'
+							: protocolIntent === BridgeProtocolId.Lifi
+								? 'Using LI.FI (your preference)'
+								: protocolIntent === BridgeProtocolId.Gateway
+									? 'Using Gateway (your preference)'
+									: 'Using CCTP (best route)',
+	)
 
 	// Actions
 	const setProtocolIntent = (value: BridgeProtocolId | null) => {
@@ -150,10 +146,10 @@
 							data-row="gap-2 align-center"
 							onclick={() => setProtocolIntent(row.option.bridgeId)}
 						>
-							{#if row.option.icon.includes('/')}
-								<Icon class="protocol-icon" src={row.option.icon} size={20} alt="" />
-							{:else}
-								<Icon class="protocol-icon" icon={row.option.icon} size={20} alt="" />
+						{#if row.option.icon.includes('/')}
+							<Icon class="protocol-icon" src={row.option.icon} size={20} alt="" />
+						{:else}
+							<Icon class="protocol-icon" icon={row.option.icon} size={20} alt="" />
 							{/if}
 							<div data-column="gap-2">
 								<strong>{row.option.label}</strong>

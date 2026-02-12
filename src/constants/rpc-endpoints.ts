@@ -11,6 +11,7 @@ export const rpcEndpoints: readonly RpcEndpoint[] = [
 	{
 		chainId: ChainId.Ethereum,
 		url: 'https://mainnet.rpc.buidlguidl.com',
+		// url: 'http://100.73.81.63:8545',
 		serviceProvider: ServiceProvider.Public,
 		transportType: TransportType.Http,
 	},

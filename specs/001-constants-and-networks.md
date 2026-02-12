@@ -12,13 +12,13 @@ Chain and token constants for USDC bridging.
   Sei, Ink, Codex, Plume, XDC, Arc, plus testnets (Sepolia, Amoy, Fuji, etc.)
 - `Network` type: `{ id: ChainId, name: string, type: NetworkType }`
 - `networks` array with `as const satisfies readonly Network[]`
-- `networksByChainId` lookup object
+- `networksByChainId` lookup: derived via `Object.fromEntries(networks.map(...))` (see spec 045 constants file pattern).
 
 `src/constants/coins.ts`:
 
 - `Erc20Token` type: `{ chainId, address, symbol, decimals }`
 - `ercTokens` array: USDC for each chain with `as const satisfies`
-- `ercTokensBySymbolByChainId` lookup: `chainId → symbol → token`
+- `ercTokensBySymbolByChainId` lookup: derived from `ercTokens` via `Object.fromEntries` (spec 045).
 
 ## Acceptance criteria
 

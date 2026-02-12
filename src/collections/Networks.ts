@@ -11,7 +11,7 @@ export type NetworkRow = NetworkEntry & { $source: DataSource }
 
 export const normalizeNetwork = (entry: Network): NetworkEntry => ({
 	...entry,
-	$id: entry.id,
+	$id: { chainId: entry.id },
 })
 
 export const networksCollection = createCollection(
@@ -25,6 +25,6 @@ export const networksCollection = createCollection(
 					.map((row) => ({ ...row, $source: DataSource.Local })),
 			),
 		queryClient,
-		getKey: (row: NetworkRow) => String(row.$id),
+		getKey: (row: NetworkRow) => String(row.$id.chainId),
 	}),
 )

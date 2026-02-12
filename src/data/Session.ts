@@ -1,9 +1,7 @@
-import {
-	ActionType,
-	createAction,
-	actionTypes,
-	type Action,
-} from '$/constants/actions.ts'
+import { ActionType, actionTypes, type Action } from '$/constants/actions.ts'
+import { createAction } from '$/lib/actions.ts'
+
+export { createAction }
 import type { TevmSimulationSummaryStatus } from '$/data/TevmSimulationResult.ts'
 
 export const actions = actionTypes.map((d) => createAction(d.type)) as unknown as readonly Action[]

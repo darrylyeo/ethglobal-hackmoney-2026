@@ -221,7 +221,7 @@ export async function resolveIdentity(
 ): Promise<Partial<IdentityResolution>> {
 	const now = Date.now()
 	const { kind, normalized } = normalizeIdentity(raw)
-	const resolvers = identityResolversByKind.get(kind) ?? []
+	const resolvers = identityResolversByKind[kind] ?? []
 	const resolver = resolvers.find((r) => r.chainId === chainId && r.ensRegistry)
 	if (!resolver?.ensRegistry) {
 		return {

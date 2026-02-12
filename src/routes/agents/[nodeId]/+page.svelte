@@ -141,7 +141,7 @@
 	import ModelInput from '$/components/ModelInput.svelte'
 	import AgentChatTree from './AgentChatTree.svelte'
 	import EntityRefInput from '$/components/EntityRefInput.svelte'
-	import WatchButton from '$/components/WatchButton.svelte'
+	import EntityView from '$/components/EntityView.svelte'
 </script>
 
 
@@ -158,21 +158,13 @@
 				connections={llmConnections}
 			/>
 		{:else}
-			<div data-column="gap-4">
-				<header data-row="wrap gap-4">
-					<div data-row="start gap-2" data-row-item="flexible">
-						<h1>{tree.name ?? 'New conversation'}</h1>
-						<WatchButton
-							entityType={EntityType.AgentChatTree}
-							id={tree.id}
-							label={tree.name ?? 'New conversation'}
-							href={resolve(`/agents/${tree.id}`)}
-						/>
-					</div>
-					<div data-row="gap-2">
-						<span data-text="annotation">Conversation</span>
-					</div>
-				</header>
+			<EntityView
+				entityType={EntityType.AgentChatTree}
+				idSerialized={tree.id}
+				href={resolve(`/agents/${tree.id}`)}
+				label={tree.name ?? 'New conversation'}
+				annotation="Conversation"
+			>
 				<p data-text="muted">Start the conversation by typing a prompt.</p>
 				<div data-row="gap-2 align-center">
 					<ModelInput
@@ -190,24 +182,16 @@
 					}}
 					placeholder="Ask something…"
 				/>
-			</div>
+			</EntityView>
 		{/if}
 	{:else}
-		<div data-column="gap-4">
-			<header data-row="wrap gap-4">
-				<div data-row="start gap-2" data-row-item="flexible">
-					<h1>New conversation</h1>
-					<WatchButton
-						entityType={EntityType.AgentChatTree}
-						id={nodeId}
-						label="New conversation"
-						href={resolve(`/agents/${nodeId}`)}
-					/>
-				</div>
-				<div data-row="gap-2">
-					<span data-text="annotation">Conversation</span>
-				</div>
-			</header>
+		<EntityView
+			entityType={EntityType.AgentChatTree}
+			idSerialized={nodeId}
+			href={resolve(`/agents/${nodeId}`)}
+			label="New conversation"
+			annotation="Conversation"
+		>
 			<p data-text="muted">Start the conversation by typing a prompt.</p>
 			<div data-row="gap-2 align-center">
 				<ModelInput
@@ -225,6 +209,6 @@
 				}}
 				placeholder="Ask something…"
 			/>
-		</div>
+		</EntityView>
 	{/if}
 </main>

@@ -1,113 +1,87 @@
-<script lang="ts" generics="Item">
+<script lang="ts" generics="_Item">
 	// Types/constants
+	import { stringify } from 'devalue'
 	import type { Snippet } from 'svelte'
-
-
-	// Functions
-	const defaultItemLabel = (item: Item) => String(item)
-	const isRecord = (value: unknown): value is Record<string, unknown> =>
-		typeof value === 'object' && value !== null
-	const isGroup = (
-		value: unknown,
-	): value is {
-		id?: string
-		label: string
-		items: readonly Item[]
-	} =>
-		isRecord(value) &&
-		typeof value.label === 'string' &&
-		Array.isArray(value.items)
-	const isGroupedItems = (
-		value:
-			| readonly Item[]
-			| readonly { id?: string; label: string; items: readonly Item[] }[],
-	): value is readonly {
-		id?: string
-		label: string
-		items: readonly Item[]
-	}[] => value.length > 0 && isGroup(value[0])
-
 
 	// Props
 	let {
 		items,
-		type = 'single',
-		value = $bindable(type === 'multiple' ? [] : ''),
+		value = $bindable(null as _Item | null),
 		placeholder,
 		disabled,
 		name,
 		allowDeselect,
 		id,
 		ariaLabel,
-		getItemId = defaultItemLabel,
-		getItemLabel = defaultItemLabel,
+		getItemId = stringify,
+		getItemLabel = getItemId,
 		getItemDisabled,
+		getItemGroupId,
+		getGroupLabel = (groupId: string) => groupId,
 		Before,
 		After,
-		Item,
+		Item: ItemSnippet,
 		children,
 		...rootProps
 	}: {
-		items:
-			| readonly Item[]
-			| readonly { id?: string; label: string; items: readonly Item[] }[],
-		value?: string | string[],
-		type?: 'single' | 'multiple',
-		placeholder?: string,
-		disabled?: boolean,
-		name?: string,
-		allowDeselect?: boolean,
-		id?: string,
-		ariaLabel?: string,
-		getItemId?: (item: Item) => string,
-		getItemLabel?: (item: Item) => string,
-		getItemDisabled?: (item: Item) => boolean,
-		Before?: Snippet,
-		After?: Snippet,
-		Item?: Snippet<[item: Item, selected: boolean]>,
-		children?: Snippet,
+		items: readonly _Item[]
+		value?: _Item | null
+		placeholder?: string
+		disabled?: boolean
+		name?: string
+		allowDeselect?: boolean
+		id?: string
+		ariaLabel?: string
+		getItemId?: (item: _Item) => string
+		getItemLabel?: (item: _Item) => string
+		getItemDisabled?: (item: _Item) => boolean
+		getItemGroupId?: (item: _Item) => string
+		getGroupLabel?: (groupId: string) => string
+		Before?: Snippet
+		After?: Snippet
+		Item?: Snippet<[item: _Item, selected: boolean]>
+		children?: Snippet
 		[key: string]: unknown
 	} = $props()
 
 
 	// (Derived)
 	const normalizedItems = $derived(
-		(isGroupedItems(items) ? items.flatMap((group) => group.items) : items).map(
-			(item) => ({
-				item,
-				id: getItemId(item),
-				label: getItemLabel(item),
-				disabled: getItemDisabled ? getItemDisabled(item) : false,
-			}),
-		),
+		items.map((item) => ({
+			item,
+			id: getItemId(item),
+			label: getItemLabel(item),
+			disabled: getItemDisabled ? getItemDisabled(item) : false,
+		})),
 	)
 	const normalizedGroups = $derived(
-		isGroupedItems(items)
-			? items.map((group) => ({
-					id: group.id ?? group.label,
-					label: group.label,
-					items: group.items.map((item) => ({
-						item,
-						id: getItemId(item),
-						label: getItemLabel(item),
-						disabled: getItemDisabled ? getItemDisabled(item) : false,
-					})),
-				}))
+		getItemGroupId
+			? Array.from(
+					items.reduce((m, item) => {
+						const gid = getItemGroupId!(item)
+						const arr = m.get(gid) ?? []
+						arr.push(item)
+						m.set(gid, arr)
+						return m
+					}, new Map<string, _Item[]>()),
+				)
+					.map(([id, groupItems]) => ({
+						id,
+						label: getGroupLabel(id),
+						items: groupItems.map((item) => ({
+							item,
+							id: getItemId(item),
+							label: getItemLabel(item),
+							disabled: getItemDisabled ? getItemDisabled(item) : false,
+						})),
+					}))
 			: [],
 	)
 	const triggerLabel = $derived(
-		type === 'multiple'
-			? Array.isArray(value) && value.length > 0
-				? normalizedItems
-						.filter((item) => value.includes(item.id))
-						.map((item) => item.label)
-						.join(', ')
-				: (placeholder ?? '')
-			: ((typeof value === 'string'
-					? normalizedItems.find((item) => item.id === value)?.label
-					: null) ??
-					placeholder ??
-					''),
+		normalizedItems.find((item) => {
+			const singleValue = value ?? null
+			return item.id === (singleValue ? getItemId(singleValue) : '')
+		})?.label ?? placeholder ?? '',
 	)
 	const rootItems = $derived(
 		normalizedItems.map((item) => ({
@@ -122,183 +96,99 @@
 	import { Select } from 'bits-ui'
 </script>
 
-{#if type === 'multiple'}
-	<Select.Root
-		{...rootProps}
-		type="multiple"
-		bind:value={() => (Array.isArray(value) ? value : []), (v) => (value = v)}
-		{disabled}
-		{name}
-		{allowDeselect}
-		items={rootItems}
-	>
-		{#if children}
-			{@render children()}
-		{:else}
-			<Select.Trigger {id} aria-label={ariaLabel}>
-				<span data-row="gap-2">
-					{#if Before}
-						{@render Before()}
-					{/if}
-					<span>{triggerLabel}</span>
-					{#if After}
-						{@render After()}
-					{/if}
-				</span>
-			</Select.Trigger>
-			<Select.Portal>
-				<Select.Content>
-					<Select.Viewport>
-						{#if normalizedGroups.length > 0}
-							{#each normalizedGroups as group (group.id)}
-								<Select.Group>
-									<Select.GroupHeading>{group.label}</Select.GroupHeading>
-									{#each group.items as item (item.id)}
-										<Select.Item
-											value={item.id}
-											label={item.label}
-											disabled={item.disabled}
-										>
-											{#snippet children({ selected })}
-												<span data-row="start gap-2">
-													<span
-														class="select-item-check"
-														aria-hidden="true"
-														data-selected={selected}
-													>
-														✓
-													</span>
-													{#if Item}
-														{@render Item(item.item, selected)}
-													{:else}
-														{item.label}
-													{/if}
+
+<Select.Root
+	{...rootProps}
+	type="single"
+	bind:value={() => {
+		const singleValue = value ?? null
+		return singleValue ? getItemId(singleValue) : ''
+	}, (v) => {
+		value = normalizedItems.find((item) => item.id === v)?.item ?? null
+	}}
+	{disabled}
+	{name}
+	{allowDeselect}
+	items={rootItems}
+>
+	{#if children}
+		{@render children()}
+	{:else}
+		<Select.Trigger {id} aria-label={ariaLabel}>
+			<span data-row="gap-2">
+				{#if Before}
+					{@render Before()}
+				{/if}
+				<span>{triggerLabel}</span>
+				{#if After}
+					{@render After()}
+				{/if}
+			</span>
+		</Select.Trigger>
+		<Select.Portal>
+			<Select.Content>
+				<Select.Viewport>
+					{#if normalizedGroups.length > 0}
+						{#each normalizedGroups as group (group.id)}
+							<Select.Group>
+								<Select.GroupHeading>{group.label}</Select.GroupHeading>
+								{#each group.items as item (item.id)}
+									<Select.Item
+										value={item.id}
+										label={item.label}
+										disabled={item.disabled}
+									>
+										{#snippet children({ selected })}
+											<span data-row="start gap-2">
+												<span
+													class="select-item-check"
+													aria-hidden="true"
+													data-selected={selected}
+												>
+													✓
 												</span>
-											{/snippet}
-										</Select.Item>
-									{/each}
-								</Select.Group>
-							{/each}
-						{:else}
-							{#each normalizedItems as item (item.id)}
-								<Select.Item
-									value={item.id}
-									label={item.label}
-									disabled={item.disabled}
-								>
-									{#snippet children({ selected })}
-										<span data-row="start gap-2">
-											<span
-												class="select-item-check"
-												aria-hidden="true"
-												data-selected={selected}
-											>
-												✓
+												{#if ItemSnippet}
+													{@render ItemSnippet(item.item, selected)}
+												{:else}
+													{item.label}
+												{/if}
 											</span>
-											{#if Item}
-												{@render Item(item.item, selected)}
-											{:else}
-												{item.label}
-											{/if}
-										</span>
-									{/snippet}
-								</Select.Item>
-							{/each}
-						{/if}
-					</Select.Viewport>
-				</Select.Content>
-			</Select.Portal>
-		{/if}
-	</Select.Root>
-{:else}
-	<Select.Root
-		{...rootProps}
-		type="single"
-		bind:value={() => (typeof value === 'string' ? value : ''), (v) => (value = v)}
-		{disabled}
-		{name}
-		{allowDeselect}
-		items={rootItems}
-	>
-		{#if children}
-			{@render children()}
-		{:else}
-			<Select.Trigger {id} aria-label={ariaLabel}>
-				<span data-row="gap-2">
-					{#if Before}
-						{@render Before()}
-					{/if}
-					<span>{triggerLabel}</span>
-					{#if After}
-						{@render After()}
-					{/if}
-				</span>
-			</Select.Trigger>
-			<Select.Portal>
-				<Select.Content>
-					<Select.Viewport>
-						{#if normalizedGroups.length > 0}
-							{#each normalizedGroups as group (group.id)}
-								<Select.Group>
-									<Select.GroupHeading>{group.label}</Select.GroupHeading>
-									{#each group.items as item (item.id)}
-										<Select.Item
-											value={item.id}
-											label={item.label}
-											disabled={item.disabled}
+										{/snippet}
+									</Select.Item>
+								{/each}
+							</Select.Group>
+						{/each}
+					{:else}
+						{#each normalizedItems as item (item.id)}
+							<Select.Item
+								value={item.id}
+								label={item.label}
+								disabled={item.disabled}
+							>
+								{#snippet children({ selected })}
+									<span data-row="start gap-2">
+										<span
+											class="select-item-check"
+											aria-hidden="true"
+											data-selected={selected}
 										>
-											{#snippet children({ selected })}
-												<span data-row="start gap-2">
-													<span
-														class="select-item-check"
-														aria-hidden="true"
-														data-selected={selected}
-													>
-														✓
-													</span>
-													{#if Item}
-														{@render Item(item.item, selected)}
-													{:else}
-														{item.label}
-													{/if}
-												</span>
-											{/snippet}
-										</Select.Item>
-									{/each}
-								</Select.Group>
-							{/each}
-						{:else}
-							{#each normalizedItems as item (item.id)}
-								<Select.Item
-									value={item.id}
-									label={item.label}
-									disabled={item.disabled}
-								>
-									{#snippet children({ selected })}
-										<span data-row="start gap-2">
-											<span
-												class="select-item-check"
-												aria-hidden="true"
-												data-selected={selected}
-											>
-												✓
-											</span>
-											{#if Item}
-												{@render Item(item.item, selected)}
-											{:else}
-												{item.label}
-											{/if}
+											✓
 										</span>
-									{/snippet}
-								</Select.Item>
-							{/each}
-						{/if}
-					</Select.Viewport>
-				</Select.Content>
-			</Select.Portal>
-		{/if}
-	</Select.Root>
-{/if}
+										{#if ItemSnippet}
+											{@render ItemSnippet(item.item, selected)}
+										{:else}
+											{item.label}
+										{/if}
+									</span>
+								{/snippet}
+							</Select.Item>
+						{/each}
+					{/if}
+				</Select.Viewport>
+			</Select.Content>
+		</Select.Portal>
+	{/if}
+</Select.Root>
 
 
 <style>

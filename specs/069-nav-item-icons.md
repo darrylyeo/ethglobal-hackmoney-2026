@@ -6,9 +6,11 @@ consistent visual cue. Uses the existing `NavigationItem.icon` and
 
 ## Scope
 
-- **Source:** `navigationItems` in `src/routes/+layout.svelte` (and any
-  derived children: account items, sessions, agents, explore networks/coins,
-  multiplayer rooms/peers, test routes).
+- **Source:** `navigationItems` produced by `useNavigationItems` in
+  `src/routes/navigationItems.svelte.ts` (see spec 091); layout passes the
+  result to `<Navigation>`. Icons are set on every entry and derived child
+  (account items, sessions, agents, explore networks/coins, multiplayer
+  rooms/peers, test routes) inside `getNavigationItems`.
 - **Format:** Prefer single emoji (or short emoji sequence) per item for
   consistency and no extra assets. Icon component already renders `icon` as
   text; `data:` URLs are supported via `navIconProps` for wallet/account
@@ -57,11 +59,12 @@ Network items: chain icon from config when available, else 🌐.
 
 ## Implementation
 
-- In `+layout.svelte`, add `icon` to every entry in `navigationItems` and to
-  every derived child array (sessions, pinned agents, explore coins/networks,
-  multiplayer rooms/peers, test links). Use the mapping above; for **room**
-  children use `roomIdToPlaceEmoji(room.id)`; for other dynamic items use the
-  same icon as their parent section or the type-specific icon listed.
+- In `src/routes/navigationItems.svelte.ts`, every entry in the array returned
+  by `getNavigationItems` and every derived child array (sessions, pinned agents,
+  explore coins/networks, multiplayer rooms/peers, test links) has an `icon`.
+  Use the mapping above; for **room** children use `roomIdToPlaceEmoji(room.id)`;
+  for other dynamic items use the same icon as their parent section or the
+  type-specific icon listed.
 - Ensure account nav items continue to use `wallet.icon ?? fallback` (e.g. 👤).
 - No change to `NavigationItem.svelte` or `Icon.svelte` required; they already
   support optional `icon` and render it.
@@ -82,11 +85,11 @@ Network items: chain icon from config when available, else 🌐.
 
 ## Status
 
-Complete. Icons added in `+layout.svelte` for all nav items; account fallback
-👤; room rows use **place-based emoji** (`roomIdToPlaceEmoji(room.id)`);
-peersNavItems and network rows use type icons; network rows use
-`config.icon ?? '🌐'`. `NavigationItem.svelte` updated so paths (`/icons/...`)
-are passed as `src` to Icon for chain SVGs.
+Complete. Icons are set in `navigationItems.svelte.ts` (spec 091) for all nav
+items; account fallback 👤; room rows use **place-based emoji**
+(`roomIdToPlaceEmoji(room.id)`); peersNavItems and network rows use type icons;
+network rows use `config.icon ?? '🌐'`. `NavigationItem.svelte` updated so
+paths (`/icons/...`) are passed as `src` to Icon for chain SVGs.
 
 ## Output when complete
 

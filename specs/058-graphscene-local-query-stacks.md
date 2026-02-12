@@ -9,11 +9,10 @@ every page/view that uses live queries registers a local stack for visualization
   appropriate live query contexts when props are omitted.
 - All route pages and views that use `useLiveQuery` register their local query
   entries via `registerLocalLiveQueryStack` so the graph can highlight them.
-- **Global stack is the watched entity set** (spec 084): the entities the user
-  is currently tracking (wallet-connection accounts, active sessions, recent
-  transactions, manually watched entities) are registered via
-  `registerGlobalLiveQueryStack` in the layout. This replaces the previous
-  hardcoded list of wallet-connections + sessions + wallets.
+- **Global stack** is registered inside `useNavigationItems` (spec 091) in
+  `src/routes/navigationItems.svelte.ts`. It includes wallet-connections,
+  sessions, wallets, recent transactions, and watched-entities queries. The
+  layout does not call `registerGlobalLiveQueryStack` directly; the hook does.
 - Context hooks: `useGlobalQueries()` and `useLocalQueries()` expose the shared
   stacks; layout and GraphScene use them when explicit props are omitted.
 - Local-only graph: `LocalGraphScene.svelte` wraps GraphScene with
@@ -24,19 +23,10 @@ every page/view that uses live queries registers a local stack for visualization
 
 ## Global stack composition
 
-The layout builds the global stack from the unified watched entity view
-(spec 084). Each watch source maps to one or more query entries:
-
-| Watch source | Query entries |
-|---|---|
-| `wallet-connection` | Wallet connections query, wallets query |
-| `session-active` | Active sessions query |
-| `transaction-recent` | Recent transactions query |
-| `manual` | Watched entities collection query |
-
-This ensures the graph highlights exactly the entities the user is watching,
-and no layout query exists solely for the graph that isn't also used by nav
-or other layout consumers.
+The global stack is built inside `useNavigationItems` (spec 091). The hook
+registers: wallet-connections, sessions, wallets, recent transactions, watched
+entities. The same query data feeds `getNavigationItems`, so nav and graph
+share one derivation path.
 
 ## Non-goals
 

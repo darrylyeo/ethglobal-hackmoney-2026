@@ -51,6 +51,8 @@ export type NetworkConfig = {
 	icon?: string
 	/** Primary brand color (hex). */
 	color?: string
+	slug: string
+	caip2: string
 }
 
 export type MainnetTestnetMapping = {
@@ -440,7 +442,13 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 		icon: (await import('$/assets/networks/5042002.svg?url')).default,
 		color: '#94A3B8',
 	},
-])()
+])().then((raw) =>
+	raw.map((c) => ({
+		...c,
+		slug: c.name.toLowerCase().replace(/\s+/g, '-'),
+		caip2: `eip155:${c.chainId}`,
+	})),
+)
 
 export const networks: readonly Network[] = networkConfigs.map((config) => ({
 	id: config.chainId,
@@ -451,27 +459,23 @@ export const networks: readonly Network[] = networkConfigs.map((config) => ({
 export const networkConfigsByChainId: Partial<Record<number, NetworkConfig>> =
 	Object.fromEntries(networkConfigs.map((config) => [config.chainId, config]))
 
-/**
- * Approximate average transactions per block for placeholder counts when block is unknown.
- * Based on typical chain activity (Ethereum ~150–200, L2s lower). Default 150.
- */
-export const averageTransactionsPerBlockByChainId: Partial<
-	Record<ChainId, number>
-> = {
-	[ChainId.Ethereum]: 180,
-	[ChainId.Optimism]: 80,
-	[ChainId.Arbitrum]: 100,
-	[ChainId.Polygon]: 120,
-	[ChainId.Base]: 60,
-	[ChainId.Linea]: 40,
-	[ChainId.EthereumSepolia]: 30,
-	[ChainId.ArbitrumSepolia]: 20,
-	[ChainId.BaseSepolia]: 15,
-}
-const DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK = 150
-export const getAverageTransactionsPerBlock = (chainId: ChainId): number =>
-	averageTransactionsPerBlockByChainId[chainId] ??
-	DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK
+export const averageTransactionsPerBlockEntries = [
+	{ chainId: ChainId.Ethereum, value: 180 },
+	{ chainId: ChainId.Optimism, value: 80 },
+	{ chainId: ChainId.Arbitrum, value: 100 },
+	{ chainId: ChainId.Polygon, value: 120 },
+	{ chainId: ChainId.Base, value: 60 },
+	{ chainId: ChainId.Linea, value: 40 },
+	{ chainId: ChainId.EthereumSepolia, value: 30 },
+	{ chainId: ChainId.ArbitrumSepolia, value: 20 },
+	{ chainId: ChainId.BaseSepolia, value: 15 },
+] as const satisfies readonly { chainId: ChainId; value: number }[]
+
+export const averageTransactionsPerBlockByChainId = Object.fromEntries(
+	averageTransactionsPerBlockEntries.map((e) => [e.chainId, e]),
+) as Partial<Record<ChainId, (typeof averageTransactionsPerBlockEntries)[number]>>
+
+export const DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK = 150
 
 export const networksByChainId: Partial<Record<number, Network>> =
 	Object.fromEntries(networks.map((network) => [network.id, network]))
@@ -540,25 +544,9 @@ export const testnetsForMainnet = new Map(
 	]),
 )
 
-/** CAIP-2 chain id for EIP-155 (e.g. eip155:1). */
-export const toCaip2 = (chainId: number): string => `eip155:${chainId}`
+export const networkConfigsBySlug: Partial<Record<string, NetworkConfig>> =
+	Object.fromEntries(networkConfigs.map((c) => [c.slug, c]))
 
-/** Slug from display name: lowercase, spaces → hyphens. */
-export const toNetworkSlug = (name: string): string =>
-	name.toLowerCase().replace(/\s+/g, '-')
-
-const slugToChainId: Partial<Record<string, ChainId>> = Object.fromEntries(
-	networkConfigs.map((config) => [toNetworkSlug(config.name), config.chainId]),
-)
-
-export const getNetworkBySlug = (slug: string): NetworkConfig | null => {
-	const chainId = slugToChainId[slug.toLowerCase()]
-	return chainId != null ? (networkConfigsByChainId[chainId] ?? null) : null
-}
-
-export const getNetworkByCaip2 = (caip2: string): NetworkConfig | null => {
-	const match = /^eip155:(\d+)$/.exec(caip2)
-	const chainId = match ? (Number(match[1]) as ChainId) : null
-	return chainId != null ? (networkConfigsByChainId[chainId] ?? null) : null
-}
+export const networkConfigsByCaip2: Partial<Record<string, NetworkConfig>> =
+	Object.fromEntries(networkConfigs.map((c) => [c.caip2, c]))
 

@@ -10,7 +10,7 @@
 		toActorAllowance$Id,
 	} from '$/collections/ActorAllowances.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
-	import { getTxUrl } from '$/constants/explorers.ts'
+	import { getTxPath } from '$/lib/network-paths.ts'
 
 
 	// Context
@@ -61,7 +61,7 @@
 	const allowanceRow = $derived(
 		allowancesQuery.data?.find(
 			(r) =>
-				`${r.row.$id.chainId}:${r.row.$id.address}:${r.row.$id.tokenAddress}:${r.row.$id.spenderAddress}` ===
+				`${r.row.$id.$actorCoin.$actor.$network.chainId}:${r.row.$id.$actorCoin.$actor.address}:${r.row.$id.$actorCoin.$coin.address}:${r.row.$id.$spender.address}` ===
 				allowanceKey,
 		)?.row ?? null,
 	)
@@ -128,7 +128,7 @@
 			Approving…
 			{#if txHash}
 				<a
-					href={getTxUrl(chainId, txHash)}
+					href={getTxPath(chainId, txHash)}
 					target="_blank"
 					rel="noopener noreferrer"
 				>

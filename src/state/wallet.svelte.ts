@@ -8,7 +8,6 @@
  */
 
 // Context
-import { dev } from '$app/environment'
 import { useLiveQuery } from '@tanstack/svelte-db'
 import { ConnectionStatus } from '$/data/WalletConnection.ts'
 
@@ -92,9 +91,6 @@ const createWalletContext = () => {
 				const rdns = p.info?.rdns
 				if (typeof rdns !== 'string' || rdns.length === 0 || !p.provider)
 					continue
-				if (dev) {
-					console.debug('[EIP-6963] upsertWallet', rdns, p.info.name)
-				}
 				upsertWallet({
 					$id: { rdns },
 					name: p.info.name ?? '',

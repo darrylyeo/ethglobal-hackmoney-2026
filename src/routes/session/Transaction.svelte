@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { SessionActionTransaction } from '$/data/SessionActionTransaction.ts'
-	import { getTxUrl } from '$/constants/explorers.ts'
+	import { getTxPath } from '$/lib/network-paths.ts'
 
 
 	// Props
@@ -15,7 +15,7 @@
 			timeStyle: 'short',
 		}),
 	)
-	const txUrl = $derived(getTxUrl(transaction.chainId, transaction.txHash))
+	const txUrl = $derived(getTxPath(transaction.chainId, transaction.txHash))
 	const txShort = $derived(
 		transaction.txHash.length > 14
 			? `${transaction.txHash.slice(0, 10)}…${transaction.txHash.slice(-8)}`

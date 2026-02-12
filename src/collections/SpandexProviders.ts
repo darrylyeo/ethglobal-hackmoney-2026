@@ -23,12 +23,11 @@ const initialRows: SpandexProviderCollectionRow[] = (
 		SpandexProviderId.Relay,
 	] as const
 ).map((id) => ({
-		id,
-		name: id,
-		enabled: true,
-		$source: DataSource.Spandex,
-	}),
-)
+	id,
+	name: id,
+	enabled: true,
+	$source: DataSource.Spandex,
+}))
 
 export const spandexProvidersCollection = createCollection(
 	localOnlyCollectionOptions({

@@ -1,4 +1,4 @@
-import type { ChainId } from '$/constants/networks.ts'
+import type { Network$Id } from '$/data/Network.ts'
 
 export enum StorkPriceTransport {
 	Rest = 'rest',
@@ -9,18 +9,17 @@ export enum StorkPriceTransport {
 export type StorkPrice$Id = {
 	assetId: string
 	transport: StorkPriceTransport
-	chainId?: ChainId,
+	$network?: Network$Id
 }
 
 export type StorkPrice = {
 	$id: StorkPrice$Id
 	assetId: string
 	transport: StorkPriceTransport
-	chainId: ChainId | null
 	encodedAssetId: string | null
 	price: bigint
 	timestampNs: bigint
 	updatedAt: number
 	isLoading: boolean
-	error: string | null,
+	error: string | null
 }

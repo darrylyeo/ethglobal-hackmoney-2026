@@ -70,7 +70,7 @@ no Arc mainnet in Gateway yet).
 ### Gateway constants (new)
 
 - `src/constants/gateway.ts`:
-  - `GATEWAY_DOMAINS_BY_CHAIN_ID`: map ChainId → Gateway domain (same domain
+  - `gatewayDomainEntries / gatewayDomainByChainId`: map ChainId → Gateway domain (same domain
     IDs as CCTP where overlapping; include Arc Testnet 26).
   - `GATEWAY_API_BASE_TESTNET`, `GATEWAY_API_BASE_MAINNET`.
   - Gateway Wallet and Gateway Minter contract addresses per chain (from

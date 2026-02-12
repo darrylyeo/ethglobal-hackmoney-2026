@@ -20,9 +20,10 @@
 
 
 	// Components
-	import BlockNumber from '$/components/BlockNumber.svelte'
-	import NetworkView from '$/components/network/Network.svelte'
-	import WatchButton from '$/components/WatchButton.svelte'
+	import BlockNumber from '$/views/BlockNumber.svelte'
+	import EntityView from '$/components/EntityView.svelte'
+	import NetworkView from '$/views/network/Network.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
 
 
 	// (Derived)
@@ -39,7 +40,7 @@
 		blockNumberValid ? parseInt(blockNumberParam, 10) : 0,
 	)
 	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
-	const config = $derived(parsed?.config ?? { name: '', explorerUrl: undefined })
+	const config = $derived(parsed?.config ?? { name: '' })
 	const slug = $derived(parsed?.slug ?? '')
 	const caip2 = $derived(parsed?.caip2 ?? '')
 	const valid = $derived(!!parsed && blockNumberValid)
@@ -56,7 +57,7 @@
 				.from({ row: blocksCollection })
 				.where(({ row }) =>
 					and(
-						eq(row.$id.chainId, chainId),
+						eq(row.$id.$network.chainId, chainId),
 						eq(row.$id.blockNumber, blockNumber),
 					),
 				)
@@ -134,28 +135,25 @@
 			{/if}
 		</p>
 	{:else}
-		<header data-row="wrap gap-4">
-			<div data-row="start gap-2" data-row-item="flexible">
-				<h1>
+		<EntityView
+			entityType={EntityType.Block}
+			idSerialized={`${nameParam}:${blockNumber}`}
+			href={resolve(`/network/${nameParam}/block/${blockNumberParam}`)}
+			label={`Block ${blockNumber} · ${config.name}`}
+		>
+			{#snippet Title()}
+				<span data-row="inline gap-2">
 					<BlockNumber {chainId} blockNumber={blockNumber} />
-				</h1>
-				<WatchButton
-					entityType={EntityType.Block}
-					id={`${nameParam}:${blockNumber}`}
-					label={`Block ${blockNumber} · ${config.name}`}
-					href={resolve(`/network/${nameParam}/block/${blockNumberParam}`)}
-				/>
-			</div>
-			<div data-row="gap-2">
-				<span data-text="annotation">Block</span>
-			</div>
-		</header>
-		<p>
-			<a href={showContextUrl} data-link>Show Context</a>
-		</p>
-		<NetworkView
-			data={networkData}
-			{placeholderBlockIds}
-		/>
+					<NetworkName {chainId} showIcon={false} />
+				</span>
+			{/snippet}
+			<p>
+				<a href={showContextUrl} data-link>Show Context</a>
+			</p>
+			<NetworkView
+				data={networkData}
+				{placeholderBlockIds}
+			/>
+		</EntityView>
 	{/if}
 </main>

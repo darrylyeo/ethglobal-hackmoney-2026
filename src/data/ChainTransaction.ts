@@ -1,9 +1,9 @@
-import type { ChainId } from '$/constants/networks.ts'
 import type { EvmLog } from '$/api/voltaire.ts'
+import type { Network$Id } from '$/data/Network.ts'
 
 export type ChainTransaction$Id = {
-	chainId: ChainId
-	txHash: `0x${string}`,
+	$network: Network$Id
+	txHash: `0x${string}`
 }
 
 export type ChainTransactionEntry = {

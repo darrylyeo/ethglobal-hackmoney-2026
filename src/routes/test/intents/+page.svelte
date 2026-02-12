@@ -142,19 +142,19 @@
 			<p data-text="muted">No cached balances yet.</p>
 		{:else}
 			<div data-column="gap-2">
-			{#each actorCoins as row (row.$id.chainId + row.$id.address + row.$id.tokenAddress)}
+			{#each actorCoins as row (row.$id.$actor.$network.chainId + row.$id.$actor.address + row.$id.$coin.address)}
 				{@const intent = entityIntent(EntityType.ActorCoin, row.$id, 'intent-test')}
 				<div data-row="gap-2 align-center">
 					<EntityId
 						className="intent-entity"
-						draggableText={`${row.symbol} ${row.$id.address}`}
+						draggableText={`${row.symbol} ${row.$id.$coin.address}`}
 						entityType={EntityType.ActorCoin}
 						entityId={row.$id}
 						source="intent-test"
 					>
 						<span>
-							{row.symbol} · {resolveChainName(row.$id.chainId)}
-							· {row.$id.address.slice(0, 8)}…{row.$id.address.slice(-4)}
+							{row.symbol} · {resolveChainName(row.$id.$actor.$network.chainId)}
+							· {row.$id.$actor.address.slice(0, 8)}…{row.$id.$actor.address.slice(-4)}
 							· {formatSmallestToDecimal(row.balance, row.decimals, 4)}
 						</span>
 					</EntityId>

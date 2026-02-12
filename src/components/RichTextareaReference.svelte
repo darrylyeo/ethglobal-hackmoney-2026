@@ -8,6 +8,7 @@
 	// Components
 	import Combobox from '$/components/Combobox.svelte'
 
+
 	// Props
 	let {
 		ref: refValue,
@@ -39,9 +40,11 @@
 		onBlur?: () => void
 	} = $props()
 
+
 	// State
 	let filterValue = $state('')
 	let selectedId = $state('')
+
 
 	// (Derived)
 	const items = $derived(getSuggestions(filterValue))
@@ -53,6 +56,7 @@
 		if (item) onselect(item.ref)
 		selectedId = ''
 	})
+
 
 	// Functions
 	const camelToKebab = (s: string) =>

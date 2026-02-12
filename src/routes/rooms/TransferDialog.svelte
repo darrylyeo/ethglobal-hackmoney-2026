@@ -10,10 +10,10 @@
 	// Props
 	let {
 		channel,
-		open = $bindable(false),
+		isOpen = $bindable(false),
 	}: {
 		channel: StateChannelRow,
-		open: boolean,
+		isOpen: boolean,
 	} = $props()
 
 
@@ -89,7 +89,7 @@
 </script>
 
 
-<Dialog.Root bind:open>
+<Dialog.Root bind:open={isOpen}>
 	<Dialog.Content>
 		<Dialog.Title>Send USDC</Dialog.Title>
 		<Dialog.Description>
@@ -123,7 +123,7 @@
 			<Button.Root
 				type="button"
 				onclick={() => {
-					open = false
+					isOpen = false
 				}}
 			>
 				Cancel

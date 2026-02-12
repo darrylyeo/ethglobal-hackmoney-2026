@@ -190,7 +190,7 @@
 
 	<div data-column="gap-2">
 		<GatewayExecution
-			bind:executing
+			bind:isExecuting={executing}
 			{walletProvider}
 			senderAddress={selectedActor}
 			fromChainId={settings.fromChainId}

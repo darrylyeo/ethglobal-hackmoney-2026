@@ -10,7 +10,7 @@
 		min,
 		max,
 		value = $bindable(0n),
-		invalid = $bindable(false),
+		isInvalid = $bindable(false),
 		id,
 		disabled,
 		name,
@@ -26,7 +26,7 @@
 		min: bigint
 		max: bigint
 		value?: bigint
-		invalid?: boolean
+		isInvalid?: boolean
 		withSlider?: boolean
 		id?: string
 		disabled?: boolean
@@ -53,7 +53,7 @@
 	{...rootProps}
 	class="coin-amount"
 	data-row="gap-2"
-	data-invalid={invalid ? '' : undefined}
+	data-invalid={isInvalid ? '' : undefined}
 >
 	{#if effectiveCoin}
 		<NumberInput
@@ -61,7 +61,7 @@
 			{max}
 			decimals={effectiveCoin.decimals}
 		bind:value
-		bind:invalid
+		bind:isInvalid
 		{withSlider}
 		{id}
 		{disabled}

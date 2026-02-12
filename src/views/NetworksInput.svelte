@@ -21,30 +21,37 @@
 
 
 	// (Derived)
-	const groupedItems = $derived(
+	const itemsWithGroup = $derived(
 		networkFilterGroups
 			.filter((g) => g.networks.length > 0)
-			.map((group) => ({
-				id: group.id,
-				label: group.label,
-				items: [...group.networks],
-			})),
+			.flatMap((group) =>
+				group.networks.map((network) => ({ item: network, groupId: group.id, groupLabel: group.label })),
+			),
+	)
+	const items = $derived(itemsWithGroup.map((x) => x.item))
+	const groupLabelById = $derived(
+		Object.fromEntries(
+			networkFilterGroups
+				.filter((g) => g.networks.length > 0)
+				.map((g) => [g.id, g.label]),
+		),
 	)
 
 
 	// Components
-	import Combobox from '$/components/Combobox.svelte'
-	import NetworkIcon from '$/components/NetworkIcon.svelte'
+	import ComboboxMultiple from '$/components/ComboboxMultiple.svelte'
+	import NetworkIcon from '$/views/NetworkIcon.svelte'
 </script>
 
+
 {#snippet networkIcons()}
-	{#if Array.isArray(value) && value.length > 0}
+	{#if value.length > 0}
 		<span data-row="start gap-2">
 			{#each value as chainIdStr (chainIdStr)}
 				{@const chainId = Number(chainIdStr)}
 				{#if !Number.isNaN(chainId)}
 					<span class="network-input-icon">
-						<NetworkIcon {chainId} size={16} />
+						<NetworkIcon {chainId} />
 					</span>
 				{/if}
 			{/each}
@@ -55,22 +62,28 @@
 {#snippet networkItem(network: Network, selected: boolean)}
 	<span data-row="start gap-2" data-selected={selected}>
 		<span class="network-input-icon">
-			<NetworkIcon chainId={network.id} size={16} />
+			<NetworkIcon chainId={network.id} />
 		</span>
 		<span>{network.name}</span>
 	</span>
 {/snippet}
 
-<Combobox
+<ComboboxMultiple
 	{...rootProps}
-	type="multiple"
-	items={groupedItems}
-	bind:value
+	{items}
+	bind:value={() =>
+		(value ?? []).map((id) => items.find((n) => String(n.id) === id)).filter(Boolean) as Network[],
+		(v: Network[]) => (value = v.map((n) => String(n.id)))
+	}
 	{placeholder}
 	{disabled}
 	{ariaLabel}
 	getItemId={(n: Network) => String(n.id)}
 	getItemLabel={(n: Network) => n.name}
+	getItemGroupId={(n) =>
+		itemsWithGroup.find((x) => x.item.id === n.id)?.groupId ?? ''
+	}
+	getGroupLabel={(id) => groupLabelById[id] ?? id}
 	Before={networkIcons}
 	Item={networkItem}
 />

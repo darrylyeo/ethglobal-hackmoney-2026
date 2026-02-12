@@ -65,13 +65,12 @@
 </script>
 
 
-<details {...detailsProps}>
+<details data-scroll-container="block snap-block" {...detailsProps}>
 	<summary {...summaryProps}>
 		{#if Title}
 			{@render Title({ title, countText })}
 		{:else}
-			{title}
-			({countText})
+			<h3>{title} ({countText})</h3>
 		{/if}
 	</summary>
 	<ItemsList

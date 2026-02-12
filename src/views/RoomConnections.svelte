@@ -107,17 +107,16 @@
 
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
-	import Combobox from '$/components/Combobox.svelte'
+	import ComboboxMultiple from '$/components/ComboboxMultiple.svelte'
 	import TruncatedValue, {
 		TruncatedValueFormat,
 	} from '$/components/TruncatedValue.svelte'
 </script>
 
 
-{#if actors.length > 0}
 	<details class="room-connections" data-card data-scroll-container="block" open>
 		<summary class="section-summary">
-			<div data-row="gap-2 align-center">
+			<div data-row="gap-2">
 				<h3 data-row-item="flexible" class="section-heading">
 					Room / peer connections{#if singleAddress}
 						{' '}for <TruncatedValue
@@ -135,12 +134,11 @@
 					class="section-filters"
 					role="group"
 					aria-label="Filters"
-					data-row="gap-2 wrap align-center"
+					data-row="gap-2 wrap"
 					onclick={(e) => e.stopPropagation()}
 					onkeydown={(e) => e.stopPropagation()}
 				>
-					<Combobox
-						type="multiple"
+					<ComboboxMultiple
 						items={availableAccounts}
 						bind:value={filterAddresses}
 						placeholder="Account"
@@ -172,8 +170,8 @@
 						<li
 							class="connection-item"
 							data-columns-item
-							data-card="padding-2 radius-4"
-							data-row="gap-3 align-center"
+							data-card="padding-2"
+							data-row="gap-3"
 						>
 							<a
 								href="/rooms/{s.roomId}"
@@ -199,7 +197,6 @@
 			{/if}
 		</Boundary>
 	</details>
-{/if}
 
 
 <style>

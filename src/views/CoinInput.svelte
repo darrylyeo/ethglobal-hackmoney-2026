@@ -47,7 +47,7 @@
 
 
 	// Components
-	import CoinIcon from '$/components/CoinIcon.svelte'
+	import CoinIcon from '$/views/CoinIcon.svelte'
 	import Select from '$/components/Select.svelte'
 
 
@@ -76,7 +76,6 @@
 					src={iconUrl}
 					symbol={value.symbol}
 					alt={value.symbol}
-					size="1rem"
 				/>
 			</span>
 		{:else}
@@ -94,7 +93,6 @@
 					src={iconUrl}
 					symbol={coin.symbol}
 					alt={coin.symbol}
-					size="1rem"
 				/>
 			</span>
 		{:else}
@@ -117,7 +115,6 @@
 <Select
 	{...rootProps}
 	items={coins}
-	type="single"
 	bind:value={() =>
 		value ? toCoinId(value) : '', (nextValue: string | string[]) =>
 		(value =

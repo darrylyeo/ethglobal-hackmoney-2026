@@ -1,6 +1,6 @@
 import { Protocol, protocolsById } from '$/constants/protocols.ts'
-import { isCctpSupportedChain } from '$/constants/cctp.ts'
-import { isGatewaySupportedChain } from '$/constants/gateway.ts'
+import { isCctpSupportedChain } from '$/lib/cctp.ts'
+import { isGatewaySupportedChain } from '$/lib/gateway.ts'
 import type { ProtocolDefinition } from '$/constants/protocols.ts'
 
 const BRIDGE_PROTOCOLS: { id: Protocol; supported: (from: number | null, to: number | null, isTestnet: boolean) => boolean }[] = [

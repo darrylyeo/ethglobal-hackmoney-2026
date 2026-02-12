@@ -17,9 +17,9 @@
 	import { getUsdcAddress } from '$/api/lifi.ts'
 	import {
 		getCctpDomainId,
-		getCctpTokenMessenger,
 		getCctpMessageTransmitter,
-	} from '$/constants/cctp.ts'
+		getCctpTokenMessenger,
+	} from '$/lib/cctp.ts'
 	import { switchWalletChain } from '$/lib/wallet.ts'
 
 
@@ -35,7 +35,7 @@
 		feeBps,
 		isTestnet,
 		runAt = 0,
-		executing = $bindable(false),
+		isExecuting = $bindable(false),
 		onStatus,
 	}: {
 		walletProvider: EIP1193Provider | null,
@@ -48,7 +48,7 @@
 		feeBps: number,
 		isTestnet: boolean,
 		runAt?: number,
-		executing?: boolean,
+		isExecuting?: boolean,
 		onStatus?: (
 			step: 'burn' | 'attestation' | 'mint',
 			status: 'pending' | 'done' | 'error',
@@ -123,7 +123,7 @@
 			error = 'Missing wallet or chain config'
 			return
 		}
-		executing = true
+		isExecuting = true
 		error = null
 		burnTxHash = null
 		attestationPayload = null
@@ -210,7 +210,7 @@
 				error ?? undefined,
 			)
 		} finally {
-			executing = false
+			isExecuting = false
 		}
 	}
 

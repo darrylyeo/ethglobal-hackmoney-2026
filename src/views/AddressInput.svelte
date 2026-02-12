@@ -74,16 +74,17 @@
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 	import Combobox from '$/components/Combobox.svelte'
 	import PatternInput from '$/components/PatternInput.svelte'
 </script>
 
-{#snippet defaultItem(shared: Item, selected: boolean)}
-	<span data-row="start gap-0" data-selected={selected}>
-		<Address {network} address={shared.address} />
-	</span>
-{/snippet}
+
+	{#snippet defaultItem(item: Item, selected: boolean)}
+		<span data-row="start gap-0" data-selected={selected}>
+			<Address {network} address={item.address} />
+		</span>
+	{/snippet}
 
 {#snippet customInput(props: Record<string, unknown>)}
 	<PatternInput

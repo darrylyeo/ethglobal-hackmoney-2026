@@ -7,7 +7,6 @@
 	} from '$/collections/WalletConnections.ts'
 	import type { WalletRow } from '$/collections/Wallets.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
-	import { networkColorByChainId } from '$/constants/colors.ts'
 	import {
 		NetworkType,
 		networkConfigsByChainId,
@@ -186,7 +185,7 @@
 
 
 	// Components
-	import Address from '$/components/Address.svelte'
+	import Address from '$/views/Address.svelte'
 	import Dropdown from '$/components/Dropdown.svelte'
 	import Icon from '$/components/Icon.svelte'
 	import AddressInput from '$/views/AddressInput.svelte'
@@ -259,7 +258,7 @@
 							<Address
 								network={1}
 								address={connection.activeActor}
-								linked={false}
+								isLinked={false}
 							/>
 						{/if}
 						<span class="disconnect">
@@ -306,7 +305,7 @@
 						{#if item.kind === 'wallet'}
 							<span data-row="gap-2 align-center" data-wallet-provider-option>
 								{#if item.wallet.icon}
-									<Icon src={item.wallet.icon} size={20} />
+									<Icon src={item.wallet.icon} />
 								{/if}
 								<span>{item.wallet.name}</span>
 							</span>
@@ -336,14 +335,12 @@
 										{#if wallet.icon}
 											<Icon
 												src={wallet.icon}
-												size={20}
 												subicon={
 													chainIcon
 														? {
 																src: chainIcon,
-																alt: '',
 																backgroundColor:
-																	networkColorByChainId[chainId],
+																	networkConfigsByChainId[chainId]?.color,
 															}
 														: undefined
 												}
@@ -357,7 +354,7 @@
 											<Address
 												network={chainId}
 												address={connection.activeActor}
-												linked={false}
+												isLinked={false}
 											/>
 										{:else}
 											<span class="meta status" data-badge="small">
@@ -403,7 +400,7 @@
 													<Address
 														network={chainId}
 														address={actor}
-														linked={false}
+														isLinked={false}
 													/>
 													{#if connection.activeActor === actor}
 														<span aria-hidden="true"> ✓</span>

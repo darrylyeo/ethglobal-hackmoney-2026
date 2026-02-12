@@ -23,7 +23,7 @@
 		sourceColor,
 		targetColor,
 		tooltipContent,
-		interactive = false,
+		isInteractive = false,
 		flowIconSrc,
 	}: {
 		sourceRect: DOMRect
@@ -33,7 +33,7 @@
 		sourceColor?: string
 		targetColor?: string
 		tooltipContent?: Snippet
-		interactive?: boolean
+		isInteractive?: boolean
 		flowIconSrc?: string
 	} = $props()
 
@@ -68,8 +68,8 @@
 
 <div
 	class="drag-arrow-overlay"
-	data-interactive={interactive ? 'true' : 'false'}
-	aria-hidden={interactive ? 'false' : 'true'}
+	data-interactive={isInteractive ? 'true' : 'false'}
+	aria-hidden={isInteractive ? 'false' : 'true'}
 >
 	<FlowArrow
 		{sourceRect}
@@ -94,7 +94,7 @@
 		</Tooltip.Trigger>
 		<Tooltip.Portal>
 			<Tooltip.Content
-				class={!interactive ? 'drag-arrow-tooltip-no-events' : undefined}
+				class={!isInteractive ? 'drag-arrow-tooltip-no-events' : undefined}
 				side={tooltipSide}
 				sideOffset={12}
 				avoidCollisions={true}

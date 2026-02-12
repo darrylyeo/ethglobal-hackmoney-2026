@@ -124,7 +124,11 @@ export const generateRoomId = () => {
 	return value.toString(16).padStart(6, '0')
 }
 
+const isValidRoomId = (roomId: unknown): roomId is string =>
+	typeof roomId === 'string' && /^[0-9a-f]+$/i.test(roomId)
+
 export const roomIdToDisplayName = (roomId: string) => {
+	if (!isValidRoomId(roomId)) return 'Unknown room'
 	const value = BigInt(`0x${roomId}`)
 	const triplets: string[] = []
 	let remaining = value
@@ -150,6 +154,7 @@ export const roomIdToDisplayName = (roomId: string) => {
 }
 
 export const roomIdToPlaceEmoji = (roomId: string): string => {
+	if (!isValidRoomId(roomId)) return roomNouns[0].icon
 	const value = BigInt(`0x${roomId}`)
 	let remaining = value
 	let lastIcon = roomNouns[0].icon

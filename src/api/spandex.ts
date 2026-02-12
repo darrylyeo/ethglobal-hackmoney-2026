@@ -66,7 +66,7 @@ export const getSpandexQuote = async (
 	getQuoteCore({
 		config: spandexConfig,
 		swap,
-		strategy: strategy as QuoteSelectionName,
+		strategy: strategy as 'bestPrice' | 'fastest' | 'estimatedGas',
 	})
 
 export const getSpandexQuoteForProvider = async (

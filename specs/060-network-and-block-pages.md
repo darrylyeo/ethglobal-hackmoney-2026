@@ -33,7 +33,7 @@ Use CAIP-2 (EIP155) and a consistent slug scheme for entity IDs and URLs.
 - [x] Network page shows network name, chain id, type (mainnet/testnet), explorer link, and optional link to block explorer block list.
 - [x] `/network/[name]/block/[blockNumber]` resolves when network is valid and blockNumber is decimal; 404 otherwise.
 - [x] Block page fetches block via Voltaire, caches in blocks collection; shows number, timestamp (transaction count when available from API).
-- [x] Constants expose: `toCaip2(chainId)`, `parseNetworkNameParam(name)` (→ `{ chainId, config, slug, caip2 }`), `toNetworkSlug(name)`, `getNetworkBySlug(slug)`, `getNetworkByCaip2(caip2)`; explorers expose `getBlockUrl(chainId, blockNumber)`.
+- [x] Constants: `networkConfigs` (each with `slug`, `caip2`), `networkConfigsByChainId`, `networkConfigsBySlug`, `networkConfigsByCaip2` (slug/caip2 via config; no helper functions). Lib: `parseNetworkNameParam(name)` (→ `{ chainId, config, slug, caip2 }`) in `lib/patterns.ts`; path helpers in `lib/network-paths.ts`; explorers expose `getBlockUrl(chainId, blockNumber)`.
 - [x] Graph: Network node details include `caip2` and `slug`; selection panel links to `/network/{slug}` for Network nodes. Block entity type and blocks collection exist; graph renders block nodes when blocks collection has data; block nodes link to block page; edges from Network to Block.
 - [x] Navigation: **Explore** contains **Coins** (→ USDC) and **Networks** (one child per relevant network only, from wallet connections and sessions; no count).
 

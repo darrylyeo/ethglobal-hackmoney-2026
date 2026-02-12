@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import { USDC_MIN_AMOUNT, USDC_MAX_AMOUNT } from './bridge-limits.ts'
 import {
 	validateBridgeAmount,
 	extractRouteLimits,
-	USDC_MIN_AMOUNT,
-	USDC_MAX_AMOUNT,
-} from './bridge-limits.ts'
+} from '$/lib/bridge-limits.ts'
 
 describe('validateBridgeAmount', () => {
 	it('returns valid for amounts in range', () => {
