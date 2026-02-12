@@ -3,7 +3,6 @@
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { TIME_PERIODS } from '$/api/transfers-indexer.ts'
 	import {
 		COIN_SYMBOLS,
 		coinBySymbol,
@@ -11,8 +10,8 @@
 	} from '$/constants/coins.ts'
 	import EntityView from '$/components/EntityView.svelte'
 	import CoinName from '$/views/CoinName.svelte'
-	import CoinTransfers from '$/views/CoinTransfers.svelte'
-	import TokenContracts from '$/views/TokenContracts.svelte'
+	import CoinContracts from '$/views/CoinContracts.svelte'
+	import CoinActivity from '$/views/CoinActivity.svelte'
 
 
 	// (Derived)
@@ -26,11 +25,13 @@
 	const coin = $derived(symbol ? coinBySymbol[symbol] : null)
 </script>
 
+
 <svelte:head>
 	<title>{symbol ? symbol : (symbolParam || 'Coin')} – Coin</title>
 </svelte:head>
 
-<main id="main" data-column data-sticky-container>
+
+<main>
 	{#if !symbol}
 		<h1>Not found</h1>
 		<p>
@@ -50,35 +51,9 @@
 				{#snippet Title()}
 					<CoinName coin={coin!} />
 				{/snippet}
-				<nav data-row="start gap-2" aria-label="Time period">
-					{#each TIME_PERIODS as p (p.value)}
-						<a
-							class="period-link"
-							href="?period={p.value}"
-							data-active={period === p.value ? '' : undefined}
-						>
-							{p.label}
-						</a>
-					{/each}
-				</nav>
-				<TokenContracts {symbol} />
-				<CoinTransfers {symbol} {period} />
+				<CoinContracts {symbol} />
+				<CoinActivity {symbol} {period} />
 			</EntityView>
 		</section>
 	{/if}
 </main>
-
-<style>
-	.period-link {
-		padding: 0.25em 0.5em;
-		border-radius: 0.25em;
-		text-decoration: none;
-		background: var(--color-bg-subtle);
-		color: var(--color-text);
-	}
-
-	.period-link[data-active] {
-		background: var(--accent-backgroundColor);
-		color: var(--accent-color);
-	}
-</style>
