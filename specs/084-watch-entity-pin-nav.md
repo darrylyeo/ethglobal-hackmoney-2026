@@ -43,34 +43,31 @@ type WatchedEntity = {
 }
 ```
 
-This is computed **once** in `+layout.svelte` and consumed by:
+Manual watches are stored as `WatchedEntityStoredRow`; `deriveWatchedEntityRow` produces the full row for consumers. The unified view (manual + automatic sources) is computed in the **navigation items module** (spec 091) and consumed by:
 
 1. **Navigation items** – each watched entity is placed under the most relevant
    existing nav section (see below), not in a separate "Watched" section.
-2. **Global graph query stack** (spec 058) – the global stack is exactly the
-   set of watched entities (replaces the current hardcoded wallet-connections +
-   sessions + wallets).
+2. **Global graph query stack** (spec 058) – the global stack is built in the same
+   module via `registerGlobalLiveQueryStack` (wallet-connections, sessions, wallets,
+   transactions, watched entities).
 3. **GraphScene entity scope** (spec 083) – the global graph visualizes watched
    entities by default; toggles/filters control what additional entities are shown.
 
 ### Eliminating redundant queries and derivations
 
-Today, `+layout.svelte` independently queries `walletConnectionsCollection`,
-`SessionsCollection`, `walletsCollection`, and
-`watchedEntitiesCollection`, then builds separate `accountNavItems`,
-`watchedNavItems`, session nav children, etc. With this spec:
+**Current implementation:** All nav-related queries and derivations live in
+`src/routes/navigationItems.svelte.ts`. The layout calls `useNavigationItems({ isTestnet })`
+(spec 091), which runs the live queries (walletConnections, sessions, wallets,
+watchedEntities, etc.), `ensureDefaultRow`, and `registerGlobalLiveQueryStack`, and
+returns a single reactive `NavigationItem[]`. No nav-specific queries or
+derivations remain in `+layout.svelte`.
 
-- **`accountNavItems`** is derived from the `wallet-connection` subset of the
-  unified watched set (same data, one derivation path).
-- **Session nav children** include `session-active` watched sessions.
-- **`watchedNavItems`** (separate top-level section) is **removed**; manual
-  watches appear under the relevant section instead.
-- The **global live query stack** (`registerGlobalLiveQueryStack`) is built from
-  the unified watched set, replacing the current hardcoded list.
-
-The existing `walletConnectionsQuery`, `sessionsQuery`, `walletsQuery` in layout
-remain (they feed other derivations like `relevantNetworkConfigs`), but nav and
-graph consumers read from the single unified watched view.
+- **`accountNavItems`** and session/network/room/peer nav children are derived
+  inside `getNavigationItems` from the same query data.
+- **Manual watches** are derived from `watchedEntitiesCollection` via
+  `deriveWatchedEntityRow` and appear under the relevant section (Explore >
+  Networks, etc.).
+- The **global live query stack** is registered inside `useNavigationItems`.
 
 ## Nav item visibility: watched vs. current-page expansion
 
@@ -127,25 +124,40 @@ same as before). Items from `manual` source get a 📌 icon or subtle indicator.
 ## WatchButton behavior
 
 - On single-entity page headers (right side, after entity-type annotation).
+- **Props:** `entityType`, `id` (used as `entityId`). No label/href; those are derived from entityType + entityId when building nav/list.
 - For entities with an automatic source, the button shows "Watching" (disabled /
   informational) since the entity is already in the set.
 - For entities without an automatic source, the button shows "Watch" / "Unwatch"
-  and writes/deletes from `watchedEntitiesCollection`.
+  and calls `watchEntity({ entityType, entityId: id })` / `unwatchEntity(entityType, id)`.
 
 ## `watchedEntitiesCollection` schema
 
-Unchanged from current implementation (manual watches only):
+**Persisted (storage):** only `entityType`, `entityId`, and `addedAt`. Label and href are derived at read time.
 
 ```ts
-type WatchedEntityRow = {
+type WatchedEntityStoredRow = {
 	entityType: EntityType
-	id: string
-	label: string
-	href: string
+	entityId: string
 	addedAt: number
-	$source: DataSource // always DataSource.Local
 }
 ```
+
+**Derived row** (used by nav and list consumers): `deriveWatchedEntityRow(stored)` returns:
+
+```ts
+type WatchedEntityRow = WatchedEntityStoredRow & {
+	id: string      // `${entityType}:${entityId}`
+	label: string
+	href: string
+}
+```
+
+- **Coin:** `entityId` = symbol → `href = /coin/${entityId}`, `label = entityId`.
+- **Network:** `entityId` = slug → `href = /network/${entityId}`, `label` from `getNetworkBySlug(entityId)`.
+- **Contract:** `entityId` = `"slug:address"` → `href = /network/${slug}/contract/${address}`, `label = formatAddress(address)`.
+- **Other:** `label = entityId`, `href = #${entityId}`.
+
+**API:** `watchEntity({ entityType, entityId })`; `unwatchEntity(entityType, entityId)`; `listWatchedEntities()` returns derived rows. Legacy rows (stored with `id` and optional `label`/`href`) are supported for migration; `getEntityId(row)` and derivation handle both shapes.
 
 ## Acceptance criteria
 
@@ -171,5 +183,10 @@ type WatchedEntityRow = {
 
 ## Status
 
-Spec updated. Previous implementation (v1: separate Watched nav section,
-manual-only) to be refactored.
+- Stored schema (entityType + entityId only) and derivation implemented in
+  `WatchedEntities.ts`; WatchButton and nav use the new API; legacy rows
+  supported for migration.
+- Nav logic centralized in `navigationItems.svelte.ts` (spec 091); layout uses
+  `useNavigationItems` only.
+- Unified watched view and full spec 084 acceptance criteria (e.g. single
+  derived set, graph scope) still to be completed where not yet done.

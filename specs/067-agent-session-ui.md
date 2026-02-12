@@ -220,7 +220,7 @@ Params available via `$page.params.nodeId` (optional `+page.ts` load may pass
 
 ## Navigation integration
 
-In `src/routes/+layout.svelte`, add an “Agents” section to `navigationItems`
+In `src/routes/navigationItems.svelte.ts` (spec 091), add an “Agents” section to `navigationItems`
 after “Sessions”:
 
 ```typescript

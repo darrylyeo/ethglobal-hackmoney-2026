@@ -39,6 +39,21 @@ Prefer this over TypeScript string unions (e.g. `'a' | 'b'`). These enums
 may be used as discriminant fields in `src/constants` object arrays (e.g.
 `subject: AssetSubject.Network`, `source: DataSource.LiFi`).
 
+## Constants file pattern
+
+Every constants module that exposes lookups MUST follow this structure only:
+
+1. **Enum(s)** — fixed sets as string enums (discriminant domain).
+2. **Single canonical array** — `readonly` array of objects; each object has one enum field as the discriminant (e.g. `id`, `type`, `serialization`).
+3. **Derived mapping(s)** — all lookups are derived from that array via `Object.fromEntries(...)`:
+   - One primary map: discriminant field → full object (e.g. `byId = Object.fromEntries(arr.map(e => [e.id, e]))`).
+   - Optionally other maps from the same array for other fields (e.g. `labelById = Object.fromEntries(arr.map(e => [e.id, e.label]))`).
+
+**Forbidden in `src/constants/`:**
+
+- Helper functions (move to `src/lib/` or domain modules).
+- Manually written dictionary/record literals used as lookups (derive from the canonical array instead).
+
 ## Non-goals
 
 - Changing runtime behavior beyond structure and data alignment.
@@ -74,6 +89,11 @@ may be used as discriminant fields in `src/constants` object arrays (e.g.
   `= 'MemberName'`) in `src/constants/`, not as string unions.
 - [x] Discriminant fields in `src/constants` object arrays use enum values
   (e.g. `subject: AssetSubject.Network`) where an enum exists for that domain.
+
+### Constants file pattern
+
+- [x] Lookups in constants modules are derived only via `Object.fromEntries(...)` from the canonical array (discriminant or other field as key).
+- [x] No helper functions in `src/constants/`; no manually defined dictionary literals for lookups.
 
 ## Status
 

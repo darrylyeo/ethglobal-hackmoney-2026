@@ -2,7 +2,7 @@
 
 Restructure all single-entity pages to use a shared `<EntityView>` component with a
 consistent layout. Introduce `<Heading>` for dynamic heading levels. Use view components
-(NetworkName, CoinAmount, etc.) for entity titles. Add `<EntityList>` for entity lists with
+(NetworkName, CoinName, CoinAmount, etc.) for entity titles. Add `<EntityList>` for entity lists with
 correct heading hierarchy.
 
 ## Scope
@@ -20,7 +20,7 @@ correct heading hierarchy.
 - `annotation?: string` — override entity type label
 - `anchorTitle?: boolean` — wrap title in anchor to `#entityType:idSerialized`
 - `autoWatched?: boolean` — for WatchButton
-- `title?: Snippet` — override label with custom title (e.g. NetworkName, CoinAmount)
+- `title?: Snippet` — override label with custom title (e.g. NetworkName, CoinName)
 - `AfterTitle?: Snippet` — after title (e.g. tag)
 - `BeforeAnnotation?: Snippet`
 - `children?: Snippet`
@@ -52,9 +52,9 @@ Entity pages use view components in `title` snippets:
 - Network: `<NetworkName {chainId} />`
 - Block: `<BlockNumber />` + `<NetworkName showIcon={false} />`
 - Transaction: `<EvmTransactionId />` + `<NetworkName showIcon={false} />`
-- Coin: `<CoinAmount coin={coin} showIcon symbolOnly />`
+- Coin: `<CoinName coin={coin} />` (use `<CoinAmount coin={coin} amount={...} />` when amount is shown)
 
-Networks and coins list pages use view components in list items (NetworkName, CoinAmount).
+Networks and coins list pages use view components in list items (NetworkName, CoinName).
 
 ### EntityList component
 
@@ -81,8 +81,8 @@ Internal app paths only. `getTxPath`, `getBlockPath`, `getAccountPath` in `$/con
 - `/network/[name]/block/[blockNumber]` — Block, BlockNumber + NetworkName title
 - `/network/[name]/transaction/[transactionId]` — Transaction, EvmTransactionId + NetworkName title
 - `/network/[name]/block/[blockNumber]/transaction/[transactionId]` — Transaction, same
-- `/coin/[symbol]` — Coin, CoinAmount title
-- `/coins` — CoinAmount in list items
+- `/coin/[symbol]` — Coin, CoinName title
+- `/coins` — CoinName in list items
 - `/networks` — NetworkName in list items
 - `/agents/[nodeId]` — AgentChatTree
 - `/rooms/[roomId]` — Room
@@ -111,8 +111,8 @@ Query logic (live queries, placeholder handling, fetchBlockTransactions, fetchNe
 - [x] Network page uses EntityView with NetworkName title
 - [x] Block page uses EntityView with BlockNumber + NetworkName title
 - [x] Transaction pages use EntityView with EvmTransactionId + NetworkName title
-- [x] Coin page uses EntityView with CoinAmount title
-- [x] Networks list uses NetworkName; coins list uses CoinAmount
+- [x] Coin page uses EntityView with CoinName title
+- [x] Networks list uses NetworkName; coins list uses CoinName
 - [x] Agents, Rooms, Session pages use EntityView
 - [x] `<EntityList>` wraps ItemsListView, uses Heading for title, wraps in HeadingLevelProvider
 - [x] Network uses EntityList for Blocks
@@ -122,4 +122,4 @@ Query logic (live queries, placeholder handling, fetchBlockTransactions, fetchNe
 
 ## Status
 
-Complete. EntityView, HeadingLevelProvider, Heading, EntityList, view components (NetworkName, CoinAmount), path helpers in networks.ts. All entity pages refactored. Blocks/Transactions/Events use EntityList.
+Complete. EntityView, HeadingLevelProvider, Heading, EntityList, view components (NetworkName, CoinName, CoinAmount), path helpers in networks.ts. All entity pages refactored. Blocks/Transactions/Events use EntityList.

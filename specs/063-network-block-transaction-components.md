@@ -221,8 +221,7 @@ Build passes.
 
 ## TODOs
 
-- TODO: Integrate `debugTraceTransaction` into transaction route to fetch and
-  display call traces when available.
+- (Addressed by Spec 089: Transaction traces, events, and verified sources.)
 
 ## Output when complete
 

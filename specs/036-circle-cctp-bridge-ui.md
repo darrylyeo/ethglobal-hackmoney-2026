@@ -113,7 +113,7 @@ CCTP flow steps (user perspective):
 
 ## Supported chains and domains
 
-`src/constants/cctp.ts` defines `CCTP_DOMAINS_BY_CHAIN_ID` and related sets. Domain IDs and supported EVM chains align with [Circle CCTP supported blockchains and domain identifiers](https://developers.circle.com/cctp/concepts/supported-chains-and-domains). Solana, BNB Smart Chain, and Starknet are out of scope for this app (EVM-only bridge UI).
+`src/constants/cctp.ts` defines `cctpDomainEntries`, `cctpDomainByChainId`, and related sets; domain/contract helpers in `lib/cctp.ts`. Domain IDs and supported EVM chains align with [Circle CCTP supported blockchains and domain identifiers](https://developers.circle.com/cctp/concepts/supported-chains-and-domains). Solana, BNB Smart Chain, and Starknet are out of scope for this app (EVM-only bridge UI).
 
 ## Forwarding Service
 

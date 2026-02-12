@@ -390,6 +390,7 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/views/AddressInput.svelte`
 - [x] `src/views/CoinAmount.svelte`
 - [x] `src/views/CoinAmountInput.svelte`
+- [x] `src/views/CoinName.svelte`
 - [x] `src/views/CoinBalances.svelte`
 - [x] `src/views/CoinInput.svelte`
 - [x] `src/views/LiveTransfers.svelte`

@@ -22,33 +22,19 @@ movements between quote and execution.
 
 ### Slippage constants
 
+Constants follow spec 045 (enum, array with discriminant, derived maps only; no helper functions in constants). Format/parse helpers live in `src/lib/`.
+
 ```typescript
 // src/constants/slippage.ts
-export const SLIPPAGE_PRESETS = [0.001, 0.005, 0.01] as const // 0.1%, 0.5%, 1%
-export const DEFAULT_SLIPPAGE = 0.005 // 0.5%
-export const MIN_SLIPPAGE = 0.0001 // 0.01%
-export const MAX_SLIPPAGE = 0.5 // 50%
-
-export const formatSlippagePercent = (slippage: number): string => (
-  `${(slippage * 100).toFixed(2).replace(/\.?0+$/, '')}%`
-)
-
-export const parseSlippagePercent = (value: string): number | null => {
-  const num = parseFloat(value.replace('%', ''))
-  if (isNaN(num)) return null
-  const slippage = num / 100
-  if (slippage < MIN_SLIPPAGE || slippage > MAX_SLIPPAGE) return null
-  return slippage
-}
-
-export const calculateMinOutput = (
-  estimatedOutput: bigint,
-  slippage: number,
-): bigint => {
-  const factor = BigInt(Math.floor((1 - slippage) * 1_000_000))
-  return (estimatedOutput * factor) / 1_000_000n
-}
+export enum SlippagePresetId { Low = 'Low', Medium = 'Medium', High = 'High' }
+export const slippagePresets = [{ id: SlippagePresetId.Low, value: 0.001 }, ...]
+export const slippagePresetById = Object.fromEntries(slippagePresets.map(e => [e.id, e]))
+export const DEFAULT_SLIPPAGE = slippagePresets[1].value
+export const MIN_SLIPPAGE = 0.0001
+export const MAX_SLIPPAGE = 0.5
 ```
+
+Format/parse/calculate helpers (`formatSlippagePercent`, `parseSlippagePercent`, `calculateMinOutput`) live in `src/lib/` (spec 045).
 
 ### Slippage settings in `src/routes/bridge/lifi/BridgeFlow.svelte`
 

@@ -22,31 +22,17 @@ Display and enforce minimum/maximum bridge amounts based on LI.FI route constrai
 
 ### `src/constants/bridge-limits.ts`
 
+Constants follow spec 045 (enum, array with discriminant, derived maps only; no helper functions). Validation/route helpers live in `src/lib/`.
+
 ```typescript
-// USDC has 6 decimals, so these are in smallest units
-export const USDC_MIN_AMOUNT = 1_000_000n // 1 USDC
-export const USDC_MAX_AMOUNT = 1_000_000_000_000n // 1M USDC
-
-export type AmountValidation = {
-  isValid: boolean
-  error?: 'too_low' | 'too_high' | 'invalid'
-  minAmount?: string
-  maxAmount?: string
-}
-
-export type RouteLimits = {
-  minAmount: bigint | null
-  maxAmount: bigint | null
-}
-
-export const validateBridgeAmount = (
-  amount: bigint,
-  minAmount: bigint = USDC_MIN_AMOUNT,
-  maxAmount: bigint = USDC_MAX_AMOUNT,
-): AmountValidation
-
-export const extractRouteLimits = (routes: ...): RouteLimits
+export enum BridgeAsset { Usdc = 'USDC' }
+export const bridgeAssets = [{ asset: BridgeAsset.Usdc, minAmount: 1_000_000n, maxAmount: 1_000_000_000_000n }, ...]
+export const bridgeAssetsByAsset = Object.fromEntries(bridgeAssets.map(l => [l.asset, l]))
+export const USDC_MIN_AMOUNT = bridgeAssetsByAsset[BridgeAsset.Usdc].minAmount
+export const USDC_MAX_AMOUNT = bridgeAssetsByAsset[BridgeAsset.Usdc].maxAmount
 ```
+
+Types (`AmountValidation`, `RouteLimits`) and helpers (`validateBridgeAmount`, `extractRouteLimits`) live in `src/lib/` (spec 045).
 
 ### Amount validation UI in `BridgeFlow.svelte`
 
