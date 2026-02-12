@@ -5,7 +5,6 @@
 	import { VerificationStatus } from '$/data/Verification.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins.ts'
-	import { fetchAllBalancesForAddress } from '$/collections/ActorCoins.ts'
 	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
@@ -30,10 +29,6 @@
 	const balanceTokens = $derived(
 		ercTokens.map((t) => ({ chainId: t.chainId, tokenAddress: t.address })),
 	)
-	$effect(() => {
-		if (!normalizedAddress) return
-		void fetchAllBalancesForAddress(normalizedAddress, undefined, ercTokens)
-	})
 	const connectionsQuery = useLiveQuery(
 		(q) =>
 			q
@@ -87,6 +82,7 @@
 	import { AddressFormat } from '$/views/Address.svelte'
 	import Boundary from '$/components/Boundary.svelte'
 	import EntityView from '$/components/EntityView.svelte'
+	import Heading from '$/components/Heading.svelte'
 	import EvmActor from '$/views/EvmActor.svelte'
 	import Channels from '$/views/Channels.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
@@ -106,7 +102,7 @@
 </svelte:head>
 
 
-<main data-column="gap-4">
+<main>
 	{#if !parsed}
 		<h1>Invalid address</h1>
 		<p>The address in the URL could not be parsed.</p>
@@ -129,37 +125,42 @@
 				/>
 			{/snippet}
 
-			<Boundary>
-				<CoinBalances
-					selectedActor={normalizedAddress}
-					{balanceTokens}
-					availableAccounts={normalizedAddress ? [normalizedAddress] : []}
-				/>
-			</Boundary>
-			<Boundary>
-				<Transactions selectedActor={normalizedAddress} />
-			</Boundary>
-			<Boundary>
-				<WalletConnections selectedActor={normalizedAddress} />
-			</Boundary>
-			<Boundary>
-				<RoomConnections selectedActor={normalizedAddress} />
-			</Boundary>
-			<Boundary>
-				<LiquidityPositions selectedActor={normalizedAddress} />
-			</Boundary>
-			<Boundary>
-				<Channels selectedActor={normalizedAddress} />
-			</Boundary>
-			<Boundary>
-				<VerifiedContractSource
-					chainId={parsed.chainId ?? 1}
-					address={parsed.address}
-				/>
-			</Boundary>
-			<Boundary>
-				<AccountContracts selectedActor={normalizedAddress} />
-			</Boundary>
+			<section data-column="gap-2">
+				<Boundary>
+					<CoinBalances
+						selectedActor={normalizedAddress}
+						{balanceTokens}
+						availableAccounts={normalizedAddress ? [normalizedAddress] : []}
+					/>
+				</Boundary>
+				<Boundary>
+					<Transactions selectedActor={normalizedAddress} />
+				</Boundary>
+				<Boundary>
+					<LiquidityPositions selectedActor={normalizedAddress} />
+				</Boundary>
+				<Boundary>
+					<VerifiedContractSource
+						chainId={parsed.chainId ?? 1}
+						address={parsed.address}
+					/>
+				</Boundary>
+				<Boundary>
+					<AccountContracts selectedActor={normalizedAddress} />
+				</Boundary>
+			</section>
+
+			<section data-column="gap-2">
+				<Boundary>
+					<WalletConnections selectedActor={normalizedAddress} />
+				</Boundary>
+				<Boundary>
+					<RoomConnections selectedActor={normalizedAddress} />
+				</Boundary>
+				<Boundary>
+					<Channels selectedActor={normalizedAddress} />
+				</Boundary>
+			</section>
 		</EntityView>
 	{/if}
 </main>

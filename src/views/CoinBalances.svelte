@@ -3,13 +3,29 @@
 	import { BalanceDisplayType } from '$/views/balance-display-type.ts'
 	import { CoinType, ercTokens } from '$/constants/coins.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
 	import { MediaType } from '$/constants/media.ts'
 	import {
 		networkConfigsByChainId,
 		networksByChainId,
 	} from '$/constants/networks.ts'
+	import {
+		FilterDisplayType,
+		FilterOperation,
+		type Filter,
+	} from '$/components/Filters.svelte'
 	type DisplayToken = (typeof displayTokens)[number]
+	type BalanceFilterId = string
+	type BalanceFilterItem = {
+		symbol: string
+		$id: {
+			$actor: {
+				address: `0x${string}`
+				$network: {
+					chainId: number
+				}
+			}
+		}
+	}
 
 
 	// Context
@@ -21,9 +37,6 @@
 	let {
 		selectedActor,
 		balanceTokens = [],
-		filterChainIds = $bindable([] as string[]),
-		filterSymbols = $bindable([] as string[]),
-		filterAddresses = $bindable([] as `0x${string}`[]),
 		availableAccounts = [],
 		displayType = BalanceDisplayType.Card,
 	}: {
@@ -32,9 +45,6 @@
 			chainId: number
 			tokenAddress: `0x${string}`
 		}[]
-		filterChainIds?: string[]
-		filterSymbols?: string[]
-		filterAddresses?: `0x${string}`[]
 		availableAccounts?: `0x${string}`[]
 		displayType?: BalanceDisplayType
 	} = $props()
@@ -48,12 +58,14 @@
 
 	// State
 	import { actorCoinsCollection } from '$/collections/ActorCoins.ts'
+	import { fetchAllBalancesForAddress } from '$/collections/ActorCoins.ts'
 	import {
 		storkPricesCollection,
 		subscribeStorkPrices,
 		getBestStorkPrice,
 	} from '$/collections/StorkPrices.ts'
 	import { tokenListCoinsCollection } from '$/collections/TokenListCoins.ts'
+	let activeFilters = $state(new Set<Filter<BalanceFilterItem, BalanceFilterId>>())
 
 
 	// (Derived)
@@ -139,15 +151,63 @@
 			decimals: token.decimals,
 		})),
 	)
+	const networkFilterOptions = $derived(
+		[...new Set(balanceTokenListCoins.map((t) => t.chainId))].map((chainId) => ({
+			chainId,
+			name: networkConfigsByChainId[chainId]?.name ?? `Chain ${chainId}`,
+		})),
+	)
+	const symbolFilterOptions = $derived(
+		[...new Set(balanceTokenListCoins.map((t) => t.symbol))].sort(),
+	)
+	const networkFilters = $derived(
+		networkFilterOptions.map(({ chainId, name }) => ({
+			id: String(chainId),
+			label: name,
+			filterFunction: (balance: BalanceFilterItem) => (
+				balance.$id.$actor.$network.chainId === chainId
+			),
+		})),
+	)
+	const coinFilters = $derived(
+		symbolFilterOptions.map((symbol) => ({
+			id: symbol,
+			label: symbol,
+			filterFunction: (balance: BalanceFilterItem) => balance.symbol === symbol,
+		})),
+	)
+	const accountFilters = $derived(
+		availableAccounts.map((address) => ({
+			id: address,
+			label: `${address.slice(0, 6)}…${address.slice(-4)}`,
+			filterFunction: (balance: BalanceFilterItem) => (
+				balance.$id.$actor.address.toLowerCase() === address.toLowerCase()
+			),
+		})),
+	)
+	const networkFilterIds = $derived(new Set(networkFilters.map((f) => f.id)))
+	const coinFilterIds = $derived(new Set(coinFilters.map((f) => f.id)))
+	const accountFilterIds = $derived(new Set(accountFilters.map((f) => f.id)))
+	const filterChainIdsNum = $derived(
+		[...activeFilters]
+			.filter((f) => networkFilterIds.has(f.id))
+			.map((f) => Number(f.id))
+			.filter((n) => !Number.isNaN(n)),
+	)
+	const filterSymbols = $derived(
+		[...activeFilters].filter((f) => coinFilterIds.has(f.id)).map((f) => f.id),
+	)
+	const filterAddresses = $derived(
+		[...activeFilters]
+			.filter((f) => accountFilterIds.has(f.id))
+			.map((f) => f.id as `0x${string}`),
+	)
 	const actors = $derived(
 		filterAddresses.length > 0
 			? filterAddresses
 			: selectedActor
 				? [selectedActor]
 				: [],
-	)
-	const filterChainIdsNum = $derived(
-		filterChainIds.map((id) => Number(id)).filter((n) => !Number.isNaN(n)),
 	)
 	const balancesQuery = useLiveQuery(
 		(q) =>
@@ -253,15 +313,6 @@
 				}, 0n)
 			: null,
 	)
-	const networkFilterOptions = $derived(
-		[...new Set(balanceTokenListCoins.map((t) => t.chainId))].map((chainId) => ({
-			chainId,
-			name: networkConfigsByChainId[chainId]?.name ?? `Chain ${chainId}`,
-		})),
-	)
-	const symbolFilterOptions = $derived(
-		[...new Set(balanceTokenListCoins.map((t) => t.symbol))].sort(),
-	)
 	const singleNetwork = $derived(
 		filterChainIdsNum.length === 1 ? filterChainIdsNum[0] : null,
 	)
@@ -300,6 +351,12 @@
 
 	// Actions
 	$effect(() => {
+		if (actors.length === 0 || normalizedBalanceTokens.length === 0) return
+		for (const actor of actors) {
+			void fetchAllBalancesForAddress(actor, undefined, normalizedBalanceTokens)
+		}
+	})
+	$effect(() => {
 		const assetIds = balanceAssetIds
 		if (assetIds.length === 0) return
 		const unsubscribers = [
@@ -316,20 +373,19 @@
 
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
-	import Combobox from '$/components/Combobox.svelte'
-	import Icon from '$/components/Icon.svelte'
-	import CoinsInput from '$/views/CoinsInput.svelte'
-	import NetworksInput from '$/views/NetworksInput.svelte'
+	import Filters from '$/components/Filters.svelte'
 	import Skeleton from '$/components/Skeleton.svelte'
 	import TruncatedValue, {
 		TruncatedValueFormat,
 	} from '$/components/TruncatedValue.svelte'
 	import CoinAmount from '$/views/CoinAmount.svelte'
 	import CoinName from '$/views/CoinName.svelte'
+	import CoinsInput from '$/views/CoinsInput.svelte'
+	import NetworksInput from '$/views/NetworksInput.svelte'
 </script>
 
 
-	{#if actors.length > 0}
+{#if actors.length > 0}
 		<details class="balances" data-card data-scroll-container="block" open>
 			<summary class="balances-summary">
 				<div data-row="gap-4">
@@ -348,33 +404,76 @@
 							class="balances-filters"
 							role="group"
 							aria-label="Filters"
-							data-row="gap-2 wrap align-center"
+							data-row="gap-2 wrap"
 							onclick={(e) => e.stopPropagation()}
 							onkeydown={(e) => e.stopPropagation()}
 						>
-							<NetworksInput
-								bind:value={filterChainIds}
-								placeholder="Network"
-								ariaLabel="Filter by network"
-							/>
-							<CoinsInput
-								bind:value={filterSymbols}
-								items={symbolFilterOptions}
-								placeholder="Coin"
-								ariaLabel="Filter by coin"
-							/>
-							{#if availableAccounts.length > 0}
-								<Combobox
-									type="multiple"
-									items={availableAccounts}
-									bind:value={filterAddresses}
-									placeholder="Account"
-									ariaLabel="Filter by account"
-									getItemId={(addr) => addr}
-									getItemLabel={(addr) =>
-										`${addr.slice(0, 6)}…${addr.slice(-4)}`}
+							<!-- TODO: Ambiguity: facet counts are computed from currently queried balances; if we need global counts, use a separate unfiltered facet query source. -->
+							{#snippet NetworkFilters({
+								bindValueIds,
+							}: {
+								bindValueIds: [() => BalanceFilterId[], (values: BalanceFilterId[]) => void]
+							})}
+								<NetworksInput
+									bind:value={
+										() => bindValueIds[0](),
+										(values) => bindValueIds[1](values)
+									}
+									placeholder="Network"
+									ariaLabel="Filter by network"
 								/>
-							{/if}
+							{/snippet}
+							{#snippet CoinFilters({
+								bindValueIds,
+							}: {
+								bindValueIds: [() => BalanceFilterId[], (values: BalanceFilterId[]) => void]
+							})}
+								<CoinsInput
+									bind:value={
+										() => bindValueIds[0](),
+										(values) => bindValueIds[1](values)
+									}
+									items={symbolFilterOptions}
+									placeholder="Coin"
+									ariaLabel="Filter by coin"
+								/>
+							{/snippet}
+							<Filters
+								items={balances}
+								filterGroups={[
+									{
+										id: 'network',
+										label: 'Network',
+										displayType: FilterDisplayType.Snippet,
+										operation: FilterOperation.Union,
+										exclusive: false,
+										filters: networkFilters,
+										Snippet: NetworkFilters,
+									},
+									{
+										id: 'coin',
+										label: 'Coin',
+										displayType: FilterDisplayType.Snippet,
+										operation: FilterOperation.Union,
+										exclusive: false,
+										filters: coinFilters,
+										Snippet: CoinFilters,
+									},
+									{
+										id: 'account',
+										label: 'Account',
+										displayType: FilterDisplayType.Combobox,
+										operation: FilterOperation.Union,
+										exclusive: false,
+										filters: accountFilters,
+									},
+								]}
+								bind:activeFilters={activeFilters}
+								onreset={(e) => {
+									e.preventDefault()
+									activeFilters = new Set()
+								}}
+							/>
 						</div>
 					</div>
 
@@ -481,7 +580,7 @@
 										source: 'balances',
 									})}
 								>
-									<dt data-row="start gap-1 align-center">
+									<dt data-row="start gap-1">
 										{network.name}
 										{#if actors.length > 1}
 											<span data-text="muted" class="balance-address">
