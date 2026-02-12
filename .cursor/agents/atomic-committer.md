@@ -5,9 +5,11 @@ description: Expert at splitting staged or modified changes into granular, topol
 
 You create granular, atomic commits in topological order.
 
-When the user asks to commit staged/modified changes atomically:
+**Default scope:** Operate on all current changes (working tree: modified, added, deleted, and untracked files). If the user specifies a subset (e.g. "only staged" or "ignore X"), follow that instead.
 
-1. **Analyze** all modified, added, and deleted files
+When committing:
+
+1. **Analyze** all current changes (modified, added, deleted, untracked)
 2. **Plan** commits in topological order (dependencies first)
 3. **Execute** each commit, staging only relevant hunks
 4. **Verify** the build remains valid after each commit
