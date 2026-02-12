@@ -546,19 +546,24 @@ summary {
 	}
 
 	&:has([data-card]) {
-		border-radius: calc(var(--card-radius) + var(--card-padding));
+		/* border-radius: calc(var(--card-radius) + var(--card-padding)); */
+		border-radius: calc(var(--card-radius));
 	}
 	&:has([data-card] [data-card]) {
-		border-radius: calc(var(--card-radius) + var(--card-padding) * 2);
+		/* border-radius: calc(var(--card-radius) + var(--card-padding) * 2); */
+		border-radius: calc(var(--card-radius) * 2);
 	}
 	&:has([data-card] [data-card] [data-card]) {
-		border-radius: calc(var(--card-radius) + var(--card-padding) * 3);
+		/* border-radius: calc(var(--card-radius) + var(--card-padding) * 3); */
+		border-radius: calc(var(--card-radius) * 3);
 	}
 	&:has([data-card] [data-card] [data-card] [data-card]) {
-		border-radius: calc(var(--card-radius) + var(--card-padding) * 4);
+		/* border-radius: calc(var(--card-radius) + var(--card-padding) * 4); */
+		border-radius: calc(var(--card-radius) * 4);
 	}
 	&:has([data-card] [data-card] [data-card] [data-card] [data-card]) {
-		border-radius: calc(var(--card-radius) + var(--card-padding) * 5);
+		/* border-radius: calc(var(--card-radius) + var(--card-padding) * 5); */
+		border-radius: calc(var(--card-radius) * 5);
 	}
 }
 

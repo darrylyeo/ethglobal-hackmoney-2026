@@ -64,9 +64,13 @@
 	flex: 1;
 	min-width: 0;
 
-	& > *:not([data-combobox-before]) {
+	& > * {
 		flex: 1 1 0%;
 		min-width: 0;
+	}
+
+	&[data-has-before] > :first-child {
+		flex: none;
 	}
 
 	& input {
