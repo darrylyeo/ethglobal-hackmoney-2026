@@ -38,49 +38,22 @@
 	// (Derived)
 	const pathname = $derived(currentPathname ?? $page.url.pathname)
 	const effectiveSearchValue = $derived(searchValue.trim().toLowerCase())
-
-	const hasCurrentPage = (item: NavigationItem): boolean => (
-		(
-			item.href != null &&
-			(
-				pathname === item.href.split('#')[0] ||
-				pathname.startsWith(item.href.split('#')[0] + '/')
-			)
-		) ||
-		(item.allChildren ?? item.children)?.some(hasCurrentPage) === true
-	)
-
-	const effectiveChildren = (item: NavigationItem) =>
-		item.allChildren && (effectiveSearchValue || hasCurrentPage(item))
-			? item.allChildren
-			: item.children
-
 	const treeIsOpen = (item: NavigationItem) =>
-		effectiveSearchValue
-			? matchesSearch(item, effectiveSearchValue)
-			: hasCurrentPage(item) ||
-				(treeOpenState.get(item.id) ?? item.defaultIsOpen ?? false)
-
+		treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false)
 	const treeOnOpenChange = (item: NavigationItem, open: boolean) => {
-		if (!effectiveSearchValue) treeOpenState = new Map(treeOpenState).set(item.id, open)
+		treeOpenState = new Map(treeOpenState).set(item.id, open)
 	}
-
-	const treeGetChildren = (item: NavigationItem) => effectiveChildren(item) ?? undefined
-
-	function matchesSearch(item: NavigationItem, query: string): boolean {
-		if (!query) return true
-		return (
-			item.title.toLowerCase().includes(query) ||
-			(item.allChildren ?? item.children)?.some((c) => matchesSearch(c, query)) === true
-		)
-	}
+	const treeGetChildren = (item: NavigationItem) =>
+		item.children ?? item.allChildren ?? undefined
 
 	function filterTree(nodes: NavigationItem[], query: string): NavigationItem[] {
 		if (!query) return nodes
+		const q = query.toLowerCase()
 		return nodes.flatMap((n) => {
+			const matches = n.title.toLowerCase().includes(q)
 			const children = treeGetChildren(n)
 			const filteredChildren = children ? filterTree(children, query) : []
-			return matchesSearch(n, query) || filteredChildren.length > 0
+			return matches || filteredChildren.length > 0
 				? [{ ...n, children: filteredChildren.length ? filteredChildren : children }]
 				: []
 		})
@@ -183,7 +156,7 @@
 		<a
 			href={item.href}
 			data-row="start gap-2"
-			aria-current={pathname === item.href ? 'page' : undefined}
+			aria-current={currentPathname === item.href ? 'page' : undefined}
 			onmouseenter={() => {
 				if (item.href && !item.href.startsWith('http')) {
 					preloadData(item.href)
@@ -204,7 +177,7 @@
 						showAvatar={true}
 					/>
 				{:else if item.icon}
-					<Icon class="icon" {...navIconProps(item.icon)} />
+					<Icon {...navIconProps(item.icon)} size="1em" />
 				{/if}
 
 				{#if !item.address}
@@ -219,13 +192,13 @@
 					{#if item.tag}
 						<span data-tag={item.tag} data-row="start gap-1">
 							{#if item.tagIcon}
-								<Icon class="tag-icon" {...navIconProps(item.tagIcon)} />
+								<Icon {...navIconProps(item.tagIcon)} size="1em" />
 							{/if}
 							{item.tag}
 						</span>
 					{/if}
 					{#if item.manualWatch}
-						<Icon class="icon manual-watch" icon="★" aria-label="Pinned" />
+						<Icon icon="★" aria-label="Pinned" size="1em" />
 					{/if}
 				</span>
 			{/if}
@@ -242,7 +215,7 @@
 						showAvatar={true}
 					/>
 				{:else if item.icon}
-					<Icon class="icon" {...navIconProps(item.icon)} />
+					<Icon {...navIconProps(item.icon)} size="1em" />
 				{/if}
 
 				{#if !item.address}
@@ -257,13 +230,13 @@
 					{#if item.tag}
 						<span data-tag={item.tag} data-row="start gap-1">
 							{#if item.tagIcon}
-								<Icon class="tag-icon" {...navIconProps(item.tagIcon)} />
+								<Icon {...navIconProps(item.tagIcon)} size="1em" />
 							{/if}
 							{item.tag}
 						</span>
 					{/if}
 					{#if item.manualWatch}
-						<Icon class="icon manual-watch" icon="★" aria-label="Pinned" />
+						<Icon icon="★" aria-label="Pinned" size="1em" />
 					{/if}
 				</span>
 			{/if}
@@ -305,47 +278,6 @@
 		}
 
 		:global(summary),
-		a {
-			> .icon {
-				display: flex;
-				font-size: 1.25em;
-				width: 1em;
-				height: 1em;
-				line-height: 1;
-
-				:global(img),
-				:global(svg) {
-					border-radius: 0.125rem;
-					width: 100%;
-					height: 100%;
-				}
-			}
-		}
-
-		[data-tag] .tag-icon {
-			display: flex;
-			font-size: 0.9em;
-			width: 1em;
-			height: 1em;
-			line-height: 1;
-			flex-shrink: 0;
-		}
-
-		[data-tag] .tag-icon :global(img),
-		[data-tag] .tag-icon :global(svg) {
-			border-radius: 0.125rem;
-			width: 100%;
-			height: 100%;
-		}
-
-		:global(mark) {
-			font-weight: 600;
-			text-decoration: underline;
-			background-color: transparent;
-			color: inherit;
-		}
-
-		:global(summary),
 		a:not(:global(summary) a) {
 			padding: 0.45rem 0.45rem;
 			border-radius: 0.375rem;
@@ -376,6 +308,13 @@
 			margin-block-start: 2px;
 			padding-inline-start: 0.75em;
 			box-shadow: -1px 0 var(--color-border);
+		}
+
+		:global(mark) {
+			font-weight: 600;
+			text-decoration: underline;
+			background-color: transparent;
+			color: inherit;
 		}
 	}
 </style>

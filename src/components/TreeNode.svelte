@@ -43,38 +43,43 @@
 </script>
 
 
-	<svelte:element this={listTag} {...listAttrs}>
-		{#each nodes as node (getKey(node))}
-			{@const childNodes = getChildren(node)}
-			<li>
-				{#if childNodes?.length}
-					<details
-						{...detailsAttrs}
-						open={isOpen(node)}
-						ontoggle={(e: Event & { currentTarget: HTMLDetailsElement }) => {
-							onOpenChange?.(node, e.currentTarget.open)
-						}}
-					>
-						<summary {...summaryAttrs}>
-							{@render Content({ node })}
-						</summary>
+<svelte:element
+	this={listTag}
+	class="tree-node"
+	{...listAttrs}
+>
+	{#each nodes as node (getKey(node))}
+		{@const childNodes = getChildren(node)}
 
-						<TreeNode
-							nodes={childNodes}
-							{getKey}
-							{getChildren}
-							{isOpen}
-							{onOpenChange}
-							{Content}
-							{listTag}
-							{listAttrs}
-							{detailsAttrs}
-							{summaryAttrs}
-						/>
-					</details>
-				{:else}
-					{@render Content({ node })}
-				{/if}
-			</li>
-		{/each}
-	</svelte:element>
+		<li>
+			{#if childNodes?.length}
+				<details
+					{...detailsAttrs}
+					open={isOpen(node)}
+					ontoggle={(e: Event & { currentTarget: HTMLDetailsElement }) => {
+						onOpenChange?.(node, e.currentTarget.open)
+					}}
+				>
+					<summary {...summaryAttrs}>
+						{@render Content({ node })}
+					</summary>
+
+					<TreeNode
+						nodes={childNodes}
+						{getKey}
+						{getChildren}
+						{isOpen}
+						{onOpenChange}
+						{Content}
+						{listTag}
+						{listAttrs}
+						{detailsAttrs}
+						{summaryAttrs}
+					/>
+				</details>
+			{:else}
+				{@render Content({ node })}
+			{/if}
+		</li>
+	{/each}
+</svelte:element>
