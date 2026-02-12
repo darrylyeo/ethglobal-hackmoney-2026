@@ -14,12 +14,13 @@
 	import type { Coin } from '$/constants/coins.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { protocolActions } from '$/constants/protocolActions.ts'
+	import { bridgeIdToProtocol, protocolToBridgeId } from '$/constants/bridge-protocol-intents.ts'
+	import { spandexQuoteStrategies } from '$/constants/spandex-quote-strategies.ts'
+	import { protocolToSpandexProvider, spandexSwapProtocols } from '$/constants/spandex-providers.ts'
 	import {
 		Protocol,
-		ProtocolTag,
-		bridgeIdToProtocol,
-		protocolToBridgeId,
-		protocolsById,
+		ProtocolStrategy,
+		protocols,
 	} from '$/constants/protocols.ts'
 	import { getBridgeProtocolOptions } from '$/lib/protocols/bridgeProtocolOptions.ts'
 	import { NetworkType, networks, networksByChainId } from '$/constants/networks.ts'
@@ -85,6 +86,9 @@
 			? (action.params as { fromChainId: number | null; toChainId: number | null; protocolIntent?: 'cctp' | 'lifi' | 'gateway' | null })
 			: null,
 	)
+	const protocolsById = Object.fromEntries(
+		protocols.map((protocol) => [protocol.id, protocol]),
+	) as Record<Protocol, import('$/constants/protocols.ts').ProtocolDefinition>
 	const protocolOptions = $derived(
 		action.type === ActionType.Bridge && bridgeParams
 			? getBridgeProtocolOptions(
@@ -96,15 +100,17 @@
 					.map((pa) => protocolsById[pa.id.protocol])
 					.filter(Boolean) as import('$/constants/protocols.ts').ProtocolDefinition[]),
 	)
-	const resolveSelection = (sel: string, opts: readonly { id: string; tags?: readonly ProtocolTag[] }[]) =>
-		opts.find((o) => o.id === sel)
-			? sel
-			: opts.find((o) => o.tags?.includes(sel as ProtocolTag))?.id ?? sel
+	const isSpandexQuoteStrategy = (
+		value: string,
+	): value is (typeof spandexQuoteStrategies)[number] =>
+		spandexQuoteStrategies.some((strategy) => strategy === value)
 	const resolvedProtocol = $derived(
 		(() => {
 			const sel = action.protocolSelection ?? action.protocolAction?.protocol ?? ''
 			if (!sel) return null
-			return resolveSelection(sel, protocolOptions) as Protocol | null
+			if (protocolOptions.some((o) => o.id === sel))
+				return sel as Protocol
+			return (action.protocolAction?.protocol ?? null) as Protocol | null
 		})(),
 	)
 	const protocolValue = $derived(
@@ -113,6 +119,13 @@
 					? bridgeIdToProtocol[bridgeParams.protocolIntent]
 					: action.protocolAction?.protocol ?? '')
 			: (action.protocolSelection ?? action.protocolAction?.protocol ?? ''),
+	)
+	const protocolStrategy = $derived(
+		action.type === ActionType.Swap && protocolOptions.length > 0
+			? (isSpandexQuoteStrategy(protocolValue)
+				? protocolValue
+				: ProtocolStrategy.BestPrice)
+			: null,
 	)
 	const paramsHash = $derived(stringify(action.params))
 	const sessionId = $derived(sessionCtx.sessionId ?? '')
@@ -197,14 +210,16 @@
 			} as Action
 			return
 		}
-		const resolved = resolveSelection(value, protocolOptions)
-		const valid = protocolOptions.some((o) => o.id === resolved)
+		const valid = protocolOptions.some((o) => o.id === value)
+		const strategy = isSpandexQuoteStrategy(value)
 		const bridgeIntent =
-			action.type === ActionType.Bridge && valid ? protocolToBridgeId[resolved as Protocol] : undefined
+			action.type === ActionType.Bridge && valid ? protocolToBridgeId[value as Protocol] : undefined
 		action = {
 			...action,
 			protocolSelection: value,
-			protocolAction: valid ? { action: action.type, protocol: resolved } : undefined,
+			protocolAction: valid
+				? { action: action.type, protocol: value }
+				: (strategy ? action.protocolAction : undefined),
 			...(action.type === ActionType.Bridge && action.params && 'protocolIntent' in action.params
 				? { params: { ...action.params, protocolIntent: bridgeIntent ?? null } }
 				: {}),
@@ -214,10 +229,10 @@
 	$effect(() => {
 		const sel = action.protocolSelection ?? action.protocolAction?.protocol ?? ''
 		if (!sel) return
-		const resolved = resolveSelection(sel, protocolOptions)
-		const valid = protocolOptions.some((o) => o.id === resolved)
-		if (valid && resolved !== action.protocolAction?.protocol)
-			action = { ...action, protocolAction: { action: action.type, protocol: resolved } } as Action
+		if (isSpandexQuoteStrategy(sel)) return
+		const valid = protocolOptions.some((o) => o.id === sel)
+		if (valid && sel !== action.protocolAction?.protocol)
+			action = { ...action, protocolAction: { action: action.type, protocol: sel } } as Action
 		else if (!valid && action.protocolAction)
 			action = { ...action, protocolAction: undefined } as Action
 	})
@@ -386,6 +401,7 @@
 				<ProtocolInput
 					options={protocolOptions}
 					value={protocolValue}
+					activeProtocolId={resolvedProtocol}
 					onSelect={(protocol) => onProtocolChange(protocol ?? null)}
 				/>
 				{#if action.type === ActionType.Bridge}
@@ -393,11 +409,16 @@
 				{/if}
 			</section>
 
-			{#if action.type === ActionType.Swap && resolvedProtocol === Protocol.Spandex}
-				<SpandexQuotesPanel
-					params={action.params as ActionParams<ActionType.Swap>}
-					swapperAccount={sessionCtx.selectedActor}
-				/>
+			{#if action.type === ActionType.Swap && resolvedProtocol && spandexSwapProtocols.includes(resolvedProtocol)}
+				{@const provider = protocolToSpandexProvider[resolvedProtocol]}
+				{#if provider}
+					<SpandexQuotesPanel
+						params={action.params as ActionParams<ActionType.Swap>}
+						provider={provider}
+						strategy={protocolStrategy}
+						swapperAccount={sessionCtx.selectedActor}
+					/>
+				{/if}
 			{/if}
 
 			<section data-card data-column>

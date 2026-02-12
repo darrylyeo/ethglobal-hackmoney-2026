@@ -13,31 +13,33 @@
 			? (action.params as { transferSpeed: 'fast' | 'standard'; forwardingEnabled: boolean })
 			: null,
 	)
+	const transferSpeedItems = $derived([
+		{ id: 'fast' as const, label: 'Fast' },
+		{ id: 'standard' as const, label: 'Standard' },
+	])
+
+
+	// Components
+	import Select from '$/components/Select.svelte'
 </script>
 
 {#if action.type === ActionType.Bridge && p}
 	<div data-card data-column="gap-2">
 		<h3>CCTP settings</h3>
-		<div data-row="gap-2">
-			<button
-				type="button"
-				data-selected={p.transferSpeed === 'fast' ? '' : undefined}
-				onclick={() => {
-					action = { ...action, params: { ...action.params, transferSpeed: 'fast' } } as Action
+		<label data-column="gap-2">
+			<span>Transfer speed</span>
+			<Select
+				items={transferSpeedItems}
+				getItemId={(x) => x.id}
+				getItemLabel={(x) => x.label}
+				bind:value={() => p.transferSpeed, (v: string | string[]) => {
+					const next = typeof v === 'string' ? v : v?.[0]
+					if (next === 'fast' || next === 'standard')
+						action = { ...action, params: { ...action.params, transferSpeed: next } } as Action
 				}}
-			>
-				Fast
-			</button>
-			<button
-				type="button"
-				data-selected={p.transferSpeed === 'standard' ? '' : undefined}
-				onclick={() => {
-					action = { ...action, params: { ...action.params, transferSpeed: 'standard' } } as Action
-				}}
-			>
-				Standard
-			</button>
-		</div>
+				ariaLabel="Transfer speed"
+			/>
+		</label>
 		<label data-row="gap-2 align-center">
 			<input
 				type="checkbox"

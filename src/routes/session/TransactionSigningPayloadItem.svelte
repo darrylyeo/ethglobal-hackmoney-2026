@@ -35,11 +35,11 @@
 </script>
 
 <article data-card data-signing-payload data-column="gap-2 padding-3">
-	<div data-row="gap-2 align-center">
+	<header data-row="gap-2 align-center">
 		{#if payload.label}
 			<h4>{payload.label}</h4>
 		{/if}
-	</div>
+	</header>
 	<dl>
 		<dt>Network</dt>
 		<dd>

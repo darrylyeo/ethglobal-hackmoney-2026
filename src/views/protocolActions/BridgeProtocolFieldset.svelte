@@ -1,8 +1,11 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type Action } from '$/constants/actions.ts'
-	import { Protocol, protocolToBridgeId } from '$/constants/protocols.ts'
-	import type { BridgeProtocolId } from '$/constants/protocols.ts'
+	import {
+		type BridgeProtocolId,
+		protocolToBridgeId,
+	} from '$/constants/bridge-protocol-intents.ts'
+	import { Protocol } from '$/constants/protocols.ts'
 	import { isCctpSupportedChain } from '$/constants/cctp.ts'
 	import { isGatewaySupportedChain } from '$/constants/gateway.ts'
 

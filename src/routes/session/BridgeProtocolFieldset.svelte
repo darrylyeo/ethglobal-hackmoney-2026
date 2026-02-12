@@ -1,17 +1,16 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type Action } from '$/constants/actions.ts'
-	import { Protocol, ProtocolTag, protocolTagLabels, protocolsById } from '$/constants/protocols.ts'
+	import {
+		BridgeProtocolId,
+		bridgeIdToProtocol,
+	} from '$/constants/bridge-protocol-intents.ts'
+	import {
+		Protocol,
+		protocols,
+	} from '$/constants/protocols.ts'
 	import { isCctpSupportedChain } from '$/constants/cctp.ts'
 	import { isGatewaySupportedChain } from '$/constants/gateway.ts'
-
-	type BridgeProtocolId = 'cctp' | 'lifi' | 'gateway'
-
-	const bridgeIdToProtocol: Record<BridgeProtocolId, Protocol> = {
-		cctp: Protocol.Cctp,
-		lifi: Protocol.LiFi,
-		gateway: Protocol.CircleGateway,
-	}
 
 
 	// Props
@@ -70,21 +69,24 @@
 					? 'Only LI.FI supports this pair'
 					: gatewayPairSupported && !cctpPairSupported && !lifiPairSupported
 						? 'Only Gateway supports this pair'
-						: protocolIntent === 'cctp'
+						: protocolIntent === BridgeProtocolId.Cctp
 							? 'Using CCTP (your preference)'
-							: protocolIntent === 'lifi'
+							: protocolIntent === BridgeProtocolId.Lifi
 								? 'Using LI.FI (your preference)'
-								: protocolIntent === 'gateway'
+								: protocolIntent === BridgeProtocolId.Gateway
 									? 'Using Gateway (your preference)'
 									: 'Using CCTP (best route)',
 	)
+	const protocolsById = Object.fromEntries(
+		protocols.map((protocol) => [protocol.id, protocol]),
+	) as Record<Protocol, import('$/constants/protocols.ts').ProtocolDefinition>
 
 	const protocolOptions = $derived(
 		(
 			[
-				{ bridgeId: 'cctp' as const, enabled: cctpPairSupported },
-				{ bridgeId: 'lifi' as const, enabled: lifiPairSupported },
-				{ bridgeId: 'gateway' as const, enabled: gatewayPairSupported },
+				{ bridgeId: BridgeProtocolId.Cctp, enabled: cctpPairSupported },
+				{ bridgeId: BridgeProtocolId.Lifi, enabled: lifiPairSupported },
+				{ bridgeId: BridgeProtocolId.Gateway, enabled: gatewayPairSupported },
 			] as const
 		)
 			.filter((o) => o.enabled)
@@ -158,16 +160,6 @@
 								<small data-text="muted">{row.option.detail}</small>
 							</div>
 						</button>
-						{#each ('tags' in row.option ? row.option.tags : []) as tagId (tagId)}
-							<button
-								type="button"
-								class="protocol-tag"
-								data-tag
-								onclick={() => setProtocolIntent(row.option.bridgeId)}
-							>
-								{protocolTagLabels[tagId as ProtocolTag]}
-							</button>
-						{/each}
 					</div>
 				{/if}
 			{/each}
@@ -180,9 +172,9 @@
 		<p data-text="muted">{protocolReason}</p>
 	{/if}
 
-	{#if activeProtocol === 'cctp'}
+	{#if activeProtocol === BridgeProtocolId.Cctp}
 		<CctpBridgeSettingsFieldset bind:action />
-	{:else if activeProtocol === 'lifi'}
+	{:else if activeProtocol === BridgeProtocolId.Lifi}
 		<LifiBridgeSettingsFieldset bind:action />
 	{/if}
 	</div>
@@ -214,11 +206,4 @@
 		flex-shrink: 0;
 	}
 
-	.protocol-tag {
-		cursor: pointer;
-		font-size: 0.75em;
-		padding: 0.15em 0.6em;
-		background: var(--color-success-bg);
-		color: var(--color-success);
-	}
 </style>

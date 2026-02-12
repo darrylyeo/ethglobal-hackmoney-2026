@@ -91,7 +91,17 @@
 	{:else}
 		<label data-column="gap-2">
 			<span>Token address</span>
-			<input type="text" bind:value={p.tokenAddress} />
+			<PatternInput
+				patternTypes={[PatternType.EvmAddress]}
+				value={p.tokenAddress}
+				oninput={(e: Event) => {
+					action = {
+						...action,
+						params: { ...action.params, tokenAddress: (e.currentTarget as HTMLInputElement).value },
+					}
+				}}
+				ariaLabel="Token address"
+			/>
 		</label>
 		<label data-column="gap-2">
 			<span>Amount</span>

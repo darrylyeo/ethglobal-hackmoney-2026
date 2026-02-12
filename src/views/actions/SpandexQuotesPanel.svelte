@@ -3,19 +3,25 @@
 	import type { ActionParams } from '$/constants/actions.ts'
 	import { ActionType } from '$/constants/actions.ts'
 	import {
-		fetchSpandexQuotes,
+		fetchSpandexQuoteForProvider,
 		getRequestKeyForParams,
 		spandexQuoteItemsCollection,
 	} from '$/collections/SpandexQuoteItems.ts'
+	import { labelByProtocolStrategy, ProtocolStrategy } from '$/constants/protocols.ts'
 	import type { SpandexQuoteRequestId } from '$/data/SpandexQuoteItem.ts'
+	import type { ProviderKey } from '@spandex/core'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
 	// Props
 	let {
 		params,
+		provider,
+		strategy = null,
 		swapperAccount,
 	}: {
 		params: ActionParams<ActionType.Swap> | null
+		provider: string
+		strategy?: ProtocolStrategy | null
 		swapperAccount: `0x${string}` | null
 	} = $props()
 
@@ -24,17 +30,15 @@
 	let error = $state<string | null>(null)
 
 	// (Derived)
-	const swapParams = $derived(
-		params &&
-		'chainId' in params &&
-		'tokenIn' in params &&
-		'tokenOut' in params &&
-		'amount' in params &&
-		'slippage' in params &&
-		params.amount > 0n
-			? (params as ActionParams<ActionType.Swap>)
-			: null,
-	)
+	const swapParams = $derived.by((): ActionParams<ActionType.Swap> | null => {
+		if (
+			!params ||
+			!('chainId' in params && 'tokenIn' in params && 'tokenOut' in params && 'amount' in params && 'slippage' in params) ||
+			(params as ActionParams<ActionType.Swap>).amount <= 0n
+		)
+			return null
+		return params as ActionParams<ActionType.Swap>
+	})
 	const requestId = $derived(
 		swapParams && swapperAccount
 			? ({
@@ -64,29 +68,30 @@
 			.from({ row: spandexQuoteItemsCollection })
 			.select(({ row }) => ({ row })),
 	)
-	const itemsForRequest = $derived(
-		requestKey && quotesQuery.data
-			? quotesQuery.data
-					.filter((r) => r.row.$id.requestId === requestKey)
-					.map((r) => r.row)
-					.sort((a, b) =>
-						(a.simulatedOutputAmount ?? 0n) > (b.simulatedOutputAmount ?? 0n)
-							? -1
-							: 1,
-					)
-			: [],
+	const itemForProvider = $derived(
+		requestKey && quotesQuery.data && provider
+			? quotesQuery.data.find(
+					(r) => r.row.$id.requestId === requestKey && r.row.provider === provider,
+				)?.row ?? null
+			: null,
 	)
 	const canFetch = $derived(
 		Boolean(swapParams && swapperAccount && !fetching && swapParams.amount > 0n),
 	)
+	const providerLabel = $derived(
+		provider ? (provider.charAt(0).toUpperCase() + provider.slice(1)) : '',
+	)
+	const strategyLabel = $derived(
+		strategy ? labelByProtocolStrategy[strategy] : null,
+	)
 
 	// Actions
 	const onFetch = async () => {
-		if (!requestId) return
+		if (!requestId || !provider) return
 		fetching = true
 		error = null
 		try {
-			await fetchSpandexQuotes(requestId)
+			await fetchSpandexQuoteForProvider(requestId, provider as ProviderKey)
 		} catch (e) {
 			error = e instanceof Error ? e.message : String(e)
 		} finally {
@@ -95,41 +100,41 @@
 	}
 </script>
 
-{#if params && swapperAccount}
+{#if params && swapperAccount && provider}
 	<section data-card data-column>
-		<h3>spanDEX quotes</h3>
+		<h3>
+			{providerLabel} quote
+			{#if strategyLabel}
+				<small data-text="muted">({strategyLabel})</small>
+			{/if}
+		</h3>
 		<button
 			type="button"
 			disabled={!canFetch}
 			onclick={onFetch}
 		>
-			{fetching ? 'Fetching…' : 'Fetch quotes'}
+			{fetching ? 'Fetching…' : 'Fetch quote'}
 		</button>
 		{#if error}
 			<p data-muted>{error}</p>
 		{/if}
-		{#if itemsForRequest.length > 0}
-			<ul data-column>
-				{#each itemsForRequest as item}
-					<li data-row="center gap-2">
-						<span>{item.provider}</span>
-						{#if item.success}
-							<span>
-								{item.simulatedOutputAmount?.toString() ?? '—'} out
-							</span>
-							{#if item.mismatchFlag}
-								<span data-muted title="Quote vs simulation mismatch">
-									⚠ {item.mismatchBps != null ? `${item.mismatchBps} bps` : ''}
-								</span>
-							{/if}
-						{:else}
-							<span data-muted>{item.error ?? 'Failed'}</span>
-						{/if}
-					</li>
-				{/each}
-			</ul>
+		{#if itemForProvider}
+			<div data-row="center gap-2">
+				{#if itemForProvider.success}
+					<span>
+						{itemForProvider.simulatedOutputAmount?.toString() ?? '—'} out
+					</span>
+					{#if itemForProvider.mismatchFlag}
+						<span data-muted title="Quote vs simulation mismatch">
+							⚠ {itemForProvider.mismatchBps != null ? `${itemForProvider.mismatchBps} bps` : ''}
+						</span>
+					{/if}
+				{:else}
+					<span data-muted>{itemForProvider.error ?? 'Failed'}</span>
+				{/if}
+			</div>
 		{:else if requestKey && !fetching}
-			<p data-muted>Click “Fetch quotes” to compare providers.</p>
+			<p data-muted>Click “Fetch quote” for {providerLabel}.</p>
 		{/if}
 	</section>
 {/if}

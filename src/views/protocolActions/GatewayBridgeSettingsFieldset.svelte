@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type Action } from '$/constants/actions.ts'
+	import { PatternType } from '$/constants/patterns.ts'
 
 
 	// Props
@@ -13,6 +14,10 @@
 			? (action.params as { useCustomRecipient: boolean; customRecipient: string })
 			: null,
 	)
+
+
+	// Components
+	import PatternInput from '$/components/PatternInput.svelte'
 </script>
 
 {#if action.type === ActionType.Bridge && p}
@@ -35,16 +40,19 @@
 		{#if p.useCustomRecipient}
 			<label data-column="gap-2">
 				<span>Recipient address</span>
-				<input
-					type="text"
-					placeholder="0x…"
+				<PatternInput
+					patternTypes={[PatternType.EvmAddress, PatternType.EnsName]}
 					value={p.customRecipient}
-					oninput={(e) => {
+					oninput={(e: Event) => {
 						action = {
 							...action,
-							params: { ...action.params, customRecipient: (e.currentTarget as HTMLInputElement).value },
+							params: {
+								...action.params,
+								customRecipient: (e.currentTarget as HTMLInputElement).value,
+							},
 						} as Action
 					}}
+					ariaLabel="Recipient address"
 				/>
 			</label>
 		{/if}

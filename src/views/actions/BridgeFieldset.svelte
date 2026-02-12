@@ -49,6 +49,7 @@
 
 
 	// Components
+	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import CoinInput from '$/views/CoinInput.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 </script>
@@ -94,29 +95,54 @@
 		</label>
 		<label data-column="gap-2">
 			<span>Amount</span>
-			<input
-				type="text"
-				inputmode="decimal"
-				placeholder="0.00"
-				value={p.amount > 0n ? formatSmallestToDecimal(p.amount, p.tokenDecimals) : ''}
-				oninput={(e) => {
-					const raw = (e.currentTarget as HTMLInputElement).value
-					if (raw === '') {
-						invalid = false
-						action = { ...action, params: { ...action.params, amount: 0n } }
-						return
-					}
-					if (isValidDecimalInput(raw, p.tokenDecimals)) {
-						invalid = false
-						action = {
-							...action,
-							params: { ...action.params, amount: parseDecimalToSmallest(raw, p.tokenDecimals) },
+			{#if bridgeCoins.length >= 1}
+				<CoinAmountInput
+					coins={bridgeCoins as [Coin, ...Coin[]]}
+					bind:coin={() => selectedCoin, (c) => {
+						if (c)
+							action = {
+								...action,
+								params: {
+									...action.params,
+									tokenAddress: c.address,
+									tokenSymbol: c.symbol,
+									tokenDecimals: c.decimals,
+								},
+							}
+					}}
+					min={0n}
+					max={0n}
+					bind:value={() => p.amount, (v) => {
+						action = { ...action, params: { ...action.params, amount: v } }
+					}}
+					bind:invalid
+					ariaLabel="Amount"
+				/>
+			{:else}
+				<input
+					type="text"
+					inputmode="decimal"
+					placeholder="0.00"
+					value={p.amount > 0n ? formatSmallestToDecimal(p.amount, p.tokenDecimals) : ''}
+					oninput={(e) => {
+						const raw = (e.currentTarget as HTMLInputElement).value
+						if (raw === '') {
+							invalid = false
+							action = { ...action, params: { ...action.params, amount: 0n } }
+							return
 						}
-						return
-					}
-					invalid = true
-				}}
-			/>
+						if (isValidDecimalInput(raw, p.tokenDecimals)) {
+							invalid = false
+							action = {
+								...action,
+								params: { ...action.params, amount: parseDecimalToSmallest(raw, p.tokenDecimals) },
+							}
+							return
+						}
+						invalid = true
+					}}
+				/>
+			{/if}
 		</label>
 	</div>
 {/if}
