@@ -26,31 +26,61 @@
 	import TreeNode from '$/components/TreeNode.svelte'
 
 	// Props
-	let { items }: { items: NavigationItem[] } = $props()
+	let {
+		items,
+		currentPathname,
+	}: { items: NavigationItem[], currentPathname?: string } = $props()
 
 	// State
 	let searchValue = $state('')
 	let treeOpenState = $state(new Map<string, boolean>())
 
 	// (Derived)
-	const currentPathname = $derived($page.url.pathname)
+	const pathname = $derived(currentPathname ?? $page.url.pathname)
 	const effectiveSearchValue = $derived(searchValue.trim().toLowerCase())
+
+	const hasCurrentPage = (item: NavigationItem): boolean => (
+		(
+			item.href != null &&
+			(
+				pathname === item.href.split('#')[0] ||
+				pathname.startsWith(item.href.split('#')[0] + '/')
+			)
+		) ||
+		(item.allChildren ?? item.children)?.some(hasCurrentPage) === true
+	)
+
+	const effectiveChildren = (item: NavigationItem) =>
+		item.allChildren && (effectiveSearchValue || hasCurrentPage(item))
+			? item.allChildren
+			: item.children
+
 	const treeIsOpen = (item: NavigationItem) =>
-		treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false)
+		effectiveSearchValue
+			? matchesSearch(item, effectiveSearchValue)
+			: hasCurrentPage(item) ||
+				(treeOpenState.get(item.id) ?? item.defaultIsOpen ?? false)
+
 	const treeOnOpenChange = (item: NavigationItem, open: boolean) => {
-		treeOpenState = new Map(treeOpenState).set(item.id, open)
+		if (!effectiveSearchValue) treeOpenState = new Map(treeOpenState).set(item.id, open)
 	}
-	const treeGetChildren = (item: NavigationItem) =>
-		item.children ?? item.allChildren ?? undefined
+
+	const treeGetChildren = (item: NavigationItem) => effectiveChildren(item) ?? undefined
+
+	function matchesSearch(item: NavigationItem, query: string): boolean {
+		if (!query) return true
+		return (
+			item.title.toLowerCase().includes(query) ||
+			(item.allChildren ?? item.children)?.some((c) => matchesSearch(c, query)) === true
+		)
+	}
 
 	function filterTree(nodes: NavigationItem[], query: string): NavigationItem[] {
 		if (!query) return nodes
-		const q = query.toLowerCase()
 		return nodes.flatMap((n) => {
-			const matches = n.title.toLowerCase().includes(q)
 			const children = treeGetChildren(n)
 			const filteredChildren = children ? filterTree(children, query) : []
-			return matches || filteredChildren.length > 0
+			return matchesSearch(n, query) || filteredChildren.length > 0
 				? [{ ...n, children: filteredChildren.length ? filteredChildren : children }]
 				: []
 		})
@@ -153,7 +183,7 @@
 		<a
 			href={item.href}
 			data-row="start gap-2"
-			aria-current={currentPathname === item.href ? 'page' : undefined}
+			aria-current={pathname === item.href ? 'page' : undefined}
 			onmouseenter={() => {
 				if (item.href && !item.href.startsWith('http')) {
 					preloadData(item.href)
@@ -244,7 +274,7 @@
 
 <style>
 	.nav-items {
-		menu {
+		:global(menu) {
 			gap: 2px;
 			list-style: none;
 			font-size: 0.975em;
@@ -254,7 +284,7 @@
 			}
 		}
 
-		details[data-sticky-container] {
+		:global(details[data-sticky-container]) {
 			--sticky-marginBlockStart: 1.75rem;
 			--sticky-paddingBlockStart: 0.5rem;
 		}
@@ -274,7 +304,7 @@
 			}
 		}
 
-		summary,
+		:global(summary),
 		a {
 			> .icon {
 				display: flex;
@@ -315,8 +345,8 @@
 			color: inherit;
 		}
 
-		summary,
-		a:not(summary a) {
+		:global(summary),
+		a:not(:global(summary) a) {
 			padding: 0.45rem 0.45rem;
 			border-radius: 0.375rem;
 			font-weight: 500;
@@ -337,11 +367,11 @@
 			}
 		}
 
-		details:not([open]) > summary::after {
+		:global(details:not([open]) > summary::after) {
 			transform: perspective(100px) rotateX(180deg) rotate(-90deg);
 		}
 
-		summary ~ * {
+		:global(summary ~ *) {
 			margin-inline-start: 1em;
 			margin-block-start: 2px;
 			padding-inline-start: 0.75em;
