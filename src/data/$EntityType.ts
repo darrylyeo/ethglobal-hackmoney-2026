@@ -12,6 +12,7 @@ import type { BlockEntry, Block$Id } from '$/data/Block.ts'
 import type { BridgeRoute } from '$/data/BridgeRoute.ts'
 import type { CctpAllowance, CctpAllowance$Id } from '$/data/CctpAllowance.ts'
 import type { CctpFee, CctpFee$Id } from '$/data/CctpFee.ts'
+import type { ContractEntry, Contract$Id } from '$/data/Contract.ts'
 import type { CoinEntry, Coin$Id } from '$/data/Coin.ts'
 import type { DashboardState, DashboardState$Id } from '$/data/DashboardPanel.ts'
 import type { NetworkEntry, Network$Id } from '$/data/Network.ts'
@@ -48,6 +49,7 @@ export enum EntityType {
 	CctpFee = 'CctpFee',
 	ChannelProposal = 'ChannelProposal',
 	Coin = 'Coin',
+	Contract = 'Contract',
 	Dashboard = 'Dashboard',
 	Network = 'Network',
 	Room = 'Room',
@@ -82,6 +84,7 @@ export const graphSceneEntityTypes = [
 	EntityType.CctpAllowance,
 	EntityType.CctpFee,
 	EntityType.Coin,
+	EntityType.Contract,
 	EntityType.Dashboard,
 	EntityType.Network,
 	EntityType.Room,
@@ -119,6 +122,7 @@ export const entityTypes = [
 	{ type: EntityType.CctpFee, label: 'CCTP fee', labelPlural: 'CCTP fees' },
 	{ type: EntityType.ChannelProposal, label: 'Channel proposal', labelPlural: 'Channel proposals' },
 	{ type: EntityType.Coin, label: 'Token', labelPlural: 'Tokens' },
+	{ type: EntityType.Contract, label: 'Contract', labelPlural: 'Contracts' },
 	{ type: EntityType.Dashboard, label: 'Dashboard', labelPlural: 'Dashboards' },
 	{ type: EntityType.Network, label: 'Network', labelPlural: 'Networks' },
 	{ type: EntityType.Room, label: 'Room', labelPlural: 'Rooms' },
@@ -158,6 +162,7 @@ export type Entity<_EntityType extends EntityType = EntityType> = {
 	[EntityType.CctpFee]: CctpFee
 	[EntityType.ChannelProposal]: Record<string, unknown>
 	[EntityType.Coin]: CoinEntry
+	[EntityType.Contract]: ContractEntry
 	[EntityType.Dashboard]: DashboardState
 	[EntityType.Network]: NetworkEntry
 	[EntityType.Room]: Room
@@ -195,6 +200,7 @@ export type EntityId<_EntityType extends EntityType = EntityType> = {
 	[EntityType.CctpFee]: CctpFee$Id
 	[EntityType.ChannelProposal]: Record<string, unknown>
 	[EntityType.Coin]: Coin$Id
+	[EntityType.Contract]: Contract$Id
 	[EntityType.Dashboard]: DashboardState$Id
 	[EntityType.Network]: Network$Id
 	[EntityType.Room]: StringId
