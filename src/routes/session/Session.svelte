@@ -138,7 +138,7 @@
 		href={resolve(buildSessionPath(session.id))}
 		label={displayLabel}
 		annotation="Session"
-		anchorTitle={false}
+		hasAnchorTitle={false}
 		autoWatched={session.status === SessionStatus.Draft || session.status === SessionStatus.Submitted}
 	>
 		{#snippet Title()}

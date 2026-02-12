@@ -162,7 +162,7 @@
 </section>
 
 {#if transferChannel}
-	<TransferDialog channel={transferChannel} bind:open={transferOpen} />
+	<TransferDialog channel={transferChannel} bind:isOpen={transferOpen} />
 {/if}
 
 

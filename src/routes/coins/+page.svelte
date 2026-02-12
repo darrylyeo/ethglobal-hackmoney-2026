@@ -2,13 +2,13 @@
 	// Types/constants
 	import { resolve } from '$app/paths'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { COIN_PAGE_SYMBOLS, getCoinForCoinPage } from '$/constants/coins.ts'
+	import { COIN_SYMBOLS, coinBySymbol } from '$/constants/coins.ts'
 
 
 	// Components
 	import EntityId from '$/components/EntityId.svelte'
 	import WatchButton from '$/components/WatchButton.svelte'
-	import CoinAmount from '$/views/CoinAmount.svelte'
+	import CoinName from '$/views/CoinName.svelte'
 </script>
 
 
@@ -20,8 +20,8 @@
 <main data-column="gap-2">
 	<h1>Coins</h1>
 	<ul data-column="gap-2">
-		{#each COIN_PAGE_SYMBOLS as symbol (symbol)}
-			{@const coin = getCoinForCoinPage(symbol)}
+		{#each COIN_SYMBOLS as symbol (symbol)}
+			{@const coin = coinBySymbol[symbol]}
 			<li data-row="start gap-2 align-center">
 				<EntityId
 					link={resolve(`/coin/${symbol}`)}
@@ -30,13 +30,15 @@
 					entityType={EntityType.Coin}
 					entityId={{ network: coin.chainId, address: coin.address }}
 				>
-					<CoinAmount coin={coin} showIcon symbolOnly />
+					<CoinName coin={coin} />
 				</EntityId>
 				<WatchButton
 					entityType={EntityType.Coin}
-					id={symbol}
-					label={coin.symbol}
-					href={resolve(`/coin/${symbol}`)}
+					entityId={{
+						$network: { chainId: coin.chainId },
+						address: coin.address,
+						interopAddress: coin.symbol,
+					}}
 				/>
 			</li>
 		{/each}

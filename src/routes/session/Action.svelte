@@ -9,16 +9,16 @@
 		type ActionParams,
 		type ActionTypeDefinition,
 		type LiquidityAction,
-		mergeActionParams,
 	} from '$/constants/actions.ts'
+	import { mergeActionParams } from '$/lib/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { protocolActions } from '$/constants/protocolActions.ts'
 	import {
 		Protocol,
 		ProtocolTag,
-		bridgeIdToProtocol,
-		protocolToBridgeId,
+		bridgeIdByProtocol,
+		protocolByBridgeId,
 		protocolsById,
 	} from '$/constants/protocols.ts'
 	import { getBridgeProtocolOptions } from '$/lib/protocols/bridgeProtocolOptions.ts'
@@ -110,7 +110,7 @@
 	const protocolValue = $derived(
 		action.type === ActionType.Bridge && bridgeParams
 			? (bridgeParams.protocolIntent
-					? bridgeIdToProtocol[bridgeParams.protocolIntent]
+					? protocolByBridgeId[bridgeParams.protocolIntent]
 					: action.protocolAction?.protocol ?? '')
 			: (action.protocolSelection ?? action.protocolAction?.protocol ?? ''),
 	)
@@ -200,7 +200,7 @@
 		const resolved = resolveSelection(value, protocolOptions)
 		const valid = protocolOptions.some((o) => o.id === resolved)
 		const bridgeIntent =
-			action.type === ActionType.Bridge && valid ? protocolToBridgeId[resolved as Protocol] : undefined
+			action.type === ActionType.Bridge && valid ? bridgeIdByProtocol[resolved as Protocol] : undefined
 		action = {
 			...action,
 			protocolSelection: value,

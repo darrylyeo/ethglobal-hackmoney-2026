@@ -45,8 +45,7 @@
 	import {
 		NetworkType,
 		networksByChainId,
-		toCaip2,
-		toNetworkSlug,
+		networkConfigsByChainId,
 	} from '$/constants/networks.ts'
 	import {
 		EntityType,
@@ -1070,31 +1069,31 @@
 			const connections = take(connectionsQuery.data)
 			actors.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Actor, row.$source)) return
-				const actorId = `actor:${row.$id.network}:${row.address}`
+				const actorId = `actor:${row.$id.$network.chainId}:${row.$id.address}`
 				if (g.hasNode(actorId)) return
 				const pos = positionInRing(
 					collections[EntityType.Actor].ring,
 					i,
 					actors.length,
 				)
-				const chainName = getChainName(row.$id.network)
+				const chainName = getChainName(row.$id.$network.chainId)
 				addNode(
 					baseNode(EntityType.Actor, pos, {
 						id: actorId,
-						label: `${row.address.slice(0, 6)}…${row.address.slice(-4)}`,
+						label: `${row.$id.address.slice(0, 6)}…${row.$id.address.slice(-4)}`,
 						type: 'circle',
 						intent: toIntentPayload(EntityType.Actor, row.$id),
 						details: {
-							address: row.address,
+							address: row.$id.address,
 							chain: chainName,
-							chainId: row.$id.network,
+							chainId: row.$id.$network.chainId,
 						},
 					}),
 				)
 				// Connect actor to connection
 				if (visibleCollections.has(EntityType.WalletConnection)) {
 					for (const { row: conn } of connections) {
-						if (conn.actors.includes(row.address)) {
+						if (conn.actors.includes(row.$id.address)) {
 							const connRdns = conn.$id?.wallet$id?.rdns
 							if (connRdns && g.hasNode(`connection:${connRdns}`)) {
 								addEdge({
@@ -1119,7 +1118,7 @@
 			const coins = take(actorCoinsQuery.data)
 			coins.forEach(({ row }, i) => {
 				if (skipRow(EntityType.ActorCoin, row.$source)) return
-				const coinId = `coin:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}`
+				const coinId = `coin:${row.$id.$actor.$network.chainId}:${row.$id.$actor.address}:${row.$id.$coin.address}`
 				if (g.hasNode(coinId)) return
 				const pos = positionInRing(
 					collections[EntityType.ActorCoin].ring,
@@ -1127,7 +1126,7 @@
 					coins.length,
 				)
 				const hasBalance = row.balance > 0n
-				const chainName = getChainName(row.$id.chainId)
+				const chainName = getChainName(row.$id.$actor.$network.chainId)
 				const balanceStr = hasBalance
 					? formatSmallestToDecimal(row.balance, row.decimals, 2)
 					: '0'
@@ -1159,7 +1158,7 @@
 					},
 				})
 				if (visibleCollections.has(EntityType.Actor)) {
-					const actorId = `actor:${row.$id.chainId}:${row.$id.address}`
+					const actorId = `actor:${row.$id.$actor.$network.chainId}:${row.$id.$actor.address}`
 					if (g.hasNode(actorId)) {
 						addRelationEdge('balance', actorId, coinId, {
 							size: hasBalance ? 1.5 : 0.5,
@@ -1178,7 +1177,7 @@
 			const allowances = take(allowancesQuery.data)
 			allowances.forEach(({ row }, i) => {
 				if (skipRow(EntityType.ActorAllowance, row.$source)) return
-				const allowanceId = `allowance:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}:${row.$id.spenderAddress}`
+				const allowanceId = `allowance:${row.$id.$actorCoin.$actor.$network.chainId}:${row.$id.$actorCoin.$actor.address}:${row.$id.$actorCoin.$coin.address}:${row.$id.$spender.address}`
 				if (g.hasNode(allowanceId)) return
 				const pos = positionInRing(
 					collections[EntityType.ActorAllowance].ring,
@@ -1186,7 +1185,7 @@
 					allowances.length,
 				)
 				const hasAllowance = row.allowance > 0n
-				const chainName = getChainName(row.$id.chainId)
+				const chainName = getChainName(row.$id.$actorCoin.$actor.$network.chainId)
 				addNode({
 					id: allowanceId,
 					label: hasAllowance ? '✓ Approved' : '○ Pending',
@@ -1209,11 +1208,11 @@
 					details: {
 						chain: chainName,
 						approved: hasAllowance,
-						spender: row.$id.spenderAddress.slice(0, 10) + '…',
+						spender: row.$id.$spender.address.slice(0, 10) + '…',
 					},
 				})
 				if (visibleCollections.has(EntityType.ActorCoin)) {
-					const coinId = `coin:${row.$id.chainId}:${row.$id.address}:${row.$id.tokenAddress}`
+					const coinId = `coin:${row.$id.$actorCoin.$actor.$network.chainId}:${row.$id.$actorCoin.$actor.address}:${row.$id.$actorCoin.$coin.address}`
 					if (g.hasNode(coinId)) {
 						addRelationEdge('allowance', coinId, allowanceId, {
 							size: hasAllowance ? 1 : 0.5,
@@ -1232,7 +1231,7 @@
 			const networks = take(networksQuery.data)
 			networks.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Network, row.$source)) return
-				const networkId = `network:${row.$id}`
+				const networkId = `network:${row.$id.chainId}`
 				if (g.hasNode(networkId)) return
 				const pos = positionInRing(
 					collections[EntityType.Network].ring,
@@ -1256,8 +1255,8 @@
 							chainId: row.id,
 							type: row.type,
 							name: row.name,
-							caip2: toCaip2(row.id),
-							slug: toNetworkSlug(row.name),
+							caip2: networkConfigsByChainId[row.id]?.caip2 ?? `eip155:${row.id}`,
+							slug: networkConfigsByChainId[row.id]?.slug ?? row.name.toLowerCase().replace(/\s+/g, '-'),
 						},
 					}),
 				)
@@ -1268,7 +1267,7 @@
 			const blocks = take(blocksQuery.data)
 			blocks.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Block, row.$source)) return
-				const blockId = `block:${row.$id.chainId}:${row.$id.blockNumber}`
+				const blockId = `block:${row.$id.$network.chainId}:${row.$id.blockNumber}`
 				if (g.hasNode(blockId)) return
 				const pos = positionInRing(
 					collections[EntityType.Block].ring,
@@ -1286,18 +1285,17 @@
 					g6Type: collections[EntityType.Block].g6Type,
 					g6Style: collections[EntityType.Block].g6Style,
 					details: {
-						chainId: row.$id.chainId,
+						chainId: row.$id.$network.chainId,
 						blockNumber: row.$id.blockNumber,
 						timestamp: row.timestamp,
-						networkSlug: toNetworkSlug(
-							networksByChainId[row.$id.chainId]?.name ?? '',
-						),
+						networkSlug:
+							networkConfigsByChainId[row.$id.$network.chainId]?.slug ?? '',
 					},
 				})
 			})
 			blocks.forEach(({ row }) => {
-				const blockId = `block:${row.$id.chainId}:${row.$id.blockNumber}`
-				const networkId = `network:${row.$id.chainId}`
+				const blockId = `block:${row.$id.$network.chainId}:${row.$id.blockNumber}`
+				const networkId = `network:${row.$id.$network.chainId}`
 				if (g.hasNode(networkId)) {
 					addEdge({
 						id: `edge:${edgeIndex++}`,
@@ -1444,7 +1442,7 @@
 			const coins = take(coinsQuery.data)
 			coins.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Coin, row.$source)) return
-				const coinId = `erc20:${row.$id.network}:${row.$id.address}`
+				const coinId = `erc20:${row.$id.$network.chainId}:${row.$id.address}`
 				if (g.hasNode(coinId)) return
 				const pos = positionInRing(
 					collections[EntityType.Coin].ring,
@@ -1459,13 +1457,13 @@
 						intent: toIntentPayload(EntityType.Coin, row.$id),
 						details: {
 							address: row.$id.address,
-							chainId: row.$id.network,
+							chainId: row.$id.$network.chainId,
 							symbol: row.symbol,
 						},
 					}),
 				)
 				if (visibleCollections.has(EntityType.Network)) {
-					const networkId = `network:${row.$id.network}`
+					const networkId = `network:${row.$id.$network.chainId}`
 					if (g.hasNode(networkId)) {
 						addRelationEdge('coin', networkId, coinId, {
 							size: 1,
@@ -1481,7 +1479,7 @@
 			const tokens = take(tokenListCoinsQuery.data)
 			tokens.forEach(({ row }, i) => {
 				if (skipRow(EntityType.TokenListCoin, row.$source)) return
-				const tokenId = `token:${row.$id.chainId}:${row.$id.address}`
+				const tokenId = `token:${row.$id.$network.chainId}:${row.$id.address}`
 				if (g.hasNode(tokenId)) return
 				const pos = positionInRing(
 					collections[EntityType.TokenListCoin].ring,
@@ -1496,13 +1494,13 @@
 						intent: toIntentPayload(EntityType.TokenListCoin, row.$id),
 						details: {
 							address: row.$id.address,
-							chainId: row.$id.chainId,
+							chainId: row.$id.$network.chainId,
 							symbol: row.symbol,
 						},
 					}),
 				)
 				if (visibleCollections.has(EntityType.Network)) {
-					const networkId = `network:${row.$id.chainId}`
+					const networkId = `network:${row.$id.$network.chainId}`
 					if (g.hasNode(networkId)) {
 						addRelationEdge('token', networkId, tokenId, {
 							size: 1,
@@ -1540,12 +1538,12 @@
 					details: {
 						assetId: row.assetId,
 						transport: row.transport,
-						chainId: row.chainId,
+						chainId: row.$id.$network?.chainId ?? null,
 						price: row.price.toString(),
 					},
 				})
-				if (visibleCollections.has(EntityType.Network) && row.chainId) {
-					const networkId = `network:${row.chainId}`
+				if (visibleCollections.has(EntityType.Network) && row.$id.$network?.chainId) {
+					const networkId = `network:${row.$id.$network.chainId}`
 					if (g.hasNode(networkId)) {
 						addRelationEdge('stork', networkId, priceId, {
 							size: 1,

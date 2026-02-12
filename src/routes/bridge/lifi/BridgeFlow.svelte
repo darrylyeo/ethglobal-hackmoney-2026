@@ -19,19 +19,21 @@
 	import { getTxReceiptStatus } from '$/api/approval.ts'
 	import { ErrorCode } from '$/lib/bridge/errors.ts'
 	import {
-		extractRouteLimits,
 		USDC_MAX_AMOUNT,
 		USDC_MIN_AMOUNT,
-		validateBridgeAmount,
 	} from '$/constants/bridge-limits.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
+	import { slippagePresets } from '$/constants/slippage.ts'
+	import {
+		extractRouteLimits,
+		validateBridgeAmount,
+	} from '$/lib/bridge-limits.ts'
 	import {
 		calculateMinOutput,
 		formatSlippagePercent,
 		parseSlippagePercent,
-		slippagePresets,
-	} from '$/constants/slippage.ts'
+	} from '$/lib/slippage.ts'
 
 
 	// Context
@@ -42,7 +44,7 @@
 
 	// Functions
 	import { resolve } from '$app/paths'
-	import { getTxPath } from '$/constants/networks.ts'
+	import { getTxPath } from '$/lib/network-paths.ts'
 	import {
 		formatAddress,
 		isValidAddress,
@@ -187,7 +189,7 @@
 			? (balancesQuery.data ?? [])
 					.map((r) => r.row)
 					.filter(
-						(b) => b.$id.address.toLowerCase() === selectedActor.toLowerCase(),
+						(b) => b.$id.$actor.address.toLowerCase() === selectedActor.toLowerCase(),
 					)
 			: [],
 	)
@@ -195,8 +197,8 @@
 		fromNetwork && selectedActor
 			? (balances.find(
 					(b) =>
-						b.$id.chainId === fromNetwork.id &&
-						b.$id.tokenAddress.toLowerCase() ===
+						b.$id.$actor.$network.chainId === fromNetwork.id &&
+						b.$id.$coin.address.toLowerCase() ===
 							getUsdcAddress(fromNetwork.id).toLowerCase(),
 				)?.balance ?? null)
 			: null,
@@ -270,11 +272,12 @@
 		selectedActor && fromNetwork && approvalAddress
 			? (allowancesQuery.data?.find(
 					(r) =>
-						r.row.$id.chainId === fromNetwork.id &&
-						r.row.$id.address.toLowerCase() === selectedActor.toLowerCase() &&
-						r.row.$id.tokenAddress.toLowerCase() ===
+						r.row.$id.$actorCoin.$actor.$network.chainId === fromNetwork.id &&
+						r.row.$id.$actorCoin.$actor.address.toLowerCase() ===
+							selectedActor.toLowerCase() &&
+						r.row.$id.$actorCoin.$coin.address.toLowerCase() ===
 							getUsdcAddress(fromNetwork.id).toLowerCase() &&
-						r.row.$id.spenderAddress.toLowerCase() ===
+						r.row.$id.$spender.address.toLowerCase() ===
 							approvalAddress.toLowerCase(),
 				)?.row.allowance ?? 0n)
 			: 0n,
@@ -652,7 +655,7 @@
 						fromChainId={fromNetwork.id}
 						toChainId={toNetwork.id}
 						amount={settings.amount}
-						bind:executing
+						bind:isExecuting={executing}
 						onExecute={(executeFn) => {
 							executeFunction = executeFn
 						}}

@@ -9,37 +9,20 @@
 
 
 	// Types/constants
-	import { DataSource } from '$/constants/data-sources.ts'
 	import { NetworkEnvironment } from '$/constants/network-environment.ts'
 	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
 
 
 	// Context
-	import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
-	import { myPeerIdsCollection } from '$/collections/MyPeerIds.ts'
-	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
-	import { partykitRoomsCollection } from '$/collections/PartykitRooms.ts'
-	import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
-	import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
-	import { sessionsCollection } from '$/collections/Sessions.ts'
-	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
-	import {
-	dashboardsCollection,
-	ensureDefaultRow,
-} from '$/collections/Dashboards.ts'
-	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
-	import { watchedEntitiesCollection } from '$/collections/WatchedEntities.ts'
-	import { walletsCollection } from '$/collections/Wallets.ts'
 	import {
 		createLiveQueryContext,
-		registerGlobalLiveQueryStack,
 		setGlobalLiveQueryContext,
 		setLocalLiveQueryContext,
 	} from '$/svelte/live-query-context.svelte.ts'
 
 
 	// Functions
-	import { getNavigationItems } from '$/routes/navigationItems.svelte.ts'
+	import { useNavigationItems } from '$/routes/navigationItems.svelte.ts'
 
 
 	// Props
@@ -54,129 +37,13 @@
 
 
 	// (Derived)
-	const roomsQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: partykitRoomsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
-				.select(({ row }) => ({ row })),
-		[],
-	)
-	const sessionsQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: sessionsCollection }).select(({ row }) => ({ row })),
-		[],
-	)
-	const agentChatTreesQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: agentChatTreesCollection })
-				.select(({ row }) => ({ row })),
-		[],
-	)
-	const watchedEntitiesQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: watchedEntitiesCollection })
-				.select(({ row }) => ({ row })),
-		[],
-	)
-	const recentTransactionsQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: bridgeTransactionsCollection })
-				.select(({ row }) => ({ row })),
-		[],
-	)
-	const walletsQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
-		[],
-	)
-	const walletConnectionsQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: walletConnectionsCollection })
-				.select(({ row }) => ({ row })),
-		[],
-	)
-	const verificationsQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: siweVerificationsCollection }).select(({ row }) => ({ row })),
-		[],
-	)
-	const roomPeersQuery = useLiveQuery(
-		(q) => q.from({ row: partykitRoomPeersCollection }).select(({ row }) => ({ row })),
-		[],
-	)
-	const myPeerIdsQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: myPeerIdsCollection }).select(({ row }) => ({ row })),
-		[],
-	)
-	const dashboardsQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: dashboardsCollection })
-				.where(({ row }) => not(eq(row.$id.id, '__default__')))
-				.select(({ row }) => ({
-					id: row.$id.id,
-					name: 'name' in row ? row.name : undefined,
-					icon: 'icon' in row ? row.icon : undefined,
-				})),
-		[],
-	)
-	const defaultDashboardRowQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: dashboardsCollection })
-				.where(({ row }) => eq(row.$id.id, '__default__'))
-				.select(({ row }) =>
-					'defaultDashboardId' in row
-						? { defaultDashboardId: row.defaultDashboardId }
-						: { defaultDashboardId: undefined as string | undefined },
-				),
-		[],
-	)
-	$effect(() => {
-		ensureDefaultRow()
+	const navigationItems = useNavigationItems({
+		isTestnet: () =>
+			networkEnvironmentState.current === NetworkEnvironment.Testnet,
 	})
-	const defaultDashboardId = $derived(
-		defaultDashboardRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
-	)
-	registerGlobalLiveQueryStack(() => [
-		{ id: 'layout-wallet-connections', label: 'Wallet Connections', query: walletConnectionsQuery },
-		{ id: 'layout-sessions', label: 'Sessions', query: sessionsQuery },
-		{ id: 'layout-wallets', label: 'Wallets', query: walletsQuery },
-		{ id: 'layout-transactions', label: 'Transactions', query: recentTransactionsQuery },
-		{ id: 'layout-watched', label: 'Watched Entities', query: watchedEntitiesQuery },
-	])
-	const isTestnet = $derived(
-		networkEnvironmentState.current === NetworkEnvironment.Testnet,
-	)
-	const navigationItems = $derived(
-		getNavigationItems({
-			sessionsData: sessionsQuery.data,
-			roomsData: roomsQuery.data,
-			agentChatTreesData: agentChatTreesQuery.data,
-			watchedEntitiesData: watchedEntitiesQuery.data,
-			recentTransactionsData: recentTransactionsQuery.data,
-			walletsData: walletsQuery.data,
-			walletConnectionsData: walletConnectionsQuery.data,
-			verificationsData: verificationsQuery.data,
-			roomPeersData: roomPeersQuery.data,
-			myPeerIdsData: myPeerIdsQuery.data,
-			dashboardsData: dashboardsQuery.data,
-			defaultDashboardId,
-			coinIcons: { eth: iconEth, usdc: iconUsdc },
-			isTestnet,
-		}),
-	)
 
 
 	// Components
-	import iconEth from '$/assets/coins/eth.svg?url'
-	import iconUsdc from '$/assets/coins/usdc.svg?url'
 	import { Tooltip } from 'bits-ui'
 	import Boundary from '$/components/Boundary.svelte'
 	import IntentDragPreview from '$/components/IntentDragPreview.svelte'

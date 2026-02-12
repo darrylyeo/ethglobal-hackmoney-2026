@@ -7,8 +7,8 @@
 	import {
 		CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS,
 		CCTP_FORWARDING_CHAIN_IDS,
-		getCctpDomainId,
 	} from '$/constants/cctp.ts'
+	import { getCctpDomainId } from '$/lib/cctp.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 
 
@@ -173,7 +173,7 @@
 
 	<div data-column="gap-2">
 		<CctpExecution
-			bind:executing
+			bind:isExecuting={executing}
 			{walletProvider}
 			senderAddress={selectedActor}
 			fromChainId={settings.fromChainId}
@@ -191,7 +191,7 @@
 			disabled={!cctpPairSupported ||
 				!recipient ||
 				!selectedWallet ||
-				executing}
+				isExecuting}
 			onclick={onConfirmBridge}
 		>
 			Sign and Submit

@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { SessionActionTransaction } from '$/data/SessionActionTransaction.ts'
-	import { getTxPath } from '$/constants/networks.ts'
+	import { getTxPath } from '$/lib/network-paths.ts'
 
 
 	// Props

@@ -1,17 +1,16 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type Action } from '$/constants/actions.ts'
-	import { Protocol, ProtocolTag, protocolTagLabels, protocolsById } from '$/constants/protocols.ts'
-	import { isCctpSupportedChain } from '$/constants/cctp.ts'
-	import { isGatewaySupportedChain } from '$/constants/gateway.ts'
-
-	type BridgeProtocolId = 'cctp' | 'lifi' | 'gateway'
-
-	const bridgeIdToProtocol: Record<BridgeProtocolId, Protocol> = {
-		cctp: Protocol.Cctp,
-		lifi: Protocol.LiFi,
-		gateway: Protocol.CircleGateway,
-	}
+	import {
+		BridgeProtocolId,
+		Protocol,
+		ProtocolTag,
+		protocolByBridgeId,
+		protocolTagById,
+		protocolsById,
+	} from '$/constants/protocols.ts'
+	import { isCctpSupportedChain } from '$/lib/cctp.ts'
+	import { isGatewaySupportedChain } from '$/lib/gateway.ts'
 
 
 	// Props
@@ -90,7 +89,7 @@
 			.filter((o) => o.enabled)
 			.map((o) => ({
 				bridgeId: o.bridgeId,
-				...protocolsById[bridgeIdToProtocol[o.bridgeId]],
+				...protocolsById[protocolByBridgeId[o.bridgeId]],
 			})),
 	)
 	const anyMultiple = $derived(protocolOptions.length > 1)
@@ -108,7 +107,7 @@
 			params: { ...action.params, protocolIntent: value },
 			protocolAction:
 				value != null
-					? { action: ActionType.Bridge, protocol: bridgeIdToProtocol[value] }
+					? { action: ActionType.Bridge, protocol: protocolByBridgeId[value] }
 					: undefined,
 		} as Action
 	}
@@ -149,9 +148,9 @@
 							onclick={() => setProtocolIntent(row.option.bridgeId)}
 						>
 							{#if row.option.icon.includes('/')}
-								<Icon class="protocol-icon" src={row.option.icon} size={20} alt="" />
+								<Icon class="protocol-icon" src={row.option.icon} />
 							{:else}
-								<Icon class="protocol-icon" icon={row.option.icon} size={20} alt="" />
+								<Icon class="protocol-icon" icon={row.option.icon} />
 							{/if}
 							<div data-column="gap-2">
 								<strong>{row.option.label}</strong>
@@ -165,7 +164,7 @@
 								data-tag
 								onclick={() => setProtocolIntent(row.option.bridgeId)}
 							>
-								{protocolTagLabels[tagId as ProtocolTag]}
+								{protocolTagById[tagId as ProtocolTag]?.label}
 							</button>
 						{/each}
 					</div>
@@ -173,7 +172,7 @@
 			{/each}
 		</div>
 	{:else if activeProtocol}
-		<p data-text="muted">Using {protocolsById[bridgeIdToProtocol[activeProtocol]].label}</p>
+		<p data-text="muted">Using {protocolsById[protocolByBridgeId[activeProtocol]].label}</p>
 	{:else if fromChainId !== null && toChainId !== null}
 		<p data-error>This chain pair is not supported by CCTP, LI.FI, or Gateway.</p>
 	{:else}

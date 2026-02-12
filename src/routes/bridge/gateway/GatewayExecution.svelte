@@ -15,7 +15,7 @@
 		isTestnet,
 		needsDeposit,
 		runAt = 0,
-		executing = $bindable(false),
+		isExecuting = $bindable(false),
 		onStatus,
 	}: {
 		walletProvider: EIP1193Provider | null
@@ -27,7 +27,7 @@
 		isTestnet: boolean
 		needsDeposit: boolean
 		runAt?: number
-		executing?: boolean
+		isExecuting?: boolean
 		onStatus?: (
 			step: 'deposit' | 'sign' | 'attestation' | 'mint',
 			status: 'pending' | 'done' | 'error',
@@ -56,7 +56,7 @@
 			error = 'Missing wallet or chain config'
 			return
 		}
-		executing = true
+		isExecuting = true
 		error = null
 		depositTxHash = null
 		mintTxHash = null
@@ -99,7 +99,7 @@
 				error ?? undefined,
 			)
 		} finally {
-			executing = false
+			isExecuting = false
 		}
 	}
 

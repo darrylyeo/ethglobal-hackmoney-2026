@@ -32,10 +32,8 @@
 		SESSION_HASH_SOURCE_KEY,
 		type SessionHashSource,
 	} from '$/lib/session/panelHash.ts'
-	import {
-		ActionType,
-		createAction,
-	} from '$/constants/actions.ts'
+	import { ActionType } from '$/constants/actions.ts'
+	import { createAction } from '$/lib/actions.ts'
 	import {
 		buildSessionPath,
 		createSession,

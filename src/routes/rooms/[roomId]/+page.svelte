@@ -7,6 +7,7 @@
 
 
 	// Context
+	import { page } from '$app/state'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 	import { resolve } from '$app/paths'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
@@ -20,12 +21,8 @@
 	} from '$/state/room.svelte.ts'
 
 
-	// Props
-	let { data }: { data: { roomId: string }, } = $props()
-
-
 	// (Derived)
-	const roomId = $derived(data.roomId)
+	const roomId = $derived(page.params.roomId ?? '')
 
 
 	// Functions
