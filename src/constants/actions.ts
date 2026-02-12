@@ -278,24 +278,3 @@ export type LiquidityAction =
 	| Action<ActionType.RemoveLiquidity>
 	| Action<ActionType.CollectFees>
 	| Action<ActionType.IncreaseLiquidity>
-
-export const createAction = <_ActionType extends ActionType>(
-	type: _ActionType,
-	params?: Partial<ActionParams<_ActionType>>,
-): Action<_ActionType> => ({
-	type,
-	params: {
-		...actionTypeDefinitionByActionType[type].getDefaultParams(),
-		...params
-	} as ActionParams<_ActionType>,
-})
-
-export const mergeActionParams = <_ActionType extends ActionType>(
-	action: Action<_ActionType>,
-): Action<_ActionType> => ({
-	...action,
-	params: {
-		...actionTypeDefinitionByActionType[action.type].getDefaultParams(),
-		...action.params
-	} as ActionParams<_ActionType>,
-})

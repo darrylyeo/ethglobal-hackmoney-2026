@@ -3,7 +3,8 @@
 	import { ActionType, type Action, type ActionParams } from '$/constants/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import type { Network } from '$/constants/networks.ts'
-	import { formatSlippagePercent, slippagePresets } from '$/constants/slippage.ts'
+	import { slippagePresets } from '$/constants/slippage.ts'
+	import { formatSlippagePercent } from '$/lib/slippage.ts'
 
 
 	// Props
@@ -77,7 +78,7 @@
 						if (action?.params != null)
 							action = { ...action, params: { ...action.params, amount: v } }
 					}}
-					bind:invalid={invalid}
+					bind:isInvalid={invalid}
 					ariaLabel="Amount in"
 				/>
 			</div>

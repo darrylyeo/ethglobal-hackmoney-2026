@@ -17,7 +17,6 @@
 		ensureEvmActorProfile,
 		evmActorProfilesCollection,
 	} from '$/collections/EvmActorProfiles.ts'
-	import { networkColorByChainId } from '$/constants/colors.ts'
 	import { networkConfigsByChainId } from '$/constants/networks.ts'
 	import { blo } from 'blo'
 
@@ -28,17 +27,17 @@
 		address,
 		ensName: ensNameProp,
 		format = AddressFormat.MiddleTruncated,
-		linked = true,
+		isLinked = true,
 		showAvatar = true,
-		vertical = false,
+		isVertical = false,
 	}: {
 		network?: Network$Id
 		address: `0x${string}`
 		ensName?: string
 		format?: AddressFormat
-		linked?: boolean
+		isLinked?: boolean
 		showAvatar?: boolean
-		vertical?: boolean
+		isVertical?: boolean
 	} = $props()
 
 
@@ -53,10 +52,13 @@
 				.where(({ row }) =>
 					network != null
 						? and(
-								eq(row.$id.chainId, network),
+								eq(row.$id.$network.chainId, network),
 								eq(row.$id.address, normalizedAddress),
 							)
-						: and(eq(row.$id.chainId, -1), eq(row.$id.chainId, 0)),
+						: and(
+								eq(row.$id.$network.chainId, -1),
+								eq(row.$id.$network.chainId, 0),
+							),
 				)
 				.select(({ row }) => ({ row })),
 		[() => network, () => normalizedAddress],
@@ -81,10 +83,10 @@
 	className="address-text"
 	entityType={network != null ? EntityType.Actor : undefined}
 	entityId={{ ...(network != null && { network }), address }}
-	link={linked ? resolve(`/account/${encodeURIComponent(address)}`) : undefined}
-	data-link={linked ? 'camouflaged' : undefined}
+	link={isLinked ? resolve(`/account/${encodeURIComponent(address)}`) : undefined}
+	data-link={isLinked ? 'camouflaged' : undefined}
 	source="address"
-	data-text={vertical ? 'vertical' : undefined}
+	data-text={isVertical ? 'vertical' : undefined}
 >
 	<span data-row="inline gap-2">
 		{#if showAvatar}
@@ -93,15 +95,12 @@
 			<Icon
 				shape={!profile?.avatarUrl ? IconShape.Square : IconShape.Circle}
 				src={avatarSrc}
-				alt=""
-				size="1em"
 				subicon={
 					network && networkIcon ?
 						{
 							src: networkIcon,
 							shape: IconShape.Circle,
-							alt: '',
-							backgroundColor: networkColorByChainId[network],
+							backgroundColor: networkConfigsByChainId[network]?.color,
 						}
 					:
 						undefined

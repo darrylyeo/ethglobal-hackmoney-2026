@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { getCoinForCoinPage, type CoinPageSymbol } from '$/constants/coins.ts'
+	import { coinBySymbol, type CoinSymbol } from '$/constants/coins.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import {
 		transferEventsCollection,
@@ -19,10 +19,10 @@
 	import TransferEventRow from '$/views/TransferEventRow.svelte'
 
 	// Props
-	let { symbol, period }: { symbol: CoinPageSymbol; period: string } = $props()
+	let { symbol, period }: { symbol: CoinSymbol; period: string } = $props()
 
 	// (Derived)
-	const coin = $derived(getCoinForCoinPage(symbol))
+	const coin = $derived(coinBySymbol[symbol])
 
 	// State
 	const eventsQuery = useLiveQuery(
@@ -69,7 +69,7 @@
 	const eventRows = $derived(
 		allRows.filter(
 			(r): r is { row: TransferEventRowType } =>
-				(r.row as TransferEventRowType).$id.chainId !== -1,
+				(r.row as TransferEventRowType).$id.$network.chainId !== -1,
 		),
 	)
 	const metaRow = $derived(

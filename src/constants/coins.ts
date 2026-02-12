@@ -32,25 +32,52 @@ export type Erc20Token = {
 
 export type Coin = NativeCurrency | Erc20Token
 
-export type CoinPageSymbol = 'USDC' | 'ETH'
+export enum CoinSymbol {
+	USDC = 'USDC',
+	ETH = 'ETH',
+}
 
-export const COIN_PAGE_SYMBOLS: readonly CoinPageSymbol[] = ['USDC', 'ETH']
+export const coinSymbolEntries: readonly { symbol: CoinSymbol }[] = (
+	Object.values(CoinSymbol) as CoinSymbol[]
+).map((symbol) => ({ symbol }))
 
-/** Primary brand color (hex) per coin symbol. */
-export const coinColors: readonly { symbol: string; color: string }[] = [
-	{ symbol: 'ETH', color: '#627EEA' },
-	{ symbol: 'USDC', color: '#2775CA' },
-	{ symbol: 'USDT', color: '#26A17B' },
-	{ symbol: 'MATIC', color: '#7B3FE4' },
-	{ symbol: 'AVAX', color: '#E84142' },
-	{ symbol: 'CELO', color: '#FCFF52' },
-	{ symbol: 'UNI', color: '#F50DB4' },
-	{ symbol: 'S', color: '#000000' },
-	{ symbol: 'XDC', color: '#254C81' },
-	{ symbol: 'EDU', color: '#7C3AED' },
-	{ symbol: 'MITO', color: '#6366F1' },
-	{ symbol: 'TAC', color: '#3B82F6' },
-]
+export const COIN_SYMBOLS: readonly CoinSymbol[] = (
+	Object.values(CoinSymbol) as CoinSymbol[]
+)
+
+export enum CoinColorSymbol {
+	ETH = 'ETH',
+	USDC = 'USDC',
+	USDT = 'USDT',
+	MATIC = 'MATIC',
+	AVAX = 'AVAX',
+	CELO = 'CELO',
+	UNI = 'UNI',
+	S = 'S',
+	XDC = 'XDC',
+	EDU = 'EDU',
+	MITO = 'MITO',
+	TAC = 'TAC',
+}
+
+export const coinColorEntries = [
+	{ symbol: CoinColorSymbol.ETH, color: '#627EEA' },
+	{ symbol: CoinColorSymbol.USDC, color: '#2775CA' },
+	{ symbol: CoinColorSymbol.USDT, color: '#26A17B' },
+	{ symbol: CoinColorSymbol.MATIC, color: '#7B3FE4' },
+	{ symbol: CoinColorSymbol.AVAX, color: '#E84142' },
+	{ symbol: CoinColorSymbol.CELO, color: '#FCFF52' },
+	{ symbol: CoinColorSymbol.UNI, color: '#F50DB4' },
+	{ symbol: CoinColorSymbol.S, color: '#000000' },
+	{ symbol: CoinColorSymbol.XDC, color: '#254C81' },
+	{ symbol: CoinColorSymbol.EDU, color: '#7C3AED' },
+	{ symbol: CoinColorSymbol.MITO, color: '#6366F1' },
+	{ symbol: CoinColorSymbol.TAC, color: '#3B82F6' },
+] as const satisfies readonly { symbol: CoinColorSymbol; color: string }[]
+
+export const coinColorBySymbol = Object.fromEntries(
+	coinColorEntries.map((e) => [e.symbol, e]),
+) as Record<CoinColorSymbol, (typeof coinColorEntries)[number]>
 
 export const ercTokens = (
 	[
@@ -318,32 +345,45 @@ export const ercTokensBySymbolByChainId = Object.fromEntries(
 		]),
 )
 
-export function getCoinForCoinPage(symbol: CoinPageSymbol): Coin {
-	if (symbol === 'USDC') return ercTokens[0]
-	return {
-		type: CoinType.Native,
-		chainId: ChainId.Ethereum,
-		address: '0x0000000000000000000000000000000000000000',
-		symbol: 'ETH',
-		decimals: 18,
-	}
-}
-
 const zeroAddress = '0x0000000000000000000000000000000000000000' as `0x${string}`
 
-export function getBridgeCoins(chainId: number): Coin[] {
-	const config = networkConfigsByChainId[chainId]
-	const chainTokens = ercTokens.filter((t) => t.chainId === chainId)
-	const native: Coin | null =
-		config ?
-			{
-				type: CoinType.Native,
-				chainId: chainId as ChainId,
-				address: zeroAddress,
-				symbol: config.nativeCurrency.symbol,
-				decimals: 18,
-			}
-		: null
-	return [native, ...chainTokens].filter(Boolean) as Coin[]
-}
+export const coinSymbolCoinEntries: readonly { symbol: CoinSymbol; coin: Coin }[] = [
+	{
+		symbol: CoinSymbol.USDC,
+		coin: ercTokens[0],
+	},
+	{
+		symbol: CoinSymbol.ETH,
+		coin: {
+			type: CoinType.Native,
+			chainId: ChainId.Ethereum,
+			address: zeroAddress,
+			symbol: 'ETH',
+			decimals: 18,
+		},
+	},
+]
+
+export const coinBySymbol = Object.fromEntries(
+	coinSymbolCoinEntries.map((e) => [e.symbol, e.coin]),
+) as Record<CoinSymbol, Coin>
+
+export const bridgeCoinsByChainId: Partial<Record<number, Coin[]>> =
+	Object.fromEntries(
+		Object.entries(networkConfigsByChainId).map(([chainIdStr, config]) => {
+			const chainId = Number(chainIdStr)
+			const chainTokens = ercTokens.filter((t) => t.chainId === chainId)
+			const native: Coin | null =
+				config ?
+					{
+						type: CoinType.Native,
+						chainId: chainId as ChainId,
+						address: zeroAddress,
+						symbol: config.nativeCurrency.symbol,
+						decimals: 18,
+					}
+				: null
+			return [chainId, [native, ...chainTokens].filter(Boolean) as Coin[]]
+		}),
+	)
 

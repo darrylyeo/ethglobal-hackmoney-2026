@@ -1,6 +1,5 @@
 <script lang="ts">
 	// Types/constants
-	import { networkColorByChainId } from '$/constants/colors.ts'
 	import { networkConfigsByChainId } from '$/constants/networks.ts'
 	import { type SubiconProps, IconShape } from '$/components/Icon.svelte'
 
@@ -8,7 +7,7 @@
 	let {
 		chainId,
 		class: className,
-		size = 16,
+		size = '1em',
 		title = undefined,
 		alt = '',
 		subicon,
@@ -24,7 +23,7 @@
 	// (Derived)
 	const config = $derived(networkConfigsByChainId[chainId])
 	const src = $derived(config?.icon)
-	const backgroundColor = $derived(networkColorByChainId[chainId])
+	const backgroundColor = $derived(networkConfigsByChainId[chainId]?.color)
 	const resolvedTitle = $derived(title ?? config?.name)
 
 	// Components

@@ -76,7 +76,6 @@
 					src={iconUrl}
 					symbol={value.symbol}
 					alt={value.symbol}
-					size="1rem"
 				/>
 			</span>
 		{:else}
@@ -94,7 +93,6 @@
 					src={iconUrl}
 					symbol={coin.symbol}
 					alt={coin.symbol}
-					size="1rem"
 				/>
 			</span>
 		{:else}

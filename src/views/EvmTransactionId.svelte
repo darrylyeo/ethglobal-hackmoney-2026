@@ -8,20 +8,20 @@
 	let {
 		txHash,
 		chainId,
-		linked = true,
-		full = true,
-		vertical = false,
+		isLinked = true,
+		isFull = true,
+		isVertical = false,
 	}: {
 		txHash: `0x${string}`
 		chainId?: ChainId
-		linked?: boolean
-		full?: boolean
-		vertical?: boolean
+		isLinked?: boolean
+		isFull?: boolean
+		isVertical?: boolean
 	} = $props()
 
 
 	// Functions
-	import { getTxPath } from '$/constants/networks.ts'
+	import { getTxPath } from '$/lib/network-paths.ts'
 
 
 	// Components
@@ -31,7 +31,7 @@
 
 	// (Derived)
 	const link = $derived(
-		chainId != null && linked ? getTxPath(chainId, txHash) : undefined,
+		chainId != null && isLinked ? getTxPath(chainId, txHash) : undefined,
 	)
 	const entityId = $derived(
 		chainId != null ? { chainId, txHash } : undefined,
@@ -43,13 +43,13 @@
 	{link}
 	draggableText={txHash}
 	className="evm-transaction-id"
-	data-text={vertical ? 'vertical' : undefined}
+	data-text={isVertical ? 'vertical' : undefined}
 	entityType={EntityType.Transaction}
 	entityId={entityId}
 >
 	<TruncatedValue
 		value={txHash}
-		startLength={full ? txHash.length : 6}
-		endLength={full ? 0 : 4}
+		startLength={isFull ? txHash.length : 6}
+		endLength={isFull ? 0 : 4}
 	/>
 </EntityId>

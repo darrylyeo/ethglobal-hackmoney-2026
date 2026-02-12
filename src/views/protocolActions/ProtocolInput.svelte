@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import { ProtocolTag, protocolTagLabels, type ProtocolDefinition } from '$/constants/protocols.ts'
+	import { ProtocolTag, protocolTagById, type ProtocolDefinition } from '$/constants/protocols.ts'
 
 	// Components
 	import Icon from '$/components/Icon.svelte'
@@ -68,9 +68,9 @@
 						onclick={() => onSelect(row.option.id)}
 					>
 						{#if row.option.icon.includes('/')}
-							<Icon class="protocol-icon" src={row.option.icon} size={22} alt="" />
+							<Icon class="protocol-icon" src={row.option.icon} />
 						{:else}
-							<Icon class="protocol-icon" icon={row.option.icon} size={22} alt="" />
+							<Icon class="protocol-icon" icon={row.option.icon} />
 						{/if}
 						<div data-column="gap-1">
 							<strong>{row.option.label}</strong>
@@ -84,7 +84,7 @@
 							data-tag
 							onclick={() => onSelect(tagId)}
 						>
-							{protocolTagLabels[tagId]}
+							{protocolTagById[tagId]?.label}
 						</button>
 					{/each}
 				</div>

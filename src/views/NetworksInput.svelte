@@ -44,7 +44,7 @@
 				{@const chainId = Number(chainIdStr)}
 				{#if !Number.isNaN(chainId)}
 					<span class="network-input-icon">
-						<NetworkIcon {chainId} size={16} />
+						<NetworkIcon {chainId} />
 					</span>
 				{/if}
 			{/each}
@@ -55,7 +55,7 @@
 {#snippet networkItem(network: Network, selected: boolean)}
 	<span data-row="start gap-2" data-selected={selected}>
 		<span class="network-input-icon">
-			<NetworkIcon chainId={network.id} size={16} />
+			<NetworkIcon chainId={network.id} />
 		</span>
 		<span>{network.name}</span>
 	</span>

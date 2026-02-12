@@ -17,17 +17,12 @@ import type { ActorAllowance, ActorAllowance$Id } from '$/data/ActorAllowance.ts
 
 export type ActorAllowanceRow = ActorAllowance & { $source: DataSource }
 
-const allowanceKeyParts = (
-	id: Pick<
-		ActorAllowance$Id,
-		'chainId' | 'address' | 'tokenAddress' | 'spenderAddress'
-	>,
-) =>
+const allowanceKeyParts = (id: ActorAllowance$Id) =>
 	stringify({
-		chainId: id.chainId,
-		address: id.address,
-		tokenAddress: id.tokenAddress,
-		spenderAddress: id.spenderAddress,
+		chainId: id.$actorCoin.$actor.$network.chainId,
+		address: id.$actorCoin.$actor.address,
+		tokenAddress: id.$actorCoin.$coin.address,
+		spenderAddress: id.$spender.address,
 	})
 
 export const actorAllowancesCollection = createCollection(
@@ -53,10 +48,11 @@ export const toActorAllowance$Id = (
 	tokenAddress: `0x${string}`,
 	spenderAddress: `0x${string}`,
 ): ActorAllowance$Id => ({
-	chainId,
-	address,
-	tokenAddress,
-	spenderAddress,
+	$actorCoin: {
+		$actor: { $network: { chainId }, address },
+		$coin: { $network: { chainId }, address: tokenAddress },
+	},
+	$spender: { $network: { chainId }, address: spenderAddress },
 	interopAddress: toInteropName(chainId, address),
 })
 
@@ -80,7 +76,11 @@ export const fetchActorAllowance = async (
 		const full$id: ActorAllowance$Id = {
 			...$id,
 			interopAddress:
-				$id.interopAddress ?? toInteropName($id.chainId, $id.address),
+				$id.interopAddress
+					?? toInteropName(
+							$id.$actorCoin.$actor.$network.chainId,
+							$id.$actorCoin.$actor.address,
+						),
 		}
 		actorAllowancesCollection.insert({
 			$id: full$id,
@@ -93,14 +93,15 @@ export const fetchActorAllowance = async (
 	}
 
 	try {
-		const rpcUrl = rpcUrls[$id.chainId]
-		if (!rpcUrl) throw new Error(`No RPC URL for chain ${$id.chainId}`)
+		const chainId = $id.$actorCoin.$actor.$network.chainId
+		const rpcUrl = rpcUrls[chainId]
+		if (!rpcUrl) throw new Error(`No RPC URL for chain ${chainId}`)
 
 		const allowance = await getErc20Allowance(
 			createHttpProvider(rpcUrl),
-			$id.tokenAddress,
-			$id.address,
-			$id.spenderAddress,
+			$id.$actorCoin.$coin.address,
+			$id.$actorCoin.$actor.address,
+			$id.$spender.address,
 		)
 
 		actorAllowancesCollection.update(key, (draft) => {
@@ -145,7 +146,11 @@ export const setActorAllowance = (
 	const full$id: ActorAllowance$Id = {
 		...$id,
 		interopAddress:
-			$id.interopAddress ?? toInteropName($id.chainId, $id.address),
+			$id.interopAddress
+				?? toInteropName(
+						$id.$actorCoin.$actor.$network.chainId,
+						$id.$actorCoin.$actor.address,
+					),
 	}
 	const existing = actorAllowancesCollection.state.get(key)
 	if (existing) {

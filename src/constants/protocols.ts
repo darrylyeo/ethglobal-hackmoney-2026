@@ -13,10 +13,14 @@ export enum ProtocolTag {
 	BestValue = 'best-value',
 }
 
-export const protocolTagLabels: Record<ProtocolTag, string> = {
-	[ProtocolTag.Fastest]: 'Fastest',
-	[ProtocolTag.BestValue]: 'Best value',
-}
+export const protocolTagEntries = [
+	{ id: ProtocolTag.Fastest, label: 'Fastest' },
+	{ id: ProtocolTag.BestValue, label: 'Best value' },
+] as const satisfies readonly { id: ProtocolTag; label: string }[]
+
+export const protocolTagById = Object.fromEntries(
+	protocolTagEntries.map((e) => [e.id, e]),
+) as Record<ProtocolTag, (typeof protocolTagEntries)[number]>
 
 export type ProtocolDefinition = {
 	id: Protocol
@@ -80,17 +84,22 @@ export const protocolsById = Object.fromEntries(
 	protocols.map((protocol) => [protocol.id, protocol]),
 )
 
-export const bridgeProtocolIds = ['cctp', 'lifi', 'gateway'] as const
-export type BridgeProtocolId = (typeof bridgeProtocolIds)[number]
-
-export const bridgeIdToProtocol: Record<BridgeProtocolId, Protocol> = {
-	cctp: Protocol.Cctp,
-	lifi: Protocol.LiFi,
-	gateway: Protocol.CircleGateway,
+export enum BridgeProtocolId {
+	Cctp = 'cctp',
+	Lifi = 'lifi',
+	Gateway = 'gateway',
 }
 
-export const protocolToBridgeId: Partial<Record<Protocol, BridgeProtocolId>> = {
-	[Protocol.Cctp]: 'cctp',
-	[Protocol.LiFi]: 'lifi',
-	[Protocol.CircleGateway]: 'gateway',
-}
+export const bridgeProtocolEntries = [
+	{ id: BridgeProtocolId.Cctp, protocol: Protocol.Cctp },
+	{ id: BridgeProtocolId.Lifi, protocol: Protocol.LiFi },
+	{ id: BridgeProtocolId.Gateway, protocol: Protocol.CircleGateway },
+] as const satisfies readonly { id: BridgeProtocolId; protocol: Protocol }[]
+
+export const protocolByBridgeId = Object.fromEntries(
+	bridgeProtocolEntries.map((e) => [e.id, e.protocol]),
+) as Record<BridgeProtocolId, Protocol>
+
+export const bridgeIdByProtocol = Object.fromEntries(
+	bridgeProtocolEntries.map((e) => [e.protocol, e.id]),
+) as Partial<Record<Protocol, BridgeProtocolId>>

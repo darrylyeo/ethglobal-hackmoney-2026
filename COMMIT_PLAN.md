@@ -1,41 +1,23 @@
-# Commit Plan (atomic, topological)
+# Commit plan
 
-## Phase 1: Foundation (styles, docs, API, data)
+## Phase 1: Contracts, traces, verified sources (topological)
 
-| # | Message | Files | Deps |
-|---|---------|--------|------|
-| 1 | styles: data-text=muted, bits-ui select/combobox, primary button, card | bits-ui.css, components.css | — |
-| 2 | docs: specs and history use data-text=muted and gap tokens | history/*.md, specs/*.md (7) | — |
-| 3 | api(transfers-logs): batched block timestamp fetch with concurrency limit | src/api/transfers-logs.ts | — |
-| 4 | data: TransferEvents cache + in-flight, TransferGraphs upsert from events | TransferEvents.ts, TransferGraphs.ts | 3 |
-| 5 | constants: LiquidityAction, WETH + getBridgeCoins, bridge protocol ids | actions.ts, coins.ts, protocols.ts, external-api-collections.md | — |
+1. **specs**: 089, 090 + modified spec files
+2. **data**: Contract, TransactionTrace, VerifiedContractSource, $EntityType
+3. **api**: sourcify, contract-discovery
+4. **lib**: abi, syntax-highlight
+5. **constants**: collections, data-sources
+6. **collections**: Contracts, TransactionTraces, VerifiedContractSources
+7. **components**: Code.svelte
+8. **views**: Contract, ContractAction, ContractSourceBlock, VerifiedContractSource, TokenContracts, AccountContracts, NetworkContracts, Event, Transaction (network)
+9. **routes**: contract pages, network transaction/block pages (incl. deleted +page.ts)
 
-## Phase 2: Protocol selection + coins/networks
+## Phase 2: Route and layout
 
-| # | Message | Files | Deps |
-|---|---------|--------|------|
-| 6 | protocol: lib/protocols, ProtocolInput, NetworkName, CoinTransfers; remove ProtocolCardSelect | lib/protocols/, ProtocolInput.svelte, NetworkName.svelte, CoinTransfers.svelte, rm ProtocolCardSelect.svelte | 5 |
-| 7 | nav + routes: coins, networks, stork; BridgeProtocolFieldset + Action; coin page | navigationItems.svelte.ts, routes/coins/, routes/networks/, routes/test/stork/, session/BridgeProtocolFieldset.svelte, views/.../BridgeProtocolFieldset.svelte, session/Action.svelte, coin/[symbol]/+page.svelte | 6 |
+10. **routes**: layout, navigationItems, remaining route/page changes and deleted +page.ts
 
-## Phase 3: Markup + UI sweep
+## Phase 3: Rest
 
-| # | Message | Files | Deps |
-|---|---------|--------|------|
-| 8 | markup: data-text=muted, gap-2, data-column throughout | All remaining modified src (components, routes, views) | 1, 7 |
-| 9 | chore: pnpm-lock | pnpm-lock.yaml | — |
-
-## Completed
-| # | SHA |
-|---|-----|
-| 1 | 7ca7b2d |
-| 2 | 50fafa7 |
-| 3 | 737f45d |
-| 4 | db8915c |
-| 5 | e955c31 |
-| 6 | 8f79493 |
-| 7 | 344554f |
-| 8 | d90877e |
-| 9 | 9acd2c6 |
-
-## Commit later / ignore
-- (none)
+11. **lockfile**: deno.lock, package.json
+12. **misc**: remaining modified (api, collections, constants, data, lib, views, routes)
+13. **untracked**: id-serializations, lib/*, CoinName, specs 091–095

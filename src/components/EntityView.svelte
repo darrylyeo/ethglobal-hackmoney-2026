@@ -9,7 +9,7 @@
 	generics="_EntityType extends EntityType, _Entity extends Entity<_EntityType> = Entity<_EntityType>"
 >
 	// Types/constants
-	import type { Entity, EntityType } from '$/data/$EntityType.ts'
+	import type { Entity, EntityId, EntityType } from '$/data/$EntityType.ts'
 	import { entityTypes } from '$/data/$EntityType.ts'
 
 
@@ -24,7 +24,7 @@
 		metadata,
 		annotation,
 		autoWatched = false,
-		anchorTitle = true,
+		hasAnchorTitle = true,
 		Title,
 		AfterTitle,
 		BeforeAnnotation,
@@ -40,7 +40,7 @@
 		metadata?: Array<{ term: string; detail: string }>
 		annotation?: string
 		autoWatched?: boolean
-		anchorTitle?: boolean
+		hasAnchorTitle?: boolean
 		Title?: import('svelte').Snippet
 		AfterTitle?: import('svelte').Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
 		BeforeAnnotation?: import('svelte').Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
@@ -55,6 +55,9 @@
 			(entityTypes.find((e) => e.type === entityType)?.label ?? entityType),
 	)
 	const articleId = $derived(`${entityType}:${idSerialized}`)
+	const entityId = $derived(
+		(entity as { $id?: EntityId } | undefined)?.$id ?? undefined,
+	)
 
 
 	// Components
@@ -88,7 +91,7 @@
 									</Heading>
 								{/snippet}
 
-								{#if anchorTitle}
+								{#if hasAnchorTitle}
 									<a href={`#${articleId}`}>
 										{@render headingContent()}
 									</a>
@@ -100,13 +103,13 @@
 									{@render AfterTitle({ entity, entityType })}
 								{/if}
 
-								<WatchButton
-									{entityType}
-									id={idSerialized}
-									{label}
-									{href}
-									{autoWatched}
-								/>
+								{#if entityId != null}
+									<WatchButton
+										{entityType}
+										{entityId}
+										{autoWatched}
+									/>
+								{/if}
 							</div>
 
 							{#if metadata?.length}

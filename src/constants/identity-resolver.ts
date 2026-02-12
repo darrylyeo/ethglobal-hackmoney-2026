@@ -80,15 +80,13 @@ export const identityResolvers: readonly IdentityResolver[] = [
 	},
 ] as const
 
-export const identityResolversById = new Map<string, IdentityResolver>(
+export const identityResolversById = Object.fromEntries(
 	identityResolvers.map((r) => [r.id, r]),
-)
-export const identityResolversByKind = new Map<
-	IdentityInputKind,
-	IdentityResolver[]
->(
+) as Record<string, IdentityResolver>
+
+export const identityResolversByKind = Object.fromEntries(
 	IDENTITY_INPUT_KINDS.map((k) => [
 		k,
 		identityResolvers.filter((r) => r.kind === k),
 	]),
-)
+) as Record<IdentityInputKind, IdentityResolver[]>

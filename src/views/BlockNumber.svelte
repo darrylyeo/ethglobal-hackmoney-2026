@@ -7,16 +7,16 @@
 	let {
 		chainId,
 		blockNumber,
-		linked = true,
+		isLinked = true,
 	}: {
 		chainId: ChainId
 		blockNumber: number
-		linked?: boolean
+		isLinked?: boolean
 	} = $props()
 
 
 	// Functions
-	import { getBlockPath } from '$/constants/networks.ts'
+	import { getBlockPath } from '$/lib/network-paths.ts'
 
 
 	// Components
@@ -25,7 +25,7 @@
 
 
 <EntityId
-	link={linked ? getBlockPath(chainId, blockNumber) : undefined}
+	link={isLinked ? getBlockPath(chainId, blockNumber) : undefined}
 	draggableText={String(blockNumber)}
 	className="block-number"
 >

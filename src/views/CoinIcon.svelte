@@ -24,7 +24,8 @@
 
 	// (Derived)
 	const backgroundColor = $derived(
-		coinColorBySymbol[symbol?.toUpperCase()] ?? coinColorBySymbol[symbol],
+		coinColorBySymbol[symbol?.toUpperCase() as keyof typeof coinColorBySymbol]?.color ??
+			coinColorBySymbol[symbol as keyof typeof coinColorBySymbol]?.color,
 	)
 	const subiconWithShape = $derived(
 		subicon ? { ...subicon, shape: subicon.shape ?? IconShape.Circle } : undefined,

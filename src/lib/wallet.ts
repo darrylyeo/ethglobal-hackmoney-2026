@@ -1,7 +1,6 @@
 import { dev } from '$app/environment'
 import {
 	networkConfigsByChainId,
-	toNetworkSlug,
 } from '$/constants/networks.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import { E2E_TEVM_RPC_URL } from '$/tests/tevm.ts'
@@ -141,7 +140,7 @@ export const addChainToWallet = async (
 				rpcUrls: [rpcUrl],
 				blockExplorerUrls:
 					typeof window !== 'undefined'
-						? [`${window.location.origin}/network/${toNetworkSlug(config.name)}`]
+						? [`${window.location.origin}/network/${config.slug}`]
 						: undefined,
 			},
 		],

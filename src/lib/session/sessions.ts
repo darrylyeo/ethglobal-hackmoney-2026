@@ -6,11 +6,8 @@ import {
 	type Session,
 	SessionStatus,
 } from '$/data/Session.ts'
-import {
-	actionTypeDefinitionByActionType,
-	createAction,
-} from '$/constants/actions.ts'
-import { ActionType } from '$/constants/actions.ts'
+import { actionTypeDefinitionByActionType, ActionType } from '$/constants/actions.ts'
+import { createAction } from '$/lib/actions.ts'
 import { type SessionSimulationStatus } from '$/data/SessionSimulation.ts'
 import { specForAction, validActionTypes } from '$/lib/intents.ts'
 import { type SessionDefaults } from '$/constants/actions.ts'

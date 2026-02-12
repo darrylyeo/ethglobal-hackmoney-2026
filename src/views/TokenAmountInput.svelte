@@ -9,7 +9,7 @@
 		min,
 		max,
 		value = $bindable(0n),
-		invalid = $bindable(false),
+		isInvalid = $bindable(false),
 		id,
 		disabled,
 		name,
@@ -23,7 +23,7 @@
 		min: bigint
 		max: bigint
 		value?: bigint
-		invalid?: boolean
+		isInvalid?: boolean
 		id?: string
 		disabled?: boolean
 		name?: string
@@ -47,16 +47,16 @@
 	const setAmountFromInput = (raw: string) => {
 		const cleaned = raw.replace(/[^0-9.,]/g, '').replace(/,/g, '')
 		if (cleaned === '') {
-			invalid = false
+			isInvalid = false
 			value = 0n
 			return
 		}
 		if (isValidDecimalInput(cleaned, coin.decimals)) {
-			invalid = false
+			isInvalid = false
 			value = parseDecimalToSmallest(cleaned, coin.decimals)
 			return
 		}
-		invalid = true
+		isInvalid = true
 	}
 </script>
 
@@ -65,7 +65,7 @@
 	{...rootProps}
 	class="token-amount"
 	data-stack
-	data-invalid={invalid ? '' : undefined}
+	data-invalid={isInvalid ? '' : undefined}
 >
 	<input
 		{id}

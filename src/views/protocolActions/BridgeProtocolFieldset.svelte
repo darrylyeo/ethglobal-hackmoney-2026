@@ -1,10 +1,10 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type Action } from '$/constants/actions.ts'
-	import { Protocol, protocolToBridgeId } from '$/constants/protocols.ts'
+	import { Protocol, bridgeIdByProtocol } from '$/constants/protocols.ts'
 	import type { BridgeProtocolId } from '$/constants/protocols.ts'
-	import { isCctpSupportedChain } from '$/constants/cctp.ts'
-	import { isGatewaySupportedChain } from '$/constants/gateway.ts'
+	import { isCctpSupportedChain } from '$/lib/cctp.ts'
+	import { isGatewaySupportedChain } from '$/lib/gateway.ts'
 
 
 	// Props
@@ -44,7 +44,7 @@
 	const activeProtocol = $derived(
 		(protocolIntent ??
 			(action.protocolAction?.protocol != null
-				? (protocolToBridgeId[action.protocolAction.protocol as Protocol] ?? null)
+				? (bridgeIdByProtocol[action.protocolAction.protocol as Protocol] ?? null)
 				: null) ??
 			(cctpPairSupported ? ('cctp' as const) : gatewayPairSupported ? ('gateway' as const) : lifiPairSupported ? ('lifi' as const) : null)) as BridgeProtocolId | null,
 	)

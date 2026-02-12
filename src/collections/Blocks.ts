@@ -33,7 +33,7 @@ export const blocksCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.Blocks,
 		storageKey: CollectionId.Blocks,
-		getKey: (row: BlockRow) => `${row.$id.chainId}:${row.$id.blockNumber}`,
+		getKey: (row: BlockRow) => `${row.$id.$network.chainId}:${row.$id.blockNumber}`,
 		parser: { stringify, parse },
 	}),
 )
@@ -89,7 +89,7 @@ export const fetchBlock = async (
 		})
 	} else {
 		blocksCollection.insert({
-			$id: { chainId, blockNumber },
+			$id: { $network: { chainId }, blockNumber },
 			number: BigInt(blockNumber),
 			timestamp: 0,
 			$source: DataSource.Voltaire,
@@ -117,7 +117,7 @@ export const fetchBlock = async (
 			getBlockTransactionCount(provider, blockNum),
 		])
 		const row: BlockRow = {
-			$id: { chainId, blockNumber },
+			$id: { $network: { chainId }, blockNumber },
 			number: block.number,
 			hash: block.hash,
 			parentHash: block.parentHash,
@@ -147,7 +147,7 @@ export const fetchBlock = async (
 			})
 		})
 		return {
-			$id: row.$id,
+			$id: { $network: { chainId }, blockNumber },
 			number: row.number,
 			hash: row.hash,
 			parentHash: row.parentHash,

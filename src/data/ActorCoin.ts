@@ -1,10 +1,10 @@
 import type { ChainId } from '$/constants/networks.ts'
+import type { Actor$Id } from '$/data/Actor.ts'
+import type { Coin$Id } from '$/data/Coin.ts'
 
 export type ActorCoin$Id = {
-	chainId: ChainId
-	address: `0x${string}`
-	tokenAddress: `0x${string}`
-	interopAddress?: string
+	$actor: Actor$Id
+	$coin: Coin$Id
 }
 
 export type ActorCoin = {

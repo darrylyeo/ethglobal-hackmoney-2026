@@ -1,8 +1,9 @@
-import type { ChainId } from '$/constants/networks.ts'
+import type { Network$Id } from '$/data/Network.ts'
 
 export type Block$Id = {
-	chainId: ChainId
+	$network: Network$Id
 	blockNumber: number
+	hash?: `0x${string}`
 }
 
 export type BlockEntry = {

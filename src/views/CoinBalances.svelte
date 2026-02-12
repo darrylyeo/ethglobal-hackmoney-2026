@@ -74,12 +74,15 @@
 						? normalizedBalanceTokens
 								.map((token) =>
 									and(
-										eq(row.chainId, token.chainId),
-										eq(row.address, token.tokenAddress),
+										eq(row.$id.$network.chainId, token.chainId),
+										eq(row.$id.address, token.tokenAddress),
 									),
 								)
 								.reduce((acc, filter) => or(acc, filter))
-						: and(eq(row.chainId, -1), eq(row.chainId, 0)),
+						: and(
+								eq(row.$id.$network.chainId, -1),
+								eq(row.$id.$network.chainId, 0),
+							),
 				)
 				.select(({ row }) => ({ row })),
 		[() => normalizedBalanceTokens],
@@ -102,11 +105,23 @@
 		(filteredTokenListCoins.length > 0
 			? filteredTokenListCoins
 			: fallbackTokens
-		).map((token) => ({
-			...token,
-			name: 'name' in token ? token.name : token.symbol,
-			logoURI: 'logoURI' in token ? token.logoURI : undefined,
-		})),
+		).map((token) => {
+			const chainId =
+				'$id' in token && token.$id
+					? token.$id.$network.chainId
+					: (token as { chainId: number }).chainId
+			const address =
+				'$id' in token && token.$id
+					? token.$id.address
+					: (token as { address: `0x${string}` }).address
+			return {
+				...token,
+				chainId,
+				address,
+				name: 'name' in token ? token.name : token.symbol,
+				logoURI: 'logoURI' in token ? token.logoURI : undefined,
+			}
+		}),
 	)
 	const skeletonTokens = $derived(
 		displayTokens.length > 0 ? displayTokens.slice(0, 6) : [],
@@ -142,29 +157,32 @@
 					const addrCondition =
 						actors.length === 0
 							? and(
-									eq(row.$id.address, '0x0000000000000000000000000000000000000000'),
-									eq(row.$id.address, '0x0000000000000000000000000000000000000001'),
+									eq(row.$id.$actor.address, '0x0000000000000000000000000000000000000000'),
+									eq(row.$id.$actor.address, '0x0000000000000000000000000000000000000001'),
 								)
 							: actors.length === 1
-								? eq(row.$id.address, actors[0])
+								? eq(row.$id.$actor.address, actors[0])
 								: actors
-										.map((a) => eq(row.$id.address, a))
+										.map((a) => eq(row.$id.$actor.address, a))
 										.reduce((acc, cond) => or(acc, cond))
 					const tokenCondition =
 						displayTokens.length > 0
 							? displayTokens
 									.map((token) =>
 										and(
-											eq(row.$id.chainId, token.chainId),
-											eq(row.$id.tokenAddress, token.address),
+											eq(row.$id.$coin.$network.chainId, token.chainId),
+											eq(row.$id.$coin.address, token.address),
 										),
 									)
 									.reduce((acc, filter) => or(acc, filter))
-							: and(eq(row.$id.chainId, -1), eq(row.$id.chainId, 0))
+							: and(
+									eq(row.$id.$actor.$network.chainId, -1),
+									eq(row.$id.$actor.$network.chainId, 0),
+								)
 					const chainCondition =
 						filterChainIdsNum.length > 0
 							? filterChainIdsNum
-									.map((c) => eq(row.$id.chainId, c))
+									.map((c) => eq(row.$id.$actor.$network.chainId, c))
 									.reduce((acc, cond) => or(acc, cond))
 							: null
 					const symbolCondition =
@@ -215,7 +233,7 @@
 		),
 	])
 	const balanceChainIds = $derived([
-		...new Set(balances.map((balance) => balance.$id.chainId)),
+		...new Set(balances.map((balance) => balance.$id.$actor.$network.chainId)),
 	])
 	const netWorthUsd = $derived(
 		balances.length > 0
@@ -225,7 +243,7 @@
 					const priceRow = getBestStorkPrice(
 						prices,
 						assetId,
-						balance.$id.chainId,
+						balance.$id.$actor.$network.chainId,
 					)
 					if (!priceRow) return total
 					return (
@@ -307,6 +325,7 @@
 		TruncatedValueFormat,
 	} from '$/components/TruncatedValue.svelte'
 	import CoinAmount from '$/views/CoinAmount.svelte'
+	import CoinName from '$/views/CoinName.svelte'
 </script>
 
 
@@ -397,12 +416,7 @@
 								<Skeleton width="4em" height="0.75em" rounded="0.2em" />
 								<div data-row="start gap-2">
 									{#if coin}
-										<CoinAmount
-											{coin}
-											draggable={false}
-											showLabel={false}
-											showPriceTooltip={false}
-										/>
+										<CoinName coin={coin} isDraggable={false} />
 									{:else}
 										<Skeleton width="2.5em" height="1.25em" rounded="0.25em" />
 									{/if}
@@ -413,16 +427,16 @@
 					</div>
 				{:else}
 					<div data-balances data-grid="columns-autofit column-min-10 gap-3">
-						{#each balances as b (b.$id.chainId + ':' + b.$id.tokenAddress)}
+						{#each balances as b (b.$id.$actor.$network.chainId + ':' + b.$id.$coin.address)}
 							{@const token = displayTokens.find(
 								(entry) =>
-									entry.chainId === b.$id.chainId &&
+									entry.chainId === b.$id.$coin.$network.chainId &&
 									entry.address.toLowerCase() ===
-										b.$id.tokenAddress.toLowerCase(),
+										b.$id.$coin.address.toLowerCase(),
 							)}
 							{@const assetId = getStorkAssetIdForSymbol(b.symbol)}
 							{@const priceRow = assetId
-								? getBestStorkPrice(prices, assetId, b.$id.chainId)
+								? getBestStorkPrice(prices, assetId, b.$id.$actor.$network.chainId)
 								: null}
 							{@const balanceUsdValue = priceRow
 								? (b.balance * priceRow.price) / 10n ** BigInt(b.decimals)
@@ -446,12 +460,12 @@
 									}
 								: {
 										type: CoinType.Erc20,
-										chainId: b.$id.chainId,
-										address: b.$id.tokenAddress,
+										chainId: b.$id.$coin.$network.chainId,
+										address: b.$id.$coin.address,
 										symbol: b.symbol,
 										decimals: b.decimals,
 									}}
-							{@const network = networksByChainId[b.$id.chainId]}
+							{@const network = networksByChainId[b.$id.$actor.$network.chainId]}
 							{#if network}
 								<div
 									class="balance-item"
@@ -463,7 +477,7 @@
 									{@attach intentDraggable({
 										type: EntityType.ActorCoin,
 										id: b.$id,
-										text: `${b.symbol} ${b.$id.address}`,
+										text: `${b.symbol} ${b.$id.$coin.address}`,
 										source: 'balances',
 									})}
 								>
@@ -471,7 +485,7 @@
 										{network.name}
 										{#if actors.length > 1}
 											<span data-text="muted" class="balance-address">
-												{b.$id.address.slice(0, 6)}…{b.$id.address.slice(-4)}
+												{b.$id.$actor.address.slice(0, 6)}…{b.$id.$actor.address.slice(-4)}
 											</span>
 										{/if}
 									</dt>
@@ -483,11 +497,9 @@
 										<span class="balance-error" data-balance-error>{b.error}</span>
 									{:else}
 										<CoinAmount
-											{coin}
+											coin={coin}
 											amount={b.balance}
-											draggable={false}
-											showIcon
-											symbolOnly
+											isDraggable={false}
 											{priceRow}
 										/>
 										{#if balanceUsdValue !== null}
@@ -532,12 +544,7 @@
 								<Skeleton width="4em" height="0.75em" rounded="0.2em" />
 								<div data-row="start gap-2">
 									{#if coin}
-										<CoinAmount
-											{coin}
-											draggable={false}
-											showLabel={false}
-											showPriceTooltip={false}
-										/>
+										<CoinName coin={coin} isDraggable={false} />
 									{:else}
 										<Skeleton width="2.5em" height="1.25em" rounded="0.25em" />
 									{/if}

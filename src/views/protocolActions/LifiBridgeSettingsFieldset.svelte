@@ -1,11 +1,11 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type Action } from '$/constants/actions.ts'
+	import { slippagePresets } from '$/constants/slippage.ts'
 	import {
 		formatSlippagePercent,
 		parseSlippagePercent,
-		slippagePresets,
-	} from '$/constants/slippage.ts'
+	} from '$/lib/slippage.ts'
 
 
 	// Props

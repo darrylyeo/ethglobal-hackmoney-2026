@@ -10,19 +10,15 @@
 	let {
 		coin,
 		amount,
-		draggable = true,
-		showLabel = true,
-		showIcon = false,
-		symbolOnly = false,
+		isDraggable = true,
+		showName = false,
 		priceRow = null,
 		showPriceTooltip = priceRow !== null,
 	}: {
 		coin: Coin
 		amount?: bigint
-		draggable?: boolean
-		showLabel?: boolean
-		showIcon?: boolean
-		symbolOnly?: boolean
+		isDraggable?: boolean
+		showName?: boolean
 		priceRow?: StorkPriceRow | null
 		showPriceTooltip?: boolean
 	} = $props()
@@ -35,7 +31,6 @@
 			? {
 					src: networkConfig.icon,
 					alt: coin.chainId.toString(),
-					size: 10,
 					shape: IconShape.Circle,
 				}
 			: undefined,
@@ -43,7 +38,7 @@
 
 
 	// Functions
-	import { draggable as draggableAttachment } from '$/components/Draggable.svelte.ts'
+	import { draggable } from '$/components/Draggable.svelte.ts'
 	import { stringify } from '$/lib/stringify.ts'
 
 
@@ -57,26 +52,23 @@
 
 <div
 	role="term"
-	{@attach draggableAttachment({ text: stringify(coin), enabled: draggable })}
+	{@attach draggable({ text: stringify(coin), enabled: isDraggable })}
 	data-row="inline wrap gap-1"
 >
 	{#snippet coinAmountBody()}
 		<span class="coin-amount" data-row="inline gap-2">
-			{#if showIcon || coin.icon?.original?.url}
-				<span class="coin-icons" data-row="center gap-1">
-					{#if coin.icon?.original?.url}
-						<CoinIcon
-							src={coin.icon.original.url}
-							symbol={coin.symbol ?? ''}
-							alt={coin.symbol ?? ''}
-							size={16}
-							subicon={networkSubicon}
-						/>
-					{:else}
-						<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} size={10} />
-					{/if}
-				</span>
-			{/if}
+			<span class="coin-icons" data-row="center gap-1">
+				{#if coin.icon?.original?.url}
+					<CoinIcon
+						src={coin.icon.original.url}
+						symbol={coin.symbol ?? ''}
+						alt={coin.symbol ?? ''}
+						subicon={networkSubicon}
+					/>
+				{:else}
+					<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} />
+				{/if}
+			</span>
 
 			<span data-row="inline align-baseline gap-1">
 				{#if amount !== undefined}
@@ -87,16 +79,16 @@
 					</span>
 				{/if}
 
-				{#if showLabel && (coin.name || coin.symbol)}
+				{#if coin.name || coin.symbol}
 					<abbr
 						class="coin"
 						title={coin.type === CoinType.Native
 							? 'Native Currency'
 							: coin.address}
 					>
-						{symbolOnly || !(coin.name && coin.symbol)
-							? coin.symbol
-							: `${coin.symbol} (${coin.name})`}
+						{showName && coin.name && coin.symbol
+							? `${coin.symbol} (${coin.name})`
+							: coin.symbol}
 					</abbr>
 				{/if}
 			</span>

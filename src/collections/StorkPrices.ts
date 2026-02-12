@@ -82,7 +82,6 @@ const setStorkPriceLoading = (
 		$source: DataSource.Stork,
 		assetId: $id.assetId,
 		transport: $id.transport,
-		chainId: $id.chainId ?? null,
 		encodedAssetId,
 		price: existing?.price ?? 0n,
 		timestampNs: existing?.timestampNs ?? 0n,
@@ -105,7 +104,6 @@ const setStorkPriceError = (
 		$source: DataSource.Stork,
 		assetId: $id.assetId,
 		transport: $id.transport,
-		chainId: $id.chainId ?? null,
 		encodedAssetId,
 		price: existing?.price ?? 0n,
 		timestampNs: existing?.timestampNs ?? 0n,
@@ -125,12 +123,11 @@ const upsertStorkPricePayload = (
 		$id: {
 			assetId: payload.assetId,
 			transport,
-			...(chainId !== null && chainId !== undefined ? { chainId } : {}),
+			...(chainId !== null && chainId !== undefined ? { $network: { chainId } } : {}),
 		},
 		$source: DataSource.Stork,
 		assetId: payload.assetId,
 		transport,
-		chainId: chainId ?? null,
 		encodedAssetId,
 		price: payload.price,
 		timestampNs: payload.timestampNs,
@@ -319,7 +316,7 @@ const fetchRpcPrice = async (assetId: string, chainId: number) => {
 	const encodedAssetId = storkEncodedAssetIdByAssetId[assetId]
 	if (!encodedAssetId) {
 		setStorkPriceError(
-			{ assetId, transport: StorkPriceTransport.Rpc, chainId },
+			{ assetId, transport: StorkPriceTransport.Rpc, $network: { chainId } },
 			null,
 			'Missing encoded asset id',
 		)
@@ -328,7 +325,7 @@ const fetchRpcPrice = async (assetId: string, chainId: number) => {
 	const rpcUrl = rpcUrls[chainId]
 	if (!rpcUrl) {
 		setStorkPriceError(
-			{ assetId, transport: StorkPriceTransport.Rpc, chainId },
+			{ assetId, transport: StorkPriceTransport.Rpc, $network: { chainId } },
 			encodedAssetId,
 			`No RPC URL for chain ${chainId}`,
 		)
@@ -338,7 +335,7 @@ const fetchRpcPrice = async (assetId: string, chainId: number) => {
 	const contractAddress = deployments.get(chainId)
 	if (!contractAddress) {
 		setStorkPriceError(
-			{ assetId, transport: StorkPriceTransport.Rpc, chainId },
+			{ assetId, transport: StorkPriceTransport.Rpc, $network: { chainId } },
 			encodedAssetId,
 			`No Stork contract for chain ${chainId}`,
 		)
@@ -372,7 +369,7 @@ const fetchRpcPrice = async (assetId: string, chainId: number) => {
 const createRpcSubscription = (assetIds: string[], chainId: number) => {
 	for (const assetId of assetIds) {
 		setStorkPriceLoading(
-			{ assetId, transport: StorkPriceTransport.Rpc, chainId },
+			{ assetId, transport: StorkPriceTransport.Rpc, $network: { chainId } },
 			storkEncodedAssetIdByAssetId[assetId] ?? null,
 		)
 	}
@@ -381,7 +378,7 @@ const createRpcSubscription = (assetIds: string[], chainId: number) => {
 			assetIds.map((assetId) =>
 				fetchRpcPrice(assetId, chainId).catch((error) => {
 					setStorkPriceError(
-						{ assetId, transport: StorkPriceTransport.Rpc, chainId },
+						{ assetId, transport: StorkPriceTransport.Rpc, $network: { chainId } },
 						storkEncodedAssetIdByAssetId[assetId] ?? null,
 						error instanceof Error ? error.message : String(error),
 					)
@@ -563,7 +560,7 @@ export const getBestStorkPrice = (
 		(row) =>
 			row.assetId === assetId &&
 			(row.transport !== StorkPriceTransport.Rpc ||
-				(chainId !== null && row.chainId === chainId)),
+				(chainId !== null && row.$id.$network?.chainId === chainId)),
 	)
 	const ready = candidates.filter(
 		(row) => !row.isLoading && row.error === null,

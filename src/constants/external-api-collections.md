@@ -8,6 +8,8 @@ Every external API that provides data to the UI or routes must be cached in a Ta
 | Voltaire (eth\_\*, RPC)            | `actor-coins.ts`                                 | `fetchActorCoinBalance` → upsert                  |
 | Voltaire (eth\_\*, RPC)            | `actor-allowances.ts`                            | fetch → upsert                                    |
 | Voltaire (eth\_\*, RPC)            | `NetworkTransactions.ts`                        | fetch → upsert                                    |
+| Voltaire (debug_traceTransaction) | `TransactionTraces.ts`                           | `fetchTransactionTrace` → upsert                  |
+| Sourcify (v2 contract lookup)     | `VerifiedContractSources.ts`                     | `fetchVerifiedContractSource` → upsert            |
 | Voltaire (eth\_\*, RPC)            | `transfer-events.ts`                             | `fetchTransferEvents` → upsert                    |
 | (derived from transfer-events)     | `transfer-graphs.ts`                             | `upsertGraphFromEvents` (from cache after fetch)  |
 | Stork (REST / WebSocket / RPC)     | `stork-prices.ts`                                | `subscribeStorkPrices` → upsert                   |

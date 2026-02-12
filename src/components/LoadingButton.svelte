@@ -6,13 +6,13 @@
 
 	// Props
 	let {
-		loading = false,
+		isLoading = false,
 		loadingText,
 		children,
 		disabled,
 		...props
 	}: {
-		loading?: boolean
+		isLoading?: boolean
 		loadingText?: string
 		children: import('svelte').Snippet
 		disabled?: boolean
@@ -25,10 +25,10 @@
 	{...props}
 	data-row="start gap-2"
 	class="loading-button"
-	disabled={loading || disabled}
-	aria-busy={loading || undefined}
+	disabled={isLoading || disabled}
+	aria-busy={isLoading || undefined}
 >
-	{#if loading}
+	{#if isLoading}
 		<Spinner size="1em" />
 		<span>{loadingText ?? 'Loading…'}</span>
 	{:else}

@@ -9,7 +9,7 @@
 		max,
 		decimals,
 		value = $bindable(0n),
-		invalid = $bindable(false),
+		isInvalid = $bindable(false),
 		withSlider = true,
 		id,
 		disabled,
@@ -24,7 +24,7 @@
 		max: bigint
 		decimals: number
 		value?: bigint
-		invalid?: boolean
+		isInvalid?: boolean
 		withSlider?: boolean
 		id?: string
 		disabled?: boolean
@@ -59,7 +59,7 @@
 	const setAmountFromInput = (raw: string) => {
 		const cleaned = raw.replace(/[^0-9.,]/g, '').replace(/,/g, '')
 		if (cleaned === '') {
-			invalid = false
+			isInvalid = false
 			value = 0n
 			return
 		}
@@ -68,7 +68,7 @@
 			value = parseDecimalToSmallest(cleaned, decimals)
 			return
 		}
-		invalid = true
+		isInvalid = true
 	}
 
 	const onTextPointerDown = () => {
@@ -129,7 +129,7 @@
 				max={sliderMax}
 				step="1"
 				bind:value={() => String(sliderValue), (v) => {
-					invalid = false
+					isInvalid = false
 					value = BigInt(v)
 				}}
 				{disabled}

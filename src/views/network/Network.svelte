@@ -16,7 +16,7 @@
 		data,
 		placeholderBlockIds,
 		visiblePlaceholderBlockIds = $bindable([] as number[]),
-		compact = false,
+		isCompact = false,
 	}: {
 		data: Map<
 			Network | undefined,
@@ -24,7 +24,7 @@
 		>
 		placeholderBlockIds?: Set<number | [number, number]>
 		visiblePlaceholderBlockIds?: number[]
-		compact?: boolean
+		isCompact?: boolean
 	} = $props()
 
 
@@ -49,7 +49,7 @@
 </script>
 
 
-{#if compact}
+{#if isCompact}
 	<EntityList
 		title="Blocks"
 		detailsProps={{
@@ -74,7 +74,7 @@
 						BlockEntry | undefined,
 						Set<ChainTransactionEntry>
 					>([[item, innerMap.get(item) ?? new Set()]])}
-					<Block data={blockData} chainId={item.$id.chainId} />
+					<Block data={blockData} chainId={item.$id.$network.chainId} />
 				{/if}
 			</span>
 		{/snippet}
@@ -149,7 +149,7 @@
 							BlockEntry | undefined,
 							Set<ChainTransactionEntry>
 						>([[item, innerMap.get(item) ?? new Set()]])}
-						<Block data={blockData} chainId={item.$id.chainId} />
+						<Block data={blockData} chainId={item.$id.$network.chainId} />
 					{/if}
 				</span>
 			{/snippet}

@@ -84,7 +84,7 @@
 				min={0n}
 				max={0n}
 				bind:value={p.amount}
-				bind:invalid={invalid}
+				bind:isInvalid={invalid}
 				ariaLabel="Amount"
 			/>
 		</label>

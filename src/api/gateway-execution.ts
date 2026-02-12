@@ -20,7 +20,7 @@ import {
 	getGatewayDomainId,
 	getGatewayMinterAddress,
 	getGatewayWalletAddress,
-} from '$/constants/gateway.ts'
+} from '$/lib/gateway.ts'
 import { createHttpProvider } from '$/api/voltaire.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import { switchWalletChain } from '$/lib/wallet.ts'

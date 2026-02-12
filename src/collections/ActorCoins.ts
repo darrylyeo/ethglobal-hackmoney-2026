@@ -19,14 +19,7 @@ import type { ActorCoin, ActorCoin$Id, ActorCoinToken } from '$/data/ActorCoin.t
 
 export type ActorCoinRow = ActorCoin & { $source: DataSource }
 
-const actorCoinKeyParts = (
-	id: Pick<ActorCoin$Id, 'chainId' | 'address' | 'tokenAddress'>,
-) =>
-	stringify({
-		chainId: id.chainId,
-		address: id.address,
-		tokenAddress: id.tokenAddress,
-	})
+const actorCoinKeyParts = (id: ActorCoin$Id) => stringify(id)
 
 const actorCoinKey = (row: ActorCoinRow) => actorCoinKeyParts(row.$id)
 
@@ -47,10 +40,16 @@ export const toActorCoin$Id = (
 	address: `0x${string}`,
 	tokenAddress: `0x${string}`,
 ): ActorCoin$Id => ({
-	chainId,
-	address,
-	tokenAddress,
-	interopAddress: toInteropName(chainId, address),
+	$actor: {
+		$network: { chainId },
+		address,
+		interopAddress: toInteropName(chainId, address),
+	},
+	$coin: {
+		$network: { chainId },
+		address: tokenAddress,
+		interopAddress: toInteropName(chainId, tokenAddress),
+	},
 })
 
 export const fetchActorCoinBalance = async (
@@ -69,11 +68,7 @@ export const fetchActorCoinBalance = async (
 		})
 	} else {
 		actorCoinsCollection.insert({
-			$id: {
-				...$id,
-				interopAddress:
-					$id.interopAddress ?? toInteropName($id.chainId, $id.address),
-			},
+			$id,
 			$source: DataSource.Voltaire,
 			symbol,
 			decimals,
@@ -84,11 +79,7 @@ export const fetchActorCoinBalance = async (
 	}
 
 	const fullRow = (balance: bigint, error: string | null): ActorCoinRow => ({
-		$id: {
-			...$id,
-			interopAddress:
-				$id.interopAddress ?? toInteropName($id.chainId, $id.address),
-		},
+		$id,
 		$source: DataSource.Voltaire,
 		symbol,
 		decimals,
@@ -109,12 +100,13 @@ export const fetchActorCoinBalance = async (
 		return actorCoinsCollection.state.get(key) ?? row
 	}
 	try {
-		const rpcUrl = rpcUrls[$id.chainId]
-		if (!rpcUrl) throw new Error(`No RPC URL for chain ${$id.chainId}`)
+		const chainId = $id.$actor.$network.chainId
+		const rpcUrl = rpcUrls[chainId]
+		if (!rpcUrl) throw new Error(`No RPC URL for chain ${chainId}`)
 		const balance = await getErc20Balance(
 			createHttpProvider(rpcUrl),
-			$id.tokenAddress,
-			$id.address,
+			$id.$coin.address,
+			$id.$actor.address,
 		)
 		return upsertResult(balance, null)
 	} catch (e) {

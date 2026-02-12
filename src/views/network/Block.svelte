@@ -6,7 +6,10 @@
 
 
 	// Functions
-	import { getAverageTransactionsPerBlock } from '$/constants/networks.ts'
+	import {
+	averageTransactionsPerBlockByChainId,
+	DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK,
+} from '$/constants/networks.ts'
 	import { formatGas, formatGwei } from '$/lib/format.ts'
 	import { fetchBlockTransactions } from '$/collections/Blocks.ts'
 	import { TimestampFormat } from '$/components/Timestamp.svelte'
@@ -40,7 +43,9 @@
 		[...data.values()][0] ?? new Set<ChainTransactionEntry>(),
 	)
 	const count = $derived(
-		block?.transactionCount ?? getAverageTransactionsPerBlock(chainId),
+		block?.transactionCount
+			?? (averageTransactionsPerBlockByChainId[chainId]?.value
+				?? DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK),
 	)
 	const defaultPlaceholderIds = $derived(
 		new Set<number | [number, number]>([[0, Math.max(0, count - 1)]]),

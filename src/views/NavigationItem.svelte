@@ -10,7 +10,7 @@
 		href?: string
 		tag?: string
 		tagIcon?: string
-		defaultOpen?: boolean
+		defaultIsOpen?: boolean
 		manualWatch?: boolean
 		children?: NavigationItem[]
 		allChildren?: NavigationItem[]
@@ -200,7 +200,7 @@
 					effectiveSearchValue
 						? matchesSearch(item, effectiveSearchValue)
 						: hasCurrentPage(item) ||
-							(isOpen.get(item) ?? item.defaultOpen ?? false),
+							(isOpen.get(item) ?? item.defaultIsOpen ?? false),
 				(_) => {
 					if (!effectiveSearchValue && _ !== undefined) isOpen.set(item, _)
 				}
@@ -238,7 +238,7 @@
 						network={item.address.network}
 						address={item.address.address}
 						format={AddressFormat.MiddleTruncated}
-						linked={false}
+						isLinked={false}
 						showAvatar={true}
 					/>
 				{:else if item.icon}
@@ -277,7 +277,7 @@
 						network={item.address.network}
 						address={item.address.address}
 						format={AddressFormat.MiddleTruncated}
-						linked={false}
+						isLinked={false}
 						showAvatar={true}
 					/>
 				{:else if item.icon}

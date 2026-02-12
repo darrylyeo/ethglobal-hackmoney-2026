@@ -1,27 +1,24 @@
 <script lang="ts">
 	// Types/constants
-	import type { EntityType } from '$/data/$EntityType.ts'
+	import type { EntityId, EntityType } from '$/data/$EntityType.ts'
 
 
 	// Props
 	let {
 		entityType,
-		id,
-		label,
-		href,
+		entityId,
 		autoWatched = false,
 	}: {
 		entityType: EntityType
-		id: string
-		label: string
-		href: string
+		entityId: EntityId
 		autoWatched?: boolean
 	} = $props()
 
 
 	// State
-	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 	import {
+		watchedEntityKey,
 		watchedEntitiesCollection,
 		watchEntity,
 		unwatchEntity,
@@ -29,24 +26,26 @@
 
 
 	// (Derived)
-	const watchedQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: watchedEntitiesCollection })
-				.where(({ row }) =>
-					and(eq(row.entityType, entityType), eq(row.id, id)),
-				)
-				.select(({ row }) => ({ row })),
-		[() => entityType, () => id],
+	const targetKey = $derived(watchedEntityKey({ entityType, entityId }))
+	const watchedQuery = useLiveQuery((q) =>
+		q.from({ row: watchedEntitiesCollection }).select(({ row }) => ({ row })),
 	)
-	const isManuallyWatched = $derived((watchedQuery.data ?? []).length > 0)
+	const isManuallyWatched = $derived(
+		(watchedQuery.data ?? []).some(
+			(r) =>
+				watchedEntityKey({
+					entityType: r.row.entityType,
+					entityId: r.row.entityId,
+				}) === targetKey,
+		),
+	)
 
 
 	// Actions
 	const toggle = () =>
 		isManuallyWatched
-			? unwatchEntity(entityType, id)
-			: watchEntity({ entityType, id, label, href })
+			? unwatchEntity(entityType, entityId)
+			: watchEntity({ entityType, entityId })
 </script>
 
 {#if !autoWatched}

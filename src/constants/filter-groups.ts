@@ -3,7 +3,7 @@
  * Used by NetworksInput and CoinsInput for protocol / token-list groupings.
  */
 
-import { CCTP_DOMAINS_BY_CHAIN_ID } from '$/constants/cctp.ts'
+import { cctpDomainByChainId } from '$/constants/cctp.ts'
 import type { Network } from '$/constants/networks.ts'
 import { NetworkType, networks } from '$/constants/networks.ts'
 
@@ -13,7 +13,7 @@ export type NetworkFilterGroup = {
 	networks: readonly Network[]
 }
 
-const cctpChainIds = new Set(Object.keys(CCTP_DOMAINS_BY_CHAIN_ID).map(Number))
+const cctpChainIds = new Set(Object.keys(cctpDomainByChainId).map(Number))
 
 export const networkFilterGroups: readonly NetworkFilterGroup[] = [
 	{

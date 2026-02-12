@@ -11,13 +11,13 @@
 		address,
 		profile: profileProp,
 		format,
-		vertical = false,
+		isVertical = false,
 	}: {
 		network: Network$Id
 		address: `0x${string}`
 		profile?: { primaryName?: string; avatarUrl?: string }
 		format?: import('$/views/Address.svelte').AddressFormat
-		vertical?: boolean
+		isVertical?: boolean
 	} = $props()
 </script>
 
@@ -27,6 +27,6 @@
 	{address}
 	ensName={profileProp?.primaryName}
 	format={format}
-	{vertical}
+	{isVertical}
 	showAvatar={true}
 />

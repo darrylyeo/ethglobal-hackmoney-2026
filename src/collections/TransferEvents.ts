@@ -5,19 +5,20 @@
 
 import type { NormalizedTransferEvent } from '$/api/transfers-logs.ts'
 import { fetchTransferEventsForPeriod } from '$/api/transfers-logs.ts'
-import type { CoinPageSymbol } from '$/constants/coins.ts'
+import type { CoinSymbol } from '$/constants/coins.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
+import type { Network$Id } from '$/data/Network.ts'
 import { upsertGraphFromEvents } from '$/collections/TransferGraphs.ts'
 
 export type TransferEvent$Id = {
+	$network: Network$Id
 	symbol: string
 	period: string
-	chainId: number
 	blockNumber: number
 	logIndex: number
 }
@@ -29,9 +30,9 @@ export type TransferEventRow = {
 
 export type TransferEventsMetaRow = {
 	$id: {
+		$network: { chainId: -1 }
 		symbol: string
 		period: string
-		chainId: -1
 		blockNumber: -1
 		logIndex: -1
 	}
@@ -41,7 +42,8 @@ export type TransferEventsMetaRow = {
 }
 
 function getKey(row: TransferEventRow | TransferEventsMetaRow): string {
-	const { symbol, period, chainId, blockNumber, logIndex } = row.$id
+	const { $network, symbol, period, blockNumber, logIndex } = row.$id
+	const chainId = $network.chainId
 	return (chainId as number) === -1
 		? `${symbol}:${period}:meta`
 		: `${symbol}:${period}:${chainId}:${blockNumber}:${logIndex}`
@@ -69,7 +71,7 @@ function hasValidCache(metaKey: string): boolean {
 }
 
 export const ensureTransferEventsForPlaceholders = (
-	symbol: CoinPageSymbol,
+	symbol: CoinSymbol,
 	period: string,
 	placeholderKeys: string[],
 ): void => {
@@ -80,7 +82,7 @@ export const ensureTransferEventsForPlaceholders = (
 }
 
 export async function fetchTransferEvents(
-	symbol: CoinPageSymbol,
+	symbol: CoinSymbol,
 	period: string,
 	options?: { force?: boolean },
 ): Promise<TransferEventRow[]> {
@@ -91,7 +93,7 @@ export async function fetchTransferEvents(
 		const rows = [...transferEventsCollection.state.values()]
 			.filter(
 				(r): r is TransferEventRow =>
-					'chainId' in r && (r as TransferEventRow).$id.chainId !== -1,
+					'chainId' in r && (r as TransferEventRow).$id.$network.chainId !== -1,
 			)
 			.filter(
 				(r) => r.$id.symbol === symbol && r.$id.period === period,
@@ -114,9 +116,9 @@ export async function fetchTransferEvents(
 			else
 				transferEventsCollection.insert({
 					$id: {
+						$network: { chainId: -1 },
 						symbol,
 						period,
-						chainId: -1,
 						blockNumber: -1,
 						logIndex: -1,
 					},
@@ -141,9 +143,9 @@ export async function fetchTransferEvents(
 				const existingRow = transferEventsCollection.state.get(key)
 				const row: TransferEventRow = {
 					$id: {
+						$network: { chainId: e.chainId },
 						symbol,
 						period,
-						chainId: e.chainId,
 						blockNumber: e.blockNumber,
 						logIndex: e.logIndex,
 					},
@@ -170,9 +172,9 @@ export async function fetchTransferEvents(
 			upsertGraphFromEvents(symbol, period, events)
 			return events.map((e) => ({
 				$id: {
+					$network: { chainId: e.chainId },
 					symbol,
 					period,
-					chainId: e.chainId,
 					blockNumber: e.blockNumber,
 					logIndex: e.logIndex,
 				},

@@ -32,7 +32,7 @@ export const evmActorProfilesCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.EvmActorProfiles,
 		getKey: (row: EvmActorProfileRow) =>
-			`${row.$id.chainId}:${row.$id.address.toLowerCase()}`,
+			`${row.$id.$network.chainId}:${row.$id.address.toLowerCase()}`,
 	}),
 )
 
@@ -54,7 +54,7 @@ export const ensureEvmActorProfile = (
 	const cached = getCachedEnsAvatar(chainId, normalized)
 	if (cached) {
 		evmActorProfilesCollection.insert({
-			$id: { chainId, address: normalized },
+			$id: { $network: { chainId }, address: normalized },
 			primaryName: cached.primaryName,
 			avatarUrl: cached.avatarUrl,
 			$source: DataSource.Voltaire,
@@ -72,7 +72,7 @@ export const fetchEvmActorProfile = async (
 		typeof evmActorProfilesCollection.state.get
 	>[0]
 	const existing = evmActorProfilesCollection.state.get(key)
-	const $id: EvmActorProfile$Id = { chainId, address }
+	const $id: EvmActorProfile$Id = { $network: { chainId }, address }
 
 	if (existing) {
 		evmActorProfilesCollection.update(key, (draft) => {
@@ -130,8 +130,7 @@ export const fetchEvmActorProfile = async (
 			Object.assign(draft, row)
 		})
 		setCachedEnsAvatar({
-			chainId,
-			address,
+			$id: { $network: { chainId }, address },
 			avatarUrl: row.avatarUrl,
 			primaryName: row.primaryName,
 		})

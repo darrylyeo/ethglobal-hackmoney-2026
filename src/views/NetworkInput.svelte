@@ -44,7 +44,7 @@
 	{#if selectedNetworks.length > 0}
 		<span data-row="start gap-2">
 			{#each selectedNetworks as network (network.id)}
-				<NetworkIcon chainId={network.id} size={16} />
+				<NetworkIcon chainId={network.id} />
 			{/each}
 		</span>
 	{/if}

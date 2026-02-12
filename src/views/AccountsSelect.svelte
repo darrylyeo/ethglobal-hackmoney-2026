@@ -428,10 +428,9 @@
 								<span class={walletChipClass} data-row="start gap-1">
 									<NetworkIcon
 										chainId={chainId ?? selectedChainIdDerived ?? 1}
-										size={16}
 										subicon={
 											wallet.icon
-												? { src: wallet.icon, size: '40%' }
+												? { src: wallet.icon }
 												: undefined
 										}
 										title={networkName ?? 'Unknown network'}
@@ -442,7 +441,7 @@
 												<Address
 													network={chainId ?? selectedChainIdDerived ?? 1}
 													address={connection.activeActor}
-													linked={false}
+													isLinked={false}
 												/>
 											</span>
 											{#if statusLabel}
@@ -478,14 +477,13 @@
 													<Address
 														network={chainId ?? selectedChainIdDerived ?? 1}
 														address={item.actor}
-														linked={false}
+														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
 												<span class="wallet-menu-option" data-row="start gap-2">
 													<NetworkIcon
 														chainId={item.network.id}
-														size={16}
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -543,10 +541,9 @@
 								<span class={walletChipClass} data-row="start gap-1">
 									<NetworkIcon
 										chainId={chainId ?? selectedChainIdDerived ?? 1}
-										size={16}
 										subicon={
 											wallet.icon
-												? { src: wallet.icon, size: '40%' }
+												? { src: wallet.icon }
 												: undefined
 										}
 										title={networkName ?? 'Unknown network'}
@@ -557,7 +554,7 @@
 												<Address
 													network={chainId ?? selectedChainIdDerived ?? 1}
 													address={connection.activeActor}
-													linked={false}
+													isLinked={false}
 												/>
 											</span>
 											{#if statusLabel}
@@ -593,14 +590,13 @@
 													<Address
 														network={chainId ?? selectedChainIdDerived ?? 1}
 														address={item.actor}
-														linked={false}
+														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
 												<span class="wallet-menu-option" data-row="start gap-2">
 													<NetworkIcon
 														chainId={item.network.id}
-														size={16}
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -667,10 +663,9 @@
 								<span class={walletChipClass} data-row="start gap-1">
 									<NetworkIcon
 										chainId={chainId ?? selectedChainIdDerived ?? 1}
-										size={16}
 										subicon={
 											wallet.icon
-												? { src: wallet.icon, size: '40%' }
+												? { src: wallet.icon }
 												: undefined
 										}
 										title={networkName ?? 'Unknown network'}
@@ -681,7 +676,7 @@
 												<Address
 													network={chainId ?? selectedChainIdDerived ?? 1}
 													address={connection.activeActor}
-													linked={false}
+													isLinked={false}
 												/>
 											</span>
 											{#if statusLabel}
@@ -717,14 +712,13 @@
 													<Address
 														network={chainId ?? selectedChainIdDerived ?? 1}
 														address={item.actor}
-														linked={false}
+														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
 												<span class="wallet-menu-option" data-row="start gap-2">
 													<NetworkIcon
 														chainId={item.network.id}
-														size={16}
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -782,10 +776,9 @@
 								<span class={walletChipClass} data-row="start gap-1">
 									<NetworkIcon
 										chainId={chainId ?? selectedChainIdDerived ?? 1}
-										size={16}
 										subicon={
 											wallet.icon
-												? { src: wallet.icon, size: '40%' }
+												? { src: wallet.icon }
 												: undefined
 										}
 										title={networkName ?? 'Unknown network'}
@@ -796,7 +789,7 @@
 												<Address
 													network={chainId ?? selectedChainIdDerived ?? 1}
 													address={connection.activeActor}
-													linked={false}
+													isLinked={false}
 												/>
 											</span>
 											{#if statusLabel}
@@ -832,14 +825,13 @@
 													<Address
 														network={chainId ?? selectedChainIdDerived ?? 1}
 														address={item.actor}
-														linked={false}
+														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
 												<span class="wallet-menu-option" data-row="start gap-2">
 													<NetworkIcon
 														chainId={item.network.id}
-														size={16}
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -908,7 +900,7 @@
 						data-wallet-provider-option
 					>
 						{#if item.wallet.icon}
-							<Icon src={item.wallet.icon} size={20} />
+							<Icon src={item.wallet.icon} />
 						{/if}
 						<span>{item.wallet.name}</span>
 					</span>
