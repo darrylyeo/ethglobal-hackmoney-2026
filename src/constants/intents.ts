@@ -10,7 +10,7 @@ import { Protocol, protocolsById } from '$/constants/protocols.ts'
 import type { ProtocolAction } from '$/constants/protocolActions.ts'
 import type { SessionTemplate } from '$/data/Session.ts'
 import { EntityType, type Entity } from '$/data/$EntityType.ts'
-import { createAction } from '$/lib/actions.ts'
+import { createAction } from '$/constants/actions.ts'
 import { formatIntentOptionLabel } from '$/lib/intents.ts'
 
 
@@ -131,7 +131,7 @@ const toIntentOption = (
 })
 
 const eqAddr = (a: unknown, b: unknown) => (
-	typeof a === 'string' && typeof b === 'string' && a.toLowerCase() === b.toLowerCase()
+	typeof a === 'string' && typeof b === 'string' && a === b
 )
 
 export const intents: IntentDefinition[] = [

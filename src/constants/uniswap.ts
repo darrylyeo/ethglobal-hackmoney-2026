@@ -101,3 +101,12 @@ export const uniswapFeeTiers = [
 export const TICK_SPACINGS = Object.fromEntries(
 	uniswapFeeTiers.map((tier) => [tier.feeTier, tier.tickSpacing]),
 )
+
+export const formatFeeTierPercent = (bps: number) =>
+	`${(bps / 100).toFixed(2)}%`
+
+export const liquidityFeeTierPresets = uniswapFeeTiers.map((t) => ({
+	id: String(t.feeTier),
+	label: formatFeeTierPercent(t.feeTier),
+	value: t.feeTier,
+}))

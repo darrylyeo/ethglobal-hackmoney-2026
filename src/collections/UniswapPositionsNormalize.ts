@@ -3,6 +3,7 @@
  */
 
 import type { UniswapPosition } from '$/data/UniswapPosition.ts'
+import { normalizeAddress } from '$/lib/address.ts'
 
 const toBigInt = (v: unknown): bigint => {
 	if (v === undefined || v === null) return 0n
@@ -22,6 +23,7 @@ export const normalizeUniswapPosition = (
 	entry: UniswapPosition,
 ): UniswapPosition => ({
 	...entry,
+	owner: (normalizeAddress(entry.owner) ?? entry.owner) as `0x${string}`,
 	liquidity: toBigInt(entry.liquidity),
 	token0Owed: toBigInt(entry.token0Owed),
 	token1Owed: toBigInt(entry.token1Owed),

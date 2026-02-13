@@ -3,6 +3,6 @@ import type { Action } from '$/constants/actions.ts'
 export type SessionAction = {
 	id: string
 	sessionId: string
-	actionIndex: number
+	indexInSequence: number
 	action: Action
 }

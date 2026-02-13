@@ -80,7 +80,7 @@ const fetchTokenListEntries = async (): Promise<TokenListCoinRow[]> => {
 	for (const row of rows) {
 		if (unique.size >= TOKEN_LIST_MAX_ENTRIES) break
 		unique.set(
-			`${row.$id.$network.chainId}-${row.$id.address.toLowerCase()}`,
+			`${row.$id.$network.chainId}-${row.$id.address}`,
 			row,
 		)
 	}
@@ -94,6 +94,6 @@ export const tokenListCoinsCollection = createCollection(
 		queryFn: fetchTokenListEntries,
 		queryClient,
 		getKey: (row: TokenListCoinRow) =>
-			`${row.$id.$network.chainId}-${row.$id.address.toLowerCase()}`,
+			`${row.$id.$network.chainId}-${row.$id.address}`,
 	}),
 )

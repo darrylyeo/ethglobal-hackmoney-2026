@@ -11,6 +11,7 @@ import {
 	getLogs,
 	TRANSFER_TOPIC,
 } from '$/api/voltaire.ts'
+import { normalizeAddress } from '$/lib/address.ts'
 import { type ChainContract, TIME_PERIODS, periodToRange } from '$/api/transfers-indexer.ts'
 import { ercTokens } from '$/constants/coins.ts'
 import { TRANSFER_EVENTS_MAX_TOTAL } from '$/constants/query-limits.ts'
@@ -41,14 +42,15 @@ function parseTransferLog(
 	if (!log.topics?.[1] || !log.topics?.[2] || !log.data) return null
 	const amount = BigInt(log.data)
 	if (amount === 0n) return null
+	const fromRaw = `0x${log.topics[1].slice(-40)}` as `0x${string}`
+	const toRaw = `0x${log.topics[2].slice(-40)}` as `0x${string}`
+	const fromChecksummed = normalizeAddress(fromRaw)
+	const toChecksummed = normalizeAddress(toRaw)
+	if (!fromChecksummed || !toChecksummed) return null
 	return {
 		transactionHash: log.transactionHash,
-		fromAddress: (
-			`0x${log.topics[1].slice(-40)}` as `0x${string}`
-		).toLowerCase(),
-		toAddress: (
-			`0x${log.topics[2].slice(-40)}` as `0x${string}`
-		).toLowerCase(),
+		fromAddress: fromChecksummed,
+		toAddress: toChecksummed,
 		amount: amount.toString(),
 		timestamp: blockTimestampMs,
 		chainId,

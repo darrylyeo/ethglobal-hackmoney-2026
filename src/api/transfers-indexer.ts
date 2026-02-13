@@ -3,6 +3,7 @@
  * Single module so endpoint/pagination can be adapted without changing callers.
  */
 import { COVALENT_TRANSFERS_MAX } from '$/constants/query-limits.ts'
+import { normalizeAddress } from '$/lib/address.ts'
 
 export type NormalizedTransfer = {
 	fromAddress: string
@@ -74,10 +75,12 @@ function parseCovalentItem(
 	const timestamp = item.block_signed_at
 		? new Date(item.block_signed_at).getTime()
 		: 0
-	if (!from || !to) return null
+	const fromChecksummed = normalizeAddress(from)
+	const toChecksummed = normalizeAddress(to)
+	if (!fromChecksummed || !toChecksummed) return null
 	return {
-		fromAddress: from.toLowerCase(),
-		toAddress: to.toLowerCase(),
+		fromAddress: fromChecksummed,
+		toAddress: toChecksummed,
 		amount,
 		timestamp,
 		chainId,

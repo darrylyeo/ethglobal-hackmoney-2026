@@ -6,7 +6,7 @@ export enum SessionActionSimulationStatus {
 export type SessionActionTransactionSimulation = {
 	id: string
 	sessionId: string
-	actionIndex: number
+	indexInSequence: number
 	status: SessionActionSimulationStatus
 	createdAt: number
 	paramsHash: string

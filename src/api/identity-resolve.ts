@@ -11,7 +11,7 @@ import {
 	type IdentityResolution,
 } from '$/constants/identity-resolver.ts'
 import { ChainId } from '$/constants/chain-id.ts'
-import { isValidAddress } from '$/lib/address.ts'
+import { isValidAddress, normalizeAddress } from '$/lib/address.ts'
 import { Abi, decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
 import { namehash } from '@tevm/voltaire/Ens'
 import { fromBytes as hexFromBytes, toBytes } from '@tevm/voltaire/Hex'
@@ -69,11 +69,11 @@ export function normalizeIdentity(raw: string): {
 		return { kind: IdentityInputKind.Address, normalized: '' }
 	}
 	if (isValidAddress(trimmed)) {
+		const withPrefix = trimmed.startsWith('0x') ? trimmed : `0x${trimmed}`
+		const checksummed = normalizeAddress(withPrefix)
 		return {
 			kind: IdentityInputKind.Address,
-			normalized: trimmed.toLowerCase().startsWith('0x')
-				? trimmed.toLowerCase()
-				: (`0x${trimmed.toLowerCase()}` as `0x${string}`),
+			normalized: checksummed ?? withPrefix,
 		}
 	}
 	if (trimmed.includes('.') && trimmed.length > 4) {
@@ -102,7 +102,8 @@ async function getResolverAddress(
 		toBytes(res as `0x${string}`),
 	) as unknown as [`0x${string}`]
 	const zero = '0x0000000000000000000000000000000000000000'
-	return addr && addr.toLowerCase() !== zero ? addr : null
+	const checksummed = normalizeAddress(addr)
+	return checksummed && checksummed !== zero ? checksummed : null
 }
 
 async function resolveAddr(
@@ -122,7 +123,8 @@ async function resolveAddr(
 		toBytes(res as `0x${string}`),
 	) as unknown as [`0x${string}`]
 	const zero = '0x0000000000000000000000000000000000000000'
-	return addr && addr.toLowerCase() !== zero ? addr : null
+	const checksummed = addr ? normalizeAddress(addr) : null
+	return checksummed && checksummed !== zero ? checksummed : null
 }
 
 async function resolveText(
@@ -266,14 +268,12 @@ export async function resolveIdentity(
 		normalized.startsWith('0x') &&
 		normalized.length === 42
 	) {
-		const name = await resolveEnsReverse(
-			provider,
-			resolver.ensRegistry,
-			normalized as `0x${string}`,
-		)
+		const checksummed = normalizeAddress(normalized as `0x${string}`)
+		const addr = checksummed ?? (normalized as `0x${string}`)
+		const name = await resolveEnsReverse(provider, resolver.ensRegistry, addr)
 		return {
 			...base,
-			address: normalized as `0x${string}`,
+			address: addr,
 			name: name ?? undefined,
 			resolvedAt: now,
 		}

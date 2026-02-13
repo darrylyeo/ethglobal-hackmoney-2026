@@ -31,6 +31,54 @@ export async function fetchContractWithAbi(
 	}
 }
 
+export type ContractFull = {
+	abi?: ContractAbi
+	source: VerifiedContractSourceEntry
+}
+
+/** Fetch ABI and source in one request. Returns null if not verified. */
+export async function fetchContractFull(
+	chainId: ChainId,
+	address: `0x${string}`,
+): Promise<ContractFull | null> {
+	const url = `${SOURCIFY_SERVER}/v2/contract/${chainId}/${address}?fields=abi,sources,compilation`
+	const res = await fetch(url)
+	if (!res.ok) return null
+	const json = (await res.json()) as {
+		abi?: unknown[]
+		sources?: Record<string, { content?: string }>
+		compilation?: {
+			language?: string
+			compilerVersion?: string
+			fullyQualifiedName?: string
+		}
+	}
+	const abi = json.abi
+	const abiValid = abi && Array.isArray(abi)
+	const sources = json.sources ?? {}
+	const files: Record<string, string> = {}
+	for (const [path, entry] of Object.entries(sources)) {
+		if (entry?.content != null) files[path] = entry.content
+	}
+	if (!abiValid && Object.keys(files).length === 0) return null
+	const source: VerifiedContractSourceEntry = {
+		$id: { $network: { chainId }, address },
+		metadata: json.compilation
+			? {
+					compiler: json.compilation.compilerVersion,
+					language: json.compilation.language,
+					sources: json.compilation,
+					fullyQualifiedName: json.compilation.fullyQualifiedName,
+				}
+			: undefined,
+		files,
+	}
+	return {
+		abi: abiValid ? (abi as ContractAbi) : undefined,
+		source,
+	}
+}
+
 export async function fetchVerifiedContract(
 	chainId: ChainId,
 	address: `0x${string}`,
@@ -55,7 +103,7 @@ export async function fetchVerifiedContract(
 	return {
 		$id: {
 			$network: { chainId },
-			address: address.toLowerCase() as `0x${string}`,
+			address,
 		},
 		metadata: json.compilation
 			? {

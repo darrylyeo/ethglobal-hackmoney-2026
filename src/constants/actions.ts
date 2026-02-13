@@ -278,3 +278,32 @@ export type LiquidityAction =
 	| Action<ActionType.RemoveLiquidity>
 	| Action<ActionType.CollectFees>
 	| Action<ActionType.IncreaseLiquidity>
+
+const nullableParamKeys = new Set(['fromChainId', 'toChainId', 'protocolIntent'])
+const spreadDefined = (o: Record<string, unknown>) =>
+	Object.fromEntries(
+		Object.entries(o).filter(
+			([k, v]) => (v != null) || nullableParamKeys.has(k),
+		),
+	)
+
+export const createAction = <_ActionType extends ActionType>(
+	type: _ActionType,
+	params?: Partial<ActionParams<_ActionType>>,
+) => ({
+	type,
+	params: {
+		...actionTypeDefinitionByActionType[type].getDefaultParams(),
+		...spreadDefined((params ?? {}) as Record<string, unknown>),
+	} as ActionParams<_ActionType>,
+})
+
+export const mergeActionParams = <_ActionType extends ActionType>(
+	action: { type: _ActionType; params: ActionParams<_ActionType> },
+) => ({
+	...action,
+	params: {
+		...actionTypeDefinitionByActionType[action.type].getDefaultParams(),
+		...spreadDefined((action.params ?? {}) as Record<string, unknown>),
+	} as ActionParams<_ActionType>,
+})

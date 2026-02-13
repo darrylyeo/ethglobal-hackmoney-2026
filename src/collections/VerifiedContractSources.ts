@@ -18,7 +18,7 @@ import type {
 } from '$/data/VerifiedContractSource.ts'
 
 const getKey = (row: VerifiedContractSourceRow) =>
-	`${row.$id.$network.chainId}:${row.$id.address.toLowerCase()}`
+	`${row.$id.$network.chainId}:${row.$id.address}`
 
 export type VerifiedContractSourceRow = VerifiedContractSourceEntry & {
 	$source: DataSource
@@ -40,7 +40,7 @@ export async function fetchVerifiedContractSource(
 	chainId: ChainId,
 	address: `0x${string}`,
 ): Promise<VerifiedContractSourceEntry | null> {
-	const key = `${chainId}:${address.toLowerCase()}` as unknown as Parameters<
+	const key = `${chainId}:${address}` as unknown as Parameters<
 		typeof verifiedContractSourcesCollection.state.get
 	>[0]
 
@@ -53,7 +53,7 @@ export async function fetchVerifiedContractSource(
 		verifiedContractSourcesCollection.insert({
 			$id: {
 				$network: { chainId },
-				address: address.toLowerCase() as `0x${string}`,
+				address,
 			},
 			files: {},
 			$source: DataSource.Sourcify,

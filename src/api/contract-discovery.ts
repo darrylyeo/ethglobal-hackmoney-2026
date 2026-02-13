@@ -5,6 +5,7 @@
 
 import type { ChainId } from '$/constants/networks.ts'
 import { networkConfigsByChainId } from '$/constants/networks.ts'
+import { normalizeAddress } from '$/lib/address.ts'
 
 const EXPLORER_API_BY_CHAIN: Partial<Record<ChainId, string>> = {
 	1: 'https://api.etherscan.io/api',
@@ -45,12 +46,18 @@ export async function fetchContractsDeployedBy(
 	if (data.status !== '1' || !Array.isArray(data.result)) return []
 	return data.result
 		.filter((tx) => !tx.to && tx.contractAddress)
-		.map((tx) => ({
-			chainId,
-			address: tx.contractAddress!.toLowerCase() as `0x${string}`,
-			deployer: deployer.toLowerCase() as `0x${string}`,
-			txHash: tx.hash as `0x${string}`,
-		}))
+		.map((tx) => {
+			const addr = normalizeAddress(tx.contractAddress! as `0x${string}`)
+			const deployerNorm = normalizeAddress(deployer) ?? deployer
+			if (!addr) return null
+			return {
+				chainId,
+				address: addr,
+				deployer: deployerNorm,
+				txHash: tx.hash as `0x${string}`,
+			}
+		})
+		.filter((c): c is DeployedContract => c != null)
 }
 
 export function getExplorerApiUrl(chainId: ChainId): string | null {

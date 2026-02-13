@@ -18,6 +18,7 @@ import {
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
+import { normalizeAddress } from '$/lib/address.ts'
 import { getSpandexQuoteForProvider, spandexConfig } from '$/api/spandex.ts'
 import type { FetchSwapQuoteParams } from '$/data/SwapQuote.ts'
 
@@ -41,11 +42,11 @@ export const getRequestKeyForParams = (
 function requestIdString(r: SpandexQuoteRequestId): string {
 	return stringify({
 		chainId: r.chainId,
-		inputToken: r.inputToken.toLowerCase(),
-		outputToken: r.outputToken.toLowerCase(),
+		inputToken: normalizeAddress(r.inputToken) ?? r.inputToken,
+		outputToken: normalizeAddress(r.outputToken) ?? r.outputToken,
 		amountIn: r.amountIn.toString(),
 		slippageBps: r.slippageBps,
-		swapperAccount: r.swapperAccount.toLowerCase(),
+		swapperAccount: normalizeAddress(r.swapperAccount) ?? r.swapperAccount,
 	})
 }
 

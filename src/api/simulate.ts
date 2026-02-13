@@ -141,7 +141,9 @@ export const runTevmSimulation = async (
 	const data = (body.data ?? '0x') as `0x${string}`
 	const to = body.to ? getAddress(body.to as `0x${string}`) : undefined
 
-	const common = createCommon({ ...mainnet, chainId: body.chainId })
+	const common = createCommon({ ...mainnet, id: body.chainId })
+	const ethjsCommon =
+		'ethjsCommon' in common && common.ethjsCommon ? common.ethjsCommon : common
 
 	type TevmAddress = Parameters<typeof createImpersonatedTx>[0]['impersonatedAddress']
 	const tx = createImpersonatedTx(
@@ -156,7 +158,7 @@ export const runTevmSimulation = async (
 			nonce: 0n,
 			impersonatedAddress: fromAddress as unknown as TevmAddress,
 		},
-		{ common },
+		{ common: ethjsCommon },
 	)
 
 	const runResult = await vm.runTx({
@@ -191,7 +193,9 @@ export const runTevmSimulationSequence = async (
 	await node.ready()
 
 	const vm = await node.getVm()
-	const common = createCommon({ ...mainnet, chainId: first.chainId })
+	const common = createCommon({ ...mainnet, id: first.chainId })
+	const ethjsCommon =
+		'ethjsCommon' in common && common.ethjsCommon ? common.ethjsCommon : common
 	const forkBlockNumber = typeof blockTag === 'number' ? blockTag : 0
 	const results: TevmSimulationResult[] = []
 
@@ -221,7 +225,7 @@ export const runTevmSimulationSequence = async (
 				nonce: BigInt(i),
 				impersonatedAddress: fromAddress as unknown as TevmAddress,
 			},
-			{ common },
+			{ common: ethjsCommon },
 		)
 
 		const runResult = await vm.runTx({

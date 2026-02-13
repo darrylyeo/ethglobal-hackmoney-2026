@@ -4,6 +4,7 @@
 
 import type { Media } from '$/constants/media.ts'
 import { ChainId, networkConfigsByChainId } from '$/constants/networks.ts'
+import { normalizeAddress } from '$/lib/address.ts'
 
 export enum CoinType {
 	Native = 'Native',
@@ -334,6 +335,7 @@ export const ercTokens = (
 ).map((token) => ({
 	type: CoinType.Erc20,
 	...token,
+	address: (normalizeAddress(token.address) ?? token.address) as `0x${string}`,
 })) satisfies readonly Erc20Token[]
 
 export const ercTokensBySymbolByChainId = Object.fromEntries(
