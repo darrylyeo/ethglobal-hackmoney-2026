@@ -6,8 +6,12 @@ import {
 	type Session,
 	SessionStatus,
 } from '$/data/Session.ts'
-import { actionTypeDefinitionByActionType, ActionType } from '$/constants/actions.ts'
-import { createAction } from '$/lib/actions.ts'
+import {
+		actionTypeDefinitionByActionType,
+		ActionType,
+		createAction,
+		mergeActionParams,
+	} from '$/constants/actions.ts'
 import { type SessionSimulationStatus } from '$/data/SessionSimulation.ts'
 import { specForAction, validActionTypes } from '$/lib/intents.ts'
 import { type SessionDefaults } from '$/constants/actions.ts'
@@ -44,18 +48,26 @@ export const parseTemplateParam = (template: string | null): SessionHashResult =
 	}
 }
 
-/** Parses intent state from hash (reserved for state initialization from intents). */
-export const parseSessionHash = (hash: string): SessionHashResult => {
-	const normalized = hash.startsWith('#/') ? hash.slice(2) : hash.startsWith('#') ? hash.slice(1) : hash
-	if (!normalized) return { kind: 'empty' }
+const toPascalAction = (raw: string): string =>
+	raw.charAt(0).toUpperCase() + raw.slice(1)
+
+/** Parses action string (e.g. from ?actions= or legacy hash). */
+export const parseSessionActions = (input: string): SessionHashResult => {
+	const normalized = input.startsWith('#/') ? input.slice(2) : input.startsWith('#') ? input.slice(1) : input
+	if (!normalized.trim()) return { kind: 'empty' }
 	const actions = normalized
 		.split('|')
 		.filter((entry) => entry.trim().length > 0)
 		.map((entry) => {
 			const separatorIndex = entry.indexOf(':')
-			const action = (
+			const rawAction = (
 				separatorIndex === -1 ? entry : entry.slice(0, separatorIndex)
-			).trim() as Action['type']
+			).trim()
+			const action = (
+				validActionTypes.has(rawAction as Action['type'])
+					? rawAction
+					: toPascalAction(rawAction)
+			) as Action['type']
 			if (!validActionTypes.has(action))
 				return null
 			if (separatorIndex === -1) {
@@ -88,6 +100,57 @@ export const parseSessionHash = (hash: string): SessionHashResult => {
 	return actions.length > 0 ? { kind: 'actions', actions } : { kind: 'empty' }
 }
 
+export const parseSessionStateFromUrl = (
+	searchParams: URLSearchParams,
+	urlHash?: string,
+): SessionHashResult => {
+	const templateParam = searchParams.get('template')
+	const template =
+		templateParam && validActionTypes.has(templateParam as Action['type'])
+			? templateParam
+			: templateParam
+				? toPascalAction(templateParam)
+				: null
+	const actionsParam = searchParams.get('actions')
+	if (template && validActionTypes.has(template as Action['type']))
+		return parseTemplateParam(template)
+	if (actionsParam) return parseSessionActions(actionsParam)
+	if (urlHash?.trim()) return parseSessionStateFromHashLike(urlHash)
+	return { kind: 'empty' }
+}
+
+/** Parses session state from dashboard hash string (#template=Swap or #Swap|Bridge). */
+export const parseSessionStateFromHashLike = (hashLike: string): SessionHashResult => {
+	const raw = hashLike.startsWith('#/') ? hashLike.slice(2) : hashLike.startsWith('#') ? hashLike.slice(1) : hashLike
+	if (!raw.trim()) return { kind: 'empty' }
+	try {
+		const params = new URLSearchParams(raw)
+		const template = params.get('template')
+		const actions = params.get('actions')
+		if (template) return parseTemplateParam(template)
+		if (actions) return parseSessionActions(actions)
+	} catch {
+		//
+	}
+	return parseSessionActions(raw)
+}
+
+export const buildSessionSearchParams = (parsed: SessionHashResult): string => {
+	if (parsed.kind === 'empty') return ''
+	if (parsed.kind === 'session') return ''
+	if (parsed.kind === 'actions') {
+		if (parsed.actions.length === 1 && !parsed.actions[0]?.params)
+			return `template=${encodeURIComponent(parsed.actions[0].action)}`
+		const parts = parsed.actions.map((a) =>
+			a.params
+				? `${a.action}:${encodeURIComponent(JSON.stringify(a.params))}`
+				: a.action,
+		)
+		return `actions=${encodeURIComponent(parts.join('|'))}`
+	}
+	return ''
+}
+
 export const formatSessionPlaceholderName = (actions: Action[]): string => {
 	const labels = actions
 		.map((a) => (actionTypeDefinitionByActionType as Record<string, { label: string }>)[a.type]?.label)
@@ -97,7 +160,7 @@ export const formatSessionPlaceholderName = (actions: Action[]): string => {
 
 export const sessionFromParsedHash = (parsed: SessionHashResult): Session => {
 	const now = Date.now()
-	const actions: Action[] =
+	const raw =
 		parsed.kind === 'empty'
 			? [createAction(ActionType.Swap)]
 			: parsed.kind === 'actions'
@@ -105,6 +168,7 @@ export const sessionFromParsedHash = (parsed: SessionHashResult): Session => {
 						createAction(a.action, (a.params ?? undefined) as Record<string, unknown>),
 					)
 				: [createAction(ActionType.Swap)]
+	const actions = raw.map((a) => mergeActionParams(a))
 	const params = normalizeSessionParams(
 		actions,
 		actions[0]?.params ?? {},
@@ -127,7 +191,7 @@ export const createSessionId = () =>
 export const getSessionActions = (sessionId: string): Action[] => {
 	const rows = [...sessionActionsCollection.state.values()]
 		.filter((row) => row.sessionId === sessionId)
-		.sort((a, b) => a.actionIndex - b.actionIndex)
+		.sort((a, b) => a.indexInSequence - b.indexInSequence)
 	return rows.map((row) => row.action)
 }
 
@@ -135,11 +199,11 @@ export const setSessionActions = (sessionId: string, actions: Action[]) => {
 	for (const [id, row] of sessionActionsCollection.state) {
 		if (row.sessionId === sessionId) sessionActionsCollection.delete(id)
 	}
-	actions.forEach((action, actionIndex) => {
+	actions.forEach((action, indexInSequence) => {
 		sessionActionsCollection.insert({
 			id: createSessionId(),
 			sessionId,
-			actionIndex,
+			indexInSequence,
 			action,
 		})
 	})

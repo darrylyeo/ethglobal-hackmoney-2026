@@ -11,8 +11,11 @@
 
 
 	// Functions
-	import { ActionType } from '$/constants/actions.ts'
-	import { createAction, mergeActionParams } from '$/lib/actions.ts'
+	import {
+		ActionType,
+		createAction,
+		mergeActionParams,
+	} from '$/constants/actions.ts'
 	import type { Session } from '$/data/Session.ts'
 	import { formatSessionPlaceholderName } from '$/lib/session/sessions.ts'
 	import { setSessionActions } from '$/lib/session/sessions.ts'
@@ -57,7 +60,7 @@
 	const sessionQueryResolved = $derived(sessionQuery.data !== undefined)
 	const sessionActionsRows = $derived(
 		(sessionActionsQuery.data?.map((d) => d.row) ?? []).sort(
-			(a, b) => a.actionIndex - b.actionIndex,
+			(a, b) => a.indexInSequence - b.indexInSequence,
 		),
 	)
 	const mergedActions = $derived(
@@ -65,25 +68,31 @@
 			? sessionActionsRows.map((r) => r.action)
 			: dbSession?.actions ?? [],
 	)
+	const sessionFromDb = $derived(
+		dbSession
+			? (() => {
+					const actions = mergedActions.map((a) => mergeActionParams(a))
+					return {
+						...dbSession,
+						actions:
+							actions.length > 0 ? actions : [createAction(ActionType.Swap)],
+					}
+				})()
+			: null,
+	)
 
 	let activeSession = $state<Session | null>(null)
 	let lastActionsHash = $state('')
 	$effect(() => {
-		if (!dbSession) return
-		const actions = mergedActions.map((a) => mergeActionParams(a))
-		const actionsToUse =
-			actions.length > 0 ? actions : [createAction(ActionType.Swap)]
-		const next = {
-			...dbSession,
-			actions: actionsToUse,
-		}
+		const next = sessionFromDb
+		if (!next) return
 		if (
 			stringify(activeSession?.actions) !== stringify(next.actions) ||
 			activeSession?.updatedAt !== next.updatedAt
 		) {
 			activeSession = next
 		}
-		lastActionsHash = stringify(activeSession.actions)
+		lastActionsHash = stringify(activeSession?.actions ?? [])
 	})
 
 	$effect(() => {

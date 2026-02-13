@@ -1,19 +1,14 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
-	import { SessionStatus, type Session } from '$/data/Session.ts'
+	import type { Session } from '$/data/Session.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { NetworkType, networks } from '$/constants/networks.ts'
 
 
 	// Context
-	import { setContext } from 'svelte'
 	import { resolve } from '$app/paths'
-	import {
-		SESSION_CONTEXT_KEY,
-		type SessionContext,
-	} from './session-context.ts'
 	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
 	import { NetworkEnvironment } from '$/constants/network-environment.ts'
 
@@ -29,6 +24,7 @@
 
 
 	// Functions
+	import { stringify } from 'devalue'
 	import { fetchAllBalancesForAddress } from '$/collections/ActorCoins.ts'
 	import {
 		buildSessionPath,
@@ -38,6 +34,7 @@
 
 	// State
 	let persisted = $state(false)
+	let initialSnapshot = $state<string | null>(null)
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
 	let selectedChainId = $state<number | null>(null)
@@ -45,30 +42,10 @@
 		{ chainId: number; tokenAddress: `0x${string}` }[]
 	>([])
 
-	const sessionCtx: SessionContext = $state({
-		connectedWallets: [],
-		selectedActor: null,
-		selectedChainId: null,
-		isTestnet: false,
-		session: null,
-		sessionId: null,
-	})
-	setContext(SESSION_CONTEXT_KEY, sessionCtx)
-
-
 	// (Derived)
 	const isTestnet = $derived(
 		networkEnvironmentState.current === NetworkEnvironment.Testnet,
 	)
-	$effect(() => {
-		sessionCtx.connectedWallets = connectedWallets
-		sessionCtx.selectedActor = selectedActor
-		sessionCtx.selectedChainId = selectedChainId
-		sessionCtx.isTestnet = isTestnet
-		sessionCtx.session = session
-		sessionCtx.sessionId = session.id
-	})
-
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
 			isTestnet
@@ -109,11 +86,22 @@
 		)
 	})
 
-	const handleFormInteraction = () => {
+	$effect(() => {
 		if (persisted || !onPersist) return
-		persisted = true
-		onPersist()
-	}
+		const snapshot = stringify({
+			actions: session.actions,
+			params: session.params,
+			name: session.name,
+		})
+		if (initialSnapshot === null) {
+			initialSnapshot = snapshot
+			return
+		}
+		if (snapshot !== initialSnapshot) {
+			persisted = true
+			onPersist()
+		}
+	})
 	const placeholderName = $derived(formatSessionPlaceholderName(session.actions))
 	const displayLabel = $derived(session.name || placeholderName)
 
@@ -129,7 +117,6 @@
 	data-session
 	data-column="gap-4"
 	data-sticky-container
-	onfocusin={handleFormInteraction}
 >
 	<EntityView
 		data-scroll-item
@@ -139,7 +126,6 @@
 		label={displayLabel}
 		annotation="Session"
 		hasAnchorTitle={false}
-		autoWatched={session.status === SessionStatus.Draft || session.status === SessionStatus.Submitted}
 	>
 		{#snippet Title()}
 			<span class="sr-only">Session</span>
@@ -174,7 +160,14 @@
 	</EntityView>
 
 	<section data-scroll-item data-column="gap-4">
-		<ActionsSequence bind:actions={session.actions} />
+		<ActionsSequence
+			bind:actions={session.actions}
+			{connectedWallets}
+			{selectedActor}
+			{selectedChainId}
+			{isTestnet}
+			sessionId={session.id}
+		/>
 	</section>
 </div>
 
