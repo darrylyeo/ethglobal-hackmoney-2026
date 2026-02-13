@@ -188,6 +188,8 @@ happens at the `Session` level via `$effect` that syncs the bound session object
   (quotes, execution, simulation, protocol selection).
 - [x] Obsolete wrapper components are removed.
 - [x] URL hash session bootstrap and navigation still works.
+- Spec 101 updates the session URL model (template/session params, persist on
+  first edit).
 
 ## Status
 

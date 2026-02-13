@@ -1,0 +1,13 @@
+---
+description: Svelte snippet prop patterns
+globs: "**/*.svelte"
+alwaysApply: true
+---
+
+# Svelte snippet patterns
+
+**Spec:** [102-svelte-snippet-patterns.md](../../specs/102-svelte-snippet-patterns.md)
+
+- **Snippet names:** Prefer TitleCase (e.g. `Item`, `Input`).
+- **Direct prop:** When a snippet is a direct component prop, use inline syntax `{#snippet Name(args)}` inside the component tags. Prefer not to specify explicit param types; they are inferred.
+- **By reference:** When a snippet must be passed by reference (e.g. within an object/array prop), define the snippet before the component, manually type the snippet params to match, and wrap in a local `<svelte:boundary>` or `{#if true}` if no existing scope exists.

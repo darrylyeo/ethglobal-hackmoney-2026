@@ -131,13 +131,9 @@ type IntentDefinition<_IntentEntityName extends string> = {
 ## Session integration
 
 `IntentDragPreview` maps each `ActionType` to a `SessionAction`
-string and builds a URL hash from the selected `IntentOption`:
+string and navigates to `/session?template=` or `?actions=` from the selected `IntentOption`.
 
-```
-#createChannel:{payload}|addChannelMember:{payload}|transfer:{payload}
-```
-
-The session page (`/session`) routes these actions:
+The session page (`/session`) routes these actions via shallow routing (`page.state.sessionState`) or search params:
 
 | Session action | View |
 | --- | --- |
@@ -148,7 +144,7 @@ The session page (`/session`) routes these actions:
 | createChannel, addChannelMember, closeChannel | Channel placeholder |
 
 Navigation links in the layout sidebar and home page reference the new action
-hashes.
+via `?template=` or `?actions=` search params.
 
 ## Acceptance criteria
 
@@ -194,7 +190,7 @@ hashes.
 
 - [x] `SessionAction` type includes createChannel,
   addChannelMember, closeChannel, addLiquidity, removeLiquidity.
-- [x] `parseSessionHash` parses the new action strings.
+- [x] `parseSessionActions` / `parseSessionStateFromUrl` parse the new action strings.
 - [x] `/session` routes addLiquidity/removeLiquidity to LiquidityView.
 - [x] `/session` routes createChannel/addChannelMember/closeChannel to a
   channel view.
@@ -253,28 +249,28 @@ test('selecting an intent option navigates to /session with correct hash')
   - Trigger a drag-drop that resolves an intent
   - Wait for tooltip to appear after dragend
   - Click the first option button
-  - Verify URL contains /session# with the expected action segments
+  - Verify URL contains /session with expected ?template= or ?actions= params
   - Verify the session page renders the correct action view
 ```
 
 ### 4. Session routing (Playwright: `tests/session-actions.spec.ts`)
 
 ```
-test('navigating to /session#createChannel shows channel view')
-  - Navigate to /session#createChannel
+test('navigating to /session?template=createChannel shows channel view')
+  - Navigate to /session?template=createChannel
   - Verify page title is "Create Channel"
   - Verify "Yellow Network channel action" text is visible
 
-test('navigating to /session#addLiquidity shows liquidity view')
-  - Navigate to /session#addLiquidity
+test('navigating to /session?template=addLiquidity shows liquidity view')
+  - Navigate to /session?template=addLiquidity
   - Verify page title is "Add Liquidity"
 
-test('navigating to /session#removeLiquidity shows liquidity view')
-  - Navigate to /session#removeLiquidity
+test('navigating to /session?template=removeLiquidity shows liquidity view')
+  - Navigate to /session?template=removeLiquidity
   - Verify page title is "Remove Liquidity"
 
 test('compound hash routes to session with multiple actions')
-  - Navigate to /session#createChannel:{...}|addChannelMember:{...}
+  - Navigate to /session?actions=createChannel:{...}|addChannelMember:{...}
   - Verify the session page renders without error
 ```
 
@@ -286,7 +282,7 @@ test('sidebar Actions section lists all action links')
   - Verify sidebar contains: Transfer, Swap, Bridge, Add Liquidity,
     Remove Liquidity, Create Channel, Close Channel
   - Click "Create Channel" link
-  - Verify navigation to /session#createChannel
+  - Verify navigation to /session?template=createChannel
 
 test('home page lists updated action cards')
   - Navigate to /

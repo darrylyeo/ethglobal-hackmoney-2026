@@ -1,0 +1,17 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"command": "pnpm run dev",
+			"name": "Run development server",
+			"request": "launch",
+			"type": "node-terminal"
+		},
+		{
+			"command": "NODE_OPTIONS='--inspect' pnpm run dev",
+			"name": "Run dev (Chrome/Edge inspect)",
+			"request": "launch",
+			"type": "node-terminal"
+		}
+	]
+}

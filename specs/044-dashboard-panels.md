@@ -60,11 +60,11 @@ Add a `/dashboard` route that hosts a modular tiling panel system. When loaded n
 ## Navigation rules
 
 - Panels may render any existing SvelteKit route. If the route is `/dashboard`, the dashboard page detects it is embedded and renders a grid of links to all routes (not the panel tree), avoiding nested dashboards.
-- Each panel manages its own `hashHistory` of `#hash` strings.
+- Each panel manages its own `hashHistory` of `#hash` strings (legacy; session state now uses `page.state.sessionState`).
 - Internal anchor clicks inside a panel are intercepted and routed within that panel.
 - Modifier-click (Cmd/Ctrl) on an internal anchor opens the target route in a new split panel.
-- For hash-only updates, use `$app/navigation` shallow routing (`pushState`/`replaceState`) instead of `history.*` so SvelteKit state stays in sync.
-- When a panel is focused, its `hashHistory` is pushed onto the SvelteKit navigation stack as hash URLs (in order) via `pushState`.
+- For state updates without navigation, use SvelteKit shallow routing (`pushState`/`replaceState`) to store state in `page.state` (see https://svelte.dev/docs/kit/shallow-routing).
+- When a panel is focused, its `hashHistory` is pushed onto the SvelteKit navigation stack via `pushState` with `page.state.sessionState` containing the parsed session state (no hash in URL).
 - When a panel loses focus, all hash entries pushed for that panel are popped off the SvelteKit navigation stack.
 - Switching focus only changes the navigation stack to match the newly focused panel.
 - Full route changes for a panel use `goto()` with a pathname (and params resolved) to keep SvelteKit load behavior.
