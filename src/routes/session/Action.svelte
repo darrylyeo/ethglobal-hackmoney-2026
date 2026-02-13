@@ -1,16 +1,16 @@
 <script lang="ts">
 	// Types/constants
-	import type { Action } from '$/constants/actions.ts'
-	import type { SessionContext } from './session-context.ts'
 	import {
 		ActionType,
 		actionTypeDefinitionByActionType,
 		actionTypes,
+		mergeActionParams,
+		type Action,
 		type ActionParams,
 		type ActionTypeDefinition,
 		type LiquidityAction,
 	} from '$/constants/actions.ts'
-	import { mergeActionParams } from '$/lib/actions.ts'
+	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { protocolActions } from '$/constants/protocolActions.ts'
@@ -42,20 +42,23 @@
 	import { stringify } from '$/lib/stringify.ts'
 
 
-	// Context
-	import { getContext } from 'svelte'
-	import { SESSION_CONTEXT_KEY } from './session-context.ts'
-
-	const sessionCtx = getContext<SessionContext>(SESSION_CONTEXT_KEY)
-
-
 	// Props
 	let {
 		action = $bindable(),
-		actionIndex = 0,
+		indexInSequence = 0,
+		connectedWallets = [],
+		selectedActor = null,
+		selectedChainId = null,
+		isTestnet = false,
+		sessionId = '',
 	}: {
 		action: Action
-		actionIndex?: number
+		indexInSequence?: number
+		connectedWallets?: ConnectedWallet[]
+		selectedActor?: `0x${string}` | null
+		selectedChainId?: number | null
+		isTestnet?: boolean
+		sessionId?: string
 	} = $props()
 
 
@@ -63,12 +66,6 @@
 	let paramsByType = $state<Partial<Record<ActionType, Record<string, unknown>>>>(
 		{},
 	)
-	$effect(() => {
-		if (action == null) return
-		if (action.params == null) action = mergeActionParams(action as Action)
-		const t = action.type as ActionType
-		paramsByType[t] = { ...action.params } as Record<string, unknown>
-	})
 
 
 	// (Derived)
@@ -91,7 +88,7 @@
 			? getBridgeProtocolOptions(
 					bridgeParams.fromChainId ?? null,
 					bridgeParams.toChainId ?? null,
-					sessionCtx.isTestnet ?? false,
+					isTestnet ?? false,
 				)
 			: (protocolsForAction
 					.map((pa) => protocolsById[pa.id.protocol])
@@ -125,11 +122,10 @@
 			: null,
 	)
 	const paramsHash = $derived(stringify(action.params))
-	const sessionId = $derived(sessionCtx.sessionId ?? '')
 
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			sessionCtx.isTestnet
+			isTestnet
 				? n.type === NetworkType.Testnet
 				: n.type === NetworkType.Mainnet,
 		),
@@ -142,16 +138,11 @@
 	const isParamsValid = $derived.by(() => {
 		const def = actionTypeDefinitionByActionType[action.type as ActionType]
 		if (!def?.params) return false
-		try {
-			def.params.assert(action.params)
-			return true
-		} catch {
-			return false
-		}
+		return def.params.allows(action.params)
 	})
 
 	const signingPayloads = $derived(
-		resolveSigningPayloads(action, rpcUrls ?? {}, sessionCtx.selectedActor),
+		resolveSigningPayloads(action, rpcUrls ?? {}, selectedActor),
 	)
 	const proposedTransactionsHeading = $derived(
 		new Intl.PluralRules('en').select(signingPayloads.length) === 'one'
@@ -159,10 +150,13 @@
 			: 'Proposed Transactions',
 	)
 	const selectedConnection = $derived(
-		sessionCtx.connectedWallets.find((c) => c.connection.selected),
+		connectedWallets.find((c) => c.connection.selected),
 	)
 	const selectedConnectionSupportsSigning = $derived(
 		selectedConnection?.connection.transport === WalletConnectionTransport.Eip1193,
+	)
+	const actors = $derived(
+		connectedWallets.flatMap((c) => c.connection.actors ?? []),
 	)
 	const walletProvider = $derived(
 		selectedConnectionSupportsSigning && selectedConnection && 'provider' in selectedConnection.wallet
@@ -177,25 +171,22 @@
 
 
 	// Actions
-	const onActionTypeChange = (value: string | string[] | null) => {
+	const onActionTypeChange = (value: string | string[] | undefined) => {
 		if (typeof value !== 'string') return
 		const nextType = value as ActionType
+		paramsByType[action.type as ActionType] = {
+			...action.params,
+		} as Record<string, unknown>
 		const cached = paramsByType[nextType]
-		action = (
-			cached != null
-				? { type: nextType, params: cached, protocolAction: action.protocolAction, protocolSelection: undefined }
-				: {
-						type: nextType,
-						params: {
-							...actionTypeDefinitionByActionType[nextType].getDefaultParams(),
-						},
-						protocolAction: undefined,
-						protocolSelection: undefined,
-					}
-		) as Action
+		action = mergeActionParams({
+			type: nextType,
+			params: cached ?? {},
+			protocolAction: cached != null ? action.protocolAction : undefined,
+			protocolSelection: undefined,
+		} as Action) as Action
 	}
 
-	const onProtocolChange = (value: string | string[] | null) => {
+	const onProtocolChange = (value: string | string[] | undefined) => {
 		if (typeof value !== 'string' || value === '') {
 			action = {
 				...action,
@@ -262,7 +253,7 @@
 			const row: SessionActionTransactionSimulation = {
 				id,
 				sessionId,
-				actionIndex,
+				indexInSequence,
 				status,
 				createdAt: Date.now(),
 				paramsHash,
@@ -275,7 +266,7 @@
 			sessionActionTransactionSimulationsCollection.insert({
 				id,
 				sessionId,
-				actionIndex,
+				indexInSequence,
 				status: SessionActionSimulationStatus.Failed,
 				createdAt: Date.now(),
 				paramsHash,
@@ -316,7 +307,7 @@
 				sessionActionTransactionsCollection.insert({
 					id: globalThis.crypto?.randomUUID?.() ?? `tx-${Date.now()}`,
 					sessionId,
-					actionIndex,
+					indexInSequence,
 					txHash,
 					chainId: payload.chainId,
 					createdAt: Date.now(),
@@ -343,21 +334,24 @@
 </script>
 
 
-	<details>
-		<summary data-row="gap-2 justify-between">
-			<h3>
-				<Select
-					items={actionTypes as readonly ActionTypeDefinition[]}
-					getItemId={(item: ActionTypeDefinition) => item.type}
-					getItemLabel={(item: ActionTypeDefinition) => `${item.icon} ${item.label}`}
-					bind:value={() => actionTypeValue, onActionTypeChange}
-					placeholder="Select action"
-					ariaLabel="Action"
-				/>
-			</h3>
-		</summary>
+<details
+	data-card
+	open
+>
+	<summary data-row="gap-2 justify-between">
+		<h3>
+			<Select
+				items={actionTypes as readonly ActionTypeDefinition[]}
+				bind:value={() => activeSpec ?? undefined, (item) => onActionTypeChange(item ? item.type : undefined)}
+				getItemId={(item: ActionTypeDefinition) => item.type}
+				getItemLabel={(item: ActionTypeDefinition) => `${item.icon} ${item.label}`}
+				placeholder="Select action"
+				ariaLabel="Action"
+			/>
+		</h3>
+	</summary>
 
-		<div data-column="gap-4">
+	<div data-column="gap-4">
 		<form data-grid="columns-autofit column-min-16 gap-4" onsubmit={onSubmit}>
 			<section data-card data-column>
 				<h3>Parameters</h3>
@@ -376,6 +370,7 @@
 						{filteredNetworks}
 						{chainCoins}
 						{asNonEmptyCoins}
+						{actors}
 					/>
 				{:else if action.type === ActionType.AddLiquidity || action.type === ActionType.RemoveLiquidity || action.type === ActionType.CollectFees || action.type === ActionType.IncreaseLiquidity}
 					<AddLiquidityFieldset
@@ -395,10 +390,10 @@
 					options={protocolOptions}
 					value={protocolValue}
 					activeProtocolId={resolvedProtocol}
-					onSelect={(protocol) => onProtocolChange(protocol ?? null)}
+					onSelect={(protocol) => onProtocolChange(protocol ?? undefined)}
 				/>
 				{#if action.type === ActionType.Bridge}
-					<BridgeProtocolFieldset bind:action isTestnet={sessionCtx.isTestnet} />
+					<BridgeProtocolFieldset bind:action isTestnet={isTestnet} actors={actors} />
 				{/if}
 			</section>
 
@@ -408,7 +403,7 @@
 					params={action.params as ActionParams<ActionType.Swap>}
 					provider={provider ?? undefined}
 					strategy={protocolStrategy}
-					swapperAccount={sessionCtx.selectedActor}
+					swapperAccount={selectedActor}
 				/>
 			{/if}
 
@@ -448,10 +443,10 @@
 		{#if sessionId}
 			<div data-row="gap-4">
 				<div data-row-item="flexible">
-					<Simulations sessionId={sessionId} {actionIndex} />
+					<Simulations sessionId={sessionId} {indexInSequence} />
 				</div>
 				<div data-row-item="flexible">
-					<Transactions sessionId={sessionId} {actionIndex} />
+					<Transactions sessionId={sessionId} {indexInSequence} />
 				</div>
 			</div>
 		{/if}

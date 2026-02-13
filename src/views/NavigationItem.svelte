@@ -139,7 +139,7 @@
 		getChildren={treeGetChildren}
 		isOpen={treeIsOpen}
 		onOpenChange={treeOnOpenChange}
-		Content={navContent}
+		Content={NavContent}
 		listTag="menu"
 		listAttrs={{ 'data-column': 'gap-0' }}
 		detailsAttrs={{ 'data-sticky-container': '' }}
@@ -147,11 +147,11 @@
 	/>
 </search>
 
-{#snippet navContent({ node }: { node: NavigationItem })}
-	{@render linkable(node)}
+{#snippet NavContent({ node }: { node: NavigationItem })}
+	{@render Linkable(node)}
 {/snippet}
 
-{#snippet linkable(item: NavigationItem)}
+{#snippet Linkable(item: NavigationItem)}
 	{#if item.href}
 		<a
 			href={item.href}

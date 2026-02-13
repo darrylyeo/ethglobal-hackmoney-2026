@@ -2,7 +2,6 @@
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { VerificationStatus } from '$/data/Verification.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
@@ -53,22 +52,10 @@
 					.map((r) => r.row)
 					.filter((c) =>
 						c.actors.some(
-							(a) => a.toLowerCase() === normalizedAddress.toLowerCase(),
+							(a) => a === normalizedAddress,
 						),
 					)
 			: [],
-	)
-	const verificationsList = $derived(
-		(verificationsQuery.data ?? []).map((r) => r.row),
-	)
-	const autoWatched = $derived(
-		connectionsForAccount.some((c) => c.status === 'connected') ||
-			(normalizedAddress != null &&
-				verificationsList.some(
-					(v) =>
-						v.status === VerificationStatus.Verified &&
-						v.address.toLowerCase() === normalizedAddress.toLowerCase(),
-				)),
 	)
 	const idSerialized = $derived(parsed?.interopAddress ?? parsed?.address ?? '')
 	const metadata = $derived(
@@ -109,12 +96,16 @@
 	{:else}
 		<EntityView
 			entityType={EntityType.Actor}
+			entityId={{
+				$network: { chainId: (parsed.chainId ?? 1) as import('$/data/Network.ts').Network$Id['chainId'] },
+				address: parsed.address,
+				...(parsed.interopAddress != null ? { interopAddress: parsed.interopAddress } : {}),
+			}}
 			idSerialized={idSerialized}
 			href={resolve(`/account/${addressParam}`)}
 			label={formatAddress(parsed.address)}
 			{metadata}
 			annotation="Account"
-			{autoWatched}
 		>
 			{#snippet Title()}
 				<EvmActor

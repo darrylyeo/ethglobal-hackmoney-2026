@@ -44,30 +44,6 @@
 </script>
 
 
-{#snippet networkIcons()}
-	{#if value.length > 0}
-		<span data-row="start gap-2">
-			{#each value as chainIdStr (chainIdStr)}
-				{@const chainId = Number(chainIdStr)}
-				{#if !Number.isNaN(chainId)}
-					<span class="network-input-icon">
-						<NetworkIcon {chainId} />
-					</span>
-				{/if}
-			{/each}
-		</span>
-	{/if}
-{/snippet}
-
-{#snippet networkItem(network: Network, selected: boolean)}
-	<span data-row="start gap-2" data-selected={selected}>
-		<span class="network-input-icon">
-			<NetworkIcon chainId={network.id} />
-		</span>
-		<span>{network.name}</span>
-	</span>
-{/snippet}
-
 <ComboboxMultiple
 	{...rootProps}
 	{items}
@@ -84,9 +60,30 @@
 		itemsWithGroup.find((x) => x.item.id === n.id)?.groupId ?? ''
 	}
 	getGroupLabel={(id) => groupLabelById[id] ?? id}
-	Before={networkIcons}
-	Item={networkItem}
-/>
+>
+	{#snippet Before()}
+		{#if value.length > 0}
+			<span data-row="start gap-2">
+				{#each value as chainIdStr (chainIdStr)}
+					{@const chainId = Number(chainIdStr)}
+					{#if !Number.isNaN(chainId)}
+						<span class="network-input-icon">
+							<NetworkIcon {chainId} />
+						</span>
+					{/if}
+				{/each}
+			</span>
+		{/if}
+	{/snippet}
+	{#snippet Item(network, selected)}
+		<span data-row="start gap-2" data-selected={selected}>
+			<span class="network-input-icon">
+				<NetworkIcon chainId={network.id} />
+			</span>
+			<span>{network.name}</span>
+		</span>
+	{/snippet}
+</ComboboxMultiple>
 
 
 <style>

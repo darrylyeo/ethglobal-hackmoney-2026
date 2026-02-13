@@ -2780,7 +2780,7 @@
 							placeholder="Filter by type…"
 							aria-label="Visible entity types"
 						>
-							{#snippet Item(item: LegendEntityTypeItem, selected: boolean)}
+							{#snippet Item(item, selected)}
 								<span
 									data-row="gap-2 align-center"
 									style="--color: {item.color}"

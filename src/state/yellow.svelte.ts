@@ -20,6 +20,7 @@ import {
 
 
 // Functions
+import { normalizeAddress } from '$/lib/address.ts'
 import {
 	connectClearnode,
 	getAvailableBalance,
@@ -66,11 +67,11 @@ function normalizeChannelFromMessage(params: unknown): StateChannelRow | null {
 	const chainId = typeof p.chainId === 'number' ? p.chainId : 0
 	const participant0 =
 		typeof p.participant0 === 'string' && p.participant0.startsWith('0x')
-			? (p.participant0 as `0x${string}`)
+			? (normalizeAddress(p.participant0 as `0x${string}`) ?? (p.participant0 as `0x${string}`))
 			: null
 	const participant1 =
 		typeof p.participant1 === 'string' && p.participant1.startsWith('0x')
-			? (p.participant1 as `0x${string}`)
+			? (normalizeAddress(p.participant1 as `0x${string}`) ?? (p.participant1 as `0x${string}`))
 			: null
 	const asset =
 		typeof p.asset === 'string' && p.asset.startsWith('0x')

@@ -1,6 +1,5 @@
 <script lang="ts" generics="Item extends { address: `0x${string}` }">
 	// Types/constants
-	import type { Snippet } from 'svelte'
 	import type { Network$Id } from '$/data/Network.ts'
 	import { PatternType } from '$/constants/patterns.ts'
 	import { resolveIdentity } from '$/api/identity-resolve.ts'
@@ -23,7 +22,6 @@
 		network = 1 as Network$Id,
 		getItemId = (item: Item) => item.address,
 		getItemLabel = (item: Item) => item.address,
-		Item: ItemSnippet,
 		...rootProps
 	}: {
 		items: readonly Item[]
@@ -36,7 +34,6 @@
 		network?: Network$Id
 		getItemId?: (item: Item) => string
 		getItemLabel?: (item: Item) => string
-		Item?: Snippet<[item: Item, selected: boolean]>
 		[key: string]: unknown
 	} = $props()
 
@@ -46,9 +43,13 @@
 
 
 	// (Derived)
-	const addressStr = $derived(value ?? '')
-	const setAddressStr = (v: string) => {
-		value = v ? (v as `0x${string}`) : null
+	const selectedItem = $derived(
+		value ?
+			(items.find((i) => i.address === value) ?? ({ address: value } as Item))
+		:	null,
+	)
+	const setSelectedItem = (item: Item | null | undefined) => {
+		value = item ? item.address : null
 	}
 
 
@@ -59,7 +60,7 @@
 		const { kind, normalized } = normalizeIdentity(raw)
 		if (kind === IdentityInputKind.Address && isValidAddress(normalized)) {
 			const addr = normalizeAddress(normalized)
-			if (addr) setAddressStr(addr)
+			if (addr) setSelectedItem({ address: addr } as Item)
 			return
 		}
 		if (kind === IdentityInputKind.EnsName) {
@@ -67,7 +68,7 @@
 			if (!url) return
 			const provider = createHttpProvider(url)
 			resolveIdentity(provider, network, raw, null).then((res) => {
-				if (res.address) setAddressStr(res.address)
+				if (res.address) setSelectedItem({ address: res.address } as Item)
 			})
 		}
 	}
@@ -80,23 +81,10 @@
 </script>
 
 
-	{#snippet defaultItem(item: Item, selected: boolean)}
-		<span data-row="start gap-0" data-selected={selected}>
-			<Address {network} address={item.address} />
-		</span>
-	{/snippet}
-
-{#snippet customInput(props: Record<string, unknown>)}
-	<PatternInput
-		patternTypes={[PatternType.EvmAddress, PatternType.EnsName]}
-		{...props}
-	/>
-{/snippet}
-
 <Combobox
 	{...rootProps}
 	{items}
-	bind:value={() => addressStr, setAddressStr}
+	bind:value={() => selectedItem ?? undefined, (item) => setSelectedItem(item)}
 	bind:inputValue
 	{getItemId}
 	{getItemLabel}
@@ -110,6 +98,17 @@
 	onInputKeydown={(e) => {
 		if (e.key === 'Enter') tryCommitCustomInput()
 	}}
-	Item={ItemSnippet ?? defaultItem}
-	Input={customInput}
-/>
+>
+	{#snippet Item(item, selected)}
+		<span data-row="start gap-0" data-selected={selected}>
+			<Address {network} address={item.address} isLinked={false} />
+		</span>
+	{/snippet}
+
+	{#snippet Input(props)}
+		<PatternInput
+			patternTypes={[PatternType.EvmAddress, PatternType.EnsName]}
+			{...props}
+		/>
+	{/snippet}
+</Combobox>

@@ -59,9 +59,7 @@
 					.map((r) => r.row)
 					.filter((c) =>
 						c.actors.some((a) =>
-							actors.some(
-								(addr) => a.toLowerCase() === addr.toLowerCase(),
-							),
+							actors.some((addr) => a === addr),
 						),
 					),
 	)

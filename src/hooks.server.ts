@@ -1,4 +1,7 @@
 import { type Handle, error } from '@sveltejs/kit'
+import { installPolyfills } from '@sveltejs/kit/node/polyfills'
+
+installPolyfills()
 
 const PROXY_PATH = '/api-proxy/'
 

@@ -26,9 +26,7 @@
 
 
 	// (Derived)
-	const addressNorm = $derived(
-		selectedActor?.toLowerCase() as `0x${string}` | null,
-	)
+	const addressNorm = $derived(selectedActor ?? null)
 	const contractsQuery = useLiveQuery(
 		(q) =>
 			addressNorm

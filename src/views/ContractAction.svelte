@@ -107,7 +107,7 @@
 		...queries,
 		...actions,
 	])
-	let selectedMethod = $state<AbiFn | null>(null)
+	let selectedMethod = $state<AbiFn | undefined>(undefined)
 	$effect(() => {
 		const methods = allMethods
 		if (methods.length > 0 && !selectedMethod)
@@ -116,14 +116,8 @@
 			selectedMethod &&
 			!methods.some((m) => m.name === selectedMethod!.name)
 		)
-			selectedMethod = (methods[0] as AbiFn) ?? null
+			selectedMethod = (methods[0] as AbiFn) ?? undefined
 	})
-	const methodValue = $derived(selectedMethod?.name ?? '')
-	const onMethodChange = (v: string | string[] | null) => {
-		if (typeof v !== 'string') return
-		const m = allMethods.find((x) => x.name === v)
-		if (m) selectedMethod = m as AbiFn
-	}
 	let inputValues = $state<Record<string, string>>({})
 	let payableValue = $state(0n)
 	let queryResult = $state<unknown[] | string | null>(null)
@@ -254,10 +248,10 @@
 			<h4>Method</h4>
 			<Select
 				items={methodItems}
+				bind:value={selectedMethod}
 				getItemId={(m: AbiFn) => m.name}
 				getItemLabel={(m: AbiFn) => m.name}
 				getItemGroupId={getItemGroupId}
-				bind:value={() => methodValue, onMethodChange}
 				placeholder="Select method"
 				ariaLabel="Method"
 			/>

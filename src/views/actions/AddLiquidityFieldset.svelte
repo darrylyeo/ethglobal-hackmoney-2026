@@ -3,6 +3,7 @@
 	import { ActionType, type ActionParams, type LiquidityAction } from '$/constants/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import type { Network } from '$/constants/networks.ts'
+	import { liquidityFeeTierPresets } from '$/constants/uniswap.ts'
 
 
 	// Props
@@ -20,13 +21,16 @@
 
 
 	// (Derived)
-	const p: ActionParams<ActionType.AddLiquidity> = $derived.by(() => action.params)
+	const getParams = (a: LiquidityAction): ActionParams<ActionType.AddLiquidity> =>
+		a.params as ActionParams<ActionType.AddLiquidity>
+	const p: ActionParams<ActionType.AddLiquidity> = $derived(getParams(action))
 	const coins = $derived(chainCoins(p.chainId))
-	const token0Coin = $derived(coins.find((c) => c.address.toLowerCase() === p.token0.toLowerCase()) ?? coins[0])
-	const token1Coin = $derived(coins.find((c) => c.address.toLowerCase() === p.token1.toLowerCase()) ?? (coins[1] ?? coins[0]))
+	const token0Coin = $derived(coins.find((c) => c.address === p.token0) ?? coins[0])
+	const token1Coin = $derived(coins.find((c) => c.address === p.token1) ?? (coins[1] ?? coins[0]))
 
 
 	// Components
+	import Select from '$/components/Select.svelte'
 	import CoinInput from '$/views/CoinInput.svelte'
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
@@ -65,8 +69,17 @@
 				/>
 			</label>
 			<label data-column="gap-2">
-				<span>Fee tier (bps)</span>
-				<input type="number" bind:value={p.fee} />
+				<span>Fee tier</span>
+				<Select
+					items={liquidityFeeTierPresets}
+					bind:value={() => liquidityFeeTierPresets.find((x) => x.value === p.fee) ?? undefined, (preset) => {
+						if (preset) action = { ...action, params: { ...action.params, fee: preset.value } }
+					}}
+					getItemId={(x) => x.id}
+					getItemLabel={(x) => x.label}
+					placeholder={liquidityFeeTierPresets.find((x) => x.value === p.fee)?.label ?? ''}
+					ariaLabel="Fee tier"
+				/>
 			</label>
 			<label data-column="gap-2">
 				<span>Amount 0</span>

@@ -43,17 +43,30 @@
 	} from '$/lib/format.ts'
 
 
+	// State
+	let focused = $state(false)
+	let displayValue = $state('')
+
+	// (Derived)
+	$effect(() => {
+		if (!focused) displayValue = value === 0n ? '' : formatSmallestToDecimal(value, coin.decimals)
+	})
+
+
 	// Actions
 	const setAmountFromInput = (raw: string) => {
 		const cleaned = raw.replace(/[^0-9.,]/g, '').replace(/,/g, '')
-		if (cleaned === '') {
+		const [intPart = '', fracPart = ''] = cleaned.split('.')
+		const truncated = fracPart === '' ? intPart : `${intPart}.${fracPart.slice(0, coin.decimals)}`
+		displayValue = truncated
+		if (truncated === '') {
 			isInvalid = false
 			value = 0n
 			return
 		}
-		if (isValidDecimalInput(cleaned, coin.decimals)) {
+		if (isValidDecimalInput(truncated, coin.decimals)) {
 			isInvalid = false
-			value = parseDecimalToSmallest(cleaned, coin.decimals)
+			value = parseDecimalToSmallest(truncated, coin.decimals)
 			return
 		}
 		isInvalid = true
@@ -70,6 +83,7 @@
 	<input
 		{id}
 		class="token-amount-input"
+		data-text="monospace"
 		type="text"
 		inputmode="decimal"
 		{placeholder}
@@ -78,7 +92,9 @@
 		aria-label={ariaLabel}
 		aria-describedby={ariaDescribedby}
 		aria-invalid={ariaInvalid}
-		bind:value={() =>
-			value === 0n ? '' : formatSmallestToDecimal(value, coin.decimals), setAmountFromInput}
+		bind:value={displayValue}
+		oninput={(e) => setAmountFromInput(e.currentTarget.value)}
+		onfocus={() => (focused = true)}
+		onblur={() => (focused = false)}
 	/>
 </div>

@@ -9,7 +9,7 @@
 	// Props
 	let {
 		coins,
-		value = $bindable(coins[0]),
+		value = $bindable(),
 		placeholder = 'Select token',
 		showNetworksAndProtocols = false,
 		disabled,
@@ -19,7 +19,7 @@
 		...rootProps
 	}: {
 		coins: readonly [Coin, ...Coin[]]
-		value?: Coin | null
+		value?: Coin | undefined
 		placeholder?: string
 		showNetworksAndProtocols?: boolean
 		disabled?: boolean
@@ -37,7 +37,7 @@
 	// Functions
 	const toCoinId = (coin: Coin) =>
 		`${coin.chainId}-${coin.type}-${
-			coin.type === CoinType.Native ? 'native' : coin.address.toLowerCase()
+			coin.type === CoinType.Native ? 'native' : coin.address
 		}`
 	const coinIconUrl = (coin: Coin) =>
 		iconUrls[coin.symbol] ??
@@ -67,70 +67,62 @@
 </script>
 
 
-{#snippet selectedCoinIcon()}
-	{#if value}
-		{@const iconUrl = coinIconUrl(value)}
-		{#if iconUrl}
-			<span class="coin-input-icon">
-				<CoinIcon
-					src={iconUrl}
-					symbol={value.symbol}
-					alt={value.symbol}
-				/>
-			</span>
-		{:else}
-			<span class="coin-input-placeholder" aria-hidden="true"></span>
-		{/if}
-	{/if}
-{/snippet}
-
-{#snippet coinItem(coin: Coin, selected: boolean)}
-	{@const iconUrl = coinIconUrl(coin)}
-	<span data-row="start gap-2" class="coin-input-item" data-selected={selected}>
-		{#if iconUrl}
-			<span class="coin-input-icon">
-				<CoinIcon
-					src={iconUrl}
-					symbol={coin.symbol}
-					alt={coin.symbol}
-				/>
-			</span>
-		{:else}
-			<span class="coin-input-placeholder" aria-hidden="true"></span>
-		{/if}
-		<span>{coin.symbol}</span>
-		{#if coin.name}
-			<span data-text="muted">{coin.name}</span>
-		{/if}
-		{#if showNetworksAndProtocols}
-			<small data-text="muted">
-				{networksByChainId[coin.chainId]?.name ?? `Chain ${coin.chainId}`}
-				·
-				{coin.type === CoinType.Native ? 'Native' : 'ERC-20'}
-			</small>
-		{/if}
-	</span>
-{/snippet}
-
 <Select
 	{...rootProps}
 	items={coins}
-	bind:value={() =>
-		value ? toCoinId(value) : '', (nextValue: string | string[]) =>
-		(value =
-			typeof nextValue === 'string'
-				? (coins.find((coin) => toCoinId(coin) === nextValue) ?? null)
-				: null)}
+	bind:value
+	getItemId={toCoinId}
+	getItemLabel={(coin) => coin.symbol}
 	{placeholder}
 	{disabled}
 	{name}
 	{id}
 	{ariaLabel}
-	getItemId={toCoinId}
-	getItemLabel={(coin) => coin.symbol}
-	Before={selectedCoinIcon}
-	Item={coinItem}
-></Select>
+>
+	{#snippet Before()}
+		{#if value}
+			{@const iconUrl = coinIconUrl(value)}
+			{#if iconUrl}
+				<span class="coin-input-icon">
+					<CoinIcon
+						src={iconUrl}
+						symbol={value.symbol}
+						alt={value.symbol}
+					/>
+				</span>
+			{:else}
+				<span class="coin-input-placeholder" aria-hidden="true"></span>
+			{/if}
+		{/if}
+	{/snippet}
+	{#snippet Item(coin, selected)}
+		{@const iconUrl = coinIconUrl(coin)}
+		<span data-row="start gap-2" class="coin-input-item" data-selected={selected}>
+			{#if iconUrl}
+				<span class="coin-input-icon">
+					<CoinIcon
+						src={iconUrl}
+						symbol={coin.symbol}
+						alt={coin.symbol}
+					/>
+				</span>
+			{:else}
+				<span class="coin-input-placeholder" aria-hidden="true"></span>
+			{/if}
+			<span>{coin.symbol}</span>
+			{#if coin.name}
+				<span data-text="muted">{coin.name}</span>
+			{/if}
+			{#if showNetworksAndProtocols}
+				<small data-text="muted">
+					{networksByChainId[coin.chainId]?.name ?? `Chain ${coin.chainId}`}
+					·
+					{coin.type === CoinType.Native ? 'Native' : 'ERC-20'}
+				</small>
+			{/if}
+		</span>
+	{/snippet}
+</Select>
 
 
 <style>

@@ -32,7 +32,7 @@ test.describe('Simulation (session transfer)', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/session#/Bridge')
+		await page.goto('/session?template=Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 30_000 })
 		await expect(
 			page.getByRole('heading', { name: 'USDC Bridge', level: 1 }),
@@ -67,7 +67,7 @@ test.describe('Simulation (session transfer)', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/session#/Bridge')
+		await page.goto('/session?template=Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 30_000 })
 		await expect(
 			page.getByRole('heading', { name: 'USDC Bridge', level: 1 }),

@@ -189,7 +189,7 @@
 			? (balancesQuery.data ?? [])
 					.map((r) => r.row)
 					.filter(
-						(b) => b.$id.$actor.address.toLowerCase() === selectedActor.toLowerCase(),
+						(b) => b.$id.$actor.address === selectedActor,
 					)
 			: [],
 	)
@@ -198,8 +198,7 @@
 			? (balances.find(
 					(b) =>
 						b.$id.$actor.$network.chainId === fromNetwork.id &&
-						b.$id.$coin.address.toLowerCase() ===
-							getUsdcAddress(fromNetwork.id).toLowerCase(),
+						b.$id.$coin.address === getUsdcAddress(fromNetwork.id),
 				)?.balance ?? null)
 			: null,
 	)
@@ -256,11 +255,11 @@
 			null,
 	)
 
-	const approvalAddress = $derived(
-		selectedRoute?.originalRoute?.steps?.[0]?.estimate?.approvalAddress as
-			| `0x${string}`
-			| undefined,
-	)
+	const approvalAddress = $derived.by(() => {
+		const raw = selectedRoute?.originalRoute?.steps?.[0]?.estimate
+			?.approvalAddress as `0x${string}` | undefined
+		return raw ? (normalizeAddress(raw) ?? raw) : undefined
+	})
 	const needsApproval = $derived(
 		E2E_TEVM_ENABLED
 			? false
@@ -273,12 +272,10 @@
 			? (allowancesQuery.data?.find(
 					(r) =>
 						r.row.$id.$actorCoin.$actor.$network.chainId === fromNetwork.id &&
-						r.row.$id.$actorCoin.$actor.address.toLowerCase() ===
-							selectedActor.toLowerCase() &&
-						r.row.$id.$actorCoin.$coin.address.toLowerCase() ===
-							getUsdcAddress(fromNetwork.id).toLowerCase() &&
-						r.row.$id.$spender.address.toLowerCase() ===
-							approvalAddress.toLowerCase(),
+						r.row.$id.$actorCoin.$actor.address === selectedActor &&
+						r.row.$id.$actorCoin.$coin.address ===
+							getUsdcAddress(fromNetwork.id) &&
+						r.row.$id.$spender.address === approvalAddress,
 				)?.row.allowance ?? 0n)
 			: 0n,
 	)
@@ -312,7 +309,7 @@
 		(txQuery.data ?? [])
 			.map((r) => r.row)
 			.filter(
-				(tx) => tx.$id.address.toLowerCase() === selectedActor?.toLowerCase(),
+				(tx) => selectedActor != null && tx.$id.address === selectedActor,
 			)
 			.slice(0, 50),
 	)
@@ -615,7 +612,7 @@
 				</Popover.Content>
 			</Popover.Root>
 
-			{#snippet bridgeSummary()}
+			{#snippet BridgeSummary()}
 				<dl class="summary">
 					<dt>You send</dt>
 					<dd>
@@ -634,7 +631,7 @@
 				</dl>
 			{/snippet}
 
-			{#snippet bridgeDetails(_tx: unknown, _state: unknown)}
+			{#snippet BridgeDetails(_tx: unknown, _state: unknown)}
 				{#if needsApproval && !approved && selectedWalletProvider && selectedActor}
 					<TokenApproval
 						chainId={fromNetwork.id}
@@ -663,7 +660,7 @@
 				{/if}
 			{/snippet}
 
-			{#snippet bridgeConfirmation(_tx: unknown, _state: unknown)}
+			{#snippet BridgeConfirmation(_tx: unknown, _state: unknown)}
 				<dl class="summary">
 					<dt>From</dt>
 					<dd>
@@ -721,7 +718,7 @@
 			<TransactionFlow
 				walletConnection={selectedWallet}
 				{onExecutionSuccess}
-				Summary={bridgeSummary}
+				Summary={BridgeSummary}
 				transactions={[
 					{
 						id: selectedRoute.id,
@@ -740,8 +737,8 @@
 							executeFunction ? executeFunction() : Promise.resolve(),
 						requiresConfirmation: true,
 						confirmationLabel: 'I understand this transaction is irreversible',
-						Details: bridgeDetails,
-						Confirmation: bridgeConfirmation,
+						Details: BridgeDetails,
+						Confirmation: BridgeConfirmation,
 					},
 				]}
 			/>

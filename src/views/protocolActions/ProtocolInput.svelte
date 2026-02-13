@@ -41,8 +41,6 @@
 
 {#if options.length === 0}
 	<p data-text="muted">No protocol for this action</p>
-{:else if options.length === 1}
-	<p data-text="muted">Using {options[0].label}</p>
 {:else}
 	<div data-column="gap-2">
 		<div class="protocol-row" data-card="radius-6 padding-3" data-row="gap-2 align-center">
@@ -50,7 +48,7 @@
 			<Select
 				items={strategyOptions}
 				getItemId={(s: ProtocolStrategy) => s}
-				getItemLabel={(s: ProtocolStrategy) => labelByProtocolStrategy[s]}
+				getItemLabel={(s: ProtocolStrategy) => labelByProtocolStrategy[s] ?? s}
 				bind:value={() => strategyValue, (v: string | string[]) => onSelect((typeof v === 'string' ? v : v?.[0] ?? '') || null)}
 				placeholder="Select strategy"
 				allowDeselect

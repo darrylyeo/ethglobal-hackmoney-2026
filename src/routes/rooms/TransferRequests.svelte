@@ -186,6 +186,7 @@
 
 		<input
 			type="text"
+			data-text="monospace"
 			placeholder="Amount (USDC)"
 			bind:value={amount}
 			inputmode="decimal"

@@ -14,9 +14,11 @@
 	let {
 		action = $bindable(),
 		isTestnet = false,
+		actors = [],
 	}: {
 		action: Action
 		isTestnet?: boolean
+		actors?: readonly `0x${string}`[]
 	} = $props()
 
 
@@ -66,7 +68,7 @@
 		{:else if activeProtocol === BridgeProtocolId.Lifi}
 			<LifiBridgeSettingsFieldset bind:action />
 		{:else if activeProtocol === BridgeProtocolId.Gateway}
-			<GatewayBridgeSettingsFieldset bind:action />
+			<GatewayBridgeSettingsFieldset bind:action actors={actors} network={fromChainId ?? undefined} />
 		{:else if fromChainId !== null && toChainId !== null}
 			<p data-error>This chain pair is not supported by CCTP, LI.FI, or Gateway.</p>
 		{/if}

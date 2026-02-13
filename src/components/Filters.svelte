@@ -145,10 +145,10 @@
 	}
 	const setSingleGroupValue = (
 		groupFilters: Set<Filter<_Item, _FilterId>>,
-		value: Filter<_Item, _FilterId> | null,
+		value: Filter<_Item, _FilterId> | undefined,
 	) => {
 		activeFilters = (
-			value === null
+			value === undefined
 				? setDifference(activeFilters, groupFilters)
 				: setUnion(
 					setDifference(activeFilters, groupFilters),
@@ -268,16 +268,16 @@
 			{:else if group.exclusive}
 				{#if (group.displayType ?? FilterDisplayType.Options) === FilterDisplayType.Select}
 					<Select
+						items={visibleFilters}
 						bind:value={
 							() => (
-								getGroupValues(activeFilters, filters)[0] ?? null
+								getGroupValues(activeFilters, filters)[0] ?? undefined
 							),
 							(filter) => setSingleGroupValue(filters, filter)
 						}
-						items={visibleFilters}
 						getItemId={getFilterId}
 						getItemLabel={getFilterLabel}
-						ariaLabel={`Filter by ${group.label.toLowerCase()}`}
+						ariaLabel={`Filter by ${(group.label ?? '').toLowerCase()}`}
 					>
 						{#snippet Item(filter)}
 							{@const count = (
@@ -302,17 +302,17 @@
 					</Select>
 				{:else if (group.displayType ?? FilterDisplayType.Options) === FilterDisplayType.Combobox}
 					<Combobox
+						items={visibleFilters}
 						bind:value={
 							() => (
-								getGroupValues(activeFilters, filters)[0] ?? null
+								getGroupValues(activeFilters, filters)[0] ?? undefined
 							),
 							(filter) => setSingleGroupValue(filters, filter)
 						}
-						items={visibleFilters}
 						getItemId={getFilterId}
 						getItemLabel={getFilterLabel}
 						placeholder={group.label}
-						ariaLabel={`Filter by ${group.label.toLowerCase()}`}
+						ariaLabel={`Filter by ${(group.label ?? '').toLowerCase()}`}
 					>
 						{#snippet Item(filter)}
 							{@const count = (
@@ -336,7 +336,7 @@
 						{/snippet}
 					</Combobox>
 				{:else}
-					{@const activeFilter = [...activeFilters].find((filter) => filters.has(filter)) ?? null}
+					{@const activeFilter = [...activeFilters].find((filter) => filters.has(filter)) ?? undefined}
 					<div class="group" data-column="gap-1">
 						{#each visibleFilters as filter (filter.id)}
 							{@const count = (
@@ -383,16 +383,16 @@
 			{:else}
 				{#if (group.displayType ?? FilterDisplayType.Options) === FilterDisplayType.Select}
 					<SelectMultiple
+						items={visibleFilters}
 						bind:value={
 							() => (
 								getGroupValues(activeFilters, filters)
 							),
 							(filtersValue) => setGroupValues(filters, filtersValue)
 						}
-						items={visibleFilters}
 						getItemId={getFilterId}
 						getItemLabel={getFilterLabel}
-						ariaLabel={`Filter by ${group.label.toLowerCase()}`}
+						ariaLabel={`Filter by ${(group.label ?? '').toLowerCase()}`}
 					>
 						{#snippet Item(filter)}
 							{@const count = (
@@ -417,17 +417,17 @@
 					</SelectMultiple>
 				{:else if (group.displayType ?? FilterDisplayType.Options) === FilterDisplayType.Combobox}
 					<ComboboxMultiple
+						items={visibleFilters}
 						bind:value={
 							() => (
 								getGroupValues(activeFilters, filters)
 							),
 							(filtersValue) => setGroupValues(filters, filtersValue)
 						}
-						items={visibleFilters}
 						getItemId={getFilterId}
 						getItemLabel={getFilterLabel}
 						placeholder={group.label}
-						ariaLabel={`Filter by ${group.label.toLowerCase()}`}
+						ariaLabel={`Filter by ${(group.label ?? '').toLowerCase()}`}
 					>
 						{#snippet Item(filter)}
 							{@const count = (

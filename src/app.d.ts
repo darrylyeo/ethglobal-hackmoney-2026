@@ -7,8 +7,18 @@ declare global {
 		// interface PageData {}
 		interface PageState {
 			panelId?: string
-			hash?: string | null
-			route?: string,
+			route?: string
+			sessionState?:
+				| { kind: 'empty' }
+				| { kind: 'session'; sessionId: string }
+				| {
+						kind: 'actions'
+						actions: {
+							action: string
+							params: Record<string, unknown> | null
+						}[]
+				  }
+				| null
 		}
 		// interface Platform {}
 	}

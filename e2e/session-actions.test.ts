@@ -14,7 +14,7 @@ test.describe('Session action routing', () => {
 	test('session#createChannel renders Create Channel heading', async ({
 		page,
 	}) => {
-		await page.goto('/session#/createChannel')
+		await page.goto('/session?template=createChannel')
 		await waitForMain(page)
 		await expect(
 			page.getByRole('heading', { name: 'Create Channel', level: 1 }),
@@ -25,7 +25,7 @@ test.describe('Session action routing', () => {
 	test('session#addChannelMember renders Add Member heading', async ({
 		page,
 	}) => {
-		await page.goto('/session#/addChannelMember')
+		await page.goto('/session?template=addChannelMember')
 		await waitForMain(page)
 		await expect(
 			page.getByRole('heading', { name: 'Add Member', level: 1 }),
@@ -36,7 +36,7 @@ test.describe('Session action routing', () => {
 	test('session#closeChannel renders Close Channel heading', async ({
 		page,
 	}) => {
-		await page.goto('/session#/closeChannel')
+		await page.goto('/session?template=closeChannel')
 		await waitForMain(page)
 		await expect(
 			page.getByRole('heading', { name: 'Close Channel', level: 1 }),
@@ -45,7 +45,7 @@ test.describe('Session action routing', () => {
 	})
 
 	test('session#addLiquidity renders liquidity view', async ({ page }) => {
-		await page.goto('/session#/addLiquidity')
+		await page.goto('/session?template=addLiquidity')
 		await waitForMain(page)
 		await expect(
 			page.getByRole('heading', { level: 1 }).first(),
@@ -53,7 +53,7 @@ test.describe('Session action routing', () => {
 	})
 
 	test('session#removeLiquidity renders liquidity view', async ({ page }) => {
-		await page.goto('/session#/removeLiquidity')
+		await page.goto('/session?template=removeLiquidity')
 		await waitForMain(page)
 		await expect(
 			page.getByRole('heading', { level: 1 }).first(),
@@ -61,7 +61,7 @@ test.describe('Session action routing', () => {
 	})
 
 	test('session#collectFees renders liquidity view', async ({ page }) => {
-		await page.goto('/session#/collectFees')
+		await page.goto('/session?template=collectFees')
 		await waitForMain(page)
 		await expect(
 			page.getByRole('heading', { level: 1 }).first(),
@@ -69,7 +69,7 @@ test.describe('Session action routing', () => {
 	})
 
 	test('session#increaseLiquidity renders liquidity view', async ({ page }) => {
-		await page.goto('/session#/increaseLiquidity')
+		await page.goto('/session?template=increaseLiquidity')
 		await waitForMain(page)
 		await expect(
 			page.getByRole('heading', { level: 1 }).first(),
@@ -79,7 +79,7 @@ test.describe('Session action routing', () => {
 	test('session#shareAddress renders Share Address heading', async ({
 		page,
 	}) => {
-		await page.goto('/session#/shareAddress')
+		await page.goto('/session?template=shareAddress')
 		await waitForMain(page)
 		await expect(
 			page.getByRole('heading', { name: 'Share Address', level: 1 }),
@@ -90,7 +90,7 @@ test.describe('Session action routing', () => {
 	test('session#proposeTransfer renders Propose Transfer heading', async ({
 		page,
 	}) => {
-		await page.goto('/session#/proposeTransfer')
+		await page.goto('/session?template=proposeTransfer')
 		await waitForMain(page)
 		await expect(
 			page.getByRole('heading', { name: 'Propose Transfer', level: 1 }),
@@ -101,7 +101,7 @@ test.describe('Session action routing', () => {
 	test('session#requestVerification renders Request Verification heading', async ({
 		page,
 	}) => {
-		await page.goto('/session#/requestVerification')
+		await page.goto('/session?template=requestVerification')
 		await waitForMain(page)
 		await expect(
 			page.getByRole('heading', { name: 'Request Verification', level: 1 }),
@@ -113,7 +113,7 @@ test.describe('Session action routing', () => {
 		page,
 	}) => {
 		await page.goto(
-			'/session#/createChannel:%7B%22actor%22%3A%7B%7D%7D|addChannelMember:%7B%22actor%22%3A%7B%7D%7D',
+			'/session?actions=createChannel%3A%7B%22actor%22%3A%7B%7D%7D%7CaddChannelMember%3A%7B%22actor%22%3A%7B%7D%7D',
 		)
 		await waitForMain(page)
 		await expect(
@@ -121,14 +121,13 @@ test.describe('Session action routing', () => {
 		).toBeVisible({ timeout: 20_000 })
 	})
 
-	test('session with unsupported hash shows fallback', async ({ page }) => {
-		await page.goto('/session#/unknownAction')
+	test('session with unsupported template shows default Swap fallback', async ({
+		page,
+	}) => {
+		await page.goto('/session?template=unknownAction')
 		await waitForMain(page)
 		await expect(
-			page.getByRole('heading', { name: 'Session' }),
-		).toBeVisible()
-		await expect(
-			page.getByText('Unsupported session action.'),
+			page.getByRole('heading', { name: 'Swap', level: 1 }),
 		).toBeVisible()
 	})
 })

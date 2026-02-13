@@ -20,7 +20,7 @@
 
 	let activeProfile = $state(getActiveProfile())
 	let profiles = $state(listProfiles())
-	let editingId: string | null = $state(null)
+	let editingId: string | undefined = $state(undefined)
 	let editingName = $state('')
 
 	const refresh = () => {
@@ -61,7 +61,7 @@
 			updateProfile(editingId, { name: editingName.trim() })
 			refresh()
 		}
-		editingId = null
+		editingId = undefined
 	}
 
 
@@ -108,7 +108,7 @@
 								onblur={finishEditing}
 								onkeydown={(e) => {
 									if (e.key === 'Enter') finishEditing()
-									if (e.key === 'Escape') { editingId = null }
+									if (e.key === 'Escape') { editingId = undefined }
 								}}
 								onclick={(e) => e.stopPropagation()}
 								autofocus

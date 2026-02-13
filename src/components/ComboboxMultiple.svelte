@@ -3,44 +3,58 @@
 	import { stringify } from 'devalue'
 	import type { Snippet } from 'svelte'
 
+
+	// IDs
+	const _id = $props.id()
+
+
 	// Props
 	let {
 		items,
 		value = $bindable([] as _Item[]),
-		placeholder,
-		disabled,
-		name,
-		id,
-		ariaLabel,
 		getItemId = stringify,
 		getItemLabel = getItemId,
 		getItemDisabled,
 		getItemGroupId,
 		getGroupLabel = (groupId: string) => groupId,
+
 		Before,
 		After,
 		Item: ItemSnippet,
 		children,
+
+		placeholder,
+		disabled,
+		name,
+		id,
+		ariaLabel,
+
 		inputValue = $bindable(''),
+
 		...rootProps
 	}: {
 		items: readonly _Item[]
 		value?: _Item[]
-		placeholder?: string
-		disabled?: boolean
-		name?: string
-		id?: string
-		ariaLabel?: string
+
 		getItemId?: (item: _Item) => string
 		getItemLabel?: (item: _Item) => string
 		getItemDisabled?: (item: _Item) => boolean
 		getItemGroupId?: (item: _Item) => string
 		getGroupLabel?: (groupId: string) => string
+
 		Before?: Snippet
 		After?: Snippet
 		Item?: Snippet<[item: _Item, selected: boolean]>
 		children?: Snippet
+
+		placeholder?: string
+		disabled?: boolean
+		name?: string
+		id?: string
+		ariaLabel?: string
+
 		inputValue?: string
+
 		[key: string]: unknown
 	} = $props()
 
@@ -55,7 +69,7 @@
 		items.map((item) => ({
 			item,
 			id: getItemId(item),
-			label: getItemLabel(item),
+			label: getItemLabel(item) ?? '',
 			disabled: getItemDisabled ? getItemDisabled(item) : false,
 		})),
 	)
@@ -76,7 +90,7 @@
 						items: groupItems.map((item) => ({
 							item,
 							id: getItemId(item),
-							label: getItemLabel(item),
+							label: getItemLabel(item) ?? '',
 							disabled: getItemDisabled ? getItemDisabled(item) : false,
 						})),
 					}))
@@ -189,7 +203,7 @@
 				</span>
 			{/each}
 			<Combobox.Input
-				{id}
+				id={id ?? _id}
 				data-combobox-multi-input
 				aria-label={ariaLabel}
 				{placeholder}

@@ -58,6 +58,7 @@
 			<span>Custom %</span>
 			<input
 				type="text"
+				data-text="monospace"
 				placeholder="Custom %"
 				value={customInput || (p.slippage ? formatSlippagePercent(p.slippage) : '')}
 				oninput={(e) => {

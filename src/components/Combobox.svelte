@@ -4,50 +4,63 @@
 	import type { Snippet } from 'svelte'
 
 
+	// IDs
+	const _id = $props.id()
+
+
 	// Props
 	let {
 		items,
-		value = $bindable(null as _Item | null),
-		placeholder,
-		disabled,
-		name,
-		id,
-		ariaLabel,
+		value = $bindable(),
 		getItemId = stringify,
 		getItemLabel = getItemId,
 		getItemDisabled,
 		getItemGroupId,
 		getGroupLabel = (groupId: string) => groupId,
+
 		Before,
 		After,
 		Item: ItemSnippet,
 		children,
+
+		placeholder,
+		disabled,
+		name,
+		id,
+		ariaLabel,
+
 		inputValue = $bindable(''),
 		onInputBlur,
 		onInputKeydown,
 		Input,
+
 		...rootProps
 	}: {
 		items: readonly _Item[]
-		value?: _Item | null
-		placeholder?: string
-		disabled?: boolean
-		name?: string
-		id?: string
-		ariaLabel?: string
+		value?: _Item | undefined
+
 		getItemId?: (item: _Item) => string
 		getItemLabel?: (item: _Item) => string
 		getItemDisabled?: (item: _Item) => boolean
 		getItemGroupId?: (item: _Item) => string
 		getGroupLabel?: (groupId: string) => string
+
 		Before?: Snippet
 		After?: Snippet
 		Item?: Snippet<[item: _Item, selected: boolean]>
 		children?: Snippet
+
+		placeholder?: string
+		disabled?: boolean
+		name?: string
+		id?: string
+		ariaLabel?: string
+
 		inputValue?: string
 		onInputBlur?: () => void
 		onInputKeydown?: (e: KeyboardEvent) => void
 		Input?: Snippet<[props: Record<string, unknown>]>
+
 		[key: string]: unknown
 	} = $props()
 
@@ -61,7 +74,7 @@
 		items.map((item) => ({
 			item,
 			id: getItemId(item),
-			label: getItemLabel(item),
+			label: getItemLabel(item) ?? '',
 			disabled: getItemDisabled ? getItemDisabled(item) : false,
 		}))
 	)
@@ -75,13 +88,13 @@
 					m.set(gid, arr)
 					return m
 				}, new Map<string, _Item[]>()),
-			).map(([id, groupItems]) => ({
+			)			.map(([id, groupItems]) => ({
 				id,
 				label: getGroupLabel(id),
 				items: groupItems.map((item) => ({
 					item,
 					id: getItemId(item),
-					label: getItemLabel(item),
+					label: getItemLabel(item) ?? '',
 					disabled: getItemDisabled ? getItemDisabled(item) : false,
 				})),
 			}))
@@ -120,11 +133,10 @@
 
 	$effect(() => {
 		if (isFocused) return
+		const singleValue = value ?? undefined
 		const nextValue =
-			normalizedItems.find((item) => {
-				const singleValue = value ?? null
-				return item.id === (singleValue ? getItemId(singleValue) : '')
-			})?.label ?? ''
+			normalizedItems.find((item) => item.id === (singleValue ? getItemId(singleValue) : ''))?.label ??
+			(singleValue ? getItemLabel(singleValue) : '')
 		if (inputValue !== nextValue) inputValue = nextValue
 	})
 
@@ -136,7 +148,7 @@
 		inputValue = target.value
 	}
 	const setValue = (nextValue: string) => {
-		value = normalizedItems.find((item) => item.id === nextValue)?.item ?? null
+		value = normalizedItems.find((item) => item.id === nextValue)?.item ?? undefined
 		const nextItem = normalizedItems.find((item) => item.id === nextValue)
 		inputValue = nextItem ? nextItem.label : ''
 	}
@@ -152,7 +164,7 @@
 	type="single"
 	bind:open
 	bind:value={() => {
-		const singleValue = value ?? null
+		const singleValue = value ?? undefined
 		return singleValue ? getItemId(singleValue) : ''
 	}, (nextValue) => setValue(nextValue)}
 	{disabled}
@@ -172,11 +184,11 @@
 				{@render Before()}
 			{/if}
 			<Combobox.Input
-				{id}
+				id={id ?? _id}
 				aria-label={ariaLabel}
 				{placeholder}
 			>
-				{#snippet child({ props }: { props: Record<string, unknown> })}
+				{#snippet child({ props })}
 					{@const mergedProps = {
 						...props,
 						onfocus: () => {

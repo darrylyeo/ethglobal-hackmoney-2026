@@ -22,7 +22,7 @@
 	const tokensSet = $derived(new Set(tokens))
 
 	function getKey(t: Erc20Token): string {
-		return `${t.chainId}:${t.address.toLowerCase()}`
+		return `${t.chainId}:${t.address}`
 	}
 	function getSortValue(t: Erc20Token): number | string {
 		const config = networkConfigsByChainId[t.chainId]
@@ -31,12 +31,12 @@
 </script>
 
 
-{#snippet contractsTitle({ countText })}
+{#snippet ContractsTitle({ countText })}
 	<Heading>Contracts ({countText} chains)</Heading>
 {/snippet}
 <EntityList
 		title="Contracts"
-		Title={contractsTitle}
+		Title={ContractsTitle}
 		detailsProps={{ open: true, 'data-card': 'radius-2 padding-4' }}
 		loaded={tokensSet.size}
 		items={tokensSet}
@@ -55,7 +55,7 @@
 					<Contract
 						chainId={item.chainId}
 						address={item.address}
-						idSerialized={`${slug}:${item.address.toLowerCase()}`}
+						idSerialized={`${slug}:${item.address}`}
 						href={resolve(`/network/${slug}/contract/${item.address}`)}
 						label={formatAddress(item.address)}
 						metadata={

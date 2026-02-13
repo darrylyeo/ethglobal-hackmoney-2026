@@ -22,6 +22,7 @@
 
 
 	// Functions
+	import { parseSessionStateFromHashLike } from '$/lib/session/sessions.ts'
 	import { buildRoutePath, defaultRoutePath, routeEntries } from './route-map.ts'
 
 
@@ -398,35 +399,25 @@
 			previousPanelId: pushedPanelId,
 			previousHashes: pushedHashes,
 		}))
+		const baseUrl = resolve(
+			dashboardId === defaultDashboardId
+				? '/dashboard'
+				: `/dashboard?d=${dashboardId}`,
+		)
+		const baseState = {
+			panelId: focusedPanel.id,
+			route: buildRoutePath(focusedPanel.route),
+		}
 		const shouldReplace =
 			previousPanelId !== focusedPanel.id ||
 			!isPrefix(previousHashes, nextHashes)
 		if (shouldReplace) {
-			replaceState(
-				resolve(
-					dashboardId === defaultDashboardId
-						? '/dashboard'
-						: `/dashboard?d=${dashboardId}`,
-				),
-				{
-					panelId: focusedPanel.id,
-					hash: null,
-					route: buildRoutePath(focusedPanel.route),
-				},
-			)
+			replaceState(baseUrl, baseState)
 			for (const hash of nextHashes) {
-				pushState(
-					resolve(
-						(dashboardId === defaultDashboardId
-							? '/dashboard'
-							: `/dashboard?d=${dashboardId}`) + hash,
-					),
-					{
-						panelId: focusedPanel.id,
-						hash,
-						route: buildRoutePath(focusedPanel.route),
-					},
-				)
+				pushState(baseUrl, {
+					...baseState,
+					sessionState: parseSessionStateFromHashLike(hash),
+				})
 			}
 			pushedPanelId = focusedPanel.id
 			pushedHashes = [...nextHashes]
@@ -434,18 +425,10 @@
 		}
 		const newHashes = nextHashes.slice(previousHashes.length)
 		for (const hash of newHashes) {
-			pushState(
-				resolve(
-					(dashboardId === defaultDashboardId
-						? '/dashboard'
-						: `/dashboard?d=${dashboardId}`) + hash,
-				),
-				{
-					panelId: focusedPanel.id,
-					hash,
-					route: buildRoutePath(focusedPanel.route),
-				},
-			)
+			pushState(baseUrl, {
+				...baseState,
+				sessionState: parseSessionStateFromHashLike(hash),
+			})
 		}
 		if (newHashes.length > 0) {
 			pushedHashes = [...nextHashes]

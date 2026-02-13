@@ -9,7 +9,7 @@
 		fetchVerifiedContractSource,
 		verifiedContractSourcesCollection,
 	} from '$/collections/VerifiedContractSources.ts'
-	import { contractsCollection } from '$/collections/Contracts.ts'
+	import { contractsCollection, fetchContract } from '$/collections/Contracts.ts'
 
 
 	// Components
@@ -44,16 +44,15 @@
 
 
 	// (Derived)
-	const addressNorm = $derived(address.toLowerCase())
 	const contractQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: contractsCollection })
 				.where(({ row }) =>
-					and(eq(row.$id.$network.chainId, chainId), eq(row.$id.address, addressNorm)),
+					and(eq(row.$id.$network.chainId, chainId), eq(row.$id.address, address)),
 				)
 				.select(({ row }) => ({ row })),
-		[() => chainId, () => addressNorm],
+		[() => chainId, () => address],
 	)
 	const contractRow = $derived(contractQuery.data?.[0]?.row)
 	const abi = $derived(abiProp ?? contractRow?.abi)
@@ -62,10 +61,10 @@
 			q
 				.from({ row: verifiedContractSourcesCollection })
 				.where(({ row }) =>
-					and(eq(row.$id.$network.chainId, chainId), eq(row.$id.address, addressNorm)),
+					and(eq(row.$id.$network.chainId, chainId), eq(row.$id.address, address)),
 				)
 				.select(({ row }) => ({ row })),
-		[() => chainId, () => addressNorm],
+		[() => chainId, () => address],
 	)
 	const sourceRow = $derived(sourceQuery.data?.[0]?.row)
 	const hasSourceFiles = $derived(
@@ -79,7 +78,19 @@
 	let hasFetchedSource = $state(false)
 
 
+	// (Derived)
+	const hasAbi = $derived(Array.isArray(abi) && abi.length > 0)
+	const fetchSettled = $derived(
+		sourceRow != null && sourceRow.isLoading === false,
+	)
+	const isLoading = $derived(!fetchSettled && !hasAbi)
+	const showNotVerified = $derived(fetchSettled && !hasAbi)
+
+
 	// Actions
+	$effect(() => {
+		if (!hasAbi && !fetchSettled) void fetchContract(chainId, address).catch(() => {})
+	})
 	const onSourceToggle = (e: Event) => {
 		const details = e.currentTarget as HTMLDetailsElement
 		if (!details.open || hasFetchedSource) return
@@ -91,6 +102,7 @@
 
 <EntityView
 	entityType={EntityType.Contract}
+	entityId={{ $network: { chainId }, address }}
 	{idSerialized}
 	{href}
 	{label}
@@ -128,7 +140,7 @@
 		</Boundary>
 	{/if}
 
-	{#if Array.isArray(abi) && abi.length > 0}
+	{#if hasAbi && abi}
 		<Boundary>
 			<ContractAction
 				{chainId}
@@ -137,7 +149,9 @@
 				{contractName}
 			/>
 		</Boundary>
-	{:else}
+	{:else if isLoading}
+		<p data-text="muted">Checking verification…</p>
+	{:else if showNotVerified}
 		<p data-text="muted">Contract not verified. No ABI available for interaction.</p>
 	{/if}
 </EntityView>

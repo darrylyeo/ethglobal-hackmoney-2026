@@ -7,11 +7,9 @@
 	let {
 		entityType,
 		entityId,
-		autoWatched = false,
 	}: {
 		entityType: EntityType
 		entityId: EntityId
-		autoWatched?: boolean
 	} = $props()
 
 
@@ -48,13 +46,11 @@
 			: watchEntity({ entityType, entityId })
 </script>
 
-{#if !autoWatched}
-	<button
-		type="button"
-		aria-label={isManuallyWatched ? 'Unwatch (remove from nav)' : 'Watch (pin to nav)'}
-		title={isManuallyWatched ? 'Unwatch' : 'Watch'}
-		onclick={toggle}
-	>
-		{isManuallyWatched ? 'Unwatch' : 'Watch'}
-	</button>
-{/if}
+<button
+	type="button"
+	aria-label={isManuallyWatched ? 'Unwatch (remove from nav)' : 'Watch (pin to nav)'}
+	title={isManuallyWatched ? 'Unwatch' : 'Watch'}
+	onclick={toggle}
+>
+	{isManuallyWatched ? 'Unwatch' : 'Watch'}
+</button>

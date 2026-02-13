@@ -14,7 +14,7 @@ test.describe('Stork price feed', () => {
 	test('session#/Swap loads and does not show missing-token error', async ({
 		page,
 	}) => {
-		await page.goto('/session#/Swap')
+		await page.goto('/session?template=Swap')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
 		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 20_000 })
 		await expect(
@@ -28,7 +28,7 @@ test.describe('Stork price feed', () => {
 	test('session#/Swap shows Stork price when amount entered and quote loads', async ({
 		page,
 	}) => {
-		await page.goto('/session#/Swap')
+		await page.goto('/session?template=Swap')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
 		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 20_000 })
 		const amountInput = page.locator('#swap-amount-in')

@@ -12,10 +12,10 @@
 	// Props
 	let {
 		sessionId,
-		actionIndex,
+		indexInSequence,
 	}: {
 		sessionId: string
-		actionIndex: number
+		indexInSequence: number
 	} = $props()
 
 
@@ -25,10 +25,10 @@
 			q
 				.from({ row: sessionActionTransactionsCollection })
 				.where(({ row }) =>
-					and(eq(row.sessionId, sessionId), eq(row.actionIndex, actionIndex)),
+					and(eq(row.sessionId, sessionId), eq(row.indexInSequence, indexInSequence)),
 				)
 				.select(({ row }) => ({ row })),
-		[() => sessionId, () => actionIndex],
+		[() => sessionId, () => indexInSequence],
 	)
 	const items = $derived(
 		new SvelteSet(

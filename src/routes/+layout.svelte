@@ -1,7 +1,4 @@
 <script lang="ts">
-	// Polyfills (run before other imports that may use crypto.randomUUID)
-	import '$/lib/randomUuid.ts'
-
 	// Profiles (boot/migrate before collections read from localStorage; browser-only)
 	import { browser } from '$app/environment'
 	import { ensureProfilesMeta } from '$/lib/profile.ts'

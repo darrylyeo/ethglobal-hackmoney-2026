@@ -2,14 +2,9 @@
 	// Types/constants
 	import { ActionType, type Action, type ActionParams } from '$/constants/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
-	import { bridgeCoinsByChainId } from '$/constants/coins.ts'
+	import { CoinType, bridgeCoinsByChainId } from '$/constants/coins.ts'
 	import { ChainId } from '$/constants/networks.ts'
 	import type { Network } from '$/constants/networks.ts'
-	import {
-		formatSmallestToDecimal,
-		isValidDecimalInput,
-		parseDecimalToSmallest,
-	} from '$/lib/format.ts'
 
 
 	// Props
@@ -27,15 +22,24 @@
 
 
 	// (Derived)
-	const p: ActionParams<ActionType.Bridge> = $derived.by(() => action.params)
+	const getParams = (a: Action<ActionType.Bridge>): ActionParams<ActionType.Bridge> =>
+		a.params as ActionParams<ActionType.Bridge>
+	const p: ActionParams<ActionType.Bridge> = $derived(getParams(action))
 	const bridgeCoins = $derived(
 		bridgeCoinsByChainId[p.fromChainId ?? ChainId.Ethereum] ?? [],
 	)
-	const selectedCoin = $derived(bridgeCoins.find((c) => c.address.toLowerCase() === p.tokenAddress.toLowerCase()) ?? bridgeCoins[0])
+	const selectedCoin = $derived(bridgeCoins.find((c) => c.address === p.tokenAddress) ?? bridgeCoins[0])
+	const syntheticCoin = $derived({
+		type: CoinType.Erc20 as const,
+		chainId: p.fromChainId ?? ChainId.Ethereum,
+		address: p.tokenAddress as `0x${string}`,
+		symbol: p.tokenSymbol || 'Token',
+		decimals: p.tokenDecimals,
+	})
 
 	$effect(() => {
 		if (bridgeCoins.length === 0) return
-		const match = bridgeCoins.find((c) => c.address.toLowerCase() === p.tokenAddress.toLowerCase())
+		const match = bridgeCoins.find((c) => c.address === p.tokenAddress)
 		if (match) return
 		const first = bridgeCoins[0]
 		action = {
@@ -54,6 +58,7 @@
 	import CoinAmountInput from '$/views/CoinAmountInput.svelte'
 	import CoinInput from '$/views/CoinInput.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
+	import TokenAmountInput from '$/views/TokenAmountInput.svelte'
 </script>
 
 {#if action.type === ActionType.Bridge}
@@ -114,35 +119,18 @@
 					}}
 					min={0n}
 					max={0n}
-					bind:value={() => p.amount, (v) => {
-						action = { ...action, params: { ...action.params, amount: v } }
-					}}
-					bind:invalid
+					bind:value={p.amount}
+					bind:isInvalid={invalid}
 					ariaLabel="Amount"
 				/>
 			{:else}
-				<input
-					type="text"
-					inputmode="decimal"
-					placeholder="0.00"
-					value={p.amount > 0n ? formatSmallestToDecimal(p.amount, p.tokenDecimals) : ''}
-					oninput={(e) => {
-						const raw = (e.currentTarget as HTMLInputElement).value
-						if (raw === '') {
-							invalid = false
-							action = { ...action, params: { ...action.params, amount: 0n } }
-							return
-						}
-						if (isValidDecimalInput(raw, p.tokenDecimals)) {
-							invalid = false
-							action = {
-								...action,
-								params: { ...action.params, amount: parseDecimalToSmallest(raw, p.tokenDecimals) },
-							}
-							return
-						}
-						invalid = true
-					}}
+				<TokenAmountInput
+					coin={syntheticCoin}
+					min={0n}
+					max={0n}
+					bind:value={p.amount}
+					bind:isInvalid={invalid}
+					ariaLabel="Amount"
 				/>
 			{/if}
 		</label>

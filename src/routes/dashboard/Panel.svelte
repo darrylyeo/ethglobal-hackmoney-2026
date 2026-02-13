@@ -74,9 +74,6 @@
 	const routeKey = $derived(
 		panel.route.path + '\0' + JSON.stringify(panel.route.params),
 	)
-	const panelHash = $derived(panel.hashHistory.at(-1) ?? null)
-	const setPanelHash = (hash: string, replace = true) =>
-		onSetPanelHash(panel.id, hash, replace)
 	const setPanelRoute = (path: string, params: Record<string, string>) =>
 		onUpdateRoute(panel.id, { path, params })
 
@@ -229,8 +226,6 @@
 					entry={routeEntry}
 					extraData={{
 						embeddedInPanel: true,
-						panelHash: panelHash ?? null,
-						setPanelHash,
 						setPanelRoute,
 					}}
 				/>
@@ -276,17 +271,12 @@
 		min-width: 0;
 
 		> select.dashboard-panel-route,
-		> input.dashboard-panel-hash,
 		> input[type='text'] {
 			field-sizing: content;
 		}
 
 		> select.dashboard-panel-route {
 			min-width: 6rem;
-		}
-
-		> input.dashboard-panel-hash {
-			min-width: 5rem;
 		}
 	}
 

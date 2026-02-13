@@ -24,7 +24,7 @@
 	import NetworkIcon from '$/views/NetworkIcon.svelte'
 </script>
 
-<span class="network-name" data-row="inline gap-2">
+<span class="network-name" data-row="inline gap-1">
 	{#if showIcon}
 		<span class="icon" data-row="center">
 			<NetworkIcon chainId={chainId} alt={name} />

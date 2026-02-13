@@ -45,7 +45,7 @@ test.describe('E2E Tevm walletless execution', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/session#/Swap')
+		await page.goto('/session?template=Swap')
 		await ensureWalletConnected(page)
 		await page.getByRole('textbox', { name: 'Token in' }).fill('1')
 		const swapButton = page.getByRole('button', { name: 'Sign and Submit' })
@@ -69,7 +69,7 @@ test.describe('E2E Tevm walletless execution', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/session#/Bridge')
+		await page.goto('/session?template=Bridge')
 		await addLifiRoutesMock(page)
 		await ensureWalletConnected(page)
 		await selectProtocolOption(page, 'LI.FI')

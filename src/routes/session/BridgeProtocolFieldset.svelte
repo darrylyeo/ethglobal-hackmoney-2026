@@ -69,12 +69,12 @@
 			] as const
 		)
 			.filter((o) => o.enabled)
-			.map((o) => ({
-				bridgeId: o.bridgeId,
-				...protocolsById[bridgeIdToProtocol[o.bridgeId]],
-			})),
+			.map((o) => {
+				const def = protocolsById[bridgeIdToProtocol[o.bridgeId]]
+				return def ? { bridgeId: o.bridgeId, ...def } : null
+			})
+			.filter((o): o is NonNullable<typeof o> => o != null),
 	)
-	const anyMultiple = $derived(protocolOptions.length > 1)
 	const rows = $derived([
 		{ type: 'auto' as const },
 		...protocolOptions.map((o) => ({ type: 'protocol' as const, option: o })),
@@ -120,7 +120,7 @@
 
 {#if action.type === ActionType.Bridge}
 	<div data-column>
-	{#if anyMultiple}
+	{#if protocolOptions.length > 0}
 		<div data-column="gap-2">
 			{#each rows as row (row.type === 'auto' ? 'auto' : row.option.bridgeId)}
 				{#if row.type === 'auto'}
@@ -160,8 +160,6 @@
 				{/if}
 			{/each}
 		</div>
-	{:else if activeProtocol}
-		<p data-text="muted">Using {protocolsById[bridgeIdToProtocol[activeProtocol]].label}</p>
 	{:else if fromChainId !== null && toChainId !== null}
 		<p data-error>This chain pair is not supported by CCTP, LI.FI, or Gateway.</p>
 	{:else}

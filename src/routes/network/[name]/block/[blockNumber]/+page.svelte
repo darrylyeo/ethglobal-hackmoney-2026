@@ -137,6 +137,10 @@
 	{:else}
 		<EntityView
 			entityType={EntityType.Block}
+			entityId={{
+				$network: { chainId },
+				blockNumber: Number(blockNumber),
+			}}
 			idSerialized={`${nameParam}:${blockNumber}`}
 			href={resolve(`/network/${nameParam}/block/${blockNumberParam}`)}
 			label={`Block ${blockNumber} · ${config.name}`}

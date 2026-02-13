@@ -38,7 +38,7 @@ export const test = base.extend<{ tevm: TevmFixture }>({
 			const forkUrl = process.env.E2E_TEVM_FORK_URL
 			const client = createMemoryClient({
 				common: mainnet,
-				mining: { auto: true, },
+				mining: { auto: true },
 			...(forkUrl
 				? {
 						fork: {

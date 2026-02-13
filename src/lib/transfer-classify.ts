@@ -17,9 +17,9 @@ export const isBridgeTransfer = (e: TransferLike): boolean => {
 		e.chainId as ChainId,
 		isCctpTestnetChain(e.chainId as ChainId),
 	)
-	if (messenger == null) return false
-	const m = messenger.toLowerCase()
-	return e.fromAddress.toLowerCase() === m || e.toAddress.toLowerCase() === m
+	return messenger != null && (
+		e.fromAddress === messenger || e.toAddress === messenger
+	)
 }
 
 export const isSwapTransfer = (_e: TransferLike): boolean => false

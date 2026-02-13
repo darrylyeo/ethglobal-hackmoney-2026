@@ -73,9 +73,7 @@
 			: (sharedAddressesQuery.data ?? [])
 					.map((r) => r.row)
 					.filter((row) =>
-						actors.some(
-							(a) => row.address.toLowerCase() === a.toLowerCase(),
-						),
+						actors.some((a) => row.address === a),
 					),
 	)
 	const roomsById = $derived(
@@ -98,7 +96,7 @@
 			(v) =>
 				v.roomId === roomId &&
 				v.verifiedPeerId === peerId &&
-				v.address.toLowerCase() === address.toLowerCase(),
+				v.address === address,
 		)?.status ?? null
 	const singleAddress = $derived(
 		actors.length === 1 ? actors[0] : null,

@@ -46,8 +46,8 @@
 					.filter((row) =>
 						actors.some(
 							(a) =>
-								row.participant0.toLowerCase() === a.toLowerCase() ||
-								row.participant1.toLowerCase() === a.toLowerCase(),
+								row.participant0 === a ||
+								row.participant1 === a,
 						),
 					)
 					.sort((a, b) => b.updatedAt - a.updatedAt),
@@ -115,8 +115,7 @@
 			>
 				{#each channels as ch (ch.id)}
 					{@const isParticipant0 = actors.some(
-						(a) =>
-							ch.participant0.toLowerCase() === a.toLowerCase(),
+						(a) => ch.participant0 === a,
 					)}
 					{@const participantAddr = isParticipant0
 						? ch.participant1

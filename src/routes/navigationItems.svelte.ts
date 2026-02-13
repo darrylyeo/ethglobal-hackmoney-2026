@@ -1,16 +1,27 @@
 import { ActionType, actionTypeDefinitionByActionType } from '$/constants/actions.ts'
 import { DataSource } from '$/constants/data-sources.ts'
-import { ChainId, networkConfigs } from '$/constants/networks.ts'
-import { interopFormatConfig, toInteropName } from '$/constants/interop.ts'
-import { EntityType } from '$/data/$EntityType.ts'
+import { ercTokens } from '$/constants/coins.ts'
+import {
+	interopFormatConfig,
+	toInteropName,
+} from '$/constants/interop.ts'
+import { networkConfigsByChainId } from '$/constants/networks.ts'
+import { EntityType, type EntityId } from '$/data/$EntityType.ts'
 import type { Action } from '$/data/Session.ts'
-import { SessionStatus } from '$/data/Session.ts'
 import {
 	ConnectionStatus,
 	WalletConnectionTransport,
 	toWalletConnectionStatus,
 } from '$/data/WalletConnection.ts'
-import type { WatchedEntityRow } from '$/collections/WatchedEntities.ts'
+import type {
+	LegacyStoredRow,
+	WatchedEntityRow,
+	WatchedEntityStoredRow,
+} from '$/collections/WatchedEntities.ts'
+import {
+	watchedEntitiesCollection,
+	watchedEntityKey,
+} from '$/collections/WatchedEntities.ts'
 import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
 import {
@@ -24,11 +35,8 @@ import { sessionsCollection } from '$/collections/Sessions.ts'
 import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 import { walletsCollection } from '$/collections/Wallets.ts'
-import {
-	deriveWatchedEntityRow,
-	watchedEntitiesCollection,
-} from '$/collections/WatchedEntities.ts'
 import { formatAddress } from '$/lib/address.ts'
+import { stringify } from 'devalue'
 import {
 	roomIdToDisplayName,
 	roomIdToPlaceEmoji,
@@ -83,6 +91,142 @@ const sessionIcon = (session: { actions: Action[] }) =>
 	(actionTypeDefinitionByActionType as Record<string, { icon: string }>)[session.actions[0]?.type]?.icon ?? '📋'
 const sessionHref = (session: { id: string }) => buildSessionPath(session.id)
 
+const slug = (chainId: number) =>
+	networkConfigsByChainId[chainId]?.slug ?? String(chainId)
+
+function toEntityDisplay(
+	entityType: EntityType,
+	entityIdRaw: string | EntityId,
+): { label: string; href: string; entityId: EntityId } | null {
+	const normalizeStringId = (id: string) => ({ id } as EntityId)
+	const id =
+		typeof entityIdRaw === 'string' &&
+		[EntityType.Session, EntityType.Room, EntityType.AgentChatTree].includes(
+			entityType,
+		)
+			? normalizeStringId(entityIdRaw)
+			: entityIdRaw
+	if (typeof id !== 'object' || id == null) return null
+	const fallback = (): { label: string; href: string; entityId: EntityId } => ({
+		entityId: id as EntityId,
+		label: stringify(id),
+		href: `#${entityType}:${stringify(id)}`,
+	})
+	switch (entityType) {
+		case EntityType.Coin: {
+			const c = id as EntityId<EntityType.Coin>
+			const token = ercTokens.find(
+				(t) =>
+					t.chainId === c.$network.chainId &&
+					t.address.toLowerCase() === c.address.toLowerCase(),
+			)
+			return {
+				entityId: c,
+				label: c.interopAddress ?? token?.symbol ?? formatAddress(c.address),
+				href: `/coin/${c.interopAddress ?? token?.symbol ?? formatAddress(c.address)}`,
+			}
+		}
+		case EntityType.Network: {
+			const n = id as EntityId<EntityType.Network>
+			const config = networkConfigsByChainId[n.chainId]
+			return {
+				entityId: n,
+				label: config?.name ?? String(n.chainId),
+				href: `/network/${slug(n.chainId)}`,
+			}
+		}
+		case EntityType.Contract: {
+			const c = id as EntityId<EntityType.Contract>
+			return {
+				entityId: c,
+				label: formatAddress(c.address),
+				href: `/network/${slug(c.$network.chainId)}/contract/${c.address}`,
+			}
+		}
+		case EntityType.Session: {
+			const s = id as EntityId<EntityType.Session>
+			return {
+				entityId: s,
+				label: s.id,
+				href: buildSessionPath(s.id),
+			}
+		}
+		case EntityType.Room: {
+			const r = id as EntityId<EntityType.Room>
+			return { entityId: r, label: r.id, href: `/rooms/${r.id}` }
+		}
+		case EntityType.AgentChatTree: {
+			const a = id as EntityId<EntityType.AgentChatTree>
+			return { entityId: a, label: a.id, href: `/agents/${a.id}` }
+		}
+		case EntityType.Actor: {
+			const a = id as EntityId<EntityType.Actor>
+			const chainId = a.$network.chainId
+			const addr = a.address
+			return {
+				entityId: a,
+				label: formatAddress(addr),
+				href: `/account/${encodeURIComponent(
+					a.interopAddress ??
+						(chainId !== 1
+							? toInteropName(chainId, addr, interopFormatConfig)
+							: addr),
+				)}`,
+			}
+		}
+		case EntityType.Block: {
+			const b = id as EntityId<EntityType.Block>
+			return {
+				entityId: b,
+				label: `Block ${b.blockNumber}`,
+				href: `/network/${slug(b.$network.chainId)}/block/${b.blockNumber}`,
+			}
+		}
+		default:
+			return fallback()
+	}
+}
+
+const getEntityIdRaw = (
+	stored: WatchedEntityStoredRow | LegacyStoredRow,
+): string | EntityId => ('entityId' in stored ? stored.entityId : stored.id)
+
+export function deriveWatchedEntityRow(
+	stored: WatchedEntityStoredRow | LegacyStoredRow,
+): WatchedEntityRow {
+	const entityType = stored.entityType
+	const entityIdRaw = getEntityIdRaw(stored)
+	const id = watchedEntityKey({ entityType, entityId: entityIdRaw })
+	const addedAt = stored.addedAt
+	const display = toEntityDisplay(entityType, entityIdRaw)
+	if (!display) {
+		return {
+			entityType,
+			entityId: { chainId: 0 } as EntityId,
+			addedAt,
+			id,
+			label: typeof entityIdRaw === 'string' ? entityIdRaw : stringify(entityIdRaw),
+			href: `#${id}`,
+		}
+	}
+	return {
+		entityType,
+		entityId: display.entityId,
+		addedAt,
+		id,
+		label: display.label,
+		href: display.href,
+	}
+}
+
+export function listWatchedEntities(): WatchedEntityRow[] {
+	return [...watchedEntitiesCollection.state]
+		.map(([, row]) =>
+			deriveWatchedEntityRow(row as WatchedEntityStoredRow | LegacyStoredRow),
+		)
+		.sort((a, b) => b.addedAt - a.addedAt)
+}
+
 export function getNavigationItems(input: NavigationItemsInput): NavigationItem[] {
 	const {
 		sessionsData = [],
@@ -101,10 +245,6 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 		isTestnet,
 	} = input
 
-	const pinnedAgentChatTrees = agentChatTreesData
-		.map((r) => r.row)
-		.filter((tree) => tree.pinned)
-		.sort((a, b) => b.updatedAt - a.updatedAt)
 	const walletsByRdns = new Map(walletsData.map((r) => [r.row.$id.rdns, r.row]))
 	const connectedWalletConnections = (walletConnectionsData ?? [])
 		.map((r) => r.row)
@@ -114,29 +254,6 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 				(a.transport === WalletConnectionTransport.None ? 1 : 0) -
 				(b.transport === WalletConnectionTransport.None ? 1 : 0),
 		)
-	const relevantChainIds = [
-		...connectedWalletConnections
-			.map((c) => c.chainId)
-			.filter((id): id is number => id != null),
-		...sessionsData.flatMap((r) => {
-			const row = r.row
-			const ids: number[] = []
-			if (typeof row.execution?.chainId === 'number') ids.push(row.execution.chainId)
-			const p = row.params
-			if (p && typeof p === 'object') {
-				if (typeof (p as { chainId?: number }).chainId === 'number')
-					ids.push((p as { chainId: number }).chainId)
-				if (typeof (p as { fromChainId?: number }).fromChainId === 'number')
-					ids.push((p as { fromChainId: number }).fromChainId)
-				if (typeof (p as { toChainId?: number }).toChainId === 'number')
-					ids.push((p as { toChainId: number }).toChainId)
-			}
-			return ids
-		}),
-	].filter((id) => Number.isSafeInteger(id) && id > 0)
-	const relevantNetworkConfigs = [...new Set(relevantChainIds)]
-		.map((chainId) => networkConfigs.find((c) => c.chainId === chainId))
-		.filter((c): c is NonNullable<typeof c> => c != null)
 	const myPeerIdsSet = new Set(myPeerIdsData.map((r) => r.row.peerId))
 	const verifiedByMeVerifications = verificationsData.filter(
 		(r) => myPeerIdsSet.has(r.row.verifierPeerId) && r.row.status === 'verified',
@@ -150,176 +267,205 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 		},
 		new Map<string, { displayName?: string; isConnected: boolean }[]>(),
 	)
-	const peersNavItems = verifiedByMeVerifications
-		.filter((v) => peerIdToRoomPeers.has(v.row.verifiedPeerId))
-		.map((v) => {
-			const peers = peerIdToRoomPeers.get(v.row.verifiedPeerId)!
-			const roomPeer = peers[0]
-			return {
-				id: `peer-${v.row.verifiedPeerId}-${v.row.address}`,
-				title: roomPeer.displayName ?? formatAddress(v.row.address),
-				href: `/account/${encodeURIComponent(v.row.address)}`,
-				tag: peers.some((p) => p.isConnected) ? 'Connected' : 'Disconnected',
-				icon: '🤝',
-			}
-		})
-	const accountNavItems = connectedWalletConnections.flatMap((connection) => {
-		const rdns = connection.$id.wallet$id.rdns
-		const wallet =
-			connection.transport === WalletConnectionTransport.None
-				? { name: 'Watching', rdns, icon: undefined as string | undefined }
-				: (walletsByRdns.get(rdns) ?? { name: rdns, rdns, icon: undefined as string | undefined })
-		return connection.actors.map((actor) => ({
-			id: `account-${wallet.rdns}-${actor}`,
-			title: formatAddress(actor),
-			address: {
-				network:
-					connection.transport === WalletConnectionTransport.None
-						? undefined
-						: connection.chainId ?? undefined,
-				address: actor,
-			},
-			href: `/account/${encodeURIComponent(
-				connection.chainId != null
-					? toInteropName(connection.chainId, actor, interopFormatConfig)
-					: actor,
-			)}`,
-			tag:
-				connection.transport === WalletConnectionTransport.None
-					? 'Watching'
-					: toWalletConnectionStatus(connection.status),
-			tagIcon: wallet.icon,
-		}))
-	})
 	const dashboardNavItems = dashboardsData.map((row) => ({
 		id: `dashboard-${row.id}`,
 		title: row.name ?? (row.id === 'default' ? 'My Dashboard' : 'Unnamed'),
 		href: row.id === defaultDashboardId ? '/dashboard' : `/dashboard?d=${row.id}`,
 		icon: row.icon ?? (row.id === defaultDashboardId ? '★' : '📊'),
 	}))
-	const allSessionNavItems = sessionsData
-		.map((r) => r.row)
-		.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
-		.map((session) => ({
-			id: `session-${session.id}`,
-			title: sessionTitle(session),
-			href: sessionHref(session),
-			tag: session.status,
-			icon: sessionIcon(session),
-		}))
-	const allRoomNavItems = roomsData
-		.map((r) => r.row)
-		.sort((a, b) => a.createdAt - b.createdAt)
-		.map((room) => ({
-			id: `room-${room.id}`,
-			title: room.name ?? roomIdToDisplayName(room.id),
-			href: `/rooms/${room.id}`,
-			icon: roomIdToPlaceEmoji(room.id),
-		}))
-	const defaultNetworkChainIds: ChainId[] = [
-		isTestnet ? ChainId.EthereumSepolia : ChainId.Ethereum,
-	]
-	const defaultNetworkConfigs = defaultNetworkChainIds
-		.map((chainId) => networkConfigs.find((c) => c.chainId === chainId))
-		.filter((c): c is NonNullable<typeof c> => c != null)
 	const watchedRows = (watchedEntitiesData ?? []).map((r) => r.row)
 	const watchedContracts = watchedRows.filter(
 		(row) => row.entityType === EntityType.Contract,
 	)
-	const manualWatchedHrefs = new Set(watchedRows.map((r) => r.href))
-	const withManualWatch = <T extends { href: string }>(items: T[]) =>
-		items.map((item) => ({ ...item, manualWatch: manualWatchedHrefs.has(item.href) }))
-	const toNetworkNavItem = (config: (typeof relevantNetworkConfigs)[number]) => {
-		const baseHref = `/network/${config.slug}`
+	const watchedSessionRows = watchedRows.filter(
+		(row) => row.entityType === EntityType.Session,
+	)
+	const watchedActorRows = watchedRows.filter(
+		(row) => row.entityType === EntityType.Actor,
+	)
+	const watchedRoomRows = watchedRows.filter(
+		(row) => row.entityType === EntityType.Room,
+	)
+	const watchedAgentTreeRows = watchedRows.filter(
+		(row) => row.entityType === EntityType.AgentChatTree,
+	)
+	const watchedCoinRows = watchedRows.filter(
+		(row) => row.entityType === EntityType.Coin,
+	)
+	const watchedNetworkRows = watchedRows.filter(
+		(row) => row.entityType === EntityType.Network,
+	)
+	const sessionsById = new Map(
+		(sessionsData ?? []).map((r) => [r.row.id, r.row]),
+	)
+	const getSessionId = (row: WatchedEntityRow) =>
+		typeof row.entityId === 'string'
+			? row.entityId
+			: (row.entityId as { id: string }).id
+	const sessionNavItemsFromWatched = watchedSessionRows
+		.map((row) => ({
+			row,
+			session: sessionsById.get(getSessionId(row)),
+		}))
+		.sort(
+			(a, b) =>
+				(b.session?.updatedAt ?? 0) - (a.session?.updatedAt ?? 0),
+		)
+		.map(({ row, session }) => ({
+			id: row.id,
+			title: session ? sessionTitle(session) : row.label,
+			href: row.href,
+			tag: session?.status,
+			icon: session
+				? (actionTypeDefinitionByActionType as Record<string, { icon: string }>)[
+						session.actions[0]?.type
+					]?.icon ?? '📋'
+				: '📋',
+		}))
+	const toWatchedNavItem = (row: WatchedEntityRow) => ({
+		id: row.id,
+		title: row.label,
+		href: row.href,
+		manualWatch: true,
+	})
+	const toNetworkNavItemFromWatched = (row: WatchedEntityRow) => {
+		const chainId = (row.entityId as { chainId: number }).chainId
+		const config = networkConfigsByChainId[chainId]
+		const baseHref = row.href
 		const contractsOnNetwork = watchedContracts.filter(
-			(row) =>
-				row.href === `${baseHref}/contracts` ||
-				row.href.startsWith(`${baseHref}/contract/`),
+			(c) =>
+				c.href === `${baseHref}/contracts` ||
+				c.href.startsWith(`${baseHref}/contract/`),
 		)
 		return {
-			id: `network-${config.chainId}`,
-			title: config.name,
+			id: row.id,
+			title: row.label,
 			href: baseHref,
-			icon: config.icon ?? '🌐',
+			icon: config?.icon ?? '🌐',
 			children: [
 				{
-					id: `network-${config.chainId}-contracts`,
+					id: `network-${chainId}-contracts`,
 					title: 'Contracts',
 					href: `${baseHref}/contracts`,
 					icon: '📄',
 				},
-				...withManualWatch(
-					contractsOnNetwork.map((row) => ({
-						id: row.id,
-						title: row.label,
-						href: row.href,
-						icon: '📜' as string,
-					})),
-				),
+				...contractsOnNetwork.map((c) => ({
+					id: c.id,
+					title: c.label,
+					href: c.href,
+					icon: '📜' as string,
+					manualWatch: true,
+				})),
 			],
 		}
 	}
-	const allNetworkNavItems = [
-		...defaultNetworkConfigs.map(toNetworkNavItem),
-		...relevantNetworkConfigs
-			.filter((c) => !defaultNetworkChainIds.includes(c.chainId))
-			.map(toNetworkNavItem),
-	]
-	const allAgentTreeNavItems = agentChatTreesData
-		.map((r) => r.row)
-		.sort((a, b) => b.updatedAt - a.updatedAt)
-		.map((tree) => ({
-			id: `agent-${tree.id}`,
-			title: tree.name ?? 'Untitled',
-			href: `/agents/${tree.id}`,
+	const allNetworkNavItems = watchedNetworkRows.map(toNetworkNavItemFromWatched)
+	const accountNavItemsFromWatched = watchedActorRows.map((row) => {
+		const aid = row.entityId as EntityId<EntityType.Actor>
+		const conn = connectedWalletConnections.find((c) =>
+			c.actors.some((a) => a.toLowerCase() === aid.address.toLowerCase()),
+		)
+		const wallet = conn
+			? walletsByRdns.get(conn.$id.wallet$id.rdns) ??
+				{ name: conn.$id.wallet$id.rdns, icon: undefined as string | undefined }
+			: { name: 'Watching', icon: undefined as string | undefined }
+		return {
+			id: row.id,
+			title: row.label,
+			href: row.href,
+			manualWatch: true,
+			tag:
+				conn?.transport === WalletConnectionTransport.None
+					? 'Watching'
+					: conn
+						? toWalletConnectionStatus(conn.status)
+						: undefined,
+			tagIcon: wallet.icon,
+			address: {
+				network: aid.$network,
+				address: aid.address,
+			},
+		}
+	})
+	const roomsById = new Map((roomsData ?? []).map((r) => [r.row.id, r.row]))
+	const getRoomId = (row: WatchedEntityRow) =>
+		typeof row.entityId === 'string'
+			? row.entityId
+			: (row.entityId as { id: string }).id
+	const roomsNavItemsFromWatched = watchedRoomRows.map((row) => {
+		const room = roomsById.get(getRoomId(row))
+		return {
+			...toWatchedNavItem(row),
+			title: room?.name ?? row.label,
+			icon: roomIdToPlaceEmoji(getRoomId(row)),
+		}
+	})
+	const agentTreesById = new Map(
+		(agentChatTreesData ?? []).map((r) => [r.row.id, r.row]),
+	)
+	const getAgentTreeId = (row: WatchedEntityRow) =>
+		typeof row.entityId === 'string'
+			? row.entityId
+			: (row.entityId as { id: string }).id
+	const agentsNavItemsFromWatched = watchedAgentTreeRows.map((row) => {
+		const tree = agentTreesById.get(getAgentTreeId(row))
+		return {
+			...toWatchedNavItem(row),
+			title: tree?.name ?? row.label,
 			icon: '🤖',
-		}))
-	const watchedHrefs = new Set([
-		...accountNavItems.map((item) => item.href),
-		...sessionsData
-			.filter(
-				(r) =>
-					r.row.status === SessionStatus.Draft || r.row.status === SessionStatus.Submitted,
-			)
-			.map((r) => sessionHref(r.row)),
-		...recentTransactionsData
-			.filter((r) => r.row.status === 'completed' || r.row.status === 'failed')
-			.flatMap((r) => {
-				const config = networkConfigs.find((c) => c.chainId === r.row.fromChainId)
-				return config
-					? [`/network/${config.slug}/transaction/${r.row.$id.sourceTxHash}`]
-					: []
-			}),
-		...peersNavItems.map((item) => item.href),
-		...pinnedAgentChatTrees.map((tree) => `/agents/${tree.id}`),
-		...relevantNetworkConfigs.map((c) => `/network/${c.slug}`),
-		...watchedRows.map((r) => r.href),
-	])
-	const filterWatched = <T extends { href: string }>(items: T[]) =>
-		items.filter((item) => watchedHrefs.has(item.href))
+		}
+	})
+	const coinsNavItemsFromWatched = watchedCoinRows.map((row) => {
+		const c = row.entityId as EntityId<EntityType.Coin>
+		const token = ercTokens.find(
+			(t) =>
+				t.chainId === c.$network.chainId &&
+				t.address.toLowerCase() === c.address.toLowerCase(),
+		)
+		const icon =
+			c.interopAddress === 'ETH'
+				? coinIcons.eth
+				: c.interopAddress === 'USDC'
+					? coinIcons.usdc
+					: '🪙'
+		return {
+			...toWatchedNavItem(row),
+			icon,
+		}
+	})
+	const verifiedPeerAddresses = new Set(
+		verifiedByMeVerifications
+			.filter((v) => peerIdToRoomPeers.has(v.row.verifiedPeerId))
+			.map((v) => v.row.address.toLowerCase()),
+	)
+	const peersNavItemsFromWatched = accountNavItemsFromWatched.filter((item) =>
+		verifiedPeerAddresses.has(
+			(item.address?.address ?? '').toLowerCase(),
+		),
+	)
 	const multiplayerChildren = [
-		...(allRoomNavItems.length > 0
+		...(watchedRoomRows.length > 0
 			? [
 					{
 						id: 'rooms',
 						title: 'Rooms',
 						href: '/rooms',
 						icon: '🏘️',
-						tag: String(allRoomNavItems.length),
-						children: withManualWatch(filterWatched(allRoomNavItems)),
-						allChildren: withManualWatch(allRoomNavItems),
+						tag: String(watchedRoomRows.length),
+						children: roomsNavItemsFromWatched,
+						allChildren: roomsNavItemsFromWatched,
 					},
 				]
 			: []),
-		...(peersNavItems.length > 0
+		...(peersNavItemsFromWatched.length > 0
 			? [
 					{
 						id: 'peers',
 						title: 'Peers',
 						href: '/peers',
 						icon: '👥',
-						tag: String(peersNavItems.length),
-						children: withManualWatch(peersNavItems),
+						tag: String(peersNavItemsFromWatched.length),
+						children: peersNavItemsFromWatched,
 					},
 				]
 			: []),
@@ -332,7 +478,7 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			href: '/dashboards',
 			icon: '📊',
 			defaultIsOpen: true,
-			children: withManualWatch(dashboardNavItems),
+			children: dashboardNavItems,
 		},
 		{
 			id: 'accounts',
@@ -340,8 +486,9 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			href: '/accounts',
 			icon: '👤',
 			defaultIsOpen: true,
-			tag: String(accountNavItems.length),
-			children: withManualWatch(accountNavItems),
+			tag: String(watchedActorRows.length),
+			children: accountNavItemsFromWatched,
+			allChildren: accountNavItemsFromWatched,
 		},
 		{
 			id: 'actions',
@@ -368,8 +515,9 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			href: '/sessions',
 			icon: '📋',
 			defaultIsOpen: true,
-			children: withManualWatch(filterWatched(allSessionNavItems)),
-			allChildren: withManualWatch(allSessionNavItems),
+			tag: String(watchedSessionRows.length),
+			children: sessionNavItemsFromWatched,
+			allChildren: sessionNavItemsFromWatched,
 		},
 		{
 			id: 'agents',
@@ -380,12 +528,12 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 			children: [
 				{ id: 'agents-new', title: 'New conversation', href: '/agents/new', icon: '✨' },
 				{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm', icon: '🔑' },
-				...withManualWatch(filterWatched(allAgentTreeNavItems)),
+				...agentsNavItemsFromWatched,
 			],
 			allChildren: [
 				{ id: 'agents-new', title: 'New conversation', href: '/agents/new', icon: '✨' },
 				{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm', icon: '🔑' },
-				...withManualWatch(allAgentTreeNavItems),
+				...agentsNavItemsFromWatched,
 			],
 		},
 		{
@@ -400,10 +548,8 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 					href: '/coins',
 					icon: '🪙',
 					defaultIsOpen: true,
-					children: [
-						{ id: 'usdc', title: 'USDC', href: '/coin/USDC', icon: coinIcons.usdc },
-						{ id: 'eth', title: 'ETH', href: '/coin/ETH', icon: coinIcons.eth },
-					],
+					children: coinsNavItemsFromWatched,
+					allChildren: coinsNavItemsFromWatched,
 				},
 				{
 					id: 'networks',
@@ -411,8 +557,8 @@ export function getNavigationItems(input: NavigationItemsInput): NavigationItem[
 					href: '/networks',
 					icon: '⛓️',
 					defaultIsOpen: true,
-					children: withManualWatch(filterWatched(allNetworkNavItems)),
-					allChildren: withManualWatch(allNetworkNavItems),
+					children: allNetworkNavItems,
+					allChildren: allNetworkNavItems,
 				},
 			],
 		},
@@ -541,7 +687,7 @@ export function useNavigationItems(options: {
 		roomsData: roomsQuery.data,
 		agentChatTreesData: agentChatTreesQuery.data,
 		watchedEntitiesData: (watchedEntitiesQuery.data ?? []).map((r) => ({
-			row: deriveWatchedEntityRow(r.row as Parameters<typeof deriveWatchedEntityRow>[0]),
+			row: deriveWatchedEntityRow(r.row as WatchedEntityStoredRow | LegacyStoredRow),
 		})),
 		recentTransactionsData: recentTransactionsQuery.data,
 		walletsData: walletsQuery.data,

@@ -43,6 +43,11 @@
 		<section data-scroll-item>
 			<EntityView
 				entityType={EntityType.Coin}
+				entityId={{
+					$network: { chainId: coin!.chainId },
+					address: coin!.address,
+					interopAddress: coin!.symbol,
+				}}
 				idSerialized={symbol}
 				href={resolve(`/coin/${symbol}`)}
 				label={coin!.symbol}

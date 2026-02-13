@@ -98,10 +98,10 @@
 		>
 			<Combobox
 				items={items}
-				{getItemId}
-				{getItemLabel}
 				bind:value={selectedId}
 				bind:inputValue={filterValue}
+				{getItemId}
+				{getItemLabel}
 				placeholder=""
 				ariaLabel="Entity reference"
 			/>

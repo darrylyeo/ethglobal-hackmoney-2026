@@ -17,18 +17,18 @@
 	let {
 		params,
 		provider,
-		strategy = null,
+		strategy = undefined,
 		swapperAccount,
 	}: {
 		params: ActionParams<ActionType.Swap> | null
 		provider?: string
-		strategy?: ProtocolStrategy | null
+		strategy?: ProtocolStrategy | undefined
 		swapperAccount: `0x${string}` | null
 	} = $props()
 
 	// State
 	let fetching = $state(false)
-	let error = $state<string | null>(null)
+	let error = $state<string | undefined>(undefined)
 
 	// (Derived)
 	const swapParams = $derived(
@@ -104,7 +104,7 @@
 	const onFetch = async () => {
 		if (!requestId) return
 		fetching = true
-		error = null
+		error = undefined
 		try {
 			if (provider) {
 				await fetchSpandexQuoteForProvider(requestId, provider as ProviderKey)

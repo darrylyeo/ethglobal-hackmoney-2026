@@ -11,11 +11,11 @@
 
 	// Props
 	let {
-		selectedActor = null as `0x${string}` | null,
+		selectedActor = undefined as `0x${string}` | undefined,
 		filterAddresses = $bindable([] as `0x${string}`[]),
 		availableAccounts = [],
 	}: {
-		selectedActor?: `0x${string}` | null
+		selectedActor?: `0x${string}` | undefined
 		filterAddresses?: `0x${string}`[]
 		availableAccounts?: `0x${string}`[]
 	} = $props()
@@ -51,14 +51,12 @@
 			: (query.data ?? [])
 					.map((r) => r.row)
 					.filter((row) =>
-						actors.some(
-							(a) => row.$id.address.toLowerCase() === a.toLowerCase(),
-						),
+						actors.some((a) => row.$id.address === a),
 					)
 					.sort((a, b) => b.$id.createdAt - a.$id.createdAt),
 	)
 	const singleAddress = $derived(
-		actors.length === 1 ? actors[0] : null,
+		actors.length === 1 ? actors[0] : undefined,
 	)
 
 
@@ -104,11 +102,11 @@
 					<ComboboxMultiple
 						items={availableAccounts}
 						bind:value={filterAddresses}
-						placeholder="Account"
-						ariaLabel="Filter by account"
 						getItemId={(addr) => addr}
 						getItemLabel={(addr) =>
 							`${addr.slice(0, 6)}…${addr.slice(-4)}`}
+						placeholder="Account"
+						ariaLabel="Filter by account"
 					/>
 				</div>
 			{/if}

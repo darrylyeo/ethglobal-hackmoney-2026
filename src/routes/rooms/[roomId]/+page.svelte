@@ -125,6 +125,7 @@
 	<EntityView
 		data-scroll-item
 		entityType={EntityType.Room}
+		entityId={{ id: roomId }}
 		entity={{
 			id: roomId,
 			createdAt: 0,

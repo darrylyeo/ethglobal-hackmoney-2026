@@ -10,20 +10,20 @@
 >
 	// Types/constants
 	import type { Entity, EntityId, EntityType } from '$/data/$EntityType.ts'
-	import { entityTypes } from '$/data/$EntityType.ts'
+	import { EntityType as EntityTypeEnum, entityTypes } from '$/data/$EntityType.ts'
 
 
 	// Props
 	let {
 		entityType,
 		entity,
+		entityId: entityIdProp,
 		idSerialized,
 		href,
 		label,
 		layout = EntityLayout.Page,
 		metadata,
 		annotation,
-		autoWatched = false,
 		hasAnchorTitle = true,
 		Title,
 		AfterTitle,
@@ -33,13 +33,13 @@
 	}: {
 		entityType: _EntityType
 		entity?: _Entity
+		entityId?: EntityId
 		idSerialized: string
 		href: string
 		label: string
 		layout?: EntityLayout
 		metadata?: Array<{ term: string; detail: string }>
 		annotation?: string
-		autoWatched?: boolean
 		hasAnchorTitle?: boolean
 		Title?: import('svelte').Snippet
 		AfterTitle?: import('svelte').Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
@@ -56,7 +56,16 @@
 	)
 	const articleId = $derived(`${entityType}:${idSerialized}`)
 	const entityId = $derived(
-		(entity as { $id?: EntityId } | undefined)?.$id ?? undefined,
+		entityIdProp
+			?? (entity as { $id?: EntityId } | undefined)?.$id
+			?? (idSerialized != null &&
+				[
+					EntityTypeEnum.Session,
+					EntityTypeEnum.Room,
+					EntityTypeEnum.AgentChatTree,
+				].includes(entityType)
+				? ({ id: idSerialized } as EntityId)
+				: undefined),
 	)
 
 
@@ -81,7 +90,7 @@
 					<div data-row="start gap-2">
 						<div data-row-item="flexible" data-column="gap-2">
 							<div data-row="start gap-2">
-								{#snippet headingContent()}
+								{#snippet HeadingContent()}
 									<Heading>
 										{#if Title}
 											{@render Title()}
@@ -93,10 +102,10 @@
 
 								{#if hasAnchorTitle}
 									<a href={`#${articleId}`}>
-										{@render headingContent()}
+										{@render HeadingContent()}
 									</a>
 								{:else}
-									{@render headingContent()}
+									{@render HeadingContent()}
 								{/if}
 
 								{#if AfterTitle}
@@ -107,7 +116,6 @@
 									<WatchButton
 										{entityType}
 										{entityId}
-										{autoWatched}
 									/>
 								{/if}
 							</div>

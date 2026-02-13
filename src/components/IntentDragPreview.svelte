@@ -233,7 +233,7 @@ import {
 			interactive={isInteractive}
 			{flowIconSrc}
 		>
-			{#snippet tooltipContent()}
+			{#snippet TooltipContent()}
 				<div
 					class="intent-drag-tooltip"
 					data-card="padding-3"

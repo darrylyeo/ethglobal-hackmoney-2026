@@ -72,7 +72,7 @@
 	const normalizedBalanceTokens = $derived([
 		...new Map(
 			balanceTokens.map((token) => [
-				`${token.chainId}:${token.tokenAddress.toLowerCase()}`,
+				`${token.chainId}:${token.tokenAddress}`,
 				token,
 			]),
 		).values(),
@@ -107,8 +107,8 @@
 			.map((token) =>
 				ercTokens.find(
 					(entry) =>
-						entry.chainId === token.chainId &&
-						entry.address.toLowerCase() === token.tokenAddress.toLowerCase(),
+					entry.chainId === token.chainId &&
+					entry.address === token.tokenAddress,
 				),
 			)
 			.flatMap((token) => (token ? [token] : [])),
@@ -181,7 +181,7 @@
 			id: address,
 			label: `${address.slice(0, 6)}…${address.slice(-4)}`,
 			filterFunction: (balance: BalanceFilterItem) => (
-				balance.$id.$actor.address.toLowerCase() === address.toLowerCase()
+				balance.$id.$actor.address === address
 			),
 		})),
 	)
@@ -530,8 +530,7 @@
 							{@const token = displayTokens.find(
 								(entry) =>
 									entry.chainId === b.$id.$coin.$network.chainId &&
-									entry.address.toLowerCase() ===
-										b.$id.$coin.address.toLowerCase(),
+									entry.address === b.$id.$coin.address,
 							)}
 							{@const assetId = getStorkAssetIdForSymbol(b.symbol)}
 							{@const priceRow = assetId

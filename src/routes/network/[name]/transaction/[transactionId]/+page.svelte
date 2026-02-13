@@ -201,17 +201,17 @@
 	{:else}
 		<EntityView
 			entityType={EntityType.Transaction}
-			idSerialized={`${nameParam}:${transactionId}`}
-			href={resolve(`/network/${nameParam}/transaction/${transactionId}`)}
-			label={`Tx ${transactionId.slice(0, 10)}… · ${config.name}`}
+			idSerialized={`${nameParam}:${transactionId!}`}
+			href={resolve(`/network/${nameParam}/transaction/${transactionId!}`)}
+			label={`Tx ${transactionId!.slice(0, 10)}… · ${config.name}`}
 			annotation="Transaction"
 		>
 			{#snippet Title()}
 				<span data-row="inline gap-2">
 					<EvmTransactionId
-						txHash={transactionId}
+						txHash={transactionId!}
 						chainId={chainId}
-						vertical
+						isVertical
 					/>
 					<NetworkName chainId={chainId} showIcon={false} />
 				</span>

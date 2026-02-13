@@ -107,6 +107,7 @@
 	>
 		<input
 			type="text"
+			data-text="monospace"
 			placeholder="Deposit amount"
 			bind:value={depositAmount}
 			inputmode="decimal"
@@ -128,6 +129,7 @@
 	>
 		<input
 			type="text"
+			data-text="monospace"
 			placeholder="Withdraw amount"
 			bind:value={withdrawAmount}
 			inputmode="decimal"

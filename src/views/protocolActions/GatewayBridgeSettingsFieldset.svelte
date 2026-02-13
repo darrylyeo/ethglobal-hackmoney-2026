@@ -1,23 +1,33 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type Action } from '$/constants/actions.ts'
-	import { PatternType } from '$/constants/patterns.ts'
+	import type { Network$Id } from '$/data/Network.ts'
 
 
 	// Props
-	let { action = $bindable() }: { action: Action } = $props()
+	let {
+		action = $bindable(),
+		actors = [],
+		network = 1,
+	}: {
+		action: Action
+		actors?: readonly `0x${string}`[]
+		network?: number
+	} = $props()
 
 
 	// (Derived)
 	const p = $derived(
 		action.type === ActionType.Bridge
-			? (action.params as { useCustomRecipient: boolean; customRecipient: string })
+			? (action.params as { useCustomRecipient: boolean; customRecipient: string; fromChainId?: number })
 			: null,
 	)
+	const actorItems = $derived(actors.map((a) => ({ address: a })))
+	const effectiveNetwork = $derived(p?.fromChainId ?? network)
 
 
 	// Components
-	import PatternInput from '$/components/PatternInput.svelte'
+	import AddressInput from '$/views/AddressInput.svelte'
 </script>
 
 {#if action.type === ActionType.Bridge && p}
@@ -40,18 +50,19 @@
 		{#if p.useCustomRecipient}
 			<label data-column="gap-2">
 				<span>Recipient address</span>
-				<PatternInput
-					patternTypes={[PatternType.EvmAddress, PatternType.EnsName]}
-					value={p.customRecipient}
-					oninput={(e: Event) => {
+				<AddressInput
+					items={actorItems}
+					bind:value={() => (p.customRecipient && p.customRecipient.startsWith('0x') ? (p.customRecipient as `0x${string}`) : null), (v) => {
 						action = {
 							...action,
 							params: {
 								...action.params,
-								customRecipient: (e.currentTarget as HTMLInputElement).value,
+								customRecipient: v ?? '',
 							},
 						} as Action
 					}}
+					network={effectiveNetwork as Network$Id}
+					placeholder="Select or enter address"
 					ariaLabel="Recipient address"
 				/>
 			</label>

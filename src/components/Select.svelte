@@ -3,44 +3,56 @@
 	import { stringify } from 'devalue'
 	import type { Snippet } from 'svelte'
 
+
+	// IDs
+	const _id = $props.id()
+
+
 	// Props
 	let {
 		items,
-		value = $bindable(null as _Item | null),
+		value = $bindable(),
+		getItemId = stringify,
+		getItemLabel = getItemId,
+		getItemDisabled,
+		getItemGroupId,
+		getGroupLabel = (groupId: string) => groupId,
+
+		Before,
+		After,
+		Item: ItemSnippet,
+		children,
+
 		placeholder,
 		disabled,
 		name,
 		allowDeselect,
 		id,
 		ariaLabel,
-		getItemId = stringify,
-		getItemLabel = getItemId,
-		getItemDisabled,
-		getItemGroupId,
-		getGroupLabel = (groupId: string) => groupId,
-		Before,
-		After,
-		Item: ItemSnippet,
-		children,
+
 		...rootProps
 	}: {
 		items: readonly _Item[]
-		value?: _Item | null
+		value?: _Item | undefined
+
+		getItemId?: (item: _Item) => string
+		getItemLabel?: (item: _Item) => string
+		getItemDisabled?: (item: _Item) => boolean
+		getItemGroupId?: (item: _Item) => string
+		getGroupLabel?: (groupId: string) => string
+
+		Before?: Snippet
+		After?: Snippet
+		Item?: Snippet<[item: _Item, selected: boolean]>
+		children?: Snippet
+
 		placeholder?: string
 		disabled?: boolean
 		name?: string
 		allowDeselect?: boolean
 		id?: string
 		ariaLabel?: string
-		getItemId?: (item: _Item) => string
-		getItemLabel?: (item: _Item) => string
-		getItemDisabled?: (item: _Item) => boolean
-		getItemGroupId?: (item: _Item) => string
-		getGroupLabel?: (groupId: string) => string
-		Before?: Snippet
-		After?: Snippet
-		Item?: Snippet<[item: _Item, selected: boolean]>
-		children?: Snippet
+
 		[key: string]: unknown
 	} = $props()
 
@@ -52,7 +64,7 @@
 			id: getItemId(item),
 			label: getItemLabel(item),
 			disabled: getItemDisabled ? getItemDisabled(item) : false,
-		})),
+		}))
 	)
 	const normalizedGroups = $derived(
 		getItemGroupId
@@ -75,20 +87,20 @@
 							disabled: getItemDisabled ? getItemDisabled(item) : false,
 						})),
 					}))
-			: [],
+			: []
 	)
 	const triggerLabel = $derived(
 		normalizedItems.find((item) => {
-			const singleValue = value ?? null
+			const singleValue = value ?? undefined
 			return item.id === (singleValue ? getItemId(singleValue) : '')
-		})?.label ?? placeholder ?? '',
+		})?.label ?? placeholder ?? ''
 	)
 	const rootItems = $derived(
 		normalizedItems.map((item) => ({
 			value: item.id,
 			label: item.label,
 			disabled: item.disabled,
-		})),
+		}))
 	)
 
 
@@ -101,10 +113,10 @@
 	{...rootProps}
 	type="single"
 	bind:value={() => {
-		const singleValue = value ?? null
+		const singleValue = value ?? undefined
 		return singleValue ? getItemId(singleValue) : ''
 	}, (v) => {
-		value = normalizedItems.find((item) => item.id === v)?.item ?? null
+		value = normalizedItems.find((item) => item.id === v)?.item ?? undefined
 	}}
 	{disabled}
 	{name}
@@ -114,7 +126,7 @@
 	{#if children}
 		{@render children()}
 	{:else}
-		<Select.Trigger {id} aria-label={ariaLabel}>
+		<Select.Trigger id={id ?? _id} aria-label={ariaLabel}>
 			<span data-row="gap-2">
 				{#if Before}
 					{@render Before()}

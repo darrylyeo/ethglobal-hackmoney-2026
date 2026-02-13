@@ -21,7 +21,6 @@
 
 
 	// (Derived)
-	const addressNorm = $derived(address.toLowerCase())
 	const sourceQuery = useLiveQuery(
 		(q) =>
 			q
@@ -29,11 +28,11 @@
 				.where(({ row }) =>
 					and(
 						eq(row.$id.$network.chainId, chainId),
-						eq(row.$id.address, addressNorm),
+						eq(row.$id.address, address),
 					),
 				)
 				.select(({ row }) => ({ row })),
-		[() => chainId, () => addressNorm],
+		[() => chainId, () => address],
 	)
 	const row = $derived(sourceQuery.data?.[0]?.row)
 	const hasFiles = $derived(

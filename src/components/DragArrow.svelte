@@ -22,7 +22,7 @@
 		arrowHeadSize = 12,
 		sourceColor,
 		targetColor,
-		tooltipContent,
+		TooltipContent,
 		isInteractive = false,
 		flowIconSrc,
 	}: {
@@ -32,7 +32,7 @@
 		arrowHeadSize?: number
 		sourceColor?: string
 		targetColor?: string
-		tooltipContent?: Snippet
+		TooltipContent?: Snippet
 		isInteractive?: boolean
 		flowIconSrc?: string
 	} = $props()
@@ -81,7 +81,7 @@
 		{flowIconSrc}
 	/>
 
-{#if tooltipContent}
+{#if TooltipContent}
 	<Tooltip.Root open={true} delayDuration={0} disableHoverableContent={false}>
 		<Tooltip.Trigger>
 			{#snippet child({ props })}
@@ -100,7 +100,7 @@
 				avoidCollisions={true}
 				collisionPadding={8}
 			>
-				{@render tooltipContent()}
+				{@render TooltipContent()}
 			</Tooltip.Content>
 		</Tooltip.Portal>
 	</Tooltip.Root>

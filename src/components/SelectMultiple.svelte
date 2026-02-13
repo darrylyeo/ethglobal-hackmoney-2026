@@ -3,44 +3,56 @@
 	import { stringify } from 'devalue'
 	import type { Snippet } from 'svelte'
 
+
+	// IDs
+	const _id = $props.id()
+
+
 	// Props
 	let {
 		items,
 		value = $bindable([] as _Item[]),
+		getItemId = stringify,
+		getItemLabel = getItemId,
+		getItemDisabled,
+		getItemGroupId,
+		getGroupLabel = (groupId: string) => groupId,
+
+		Before,
+		After,
+		Item: ItemSnippet,
+		children,
+
 		placeholder,
 		disabled,
 		name,
 		allowDeselect,
 		id,
 		ariaLabel,
-		getItemId = stringify,
-		getItemLabel = getItemId,
-		getItemDisabled,
-		getItemGroupId,
-		getGroupLabel = (groupId: string) => groupId,
-		Before,
-		After,
-		Item: ItemSnippet,
-		children,
+
 		...rootProps
 	}: {
 		items: readonly _Item[]
 		value?: _Item[]
+
+		getItemId?: (item: _Item) => string
+		getItemLabel?: (item: _Item) => string
+		getItemDisabled?: (item: _Item) => boolean
+		getItemGroupId?: (item: _Item) => string
+		getGroupLabel?: (groupId: string) => string
+
+		Before?: Snippet
+		After?: Snippet
+		Item?: Snippet<[item: _Item, selected: boolean]>
+		children?: Snippet
+
 		placeholder?: string
 		disabled?: boolean
 		name?: string
 		allowDeselect?: boolean
 		id?: string
 		ariaLabel?: string
-		getItemId?: (item: _Item) => string
-		getItemLabel?: (item: _Item) => string
-		getItemDisabled?: (item: _Item) => boolean
-		getItemGroupId?: (item: _Item) => string
-		getGroupLabel?: (groupId: string) => string
-		Before?: Snippet
-		After?: Snippet
-		Item?: Snippet<[item: _Item, selected: boolean]>
-		children?: Snippet
+
 		[key: string]: unknown
 	} = $props()
 
@@ -118,7 +130,7 @@
 	{#if children}
 		{@render children()}
 	{:else}
-		<Select.Trigger {id} aria-label={ariaLabel}>
+		<Select.Trigger id={id ?? _id} aria-label={ariaLabel}>
 			<span data-row="gap-2">
 				{#if Before}
 					{@render Before()}

@@ -12,14 +12,14 @@
 		amount,
 		isDraggable = true,
 		showName = false,
-		priceRow = null,
-		showPriceTooltip = priceRow !== null,
+		priceRow = undefined,
+		showPriceTooltip = priceRow != null,
 	}: {
 		coin: Coin
 		amount?: bigint
 		isDraggable?: boolean
 		showName?: boolean
-		priceRow?: StorkPriceRow | null
+		priceRow?: StorkPriceRow | undefined
 		showPriceTooltip?: boolean
 	} = $props()
 
@@ -55,7 +55,7 @@
 	{@attach draggable({ text: stringify(coin), enabled: isDraggable })}
 	data-row="inline wrap gap-1"
 >
-	{#snippet coinAmountBody()}
+	{#snippet CoinAmountBody()}
 		<span class="coin-amount" data-row="inline gap-2">
 			<span class="coin-icons" data-row="center gap-1">
 				{#if coin.icon?.original?.url}
@@ -98,12 +98,13 @@
 	{#if showPriceTooltip}
 		<Tooltip contentProps={{ side: 'top' }}>
 			{#snippet Content()}
-				<StorkPriceFeed symbol={coin.symbol} {priceRow} />
+				<StorkPriceFeed symbol={coin.symbol} priceRow={priceRow ?? null} />
 			{/snippet}
-			{@render coinAmountBody()}
+
+			{@render CoinAmountBody()}
 		</Tooltip>
 	{:else}
-		{@render coinAmountBody()}
+		{@render CoinAmountBody()}
 	{/if}
 </div>
 

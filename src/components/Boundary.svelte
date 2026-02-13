@@ -45,14 +45,15 @@
 						<h3>Error</h3>
 					</div>
 					<div data-row="gap-2">
-						<button onclick={retry}>Retry</button>
+						{#if retry}
+							<button onclick={retry}>Retry</button>
+						{/if}
 					</div>
 				</header>
 
 				<div class="error-content">
-					{#if console.error(error) || error instanceof Error}
+					{#if error instanceof Error}
 						<p>{error.message}</p>
-
 						{#if error.stack}
 							<details>
 								<summary>Stack trace</summary>
@@ -60,7 +61,7 @@
 							</details>
 						{/if}
 					{:else}
-						<pre>{stringify(error, null, 2)}</pre>
+						<pre>{stringify(error ?? null, null, 2)}</pre>
 					{/if}
 				</div>
 			</div>

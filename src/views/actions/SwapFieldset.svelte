@@ -31,13 +31,13 @@
 	)
 	const coins = $derived(params ? chainCoins(params.chainId) : [])
 	const tokenInCoin = $derived(
-		params && coins.length
-			? (coins.find((c) => c.address.toLowerCase() === params.tokenIn.toLowerCase()) ?? coins[0])
+		params && typeof params.tokenIn === 'string' && coins.length
+			? (coins.find((c) => c.address === params.tokenIn) ?? coins[0])
 			: null,
 	)
 	const tokenOutCoin = $derived(
-		params && coins.length
-			? (coins.find((c) => c.address.toLowerCase() === params.tokenOut.toLowerCase()) ?? (coins[1] ?? coins[0]))
+		params && typeof params.tokenOut === 'string' && coins.length
+			? (coins.find((c) => c.address === params.tokenOut) ?? (coins[1] ?? coins[0]))
 			: null,
 	)
 
@@ -64,51 +64,50 @@
 		</label>
 		{#if asNonEmptyCoins(coins)}
 			<div data-column="gap-2">
-				<label for="swap-amount-in">From</label>
-				<CoinAmountInput
-					id="swap-amount-in"
-					coins={coins}
-					bind:coin={() => tokenInCoin ?? coins[0], (c) => {
-						if (c && action?.params != null)
-							action = { ...action, params: { ...action.params, tokenIn: c.address } }
-					}}
-					min={0n}
-					max={0n}
-					bind:value={() => params?.amount ?? 0n, (v) => {
-						if (action?.params != null)
-							action = { ...action, params: { ...action.params, amount: v } }
-					}}
-					bind:isInvalid={invalid}
-					ariaLabel="Amount in"
-				/>
+				<label data-column="gap-2">
+					<span>From</span>
+					<CoinAmountInput
+						coins={coins}
+						bind:coin={() => tokenInCoin ?? coins[0], (c) => {
+							if (c && action?.params != null)
+								action = { ...action, params: { ...action.params, tokenIn: c.address } }
+						}}
+						min={0n}
+						max={0n}
+						bind:value={params!.amount}
+						bind:isInvalid={invalid}
+						ariaLabel="Amount in"
+					/>
+				</label>
 			</div>
 			<div data-column="gap-2">
-				<label for="swap-token-out">To</label>
-				<CoinInput
-					id="swap-token-out"
-					coins={coins}
-					bind:value={() => tokenOutCoin, (c) => {
-						if (c && action?.params != null)
-							action = { ...action, params: { ...action.params, tokenOut: c.address } }
-					}}
-					ariaLabel="Token out"
-				/>
+				<label data-column="gap-2">
+					<span>To</span>
+					<CoinInput
+						coins={coins}
+						bind:value={() => tokenOutCoin, (c) => {
+							if (c && action?.params != null)
+								action = { ...action, params: { ...action.params, tokenOut: c.address } }
+						}}
+						ariaLabel="Token out"
+					/>
+				</label>
 			</div>
 			<div data-column="gap-2">
-				<label for="swap-slippage">Slippage</label>
-				<Select
-					id="swap-slippage"
-					items={slippagePresets}
-					getItemId={(x) => x.id}
-					getItemLabel={(x) => formatSlippagePercent(x.value)}
-					bind:value={() => slippagePresets.find((x) => Math.abs(x.value - (params?.slippage ?? 0)) < 1e-9)?.id ?? '', (v: string | string[]) => {
-						const preset = slippagePresets.find((x) => x.id === (typeof v === 'string' ? v : v[0]))
-						if (preset && action?.params != null)
-							action = { ...action, params: { ...action.params, slippage: preset.value } }
-					}}
-					placeholder={params != null ? formatSlippagePercent(params.slippage) : ''}
-					ariaLabel="Slippage"
-				/>
+				<label data-column="gap-2">
+					<span>Slippage</span>
+					<Select
+						items={slippagePresets}
+						bind:value={() => slippagePresets.find((x) => Math.abs(x.value - (params?.slippage ?? 0)) < 1e-9) ?? undefined, (preset) => {
+							if (preset && action?.params != null)
+								action = { ...action, params: { ...action.params, slippage: preset.value } }
+						}}
+						getItemId={(x) => x.id}
+						getItemLabel={(x) => formatSlippagePercent(x.value)}
+						placeholder={params != null ? formatSlippagePercent(params.slippage) : ''}
+						ariaLabel="Slippage"
+					/>
+				</label>
 			</div>
 		{:else}
 			<p data-muted>No tokens for this network.</p>

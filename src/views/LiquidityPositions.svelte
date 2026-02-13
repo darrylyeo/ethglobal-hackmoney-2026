@@ -10,11 +10,11 @@
 
 	// Props
 	let {
-		selectedActor = null as `0x${string}` | null,
+		selectedActor = undefined as `0x${string}` | undefined,
 		filterAddresses = $bindable([] as `0x${string}`[]),
 		availableAccounts = [],
 	}: {
-		selectedActor?: `0x${string}` | null
+		selectedActor?: `0x${string}` | undefined
 		filterAddresses?: `0x${string}`[]
 		availableAccounts?: `0x${string}`[]
 	} = $props()
@@ -51,9 +51,7 @@
 			: (query.data ?? [])
 					.map((r) => r.row)
 					.filter((row) =>
-						actors.some(
-							(a) => row.owner.toLowerCase() === a.toLowerCase(),
-						),
+						actors.some((a) => row.owner === a),
 					)
 					.sort((a, b) =>
 						a.chainId !== b.chainId
@@ -62,7 +60,7 @@
 					),
 	)
 	const singleAddress = $derived(
-		actors.length === 1 ? actors[0] : null,
+		actors.length === 1 ? actors[0] : undefined,
 	)
 	const ownerChainPairs = $derived(
 		[
@@ -73,10 +71,10 @@
 					.flatMap((c) =>
 						c.actors
 							.filter((actor) =>
-								actors.some((a) => a.toLowerCase() === actor.toLowerCase()),
+								actors.some((a) => a === actor),
 							)
 							.map((owner) => [
-								`${c.chainId}:${owner.toLowerCase()}`,
+								`${c.chainId}:${owner}`,
 								{ chainId: c.chainId!, owner },
 							]),
 					),
@@ -129,11 +127,11 @@
 					<ComboboxMultiple
 						items={availableAccounts}
 						bind:value={filterAddresses}
-						placeholder="Account"
-						ariaLabel="Filter by account"
 						getItemId={(addr) => addr}
 						getItemLabel={(addr) =>
 							`${addr.slice(0, 6)}…${addr.slice(-4)}`}
+						placeholder="Account"
+						ariaLabel="Filter by account"
 					/>
 				</div>
 			{/if}

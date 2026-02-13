@@ -47,7 +47,8 @@ h6 {
 		font-family: var(--fontFamily-sans);
 	}
 
-	&[data-text~="font-monospace"] {
+	&[data-text~="font-monospace"],
+	&[data-text~="monospace"] {
 		font-family: var(--fontFamily-monospace);
 	}
 
@@ -174,6 +175,8 @@ label:has(> input:is([type='checkbox'], [type='radio'])),
 	cursor: pointer;
 
 	field-sizing: content;
+	min-width: 0;
+
 	display: inline-flex;
 	align-items: center;
 	padding: 0.66em;
@@ -377,6 +380,7 @@ summary {
 
 	&[data-row~='inline'] {
 		display: inline flex;
+		gap: 0.25em;
 	}
 
 	&[data-row~='wrap'],

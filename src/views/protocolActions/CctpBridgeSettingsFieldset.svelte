@@ -30,13 +30,12 @@
 			<span>Transfer speed</span>
 			<Select
 				items={transferSpeedItems}
+				bind:value={() => transferSpeedItems.find((x) => x.id === p.transferSpeed) ?? undefined, (item) => {
+					if (item && (item.id === 'fast' || item.id === 'standard'))
+						action = { ...action, params: { ...action.params, transferSpeed: item.id } } as Action
+				}}
 				getItemId={(x) => x.id}
 				getItemLabel={(x) => x.label}
-				bind:value={() => p.transferSpeed, (v: string | string[]) => {
-					const next = typeof v === 'string' ? v : v?.[0]
-					if (next === 'fast' || next === 'standard')
-						action = { ...action, params: { ...action.params, transferSpeed: next } } as Action
-				}}
 				ariaLabel="Transfer speed"
 			/>
 		</label>

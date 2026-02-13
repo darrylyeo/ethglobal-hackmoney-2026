@@ -50,10 +50,10 @@
 	{...rootProps}
 	{items}
 	bind:value
-	{placeholder}
-	{disabled}
-	{ariaLabel}
 	getItemId={(s: string) => s}
 	getItemLabel={(s: string) => s}
 	{...(getItemGroupId && { getItemGroupId, getGroupLabel })}
+	{placeholder}
+	{disabled}
+	{ariaLabel}
 />

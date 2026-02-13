@@ -12,11 +12,11 @@
 	// Props
 	let {
 		assetIds,
-		chainId = null,
+		chainId = undefined,
 		title = 'Stork Prices',
 	}: {
 		assetIds: string[]
-		chainId?: number | null
+		chainId?: number | undefined
 		title?: string
 	} = $props()
 
