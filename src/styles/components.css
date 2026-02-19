@@ -46,9 +46,7 @@ h6 {
 	&[data-text~="font-base"] {
 		font-family: var(--fontFamily-sans);
 	}
-
-	&[data-text~="font-monospace"],
-	&[data-text~="monospace"] {
+	&[data-text~="font-monospace"] {
 		font-family: var(--fontFamily-monospace);
 	}
 
@@ -571,16 +569,6 @@ summary {
 		/* border-radius: calc(var(--card-radius) + var(--card-padding) * 5); */
 		border-radius: calc(var(--card-radius) * 5);
 	}
-
-	[data-card] [data-card] [data-card] & {
-		--card-backgroundColor: light-dark(var(--color-bg-muted), color-mix(in srgb, var(--color-bg-page) 35%, var(--color-bg-card)));
-		--card-radius: 0.375em;
-	}
-
-	[data-card] [data-card] [data-card] [data-card] & {
-		--card-backgroundColor: var(--color-bg);
-		--card-radius: 0.5em;
-	}
 }
 
 [data-badge] {
@@ -991,13 +979,17 @@ dl {
 	--scrollContainer-sizeBlock: 100cqb;
 	--scrollContainer-sizeInline: 100cqi;
 
+	/* Internal variables */
+	--scrollSnapAlign-start: start;
+	--scrollSnapAlign-end: end;
+
 	/* Rules */
-	overscroll-behavior: none;
+	/* overscroll-behavior: none; */
 	touch-action: pan-x pan-y;
 
 	&:not([data-scroll-container~='block']):not(
-			[data-scroll-container~='inline']
-		) {
+		[data-scroll-container~='inline']
+	) {
 		container-type: size;
 		container-type: scroll-state size;
 		overflow: auto auto;
@@ -1012,8 +1004,28 @@ dl {
 		container-type: scroll-state block-size;
 		overflow-x: auto;
 	}
+
+	&[data-scroll-container~='snap-block'],
+	&[data-scroll-container~='snap-inline'] {
+		&:has(:target) {
+			[data-scroll-item]:not(:target) {
+				--scrollItem-internalAnimation: InitialScrollSnapDisableAnimation 0.1s both;
+			}
+		}
+	}
 	&[data-scroll-container~='snap-block'] {
 		scroll-snap-type: y proximity;
+
+		&:has(:target) {
+			scroll-snap-type: y mandatory;
+		}
+	}
+	&[data-scroll-container~='snap-inline'] {
+		scroll-snap-type: x proximity;
+
+		&:has(:target) {
+			scroll-snap-type: x mandatory;
+		}
 	}
 
 	/* Derived */
@@ -1029,14 +1041,8 @@ dl {
 	--sticky0-paddingInlineStart: var(--sticky-paddingInlineStart);
 	--sticky0-paddingInlineEnd: var(--sticky-paddingInlineEnd);
 
-	--sticky0-sizeBlock: calc(
-		var(--scrollContainer-sizeBlock) - var(--sticky0-insetBlockStart) -
-			var(--sticky0-insetBlockEnd)
-	);
-	--sticky0-sizeInline: calc(
-		var(--scrollContainer-sizeInline) - var(--sticky0-insetInlineStart) -
-			var(--sticky0-insetInlineEnd)
-	);
+	--sticky0-sizeBlock: calc(var(--scrollContainer-sizeBlock) - var(--sticky0-insetBlockStart) - var(--sticky0-insetBlockEnd));
+	--sticky0-sizeInline: calc(var(--scrollContainer-sizeInline) - var(--sticky0-insetInlineStart) - var(--sticky0-insetInlineEnd));
 
 	--sticky-insetBlockStart: var(--sticky0-insetBlockStart);
 	--sticky-insetBlockEnd: var(--sticky0-insetBlockEnd);
@@ -1055,36 +1061,18 @@ dl {
 	[data-sticky-container]:not(&) {
 		--sticky-level: 1;
 
-		--sticky1-insetBlockStart: calc(
-			var(--sticky0-insetBlockStart) + var(--sticky0-paddingBlockStart) +
-				var(--sticky-marginBlockStart)
-		);
-		--sticky1-insetBlockEnd: calc(
-			var(--sticky0-insetBlockEnd) + var(--sticky0-paddingBlockEnd) +
-				var(--sticky-marginBlockEnd)
-		);
-		--sticky1-insetInlineStart: calc(
-			var(--sticky0-insetInlineStart) + var(--sticky0-paddingInlineStart) +
-				var(--sticky-marginInlineStart)
-		);
-		--sticky1-insetInlineEnd: calc(
-			var(--sticky0-insetInlineEnd) + var(--sticky0-paddingInlineEnd) +
-				var(--sticky-marginInlineEnd)
-		);
+		--sticky1-insetBlockStart: calc(var(--sticky0-insetBlockStart) + var(--sticky0-paddingBlockStart) + var(--sticky-marginBlockStart));
+		--sticky1-insetBlockEnd: calc(var(--sticky0-insetBlockEnd) + var(--sticky0-paddingBlockEnd) + var(--sticky-marginBlockEnd));
+		--sticky1-insetInlineStart: calc(var(--sticky0-insetInlineStart) + var(--sticky0-paddingInlineStart) + var(--sticky-marginInlineStart));
+		--sticky1-insetInlineEnd: calc(var(--sticky0-insetInlineEnd) + var(--sticky0-paddingInlineEnd) + var(--sticky-marginInlineEnd));
 
 		--sticky1-paddingBlockStart: var(--sticky-paddingBlockStart);
 		--sticky1-paddingBlockEnd: var(--sticky-paddingBlockEnd);
 		--sticky1-paddingInlineStart: var(--sticky-paddingInlineStart);
 		--sticky1-paddingInlineEnd: var(--sticky-paddingInlineEnd);
 
-		--sticky1-sizeBlock: calc(
-			var(--scrollContainer-sizeBlock) - var(--sticky1-insetBlockStart) -
-				var(--sticky1-insetBlockEnd)
-		);
-		--sticky1-sizeInline: calc(
-			var(--scrollContainer-sizeInline) - var(--sticky1-insetInlineStart) -
-				var(--sticky1-insetInlineEnd)
-		);
+		--sticky1-sizeBlock: calc(var(--scrollContainer-sizeBlock) - var(--sticky1-insetBlockStart) - var(--sticky1-insetBlockEnd));
+		--sticky1-sizeInline: calc(var(--scrollContainer-sizeInline) - var(--sticky1-insetInlineStart) - var(--sticky1-insetInlineEnd));
 
 		--sticky-insetBlockStart: var(--sticky1-insetBlockStart);
 		--sticky-insetBlockEnd: var(--sticky1-insetBlockEnd);
@@ -1097,36 +1085,18 @@ dl {
 		[data-sticky-container] {
 			--sticky-level: 2;
 
-			--sticky2-insetBlockStart: calc(
-				var(--sticky1-insetBlockStart) + var(--sticky1-paddingBlockStart) +
-					var(--sticky-marginBlockStart)
-			);
-			--sticky2-insetBlockEnd: calc(
-				var(--sticky1-insetBlockEnd) + var(--sticky1-paddingBlockEnd) +
-					var(--sticky-marginBlockEnd)
-			);
-			--sticky2-insetInlineStart: calc(
-				var(--sticky1-insetInlineStart) + var(--sticky1-paddingInlineStart) +
-					var(--sticky-marginInlineStart)
-			);
-			--sticky2-insetInlineEnd: calc(
-				var(--sticky1-insetInlineEnd) + var(--sticky1-paddingInlineEnd) +
-					var(--sticky-marginInlineEnd)
-			);
+			--sticky2-insetBlockStart: calc(var(--sticky1-insetBlockStart) + var(--sticky1-paddingBlockStart) + var(--sticky-marginBlockStart));
+			--sticky2-insetBlockEnd: calc(var(--sticky1-insetBlockEnd) + var(--sticky1-paddingBlockEnd) + var(--sticky-marginBlockEnd));
+			--sticky2-insetInlineStart: calc(var(--sticky1-insetInlineStart) + var(--sticky1-paddingInlineStart) + var(--sticky-marginInlineStart));
+			--sticky2-insetInlineEnd: calc(var(--sticky1-insetInlineEnd) + var(--sticky1-paddingInlineEnd) + var(--sticky-marginInlineEnd));
 
 			--sticky2-paddingBlockStart: var(--sticky-paddingBlockStart);
 			--sticky2-paddingBlockEnd: var(--sticky-paddingBlockEnd);
 			--sticky2-paddingInlineStart: var(--sticky-paddingInlineStart);
 			--sticky2-paddingInlineEnd: var(--sticky-paddingInlineEnd);
 
-			--sticky2-sizeBlock: calc(
-				var(--scrollContainer-sizeBlock) - var(--sticky2-insetBlockStart) -
-					var(--sticky2-insetBlockEnd)
-			);
-			--sticky2-sizeInline: calc(
-				var(--scrollContainer-sizeInline) - var(--sticky2-insetInlineStart) -
-					var(--sticky2-insetInlineEnd)
-			);
+			--sticky2-sizeBlock: calc(var(--scrollContainer-sizeBlock) - var(--sticky2-insetBlockStart) - var(--sticky2-insetBlockEnd));
+			--sticky2-sizeInline: calc(var(--scrollContainer-sizeInline) - var(--sticky2-insetInlineStart) - var(--sticky2-insetInlineEnd));
 
 			--sticky-insetBlockStart: var(--sticky2-insetBlockStart);
 			--sticky-insetBlockEnd: var(--sticky2-insetBlockEnd);
@@ -1139,36 +1109,18 @@ dl {
 			[data-sticky-container] {
 				--sticky-level: 3;
 
-				--sticky3-insetBlockStart: calc(
-					var(--sticky2-insetBlockStart) + var(--sticky2-paddingBlockStart) +
-						var(--sticky-marginBlockStart)
-				);
-				--sticky3-insetBlockEnd: calc(
-					var(--sticky2-insetBlockEnd) + var(--sticky2-paddingBlockEnd) +
-						var(--sticky-marginBlockEnd)
-				);
-				--sticky3-insetInlineStart: calc(
-					var(--sticky2-insetInlineStart) + var(--sticky2-paddingInlineStart) +
-						var(--sticky-marginInlineStart)
-				);
-				--sticky3-insetInlineEnd: calc(
-					var(--sticky2-insetInlineEnd) + var(--sticky2-paddingInlineEnd) +
-						var(--sticky-marginInlineEnd)
-				);
+				--sticky3-insetBlockStart: calc(var(--sticky2-insetBlockStart) + var(--sticky2-paddingBlockStart) + var(--sticky-marginBlockStart));
+				--sticky3-insetBlockEnd: calc(var(--sticky2-insetBlockEnd) + var(--sticky2-paddingBlockEnd) + var(--sticky-marginBlockEnd));
+				--sticky3-insetInlineStart: calc(var(--sticky2-insetInlineStart) + var(--sticky2-paddingInlineStart) + var(--sticky-marginInlineStart));
+				--sticky3-insetInlineEnd: calc(var(--sticky2-insetInlineEnd) + var(--sticky2-paddingInlineEnd) + var(--sticky-marginInlineEnd));
 
 				--sticky3-paddingBlockStart: var(--sticky-paddingBlockStart);
 				--sticky3-paddingBlockEnd: var(--sticky-paddingBlockEnd);
 				--sticky3-paddingInlineStart: var(--sticky-paddingInlineStart);
 				--sticky3-paddingInlineEnd: var(--sticky-paddingInlineEnd);
 
-				--sticky3-sizeBlock: calc(
-					var(--scrollContainer-sizeBlock) - var(--sticky3-insetBlockStart) -
-						var(--sticky3-insetBlockEnd)
-				);
-				--sticky3-sizeInline: calc(
-					var(--scrollContainer-sizeInline) - var(--sticky3-insetInlineStart) -
-						var(--sticky3-insetInlineEnd)
-				);
+				--sticky3-sizeBlock: calc(var(--scrollContainer-sizeBlock) - var(--sticky3-insetBlockStart) - var(--sticky3-insetBlockEnd));
+				--sticky3-sizeInline: calc(var(--scrollContainer-sizeInline) - var(--sticky3-insetInlineStart) - var(--sticky3-insetInlineEnd));
 
 				--sticky-insetBlockStart: var(--sticky3-insetBlockStart);
 				--sticky-insetBlockEnd: var(--sticky3-insetBlockEnd);
@@ -1181,37 +1133,18 @@ dl {
 				[data-sticky-container] {
 					--sticky-level: 4;
 
-					--sticky4-insetBlockStart: calc(
-						var(--sticky3-insetBlockStart) + var(--sticky3-paddingBlockStart) +
-							var(--sticky-marginBlockStart)
-					);
-					--sticky4-insetBlockEnd: calc(
-						var(--sticky3-insetBlockEnd) + var(--sticky3-paddingBlockEnd) +
-							var(--sticky-marginBlockEnd)
-					);
-					--sticky4-insetInlineStart: calc(
-						var(--sticky3-insetInlineStart) +
-							var(--sticky3-paddingInlineStart) +
-							var(--sticky-marginInlineStart)
-					);
-					--sticky4-insetInlineEnd: calc(
-						var(--sticky3-insetInlineEnd) + var(--sticky3-paddingInlineEnd) +
-							var(--sticky-marginInlineEnd)
-					);
+					--sticky4-insetBlockStart: calc(var(--sticky3-insetBlockStart) + var(--sticky3-paddingBlockStart) + var(--sticky-marginBlockStart));
+					--sticky4-insetBlockEnd: calc(var(--sticky3-insetBlockEnd) + var(--sticky3-paddingBlockEnd) + var(--sticky-marginBlockEnd));
+					--sticky4-insetInlineStart: calc(var(--sticky3-insetInlineStart) + var(--sticky3-paddingInlineStart) + var(--sticky-marginInlineStart));
+					--sticky4-insetInlineEnd: calc(var(--sticky3-insetInlineEnd) + var(--sticky3-paddingInlineEnd) + var(--sticky-marginInlineEnd));
 
 					--sticky4-paddingBlockStart: var(--sticky-paddingBlockStart);
 					--sticky4-paddingBlockEnd: var(--sticky-paddingBlockEnd);
 					--sticky4-paddingInlineStart: var(--sticky-paddingInlineStart);
 					--sticky4-paddingInlineEnd: var(--sticky-paddingInlineEnd);
 
-					--sticky4-sizeBlock: calc(
-						var(--scrollContainer-sizeBlock) - var(--sticky4-insetBlockStart) -
-							var(--sticky4-insetBlockEnd)
-					);
-					--sticky4-sizeInline: calc(
-						var(--scrollContainer-sizeInline) -
-							var(--sticky4-insetInlineStart) - var(--sticky4-insetInlineEnd)
-					);
+					--sticky4-sizeBlock: calc(var(--scrollContainer-sizeBlock) - var(--sticky4-insetBlockStart) - var(--sticky4-insetBlockEnd));
+					--sticky4-sizeInline: calc(var(--scrollContainer-sizeInline) - var(--sticky4-insetInlineStart) - var(--sticky4-insetInlineEnd));
 
 					--sticky-insetBlockStart: var(--sticky4-insetBlockStart);
 					--sticky-insetBlockEnd: var(--sticky4-insetBlockEnd);
@@ -1227,8 +1160,8 @@ dl {
 	/* } */
 
 	/**
-   * Sticky Container
-   */
+	* Sticky Container
+	*/
 	&[data-sticky-container],
 	[data-sticky-container] {
 		/* Inputs */
@@ -1270,10 +1203,7 @@ dl {
 				inset-block-start: var(--sticky-insetBlockStart);
 				inset-block-end: var(--sticky-insetBlockEnd);
 
-				max-block-size: calc(
-					var(--scrollContainer-sizeBlock) - var(--sticky-insetBlockStart) -
-						var(--sticky-insetBlockEnd)
-				);
+				max-block-size: calc(var(--scrollContainer-sizeBlock) - var(--sticky-insetBlockStart) - var(--sticky-insetBlockEnd));
 
 				&[data-sticky~='block-start'] {
 					inset-inline-end: auto;
@@ -1333,31 +1263,26 @@ dl {
 		}
 
 		/**
-     * Scroll Item
-     */
+		* Scroll Item
+		*/
 		[data-scroll-item] {
+			/* Inputs */
+			--scrollItem-animation: none;
+			--scrollItem-animationTimeline: none;
+			--scrollItem-animationRange: normal;
+
+			/* Rules */
+			--scrollItem-internalAnimation: NoAnimation;
+
+			animation: var(--scrollItem-internalAnimation), var(--scrollItem-animation);
+			animation-timeline: none, var(--scrollItem-animationTimeline);
+			animation-range: none, var(--scrollItem-animationRange);
+
 			&[data-scroll-item~='inline-detached'] {
 				/* Rules */
-				--scrollItem-paddingInlineStart: max(
-					var(--scrollItem-inlineDetached-paddingStart),
-					(
-							var(--sticky-sizeInline) -
-								var(--scrollItem-inlineDetached-maxSize)
-						) /
-						2
-				);
-				--scrollItem-paddingInlineEnd: max(
-					var(--scrollItem-inlineDetached-paddingEnd),
-					(
-							var(--sticky-sizeInline) -
-								var(--scrollItem-inlineDetached-maxSize)
-						) /
-						2
-				);
-				--scrollItem-paddingInlineMatch: min(
-					var(--scrollItem-paddingInlineStart),
-					var(--scrollItem-paddingInlineEnd)
-				);
+				--scrollItem-paddingInlineStart: max(var(--scrollItem-inlineDetached-paddingStart), ((var(--sticky-sizeInline) - var(--scrollItem-inlineDetached-maxSize)) / 2));
+				--scrollItem-paddingInlineEnd: max(var(--scrollItem-inlineDetached-paddingEnd), ((var(--sticky-sizeInline) - var(--scrollItem-inlineDetached-maxSize)) / 2));
+				--scrollItem-paddingInlineMatch: min(var(--scrollItem-paddingInlineStart), var(--scrollItem-paddingInlineEnd));
 
 				inline-size: 100%;
 				padding-inline-start: var(--scrollItem-paddingInlineStart);
@@ -1369,30 +1294,22 @@ dl {
 				}
 
 				&[data-scroll-item~='padding-match-start'] {
-					padding-block-start: min(
-						var(--scrollItem-paddingInlineMatch),
-						var(--scrollItem-inlineDetached-maxPaddingMatchStart)
-					);
+					padding-block-start: min(var(--scrollItem-paddingInlineMatch), var(--scrollItem-inlineDetached-maxPaddingMatchStart));
 				}
 
 				&[data-scroll-item~='padding-match-end'] {
-					padding-block-end: min(
-						var(--scrollItem-paddingInlineMatch),
-						var(--scrollItem-inlineDetached-maxPaddingMatchEnd)
-					);
+					padding-block-end: min(var(--scrollItem-paddingInlineMatch), var(--scrollItem-inlineDetached-maxPaddingMatchEnd));
 				}
 
 				[data-scroll-item~='inline-detached'] {
 					inline-size: auto;
-					max-inline-size: calc(
-						100% + var(--scrollItem-paddingInlineStart) +
-							var(--scrollItem-paddingInlineEnd)
-					);
+					max-inline-size: calc(100% + var(--scrollItem-paddingInlineStart) + var(--scrollItem-paddingInlineEnd));
 					margin-inline-start: calc(-1 * var(--scrollItem-paddingInlineStart));
 					margin-inline-end: calc(-1 * var(--scrollItem-paddingInlineEnd));
 				}
 			}
 			&[data-scroll-item~='inline-attached'] {
+				/* Rules */
 				display: grid;
 				inline-size: min-content;
 				min-inline-size: var(--sticky-sizeInline);
@@ -1428,6 +1345,12 @@ dl {
 			&[data-scroll-item~='snap-block-end'] {
 				scroll-snap-align: end;
 			}
+			&[data-scroll-item~='snap-inline-start'] {
+				scroll-snap-align: start;
+			}
+			&[data-scroll-item~='snap-inline-end'] {
+				scroll-snap-align: end;
+			}
 
 			&[data-scroll-item~='block-size-max'] {
 				block-size: max-content;
@@ -1437,6 +1360,83 @@ dl {
 				inline-size: max-content;
 			}
 		}
+	}
+
+	&[data-scroll-container~='layout-inline-panes'] {
+		--scrollPanes-paneStatic-inlineSize: 21.5rem;
+		--scrollPanes-paneFlexible-inlineSize: 100cqi;
+		--scrollPanes-inlineMin: 30rem;
+
+		container-type: inline-size;
+
+		display: grid;
+		grid-template:
+			1fr
+			/ auto var(--scrollPanes-paneFlexible-inlineSize)
+		;
+
+		> [data-scroll-item~='pane-static'] {
+			scroll-snap-align: start;
+
+			z-index: 1;
+			inline-size: var(--scrollPanes-paneStatic-inlineSize);
+
+			position: sticky;
+			inset-block-start: 0;
+			/* inset-inline-start: auto !important; */
+
+			background-color: var(--color-bg);
+
+			--scrollItem-animation: ScrollPaneStaticFade linear;
+			--scrollItem-animationTimeline: scroll(inline nearest);
+			/* --scrollItem-animationRange: 0 var(--scrollPanes-paneStatic-inlineSize); */
+			/* --scrollItem-animationRange: 0 100%; */
+			--scrollItem-animationRange: cover;
+
+			resize: horizontal;
+		}
+
+		> [data-scroll-item~='pane-flexible'] {
+			scroll-snap-align: start;
+
+			inline-size: var(--scrollPanes-paneFlexible-inlineSize);
+
+			@container (inline-size > 30rem) {
+				--scrollItem-animation: ScrollPaneFlexibleInlineSize linear;
+				--scrollItem-animationTimeline: scroll(inline nearest);
+				/* --scrollItem-animationRange: 0 var(--scrollPanes-paneStatic-inlineSize); */
+				/* --scrollItem-animationRange: 0 100%; */
+				--scrollItem-animationRange: cover;
+			}
+		}
+	}
+}
+
+@keyframes NoAnimation {}
+
+@keyframes InitialScrollSnapDisableAnimation {
+	from {
+		scroll-snap-align: none;
+	}
+
+	to {
+		scroll-snap-align: start;
+	}
+}
+
+@keyframes ScrollPaneStaticFade {
+	to {
+		background-color: transparent;
+	}
+}
+
+@keyframes ScrollPaneFlexibleInlineSize {
+	from {
+		inline-size: calc(var(--scrollPanes-paneFlexible-inlineSize) - var(--scrollPanes-paneStatic-inlineSize));
+	}
+
+	to {
+		inline-size: var(--scrollPanes-paneFlexible-inlineSize);
 	}
 }
 

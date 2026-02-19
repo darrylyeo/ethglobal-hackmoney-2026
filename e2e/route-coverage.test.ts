@@ -14,21 +14,24 @@ test.beforeEach(async ({ context }) => {
 
 test.describe('Home (/)', () => {
 	test('renders nav and key CTAs without errors', async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 720 })
 		await page.goto('/')
-		await expect(page.locator('#main').first().locator('h1')).toBeVisible({
+		await expect(page).toHaveURL(/\/dashboard\//, { timeout: 30_000 })
+		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
+		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 20_000,
 		})
 		await expect(
-			page.getByRole('heading', { name: APP_NAME, }),
+			page.getByRole('link', { name: new RegExp(APP_NAME) }).first(),
 		).toBeVisible()
 		await expect(
-			page.getByRole('link', { name: 'Bridge', }).first(),
+			page.getByRole('link', { name: 'Bridge', exact: true }).first(),
 		).toBeVisible()
 		await expect(
-			page.getByRole('link', { name: 'Transfer', }).first(),
+			page.getByRole('link', { name: 'Transfer', exact: true }).first(),
 		).toBeVisible()
 		await expect(
-			page.getByRole('link', { name: 'About', }).first(),
+			page.getByRole('link', { name: 'Dashboards', exact: true }).first(),
 		).toBeVisible()
 	})
 })
@@ -45,22 +48,23 @@ test.describe('Session (bridge)', () => {
 	})
 
 	test('unified bridge renders with protocol selection', async ({ page }) => {
-		await page.goto('/session#/Bridge')
+		await page.goto('/session?template=Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
+		await expect(page.locator('#main').first()).toContainText(
+			/USDC Bridge|Bridge|Connect a wallet/,
+			{ timeout: 50_000 },
+		)
 		await expect(
-			page.getByRole('heading', { name: 'USDC Bridge', level: 1, }),
-		).toBeVisible({ timeout: 50_000, })
-		await expect(
-			page.getByRole('heading', { name: 'Protocol Selection', }),
-		).toBeVisible()
-		await expect(page.getByLabel('From chain')).toBeAttached()
-		await expect(page.getByLabel('To chain')).toBeAttached()
+			page.getByRole('heading', { name: 'Protocol', }),
+		).toBeVisible({ timeout: 15_000 })
+		await expect(page.getByLabel('From network')).toBeAttached()
+		await expect(page.getByLabel('To network')).toBeAttached()
 	})
 
 	test('auto-connected wallet shows address', async ({ page }) => {
-		await page.goto('/session#/Bridge')
+		await page.goto('/session?template=Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})

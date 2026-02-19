@@ -1,6 +1,11 @@
 import { expect, test } from './fixtures/tevm.ts'
 import { useProfileIsolation } from './fixtures/profile.ts'
-import { addTevmWallet } from './test-setup.ts'
+import {
+	buildActorCoinSeedRow,
+	buildActorCoinsPayload,
+} from './coverage-helpers.ts'
+import { CollectionId } from '$/constants/collections.ts'
+import { E2E_TEVM_CHAIN_ID, E2E_TEVM_WALLET_ADDRESS } from '$/tests/tevmConfig.ts'
 
 test.beforeEach(async ({ context }) => {
 	await useProfileIsolation(context)
@@ -60,38 +65,40 @@ test.describe('Intents test page (/test/intents)', () => {
 	})
 
 	test('when balance rows exist, From button sets from payload', async ({
-		context,
 		page,
-		tevm,
 	}) => {
-		await addTevmWallet(context, page, {
-			rpcUrl: tevm.rpcUrl,
-			chainId: tevm.chainId,
-			address: tevm.walletAddress,
-			rdns: tevm.providerRdns,
-			name: tevm.providerName,
-		})
-		await page.goto('/session#/Bridge')
-		await expect(page.locator('#main').first()).toBeAttached({
-			timeout: 30_000,
-		})
-		await page
-			.getByText('Loading...')
-			.waitFor({ state: 'hidden', timeout: 20_000 })
-			.catch(() => {})
+		const usdcChain1 = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as `0x${string}`
+		const rows = [
+			buildActorCoinSeedRow(
+				E2E_TEVM_CHAIN_ID,
+				E2E_TEVM_WALLET_ADDRESS,
+				usdcChain1,
+				'USDC',
+				6,
+				1_000_000n,
+			),
+		]
+		const payload = buildActorCoinsPayload(rows)
 		await page.goto('/test/intents')
+		await page.evaluate(
+			({ key, value }: { key: string; value: string }) => {
+				localStorage.setItem(key, value)
+			},
+			{ key: CollectionId.ActorCoins, value: payload },
+		)
+		await page.reload()
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 15_000,
 		})
-		const noBalances = await page.getByText('No cached balances yet').isVisible()
-		test.skip(
-			noBalances,
-			'No cached balances; connect wallet and load bridge first to seed',
-		)
-		const fromButton = page.getByRole('button', { name: 'From' }).first()
+		const balancesSection = page
+			.locator('section')
+			.filter({ has: page.getByRole('heading', { name: 'Balances (TanStack DB cache)' }) })
+		const fromButton = balancesSection.getByRole('button', { name: 'From', exact: true }).first()
+		await expect(fromButton).toBeVisible({ timeout: 10_000 })
+		await fromButton.scrollIntoViewIfNeeded()
 		await fromButton.click()
 		await expect(
-			page.getByText('From (drag source)').locator('..').locator('pre'),
-		).not.toContainText('null')
+			page.getByRole('button', { name: /From \(drag source\)/ }),
+		).toContainText('ActorCoin', { timeout: 10_000 })
 	})
 })

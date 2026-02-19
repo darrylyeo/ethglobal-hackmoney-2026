@@ -11,105 +11,87 @@ const waitForMain = async (page: import('@playwright/test').Page) => {
 }
 
 test.describe('Session action routing', () => {
-	test('session#createChannel renders Create Channel heading', async ({
+	test('session#createChannel renders Create Channel session', async ({
 		page,
 	}) => {
 		await page.goto('/session?template=createChannel')
 		await waitForMain(page)
-		await expect(
-			page.getByRole('heading', { name: 'Create Channel', level: 1 }),
-		).toBeVisible()
-		await expect(page.getByText('channel action')).toBeVisible()
+		await expect(page.getByPlaceholder('Create Channel')).toBeVisible()
 	})
 
-	test('session#addChannelMember renders Add Member heading', async ({
+	test('session#addChannelMember renders Add Member session', async ({
 		page,
 	}) => {
 		await page.goto('/session?template=addChannelMember')
 		await waitForMain(page)
-		await expect(
-			page.getByRole('heading', { name: 'Add Member', level: 1 }),
-		).toBeVisible()
-		await expect(page.getByText('channel action')).toBeVisible()
+		await expect(page.getByPlaceholder('Add Member')).toBeVisible()
 	})
 
-	test('session#closeChannel renders Close Channel heading', async ({
+	test('session#closeChannel renders Close Channel session', async ({
 		page,
 	}) => {
 		await page.goto('/session?template=closeChannel')
 		await waitForMain(page)
-		await expect(
-			page.getByRole('heading', { name: 'Close Channel', level: 1 }),
-		).toBeVisible()
-		await expect(page.getByText('channel action')).toBeVisible()
+		await expect(page.getByPlaceholder('Close Channel')).toBeVisible()
 	})
 
 	test('session#addLiquidity renders liquidity view', async ({ page }) => {
 		await page.goto('/session?template=addLiquidity')
 		await waitForMain(page)
-		await expect(
-			page.getByRole('heading', { level: 1 }).first(),
-		).toBeVisible({ timeout: 20_000 })
+		await expect(page.getByPlaceholder('Add Liquidity')).toBeVisible({
+			timeout: 20_000,
+		})
 	})
 
 	test('session#removeLiquidity renders liquidity view', async ({ page }) => {
 		await page.goto('/session?template=removeLiquidity')
 		await waitForMain(page)
-		await expect(
-			page.getByRole('heading', { level: 1 }).first(),
-		).toBeVisible({ timeout: 20_000 })
+		await expect(page.getByPlaceholder('Remove Liquidity')).toBeVisible({
+			timeout: 20_000,
+		})
 	})
 
 	test('session#collectFees renders liquidity view', async ({ page }) => {
 		await page.goto('/session?template=collectFees')
 		await waitForMain(page)
-		await expect(
-			page.getByRole('heading', { level: 1 }).first(),
-		).toBeVisible({ timeout: 20_000 })
+		await expect(page.getByPlaceholder('Collect Fees')).toBeVisible({
+			timeout: 20_000,
+		})
 	})
 
 	test('session#increaseLiquidity renders liquidity view', async ({ page }) => {
 		await page.goto('/session?template=increaseLiquidity')
 		await waitForMain(page)
-		await expect(
-			page.getByRole('heading', { level: 1 }).first(),
-		).toBeVisible({ timeout: 20_000 })
+		await expect(page.getByPlaceholder('Increase Liquidity')).toBeVisible({
+			timeout: 20_000,
+		})
 	})
 
-	test('session#shareAddress renders Share Address heading', async ({
+	test('session#shareAddress renders Share Address session', async ({
 		page,
 	}) => {
 		await page.goto('/session?template=shareAddress')
 		await waitForMain(page)
-		await expect(
-			page.getByRole('heading', { name: 'Share Address', level: 1 }),
-		).toBeVisible()
-		await expect(page.getByText('room action')).toBeVisible()
+		await expect(page.getByPlaceholder('Share Address')).toBeVisible()
 	})
 
-	test('session#proposeTransfer renders Propose Transfer heading', async ({
+	test('session#proposeTransfer renders Propose Transfer session', async ({
 		page,
 	}) => {
 		await page.goto('/session?template=proposeTransfer')
 		await waitForMain(page)
-		await expect(
-			page.getByRole('heading', { name: 'Propose Transfer', level: 1 }),
-		).toBeVisible()
-		await expect(page.getByText('room action')).toBeVisible()
+		await expect(page.getByPlaceholder('Propose Transfer')).toBeVisible()
 	})
 
-	test('session#requestVerification renders Request Verification heading', async ({
+	test('session#requestVerification renders Request Verification session', async ({
 		page,
 	}) => {
 		await page.goto('/session?template=requestVerification')
 		await waitForMain(page)
-		await expect(
-			page.getByRole('heading', { name: 'Request Verification', level: 1 }),
-		).toBeVisible()
-		await expect(page.getByText('room action')).toBeVisible()
+		await expect(page.getByPlaceholder('Request Verification')).toBeVisible()
 	})
 
-	test('compound hash routes to session with multiple actions', async ({
+	test('compound actions routes to session with multiple actions', async ({
 		page,
 	}) => {
 		await page.goto(
@@ -117,7 +99,7 @@ test.describe('Session action routing', () => {
 		)
 		await waitForMain(page)
 		await expect(
-			page.getByRole('heading', { level: 1 }).first(),
+			page.getByPlaceholder('Create Channel → Add Member'),
 		).toBeVisible({ timeout: 20_000 })
 	})
 
@@ -126,8 +108,6 @@ test.describe('Session action routing', () => {
 	}) => {
 		await page.goto('/session?template=unknownAction')
 		await waitForMain(page)
-		await expect(
-			page.getByRole('heading', { name: 'Swap', level: 1 }),
-		).toBeVisible()
+		await expect(page.getByPlaceholder('Swap')).toBeVisible()
 	})
 })

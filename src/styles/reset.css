@@ -145,3 +145,7 @@
 	transition-behavior: allow-discrete;
 }
 
+* {
+	transition-property: none !important;
+	transition: none !important;
+}

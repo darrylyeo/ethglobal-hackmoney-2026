@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures/profile.ts'
+import { expect, test, useProfileIsolation } from './fixtures/profile.ts'
 
 const MOCK_LLM_RESPONSE = 'E2E mock response.'
 
@@ -6,12 +6,8 @@ function addMockLlmRoute(
 	page: import('@playwright/test').Page,
 	body: { text?: string } = { text: MOCK_LLM_RESPONSE },
 ) {
-	return page.route('**/api-proxy*', (route) => {
-		const url = route.request().url()
-		if (
-			route.request().method() === 'POST' &&
-			(url.includes('opencode') || url.includes('zen'))
-		) {
+	return page.route('**/api-proxy/**', (route) => {
+		if (route.request().method() === 'POST') {
 			route.fulfill({
 				status: 200,
 				contentType: 'application/json',
@@ -32,20 +28,23 @@ function addMockLlmRoute(
 }
 
 test.describe('Agent chat', () => {
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ context, page }) => {
+		await useProfileIsolation(context)
 		await page.goto('/agents/new')
 		await page.waitForURL(/\/agents\/[^/]+$/)
-		await expect(page.locator('#main')).toBeAttached({ timeout: 15_000 })
+		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
 		await expect(
 			page.locator('[data-entity-ref-input]').getByTestId('prompt-textbox'),
-		).toBeVisible({ timeout: 10_000 })
+		).toBeVisible({ timeout: 15_000 })
 	})
 
 	test('new conversation shows prompt input and Send', async ({ page }) => {
 		await expect(
 			page.locator('[data-entity-ref-input]').getByRole('button', { name: 'Send' }),
 		).toBeVisible()
-		await expect(page.getByPlaceholder(/Untitled|conversation/)).toBeAttached()
+		await expect(
+			page.getByRole('textbox', { name: /Ask something/ }),
+		).toBeAttached()
 	})
 
 	// Requires PUBLIC_OPENCODE_API_KEY set at build (can be placeholder "e2e"); we mock the proxy so no real key is used.

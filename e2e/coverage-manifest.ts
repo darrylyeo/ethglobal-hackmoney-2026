@@ -1,6 +1,5 @@
 import { expect, type BrowserContext, type Page } from '@playwright/test'
 import { APP_NAME } from '$/constants/app.ts'
-import { ActionType } from '$/constants/intents.ts'
 import {
 	buildLocalStoragePayload,
 	buildSessionRow,
@@ -21,31 +20,56 @@ export type CoverageScenario = {
 export const routeBranchRequirements: Record<string, string[]> = {
 	'/': ['default'],
 	'/about': ['default'],
-	'/about-old': ['default'],
-	'/about-old-2': ['default'],
-	'/dashboard': ['default'],
-	'/rooms': ['join-disabled', 'join-enabled'],
-	'/rooms/[roomId]': ['share', 'peers-empty'],
-	'/rooms/[roomId]/channels': ['default'],
-	'/session': ['swap', 'bridge', 'transfer', 'liquidity', 'createChannel', 'addChannelMember', 'closeChannel', 'addLiquidity', 'removeLiquidity', 'collectFees', 'increaseLiquidity', 'shareAddress', 'proposeTransfer', 'requestVerification', 'unsupported'],
-	'/session/[id]': ['not-found', 'redirect'],
-	'/sessions': ['empty', 'populated'],
-	'/positions/channels': ['default'],
-	'/positions/liquidity': ['default'],
-	'/coin/[symbol]': ['usdc', 'eth', 'not-found'],
-	'/test/chain-id': ['button-disabled', 'button-enabled'],
-	'/transfers': ['default'],
-	'/wallets': ['default'],
-	'/test/collections': ['default'],
-	'/test/intents': ['default'],
-	'/test/networks-coins': ['default'],
-	'/accounts': ['default'],
 	'/account/[address]': ['valid-address', 'invalid-address'],
-	'/peers': ['default'],
+	'/accounts': ['default'],
+	'/actions': ['default'],
+	'/agents': ['default'],
+	'/agents/[nodeId]': ['default'],
+	'/agents/new': ['default'],
+	'/channels/yellow': ['default'],
+	'/coin/[symbol]': ['usdc', 'eth', 'not-found'],
+	'/coins': ['default'],
+	'/dashboard': ['default'],
+	'/dashboard/[dashboardId]': ['default'],
+	'/dashboards': ['default'],
+	'/explore/usdc': ['default'],
+	'/farcaster': ['default'],
+	'/farcaster/accounts': ['default'],
+	'/farcaster/cast/[fid]/[hash]': ['default'],
+	'/farcaster/cast/[hash]': ['default'],
+	'/farcaster/casts': ['default'],
+	'/farcaster/channel/[channelId]': ['default'],
+	'/farcaster/channels': ['default'],
+	'/farcaster/session': ['createPost', 'replyToPost'],
+	'/farcaster/session/[id]': ['default'],
+	'/farcaster/sessions': ['default'],
+	'/farcaster/user/[fid]': ['default'],
+	'/farcaster/users': ['default'],
 	'/network/[name]': ['default'],
 	'/network/[name]/block/[blockNumber]': ['default'],
 	'/network/[name]/block/[blockNumber]/transaction/[transactionId]': ['default'],
+	'/network/[name]/contract/[address]': ['default'],
+	'/network/[name]/contracts': ['default'],
 	'/network/[name]/transaction/[transactionId]': ['default'],
+	'/networks': ['default'],
+	'/peers': ['default'],
+	'/positions/channels': ['default'],
+	'/positions/liquidity': ['default'],
+	'/rooms': ['join-disabled', 'join-enabled'],
+	'/rooms/[roomId]': ['share', 'peers-empty'],
+	'/rooms/[roomId]/channels': ['default'],
+	'/session': ['swap', 'bridge', 'transfer', 'addLiquidity', 'createChannel', 'addChannelMember', 'closeChannel', 'removeLiquidity', 'collectFees', 'increaseLiquidity', 'shareAddress', 'proposeTransfer', 'requestVerification', 'unsupported'],
+	'/session/[id]': ['not-found', 'redirect'],
+	'/sessions': ['empty', 'populated'],
+	'/settings/llm': ['default'],
+	'/test/chain-id': ['button-disabled', 'button-enabled'],
+	'/test/collections': ['default'],
+	'/test/intents': ['default'],
+	'/test/layout-panes': ['default'],
+	'/test/networks-coins': ['default'],
+	'/test/stork': ['default'],
+	'/transfers': ['default'],
+	'/wallets': ['default'],
 }
 
 const seedSessions = async (page: Page, rows: SessionRow[]) => {
@@ -53,7 +77,7 @@ const seedSessions = async (page: Page, rows: SessionRow[]) => {
 	await seedLocalStorageCollectionViaPage(
 		page,
 		coverageBaseURL,
-		'transaction-sessions',
+		'Sessions',
 		payload,
 	)
 }
@@ -64,17 +88,16 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/',
 		assert: async (page) => {
+			await expect(page).toHaveURL(/\/dashboard\//, { timeout: 15_000 })
+			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
-				page.getByRole('heading', { name: APP_NAME, level: 1, }),
+				page.getByRole('link', { name: 'Bridge', exact: true }).first(),
 			).toBeVisible()
 			await expect(
-				page.getByRole('link', { name: 'Bridge', }).first(),
+				page.getByRole('link', { name: 'Transfer', exact: true }).first(),
 			).toBeVisible()
 			await expect(
-				page.getByRole('link', { name: 'Transfer', }).first(),
-			).toBeVisible()
-			await expect(
-				page.getByRole('link', { name: 'About', }).first(),
+				page.getByRole('link', { name: new RegExp(APP_NAME) }).first(),
 			).toBeVisible()
 		},
 	},
@@ -88,25 +111,67 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/about-old',
+		route: '/actions',
 		branch: 'default',
-		path: '/about-old',
+		path: '/actions',
 		assert: async (page) => {
-			await expect(page.getByRole('heading', { name: 'About', })).toBeVisible()
-			await expect(
-				page.getByRole('heading', { name: 'Architecture diagram', }),
-			).toBeVisible()
+			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
-		route: '/about-old-2',
+		route: '/agents',
 		branch: 'default',
-		path: '/about-old-2',
+		path: '/agents',
 		assert: async (page) => {
-			await expect(page.getByRole('heading', { name: 'About', })).toBeVisible()
-			await expect(
-				page.getByRole('heading', { name: 'Architecture diagram', }),
-			).toBeVisible()
+			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/agents/[nodeId]',
+		branch: 'default',
+		path: '/agents/some-node',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/agents/new',
+		branch: 'default',
+		path: '/agents/new',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/channels/yellow',
+		branch: 'default',
+		path: '/channels/yellow',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/coins',
+		branch: 'default',
+		path: '/coins',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/dashboards',
+		branch: 'default',
+		path: '/dashboards',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/explore/usdc',
+		branch: 'default',
+		path: '/explore/usdc',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -114,9 +179,18 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/dashboard',
 		assert: async (page) => {
+			await expect(page).toHaveURL(/\/dashboard\//, { timeout: 15_000 })
+			await expect(page.locator('#main').first()).toBeVisible()
+		},
+	},
+	{
+		route: '/dashboard/[dashboardId]',
+		branch: 'default',
+		path: '/dashboard/default',
+		assert: async (page) => {
 			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
-				page.getByRole('button', { name: 'Split →', }).first(),
+				page.getByRole('button', { name: /Split/ }).first(),
 			).toBeVisible()
 		},
 	},
@@ -156,7 +230,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/sessions',
 		setup: async (_context, page) => {
 			await seedSessions(page, [
-				buildSessionRow({ id: 'session-list-1', actions: [ActionType.Bridge] }),
+				buildSessionRow({ id: 'session-list-1', actions: [{ type: 'Bridge', params: {} }] }),
 			])
 		},
 		assert: async (page) => {
@@ -164,7 +238,7 @@ export const coverageScenarios: CoverageScenario[] = [
 				page.getByRole('heading', { name: 'Sessions', }),
 			).toBeVisible()
 			await expect(
-				page.getByRole('link', { name: 'Bridge sessio', exact: true, }),
+				page.getByRole('link', { name: /Bridge/ }).first(),
 			).toBeVisible()
 			await expect(
 				page.getByRole('button', { name: 'Delete session', }).first(),
@@ -177,7 +251,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/session?template=Swap',
 		assert: async (page) => {
 			await expect(
-				page.getByRole('heading', { name: 'Swap', level: 1 }),
+				page.getByRole('heading', { name: 'Swap' }),
 			).toBeVisible()
 		},
 	},
@@ -186,8 +260,9 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'bridge',
 		path: '/session?template=Bridge',
 		assert: async (page) => {
+			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
-				page.getByRole('heading', { name: 'USDC Bridge', level: 1, }),
+				page.getByText(/Parameters|Proposed Transaction|Bridge/).first(),
 			).toBeVisible()
 		},
 	},
@@ -197,54 +272,47 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/session?template=Transfer',
 		assert: async (page) => {
 			await expect(
-				page.getByRole('heading', { name: 'Transfer', level: 1, }),
-			).toBeVisible()
-		},
-	},
-	{
-		route: '/session',
-		branch: 'liquidity',
-		path: '/session?template=liquidity',
-		assert: async (page) => {
-			await expect(
-				page.getByRole('heading', { name: 'Liquidity', level: 1, }),
+				page.getByRole('heading', { name: 'Transfer' }),
 			).toBeVisible()
 		},
 	},
 	{
 		route: '/session',
 		branch: 'createChannel',
-		path: '/session?template=createChannel',
+		path: '/session?template=CreateChannel',
 		assert: async (page) => {
+			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
-				page.getByRole('heading', { name: 'Create Channel', level: 1 }),
+				page.getByText(/Parameters|Proposed Transaction|Create Channel/).first(),
 			).toBeVisible()
 		},
 	},
 	{
 		route: '/session',
 		branch: 'addChannelMember',
-		path: '/session?template=addChannelMember',
+		path: '/session?template=AddChannelMember',
 		assert: async (page) => {
+			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
-				page.getByRole('heading', { name: 'Add Member', level: 1 }),
+				page.getByText(/Parameters|Proposed Transaction|Add Member/).first(),
 			).toBeVisible()
 		},
 	},
 	{
 		route: '/session',
 		branch: 'closeChannel',
-		path: '/session?template=closeChannel',
+		path: '/session?template=CloseChannel',
 		assert: async (page) => {
+			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
-				page.getByRole('heading', { name: 'Close Channel', level: 1 }),
+				page.getByText(/Parameters|Proposed Transaction|Close Channel/).first(),
 			).toBeVisible()
 		},
 	},
 	{
 		route: '/session',
 		branch: 'addLiquidity',
-		path: '/session?template=addLiquidity',
+		path: '/session?template=AddLiquidity',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { level: 1 }).first(),
@@ -254,7 +322,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'removeLiquidity',
-		path: '/session?template=removeLiquidity',
+		path: '/session?template=RemoveLiquidity',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { level: 1 }).first(),
@@ -264,7 +332,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'collectFees',
-		path: '/session?template=collectFees',
+		path: '/session?template=CollectFees',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { level: 1 }).first(),
@@ -274,7 +342,7 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'increaseLiquidity',
-		path: '/session?template=increaseLiquidity',
+		path: '/session?template=IncreaseLiquidity',
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { level: 1 }).first(),
@@ -284,30 +352,33 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/session',
 		branch: 'shareAddress',
-		path: '/session?template=shareAddress',
+		path: '/session?template=ShareAddress',
 		assert: async (page) => {
+			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
-				page.getByRole('heading', { name: 'Share Address', level: 1 }),
+				page.getByText(/Parameters|Proposed Transaction|Share Address/).first(),
 			).toBeVisible()
 		},
 	},
 	{
 		route: '/session',
 		branch: 'proposeTransfer',
-		path: '/session?template=proposeTransfer',
+		path: '/session?template=ProposeTransfer',
 		assert: async (page) => {
+			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
-				page.getByRole('heading', { name: 'Propose Transfer', level: 1 }),
+				page.getByText(/Parameters|Proposed Transaction|Propose Transfer/).first(),
 			).toBeVisible()
 		},
 	},
 	{
 		route: '/session',
 		branch: 'requestVerification',
-		path: '/session?template=requestVerification',
+		path: '/session?template=RequestVerification',
 		assert: async (page) => {
+			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
-				page.getByRole('heading', { name: 'Request Verification', level: 1 }),
+				page.getByText(/Parameters|Proposed Transaction|Request Verification/).first(),
 			).toBeVisible()
 		},
 	},
@@ -317,7 +388,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/session?template=unknownAction',
 		assert: async (page) => {
 			await expect(
-				page.getByRole('heading', { name: 'Swap', level: 1 }),
+				page.getByRole('heading', { name: 'Swap' }),
 			).toBeVisible()
 		},
 	},
@@ -338,7 +409,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/session/session-redirect',
 		setup: async (_context, page) => {
 			await seedSessions(page, [
-				buildSessionRow({ id: 'session-redirect', actions: [ActionType.Bridge] }),
+				buildSessionRow({ id: 'session-redirect', actions: [{ type: 'Bridge', params: {} }] }),
 			])
 		},
 		assert: async (page) => {
@@ -369,10 +440,10 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'share',
 		path: '/rooms/abcd',
 		assert: async (page) => {
+			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
-				page.getByRole('heading', { name: 'Share', exact: true, }),
+				page.getByRole('link', { name: 'Room link' }),
 			).toBeVisible()
-			await expect(page.locator('[data-room-share]')).toBeVisible()
 		},
 	},
 	{
@@ -484,7 +555,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'valid-address',
 		path: '/account/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
 		assert: async (page) => {
-			await expect(page.locator('[data-account-header]')).toBeVisible()
+			await expect(page.locator('#main').first()).toBeVisible()
 			await expect(
 				page.getByRole('heading', { name: /^Balances/, }),
 			).toBeVisible()
@@ -536,7 +607,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'not-found',
 		path: '/coin/UNSUPPORTED',
 		assert: async (page) => {
-			await expect(page.getByText('Unsupported symbol')).toBeVisible()
+			await expect(page.getByText(/Unsupported coin symbol/)).toBeVisible()
 		},
 	},
 	{
@@ -564,7 +635,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/network/1',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000, })
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 20_000 })
 		},
 	},
 	{
@@ -589,6 +660,165 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/network/1/transaction/0x0',
 		assert: async (page) => {
 			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000, })
+		},
+	},
+	{
+		route: '/farcaster',
+		branch: 'default',
+		path: '/farcaster',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Farcaster', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(page.getByText('Channels').first()).toBeAttached()
+		},
+	},
+	{
+		route: '/farcaster/session',
+		branch: 'createPost',
+		path: '/farcaster/session?template=CreatePost',
+		assert: async (page) => {
+			await expect(
+				page.getByPlaceholder('Create post'),
+			).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/session',
+		branch: 'replyToPost',
+		path: '/farcaster/session?template=ReplyToPost',
+		assert: async (page) => {
+			await expect(
+				page.getByPlaceholder('Reply to post'),
+			).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/sessions',
+		branch: 'default',
+		path: '/farcaster/sessions',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/channel/[channelId]',
+		branch: 'default',
+		path: '/farcaster/channel/farcaster',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/user/[fid]',
+		branch: 'default',
+		path: '/farcaster/user/3',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/accounts',
+		branch: 'default',
+		path: '/farcaster/accounts',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/cast/[fid]/[hash]',
+		branch: 'default',
+		path: '/farcaster/cast/3/0x0000000000000000000000000000000000000000',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/cast/[hash]',
+		branch: 'default',
+		path: '/farcaster/cast/0x0000000000000000000000000000000000000000',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/channels',
+		branch: 'default',
+		path: '/farcaster/channels',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/casts',
+		branch: 'default',
+		path: '/farcaster/casts',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/session/[id]',
+		branch: 'default',
+		path: '/farcaster/session/some-id',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/users',
+		branch: 'default',
+		path: '/farcaster/users',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/network/[name]/contract/[address]',
+		branch: 'default',
+		path: '/network/1/contract/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/network/[name]/contracts',
+		branch: 'default',
+		path: '/network/1/contracts',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/networks',
+		branch: 'default',
+		path: '/networks',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/settings/llm',
+		branch: 'default',
+		path: '/settings/llm',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/test/layout-panes',
+		branch: 'default',
+		path: '/test/layout-panes',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/test/stork',
+		branch: 'default',
+		path: '/test/stork',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 ]

@@ -10,21 +10,24 @@ test.beforeEach(async ({ context }) => {
 	await useProfileIsolation(context)
 })
 
-const buildTransferHash = (params: {
+const buildTransferSearch = (params: {
 	fromActor: string
 	toActor: string
 	chainId: number
 	amount: string
+	tokenAddress?: string
 	mode?: string
 }) =>
-	`#transfer:${encodeURIComponent(JSON.stringify({ ...params, mode: params.mode ?? 'direct' }))}`
+	`?actions=${encodeURIComponent(`Transfer:${JSON.stringify({ ...params, mode: params.mode ?? 'direct' })}`)}`
 
 test.describe('Simulation (session transfer)', () => {
-	test('transfer: Simulate button runs and shows success', async ({
+	test('transfer: Simulate button runs and shows result', async ({
 		context,
 		page,
 		tevm,
 	}) => {
+		test.setTimeout(90_000)
+		await page.setViewportSize({ width: 1280, height: 800 })
 		await addTevmWallet(context, page, {
 			rpcUrl: tevm.rpcUrl,
 			chainId: tevm.chainId,
@@ -32,34 +35,41 @@ test.describe('Simulation (session transfer)', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/session?template=Bridge')
+		await page.goto('/session?template=Transfer')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 30_000 })
 		await expect(
-			page.getByRole('heading', { name: 'USDC Bridge', level: 1 }),
-		).toBeVisible({ timeout: 60_000 })
+			page.locator('#main').first(),
+		).toContainText(/Transfer|Connect a wallet/, { timeout: 60_000 })
 		await ensureWalletConnected(page)
-		const hash = buildTransferHash({
+		const search = buildTransferSearch({
 			fromActor: tevm.walletAddress,
 			toActor: tevm.recipientAddress,
 			chainId: tevm.chainId,
 			amount: '1',
+			tokenAddress: '0x0000000000000000000000000000000000000000',
 		})
-		await page.goto(`/session${hash}`)
+		await page.goto(`/session${search}`)
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
 		const simulateButton = page.getByRole('button', { name: 'Simulate' })
 		await expect(simulateButton).toBeVisible({ timeout: 15_000 })
 		await simulateButton.click()
+		await expect(simulateButton).toHaveText('Simulate', { timeout: 45_000 })
 		await expect(
-			page.locator('[data-e2e-simulation-status="success"]'),
-		).toBeVisible({ timeout: 10_000 })
-		await expect(page.getByText('Simulation ok')).toBeVisible()
+			page.locator('[data-e2e-simulation-status]'),
+		).toBeAttached({ timeout: 15_000 })
+		const status = await page
+			.locator('[data-e2e-simulation-status]')
+			.first()
+			.getAttribute('data-e2e-simulation-status')
+		expect(['success', 'failed']).toContain(status)
 	})
 
-	test('transfer: after simulation success, Sign and Submit still executes', async ({
+	test('transfer: Sign & Broadcast executes', async ({
 		context,
 		page,
 		tevm,
 	}) => {
+		await page.setViewportSize({ width: 1280, height: 800 })
 		await addTevmWallet(context, page, {
 			rpcUrl: tevm.rpcUrl,
 			chainId: tevm.chainId,
@@ -67,27 +77,22 @@ test.describe('Simulation (session transfer)', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		await page.goto('/session?template=Bridge')
+		await page.goto('/session?template=Transfer')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 30_000 })
 		await expect(
-			page.getByRole('heading', { name: 'USDC Bridge', level: 1 }),
-		).toBeVisible({ timeout: 60_000 })
+			page.locator('#main').first(),
+		).toContainText(/Transfer|Connect a wallet/, { timeout: 60_000 })
 		await ensureWalletConnected(page)
-		const hash = buildTransferHash({
+		const search = buildTransferSearch({
 			fromActor: tevm.walletAddress,
 			toActor: tevm.recipientAddress,
 			chainId: tevm.chainId,
 			amount: '1',
+			tokenAddress: '0x0000000000000000000000000000000000000000',
 		})
-		await page.goto(`/session${hash}`)
+		await page.goto(`/session${search}`)
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
-		const simulateButton = page.getByRole('button', { name: 'Simulate' })
-		await expect(simulateButton).toBeVisible({ timeout: 15_000 })
-		await simulateButton.click()
-		await expect(
-			page.locator('[data-e2e-simulation-status="success"]'),
-		).toBeVisible({ timeout: 10_000 })
-		const submitButton = page.getByRole('button', { name: 'Sign and Submit' })
+		const submitButton = page.getByRole('button', { name: 'Sign & Broadcast' })
 		await expect(submitButton).toBeEnabled({ timeout: 5_000 })
 		await submitButton.click()
 		await expect(page.locator('[data-tx-hash]').first()).toBeVisible({

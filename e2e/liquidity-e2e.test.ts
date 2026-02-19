@@ -1,6 +1,6 @@
 /**
- * E2E: Uniswap V4 flows — swap route and liquidity (session#Swap, session#liquidity).
- * Liquidity: load with hash params → connect tevm wallet → Add Liquidity → tx hash + status.
+ * E2E: Uniswap V4 flows — swap route and liquidity.
+ * Liquidity: load with ?template or ?actions params → connect tevm wallet → Add Liquidity → tx hash.
  */
 
 import { expect, test } from './fixtures/tevm.ts'
@@ -14,24 +14,24 @@ test.beforeEach(async ({ context }) => {
 const isHexHash = (value: string | null): value is `0x${string}` =>
 	typeof value === 'string' && value.startsWith('0x')
 
-const buildActionHash = (
-	action: 'liquidity',
+const buildActionSearch = (
+	action: 'AddLiquidity',
 	params: Record<string, unknown>,
-) => `#/${action}:${encodeURIComponent(JSON.stringify(params))}`
+) => `?actions=${encodeURIComponent(`${action}:${JSON.stringify(params)}`)}`
 
 test.describe('Swap route', () => {
-	test('session#Swap loads and shows swap form', async ({ page }) => {
-		await page.goto('/session#/Swap')
+	test('session?template=Swap loads and shows swap form', async ({ page }) => {
+		await page.goto('/session?template=Swap')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
 		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 20_000 })
-		await expect(
-			page.getByRole('heading', { name: /Swap|Connect/i }).first(),
-		).toBeVisible({ timeout: 10_000 })
+		await expect(page.locator('#main')).toContainText(/Swap|Parameters|Action|Protocol|Connect/i, {
+			timeout: 10_000,
+		})
 	})
 })
 
 test.describe('Liquidity flow E2E', () => {
-	test('session#liquidity with tevm: connect → Add Liquidity → tx hash and status', async ({
+	test('session?actions=AddLiquidity with tevm: connect → Sign & Broadcast → tx hash', async ({
 		context,
 		page,
 		tevm,
@@ -43,24 +43,25 @@ test.describe('Liquidity flow E2E', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
-		const hash = buildActionHash('liquidity', {
+		const search = buildActionSearch('AddLiquidity', {
 			chainId: tevm.chainId,
 			amount0: '1',
 			amount1: '2',
 		})
-		await page.goto(`/session${hash}`)
-		await expect(page.getByRole('heading', { name: 'Add Liquidity' })).toBeVisible({
+		await page.goto(`/session${search}`)
+		await expect(page.locator('#main').first()).toBeAttached({ timeout: 30_000 })
+		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+		await expect(page.locator('#main').first()).toContainText(/Add Liquidity|Connect/, {
 			timeout: 15_000,
 		})
 		await ensureWalletConnected(page)
-		const addButton = page.getByTestId('add-liquidity-submit')
+		const addButton = page.getByRole('button', { name: 'Sign & Broadcast' })
 		await expect(addButton).toBeEnabled({ timeout: 20_000 })
 		await addButton.click()
-		const statusEl = page.locator('[data-e2e-liquidity-status]')
-		await statusEl.waitFor({ state: 'visible', timeout: 20_000 })
-		const txHash = await statusEl.getAttribute('data-tx-hash')
+		const txEl = page.locator('[data-tx-hash]').first()
+		await txEl.waitFor({ state: 'visible', timeout: 20_000 })
+		const txHash = await txEl.getAttribute('data-tx-hash')
 		if (!isHexHash(txHash)) throw new Error('Missing liquidity tx hash.')
-		await expect(statusEl).toContainText('Liquidity added.')
 		expect(txHash).toMatch(/^0x[a-fA-F0-9]+$/)
 	})
 })

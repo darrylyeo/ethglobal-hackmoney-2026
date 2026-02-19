@@ -30,7 +30,7 @@ async function assertTextReadable(page: import('@playwright/test').Page) {
 
 const CORE_ROUTES = [
 	{ path: '/', name: 'home' },
-	{ path: '/session#/Bridge', name: 'bridge' },
+	{ path: '/session?template=Bridge', name: 'bridge' },
 	{ path: '/coin/USDC', name: 'usdc' },
 	{ path: '/rooms', name: 'rooms' },
 ] as const
@@ -41,6 +41,7 @@ for (const { path, name } of CORE_ROUTES) {
 	}) => {
 		await page.setViewportSize(MOBILE)
 		await page.goto(path)
+		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 15_000,
 		})
@@ -52,6 +53,7 @@ for (const { path, name } of CORE_ROUTES) {
 	}) => {
 		await page.setViewportSize(DESKTOP)
 		await page.goto(path)
+		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 15_000,
 		})

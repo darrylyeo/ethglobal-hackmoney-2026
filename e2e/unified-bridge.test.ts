@@ -26,18 +26,16 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
+		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
 		await expect(page.locator('#main').first()).toContainText(
-			/USDC Bridge|Connect a wallet/,
-			{ timeout: 45_000, },
+			/USDC Bridge|Bridge|Connect a wallet/,
+			{ timeout: 45_000 },
 		)
+		await expect(page.getByLabel('From network')).toBeAttached()
+		await expect(page.getByLabel('To network')).toBeAttached()
+		await expect(page.getByRole('textbox', { name: 'Amount' })).toBeAttached()
 		await expect(
-			page.getByRole('heading', { name: 'Bridge', level: 2, }),
-		).toBeVisible()
-		await expect(page.getByLabel('From chain')).toBeAttached()
-		await expect(page.getByLabel('To chain')).toBeAttached()
-		await expect(page.getByRole('textbox', { name: 'Amount', })).toBeAttached()
-		await expect(
-			page.getByRole('heading', { name: 'Protocol Selection' }),
+			page.getByRole('heading', { name: 'Protocol' }),
 		).toBeVisible()
 	})
 
@@ -48,44 +46,42 @@ test.describe('Unified Bridge (Spec 037)', () => {
 			timeout: 30_000,
 		})
 		await ensureWalletConnected(page)
-		await selectChainOption(page, 'From chain', 'Ethereum')
-		await selectChainOption(page, 'To chain', 'OP Mainnet')
-		await expect(page.locator('[data-protocol="cctp"]')).toContainText('CCTP')
-		await expect(page.getByText(/Using CCTP|Only CCTP supports/)).toBeVisible()
+		await selectChainOption(page, 'From network', 'Ethereum')
+		await selectChainOption(page, 'To network', 'OP Mainnet')
+		await expect(page.getByText(/Circle CCTP|Using CCTP|Only CCTP supports/)).toBeVisible({
+			timeout: 10_000,
+		})
 	})
 
-	test.fixme('chain pair that only LI.FI supports selects LI.FI', async ({
+	test.describe('chain pair protocol selection', () => {
+		test.use({ viewport: { width: 1280, height: 720 } })
+
+		test('chain pair that only LI.FI supports selects LI.FI', async ({
 		page,
 	}) => {
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.locator('[data-wallet-address]')).toBeVisible({
-			timeout: 15_000,
-		})
+		await ensureWalletConnected(page)
 		await page
-			.locator('#main')
-			.first()
-			.evaluate((el) => {
-				el.querySelector<HTMLElement>('[data-to-chain]')?.scrollIntoView({
-					block: 'center',
+			.getByText('Loading networks…')
+			.waitFor({ state: 'hidden', timeout: 15_000 })
+		await selectChainOption(page, 'From network', 'Celo')
+		await selectChainOption(page, 'To network', 'ZKsync Era')
+		await expect(page.locator('[data-protocol="LiFi"]')).toContainText(
+			'LI.FI',
+			{ timeout: 10_000 },
+		)
+		await expect(
+			page
+				.locator('section')
+				.filter({
+					has: page.getByRole('heading', { name: 'Protocol' }),
 				})
-			})
-		await page.getByLabel('From chain').focus()
-		await page.getByLabel('From chain').press('ArrowDown')
-		await page.getByLabel('From chain').fill('Celo')
-		await page
-			.getByRole('option', { name: 'Celo' })
-			.waitFor({ state: 'visible', timeout: 15_000 })
-		await page.keyboard.press('Enter')
-		await page.getByLabel('To chain').focus()
-		await page.getByLabel('To chain').press('ArrowDown')
-		await page.getByLabel('To chain').fill('ZKsync')
-		const zkOption = page.getByRole('option', { name: 'ZKsync Era', }).first()
-		await zkOption.waitFor({ state: 'visible', timeout: 10_000, })
-		await zkOption.evaluate((el) => (el as HTMLElement).click())
-		await expect(page.locator('[data-protocol="lifi"]')).toContainText('LI.FI')
-		await expect(page.getByText(/Only LI.FI supports this pair/)).toBeVisible()
+				.getByText('LI.FI')
+				.first(),
+		).toBeVisible({ timeout: 10_000 })
+	})
 	})
 
 	test('shared pair defaults to CCTP, then Prefer LI.FI shows LI.FI', async ({
@@ -95,17 +91,20 @@ test.describe('Unified Bridge (Spec 037)', () => {
 			timeout: 30_000,
 		})
 		await ensureWalletConnected(page)
-		await selectChainOption(page, 'From chain', 'Ethereum')
-		await selectChainOption(page, 'To chain', 'OP Mainnet')
-		await expect(page.locator('[data-protocol="cctp"]')).toContainText('CCTP')
+		await selectChainOption(page, 'From network', 'Ethereum')
+		await selectChainOption(page, 'To network', 'OP Mainnet')
+		await expect(page.getByText(/Circle CCTP|Using CCTP/)).toBeVisible({
+			timeout: 10_000,
+		})
 		await selectProtocolOption(page, 'LI.FI')
 		await expect(
 			page
 				.locator('section')
 				.filter({
-					has: page.getByRole('heading', { name: 'Protocol Selection', }),
+					has: page.getByRole('heading', { name: 'Protocol' }),
 				})
-				.getByText('LI.FI'),
-		).toBeVisible({ timeout: 10_000, })
+				.getByText('LI.FI')
+				.first(),
+		).toBeVisible({ timeout: 10_000 })
 	})
 })

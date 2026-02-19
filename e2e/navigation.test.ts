@@ -3,10 +3,11 @@
  * Verifies home page route cards and sidebar action links.
  */
 
-import { expect, test } from './fixtures/profile.ts'
+import { expect, test, useProfileIsolation } from './fixtures/profile.ts'
 
 test.describe('Actions page action links', () => {
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ context, page }) => {
+		await useProfileIsolation(context)
 		await page.goto('/actions')
 		await expect(
 			page.getByRole('heading', { name: 'Actions', level: 1 }),
@@ -14,15 +15,11 @@ test.describe('Actions page action links', () => {
 	})
 
 	for (const { name, href } of [
-		{ name: 'Add Liquidity', href: '/session#/addLiquidity' },
-		{ name: 'Remove Liquidity', href: '/session#/removeLiquidity' },
-		{ name: 'Collect Fees', href: '/session#/collectFees' },
-		{ name: 'Increase Liquidity', href: '/session#/increaseLiquidity' },
-		{ name: 'Create Channel', href: '/session#/createChannel' },
-		{ name: 'Share Address', href: '/session#/shareAddress' },
-		{ name: 'Bridge', href: '/session#/Bridge' },
-		{ name: 'Swap', href: '/session#/Swap' },
-		{ name: 'Transfer', href: '/session#/Transfer' },
+		{ name: 'Add Liquidity', href: '/session?template=AddLiquidity' },
+		{ name: 'Bridge', href: '/session?template=Bridge' },
+		{ name: 'Create Channel', href: '/session?template=CreateChannel' },
+		{ name: 'Swap', href: '/session?template=Swap' },
+		{ name: 'Transfer', href: '/session?template=Transfer' },
 	]) {
 		test(`actions page has "${name}" link pointing to ${href}`, async ({
 			page,
@@ -36,7 +33,8 @@ test.describe('Actions page action links', () => {
 })
 
 test.describe('Sidebar action links', () => {
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ context, page }) => {
+		await useProfileIsolation(context)
 		await page.goto('/')
 		await expect(page.locator('nav').first()).toBeVisible({
 			timeout: 20_000,
@@ -48,18 +46,17 @@ test.describe('Sidebar action links', () => {
 		'Swap',
 		'Bridge',
 		'Add Liquidity',
-		'Remove Liquidity',
-		'Collect Fees',
-		'Increase Liquidity',
 		'Create Channel',
-		'Close Channel',
-		'Share Address',
-		'Propose Transfer',
-		'Request Verification',
 	]) {
 		test(`sidebar contains "${title}" link`, async ({ page }) => {
 			const link = page.getByRole('link', { name: title, exact: true }).first()
 			await expect(link).toBeAttached()
 		})
 	}
+
+	test('sidebar Farcaster link points to /farcaster', async ({ page }) => {
+		const link = page.getByRole('link', { name: 'Farcaster', exact: true }).first()
+		await expect(link).toBeAttached()
+		expect(await link.getAttribute('href')).toContain('/farcaster')
+	})
 })

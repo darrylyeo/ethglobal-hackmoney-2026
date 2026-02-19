@@ -1,6 +1,7 @@
 import { stringify } from 'devalue'
-import { ActionType } from '$/constants/intents.ts'
+import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
+import { toInteropName } from '$/constants/interop.ts'
 import type { Session } from '$/data/Session.ts'
 
 const encodeStorageKey = (key: string | number) =>
@@ -67,17 +68,75 @@ export const seedLocalStorageCollectionViaPage = async (
 
 export type SessionRow = Session & { $source: DataSource }
 
+export type ActorCoinSeedRow = {
+	$id: {
+		$actor: { $network: { chainId: number }; address: `0x${string}`; interopAddress: string }
+		$coin: { $network: { chainId: number }; address: `0x${string}`; interopAddress: string }
+	}
+	$source: DataSource
+	symbol: string
+	decimals: number
+	balance: bigint
+	isLoading: boolean
+	error: string | null
+}
+
+export const buildActorCoinSeedRow = (
+	chainId: number,
+	actorAddress: `0x${string}`,
+	tokenAddress: `0x${string}`,
+	symbol: string,
+	decimals: number,
+	balance: bigint,
+	overrides: Partial<ActorCoinSeedRow> = {},
+): ActorCoinSeedRow => ({
+	$id: {
+		$actor: {
+			$network: { chainId },
+			address: actorAddress,
+			interopAddress: toInteropName(chainId, actorAddress),
+		},
+		$coin: {
+			$network: { chainId },
+			address: tokenAddress,
+			interopAddress: toInteropName(chainId, tokenAddress),
+		},
+	},
+	$source: DataSource.Local,
+	symbol,
+	decimals,
+	balance,
+	isLoading: false,
+	error: null,
+	...overrides,
+})
+
+export const buildActorCoinsPayload = (rows: ActorCoinSeedRow[]): string =>
+	buildLocalStoragePayload(rows, (row) => stringify(row.$id))
+
+export const seedActorCoins = async (
+	context: { addInitScript: (fn: (...args: unknown[]) => void, ...args: unknown[]) => Promise<void> },
+	rows: ActorCoinSeedRow[],
+) => {
+	await seedLocalStorageCollection(
+		context,
+		CollectionId.ActorCoins,
+		buildActorCoinsPayload(rows),
+	)
+}
+
 export const buildSessionRow = (
 	overrides: Partial<SessionRow> = {},
 ): SessionRow => {
 	const now = 1_720_000_000_000
 	return {
 		id: 'session-seed',
-		actions: [ActionType.Bridge],
+		actions: [{ type: 'Bridge', params: {} }],
 		status: 'Draft',
 		createdAt: now,
 		updatedAt: now,
 		params: {},
 		$source: DataSource.Local,
 		...overrides,
-	}
+	};
+}

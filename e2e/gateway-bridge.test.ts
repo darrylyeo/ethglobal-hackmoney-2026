@@ -4,6 +4,7 @@ import {
 	addGatewayMocks,
 	addTevmWallet,
 	ensureWalletConnected,
+	selectChainOption,
 	selectProtocolOption,
 } from './test-setup.ts'
 
@@ -18,7 +19,7 @@ test.describe('Gateway Bridge (Spec 074)', () => {
 			name: tevm.providerName,
 		})
 		await addGatewayMocks(page)
-		await page.goto('/session#/Bridge')
+		await page.goto('/session?template=Bridge')
 	})
 
 	test('select Gateway, chain pair, enter amount and see balance or deposit message', async ({
@@ -28,24 +29,24 @@ test.describe('Gateway Bridge (Spec 074)', () => {
 			timeout: 30_000,
 		})
 		await expect(page.locator('#main').first()).toContainText(
-			/USDC Bridge|Connect a wallet/,
+			/USDC Bridge|Bridge|Connect a wallet/,
 			{ timeout: 45_000 },
 		)
 		await ensureWalletConnected(page)
-		await page.getByLabel('From chain').click()
-		await page.getByRole('option', { name: 'Arc Testnet' }).waitFor({ state: 'visible', timeout: 10_000 })
-		await page.getByRole('option', { name: 'Arc Testnet' }).click({ force: true })
-		await page.getByLabel('To chain').click()
-		await page.getByRole('option', { name: 'Base Sepolia' }).waitFor({ state: 'visible', timeout: 10_000 })
-		await page.getByRole('option', { name: 'Base Sepolia' }).click({ force: true })
-		await selectProtocolOption(page, 'Gateway')
+		await page.getByText('Loading networks…').waitFor({ state: 'hidden', timeout: 15_000 })
+		await selectChainOption(page, 'From network', 'Ethereum')
+		await selectChainOption(page, 'To network', 'Base')
+		await selectProtocolOption(page, 'Circle Gateway')
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 		await expect(page.getByRole('textbox', { name: 'Amount' })).toHaveValue('1')
 		await expect(
 			page.getByText(/Unified USDC balance|Deposit first|Instant transfer|Loading unified balance/),
 		).toBeVisible({ timeout: 20_000 })
 		await expect(
-			page.getByRole('button', { name: 'Sign and Submit' }),
+			page.getByText(/Approve USDC \(Gateway\)|Deposit \(Gateway\)|Proposed Transaction/).first(),
+		).toBeVisible({ timeout: 10_000 })
+		await expect(
+			page.getByRole('button', { name: /Sign & Broadcast|Sign and Submit/ }),
 		).toBeVisible({ timeout: 5_000 })
 	})
 })

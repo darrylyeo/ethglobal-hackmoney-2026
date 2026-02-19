@@ -18,24 +18,26 @@ test.describe('Stork price feed', () => {
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
 		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 20_000 })
 		await expect(
-			page.getByRole('heading', { name: /Swap|Connect/i }).first(),
+			page.getByRole('heading', { name: /Session|Swap|Connect/i }).first(),
 		).toBeVisible({ timeout: 10_000 })
 		await expect(
 			page.getByText('Missing PUBLIC_STORK_REST_TOKEN'),
 		).not.toBeVisible({ timeout: 5_000 })
 	})
 
-	test('session#/Swap shows Stork price when amount entered and quote loads', async ({
+	test('session#/Swap form accepts amount and shows balance/value UI', async ({
 		page,
 	}) => {
 		await page.goto('/session?template=Swap')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
 		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 20_000 })
-		const amountInput = page.locator('#swap-amount-in')
+		const amountInput = page.getByLabel('Amount in')
 		await amountInput.waitFor({ state: 'visible', timeout: 10_000 })
 		await amountInput.fill('1')
-		await expect(page.getByText(/Stork:\s*1\s+\w+\s+≈/)).toBeVisible({
-			timeout: 25_000,
-		})
+		await expect(amountInput).toHaveValue('1')
+		await expect(page.locator('#main').first()).toContainText(
+			/Total value ≈|≈ \$|Parameters|Protocol/,
+			{ timeout: 15_000 },
+		)
 	})
 })

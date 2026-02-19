@@ -1,9 +1,13 @@
-import { expect, test } from './fixtures/profile.ts'
+import { expect, test, useProfileIsolation } from './fixtures/profile.ts'
 import {
 	coverageScenarios,
 	routeBranchRequirements,
 } from './coverage-manifest.ts'
 import { listAppRoutes } from './coverage-utils.ts'
+
+test.beforeEach(async ({ context }) => {
+	await useProfileIsolation(context)
+})
 
 test('coverage manifest matches app routes', () => {
 	const appRoutes = new Set(listAppRoutes())
@@ -58,6 +62,7 @@ for (const scenario of coverageScenarios) {
 			await scenario.setup(context, page)
 		}
 		await page.goto(scenario.path)
+		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 45_000 })
 		await scenario.assert(page)
 	})
 }

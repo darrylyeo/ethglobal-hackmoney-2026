@@ -1,0 +1,12 @@
+---
+description: CSS classes for local Svelte style blocks
+globs: "**/*.svelte"
+alwaysApply: true
+---
+
+# CSS local style
+
+**Spec:** [040-css-primitives-usage.md](../../specs/040-css-primitives-usage.md)
+
+- **Use CSS classes for all local `<style>` selectors.** Target state/variants with classes (e.g. `class:variant-name={condition}`) and `.base-class.variant-name`, not `&[data-*]`.
+- **Exception:** When overriding CSS variables, use nested `&[data-*]` on the class.

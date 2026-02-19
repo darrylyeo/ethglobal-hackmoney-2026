@@ -3,6 +3,7 @@ import { expect, test } from './fixtures/tevm.ts'
 import { useProfileIsolation } from './fixtures/profile.ts'
 import {
 	addLifiRoutesMock,
+	addLifiRoutesMockToContext,
 	addTevmWallet,
 	ensureWalletConnected,
 	selectProtocolOption,
@@ -16,7 +17,8 @@ test.beforeEach(async ({ context }) => {
 test.describe('Accessibility (axe-core)', () => {
 	test('home page has no critical violations', async ({ page }) => {
 		await page.goto('/')
-		await expect(page.locator('#main h1')).toBeVisible({
+		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
+		await expect(page.locator('#main h1').first()).toBeVisible({
 			timeout: 20_000,
 		})
 		const results = await new AxeBuilder({ page })
@@ -30,16 +32,14 @@ test.describe('Accessibility (axe-core)', () => {
 	})
 
 	test('bridge page has no critical violations', async ({ page }) => {
-		await page.goto('/session#/Bridge')
+		await page.goto('/session?template=Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(
-			page
-				.locator('#main')
-				.first()
-				.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
-		).toBeVisible({ timeout: 50_000 })
+		await expect(page.locator('#main').first()).toContainText(
+			/USDC Bridge|Bridge|Connect a wallet/,
+			{ timeout: 50_000 },
+		)
 		const results = await new AxeBuilder({ page })
 			.withTags(['wcag2a', 'wcag2aa'])
 			.analyze()
@@ -86,6 +86,7 @@ test.describe('Accessibility (axe-core)', () => {
 
 test.describe('Keyboard navigation', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {
+		await addLifiRoutesMockToContext(context)
 		await addTevmWallet(context, page, {
 			rpcUrl: tevm.rpcUrl,
 			chainId: tevm.chainId,
@@ -93,30 +94,28 @@ test.describe('Keyboard navigation', () => {
 			rdns: tevm.providerRdns,
 			name: tevm.providerName,
 		})
+		await page.goto('/session?template=Bridge')
 		await addLifiRoutesMock(page)
-		await page.goto('/session#/Bridge')
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
 		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
-		await expect(
-			page
-				.locator('#main')
-				.first()
-				.getByRole('heading', { level: 1, name: 'USDC Bridge' }),
-		).toBeVisible({ timeout: 50_000 })
+		await expect(page.locator('#main').first()).toContainText(
+			/USDC Bridge|Bridge|Connect a wallet/,
+			{ timeout: 50_000 },
+		)
 	})
 
 	test('keyboard-only: connect, fill form, amount applied', async ({
 		page,
 	}) => {
 		await ensureWalletConnected(page)
-		await selectProtocolOption(page, 'LI.FI')
 		await page
 			.getByText('Loading networks…')
 			.waitFor({ state: 'hidden', timeout: 15_000 })
-		await selectChainOption(page, 'From chain', 'Ethereum')
-		await selectChainOption(page, 'To chain', 'OP Mainnet')
+		await selectChainOption(page, 'From network', 'Ethereum')
+		await selectChainOption(page, 'To network', 'OP Mainnet')
+		await selectProtocolOption(page, 'LI.FI')
 		await page.getByRole('textbox', { name: 'Amount' }).fill('1')
 		await expect(page.getByRole('textbox', { name: 'Amount' })).toHaveValue('1')
 	})
