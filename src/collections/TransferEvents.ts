@@ -10,8 +10,9 @@ import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 import type { Network$Id } from '$/data/Network.ts'
 import { upsertBridgeTransferEvents } from '$/collections/BridgeTransferEvents.ts'
 import { upsertSwapTransferEvents } from '$/collections/SwapTransferEvents.ts'
@@ -52,9 +53,11 @@ function getKey(row: TransferEventRow | TransferEventsMetaRow): string {
 }
 
 export const transferEventsCollection = createCollection(
-	localOnlyCollectionOptions({
+	localStorageCollectionOptions({
 		id: CollectionId.TransferEvents,
+		storageKey: CollectionId.TransferEvents,
 		getKey,
+		parser: { stringify, parse },
 	}),
 )
 

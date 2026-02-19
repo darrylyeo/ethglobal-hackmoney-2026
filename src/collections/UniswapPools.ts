@@ -8,16 +8,19 @@ import { DataSource } from '$/constants/data-sources.ts'
 import type { UniswapPool } from '$/data/UniswapPool.ts'
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 import { normalizeUniswapPool } from './UniswapPoolsNormalize.ts'
 
 export type UniswapPoolRow = UniswapPool & { $source: DataSource }
 
 export const uniswapPoolsCollection = createCollection(
-	localOnlyCollectionOptions({
+	localStorageCollectionOptions({
 		id: CollectionId.UniswapPools,
+		storageKey: CollectionId.UniswapPools,
 		getKey: (row: UniswapPoolRow) => row.id,
+		parser: { stringify, parse },
 	}),
 )
 

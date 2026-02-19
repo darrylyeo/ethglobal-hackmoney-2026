@@ -10,6 +10,7 @@ export const collectionByEntityType = {
 	[EntityType.CctpFee]: (await import('$/collections/CctpFees.ts')).cctpFeesCollection,
 	[EntityType.Coin]: (await import('$/collections/Coins.ts')).coinsCollection,
 	[EntityType.Dashboard]: (await import('$/collections/Dashboards.ts')).dashboardsCollection,
+	[EntityType.SocialPostSession]: (await import('$/collections/SocialPostSessions.ts')).socialPostSessionsCollection,
 	[EntityType.Network]: (await import('$/collections/Networks.ts')).networksCollection,
 	[EntityType.Room]: (await import('$/collections/PartykitRooms.ts')).partykitRoomsCollection,
 	[EntityType.RoomPeer]: (await import('$/collections/PartykitRoomPeers.ts')).partykitRoomPeersCollection,

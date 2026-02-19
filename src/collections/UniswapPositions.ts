@@ -8,16 +8,19 @@ import { DataSource } from '$/constants/data-sources.ts'
 import type { UniswapPosition } from '$/data/UniswapPosition.ts'
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 import { normalizeUniswapPosition } from './UniswapPositionsNormalize.ts'
 
 export type UniswapPositionRow = UniswapPosition & { $source: DataSource }
 
 export const uniswapPositionsCollection = createCollection(
-	localOnlyCollectionOptions({
+	localStorageCollectionOptions({
 		id: CollectionId.UniswapPositions,
+		storageKey: CollectionId.UniswapPositions,
 		getKey: (row: UniswapPositionRow) => row.id,
+		parser: { stringify, parse },
 	}),
 )
 

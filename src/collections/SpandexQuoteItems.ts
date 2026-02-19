@@ -73,6 +73,7 @@ function normalizedItem(
 	let mismatchBpsVal: number | null = null
 	let error: string | null = null
 
+	let transactionRequest: SpandexQuoteItem['transactionRequest'] = undefined
 	if (success) {
 		const q = quote as SuccessfulSimulatedQuote
 		quotedOutputAmount = q.outputAmount
@@ -80,6 +81,16 @@ function normalizedItem(
 		gasUsed = q.simulation.gasUsed ?? null
 		const bps = mismatchBps(quotedOutputAmount, q.simulation.outputAmount)
 		mismatchBpsVal = bps
+		const tx = q.txData
+		if (tx?.to && tx?.data) {
+			transactionRequest = {
+				to: tx.to as `0x${string}`,
+				data: tx.data,
+				value: tx.value != null ? String(tx.value) : '0',
+				chainId: requestId.chainId,
+				...(gasUsed != null ? { gasLimit: String(gasUsed) } : {}),
+			}
+		}
 	} else {
 		quotedOutputAmount = 'outputAmount' in quote ? quote.outputAmount : 0n
 		error = quote.simulation.error?.message ?? null
@@ -100,6 +111,7 @@ function normalizedItem(
 		mismatchFlag,
 		error,
 		fetchedAt,
+		transactionRequest,
 	}
 }
 

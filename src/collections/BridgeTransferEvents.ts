@@ -8,8 +8,9 @@ import type { CoinSymbol } from '$/constants/coins.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 import { isBridgeTransfer } from '$/lib/transfer-classify.ts'
 
 function getKey(row: TransferEventRow): string {
@@ -18,9 +19,11 @@ function getKey(row: TransferEventRow): string {
 }
 
 export const bridgeTransferEventsCollection = createCollection(
-	localOnlyCollectionOptions({
+	localStorageCollectionOptions({
 		id: CollectionId.BridgeTransferEvents,
+		storageKey: CollectionId.BridgeTransferEvents,
 		getKey,
+		parser: { stringify, parse },
 	}),
 )
 
@@ -32,8 +35,10 @@ export function upsertBridgeTransferEvents(
 	rows: TransferEventRow[],
 ): void {
 	const pre = prefix(symbol, period)
-	for (const key of bridgeTransferEventsCollection.state.keys())
+	for (const key of bridgeTransferEventsCollection.state.keys()) {
 		if (key.startsWith(pre)) bridgeTransferEventsCollection.delete(key)
-	for (const row of rows)
+	}
+	for (const row of rows) {
 		if (isBridgeTransfer(row)) bridgeTransferEventsCollection.insert(row)
+	}
 }

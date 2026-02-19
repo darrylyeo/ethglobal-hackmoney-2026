@@ -33,26 +33,14 @@ export const watchedEntityKey = (row: {
 		typeof row.entityId === 'string' ? row.entityId : stringify(row.entityId)
 	}`
 
-export type LegacyStoredRow = {
-	entityType: EntityType
-	id: string
-	label?: string
-	href?: string
-	addedAt: number
-}
-
-const getEntityIdRaw = (
-	stored: WatchedEntityStoredRow | LegacyStoredRow,
-): string | EntityId => ('entityId' in stored ? stored.entityId : stored.id)
-
 export const watchedEntitiesCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.WatchedEntities,
 		storageKey: CollectionId.WatchedEntities,
-		getKey: (row: WatchedEntityStoredRow | LegacyStoredRow) =>
+		getKey: (row: WatchedEntityStoredRow) =>
 			watchedEntityKey({
 				entityType: row.entityType,
-				entityId: getEntityIdRaw(row),
+				entityId: row.entityId,
 			}),
 		parser: { stringify, parse },
 	}),

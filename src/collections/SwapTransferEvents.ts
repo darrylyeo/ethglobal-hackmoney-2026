@@ -8,8 +8,9 @@ import type { CoinSymbol } from '$/constants/coins.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 import { isSwapTransfer } from '$/lib/transfer-classify.ts'
 
 function getKey(row: TransferEventRow): string {
@@ -18,9 +19,11 @@ function getKey(row: TransferEventRow): string {
 }
 
 export const swapTransferEventsCollection = createCollection(
-	localOnlyCollectionOptions({
+	localStorageCollectionOptions({
 		id: CollectionId.SwapTransferEvents,
+		storageKey: CollectionId.SwapTransferEvents,
 		getKey,
+		parser: { stringify, parse },
 	}),
 )
 
@@ -32,8 +35,10 @@ export function upsertSwapTransferEvents(
 	rows: TransferEventRow[],
 ): void {
 	const pre = prefix(symbol, period)
-	for (const key of swapTransferEventsCollection.state.keys())
+	for (const key of swapTransferEventsCollection.state.keys()) {
 		if (key.startsWith(pre)) swapTransferEventsCollection.delete(key)
-	for (const row of rows)
+	}
+	for (const row of rows) {
 		if (isSwapTransfer(row)) swapTransferEventsCollection.insert(row)
+	}
 }

@@ -20,8 +20,9 @@ import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import type { EvmActorProfile, EvmActorProfile$Id } from '$/data/EvmActorProfile.ts'
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 
 export type EvmActorProfileRow = EvmActorProfile & {
 	isLoading?: boolean
@@ -29,10 +30,12 @@ export type EvmActorProfileRow = EvmActorProfile & {
 }
 
 export const evmActorProfilesCollection = createCollection(
-	localOnlyCollectionOptions({
+	localStorageCollectionOptions({
 		id: CollectionId.EvmActorProfiles,
+		storageKey: CollectionId.EvmActorProfiles,
 		getKey: (row: EvmActorProfileRow) =>
 			`${row.$id.$network.chainId}:${row.$id.address.toLowerCase()}`,
+		parser: { stringify, parse },
 	}),
 )
 

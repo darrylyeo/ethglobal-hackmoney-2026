@@ -14,8 +14,9 @@ import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 
 export type TransferGraphRow = {
 	$id: { symbol: string; period: string }
@@ -28,9 +29,11 @@ export type TransferGraphRow = {
 }
 
 export const transferGraphsCollection = createCollection(
-	localOnlyCollectionOptions({
+	localStorageCollectionOptions({
 		id: CollectionId.TransferGraphs,
+		storageKey: CollectionId.TransferGraphs,
 		getKey: (row: TransferGraphRow) => `${row.$id.symbol}:${row.$id.period}`,
+		parser: { stringify, parse },
 	}),
 )
 

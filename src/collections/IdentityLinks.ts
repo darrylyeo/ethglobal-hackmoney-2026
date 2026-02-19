@@ -1,22 +1,107 @@
 /**
  * Identity links collection: normalized identity input and resolved
- * payloads (address, name, text records). Uses TanStack DB; resolution
- * loading/error state is query/mutation state, not persisted on the entity.
+ * payloads (address, name, text records). Persisted to localStorage;
+ * resolution via Voltaire RPC.
  */
 
+import { resolveIdentity } from '$/api/identity-resolve.ts'
+import { createHttpProvider } from '$/api/voltaire.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
-import type { IdentityResolution } from '$/constants/identity-resolver.ts'
+import { ChainId } from '$/constants/chain-id.ts'
+import { IdentityInputKind, type IdentityResolution } from '$/constants/identity-resolver.ts'
+import { normalizeIdentity } from '$/api/identity-resolve.ts'
+import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import {
 	createCollection,
-	localOnlyCollectionOptions,
+	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 
-export type IdentityLinkRow = IdentityResolution & { $source: DataSource }
+export type IdentityLinkRow = IdentityResolution & {
+	$source: DataSource
+	isLoading?: boolean
+}
 
-export const identityLinksCollection = createCollection(
-	localOnlyCollectionOptions({
+export const identityLinkKey = (chainId: ChainId, raw: string) => {
+	const { kind, normalized } = normalizeIdentity(raw)
+	return (
+		kind === IdentityInputKind.EnsName
+			? `identity:${chainId}:ens:${normalized}`
+			: `identity:${chainId}:addr:${normalized}`
+	)
+}
+
+export const identityLinks = createCollection(
+	localStorageCollectionOptions({
 		id: CollectionId.IdentityLinks,
+		storageKey: CollectionId.IdentityLinks,
 		getKey: (row: IdentityLinkRow) => row.id,
+		parser: { stringify, parse },
 	}),
 )
+
+export const ensureIdentityLink = (chainId: ChainId, raw: string): void => {
+	const key = identityLinkKey(chainId, raw)
+	if (identityLinks.state.get(key)) return
+	fetchIdentityLink(chainId, raw).catch(() => {})
+}
+
+export const fetchIdentityLink = async (
+	chainId: ChainId,
+	raw: string,
+): Promise<IdentityLinkRow> => {
+	const key = identityLinkKey(chainId, raw)
+	const { kind, normalized } = normalizeIdentity(raw)
+	const url = rpcUrls[chainId]
+	const now = Date.now()
+	const placeholder: IdentityLinkRow = {
+		id: key,
+		raw,
+		normalized,
+		kind,
+		chainId,
+		createdAt: now,
+		updatedAt: now,
+		source: DataSource.Voltaire,
+		$source: DataSource.Voltaire,
+		isLoading: true,
+	}
+	if (!url) {
+		placeholder.isLoading = false
+		identityLinks.utils.writeUpsert(placeholder)
+		return placeholder
+	}
+	identityLinks.utils.writeUpsert(placeholder)
+	const provider = createHttpProvider(url)
+	const existing = identityLinks.state.get(key) as
+		| IdentityLinkRow
+		| undefined
+	const partial = await resolveIdentity(
+		provider,
+		chainId,
+		raw,
+		existing ?? null,
+	)
+	const row: IdentityLinkRow = {
+		id: key,
+		raw,
+		normalized,
+		kind: partial.kind ?? kind,
+		chainId: partial.chainId ?? chainId,
+		resolverId: partial.resolverId,
+		createdAt: existing?.createdAt ?? now,
+		updatedAt: now,
+		resolvedAt: partial.resolvedAt,
+		address: partial.address,
+		interopAddress: partial.interopAddress,
+		name: partial.name,
+		textRecords: partial.textRecords,
+		avatarUrl: partial.avatarUrl,
+		source: DataSource.Voltaire,
+		$source: DataSource.Voltaire,
+		isLoading: false,
+	}
+	identityLinks.utils.writeUpsert(row)
+	return row
+}

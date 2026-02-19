@@ -73,6 +73,37 @@ const createDashboardRow = (
 	name,
 })
 
+const createFarcasterTree = (): DashboardStateRow => {
+	const castsPanel = createPanelNode('/farcaster/casts')
+	const channelsPanel = createPanelNode('/farcaster/channels')
+	const root: DashboardNode = {
+		id: crypto.randomUUID(),
+		type: 'split',
+		direction: 'horizontal',
+		ratio: 0.5,
+		first: castsPanel,
+		second: channelsPanel,
+	}
+	return {
+		$id: { id: 'farcaster' },
+		root,
+		focusedPanelId: castsPanel.id,
+	}
+}
+
+export const ensureFarcasterDashboardState = (): DashboardStateRow => {
+	ensureDefaultRow()
+	const id = 'farcaster'
+	const key = stateKey(id)
+	const existing = dashboardsCollection.state.get(key) as
+		| DashboardStateRow
+		| undefined
+	if (existing) return existing
+	const created = createFarcasterTree()
+	dashboardsCollection.insert(created)
+	return created
+}
+
 export const dashboardsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.Dashboards,
