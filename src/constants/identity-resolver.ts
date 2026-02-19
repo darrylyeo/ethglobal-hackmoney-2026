@@ -54,7 +54,7 @@ export const IDENTITY_INPUT_KINDS: readonly IdentityInputKind[] = [
 	IdentityInputKind.EnsText,
 ] as const
 
-const ENS_REGISTRY_MAINNET =
+export const ENS_REGISTRY_MAINNET =
 	'0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e' as const
 const ENS_UNIVERSAL_RESOLVER_MAINNET =
 	'0xc0497E381f536Be9ce14B0dD3817cBcAe57d2F62' as const

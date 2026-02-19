@@ -15,16 +15,6 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Swap,
-			protocol: Protocol.Spandex,
-		},
-		payloadSchema: type({
-			fromActorCoin: 'object',
-			toActorCoin: 'object',
-		}),
-	},
-	{
-		id: {
-			actionType: ActionType.Swap,
 			protocol: Protocol.UniswapV4,
 		},
 		payloadSchema: type({

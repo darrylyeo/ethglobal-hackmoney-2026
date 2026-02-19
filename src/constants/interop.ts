@@ -1,8 +1,9 @@
 /**
  * Interop address helpers (EIP-7930 / ERC-7828) via @wonderland/interop-addresses.
  * Used for address formatting, parsing, and transport across constants, entity ids, and drag payloads.
+ * Chain shortname resolution uses slug from $/constants/networks only (no chainid.network).
  */
-
+import '$/constants/networks.ts'
 import {
 	decodeAddress,
 	encodeAddress,

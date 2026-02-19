@@ -1,5 +1,4 @@
 export enum Protocol {
-	Spandex = 'Spandex',
 	UniswapV4 = 'UniswapV4',
 	LiFi = 'LiFi',
 	Odos = 'Odos',
@@ -39,12 +38,6 @@ export type ProtocolDefinition = {
 }
 
 export const protocols = [
-	{
-		id: Protocol.Spandex,
-		label: 'spanDEX',
-		icon: '◇',
-		detail: 'Meta-aggregator (LiFi, Odos, KyberSwap, Relay)',
-	},
 	{
 		id: Protocol.UniswapV4,
 		label: 'Uniswap V4',

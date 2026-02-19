@@ -1,11 +1,24 @@
 import { type } from 'arktype'
 import { address } from '$/constants/arktype.ts'
 import { ChainId } from '$/constants/chain-id.ts'
+import { BridgeProtocolId } from '$/constants/bridge-protocol-intents.ts'
+import { ProtocolStrategy } from '$/constants/protocols.ts'
+import { SwapProtocolId } from '$/constants/swap-protocol-intents.ts'
 
 const zeroAddress = '0x0000000000000000000000000000000000000000' as `0x${string}`
 
 const usdc = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as `0x${string}`
 const weth = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' as `0x${string}`
+
+export enum TransferMode {
+	Direct = 'direct',
+	Channel = 'channel',
+}
+
+export enum TransferSpeed {
+	Fast = 'fast',
+	Standard = 'standard',
+}
 
 export enum BridgeRouteSort {
 	Recommended = 'recommended',
@@ -56,6 +69,8 @@ export const actionTypeDefinitions = [
 			amount: type('bigint').default(0n),
 			slippage: type('number').default(0.005),
 			isTestnet: type('boolean').default(false),
+			swapProtocolIntent: type.valueOf(SwapProtocolId).default(SwapProtocolId.Auto),
+			swapStrategy: type.valueOf(ProtocolStrategy).default(ProtocolStrategy.BestPrice),
 		}),
 	},
 	{
@@ -74,8 +89,8 @@ export const actionTypeDefinitions = [
 			useCustomRecipient: type('boolean').default(false),
 			customRecipient: type('string').default(''),
 			isTestnet: type('boolean').default(false),
-			protocolIntent: type("'cctp'|'lifi'|'gateway'|null").default(null),
-			transferSpeed: type("'fast'|'standard'").default('fast'),
+			protocolIntent: type.valueOf(BridgeProtocolId).or('null').default(null),
+			transferSpeed: type.valueOf(TransferSpeed).default(TransferSpeed.Fast),
 			forwardingEnabled: type('boolean').default(false),
 		}),
 	},
@@ -91,7 +106,7 @@ export const actionTypeDefinitions = [
 			tokenSymbol: type('string').default(''),
 			tokenDecimals: type('number.integer').default(0),
 			tokenAddress: address.default(zeroAddress),
-			mode: type("'direct'|'channel'").default('direct'),
+			mode: type.valueOf(TransferMode).default(TransferMode.Direct),
 		}),
 	},
 	{
@@ -280,12 +295,21 @@ export type LiquidityAction =
 	| Action<ActionType.IncreaseLiquidity>
 
 const nullableParamKeys = new Set(['fromChainId', 'toChainId', 'protocolIntent'])
-const spreadDefined = (o: Record<string, unknown>) =>
-	Object.fromEntries(
+const bigintParamKeys = new Set(['amount', 'amount0', 'amount1'])
+const coerceBigint = (v: unknown): bigint | unknown =>
+	typeof v === 'bigint' ? v : typeof v === 'string' || typeof v === 'number' ? BigInt(String(v)) : v
+const spreadDefined = (o: Record<string, unknown>) => {
+	const filtered = Object.fromEntries(
 		Object.entries(o).filter(
 			([k, v]) => (v != null) || nullableParamKeys.has(k),
 		),
 	)
+	return Object.fromEntries(
+		Object.entries(filtered).map(([k, v]) =>
+			bigintParamKeys.has(k) ? [k, coerceBigint(v)] : [k, v],
+		),
+	)
+}
 
 export const createAction = <_ActionType extends ActionType>(
 	type: _ActionType,

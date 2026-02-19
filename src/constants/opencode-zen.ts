@@ -58,6 +58,7 @@ export const defaultZenFreeModelId = zenFreeModels[0].id
 
 /** Synthetic connection id when using Zen via PUBLIC_OPENCODE_API_KEY without a saved connection. */
 export const ZEN_DEFAULT_CONNECTION_ID = 'opencode-zen'
+export const LLM_ZEN_DEFAULT_CONNECTION_ID = ZEN_DEFAULT_CONNECTION_ID
 
 export const zenFreeModelOptions: readonly { id: string, label: string }[] =
 	zenFreeModels.map((m) => ({ id: m.id, label: m.label }))

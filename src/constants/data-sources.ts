@@ -1,6 +1,7 @@
 export enum DataSource {
 	Local = 'Local',
 	Cctp = 'Cctp',
+	Farcaster = 'Farcaster',
 	Covalent = 'Covalent',
 	LiFi = 'LiFi',
 	Llm = 'Llm',

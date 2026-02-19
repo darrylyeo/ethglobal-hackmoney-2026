@@ -36,6 +36,7 @@ export enum ChainId {
 	LineaSepolia = 59141,
 	Linea = 59144,
 	InkTestnet = 763373,
+	Scroll = 534352,
 	Codex = 81224,
 	CodexTestnet = 812242,
 	Plume = 98866,

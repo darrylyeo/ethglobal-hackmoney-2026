@@ -195,14 +195,16 @@ export const intents: IntentDefinition[] = [
 		],
 
 		resolveOptions: ({ from, to }) => {
-			const sameActor = eqAddr(from.address, to.address)
-			const sameNetwork = from.chainId === to.chainId
-			const sameCoin = eqAddr(from.tokenAddress, to.tokenAddress)
+			const fromAc = from as { address: string; chainId: number; tokenAddress: string }
+			const toAc = to as { address: string; chainId: number; tokenAddress: string }
+			const sameActor = eqAddr(fromAc.address, toAc.address)
+			const sameNetwork = fromAc.chainId === toAc.chainId
+			const sameCoin = eqAddr(fromAc.tokenAddress, toAc.tokenAddress)
 
 			if (sameActor && sameNetwork && sameCoin)
 				throw new Error('Source and destination are identical')
 
-			const payload = { fromActorCoin: from, toActorCoin: to }
+			const payload = { fromActorCoin: fromAc, toActorCoin: toAc }
 
 			const lifiActions = [
 				...(!sameCoin ? [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${Protocol.LiFi}`]!, payload }] : []),
