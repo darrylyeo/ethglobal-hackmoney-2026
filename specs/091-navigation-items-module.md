@@ -10,7 +10,7 @@ All sidebar navigation data logic lives in `src/routes/navigationItems.svelte.ts
 - **Layout:** `+layout.svelte` only:
   - Calls `const navigationItems = useNavigationItems({ isTestnet: () => networkEnvironmentState.current === NetworkEnvironment.Testnet })`.
   - Passes `{ navigationItems }` to `<Navigation>` (which passes `items={navigationItems}` to `<NavigationItems>`).
-- **Watched entities:** Raw rows from `watchedEntitiesCollection` are mapped through `deriveWatchedEntityRow` (from `WatchedEntities.ts`) before being passed into `getNavigationItems`, so nav sees full `WatchedEntityRow` (id, label, href) while storage keeps only entityType + entityId (spec 084).
+- **Watched entities:** The `watchedEntitiesCollection` is the **sole source** for entity children in nav. Raw rows are mapped through `deriveWatchedEntityRow` before `getNavigationItems`. Sessions, Accounts, Rooms, Agents, Coins, Networks—all derive their children from WatchedEntities. No hardcoded entity lists; defaults come from `DEFAULT_WATCHED_ENTITIES` seeded on profile creation (spec 084, 093).
 
 ## Output
 

@@ -125,16 +125,13 @@ redirect to `/session/[id]`.
 - Replace dedicated action routes (`/swap`, `/bridge`, `/transfer`) with the
   single `/session` route.
 - Action views colocated in `src/routes/session/` (Bridge.svelte, Liquidity.svelte, Swap.svelte, Transfer.svelte); `/session` consumes them.
-- Navigation structure (in `+layout.svelte`): **Actions** (defaultOpen; children: Transfer, Swap, Bridge, Add Liquidity) above **Sessions** (defaultOpen: false; tag = session count); **Accounts** (defaultOpen; flattened list of wallet + watching accounts, each with icon when available and tag = wallet name or "Watching", href `/accounts`); **Explore** (defaultOpen; children: **Coins** with USDC → `/coin/USDC`, **Networks** with one per relevant network from wallet connections/sessions → `/network/{slug}`); **Multiplayer** (defaultOpen; children: Rooms with count tag, Yellow Channels); **Tests** (defaultOpen).
-- Sessions parent has `[data-tag]` with session count; session child items have `[data-tag]` for status. Rooms shows room count in `[data-tag]`. Accounts shows count and each account item has tag (wallet name or Watching) and optional icon.
+- **Navigation structure (superseded by spec 084):** Sessions, Accounts, Rooms, Coins, Networks nav children derive from `watchedEntitiesCollection` (sole source). Default entities seeded on profile creation.
 - Session navigation items resolve to `/session?template=[action-slug]` (and session list to `/sessions`).
 
 ## Navigation tags
 
-- Sessions parent: `[data-tag]` shows number of sessions. Child items: `[data-tag]` indicates `Draft`, `Submitted`, or `Finalized`.
-- Accounts: parent `[data-tag]` = count; each child has `[data-tag]` = wallet name or "Watching", and icon when from EIP-6963 wallet.
-- Rooms (under Multiplayer): `[data-tag]` shows number of rooms.
-- Session navigation items resolve to `/session?template=[action-slug]`.
+- Sessions parent: `[data-tag]` shows count of watched sessions. Child items: `[data-tag]` indicates `Draft`, `Submitted`, or `Finalized`.
+- Action nav items resolve to `/session?template=[action-slug]`.
 
 ## Flow adoption
 
@@ -163,7 +160,7 @@ redirect to `/session/[id]`.
 - [x] Sessions update to `Submitted` and `Finalized` with persisted metadata.
 - [x] A new draft session is created when users change parameters after locking.
 - [x] Locked sessions can be forked into a new Draft session with copied params.
-- [x] Navigation includes Actions, Sessions (count tag, child items per session), Accounts (flattened wallet/watching accounts with icon and tag), Coins (USDC), Multiplayer (Rooms with count tag, Yellow Channels), Tests. Actions, Accounts, Coins, Multiplayer, Tests defaultOpen; Sessions defaultOpen: false.
+- [x] Navigation includes Actions, Sessions, Accounts, Explore (Coins, Networks), Multiplayer (Rooms), Tests. Entity children from WatchedEntities (spec 084).
 - [x] Session child items and Sessions/Rooms parents include `[data-tag]` (status or count).
 - [x] Legacy hash formats are removed without backward compatibility shims.
 - [x] `/session` is the single base route for all action flows.

@@ -77,7 +77,7 @@ Ensure correct elements used:
 
 <Navigation />
 
-<main id="main" tabindex="-1">
+<main tabindex="-1">
   {@render children()}
 </main>
 ```

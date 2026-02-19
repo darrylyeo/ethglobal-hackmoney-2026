@@ -9,8 +9,8 @@ Ensure UI styling relies on shared primitives from
 - Apply existing primitives and semantic styles from
   `src/styles/components.css` wherever possible.
 - Local overrides live in component `<style>` tags using classes.
-- Data-attribute variants set CSS variables via nested `&[data-*]` rules on the
-  class.
+- **Use CSS classes for all local `<style>` selectors.** For state/variant styling, add classes (e.g. `class:variant-name={condition}`) and target them with `.base-class.variant-name`, not `&[data-*]`.
+- **Exception:** When overriding CSS variables, use nested `&[data-*]` rules on the class.
 
 ## Non-goals
 
@@ -27,15 +27,15 @@ Ensure UI styling relies on shared primitives from
   element selectors) unless a primitive already covers the element.
 - [x] Local `<style>` blocks may target element selectors when nested under a
   semantic parent class and no differentiation is needed.
-- [x] Component `<style>` selectors target classes; data-attribute selectors are
-  only used as nested `&[data-*]` variants on those classes for variable
-  overrides.
+- [x] Component `<style>` selectors target classes; state/variants use classes
+  (e.g. `.base.variant-name`). Data-attribute selectors are only used as nested
+  `&[data-*]` for CSS variable overrides.
 - [x] Remove local `data-*` attributes once styles switch to classes (keep only
   data attributes that provide primitive layout or variant state).
 - [x] When a Svelte element has multiple attributes, each attribute is placed on
   its own line.
-- [x] Any data-attribute variants are implemented with nested `&[data-*]` rules
-  in the class definition.
+- [x] Variant styling uses classes; `&[data-*]` is reserved for CSS variable
+  overrides within a class definition.
 - [x] No changes are made to `src/styles/components.css`.
 
 ### Review checklist

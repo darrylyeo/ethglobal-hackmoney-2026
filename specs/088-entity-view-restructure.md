@@ -19,7 +19,6 @@ correct heading hierarchy.
 - `metadata?: Array<{ term: string; detail: string }>` — optional definition list
 - `annotation?: string` — override entity type label
 - `anchorTitle?: boolean` — wrap title in anchor to `#entityType:idSerialized`
-- `autoWatched?: boolean` — for WatchButton
 - `title?: Snippet` — override label with custom title (e.g. NetworkName, CoinName)
 - `AfterTitle?: Snippet` — after title (e.g. tag)
 - `BeforeAnnotation?: Snippet`

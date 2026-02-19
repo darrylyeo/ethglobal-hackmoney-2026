@@ -27,11 +27,12 @@ Watched entities (manual pins in the nav, spec 084) persist `entityType` and **t
 
 ## Default watched entities
 
-`DEFAULT_WATCHED_ENTITIES` uses typed ids only:
+`DEFAULT_WATCHED_ENTITIES` uses typed ids only. Seeded on profile creation and
+when WatchedEntities is empty (migration). See `src/constants/default-watched-entities.ts`:
 
-- **Coin (ETH)**: `{ $network: { chainId: ChainId.Ethereum }, address: zero, interopAddress: 'ETH' }`.
-- **Coin (USDC)**: first Ethereum USDC entry from `ercTokens`, as `Coin$Id`.
-- **Network (Ethereum)**: `{ chainId: ChainId.Ethereum }`.
+- **Networks:** Ethereum, Base, Ethereum Sepolia, Base Sepolia (`{ chainId }`).
+- **Coins:** ETH (native), USDC (first Ethereum USDC from `ercTokens`).
+- **Actor:** vitalik.eth (`{ $network: { chainId: 1 }, address: '0xd8dA...', interopAddress: 'vitalik.eth' }`).
 
 ## Call sites
 

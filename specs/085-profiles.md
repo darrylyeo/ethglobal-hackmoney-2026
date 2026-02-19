@@ -85,8 +85,10 @@ On first load when no `blockhead.v1:profiles` key exists:
 1. Create a default profile (`id: 'default'`, generated name/emoji).
 2. For each profile-scoped `storageKey`, copy the existing un-namespaced value
    to `blockhead.v1:default:<storageKey>` (archive the working copy).
-3. Leave un-namespaced keys in place — they're the working copy.
-4. Write `ProfilesMeta` with `activeProfileId: 'default'`.
+3. If `watched-entities` is empty, seed `DEFAULT_WATCHED_ENTITIES` (Ethereum,
+   Base, Ethereum Sepolia, Base Sepolia, ETH, USDC, vitalik.eth).
+4. Leave un-namespaced keys in place — they're the working copy.
+5. Write `ProfilesMeta` with `activeProfileId: 'default'`.
 
 On subsequent loads, the working copy already has the active profile's data
 (TanStack DB keeps it up to date). No action needed.
@@ -234,7 +236,7 @@ used by both rooms and profiles:
 
 export const createProfile = (
 	overrides?: Partial<Pick<Profile, 'name' | 'emoji'>>,
-): Profile
+): Profile  // seeds WatchedEntities with DEFAULT_WATCHED_ENTITIES for the new profile
 export const updateProfile = (
 	id: string,
 	updates: Partial<Pick<Profile, 'name' | 'emoji'>>,
@@ -315,7 +317,7 @@ Full profile management:
 - [ ] Profile switch archives old profile, restores new, dispatches synthetic
   `StorageEvent`s to re-sync collections, and navigates to `/`.
 - [ ] Global collections (prices, networks, coins, etc.) remain un-namespaced.
-- [ ] Create new profile with auto-generated name + emoji.
+- [ ] Create new profile with auto-generated name + emoji; WatchedEntities seeded with `DEFAULT_WATCHED_ENTITIES` (Ethereum, Base, Ethereum Sepolia, Base Sepolia, ETH, USDC, vitalik.eth).
 - [ ] Edit profile name and emoji; changes persist.
 - [ ] Switching profiles isolates local state (sessions, watched entities,
   wallet connections, dashboards, etc.) per profile.
