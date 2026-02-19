@@ -547,14 +547,6 @@ export const testnetsForMainnet = new Map(
 export const networkConfigsBySlug: Partial<Record<string, NetworkConfig>> =
 	Object.fromEntries(networkConfigs.map((c) => [c.slug, c]))
 
-export const slugToChainId: Record<string, number> = Object.fromEntries(
-	networkConfigs.map((c) => [c.slug, c.chainId]),
-)
-if (typeof globalThis !== 'undefined') {
-	;(globalThis as { __CHAIN_SLUG_TO_CHAIN_ID__?: Record<string, number> }).__CHAIN_SLUG_TO_CHAIN_ID__ =
-		slugToChainId
-}
-
 export const networkConfigsByCaip2: Partial<Record<string, NetworkConfig>> =
 	Object.fromEntries(networkConfigs.map((c) => [c.caip2, c]))
 
