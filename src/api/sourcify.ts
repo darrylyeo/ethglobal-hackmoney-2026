@@ -26,7 +26,7 @@ export async function fetchContractWithAbi(
 	const abi = json.abi
 	if (!abi || !Array.isArray(abi)) return null
 	return {
-		abi: abi as ContractAbi,
+		abi: abi as unknown as ContractAbi,
 		source: 'Sourcify',
 	}
 }
@@ -74,7 +74,7 @@ export async function fetchContractFull(
 		files,
 	}
 	return {
-		abi: abiValid ? (abi as ContractAbi) : undefined,
+		abi: abiValid ? (abi as unknown as ContractAbi) : undefined,
 		source,
 	}
 }

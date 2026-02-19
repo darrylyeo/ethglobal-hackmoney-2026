@@ -1,3 +1,7 @@
+/**
+ * ERC20 approval flow: check allowance, send approve tx, wait for confirmation.
+ */
+
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import type { EIP1193Provider } from '$/lib/wallet.ts'
 import {

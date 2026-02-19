@@ -16,6 +16,15 @@ const toHex = (bytes: Uint8Array): string =>
 		.map((b) => b.toString(16).padStart(2, '0'))
 		.join('')}`
 
+const toHexSafe = (
+	val: Uint8Array | string | undefined | null,
+): string =>
+	val == null ?
+		'0x'
+	: typeof val === 'string' ?
+		val
+	: toHex(val)
+
 export type SimulatePayload = {
 	rpcUrl: string
 	chainId: number
@@ -78,15 +87,17 @@ function buildResult(
 	]
 
 	const logs = (execResult.logs ?? []) as unknown as {
-		address: Uint8Array
-		topics: Uint8Array[]
-		data: Uint8Array
+		address?: Uint8Array | string
+		topics?: (Uint8Array | string)[]
+		data?: Uint8Array | string
 	}[]
-	const rawLogs = logs.map((log) => ({
-		address: toHex(log.address),
-		topics: log.topics.map((t) => toHex(t)),
-		data: toHex(log.data),
-	}))
+	const rawLogs = logs
+		.filter((log) => log?.address != null && log?.data != null)
+		.map((log) => ({
+			address: toHexSafe(log!.address),
+			topics: (log!.topics ?? []).map((t) => toHexSafe(t)),
+			data: toHexSafe(log!.data),
+		}))
 
 	const events: TevmSimulationDecodedEvent[] = rawLogs.map((log) => ({
 		address: log.address,
@@ -150,7 +161,7 @@ export const runTevmSimulation = async (
 		{
 			chainId: BigInt(body.chainId),
 			to,
-			data: data === '0x' ? undefined : data,
+			data,
 			value,
 			gasLimit,
 			maxFeePerGas: 10n ** 9n,
@@ -217,7 +228,7 @@ export const runTevmSimulationSequence = async (
 			{
 				chainId: BigInt(body.chainId),
 				to,
-				data: data === '0x' ? undefined : data,
+				data,
 				value,
 				gasLimit,
 				maxFeePerGas: 10n ** 9n,

@@ -38,6 +38,15 @@ const GATEWAY_WALLET_DEPOSIT_ABI = Abi([
 	},
 ]) as unknown as Abi
 
+export const encodeGatewayDeposit = (
+	token: `0x${string}`,
+	amount: bigint,
+): `0x${string}` =>
+	encodeFunction(GATEWAY_WALLET_DEPOSIT_ABI, 'deposit', [
+		token,
+		amount,
+	]) as `0x${string}`
+
 const GATEWAY_MINTER_MINT_ABI = Abi([
 	{
 		type: 'function',

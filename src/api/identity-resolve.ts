@@ -70,10 +70,10 @@ export function normalizeIdentity(raw: string): {
 	}
 	if (isValidAddress(trimmed)) {
 		const withPrefix = trimmed.startsWith('0x') ? trimmed : `0x${trimmed}`
-		const checksummed = normalizeAddress(withPrefix)
+		const normalized = (normalizeAddress(withPrefix) ?? withPrefix).toLowerCase()
 		return {
 			kind: IdentityInputKind.Address,
-			normalized: checksummed ?? withPrefix,
+			normalized,
 		}
 	}
 	if (trimmed.includes('.') && trimmed.length > 4) {

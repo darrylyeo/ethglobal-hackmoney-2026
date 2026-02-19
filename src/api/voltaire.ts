@@ -66,7 +66,6 @@ export type RawTrace = {
 	gasUsed?: string
 	input?: string
 	output?: string
-	output?: string
 	error?: string
 	calls?: RawTrace[]
 }

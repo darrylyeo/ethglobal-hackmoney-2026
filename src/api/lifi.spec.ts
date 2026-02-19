@@ -34,7 +34,7 @@ vi.mock('@lifi/sdk', () => {
 		},
 		tool: 'lifi',
 		includedSteps: [],
-	} as LiFiStep
+	} as unknown as LiFiStep
 	const mockRoute: Route = {
 		id: 'route-1',
 		insurance: { state: 'NOT_INSURABLE', feeAmountUsd: '0', },
@@ -98,9 +98,9 @@ const mockLiFiStep: LiFiStep = {
 			},
 		],
 	},
-	tool: 'lifi',
+		tool: 'lifi',
 	includedSteps: [],
-} as LiFiStep
+} as unknown as LiFiStep
 describe('LI.FI routes and quotes', () => {
 	it('normalizeQuote: given mock LI.FI response, produces expected route/quote shape (steps, amounts, fees)', () => {
 		const out = normalizeQuote(mockLiFiStep)

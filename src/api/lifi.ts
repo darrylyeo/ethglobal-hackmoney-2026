@@ -391,6 +391,15 @@ export async function getQuoteStep(params: QuoteParams): Promise<LiFiStep> {
 	})
 }
 
+/** getQuote + getStepTransaction to populate transactionRequest. */
+export async function getQuoteStepWithTransaction(
+	params: QuoteParams,
+): Promise<LiFiStep> {
+	const sdk = await getLifiSdk()
+	const step = await getQuoteStep(params)
+	return sdk.getStepTransaction(step)
+}
+
 export async function executeQuote(
 	providerDetail: ProviderDetailType,
 	params: QuoteParams,
@@ -462,7 +471,7 @@ export async function executeQuoteWithStatus(
 	onStatusChange: StatusCallback,
 ): Promise<RouteExtended> {
 	const status: BridgeStatus = {
-		overall: 'in_progress',
+		overall: BridgeOverallStatus.InProgress,
 		steps: [],
 	}
 	onStatusChange({ ...status })
@@ -502,11 +511,11 @@ export async function executeSelectedRoute(
 		})
 		const completedAt = Date.now()
 		onStatusChange?.({
-			overall: 'completed',
+			overall: BridgeOverallStatus.Completed,
 			steps: [
 				{
-					step: 'send',
-					state: 'success',
+					step: TxStep.Send,
+					state: TxState.Success,
 					txHash,
 					chainId: route.fromChainId,
 					startedAt,
