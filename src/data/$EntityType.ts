@@ -13,6 +13,10 @@ import type { BridgeRoute } from '$/data/BridgeRoute.ts'
 import type { CctpAllowance, CctpAllowance$Id } from '$/data/CctpAllowance.ts'
 import type { CctpFee, CctpFee$Id } from '$/data/CctpFee.ts'
 import type { ContractEntry, Contract$Id } from '$/data/Contract.ts'
+import type { SocialPostSession } from '$/data/SocialPostSession.ts'
+import type { FarcasterCast, FarcasterCast$Id } from '$/data/FarcasterCast.ts'
+import type { FarcasterChannel, FarcasterChannel$Id } from '$/data/FarcasterChannel.ts'
+import type { FarcasterUser, FarcasterUser$Id } from '$/data/FarcasterUser.ts'
 import type { CoinEntry, Coin$Id } from '$/data/Coin.ts'
 import type { DashboardState, DashboardState$Id } from '$/data/DashboardPanel.ts'
 import type { NetworkEntry, Network$Id } from '$/data/Network.ts'
@@ -51,6 +55,10 @@ export enum EntityType {
 	Coin = 'Coin',
 	Contract = 'Contract',
 	Dashboard = 'Dashboard',
+	SocialPostSession = 'SocialPostSession',
+	FarcasterCast = 'FarcasterCast',
+	FarcasterChannel = 'FarcasterChannel',
+	FarcasterUser = 'FarcasterUser',
 	Network = 'Network',
 	Room = 'Room',
 	RoomPeer = 'RoomPeer',
@@ -86,6 +94,10 @@ export const graphSceneEntityTypes = [
 	EntityType.Coin,
 	EntityType.Contract,
 	EntityType.Dashboard,
+	EntityType.SocialPostSession,
+	EntityType.FarcasterCast,
+	EntityType.FarcasterChannel,
+	EntityType.FarcasterUser,
 	EntityType.Network,
 	EntityType.Room,
 	EntityType.RoomPeer,
@@ -124,6 +136,10 @@ export const entityTypes = [
 	{ type: EntityType.Coin, label: 'Token', labelPlural: 'Tokens' },
 	{ type: EntityType.Contract, label: 'Contract', labelPlural: 'Contracts' },
 	{ type: EntityType.Dashboard, label: 'Dashboard', labelPlural: 'Dashboards' },
+	{ type: EntityType.SocialPostSession, label: 'Social post session', labelPlural: 'Social post sessions' },
+	{ type: EntityType.FarcasterCast, label: 'Cast', labelPlural: 'Casts' },
+	{ type: EntityType.FarcasterChannel, label: 'Channel', labelPlural: 'Channels' },
+	{ type: EntityType.FarcasterUser, label: 'Farcaster user', labelPlural: 'Farcaster users' },
 	{ type: EntityType.Network, label: 'Network', labelPlural: 'Networks' },
 	{ type: EntityType.Room, label: 'Room', labelPlural: 'Rooms' },
 	{ type: EntityType.RoomPeer, label: 'Room peer', labelPlural: 'Room peers' },
@@ -164,6 +180,10 @@ export type Entity<_EntityType extends EntityType = EntityType> = {
 	[EntityType.Coin]: CoinEntry
 	[EntityType.Contract]: ContractEntry
 	[EntityType.Dashboard]: DashboardState
+	[EntityType.SocialPostSession]: SocialPostSession
+	[EntityType.FarcasterCast]: FarcasterCast
+	[EntityType.FarcasterChannel]: FarcasterChannel
+	[EntityType.FarcasterUser]: FarcasterUser
 	[EntityType.Network]: NetworkEntry
 	[EntityType.Room]: Room
 	[EntityType.RoomPeer]: RoomPeer
@@ -202,6 +222,10 @@ export type EntityId<_EntityType extends EntityType = EntityType> = {
 	[EntityType.Coin]: Coin$Id
 	[EntityType.Contract]: Contract$Id
 	[EntityType.Dashboard]: DashboardState$Id
+	[EntityType.SocialPostSession]: StringId
+	[EntityType.FarcasterCast]: FarcasterCast$Id
+	[EntityType.FarcasterChannel]: FarcasterChannel$Id
+	[EntityType.FarcasterUser]: FarcasterUser$Id
 	[EntityType.Network]: Network$Id
 	[EntityType.Room]: StringId
 	[EntityType.RoomPeer]: StringId

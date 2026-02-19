@@ -12,6 +12,14 @@ export type SpandexQuoteRequestId = {
 	swapperAccount: `0x${string}`
 }
 
+export type SpandexQuoteTransactionRequest = {
+	to: `0x${string}`
+	data: `0x${string}`
+	value: string
+	chainId: number
+	gasLimit?: string
+}
+
 export type SpandexQuoteItem = {
 	$id: { requestId: string; provider: string }
 	requestId: SpandexQuoteRequestId
@@ -26,4 +34,6 @@ export type SpandexQuoteItem = {
 	mismatchFlag: boolean
 	error: string | null
 	fetchedAt: number
+	/** Transaction request for signing when success. */
+	transactionRequest?: SpandexQuoteTransactionRequest
 }
