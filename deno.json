@@ -18,7 +18,7 @@
   "tasks": {
     "dev": "vite dev",
     "dev:partykit": "partykit dev",
-    "deploy:partykit": "pnpx partykit deploy",
+    "deploy:partykit": "deno run -A npm:partykit deploy",
     "build": "vite build",
     "preview": "vite preview",
     "install": "deno install",
@@ -32,7 +32,7 @@
     "assets": "deno task assets:sync && deno task assets:optimize",
     "test": "deno task test:unit && deno task test:e2e",
     "test:unit": "deno test -A --no-check src/collections/Actors.spec.ts src/collections/ActorCoins.spec.ts src/collections/RoomPeers.spec.ts src/collections/SharedAddresses.spec.ts src/collections/SiweChallenges.spec.ts src/collections/Verifications.spec.ts src/collections/UniswapPools.spec.ts src/collections/UniswapPositions.spec.ts src/collections/SwapQuotes.spec.ts src/lib/bridge/txStatus.spec.ts src/api/voltaire.spec.ts src/api/identity-resolve.spec.ts && deno run -A npm:vitest run",
-    "test:e2e": "pnpm exec playwright test -c playwright.e2e.config.ts",
+    "test:e2e": "deno run -A npm:playwright test -c playwright.e2e.config.ts",
     "test:e2e:prompt": "deno run -A npm:@playwright/test test e2e/prompt-input.test.ts -c playwright.no-server.config.ts"
   }
 }

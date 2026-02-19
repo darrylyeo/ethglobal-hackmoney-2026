@@ -20,6 +20,7 @@ interface Array<T> {
 }
 
 interface ImportMetaEnv {
+	readonly PUBLIC_NEYNAR_API_KEY?: string
 	readonly PUBLIC_TEVM_RPC_URL?: string
 	readonly PUBLIC_LLM_API_KEY?: string
 	readonly PUBLIC_LLM_ENDPOINT?: string

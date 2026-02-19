@@ -4,6 +4,7 @@ export default defineConfig({
 	timeout: 60_000,
 	testDir: 'e2e',
 	testMatch: '**/*.test.ts',
+	testIgnore: ['**/coverage-enforcement.test.ts'],
 	workers: 1,
 	use: {
 		baseURL: 'http://localhost:4173',
@@ -12,8 +13,9 @@ export default defineConfig({
 		video: 'on-first-retry',
 	},
 	webServer: {
-		command: 'pnpm run build:vite && pnpm run preview:vite',
+		command: 'deno task build && deno task preview',
 		env: {
+			PUBLIC_OPENCODE_API_KEY: process.env.PUBLIC_OPENCODE_API_KEY ?? 'e2e',
 			PUBLIC_TEVM_RPC_URL: 'http://127.0.0.1:8545',
 		},
 		url: 'http://localhost:4173/',

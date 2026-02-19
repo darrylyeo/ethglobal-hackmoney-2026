@@ -2,6 +2,7 @@ test-results
 playwright-report
 node_modules
 bun.lock
+pnpm-lock.yaml
 
 # Ralph Wiggum
 logs/
