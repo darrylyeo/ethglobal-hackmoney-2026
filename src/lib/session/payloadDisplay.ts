@@ -1,5 +1,3 @@
-import type { TransactionSigningPayload } from '$/lib/session/resolveSigningPayloads.ts'
-
 const ERC20_TRANSFER_SELECTOR = '0xa9059cbb'
 const ERC20_APPROVE_SELECTOR = '0x095ea7b3'
 
@@ -15,9 +13,9 @@ export type PayloadDataDescription =
 	| { kind: 'erc20_transfer'; to: `0x${string}`; amount: bigint }
 	| { kind: 'erc20_approve'; spender: `0x${string}`; amount: bigint }
 
-export const describePayloadData = (
-	payload: TransactionSigningPayload,
-): PayloadDataDescription => {
+export const describePayloadData = (payload: {
+	data?: `0x${string}`
+}): PayloadDataDescription => {
 	const data = payload.data ?? '0x'
 	if (!data || data === '0x') return { kind: 'empty' }
 	const raw = data.startsWith('0x') ? data.slice(2) : data

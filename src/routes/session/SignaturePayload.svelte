@@ -1,15 +1,13 @@
 <script lang="ts">
 	// Types/constants
 	import type { TransactionSigningPayload } from '$/lib/session/resolveSigningPayloads.ts'
-	import {
-		describePayloadData,
-		formatPayloadValue,
-	} from '$/lib/session/payloadDisplay.ts'
+	import { formatPayloadValue } from '$/lib/session/payloadDisplay.ts'
 
 
 	// Components
 	import Address from '$/views/Address.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
+	import Calldata from './Calldata.svelte'
 
 
 	// Props
@@ -21,20 +19,10 @@
 
 
 	// (Derived)
-	const dataDesc = $derived(describePayloadData(payload))
 	const valueFormatted = $derived(formatPayloadValue(payload.value))
-	const dataSummary = $derived(
-		dataDesc.kind === 'empty'
-			? '—'
-			: dataDesc.kind === 'erc20_transfer'
-				? `transfer(${dataDesc.to.slice(0, 10)}…, ${dataDesc.amount})`
-				: dataDesc.kind === 'erc20_approve'
-					? `approve(${dataDesc.spender.slice(0, 10)}…, ${dataDesc.amount === 2n ** 256n - 1n ? 'unlimited' : dataDesc.amount})`
-					: `raw (${dataDesc.byteLength} bytes)`,
-	)
 </script>
 
-<article data-card data-signing-payload data-column="gap-2 padding-3">
+<article data-card data-signature-payload data-column="gap-2 padding-3">
 	<header data-row="gap-2 align-center">
 		{#if payload.label}
 			<h4>{payload.label}</h4>
@@ -66,7 +54,9 @@
 		<dt>Value</dt>
 		<dd data-text="font-monospace">{valueFormatted}</dd>
 		<dt>Data</dt>
-		<dd data-text="font-monospace">{dataSummary}</dd>
+		<dd>
+			<Calldata data={payload.data} />
+		</dd>
 		{#if payload.gasLimit != null && payload.gasLimit !== ''}
 			<dt>Gas limit</dt>
 			<dd data-text="font-monospace">{payload.gasLimit}</dd>
@@ -75,7 +65,7 @@
 </article>
 
 <style>
-	[data-signing-payload] dl dd {
+	[data-signature-payload] dl dd {
 		word-break: break-all;
 	}
 </style>

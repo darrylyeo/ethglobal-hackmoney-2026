@@ -14,14 +14,14 @@
 	import type { Coin } from '$/constants/coins.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { protocolActions } from '$/constants/protocolActions.ts'
-	import { bridgeIdToProtocol, protocolToBridgeId } from '$/constants/bridge-protocol-intents.ts'
-	import { spandexQuoteStrategies } from '$/constants/spandex-quote-strategies.ts'
-	import { protocolToSpandexProvider, spandexSwapProtocols } from '$/constants/spandex-providers.ts'
 	import {
-		Protocol,
-		ProtocolStrategy,
-		protocolsById,
-	} from '$/constants/protocols.ts'
+		BridgeProtocolId,
+		bridgeIdToProtocol,
+		protocolToBridgeId,
+	} from '$/constants/bridge-protocol-intents.ts'
+	import { SwapProtocolId, swapIdToProtocol } from '$/constants/swap-protocol-intents.ts'
+	import { protocolToSpandexProvider, spandexSwapProtocols } from '$/constants/spandex-providers.ts'
+	import { Protocol, protocolsById } from '$/constants/protocols.ts'
 	import { getBridgeProtocolOptions } from '$/lib/protocols/bridgeProtocolOptions.ts'
 	import { NetworkType, networks, networksByChainId } from '$/constants/networks.ts'
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
@@ -35,11 +35,26 @@
 	runTevmSimulationFromClientBatch,
 	type TevmSimulationPayload,
 } from '$/api/tevm/tevmSimulation.ts'
-	import { resolveSigningPayloads } from '$/lib/session/resolveSigningPayloads.ts'
+	import {
+		resolveSigningPayloads,
+	} from '$/lib/session/resolveSigningPayloads.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
+	import { useLiveQuery } from '@tanstack/svelte-db'
+	import {
+		getBridgeQuoteRequestKey,
+		getBridgeQuote,
+		bridgeQuoteItemsCollection,
+	} from '$/collections/BridgeQuoteItems.ts'
+	import {
+		getRequestKeyForParams,
+		spandexQuoteItemsCollection,
+	} from '$/collections/SpandexQuoteItems.ts'
 	import { sessionActionTransactionSimulationsCollection } from '$/collections/SessionActionTransactionSimulations.ts'
 	import { sessionActionTransactionsCollection } from '$/collections/SessionActionTransactions.ts'
 	import { stringify } from '$/lib/stringify.ts'
+	import { formatAddress } from '$/lib/address.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { Button, Dialog } from 'bits-ui'
 
 
 	// Props
@@ -94,18 +109,29 @@
 					.map((pa) => protocolsById[pa.id.protocol])
 					.filter(Boolean) as import('$/constants/protocols.ts').ProtocolDefinition[]),
 	)
-	const isSpandexQuoteStrategy = (
-		value: string,
-	): value is (typeof spandexQuoteStrategies)[number] =>
-		spandexQuoteStrategies.some((strategy) => strategy === value)
+	const swapParams = $derived(
+		action.type === ActionType.Swap
+			? (action.params as { swapProtocolIntent?: string; swapStrategy?: string })
+			: null,
+	)
+	const swapProtocolIntent = $derived(
+		(swapParams?.swapProtocolIntent as SwapProtocolId) ?? SwapProtocolId.Auto,
+	)
+	const swapStrategy = $derived(
+		(swapParams?.swapStrategy as 'bestPrice' | 'fastest' | 'estimatedGas') ?? 'bestPrice',
+	)
 	const resolvedProtocol = $derived(
-		(() => {
-			const sel = action.protocolSelection ?? action.protocolAction?.protocol ?? ''
-			if (!sel) return null
-			if (protocolOptions.some((o) => o.id === sel))
-				return sel as Protocol
-			return (action.protocolAction?.protocol ?? null) as Protocol | null
-		})(),
+		action.type === ActionType.Swap
+			? (swapProtocolIntent !== SwapProtocolId.Auto && swapIdToProtocol[swapProtocolIntent])
+				? swapIdToProtocol[swapProtocolIntent]!
+				: null
+			: (() => {
+					const sel = action.protocolSelection ?? action.protocolAction?.protocol ?? ''
+					if (!sel) return null
+					if (protocolOptions.some((o) => o.id === sel))
+						return sel as Protocol
+					return (action.protocolAction?.protocol ?? null) as Protocol | null
+				})(),
 	)
 	const protocolValue = $derived(
 		action.type === ActionType.Bridge && bridgeParams
@@ -114,14 +140,21 @@
 					: action.protocolAction?.protocol ?? '')
 			: (action.protocolSelection ?? action.protocolAction?.protocol ?? ''),
 	)
-	const protocolStrategy = $derived(
-		action.type === ActionType.Swap && protocolOptions.length > 0
-			? (isSpandexQuoteStrategy(protocolValue)
-				? protocolValue
-				: ProtocolStrategy.BestPrice)
-			: null,
+	const swapUsesSpandex = $derived(
+		action.type === ActionType.Swap &&
+			(swapProtocolIntent === SwapProtocolId.Auto ||
+				(swapIdToProtocol[swapProtocolIntent] != null &&
+					spandexSwapProtocols.includes(swapIdToProtocol[swapProtocolIntent]!))),
+	)
+	const spandexStrategy = $derived(
+		swapProtocolIntent === SwapProtocolId.Auto ? swapStrategy : undefined,
 	)
 	const paramsHash = $derived(stringify(action.params))
+	const isCctpBridge = $derived(
+		action.type === ActionType.Bridge &&
+			(bridgeParams?.protocolIntent === BridgeProtocolId.Cctp ||
+				resolvedProtocol === Protocol.Cctp),
+	)
 
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
@@ -141,8 +174,96 @@
 		return def.params.allows(action.params)
 	})
 
+	const swapParamsForRequest = $derived.by((): ActionParams<ActionType.Swap> | null => {
+		if (action.type !== ActionType.Swap || !selectedActor) return null
+		const p = action.params as ActionParams<ActionType.Swap>
+		return p.chainId != null && p.tokenIn && p.tokenOut && p.amount > 0n ? p : null
+	})
+	const swapRequestKey = $derived.by(() => {
+		const sp = swapParamsForRequest
+		if (!sp || !selectedActor) return ''
+		return getRequestKeyForParams(
+			{
+				chainId: sp.chainId,
+				tokenIn: sp.tokenIn,
+				tokenOut: sp.tokenOut,
+				amountIn: sp.amount,
+				slippage: sp.slippage,
+			},
+			selectedActor,
+		)
+	})
+	const spandexProvider = $derived(
+		action.type === ActionType.Swap &&
+			swapProtocolIntent !== SwapProtocolId.Auto &&
+			resolvedProtocol
+			? (protocolToSpandexProvider[resolvedProtocol] ?? null)
+			: null,
+	)
+	const spandexQuotesQuery = useLiveQuery((q) =>
+		q
+			.from({ row: spandexQuoteItemsCollection })
+			.select(({ row }) => ({ row })),
+	)
+	const spandexQuoteTx = $derived(
+		swapRequestKey &&
+			spandexQuotesQuery.data &&
+			swapUsesSpandex
+			? (() => {
+					const items = spandexQuotesQuery.data!
+						.filter((r) => r.row.$id.requestId === swapRequestKey && r.row.success && r.row.transactionRequest)
+						.map((r) => r.row)
+					const item = spandexProvider
+						? items.find((r) => r.provider === spandexProvider)
+						: [...items].sort(
+								(a, b) =>
+									(b.simulatedOutputAmount ?? 0n) > (a.simulatedOutputAmount ?? 0n)
+										? 1
+										: -1,
+							)[0]
+					return item?.transactionRequest
+				})()
+			: undefined,
+	)
+	const bridgeParamsForQuote = $derived(
+		action.type === ActionType.Bridge &&
+		selectedActor &&
+		bridgeParams &&
+		(bridgeParams.protocolIntent === 'lifi' || resolvedProtocol === Protocol.LiFi) &&
+		bridgeParams.fromChainId != null &&
+		bridgeParams.toChainId != null &&
+		((action.params as { amount?: bigint }).amount ?? 0n) > 0n
+			? {
+					fromChainId: bridgeParams.fromChainId!,
+					toChainId: bridgeParams.toChainId!,
+					amount: (action.params as { amount?: bigint }).amount ?? 0n,
+					fromAddress: selectedActor,
+					slippage: (action.params as { slippage?: number }).slippage ?? 0.005,
+				}
+			: null,
+	)
+	const bridgeQuoteRequestKey = $derived(
+		bridgeParamsForQuote ? getBridgeQuoteRequestKey(bridgeParamsForQuote) : '',
+	)
+	const bridgeQuotesQuery = useLiveQuery((q) =>
+		q
+			.from({ row: bridgeQuoteItemsCollection })
+			.select(({ row }) => ({ row })),
+	)
+	const lifiBridgeTxs = $derived(
+		bridgeQuoteRequestKey && bridgeQuotesQuery.data
+			? bridgeQuotesQuery.data.find(
+					(r) => r.row.$id === bridgeQuoteRequestKey && r.row.success,
+				)?.row?.transactionRequests
+			: undefined,
+	)
 	const signingPayloads = $derived(
-		resolveSigningPayloads(action, rpcUrls ?? {}, selectedActor),
+		resolveSigningPayloads(action, rpcUrls ?? {}, selectedActor, {
+			selectedChainId,
+			isTestnet,
+			spandexQuoteTx,
+			lifiBridgeTxs,
+		}),
 	)
 	const proposedTransactionsHeading = $derived(
 		new Intl.PluralRules('en').select(signingPayloads.length) === 'one'
@@ -168,6 +289,7 @@
 	// State
 	let broadcastInProgress = $state(false)
 	let simulateInProgress = $state(false)
+	let cctpConfirmOpen = $state(false)
 
 
 	// Actions
@@ -187,6 +309,7 @@
 	}
 
 	const onProtocolChange = (value: string | string[] | undefined) => {
+		if (action.type === ActionType.Swap) return
 		if (typeof value !== 'string' || value === '') {
 			action = {
 				...action,
@@ -199,15 +322,12 @@
 			return
 		}
 		const valid = protocolOptions.some((o) => o.id === value)
-		const strategy = isSpandexQuoteStrategy(value)
 		const bridgeIntent =
 			action.type === ActionType.Bridge && valid ? protocolToBridgeId[value as Protocol] : undefined
 		action = {
 			...action,
 			protocolSelection: value,
-			protocolAction: valid
-				? { action: action.type, protocol: value }
-				: (strategy ? action.protocolAction : undefined),
+			protocolAction: valid ? { action: action.type, protocol: value } : undefined,
 			...(action.type === ActionType.Bridge && action.params && 'protocolIntent' in action.params
 				? { params: { ...action.params, protocolIntent: bridgeIntent ?? null } }
 				: {}),
@@ -215,9 +335,9 @@
 	}
 
 	$effect(() => {
+		if (action.type === ActionType.Swap) return
 		const sel = action.protocolSelection ?? action.protocolAction?.protocol ?? ''
 		if (!sel) return
-		if (isSpandexQuoteStrategy(sel)) return
 		const valid = protocolOptions.some((o) => o.id === sel)
 		if (valid && sel !== action.protocolAction?.protocol)
 			action = { ...action, protocolAction: { action: action.type, protocol: sel } } as Action
@@ -280,8 +400,17 @@
 
 	const onSubmit = (e: SubmitEvent) => {
 		e.preventDefault()
-		if ((e.submitter as HTMLButtonElement | undefined)?.value === 'broadcast') broadcast()
-		else runSimulation()
+		if ((e.submitter as HTMLButtonElement | undefined)?.value === 'broadcast') {
+			if (isCctpBridge) cctpConfirmOpen = true
+			else broadcast()
+		} else {
+			runSimulation()
+		}
+	}
+
+	const onCctpConfirm = () => {
+		cctpConfirmOpen = false
+		broadcast()
 	}
 
 	const broadcast = async () => {
@@ -325,9 +454,11 @@
 	import BridgeFieldset from '$/views/actions/BridgeFieldset.svelte'
 	import SwapFieldset from '$/views/actions/SwapFieldset.svelte'
 	import TransferFieldset from '$/views/actions/TransferFieldset.svelte'
+	import BridgeQuotesPanel from '$/views/actions/BridgeQuotesPanel.svelte'
 	import SpandexQuotesPanel from '$/views/actions/SpandexQuotesPanel.svelte'
-	import BridgeProtocolFieldset from '$/views/protocolActions/BridgeProtocolFieldset.svelte'
-	import ProtocolInput from '$/views/protocolActions/ProtocolInput.svelte'
+	import BridgeProtocolFieldset from './BridgeProtocolFieldset.svelte'
+	import ProtocolInput from './ProtocolInput.svelte'
+	import SwapProtocolFieldset from './SwapProtocolFieldset.svelte'
 	import Simulations from './Simulations.svelte'
 	import TransactionSigningPayloadList from './TransactionSigningPayloadList.svelte'
 	import Transactions from './Transactions.svelte'
@@ -386,29 +517,43 @@
 
 			<section data-card data-column>
 				<h3>Protocol</h3>
-				<ProtocolInput
-					options={protocolOptions}
-					value={protocolValue}
-					activeProtocolId={resolvedProtocol}
-					onSelect={(protocol) => onProtocolChange(protocol ?? undefined)}
-				/>
-				{#if action.type === ActionType.Bridge}
-					<BridgeProtocolFieldset bind:action isTestnet={isTestnet} actors={actors} />
+				{#if action.type === ActionType.Swap}
+					<SwapProtocolFieldset bind:action />
+				{:else}
+					<ProtocolInput
+						options={protocolOptions}
+						value={protocolValue}
+						activeProtocolId={resolvedProtocol}
+						onSelect={(protocol) => onProtocolChange(protocol ?? undefined)}
+					/>
+					{#if action.type === ActionType.Bridge}
+						<BridgeProtocolFieldset bind:action isTestnet={isTestnet} actors={actors} />
+					{/if}
 				{/if}
 			</section>
 
-			{#if action.type === ActionType.Swap && resolvedProtocol && (resolvedProtocol === Protocol.Spandex || spandexSwapProtocols.includes(resolvedProtocol))}
-				{@const provider = protocolToSpandexProvider[resolvedProtocol]}
+			{#if action.type === ActionType.Swap && swapUsesSpandex}
 				<SpandexQuotesPanel
 					params={action.params as ActionParams<ActionType.Swap>}
-					provider={provider ?? undefined}
-					strategy={protocolStrategy}
+					provider={spandexProvider ?? undefined}
+					strategy={
+					spandexStrategy
+						? (spandexStrategy as import('$/constants/protocols.ts').ProtocolStrategy)
+						: undefined
+				}
 					swapperAccount={selectedActor}
+				/>
+			{/if}
+			{#if action.type === ActionType.Bridge && (bridgeParams?.protocolIntent === 'lifi' || resolvedProtocol === Protocol.LiFi)}
+				<BridgeQuotesPanel
+					params={action.params as ActionParams<ActionType.Bridge>}
+					fromAddress={selectedActor}
 				/>
 			{/if}
 
 			<section data-card data-column>
 				<h3>{proposedTransactionsHeading}</h3>
+				<TransactionSigningPayloadList payloads={signingPayloads} />
 				<div data-row>
 					<button
 						type="submit"
@@ -451,10 +596,42 @@
 			</div>
 		{/if}
 	</div>
+
+	{#if isCctpBridge}
+		<Dialog.Root bind:open={cctpConfirmOpen}>
+			<Dialog.Portal>
+				<Dialog.Content>
+					<Dialog.Title>Confirm CCTP transfer</Dialog.Title>
+					{#if bridgeParams && selectedActor}
+						{@const fromNet = Object.values(networksByChainId).find((n) => n?.id === bridgeParams.fromChainId)}
+						{@const toNet = Object.values(networksByChainId).find((n) => n?.id === bridgeParams.toChainId)}
+						{#if fromNet && toNet}
+							<Dialog.Description>
+								Send {formatSmallestToDecimal((action.params as { amount?: bigint }).amount ?? 0n, 6)} USDC from {fromNet.name}
+								to {toNet.name}. Recipient: {formatAddress(selectedActor)}.
+							</Dialog.Description>
+						{/if}
+					{/if}
+					<div data-row="gap-2" class="dialog-actions">
+						<Button.Root
+							type="button"
+							onclick={() => {
+								cctpConfirmOpen = false
+							}}
+						>Cancel</Button.Root>
+						<Button.Root type="button" onclick={onCctpConfirm}>Confirm</Button.Root>
+					</div>
+				</Dialog.Content>
+			</Dialog.Portal>
+		</Dialog.Root>
+	{/if}
 </details>
 
-
 <style>
+	.dialog-actions {
+		margin-top: 1rem;
+	}
+
 	button {
 		font-size: 1em;
 	}

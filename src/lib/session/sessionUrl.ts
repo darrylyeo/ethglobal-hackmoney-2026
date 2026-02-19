@@ -94,7 +94,6 @@ export const parseSessionActions = (input: string): SessionHashResult => {
 
 export const parseSessionStateFromUrl = (
 	searchParams: URLSearchParams,
-	urlHash?: string,
 ): SessionHashResult => {
 	const templateParam = searchParams.get('template')
 	const template =
@@ -107,7 +106,6 @@ export const parseSessionStateFromUrl = (
 	if (template && validActionTypes.has(template as Action['type']))
 		return parseTemplateParam(template)
 	if (actionsParam) return parseSessionActions(actionsParam)
-	if (urlHash?.trim()) return parseSessionStateFromHashLike(urlHash)
 	return { kind: 'empty' }
 }
 
@@ -148,8 +146,8 @@ const sessionFromParsedHash = (parsed: SessionHashResult): Session => {
 	const actions = raw.map((a) => mergeActionParams(a))
 	const params = normalizeSessionParams(
 		actions,
-		actions[0]?.params ?? {},
-	)
+		(actions[0]?.params ?? {}) as Record<string, unknown>,
+	) as Record<string, unknown>
 	return {
 		id: `ephemeral-${createEphemeralId()}`,
 		actions,
@@ -194,7 +192,7 @@ export const getSessionInputFromUrl = (url: URL): SessionInput => {
 			? parseTemplateParam(template)
 			: actionsParam
 				? parseSessionActions(actionsParam)
-				: parseSessionStateFromUrl(url.searchParams, url.hash)
+				: parseSessionStateFromUrl(url.searchParams)
 	if (parsed.kind !== 'actions' && parsed.kind !== 'empty')
 		return { template: null, session: null }
 	const base = sessionFromParsedHash(parsed)

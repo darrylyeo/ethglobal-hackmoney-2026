@@ -34,7 +34,12 @@
 	)
 </script>
 
-<article data-card data-column="gap-2 padding-2" data-simulation>
+<article
+	data-card
+	data-column="gap-2 padding-2"
+	data-simulation
+	data-e2e-simulation-status={simulation.status}
+>
 	<div data-row="gap-2 align-center">
 		<span
 			data-tag

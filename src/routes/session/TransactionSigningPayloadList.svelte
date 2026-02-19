@@ -3,7 +3,7 @@
 	import type { TransactionSigningPayload } from '$/lib/session/resolveSigningPayloads.ts'
 
 	import ItemsList from '$/components/ItemsList.svelte'
-	import TransactionSigningPayloadItem from './TransactionSigningPayloadItem.svelte'
+	import SignaturePayload from './SignaturePayload.svelte'
 
 
 	// Props
@@ -32,7 +32,7 @@
 			{#if isPlaceholder}
 				<div data-placeholder>…</div>
 			{:else if item}
-				<TransactionSigningPayloadItem payload={item} />
+				<SignaturePayload payload={item} />
 			{/if}
 		{/snippet}
 	</ItemsList>

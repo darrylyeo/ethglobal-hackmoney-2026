@@ -3,12 +3,9 @@
 	import { ActionType, type Action } from '$/constants/actions.ts'
 	import {
 		BridgeProtocolId,
-		bridgeIdToProtocol,
+		protocolToBridgeId,
 	} from '$/constants/bridge-protocol-intents.ts'
-	import {
-		Protocol,
-		protocolsById,
-	} from '$/constants/protocols.ts'
+	import { Protocol } from '$/constants/protocols.ts'
 	import { isCctpSupportedChain } from '$/lib/cctp.ts'
 	import { isGatewaySupportedChain } from '$/lib/gateway.ts'
 
@@ -17,9 +14,11 @@
 	let {
 		action = $bindable(),
 		isTestnet = false,
+		actors = [],
 	}: {
 		action: Action
 		isTestnet?: boolean
+		actors?: readonly `0x${string}`[]
 	} = $props()
 
 
@@ -48,156 +47,31 @@
 	)
 
 	const activeProtocol = $derived(
-		!cctpPairSupported && !lifiPairSupported && !gatewayPairSupported
-			? null
-			: cctpPairSupported && !lifiPairSupported && !gatewayPairSupported
-				? ('cctp' as const)
-				: lifiPairSupported && !cctpPairSupported && !gatewayPairSupported
-					? ('lifi' as const)
-					: gatewayPairSupported && !cctpPairSupported && !lifiPairSupported
-						? ('gateway' as const)
-						: (protocolIntent ??
-								(cctpPairSupported ? ('cctp' as const) : gatewayPairSupported ? ('gateway' as const) : ('lifi' as const))),
+		(protocolIntent ??
+			(action.protocolAction?.protocol != null
+				? (protocolToBridgeId[action.protocolAction.protocol as Protocol] ?? null)
+				: null) ??
+			(cctpPairSupported ? BridgeProtocolId.Cctp : gatewayPairSupported ? BridgeProtocolId.Gateway : lifiPairSupported ? BridgeProtocolId.Lifi : null)) as BridgeProtocolId | null,
 	)
-
-	const protocolOptions = $derived(
-		(
-			[
-				{ bridgeId: BridgeProtocolId.Cctp, enabled: cctpPairSupported },
-				{ bridgeId: BridgeProtocolId.Lifi, enabled: lifiPairSupported },
-				{ bridgeId: BridgeProtocolId.Gateway, enabled: gatewayPairSupported },
-			] as const
-		)
-			.filter((o) => o.enabled)
-			.map((o) => {
-				const def = protocolsById[bridgeIdToProtocol[o.bridgeId]]
-				return def ? { bridgeId: o.bridgeId, ...def } : null
-			})
-			.filter((o): o is NonNullable<typeof o> => o != null),
-	)
-	const rows = $derived([
-		{ type: 'auto' as const },
-		...protocolOptions.map((o) => ({ type: 'protocol' as const, option: o })),
-	])
-
-	const protocolReason = $derived(
-		!fromChainId || !toChainId
-			? 'Select chains to choose a protocol'
-			: cctpPairSupported && !lifiPairSupported && !gatewayPairSupported
-				? 'Only CCTP supports this pair'
-				: lifiPairSupported && !cctpPairSupported && !gatewayPairSupported
-					? 'Only LI.FI supports this pair'
-					: gatewayPairSupported && !cctpPairSupported && !lifiPairSupported
-						? 'Only Gateway supports this pair'
-						: protocolIntent === BridgeProtocolId.Cctp
-							? 'Using CCTP (your preference)'
-							: protocolIntent === BridgeProtocolId.Lifi
-								? 'Using LI.FI (your preference)'
-								: protocolIntent === BridgeProtocolId.Gateway
-									? 'Using Gateway (your preference)'
-									: 'Using CCTP (best route)',
-	)
-
-	// Actions
-	const setProtocolIntent = (value: BridgeProtocolId | null) => {
-		if (action.type !== ActionType.Bridge) return
-		action = {
-			...action,
-			params: { ...action.params, protocolIntent: value },
-			protocolAction:
-				value != null
-					? { action: ActionType.Bridge, protocol: bridgeIdToProtocol[value] }
-					: undefined,
-		} as Action
-	}
 
 
 	// Components
-	import Icon from '$/components/Icon.svelte'
 	import CctpBridgeSettingsFieldset from './CctpBridgeSettingsFieldset.svelte'
+	import GatewayBridgeSettingsFieldset from './GatewayBridgeSettingsFieldset.svelte'
 	import LifiBridgeSettingsFieldset from './LifiBridgeSettingsFieldset.svelte'
 </script>
 
+
 {#if action.type === ActionType.Bridge}
 	<div data-column>
-	{#if protocolOptions.length > 0}
-		<div data-column="gap-2">
-			{#each rows as row (row.type === 'auto' ? 'auto' : row.option.bridgeId)}
-				{#if row.type === 'auto'}
-					<button
-						type="button"
-						class="protocol-row"
-						data-card="radius-6 padding-3"
-						data-selected={protocolIntent === null ? '' : undefined}
-						onclick={() => setProtocolIntent(null)}
-					>
-						Auto
-					</button>
-				{:else}
-					<div
-						class="protocol-row"
-						data-card="radius-6 padding-3"
-						data-row="gap-2 align-center wrap"
-						data-selected={row.option.bridgeId === activeProtocol ? '' : undefined}
-					>
-						<button
-							type="button"
-							class="protocol-row-main"
-							data-row="gap-2 align-center"
-							onclick={() => setProtocolIntent(row.option.bridgeId)}
-						>
-						{#if row.option.icon.includes('/')}
-							<Icon class="protocol-icon" src={row.option.icon} size={20} alt="" />
-						{:else}
-							<Icon class="protocol-icon" icon={row.option.icon} size={20} alt="" />
-							{/if}
-							<div data-column="gap-2">
-								<strong>{row.option.label}</strong>
-								<small data-text="muted">{row.option.detail}</small>
-							</div>
-						</button>
-					</div>
-				{/if}
-			{/each}
-		</div>
-	{:else if fromChainId !== null && toChainId !== null}
-		<p data-error>This chain pair is not supported by CCTP, LI.FI, or Gateway.</p>
-	{:else}
-		<p data-text="muted">{protocolReason}</p>
-	{/if}
-
-	{#if activeProtocol === BridgeProtocolId.Cctp}
-		<CctpBridgeSettingsFieldset bind:action />
-	{:else if activeProtocol === BridgeProtocolId.Lifi}
-		<LifiBridgeSettingsFieldset bind:action />
-	{/if}
+		{#if activeProtocol === BridgeProtocolId.Cctp}
+			<CctpBridgeSettingsFieldset bind:action />
+		{:else if activeProtocol === BridgeProtocolId.Lifi}
+			<LifiBridgeSettingsFieldset bind:action />
+		{:else if activeProtocol === BridgeProtocolId.Gateway}
+			<GatewayBridgeSettingsFieldset bind:action actors={actors} network={fromChainId ?? undefined} />
+		{:else if fromChainId !== null && toChainId !== null}
+			<p data-error>This chain pair is not supported by CCTP, LI.FI, or Gateway.</p>
+		{/if}
 	</div>
 {/if}
-
-<style>
-	.protocol-row {
-		gap: 0.35em;
-		border: 1px solid transparent;
-		text-align: left;
-		transition: border 0.2s ease, box-shadow 0.2s ease;
-	}
-
-	.protocol-row[data-selected] {
-		border-color: var(--color-border-input);
-		box-shadow: var(--shadow-lg);
-	}
-
-	.protocol-row-main {
-		background: none;
-		border: none;
-		padding: 0;
-		font: inherit;
-		text-align: left;
-		cursor: pointer;
-	}
-
-	.protocol-row :global(.protocol-icon) {
-		flex-shrink: 0;
-	}
-
-</style>
