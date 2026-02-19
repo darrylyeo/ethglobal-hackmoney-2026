@@ -1,0 +1,112 @@
+<script lang="ts">
+	// Types/constants
+	import type { SocialPostSession } from '$/data/SocialPostSession.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import type { FarcasterConnectionSiwf } from '$/data/FarcasterConnection.ts'
+	import { FarcasterConnectionTransport } from '$/data/FarcasterConnection.ts'
+	import { resolve } from '$app/paths'
+	import { stringify } from 'devalue'
+	import {
+		buildSocialPostSessionPath,
+		formatSocialPostSessionPlaceholderName,
+	} from '$/lib/session/socialPostSessionUrl.ts'
+
+	// Props
+	let {
+		onPersist,
+		session = $bindable(),
+		selectedSiwfConnection,
+	}: {
+		onPersist?: () => void
+		session: SocialPostSession
+		selectedSiwfConnection: FarcasterConnectionSiwf | null
+	} = $props()
+
+	// State
+	let persisted = $state(false)
+	let initialSnapshot = $state<string | null>(null)
+
+	// (Derived)
+	const canDraft = $derived(
+		selectedSiwfConnection?.transport === FarcasterConnectionTransport.Siwf,
+	)
+	const placeholderName = $derived(
+		formatSocialPostSessionPlaceholderName(session.actions),
+	)
+	const displayLabel = $derived(session.name ?? placeholderName)
+
+	$effect(() => {
+		if (persisted || !onPersist) return
+		const snapshot = stringify({
+			actions: session.actions,
+			params: session.params,
+			name: session.name,
+		})
+		if (initialSnapshot === null) {
+			initialSnapshot = snapshot
+			return
+		}
+		if (snapshot !== initialSnapshot) {
+			persisted = true
+			onPersist()
+		}
+	})
+
+	// Components
+	import EntityView from '$/components/EntityView.svelte'
+	import FarcasterAccountSelect from '$/components/FarcasterAccountSelect.svelte'
+	import SocialPostActionsSequence from './SocialPostActionsSequence.svelte'
+</script>
+
+<div data-social-post-session data-column="gap-4" data-sticky-container>
+	<EntityView
+		data-scroll-item
+		entityType={EntityType.SocialPostSession}
+		idSerialized={session.id}
+		href={resolve(buildSocialPostSessionPath(session.id))}
+		label={displayLabel}
+		annotation="Social post"
+		hasAnchorTitle={false}
+	>
+		{#snippet Title()}
+			<span class="sr-only">Social post</span>
+			<input
+				type="text"
+				class="session-name-input"
+				bind:value={session.name}
+				placeholder={placeholderName}
+				aria-label="Social post name"
+				disabled={!canDraft}
+			/>
+		{/snippet}
+		<details open data-card>
+			<summary>
+				<header data-row="wrap gap-2">
+					<FarcasterAccountSelect />
+				</header>
+			</summary>
+		</details>
+	</EntityView>
+
+	{#if canDraft}
+		<section data-scroll-item data-column="gap-4">
+			<SocialPostActionsSequence bind:actions={session.actions} />
+		</section>
+	{:else}
+		<p data-text="muted">Sign in with Farcaster to draft posts.</p>
+	{/if}
+</div>
+
+<style>
+	.session-name-input:placeholder-shown:not(:focus) {
+		border: none;
+		background: transparent;
+		padding: 0;
+		box-shadow: none;
+		outline: none;
+	}
+
+	.session-name-input:placeholder-shown:not(:focus)::placeholder {
+		color: inherit;
+	}
+</style>
