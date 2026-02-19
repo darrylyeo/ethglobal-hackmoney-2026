@@ -50,6 +50,7 @@ export const nsKeyEnv = (
  * Global/cached collections (actor-coins, stork-prices, etc.) are excluded.
  */
 export const PROFILE_SCOPED_STORAGE_KEYS = [
+	CollectionId.FarcasterConnections,
 	CollectionId.WalletConnections,
 	CollectionId.Sessions,
 	CollectionId.WatchedEntities,

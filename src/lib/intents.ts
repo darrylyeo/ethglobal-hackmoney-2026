@@ -13,8 +13,8 @@ import {
 } from '$/constants/intents.ts'
 import type { ProtocolAction } from '$/constants/protocolActions.ts'
 import { protocolsById } from '$/constants/protocols.ts'
+import type { Action } from '$/constants/actions.ts'
 import type { Entity } from '$/data/$EntityType.ts'
-import type { Action } from '$/data/Session.ts'
 
 export { ActionType }
 
@@ -56,8 +56,8 @@ export const actionsByProtocol = Object.fromEntries(
 	Object.values(Protocol).map(protocol => [
 		protocol,
 		protocolActions
-			.filter(pa => pa.protocol === protocol)
-			.map(pa => pa.action),
+			.filter(pa => pa.id.protocol === protocol)
+			.map(pa => pa.id.actionType),
 	]),
 )
 
@@ -84,7 +84,7 @@ export const specByActionType = Object.fromEntries(
 export const specForAction = (action: Action['type']) =>
 	action in ActionType ? specByActionType[action as ActionType] ?? null : null
 
-export const validActionTypes = new Set<Action['type']>([
+export const validActionTypes = new Set<ActionType | 'liquidity' | 'intent'>([
 	...Object.values(ActionType),
 	'liquidity',
 	'intent',
