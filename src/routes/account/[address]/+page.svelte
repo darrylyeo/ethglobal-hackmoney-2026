@@ -1,12 +1,21 @@
 <script lang="ts">
 	// Types/constants
-	import { DataSource } from '$/constants/data-sources.ts'
+	import {
+		ensureIdentityLink,
+		identityLinkKey,
+		identityLinks,
+	} from '$/collections/IdentityLinks.ts'
+	import { ChainId } from '$/constants/chain-id.ts'
+	import { IdentityInputKind } from '$/constants/identity-resolver.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { ercTokens } from '$/constants/coins.ts'
 	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { getFidByAddress } from '$/api/farcaster.ts'
+	import { dedupeInFlight } from '$/lib/dedupeInFlight.ts'
+	import { normalizeIdentity } from '$/api/identity-resolve.ts'
 
 
 	// Context
@@ -21,7 +30,57 @@
 	// (Derived)
 	const addressParam = $derived(page.params.address ?? '')
 	const parsed = $derived(parseAccountAddressParam(addressParam))
-	const normalizedAddress = $derived(parsed?.address ?? null)
+	const identityKind = $derived(normalizeIdentity(addressParam).kind)
+	const isEnsName = $derived(identityKind === IdentityInputKind.EnsName)
+	// State
+	const identityLinkQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: identityLinks })
+				.where(({ row }) =>
+					eq(row.id, identityLinkKey(ChainId.Ethereum, addressParam)),
+				)
+				.select(({ row }) => ({ row })),
+		[() => [addressParam]],
+	)
+	$effect(() => {
+		if (parsed ?? !isEnsName) return
+		ensureIdentityLink(ChainId.Ethereum, addressParam)
+	})
+	const linkRow = $derived(identityLinkQuery.data?.[0]?.row)
+	const effectiveParsed = $derived(
+		parsed ??
+			(linkRow?.address
+				? {
+						address: linkRow.address,
+						chainId: linkRow.chainId ?? ChainId.Ethereum,
+						interopAddress: linkRow.interopAddress,
+					}
+				: null),
+	)
+	const ensLoading = $derived(
+		parsed == null && isEnsName && (!linkRow || linkRow.isLoading),
+	)
+	const normalizedAddress = $derived(effectiveParsed?.address ?? null)
+
+	let farcasterFid = $state<number | null | undefined>(undefined)
+	$effect(() => {
+		const addr = normalizedAddress
+		if (!addr) {
+			farcasterFid = undefined
+			return
+		}
+		farcasterFid = undefined
+		dedupeInFlight(`fidByAddress:${addr}`, () => getFidByAddress(addr))
+			.then((fid) => {
+				if (normalizedAddress !== addr) return
+				farcasterFid = fid
+			})
+			.catch(() => {
+				if (normalizedAddress !== addr) return
+				farcasterFid = null
+			})
+	})
 
 
 	// State
@@ -47,20 +106,20 @@
 		{ id: 'account-verifications', label: 'Verifications', query: verificationsQuery },
 	])
 	const connectionsForAccount = $derived(
-		normalizedAddress
+		normalizedAddress != null
 			? (connectionsQuery.data ?? [])
 					.map((r) => r.row)
 					.filter((c) =>
-						c.actors.some(
-							(a) => a === normalizedAddress,
-						),
+						c.actors.some((a) => a === normalizedAddress),
 					)
 			: [],
 	)
-	const idSerialized = $derived(parsed?.interopAddress ?? parsed?.address ?? '')
+	const idSerialized = $derived(
+		effectiveParsed?.interopAddress ?? effectiveParsed?.address ?? '',
+	)
 	const metadata = $derived(
-		parsed?.interopAddress
-			? [{ term: 'Interop', detail: parsed.interopAddress }]
+		effectiveParsed?.interopAddress
+			? [{ term: 'Interop', detail: effectiveParsed.interopAddress }]
 			: [],
 	)
 
@@ -69,6 +128,7 @@
 	import { AddressFormat } from '$/views/Address.svelte'
 	import Boundary from '$/components/Boundary.svelte'
 	import EntityView from '$/components/EntityView.svelte'
+	import EntityViewSkeleton from '$/components/EntityViewSkeleton.svelte'
 	import Heading from '$/components/Heading.svelte'
 	import EvmActor from '$/views/EvmActor.svelte'
 	import Channels from '$/views/Channels.svelte'
@@ -84,33 +144,39 @@
 
 <svelte:head>
 	<title>
-		{parsed ? `Account ${formatAddress(parsed.address)}` : 'Account'}
+		{effectiveParsed
+			? `Account ${formatAddress(effectiveParsed.address)}`
+			: 'Account'}
 	</title>
 </svelte:head>
 
 
 <main>
-	{#if !parsed}
+	{#if ensLoading}
+		<EntityViewSkeleton />
+	{:else if !effectiveParsed}
 		<h1>Invalid address</h1>
 		<p>The address in the URL could not be parsed.</p>
 	{:else}
 		<EntityView
 			entityType={EntityType.Actor}
 			entityId={{
-				$network: { chainId: (parsed.chainId ?? 1) as import('$/data/Network.ts').Network$Id['chainId'] },
-				address: parsed.address,
-				...(parsed.interopAddress != null ? { interopAddress: parsed.interopAddress } : {}),
+				$network: { chainId: (effectiveParsed.chainId ?? 1) as import('$/data/Network.ts').Network$Id['chainId'] },
+				address: effectiveParsed.address,
+				...(effectiveParsed.interopAddress != null
+					? { interopAddress: effectiveParsed.interopAddress }
+					: {}),
 			}}
 			idSerialized={idSerialized}
 			href={resolve(`/account/${addressParam}`)}
-			label={formatAddress(parsed.address)}
+			label={formatAddress(effectiveParsed.address)}
 			{metadata}
 			annotation="Account"
 		>
 			{#snippet Title()}
 				<EvmActor
-					network={parsed.chainId ?? 1}
-					address={parsed.address}
+					network={{ chainId: (effectiveParsed.chainId ?? 1) }}
+					address={effectiveParsed.address}
 					format={AddressFormat.Full}
 					isVertical
 				/>
@@ -125,15 +191,19 @@
 					/>
 				</Boundary>
 				<Boundary>
-					<Transactions selectedActor={normalizedAddress} />
+					<Transactions
+						selectedActor={normalizedAddress ?? undefined}
+					/>
 				</Boundary>
 				<Boundary>
-					<LiquidityPositions selectedActor={normalizedAddress} />
+					<LiquidityPositions
+						selectedActor={normalizedAddress ?? undefined}
+					/>
 				</Boundary>
 				<Boundary>
 					<VerifiedContractSource
-						chainId={parsed.chainId ?? 1}
-						address={parsed.address}
+						chainId={effectiveParsed.chainId ?? 1}
+						address={effectiveParsed.address}
 					/>
 				</Boundary>
 				<Boundary>
@@ -142,6 +212,13 @@
 			</section>
 
 			<section data-column="gap-2">
+				{#if farcasterFid != null && farcasterFid > 0}
+					<Boundary>
+						<p>
+							<a href="/farcaster/user/{farcasterFid}">Farcaster profile @{farcasterFid}</a>
+						</p>
+					</Boundary>
+				{/if}
 				<Boundary>
 					<WalletConnections selectedActor={normalizedAddress} />
 				</Boundary>

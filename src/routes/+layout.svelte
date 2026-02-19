@@ -19,7 +19,7 @@
 
 
 	// Functions
-	import { useNavigationItems } from '$/routes/navigationItems.svelte.ts'
+	import { NavigationItems } from '$/routes/navigationItems.svelte.ts'
 
 
 	// Props
@@ -34,7 +34,7 @@
 
 
 	// (Derived)
-	const navigationItems = useNavigationItems({
+	const nav = new NavigationItems({
 		isTestnet: () =>
 			networkEnvironmentState.current === NetworkEnvironment.Testnet,
 	})
@@ -75,7 +75,7 @@
 <Tooltip.Provider>
 	<div
 		id="layout"
-		data-scroll-container
+		data-scroll-container="layout-inline-panes snap-inline"
 		data-sticky-container
 	>
 		<a
@@ -84,11 +84,12 @@
 		>Skip to main content</a>
 
 		<Navigation
-			{navigationItems}
+			navigationItems={nav.items}
 		/>
 
 		<div
-			class="layout-main"
+			id="main"
+			data-scroll-item="pane-flexible"
 			data-sticky-container
 			data-column
 		>
@@ -128,10 +129,9 @@
 		--navigation-mobile-blockSize: 4rem;
 
 		/* Rules */
-		width: 100dvw;
-		height: 100dvh;
+		inline-size: 100dvw;
+		block-size: 100dvh;
 		padding: var(--safeArea-insetTop) var(--safeArea-insetRight) var(--safeArea-insetBottom) var(--safeArea-insetLeft);
-		display: grid;
 		align-items: start;
 		gap: var(--separator-width);
 
@@ -143,43 +143,16 @@
 		}
 
 		@media (width >= 60rem) {
-			grid-template:
-				'Nav Main' 100dvh
-				/ auto minmax(auto, 1fr)
-			;
-
-			&[data-sticky-container] {
-				--sticky-marginInlineStart: var(--separator-width);
-				--sticky-paddingInlineStart: var(--navigation-desktop-inlineSize);
-			}
-
-			> :global(nav) {
-				max-inline-size: var(--navigation-desktop-inlineSize);
-				resize: horizontal;
+			&[data-scroll-container~='layout-inline-panes'] {
+				--scrollPanes-paneStatic-inlineSize: var(--navigation-desktop-inlineSize);
 			}
 		}
 
-		@media (width < 60rem) {
-			grid-template:
-				'Nav' var(--navigation-mobile-blockSize)
-				'Main' 1fr
-				/ minmax(auto, 1fr)
-			;
-
-			&[data-sticky-container] {
-				--sticky-marginBlockStart: var(--separator-width);
-				--sticky-paddingBlockStart: var(--navigation-mobile-blockSize);
-			}
-		}
-
-		> :global(nav) {
-			grid-area: Nav;
+		> .layout-nav :global(nav) {
 			box-shadow: 0 0 0 var(--separator-width) var(--border-color);
 		}
 
-		> .layout-main {
-			grid-area: Main;
-
+		> #main {
 			--sticky-paddingInlineStart: clamp(1rem, 6cqi, 2rem);
 			--sticky-paddingInlineEnd: clamp(1rem, 6cqi, 2rem);
 
@@ -219,9 +192,5 @@
 				}
 			} */
 		}
-	}
-
-	#global-graph {
-		z-index: -1;
 	}
 </style>

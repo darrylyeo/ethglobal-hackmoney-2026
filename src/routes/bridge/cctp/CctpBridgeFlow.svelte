@@ -2,7 +2,7 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { ActionParams } from '$/constants/actions.ts'
-	import { ActionType } from '$/constants/actions.ts'
+	import { ActionType, TransferSpeed } from '$/constants/actions.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import {
 		CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS,
@@ -84,17 +84,17 @@
 			CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS.has(settings.fromChainId),
 	)
 	const effectiveTransferSpeed = $derived(
-		fastTransferSupported ? settings.transferSpeed : 'standard',
+		fastTransferSupported ? settings.transferSpeed : TransferSpeed.Standard,
 	)
 	const forwardingSupported = $derived(
 		settings.toChainId !== null &&
 			CCTP_FORWARDING_CHAIN_IDS.has(settings.toChainId),
 	)
 	const minFinalityThreshold = $derived(
-		effectiveTransferSpeed === 'fast' ? 1000 : 2000,
+		effectiveTransferSpeed === TransferSpeed.Fast ? 1000 : 2000,
 	)
 	const feeBps = $derived(
-		effectiveTransferSpeed === 'fast'
+		effectiveTransferSpeed === TransferSpeed.Fast
 			? (feeFastBps ?? feeStandardBps ?? 0)
 			: (feeStandardBps ?? feeFastBps ?? 0),
 	)

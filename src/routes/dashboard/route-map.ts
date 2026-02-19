@@ -58,7 +58,7 @@ const allRouteEntries: RouteEntry[] = Object.entries(routeImports).map(
 
 export const routeEntries: RouteEntry[] = allRouteEntries
 
-export const defaultRoutePath = '/dashboard'
+export const defaultRoutePath = '/dashboard/[dashboardId]'
 
 export const routeEntriesForPanel: RouteEntry[] = allRouteEntries.filter(
 	(entry) => entry.path !== '/',

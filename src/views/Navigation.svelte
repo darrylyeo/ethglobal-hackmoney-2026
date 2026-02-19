@@ -29,8 +29,9 @@
 <nav
 	id="nav"
 	class="nav"
-	popover="auto"
-	data-sticky
+	_popover="auto"
+	data-scroll-item="pane-static"
+	_data-sticky
 	data-scroll-container
 	data-sticky-container
 >
@@ -64,11 +65,22 @@
 					type="button"
 					id="menu-toggle"
 					aria-label="Open menu"
-					popovertarget="nav"
+					_popovertarget="nav"
+				>
+					<a href="#main">☰</a>
+				</button>
+			</li>
+
+			<!-- <li>
+				<button
+					type="button"
+					id="menu-toggle"
+					aria-label="Open menu"
+					_popovertarget="nav"
 				>
 					<span aria-hidden="true">☰</span>
 				</button>
-			</li>
+			</li> -->
 		</menu>
 	</header>
 
@@ -195,13 +207,13 @@
 		}
 	}
 
-	@media (width >= 60rem) {
+	/* @media (width >= 60rem) {
 		li:has(#menu-toggle) {
 			display: none;
 		}
-	}
+	} */
 
-	@media (width < 60rem) {
+	/* @media (width < 60rem) {
 		nav {
 			transition-property: block-size;
 
@@ -220,5 +232,5 @@
 				}
 			}
 		}
-	}
+	} */
 </style>

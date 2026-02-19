@@ -192,6 +192,7 @@
 				href={resolve('/dashboard')}
 				class="landing-dashboard-preview"
 				aria-label="Open dashboard"
+				data-scroll-container="inline"
 			>
 				<div class="landing-dashboard-preview-zoom">
 					<div class="landing-dashboard-preview-inner">

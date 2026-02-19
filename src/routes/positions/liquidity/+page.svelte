@@ -82,7 +82,7 @@
 </svelte:head>
 
 
-<main id="main" data-column data-sticky-container>
+<main data-column data-sticky-container>
 	<h1>Liquidity</h1>
 	<p data-text="muted">Uniswap V4 positions for all connected accounts.</p>
 

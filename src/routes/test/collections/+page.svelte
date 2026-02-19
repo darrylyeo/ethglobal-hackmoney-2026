@@ -12,6 +12,9 @@
 			<li>
 				<a href="/test/intents">Entity intents</a>
 			</li>
+			<li>
+				<a href="/test/layout-panes">Layout inline panes</a>
+			</li>
 		</ul>
 	</section>
 </main>

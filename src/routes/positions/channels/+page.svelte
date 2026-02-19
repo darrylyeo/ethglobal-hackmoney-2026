@@ -87,8 +87,12 @@
 	const connectedConnections = $derived(
 		connections.filter((c) => c.status === 'connected'),
 	)
+	const myAddress = $derived(yellowState.address?.toLowerCase() ?? null)
 	const allActorsLower = $derived(
-		new Set(connectedConnections.flatMap((c) => c.actors.map((a) => a.toLowerCase()))),
+		new Set([
+			...connectedConnections.flatMap((c) => c.actors.map((a) => a.toLowerCase())),
+			...(myAddress ? [myAddress] : []),
+		]),
 	)
 	const selectedConnection = $derived(
 		connections.find((c) => c.selected) ?? null,
@@ -133,7 +137,6 @@
 	const roomsById = $derived(
 		new Map((roomsQuery.data ?? []).map((r) => [r.row.id, r.row])),
 	)
-	const myAddress = $derived(yellowState.address?.toLowerCase() ?? null)
 
 
 	// State
@@ -344,7 +347,7 @@
 </svelte:head>
 
 
-<main id="main" data-column data-sticky-container>
+<main data-column data-sticky-container>
 	<h1>Channels</h1>
 	<p data-text="muted">Yellow payment channels for all connected accounts.</p>
 

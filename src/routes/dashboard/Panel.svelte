@@ -19,6 +19,7 @@
 	let {
 		panel,
 		isFocused,
+		excludeRoutePaths = [],
 		onFocus,
 		onSplit,
 		onRemove,
@@ -33,6 +34,7 @@
 	}: {
 		panel: DashboardPanelNode
 		isFocused: boolean
+		excludeRoutePaths?: string[],
 		onFocus: (panelId: string) => void
 		onSplit: (panelId: string, direction: 'horizontal' | 'vertical') => void
 		onRemove: (panelId: string) => void
@@ -73,6 +75,13 @@
 	const paramKeys = $derived(routeEntry?.paramKeys ?? [])
 	const routeKey = $derived(
 		panel.route.path + '\0' + JSON.stringify(panel.route.params),
+	)
+	const routeOptions = $derived(
+		routeEntriesForPanel.filter(
+			(entry) =>
+				!entry.path.includes('[') &&
+				!excludeRoutePaths.includes(entry.path),
+		),
 	)
 	const setPanelRoute = (path: string, params: Record<string, string>) =>
 		onUpdateRoute(panel.id, { path, params })
@@ -167,9 +176,10 @@
 		<div data-row="wrap start gap-2" data-row-item="flexible" class="dashboard-panel-title">
 			<select
 				class="dashboard-panel-route"
+				aria-label="Panel route"
 				bind:value={() => panel.route.path, setRoutePath}
 			>
-				{#each routeEntriesForPanel.filter((entry) => !entry.path.includes('[')) as entry (entry.path)}
+				{#each routeOptions as entry (entry.path)}
 					<option value={entry.path}>{entry.path}</option>
 				{/each}
 			</select>

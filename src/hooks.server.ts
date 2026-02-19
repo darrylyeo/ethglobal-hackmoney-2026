@@ -29,15 +29,11 @@ export const handle: Handle = async ({
 		throw error(403, 'Request Forbidden.')
 
 	try {
-		return await event.fetch(
-			url,
-			{
-				...event.request,
-				headers: new Headers({
-					'Authorization': event.request.headers.get('Authorization'),
-				}),
-			}
-		)
+		const auth = event.request.headers.get('Authorization')
+		return await event.fetch(url, {
+			...event.request,
+			headers: new Headers(auth ? { Authorization: auth } : {}),
+		})
 	} catch (err) {
 		throw error(502, err instanceof Error ? err.message : 'Proxy upstream error')
 	}

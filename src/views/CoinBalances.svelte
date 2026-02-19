@@ -13,6 +13,7 @@
 		FilterOperation,
 		type Filter,
 	} from '$/components/Filters.svelte'
+	import type { Sort } from '$/components/Sorts.svelte'
 	type DisplayToken = (typeof displayTokens)[number]
 	type BalanceFilterId = string
 	type BalanceFilterItem = {
@@ -57,6 +58,7 @@
 
 
 	// State
+	import type { ActorCoinRow } from '$/collections/ActorCoins.ts'
 	import { actorCoinsCollection } from '$/collections/ActorCoins.ts'
 	import { fetchAllBalancesForAddress } from '$/collections/ActorCoins.ts'
 	import {
@@ -66,6 +68,7 @@
 	} from '$/collections/StorkPrices.ts'
 	import { tokenListCoinsCollection } from '$/collections/TokenListCoins.ts'
 	let activeFilters = $state(new Set<Filter<BalanceFilterItem, BalanceFilterId>>())
+	let sortedBalances = $state<ActorCoinRow[]>([])
 
 
 	// (Derived)
@@ -333,6 +336,66 @@
 			filterSymbols.length <= 1 &&
 			filterAddresses.length <= 1,
 	)
+	const balanceSortOptions = $derived(
+		[
+			{
+				id: 'symbol-asc',
+				label: 'Symbol A–Z',
+				compare: (a: ActorCoinRow, b: ActorCoinRow) =>
+					a.symbol.localeCompare(b.symbol),
+			},
+			{
+				id: 'symbol-desc',
+				label: 'Symbol Z–A',
+				compare: (a: ActorCoinRow, b: ActorCoinRow) =>
+					b.symbol.localeCompare(a.symbol),
+			},
+			{
+				id: 'value-desc',
+				label: 'Value (high first)',
+				compare: (a: ActorCoinRow, b: ActorCoinRow) => {
+					const valueUsd = (x: ActorCoinRow) => {
+						const aid = getStorkAssetIdForSymbol(x.symbol)
+						if (!aid) return 0n
+						const pr = getBestStorkPrice(
+							prices,
+							aid,
+							x.$id.$actor.$network.chainId,
+						)
+						return pr ?
+								(x.balance * pr.price) / 10n ** BigInt(x.decimals)
+							:	0n
+					}
+					const va = valueUsd(a)
+					const vb = valueUsd(b)
+					return vb > va ? 1 : vb < va ? -1 : 0
+				},
+			},
+			{
+				id: 'value-asc',
+				label: 'Value (low first)',
+				compare: (a: ActorCoinRow, b: ActorCoinRow) => {
+					const valueUsd = (x: ActorCoinRow) => {
+						const aid = getStorkAssetIdForSymbol(x.symbol)
+						if (!aid) return 0n
+						const pr = getBestStorkPrice(
+							prices,
+							aid,
+							x.$id.$actor.$network.chainId,
+						)
+						return pr ?
+								(x.balance * pr.price) / 10n ** BigInt(x.decimals)
+							:	0n
+					}
+					const va = valueUsd(a)
+					const vb = valueUsd(b)
+					return va > vb ? 1 : va < vb ? -1 : 0
+				},
+			},
+		] as Sort<ActorCoinRow, 'symbol-asc' | 'symbol-desc' | 'value-desc' | 'value-asc'>[],
+	)
+	const hasSortOptions = $derived(balanceSortOptions.length > 1)
+	const displayBalances = $derived(hasSortOptions ? sortedBalances : balances)
 	const balancesTitlePrefix = $derived(
 		useDynamicTitle
 			? (() => {
@@ -374,6 +437,7 @@
 	// Components
 	import Boundary from '$/components/Boundary.svelte'
 	import Filters from '$/components/Filters.svelte'
+	import Sorts from '$/components/Sorts.svelte'
 	import Skeleton from '$/components/Skeleton.svelte'
 	import TruncatedValue, {
 		TruncatedValueFormat,
@@ -474,6 +538,14 @@
 									activeFilters = new Set()
 								}}
 							/>
+							{#if hasSortOptions}
+								<Sorts
+									items={balances}
+									sortOptions={balanceSortOptions}
+									defaultSortId="value-desc"
+									bind:sortedItems={sortedBalances}
+								/>
+							{/if}
 						</div>
 					</div>
 
@@ -526,7 +598,7 @@
 					</div>
 				{:else}
 					<div data-balances data-grid="columns-autofit column-min-10 gap-3">
-						{#each balances as b (b.$id.$actor.$network.chainId + ':' + b.$id.$coin.address)}
+						{#each displayBalances as b (b.$id.$actor.$network.chainId + ':' + b.$id.$coin.address)}
 							{@const token = displayTokens.find(
 								(entry) =>
 									entry.chainId === b.$id.$coin.$network.chainId &&

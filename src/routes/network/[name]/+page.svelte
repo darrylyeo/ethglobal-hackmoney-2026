@@ -16,8 +16,8 @@
 
 
 	// Functions
-	import { createHttpProvider } from '$/api/voltaire.ts'
 	import { BlockStream } from '@tevm/voltaire/block'
+	import { createHttpProvider } from '$/api/voltaire.ts'
 
 
 	// State

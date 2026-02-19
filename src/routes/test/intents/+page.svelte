@@ -113,7 +113,7 @@
 			>
 				<strong>From (drag source)</strong>
 				{#if fromPayload}
-					<pre data-text="muted">{JSON.stringify(fromPayload, null, 2)}</pre>
+					<pre data-text="muted" data-testid="from-payload">{JSON.stringify(fromPayload, null, 2)}</pre>
 				{:else}
 					<p data-text="muted">Drop an entity</p>
 				{/if}

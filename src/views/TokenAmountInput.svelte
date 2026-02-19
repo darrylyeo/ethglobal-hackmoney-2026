@@ -83,7 +83,7 @@
 	<input
 		{id}
 		class="token-amount-input"
-		data-text="monospace"
+		data-text="font-monospace"
 		type="text"
 		inputmode="decimal"
 		{placeholder}

@@ -652,6 +652,18 @@
 				opacity: 0.8,
 			},
 		},
+		[EntityType.SocialPostSession]: {
+			color: '#a855f7',
+			label: 'Social Post Sessions',
+			size: 11,
+			ring: 6.5,
+			g6Type: 'rect',
+			g6Style: {
+				radius: 6,
+				labelPlacement: 'right',
+				opacity: 0.9,
+			},
+		},
 		[EntityType.TransferGraph]: {
 			color: '#84cc16',
 			label: 'Transfer Graphs',

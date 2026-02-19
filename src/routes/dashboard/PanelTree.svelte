@@ -12,6 +12,7 @@
 		root,
 		focusedPanelId,
 		splitRatioOverrides = {},
+		excludeRoutePaths = [],
 		onFocus,
 		onSplit,
 		onRemove,
@@ -52,6 +53,7 @@
 		onSetSplitRatioOverride?: (splitId: string, value: number) => void,
 		onClearSplitRatioOverride?: (splitId: string) => void,
 		onToggleSplitDirection: (splitId: string) => void,
+		excludeRoutePaths?: string[],
 		parentSplit?: SplitNode,
 		indexInParent?: 0 | 1,
 	} = $props()
@@ -74,6 +76,7 @@
 	<PanelView
 		panel={root}
 		isFocused={focusedPanelId === root.id}
+		{excludeRoutePaths}
 		{onFocus}
 		{onSplit}
 		{onRemove}
@@ -97,6 +100,7 @@
 			<PanelTree
 				root={root.first}
 				{focusedPanelId}
+				{excludeRoutePaths}
 				{splitRatioOverrides}
 				{onFocus}
 				{onSplit}
@@ -158,6 +162,7 @@
 			<PanelTree
 				root={root.second}
 				{focusedPanelId}
+				{excludeRoutePaths}
 				{splitRatioOverrides}
 				{onFocus}
 				{onSplit}

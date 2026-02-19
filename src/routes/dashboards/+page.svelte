@@ -52,7 +52,7 @@
 	// Actions
 	const handleCreate = () => {
 		const id = createDashboard()
-		goto(resolve(`/dashboard?d=${id}`))
+		goto(resolve(`/dashboard/${id}`))
 	}
 
 	const handleSetDefault = (id: string) => setDefaultDashboardId(id)
@@ -95,7 +95,7 @@
 		</div>
 		<div data-row="gap-2">
 			<button type="button" onclick={handleCreate}>New dashboard</button>
-			<a href={resolve('/dashboard')}>Open default</a>
+			<a href={resolve(`/dashboard/${defaultId}`)}>Open default</a>
 		</div>
 	</header>
 
@@ -131,7 +131,7 @@
 						{dashboard.icon ?? (dashboard.id === defaultId ? '★' : '📊')}
 					</span>
 					<a
-						href={resolve(`/dashboard?d=${dashboard.id}`)}
+						href={resolve(`/dashboard/${dashboard.id}`)}
 						class="dashboard-name-link"
 					>
 						{displayName(dashboard)}
