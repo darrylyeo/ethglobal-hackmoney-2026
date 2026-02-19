@@ -16,7 +16,7 @@
 		timestamp,
 		format = TimestampFormat.Absolute,
 	}: {
-		timestamp: number,
+		timestamp: number | undefined | null,
 		format?: TimestampFormat,
 	} = $props()
 
@@ -68,7 +68,9 @@
 </script>
 
 
-{#if format === TimestampFormat.Absolute}
+{#if !timestamp}
+	–
+{:else if format === TimestampFormat.Absolute}
 	<time
 		datetime={isoString}
 		title={relativeTime}

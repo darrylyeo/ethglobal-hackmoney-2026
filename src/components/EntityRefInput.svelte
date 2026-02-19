@@ -115,6 +115,7 @@
 
 
 <form
+	data-entity-ref-input
 	data-row="gap-2"
 	onsubmit={(e) => (e.preventDefault(), handleSubmit())}
 >

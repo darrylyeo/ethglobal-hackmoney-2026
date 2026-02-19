@@ -8,10 +8,11 @@
 >
 	// Types/constants
 	import type { Snippet } from 'svelte'
-	
+	import type { ItemsListPagination } from '$/components/ItemsList.types.ts'
+	import { useVisibleAction } from '$/lib/useVisibleAction.ts'
 
 	// Props
-    import { SvelteSet } from 'svelte/reactivity'
+	import { SvelteSet } from 'svelte/reactivity'
 
 	let {
 		items = $bindable(new SvelteSet()),
@@ -22,6 +23,7 @@
 		placeholderKeys,
 		visiblePlaceholderKeys = $bindable([] as _Key[]),
 		scrollPosition = 'Auto',
+		pagination,
 		Item,
 		GroupHeader,
 		...rootProps
@@ -34,6 +36,7 @@
 		placeholderKeys: Set<_Key | [number, number]>
 		visiblePlaceholderKeys?: _Key[]
 		scrollPosition?: 'Start' | 'End' | 'Auto'
+		pagination?: ItemsListPagination
 		GroupHeader?: Snippet<[{ groupKey: _GroupKey }]>
 		Item: Snippet<
 			[
@@ -101,15 +104,23 @@
 				isPlaceholder: true as const,
 			})),
 	)
-	const allRows = $derived([...itemRows, ...placeholderRows])
+	const paginationRow = $derived(
+		pagination?.hasMore ? ({ type: 'pagination' as const, key: '__pagination__' }) : null,
+	)
+	const allRows = $derived([
+		...itemRows,
+		...placeholderRows,
+		...(paginationRow ? [paginationRow] : []),
+	])
+	const manyItems = $derived(allRows.length > 200)
 </script>
 
 
 <!-- scrollPosition: Start/End = overflow-anchor on first/last li; Auto = browser default -->
 <ul
-	class="items-list"
+	class="items-list anchor-{scrollPosition.toLowerCase()}"
+	class:many-items={manyItems}
 	data-sticky-container
-	data-scroll-position={scrollPosition.toLowerCase()}
 	{...rootProps}
 >
 	{#each allRows as row (row.type === 'group' ? `group:${row.groupKey}` : row.key)}
@@ -124,6 +135,20 @@
 		{:else if row.type === 'placeholder'}
 			<li data-placeholder data-scroll-item="snap-block-start">
 				{@render Item({ key: row.key, isPlaceholder: true as const })}
+			</li>
+		{:else if row.type === 'pagination'}
+			<li
+				data-pagination
+				data-scroll-item="snap-block-start"
+				use:useVisibleAction={pagination?.onLoadMore}
+			>
+				{#if pagination?.Placeholder}
+					{@render pagination.Placeholder({ loading: pagination.loading ?? false })}
+				{:else}
+					<code data-text="muted">
+						{(pagination?.loading ?? false) ? 'Loading…' : (pagination?.label ?? 'Load more')}
+					</code>
+				{/if}
 			</li>
 		{:else}
 			<li data-scroll-item="snap-block-start">
@@ -140,11 +165,15 @@
 
 <style>
 	.items-list {
-		&[data-scroll-position='start'] > li:first-child {
+		&.anchor-start > li:first-child {
 			overflow-anchor: auto;
 		}
-		&[data-scroll-position='end'] > li:last-child {
+		&.anchor-end > li:last-child {
 			overflow-anchor: auto;
+		}
+		&.many-items > li {
+			content-visibility: auto;
+			contain-intrinsic-block-size: 0 60px;
 		}
 	}
 </style>

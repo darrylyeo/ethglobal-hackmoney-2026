@@ -8,6 +8,7 @@
 >
 	// Types/constants
 	import type { Snippet } from 'svelte'
+	import type { ItemsListPagination } from '$/components/ItemsList.types.ts'
 
 	// Components
 	import ItemsList from '$/components/ItemsList.svelte'
@@ -28,6 +29,7 @@
 		placeholderKeys,
 		visiblePlaceholderKeys = $bindable([] as _Key[]),
 		scrollPosition = 'Auto',
+		pagination,
 		Item,
 		GroupHeader,
 	}: {
@@ -45,6 +47,7 @@
 		placeholderKeys: Set<_Key | [number, number]>
 		visiblePlaceholderKeys?: _Key[]
 		scrollPosition?: 'Start' | 'End' | 'Auto'
+		pagination?: ItemsListPagination
 		GroupHeader?: Snippet<[{ groupKey: _GroupKey }]>
 		Item: Snippet<
 			[
@@ -82,6 +85,7 @@
 		{placeholderKeys}
 		bind:visiblePlaceholderKeys
 		{scrollPosition}
+		{pagination}
 		{Item}
 		{GroupHeader}
 	/>

@@ -71,7 +71,7 @@
 			onMoveCaret?.('right')
 		} else if ((e.key === 'Delete' || e.key === 'Backspace') && filterValue === '') {
 			e.preventDefault()
-			onCloseEmpty?.()
+			onClose?.()
 		}
 	}
 
@@ -104,6 +104,7 @@
 				bind:inputValue={filterValue}
 				placeholder=""
 				ariaLabel="Entity reference"
+				onInputKeydown={handleKeydown}
 			/>
 		</div>
 	{:else if isEditable}

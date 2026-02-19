@@ -243,6 +243,28 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Tab' && editEl) {
+			e.preventDefault()
+			const root = editEl.closest('form, [role="group"]') ?? document
+			const focusable = [
+				...root.querySelectorAll<HTMLElement>(
+					'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
+				),
+			].filter((el) => el.offsetParent != null)
+			const idx = focusable.indexOf(editEl)
+			let next = e.shiftKey ? focusable[idx - 1] : focusable[idx + 1]
+			if (!next && root !== document) {
+				const docFocusable = [
+					...document.querySelectorAll<HTMLElement>(
+						'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
+					),
+				].filter((el) => el.offsetParent != null)
+				const docIdx = docFocusable.indexOf(editEl)
+				next = e.shiftKey ? docFocusable[docIdx - 1] : docFocusable[docIdx + 1]
+			}
+			next?.focus()
+			return
+		}
 		const trigger = e.key in triggerConfig ? (e.key as string) : null
 		if (trigger) {
 			insertPlaceholderAtSelection(trigger)

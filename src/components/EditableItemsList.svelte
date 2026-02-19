@@ -54,6 +54,7 @@
 	const canReorder = $derived(
 		operations.includes(ItemsListOperation.Reorder),
 	)
+	const manyItems = $derived(items.length > 200)
 
 
 	// Actions
@@ -113,6 +114,7 @@
 	<div
 		class="editable-items-list"
 		data-column="gap-2"
+		class:many-items={manyItems}
 		{@attach reorder.list({ getArray: () => items, onDrop: onReorderDrop })}
 	>
 		{#each items as value, i (value)}
@@ -126,7 +128,7 @@
 		{/each}
 	</div>
 {:else}
-	<div class="editable-items-list" data-column="gap-2">
+	<div class="editable-items-list" data-column="gap-2" class:many-items={manyItems}>
 		{#each items as item, index (index)}
 			<div class="editable-item" data-row="gap-2">
 				<div class="editable-item-content" data-row-item="flexible">
@@ -158,6 +160,11 @@
 
 	.editable-item {
 		align-items: start;
+	}
+
+	.editable-items-list.many-items > .editable-item {
+		content-visibility: auto;
+		contain-intrinsic-block-size: 0 60px;
 	}
 
 	.drag-handle {
