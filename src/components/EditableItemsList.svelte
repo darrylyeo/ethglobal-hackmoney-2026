@@ -13,9 +13,9 @@
 >
 	// Types/constants
 	import type { Snippet } from 'svelte'
-	import type { ItemState } from '$/lib/reorder/index.ts'
-	import type { ContentSnippet } from '$/lib/reorder/index.ts'
-	import { createReorder } from '$/lib/reorder/index.ts'
+	import type { ContentSnippet } from '$/lib/reorder/attachments.svelte.ts'
+	import { createReorder } from '$/lib/reorder/attachments.svelte.ts'
+	import type { ItemState } from '$/lib/reorder/state.svelte.ts'
 
 
 	// Props
@@ -42,18 +42,9 @@
 
 
 	// (Derived)
-	const canAdd = $derived(
-		operations.includes(ItemsListOperation.Add),
-	)
-	const canDelete = $derived(
-		operations.includes(ItemsListOperation.Delete),
-	)
-	const canDuplicate = $derived(
-		operations.includes(ItemsListOperation.Duplicate),
-	)
-	const canReorder = $derived(
-		operations.includes(ItemsListOperation.Reorder),
-	)
+	const canDelete = $derived(operations.includes(ItemsListOperation.Delete))
+	const canDuplicate = $derived(operations.includes(ItemsListOperation.Duplicate))
+	const canReorder = $derived(operations.includes(ItemsListOperation.Reorder))
 	const manyItems = $derived(items.length > 200)
 
 
@@ -140,7 +131,7 @@
 	</div>
 {/if}
 
-{#if canAdd}
+{#if operations.includes(ItemsListOperation.Add)}
 	<div data-row="end">
 		<Button.Root
 			type="button"

@@ -2,7 +2,7 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { Action } from '$/constants/actions.ts'
-	import type { ItemState } from '$/lib/reorder/index.ts'
+	import type { ItemState } from '$/lib/reorder/state.svelte.ts'
 	import { createAction } from '$/constants/actions.ts'
 	import { ActionType } from '$/constants/actions.ts'
 	import { ItemsListOperation } from '$/components/EditableItemsList.svelte'
