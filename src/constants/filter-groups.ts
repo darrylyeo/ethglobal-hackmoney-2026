@@ -19,20 +19,20 @@ export const networkFilterGroups: readonly NetworkFilterGroup[] = [
 	{
 		id: 'cctp',
 		label: 'Circle CCTP',
-		networks: networks.filter((n) => cctpChainIds.has(n.id)),
+		networks: networks.filter((n) => cctpChainIds.has(n.chainId)),
 	},
 	{
 		id: 'mainnet',
 		label: 'Mainnet',
 		networks: networks.filter(
-			(n) => n.type === NetworkType.Mainnet && !cctpChainIds.has(n.id),
+			(n) => n.type === NetworkType.Mainnet && !cctpChainIds.has(n.chainId),
 		),
 	},
 	{
 		id: 'testnet',
 		label: 'Testnet',
 		networks: networks.filter(
-			(n) => n.type === NetworkType.Testnet && !cctpChainIds.has(n.id),
+			(n) => n.type === NetworkType.Testnet && !cctpChainIds.has(n.chainId),
 		),
 	},
 ]

@@ -3,7 +3,7 @@
  */
 
 import type { Media } from '$/constants/media.ts'
-import { ChainId, networkConfigsByChainId } from '$/constants/networks.ts'
+import { ChainId, networksByChainId } from '$/constants/networks.ts'
 import { normalizeAddress } from '$/lib/address.ts'
 
 export enum CoinType {
@@ -372,16 +372,16 @@ export const coinBySymbol = Object.fromEntries(
 
 export const bridgeCoinsByChainId: Partial<Record<number, Coin[]>> =
 	Object.fromEntries(
-		Object.entries(networkConfigsByChainId).map(([chainIdStr, config]) => {
+		Object.entries(networksByChainId).map(([chainIdStr, network]) => {
 			const chainId = Number(chainIdStr)
 			const chainTokens = ercTokens.filter((t) => t.chainId === chainId)
 			const native: Coin | null =
-				config ?
+				network ?
 					{
 						type: CoinType.Native,
 						chainId: chainId as ChainId,
 						address: zeroAddress,
-						symbol: config.nativeCurrency.symbol,
+						symbol: network.nativeCurrency.symbol,
 						decimals: 18,
 					}
 				: null
