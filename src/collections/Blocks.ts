@@ -17,8 +17,11 @@ import {
 import { fetchNetworkTransaction } from '$/collections/NetworkTransactions.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
-import type { ChainId, Network } from '$/constants/networks.ts'
-import { networksByChainId } from '$/constants/networks.ts'
+import {
+	type ChainId,
+	type Network,
+	networksByChainId,
+} from '$/constants/networks.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import type { BlockEntry, Block$Id } from '$/data/Block.ts'
 import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
