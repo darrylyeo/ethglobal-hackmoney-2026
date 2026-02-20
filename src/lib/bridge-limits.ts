@@ -10,7 +10,6 @@ import {
 } from '$/constants/bridge-limits.ts'
 import { formatSmallestToDecimal } from '$/lib/format.ts'
 
-export { AmountValidationError } from '$/constants/bridge-limits.ts'
 export type { AmountValidation, RouteLimits }
 
 export const validateBridgeAmount = (
