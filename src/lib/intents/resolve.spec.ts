@@ -1,13 +1,15 @@
 import { EntityType } from '$/data/$EntityType.ts'
 import {
 	ActionType,
+	actionTypeDefinitionByActionType,
+} from '$/constants/actions.ts'
+import {
 	IntentType,
 	Protocol,
-	actionTypeDefinitionByActionType,
-	protocolActions,
-	protocolSpecs,
 	type IntentEntityRef,
 } from '$/constants/intents.ts'
+import { protocolActions } from '$/constants/protocolActions.ts'
+import { protocolsById as protocolSpecs } from '$/constants/protocols.ts'
 import {
 	actionsByProtocol,
 	intentEntityTypes,

@@ -1,17 +1,19 @@
-import { actionTypeDefinitionByActionType } from '$/constants/actions.ts'
 import {
 	ActionType,
-	IntentInvocationModality,
-	Protocol,
+	actionTypeDefinitionByActionType,
 	actionTypes,
-	intents,
-	protocolActions,
 	type ActionTypeDefinition,
+} from '$/constants/actions.ts'
+import {
+	IntentInvocationModality,
+	intents,
 	type IntentDefinition,
 	type IntentEntityRef,
 	type IntentOption,
 } from '$/constants/intents.ts'
+import { protocolActions } from '$/constants/protocolActions.ts'
 import type { ProtocolAction } from '$/constants/protocolActions.ts'
+import { Protocol } from '$/constants/protocols.ts'
 import { protocolsById } from '$/constants/protocols.ts'
 import type { Action } from '$/constants/actions.ts'
 import type { Entity } from '$/data/$EntityType.ts'

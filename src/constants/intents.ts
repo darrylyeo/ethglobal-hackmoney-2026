@@ -67,22 +67,6 @@ export type IntentEntity<
 }
 
 
-// Re-export action constants for consumers that import from intents
-export {
-	ActionType,
-	actionTypeDefinitionByActionType,
-	actionTypes,
-	type ActionTypeDefinition,
-} from '$/constants/actions.ts'
-
-
-export { protocolActions } from '$/constants/protocolActions.ts'
-export type { ProtocolAction } from '$/constants/protocolActions.ts'
-export { Protocol, protocolsById as protocolSpecs } from '$/constants/protocols.ts'
-export type { ProtocolDefinition as ProtocolSpec } from '$/constants/protocols.ts'
-
-export { formatIntentOptionLabel } from '$/lib/intents.ts'
-
 // Intents
 export enum IntentType {
 	SwapAndBridge = 'SwapAndBridge',
