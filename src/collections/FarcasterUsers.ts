@@ -11,7 +11,7 @@ import {
 	fetchUserDataByFid,
 	fetchUsernameProofsByFid,
 	fetchVerificationsByFid,
-} from '$/api/farcaster.ts'
+} from '$/api/farcaster/index.ts'
 
 export type FarcasterUserRow = FarcasterUser & { $source: DataSource }
 

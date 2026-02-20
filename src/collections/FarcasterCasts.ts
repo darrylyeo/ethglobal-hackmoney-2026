@@ -19,7 +19,7 @@ import {
 	REACTION_TYPE_RECAST,
 	resolveCastByTruncatedHash,
 	type CastMessage,
-} from '$/api/farcaster.ts'
+} from '$/api/farcaster/index.ts'
 
 export type FarcasterCastRow = FarcasterCast & { $source: DataSource }
 
