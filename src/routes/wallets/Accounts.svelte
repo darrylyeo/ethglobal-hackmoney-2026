@@ -9,7 +9,6 @@
 	import { DataSource } from '$/constants/data-sources.ts'
 	import {
 		NetworkType,
-		networkConfigsByChainId,
 		networks,
 		networksByChainId,
 	} from '$/constants/networks.ts'
@@ -324,7 +323,7 @@
 					? (networksByChainId[connection.chainId]?.name ??
 						`Chain ${connection.chainId}`)
 					: null}
-				{@const chainIcon = networkConfigsByChainId[chainId]?.icon}
+				{@const chainIcon = networksByChainId[chainId]?.icon}
 
 				<li>
 					<details data-card="radius-2" open>
@@ -340,7 +339,7 @@
 														? {
 																src: chainIcon,
 																backgroundColor:
-																	networkConfigsByChainId[chainId]?.color,
+																	networksByChainId[chainId]?.color,
 															}
 														: undefined
 												}

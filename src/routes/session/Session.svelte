@@ -55,7 +55,7 @@
 	)
 	const defaultBalanceTokens = $derived(
 		ercTokens
-			.filter((t) => filteredNetworks.some((n) => n.id === t.chainId))
+			.filter((t) => filteredNetworks.some((n) => n.chainId === t.chainId))
 			.map((t) => ({ chainId: t.chainId, tokenAddress: t.address })),
 	)
 	const balanceTokensToFetch = $derived(
@@ -70,7 +70,7 @@
 					return e ? [e] : []
 				})
 			: ercTokens.filter((t) =>
-					filteredNetworks.some((n) => n.id === t.chainId),
+					filteredNetworks.some((n) => n.chainId === t.chainId),
 				),
 	)
 	const effectiveBalanceTokens = $derived(

@@ -59,7 +59,7 @@
 	const resolveNetwork = (chainId: number | null) =>
 		chainId !== null
 			? (Object.values(networksByChainId).find(
-					(entry) => entry?.id === chainId,
+					(entry) => entry?.chainId === chainId,
 				) ?? null)
 			: null
 	const resolveNetworkName = (chainId: number) =>

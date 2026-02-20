@@ -27,7 +27,7 @@ import {
 import { ercTokens } from '$/constants/coins.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { interopFormatConfig, toInteropName } from '$/constants/interop.ts'
-import { networkConfigsByChainId } from '$/constants/networks.ts'
+import { networksByChainId } from '$/constants/networks.ts'
 
 import { type EntityId, EntityType } from '$/data/$EntityType.ts'
 import {
@@ -79,8 +79,8 @@ export function deriveWatchedEntityRow(stored: WatchedEntityStoredRow): WatchedE
 							const n = parsedId as EntityId<EntityType.Network>
 							return {
 								entityId: n,
-								label: networkConfigsByChainId[n.chainId]?.name ?? String(n.chainId),
-								href: `/network/${networkConfigsByChainId[n.chainId]?.slug ?? String(n.chainId)}`,
+								label: networksByChainId[n.chainId]?.name ?? String(n.chainId),
+								href: `/network/${networksByChainId[n.chainId]?.slug ?? String(n.chainId)}`,
 							}
 						}
 						case EntityType.Contract: {
@@ -88,7 +88,7 @@ export function deriveWatchedEntityRow(stored: WatchedEntityStoredRow): WatchedE
 							return {
 								entityId: c,
 								label: formatAddress(c.address),
-								href: `/network/${networkConfigsByChainId[c.$network.chainId]?.slug ?? String(c.$network.chainId)}/contract/${c.address}`,
+								href: `/network/${networksByChainId[c.$network.chainId]?.slug ?? String(c.$network.chainId)}/contract/${c.address}`,
 							}
 						}
 						case EntityType.Session: {
@@ -125,7 +125,7 @@ export function deriveWatchedEntityRow(stored: WatchedEntityStoredRow): WatchedE
 							return {
 								entityId: b,
 								label: `Block ${b.blockNumber}`,
-								href: `/network/${networkConfigsByChainId[b.$network.chainId]?.slug ?? String(b.$network.chainId)}/block/${b.blockNumber}`,
+								href: `/network/${networksByChainId[b.$network.chainId]?.slug ?? String(b.$network.chainId)}/block/${b.blockNumber}`,
 							}
 						}
 						case EntityType.SocialPostSession: {
@@ -372,7 +372,7 @@ export class NavigationItems {
 				id: row.id,
 				title: row.label,
 				href: row.href,
-				icon: networkConfigsByChainId[chainId]?.icon ?? '🌐',
+				icon: networksByChainId[chainId]?.icon ?? '🌐',
 				children: [
 					{
 						id: `network-${chainId}-contracts`,

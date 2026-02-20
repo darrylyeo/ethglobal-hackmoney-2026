@@ -18,7 +18,7 @@
 	import { resolveIntentForDrag } from '$/lib/intents.ts'
 
 	const resolveChainName = (chainId: number) =>
-		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
+		Object.values(networksByChainId).find((entry) => entry?.chainId === chainId)
 			?.name ?? `Chain ${chainId}`
 
 

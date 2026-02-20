@@ -603,8 +603,8 @@
 				<Dialog.Content>
 					<Dialog.Title>Confirm CCTP transfer</Dialog.Title>
 					{#if bridgeParams && selectedActor}
-						{@const fromNet = Object.values(networksByChainId).find((n) => n?.id === bridgeParams.fromChainId)}
-						{@const toNet = Object.values(networksByChainId).find((n) => n?.id === bridgeParams.toChainId)}
+						{@const fromNet = Object.values(networksByChainId).find((n) => n?.chainId === bridgeParams.fromChainId)}
+						{@const toNet = Object.values(networksByChainId).find((n) => n?.chainId === bridgeParams.toChainId)}
 						{#if fromNet && toNet}
 							<Dialog.Description>
 								Send {formatSmallestToDecimal((action.params as { amount?: bigint }).amount ?? 0n, 6)} USDC from {fromNet.name}

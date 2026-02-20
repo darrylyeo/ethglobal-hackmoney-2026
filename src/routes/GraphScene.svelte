@@ -45,7 +45,6 @@
 	import {
 		NetworkType,
 		networksByChainId,
-		networkConfigsByChainId,
 	} from '$/constants/networks.ts'
 	import {
 		EntityType,
@@ -907,7 +906,7 @@
 		typeof value === 'object' && value !== null
 
 	const getChainName = (chainId: number) =>
-		Object.values(networksByChainId).find((entry) => entry?.id === chainId)
+		Object.values(networksByChainId).find((entry) => entry?.chainId === chainId)
 			?.name ?? `Chain ${chainId}`
 
 	const toNodeId = (prefix: string, id: unknown) => `${prefix}:${stringify(id)}`
@@ -1264,11 +1263,11 @@
 							opacity: row.type === NetworkType.Testnet ? 0.7 : 1,
 						},
 						details: {
-							chainId: row.id,
+							chainId: row.$id.chainId,
 							type: row.type,
 							name: row.name,
-							caip2: networkConfigsByChainId[row.id]?.caip2 ?? `eip155:${row.id}`,
-							slug: networkConfigsByChainId[row.id]?.slug ?? row.name.toLowerCase().replace(/\s+/g, '-'),
+							caip2: networksByChainId[row.$id.chainId]?.caip2 ?? `eip155:${row.$id.chainId}`,
+							slug: networksByChainId[row.$id.chainId]?.slug ?? row.name.toLowerCase().replace(/\s+/g, '-'),
 						},
 					}),
 				)
@@ -1301,7 +1300,7 @@
 						blockNumber: row.$id.blockNumber,
 						timestamp: row.timestamp,
 						networkSlug:
-							networkConfigsByChainId[row.$id.$network.chainId]?.slug ?? '',
+							networksByChainId[row.$id.$network.chainId]?.slug ?? '',
 					},
 				})
 			})
