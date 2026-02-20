@@ -21,5 +21,3 @@ export const sharedAddressesCollection = createCollection(
 		parser: { stringify, parse },
 	}),
 )
-
-export { sharedAddressKey } from './SharedAddressesKeys.ts'

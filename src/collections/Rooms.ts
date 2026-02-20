@@ -18,5 +18,3 @@ export const roomsCollection = createCollection(
 		getKey: (row: RoomRow) => row.id,
 	}),
 )
-
-export { partykitRoomsCollection } from './PartykitRooms.ts'

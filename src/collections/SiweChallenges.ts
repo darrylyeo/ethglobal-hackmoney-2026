@@ -18,5 +18,3 @@ export const siweChallengesCollection = createCollection(
 		getKey: (row: SiweChallengeRow) => row.id,
 	}),
 )
-
-export { siweChallengeKey } from './SiweChallengesKeys.ts'

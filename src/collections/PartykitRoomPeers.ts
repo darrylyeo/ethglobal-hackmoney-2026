@@ -18,5 +18,3 @@ export const partykitRoomPeersCollection = createCollection(
 		getKey: (row: RoomPeerRow) => row.id,
 	}),
 )
-
-export { roomPeerKey } from './RoomPeersKeys.ts'
