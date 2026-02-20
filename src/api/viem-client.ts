@@ -7,20 +7,20 @@ import type { Chain } from 'viem'
 import { createPublicClient, createWalletClient, custom } from 'viem'
 import type { PublicClient, WalletClient } from 'viem'
 import { createHttpProvider } from '$/api/voltaire.ts'
-import { networkConfigsByChainId } from '$/constants/networks.ts'
+import { networksByChainId } from '$/constants/networks.ts'
 import type { EIP1193Provider } from '$/lib/wallet.ts'
 
 function chainFor(chainId: number): Chain {
-	const config = networkConfigsByChainId[chainId]
+	const network = networksByChainId[chainId]
 	return (
-		config
+		network
 			? {
-					id: config.chainId,
-					name: config.name,
+					id: network.chainId,
+					name: network.name,
 					nativeCurrency: {
 						decimals: 18,
-						name: config.nativeCurrency.name,
-						symbol: config.nativeCurrency.symbol,
+						name: network.nativeCurrency.name,
+						symbol: network.nativeCurrency.symbol,
 					},
 					rpcUrls: { default: { http: [] } },
 				}

@@ -15,7 +15,7 @@ import {
 	yellowClearnodeEndpointByEnvironment,
 	CHALLENGE_PERIOD,
 } from '$/constants/yellow.ts'
-import { NetworkType, networkConfigsByChainId } from '$/constants/networks.ts'
+import { NetworkType, networksByChainId } from '$/constants/networks.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import { Address } from '@tevm/voltaire/Address'
 import { Hex } from '@tevm/voltaire/Hex'
@@ -55,7 +55,7 @@ export const connectClearnode = async (params: {
 		?? (typeof globalThis.window !== 'undefined' && (globalThis.window as unknown as Record<string, unknown>).__E2E_CLEARNODE_WS_URL__ as string | undefined)
 		?? yellowClearnodeEndpointByEnvironment[
 			params.environment ??
-				(networkConfigsByChainId[params.chainId]?.type === NetworkType.Testnet ?
+				(networksByChainId[params.chainId]?.type === NetworkType.Testnet ?
 					YellowEnvironment.Sandbox
 				: YellowEnvironment.Production)
 		]

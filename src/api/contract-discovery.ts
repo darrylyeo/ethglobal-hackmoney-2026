@@ -4,7 +4,7 @@
  */
 
 import type { ChainId } from '$/constants/networks.ts'
-import { networkConfigsByChainId } from '$/constants/networks.ts'
+import { networksByChainId } from '$/constants/networks.ts'
 import { normalizeAddress } from '$/lib/address.ts'
 
 const EXPLORER_API_BY_CHAIN: Partial<Record<ChainId, string>> = {
