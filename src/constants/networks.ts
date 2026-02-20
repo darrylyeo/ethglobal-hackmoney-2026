@@ -24,12 +24,6 @@ export enum TransportType {
 	WebSocket = 'WebSocket',
 }
 
-export type Network = {
-	id: ChainId
-	name: string
-	type: NetworkType
-}
-
 export type NetworkCurrency = {
 	name: string
 	symbol: string
@@ -42,7 +36,7 @@ export type RpcEndpoint = {
 	transportType: TransportType
 }
 
-export type NetworkConfig = {
+export type Network = {
 	chainId: ChainId
 	name: string
 	type: NetworkType
@@ -62,12 +56,12 @@ export type MainnetTestnetMapping = {
 
 export type ParsedNetworkParam = {
 	chainId: ChainId
-	config: NetworkConfig
+	network: Network
 	slug: string
 	caip2: string
 }
 
-export const networkConfigs: readonly NetworkConfig[] = await (async () => [
+export const networks: readonly Network[] = await (async () => [
 	{
 		chainId: ChainId.Ethereum,
 		name: 'Ethereum',
@@ -450,14 +444,8 @@ export const networkConfigs: readonly NetworkConfig[] = await (async () => [
 	})),
 )
 
-export const networks: readonly Network[] = networkConfigs.map((config) => ({
-	id: config.chainId,
-	name: config.name,
-	type: config.type,
-}))
-
-export const networkConfigsByChainId: Partial<Record<number, NetworkConfig>> =
-	Object.fromEntries(networkConfigs.map((config) => [config.chainId, config]))
+export const networksByChainId: Partial<Record<number, Network>> =
+	Object.fromEntries(networks.map((network) => [network.chainId, network]))
 
 export const averageTransactionsPerBlockEntries = [
 	{ chainId: ChainId.Ethereum, value: 180 },
@@ -476,9 +464,6 @@ export const averageTransactionsPerBlockByChainId = Object.fromEntries(
 ) as Partial<Record<ChainId, (typeof averageTransactionsPerBlockEntries)[number]>>
 
 export const DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK = 150
-
-export const networksByChainId: Partial<Record<number, Network>> =
-	Object.fromEntries(networks.map((network) => [network.id, network]))
 
 export const mainnetTestnetMappings: readonly MainnetTestnetMapping[] = [
 	{ mainnetChainId: ChainId.Ethereum, testnetChainId: ChainId.EthereumSepolia },
@@ -518,8 +503,8 @@ export const mainnetIdForTestnetId = Object.fromEntries(
 
 export const mainnetForTestnet = new Map(
 	Object.entries(mainnetIdForTestnetId).map(([testnetId, mainnetId]) => [
-		networksByChainId[testnetId]!,
-		networksByChainId[mainnetId]!,
+		networksByChainId[Number(testnetId)]!,
+		networksByChainId[Number(mainnetId)]!,
 	]),
 )
 
@@ -539,14 +524,14 @@ export const testnetIdsForMainnetId = Object.fromEntries(
 
 export const testnetsForMainnet = new Map(
 	Object.entries(testnetIdsForMainnetId).map(([mainnetId, testnetIds]) => [
-		networksByChainId[mainnetId]!,
+		networksByChainId[Number(mainnetId)]!,
 		testnetIds.map((testnetId) => networksByChainId[testnetId]!),
 	]),
 )
 
-export const networkConfigsBySlug: Partial<Record<string, NetworkConfig>> =
-	Object.fromEntries(networkConfigs.map((c) => [c.slug, c]))
+export const networksBySlug: Partial<Record<string, Network>> =
+	Object.fromEntries(networks.map((c) => [c.slug, c]))
 
-export const networkConfigsByCaip2: Partial<Record<string, NetworkConfig>> =
-	Object.fromEntries(networkConfigs.map((c) => [c.caip2, c]))
+export const networksByCaip2: Partial<Record<string, Network>> =
+	Object.fromEntries(networks.map((c) => [c.caip2, c]))
 
