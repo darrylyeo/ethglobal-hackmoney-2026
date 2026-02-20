@@ -10,7 +10,7 @@ import {
 	identityResolversByKind,
 	type IdentityResolution,
 } from '$/constants/identity-resolver.ts'
-import { ChainId } from '$/constants/chain-id.ts'
+import { ChainId } from '$/constants/networks.ts'
 import { isValidAddress, normalizeAddress } from '$/lib/address.ts'
 import { Abi, decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
 import { namehash } from '@tevm/voltaire/Ens'

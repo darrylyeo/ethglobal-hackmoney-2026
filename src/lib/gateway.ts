@@ -13,7 +13,7 @@ import {
 	GATEWAY_WALLET_TESTNET,
 	gatewayDomainByChainId,
 } from '$/constants/gateway.ts'
-import type { ChainId } from '$/constants/chain-id.ts'
+import type { ChainId } from '$/constants/networks.ts'
 
 export const getGatewayDomainId = (chainId: ChainId | null): number | null =>
 	chainId === null ? null : (gatewayDomainByChainId[chainId]?.domain ?? null)

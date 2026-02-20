@@ -5,7 +5,7 @@
  */
 
 import { DataSource } from '$/constants/data-sources.ts'
-import { ChainId } from '$/constants/chain-id.ts'
+import { ChainId } from '$/constants/networks.ts'
 
 export enum IdentityInputKind {
 	Address = 'Address',

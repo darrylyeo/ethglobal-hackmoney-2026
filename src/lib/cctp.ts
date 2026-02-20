@@ -9,7 +9,7 @@ import {
 	CCTP_TOKEN_MESSENGER_TESTNET,
 	cctpDomainByChainId,
 } from '$/constants/cctp.ts'
-import type { ChainId } from '$/constants/chain-id.ts'
+import type { ChainId } from '$/constants/networks.ts'
 
 export const getCctpDomainId = (chainId: ChainId | null): number | null =>
 	chainId === null ? null : (cctpDomainByChainId[chainId]?.domain ?? null)

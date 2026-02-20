@@ -2,8 +2,12 @@
  * Public RPC endpoints by chain: url, serviceProvider, transportType.
  */
 
-import type { RpcEndpoint } from '$/constants/networks.ts'
-import { ChainId, ServiceProvider, TransportType } from '$/constants/networks.ts'
+import {
+	ChainId,
+	type RpcEndpoint,
+	ServiceProvider,
+	TransportType,
+} from '$/constants/networks.ts'
 import { E2E_TEVM_CHAIN_ID } from '$/tests/tevmConfig.ts'
 import { E2E_TEVM_ENABLED, E2E_TEVM_RPC_URL } from '$/tests/tevm.ts'
 

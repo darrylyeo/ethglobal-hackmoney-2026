@@ -1,6 +1,6 @@
 import { type } from 'arktype'
 import { address } from '$/constants/arktype.ts'
-import { ChainId } from '$/constants/chain-id.ts'
+import { ChainId } from '$/constants/networks.ts'
 import { BridgeProtocolId } from '$/constants/bridge-protocol-intents.ts'
 import { ProtocolStrategy } from '$/constants/protocols.ts'
 import { SwapProtocolId } from '$/constants/swap-protocol-intents.ts'

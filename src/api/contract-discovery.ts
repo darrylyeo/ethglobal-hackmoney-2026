@@ -3,8 +3,7 @@
  * No API key required for read-only; rate limits apply.
  */
 
-import type { ChainId } from '$/constants/networks.ts'
-import { networksByChainId } from '$/constants/networks.ts'
+import { type ChainId, networksByChainId } from '$/constants/networks.ts'
 import { normalizeAddress } from '$/lib/address.ts'
 
 const EXPLORER_API_BY_CHAIN: Partial<Record<ChainId, string>> = {

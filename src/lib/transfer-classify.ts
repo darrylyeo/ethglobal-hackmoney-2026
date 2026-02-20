@@ -2,7 +2,7 @@
  * Classify transfer events as bridge (CCTP) or swap for coin activity views.
  */
 
-import type { ChainId } from '$/constants/chain-id.ts'
+import type { ChainId } from '$/constants/networks.ts'
 import { isCctpTestnetChain } from '$/constants/cctp.ts'
 import { getCctpTokenMessenger } from '$/lib/cctp.ts'
 

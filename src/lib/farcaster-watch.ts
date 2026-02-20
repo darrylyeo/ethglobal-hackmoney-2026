@@ -7,12 +7,12 @@ import {
 	PatternType,
 	patternByPatternType,
 } from '$/constants/patterns.ts'
-import { ChainId } from '$/constants/chain-id.ts'
+import { ChainId } from '$/constants/networks.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import { createHttpProvider } from '$/api/voltaire.ts'
 import { resolveEnsForward } from '$/api/identity-resolve.ts'
 import { ENS_REGISTRY_MAINNET } from '$/constants/identity-resolver.ts'
-import { getFidByAddress } from '$/api/farcaster.ts'
+import { getFidByAddress } from '$/api/farcaster/index.ts'
 import { fetchUserByUsername } from '$/api/farcaster/neynar.ts'
 import { ensureFarcasterUser } from '$/collections/FarcasterUsers.ts'
 

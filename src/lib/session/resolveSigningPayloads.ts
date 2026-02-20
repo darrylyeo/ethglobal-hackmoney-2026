@@ -1,6 +1,6 @@
 import { ActionType, TransferSpeed, type Action } from '$/constants/actions.ts'
 import { BridgeProtocolId } from '$/constants/bridge-protocol-intents.ts'
-import { ChainId } from '$/constants/chain-id.ts'
+import { ChainId } from '$/constants/networks.ts'
 import {
 	encodeApproveCall,
 	encodeTransferCall,

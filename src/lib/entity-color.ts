@@ -1,6 +1,5 @@
-import type { ChainId } from '$/constants/chain-id.ts'
-import { coinColorBySymbol } from '$/constants/colors.ts'
-import { networksByChainId } from '$/constants/networks.ts'
+import { coinColorBySymbol } from '$/constants/coins.ts'
+import { type ChainId, networksByChainId } from '$/constants/networks.ts'
 import type { IntentEntityRef } from '$/constants/intents.ts'
 import { EntityType } from '$/data/$EntityType.ts'
 import { getSymbolForCoinEntity, isCoinEntityType } from '$/lib/coin-icon.ts'
