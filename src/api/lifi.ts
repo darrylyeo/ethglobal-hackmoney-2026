@@ -5,6 +5,7 @@
  */
 
 import { ercTokensBySymbolByChainId } from '$/constants/coins.ts'
+import { DataSource } from '$/constants/data-sources.ts'
 import { ChainId } from '$/constants/networks.ts'
 import {
 	BridgeOverallStatus,
@@ -267,19 +268,6 @@ export function normalizeRoute(route: Route): NormalizedRoute {
 	}
 }
 
-export function routesQueryKey(
-	params: QuoteParams,
-): [string, number, number, string, string, number] {
-	return [
-		'lifi-routes',
-		params.fromChain,
-		params.toChain,
-		params.fromAmount,
-		params.fromAddress,
-		params.slippage ?? 0.005,
-	]
-}
-
 export async function getRoutesForUsdcBridge(
 	params: QuoteParams,
 ): Promise<NormalizedRoute[]> {
@@ -293,7 +281,15 @@ export async function getRoutesForUsdcBridge(
 	} = params
 	const sdk = await getLifiSdk()
 	return await queryClient.fetchQuery({
-		queryKey: routesQueryKey(params),
+		queryKey: [
+			DataSource.LiFi,
+			'routes',
+			fromChain,
+			toChain,
+			fromAmount,
+			fromAddress,
+			slippage,
+		],
 		queryFn: async () => {
 			const result = await sdk.getRoutes({
 				fromChainId: fromChain,
@@ -346,24 +342,20 @@ export async function getQuoteForUsdcBridge(
 	return { quote: normalizeQuote(step), step }
 }
 
-export function quoteQueryKey(
-	params: QuoteParams,
-): [string, number, number, string, string | undefined, number] {
-	return [
-		'lifi-quote',
-		params.fromChain,
-		params.toChain,
-		params.fromAmount,
-		params.toAddress,
-		params.slippage ?? 0.005,
-	]
-}
-
 export async function fetchQuoteCached(
 	params: QuoteParams,
 ): Promise<{ quote: NormalizedQuote; step: LiFiStep }> {
+	const { fromChain, toChain, fromAmount, toAddress, slippage = 0.005 } = params
 	return await queryClient.fetchQuery({
-		queryKey: quoteQueryKey(params),
+		queryKey: [
+			DataSource.LiFi,
+			'quote',
+			fromChain,
+			toChain,
+			fromAmount,
+			toAddress,
+			slippage,
+		],
 		queryFn: () => getQuoteForUsdcBridge(params),
 		staleTime: ROUTES_STALE_MS,
 	})
