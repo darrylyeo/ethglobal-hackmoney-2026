@@ -1,6 +1,9 @@
 <script lang="ts">
+	// Types/constants
 	import type { TevmSimulationDecodedEvent } from '$/data/TevmSimulationResult.ts'
 
+
+	// Props
 	let {
 		events = [],
 		rawLogs = [],
@@ -13,34 +16,32 @@
 		selectorFilter?: string
 	} = $props()
 
+
+	// State
 	let showRaw = $state(false)
-	const list = $derived(showRaw ? rawLogs : events)
+
+
+	// (Derived)
 	const filteredList = $derived(
-		showRaw
-			? rawLogs.filter(
-					(log) =>
-						(!contractFilter ||
-							log.address
-								.toLowerCase()
-								.includes(contractFilter.toLowerCase())) &&
-						(!selectorFilter ||
-							(log.topics[0] ?? '')
-								.toLowerCase()
-								.includes(selectorFilter.toLowerCase())),
-				)
-			: events.filter(
-					(ev) =>
-						(!contractFilter ||
-							ev.address
-								.toLowerCase()
-								.includes(contractFilter.toLowerCase())) &&
-						(!selectorFilter ||
-							(ev.topics[0] ?? '')
-								.toLowerCase()
-								.includes(selectorFilter.toLowerCase())),
-				),
+		showRaw ?
+			rawLogs.filter(
+				(log) =>
+					(!contractFilter ||
+						log.address.toLowerCase().includes(contractFilter.toLowerCase())) &&
+					(!selectorFilter ||
+						(log.topics[0] ?? '').toLowerCase().includes(selectorFilter.toLowerCase())),
+			)
+		: events.filter(
+				(ev) =>
+					(!contractFilter ||
+						ev.address.toLowerCase().includes(contractFilter.toLowerCase())) &&
+					(!selectorFilter ||
+						(ev.topics[0] ?? '').toLowerCase().includes(selectorFilter.toLowerCase())),
+			),
 	)
 
+
+	// Functions
 	const formatAddress = (addr: string) =>
 		addr.length > 14 ? `${addr.slice(0, 8)}…${addr.slice(-6)}` : addr
 </script>

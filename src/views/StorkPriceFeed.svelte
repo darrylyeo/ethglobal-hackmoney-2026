@@ -36,11 +36,9 @@
 			{/if}
 			<div data-row="gap-2">
 				<span data-text="muted">Feed</span>
-				<span
-					>{priceRow.transport}{priceRow.chainId
-						? ` · ${priceRow.chainId}`
-						: ''}</span
-				>
+				<span>{priceRow.transport}{priceRow.chainId ?
+					` · ${priceRow.chainId}`
+				: ''}</span>
 			</div>
 			<div data-row="gap-2">
 				<span data-text="muted">Updated</span>

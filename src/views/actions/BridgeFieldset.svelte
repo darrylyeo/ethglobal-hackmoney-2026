@@ -3,8 +3,7 @@
 	import { ActionType, type Action, type ActionParams } from '$/constants/actions.ts'
 	import type { Coin } from '$/constants/coins.ts'
 	import { CoinType, bridgeCoinsByChainId } from '$/constants/coins.ts'
-	import { ChainId } from '$/constants/networks.ts'
-	import type { Network } from '$/constants/networks.ts'
+	import { ChainId, type Network } from '$/constants/networks.ts'
 
 
 	// Props

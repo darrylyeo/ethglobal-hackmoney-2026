@@ -53,15 +53,8 @@
 	const actions = $derived(
 		functions.filter((f) => isWritable(f)),
 	)
-	const methodItems = $derived([...variables, ...queries, ...actions])
-	const getItemGroupId = $derived((m: AbiFn) =>
-		variables.includes(m)
-			? 'Variables'
-			: queries.includes(m)
-				? 'Queries'
-				: 'Actions',
-	)
 	const rpcUrl = $derived(rpcUrls?.[chainId] ?? null)
+	const methodItems = $derived([...variables, ...queries, ...actions])
 
 	const connectionsQuery = useLiveQuery(
 		(q) =>
@@ -81,20 +74,19 @@
 			.find((c) => c.selected),
 	)
 	const walletRow = $derived(
-		selectedConnection
-			? (walletsQuery.data ?? []).map((r) => r.row).find(
-					(w) => w.$id.rdns === selectedConnection.$id.wallet$id.rdns,
-				)
-			: null,
+		selectedConnection ?
+			(walletsQuery.data ?? []).map((r) => r.row).find(
+				(w) => w.$id.rdns === selectedConnection.$id.wallet$id.rdns,
+			)
+		: null,
 	)
 	const walletProvider = $derived(
-		fromProp
-			? null
-			: (selectedConnection &&
-					walletRow &&
-					'provider' in walletRow &&
-					(walletRow.provider as EIP1193Provider)) ??
-				null,
+		fromProp ?
+			null
+		: (selectedConnection &&
+			walletRow &&
+			'provider' in walletRow &&
+			(walletRow.provider as EIP1193Provider)) ?? null,
 	)
 	const fromAddress = $derived(
 		fromProp ?? selectedConnection?.activeActor ?? selectedConnection?.actors[0] ?? null,
@@ -102,20 +94,13 @@
 
 
 	// State
-	const allMethods = $derived([
-		...variables,
-		...queries,
-		...actions,
-	])
 	let selectedMethod = $state<AbiFn | undefined>(undefined)
 	$effect(() => {
-		const methods = allMethods
-		if (methods.length > 0 && !selectedMethod)
+		const methods = methodItems
+		const current = selectedMethod
+		if (methods.length > 0 && !current)
 			selectedMethod = methods[0] as AbiFn
-		else if (
-			selectedMethod &&
-			!methods.some((m) => m.name === selectedMethod!.name)
-		)
+		else if (current && !methods.some((m) => m.name === current.name))
 			selectedMethod = (methods[0] as AbiFn) ?? undefined
 	})
 	let inputValues = $state<Record<string, string>>({})
@@ -251,7 +236,12 @@
 				bind:value={selectedMethod}
 				getItemId={(m: AbiFn) => m.name}
 				getItemLabel={(m: AbiFn) => m.name}
-				getItemGroupId={getItemGroupId}
+				getItemGroupId={(m: AbiFn) =>
+					variables.includes(m) ?
+						'Variables'
+					: queries.includes(m) ?
+						'Queries'
+					: 'Actions'}
 				placeholder="Select method"
 				ariaLabel="Method"
 			/>
@@ -358,9 +348,9 @@
 				<section data-card>
 					<h4>Simulation</h4>
 					<p
-						data-tag={simulateResult.status === TevmSimulationSummaryStatus.Success
-							? 'success'
-							: 'failure'}
+						data-tag={simulateResult.status === TevmSimulationSummaryStatus.Success ?
+							'success'
+						: 'failure'}
 					>
 						{simulateResult.status}
 						{#if simulateResult.error}

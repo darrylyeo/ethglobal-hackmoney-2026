@@ -6,6 +6,13 @@
 	import type { ChainId } from '$/constants/networks.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 
+	const TX_TYPE_LABELS: Record<number, string> = {
+		0: 'Legacy',
+		1: 'EIP-2930',
+		2: 'EIP-1559',
+		3: 'EIP-4844',
+	}
+
 
 	// Functions
 	import { getTxPath } from '$/lib/network-paths.ts'
@@ -67,27 +74,12 @@
 	)
 	const traceRow = $derived(traceQuery.data?.[0]?.row)
 	const trace = $derived(
-		traceRow && !traceRow.unavailable ? traceRow.trace : entry.trace,
+		traceRow && !traceRow.unavailable ?
+			traceRow.trace
+		: entry.trace,
 	)
 	const traceUnavailable = $derived(traceRow?.unavailable === true)
 	const eventsSet = $derived(new Set(events))
-	const defaultPlaceholderEventIds = $derived(
-		events.length
-			? new Set<number | [number, number]>([
-					[0, Math.max(0, events.length - 1)],
-				])
-			: new Set<number | [number, number]>([0]),
-	)
-	const placeholderKeys = $derived(
-		placeholderEventIds ?? defaultPlaceholderEventIds,
-	)
-
-	const TX_TYPE_LABELS: Record<number, string> = {
-		0: 'Legacy',
-		1: 'EIP-2930',
-		2: 'EIP-1559',
-		3: 'EIP-4844',
-	}
 
 
 	// State
@@ -258,7 +250,9 @@
 					arrowHeadSize={8}
 					strokeWidth={1.5}
 					strokeColor="var(--color-accent)"
-					flowIconSrc={tx.value !== '0x0' && tx.value !== '0x' ? ethIconSrc : undefined}
+					flowIconSrc={tx.value !== '0x0' && tx.value !== '0x' ?
+						ethIconSrc
+					: undefined}
 					flowIconSize={16}
 					relative
 				/>
@@ -274,7 +268,10 @@
 			items={eventsSet}
 			getKey={(e) => parseInt(e.logIndex, 16)}
 			getSortValue={(e) => parseInt(e.logIndex, 16)}
-			{placeholderKeys}
+			placeholderKeys={placeholderEventIds ??
+				(events.length ?
+					new Set<number | [number, number]>([[0, Math.max(0, events.length - 1)]])
+				: new Set<number | [number, number]>([0]))}
 			bind:visiblePlaceholderKeys={visiblePlaceholderEventIds}
 			scrollPosition="End"
 		>

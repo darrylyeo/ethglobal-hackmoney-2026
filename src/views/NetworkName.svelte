@@ -16,8 +16,9 @@
 
 
 	// (Derived)
-	const network = $derived(networksByChainId[chainId])
-	const name = $derived(network?.name ?? `Chain ${chainId}`)
+	const name = $derived(
+		networksByChainId[chainId]?.name ?? `Chain ${chainId}`,
+	)
 
 
 	// Components

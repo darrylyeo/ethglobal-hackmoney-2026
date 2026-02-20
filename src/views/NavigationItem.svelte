@@ -19,7 +19,6 @@
 
 
 <script lang="ts">
-	import { page } from '$app/stores'
 	import { preloadData } from '$app/navigation'
 	import Address, { AddressFormat } from '$/views/Address.svelte'
 	import Icon from '$/components/Icon.svelte'
@@ -36,8 +35,7 @@
 	let treeOpenState = $state(new Map<string, boolean>())
 
 	// (Derived)
-	const pathname = $derived(currentPathname ?? $page.url.pathname)
-	const effectiveSearchValue = $derived(searchValue.trim().toLowerCase())
+	const query = $derived(searchValue.trim().toLowerCase())
 	const treeIsOpen = (item: NavigationItem) =>
 		treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false)
 	const treeOnOpenChange = (item: NavigationItem, open: boolean) => {
@@ -58,7 +56,7 @@
 				: []
 		})
 	}
-	const filteredItems = $derived(filterTree(items, effectiveSearchValue))
+	const filteredItems = $derived(filterTree(items, query))
 
 	function escapeHtml(s: string): string {
 		return s
@@ -77,9 +75,9 @@
 		return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 	}
 	function navIconProps(icon: string): { icon?: string; src?: string } {
-		return icon.startsWith('data:') || icon.startsWith('/') || icon.startsWith('http')
-			? { src: icon }
-			: { icon }
+		return icon.startsWith('data:') || icon.startsWith('/') || icon.startsWith('http') ?
+			{ src: icon }
+		: { icon }
 	}
 </script>
 
@@ -182,9 +180,9 @@
 
 				{#if !item.address}
 					<span
-						>{@html effectiveSearchValue
-							? highlightText(item.title, effectiveSearchValue)
-							: escapeHtml(item.title)}</span>
+						>{@html query ?
+							highlightText(item.title, query)
+						: escapeHtml(item.title)}</span>
 				{/if}
 			</span>
 			{#if item.tag || item.manualWatch}
@@ -220,9 +218,9 @@
 
 				{#if !item.address}
 					<span
-						>{@html effectiveSearchValue
-							? highlightText(item.title, effectiveSearchValue)
-							: escapeHtml(item.title)}</span>
+						>{@html query ?
+							highlightText(item.title, query)
+						: escapeHtml(item.title)}</span>
 				{/if}
 			</span>
 			{#if item.tag || item.manualWatch}

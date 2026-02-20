@@ -50,22 +50,22 @@
 			q
 				.from({ row: evmActorProfilesCollection })
 				.where(({ row }) =>
-					network != null
-						? and(
-								eq(row.$id.$network.chainId, network),
-								eq(row.$id.address, normalizedAddress),
-							)
-						: and(
-								eq(row.$id.$network.chainId, -1),
-								eq(row.$id.$network.chainId, 0),
-							),
+					network != null ?
+						and(
+							eq(row.$id.$network.chainId, network.chainId),
+							eq(row.$id.address, normalizedAddress),
+						)
+					: and(
+							eq(row.$id.$network.chainId, -1),
+							eq(row.$id.$network.chainId, 0),
+						),
 				)
 				.select(({ row }) => ({ row })),
 		[() => network, () => normalizedAddress],
 	)
 	$effect(() => {
 		if (network == null || ensNameProp != null) return
-		ensureEvmActorProfile(network, normalizedAddress)
+		ensureEvmActorProfile(network.chainId, normalizedAddress)
 	})
 	const profile = $derived(profileQuery.data?.[0]?.row)
 	const ensName = $derived(ensNameProp ?? profile?.primaryName)
@@ -81,29 +81,39 @@
 <EntityId
 	draggableText={address}
 	className="address-text"
-	entityType={network != null ? EntityType.Actor : undefined}
+	entityType={network != null ?
+		EntityType.Actor
+	: undefined}
 	entityId={{ ...(network != null && { network }), address }}
-	link={isLinked ? resolve(`/account/${encodeURIComponent(address)}`) : undefined}
-	data-link={isLinked ? 'camouflaged' : undefined}
+	link={isLinked ?
+		resolve(`/account/${encodeURIComponent(address)}`)
+	: undefined}
+	data-link={isLinked ?
+		'camouflaged'
+	: undefined}
 	source="address"
-	data-text={isVertical ? 'vertical' : undefined}
+	data-text={isVertical ?
+		'vertical'
+	: undefined}
 >
 	<span data-row="inline gap-2">
 		{#if showAvatar}
-			{@const avatarSrc = profile?.avatarUrl ?? blo(address)}
-			{@const networkIcon = network != null ? networksByChainId[network]?.icon : undefined}
+			{@const networkIcon = network != null ?
+				networksByChainId[network.chainId]?.icon
+			: undefined}
 			<Icon
-				shape={!profile?.avatarUrl ? IconShape.Square : IconShape.Circle}
-				src={avatarSrc}
+				shape={!profile?.avatarUrl ?
+					IconShape.Square
+				: IconShape.Circle}
+				src={profile?.avatarUrl ?? blo(address)}
 				subicon={
 					network && networkIcon ?
 						{
 							src: networkIcon,
 							shape: IconShape.Circle,
-							backgroundColor: networksByChainId[network]?.color,
+							backgroundColor: networksByChainId[network.chainId]?.color,
 						}
-					:
-						undefined
+					: undefined
 				}
 			/>
 		{/if}
@@ -111,8 +121,12 @@
 		<span data-text="font-monospace">
 			<TruncatedValue
 				value={address}
-				startLength={format === AddressFormat.Full ? address.length : 6}
-				endLength={format === AddressFormat.Full ? 0 : 4}
+				startLength={format === AddressFormat.Full ?
+					address.length
+				: 6}
+				endLength={format === AddressFormat.Full ?
+					0
+				: 4}
 			/>
 		</span>
 

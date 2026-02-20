@@ -2,14 +2,14 @@
 	// Types/constants
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import type { ChainId } from '$/constants/networks.ts'
 
 
 	// Functions
 	import {
-	averageTransactionsPerBlockByChainId,
-	DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK,
-} from '$/constants/networks.ts'
+		averageTransactionsPerBlockByChainId,
+		DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK,
+		type ChainId,
+	} from '$/constants/networks.ts'
 	import { formatGas, formatGwei } from '$/lib/format.ts'
 	import { fetchBlockTransactions } from '$/collections/Blocks.ts'
 	import { TimestampFormat } from '$/components/Timestamp.svelte'
@@ -47,12 +47,6 @@
 			?? (averageTransactionsPerBlockByChainId[chainId]?.value
 				?? DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK),
 	)
-	const defaultPlaceholderIds = $derived(
-		new Set<number | [number, number]>([[0, Math.max(0, count - 1)]]),
-	)
-	const placeholderKeys = $derived(
-		placeholderTransactionIds ?? defaultPlaceholderIds,
-	)
 
 
 	// State
@@ -73,7 +67,13 @@
 </script>
 
 
-<details data-card="radius-2 padding-4" id={block ? `block:${block.$id.blockNumber}` : undefined} ontoggle={onToggle}>
+<details
+	data-card="radius-2 padding-4"
+	id={block ?
+		`block:${block.$id.blockNumber}`
+	: undefined}
+	ontoggle={onToggle}
+>
 	<summary data-row="gap-2 align-center">
 		{#if block}
 			<code>#{block.$id.blockNumber}</code>
@@ -134,11 +134,14 @@
 		<EntityList
 			title="Transactions"
 			loaded={transactionsSet.size}
-			total={block ? (block.transactionCount ?? count) : undefined}
+			total={block ?
+				(block.transactionCount ?? count)
+			: undefined}
 			items={transactionsSet}
 			getKey={(tx) => tx.transactionIndex ?? 0}
 			getSortValue={(tx) => tx.transactionIndex ?? 0}
-			{placeholderKeys}
+			placeholderKeys={placeholderTransactionIds ??
+				new Set<number | [number, number]>([[0, Math.max(0, count - 1)]])}
 			bind:visiblePlaceholderKeys={visiblePlaceholderTransactionIds}
 			scrollPosition="End"
 		>

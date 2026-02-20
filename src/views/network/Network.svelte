@@ -30,22 +30,23 @@
 
 	// (Derived)
 	const network = $derived([...data.keys()][0])
-	const innerMap = $derived([...data.values()][0] ?? new Map())
+	const blocksMap = $derived([...data.values()][0] ?? new Map())
 	const blocksSet = $derived(
-		new Set([...innerMap.keys()].filter((b): b is BlockEntry => b != null)),
+		new Set([...blocksMap.keys()].filter((b): b is BlockEntry => b != null)),
 	)
-	const defaultPlaceholderBlockIds = $derived(
+	const placeholderIds = $derived(
 		placeholderBlockIds ?? new Set<number | [number, number]>([0]),
 	)
-	const blocksTotal = $derived(
-		(() => {
-			const ids = defaultPlaceholderBlockIds
-			const range = [...ids].find((k): k is [number, number] =>
-				Array.isArray(k),
-			)
-			return range != null ? range[1] + 1 : (ids.size > 0 ? 1 : 0)
-		})(),
-	)
+	const blocksTotal = $derived.by(() => {
+		const range = [...placeholderIds].find((k): k is [number, number] =>
+			Array.isArray(k),
+		)
+		return range != null ?
+			range[1] + 1
+		: placeholderIds.size > 0 ?
+			1
+		: 0
+	})
 </script>
 
 
@@ -61,7 +62,7 @@
 		items={blocksSet}
 		getKey={(b) => b.$id.blockNumber}
 		getSortValue={(b) => -Number(b.number)}
-		placeholderKeys={defaultPlaceholderBlockIds}
+		placeholderKeys={placeholderIds}
 		bind:visiblePlaceholderKeys={visiblePlaceholderBlockIds}
 		scrollPosition="Start"
 	>
@@ -73,14 +74,14 @@
 					{@const blockData = new Map<
 						BlockEntry | undefined,
 						Set<ChainTransactionEntry>
-					>([[item, innerMap.get(item) ?? new Set()]])}
+					>([[item, blocksMap.get(item) ?? new Set()]])}
 					<Block data={blockData} chainId={item.$id.$network.chainId} />
 				{/if}
 			</span>
 		{/snippet}
 	</EntityList>
 {:else}
-	<details data-card="radius-2 padding-4" open id={network ? `network:${network.id}` : undefined}>
+	<details data-card="radius-2 padding-4" open id={network ? `network:${network.chainId}` : undefined}>
 		<summary>
 			{#if network}
 				<div data-row>
@@ -114,7 +115,7 @@
 						<dt>Type</dt>
 						<dd>{network.type}</dd>
 					</div>
-					{#if network?.nativeCurrency}
+					{#if network.nativeCurrency}
 						<div>
 							<dt>Currency</dt>
 							<dd>{network.nativeCurrency.symbol}</dd>
@@ -134,7 +135,7 @@
 				items={blocksSet}
 				getKey={(b) => b.$id.blockNumber}
 				getSortValue={(b) => -Number(b.number)}
-				placeholderKeys={defaultPlaceholderBlockIds}
+				placeholderKeys={placeholderIds}
 				bind:visiblePlaceholderKeys={visiblePlaceholderBlockIds}
 				scrollPosition="Start"
 			>
@@ -146,7 +147,7 @@
 						{@const blockData = new Map<
 							BlockEntry | undefined,
 							Set<ChainTransactionEntry>
-						>([[item, innerMap.get(item) ?? new Set()]])}
+						>([[item, blocksMap.get(item) ?? new Set()]])}
 						<Block data={blockData} chainId={item.$id.$network.chainId} />
 					{/if}
 				</span>

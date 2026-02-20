@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import { coinColorBySymbol } from '$/constants/colors.ts'
+	import { coinColorBySymbol } from '$/constants/coins.ts'
 	import { type SubiconProps, IconShape } from '$/components/Icon.svelte'
 
 	// Props
@@ -22,15 +22,6 @@
 		subicon?: SubiconProps
 	} = $props()
 
-	// (Derived)
-	const backgroundColor = $derived(
-		coinColorBySymbol[symbol?.toUpperCase() as keyof typeof coinColorBySymbol]?.color ??
-			coinColorBySymbol[symbol as keyof typeof coinColorBySymbol]?.color,
-	)
-	const subiconWithShape = $derived(
-		subicon ? { ...subicon, shape: subicon.shape ?? IconShape.Circle } : undefined,
-	)
-
 	// Components
 	import Icon from '$/components/Icon.svelte'
 </script>
@@ -41,7 +32,12 @@
 	{title}
 	{size}
 	shape={IconShape.Circle}
-	{backgroundColor}
-	subicon={subiconWithShape}
+	backgroundColor={
+		coinColorBySymbol[symbol?.toUpperCase() as keyof typeof coinColorBySymbol]?.color ??
+			coinColorBySymbol[symbol as keyof typeof coinColorBySymbol]?.color
+	}
+	subicon={subicon ?
+		{ ...subicon, shape: subicon.shape ?? IconShape.Circle }
+	: undefined}
 	class={className}
 />

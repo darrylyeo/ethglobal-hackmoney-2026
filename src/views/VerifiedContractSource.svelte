@@ -65,12 +65,12 @@
 		<p data-text="muted">Contract not verified on Sourcify</p>
 	{:else if row?.error}
 		<p data-tag="failure">{row.error}</p>
-	{:else if hasFiles}
+	{:else if hasFiles && row}
 		{#if row.metadata?.compiler}
 			<p data-text="muted">{row.metadata.compiler}</p>
 		{/if}
 		<div data-column="gap-2">
-			{#each Object.entries(row!.files) as [path, content]}
+			{#each Object.entries(row.files ?? {}) as [path, content]}
 				<details>
 					<summary><code>{path}</code></summary>
 					<ContractSourceBlock {path} {content} />

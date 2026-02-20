@@ -24,9 +24,6 @@
 
 	// (Derived)
 	const network = $derived(networksByChainId[chainId])
-	const src = $derived(network?.icon)
-	const backgroundColor = $derived(networksByChainId[chainId]?.color)
-	const resolvedTitle = $derived(title ?? network?.name)
 
 
 	// Components
@@ -35,12 +32,14 @@
 
 
 <Icon
-	{src}
+	src={network?.icon}
 	{alt}
-	title={resolvedTitle}
+	title={title ?? network?.name}
 	{size}
 	shape={IconShape.Square}
-	backgroundColor={src ? undefined : backgroundColor}
+	backgroundColor={network?.icon ?
+		undefined
+	: network?.color}
 	{subicon}
 	class={className}
 />

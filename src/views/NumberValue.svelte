@@ -7,20 +7,15 @@
 		value: number | bigint
 		options?: Intl.NumberFormatOptions
 	} = $props()
-
-	// Derived
-	const parts = $derived(
-		new Intl.NumberFormat(undefined, {
-			// minimumFractionDigits: 2,
-			// maximumFractionDigits: 6,
-			// ...options,
-		}).formatToParts(Number(value)),
-	)
 </script>
 
 
 <output>
-	{#each parts as part}
+	{#each new Intl.NumberFormat(undefined, {
+		// minimumFractionDigits: 2,
+		// maximumFractionDigits: 6,
+		// ...options,
+	}).formatToParts(Number(value)) as part}
 		<span
 			class:part-fraction={part.type === 'fraction'}
 			class:part-currency={part.type === 'currency'}

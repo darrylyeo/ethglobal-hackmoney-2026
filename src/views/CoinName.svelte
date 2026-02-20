@@ -17,19 +17,6 @@
 	} = $props()
 
 
-	// (Derived)
-	const network = $derived(networksByChainId[coin.chainId])
-	const networkSubicon = $derived(
-		network?.icon
-			? {
-					src: network.icon,
-					alt: coin.chainId.toString(),
-					shape: IconShape.Circle,
-				}
-			: undefined,
-	)
-
-
 	// Functions
 	import { draggable } from '$/components/Draggable.svelte.ts'
 	import { stringify } from '$/lib/stringify.ts'
@@ -46,13 +33,21 @@
 	{@attach draggable({ text: stringify(coin), enabled: isDraggable })}
 	data-row="inline wrap gap-1"
 >
-	<span class="coin-name" data-row="inline gap-1">
+	{#if true}
+		{@const network = networksByChainId[coin.chainId]}
+		<span class="coin-name" data-row="inline gap-1">
 		{#if coin.icon?.original?.url}
 			<CoinIcon
 				src={coin.icon.original.url}
 				symbol={coin.symbol ?? ''}
 				alt={coin.symbol ?? ''}
-				subicon={networkSubicon}
+				subicon={network?.icon ?
+					{
+						src: network.icon,
+						alt: coin.chainId.toString(),
+						shape: IconShape.Circle,
+					}
+				: undefined}
 			/>
 		{:else}
 			<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} />
@@ -61,16 +56,17 @@
 		{#if coin.name || coin.symbol}
 			<abbr
 				class="coin"
-				title={coin.type === CoinType.Native
-					? 'Native Currency'
-					: coin.address}
+				title={coin.type === CoinType.Native ?
+					'Native Currency'
+				: coin.address}
 			>
-				{showName && coin.name && coin.symbol
-					? `${coin.symbol} (${coin.name})`
-					: coin.symbol}
+				{showName && coin.name && coin.symbol ?
+					`${coin.symbol} (${coin.name})`
+				: coin.symbol}
 			</abbr>
 		{/if}
 	</span>
+	{/if}
 </div>
 
 
