@@ -37,12 +37,13 @@
 		parseInt(blockNumberParam, 10) >= 0,
 	)
 	const blockNumber = $derived(
-		blockNumberValid ? parseInt(blockNumberParam, 10) : 0,
+		blockNumberValid ?
+			parseInt(blockNumberParam, 10)
+		: 0,
 	)
 	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
-	const config = $derived(parsed?.config ?? { name: '' })
-	const slug = $derived(parsed?.slug ?? '')
-	const caip2 = $derived(parsed?.caip2 ?? '')
+	const network = $derived(networksByChainId[chainId] ?? null)
+	const networkName = $derived(network?.name ?? parsed?.network?.name ?? '')
 	const valid = $derived(!!parsed && blockNumberValid)
 
 
@@ -64,54 +65,32 @@
 				.select(({ row }) => ({ row })),
 		[() => chainId, () => blockNumber],
 	)
-	const liveQueryEntries = $derived([
+	registerLocalLiveQueryStack(() => [
 		{
 			id: 'block',
 			label: 'Block',
 			query: blockQuery as { data: { row: unknown }[] | undefined },
 		},
 	])
-	registerLocalLiveQueryStack(() => liveQueryEntries)
 
-	const blockRow = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
-	const network = $derived(networksByChainId[chainId] ?? null)
-	const blocksMap = $derived(
-		(() => {
-			const inner = new Map<
-				BlockEntry | undefined,
-				Set<ChainTransactionEntry>
-			>()
-			if (blockRow) inner.set(blockRow, new Set())
-			return inner
-		})(),
-	)
-	const networkData = $derived(
-		new Map([[network ?? undefined, blocksMap]]),
-	)
+	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
 	const placeholderBlockIds = $derived(
 		(() => {
-			const adj = new Set<number>()
-			if (blockNumber > 0) adj.add(blockNumber - 1)
-			const next = blockNumber + 1
-			if (height <= 0 || next <= height) adj.add(next)
-			return new Set<number | [number, number]>(adj)
+			const ids = new Set<number | [number, number]>()
+			if (blockNumber > 0) ids.add(blockNumber - 1)
+			if (height <= 0 || blockNumber + 1 <= height) ids.add(blockNumber + 1)
+			return ids
 		})(),
-	)
-
-	const showContextUrl = $derived(
-		`/network/${nameParam}#block:${blockNumber}`,
 	)
 
 	$effect(() => {
 		if (valid) fetchBlock(chainId, blockNumber).catch(() => {})
 	})
 	$effect(() => {
-		const url = rpcUrls[chainId]
-		if (!url) return
-		getCurrentBlockNumber(createHttpProvider(url))
-			.then((h) => {
-				height = h
-			})
+		const rpcUrl = rpcUrls[chainId]
+		if (!rpcUrl) return
+		getCurrentBlockNumber(createHttpProvider(rpcUrl))
+			.then((h) => (height = h))
 			.catch(() => {})
 	})
 </script>
@@ -119,7 +98,7 @@
 
 <svelte:head>
 	<title>
-		{valid ? `Block ${blockNumberParam} · ${config.name}` : 'Block'}
+		{valid ? `Block ${blockNumberParam} · ${networkName}` : 'Block'}
 	</title>
 </svelte:head>
 
@@ -143,7 +122,7 @@
 			}}
 			idSerialized={`${nameParam}:${blockNumber}`}
 			href={resolve(`/network/${nameParam}/block/${blockNumberParam}`)}
-			label={`Block ${blockNumber} · ${config.name}`}
+			label={`Block ${blockNumber} · ${networkName}`}
 		>
 			{#snippet Title()}
 				<span data-row="inline gap-2">
@@ -152,10 +131,23 @@
 				</span>
 			{/snippet}
 			<p>
-				<a href={showContextUrl} data-link>Show Context</a>
+				<a href={`/network/${nameParam}#block:${blockNumber}`} data-link>Show Context</a>
 			</p>
 			<NetworkView
-				data={networkData}
+				data={
+					network ?
+						new Map([
+							[
+								network,
+								block ?
+									new Map<BlockEntry, Set<ChainTransactionEntry>>([
+										[block, new Set()],
+									])
+								: new Map(),
+							],
+						])
+					: new Map()
+				}
 				{placeholderBlockIds}
 			/>
 		</EntityView>

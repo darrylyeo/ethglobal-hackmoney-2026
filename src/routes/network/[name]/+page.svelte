@@ -40,22 +40,22 @@ import NetworkContracts from '$/views/network/NetworkContracts.svelte'
 	const nameParam = $derived(page.params.name ?? '')
 	const parsed = $derived(parseNetworkNameParam(nameParam))
 	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
-	const config = $derived(parsed?.config ?? ({ name: '', type: 'Mainnet' } as unknown as ParsedNetworkParam['config']))
+	const network = $derived(parsed?.network ?? ({ name: '', type: 'Mainnet' } as unknown as ParsedNetworkParam['network']))
 	const slug = $derived(parsed?.slug ?? '')
 	const caip2 = $derived(parsed?.caip2 ?? '')
 	const networkQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: networksCollection })
-				.where(({ row }) => eq(row.$id.$network.chainId, chainId))
+				.where(({ row }) => eq(row.$id.chainId, chainId))
 				.select(({ row }) => ({ row })),
 		[() => chainId],
 	)
 	const networkRow = $derived(networkQuery.data?.[0]?.row)
 	const networkEntity = $derived(
 		networkRow && parsed
-			? ({ ...networkRow, config: parsed.config, slug: parsed.slug, caip2: parsed.caip2 } as Entity<EntityType.Network> & {
-					config: typeof parsed.config
+			? ({ ...networkRow, network: parsed.network, slug: parsed.slug, caip2: parsed.caip2 } as Entity<EntityType.Network> & {
+					network: typeof parsed.network
 					slug: string
 					caip2: string
 				})
@@ -149,7 +149,7 @@ import NetworkContracts from '$/views/network/NetworkContracts.svelte'
 
 
 <svelte:head>
-	<title>{parsed ? `${config.name} · Network` : 'Network'}</title>
+	<title>{parsed ? `${network.name} · Network` : 'Network'}</title>
 </svelte:head>
 
 
@@ -163,12 +163,12 @@ import NetworkContracts from '$/views/network/NetworkContracts.svelte'
 			entity={networkEntity}
 			idSerialized={slug}
 			href={resolve(`/network/${nameParam}`)}
-			label={config.name}
+			label={network.name}
 			metadata={[
 				{ term: 'Chain ID', detail: String(chainId) },
 				{ term: 'CAIP-2', detail: caip2 },
-				...('nativeCurrency' in config && config.nativeCurrency
-					? [{ term: 'Currency', detail: config.nativeCurrency.symbol }]
+				...('nativeCurrency' in network && network.nativeCurrency
+					? [{ term: 'Currency', detail: network.nativeCurrency.symbol }]
 					: []),
 			]}
 		>
@@ -176,8 +176,8 @@ import NetworkContracts from '$/views/network/NetworkContracts.svelte'
 				<NetworkName {chainId} />
 			{/snippet}
 			{#snippet AfterTitle({ entity })}
-				{#if entity && 'config' in entity && entity.config?.type}
-					<span data-tag={entity.config.type}>{entity.config.type}</span>
+				{#if entity && 'network' in entity && entity.network?.type}
+					<span data-tag={entity.network.type}>{entity.network.type}</span>
 				{/if}
 			{/snippet}
 			<p>

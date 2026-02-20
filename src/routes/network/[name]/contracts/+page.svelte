@@ -10,12 +10,12 @@
 	const nameParam = $derived(page.params.name ?? '')
 	const parsed = $derived(parseNetworkNameParam(nameParam))
 	const chainId = $derived(parsed?.chainId ?? 0)
-	const config = $derived(parsed?.config ?? { name: '' })
+	const network = $derived(parsed?.network ?? { name: '' })
 </script>
 
 
 <svelte:head>
-	<title>Contracts · {parsed ? config.name : 'Network'}</title>
+	<title>Contracts · {parsed ? network.name : 'Network'}</title>
 </svelte:head>
 
 
@@ -26,7 +26,7 @@
 	{:else}
 		<h1>Contracts · <NetworkName chainId={chainId} /></h1>
 		<p data-text="muted">
-			<a href={resolve(`/network/${nameParam}`)} data-link>← {config.name}</a>
+			<a href={resolve(`/network/${nameParam}`)} data-link>← {network.name}</a>
 		</p>
 		<p data-text="muted">
 			Browse a contract by visiting <code>/network/{nameParam}/contract/[address]</code> with

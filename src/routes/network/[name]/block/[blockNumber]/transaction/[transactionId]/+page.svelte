@@ -23,37 +23,6 @@
 	const TX_HASH = /^0x[a-fA-F0-9]{64}$/
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	// (Derived)
 	const nameParam = $derived(page.params.name ?? '')
 	const blockNumberParam = $derived(page.params.blockNumber ?? '')
@@ -66,15 +35,18 @@
 		parseInt(blockNumberParam, 10) >= 0,
 	)
 	const blockNumber = $derived(
-		blockNumberValid ? parseInt(blockNumberParam, 10) : 0,
+		blockNumberValid ?
+			parseInt(blockNumberParam, 10)
+		: 0,
 	)
 	const transactionId = $derived(
-		transactionIdParam && TX_HASH.test(transactionIdParam)
-			? (transactionIdParam as `0x${string}`)
-			: null,
+		transactionIdParam && TX_HASH.test(transactionIdParam) ?
+			(transactionIdParam as `0x${string}`)
+		: null,
 	)
 	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
-	const config = $derived(parsed?.config ?? { name: '' })
+	const network = $derived(networksByChainId[chainId] ?? null)
+	const networkName = $derived(network?.name ?? parsed?.network?.name ?? '')
 	const valid = $derived(
 		!!parsed && blockNumberValid && transactionId !== null,
 	)
@@ -111,7 +83,7 @@
 				.select(({ row }) => ({ row })),
 		[() => chainId, () => blockNumber],
 	)
-	const liveQueryEntries = $derived([
+	registerLocalLiveQueryStack(() => [
 		{
 			id: 'tx',
 			label: 'Transaction',
@@ -123,40 +95,16 @@
 			query: blockQuery as { data: { row: unknown }[] | undefined },
 		},
 	])
-	registerLocalLiveQueryStack(() => liveQueryEntries)
 
-	const txRow = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
-	const blockRow = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
-	const network = $derived(networksByChainId[chainId] ?? null)
-
-	const blocksMap = $derived(
-		(() => {
-			const inner = new Map<
-				BlockEntry | undefined,
-				Set<ChainTransactionEntry>
-			>()
-			if (blockRow && txRow) inner.set(blockRow, new Set([txRow]))
-			else if (blockRow) inner.set(blockRow, new Set())
-			return inner
-		})(),
-	)
-	const networkData = $derived(
-		new Map([[network ?? undefined, blocksMap]]),
-	)
+	const tx = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
+	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
 	const placeholderBlockIds = $derived(
 		(() => {
-			const adj = new Set<number>()
-			if (blockNumber > 0) adj.add(blockNumber - 1)
-			const next = blockNumber + 1
-			if (height <= 0 || next <= height) adj.add(next)
-			return new Set<number | [number, number]>(adj)
+			const ids = new Set<number | [number, number]>()
+			if (blockNumber > 0) ids.add(blockNumber - 1)
+			if (height <= 0 || blockNumber + 1 <= height) ids.add(blockNumber + 1)
+			return ids
 		})(),
-	)
-
-	const showContextUrl = $derived(
-		transactionId
-			? `/network/${nameParam}/block/${blockNumberParam}#transaction:${transactionId}`
-			: '',
 	)
 
 	$effect(() => {
@@ -167,12 +115,10 @@
 			]).catch(() => {})
 	})
 	$effect(() => {
-		const url = rpcUrls[chainId]
-		if (!url) return
-		getCurrentBlockNumber(createHttpProvider(url))
-			.then((h) => {
-				height = h
-			})
+		const rpcUrl = rpcUrls[chainId]
+		if (!rpcUrl) return
+		getCurrentBlockNumber(createHttpProvider(rpcUrl))
+			.then((h) => (height = h))
 			.catch(() => {})
 	})
 </script>
@@ -180,9 +126,9 @@
 
 <svelte:head>
 	<title>
-		{valid && transactionId
-			? `Transaction ${transactionId.slice(0, 10)}… · Block ${blockNumberParam} · ${config.name}`
-			: 'Transaction'}
+		{valid && transactionId ?
+			`Transaction ${transactionId.slice(0, 10)}… · Block ${blockNumberParam} · ${networkName}`
+		: 'Transaction'}
 	</title>
 </svelte:head>
 
@@ -199,31 +145,47 @@
 				Invalid transaction hash.
 			{/if}
 		</p>
-	{:else}
+	{:else if transactionId}
 		<EntityView
-		entityType={EntityType.Transaction}
-		idSerialized={`${nameParam}:${transactionId}`}
-		href={resolve(
-			`/network/${nameParam}/block/${blockNumberParam}/transaction/${transactionIdParam}`,
-		)}
-		label={`Tx ${transactionId!.slice(0, 10)}… · ${config.name}`}
-		annotation="Transaction"
-	>
+			entityType={EntityType.Transaction}
+			idSerialized={`${nameParam}:${transactionId}`}
+			href={resolve(
+				`/network/${nameParam}/block/${blockNumberParam}/transaction/${transactionIdParam}`,
+			)}
+			label={`Tx ${transactionId.slice(0, 10)}… · ${networkName}`}
+			annotation="Transaction"
+		>
 		{#snippet Title()}
 			<span data-row="inline gap-2">
 				<EvmTransactionId
 					txHash={transactionId}
 					{chainId}
-					vertical
+					isVertical
 				/>
 				<NetworkName {chainId} showIcon={false} />
 			</span>
 		{/snippet}
 		<p>
-			<a href={showContextUrl} data-link>Show Context</a>
+			<a
+				href={`/network/${nameParam}/block/${blockNumberParam}#transaction:${transactionId}`}
+				data-link
+			>Show Context</a>
 		</p>
 		<NetworkView
-			data={networkData}
+			data={
+				network ?
+					new Map([
+						[
+							network,
+							block ?
+								new Map<BlockEntry, Set<ChainTransactionEntry>>([
+									[block, tx ? new Set([tx]) : new Set()],
+								])
+							: new Map(),
+						],
+					])
+				: new Map()
+			}
 			{placeholderBlockIds}
 		/>
 	</EntityView>

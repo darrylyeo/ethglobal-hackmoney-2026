@@ -2,7 +2,7 @@
 	// Types/constants
 	import { resolve } from '$app/paths'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { networkConfigs } from '$/constants/networks.ts'
+	import { networks } from '$/constants/networks.ts'
 
 	// Components
 	import EntityId from '$/components/EntityId.svelte'
@@ -19,21 +19,21 @@
 <main data-column="gap-2">
 	<h1>Networks</h1>
 	<ul data-column="gap-2">
-		{#each networkConfigs as config (config.chainId)}
-			{@const slug = config.slug}
+		{#each networks as network (network.chainId)}
+			{@const slug = network.slug}
 			<li data-row="start gap-2 align-center">
 				<EntityId
 					link={resolve(`/network/${slug}`)}
-					draggableText={config.name}
+					draggableText={network.name}
 					className=""
 					entityType={EntityType.Network}
-					entityId={{ chainId: config.chainId }}
+					entityId={{ chainId: network.chainId }}
 				>
-					<NetworkName chainId={config.chainId} />
+					<NetworkName chainId={network.chainId} />
 				</EntityId>
 				<WatchButton
 					entityType={EntityType.Network}
-					entityId={{ chainId: config.chainId }}
+					entityId={{ chainId: network.chainId }}
 				/>
 			</li>
 		{/each}

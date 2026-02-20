@@ -24,7 +24,7 @@
 			: null,
 	)
 	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
-	const config = $derived(parsed?.config ?? { name: '' })
+	const network = $derived(parsed?.network ?? { name: '' })
 	const slug = $derived(parsed?.slug ?? '')
 	const valid = $derived(!!parsed && !!address)
 
@@ -38,7 +38,7 @@
 
 <svelte:head>
 	<title>
-		{valid ? `Contract ${formatAddress(address!)} · ${config.name}` : 'Contract'}
+		{valid ? `Contract ${formatAddress(address!)} · ${network.name}` : 'Contract'}
 	</title>
 </svelte:head>
 
@@ -62,7 +62,7 @@
 			label={formatAddress(address)}
 			metadata={[
 				{ term: 'Chain ID', detail: String(chainId) },
-				{ term: 'Network', detail: config.name },
+				{ term: 'Network', detail: network.name },
 			]}
 		/>
 	{/if}
