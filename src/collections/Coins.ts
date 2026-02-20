@@ -22,7 +22,7 @@ export const normalizeCoin = (entry: Erc20Token): CoinEntry => ({
 export const coinsCollection = createCollection(
 	queryCollectionOptions({
 		id: CollectionId.Coins,
-		queryKey: ['coins'],
+		queryKey: [CollectionId.Coins],
 		queryFn: () =>
 			Promise.resolve(
 				ercTokens

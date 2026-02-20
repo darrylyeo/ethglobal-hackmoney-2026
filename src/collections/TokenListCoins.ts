@@ -90,7 +90,7 @@ const fetchTokenListEntries = async (): Promise<TokenListCoinRow[]> => {
 export const tokenListCoinsCollection = createCollection(
 	queryCollectionOptions({
 		id: CollectionId.TokenListCoins,
-		queryKey: ['token-list-coins'],
+		queryKey: [CollectionId.TokenListCoins],
 		queryFn: fetchTokenListEntries,
 		queryClient,
 		getKey: (row: TokenListCoinRow) =>

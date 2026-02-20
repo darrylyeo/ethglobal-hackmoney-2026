@@ -19,7 +19,7 @@ export const actorKey = (chainId: number, address: `0x${string}`) =>
 export const actorsCollection = createCollection(
 	queryCollectionOptions({
 		id: CollectionId.Actors,
-		queryKey: ['actors'],
+		queryKey: [CollectionId.Actors],
 		queryFn: () => Promise.resolve<ActorRow[]>([]),
 		queryClient,
 		getKey: (row: ActorRow) => actorKey(row.$id.$network.chainId, row.$id.address),

@@ -11,13 +11,13 @@ export type NetworkRow = NetworkEntry & { $source: DataSource }
 
 export const normalizeNetwork = (entry: Network): NetworkEntry => ({
 	...entry,
-	$id: { chainId: entry.id },
+	$id: { chainId: entry.chainId },
 })
 
 export const networksCollection = createCollection(
 	queryCollectionOptions({
 		id: CollectionId.Networks,
-		queryKey: ['networks'],
+		queryKey: [CollectionId.Networks],
 		queryFn: () =>
 			Promise.resolve(
 				networks

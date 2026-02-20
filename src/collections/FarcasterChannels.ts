@@ -13,7 +13,8 @@ import {
 export type FarcasterChannelRow = FarcasterChannel & { $source: DataSource }
 
 export const INITIAL_CHANNELS_LIMIT = 100
-const FARCASTER_CHANNELS_QUERY_KEY = ['farcaster-channels'] as const
+
+const farcasterChannelsQueryKey = [CollectionId.FarcasterChannels] as const
 
 let channelsRemainder: FarcasterChannelRow[] = []
 
@@ -31,7 +32,7 @@ const normalizeChannel = (c: Channel): FarcasterChannelRow => ({
 export const farcasterChannelsCollection = createCollection(
 	queryCollectionOptions({
 		id: CollectionId.FarcasterChannels,
-		queryKey: FARCASTER_CHANNELS_QUERY_KEY,
+		queryKey: farcasterChannelsQueryKey,
 		queryFn: async () => {
 			const { result } = await fetchAllChannels()
 			const all = result.channels.map(normalizeChannel)
@@ -52,11 +53,11 @@ export const channelsRemainderCount = () => channelsRemainder.length
 export const loadMoreChannels = (): void => {
 	if (channelsRemainder.length === 0) return
 	const current = queryClient.getQueryData<FarcasterChannelRow[]>(
-		FARCASTER_CHANNELS_QUERY_KEY,
+		farcasterChannelsQueryKey,
 	)
 	const full = current ? [...current, ...channelsRemainder] : [...channelsRemainder]
 	channelsRemainder = []
-	queryClient.setQueryData(FARCASTER_CHANNELS_QUERY_KEY, full)
+	queryClient.setQueryData(farcasterChannelsQueryKey, full)
 }
 
 export const ensureFarcasterChannel = async (
@@ -77,11 +78,11 @@ export const ensureFarcasterChannel = async (
 		const row = normalizeChannel(result.channel)
 		channelsRemainder = channelsRemainder.filter((c) => c.$id.id !== channelId)
 		const current = queryClient.getQueryData<FarcasterChannelRow[]>(
-			FARCASTER_CHANNELS_QUERY_KEY,
+			farcasterChannelsQueryKey,
 		)
 		const exists = current?.some((c) => c.$id.id === channelId)
 		if (!exists)
-			queryClient.setQueryData(FARCASTER_CHANNELS_QUERY_KEY, [
+			queryClient.setQueryData(farcasterChannelsQueryKey, [
 				...(current ?? []),
 				row,
 			])
