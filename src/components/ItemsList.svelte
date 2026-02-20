@@ -70,30 +70,36 @@
 		[...items].sort((itemA, itemB) => {
 			const sortValueA = getSortValue(itemA)
 			const sortValueB = getSortValue(itemB)
-			return sortValueA < sortValueB ? -1 : sortValueA > sortValueB ? 1 : 0
+			return sortValueA < sortValueB ?
+				-1
+			: sortValueA > sortValueB ?
+				1
+			: 0
 		}),
 	)
 	const hasGrouping = $derived(Boolean(getGroupKey && getGroupLabel))
 	const groupEntries = $derived(
-		hasGrouping ? [...Map.groupBy(sortedItems, getGroupKey!).entries()] : null,
+		hasGrouping ?
+			[...Map.groupBy(sortedItems, getGroupKey!).entries()]
+		: null,
 	)
 	const itemRows = $derived(
-		groupEntries
-			? groupEntries.flatMap(([groupKey, groupItems]) => [
-					{ type: 'group' as const, groupKey },
-					...groupItems.map((item) => ({
-						type: 'item' as const,
-						key: getKey(item),
-						item,
-						isPlaceholder: false as const,
-					})),
-				])
-			: sortedItems.map((item) => ({
+		groupEntries ?
+			groupEntries.flatMap(([groupKey, groupItems]) => [
+				{ type: 'group' as const, groupKey },
+				...groupItems.map((item) => ({
 					type: 'item' as const,
 					key: getKey(item),
 					item,
 					isPlaceholder: false as const,
 				})),
+			])
+		: sortedItems.map((item) => ({
+				type: 'item' as const,
+				key: getKey(item),
+				item,
+				isPlaceholder: false as const,
+			})),
 	)
 	const placeholderRows = $derived(
 		visiblePlaceholderKeys
@@ -105,12 +111,16 @@
 			})),
 	)
 	const paginationRow = $derived(
-		pagination?.hasMore ? ({ type: 'pagination' as const, key: '__pagination__' }) : null,
+		pagination?.hasMore ?
+			({ type: 'pagination' as const, key: '__pagination__' })
+		: null,
 	)
 	const allRows = $derived([
 		...itemRows,
 		...placeholderRows,
-		...(paginationRow ? [paginationRow] : []),
+		...(paginationRow ?
+			[paginationRow]
+		: []),
 	])
 	const manyItems = $derived(allRows.length > 200)
 </script>
@@ -123,7 +133,9 @@
 	data-sticky-container
 	{...rootProps}
 >
-	{#each allRows as row (row.type === 'group' ? `group:${row.groupKey}` : row.key)}
+	{#each allRows as row (row.type === 'group' ?
+		`group:${row.groupKey}`
+	: row.key)}
 		{#if row.type === 'group'}
 			<li data-sticky data-scroll-item="snap-block-start">
 				{#if GroupHeader}
@@ -146,7 +158,9 @@
 					{@render pagination.Placeholder({ loading: pagination.loading ?? false })}
 				{:else}
 					<code data-text="muted">
-						{(pagination?.loading ?? false) ? 'Loading…' : (pagination?.label ?? 'Load more')}
+						{(pagination?.loading ?? false) ?
+						'Loading…'
+					: (pagination?.label ?? 'Load more')}
 					</code>
 				{/if}
 			</li>

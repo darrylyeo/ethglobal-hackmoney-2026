@@ -19,33 +19,34 @@
 
 
 	// (Derived)
-	const getUrl = (m: Media | { url: string } | undefined): string | undefined =>
-		m && 'url' in m ? m.url : undefined
 	const isFullMedia = (m: Media | { url: string } | undefined): m is Media =>
 		!!m && 'type' in m && 'original' in m
 	const format = $derived(
-		isFullMedia(media)
-			? size === 'original'
-				? media.original
-				: size === 'high'
-					? media.high
-					: size === 'medium'
-						? media.medium
-						: size === 'low'
-							? media.low
-							: size === 'thumbnail'
-								? media.thumbnail
-								: media.original
-			: undefined,
+		isFullMedia(media) ?
+			size === 'original' ?
+				media.original
+			: size === 'high' ?
+				media.high
+			: size === 'medium' ?
+				media.medium
+			: size === 'low' ?
+				media.low
+			: size === 'thumbnail' ?
+				media.thumbnail
+			: media.original
+		: undefined,
 	)
 	const url = $derived(
-		format?.url ?? (media && 'url' in media ? media.url : undefined),
+		format?.url ??
+		(media && 'url' in media ?
+			media.url
+		: undefined),
 	)
 	const mediaType = $derived(
-		isFullMedia(media) ? media.type : inferTypeFromUrl(url),
+		isFullMedia(media) ?
+			media.type
+		: inferTypeFromUrl(url),
 	)
-	const width = $derived(format?.width)
-	const height = $derived(format?.height)
 
 	function inferTypeFromUrl(u: string | undefined): MediaType {
 		if (!u) return MediaType.Other
@@ -63,8 +64,8 @@
 			<img
 				src={url}
 				alt={alt}
-				width={width}
-				height={height}
+				width={format?.width}
+				height={format?.height}
 				loading={loading}
 			/>
 		</figure>
@@ -73,17 +74,25 @@
 		<figure>
 			<video
 				src={url}
-				width={width}
-				height={height}
+				width={format?.width}
+				height={format?.height}
 				controls
-				preload={loading === 'eager' ? 'auto' : 'metadata'}
+				preload={loading === 'eager' ?
+					'auto'
+				: 'metadata'}
 			>
 				{alt}
 			</video>
 		</figure>
 	{:else if mediaType === MediaType.Audio}
 		<figure>
-			<audio src={url} controls preload={loading === 'eager' ? 'auto' : 'metadata'}>
+			<audio
+				src={url}
+				controls
+				preload={loading === 'eager' ?
+					'auto'
+				: 'metadata'}
+			>
 				{alt}
 			</audio>
 		</figure>

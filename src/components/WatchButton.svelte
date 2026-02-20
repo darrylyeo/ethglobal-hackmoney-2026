@@ -24,7 +24,6 @@
 
 
 	// (Derived)
-	const targetKey = $derived(watchedEntityKey({ entityType, entityId }))
 	const watchedQuery = useLiveQuery((q) =>
 		q.from({ row: watchedEntitiesCollection }).select(({ row }) => ({ row })),
 	)
@@ -34,23 +33,29 @@
 				watchedEntityKey({
 					entityType: r.row.entityType,
 					entityId: r.row.entityId,
-				}) === targetKey,
+				}) === watchedEntityKey({ entityType, entityId }),
 		),
 	)
 
 
 	// Actions
 	const toggle = () =>
-		isManuallyWatched
-			? unwatchEntity(entityType, entityId)
-			: watchEntity({ entityType, entityId })
+		isManuallyWatched ?
+			unwatchEntity(entityType, entityId)
+		: watchEntity({ entityType, entityId })
 </script>
 
 <button
 	type="button"
-	aria-label={isManuallyWatched ? 'Unwatch (remove from nav)' : 'Watch (pin to nav)'}
-	title={isManuallyWatched ? 'Unwatch' : 'Watch'}
+	aria-label={isManuallyWatched ?
+		'Unwatch (remove from nav)'
+	: 'Watch (pin to nav)'}
+	title={isManuallyWatched ?
+		'Unwatch'
+	: 'Watch'}
 	onclick={toggle}
 >
-	{isManuallyWatched ? 'Unwatch' : 'Watch'}
+	{isManuallyWatched ?
+		'Unwatch'
+	: 'Watch'}
 </button>

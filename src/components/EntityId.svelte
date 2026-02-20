@@ -32,7 +32,9 @@
 
 	// (Derived)
 	const intent = $derived(
-		entityType && entityId ? entityIntent(entityType, entityId, source) : undefined,
+		entityType && entityId ?
+			entityIntent(entityType, entityId, source)
+		: undefined,
 	)
 </script>
 

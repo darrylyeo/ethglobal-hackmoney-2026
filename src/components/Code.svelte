@@ -34,17 +34,16 @@
 	let preEl = $state<HTMLPreElement | null>(null)
 
 
-	// (Derived)
-	const resolvedLang = $derived(lang ?? (path ? langForPath(path) : 'plain'))
-
-
 	// Actions
 	$effect(() => {
 		if (!preEl || !content) return
-		(path
-			? highlightElementForPath(preEl, path)
-			: highlightElementWithLang(preEl, resolvedLang, withMultiline),
-		).catch(() => {})
+		(path ?
+			highlightElementForPath(preEl, path)
+		: highlightElementWithLang(
+				preEl,
+				lang ?? (path ? langForPath(path) : 'plain'),
+				withMultiline,
+			)).catch(() => {})
 	})
 </script>
 

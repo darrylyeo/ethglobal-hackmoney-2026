@@ -89,19 +89,6 @@
 					}))
 			: []
 	)
-	const triggerLabel = $derived(
-		normalizedItems.find((item) => {
-			const singleValue = value ?? undefined
-			return item.id === (singleValue ? getItemId(singleValue) : '')
-		})?.label ?? placeholder ?? ''
-	)
-	const rootItems = $derived(
-		normalizedItems.map((item) => ({
-			value: item.id,
-			label: item.label,
-			disabled: item.disabled,
-		}))
-	)
 
 
 	// Components
@@ -121,17 +108,22 @@
 	{disabled}
 	{name}
 	{allowDeselect}
-	items={rootItems}
+	items={normalizedItems.map((item) => ({
+		value: item.id,
+		label: item.label,
+		disabled: item.disabled,
+	}))}
 >
 	{#if children}
 		{@render children()}
 	{:else}
+		{@const selectedId = value != null ? getItemId(value) : ''}
 		<Select.Trigger id={id ?? _id} aria-label={ariaLabel}>
 			<span data-row="gap-2">
 				{#if Before}
 					{@render Before()}
 				{/if}
-				<span>{triggerLabel}</span>
+				<span>{normalizedItems.find((item) => item.id === selectedId)?.label ?? placeholder ?? ''}</span>
 				{#if After}
 					{@render After()}
 				{/if}

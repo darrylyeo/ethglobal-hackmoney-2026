@@ -63,7 +63,9 @@
 
 	// (Derived)
 	const countText = $derived(
-		total != null ? `${loaded}/${total}` : String(loaded),
+		total != null ?
+			`${loaded}/${total}`
+		: String(loaded),
 	)
 </script>
 

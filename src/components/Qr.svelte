@@ -12,18 +12,16 @@
 		size?: number
 		ecc?: 'L' | 'M' | 'Q' | 'H'
 	} = $props()
-
-	const svg = $derived(value ? renderSVG(value, { ecc, border: 1 }) : '')
 </script>
 
-{#if svg}
+{#if value}
 	<div
 		class="qr"
 		style="width: {size}px; height: {size}px"
 		role="img"
 		aria-label="QR code"
 	>
-		{@html svg}
+		{@html renderSVG(value, { ecc, border: 1 })}
 	</div>
 {/if}
 

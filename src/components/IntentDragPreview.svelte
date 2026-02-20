@@ -68,20 +68,18 @@ import {
 	const targetPayload = $derived(intentDragPreviewState.target?.payload ?? null)
 
 	const resolution = $derived(
-		sourcePayload && targetPayload
-			? resolveIntentForDrag(sourcePayload.entity, targetPayload.entity)
-			: null,
+		sourcePayload && targetPayload ?
+			resolveIntentForDrag(sourcePayload.entity, targetPayload.entity)
+		: null,
 	)
-	const sourceColor = $derived(sourcePayload ? getEntityColor(sourcePayload.entity) : undefined)
-	const targetColor = $derived(targetPayload ? getEntityColor(targetPayload.entity) : undefined)
 
 	const isActive = $derived(intentDragPreviewState.status !== 'idle')
 	const isInteractive = $derived(intentDragPreviewState.status === 'selected')
 	const effectiveTargetRect = $derived(
 		intentDragPreviewState.target?.rect ??
-			(pointerPosition
-				? new DOMRect(pointerPosition.x - 0.5, pointerPosition.y - 0.5, 1, 1)
-				: null),
+		(pointerPosition ?
+			new DOMRect(pointerPosition.x - 0.5, pointerPosition.y - 0.5, 1, 1)
+		: null),
 	)
 
 	$effect(() => {
@@ -239,14 +237,18 @@ import {
 					data-card="padding-3"
 					data-column="gap-3"
 					data-state={intentDragPreviewState.status}
-					data-interactive={isInteractive ? 'true' : 'false'}
+					data-interactive={isInteractive ?
+						'true'
+					: 'false'}
 					bind:this={tooltipContentRef}
 				>
 					{#if resolution?.matched}
 						<header data-row="gap-4 align-baseline">
 							<strong>{resolution.intent.label}</strong>
 							<span data-text="muted">
-								{resolution.options.length} option{resolution.options.length === 1 ? '' : 's'}
+								{resolution.options.length} option{resolution.options.length === 1 ?
+									''
+								: 's'}
 							</span>
 						</header>
 
@@ -263,19 +265,25 @@ import {
 											disabled={!isInteractive}
 										>
 											<span
-												data-intent-transition={intentDragPreviewState.selectedRouteId === String(i) ? 'route' : undefined}
+												data-intent-transition={intentDragPreviewState.selectedRouteId === String(i) ?
+												'route'
+											: undefined}
 											>
 												{option.name}
 											</span>
 											<small data-text="muted">
-												{option.sessionTemplate.actions.length} {option.sessionTemplate.actions.length === 1 ? 'step' : 'steps'}
+												{option.sessionTemplate.actions.length} {option.sessionTemplate.actions.length === 1 ?
+													'step'
+												: 'steps'}
 											</small>
 										</button>
 									</li>
 								{/each}
 							</ol>
 						{:else if resolution.error}
-							<p data-text="muted">{resolution.error instanceof Error ? resolution.error.message : String(resolution.error)}</p>
+							<p data-text="muted">{resolution.error instanceof Error ?
+								resolution.error.message
+							: String(resolution.error)}</p>
 						{:else}
 							<p data-text="muted">No options available.</p>
 						{/if}
@@ -294,8 +302,12 @@ import {
 			targetRect={effectiveTargetRect}
 			gap={8}
 			interactive={isInteractive}
-			{sourceColor}
-			{targetColor}
+			sourceColor={sourcePayload ?
+				getEntityColor(sourcePayload.entity)
+			: undefined}
+			targetColor={targetPayload ?
+				getEntityColor(targetPayload.entity)
+			: undefined}
 			{flowIconSrc}
 		/>
 	{/if}

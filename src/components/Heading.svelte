@@ -2,10 +2,6 @@
 	// Context
 	import { useHeadingLevel } from '$/svelte/heading-context.ts'
 
-	const level = $derived(
-		useHeadingLevel() || 1
-	)
-
 
 	// Props
 	let {
@@ -15,6 +11,9 @@
 		children?: import('svelte').Snippet
 		[key: string]: unknown
 	} = $props()
+
+	// (Derived)
+	const level = $derived(useHeadingLevel() || 1)
 </script>
 
 

@@ -50,10 +50,6 @@
 
 
 	// (Derived)
-	const entityTypeLabel = $derived(
-		annotation ??
-			(entityTypes.find((e) => e.type === entityType)?.label ?? entityType),
-	)
 	const articleId = $derived(`${entityType}:${idSerialized}`)
 	const entityId = $derived(
 		entityIdProp
@@ -137,7 +133,8 @@
 						{#if BeforeAnnotation}
 							{@render BeforeAnnotation({ entity, entityType })}
 						{/if}
-						<span data-text="annotation">{entityTypeLabel}</span>
+						<span data-text="annotation">{annotation ??
+							(entityTypes.find((e) => e.type === entityType)?.label ?? entityType)}</span>
 					</div>
 				</header>
 			</summary>

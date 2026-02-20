@@ -25,33 +25,25 @@
 	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 
 
-	// State
-	let now = $state(
-		Date.now()
-	)
-
-
-	// (Derived)
+	// (Derived) from props only
 	const date = $derived(
 		typeof timestamp === 'number' ?
 			new Date(timestamp)
-		:
-			undefined
+		: undefined,
 	)
+	const isoString = $derived(date?.toISOString())
+	const absoluteTime = $derived(date?.toLocaleString())
 
-	const isoString = $derived(
-		date?.toISOString()
-	)
 
-	const absoluteTime = $derived(
-		date?.toLocaleString()
-	)
+	// State
+	let now = $state(Date.now())
 
+
+	// (Derived)
 	const relativeTime = $derived(
 		typeof timestamp === 'number' ?
 			formatRelativeTime(now - timestamp)
-		:
-			undefined
+		: undefined,
 	)
 
 	$effect(() => {

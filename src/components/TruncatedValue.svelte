@@ -25,16 +25,14 @@
 	} = $props()
 
 
-	// (Derived)
-	let shouldTruncate = $derived(value.length > startLength + endLength)
 </script>
 
-{#if !shouldTruncate}
+{#if value.length <= startLength + endLength}
 	{value}
 {:else if format === TruncatedValueFormat.Abbr}
-	{@const formattedValue = `${value.slice(0, startLength)}⸱⸱⸱${value.slice(-endLength)}`}
-
-	<abbr title={value}>{formattedValue}</abbr>
+	<abbr title={value}>
+		{`${value.slice(0, startLength)}⸱⸱⸱${value.slice(-endLength)}`}
+	</abbr>
 {:else if format === TruncatedValueFormat.Visual}
 	<span
 		class="truncated-value"
