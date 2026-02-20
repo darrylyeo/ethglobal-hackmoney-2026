@@ -4,7 +4,7 @@ import type { Erc20Token } from '$/constants/coins.ts'
 import { ercTokens } from '$/constants/coins.ts'
 import { toInteropName } from '$/constants/interop.ts'
 import type { CoinEntry } from '$/data/Coin.ts'
-import { queryClient } from '$/lib/db/query-client.ts'
+import { queryClient } from '$/lib/db/queryClient.ts'
 import { createCollection } from '@tanstack/svelte-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 

@@ -15,7 +15,7 @@ import {
 	type TxStatus,
 	TxStep,
 } from '$/lib/bridge/txStatus.ts'
-import { queryClient } from '$/lib/db/query-client.ts'
+import { queryClient } from '$/lib/db/queryClient.ts'
 import { E2E_TEVM_ENABLED, requestE2eTevmContractTx } from '$/tests/tevm.ts'
 import { E2E_TEVM_WALLET_ADDRESS } from '$/tests/tevmConfig.ts'
 import { createWalletClientForChain } from '$/api/viem-client.ts'

@@ -4,7 +4,7 @@ Collections to normalize chain, token, wallet, and bridge data.
 
 ## Implementation
 
-`src/lib/db/query-client.ts`:
+`src/lib/db/queryClient.ts`:
 
 - `queryClient`: shared `QueryClient` instance
 
@@ -54,7 +54,7 @@ Collections to normalize chain, token, wallet, and bridge data.
 
 ## Acceptance criteria
 
-- [x] `queryClient` exported from `src/lib/db/query-client.ts`.
+- [x] `queryClient` exported from `src/lib/db/queryClient.ts`.
 - [x] `networksCollection` in `src/collections/networks.ts`.
 - [x] `coinsCollection` in `src/collections/coins.ts`.
 - [x] `walletsCollection` in `src/collections/wallets.ts`.

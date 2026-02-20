@@ -1,14 +1,14 @@
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { FarcasterChannel, FarcasterChannel$Id } from '$/data/FarcasterChannel.ts'
-import { queryClient } from '$/lib/db/query-client.ts'
+import { queryClient } from '$/lib/db/queryClient.ts'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { createCollection } from '@tanstack/svelte-db'
 import {
 	fetchAllChannels,
 	fetchChannel,
 	type Channel,
-} from '$/api/farcaster.ts'
+} from '$/api/farcaster/index.ts'
 
 export type FarcasterChannelRow = FarcasterChannel & { $source: DataSource }
 
