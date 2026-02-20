@@ -23,6 +23,7 @@ export enum CollectionId {
 	Coins = 'Coins',
 	CctpAllowance = 'CctpAllowance',
 	CctpFees = 'CctpFees',
+	ChainIdChains = 'ChainIdChains',
 	Dashboards = 'Dashboards',
 	EntitySources = 'EntitySources',
 	EnsAvatars = 'EnsAvatars',

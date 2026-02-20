@@ -1,4 +1,5 @@
 export enum DataSource {
+	ChainList = 'ChainList',
 	Local = 'Local',
 	Cctp = 'Cctp',
 	Farcaster = 'Farcaster',
