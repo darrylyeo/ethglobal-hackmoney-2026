@@ -1,4 +1,4 @@
-import { networkConfigs } from '$/constants/networks.ts'
+import { networks } from '$/constants/networks.ts'
 
 const iconCircle = (await import('$/assets/providers/circle.svg?url')).default
 const iconDeno = (await import('$/assets/providers/deno.svg?url')).default
@@ -727,7 +727,7 @@ const networkLayer: ArchitectureLayer = 'networks'
 
 const baseNetworkNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 	baseMultiChainNode,
-	...networkConfigs
+	...networks
 		.slice()
 		.sort((a, b) =>
 			a.type === b.type

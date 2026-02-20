@@ -48,16 +48,16 @@
 	{...rootProps}
 	{items}
 	bind:value={() =>
-		(value ?? []).map((id) => items.find((n) => String(n.id) === id)).filter(Boolean) as Network[],
-		(v: Network[]) => (value = v.map((n) => String(n.id)))
+		(value ?? []).map((id) => items.find((n) => String(n.chainId) === id)).filter(Boolean) as Network[],
+		(v: Network[]) => (value = v.map((n) => String(n.chainId)))
 	}
 	{placeholder}
 	{disabled}
 	{ariaLabel}
-	getItemId={(n: Network) => String(n.id)}
+	getItemId={(n: Network) => String(n.chainId)}
 	getItemLabel={(n: Network) => n.name}
 	getItemGroupId={(n) =>
-		itemsWithGroup.find((x) => x.item.id === n.id)?.groupId ?? ''
+		itemsWithGroup.find((x) => x.item.chainId === n.chainId)?.groupId ?? ''
 	}
 	getGroupLabel={(id) => groupLabelById[id] ?? id}
 >

@@ -59,7 +59,7 @@
 		{ariaLabel}
 	>
 		{#snippet Before()}
-			{@const selectedNetworks = multiple ? networks.filter((n) => (Array.isArray(value) ? value : []).includes(n.id)) : (typeof value === 'number' ? [networks.find((n) => n.id === value)].filter(Boolean) : []) as Network[]}
+			{@const selectedNetworks = multiple ? networks.filter((n) => (Array.isArray(value) ? value : []).includes(n.chainId)) : (typeof value === 'number' ? [networks.find((n) => n.chainId === value)].filter(Boolean) : []) as Network[]}
 			{#if selectedNetworks.length > 0}
 				<span data-row="start gap-2">
 					{#each selectedNetworks as network (network.id)}
@@ -94,7 +94,7 @@
 		{ariaLabel}
 	>
 		{#snippet Before()}
-			{@const selectedNetworks = multiple ? networks.filter((n) => (Array.isArray(value) ? value : []).includes(n.id)) : (typeof value === 'number' ? [networks.find((n) => n.id === value)].filter(Boolean) : []) as Network[]}
+			{@const selectedNetworks = multiple ? networks.filter((n) => (Array.isArray(value) ? value : []).includes(n.chainId)) : (typeof value === 'number' ? [networks.find((n) => n.chainId === value)].filter(Boolean) : []) as Network[]}
 			{#if selectedNetworks.length > 0}
 				<span data-row="start gap-2">
 					{#each selectedNetworks as network (network.id)}

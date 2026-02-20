@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import { networkConfigsByChainId } from '$/constants/networks.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 
 
 	// Props
@@ -16,8 +16,8 @@
 
 
 	// (Derived)
-	const config = $derived(networkConfigsByChainId[chainId])
-	const name = $derived(config?.name ?? `Chain ${chainId}`)
+	const network = $derived(networksByChainId[chainId])
+	const name = $derived(network?.name ?? `Chain ${chainId}`)
 
 
 	// Components

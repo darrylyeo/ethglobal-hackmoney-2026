@@ -15,9 +15,8 @@
 	import {
 		mainnetForTestnet,
 		NetworkType,
-		networkConfigsByChainId,
-		networks,
 		networksByChainId,
+		networks,
 		testnetsForMainnet,
 	} from '$/constants/networks.ts'
 

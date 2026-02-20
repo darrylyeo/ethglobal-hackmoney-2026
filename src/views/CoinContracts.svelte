@@ -3,7 +3,7 @@
 	import type { Erc20Token } from '$/constants/coins.ts'
 	import { ercTokens } from '$/constants/coins.ts'
 	import type { CoinSymbol } from '$/constants/coins.ts'
-	import { networkConfigsByChainId } from '$/constants/networks.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 	import { resolve } from '$app/paths'
 	import { formatAddress } from '$/lib/address.ts'
 	import Heading from '$/components/Heading.svelte'
@@ -25,8 +25,8 @@
 		return `${t.chainId}:${t.address}`
 	}
 	function getSortValue(t: Erc20Token): number | string {
-		const config = networkConfigsByChainId[t.chainId]
-		return config?.name ?? t.chainId
+		const network = networksByChainId[t.chainId]
+		return network?.name ?? t.chainId
 	}
 </script>
 
@@ -50,8 +50,8 @@
 				{#if isPlaceholder}
 					<code>Contract (loading…)</code>
 				{:else}
-					{@const config = networkConfigsByChainId[item.chainId]}
-					{@const slug = config?.slug ?? String(item.chainId)}
+					{@const network = networksByChainId[item.chainId]}
+					{@const slug = network?.slug ?? String(item.chainId)}
 					<Contract
 						chainId={item.chainId}
 						address={item.address}
@@ -59,8 +59,8 @@
 						href={resolve(`/network/${slug}/contract/${item.address}`)}
 						label={formatAddress(item.address)}
 						metadata={
-							config
-								? [{ term: 'Network', detail: config.name }]
+							network
+								? [{ term: 'Network', detail: network.name }]
 								: []
 						}
 					/>

@@ -1,7 +1,7 @@
 <script lang="ts" generics="_CoinType extends CoinType = CoinType">
 	// Types/constants
 	import { type Coin, CoinType } from '$/constants/coins.ts'
-	import { networkConfigsByChainId } from '$/constants/networks.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 	import { IconShape } from '$/components/Icon.svelte'
 
 
@@ -18,11 +18,11 @@
 
 
 	// (Derived)
-	const networkConfig = $derived(networkConfigsByChainId[coin.chainId])
+	const network = $derived(networksByChainId[coin.chainId])
 	const networkSubicon = $derived(
-		networkConfig?.icon
+		network?.icon
 			? {
-					src: networkConfig.icon,
+					src: network.icon,
 					alt: coin.chainId.toString(),
 					shape: IconShape.Circle,
 				}

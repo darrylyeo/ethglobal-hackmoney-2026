@@ -2,7 +2,7 @@
 	// Types/constants
 	import type { Erc20Token } from '$/constants/coins.ts'
 	import { ercTokens } from '$/constants/coins.ts'
-	import { networkConfigsByChainId } from '$/constants/networks.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 	import { resolve } from '$app/paths'
 
 
@@ -32,16 +32,16 @@
 		</summary>
 		<ul data-column="gap-1">
 			{#each tokens as t (t.chainId + t.address)}
-				{@const config = networkConfigsByChainId[t.chainId]}
-				{@const slug = config ? config.slug : String(t.chainId)}
+				{@const network = networksByChainId[t.chainId]}
+				{@const slug = network ? network.slug : String(t.chainId)}
 				<li>
 					<a
 						href={resolve(`/network/${slug}/contract/${t.address}`)}
 						data-link
 					>
 						<Address network={t.chainId} address={t.address} format={AddressFormat.MiddleTruncated} />
-						{#if config}
-							<span data-text="muted"> · {config.name}</span>
+						{#if network}
+							<span data-text="muted"> · {network.name}</span>
 						{/if}
 					</a>
 				</li>

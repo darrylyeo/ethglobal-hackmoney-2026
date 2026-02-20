@@ -3,7 +3,7 @@
 	import type { Network } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { networkConfigsByChainId } from '$/constants/networks.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 
 
 	// Components
@@ -101,25 +101,23 @@
 
 		<div data-column="gap-4">
 			{#if network}
-				{@const config = networkConfigsByChainId[network.id]}
-
 				<dl>
 					<div>
 						<dt>Chain ID</dt>
-						<dd><code>{network.id}</code></dd>
+						<dd><code>{network.chainId}</code></dd>
 					</div>
 					<div>
 						<dt>Chain Agnostic ID</dt>
-						<dd><code>eip155:{network.id}</code></dd>
+						<dd><code>eip155:{network.chainId}</code></dd>
 					</div>
 					<div>
 						<dt>Type</dt>
 						<dd>{network.type}</dd>
 					</div>
-					{#if config?.nativeCurrency}
+					{#if network?.nativeCurrency}
 						<div>
 							<dt>Currency</dt>
-							<dd>{config.nativeCurrency.symbol}</dd>
+							<dd>{network.nativeCurrency.symbol}</dd>
 						</div>
 					{/if}
 				</dl>

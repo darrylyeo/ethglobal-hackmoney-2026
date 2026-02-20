@@ -5,7 +5,6 @@
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { MediaType } from '$/constants/media.ts'
 	import {
-		networkConfigsByChainId,
 		networksByChainId,
 	} from '$/constants/networks.ts'
 	import {
@@ -157,7 +156,7 @@
 	const networkFilterOptions = $derived(
 		[...new Set(balanceTokenListCoins.map((t) => t.chainId))].map((chainId) => ({
 			chainId,
-			name: networkConfigsByChainId[chainId]?.name ?? `Chain ${chainId}`,
+			name: networksByChainId[chainId]?.name ?? `Chain ${chainId}`,
 		})),
 	)
 	const symbolFilterOptions = $derived(
@@ -403,7 +402,7 @@
 						singleSymbol !== null ? `${singleSymbol} Balances` : 'Balances'
 					const networkPart =
 						singleNetwork !== null
-							? ` on ${networkConfigsByChainId[singleNetwork]?.name ?? `Chain ${singleNetwork}`}`
+							? ` on ${networksByChainId[singleNetwork]?.name ?? `Chain ${singleNetwork}`}`
 							: ''
 					const accountPart = singleAddress !== null ? ' for ' : ''
 					return symbolPart + networkPart + accountPart

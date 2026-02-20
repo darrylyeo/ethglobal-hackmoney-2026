@@ -17,7 +17,7 @@
 		ensureEvmActorProfile,
 		evmActorProfilesCollection,
 	} from '$/collections/EvmActorProfiles.ts'
-	import { networkConfigsByChainId } from '$/constants/networks.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 	import { blo } from 'blo'
 
 
@@ -91,7 +91,7 @@
 	<span data-row="inline gap-2">
 		{#if showAvatar}
 			{@const avatarSrc = profile?.avatarUrl ?? blo(address)}
-			{@const networkIcon = network != null ? networkConfigsByChainId[network]?.icon : undefined}
+			{@const networkIcon = network != null ? networksByChainId[network]?.icon : undefined}
 			<Icon
 				shape={!profile?.avatarUrl ? IconShape.Square : IconShape.Circle}
 				src={avatarSrc}
@@ -100,7 +100,7 @@
 						{
 							src: networkIcon,
 							shape: IconShape.Circle,
-							backgroundColor: networkConfigsByChainId[network]?.color,
+							backgroundColor: networksByChainId[network]?.color,
 						}
 					:
 						undefined

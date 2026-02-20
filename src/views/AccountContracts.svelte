@@ -7,7 +7,7 @@
 		SUPPORTED_DISCOVERY_CHAINS,
 	} from '$/api/contract-discovery.ts'
 	import { fetchContract } from '$/collections/Contracts.ts'
-	import { networkConfigsByChainId } from '$/constants/networks.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 	import { resolve } from '$app/paths'
 	import { formatAddress } from '$/lib/address.ts'
 
@@ -93,7 +93,7 @@
 			<ul data-column="gap-2">
 				{#each contracts as contract}
 					{@const slug =
-						networkConfigsByChainId[contract.$id.$network.chainId]?.slug ??
+						networksByChainId[contract.$id.$network.chainId]?.slug ??
 						String(contract.$id.$network.chainId)}
 					<li>
 						<a
