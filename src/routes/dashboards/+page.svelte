@@ -1,5 +1,5 @@
 <script lang="ts">
-	// State
+	// Context
 	import {
 		createDashboard,
 		dashboardsCollection,
@@ -21,8 +21,12 @@
 				.where(({ row }) => not(eq(row.$id.id, '__default__')))
 				.select(({ row }) => ({
 					id: row.$id.id,
-					name: 'name' in row ? row.name : undefined,
-					icon: 'icon' in row ? row.icon : undefined,
+					name: 'name' in row ?
+						row.name
+					: undefined,
+					icon: 'icon' in row ?
+						row.icon
+					: undefined,
 				})),
 		[],
 	)
@@ -32,9 +36,9 @@
 				.from({ row: dashboardsCollection })
 				.where(({ row }) => eq(row.$id.id, '__default__'))
 				.select(({ row }) =>
-					'defaultDashboardId' in row
-						? { defaultDashboardId: row.defaultDashboardId }
-						: { defaultDashboardId: undefined as string | undefined },
+					'defaultDashboardId' in row ?
+						{ defaultDashboardId: row.defaultDashboardId }
+					: { defaultDashboardId: undefined as string | undefined },
 				),
 		[],
 	)
@@ -69,9 +73,6 @@
 		renameDashboard(renameId, renameValue.trim() || 'Unnamed')
 		renameId = null
 	}
-
-	const displayName = (d: { id: string, name?: string }) =>
-		d.name ?? (d.id === 'default' ? 'My Dashboard' : 'Unnamed')
 
 	const handleSetIcon = (id: string, icon: string) =>
 		setDashboardIcon(id, icon.trim())
@@ -134,7 +135,9 @@
 						href={resolve(`/dashboard/${dashboard.id}`)}
 						class="dashboard-name-link"
 					>
-						{displayName(dashboard)}
+						{dashboard.name ?? (dashboard.id === 'default' ?
+							'My Dashboard'
+						: 'Unnamed')}
 					</a>
 					<input
 						type="text"
@@ -168,7 +171,9 @@
 						type="button"
 						disabled={dashboards.length <= 1}
 						onclick={() => handleDelete(dashboard.id)}
-						title={dashboards.length <= 1 ? 'At least one dashboard required' : 'Delete'}
+						title={dashboards.length <= 1 ?
+							'At least one dashboard required'
+						: 'Delete'}
 					>
 						Delete
 					</button>

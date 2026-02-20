@@ -61,7 +61,9 @@
 
 	// (Derived)
 	const displayRatio = $derived(
-		root.type === 'split' ? (splitRatioOverrides[root.id] ?? root.ratio) : 0.5,
+		root.type === 'split' ?
+			(splitRatioOverrides[root.id] ?? root.ratio)
+		: 0.5,
 	)
 
 

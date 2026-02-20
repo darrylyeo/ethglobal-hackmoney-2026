@@ -5,7 +5,7 @@
 		identityLinkKey,
 		identityLinks,
 	} from '$/collections/IdentityLinks.ts'
-	import { ChainId } from '$/constants/chain-id.ts'
+	import { ChainId } from '$/constants/networks.ts'
 	import { IdentityInputKind } from '$/constants/identity-resolver.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -13,7 +13,7 @@
 	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import { getFidByAddress } from '$/api/farcaster.ts'
+	import { getFidByAddress } from '$/api/farcaster/index.ts'
 	import { dedupeInFlight } from '$/lib/dedupeInFlight.ts'
 	import { normalizeIdentity } from '$/api/identity-resolve.ts'
 
@@ -28,65 +28,64 @@
 
 
 	// (Derived)
-	const addressParam = $derived(page.params.address ?? '')
-	const parsed = $derived(parseAccountAddressParam(addressParam))
-	const identityKind = $derived(normalizeIdentity(addressParam).kind)
-	const isEnsName = $derived(identityKind === IdentityInputKind.EnsName)
-	// State
+	const addrParam = $derived(page.params.address ?? '')
+	const parsed = $derived(parseAccountAddressParam(addrParam))
+	const isEnsName = $derived(
+		normalizeIdentity(addrParam).kind === IdentityInputKind.EnsName,
+	)
+
 	const identityLinkQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: identityLinks })
 				.where(({ row }) =>
-					eq(row.id, identityLinkKey(ChainId.Ethereum, addressParam)),
+					eq(row.id, identityLinkKey(ChainId.Ethereum, addrParam)),
 				)
 				.select(({ row }) => ({ row })),
-		[() => [addressParam]],
+		[() => [addrParam]],
 	)
 	$effect(() => {
 		if (parsed ?? !isEnsName) return
-		ensureIdentityLink(ChainId.Ethereum, addressParam)
+		ensureIdentityLink(ChainId.Ethereum, addrParam)
 	})
-	const linkRow = $derived(identityLinkQuery.data?.[0]?.row)
-	const effectiveParsed = $derived(
+	const link = $derived(identityLinkQuery.data?.[0]?.row)
+	const account = $derived(
 		parsed ??
-			(linkRow?.address
-				? {
-						address: linkRow.address,
-						chainId: linkRow.chainId ?? ChainId.Ethereum,
-						interopAddress: linkRow.interopAddress,
-					}
-				: null),
+		(link?.address ?
+			{
+				address: link.address,
+				chainId: link.chainId ?? ChainId.Ethereum,
+				interopAddress: link.interopAddress,
+			}
+		: null),
 	)
 	const ensLoading = $derived(
-		parsed == null && isEnsName && (!linkRow || linkRow.isLoading),
+		parsed == null && isEnsName && (!link || link.isLoading),
 	)
-	const normalizedAddress = $derived(effectiveParsed?.address ?? null)
+	const addr = $derived(account?.address ?? null)
 
+
+	// State
 	let farcasterFid = $state<number | null | undefined>(undefined)
 	$effect(() => {
-		const addr = normalizedAddress
-		if (!addr) {
+		const a = addr
+		if (!a) {
 			farcasterFid = undefined
 			return
 		}
 		farcasterFid = undefined
-		dedupeInFlight(`fidByAddress:${addr}`, () => getFidByAddress(addr))
+		dedupeInFlight(`fidByAddress:${a}`, () => getFidByAddress(a))
 			.then((fid) => {
-				if (normalizedAddress !== addr) return
+				if (addr !== a) return
 				farcasterFid = fid
 			})
 			.catch(() => {
-				if (normalizedAddress !== addr) return
+				if (addr !== a) return
 				farcasterFid = null
 			})
 	})
 
 
-	// State
-	const balanceTokens = $derived(
-		ercTokens.map((t) => ({ chainId: t.chainId, tokenAddress: t.address })),
-	)
 	const connectionsQuery = useLiveQuery(
 		(q) =>
 			q
@@ -105,23 +104,6 @@
 		{ id: 'account-connections', label: 'Wallet Connections', query: connectionsQuery },
 		{ id: 'account-verifications', label: 'Verifications', query: verificationsQuery },
 	])
-	const connectionsForAccount = $derived(
-		normalizedAddress != null
-			? (connectionsQuery.data ?? [])
-					.map((r) => r.row)
-					.filter((c) =>
-						c.actors.some((a) => a === normalizedAddress),
-					)
-			: [],
-	)
-	const idSerialized = $derived(
-		effectiveParsed?.interopAddress ?? effectiveParsed?.address ?? '',
-	)
-	const metadata = $derived(
-		effectiveParsed?.interopAddress
-			? [{ term: 'Interop', detail: effectiveParsed.interopAddress }]
-			: [],
-	)
 
 
 	// Components
@@ -144,9 +126,7 @@
 
 <svelte:head>
 	<title>
-		{effectiveParsed
-			? `Account ${formatAddress(effectiveParsed.address)}`
-			: 'Account'}
+		{account ? `Account ${formatAddress(account.address)}` : 'Account'}
 	</title>
 </svelte:head>
 
@@ -154,29 +134,31 @@
 <main>
 	{#if ensLoading}
 		<EntityViewSkeleton />
-	{:else if !effectiveParsed}
+	{:else if !account}
 		<h1>Invalid address</h1>
 		<p>The address in the URL could not be parsed.</p>
 	{:else}
 		<EntityView
 			entityType={EntityType.Actor}
 			entityId={{
-				$network: { chainId: (effectiveParsed.chainId ?? 1) as import('$/data/Network.ts').Network$Id['chainId'] },
-				address: effectiveParsed.address,
-				...(effectiveParsed.interopAddress != null
-					? { interopAddress: effectiveParsed.interopAddress }
-					: {}),
+				$network: { chainId: (account.chainId ?? 1) as import('$/data/Network.ts').Network$Id['chainId'] },
+				address: account.address,
+				...(account.interopAddress != null ?
+					{ interopAddress: account.interopAddress }
+				: {}),
 			}}
-			idSerialized={idSerialized}
-			href={resolve(`/account/${addressParam}`)}
-			label={formatAddress(effectiveParsed.address)}
-			{metadata}
+			idSerialized={account?.interopAddress ?? account?.address ?? ''}
+			href={resolve(`/account/${addrParam}`)}
+			label={formatAddress(account.address)}
+			metadata={account?.interopAddress ?
+				[{ term: 'Interop', detail: account.interopAddress }]
+			: []}
 			annotation="Account"
 		>
 			{#snippet Title()}
 				<EvmActor
-					network={{ chainId: (effectiveParsed.chainId ?? 1) }}
-					address={effectiveParsed.address}
+					network={{ chainId: (account.chainId ?? 1) }}
+					address={account.address}
 					format={AddressFormat.Full}
 					isVertical
 				/>
@@ -185,29 +167,29 @@
 			<section data-column="gap-2">
 				<Boundary>
 					<CoinBalances
-						selectedActor={normalizedAddress}
-						{balanceTokens}
-						availableAccounts={normalizedAddress ? [normalizedAddress] : []}
+						selectedActor={addr}
+						balanceTokens={ercTokens.map((t) => ({ chainId: t.chainId, tokenAddress: t.address }))}
+						availableAccounts={addr ? [addr] : []}
 					/>
 				</Boundary>
 				<Boundary>
 					<Transactions
-						selectedActor={normalizedAddress ?? undefined}
+						selectedActor={addr ?? undefined}
 					/>
 				</Boundary>
 				<Boundary>
 					<LiquidityPositions
-						selectedActor={normalizedAddress ?? undefined}
+						selectedActor={addr ?? undefined}
 					/>
 				</Boundary>
 				<Boundary>
 					<VerifiedContractSource
-						chainId={effectiveParsed.chainId ?? 1}
-						address={effectiveParsed.address}
+						chainId={account.chainId ?? 1}
+						address={account.address}
 					/>
 				</Boundary>
 				<Boundary>
-					<AccountContracts selectedActor={normalizedAddress} />
+					<AccountContracts selectedActor={addr} />
 				</Boundary>
 			</section>
 
@@ -220,13 +202,13 @@
 					</Boundary>
 				{/if}
 				<Boundary>
-					<WalletConnections selectedActor={normalizedAddress} />
+					<WalletConnections selectedActor={addr} />
 				</Boundary>
 				<Boundary>
-					<RoomConnections selectedActor={normalizedAddress} />
+					<RoomConnections selectedActor={addr} />
 				</Boundary>
 				<Boundary>
-					<Channels selectedActor={normalizedAddress} />
+					<Channels selectedActor={addr} />
 				</Boundary>
 			</section>
 		</EntityView>

@@ -56,31 +56,27 @@
 		node: DashboardNode,
 		panelId: string,
 	): DashboardPanelNode | null =>
-		node.type === 'panel'
-			? node.id === panelId
-				? node
-				: null
-			: (getPanelById(node.first, panelId) ??
-				getPanelById(node.second, panelId))
+		node.type === 'panel' ?
+			node.id === panelId ?
+				node
+			: null
+		: (getPanelById(node.first, panelId) ??
+			getPanelById(node.second, panelId))
 
 	const updateNode = (
 		node: DashboardNode,
 		apply: (target: DashboardNode) => DashboardNode | null,
 	): DashboardNode =>
 		apply(node) ??
-		(node.type === 'split'
-			? (() => {
-					const first: DashboardNode = updateNode(node.first, apply)
-					const second: DashboardNode = updateNode(node.second, apply)
-					return first === node.first && second === node.second
-						? node
-						: {
-								...node,
-								first,
-								second,
-							}
-				})()
-			: node)
+		(node.type === 'split' ?
+			(() => {
+				const first: DashboardNode = updateNode(node.first, apply)
+				const second: DashboardNode = updateNode(node.second, apply)
+				return first === node.first && second === node.second ?
+					node
+				: { ...node, first, second }
+			})()
+		: node)
 
 	const updatePanel = (
 		root: DashboardNode,
@@ -88,7 +84,9 @@
 		update: (panel: DashboardPanelNode) => DashboardPanelNode,
 	) =>
 		updateNode(root, (node) =>
-			node.type === 'panel' && node.id === panelId ? update(node) : null,
+			node.type === 'panel' && node.id === panelId ?
+				update(node)
+			: null,
 		)
 
 	const splitPanel = (
@@ -99,40 +97,33 @@
 		createHashHistory: () => string[] = () => [],
 	) =>
 		updateNode(root, (node) =>
-			node.type === 'panel' && node.id === panelId
-				? {
-						id: crypto.randomUUID(),
-						type: 'split',
-						direction,
-						ratio: 0.5,
-						first: node,
-						second: createPanelNode(createRoute(), createHashHistory()),
-					}
-				: null,
+			node.type === 'panel' && node.id === panelId ?
+				{
+					id: crypto.randomUUID(),
+					type: 'split',
+					direction,
+					ratio: 0.5,
+					first: node,
+					second: createPanelNode(createRoute(), createHashHistory()),
+				}
+			: null,
 		)
 
 	const swapWithSibling = (root: DashboardNode, panelId: string) =>
 		updateNode(root, (node) =>
-			node.type === 'split'
-				? (node.first.type === 'panel' && node.first.id === panelId) ||
-					(node.second.type === 'panel' && node.second.id === panelId)
-					? {
-							...node,
-							first: node.second,
-							second: node.first,
-						}
-					: null
-				: null,
+			node.type === 'split' ?
+				(node.first.type === 'panel' && node.first.id === panelId) ||
+				(node.second.type === 'panel' && node.second.id === panelId) ?
+					{ ...node, first: node.second, second: node.first }
+				: null
+			: null,
 		)
 
 	const setSplitRatio = (root: DashboardNode, splitId: string, ratio: number) =>
 		updateNode(root, (node) =>
-			node.type === 'split' && node.id === splitId
-				? {
-						...node,
-						ratio,
-					}
-				: null,
+			node.type === 'split' && node.id === splitId ?
+				{ ...node, ratio }
+			: null,
 		)
 
 	const toggleSplitDirection = (root: DashboardNode, splitId: string) =>

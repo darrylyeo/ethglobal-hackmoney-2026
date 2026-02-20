@@ -17,17 +17,18 @@
 	// (Derived)
 	const symbolParam = $derived((page.params.symbol ?? '').toUpperCase())
 	const symbol = $derived(
-		COIN_SYMBOLS.includes(symbolParam as CoinSymbol)
-			? (symbolParam as CoinSymbol)
-			: null,
+		COIN_SYMBOLS.includes(symbolParam as CoinSymbol) ?
+			(symbolParam as CoinSymbol)
+		: null,
 	)
-	const period = $derived(page.url.searchParams.get('period') ?? '1d')
 	const coin = $derived(symbol ? coinBySymbol[symbol] : null)
 </script>
 
 
 <svelte:head>
-	<title>{symbol ? symbol : (symbolParam || 'Coin')} – Coin</title>
+	<title>
+		{symbol ? symbol : (symbolParam || 'Coin')} – Coin
+	</title>
 </svelte:head>
 
 
@@ -35,29 +36,32 @@
 	{#if !symbol}
 		<h1>Not found</h1>
 		<p>
-			{symbolParam
-				? `Unsupported coin symbol: ${symbolParam}`
-				: 'Coin symbol required'}
+			{symbolParam ?
+				`Unsupported coin symbol: ${symbolParam}`
+			: 'Coin symbol required'}
 		</p>
-	{:else}
+	{:else if coin}
 		<section data-scroll-item>
 			<EntityView
 				entityType={EntityType.Coin}
 				entityId={{
-					$network: { chainId: coin!.chainId },
-					address: coin!.address,
-					interopAddress: coin!.symbol,
+					$network: { chainId: coin.chainId },
+					address: coin.address,
+					interopAddress: coin.symbol,
 				}}
 				idSerialized={symbol}
 				href={resolve(`/coin/${symbol}`)}
-				label={coin!.symbol}
+				label={coin.symbol}
 				annotation="Coin"
 			>
 				{#snippet Title()}
-					<CoinName coin={coin!} />
+					<CoinName {coin} />
 				{/snippet}
 				<CoinContracts {symbol} />
-				<CoinActivity {symbol} {period} />
+				<CoinActivity
+					{symbol}
+					period={page.url.searchParams.get('period') ?? '1d'}
+				/>
 			</EntityView>
 		</section>
 	{/if}

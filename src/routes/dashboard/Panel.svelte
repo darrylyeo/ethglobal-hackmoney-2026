@@ -58,31 +58,10 @@
 
 
 	// (Derived)
-	const swapIcon = $derived(
-		parent != null && indexInParent != null
-			? indexInParent === 0 && parent.direction === 'horizontal'
-				? '⇄'
-				: indexInParent === 1 && parent.direction === 'horizontal'
-					? '⇆'
-					: indexInParent === 0 && parent.direction === 'vertical'
-						? '⇵'
-						: '⇅'
-			: '⇄',
-	)
 	const routeEntry = $derived(
 		routeEntriesForPanel.find((entry) => entry.path === panel.route.path) ?? null,
 	)
 	const paramKeys = $derived(routeEntry?.paramKeys ?? [])
-	const routeKey = $derived(
-		panel.route.path + '\0' + JSON.stringify(panel.route.params),
-	)
-	const routeOptions = $derived(
-		routeEntriesForPanel.filter(
-			(entry) =>
-				!entry.path.includes('[') &&
-				!excludeRoutePaths.includes(entry.path),
-		),
-	)
 	const setPanelRoute = (path: string, params: Record<string, string>) =>
 		onUpdateRoute(panel.id, { path, params })
 
@@ -179,7 +158,11 @@
 				aria-label="Panel route"
 				bind:value={() => panel.route.path, setRoutePath}
 			>
-				{#each routeOptions as entry (entry.path)}
+				{#each routeEntriesForPanel.filter(
+					(entry) =>
+						!entry.path.includes('[') &&
+						!excludeRoutePaths.includes(entry.path),
+				) as entry (entry.path)}
 					<option value={entry.path}>{entry.path}</option>
 				{/each}
 			</select>
@@ -211,7 +194,17 @@
 				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">↓</span>
 			</button>
 			<button type="button" onclick={() => onSwap(panel.id)} title="Swap">
-				<span class="dashboard-panel-btn-text">Swap </span><span class="dashboard-panel-btn-icon" aria-hidden="true">{swapIcon}</span>
+				<span class="dashboard-panel-btn-text">Swap </span><span class="dashboard-panel-btn-icon" aria-hidden="true">
+					{parent != null && indexInParent != null ?
+						indexInParent === 0 && parent.direction === 'horizontal' ?
+							'⇄'
+						: indexInParent === 1 && parent.direction === 'horizontal' ?
+							'⇆'
+						: indexInParent === 0 && parent.direction === 'vertical' ?
+							'⇵'
+						: '⇅'
+					: '⇄'}
+				</span>
 			</button>
 			<button type="button" onclick={() => onRemove(panel.id)} title="Close">
 				<span class="dashboard-panel-btn-text">Close</span><span class="dashboard-panel-btn-icon" aria-hidden="true">×</span>
@@ -230,7 +223,7 @@
 		onkeydown={() => undefined}
 	>
 		<section data-scroll-item data-column="gap-2" class="dashboard-panel-route-body">
-			{#key routeKey}
+			{#key panel.route.path + '\0' + JSON.stringify(panel.route.params)}
 				<SvelteKitRoute
 					route={panel.route}
 					entry={routeEntry}

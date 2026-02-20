@@ -27,9 +27,9 @@
 				.from({ row: dashboardsCollection })
 				.where(({ row }) => eq(row.$id.id, '__default__'))
 				.select(({ row }) =>
-					'defaultDashboardId' in row
-						? { defaultDashboardId: row.defaultDashboardId }
-						: { defaultDashboardId: undefined as string | undefined },
+					'defaultDashboardId' in row ?
+						{ defaultDashboardId: row.defaultDashboardId }
+					: { defaultDashboardId: undefined as string | undefined },
 				),
 		[],
 	)
@@ -51,13 +51,12 @@
 	)
 	const previewRow = $derived(dashboardRowQuery.data?.[0]?.row)
 	const previewRoot = $derived(
-		previewRow && 'root' in previewRow ? previewRow.root : undefined,
+		previewRow && 'root' in previewRow ?
+			previewRow.root
+		: undefined,
 	)
 	const firstPanelId = (node: PanelTreeNode): string =>
 		node.type === 'panel' ? node.id : firstPanelId(node.first)
-	const previewFocusedPanelId = $derived(
-		previewRoot ? firstPanelId(previewRoot) : '',
-	)
 
 	const noop = () => {}
 	const valuePhrases = [
@@ -198,7 +197,7 @@
 					<div class="landing-dashboard-preview-inner">
 						<PanelTree
 						root={previewRoot}
-						focusedPanelId={previewFocusedPanelId}
+						focusedPanelId={previewRoot ? firstPanelId(previewRoot) : ''}
 						onFocus={noop}
 						onSplit={noop}
 						onRemove={noop}

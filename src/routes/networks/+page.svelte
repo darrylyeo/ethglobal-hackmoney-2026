@@ -20,10 +20,9 @@
 	<h1>Networks</h1>
 	<ul data-column="gap-2">
 		{#each networks as network (network.chainId)}
-			{@const slug = network.slug}
 			<li data-row="start gap-2 align-center">
 				<EntityId
-					link={resolve(`/network/${slug}`)}
+					link={resolve(`/network/${network.slug}`)}
 					draggableText={network.name}
 					className=""
 					entityType={EntityType.Network}

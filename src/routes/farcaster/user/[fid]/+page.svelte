@@ -25,7 +25,7 @@
 		ensureFollowingForUser,
 	} from '$/collections/FarcasterLinks.ts'
 	import { ensureFarcasterUser } from '$/collections/FarcasterUsers.ts'
-	import { LINK_TYPE_FOLLOW } from '$/api/farcaster.ts'
+	import { LINK_TYPE_FOLLOW } from '$/api/farcaster/index.ts'
 	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
 
 

@@ -1,9 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import type { ChainId } from '$/constants/networks.ts'
+	import type { ChainId, ParsedNetworkParam } from '$/constants/networks.ts'
 	import type { Entity } from '$/data/$EntityType.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import type { ParsedNetworkParam } from '$/constants/networks.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 
@@ -31,18 +30,20 @@
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
-import NetworkContracts from '$/views/network/NetworkContracts.svelte'
-		import NetworkView from '$/views/network/Network.svelte'
-		import NetworkName from '$/views/NetworkName.svelte'
+	import NetworkContracts from '$/views/network/NetworkContracts.svelte'
+	import NetworkView from '$/views/network/Network.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
 
 
 	// (Derived)
-	const nameParam = $derived(page.params.name ?? '')
-	const parsed = $derived(parseNetworkNameParam(nameParam))
-	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
-	const network = $derived(parsed?.network ?? ({ name: '', type: 'Mainnet' } as unknown as ParsedNetworkParam['network']))
-	const slug = $derived(parsed?.slug ?? '')
-	const caip2 = $derived(parsed?.caip2 ?? '')
+	const name = $derived(page.params.name ?? '')
+	const route = $derived(parseNetworkNameParam(name))
+	const chainId = $derived(route?.chainId ?? (0 as ChainId))
+	const network = $derived(
+		route?.network ?? ({ name: '', type: 'Mainnet' } as unknown as ParsedNetworkParam['network']),
+	)
+	const slug = $derived(route?.slug ?? '')
+	const caip2 = $derived(route?.caip2 ?? '')
 	const networkQuery = useLiveQuery(
 		(q) =>
 			q
@@ -50,16 +51,6 @@ import NetworkContracts from '$/views/network/NetworkContracts.svelte'
 				.where(({ row }) => eq(row.$id.chainId, chainId))
 				.select(({ row }) => ({ row })),
 		[() => chainId],
-	)
-	const networkRow = $derived(networkQuery.data?.[0]?.row)
-	const networkEntity = $derived(
-		networkRow && parsed
-			? ({ ...networkRow, network: parsed.network, slug: parsed.slug, caip2: parsed.caip2 } as Entity<EntityType.Network> & {
-					network: typeof parsed.network
-					slug: string
-					caip2: string
-				})
-			: undefined,
 	)
 
 
@@ -99,21 +90,10 @@ import NetworkContracts from '$/views/network/NetworkContracts.svelte'
 		},
 	])
 
-	const blocksView = $derived(blocksViewFrom(chainId, blocksQuery.data ?? []))
-	const placeholderBlockIds = $derived(
-		(() => {
-			const h: number =
-				height > 0 ? height : Number(latestBlockQuery.data?.[0] ?? 0)
-			return h > 0
-				? new Set<number | [number, number]>([[0, h]])
-				: new Set<number | [number, number]>([0])
-		})(),
-	)
-
 	$effect(() => {
-		const url = rpcUrls[chainId]
-		if (!url) return
-		const provider = createHttpProvider(url)
+		const rpcUrl = rpcUrls[chainId]
+		if (!rpcUrl) return
+		const provider = createHttpProvider(rpcUrl)
 		const stream = BlockStream({
 			provider: provider as Parameters<typeof BlockStream>[0]['provider'],
 		})
@@ -149,27 +129,46 @@ import NetworkContracts from '$/views/network/NetworkContracts.svelte'
 
 
 <svelte:head>
-	<title>{parsed ? `${network.name} · Network` : 'Network'}</title>
+	<title>
+		{route ?
+			`${network.name} · Network`
+		: 'Network'}
+	</title>
 </svelte:head>
 
 
 <main data-column="gap-2">
-	{#if !parsed}
+	{#if !route}
 		<h1>Network not found</h1>
-		<p>The network "{nameParam}" could not be resolved.</p>
+		<p>The network "{name}" could not be resolved.</p>
 	{:else}
 		<EntityView
 			entityType={EntityType.Network}
-			entity={networkEntity}
+			entity={
+				networkQuery.data?.[0]?.row && route ?
+					({
+						...networkQuery.data[0].row,
+						network: route.network,
+						slug: route.slug,
+						caip2: route.caip2,
+					} as Entity<EntityType.Network> & {
+						network: typeof route.network
+						slug: string
+						caip2: string
+					})
+				: undefined
+			}
 			idSerialized={slug}
-			href={resolve(`/network/${nameParam}`)}
+			href={resolve(`/network/${name}`)}
 			label={network.name}
 			metadata={[
 				{ term: 'Chain ID', detail: String(chainId) },
 				{ term: 'CAIP-2', detail: caip2 },
-				...('nativeCurrency' in network && network.nativeCurrency
-					? [{ term: 'Currency', detail: network.nativeCurrency.symbol }]
-					: []),
+				...(
+					'nativeCurrency' in network && network.nativeCurrency ?
+						[{ term: 'Currency', detail: network.nativeCurrency.symbol }]
+					: []
+				),
 			]}
 		>
 			{#snippet Title()}
@@ -180,16 +179,24 @@ import NetworkContracts from '$/views/network/NetworkContracts.svelte'
 					<span data-tag={entity.network.type}>{entity.network.type}</span>
 				{/if}
 			{/snippet}
-			<p>
-				<a href={resolve(`/network/${nameParam}/contracts`)} data-link>Contracts</a>
-			</p>
-			<NetworkContracts chainId={chainId} nameParam={nameParam} />
-			<NetworkView
-				data={blocksView.networkData}
-				{placeholderBlockIds}
-				bind:visiblePlaceholderBlockIds
-				compact
-			/>
+			{#snippet children()}
+				{@const placeholderBlockIds = (() => {
+					const h = height > 0 ? height : Number(latestBlockQuery.data?.[0] ?? 0)
+					return h > 0 ?
+						new Set<number | [number, number]>([[0, h]])
+					: new Set<number | [number, number]>([0])
+				})()}
+				<p>
+					<a href={resolve(`/network/${name}/contracts`)} data-link>Contracts</a>
+				</p>
+				<NetworkContracts chainId={chainId} nameParam={name} />
+				<NetworkView
+					data={blocksViewFrom(chainId, blocksQuery.data ?? []).networkData}
+					{placeholderBlockIds}
+					bind:visiblePlaceholderBlockIds
+					compact
+				/>
+			{/snippet}
 		</EntityView>
 	{/if}
 </main>

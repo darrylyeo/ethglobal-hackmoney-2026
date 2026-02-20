@@ -11,26 +11,15 @@
 
 
 	// (Derived)
-	const dateLabel = $derived(
-		new Date(simulation.createdAt).toLocaleString(undefined, {
-			dateStyle: 'short',
-			timeStyle: 'short',
-		}),
-	)
-	const paramsShort = $derived(
-		simulation.paramsHash.length > 12
-			? `${simulation.paramsHash.slice(0, 8)}…`
-			: simulation.paramsHash || '—',
-	)
 	const steps = $derived(
 		simulation.result != null &&
 		typeof simulation.result === 'object' &&
 		'steps' in simulation.result &&
-		Array.isArray((simulation.result as { steps: unknown }).steps)
-			? ((simulation.result as { steps: TevmSimulationResult[] }).steps)
-			: (simulation.result as TevmSimulationResult | null) != null
-				? [simulation.result as TevmSimulationResult]
-				: [],
+		Array.isArray((simulation.result as { steps: unknown }).steps) ?
+			((simulation.result as { steps: TevmSimulationResult[] }).steps)
+		: (simulation.result as TevmSimulationResult | null) != null ?
+			[simulation.result as TevmSimulationResult]
+		: [],
 	)
 </script>
 
@@ -43,13 +32,24 @@
 	<div data-row="gap-2 align-center">
 		<span
 			data-tag
-			data-variant={simulation.status === SessionActionSimulationStatus.Success ? 'success' : 'error'}
+			data-variant={simulation.status === SessionActionSimulationStatus.Success ?
+			'success'
+		: 'error'}
 		>
 			{simulation.status}
 		</span>
-		<time datetime={new Date(simulation.createdAt).toISOString()}>{dateLabel}</time>
+		<time datetime={new Date(simulation.createdAt).toISOString()}>
+			{new Date(simulation.createdAt).toLocaleString(undefined, {
+				dateStyle: 'short',
+				timeStyle: 'short',
+			})}
+		</time>
 	</div>
-	<p data-text="muted">Params: {paramsShort}</p>
+	<p data-text="muted">
+		Params: {simulation.paramsHash.length > 12 ?
+			`${simulation.paramsHash.slice(0, 8)}…`
+		: simulation.paramsHash || '—'}
+	</p>
 	{#if simulation.error && steps.length === 0}
 		<p data-error>{simulation.error}</p>
 	{:else if steps.length > 0}
@@ -58,14 +58,20 @@
 				<li data-row="gap-2 align-center" class="simulation-step">
 					<span
 						data-tag
-						data-variant={step.summaryStatus === TevmSimulationSummaryStatus.Success ? 'success' : 'error'}
+						data-variant={step.summaryStatus === TevmSimulationSummaryStatus.Success ?
+						'success'
+					: 'error'}
 					>
 						{step.summaryStatus}
 					</span>
 					<span>Step {i + 1}</span>
 					<span data-text="muted">Gas: {step.gasTotals.used}</span>
 					{#if step.revertReason}
-						<code class="revert-reason" title={step.revertReason}>{step.revertReason.slice(0, 42)}{step.revertReason.length > 42 ? '…' : ''}</code>
+						<code class="revert-reason" title={step.revertReason}>
+							{step.revertReason.slice(0, 42)}{step.revertReason.length > 42 ?
+								'…'
+							: ''}
+						</code>
 					{/if}
 				</li>
 			{/each}

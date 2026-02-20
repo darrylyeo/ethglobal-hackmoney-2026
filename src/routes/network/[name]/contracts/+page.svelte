@@ -7,29 +7,33 @@
 
 
 	// (Derived)
-	const nameParam = $derived(page.params.name ?? '')
-	const parsed = $derived(parseNetworkNameParam(nameParam))
-	const chainId = $derived(parsed?.chainId ?? 0)
-	const network = $derived(parsed?.network ?? { name: '' })
+	const name = $derived(page.params.name ?? '')
+	const route = $derived(parseNetworkNameParam(name))
+	const chainId = $derived(route?.chainId ?? 0)
+	const network = $derived(route?.network ?? { name: '' })
 </script>
 
 
 <svelte:head>
-	<title>Contracts · {parsed ? network.name : 'Network'}</title>
+	<title>
+		Contracts · {route ?
+			network.name
+		: 'Network'}
+	</title>
 </svelte:head>
 
 
 <main data-column="gap-4">
-	{#if !parsed}
+	{#if !route}
 		<h1>Not found</h1>
-		<p>Network "{nameParam}" could not be resolved.</p>
+		<p>Network "{name}" could not be resolved.</p>
 	{:else}
 		<h1>Contracts · <NetworkName chainId={chainId} /></h1>
 		<p data-text="muted">
-			<a href={resolve(`/network/${nameParam}`)} data-link>← {network.name}</a>
+			<a href={resolve(`/network/${name}`)} data-link>← {network.name}</a>
 		</p>
 		<p data-text="muted">
-			Browse a contract by visiting <code>/network/{nameParam}/contract/[address]</code> with
+			Browse a contract by visiting <code>/network/{name}/contract/[address]</code> with
 			a contract address. Discover deployed contracts from an
 			<a href={resolve('/account/0x0000000000000000000000000000000000000000')} data-link>
 				account page

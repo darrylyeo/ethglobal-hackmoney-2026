@@ -1,10 +1,9 @@
 <script lang="ts">
 	// Types/constants
-	import type { ChainId } from '$/constants/networks.ts'
+	import { type ChainId, networksByChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { networksByChainId } from '$/constants/networks.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire.ts'
@@ -27,24 +26,24 @@
 
 
 	// (Derived)
-	const nameParam = $derived(page.params.name ?? '')
-	const blockNumberParam = $derived(page.params.blockNumber ?? '')
-	const parsed = $derived(parseNetworkNameParam(nameParam))
-	const blockNumberValid = $derived(
-		blockNumberParam !== '' &&
-		DECIMAL_ONLY.test(blockNumberParam) &&
-		Number.isSafeInteger(parseInt(blockNumberParam, 10)) &&
-		parseInt(blockNumberParam, 10) >= 0,
+	const name = $derived(page.params.name ?? '')
+	const blockNumParam = $derived(page.params.blockNumber ?? '')
+	const route = $derived(parseNetworkNameParam(name))
+	const blockNumValid = $derived(
+		blockNumParam !== '' &&
+		DECIMAL_ONLY.test(blockNumParam) &&
+		Number.isSafeInteger(parseInt(blockNumParam, 10)) &&
+		parseInt(blockNumParam, 10) >= 0,
 	)
-	const blockNumber = $derived(
-		blockNumberValid ?
-			parseInt(blockNumberParam, 10)
+	const blockNum = $derived(
+		blockNumValid ?
+			parseInt(blockNumParam, 10)
 		: 0,
 	)
-	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
+	const chainId = $derived(route?.chainId ?? (0 as ChainId))
 	const network = $derived(networksByChainId[chainId] ?? null)
-	const networkName = $derived(network?.name ?? parsed?.network?.name ?? '')
-	const valid = $derived(!!parsed && blockNumberValid)
+	const networkName = $derived(network?.name ?? route?.network?.name ?? '')
+	const valid = $derived(!!route && blockNumValid)
 
 
 	// State
@@ -59,11 +58,11 @@
 				.where(({ row }) =>
 					and(
 						eq(row.$id.$network.chainId, chainId),
-						eq(row.$id.blockNumber, blockNumber),
+						eq(row.$id.blockNumber, blockNum),
 					),
 				)
 				.select(({ row }) => ({ row })),
-		[() => chainId, () => blockNumber],
+		[() => chainId, () => blockNum],
 	)
 	registerLocalLiveQueryStack(() => [
 		{
@@ -74,17 +73,9 @@
 	])
 
 	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
-	const placeholderBlockIds = $derived(
-		(() => {
-			const ids = new Set<number | [number, number]>()
-			if (blockNumber > 0) ids.add(blockNumber - 1)
-			if (height <= 0 || blockNumber + 1 <= height) ids.add(blockNumber + 1)
-			return ids
-		})(),
-	)
 
 	$effect(() => {
-		if (valid) fetchBlock(chainId, blockNumber).catch(() => {})
+		if (valid) fetchBlock(chainId, blockNum).catch(() => {})
 	})
 	$effect(() => {
 		const rpcUrl = rpcUrls[chainId]
@@ -98,7 +89,9 @@
 
 <svelte:head>
 	<title>
-		{valid ? `Block ${blockNumberParam} · ${networkName}` : 'Block'}
+		{valid ?
+			`Block ${blockNumParam} · ${networkName}`
+		: 'Block'}
 	</title>
 </svelte:head>
 
@@ -107,8 +100,8 @@
 	{#if !valid}
 		<h1>Not found</h1>
 		<p>
-			{#if !parsed}
-				Network "{nameParam}" could not be resolved.
+			{#if !route}
+				Network "{name}" could not be resolved.
 			{:else}
 				Block number must be a non-negative decimal integer.
 			{/if}
@@ -118,24 +111,28 @@
 			entityType={EntityType.Block}
 			entityId={{
 				$network: { chainId },
-				blockNumber: Number(blockNumber),
+				blockNumber: blockNum,
 			}}
-			idSerialized={`${nameParam}:${blockNumber}`}
-			href={resolve(`/network/${nameParam}/block/${blockNumberParam}`)}
-			label={`Block ${blockNumber} · ${networkName}`}
+			idSerialized={`${name}:${blockNum}`}
+			href={resolve(`/network/${name}/block/${blockNumParam}`)}
+			label={`Block ${blockNum} · ${networkName}`}
 		>
 			{#snippet Title()}
 				<span data-row="inline gap-2">
-					<BlockNumber {chainId} blockNumber={blockNumber} />
+					<BlockNumber {chainId} blockNumber={blockNum} />
 					<NetworkName {chainId} showIcon={false} />
 				</span>
 			{/snippet}
-			<p>
-				<a href={`/network/${nameParam}#block:${blockNumber}`} data-link>Show Context</a>
-			</p>
-			<NetworkView
-				data={
-					network ?
+			{#snippet children()}
+				{@const placeholderBlockIds = new Set([
+					...(blockNum > 0 ? [blockNum - 1] : []),
+					...(height <= 0 || blockNum + 1 <= height ? [blockNum + 1] : []),
+				])}
+				<p>
+					<a href={`/network/${name}#block:${blockNum}`} data-link>Show Context</a>
+				</p>
+				<NetworkView
+					data={network ?
 						new Map([
 							[
 								network,
@@ -146,10 +143,10 @@
 								: new Map(),
 							],
 						])
-					: new Map()
-				}
-				{placeholderBlockIds}
-			/>
+					: new Map()}
+					{placeholderBlockIds}
+				/>
+			{/snippet}
 		</EntityView>
 	{/if}
 </main>

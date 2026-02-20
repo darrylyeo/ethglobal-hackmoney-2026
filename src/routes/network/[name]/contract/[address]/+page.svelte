@@ -12,33 +12,34 @@
 
 
 	// (Derived)
-	const nameParam = $derived(page.params.name ?? '')
-	const addressParam = $derived(page.params.address ?? '')
-	const parsed = $derived(parseNetworkNameParam(nameParam))
+	const name = $derived(page.params.name ?? '')
+	const addrParam = $derived(page.params.address ?? '')
+	const route = $derived(parseNetworkNameParam(name))
 	const address = $derived(
-		addressParam &&
-			matchesEntityRefPattern(addressParam, PatternType.EvmAddress)
-			? (addressParam.startsWith('0x')
-					? (addressParam as `0x${string}`)
-					: (`0x${addressParam}` as `0x${string}`))
-			: null,
+		addrParam && matchesEntityRefPattern(addrParam, PatternType.EvmAddress) ?
+			(addrParam.startsWith('0x') ?
+				(addrParam as `0x${string}`)
+			: (`0x${addrParam}` as `0x${string}`))
+		: null,
 	)
-	const chainId = $derived(parsed?.chainId ?? (0 as ChainId))
-	const network = $derived(parsed?.network ?? { name: '' })
-	const slug = $derived(parsed?.slug ?? '')
-	const valid = $derived(!!parsed && !!address)
+	const chainId = $derived(route?.chainId ?? (0 as ChainId))
+	const network = $derived(route?.network ?? { name: '' })
+	const slug = $derived(route?.slug ?? '')
+	const valid = $derived(!!route && !!address)
 
 
 	// Actions
 	$effect(() => {
-		if (valid) fetchContract(chainId, address!).catch(() => {})
+		if (valid && address) fetchContract(chainId, address).catch(() => {})
 	})
 </script>
 
 
 <svelte:head>
 	<title>
-		{valid ? `Contract ${formatAddress(address!)} · ${network.name}` : 'Contract'}
+		{valid && address ?
+			`Contract ${formatAddress(address)} · ${network.name}`
+		: 'Contract'}
 	</title>
 </svelte:head>
 
@@ -47,18 +48,18 @@
 	{#if !valid}
 		<h1>Not found</h1>
 		<p>
-			{#if !parsed}
-				Network "{nameParam}" could not be resolved.
+			{#if !route}
+				Network "{name}" could not be resolved.
 			{:else}
 				Invalid contract address.
 			{/if}
 		</p>
-	{:else}
+	{:else if address}
 		<Contract
 			chainId={chainId}
-			address={address!}
-			idSerialized={`${slug}:${address!.toLowerCase()}`}
-			href={resolve(`/network/${nameParam}/contract/${address!}`)}
+			address={address}
+			idSerialized={`${slug}:${address.toLowerCase()}`}
+			href={resolve(`/network/${name}/contract/${address}`)}
 			label={formatAddress(address)}
 			metadata={[
 				{ term: 'Chain ID', detail: String(chainId) },

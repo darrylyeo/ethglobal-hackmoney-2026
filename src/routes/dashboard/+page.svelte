@@ -1,5 +1,5 @@
 <script lang="ts">
-	// State
+	// Context
 	import {
 		dashboardsCollection,
 		ensureDefaultRow,
@@ -16,21 +16,21 @@
 				.from({ row: dashboardsCollection })
 				.where(({ row }) => eq(row.$id.id, '__default__'))
 				.select(({ row }) =>
-					'defaultDashboardId' in row
-						? { defaultDashboardId: row.defaultDashboardId }
-						: { defaultDashboardId: undefined as string | undefined },
+					'defaultDashboardId' in row ?
+						{ defaultDashboardId: row.defaultDashboardId }
+					: { defaultDashboardId: undefined as string | undefined },
 				),
 		[],
 	)
-	const defaultId = $derived(
-		defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
-	)
 
-
-	// Actions
 	$effect(() => {
 		ensureDefaultRow()
-		goto(resolve(`/dashboard/${defaultId}`), { replaceState: true })
+		goto(
+			resolve(
+				`/dashboard/${defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default'}`,
+			),
+			{ replaceState: true },
+		)
 	})
 </script>
 
