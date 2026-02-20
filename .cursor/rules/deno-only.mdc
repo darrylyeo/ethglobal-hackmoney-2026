@@ -1,0 +1,11 @@
+---
+description: This repo uses Deno as the runtime and package runner; do not use pnpm
+globs: "**/*"
+alwaysApply: true
+---
+
+# Deno only — no pnpm
+
+- **Package manager / runner:** Use **Deno** only. Never run `pnpm`, `npm`, or `npx` for installs, scripts, or tooling in this project.
+- **Commands:** Use `deno task <name>`, `deno run -A`, `deno install`, `deno test`, etc. For npm packages use `deno run -A npm:<pkg>` or the `npm:` specifier in imports as configured in deno.json.
+- **Lockfile / patches:** Dependency resolution is via Deno (deno.lock, deno.json). Do not add or rely on pnpm patches, pnpm-lock.yaml, or pnpm install.
