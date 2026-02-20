@@ -1,5 +1,5 @@
 import {
-	networkConfigsByChainId,
+	networksByChainId,
 } from '$/constants/networks.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import { E2E_TEVM_RPC_URL } from '$/tests/tevm.ts'
@@ -122,24 +122,24 @@ export const addChainToWallet = async (
 	provider: EIP1193Provider,
 	chainId: number,
 ): Promise<void> => {
-	const config = networkConfigsByChainId[chainId]
+	const network = networksByChainId[chainId]
 	const rpcUrl = rpcUrls[chainId]
-	if (!config || !rpcUrl) throw new Error(`Unknown chain ${chainId}`)
+	if (!network || !rpcUrl) throw new Error(`Unknown chain ${chainId}`)
 	await provider.request({
 		method: 'wallet_addEthereumChain',
 		params: [
 			{
 				chainId: `0x${chainId.toString(16)}`,
-				chainName: config.name,
+				chainName: network.name,
 				nativeCurrency: {
-					name: config.nativeCurrency.name,
-					symbol: config.nativeCurrency.symbol,
+					name: network.nativeCurrency.name,
+					symbol: network.nativeCurrency.symbol,
 					decimals: 18,
 				},
 				rpcUrls: [rpcUrl],
 				blockExplorerUrls:
 					typeof window !== 'undefined'
-						? [`${window.location.origin}/network/${config.slug}`]
+						? [`${window.location.origin}/network/${network.slug}`]
 						: undefined,
 			},
 		],

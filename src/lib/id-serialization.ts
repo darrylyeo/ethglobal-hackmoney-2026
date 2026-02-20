@@ -4,9 +4,9 @@
  */
 
 import {
-	networkConfigsByCaip2,
-	networkConfigsByChainId,
-	networkConfigsBySlug,
+	networksByCaip2,
+	networksByChainId,
+	networksBySlug,
 } from '$/constants/networks.ts'
 import { Network$IdSerializationType } from '$/constants/id-serializations.ts'
 import type { Network$Id } from '$/data/Network.ts'
@@ -15,14 +15,14 @@ export const serializeNetworkId = (
 	id: Network$Id,
 	format: Network$IdSerializationType,
 ): string => {
-	const config = networkConfigsByChainId[id.chainId as number]
+	const network = networksByChainId[id.chainId as number]
 	return (
 		format === Network$IdSerializationType.ChainId ?
 			String(id.chainId)
 		: format === Network$IdSerializationType.Caip2 ?
-			(networkConfigsByChainId[id.chainId as number]?.caip2 ?? `eip155:${id.chainId}`)
-		: config ?
-			config.slug.toLowerCase()
+			(networksByChainId[id.chainId as number]?.caip2 ?? `eip155:${id.chainId}`)
+		: network ?
+			network.slug.toLowerCase()
 		:
 			String(id.chainId)
 	)
@@ -31,13 +31,13 @@ export const serializeNetworkId = (
 export const deserializeNetworkId = (value: string): Network$Id | null => {
 	const decoded = decodeURIComponent(value)
 	if (/^\d+$/.test(decoded)) {
-		const config = networkConfigsByChainId[Number(decoded)] ?? null
-		return config ? { chainId: config.chainId } : null
+		const network = networksByChainId[Number(decoded)] ?? null
+		return network ? { chainId: network.chainId } : null
 	}
 	if (decoded.includes(':')) {
-		const config = networkConfigsByCaip2[decoded] ?? null
-		return config ? { chainId: config.chainId } : null
+		const network = networksByCaip2[decoded] ?? null
+		return network ? { chainId: network.chainId } : null
 	}
-	const config = networkConfigsBySlug[decoded.toLowerCase()] ?? null
-	return config ? { chainId: config.chainId } : null
+	const network = networksBySlug[decoded.toLowerCase()] ?? null
+	return network ? { chainId: network.chainId } : null
 }

@@ -1,5 +1,5 @@
 import {
-	networkConfigsByChainId,
+	networksByChainId,
 } from '$/constants/networks.ts'
 import type { ParsedNetworkParam } from '$/constants/networks.ts'
 import { patternByPatternType } from '$/constants/patterns.ts'
@@ -14,13 +14,13 @@ export const matchesEntityRefPattern = (value: string, type: PatternType): boole
 export const parseNetworkNameParam = (name: string): ParsedNetworkParam | null => {
 	const id = deserializeNetworkId(name)
 	if (!id) return null
-	const config = networkConfigsByChainId[id.chainId] ?? null
-	return config
+	const network = networksByChainId[id.chainId] ?? null
+	return network
 		? {
-				chainId: config.chainId,
-				config,
-				slug: config.slug,
-				caip2: config.caip2,
+				chainId: network.chainId,
+				network,
+				slug: network.slug,
+				caip2: network.caip2,
 			}
 		: null
 }
