@@ -1,31 +1,32 @@
 <script lang="ts">
 	// Types/constants
+	import type { Session } from '$/data/Session.ts'
 	import { APP_NAME } from '$/constants/app.ts'
-
-
-	// Context
-	import { page } from '$app/state'
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { stringify } from 'devalue'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-
-
-	// Functions
 	import {
 		ActionType,
 		createAction,
 		mergeActionParams,
 	} from '$/constants/actions.ts'
-	import type { Session } from '$/data/Session.ts'
-	import { formatSessionPlaceholderName } from '$/lib/session/sessions.ts'
-	import { setSessionActions } from '$/lib/session/sessions.ts'
-
-
-	// State
 	import { sessionActionsCollection } from '$/collections/SessionActions.ts'
 	import { sessionsCollection } from '$/collections/Sessions.ts'
+	import {
+		formatSessionPlaceholderName,
+		setSessionActions,
+	} from '$/lib/session/sessions.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { stringify } from 'devalue'
 
+
+	// Context
+	import { page } from '$app/state'
+
+
+	// (Derived)
 	const sessionId = $derived(page.params.id ?? '')
+
+
+	// Context
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
@@ -56,6 +57,8 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
+
+	// (Derived)
 	const dbSession = $derived(sessionQuery.data?.[0]?.row ?? null)
 	const sessionQueryResolved = $derived(sessionQuery.data !== undefined)
 	const sessionActionsRows = $derived(
@@ -68,21 +71,23 @@
 			? sessionActionsRows.map((r) => r.action)
 			: dbSession?.actions ?? [],
 	)
-	const sessionFromDb = $derived(
-		dbSession
-			? (() => {
-					const actions = mergedActions.map((a) => mergeActionParams(a))
-					return {
-						...dbSession,
-						actions:
-							actions.length > 0 ? actions : [createAction(ActionType.Swap)],
-					}
-				})()
-			: null,
-	)
+	const sessionFromDb = $derived.by(() => {
+		if (!dbSession) return null
+		const actions = mergedActions.map((a) => mergeActionParams(a))
+		return {
+			...dbSession,
+			actions:
+				actions.length > 0 ? actions : [createAction(ActionType.Swap)],
+		}
+	})
 
+
+	// State
 	let activeSession = $state<Session | null>(null)
 	let lastActionsHash = $state('')
+
+
+	// Actions
 	$effect(() => {
 		const next = sessionFromDb
 		if (!next) return
@@ -94,7 +99,6 @@
 		}
 		lastActionsHash = stringify(activeSession?.actions ?? [])
 	})
-
 	$effect(() => {
 		const s = activeSession
 		if (!s) return
@@ -105,6 +109,8 @@
 		}
 	})
 
+
+	// (Derived)
 	const pageTitle = $derived(
 		activeSession
 			? (activeSession.name ?? formatSessionPlaceholderName(activeSession.actions))

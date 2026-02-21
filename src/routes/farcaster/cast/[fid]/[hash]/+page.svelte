@@ -35,13 +35,6 @@
 	)
 
 
-	// State
-	let isEnsureCastPending = $state(false)
-	let isLoadingMoreReplies = $state(false)
-	let openNodes = $state<Set<string>>(new Set())
-	let repliesNextToken = $state<string | undefined>(undefined)
-
-
 	// Context
 	const castQuery = useLiveQuery(
 		(q) =>
@@ -78,20 +71,18 @@
 	)
 	const findInAll = (fid: number, h: `0x${string}`) =>
 		allCasts.find((c) => c.$id.fid === fid && c.$id.hash === h)
-	const ancestorChain = $derived(
-		(() => {
-			if (!cast?.parentFid || !cast?.parentHash) return []
-			const chain: FarcasterCastRow[] = []
-			let c: FarcasterCastRow | undefined = cast
-			while (c?.parentFid != null && c?.parentHash) {
-				const parent = findInAll(c.parentFid, c.parentHash)
-				if (!parent) break
-				chain.push(parent)
-				c = parent
-			}
-			return chain
-		})(),
-	)
+	const ancestorChain = $derived.by(() => {
+		if (!cast?.parentFid || !cast?.parentHash) return []
+		const chain: FarcasterCastRow[] = []
+		let c: FarcasterCastRow | undefined = cast
+		while (c?.parentFid != null && c?.parentHash) {
+			const parent = findInAll(c.parentFid, c.parentHash)
+			if (!parent) break
+			chain.push(parent)
+			c = parent
+		}
+		return chain
+	})
 	const rootCast = $derived(ancestorChain.at(-1) ?? cast ?? null)
 	const isReply = $derived(ancestorChain.length > 0)
 	const showContext = $derived(
@@ -104,6 +95,13 @@
 			(usersQuery.data ?? []).map((r) => [r.row.$id.fid, r.row]),
 		),
 	)
+
+
+	// State
+	let isEnsureCastPending = $state(false)
+	let isLoadingMoreReplies = $state(false)
+	let openNodes = $state<Set<string>>(new Set())
+	let repliesNextToken = $state<string | undefined>(undefined)
 
 
 	// Functions
