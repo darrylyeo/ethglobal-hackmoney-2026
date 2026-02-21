@@ -30,25 +30,23 @@
 
 	// (Derived) layout: nodes in circle
 	const radius = 8
-	const nodePositionByAddress = $derived(
-		(() => {
-			const nodes = graph.nodes
-			const nodeCount = nodes.length
-			return new Map(
-				nodes.map((n, i) => {
-					const angle = (2 * Math.PI * i) / (nodeCount || 1)
-					return [
-						n.address,
-						new THREE.Vector3(
-							radius * Math.cos(angle),
-							radius * Math.sin(angle),
-							0,
-						),
-					]
-				}),
-			)
-		})(),
-	)
+	const nodePositionByAddress = $derived.by(() => {
+		const nodes = graph.nodes
+		const nodeCount = nodes.length
+		return new Map(
+			nodes.map((n, i) => {
+				const angle = (2 * Math.PI * i) / (nodeCount || 1)
+				return [
+					n.address,
+					new THREE.Vector3(
+						radius * Math.cos(angle),
+						radius * Math.sin(angle),
+						0,
+					),
+				]
+			}),
+		)
+	})
 	const sortedEdges = $derived(
 		[...graph.edges].sort(
 			(a, b) => Math.min(...a.timestamps) - Math.min(...b.timestamps),
@@ -109,29 +107,27 @@
 	)
 
 	const visibleEdges = $derived(sortedEdges.slice(0, visibleEdgeCount))
-	const edgeGeometry = $derived(
-		(() => {
-			const geom = new THREE.BufferGeometry()
-			if (visibleEdges.length === 0) return geom
-			const positions = new Float32Array(visibleEdges.length * 2 * 3)
-			let idx = 0
-			for (const e of visibleEdges) {
-				const from = nodePositionByAddress.get(e.fromAddress)
-				const to = nodePositionByAddress.get(e.toAddress)
-				if (from && to) {
-					positions[idx++] = from.x
-					positions[idx++] = from.y
-					positions[idx++] = from.z
-					positions[idx++] = to.x
-					positions[idx++] = to.y
-					positions[idx++] = to.z
-				}
+	const edgeGeometry = $derived.by(() => {
+		const geom = new THREE.BufferGeometry()
+		if (visibleEdges.length === 0) return geom
+		const positions = new Float32Array(visibleEdges.length * 2 * 3)
+		let idx = 0
+		for (const e of visibleEdges) {
+			const from = nodePositionByAddress.get(e.fromAddress)
+			const to = nodePositionByAddress.get(e.toAddress)
+			if (from && to) {
+				positions[idx++] = from.x
+				positions[idx++] = from.y
+				positions[idx++] = from.z
+				positions[idx++] = to.x
+				positions[idx++] = to.y
+				positions[idx++] = to.z
 			}
-			geom.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-			geom.computeBoundingSphere()
-			return geom
-		})(),
-	)
+		}
+		geom.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+		geom.computeBoundingSphere()
+		return geom
+	})
 </script>
 
 
