@@ -41,4 +41,4 @@ Add a reusable generic tree component `TreeNode.svelte` that renders expandable/
 
 ## Status
 
-Complete.
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec, re-verify 098): All 5 AC confirmed—TreeNode.svelte in src/components/ with generics _Node, _Key; props nodes, getKey, getChildren, isOpen, onOpenChange, Content, listTag, listAttrs, detailsAttrs, summaryAttrs; expandable nodes use <details>/<summary> and recursive TreeNode, leaf nodes Content only; open state via isOpen(node), ontoggle calls onOpenChange(node, open); NavigationItem.svelte uses TreeNode with treeGetChildren, treeIsOpen, treeOnOpenChange, NavContent snippet; nav-specific logic (search, Linkable, styles) in NavigationItem. Deno test 55 passed; Vitest phase pre-existing failure (npm:@tanstack/svelte-db).
