@@ -47,4 +47,4 @@ Existing localStorage rows that used string `entityId` (e.g. `"ethereum"`, `"USD
 
 ## Status
 
-Implemented. Watched entities store and compare by typed `EntityId`; legacy string ids are handled in derivation only.
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec): All criteria confirmed—WatchedEntityStoredRow with entityType, entityId: EntityId, addedAt in src/collections/WatchedEntities.ts; watchedEntityKey exported, key format entityType:stringify(entityId) or entityType:legacyString; watchEntity, unwatchEntity, isEntityWatched API; deriveWatchedEntityRow in navigationItems.svelte.ts with typed and legacy id handling; DEFAULT_WATCHED_ENTITIES in default-watched-entities.ts (Network, Coin, Actor typed ids); WatchButton uses entityType, entityId, watchedEntityKey for comparison; EntityView passes entityId from entityIdProp ?? entity?.$id to WatchButton when non-null; networks/+page entityId={{ chainId }}; coins/+page WatchButton entityId with $network, address, interopAddress. Deno test 55 passed; Vitest phase pre-existing failure (npm:@tanstack/svelte-db).
