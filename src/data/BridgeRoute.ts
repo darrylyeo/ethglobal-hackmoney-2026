@@ -1,6 +1,12 @@
 import type { Route } from '@lifi/sdk'
 import type { BridgeError } from '$/lib/bridge/errors.ts'
 
+export enum BridgeRouteStepType {
+	Bridge = 'bridge',
+	Swap = 'swap',
+	Cross = 'cross',
+}
+
 export type BridgeRoutes$Id = {
 	fromChainId: number,
 	toChainId: number,
@@ -12,7 +18,7 @@ export type BridgeRoutes$Id = {
 export type BridgeRouteStep = {
 	tool: string,
 	toolName: string,
-	type: 'bridge' | 'swap' | 'cross',
+	type: BridgeRouteStepType,
 	fromChainId: number,
 	toChainId: number,
 	fromAmount: bigint,

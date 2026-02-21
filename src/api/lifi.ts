@@ -11,6 +11,7 @@ import {
 import { CoinId } from '$/constants/coins.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { ChainId } from '$/constants/networks.ts'
+import { BridgeRouteStepType } from '$/data/BridgeRoute.ts'
 import {
 	BridgeOverallStatus,
 	type BridgeStatus,
@@ -101,7 +102,7 @@ export type NormalizedRoute = {
 	steps: {
 		tool: string
 		toolName: string
-		type: 'bridge' | 'swap' | 'cross'
+		type: BridgeRouteStepType
 		fromChainId: number
 		toChainId: number
 		fromAmount: string
@@ -249,7 +250,12 @@ export function normalizeRoute(route: Route): NormalizedRoute {
 		steps: route.steps.map((step) => ({
 			tool: step.tool,
 			toolName: step.toolDetails?.name ?? step.tool,
-			type: (step.type ?? 'bridge') as 'bridge' | 'swap' | 'cross',
+			type:
+				step.type === 'swap'
+					? BridgeRouteStepType.Swap
+					: step.type === 'cross'
+						? BridgeRouteStepType.Cross
+						: BridgeRouteStepType.Bridge,
 			fromChainId: step.action.fromChainId,
 			toChainId: step.action.toChainId,
 			fromAmount: step.action.fromAmount ?? '0',
