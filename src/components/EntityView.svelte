@@ -27,6 +27,11 @@
 		metadata,
 		annotation,
 		hasAnchorTitle = true,
+		showWatchButton = true,
+		open = true,
+		ontoggle,
+		detailsProps = {},
+		detailsRef = $bindable(null as HTMLDetailsElement | null),
 		Title,
 		AfterTitle,
 		BeforeAnnotation,
@@ -43,6 +48,11 @@
 		metadata?: Array<{ term: string; detail: string }>
 		annotation?: string
 		hasAnchorTitle?: boolean
+		showWatchButton?: boolean
+		open?: boolean
+		ontoggle?: (e: Event) => void
+		detailsProps?: Record<string, unknown>
+		detailsRef?: HTMLDetailsElement | null
 		Title?: Snippet
 		AfterTitle?: Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
 		BeforeAnnotation?: Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
@@ -78,8 +88,11 @@
 >
 	<HeadingLevelProvider>
 		<details
-			open
+			bind:this={detailsRef}
+			{open}
 			data-card
+			{...detailsProps}
+			ontoggle={ontoggle}
 		>
 			<summary>
 				<header data-row="wrap gap-4">
@@ -108,7 +121,7 @@
 									{@render AfterTitle({ entity, entityType })}
 								{/if}
 
-								{#if entityId != null}
+								{#if showWatchButton && entityId != null}
 									<WatchButton
 										{entityType}
 										{entityId}
@@ -120,7 +133,9 @@
 								<dl data-definition-list="horizontal">
 									{#each metadata as { term, detail }}
 										<div>
-											<dt>{term}</dt>
+											{#if term}
+												<dt>{term}</dt>
+											{/if}
 											<dd>{detail}</dd>
 										</div>
 									{/each}
