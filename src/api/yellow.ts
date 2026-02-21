@@ -16,7 +16,7 @@ import {
 	CHALLENGE_PERIOD,
 } from '$/constants/yellow.ts'
 import { NetworkType, networksByChainId } from '$/constants/networks.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import { Address } from '@tevm/voltaire/Address'
 import { Hex } from '@tevm/voltaire/Hex'
 import { PrivateKey } from '@tevm/voltaire/PrivateKey'
@@ -234,7 +234,7 @@ const createNitroliteClient = async (
 	if (!deployment) {
 		throw new Error('Yellow contracts not deployed on this chain')
 	}
-	const rpcUrl = rpcUrls[chainId]
+	const rpcUrl = getEffectiveRpcUrl(chainId)
 	if (!rpcUrl) {
 		throw new Error('No RPC endpoint for this chain')
 	}

@@ -21,8 +21,7 @@ import {
 	getGatewayMinterAddress,
 	getGatewayWalletAddress,
 } from '$/lib/gateway.ts'
-import { createHttpProvider } from '$/api/voltaire.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import { switchWalletChain } from '$/lib/wallet.ts'
 
 const GATEWAY_WALLET_DEPOSIT_ABI = Abi([
@@ -331,9 +330,9 @@ export async function executeGatewayTransfer(
 			isTestnet,
 		)
 		onStatus?.('deposit', 'done', depositTxHash)
-		const rpcUrl = rpcUrls[fromChainId]
+		const rpcUrl = getEffectiveRpcUrl(fromChainId)
 		if (rpcUrl) {
-			const provider = createHttpProvider(rpcUrl)
+			const provider = createProviderForChain(fromChainId)
 			for (let i = 0; i < 60; i++) {
 				const receipt = (await provider.request({
 					method: 'eth_getTransactionReceipt',

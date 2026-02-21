@@ -21,7 +21,7 @@ import type {
 } from '@spandex/core'
 import type { WalletClient } from 'viem'
 import { createPublicClientForChain } from '$/api/viem-client.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import { ProtocolStrategy } from '$/constants/protocols.ts'
 import type { FetchSwapQuoteParams, SwapQuote } from '$/data/SwapQuote.ts'
 import { getSwapQuoteId } from '$/api/uniswap.ts'
@@ -41,7 +41,7 @@ export const spandexConfig: Config = createConfig({
 		initialRetryDelayMs: 200,
 	},
 	clients: (chainId: number) => {
-		const url = rpcUrls[chainId]
+		const url = getEffectiveRpcUrl(chainId)
 		return url ? createPublicClientForChain(chainId, url) : undefined
 	},
 })

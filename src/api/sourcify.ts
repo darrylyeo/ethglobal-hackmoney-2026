@@ -18,7 +18,7 @@ export type ContractWithAbi = {
 export async function fetchContractWithAbi(
 	chainId: ChainId,
 	address: `0x${string}`,
-): Promise<ContractWithAbi | null> {
+) {
 	const url = `${SOURCIFY_SERVER}/v2/contract/${chainId}/${address}?fields=abi`
 	const res = await fetch(url)
 	if (!res.ok) return null
@@ -40,7 +40,7 @@ export type ContractFull = {
 export async function fetchContractFull(
 	chainId: ChainId,
 	address: `0x${string}`,
-): Promise<ContractFull | null> {
+) {
 	const url = `${SOURCIFY_SERVER}/v2/contract/${chainId}/${address}?fields=abi,sources,compilation`
 	const res = await fetch(url)
 	if (!res.ok) return null
@@ -82,7 +82,7 @@ export async function fetchContractFull(
 export async function fetchVerifiedContract(
 	chainId: ChainId,
 	address: `0x${string}`,
-): Promise<VerifiedContractSourceEntry | null> {
+) {
 	const url = `${SOURCIFY_SERVER}/v2/contract/${chainId}/${address}?fields=sources,compilation`
 	const res = await fetch(url)
 	if (!res.ok) return null

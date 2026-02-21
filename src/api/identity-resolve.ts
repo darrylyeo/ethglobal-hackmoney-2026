@@ -49,7 +49,7 @@ const RESOLVER_TEXT_ABI = Abi([
 const ADDRESS_OUTPUT = [{ type: 'address' as const, name: '' }] as const
 const STRING_OUTPUT = [{ type: 'string' as const, name: '' }] as const
 
-function bytes32FromNamehash(nodeBytes: Uint8Array): `0x${string}` {
+function bytes32FromNamehash(nodeBytes: Uint8Array) {
 	const hex = hexFromBytes(nodeBytes)
 	return (
 		hex.length === 66
@@ -60,10 +60,7 @@ function bytes32FromNamehash(nodeBytes: Uint8Array): `0x${string}` {
 	)
 }
 
-export function normalizeIdentity(raw: string): {
-	kind: IdentityInputKind
-	normalized: string
-} {
+export function normalizeIdentity(raw: string) {
 	const trimmed = raw.trim()
 	if (!trimmed) {
 		return { kind: IdentityInputKind.Address, normalized: '' }
@@ -89,7 +86,7 @@ async function getResolverAddress(
 	provider: VoltaireProvider,
 	registryAddress: `0x${string}`,
 	node: `0x${string}`,
-): Promise<`0x${string}` | null> {
+) {
 	const data = encodeFunction(ENS_REGISTRY_ABI, 'resolver', [node])
 	const res = await provider.request({
 		method: 'eth_call',
@@ -110,7 +107,7 @@ async function resolveAddr(
 	provider: VoltaireProvider,
 	resolverAddress: `0x${string}`,
 	node: `0x${string}`,
-): Promise<`0x${string}` | null> {
+) {
 	const data = encodeFunction(RESOLVER_ADDR_ABI, 'addr', [node])
 	const res = await provider.request({
 		method: 'eth_call',
@@ -132,7 +129,7 @@ async function resolveText(
 	resolverAddress: `0x${string}`,
 	node: `0x${string}`,
 	key: string,
-): Promise<string> {
+) {
 	const data = encodeFunction(RESOLVER_TEXT_ABI, 'text', [node, key])
 	const res = await provider.request({
 		method: 'eth_call',
@@ -150,11 +147,8 @@ export async function resolveEnsForward(
 	provider: VoltaireProvider,
 	registryAddress: `0x${string}`,
 	name: string,
-	textKeys: string[] = ['avatar', ],
-): Promise<{
-	address: `0x${string}` | null
-	textRecords: Record<string, string>
-}> {
+	textKeys: string[] = ['avatar'],
+) {
 	const nodeBytes = namehash(name)
 	const node = bytes32FromNamehash(nodeBytes)
 	const resolverAddress = await getResolverAddress(
@@ -174,7 +168,7 @@ export async function resolveEnsForward(
 	return { address, textRecords }
 }
 
-function reverseNode(address: `0x${string}`): `0x${string}` {
+function reverseNode(address: `0x${string}`) {
 	const addrHex = address.toLowerCase().slice(2).padStart(40, '0')
 	const label = `${addrHex}.addr.reverse`
 	const nodeBytes = namehash(label)
@@ -185,7 +179,7 @@ export async function resolveEnsReverse(
 	provider: VoltaireProvider,
 	registryAddress: `0x${string}`,
 	address: `0x${string}`,
-): Promise<string | null> {
+) {
 	const node = reverseNode(address)
 	const resolverAddress = await getResolverAddress(
 		provider,
@@ -220,7 +214,7 @@ export async function resolveIdentity(
 	chainId: ChainId,
 	raw: string,
 	existing: IdentityResolution | null,
-): Promise<Partial<IdentityResolution>> {
+) {
 	const now = Date.now()
 	const { kind, normalized } = normalizeIdentity(raw)
 	const resolvers = identityResolversByKind[kind] ?? []
@@ -259,7 +253,7 @@ export async function resolveIdentity(
 			address: address ?? undefined,
 			textRecords:
 				Object.keys(textRecords).length > 0 ? textRecords : undefined,
-			avatarUrl: avatarUrl || undefined,
+			avatarUrl: avatarUrl ?? undefined,
 			resolvedAt: now,
 		}
 	}

@@ -24,8 +24,6 @@ export type ChainListChain = {
 	isTestnet?: boolean
 }
 
-type ChainListRpcEntry = { url: string }
-
 type ChainListRawChain = {
 	name: string
 	chainId: number
@@ -33,28 +31,26 @@ type ChainListRawChain = {
 	chainSlug?: string
 	networkId?: number
 	nativeCurrency: ChainListNativeCurrency
-	rpc?: ChainListRpcEntry[]
+	rpc?: { url: string }[]
 	faucets?: string[]
 	infoURL?: string
 	isTestnet?: boolean
 }
 
-const toChainListChain = (raw: ChainListRawChain): ChainListChain => ({
-	name: raw.name,
-	chainId: raw.chainId,
-	shortName: raw.shortName,
-	chainSlug: raw.chainSlug,
-	networkId: raw.networkId,
-	nativeCurrency: raw.nativeCurrency,
-	rpc: raw.rpc?.map((e) => e.url),
-	faucets: raw.faucets,
-	infoURL: raw.infoURL,
-	isTestnet: raw.isTestnet,
-})
-
-export const fetchChainlistChains = async (): Promise<ChainListChain[]> => {
+export const fetchChainlistChains = async () => {
 	const res = await fetch(CHAINLIST_RPCS_URL)
 	if (!res.ok) throw new Error(`chainlist: ${res.status}`)
 	const raw = (await res.json()) as ChainListRawChain[]
-	return raw.map(toChainListChain)
+	return raw.map((raw) => ({
+		name: raw.name,
+		chainId: raw.chainId,
+		shortName: raw.shortName,
+		chainSlug: raw.chainSlug,
+		networkId: raw.networkId,
+		nativeCurrency: raw.nativeCurrency,
+		rpc: raw.rpc?.map((e) => e.url),
+		faucets: raw.faucets,
+		infoURL: raw.infoURL,
+		isTestnet: raw.isTestnet,
+	}))
 }

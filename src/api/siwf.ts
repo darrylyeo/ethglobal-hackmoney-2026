@@ -9,10 +9,13 @@ import {
 	type StatusAPIResponse,
 } from '@farcaster/auth-client'
 import { FARCASTER_CONNECT_URL } from '$/constants/farcaster.ts'
+import { ChainId } from '$/constants/networks.ts'
+import { getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 
+const ethereumRpcUrl = getEffectiveRpcUrl(ChainId.Ethereum)
 const siwfClient = createAppClient({
 	relay: FARCASTER_CONNECT_URL,
-	ethereum: viemConnector(),
+	ethereum: viemConnector(ethereumRpcUrl ? { rpcUrl: ethereumRpcUrl } : undefined),
 })
 
 export type SiwfChannel = {

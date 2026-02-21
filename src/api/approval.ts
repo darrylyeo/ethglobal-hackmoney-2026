@@ -2,14 +2,13 @@
  * ERC20 approval flow: check allowance, send approve tx, wait for confirmation.
  */
 
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import type { EIP1193Provider } from '$/lib/wallet.ts'
 import {
-	createHttpProvider,
 	encodeApproveCall,
 	getErc20Allowance,
 	MAX_UINT256,
 } from './voltaire.ts'
+import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 
 export type ApprovalState =
 	| 'unknown'
@@ -34,10 +33,10 @@ export async function checkApproval(
 	amount: bigint,
 ): Promise<ApprovalInfo> {
 	try {
-		const rpcUrl = rpcUrls[chainId]
+		const rpcUrl = getEffectiveRpcUrl(chainId)
 		if (!rpcUrl) throw new Error(`No RPC for chain ${chainId}`)
 
-		const provider = createHttpProvider(rpcUrl)
+		const provider = createProviderForChain(chainId)
 		const allowance = await getErc20Allowance(
 			provider,
 			tokenAddress,
@@ -91,10 +90,10 @@ export async function waitForApprovalConfirmation(
 	maxAttempts = 60,
 	intervalMs = 2000,
 ): Promise<boolean> {
-	const rpcUrl = rpcUrls[chainId]
+	const rpcUrl = getEffectiveRpcUrl(chainId)
 	if (!rpcUrl) throw new Error(`No RPC for chain ${chainId}`)
 
-	const provider = createHttpProvider(rpcUrl)
+	const provider = createProviderForChain(chainId)
 
 	for (let i = 0; i < maxAttempts; i++) {
 		const receipt = (await provider.request({
@@ -110,13 +109,13 @@ export async function waitForApprovalConfirmation(
 	throw new Error('Approval confirmation timeout')
 }
 
-export async function getTxReceiptStatus(
+export async function 	getTxReceiptStatus(
 	chainId: number,
 	txHash: string,
 ): Promise<'pending' | 'completed' | 'failed'> {
-	const rpcUrl = rpcUrls[chainId]
+	const rpcUrl = getEffectiveRpcUrl(chainId)
 	if (!rpcUrl) return 'pending'
-	const provider = createHttpProvider(rpcUrl)
+	const provider = createProviderForChain(chainId)
 	const receipt = (await provider.request({
 		method: 'eth_getTransactionReceipt',
 		params: [txHash],
