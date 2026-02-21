@@ -10,6 +10,7 @@ export type GraphScenePersisted = {
 	graphFramework: GraphFramework
 	isVisible?: boolean
 	visibleEntities: string[]
+	expandedEntities: string[]
 	hiddenEntitySources: string[]
 }
 
@@ -30,8 +31,9 @@ export const defaultVisibleEntityTypes: EntityType[] = [
 
 const defaultValue: GraphScenePersisted = {
 	graphFramework: GraphFramework.G6,
-	isOpen: false,
+	isVisible: false,
 	visibleEntities: [...defaultVisibleEntityTypes],
+	expandedEntities: [],
 	hiddenEntitySources: [],
 }
 

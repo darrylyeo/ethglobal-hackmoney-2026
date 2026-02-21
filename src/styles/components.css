@@ -1385,8 +1385,7 @@ dl {
 			inset-block-start: 0;
 			/* inset-inline-start: auto !important; */
 
-			background-color: var(--color-bg);
-
+			background-color: var(--color-sticky-bg);
 			--scrollItem-animation: ScrollPaneStaticFade linear;
 			--scrollItem-animationTimeline: scroll(inline nearest);
 			/* --scrollItem-animationRange: 0 var(--scrollPanes-paneStatic-inlineSize); */
