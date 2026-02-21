@@ -75,9 +75,6 @@
 		.coin {
 			color: var(--text-secondary);
 			font-size: smaller;
-		}
-
-		abbr {
 			text-decoration: none;
 			cursor: help;
 		}
