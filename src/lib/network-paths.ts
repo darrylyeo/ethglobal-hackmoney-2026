@@ -21,4 +21,11 @@ export const getBlockPath = (
 		: `/network/${chainId}/block/${blockNumber}`
 }
 
+export const getForksPagePath = (chainId: number) => {
+	const slug = networksByChainId[chainId]?.slug
+	return slug != null
+		? `/network/${slug}/forks`
+		: `/network/${chainId}/forks`
+}
+
 export const getAccountPath = (address: string) => `/account/${address}`

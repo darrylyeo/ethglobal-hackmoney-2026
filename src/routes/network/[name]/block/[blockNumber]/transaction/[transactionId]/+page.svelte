@@ -3,15 +3,18 @@
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { getCurrentBlockNumber } from '$/api/voltaire.ts'
-	import { fetchBlock, blocksCollection } from '$/collections/Blocks.ts'
+	import {
+		fetchBlock,
+		blocksCollection,
+		ensureLatestBlockForChain,
+	} from '$/collections/Blocks.ts'
 	import {
 		fetchNetworkTransaction,
 		networkTransactionsCollection,
 	} from '$/collections/NetworkTransactions.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
+	import { getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -82,6 +85,15 @@
 				.select(({ row }) => ({ row })),
 		[() => chainId, () => blockNum],
 	)
+	const latestBlockQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: blocksCollection })
+				.where(({ row }) => eq(row.$id.$network.chainId, chainId))
+				.orderBy(({ row }) => row.$id.blockNumber, 'desc')
+				.select(({ row }) => row.$id.blockNumber),
+		[() => chainId],
+	)
 	registerLocalLiveQueryStack(() => [
 		{
 			id: 'tx',
@@ -99,10 +111,9 @@
 	// (Derived)
 	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
 	const tx = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
-
-
-	// State
-	let height = $state(0)
+	const latestBlockNumber = $derived(
+		Number(latestBlockQuery.data?.[0] ?? 0),
+	)
 
 
 	// Actions
@@ -114,11 +125,8 @@
 			]).catch(() => {})
 	})
 	$effect(() => {
-		const rpcUrl = getEffectiveRpcUrl(chainId)
-		if (!rpcUrl) return
-		getCurrentBlockNumber(createProviderForChain(chainId))
-			.then((h) => (height = h))
-			.catch(() => {})
+		if (getEffectiveRpcUrl(chainId))
+			ensureLatestBlockForChain(chainId).catch(() => {})
 	})
 
 
@@ -192,9 +200,10 @@
 						],
 					])
 					: new Map()}
+				chainId={chainId}
 				placeholderBlockIds={new Set([
 					...(blockNum > 0 ? [blockNum - 1] : []),
-					...(height <= 0 || blockNum + 1 <= height ? [blockNum + 1] : []),
+					...(latestBlockNumber <= 0 || blockNum + 1 <= latestBlockNumber ? [blockNum + 1] : []),
 				])}
 			/>
 		{/snippet}

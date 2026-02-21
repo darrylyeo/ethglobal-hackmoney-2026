@@ -30,17 +30,16 @@
 		[() => chainId],
 	)
 	const contracts = $derived((contractsQuery.data ?? []).map((r) => r.row))
+	const contractsHref = $derived(resolve(`/network/${nameParam}/contracts`))
 </script>
 
 <details data-card="radius-2 padding-4">
 	<summary>
-		<h3>Contracts</h3>
+		<h3><a href={contractsHref}>Contracts</a></h3>
 		<span data-text="annotation">{contracts.length} known</span>
 	</summary>
 	{#if contracts.length === 0}
-		<p data-text="muted">
-			<a href={resolve(`/network/${nameParam}/contracts`)} data-link>Browse contracts</a>
-		</p>
+		<p data-text="muted">No contracts yet.</p>
 	{:else}
 		<ul data-column="gap-1">
 			{#each contracts.slice(0, 20) as c (c.$id.$network.chainId + c.$id.address)}
@@ -52,11 +51,7 @@
 			{/each}
 		</ul>
 		{#if contracts.length > 20}
-			<p>
-				<a href={resolve(`/network/${nameParam}/contracts`)} data-link>
-					View all {contracts.length}…
-				</a>
-			</p>
+			<p data-text="muted">…and {contracts.length - 20} more.</p>
 		{/if}
 	{/if}
 </details>

@@ -3,9 +3,12 @@
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import { type ChainId, networksByChainId } from '$/constants/networks.ts'
-	import { getCurrentBlockNumber } from '$/api/voltaire.ts'
-	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
-	import { fetchBlock, blocksCollection } from '$/collections/Blocks.ts'
+	import { getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
+	import {
+		fetchBlock,
+		blocksCollection,
+		ensureLatestBlockForChain,
+	} from '$/collections/Blocks.ts'
 	import { fetchNetworkTransaction, networkTransactionsCollection } from '$/collections/NetworkTransactions.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
@@ -37,7 +40,6 @@
 
 
 	// State
-	let height = $state(0)
 	let blockNum = $state(0)
 
 
@@ -78,6 +80,15 @@
 					.select(({ row }) => ({ row })),
 		[() => chainId, () => blockNum, () => valid],
 	)
+	const latestBlockQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: blocksCollection })
+				.where(({ row }) => eq(row.$id.$network.chainId, chainId))
+				.orderBy(({ row }) => row.$id.blockNumber, 'desc')
+				.select(({ row }) => row.$id.blockNumber),
+		[() => chainId],
+	)
 	registerLocalLiveQueryStack(() => [
 		{
 			id: 'tx',
@@ -93,6 +104,9 @@
 
 	const tx = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
 	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
+	const latestBlockNumber = $derived(
+		Number(latestBlockQuery.data?.[0] ?? 0),
+	)
 
 	$effect(() => {
 		if (valid && txHash)
@@ -105,11 +119,8 @@
 		if (valid && blockNum > 0) fetchBlock(chainId, blockNum).catch(() => {})
 	})
 	$effect(() => {
-		const rpcUrl = getEffectiveRpcUrl(chainId)
-		if (!rpcUrl) return
-		getCurrentBlockNumber(createProviderForChain(chainId))
-			.then((h) => (height = h))
-			.catch(() => {})
+		if (getEffectiveRpcUrl(chainId))
+			ensureLatestBlockForChain(chainId).catch(() => {})
 	})
 </script>
 
@@ -155,7 +166,7 @@
 				{@const bn = blockNum || 0}
 				{@const placeholderBlockIds = new Set([
 					...(bn > 0 ? [bn - 1] : []),
-					...(height <= 0 || bn + 1 <= height ? [bn + 1] : []),
+					...(latestBlockNumber <= 0 || bn + 1 <= latestBlockNumber ? [bn + 1] : []),
 				])}
 				<p>
 					<a

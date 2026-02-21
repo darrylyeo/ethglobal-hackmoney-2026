@@ -3,11 +3,10 @@
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { getCurrentBlockNumber } from '$/api/voltaire.ts'
-	import { fetchBlock, blocksCollection } from '$/collections/Blocks.ts'
+	import { fetchBlock, blocksCollection, ensureLatestBlockForChain } from '$/collections/Blocks.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
+	import { getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -42,10 +41,6 @@
 	const valid = $derived(!!route && blockNumValid)
 
 
-	// State
-	let height = $state(0)
-
-
 	// Context
 	const blockQuery = useLiveQuery(
 		(q) =>
@@ -60,6 +55,15 @@
 				.select(({ row }) => ({ row })),
 		[() => chainId, () => blockNum],
 	)
+	const latestBlockQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: blocksCollection })
+				.where(({ row }) => eq(row.$id.$network.chainId, chainId))
+				.orderBy(({ row }) => row.$id.blockNumber, 'desc')
+				.select(({ row }) => row.$id.blockNumber),
+		[() => chainId],
+	)
 	registerLocalLiveQueryStack(() => [
 		{
 			id: 'block',
@@ -71,6 +75,9 @@
 
 	// (Derived)
 	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
+	const latestBlockNumber = $derived(
+		Number(latestBlockQuery.data?.[0] ?? 0),
+	)
 
 
 	// Actions
@@ -78,11 +85,8 @@
 		if (valid) fetchBlock(chainId, blockNum).catch(() => {})
 	})
 	$effect(() => {
-		const rpcUrl = getEffectiveRpcUrl(chainId)
-		if (!rpcUrl) return
-		getCurrentBlockNumber(createProviderForChain(chainId))
-			.then((h) => (height = h))
-			.catch(() => {})
+		if (getEffectiveRpcUrl(chainId))
+			ensureLatestBlockForChain(chainId).catch(() => {})
 	})
 
 
@@ -150,7 +154,7 @@
 					chainId={chainId}
 					placeholderBlockIds={new Set([
 						...(blockNum > 0 ? [blockNum - 1] : []),
-						...(height <= 0 || blockNum + 1 <= height ? [blockNum + 1] : []),
+						...(latestBlockNumber <= 0 || blockNum + 1 <= latestBlockNumber ? [blockNum + 1] : []),
 					])}
 				/>
 			{/snippet}

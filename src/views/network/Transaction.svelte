@@ -18,6 +18,8 @@
 	import { formatWei, formatGas, formatGwei } from '$/lib/format.ts'
 	import { getTxPath } from '$/lib/network-paths.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { EntityLayout } from '$/components/EntityView.svelte'
+	import { EntityType } from '$/data/$EntityType.ts'
 
 	const TX_TYPE_LABELS: Record<number, string> = {
 		0: 'Legacy',
@@ -106,7 +108,7 @@
 
 	// State
 	let arrowRects = $state<{ from: DOMRect; to: DOMRect; card: DOMRect } | null>(null)
-	let cardRef = $state<HTMLElement | null>(null)
+	let cardRef = $state<HTMLDetailsElement | null>(null)
 	let fromRef = $state<HTMLElement | null>(null)
 	let hasFetched = $state(false)
 	let hasFetchedTrace = $state(false)
@@ -169,6 +171,7 @@
 
 	// Components
 	import EntityList from '$/components/EntityList.svelte'
+	import EntityView from '$/components/EntityView.svelte'
 	import FlowArrow from '$/components/FlowArrow.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import Address from '$/views/Address.svelte'
@@ -177,10 +180,20 @@
 </script>
 
 
-<details data-card="radius-2 padding-4" id={tx
-		? `transaction:${tx.$id.txHash}`
-		: undefined} ontoggle={onToggle} bind:this={cardRef} class="transaction-card">
-	<summary>
+<EntityView
+	entityType={EntityType.Transaction}
+	idSerialized={tx ? `transaction:${tx.$id.txHash}` : 'transaction:loading'}
+	href={tx ? getTxPath(chainId, tx.$id.txHash) : '#'}
+	label={tx ? `Tx ${tx.$id.txHash.slice(0, 10)}…` : 'Loading…'}
+	layout={EntityLayout.PageSection}
+	annotation="Transaction"
+	showWatchButton={false}
+	open={false}
+	ontoggle={onToggle}
+	detailsProps={{ 'data-card': 'radius-2 padding-4', class: 'transaction-card' }}
+	bind:detailsRef={cardRef}
+>
+	{#snippet Title()}
 		<div data-row="wrap gap-2 align-center">
 			{#if tx}
 				{#if tx.status != null}
@@ -197,9 +210,8 @@
 				<code>Loading…</code>
 			{/if}
 		</div>
-	</summary>
-
-	<div data-column="gap-4">
+	{/snippet}
+	{#snippet children()}
 		{#if tx}
 			<dl>
 				<dt>Hash</dt>
@@ -228,14 +240,14 @@
 				{/if}
 
 				<dt>From</dt>
-				<dd bind:this={fromRef}><Address network={tx.$id.$network.chainId} address={tx.from as `0x${string}`} /></dd>
+				<dd bind:this={fromRef}><Address network={tx.$id.$network} address={tx.from as `0x${string}`} /></dd>
 
 				<dt>To</dt>
 				<dd bind:this={toRef}>
 					{#if tx.contractAddress}
-						<Address network={tx.$id.$network.chainId} address={tx.contractAddress as `0x${string}`} /> (contract created)
+						<Address network={tx.$id.$network} address={tx.contractAddress as `0x${string}`} /> (contract created)
 					{:else if tx.to}
-						<Address network={tx.$id.$network.chainId} address={tx.to as `0x${string}`} />
+						<Address network={tx.$id.$network} address={tx.to as `0x${string}`} />
 					{:else}
 						Contract creation
 					{/if}
@@ -307,33 +319,33 @@
 		<details data-card="radius-2 padding-2">
 			<summary><h3>Detailed: Events</h3></summary>
 			<EntityList
-			title="Events"
-			loaded={eventsSet.size}
-			total={events.length || undefined}
-			items={eventsSet}
-			getKey={(e) => parseInt(e.logIndex, 16)}
-			getSortValue={(e) => parseInt(e.logIndex, 16)}
-			placeholderKeys={
-				placeholderEventIds
-				?? (
-					events.length
-						? new Set<number | [number, number]>([[0, Math.max(0, events.length - 1)]])
-						: new Set<number | [number, number]>([0])
-				)
-			}
-			bind:visiblePlaceholderKeys={visiblePlaceholderEventIds}
-			scrollPosition="End"
-		>
-			{#snippet Item({ key, item, isPlaceholder })}
-				<span id="event:{key}">
-					{#if isPlaceholder}
-						<code>Event #{key} (loading…)</code>
-					{:else}
-						<EventView event={item} {chainId} />
-					{/if}
-				</span>
-			{/snippet}
-		</EntityList>
+				title="Events"
+				loaded={eventsSet.size}
+				total={events.length || undefined}
+				items={eventsSet}
+				getKey={(e) => parseInt(e.logIndex, 16)}
+				getSortValue={(e) => parseInt(e.logIndex, 16)}
+				placeholderKeys={
+					placeholderEventIds
+					?? (
+						events.length
+							? new Set<number | [number, number]>([[0, Math.max(0, events.length - 1)]])
+							: new Set<number | [number, number]>([0])
+					)
+				}
+				bind:visiblePlaceholderKeys={visiblePlaceholderEventIds}
+				scrollPosition="End"
+			>
+				{#snippet Item({ key, item, isPlaceholder })}
+					<span id="event:{key}">
+						{#if isPlaceholder}
+							<code>Event #{key} (loading…)</code>
+						{:else}
+							<EventView event={item} {chainId} />
+						{/if}
+					</span>
+				{/snippet}
+			</EntityList>
 		</details>
 
 		<details data-card="radius-2 padding-2">
@@ -346,12 +358,12 @@
 				<p data-text="muted">Open transaction to load trace…</p>
 			{/if}
 		</details>
-	</div>
-</details>
+	{/snippet}
+</EntityView>
 
 
 <style>
-	.transaction-card {
+	:global(.transaction-card) {
 		position: relative;
 	}
 </style>

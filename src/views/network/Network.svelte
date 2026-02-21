@@ -16,6 +16,7 @@
 	let {
 		data,
 		chainId,
+		nameParam,
 		placeholderBlockIds,
 		visiblePlaceholderBlockIds = $bindable([] as number[]),
 		currentBlockNumber,
@@ -27,6 +28,7 @@
 			Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
 		>
 		chainId?: number
+		nameParam?: string
 		placeholderBlockIds?: Set<number | [number, number]>
 		visiblePlaceholderBlockIds?: number[]
 		currentBlockNumber?: number
@@ -78,7 +80,7 @@
 	)
 	const showExecution = $derived(chainId != null)
 	const showConsensusCol = $derived(hasConsensusSchedule)
-	const showForksCol = $derived(!!forksHref)
+	const showForksCol = $derived(!!forksHref || (chainId != null && nameParam != null))
 	const columnCount = $derived(
 		[showForksCol, showExecution, showConsensusCol].filter(Boolean).length,
 	)
@@ -100,7 +102,12 @@
 {#if isCompact}
 	<div data-grid={gridColumns}>
 		{#if showForksCol}
-			<NetworkForks href={forksHref} detailsProps={cardDetailsProps} />
+			<NetworkForks
+				chainId={chainId}
+				nameParam={nameParam}
+				forksHref={forksHref}
+				detailsProps={cardDetailsProps}
+			/>
 		{/if}
 		{#if showExecution}
 			<NetworkBlocksEntityList
@@ -177,7 +184,12 @@
 
 			<div data-grid={gridColumns}>
 				{#if showForksCol}
-					<NetworkForks href={forksHref} detailsProps={cardDetailsProps} />
+					<NetworkForks
+						chainId={chainId}
+						nameParam={nameParam}
+						forksHref={forksHref}
+						detailsProps={cardDetailsProps}
+					/>
 				{/if}
 				{#if showExecution}
 					<NetworkBlocksEntityList

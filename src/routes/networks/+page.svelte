@@ -21,8 +21,9 @@
 
 
 <main data-column="gap-2">
-	<h1>Networks</h1>
-	<ul data-column="gap-2">
+	<section data-column="gap-2">
+		<h1><a href={resolve('/networks')}>Networks</a></h1>
+		<ul data-column="gap-2">
 		{#each networks as network (network.chainId)}
 			<li data-row="start gap-2 align-center">
 				<EntityId
@@ -40,5 +41,6 @@
 				/>
 			</li>
 		{/each}
-	</ul>
+		</ul>
+	</section>
 </main>

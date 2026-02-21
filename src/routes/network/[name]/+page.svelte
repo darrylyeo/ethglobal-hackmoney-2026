@@ -6,12 +6,13 @@
 		blocksCollection,
 		blocksViewFrom,
 		ensureBlocksForPlaceholders,
+		ensureLatestBlockForChain,
 	} from '$/collections/Blocks.ts'
 	import { networksCollection } from '$/collections/Networks.ts'
 	import { HELIOS_CHAINS } from '$/constants/helios-chains.ts'
+	import { HeliosBrowserSyncStatus } from '$/lib/helios-rpc.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import {
-		createProviderForChain,
 		getEffectiveRpcUrl,
 		getHeliosBrowserEnabled,
 		getHeliosBrowserSyncStatus,
@@ -39,7 +40,7 @@
 	const caip2 = $derived(route?.caip2 ?? '')
 
 
-	// Context
+	// State
 	const networkQuery = useLiveQuery(
 		(q) =>
 			q
@@ -73,10 +74,18 @@
 		},
 		{
 			id: 'blocks',
-			label: 'Blocks',
+			label: 'Execution',
 			query: blocksQuery as { data: { row: unknown }[] | undefined },
 		},
 	])
+
+
+	// State (heliosSyncStatusTick before derived that reads it)
+	let heliosSyncStatusTick = $state(0)
+	let visiblePlaceholderBlockIds = $state<number[]>([])
+	const latestBlockNumber = $derived(
+		Number(latestBlockQuery.data?.[0] ?? 0),
+	)
 
 
 	// (Derived)
@@ -86,44 +95,52 @@
 		heliosSyncStatusTick
 		return getHeliosBrowserSyncStatus(chainId)
 	})
-
-
-	// State
-	let height = $state(0)
-	let visiblePlaceholderBlockIds = $state<number[]>([])
-	let heliosSyncStatusTick = $state(0)
+	const heliosStatusLabel = $derived(
+		heliosSyncStatus === HeliosBrowserSyncStatus.Syncing
+			? 'Helios syncing…'
+			: heliosSyncStatus === HeliosBrowserSyncStatus.Ready
+				? 'Helios ready'
+				: heliosSyncStatus === HeliosBrowserSyncStatus.Fallback
+					? 'Using fallback RPC'
+					: '',
+	)
 
 
 	// Actions
+	const BLOCK_POLL_MS = 12_000
 	$effect(() => {
-		const rpcUrl = getEffectiveRpcUrl(chainId)
-		if (!rpcUrl) return
-		const provider = createProviderForChain(chainId)
-		const stream = BlockStream({
-			provider: provider as Parameters<typeof BlockStream>[0]['provider'],
-		})
+		if (!getEffectiveRpcUrl(chainId)) return
 		const controller = new AbortController()
-		;(async () => {
-			try {
-				for await (const event of stream.watch({
-					signal: controller.signal,
-					include: 'header',
-					pollingInterval: 12_000,
-				}))
-					height = Number(event.metadata.chainHead)
-			} catch {
-				// aborted or stream error
+		let mounted = true
+		const poll = async () => {
+			while (mounted && !controller.signal.aborted) {
+				try {
+					await ensureLatestBlockForChain(chainId)
+				} catch {
+					// ignore
+				}
+				try {
+					await new Promise<void>((resolve) => {
+						const t = setTimeout(resolve, BLOCK_POLL_MS)
+						controller.signal.addEventListener(
+							'abort',
+							() => {
+								clearTimeout(t)
+								resolve()
+							},
+							{ once: true },
+						)
+					})
+				} catch {
+					break
+				}
 			}
-		})()
-		return () => controller.abort()
-	})
-	$effect(() => {
-		if (height <= 0) return
-		const lo = Math.max(0, height - 10)
-		ensureBlocksForPlaceholders(
-			chainId,
-			Array.from({ length: height - lo + 1 }, (_, j) => lo + j),
-		)
+		}
+		poll()
+		return () => {
+			mounted = false
+			controller.abort()
+		}
 	})
 	$effect(() => {
 		ensureBlocksForPlaceholders(chainId, visiblePlaceholderBlockIds)
@@ -197,10 +214,9 @@
 				{/if}
 			{/snippet}
 			{#snippet children()}
-				{@const h = height > 0 ? height : Number(latestBlockQuery.data?.[0] ?? 0)}
 				{#if heliosSupported}
-					<div data-row data-gap="2">
-						<label data-row>
+					<div data-row data-gap="2" data-wrap>
+						<label data-row data-gap="1">
 							<input
 								type="checkbox"
 								checked={heliosBrowserOn}
@@ -209,31 +225,25 @@
 							/>
 							<span>Use Helios (browser)</span>
 						</label>
-						{#if heliosBrowserOn}
-							<span data-text="annotation">
-								{heliosSyncStatus === 'syncing'
-									? 'Helios syncing…'
-									: heliosSyncStatus === 'ready'
-										? 'Helios ready'
-										: heliosSyncStatus === 'fallback'
-											? 'Using fallback RPC'
-											: ''}
-							</span>
+						{#if heliosBrowserOn && heliosStatusLabel}
+							<span data-text="annotation">{heliosStatusLabel}</span>
 						{/if}
 					</div>
 				{/if}
-				<p>
-					<a href={resolve(`/network/${name}/contracts`)} data-link>Contracts</a>
-				</p>
-				<NetworkContracts chainId={chainId} nameParam={name} />
+				<section data-column="gap-2">
+					<NetworkContracts chainId={chainId} nameParam={name} />
+				</section>
 				<NetworkView
 					data={blocksViewFrom(chainId, blocksQuery.data ?? []).networkData}
 					chainId={chainId}
-					placeholderBlockIds={h > 0
-						? new Set<number | [number, number]>([[0, h]])
-						: new Set<number | [number, number]>([0])}
+					nameParam={name}
+					placeholderBlockIds={
+						new Set<number | [number, number]>([[0, latestBlockNumber]])
+					}
+					currentBlockNumber={latestBlockNumber}
 					bind:visiblePlaceholderBlockIds
-					compact
+					isCompact
+					forksHref={resolve(`/network/${name}/forks`)}
 				/>
 			{/snippet}
 		</EntityView>
