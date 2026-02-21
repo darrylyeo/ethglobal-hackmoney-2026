@@ -1,5 +1,16 @@
 import type { EntityRef } from '$/data/EntityRef.ts'
 
+export type AgentChatToolCall = {
+	id: string
+	name: string
+	arguments: string
+}
+
+export type AgentChatToolResult = {
+	toolCallId: string
+	result: unknown
+}
+
 export type AgentChatTurnStatus =
 	| 'pending'
 	| 'generating'
@@ -20,4 +31,6 @@ export type AgentChatTurn = {
 	error?: string
 	createdAt: number
 	promptVersion: string
+	toolCalls?: AgentChatToolCall[]
+	toolResults?: AgentChatToolResult[]
 }

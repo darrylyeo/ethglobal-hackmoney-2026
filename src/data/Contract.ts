@@ -1,3 +1,4 @@
+import type { DataSource } from '$/constants/data-sources.ts'
 import type { Network$Id } from '$/data/Network.ts'
 
 export type Contract$Id = {
@@ -11,6 +12,6 @@ export type ContractAbi = import('@tevm/voltaire/Abi').Abi
 export type ContractEntry = {
 	$id: Contract$Id
 	deployer?: `0x${string}`
-	source?: 'Sourcify'
+	source?: DataSource
 	abi?: ContractAbi
 }
