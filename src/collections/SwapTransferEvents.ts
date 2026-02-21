@@ -4,7 +4,7 @@
  */
 
 import type { TransferEventRow } from '$/collections/TransferEvents.ts'
-import type { CoinSymbol } from '$/constants/coins.ts'
+import type { CoinId } from '$/constants/coins.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import {
 	createCollection,
@@ -30,11 +30,11 @@ export const swapTransferEventsCollection = createCollection(
 const prefix = (symbol: string, period: string) => `${symbol}:${period}:`
 
 export function upsertSwapTransferEvents(
-	symbol: CoinSymbol,
+	coinId: CoinId,
 	period: string,
 	rows: TransferEventRow[],
 ): void {
-	const pre = prefix(symbol, period)
+	const pre = prefix(coinId, period)
 	for (const key of swapTransferEventsCollection.state.keys()) {
 		if (key.startsWith(pre)) swapTransferEventsCollection.delete(key)
 	}

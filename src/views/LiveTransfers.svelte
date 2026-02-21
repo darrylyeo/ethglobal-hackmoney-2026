@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { browser } from '$app/environment'
-	import type { Coin } from '$/constants/coins.ts'
+	import type { CoinInstance } from '$/constants/coin-instances.ts'
 	import type { TransferGraph } from '$/api/transfers-indexer.ts'
 	import { arrowToPathD, computeArrow } from '$/lib/flow-arrow.ts'
 	import { Canvas, T } from '@threlte/core'
@@ -21,7 +21,7 @@
 		periods,
 		showHeader = true,
 	}: {
-		coin: Coin
+		coin: CoinInstance
 		graph: TransferGraph
 		period: string
 		periods: readonly { value: string; label: string; ms: number }[]

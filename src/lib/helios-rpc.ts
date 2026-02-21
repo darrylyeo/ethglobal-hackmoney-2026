@@ -7,8 +7,7 @@
 import { createHttpProvider, type VoltaireProvider } from '$/api/voltaire.ts'
 import { rpcUrls } from '$/constants/rpc-endpoints.ts'
 import {
-	getHeliosChainInfo,
-	isHeliosSupportedChain,
+	HELIOS_CHAINS,
 	type HeliosNetworkKind,
 } from '$/constants/helios-chains.ts'
 import {
@@ -80,7 +79,7 @@ export function isHeliosFallbackUsed(chainId: number): boolean {
 
 function useHeliosLocalForChain(chainId: number): boolean {
 	return (
-		isHeliosSupportedChain(chainId) &&
+		chainId in HELIOS_CHAINS &&
 		Boolean(heliosLocalEnabled[chainId]) &&
 		!fallbackUsed.has(chainId)
 	)
@@ -88,7 +87,7 @@ function useHeliosLocalForChain(chainId: number): boolean {
 
 function useHeliosBrowserForChain(chainId: number): boolean {
 	return (
-		isHeliosSupportedChain(chainId) &&
+		chainId in HELIOS_CHAINS &&
 		Boolean(heliosBrowserEnabled[chainId]) &&
 		!fallbackUsed.has(chainId)
 	)
@@ -150,7 +149,7 @@ const browserProviderCache = new Map<
 
 function browserConfigHash(chainId: number): string {
 	const url = rpcUrls[chainId]
-	const info = getHeliosChainInfo(chainId)
+	const info = HELIOS_CHAINS[chainId as keyof typeof HELIOS_CHAINS]
 	return `${chainId}:${url ?? ''}:${info?.network ?? ''}:${info?.kind ?? ''}:${HELIOS_CONSENSUS_RPC_DEFAULT}`
 }
 
@@ -162,7 +161,7 @@ async function getOrCreateHeliosBrowserProvider(
 	if (cached?.configHash === hash) return cached.provider
 
 	const defaultUrl = rpcUrls[chainId]
-	const info = getHeliosChainInfo(chainId)
+	const info = HELIOS_CHAINS[chainId as keyof typeof HELIOS_CHAINS]
 	if (!defaultUrl || !info) throw new Error(`No RPC or Helios config for chain ${chainId}`)
 
 	browserSyncStatus[chainId] = 'syncing'

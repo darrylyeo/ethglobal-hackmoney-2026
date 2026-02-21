@@ -1,11 +1,29 @@
 <script lang="ts">
 	// Types/constants
-	import { COIN_SYMBOLS, coinBySymbol } from '$/constants/coins.ts'
+	import {
+		coinInstanceByChainAndCoinId,
+		erc20InstancesByCoinId,
+	} from '$/constants/coin-instances.ts'
+	import { coins } from '$/constants/coins.ts'
+	import { ChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 
 
 	// Context
 	import { resolve } from '$app/paths'
+
+
+	// (Derived)
+	const coinsWithInstance = $derived(
+		coins
+			.map((c) => ({
+				coinId: c.id,
+				coin:
+					coinInstanceByChainAndCoinId.get(`${ChainId.Ethereum}:${c.id}`)
+					?? erc20InstancesByCoinId.get(c.id)?.[0],
+			}))
+			.filter(({ coin }) => coin != null),
+	)
 
 
 	// Components
@@ -23,25 +41,20 @@
 <main data-column="gap-2">
 	<h1>Coins</h1>
 	<ul data-column="gap-2">
-		{#each COIN_SYMBOLS as symbol (symbol)}
-			{@const coin = coinBySymbol[symbol]}
+		{#each coinsWithInstance as { coinId, coin } (coinId)}
 			<li data-row="start gap-2 align-center">
 				<EntityId
-					link={resolve(`/coin/${symbol}`)}
+					link={resolve(`/coin/${coinId}`)}
 					draggableText={coin.symbol}
 					className=""
 					entityType={EntityType.Coin}
-					entityId={{ network: coin.chainId, address: coin.address }}
+					entityId={coin.$id}
 				>
-					<CoinName coin={coin} />
+					<CoinName {coin} />
 				</EntityId>
 				<WatchButton
 					entityType={EntityType.Coin}
-					entityId={{
-						$network: { chainId: coin.chainId },
-						address: coin.address,
-						interopAddress: coin.symbol,
-					}}
+					entityId={coin.$id}
 				/>
 			</li>
 		{/each}

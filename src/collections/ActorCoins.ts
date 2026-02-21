@@ -11,7 +11,7 @@ import { parse, stringify } from 'devalue'
 import { getErc20Balance } from '$/api/voltaire.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
-import { ercTokens } from '$/constants/coins.ts'
+import { erc20Instances, type Erc20Token } from '$/constants/coin-instances.ts'
 import type { ChainId } from '$/constants/networks.ts'
 import { toInteropName } from '$/constants/interop.ts'
 import { createProviderForChain } from '$/lib/helios-rpc.ts'
@@ -45,11 +45,7 @@ export const toActorCoin$Id = (
 		address,
 		interopAddress: toInteropName(chainId, address),
 	},
-	$coin: {
-		$network: { chainId },
-		address: tokenAddress,
-		interopAddress: toInteropName(chainId, tokenAddress),
-	},
+	$coin: { $network: { chainId }, address: tokenAddress },
 })
 
 export const fetchActorCoinBalance = async (
@@ -115,20 +111,29 @@ export const fetchActorCoinBalance = async (
 	}
 }
 
+const tokenChainId = (t: ActorCoinToken | Erc20Token) =>
+	'$id' in t && t.$id ? t.$id.$network.chainId : t.contract.$network.chainId
+const tokenAddress = (t: ActorCoinToken | Erc20Token) =>
+	'$id' in t && t.$id ? t.$id.address : t.contract.address
+
 export const fetchAllBalancesForAddress = async (
 	address: `0x${string}`,
 	chainIds?: ChainId[],
-	tokens: readonly ActorCoinToken[] = ercTokens,
+	tokens: readonly (ActorCoinToken | Erc20Token)[] = erc20Instances,
 ) => {
 	const targetChainIds = chainIds ?? [
-		...new Set(tokens.map((token) => token.chainId)),
+		...new Set(tokens.map((t) => tokenChainId(t))),
 	]
 	return await Promise.all(
 		tokens
-			.filter((token) => targetChainIds.includes(token.chainId))
+			.filter((t) => targetChainIds.includes(tokenChainId(t)))
 			.map((token) =>
 				fetchActorCoinBalance(
-					toActorCoin$Id(token.chainId, address, token.address),
+					toActorCoin$Id(
+						tokenChainId(token),
+						address,
+						tokenAddress(token),
+					),
 					token.symbol,
 					token.decimals,
 				),

@@ -9,7 +9,7 @@
 	} from '$/collections/IdentityLinks.ts'
 	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
-	import { ercTokens } from '$/constants/coins.ts'
+	import { erc20Instances } from '$/constants/coin-instances.ts'
 	import { IdentityInputKind } from '$/constants/identity-resolver.ts'
 	import { ChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
@@ -177,9 +177,9 @@
 				<Boundary>
 					<CoinBalances
 						selectedActor={addr}
-						balanceTokens={ercTokens.map((t) => ({
-							chainId: t.contract.$network.chainId,
-							tokenAddress: t.contract.address,
+						balanceTokens={erc20Instances.map((t) => ({
+							chainId: t.chainId,
+							tokenAddress: t.address,
 						}))}
 						availableAccounts={addr ? [addr] : []}
 					/>

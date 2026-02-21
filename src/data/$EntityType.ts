@@ -17,7 +17,7 @@ import type { SocialPostSession } from '$/data/SocialPostSession.ts'
 import type { FarcasterCast, FarcasterCast$Id } from '$/data/FarcasterCast.ts'
 import type { FarcasterChannel, FarcasterChannel$Id } from '$/data/FarcasterChannel.ts'
 import type { FarcasterUser, FarcasterUser$Id } from '$/data/FarcasterUser.ts'
-import type { CoinEntry, Coin$Id } from '$/data/Coin.ts'
+import type { CoinInstanceEntry, CoinInstance$Id } from '$/constants/coin-instances.ts'
 import type { DashboardState, DashboardState$Id } from '$/data/DashboardPanel.ts'
 import type { NetworkEntry, Network$Id } from '$/data/Network.ts'
 import type { Room } from '$/data/Room.ts'
@@ -184,7 +184,7 @@ export type Entity<_EntityType extends EntityType = EntityType> = {
 	[EntityType.CctpAllowance]: CctpAllowance
 	[EntityType.CctpFee]: CctpFee
 	[EntityType.ChannelProposal]: Record<string, unknown>
-	[EntityType.Coin]: CoinEntry
+	[EntityType.Coin]: CoinInstanceEntry
 	[EntityType.Contract]: ContractEntry
 	[EntityType.Dashboard]: DashboardState
 	[EntityType.Eip8004Agent]: Eip8004Agent
@@ -228,7 +228,7 @@ export type EntityId<_EntityType extends EntityType = EntityType> = {
 	[EntityType.CctpAllowance]: CctpAllowance$Id
 	[EntityType.CctpFee]: CctpFee$Id
 	[EntityType.ChannelProposal]: Record<string, unknown>
-	[EntityType.Coin]: Coin$Id
+	[EntityType.Coin]: CoinInstance$Id
 	[EntityType.Contract]: Contract$Id
 	[EntityType.Dashboard]: DashboardState$Id
 	[EntityType.Eip8004Agent]: Eip8004Agent$Id

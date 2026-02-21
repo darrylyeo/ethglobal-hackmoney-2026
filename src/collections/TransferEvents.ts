@@ -5,7 +5,7 @@
 
 import type { NormalizedTransferEvent } from '$/api/transfers-logs.ts'
 import { fetchTransferEventsForPeriod } from '$/api/transfers-logs.ts'
-import type { CoinSymbol } from '$/constants/coins.ts'
+import type { CoinId } from '$/constants/coins.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import {
@@ -76,36 +76,34 @@ function hasValidCache(metaKey: string): boolean {
 }
 
 export const ensureTransferEventsForPlaceholders = (
-	symbol: CoinSymbol,
+	coinId: CoinId,
 	period: string,
 	placeholderKeys: string[],
 ): void => {
 	const missing = placeholderKeys.some(
 		(key) => !transferEventsCollection.state.get(key),
 	)
-	if (missing) fetchTransferEvents(symbol, period).catch(() => {})
+	if (missing) fetchTransferEvents(coinId, period).catch(() => {})
 }
 
 export async function fetchTransferEvents(
-	symbol: CoinSymbol,
+	coinId: CoinId,
 	period: string,
 	options?: { force?: boolean },
 ): Promise<TransferEventRow[]> {
-	const metaKey = `${symbol}:${period}:meta`
-	const cacheKey = `${symbol}:${period}`
+	const metaKey = `${coinId}:${period}:meta`
+	const cacheKey = `${coinId}:${period}`
 
 	if (!options?.force && hasValidCache(metaKey)) {
-		const rows = [...transferEventsCollection.state.values()]
+		const rows = [...transferEventsCollection.state.values()].filter(
+			(r): r is TransferEventRow => r.$id.$network.chainId !== -1,
+		)
 			.filter(
-				(r): r is TransferEventRow =>
-					'chainId' in r && (r as TransferEventRow).$id.$network.chainId !== -1,
-			)
-			.filter(
-				(r) => r.$id.symbol === symbol && r.$id.period === period,
+				(r) => r.$id.symbol === coinId && r.$id.period === period,
 			) as TransferEventRow[]
-		upsertGraphFromEvents(symbol, period, rows)
-		upsertBridgeTransferEvents(symbol, period, rows)
-		upsertSwapTransferEvents(symbol, period, rows)
+		upsertGraphFromEvents(coinId, period, rows)
+		upsertBridgeTransferEvents(coinId, period, rows)
+		upsertSwapTransferEvents(coinId, period, rows)
 		return rows
 	}
 
@@ -124,7 +122,7 @@ export async function fetchTransferEvents(
 				transferEventsCollection.insert({
 					$id: {
 						$network: { chainId: -1 },
-						symbol,
+						symbol: coinId,
 						period,
 						blockNumber: -1,
 						logIndex: -1,
@@ -135,7 +133,7 @@ export async function fetchTransferEvents(
 				} as TransferEventsMetaRow)
 		}
 
-		if (symbol !== 'USDC') {
+		if (coinId !== 'USDC') {
 			transferEventsCollection.update(metaKey, (draft) => {
 				;(draft as TransferEventsMetaRow).isLoading = false
 				;(draft as TransferEventsMetaRow).error = null
@@ -146,12 +144,12 @@ export async function fetchTransferEvents(
 		try {
 			const events = await fetchTransferEventsForPeriod(period)
 			for (const e of events) {
-				const key = `${symbol}:${period}:${e.chainId}:${e.blockNumber}:${e.logIndex}`
+				const key = `${coinId}:${period}:${e.chainId}:${e.blockNumber}:${e.logIndex}`
 				const existingRow = transferEventsCollection.state.get(key)
 				const row: TransferEventRow = {
 					$id: {
 						$network: { chainId: e.chainId },
-						symbol,
+						symbol: coinId,
 						period,
 						blockNumber: e.blockNumber,
 						logIndex: e.logIndex,
@@ -176,11 +174,11 @@ export async function fetchTransferEvents(
 				;(draft as TransferEventsMetaRow).isLoading = false
 				;(draft as TransferEventsMetaRow).error = null
 			})
-			upsertGraphFromEvents(symbol, period, events)
+			upsertGraphFromEvents(coinId, period, events)
 			const rows = events.map((e) => ({
 				$id: {
 					$network: { chainId: e.chainId },
-					symbol,
+					symbol: coinId,
 					period,
 					blockNumber: e.blockNumber,
 					logIndex: e.logIndex,
@@ -188,8 +186,8 @@ export async function fetchTransferEvents(
 				$source: '$source' in e ? e.$source : DataSource.Voltaire,
 				...e,
 			})) as TransferEventRow[]
-			upsertBridgeTransferEvents(symbol, period, rows)
-			upsertSwapTransferEvents(symbol, period, rows)
+			upsertBridgeTransferEvents(coinId, period, rows)
+			upsertSwapTransferEvents(coinId, period, rows)
 			return rows
 		} catch (e) {
 			const message = e instanceof Error ? e.message : String(e)

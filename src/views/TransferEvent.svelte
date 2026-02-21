@@ -1,8 +1,8 @@
 <script lang="ts">
 	// Types/constants
 	import type { TransferEventRow } from '$/collections/TransferEvents.ts'
-	import type { Coin } from '$/constants/coins.ts'
-	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
+	import type { CoinInstance } from '$/constants/coin-instances.ts'
+	import { CoinId, coinById } from '$/constants/coins.ts'
 	import TransferEventRowView from '$/views/TransferEventRow.svelte'
 
 
@@ -13,16 +13,19 @@
 		symbol,
 	}: {
 		item: TransferEventRow
-		coin: Coin
+		coin: CoinInstance
 		symbol: string
 	} = $props()
 
 
-	// State
-	let coinIconSrc = $state<string | undefined>(undefined)
-	$effect(() => {
-		getCoinIconUrl(symbol).then((url) => { coinIconSrc = url })
-	})
+	// (Derived)
+	const coinIconSrc = $derived(
+		coin.icon?.original?.url ??
+		coin.icon?.thumbnail?.url ??
+		coin.icon?.low?.url ??
+		(coin.coinId != null ? coinById[coin.coinId]?.icon : null) ??
+		coinById[CoinId.ETH]?.icon,
+	)
 
 
 	// Functions

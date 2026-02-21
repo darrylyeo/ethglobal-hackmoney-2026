@@ -1,8 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type Action, type ActionParams } from '$/constants/actions.ts'
-	import type { Coin } from '$/constants/coins.ts'
-	import { CoinType } from '$/constants/coins.ts'
+	import { CoinInstanceType, type CoinInstance } from '$/constants/coin-instances.ts'
 	import type { Network } from '$/constants/networks.ts'
 	import { PatternType } from '$/constants/patterns.ts'
 
@@ -17,8 +16,8 @@
 	}: {
 		action: Action<ActionType.Transfer>
 		filteredNetworks: readonly Network[]
-		chainCoins: (chainId: number) => Coin[]
-		asNonEmptyCoins: (coins: Coin[]) => coins is [Coin, ...Coin[]]
+		chainCoins: (chainId: number) => CoinInstance[]
+		asNonEmptyCoins: (coins: CoinInstance[]) => coins is [CoinInstance, ...CoinInstance[]]
 		actors?: readonly `0x${string}`[]
 	} = $props()
 
@@ -35,12 +34,16 @@
 	const tokenCoin = $derived(asNonEmptyCoins(coins) ? (coins.find((c) => c.address === p.tokenAddress) ?? coins[0]) : null)
 	const actorItems = $derived(actors.map((a) => ({ address: a })))
 	const syntheticCoin = $derived({
-		type: CoinType.Erc20 as const,
+		type: CoinInstanceType.Erc20Token as const,
+		$id: {
+			$network: { chainId: p.chainId },
+			address: p.tokenAddress as `0x${string}`,
+		},
 		chainId: p.chainId,
 		address: p.tokenAddress as `0x${string}`,
 		symbol: p.tokenSymbol || 'Token',
 		decimals: p.tokenDecimals,
-	})
+	} satisfies CoinInstance)
 
 
 	// Components

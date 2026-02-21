@@ -229,7 +229,7 @@ const createRestSubscription = (assetIds: string[]) => {
 let storkDeployments: Map<number, string> | null = null
 
 const staticDeployments = new Map(
-	storkOracleContracts.map((c) => [c.chainId, c.address]),
+	storkOracleContracts.map((c) => [c.$network.chainId, c.address]),
 )
 
 const fetchStorkDeployments = async () => {

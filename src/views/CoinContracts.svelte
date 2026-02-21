@@ -1,8 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import type { Erc20Token } from '$/constants/coins.ts'
-	import { ercTokens } from '$/constants/coins.ts'
-	import type { CoinSymbol } from '$/constants/coins.ts'
+	import type { Erc20Token } from '$/constants/coin-instances.ts'
+	import { erc20InstancesByCoinId } from '$/constants/coin-instances.ts'
+	import type { CoinId } from '$/constants/coins.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { resolve } from '$app/paths'
 	import { formatAddress } from '$/lib/address.ts'
@@ -12,12 +12,12 @@
 
 
 	// Props
-	let { symbol }: { symbol: CoinSymbol } = $props()
+	let { coinId }: { coinId: CoinId } = $props()
 
 
 	// (Derived)
 	const tokens = $derived(
-		ercTokens.filter((t) => t.symbol === symbol) as Erc20Token[],
+		(erc20InstancesByCoinId.get(coinId) ?? []) as Erc20Token[],
 	)
 	const tokensSet = $derived(new Set(tokens))
 

@@ -31,14 +31,3 @@ export const HELIOS_CHAINS: Partial<Record<ChainId, HeliosChainInfo>> = {
 export const HELIOS_SUPPORTED_CHAIN_IDS: readonly ChainId[] = (
 	Object.keys(HELIOS_CHAINS).map(Number) as ChainId[]
 )
-
-export function isHeliosSupportedChain(chainId: number): boolean {
-	return chainId in HELIOS_CHAINS
-}
-
-export function getHeliosChainInfo(
-	chainId: number,
-): HeliosChainInfo | null {
-	const info = HELIOS_CHAINS[chainId as ChainId]
-	return info ?? null
-}

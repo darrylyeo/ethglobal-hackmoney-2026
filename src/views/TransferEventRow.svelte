@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { TransferEventRow } from '$/collections/TransferEvents.ts'
-	import type { Coin } from '$/constants/coins.ts'
+	import type { CoinInstance } from '$/constants/coin-instances.ts'
 
 
 	// Props
@@ -13,7 +13,7 @@
 		coinIconSrc,
 	}: {
 		item: TransferEventRow
-		coin: Coin
+		coin: CoinInstance
 		formatAmount: (amount: string) => string
 		formatTime: (ts: number) => string
 		coinIconSrc?: string

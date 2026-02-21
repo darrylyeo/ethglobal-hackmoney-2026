@@ -11,12 +11,14 @@ import {
 	getLogs,
 	TRANSFER_TOPIC,
 } from '$/api/voltaire.ts'
-import { getSqdDatasetSlug } from '$/constants/sqd-datasets.ts'
+import { SQD_DATASETS_BY_CHAIN_ID } from '$/constants/sqd-datasets.ts'
+import { ChainId } from '$/constants/chain-ids.ts'
 import { streamSqdEvm } from '$/api/sqd.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { normalizeAddress } from '$/lib/address.ts'
 import { type ChainContract, TIME_PERIODS, periodToRange } from '$/api/transfers-indexer.ts'
-import { ercTokens } from '$/constants/coins.ts'
+import { erc20InstancesByCoinId } from '$/constants/coin-instances.ts'
+import { CoinId } from '$/constants/coins.ts'
 import { TRANSFER_EVENTS_MAX_TOTAL } from '$/constants/query-limits.ts'
 import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 
@@ -166,7 +168,7 @@ async function fetchTransferLogsViaSqd(
 	fromBlock: bigint,
 	toBlock: bigint,
 ): Promise<NormalizedTransferEvent[]> {
-	const slug = getSqdDatasetSlug(chainId)
+	const slug = SQD_DATASETS_BY_CHAIN_ID[chainId as ChainId]?.slug ?? null
 	if (!slug) throw new Error(`SQD unsupported for chain ${chainId}`)
 	const addr = contractAddress.toLowerCase()
 	const events: NormalizedTransferEvent[] = []
@@ -205,10 +207,9 @@ async function fetchTransferLogsViaSqd(
 	return events
 }
 
-const USDC_CHAINS: ChainContract[] = ercTokens.map((t) => ({
-	chainId: t.chainId,
-	contractAddress: t.address,
-}))
+const USDC_CHAINS: ChainContract[] = (
+	erc20InstancesByCoinId.get(CoinId.USDC) ?? []
+).map((t) => ({ chainId: t.chainId, contractAddress: t.address }))
 
 /** Resolve fromBlock/toBlock for a chain for the given time range (ms). */
 async function resolveBlockRange(
@@ -272,7 +273,7 @@ export async function fetchTransferEventsForPeriod(
 	const results = await Promise.all(
 		withRange.map(
 			async (r): Promise<NormalizedTransferEventWithSource[]> => {
-				const useSqd = !!getSqdDatasetSlug(r.chainId)
+				const useSqd = !!SQD_DATASETS_BY_CHAIN_ID[r.chainId as ChainId]?.slug
 				if (useSqd) {
 					try {
 						const events = await fetchTransferLogsViaSqd(

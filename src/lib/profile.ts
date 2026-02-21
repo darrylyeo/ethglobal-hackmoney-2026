@@ -159,6 +159,9 @@ export const ensureProfilesMeta = () => {
 
 	const profile = createDefaultProfile()
 
+	if (localStorage.getItem(CollectionId.WatchedEntities) == null)
+		seedDefaultWatchedEntities()
+
 	for (const key of PROFILE_SCOPED_STORAGE_KEYS) {
 		const value = localStorage.getItem(key)
 		if (value == null) continue
@@ -167,8 +170,6 @@ export const ensureProfilesMeta = () => {
 			: nsKey('default', key)
 		localStorage.setItem(archiveKey, value)
 	}
-	if (localStorage.getItem(CollectionId.WatchedEntities) == null)
-		seedDefaultWatchedEntities()
 
 	const meta: ProfilesMeta = {
 		version: 1,

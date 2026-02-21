@@ -1,11 +1,11 @@
 <script lang="ts">
 	// Types/constants
 	import type { IntentOption } from '$/constants/intents.ts'
+	import { CoinId, coinById } from '$/constants/coins.ts'
 	import {
-		getCoinIconUrl,
-		getSymbolForCoinEntity,
-		isCoinEntityType,
-	} from '$/lib/coin-icon.ts'
+		COIN_ENTITY_TYPES,
+		getCoinIdForCoinEntity,
+	} from '$/lib/coin-entity.ts'
 	import { getEntityColor } from '$/lib/entity-color.ts'
 	import { resolveIntentForDrag } from '$/lib/intents.ts'
 	import {
@@ -58,9 +58,6 @@
 	let tooltipContentRef = $state<HTMLDivElement | null>(null)
 	let prefersReducedMotion = $state(false)
 	let pointerPosition = $state<{ x: number; y: number } | null>(null)
-	let flowIconSrc = $state<string | undefined>(undefined)
-
-
 	// (Derived)
 	const sourcePayload = $derived(intentDragPreviewState.source?.payload ?? null)
 	const targetPayload = $derived(intentDragPreviewState.target?.payload ?? null)
@@ -80,17 +77,19 @@
 		: null),
 	)
 
-	$effect(() => {
-		if (!sourcePayload || !isCoinEntityType(sourcePayload.entity.type)) {
-			flowIconSrc = undefined
-			return
-		}
-		const symbol = getSymbolForCoinEntity(
-			sourcePayload.entity.type,
-			sourcePayload.entity.id as Record<string, unknown>,
-		)
-		getCoinIconUrl(symbol).then((url) => { flowIconSrc = url })
-	})
+	const flowIconSrc = $derived(
+		!sourcePayload || !COIN_ENTITY_TYPES.has(sourcePayload.entity.type) ?
+			undefined
+		: (() => {
+				const coinId = getCoinIdForCoinEntity(
+					sourcePayload.entity.type,
+					sourcePayload.entity.id as Record<string, unknown>,
+				)
+				return coinId != null ?
+					(coinById[coinId]?.icon ?? coinById[CoinId.ETH]?.icon)
+				:	undefined
+			})(),
+	)
 
 	$effect(() => {
 		if (typeof window === 'undefined') return

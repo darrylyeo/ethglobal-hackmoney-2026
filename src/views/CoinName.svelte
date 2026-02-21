@@ -1,9 +1,10 @@
-<script lang="ts" generics="_CoinType extends CoinType = CoinType">
+<script lang="ts" generics="_CoinType extends import('$/constants/coin-instances.ts').CoinInstanceType = import('$/constants/coin-instances.ts').CoinInstanceType">
 	// Types/constants
-	import type { Coin } from '$/constants/coins.ts'
+	import type { CoinInstance } from '$/constants/coin-instances.ts'
+	import { CoinInstanceType } from '$/constants/coin-instances.ts'
+	import { coinById } from '$/constants/coins.ts'
 	import { draggable } from '$/components/Draggable.svelte.ts'
 	import { IconShape } from '$/components/Icon.svelte'
-	import { CoinType } from '$/constants/coins.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { stringify } from '$/lib/stringify.ts'
 
@@ -14,7 +15,7 @@
 		isDraggable = true,
 		showName = false,
 	}: {
-		coin: Coin
+		coin: CoinInstance
 		isDraggable?: boolean
 		showName?: boolean
 	} = $props()
@@ -31,42 +32,45 @@
 	{@attach draggable({ text: stringify(coin), enabled: isDraggable })}
 	data-row="inline wrap gap-1"
 >
-	{#if true}
-		{@const network = networksByChainId[coin.chainId]}
-		<span class="coin-name" data-row="inline gap-1">
-			{#if coin.icon?.original?.url}
-				<CoinIcon
-					src={coin.icon.original.url}
-					symbol={coin.symbol ?? ''}
-					alt={coin.symbol ?? ''}
-					subicon={
-						network?.icon ?
-							{
-								src: network.icon,
-								alt: coin.chainId.toString(),
-								shape: IconShape.Circle,
-							}
-						: undefined
-					}
-				/>
-			{:else}
-				<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} />
-			{/if}
+	<span class="coin-name" data-row="inline gap-1">
+		{#if coin.icon?.original?.url}
+			{@const chainId = coin.$id.$network.chainId}
+			{@const symbol = coin.symbol}
+			{@const network = networksByChainId[chainId]}
+			<CoinIcon
+				coin={coinById[coin.coinId]!}
+				src={coin.icon.original.url}
+				alt={symbol ?? ''}
+				subicon={
+					network?.icon ?
+						{
+							src: network.icon,
+							alt: chainId.toString(),
+							shape: IconShape.Circle,
+						}
+					: undefined
+				}
+			/>
+		{:else}
+			{@const chainId = coin.$id.$network.chainId}
+			{@const symbol = coin.symbol}
+			<NetworkIcon chainId={chainId} alt={chainId.toString()} />
+		{/if}
 
-			{#if coin.name || coin.symbol}
-				<abbr
-					class="coin"
-					title={coin.type === CoinType.Native ?
-						'Native Currency'
-					: coin.address}
-				>
-					{showName && coin.name && coin.symbol ?
-						`${coin.symbol} (${coin.name})`
-					: coin.symbol}
-				</abbr>
-			{/if}
-		</span>
-	{/if}
+		{#if coin.name || coin.symbol}
+			{@const symbol = coin.symbol}
+			<abbr
+				class="coin"
+				title={coin.type === CoinInstanceType.NativeCurrency ?
+					'Native Currency'
+				: coin.type === CoinInstanceType.Erc20Token ? coin.$id.address : undefined}
+			>
+				{showName && coin.name && symbol ?
+					`${symbol} (${coin.name})`
+				: symbol}
+			</abbr>
+		{/if}
+	</span>
 </div>
 
 

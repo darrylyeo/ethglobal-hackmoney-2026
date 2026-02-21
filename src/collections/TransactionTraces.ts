@@ -14,7 +14,7 @@ import {
 	rawTraceToTrace,
 	type RawTrace,
 } from '$/api/voltaire.ts'
-import { hasSqdTraces } from '$/constants/sqd-datasets.ts'
+import { SQD_DATASETS_BY_CHAIN_ID } from '$/constants/sqd-datasets.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { ChainId } from '$/constants/networks.ts'
@@ -69,7 +69,7 @@ export async function fetchTransactionTrace(
 
 	const blockNumber = opts?.blockNumber
 	if (
-		hasSqdTraces(chainId) &&
+		SQD_DATASETS_BY_CHAIN_ID[chainId]?.traces === true &&
 		blockNumber != null &&
 		blockNumber > 0
 	) {

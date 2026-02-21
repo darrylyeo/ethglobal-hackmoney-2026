@@ -3,8 +3,8 @@
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import type { TransferEventRow } from '$/collections/TransferEvents.ts'
 	import { bridgeTransferEventsCollection } from '$/collections/BridgeTransferEvents.ts'
-	import type { Coin } from '$/constants/coins.ts'
-	import type { CoinSymbol } from '$/constants/coins.ts'
+	import type { CoinInstance } from '$/constants/coin-instances.ts'
+	import type { CoinId } from '$/constants/coins.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import EntityList from '$/components/EntityList.svelte'
 	import TransferEvent from '$/views/TransferEvent.svelte'
@@ -12,13 +12,13 @@
 
 	// Props
 	let {
-		symbol,
+		coinId,
 		period,
 		coin,
 	}: {
-		symbol: CoinSymbol
+		coinId: CoinId
 		period: string
-		coin: Coin
+		coin: CoinInstance
 	} = $props()
 
 
@@ -28,14 +28,14 @@
 			q
 				.from({ row: bridgeTransferEventsCollection })
 				.where(({ row }) =>
-					and(eq(row.$id.symbol, symbol), eq(row.$id.period, period)),
+					and(eq(row.$id.symbol, coinId), eq(row.$id.period, period)),
 				)
 				.select(({ row }) => ({ row })),
-		[() => symbol, () => period],
+		[() => coinId, () => period],
 	)
 	const liveQueryEntries = $derived([
 		{
-			id: `bridge-transfer-events-${symbol}-${period}`,
+			id: `bridge-transfer-events-${coinId}-${period}`,
 			label: 'Bridge Transfer Events',
 			query,
 		},
@@ -79,7 +79,7 @@
 						{#if isPlaceholder}
 							<code>Bridge transfer (loading…)</code>
 						{:else}
-							<TransferEvent {item} {coin} symbol={symbol} />
+							<TransferEvent {item} {coin} symbol={coinId} />
 						{/if}
 					</span>
 				{/snippet}

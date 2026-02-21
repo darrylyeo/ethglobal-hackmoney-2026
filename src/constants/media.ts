@@ -6,8 +6,8 @@ export enum MediaType {
 	Other = 'Other',
 }
 
-export type Media = {
-	type: MediaType
+export type Media<_MediaType extends MediaType = MediaType> = {
+	type: _MediaType
 	original?: MediaObject
 	thumbnail?: MediaObject
 	low?: MediaObject

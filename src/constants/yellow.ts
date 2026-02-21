@@ -2,6 +2,8 @@
  * Yellow Network constants aligned to current docs.
  */
 
+import type { Contract$Id } from '$/data/Contract.ts'
+import type { Network$Id } from '$/data/Network.ts'
 import { ChainId } from '$/constants/networks.ts'
 
 export enum YellowEnvironment {
@@ -20,20 +22,10 @@ export type YellowClearnodeEndpoint = {
 	url: string,
 }
 
-export type YellowCustodyContract = {
-	chainId: ChainId
-	address: `0x${string}`,
-}
-
-export type YellowAdjudicatorContract = {
-	chainId: ChainId
-	address: `0x${string}`,
-}
-
 export type YellowContractDeployment = {
-	chainId: ChainId
+	$network: Network$Id
 	custody: `0x${string}`
-	adjudicator: `0x${string}`,
+	adjudicator: `0x${string}`
 }
 
 export type YellowChallengePeriodLimitEntry = {
@@ -52,48 +44,49 @@ export const yellowClearnodeEndpoints = [
 	},
 ] as const satisfies readonly YellowClearnodeEndpoint[]
 
-export const yellowContractDeployments = [
+export const yellowContractDeployments: readonly YellowContractDeployment[] = [
 	{
-		chainId: ChainId.Ethereum,
+		$network: { chainId: ChainId.Ethereum },
 		custody: '0x6F71a38d919ad713D0AfE0eB712b95064Fc2616f',
 		adjudicator: '0x7de4A0736Cf5740fD3Ca2F2e9cc85c9AC223eF0C',
 	},
 	{
-		chainId: ChainId.Polygon,
+		$network: { chainId: ChainId.Polygon },
 		custody: '0x490fb189DdE3a01B00be9BA5F41e3447FbC838b6',
 		adjudicator: '0x7de4A0736Cf5740fD3Ca2F2e9cc85c9AC223eF0C',
 	},
 	{
-		chainId: ChainId.Base,
+		$network: { chainId: ChainId.Base },
 		custody: '0x490fb189DdE3a01B00be9BA5F41e3447FbC838b6',
 		adjudicator: '0x7de4A0736Cf5740fD3Ca2F2e9cc85c9AC223eF0C',
 	},
 	{
-		chainId: ChainId.Linea,
+		$network: { chainId: ChainId.Linea },
 		custody: '0x6F71a38d919ad713D0AfE0eB712b95064Fc2616f',
 		adjudicator: '0x7de4A0736Cf5740fD3Ca2F2e9cc85c9AC223eF0C',
 	},
 	{
-		chainId: ChainId.EthereumSepolia,
+		$network: { chainId: ChainId.EthereumSepolia },
 		custody: '0x019B65A265EB3363822f2752141b3dF16131b262',
 		adjudicator: '0x019B65A265EB3363822f2752141b3dF16131b262',
 	},
 	{
-		chainId: ChainId.BaseSepolia,
+		$network: { chainId: ChainId.BaseSepolia },
 		custody: '0x019B65A265EB3363822f2752141b3dF16131b262',
 		adjudicator: '0x019B65A265EB3363822f2752141b3dF16131b262',
 	},
 	{
-		chainId: ChainId.PolygonAmoy,
+		$network: { chainId: ChainId.PolygonAmoy },
 		custody: '0x019B65A265EB3363822f2752141b3dF16131b262',
 		adjudicator: '0x019B65A265EB3363822f2752141b3dF16131b262',
 	},
-] as const satisfies readonly YellowContractDeployment[]
+]
 
-export const yellowCustodyContracts = yellowContractDeployments.map((d) => ({
-	chainId: d.chainId,
-	address: d.custody,
-})) satisfies readonly YellowCustodyContract[]
+export const yellowCustodyContracts: readonly Contract$Id[] =
+	yellowContractDeployments.map((d) => ({
+		$network: d.$network,
+		address: d.custody,
+	}))
 
 export const yellowChallengePeriodLimits = [
 	{
@@ -119,13 +112,13 @@ export const yellowClearnodeEndpointByEnvironment: Partial<
 export const yellowCustodyContractByChainId: Partial<
 	Record<number, `0x${string}`>
 > = Object.fromEntries(
-	yellowCustodyContracts.map((entry) => [entry.chainId, entry.address]),
+	yellowCustodyContracts.map((c) => [c.$network.chainId, c.address]),
 )
 
 export const yellowDeploymentByChainId: Partial<
 	Record<number, YellowContractDeployment>
 > = Object.fromEntries(
-	yellowContractDeployments.map((d) => [d.chainId, d]),
+	yellowContractDeployments.map((d) => [d.$network.chainId, d]),
 )
 
 export const yellowChallengePeriodByLimit: Partial<

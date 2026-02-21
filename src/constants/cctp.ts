@@ -72,9 +72,6 @@ export const CCTP_TESTNET_CHAIN_IDS = new Set<ChainId>([
 	ChainId.XDCApothem,
 ])
 
-export const isCctpTestnetChain = (chainId: ChainId): boolean =>
-	CCTP_TESTNET_CHAIN_IDS.has(chainId)
-
 export const CCTP_FORWARDING_CHAIN_IDS = new Set<ChainId>([
 	ChainId.ArcTestnet,
 	ChainId.Arbitrum,

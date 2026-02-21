@@ -1,8 +1,11 @@
-import { coinColorBySymbol } from '$/constants/coins.ts'
-import { type ChainId, networksByChainId } from '$/constants/networks.ts'
+import { coinById } from '$/constants/coins.ts'
+import {
+	COIN_ENTITY_TYPES,
+	getCoinIdForCoinEntity,
+} from '$/lib/coin-entity.ts'
 import type { IntentEntityRef } from '$/constants/intents.ts'
+import { type ChainId, networksByChainId } from '$/constants/networks.ts'
 import { EntityType } from '$/data/$EntityType.ts'
-import { getSymbolForCoinEntity, isCoinEntityType } from '$/lib/coin-icon.ts'
 
 export const getEntityColor = (entity: IntentEntityRef) => {
 	const { type, id } = entity
@@ -13,9 +16,8 @@ export const getEntityColor = (entity: IntentEntityRef) => {
 				: (id.chainId ?? id.network) as ChainId | undefined
 		return chainId != null ? networksByChainId[chainId]?.color : undefined
 	}
-	if (isCoinEntityType(type)) {
-		const symbol = getSymbolForCoinEntity(type, id)
-		return symbol ? coinColorBySymbol[symbol as keyof typeof coinColorBySymbol]?.color : undefined
-	}
-	return undefined
+	const coinId = COIN_ENTITY_TYPES.has(type)
+		? getCoinIdForCoinEntity(type, id)
+		: undefined
+	return coinId != null ? coinById[coinId]?.color : undefined
 }

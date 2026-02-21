@@ -1,10 +1,10 @@
 <script lang="ts">
-	// Types/constants
-	import type { Snippet } from 'svelte'
-
-
 	// Context
 	import { useHeadingLevel } from '$/svelte/heading-context.ts'
+
+	const level = $derived(
+		useHeadingLevel() || 1
+	)
 
 
 	// Props
@@ -12,20 +12,13 @@
 		children,
 		...rest
 	}: {
-		children?: Snippet
+		children?: import('svelte').Snippet
 		[key: string]: unknown
 	} = $props()
-
-
-	// (Derived)
-	const level = $derived(
-		useHeadingLevel() || 1,
-	)
 </script>
 
 
-{#if level >= 1
-	&& level <= 6}
+{#if level >= 1 && level <= 6}
 	<svelte:element
 		this={'h' + level}
 		{...rest}

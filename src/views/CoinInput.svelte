@@ -1,9 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import type { Coin } from '$/constants/coins.ts'
-	import { CoinType } from '$/constants/coins.ts'
+	import { CoinInstanceType, type CoinInstance } from '$/constants/coin-instances.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
-	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
+	import { CoinId, coinById } from '$/constants/coins.ts'
 
 
 	// Props
@@ -18,8 +17,8 @@
 		ariaLabel = 'Token',
 		...rootProps
 	}: {
-		coins: readonly [Coin, ...Coin[]]
-		value?: Coin | undefined
+		coins: readonly [CoinInstance, ...CoinInstance[]]
+		value?: CoinInstance | undefined
 		placeholder?: string
 		showNetworksAndProtocols?: boolean
 		disabled?: boolean
@@ -30,35 +29,28 @@
 	} = $props()
 
 
-	// State
-	let iconUrls = $state<Record<string, string>>({})
-
-
 	// Functions
-	const toCoinId = (coin: Coin) =>
-		`${coin.chainId}-${coin.type}-${
-			coin.type === CoinType.Native ? 'native' : coin.address
+	const toCoinId = (coin: CoinInstance) =>
+		`${coin.$id.$network.chainId}-${coin.type}-${
+			coin.type === CoinInstanceType.NativeCurrency ? 'native' : coin.$id.address
 		}`
-	const coinIconUrl = (coin: Coin) =>
-		iconUrls[coin.symbol] ??
+	const iconUrls = $derived(
+		(() => {
+			const ids = new Set([
+				...(value?.coinId != null ? [value.coinId] : []),
+				...coins.map((c) => c.coinId),
+			])
+			const ethIcon = coinById[CoinId.ETH]?.icon ?? ''
+			return Object.fromEntries(
+				[...ids].map((id) => [id, coinById[id]?.icon ?? ethIcon]),
+			)
+		})(),
+	)
+	const coinIconUrl = (coin: CoinInstance) =>
+		(coin.coinId != null ? iconUrls[coin.coinId] : undefined) ??
 		coin.icon?.original?.url ??
 		coin.icon?.thumbnail?.url ??
 		coin.icon?.low?.url
-
-
-	// Actions
-	$effect(() => {
-		const symbols = new Set([
-			...(value?.symbol ? [value.symbol] : []),
-			...coins.map((c) => c.symbol),
-		])
-		for (const symbol of symbols) {
-			if (iconUrls[symbol]) continue
-			getCoinIconUrl(symbol).then((url) => {
-				iconUrls = { ...iconUrls, [symbol]: url }
-			})
-		}
-	})
 
 
 	// Components
@@ -85,8 +77,8 @@
 			{#if iconUrl}
 				<span class="coin-input-icon">
 					<CoinIcon
+						coin={coinById[value.coinId]!}
 						src={iconUrl}
-						symbol={value.symbol}
 						alt={value.symbol}
 					/>
 				</span>
@@ -97,27 +89,28 @@
 	{/snippet}
 	{#snippet Item(coin, selected)}
 		{@const iconUrl = coinIconUrl(coin)}
+		{@const symbol = coin.symbol}
 		<span data-row="start gap-2" class="coin-input-item" data-selected={selected}>
 			{#if iconUrl}
 				<span class="coin-input-icon">
 					<CoinIcon
+						coin={coinById[coin.coinId]!}
 						src={iconUrl}
-						symbol={coin.symbol}
-						alt={coin.symbol}
+						alt={symbol}
 					/>
 				</span>
 			{:else}
 				<span class="coin-input-placeholder" aria-hidden="true"></span>
 			{/if}
-			<span>{coin.symbol}</span>
+			<span>{symbol}</span>
 			{#if coin.name}
 				<span data-text="muted">{coin.name}</span>
 			{/if}
 			{#if showNetworksAndProtocols}
 				<small data-text="muted">
-					{networksByChainId[coin.chainId]?.name ?? `Chain ${coin.chainId}`}
+					{networksByChainId[coin.$id.$network.chainId]?.name ?? `Chain ${coin.$id.$network.chainId}`}
 					·
-					{coin.type === CoinType.Native ? 'Native' : 'ERC-20'}
+					{coin.type === CoinInstanceType.NativeCurrency ? 'Native' : 'ERC-20'}
 				</small>
 			{/if}
 		</span>

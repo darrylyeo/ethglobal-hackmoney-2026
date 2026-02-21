@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type ActionParams, type LiquidityAction } from '$/constants/actions.ts'
-	import type { Coin } from '$/constants/coins.ts'
+	import type { CoinInstance } from '$/constants/coin-instances.ts'
 	import type { Network } from '$/constants/networks.ts'
 	import { liquidityFeeTierPresets } from '$/constants/uniswap.ts'
 
@@ -16,7 +16,7 @@
 		action: LiquidityAction
 		filteredNetworks: readonly Network[]
 		chainCoins: (chainId: number) => Coin[]
-		asNonEmptyCoins: (coins: Coin[]) => coins is [Coin, ...Coin[]]
+		asNonEmptyCoins: (coins: CoinInstance[]) => coins is [CoinInstance, ...CoinInstance[]]
 	} = $props()
 
 

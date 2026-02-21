@@ -7,7 +7,8 @@
 import { PUBLIC_OPENCODE_API_KEY } from '$env/static/public'
 import {
 	defaultZenFreeModelId,
-	getZenFreeModel,
+	zenFreeModelById,
+	zenFreeModels,
 	ZenEndpointKind,
 } from '$/constants/opencode-zen.ts'
 import { proxyFetch } from '$/lib/proxyFetch.ts'
@@ -72,7 +73,7 @@ export const zenGenerate = async (
 		typeof input.modelId === 'string' && input.modelId.length > 0
 			? input.modelId
 			: defaultZenFreeModelId
-	const model = getZenFreeModel(modelId)
+	const model = zenFreeModelById[modelId] ?? zenFreeModels[0]
 	const headers: Record<string, string> = {
 		'content-type': 'application/json',
 		authorization: `Bearer ${input.apiKey}`,
@@ -150,7 +151,7 @@ export const zenClientGenerateWithKey = async (
 		typeof input.modelId === 'string' && input.modelId.length > 0
 			? input.modelId
 			: defaultZenFreeModelId
-	const model = getZenFreeModel(modelId)
+	const model = zenFreeModelById[modelId] ?? zenFreeModels[0]
 	const headers: Record<string, string> = {
 		'content-type': 'application/json',
 		authorization: `Bearer ${apiKey}`,

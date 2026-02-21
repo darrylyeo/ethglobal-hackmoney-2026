@@ -1,8 +1,13 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type Action, type ActionParams } from '$/constants/actions.ts'
-	import type { Coin } from '$/constants/coins.ts'
-	import { CoinType, bridgeCoinsByChainId } from '$/constants/coins.ts'
+	import { ZERO_ADDRESS } from '$/api/voltaire.ts'
+	import type { CoinInstance } from '$/constants/coin-instances.ts'
+	import {
+		CoinInstanceType,
+		erc20TokenByNetwork,
+		nativeCurrencyByNetwork,
+	} from '$/constants/coin-instances.ts'
 	import { ChainId, type Network } from '$/constants/networks.ts'
 
 
@@ -24,28 +29,48 @@
 	const getParams = (a: Action<ActionType.Bridge>): ActionParams<ActionType.Bridge> =>
 		a.params as ActionParams<ActionType.Bridge>
 	const p: ActionParams<ActionType.Bridge> = $derived(getParams(action))
-	const bridgeCoins = $derived(
-		bridgeCoinsByChainId[p.fromChainId ?? ChainId.Ethereum] ?? [],
+	const bridgeCoins = $derived.by(() => {
+		const chainId = p.fromChainId ?? ChainId.Ethereum
+		const native = nativeCurrencyByNetwork.get(chainId) ?? []
+		const erc20 = erc20TokenByNetwork.get(chainId) ?? []
+		return [...native, ...erc20]
+	})
+	const selectedCoin = $derived(
+		bridgeCoins.find((c) =>
+			c.type === CoinInstanceType.Erc20Token
+				? c.$id.address === p.tokenAddress
+				: p.tokenAddress === ZERO_ADDRESS,
+		) ?? bridgeCoins[0],
 	)
-	const selectedCoin = $derived(bridgeCoins.find((c) => c.address === p.tokenAddress) ?? bridgeCoins[0])
 	const syntheticCoin = $derived({
-		type: CoinType.Erc20 as const,
+		type: CoinInstanceType.Erc20Token as const,
+		$id: {
+			$network: { chainId: p.fromChainId ?? ChainId.Ethereum },
+			address: p.tokenAddress as `0x${string}`,
+		},
 		chainId: p.fromChainId ?? ChainId.Ethereum,
 		address: p.tokenAddress as `0x${string}`,
 		symbol: p.tokenSymbol || 'Token',
 		decimals: p.tokenDecimals,
-	})
+	} satisfies CoinInstance)
 
 	$effect(() => {
 		if (bridgeCoins.length === 0) return
-		const match = bridgeCoins.find((c) => c.address === p.tokenAddress)
+		const match = bridgeCoins.find((c) =>
+			c.type === CoinInstanceType.Erc20Token
+				? c.$id.address === p.tokenAddress
+				: p.tokenAddress === ZERO_ADDRESS,
+		)
 		if (match) return
 		const first = bridgeCoins[0]
 		action = {
 			...action,
 			params: {
 				...action.params,
-				tokenAddress: first.address,
+				tokenAddress:
+					first.type === CoinInstanceType.Erc20Token
+						? first.$id.address
+						: ZERO_ADDRESS,
 				tokenSymbol: first.symbol,
 				tokenDecimals: first.decimals,
 			},
@@ -74,14 +99,17 @@
 			<label data-column="gap-2">
 				<span>Coin</span>
 				<CoinInput
-					coins={bridgeCoins as [Coin, ...Coin[]]}
+					coins={bridgeCoins as [CoinInstance, ...CoinInstance[]]}
 					bind:value={() => selectedCoin, (c) => {
 						if (c)
 							action = {
 								...action,
 								params: {
 									...action.params,
-									tokenAddress: c.address,
+									tokenAddress:
+										c.type === CoinInstanceType.Erc20Token
+											? c.$id.address
+											: ZERO_ADDRESS,
 									tokenSymbol: c.symbol,
 									tokenDecimals: c.decimals,
 								},
@@ -103,14 +131,17 @@
 			<span>Amount</span>
 			{#if bridgeCoins.length >= 1}
 				<CoinAmountInput
-					coins={bridgeCoins as [Coin, ...Coin[]]}
+					coins={bridgeCoins as [CoinInstance, ...CoinInstance[]]}
 					bind:coin={() => selectedCoin, (c) => {
 						if (c)
 							action = {
 								...action,
 								params: {
 									...action.params,
-									tokenAddress: c.address,
+									tokenAddress:
+										c.type === CoinInstanceType.Erc20Token
+											? c.$id.address
+											: ZERO_ADDRESS,
 									tokenSymbol: c.symbol,
 									tokenDecimals: c.decimals,
 								},

@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { Coin } from '$/constants/coins.ts'
+	import type { CoinInstance } from '$/constants/coin-instances.ts'
 
 
 	// Props
@@ -22,7 +22,7 @@
 		...rootProps
 	}: {
 		coins: readonly [Coin, ...Coin[]]
-		coin?: Coin
+		coin?: CoinInstance
 		min: bigint
 		max: bigint
 		value?: bigint

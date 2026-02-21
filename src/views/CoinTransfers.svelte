@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Types/constants
 	import type { TransferEventRow } from '$/collections/TransferEvents.ts'
-	import type { Coin } from '$/constants/coins.ts'
+	import type { CoinInstance } from '$/constants/coin-instances.ts'
+	import type { CoinId } from '$/constants/coins.ts'
 	import EntityList from '$/components/EntityList.svelte'
 	import TransferEvent from '$/views/TransferEvent.svelte'
 
@@ -9,13 +10,13 @@
 	// Props
 	let {
 		eventsSet,
-		symbol,
+		coinId,
 		coin,
 		visiblePlaceholderKeys = $bindable([] as string[]),
 	}: {
 		eventsSet: Set<TransferEventRow>
-		symbol: string
-		coin: Coin
+		coinId: CoinId
+		coin: CoinInstance
 		visiblePlaceholderKeys?: string[]
 	} = $props()
 
@@ -48,7 +49,7 @@
 					{#if isPlaceholder}
 						<code>Transfer (loading…)</code>
 					{:else}
-						<TransferEvent {item} {coin} {symbol} />
+						<TransferEvent {item} {coin} symbol={coinId} />
 					{/if}
 				</span>
 			{/snippet}

@@ -3,7 +3,7 @@
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { Session } from '$/data/Session.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { ercTokens } from '$/constants/coins.ts'
+	import { erc20TokenByNetwork } from '$/constants/coin-instances.ts'
 	import { NetworkType, networks } from '$/constants/networks.ts'
 
 
@@ -54,23 +54,27 @@
 		),
 	)
 	const defaultBalanceTokens = $derived(
-		ercTokens
-			.filter((t) => filteredNetworks.some((n) => n.chainId === t.chainId))
-			.map((t) => ({ chainId: t.chainId, tokenAddress: t.address })),
+		filteredNetworks.flatMap((n) =>
+			(erc20TokenByNetwork.get(n.chainId) ?? []).map((t) => ({
+				chainId: t.chainId,
+				tokenAddress: t.address,
+			})),
+		),
 	)
 	const balanceTokensToFetch = $derived(
 		balanceTokens.length > 0
 			? balanceTokens.flatMap((t) => {
-					const e = ercTokens.find(
-						(e) =>
-							e.chainId === t.chainId &&
-							e.address.toLowerCase() ===
+					const e = erc20TokenByNetwork
+						.get(t.chainId)
+						?.find(
+							(e) =>
+								e.address.toLowerCase() ===
 								t.tokenAddress.toLowerCase(),
-					)
+						)
 					return e ? [e] : []
 				})
-			: ercTokens.filter((t) =>
-					filteredNetworks.some((n) => n.chainId === t.chainId),
+			: filteredNetworks.flatMap(
+					(n) => erc20TokenByNetwork.get(n.chainId) ?? [],
 				),
 	)
 	const effectiveBalanceTokens = $derived(
@@ -82,7 +86,9 @@
 		void fetchAllBalancesForAddress(
 			selectedActor,
 			undefined,
-			balanceTokensToFetch,
+			balanceTokensToFetch as unknown as Parameters<
+				typeof fetchAllBalancesForAddress
+			>[2],
 		)
 	})
 

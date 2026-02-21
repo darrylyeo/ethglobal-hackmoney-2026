@@ -11,8 +11,8 @@
 		type LiquidityAction,
 	} from '$/constants/actions.ts'
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
-	import type { Coin } from '$/constants/coins.ts'
-	import { ercTokens } from '$/constants/coins.ts'
+	import type { CoinInstance } from '$/constants/coin-instances.ts'
+	import { erc20TokenByNetwork } from '$/constants/coin-instances.ts'
 	import { protocolActions } from '$/constants/protocolActions.ts'
 	import {
 		BridgeProtocolId,
@@ -167,8 +167,8 @@
 		),
 	)
 	const chainCoins = (chainId: number) =>
-		ercTokens.filter((t) => t.chainId === chainId) as Coin[]
-	const asNonEmptyCoins = (coins: Coin[]): coins is [Coin, ...Coin[]] =>
+		(erc20TokenByNetwork.get(chainId) ?? []) as CoinInstance[]
+	const asNonEmptyCoins = (coins: CoinInstance[]): coins is [CoinInstance, ...CoinInstance[]] =>
 		coins.length > 0
 
 	const isParamsValid = $derived.by(() => {

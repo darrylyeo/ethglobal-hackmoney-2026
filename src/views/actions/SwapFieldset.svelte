@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { ActionType, type Action, type ActionParams } from '$/constants/actions.ts'
-	import type { Coin } from '$/constants/coins.ts'
+	import type { CoinInstance } from '$/constants/coin-instances.ts'
 	import type { Network } from '$/constants/networks.ts'
 	import { slippagePresets } from '$/constants/slippage.ts'
 	import { formatSlippagePercent } from '$/lib/slippage.ts'
@@ -17,7 +17,7 @@
 		action: Action<ActionType.Swap>
 		filteredNetworks: readonly Network[]
 		chainCoins: (chainId: number) => Coin[]
-		asNonEmptyCoins: (coins: Coin[]) => coins is [Coin, ...Coin[]]
+		asNonEmptyCoins: (coins: CoinInstance[]) => coins is [CoinInstance, ...CoinInstance[]]
 	} = $props()
 
 

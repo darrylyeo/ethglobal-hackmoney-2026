@@ -4,7 +4,11 @@
  * SDK is lazy-loaded so non-bridge routes stay light.
  */
 
-import { ercTokensBySymbolByChainId } from '$/constants/coins.ts'
+import {
+	coinInstanceByChainAndCoinId,
+	CoinInstanceType,
+} from '$/constants/coin-instances.ts'
+import { CoinId } from '$/constants/coins.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { ChainId } from '$/constants/networks.ts'
 import {
@@ -312,9 +316,10 @@ export async function getRoutesForUsdcBridge(
 }
 
 export function getUsdcAddress(chainId: number): `0x${string}` {
-	const token = ercTokensBySymbolByChainId[chainId as ChainId]?.USDC
-	if (!token) throw new Error(`USDC not configured for chain ${chainId}`)
-	return token.address
+	const instance = coinInstanceByChainAndCoinId.get(`${chainId}:${CoinId.USDC}`)
+	if (!instance || instance.type !== CoinInstanceType.Erc20Token)
+		throw new Error(`USDC not configured for chain ${chainId}`)
+	return instance.$id.address
 }
 
 export async function getQuoteForUsdcBridge(

@@ -1,8 +1,9 @@
-<script lang="ts" generics="_CoinType extends CoinType = CoinType">
+<script lang="ts" generics="_CoinType extends CoinInstance = CoinInstance">
 	// Types/constants
 	import type { StorkPriceRow } from '$/collections/StorkPrices.ts'
 	import { IconShape } from '$/components/Icon.svelte'
-	import { type Coin, CoinType } from '$/constants/coins.ts'
+	import { CoinInstanceType, type CoinInstance } from '$/constants/coin-instances.ts'
+	import { coinById } from '$/constants/coins.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 
 
@@ -15,7 +16,7 @@
 		priceRow = undefined,
 		showPriceTooltip = priceRow != null,
 	}: {
-		coin: Coin
+		coin: CoinInstance
 		amount?: bigint
 		isDraggable?: boolean
 		showName?: boolean
@@ -43,24 +44,26 @@
 	data-row="inline wrap gap-1"
 >
 	{#snippet CoinAmountBody()}
-		{@const network = networksByChainId[coin.chainId]}
+		{@const chainId = coin.$id.$network.chainId}
+		{@const symbol = coin.symbol}
+		{@const network = networksByChainId[chainId]}
 		<span class="coin-amount" data-row="inline gap-2">
 			<span class="coin-icons" data-row="center gap-1">
 				{#if coin.icon?.original?.url}
 					<CoinIcon
+						coin={coinById[coin.coinId]!}
 						src={coin.icon.original.url}
-						symbol={coin.symbol ?? ''}
-						alt={coin.symbol ?? ''}
+						alt={symbol ?? ''}
 						subicon={network?.icon
 						? {
 							src: network.icon,
-							alt: coin.chainId.toString(),
+							alt: chainId.toString(),
 							shape: IconShape.Circle,
 						}
 						: undefined}
 					/>
 				{:else}
-					<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} />
+					<NetworkIcon chainId={chainId} alt={chainId.toString()} />
 				{/if}
 			</span>
 
@@ -78,16 +81,16 @@
 					</span>
 				{/if}
 
-				{#if coin.name || coin.symbol}
+				{#if coin.name || symbol}
 					<abbr
 						class="coin"
-					title={coin.type === CoinType.Native
+					title={coin.type === CoinInstanceType.NativeCurrency
 						? 'Native Currency'
-						: coin.address}
+						: coin.type === CoinInstanceType.Erc20Token ? coin.$id.address : undefined}
 					>
-						{showName && coin.name && coin.symbol
-							? `${coin.symbol} (${coin.name})`
-							: coin.symbol}
+						{showName && coin.name && symbol
+							? `${symbol} (${coin.name})`
+							: symbol}
 					</abbr>
 				{/if}
 			</span>

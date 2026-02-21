@@ -2,7 +2,9 @@
  * Stork endpoints, asset registry, and pushed assets.
  */
 
-import type { Coin, Erc20Token } from '$/constants/coins.ts'
+import type { Contract$Id } from '$/data/Contract.ts'
+import type { Coin } from '$/constants/coins.ts'
+import type { Erc20Token } from '$/constants/coin-instances.ts'
 import { ChainId } from '$/constants/networks.ts'
 
 export enum StorkApiRegion {
@@ -28,11 +30,6 @@ export type StorkAsset = {
 	encodedAssetId: `0x${string}`
 	baseSymbol: StorkAssetSymbol
 	quoteSymbol: StorkAssetSymbol
-}
-
-export type StorkOracleContract = {
-	chainId: ChainId
-	address: `0x${string}`
 }
 
 export type StorkPushedAsset = {
@@ -89,35 +86,35 @@ export const storkWebsocketBaseUrl =
 export const storkWebsocketUrl = `${storkWebsocketBaseUrl}/evm/subscribe`
 
 /** Fallback Stork oracle contract addresses by chain (RPC-only when REST/token unavailable). From https://docs.stork.network/resources/contract-addresses/evm */
-export const storkOracleContracts = [
-	{ chainId: ChainId.Ethereum, address: '0x035B5438444f26e6Aab81E91d475b7B1Ac4Fb22b' },
-	{ chainId: ChainId.Optimism, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.Arbitrum, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.ArbitrumSepolia, address: '0x7Bb9740FdcbD91866CaFEd099C36445Ea8140627' },
-	{ chainId: ChainId.Avalanche, address: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6' },
-	{ chainId: ChainId.Base, address: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6' },
-	{ chainId: ChainId.BaseSepolia, address: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6' },
-	{ chainId: ChainId.Polygon, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.PolygonAmoy, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.Monad, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.MonadTestnet, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.Plume, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.PlumeTestnet, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.UnichainSepolia, address: '0x266795f5A45AEc26aBF7E1c923dC15Cbb1A4Ed96' },
-	{ chainId: ChainId.ZkSyncEra, address: '0xedea47572301271280a39F8A7378C7dc54fe5F1E' },
-	{ chainId: ChainId.ZkSyncEraSepolia, address: '0xa4EdaB501dD4B3aD9Ad6d30dE1B3a29b8d9a9858' },
-	{ chainId: ChainId.ArcTestnet, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.EduChain, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.Mitosis, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.MitosisTestnet, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.RiseTestnet, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-	{ chainId: ChainId.Tac, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-] as const satisfies readonly StorkOracleContract[]
+export const storkOracleContracts: readonly Contract$Id[] = [
+	{ $network: { chainId: ChainId.Ethereum }, address: '0x035B5438444f26e6Aab81E91d475b7B1Ac4Fb22b' },
+	{ $network: { chainId: ChainId.Optimism }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.Arbitrum }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.ArbitrumSepolia }, address: '0x7Bb9740FdcbD91866CaFEd099C36445Ea8140627' },
+	{ $network: { chainId: ChainId.Avalanche }, address: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6' },
+	{ $network: { chainId: ChainId.Base }, address: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6' },
+	{ $network: { chainId: ChainId.BaseSepolia }, address: '0x647DFd812BC1e116c6992CB2bC353b2112176fD6' },
+	{ $network: { chainId: ChainId.Polygon }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.PolygonAmoy }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.Monad }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.MonadTestnet }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.Plume }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.PlumeTestnet }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.UnichainSepolia }, address: '0x266795f5A45AEc26aBF7E1c923dC15Cbb1A4Ed96' },
+	{ $network: { chainId: ChainId.ZkSyncEra }, address: '0xedea47572301271280a39F8A7378C7dc54fe5F1E' },
+	{ $network: { chainId: ChainId.ZkSyncEraSepolia }, address: '0xa4EdaB501dD4B3aD9Ad6d30dE1B3a29b8d9a9858' },
+	{ $network: { chainId: ChainId.ArcTestnet }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.EduChain }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.Mitosis }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.MitosisTestnet }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.RiseTestnet }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+	{ $network: { chainId: ChainId.Tac }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
+]
 
 export const storkOracleContractsByChainId: Partial<
 	Record<ChainId, `0x${string}`>
 > = Object.fromEntries(
-	storkOracleContracts.map((c) => [c.chainId, c.address]),
+	storkOracleContracts.map((c) => [c.$network.chainId, c.address]),
 )
 
 /** EVM Stork aggregator public key for signature verification. From https://docs.stork.network/resources/public-keys */

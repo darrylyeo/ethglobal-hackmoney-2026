@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import { coinSymbolGroups } from '$/constants/filter-groups.ts'
+	import { type CoinId } from '$/constants/coins.ts'
+	import { coinIdGroups } from '$/constants/filter-groups.ts'
 
 
 	// Props
@@ -25,18 +26,18 @@
 	const useDefaultGroups = $derived(itemsProp == null || itemsProp.length === 0)
 	const items = $derived(
 		useDefaultGroups
-			? coinSymbolGroups.flatMap((g) => [...g.symbols])
+			? coinIdGroups.flatMap((g) => [...g.coinIds])
 			: [...(itemsProp ?? [])],
 	)
 	const getItemGroupId = $derived.by(() =>
 		useDefaultGroups
 			? (s: string) =>
-					coinSymbolGroups.find((g) => g.symbols.includes(s))?.id ?? ''
+					coinIdGroups.find((g) => g.coinIds.includes(s as CoinId))?.id ?? ''
 			: undefined,
 	)
 	const getGroupLabel = $derived.by(() =>
 		useDefaultGroups
-			? (id: string) => coinSymbolGroups.find((g) => g.id === id)?.label ?? id
+			? (id: string) => coinIdGroups.find((g) => g.id === id)?.label ?? id
 			: undefined,
 	)
 

@@ -8,7 +8,7 @@
 		ensureBlocksForPlaceholders,
 	} from '$/collections/Blocks.ts'
 	import { networksCollection } from '$/collections/Networks.ts'
-	import { isHeliosSupportedChain } from '$/constants/helios-chains.ts'
+	import { HELIOS_CHAINS } from '$/constants/helios-chains.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import {
 		createProviderForChain,
@@ -80,7 +80,7 @@
 
 
 	// (Derived)
-	const heliosSupported = $derived(isHeliosSupportedChain(chainId))
+	const heliosSupported = $derived(chainId in HELIOS_CHAINS)
 	const heliosBrowserOn = $derived(getHeliosBrowserEnabled(chainId))
 	const heliosSyncStatus = $derived.by(() => {
 		heliosSyncStatusTick

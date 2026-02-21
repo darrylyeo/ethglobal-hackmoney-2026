@@ -6,8 +6,9 @@
 		dashboardsCollection,
 		ensureDefaultRow,
 	} from '$/collections/Dashboards.ts'
-	import { APP_NAME } from '$/constants/app.ts'
-	import { layerColors } from '$/views/architecture-graph.ts'
+import { APP_NAME } from '$/constants/app.ts'
+import { CoinId } from '$/constants/coins.ts'
+import { layerColors } from '$/views/architecture-graph.ts'
 	import { and, eq, not, useLiveQuery } from '@tanstack/svelte-db'
 
 	const valuePhrases = [
@@ -30,7 +31,7 @@
 		{
 			title: 'Explore',
 			summary: 'Browse networks, accounts, blocks, transactions and onchain entities; watch any entity to pin to nav and graph.',
-			href: '/coin/USDC',
+			href: `/coin/${CoinId.USDC}`,
 		},
 		{
 			title: 'Sessions',
@@ -90,7 +91,7 @@
 	const heroCtas = [
 		{ href: '/session', label: 'Start session', primary: true },
 		{ href: '/dashboard', label: 'Dashboard' },
-		{ href: '/coin/USDC', label: 'USDC' },
+		{ href: `/coin/${CoinId.USDC}`, label: 'USDC' },
 		{ href: '/rooms', label: 'Rooms' },
 	]
 	const legendItems = [

@@ -62,6 +62,3 @@ export const LLM_ZEN_DEFAULT_CONNECTION_ID = ZEN_DEFAULT_CONNECTION_ID
 
 export const zenFreeModelOptions: readonly { id: string, label: string }[] =
 	zenFreeModels.map((m) => ({ id: m.id, label: m.label }))
-
-export const getZenFreeModel = (modelId: string): ZenFreeModel =>
-	zenFreeModelById[modelId] ?? zenFreeModels[0]

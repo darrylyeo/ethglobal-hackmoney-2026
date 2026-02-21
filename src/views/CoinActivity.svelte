@@ -2,7 +2,12 @@
 	// Types/constants
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { TIME_PERIODS } from '$/api/transfers-indexer.ts'
-	import { coinBySymbol, type CoinSymbol } from '$/constants/coins.ts'
+	import {
+		coinInstanceByChainAndCoinId,
+		erc20InstancesByCoinId,
+	} from '$/constants/coin-instances.ts'
+	import { type CoinId } from '$/constants/coins.ts'
+	import { ChainId } from '$/constants/networks.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import {
 		ensureTransferEventsForPlaceholders,
@@ -21,11 +26,15 @@
 
 
 	// Props
-	let { symbol, period }: { symbol: CoinSymbol; period: string } = $props()
+	let { coinId, period }: { coinId: CoinId; period: string } = $props()
 
 
 	// (Derived)
-	const coin = $derived(coinBySymbol[symbol])
+	const coin = $derived(
+		coinInstanceByChainAndCoinId.get(`${ChainId.Ethereum}:${coinId}`)
+			?? erc20InstancesByCoinId.get(coinId)?.[0]
+			?? null,
+	)
 
 
 	// State
@@ -34,29 +43,29 @@
 			q
 				.from({ row: transferEventsCollection })
 				.where(({ row }) =>
-					and(eq(row.$id.symbol, symbol), eq(row.$id.period, period)),
+					and(eq(row.$id.symbol, coinId), eq(row.$id.period, period)),
 				)
 				.select(({ row }) => ({ row })),
-		[() => symbol, () => period],
+		[() => coinId, () => period],
 	)
 	const graphQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: transferGraphsCollection })
 				.where(({ row }) =>
-					and(eq(row.$id.symbol, symbol), eq(row.$id.period, period)),
+					and(eq(row.$id.symbol, coinId), eq(row.$id.period, period)),
 				)
 				.select(({ row }) => ({ row })),
-		[() => symbol, () => period],
+		[() => coinId, () => period],
 	)
 	const liveQueryEntries = $derived([
 		{
-			id: `transfer-events-${symbol}-${period}`,
+			id: `transfer-events-${coinId}-${period}`,
 			label: 'Transfer Events',
 			query: eventsQuery,
 		},
 		{
-			id: `transfer-graph-${symbol}-${period}`,
+			id: `transfer-graph-${coinId}-${period}`,
 			label: 'Transfer Graph',
 			query: graphQuery,
 		},
@@ -71,12 +80,14 @@
 	const eventRows = $derived(
 		allRows.filter(
 			(r): r is { row: TransferEventRowType } =>
-				(r.row as TransferEventRowType).$id.$network.chainId !== -1,
+				((r.row as TransferEventRowType).$id.$network.chainId as number) !== -1,
 		),
 	)
 	const metaRow = $derived(
-		allRows.find((r) => (r.row as TransferEventsMetaRow).$id?.chainId === -1)
-			?.row as TransferEventsMetaRow | undefined,
+		allRows.find(
+			(r) =>
+				(r.row as TransferEventsMetaRow).$id?.$network?.chainId === -1,
+		)?.row as TransferEventsMetaRow | undefined,
 	)
 	const eventsSet = $derived(
 		new Set(eventRows.map((r) => r.row)) as Set<TransferEventRowType>,
@@ -93,14 +104,14 @@
 	let lastToastedError = $state<string | null>(null)
 
 	$effect(() => {
-		fetchTransferEvents(symbol, period).catch(() => {})
+		fetchTransferEvents(coinId, period).catch(() => {})
 	})
 	$effect(() => {
-		ensureTransferEventsForPlaceholders(symbol, period, visiblePlaceholderKeys)
+		ensureTransferEventsForPlaceholders(coinId, period, visiblePlaceholderKeys)
 	})
 	$effect(() => {
 		period
-		symbol
+		coinId
 		lastToastedError = null
 	})
 	$effect(() => {
@@ -112,7 +123,7 @@
 				label: 'Retry',
 				onClick: () => {
 					lastToastedError = null
-					fetchTransferEvents(symbol, period, { force: true }).catch(
+					fetchTransferEvents(coinId, period, { force: true }).catch(
 						() => {},
 					)
 				},
@@ -123,32 +134,33 @@
 
 	function onRetry() {
 		lastToastedError = null
-		fetchTransferEvents(symbol, period, { force: true }).catch(() => {})
+		fetchTransferEvents(coinId, period, { force: true }).catch(() => {})
 	}
 </script>
 
 
-	<details>
-		<summary data-row="wrap gap-2">
-			<h3>Activity</h3>
-			<nav data-row="start gap-2" aria-label="Time period">
-				{#each TIME_PERIODS as p (p.value)}
-					<a
-						class="period-link"
-						href="?period={p.value}"
-						data-active={period === p.value ? '' : undefined}
-					>
-						{p.label}
-					</a>
-				{/each}
-			</nav>
-		</summary>
+<details>
+	<summary data-row="wrap gap-2">
+		<h3>Activity</h3>
+		<nav data-row="start gap-2" aria-label="Time period">
+			{#each TIME_PERIODS as p (p.value)}
+				<a
+					class="period-link"
+					href="?period={p.value}"
+					data-active={period === p.value ? '' : undefined}
+				>
+					{p.label}
+				</a>
+			{/each}
+		</nav>
+	</summary>
 
-		{#if loading && eventsSet.size === 0}
-			<p class="activity-loading" data-activity-loading aria-live="polite">
-				Loading transfers…
-			</p>
-		{/if}
+	{#if loading && eventsSet.size === 0}
+		<p class="activity-loading" data-activity-loading aria-live="polite">
+			Loading transfers…
+		</p>
+	{/if}
+	{#if coin}
 		{#if graphRow?.row && !graphRow.row.isLoading && graphRow.row.error == null}
 			<div class="graph-viz" data-transfer-graph>
 				<LiveTransfers
@@ -177,12 +189,12 @@
 			{:else}
 				<CoinTransfers
 					{eventsSet}
-					{symbol}
+					{coinId}
 					{coin}
 					bind:visiblePlaceholderKeys
 				/>
-				<CoinBridgeTransfers {symbol} {period} {coin} />
-				<CoinSwaps {symbol} {period} {coin} />
+				<CoinBridgeTransfers {coinId} {period} {coin} />
+				<CoinSwaps {coinId} {period} {coin} />
 			{/if}
 			{#snippet Failed(_error, retryFn)}
 				<div class="activity-error" data-activity-error>
@@ -203,7 +215,8 @@
 				</div>
 			{/snippet}
 		</Boundary>
-	</details>
+	{/if}
+</details>
 
 
 <style>

@@ -22,7 +22,9 @@ import {
 	SocialPostActionType,
 	socialPostActionTypeDefinitionByType,
 } from '$/constants/social-post-actions.ts'
-import { ercTokens } from '$/constants/coins.ts'
+import { getCoinIdForCoinEntity } from '$/lib/coin-entity.ts'
+import { erc20TokenByNetwork, nativeCurrencyByNetwork } from '$/constants/coin-instances.ts'
+import { CoinId, coinById } from '$/constants/coins.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { interopFormatConfig, toInteropName } from '$/constants/interop.ts'
 import { networksByChainId } from '$/constants/networks.ts'
@@ -65,15 +67,30 @@ export function deriveWatchedEntityRow(stored: WatchedEntityStoredRow): WatchedE
 					switch (entityType) {
 						case EntityType.Coin: {
 							const c = parsedId as EntityId<EntityType.Coin>
-							const token = ercTokens.find(
-								(t) =>
-									t.chainId === c.$network.chainId &&
-									t.address.toLowerCase() === c.address.toLowerCase(),
+							const coinId = getCoinIdForCoinEntity(
+								EntityType.Coin,
+								c as Record<string, unknown>,
 							)
+							if ('address' in c) {
+								const token = erc20TokenByNetwork
+									.get(c.$network.chainId)
+									?.find(
+										(t) =>
+											t.$id.address.toLowerCase() ===
+											c.address.toLowerCase(),
+									)
+								const label = coinId != null ? coinById[coinId]?.symbol : token?.symbol ?? formatAddress(c.address)
+								return {
+									entityId: c,
+									label: label ?? '?',
+									href: coinId != null ? `/coin/${coinId}` : `/coin/${label ?? ''}`,
+								}
+							}
+							const native = nativeCurrencyByNetwork.get(c.$network.chainId)?.[0]
 							return {
 								entityId: c,
-								label: c.interopAddress ?? token?.symbol ?? formatAddress(c.address),
-								href: `/coin/${c.interopAddress ?? token?.symbol ?? formatAddress(c.address)}`,
+								label: coinId != null ? coinById[coinId]?.symbol ?? '?' : native?.symbol ?? '?',
+								href: coinId != null ? `/coin/${coinId}` : `/coin/${native?.symbol ?? ''}`,
 							}
 						}
 						case EntityType.Network: {
@@ -472,18 +489,23 @@ export class NavigationItems {
 			}
 		})
 		const coinsNavItemsFromWatched = watchedCoinRows.map((row) => {
-			const c = row.entityId as EntityId<EntityType.Coin>
+			const coinId = getCoinIdForCoinEntity(
+				row.entityType,
+				row.entityId as Record<string, unknown>,
+			)
+			const iconOverride =
+				coinId === CoinId.ETH
+					? this.options.iconEth
+					: coinId === CoinId.USDC
+						? this.options.iconUsdc
+						: undefined
 			return {
 				id: row.id,
 				title: row.label,
 				href: row.href,
 				manualWatch: true,
 				icon:
-					c.interopAddress === 'ETH'
-						? (this.options.iconEth ?? '🪙')
-						: c.interopAddress === 'USDC'
-							? (this.options.iconUsdc ?? '🪙')
-							: '🪙',
+					iconOverride ?? (coinId != null ? coinById[coinId]?.icon : undefined) ?? '🪙',
 			}
 		})
 		const farcasterConnections = (

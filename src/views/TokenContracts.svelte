@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import type { Erc20Token } from '$/constants/coins.ts'
-	import { ercTokens } from '$/constants/coins.ts'
+	import type { Erc20Token } from '$/constants/coin-instances.ts'
+	import { erc20InstancesByCoinId } from '$/constants/coin-instances.ts'
+	import { CoinId } from '$/constants/coins.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { resolve } from '$app/paths'
 
@@ -11,16 +12,12 @@
 
 
 	// Props
-	let {
-		symbol,
-	}: {
-		symbol: string
-	} = $props()
+	let { coinId }: { coinId: CoinId } = $props()
 
 
 	// (Derived)
 	const tokens = $derived(
-		ercTokens.filter((t) => t.symbol === symbol) as Erc20Token[],
+		(erc20InstancesByCoinId.get(coinId) ?? []) as Erc20Token[],
 	)
 </script>
 
@@ -36,10 +33,14 @@
 				{@const slug = network ? network.slug : String(t.chainId)}
 				<li>
 					<a
-						href={resolve(`/network/${slug}/contract/${t.address}`)}
-						data-link
-					>
-						<Address network={t.chainId} address={t.address} format={AddressFormat.MiddleTruncated} />
+					href={resolve(`/network/${slug}/contract/${t.address}`)}
+					data-link
+				>
+					<Address
+						network={t.chainId}
+						address={t.address}
+							format={AddressFormat.MiddleTruncated}
+						/>
 						{#if network}
 							<span data-text="muted"> · {network.name}</span>
 						{/if}

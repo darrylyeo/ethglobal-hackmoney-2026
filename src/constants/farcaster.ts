@@ -11,12 +11,10 @@ export const FARCASTER_NEYNAR_HUB_URL = 'https://snapchain-api.neynar.com'
 export const FARCASTER_NEYNAR_API_URL = 'https://api.neynar.com'
 
 export enum FarcasterHubNode {
-	Pinata = 'Pinata',
 	StandardCrypto = 'StandardCrypto',
 }
 
 export const FARCASTER_HUB_NODES = [
-	{ id: FarcasterHubNode.Pinata, url: 'https://hub.pinata.cloud' },
 	{
 		id: FarcasterHubNode.StandardCrypto,
 		url: 'https://hub.farcaster.standardcrypto.vc:2281',

@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Types/constants
 	import { BalanceDisplayType } from '$/views/balance-display-type.ts'
-	import { CoinType, ercTokens } from '$/constants/coins.ts'
+	import type { Erc20Token } from '$/constants/coin-instances.ts'
+	import { erc20TokenByNetwork, CoinInstanceType } from '$/constants/coin-instances.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { MediaType } from '$/constants/media.ts'
 	import {
@@ -107,27 +108,28 @@
 	const fallbackTokens = $derived(
 		balanceTokens
 			.map((token) =>
-				ercTokens.find(
-					(entry) =>
-					entry.chainId === token.chainId &&
-					entry.address === token.tokenAddress,
-				),
+				erc20TokenByNetwork
+					.get(token.chainId)
+					?.find((t) => t.$id.address === token.tokenAddress),
 			)
-			.flatMap((token) => (token ? [token] : [])),
+			.flatMap((t) => (t ? [t] : [])),
+	)
+	const tokensToFetch = $derived(
+		normalizedBalanceTokens
+			.map((token) =>
+				erc20TokenByNetwork
+					.get(token.chainId)
+					?.find((t) => t.$id.address === token.tokenAddress),
+			)
+			.filter((t): t is Erc20Token => t != null),
 	)
 	const displayTokens = $derived(
 		(filteredTokenListCoins.length > 0
 			? filteredTokenListCoins
 			: fallbackTokens
 		).map((token) => {
-			const chainId =
-				'$id' in token && token.$id
-					? token.$id.$network.chainId
-					: (token as { chainId: number }).chainId
-			const address =
-				'$id' in token && token.$id
-					? token.$id.address
-					: (token as { address: `0x${string}` }).address
+			const chainId = token.$id.$network.chainId
+			const address = token.$id.address
 			return {
 				...token,
 				chainId,
@@ -413,9 +415,9 @@
 
 	// Actions
 	$effect(() => {
-		if (actors.length === 0 || normalizedBalanceTokens.length === 0) return
+		if (actors.length === 0 || tokensToFetch.length === 0) return
 		for (const actor of actors) {
-			void fetchAllBalancesForAddress(actor, undefined, normalizedBalanceTokens)
+			void fetchAllBalancesForAddress(actor, undefined, tokensToFetch)
 		}
 	})
 	$effect(() => {
@@ -561,9 +563,10 @@
 						{#each skeletonRows as token, i (i)}
 							{@const coin = token
 								? {
-										type: CoinType.Erc20,
+										type: CoinInstanceType.Erc20Token,
+										$id: { $network: { chainId: token.chainId }, address: token.address as `0x${string}` },
 										chainId: token.chainId,
-										address: token.address,
+										address: token.address as `0x${string}`,
 										symbol: token.symbol,
 										name: token.name,
 										decimals: token.decimals,
@@ -612,9 +615,10 @@
 								: null}
 							{@const coin = token
 								? {
-										type: CoinType.Erc20,
+										type: CoinInstanceType.Erc20Token,
+										$id: { $network: { chainId: token.chainId }, address: token.address as `0x${string}` },
 										chainId: token.chainId,
-										address: token.address,
+										address: token.address as `0x${string}`,
 										symbol: token.symbol,
 										name: token.name,
 										decimals: token.decimals,
@@ -628,7 +632,8 @@
 											: undefined,
 									}
 								: {
-										type: CoinType.Erc20,
+										type: CoinInstanceType.Erc20Token,
+										$id: { $network: b.$id.$coin.$network, address: b.$id.$coin.address },
 										chainId: b.$id.$coin.$network.chainId,
 										address: b.$id.$coin.address,
 										symbol: b.symbol,
@@ -688,9 +693,10 @@
 						{#each skeletonRows as token, i (i)}
 							{@const coin = token
 								? {
-										type: CoinType.Erc20,
+										type: CoinInstanceType.Erc20Token,
+										$id: { $network: { chainId: token.chainId }, address: token.address as `0x${string}` },
 										chainId: token.chainId,
-										address: token.address,
+										address: token.address as `0x${string}`,
 										symbol: token.symbol,
 										name: token.name,
 										decimals: token.decimals,

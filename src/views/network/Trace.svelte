@@ -2,7 +2,13 @@
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { Trace as TraceType } from '$/data/Trace.ts'
+	import {
+		ensureFunctionSignatures,
+		selectorSignaturesCollection,
+	} from '$/collections/SelectorSignatures.ts'
+	import { SelectorKind } from '$/data/SelectorSignature.ts'
 	import { formatWei, formatGas } from '$/lib/format.ts'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -13,6 +19,45 @@
 		trace: TraceType
 		chainId: ChainId
 	} = $props()
+
+
+	// (Derived)
+	const inputSelector = $derived(
+		trace.input && trace.input.length >= 10
+			? (`0x${trace.input.slice(2, 10).toLowerCase().padStart(8, '0')}` as `0x${string}`)
+			: null,
+	)
+
+
+	// Context
+	const functionSigQuery = useLiveQuery(
+		(q) =>
+			inputSelector
+				? q
+					.from({ row: selectorSignaturesCollection })
+					.where(({ row }) =>
+						and(
+							eq(row.$id.kind, SelectorKind.Function),
+							eq(row.$id.hex, inputSelector),
+						),
+					)
+					.select(({ row }) => ({ row }))
+				: q
+					.from({ row: selectorSignaturesCollection })
+					.where(({ row }) => eq(row.$id.kind, '' as typeof SelectorKind.Function))
+					.select(({ row }) => ({ row })),
+		[() => inputSelector],
+	)
+
+
+	// (Derived)
+	const functionSignatures = $derived(functionSigQuery.data?.[0]?.row?.signatures ?? [])
+
+
+	// Actions
+	$effect(() => {
+		if (inputSelector) void ensureFunctionSignatures(inputSelector).catch(() => {})
+	})
 
 
 	// Components
@@ -67,6 +112,14 @@
 		{#if trace.input && trace.input !== '0x'}
 			<dt>Input</dt>
 			<dd>
+				{#if functionSignatures.length > 0}
+					<code data-row="wrap gap-1">
+						{#each functionSignatures as sig}
+							<span>{sig}</span>
+						{/each}
+					</code>
+					<span> · </span>
+				{/if}
 				<TruncatedValue value={trace.input} startLength={10} endLength={0} />
 				<span>({Math.max(0, (trace.input.length - 2) / 2)} bytes)</span>
 			</dd>

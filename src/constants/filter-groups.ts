@@ -37,13 +37,15 @@ export const networkFilterGroups: readonly NetworkFilterGroup[] = [
 	},
 ]
 
-export type CoinSymbolGroup = {
+import { CoinId } from '$/constants/coins.ts'
+
+export type CoinIdGroup = {
 	id: string
 	label: string
-	symbols: readonly string[]
+	coinIds: readonly CoinId[]
 }
 
-export const coinSymbolGroups: readonly CoinSymbolGroup[] = [
-	{ id: 'stablecoins', label: 'Stablecoins', symbols: ['USDC'] },
-	{ id: 'native', label: 'Native', symbols: ['ETH'] },
+export const coinIdGroups: readonly CoinIdGroup[] = [
+	{ id: 'stablecoins', label: 'Stablecoins', coinIds: [CoinId.USDC] },
+	{ id: 'native', label: 'Native', coinIds: [CoinId.ETH] },
 ]

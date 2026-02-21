@@ -14,7 +14,7 @@
 		transactionTracesCollection,
 	} from '$/collections/TransactionTraces.ts'
 	import { SelectorKind } from '$/data/SelectorSignature.ts'
-	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
+	import { CoinId, coinById } from '$/constants/coins.ts'
 	import { formatWei, formatGas, formatGwei } from '$/lib/format.ts'
 	import { getTxPath } from '$/lib/network-paths.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -107,7 +107,6 @@
 	// State
 	let arrowRects = $state<{ from: DOMRect; to: DOMRect; card: DOMRect } | null>(null)
 	let cardRef = $state<HTMLElement | null>(null)
-	let ethIconSrc = $state<string | undefined>(undefined)
 	let fromRef = $state<HTMLElement | null>(null)
 	let hasFetched = $state(false)
 	let hasFetchedTrace = $state(false)
@@ -116,9 +115,7 @@
 
 
 	// Actions
-	$effect(() => {
-		getCoinIconUrl('eth').then((url) => { ethIconSrc = url })
-	})
+	const ethIconSrc = $derived(coinById[CoinId.ETH]?.icon)
 	$effect(() => {
 		if (inputSelector) void ensureFunctionSignatures(inputSelector).catch(() => {})
 	})

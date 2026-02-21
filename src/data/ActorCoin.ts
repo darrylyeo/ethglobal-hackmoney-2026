@@ -1,10 +1,10 @@
-import type { ChainId } from '$/constants/networks.ts'
+import type { Erc20Coin$Id } from '$/constants/coin-instances.ts'
+import type { Contract$Id } from '$/data/Contract.ts'
 import type { Actor$Id } from '$/data/Actor.ts'
-import type { Coin$Id } from '$/data/Coin.ts'
 
 export type ActorCoin$Id = {
 	$actor: Actor$Id
-	$coin: Coin$Id
+	$coin: Erc20Coin$Id
 }
 
 export type ActorCoin = {
@@ -17,8 +17,7 @@ export type ActorCoin = {
 }
 
 export type ActorCoinToken = {
-	chainId: ChainId
-	address: `0x${string}`
+	contract: Contract$Id
 	symbol: string
 	decimals: number
 }

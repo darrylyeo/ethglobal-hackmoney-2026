@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { Network } from '$/constants/networks.ts'
+	import type { ChainId, Network } from '$/constants/networks.ts'
 
 
 	// Props
@@ -16,7 +16,7 @@
 		...rootProps
 	}: {
 		networks: readonly Network[]
-		value?: Network['id'] | Network['id'][] | null
+		value?: ChainId | ChainId[] | null
 		multiple?: boolean
 		placeholder?: string
 		disabled?: boolean
@@ -40,17 +40,17 @@
 		{...rootProps}
 		items={networks}
 		bind:value={() => {
-				const ids: Network['id'][] = Array.isArray(value) ? value : []
-				return networks.filter((network) => ids.includes(network.id))
+				const ids: ChainId[] = Array.isArray(value) ? value : []
+				return networks.filter((network) => ids.includes(network.chainId))
 			},
 			(nextValue: Network[]) =>
 				(value = nextValue
 					.map(
 						(network) =>
-							networks.find((item) => item.id === network.id)?.id ?? null,
+							networks.find((item) => item.chainId === network.chainId)?.chainId ?? null,
 					)
-					.filter((id): id is Network['id'] => id !== null))}
-		getItemId={(network) => String(network.id)}
+					.filter((id): id is ChainId => id !== null))}
+		getItemId={(network) => String(network.chainId)}
 		getItemLabel={(network) => network.name}
 		{placeholder}
 		{disabled}
@@ -62,14 +62,14 @@
 			{@const selectedNetworks = multiple ? networks.filter((n) => (Array.isArray(value) ? value : []).includes(n.chainId)) : (typeof value === 'number' ? [networks.find((n) => n.chainId === value)].filter(Boolean) : []) as Network[]}
 			{#if selectedNetworks.length > 0}
 				<span data-row="start gap-2">
-					{#each selectedNetworks as network (network.id)}
-						<NetworkIcon chainId={network.id} />
+					{#each selectedNetworks as network (network.chainId)}
+						<NetworkIcon chainId={network.chainId} />
 					{/each}
 				</span>
 			{/if}
 		{/snippet}
 		{#snippet Item(network, selected)}
-			<NetworkName chainId={network.id} />
+			<NetworkName chainId={network.chainId} />
 		{/snippet}
 	</SelectMultiple>
 {:else}
@@ -78,14 +78,14 @@
 		items={networks}
 		bind:value={() =>
 			(typeof value === 'number'
-				? networks.find((network) => network.id === value) ?? undefined
+				? networks.find((network) => network.chainId === value) ?? undefined
 				: undefined),
 			(nextValue: Network | undefined) =>
 				(value =
 					nextValue == null
 						? null
-						: (networks.find((network) => network.id === nextValue?.id)?.id ?? null))}
-		getItemId={(network) => String(network.id)}
+						: (networks.find((network) => network.chainId === nextValue?.chainId)?.chainId ?? null))}
+		getItemId={(network) => String(network.chainId)}
 		getItemLabel={(network) => network.name}
 		{placeholder}
 		{disabled}
@@ -97,14 +97,14 @@
 			{@const selectedNetworks = multiple ? networks.filter((n) => (Array.isArray(value) ? value : []).includes(n.chainId)) : (typeof value === 'number' ? [networks.find((n) => n.chainId === value)].filter(Boolean) : []) as Network[]}
 			{#if selectedNetworks.length > 0}
 				<span data-row="start gap-2">
-					{#each selectedNetworks as network (network.id)}
-						<NetworkIcon chainId={network.id} />
+					{#each selectedNetworks as network (network.chainId)}
+						<NetworkIcon chainId={network.chainId} />
 					{/each}
 				</span>
 			{/if}
 		{/snippet}
 		{#snippet Item(network, selected)}
-			<NetworkName chainId={network.id} />
+			<NetworkName chainId={network.chainId} />
 		{/snippet}
 	</Select>
 {/if}
