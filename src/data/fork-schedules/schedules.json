@@ -7,97 +7,315 @@
           "name": "Homestead",
           "activation": {
             "block": 1150000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "DAOFork",
           "activation": {
             "block": 1920000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "EIP150",
           "activation": {
             "block": 2463000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "EIP155",
           "activation": {
             "block": 2675000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "EIP158",
           "activation": {
             "block": 2675000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Byzantium",
           "activation": {
             "block": 4370000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Constantinople",
           "activation": {
             "block": 7280000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Petersburg",
           "activation": {
             "block": 7280000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Istanbul",
           "activation": {
             "block": 9069000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "MuirGlacier",
           "activation": {
             "block": 9200000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Berlin",
           "activation": {
             "block": 12244000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "London",
           "activation": {
             "block": 12965000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "ArrowGlacier",
           "activation": {
             "block": 13773000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "GrayGlacier",
           "activation": {
             "block": 15050000
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Shanghai",
           "activation": {
             "timestamp": 1681338455
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Cancun",
           "activation": {
             "timestamp": 1710338135
-          }
+          },
+          "executionProtocol": "Ethereum"
+        },
+        {
+          "name": "Altair",
+          "activation": {
+            "epoch": 74240
+          },
+          "kind": "consensus",
+          "consensusProtocol": "EthereumBeacon"
+        },
+        {
+          "name": "Bellatrix",
+          "activation": {
+            "epoch": 144896
+          },
+          "kind": "consensus",
+          "consensusProtocol": "EthereumBeacon"
+        },
+        {
+          "name": "Capella",
+          "activation": {
+            "epoch": 194048
+          },
+          "kind": "consensus",
+          "consensusProtocol": "EthereumBeacon"
+        },
+        {
+          "name": "Deneb",
+          "activation": {
+            "epoch": 269568
+          },
+          "kind": "consensus",
+          "consensusProtocol": "EthereumBeacon"
+        },
+        {
+          "name": "Electra",
+          "activation": {
+            "epoch": 364032
+          },
+          "kind": "consensus",
+          "consensusProtocol": "EthereumBeacon"
+        },
+        {
+          "name": "Fulu",
+          "activation": {
+            "epoch": 411392
+          },
+          "kind": "consensus",
+          "consensusProtocol": "EthereumBeacon"
+        }
+      ]
+    },
+    "10": {
+      "chainId": 10,
+      "forks": [
+        {
+          "name": "Bedrock",
+          "activation": {
+            "timestamp": 1686079703
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Canyon",
+          "activation": {
+            "timestamp": 1704992401
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Delta",
+          "activation": {
+            "timestamp": 1708560000
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Ecotone",
+          "activation": {
+            "timestamp": 1710374401
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Fjord",
+          "activation": {
+            "timestamp": 1720627201
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Granite",
+          "activation": {
+            "timestamp": 1726070401
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Holocene",
+          "activation": {
+            "timestamp": 1736445601
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Isthmus",
+          "activation": {
+            "timestamp": 1746806401
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Jovian",
+          "activation": {
+            "timestamp": 1764691201
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        }
+      ]
+    },
+    "8453": {
+      "chainId": 8453,
+      "forks": [
+        {
+          "name": "Bedrock",
+          "activation": {
+            "timestamp": 1686079703
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Canyon",
+          "activation": {
+            "timestamp": 1704992401
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Delta",
+          "activation": {
+            "timestamp": 1708560000
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Ecotone",
+          "activation": {
+            "timestamp": 1710374401
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Fjord",
+          "activation": {
+            "timestamp": 1720627201
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Granite",
+          "activation": {
+            "timestamp": 1726070401
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Holocene",
+          "activation": {
+            "timestamp": 1736445601
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Isthmus",
+          "activation": {
+            "timestamp": 1746806401
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Jovian",
+          "activation": {
+            "timestamp": 1764691201
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
         }
       ]
     },
@@ -108,73 +326,162 @@
           "name": "Homestead",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "EIP150",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "EIP155",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "EIP158",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Byzantium",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Constantinople",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Petersburg",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Istanbul",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Berlin",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "London",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Shanghai",
           "activation": {
             "timestamp": 1696000704
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Cancun",
           "activation": {
             "timestamp": 1707305664
-          }
+          },
+          "executionProtocol": "Ethereum"
+        }
+      ]
+    },
+    "84532": {
+      "chainId": 84532,
+      "forks": [
+        {
+          "name": "Canyon",
+          "activation": {
+            "timestamp": 1699981200
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Delta",
+          "activation": {
+            "timestamp": 1703203200
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Ecotone",
+          "activation": {
+            "timestamp": 1708534800
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Fjord",
+          "activation": {
+            "timestamp": 1716998400
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Granite",
+          "activation": {
+            "timestamp": 1723478400
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Holocene",
+          "activation": {
+            "timestamp": 1732633200
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Pectra Blob Schedule",
+          "activation": {
+            "timestamp": 1742486400
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Isthmus",
+          "activation": {
+            "timestamp": 1744905600
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Jovian",
+          "activation": {
+            "timestamp": 1763568001
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
         }
       ]
     },
@@ -185,85 +492,176 @@
           "name": "Homestead",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "EIP150",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "EIP155",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "EIP158",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Byzantium",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Constantinople",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Petersburg",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Istanbul",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "MuirGlacier",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Berlin",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "London",
           "activation": {
             "block": 0
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "MergeNetsplit",
           "activation": {
             "block": 1735371
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Shanghai",
           "activation": {
             "timestamp": 1677557088
-          }
+          },
+          "executionProtocol": "Ethereum"
         },
         {
           "name": "Cancun",
           "activation": {
             "timestamp": 1706655072
-          }
+          },
+          "executionProtocol": "Ethereum"
+        }
+      ]
+    },
+    "11155420": {
+      "chainId": 11155420,
+      "forks": [
+        {
+          "name": "Canyon",
+          "activation": {
+            "timestamp": 1699981200
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Delta",
+          "activation": {
+            "timestamp": 1703203200
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Ecotone",
+          "activation": {
+            "timestamp": 1708534800
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Fjord",
+          "activation": {
+            "timestamp": 1716998400
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Granite",
+          "activation": {
+            "timestamp": 1723478400
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Holocene",
+          "activation": {
+            "timestamp": 1732633200
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Pectra Blob Schedule",
+          "activation": {
+            "timestamp": 1742486400
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Isthmus",
+          "activation": {
+            "timestamp": 1744905600
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
+        },
+        {
+          "name": "Jovian",
+          "activation": {
+            "timestamp": 1763568001
+          },
+          "kind": "execution",
+          "executionProtocol": "OpStack"
         }
       ]
     }

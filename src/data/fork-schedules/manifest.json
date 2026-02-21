@@ -7,7 +7,11 @@
     "consensus-specs": {
       "ref": "v1.6.0",
       "url": "https://raw.githubusercontent.com/ethereum/consensus-specs/v1.6.0/configs/mainnet.yaml"
+    },
+    "superchain-registry": {
+      "ref": "main",
+      "url": "https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/main/superchain/configs/mainnet/superchain.toml"
     }
   },
-  "lastSynced": "2026-02-21T05:51:53.625Z"
+  "lastSynced": "2026-02-21T21:58:57.360Z"
 }
