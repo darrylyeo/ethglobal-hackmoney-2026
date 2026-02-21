@@ -1,14 +1,15 @@
 <script lang="ts">
 	// Types/constants
+	import type { ChainId } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
+	import { TimestampFormat } from '$/components/Timestamp.svelte'
 	import { fetchBlockTransactions } from '$/collections/Blocks.ts'
 	import {
 		averageTransactionsPerBlockByChainId,
 		DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK,
-		type ChainId,
 	} from '$/constants/networks.ts'
-	import { TimestampFormat } from '$/components/Timestamp.svelte'
+	import { getForkContextLinks } from '$/data/fork-schedules/explorer-links.ts'
 	import { getEraAtBlock } from '$/data/fork-schedules/era.ts'
 	import { formatGas, formatGwei } from '$/lib/format.ts'
 
@@ -32,6 +33,7 @@
 	const era = $derived(
 		block != null ? getEraAtBlock(chainId, block.$id.blockNumber) : null,
 	)
+	const forkLinks = $derived(getForkContextLinks(chainId))
 	const transactionsSet = $derived(
 		[...data.values()][0] ?? new Set<ChainTransactionEntry>(),
 	)
@@ -99,6 +101,15 @@
 							{era.label}
 							{#if era.startBlock != null && era.endBlock != null}
 								<span data-text="annotation"> (blocks {era.startBlock.toLocaleString()} – {era.endBlock.toLocaleString()})</span>
+							{/if}
+							{#if forkLinks.forkcast || forkLinks.forkedBlocksUrl}
+								<span data-text="annotation">
+									—
+									<a href={forkLinks.forkcast} target="_blank" rel="noopener noreferrer">Upgrade process</a>
+									{#if forkLinks.forkedBlocksUrl}
+										· <a href={forkLinks.forkedBlocksUrl} target="_blank" rel="noopener noreferrer">Forked blocks</a>
+									{/if}
+								</span>
 							{/if}
 						</dd>
 					</div>
