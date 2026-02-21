@@ -101,6 +101,7 @@ export const createLlmProviderFromConnection = (
 				const tools = buildAISdkToolsFromWebmcp(
 					toolNames,
 					options.requestUserInteraction,
+					options.getPaymentProvider,
 				)
 				const result = await generateText({
 					model: openai(theModel),
@@ -143,6 +144,7 @@ export const createLlmProviderFromConnection = (
 				const tools = buildAISdkToolsFromWebmcp(
 					toolNames,
 					options.requestUserInteraction,
+					options.getPaymentProvider,
 				)
 				const result = await generateText({
 					model: anthropic(theModel),
@@ -185,6 +187,7 @@ export const createLlmProviderFromConnection = (
 				const tools = buildAISdkToolsFromWebmcp(
 					toolNames,
 					options.requestUserInteraction,
+					options.getPaymentProvider,
 				)
 				const result = await generateText({
 					model: google(theModel),

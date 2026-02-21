@@ -48,12 +48,12 @@ When submitting a turn or running a tool that may hit a paid endpoint, resolve t
 
 ## Acceptance criteria
 
-- [ ] `AgentChatTree` has optional `paymentWalletConnection$id`; only EIP-1193 connections can be stored.
-- [ ] Optional `AgentChatTurn.paymentWalletConnection$id` override; resolution order turn ?? tree ?? null.
-- [ ] UI to select/clear payment wallet for a tree (and optionally per turn) from connected EIP-1193 wallets.
-- [ ] When a request in the agent chat flow receives HTTP 402, use the resolved payment provider to complete x402 payment and retry the request.
-- [ ] Tool execution context for agent chat has access to the payment provider for the current turn/tree.
-- [ ] Clear UX when payment wallet is missing or payment fails (message, optional prompt to bind wallet).
+- [x] `AgentChatTree` has optional `paymentWalletConnection$id`; only EIP-1193 connections can be stored.
+- [x] Optional `AgentChatTurn.paymentWalletConnection$id` override; resolution order turn ?? tree ?? null.
+- [x] UI to select/clear payment wallet for a tree (and optionally per turn) from connected EIP-1193 wallets.
+- [x] When a request in the agent chat flow receives HTTP 402, use the resolved payment provider to complete x402 payment and retry the request.
+- [x] Tool execution context for agent chat has access to the payment provider for the current turn/tree.
+- [x] Clear UX when payment wallet is missing or payment fails (message, optional prompt to bind wallet).
 
 ## Sources
 
@@ -66,4 +66,4 @@ When submitting a turn or running a tool that may hit a paid endpoint, resolve t
 
 ## Status
 
-Draft.
+Complete. 2026-02-21 (PROMPT_build execute one spec): AgentChatTree and AgentChatTurn have optional `paymentWalletConnection$id`; only EIP-1193 connections stored via UI. Resolution turn ?? tree ?? null in submitAgentChatTurn. Payment account selector in AgentChatTree.svelte (EIP-1193 wallets only); optional per-turn override via submitAgentChatTurn options. getPaymentProvider in WalletConnections.ts; getPaymentProvider passed in LlmGenerateWithToolsOptions and ExecuteContext; buildAISdkToolsFromWebmcp and connection-provider pass it through. fetchWith402 in src/lib/x402.ts: on 402 uses payment provider to pay (parse402Body, pay402) and retry; throws PAYMENT_WALLET_REQUIRED_MESSAGE when no provider. Error UX: turn error message plus hint to set Payment account when error mentions payment/402. Tools receive getPaymentProvider in context for paid agent endpoint calls.

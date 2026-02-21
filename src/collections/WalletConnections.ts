@@ -24,6 +24,7 @@ import {
 } from '$/data/WalletConnection.ts'
 import type { Wallet$Id } from '$/data/Wallet.ts'
 import { normalizeAddress } from '$/lib/address.ts'
+import type { EIP1193Provider } from '$/lib/wallet.ts'
 import { connectProvider, getWalletChainId } from '$/lib/wallet.ts'
 
 export type WalletConnectionRow =
@@ -47,6 +48,17 @@ export const walletConnectionsCollection = createCollection(
 
 export const getWalletConnection = ($id: WalletConnection$Id) =>
 	walletConnectionsCollection.state.get(stringify($id))
+
+export const getPaymentProvider = (
+	$id: WalletConnection$Id | null,
+): EIP1193Provider | null => {
+	if (!$id) return null
+	const conn = getWalletConnection($id)
+	if (!conn || conn.transport !== WalletConnectionTransport.Eip1193)
+		return null
+	const wallet = getWallet(conn.$id.wallet$id)
+	return wallet?.provider ?? null
+}
 
 // Create a connection in "connecting" state
 export const createConnection = (wallet$id: Wallet$Id, autoSelect: boolean) => {

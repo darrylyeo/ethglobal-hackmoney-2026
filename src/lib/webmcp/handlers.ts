@@ -41,10 +41,13 @@ import {
 	executeCreateSessionFromIntent,
 } from '$/lib/webmcp/tools/intents.ts'
 
+import type { EIP1193Provider } from '$/lib/wallet.ts'
+
 export type ExecuteContext = {
 	requestUserInteraction?: (
 		callback: () => Promise<unknown>,
 	) => Promise<unknown>
+	getPaymentProvider?: () => EIP1193Provider | null
 }
 
 export type ToolDefinition = {

@@ -25,9 +25,12 @@ export type RequestUserInteraction = (
 	callback: () => Promise<unknown>,
 ) => Promise<unknown>
 
+import type { EIP1193Provider } from '$/lib/wallet.ts'
+
 export type LlmGenerateWithToolsOptions = {
 	toolNames: string[]
-	requestUserInteraction?: RequestUserInteraction,
+	requestUserInteraction?: RequestUserInteraction
+	getPaymentProvider?: () => EIP1193Provider | null
 }
 
 export type LlmProvider = {
@@ -166,7 +169,8 @@ export const createLlmProvider = (
 	options: {
 		onProgress?: (progress: number) => void
 		connectionId?: string | null
-		modelId?: string | null,
+		modelId?: string | null
+		getPaymentProvider?: () => EIP1193Provider | null
 	} = {},
 ): LlmProvider => {
 	const promptProvider = createPromptApiLlmProvider(options.onProgress)
@@ -228,7 +232,8 @@ export const createLlmProvider = (
 		},
 		generateWithTools: async (input, options) => {
 			const conn = await connectionProvider()
-			if (conn?.generateWithTools) return conn.generateWithTools(input, options)
+			if (conn?.generateWithTools)
+				return conn.generateWithTools(input, options)
 			const out = await (conn ?? (await pickProvider())).generate(input)
 			return { ...out, toolCalls: [], toolResults: [] }
 		},

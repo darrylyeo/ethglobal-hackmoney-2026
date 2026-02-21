@@ -2,8 +2,12 @@
 	// Types/constants
 	import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 	import type { LlmConnectionRow } from '$/collections/LlmConnections.ts'
+	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import type { AgentChatTree } from '$/data/AgentChatTree.ts'
 	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+	import type { WalletConnection$Id } from '$/data/WalletConnection.ts'
+	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -32,6 +36,23 @@
 			: '',
 	)
 
+	const walletConnectionsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: walletConnectionsCollection })
+				.where(({ row }) => eq(row.transport, WalletConnectionTransport.Eip1193))
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const eip1193Connections = $derived(
+		(walletConnectionsQuery.data ?? []).map((r) => r.row),
+	)
+	const paymentConnectionIdStr = $derived(
+		tree.paymentWalletConnection$id
+			? JSON.stringify(tree.paymentWalletConnection$id)
+			: '',
+	)
+
 
 	// Functions
 	const updateTreeName = (name: string) => {
@@ -52,6 +73,12 @@
 	const togglePin = () => {
 		agentChatTreesCollection.update(tree.id, (draft) => {
 			draft.pinned = !draft.pinned
+			draft.updatedAt = Date.now()
+		})
+	}
+	const setTreePaymentWallet = ($id: WalletConnection$Id | null) => {
+		agentChatTreesCollection.update(tree.id, (draft) => {
+			draft.paymentWalletConnection$id = $id ?? undefined
 			draft.updatedAt = Date.now()
 		})
 	}
@@ -95,6 +122,34 @@
 			/>
 		</div>
 	{/if}
+
+	<div data-row="gap-2 align-center">
+		<label for="tree-payment-{tree.id}">Payment account</label>
+		<select
+			id="tree-payment-{tree.id}"
+			aria-label="Wallet for agent payments (x402)"
+			value={paymentConnectionIdStr}
+			onchange={(e) => {
+				const v = (e.currentTarget as HTMLSelectElement).value
+				setTreePaymentWallet(
+					v
+						? (JSON.parse(v) as WalletConnection$Id)
+						: null,
+				)
+			}}
+		>
+			<option value="">No payment wallet</option>
+			{#each eip1193Connections as conn (JSON.stringify(conn.$id))}
+				{@const connIdStr = JSON.stringify(conn.$id)}
+				{@const addr = conn.activeActor ?? conn.actors[0] ?? null}
+				<option value={connIdStr}>
+					{addr
+						? `${addr.slice(0, 6)}…${addr.slice(-4)}`
+						: conn.status}
+				</option>
+			{/each}
+		</select>
+	</div>
 
 	<details>
 		<summary>System prompt</summary>

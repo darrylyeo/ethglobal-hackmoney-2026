@@ -176,12 +176,19 @@
 	{#if turn.status === 'generating'}
 		<p data-text="muted">Generating…</p>
 	{:else if turn.status === 'error'}
-		<div data-row="gap-2 align-center">
-			<p data-error>{turn.error ?? 'Generation failed.'}</p>
-			<button
-				type="button"
-				onclick={handleRetry}
-			>Retry</button>
+		<div data-column="gap-2">
+			<div data-row="gap-2 align-center">
+				<p data-error>{turn.error ?? 'Generation failed.'}</p>
+				<button
+					type="button"
+					onclick={handleRetry}
+				>Retry</button>
+			</div>
+			{#if turn.error?.includes('payment') || turn.error?.includes('402')}
+				<p data-text="muted">
+					Set <strong>Payment account</strong> for this conversation (above) to pay for agent requests, then retry.
+				</p>
+			{/if}
 		</div>
 	{:else if turn.status === 'cancelled'}
 		<p data-text="muted">Cancelled.</p>

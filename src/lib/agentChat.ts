@@ -1,9 +1,11 @@
 import type { AgentChatTree } from '$/data/AgentChatTree.ts'
 import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 import type { EntityRef } from '$/data/EntityRef.ts'
+import type { WalletConnection$Id } from '$/data/WalletConnection.ts'
 import type { LlmGenerateInput, RequestUserInteraction } from '$/lib/llmProvider.ts'
 import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
+import { getPaymentProvider } from '$/collections/WalletConnections.ts'
 import { createLlmProvider } from '$/lib/llmProvider.ts'
 import { TOOLS_FOR_CHAT } from '$/lib/webmcp/tools-for-llm.ts'
 
@@ -56,6 +58,7 @@ export const submitAgentChatTurn = async (options: {
 	systemPrompt: string
 	connectionId?: string | null
 	modelId?: string | null
+	paymentWalletConnection$id?: WalletConnection$Id | null
 	onProgress?: (progress: number) => void
 	toolsForChat?: string[] | null
 	requestUserInteraction?: RequestUserInteraction
@@ -80,6 +83,7 @@ export const submitAgentChatTurn = async (options: {
 		status: 'generating',
 		createdAt: now,
 		promptVersion: AGENT_CHAT_PROMPT_VERSION,
+		paymentWalletConnection$id: options.paymentWalletConnection$id ?? undefined,
 	}
 
 	agentChatTurnsCollection.insert(turn)
@@ -92,6 +96,9 @@ export const submitAgentChatTurn = async (options: {
 	const effectiveConnectionId =
 		connectionId ?? tree?.defaultConnectionId ?? null
 	const effectiveModelId = modelId ?? tree?.defaultModelId ?? null
+	const effectivePaymentId =
+		turn.paymentWalletConnection$id ?? tree?.paymentWalletConnection$id ?? null
+	const paymentProvider = getPaymentProvider(effectivePaymentId)
 	const provider = createLlmProvider({
 		onProgress: options.onProgress,
 		connectionId: effectiveConnectionId,
@@ -105,6 +112,7 @@ export const submitAgentChatTurn = async (options: {
 			const output = await provider.generateWithTools(messages, {
 				toolNames: [...toolNames],
 				requestUserInteraction: options.requestUserInteraction,
+				getPaymentProvider: () => paymentProvider,
 			})
 			agentChatTurnsCollection.update(turnId, (draft) => {
 				draft.assistantText = output.text

@@ -1,4 +1,5 @@
 import type { EntityRef } from '$/data/EntityRef.ts'
+import type { WalletConnection$Id } from '$/data/WalletConnection.ts'
 
 export type AgentChatToolCall = {
 	id: string
@@ -33,4 +34,5 @@ export type AgentChatTurn = {
 	promptVersion: string
 	toolCalls?: AgentChatToolCall[]
 	toolResults?: AgentChatToolResult[]
+	paymentWalletConnection$id?: WalletConnection$Id | null
 }
