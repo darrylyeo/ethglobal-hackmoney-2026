@@ -1,3 +1,8 @@
+export enum SplitDirection {
+	Horizontal = 'horizontal',
+	Vertical = 'vertical',
+}
+
 export type PanelRoute = {
 	path: string,
 	params: Record<string, string>,
@@ -13,7 +18,7 @@ export type PanelNode = {
 export type SplitNode = {
 	id: string,
 	type: 'split',
-	direction: 'horizontal' | 'vertical',
+	direction: SplitDirection,
 	ratio: number,
 	first: PanelTreeNode,
 	second: PanelTreeNode,
