@@ -36,4 +36,4 @@ const total = $derived.by(() => {
 
 ## Status
 
-Complete. 2026-02-21 (PROMPT_build execute one spec): No IIFE-in-$derived in src; single-expression derivations use $derived; block derivations use $derived.by. Network.svelte blocksTotal already converted (2026-02-19). Acceptance criteria verified.
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec, all specs complete): No IIFE-in-$derived; single-expression uses $derived; block uses $derived.by; multi-line indented. Deno test 54 passed. Previous: 2026-02-21 (PROMPT_build execute one spec): No IIFE-in-$derived in src; single-expression derivations use $derived; block derivations use $derived.by. Network.svelte blocksTotal already converted (2026-02-19). Acceptance criteria verified.
