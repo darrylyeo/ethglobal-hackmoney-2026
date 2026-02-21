@@ -44,7 +44,7 @@ Data source: `DataSource.Farcaster` for Neynar/Pinata; add to `data-sources.ts`.
 
 ### API module
 
-`src/api/farcaster.ts`:
+`src/api/farcaster/` (e.g. `index.ts`, `client.ts`, `hub.ts`, `neynar.ts`):
 - Prefer **Farcaster Client API** for channels, discover (no key).
 - Optional **Neynar v2** for feeds, user profile, casts when `NEYNAR_API_KEY` is set.
 - Normalize responses into schema types before collection upsert.
@@ -98,7 +98,7 @@ Add to `$EntityType.ts`, `entityTypes`, `Entity`, `EntityId`, `graphSceneEntityT
 
 ### 4. API
 
-- `src/api/farcaster.ts`: `getChannels`, `getChannelFollowers`, `getCastsByParent` (Hub), optional Neynar feed helpers.
+- `src/api/farcaster/`: `getChannels`, `getChannelFollowers`, `getCastsByParent` (Hub), optional Neynar feed helpers (e.g. `hub.ts`, `client.ts`, `neynar.ts`).
 
 ### 5. Entity types
 

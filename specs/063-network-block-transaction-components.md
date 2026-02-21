@@ -39,7 +39,7 @@ Behavior:
 - `placeholderTransactionIds` defaults to range `[0, numberOfTransactions]`
   when block is known.
 - If block is unknown, use a network-specific average transaction count. Defined
-  in `src/constants/networks` as `averageTransactionsPerBlockByChainId`:
+  in `src/constants/networks.ts` as `averageTransactionsPerBlockByChainId`:
   Ethereum 180, Optimism 80, Arbitrum 100, Polygon 120, Base 60, Linea 40,
   EthereumSepolia 30, ArbitrumSepolia 20, BaseSepolia 15 (default 150).
 - On `<details>` open (`ontoggle`), if transactions haven't been fetched,
@@ -202,7 +202,7 @@ Routes use segment `[name]` (network slug or CAIP-2); `+page.ts` resolves
 - [x] `<Transaction>` `<details>` triggers `fetchChainTransaction` on open
   when receipt data is unresolved.
 - [x] `fetchBlockTransactions(chainId, blockNumber)` added to
-  `src/collections/blocks.ts`.
+  `src/collections/Blocks.ts`.
 
 ## Status
 

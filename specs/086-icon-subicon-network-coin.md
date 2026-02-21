@@ -8,15 +8,15 @@ inputs and amounts.
 ## Scope
 
 - **Icon:** Optional `subicon` prop (same shape as Icon: `icon` | `html` | `src`, `alt?`, `size?`, `backgroundColor?`). When set, render a recursive `<Icon>` positioned at bottom-right (e.g. `inset-block-end: 0; inset-inline-end: 0`), default subicon size `40%`. Optional `backgroundColor` prop applied as `--icon-bg` on the root.
-- **NetworkIcon:** Component that renders an `<Icon>` with `src` from `networkConfigsByChainId[chainId]?.icon` and `backgroundColor` from `networkConfigsByChainId[chainId]?.color` (see `src/constants/colors.ts`). Props: `chainId` (required), optional `class`, `size`, `title`, `alt`, `subicon`. Renders nothing when config has no icon. Default title from config name.
-- **CoinIcon:** Component that renders an `<Icon>` with `src` (required) and `backgroundColor` from `coinColorBySymbol[symbol]?.color` (see `src/constants/colors.ts`). Props: `src`, `symbol` (required), optional `class`, `size`, `title`, `alt`, `subicon`.
+- **NetworkIcon:** Component that renders an `<Icon>` with `src` from `networkConfigsByChainId[chainId]?.icon` and `backgroundColor` from `networkConfigsByChainId[chainId]?.color` (`src/constants/networks.ts`). Props: `chainId` (required), optional `class`, `size`, `title`, `alt`, `subicon`. Renders nothing when config has no icon. Default title from config name.
+- **CoinIcon:** Component that renders an `<Icon>` with `src` (required) and `backgroundColor` from `coinColorBySymbol[symbol]?.color` (`src/constants/coins.ts`). Props: `src`, `symbol` (required), optional `class`, `size`, `title`, `alt`, `subicon`.
 - **Avatar:** Optional `subicon` prop (same shape as Icon subicon); when set, render a small `<Icon>` in a wrapper positioned bottom-right.
 - **Usages:** Address avatar uses `<Icon>` with network icon as subicon and subicon `backgroundColor` from `networkConfigsByChainId[chainId]?.color`. Accounts wallet chips use `<Icon>` (wallet icon) with chain icon as subicon and subicon `backgroundColor`. NetworkInput, CoinAmount, CoinName, CoinInput, AccountsSelect use `<NetworkIcon>` and/or `<CoinIcon>` where a network or coin icon is shown (replacing raw `<Icon src={...}>` with config/color-aware components).
 
 ## Definitions
 
 - **Subicon:** A second, smaller icon drawn on top of the main icon, anchored at the bottom-right corner (e.g. chain badge on avatar, network badge on wallet icon).
-- **Brand colors:** network color via `networkConfigsByChainId[chainId]?.color`; coin color via `coinColorBySymbol[symbol]?.color` (coins.ts; re-exported in colors.ts) (hex per chain ID and per coin symbol).
+- **Brand colors:** network color via `networkConfigsByChainId[chainId]?.color` in `src/constants/networks.ts`; coin color via `coinColorBySymbol[symbol]?.color` in `src/constants/coins.ts` (hex per chain ID and per coin symbol).
 - **Icon size:** Icon, CoinIcon, and NetworkIcon default to `1em`. Do not set `size` at call sites. **Exceptions:** GraphScene (graph node/edge `size` is layout, not UI icon); Avatar subicon (`subicon.size ?? '50%'` is relative to avatar); Avatar component itself (`size` is the avatar container, default `2rem`); Spinner (separate component).
 
 ## Implementation

@@ -106,19 +106,19 @@ Use `isReadable`, `isWritable`, `isReadableWithoutInputs` pattern for ABI functi
 
 ## Acceptance criteria
 
-- [ ] `Contract` data type in `src/data/Contract.ts` with `$id`, optional `deployer`, `source`, `abi`
-- [ ] `CollectionId.Contracts` in `src/constants/collections.ts`
-- [ ] `contractsCollection` in `src/collections/Contracts.ts` with `ensureContract`, `fetchContract`
-- [ ] `EntityType.Contract` in `src/data/$EntityType.ts` and `entityTypes`
-- [ ] `<Contract>` view in `src/views/Contract.svelte` using `<EntityView>`
-- [ ] `ethCall` in `src/api/voltaire.ts` for generic reads
-- [ ] Sourcify `fetchVerifiedContract` returns `abi` when available
-- [ ] `<ContractAction>` in `src/views/ContractAction.svelte` with method selector, inputs, Simulate/Query (read), Simulate/Sign & Broadcast (write)
-- [ ] Route `/network/[name]/contract/[address]` renders Contract view
-- [ ] Route `/network/[name]/contracts` exists (list or placeholder)
-- [ ] Account page has AccountContracts module with discovery and links to contract pages
-- [ ] Nav includes Contracts under network
+- [x] `Contract` data type in `src/data/Contract.ts` with `$id`, optional `deployer`, `source`, `abi`
+- [x] `CollectionId.Contracts` in `src/constants/collections.ts`
+- [x] `contractsCollection` in `src/collections/Contracts.ts` with `ensureContract`, `fetchContract`
+- [x] `EntityType.Contract` in `src/data/$EntityType.ts` and `entityTypes`
+- [x] `<Contract>` view in `src/views/Contract.svelte` using `<EntityView>`
+- [x] `ethCall` in `src/api/voltaire.ts` for generic reads
+- [x] Sourcify `fetchVerifiedContract` returns `abi` when available
+- [x] `<ContractAction>` in `src/views/ContractAction.svelte` with method selector, inputs, Simulate/Query (read), Simulate/Sign & Broadcast (write)
+- [x] Route `/network/[name]/contract/[address]` renders Contract view
+- [x] Route `/network/[name]/contracts` exists (list or placeholder)
+- [x] Account page has AccountContracts module with discovery and links to contract pages
+- [x] Nav includes Contracts under network
 
 ## Status
 
-In progress.
+Complete. All criteria verified: Contract.ts, CollectionId.Contracts, contractsCollection (ensureContract, fetchContract with Sourcify → Etherscan → Blockscout per Spec 110), EntityType.Contract, Contract.svelte, ethCall in voltaire.ts, Sourcify fetchContractWithAbi/fetchContractFull return abi, ContractAction.svelte, routes network/[name]/contract/[address] and contracts, AccountContracts, nav Contracts under network.

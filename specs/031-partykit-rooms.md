@@ -51,7 +51,7 @@ after expiry or to refresh proof). No single-request limit per address.
 
 ## Collections
 
-### `src/collections/rooms.ts`
+### `src/collections/Rooms.ts`
 
 ```typescript
 type Room = {
@@ -67,7 +67,7 @@ const roomsCollection = createCollection<Room>({
 })
 ```
 
-### `src/collections/room-peers.ts`
+### `src/collections/RoomPeers.ts`
 
 ```typescript
 type RoomPeer = {
@@ -86,7 +86,7 @@ const roomPeersCollection = createCollection<RoomPeer>({
 })
 ```
 
-### `src/collections/shared-addresses.ts`
+### `src/collections/SharedAddresses.ts`
 
 ```typescript
 type SharedAddress = {
@@ -109,7 +109,7 @@ come from the **verifications** collection. Derive "verified by N peers" or
 "Verified by you" from verifications where `address`, `roomId`, `verifiedPeerId`
 match and `status === 'verified'`.
 
-### `src/collections/verifications.ts`
+### `src/collections/SiweVerifications.ts`
 
 Verifications are a **separate DB collection**. One row per verification
 request/outcome (verifier + address + verified peer); peers may request multiple
@@ -143,7 +143,7 @@ const verificationsCollection = createCollection<Verification>({
 - **Verified** – Signature received and validated; `status: 'verified'`,
   `verifiedAt` and `signature` set.
 
-### `src/collections/siwe-challenges.ts`
+### `src/collections/SiweChallenges.ts`
 
 ```typescript
 type SiweChallenge = {
@@ -261,7 +261,7 @@ export default class RoomServer implements Party.Server {
 
 ## Client API
 
-### `src/lib/partykit.ts`
+### `src/lib/rooms/room.ts`
 
 ```typescript
 import PartySocket from 'partysocket'
@@ -389,11 +389,11 @@ const signSiweMessage = async (params: {
 ### `src/state/room.svelte.ts`
 
 ```typescript
-import { roomsCollection } from '$/collections/rooms'
-import { roomPeersCollection } from '$/collections/room-peers'
-import { sharedAddressesCollection } from '$/collections/shared-addresses'
-import { siweChallengesCollection } from '$/collections/siwe-challenges'
-import { verificationsCollection } from '$/collections/verifications'
+import { roomsCollection } from '$/collections/Rooms.ts'
+import { roomPeersCollection } from '$/collections/RoomPeers.ts'
+import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
+import { siweChallengesCollection } from '$/collections/SiweChallenges.ts'
+import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 
 type RoomState = {
   connection: RoomConnection | null
@@ -540,10 +540,10 @@ Sharer                    Server                    Peer A                   Pee
 
 ### Collections
 - [x] `partykitRoomsCollection` in `src/collections/PartykitRooms.ts`
-- [x] `roomPeersCollection` in `src/collections/room-peers.ts`
-- [x] `sharedAddressesCollection` in `src/collections/shared-addresses.ts`
-- [x] `siweChallengesCollection` in `src/collections/siwe-challenges.ts`
-- [x] `verificationsCollection` in `src/collections/verifications.ts` (separate from shared-addresses; stores status, verifiedAt, signature; peers may request multiple times)
+- [x] `roomPeersCollection` in `src/collections/RoomPeers.ts`
+- [x] `sharedAddressesCollection` in `src/collections/SharedAddresses.ts`
+- [x] `siweChallengesCollection` in `src/collections/SiweChallenges.ts`
+- [x] `siweVerificationsCollection` in `src/collections/SiweVerifications.ts` (separate from shared-addresses; stores status, verifiedAt, signature; peers may request multiple times)
 - [x] Unit tests for collection normalizers
 
 ### PartyKit server
@@ -554,7 +554,7 @@ Sharer                    Server                    Peer A                   Pee
 - [x] State sync on connect
 
 ### Client API
-- [x] `src/lib/partykit.ts` with `connectToRoom`, `createRoom`
+- [x] `src/lib/rooms/room.ts` with `connectToRoom`, `createRoom`
 - [x] `src/lib/rooms/siwe.ts` with `createSiweMessage`, `signSiweMessage`, `verifySiweSignature`
 - [x] SIWE signing via Voltaire `personal_sign`
 - [x] Signature recovery via Voltaire `recoverAddress`

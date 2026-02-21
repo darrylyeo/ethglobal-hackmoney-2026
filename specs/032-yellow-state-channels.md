@@ -41,7 +41,7 @@ Within a multiplayer room, users with verified addresses can:
 
 ## Collections
 
-### `src/collections/yellow-deposits.ts`
+### `src/collections/StateChannelDeposits.ts`
 
 Track unified balance and channel-locked balances:
 
@@ -61,7 +61,7 @@ const yellowDepositsCollection = createCollection<YellowDeposit>({
 })
 ```
 
-### `src/collections/yellow-channels.ts`
+### `src/collections/StateChannels.ts`
 
 Track payment channels (user <-> clearnode):
 
@@ -96,7 +96,7 @@ const yellowChannelsCollection = createCollection<YellowChannel>({
 })
 ```
 
-### `src/collections/yellow-channel-states.ts`
+### `src/collections/StateChannelStates.ts`
 
 Track signed state updates:
 
@@ -123,7 +123,7 @@ const yellowChannelStatesCollection = createCollection<YellowChannelState>({
 })
 ```
 
-### `src/collections/yellow-transfers.ts`
+### `src/collections/StateChannelTransfers.ts`
 
 Track off-chain transfers (unified balance):
 
@@ -312,9 +312,9 @@ const verifyStateSignature = async (params: {
 ### `src/state/yellow.svelte.ts`
 
 ```typescript
-import { yellowDepositsCollection } from '$/collections/yellow-deposits'
-import { yellowChannelsCollection } from '$/collections/yellow-channels'
-import { yellowTransfersCollection } from '$/collections/yellow-transfers'
+import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'
+import { stateChannelsCollection } from '$/collections/StateChannels.ts'
+import { stateChannelTransfersCollection } from '$/collections/StateChannelTransfers.ts'
 
 type YellowState = {
   clearnodeConnection: ClearnodeConnection | null
@@ -404,7 +404,7 @@ type TransferRequest = {
 }
 ```
 
-### `src/collections/transfer-requests.ts`
+### `src/collections/TransferRequests.ts`
 
 ```typescript
 type TransferRequest = {
@@ -437,8 +437,8 @@ List channels with room participants:
 ```svelte
 <script lang="ts">
   import { useLiveQuery } from '$/svelte/live-query-context.svelte'
-  import { yellowChannelsCollection } from '$/collections/yellow-channels'
-  import { sharedAddressesCollection } from '$/collections/shared-addresses'
+  import { stateChannelsCollection } from '$/collections/StateChannels.ts'
+  import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
   import { roomState } from '$/state/room.svelte'
   import { formatSmallestToDecimal } from '$/lib/format'
 
@@ -518,8 +518,8 @@ Propose and accept transfer requests:
 ```svelte
 <script lang="ts">
   import { useLiveQuery } from '$/svelte/live-query-context.svelte'
-  import { transferRequestsCollection } from '$/collections/transfer-requests'
-  import { sharedAddressesCollection } from '$/collections/shared-addresses'
+  import { transferRequestsCollection } from '$/collections/TransferRequests.ts'
+  import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
   import { roomState } from '$/state/room.svelte'
   import { yellowState } from '$/state/yellow.svelte'
 
@@ -663,8 +663,8 @@ Manage Custody Contract deposits:
 ```svelte
 <script lang="ts">
   import { useLiveQuery } from '$/svelte/live-query-context.svelte'
-  import { yellowDepositsCollection } from '$/collections/yellow-deposits'
-  import { actorCoinsCollection } from '$/collections/actor-coins'
+  import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'
+  import { actorCoinsCollection } from '$/collections/ActorCoins.ts'
   import { yellowState } from '$/state/yellow.svelte'
   import { depositToCustody, withdrawFromCustody } from '$/api/yellow'
 
@@ -681,7 +681,7 @@ Manage Custody Contract deposits:
 
   // Custody balance
   const depositQuery = useLiveQuery(() => (
-    yellowDepositsCollection.query({
+    stateChannelDepositsCollection.query({
       where: {
         chainId: yellowState.chainId,
         address: yellowState.address,
@@ -806,11 +806,11 @@ If counterparty is unresponsive or disputes:
 ## Acceptance criteria
 
 ### Collections
-- [x] `yellowDepositsCollection` in `src/collections/yellow-deposits.ts`
-- [x] `yellowChannelsCollection` in `src/collections/yellow-channels.ts`
-- [x] `yellowChannelStatesCollection` in `src/collections/yellow-channel-states.ts`
-- [x] `yellowTransfersCollection` in `src/collections/yellow-transfers.ts`
-- [x] `transferRequestsCollection` in `src/collections/transfer-requests.ts`
+- [x] `stateChannelDepositsCollection` in `src/collections/StateChannelDeposits.ts`
+- [x] `stateChannelsCollection` in `src/collections/StateChannels.ts`
+- [x] `stateChannelStatesCollection` in `src/collections/StateChannelStates.ts`
+- [x] `stateChannelTransfersCollection` in `src/collections/StateChannelTransfers.ts`
+- [x] `transferRequestsCollection` in `src/collections/TransferRequests.ts`
 - [x] Unit tests for collection normalizers (state/nitro-rpc.spec.ts: encode/decode/hashChannelState)
 
 ### Constants

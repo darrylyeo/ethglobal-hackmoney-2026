@@ -37,7 +37,7 @@
 
 ## Status
 
-Complete. `src/collections/stork-prices.ts`: stork-prices collection with REST (PUBLIC_STORK_REST_TOKEN), websocket (evm/subscribe), and RPC (getTemporalNumericValueV1 via Voltaire). `src/views/StorkPrices.svelte`: latest prices and transport metadata. CoinBalances: net worth from Stork in `src/views/CoinBalances.svelte`, with `CoinAmount.svelte` surfacing StorkPriceFeed tooltip per token. Swap: Stork vs quote rate comparison in SwapFlow.svelte.
+Complete. `src/collections/StorkPrices.ts`: stork-prices collection with REST (PUBLIC_STORK_REST_TOKEN), websocket (evm/subscribe), and RPC (getTemporalNumericValueV1 via Voltaire). `src/views/StorkPrices.svelte`: latest prices and transport metadata. CoinBalances: net worth from Stork in `src/views/CoinBalances.svelte`, with `CoinAmount.svelte` surfacing StorkPriceFeed tooltip per token. Swap: Stork vs quote rate comparison in SwapFlow.svelte.
 
 ## Output when complete
 

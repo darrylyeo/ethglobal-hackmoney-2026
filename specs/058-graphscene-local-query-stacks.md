@@ -38,7 +38,7 @@ share one derivation path.
 - [x] `GraphScene` distinguishes local vs global query stacks when highlighting.
 - [x] Pages/views using `useLiveQuery` register local query entries via
   `registerLocalLiveQueryStack` (shared state, merged where multiple queries exist).
-- [ ] Global stack contains queries for all watched entities (spec 084), replacing
+- [x] Global stack contains queries for all watched entities (spec 084), replacing
   the hardcoded wallet-connections + sessions + wallets.
 - [x] `useGlobalQueries` / `useLocalQueries` are the context hooks (no longer
   `useLiveQueryContext` / `useLocalLiveQueryContext`).
@@ -48,9 +48,7 @@ share one derivation path.
 
 ## Status
 
-Partially complete. Local/global stack infrastructure, context hooks,
-LocalGraphScene, and highlight mapping are done. Global stack composition to be
-updated per spec 084 refactor (watched entities as the single source of truth).
+Complete. Global stack is driven by watched entity types: Session, SocialPostSession, Actor, Room, AgentChatTree, Contract, and Farcaster (User/Channel/Cast) each add their corresponding collection query when that type is watched. Watched entities and transactions remain always included.
 
 ## Output when complete
 

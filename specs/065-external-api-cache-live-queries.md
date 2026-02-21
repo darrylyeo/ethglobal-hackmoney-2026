@@ -67,24 +67,29 @@ Every external API that provides data to the UI or routes must be cached in a Ta
 
 | External API / source              | Collection module                                | Sync / fetch                                      |
 | ---------------------------------- | ------------------------------------------------ | ------------------------------------------------- |
-| Voltaire (eth\_\*, RPC)            | `blocks.ts`                                      | `fetchBlock` → upsert                             |
-| Voltaire (eth\_\*, RPC)            | `actor-coins.ts`                                 | `fetchActorCoinBalance` → upsert                  |
-| Voltaire (eth\_\*, RPC)            | `actor-allowances.ts`                            | fetch → upsert                                    |
+| Voltaire (eth\_\*, RPC)            | `Blocks.ts`                                      | `fetchBlock` → upsert                             |
+| Voltaire (eth\_\*, RPC)            | `ActorCoins.ts`                                  | `fetchActorCoinBalance` → upsert                  |
+| Voltaire (eth\_\*, RPC)            | `ActorAllowances.ts`                             | fetch → upsert                                    |
 | Voltaire (eth\_\*, RPC)            | `NetworkTransactions.ts`                        | fetch → upsert                                    |
-| Voltaire (eth\_\*, RPC)            | `transfer-events.ts`                             | `fetchTransferEvents` → upsert                    |
-| (derived from transfer-events)     | `transfer-graphs.ts`                             | `upsertGraphFromEvents` (from cache after fetch)  |
-| Stork (REST / WebSocket / RPC)     | `stork-prices.ts`                                | `subscribeStorkPrices` → upsert                   |
-| LI.FI (getQuote, routes)           | `bridge-routes.ts`                               | queryFn / fetch → upsert                          |
-| CCTP (REST)                        | `cctp-fees.ts`                                   | fetch → upsert                                    |
-| CCTP (REST)                        | `cctp-allowance.ts`                              | fetch → upsert                                    |
-| Token list URLs                    | `token-list-coins.ts`                            | fetch → upsert                                    |
+| Voltaire (eth\_\*, RPC)            | `TransferEvents.ts`                              | `fetchTransferEvents` → upsert                    |
+| (derived from transfer-events)     | `TransferGraphs.ts`                               | `upsertGraphFromEvents` (from cache after fetch)  |
+| Stork (REST / WebSocket / RPC)     | `StorkPrices.ts`                                 | `subscribeStorkPrices` → upsert                   |
+| LI.FI (getQuote, routes)           | `BridgeRoutes.ts`                                | queryFn / fetch → upsert                          |
+| CCTP (REST)                        | `CctpFees.ts`                                    | fetch → upsert                                    |
+| CCTP (REST)                        | `CctpAllowance.ts`                               | fetch → upsert                                    |
+| Token list URLs                    | `TokenListCoins.ts`                              | fetch → upsert                                    |
+| ethereum/EIPs, ethereum/ercs (GitHub) | `Proposals.ts`                               | queryFn / fetchProposalEntries → upsert          |
 | spanDEX (getQuotes / getQuote)     | `SpandexQuoteItems.ts`                           | `fetchSpandexQuotes` (all; optional strategy sorts by bestPrice/fastest/estimatedGas) / `fetchSpandexQuoteForProvider` → upsert |
-| spanDEX (best quote → swap quote)  | `swap-quotes.ts`                                 | `fetchSpandexSwapQuote(strategy?)` → upsert (strategy from protocol tag) |
-| Uniswap (quote)                    | `swap-quotes.ts`                                 | `fetchSwapQuote` → upsert                         |
-| Transfers indexer / logs           | `transfer-events.ts`                             | `fetchTransferEventsForPeriod` (api) → collection |
+| spanDEX (best quote → swap quote)  | `SwapQuotes.ts`                                  | `fetchSpandexSwapQuote(strategy?)` → upsert (strategy from protocol tag) |
+| Uniswap (quote)                    | `SwapQuotes.ts`                                  | `fetchSwapQuote` → upsert                         |
+| Transfers indexer / logs           | `TransferEvents.ts`                              | `fetchTransferEventsForPeriod` (api) → collection |
 | Identity (RPC / resolver)          | `IdentityLinks.ts`                               | fetch → upsert                                    |
-| Voltaire (ENS reverse + forward)   | `evm-actor-profiles.ts`                          | `fetchEvmActorProfile` → upsert                   |
-| Networks (constant + optional RPC) | `networks.ts`                                    | queryFn / constant                                |
+| Voltaire (ENS reverse + forward)   | `EvmActorProfiles.ts`                             | `fetchEvmActorProfile` → upsert                   |
+| Sourcify, Etherscan, Blockscout (contract ABI) | `Contracts.ts`                            | `fetchContract` (Sourcify → Etherscan → Blockscout) → upsert |
+| Sourcify (verified source)         | `VerifiedContractSources.ts`                     | `fetchVerifiedContractSource` → upsert           |
+| OpenChain, 4byte (selector signatures) | `SelectorSignatures.ts`                      | `ensureFunctionSignatures` / `ensureEventSignatures` → upsert |
+| Voltaire (debug_traceTransaction)  | `TransactionTraces.ts`                           | `fetchTransactionTrace` → upsert                 |
+| Networks (constant + optional RPC) | `Networks.ts`                                    | queryFn / constant                                |
 | PartyKit (rooms, peers, etc.)      | `PartykitRooms.ts`, `PartykitRoomPeers.ts`, etc. | subscription → upsert                             |
 | Yellow / EIP-7824 (state channels) | `StateChannels.ts`, `StateChannelStates.ts`, `StateChannelDeposits.ts`, `StateChannelTransfers.ts` | subscription / fetch → upsert                     |
 

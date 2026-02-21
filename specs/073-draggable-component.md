@@ -33,7 +33,7 @@ Encapsulate HTML5 drag behavior and intent-drag integration in a **Svelte attach
 
 Export from `$lib/intents/drag` (or a dedicated `$lib/attachments/draggable`) an **attachment factory**:
 
-```ts
+```typescript
 type DraggableOptions = {
   text: string
   href?: string

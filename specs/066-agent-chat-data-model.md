@@ -109,19 +109,19 @@ type EntityRef = {
 
 ## Collections
 
-### `agentChatTreesCollection` (`src/collections/agent-chat-trees.ts`)
+### `agentChatTreesCollection` (`src/collections/AgentChatTrees.ts`)
 
 - `localStorageCollectionOptions`
-- `id: 'agent-chat-trees'`
-- `storageKey: 'agent-chat-trees'`
+- `id: CollectionId.AgentChatTrees` (`'AgentChatTrees'`)
+- `storageKey: CollectionId.AgentChatTrees`
 - `getKey: (row) => row.id`
 - `parser: { stringify, parse }` from `devalue`
 
-### `agentChatTurnsCollection` (`src/collections/agent-chat-turns.ts`)
+### `agentChatTurnsCollection` (`src/collections/AgentChatTurns.ts`)
 
 - `localStorageCollectionOptions`
-- `id: 'agent-chat-turns'`
-- `storageKey: 'agent-chat-turns'`
+- `id: CollectionId.AgentChatTurns` (`'AgentChatTurns'`)
+- `storageKey: CollectionId.AgentChatTurns`
 - `getKey: (row) => row.id`
 - `parser: { stringify, parse }` from `devalue`
 
@@ -148,7 +148,7 @@ rows produced by LLM generation.
 
 ## LLM harness integration
 
-### `buildAgentChatMessages` (`src/lib/agent-chat.ts`)
+### `buildAgentChatMessages` (`src/lib/agentChat.ts`)
 
 ```typescript
 const buildAgentChatMessages = (
@@ -170,7 +170,7 @@ include the `displayLabel` verbatim.
 
 Returns `{ systemPrompt, userPrompt }` ready for `LlmProvider.generate()`.
 
-### `submitAgentChatTurn` (`src/lib/agent-chat.ts`)
+### `submitAgentChatTurn` (`src/lib/agentChat.ts`)
 
 Convenience function that:
 
@@ -184,7 +184,7 @@ Convenience function that:
 6. Updates `tree.updatedAt`.
 7. Returns the turn `id`.
 
-### `retryAgentChatTurn` (`src/lib/agent-chat.ts`)
+### `retryAgentChatTurn` (`src/lib/agentChat.ts`)
 
 When a turn has `status === 'error'`, the UI can call:
 
@@ -203,7 +203,7 @@ flow as `submitAgentChatTurn` (build messages from ancestors, call
 `LlmProvider.generate()`, update turn on success or error, update
 `tree.updatedAt`). Used by the Retry button in `AgentChatTurnNode`.
 
-### Delete helpers (`src/lib/agent-chat.ts`)
+### Delete helpers (`src/lib/agentChat.ts`)
 
 - **`collectAgentChatTurnDescendantIds(turnId, allTurns)`** — Returns a `Set<string>` of `turnId` and all descendant turn ids (BFS via `parentId`).
 - **`deleteAgentChatTurn(turnId, allTurns)`** — Calls `agentChatTurnsCollection.delete(id)` for the turn and every descendant (from `collectAgentChatTurnDescendantIds`). Used by the UI to remove a branch.
@@ -227,7 +227,7 @@ to write `AgentChatTurn` nodes:
   `promptVersion`, `providerId`, `assistantText`).
 - `ExplainAvailability`, `ExplainContext`, `ExplainInput`, `ExplainOutput`,
   `ExplainProvider`, `createExplainProvider`, `buildExplainUserPrompt` remain
-  in `src/lib/llm-provider.ts` as the feature-specific layer that wraps
+  in `src/lib/llmProvider.ts` as the feature-specific layer that wraps
   `LlmProvider` and builds domain prompts. The only change is that the result
   is persisted as an `AgentChatTurn` instead of returned as an `ExplainRecord`.
 
@@ -261,7 +261,7 @@ to write `AgentChatTurn` nodes:
 
 ## Status
 
-Complete. Explain flow ported to AgentChatTurn in `llm-provider.ts`; TransactionFlow
+Complete. Explain flow ported to AgentChatTurn in `llmProvider.ts`; TransactionFlow
 reads from `agentChatTurnsCollection`. Optional: resolve entity refs to cached
 summaries inside `buildAgentChatMessages`.
 

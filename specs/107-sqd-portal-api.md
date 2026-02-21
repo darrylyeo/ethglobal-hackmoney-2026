@@ -147,19 +147,19 @@ Prefer Voltaire for: single-tx lookup, single-block lookup, real-time height, si
 
 ## Acceptance criteria
 
-- [ ] `DataSource.Sqd` added to `src/constants/data-sources.ts`.
-- [ ] `src/constants/sqd-datasets.ts` exists with ChainId → slug mapping for Portal-supported networks we use (Ethereum, Base, Arbitrum, Polygon, Optimism, Avalanche, Linea, Scroll, zkSync, Unichain, and testnets).
-- [ ] `src/api/sqd.ts` exists with `getSqdDatasetSlug`, `getSqdPortalBaseUrl`, `fetchSqdHead`, `streamSqdEvm`, `SqdEvmQuery`, `SqdBlockItem` types.
-- [ ] At least one collection uses SQD Portal as an optional source with normalization and `$source: DataSource.Sqd`.
-- [ ] Fetched data is cached in TanStack DB per Spec 065; reads via live queries only.
-- [ ] Public Portal rate limit (20 req/10s) respected via client-side throttle.
-- [ ] When SQD is unsupported for a chain, fall back to Voltaire; no errors thrown.
+- [x] `DataSource.Sqd` added to `src/constants/data-sources.ts`.
+- [x] `src/constants/sqd-datasets.ts` exists with ChainId → slug mapping for Portal-supported networks we use (Ethereum, Base, Arbitrum, Polygon, Optimism, Avalanche, Linea, Scroll, zkSync, Unichain, and testnets).
+- [x] `src/api/sqd.ts` exists with `getSqdDatasetSlug`, `getSqdPortalBaseUrl`, `fetchSqdHead`, `fetchSqdFinalizedHead`, `fetchSqdMetadata`, `streamSqdEvm`, `SqdEvmQuery`, `SqdBlockItem` types.
+- [x] At least one collection uses SQD Portal as an optional source with normalization and `$source: DataSource.Sqd` (TransferEvents).
+- [x] Fetched data is cached in TanStack DB per Spec 065; reads via live queries only.
+- [x] Public Portal rate limit (20 req/10s) respected via client-side throttle.
+- [x] When SQD is unsupported for a chain, fall back to Voltaire; no errors thrown (fetch* return null, streamSqdEvm yields nothing when unsupported).
 
 ## TODOs
 
-- Implement SQD API module and dataset mapping.
-- Integrate SQD into TransferEvents or blocks as fallback for batch historical fetches.
-- Add trace support only for networks with `traces: true`.
+- [x] Implement SQD API module and dataset mapping.
+- [x] Integrate SQD into TransferEvents as optional source (try SQD first when supported, fallback to Voltaire).
+- [x] Add trace support only for networks with `traces: true` (when integrating traces collection).
 
 ## Sources
 
@@ -182,7 +182,7 @@ Prefer Voltaire for: single-tx lookup, single-block lookup, real-time height, si
 
 ## Status
 
-Draft. Not implemented.
+Complete. SQD Portal used as optional source for TransferEvents; falls back to Voltaire when unsupported or on failure. API returns null / empty when chain unsupported (no throw).
 
 ## Output when complete
 

@@ -51,11 +51,11 @@ Verify Farcaster accounts are architected similarly to watching blockchain accou
 
 ### Alignment checklist
 
-- [ ] `FarcasterConnectionTransport` enum exists (Siwf, Watch).
-- [ ] Connections collection is profile-scoped, localStorage.
-- [ ] Nav: Farcaster → Accounts with flattened children per connection.
-- [ ] Tag per account: `Signed in` or `Watching` from transport.
-- [ ] Siwf = authenticated (can post); Watch = read-only (cannot post).
+- [x] `FarcasterConnectionTransport` enum exists (Siwf, Watch).
+- [x] Connections collection is profile-scoped, localStorage.
+- [x] Nav: Farcaster → Accounts with flattened children per connection.
+- [x] Tag per account: `Signed in` or `Watching` from transport.
+- [x] Siwf = authenticated (can post); Watch = read-only (cannot post).
 
 ---
 
@@ -63,7 +63,7 @@ Verify Farcaster accounts are architected similarly to watching blockchain accou
 
 ### `FarcasterConnectionTransport` (existing in `$/data/FarcasterConnection.ts`)
 
-```ts
+```typescript
 export enum FarcasterConnectionTransport {
   Siwf = 'siwf',   // authenticated; can draft and post casts
   Watch = 'watch',  // read-only; cannot post
@@ -85,7 +85,7 @@ export enum FarcasterConnectionTransport {
 
 ### Social post action types (generified; protocol: Farcaster)
 
-```ts
+```typescript
 // $/constants/social-post-actions.ts
 export enum SocialProtocol { Farcaster = 'Farcaster' }
 
@@ -99,7 +99,7 @@ Mirrors `ActionType`, `actionTypeDefinitions`, etc. from `$/constants/actions.ts
 
 ### Social post session
 
-```ts
+```typescript
 // $/data/SocialPostSession.ts
 export type SocialPostSession = {
   id: string
@@ -225,7 +225,7 @@ When a social post session is watched (via WatchButton on session page):
 
 Publish requires Hub/Neynar integration. For this spec:
 
-- Define `publishCast(params)` in `$/api/farcaster.ts` (or `$/api/farcaster/publish.ts`).
+- Define `publishCast(params)` in `$/api/farcaster/publish.ts`.
 - Signature: `(params: { fid, text, parentFid?, parentHash?, embeds? }) => Promise<{ hash }>`.
 - Implementation: stub returning mock hash, or call Neynar/Hub publish when available.
 
@@ -235,37 +235,37 @@ Publish requires Hub/Neynar integration. For this spec:
 
 ### Architecture verification
 
-- [ ] Farcaster accounts use `FarcasterConnectionTransport` enum; Siwf vs Watch semantics documented.
-- [ ] Nav: Farcaster → Accounts with flattened children per connection; tag from transport.
+- [x] Farcaster accounts use `FarcasterConnectionTransport` enum; Siwf vs Watch semantics documented.
+- [x] Nav: Farcaster → Accounts with flattened children per connection; tag from transport.
 
 ### Transport-based capabilities
 
-- [ ] Draft/create and reply controls enabled only when selected Farcaster connection has `transport === FarcasterConnectionTransport.Siwf`.
+- [x] Draft/create and reply controls enabled only when selected Farcaster connection has `transport === FarcasterConnectionTransport.Siwf`.
 
 ### Social post sessions
 
-- [ ] `SocialPostActionType` enum and `socialPostActionTypeDefinitions` in `$/constants/social-post-actions.ts`.
-- [ ] `SocialPostSession` type and `SocialPostSessionStatus` in `$/data/SocialPostSession.ts`.
-- [ ] `socialPostSessionsCollection` in `$/collections/SocialPostSessions.ts`; `CollectionId.SocialPostSessions` in collections.ts.
-- [ ] Routes: `/farcaster/session`, `/farcaster/session/[id]`; URL bootstrap parallel to spec 101.
+- [x] `SocialPostActionType` enum and `socialPostActionTypeDefinitions` in `$/constants/social-post-actions.ts`.
+- [x] `SocialPostSession` type and `SocialPostSessionStatus` in `$/data/SocialPostSession.ts`.
+- [x] `socialPostSessionsCollection` in `$/collections/SocialPostSessions.ts`; `CollectionId.SocialPostSessions` in collections.ts.
+- [x] Routes: `/farcaster/session`, `/farcaster/session/[id]`; URL bootstrap parallel to spec 101.
 
 ### Components
 
-- [ ] `SocialPostSession.svelte`, `SocialPostActionsSequence.svelte`, `SocialPostAction.svelte` in `src/routes/farcaster/session/`.
-- [ ] `FarcasterAccountSelect` (or equivalent) for selecting Siwf connection when drafting.
-- [ ] `EditableItemsList` for social post actions; CreatePost and ReplyToPost params forms.
+- [x] `SocialPostSession.svelte`, `SocialPostActionsSequence.svelte`, `SocialPostAction.svelte` in `src/routes/farcaster/session/`.
+- [x] `FarcasterAccountSelect` (or equivalent) for selecting Siwf connection when drafting.
+- [x] `EditableItemsList` for social post actions; CreatePost and ReplyToPost params forms.
 
 ### Nav
 
-- [ ] Farcaster → Social posts (or Create post / Reply) entry points.
-- [ ] Watched social post sessions appear as nav children when applicable.
+- [x] Farcaster → Social posts (or Create post / Reply) entry points.
+- [x] Watched social post sessions appear as nav children when applicable.
 
 ### API
 
-- [ ] `publishCast` (or equivalent) defined; stub or integration as needed.
+- [x] `publishCast` (or equivalent) defined; stub or integration as needed.
 
 ---
 
 ## Status
 
-Implemented. Generified as SocialPostSession; protocol: Farcaster. Enums mirror Action (SocialPostActionType, socialPostActionTypeDefinitions, socialPostActionTypeDefinitionByType, socialPostActionTypes). Routes `/farcaster/session`, `/farcaster/session/[id]`, `/farcaster/sessions`. URL templates: CreatePost, ReplyToPost.
+Complete. All acceptance criteria verified: FarcasterConnectionTransport (Siwf/Watch) in FarcasterConnection.ts; nav Farcaster → Accounts with flattened children and tag from transport; draft/reply gated by Siwf in SocialPostSession.svelte and FarcasterAccountSelect; SocialPostActionType and socialPostActionTypeDefinitions in social-post-actions.ts; SocialPostSession and SocialPostSessionStatus in SocialPostSession.ts; socialPostSessionsCollection and CollectionId; routes /farcaster/session, [id], sessions; SocialPostSession.svelte, SocialPostActionsSequence.svelte, SocialPostAction.svelte; EditableItemsList for actions; Create post / Reply nav entry points; watched sessions as nav children; publishCast in api/farcaster/publish.ts.

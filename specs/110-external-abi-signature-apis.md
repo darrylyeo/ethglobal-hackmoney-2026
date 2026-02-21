@@ -199,30 +199,30 @@ Order is configurable (e.g. Sourcify first, then Etherscan, then Blockscout). Co
 
 **API modules**
 
-- [ ] `src/api/sourcify.ts` unchanged in contract (or only extended with optional configurable server); JSDoc references Sourcify API docs.
-- [ ] `src/api/etherscan.ts` exists; exports `fetchAbiFromEtherscan(chainId, address, options?)`; uses `getExplorerApiUrl(chainId)` from `contract-discovery.ts` for base URL (returns null when chain not supported); GET getabi; returns `ContractAbi | null`; JSDoc links to Etherscan contracts API docs.
-- [ ] `src/api/blockscout.ts` exists; exports `fetchAbiFromBlockscout(chainId, address, options?)`; uses `BLOCKSCOUT_API_BY_CHAIN`; GET getabi; returns `ContractAbi | null`; JSDoc links to Blockscout contract API docs.
-- [ ] `src/api/openchain.ts` exists; exports `fetchFunctionSignatures(selector)` and `fetchEventSignatures(topicHash)` (and optionally combined); uses OpenChain lookup URL; returns string arrays; JSDoc references OpenChain.
-- [ ] `src/api/fourbyte.ts` exists; exports `fetchFunctionSignatures(selector)` and `fetchEventSignatures(topicHash)`; uses 4byte API; returns string arrays; JSDoc links to 4byte.directory docs.
-- [ ] All new API modules use `ChainId` and `0x${string}` where applicable; no API keys hardcoded; optional keys via parameter (or env) for Etherscan/Blockscout.
+- [x] `src/api/sourcify.ts` unchanged in contract (or only extended with optional configurable server); JSDoc references Sourcify API docs.
+- [x] `src/api/etherscan.ts` exists; exports `fetchAbiFromEtherscan(chainId, address, options?)`; uses `getExplorerApiUrl(chainId)` from `contract-discovery.ts` for base URL (returns null when chain not supported); GET getabi; returns `ContractAbi | null`; JSDoc links to Etherscan contracts API docs.
+- [x] `src/api/blockscout.ts` exists; exports `fetchAbiFromBlockscout(chainId, address, options?)`; uses `BLOCKSCOUT_API_BY_CHAIN`; GET getabi; returns `ContractAbi | null`; JSDoc links to Blockscout contract API docs.
+- [x] `src/api/openchain.ts` exists; exports `fetchFunctionSignatures(selector)` and `fetchEventSignatures(topicHash)` (and optionally combined); uses OpenChain lookup URL; returns string arrays; JSDoc references OpenChain.
+- [x] `src/api/fourbyte.ts` exists; exports `fetchFunctionSignatures(selector)` and `fetchEventSignatures(topicHash)`; uses 4byte API; returns string arrays; JSDoc links to 4byte.directory docs.
+- [x] All new API modules use `ChainId` and `0x${string}` where applicable; no API keys hardcoded; optional keys via parameter (or env) for Etherscan/Blockscout.
 
 **TanStack DB: schemas and data types**
 
-- [ ] `src/constants/data-sources.ts`: `DataSource` enum includes `Etherscan` and `Blockscout`.
-- [ ] `src/data/Contract.ts`: `source` typed as `DataSource` (optional).
-- [ ] `src/data/SelectorSignature.ts` exists; exports `SelectorKind` enum (Function, Event), `SelectorSignature$Id` (`kind: SelectorKind`, `hex`), and `SelectorSignatureEntry` (`$id`, `signatures: string[]`).
+- [x] `src/constants/data-sources.ts`: `DataSource` enum includes `Etherscan` and `Blockscout`.
+- [x] `src/data/Contract.ts`: `source` typed as `DataSource` (optional).
+- [x] `src/data/SelectorSignature.ts` exists; exports `SelectorKind` enum (Function, Event), `SelectorSignature$Id` (`kind: SelectorKind`, `hex`), and `SelectorSignatureEntry` (`$id`, `signatures: string[]`).
 
 **TanStack DB: collections and persistence**
 
-- [ ] `CollectionId.SelectorSignatures` added in `src/constants/collections.ts`.
-- [ ] `src/collections/SelectorSignatures.ts` exists; `selectorSignaturesCollection` created with `localStorageCollectionOptions` (id + storageKey = `CollectionId.SelectorSignatures`, getKey = `kind:hex` using `SelectorKind`, parser = devalue); exports `ensureFunctionSignatures(selector)` and `ensureEventSignatures(topicHash)` (or `ensureSelectorSignatures(kind: SelectorKind, hex)`) that fetch from OpenChain + 4byte, merge/dedupe, and upsert.
-- [ ] `src/collections/Contracts.ts`: `fetchContract` tries Sourcify then Etherscan then Blockscout when resolving ABI; sets `source` and `abi` from the provider that returns an ABI; updates VerifiedContractSources only when Sourcify returns (not when ABI comes from Etherscan/Blockscout); persistence unchanged (localStorage, existing getKey).
+- [x] `CollectionId.SelectorSignatures` added in `src/constants/collections.ts`.
+- [x] `src/collections/SelectorSignatures.ts` exists; `selectorSignaturesCollection` created with `localStorageCollectionOptions` (id + storageKey = `CollectionId.SelectorSignatures`, getKey = `kind:hex` using `SelectorKind`, parser = devalue); exports `ensureFunctionSignatures(selector)` and `ensureEventSignatures(topicHash)` (or `ensureSelectorSignatures(kind: SelectorKind, hex)`) that fetch from OpenChain + 4byte, merge/dedupe, and upsert.
+- [x] `src/collections/Contracts.ts`: `fetchContract` tries Sourcify then Etherscan then Blockscout when resolving ABI; sets `source` and `abi` from the provider that returns an ABI; updates VerifiedContractSources only when Sourcify returns (not when ABI comes from Etherscan/Blockscout); persistence unchanged (localStorage, existing getKey).
 
 **Tests and Spec 065**
 
-- [ ] Unit tests (or integration tests) for at least one fetch per new API module (e.g. mock fetch or live call with known address/selector) to verify shape and null/empty behavior.
-- [ ] Spec 065: ABI used by UI is read via `contractsCollection` and live query; signature lookups used by UI are read via `selectorSignaturesCollection` and live query (ensure* writes, components use `useLiveQuery`).
+- [x] Unit tests (or integration tests) for at least one fetch per new API module (e.g. mock fetch or live call with known address/selector) to verify shape and null/empty behavior.
+- [x] Spec 065: ABI used by UI is read via `contractsCollection` and live query; signature lookups used by UI are read via `selectorSignaturesCollection` and live query (ensure* writes, components use `useLiveQuery`).
 
 ## Status
 
-In progress.
+Complete.

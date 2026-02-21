@@ -36,7 +36,7 @@ Persisted settings including testnet/mainnet toggle managed via `bridgeSettingsS
 
 ### Collections
 
-`src/collections/actors.ts`:
+`src/collections/Actors.ts`:
 
 ```typescript
 type Actor = {
@@ -45,7 +45,7 @@ type Actor = {
 };
 ```
 
-`src/collections/actor-coins.ts`:
+`src/collections/ActorCoins.ts`:
 
 ```typescript
 type ActorCoin = {
@@ -81,8 +81,8 @@ type ActorCoin = {
 
 ### Collections
 
-- [x] `actors.ts` defines `Actor` type and `actorsCollection`
-- [x] `actor-coins.ts` defines `ActorCoin` type and `actorCoinsCollection`
+- [x] `Actors.ts` defines `Actor` type and `actorsCollection`
+- [x] `ActorCoins.ts` defines `ActorCoin` type and `actorCoinsCollection`
 - [x] `fetchActorCoinBalance()` fetches single token balance via RPC
 - [x] `fetchAllBalancesForAddress()` fetches all USDC balances across chains
 
@@ -105,7 +105,7 @@ type ActorCoin = {
 
 ## Testing approach
 
-### Unit tests (`src/collections/actor-coins.spec.ts`)
+### Unit tests (`src/collections/ActorCoins.spec.ts`)
 
 ```typescript
 Deno.test("actorCoinKey generates correct key", () => {
@@ -163,14 +163,14 @@ test("balances display after wallet connection", async ({ page }) => {
 
 ## Status
 
-Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomplete specs; re-verify 005): all 17 AC confirmed—AccountsSelect in src/views/, TanStack DB wallets/walletConnections/actors/actorCoins, bridgeSettingsState isTestnet, EIP-6963 connect/disconnect, fetchActorCoinBalance/fetchAllBalancesForAddress in actor-coins.ts, Session.svelte AccountsSelect+CoinBalances+fetchAllBalancesForAddress on connect, CoinBalances grid+loading+error, e2e/wallet.test.ts. test:unit 44 Deno + 159 Vitest passed. Previous: Re-verification 2026-02-07 (PROMPT_build execute one spec, all specs complete; re-verify 005): all 17 AC confirmed—AccountsSelect in src/views/, TanStack DB wallets/walletConnections/actors/actorCoins, bridgeSettingsState isTestnet, EIP-6963 connect/disconnect, fetchActorCoinBalance/fetchAllBalancesForAddress in actor-coins.ts, Session.svelte AccountsSelect+CoinBalances+fetchAllBalancesForAddress on connect, CoinBalances grid+loading+error, e2e/wallet.test.ts. test:unit 44 Deno + 159 Vitest passed. Previous: Re-verification 2026-02-07 (PROMPT_build execute one spec, re-verify 005—all specs complete): all 17 AC confirmed—AccountsSelect in src/views/, TanStack DB wallets/walletConnections/actors/actorCoins, bridgeSettingsState, EIP-6963 connect/disconnect; actorsCollection/actorCoinsCollection, fetchActorCoinBalance/fetchAllBalancesForAddress in actor-coins.ts; Bridge.svelte/Swap.svelte use AccountsSelect+CoinBalances, fetchAllBalancesForAddress on connect, grid+loading+error in CoinBalances; e2e/wallet.test.ts network toggle, wallet menu, address, balances. test:unit 44 Deno + 159 Vitest passed. E2E wallet tests present; pnpx playwright run hit runner/config error (test.describe/no tests found), not spec regression. Previous: Re-verification 2026-02-06 (PROMPT_build execute one spec, re-verify 005): all 17 AC confirmed in code (AccountsSelect, wallets/walletConnections/actors/actorCoins collections, bridgeSettingsState, fetchActorCoinBalance/fetchAllBalancesForAddress, bridge.svelte with AccountsSelect+CoinBalances, fetch on connect, grid+loading+error, e2e/wallet.test.ts). test:unit 44 Deno + 101 Vitest passed. Previous: `AccountsSelect.svelte` in `src/views/` with TanStack DB collections
+Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomplete specs; re-verify 005): all 17 AC confirmed—AccountsSelect in src/views/, TanStack DB wallets/walletConnections/actors/actorCoins, bridgeSettingsState isTestnet, EIP-6963 connect/disconnect, fetchActorCoinBalance/fetchAllBalancesForAddress in ActorCoins.ts, Session.svelte AccountsSelect+CoinBalances+fetchAllBalancesForAddress on connect, CoinBalances grid+loading+error, e2e/wallet.test.ts. test:unit 44 Deno + 159 Vitest passed. Previous: Re-verification 2026-02-07 (PROMPT_build execute one spec, all specs complete; re-verify 005): all 17 AC confirmed—AccountsSelect in src/views/, TanStack DB wallets/walletConnections/actors/actorCoins, bridgeSettingsState isTestnet, EIP-6963 connect/disconnect, fetchActorCoinBalance/fetchAllBalancesForAddress in ActorCoins.ts, Session.svelte AccountsSelect+CoinBalances+fetchAllBalancesForAddress on connect, CoinBalances grid+loading+error, e2e/wallet.test.ts. test:unit 44 Deno + 159 Vitest passed. Previous: Re-verification 2026-02-07 (PROMPT_build execute one spec, re-verify 005—all specs complete): all 17 AC confirmed—AccountsSelect in src/views/, TanStack DB wallets/walletConnections/actors/actorCoins, bridgeSettingsState, EIP-6963 connect/disconnect; actorsCollection/actorCoinsCollection, fetchActorCoinBalance/fetchAllBalancesForAddress in ActorCoins.ts; Bridge.svelte/Swap.svelte use AccountsSelect+CoinBalances, fetchAllBalancesForAddress on connect, grid+loading+error in CoinBalances; e2e/wallet.test.ts network toggle, wallet menu, address, balances. test:unit 44 Deno + 159 Vitest passed. E2E wallet tests present; pnpx playwright run hit runner/config error (test.describe/no tests found), not spec regression. Previous: Re-verification 2026-02-06 (PROMPT_build execute one spec, re-verify 005): all 17 AC confirmed in code (AccountsSelect, wallets/walletConnections/actors/actorCoins collections, bridgeSettingsState, fetchActorCoinBalance/fetchAllBalancesForAddress, bridge.svelte with AccountsSelect+CoinBalances, fetch on connect, grid+loading+error, e2e/wallet.test.ts). test:unit 44 Deno + 101 Vitest passed. Previous: `AccountsSelect.svelte` in `src/views/` with TanStack DB collections
 (`walletsCollection`, `walletConnectionsCollection`).
 `actorsCollection` and `actorCoinsCollection` for balances.
 `bridgeSettingsState` for testnet/mainnet toggle. E2E tests in
 `e2e/wallet.test.ts`: network toggle and connect-popover pass; address,
 disconnect, and balances tests skipped in CI (manual verification).
 Re-verification 2026-02-05 (PROMPT_build one spec): all AC re-verified. Wallet
-component (AccountsSelect), collections (actors, actor-coins), fetchActorCoinBalance
+component (AccountsSelect), collections (Actors, ActorCoins), fetchActorCoinBalance
 and fetchAllBalancesForAddress, bridge view (Bridge.svelte in session) with AccountsSelect and
 CoinBalances, balances fetched on connect, grid with chain name and amount. Added
 loading state (Loading…) and per-chain error display in CoinBalances.svelte. test:unit

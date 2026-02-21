@@ -24,9 +24,9 @@ reusing existing components where possible.
 
 ## Data sources (TanStack DB)
 
-- **Balances:** `actor-coins` + `token-list-coins` + stork prices via
+- **Balances:** `ActorCoins` + `TokenListCoins` + stork prices via
   `$/views/CoinBalances.svelte` and `fetchAllBalancesForAddress`.
-- **Transactions:** `transactionsCollection` (filter by interop address when
+- **Transactions:** `bridgeTransactionsCollection` (filter by interop address when
   available; fallback to raw `0x` address when not).
 - **Wallet connections module (conditional):** `walletConnectionsCollection` joined
   with `walletsCollection`; match rows where `actors` includes the normalized
@@ -50,7 +50,7 @@ reusing existing components where possible.
 - **Transactions section:** render a list of indexed transactions for the
   account. Reuse an existing transaction list component if present; otherwise
   create a minimal `AccountTransactions.svelte` view that reads from
-  `transactionsCollection`.
+  `bridgeTransactionsCollection`.
 - **Wallet connections module:** list connected wallets that include the account
   (from `walletConnectionsCollection`, match by `actors`). **Show only when** the
   address appears in at least one row of `walletConnectionsCollection` (i.e. the
@@ -80,7 +80,7 @@ reusing existing components where possible.
 
 - [x] `/account/[address]` renders for both interop and raw `0x` addresses.
 - [x] The page shows balances using existing `CoinBalances.svelte` and TanStack DB.
-- [x] The page shows indexed transactions from `transactionsCollection`.
+- [x] The page shows indexed transactions from `bridgeTransactionsCollection`.
 - [x] The page lists wallet connections that include the account.
 - [x] **Wallet connections module** is shown **only when** the address appears in
   `walletConnectionsCollection` (i.e. in some connection’s `actors`); otherwise

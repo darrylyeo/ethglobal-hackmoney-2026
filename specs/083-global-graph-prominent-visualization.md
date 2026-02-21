@@ -77,11 +77,10 @@ No JS; purely CSS so that scrolling main content over the sticky canvas creates 
 - [x] Main has `:global` styles for `::before` and `::after`: negative inset, masked gradient, and `backdrop-filter: blur(...)` so content scrolling over the canvas shows a ramped blur.
 - [x] Scroll-driven animation sets at least one CSS variable (e.g. scroll progress or visible block) that the canvas (or wrapper) can use for its bounding rect.
 - [x] Graph toggle button and `showGraph` state are removed from the layout.
-- [ ] Default graph scope is the watched entity set (spec 084), not all collections.
-- [ ] Entity-type toggles expand scope beyond watched entities.
-- [ ] Global query stack feeds graph data from watched entities (spec 058).
+- [x] Default graph scope is the watched entity set (spec 084), not all collections. GraphScene uses global stack data for Wallet, WalletConnection, Session, Room when type is not in expandedEntities.
+- [x] Entity-type toggles expand scope beyond watched entities. Sidebar "Expand scope (full collection)" multi-select adds types to expandedEntities; when a type is expanded, full collection query is used instead of stack.
+- [x] Global query stack feeds graph data from watched entities (spec 058).
 
 ## Status
 
-Layout complete (2026-02-07). Data scope update pending (depends on spec 084
-refactor).
+Complete. Layout and data scope implemented: default graph data from global stack (watched-entity-driven); expandedEntities toggles use full collection per type; state fixed (isVisible in default).

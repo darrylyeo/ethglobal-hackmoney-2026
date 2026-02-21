@@ -20,7 +20,7 @@ Add a Farcaster Accounts flow parallel to the regular Accounts flow. Users can a
 
 Mirror `WalletConnectionTransport` from `$/data/WalletConnection.ts`:
 
-```ts
+```typescript
 // $/data/FarcasterConnection.ts (new file)
 export enum FarcasterConnectionTransport {
   Siwf = 'siwf',   // Sign in with Farcaster – authenticated, has verified signature
@@ -35,7 +35,7 @@ export enum FarcasterConnectionTransport {
 
 ### FarcasterConnection types
 
-```ts
+```typescript
 // $/data/FarcasterConnection.ts
 export type FarcasterConnection$Id = { fid: number }
 
@@ -129,8 +129,8 @@ Ordering: SIWF first, then Watch. Sort by `connectedAt` descending within each g
 - [x] `farcasterConnectionsCollection` exists; persisted to localStorage, profile-scoped.
 - [x] `addFarcasterConnectionSiwf`, `addFarcasterConnectionWatch`, `removeFarcasterConnection`, `selectFarcasterConnection` implemented.
 - [x] Route `/farcaster/accounts` exists with list of SIWF and Watch accounts.
-- [ ] “Sign in with Farcaster” adds a Siwf connection.
-- [ ] “Add watching” (FID input) adds a Watch connection.
+- [x] “Sign in with Farcaster” adds a Siwf connection.
+- [x] “Add watching” (FID input) adds a Watch connection.
 - [x] Each account row shows Remove/Sign out; removal works.
 - [x] Nav: Farcaster → Accounts with flattened list of accounts; each links to `/farcaster/user/[fid]`; tag shows Signed in / Watching.
 

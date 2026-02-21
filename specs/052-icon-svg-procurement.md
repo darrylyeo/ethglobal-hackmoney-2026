@@ -48,7 +48,7 @@ When adding or replacing icons manually (outside `_sync-assets.ts`), agents must
 
 - Inline `await import('path to file')`: every constant that needs an icon reference uses `(await import('$/assets/.../file.svg?url')).default` at that site. No helper string builders.
 - Network config: `src/constants/networks.ts` uses top-level `await import(...)` in each `networkConfigs` entry that has an `icon`. Layout/views use `<NetworkIcon chainId={...} />` or `config.icon` / `networkConfigsByChainId[id]?.icon` where a raw URL is needed (see Spec 086).
-- Coins/providers: layout and architecture graph use `<CoinIcon src={...} symbol={...} />` or top-level `await import(...)` for each coin/provider icon (Spec 086). Brand colors: network from `networkConfigsByChainId[chainId]?.color`, coin from `coinColorBySymbol[symbol]?.color` (colors.ts re-exports from coins).
+- Coins/providers: layout and architecture graph use `<CoinIcon src={...} symbol={...} />` or top-level `await import(...)` for each coin/provider icon (Spec 086). Brand colors: network from `networkConfigsByChainId[chainId]?.color` in `src/constants/networks.ts`, coin from `coinColorBySymbol[symbol]?.color` in `src/constants/coins.ts`.
 
 ## Acceptance criteria
 
@@ -65,8 +65,8 @@ When adding or replacing icons manually (outside `_sync-assets.ts`), agents must
 
 ## References
 
-- Spec 086 (Icon subicon, NetworkIcon, CoinIcon): `<NetworkIcon>` and `<CoinIcon>` consume config icon URLs and `src/constants/colors.ts` for backgrounds.
+- Spec 086 (Icon subicon, NetworkIcon, CoinIcon): `<NetworkIcon>` and `<CoinIcon>` consume config icon URLs; network/coin backgrounds from `src/constants/networks.ts` and `src/constants/coins.ts`.
 
 ## Status
 
-Complete. Schema and all sources in `src/constants/assets.ts`; URL resolution was in `src/lib/assets/urls.ts` (removed; inline await import now). Single script `_sync-assets.ts` syncs only missing assets; optional subject arg. Network/coin UI icons use NetworkIcon/CoinIcon (Spec 086) with colors from `colors.ts`.
+Complete. Schema and all sources in `src/constants/assets.ts`; URL resolution was in `src/lib/assets/urls.ts` (removed; inline await import now). Single script `_sync-assets.ts` syncs only missing assets; optional subject arg. Network/coin UI icons use NetworkIcon/CoinIcon (Spec 086) with colors from `networks.ts` / `coins.ts`.

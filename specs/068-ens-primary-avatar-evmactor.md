@@ -40,7 +40,7 @@ type EvmActorProfile = {
 
 ### Collection
 
-- **id**: `evm-actor-profiles`
+- **id**: `CollectionId.EvmActorProfiles` (`'EvmActorProfiles'`); module `src/collections/EvmActorProfiles.ts`
 - **getKey**: `(row) => `${row.$id.chainId}:${row.$id.address.toLowerCase()}``
 - **Fetch-upsert**: For a given `(chainId, address)`:
   1. Reverse-resolve address → primary name (existing `resolveEnsReverse`).
@@ -64,7 +64,7 @@ type EvmActorProfile = {
 
 ### TanStack DB collection
 
-- [x] `evm-actor-profiles` collection exists with `getKey` = `chainId:address` (lowercase).
+- [x] `EvmActorProfiles` collection exists (`src/collections/EvmActorProfiles.ts`) with `getKey` = `chainId:address` (lowercase).
 - [x] Fetch-upsert helper (e.g. `ensureEvmActorProfile(chainId, address)`) uses Voltaire: reverse resolve → primary name, then forward resolve primary name for `avatar` text record; writes one normalized row per (chainId, address).
 - [x] Normalization (including `$source`) at collection boundary. No component fetches ENS data directly; all reads via live query.
 
@@ -80,7 +80,7 @@ type EvmActorProfile = {
 
 ## Status
 
-Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomplete specs; re-verify 068): all 9 AC confirmed—EvmActorProfile$Id/EvmActorProfile in src/data/EvmActorProfile.ts; evmActorProfilesCollection getKey chainId:address (lowercase); ensureEvmActorProfile/fetchEvmActorProfile use resolveEnsReverse then resolveEnsForward(['avatar']); normalization at collection boundary; EvmActor Icon+Address+(primaryName), live query+ensure; account page uses EvmActor. test:unit 44 Deno + 159 Vitest passed. Previous: 2026-02-07 (PROMPT_build execute one spec): All 9 AC verified. `EvmActorProfile$Id` and `EvmActorProfile` in `src/data/EvmActorProfile.ts` ($id, primaryName?, avatarUrl?, $source). `evmActorProfilesCollection` in `src/collections/evm-actor-profiles.ts` with getKey `chainId:address` (lowercase); `ensureEvmActorProfile` / `fetchEvmActorProfile` use Voltaire (resolveEnsReverse → primary name, resolveEnsForward with `['avatar']`); normalization at collection boundary; reads via live query. `<EvmActor>` in `src/components/EvmActor.svelte`: Icon (avatar) + Address + (primaryName) when resolved; network and address props; profile from collection (live query + ensure). Account page `src/routes/account/[address]/+page.svelte` uses EvmActor.
+Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomplete specs; re-verify 068): all 9 AC confirmed—EvmActorProfile$Id/EvmActorProfile in src/data/EvmActorProfile.ts; evmActorProfilesCollection getKey chainId:address (lowercase); ensureEvmActorProfile/fetchEvmActorProfile use resolveEnsReverse then resolveEnsForward(['avatar']); normalization at collection boundary; EvmActor Icon+Address+(primaryName), live query+ensure; account page uses EvmActor. test:unit 44 Deno + 159 Vitest passed. Previous: 2026-02-07 (PROMPT_build execute one spec): All 9 AC verified. `EvmActorProfile$Id` and `EvmActorProfile` in `src/data/EvmActorProfile.ts` ($id, primaryName?, avatarUrl?, $source). `evmActorProfilesCollection` in `src/collections/EvmActorProfiles.ts` with getKey `chainId:address` (lowercase); `ensureEvmActorProfile` / `fetchEvmActorProfile` use Voltaire (resolveEnsReverse → primary name, resolveEnsForward with `['avatar']`); normalization at collection boundary; reads via live query. `<EvmActor>` in `src/components/EvmActor.svelte`: Icon (avatar) + Address + (primaryName) when resolved; network and address props; profile from collection (live query + ensure). Account page `src/routes/account/[address]/+page.svelte` uses EvmActor.
 
 ## References
 

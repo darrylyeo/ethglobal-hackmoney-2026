@@ -67,9 +67,13 @@ Same applies to other standard or bits-ui boolean attributes (e.g. `readOnly`,
 
 ## Acceptance criteria
 
-- [ ] All Svelte components with boolean props follow the rules above.
-- [ ] No boolean prop is named `is[Noun]` where the suffix is a noun; use
-  `has` or `with` (or keep passthrough name) instead.
-- [ ] Props that are passed through to native or bits-ui elements use the
-  standard attribute name (`disabled`, `autofocus`, `multiple`, etc.).
-- [ ] No `[verb][Adjective]`-style props (e.g. `showAvatar`) are renamed.
+- [x] All Svelte components with boolean props follow the rules above (audited; adjective props normalized: FarcasterCast `compact`→`isCompact`, PaginationPlaceholder/FarcasterUserLinkList loading state→`isLoading`).
+- [x] No boolean prop is named `is[Noun]` where the suffix is a noun; use
+  `has` or `with` (or keep passthrough name) instead. Existing `is*` props in codebase are adjective/state (isOpen, isCompact, isLinked, etc.).
+- [x] Props that are passed through to native or bits-ui elements use the
+  standard attribute name (`disabled`, `autofocus`, `multiple`, `loading` for img, etc.).
+- [x] No `[verb][Adjective]`-style props (e.g. `showAvatar`) are renamed.
+
+## Status
+
+Complete. Applied naming rules to components with adjective/state booleans; passthrough and verb+adjective props left unchanged. TransferDialog bug fixed (`open`→`isOpen` in handler).

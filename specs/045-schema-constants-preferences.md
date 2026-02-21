@@ -26,7 +26,7 @@ reuse of existing domain types, and single-purpose derived indices.
 ## Enum preference
 
 Enums: always TitleCase; same key as value (member name equals string value).
-In spec doc code blocks use `ts` (not `typescript`) and tab indentation.
+In spec doc code blocks use `typescript` and tab indentation.
 
 ```typescript
 enum EnumName {

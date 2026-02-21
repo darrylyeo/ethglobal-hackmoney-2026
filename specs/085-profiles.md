@@ -10,7 +10,7 @@ peer name system from rooms) that can be overridden.
 
 ### Profile
 
-```ts
+```typescript
 type Profile = {
 	id: string               // crypto.randomUUID()
 	name: string             // default: generatePeerDisplayName() → "Bold Cat"
@@ -25,7 +25,7 @@ type Profile = {
 A single localStorage key `blockhead.v1:profiles` stores profile metadata and
 the active profile ID:
 
-```ts
+```typescript
 type ProfilesMeta = {
 	version: 1
 	activeProfileId: string
@@ -72,8 +72,8 @@ creation time. Rather than changing collection definitions, we use a
 
 | Scope | storageKey values | Reason |
 |---|---|---|
-| **Profile-scoped** | `wallet-connections`, `transaction-sessions`, `watched-entities`, `dashboard-panels`, `agent-chat-trees`, `agent-chat-turns`, `llm-connections`, `bridge-transactions`, `transaction-session-simulations`, `entity-sources` | User-specific state |
-| **Global** (not namespaced) | `actor-coins`, `actor-allowances`, `stork-prices` | Shared cache; all other query/localOnly collections have no storageKey |
+| **Profile-scoped** | `WalletConnections`, `Sessions`, `WatchedEntities`, `Dashboards`, `AgentChatTrees`, `AgentChatTurns`, `LlmConnections`, `BridgeTransactions`, `NetworkTransactions`, `SessionSimulations`, `EntitySources` (from `CollectionId`) | User-specific state |
+| **Global** (not namespaced) | `ActorCoins`, `ActorAllowances`, `StorkPrices`, etc. | Shared cache; all other query/localOnly collections have no storageKey |
 
 The list of profile-scoped `storageKey` values is maintained in a single
 `PROFILE_SCOPED_STORAGE_KEYS` constant.
@@ -104,7 +104,7 @@ localStorage data and applies changes via the sync API (bypassing mutation
 hooks, so no echo-back writes). We exploit this by updating localStorage and
 dispatching synthetic `StorageEvent`s:
 
-```ts
+```typescript
 const switchProfile = (newProfileId: string) => {
 	const oldProfileId = getActiveProfileId()
 	if (oldProfileId === newProfileId) return
@@ -178,7 +178,7 @@ profile's peer identity.
 The profile's default `name` and `emoji` use the same generation logic as room
 peers:
 
-```ts
+```typescript
 import { generatePeerDisplayName, peerNameToEmoji } from '$/lib/rooms/room.ts'
 
 const name = generatePeerDisplayName()    // "Bold Cat"
@@ -231,7 +231,7 @@ used by both rooms and profiles:
 
 ## Profile management API
 
-```ts
+```typescript
 // src/lib/profile.ts
 
 export const createProfile = (
@@ -254,7 +254,7 @@ export const getActiveProfileId = (): string
 
 Filename: `[Profile Name].v1.blockhead.json`
 
-```ts
+```typescript
 type ProfileExport = {
 	$format: 'blockhead-profile'
 	$version: 1
@@ -309,29 +309,29 @@ Full profile management:
 
 ## Acceptance criteria
 
-- [ ] `ProfilesMeta` persisted in `blockhead.v1:profiles` localStorage key.
-- [ ] Default profile auto-created on first load with generated name + emoji.
-- [ ] Migration: existing un-namespaced localStorage data archived to
+- [x] `ProfilesMeta` persisted in `blockhead.v1:profiles` localStorage key.
+- [x] Default profile auto-created on first load with generated name + emoji.
+- [x] Migration: existing un-namespaced localStorage data archived to
   `blockhead.v1:default:*` keys on first load.
-- [ ] `PROFILE_SCOPED_STORAGE_KEYS` constant lists all profile-scoped keys.
-- [ ] Profile switch archives old profile, restores new, dispatches synthetic
+- [x] `PROFILE_SCOPED_STORAGE_KEYS` constant lists all profile-scoped keys.
+- [x] Profile switch archives old profile, restores new, dispatches synthetic
   `StorageEvent`s to re-sync collections, and navigates to `/`.
-- [ ] Global collections (prices, networks, coins, etc.) remain un-namespaced.
-- [ ] Create new profile with auto-generated name + emoji; WatchedEntities seeded with `DEFAULT_WATCHED_ENTITIES` (Ethereum, Base, Ethereum Sepolia, Base Sepolia, ETH, USDC, vitalik.eth).
-- [ ] Edit profile name and emoji; changes persist.
-- [ ] Switching profiles isolates local state (sessions, watched entities,
+- [x] Global collections (prices, networks, coins, etc.) remain un-namespaced.
+- [x] Create new profile with auto-generated name + emoji; WatchedEntities seeded with `DEFAULT_WATCHED_ENTITIES` (Ethereum, Base, Ethereum Sepolia, Base Sepolia, ETH, USDC, vitalik.eth).
+- [x] Edit profile name and emoji; changes persist.
+- [x] Switching profiles isolates local state (sessions, watched entities,
   wallet connections, dashboards, etc.) per profile.
-- [ ] Export profile to `[Name].v1.blockhead.json` with raw localStorage data.
-- [ ] Import `.blockhead.json` file creates a new profile with imported data.
-- [ ] Delete profile removes all its namespaced localStorage keys; cannot
+- [x] Export profile to `[Name].v1.blockhead.json` with raw localStorage data.
+- [x] Import `.blockhead.json` file creates a new profile with imported data.
+- [x] Delete profile removes all its namespaced localStorage keys; cannot
   delete last profile.
-- [ ] `<Avatar>` component extracted from `Peer.svelte`, used by both rooms
+- [x] `<Avatar>` component extracted from `Peer.svelte`, used by both rooms
   and profile UI.
-- [ ] Profile switcher in nav sidebar shows active profile and allows
+- [x] Profile switcher in nav sidebar shows active profile and allows
   switching.
-- [ ] Room peer identity (peer ID, display name) is profile-scoped.
+- [x] Room peer identity (peer ID, display name) is profile-scoped.
 - [ ] E2E tests create a dedicated test profile before every test and discard
-  it after.
+  it after. (Blocked: Playwright discovery issue; see spec.)
 
 ## E2E test isolation
 
@@ -378,7 +378,7 @@ write to the working copy, which belongs to the test profile. No changes needed.
 
 ### Test profile constant
 
-```ts
+```typescript
 // e2e/fixtures/profile.ts
 const E2E_PROFILE_ID = 'e2e-test-profile'
 ```

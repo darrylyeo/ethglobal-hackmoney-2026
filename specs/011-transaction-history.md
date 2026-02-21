@@ -20,7 +20,12 @@ Persist and display past bridge transactions for the connected wallet.
 
 ## Implementation
 
-### `src/lib/tx-history.ts`
+### Bridge transaction storage
+
+Transaction history is persisted in the `BridgeTransactions` collection
+(`src/collections/BridgeTransactions.ts`). The following type and helpers are the
+contract; the implementation may use the collection’s `insert` / `update` and
+live queries instead of a standalone `tx-history` module.
 
 ```typescript
 export type StoredTransaction = {
@@ -69,7 +74,7 @@ export const updateTransactionStatus = (
 
 ### Transaction history in `src/routes/bridge/lifi/BridgeFlow.svelte`
 
-Transaction history is displayed inline using `transactionsCollection` via
+Transaction history is displayed inline using `bridgeTransactionsCollection` via
 TanStack DB:
 
 ```svelte
@@ -110,7 +115,7 @@ TanStack DB:
 
 ## Status
 
-Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, re-verify 011): all 8 AC confirmed—txHistory.ts saveTransaction/getTransactions/updateTransactionStatus (localStorage, max 50); txHistory.spec.ts covers persist, get by address, sort newest first, updateStatus, max 50; transactionsCollection + insertTransaction/updateTransaction in $/collections/transactions.ts; BridgeExecution.svelte inserts on first tx hash, updates on completion/failure; BridgeFlow.svelte txQuery orderBy createdAt desc, transactions filtered by selectedActor and slice(0, 50), section "Transaction history" with date (formatRelativeTime), from→to chains, amount, status, spinner for pending, explorer links source + dest; $effect polls pending via getTxReceiptStatus every 5s. test:unit 44 Deno + 159 Vitest passed. Previous: Transaction storage uses `transactionsCollection` via TanStack DB. `insertTransaction` and `updateTransaction` in `$/collections/transactions`. BridgeExecution.svelte inserts on first tx hash, updates on completion. BridgeFlow.svelte displays transactions inline filtered by `selectedActor`. Unit tests in tx-history.spec.ts.
+Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, re-verify 011): all 8 AC confirmed—txHistory.ts saveTransaction/getTransactions/updateTransactionStatus (localStorage, max 50); txHistory.spec.ts covers persist, get by address, sort newest first, updateStatus, max 50; bridgeTransactionsCollection + insertTransaction/updateTransaction in $/collections/BridgeTransactions.ts; BridgeExecution.svelte inserts on first tx hash, updates on completion/failure; BridgeFlow.svelte txQuery orderBy createdAt desc, transactions filtered by selectedActor and slice(0, 50), section "Transaction history" with date (formatRelativeTime), from→to chains, amount, status, spinner for pending, explorer links source + dest; $effect polls pending via getTxReceiptStatus every 5s. test:unit 44 Deno + 159 Vitest passed. Previous: Transaction storage uses `bridgeTransactionsCollection` via TanStack DB. `insertTransaction` and `updateTransaction` in `$/collections/BridgeTransactions.ts`. BridgeExecution.svelte inserts on first tx hash, updates on completion. BridgeFlow.svelte displays transactions inline filtered by `selectedActor`. Unit tests in tx-history.spec.ts.
 
 ## Output when complete
 

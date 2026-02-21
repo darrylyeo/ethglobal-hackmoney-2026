@@ -127,7 +127,7 @@ A page that shows the same verified accounts with more detail and actions:
 
 ## Status
 
-Complete. 2026-02-05 (PROMPT_build): myPeerIdsCollection in src/collections/my-peer-ids.ts (persist peerId per room on join). room.svelte.ts: joinRoom upserts my peer id; syncStateToCollections skips deleting roomPeersCollection rows for verified-by-me peers; forgetPeer(peerId) deletes all room-peer rows for that peer. Layout: verificationsQuery, roomPeersQuery, myPeerIdsQuery; derived peersNavItems (verified by me + has room peer), Peers under Multiplayer with children and tag count. Route /peers: +page.svelte with list, connection/Verified tags, Forget when disconnected (confirm), link to /account/[address]. E2e coverage manifest: /peers default branch. test:unit 41 Deno + 101 Vitest passed. verifications collection and “verified by me” query (spec
+Complete. 2026-02-05 (PROMPT_build): myPeerIdsCollection in src/collections/MyPeerIds.ts (persist peerId per room on join). room.svelte.ts: joinRoom upserts my peer id; syncStateToCollections skips deleting roomPeersCollection rows for verified-by-me peers; forgetPeer(peerId) deletes all room-peer rows for that peer. Layout: verificationsQuery, roomPeersQuery, myPeerIdsQuery; derived peersNavItems (verified by me + has room peer), Peers under Multiplayer with children and tag count. Route /peers: +page.svelte with list, connection/Verified tags, Forget when disconnected (confirm), link to /account/[address]. E2e coverage manifest: /peers default branch. test:unit 41 Deno + 101 Vitest passed. verifications collection and “verified by me” query (spec
 
 ## Output when complete
 

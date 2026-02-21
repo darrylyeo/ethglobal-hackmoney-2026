@@ -32,7 +32,7 @@ Renders:
 
 ### EntityLayout enum
 
-```ts
+```typescript
 enum EntityLayout {
 	Page,        // full page layout
 	PageSection, // section within a page

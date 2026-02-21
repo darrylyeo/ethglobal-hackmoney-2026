@@ -120,7 +120,7 @@ type IdentityResolver = {
 
 ## Status
 
-Complete. `src/constants/identity-resolver.ts`: IdentityResolution, IdentityResolver, IdentityInputKind, IdentityResolutionStatus, IDENTITY_INPUT_KINDS, identityResolvers, identityResolversById, identityResolversByKind; ENS registry + universal resolver for Ethereum. `src/collections/identity-resolution.ts`: identity-resolution collection with $source and chainId. `src/api/identity-resolve.ts`: normalizeIdentity, resolveEnsForward, resolveEnsReverse, resolveIdentity using Voltaire only (Ens namehash, encodeFunction/decodeParameters, eth_call). Unit tests in `src/api/identity-resolve.spec.ts`.
+Complete. `src/constants/identity-resolver.ts`: IdentityResolution, IdentityResolver, IdentityInputKind, IdentityResolutionStatus, IDENTITY_INPUT_KINDS, identityResolvers, identityResolversById, identityResolversByKind; ENS registry + universal resolver for Ethereum. `src/collections/IdentityLinks.ts`: identity-resolution collection with $source and chainId. `src/api/identity-resolve.ts`: normalizeIdentity, resolveEnsForward, resolveEnsReverse, resolveIdentity using Voltaire only (Ens namehash, encodeFunction/decodeParameters, eth_call). Unit tests in `src/api/identity-resolve.spec.ts`.
 
 ## Output when complete
 

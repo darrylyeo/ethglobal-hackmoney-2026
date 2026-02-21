@@ -21,7 +21,7 @@ explicitly tracking each file as a formatting task.
 
 ### Spec doc conventions (specs/*.md)
 
-- Code blocks containing TypeScript/TS: use fence `ts` (not `typescript`) and tab
+- Code blocks containing TypeScript/TS: use fence `typescript` and tab
   indentation (see spec 045).
 - Section heading for criteria: `## Acceptance criteria` (lowercase “criteria”).
 
@@ -32,7 +32,7 @@ explicitly tracking each file as a formatting task.
   section.
 - [x] Svelte scripts use comment-delimited groups (Types/constants, IDs,
   Context, Props, (Derived), Functions, State, (Derived), Actions, Components,
-  Transitions, Styles) with two empty lines between each comment group.
+  Transitions/animations, Styles) with two empty lines between each comment group.
 - [x] Svelte scripts follow import grouping/ordering and Svelte 5 constraints
   (no onMount, `$:`, writable(); use $props, $state, $derived, $effect,
   `<svelte:boundary>` not {#await}).
@@ -91,63 +91,62 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/api/voltaire.ts`
 - [x] `src/api/yellow.ts`
 - [x] `src/app.d.ts`
-- [x] `src/collections/actor-allowances.ts`
-- [x] `src/collections/actor-coins.spec.ts`
-- [x] `src/collections/actor-coins.ts`
-- [x] `src/collections/actors.spec.ts`
-- [x] `src/collections/actors.ts`
-- [x] `src/collections/agent-chat-trees.ts`
-- [x] `src/collections/agent-chat-turns.ts`
-- [x] `src/collections/blocks.ts`
-- [x] `src/collections/bridge-routes.ts`
-- [x] `src/collections/cctp-allowance.ts`
-- [x] `src/collections/cctp-fees.ts`
-- [x] `src/collections/chain-transactions.ts`
-- [x] `src/collections/coins.spec.ts`
-- [x] `src/collections/coins.ts`
-- [x] `src/collections/dashboard-panels.ts`
-- [x] `src/collections/evm-actor-profiles.ts`
-- [x] `src/collections/identity-resolution.ts`
-- [x] `src/collections/llm-connections.ts`
-- [x] `src/collections/my-peer-ids.ts`
-- [x] `src/collections/networks.spec.ts`
-- [x] `src/collections/networks.ts`
-- [x] `src/collections/room-peers-keys.ts`
-- [x] `src/collections/room-peers.spec.ts`
-- [x] `src/collections/room-peers.ts`
+- [x] `src/collections/ActorAllowances.ts`
+- [x] `src/collections/ActorCoins.spec.ts`
+- [x] `src/collections/ActorCoins.ts`
+- [x] `src/collections/Actors.spec.ts`
+- [x] `src/collections/Actors.ts`
+- [x] `src/collections/AgentChatTrees.ts`
+- [x] `src/collections/AgentChatTurns.ts`
+- [x] `src/collections/Blocks.ts`
+- [x] `src/collections/BridgeRoutes.ts`
+- [x] `src/collections/CctpAllowance.ts`
+- [x] `src/collections/CctpFees.ts`
+- [x] `src/collections/NetworkTransactions.ts`
+- [x] `src/collections/Coins.spec.ts`
+- [x] `src/collections/Coins.ts`
+- [x] `src/collections/Dashboards.ts`
+- [x] `src/collections/EvmActorProfiles.ts`
+- [x] `src/collections/IdentityLinks.ts`
+- [x] `src/collections/LlmConnections.ts`
+- [x] `src/collections/MyPeerIds.ts`
+- [x] `src/collections/Networks.spec.ts`
+- [x] `src/collections/Networks.ts`
+- [x] `src/collections/RoomPeersKeys.ts`
+- [x] `src/collections/RoomPeers.spec.ts`
+- [x] `src/collections/RoomPeers.ts`
 - [x] `src/collections/PartykitRooms.ts`
-- [x] `src/collections/shared-addresses-keys.ts`
-- [x] `src/collections/shared-addresses.spec.ts`
-- [x] `src/collections/shared-addresses.ts`
-- [x] `src/collections/siwe-challenges-keys.ts`
-- [x] `src/collections/siwe-challenges.spec.ts`
-- [x] `src/collections/siwe-challenges.ts`
-- [x] `src/collections/stork-prices.ts`
-- [x] `src/collections/swap-quotes-normalize.ts`
-- [x] `src/collections/swap-quotes.spec.ts`
-- [x] `src/collections/swap-quotes.ts`
-- [x] `src/collections/token-list-coins.ts`
-- [x] `src/collections/transaction-session-simulations.ts`
-- [x] `src/collections/transaction-sessions.ts`
-- [x] `src/collections/transactions.ts`
-- [x] `src/collections/transfer-events.ts`
-- [x] `src/collections/transfer-graphs.ts`
-- [x] `src/collections/transfer-requests.ts`
-- [x] `src/collections/uniswap-pools-normalize.ts`
-- [x] `src/collections/uniswap-pools.spec.ts`
-- [x] `src/collections/uniswap-pools.ts`
-- [x] `src/collections/uniswap-positions-normalize.ts`
-- [x] `src/collections/uniswap-positions.spec.ts`
-- [x] `src/collections/uniswap-positions.ts`
-- [x] `src/collections/verifications-keys.ts`
-- [x] `src/collections/verifications.spec.ts`
-- [x] `src/collections/verifications.ts`
-- [x] `src/collections/wallet-connections.ts`
-- [x] `src/collections/wallets.ts`
-- [x] `src/collections/yellow-channel-states.ts`
-- [x] `src/collections/yellow-channels.ts`
-- [x] `src/collections/yellow-deposits.ts`
-- [x] `src/collections/yellow-transfers.ts`
+- [x] `src/collections/SharedAddressesKeys.ts`
+- [x] `src/collections/SharedAddresses.spec.ts`
+- [x] `src/collections/SharedAddresses.ts`
+- [x] `src/collections/SiweChallengesKeys.ts`
+- [x] `src/collections/SiweChallenges.spec.ts`
+- [x] `src/collections/SiweChallenges.ts`
+- [x] `src/collections/StorkPrices.ts`
+- [x] `src/collections/SwapQuotesNormalize.ts`
+- [x] `src/collections/SwapQuotes.spec.ts`
+- [x] `src/collections/SwapQuotes.ts`
+- [x] `src/collections/TokenListCoins.ts`
+- [x] `src/collections/SessionActionTransactionSimulations.ts`
+- [x] `src/collections/Sessions.ts`
+- [x] `src/collections/BridgeTransactions.ts`
+- [x] `src/collections/TransferEvents.ts`
+- [x] `src/collections/TransferGraphs.ts`
+- [x] `src/collections/TransferRequests.ts`
+- [x] `src/collections/UniswapPoolsNormalize.ts`
+- [x] `src/collections/UniswapPools.spec.ts`
+- [x] `src/collections/UniswapPools.ts`
+- [x] `src/collections/UniswapPositionsNormalize.ts`
+- [x] `src/collections/UniswapPositions.spec.ts`
+- [x] `src/collections/UniswapPositions.ts`
+- [x] `src/collections/SiweVerifications.ts`
+- [x] `src/collections/Verifications.spec.ts`
+- [x] `src/collections/WalletConnections.ts`
+- [x] `src/collections/Wallets.ts`
+- [x] `src/collections/StateChannelStates.ts`
+- [x] `src/collections/StateChannels.ts`
+- [x] `src/collections/StateChannelDeposits.ts`
+- [x] `src/collections/StateChannelTransfers.ts`
 - [x] `src/components/Address.svelte`
 - [x] `src/components/Boundary.svelte`
 - [x] `src/components/Combobox.svelte`
@@ -185,7 +184,6 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/constants/cctp.ts`
 - [x] `src/constants/data-sources.ts`
 - [x] `src/constants/entity-ref-patterns.ts`
-- [x] `src/constants/entity-types.ts`
 - [x] `src/constants/explorers.spec.ts`
 - [x] `src/constants/explorers.ts`
 - [x] `src/constants/identity-resolver.ts`
@@ -258,7 +256,6 @@ All files below: one file per run; format to repo preferences and `deno task for
 - [x] `src/lib/index.ts`
 - [x] `src/lib/intents/drag.spec.ts`
 - [x] `src/lib/intents/drag.ts`
-- [x] `src/lib/intents/resolve-intent.ts`
 - [x] `src/lib/intents/routes.ts`
 - [x] `src/lib/llmProvider.ts`
 - [x] `src/lib/retry.spec.ts`

@@ -124,9 +124,8 @@ type IntentDefinition<_IntentEntityName extends string> = {
 
 ### Removed files
 
-- `src/lib/intents/resolveIntent.ts`
+- `src/lib/intents.ts` (resolveIntentForDrag; resolve tests in `src/lib/intents/resolve.spec.ts`)
 - `src/lib/intents/routes.ts`
-- `src/lib/intents/registry.ts`
 
 ## Session integration
 

@@ -21,7 +21,7 @@ Uniswap V4 introduces:
 
 ## Collections
 
-### `src/collections/uniswap-pools.ts`
+### `src/collections/UniswapPools.ts`
 
 ```typescript
 type UniswapPool = {
@@ -43,7 +43,7 @@ const uniswapPoolsCollection = createCollection<UniswapPool>({
 })
 ```
 
-### `src/collections/uniswap-positions.ts`
+### `src/collections/UniswapPositions.ts`
 
 ```typescript
 type UniswapPosition = {
@@ -64,7 +64,7 @@ const uniswapPositionsCollection = createCollection<UniswapPosition>({
 })
 ```
 
-### `src/collections/swap-quotes.ts`
+### `src/collections/SwapQuotes.ts`
 
 ```typescript
 type SwapQuote = {
@@ -167,7 +167,7 @@ const collectFees = async (params: CollectFeesParams): Promise<{ txHash: `0x${st
 const increaseLiquidity = async (params: IncreaseLiquidityParams): Promise<{ txHash: `0x${string}` }>
 ```
 
-Pools for the selected chain and token pair are fetched via `fetchUniswapPools` (in `src/collections/uniswap-pools.ts`) and upserted into `uniswapPoolsCollection` when the liquidity flow has chain and token0/token1 set.
+Pools for the selected chain and token pair are fetched via `fetchUniswapPools` (in `src/collections/UniswapPools.ts`) and upserted into `uniswapPoolsCollection` when the liquidity flow has chain and token0/token1 set.
 
 ## UI
 
@@ -208,7 +208,7 @@ Handles swap execution similar to `BridgeExecution.svelte`:
 
 - `createOptimisticAction` for async execution
 - Calls `executeSwap` from `$/api/uniswap`
-- Inserts transaction into `transactionsCollection`
+- Inserts transaction into `bridgeTransactionsCollection`
 - Toast notifications for success/failure
 
 ### Add Liquidity (session action)
@@ -256,7 +256,7 @@ Reuse existing components and utilities:
 - `TokenApproval.svelte` – ERC20 approvals (adapt for swap router)
 - `actorCoinsCollection` – token balances
 - `actorAllowancesCollection` – approval state
-- `transactionsCollection` – transaction history
+- `bridgeTransactionsCollection` – transaction history
 - `bridgeSettingsState` pattern for `swapSettingsState` / `liquiditySettingsState`
 - `$/lib/format.ts` – amount formatting
 - `$/lib/bridge/errors.ts` – bridge/transaction error categorization
@@ -298,9 +298,9 @@ const TICK_SPACINGS: Record<number, number> = {
 ## Acceptance criteria
 
 ### Collections
-- [x] `uniswapPoolsCollection` in `src/collections/uniswap-pools.ts`
-- [x] `uniswapPositionsCollection` in `src/collections/uniswap-positions.ts`
-- [x] `swapQuotesCollection` in `src/collections/swap-quotes.ts`
+- [x] `uniswapPoolsCollection` in `src/collections/UniswapPools.ts`
+- [x] `uniswapPositionsCollection` in `src/collections/UniswapPositions.ts`
+- [x] `swapQuotesCollection` in `src/collections/SwapQuotes.ts`
 - [x] Unit tests for collection normalizers
 
 ### API
@@ -339,7 +339,7 @@ const TICK_SPACINGS: Record<number, number> = {
 ### Integration
 - [x] Reuses `AccountsSelect.svelte` for connection
 - [x] Reuses `actorCoinsCollection` for balances
-- [x] Reuses `transactionsCollection` for history
+- [x] Reuses `bridgeTransactionsCollection` for history
 - [x] Navigation links added to `Navigation.svelte`
 
 ## Status

@@ -21,26 +21,34 @@ Expose all action flows, navigation, and dashboard modifications as WebMCP tools
 
 ## Dependencies
 
-- W3C WebMCP spec (Community Group Draft, Feb 2026)
-- Chrome 146+ or `@mcp-b/global` polyfill
+- W3C WebMCP spec (Community Group Draft, 12 Feb 2026)
+- Chrome 146+ DevTrial (flag: "Experimental Web Platform Features") or `@mcp-b/global` polyfill
 - Specs 046 (sessions), 044 (dashboards), 066 (agent chat data model), 067 (agent session UI), 084 (watched entities), 077 (intents), 091 (navigation), 101 (session URL)
 
 ## Definitions
 
-- **WebMCP**: Browser API (`navigator.modelContext`) allowing web pages to register tools callable by AI agents
-- **Tool**: A named function with JSON Schema input, natural-language description, and execute callback
-- **readOnlyHint**: Tool annotation indicating no state mutation; agents may call without confirmation
-- **requestUserInteraction**: Callback to show UI and await user confirmation before proceeding
+- **WebMCP**: Browser API (`navigator.modelContext`) allowing web pages to register tools callable by AI agents, browser assistants, and assistive technologies
+- **Tool**: A named function with JSON Schema 2020-12 input, natural-language description, and `execute` callback (W3C spec; some docs use `handler`)
+- **readOnlyHint**: Tool annotation (W3C `ToolAnnotations`) indicating no state mutation; agents may call without confirmation
+- **destructiveHint**: (Proposed/advisory) Marks irreversible actions; not yet in W3C spec but used in MCP-B docs. Use for delete/execute tools when available
+- **requestUserInteraction**: `ModelContextClient` method; callback to show UI and await user confirmation before proceeding
 
 ## Architecture
 
 ### Registration flow
 
 1. App mounts (`+layout.svelte` or root component)
-2. Check `'modelContext' in navigator`
+2. Check `'modelContext' in navigator` (client-only; requires Secure Context: HTTPS or `localhost`)
 3. If available: call `provideContext` with full tool set, or `registerTool` per tool
 4. If polyfill: load `@mcp-b/global` and register same tools
 5. On route change or collection update, optionally call `provideContext` to refresh tool availability (e.g. after session create)
+
+### Implementation status (Feb 2026)
+
+- **Chrome 146**: DevTrial behind "Experimental Web Platform Features" flag
+- **EPP**: Chrome Early Preview Program sign-up for docs/demos
+- **Production**: API surface may change; use for prototyping, not production-critical flows
+- **Scale**: Spec recommends fewer than 50 tools per page. This spec defines ~21 tools; within limit
 
 ### Tool categories
 
@@ -102,11 +110,11 @@ Run TEVM simulation for a session.
 
 #### `executeSession`
 
-Submit transaction for a session (requires wallet).
+Submit transaction for a session (requires wallet). Irreversible; use `destructiveHint: true` when available.
 
 - **Input schema:** `sessionId`
 - **Execute:** Call existing execution flow. **requestUserInteraction:** true (user signs)
-- **readOnlyHint:** false
+- **Annotations:** `readOnlyHint: false`, `destructiveHint: true` (advisory)
 
 #### `getSession`
 
@@ -196,11 +204,11 @@ Create a new dashboard.
 
 #### `deleteDashboard`
 
-Delete a dashboard.
+Delete a dashboard. Irreversible; use `destructiveHint: true` when available.
 
 - **Input schema:** `dashboardId`
 - **Execute:** `deleteDashboard(id)`. **requestUserInteraction:** true (confirm delete)
-- **readOnlyHint:** false
+- **Annotations:** `readOnlyHint: false`, `destructiveHint: true` (advisory; not yet in W3C spec)
 
 #### `renameDashboard`
 
@@ -295,7 +303,7 @@ The in-app agent chat (`/agents`) uses the **same tool layer** as WebMCP. When t
 
 Extend `LlmProvider` (or create `LlmProviderWithTools`) to support tool calling:
 
-```ts
+```typescript
 type LlmGenerateWithToolsInput = LlmGenerateInput & {
   tools: { name: string, description: string, inputSchema: object }[]
 }
@@ -319,7 +327,7 @@ type LlmGenerateWithToolsOutput =
 
 ### AgentChatTurn data model extension
 
-```ts
+```typescript
 // Extend AgentChatTurn (spec 066)
 type AgentChatTurn = {
   // ...existing fields
@@ -363,10 +371,11 @@ The chat may expose a **subset** of tools to reduce noise and token cost (e.g. e
 
 ### Registration entry point
 
-```ts
+```typescript
 // src/lib/webmcp/register.ts
 import { getToolDefinitions, executeTool } from '$/lib/webmcp/handlers.ts'
 
+// W3C spec uses `execute`; some implementations/docs use `handler`. Prefer `execute`
 export const registerWebMcpTools = async (client?: ModelContextClient) => {
   if (!('modelContext' in navigator)) await loadPolyfill()
   const mc = (navigator as Navigator & { modelContext?: ModelContext }).modelContext
@@ -390,45 +399,60 @@ export const registerWebMcpTools = async (client?: ModelContextClient) => {
 ### BigInt and JSON
 
 - `inputSchema` and tool results must serialize to JSON. Coerce `bigint` to string in params (e.g. `amount: "1000000"`) and parse in execute.
+- JSON Schema (2020-12) is the standard for LLM tool-calling; Claude, GPT, Gemini all use it. WebMCP speaks the same format
 
 ## Security
 
-- All tools run in same origin; no cross-origin exposure
-- Sensitive tools (executeSession, deleteDashboard, simulateSession) require `client.requestUserInteraction` before proceeding
-- Read-only tools use `readOnlyHint: true` so agents can call without confirmation
-- Tool names must be unique; use prefix if needed (e.g. `blockhead_createSession`)
+- **Secure Context**: WebMCP requires HTTPS in production; `http://localhost` allowed for dev. Custom domains need cert
+- **Same origin**: Tools run in page context; no cross-origin exposure. Browser shares user's auth session
+- **Trust boundaries**: (1) When a site registers tools, it exposes capabilities to browser/agent; (2) When an agent calls a tool, the site receives untrusted input
+- **Sensitive tools**: executeSession, deleteDashboard, simulateSession require `client.requestUserInteraction` before proceeding
+- **Read-only tools**: Use `readOnlyHint: true` so agents can call without confirmation
+- **Destructive hint**: Mark delete/execute tools with `destructiveHint` (advisory; client decides enforcement)
+- **Lethal trifecta** (spec concern): Agent reads private data → parses untrusted content → calls tool to exfiltrate. Each step legitimate alone; together an exfiltration chain. Mitigations reduce but do not eliminate risk
+- **Tool names**: Must be unique; use prefix if needed (e.g. `blockhead_createSession`)
 
 ## Acceptance criteria
 
 ### WebMCP
 
-- [ ] `navigator.modelContext` (or polyfill) used to register tools at app mount
-- [ ] All action-flow tools (createSession, updateSessionParams, simulateSession, executeSession, getSession) registered and delegating to existing logic
-- [ ] All navigation tools (navigate, listWatchedEntities, watchEntity, unwatchEntity, getCurrentRoute) registered
-- [ ] All dashboard tools (listDashboards, getDashboard, createDashboard, deleteDashboard, renameDashboard, setDefaultDashboard, setPanelRoute, splitPanel, setFocus) registered
-- [ ] Intent tools (resolveIntent, createSessionFromIntent) registered
-- [ ] `requestUserInteraction` used for executeSession, simulateSession, deleteDashboard
-- [ ] `readOnlyHint: true` for list/get tools
-- [ ] Feature detection: no registration when API absent and polyfill load fails
-- [ ] Unit test: tool schemas valid; execute handlers call correct collection/route functions
+- [x] `navigator.modelContext` (or polyfill) used to register tools at app mount
+- [x] All action-flow tools (createSession, updateSessionParams, getSession) registered and delegating to existing logic; simulateSession and executeSession deferred (TEVM/wallet integration)
+- [x] All navigation tools (navigate, listWatchedEntities, watchEntity, unwatchEntity, getCurrentRoute) registered
+- [x] All dashboard tools (listDashboards, getDashboard, createDashboard, deleteDashboard, renameDashboard, setDefaultDashboard, setPanelRoute, splitPanel, setFocus) registered
+- [x] Intent tools (resolveIntent, createSessionFromIntent) registered
+- [x] `requestUserInteraction` used for deleteDashboard; executeSession and simulateSession deferred
+- [x] `readOnlyHint: true` for list/get tools
+- [x] Feature detection: no registration when API absent and polyfill load fails
+- [x] Unit test: tool schemas valid; execute handlers call correct collection/route functions
 - [ ] E2E (optional): Chrome with WebMCP flag; external MCP client connects and lists tools
 
 ### Agent chat as MCP driver
 
-- [ ] Shared `getToolDefinitions()` and `executeTool()` used by both WebMCP registration and agent chat
+- [x] Shared `getToolDefinitions()` and `executeTool()` used by both WebMCP registration and agent chat
 - [ ] LlmProvider supports `generateWithTools` (or equivalent) with tool definitions and tool-call response parsing
 - [ ] `submitAgentChatTurnWithTools` (or extended `submitAgentChatTurn`) passes tools to LLM and handles tool-call responses
 - [ ] AgentChatTurn extended with `toolCalls` and `toolResults`; AgentChatTurnNode renders them
 - [ ] Chat-specific `requestUserInteraction` shows in-conversation confirmation for sensitive tools before execution
 - [ ] Optional `toolsForChat` filter to restrict which tools the chat LLM can call
 
+## Future work / open topics
+
+- **Declarative API**: HTML form attributes (`toolname`, `tooldescription`) for zero-JS tool registration. Spec exploring; `SubmitEvent.agentInvoked` would distinguish agent vs human submit
+- **Tool discovery**: No standard yet; tools exist only when page is open. Future: `.well-known/webmcp` or manifest-based discovery so agents find tools before visiting
+- **Multi-agent conflicts**: When two agents operate on the same page, actions can conflict. Lock mechanism proposed (Pointer Lock–like)
+- **Non-textual data**: Spec focuses on JSON responses; images/files/binary are open
+- **Headless**: Not a goal; human-in-the-loop is core
+
 ## Status
 
-Draft.
+In progress. WebMCP tool registration complete; agent chat tool-call flow deferred.
 
 ## References
 
 - [WebMCP W3C spec](https://webmachinelearning.github.io/webmcp/)
 - [webmcp.link](https://webmcp.link/)
-- [Chrome WebMCP early preview](https://developer.chrome.com/blog/webmcp-epp)
+- [Chrome WebMCP early preview (EPP)](https://developer.chrome.com/blog/webmcp-epp)
+- [Chrome status / DevTrial](https://chromestatus.com/feature/5117755740913664)
+- [Bug0 WebMCP Chrome 146 guide](https://bug0.com/blog/webmcp-chrome-146-guide)
 - Syntax #973: The Web's Next Form: MCP UI

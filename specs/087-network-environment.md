@@ -7,7 +7,7 @@ mode.
 
 ## Enum and global setting
 
-```ts
+```typescript
 enum NetworkEnvironment {
 	Mainnet = 'mainnet',
 	Testnet = 'testnet',
@@ -37,11 +37,11 @@ A constant lists which profile-scoped storage keys use the env prefix, e.g.:
 
 - `wallet-connections`
 - `transaction-sessions`
-- `bridge-transactions`
-- `transaction-session-simulations`
+- `BridgeTransactions`
+- `SessionSimulations` (and related session keys)
 
-All other profile-scoped keys (e.g. `watched-entities`, `dashboard-panels`,
-`agent-chat-trees`, `llm-connections`, `entity-sources`, `room-persistent-peer-id`)
+All other profile-scoped keys (e.g. `WatchedEntities`, `Dashboards`,
+`AgentChatTrees`, `LlmConnections`, `EntitySources`, `RoomPersistentPeerId`)
 remain profile-only (no env segment).
 
 ### Profile switch
