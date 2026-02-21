@@ -80,7 +80,7 @@ RPC responses that are cryptographically verified by the client (sync committee 
 
 - [x] Supported chains for Helios are defined (Ethereum mainnet at minimum; optionally sepolia, OP Mainnet, Base, Linea as per Helios support). `src/constants/helios-chains.ts`: `HELIOS_CHAINS` (ChainId → network + kind), `HELIOS_SUPPORTED_CHAIN_IDS`, `isHeliosSupportedChain()`, `getHeliosChainInfo()`; Ethereum, EthereumSepolia, Optimism, OPSepolia, Base, BaseSepolia, WorldChain, WorldChainSepolia, Unichain, UnichainSepolia, Linea, LineaSepolia. `DataSource.Helios` added.
 - [x] **Local mode:** When "Use Helios (local)" is enabled for a supported chain, the app uses `http://127.0.0.1:8545` (or a configured URL) as the RPC for that chain; all Voltaire-backed reads and Tevm fork for that chain use this endpoint. If the endpoint is unreachable, fallback to default RPC and surface a notice.
-- [ ] **Browser mode (optional):** When "Use Helios (browser)" is enabled for a supported chain, the app creates (or reuses) a Helios provider via `@a16z/helios`, waits for sync, and uses it as the VoltaireProvider for that chain. Sync state is visible; fallback on failure.
+- [x] **Browser mode (optional):** When "Use Helios (browser)" is enabled for a supported chain, the app creates (or reuses) a Helios provider via `@a16z/helios`, waits for sync, and uses it as the VoltaireProvider for that chain. Sync state is visible; fallback on failure.
 - [x] Configuration: execution RPC used for Helios (and for browser mode, consensus RPC and optional checkpoint) is documented and configurable; requirement for `eth_getProof` is documented. `src/constants/helios-config.ts`: documents execution RPC must support `eth_getProof`, default local URL, default consensus RPC, optional checkpoint; constants ready for env/settings when provider is implemented.
 - [x] No regression: when Helios is disabled, behavior matches current (rpcUrls + createHttpProvider). Existing tests and e2e pass.
 - [x] Data source: If entity source attribution is extended, Helios-sourced reads are tagged (e.g. `DataSource.Helios`); otherwise this is out of scope. Out of scope for now; `DataSource.Helios` is in the enum for when attribution is extended.
@@ -105,7 +105,7 @@ RPC responses that are cryptographically verified by the client (sync committee 
 
 ## Status
 
-Partial. Supported chains and `DataSource.Helios` defined; local mode implemented (provider factory, effective RPC URL, fallback + notice). Browser mode not yet implemented.
+Complete. 2026-02-21 (PROMPT_build): Browser mode implemented. `@a16z/helios` optional dep; `src/lib/helios-rpc.ts`: `heliosBrowserEnabled`, `setHeliosBrowserEnabled`, `getHeliosBrowserEnabled`, `getHeliosBrowserSyncStatus`, `setHeliosBrowserSyncStatusHandler`; `getOrCreateHeliosBrowserProvider(chainId)` dynamic-imports Helios, `createHeliosProvider` + `waitSynced()`, caches by (chainId, configHash), wraps as VoltaireProvider with fallback on request/sync failure; `createProviderForChain` returns lazy wrapper when browser enabled. Network page shows "Use Helios (browser)" toggle and sync status (syncing… / ready / fallback) for Helios-supported chains. Layout fallback notice covers both local and browser.
 
 ## Output when complete
 

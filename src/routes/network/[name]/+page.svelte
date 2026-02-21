@@ -9,7 +9,15 @@
 	} from '$/collections/Blocks.ts'
 	import { networksCollection } from '$/collections/Networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
+	import { isHeliosSupportedChain } from '$/constants/helios-chains.ts'
+	import {
+		createProviderForChain,
+		getEffectiveRpcUrl,
+		getHeliosBrowserEnabled,
+		getHeliosBrowserSyncStatus,
+		setHeliosBrowserEnabled,
+		setHeliosBrowserSyncStatusHandler,
+	} from '$/lib/helios-rpc.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -29,11 +37,6 @@
 	)
 	const slug = $derived(route?.slug ?? '')
 	const caip2 = $derived(route?.caip2 ?? '')
-
-
-	// State
-	let height = $state(0)
-	let visiblePlaceholderBlockIds = $state<number[]>([])
 
 
 	// Context
@@ -76,6 +79,21 @@
 	])
 
 
+	// (Derived)
+	const heliosSupported = $derived(isHeliosSupportedChain(chainId))
+	const heliosBrowserOn = $derived(getHeliosBrowserEnabled(chainId))
+	const heliosSyncStatus = $derived.by(() => {
+		heliosSyncStatusTick
+		return getHeliosBrowserSyncStatus(chainId)
+	})
+
+
+	// State
+	let height = $state(0)
+	let visiblePlaceholderBlockIds = $state<number[]>([])
+	let heliosSyncStatusTick = $state(0)
+
+
 	// Actions
 	$effect(() => {
 		const rpcUrl = getEffectiveRpcUrl(chainId)
@@ -109,6 +127,13 @@
 	})
 	$effect(() => {
 		ensureBlocksForPlaceholders(chainId, visiblePlaceholderBlockIds)
+	})
+	$effect(() => {
+		const c = chainId
+		setHeliosBrowserSyncStatusHandler((chainId) => {
+			if (chainId === c) heliosSyncStatusTick++
+		})
+		return () => setHeliosBrowserSyncStatusHandler(null)
 	})
 
 
@@ -173,6 +198,30 @@
 			{/snippet}
 			{#snippet children()}
 				{@const h = height > 0 ? height : Number(latestBlockQuery.data?.[0] ?? 0)}
+				{#if heliosSupported}
+					<div data-row data-gap="2">
+						<label data-row>
+							<input
+								type="checkbox"
+								checked={heliosBrowserOn}
+								onchange={() =>
+									setHeliosBrowserEnabled(chainId, !heliosBrowserOn)}
+							/>
+							<span>Use Helios (browser)</span>
+						</label>
+						{#if heliosBrowserOn}
+							<span data-text="annotation">
+								{heliosSyncStatus === 'syncing'
+									? 'Helios syncing…'
+									: heliosSyncStatus === 'ready'
+										? 'Helios ready'
+										: heliosSyncStatus === 'fallback'
+											? 'Using fallback RPC'
+											: ''}
+							</span>
+						{/if}
+					</div>
+				{/if}
 				<p>
 					<a href={resolve(`/network/${name}/contracts`)} data-link>Contracts</a>
 				</p>

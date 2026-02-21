@@ -39,7 +39,7 @@
 	$effect(() => {
 		setHeliosFallbackNoticeHandler((chainId) => {
 			toasts.warning(
-				`Helios (local) unreachable for chain ${chainId}; using default RPC.`,
+				`Helios unreachable for chain ${chainId}; using default RPC.`,
 				{ title: 'Helios fallback' },
 			)
 		})
