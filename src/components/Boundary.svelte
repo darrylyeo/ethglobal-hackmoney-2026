@@ -2,7 +2,6 @@
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
-
 	// Props
 	let {
 		children,
