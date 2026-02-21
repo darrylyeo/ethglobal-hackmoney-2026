@@ -7,9 +7,9 @@
 	import { encodeFunction, decodeParameters } from '@tevm/voltaire/Abi'
 	import { toBytes } from '@tevm/voltaire/Hex'
 	import { isReadable, isReadableWithoutInputs, isWritable } from '$/lib/abi.ts'
-	import { createHttpProvider, ethCall } from '$/api/voltaire.ts'
+	import { ethCall } from '$/api/voltaire.ts'
 	import { runTevmSimulationFromClient } from '$/api/tevm/tevmSimulation.ts'
-	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 	import { PatternType } from '$/constants/patterns.ts'
 	import { eq, and, useLiveQuery } from '@tanstack/svelte-db'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
@@ -53,7 +53,7 @@
 	const actions = $derived(
 		functions.filter((f) => isWritable(f)),
 	)
-	const rpcUrl = $derived(rpcUrls?.[chainId] ?? null)
+	const rpcUrl = $derived(getEffectiveRpcUrl(chainId) ?? null)
 	const methodItems = $derived([...variables, ...queries, ...actions])
 
 	const connectionsQuery = useLiveQuery(
@@ -175,7 +175,7 @@
 		queryInProgress = true
 		queryResult = null
 		try {
-			const provider = createHttpProvider(rpcUrl)
+			const provider = createProviderForChain(chainId)
 			const result = await ethCall(provider, { to: address, data })
 			if (!selectedMethod?.outputs?.length) {
 				queryResult = result

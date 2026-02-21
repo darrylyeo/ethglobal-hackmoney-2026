@@ -5,8 +5,7 @@
 	import { resolveIdentity } from '$/api/identity-resolve.ts'
 	import { IdentityInputKind } from '$/constants/identity-resolver.ts'
 	import { normalizeIdentity } from '$/api/identity-resolve.ts'
-	import { createHttpProvider } from '$/api/voltaire.ts'
-	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 	import { normalizeAddress, isValidAddress } from '$/lib/address.ts'
 
 
@@ -64,9 +63,9 @@
 			return
 		}
 		if (kind === IdentityInputKind.EnsName) {
-			const url = rpcUrls[network]
+			const url = getEffectiveRpcUrl(network)
 			if (!url) return
-			const provider = createHttpProvider(url)
+			const provider = createProviderForChain(network)
 			resolveIdentity(provider, network, raw, null).then((res) => {
 				if (res.address) setSelectedItem({ address: res.address } as Item)
 			})

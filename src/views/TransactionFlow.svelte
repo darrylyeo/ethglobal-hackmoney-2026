@@ -10,7 +10,7 @@
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import type { Snippet } from 'svelte'
 	import { networksByChainId } from '$/constants/networks.ts'
-	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import { E2E_TEVM_ENABLED } from '$/tests/tevm.ts'
 	import { E2E_TEVM_WALLET_ADDRESS } from '$/tests/tevmConfig.ts'
@@ -101,7 +101,6 @@
 
 
 	// Functions
-	import { createHttpProvider } from '$/api/voltaire.ts'
 	import { createExplainProvider, submitExplainTurn } from '$/lib/llmProvider.ts'
 	import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
 	import { getE2eProvider, switchWalletChain } from '$/lib/wallet.ts'
@@ -377,10 +376,7 @@
 	const simulateTransaction = async (tx: TransactionFlowItem) => {
 		const simulationWalletAddress = resolveSimulationWalletAddress()
 		if (!tx.simulate || !simulationWalletAddress) return
-		const rpcUrl =
-			Object.entries(rpcUrls).find(
-				(entry) => Number(entry?.[0]) === tx.chainId,
-			)?.[1] ?? null
+		const rpcUrl = getEffectiveRpcUrl(tx.chainId) ?? null
 		if (!rpcUrl) {
 			updateTxState(tx.id, (state) => ({
 				...state,
@@ -401,7 +397,7 @@
 			},
 		}))
 		try {
-			const provider = createHttpProvider(rpcUrl)
+			const provider = createProviderForChain(tx.chainId)
 			const result = await tx.simulate({
 				provider,
 				walletAddress: simulationWalletAddress,

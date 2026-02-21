@@ -1,9 +1,6 @@
 <script lang="ts">
 	// Types/constants
 	import { NetworkEnvironment } from '$/constants/network-environment.ts'
-
-
-	// State
 	import {
 		networkEnvironmentState,
 		setNetworkEnvironment,

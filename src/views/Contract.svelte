@@ -2,23 +2,14 @@
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { ContractAbi } from '$/data/Contract.ts'
-	import { EntityType } from '$/data/$EntityType.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
-	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { contractsCollection, fetchContract } from '$/collections/Contracts.ts'
 	import {
 		fetchVerifiedContractSource,
 		verifiedContractSourcesCollection,
 	} from '$/collections/VerifiedContractSources.ts'
-	import { contractsCollection, fetchContract } from '$/collections/Contracts.ts'
-
-
-	// Components
-	import EntityView from '$/components/EntityView.svelte'
-	import Address, { AddressFormat } from '$/views/Address.svelte'
-	import ContractAction from '$/views/ContractAction.svelte'
-	import ContractSourceBlock from '$/views/ContractSourceBlock.svelte'
-	import Boundary from '$/components/Boundary.svelte'
-	import NetworkName from '$/views/NetworkName.svelte'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -43,7 +34,7 @@
 	} = $props()
 
 
-	// (Derived)
+	// Context
 	const contractQuery = useLiveQuery(
 		(q) =>
 			q
@@ -54,8 +45,6 @@
 				.select(({ row }) => ({ row })),
 		[() => chainId, () => address],
 	)
-	const contractRow = $derived(contractQuery.data?.[0]?.row)
-	const abi = $derived(abiProp ?? contractRow?.abi)
 	const sourceQuery = useLiveQuery(
 		(q) =>
 			q
@@ -66,25 +55,27 @@
 				.select(({ row }) => ({ row })),
 		[() => chainId, () => address],
 	)
-	const sourceRow = $derived(sourceQuery.data?.[0]?.row)
-	const hasSourceFiles = $derived(
-		sourceRow != null &&
-			!sourceRow.notFound &&
-			Object.keys(sourceRow.files ?? {}).length > 0,
-	)
-
-
-	// State
-	let hasFetchedSource = $state(false)
 
 
 	// (Derived)
+	const contractRow = $derived(contractQuery.data?.[0]?.row)
+	const abi = $derived(abiProp ?? contractRow?.abi)
+	const sourceRow = $derived(sourceQuery.data?.[0]?.row)
+	const hasSourceFiles = $derived(
+		sourceRow != null
+		&& !sourceRow.notFound
+		&& Object.keys(sourceRow.files ?? {}).length > 0,
+	)
 	const hasAbi = $derived(Array.isArray(abi) && abi.length > 0)
 	const fetchSettled = $derived(
 		sourceRow != null && sourceRow.isLoading === false,
 	)
 	const isLoading = $derived(!fetchSettled && !hasAbi)
 	const showNotVerified = $derived(fetchSettled && !hasAbi)
+
+
+	// State
+	let hasFetchedSource = $state(false)
 
 
 	// Actions
@@ -97,6 +88,15 @@
 		hasFetchedSource = true
 		fetchVerifiedContractSource(chainId, address).catch(() => {})
 	}
+
+
+	// Components
+	import Boundary from '$/components/Boundary.svelte'
+	import EntityView from '$/components/EntityView.svelte'
+	import Address, { AddressFormat } from '$/views/Address.svelte'
+	import ContractAction from '$/views/ContractAction.svelte'
+	import ContractSourceBlock from '$/views/ContractSourceBlock.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
 </script>
 
 

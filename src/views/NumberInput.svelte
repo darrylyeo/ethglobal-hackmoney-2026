@@ -57,16 +57,22 @@
 	let focused = $state(false)
 	let displayValue = $state('')
 
+
 	// (Derived)
 	$effect(() => {
-		if (!focused) displayValue = value === 0n ? '' : formatSmallestToDecimal(value, decimals)
+		if (!focused)
+			displayValue = value === 0n
+				? ''
+				: formatSmallestToDecimal(value, decimals)
 	})
 
 	// Actions
 	const setAmountFromInput = (raw: string) => {
 		const cleaned = raw.replace(/[^0-9.,]/g, '').replace(/,/g, '')
 		const [intPart = '', fracPart = ''] = cleaned.split('.')
-		const truncated = fracPart === '' ? intPart : `${intPart}.${fracPart.slice(0, decimals)}`
+		const truncated = fracPart === ''
+			? intPart
+			: `${intPart}.${fracPart.slice(0, decimals)}`
 		displayValue = truncated
 		if (truncated === '') {
 			isInvalid = false
@@ -146,12 +152,12 @@
 					value = BigInt(v)
 				}}
 				{disabled}
-				aria-label={ariaLabel ? `${ariaLabel} range` : 'Amount range'}
-				style={`--slider-progress:${
-					sliderMax > sliderMin
-						? ((sliderValue - sliderMin) / (sliderMax - sliderMin)) * 100
-						: 0
-				}%`}
+				aria-label={ariaLabel
+					? `${ariaLabel} range`
+					: 'Amount range'}
+				style={`--slider-progress:${sliderMax > sliderMin
+					? ((sliderValue - sliderMin) / (sliderMax - sliderMin)) * 100
+					: 0}%`}
 			/>
 		{/if}
 	</label>

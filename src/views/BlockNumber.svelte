@@ -24,8 +24,11 @@
 </script>
 
 
+
 <EntityId
-	link={isLinked ? getBlockPath(chainId, blockNumber) : undefined}
+	link={isLinked
+		? getBlockPath(chainId, blockNumber)
+		: undefined}
 	draggableText={String(blockNumber)}
 	className="block-number"
 >

@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import { coinColorBySymbol } from '$/constants/coins.ts'
 	import { type SubiconProps, IconShape } from '$/components/Icon.svelte'
+	import { coinColorBySymbol } from '$/constants/coins.ts'
+
 
 	// Props
 	let {
@@ -22,6 +23,7 @@
 		subicon?: SubiconProps
 	} = $props()
 
+
 	// Components
 	import Icon from '$/components/Icon.svelte'
 </script>
@@ -33,11 +35,11 @@
 	{size}
 	shape={IconShape.Circle}
 	backgroundColor={
-		coinColorBySymbol[symbol?.toUpperCase() as keyof typeof coinColorBySymbol]?.color ??
-			coinColorBySymbol[symbol as keyof typeof coinColorBySymbol]?.color
+		coinColorBySymbol[symbol?.toUpperCase() as keyof typeof coinColorBySymbol]?.color
+		?? coinColorBySymbol[symbol as keyof typeof coinColorBySymbol]?.color
 	}
-	subicon={subicon ?
-		{ ...subicon, shape: subicon.shape ?? IconShape.Circle }
-	: undefined}
+	subicon={subicon
+		? { ...subicon, shape: subicon.shape ?? IconShape.Circle }
+		: undefined}
 	class={className}
 />

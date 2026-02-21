@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import { networksByChainId } from '$/constants/networks.ts'
 	import { type SubiconProps, IconShape } from '$/components/Icon.svelte'
+	import { networksByChainId } from '$/constants/networks.ts'
 
 
 	// Props
@@ -37,9 +37,9 @@
 	title={title ?? network?.name}
 	{size}
 	shape={IconShape.Square}
-	backgroundColor={network?.icon ?
-		undefined
-	: network?.color}
+	backgroundColor={network?.icon
+		? undefined
+		: network?.color}
 	{subicon}
 	class={className}
 />

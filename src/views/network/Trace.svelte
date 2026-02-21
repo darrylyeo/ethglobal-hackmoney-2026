@@ -1,17 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { Trace as TraceType } from '$/data/Trace.ts'
 	import type { ChainId } from '$/constants/networks.ts'
-
-
-	// Functions
-	import { formatWei, formatGas } from '$/lib/format.ts'
-
-
-	// Components
-	import Address from '$/views/Address.svelte'
-	import TruncatedValue from '$/components/TruncatedValue.svelte'
-	import Self from '$/views/network/Trace.svelte'
+	import type { Trace as TraceType } from '$/data/Trace.ts'
 
 
 	// Props
@@ -22,6 +12,16 @@
 		trace: TraceType,
 		chainId: ChainId,
 	} = $props()
+
+
+	// Functions
+	import { formatWei, formatGas } from '$/lib/format.ts'
+
+
+	// Components
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
+	import Address from '$/views/Address.svelte'
+	import Self from '$/views/network/Trace.svelte'
 </script>
 
 

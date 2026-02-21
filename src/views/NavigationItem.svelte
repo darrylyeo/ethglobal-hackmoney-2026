@@ -19,10 +19,9 @@
 
 
 <script lang="ts">
+	// Context
 	import { preloadData } from '$app/navigation'
-	import Address, { AddressFormat } from '$/views/Address.svelte'
-	import Icon from '$/components/Icon.svelte'
-	import TreeNode from '$/components/TreeNode.svelte'
+
 
 	// Props
 	let {
@@ -30,34 +29,22 @@
 		currentPathname,
 	}: { items: NavigationItem[], currentPathname?: string } = $props()
 
-	// State
-	let searchValue = $state('')
-	let treeOpenState = $state(new Map<string, boolean>())
 
-	// (Derived)
-	const query = $derived(searchValue.trim().toLowerCase())
-	const treeIsOpen = (item: NavigationItem) =>
-		treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false)
-	const treeOnOpenChange = (item: NavigationItem, open: boolean) => {
-		treeOpenState = new Map(treeOpenState).set(item.id, open)
-	}
+	// Functions
 	const treeGetChildren = (item: NavigationItem) =>
 		item.children ?? item.allChildren ?? undefined
 
 	function filterTree(nodes: NavigationItem[], query: string): NavigationItem[] {
 		if (!query) return nodes
-		const q = query.toLowerCase()
 		return nodes.flatMap((n) => {
-			const matches = n.title.toLowerCase().includes(q)
+			const matches = n.title.toLowerCase().includes(query)
 			const children = treeGetChildren(n)
 			const filteredChildren = children ? filterTree(children, query) : []
-			return matches || filteredChildren.length > 0
-				? [{ ...n, children: filteredChildren.length ? filteredChildren : children }]
-				: []
+			return matches || filteredChildren.length > 0 ?
+				[{ ...n, children: filteredChildren.length ? filteredChildren : children }]
+			: []
 		})
 	}
-	const filteredItems = $derived(filterTree(items, query))
-
 	function escapeHtml(s: string): string {
 		return s
 			.replace(/&/g, '&amp;')
@@ -65,20 +52,44 @@
 			.replace(/>/g, '&gt;')
 			.replace(/"/g, '&quot;')
 	}
+	function escapeRegex(s: string): string {
+		return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+	}
 	function highlightText(text: string, query: string): string {
 		if (!query) return escapeHtml(text)
 		const esc = escapeHtml(text)
 		const re = new RegExp(`(${escapeRegex(query)})`, 'gi')
 		return esc.replace(re, '<mark>$1</mark>')
 	}
-	function escapeRegex(s: string): string {
-		return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-	}
 	function navIconProps(icon: string): { icon?: string; src?: string } {
 		return icon.startsWith('data:') || icon.startsWith('/') || icon.startsWith('http') ?
 			{ src: icon }
 		: { icon }
 	}
+
+
+	// State
+	let searchValue = $state('')
+	let treeOpenState = $state(new Map<string, boolean>())
+
+
+	// (Derived)
+	const query = $derived(searchValue.trim().toLowerCase())
+	const treeIsOpen = (item: NavigationItem) =>
+		treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false)
+	const filteredItems = $derived(filterTree(items, query))
+
+
+	// Actions
+	const treeOnOpenChange = (item: NavigationItem, open: boolean) => {
+		treeOpenState = new Map(treeOpenState).set(item.id, open)
+	}
+
+
+	// Components
+	import Icon from '$/components/Icon.svelte'
+	import TreeNode from '$/components/TreeNode.svelte'
+	import Address, { AddressFormat } from '$/views/Address.svelte'
 </script>
 
 

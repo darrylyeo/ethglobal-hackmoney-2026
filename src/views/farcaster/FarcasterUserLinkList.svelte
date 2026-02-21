@@ -1,9 +1,8 @@
 <script lang="ts">
 	// Types/constants
 	import type { FarcasterUserRow } from '$/collections/FarcasterUsers.ts'
-	import EntityView from '$/components/EntityView.svelte'
-	import PaginationPlaceholder from '$/components/PaginationPlaceholder.svelte'
 	import { EntityType } from '$/data/$EntityType.ts'
+
 
 	// Props
 	let {
@@ -13,7 +12,7 @@
 		userByFid,
 		hasMore,
 		onLoadMore,
-		loading,
+		isLoading,
 		loadMoreLabel,
 	}: {
 		title: string
@@ -22,9 +21,14 @@
 		userByFid: Map<number, FarcasterUserRow>
 		hasMore: boolean
 		onLoadMore: () => void
-		loading: boolean
+		isLoading: boolean
 		loadMoreLabel: string
 	} = $props()
+
+
+	// Components
+	import EntityView from '$/components/EntityView.svelte'
+	import PaginationPlaceholder from '$/components/PaginationPlaceholder.svelte'
 </script>
 
 <details>
@@ -45,7 +49,7 @@
 	<PaginationPlaceholder
 		{hasMore}
 		{onLoadMore}
-		{loading}
+		{isLoading}
 		label={loadMoreLabel}
 	/>
 </details>

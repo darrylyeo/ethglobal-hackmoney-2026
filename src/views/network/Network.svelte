@@ -1,14 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import type { Network } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { networksByChainId } from '$/constants/networks.ts'
-
-
-	// Components
-	import EntityList from '$/components/EntityList.svelte'
-	import Block from '$/views/network/Block.svelte'
+	import type { Network } from '$/constants/networks.ts'
 
 
 	// Props
@@ -41,12 +35,18 @@
 		const range = [...placeholderIds].find((k): k is [number, number] =>
 			Array.isArray(k),
 		)
-		return range != null ?
-			range[1] + 1
-		: placeholderIds.size > 0 ?
-			1
-		: 0
+		return range != null
+			? range[1] + 1
+			: placeholderIds.size > 0
+				? 1
+				: 0
 	})
+	const totalDisplay = $derived(blocksTotal > 0 ? blocksTotal : undefined)
+
+
+	// Components
+	import EntityList from '$/components/EntityList.svelte'
+	import Block from '$/views/network/Block.svelte'
 </script>
 
 
@@ -58,7 +58,7 @@
 			'data-card': 'radius-2 padding-4',
 		}}
 		loaded={blocksSet.size}
-		total={blocksTotal > 0 ? blocksTotal : undefined}
+		total={totalDisplay}
 		items={blocksSet}
 		getKey={(b) => b.$id.blockNumber}
 		getSortValue={(b) => -Number(b.number)}

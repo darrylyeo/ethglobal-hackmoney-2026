@@ -1,37 +1,40 @@
 <script lang="ts">
 	// Types/constants
 	import type { Profile } from '$/lib/profile.ts'
-
-
-	// State
 	import {
+		createProfile,
+		deleteProfile,
 		ensureProfilesMeta,
+		exportProfile,
 		getActiveProfile,
 		listProfiles,
-		createProfile,
 		switchProfile,
-		exportProfile,
-		deleteProfile,
 		updateProfile,
 	} from '$/lib/profile.ts'
 	import { getNetworkEnvironment } from '$/state/network-environment.svelte.ts'
 
 	ensureProfilesMeta()
 
-	let activeProfile = $state(getActiveProfile())
-	let profiles = $state(listProfiles())
-	let editingId: string | undefined = $state(undefined)
-	let editingName = $state('')
 
+	// Context
+	import { goto } from '$app/navigation'
+
+
+	// State
+	let activeProfile = $state(getActiveProfile())
+	let editingId = $state<string | undefined>(undefined)
+	let editingName = $state('')
+	let profiles = $state(listProfiles())
+
+
+	// Actions
 	const refresh = () => {
 		activeProfile = getActiveProfile()
 		profiles = listProfiles()
 	}
 
-
-	// Actions
 	const handleSwitch = (id: string) => {
-		switchProfile(id)
+		switchProfile(id, getNetworkEnvironment())
 		refresh()
 	}
 
@@ -162,6 +165,12 @@
 				onclick={handleCreate}
 			>
 				+ New Profile
+			</DropdownMenu.Item>
+
+			<DropdownMenu.Item
+				onclick={() => goto('/settings/profiles')}
+			>
+				Manage profiles
 			</DropdownMenu.Item>
 		</DropdownMenu.Content>
 	</DropdownMenu.Portal>

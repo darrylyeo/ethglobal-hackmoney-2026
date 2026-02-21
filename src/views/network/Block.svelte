@@ -2,25 +2,14 @@
 	// Types/constants
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-
-
-	// Functions
+	import { fetchBlockTransactions } from '$/collections/Blocks.ts'
 	import {
 		averageTransactionsPerBlockByChainId,
 		DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK,
 		type ChainId,
 	} from '$/constants/networks.ts'
-	import { formatGas, formatGwei } from '$/lib/format.ts'
-	import { fetchBlockTransactions } from '$/collections/Blocks.ts'
 	import { TimestampFormat } from '$/components/Timestamp.svelte'
-
-
-	// Components
-	import Address from '$/views/Address.svelte'
-	import Timestamp from '$/components/Timestamp.svelte'
-	import TruncatedValue from '$/components/TruncatedValue.svelte'
-	import EntityList from '$/components/EntityList.svelte'
-	import Transaction from '$/views/network/Transaction.svelte'
+	import { formatGas, formatGwei } from '$/lib/format.ts'
 
 
 	// Props
@@ -44,8 +33,10 @@
 	)
 	const count = $derived(
 		block?.transactionCount
-			?? (averageTransactionsPerBlockByChainId[chainId]?.value
-				?? DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK),
+		?? (
+			averageTransactionsPerBlockByChainId[chainId]?.value
+			?? DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK
+		),
 	)
 
 
@@ -57,21 +48,26 @@
 	const onToggle = (e: Event) => {
 		const details = e.currentTarget as HTMLDetailsElement
 		if (!details.open || hasFetchedTransactions || !block) return
-		if (transactionsSet.size > 0) {
-			hasFetchedTransactions = true
-			return
-		}
 		hasFetchedTransactions = true
+		if (transactionsSet.size > 0) return
 		fetchBlockTransactions(chainId, block.$id.blockNumber).catch(() => {})
 	}
+
+
+	// Components
+	import EntityList from '$/components/EntityList.svelte'
+	import Timestamp from '$/components/Timestamp.svelte'
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
+	import Address from '$/views/Address.svelte'
+	import Transaction from '$/views/network/Transaction.svelte'
 </script>
 
 
 <details
 	data-card="radius-2 padding-4"
-	id={block ?
-		`block:${block.$id.blockNumber}`
-	: undefined}
+	id={block
+		? `block:${block.$id.blockNumber}`
+		: undefined}
 	ontoggle={onToggle}
 >
 	<summary data-row="gap-2 align-center">
@@ -79,7 +75,9 @@
 			<code>#{block.$id.blockNumber}</code>
 			<Timestamp timestamp={block.timestamp} format={TimestampFormat.Relative} />
 			<span>{block.transactionCount ?? count} txs</span>
-			{#if block.gasUsed != null && block.gasLimit != null && block.gasLimit > 0n}
+			{#if block.gasUsed != null
+				&& block.gasLimit != null
+				&& block.gasLimit > 0n}
 				<span>{(Number(block.gasUsed * 100n / block.gasLimit))}% gas</span>
 			{/if}
 		{:else}
@@ -134,14 +132,16 @@
 		<EntityList
 			title="Transactions"
 			loaded={transactionsSet.size}
-			total={block ?
-				(block.transactionCount ?? count)
-			: undefined}
+			total={block
+				? (block.transactionCount ?? count)
+				: undefined}
 			items={transactionsSet}
 			getKey={(tx) => tx.transactionIndex ?? 0}
 			getSortValue={(tx) => tx.transactionIndex ?? 0}
-			placeholderKeys={placeholderTransactionIds ??
-				new Set<number | [number, number]>([[0, Math.max(0, count - 1)]])}
+			placeholderKeys={
+				placeholderTransactionIds
+				?? new Set<number | [number, number]>([[0, Math.max(0, count - 1)]])
+			}
 			bind:visiblePlaceholderKeys={visiblePlaceholderTransactionIds}
 			scrollPosition="End"
 		>

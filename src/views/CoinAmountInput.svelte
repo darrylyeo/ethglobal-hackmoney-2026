@@ -78,7 +78,7 @@
 			data-column="gap-0"
 			data-row-item="flexible"
 			aria-hidden="true"
-		/>
+		></div>
 	{/if}
 
 	<CoinInput

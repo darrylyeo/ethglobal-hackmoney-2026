@@ -36,36 +36,38 @@
 	{#if true}
 		{@const network = networksByChainId[coin.chainId]}
 		<span class="coin-name" data-row="inline gap-1">
-		{#if coin.icon?.original?.url}
-			<CoinIcon
-				src={coin.icon.original.url}
-				symbol={coin.symbol ?? ''}
-				alt={coin.symbol ?? ''}
-				subicon={network?.icon ?
-					{
-						src: network.icon,
-						alt: coin.chainId.toString(),
-						shape: IconShape.Circle,
+			{#if coin.icon?.original?.url}
+				<CoinIcon
+					src={coin.icon.original.url}
+					symbol={coin.symbol ?? ''}
+					alt={coin.symbol ?? ''}
+					subicon={
+						network?.icon ?
+							{
+								src: network.icon,
+								alt: coin.chainId.toString(),
+								shape: IconShape.Circle,
+							}
+						: undefined
 					}
-				: undefined}
-			/>
-		{:else}
-			<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} />
-		{/if}
+				/>
+			{:else}
+				<NetworkIcon chainId={coin.chainId} alt={coin.chainId.toString()} />
+			{/if}
 
-		{#if coin.name || coin.symbol}
-			<abbr
-				class="coin"
-				title={coin.type === CoinType.Native ?
-					'Native Currency'
-				: coin.address}
-			>
-				{showName && coin.name && coin.symbol ?
-					`${coin.symbol} (${coin.name})`
-				: coin.symbol}
-			</abbr>
-		{/if}
-	</span>
+			{#if coin.name || coin.symbol}
+				<abbr
+					class="coin"
+					title={coin.type === CoinType.Native ?
+						'Native Currency'
+					: coin.address}
+				>
+					{showName && coin.name && coin.symbol ?
+						`${coin.symbol} (${coin.name})`
+					: coin.symbol}
+				</abbr>
+			{/if}
+		</span>
 	{/if}
 </div>
 

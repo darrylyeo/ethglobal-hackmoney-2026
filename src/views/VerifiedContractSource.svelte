@@ -1,13 +1,12 @@
 <script lang="ts">
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
-	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { DataSource } from '$/constants/data-sources.ts'
 	import {
 		fetchVerifiedContractSource,
 		verifiedContractSourcesCollection,
 	} from '$/collections/VerifiedContractSources.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
-	import ContractSourceBlock from '$/views/ContractSourceBlock.svelte'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -20,7 +19,7 @@
 	} = $props()
 
 
-	// (Derived)
+	// Context
 	const sourceQuery = useLiveQuery(
 		(q) =>
 			q
@@ -34,6 +33,9 @@
 				.select(({ row }) => ({ row })),
 		[() => chainId, () => address],
 	)
+
+
+	// (Derived)
 	const row = $derived(sourceQuery.data?.[0]?.row)
 	const hasFiles = $derived(
 		row != null && Object.keys(row.files ?? {}).length > 0,
@@ -51,6 +53,10 @@
 		hasFetched = true
 		fetchVerifiedContractSource(chainId, address).catch(() => {})
 	}
+
+
+	// Components
+	import ContractSourceBlock from '$/views/ContractSourceBlock.svelte'
 </script>
 
 

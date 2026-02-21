@@ -4,12 +4,6 @@
 	import type { FarcasterUserRow } from '$/collections/FarcasterUsers.ts'
 	import type { ItemsListPagination } from '$/components/ItemsList.types.ts'
 
-	// Components
-	import EntityList from '$/components/EntityList.svelte'
-	import FarcasterCast from '$/views/farcaster/FarcasterCast.svelte'
-
-	// Functions
-	import { castAnchorId } from '$/lib/farcaster-paths.ts'
 
 	// Props
 	let {
@@ -32,7 +26,16 @@
 		pagination?: ItemsListPagination
 	} = $props()
 
+
+	// Functions
+	import { castAnchorId } from '$/lib/farcaster-paths.ts'
+
 	const getKey = (c: FarcasterCastRow) => `${c.$id.fid}:${c.$id.hash}`
+
+
+	// Components
+	import EntityList from '$/components/EntityList.svelte'
+	import FarcasterCast from '$/views/farcaster/FarcasterCast.svelte'
 </script>
 
 <EntityList

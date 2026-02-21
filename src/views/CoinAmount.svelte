@@ -1,9 +1,9 @@
 <script lang="ts" generics="_CoinType extends CoinType = CoinType">
 	// Types/constants
-	import { type Coin, CoinType } from '$/constants/coins.ts'
-	import { networksByChainId } from '$/constants/networks.ts'
 	import type { StorkPriceRow } from '$/collections/StorkPrices.ts'
 	import { IconShape } from '$/components/Icon.svelte'
+	import { type Coin, CoinType } from '$/constants/coins.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 
 
 	// Props
@@ -30,9 +30,9 @@
 
 
 	// Components
+	import Tooltip from '$/components/Tooltip.svelte'
 	import CoinIcon from '$/views/CoinIcon.svelte'
 	import NetworkIcon from '$/views/NetworkIcon.svelte'
-	import Tooltip from '$/components/Tooltip.svelte'
 	import StorkPriceFeed from '$/views/StorkPriceFeed.svelte'
 </script>
 
@@ -51,12 +51,12 @@
 						src={coin.icon.original.url}
 						symbol={coin.symbol ?? ''}
 						alt={coin.symbol ?? ''}
-						subicon={network?.icon ?
-							{
-								src: network.icon,
-								alt: coin.chainId.toString(),
-								shape: IconShape.Circle,
-							}
+						subicon={network?.icon
+						? {
+							src: network.icon,
+							alt: coin.chainId.toString(),
+							shape: IconShape.Circle,
+						}
 						: undefined}
 					/>
 				{:else}
@@ -67,7 +67,12 @@
 			<span data-row="inline align-baseline gap-1">
 				{#if amount !== undefined}
 					<span class="balance">
-						{#each new Intl.NumberFormat( undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6, compactDisplay: 'short' }, ).formatToParts(coin.decimals ? Number(amount) / Math.pow(10, coin.decimals) : Number(amount)) as part}
+						{#each new Intl.NumberFormat(
+							undefined,
+							{ minimumFractionDigits: 2, maximumFractionDigits: 6, compactDisplay: 'short' },
+						).formatToParts(
+							coin.decimals ? Number(amount) / Math.pow(10, coin.decimals) : Number(amount),
+						) as part}
 							<span data-part={part.type}>{part.value}</span>
 						{/each}
 					</span>
@@ -76,13 +81,13 @@
 				{#if coin.name || coin.symbol}
 					<abbr
 						class="coin"
-						title={coin.type === CoinType.Native ?
-							'Native Currency'
+					title={coin.type === CoinType.Native
+						? 'Native Currency'
 						: coin.address}
 					>
-						{showName && coin.name && coin.symbol ?
-							`${coin.symbol} (${coin.name})`
-						: coin.symbol}
+						{showName && coin.name && coin.symbol
+							? `${coin.symbol} (${coin.name})`
+							: coin.symbol}
 					</abbr>
 				{/if}
 			</span>

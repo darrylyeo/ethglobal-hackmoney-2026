@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Types/constants
+	import type { NavigationItem } from '$/views/NavigationItem.svelte'
 	import type { Snippet } from 'svelte'
 	import { APP_NAME } from '$/constants/app.ts'
 
@@ -20,10 +21,11 @@
 
 	// Components
 	import Icon from '$/components/Icon.svelte'
-	import NavigationItems, { type NavigationItem } from './NavigationItem.svelte'
+	import NavigationItems from '$/views/NavigationItem.svelte'
 	import NetworkEnvironmentInput from '$/views/NetworkEnvironmentInput.svelte'
 	import ProfileSwitcher from '$/views/ProfileSwitcher.svelte'
 </script>
+
 
 
 <nav

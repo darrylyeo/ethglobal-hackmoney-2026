@@ -27,27 +27,25 @@
 	// Components
 	import EntityId from '$/components/EntityId.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
-
-
 </script>
 
 
 <EntityId
 	link={
-		chainId != null && isLinked ?
-			getTxPath(chainId, txHash)
-		: undefined
+		chainId != null && isLinked
+			? getTxPath(chainId, txHash)
+			: undefined
 	}
 	draggableText={txHash}
 	className="evm-transaction-id"
-	data-text={isVertical ?
-		'vertical'
-	: undefined}
+	data-text={isVertical
+		? 'vertical'
+		: undefined}
 	entityType={EntityType.Transaction}
 	entityId={
-		chainId != null ?
-			{ chainId, txHash }
-		: undefined
+		chainId != null
+			? { chainId, txHash }
+			: undefined
 	}
 >
 	<TruncatedValue

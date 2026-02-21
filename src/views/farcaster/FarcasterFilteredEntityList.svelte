@@ -6,9 +6,6 @@
 	import type { Filter, FilterGroup } from '$/components/Filters.svelte'
 	import type { Sort } from '$/components/Sorts.svelte'
 
-	// Components
-	import Filters from '$/components/Filters.svelte'
-	import Sorts from '$/components/Sorts.svelte'
 
 	// Props
 	let {
@@ -62,6 +59,8 @@
 		hasSortOptions ? sortedItems : itemsToSort,
 	)
 
+
+	// Actions
 	$effect(() => {
 		if (!hasFilterGroups) filteredItems = items
 	})
@@ -83,6 +82,11 @@
 			}
 		}
 	})
+
+
+	// Components
+	import Filters from '$/components/Filters.svelte'
+	import Sorts from '$/components/Sorts.svelte'
 </script>
 
 <details data-card data-scroll-container="block" open>
