@@ -13,4 +13,6 @@ When the user says **"format"** (or "format the code", "format my changes", etc.
 1. **Scope:** Apply formatting to every file you have changed or created in this conversation. If no files were changed yet, ask which path to format or format the file(s) currently in context.
 2. **Manual formatting:** Fix each of those files to match repo preferences. Follow the rules in `.cursor/agents/formatter.md` (specs 041 and 056): TypeScript (single quotes, no statement semicolons, implicit returns, inline single-use vars/types, multi-line and ternary style, always include file extensions in imports), Svelte (section order, two empty lines between sections and script comment groups, one prop per line, Svelte 5 only), CSS (semicolons, semantic selectors, data-attribute variants). Inline all single-use variables and types. Enforce exactly two blank lines between Svelte sections and between comment groups in `<script>`.
 
+3. **Section spacing:** Run `deno task format` (or `deno task format -- path/to/file.svelte ...`) so Svelte section spacing is applied.
+
 Do not run Prettier or any other formatter. Format by hand to these preferences.
