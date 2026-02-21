@@ -76,4 +76,4 @@ Same applies to other standard or bits-ui boolean attributes (e.g. `readOnly`,
 
 ## Status
 
-Complete. Applied naming rules to components with adjective/state booleans; passthrough and verb+adjective props left unchanged. TransferDialog bug fixed (`open`→`isOpen` in handler).
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec, re-verify 095): All 4 AC confirmed—boolean props follow is[Adjective]/has[Noun]/with[Noun]; no is[Noun] violations; passthrough (disabled, autofocus, multiple, loading on img) unchanged; verb+adjective (e.g. showAvatar) not renamed. TransferDialog uses isOpen. Deno test 55 passed; Vitest phase pre-existing failure (npm:@tanstack/svelte-db). Previous: Applied naming rules to components with adjective/state booleans; passthrough and verb+adjective props left unchanged. TransferDialog bug fixed (`open`→`isOpen` in handler).
