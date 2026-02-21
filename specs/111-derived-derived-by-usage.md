@@ -28,6 +28,12 @@ const total = $derived.by(() => {
 })
 ```
 
+## Acceptance criteria
+
+- [x] No `$derived((() => { ... })())` (IIFE) in codebase; multi-statement/block derivations use `$derived.by(() => { ... })`.
+- [x] Single-expression derivations use `$derived(expression)`.
+- [x] Multi-line `$derived(` and `$derived.by(() => {` use indented continuation (value/body indented one tab from declaration).
+
 ## Status
 
-Active. 2026-02-19: Network.svelte `blocksTotal` converted from `$derived((() => { ... })())` to `$derived.by(() => { ... })`.
+Complete. 2026-02-21 (PROMPT_build execute one spec): No IIFE-in-$derived in src; single-expression derivations use $derived; block derivations use $derived.by. Network.svelte blocksTotal already converted (2026-02-19). Acceptance criteria verified.
