@@ -26,6 +26,8 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/agents': ['default'],
 	'/agents/[nodeId]': ['default'],
 	'/agents/new': ['default'],
+	'/agents/registry': ['default'],
+	'/agents/registry/[id]': ['default', 'invalid-id'],
 	'/channels/yellow': ['default'],
 	'/coin/[symbol]': ['usdc', 'eth', 'not-found'],
 	'/coins': ['default'],
@@ -34,17 +36,19 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/dashboards': ['default'],
 	'/explore/usdc': ['default'],
 	'/eips': ['default'],
+	'/eips/[number]': ['default', 'not-found'],
+	'/eips/forks': ['default'],
 	'/farcaster': ['default'],
 	'/farcaster/accounts': ['default'],
-	'/farcaster/cast/[fid]/[hash]': ['default'],
-	'/farcaster/cast/[hash]': ['default'],
+	'/farcaster/cast/[fid]/[hash]': ['default', 'not-found'],
+	'/farcaster/cast/[hash]': ['default', 'not-found'],
 	'/farcaster/casts': ['default'],
-	'/farcaster/channel/[channelId]': ['default'],
+	'/farcaster/channel/[channelId]': ['default', 'not-found'],
 	'/farcaster/channels': ['default'],
 	'/farcaster/session': ['createPost', 'replyToPost'],
-	'/farcaster/session/[id]': ['default'],
+	'/farcaster/session/[id]': ['default', 'not-found'],
 	'/farcaster/sessions': ['default'],
-	'/farcaster/user/[fid]': ['default'],
+	'/farcaster/user/[fid]': ['default', 'not-found'],
 	'/farcaster/users': ['default'],
 	'/network/[name]': ['default', 'not-found'],
 	'/network/[name]/block/[blockNumber]': ['default', 'not-found'],
@@ -90,8 +94,8 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/',
 		assert: async (page) => {
-			await expect(page).toHaveURL(/\/dashboard\//, { timeout: 15_000 })
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page).toHaveURL(/\/$|\/dashboard\//, { timeout: 15_000 })
+			await expect(page.locator('#main, main').first()).toBeVisible()
 			await expect(
 				page.getByRole('link', { name: 'Bridge', exact: true }).first(),
 			).toBeVisible()
@@ -108,8 +112,12 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/about',
 		assert: async (page) => {
-			await expect(page.getByRole('heading', { name: 'About', })).toBeVisible()
-			await expect(page.getByRole('heading', { name: 'Legend', })).toBeVisible()
+			await expect(
+				page.getByRole('heading', { name: 'About', }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('heading', { name: 'Legend', }),
+			).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -117,7 +125,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/actions',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000 })
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -125,7 +133,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/agents',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000 })
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -142,6 +150,38 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/agents/new',
 		assert: async (page) => {
 			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/agents/registry',
+		branch: 'default',
+		path: '/agents/registry',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('heading', { name: 'EIP-8004 agent registry', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/agents/registry/[id]',
+		branch: 'default',
+		path: '/agents/registry/1%3A0x0000000000000000000000000000000000000000',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 25_000 })
+		},
+	},
+	{
+		route: '/agents/registry/[id]',
+		branch: 'invalid-id',
+		path: '/agents/registry/not-valid-id',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Invalid agent id', }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/Could not parse agent id/),
+			).toBeVisible()
 		},
 	},
 	{
@@ -185,7 +225,8 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/explore/usdc',
 		assert: async (page) => {
-			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+			await expect(page).toHaveURL(/\/coin\/USDC/, { timeout: 15_000 })
+			await expect(page.locator('#main, main').first()).toBeVisible()
 		},
 	},
 	{
@@ -199,12 +240,46 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
+		route: '/eips/[number]',
+		branch: 'default',
+		path: '/eips/1',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/Invalid EIP\/ERC number/),
+			).toBeHidden()
+		},
+	},
+	{
+		route: '/eips/[number]',
+		branch: 'not-found',
+		path: '/eips/not-a-number',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Not found', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/Invalid EIP\/ERC number/),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/eips/forks',
+		branch: 'default',
+		path: '/eips/forks',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Fork upgrades', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
 		route: '/dashboard',
 		branch: 'default',
 		path: '/dashboard',
 		assert: async (page) => {
 			await expect(page).toHaveURL(/\/dashboard\//, { timeout: 15_000 })
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 		},
 	},
 	{
@@ -212,7 +287,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/dashboard/default',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 			await expect(
 				page.getByRole('button', { name: /Split/ }).first(),
 			).toBeVisible()
@@ -295,7 +370,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'bridge',
 		path: '/session?template=Bridge',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 			await expect(
 				page.getByText(/Parameters|Proposed Transaction|Bridge/).first(),
 			).toBeVisible()
@@ -316,7 +391,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'createChannel',
 		path: '/session?template=CreateChannel',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 			await expect(
 				page.getByText(/Parameters|Proposed Transaction|Create Channel/).first(),
 			).toBeVisible()
@@ -327,7 +402,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'addChannelMember',
 		path: '/session?template=AddChannelMember',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 			await expect(
 				page.getByText(/Parameters|Proposed Transaction|Add Member/).first(),
 			).toBeVisible()
@@ -338,7 +413,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'closeChannel',
 		path: '/session?template=CloseChannel',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 			await expect(
 				page.getByText(/Parameters|Proposed Transaction|Close Channel/).first(),
 			).toBeVisible()
@@ -389,7 +464,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'shareAddress',
 		path: '/session?template=ShareAddress',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 			await expect(
 				page.getByText(/Parameters|Proposed Transaction|Share Address/).first(),
 			).toBeVisible()
@@ -400,7 +475,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'proposeTransfer',
 		path: '/session?template=ProposeTransfer',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 			await expect(
 				page.getByText(/Parameters|Proposed Transaction|Propose Transfer/).first(),
 			).toBeVisible()
@@ -411,7 +486,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'requestVerification',
 		path: '/session?template=RequestVerification',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 			await expect(
 				page.getByText(/Parameters|Proposed Transaction|Request Verification/).first(),
 			).toBeVisible()
@@ -475,7 +550,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'share',
 		path: '/rooms/abcd',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 			await expect(
 				page.getByRole('link', { name: 'Room link' }),
 			).toBeVisible()
@@ -590,7 +665,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'valid-address',
 		path: '/account/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 			await expect(
 				page.getByRole('heading', { name: /^Balances/, }),
 			).toBeVisible()
@@ -626,7 +701,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'usdc',
 		path: '/coin/USDC',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 		},
 	},
 	{
@@ -634,7 +709,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'eth',
 		path: '/coin/ETH',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible()
 		},
 	},
 	{
@@ -650,9 +725,8 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/transfers',
 		assert: async (page) => {
-			await expect(
-				page.getByRole('link', { name: 'Bridge', }).first(),
-			).toBeVisible({ timeout: 5000, })
+			await expect(page).toHaveURL(/\/coin\/USDC/, { timeout: 15_000 })
+			await expect(page.locator('#main, main').first()).toBeVisible()
 		},
 	},
 	{
@@ -660,9 +734,10 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/wallets',
 		assert: async (page) => {
+			await expect(page).toHaveURL(/\/accounts/, { timeout: 15_000 })
 			await expect(
-				page.getByRole('link', { name: 'Bridge', }).first(),
-			).toBeVisible({ timeout: 5000, })
+				page.getByRole('heading', { name: 'Accounts', }),
+			).toBeVisible()
 		},
 	},
 	{
@@ -691,7 +766,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/network/1/block/1',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000, })
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000, })
 			await expect(
 				page.getByRole('link', { name: 'Show Context', }),
 			).toBeVisible({ timeout: 15_000, })
@@ -713,9 +788,9 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/network/[name]/block/[blockNumber]/transaction/[transactionId]',
 		branch: 'default',
-		path: '/network/1/block/1/transaction/0x0',
+		path: '/network/1/block/1/transaction/0x0000000000000000000000000000000000000000000000000000000000000000',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000, })
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000, })
 			await expect(
 				page.getByRole('link', { name: 'Show Context', }),
 			).toBeVisible({ timeout: 15_000, })
@@ -737,9 +812,9 @@ export const coverageScenarios: CoverageScenario[] = [
 	{
 		route: '/network/[name]/transaction/[transactionId]',
 		branch: 'default',
-		path: '/network/1/transaction/0x0',
+		path: '/network/1/transaction/0x0000000000000000000000000000000000000000000000000000000000000000',
 		assert: async (page) => {
-			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000, })
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000, })
 			await expect(
 				page.getByRole('link', { name: 'Show Context', }),
 			).toBeVisible({ timeout: 15_000, })
@@ -806,11 +881,31 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
+		route: '/farcaster/channel/[channelId]',
+		branch: 'not-found',
+		path: '/farcaster/channel/nonexistent-channel-xyz',
+		assert: async (page) => {
+			await expect(
+				page.getByText(/Channel not found:/),
+			).toBeVisible({ timeout: 20_000 })
+		},
+	},
+	{
 		route: '/farcaster/user/[fid]',
 		branch: 'default',
 		path: '/farcaster/user/3',
 		assert: async (page) => {
 			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/user/[fid]',
+		branch: 'not-found',
+		path: '/farcaster/user/999999999',
+		assert: async (page) => {
+			await expect(
+				page.getByText(/User not found:/),
+			).toBeVisible({ timeout: 20_000 })
 		},
 	},
 	{
@@ -830,11 +925,31 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
+		route: '/farcaster/cast/[fid]/[hash]',
+		branch: 'not-found',
+		path: '/farcaster/cast/3/0x0000000000000000000000000000000000000001',
+		assert: async (page) => {
+			await expect(
+				page.getByText('Cast not found'),
+			).toBeVisible({ timeout: 20_000 })
+		},
+	},
+	{
 		route: '/farcaster/cast/[hash]',
 		branch: 'default',
 		path: '/farcaster/cast/0x0000000000000000000000000000000000000000',
 		assert: async (page) => {
 			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/cast/[hash]',
+		branch: 'not-found',
+		path: '/farcaster/cast/0x0000000000000000000000000000000000000001',
+		assert: async (page) => {
+			await expect(
+				page.getByText('Cast not found'),
+			).toBeVisible({ timeout: 20_000 })
 		},
 	},
 	{
@@ -859,6 +974,19 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/farcaster/session/some-id',
 		assert: async (page) => {
 			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/farcaster/session/[id]',
+		branch: 'not-found',
+		path: '/farcaster/session/nonexistent-session-id',
+		assert: async (page) => {
+			await expect(
+				page.getByText('Social post session not found.'),
+			).toBeVisible({ timeout: 20_000 })
+			await expect(
+				page.getByRole('link', { name: 'New post' }),
+			).toBeVisible()
 		},
 	},
 	{
