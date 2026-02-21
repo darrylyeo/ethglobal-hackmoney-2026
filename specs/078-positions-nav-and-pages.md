@@ -31,4 +31,4 @@ Add a **Positions** navigation section with children **Liquidity** (Uniswap) and
 
 ## Status
 
-Complete.
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec, no INCOMPLETE specs—re-verify 078): All 6 AC confirmed—nav section "Positions" with Liquidity (/positions/liquidity) and Channels (/positions/channels) in navigationItems.svelte.ts; Yellow Channels not under Multiplayer; /positions/liquidity and /positions/channels routes exist; positions/liquidity fetches Uniswap positions for connected actors; positions/channels uses stateChannelsCollection and Yellow UI; /channels/yellow redirects via goto in +page.svelte; account/[address] has LiquidityPositions and Channels with selectedActor; sections shown when non-empty. Deno test 55 passed; Vitest phase pre-existing failure (npm:@tanstack/svelte-db).
