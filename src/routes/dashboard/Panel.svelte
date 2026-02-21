@@ -5,6 +5,7 @@
 		DashboardPanelRoute,
 		DashboardSplitNode,
 	} from '$/data/DashboardPanel.ts'
+	import { SplitDirection } from '$/data/PanelTree.ts'
 
 	// Props
 	let {
@@ -27,7 +28,7 @@
 		isFocused: boolean,
 		excludeRoutePaths?: string[],
 		onFocus: (panelId: string) => void,
-		onSplit: (panelId: string, direction: 'horizontal' | 'vertical') => void,
+		onSplit: (panelId: string, direction: SplitDirection) => void,
 		onRemove: (panelId: string) => void,
 		onSwap: (panelId: string) => void,
 		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void,
@@ -184,20 +185,20 @@
 			/> -->
 		</div>
 		<div data-row="wrap start gap-2" class="dashboard-panel-controls">
-			<button type="button" onclick={() => onSplit(panel.id, 'horizontal')} title="Split horizontal">
+			<button type="button" onclick={() => onSplit(panel.id, SplitDirection.Horizontal)} title="Split horizontal">
 				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">→</span>
 			</button>
-			<button type="button" onclick={() => onSplit(panel.id, 'vertical')} title="Split vertical">
+			<button type="button" onclick={() => onSplit(panel.id, SplitDirection.Vertical)} title="Split vertical">
 				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">↓</span>
 			</button>
 			<button type="button" onclick={() => onSwap(panel.id)} title="Swap">
 				<span class="dashboard-panel-btn-text">Swap </span><span class="dashboard-panel-btn-icon" aria-hidden="true">
 					{parent != null && indexInParent != null ?
-						indexInParent === 0 && parent.direction === 'horizontal' ?
+						indexInParent === 0 && parent.direction === SplitDirection.Horizontal ?
 							'⇄'
-						: indexInParent === 1 && parent.direction === 'horizontal' ?
+						: indexInParent === 1 && parent.direction === SplitDirection.Horizontal ?
 							'⇆'
-						: indexInParent === 0 && parent.direction === 'vertical' ?
+						: indexInParent === 0 && parent.direction === SplitDirection.Vertical ?
 							'⇵'
 						: '⇅'
 					: '⇄'}

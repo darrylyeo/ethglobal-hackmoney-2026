@@ -10,6 +10,7 @@ import type {
 	DashboardState,
 	DashboardState$Id,
 } from '$/data/DashboardPanel.ts'
+import { SplitDirection } from '$/data/PanelTree.ts'
 import { parse, stringify } from 'devalue'
 import {
 	createCollection,
@@ -51,7 +52,7 @@ const createDefaultTree = (routePath: string): DashboardStateRow => {
 	const root: DashboardNode = {
 		id: crypto.randomUUID(),
 		type: 'split',
-		direction: 'horizontal',
+		direction: SplitDirection.Horizontal,
 		ratio: 0.5,
 		first: sessionPanel,
 		second: sessionsPanel,
@@ -79,7 +80,7 @@ const createFarcasterTree = (): DashboardStateRow => {
 	const root: DashboardNode = {
 		id: crypto.randomUUID(),
 		type: 'split',
-		direction: 'horizontal',
+		direction: SplitDirection.Horizontal,
 		ratio: 0.5,
 		first: castsPanel,
 		second: channelsPanel,

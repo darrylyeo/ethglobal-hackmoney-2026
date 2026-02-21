@@ -1,4 +1,5 @@
-import type { DashboardNode, PanelNode, PanelTreeNode, SplitNode } from '$/data/PanelTree.ts'
+import { SplitDirection } from '$/data/PanelTree.ts'
+import type { PanelNode, PanelTreeNode, SplitNode } from '$/data/PanelTree.ts'
 import {
 	createDashboard,
 	deleteDashboard,
@@ -65,7 +66,7 @@ const updatePanelRouteInTree = (
 const splitPanelInTree = (
 	node: PanelTreeNode,
 	panelId: string,
-	direction: 'horizontal' | 'vertical',
+	direction: SplitDirection,
 	ratio: number,
 	newPanelRoute: { path: string; params: Record<string, string> },
 ): PanelTreeNode => {
@@ -164,7 +165,10 @@ export const executeSetPanelRoute = async (input: SetPanelRouteInput) => {
 export const executeSplitPanel = async (input: SplitPanelInput) => {
 	const id = input.dashboardId as string
 	const panelId = input.panelId as string
-	const direction = (input.direction as 'horizontal' | 'vertical') ?? 'horizontal'
+	const direction =
+		input.direction === 'vertical'
+			? SplitDirection.Vertical
+			: SplitDirection.Horizontal
 	const ratio = (input.ratio as number) ?? 0.5
 	const newRoute = (input.newPanelRoute as { path?: string; params?: Record<string, string> }) ?? {}
 	const path = newRoute.path ?? '/session'

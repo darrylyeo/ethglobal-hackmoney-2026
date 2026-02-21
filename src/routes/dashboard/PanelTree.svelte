@@ -1,9 +1,10 @@
 <script lang="ts">
 	// Types/constants
-	import type {
-		PanelRoute,
-		PanelTreeNode,
-		SplitNode,
+	import {
+		type PanelRoute,
+		type PanelTreeNode,
+		type SplitNode,
+		SplitDirection,
 	} from '$/data/PanelTree.ts'
 
 
@@ -33,7 +34,7 @@
 		focusedPanelId: string,
 		splitRatioOverrides?: Record<string, number>,
 		onFocus: (panelId: string) => void,
-		onSplit: (panelId: string, direction: 'horizontal' | 'vertical') => void,
+		onSplit: (panelId: string, direction: SplitDirection) => void,
 		onRemove: (panelId: string) => void,
 		onSwap: (panelId: string) => void,
 		onUpdateRoute: (panelId: string, route: PanelRoute) => void,
@@ -137,7 +138,7 @@
 				</Tooltip.Trigger>
 				<Tooltip.Portal>
 					<Tooltip.Content
-						side={root.direction === 'horizontal' ? 'top' : 'left'}
+						side={root.direction === SplitDirection.Horizontal ? 'top' : 'left'}
 						align="center"
 						sideOffset={8}
 						collisionPadding={8}
