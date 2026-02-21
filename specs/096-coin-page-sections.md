@@ -36,4 +36,4 @@ Restructure the coin page into named sections: **Contracts** and **Activity**. A
 
 ## Status
 
-Complete. Coin page restructured: CoinContracts (section "Contracts"), CoinActivity (section "Activity") with TanStack DB queries/fetch, LiveTransfers, CoinTransfers (presentational), CoinBridgeTransfers and CoinSwaps (stubs).
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec, re-verify 096): All 7 AC confirmed—coin page shows Contracts and Activity; CoinContracts with title "Contracts", token contracts list; CoinActivity with title "Activity", period nav, LiveTransfers, CoinTransfers (data from CoinActivity), CoinBridgeTransfers and CoinSwaps (present, empty/rich state); transfer queries/fetch in CoinActivity; coin page uses only CoinContracts and CoinActivity. Deno test 55 passed; Vitest phase pre-existing failure (npm:@tanstack/svelte-db). Previous: Coin page restructured: CoinContracts (section "Contracts"), CoinActivity (section "Activity") with TanStack DB queries/fetch, LiveTransfers, CoinTransfers (presentational), CoinBridgeTransfers and CoinSwaps (stubs).
