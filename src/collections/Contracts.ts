@@ -7,6 +7,8 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
+import { fetchAbiFromBlockscout } from '$/api/blockscout.ts'
+import { fetchAbiFromEtherscan } from '$/api/etherscan.ts'
 import { fetchContractFull } from '$/api/sourcify.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
@@ -69,7 +71,7 @@ export async function fetchContract(
 			if (full.abi) {
 				contractsCollection.update(key, (draft) => {
 					draft.abi = full.abi
-					draft.source = 'Sourcify'
+					draft.source = DataSource.Sourcify
 				})
 			}
 			const sourceKey = key as unknown as Parameters<
@@ -92,28 +94,48 @@ export async function fetchContract(
 					error: null,
 				} satisfies VerifiedContractSourceRow)
 			}
-			return contractsCollection.state.get(key) ?? entry
+			if (full.abi) return contractsCollection.state.get(key) ?? entry
 		}
-		const sourceKey = key as unknown as Parameters<
-			typeof verifiedContractSourcesCollection.state.get
-		>[0]
-		if (verifiedContractSourcesCollection.state.get(sourceKey)) {
-			verifiedContractSourcesCollection.update(sourceKey, (draft) => {
-				draft.notFound = true
-				draft.isLoading = false
-				draft.error = null
-			})
-		} else {
-			verifiedContractSourcesCollection.insert({
-				$id: { $network: { chainId }, address },
-				files: {},
-				$source: DataSource.Sourcify,
-				notFound: true,
-				isLoading: false,
-				error: null,
-			} satisfies VerifiedContractSourceRow)
+		if (!contractsCollection.state.get(key)?.abi) {
+			const abiE = await fetchAbiFromEtherscan(chainId, address)
+			if (abiE) {
+				contractsCollection.update(key, (draft) => {
+					draft.abi = abiE
+					draft.source = DataSource.Etherscan
+				})
+				return contractsCollection.state.get(key) ?? entry
+			}
+			const abiB = await fetchAbiFromBlockscout(chainId, address)
+			if (abiB) {
+				contractsCollection.update(key, (draft) => {
+					draft.abi = abiB
+					draft.source = DataSource.Blockscout
+				})
+				return contractsCollection.state.get(key) ?? entry
+			}
 		}
-		return entry
+		if (!full) {
+			const sourceKey = key as unknown as Parameters<
+				typeof verifiedContractSourcesCollection.state.get
+			>[0]
+			if (verifiedContractSourcesCollection.state.get(sourceKey)) {
+				verifiedContractSourcesCollection.update(sourceKey, (draft) => {
+					draft.notFound = true
+					draft.isLoading = false
+					draft.error = null
+				})
+			} else {
+				verifiedContractSourcesCollection.insert({
+					$id: { $network: { chainId }, address },
+					files: {},
+					$source: DataSource.Sourcify,
+					notFound: true,
+					isLoading: false,
+					error: null,
+				} satisfies VerifiedContractSourceRow)
+			}
+		}
+		return contractsCollection.state.get(key) ?? entry
 	} catch {
 		return entry
 	} finally {
