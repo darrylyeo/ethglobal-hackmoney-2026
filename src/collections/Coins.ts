@@ -1,3 +1,7 @@
+/**
+ * Coins (ERC20 token list). Persisted to localStorage; hydrated from constants when empty.
+ */
+
 import { CollectionId } from '$/constants/collections.ts'
 import type {
 	Erc20Coin$Id,
@@ -5,9 +9,11 @@ import type {
 } from '$/constants/coin-instances.ts'
 import { erc20Instances } from '$/constants/coin-instances.ts'
 import { DataSource } from '$/constants/data-sources.ts'
-import { queryClient } from '$/lib/db/queryClient.ts'
-import { createCollection } from '@tanstack/svelte-db'
-import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import {
+	createCollection,
+	localStorageCollectionOptions,
+} from '@tanstack/svelte-db'
+import { parse, stringify } from 'devalue'
 
 export type CoinRow = Omit<Erc20Token, '$id'> & {
 	$id: Erc20Coin$Id
@@ -21,12 +27,20 @@ export const toCoinRow = (t: Erc20Token): CoinRow => ({
 })
 
 export const coinsCollection = createCollection(
-	queryCollectionOptions({
+	localStorageCollectionOptions({
 		id: CollectionId.Coins,
-		queryKey: [CollectionId.Coins],
-		queryFn: () => Promise.resolve(erc20Instances.map(toCoinRow)),
-		queryClient,
+		storageKey: CollectionId.Coins,
 		getKey: (row: CoinRow) =>
 			`${row.$id.$network.chainId}-${row.$id.address.toLowerCase()}`,
+		parser: { stringify, parse },
 	}),
 )
+
+/** Seed collection from constants when empty. Call once in browser (e.g. layout). */
+export function ensureCoinsHydrated(): void {
+	for (const t of erc20Instances) {
+		const row = toCoinRow(t)
+		const key = `${row.$id.$network.chainId}-${row.$id.address.toLowerCase()}`
+		if (!coinsCollection.state.get(key)) coinsCollection.insert(row)
+	}
+}

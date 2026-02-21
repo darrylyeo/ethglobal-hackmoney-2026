@@ -12,6 +12,7 @@ import {
 	getBlockByNumber,
 	getBlockTransactionCount,
 	getBlockTransactionHashes,
+	getCurrentBlockNumber,
 } from '$/api/voltaire.ts'
 import { fetchNetworkTransaction } from '$/collections/NetworkTransactions.ts'
 import { CollectionId } from '$/constants/collections.ts'
@@ -73,6 +74,21 @@ export const ensureBlocksForPlaceholders = (
 		if (!blocksCollection.state.get(key))
 			fetchBlock(chainId, blockNumber).catch(() => {})
 	}
+}
+
+/** Fetch current block number from RPC and upsert latest block (and recent range) into DB. UI should read latest from blocksCollection via live query. */
+export async function ensureLatestBlockForChain(
+	chainId: ChainId,
+): Promise<void> {
+	const url = getEffectiveRpcUrl(chainId)
+	if (!url) return
+	const provider = createProviderForChain(chainId)
+	const num = await getCurrentBlockNumber(provider)
+	const lo = Math.max(0, num - 10)
+	ensureBlocksForPlaceholders(
+		chainId,
+		Array.from({ length: num - lo + 1 }, (_, j) => lo + j),
+	)
 }
 
 export const fetchBlock = async (
