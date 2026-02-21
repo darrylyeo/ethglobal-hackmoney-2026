@@ -166,7 +166,8 @@ while true; do
 	echo ""
 
 	PROMPT_REF="Read and follow the instructions in $PROMPT_FILE. Execute one spec. Output DONE when done."
-	"$CURSOR_CMD" -p --force --output-format text --workspace "$PROJECT_DIR" "$PROMPT_REF" 2>&1 | tee "$LOG_FILE"
+	# "$CURSOR_CMD" -p --force --output-format text --workspace "$PROJECT_DIR" "$PROMPT_REF" 2>&1 | tee "$LOG_FILE"
+	"$CURSOR_CMD" -p --force --output-format text "$PROMPT_REF" 2>&1 | tee "$LOG_FILE"
 	CURSOR_EXIT=${PIPESTATUS[0]}
 	CURSOR_OUTPUT=$(cat "$LOG_FILE")
 	if [ "$CURSOR_EXIT" -eq 0 ]; then
