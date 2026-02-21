@@ -3,8 +3,11 @@
  * No API key required for read-only; rate limits apply.
  */
 
-import { type ChainId, networksByChainId } from '$/constants/networks.ts'
+import { type ChainId } from '$/constants/chain-id.ts'
 import { normalizeAddress } from '$/lib/address.ts'
+
+// Re-export for callers that need ChainId; use chain-id to avoid loading networks (assets).
+export type { ChainId } from '$/constants/chain-id.ts'
 
 const EXPLORER_API_BY_CHAIN: Partial<Record<ChainId, string>> = {
 	1: 'https://api.etherscan.io/api',
@@ -33,7 +36,7 @@ export type DeployedContract = {
 export async function fetchContractsDeployedBy(
 	chainId: ChainId,
 	deployer: `0x${string}`,
-): Promise<DeployedContract[]> {
+) {
 	const base = EXPLORER_API_BY_CHAIN[chainId]
 	if (!base) return []
 	const url = `${base}?module=account&action=txlist&address=${deployer}&startblock=0&endblock=99999999&page=1&offset=100&sort=asc`
@@ -59,7 +62,7 @@ export async function fetchContractsDeployedBy(
 		.filter((c): c is DeployedContract => c != null)
 }
 
-export function getExplorerApiUrl(chainId: ChainId): string | null {
+export function getExplorerApiUrl(chainId: ChainId) {
 	return EXPLORER_API_BY_CHAIN[chainId] ?? null
 }
 
