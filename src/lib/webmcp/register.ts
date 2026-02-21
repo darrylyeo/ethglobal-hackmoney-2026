@@ -38,6 +38,10 @@ export const registerWebMcpTools = async (): Promise<boolean> => {
 			},
 		})),
 	})
+	if (typeof window !== 'undefined') {
+		;(window as unknown as { __webmcpToolCount?: number }).__webmcpToolCount =
+			definitions.length
+	}
 	return true
 }
 
