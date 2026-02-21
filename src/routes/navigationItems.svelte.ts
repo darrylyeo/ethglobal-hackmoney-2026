@@ -27,7 +27,7 @@ import { erc20TokenByNetwork, nativeCurrencyByNetwork } from '$/constants/coin-i
 import { CoinId, coinById } from '$/constants/coins.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { interopFormatConfig, toInteropName } from '$/constants/interop.ts'
-import { networksByChainId } from '$/constants/networks.ts'
+import { networksByChainId, NetworkType } from '$/constants/networks.ts'
 
 import { type EntityId, EntityType } from '$/data/$EntityType.ts'
 import {
@@ -187,6 +187,18 @@ export function deriveWatchedEntityRow(stored: WatchedEntityStoredRow): WatchedE
 								href: `/agents/registry/${encodeURIComponent(idStr)}`,
 							}
 						}
+						case EntityType.Proposal: {
+							const p = parsedId as EntityId<EntityType.Proposal>
+							const realm =
+								p.id.startsWith('caip-')
+									? 'chain-agnostic'
+									: 'ethereum'
+							return {
+								entityId: p,
+								label: p.id,
+								href: `/proposals/${realm}/${p.id}`,
+							}
+						}
 						default:
 							return {
 								entityId: parsedId as EntityId,
@@ -332,6 +344,23 @@ export class NavigationItems {
 			watchedByType.get(EntityType.AgentChatTree) ?? []
 		const watchedCoinRows = watchedByType.get(EntityType.Coin) ?? []
 		const watchedNetworkRows = watchedByType.get(EntityType.Network) ?? []
+		const watchedProposalRows = watchedByType.get(EntityType.Proposal) ?? []
+		const isTestnet = this.options.isTestnet()
+		const chainIdMatchesEnv = (chainId: number) =>
+			networksByChainId[chainId]?.type ===
+			(isTestnet ? NetworkType.Testnet : NetworkType.Mainnet)
+		const exploreCoinRows = watchedCoinRows.filter((row) => {
+			const c = row.entityId as { $network?: { chainId: number } }
+			return c?.$network != null && chainIdMatchesEnv(c.$network.chainId)
+		})
+		const exploreNetworkRows = watchedNetworkRows.filter((row) =>
+			chainIdMatchesEnv((row.entityId as { chainId: number }).chainId),
+		)
+		const exploreContractRows = watchedContracts.filter((row) =>
+			chainIdMatchesEnv(
+				(row.entityId as { $network: { chainId: number } }).$network.chainId,
+			),
+		)
 		const watchedFarcasterChannelRows =
 			watchedByType.get(EntityType.FarcasterChannel) ?? []
 		const watchedFarcasterUserRows =
@@ -396,13 +425,14 @@ export class NavigationItems {
 						]?.icon ?? '📋'
 					: '📋',
 			}))
-		const allNetworkNavItems = watchedNetworkRows.map((row) => {
+		const allNetworkNavItems = exploreNetworkRows.map((row) => {
 			const chainId = (row.entityId as { chainId: number }).chainId
 			return {
 				id: row.id,
 				title: row.label,
 				href: row.href,
 				icon: networksByChainId[chainId]?.icon ?? '🌐',
+				manualWatch: true,
 				children: [
 					{
 						id: `network-${chainId}-contracts`,
@@ -410,7 +440,7 @@ export class NavigationItems {
 						href: `${row.href}/contracts`,
 						icon: '📄',
 					},
-					...watchedContracts
+					...exploreContractRows
 						.filter(
 							(c) =>
 								c.href === `${row.href}/contracts` ||
@@ -488,7 +518,7 @@ export class NavigationItems {
 				icon: '🤖',
 			}
 		})
-		const coinsNavItemsFromWatched = watchedCoinRows.map((row) => {
+		const coinsNavItemsFromWatched = exploreCoinRows.map((row) => {
 			const coinId = getCoinIdForCoinEntity(
 				row.entityType,
 				row.entityId as Record<string, unknown>,
@@ -508,6 +538,13 @@ export class NavigationItems {
 					iconOverride ?? (coinId != null ? coinById[coinId]?.icon : undefined) ?? '🪙',
 			}
 		})
+		const proposalsNavItemsFromWatched = watchedProposalRows.map((row) => ({
+			id: row.id,
+			title: row.label,
+			href: row.href,
+			manualWatch: true,
+			icon: '📜' as const,
+		}))
 		const farcasterConnections = (
 			this.farcasterConnectionsQuery.data ?? []
 		).map((r) => r.row) as FarcasterConnectionRow[]
@@ -764,19 +801,13 @@ export class NavigationItems {
 						allChildren: allNetworkNavItems,
 					},
 					{
-						id: 'eips',
-						title: 'EIPs / ERCs',
-						href: '/eips',
+						id: 'proposals',
+						title: 'Proposals',
+						href: '/proposals',
 						icon: '📜',
 						defaultIsOpen: true,
-						children: [
-							{ id: 'eips-list', title: 'All EIPs / ERCs', href: '/eips', icon: '📜' },
-							{ id: 'eips-forks', title: 'Fork upgrades', href: '/eips/forks', icon: '🔀' },
-						],
-						allChildren: [
-							{ id: 'eips-list', title: 'All EIPs / ERCs', href: '/eips', icon: '📜' },
-							{ id: 'eips-forks', title: 'Fork upgrades', href: '/eips/forks', icon: '🔀' },
-						],
+						children: proposalsNavItemsFromWatched,
+						allChildren: proposalsNavItemsFromWatched,
 					},
 				],
 			},
@@ -817,6 +848,15 @@ export class NavigationItems {
 								},
 							]
 						: []),
+				],
+			},
+			{
+				id: 'tools',
+				title: 'Tools',
+				icon: '🔧',
+				defaultIsOpen: true,
+				children: [
+					{ id: 'calldata-decoder', title: 'Calldata decoder', href: '/calldata-decoder', icon: '🔍' },
 				],
 			},
 		]
