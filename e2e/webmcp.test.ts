@@ -11,7 +11,12 @@ test.describe('WebMCP tool registration', () => {
 		page,
 	}) => {
 		await page.goto('/')
-		await page.waitForLoadState('networkidle')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
+		await expect(page.locator('#main, main').first()).toBeVisible({
+			timeout: 15_000,
+		})
 		const result = await page.evaluate(() => {
 			const nav = navigator as Navigator & { modelContext?: unknown }
 			const hasMc = 'modelContext' in nav && nav.modelContext != null

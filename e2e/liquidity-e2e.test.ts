@@ -4,12 +4,7 @@
  */
 
 import { expect, test } from './fixtures/tevm.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
 import { addTevmWallet, ensureWalletConnected } from './test-setup.ts'
-
-test.beforeEach(async ({ context }) => {
-	await useProfileIsolation(context)
-})
 
 const isHexHash = (value: string | null): value is `0x${string}` =>
 	typeof value === 'string' && value.startsWith('0x')
@@ -23,7 +18,9 @@ test.describe('Swap route', () => {
 	test('session?template=Swap loads and shows swap form', async ({ page }) => {
 		await page.goto('/session?template=Swap')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 20_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 20_000 })
 		await expect(page.locator('#main')).toContainText(/Swap|Parameters|Action|Protocol|Connect/i, {
 			timeout: 10_000,
 		})
@@ -50,7 +47,9 @@ test.describe('Liquidity flow E2E', () => {
 		})
 		await page.goto(`/session${search}`)
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 30_000 })
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 60_000 })
 		await expect(page.locator('#main').first()).toContainText(/Add Liquidity|Connect/, {
 			timeout: 15_000,
 		})

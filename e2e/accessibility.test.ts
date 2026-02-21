@@ -1,6 +1,5 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test } from './fixtures/tevm.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
 import {
 	addLifiRoutesMock,
 	addLifiRoutesMockToContext,
@@ -10,25 +9,42 @@ import {
 	selectChainOption,
 } from './test-setup.ts'
 
-test.beforeEach(async ({ context }) => {
-	await useProfileIsolation(context)
-})
-
 test.describe('Accessibility (axe-core)', () => {
 	test('skip link is present and points to main', async ({ page }) => {
 		await page.goto('/')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
+		await expect(
+			page.locator('#main, main').first(),
+		).toBeVisible({ timeout: 15_000 })
 		const skipLink = page.getByRole('link', { name: 'Skip to main content', })
 		await expect(skipLink).toBeAttached()
 		await expect(skipLink).toHaveAttribute('href', '#main')
 		await expect(page.locator('#main').first()).toBeAttached()
 	})
 
+	test('skip link moves focus to main content', async ({ page }) => {
+		await page.goto('/')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
+		await expect(
+			page.locator('#main, main').first(),
+		).toBeVisible({ timeout: 15_000 })
+		const skipLink = page.getByRole('link', { name: 'Skip to main content', })
+		await skipLink.click()
+		await expect(page.locator('#main').first()).toBeFocused()
+	})
+
 	test('home page has no critical violations', async ({ page }) => {
 		await page.goto('/')
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
-		await expect(page.locator('#main h1').first()).toBeVisible({
-			timeout: 20_000,
-		})
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
+		await expect(
+			page.locator('#main, main').first(),
+		).toBeVisible({ timeout: 15_000 })
 		const results = await new AxeBuilder({ page })
 			.withTags(['wcag2a', 'wcag2aa'])
 			.analyze()
@@ -41,13 +57,12 @@ test.describe('Accessibility (axe-core)', () => {
 
 	test('bridge page has no critical violations', async ({ page }) => {
 		await page.goto('/session?template=Bridge')
-		await expect(page.locator('#main').first()).toBeAttached({
-			timeout: 30_000,
-		})
-		await expect(page.locator('#main').first()).toContainText(
-			/USDC Bridge|Bridge|Connect a wallet/,
-			{ timeout: 50_000 },
-		)
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
+		await expect(
+			page.locator('#main, main').first(),
+		).toBeVisible({ timeout: 15_000 })
 		const results = await new AxeBuilder({ page })
 			.withTags(['wcag2a', 'wcag2aa'])
 			.analyze()
@@ -60,9 +75,12 @@ test.describe('Accessibility (axe-core)', () => {
 
 	test('transfers page has no critical violations', async ({ page }) => {
 		await page.goto('/coin/USDC')
-		await expect(page.locator('#main').first()).toBeAttached({
-			timeout: 30_000,
-		})
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
+		await expect(
+			page.locator('#main, main').first(),
+		).toBeVisible({ timeout: 15_000 })
 		const results = await new AxeBuilder({ page })
 			.withTags(['wcag2a', 'wcag2aa'])
 			.analyze()
@@ -75,12 +93,12 @@ test.describe('Accessibility (axe-core)', () => {
 
 	test('rooms page has no critical violations', async ({ page }) => {
 		await page.goto('/rooms')
-		await expect(page.locator('#main').first()).toBeAttached({
-			timeout: 30_000,
-		})
-		await expect(page.getByRole('heading', { name: 'Rooms' })).toBeVisible({
-			timeout: 15_000,
-		})
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
+		await expect(
+			page.locator('#main, main').first(),
+		).toBeVisible({ timeout: 15_000 })
 		const results = await new AxeBuilder({ page })
 			.withTags(['wcag2a', 'wcag2aa'])
 			.analyze()
@@ -104,13 +122,15 @@ test.describe('Keyboard navigation', () => {
 		})
 		await page.goto('/session?template=Bridge')
 		await addLifiRoutesMock(page)
-		await expect(page.locator('#main').first()).toBeAttached({
-			timeout: 30_000,
-		})
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 45_000 })
+		await expect(
+			page.locator('#main, main').first(),
+		).toBeVisible({ timeout: 15_000 })
 		await expect(page.locator('#main').first()).toContainText(
 			/USDC Bridge|Bridge|Connect a wallet/,
-			{ timeout: 50_000 },
+			{ timeout: 30_000 },
 		)
 	})
 

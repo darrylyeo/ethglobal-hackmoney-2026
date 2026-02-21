@@ -3,12 +3,14 @@
  * Verifies home page route cards and sidebar action links.
  */
 
-import { expect, test, useProfileIsolation } from './fixtures/profile.ts'
+import { expect, test } from './fixtures/profile.ts'
 
 test.describe('Actions page action links', () => {
-	test.beforeEach(async ({ context, page }) => {
-		await useProfileIsolation(context)
+	test.beforeEach(async ({ page }) => {
 		await page.goto('/actions')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(
 			page.getByRole('heading', { name: 'Actions', level: 1 }),
 		).toBeVisible({ timeout: 20_000 })
@@ -33,9 +35,11 @@ test.describe('Actions page action links', () => {
 })
 
 test.describe('Sidebar action links', () => {
-	test.beforeEach(async ({ context, page }) => {
-		await useProfileIsolation(context)
+	test.beforeEach(async ({ page }) => {
 		await page.goto('/')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(page.locator('nav').first()).toBeVisible({
 			timeout: 20_000,
 		})
@@ -46,7 +50,9 @@ test.describe('Sidebar action links', () => {
 		'Swap',
 		'Bridge',
 		'Add Liquidity',
+		'Remove Liquidity',
 		'Create Channel',
+		'Close Channel',
 	]) {
 		test(`sidebar contains "${title}" link`, async ({ page }) => {
 			const link = page.getByRole('link', { name: title, exact: true }).first()
@@ -58,5 +64,21 @@ test.describe('Sidebar action links', () => {
 		const link = page.getByRole('link', { name: 'Farcaster', exact: true }).first()
 		await expect(link).toBeAttached()
 		expect(await link.getAttribute('href')).toContain('/farcaster')
+	})
+
+	test('sidebar Positions link Liquidity points to /positions/liquidity', async ({
+		page,
+	}) => {
+		const link = page.getByRole('link', { name: 'Liquidity', exact: true }).first()
+		await expect(link).toBeAttached()
+		expect(await link.getAttribute('href')).toContain('/positions/liquidity')
+	})
+
+	test('sidebar Positions link Channels points to /positions/channels', async ({
+		page,
+	}) => {
+		const link = page.getByRole('link', { name: 'Channels', exact: true }).first()
+		await expect(link).toBeAttached()
+		expect(await link.getAttribute('href')).toContain('/positions/channels')
 	})
 })

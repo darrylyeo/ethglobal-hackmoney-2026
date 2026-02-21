@@ -1,5 +1,4 @@
 import { expect, test } from './fixtures/tevm.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
 import {
 	addTevmWallet,
 	ensureWalletConnected,
@@ -9,7 +8,6 @@ import {
 
 test.describe('Unified Bridge (Spec 037)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {
-		await useProfileIsolation(context)
 		await addTevmWallet(context, page, {
 			rpcUrl: tevm.rpcUrl,
 			chainId: tevm.chainId,
@@ -18,6 +16,12 @@ test.describe('Unified Bridge (Spec 037)', () => {
 			name: tevm.providerName,
 		})
 		await page.goto('/session?template=Bridge')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 45_000 })
+		await expect(page.locator('#main, main').first()).toBeVisible({
+			timeout: 15_000,
+		})
 	})
 
 	test('unified bridge renders with chain selects, amount, protocol section', async ({
@@ -26,7 +30,9 @@ test.describe('Unified Bridge (Spec 037)', () => {
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 60_000 })
 		await expect(page.locator('#main').first()).toContainText(
 			/USDC Bridge|Bridge|Connect a wallet/,
 			{ timeout: 45_000 },

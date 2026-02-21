@@ -1,5 +1,4 @@
 import { expect, test } from './fixtures/tevm.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
 import {
 	addGatewayMocks,
 	addTevmWallet,
@@ -10,7 +9,6 @@ import {
 
 test.describe('Gateway Bridge (Spec 074)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {
-		await useProfileIsolation(context)
 		await addTevmWallet(context, page, {
 			rpcUrl: tevm.rpcUrl,
 			chainId: tevm.chainId,
@@ -20,6 +18,12 @@ test.describe('Gateway Bridge (Spec 074)', () => {
 		})
 		await addGatewayMocks(page)
 		await page.goto('/session?template=Bridge')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 45_000 })
+		await expect(page.locator('#main, main').first()).toBeVisible({
+			timeout: 15_000,
+		})
 	})
 
 	test('select Gateway, chain pair, enter amount and see balance or deposit message', async ({

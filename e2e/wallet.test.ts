@@ -1,10 +1,5 @@
 import { expect, test } from './fixtures/tevm.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
 import { addTevmWallet, ensureWalletConnected } from './test-setup.ts'
-
-test.beforeEach(async ({ context }) => {
-	await useProfileIsolation(context)
-})
 
 test.describe('Wallet provider & balances (Spec 005)', () => {
 	test.use({ viewport: { width: 1280, height: 720 } })
@@ -22,7 +17,9 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			name: tevm.providerName,
 		})
 		await page.goto('/session?template=Bridge')
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 25_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 25_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
@@ -55,7 +52,9 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 			name: tevm.providerName,
 		})
 		await page.goto('/session?template=Bridge')
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 25_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 25_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 30_000,
 		})
@@ -80,7 +79,9 @@ test.describe('Wallet provider & balances (Spec 005)', () => {
 				name: tevm.providerName,
 			})
 			await page.goto('/session?template=Bridge')
-			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 25_000 })
+			await expect(
+				page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+			).toBeHidden({ timeout: 25_000 })
 			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})

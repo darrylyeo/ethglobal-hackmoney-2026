@@ -1,4 +1,4 @@
-import { expect, test, useProfileIsolation } from './fixtures/profile.ts'
+import { expect, test } from './fixtures/profile.ts'
 
 const MOCK_LLM_RESPONSE = 'E2E mock response.'
 
@@ -28,11 +28,12 @@ function addMockLlmRoute(
 }
 
 test.describe('Agent chat', () => {
-	test.beforeEach(async ({ context, page }) => {
-		await useProfileIsolation(context)
+	test.beforeEach(async ({ page }) => {
 		await page.goto('/agents/new')
 		await page.waitForURL(/\/agents\/[^/]+$/)
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(
 			page.locator('[data-entity-ref-input]').getByTestId('prompt-textbox'),
 		).toBeVisible({ timeout: 15_000 })

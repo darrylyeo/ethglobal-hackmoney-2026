@@ -1,5 +1,4 @@
 import { expect, test } from './fixtures/profile.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
 import { buildLocalStoragePayload } from './coverage-helpers.ts'
 
 /** Returns the full display text of the prompt (segments + chip labels; when placeholder open, filter text is included). Spaces from empty segments are normalized. */
@@ -34,7 +33,11 @@ async function clearPromptAndFocus(page: import('@playwright/test').Page) {
 	await textbox.click()
 	await page.keyboard.press('Control+a')
 	await page.keyboard.press('Backspace')
-	await page.waitForTimeout(80)
+	await expect
+		.poll(() => getPromptText(page).then((s) => s.replace(/\s/g, '').length <= 2), {
+			timeout: 500,
+		})
+		.toBe(true)
 }
 
 /** Inserts text into contenteditable prompt textbox via execCommand to avoid Playwright headless duplication. */
@@ -58,7 +61,9 @@ test.describe('Prompt input (textarea with combobox)', () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto('/agents/new')
 		await page.waitForURL(/\/agents\/[^/]+$/)
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(
 			page.locator('[data-entity-ref-input]').getByTestId('prompt-textbox'),
 		).toBeVisible({ timeout: 15_000 })
@@ -68,9 +73,10 @@ test.describe('Prompt input (textarea with combobox)', () => {
 		const textbox = page.locator('[data-entity-ref-input]').getByTestId('prompt-textbox').first()
 		await textbox.click()
 		await textbox.pressSequentially('hello', { delay: 50 })
-		await page.waitForTimeout(200)
+		await expect
+			.poll(() => getPromptText(page), { timeout: 2000 })
+			.toContain('hello')
 		const text = await getPromptText(page)
-		expect(text).toContain('hello')
 		expect(text.length).toBeGreaterThanOrEqual(5)
 	})
 
@@ -128,9 +134,12 @@ test.describe('Prompt input (textarea with combobox)', () => {
 		await expect(comboboxPlaceholder).toBeVisible({ timeout: 3000 })
 		await page.keyboard.press('ArrowLeft')
 		await expect(textbox).toBeFocused()
-		await page.waitForTimeout(120)
 		await textbox.pressSequentially('c', { delay: 80 })
-		await page.waitForTimeout(200)
+		await expect
+			.poll(() => getPromptText(page).then((s) => s.replace(/\s+/g, ' ').trim()), {
+				timeout: 2000,
+			})
+			.toMatch(/hi.*c/)
 		const text = (await getPromptText(page)).replace(/\s+/g, ' ').trim()
 		expect(text).toMatch(/hi.*c/)
 		expect(text).not.toMatch(/@\s*$/)
@@ -150,8 +159,7 @@ test.describe('Prompt input (textarea with combobox)', () => {
 			promptVersion: '1',
 		}
 
-		test.beforeEach(async ({ context, page }) => {
-			await useProfileIsolation(context)
+		test.beforeEach(async ({ page }) => {
 			await page.goto('/')
 			const payload = buildLocalStoragePayload(
 				[agentChatTurnSeed],
@@ -165,7 +173,9 @@ test.describe('Prompt input (textarea with combobox)', () => {
 			await page.reload()
 			await page.goto('/agents/new')
 			await page.waitForURL(/\/agents\/[^/]+$/)
-			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
+			await expect(
+				page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+			).toBeHidden({ timeout: 30_000 })
 			await expect(
 				page.locator('[data-entity-ref-input]').getByTestId('prompt-textbox'),
 			).toBeVisible({ timeout: 15_000 })
@@ -181,7 +191,6 @@ test.describe('Prompt input (textarea with combobox)', () => {
 			await page.keyboard.press('@')
 			const comboboxPlaceholder = entityRef.locator('[data-placeholder][data-trigger="@"]')
 			await expect(comboboxPlaceholder).toBeVisible({ timeout: 3000 })
-			await page.waitForTimeout(300)
 			await expect(
 				page.getByRole('option', { name: 'Prior message' }),
 			).toBeVisible({ timeout: 5000 })
@@ -228,9 +237,12 @@ test.describe('Prompt input (textarea with combobox)', () => {
 		await comboboxInput.fill('a')
 		await comboboxInput.press('ArrowRight')
 		await expect(textbox).toBeFocused()
-		await page.waitForTimeout(150)
 		await textbox.pressSequentially('b', { delay: 80 })
-		await page.waitForTimeout(200)
+		await expect
+			.poll(() => getPromptText(page).then((s) => s.replace(/\s+/g, ' ').trim()), {
+				timeout: 2000,
+			})
+			.toMatch(/a.*b/)
 		const text = (await getPromptText(page)).replace(/\s+/g, ' ').trim()
 		expect(text).toMatch(/a.*b/)
 		expect(text).toMatch(/@/)
@@ -247,8 +259,13 @@ test.describe('Prompt input (textarea with combobox)', () => {
 		await page.keyboard.press('Delete')
 		await expect(entityRef.locator('[data-placeholder]')).toHaveCount(0)
 		await expect(textbox).toBeFocused()
-		await page.waitForTimeout(120)
 		await insertPromptText(page, 'b')
+		await expect
+			.poll(
+				() => getPromptText(page).then((s) => s.replace(/\s+/g, ' ').trim()),
+				{ timeout: 1000 },
+			)
+			.toBe('a b')
 		expect((await getPromptText(page)).replace(/\s+/g, ' ').trim()).toBe('a b')
 	})
 
@@ -264,9 +281,12 @@ test.describe('Prompt input (textarea with combobox)', () => {
 		await expect(comboboxPlaceholder).toBeVisible({ timeout: 3000 })
 		await page.keyboard.press('ArrowLeft')
 		await expect(textbox).toBeFocused()
-		await page.waitForTimeout(120)
 		await textbox.pressSequentially('b', { delay: 80 })
-		await page.waitForTimeout(200)
+		await expect
+			.poll(() => getPromptText(page).then((s) => s.replace(/\s+/g, ' ').trim()), {
+				timeout: 2000,
+			})
+			.toMatch(/a.*b/)
 		const text = (await getPromptText(page)).replace(/\s+/g, ' ').trim()
 		expect(text).toMatch(/a.*b/)
 		expect(text).not.toMatch(/@\s*$/)
@@ -287,12 +307,14 @@ test.describe('Prompt input (textarea with combobox)', () => {
 		const textbox = page.locator('[data-entity-ref-input]').getByTestId('prompt-textbox').first()
 		await clearPromptAndFocus(page)
 		await textbox.pressSequentially('ab', { delay: 120 })
-		await page.waitForTimeout(200)
-		await expect.poll(() => getPromptText(page)).toBe('ab')
+		await expect.poll(() => getPromptText(page), { timeout: 2000 }).toBe('ab')
 		await page.keyboard.press('ArrowLeft')
-		await page.waitForTimeout(80)
 		await textbox.pressSequentially('X')
-		await page.waitForTimeout(200)
+		await expect
+			.poll(() => getPromptText(page).then((s) => s.replace(/\s+/g, ' ').trim()), {
+				timeout: 2000,
+			})
+			.toBe('aXb')
 		expect((await getPromptText(page)).replace(/\s+/g, ' ').trim()).toBe('aXb')
 	})
 
@@ -306,8 +328,18 @@ test.describe('Prompt input (textarea with combobox)', () => {
 		await entityRef.locator('[data-placeholder] input').fill('bc')
 		await page.keyboard.press('ArrowRight')
 		await expect(textbox).toBeFocused()
-		await page.waitForTimeout(120)
 		await page.keyboard.press('Delete')
+		await expect
+			.poll(
+				() =>
+					getPromptText(page).then((s) => {
+						const t = s.replace(/\s+/g, ' ').trim()
+						return ['a @bc', 'a ', 'a', 'a @', 'a @b', 'a @c'].includes(t) ||
+							/^a(\s*a)*\s*@?(b?c?)?$/.test(t)
+					}),
+				{ timeout: 2000 },
+			)
+			.toBe(true)
 		const text = (await getPromptText(page)).replace(/\s+/g, ' ').trim()
 		const ok =
 			['a @bc', 'a ', 'a', 'a @', 'a @b', 'a @c'].includes(text) ||

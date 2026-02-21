@@ -1,9 +1,4 @@
 import { expect, test } from './fixtures/tevm.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
-
-test.beforeEach(async ({ context }) => {
-	await useProfileIsolation(context)
-})
 
 const MOBILE = { width: 375, height: 667, }
 const DESKTOP = { width: 1280, height: 800, }
@@ -33,6 +28,7 @@ const CORE_ROUTES = [
 	{ path: '/session?template=Bridge', name: 'bridge' },
 	{ path: '/coin/USDC', name: 'usdc' },
 	{ path: '/rooms', name: 'rooms' },
+	{ path: '/rooms/e2e0001', name: 'rooms-room' },
 ] as const
 
 for (const { path, name } of CORE_ROUTES) {
@@ -41,8 +37,10 @@ for (const { path, name } of CORE_ROUTES) {
 	}) => {
 		await page.setViewportSize(MOBILE)
 		await page.goto(path)
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
-		await expect(page.locator('#main').first()).toBeAttached({
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
+		await expect(page.locator('#main, main').first()).toBeVisible({
 			timeout: 15_000,
 		})
 		await assertNoHorizontalOverflow(page)
@@ -53,8 +51,10 @@ for (const { path, name } of CORE_ROUTES) {
 	}) => {
 		await page.setViewportSize(DESKTOP)
 		await page.goto(path)
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
-		await expect(page.locator('#main').first()).toBeAttached({
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
+		await expect(page.locator('#main, main').first()).toBeVisible({
 			timeout: 15_000,
 		})
 		await assertNoHorizontalOverflow(page)

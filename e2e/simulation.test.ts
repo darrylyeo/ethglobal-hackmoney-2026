@@ -3,12 +3,7 @@
  */
 
 import { expect, test } from './fixtures/tevm.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
 import { addTevmWallet, ensureWalletConnected } from './test-setup.ts'
-
-test.beforeEach(async ({ context }) => {
-	await useProfileIsolation(context)
-})
 
 const buildTransferSearch = (params: {
 	fromActor: string
@@ -36,10 +31,13 @@ test.describe('Simulation (session transfer)', () => {
 			name: tevm.providerName,
 		})
 		await page.goto('/session?template=Transfer')
-		await expect(page.locator('#main').first()).toBeAttached({ timeout: 30_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 45_000 })
+		await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 		await expect(
 			page.locator('#main').first(),
-		).toContainText(/Transfer|Connect a wallet/, { timeout: 60_000 })
+		).toContainText(/Transfer|Connect a wallet/, { timeout: 30_000 })
 		await ensureWalletConnected(page)
 		const search = buildTransferSearch({
 			fromActor: tevm.walletAddress,
@@ -49,7 +47,10 @@ test.describe('Simulation (session transfer)', () => {
 			tokenAddress: '0x0000000000000000000000000000000000000000',
 		})
 		await page.goto(`/session${search}`)
-		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
+		await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 		const simulateButton = page.getByRole('button', { name: 'Simulate' })
 		await expect(simulateButton).toBeVisible({ timeout: 15_000 })
 		await simulateButton.click()
@@ -78,10 +79,13 @@ test.describe('Simulation (session transfer)', () => {
 			name: tevm.providerName,
 		})
 		await page.goto('/session?template=Transfer')
-		await expect(page.locator('#main').first()).toBeAttached({ timeout: 30_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 45_000 })
+		await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 		await expect(
 			page.locator('#main').first(),
-		).toContainText(/Transfer|Connect a wallet/, { timeout: 60_000 })
+		).toContainText(/Transfer|Connect a wallet/, { timeout: 30_000 })
 		await ensureWalletConnected(page)
 		const search = buildTransferSearch({
 			fromActor: tevm.walletAddress,
@@ -91,7 +95,10 @@ test.describe('Simulation (session transfer)', () => {
 			tokenAddress: '0x0000000000000000000000000000000000000000',
 		})
 		await page.goto(`/session${search}`)
-		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
+		await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 		const submitButton = page.getByRole('button', { name: 'Sign & Broadcast' })
 		await expect(submitButton).toBeEnabled({ timeout: 5_000 })
 		await submitButton.click()

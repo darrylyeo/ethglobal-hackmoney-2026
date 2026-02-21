@@ -5,7 +5,10 @@
 import { expect, test } from './fixtures/profile.ts'
 
 const waitForMain = async (page: import('@playwright/test').Page) => {
-	await expect(page.locator('#main').first()).toBeAttached({
+	await expect(
+		page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+	).toBeHidden({ timeout: 30_000 })
+	await expect(page.locator('#main, main').first()).toBeVisible({
 		timeout: 15_000,
 	})
 }

@@ -5,19 +5,16 @@
 
 import { APP_NAME } from '$/constants/app.ts'
 import { expect, test } from './fixtures/tevm.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
 import { addTevmWallet } from './test-setup.ts'
-
-test.beforeEach(async ({ context }) => {
-	await useProfileIsolation(context)
-})
 
 test.describe('Home (/)', () => {
 	test('renders nav and key CTAs without errors', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 720 })
 		await page.goto('/')
 		await expect(page).toHaveURL(/\/dashboard\//, { timeout: 30_000 })
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 20_000,
 		})
@@ -49,8 +46,11 @@ test.describe('Session (bridge)', () => {
 
 	test('unified bridge renders with protocol selection', async ({ page }) => {
 		await page.goto('/session?template=Bridge')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
-			timeout: 30_000,
+			timeout: 15_000,
 		})
 		await expect(page.locator('#main').first()).toContainText(
 			/USDC Bridge|Bridge|Connect a wallet/,
@@ -65,8 +65,11 @@ test.describe('Session (bridge)', () => {
 
 	test('auto-connected wallet shows address', async ({ page }) => {
 		await page.goto('/session?template=Bridge')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
-			timeout: 30_000,
+			timeout: 15_000,
 		})
 		await expect(page.locator('[data-wallet-address]')).toBeVisible({
 			timeout: 15_000,
@@ -79,8 +82,11 @@ test.describe('USDC (/coin/USDC)', () => {
 		page,
 	}) => {
 		await page.goto('/coin/USDC')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
-			timeout: 30_000,
+			timeout: 15_000,
 		})
 		await expect(
 			page.getByRole('navigation', { name: 'Time period', }),
@@ -89,8 +95,11 @@ test.describe('USDC (/coin/USDC)', () => {
 
 	test('empty or loading state shows without crashing', async ({ page }) => {
 		await page.goto('/coin/USDC')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
-			timeout: 30_000,
+			timeout: 15_000,
 		})
 		await Promise.race([
 			page.locator('[data-transfers-loading], [data-transfers-error]').waitFor({
@@ -108,8 +117,11 @@ test.describe('USDC (/coin/USDC)', () => {
 test.describe('Rooms (/rooms)', () => {
 	test('rooms page renders create and join sections', async ({ page }) => {
 		await page.goto('/rooms')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
-			timeout: 30_000,
+			timeout: 15_000,
 		})
 		await expect(page.getByRole('heading', { name: 'Rooms', })).toBeVisible({
 			timeout: 15_000,
@@ -125,8 +137,11 @@ test.describe('Rooms (/rooms)', () => {
 
 	test('join room form accepts code input', async ({ page }) => {
 		await page.goto('/rooms')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
-			timeout: 30_000,
+			timeout: 15_000,
 		})
 		const codeInput = page.getByLabel('Room code')
 		await codeInput.fill('ABC123')

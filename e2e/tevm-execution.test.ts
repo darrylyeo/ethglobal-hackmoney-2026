@@ -1,5 +1,4 @@
 import { expect, test } from './fixtures/tevm.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
 import {
 	addLifiRoutesMock,
 	addLifiRoutesMockToContext,
@@ -8,10 +7,6 @@ import {
 	selectChainOption,
 	selectProtocolOption,
 } from './test-setup.ts'
-
-test.beforeEach(async ({ context }) => {
-	await useProfileIsolation(context)
-})
 
 const isHexHash = (value: string | null): value is `0x${string}` =>
 	typeof value === 'string' && value.startsWith('0x')
@@ -52,7 +47,9 @@ test.describe('E2E Tevm walletless execution', () => {
 		})
 		await page.goto(`/session${search}`)
 		await expect(page.locator('#main')).toBeAttached({ timeout: 30_000 })
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 60_000 })
 		await ensureWalletConnected(page)
 		const swapButton = page.getByRole('button', { name: 'Sign & Broadcast' })
 		await expect(swapButton).toBeEnabled({ timeout: 20_000 })
@@ -77,7 +74,9 @@ test.describe('E2E Tevm walletless execution', () => {
 		await page.goto('/session?template=Bridge')
 		await addLifiRoutesMock(page)
 		await expect(page.locator('#main')).toBeAttached({ timeout: 30_000 })
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 60_000 })
 		await ensureWalletConnected(page)
 		await page
 			.getByText('Loading networks…')
@@ -123,7 +122,9 @@ test.describe('E2E Tevm walletless execution', () => {
 		})
 		await page.goto(`/session${search}`)
 		await expect(page.locator('#main')).toBeAttached({ timeout: 30_000 })
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 60_000 })
 		await ensureWalletConnected(page)
 		const transferButton = page.getByRole('button', { name: 'Sign & Broadcast' })
 		await expect(transferButton).toBeEnabled({ timeout: 20_000 })
@@ -154,7 +155,9 @@ test.describe('E2E Tevm walletless execution', () => {
 		})
 		await page.goto(`/session${search}`)
 		await expect(page.locator('#main')).toBeAttached({ timeout: 30_000 })
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 60_000 })
 		await ensureWalletConnected(page)
 		const addButton = page.getByRole('button', { name: 'Sign & Broadcast' })
 		await expect(addButton).toBeEnabled({ timeout: 20_000 })

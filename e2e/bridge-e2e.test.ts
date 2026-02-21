@@ -1,5 +1,4 @@
 import { expect, test } from './fixtures/tevm.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
 import {
 	addLifiRoutesMock,
 	addLifiRoutesMockToContext,
@@ -12,7 +11,6 @@ import {
 test.describe('E2E bridge flow', () => {
 	test.describe('happy path with tevm wallet', () => {
 		test.beforeEach(async ({ context, page, tevm }) => {
-			await useProfileIsolation(context)
 			await addLifiRoutesMockToContext(context)
 			await addTevmWallet(context, page, {
 				rpcUrl: tevm.rpcUrl,
@@ -23,6 +21,12 @@ test.describe('E2E bridge flow', () => {
 			})
 			await page.goto('/session?template=Bridge')
 			await addLifiRoutesMock(page)
+			await expect(
+				page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+			).toBeHidden({ timeout: 45_000 })
+			await expect(page.locator('#main, main').first()).toBeVisible({
+				timeout: 15_000,
+			})
 		})
 
 		test('connect → balance → select → amount → get routes (result or no-routes)', async ({
@@ -31,7 +35,9 @@ test.describe('E2E bridge flow', () => {
 			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})
-			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+			await expect(
+				page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+			).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main').first()).toContainText(
 				/USDC Bridge|Bridge|Connect a wallet/,
 				{
@@ -63,7 +69,9 @@ test.describe('E2E bridge flow', () => {
 			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})
-			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+			await expect(
+				page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+			).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main').first()).toContainText(
 				/USDC Bridge|Bridge|Connect a wallet/,
 				{
@@ -91,7 +99,6 @@ test.describe('E2E bridge flow', () => {
 		test.use({ viewport: { width: 1280, height: 720 } })
 
 		test.beforeEach(async ({ context, page, tevm }) => {
-			await useProfileIsolation(context)
 			await addTevmWallet(context, page, {
 				rpcUrl: tevm.rpcUrl,
 				chainId: tevm.chainId,
@@ -104,7 +111,9 @@ test.describe('E2E bridge flow', () => {
 			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})
-			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+			await expect(
+				page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+			).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main').first()).toContainText(
 				/USDC Bridge|Bridge|Connect a wallet/,
 				{
@@ -168,10 +177,6 @@ test.describe('E2E bridge flow', () => {
 	})
 
 	test.describe('error handling', () => {
-		test.beforeEach(async ({ context }) => {
-			await useProfileIsolation(context)
-		})
-
 		test('without wallet: clear message and connect prompt', async ({
 			page,
 		}) => {
@@ -180,7 +185,9 @@ test.describe('E2E bridge flow', () => {
 			await expect(page.locator('#main').first()).toBeAttached({
 				timeout: 30_000,
 			})
-			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+			await expect(
+				page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+			).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main').first()).toContainText(
 				/USDC Bridge|Bridge|Connect a wallet/,
 				{
@@ -204,7 +211,9 @@ test.describe('E2E bridge flow', () => {
 			})
 			await page.goto('/session?template=Bridge')
 			await addLifiRoutesMock(page, undefined, { quoteFails: true })
-			await expect(page.getByText('Loading...')).toBeHidden({ timeout: 60_000 })
+			await expect(
+				page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+			).toBeHidden({ timeout: 60_000 })
 			await expect(page.locator('#main').first()).toContainText(
 				/USDC Bridge|Bridge|Connect a wallet/,
 				{

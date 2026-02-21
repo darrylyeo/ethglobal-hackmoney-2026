@@ -3,15 +3,14 @@
  * Hits live Farcaster Client API and Hub (Pinata/Standard Crypto).
  */
 
-import { expect, test, useProfileIsolation } from './fixtures/profile.ts'
-
-test.beforeEach(async ({ context }) => {
-	await useProfileIsolation(context)
-})
+import { expect, test } from './fixtures/profile.ts'
 
 test.describe('Farcaster', () => {
 	test('nav has Farcaster link', async ({ page }) => {
 		await page.goto('/')
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 30_000 })
 		await expect(page.locator('nav').first()).toBeVisible({ timeout: 20_000 })
 		const farcasterLink = page.getByRole('link', { name: 'Farcaster', exact: true })
 		await expect(farcasterLink.first()).toBeAttached()
@@ -104,7 +103,9 @@ test.describe('Farcaster', () => {
 	}) => {
 		await page.goto('/farcaster/session?template=CreatePost')
 		await expect(page).toHaveURL(/\/farcaster\/session/)
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 45_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 45_000 })
 		await expect(page.getByPlaceholder('Create post')).toBeVisible({
 			timeout: 15_000,
 		})
@@ -115,7 +116,9 @@ test.describe('Farcaster', () => {
 	}) => {
 		await page.goto('/farcaster/session?template=ReplyToPost')
 		await expect(page).toHaveURL(/\/farcaster\/session/)
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 45_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 45_000 })
 		await expect(page.getByPlaceholder('Reply to post')).toBeVisible({
 			timeout: 15_000,
 		})

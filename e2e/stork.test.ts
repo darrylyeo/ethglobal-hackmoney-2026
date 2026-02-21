@@ -4,11 +4,6 @@
  */
 
 import { expect, test } from './fixtures/profile.ts'
-import { useProfileIsolation } from './fixtures/profile.ts'
-
-test.beforeEach(async ({ context }) => {
-	await useProfileIsolation(context)
-})
 
 test.describe('Stork price feed', () => {
 	test('session#/Swap loads and does not show missing-token error', async ({
@@ -16,7 +11,9 @@ test.describe('Stork price feed', () => {
 	}) => {
 		await page.goto('/session?template=Swap')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 20_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 20_000 })
 		await expect(
 			page.getByRole('heading', { name: /Session|Swap|Connect/i }).first(),
 		).toBeVisible({ timeout: 10_000 })
@@ -30,7 +27,9 @@ test.describe('Stork price feed', () => {
 	}) => {
 		await page.goto('/session?template=Swap')
 		await expect(page.locator('#main').first()).toBeAttached({ timeout: 15_000 })
-		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 20_000 })
+		await expect(
+			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
+		).toBeHidden({ timeout: 20_000 })
 		const amountInput = page.getByLabel('Amount in')
 		await amountInput.waitFor({ state: 'visible', timeout: 10_000 })
 		await amountInput.fill('1')
