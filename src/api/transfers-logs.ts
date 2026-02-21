@@ -1,6 +1,6 @@
 /**
- * Fetch USDC Transfer events via Voltaire eth_getLogs for a time period.
- * Used by the transfers page to build the graph from JSON-RPC (primary source).
+ * Fetch USDC Transfer events via Voltaire eth_getLogs or SQD Portal.
+ * Used by the transfers page to build the graph.
  */
 
 import {
@@ -11,11 +11,17 @@ import {
 	getLogs,
 	TRANSFER_TOPIC,
 } from '$/api/voltaire.ts'
+import { getSqdDatasetSlug } from '$/constants/sqd-datasets.ts'
+import { streamSqdEvm } from '$/api/sqd.ts'
+import { DataSource } from '$/constants/data-sources.ts'
 import { normalizeAddress } from '$/lib/address.ts'
 import { type ChainContract, TIME_PERIODS, periodToRange } from '$/api/transfers-indexer.ts'
 import { ercTokens } from '$/constants/coins.ts'
 import { TRANSFER_EVENTS_MAX_TOTAL } from '$/constants/query-limits.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
+
+const ERC20_TRANSFER_TOPIC =
+	'0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef' as const
 
 export type NormalizedTransferEvent = {
 	transactionHash: string
@@ -30,11 +36,11 @@ export type NormalizedTransferEvent = {
 
 function parseTransferLog(
 	log: {
-		topics: string[]
-		data: string
-		blockNumber: string
-		transactionHash: string
-		logIndex: string
+		topics?: string[]
+		data?: string
+		blockNumber?: string | number
+		transactionHash?: string
+		logIndex?: string | number
 	},
 	chainId: number,
 	blockTimestampMs: number,
@@ -47,15 +53,23 @@ function parseTransferLog(
 	const fromChecksummed = normalizeAddress(fromRaw)
 	const toChecksummed = normalizeAddress(toRaw)
 	if (!fromChecksummed || !toChecksummed) return null
+	const blockNum =
+		typeof log.blockNumber === 'number'
+			? log.blockNumber
+			: parseInt(String(log.blockNumber ?? 0), 16)
+	const logIdx =
+		typeof log.logIndex === 'number'
+			? log.logIndex
+			: parseInt(String(log.logIndex ?? 0), 16)
 	return {
-		transactionHash: log.transactionHash,
+		transactionHash: log.transactionHash ?? '',
 		fromAddress: fromChecksummed,
 		toAddress: toChecksummed,
 		amount: amount.toString(),
 		timestamp: blockTimestampMs,
 		chainId,
-		blockNumber: parseInt(log.blockNumber, 16),
-		logIndex: parseInt(log.logIndex, 16),
+		blockNumber: blockNum,
+		logIndex: logIdx,
 	}
 }
 
@@ -146,6 +160,51 @@ async function fetchTransferLogsForChain(
 		.filter((t): t is NormalizedTransferEvent => t !== null)
 }
 
+async function fetchTransferLogsViaSqd(
+	chainId: number,
+	contractAddress: `0x${string}`,
+	fromBlock: bigint,
+	toBlock: bigint,
+): Promise<NormalizedTransferEvent[]> {
+	const slug = getSqdDatasetSlug(chainId)
+	if (!slug) throw new Error(`SQD unsupported for chain ${chainId}`)
+	const addr = contractAddress.toLowerCase()
+	const events: NormalizedTransferEvent[] = []
+	for await (const block of streamSqdEvm(chainId, {
+		type: 'evm',
+		fromBlock: Number(fromBlock),
+		toBlock: Number(toBlock),
+		fields: {
+			block: { number: true, timestamp: true },
+			log: {
+				address: true,
+				topics: true,
+				data: true,
+				transactionHash: true,
+				logIndex: true,
+				blockNumber: true,
+			},
+		},
+		logs: [{ address: [addr], topic0: [ERC20_TRANSFER_TOPIC] }],
+		finalizedOnly: true,
+	})) {
+		const tsMs = (block.header.timestamp ?? 0) * 1000
+		for (const log of block.logs ?? []) {
+			if (log.address?.toLowerCase() !== addr) continue
+			const parsed = parseTransferLog(
+				{
+					...log,
+					blockNumber: log.blockNumber ?? block.header.number,
+				},
+				chainId,
+				tsMs,
+			)
+			if (parsed) events.push(parsed)
+		}
+	}
+	return events
+}
+
 const USDC_CHAINS: ChainContract[] = ercTokens.map((t) => ({
 	chainId: t.chainId,
 	contractAddress: t.address,
@@ -157,9 +216,9 @@ async function resolveBlockRange(
 	startMs: number,
 	endMs: number,
 ): Promise<{ fromBlock: bigint; toBlock: bigint } | null> {
-	const rpcUrl = rpcUrls[chainId]
+	const rpcUrl = getEffectiveRpcUrl(chainId)
 	if (!rpcUrl) return null
-	const provider = createHttpProvider(rpcUrl)
+	const provider = createProviderForChain(chainId)
 	let fromBlock: bigint
 	try {
 		fromBlock = await getBlockNumberByTimestamp(provider, startMs)
@@ -183,17 +242,22 @@ async function resolveBlockRange(
 	return { fromBlock, toBlock }
 }
 
+export type NormalizedTransferEventWithSource = NormalizedTransferEvent & {
+	$source: DataSource
+}
+
 /**
- * Fetch normalized USDC Transfer events for the given period from all supported
- * chains via eth_getLogs (Voltaire). Chains without RPC are skipped.
+ * Fetch normalized USDC Transfer events for the given period. Uses SQD Portal
+ * when the chain is supported, else Voltaire eth_getLogs. Chains without RPC
+ * are skipped. Falls back to Voltaire when SQD fails.
  */
 export async function fetchTransferEventsForPeriod(
 	period: string,
-): Promise<NormalizedTransferEvent[]> {
+): Promise<NormalizedTransferEventWithSource[]> {
 	const periodDef =
 		TIME_PERIODS.find((p) => p.value === period) ?? TIME_PERIODS[3]
 	const { start, end } = periodToRange(periodDef.ms)
-	const chainsWithRpc = USDC_CHAINS.filter((c) => rpcUrls[c.chainId])
+	const chainsWithRpc = USDC_CHAINS.filter((c) => getEffectiveRpcUrl(c.chainId))
 	const ranges = await Promise.all(
 		chainsWithRpc.map(async (c) => ({
 			chainId: c.chainId,
@@ -201,30 +265,40 @@ export async function fetchTransferEventsForPeriod(
 			range: await resolveBlockRange(c.chainId, start, end),
 		})),
 	)
-	const results = await Promise.allSettled(
-		ranges
-			.filter(
-				(r): r is typeof r & {
-					range: { fromBlock: bigint; toBlock: bigint }
-				} =>
-					r.range != null,
-			)
-			.map((r) => {
-				const rpcUrl = rpcUrls[r.chainId]!
-				return fetchTransferLogsForChain(
+	const withRange = ranges.filter(
+		(r): r is typeof r & { range: { fromBlock: bigint; toBlock: bigint } } =>
+			r.range != null,
+	)
+	const results = await Promise.all(
+		withRange.map(
+			async (r): Promise<NormalizedTransferEventWithSource[]> => {
+				const useSqd = !!getSqdDatasetSlug(r.chainId)
+				if (useSqd) {
+					try {
+						const events = await fetchTransferLogsViaSqd(
+							r.chainId,
+							r.contractAddress,
+							r.range.fromBlock,
+							r.range.toBlock,
+						)
+						return events.map((e) => ({ ...e, $source: DataSource.Sqd }))
+					} catch {
+						// fall through to Voltaire
+					}
+				}
+				const rpcUrl = getEffectiveRpcUrl(r.chainId)!
+				const events = await fetchTransferLogsForChain(
 					r.chainId,
 					r.contractAddress,
 					r.range.fromBlock,
 					r.range.toBlock,
 					rpcUrl,
 				)
-			}),
+				return events.map((e) => ({ ...e, $source: DataSource.Voltaire }))
+			},
+		),
 	)
 	return results
-		.filter(
-			(r): r is PromiseFulfilledResult<NormalizedTransferEvent[]> =>
-				r.status === 'fulfilled',
-		)
-		.flatMap((r) => r.value)
-		.slice(0, TRANSFER_EVENTS_MAX_TOTAL)
+		.flat()
+		.slice(0, TRANSFER_EVENTS_MAX_TOTAL) as NormalizedTransferEventWithSource[]
 }

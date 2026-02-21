@@ -8,16 +8,17 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
+import { fetchTracesForTransactionFromSqd } from '$/api/sqd.ts'
 import {
-	createHttpProvider,
 	debugTraceTransaction,
 	rawTraceToTrace,
 	type RawTrace,
 } from '$/api/voltaire.ts'
+import { hasSqdTraces } from '$/constants/sqd-datasets.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { ChainId } from '$/constants/networks.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import type {
 	TransactionTraceEntry,
 	TransactionTrace$Id,
@@ -45,6 +46,7 @@ export const transactionTracesCollection = createCollection(
 export async function fetchTransactionTrace(
 	chainId: ChainId,
 	txHash: `0x${string}`,
+	opts?: { blockNumber?: number },
 ): Promise<void> {
 	const key = `${chainId}:${txHash}` as unknown as Parameters<
 		typeof transactionTracesCollection.state.get
@@ -65,7 +67,36 @@ export async function fetchTransactionTrace(
 		})
 	}
 
-	const url = rpcUrls[chainId]
+	const blockNumber = opts?.blockNumber
+	if (
+		hasSqdTraces(chainId) &&
+		blockNumber != null &&
+		blockNumber > 0
+	) {
+		try {
+			const trace = await fetchTracesForTransactionFromSqd(
+				chainId,
+				blockNumber,
+				txHash,
+			)
+			if (trace != null) {
+				transactionTracesCollection.update(key, (draft) => {
+					Object.assign(draft, {
+						trace,
+						$source: DataSource.Sqd,
+						unavailable: false,
+						isLoading: false,
+						error: null,
+					})
+				})
+				return
+			}
+		} catch {
+			/* fall through to Voltaire */
+		}
+	}
+
+	const url = getEffectiveRpcUrl(chainId)
 	if (!url) {
 		const err = `No RPC URL for chain ${chainId}`
 		transactionTracesCollection.update(key, (draft) => {
@@ -76,7 +107,7 @@ export async function fetchTransactionTrace(
 	}
 
 	try {
-		const provider = createHttpProvider(url)
+		const provider = createProviderForChain(chainId)
 		const raw = await debugTraceTransaction(provider, txHash)
 		if (raw == null) {
 			transactionTracesCollection.update(key, (draft) => {
@@ -90,17 +121,10 @@ export async function fetchTransactionTrace(
 			return
 		}
 		const trace = rawTraceToTrace(raw as RawTrace)
-		const row: TransactionTraceRow = {
-			$id: { $network: { chainId }, txHash },
-			trace,
-			$source: DataSource.Voltaire,
-			unavailable: false,
-			isLoading: false,
-			error: null,
-		}
 		transactionTracesCollection.update(key, (draft) => {
 			Object.assign(draft, {
-				trace: row.trace,
+				trace,
+				$source: DataSource.Voltaire,
 				unavailable: false,
 				isLoading: false,
 				error: null,
