@@ -11,10 +11,10 @@
 
 	// Types/constants
 	import { NetworkEnvironment } from '$/constants/network-environment.ts'
+	import { setHeliosFallbackNoticeHandler } from '$/lib/helios-rpc.ts'
+	import { toasts } from '$/lib/toast.svelte.ts'
+	import { NavigationItems } from '$/routes/navigationItems.svelte.ts'
 	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
-
-
-	// Context
 	import {
 		createLiveQueryContext,
 		setGlobalLiveQueryContext,
@@ -22,17 +22,18 @@
 	} from '$/svelte/live-query-context.svelte.ts'
 
 
-	// Functions
-	import { setHeliosFallbackNoticeHandler } from '$/lib/helios-rpc.ts'
-	import { NavigationItems } from '$/routes/navigationItems.svelte.ts'
-	import { toasts } from '$/lib/toast.svelte.ts'
+	// Context
+	const globalLiveQueryCtx = createLiveQueryContext()
+	const localLiveQueryCtx = createLiveQueryContext()
+	setGlobalLiveQueryContext(globalLiveQueryCtx)
+	setLocalLiveQueryContext(localLiveQueryCtx)
 
 
 	// Props
 	let { children } = $props()
 
 
-	// State
+	// Actions
 	$effect(() => {
 		if (browser) void registerWebMcpTools()
 	})
@@ -47,16 +48,12 @@
 	})
 
 
-	const globalLiveQueryCtx = createLiveQueryContext()
-	const localLiveQueryCtx = createLiveQueryContext()
-	setGlobalLiveQueryContext(globalLiveQueryCtx)
-	setLocalLiveQueryContext(localLiveQueryCtx)
-
-
 	// (Derived)
 	const nav = new NavigationItems({
 		isTestnet: () =>
 			networkEnvironmentState.current === NetworkEnvironment.Testnet,
+		iconEth,
+		iconUsdc,
 	})
 
 
@@ -71,6 +68,8 @@
 
 	// Images
 	import favicon from '$/assets/favicon.svg'
+	import iconEth from '$/assets/coins/eth.svg?url'
+	import iconUsdc from '$/assets/coins/usdc.svg?url'
 
 
 	// Styles
@@ -109,6 +108,7 @@
 
 		<div
 			id="main"
+			tabindex="-1"
 			data-scroll-item="pane-flexible"
 			data-sticky-container
 			data-column

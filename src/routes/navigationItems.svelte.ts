@@ -1,9 +1,6 @@
 import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
 
-import iconEth from '$/assets/coins/eth.svg?url'
-import iconUsdc from '$/assets/coins/usdc.svg?url'
-
 import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
 import { contractsCollection } from '$/collections/Contracts.ts'
@@ -483,9 +480,9 @@ export class NavigationItems {
 				manualWatch: true,
 				icon:
 					c.interopAddress === 'ETH'
-						? iconEth
+						? (this.options.iconEth ?? '🪙')
 						: c.interopAddress === 'USDC'
-							? iconUsdc
+							? (this.options.iconUsdc ?? '🪙')
 							: '🪙',
 			}
 		})
@@ -804,7 +801,11 @@ export class NavigationItems {
 	})
 
 	constructor(
-		private readonly options: { isTestnet: () => boolean },
+		private readonly options: {
+			isTestnet: () => boolean
+			iconEth?: string
+			iconUsdc?: string
+		},
 	) {
 		$effect(() => ensureDefaultRow())
 		registerGlobalLiveQueryStack(() => {
