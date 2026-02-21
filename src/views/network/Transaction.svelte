@@ -1,9 +1,22 @@
 <script lang="ts">
 	// Types/constants
-	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import type { Trace as TraceType } from '$/data/Trace.ts'
 	import type { EvmLog } from '$/api/voltaire.ts'
 	import type { ChainId } from '$/constants/networks.ts'
+	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
+	import type { Trace as TraceType } from '$/data/Trace.ts'
+	import {
+		ensureFunctionSignatures,
+		selectorSignaturesCollection,
+	} from '$/collections/SelectorSignatures.ts'
+	import { fetchNetworkTransaction } from '$/collections/NetworkTransactions.ts'
+	import {
+		fetchTransactionTrace,
+		transactionTracesCollection,
+	} from '$/collections/TransactionTraces.ts'
+	import { SelectorKind } from '$/data/SelectorSignature.ts'
+	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
+	import { formatWei, formatGas, formatGwei } from '$/lib/format.ts'
+	import { getTxPath } from '$/lib/network-paths.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 
 	const TX_TYPE_LABELS: Record<number, string> = {
@@ -12,26 +25,6 @@
 		2: 'EIP-1559',
 		3: 'EIP-4844',
 	}
-
-
-	// Functions
-	import { getTxPath } from '$/lib/network-paths.ts'
-	import { formatWei, formatGas, formatGwei } from '$/lib/format.ts'
-	import { fetchNetworkTransaction } from '$/collections/NetworkTransactions.ts'
-	import {
-		fetchTransactionTrace,
-		transactionTracesCollection,
-	} from '$/collections/TransactionTraces.ts'
-	import { getCoinIconUrl } from '$/lib/coin-icon.ts'
-
-
-	// Components
-	import Address from '$/views/Address.svelte'
-	import TruncatedValue from '$/components/TruncatedValue.svelte'
-	import EntityList from '$/components/EntityList.svelte'
-	import Trace from '$/views/network/Trace.svelte'
-	import EventView from '$/views/network/Event.svelte'
-	import FlowArrow from '$/components/FlowArrow.svelte'
 
 
 	// Props
@@ -58,28 +51,55 @@
 		(q) =>
 			tx
 				? q
-						.from({ row: transactionTracesCollection })
-						.where(({ row }) =>
-							and(
-								eq(row.$id.$network.chainId, tx.$id.$network.chainId),
-								eq(row.$id.txHash, tx.$id.txHash),
-							),
-						)
-						.select(({ row }) => ({ row }))
+					.from({ row: transactionTracesCollection })
+					.where(({ row }) =>
+						and(
+							eq(row.$id.$network.chainId, tx.$id.$network.chainId),
+							eq(row.$id.txHash, tx.$id.txHash),
+						),
+					)
+					.select(({ row }) => ({ row }))
 				: q
-						.from({ row: transactionTracesCollection })
-						.where(({ row }) => eq(row.$id.$network.chainId, -1))
-						.select(({ row }) => ({ row })),
+					.from({ row: transactionTracesCollection })
+					.where(({ row }) => eq(row.$id.$network.chainId, -1))
+					.select(({ row }) => ({ row })),
 		[() => tx?.$id.$network.chainId ?? -1, () => tx?.$id.txHash ?? ''],
 	)
 	const traceRow = $derived(traceQuery.data?.[0]?.row)
 	const trace = $derived(
-		traceRow && !traceRow.unavailable ?
-			traceRow.trace
-		: entry.trace,
+		traceRow && !traceRow.unavailable
+			? traceRow.trace
+			: entry.trace,
 	)
-	const traceUnavailable = $derived(traceRow?.unavailable === true)
 	const eventsSet = $derived(new Set(events))
+	const inputSelector = $derived(
+		tx?.input && tx.input.length >= 10
+			? (`0x${tx.input.slice(2, 10).toLowerCase().padStart(8, '0')}` as `0x${string}`)
+			: null,
+	)
+	const functionSigQuery = useLiveQuery(
+		(q) =>
+			inputSelector
+				? q
+					.from({ row: selectorSignaturesCollection })
+					.where(({ row }) =>
+						and(
+							eq(row.$id.kind, SelectorKind.Function),
+							eq(row.$id.hex, inputSelector),
+						),
+					)
+					.select(({ row }) => ({ row }))
+				: q
+					.from({ row: selectorSignaturesCollection })
+					.where(({ row }) => eq(row.$id.kind, '' as typeof SelectorKind.Function))
+					.select(({ row }) => ({ row })),
+		[() => inputSelector],
+	)
+	const functionSignatures = $derived(functionSigQuery.data?.[0]?.row?.signatures ?? [])
+
+	$effect(() => {
+		if (inputSelector) void ensureFunctionSignatures(inputSelector)
+	})
 
 
 	// State
@@ -94,6 +114,8 @@
 
 	getCoinIconUrl('eth').then((url) => { ethIconSrc = url })
 
+
+	// Actions
 	const measureRects = () => {
 		if (!fromRef || !toRef || !cardRef || !isOpen) {
 			arrowRects = null
@@ -123,9 +145,10 @@
 		if (!isOpen) { arrowRects = null; return }
 		measureRects()
 	})
+	$effect(() => {
+		if (inputSelector) void ensureFunctionSignatures(inputSelector).catch(() => {})
+	})
 
-
-	// Actions
 	const onToggle = (e: Event) => {
 		const details = e.currentTarget as HTMLDetailsElement
 		isOpen = details.open
@@ -138,13 +161,26 @@
 		}
 		if (!hasFetchedTrace) {
 			hasFetchedTrace = true
-			fetchTransactionTrace(tx.$id.$network.chainId, tx.$id.txHash).catch(() => {})
+			fetchTransactionTrace(tx.$id.$network.chainId, tx.$id.txHash, {
+				blockNumber: tx.blockNumber,
+			}).catch(() => {})
 		}
 	}
+
+
+	// Components
+	import EntityList from '$/components/EntityList.svelte'
+	import FlowArrow from '$/components/FlowArrow.svelte'
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
+	import Address from '$/views/Address.svelte'
+	import EventView from '$/views/network/Event.svelte'
+	import Trace from '$/views/network/Trace.svelte'
 </script>
 
 
-<details data-card="radius-2 padding-4" id={tx ? `transaction:${tx.$id.txHash}` : undefined} ontoggle={onToggle} bind:this={cardRef} class="transaction-card">
+<details data-card="radius-2 padding-4" id={tx
+		? `transaction:${tx.$id.txHash}`
+		: undefined} ontoggle={onToggle} bind:this={cardRef} class="transaction-card">
 	<summary data-row="gap-2 align-center">
 		{#if tx}
 			{#if tx.status != null}
@@ -236,6 +272,14 @@
 				{#if tx.input && tx.input !== '0x'}
 					<dt>Input Data</dt>
 					<dd>
+						{#if functionSignatures.length > 0}
+							<code data-row="wrap gap-1">
+								{#each functionSignatures as sig}
+									<span>{sig}</span>
+								{/each}
+							</code>
+							<span> · </span>
+						{/if}
 						<TruncatedValue value={tx.input} startLength={10} endLength={0} />
 						<span>({Math.max(0, (tx.input.length - 2) / 2)} bytes)</span>
 					</dd>
@@ -250,9 +294,9 @@
 					arrowHeadSize={8}
 					strokeWidth={1.5}
 					strokeColor="var(--color-accent)"
-					flowIconSrc={tx.value !== '0x0' && tx.value !== '0x' ?
-						ethIconSrc
-					: undefined}
+					flowIconSrc={tx.value !== '0x0' && tx.value !== '0x'
+						? ethIconSrc
+						: undefined}
 					flowIconSize={16}
 					relative
 				/>
@@ -268,10 +312,14 @@
 			items={eventsSet}
 			getKey={(e) => parseInt(e.logIndex, 16)}
 			getSortValue={(e) => parseInt(e.logIndex, 16)}
-			placeholderKeys={placeholderEventIds ??
-				(events.length ?
-					new Set<number | [number, number]>([[0, Math.max(0, events.length - 1)]])
-				: new Set<number | [number, number]>([0]))}
+			placeholderKeys={
+				placeholderEventIds
+				?? (
+					events.length
+						? new Set<number | [number, number]>([[0, Math.max(0, events.length - 1)]])
+						: new Set<number | [number, number]>([0])
+				)
+			}
 			bind:visiblePlaceholderKeys={visiblePlaceholderEventIds}
 			scrollPosition="End"
 		>
@@ -291,7 +339,7 @@
 			<summary><h3>Exhaustive: Trace</h3></summary>
 			{#if trace}
 				<Trace {trace} {chainId} />
-			{:else if traceUnavailable}
+			{:else if traceRow?.unavailable === true}
 				<p data-text="muted">Trace unavailable (RPC does not support debug_traceTransaction)</p>
 			{:else}
 				<p data-text="muted">Open transaction to load trace…</p>

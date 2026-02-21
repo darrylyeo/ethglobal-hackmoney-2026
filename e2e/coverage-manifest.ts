@@ -33,6 +33,7 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/dashboard/[dashboardId]': ['default'],
 	'/dashboards': ['default'],
 	'/explore/usdc': ['default'],
+	'/eips': ['default'],
 	'/farcaster': ['default'],
 	'/farcaster/accounts': ['default'],
 	'/farcaster/cast/[fid]/[hash]': ['default'],
@@ -45,14 +46,14 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/farcaster/sessions': ['default'],
 	'/farcaster/user/[fid]': ['default'],
 	'/farcaster/users': ['default'],
-	'/network/[name]': ['default'],
-	'/network/[name]/block/[blockNumber]': ['default'],
-	'/network/[name]/block/[blockNumber]/transaction/[transactionId]': ['default'],
-	'/network/[name]/contract/[address]': ['default'],
-	'/network/[name]/contracts': ['default'],
-	'/network/[name]/transaction/[transactionId]': ['default'],
+	'/network/[name]': ['default', 'not-found'],
+	'/network/[name]/block/[blockNumber]': ['default', 'not-found'],
+	'/network/[name]/block/[blockNumber]/transaction/[transactionId]': ['default', 'not-found'],
+	'/network/[name]/contract/[address]': ['default', 'not-found'],
+	'/network/[name]/contracts': ['default', 'not-found'],
+	'/network/[name]/transaction/[transactionId]': ['default', 'not-found'],
 	'/networks': ['default'],
-	'/peers': ['default'],
+	'/peers': ['default', 'empty'],
 	'/positions/channels': ['default'],
 	'/positions/liquidity': ['default'],
 	'/rooms': ['join-disabled', 'join-enabled'],
@@ -62,6 +63,7 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/session/[id]': ['not-found', 'redirect'],
 	'/sessions': ['empty', 'populated'],
 	'/settings/llm': ['default'],
+	'/settings/profiles': ['default'],
 	'/test/chain-id': ['button-disabled', 'button-enabled'],
 	'/test/collections': ['default'],
 	'/test/intents': ['default'],
@@ -147,7 +149,11 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/channels/yellow',
 		assert: async (page) => {
-			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+			await expect(page).toHaveURL(/\/positions\/channels/, { timeout: 15_000 })
+			await expect(
+				page.getByRole('heading', { name: 'Channels', }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(page.getByText('Total:')).toBeVisible()
 		},
 	},
 	{
@@ -163,7 +169,15 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/dashboards',
 		assert: async (page) => {
-			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('heading', { name: 'Dashboards', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('button', { name: 'New dashboard', }),
+			).toBeVisible()
+			await expect(
+				page.getByRole('link', { name: 'Open default', }),
+			).toBeVisible()
 		},
 	},
 	{
@@ -172,6 +186,16 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/explore/usdc',
 		assert: async (page) => {
 			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/eips',
+		branch: 'default',
+		path: '/eips',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'EIPs / ERCs', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -211,6 +235,17 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/peers',
 		assert: async (page) => {
 			await expect(page.getByRole('heading', { name: 'Peers', })).toBeVisible()
+		},
+	},
+	{
+		route: '/peers',
+		branch: 'empty',
+		path: '/peers',
+		assert: async (page) => {
+			await expect(page.getByRole('heading', { name: 'Peers', })).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/No verified peers\. Verify an address in a room to see them here\./),
+			).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -639,11 +674,40 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
+		route: '/network/[name]',
+		branch: 'not-found',
+		path: '/network/unknown-network-xyz',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Network not found', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/could not be resolved/),
+			).toBeVisible()
+		},
+	},
+	{
 		route: '/network/[name]/block/[blockNumber]',
 		branch: 'default',
 		path: '/network/1/block/1',
 		assert: async (page) => {
 			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000, })
+			await expect(
+				page.getByRole('link', { name: 'Show Context', }),
+			).toBeVisible({ timeout: 15_000, })
+		},
+	},
+	{
+		route: '/network/[name]/block/[blockNumber]',
+		branch: 'not-found',
+		path: '/network/1/block/abc',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Not found', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/Block number must be.*non-negative decimal integer/),
+			).toBeVisible()
 		},
 	},
 	{
@@ -652,6 +716,22 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/network/1/block/1/transaction/0x0',
 		assert: async (page) => {
 			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000, })
+			await expect(
+				page.getByRole('link', { name: 'Show Context', }),
+			).toBeVisible({ timeout: 15_000, })
+		},
+	},
+	{
+		route: '/network/[name]/block/[blockNumber]/transaction/[transactionId]',
+		branch: 'not-found',
+		path: '/network/1/block/1/transaction/invalid-tx-hash',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Not found', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/Invalid transaction hash\./),
+			).toBeVisible()
 		},
 	},
 	{
@@ -660,6 +740,22 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/network/1/transaction/0x0',
 		assert: async (page) => {
 			await expect(page.locator('#main').first()).toBeVisible({ timeout: 15_000, })
+			await expect(
+				page.getByRole('link', { name: 'Show Context', }),
+			).toBeVisible({ timeout: 15_000, })
+		},
+	},
+	{
+		route: '/network/[name]/transaction/[transactionId]',
+		branch: 'not-found',
+		path: '/network/1/transaction/invalid-tx-hash',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Not found', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/Invalid transaction hash\./),
+			).toBeVisible()
 		},
 	},
 	{
@@ -782,11 +878,37 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
+		route: '/network/[name]/contract/[address]',
+		branch: 'not-found',
+		path: '/network/1/contract/not-an-address',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Not found', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/Invalid contract address\./),
+			).toBeVisible()
+		},
+	},
+	{
 		route: '/network/[name]/contracts',
 		branch: 'default',
 		path: '/network/1/contracts',
 		assert: async (page) => {
 			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/network/[name]/contracts',
+		branch: 'not-found',
+		path: '/network/unknown-network-xyz/contracts',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Not found', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/could not be resolved/),
+			).toBeVisible()
 		},
 	},
 	{
@@ -803,6 +925,20 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/settings/llm',
 		assert: async (page) => {
 			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/settings/profiles',
+		branch: 'default',
+		path: '/settings/profiles',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('heading', { name: 'Profiles', level: 1 }),
+			).toBeVisible()
+			await expect(
+				page.getByRole('button', { name: '+ New Profile', }),
+			).toBeVisible()
 		},
 	},
 	{

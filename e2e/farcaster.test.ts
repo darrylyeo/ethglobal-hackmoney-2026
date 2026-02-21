@@ -98,4 +98,26 @@ test.describe('Farcaster', () => {
 		}
 		await expect(page.locator('main').first()).toBeVisible()
 	})
+
+	test('/farcaster/session?template=CreatePost shows create post form', async ({
+		page,
+	}) => {
+		await page.goto('/farcaster/session?template=CreatePost')
+		await expect(page).toHaveURL(/\/farcaster\/session/)
+		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 45_000 })
+		await expect(page.getByPlaceholder('Create post')).toBeVisible({
+			timeout: 15_000,
+		})
+	})
+
+	test('/farcaster/session?template=ReplyToPost shows reply to post form', async ({
+		page,
+	}) => {
+		await page.goto('/farcaster/session?template=ReplyToPost')
+		await expect(page).toHaveURL(/\/farcaster\/session/)
+		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 45_000 })
+		await expect(page.getByPlaceholder('Reply to post')).toBeVisible({
+			timeout: 15_000,
+		})
+	})
 })

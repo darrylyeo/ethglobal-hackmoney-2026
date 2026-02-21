@@ -2,11 +2,12 @@
 	// Types/constants
 	import type { EvmLog } from '$/api/voltaire.ts'
 	import type { ChainId } from '$/constants/networks.ts'
-
-
-	// Components
-	import Address from '$/views/Address.svelte'
-	import TruncatedValue from '$/components/TruncatedValue.svelte'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+	import {
+		ensureEventSignatures,
+		selectorSignaturesCollection,
+	} from '$/collections/SelectorSignatures.ts'
+	import { SelectorKind } from '$/data/SelectorSignature.ts'
 
 
 	// Props
@@ -23,6 +24,38 @@
 
 	// (Derived)
 	const logIndex = $derived(parseInt(event.logIndex, 16))
+	const topic0 = $derived(
+		event.topics[0] && event.topics[0].length >= 66
+			? (`0x${event.topics[0].slice(2).toLowerCase().padStart(64, '0')}` as `0x${string}`)
+			: null,
+	)
+	const eventSigQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: selectorSignaturesCollection })
+				.where(({ row }) =>
+					and(
+						eq(row.$id.kind, SelectorKind.Event),
+						eq(row.$id.hex, topic0 ?? ('0x' + '0'.repeat(64) as `0x${string}`)),
+					),
+				)
+				.select(({ row }) => ({ row })),
+		[() => topic0],
+	)
+	const eventSignatures = $derived(
+		topic0
+			? (eventSigQuery.data?.[0]?.row?.signatures ?? [])
+			: [],
+	)
+
+	$effect(() => {
+		if (topic0) void ensureEventSignatures(topic0).catch(() => {})
+	})
+
+
+	// Components
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
+	import Address from '$/views/Address.svelte'
 </script>
 
 
@@ -31,6 +64,13 @@
 		<code>#{logIndex}</code>
 		{#if decoded}
 			<code>{decoded.name}</code>
+		{:else if eventSignatures.length > 0}
+			<code data-row="wrap gap-1">
+				{#each eventSignatures as sig}
+					<span>{sig}</span>
+				{/each}
+			</code>
+			<Address network={chainId} address={event.address as `0x${string}`} />
 		{:else}
 			<Address network={chainId} address={event.address as `0x${string}`} />
 			{#if event.topics[0]}

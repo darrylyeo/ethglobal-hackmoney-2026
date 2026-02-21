@@ -15,6 +15,14 @@ test.beforeEach(async ({ context }) => {
 })
 
 test.describe('Accessibility (axe-core)', () => {
+	test('skip link is present and points to main', async ({ page }) => {
+		await page.goto('/')
+		const skipLink = page.getByRole('link', { name: 'Skip to main content', })
+		await expect(skipLink).toBeAttached()
+		await expect(skipLink).toHaveAttribute('href', '#main')
+		await expect(page.locator('#main').first()).toBeAttached()
+	})
+
 	test('home page has no critical violations', async ({ page }) => {
 		await page.goto('/')
 		await expect(page.getByText('Loading...')).toBeHidden({ timeout: 30_000 })
