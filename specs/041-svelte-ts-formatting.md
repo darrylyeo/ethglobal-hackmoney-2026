@@ -39,7 +39,7 @@ Ensure Svelte and TypeScript are formatted to match the repository preferences.
 
 ## Status
 
-Complete. 2026-02-05 (PROMPT_build): Formatting is manual to repo preferences. `deno task format` runs only `scripts/_svelte-section-spacing.ts`, which enforces exactly two empty lines between top-level sections (script/head/markup/style) and between comment-delimited groups inside `<script>`. TS/Svelte style (quotes, semicolons, trailing commas, useTabs, multi-line, etc.) is applied by hand or by the formatter subagent. Formatter subagent (`.cursor/agents/formatter.md`) includes an explicit pass to inline single-use variables and types.
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec, re-verify 041): All 9 AC confirmed—TS: single quotes, no statement semicolons, implicit return types; types avoid assertions, single-use inlined; multi-line repo style; Svelte section order and two blank lines; comment groups two blank lines; import grouping, no Svelte 4; one prop per line; component styles classes and &[data-*]. Deno test 55 passed; Vitest phase pre-existing failure (npm:@tanstack/svelte-db). Previous: 2026-02-05 (PROMPT_build): Formatting is manual to repo preferences. `deno task format` runs only `scripts/_svelte-section-spacing.ts`, which enforces exactly two empty lines between top-level sections (script/head/markup/style) and between comment-delimited groups inside `<script>`. TS/Svelte style (quotes, semicolons, trailing commas, useTabs, multi-line, etc.) is applied by hand or by the formatter subagent. Formatter subagent (`.cursor/agents/formatter.md`) includes an explicit pass to inline single-use variables and types.
 
 ## Output when complete
 
