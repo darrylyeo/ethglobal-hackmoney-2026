@@ -1,14 +1,5 @@
 import { networks } from '$/constants/networks.ts'
 
-const iconCircle = (await import('$/assets/providers/circle.svg?url')).default
-const iconDeno = (await import('$/assets/providers/deno.svg?url')).default
-const iconLifi = (await import('$/assets/providers/lifi.svg?url')).default
-const iconSvelte = (await import('$/assets/providers/svelte.svg?url')).default
-const iconTanstack = (await import('$/assets/providers/tanstack.svg?url')).default
-const iconThrelte = (await import('$/assets/providers/threlte.svg?url')).default
-const iconUniswap = (await import('$/assets/providers/uniswap.svg?url')).default
-const iconVoltaire = (await import('$/assets/providers/voltaire.svg?url')).default
-
 export type ArchitectureLayer =
 	| 'client'
 	| 'state'
@@ -69,7 +60,7 @@ const layerX: Record<ArchitectureLayer, number> = {
 	tooling: 120,
 }
 
-const layerColors: Record<ArchitectureLayer, string> = {
+export const layerColors: Record<ArchitectureLayer, string> = {
 	client: '#38bdf8',
 	state: '#f59e0b',
 	services: '#a855f7',
@@ -82,7 +73,16 @@ const rowY = (index: number, base = 100, gap = 110) => base + index * gap
 
 const comboId = (layer: ArchitectureLayer) => `combo-${layer}`
 
-const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
+export async function loadArchitectureGraph() {
+	const iconCircle = (await import('$/assets/providers/circle.svg?url')).default
+	const iconDeno = (await import('$/assets/providers/deno.svg?url')).default
+	const iconLifi = (await import('$/assets/providers/lifi.svg?url')).default
+	const iconSvelte = (await import('$/assets/providers/svelte.svg?url')).default
+	const iconTanstack = (await import('$/assets/providers/tanstack.svg?url')).default
+	const iconThrelte = (await import('$/assets/providers/threlte.svg?url')).default
+	const iconUniswap = (await import('$/assets/providers/uniswap.svg?url')).default
+	const iconVoltaire = (await import('$/assets/providers/voltaire.svg?url')).default
+	const baseCoreNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 	{
 		id: 'ui',
 		label: 'Client UI',
@@ -1250,9 +1250,12 @@ const combos: ArchitectureCombo[] = [
 	{ id: comboId('tooling'), label: 'Tooling', color: layerColors.tooling },
 ]
 
-export const architectureGraph = {
-	nodes: [...coreNodes, ...networkNodes],
-	edges: [...edges, ...networkEdges],
-	combos,
-	layerColors,
+	return {
+		nodes: [...coreNodes, ...networkNodes],
+		edges: [...edges, ...networkEdges],
+		combos,
+		layerColors,
+	}
 }
+
+export const architectureGraphPromise = loadArchitectureGraph()

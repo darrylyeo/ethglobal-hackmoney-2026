@@ -1,46 +1,44 @@
 <script lang="ts">
 	// Types/constants
 	import { APP_NAME } from '$/constants/app.ts'
-	import { architectureGraph } from '$/views/architecture-graph.ts'
+	import { layerColors } from '$/views/architecture-graph.ts'
 
-
-	// Components
-	import ArchitectureGraph from '$/views/ArchitectureGraph.svelte'
-
-
-	// (Derived)
 	const legendItems = [
 		{
 			id: 'client',
 			label: 'Client UI',
-			color: architectureGraph.layerColors.client,
+			color: layerColors.client,
 		},
 		{
 			id: 'state',
 			label: 'State + Collections',
-			color: architectureGraph.layerColors.state,
+			color: layerColors.state,
 		},
 		{
 			id: 'services',
 			label: 'Services + Protocols',
-			color: architectureGraph.layerColors.services,
+			color: layerColors.services,
 		},
 		{
 			id: 'external',
 			label: 'External APIs',
-			color: architectureGraph.layerColors.external,
+			color: layerColors.external,
 		},
 		{
 			id: 'networks',
 			label: 'Networks',
-			color: architectureGraph.layerColors.networks,
+			color: layerColors.networks,
 		},
 		{
 			id: 'tooling',
 			label: 'Tooling',
-			color: architectureGraph.layerColors.tooling,
+			color: layerColors.tooling,
 		},
 	]
+
+
+	// Components
+	import ArchitectureGraph from '$/views/ArchitectureGraph.svelte'
 </script>
 
 

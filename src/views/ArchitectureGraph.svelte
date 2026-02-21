@@ -2,7 +2,7 @@
 	// Types/constants
 	import type { EdgeData, Graph as G6Graph, NodeData } from '@antv/g6'
 	import type { ArchitectureEdge, ArchitectureNode } from './architecture-graph.ts'
-	import { architectureGraph } from './architecture-graph.ts'
+	import { architectureGraphPromise } from './architecture-graph.ts'
 
 
 	// Props
@@ -176,18 +176,31 @@
 				: selection.combos.length > 0
 					? selection.combos.map((combo) => combo.id).join(', ')
 					: 'No selection'
-	const nodeById = new Map(
-		architectureGraph.nodes.map((node) => [node.id, node]),
-	)
-	const edgeById = new Map(
-		architectureGraph.edges.map((edge) => [edge.id, edge]),
-	)
-	const comboById = new Map(
-		architectureGraph.combos.map((combo) => [combo.id, combo]),
-	)
 
 
 	// State
+	let graph = $state<Awaited<typeof architectureGraphPromise> | null>(null)
+	$effect(() => {
+		architectureGraphPromise.then((g) => (graph = g))
+	})
+	const nodeById = $derived(
+		graph
+			? new Map(graph.nodes.map((node) => [node.id, node]))
+			: new Map<string, ArchitectureNode>(),
+	)
+	const edgeById = $derived(
+		graph
+			? new Map(graph.edges.map((edge) => [edge.id, edge]))
+			: new Map<string, ArchitectureEdge>(),
+	)
+	const comboById = $derived(
+		graph
+			? new Map(graph.combos.map((combo) => [combo.id, combo]))
+			: new Map<string, { id: string; label: string; color: string }>(),
+	)
+
+
+	// State (cont.)
 	let hoveredItem = $state<{
 		kind: 'node' | 'edge' | 'combo'
 		label: string
@@ -219,17 +232,18 @@
 
 
 <svelte:boundary>
-	<div
-		class="architecture-graph"
-		style:height
-	>
-		<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+	{#if graph}
 		<div
-			class="architecture-graph__canvas"
-			role="application"
-			tabindex="0"
-			aria-label="Architecture graph with selectable systems and flows"
-			{@attach (container) => {
+			class="architecture-graph"
+			style:height
+		>
+			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+			<div
+				class="architecture-graph__canvas"
+				role="application"
+				tabindex="0"
+				aria-label="Architecture graph with selectable systems and flows"
+				{@attach (container) => {
 				let cleanup: (() => void) | undefined
 				let cancelled = false
 				void (async () => {
@@ -252,10 +266,10 @@
 					const { width, height } = container.getBoundingClientRect()
 
 				const comboIds = new Set(
-					architectureGraph.combos.map((combo) => combo.id),
+					graph.combos.map((combo) => combo.id),
 				)
 				const comboTargets = new Set(
-					architectureGraph.edges
+					graph.edges
 						.flatMap((edge) => [edge.source, edge.target])
 						.filter((id) => comboIds.has(id)),
 				)
@@ -266,9 +280,9 @@
 					]),
 				)
 				const nodesByCombo = new Map(
-					architectureGraph.combos.map((combo) => [
+					graph.combos.map((combo) => [
 						combo.id,
-						architectureGraph.nodes.filter((node) => node.combo === combo.id),
+						graph.nodes.filter((node) => node.combo === combo.id),
 					]),
 				)
 				const comboAnchors = Array.from(comboAnchorIds.entries()).map(
@@ -319,12 +333,12 @@
 						autoFit: 'center',
 						data: {
 						nodes: [
-							...architectureGraph.nodes.map((node) =>
+							...graph.nodes.map((node) =>
 								toNodeData(node, prefersDark, theme),
 							),
 							...comboAnchors,
 						],
-						edges: architectureGraph.edges.map((edge) =>
+						edges: graph.edges.map((edge) =>
 							toEdgeData(
 								{
 									...edge,
@@ -335,7 +349,7 @@
 								theme,
 							),
 						),
-						combos: architectureGraph.combos.map((combo) => ({
+						combos: graph.combos.map((combo) => ({
 							id: combo.id,
 							type: 'rect',
 							data: { label: combo.label },
@@ -716,6 +730,7 @@
 			{/if}
 		</aside>
 	</div>
+	{/if}
 
 	{#snippet Error(error, reset)}
 		<div data-card>

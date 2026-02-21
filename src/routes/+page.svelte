@@ -7,7 +7,7 @@
 		ensureDefaultRow,
 	} from '$/collections/Dashboards.ts'
 	import { APP_NAME } from '$/constants/app.ts'
-	import { architectureGraph } from '$/views/architecture-graph.ts'
+	import { layerColors } from '$/views/architecture-graph.ts'
 	import { and, eq, not, useLiveQuery } from '@tanstack/svelte-db'
 
 	const valuePhrases = [
@@ -94,20 +94,17 @@
 		{ href: '/rooms', label: 'Rooms' },
 	]
 	const legendItems = [
-		{ id: 'client', label: 'Client UI', color: architectureGraph.layerColors.client },
-		{ id: 'state', label: 'State + Collections', color: architectureGraph.layerColors.state },
-		{ id: 'services', label: 'Services + Protocols', color: architectureGraph.layerColors.services },
-		{ id: 'external', label: 'External APIs', color: architectureGraph.layerColors.external },
-		{ id: 'networks', label: 'Networks', color: architectureGraph.layerColors.networks },
-		{ id: 'tooling', label: 'Tooling', color: architectureGraph.layerColors.tooling },
+		{ id: 'client', label: 'Client UI', color: layerColors.client },
+		{ id: 'state', label: 'State + Collections', color: layerColors.state },
+		{ id: 'services', label: 'Services + Protocols', color: layerColors.services },
+		{ id: 'external', label: 'External APIs', color: layerColors.external },
+		{ id: 'networks', label: 'Networks', color: layerColors.networks },
+		{ id: 'tooling', label: 'Tooling', color: layerColors.tooling },
 	]
 
 
 	// Context
 	import { resolve } from '$app/paths'
-
-
-	// Context
 	const defaultRowQuery = useLiveQuery(
 		(q) =>
 			q
