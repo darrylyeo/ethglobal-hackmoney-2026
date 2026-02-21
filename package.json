@@ -35,6 +35,7 @@
     "@farcaster/auth-client": "^0.7.1",
     "@fontsource/ubuntu": "^5.2.8",
     "@lifi/sdk": "^3.15.6",
+    "@mcp-b/global": "^1.5.0",
     "@sigma/edge-curve": "^3.1.0",
     "@sigma/node-image": "^3.0.0",
     "@spandex/core": "^0.4.3",
