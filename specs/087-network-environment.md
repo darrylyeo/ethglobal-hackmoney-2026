@@ -123,3 +123,7 @@ No navigation on env switch.
 - [x] Bridge/session/wallet code uses global network environment;
   `BridgeSettings` no longer contains `isTestnet`; `BridgeSessionParams`
   extends with `isTestnet` (set from global in bridgeDefaults).
+
+## Status
+
+Complete. 2026-02-21 (PROMPT_build execute one spec): NetworkEnvironment enum and `blockhead.v1:network-environment` in src/constants/network-environment.ts and src/state/network-environment.svelte.ts. NETWORK_ENVIRONMENT_SCOPED_STORAGE_KEYS and nsKeyEnv in profile.ts; profile switch uses current env for env-scoped keys; switchNetworkEnvironment archives/restores by env and dispatches storage events. NetworkEnvironmentInput.svelte in nav footer right of ProfileSwitcher. Session and AccountsSelect use global network environment; BridgeSettings/BridgeSessionParams use global isTestnet.
