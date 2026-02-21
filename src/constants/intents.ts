@@ -105,7 +105,7 @@ type ProtocolActionWithPayload = {
 const toIntentOption = (
 	name: string,
 	protocolActions: ProtocolActionWithPayload[],
-): IntentOption => ({
+) => ({
 	name,
 	sessionTemplate: {
 		name,

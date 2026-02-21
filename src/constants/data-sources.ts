@@ -10,10 +10,15 @@ export enum DataSource {
 	Stork = 'Stork',
 	TokenLists = 'TokenLists',
 	Sourcify = 'Sourcify',
+	Etherscan = 'Etherscan',
+	Blockscout = 'Blockscout',
 	Spandex = 'Spandex',
+	Sqd = 'Sqd',
 	Uniswap = 'Uniswap',
+	Helios = 'Helios',
 	Voltaire = 'Voltaire',
 	Yellow = 'Yellow',
+	Eips = 'Eips',
 }
 
 export const dataSourceEntries: readonly { id: DataSource }[] = (
