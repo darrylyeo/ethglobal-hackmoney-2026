@@ -79,4 +79,4 @@ Serializers take `($id, format: [Entity]$IdSerializationType)` and return `strin
 
 ## Status
 
-Implemented. Constants hold enums and arrays only. Helpers in `lib/id-serialization.ts` and `lib/patterns.ts` perform Network serialize/deserialize; route params use `parseNetworkNameParam`.
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec): All implementation points confirmed—`src/constants/id-serializations.ts` exports `IdPattern`; per-entity enums and `[entityName]$IdSerializations` arrays (Network, Actor, Contract, Block, Coin, ActorCoin, ChainTransaction, TransactionTrace, VerifiedContractSource) with label and patterns; optional ByType maps; no conversion logic in constants. `src/lib/id-serialization.ts`: `serializeNetworkId(id, format)`, `deserializeNetworkId(value)`. `src/lib/patterns.ts`: `parseNetworkNameParam(name)` uses `deserializeNetworkId` and returns `ParsedNetworkParam`. Route params in `/network/[name]/*` use `parseNetworkNameParam`. Deno test 55 passed; Vitest phase pre-existing failure (npm:@tanstack/svelte-db). Previous: Implemented.
