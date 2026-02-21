@@ -6,6 +6,7 @@ import iconUsdc from '$/assets/coins/usdc.svg?url'
 
 import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
+import { contractsCollection } from '$/collections/Contracts.ts'
 import { dashboardsCollection, ensureDefaultRow } from '$/collections/Dashboards.ts'
 import { socialPostSessionsCollection } from '$/collections/SocialPostSessions.ts'
 import { farcasterConnectionsCollection } from '$/collections/FarcasterConnections.ts'
@@ -41,7 +42,10 @@ import { roomIdToPlaceEmoji } from '$/lib/rooms/room.ts'
 import { formatSocialPostSessionPlaceholderName } from '$/lib/session/socialPostSessionUrl.ts'
 import { buildSessionPath, formatSessionPlaceholderName } from '$/lib/session/sessions.ts'
 
-import { registerGlobalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+import {
+	type LiveQueryEntry,
+	registerGlobalLiveQueryStack,
+} from '$/svelte/live-query-context.svelte.ts'
 import type { NavigationItem } from '$/views/NavigationItem.svelte'
 
 
@@ -249,13 +253,16 @@ export class NavigationItems {
 					icon: 'icon' in row ? row.icon : undefined,
 				})),
 	)
+	readonly contractsQuery = useLiveQuery(
+		(q) => q.from({ row: contractsCollection }).select(({ row }) => ({ row })),
+	)
 	readonly farcasterConnectionsQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: farcasterConnectionsCollection })
 				.select(({ row }) => ({ row })),
 	)
-	readonly 		socialPostSessionsQuery = useLiveQuery(
+	readonly socialPostSessionsQuery = useLiveQuery(
 		(q) =>
 			q.from({ row: socialPostSessionsCollection }).select(({ row }) => ({ row })),
 	)
@@ -588,11 +595,13 @@ export class NavigationItems {
 				children: [
 					{ id: 'agents-new', title: 'New conversation', href: '/agents/new', icon: '✨' },
 					{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm', icon: '🔑' },
+					{ id: 'settings-profiles', title: 'Profiles', href: '/settings/profiles', icon: '👤' },
 					...agentsNavItemsFromWatched,
 				],
 				allChildren: [
 					{ id: 'agents-new', title: 'New conversation', href: '/agents/new', icon: '✨' },
 					{ id: 'agents-api-keys', title: 'API keys', href: '/settings/llm', icon: '🔑' },
+					{ id: 'settings-profiles', title: 'Profiles', href: '/settings/profiles', icon: '👤' },
 					...agentsNavItemsFromWatched,
 				],
 			},
@@ -726,6 +735,21 @@ export class NavigationItems {
 						children: allNetworkNavItems,
 						allChildren: allNetworkNavItems,
 					},
+					{
+						id: 'eips',
+						title: 'EIPs / ERCs',
+						href: '/eips',
+						icon: '📜',
+						defaultIsOpen: true,
+						children: [
+							{ id: 'eips-list', title: 'All EIPs / ERCs', href: '/eips', icon: '📜' },
+							{ id: 'eips-forks', title: 'Fork upgrades', href: '/eips/forks', icon: '🔀' },
+						],
+						allChildren: [
+							{ id: 'eips-list', title: 'All EIPs / ERCs', href: '/eips', icon: '📜' },
+							{ id: 'eips-forks', title: 'Fork upgrades', href: '/eips/forks', icon: '🔀' },
+						],
+					},
 				],
 			},
 			{
@@ -774,15 +798,84 @@ export class NavigationItems {
 		private readonly options: { isTestnet: () => boolean },
 	) {
 		$effect(() => ensureDefaultRow())
-		registerGlobalLiveQueryStack(() => [
-			{ id: 'layout-social-post-sessions', label: 'Social Post Sessions', query: this.socialPostSessionsQuery },
-			{ id: 'layout-farcaster-connections', label: 'Farcaster Connections', query: this.farcasterConnectionsQuery },
-			{ id: 'layout-wallet-connections', label: 'Wallet Connections', query: this.walletConnectionsQuery },
-			{ id: 'layout-sessions', label: 'Sessions', query: this.sessionsQuery },
-			{ id: 'layout-wallets', label: 'Wallets', query: this.walletsQuery },
-			{ id: 'layout-transactions', label: 'Transactions', query: this.recentTransactionsQuery },
-			{ id: 'layout-watched', label: 'Watched Entities', query: this.watchedEntitiesQuery },
-		])
+		registerGlobalLiveQueryStack(() => {
+			const watched =
+				(this.watchedEntitiesQuery.data ?? []).map(
+					(r) => (r.row as WatchedEntityStoredRow).entityType,
+				)
+			const watchedTypes = new Set(watched)
+			const entries: LiveQueryEntry[] = [
+				{
+					id: 'layout-watched',
+					label: 'Watched Entities',
+					query: this.watchedEntitiesQuery,
+				},
+				{
+					id: 'layout-transactions',
+					label: 'Transactions',
+					query: this.recentTransactionsQuery,
+				},
+			]
+			if (watchedTypes.has(EntityType.Session)) {
+				entries.push({
+					id: 'layout-sessions',
+					label: 'Sessions',
+					query: this.sessionsQuery,
+				})
+			}
+			if (watchedTypes.has(EntityType.SocialPostSession)) {
+				entries.push({
+					id: 'layout-social-post-sessions',
+					label: 'Social Post Sessions',
+					query: this.socialPostSessionsQuery,
+				})
+			}
+			if (watchedTypes.has(EntityType.Contract)) {
+				entries.push({
+					id: 'layout-contracts',
+					label: 'Contracts',
+					query: this.contractsQuery,
+				})
+			}
+			if (watchedTypes.has(EntityType.Actor)) {
+				entries.push({
+					id: 'layout-wallet-connections',
+					label: 'Wallet Connections',
+					query: this.walletConnectionsQuery,
+				})
+				entries.push({
+					id: 'layout-wallets',
+					label: 'Wallets',
+					query: this.walletsQuery,
+				})
+			}
+			if (watchedTypes.has(EntityType.Room)) {
+				entries.push({
+					id: 'layout-rooms',
+					label: 'Rooms',
+					query: this.roomsQuery,
+				})
+			}
+			if (watchedTypes.has(EntityType.AgentChatTree)) {
+				entries.push({
+					id: 'layout-agent-chat-trees',
+					label: 'Agent Chat Trees',
+					query: this.agentChatTreesQuery,
+				})
+			}
+			if (
+				watchedTypes.has(EntityType.FarcasterUser) ||
+				watchedTypes.has(EntityType.FarcasterChannel) ||
+				watchedTypes.has(EntityType.FarcasterCast)
+			) {
+				entries.push({
+					id: 'layout-farcaster-connections',
+					label: 'Farcaster Connections',
+					query: this.farcasterConnectionsQuery,
+				})
+			}
+			return entries
+		})
 	}
 }
 

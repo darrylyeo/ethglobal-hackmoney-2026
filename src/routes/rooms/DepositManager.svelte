@@ -2,36 +2,39 @@
 	// Types/constants
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
-
-
-	// Context
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'
-	import { yellowState } from '$/state/yellow.svelte.ts'
-	import { depositToCustody, withdrawFromCustody } from '$/api/yellow.ts'
 	import { getUsdcAddress } from '$/api/lifi.ts'
+	import { depositToCustody, withdrawFromCustody } from '$/api/yellow.ts'
+	import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'
 	import { parseDecimalToSmallest, formatSmallestToDecimal } from '$/lib/format.ts'
+	import { yellowState } from '$/state/yellow.svelte.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
-	let { provider }: { provider: EIP1193Provider | null } = $props()
+	let {
+		provider,
+	}: {
+		provider: EIP1193Provider | null
+	} = $props()
 
 
-	// (Derived)
+	// Context
 	const depositQuery = useLiveQuery((q) =>
 		q
 			.from({ row: stateChannelDepositsCollection })
 			.select(({ row }) => ({ row })),
 	)
-	const liveQueryEntries = [
+	registerLocalLiveQueryStack(() => [
 		{
 			id: 'yellow-deposits',
 			label: 'Yellow Deposits',
 			query: depositQuery,
 		},
-	]
-	registerLocalLiveQueryStack(() => liveQueryEntries)
+	])
+
+
+	// (Derived)
 	const depositRow = $derived(
 		yellowState.chainId && yellowState.address
 			? (depositQuery.data ?? [])

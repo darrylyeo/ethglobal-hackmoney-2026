@@ -7,6 +7,7 @@
 		type SocialPostSessionInput,
 	} from '$/lib/session/socialPostSessionUrl.ts'
 
+
 	// Props
 	let {
 		data,
@@ -17,10 +18,12 @@
 		}
 	} = $props()
 
+
 	// (Derived)
 	const initialSession = $derived(socialPostSessionFromInput(data))
-	const urlKey = $derived(data.urlKey ?? '')
 	const setPanelRoute = $derived(data.setPanelRoute)
+	const urlKey = $derived(data.urlKey ?? '')
+
 
 	// Components
 	import SocialPostSessionLocal from './SocialPostSessionLocal.svelte'

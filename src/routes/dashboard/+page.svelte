@@ -1,15 +1,18 @@
 <script lang="ts">
-	// Context
+	// Types/constants
 	import {
 		dashboardsCollection,
 		ensureDefaultRow,
 	} from '$/collections/Dashboards.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+
+
+	// Context
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 
 
-	// (Derived)
+	// Context
 	const defaultRowQuery = useLiveQuery(
 		(q) =>
 			q
@@ -23,14 +26,17 @@
 		[],
 	)
 
+
+	// (Derived)
+	const defaultDashboardId = $derived(
+		defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
+	)
+
+
+	// Actions
 	$effect(() => {
 		ensureDefaultRow()
-		goto(
-			resolve(
-				`/dashboard/${defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default'}`,
-			),
-			{ replaceState: true },
-		)
+		goto(resolve(`/dashboard/${defaultDashboardId}`), { replaceState: true })
 	})
 </script>
 

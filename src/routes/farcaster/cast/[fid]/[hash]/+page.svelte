@@ -1,14 +1,22 @@
 <script lang="ts">
 	// Types/constants
-	import EntityView from '$/components/EntityView.svelte'
-
-	// Components
-	import Media from '$/components/Media.svelte'
-	import PaginationPlaceholder from '$/components/PaginationPlaceholder.svelte'
-	import TreeNode from '$/components/TreeNode.svelte'
+	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
+	import {
+		ensureCast,
+		ensureCastAncestorChain,
+		ensureRepliesForCast,
+		farcasterCastsCollection,
+	} from '$/collections/FarcasterCasts.ts'
+	import {
+		ensureFarcasterUser,
+		farcasterUsersCollection,
+	} from '$/collections/FarcasterUsers.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+	import {
+		castAnchorId,
+		getCastContextPath,
+	} from '$/lib/farcaster-paths.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
-	import FarcasterCast from '$/views/farcaster/FarcasterCast.svelte'
 
 
 	// Context
@@ -16,34 +24,115 @@
 	import { page } from '$app/state'
 
 
-	// Functions
-	import {
-		castAnchorId,
-		getCastContextPath,
-	} from '$/lib/farcaster-paths.ts'
-
-
-	// State
-	import { farcasterCastsCollection } from '$/collections/FarcasterCasts.ts'
-	import { farcasterUsersCollection } from '$/collections/FarcasterUsers.ts'
-	import {
-		ensureCast,
-		ensureCastAncestorChain,
-		ensureRepliesForCast,
-	} from '$/collections/FarcasterCasts.ts'
-	import { ensureFarcasterUser } from '$/collections/FarcasterUsers.ts'
-	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
-
-
 	// (Derived)
 	const fidParam = $derived(page.params.fid ?? '')
 	const hashParam = $derived(page.params.hash ?? '')
 	const fid = $derived(parseInt(fidParam, 10))
-	const hash = $derived(hashParam?.startsWith('0x') ? (hashParam as `0x${string}`) : `0x${hashParam}` as `0x${string}`)
+	const hash = $derived(
+		hashParam?.startsWith('0x')
+			? (hashParam as `0x${string}`)
+			: (`0x${hashParam}` as `0x${string}`),
+	)
 
-	let repliesNextToken = $state<string | undefined>(undefined)
-	let isLoadingMoreReplies = $state(false)
+
+	// State
 	let isEnsureCastPending = $state(false)
+	let isLoadingMoreReplies = $state(false)
+	let openNodes = $state<Set<string>>(new Set())
+	let repliesNextToken = $state<string | undefined>(undefined)
+
+
+	// Context
+	const castQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: farcasterCastsCollection })
+				.where(({ row }) =>
+					and(eq(row.$id.fid, fid), eq(row.$id.hash, hash)),
+				)
+				.select(({ row }) => ({ row })),
+		[() => [fid, hash]],
+	)
+	const allCastsQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: farcasterCastsCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+	const usersQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: farcasterUsersCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+
+
+	// (Derived)
+	const cast = $derived(castQuery.data?.[0]?.row as FarcasterCastRow | undefined)
+	const allCasts = $derived(
+		(allCastsQuery.data ?? []).map((r) => r.row as FarcasterCastRow),
+	)
+	const replies = $derived(
+		allCasts.filter((c) =>
+			c.parentFid === fid
+			&& c.parentHash === hash,
+		),
+	)
+	const findInAll = (fid: number, h: `0x${string}`) =>
+		allCasts.find((c) => c.$id.fid === fid && c.$id.hash === h)
+	const ancestorChain = $derived(
+		(() => {
+			if (!cast?.parentFid || !cast?.parentHash) return []
+			const chain: FarcasterCastRow[] = []
+			let c: FarcasterCastRow | undefined = cast
+			while (c?.parentFid != null && c?.parentHash) {
+				const parent = findInAll(c.parentFid, c.parentHash)
+				if (!parent) break
+				chain.push(parent)
+				c = parent
+			}
+			return chain
+		})(),
+	)
+	const rootCast = $derived(ancestorChain.at(-1) ?? cast ?? null)
+	const isReply = $derived(ancestorChain.length > 0)
+	const showContext = $derived(
+		cast
+			? getCastContextPath(cast)
+			: null,
+	)
+	const userByFid = $derived(
+		new Map(
+			(usersQuery.data ?? []).map((r) => [r.row.$id.fid, r.row]),
+		),
+	)
+
+
+	// Functions
+	const getChildren = (node: FarcasterCastRow) =>
+		allCasts.filter((c) =>
+			c.parentFid === node.$id.fid
+			&& c.parentHash === node.$id.hash,
+		)
+	const isOpen = (node: FarcasterCastRow) =>
+		openNodes.has(`${node.$id.fid}:${node.$id.hash}`)
+
+
+	// Actions
+	const loadMoreReplies = () => {
+		if (!repliesNextToken || isLoadingMoreReplies) return
+		isLoadingMoreReplies = true
+		ensureRepliesForCast(fid, hash, repliesNextToken)
+			.then(({ nextPageToken }) => (repliesNextToken = nextPageToken))
+			.catch(() => {})
+			.finally(() => (isLoadingMoreReplies = false))
+	}
+	const onOpenChange = (node: FarcasterCastRow, open: boolean) => {
+		openNodes = new Set(openNodes)
+		if (open) {
+			openNodes.add(`${node.$id.fid}:${node.$id.hash}`)
+		} else {
+			openNodes.delete(`${node.$id.fid}:${node.$id.hash}`)
+		}
+	}
 	$effect(() => {
 		if (fid > 0 && hash) {
 			isEnsureCastPending = true
@@ -64,72 +153,6 @@
 			repliesNextToken = undefined
 		}
 	})
-	const loadMoreReplies = () => {
-		if (!repliesNextToken || isLoadingMoreReplies) return
-		isLoadingMoreReplies = true
-		ensureRepliesForCast(fid, hash, repliesNextToken)
-			.then(({ nextPageToken }) => (repliesNextToken = nextPageToken))
-			.catch(() => {})
-			.finally(() => (isLoadingMoreReplies = false))
-	}
-
-	const castQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: farcasterCastsCollection })
-				.where(({ row }) =>
-					and(eq(row.$id.fid, fid), eq(row.$id.hash, hash)),
-				)
-				.select(({ row }) => ({ row })),
-		[() => [fid, hash]],
-	)
-	const cast = $derived(castQuery.data?.[0]?.row as FarcasterCastRow | undefined)
-
-	const allCastsQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: farcasterCastsCollection }).select(({ row }) => ({ row })),
-		[],
-	)
-	const allCasts = $derived(
-		(allCastsQuery.data ?? []).map((r) => r.row as FarcasterCastRow),
-	)
-
-	const replies = $derived(
-		allCasts.filter(
-			(c) =>
-				c.parentFid === fid &&
-				c.parentHash === hash,
-		),
-	)
-	const replyIds = $derived(new Set(replies.map((r) => `${r.$id.fid}:${r.$id.hash}`)))
-
-	const getChildren = (node: FarcasterCastRow) =>
-		allCasts.filter(
-			(c) =>
-				c.parentFid === node.$id.fid && c.parentHash === node.$id.hash,
-		)
-
-	const findInAll = (fid: number, h: `0x${string}`) =>
-		allCasts.find((c) => c.$id.fid === fid && c.$id.hash === h)
-
-	const ancestorChain = $derived(
-		(() => {
-			if (!cast?.parentFid || !cast?.parentHash) return []
-			const chain: FarcasterCastRow[] = []
-			let c: FarcasterCastRow | undefined = cast
-			while (c?.parentFid != null && c?.parentHash) {
-				const parent = findInAll(c.parentFid, c.parentHash)
-				if (!parent) break
-				chain.push(parent)
-				c = parent
-			}
-			return chain
-		})(),
-	)
-	const rootCast = $derived(ancestorChain.at(-1) ?? cast ?? null)
-	const isReply = $derived(ancestorChain.length > 0)
-
-	let openNodes = $state<Set<string>>(new Set())
 	$effect(() => {
 		if (isReply && ancestorChain.length > 0)
 			openNodes = new Set([
@@ -137,19 +160,6 @@
 				...ancestorChain.map((a) => `${a.$id.fid}:${a.$id.hash}`),
 			])
 	})
-	const isOpen = (node: FarcasterCastRow) =>
-		openNodes.has(`${node.$id.fid}:${node.$id.hash}`)
-	const onOpenChange = (node: FarcasterCastRow, open: boolean) => {
-		openNodes = new Set(openNodes)
-		if (open) {
-			openNodes.add(`${node.$id.fid}:${node.$id.hash}`)
-		} else {
-			openNodes.delete(`${node.$id.fid}:${node.$id.hash}`)
-		}
-	}
-
-	const showContext = $derived(cast ? getCastContextPath(cast) : null)
-
 	$effect(() => {
 		if (cast) {
 			ensureFarcasterUser(cast.$id.fid).catch(() => {})
@@ -158,8 +168,8 @@
 		}
 	})
 	$effect(() => {
-		const root = rootCast
-		if (root && isReply) ensureRepliesForCast(root.$id.fid, root.$id.hash).catch(() => {})
+		if (rootCast && isReply)
+			ensureRepliesForCast(rootCast.$id.fid, rootCast.$id.hash).catch(() => {})
 	})
 	$effect(() => {
 		for (const e of cast?.embeds ?? []) {
@@ -174,16 +184,14 @@
 			ensureFarcasterUser(r.$id.fid).catch(() => {})
 		}
 	})
-	const usersQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: farcasterUsersCollection }).select(({ row }) => ({ row })),
-		[],
-	)
-	const userByFid = $derived(
-		new Map(
-			(usersQuery.data ?? []).map((r) => [r.row.$id.fid, r.row]),
-		),
-	)
+
+
+	// Components
+	import EntityView from '$/components/EntityView.svelte'
+	import Media from '$/components/Media.svelte'
+	import PaginationPlaceholder from '$/components/PaginationPlaceholder.svelte'
+	import TreeNode from '$/components/TreeNode.svelte'
+	import FarcasterCast from '$/views/farcaster/FarcasterCast.svelte'
 </script>
 
 <svelte:head>
@@ -206,18 +214,18 @@
 				{ term: 'Time', detail: new Date(cast.timestamp * 1000).toLocaleString() },
 				...(cast.likeCount != null || cast.recastCount != null
 					? [
-							{
-								term: 'Engagement',
-								detail: [
-									...(cast.likeCount != null && cast.likeCount > 0
-										? [`${cast.likeCount} like${cast.likeCount !== 1 ? 's' : ''}`]
-										: []),
-									...(cast.recastCount != null && cast.recastCount > 0
-										? [`${cast.recastCount} recast${cast.recastCount !== 1 ? 's' : ''}`]
-										: []),
-								].join(', ') || '—',
-							},
-						]
+						{
+							term: 'Engagement',
+							detail: [
+								...(cast.likeCount != null && cast.likeCount > 0
+									? [`${cast.likeCount} like${cast.likeCount !== 1 ? 's' : ''}`]
+									: []),
+								...(cast.recastCount != null && cast.recastCount > 0
+									? [`${cast.recastCount} recast${cast.recastCount !== 1 ? 's' : ''}`]
+									: []),
+							].join(', ') || '—',
+						},
+					]
 					: []),
 			]}
 		>
@@ -233,7 +241,7 @@
 						<summary>In thread</summary>
 						<div data-column="gap-2">
 							<span id={castAnchorId(rootCast.$id.fid, rootCast.$id.hash)}>
-								<FarcasterCast cast={rootCast} {userByFid} compact />
+								<FarcasterCast cast={rootCast} {userByFid} isCompact />
 							</span>
 							<TreeNode
 								nodes={getChildren(rootCast)}
@@ -244,7 +252,7 @@
 							>
 								{#snippet Content({ node })}
 									<span id={castAnchorId(node.$id.fid, node.$id.hash)}>
-										<FarcasterCast cast={node} {userByFid} compact />
+										<FarcasterCast cast={node} {userByFid} isCompact />
 									</span>
 								{/snippet}
 							</TreeNode>
@@ -306,14 +314,14 @@
 						>
 							{#snippet Content({ node })}
 								<span id={castAnchorId(node.$id.fid, node.$id.hash)}>
-									<FarcasterCast cast={node} userByFid={userByFid} compact />
+									<FarcasterCast cast={node} userByFid={userByFid} isCompact />
 								</span>
 							{/snippet}
 						</TreeNode>
 						<PaginationPlaceholder
 							hasMore={!!repliesNextToken}
 							onLoadMore={loadMoreReplies}
-							loading={isLoadingMoreReplies}
+							isLoading={isLoadingMoreReplies}
 							label="Load more replies"
 						/>
 					</details>

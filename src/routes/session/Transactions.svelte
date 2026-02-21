@@ -1,12 +1,9 @@
 <script lang="ts">
 	// Types/constants
 	import type { SessionActionTransaction } from '$/data/SessionActionTransaction.ts'
+	import { sessionActionTransactionsCollection } from '$/collections/SessionActionTransactions.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { SvelteSet } from 'svelte/reactivity'
-
-	import { sessionActionTransactionsCollection } from '$/collections/SessionActionTransactions.ts'
-	import ItemsList from '$/components/ItemsList.svelte'
-	import Transaction from './Transaction.svelte'
 
 
 	// Props
@@ -35,6 +32,11 @@
 			(transactionsQuery.data?.map((d) => d.row) ?? []) as SessionActionTransaction[],
 		),
 	)
+
+
+	// Components
+	import ItemsList from '$/components/ItemsList.svelte'
+	import Transaction from './Transaction.svelte'
 </script>
 
 

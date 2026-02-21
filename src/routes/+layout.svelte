@@ -5,6 +5,10 @@
 	if (browser) ensureProfilesMeta()
 
 
+	// WebMCP (client-only; registers tools with navigator.modelContext when available)
+	import { registerWebMcpTools } from '$/lib/webmcp/register.ts'
+
+
 	// Types/constants
 	import { NetworkEnvironment } from '$/constants/network-environment.ts'
 	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
@@ -19,7 +23,9 @@
 
 
 	// Functions
+	import { setHeliosFallbackNoticeHandler } from '$/lib/helios-rpc.ts'
 	import { NavigationItems } from '$/routes/navigationItems.svelte.ts'
+	import { toasts } from '$/lib/toast.svelte.ts'
 
 
 	// Props
@@ -27,6 +33,20 @@
 
 
 	// State
+	$effect(() => {
+		if (browser) void registerWebMcpTools()
+	})
+	$effect(() => {
+		setHeliosFallbackNoticeHandler((chainId) => {
+			toasts.warning(
+				`Helios (local) unreachable for chain ${chainId}; using default RPC.`,
+				{ title: 'Helios fallback' },
+			)
+		})
+		return () => setHeliosFallbackNoticeHandler(null)
+	})
+
+
 	const globalLiveQueryCtx = createLiveQueryContext()
 	const localLiveQueryCtx = createLiveQueryContext()
 	setGlobalLiveQueryContext(globalLiveQueryCtx)

@@ -6,22 +6,13 @@
 	import type { EIP1193Provider } from '$/lib/rooms/siwe.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { VerificationStatus } from '$/data/Verification.ts'
-
-
-	// Context
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
 	import { siweChallengesCollection } from '$/collections/SiweChallenges.ts'
 	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
-	import { roomState } from '$/state/room.svelte.ts'
 	import { signSiweMessage } from '$/lib/rooms/siwe.ts'
+	import { roomState } from '$/state/room.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-
-
-	// Components
-	import Address from '$/views/Address.svelte'
-	import Peer from './Peer.svelte'
-	import { Button } from 'bits-ui'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -30,13 +21,13 @@
 		roomId,
 		provider,
 	}: {
-		peer: RoomPeerRow,
-		roomId: string,
-		provider: EIP1193Provider | null,
+		peer: RoomPeerRow
+		roomId: string
+		provider: EIP1193Provider | null
 	} = $props()
 
 
-	// State
+	// Context
 	const sharedQuery = useLiveQuery(
 		(q) =>
 			q
@@ -64,7 +55,7 @@
 				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
-	const liveQueryEntries = [
+	registerLocalLiveQueryStack(() => [
 		{ id: 'peer-card-shared', label: 'Shared Addresses', query: sharedQuery },
 		{ id: 'peer-card-siwe', label: 'SIWE Challenges', query: challengesQuery },
 		{
@@ -72,8 +63,7 @@
 			label: 'Verifications',
 			query: verificationsQuery,
 		},
-	]
-	registerLocalLiveQueryStack(() => liveQueryEntries)
+	])
 
 
 	// (Derived)
@@ -81,9 +71,8 @@
 	const addressesVisibleToMe = $derived(
 		allShared.filter(
 			(s) =>
-				s.targetPeerIds === null ||
-				(roomState.peerId != null &&
-					s.targetPeerIds.includes(roomState.peerId)),
+				s.targetPeerIds === null
+				|| (roomState.peerId != null && s.targetPeerIds.includes(roomState.peerId)),
 		),
 	)
 	const verifications = $derived(
@@ -106,16 +95,18 @@
 	const getMyVerification = (
 		address: `0x${string}`,
 	): VerificationRow | undefined =>
-		roomState.peerId == null
-			? undefined
-			: [...verifications]
-					.filter(
-						(v) =>
-							v.verifierPeerId === roomState.peerId &&
-							v.verifiedPeerId === peer.peerId &&
-							v.address.toLowerCase() === address.toLowerCase(),
-					)
-					.sort((a, b) => b.requestedAt - a.requestedAt)[0]
+		roomState.peerId == null ?
+			undefined
+		: (
+			[...verifications]
+				.filter(
+					(v) =>
+						v.verifierPeerId === roomState.peerId
+						&& v.verifiedPeerId === peer.peerId
+						&& v.address.toLowerCase() === address.toLowerCase(),
+				)
+				.sort((a, b) => b.requestedAt - a.requestedAt)[0]
+		)
 
 
 	// Actions
@@ -147,6 +138,12 @@
 			fromPeerId: roomState.peerId,
 		})
 	}
+
+
+	// Components
+	import { Button } from 'bits-ui'
+	import Address from '$/views/Address.svelte'
+	import Peer from './Peer.svelte'
 </script>
 
 

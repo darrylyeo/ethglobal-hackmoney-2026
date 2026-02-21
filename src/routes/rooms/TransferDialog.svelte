@@ -1,9 +1,11 @@
 <script lang="ts">
 	// Types/constants
 	import type { StateChannelRow } from '$/collections/StateChannels.ts'
-
-
-	// Context
+	import { sendTransfer } from '$/api/yellow.ts'
+	import {
+		formatSmallestToDecimal,
+		parseDecimalToSmallest,
+	} from '$/lib/format.ts'
 	import { yellowState } from '$/state/yellow.svelte.ts'
 
 
@@ -12,23 +14,9 @@
 		channel,
 		isOpen = $bindable(false),
 	}: {
-		channel: StateChannelRow,
-		isOpen: boolean,
+		channel: StateChannelRow
+		isOpen: boolean
 	} = $props()
-
-
-	// Functions
-	import { sendTransfer } from '$/api/yellow.ts'
-	import {
-		formatSmallestToDecimal,
-		parseDecimalToSmallest,
-	} from '$/lib/format.ts'
-
-
-	// State
-	let amount = $state('')
-	let sending = $state(false)
-	let error = $state<string | null>(null)
 
 
 	// (Derived)
@@ -38,6 +26,12 @@
 			? channel.balance0
 			: channel.balance1,
 	)
+
+
+	// State
+	let amount = $state('')
+	let error = $state<string | null>(null)
+	let sending = $state(false)
 
 
 	// Actions
@@ -74,7 +68,7 @@
 				],
 			})
 
-			open = false
+			isOpen = false
 			amount = ''
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Transfer failed'

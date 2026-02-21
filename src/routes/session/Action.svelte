@@ -24,7 +24,7 @@
 	import { Protocol, protocolsById } from '$/constants/protocols.ts'
 	import { getBridgeProtocolOptions } from '$/lib/protocols/bridgeProtocolOptions.ts'
 	import { NetworkType, networks, networksByChainId } from '$/constants/networks.ts'
-	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+	import { getEffectiveRpcUrls } from '$/lib/helios-rpc.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import {
 		SessionActionSimulationStatus,
@@ -77,10 +77,13 @@
 	} = $props()
 
 
-	// State: cache params by action type so switching back restores them
+	// State
 	let paramsByType = $state<Partial<Record<ActionType, Record<string, unknown>>>>(
 		{},
 	)
+	let broadcastInProgress = $state(false)
+	let simulateInProgress = $state(false)
+	let cctpConfirmOpen = $state(false)
 
 
 	// (Derived)
@@ -101,13 +104,13 @@
 	const protocolOptions = $derived(
 		action.type === ActionType.Bridge && bridgeParams
 			? getBridgeProtocolOptions(
-					bridgeParams.fromChainId ?? null,
-					bridgeParams.toChainId ?? null,
-					isTestnet ?? false,
-				)
+				bridgeParams.fromChainId ?? null,
+				bridgeParams.toChainId ?? null,
+				isTestnet ?? false,
+			)
 			: (protocolsForAction
-					.map((pa) => protocolsById[pa.id.protocol])
-					.filter(Boolean) as import('$/constants/protocols.ts').ProtocolDefinition[]),
+				.map((pa) => protocolsById[pa.id.protocol])
+				.filter(Boolean) as import('$/constants/protocols.ts').ProtocolDefinition[]),
 	)
 	const swapParams = $derived(
 		action.type === ActionType.Swap
@@ -136,8 +139,8 @@
 	const protocolValue = $derived(
 		action.type === ActionType.Bridge && bridgeParams
 			? (bridgeParams.protocolIntent
-					? bridgeIdToProtocol[bridgeParams.protocolIntent]
-					: action.protocolAction?.protocol ?? '')
+				? bridgeIdToProtocol[bridgeParams.protocolIntent]
+				: action.protocolAction?.protocol ?? '')
 			: (action.protocolSelection ?? action.protocolAction?.protocol ?? ''),
 	)
 	const swapUsesSpandex = $derived(
@@ -258,7 +261,7 @@
 			: undefined,
 	)
 	const signingPayloads = $derived(
-		resolveSigningPayloads(action, rpcUrls ?? {}, selectedActor, {
+		resolveSigningPayloads(action, getEffectiveRpcUrls(), selectedActor, {
 			selectedChainId,
 			isTestnet,
 			spandexQuoteTx,
@@ -284,12 +287,6 @@
 			? (selectedConnection.wallet.provider as EIP1193Provider)
 			: null,
 	)
-
-
-	// State
-	let broadcastInProgress = $state(false)
-	let simulateInProgress = $state(false)
-	let cctpConfirmOpen = $state(false)
 
 
 	// Actions
@@ -452,14 +449,14 @@
 	import Select from '$/components/Select.svelte'
 	import AddLiquidityFieldset from '$/views/actions/AddLiquidityFieldset.svelte'
 	import BridgeFieldset from '$/views/actions/BridgeFieldset.svelte'
-	import SwapFieldset from '$/views/actions/SwapFieldset.svelte'
-	import TransferFieldset from '$/views/actions/TransferFieldset.svelte'
 	import BridgeQuotesPanel from '$/views/actions/BridgeQuotesPanel.svelte'
 	import SpandexQuotesPanel from '$/views/actions/SpandexQuotesPanel.svelte'
+	import SwapFieldset from '$/views/actions/SwapFieldset.svelte'
+	import TransferFieldset from '$/views/actions/TransferFieldset.svelte'
 	import BridgeProtocolFieldset from './BridgeProtocolFieldset.svelte'
 	import ProtocolInput from './ProtocolInput.svelte'
-	import SwapProtocolFieldset from './SwapProtocolFieldset.svelte'
 	import Simulations from './Simulations.svelte'
+	import SwapProtocolFieldset from './SwapProtocolFieldset.svelte'
 	import TransactionSigningPayloadList from './TransactionSigningPayloadList.svelte'
 	import Transactions from './Transactions.svelte'
 </script>
@@ -536,11 +533,9 @@
 				<SpandexQuotesPanel
 					params={action.params as ActionParams<ActionType.Swap>}
 					provider={spandexProvider ?? undefined}
-					strategy={
-					spandexStrategy
+					strategy={spandexStrategy
 						? (spandexStrategy as import('$/constants/protocols.ts').ProtocolStrategy)
-						: undefined
-				}
+						: undefined}
 					swapperAccount={selectedActor}
 				/>
 			{/if}
@@ -560,10 +555,10 @@
 						name="action"
 						value="simulate"
 						disabled={
-							!isParamsValid ||
-							signingPayloads.length === 0 ||
-							signingPayloads.every((p) => !p.rpcUrl) ||
-							simulateInProgress
+							!isParamsValid
+							|| signingPayloads.length === 0
+							|| signingPayloads.every((p) => !p.rpcUrl)
+							|| simulateInProgress
 						}
 					>
 						{simulateInProgress ? 'Simulating…' : 'Simulate'}
@@ -573,10 +568,10 @@
 						name="action"
 						value="broadcast"
 						disabled={
-							!isParamsValid ||
-							!selectedConnectionSupportsSigning ||
-							signingPayloads.length === 0 ||
-							broadcastInProgress
+							!isParamsValid
+							|| !selectedConnectionSupportsSigning
+							|| signingPayloads.length === 0
+							|| broadcastInProgress
 						}
 					>
 						{broadcastInProgress ? 'Signing and broadcasting…' : 'Sign & Broadcast'}

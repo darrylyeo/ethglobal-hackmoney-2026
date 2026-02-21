@@ -2,37 +2,22 @@
 	// Types/constants
 	import type { ChainId, ParsedNetworkParam } from '$/constants/networks.ts'
 	import type { Entity } from '$/data/$EntityType.ts'
-	import { EntityType } from '$/data/$EntityType.ts'
-	import { parseNetworkNameParam } from '$/lib/patterns.ts'
-	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
-
-
-	// Context
-	import { page } from '$app/state'
-	import { resolve } from '$app/paths'
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-
-
-	// Functions
-	import { BlockStream } from '@tevm/voltaire/block'
-	import { createHttpProvider } from '$/api/voltaire.ts'
-
-
-	// State
 	import {
 		blocksCollection,
 		blocksViewFrom,
 		ensureBlocksForPlaceholders,
 	} from '$/collections/Blocks.ts'
 	import { networksCollection } from '$/collections/Networks.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
+	import { parseNetworkNameParam } from '$/lib/patterns.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
-	// Components
-	import EntityView from '$/components/EntityView.svelte'
-	import NetworkContracts from '$/views/network/NetworkContracts.svelte'
-	import NetworkView from '$/views/network/Network.svelte'
-	import NetworkName from '$/views/NetworkName.svelte'
+	// Context
+	import { page } from '$app/state'
+	import { resolve } from '$app/paths'
 
 
 	// (Derived)
@@ -44,6 +29,14 @@
 	)
 	const slug = $derived(route?.slug ?? '')
 	const caip2 = $derived(route?.caip2 ?? '')
+
+
+	// State
+	let height = $state(0)
+	let visiblePlaceholderBlockIds = $state<number[]>([])
+
+
+	// Context
 	const networkQuery = useLiveQuery(
 		(q) =>
 			q
@@ -52,14 +45,6 @@
 				.select(({ row }) => ({ row })),
 		[() => chainId],
 	)
-
-
-	// State
-	let height = $state(0)
-	let visiblePlaceholderBlockIds = $state<number[]>([])
-
-
-	// (Derived)
 	const blocksQuery = useLiveQuery(
 		(q) =>
 			q
@@ -90,10 +75,12 @@
 		},
 	])
 
+
+	// Actions
 	$effect(() => {
-		const rpcUrl = rpcUrls[chainId]
+		const rpcUrl = getEffectiveRpcUrl(chainId)
 		if (!rpcUrl) return
-		const provider = createHttpProvider(rpcUrl)
+		const provider = createProviderForChain(chainId)
 		const stream = BlockStream({
 			provider: provider as Parameters<typeof BlockStream>[0]['provider'],
 		})
@@ -112,7 +99,6 @@
 		})()
 		return () => controller.abort()
 	})
-
 	$effect(() => {
 		if (height <= 0) return
 		const lo = Math.max(0, height - 10)
@@ -121,18 +107,24 @@
 			Array.from({ length: height - lo + 1 }, (_, j) => lo + j),
 		)
 	})
-
 	$effect(() => {
 		ensureBlocksForPlaceholders(chainId, visiblePlaceholderBlockIds)
 	})
+
+
+	// Components
+	import EntityView from '$/components/EntityView.svelte'
+	import NetworkContracts from '$/views/network/NetworkContracts.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
+	import NetworkView from '$/views/network/Network.svelte'
 </script>
 
 
 <svelte:head>
 	<title>
-		{route ?
-			`${network.name} · Network`
-		: 'Network'}
+		{route
+			? `${network.name} · Network`
+			: 'Network'}
 	</title>
 </svelte:head>
 
@@ -145,8 +137,8 @@
 		<EntityView
 			entityType={EntityType.Network}
 			entity={
-				networkQuery.data?.[0]?.row && route ?
-					({
+				networkQuery.data?.[0]?.row && route
+					? ({
 						...networkQuery.data[0].row,
 						network: route.network,
 						slug: route.slug,
@@ -156,7 +148,7 @@
 						slug: string
 						caip2: string
 					})
-				: undefined
+					: undefined
 			}
 			idSerialized={slug}
 			href={resolve(`/network/${name}`)}
@@ -165,9 +157,9 @@
 				{ term: 'Chain ID', detail: String(chainId) },
 				{ term: 'CAIP-2', detail: caip2 },
 				...(
-					'nativeCurrency' in network && network.nativeCurrency ?
-						[{ term: 'Currency', detail: network.nativeCurrency.symbol }]
-					: []
+					'nativeCurrency' in network && network.nativeCurrency
+						? [{ term: 'Currency', detail: network.nativeCurrency.symbol }]
+						: []
 				),
 			]}
 		>
@@ -180,19 +172,16 @@
 				{/if}
 			{/snippet}
 			{#snippet children()}
-				{@const placeholderBlockIds = (() => {
-					const h = height > 0 ? height : Number(latestBlockQuery.data?.[0] ?? 0)
-					return h > 0 ?
-						new Set<number | [number, number]>([[0, h]])
-					: new Set<number | [number, number]>([0])
-				})()}
+				{@const h = height > 0 ? height : Number(latestBlockQuery.data?.[0] ?? 0)}
 				<p>
 					<a href={resolve(`/network/${name}/contracts`)} data-link>Contracts</a>
 				</p>
 				<NetworkContracts chainId={chainId} nameParam={name} />
 				<NetworkView
 					data={blocksViewFrom(chainId, blocksQuery.data ?? []).networkData}
-					{placeholderBlockIds}
+					placeholderBlockIds={h > 0
+						? new Set<number | [number, number]>([[0, h]])
+						: new Set<number | [number, number]>([0])}
 					bind:visiblePlaceholderBlockIds
 					compact
 				/>

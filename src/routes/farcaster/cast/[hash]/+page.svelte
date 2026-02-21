@@ -10,7 +10,9 @@
 	// (Derived)
 	const hashParam = $derived(page.params.hash ?? '')
 	const hash = $derived(
-		(hashParam?.startsWith('0x') ? hashParam : `0x${hashParam}`) as `0x${string}`,
+		(hashParam?.startsWith('0x') ?
+			hashParam
+		: `0x${hashParam}`) as `0x${string}`,
 	)
 
 	let status = $state<'loading' | 'done' | 'error'>('loading')

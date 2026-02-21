@@ -1,5 +1,7 @@
 <script lang="ts">
 	// Context
+	import { goto } from '$app/navigation'
+	import { resolve } from '$app/paths'
 	import {
 		createDashboard,
 		dashboardsCollection,
@@ -9,8 +11,6 @@
 		setDefaultDashboardId,
 	} from '$/collections/Dashboards.ts'
 	import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
-	import { goto } from '$app/navigation'
-	import { resolve } from '$app/paths'
 
 
 	// (Derived)

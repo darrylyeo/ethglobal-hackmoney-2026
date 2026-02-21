@@ -3,8 +3,8 @@
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import { type ChainId, networksByChainId } from '$/constants/networks.ts'
-	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
-	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire.ts'
+	import { getCurrentBlockNumber } from '$/api/voltaire.ts'
+	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 	import { fetchBlock, blocksCollection } from '$/collections/Blocks.ts'
 	import { fetchNetworkTransaction, networkTransactionsCollection } from '$/collections/NetworkTransactions.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -105,9 +105,9 @@
 		if (valid && blockNum > 0) fetchBlock(chainId, blockNum).catch(() => {})
 	})
 	$effect(() => {
-		const rpcUrl = rpcUrls[chainId]
+		const rpcUrl = getEffectiveRpcUrl(chainId)
 		if (!rpcUrl) return
-		getCurrentBlockNumber(createHttpProvider(rpcUrl))
+		getCurrentBlockNumber(createProviderForChain(chainId))
 			.then((h) => (height = h))
 			.catch(() => {})
 	})

@@ -1,19 +1,20 @@
 <script lang="ts">
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
-
-
-	// Context
 	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
-	let { roomId }: { roomId: string, } = $props()
+	let {
+		roomId,
+	}: {
+		roomId: string
+	} = $props()
 
 
-	// State
+	// Context
 	const peersQuery = useLiveQuery(
 		(q) =>
 			q
@@ -22,14 +23,13 @@
 				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
-	const liveQueryEntries = [
+	registerLocalLiveQueryStack(() => [
 		{
 			id: 'peer-list',
 			label: 'Room Peers',
 			query: peersQuery,
 		},
-	]
-	registerLocalLiveQueryStack(() => liveQueryEntries)
+	])
 
 
 	// (Derived)

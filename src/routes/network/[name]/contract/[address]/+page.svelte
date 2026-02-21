@@ -2,13 +2,14 @@
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
 	import { PatternType } from '$/constants/patterns.ts'
-	import { matchesEntityRefPattern } from '$/lib/patterns.ts'
-	import { parseNetworkNameParam } from '$/lib/patterns.ts'
+	import { fetchContract } from '$/collections/Contracts.ts'
+	import { formatAddress } from '$/lib/address.ts'
+	import { matchesEntityRefPattern, parseNetworkNameParam } from '$/lib/patterns.ts'
+
+
+	// Context
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
-	import { fetchContract } from '$/collections/Contracts.ts'
-	import Contract from '$/views/Contract.svelte'
-	import { formatAddress } from '$/lib/address.ts'
 
 
 	// (Derived)
@@ -16,11 +17,11 @@
 	const addrParam = $derived(page.params.address ?? '')
 	const route = $derived(parseNetworkNameParam(name))
 	const address = $derived(
-		addrParam && matchesEntityRefPattern(addrParam, PatternType.EvmAddress) ?
-			(addrParam.startsWith('0x') ?
-				(addrParam as `0x${string}`)
-			: (`0x${addrParam}` as `0x${string}`))
-		: null,
+		addrParam && matchesEntityRefPattern(addrParam, PatternType.EvmAddress)
+			? (addrParam.startsWith('0x')
+				? (addrParam as `0x${string}`)
+				: (`0x${addrParam}` as `0x${string}`))
+			: null,
 	)
 	const chainId = $derived(route?.chainId ?? (0 as ChainId))
 	const network = $derived(route?.network ?? { name: '' })
@@ -32,14 +33,18 @@
 	$effect(() => {
 		if (valid && address) fetchContract(chainId, address).catch(() => {})
 	})
+
+
+	// Components
+	import Contract from '$/views/Contract.svelte'
 </script>
 
 
 <svelte:head>
 	<title>
-		{valid && address ?
-			`Contract ${formatAddress(address)} · ${network.name}`
-		: 'Contract'}
+		{valid && address
+			? `Contract ${formatAddress(address)} · ${network.name}`
+			: 'Contract'}
 	</title>
 </svelte:head>
 

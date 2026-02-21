@@ -1,33 +1,39 @@
 <script lang="ts">
 	// Types/constants
-	import { page } from '$app/state'
-	import { resolve } from '$app/paths'
-	import { EntityType } from '$/data/$EntityType.ts'
 	import {
 		COIN_SYMBOLS,
 		coinBySymbol,
 		type CoinSymbol,
 	} from '$/constants/coins.ts'
-	import EntityView from '$/components/EntityView.svelte'
-	import CoinName from '$/views/CoinName.svelte'
-	import CoinContracts from '$/views/CoinContracts.svelte'
-	import CoinActivity from '$/views/CoinActivity.svelte'
+	import { EntityType } from '$/data/$EntityType.ts'
+
+
+	// Context
+	import { page } from '$app/state'
+	import { resolve } from '$app/paths'
 
 
 	// (Derived)
-	const symbolParam = $derived((page.params.symbol ?? '').toUpperCase())
+	const symParam = $derived((page.params.symbol ?? '').toUpperCase())
 	const symbol = $derived(
-		COIN_SYMBOLS.includes(symbolParam as CoinSymbol) ?
-			(symbolParam as CoinSymbol)
+		COIN_SYMBOLS.includes(symParam as CoinSymbol) ?
+			(symParam as CoinSymbol)
 		: null,
 	)
 	const coin = $derived(symbol ? coinBySymbol[symbol] : null)
+
+
+	// Components
+	import EntityView from '$/components/EntityView.svelte'
+	import CoinActivity from '$/views/CoinActivity.svelte'
+	import CoinContracts from '$/views/CoinContracts.svelte'
+	import CoinName from '$/views/CoinName.svelte'
 </script>
 
 
 <svelte:head>
 	<title>
-		{symbol ? symbol : (symbolParam || 'Coin')} – Coin
+		{symbol ?? symParam ?? 'Coin'} – Coin
 	</title>
 </svelte:head>
 
@@ -36,8 +42,8 @@
 	{#if !symbol}
 		<h1>Not found</h1>
 		<p>
-			{symbolParam ?
-				`Unsupported coin symbol: ${symbolParam}`
+			{symParam ?
+				`Unsupported coin symbol: ${symParam}`
 			: 'Coin symbol required'}
 		</p>
 	{:else if coin}

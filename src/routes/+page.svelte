@@ -2,63 +2,14 @@
 	// Types/constants
 	import type { PanelTreeNode } from '$/data/PanelTree.ts'
 	import mascot from '$/assets/blockhead-mascot.jpg'
-	import { APP_NAME } from '$/constants/app.ts'
-	import { architectureGraph } from '$/views/architecture-graph.ts'
-
-
-	// Context
-	import { and, eq, not, useLiveQuery } from '@tanstack/svelte-db'
-	import { resolve } from '$app/paths'
 	import {
 		dashboardsCollection,
 		ensureDefaultRow,
 	} from '$/collections/Dashboards.ts'
-	import PanelTree from '$/routes/dashboard/PanelTree.svelte'
-	import ArchitectureGraph from '$/views/ArchitectureGraph.svelte'
+	import { APP_NAME } from '$/constants/app.ts'
+	import { architectureGraph } from '$/views/architecture-graph.ts'
+	import { and, eq, not, useLiveQuery } from '@tanstack/svelte-db'
 
-
-	// (Derived)
-	$effect(() => {
-		ensureDefaultRow()
-	})
-	const defaultRowQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: dashboardsCollection })
-				.where(({ row }) => eq(row.$id.id, '__default__'))
-				.select(({ row }) =>
-					'defaultDashboardId' in row ?
-						{ defaultDashboardId: row.defaultDashboardId }
-					: { defaultDashboardId: undefined as string | undefined },
-				),
-		[],
-	)
-	const defaultDashboardId = $derived(
-		defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
-	)
-	const dashboardRowQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: dashboardsCollection })
-				.where(({ row }) =>
-					and(
-						not(eq(row.$id.id, '__default__')),
-						eq(row.$id.id, defaultDashboardId),
-					),
-				)
-				.select(({ row }) => ({ row })),
-		[() => defaultDashboardId],
-	)
-	const previewRow = $derived(dashboardRowQuery.data?.[0]?.row)
-	const previewRoot = $derived(
-		previewRow && 'root' in previewRow ?
-			previewRow.root
-		: undefined,
-	)
-	const firstPanelId = (node: PanelTreeNode): string =>
-		node.type === 'panel' ? node.id : firstPanelId(node.first)
-
-	const noop = () => {}
 	const valuePhrases = [
 		'Thoughtfully crafted affordances',
 		'Good defaults',
@@ -150,6 +101,73 @@
 		{ id: 'networks', label: 'Networks', color: architectureGraph.layerColors.networks },
 		{ id: 'tooling', label: 'Tooling', color: architectureGraph.layerColors.tooling },
 	]
+
+
+	// Context
+	import { resolve } from '$app/paths'
+
+
+	// Context
+	const defaultRowQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: dashboardsCollection })
+				.where(({ row }) => eq(row.$id.id, '__default__'))
+				.select(({ row }) =>
+					'defaultDashboardId' in row ?
+						{ defaultDashboardId: row.defaultDashboardId }
+					: { defaultDashboardId: undefined as string | undefined },
+				),
+		[],
+	)
+
+
+	// (Derived)
+	const defaultDashboardId = $derived(
+		defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
+	)
+
+
+	// Context
+	const dashboardRowQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: dashboardsCollection })
+				.where(({ row }) =>
+					and(
+						not(eq(row.$id.id, '__default__')),
+						eq(row.$id.id, defaultDashboardId),
+					),
+				)
+				.select(({ row }) => ({ row })),
+		[() => defaultDashboardId],
+	)
+
+
+	// (Derived)
+	const previewRow = $derived(dashboardRowQuery.data?.[0]?.row)
+	const previewRoot = $derived(
+		previewRow && 'root' in previewRow ?
+			previewRow.root
+		: undefined,
+	)
+
+
+	// Functions
+	const firstPanelId = (node: PanelTreeNode): string =>
+		node.type === 'panel' ? node.id : firstPanelId(node.first)
+	const noop = () => {}
+
+
+	// Actions
+	$effect(() => {
+		ensureDefaultRow()
+	})
+
+
+	// Components
+	import ArchitectureGraph from '$/views/ArchitectureGraph.svelte'
+	import PanelTree from '$/routes/dashboard/PanelTree.svelte'
 </script>
 
 
@@ -197,7 +215,7 @@
 					<div class="landing-dashboard-preview-inner">
 						<PanelTree
 						root={previewRoot}
-						focusedPanelId={previewRoot ? firstPanelId(previewRoot) : ''}
+						focusedPanelId={firstPanelId(previewRoot)}
 						onFocus={noop}
 						onSplit={noop}
 						onRemove={noop}

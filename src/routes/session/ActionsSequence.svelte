@@ -3,8 +3,7 @@
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { Action } from '$/constants/actions.ts'
 	import type { ItemState } from '$/lib/reorder/state.svelte.ts'
-	import { createAction } from '$/constants/actions.ts'
-	import { ActionType } from '$/constants/actions.ts'
+	import { ActionType, createAction } from '$/constants/actions.ts'
 	import { ItemsListOperation } from '$/components/EditableItemsList.svelte'
 
 
@@ -34,21 +33,20 @@
 
 
 	// Components
-	import EditableItemsList from '$/components/EditableItemsList.svelte'
 	import ActionComponent from './Action.svelte'
+	import EditableItemsList from '$/components/EditableItemsList.svelte'
 </script>
 
 
 {#snippet ReorderGhost(item: Action, _state: ItemState<Action>)}
 	{@const index = actions.indexOf(item)}
-	{@const indexInSequence = index}
 	<div class="editable-item" data-row="gap-2">
 		<span class="drag-handle" aria-hidden="true">⠿</span>
 		<div class="editable-item-content" data-row-item="flexible">
 			{#if item != null}
 				<ActionComponent
 					bind:action={actions[index]}
-					{indexInSequence}
+					indexInSequence={index}
 					{connectedWallets}
 					{selectedActor}
 					{selectedChainId}

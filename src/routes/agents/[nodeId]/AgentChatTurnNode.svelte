@@ -179,10 +179,30 @@
 		</div>
 	{:else if turn.status === 'cancelled'}
 		<p data-text="muted">Cancelled.</p>
-	{:else if turn.assistantText}
+	{:else if turn.assistantText || (turn.toolCalls?.length ?? 0) > 0}
 		<div data-column="gap-2">
 			<strong>Assistant</strong>
-			<p>{turn.assistantText}</p>
+			{#if turn.toolCalls && turn.toolCalls.length > 0}
+				<details data-card="radius-2 padding-2">
+					<summary>Tools ({turn.toolCalls.length})</summary>
+					<ul data-column="gap-1">
+						{#each turn.toolCalls as tc (tc.id)}
+							<li>
+								<code>{tc.name}</code>
+								{#if turn.toolResults}
+									{@const res = turn.toolResults.find((r) => r.toolCallId === tc.id)}
+									{#if res}
+										<pre data-text="muted" style="font-size: 0.85em; overflow: auto;">{typeof res.result === 'string' ? res.result : JSON.stringify(res.result, null, 2)}</pre>
+									{/if}
+								{/if}
+							</li>
+						{/each}
+					</ul>
+				</details>
+			{/if}
+			{#if turn.assistantText}
+				<p>{turn.assistantText}</p>
+			{/if}
 			<small data-text="muted">
 				{turn.providerId ?? 'unknown'} · {new Date(turn.createdAt).toISOString()}
 			</small>

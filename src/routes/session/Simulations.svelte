@@ -1,12 +1,9 @@
 <script lang="ts">
 	// Types/constants
 	import type { SessionActionTransactionSimulation } from '$/data/SessionActionTransactionSimulation.ts'
+	import { sessionActionTransactionSimulationsCollection } from '$/collections/SessionActionTransactionSimulations.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { SvelteSet } from 'svelte/reactivity'
-
-	import { sessionActionTransactionSimulationsCollection } from '$/collections/SessionActionTransactionSimulations.ts'
-	import ItemsList from '$/components/ItemsList.svelte'
-	import Simulation from './Simulation.svelte'
 
 
 	// Props
@@ -35,6 +32,11 @@
 			(simulationsQuery.data?.map((d) => d.row) ?? []) as SessionActionTransactionSimulation[],
 		),
 	)
+
+
+	// Components
+	import ItemsList from '$/components/ItemsList.svelte'
+	import Simulation from './Simulation.svelte'
 </script>
 
 

@@ -1,11 +1,12 @@
 <script lang="ts">
 	// Types/constants
 	import type { SocialPostAction } from '$/constants/social-post-actions.ts'
+	import { ItemsListOperation } from '$/components/EditableItemsList.svelte'
 	import {
 		createSocialPostAction,
 		SocialPostActionType,
 	} from '$/constants/social-post-actions.ts'
-	import { ItemsListOperation } from '$/components/EditableItemsList.svelte'
+
 
 	// Props
 	let {
@@ -15,6 +16,7 @@
 		actions: SocialPostAction[]
 		operations?: ItemsListOperation[]
 	} = $props()
+
 
 	// Components
 	import EditableItemsList from '$/components/EditableItemsList.svelte'

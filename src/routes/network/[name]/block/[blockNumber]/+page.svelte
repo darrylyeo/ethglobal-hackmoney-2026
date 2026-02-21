@@ -1,44 +1,39 @@
 <script lang="ts">
 	// Types/constants
-	import { type ChainId, networksByChainId } from '$/constants/networks.ts'
-	import { EntityType } from '$/data/$EntityType.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { parseNetworkNameParam } from '$/lib/patterns.ts'
-	import { rpcUrls } from '$/constants/rpc-endpoints.ts'
-	import { createHttpProvider, getCurrentBlockNumber } from '$/api/voltaire.ts'
+	import { getCurrentBlockNumber } from '$/api/voltaire.ts'
 	import { fetchBlock, blocksCollection } from '$/collections/Blocks.ts'
+	import { type ChainId, networksByChainId } from '$/constants/networks.ts'
+	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { parseNetworkNameParam } from '$/lib/patterns.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+
 	const DECIMAL_ONLY = /^\d+$/
 
 
 	// Context
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
-	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-
-
-	// Components
-	import BlockNumber from '$/views/BlockNumber.svelte'
-	import EntityView from '$/components/EntityView.svelte'
-	import NetworkView from '$/views/network/Network.svelte'
-	import NetworkName from '$/views/NetworkName.svelte'
 
 
 	// (Derived)
 	const name = $derived(page.params.name ?? '')
 	const blockNumParam = $derived(page.params.blockNumber ?? '')
 	const route = $derived(parseNetworkNameParam(name))
+	const blockNumParsed = $derived(parseInt(blockNumParam, 10))
 	const blockNumValid = $derived(
-		blockNumParam !== '' &&
-		DECIMAL_ONLY.test(blockNumParam) &&
-		Number.isSafeInteger(parseInt(blockNumParam, 10)) &&
-		parseInt(blockNumParam, 10) >= 0,
+		blockNumParam !== ''
+		&& DECIMAL_ONLY.test(blockNumParam)
+		&& Number.isSafeInteger(blockNumParsed)
+		&& blockNumParsed >= 0,
 	)
 	const blockNum = $derived(
-		blockNumValid ?
-			parseInt(blockNumParam, 10)
-		: 0,
+		blockNumValid
+			? blockNumParsed
+			: 0,
 	)
 	const chainId = $derived(route?.chainId ?? (0 as ChainId))
 	const network = $derived(networksByChainId[chainId] ?? null)
@@ -50,7 +45,7 @@
 	let height = $state(0)
 
 
-	// (Derived)
+	// Context
 	const blockQuery = useLiveQuery(
 		(q) =>
 			q
@@ -72,26 +67,37 @@
 		},
 	])
 
+
+	// (Derived)
 	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
 
+
+	// Actions
 	$effect(() => {
 		if (valid) fetchBlock(chainId, blockNum).catch(() => {})
 	})
 	$effect(() => {
-		const rpcUrl = rpcUrls[chainId]
+		const rpcUrl = getEffectiveRpcUrl(chainId)
 		if (!rpcUrl) return
-		getCurrentBlockNumber(createHttpProvider(rpcUrl))
+		getCurrentBlockNumber(createProviderForChain(chainId))
 			.then((h) => (height = h))
 			.catch(() => {})
 	})
+
+
+	// Components
+	import EntityView from '$/components/EntityView.svelte'
+	import BlockNumber from '$/views/BlockNumber.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
+	import NetworkView from '$/views/network/Network.svelte'
 </script>
 
 
 <svelte:head>
 	<title>
-		{valid ?
-			`Block ${blockNumParam} · ${networkName}`
-		: 'Block'}
+		{valid
+			? `Block ${blockNumParam} · ${networkName}`
+			: 'Block'}
 	</title>
 </svelte:head>
 
@@ -124,27 +130,26 @@
 				</span>
 			{/snippet}
 			{#snippet children()}
-				{@const placeholderBlockIds = new Set([
-					...(blockNum > 0 ? [blockNum - 1] : []),
-					...(height <= 0 || blockNum + 1 <= height ? [blockNum + 1] : []),
-				])}
 				<p>
 					<a href={`/network/${name}#block:${blockNum}`} data-link>Show Context</a>
 				</p>
 				<NetworkView
-					data={network ?
-						new Map([
+					data={network
+						? new Map([
 							[
 								network,
-								block ?
-									new Map<BlockEntry, Set<ChainTransactionEntry>>([
+								block
+									? new Map<BlockEntry, Set<ChainTransactionEntry>>([
 										[block, new Set()],
 									])
-								: new Map(),
+									: new Map(),
 							],
 						])
-					: new Map()}
-					{placeholderBlockIds}
+						: new Map()}
+					placeholderBlockIds={new Set([
+						...(blockNum > 0 ? [blockNum - 1] : []),
+						...(height <= 0 || blockNum + 1 <= height ? [blockNum + 1] : []),
+					])}
 				/>
 			{/snippet}
 		</EntityView>

@@ -13,6 +13,7 @@
 		networksByChainId,
 	} from '$/constants/networks.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+
 	type WalletConnectItem =
 		| { kind: 'wallet'; wallet: WalletRow }
 		| { kind: 'empty'; label: string }
@@ -37,11 +38,12 @@
 		walletConnectionsCollection,
 	} from '$/collections/WalletConnections.ts'
 	import { walletsCollection } from '$/collections/Wallets.ts'
-	import { switchWalletChain } from '$/lib/wallet.ts'
 	import { NetworkEnvironment } from '$/constants/network-environment.ts'
+	import { switchWalletChain } from '$/lib/wallet.ts'
 	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+
 	useWalletSubscriptions()
 
 	const walletsQuery = useLiveQuery((q) =>
@@ -184,9 +186,9 @@
 
 
 	// Components
-	import Address from '$/views/Address.svelte'
 	import Dropdown from '$/components/Dropdown.svelte'
 	import Icon from '$/components/Icon.svelte'
+	import Address from '$/views/Address.svelte'
 	import AddressInput from '$/views/AddressInput.svelte'
 	import NetworkInput from '$/views/NetworkInput.svelte'
 	import { Button } from 'bits-ui'
@@ -367,15 +369,13 @@
 									</span>
 								</div>
 
-								<span
-									class="disconnect"
-									role="group"
-									onclick={(e) => e.stopPropagation()}
-									onkeydown={(e) => e.stopPropagation()}
-								>
+								<span class="disconnect" role="group">
 									<Button.Root
 										type="button"
-										onclick={() => disconnectWallet(wallet.$id)}
+										onclick={(e) => {
+											e.stopPropagation()
+											disconnectWallet(wallet.$id)
+										}}
 									>
 										Disconnect
 									</Button.Root>

@@ -1,25 +1,29 @@
 <script lang="ts">
 	// Types/constants
 	import type { SessionActionTransactionSimulation } from '$/data/SessionActionTransactionSimulation.ts'
-	import { SessionActionSimulationStatus } from '$/data/SessionActionTransactionSimulation.ts'
 	import type { TevmSimulationResult } from '$/data/TevmSimulationResult.ts'
+	import { SessionActionSimulationStatus } from '$/data/SessionActionTransactionSimulation.ts'
 	import { TevmSimulationSummaryStatus } from '$/data/TevmSimulationResult.ts'
 
 
 	// Props
-	let { simulation }: { simulation: SessionActionTransactionSimulation } = $props()
+	let {
+		simulation,
+	}: {
+		simulation: SessionActionTransactionSimulation
+	} = $props()
 
 
 	// (Derived)
 	const steps = $derived(
-		simulation.result != null &&
-		typeof simulation.result === 'object' &&
-		'steps' in simulation.result &&
-		Array.isArray((simulation.result as { steps: unknown }).steps) ?
-			((simulation.result as { steps: TevmSimulationResult[] }).steps)
-		: (simulation.result as TevmSimulationResult | null) != null ?
-			[simulation.result as TevmSimulationResult]
-		: [],
+		simulation.result != null
+		&& typeof simulation.result === 'object'
+		&& 'steps' in simulation.result
+		&& Array.isArray((simulation.result as { steps: unknown }).steps)
+			? (simulation.result as { steps: TevmSimulationResult[] }).steps
+			: (simulation.result as TevmSimulationResult | null) != null
+				? [simulation.result as TevmSimulationResult]
+				: [],
 	)
 </script>
 
@@ -32,9 +36,9 @@
 	<div data-row="gap-2 align-center">
 		<span
 			data-tag
-			data-variant={simulation.status === SessionActionSimulationStatus.Success ?
-			'success'
-		: 'error'}
+			data-variant={simulation.status === SessionActionSimulationStatus.Success
+			? 'success'
+			: 'error'}
 		>
 			{simulation.status}
 		</span>
@@ -46,9 +50,9 @@
 		</time>
 	</div>
 	<p data-text="muted">
-		Params: {simulation.paramsHash.length > 12 ?
-			`${simulation.paramsHash.slice(0, 8)}…`
-		: simulation.paramsHash || '—'}
+		Params: {simulation.paramsHash.length > 12
+			? `${simulation.paramsHash.slice(0, 8)}…`
+			: simulation.paramsHash || '—'}
 	</p>
 	{#if simulation.error && steps.length === 0}
 		<p data-error>{simulation.error}</p>
@@ -58,9 +62,9 @@
 				<li data-row="gap-2 align-center" class="simulation-step">
 					<span
 						data-tag
-						data-variant={step.summaryStatus === TevmSimulationSummaryStatus.Success ?
-						'success'
-					: 'error'}
+						data-variant={step.summaryStatus === TevmSimulationSummaryStatus.Success
+						? 'success'
+						: 'error'}
 					>
 						{step.summaryStatus}
 					</span>
@@ -68,9 +72,9 @@
 					<span data-text="muted">Gas: {step.gasTotals.used}</span>
 					{#if step.revertReason}
 						<code class="revert-reason" title={step.revertReason}>
-							{step.revertReason.slice(0, 42)}{step.revertReason.length > 42 ?
-								'…'
-							: ''}
+							{step.revertReason.slice(0, 42)}{step.revertReason.length > 42
+								? '…'
+								: ''}
 						</code>
 					{/if}
 				</li>

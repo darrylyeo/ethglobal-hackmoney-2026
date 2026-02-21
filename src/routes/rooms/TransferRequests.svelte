@@ -1,36 +1,26 @@
 <script lang="ts">
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
-
-
-	// Context
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { sendTransfer } from '$/api/yellow.ts'
 	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
-	import { transferRequestsCollection } from '$/collections/TransferRequests.ts'
 	import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'
+	import { transferRequestsCollection } from '$/collections/TransferRequests.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { roomState } from '$/state/room.svelte.ts'
 	import { yellowState } from '$/state/yellow.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
 	let {
 		roomId,
 	}: {
-		roomId: string,
+		roomId: string
 	} = $props()
 
 
-	// State
-	let selectedAddress = $state<`0x${string}` | null>(null)
-	let amount = $state('')
-	let sendingRequestId = $state<string | null>(null)
-	let sendError = $state<string | null>(null)
-
-
-	// (Derived)
+	// Context
 	const verifiedQuery = useLiveQuery(
 		(q) =>
 			q
@@ -52,7 +42,7 @@
 				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
-	const liveQueryEntries = [
+	registerLocalLiveQueryStack(() => [
 		{
 			id: 'transfer-requests-verified',
 			label: 'Shared Addresses',
@@ -68,8 +58,17 @@
 			label: 'Transfer Requests',
 			query: requestsQuery,
 		},
-	]
-	registerLocalLiveQueryStack(() => liveQueryEntries)
+	])
+
+
+	// State
+	let amount = $state('')
+	let selectedAddress = $state<`0x${string}` | null>(null)
+	let sendingRequestId = $state<string | null>(null)
+	let sendError = $state<string | null>(null)
+
+
+	// (Derived)
 	const myAddress = $derived(yellowState.address?.toLowerCase() ?? null)
 	const otherVerified = $derived(
 		myAddress

@@ -1,61 +1,120 @@
 <script lang="ts">
 	// Types/constants
-	import EntityView from '$/components/EntityView.svelte'
-	import { EntityType } from '$/data/$EntityType.ts'
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-
-	// Components
-	import FarcasterCastsEntityList from '$/views/farcaster/FarcasterCastsEntityList.svelte'
-	import FarcasterUserLinkList from '$/views/farcaster/FarcasterUserLinkList.svelte'
-
-	// Context
-	import { page } from '$app/state'
-
-
-	// State
-	import { farcasterCastsCollection } from '$/collections/FarcasterCasts.ts'
-	import { farcasterLinksCollection } from '$/collections/FarcasterLinks.ts'
-	import { farcasterUsersCollection } from '$/collections/FarcasterUsers.ts'
+	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
+	import { LINK_TYPE_FOLLOW } from '$/api/farcaster/index.ts'
 	import {
 		ensureCastsByMention,
 		ensureCastsForFid,
+		farcasterCastsCollection,
 	} from '$/collections/FarcasterCasts.ts'
 	import {
 		ensureFollowersForUser,
 		ensureFollowingForUser,
+		farcasterLinksCollection,
 	} from '$/collections/FarcasterLinks.ts'
-	import { ensureFarcasterUser } from '$/collections/FarcasterUsers.ts'
-	import { LINK_TYPE_FOLLOW } from '$/api/farcaster/index.ts'
-	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
+	import {
+		ensureFarcasterUser,
+		farcasterUsersCollection,
+	} from '$/collections/FarcasterUsers.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+
+
+	// Context
+	import { page } from '$app/state'
 
 
 	// (Derived)
 	const fidParam = $derived(page.params.fid ?? '')
 	const fid = $derived(parseInt(fidParam, 10))
 
+
+	// State
 	let castsNextToken = $state<string | undefined>(undefined)
-	let mentionsNextToken = $state<string | undefined>(undefined)
 	let followersNextToken = $state<string | undefined>(undefined)
 	let followingNextToken = $state<string | undefined>(undefined)
 	let isLoadingMoreCasts = $state(false)
-	let isLoadingMoreMentions = $state(false)
 	let isLoadingMoreFollowers = $state(false)
 	let isLoadingMoreFollowing = $state(false)
-	$effect(() => {
-		for (const m of mentions) {
-			ensureFarcasterUser(m.$id.fid).catch(() => {})
-		}
-	})
-	$effect(() => {
-		for (const link of followers) {
-			ensureFarcasterUser(link.$id.sourceFid).catch(() => {})
-		}
-	})
-	$effect(() => {
-		for (const link of following) {
-			ensureFarcasterUser(link.$id.targetFid).catch(() => {})
-		}
-	})
+	let isLoadingMoreMentions = $state(false)
+	let mentionsNextToken = $state<string | undefined>(undefined)
+
+
+	// Context
+	const userQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: farcasterUsersCollection })
+				.where(({ row }) => eq(row.$id.fid, fid))
+				.select(({ row }) => ({ row })),
+		[() => [fid]],
+	)
+	const usersQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: farcasterUsersCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+	const castsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: farcasterCastsCollection })
+				.where(({ row }) => eq(row.$id.fid, fid))
+				.select(({ row }) => ({ row })),
+		[() => [fid]],
+	)
+	const allCastsQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: farcasterCastsCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+	const linksQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: farcasterLinksCollection })
+				.where(({ row }) => eq(row.$id.linkType, LINK_TYPE_FOLLOW))
+				.select(({ row }) => ({ row })),
+		[],
+	)
+
+
+	// (Derived)
+	const user = $derived(userQuery.data?.[0]?.row)
+	const userByFid = $derived(
+		new Map(
+			(usersQuery.data ?? []).map((r) => [r.row.$id.fid, r.row]),
+		),
+	)
+	const allCasts = $derived((castsQuery.data ?? []).map((r) => r.row as FarcasterCastRow))
+	const allCastsFromDb = $derived(
+		(allCastsQuery.data ?? []).map((r) => r.row as FarcasterCastRow),
+	)
+	const links = $derived(
+		(linksQuery.data ?? []).map((r) => r.row as { $id: { sourceFid: number; targetFid: number; linkType: string } }),
+	)
+	const mentions = $derived(
+		allCastsFromDb.filter((c) => c.mentions?.includes(fid)),
+	)
+	const followers = $derived(
+		links.filter((l) => l.$id.targetFid === fid),
+	)
+	const following = $derived(
+		links.filter((l) => l.$id.sourceFid === fid),
+	)
+	const rootCasts = $derived(
+		allCasts.filter((c) =>
+			!c.parentFid
+			|| !c.parentHash,
+		),
+	)
+	const castsSet = $derived(new Set(rootCasts))
+	const label = $derived(
+		user?.username
+			? `@${user.username}`
+			: user?.displayName ?? `User ${fid}`,
+	)
+
+
+	// Actions
 	$effect(() => {
 		if (fid > 0) {
 			ensureFarcasterUser(fid).catch(() => {})
@@ -76,6 +135,21 @@
 			mentionsNextToken = undefined
 			followersNextToken = undefined
 			followingNextToken = undefined
+		}
+	})
+	$effect(() => {
+		for (const m of mentions) {
+			ensureFarcasterUser(m.$id.fid).catch(() => {})
+		}
+	})
+	$effect(() => {
+		for (const link of followers) {
+			ensureFarcasterUser(link.$id.sourceFid).catch(() => {})
+		}
+	})
+	$effect(() => {
+		for (const link of following) {
+			ensureFarcasterUser(link.$id.targetFid).catch(() => {})
 		}
 	})
 	const loadMoreCasts = () => {
@@ -111,69 +185,11 @@
 			.finally(() => (isLoadingMoreFollowing = false))
 	}
 
-	const userQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: farcasterUsersCollection })
-				.where(({ row }) => eq(row.$id.fid, fid))
-				.select(({ row }) => ({ row })),
-		[() => [fid]],
-	)
-	const user = $derived(userQuery.data?.[0]?.row)
-	const usersQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: farcasterUsersCollection }).select(({ row }) => ({ row })),
-		[],
-	)
-	const userByFid = $derived(
-		new Map(
-			(usersQuery.data ?? []).map((r) => [r.row.$id.fid, r.row]),
-		),
-	)
-	const castsQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: farcasterCastsCollection })
-				.where(({ row }) => eq(row.$id.fid, fid))
-				.select(({ row }) => ({ row })),
-		[() => [fid]],
-	)
-	const allCastsQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: farcasterCastsCollection }).select(({ row }) => ({ row })),
-		[],
-	)
-	const linksQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: farcasterLinksCollection })
-				.where(({ row }) => eq(row.$id.linkType, LINK_TYPE_FOLLOW))
-				.select(({ row }) => ({ row })),
-		[],
-	)
-	const allCasts = $derived((castsQuery.data ?? []).map((r) => r.row as FarcasterCastRow))
-	const allCastsFromDb = $derived(
-		(allCastsQuery.data ?? []).map((r) => r.row as FarcasterCastRow),
-	)
-	const links = $derived(
-		(linksQuery.data ?? []).map((r) => r.row as { $id: { sourceFid: number; targetFid: number; linkType: string } }),
-	)
-	const mentions = $derived(
-		allCastsFromDb.filter((c) => c.mentions?.includes(fid)),
-	)
-	const followers = $derived(
-		links.filter((l) => l.$id.targetFid === fid),
-	)
-	const following = $derived(
-		links.filter((l) => l.$id.sourceFid === fid),
-	)
-	const rootCasts = $derived(
-		allCasts.filter((c) => !c.parentFid || !c.parentHash),
-	)
-	const castsSet = $derived(new Set(rootCasts))
-	const label = $derived(
-		user?.username ? `@${user.username}` : user?.displayName ?? `User ${fid}`,
-	)
+
+	// Components
+	import EntityView from '$/components/EntityView.svelte'
+	import FarcasterCastsEntityList from '$/views/farcaster/FarcasterCastsEntityList.svelte'
+	import FarcasterUserLinkList from '$/views/farcaster/FarcasterUserLinkList.svelte'
 </script>
 
 <svelte:head>
@@ -191,11 +207,13 @@
 			metadata={
 				user?.bio || user?.verifiedAddress
 					? [
-							...(user?.bio ? [{ term: 'Bio', detail: user.bio }] : []),
-							...(user?.verifiedAddress
-								? [{ term: 'Verified', detail: user.verifiedAddress }]
-								: []),
-						]
+						...(user?.bio
+							? [{ term: 'Bio', detail: user.bio }]
+							: []),
+						...(user?.verifiedAddress
+							? [{ term: 'Verified', detail: user.verifiedAddress }]
+							: []),
+					]
 					: undefined
 			}
 		>
@@ -207,7 +225,7 @@
 					title="Casts"
 					items={castsSet}
 					loaded={castsSet.size}
-					total={rootCasts.length > 0 ? rootCasts.length : undefined}
+					total={rootCasts.length || undefined}
 					{userByFid}
 					pagination={{
 						hasMore: !!castsNextToken,
@@ -223,7 +241,7 @@
 							title=""
 							items={new Set(mentions)}
 							loaded={mentions.length}
-							total={mentions.length > 0 ? mentions.length : undefined}
+							total={mentions.length || undefined}
 							{userByFid}
 							placeholderKeys={new Set()}
 							placeholderText="Loading…"
@@ -244,7 +262,7 @@
 						{userByFid}
 						hasMore={!!followersNextToken}
 						onLoadMore={loadMoreFollowers}
-						loading={isLoadingMoreFollowers}
+						isLoading={isLoadingMoreFollowers}
 						loadMoreLabel="Load more followers"
 					/>
 				{/if}
@@ -256,7 +274,7 @@
 						{userByFid}
 						hasMore={!!followingNextToken}
 						onLoadMore={loadMoreFollowing}
-						loading={isLoadingMoreFollowing}
+						isLoading={isLoadingMoreFollowing}
 						loadMoreLabel="Load more following"
 					/>
 				{/if}

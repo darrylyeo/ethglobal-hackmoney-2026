@@ -3,14 +3,14 @@
 	import { page } from '$app/state'
 
 
-	// Types/constants
-	import SignInWithFarcaster from '$/components/SignInWithFarcaster.svelte'
-	import FarcasterDashboard from './FarcasterDashboard.svelte'
-
-
 	// (Derived)
 	const siwfDomain = $derived(page.url.hostname || 'localhost')
 	const siwfUri = $derived(`${page.url.origin}/farcaster`)
+
+
+	// Components
+	import FarcasterDashboard from './FarcasterDashboard.svelte'
+	import SignInWithFarcaster from '$/components/SignInWithFarcaster.svelte'
 </script>
 
 <svelte:head>

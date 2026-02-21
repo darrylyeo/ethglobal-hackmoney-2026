@@ -50,14 +50,13 @@
 				.select(({ row }) => ({ row })),
 		[() => roomId],
 	)
-	const liveQueryEntries = [
+	registerLocalLiveQueryStack(() => [
 		{
 			id: 'room-peers',
 			label: 'Room Peers',
 			query: peersQuery,
 		},
-	]
-	registerLocalLiveQueryStack(() => liveQueryEntries)
+	])
 	const others = $derived(
 		(peersQuery.data ?? [])
 			.map((r) => r.row)
@@ -81,11 +80,11 @@
 		partyKitStatusLabel(roomState.connectionStatus),
 	)
 	const roomShareUrl = $derived(
-		typeof globalThis !== 'undefined' &&
-			'location' in globalThis &&
-			globalThis.location
-			? `${globalThis.location.origin}${resolve(`/rooms/${roomId}`)}`
-			: resolve(`/rooms/${roomId}`),
+		typeof globalThis !== 'undefined'
+		&& 'location' in globalThis
+		&& globalThis.location ?
+			`${globalThis.location.origin}${resolve(`/rooms/${roomId}`)}`
+		: resolve(`/rooms/${roomId}`),
 	)
 
 

@@ -1,15 +1,19 @@
 <script lang="ts">
 	// Types/constants
-	import type { SocialPostSession } from '$/data/SocialPostSession.ts'
-	import { EntityType } from '$/data/$EntityType.ts'
 	import type { FarcasterConnectionSiwf } from '$/data/FarcasterConnection.ts'
+	import type { SocialPostSession } from '$/data/SocialPostSession.ts'
 	import { FarcasterConnectionTransport } from '$/data/FarcasterConnection.ts'
-	import { resolve } from '$app/paths'
-	import { stringify } from 'devalue'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import {
 		buildSocialPostSessionPath,
 		formatSocialPostSessionPlaceholderName,
 	} from '$/lib/session/socialPostSessionUrl.ts'
+	import { stringify } from 'devalue'
+
+
+	// Context
+	import { resolve } from '$app/paths'
+
 
 	// Props
 	let {
@@ -22,9 +26,11 @@
 		selectedSiwfConnection: FarcasterConnectionSiwf | null
 	} = $props()
 
+
 	// State
-	let persisted = $state(false)
 	let initialSnapshot = $state<string | null>(null)
+	let persisted = $state(false)
+
 
 	// (Derived)
 	const canDraft = $derived(
@@ -33,8 +39,9 @@
 	const placeholderName = $derived(
 		formatSocialPostSessionPlaceholderName(session.actions),
 	)
-	const displayLabel = $derived(session.name ?? placeholderName)
 
+
+	// Actions
 	$effect(() => {
 		if (persisted || !onPersist) return
 		const snapshot = stringify({
@@ -52,6 +59,7 @@
 		}
 	})
 
+
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import FarcasterAccountSelect from '$/components/FarcasterAccountSelect.svelte'
@@ -64,7 +72,7 @@
 		entityType={EntityType.SocialPostSession}
 		idSerialized={session.id}
 		href={resolve(buildSocialPostSessionPath(session.id))}
-		label={displayLabel}
+		label={session.name ?? placeholderName}
 		annotation="Social post"
 		hasAnchorTitle={false}
 	>

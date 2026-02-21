@@ -1,9 +1,11 @@
 <script lang="ts">
 	// Types/constants
+	import { parseNetworkNameParam } from '$/lib/patterns.ts'
+
+
+	// Context
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
-	import { parseNetworkNameParam } from '$/lib/patterns.ts'
-	import NetworkName from '$/views/NetworkName.svelte'
 
 
 	// (Derived)
@@ -11,14 +13,18 @@
 	const route = $derived(parseNetworkNameParam(name))
 	const chainId = $derived(route?.chainId ?? 0)
 	const network = $derived(route?.network ?? { name: '' })
+
+
+	// Components
+	import NetworkName from '$/views/NetworkName.svelte'
 </script>
 
 
 <svelte:head>
 	<title>
-		Contracts · {route ?
-			network.name
-		: 'Network'}
+		Contracts · {route
+			? network.name
+			: 'Network'}
 	</title>
 </svelte:head>
 

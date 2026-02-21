@@ -22,13 +22,15 @@
 
 
 	// State — {#key urlKey} remounts on input change, so initialSession is stable
-	// svelte-ignore state_referenced_locally — intentional: we only seed from initial
+	// svelte-ignore state_referenced_locally
 	let activeSession = $state<Session>(structuredClone(initialSession))
 
 
 	// (Derived)
 	const isEphemeral = $derived(activeSession.id.startsWith('ephemeral-'))
 
+
+	// Actions
 	const persistSession = () => {
 		if (!isEphemeral) return
 		const created = createSession({

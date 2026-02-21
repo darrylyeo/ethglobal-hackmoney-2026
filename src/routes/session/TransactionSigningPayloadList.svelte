@@ -2,9 +2,6 @@
 	// Types/constants
 	import type { TransactionSigningPayload } from '$/lib/session/resolveSigningPayloads.ts'
 
-	import ItemsList from '$/components/ItemsList.svelte'
-	import SignaturePayload from './SignaturePayload.svelte'
-
 
 	// Props
 	let {
@@ -16,6 +13,11 @@
 
 	// (Derived)
 	const items = $derived(new Set(payloads))
+
+
+	// Components
+	import ItemsList from '$/components/ItemsList.svelte'
+	import SignaturePayload from './SignaturePayload.svelte'
 </script>
 
 {#if payloads.length === 0}

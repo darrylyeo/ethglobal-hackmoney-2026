@@ -6,15 +6,17 @@
 		SocialPostActionType,
 		type SocialPostAction,
 	} from '$/constants/social-post-actions.ts'
-	import Select from '$/components/Select.svelte'
+
 
 	// Props
 	let { action = $bindable() }: { action: SocialPostAction } = $props()
+
 
 	// (Derived)
 	const activeDef = $derived(
 		socialPostActionTypes.find((d) => d.type === action.type),
 	)
+
 
 	// Actions
 	const onActionTypeChange = (
@@ -26,6 +28,10 @@
 			action.params as Record<string, unknown>,
 		)
 	}
+
+
+	// Components
+	import Select from '$/components/Select.svelte'
 </script>
 
 <div data-column="gap-3" data-card="padding-3">
@@ -49,7 +55,7 @@
 			rows="4"
 			class="post-text-input"
 			aria-label="Post text"
-		/>
+		></textarea>
 	</div>
 
 	{#if action.type === SocialPostActionType.ReplyToPost}

@@ -36,6 +36,7 @@
 	import { uniswapPositionsCollection } from '$/collections/UniswapPositions.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { walletsCollection } from '$/collections/Wallets.ts'
+	import { watchedEntitiesCollection } from '$/collections/WatchedEntities.ts'
 	import { stateChannelStatesCollection } from '$/collections/StateChannelStates.ts'
 	import { stateChannelsCollection } from '$/collections/StateChannels.ts'
 	import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'
@@ -52,6 +53,10 @@
 	} from '$/data/$EntityType.ts'
 	import { SessionStatus } from '$/data/Session.ts'
 	import { untrack } from 'svelte'
+	import {
+		buildWatchedKeys,
+		isRowInWatchedScope,
+	} from '$/lib/graphWatchedScope.ts'
 	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits.ts'
 	import { graphSceneState } from '$/state/graph-scene.svelte.ts'
@@ -111,6 +116,13 @@
 	const hiddenEntitySources = $derived(
 		new Set(graphSceneState.current.hiddenEntitySources.filter(Boolean)),
 	)
+	const expandedCollections = $derived(
+		new Set(
+			(graphSceneState.current.expandedEntities ?? []).filter((s) =>
+				graphSceneEntityTypes.includes(s as (typeof graphSceneEntityTypes)[number]),
+			),
+		),
+	)
 	const graphFramework = $derived(graphSceneState.current.graphFramework)
 	const isVisible = $derived(graphSceneState.current.isVisible ?? defaultIsVisible)
 	const graphFrameworkItems = [GraphFramework.Sigma, GraphFramework.G6] as const
@@ -133,6 +145,9 @@
 		})
 	})
 	let visibleEntitiesSelection = $state<string[]>([...graphSceneState.current.visibleEntities])
+	let expandedEntitiesSelection = $state<string[]>([
+		...(graphSceneState.current.expandedEntities ?? []),
+	])
 	let visibleSourceKeysSelection = $state<string[]>([])
 	$effect(() => {
 		const persisted = graphSceneState.current.visibleEntities
@@ -149,6 +164,30 @@
 				graphSceneState.current = {
 					...graphSceneState.current,
 					visibleEntities: [...val],
+				}
+		})
+	})
+	$effect(() => {
+		const persisted = graphSceneState.current.expandedEntities ?? []
+		untrack(() => {
+			if (
+				persisted.length !== expandedEntitiesSelection.length ||
+				persisted.some((v, i) => v !== expandedEntitiesSelection[i])
+			)
+				expandedEntitiesSelection = [...persisted]
+		})
+	})
+	$effect(() => {
+		const val = expandedEntitiesSelection
+		untrack(() => {
+			const persisted = graphSceneState.current.expandedEntities ?? []
+			if (
+				val.length !== persisted.length ||
+				val.some((v, i) => v !== persisted[i])
+			)
+				graphSceneState.current = {
+					...graphSceneState.current,
+					expandedEntities: [...val],
 				}
 		})
 	})
@@ -267,6 +306,12 @@
 	)
 	const entitySourcesQuery = useLiveQuery((q) =>
 		q.from({ row: entitySourcesCollection }).select(({ row }) => ({ row })),
+	)
+	const watchedEntitiesQuery = useLiveQuery((q) =>
+		q.from({ row: watchedEntitiesCollection }).select(({ row }) => ({ row })),
+	)
+	const recentTransactionsQuery = useLiveQuery((q) =>
+		q.from({ row: bridgeTransactionsCollection }).select(({ row }) => ({ row })),
 	)
 
 	const entityQueryList: [EntityType, { data?: { row: unknown }[] }][] = [
@@ -800,6 +845,11 @@
 				color: collections[et].color,
 			})),
 	)
+	const expandableEntityTypeItems = $derived(
+		legendEntityTypeItems.filter((x) =>
+			visibleEntitiesSelection.includes(x.id),
+		),
+	)
 
 	const edgeColors = {
 		block: '#64748b',
@@ -935,6 +985,16 @@
 
 		const take = <T,>(a: T[] | undefined) =>
 			(a ?? []).slice(0, GRAPH_SCENE_MAX_PER_COLLECTION)
+		const rowsForType = <T extends { row: Record<string, unknown> }>(
+			entityType: EntityType,
+			data: T[] | undefined,
+		) => {
+			const taken = take(data)
+			if (expandedCollections.has(entityType)) return taken
+			return taken.filter(({ row }) =>
+				isRowInWatchedScope(entityType, row, watchedKeys),
+			)
+		}
 		const g = new Graph({ multi: true, allowSelfLoops: true })
 		const nodes: GraphNode[] = []
 		const edges: GraphEdge[] = []
@@ -982,7 +1042,7 @@
 
 		// Add wallet nodes (center)
 		if (visibleCollections.has(EntityType.Wallet)) {
-			const wallets = take(walletsQuery.data)
+			const wallets = rowsForType(EntityType.Wallet, walletsQuery.data)
 			wallets.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Wallet, undefined)) return
 				const rdns = row.$id?.rdns
@@ -1007,7 +1067,10 @@
 
 		// Add connection nodes
 		if (visibleCollections.has(EntityType.WalletConnection)) {
-			const connections = take(connectionsQuery.data)
+			const connections = rowsForType(
+				EntityType.WalletConnection,
+				connectionsQuery.data,
+			)
 			connections.forEach(({ row }, i) => {
 				if (skipRow(EntityType.WalletConnection, undefined)) return
 				const rdns = row.$id?.wallet$id?.rdns
@@ -1076,8 +1139,11 @@
 
 		// Add actor nodes
 		if (visibleCollections.has(EntityType.Actor)) {
-			const actors = take(actorsQuery.data)
-			const connections = take(connectionsQuery.data)
+			const actors = rowsForType(EntityType.Actor, actorsQuery.data)
+			const connections = rowsForType(
+				EntityType.WalletConnection,
+				connectionsQuery.data,
+			)
 			actors.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Actor, row.$source)) return
 				const actorId = `actor:${row.$id.$network.chainId}:${row.$id.address}`
@@ -1126,7 +1192,7 @@
 
 		// Add coin balance nodes
 		if (visibleCollections.has(EntityType.ActorCoin)) {
-			const coins = take(actorCoinsQuery.data)
+			const coins = rowsForType(EntityType.ActorCoin, actorCoinsQuery.data)
 			coins.forEach(({ row }, i) => {
 				if (skipRow(EntityType.ActorCoin, row.$source)) return
 				const coinId = `coin:${row.$id.$actor.$network.chainId}:${row.$id.$actor.address}:${row.$id.$coin.address}`
@@ -1185,7 +1251,10 @@
 
 		// Add allowance nodes
 		if (visibleCollections.has(EntityType.ActorAllowance)) {
-			const allowances = take(allowancesQuery.data)
+			const allowances = rowsForType(
+				EntityType.ActorAllowance,
+				allowancesQuery.data,
+			)
 			allowances.forEach(({ row }, i) => {
 				if (skipRow(EntityType.ActorAllowance, row.$source)) return
 				const allowanceId = `allowance:${row.$id.$actorCoin.$actor.$network.chainId}:${row.$id.$actorCoin.$actor.address}:${row.$id.$actorCoin.$coin.address}:${row.$id.$spender.address}`
@@ -1239,7 +1308,7 @@
 
 		// Add network nodes
 		if (visibleCollections.has(EntityType.Network)) {
-			const networks = take(networksQuery.data)
+			const networks = rowsForType(EntityType.Network, networksQuery.data)
 			networks.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Network, row.$source)) return
 				const networkId = `network:${row.$id.chainId}`
@@ -1275,7 +1344,7 @@
 		}
 
 		if (visibleCollections.has(EntityType.Block)) {
-			const blocks = take(blocksQuery.data)
+			const blocks = rowsForType(EntityType.Block, blocksQuery.data)
 			blocks.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Block, row.$source)) return
 				const blockId = `block:${row.$id.$network.chainId}:${row.$id.blockNumber}`
@@ -1324,7 +1393,10 @@
 
 		// Add route nodes
 		if (visibleCollections.has(EntityType.BridgeRoute)) {
-			const routes = take(routesQuery.data)
+			const routes = rowsForType(
+				EntityType.BridgeRoute,
+				routesQuery.data,
+			)
 			routes.forEach(({ row }, i) => {
 				if (skipRow(EntityType.BridgeRoute, row.$source)) return
 				const routeId = `route:${row.$id.routeId}`
@@ -1386,7 +1458,7 @@
 
 		// Add transaction nodes
 		if (visibleCollections.has(EntityType.Transaction)) {
-			const txs = take(txQuery.data)
+			const txs = rowsForType(EntityType.Transaction, txQuery.data)
 			txs.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Transaction, undefined)) return
 				const txId = `tx:${row.$id.sourceTxHash}`
@@ -1450,7 +1522,7 @@
 
 		// Add coin nodes
 		if (visibleCollections.has(EntityType.Coin)) {
-			const coins = take(coinsQuery.data)
+			const coins = rowsForType(EntityType.Coin, coinsQuery.data)
 			coins.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Coin, row.$source)) return
 				const coinId = `erc20:${row.$id.$network.chainId}:${row.$id.address}`
@@ -1487,7 +1559,10 @@
 
 		// Add token list coin nodes
 		if (visibleCollections.has(EntityType.TokenListCoin)) {
-			const tokens = take(tokenListCoinsQuery.data)
+			const tokens = rowsForType(
+				EntityType.TokenListCoin,
+				tokenListCoinsQuery.data,
+			)
 			tokens.forEach(({ row }, i) => {
 				if (skipRow(EntityType.TokenListCoin, row.$source)) return
 				const tokenId = `token:${row.$id.$network.chainId}:${row.$id.address}`
@@ -1524,7 +1599,10 @@
 
 		// Add stork price nodes
 		if (visibleCollections.has(EntityType.StorkPrice)) {
-			const prices = take(storkPricesQuery.data)
+			const prices = rowsForType(
+				EntityType.StorkPrice,
+				storkPricesQuery.data,
+			)
 			prices.forEach(({ row }, i) => {
 				if (skipRow(EntityType.StorkPrice, row.$source)) return
 				const priceId = toNodeId('stork', row.$id)
@@ -1568,7 +1646,10 @@
 
 		// Add swap quote nodes
 		if (visibleCollections.has(EntityType.SwapQuote)) {
-			const quotes = take(swapQuotesQuery.data)
+			const quotes = rowsForType(
+				EntityType.SwapQuote,
+				swapQuotesQuery.data,
+			)
 			quotes.forEach(({ row }, i) => {
 				if (skipRow(EntityType.SwapQuote, row.$source)) return
 				const quoteId = `swap:${row.id}`
@@ -1626,7 +1707,10 @@
 
 		// Add uniswap pool nodes
 		if (visibleCollections.has(EntityType.UniswapPool)) {
-			const pools = take(uniswapPoolsQuery.data)
+			const pools = rowsForType(
+				EntityType.UniswapPool,
+				uniswapPoolsQuery.data,
+			)
 			pools.forEach(({ row }, i) => {
 				if (skipRow(EntityType.UniswapPool, row.$source)) return
 				const poolId = `pool:${row.id}`
@@ -1672,7 +1756,10 @@
 
 		// Add uniswap position nodes
 		if (visibleCollections.has(EntityType.UniswapPosition)) {
-			const positions = take(uniswapPositionsQuery.data)
+			const positions = rowsForType(
+				EntityType.UniswapPosition,
+				uniswapPositionsQuery.data,
+			)
 			positions.forEach(({ row }, i) => {
 				if (skipRow(EntityType.UniswapPosition, row.$source)) return
 				const positionId = `position:${row.id}`
@@ -1707,7 +1794,10 @@
 
 		// Add CCTP allowance nodes
 		if (visibleCollections.has(EntityType.CctpAllowance)) {
-			const allowances = take(cctpAllowanceQuery.data)
+			const allowances = rowsForType(
+				EntityType.CctpAllowance,
+				cctpAllowanceQuery.data,
+			)
 			allowances.forEach(({ row }, i) => {
 				if (skipRow(EntityType.CctpAllowance, row.$source)) return
 				const allowanceId = toNodeId('cctp-allowance', row.$id)
@@ -1742,7 +1832,7 @@
 
 		// Add CCTP fee nodes
 		if (visibleCollections.has(EntityType.CctpFee)) {
-			const fees = take(cctpFeesQuery.data)
+			const fees = rowsForType(EntityType.CctpFee, cctpFeesQuery.data)
 			fees.forEach(({ row }, i) => {
 				if (skipRow(EntityType.CctpFee, row.$source)) return
 				const feeId = toNodeId('cctp-fee', row.$id)
@@ -1774,7 +1864,7 @@
 
 		// Add transaction session nodes
 		if (visibleCollections.has(EntityType.Session)) {
-			const sessions = take(SessionsQuery.data)
+			const sessions = rowsForType(EntityType.Session, SessionsQuery.data)
 			sessions.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Session, undefined)) return
 				const sessionId = `session:${row.id}`
@@ -1819,7 +1909,10 @@
 
 		// Add transaction session simulation nodes
 		if (visibleCollections.has(EntityType.SessionSimulation)) {
-			const simulations = take(sessionSimulationsQuery.data)
+			const simulations = rowsForType(
+				EntityType.SessionSimulation,
+				sessionSimulationsQuery.data,
+			)
 			simulations.forEach(({ row }, i) => {
 				if (skipRow(EntityType.SessionSimulation, undefined)) return
 				const simulationId = `simulation:${row.id}`
@@ -1862,7 +1955,10 @@
 
 		// Add transfer graph nodes
 		if (visibleCollections.has(EntityType.TransferGraph)) {
-			const graphs = take(transferGraphsQuery.data)
+			const graphs = rowsForType(
+				EntityType.TransferGraph,
+				transferGraphsQuery.data,
+			)
 			graphs.forEach(({ row }, i) => {
 				if (skipRow(EntityType.TransferGraph, row.$source)) return
 				const graphId = `transfer-graph:${row.$id.symbol}:${row.$id.period}`
@@ -1894,7 +1990,7 @@
 
 		// Add room nodes
 		if (visibleCollections.has(EntityType.Room)) {
-			const rooms = take(roomsQuery.data)
+			const rooms = rowsForType(EntityType.Room, roomsQuery.data)
 			rooms.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Room, row.$source)) return
 				const roomId = `room:${row.id}`
@@ -1924,7 +2020,10 @@
 
 		// Add room peer nodes
 		if (visibleCollections.has(EntityType.RoomPeer)) {
-			const peers = take(roomPeersQuery.data)
+			const peers = rowsForType(
+				EntityType.RoomPeer,
+				roomPeersQuery.data,
+			)
 			peers.forEach(({ row }, i) => {
 				if (skipRow(EntityType.RoomPeer, row.$source)) return
 				const peerId = `peer:${row.id}`
@@ -1972,7 +2071,10 @@
 
 		// Add shared address nodes
 		if (visibleCollections.has(EntityType.SharedAddress)) {
-			const shared = take(sharedAddressesQuery.data)
+			const shared = rowsForType(
+				EntityType.SharedAddress,
+				sharedAddressesQuery.data,
+			)
 			shared.forEach(({ row }, i) => {
 				if (
 					row.$source != null &&
@@ -2016,7 +2118,10 @@
 
 		// Add SIWE challenge nodes
 		if (visibleCollections.has(EntityType.SiweChallenge)) {
-			const challenges = take(siweChallengesQuery.data)
+			const challenges = rowsForType(
+				EntityType.SiweChallenge,
+				siweChallengesQuery.data,
+			)
 			challenges.forEach(({ row }, i) => {
 				if (skipRow(EntityType.SiweChallenge, row.$source)) return
 				const challengeId = `siwe:${row.id}`
@@ -2060,7 +2165,10 @@
 
 		// Add transfer request nodes
 		if (visibleCollections.has(EntityType.TransferRequest)) {
-			const requests = transferRequestsQuery.data ?? []
+			const requests = rowsForType(
+				EntityType.TransferRequest,
+				transferRequestsQuery.data,
+			)
 			requests.forEach(({ row }, i) => {
 				if (skipRow(EntityType.TransferRequest, row.$source)) return
 				const requestId = `transfer-request:${row.id}`
@@ -2112,7 +2220,10 @@
 
 		// Add yellow channel nodes
 		if (visibleCollections.has(EntityType.StateChannel)) {
-			const channels = take(yellowChannelsQuery.data)
+			const channels = rowsForType(
+				EntityType.StateChannel,
+				yellowChannelsQuery.data,
+			)
 			channels.forEach(({ row }, i) => {
 				if (skipRow(EntityType.StateChannel, row.$source)) return
 				const channelId = `yellow:${row.id}`
@@ -2158,7 +2269,10 @@
 
 		// Add yellow channel state nodes
 		if (visibleCollections.has(EntityType.StateChannelState)) {
-			const states = take(stateChannelStatesQuery.data)
+			const states = rowsForType(
+				EntityType.StateChannelState,
+				stateChannelStatesQuery.data,
+			)
 			states.forEach(({ row }, i) => {
 				if (skipRow(EntityType.StateChannelState, row.$source)) return
 				const stateId = `yellow-state:${row.id}`
@@ -2202,7 +2316,10 @@
 
 		// Add yellow deposit nodes
 		if (visibleCollections.has(EntityType.StateChannelDeposit)) {
-			const deposits = take(stateChannelDepositsQuery.data)
+			const deposits = rowsForType(
+				EntityType.StateChannelDeposit,
+				stateChannelDepositsQuery.data,
+			)
 			deposits.forEach(({ row }, i) => {
 				if (skipRow(EntityType.StateChannelDeposit, row.$source)) return
 				const depositId = `yellow-deposit:${row.id}`
@@ -2245,7 +2362,10 @@
 
 		// Add yellow transfer nodes
 		if (visibleCollections.has(EntityType.StateChannelTransfer)) {
-			const transfers = take(stateChannelTransfersQuery.data)
+			const transfers = rowsForType(
+				EntityType.StateChannelTransfer,
+				stateChannelTransfersQuery.data,
+			)
 			transfers.forEach(({ row }, i) => {
 				if (skipRow(EntityType.StateChannelTransfer, row.$source)) return
 				const transferId = `yellow-transfer:${row.id}`
@@ -2289,7 +2409,10 @@
 
 		// Add dashboard panel nodes
 		if (visibleCollections.has(EntityType.Dashboard)) {
-			const panels = take(dashboardsQuery.data)
+			const panels = rowsForType(
+				EntityType.Dashboard,
+				dashboardsQuery.data,
+			)
 			panels.forEach(({ row }, i) => {
 				if (skipRow(EntityType.Dashboard, undefined)) return
 				const panelId = toNodeId('dashboard', row.$id)
@@ -2808,6 +2931,32 @@
 							{/snippet}
 						</Combobox>
 					{/if}
+				</div>
+				<div data-column="gap-2">
+					<label for="graph-scene-expanded">Expand scope (full collection)</label>
+					<Combobox
+						id="graph-scene-expanded"
+						type="multiple"
+						items={expandableEntityTypeItems}
+						bind:value={expandedEntitiesSelection}
+						getItemId={(x) => x.id}
+						getItemLabel={(x) => x.label}
+						placeholder="Watched only by default…"
+						aria-label="Entity types to load full collection"
+					>
+						{#snippet Item(item, selected)}
+							<span
+								data-row="gap-2 align-center"
+								style="--color: {item.color}"
+							>
+								<span
+									class="graph-scene-dot"
+									style="background: {item.color}"
+								></span>
+								{item.label}
+							</span>
+						{/snippet}
+					</Combobox>
 				</div>
 				{#if entitySourceCombos.length > 0}
 					<div data-column="gap-2">
