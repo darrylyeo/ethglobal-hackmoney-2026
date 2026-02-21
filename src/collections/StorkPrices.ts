@@ -1,7 +1,6 @@
-import { createHttpProvider } from '$/api/voltaire.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import {
 	storkEncodedAssetIdByAssetId,
 	storkOracleContracts,
@@ -322,7 +321,7 @@ const fetchRpcPrice = async (assetId: string, chainId: number) => {
 		)
 		return
 	}
-	const rpcUrl = rpcUrls[chainId]
+	const rpcUrl = getEffectiveRpcUrl(chainId)
 	if (!rpcUrl) {
 		setStorkPriceError(
 			{ assetId, transport: StorkPriceTransport.Rpc, $network: { chainId } },
@@ -341,7 +340,7 @@ const fetchRpcPrice = async (assetId: string, chainId: number) => {
 		)
 		return
 	}
-	const provider = createHttpProvider(rpcUrl)
+	const provider = createProviderForChain(chainId)
 	const data = encodeFunction(STORK_VALUE_ABI, 'getTemporalNumericValueV1', [
 		encodedAssetId,
 	])

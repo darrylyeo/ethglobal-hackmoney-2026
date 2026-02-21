@@ -9,7 +9,6 @@ import {
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 import {
-	createHttpProvider,
 	getBlockByNumber,
 	getBlockTransactionCount,
 	getBlockTransactionHashes,
@@ -22,7 +21,7 @@ import {
 	type Network,
 	networksByChainId,
 } from '$/constants/networks.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import type { BlockEntry, Block$Id } from '$/data/Block.ts'
 import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 
@@ -101,7 +100,7 @@ export const fetchBlock = async (
 		})
 	}
 
-	const url = rpcUrls[chainId]
+	const url = getEffectiveRpcUrl(chainId)
 	if (!url) {
 		const err = `No RPC URL for chain ${chainId}`
 		blocksCollection.update(key, (draft) => {
@@ -112,7 +111,7 @@ export const fetchBlock = async (
 	}
 
 	try {
-		const provider = createHttpProvider(url)
+		const provider = createProviderForChain(chainId)
 		const blockNum =
 			blockNumber >= 0 ? BigInt(blockNumber) : ('latest' as const)
 		const [block, transactionCount] = await Promise.all([
@@ -176,9 +175,9 @@ export const fetchBlockTransactions = async (
 	chainId: ChainId,
 	blockNumber: number,
 ): Promise<void> => {
-	const url = rpcUrls[chainId]
+	const url = getEffectiveRpcUrl(chainId)
 	if (!url) return
-	const provider = createHttpProvider(url)
+	const provider = createProviderForChain(chainId)
 	const hashes = await getBlockTransactionHashes(provider, BigInt(blockNumber))
 	await Promise.allSettled(
 		hashes.map((hash) => fetchNetworkTransaction(chainId, hash)),

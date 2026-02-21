@@ -7,7 +7,6 @@ import {
 	resolveEnsForward,
 	resolveEnsReverse,
 } from '$/api/identity-resolve.ts'
-import { createHttpProvider } from '$/api/voltaire.ts'
 import {
 	getCachedEnsAvatar,
 	setCachedEnsAvatar,
@@ -16,7 +15,7 @@ import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { identityResolvers } from '$/constants/identity-resolver.ts'
 import type { ChainId } from '$/constants/networks.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import type { EvmActorProfile, EvmActorProfile$Id } from '$/data/EvmActorProfile.ts'
 import {
 	createCollection,
@@ -92,7 +91,7 @@ export const fetchEvmActorProfile = async (
 	}
 
 	const resolver = getEnsResolverForChain(chainId)
-	const url = rpcUrls[chainId]
+	const url = getEffectiveRpcUrl(chainId)
 	if (!resolver?.ensRegistry || !url) {
 		const err = resolver
 			? `No RPC URL for chain ${chainId}`
@@ -105,7 +104,7 @@ export const fetchEvmActorProfile = async (
 	}
 
 	try {
-		const provider = createHttpProvider(url)
+		const provider = createProviderForChain(chainId)
 		const primaryName = await resolveEnsReverse(
 			provider,
 			resolver.ensRegistry,

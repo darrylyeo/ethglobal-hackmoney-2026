@@ -8,11 +8,11 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
-import { createHttpProvider, getErc20Allowance } from '$/api/voltaire.ts'
+import { getErc20Allowance } from '$/api/voltaire.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { toInteropName } from '$/constants/interop.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { createProviderForChain } from '$/lib/helios-rpc.ts'
 import type { ActorAllowance, ActorAllowance$Id } from '$/data/ActorAllowance.ts'
 
 export type ActorAllowanceRow = ActorAllowance & { $source: DataSource }
@@ -94,11 +94,8 @@ export const fetchActorAllowance = async (
 
 	try {
 		const chainId = $id.$actorCoin.$actor.$network.chainId
-		const rpcUrl = rpcUrls[chainId]
-		if (!rpcUrl) throw new Error(`No RPC URL for chain ${chainId}`)
-
 		const allowance = await getErc20Allowance(
-			createHttpProvider(rpcUrl),
+			createProviderForChain(chainId),
 			$id.$actorCoin.$coin.address,
 			$id.$actorCoin.$actor.address,
 			$id.$spender.address,

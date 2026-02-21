@@ -156,7 +156,7 @@ export async function fetchTransferEvents(
 						blockNumber: e.blockNumber,
 						logIndex: e.logIndex,
 					},
-					$source: DataSource.Voltaire,
+					$source: '$source' in e ? e.$source : DataSource.Voltaire,
 					transactionHash: e.transactionHash,
 					fromAddress: e.fromAddress,
 					toAddress: e.toAddress,
@@ -185,7 +185,7 @@ export async function fetchTransferEvents(
 					blockNumber: e.blockNumber,
 					logIndex: e.logIndex,
 				},
-				$source: DataSource.Voltaire,
+				$source: '$source' in e ? e.$source : DataSource.Voltaire,
 				...e,
 			})) as TransferEventRow[]
 			upsertBridgeTransferEvents(symbol, period, rows)

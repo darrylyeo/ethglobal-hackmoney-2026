@@ -4,14 +4,13 @@
  */
 
 import {
-	createHttpProvider,
 	getTransactionByHash,
 	getTransactionReceipt,
 } from '$/api/voltaire.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { ChainId } from '$/constants/networks.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 import {
 	createCollection,
@@ -62,7 +61,7 @@ export const fetchNetworkTransaction = async (
 		})
 	}
 
-	const url = rpcUrls[chainId]
+	const url = getEffectiveRpcUrl(chainId)
 	if (!url) {
 		const err = `No RPC URL for chain ${chainId}`
 		networkTransactionsCollection.update(key, (draft) => {
@@ -73,7 +72,7 @@ export const fetchNetworkTransaction = async (
 	}
 
 	try {
-		const provider = createHttpProvider(url)
+		const provider = createProviderForChain(chainId)
 		const [tx, receipt] = await Promise.all([
 			getTransactionByHash(provider, txHash),
 			getTransactionReceipt(provider, txHash),

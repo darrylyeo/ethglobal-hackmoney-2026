@@ -5,13 +5,12 @@
  */
 
 import { resolveIdentity } from '$/api/identity-resolve.ts'
-import { createHttpProvider } from '$/api/voltaire.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { ChainId } from '$/constants/networks.ts'
 import { IdentityInputKind, type IdentityResolution } from '$/constants/identity-resolver.ts'
 import { normalizeIdentity } from '$/api/identity-resolve.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,
@@ -53,7 +52,7 @@ export const fetchIdentityLink = async (
 ): Promise<IdentityLinkRow> => {
 	const key = identityLinkKey(chainId, raw)
 	const { kind, normalized } = normalizeIdentity(raw)
-	const url = rpcUrls[chainId]
+	const url = getEffectiveRpcUrl(chainId)
 	const now = Date.now()
 	const placeholder: IdentityLinkRow = {
 		id: key,
@@ -73,7 +72,7 @@ export const fetchIdentityLink = async (
 		return placeholder
 	}
 	identityLinks.utils.writeUpsert(placeholder)
-	const provider = createHttpProvider(url)
+	const provider = createProviderForChain(chainId)
 	const existing = identityLinks.state.get(key) as
 		| IdentityLinkRow
 		| undefined
