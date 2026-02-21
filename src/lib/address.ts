@@ -1,26 +1,20 @@
 import { Address } from '@tevm/voltaire/Address'
 
-export const isValidAddress = (address: string): boolean =>
+export const isValidAddress = (address: string) =>
 	address.startsWith('0x') && Address.isValid(address)
 
 /** Normalize to EIP-55 checksummed format. Use at boundaries: user input, API responses, URL params. */
-export const normalizeAddress = (address: string): `0x${string}` | null =>
+export const normalizeAddress = (address: string) =>
 	Address.isValid(address)
 		? (Address.toChecksummed(Address.fromHex(address)) as `0x${string}`)
 		: null
 
 export const checksumAddress = normalizeAddress
 
-export const formatAddress = (address: string, chars = 6): string =>
+export const formatAddress = (address: string, chars = 6) =>
 	`${address.slice(0, chars + 2)}…${address.slice(-chars)}`
 
-export const parseAccountAddressParam = (
-	param: string,
-): {
-	address: `0x${string}`
-	interopAddress?: string
-	chainId?: number
-} | null => {
+export const parseAccountAddressParam = (param: string) => {
 	const decoded = decodeURIComponent(param)
 	if (decoded.includes('@')) {
 		const [addressPart, rest] = decoded.split('@')

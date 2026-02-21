@@ -14,7 +14,7 @@ import type { Network$Id } from '$/data/Network.ts'
 export const serializeNetworkId = (
 	id: Network$Id,
 	format: Network$IdSerializationType,
-): string => {
+) => {
 	const network = networksByChainId[id.chainId as number]
 	return (
 		format === Network$IdSerializationType.ChainId ?
@@ -28,7 +28,7 @@ export const serializeNetworkId = (
 	)
 }
 
-export const deserializeNetworkId = (value: string): Network$Id | null => {
+export const deserializeNetworkId = (value: string) => {
 	const decoded = decodeURIComponent(value)
 	if (/^\d+$/.test(decoded)) {
 		const network = networksByChainId[Number(decoded)] ?? null

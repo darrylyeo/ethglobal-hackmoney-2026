@@ -17,7 +17,7 @@ export function getBridgeProtocolOptions(
 	fromChainId: number | null,
 	toChainId: number | null,
 	isTestnet: boolean,
-): ProtocolDefinition[] {
+) {
 	return BRIDGE_PROTOCOLS.filter(({ supported }) => supported(fromChainId, toChainId, isTestnet)).map(
 		({ id }) => protocolsById[id],
 	)

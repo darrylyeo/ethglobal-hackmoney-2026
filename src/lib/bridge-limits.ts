@@ -16,7 +16,7 @@ export const validateBridgeAmount = (
 	amount: bigint,
 	minAmount: bigint = USDC_MIN_AMOUNT,
 	maxAmount: bigint = USDC_MAX_AMOUNT,
-): AmountValidation => {
+) => {
 	if (amount <= 0n)
 		return { isValid: false, error: AmountValidationError.Invalid }
 	if (amount < minAmount)
@@ -36,7 +36,7 @@ export const validateBridgeAmount = (
 
 export const extractRouteLimits = (
 	routes: { fromAmount: bigint }[],
-): RouteLimits =>
+) =>
 	routes.length === 0
 		? { minAmount: null, maxAmount: null }
 		: {

@@ -4,7 +4,7 @@
 
 import { networksByChainId } from '$/constants/networks.ts'
 
-export const getTxPath = (chainId: number, txHash: string): string => {
+export const getTxPath = (chainId: number, txHash: string) => {
 	const slug = networksByChainId[chainId]?.slug
 	return slug != null
 		? `/network/${slug}/transaction/${txHash}`
@@ -14,11 +14,11 @@ export const getTxPath = (chainId: number, txHash: string): string => {
 export const getBlockPath = (
 	chainId: number,
 	blockNumber: number | string,
-): string => {
+) => {
 	const slug = networksByChainId[chainId]?.slug
 	return slug != null
 		? `/network/${slug}/block/${blockNumber}`
 		: `/network/${chainId}/block/${blockNumber}`
 }
 
-export const getAccountPath = (address: string): string => `/account/${address}`
+export const getAccountPath = (address: string) => `/account/${address}`

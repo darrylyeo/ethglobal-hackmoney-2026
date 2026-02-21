@@ -7,10 +7,10 @@ import {
 	MIN_SLIPPAGE,
 } from '$/constants/slippage.ts'
 
-export const formatSlippagePercent = (slippage: number): string =>
+export const formatSlippagePercent = (slippage: number) =>
 	`${(slippage * 100).toFixed(2).replace(/\.?0+$/, '')}%`
 
-export const parseSlippagePercent = (value: string): number | null => {
+export const parseSlippagePercent = (value: string) => {
 	const num = parseFloat(value.replace('%', ''))
 	if (Number.isNaN(num)) return null
 	const slippage = num / 100
@@ -21,6 +21,6 @@ export const parseSlippagePercent = (value: string): number | null => {
 export const calculateMinOutput = (
 	estimatedOutput: bigint,
 	slippage: number,
-): bigint =>
+) =>
 	(estimatedOutput * BigInt(Math.floor((1 - slippage) * 1_000_000))) /
 	1_000_000n

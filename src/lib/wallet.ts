@@ -1,7 +1,7 @@
 import {
 	networksByChainId,
 } from '$/constants/networks.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
+import { getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import { E2E_TEVM_RPC_URL } from '$/tests/tevm.ts'
 import {
 	E2E_TEVM_CHAIN_ID,
@@ -123,7 +123,7 @@ export const addChainToWallet = async (
 	chainId: number,
 ): Promise<void> => {
 	const network = networksByChainId[chainId]
-	const rpcUrl = rpcUrls[chainId]
+	const rpcUrl = getEffectiveRpcUrl(chainId)
 	if (!network || !rpcUrl) throw new Error(`Unknown chain ${chainId}`)
 	await provider.request({
 		method: 'wallet_addEthereumChain',

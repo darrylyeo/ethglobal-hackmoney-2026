@@ -12,7 +12,7 @@ export type TransferLike = {
 	chainId: number
 }
 
-export const isBridgeTransfer = (e: TransferLike): boolean => {
+export const isBridgeTransfer = (e: TransferLike) => {
 	const messenger = getCctpTokenMessenger(
 		e.chainId as ChainId,
 		isCctpTestnetChain(e.chainId as ChainId),
@@ -22,4 +22,4 @@ export const isBridgeTransfer = (e: TransferLike): boolean => {
 	)
 }
 
-export const isSwapTransfer = (_e: TransferLike): boolean => false
+export const isSwapTransfer = (_e: TransferLike) => false

@@ -41,7 +41,7 @@ const LANG_BY_EXT: Record<string, ShjLanguage> = {
 	'.sh': 'bash',
 }
 
-export function langForPath(path: string): ShjLanguage {
+export function langForPath(path: string) {
 	const ext = path.slice(path.lastIndexOf('.'))
 	return LANG_BY_EXT[ext] ?? 'plain'
 }
@@ -49,7 +49,7 @@ export function langForPath(path: string): ShjLanguage {
 export async function highlightElementForPath(
 	elm: HTMLElement,
 	path: string,
-): Promise<void> {
+) {
 	const lang = langForPath(path)
 	await highlightElement(elm, lang, 'multiline', { hideLineNumbers: true })
 }
@@ -58,7 +58,7 @@ export async function highlightElementWithLang(
 	elm: HTMLElement,
 	lang: ShjLanguage,
 	multiline = true,
-): Promise<void> {
+) {
 	await highlightElement(
 		elm,
 		lang,

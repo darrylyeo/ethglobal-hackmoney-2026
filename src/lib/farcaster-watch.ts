@@ -8,8 +8,7 @@ import {
 	patternByPatternType,
 } from '$/constants/patterns.ts'
 import { ChainId } from '$/constants/networks.ts'
-import { rpcUrls } from '$/constants/rpc-endpoints.ts'
-import { createHttpProvider } from '$/api/voltaire.ts'
+import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import { resolveEnsForward } from '$/api/identity-resolve.ts'
 import { ENS_REGISTRY_MAINNET } from '$/constants/identity-resolver.ts'
 import { getFidByAddress } from '$/api/farcaster/index.ts'
@@ -82,9 +81,9 @@ export const resolveFidFromWatchInput = async (
 		}
 	}
 
-	const url = rpcUrls[ChainId.Ethereum]
+	const url = getEffectiveRpcUrl(ChainId.Ethereum)
 	if (!url) throw new Error('ENS resolution requires Ethereum RPC')
-	const provider = createHttpProvider(url)
+	const provider = createProviderForChain(ChainId.Ethereum)
 	const { address } = await resolveEnsForward(
 		provider,
 		ENS_REGISTRY_MAINNET,

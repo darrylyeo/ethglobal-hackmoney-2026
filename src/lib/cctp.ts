@@ -11,16 +11,16 @@ import {
 } from '$/constants/cctp.ts'
 import type { ChainId } from '$/constants/networks.ts'
 
-export const getCctpDomainId = (chainId: ChainId | null): number | null =>
+export const getCctpDomainId = (chainId: ChainId | null) =>
 	chainId === null ? null : (cctpDomainByChainId[chainId]?.domain ?? null)
 
-export const isCctpSupportedChain = (chainId: ChainId | null): boolean =>
+export const isCctpSupportedChain = (chainId: ChainId | null) =>
 	chainId !== null && cctpDomainByChainId[chainId] !== undefined
 
 export const getCctpTokenMessenger = (
 	chainId: ChainId | null,
 	isTestnet: boolean,
-): `0x${string}` | null =>
+) =>
 	chainId !== null && cctpDomainByChainId[chainId] !== undefined
 		? isTestnet
 			? CCTP_TOKEN_MESSENGER_TESTNET
@@ -30,7 +30,7 @@ export const getCctpTokenMessenger = (
 export const getCctpMessageTransmitter = (
 	chainId: ChainId | null,
 	isTestnet: boolean,
-): `0x${string}` | null =>
+) =>
 	chainId !== null && cctpDomainByChainId[chainId] !== undefined
 		? isTestnet
 			? CCTP_MESSAGE_TRANSMITTER_TESTNET

@@ -53,6 +53,7 @@ export const PROFILE_SCOPED_STORAGE_KEYS = [
 	CollectionId.FarcasterConnections,
 	CollectionId.WalletConnections,
 	CollectionId.Sessions,
+	CollectionId.SocialPostSessions,
 	CollectionId.WatchedEntities,
 	CollectionId.Dashboards,
 	CollectionId.AgentChatTrees,
@@ -85,7 +86,7 @@ const isBrowser = () => typeof localStorage !== 'undefined'
 
 // --- Read ---
 
-export const getProfilesMeta = (): ProfilesMeta | null => {
+export const getProfilesMeta = () => {
 	if (!isBrowser()) return null
 	const raw = localStorage.getItem(PROFILES_KEY)
 	if (raw == null) return null
@@ -97,24 +98,24 @@ const setProfilesMeta = (meta: ProfilesMeta) => {
 	localStorage.setItem(PROFILES_KEY, JSON.stringify(meta))
 }
 
-export const getActiveProfileId = (): string => (
+export const getActiveProfileId = () => (
 	getProfilesMeta()?.activeProfileId ?? 'default'
 )
 
-export const getActiveProfile = (): Profile => {
+export const getActiveProfile = () => {
 	const meta = ensureProfilesMeta()
 	const list = meta.profiles ?? defaultMetaStub().profiles
 	return list.find((p) => p.id === meta.activeProfileId) ?? list[0]!
 }
 
-export const listProfiles = (): Profile[] => (
+export const listProfiles = () => (
 	ensureProfilesMeta().profiles ?? defaultMetaStub().profiles
 )
 
 
 // --- Boot / Migration ---
 
-const createDefaultProfile = (): Profile => {
+const createDefaultProfile = () => {
 	const name = generatePeerDisplayName()
 	return {
 		id: 'default',
@@ -125,7 +126,7 @@ const createDefaultProfile = (): Profile => {
 	}
 }
 
-const defaultMetaStub = (): ProfilesMeta => ({
+const defaultMetaStub = () => ({
 	version: 1,
 	activeProfileId: 'default',
 	profiles: [{ id: 'default', name: 'Default', emoji: '👤', createdAt: 0, updatedAt: 0 }],
@@ -136,7 +137,7 @@ const defaultMetaStub = (): ProfilesMeta => ({
  * un-namespaced localStorage data into the default profile's namespace.
  * On server, returns a stub so SSR does not touch localStorage.
  */
-export const ensureProfilesMeta = (): ProfilesMeta => {
+export const ensureProfilesMeta = () => {
 	if (!isBrowser()) return defaultMetaStub()
 	const existing = getProfilesMeta()
 	if (existing) {
@@ -183,7 +184,7 @@ export const ensureProfilesMeta = (): ProfilesMeta => {
 
 export const createProfile = (
 	overrides?: Partial<Pick<Profile, 'name' | 'emoji'>>,
-): Profile => {
+) => {
 	const meta = ensureProfilesMeta()
 	const name = overrides?.name ?? generatePeerDisplayName()
 	const id = crypto.randomUUID()
@@ -219,7 +220,7 @@ export const updateProfile = (
 export const deleteProfile = (
 	id: string,
 	currentNetworkEnv: NetworkEnvironment,
-): boolean => {
+) => {
 	const meta = ensureProfilesMeta()
 	if (meta.profiles.length <= 1) return false
 
@@ -364,7 +365,7 @@ export const exportProfile = (profileId: string) => {
 	URL.revokeObjectURL(url)
 }
 
-export const importProfile = (file: File): Promise<Profile> => (
+export const importProfile = (file: File) => (
 	file.text().then((text) => {
 		const data = JSON.parse(text) as ProfileExport
 		if (data.$format !== 'blockhead-profile')

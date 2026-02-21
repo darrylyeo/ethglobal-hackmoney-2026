@@ -17,11 +17,7 @@ function isTevmStep(value: unknown): value is TevmSimulationResult {
 	)
 }
 
-export function flattenSimulationResult(result: unknown): {
-	events: TevmSimulationDecodedEvent[]
-	rawLogs: { address: string; topics: string[]; data: string }[]
-	trace: TevmSimulationTraceCall[]
-} {
+export function flattenSimulationResult(result: unknown) {
 	const steps: TevmSimulationResult[] =
 		typeof result === 'object' &&
 		result !== null &&

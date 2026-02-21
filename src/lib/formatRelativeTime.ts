@@ -1,4 +1,4 @@
-export const formatRelativeTime = (ms: number): string => {
+export const formatRelativeTime = (ms: number) => {
 	if (Math.abs(ms) < 1000) {
 		return 'now'
 	}
@@ -18,10 +18,10 @@ export const formatRelativeTime = (ms: number): string => {
 
 	const value = ms < 0 ? 1 : -1
 
-	const format = (val: number, unit: Intl.RelativeTimeFormatUnit): string =>
+	const format = (val: number, unit: Intl.RelativeTimeFormatUnit) =>
 		rtf.format(val, unit)
 
-	const dedupe = (s: string): string =>
+	const dedupe = (s: string) =>
 		ms < 0 ?
 			s.replace(/\s+in\s+/g, ' ')
 		:

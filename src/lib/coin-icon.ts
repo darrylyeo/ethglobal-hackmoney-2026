@@ -8,7 +8,7 @@ const norm = (a: string) => a.toLowerCase()
 export const getSymbolForCoinEntity = (
 	type: EntityType,
 	id: Record<string, unknown>,
-): string | undefined => {
+) => {
 	if (!isCoinEntityType(type)) return undefined
 	const chainId = id.chainId ?? id.network
 	const address = type === EntityType.ActorCoin

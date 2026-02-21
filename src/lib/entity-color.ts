@@ -4,7 +4,7 @@ import type { IntentEntityRef } from '$/constants/intents.ts'
 import { EntityType } from '$/data/$EntityType.ts'
 import { getSymbolForCoinEntity, isCoinEntityType } from '$/lib/coin-icon.ts'
 
-export const getEntityColor = (entity: IntentEntityRef): string | undefined => {
+export const getEntityColor = (entity: IntentEntityRef) => {
 	const { type, id } = entity
 	if (type === EntityType.Network || type === EntityType.ActorNetwork) {
 		const chainId =
