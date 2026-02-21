@@ -1,8 +1,11 @@
 <script lang="ts" generics="_CoinType extends CoinType = CoinType">
 	// Types/constants
-	import { type Coin, CoinType } from '$/constants/coins.ts'
-	import { networksByChainId } from '$/constants/networks.ts'
+	import type { Coin } from '$/constants/coins.ts'
+	import { draggable } from '$/components/Draggable.svelte.ts'
 	import { IconShape } from '$/components/Icon.svelte'
+	import { CoinType } from '$/constants/coins.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
+	import { stringify } from '$/lib/stringify.ts'
 
 
 	// Props
@@ -15,11 +18,6 @@
 		isDraggable?: boolean
 		showName?: boolean
 	} = $props()
-
-
-	// Functions
-	import { draggable } from '$/components/Draggable.svelte.ts'
-	import { stringify } from '$/lib/stringify.ts'
 
 
 	// Components
@@ -73,13 +71,15 @@
 
 
 <style>
-	.coin {
-		color: var(--text-secondary);
-		font-size: smaller;
-	}
+	.coin-name {
+		.coin {
+			color: var(--text-secondary);
+			font-size: smaller;
+		}
 
-	abbr {
-		text-decoration: none;
-		cursor: help;
+		abbr {
+			text-decoration: none;
+			cursor: help;
+		}
 	}
 </style>

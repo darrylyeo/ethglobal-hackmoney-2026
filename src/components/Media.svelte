@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { Media, MediaObject } from '$/constants/media.ts'
+	import type { Media } from '$/constants/media.ts'
 	import { MediaType } from '$/constants/media.ts'
 
 
@@ -21,8 +21,7 @@
 	// Functions
 	const isFullMedia = (m: Media | { url: string } | undefined): m is Media =>
 		!!m && 'type' in m && 'original' in m
-
-	function inferTypeFromUrl(u: string | undefined): MediaType {
+	const inferTypeFromUrl = (u: string | undefined): MediaType => {
 		if (!u) return MediaType.Other
 		const path = u.split('?')[0].toLowerCase()
 		if (/\.(jpg|jpeg|png|gif|webp|avif|svg)(\?|$)/i.test(path)) return MediaType.Image
@@ -63,7 +62,7 @@
 
 {#if url}
 	{#if mediaType === MediaType.Image}
-		<figure>
+		<figure class="media-figure">
 			<img
 				src={url}
 				alt={alt}
@@ -74,7 +73,7 @@
 		</figure>
 	{:else if mediaType === MediaType.Video}
 		<!-- svelte-ignore a11y_media_has_caption -->
-		<figure>
+		<figure class="media-figure">
 			<video
 				src={url}
 				width={format?.width}
@@ -88,7 +87,7 @@
 			</video>
 		</figure>
 	{:else if mediaType === MediaType.Audio}
-		<figure>
+		<figure class="media-figure">
 			<audio
 				src={url}
 				controls
@@ -100,7 +99,7 @@
 			</audio>
 		</figure>
 	{:else}
-		<figure>
+		<figure class="media-figure">
 			<a href={url} target="_blank" rel="noopener noreferrer" data-text="annotation">
 				{url}
 			</a>
@@ -109,25 +108,25 @@
 {/if}
 
 <style>
-	figure {
+	.media-figure {
 		margin: 0;
 		padding: 0;
 		display: block;
 	}
 
-	img,
-	video {
+	.media-figure img,
+	.media-figure video {
 		display: block;
 		max-width: 100%;
 		height: auto;
 		object-fit: contain;
 	}
 
-	video {
+	.media-figure video {
 		background: var(--color-surface-2, #f1f5f9);
 	}
 
-	audio {
+	.media-figure audio {
 		width: 100%;
 	}
 </style>
