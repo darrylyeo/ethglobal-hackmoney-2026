@@ -430,11 +430,11 @@ export const registerWebMcpTools = async (client?: ModelContextClient) => {
 ### Agent chat as MCP driver
 
 - [x] Shared `getToolDefinitions()` and `executeTool()` used by both WebMCP registration and agent chat
-- [ ] LlmProvider supports `generateWithTools` (or equivalent) with tool definitions and tool-call response parsing
-- [ ] `submitAgentChatTurnWithTools` (or extended `submitAgentChatTurn`) passes tools to LLM and handles tool-call responses
-- [ ] AgentChatTurn extended with `toolCalls` and `toolResults`; AgentChatTurnNode renders them
-- [ ] Chat-specific `requestUserInteraction` shows in-conversation confirmation for sensitive tools before execution
-- [ ] Optional `toolsForChat` filter to restrict which tools the chat LLM can call
+- [x] LlmProvider supports `generateWithTools` (or equivalent) with tool definitions and tool-call response parsing
+- [x] `submitAgentChatTurnWithTools` (or extended `submitAgentChatTurn`) passes tools to LLM and handles tool-call responses
+- [x] AgentChatTurn extended with `toolCalls` and `toolResults`; AgentChatTurnNode renders them
+- [x] Chat-specific `requestUserInteraction` shows in-conversation confirmation for sensitive tools before execution
+- [x] Optional `toolsForChat` filter to restrict which tools the chat LLM can call
 
 ## Future work / open topics
 
@@ -446,7 +446,7 @@ export const registerWebMcpTools = async (client?: ModelContextClient) => {
 
 ## Status
 
-In progress. WebMCP tool registration complete; agent chat tool-call flow deferred.
+Complete. 2026-02-21 (PROMPT_build execute one spec): Agent chat as MCP driver implemented. LlmProvider has optional `generateWithTools` (connection-provider OpenAI/Anthropic/Google use AI SDK generateText with tools and stepCountIs(10)); submitAgentChatTurn uses generateWithTools when available and persists toolCalls/toolResults; AgentChatTurn type and AgentChatTurnNode already had toolCalls/toolResults; requestUserInteraction and toolsForChat plumbed from page → AgentChatTree → AgentChatTurnNode → submitAgentChatTurn; TOOLS_FOR_CHAT default, optional toolsForChat filter. E2E (optional) unchecked.
 
 ## References
 

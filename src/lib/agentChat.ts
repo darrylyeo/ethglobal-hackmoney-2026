@@ -1,10 +1,11 @@
 import type { AgentChatTree } from '$/data/AgentChatTree.ts'
 import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 import type { EntityRef } from '$/data/EntityRef.ts'
-import type { LlmGenerateInput } from '$/lib/llmProvider.ts'
+import type { LlmGenerateInput, RequestUserInteraction } from '$/lib/llmProvider.ts'
 import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
 import { createLlmProvider } from '$/lib/llmProvider.ts'
+import { TOOLS_FOR_CHAT } from '$/lib/webmcp/tools-for-llm.ts'
 
 export const DEFAULT_SYSTEM_PROMPT =
 	'You are a helpful assistant that answers questions about blockchain transactions, tokens, and protocols. Be concise and factual.'
@@ -56,6 +57,8 @@ export const submitAgentChatTurn = async (options: {
 	connectionId?: string | null
 	modelId?: string | null
 	onProgress?: (progress: number) => void
+	toolsForChat?: string[] | null
+	requestUserInteraction?: RequestUserInteraction
 }) => {
 	const turnId = crypto.randomUUID()
 	const now = Date.now()
@@ -95,13 +98,29 @@ export const submitAgentChatTurn = async (options: {
 		modelId: effectiveModelId,
 	})
 
+	const toolNames = options.toolsForChat ?? TOOLS_FOR_CHAT
+
 	try {
-		const output = await provider.generate(messages)
-		agentChatTurnsCollection.update(turnId, (draft) => {
-			draft.assistantText = output.text
-			draft.providerId = output.providerId
-			draft.status = 'complete'
-		})
+		if (provider.generateWithTools && toolNames.length > 0) {
+			const output = await provider.generateWithTools(messages, {
+				toolNames: [...toolNames],
+				requestUserInteraction: options.requestUserInteraction,
+			})
+			agentChatTurnsCollection.update(turnId, (draft) => {
+				draft.assistantText = output.text
+				draft.providerId = output.providerId
+				draft.status = 'complete'
+				if (output.toolCalls?.length) draft.toolCalls = output.toolCalls
+				if (output.toolResults?.length) draft.toolResults = output.toolResults
+			})
+		} else {
+			const output = await provider.generate(messages)
+			agentChatTurnsCollection.update(turnId, (draft) => {
+				draft.assistantText = output.text
+				draft.providerId = output.providerId
+				draft.status = 'complete'
+			})
+		}
 	} catch (error) {
 		agentChatTurnsCollection.update(turnId, (draft) => {
 			draft.status = 'error'

@@ -14,16 +14,48 @@ import {
 } from '$/constants/opencode-zen.ts'
 import type { LlmConnection } from '$/data/LlmConnection.ts'
 import { LlmConnectionProvider } from '$/data/LlmConnection.ts'
-import type { LlmProvider, LlmGenerateInput, LlmAvailability } from '$/lib/llmProvider.ts'
+import type {
+	LlmProvider,
+	LlmGenerateInput,
+	LlmAvailability,
+	LlmGenerateWithToolsOutput,
+} from '$/lib/llmProvider.ts'
 import { createHostedLlmProvider } from '$/lib/llmProvider.ts'
+import { buildAISdkToolsFromWebmcp, TOOLS_FOR_CHAT } from '$/lib/webmcp/tools-for-llm.ts'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createOpenAI } from '@ai-sdk/openai'
-import { generateText } from 'ai'
+import { generateText, stepCountIs } from 'ai'
+import type {
+	LlmGenerateWithToolsOptions,
+} from '$/lib/llmProvider.ts'
 
 const OPENAI_DEFAULT_MODEL = 'gpt-4o-mini'
 const ANTHROPIC_DEFAULT_MODEL = 'claude-3-5-sonnet-20241022'
 const GOOGLE_DEFAULT_MODEL = 'gemini-1.5-flash'
+
+const MAX_TOOL_STEPS = 10
+
+function mapGenerateTextResultToOutput(
+	result: { text: string, toolCalls?: unknown[], toolResults?: unknown[] },
+	providerId: string,
+): LlmGenerateWithToolsOutput {
+	const toolCalls = (result.toolCalls ?? []).map((tc: { toolCallId?: string, toolName?: string, input?: unknown }) => ({
+		id: tc.toolCallId ?? '',
+		name: tc.toolName ?? '',
+		arguments: typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input ?? {}),
+	}))
+	const toolResults = (result.toolResults ?? []).map((tr: { toolCallId?: string, output?: unknown }) => ({
+		toolCallId: tr.toolCallId ?? '',
+		result: tr.output,
+	}))
+	return {
+		text: result.text,
+		providerId,
+		toolCalls,
+		toolResults,
+	}
+}
 
 const effectiveModelId = (
 	connection: LlmConnection,
@@ -49,54 +81,126 @@ export const createLlmProviderFromConnection = (
 
 	if (connection.provider === LlmConnectionProvider.OpenAI) {
 		const apiKey = connection.apiKey?.trim()
+		const openai = createOpenAI({ apiKey: apiKey ?? '', })
+		const theModel = modelId || OPENAI_DEFAULT_MODEL
 		return {
 			availability: async (): Promise<LlmAvailability> =>
 				apiKey ? 'available' : 'unavailable',
 			generate: async (input: LlmGenerateInput) => {
 				if (!apiKey) throw new Error('OpenAI API key not set')
-				const openai = createOpenAI({ apiKey, })
 				const { text } = await generateText({
-					model: openai(modelId || OPENAI_DEFAULT_MODEL),
+					model: openai(theModel),
 					system: input.systemPrompt,
 					prompt: input.userPrompt,
 				})
-				return { text, providerId: modelId || OPENAI_DEFAULT_MODEL }
+				return { text, providerId: theModel }
+			},
+			generateWithTools: async (input: LlmGenerateInput, options: LlmGenerateWithToolsOptions) => {
+				if (!apiKey) throw new Error('OpenAI API key not set')
+				const toolNames = options.toolNames.length > 0 ? options.toolNames : [...TOOLS_FOR_CHAT]
+				const tools = buildAISdkToolsFromWebmcp(
+					toolNames,
+					options.requestUserInteraction,
+				)
+				const result = await generateText({
+					model: openai(theModel),
+					system: input.systemPrompt,
+					prompt: input.userPrompt,
+					tools,
+					stopWhen: stepCountIs(MAX_TOOL_STEPS),
+				})
+				return mapGenerateTextResultToOutput(
+					{
+						text: result.text,
+						toolCalls: [...(result.toolCalls ?? [])],
+						toolResults: [...(result.toolResults ?? [])],
+					},
+					theModel,
+				)
 			},
 		}
 	}
 
 	if (connection.provider === LlmConnectionProvider.Anthropic) {
 		const apiKey = connection.apiKey?.trim()
+		const anthropic = createAnthropic({ apiKey: apiKey ?? '', })
+		const theModel = modelId || ANTHROPIC_DEFAULT_MODEL
 		return {
 			availability: async (): Promise<LlmAvailability> =>
 				apiKey ? 'available' : 'unavailable',
 			generate: async (input: LlmGenerateInput) => {
 				if (!apiKey) throw new Error('Anthropic API key not set')
-				const anthropic = createAnthropic({ apiKey, })
 				const { text } = await generateText({
-					model: anthropic(modelId || ANTHROPIC_DEFAULT_MODEL),
+					model: anthropic(theModel),
 					system: input.systemPrompt,
 					prompt: input.userPrompt,
 				})
-				return { text, providerId: modelId || ANTHROPIC_DEFAULT_MODEL }
+				return { text, providerId: theModel }
+			},
+			generateWithTools: async (input: LlmGenerateInput, options: LlmGenerateWithToolsOptions) => {
+				if (!apiKey) throw new Error('Anthropic API key not set')
+				const toolNames = options.toolNames.length > 0 ? options.toolNames : [...TOOLS_FOR_CHAT]
+				const tools = buildAISdkToolsFromWebmcp(
+					toolNames,
+					options.requestUserInteraction,
+				)
+				const result = await generateText({
+					model: anthropic(theModel),
+					system: input.systemPrompt,
+					prompt: input.userPrompt,
+					tools,
+					stopWhen: stepCountIs(MAX_TOOL_STEPS),
+				})
+				return mapGenerateTextResultToOutput(
+					{
+						text: result.text,
+						toolCalls: [...(result.toolCalls ?? [])],
+						toolResults: [...(result.toolResults ?? [])],
+					},
+					theModel,
+				)
 			},
 		}
 	}
 
 	if (connection.provider === LlmConnectionProvider.Google) {
 		const apiKey = connection.apiKey?.trim()
+		const google = createGoogleGenerativeAI({ apiKey: apiKey ?? '', })
+		const theModel = modelId || GOOGLE_DEFAULT_MODEL
 		return {
 			availability: async (): Promise<LlmAvailability> =>
 				apiKey ? 'available' : 'unavailable',
 			generate: async (input: LlmGenerateInput) => {
 				if (!apiKey) throw new Error('Google API key not set')
-				const google = createGoogleGenerativeAI({ apiKey, })
 				const { text } = await generateText({
-					model: google(modelId || GOOGLE_DEFAULT_MODEL),
+					model: google(theModel),
 					system: input.systemPrompt,
 					prompt: input.userPrompt,
 				})
-				return { text, providerId: modelId || GOOGLE_DEFAULT_MODEL }
+				return { text, providerId: theModel }
+			},
+			generateWithTools: async (input: LlmGenerateInput, options: LlmGenerateWithToolsOptions) => {
+				if (!apiKey) throw new Error('Google API key not set')
+				const toolNames = options.toolNames.length > 0 ? options.toolNames : [...TOOLS_FOR_CHAT]
+				const tools = buildAISdkToolsFromWebmcp(
+					toolNames,
+					options.requestUserInteraction,
+				)
+				const result = await generateText({
+					model: google(theModel),
+					system: input.systemPrompt,
+					prompt: input.userPrompt,
+					tools,
+					stopWhen: stepCountIs(MAX_TOOL_STEPS),
+				})
+				return mapGenerateTextResultToOutput(
+					{
+						text: result.text,
+						toolCalls: [...(result.toolCalls ?? [])],
+						toolResults: [...(result.toolResults ?? [])],
+					},
+					theModel,
+				)
 			},
 		}
 	}

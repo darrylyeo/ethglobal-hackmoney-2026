@@ -16,9 +16,27 @@ export type LlmGenerateOutput = {
 	providerId: string,
 }
 
+export type LlmGenerateWithToolsOutput = LlmGenerateOutput & {
+	toolCalls?: { id: string, name: string, arguments: string }[]
+	toolResults?: { toolCallId: string, result: unknown }[],
+}
+
+export type RequestUserInteraction = (
+	callback: () => Promise<unknown>,
+) => Promise<unknown>
+
+export type LlmGenerateWithToolsOptions = {
+	toolNames: string[]
+	requestUserInteraction?: RequestUserInteraction,
+}
+
 export type LlmProvider = {
 	availability: () => Promise<LlmAvailability>
 	generate: (input: LlmGenerateInput) => Promise<LlmGenerateOutput>
+	generateWithTools?: (
+		input: LlmGenerateInput,
+		options: LlmGenerateWithToolsOptions,
+	) => Promise<LlmGenerateWithToolsOutput>
 	cancel?: () => void,
 }
 
@@ -207,6 +225,12 @@ export const createLlmProvider = (
 			const conn = await connectionProvider()
 			if (conn) return conn.generate(input)
 			return (await pickProvider()).generate(input)
+		},
+		generateWithTools: async (input, options) => {
+			const conn = await connectionProvider()
+			if (conn?.generateWithTools) return conn.generateWithTools(input, options)
+			const out = await (conn ?? (await pickProvider())).generate(input)
+			return { ...out, toolCalls: [], toolResults: [] }
 		},
 		cancel: () => {
 			promptProvider.cancel?.()

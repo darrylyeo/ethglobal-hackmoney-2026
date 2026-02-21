@@ -121,6 +121,8 @@
 			systemPrompt: effectiveTree.systemPrompt,
 			connectionId: connectionId ?? effectiveTree.defaultConnectionId ?? null,
 			modelId: modelId ?? effectiveTree.defaultModelId ?? null,
+			requestUserInteraction,
+			toolsForChat: toolsForChat ?? undefined,
 		})
 		goto(`/agents/${effectiveTree.id}#turn:${turnId}`, { replaceState: true })
 	}
@@ -129,6 +131,8 @@
 	// State
 	let promptValue = $state('')
 	let modelValue = $state('')
+	let requestUserInteraction: ((callback: () => Promise<unknown>) => Promise<unknown>) | undefined = undefined
+	let toolsForChat: string[] | null = null
 
 	function parseModelValue(v: string): [string | null, string | null] {
 		if (!v || !v.includes(':')) return [null, null]
@@ -156,6 +160,8 @@
 				{tree}
 				{turns}
 				connections={llmConnections}
+				{requestUserInteraction}
+				{toolsForChat}
 			/>
 		{:else}
 			<EntityView

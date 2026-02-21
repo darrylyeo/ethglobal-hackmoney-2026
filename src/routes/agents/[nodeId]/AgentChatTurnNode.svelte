@@ -15,11 +15,15 @@
 		allTurns,
 		tree,
 		connections = [],
+		requestUserInteraction,
+		toolsForChat,
 	}: {
 		turn: AgentChatTurn
 		allTurns: AgentChatTurn[]
 		tree: AgentChatTree
 		connections?: readonly LlmConnectionRow[]
+		requestUserInteraction?: (callback: () => Promise<unknown>) => Promise<unknown>
+		toolsForChat?: string[] | null
 	} = $props()
 
 
@@ -83,6 +87,8 @@
 			systemPrompt: tree.systemPrompt,
 			connectionId: connectionId ?? tree.defaultConnectionId ?? null,
 			modelId: modelId ?? tree.defaultModelId ?? null,
+			requestUserInteraction,
+			toolsForChat: toolsForChat ?? undefined,
 		})
 		goto(`${page.url.pathname}#turn:${turnId}`, { replaceState: true })
 	}
@@ -244,6 +250,8 @@
 						{allTurns}
 						{tree}
 						{connections}
+						{requestUserInteraction}
+						{toolsForChat}
 					/>
 				{/if}
 			{/snippet}
@@ -257,6 +265,8 @@
 						{allTurns}
 						{tree}
 						{connections}
+						{requestUserInteraction}
+						{toolsForChat}
 					/>
 				</div>
 			{/each}

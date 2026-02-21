@@ -11,10 +11,14 @@
 		tree,
 		turns,
 		connections = [],
+		requestUserInteraction,
+		toolsForChat,
 	}: {
 		tree: AgentChatTree
 		turns: AgentChatTurn[]
 		connections?: readonly LlmConnectionRow[]
+		requestUserInteraction?: (callback: () => Promise<unknown>) => Promise<unknown>
+		toolsForChat?: string[] | null
 	} = $props()
 
 
@@ -103,6 +107,8 @@
 			allTurns={turns}
 			{tree}
 			{connections}
+			{requestUserInteraction}
+			{toolsForChat}
 		/>
 	{:else}
 		<p data-text="muted">No messages yet. Type a prompt below to start.</p>
