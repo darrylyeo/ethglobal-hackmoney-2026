@@ -2,9 +2,9 @@ import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
 	timeout: 60_000,
+	expect: { timeout: 30_000 },
 	testDir: 'e2e',
 	testMatch: '**/*.test.ts',
-	testIgnore: ['**/coverage-enforcement.test.ts'],
 	workers: 1,
 	use: {
 		baseURL: 'http://localhost:4173',
