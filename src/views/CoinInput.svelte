@@ -46,12 +46,7 @@
 		coin.icon?.low?.url
 
 
-	// Components
-	import CoinIcon from '$/views/CoinIcon.svelte'
-	import Select from '$/components/Select.svelte'
-
-
-	// (Derived)
+	// Actions
 	$effect(() => {
 		const symbols = new Set([
 			...(value?.symbol ? [value.symbol] : []),
@@ -64,6 +59,11 @@
 			})
 		}
 	})
+
+
+	// Components
+	import Select from '$/components/Select.svelte'
+	import CoinIcon from '$/views/CoinIcon.svelte'
 </script>
 
 

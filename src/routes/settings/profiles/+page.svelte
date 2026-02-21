@@ -5,32 +5,47 @@
 	// Props
 	let {} = $props()
 
-	// State
-	import { getNetworkEnvironment } from '$/state/network-environment.svelte.ts'
+	// Functions
+	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 	import {
 		createProfile,
+		deleteProfile,
 		exportProfile,
 		getActiveProfile,
 		importProfile,
 		listProfiles,
 		switchProfile,
 		updateProfile,
-		deleteProfile,
 	} from '$/lib/profile.ts'
 
-	let profiles = $state(listProfiles())
-	let activeProfile = $state(getActiveProfile())
-	let editingId = $state<string | undefined>(undefined)
-	let editingName = $state('')
-	let editingEmoji = $state('')
-	let importError = $state<string | null>(null)
+	// State
+	import { getNetworkEnvironment } from '$/state/network-environment.svelte.ts'
+	let activeProfile = $state(
+		getActiveProfile(),
+	)
+	let editingEmoji = $state(
+		'',
+	)
+	let editingId = $state<string | undefined>(
+		undefined,
+	)
+	let editingName = $state(
+		'',
+	)
+	let importError = $state<string | null>(
+		null,
+	)
+	let profiles = $state(
+		listProfiles(),
+	)
 
+
+	// Actions
 	const refresh = () => {
 		profiles = listProfiles()
 		activeProfile = getActiveProfile()
 	}
 
-	// Actions
 	const handleSwitch = (id: string) => {
 		switchProfile(id, getNetworkEnvironment())
 		refresh()
@@ -85,10 +100,11 @@
 		input.click()
 	}
 
+
 	// Components
 	import Avatar from '$/components/Avatar.svelte'
-	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 </script>
+
 
 <main data-column="gap-2">
 	<h1>Profiles</h1>

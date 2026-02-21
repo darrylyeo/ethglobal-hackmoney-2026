@@ -84,12 +84,12 @@
 </script>
 
 
-<div data-row="wrap align-start">
-	<details data-row-item="flexible" data-card="radius-4" open>
-		<summary data-row="gap-2 align-center wrap">
-			<div data-row>
-				<div data-row="gap-2 align-center">
-					<h4>LLM Connections</h4>
+<div data-column>
+	<details data-card open>
+		<summary>
+			<div data-row="wrap">
+				<div data-row>
+					<h2>Connections</h2>
 					<span
 						data-badge="small"
 						aria-label="{connections.length} connections"
@@ -112,38 +112,43 @@
 			</div>
 		</summary>
 
-		<ul class="list" data-column="gap-2">
+		<ul data-list="unstyled">
 			{#each connections as conn (conn.id)}
 				{@const models = getModelsForConnection(conn)}
 				<li>
-					<details data-card="radius-3 padding-2" open>
-						<summary data-row="gap-2 align-center justify-between wrap">
-							<span data-row="gap-2 align-center">
-								<strong>{conn.label}</strong>
-								<span data-text="muted">({PROVIDER_LABELS[conn.provider] ?? conn.provider})</span>
-							</span>
-							<Button.Root
-								type="button"
-								onclick={() => handleRemove(conn.id)}
-							>
-								Remove
-							</Button.Root>
+					<details data-card open>
+						<summary>
+							<div data-row="wrap">
+								<span data-row data-row-item="flexible">
+									<strong>{conn.label}</strong>
+									<span data-text="muted">({PROVIDER_LABELS[conn.provider] ?? conn.provider})</span>
+								</span>
+								<Button.Root
+									type="button"
+									data-text="muted"
+									onclick={() => handleRemove(conn.id)}
+								>
+									Remove
+								</Button.Root>
+							</div>
 						</summary>
-						<div class="panel" data-column="gap-2">
-							<div data-row="gap-2 align-center">
+						<div data-column>
+							<div data-row>
 								<label for="llm-label-{conn.id}">Label</label>
 								<input
 									id="llm-label-{conn.id}"
 									type="text"
+									data-block
 									bind:value={() => conn.label, (v) => handleLabelChange(conn.id, v)}
 								/>
 							</div>
 							{#if needsApiKey(conn.provider)}
-								<div data-row="gap-2 align-center">
+								<div data-row>
 									<label for="llm-apikey-{conn.id}">API key</label>
 									<input
 										id="llm-apikey-{conn.id}"
 										type="password"
+										data-block
 										placeholder="Optional if set in env"
 										bind:value={() => conn.apiKey ?? '', (v) =>
 											handleApiKeyChange(conn.id, v)}
@@ -151,11 +156,12 @@
 								</div>
 							{/if}
 							{#if needsEndpoint(conn.provider)}
-								<div data-row="gap-2 align-center">
+								<div data-row>
 									<label for="llm-endpoint-{conn.id}">Endpoint</label>
 									<input
 										id="llm-endpoint-{conn.id}"
 										type="url"
+										data-block
 										placeholder="https://..."
 										bind:value={() => conn.endpoint ?? '', (v) =>
 											handleEndpointChange(conn.id, v)}
@@ -163,11 +169,12 @@
 								</div>
 							{/if}
 							{#if conn.provider === LlmConnectionProvider.Zen}
-								<div data-row="gap-2 align-center">
+								<div data-row>
 									<label for="llm-apikey-zen-{conn.id}">API key</label>
 									<input
 										id="llm-apikey-zen-{conn.id}"
 										type="password"
+										data-block
 										placeholder="Optional if PUBLIC_OPENCODE_API_KEY set"
 										bind:value={() => conn.apiKey ?? '', (v) =>
 											handleApiKeyChange(conn.id, v)}
@@ -175,7 +182,7 @@
 								</div>
 							{/if}
 							{#if models.length > 0}
-								<div data-row="gap-2 align-center">
+								<div data-row>
 									<label for="llm-model-{conn.id}">Default model</label>
 									<select
 										id="llm-model-{conn.id}"

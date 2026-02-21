@@ -5,8 +5,7 @@
 		Item extends { ref: Ref }
 	"
 >
-	// Components
-	import Combobox from '$/components/Combobox.svelte'
+	// Types/constants
 
 
 	// Props
@@ -49,6 +48,8 @@
 	// (Derived)
 	const items = $derived(getSuggestions(filterValue))
 
+
+	// Actions
 	$effect(() => {
 		const id = selectedId
 		if (!id) return
@@ -78,6 +79,10 @@
 	function handleFocusout(container: HTMLElement, e: FocusEvent) {
 		if (!container.contains(e.relatedTarget as Node)) onBlur?.()
 	}
+
+
+	// Components
+	import Combobox from '$/components/Combobox.svelte'
 </script>
 
 <span data-ref>

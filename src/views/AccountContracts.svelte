@@ -1,20 +1,17 @@
 <script lang="ts">
 	// Types/constants
-	import { eq, and, useLiveQuery } from '@tanstack/svelte-db'
-	import { contractsCollection } from '$/collections/Contracts.ts'
 	import {
 		fetchContractsDeployedBy,
 		SUPPORTED_DISCOVERY_CHAINS,
 	} from '$/api/contract-discovery.ts'
-	import { fetchContract } from '$/collections/Contracts.ts'
+	import { contractsCollection, fetchContract } from '$/collections/Contracts.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
-	import { resolve } from '$app/paths'
 	import { formatAddress } from '$/lib/address.ts'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
-	// Components
-	import Address from '$/views/Address.svelte'
-	import NetworkName from '$/views/NetworkName.svelte'
+	// Context
+	import { resolve } from '$app/paths'
 
 
 	// Props
@@ -27,6 +24,9 @@
 
 	// (Derived)
 	const addressNorm = $derived(selectedActor ?? null)
+
+
+	// Context
 	const contractsQuery = useLiveQuery(
 		(q) =>
 			addressNorm
@@ -40,6 +40,9 @@
 						.select(({ row }) => ({ row })),
 		[() => addressNorm],
 	)
+
+
+	// (Derived)
 	const contracts = $derived((contractsQuery.data ?? []).map((r) => r.row))
 
 
@@ -66,14 +69,21 @@
 			discovering = false
 		}
 	}
+
+
+	// Components
+	import NetworkName from '$/views/NetworkName.svelte'
+	import Address from '$/views/Address.svelte'
 </script>
 
 <details data-card data-column="gap-2">
 	<summary>
-		<h3>Contracts</h3>
-		<span data-text="annotation">
-			{contracts.length} deployed
-		</span>
+		<div data-row="wrap">
+			<h3>Contracts</h3>
+			<span data-text="annotation">
+				{contracts.length} deployed
+			</span>
+		</div>
 	</summary>
 
 	{#if selectedActor}

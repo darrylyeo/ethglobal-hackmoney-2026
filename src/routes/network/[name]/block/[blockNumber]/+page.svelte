@@ -1,12 +1,13 @@
 <script lang="ts">
 	// Types/constants
+	import type { ChainId } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import { getCurrentBlockNumber } from '$/api/voltaire.ts'
 	import { fetchBlock, blocksCollection } from '$/collections/Blocks.ts'
-	import { type ChainId, networksByChainId } from '$/constants/networks.ts'
-	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'

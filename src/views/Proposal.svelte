@@ -2,6 +2,7 @@
 	// Types/constants
 	import type { ProposalEntry } from '$/data/ProposalEntry.ts'
 
+
 	// Props
 	let { entry }: { entry: ProposalEntry } = $props()
 </script>

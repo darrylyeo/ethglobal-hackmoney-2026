@@ -2,6 +2,7 @@
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { Trace as TraceType } from '$/data/Trace.ts'
+	import { formatWei, formatGas } from '$/lib/format.ts'
 
 
 	// Props
@@ -9,13 +10,9 @@
 		trace,
 		chainId,
 	}: {
-		trace: TraceType,
-		chainId: ChainId,
+		trace: TraceType
+		chainId: ChainId
 	} = $props()
-
-
-	// Functions
-	import { formatWei, formatGas } from '$/lib/format.ts'
 
 
 	// Components
@@ -26,17 +23,19 @@
 
 
 <details data-card="radius-2 padding-2" id="trace:{trace.index}">
-	<summary data-row="gap-2 align-center">
-		{#if trace.type}
-			<code>{trace.type.toUpperCase()}</code>
-		{/if}
-		<span>#{trace.index}</span>
-		{#if trace.to}
-			<TruncatedValue value={trace.to} startLength={10} endLength={4} />
-		{/if}
-		{#if trace.error}
-			<span data-tag="failure">⚠ {trace.error}</span>
-		{/if}
+	<summary>
+		<div data-row="wrap gap-2 align-center">
+			{#if trace.type}
+				<code>{trace.type.toUpperCase()}</code>
+			{/if}
+			<span>#{trace.index}</span>
+			{#if trace.to}
+				<TruncatedValue value={trace.to} startLength={10} endLength={4} />
+			{/if}
+			{#if trace.error}
+				<span data-tag="failure">⚠ {trace.error}</span>
+			{/if}
+		</div>
 	</summary>
 
 	<dl>

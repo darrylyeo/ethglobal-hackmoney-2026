@@ -2,27 +2,32 @@
 	// Types/constants
 	import type { FarcasterUserRow } from '$/collections/FarcasterUsers.ts'
 	import type { Sort } from '$/components/Sorts.svelte'
-	import EntityView from '$/components/EntityView.svelte'
-	import { EntityType } from '$/data/$EntityType.ts'
-
-	// Components
-	import FarcasterFilteredEntityList from '$/views/farcaster/FarcasterFilteredEntityList.svelte'
-
-	// Functions
-	import { farcasterComboboxFilterGroup } from '$/lib/farcaster-filters.ts'
-
-	// State
 	import {
 		ensureFollowersForUser,
 		ensureFollowingForUser,
+		farcasterLinksCollection,
 	} from '$/collections/FarcasterLinks.ts'
 	import { useFarcasterConnections } from '$/collections/FarcasterConnections.ts'
-	import { farcasterLinksCollection } from '$/collections/FarcasterLinks.ts'
 	import { farcasterUsersCollection } from '$/collections/FarcasterUsers.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { farcasterComboboxFilterGroup } from '$/lib/farcaster-filters.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
-	// (Derived)
+
+	// Context
 	const connectionsQuery = useFarcasterConnections()
+	const linksQuery = useLiveQuery(
+		(q) => q.from({ row: farcasterLinksCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+	const usersQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: farcasterUsersCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+
+
+	// (Derived)
 	const connections = $derived(
 		(connectionsQuery.data ?? []).map((r) => r.row as {
 			$id: { fid: number }
@@ -32,29 +37,12 @@
 	const defaultFilterIds = $derived(
 		new Set(connections.map((r) => r.username ?? `fid:${r.$id.fid}`)),
 	)
-	const linksQuery = useLiveQuery(
-		(q) => q.from({ row: farcasterLinksCollection }).select(({ row }) => ({ row })),
-		[],
-	)
 	const allLinks = $derived(
 		(linksQuery.data ?? []).map((r) => r.row as { $id: { sourceFid: number; targetFid: number } }),
-	)
-	const usersQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: farcasterUsersCollection }).select(({ row }) => ({ row })),
-		[],
 	)
 	const allUsers = $derived(
 		(usersQuery.data ?? []).map((r) => r.row) as FarcasterUserRow[],
 	)
-
-	$effect(() => {
-		for (const c of connections) {
-			ensureFollowingForUser(c.$id.fid).catch(() => {})
-			ensureFollowersForUser(c.$id.fid).catch(() => {})
-		}
-	})
-
 	const usernameFilters = $derived(
 		[...new Set(allUsers.map((u) => u.username ?? `fid:${u.$id.fid}`).filter(Boolean))]
 			.sort()
@@ -92,12 +80,6 @@
 			]
 		}),
 	)
-
-	const followerCount = (fid: number) =>
-		allLinks.filter((l) => l.$id.targetFid === fid).length
-	const followingCount = (fid: number) =>
-		allLinks.filter((l) => l.$id.sourceFid === fid).length
-
 	const filterGroups = $derived([
 		...(usernameFilters.length > 1
 			? [farcasterComboboxFilterGroup('username', 'Username', usernameFilters)]
@@ -106,7 +88,29 @@
 			? [farcasterComboboxFilterGroup('connection', 'Connection', connectionFilters)]
 			: []),
 	])
+
+
+	// Functions
+	const followerCount = (fid: number) =>
+		allLinks.filter((l) => l.$id.targetFid === fid).length
+	const followingCount = (fid: number) =>
+		allLinks.filter((l) => l.$id.sourceFid === fid).length
+
+
+	// Actions
+	$effect(() => {
+		for (const c of connections) {
+			ensureFollowingForUser(c.$id.fid).catch(() => {})
+			ensureFollowersForUser(c.$id.fid).catch(() => {})
+		}
+	})
+
+
+	// Components
+	import EntityView from '$/components/EntityView.svelte'
+	import FarcasterFilteredEntityList from '$/views/farcaster/FarcasterFilteredEntityList.svelte'
 </script>
+
 
 <svelte:head>
 	<title>Users · Farcaster</title>

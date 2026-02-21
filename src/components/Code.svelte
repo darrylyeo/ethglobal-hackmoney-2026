@@ -1,12 +1,6 @@
 <script lang="ts">
 	// Types/constants
 	import type { ShjLanguage } from '$/lib/syntax-highlight.ts'
-	import {
-		highlightElementForPath,
-		highlightElementWithLang,
-		langForPath,
-	} from '$/lib/syntax-highlight.ts'
-
 
 	// Props
 	let {
@@ -25,12 +19,19 @@
 		className?: string
 	} = $props()
 
+	// Functions
+	import {
+		highlightElementForPath,
+		highlightElementWithLang,
+		langForPath,
+	} from '$/lib/syntax-highlight.ts'
 
 	// State
-	let preEl = $state<HTMLPreElement | null>(null)
+	let preEl = $state<HTMLPreElement | null>(
+		null,
+	)
 
-
-	// Actions
+	// (Derived)
 	$effect(() => {
 		if (!preEl || !content) return
 		(path
@@ -41,7 +42,6 @@
 				withMultiline,
 			)).catch(() => {})
 	})
-
 
 	// Styles
 	import '@speed-highlight/core/themes/github-dark.css'

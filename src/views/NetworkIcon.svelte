@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import { type SubiconProps, IconShape } from '$/components/Icon.svelte'
+	import type { SubiconProps } from '$/components/Icon.svelte'
+	import { IconShape } from '$/components/Icon.svelte'
 	import { networksByChainId } from '$/constants/networks.ts'
 
 

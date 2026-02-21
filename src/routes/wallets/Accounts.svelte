@@ -7,6 +7,7 @@
 	} from '$/collections/WalletConnections.ts'
 	import type { WalletRow } from '$/collections/Wallets.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
+	import { NetworkEnvironment } from '$/constants/network-environment.ts'
 	import {
 		NetworkType,
 		networks,
@@ -27,9 +28,6 @@
 		  }
 		| { type: string; id?: string }
 
-
-	// Context
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import {
 		connectReadOnly,
 		disconnectWallet,
@@ -38,12 +36,14 @@
 		walletConnectionsCollection,
 	} from '$/collections/WalletConnections.ts'
 	import { walletsCollection } from '$/collections/Wallets.ts'
-	import { NetworkEnvironment } from '$/constants/network-environment.ts'
 	import { switchWalletChain } from '$/lib/wallet.ts'
 	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
+
+	// Context
 	useWalletSubscriptions()
 
 	const walletsQuery = useLiveQuery((q) =>

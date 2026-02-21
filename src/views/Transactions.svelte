@@ -1,12 +1,14 @@
 <script lang="ts">
 	// Types/constants
+	import {
+		bridgeTransactionsCollection,
+		ensureTransactionsForAddresses,
+	} from '$/collections/BridgeTransactions.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
-	import {
-		ensureTransactionsForAddresses,
-		bridgeTransactionsCollection,
-	} from '$/collections/BridgeTransactions.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -21,14 +23,6 @@
 	} = $props()
 
 
-	// Functions
-	import { formatSmallestToDecimal } from '$/lib/format.ts'
-
-
-	// State
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-
-
 	// (Derived)
 	const actors = $derived(
 		filterAddresses.length > 0
@@ -37,6 +31,9 @@
 				? [selectedActor]
 				: [],
 	)
+
+
+	// Context
 	const query = useLiveQuery(
 		(q) =>
 			q.from({ row: bridgeTransactionsCollection }).select(({ row }) => ({ row })),
@@ -45,6 +42,9 @@
 	registerLocalLiveQueryStack(() => [
 		{ id: 'transactions', label: 'Transactions', query },
 	])
+
+
+	// (Derived)
 	const transactions = $derived(
 		actors.length === 0
 			? []
@@ -73,6 +73,7 @@
 		TruncatedValueFormat,
 	} from '$/components/TruncatedValue.svelte'
 </script>
+
 
 
 	<details class="transactions" data-card data-scroll-container="block" open>

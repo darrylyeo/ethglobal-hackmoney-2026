@@ -1,11 +1,11 @@
 <script lang="ts">
-	// Context
-	import { goto } from '$app/navigation'
-	import { resolve } from '$app/paths'
-
-
-	// Functions
+	// Types/constants
 	import { createRoom, normalizeRoomInput } from '$/lib/rooms/room.ts'
+
+
+	// Context
+	import { resolve } from '$app/paths'
+	import { goto } from '$app/navigation'
 
 
 	// State

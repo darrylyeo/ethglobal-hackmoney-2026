@@ -1,5 +1,13 @@
 <script lang="ts">
-	// ID
+	// Types/constants
+	import {
+		formatSmallestToDecimal,
+		isValidDecimalInput,
+		parseDecimalToSmallest,
+	} from '$/lib/format.ts'
+
+
+	// IDs
 	const _id = $props.id()
 
 
@@ -43,14 +51,6 @@
 	const sliderValue = $derived(Number(value))
 
 
-	// Functions
-	import {
-		formatSmallestToDecimal,
-		isValidDecimalInput,
-		parseDecimalToSmallest,
-	} from '$/lib/format.ts'
-
-
 	// State
 	let sliderEl = $state<HTMLInputElement | undefined>()
 	let textDragStarted = false
@@ -58,15 +58,13 @@
 	let displayValue = $state('')
 
 
-	// (Derived)
+	// Actions
 	$effect(() => {
 		if (!focused)
 			displayValue = value === 0n
 				? ''
 				: formatSmallestToDecimal(value, decimals)
 	})
-
-	// Actions
 	const setAmountFromInput = (raw: string) => {
 		const cleaned = raw.replace(/[^0-9.,]/g, '').replace(/,/g, '')
 		const [intPart = '', fracPart = ''] = cleaned.split('.')

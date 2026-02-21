@@ -1,12 +1,8 @@
 <script lang="ts" generics="Item extends { address: `0x${string}` }">
 	// Types/constants
 	import type { Network$Id } from '$/data/Network.ts'
-	import { PatternType } from '$/constants/patterns.ts'
-	import { resolveIdentity } from '$/api/identity-resolve.ts'
 	import { IdentityInputKind } from '$/constants/identity-resolver.ts'
-	import { normalizeIdentity } from '$/api/identity-resolve.ts'
-	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
-	import { normalizeAddress, isValidAddress } from '$/lib/address.ts'
+	import { PatternType } from '$/constants/patterns.ts'
 
 
 	// Props
@@ -33,12 +29,8 @@
 		network?: Network$Id
 		getItemId?: (item: Item) => string
 		getItemLabel?: (item: Item) => string
-		[key: string]: unknown
+		[key: string]: unknown,
 	} = $props()
-
-
-	// State
-	let inputValue = $state('')
 
 
 	// (Derived)
@@ -47,12 +39,24 @@
 			(items.find((i) => i.address === value) ?? ({ address: value } as Item))
 		:	null,
 	)
-	const setSelectedItem = (item: Item | null | undefined) => {
-		value = item ? item.address : null
-	}
+
+
+	// Functions
+	import { normalizeIdentity, resolveIdentity } from '$/api/identity-resolve.ts'
+	import { isValidAddress, normalizeAddress } from '$/lib/address.ts'
+	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
+
+
+	// State
+	let inputValue = $state(
+		'',
+	)
 
 
 	// Actions
+	const setSelectedItem = (item: Item | null | undefined) => {
+		value = item ? item.address : null
+	}
 	const tryCommitCustomInput = () => {
 		const raw = inputValue.trim()
 		if (!raw) return
@@ -74,9 +78,9 @@
 
 
 	// Components
-	import Address from '$/views/Address.svelte'
 	import Combobox from '$/components/Combobox.svelte'
 	import PatternInput from '$/components/PatternInput.svelte'
+	import Address from '$/views/Address.svelte'
 </script>
 
 

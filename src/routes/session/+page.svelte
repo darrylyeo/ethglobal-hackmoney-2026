@@ -1,13 +1,10 @@
 <script lang="ts">
 	// Types/constants
+	import type { SessionInput } from '$/lib/session/sessionUrl.ts'
 	import { APP_NAME } from '$/constants/app.ts'
-
-
-	// Functions
 	import {
 		formatSessionPlaceholderName,
 		sessionFromInput,
-		type SessionInput,
 	} from '$/lib/session/sessionUrl.ts'
 
 

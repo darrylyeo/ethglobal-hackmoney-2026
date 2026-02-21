@@ -1,8 +1,9 @@
 <script lang="ts">
 	// Types/constants
-	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { stateChannelsCollection } from '$/collections/StateChannels.ts'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -17,11 +18,7 @@
 	} = $props()
 
 
-	// Functions
-	import { formatSmallestToDecimal } from '$/lib/format.ts'
-
-
-	// State
+	// Context
 	const query = useLiveQuery((q) =>
 		q.from({ row: stateChannelsCollection }).select(({ row }) => ({ row })),
 	)
@@ -52,18 +49,16 @@
 					)
 					.sort((a, b) => b.updatedAt - a.updatedAt),
 	)
-	const singleAddress = $derived(
-		actors.length === 1 ? actors[0] : null,
-	)
+	const singleAddress = $derived(actors.length === 1 ? actors[0] : null)
 
 
 	// Components
-	import Address from '$/views/Address.svelte'
 	import Boundary from '$/components/Boundary.svelte'
 	import ComboboxMultiple from '$/components/ComboboxMultiple.svelte'
 	import TruncatedValue, {
 		TruncatedValueFormat,
 	} from '$/components/TruncatedValue.svelte'
+	import Address from '$/views/Address.svelte'
 </script>
 
 

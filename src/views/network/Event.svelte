@@ -2,12 +2,12 @@
 	// Types/constants
 	import type { EvmLog } from '$/api/voltaire.ts'
 	import type { ChainId } from '$/constants/networks.ts'
-	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import {
 		ensureEventSignatures,
 		selectorSignaturesCollection,
 	} from '$/collections/SelectorSignatures.ts'
 	import { SelectorKind } from '$/data/SelectorSignature.ts'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -29,6 +29,9 @@
 			? (`0x${event.topics[0].slice(2).toLowerCase().padStart(64, '0')}` as `0x${string}`)
 			: null,
 	)
+
+
+	// Context
 	const eventSigQuery = useLiveQuery(
 		(q) =>
 			q
@@ -42,12 +45,17 @@
 				.select(({ row }) => ({ row })),
 		[() => topic0],
 	)
+
+
+	// (Derived)
 	const eventSignatures = $derived(
 		topic0
 			? (eventSigQuery.data?.[0]?.row?.signatures ?? [])
 			: [],
 	)
 
+
+	// Actions
 	$effect(() => {
 		if (topic0) void ensureEventSignatures(topic0).catch(() => {})
 	})
@@ -60,23 +68,25 @@
 
 
 <details data-card="radius-2 padding-2" id="event:{logIndex}">
-	<summary data-row="gap-2 align-center">
-		<code>#{logIndex}</code>
-		{#if decoded}
-			<code>{decoded.name}</code>
-		{:else if eventSignatures.length > 0}
-			<code data-row="wrap gap-1">
-				{#each eventSignatures as sig}
-					<span>{sig}</span>
-				{/each}
-			</code>
-			<Address network={chainId} address={event.address as `0x${string}`} />
-		{:else}
-			<Address network={chainId} address={event.address as `0x${string}`} />
-			{#if event.topics[0]}
-				<TruncatedValue value={event.topics[0]} startLength={10} endLength={4} />
+	<summary>
+		<div data-row="wrap gap-2 align-center">
+			<code>#{logIndex}</code>
+			{#if decoded}
+				<code>{decoded.name}</code>
+			{:else if eventSignatures.length > 0}
+				<code data-row="wrap gap-1">
+					{#each eventSignatures as sig}
+						<span>{sig}</span>
+					{/each}
+				</code>
+				<Address network={chainId} address={event.address as `0x${string}`} />
+			{:else}
+				<Address network={chainId} address={event.address as `0x${string}`} />
+				{#if event.topics[0]}
+					<TruncatedValue value={event.topics[0]} startLength={10} endLength={4} />
+				{/if}
 			{/if}
-		{/if}
+		</div>
 	</summary>
 
 	{#if decoded}

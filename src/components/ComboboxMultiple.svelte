@@ -1,7 +1,7 @@
 <script lang="ts" generics="_Item">
 	// Types/constants
-	import { stringify } from 'devalue'
 	import type { Snippet } from 'svelte'
+	import { stringify } from 'devalue'
 
 
 	// IDs
@@ -59,11 +59,6 @@
 	} = $props()
 
 
-	// State
-	let isFocused = $state(false)
-	let open = $state(false)
-
-
 	// (Derived)
 	const normalizedItems = $derived(
 		items.map((item) => ({
@@ -96,6 +91,14 @@
 					}))
 			: [],
 	)
+
+
+	// State
+	let isFocused = $state(false)
+	let open = $state(false)
+
+
+	// (Derived)
 	const filteredItems = $derived(
 		inputValue === ''
 			? normalizedItems

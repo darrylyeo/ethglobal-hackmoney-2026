@@ -1,31 +1,57 @@
 <script lang="ts">
 	// Types/constants
-	import { useLiveQuery } from '@tanstack/svelte-db'
-	import {
-		FilterDisplayType,
-		FilterOperation,
-		type Filter,
-		type FilterGroup,
-	} from '$/components/Filters.svelte'
+	import type { Filter, FilterGroup } from '$/components/Filters.svelte'
 	import type { Sort } from '$/components/Sorts.svelte'
+	import type { ProposalEntry } from '$/data/ProposalEntry.ts'
+	import { FilterDisplayType, FilterOperation } from '$/components/Filters.svelte'
+	import { proposalsCollection } from '$/collections/Proposals.ts'
+	import { ProposalType } from '$/data/ProposalEntry.ts'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 
-	// Components
-	import Filters from '$/components/Filters.svelte'
-	import Sorts from '$/components/Sorts.svelte'
+	const sortOptions: Sort<ProposalEntry, 'number-asc' | 'number-desc' | 'title-az' | 'title-za' | 'status' | 'category' | 'type'>[] = [
+		{ id: 'number-asc', label: 'Number ↑', compare: (a, b) => a.number - b.number },
+		{ id: 'number-desc', label: 'Number ↓', compare: (a, b) => b.number - a.number },
+		{
+			id: 'title-az',
+			label: 'Title A–Z',
+			compare: (a, b) => a.title.localeCompare(b.title),
+		},
+		{
+			id: 'title-za',
+			label: 'Title Z–A',
+			compare: (a, b) => b.title.localeCompare(a.title),
+		},
+		{
+			id: 'status',
+			label: 'Status',
+			compare: (a, b) =>
+				a.status.localeCompare(b.status) || a.number - b.number,
+		},
+		{
+			id: 'category',
+			label: 'Category',
+			compare: (a, b) =>
+				a.category.localeCompare(b.category) || a.number - b.number,
+		},
+		{
+			id: 'type',
+			label: 'Type (EIP then ERC)',
+			compare: (a, b) =>
+				a.type.localeCompare(b.type) || a.number - b.number,
+		},
+	]
+
 
 	// Context
 	import { resolve } from '$app/paths'
-
-	// State
-	import { proposalsCollection } from '$/collections/Proposals.ts'
-	import { ProposalType, type ProposalEntry } from '$/data/ProposalEntry.ts'
-
-
 	const entriesQuery = useLiveQuery((q) =>
 		q
 			.from({ row: proposalsCollection })
 			.select(({ row }) => ({ row })),
 	)
+
+
+	// (Derived)
 	const views = $derived((entriesQuery.data ?? []).map((r) => r.row as ProposalEntry))
 	const statuses = $derived([...new Set(views.map((e) => e.status))].sort())
 	const categories = $derived([...new Set(views.map((e) => e.category))].sort())
@@ -96,46 +122,25 @@
 				]
 			: []),
 	] as FilterGroup<ProposalEntry, string>[])
-	const sortOptions: Sort<ProposalEntry, 'number-asc' | 'number-desc' | 'title-az' | 'title-za' | 'status' | 'category' | 'type'>[] = [
-		{ id: 'number-asc', label: 'Number ↑', compare: (a, b) => a.number - b.number },
-		{ id: 'number-desc', label: 'Number ↓', compare: (a, b) => b.number - a.number },
-		{
-			id: 'title-az',
-			label: 'Title A–Z',
-			compare: (a, b) => a.title.localeCompare(b.title),
-		},
-		{
-			id: 'title-za',
-			label: 'Title Z–A',
-			compare: (a, b) => b.title.localeCompare(a.title),
-		},
-		{
-			id: 'status',
-			label: 'Status',
-			compare: (a, b) =>
-				a.status.localeCompare(b.status) || a.number - b.number,
-		},
-		{
-			id: 'category',
-			label: 'Category',
-			compare: (a, b) =>
-				a.category.localeCompare(b.category) || a.number - b.number,
-		},
-		{
-			id: 'type',
-			label: 'Type (EIP then ERC)',
-			compare: (a, b) =>
-				a.type.localeCompare(b.type) || a.number - b.number,
-		},
-	]
+
+
+	// State
 	let activeFilters = $state<Set<Filter<ProposalEntry, string>>>(new Set())
 	let filteredItems = $state<ProposalEntry[]>([])
 	let sortedItems = $state<ProposalEntry[]>([])
+
+
+	// (Derived)
 	const hasFilterGroups = $derived(filterGroups.length > 0)
 	const itemsToSort = $derived(hasFilterGroups ? filteredItems : views)
 	const displayItems = $derived(
 		sortOptions.length > 1 ? sortedItems : itemsToSort,
 	)
+
+
+	// Components
+	import Filters from '$/components/Filters.svelte'
+	import Sorts from '$/components/Sorts.svelte'
 </script>
 
 <svelte:head>

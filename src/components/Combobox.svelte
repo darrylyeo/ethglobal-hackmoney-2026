@@ -1,6 +1,5 @@
 <script lang="ts" generics="_Item">
 	// Types/constants
-	import { stringify } from 'devalue'
 	import type { Snippet } from 'svelte'
 
 
@@ -17,57 +16,44 @@
 		getItemDisabled,
 		getItemGroupId,
 		getGroupLabel = (groupId: string) => groupId,
-
 		Before,
 		After,
 		Item: ItemSnippet,
 		children,
-
 		placeholder,
 		disabled,
 		name,
 		id,
 		ariaLabel,
-
 		inputValue = $bindable(''),
 		onInputBlur,
 		onInputKeydown,
 		Input,
-
 		...rootProps
 	}: {
 		items: readonly _Item[]
 		value?: _Item | undefined
-
 		getItemId?: (item: _Item) => string
 		getItemLabel?: (item: _Item) => string
 		getItemDisabled?: (item: _Item) => boolean
 		getItemGroupId?: (item: _Item) => string
 		getGroupLabel?: (groupId: string) => string
-
 		Before?: Snippet
 		After?: Snippet
 		Item?: Snippet<[item: _Item, selected: boolean]>
 		children?: Snippet
-
 		placeholder?: string
 		disabled?: boolean
 		name?: string
 		id?: string
 		ariaLabel?: string
-
 		inputValue?: string
 		onInputBlur?: () => void
 		onInputKeydown?: (e: KeyboardEvent) => void
 		Input?: Snippet<[props: Record<string, unknown>]>
-
 		[key: string]: unknown
 	} = $props()
 
-
-	// State
-	let isFocused = $state(false)
-	let open = $state(false)
 
 	// (Derived)
 	const normalizedItems = $derived(
@@ -76,7 +62,7 @@
 			id: getItemId(item),
 			label: getItemLabel(item) ?? '',
 			disabled: getItemDisabled ? getItemDisabled(item) : false,
-		}))
+		})),
 	)
 	const normalizedGroups = $derived(
 		getItemGroupId ?
@@ -88,7 +74,7 @@
 					m.set(gid, arr)
 					return m
 				}, new Map<string, _Item[]>()),
-			)			.map(([id, groupItems]) => ({
+			).map(([id, groupItems]) => ({
 				id,
 				label: getGroupLabel(id),
 				items: groupItems.map((item) => ({
@@ -99,7 +85,38 @@
 				})),
 			}))
 		:
-			[]
+			[],
+	)
+
+
+	// Functions
+	import { stringify } from 'devalue'
+
+
+	// State
+	let isFocused = $state(
+		false,
+	)
+	let open = $state(
+		false,
+	)
+
+
+	// (Derived)
+	$effect(() => {
+		if (isFocused) return
+		const singleValue = value ?? undefined
+		const nextValue =
+			normalizedItems.find((item) => item.id === (singleValue ? getItemId(singleValue) : ''))?.label ??
+			(singleValue ? getItemLabel(singleValue) : '')
+		if (inputValue !== nextValue) inputValue = nextValue
+	})
+	const rootItems = $derived(
+		normalizedItems.map((item) => ({
+			value: item.id,
+			label: item.label,
+			disabled: item.disabled,
+		})),
 	)
 	const filteredItems = $derived(
 		inputValue === '' ?
@@ -107,7 +124,7 @@
 		:
 			normalizedItems.filter((item) =>
 				item.label.toLowerCase().includes(inputValue.toLowerCase()),
-			)
+			),
 	)
 	const filteredGroups = $derived(
 		normalizedGroups.length > 0 ?
@@ -120,25 +137,8 @@
 				}))
 				.filter((group) => group.items.length > 0)
 		:
-			[]
+			[],
 	)
-	const rootItems = $derived(
-		normalizedItems
-			.map((item) => ({
-				value: item.id,
-				label: item.label,
-				disabled: item.disabled,
-			}))
-	)
-
-	$effect(() => {
-		if (isFocused) return
-		const singleValue = value ?? undefined
-		const nextValue =
-			normalizedItems.find((item) => item.id === (singleValue ? getItemId(singleValue) : ''))?.label ??
-			(singleValue ? getItemLabel(singleValue) : '')
-		if (inputValue !== nextValue) inputValue = nextValue
-	})
 
 
 	// Actions
@@ -148,14 +148,15 @@
 		inputValue = target.value
 	}
 	const setValue = (nextValue: string) => {
-		value = normalizedItems.find((item) => item.id === nextValue)?.item ?? undefined
 		const nextItem = normalizedItems.find((item) => item.id === nextValue)
+		value = nextItem?.item ?? undefined
 		inputValue = nextItem ? nextItem.label : ''
 	}
 
 
 	// Components
 	import { Combobox } from 'bits-ui'
+
 </script>
 
 

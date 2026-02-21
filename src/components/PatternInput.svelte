@@ -39,6 +39,9 @@
 	)
 	const isControlled = $derived('value' in rootProps && rootProps.value !== undefined)
 	const inputValue = $derived(isControlled ? (rootProps.value as string) : value)
+
+
+	// Actions
 	const handleInput = (e: Event) => {
 		const target = e.currentTarget
 		if (!(target instanceof HTMLInputElement)) return

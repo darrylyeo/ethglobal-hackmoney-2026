@@ -10,16 +10,15 @@
 <script lang="ts">
 	// Types/constants
 	import type { Network$Id } from '$/data/Network.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import { resolve } from '$app/paths'
 	import {
 		ensureEvmActorProfile,
 		evmActorProfilesCollection,
 	} from '$/collections/EvmActorProfiles.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
-	import { EntityType } from '$/data/$EntityType.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { blo } from 'blo'
-
 
 	// Props
 	let {
@@ -40,11 +39,12 @@
 		isVertical?: boolean
 	} = $props()
 
-
 	// (Derived)
 	const normalizedAddress = $derived(
 		address.toLowerCase() as `0x${string}`,
 	)
+
+	// State
 	const profileQuery = useLiveQuery(
 		(q) =>
 			q
@@ -63,13 +63,20 @@
 				.select(({ row }) => ({ row })),
 		[() => network, () => normalizedAddress],
 	)
+
+	// (Derived)
+	const profile = $derived(
+		profileQuery.data?.[0]?.row,
+	)
+	const ensName = $derived(
+		ensNameProp ?? profile?.primaryName,
+	)
+
+	// Actions
 	$effect(() => {
 		if (network == null || ensNameProp != null) return
 		ensureEvmActorProfile(network.chainId, normalizedAddress)
 	})
-	const profile = $derived(profileQuery.data?.[0]?.row)
-	const ensName = $derived(ensNameProp ?? profile?.primaryName)
-
 
 	// Components
 	import EntityId from '$/components/EntityId.svelte'
@@ -101,8 +108,8 @@
 			{@const net = network != null ? networksByChainId[network.chainId] : undefined}
 			<Icon
 				shape={!profile?.avatarUrl
-				? IconShape.Square
-				: IconShape.Circle}
+					? IconShape.Square
+					: IconShape.Circle}
 				src={profile?.avatarUrl ?? blo(address)}
 				subicon={net?.icon
 					? {

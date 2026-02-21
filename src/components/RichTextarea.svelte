@@ -1,11 +1,10 @@
 <script lang="ts" generics="Ref extends { displayLabel: string, trigger?: string }, Item extends { ref: Ref }">
 	// Types/constants
-	import { tick } from 'svelte'
-
 	type TriggerConfig<Item> = Record<
 		string,
 		{ getSuggestions: (query: string) => Item[], pattern?: RegExp }
 	>
+	import { tick } from 'svelte'
 
 	// Props
 	let {
@@ -41,9 +40,6 @@
 		(Object.keys(triggerConfig)[0] as string) ?? '@',
 	)
 
-	// State
-	let editEl = $state<HTMLDivElement | null>(null)
-	let placeholderFocused = $state(false)
 
 	// Functions
 	function parseContent(container: HTMLElement): { segments: string[], refs: Ref[] } {
@@ -289,10 +285,17 @@
 		}
 	}
 
+
+	// State
+	let editEl = $state<HTMLDivElement | null>(null)
+	let placeholderFocused = $state(false)
+
+
 	// (Derived)
 	$effect(() => {
 		if (autofocus && editEl) editEl.focus()
 	})
+
 
 	// Components
 	import RichTextareaReference from '$/components/RichTextareaReference.svelte'

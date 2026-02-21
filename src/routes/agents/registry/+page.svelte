@@ -143,7 +143,7 @@
 		{#if displayItems.length === 0}
 			<p data-text="muted">
 				No agents in registry. Add a chain and contract to
-				<code>EIP8004_REGISTRY_CONFIGS</code> when a deployment is available.
+				<code>eip8004RegistryConfigs</code> when a deployment is available.
 			</p>
 		{:else}
 			<ul data-column="gap-1" role="list">

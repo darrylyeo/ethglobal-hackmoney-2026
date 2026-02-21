@@ -1,12 +1,20 @@
 <script lang="ts">
 	// Types/constants
 	import type { IntentOption } from '$/constants/intents.ts'
+	import {
+		getCoinIconUrl,
+		getSymbolForCoinEntity,
+		isCoinEntityType,
+	} from '$/lib/coin-icon.ts'
 	import { getEntityColor } from '$/lib/entity-color.ts'
-import {
-	getCoinIconUrl,
-	getSymbolForCoinEntity,
-	isCoinEntityType,
-} from '$/lib/coin-icon.ts'
+	import { resolveIntentForDrag } from '$/lib/intents.ts'
+	import {
+		clearIntentDragPreview,
+		finalizeIntentDragPreview,
+		intentDragPreviewState,
+		selectIntentDragRoute,
+	} from '$/state/intent-drag-preview.svelte.ts'
+	import { getIntentNavigationStore } from '$/state/intent-navigation.svelte.ts'
 
 
 	// Context
@@ -14,8 +22,6 @@ import {
 
 
 	// Functions
-	import { resolveIntentForDrag } from '$/lib/intents.ts'
-
 	const toActionSearch = (option: IntentOption) => (
 		`?template=${option.sessionTemplate.actions[0]?.type ?? 'Swap'}`
 	)
@@ -49,14 +55,6 @@ import {
 
 
 	// State
-	import {
-		clearIntentDragPreview,
-		finalizeIntentDragPreview,
-		intentDragPreviewState,
-		selectIntentDragRoute,
-	} from '$/state/intent-drag-preview.svelte.ts'
-	import { getIntentNavigationStore } from '$/state/intent-navigation.svelte.ts'
-
 	let tooltipContentRef = $state<HTMLDivElement | null>(null)
 	let prefersReducedMotion = $state(false)
 	let pointerPosition = $state<{ x: number; y: number } | null>(null)

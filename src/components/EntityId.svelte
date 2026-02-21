@@ -1,6 +1,9 @@
 <script lang="ts">
 	// Types/constants
+	import type { Snippet } from 'svelte'
 	import type { EntityType } from '$/data/$EntityType.ts'
+	import { draggable } from '$/components/Draggable.svelte.ts'
+	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
 
 
 	// Props
@@ -20,7 +23,7 @@
 		entityType?: EntityType
 		entityId?: Record<string, unknown>
 		source?: string
-		children?: import('svelte').Snippet
+		children?: Snippet
 		[key: string]: unknown
 	} = $props()
 
@@ -31,11 +34,6 @@
 			? entityIntent(entityType, entityId, source)
 			: undefined,
 	)
-
-
-	// Functions
-	import { draggable } from '$/components/Draggable.svelte.ts'
-	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
 </script>
 
 

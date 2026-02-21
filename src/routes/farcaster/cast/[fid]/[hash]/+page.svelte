@@ -69,8 +69,21 @@
 			&& c.parentHash === hash,
 		),
 	)
+
+
+	// Functions
 	const findInAll = (fid: number, h: `0x${string}`) =>
 		allCasts.find((c) => c.$id.fid === fid && c.$id.hash === h)
+	const getChildren = (node: FarcasterCastRow) =>
+		allCasts.filter((c) =>
+			c.parentFid === node.$id.fid
+			&& c.parentHash === node.$id.hash,
+		)
+	const isOpen = (node: FarcasterCastRow) =>
+		openNodes.has(`${node.$id.fid}:${node.$id.hash}`)
+
+
+	// (Derived)
 	const ancestorChain = $derived.by(() => {
 		if (!cast?.parentFid || !cast?.parentHash) return []
 		const chain: FarcasterCastRow[] = []
@@ -102,16 +115,6 @@
 	let isLoadingMoreReplies = $state(false)
 	let openNodes = $state<Set<string>>(new Set())
 	let repliesNextToken = $state<string | undefined>(undefined)
-
-
-	// Functions
-	const getChildren = (node: FarcasterCastRow) =>
-		allCasts.filter((c) =>
-			c.parentFid === node.$id.fid
-			&& c.parentHash === node.$id.hash,
-		)
-	const isOpen = (node: FarcasterCastRow) =>
-		openNodes.has(`${node.$id.fid}:${node.$id.hash}`)
 
 
 	// Actions

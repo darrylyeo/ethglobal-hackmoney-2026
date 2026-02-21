@@ -2,49 +2,26 @@
 	// Types/constants
 	import type { FarcasterChannelRow } from '$/collections/FarcasterChannels.ts'
 	import type { Sort } from '$/components/Sorts.svelte'
-	import EntityView from '$/components/EntityView.svelte'
-	import { EntityType } from '$/data/$EntityType.ts'
-
-	// Components
-	import FarcasterFilteredEntityList from '$/views/farcaster/FarcasterFilteredEntityList.svelte'
-	import LoadMorePlaceholder from '$/components/LoadMorePlaceholder.svelte'
-
-	// Functions
-	import { farcasterComboboxFilterGroup } from '$/lib/farcaster-filters.ts'
-
-	// State
+	import { farcasterCastsCollection } from '$/collections/FarcasterCasts.ts'
 	import {
 		INITIAL_CHANNELS_LIMIT,
 		channelsRemainderCount,
 		farcasterChannelsCollection,
 		loadMoreChannels,
 	} from '$/collections/FarcasterChannels.ts'
-	import { farcasterCastsCollection } from '$/collections/FarcasterCasts.ts'
 	import { useFarcasterConnections } from '$/collections/FarcasterConnections.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { farcasterComboboxFilterGroup } from '$/lib/farcaster-filters.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
-	// (Derived)
+
+	// Context
 	const connectionsQuery = useFarcasterConnections()
-	const connectedFids = $derived(
-		new Set(
-			(connectionsQuery.data ?? []).map(
-				(r) => (r.row as { $id: { fid: number } }).$id.fid,
-			),
-		),
-	)
 	const castsQuery = useLiveQuery(
 		(q) =>
 			q.from({ row: farcasterCastsCollection }).select(({ row }) => ({ row })),
 		[],
-	)
-	const connectedChannelUrls = $derived(
-		new Set(
-			(castsQuery.data ?? [])
-				.map((r) => r.row as { $id: { fid: number }; parentUrl?: string })
-				.filter((c) => connectedFids.has(c.$id.fid) && c.parentUrl)
-				.map((c) => c.parentUrl as string),
-		),
 	)
 	const channelsQuery = useLiveQuery(
 		(q) =>
@@ -53,6 +30,24 @@
 				.where(({ row }) => eq(row.$source, DataSource.Farcaster))
 				.select(({ row }) => ({ row })),
 		[],
+	)
+
+
+	// (Derived)
+	const connectedFids = $derived(
+		new Set(
+			(connectionsQuery.data ?? []).map(
+				(r) => (r.row as { $id: { fid: number } }).$id.fid,
+			),
+		),
+	)
+	const connectedChannelUrls = $derived(
+		new Set(
+			(castsQuery.data ?? [])
+				.map((r) => r.row as { $id: { fid: number }; parentUrl?: string })
+				.filter((c) => connectedFids.has(c.$id.fid) && c.parentUrl)
+				.map((c) => c.parentUrl as string),
+		),
 	)
 	const allChannels = $derived(
 		(channelsQuery.data ?? []).map((r) => r.row) as FarcasterChannelRow[],
@@ -94,6 +89,12 @@
 	const remainderCount = $derived(
 		allChannels.length === INITIAL_CHANNELS_LIMIT ? channelsRemainderCount() : 0,
 	)
+
+
+	// Components
+	import EntityView from '$/components/EntityView.svelte'
+	import LoadMorePlaceholder from '$/components/LoadMorePlaceholder.svelte'
+	import FarcasterFilteredEntityList from '$/views/farcaster/FarcasterFilteredEntityList.svelte'
 </script>
 
 <svelte:head>

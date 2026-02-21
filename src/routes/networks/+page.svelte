@@ -1,8 +1,12 @@
 <script lang="ts">
 	// Types/constants
-	import { resolve } from '$app/paths'
-	import { EntityType } from '$/data/$EntityType.ts'
 	import { networks } from '$/constants/networks.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+
+
+	// Context
+	import { resolve } from '$app/paths'
+
 
 	// Components
 	import EntityId from '$/components/EntityId.svelte'

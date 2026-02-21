@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import { type SubiconProps, IconShape } from '$/components/Icon.svelte'
+	import type { SubiconProps } from '$/components/Icon.svelte'
+	import { IconShape } from '$/components/Icon.svelte'
 	import { coinColorBySymbol } from '$/constants/coins.ts'
 
 
@@ -27,6 +28,7 @@
 	// Components
 	import Icon from '$/components/Icon.svelte'
 </script>
+
 
 <Icon
 	{src}

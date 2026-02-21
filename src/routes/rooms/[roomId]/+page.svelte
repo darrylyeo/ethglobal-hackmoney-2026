@@ -1,47 +1,36 @@
 <script lang="ts">
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
+	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
-
-
-	// Context
-	import { page } from '$app/state'
-	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { resolve } from '$app/paths'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import EntityView from '$/components/EntityView.svelte'
-	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
 	import {
 		roomState,
 		joinRoom,
 		leaveRoom,
 		partyKitStatusLabel,
 	} from '$/state/room.svelte.ts'
+	import {
+		getOrCreatePeerDisplayName,
+		roomIdToDisplayName,
+		roomIdToPlaceEmoji,
+	} from '$/lib/rooms/room.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { untrack } from 'svelte'
+
+
+	// Context
+	import { resolve } from '$app/paths'
+	import { page } from '$app/state'
 
 
 	// (Derived)
 	const roomId = $derived(page.params.roomId ?? '')
 
 
-	// Functions
-	import {
-		getOrCreatePeerDisplayName,
-		roomIdToDisplayName,
-		roomIdToPlaceEmoji,
-	} from '$/lib/rooms/room.ts'
-	import { untrack } from 'svelte'
-
-
-	// State
-	let connectedWallets = $state<ConnectedWallet[]>([])
-	let selectedActor = $state<`0x${string}` | null>(null)
-	let selectedChainId = $state<number | null>(null)
-	let leaveToken = 0
-
-
-	// (Derived)
+	// Context
 	const peersQuery = useLiveQuery(
 		(q) =>
 			q
@@ -57,6 +46,25 @@
 			query: peersQuery,
 		},
 	])
+
+
+	// Functions
+	const isEip1193Wallet = (
+		wallet: ConnectedWallet,
+	): wallet is Extract<
+		ConnectedWallet,
+		{ connection: { transport: WalletConnectionTransport.Eip1193 } }
+	> => wallet.connection.transport === WalletConnectionTransport.Eip1193
+
+
+	// State
+	let connectedWallets = $state<ConnectedWallet[]>([])
+	let selectedActor = $state<`0x${string}` | null>(null)
+	let selectedChainId = $state<number | null>(null)
+	let leaveToken = 0
+
+
+	// (Derived)
 	const others = $derived(
 		(peersQuery.data ?? [])
 			.map((r) => r.row)
@@ -65,12 +73,6 @@
 	const selectedWallets = $derived(
 		connectedWallets.filter((w) => w.connection.selected),
 	)
-	const isEip1193Wallet = (
-		wallet: ConnectedWallet,
-	): wallet is Extract<
-		ConnectedWallet,
-		{ connection: { transport: WalletConnectionTransport.Eip1193 } }
-	> => wallet.connection.transport === WalletConnectionTransport.Eip1193
 	const provider = $derived(
 		selectedWallets.find(isEip1193Wallet)?.wallet.provider ?? null,
 	)
@@ -109,6 +111,7 @@
 
 
 	// Components
+	import EntityView from '$/components/EntityView.svelte'
 	import AccountsSelect from '$/views/AccountsSelect.svelte'
 	import PendingSignatures from '../PendingSignatures.svelte'
 	import Peer from '../Peer.svelte'

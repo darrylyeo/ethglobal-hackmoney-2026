@@ -1,5 +1,5 @@
 <script module lang="ts">
-	// Types
+	// Types/constants
 	import type { Network$Id } from '$/data/Network.ts'
 
 	export type NavigationItem = {
@@ -22,18 +22,23 @@
 	// Context
 	import { preloadData } from '$app/navigation'
 
-
 	// Props
 	let {
 		items,
 		currentPathname,
-	}: { items: NavigationItem[], currentPathname?: string } = $props()
-
+	}: { items: NavigationItem[]; currentPathname?: string } = $props()
 
 	// Functions
-	const treeGetChildren = (item: NavigationItem) =>
-		item.children ?? item.allChildren ?? undefined
-
+	function escapeHtml(s: string): string {
+		return s
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+	}
+	function escapeRegex(s: string): string {
+		return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+	}
 	function filterTree(nodes: NavigationItem[], query: string): NavigationItem[] {
 		if (!query) return nodes
 		return nodes.flatMap((n) => {
@@ -44,16 +49,6 @@
 				[{ ...n, children: filteredChildren.length ? filteredChildren : children }]
 			: []
 		})
-	}
-	function escapeHtml(s: string): string {
-		return s
-			.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;')
-			.replace(/"/g, '&quot;')
-	}
-	function escapeRegex(s: string): string {
-		return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 	}
 	function highlightText(text: string, query: string): string {
 		if (!query) return escapeHtml(text)
@@ -66,25 +61,23 @@
 			{ src: icon }
 		: { icon }
 	}
-
+	const treeGetChildren = (item: NavigationItem) =>
+		(item.children ?? item.allChildren ?? undefined)
 
 	// State
 	let searchValue = $state('')
 	let treeOpenState = $state(new Map<string, boolean>())
-
+	const treeIsOpen = (item: NavigationItem) =>
+		(treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false))
 
 	// (Derived)
 	const query = $derived(searchValue.trim().toLowerCase())
-	const treeIsOpen = (item: NavigationItem) =>
-		treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false)
 	const filteredItems = $derived(filterTree(items, query))
-
 
 	// Actions
 	const treeOnOpenChange = (item: NavigationItem, open: boolean) => {
 		treeOpenState = new Map(treeOpenState).set(item.id, open)
 	}
-
 
 	// Components
 	import Icon from '$/components/Icon.svelte'

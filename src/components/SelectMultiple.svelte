@@ -1,7 +1,7 @@
 <script lang="ts" generics="_Item">
 	// Types/constants
-	import { stringify } from 'devalue'
 	import type { Snippet } from 'svelte'
+	import { stringify } from 'devalue'
 
 
 	// IDs

@@ -13,18 +13,15 @@
 	import { IdentityInputKind } from '$/constants/identity-resolver.ts'
 	import { ChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+	import { formatAddress, parseAccountAddressParam } from '$/lib/address.ts'
 	import { dedupeInFlight } from '$/lib/dedupeInFlight.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Context
-	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
-
-
-	// Functions
-	import { formatAddress, parseAccountAddressParam } from '$/lib/address.ts'
+	import { page } from '$app/state'
 
 
 	// (Derived)
@@ -46,6 +43,24 @@
 				.select(({ row }) => ({ row })),
 		[() => [addrParam]],
 	)
+	const connectionsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: walletConnectionsCollection })
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	const verificationsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: siweVerificationsCollection })
+				.select(({ row }) => ({ row })),
+		[],
+	)
+	registerLocalLiveQueryStack(() => [
+		{ id: 'account-connections', label: 'Wallet Connections', query: connectionsQuery },
+		{ id: 'account-verifications', label: 'Verifications', query: verificationsQuery },
+	])
 
 
 	// (Derived)
@@ -69,28 +84,9 @@
 
 
 	// State
-	let farcasterFid = $state<number | null | undefined>(undefined)
-
-
-	// Context
-	const connectionsQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: walletConnectionsCollection })
-				.select(({ row }) => ({ row })),
-		[],
+	let farcasterFid = $state<number | null | undefined>(
+		undefined,
 	)
-	const verificationsQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: siweVerificationsCollection })
-				.select(({ row }) => ({ row })),
-		[],
-	)
-	registerLocalLiveQueryStack(() => [
-		{ id: 'account-connections', label: 'Wallet Connections', query: connectionsQuery },
-		{ id: 'account-verifications', label: 'Verifications', query: verificationsQuery },
-	])
 
 
 	// Actions
@@ -122,8 +118,8 @@
 	import EntityView from '$/components/EntityView.svelte'
 	import EntityViewSkeleton from '$/components/EntityViewSkeleton.svelte'
 	import Heading from '$/components/Heading.svelte'
-	import { AddressFormat } from '$/views/Address.svelte'
 	import AccountContracts from '$/views/AccountContracts.svelte'
+	import { AddressFormat } from '$/views/Address.svelte'
 	import Channels from '$/views/Channels.svelte'
 	import CoinBalances from '$/views/CoinBalances.svelte'
 	import EvmActor from '$/views/EvmActor.svelte'
@@ -181,7 +177,10 @@
 				<Boundary>
 					<CoinBalances
 						selectedActor={addr}
-						balanceTokens={ercTokens.map((t) => ({ chainId: t.chainId, tokenAddress: t.address }))}
+						balanceTokens={ercTokens.map((t) => ({
+							chainId: t.contract.$network.chainId,
+							tokenAddress: t.contract.address,
+						}))}
 						availableAccounts={addr ? [addr] : []}
 					/>
 				</Boundary>

@@ -1,6 +1,13 @@
 <script lang="ts">
-	// Functions
-	import { peerNameToHue } from '$/lib/rooms/room.ts'
+	// Types/constants
+	type SubiconProps = {
+		icon?: string
+		html?: string
+		src?: string
+		alt?: string
+		size?: number | string
+	}
+
 
 	// Props
 	let {
@@ -12,8 +19,13 @@
 		name: string
 		emoji: string
 		size?: string
-		subicon?: { icon?: string; html?: string; src?: string; alt?: string; size?: number | string }
+		subicon?: SubiconProps
 	} = $props()
+
+
+	// Functions
+	import { peerNameToHue } from '$/lib/rooms/room.ts'
+
 
 	// Components
 	import Icon from '$/components/Icon.svelte'

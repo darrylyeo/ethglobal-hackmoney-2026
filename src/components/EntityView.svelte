@@ -5,11 +5,13 @@
 	}
 </script>
 
-<script lang="ts"
+<script
+	lang="ts"
 	generics="_EntityType extends EntityType, _Entity extends Entity<_EntityType> = Entity<_EntityType>"
 >
 	// Types/constants
 	import type { Entity, EntityId, EntityType } from '$/data/$EntityType.ts'
+	import type { Snippet } from 'svelte'
 	import { EntityType as EntityTypeEnum, entityTypes } from '$/data/$EntityType.ts'
 
 
@@ -41,10 +43,10 @@
 		metadata?: Array<{ term: string; detail: string }>
 		annotation?: string
 		hasAnchorTitle?: boolean
-		Title?: import('svelte').Snippet
-		AfterTitle?: import('svelte').Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
-		BeforeAnnotation?: import('svelte').Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
-		children?: import('svelte').Snippet
+		Title?: Snippet
+		AfterTitle?: Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
+		BeforeAnnotation?: Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
+		children?: Snippet
 		[key: string]: unknown
 	} = $props()
 

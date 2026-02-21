@@ -36,6 +36,9 @@
 				.map((g) => [g.id, g.label]),
 		),
 	)
+	const uniqueValue = $derived(
+		[...new Set((value ?? []).filter((id): id is string => id != null && id !== ''))],
+	)
 
 
 	// Components
@@ -44,13 +47,24 @@
 </script>
 
 
+
 <ComboboxMultiple
 	{...rootProps}
 	{items}
-	bind:value={() =>
-		(value ?? []).map((id) => items.find((n) => String(n.chainId) === id)).filter(Boolean) as Network[],
-		(v: Network[]) => (value = v.map((n) => String(n.chainId)))
-	}
+	bind:value={() => {
+		const ids = [...new Set((value ?? []).filter((id): id is string => id != null && id !== ''))]
+		return ids
+			.map((id) => items.find((n) => String(n.chainId) === id))
+			.filter((n): n is Network => n != null && n.chainId != null)
+	}, (v: Network[]) => {
+		value = [
+			...new Set(
+				v
+					.map((n) => (n.chainId != null ? String(n.chainId) : null))
+					.filter((id): id is string => id != null && id !== ''),
+			),
+		]
+	}}
 	{placeholder}
 	{disabled}
 	{ariaLabel}
@@ -62,9 +76,9 @@
 	getGroupLabel={(id) => groupLabelById[id] ?? id}
 >
 	{#snippet Before()}
-		{#if value.length > 0}
+		{#if uniqueValue.length > 0}
 			<span data-row="start gap-2">
-				{#each value as chainIdStr (chainIdStr)}
+				{#each uniqueValue as chainIdStr (chainIdStr)}
 					{@const chainId = Number(chainIdStr)}
 					{#if !Number.isNaN(chainId)}
 						<span class="network-input-icon">
@@ -78,7 +92,7 @@
 	{#snippet Item(network, selected)}
 		<span data-row="start gap-2" data-selected={selected}>
 			<span class="network-input-icon">
-				<NetworkIcon chainId={network.id} />
+				<NetworkIcon chainId={network.chainId} />
 			</span>
 			<span>{network.name}</span>
 		</span>

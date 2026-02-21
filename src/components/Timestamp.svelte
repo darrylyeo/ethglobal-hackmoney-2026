@@ -15,9 +15,8 @@
 		format = TimestampFormat.Absolute,
 	}: {
 		timestamp: number | undefined | null,
-		format?: TimestampFormat,
+		format?: TimestampFormat
 	} = $props()
-
 
 	// (Derived)
 	const date = $derived(
@@ -28,14 +27,11 @@
 	const isoString = $derived(date?.toISOString())
 	const absoluteTime = $derived(date?.toLocaleString())
 
-
 	// Functions
 	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 
-
 	// State
 	let now = $state(Date.now())
-
 
 	// (Derived)
 	const relativeTime = $derived(
@@ -44,6 +40,7 @@
 			: undefined,
 	)
 
+	// Actions
 	$effect(() => {
 		if (format === TimestampFormat.Relative || format === TimestampFormat.Both) {
 			const interval = setInterval(() => {

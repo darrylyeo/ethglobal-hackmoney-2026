@@ -2,6 +2,8 @@
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
+	const defaultItemLabel = (item: Item) => String(item)
+
 	type DropdownActionItem<Item> = {
 		type: 'item'
 		item: Item
@@ -117,22 +119,7 @@
 				id: string
 				label?: string
 				items: NormalizedItem<Item>[]
-		  }
-
-	const defaultItemLabel = (item: Item) => String(item)
-	const isRecord = (value: unknown): value is Record<string, unknown> =>
-		typeof value === 'object' && value !== null
-	const isDeclaredItem = (
-		value: unknown,
-	): value is DropdownDeclaredItem<Item> =>
-		isRecord(value) &&
-		((value.type === 'item' && 'item' in value) ||
-			value.type === 'separator' ||
-			value.type === 'checkbox' ||
-			value.type === 'checkbox-group' ||
-			value.type === 'radio-group')
-	const isGroup = (value: unknown): value is DropdownGroup<Item> =>
-		isRecord(value) && Array.isArray(value.items) && !isDeclaredItem(value)
+		}
 
 
 	// Props
@@ -184,6 +171,22 @@
 		children?: Snippet
 		[key: string]: unknown
 	} = $props()
+
+
+	// Functions
+	const isRecord = (value: unknown): value is Record<string, unknown> =>
+		typeof value === 'object' && value !== null
+	const isDeclaredItem = (
+		value: unknown,
+	): value is DropdownDeclaredItem<Item> =>
+		isRecord(value) &&
+		((value.type === 'item' && 'item' in value) ||
+			value.type === 'separator' ||
+			value.type === 'checkbox' ||
+			value.type === 'checkbox-group' ||
+			value.type === 'radio-group')
+	const isGroup = (value: unknown): value is DropdownGroup<Item> =>
+		isRecord(value) && Array.isArray(value.items) && !isDeclaredItem(value)
 
 
 	// (Derived)

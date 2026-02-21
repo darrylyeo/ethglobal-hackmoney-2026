@@ -1,23 +1,22 @@
 <script lang="ts">
 	// Types/constants
+	import type { SiwfStatusCompleted } from '$/api/siwf.ts'
+	import type { FarcasterAuthUser } from '$/state/farcaster-auth.svelte.ts'
 	import {
 		createSiwfChannel,
 		getSiwfStatus,
 		verifySiwfCompleted,
-		type SiwfStatusCompleted,
 	} from '$/api/siwf.ts'
+	import { addFarcasterConnectionSiwf } from '$/collections/FarcasterConnections.ts'
+	import { ensureFarcasterUser } from '$/collections/FarcasterUsers.ts'
 	import {
 		clearFarcasterAuthUser,
 		getFarcasterAuthUser,
 		setFarcasterAuthUser,
 		subscribeFarcasterAuth,
-		type FarcasterAuthUser,
 	} from '$/state/farcaster-auth.svelte.ts'
-	import { addFarcasterConnectionSiwf } from '$/collections/FarcasterConnections.ts'
-	import { ensureFarcasterUser } from '$/collections/FarcasterUsers.ts'
 
-	// Components
-	import Qr from '$/components/Qr.svelte'
+	const pollInterval = 1500
 
 
 	// Props
@@ -34,22 +33,19 @@
 
 	// State
 	let user = $state<FarcasterAuthUser | null>(getFarcasterAuthUser())
+	let status = $state<'idle' | 'pending' | 'error'>('idle')
+	let channelUrl = $state<string | null>(null)
+	let errorMessage = $state<string | null>(null)
+	let pollTimer = $state<ReturnType<typeof setInterval> | null>(null)
 
+
+	// Actions
 	$effect(() => {
 		const unsub = subscribeFarcasterAuth(() => {
 			user = getFarcasterAuthUser()
 		})
 		return unsub
 	})
-	let status = $state<'idle' | 'pending' | 'error'>('idle')
-	let channelUrl = $state<string | null>(null)
-	let errorMessage = $state<string | null>(null)
-
-	const pollInterval = 1500
-	let pollTimer = $state<ReturnType<typeof setInterval> | null>(null)
-
-
-	// Actions
 	const signIn = async () => {
 		status = 'pending'
 		errorMessage = null
@@ -120,6 +116,10 @@
 			if (pollTimer) clearInterval(pollTimer)
 		}
 	})
+
+
+	// Components
+	import Qr from '$/components/Qr.svelte'
 </script>
 
 <div data-column="gap-2">

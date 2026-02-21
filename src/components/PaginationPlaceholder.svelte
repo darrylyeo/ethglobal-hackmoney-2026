@@ -1,5 +1,5 @@
 <script lang="ts">
-	// Functions
+	// Types/constants
 	import { useVisibleAction } from '$/lib/useVisibleAction.ts'
 
 

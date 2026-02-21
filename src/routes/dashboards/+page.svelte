@@ -1,7 +1,5 @@
 <script lang="ts">
-	// Context
-	import { goto } from '$app/navigation'
-	import { resolve } from '$app/paths'
+	// Types/constants
 	import {
 		createDashboard,
 		dashboardsCollection,
@@ -13,7 +11,9 @@
 	import { eq, not, useLiveQuery } from '@tanstack/svelte-db'
 
 
-	// (Derived)
+	// Context
+	import { resolve } from '$app/paths'
+	import { goto } from '$app/navigation'
 	const dashboardsQuery = useLiveQuery(
 		(q) =>
 			q
@@ -42,6 +42,9 @@
 				),
 		[],
 	)
+
+
+	// (Derived)
 	const dashboards = $derived(dashboardsQuery.data ?? [])
 	const defaultId = $derived(
 		defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default',

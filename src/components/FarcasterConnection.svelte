@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { FarcasterConnectionRow } from '$/data/FarcasterConnection.ts'
-	import { Button } from 'bits-ui'
+
 
 	// Props
 	let {
@@ -14,11 +14,17 @@
 		onAction: () => void
 	} = $props()
 
+
 	// (Derived)
 	const label = $derived(
 		connection.username ? `@${connection.username}` : `@${connection.$id.fid}`,
 	)
+
+
+	// Components
+	import { Button } from 'bits-ui'
 </script>
+
 
 <div data-card="padding-2 radius-3" data-row="gap-2 align-center wrap">
 	<a
@@ -41,3 +47,4 @@
 		{actionLabel}
 	</Button.Root>
 </div>
+

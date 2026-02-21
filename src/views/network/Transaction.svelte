@@ -45,8 +45,16 @@
 	const entry = $derived(
 		[...data.values()][0] ?? { trace: undefined, events: [] },
 	)
-	const tx = $derived([...data.keys()][0])
 	const events = $derived(entry.events ?? [])
+	const tx = $derived([...data.keys()][0])
+	const inputSelector = $derived(
+		tx?.input && tx.input.length >= 10
+			? (`0x${tx.input.slice(2, 10).toLowerCase().padStart(8, '0')}` as `0x${string}`)
+			: null,
+	)
+
+
+	// Context
 	const traceQuery = useLiveQuery(
 		(q) =>
 			tx
@@ -64,18 +72,6 @@
 					.where(({ row }) => eq(row.$id.$network.chainId, -1))
 					.select(({ row }) => ({ row })),
 		[() => tx?.$id.$network.chainId ?? -1, () => tx?.$id.txHash ?? ''],
-	)
-	const traceRow = $derived(traceQuery.data?.[0]?.row)
-	const trace = $derived(
-		traceRow && !traceRow.unavailable
-			? traceRow.trace
-			: entry.trace,
-	)
-	const eventsSet = $derived(new Set(events))
-	const inputSelector = $derived(
-		tx?.input && tx.input.length >= 10
-			? (`0x${tx.input.slice(2, 10).toLowerCase().padStart(8, '0')}` as `0x${string}`)
-			: null,
 	)
 	const functionSigQuery = useLiveQuery(
 		(q) =>
@@ -95,27 +91,37 @@
 					.select(({ row }) => ({ row })),
 		[() => inputSelector],
 	)
-	const functionSignatures = $derived(functionSigQuery.data?.[0]?.row?.signatures ?? [])
 
-	$effect(() => {
-		if (inputSelector) void ensureFunctionSignatures(inputSelector)
-	})
+
+	// (Derived)
+	const functionSignatures = $derived(functionSigQuery.data?.[0]?.row?.signatures ?? [])
+	const traceRow = $derived(traceQuery.data?.[0]?.row)
+	const trace = $derived(
+		traceRow && !traceRow.unavailable
+			? traceRow.trace
+			: entry.trace,
+	)
+	const eventsSet = $derived(new Set(events))
 
 
 	// State
+	let arrowRects = $state<{ from: DOMRect; to: DOMRect; card: DOMRect } | null>(null)
+	let cardRef = $state<HTMLElement | null>(null)
+	let ethIconSrc = $state<string | undefined>(undefined)
+	let fromRef = $state<HTMLElement | null>(null)
 	let hasFetched = $state(false)
 	let hasFetchedTrace = $state(false)
 	let isOpen = $state(false)
-	let fromRef = $state<HTMLElement | null>(null)
 	let toRef = $state<HTMLElement | null>(null)
-	let cardRef = $state<HTMLElement | null>(null)
-	let arrowRects = $state<{ from: DOMRect; to: DOMRect; card: DOMRect } | null>(null)
-	let ethIconSrc = $state<string | undefined>(undefined)
-
-	getCoinIconUrl('eth').then((url) => { ethIconSrc = url })
 
 
 	// Actions
+	$effect(() => {
+		getCoinIconUrl('eth').then((url) => { ethIconSrc = url })
+	})
+	$effect(() => {
+		if (inputSelector) void ensureFunctionSignatures(inputSelector).catch(() => {})
+	})
 	const measureRects = () => {
 		if (!fromRef || !toRef || !cardRef || !isOpen) {
 			arrowRects = null
@@ -145,10 +151,6 @@
 		if (!isOpen) { arrowRects = null; return }
 		measureRects()
 	})
-	$effect(() => {
-		if (inputSelector) void ensureFunctionSignatures(inputSelector).catch(() => {})
-	})
-
 	const onToggle = (e: Event) => {
 		const details = e.currentTarget as HTMLDetailsElement
 		isOpen = details.open
@@ -181,21 +183,23 @@
 <details data-card="radius-2 padding-4" id={tx
 		? `transaction:${tx.$id.txHash}`
 		: undefined} ontoggle={onToggle} bind:this={cardRef} class="transaction-card">
-	<summary data-row="gap-2 align-center">
-		{#if tx}
-			{#if tx.status != null}
-				<span data-tag={tx.status === 1 ? 'success' : 'failure'}>
-					{tx.status === 1 ? '✓' : '✗'}
-				</span>
+	<summary>
+		<div data-row="wrap gap-2 align-center">
+			{#if tx}
+				{#if tx.status != null}
+					<span data-tag={tx.status === 1 ? 'success' : 'failure'}>
+						{tx.status === 1 ? '✓' : '✗'}
+					</span>
+				{/if}
+				<TruncatedValue value={tx.$id.txHash} startLength={10} endLength={8} />
+				<span>from <TruncatedValue value={tx.from} startLength={8} endLength={4} /></span>
+				{#if tx.value !== '0x0' && tx.value !== '0x'}
+					<span>{formatWei(tx.value)} ETH</span>
+				{/if}
+			{:else}
+				<code>Loading…</code>
 			{/if}
-			<TruncatedValue value={tx.$id.txHash} startLength={10} endLength={8} />
-			<span>from <TruncatedValue value={tx.from} startLength={8} endLength={4} /></span>
-			{#if tx.value !== '0x0' && tx.value !== '0x'}
-				<span>{formatWei(tx.value)} ETH</span>
-			{/if}
-		{:else}
-			<code>Loading…</code>
-		{/if}
+		</div>
 	</summary>
 
 	<div data-column="gap-4">

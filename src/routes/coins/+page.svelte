@@ -1,8 +1,11 @@
 <script lang="ts">
 	// Types/constants
-	import { resolve } from '$app/paths'
-	import { EntityType } from '$/data/$EntityType.ts'
 	import { COIN_SYMBOLS, coinBySymbol } from '$/constants/coins.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+
+
+	// Context
+	import { resolve } from '$app/paths'
 
 
 	// Components

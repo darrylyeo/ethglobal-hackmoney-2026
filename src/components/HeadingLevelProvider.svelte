@@ -1,11 +1,15 @@
 <script lang="ts">
-	// Context
+	// Types/constants
+	import type { Snippet } from 'svelte'
 	import { provideHeadingLevel } from '$/svelte/heading-context.ts'
+
+
+	// Context
 	provideHeadingLevel()
 
 
 	// Props
-	let { children }: { children?: import('svelte').Snippet } = $props()
+	let { children }: { children?: Snippet } = $props()
 </script>
 
 

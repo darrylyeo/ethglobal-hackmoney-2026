@@ -1,64 +1,68 @@
+<script module lang="ts">
+	import { ensureProfilesMeta } from '$/lib/profile.ts'
+	ensureProfilesMeta()
+</script>
+
+
 <script lang="ts">
 	// Types/constants
 	import type { Profile } from '$/lib/profile.ts'
+
+	// Context
+	import { goto } from '$app/navigation'
+
+	// Functions
 	import {
 		createProfile,
 		deleteProfile,
-		ensureProfilesMeta,
 		exportProfile,
 		getActiveProfile,
 		listProfiles,
 		switchProfile,
 		updateProfile,
 	} from '$/lib/profile.ts'
-	import { getNetworkEnvironment } from '$/state/network-environment.svelte.ts'
-
-	ensureProfilesMeta()
-
-
-	// Context
-	import { goto } from '$app/navigation'
-
 
 	// State
-	let activeProfile = $state(getActiveProfile())
-	let editingId = $state<string | undefined>(undefined)
-	let editingName = $state('')
-	let profiles = $state(listProfiles())
-
+	import { getNetworkEnvironment } from '$/state/network-environment.svelte.ts'
+	let activeProfile = $state(
+		getActiveProfile(),
+	)
+	let editingId = $state<string | undefined>(
+		undefined,
+	)
+	let editingName = $state(
+		'',
+	)
+	let profiles = $state(
+		listProfiles(),
+	)
 
 	// Actions
 	const refresh = () => {
 		activeProfile = getActiveProfile()
 		profiles = listProfiles()
 	}
-
 	const handleSwitch = (id: string) => {
 		switchProfile(id, getNetworkEnvironment())
 		refresh()
 	}
-
 	const handleCreate = () => {
 		const profile = createProfile()
 		switchProfile(profile.id, getNetworkEnvironment())
 		refresh()
 	}
-
 	const handleExport = (id: string) => {
 		exportProfile(id)
 	}
-
 	const handleDelete = (id: string) => {
 		if (profiles.length <= 1) return
 		deleteProfile(id, getNetworkEnvironment())
 		refresh()
 	}
-
 	const startEditing = (profile: Profile) => {
 		editingId = profile.id
 		editingName = profile.name
 	}
-
 	const finishEditing = () => {
 		if (editingId && editingName.trim()) {
 			updateProfile(editingId, { name: editingName.trim() })
@@ -66,7 +70,6 @@
 		}
 		editingId = undefined
 	}
-
 
 	// Components
 	import { DropdownMenu } from 'bits-ui'

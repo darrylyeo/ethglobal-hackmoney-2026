@@ -1,12 +1,12 @@
 <script lang="ts">
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
 	import { partykitRoomsCollection } from '$/collections/PartykitRooms.ts'
 	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
 	import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -21,7 +21,7 @@
 	} = $props()
 
 
-	// State
+	// Context
 	const sharedAddressesQuery = useLiveQuery(
 		(q) =>
 			q
@@ -87,6 +87,10 @@
 			]),
 		),
 	)
+	const singleAddress = $derived(actors.length === 1 ? actors[0] : null)
+
+
+	// Functions
 	const getVerificationStatus = (
 		roomId: string,
 		peerId: string,
@@ -98,9 +102,6 @@
 				v.verifiedPeerId === peerId &&
 				v.address === address,
 		)?.status ?? null
-	const singleAddress = $derived(
-		actors.length === 1 ? actors[0] : null,
-	)
 
 
 	// Components

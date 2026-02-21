@@ -1,24 +1,32 @@
 <script lang="ts">
 	// Types/constants
+	import type { ProposalEntry } from '$/data/ProposalEntry.ts'
+	import { proposalsCollection } from '$/collections/Proposals.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { ProposalType, type ProposalEntry } from '$/data/ProposalEntry.ts'
+	import { ProposalType } from '$/data/ProposalEntry.ts'
+	import { useLiveQuery } from '@tanstack/svelte-db'
+
 
 	// Context
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
-	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { proposalsCollection } from '$/collections/Proposals.ts'
+
 
 	// (Derived)
 	const numberParam = $derived(page.params.number ?? '')
 	const number = $derived(parseInt(numberParam, 10))
 	const isValidNumber = $derived(Number.isInteger(number) && number >= 0)
 
+
+	// Context
 	const entriesQuery = useLiveQuery((q) =>
 		q
 			.from({ row: proposalsCollection })
 			.select(({ row }) => ({ row })),
 	)
+
+
+	// (Derived)
 	const entry = $derived(
 		isValidNumber
 			? (entriesQuery.data ?? []).find(
@@ -42,6 +50,7 @@
 				]
 			: [],
 	)
+
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'

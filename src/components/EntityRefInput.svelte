@@ -27,10 +27,6 @@
 	const getPlaceholderRef = (trigger: string): EntityRef => ({ ...PLACEHOLDER_REF, trigger })
 
 
-	// Components
-	import RichTextarea from '$/components/RichTextarea.svelte'
-
-
 	// Props
 	let {
 		value = $bindable(''),
@@ -50,6 +46,7 @@
 
 
 	// Functions
+	const isPlaceholder = (r: EntityRef) => r.entityId === '__placeholder__'
 	function serializeRef(ref: EntityRef): Record<string, string> {
 		return {
 			displayLabel: ref.displayLabel,
@@ -68,6 +65,8 @@
 		const trigger = el.getAttribute('data-ref-trigger') ?? undefined
 		return { entityType, entityId, displayLabel, ...(trigger && { trigger }) }
 	}
+	const getItemId = (s: EntitySuggestion) => `${s.ref.entityType}:${s.ref.entityId}`
+	const getItemLabel = (s: EntitySuggestion) => s.label
 
 
 	// State
@@ -76,18 +75,20 @@
 
 
 	// (Derived)
-	const isPlaceholder = (r: EntityRef) => r.entityId === '__placeholder__'
 	const hasPlaceholder = $derived(refs.some(isPlaceholder))
 	const resolvedRefs = $derived(refs.filter((r) => !isPlaceholder(r)))
+	const computedPlaceholder = $derived(
+		placeholder ?? 'Type a message… Use @ to reference entities',
+	)
 
+
+	// Actions
 	$effect(() => {
 		entityRefs = resolvedRefs
 	})
-
 	$effect(() => {
 		value = getValueFromSegmentsAndRefs(textSegments, refs)
 	})
-
 	$effect(() => {
 		if (hasPlaceholder) return
 		const current = getValueFromSegmentsAndRefs(textSegments, refs)
@@ -96,21 +97,16 @@
 		textSegments = segments
 		refs = parsed
 	})
-
-	const computedPlaceholder = $derived(
-		placeholder ?? 'Type a message… Use @ to reference entities',
-	)
-	const getItemId = (s: EntitySuggestion) => `${s.ref.entityType}:${s.ref.entityId}`
-	const getItemLabel = (s: EntitySuggestion) => s.label
-
-
-	// Actions
 	const handleSubmit = () => {
 		if (hasPlaceholder) return
 		const v = getValueFromSegmentsAndRefs(textSegments, refs)
 		if (!v.trim()) return
 		onsubmit?.(v, resolvedRefs)
 	}
+
+
+	// Components
+	import RichTextarea from '$/components/RichTextarea.svelte'
 </script>
 
 

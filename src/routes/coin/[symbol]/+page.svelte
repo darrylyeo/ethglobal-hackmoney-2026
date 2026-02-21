@@ -1,9 +1,9 @@
 <script lang="ts">
 	// Types/constants
+	import type { CoinSymbol } from '$/constants/coins.ts'
 	import {
 		COIN_SYMBOLS,
 		coinBySymbol,
-		type CoinSymbol,
 	} from '$/constants/coins.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 

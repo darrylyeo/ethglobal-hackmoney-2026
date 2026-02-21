@@ -2,6 +2,7 @@
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+	import { getTxPath } from '$/lib/network-paths.ts'
 
 
 	// Props
@@ -18,10 +19,6 @@
 		isFull?: boolean
 		isVertical?: boolean
 	} = $props()
-
-
-	// Functions
-	import { getTxPath } from '$/lib/network-paths.ts'
 
 
 	// Components

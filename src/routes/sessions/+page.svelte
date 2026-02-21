@@ -1,17 +1,11 @@
 <script lang="ts">
 	// Types/constants
+	import type { Action } from '$/data/Session.ts'
+	import { sessionsCollection } from '$/collections/Sessions.ts'
 	import { actionTypeDefinitionByActionType } from '$/constants/actions.ts'
 	import { APP_NAME } from '$/constants/app.ts'
-	import type { Action } from '$/data/Session.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-
-
-	// Context
-	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-
-
-	// Functions
+	import { SessionStatus } from '$/data/Session.ts'
 	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 	import {
 		buildSessionPath,
@@ -19,34 +13,19 @@
 		deleteSession,
 		formatSessionPlaceholderName,
 	} from '$/lib/session/sessions.ts'
-	import { SessionStatus } from '$/data/Session.ts'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 
 
-	// State
-	import { sessionsCollection } from '$/collections/Sessions.ts'
-
-
-	// Components
-	import WatchButton from '$/components/WatchButton.svelte'
-
-	const sessionTitle = (session: { name?: string; actions: Action[] }) =>
-		session.name ?? formatSessionPlaceholderName(session.actions)
-	const sessionIcon = (session: { actions: Action[] }) =>
-		(actionTypeDefinitionByActionType as Record<string, { icon: string }>)[
-			session.actions[0]?.type
-		]?.icon ?? '📋'
-	const sessionHref = (session: { id: string }) =>
-		buildSessionPath(session.id)
-
+	// Context
 	const sessionsQuery = useLiveQuery(
 		(q) =>
 			q.from({ row: sessionsCollection }).select(({ row }) => ({ row })),
 		[],
 	)
-	const liveQueryEntries = [
+	registerLocalLiveQueryStack(() => [
 		{ id: 'sessions-list', label: 'Sessions', query: sessionsQuery },
-	]
-	registerLocalLiveQueryStack(() => liveQueryEntries)
+	])
 
 
 	// (Derived)
@@ -58,11 +37,32 @@
 	const draftCount = $derived(
 		sessions.filter((s) => s.status === SessionStatus.Draft).length,
 	)
+
+
+	// Functions
+	const sessionTitle = (session: { name?: string; actions: Action[] }) =>
+		session.name ?? formatSessionPlaceholderName(session.actions)
+	const sessionIcon = (session: { actions: Action[] }) =>
+		(actionTypeDefinitionByActionType as Record<string, { icon: string }>)[
+			session.actions[0]?.type
+		]?.icon ?? '📋'
+	const sessionHref = (session: { id: string }) =>
+		buildSessionPath(session.id)
+
+
+	// State
 	let now = $state(Date.now())
+
+
+	// Actions
 	$effect(() => {
 		const id = setInterval(() => (now = Date.now()), 60_000)
 		return () => clearInterval(id)
 	})
+
+
+	// Components
+	import WatchButton from '$/components/WatchButton.svelte'
 </script>
 
 

@@ -8,8 +8,8 @@
 		ensureBlocksForPlaceholders,
 	} from '$/collections/Blocks.ts'
 	import { networksCollection } from '$/collections/Networks.ts'
-	import { EntityType } from '$/data/$EntityType.ts'
 	import { isHeliosSupportedChain } from '$/constants/helios-chains.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
 	import {
 		createProviderForChain,
 		getEffectiveRpcUrl,
@@ -139,8 +139,8 @@
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
-	import NetworkContracts from '$/views/network/NetworkContracts.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
+	import NetworkContracts from '$/views/network/NetworkContracts.svelte'
 	import NetworkView from '$/views/network/Network.svelte'
 </script>
 

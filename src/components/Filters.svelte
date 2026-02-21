@@ -82,12 +82,6 @@
 
 
 	// Functions
-	const setDifference = <_T>(left: Set<_T>, right: Set<_T>) => (
-		new Set([...left].filter((value) => !right.has(value)))
-	)
-	const setUnion = <_T>(left: Set<_T>, right: Set<_T>) => (
-		new Set([...left, ...right])
-	)
 	const isDefined = <_T>(value: _T | undefined): value is _T => value !== undefined
 	const getFiltersByIds = (
 		filterById: Map<string, Filter<_Item, _FilterId>>,
@@ -114,10 +108,7 @@
 		filterById: Map<string, Filter<_Item, _FilterId>>,
 		filterIds: _FilterId[],
 	) => {
-		activeFilters = setUnion(
-			setDifference(activeFilters, groupFilters),
-			new Set(getFiltersByIds(filterById, filterIds)),
-		)
+		activeFilters = activeFilters.difference(groupFilters).union(new Set(getFiltersByIds(filterById, filterIds)))
 	}
 	const setGroupValue = (
 		groupFilters: Set<Filter<_Item, _FilterId>>,
@@ -126,22 +117,16 @@
 	) => {
 		activeFilters = (
 			filterId === '' ?
-				setDifference(activeFilters, groupFilters)
+				activeFilters.difference(groupFilters)
 			:
-				setUnion(
-					setDifference(activeFilters, groupFilters),
-					new Set(getFiltersByIds(filterById, [filterId])),
-				)
+				activeFilters.difference(groupFilters).union(new Set(getFiltersByIds(filterById, [filterId])))
 		)
 	}
 	const setGroupValues = (
 		groupFilters: Set<Filter<_Item, _FilterId>>,
 		values: Filter<_Item, _FilterId>[],
 	) => {
-		activeFilters = setUnion(
-			setDifference(activeFilters, groupFilters),
-			new Set(values),
-		)
+		activeFilters = activeFilters.difference(groupFilters).union(new Set(values))
 	}
 	const setSingleGroupValue = (
 		groupFilters: Set<Filter<_Item, _FilterId>>,
@@ -149,11 +134,8 @@
 	) => {
 		activeFilters = (
 			value === undefined
-				? setDifference(activeFilters, groupFilters)
-				: setUnion(
-					setDifference(activeFilters, groupFilters),
-					new Set([value]),
-				)
+				? activeFilters.difference(groupFilters)
+				: activeFilters.difference(groupFilters).union(new Set([value]))
 		)
 	}
 	const filterItems = (filters: Set<Filter<_Item, _FilterId>>) => {
@@ -167,7 +149,7 @@
 			const groupFilters = filtersByGroup.get(group.id)
 			filtersByGroup.set(
 				group.id,
-				groupFilters ? setUnion(groupFilters, new Set([filter])) : new Set([filter]),
+				groupFilters ? groupFilters.union(new Set([filter])) : new Set([filter]),
 			)
 		}
 
@@ -187,26 +169,23 @@
 	}
 
 
-	// (Derived)
+	// Actions
 	$effect(() => {
 		filteredItems = filterItems(activeFilters)
 	})
-
-
-	// Actions
 	const _toggleFilter = (filter: Filter<_Item, _FilterId>, forceExclusive = false) => {
 		const group = filterGroups.find((entry) => entry.filters.includes(filter))
 		if (!activeFilters.has(filter)) {
 			activeFilters = (
 				group && (forceExclusive || group.exclusive) ?
-					setDifference(activeFilters, new Set(group.filters))
+					activeFilters.difference(new Set(group.filters))
 				:
 					activeFilters
 			)
-			activeFilters = setUnion(activeFilters, new Set([filter]))
+			activeFilters = activeFilters.union(new Set([filter]))
 			return
 		}
-		activeFilters = setDifference(activeFilters, new Set([filter]))
+		activeFilters = activeFilters.difference(new Set([filter]))
 	}
 	toggleFilter = _toggleFilter
 
@@ -285,10 +264,7 @@
 									filterItems(new Set([filter])).length
 								:
 									filterItems(
-										setUnion(
-											setDifference(activeFilters, filters),
-											new Set([filter]),
-										),
+										activeFilters.difference(filters).union(new Set([filter])),
 									).length
 							)}
 							{#if filter.icon}
@@ -320,10 +296,7 @@
 									filterItems(new Set([filter])).length
 								:
 									filterItems(
-										setUnion(
-											setDifference(activeFilters, filters),
-											new Set([filter]),
-										),
+										activeFilters.difference(filters).union(new Set([filter])),
 									).length
 							)}
 							{#if filter.icon}
@@ -344,10 +317,7 @@
 									filterItems(new Set([filter])).length
 								:
 									filterItems(
-										setUnion(
-											setDifference(activeFilters, filters),
-											new Set([filter]),
-										),
+										activeFilters.difference(filters).union(new Set([filter])),
 									).length
 							)}
 							<label
@@ -363,10 +333,7 @@
 									checked={activeFilter === filter}
 									disabled={count === 0}
 									onchange={() => {
-										activeFilters = setUnion(
-											setDifference(activeFilters, filters),
-											new Set([filter]),
-										)
+										activeFilters = activeFilters.difference(filters).union(new Set([filter]))
 									}}
 								/>
 								{#if filter.icon}
@@ -403,7 +370,7 @@
 										activeFilters.has(filter) ?
 											activeFilters
 										:
-											setUnion(activeFilters, new Set([filter])),
+											activeFilters.union(new Set([filter])),
 									).length
 							)}
 							{#if filter.icon}
@@ -438,7 +405,7 @@
 										activeFilters.has(filter) ?
 											activeFilters
 										:
-											setUnion(activeFilters, new Set([filter])),
+											activeFilters.union(new Set([filter])),
 									).length
 							)}
 							{#if filter.icon}
@@ -462,7 +429,7 @@
 										isChecked ?
 											activeFilters
 										:
-											setUnion(activeFilters, new Set([filter])),
+											activeFilters.union(new Set([filter])),
 									).length
 							)}
 							<label
@@ -479,9 +446,9 @@
 										if (!(currentTarget instanceof HTMLInputElement)) return
 										activeFilters = (
 											currentTarget.checked ?
-												setUnion(activeFilters, new Set([filter]))
+												activeFilters.union(new Set([filter]))
 											:
-												setDifference(activeFilters, new Set([filter]))
+												activeFilters.difference(new Set([filter]))
 										)
 									}}
 								/>

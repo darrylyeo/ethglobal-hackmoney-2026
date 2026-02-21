@@ -1,22 +1,24 @@
 <script lang="ts">
 	// Types/constants
-	import { useLiveQuery } from '@tanstack/svelte-db'
+	import type { ForkUpgrade } from '$/constants/fork-upgrades.ts'
+	import type { ProposalEntry } from '$/data/ProposalEntry.ts'
+	import { proposalsCollection } from '$/collections/Proposals.ts'
 	import {
 		EIPS_OFFICIAL_BASE,
 		FORK_UPGRADES,
-		type ForkUpgrade,
 	} from '$/constants/fork-upgrades.ts'
-
-	// State
-	import { proposalsCollection } from '$/collections/Proposals.ts'
-	import type { ProposalEntry } from '$/data/ProposalEntry.ts'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 
 
+	// Context
 	const entriesQuery = useLiveQuery((q) =>
 		q
 			.from({ row: proposalsCollection })
 			.select(({ row }) => ({ row })),
 	)
+
+
+	// (Derived)
 	const entriesByNumber = $derived(
 		new Map<number, ProposalEntry>(
 			(entriesQuery.data ?? []).map((r) => {
@@ -26,6 +28,8 @@
 		),
 	)
 
+
+	// Functions
 	const formatActivation = (f: ForkUpgrade) =>
 		f.activationBlock != null
 			? `Block ${f.activationBlock.toLocaleString()}`

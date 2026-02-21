@@ -1,4 +1,7 @@
 <script lang="ts">
+	// Types/constants
+
+
 	// Components
 	import FarcasterConnections from '$/components/FarcasterConnections.svelte'
 </script>

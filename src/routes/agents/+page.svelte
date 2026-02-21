@@ -1,25 +1,12 @@
 <script lang="ts">
 	// Types/constants
+	import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 	import { APP_NAME } from '$/constants/app.ts'
+	import { deleteAgentChatTree } from '$/lib/agentChat.ts'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Context
-	import { useLiveQuery } from '@tanstack/svelte-db'
-	import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
-
-
-	// Functions
-	import { deleteAgentChatTree } from '$/lib/agentChat.ts'
-
-	const togglePin = (treeId: string) => {
-		agentChatTreesCollection.update(treeId, (draft) => {
-			draft.pinned = !draft.pinned
-			draft.updatedAt = Date.now()
-		})
-	}
-
-
-	// (Derived)
 	const treesQuery = useLiveQuery(
 		(q) =>
 			q
@@ -28,11 +15,22 @@
 		[],
 	)
 
+
+	// (Derived)
 	const trees = $derived(
 		(treesQuery.data ?? [])
 			.map((result) => result.row)
 			.sort((a, b) => b.updatedAt - a.updatedAt),
 	)
+
+
+	// Actions
+	const togglePin = (treeId: string) => {
+		agentChatTreesCollection.update(treeId, (draft) => {
+			draft.pinned = !draft.pinned
+			draft.updatedAt = Date.now()
+		})
+	}
 
 
 	// Components

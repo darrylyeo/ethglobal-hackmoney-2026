@@ -48,33 +48,15 @@
 	const manyItems = $derived(items.length > 200)
 
 
-	// Actions
-	const addItem = () => {
-		items = [...items, createItem()]
-	}
-
-	const deleteItem = (index: number) => {
-		items = items.filter((_, i) => i !== index)
-	}
-
-	const duplicateItemAt = (index: number) => {
-		items = [
-			...items.slice(0, index + 1),
-			duplicateItem(items[index]),
-			...items.slice(index + 1),
-		]
-	}
-
-	const onReorderDrop = () => {
-		items = [...items]
-	}
-
 	// State
 	const reorderContentRef = { current: undefined as ContentSnippet<_Item> | undefined }
+	let reorder = $state<ReturnType<typeof createReorder<_Item>> | null>(null)
+
+
+	// Actions
 	$effect(() => {
 		reorderContentRef.current = reorderContent
 	})
-	let reorder = $state<ReturnType<typeof createReorder<_Item>> | null>(null)
 	$effect(() => {
 		if (canReorder && reorderContentRef.current) {
 			if (!reorder) reorder = createReorder(() => reorderContentRef.current!)
@@ -82,6 +64,23 @@
 			reorder = null
 		}
 	})
+	const addItem = () => {
+		items = [...items, createItem()]
+	}
+	const deleteItem = (index: number) => {
+		items = items.filter((_, i) => i !== index)
+	}
+	const duplicateItemAt = (index: number) => {
+		items = [
+			...items.slice(0, index + 1),
+			duplicateItem(items[index]),
+			...items.slice(index + 1),
+		]
+	}
+	const onReorderDrop = () => {
+		items = [...items]
+	}
+
 
 	// Components
 	import { Button } from 'bits-ui'

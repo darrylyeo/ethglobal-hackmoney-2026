@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Types/constants
+	import type { ChainId } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import { getCurrentBlockNumber } from '$/api/voltaire.ts'
@@ -8,9 +9,9 @@
 		fetchNetworkTransaction,
 		networkTransactionsCollection,
 	} from '$/collections/NetworkTransactions.ts'
-	import { type ChainId, networksByChainId } from '$/constants/networks.ts'
-	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+	import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -20,8 +21,8 @@
 
 
 	// Context
-	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
+	import { page } from '$app/state'
 
 
 	// (Derived)
@@ -52,10 +53,6 @@
 	const valid = $derived(
 		!!route && blockNumValid && txHash !== null,
 	)
-
-
-	// State
-	let height = $state(0)
 
 
 	// Context
@@ -102,6 +99,10 @@
 	// (Derived)
 	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
 	const tx = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
+
+
+	// State
+	let height = $state(0)
 
 
 	// Actions

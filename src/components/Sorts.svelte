@@ -31,9 +31,18 @@
 	} = $props()
 
 
+	// (Derived)
+	const effectiveSortId = $derived(
+		(activeSortId === '' ? (defaultSortId ?? sortOptions[0]?.id) : activeSortId) ?? '',
+	)
+	const sortById = $derived(
+		new Map(sortOptions.map((s) => [s.id, s]))
+	)
+
+
 	// Functions
 	const sortItems = (sortId: _SortId | '') => {
-		const sort = sortOptions.find((s) => s.id === sortId)
+		const sort = sortId && sortById.get(sortId)
 		return sort ? [...items].sort(sort.compare) : items
 	}
 
@@ -43,14 +52,6 @@
 		activeSortId = sortId
 	}
 	setSortById = _setSortById
-
-
-	// (Derived)
-	const effectiveSortId = $derived(
-		(activeSortId === '' ? (defaultSortId ?? sortOptions[0]?.id) : activeSortId) ?? '',
-	)
-	const sortById = $derived(new Map(sortOptions.map((s) => [s.id, s])))
-
 	$effect(() => {
 		sortedItems = sortItems(effectiveSortId as _SortId | '')
 	})

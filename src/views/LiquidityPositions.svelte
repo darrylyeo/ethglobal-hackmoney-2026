@@ -1,11 +1,11 @@
 <script lang="ts">
 	// Types/constants
-	import { networksByChainId } from '$/constants/networks.ts'
-	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { fetchPositions } from '$/api/uniswap.ts'
 	import { fetchUniswapPositions, uniswapPositionsCollection } from '$/collections/UniswapPositions.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -20,7 +20,7 @@
 	} = $props()
 
 
-	// State
+	// Context
 	const query = useLiveQuery((q) =>
 		q.from({ row: uniswapPositionsCollection }).select(({ row }) => ({ row })),
 	)
@@ -59,9 +59,7 @@
 							: a.id.localeCompare(b.id),
 					),
 	)
-	const singleAddress = $derived(
-		actors.length === 1 ? actors[0] : undefined,
-	)
+	const singleAddress = $derived(actors.length === 1 ? actors[0] : undefined)
 	const ownerChainPairs = $derived(
 		[
 			...new Map(

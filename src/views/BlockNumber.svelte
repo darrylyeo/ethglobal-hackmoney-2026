@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
+	import { getBlockPath } from '$/lib/network-paths.ts'
 
 
 	// Props
@@ -13,10 +14,6 @@
 		blockNumber: number
 		isLinked?: boolean
 	} = $props()
-
-
-	// Functions
-	import { getBlockPath } from '$/lib/network-paths.ts'
 
 
 	// Components

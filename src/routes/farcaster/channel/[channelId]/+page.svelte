@@ -1,31 +1,32 @@
 <script lang="ts">
 	// Types/constants
-	import EntityView from '$/components/EntityView.svelte'
+	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
+	import {
+		ensureCastsForChannel,
+		farcasterCastsCollection,
+	} from '$/collections/FarcasterCasts.ts'
+	import {
+		ensureFarcasterChannel,
+		farcasterChannelsCollection,
+	} from '$/collections/FarcasterChannels.ts'
+	import {
+		ensureFarcasterUser,
+		farcasterUsersCollection,
+	} from '$/collections/FarcasterUsers.ts'
+	import { DataSource } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
-	// Components
-	import FarcasterCastsEntityList from '$/views/farcaster/FarcasterCastsEntityList.svelte'
 
 	// Context
 	import { page } from '$app/state'
 
 
-	// State
-	import { farcasterCastsCollection } from '$/collections/FarcasterCasts.ts'
-	import {
-		ensureFarcasterChannel,
-		farcasterChannelsCollection,
-	} from '$/collections/FarcasterChannels.ts'
-	import { ensureCastsForChannel } from '$/collections/FarcasterCasts.ts'
-	import { farcasterUsersCollection } from '$/collections/FarcasterUsers.ts'
-	import { ensureFarcasterUser } from '$/collections/FarcasterUsers.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
-	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
-
-
 	// (Derived)
 	const channelId = $derived(page.params.channelId ?? '')
+
+
+	// Context
 	const channelsQuery = useLiveQuery(
 		(q) =>
 			q
@@ -34,17 +35,59 @@
 				.select(({ row }) => ({ row })),
 		[() => [channelId]],
 	)
+	const usersQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: farcasterUsersCollection }).select(({ row }) => ({ row })),
+		[],
+	)
+
+
+	// (Derived)
 	const channel = $derived(channelsQuery.data?.[0]?.row)
 	const channelUrl = $derived(
 		channel?.url ?? `https://warpcast.com/~/channel/${channelId}`,
 	)
+
+
+	// Context
+	const castsQuery = useLiveQuery(
+		(q) =>
+			q
+				.from({ row: farcasterCastsCollection })
+				.where(({ row }) => eq(row.parentUrl, channelUrl))
+				.select(({ row }) => ({ row })),
+		[() => [channelUrl]],
+	)
+
+
+	// (Derived)
+	const userByFid = $derived(
+		new Map(
+			(usersQuery.data ?? []).map((r) => [r.row.$id.fid, r.row]),
+		),
+	)
+	const castsByChannel = $derived(
+		(castsQuery.data ?? []).map((r) => r.row as FarcasterCastRow),
+	)
+	const rootCasts = $derived(
+		castsByChannel.filter((c) => !c.parentFid || !c.parentHash),
+	)
+	const castsSet = $derived(new Set(rootCasts))
+	const placeholderKeys = $derived(
+		new Set<string | [number, number]>(['loading']),
+	)
+
+
+	// State
+	let castsNextToken = $state<string | undefined>(undefined)
+	let isLoadingMoreCasts = $state(false)
+
+
+	// Actions
 	$effect(() => {
 		if (channelId && !channel && !channelsQuery.isLoading)
 			ensureFarcasterChannel(channelId).catch(() => {})
 	})
-
-	let castsNextToken = $state<string | undefined>(undefined)
-	let isLoadingMoreCasts = $state(false)
 	$effect(() => {
 		if (channelId && channelUrl) {
 			ensureCastsForChannel(channelUrl)
@@ -67,35 +110,11 @@
 			ensureFarcasterUser(c.$id.fid).catch(() => {})
 		}
 	})
-	const usersQuery = useLiveQuery(
-		(q) =>
-			q.from({ row: farcasterUsersCollection }).select(({ row }) => ({ row })),
-		[],
-	)
-	const userByFid = $derived(
-		new Map(
-			(usersQuery.data ?? []).map((r) => [r.row.$id.fid, r.row]),
-		),
-	)
 
-	const castsQuery = useLiveQuery(
-		(q) =>
-			q
-				.from({ row: farcasterCastsCollection })
-				.where(({ row }) => eq(row.parentUrl, channelUrl))
-				.select(({ row }) => ({ row })),
-		[() => [channelUrl]],
-	)
-	const castsByChannel = $derived(
-		(castsQuery.data ?? []).map((r) => r.row as FarcasterCastRow),
-	)
-	const rootCasts = $derived(
-		castsByChannel.filter((c) => !c.parentFid || !c.parentHash),
-	)
-	const castsSet = $derived(new Set(rootCasts))
-	const placeholderKeys = $derived(
-		new Set<string | [number, number]>(['loading']),
-	)
+
+	// Components
+	import EntityView from '$/components/EntityView.svelte'
+	import FarcasterCastsEntityList from '$/views/farcaster/FarcasterCastsEntityList.svelte'
 </script>
 
 <svelte:head>

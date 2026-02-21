@@ -1,13 +1,12 @@
 <script lang="ts">
 	// Types/constants
 	import { DataSource } from '$/constants/data-sources.ts'
-	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
-	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { walletsCollection } from '$/collections/Wallets.ts'
+	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import { useWalletSubscriptions } from '$/state/wallet.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	useWalletSubscriptions()
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -22,7 +21,8 @@
 	} = $props()
 
 
-	// State
+	// Context
+	useWalletSubscriptions()
 	const connectionsQuery = useLiveQuery(
 		(q) =>
 			q
@@ -63,9 +63,7 @@
 						),
 					),
 	)
-	const singleAddress = $derived(
-		actors.length === 1 ? actors[0] : null,
-	)
+	const singleAddress = $derived(actors.length === 1 ? actors[0] : null)
 
 
 	// Components

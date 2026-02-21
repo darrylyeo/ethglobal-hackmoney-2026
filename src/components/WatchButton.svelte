@@ -2,10 +2,10 @@
 	// Types/constants
 	import type { EntityId, EntityType } from '$/data/$EntityType.ts'
 	import {
-		watchedEntityKey,
-		watchedEntitiesCollection,
-		watchEntity,
 		unwatchEntity,
+		watchEntity,
+		watchedEntitiesCollection,
+		watchedEntityKey,
 	} from '$/collections/WatchedEntities.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
@@ -20,10 +20,13 @@
 	} = $props()
 
 
-	// (Derived)
+	// Context
 	const watchedQuery = useLiveQuery((q) =>
 		q.from({ row: watchedEntitiesCollection }).select(({ row }) => ({ row })),
 	)
+
+
+	// (Derived)
 	const isManuallyWatched = $derived(
 		(watchedQuery.data ?? []).some(
 			(r) =>
