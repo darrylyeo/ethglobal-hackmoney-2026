@@ -27,6 +27,7 @@ export enum CollectionId {
 	ChainIdChains = 'ChainIdChains',
 	Dashboards = 'Dashboards',
 	Proposals = 'Proposals',
+	Eip8004Agents = 'Eip8004Agents',
 	EntitySources = 'EntitySources',
 	EnsAvatars = 'EnsAvatars',
 	EvmActorProfiles = 'EvmActorProfiles',

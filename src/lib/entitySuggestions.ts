@@ -1,13 +1,34 @@
 import type { EntityRef } from '$/data/EntityRef.ts'
 import { EntityType } from '$/data/$EntityType.ts'
-	import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
+import { eip8004AgentIdToString } from '$/data/Eip8004Agent.ts'
+import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
 import { actorsCollection } from '$/collections/Actors.ts'
+import { eip8004AgentsCollection } from '$/collections/Eip8004Agents.ts'
 import { actorKey } from '$/collections/Actors.ts'
 import { blocksCollection } from '$/collections/Blocks.ts'
 import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
 import { stringify } from 'devalue'
 
 export type EntitySuggestion = { ref: EntityRef, label: string }
+
+const agentToSuggestion = (row: {
+	chainId: number
+	identityId: string
+	name?: string
+}): EntitySuggestion => {
+	const id = eip8004AgentIdToString({
+		chainId: row.chainId,
+		identityId: row.identityId,
+	})
+	return {
+		ref: {
+			entityType: EntityType.Eip8004Agent,
+			entityId: id,
+			displayLabel: `@Agent:${row.identityId}`,
+		},
+		label: row.name ?? row.identityId,
+	}
+}
 
 const agentChatTurnToSuggestion = (turn: { id: string, userPrompt: string }): EntitySuggestion => ({
 	ref: {
@@ -57,6 +78,9 @@ const txToSuggestion = (row: { $id: { sourceTxHash: string } }): EntitySuggestio
 export function getEntitySuggestionsFromCache(query: string): EntitySuggestion[] {
 	const q = query.trim().toLowerCase()
 	const results: EntitySuggestion[] = []
+
+	for (const row of eip8004AgentsCollection.state.values())
+		results.push(agentToSuggestion(row))
 
 	for (const turn of agentChatTurnsCollection.state.values())
 		results.push(agentChatTurnToSuggestion(turn))

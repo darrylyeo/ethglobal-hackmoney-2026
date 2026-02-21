@@ -51,12 +51,12 @@ Add `Eip8004Agent = 'Eip8004Agent'` (or `Agent`) to `EntityType` with metadata s
 
 ## Acceptance criteria
 
-- [ ] EIP-8004 Identity Registry read integration: fetch registered agent ids and registration URIs from at least one chain.
-- [ ] Registration document fetch and parse: resolve URI to get name, description, contact endpoint; type `Eip8004Agent` (or equivalent) defined.
-- [ ] Explorer list UI: route listing registered agents with optional chain/search filters.
-- [ ] Explorer detail UI: route showing one agent’s registration metadata and a way to “use in chat” (link or ref).
-- [ ] `EntityType` includes EIP-8004 agent; `EntityRefInput` can suggest/insert agent refs (e.g. `@Agent:identityId`).
-- [ ] No payment or x402 logic in this spec.
+- [x] EIP-8004 Identity Registry read integration: fetch registered agent ids and registration URIs from at least one chain.
+- [x] Registration document fetch and parse: resolve URI to get name, description, contact endpoint; type `Eip8004Agent` (or equivalent) defined.
+- [x] Explorer list UI: route listing registered agents with optional chain/search filters.
+- [x] Explorer detail UI: route showing one agent’s registration metadata and a way to “use in chat” (link or ref).
+- [x] `EntityType` includes EIP-8004 agent; `EntityRefInput` can suggest/insert agent refs (e.g. `@Agent:identityId`).
+- [x] No payment or x402 logic in this spec.
 
 ## Sources
 
@@ -66,4 +66,4 @@ Add `Eip8004Agent = 'Eip8004Agent'` (or `Agent`) to `EntityType` with metadata s
 
 ## Status
 
-Draft.
+Complete. 2026-02-21 (PROMPT_build execute one spec): Eip8004Agent type and eip8004AgentIdToString/FromString in src/data/Eip8004Agent.ts. EIP8004_REGISTRY_CONFIGS in src/constants/eip8004-registry.ts (empty until deployment). src/api/eip8004.ts: registry ABI (getAgentCount, getAgentIdByIndex, getAgentUri), fetchRegistrationDocument (IPFS gateway), fetchEip8004Agents, fetchEip8004Agent. eip8004AgentsCollection (CollectionId.Eip8004Agents). EntityType.Eip8004Agent, entityTypes, Entity/EntityId, graphSceneEntityTypes. entitySuggestions: agentToSuggestion from eip8004AgentsCollection. Routes: /agents/registry (list with Filters/Sorts, search), /agents/registry/[id] (detail, EntityView + Eip8004Agent.svelte, "Use in chat" link). navigationItems and graphWatchedScope handle Eip8004Agent. No payment/x402.

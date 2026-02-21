@@ -37,6 +37,7 @@ import type { Wallet, Wallet$Id } from '$/data/Wallet.ts'
 import type { WalletConnectionBase, WalletConnection$Id } from '$/data/WalletConnection.ts'
 import type { YellowChannel } from '$/data/YellowChannel.ts'
 import type { YellowChannelState } from '$/data/YellowChannelState.ts'
+import type { Eip8004Agent, Eip8004Agent$Id } from '$/data/Eip8004Agent.ts'
 import type { ProposalEntry, ProposalEntry$Id } from '$/data/ProposalEntry.ts'
 import type { YellowDeposit } from '$/data/YellowDeposit.ts'
 import type { YellowTransfer } from '$/data/YellowTransfer.ts'
@@ -56,6 +57,7 @@ export enum EntityType {
 	Coin = 'Coin',
 	Contract = 'Contract',
 	Dashboard = 'Dashboard',
+	Eip8004Agent = 'Eip8004Agent',
 	Proposal = 'Proposal',
 	SocialPostSession = 'SocialPostSession',
 	FarcasterCast = 'FarcasterCast',
@@ -96,6 +98,7 @@ export const graphSceneEntityTypes = [
 	EntityType.Coin,
 	EntityType.Contract,
 	EntityType.Dashboard,
+	EntityType.Eip8004Agent,
 	EntityType.SocialPostSession,
 	EntityType.FarcasterCast,
 	EntityType.FarcasterChannel,
@@ -138,6 +141,7 @@ export const entityTypes = [
 	{ type: EntityType.Coin, label: 'Token', labelPlural: 'Tokens' },
 	{ type: EntityType.Contract, label: 'Contract', labelPlural: 'Contracts' },
 	{ type: EntityType.Dashboard, label: 'Dashboard', labelPlural: 'Dashboards' },
+	{ type: EntityType.Eip8004Agent, label: 'EIP-8004 agent', labelPlural: 'EIP-8004 agents' },
 	{ type: EntityType.Proposal, label: 'Proposal', labelPlural: 'Proposals' },
 	{ type: EntityType.SocialPostSession, label: 'Social post session', labelPlural: 'Social post sessions' },
 	{ type: EntityType.FarcasterCast, label: 'Cast', labelPlural: 'Casts' },
@@ -183,6 +187,7 @@ export type Entity<_EntityType extends EntityType = EntityType> = {
 	[EntityType.Coin]: CoinEntry
 	[EntityType.Contract]: ContractEntry
 	[EntityType.Dashboard]: DashboardState
+	[EntityType.Eip8004Agent]: Eip8004Agent
 	[EntityType.Proposal]: ProposalEntry
 	[EntityType.SocialPostSession]: SocialPostSession
 	[EntityType.FarcasterCast]: FarcasterCast
@@ -226,6 +231,7 @@ export type EntityId<_EntityType extends EntityType = EntityType> = {
 	[EntityType.Coin]: Coin$Id
 	[EntityType.Contract]: Contract$Id
 	[EntityType.Dashboard]: DashboardState$Id
+	[EntityType.Eip8004Agent]: Eip8004Agent$Id
 	[EntityType.Proposal]: ProposalEntry$Id
 	[EntityType.SocialPostSession]: StringId
 	[EntityType.FarcasterCast]: FarcasterCast$Id

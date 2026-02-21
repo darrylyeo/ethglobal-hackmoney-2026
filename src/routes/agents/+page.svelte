@@ -55,6 +55,9 @@
 			<h1>Agents</h1>
 		</div>
 		<div data-row="gap-2">
+			<Button.Root href="/agents/registry">
+				EIP-8004 registry
+			</Button.Root>
 			<Button.Root href="/agents/new">
 				New conversation
 			</Button.Root>
