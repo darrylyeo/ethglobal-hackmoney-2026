@@ -69,14 +69,14 @@
 </script>
 
 
-{#snippet defaultTitle({ title: t, countText: c }: { title: string; countText: string })}
+{#snippet DefaultTitle({ title: t, countText: c }: { title: string; countText: string })}
 	<Heading>{t} ({c})</Heading>
 {/snippet}
 
 <HeadingLevelProvider>
 	<ItemsListView
 		{title}
-		Title={Title ?? defaultTitle}
+		Title={Title ?? DefaultTitle}
 		{loaded}
 		{total}
 		{detailsProps}

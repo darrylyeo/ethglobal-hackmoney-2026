@@ -41,6 +41,13 @@ Standardize how Svelte snippets are passed to components: prefer inline syntax w
 
 4. **Scope** — Use `<svelte:boundary>` or `{#if true}` only when there is no existing containing scope (e.g. loop, conditional, `{#each}` block).
 
+## Acceptance criteria
+
+- [x] Snippet prop names and default snippet names in our components use TitleCase where not constrained by a framework (e.g. Bits UI `child`/`children`, `svelte:boundary` slots).
+- [x] When a snippet is a direct component prop, call sites use inline `{#snippet Name(args)}` inside the component tags.
+- [x] When a snippet is passed by reference (in object/array), it is defined before the component with explicit param types and wrapped in `<svelte:boundary>` or `{#if true}` when no containing scope exists.
+- [x] No snippet passed by reference is defined at module/top level without a wrapping scope.
+
 ## Status
 
-Draft.
+Complete. 2026-02-21 (PROMPT_build execute one spec): Acceptance criteria added. Codebase audited: direct snippet props use inline syntax; by-reference usage scoped; EntityList default snippet renamed to DefaultTitle, EditableItemsList to ItemActions; Boundary and Bits UI keep framework-constrained names (pending/failed, child/children). Rules documented in .cursor/rules/svelte-snippet-patterns.mdc.

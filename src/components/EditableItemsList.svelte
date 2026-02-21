@@ -88,7 +88,7 @@
 </script>
 
 
-{#snippet itemActions(index: number)}
+{#snippet ItemActions(index: number)}
 	{#if canDuplicate || canDelete}
 		<div class="editable-item-actions" data-row="gap-1">
 			{#if canDuplicate}
@@ -114,7 +114,7 @@
 				<div class="editable-item-content" data-row-item="flexible">
 					{@render Item({ item: value, index: i })}
 				</div>
-				{@render itemActions(i)}
+				{@render ItemActions(i)}
 			</div>
 		{/each}
 	</div>
@@ -125,7 +125,7 @@
 				<div class="editable-item-content" data-row-item="flexible">
 					{@render Item({ item, index })}
 				</div>
-				{@render itemActions(index)}
+				{@render ItemActions(index)}
 			</div>
 		{/each}
 	</div>
