@@ -1,7 +1,7 @@
 /**
  * E2E profile isolation fixture.
- * Use with test.beforeEach to seed a dedicated test profile so that wallet
- * connections and other profile-scoped localStorage don't pollute real profiles.
+ * The context fixture is overridden to inject a dedicated test profile init script
+ * so wallet connections and other profile-scoped localStorage don't pollute real profiles.
  *
  * Every test file should import { test, expect } from this module
  * (or from a fixture that extends it, e.g. tevm.ts).
@@ -26,12 +26,10 @@ const profileInitScript = (profileId: string) => {
 	localStorage.setItem('blockhead.v1:profiles', JSON.stringify(meta))
 }
 
-/** Call from test.beforeEach to seed the e2e test profile (run before page.goto). */
-export const useProfileIsolation = async (
-	context: { addInitScript: (fn: (...args: unknown[]) => void, ...args: unknown[]) => Promise<void> },
-) => {
-	await context.addInitScript(profileInitScript, E2E_PROFILE_ID)
-}
-
-export const test = base
+export const test = base.extend<object>({
+	context: async ({ context }, use) => {
+		await context.addInitScript(profileInitScript, E2E_PROFILE_ID)
+		await use(context)
+	},
+})
 export { expect }

@@ -330,8 +330,12 @@ Full profile management:
 - [x] Profile switcher in nav sidebar shows active profile and allows
   switching.
 - [x] Room peer identity (peer ID, display name) is profile-scoped.
-- [ ] E2E tests create a dedicated test profile before every test and discard
-  it after. (Blocked: Playwright discovery issue; see spec.)
+- [x] E2E tests create a dedicated test profile before every test and discard
+  it after.
+
+## Status
+
+Complete. 2026-02-21 (PROMPT_build execute one spec): E2E profile isolation AC marked done. Profile fixture in `e2e/fixtures/profile.ts` seeds test profile via `context.addInitScript`; all e2e test files import from profile.ts, tevm.ts, or mock-clearnode.ts; Playwright discards context after each test (no explicit cleanup). _minimal.test.ts updated to use profile fixture.
 
 ## E2E test isolation
 
@@ -362,13 +366,15 @@ After the test, the browser context is discarded — no cleanup needed.
 ### Fixture hierarchy
 
 ```
-e2e/fixtures/profile.ts        ← base (creates test profile)
+e2e/fixtures/profile.ts        ← base (context fixture injects test profile init script)
   e2e/fixtures/tevm.ts          ← extends profile (adds Tevm memory node)
   e2e/fixtures/mock-clearnode.ts ← extends profile (adds mock WebSocket)
 ```
 
 Every test file imports `test`/`expect` from one of these — **never** from
-`@playwright/test` directly.
+`@playwright/test` directly. The profile fixture overrides the `context`
+fixture so the test profile is seeded automatically; no per-file
+`beforeEach(useProfileIsolation)` needed.
 
 ### Seeding test data
 
