@@ -93,8 +93,8 @@
 
 
 	// Components
-	import NetworkBlocksEntityList from '$/views/network/NetworkBlocksEntityList.svelte'
-	import NetworkEpochsEntityList from '$/views/network/NetworkEpochsEntityList.svelte'
+	import NetworkBlocks from '$/views/network/NetworkBlocks.svelte'
+	import NetworkEpochs from '$/views/network/NetworkEpochs.svelte'
 	import NetworkForks from '$/views/network/NetworkForks.svelte'
 </script>
 
@@ -109,8 +109,8 @@
 				detailsProps={cardDetailsProps}
 			/>
 		{/if}
-		{#if showExecution}
-			<NetworkBlocksEntityList
+		{#if showExecution && chainId != null}
+			<NetworkBlocks
 				blocksMap={blocksMap}
 				chainId={chainId}
 				placeholderBlockIds={placeholderIds}
@@ -120,7 +120,7 @@
 		{/if}
 		{#if showConsensusCol}
 			{#if showConsensus && recentEpochs.length > 0}
-				<NetworkEpochsEntityList
+				<NetworkEpochs
 					epochs={new Set(recentEpochs)}
 					currentEpoch={currentEpoch}
 					beaconExplorerBase={beaconExplorerBase}
@@ -191,8 +191,8 @@
 						detailsProps={cardDetailsProps}
 					/>
 				{/if}
-				{#if showExecution}
-					<NetworkBlocksEntityList
+				{#if showExecution && chainId != null}
+					<NetworkBlocks
 						blocksMap={blocksMap}
 						chainId={chainId}
 						placeholderBlockIds={placeholderIds}
@@ -202,7 +202,7 @@
 				{/if}
 				{#if showConsensusCol}
 					{#if showConsensus && recentEpochs.length > 0}
-						<NetworkEpochsEntityList
+						<NetworkEpochs
 							epochs={new Set(recentEpochs)}
 							currentEpoch={currentEpoch}
 							beaconExplorerBase={beaconExplorerBase}
