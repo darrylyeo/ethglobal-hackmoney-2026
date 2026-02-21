@@ -2,9 +2,10 @@
 	// Types/constants
 	import type { VoltaireProvider } from '$/api/voltaire.ts'
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
-	import type {
-		ExplainAvailability,
-		ExplainContext,
+	import {
+		type ExplainAvailability,
+		type ExplainContext,
+		LlmAvailability,
 	} from '$/lib/llmProvider.ts'
 	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
@@ -451,7 +452,7 @@
 
 
 	// State
-	let explainAvailability = $state<ExplainAvailability>('unavailable')
+	let explainAvailability = $state<ExplainAvailability>(LlmAvailability.Unavailable)
 	let txOverrides = $state<Record<string, TransactionFlowItemState>>({})
 
 
@@ -552,15 +553,15 @@
 								type="button"
 								onclick={() => explainTransaction(tx, 'simulation')}
 								disabled={simulationExplain.status === 'loading' ||
-									explainAvailability === 'unavailable'}
+									explainAvailability === LlmAvailability.Unavailable}
 							>
 								{simulationExplain.status === 'loading'
 									? 'Explaining…'
 									: 'Explain results'}
 							</Button.Root>
-							{#if explainAvailability === 'downloading' && simulationExplain.status !== 'loading'}
+							{#if explainAvailability === LlmAvailability.Downloading && simulationExplain.status !== 'loading'}
 								<span data-text="muted">Model downloading…</span>
-							{:else if explainAvailability === 'unavailable'}
+							{:else if explainAvailability === LlmAvailability.Unavailable}
 								<span data-text="muted">Explain unavailable.</span>
 								<a href="/about#explain-results-fallback"
 									>Set up hosted fallback</a
@@ -616,15 +617,15 @@
 							type="button"
 							onclick={() => explainTransaction(tx, 'execution')}
 							disabled={executionExplain.status === 'loading' ||
-								explainAvailability === 'unavailable'}
+								explainAvailability === LlmAvailability.Unavailable}
 						>
 							{executionExplain.status === 'loading'
 								? 'Explaining…'
 								: 'Explain results'}
 						</Button.Root>
-						{#if explainAvailability === 'downloading' && executionExplain.status !== 'loading'}
+						{#if explainAvailability === LlmAvailability.Downloading && executionExplain.status !== 'loading'}
 							<span data-text="muted">Model downloading…</span>
-						{:else if explainAvailability === 'unavailable'}
+						{:else if explainAvailability === LlmAvailability.Unavailable}
 							<span data-text="muted">Explain unavailable.</span>
 							<a href="/about#explain-results-fallback"
 								>Set up hosted fallback</a

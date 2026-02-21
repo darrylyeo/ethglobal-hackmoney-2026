@@ -6,6 +6,7 @@
 		DashboardPanelRoute,
 		DashboardSplitNode,
 	} from '$/data/DashboardPanel.ts'
+	import { SplitDirection } from '$/data/PanelTree.ts'
 
 	import { untrack } from 'svelte'
 	import { and, eq, not, useLiveQuery } from '@tanstack/svelte-db'
@@ -120,7 +121,9 @@
 				? {
 						...node,
 						direction:
-							node.direction === 'horizontal' ? 'vertical' : 'horizontal',
+							node.direction === SplitDirection.Horizontal
+							? SplitDirection.Vertical
+							: SplitDirection.Horizontal,
 					}
 				: null,
 		)
@@ -206,7 +209,7 @@
 
 	const splitFocusedPanel = (
 		panelId: string,
-		direction: 'horizontal' | 'vertical',
+		direction: SplitDirection,
 	) => {
 		if (!root) return
 		setRoot(
@@ -310,7 +313,7 @@
 	) => {
 		if (!root) return
 		const beforeIds = listPanelIds(root)
-		const nextRoot = splitPanel(root, panelId, 'horizontal', () => route, () =>
+		const nextRoot = splitPanel(root, panelId, SplitDirection.Horizontal, () => route, () =>
 			hash ? [hash] : [],
 		)
 		setRoot(nextRoot)
