@@ -23,10 +23,9 @@
 
 
 <div
-	class="toast-root"
+	class="toast-root type-{toast.type}"
 	data-card
 	data-row="gap-3"
-	data-type={toast.type}
 	role="alert"
 	onmouseenter={() => {
 		paused = true
@@ -77,7 +76,7 @@
 	{#if toast.duration != null && toast.duration > 0}
 		<div
 			class="toast-progress"
-			data-paused={paused ? '' : undefined}
+			class:paused={paused}
 			style="--duration: {toast.duration}ms"
 		></div>
 	{/if}
@@ -91,7 +90,7 @@
 		overflow: hidden;
 		animation: toast-in 0.2s ease-out;
 
-		&[data-type='success'] {
+		&.type-success {
 			border-color: var(--color-success);
 
 			.toast-icon {
@@ -99,7 +98,7 @@
 			}
 		}
 
-		&[data-type='error'] {
+		&.type-error {
 			border-color: var(--color-error);
 
 			.toast-icon {
@@ -107,7 +106,7 @@
 			}
 		}
 
-		&[data-type='warning'] {
+		&.type-warning {
 			border-color: var(--color-warning);
 
 			.toast-icon {
@@ -115,7 +114,7 @@
 			}
 		}
 
-		&[data-type='info'] {
+		&.type-info {
 			border-color: var(--color-info);
 		}
 	}
@@ -198,7 +197,7 @@
 		opacity: 0.3;
 		animation: toast-progress var(--duration) linear forwards;
 
-		&[data-paused] {
+		&.paused {
 			animation-play-state: paused;
 		}
 	}

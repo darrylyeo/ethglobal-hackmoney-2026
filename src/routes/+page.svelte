@@ -296,10 +296,9 @@
 				{#each legendItems as item (item.id)}
 					<div class="landing-about__legend-item" data-row="start gap-2">
 						<span
-							class="landing-about__legend-swatch"
+							class="landing-about__legend-swatch shape-rect"
 							data-row
 							style:background={item.color}
-							data-shape="rect"
 						></span>
 						<span>{item.label}</span>
 					</div>
@@ -308,27 +307,27 @@
 
 			<div data-grid="columns-autofit column-min-12 gap-3" class="landing-about__legend-grid">
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row data-shape="rect"></span>
+					<span class="landing-about__legend-swatch shape-rect" data-row></span>
 					<span>Flow / service node</span>
 				</div>
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row data-shape="circle"></span>
+					<span class="landing-about__legend-swatch shape-circle" data-row></span>
 					<span>State or data node</span>
 				</div>
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row data-shape="diamond"></span>
+					<span class="landing-about__legend-swatch shape-diamond" data-row></span>
 					<span>Wallet / channel node</span>
 				</div>
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row data-shape="image"></span>
+					<span class="landing-about__legend-swatch shape-image" data-row></span>
 					<span>Chain icon node</span>
 				</div>
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row data-shape="line"></span>
+					<span class="landing-about__legend-swatch shape-line" data-row></span>
 					<span>Directional flow</span>
 				</div>
 				<div class="landing-about__legend-item" data-row="start gap-2">
-					<span class="landing-about__legend-swatch" data-row data-shape="dashed"></span>
+					<span class="landing-about__legend-swatch shape-dashed" data-row></span>
 					<span>Optional / enrichment path</span>
 				</div>
 			</div>
@@ -607,26 +606,26 @@
 					border: 1px solid var(--color-border);
 					background: var(--color-bg-subtle);
 
-					&[data-shape='circle'] {
+					&.shape-circle {
 						border-radius: 50%;
 					}
 
-					&[data-shape='diamond'] {
+					&.shape-diamond {
 						transform: rotate(45deg);
 					}
 
-					&[data-shape='image'] {
+					&.shape-image {
 						border-style: dashed;
 					}
 
-					&[data-shape='line'] {
+					&.shape-line {
 						width: 1.6rem;
 						height: 0.2rem;
 						border: none;
 						background: var(--color-text);
 					}
 
-					&[data-shape='dashed'] {
+					&.shape-dashed {
 						width: 1.6rem;
 						height: 0.2rem;
 						border: none;

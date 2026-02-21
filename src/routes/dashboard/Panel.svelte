@@ -6,15 +6,6 @@
 		DashboardSplitNode,
 	} from '$/data/DashboardPanel.ts'
 
-
-	// Functions
-	import { routeEntriesForPanel, toPanelNavigation } from './route-map.ts'
-
-
-	// Components
-	import SvelteKitRoute from './SvelteKitRoute.svelte'
-
-
 	// Props
 	let {
 		panel,
@@ -32,43 +23,46 @@
 		parent,
 		indexInParent,
 	}: {
-		panel: DashboardPanelNode
-		isFocused: boolean
+		panel: DashboardPanelNode,
+		isFocused: boolean,
 		excludeRoutePaths?: string[],
-		onFocus: (panelId: string) => void
-		onSplit: (panelId: string, direction: 'horizontal' | 'vertical') => void
-		onRemove: (panelId: string) => void
-		onSwap: (panelId: string) => void
-		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void
-		onAppendHash: (panelId: string, hash: string) => void
-		onSetPanelHash: (panelId: string, hash: string, replace?: boolean) => void
+		onFocus: (panelId: string) => void,
+		onSplit: (panelId: string, direction: 'horizontal' | 'vertical') => void,
+		onRemove: (panelId: string) => void,
+		onSwap: (panelId: string) => void,
+		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void,
+		onAppendHash: (panelId: string, hash: string) => void,
+		onSetPanelHash: (panelId: string, hash: string, replace?: boolean) => void,
 		onNavigate: (
 			panelId: string,
 			route: DashboardPanelRoute,
 			hash: string | null,
-		) => void
+		) => void,
 		onOpenInNewPanel: (
 			panelId: string,
 			route: DashboardPanelRoute,
 			hash: string | null,
-		) => void
-		parent?: DashboardSplitNode
+		) => void,
+		parent?: DashboardSplitNode,
 		indexInParent?: 0 | 1,
 	} = $props()
-
 
 	// (Derived)
 	const routeEntry = $derived(
 		routeEntriesForPanel.find((entry) => entry.path === panel.route.path) ?? null,
 	)
 	const paramKeys = $derived(routeEntry?.paramKeys ?? [])
+
+	// Functions
+	import { routeEntriesForPanel, toPanelNavigation } from './route-map.ts'
+
 	const setPanelRoute = (path: string, params: Record<string, string>) =>
 		onUpdateRoute(panel.id, { path, params })
 
-
 	// State
-	let hashInput = $state('')
-
+	let hashInput = $state(
+		'',
+	)
 
 	// Actions
 	const updateParam = (key: string, value: string) =>
@@ -137,13 +131,16 @@
 		const navigation = toPanelNavigation(raw, location.origin)
 		if (navigation) onNavigate(panel.id, navigation.route, navigation.hash)
 	}
+
+	// Components
+	import SvelteKitRoute from './SvelteKitRoute.svelte'
 </script>
 
 
 <section
 	class="dashboard-panel"
 	data-column="gap-2"
-	data-focused={isFocused}
+	class:focused={isFocused}
 	role="group"
 	aria-label="Panel"
 	onpointerdown={() => onFocus(panel.id)}
@@ -264,7 +261,7 @@
 		grid-template-rows: auto minmax(0, 1fr) auto;
 		gap: 0.5rem;
 
-		&[data-focused='true'] {
+		&.focused {
 			border-color: color-mix(in oklab, currentColor 45%, transparent);
 			box-shadow: 0 0 0 1px color-mix(in oklab, currentColor 22%, transparent);
 		}

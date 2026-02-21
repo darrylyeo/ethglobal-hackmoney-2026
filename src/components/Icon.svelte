@@ -1,4 +1,5 @@
 <script module lang="ts">
+	// Types/constants
 	export enum IconShape {
 		Square = 'square',
 		Circle = 'circle',
@@ -63,20 +64,21 @@
 
 
 	// (Derived)
-	const a11yLabel = $derived(label ?? alt)
+	const a11yLabel = $derived(
+		label ?? alt
+	)
 
 
 	// Components
-	import Icon from './Icon.svelte'
+	import Icon from '$/components/Icon.svelte'
 </script>
 
 
 <span
 	{...rootProps}
-	class={`icon${className
+	class={`icon shape-${shape}${className
 		? ` ${className}`
 		: ''}`}
-	data-icon-shape={shape}
 	data-row
 	style={`--icon-size: ${typeof size === 'number'
 		? `${size}px`
@@ -133,10 +135,10 @@
 		background-color: var(--icon-bg, transparent);
 		border-radius: inherit;
 
-		&[data-icon-shape='square'] {
+		&.shape-square {
 			border-radius: 5%;
 		}
-		&[data-icon-shape='circle'] {
+		&.shape-circle {
 			border-radius: 50%;
 		}
 	}

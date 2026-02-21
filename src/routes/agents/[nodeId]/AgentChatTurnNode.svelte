@@ -150,10 +150,9 @@
 
 
 <section
-	data-status={turn.status}
 	data-column="gap-2"
 	id="turn:{turn.id}"
-	class="turn-card"
+	class="turn-card status-{turn.status}"
 >
 	{#if (turn.status === 'complete' || turn.status === 'error') && !showPromptForm}
 		<a
@@ -312,12 +311,12 @@
 		border: 1px solid var(--color-border);
 		border-radius: 0.5em;
 
-		&[data-status='generating'] {
+		&.status-generating {
 			opacity: 0.7;
 			animation: pulse 1.5s ease-in-out infinite;
 		}
 
-		&[data-status='error'] {
+		&.status-error {
 			border-color: var(--color-error, #e53e3e);
 		}
 	}

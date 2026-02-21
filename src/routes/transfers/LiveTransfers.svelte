@@ -112,7 +112,7 @@
 					<a
 						class="period-link"
 						href="?period={p.value}"
-						data-active={period === p.value ? '' : undefined}
+						class:active={period === p.value}
 					>
 						{p.label}
 					</a>
@@ -180,7 +180,7 @@
 		background: var(--color-bg-subtle);
 		color: var(--color-text);
 
-		&[data-active] {
+		&.active {
 			background: var(--accent-backgroundColor);
 			color: var(--accent-color);
 		}

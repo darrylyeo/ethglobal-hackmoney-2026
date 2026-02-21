@@ -1,8 +1,4 @@
 <script lang="ts">
-	// Context
-	import { toasts } from '$/lib/toast.svelte.ts'
-
-
 	// Props
 	let {
 		position = 'bottom-right',
@@ -11,14 +7,17 @@
 	} = $props()
 
 
+	// State
+	import { toasts } from '$/lib/toast.svelte.ts'
+
+
 	// Components
 	import Toast from '$/components/Toast.svelte'
 </script>
 
 
 <div
-	class="toast-container"
-	data-position={position}
+	class="toast-container position-{position}"
 	role="region"
 	aria-label="Notifications"
 	aria-live="polite"
@@ -45,26 +44,27 @@
 			pointer-events: auto;
 		}
 
-		&[data-position='top-right'] {
+		&.position-top-right {
 			top: 0;
 			right: 0;
 		}
 
-		&[data-position='top-left'] {
+		&.position-top-left {
 			top: 0;
 			left: 0;
 		}
 
-		&[data-position='bottom-right'] {
+		&.position-bottom-right {
 			bottom: 0;
 			right: 0;
 			flex-direction: column-reverse;
 		}
 
-		&[data-position='bottom-left'] {
+		&.position-bottom-left {
 			bottom: 0;
 			left: 0;
 			flex-direction: column-reverse;
 		}
 	}
 </style>
+

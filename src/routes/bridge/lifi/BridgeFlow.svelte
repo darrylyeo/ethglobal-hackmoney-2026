@@ -536,7 +536,7 @@
 							type="button"
 							data-card="radius-4 padding-3"
 							data-column="gap-2"
-							data-selected={r.id === selectedRouteId ? '' : undefined}
+							class:selected={r.id === selectedRouteId}
 							onclick={() => {
 								selectedRouteId = r.id
 							}}
@@ -593,9 +593,7 @@
 										slippage: preset.value,
 									}
 								}}
-								data-selected={settings.slippage === preset.value
-									? ''
-									: undefined}
+								class:selected={settings.slippage === preset.value}
 							>
 								{formatSlippagePercent(preset.value)}
 							</Button.Root>
@@ -676,7 +674,7 @@
 					<dd>
 						<span>{formatAddress(recipient)}</span>
 						{#if warnDifferentRecipient}
-							<span class="badge" data-warning> Different recipient </span>
+							<span class="badge warning"> Different recipient </span>
 						{/if}
 					</dd>
 					<dt>Protocol</dt>
@@ -764,8 +762,7 @@
 								>{formatSmallestToDecimal(tx.fromAmount, 6)} USDC</span
 							>
 							<span
-								class="tag"
-								data-tag={tx.status}
+								class="tag tag-{tx.status}"
 								data-row="gap-1 align-center"
 							>
 								{#if tx.status === 'pending'}<Spinner size="0.75em" />{/if}
@@ -807,7 +804,7 @@
 			border-color: var(--color-primary);
 		}
 
-		&[data-selected] {
+		&.selected {
 			border-color: var(--color-primary);
 			background: var(--color-info-bg);
 		}
@@ -837,17 +834,17 @@
 		padding: 0.125em 0.5em;
 		border-radius: 0.25em;
 
-		&[data-tag='completed'] {
+		&.tag-completed {
 			background: var(--color-success-bg);
 			color: var(--color-success);
 		}
 
-		&[data-tag='failed'] {
+		&.tag-failed {
 			background: var(--color-error-bg);
 			color: var(--color-error);
 		}
 
-		&[data-tag='pending'] {
+		&.tag-pending {
 			background: var(--color-warning-bg);
 			color: var(--color-warning);
 		}
@@ -862,16 +859,14 @@
 		font-size: 0.875em;
 	}
 
-	.badge {
-		&[data-warning] {
-			display: inline-block;
-			margin-left: 0.5em;
-			padding: 0.125em 0.5em;
-			border-radius: 0.25em;
-			background: var(--color-warning-bg);
-			color: var(--color-warning);
-			font-size: 0.75em;
-		}
+	.badge.warning {
+		display: inline-block;
+		margin-left: 0.5em;
+		padding: 0.125em 0.5em;
+		border-radius: 0.25em;
+		background: var(--color-warning-bg);
+		color: var(--color-warning);
+		font-size: 0.75em;
 	}
 
 	.warnings {

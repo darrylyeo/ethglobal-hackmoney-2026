@@ -9,6 +9,9 @@
 
 
 <script lang="ts">
+	// Types/constants
+
+
 	// Props
 	let {
 		value,
@@ -19,10 +22,8 @@
 		value: string
 		startLength?: number
 		endLength?: number
-		format?: TruncatedValueFormat,
+		format?: TruncatedValueFormat
 	} = $props()
-
-
 </script>
 
 {#if value.length <= startLength + endLength}
@@ -33,11 +34,10 @@
 	</abbr>
 {:else if format === TruncatedValueFormat.Visual}
 	<span
-		class="truncated-value"
+		class="truncated-value format-visual"
 		role="button"
 		tabindex="0"
 		aria-label={value}
-		data-truncatedValueFormat={TruncatedValueFormat.Visual}
 	>
 		{#if value}
 			{@const start = value.slice(0, startLength)}
@@ -53,11 +53,10 @@
 	</span>
 {:else if format === TruncatedValueFormat.VisualCharacters}
 	<span
-		class="truncated-value"
+		class="truncated-value format-visual-characters"
 		role="button"
 		tabindex="0"
 		aria-label={value}
-		data-truncatedValueFormat={TruncatedValueFormat.VisualCharacters}
 		>{#if startLength}<span>{value.slice(0, startLength)}</span>{/if}<span
 			class="middle"
 			style:--l={value.length - startLength - endLength}
@@ -114,7 +113,7 @@
 			text-shadow: 0 0.5px 0.2em var(--accent);
 		}
 
-		&[data-truncatedValueFormat='Visual'] > .middle {
+		&.format-visual > .middle {
 			align-items: baseline;
 
 			> span {
@@ -145,7 +144,7 @@
 			}
 		}
 
-		&[data-truncatedValueFormat='VisualCharacters'] > span {
+		&.format-visual-characters > span {
 			vertical-align: baseline;
 
 			&.middle {

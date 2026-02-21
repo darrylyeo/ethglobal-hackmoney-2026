@@ -230,19 +230,19 @@
 	<ol class="cctp-status">
 		<li
 			class="cctp-status-step"
-			data-done={step !== 'idle' && step !== 'approving' && step !== 'burning'}
+			class:done={step !== 'idle' && step !== 'approving' && step !== 'burning'}
 		>
 			Burn on source chain {burnTxHash ? `(${burnTxHash.slice(0, 10)}…)` : ''}
 		</li>
 		<li
 			class="cctp-status-step"
-			data-done={attestationPayload !== null}
+			class:done={attestationPayload !== null}
 		>
 			Attestation {attestationPayload ? 'ready' : 'pending…'}
 		</li>
 		<li
 			class="cctp-status-step"
-			data-done={mintTxHash !== null}
+			class:done={mintTxHash !== null}
 		>
 			Mint on destination chain {mintTxHash
 				? `(${mintTxHash.slice(0, 10)}…)`
@@ -264,7 +264,7 @@
 	.cctp-status-step {
 		opacity: 0.7;
 
-		&[data-done] {
+		&.done {
 			opacity: 1;
 		}
 	}

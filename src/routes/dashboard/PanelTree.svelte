@@ -69,8 +69,8 @@
 
 	// Components
 	import { Tooltip } from 'bits-ui'
-	import PanelTree from './PanelTree.svelte'
 	import PanelView from './Panel.svelte'
+	import PanelTree from './PanelTree.svelte'
 </script>
 
 
@@ -93,8 +93,7 @@
 	/>
 {:else}
 	<section
-		class="split-tree"
-		data-direction={root.direction}
+		class="split-tree direction-{root.direction}"
 		style="--ratio: {displayRatio}; --ratio-min: 0.2; --ratio-max: 0.8; --col-1: {displayRatio}fr; --col-2: {1 -
 			displayRatio}fr"
 	>
@@ -124,7 +123,6 @@
 		<div
 			class="split-tree-gutter"
 			data-row
-			data-direction={root.direction}
 		>
 			<Tooltip.Root delayDuration={80}>
 				<Tooltip.Trigger>
@@ -218,7 +216,7 @@
 		height: 100%;
 		position: relative;
 
-		&[data-direction='horizontal'] {
+		&.direction-horizontal {
 			grid-template:
 				1fr
 				/ minmax(0, var(--col-1)) var(--split-gutter-size) minmax(
@@ -251,7 +249,7 @@
 			}
 		}
 
-		&[data-direction='vertical'] {
+		&.direction-vertical {
 			grid-template:
 				minmax(0, var(--col-1)) var(--split-gutter-size) minmax(0, var(--col-2))
 				/ 1fr;
