@@ -35,6 +35,7 @@
     "test:e2e": "deno run -A npm:playwright test -c playwright.e2e.config.ts",
     "test:e2e:prompt": "deno run -A npm:@playwright/test test e2e/prompt-input.test.ts -c playwright.no-server.config.ts",
     "test:e2e:structural": "deno run -A e2e/coverage-structural-check.mjs",
+    "test:e2e:one-scenario": "deno run -A e2e/run-one-scenario.mjs",
     "format": "deno run -A scripts/_svelte-section-spacing.ts",
     "forks:sync": "deno run -A scripts/sync-fork-schedules.ts"
   }
