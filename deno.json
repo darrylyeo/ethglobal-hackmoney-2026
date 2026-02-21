@@ -33,6 +33,7 @@
     "test": "deno task test:unit && deno task test:e2e",
     "test:unit": "deno test -A --no-check src/collections/Actors.spec.ts src/collections/ActorCoins.spec.ts src/collections/RoomPeers.spec.ts src/collections/SharedAddresses.spec.ts src/collections/SiweChallenges.spec.ts src/collections/Verifications.spec.ts src/collections/UniswapPools.spec.ts src/collections/UniswapPositions.spec.ts src/collections/SwapQuotes.spec.ts src/lib/bridge/txStatus.spec.ts src/api/voltaire.spec.ts src/api/identity-resolve.spec.ts src/api/etherscan.spec.ts src/api/blockscout.spec.ts src/api/openchain.spec.ts src/api/fourbyte.spec.ts && deno run -A npm:vitest run",
     "test:e2e": "deno run -A npm:playwright test -c playwright.e2e.config.ts",
-    "test:e2e:prompt": "deno run -A npm:@playwright/test test e2e/prompt-input.test.ts -c playwright.no-server.config.ts"
+    "test:e2e:prompt": "deno run -A npm:@playwright/test test e2e/prompt-input.test.ts -c playwright.no-server.config.ts",
+    "forks:sync": "deno run -A scripts/sync-fork-schedules.ts"
   }
 }

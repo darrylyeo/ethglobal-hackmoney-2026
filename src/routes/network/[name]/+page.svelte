@@ -228,6 +228,7 @@
 				<NetworkContracts chainId={chainId} nameParam={name} />
 				<NetworkView
 					data={blocksViewFrom(chainId, blocksQuery.data ?? []).networkData}
+					chainId={chainId}
 					placeholderBlockIds={h > 0
 						? new Set<number | [number, number]>([[0, h]])
 						: new Set<number | [number, number]>([0])}

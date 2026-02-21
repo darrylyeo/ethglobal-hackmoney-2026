@@ -1,0 +1,13 @@
+{
+  "sources": {
+    "geth": {
+      "ref": "v1.14.3",
+      "url": "https://raw.githubusercontent.com/ethereum/go-ethereum/v1.14.3/params/config.go"
+    },
+    "consensus-specs": {
+      "ref": "v1.6.0",
+      "url": "https://raw.githubusercontent.com/ethereum/consensus-specs/v1.6.0/configs/mainnet.yaml"
+    }
+  },
+  "lastSynced": "2026-02-21T05:51:53.625Z"
+}

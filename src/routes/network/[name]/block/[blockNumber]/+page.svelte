@@ -146,6 +146,7 @@
 							],
 						])
 						: new Map()}
+					chainId={chainId}
 					placeholderBlockIds={new Set([
 						...(blockNum > 0 ? [blockNum - 1] : []),
 						...(height <= 0 || blockNum + 1 <= height ? [blockNum + 1] : []),

@@ -98,18 +98,18 @@ Prefer A or C so that a single script can refresh all sources without requiring 
 
 ## Acceptance criteria
 
-- [ ] A sync script (e.g. `scripts/sync-fork-schedules.ts`) fetches fork data from pinned raw GitHub (or equivalent) URLs for at least Geth (or a JSON mirror) and consensus-specs mainnet; writes normalized `schedules.json` and `manifest.json` under `src/data/fork-schedules/` (or agreed path). No git submodules.
-- [ ] Manifest records source refs (and optionally lastSynced). `deno task forks:sync` (or equivalent) runs the script.
-- [ ] Normalized schema includes per-chain `forks` with `name`, `activation` (block/timestamp/epoch), optional `forkHash`, and ordering; helper `getEraAtBlock(chainId, blockNumber)` (or equivalent) returns era id and label.
-- [ ] Network view Blocks list uses `getGroupKey`/`getGroupLabel` (and optionally `GroupHeader`) so blocks are grouped by era; group order follows block order (e.g. newest era first).
-- [ ] Block detail (or block row) shows era context (e.g. “Part of: London” with optional range).
-- [ ] Placeholder blocks receive an era from their block number when schedule exists; otherwise list remains ungrouped for that chain.
-- [ ] Chains without schedule data do not pass grouping props (unchanged behavior).
+- [x] A sync script (e.g. `scripts/sync-fork-schedules.ts`) fetches fork data from pinned raw GitHub (or equivalent) URLs for at least Geth (or a JSON mirror) and consensus-specs mainnet; writes normalized `schedules.json` and `manifest.json` under `src/data/fork-schedules/` (or agreed path). No git submodules.
+- [x] Manifest records source refs (and optionally lastSynced). `deno task forks:sync` (or equivalent) runs the script.
+- [x] Normalized schema includes per-chain `forks` with `name`, `activation` (block/timestamp/epoch), optional `forkHash`, and ordering; helper `getEraAtBlock(chainId, blockNumber)` (or equivalent) returns era id and label.
+- [x] Network view Blocks list uses `getGroupKey`/`getGroupLabel` (and optionally `GroupHeader`) so blocks are grouped by era; group order follows block order (e.g. newest era first).
+- [x] Block detail (or block row) shows era context (e.g. “Part of: London” with optional range).
+- [x] Placeholder blocks receive an era from their block number when schedule exists; otherwise list remains ungrouped for that chain.
+- [x] Chains without schedule data do not pass grouping props (unchanged behavior).
 - [ ] Optional: link to explorer “Forked blocks” (or equivalent) and/or Forkcast from network/block context where relevant.
 
 ## Status
 
-Draft.
+Complete. 2026-02-21 (PROMPT_build execute one spec): Sync script `scripts/sync-fork-schedules.ts` fetches Geth params/config.go and consensus-specs mainnet.yaml from pinned refs; writes `schedules.json` and `manifest.json` under `src/data/fork-schedules/`. `deno task forks:sync` added. Types in `src/data/fork-schedules/types.ts`; `getEraAtBlock(chainId, blockNumber)` and `hasForkSchedule(chainId)` in `era.ts` (reads bundled schedules.json). Network Blocks list: `Network.svelte` passes `getGroupKey`/`getGroupLabel`/`getGroupKeyForPlaceholder` when chain has schedule; `ItemsList` extended with `getGroupKeyForPlaceholder` to group placeholders by era; group order by max block desc. Block detail: `Block.svelte` shows “Part of: {era.label}” with optional block range. Placeholders get era via `getGroupKeyForPlaceholder(key)`. Chains without schedule do not get grouping props. Optional Forked blocks/Forkcast link not implemented.
 
 ## Output when complete
 

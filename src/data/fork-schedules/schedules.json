@@ -1,0 +1,271 @@
+{
+  "chains": {
+    "1": {
+      "chainId": 1,
+      "forks": [
+        {
+          "name": "Homestead",
+          "activation": {
+            "block": 1150000
+          }
+        },
+        {
+          "name": "DAOFork",
+          "activation": {
+            "block": 1920000
+          }
+        },
+        {
+          "name": "EIP150",
+          "activation": {
+            "block": 2463000
+          }
+        },
+        {
+          "name": "EIP155",
+          "activation": {
+            "block": 2675000
+          }
+        },
+        {
+          "name": "EIP158",
+          "activation": {
+            "block": 2675000
+          }
+        },
+        {
+          "name": "Byzantium",
+          "activation": {
+            "block": 4370000
+          }
+        },
+        {
+          "name": "Constantinople",
+          "activation": {
+            "block": 7280000
+          }
+        },
+        {
+          "name": "Petersburg",
+          "activation": {
+            "block": 7280000
+          }
+        },
+        {
+          "name": "Istanbul",
+          "activation": {
+            "block": 9069000
+          }
+        },
+        {
+          "name": "MuirGlacier",
+          "activation": {
+            "block": 9200000
+          }
+        },
+        {
+          "name": "Berlin",
+          "activation": {
+            "block": 12244000
+          }
+        },
+        {
+          "name": "London",
+          "activation": {
+            "block": 12965000
+          }
+        },
+        {
+          "name": "ArrowGlacier",
+          "activation": {
+            "block": 13773000
+          }
+        },
+        {
+          "name": "GrayGlacier",
+          "activation": {
+            "block": 15050000
+          }
+        },
+        {
+          "name": "Shanghai",
+          "activation": {
+            "timestamp": 1681338455
+          }
+        },
+        {
+          "name": "Cancun",
+          "activation": {
+            "timestamp": 1710338135
+          }
+        }
+      ]
+    },
+    "17000": {
+      "chainId": 17000,
+      "forks": [
+        {
+          "name": "Homestead",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "EIP150",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "EIP155",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "EIP158",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "Byzantium",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "Constantinople",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "Petersburg",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "Istanbul",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "Berlin",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "London",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "Shanghai",
+          "activation": {
+            "timestamp": 1696000704
+          }
+        },
+        {
+          "name": "Cancun",
+          "activation": {
+            "timestamp": 1707305664
+          }
+        }
+      ]
+    },
+    "11155111": {
+      "chainId": 11155111,
+      "forks": [
+        {
+          "name": "Homestead",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "EIP150",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "EIP155",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "EIP158",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "Byzantium",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "Constantinople",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "Petersburg",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "Istanbul",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "MuirGlacier",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "Berlin",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "London",
+          "activation": {
+            "block": 0
+          }
+        },
+        {
+          "name": "MergeNetsplit",
+          "activation": {
+            "block": 1735371
+          }
+        },
+        {
+          "name": "Shanghai",
+          "activation": {
+            "timestamp": 1677557088
+          }
+        },
+        {
+          "name": "Cancun",
+          "activation": {
+            "timestamp": 1706655072
+          }
+        }
+      ]
+    }
+  }
+}

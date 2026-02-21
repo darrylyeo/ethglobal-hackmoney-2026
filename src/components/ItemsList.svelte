@@ -20,6 +20,7 @@
 		getSortValue,
 		getGroupKey,
 		getGroupLabel,
+		getGroupKeyForPlaceholder,
 		placeholderKeys,
 		visiblePlaceholderKeys = $bindable([] as _Key[]),
 		scrollPosition = 'Auto',
@@ -33,6 +34,7 @@
 		getSortValue: (item: _Item) => number | string
 		getGroupKey?: (item: _Item) => _GroupKey
 		getGroupLabel?: (groupKey: _GroupKey) => string
+		getGroupKeyForPlaceholder?: (key: _Key) => _GroupKey
 		placeholderKeys: Set<_Key | [number, number]>
 		visiblePlaceholderKeys?: _Key[]
 		scrollPosition?: 'Start' | 'End' | 'Auto'
@@ -109,15 +111,68 @@
 				isPlaceholder: true as const,
 			})),
 	)
-	const allRows = $derived([
-		...itemRows,
-		...placeholderRows,
-		...(
-			pagination?.hasMore ?
-				[{ type: 'pagination' as const, key: '__pagination__' }]
-			: []
-		),
-	])
+	const allRows = $derived.by(() => {
+		if (
+			getGroupKey &&
+			getGroupLabel &&
+			getGroupKeyForPlaceholder &&
+			groupEntries
+		) {
+			const placeholderByGroup = new Map<_GroupKey, _Key[]>()
+			for (const key of placeholderRows) {
+				const g = getGroupKeyForPlaceholder(key.key)
+				const arr = placeholderByGroup.get(g) ?? []
+				arr.push(key.key)
+				placeholderByGroup.set(g, arr)
+			}
+			const groupKeys = new Set<_GroupKey>([
+				...groupEntries.map(([k]) => k),
+				...placeholderByGroup.keys(),
+			])
+			const maxBlockInGroup = (g: _GroupKey) =>
+				Math.max(
+					...(groupEntries.find(([k]) => k === g)?.[1]?.map((i) => -Number(getSortValue(i))) ?? []),
+					...(placeholderByGroup.get(g)?.map((k) => Number(k)) ?? []),
+				)
+			const groupOrder = [...groupKeys].sort(
+				(ga, gb) => maxBlockInGroup(gb) - maxBlockInGroup(ga),
+			)
+			return [
+				...groupOrder.flatMap((groupKey) => [
+					{ type: 'group' as const, groupKey },
+					...(groupEntries.find(([k]) => k === groupKey)?.[1]?.map((item) => ({
+						type: 'item' as const,
+						key: getKey(item),
+						item,
+						isPlaceholder: false as const,
+					})) ?? []),
+					...(
+						(placeholderByGroup.get(groupKey) ?? [])
+							.sort((a, b) => Number(b) - Number(a))
+							.map((key) => ({
+								type: 'placeholder' as const,
+								key,
+								isPlaceholder: true as const,
+							}))
+					),
+				]),
+				...(
+					pagination?.hasMore ?
+						[{ type: 'pagination' as const, key: '__pagination__' }]
+					: []
+				),
+			]
+		}
+		return [
+			...itemRows,
+			...placeholderRows,
+			...(
+				pagination?.hasMore ?
+					[{ type: 'pagination' as const, key: '__pagination__' }]
+				: []
+			),
+		]
+	})
 </script>
 
 

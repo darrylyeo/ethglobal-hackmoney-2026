@@ -3,11 +3,16 @@
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import type { Network } from '$/constants/networks.ts'
+	import {
+		getEraAtBlock,
+		hasForkSchedule,
+	} from '$/data/fork-schedules/era.ts'
 
 
 	// Props
 	let {
 		data,
+		chainId,
 		placeholderBlockIds,
 		visiblePlaceholderBlockIds = $bindable([] as number[]),
 		isCompact = false,
@@ -16,6 +21,7 @@
 			Network | undefined,
 			Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
 		>
+		chainId?: number
 		placeholderBlockIds?: Set<number | [number, number]>
 		visiblePlaceholderBlockIds?: number[]
 		isCompact?: boolean
@@ -30,6 +36,22 @@
 	)
 	const placeholderIds = $derived(
 		placeholderBlockIds ?? new Set<number | [number, number]>([0]),
+	)
+	const forkSchedule = $derived(
+		chainId != null && hasForkSchedule(chainId),
+	)
+	const getGroupKey = $derived(
+		chainId != null && forkSchedule ?
+			(b: BlockEntry) => getEraAtBlock(chainId, b.$id.blockNumber)?.eraId ?? 'Unknown'
+		: undefined,
+	)
+	const getGroupLabel = $derived(
+		forkSchedule ? (eraId: string) => eraId : undefined,
+	)
+	const getGroupKeyForPlaceholder = $derived(
+		chainId != null && forkSchedule ?
+			(key: number) => getEraAtBlock(chainId, key)?.eraId ?? 'Unknown'
+		: undefined,
 	)
 	const blocksTotal = $derived.by(() => {
 		const range = [...placeholderIds].find((k): k is [number, number] =>
@@ -62,6 +84,9 @@
 		items={blocksSet}
 		getKey={(b) => b.$id.blockNumber}
 		getSortValue={(b) => -Number(b.number)}
+		getGroupKey={getGroupKey}
+		getGroupLabel={getGroupLabel}
+		getGroupKeyForPlaceholder={getGroupKeyForPlaceholder}
 		placeholderKeys={placeholderIds}
 		bind:visiblePlaceholderKeys={visiblePlaceholderBlockIds}
 		scrollPosition="Start"
@@ -135,6 +160,9 @@
 				items={blocksSet}
 				getKey={(b) => b.$id.blockNumber}
 				getSortValue={(b) => -Number(b.number)}
+				getGroupKey={getGroupKey}
+				getGroupLabel={getGroupLabel}
+				getGroupKeyForPlaceholder={getGroupKeyForPlaceholder}
 				placeholderKeys={placeholderIds}
 				bind:visiblePlaceholderKeys={visiblePlaceholderBlockIds}
 				scrollPosition="Start"

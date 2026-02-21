@@ -24,6 +24,7 @@
 		getSortValue,
 		getGroupKey,
 		getGroupLabel,
+		getGroupKeyForPlaceholder,
 		placeholderKeys,
 		visiblePlaceholderKeys = $bindable([] as _Key[]),
 		scrollPosition = 'Auto',
@@ -42,6 +43,7 @@
 		getSortValue: (item: _Item) => number | string
 		getGroupKey?: (item: _Item) => _GroupKey
 		getGroupLabel?: (groupKey: _GroupKey) => string
+		getGroupKeyForPlaceholder?: (key: _Key) => _GroupKey
 		placeholderKeys: Set<_Key | [number, number]>
 		visiblePlaceholderKeys?: _Key[]
 		scrollPosition?: 'Start' | 'End' | 'Auto'
@@ -84,6 +86,7 @@
 		{getSortValue}
 		{getGroupKey}
 		{getGroupLabel}
+		{getGroupKeyForPlaceholder}
 		{placeholderKeys}
 		bind:visiblePlaceholderKeys
 		{scrollPosition}

@@ -9,6 +9,7 @@
 		type ChainId,
 	} from '$/constants/networks.ts'
 	import { TimestampFormat } from '$/components/Timestamp.svelte'
+	import { getEraAtBlock } from '$/data/fork-schedules/era.ts'
 	import { formatGas, formatGwei } from '$/lib/format.ts'
 
 
@@ -28,6 +29,9 @@
 
 	// (Derived)
 	const block = $derived([...data.keys()][0])
+	const era = $derived(
+		block != null ? getEraAtBlock(chainId, block.$id.blockNumber) : null,
+	)
 	const transactionsSet = $derived(
 		[...data.values()][0] ?? new Set<ChainTransactionEntry>(),
 	)
@@ -88,6 +92,17 @@
 	<div data-column="gap-4">
 		{#if block}
 			<dl>
+				{#if era}
+					<div>
+						<dt>Part of</dt>
+						<dd>
+							{era.label}
+							{#if era.startBlock != null && era.endBlock != null}
+								<span data-text="annotation"> (blocks {era.startBlock.toLocaleString()} – {era.endBlock.toLocaleString()})</span>
+							{/if}
+						</dd>
+					</div>
+				{/if}
 				<dt>Number</dt>
 				<dd><code>{block.number.toString()}</code></dd>
 
