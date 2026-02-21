@@ -7,7 +7,7 @@
 import type { VoltaireProvider } from '$/api/voltaire.ts'
 import { createProviderForChain } from '$/lib/helios-rpc.ts'
 import type { Eip8004Agent, Eip8004Agent$Id } from '$/data/Eip8004Agent.ts'
-import { EIP8004_REGISTRY_CONFIGS } from '$/constants/eip8004-registry.ts'
+import { eip8004RegistryConfigs } from '$/constants/eip8004-registry.ts'
 import { Abi, decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
 import { fromBytes as hexFromBytes, toBytes } from '@tevm/voltaire/Hex'
 
@@ -143,31 +143,28 @@ export async function fetchRegistrationDocument(
 export async function fetchEip8004Agents(): Promise<Eip8004Agent[]> {
 	const results: Eip8004Agent[] = []
 	const now = Date.now()
-	for (const { chainId, contractAddress } of EIP8004_REGISTRY_CONFIGS) {
-		const provider = createProviderForChain(chainId)
+	for (const { contract } of eip8004RegistryConfigs) {
+		const { $network, address } = contract
+		const provider = createProviderForChain($network.chainId)
 		let count: number
 		try {
-			count = await fetchAgentCount(provider, contractAddress)
+			count = await fetchAgentCount(provider, address)
 		} catch {
 			continue
 		}
 		for (let i = 0; i < count; i++) {
-			const identityId = await fetchAgentIdByIndex(
-				provider,
-				contractAddress,
-				i,
-			)
+			const identityId = await fetchAgentIdByIndex(provider, address, i)
 			if (!identityId) continue
 			const uri = await fetchAgentUri(
 				provider,
-				contractAddress,
+				address,
 				identityId as `0x${string}`,
 			)
 			const doc = uri ? await fetchRegistrationDocument(uri) : null
 			results.push({
 				identityId,
-				chainId,
-				contractAddress,
+				chainId: $network.chainId,
+				contractAddress: address,
 				registrationUri: uri ?? '',
 				name: doc?.name,
 				description: doc?.description,
@@ -182,19 +179,21 @@ export async function fetchEip8004Agents(): Promise<Eip8004Agent[]> {
 export async function fetchEip8004Agent(
 	id: Eip8004Agent$Id,
 ): Promise<Eip8004Agent | null> {
-	const config = EIP8004_REGISTRY_CONFIGS.find((c) => c.chainId === id.chainId)
+	const config = eip8004RegistryConfigs.find(
+		(c) => c.contract.$network.chainId === id.chainId,
+	)
 	if (!config) return null
 	const provider = createProviderForChain(id.chainId)
 	const uri = await fetchAgentUri(
 		provider,
-		config.contractAddress,
+		config.contract.address,
 		id.identityId as `0x${string}`,
 	)
 	const doc = uri ? await fetchRegistrationDocument(uri) : null
 	return {
 		identityId: id.identityId,
 		chainId: id.chainId,
-		contractAddress: config.contractAddress,
+		contractAddress: config.contract.address,
 		registrationUri: uri ?? '',
 		name: doc?.name,
 		description: doc?.description,

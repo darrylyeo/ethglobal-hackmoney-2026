@@ -1,15 +1,24 @@
-/**
- * EIP-8004 Identity Registry config per chain.
- * When no deployment exists, use empty array; list/detail will be empty.
- * Add { chainId, contractAddress } when a reference deployment is available.
- * https://eips.ethereum.org/EIPS/eip-8004
- */
-
-import type { ChainId } from '$/constants/networks.ts'
+import type { Contract$Id } from '$/data/Contract.ts'
+import { ChainId } from '$/constants/networks.ts'
 
 export type Eip8004RegistryConfig = {
-	chainId: ChainId
-	contractAddress: `0x${string}`
+	label: string
+	contract: Contract$Id
 }
 
-export const EIP8004_REGISTRY_CONFIGS: Eip8004RegistryConfig[] = []
+export const eip8004RegistryConfigs = [
+	{
+		label: 'Base',
+		contract: {
+			$network: { chainId: ChainId.Base },
+			address: '0x8004A169FB4a3325136EB29fA0ceB6D2e539a432',
+		},
+	},
+	{
+		label: 'Base Sepolia',
+		contract: {
+			$network: { chainId: ChainId.BaseSepolia },
+			address: '0x8004A818BFB912233c491871b3d84c89A494BD9e',
+		},
+	},
+] as const satisfies readonly Eip8004RegistryConfig[]
