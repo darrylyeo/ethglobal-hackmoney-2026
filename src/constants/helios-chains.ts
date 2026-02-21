@@ -6,7 +6,19 @@
 
 import { ChainId } from '$/constants/chain-id.ts'
 
-export type HeliosNetworkKind = 'ethereum' | 'opstack' | 'linea'
+export enum HeliosNetworkKind {
+	Ethereum = 'ethereum',
+	Opstack = 'opstack',
+	Linea = 'linea',
+}
+
+/** Beacon network for consensus endpoint lookup; maps from Helios chain network strings. */
+export enum HeliosBeaconNetwork {
+	Mainnet = 'mainnet',
+	Sepolia = 'sepolia',
+	Holesky = 'holesky',
+	Hoodi = 'hoodi',
+}
 
 export type HeliosChainInfo = {
 	network: string
@@ -14,18 +26,18 @@ export type HeliosChainInfo = {
 }
 
 export const HELIOS_CHAINS: Partial<Record<ChainId, HeliosChainInfo>> = {
-	[ChainId.Ethereum]: { network: 'mainnet', kind: 'ethereum' },
-	[ChainId.EthereumSepolia]: { network: 'sepolia', kind: 'ethereum' },
-	[ChainId.Optimism]: { network: 'op-mainnet', kind: 'opstack' },
-	[ChainId.OPSepolia]: { network: 'op-sepolia', kind: 'opstack' },
-	[ChainId.Base]: { network: 'base', kind: 'opstack' },
-	[ChainId.BaseSepolia]: { network: 'base-sepolia', kind: 'opstack' },
-	[ChainId.WorldChain]: { network: 'worldchain', kind: 'opstack' },
-	[ChainId.WorldChainSepolia]: { network: 'worldchain-sepolia', kind: 'opstack' },
-	[ChainId.Unichain]: { network: 'unichain', kind: 'opstack' },
-	[ChainId.UnichainSepolia]: { network: 'unichain-sepolia', kind: 'opstack' },
-	[ChainId.Linea]: { network: 'linea', kind: 'linea' },
-	[ChainId.LineaSepolia]: { network: 'linea-sepolia', kind: 'linea' },
+	[ChainId.Ethereum]: { network: 'mainnet', kind: HeliosNetworkKind.Ethereum },
+	[ChainId.EthereumSepolia]: { network: 'sepolia', kind: HeliosNetworkKind.Ethereum },
+	[ChainId.Optimism]: { network: 'op-mainnet', kind: HeliosNetworkKind.Opstack },
+	[ChainId.OPSepolia]: { network: 'op-sepolia', kind: HeliosNetworkKind.Opstack },
+	[ChainId.Base]: { network: 'base', kind: HeliosNetworkKind.Opstack },
+	[ChainId.BaseSepolia]: { network: 'base-sepolia', kind: HeliosNetworkKind.Opstack },
+	[ChainId.WorldChain]: { network: 'worldchain', kind: HeliosNetworkKind.Opstack },
+	[ChainId.WorldChainSepolia]: { network: 'worldchain-sepolia', kind: HeliosNetworkKind.Opstack },
+	[ChainId.Unichain]: { network: 'unichain', kind: HeliosNetworkKind.Opstack },
+	[ChainId.UnichainSepolia]: { network: 'unichain-sepolia', kind: HeliosNetworkKind.Opstack },
+	[ChainId.Linea]: { network: 'linea', kind: HeliosNetworkKind.Linea },
+	[ChainId.LineaSepolia]: { network: 'linea-sepolia', kind: HeliosNetworkKind.Linea },
 }
 
 export const HELIOS_SUPPORTED_CHAIN_IDS: readonly ChainId[] = (

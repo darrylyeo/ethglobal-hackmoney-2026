@@ -11,16 +11,22 @@ import {
 	type HeliosNetworkKind,
 } from '$/constants/helios-chains.ts'
 import {
-	HELIOS_CONSENSUS_RPC_DEFAULT,
-	HELIOS_LOCAL_DEFAULT_URL,
+	heliosBeaconNetworkFor,
+	heliosConsensusUrlForBrowser,
+	heliosLocalEndpoints,
 } from '$/constants/helios-config.ts'
 
 let heliosLocalEnabled: Partial<Record<number, boolean>> = {}
 let heliosBrowserEnabled: Partial<Record<number, boolean>> = {}
-let heliosLocalUrl = HELIOS_LOCAL_DEFAULT_URL
+let heliosLocalUrl = heliosLocalEndpoints[0].url
 const fallbackUsed = new Set<number>()
 
-export type HeliosBrowserSyncStatus = 'idle' | 'syncing' | 'ready' | 'fallback'
+export enum HeliosBrowserSyncStatus {
+	Idle = 'idle',
+	Syncing = 'syncing',
+	Ready = 'ready',
+	Fallback = 'fallback',
+}
 const browserSyncStatus: Partial<Record<number, HeliosBrowserSyncStatus>> = {}
 let onBrowserSyncStatusChange: ((chainId: number) => void) | null = null
 export function setHeliosBrowserSyncStatusHandler(
@@ -49,7 +55,7 @@ export function setHeliosBrowserEnabled(
 	heliosBrowserEnabled = { ...heliosBrowserEnabled, [chainId]: enabled }
 	if (!enabled) {
 		fallbackUsed.delete(chainId)
-		browserSyncStatus[chainId] = 'idle'
+		browserSyncStatus[chainId] = HeliosBrowserSyncStatus.Idle
 		browserProviderCache.delete(chainId)
 		onBrowserSyncStatusChange?.(chainId)
 	}
@@ -70,7 +76,7 @@ export function getHeliosBrowserEnabled(chainId: number): boolean {
 export function getHeliosBrowserSyncStatus(
 	chainId: number,
 ): HeliosBrowserSyncStatus {
-	return browserSyncStatus[chainId] ?? 'idle'
+	return browserSyncStatus[chainId] ?? HeliosBrowserSyncStatus.Idle
 }
 
 export function isHeliosFallbackUsed(chainId: number): boolean {
@@ -150,7 +156,8 @@ const browserProviderCache = new Map<
 function browserConfigHash(chainId: number): string {
 	const url = rpcUrls[chainId]
 	const info = HELIOS_CHAINS[chainId as keyof typeof HELIOS_CHAINS]
-	return `${chainId}:${url ?? ''}:${info?.network ?? ''}:${info?.kind ?? ''}:${HELIOS_CONSENSUS_RPC_DEFAULT}`
+	const beacon = info ? heliosBeaconNetworkFor(info.network) : null
+	return `${chainId}:${url ?? ''}:${info?.network ?? ''}:${info?.kind ?? ''}:${beacon ? heliosConsensusUrlForBrowser(beacon) : ''}`
 }
 
 async function getOrCreateHeliosBrowserProvider(
@@ -164,20 +171,22 @@ async function getOrCreateHeliosBrowserProvider(
 	const info = HELIOS_CHAINS[chainId as keyof typeof HELIOS_CHAINS]
 	if (!defaultUrl || !info) throw new Error(`No RPC or Helios config for chain ${chainId}`)
 
-	browserSyncStatus[chainId] = 'syncing'
+	browserSyncStatus[chainId] = HeliosBrowserSyncStatus.Syncing
 	onBrowserSyncStatusChange?.(chainId)
 
 	try {
 		const { createHeliosProvider } = await import('@a16z/helios')
 		type HeliosConfig = Parameters<typeof createHeliosProvider>[0]
+		const consensusRpc =
+			heliosConsensusUrlForBrowser(heliosBeaconNetworkFor(info.network))
 		const heliosProvider = await createHeliosProvider(
 			{
 				executionRpc: defaultUrl,
-				consensusRpc: HELIOS_CONSENSUS_RPC_DEFAULT,
+				consensusRpc: consensusRpc || undefined,
 				network: info.network as HeliosConfig['network'],
 				dbType: 'localstorage',
 			},
-			info.kind as HeliosNetworkKind,
+			info.kind,
 		)
 		await heliosProvider.waitSynced()
 		const provider: VoltaireProvider = {
@@ -189,7 +198,7 @@ async function getOrCreateHeliosBrowserProvider(
 					})
 				} catch {
 					fallbackUsed.add(chainId)
-					browserSyncStatus[chainId] = 'fallback'
+					browserSyncStatus[chainId] = HeliosBrowserSyncStatus.Fallback
 					browserProviderCache.delete(chainId)
 					onHeliosFallback?.(chainId)
 					onBrowserSyncStatusChange?.(chainId)
@@ -207,13 +216,13 @@ async function getOrCreateHeliosBrowserProvider(
 				return provider
 			},
 		}
-		browserSyncStatus[chainId] = 'ready'
+		browserSyncStatus[chainId] = HeliosBrowserSyncStatus.Ready
 		onBrowserSyncStatusChange?.(chainId)
 		browserProviderCache.set(chainId, { provider, configHash: hash })
 		return provider
 	} catch {
 		fallbackUsed.add(chainId)
-		browserSyncStatus[chainId] = 'fallback'
+		browserSyncStatus[chainId] = HeliosBrowserSyncStatus.Fallback
 		browserProviderCache.delete(chainId)
 		onHeliosFallback?.(chainId)
 		onBrowserSyncStatusChange?.(chainId)
