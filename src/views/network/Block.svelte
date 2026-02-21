@@ -3,15 +3,19 @@
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
+	import { EntityLayout } from '$/components/EntityView.svelte'
 	import { TimestampFormat } from '$/components/Timestamp.svelte'
 	import { fetchBlockTransactions } from '$/collections/Blocks.ts'
 	import {
 		averageTransactionsPerBlockByChainId,
 		DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK,
 	} from '$/constants/networks.ts'
-	import { getForkContextLinks } from '$/data/fork-schedules/explorer-links.ts'
-	import { getEraAtBlock } from '$/data/fork-schedules/era.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { getEraAtBlock } from '$/constants/fork-schedules.ts'
 	import { formatGas, formatGwei } from '$/lib/format.ts'
+	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
+	import { getBlockPath, getForksPagePath } from '$/lib/network-paths.ts'
+	import { getForkSlugByEraName } from '$/constants/fork-upgrades.ts'
 
 
 	// Props
@@ -33,7 +37,12 @@
 	const era = $derived(
 		block != null ? getEraAtBlock(chainId, block.$id.blockNumber) : null,
 	)
-	const forkLinks = $derived(getForkContextLinks(chainId))
+	const forkSlug = $derived(era ? getForkSlugByEraName(era.label) : null)
+	const forkPageHref = $derived(
+		era && forkSlug
+			? getForksPagePath(chainId) + `#NetworkFork:${forkSlug}`
+			: '',
+	)
 	const transactionsSet = $derived(
 		[...data.values()][0] ?? new Set<ChainTransactionEntry>(),
 	)
@@ -43,6 +52,28 @@
 			averageTransactionsPerBlockByChainId[chainId]?.value
 			?? DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK
 		),
+	)
+	const summaryMetadata = $derived(
+		block
+			? (() => {
+				const relative = formatRelativeTime(
+					Date.now() - block.timestamp * 1000,
+				)
+				const txs = `${block.transactionCount ?? count} txs`
+				const gasPct =
+					block.gasUsed != null
+					&& block.gasLimit != null
+					&& block.gasLimit > 0n
+						? `${Number(block.gasUsed * 100n / block.gasLimit)}% gas`
+						: null
+				return [
+					{
+						term: '',
+						detail: [relative, txs, gasPct].filter(Boolean).join(' · '),
+					},
+				]
+			})()
+			: [],
 	)
 
 
@@ -62,6 +93,7 @@
 
 	// Components
 	import EntityList from '$/components/EntityList.svelte'
+	import EntityView from '$/components/EntityView.svelte'
 	import Timestamp from '$/components/Timestamp.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import Address from '$/views/Address.svelte'
@@ -69,47 +101,40 @@
 </script>
 
 
-<details
-	data-card="radius-2 padding-4"
-	id={block
-		? `block:${block.$id.blockNumber}`
-		: undefined}
+<EntityView
+	entityType={EntityType.Block}
+	entity={block ?? undefined}
+	entityId={block?.$id}
+	idSerialized={block ? `block:${block.$id.blockNumber}` : 'block:loading'}
+	href={block ? getBlockPath(chainId, block.$id.blockNumber) : '#'}
+	label={block ? `Block ${block.$id.blockNumber}` : 'Loading block…'}
+	layout={EntityLayout.PageSection}
+	open={false}
 	ontoggle={onToggle}
+	detailsProps={{ 'data-card': 'radius-2 padding-4' }}
+	metadata={summaryMetadata}
 >
-	<summary data-row="gap-2 align-center">
+	{#snippet Title()}
 		{#if block}
 			<code>#{block.$id.blockNumber}</code>
-			<Timestamp timestamp={block.timestamp} format={TimestampFormat.Relative} />
-			<span>{block.transactionCount ?? count} txs</span>
-			{#if block.gasUsed != null
-				&& block.gasLimit != null
-				&& block.gasLimit > 0n}
-				<span>{(Number(block.gasUsed * 100n / block.gasLimit))}% gas</span>
-			{/if}
 		{:else}
 			<code>Loading block…</code>
 		{/if}
-	</summary>
-
-	<div data-column="gap-4">
+	{/snippet}
+	{#snippet children()}
 		{#if block}
 			<dl>
 				{#if era}
 					<div>
 						<dt>Part of</dt>
 						<dd>
-							{era.label}
+							{#if forkPageHref}
+								<a href={forkPageHref} data-link>{era.label}</a>
+							{:else}
+								{era.label}
+							{/if}
 							{#if era.startBlock != null && era.endBlock != null}
 								<span data-text="annotation"> (blocks {era.startBlock.toLocaleString()} – {era.endBlock.toLocaleString()})</span>
-							{/if}
-							{#if forkLinks.forkcast || forkLinks.forkedBlocksUrl}
-								<span data-text="annotation">
-									—
-									<a href={forkLinks.forkcast} target="_blank" rel="noopener noreferrer">Upgrade process</a>
-									{#if forkLinks.forkedBlocksUrl}
-										· <a href={forkLinks.forkedBlocksUrl} target="_blank" rel="noopener noreferrer">Forked blocks</a>
-									{/if}
-								</span>
 							{/if}
 						</dd>
 					</div>
@@ -132,7 +157,7 @@
 
 				{#if block.miner}
 					<dt>Miner</dt>
-					<dd><Address network={chainId} address={block.miner} /></dd>
+					<dd><Address network={{ chainId }} address={block.miner} /></dd>
 				{/if}
 
 				<dt>Transactions</dt>
@@ -185,5 +210,5 @@
 				</span>
 			{/snippet}
 		</EntityList>
-	</div>
-</details>
+	{/snippet}
+</EntityView>

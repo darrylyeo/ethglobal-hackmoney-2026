@@ -4,9 +4,12 @@
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import type { Network } from '$/constants/networks.ts'
 	import {
-		getEraAtBlock,
-		hasForkSchedule,
-	} from '$/data/fork-schedules/era.ts'
+		BEACON_EPOCH_EXPLORER_BY_CHAIN_ID,
+		BELLATRIX_EPOCH_BY_CHAIN_ID,
+		CONSENSUS_SCHEDULE_CHAIN_IDS,
+		getCurrentEpoch,
+		MERGE_BLOCK_BY_CHAIN_ID,
+	} from '$/constants/fork-schedules.ts'
 
 
 	// Props
@@ -15,7 +18,9 @@
 		chainId,
 		placeholderBlockIds,
 		visiblePlaceholderBlockIds = $bindable([] as number[]),
+		currentBlockNumber,
 		isCompact = false,
+		forksHref,
 	}: {
 		data: Map<
 			Network | undefined,
@@ -24,87 +29,108 @@
 		chainId?: number
 		placeholderBlockIds?: Set<number | [number, number]>
 		visiblePlaceholderBlockIds?: number[]
+		currentBlockNumber?: number
 		isCompact?: boolean
+		forksHref?: string
 	} = $props()
 
 
 	// (Derived)
 	const network = $derived([...data.keys()][0])
 	const blocksMap = $derived([...data.values()][0] ?? new Map())
-	const blocksSet = $derived(
-		new Set([...blocksMap.keys()].filter((b): b is BlockEntry => b != null)),
-	)
 	const placeholderIds = $derived(
 		placeholderBlockIds ?? new Set<number | [number, number]>([0]),
 	)
-	const forkSchedule = $derived(
-		chainId != null && hasForkSchedule(chainId),
+
+	const mergeBlock = $derived(
+		chainId != null ? MERGE_BLOCK_BY_CHAIN_ID[chainId] : undefined,
 	)
-	const getGroupKey = $derived(
-		chainId != null && forkSchedule ?
-			(b: BlockEntry) => getEraAtBlock(chainId, b.$id.blockNumber)?.eraId ?? 'Unknown'
-		: undefined,
+	const bellatrixEpoch = $derived(
+		chainId != null ? BELLATRIX_EPOCH_BY_CHAIN_ID[chainId] : undefined,
 	)
-	const getGroupLabel = $derived(
-		forkSchedule ? (eraId: string) => eraId : undefined,
+	const hasConsensusSchedule = $derived(
+		chainId != null &&
+			CONSENSUS_SCHEDULE_CHAIN_IDS.has(chainId) &&
+			mergeBlock != null &&
+			bellatrixEpoch != null,
 	)
-	const getGroupKeyForPlaceholder = $derived(
-		chainId != null && forkSchedule ?
-			(key: number) => getEraAtBlock(chainId, key)?.eraId ?? 'Unknown'
-		: undefined,
+	const showConsensus = $derived(
+		hasConsensusSchedule &&
+			currentBlockNumber != null &&
+			mergeBlock != null &&
+			currentBlockNumber >= mergeBlock,
 	)
-	const blocksTotal = $derived.by(() => {
-		const range = [...placeholderIds].find((k): k is [number, number] =>
-			Array.isArray(k),
-		)
-		return range != null
-			? range[1] + 1
-			: placeholderIds.size > 0
-				? 1
-				: 0
+	const currentEpoch = $derived(
+		chainId != null && currentBlockNumber != null
+			? getCurrentEpoch(chainId, currentBlockNumber)
+			: null,
+	)
+	const recentEpochs = $derived.by(() => {
+		if (currentEpoch == null || currentEpoch < 0) return []
+		const start = Math.max(0, currentEpoch - 9)
+		return Array.from(
+			{ length: currentEpoch - start + 1 },
+			(_, i) => start + i,
+		).reverse()
 	})
-	const totalDisplay = $derived(blocksTotal > 0 ? blocksTotal : undefined)
+	const beaconExplorerBase = $derived(
+		chainId != null ? BEACON_EPOCH_EXPLORER_BY_CHAIN_ID[chainId] : undefined,
+	)
+	const showExecution = $derived(chainId != null)
+	const showConsensusCol = $derived(hasConsensusSchedule)
+	const showForksCol = $derived(!!forksHref)
+	const columnCount = $derived(
+		[showForksCol, showExecution, showConsensusCol].filter(Boolean).length,
+	)
+	const gridColumns = $derived(
+		columnCount >= 3 ? 'columns-3 gap-2' : columnCount === 2 ? 'columns-2 gap-2' : 'gap-2',
+	)
+	const cardDetailsProps = $derived(
+		isCompact ? { 'data-card': 'radius-2 padding-4' } : { 'data-card': '' },
+	)
 
 
 	// Components
-	import EntityList from '$/components/EntityList.svelte'
-	import Block from '$/views/network/Block.svelte'
+	import NetworkBlocksEntityList from '$/views/network/NetworkBlocksEntityList.svelte'
+	import NetworkEpochsEntityList from '$/views/network/NetworkEpochsEntityList.svelte'
+	import NetworkForks from '$/views/network/NetworkForks.svelte'
 </script>
 
 
 {#if isCompact}
-	<EntityList
-		title="Blocks"
-		detailsProps={{
-			open: true,
-			'data-card': 'radius-2 padding-4',
-		}}
-		loaded={blocksSet.size}
-		total={totalDisplay}
-		items={blocksSet}
-		getKey={(b) => b.$id.blockNumber}
-		getSortValue={(b) => -Number(b.number)}
-		getGroupKey={getGroupKey}
-		getGroupLabel={getGroupLabel}
-		getGroupKeyForPlaceholder={getGroupKeyForPlaceholder}
-		placeholderKeys={placeholderIds}
-		bind:visiblePlaceholderKeys={visiblePlaceholderBlockIds}
-		scrollPosition="Start"
-	>
-		{#snippet Item({ key, item, isPlaceholder })}
-			<span id="block:{key}">
-				{#if isPlaceholder}
-					<code>Block #{key} (loading…)</code>
-				{:else}
-					{@const blockData = new Map<
-						BlockEntry | undefined,
-						Set<ChainTransactionEntry>
-					>([[item, blocksMap.get(item) ?? new Set()]])}
-					<Block data={blockData} chainId={item.$id.$network.chainId} />
-				{/if}
-			</span>
-		{/snippet}
-	</EntityList>
+	<div data-grid={gridColumns}>
+		{#if showForksCol}
+			<NetworkForks href={forksHref} detailsProps={cardDetailsProps} />
+		{/if}
+		{#if showExecution}
+			<NetworkBlocksEntityList
+				blocksMap={blocksMap}
+				chainId={chainId}
+				placeholderBlockIds={placeholderIds}
+				bind:visiblePlaceholderBlockIds={visiblePlaceholderBlockIds}
+				detailsProps={cardDetailsProps}
+			/>
+		{/if}
+		{#if showConsensusCol}
+			{#if showConsensus && recentEpochs.length > 0}
+				<NetworkEpochsEntityList
+					epochs={new Set(recentEpochs)}
+					currentEpoch={currentEpoch}
+					beaconExplorerBase={beaconExplorerBase}
+					detailsProps={cardDetailsProps}
+				/>
+			{:else}
+				<details open {...cardDetailsProps}>
+					<summary>Consensus</summary>
+					<p data-text="annotation">
+						{currentBlockNumber == null || currentBlockNumber < (mergeBlock ?? 0)
+							? 'Loading block height…'
+							: 'Loading epochs…'}
+					</p>
+				</details>
+			{/if}
+		{/if}
+	</div>
 {:else}
 	<details data-card="radius-2 padding-4" open id={network ? `network:${network.chainId}` : undefined}>
 		<summary>
@@ -149,38 +175,39 @@
 				</dl>
 			{/if}
 
-			<EntityList
-				title="Blocks"
-				detailsProps={{
-					open: true,
-					'data-card': '',
-				}}
-				loaded={blocksSet.size}
-				total={blocksTotal > 0 ? blocksTotal : undefined}
-				items={blocksSet}
-				getKey={(b) => b.$id.blockNumber}
-				getSortValue={(b) => -Number(b.number)}
-				getGroupKey={getGroupKey}
-				getGroupLabel={getGroupLabel}
-				getGroupKeyForPlaceholder={getGroupKeyForPlaceholder}
-				placeholderKeys={placeholderIds}
-				bind:visiblePlaceholderKeys={visiblePlaceholderBlockIds}
-				scrollPosition="Start"
-			>
-			{#snippet Item({ key, item, isPlaceholder })}
-				<span id="block:{key}">
-					{#if isPlaceholder}
-						<code>Block #{key} (loading…)</code>
+			<div data-grid={gridColumns}>
+				{#if showForksCol}
+					<NetworkForks href={forksHref} detailsProps={cardDetailsProps} />
+				{/if}
+				{#if showExecution}
+					<NetworkBlocksEntityList
+						blocksMap={blocksMap}
+						chainId={chainId}
+						placeholderBlockIds={placeholderIds}
+						bind:visiblePlaceholderBlockIds={visiblePlaceholderBlockIds}
+						detailsProps={cardDetailsProps}
+					/>
+				{/if}
+				{#if showConsensusCol}
+					{#if showConsensus && recentEpochs.length > 0}
+						<NetworkEpochsEntityList
+							epochs={new Set(recentEpochs)}
+							currentEpoch={currentEpoch}
+							beaconExplorerBase={beaconExplorerBase}
+							detailsProps={cardDetailsProps}
+						/>
 					{:else}
-						{@const blockData = new Map<
-							BlockEntry | undefined,
-							Set<ChainTransactionEntry>
-						>([[item, blocksMap.get(item) ?? new Set()]])}
-						<Block data={blockData} chainId={item.$id.$network.chainId} />
+						<details open {...cardDetailsProps}>
+							<summary>Consensus</summary>
+							<p data-text="annotation">
+								{currentBlockNumber == null || currentBlockNumber < (mergeBlock ?? 0)
+									? 'Loading block height…'
+									: 'Loading epochs…'}
+							</p>
+						</details>
 					{/if}
-				</span>
-			{/snippet}
-			</EntityList>
+				{/if}
+			</div>
 		</div>
 	</details>
 {/if}
