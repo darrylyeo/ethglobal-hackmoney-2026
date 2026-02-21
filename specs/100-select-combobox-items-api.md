@@ -37,4 +37,4 @@ Split into four components: `Select`, `SelectMultiple`, `Combobox`, `ComboboxMul
 
 ## Status
 
-Complete.
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec, re-verify 100): All 5 AC confirmed—Select, SelectMultiple, Combobox, ComboboxMultiple with items/getItemId/getItemLabel/getItemDisabled; getItemGroupId/getGroupLabel and Map.groupBy-derived grouping; generic _Item; usages (Filters, Sorts, EntityRefInput, etc.) use items API. Deno test 55 passed; Vitest phase pre-existing failure (npm:@tanstack/svelte-db).
