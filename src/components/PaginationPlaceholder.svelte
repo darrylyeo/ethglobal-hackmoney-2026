@@ -1,24 +1,30 @@
 <script lang="ts">
+	// Functions
 	import { useVisibleAction } from '$/lib/useVisibleAction.ts'
 
+
+	// Props
 	let {
 		hasMore = false,
 		onLoadMore,
-		loading = false,
+		isLoading = false,
 		label = 'Load more',
 	}: {
 		hasMore?: boolean
 		onLoadMore?: () => void
-		loading?: boolean
+		isLoading?: boolean
 		label?: string
 	} = $props()
 </script>
 
-{#if hasMore && onLoadMore}
+{#if hasMore
+	&& onLoadMore}
 	<div
 		data-pagination
 		use:useVisibleAction={onLoadMore}
 	>
-		<code data-text="muted">{loading ? 'Loading…' : label}</code>
+		<code data-text="muted">{isLoading
+			? 'Loading…'
+			: label}</code>
 	</div>
 {/if}

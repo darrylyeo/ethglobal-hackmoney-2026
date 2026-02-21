@@ -9,8 +9,6 @@
 
 
 <script lang="ts">
-
-
 	// Props
 	let {
 		timestamp,
@@ -21,18 +19,18 @@
 	} = $props()
 
 
-	// Functions
-	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
-
-
-	// (Derived) from props only
+	// (Derived)
 	const date = $derived(
-		typeof timestamp === 'number' ?
-			new Date(timestamp)
-		: undefined,
+		typeof timestamp === 'number'
+			? new Date(timestamp)
+			: undefined,
 	)
 	const isoString = $derived(date?.toISOString())
 	const absoluteTime = $derived(date?.toLocaleString())
+
+
+	// Functions
+	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 
 
 	// State
@@ -41,9 +39,9 @@
 
 	// (Derived)
 	const relativeTime = $derived(
-		typeof timestamp === 'number' ?
-			formatRelativeTime(now - timestamp)
-		: undefined,
+		typeof timestamp === 'number'
+			? formatRelativeTime(now - timestamp)
+			: undefined,
 	)
 
 	$effect(() => {

@@ -1,7 +1,7 @@
 <script lang="ts" generics="_Item">
 	// Types/constants
-	import { stringify } from 'devalue'
 	import type { Snippet } from 'svelte'
+	import { stringify } from 'devalue'
 
 
 	// IDs
@@ -68,7 +68,8 @@
 	)
 	const normalizedGroups = $derived(
 		getItemGroupId
-			? Array.from(
+			? (
+				Array.from(
 					items.reduce((m, item) => {
 						const gid = getItemGroupId!(item)
 						const arr = m.get(gid) ?? []
@@ -77,17 +78,18 @@
 						return m
 					}, new Map<string, _Item[]>()),
 				)
-					.map(([id, groupItems]) => ({
-						id,
-						label: getGroupLabel(id),
-						items: groupItems.map((item) => ({
-							item,
-							id: getItemId(item),
-							label: getItemLabel(item),
-							disabled: getItemDisabled ? getItemDisabled(item) : false,
-						})),
-					}))
-			: []
+				.map(([id, groupItems]) => ({
+					id,
+					label: getGroupLabel(id),
+					items: groupItems.map((item) => ({
+						item,
+						id: getItemId(item),
+						label: getItemLabel(item),
+						disabled: getItemDisabled ? getItemDisabled(item) : false,
+					})),
+				}))
+			)
+			: [],
 	)
 
 
@@ -99,10 +101,7 @@
 <Select.Root
 	{...rootProps}
 	type="single"
-	bind:value={() => {
-		const singleValue = value ?? undefined
-		return singleValue ? getItemId(singleValue) : ''
-	}, (v) => {
+	bind:value={() => (value != null ? getItemId(value) : ''), (v) => {
 		value = normalizedItems.find((item) => item.id === v)?.item ?? undefined
 	}}
 	{disabled}

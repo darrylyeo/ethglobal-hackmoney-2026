@@ -12,12 +12,14 @@
 		[key: string]: unknown
 	} = $props()
 
+
 	// (Derived)
 	const level = $derived(useHeadingLevel() || 1)
 </script>
 
 
-{#if level >= 1 && level <= 6}
+{#if level >= 1
+	&& level <= 6}
 	<svelte:element
 		this={'h' + level}
 		{...rest}

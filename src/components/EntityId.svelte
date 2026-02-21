@@ -25,17 +25,17 @@
 	} = $props()
 
 
-	// Functions
-	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
-	import { draggable } from '$/components/Draggable.svelte.ts'
-
-
 	// (Derived)
 	const intent = $derived(
-		entityType && entityId ?
-			entityIntent(entityType, entityId, source)
-		: undefined,
+		entityType && entityId
+			? entityIntent(entityType, entityId, source)
+			: undefined,
 	)
+
+
+	// Functions
+	import { draggable } from '$/components/Draggable.svelte.ts'
+	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
 </script>
 
 

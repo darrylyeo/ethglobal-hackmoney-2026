@@ -1,32 +1,42 @@
 <script lang="ts">
 	// Types/constants
 	import type { FarcasterConnectionSiwf } from '$/data/FarcasterConnection.ts'
+	import {
+		selectFarcasterConnection,
+		useFarcasterConnections,
+	} from '$/collections/FarcasterConnections.ts'
 	import { FarcasterConnectionTransport } from '$/data/FarcasterConnection.ts'
-	import Dropdown from '$/components/Dropdown.svelte'
-	import { selectFarcasterConnection, useFarcasterConnections } from '$/collections/FarcasterConnections.ts'
 
-	// State
+
+	// Context
 	const connectionsQuery = useFarcasterConnections()
+
 
 	// (Derived)
 	const siwfConnections = $derived(
-		((connectionsQuery.data ?? []) as { row: FarcasterConnectionSiwf }[])
-			.map((r) => r.row)
-			.filter((c) => c.transport === FarcasterConnectionTransport.Siwf)
-			.sort((a, b) => b.connectedAt - a.connectedAt),
+		(
+			((connectionsQuery.data ?? []) as { row: FarcasterConnectionSiwf }[])
+				.map((r) => r.row)
+				.filter((c) => c.transport === FarcasterConnectionTransport.Siwf)
+				.sort((a, b) => b.connectedAt - a.connectedAt)
+		),
 	)
 	const selectedConnection = $derived(
 		siwfConnections.find((c) => c.selected) ?? siwfConnections[0],
 	)
-	const canDraft = $derived(siwfConnections.length > 0)
+
 
 	// Actions
 	const selectFid = (fid: number) => {
 		selectFarcasterConnection(fid)
 	}
+
+
+	// Components
+	import Dropdown from '$/components/Dropdown.svelte'
 </script>
 
-{#if canDraft}
+{#if siwfConnections.length > 0}
 	<Dropdown
 		items={siwfConnections.map((c) => ({
 			type: 'item' as const,
@@ -36,9 +46,13 @@
 			onSelect: () => selectFid(c.$id.fid),
 		}))}
 		triggerLabel={
-			selectedConnection
-				? (selectedConnection.username ? `@${selectedConnection.username}` : `@${selectedConnection.$id.fid}`)
-				: 'Select account'
+			selectedConnection ?
+				(
+					selectedConnection.username ?
+						`@${selectedConnection.username}`
+					: `@${selectedConnection.$id.fid}`
+				)
+			: 'Select account'
 		}
 		triggerAriaLabel="Select Farcaster account"
 		triggerProps={{

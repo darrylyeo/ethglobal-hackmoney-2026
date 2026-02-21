@@ -7,13 +7,13 @@
 	"
 >
 	// Types/constants
-	import type { Snippet } from 'svelte'
 	import type { ItemsListPagination } from '$/components/ItemsList.types.ts'
+	import type { Snippet } from 'svelte'
 	import { useVisibleAction } from '$/lib/useVisibleAction.ts'
-
-	// Props
 	import { SvelteSet } from 'svelte/reactivity'
 
+
+	// Props
 	let {
 		items = $bindable(new SvelteSet()),
 		getKey,
@@ -77,9 +77,8 @@
 			: 0
 		}),
 	)
-	const hasGrouping = $derived(Boolean(getGroupKey && getGroupLabel))
 	const groupEntries = $derived(
-		hasGrouping ?
+		getGroupKey && getGroupLabel ?
 			[...Map.groupBy(sortedItems, getGroupKey!).entries()]
 		: null,
 	)
@@ -110,26 +109,22 @@
 				isPlaceholder: true as const,
 			})),
 	)
-	const paginationRow = $derived(
-		pagination?.hasMore ?
-			({ type: 'pagination' as const, key: '__pagination__' })
-		: null,
-	)
 	const allRows = $derived([
 		...itemRows,
 		...placeholderRows,
-		...(paginationRow ?
-			[paginationRow]
-		: []),
+		...(
+			pagination?.hasMore ?
+				[{ type: 'pagination' as const, key: '__pagination__' }]
+			: []
+		),
 	])
-	const manyItems = $derived(allRows.length > 200)
 </script>
 
 
 <!-- scrollPosition: Start/End = overflow-anchor on first/last li; Auto = browser default -->
 <ul
 	class="items-list anchor-{scrollPosition.toLowerCase()}"
-	class:many-items={manyItems}
+	class:many-items={allRows.length > 200}
 	data-sticky-container
 	{...rootProps}
 >
@@ -159,8 +154,8 @@
 				{:else}
 					<code data-text="muted">
 						{(pagination?.loading ?? false) ?
-						'Loading…'
-					: (pagination?.label ?? 'Load more')}
+							'Loading…'
+						: (pagination?.label ?? 'Load more')}
 					</code>
 				{/if}
 			</li>

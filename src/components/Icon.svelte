@@ -16,9 +16,6 @@
 
 
 <script lang="ts">
-	// Components
-	import Icon from './Icon.svelte'
-
 	// Props
 	let {
 		class: className,
@@ -67,29 +64,33 @@
 
 	// (Derived)
 	const a11yLabel = $derived(label ?? alt)
+
+
+	// Components
+	import Icon from './Icon.svelte'
 </script>
 
 
 <span
 	{...rootProps}
-	class={`icon${className ?
-		` ${className}`
-	: ''}`}
+	class={`icon${className
+		? ` ${className}`
+		: ''}`}
 	data-icon-shape={shape}
 	data-row
-	style={`--icon-size: ${typeof size === 'number' ?
-		`${size}px`
-	: size}${backgroundColor != null ?
-		`; --icon-bg: ${backgroundColor}`
-	: ''}`}
+	style={`--icon-size: ${typeof size === 'number'
+		? `${size}px`
+		: size}${backgroundColor != null
+		? `; --icon-bg: ${backgroundColor}`
+		: ''}`}
 	aria-label={a11yLabel || undefined}
-	aria-hidden={a11yLabel ?
-		undefined
-	: true}
+	aria-hidden={a11yLabel
+		? undefined
+		: true}
 	title={title ?? (alt || undefined)}
-	role={a11yLabel ?
-		'img'
-	: undefined}
+	role={a11yLabel
+		? 'img'
+		: undefined}
 >
 	<span data-row class="icon-main">
 		{#if src}

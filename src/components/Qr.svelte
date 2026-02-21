@@ -1,7 +1,4 @@
 <script lang="ts">
-	// Functions
-	import { renderSVG } from 'uqr'
-
 	// Props
 	let {
 		value,
@@ -12,6 +9,10 @@
 		size?: number
 		ecc?: 'L' | 'M' | 'Q' | 'H'
 	} = $props()
+
+
+	// Functions
+	import { renderSVG } from 'uqr'
 </script>
 
 {#if value}

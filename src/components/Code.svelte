@@ -8,10 +8,6 @@
 	} from '$/lib/syntax-highlight.ts'
 
 
-	// Styles
-	import '@speed-highlight/core/themes/github-dark.css'
-
-
 	// Props
 	let {
 		content,
@@ -37,19 +33,29 @@
 	// Actions
 	$effect(() => {
 		if (!preEl || !content) return
-		(path ?
-			highlightElementForPath(preEl, path)
-		: highlightElementWithLang(
+		(path
+			? highlightElementForPath(preEl, path)
+			: highlightElementWithLang(
 				preEl,
 				lang ?? (path ? langForPath(path) : 'plain'),
 				withMultiline,
 			)).catch(() => {})
 	})
+
+
+	// Styles
+	import '@speed-highlight/core/themes/github-dark.css'
 </script>
 
 
 <pre
 	bind:this={preEl}
-	class="code-block shj-{withMultiline ? 'multiline' : 'single'}{className ? ` ${className}` : ''}"
-	style="max-height: {typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight}; overflow: auto; margin: 0; padding: 1em; tab-size: 4; white-space: pre;"
+	class="code-block shj-{withMultiline
+		? 'multiline'
+		: 'single'}{className
+		? ` ${className}`
+		: ''}"
+	style="max-height: {typeof maxHeight === 'number'
+		? `${maxHeight}px`
+		: maxHeight}; overflow: auto; margin: 0; padding: 1em; tab-size: 4; white-space: pre;"
 >{content}</pre>

@@ -18,35 +18,9 @@
 	} = $props()
 
 
-	// (Derived)
+	// Functions
 	const isFullMedia = (m: Media | { url: string } | undefined): m is Media =>
 		!!m && 'type' in m && 'original' in m
-	const format = $derived(
-		isFullMedia(media) ?
-			size === 'original' ?
-				media.original
-			: size === 'high' ?
-				media.high
-			: size === 'medium' ?
-				media.medium
-			: size === 'low' ?
-				media.low
-			: size === 'thumbnail' ?
-				media.thumbnail
-			: media.original
-		: undefined,
-	)
-	const url = $derived(
-		format?.url ??
-		(media && 'url' in media ?
-			media.url
-		: undefined),
-	)
-	const mediaType = $derived(
-		isFullMedia(media) ?
-			media.type
-		: inferTypeFromUrl(url),
-	)
 
 	function inferTypeFromUrl(u: string | undefined): MediaType {
 		if (!u) return MediaType.Other
@@ -56,6 +30,35 @@
 		if (/\.(mp3|wav|ogg|m4a|aac)(\?|$)/i.test(path)) return MediaType.Audio
 		return MediaType.Other
 	}
+
+
+	// (Derived)
+	const format = $derived(
+		isFullMedia(media)
+			? size === 'original'
+				? media.original
+				: size === 'high'
+					? media.high
+					: size === 'medium'
+						? media.medium
+						: size === 'low'
+							? media.low
+							: size === 'thumbnail'
+								? media.thumbnail
+								: media.original
+			: undefined,
+	)
+	const url = $derived(
+		format?.url
+		?? (media && 'url' in media
+			? media.url
+			: undefined),
+	)
+	const mediaType = $derived(
+		isFullMedia(media)
+			? media.type
+			: inferTypeFromUrl(url),
+	)
 </script>
 
 {#if url}
@@ -77,9 +80,9 @@
 				width={format?.width}
 				height={format?.height}
 				controls
-				preload={loading === 'eager' ?
-					'auto'
-				: 'metadata'}
+				preload={loading === 'eager'
+					? 'auto'
+					: 'metadata'}
 			>
 				{alt}
 			</video>
@@ -89,9 +92,9 @@
 			<audio
 				src={url}
 				controls
-				preload={loading === 'eager' ?
-					'auto'
-				: 'metadata'}
+				preload={loading === 'eager'
+					? 'auto'
+					: 'metadata'}
 			>
 				{alt}
 			</audio>

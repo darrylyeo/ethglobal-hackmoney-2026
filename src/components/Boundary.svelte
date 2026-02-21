@@ -3,10 +3,6 @@
 	import type { Snippet } from 'svelte'
 
 
-	// Functions
-	import { stringify } from '$/lib/stringify.ts'
-
-
 	// Props
 	let {
 		children,
@@ -17,6 +13,10 @@
 		Pending?: Snippet
 		Failed?: Snippet<[error: unknown, retry: () => void]>
 	} = $props()
+
+
+	// Functions
+	import { stringify } from '$/lib/stringify.ts'
 </script>
 
 

@@ -53,15 +53,13 @@
 	const articleId = $derived(`${entityType}:${idSerialized}`)
 	const entityId = $derived(
 		entityIdProp
-			?? (entity as { $id?: EntityId } | undefined)?.$id
-			?? (idSerialized != null &&
-				[
-					EntityTypeEnum.Session,
-					EntityTypeEnum.Room,
-					EntityTypeEnum.AgentChatTree,
-				].includes(entityType)
+		?? (entity as { $id?: EntityId } | undefined)?.$id
+		?? (
+			idSerialized != null
+			&& [EntityTypeEnum.Session, EntityTypeEnum.Room, EntityTypeEnum.AgentChatTree].includes(entityType)
 				? ({ id: idSerialized } as EntityId)
-				: undefined),
+				: undefined
+		),
 	)
 
 
@@ -133,8 +131,10 @@
 						{#if BeforeAnnotation}
 							{@render BeforeAnnotation({ entity, entityType })}
 						{/if}
-						<span data-text="annotation">{annotation ??
-							(entityTypes.find((e) => e.type === entityType)?.label ?? entityType)}</span>
+						<span data-text="annotation">
+							{annotation
+								?? (entityTypes.find((e) => e.type === entityType)?.label ?? entityType)}
+						</span>
 					</div>
 				</header>
 			</summary>
