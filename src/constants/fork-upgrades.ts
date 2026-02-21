@@ -1,3 +1,5 @@
+import type { ConsensusProtocol, ExecutionProtocol } from '$/data/fork-schedules/types.ts'
+
 /**
  * Ethereum mainnet fork upgrades: name, activation, links, and included EIP numbers.
  * Sources: ethereum.org/ethereum-forks, ethereum/execution-specs, ethereum/consensus-specs, ethereumjs/common.
@@ -15,6 +17,8 @@ export type ForkUpgrade = {
 		forkcast?: string
 	}
 	eipNumbers: number[]
+	executionProtocol?: ExecutionProtocol
+	consensusProtocol?: ConsensusProtocol
 }
 
 const EXECUTION_SPECS_BASE =
@@ -246,5 +250,13 @@ export const FORK_UPGRADES: readonly ForkUpgrade[] = [
 		eipNumbers: [1],
 	},
 ] as const
+
+export function getForkSlugByEraName(eraName: string): string | null {
+	const n = eraName.toLowerCase().replace(/\s+/g, '')
+	const f = FORK_UPGRADES.find(
+		(x) => x.name.toLowerCase().replace(/\s+/g, '') === n,
+	)
+	return f?.slug ?? null
+}
 
 export const EIPS_OFFICIAL_BASE = 'https://eips.ethereum.org/EIPS/eip-'

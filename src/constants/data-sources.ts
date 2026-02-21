@@ -19,6 +19,7 @@ export enum DataSource {
 	Voltaire = 'Voltaire',
 	Yellow = 'Yellow',
 	Eips = 'Eips',
+	Caips = 'Caips',
 }
 
 export const dataSourceEntries: readonly { id: DataSource }[] = (

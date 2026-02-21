@@ -12,7 +12,6 @@ const ethNativeId: CoinInstance$Id = {
 	$network: { chainId: ChainId.Ethereum },
 }
 const usdcInstance = coinInstanceByChainAndCoinId.get(`${ChainId.Ethereum}:${CoinId.USDC}`)
-const usdcId: CoinInstance$Id = usdcInstance?.$id ?? ethNativeId
 
 const vitalikEthId: Actor$Id = {
 	$network: { chainId: ChainId.Ethereum },
@@ -29,6 +28,6 @@ export const DEFAULT_WATCHED_ENTITIES: readonly {
 	{ entityType: EntityType.Network, entityId: { chainId: ChainId.EthereumSepolia } },
 	{ entityType: EntityType.Network, entityId: { chainId: ChainId.BaseSepolia } },
 	{ entityType: EntityType.Coin, entityId: ethNativeId },
-	{ entityType: EntityType.Coin, entityId: usdcId },
+	...(usdcInstance ? [{ entityType: EntityType.Coin as const, entityId: usdcInstance.$id }] : []),
 	{ entityType: EntityType.Actor, entityId: vitalikEthId },
 ]

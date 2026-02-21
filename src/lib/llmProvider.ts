@@ -3,7 +3,11 @@
 import { env } from '$env/dynamic/public'
 import { zenClientAvailability, zenClientGenerate } from '$/api/llm/zen.ts'
 
-export type LlmAvailability = 'available' | 'downloading' | 'unavailable'
+export enum LlmAvailability {
+	Available = 'available',
+	Downloading = 'downloading',
+	Unavailable = 'unavailable',
+}
 
 export type LlmGenerateInput = {
 	systemPrompt: string
@@ -73,7 +77,7 @@ export const createPromptApiLlmProvider = (
 			const languageModel = getPromptApi()
 			return languageModel
 				? await languageModel.availability(PROMPT_OPTIONS)
-				: 'unavailable'
+				: LlmAvailability.Unavailable
 		},
 		generate: async (input) => {
 			const languageModel = getPromptApi()
@@ -122,7 +126,7 @@ export const createHostedLlmProvider = (config: {
 	endpoint: string
 	apiKey?: string,
 }): LlmProvider => ({
-	availability: async () => 'available',
+	availability: async () => LlmAvailability.Available,
 	generate: async (input) => {
 		const response = await fetch(config.endpoint, {
 			method: 'POST',
@@ -151,7 +155,7 @@ export const createHostedLlmProvider = (config: {
 const createZenLlmProvider = (): LlmProvider => ({
 	availability: async () => {
 		const status = zenClientAvailability()
-		return status.available ? 'available' : 'unavailable'
+		return status.available ? LlmAvailability.Available : LlmAvailability.Unavailable
 	},
 	generate: async (input) => {
 		const result = await zenClientGenerate({
@@ -182,10 +186,10 @@ export const createLlmProvider = (
 
 	const pickProvider = async (): Promise<LlmProvider> => {
 		const promptAvailability = await promptProvider.availability()
-		if (promptAvailability !== 'unavailable') return promptProvider
+		if (promptAvailability !== LlmAvailability.Unavailable) return promptProvider
 		if (hostedProvider) return hostedProvider
 		const zenAvailability = await zenProvider.availability()
-		return zenAvailability === 'available' ? zenProvider : promptProvider
+		return zenAvailability === LlmAvailability.Available ? zenProvider : promptProvider
 	}
 
 	const connectionProvider = async (): Promise<LlmProvider | null> => {
@@ -221,7 +225,7 @@ export const createLlmProvider = (
 			const conn = await connectionProvider()
 			if (conn) return conn.availability()
 			const promptAvailability = await promptProvider.availability()
-			if (promptAvailability !== 'unavailable') return promptAvailability
+			if (promptAvailability !== LlmAvailability.Unavailable) return promptAvailability
 			if (hostedProvider) return hostedProvider.availability()
 			return zenProvider.availability()
 		},

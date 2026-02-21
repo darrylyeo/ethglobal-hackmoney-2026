@@ -14,11 +14,11 @@ import {
 } from '$/constants/opencode-zen.ts'
 import type { LlmConnection } from '$/data/LlmConnection.ts'
 import { LlmConnectionProvider } from '$/data/LlmConnection.ts'
-import type {
-	LlmProvider,
-	LlmGenerateInput,
+import {
+	type LlmProvider,
+	type LlmGenerateInput,
 	LlmAvailability,
-	LlmGenerateWithToolsOutput,
+	type LlmGenerateWithToolsOutput,
 } from '$/lib/llmProvider.ts'
 import { createHostedLlmProvider } from '$/lib/llmProvider.ts'
 import { buildAISdkToolsFromWebmcp, TOOLS_FOR_CHAT } from '$/lib/webmcp/tools-for-llm.ts'
@@ -85,7 +85,7 @@ export const createLlmProviderFromConnection = (
 		const theModel = modelId || OPENAI_DEFAULT_MODEL
 		return {
 			availability: async (): Promise<LlmAvailability> =>
-				apiKey ? 'available' : 'unavailable',
+				apiKey ? LlmAvailability.Available : LlmAvailability.Unavailable,
 			generate: async (input: LlmGenerateInput) => {
 				if (!apiKey) throw new Error('OpenAI API key not set')
 				const { text } = await generateText({
@@ -128,7 +128,7 @@ export const createLlmProviderFromConnection = (
 		const theModel = modelId || ANTHROPIC_DEFAULT_MODEL
 		return {
 			availability: async (): Promise<LlmAvailability> =>
-				apiKey ? 'available' : 'unavailable',
+				apiKey ? LlmAvailability.Available : LlmAvailability.Unavailable,
 			generate: async (input: LlmGenerateInput) => {
 				if (!apiKey) throw new Error('Anthropic API key not set')
 				const { text } = await generateText({
@@ -171,7 +171,7 @@ export const createLlmProviderFromConnection = (
 		const theModel = modelId || GOOGLE_DEFAULT_MODEL
 		return {
 			availability: async (): Promise<LlmAvailability> =>
-				apiKey ? 'available' : 'unavailable',
+				apiKey ? LlmAvailability.Available : LlmAvailability.Unavailable,
 			generate: async (input: LlmGenerateInput) => {
 				if (!apiKey) throw new Error('Google API key not set')
 				const { text } = await generateText({
@@ -214,7 +214,7 @@ export const createLlmProviderFromConnection = (
 			(env.PUBLIC_OPENCODE_API_KEY != null ? String(env.PUBLIC_OPENCODE_API_KEY) : undefined)
 		return {
 			availability: async (): Promise<LlmAvailability> =>
-				zenAvailability(apiKey).available ? 'available' : 'unavailable',
+				zenAvailability(apiKey).available ? LlmAvailability.Available : LlmAvailability.Unavailable,
 			generate: async (input: LlmGenerateInput) => {
 				if (!apiKey) throw new Error('OpenCode Zen API key not set')
 				const result = await zenClientGenerateWithKey(apiKey, {
@@ -237,7 +237,7 @@ export const createLlmProviderFromConnection = (
 	}
 
 	return {
-		availability: async () => 'unavailable',
+		availability: async () => LlmAvailability.Unavailable,
 		generate: async () => {
 			throw new Error(`Unsupported LLM provider: ${connection.provider}`)
 		},
