@@ -243,7 +243,7 @@ for the selected state, allowing native keyboard navigation.
 
 ## Status
 
-Complete. `src/styles/accessibility.css`: focus-visible, skip link, reduced motion,
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec, re-verify 022): All 22 AC confirmed in code—accessibility.css (focus-visible, skip-link, reduced motion, skeleton); +layout skip link and main#main tabindex="-1"; BridgeFlow aria-live; Navigation home aria-label; form inputs labeled; aria-describedby/aria-invalid/role=alert across components; Skeleton data-skeleton; e2e/accessibility.test.ts (skip link, axe wcag2aa, keyboard). Deno test 55 passed; Vitest pre-existing failure (npm:@tanstack/svelte-db); e2e not run (Playwright requires Node 18.19+). Previous: `src/styles/accessibility.css`: focus-visible, skip link, reduced motion,
 skeleton reduced-motion rule. Layout: skip link, `main#main` tabindex="-1".
 BridgeFlow: aria-live region for execution status (in_progress/completed/failed);
 amount input with aria-describedby (amt-hint, amt-error), aria-invalid, hint and
