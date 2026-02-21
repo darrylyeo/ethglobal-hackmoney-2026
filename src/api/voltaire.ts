@@ -2,8 +2,11 @@
  * Minimal EIP-1193-style RPC and ERC20 helpers using @tevm/voltaire.
  * Uses ERC20 SELECTORS, decodeUint256; we use fetch-based createHttpProvider for compatibility (upstream provider may use native bindings).
  */
+import { Address } from '@tevm/voltaire/Address'
 import { ERC20 } from '@tevm/voltaire'
 import type { Trace } from '$/data/Trace.ts'
+
+export const ZERO_ADDRESS = Address.zero() as `0x${string}`
 
 export type VoltaireProvider = {
 	request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
