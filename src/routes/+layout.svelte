@@ -1,8 +1,14 @@
 <script lang="ts">
 	// Profiles (boot/migrate before collections read from localStorage; browser-only)
 	import { browser } from '$app/environment'
+	import { ensureNetworksHydrated } from '$/collections/Networks.ts'
+	import { ensureCoinsHydrated } from '$/collections/Coins.ts'
 	import { ensureProfilesMeta } from '$/lib/profile.ts'
-	if (browser) ensureProfilesMeta()
+	if (browser) {
+		ensureProfilesMeta()
+		ensureNetworksHydrated()
+		ensureCoinsHydrated()
+	}
 
 
 	// WebMCP (client-only; registers tools with navigator.modelContext when available)
