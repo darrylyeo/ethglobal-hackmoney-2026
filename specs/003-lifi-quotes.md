@@ -52,7 +52,7 @@ enable comparison and execution.
 
 ## Status
 
-Complete. Re-verification 2026-02-07 (PROMPT_build execute one spec, no incomplete specs; re-verify 003): all 8 AC confirmed—lifi.ts (StatusCallback, FeeBreakdown, NormalizedRoute, getLifiSdk, getRoutesForUsdcBridge, normalizeRoute, extractFeeBreakdown, executeSelectedRoute); USDC from ercTokensBySymbolByChainId; fetchBridgeRoutes in bridge-routes.ts uses getRoutesForUsdcBridge and bridgeRoutesCollection; lifi.spec.ts mocks and asserts normalized shape. test:unit 44 Deno + 159 Vitest passed.
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec, re-verify 003): All 8 AC confirmed—src/api/lifi.ts exports StatusCallback, FeeBreakdown, NormalizedRoute, getLifiSdk, getRoutesForUsdcBridge, normalizeRoute, extractFeeBreakdown, executeSelectedRoute; getRoutesForUsdcBridge uses queryClient.fetchQuery (TanStack Query) and USDC from ercTokensBySymbolByChainId; fetchBridgeRoutes in src/collections/BridgeRoutes.ts calls getRoutesForUsdcBridge and stores in bridgeRoutesCollection/bridgeRouteItemsCollection; executeSelectedRoute handles provider, chain switch, execution; extractFeeBreakdown gas/protocol fees; src/api/lifi.spec.ts mocks LI.FI and asserts normalized shape. Deno test 55 passed; Vitest phase pre-existing failure (npm:@tanstack/svelte-db).
 
 ## Output when complete
 
