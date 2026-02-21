@@ -32,4 +32,4 @@ All sidebar navigation data logic lives in `src/routes/navigationItems.svelte.ts
 
 ## Status
 
-Done. Navigation logic and derivations centralized in `navigationItems.svelte.ts`; layout simplified.
+Complete. Re-verification 2026-02-21 (PROMPT_build execute one spec): All 5 AC confirmed—nav live queries, ensureDefaultRow, registerGlobalLiveQueryStack inside NavigationItems; layout uses one call `new NavigationItems({ isTestnet })` and passes `nav.items` to `<Navigation>`; watched-entity rows derived via `deriveWatchedEntityRow` before building items in `$derived.by`. Deno test 55 passed; Vitest phase pre-existing failure (npm:@tanstack/svelte-db). Previous: Done. Navigation logic and derivations centralized in `navigationItems.svelte.ts`; layout simplified.
