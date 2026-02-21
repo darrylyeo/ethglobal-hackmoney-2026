@@ -57,7 +57,7 @@ export type NormalizedRoute = {
   steps: {
     tool: string // e.g., "stargate", "across"
     toolName: string // e.g., "Stargate", "Across Protocol"
-    type: 'bridge' | 'swap' | 'cross'
+    type: BridgeRouteStepType  // enum: Bridge | Swap | Cross (src/data/BridgeRoute.ts)
     fromChainId: number
     toChainId: number
     fromAmount: string
@@ -101,7 +101,7 @@ export const normalizeRoute = (route: Route): NormalizedRoute => ({
   steps: route.steps.map(step => ({
     tool: step.tool,
     toolName: step.toolDetails?.name ?? step.tool,
-    type: step.type as 'bridge' | 'swap' | 'cross',
+    type: mapped from step.type to BridgeRouteStepType (Bridge | Swap | Cross),
     fromChainId: step.action.fromChainId,
     toChainId: step.action.toChainId,
     fromAmount: step.action.fromAmount,

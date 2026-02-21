@@ -238,7 +238,7 @@ Change a panel's route.
 
 Split a panel horizontally or vertically.
 
-- **Input schema:** `dashboardId`, `panelId`, `direction` (horizontal|vertical), `ratio` (0–1), `newPanelRoute`
+- **Input schema:** `dashboardId`, `panelId`, `direction` (horizontal|vertical; app uses `SplitDirection` enum from `src/data/PanelTree.ts`), `ratio` (0–1), `newPanelRoute`
 - **Execute:** Replace panel node with split node; existing panel stays; new panel gets `newPanelRoute`. Persist via `updateDashboardState` / `setDashboardRoot`.
 - **readOnlyHint:** false
 

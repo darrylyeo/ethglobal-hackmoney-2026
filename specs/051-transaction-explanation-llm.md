@@ -33,13 +33,18 @@ and interprets responses.
 ### Availability
 
 ```typescript
-type LlmAvailability = 'available' | 'downloading' | 'unavailable'
+// src/lib/llmProvider.ts
+enum LlmAvailability {
+  Available = 'available',
+  Downloading = 'downloading',
+  Unavailable = 'unavailable',
+}
 ```
 
-- `available`: Ready to generate.
-- `downloading`: Model is downloading (e.g. Prompt API); generation not yet
+- `Available`: Ready to generate.
+- `Downloading`: Model is downloading (e.g. Prompt API); generation not yet
   available; optional progress may be reported.
-- `unavailable`: No provider ready (e.g. Prompt API not present, hosted not
+- `Unavailable`: No provider ready (e.g. Prompt API not present, hosted not
   configured).
 
 ### Provider interface

@@ -6,6 +6,7 @@ Provide the explorer with full context for past and future protocol forks and re
 
 - Spec 060 (network and block pages), Spec 063 (network/block/transaction components), Spec 062 (ItemsList with getGroupKey/getGroupLabel/GroupHeader), Spec 065 (external cache / live query)
 - Research: Geth `params/config.go`, consensus-specs `configs/mainnet.yaml`, EthereumJS common `chains.ts`/`hardforks.ts`, Nethermind `Chains/foundation.json`, ECIP-1091 (ETC), Forkcast (process context links)
+- Spec 114 (other EVM chains fork sources); specs/113-beacon-fork-sources.md (CL fork sources); Spec 115 (consensus data model, Execution/Consensus UI)
 
 ## Scope
 
@@ -57,7 +58,7 @@ Prefer A or C so that a single script can refresh all sources without requiring 
 **Fork activation (per chain):**
 
 - `chainId: number`
-- `forks: Array<{ name: string, activation: { block?: number, timestamp?: number, epoch?: number }, forkHash?: string, kind?: 'execution' | 'consensus' | 'blob' }>`
+- `forks: Array<{ name: string, activation: { block?: number, timestamp?: number, epoch?: number }, forkHash?: string, kind?: ForkScheduleKind }>` — `ForkScheduleKind` enum (Execution | Consensus | Blob) in `src/data/fork-schedules/types.ts`
 - Order: by activation (block or timestamp or epoch) ascending. For post-merge chains, execution and consensus may be merged into one ordered list using timestamp/epoch for alignment where applicable.
 
 **Era (derived):**
@@ -91,10 +92,25 @@ Prefer A or C so that a single script can refresh all sources without requiring 
 - On block page (or block row tooltip/summary): show which era the block belongs to, e.g. “Part of: London” or “London (12,965,000 – 15,537,394)”. Optional link to ethereum.org fork timeline or Forkcast for “Upgrade process”.
 - Optional: “Forked blocks” / “Reorgs” link to the network’s explorer forked-blocks page (e.g. Etherscan blocks_forked, Beaconscan slots-forked) when available (from existing explorer URL helpers).
 
+## UI: fork upgrades page
+
+- **Route:** `/network/[chainId]/forks`. Param `chainId` is the network segment (slug or numeric chainId, same as `/network/[name]`); resolved via `parseNetworkNameParam`.
+- **Data:** Fork list from `src/constants/fork-upgrades.ts` (`FORK_UPGRADES`: mainnet-only; name, slug, activation block/timestamp, links to ethereum.org, execution-specs, consensus-specs, Forkcast, `eipNumbers`). Proposal titles from `proposalsCollection` for EIP link labels.
+- **Non-mainnet / not found:** If network param invalid → `<Heading>Network not found</Heading>` and message. If valid but not Ethereum mainnet → `<Heading>Fork upgrades</Heading>`, message that schedule is mainnet-only, link to mainnet forks (`/network/1/forks` or slug), and link back to network.
+- **Mainnet layout (aligned with Network / Block / Transaction):**
+  - **EntityView(Network)** at top: Title = NetworkName, AfterTitle = type tag, metadata = Chain ID, CAIP-2, Currency. Children:
+    - Links: Contracts (network contracts page), Proposals (EIPs/ERCs).
+    - **NetworkContracts** (same preview as network page).
+    - External nav (tag-style links): ethereum.org timeline, execution-specs, Forkcast.
+    - **EntityList** "Fork upgrades": `items = FORK_UPGRADES`, `getKey = slug`, `getSortValue` by activation (newest first). No placeholders. Each **Item** = **EntityView(NetworkFork)** (PageSection): label = fork name, metadata = Activation; children = spec/docs nav (ethereum.org, execution-specs, consensus-specs, Forkcast) + "Included EIPs" section (links to in-app proposal pages via `getProposalPath`, `data-tag="eip"`, EIP number and title when available).
+- **Components/views used:** EntityView, EntityList, Heading, NetworkName, NetworkContracts. Global `.sr-only` for "Included EIPs" heading.
+- **Navigation:** Network page links to "Fork upgrades" (`/network/${name}/forks`). Proposals nav item "Fork upgrades" → `/network/1/forks`. Proposals list page links to "Fork upgrades" at `/network/1/forks`. No redirects from legacy routes; `/proposals/forks` and `/eips/forks` removed.
+
 ## Future / optional
 
 - **Reorg feed:** If a reorg API (e.g. Coin Metrics) is integrated later, it can remain separate from fork schedules; this spec only requires era context and links.
 - **CL epochs on block page:** For post-merge, block could show corresponding consensus epoch and CL fork name if we add epoch↔block mapping.
+- **Associated beacon (CL) forks:** Best static source is **ethereum/consensus-specs** `configs/mainnet.yaml` (and `sepolia.yaml`, `holesky.yaml`): `*_FORK_EPOCH` / `*_FORK_VERSION` for Altair, Bellatrix, Capella, Deneb, Electra, Fulu (skip disabled = epoch 2^64-1). **Beacon API** `GET /eth/v1/config/fork_schedule` returns `data: [{ previous_version, current_version, epoch }]` for runtime. See `specs/113-beacon-fork-sources.md` for full research.
 
 ## Acceptance criteria
 
@@ -105,11 +121,12 @@ Prefer A or C so that a single script can refresh all sources without requiring 
 - [x] Block detail (or block row) shows era context (e.g. “Part of: London” with optional range).
 - [x] Placeholder blocks receive an era from their block number when schedule exists; otherwise list remains ungrouped for that chain.
 - [x] Chains without schedule data do not pass grouping props (unchanged behavior).
+- [x] Fork upgrades page at `/network/[chainId]/forks`: EntityView(Network) + EntityList of EntityView(NetworkFork); mainnet-only data with non-mainnet/not-found handling; uses Heading, NetworkName, NetworkContracts; nav and proposals link to `/network/1/forks`; legacy `/proposals/forks` and `/eips/forks` removed.
 - [x] Optional: link to explorer “Forked blocks” (or equivalent) and/or Forkcast from network/block context where relevant.
 
 ## Status
 
-Complete. 2026-02-21 (PROMPT_build execute one spec): Sync script `scripts/sync-fork-schedules.ts` fetches Geth params/config.go and consensus-specs mainnet.yaml from pinned refs; writes `schedules.json` and `manifest.json` under `src/data/fork-schedules/`. `deno task forks:sync` added. Types in `src/data/fork-schedules/types.ts`; `getEraAtBlock(chainId, blockNumber)` and `hasForkSchedule(chainId)` in `era.ts` (reads bundled schedules.json). Network Blocks list: `Network.svelte` passes `getGroupKey`/`getGroupLabel`/`getGroupKeyForPlaceholder` when chain has schedule; `ItemsList` extended with `getGroupKeyForPlaceholder` to group placeholders by era; group order by max block desc. Block detail: `Block.svelte` shows “Part of: {era.label}” with optional block range. Placeholders get era via `getGroupKeyForPlaceholder(key)`. Chains without schedule do not get grouping props. Optional: getForkContextLinks(chainId) in src/data/fork-schedules/explorer-links.ts returns Forkcast URL and explorer forked-blocks URL (base + /blocks_forked); Block.svelte shows "Upgrade process" (Forkcast) and "Forked blocks" (when explorer has URL) in era context.
+Complete. 2026-02-21 (PROMPT_build execute one spec): Sync script `scripts/sync-fork-schedules.ts` fetches Geth params/config.go and consensus-specs mainnet.yaml from pinned refs; writes `schedules.json` and `manifest.json` under `src/data/fork-schedules/`. `deno task forks:sync` added. Types in `src/data/fork-schedules/types.ts`; mappings and `getEraAtBlock` / `getCurrentEpoch` in `src/constants/fork-schedules.ts` (from schedules.json). Network Blocks list: `Network.svelte` passes `getGroupKey`/`getGroupLabel`/`getGroupKeyForPlaceholder` when chain has schedule; `ItemsList` extended with `getGroupKeyForPlaceholder` to group placeholders by era; group order by max block desc. Block detail: `Block.svelte` shows “Part of: {era.label}” with optional block range. Placeholders get era via `getGroupKeyForPlaceholder(key)`. Chains without schedule do not get grouping props. Optional: getForkContextLinks(chainId) in src/data/fork-schedules/explorer-links.ts returns Forkcast URL and explorer forked-blocks URL (base + /blocks_forked); Block.svelte shows "Upgrade process" (Forkcast) and "Forked blocks" (when explorer has URL) in era context. Fork upgrades page: route `/network/[chainId]/forks` in `src/routes/network/[chainId]/forks/+page.svelte`; EntityView(Network) with NetworkName, NetworkContracts, EntityList of EntityView(NetworkFork) from FORK_UPGRADES; mainnet-only; Heading for not-found/non-mainnet; nav and proposals link to /network/1/forks; /proposals/forks and /eips/forks removed.
 
 ## Output when complete
 

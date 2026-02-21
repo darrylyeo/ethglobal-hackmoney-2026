@@ -38,7 +38,7 @@ Add a `/dashboard` route that hosts a modular tiling panel system. When loaded n
   - `hashHistory`: list of `#hash` strings in visit order
 - **SplitNode**
   - `id`: unique id
-  - `direction`: `horizontal` or `vertical`
+  - `direction`: `SplitDirection` (Horizontal | Vertical) from `src/data/PanelTree.ts`
   - `ratio`: number between 0 and 1
   - `first`: PanelNode | SplitNode
   - `second`: PanelNode | SplitNode

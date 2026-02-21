@@ -79,6 +79,7 @@ Every external API that provides data to the UI or routes must be cached in a Ta
 | CCTP (REST)                        | `CctpAllowance.ts`                               | fetch → upsert                                    |
 | Token list URLs                    | `TokenListCoins.ts`                              | fetch → upsert                                    |
 | ethereum/EIPs, ethereum/ercs (GitHub) | `Proposals.ts`                               | queryFn / fetchProposalEntries → upsert          |
+| ChainAgnostic/CAIPs (GitHub)         | `Caips.ts`                                   | queryFn / fetchCaipEntries → upsert              |
 | spanDEX (getQuotes / getQuote)     | `SpandexQuoteItems.ts`                           | `fetchSpandexQuotes` (all; optional strategy sorts by bestPrice/fastest/estimatedGas) / `fetchSpandexQuoteForProvider` → upsert |
 | spanDEX (best quote → swap quote)  | `SwapQuotes.ts`                                  | `fetchSpandexSwapQuote(strategy?)` → upsert (strategy from protocol tag) |
 | Uniswap (quote)                    | `SwapQuotes.ts`                                  | `fetchSwapQuote` → upsert                         |
