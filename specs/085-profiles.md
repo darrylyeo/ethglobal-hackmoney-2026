@@ -401,12 +401,12 @@ import or hardcode this value.
 - Same error with direct `import { test } from '@playwright/test'` and with `import { test } from './fixtures/profile.ts'`; not caused by the fixture.
 - Same for `.ts` and `.js` test files; not specific to TypeScript.
 - A minimal repo (only `"type": "module"`, `@playwright/test`, one test file, one config) **works**; the failure is specific to this project’s environment.
-- This project has multiple Playwright installs: `node_modules/.pnpm/playwright@1.57.0` and `node_modules/.deno/playwright@*`; only one is used by `npx playwright`, but duplicate installs can still affect resolution in some setups.
+- This project has multiple Playwright installs: `node_modules/.pnpm/playwright@1.57.0` and `node_modules/.deno/playwright@*`; only one is used by `deno run -A npm:playwright`, but duplicate installs can still affect resolution in some setups.
 - Playwright sets the suite in `testLoader.loadTestFile()` before `requireOrImport(file)`; with `e2e/package.json` `"type": "commonjs"` the loader uses `require()` for e2e files, so the file runs synchronously in the same process — in theory the suite should be set. The failure suggests either the suite is cleared before the file runs (e.g. by an `await` and another loader path) or a different Playwright/globals instance is used when the test file runs.
 
 **Correct setup (once discovery works):**
 
-- Run e2e with: `pnpm run test:e2e` (or `playwright test -c playwright.e2e.config.ts`).
+- Run e2e with: `deno task test:e2e` (or `deno run -A npm:playwright test -c playwright.e2e.config.ts`).
 - Config: `playwright.e2e.config.ts` — `testDir: 'e2e'`, `testMatch: '**/*.test.ts'`, `webServer` for app + Tevm RPC.
 - Test files import `{ test, expect }` from `e2e/fixtures/profile.ts` or `e2e/fixtures/tevm.ts` (or `mock-clearnode.ts`); profile fixture ensures a dedicated test profile per run.
 - Optional: `e2e/package.json` with `"type": "commonjs"` so Playwright loads e2e files via `require()` (same-process, suite set before run). This did not fix the issue in this repo but is the recommended layout for “no ESM loader” for test files.
