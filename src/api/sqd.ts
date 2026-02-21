@@ -3,11 +3,8 @@
  * Public Portal: 20 req/10s. Use client-side throttle.
  */
 
-import {
-	getSqdDatasetSlug,
-	getSqdPortalBaseUrl,
-	hasSqdTraces,
-} from '$/constants/sqd-datasets.ts'
+import { SQD_DATASETS_BY_CHAIN_ID } from '$/constants/sqd-datasets.ts'
+import { ChainId } from '$/constants/chain-id.ts'
 import type { Trace } from '$/data/Trace.ts'
 
 const PORTAL_REQ_LIMIT = 20
@@ -103,12 +100,11 @@ export type SqdMetadata = {
 	realtime?: boolean
 }
 
-export { getSqdDatasetSlug, getSqdPortalBaseUrl }
-
 export async function fetchSqdHead(
 	chainId: number,
 ): Promise<{ number: number } | null> {
-	const base = getSqdPortalBaseUrl(chainId)
+	const slug = SQD_DATASETS_BY_CHAIN_ID[chainId as ChainId]?.slug
+	const base = slug ? `https://portal.sqd.dev/datasets/${slug}` : null
 	if (!base) return null
 	await throttle()
 	const res = await fetch(`${base}/head`, { headers: { Accept: 'application/json' } })
@@ -120,7 +116,8 @@ export async function fetchSqdHead(
 export async function fetchSqdFinalizedHead(
 	chainId: number,
 ): Promise<{ number: number } | null> {
-	const base = getSqdPortalBaseUrl(chainId)
+	const slug = SQD_DATASETS_BY_CHAIN_ID[chainId as ChainId]?.slug
+	const base = slug ? `https://portal.sqd.dev/datasets/${slug}` : null
 	if (!base) return null
 	await throttle()
 	const res = await fetch(`${base}/finalized-head`, {
@@ -134,7 +131,8 @@ export async function fetchSqdFinalizedHead(
 export async function fetchSqdMetadata(
 	chainId: number,
 ): Promise<SqdMetadata | null> {
-	const base = getSqdPortalBaseUrl(chainId)
+	const slug = SQD_DATASETS_BY_CHAIN_ID[chainId as ChainId]?.slug
+	const base = slug ? `https://portal.sqd.dev/datasets/${slug}` : null
 	if (!base) return null
 	await throttle()
 	const res = await fetch(`${base}/metadata`, {
@@ -148,7 +146,8 @@ export async function* streamSqdEvm(
 	chainId: number,
 	query: SqdEvmQuery,
 ): AsyncGenerator<SqdBlockItem> {
-	const base = getSqdPortalBaseUrl(chainId)
+	const slug = SQD_DATASETS_BY_CHAIN_ID[chainId as ChainId]?.slug
+	const base = slug ? `https://portal.sqd.dev/datasets/${slug}` : null
 	if (!base) return
 	const path = query.finalizedOnly ? 'finalized-stream' : 'stream'
 	const body = {
@@ -204,7 +203,7 @@ export async function fetchTracesForTransactionFromSqd(
 	blockNumber: number,
 	txHash: `0x${string}`,
 ): Promise<Trace | null> {
-	if (!hasSqdTraces(chainId)) return null
+	if (SQD_DATASETS_BY_CHAIN_ID[chainId as ChainId]?.traces !== true) return null
 	const txHashLc = txHash.toLowerCase()
 	const query: SqdEvmQuery = {
 		type: 'evm',

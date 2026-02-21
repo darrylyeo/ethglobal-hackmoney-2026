@@ -43,20 +43,3 @@ export const SQD_DATASETS_BY_CHAIN_ID: Partial<Record<ChainId, SqdDatasetInfo>> 
 	[ChainId.HyperEVM]: { slug: 'hyperevm-mainnet', traces: true, stateDiffs: true },
 }
 
-function getSqdDatasetInfo(chainId: number): SqdDatasetInfo | null {
-	const info = SQD_DATASETS_BY_CHAIN_ID[chainId as ChainId]
-	return info ?? null
-}
-
-export function getSqdDatasetSlug(chainId: number): string | null {
-	return getSqdDatasetInfo(chainId)?.slug ?? null
-}
-
-export function getSqdPortalBaseUrl(chainId: number): string | null {
-	const slug = getSqdDatasetSlug(chainId)
-	return slug ? `https://portal.sqd.dev/datasets/${slug}` : null
-}
-
-export function hasSqdTraces(chainId: number): boolean {
-	return getSqdDatasetInfo(chainId)?.traces === true
-}

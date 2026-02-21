@@ -1,33 +1,32 @@
 /// <reference lib='deno.ns' />
 import { assertEquals } from 'jsr:@std/assert'
-import {
-	getSqdDatasetSlug,
-	getSqdPortalBaseUrl,
-	fetchSqdHead,
-} from '$/api/sqd.ts'
+import { fetchSqdHead } from '$/api/sqd.ts'
+import { SQD_DATASETS_BY_CHAIN_ID } from '$/constants/sqd-datasets.ts'
 import { ChainId } from '$/constants/chain-id.ts'
 
-Deno.test('getSqdDatasetSlug: Ethereum returns ethereum-mainnet', () => {
-	assertEquals(getSqdDatasetSlug(ChainId.Ethereum), 'ethereum-mainnet')
+Deno.test('SQD_DATASETS_BY_CHAIN_ID: Ethereum returns ethereum-mainnet slug', () => {
+	assertEquals(SQD_DATASETS_BY_CHAIN_ID[ChainId.Ethereum]?.slug, 'ethereum-mainnet')
 })
 
-Deno.test('getSqdDatasetSlug: Base returns base-mainnet', () => {
-	assertEquals(getSqdDatasetSlug(ChainId.Base), 'base-mainnet')
+Deno.test('SQD_DATASETS_BY_CHAIN_ID: Base returns base-mainnet slug', () => {
+	assertEquals(SQD_DATASETS_BY_CHAIN_ID[ChainId.Base]?.slug, 'base-mainnet')
 })
 
-Deno.test('getSqdDatasetSlug: unsupported chain returns null', () => {
-	assertEquals(getSqdDatasetSlug(ChainId.XDC), null)
+Deno.test('SQD_DATASETS_BY_CHAIN_ID: unsupported chain has no slug', () => {
+	assertEquals(SQD_DATASETS_BY_CHAIN_ID[ChainId.XDC]?.slug, undefined)
 })
 
-Deno.test('getSqdPortalBaseUrl: Ethereum returns Portal URL', () => {
+Deno.test('SQD portal URL from slug: Ethereum', () => {
+	const slug = SQD_DATASETS_BY_CHAIN_ID[ChainId.Ethereum]?.slug
 	assertEquals(
-		getSqdPortalBaseUrl(ChainId.Ethereum),
+		slug ? `https://portal.sqd.dev/datasets/${slug}` : null,
 		'https://portal.sqd.dev/datasets/ethereum-mainnet',
 	)
 })
 
-Deno.test('getSqdPortalBaseUrl: unsupported chain returns null', () => {
-	assertEquals(getSqdPortalBaseUrl(ChainId.XDC), null)
+Deno.test('SQD portal URL from slug: unsupported chain', () => {
+	const slug = SQD_DATASETS_BY_CHAIN_ID[ChainId.XDC]?.slug
+	assertEquals(slug ? `https://portal.sqd.dev/datasets/${slug}` : null, null)
 })
 
 Deno.test('fetchSqdHead: returns block number from mocked response', async () => {
