@@ -4,7 +4,7 @@ import {
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 import { CollectionId } from '$/constants/collections.ts'
-import { dedupeInFlight } from '$/lib/dedupeInFlight.ts'
+import { singleFlight } from '$/lib/singleFlight.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { FarcasterLink } from '$/data/FarcasterLink.ts'
 import {
@@ -38,11 +38,11 @@ export const farcasterLinksCollection = createCollection(
 	}),
 )
 
-export const ensureFollowingForUser = async (
-	fid: number,
-	pageToken?: string,
-): Promise<{ nextPageToken?: string }> =>
-	dedupeInFlight(`following:${fid}:${pageToken ?? 'first'}`, async () => {
+export const ensureFollowingForUser = singleFlight(
+	async (
+		fid: number,
+		pageToken?: string,
+	): Promise<{ nextPageToken?: string }> => {
 		const { messages, nextPageToken } = await fetchLinksByFid(fid, {
 			linkType: LINK_TYPE_FOLLOW,
 			pageSize: 100,
@@ -59,13 +59,14 @@ export const ensureFollowingForUser = async (
 			}
 		}
 		return { nextPageToken }
-	})
+	},
+)
 
-export const ensureFollowersForUser = async (
-	targetFid: number,
-	pageToken?: string,
-): Promise<{ nextPageToken?: string }> =>
-	dedupeInFlight(`followers:${targetFid}:${pageToken ?? 'first'}`, async () => {
+export const ensureFollowersForUser = singleFlight(
+	async (
+		targetFid: number,
+		pageToken?: string,
+	): Promise<{ nextPageToken?: string }> => {
 		const { messages, nextPageToken } = await fetchLinksByTargetFid(targetFid, {
 			linkType: LINK_TYPE_FOLLOW,
 			pageSize: 100,
@@ -82,4 +83,5 @@ export const ensureFollowersForUser = async (
 			}
 		}
 		return { nextPageToken }
-	})
+	},
+)

@@ -3,7 +3,7 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
-import { dedupeInFlight } from '$/lib/dedupeInFlight.ts'
+import { singleFlight } from '$/lib/singleFlight.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { FarcasterUser } from '$/data/FarcasterUser.ts'
@@ -33,8 +33,8 @@ export const farcasterUsersCollection = createCollection(
 	}),
 )
 
-export const ensureFarcasterUser = async (fid: number): Promise<FarcasterUserRow> =>
-	dedupeInFlight(`user:${fid}`, async () => {
+export const ensureFarcasterUser = singleFlight(
+	async (fid: number): Promise<FarcasterUserRow> => {
 		const key = `fid:${fid}`
 		const existing = farcasterUsersCollection.state.get(key) as
 			| FarcasterUserRow
@@ -71,4 +71,5 @@ export const ensureFarcasterUser = async (fid: number): Promise<FarcasterUserRow
 
 		farcasterUsersCollection.insert(row)
 		return row
-	})
+	},
+)

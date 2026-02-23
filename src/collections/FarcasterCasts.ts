@@ -6,7 +6,7 @@ import { parse, stringify } from 'devalue'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { FarcasterCast, FarcasterCast$Id } from '$/data/FarcasterCast.ts'
-import { dedupeInFlight } from '$/lib/dedupeInFlight.ts'
+import { singleFlight } from '$/lib/singleFlight.ts'
 import {
 	fetchCastById,
 	fetchCastByHash,
@@ -23,24 +23,38 @@ import {
 
 export type FarcasterCastRow = FarcasterCast & { $source: DataSource }
 
+/** Normalize cast hash to lowercase for consistent cache keys. */
+const normalizeCastHash = (h: `0x${string}`): `0x${string}` =>
+	h.slice(0, 2) + h.slice(2).toLowerCase() as `0x${string}`
+
 const getKey = (row: FarcasterCastRow) =>
-	`${row.$id.fid}:${row.$id.hash}`
+	`${row.$id.fid}:${normalizeCastHash(row.$id.hash)}`
+
+/** FarcasterCast.timestamp is stored as Unix ms. API returns seconds; normalize at ingest. */
+const toTimestampMs = (t: number): number => (t < 1e12 ? t * 1000 : t)
 
 const normalizeCast = (m: CastMessage): FarcasterCastRow => {
 	const body = m.data?.castAddBody ?? { text: '', mentions: [], embeds: [] }
 	const data = m.data ?? { fid: 0, timestamp: 0 }
 	return {
-		$id: { fid: data.fid, hash: m.hash },
+		$id: { fid: data.fid, hash: normalizeCastHash(m.hash as `0x${string}`) },
 		text: body.text ?? '',
 		parentFid: body.parentCastId?.fid,
-		parentHash: body.parentCastId?.hash,
+		parentHash: body.parentCastId?.hash
+			? normalizeCastHash(body.parentCastId.hash as `0x${string}`)
+			: undefined,
 		parentUrl: body.parentUrl,
-		timestamp: data.timestamp ?? 0,
+		timestamp: toTimestampMs(data.timestamp ?? 0),
 		mentions: body.mentions ?? [],
 		embeds:
 			body.embeds?.map((e) =>
 				'castId' in e && e.castId
-					? { castId: { fid: e.castId.fid, hash: e.castId.hash } }
+					? {
+							castId: {
+								fid: e.castId.fid,
+								hash: normalizeCastHash(e.castId.hash as `0x${string}`),
+							},
+						}
 					: { url: 'url' in e ? e.url : undefined },
 			) ?? [],
 		$source: DataSource.Farcaster,
@@ -56,11 +70,11 @@ export const farcasterCastsCollection = createCollection(
 	}),
 )
 
-export const ensureCastsForChannel = async (
-	channelUrl: string,
-	pageToken?: string,
-): Promise<{ nextPageToken?: string }> =>
-	dedupeInFlight(`castsChannel:${channelUrl}:${pageToken ?? 'first'}`, async () => {
+export const ensureCastsForChannel = singleFlight(
+	async (
+		channelUrl: string,
+		pageToken?: string,
+	): Promise<{ nextPageToken?: string }> => {
 		const { messages, nextPageToken } = await fetchCastsByParent({
 			url: channelUrl,
 			pageSize: 25,
@@ -71,13 +85,14 @@ export const ensureCastsForChannel = async (
 			farcasterCastsCollection.insert(row)
 		}
 		return { nextPageToken }
-	})
+	},
+)
 
-export const ensureCastsForFid = async (
-	fid: number,
-	pageToken?: string,
-): Promise<{ nextPageToken?: string }> =>
-	dedupeInFlight(`castsFid:${fid}:${pageToken ?? 'first'}`, async () => {
+export const ensureCastsForFid = singleFlight(
+	async (
+		fid: number,
+		pageToken?: string,
+	): Promise<{ nextPageToken?: string }> => {
 		const { messages, nextPageToken } = await fetchCastsByFid(fid, {
 			pageSize: 25,
 			pageToken,
@@ -88,15 +103,17 @@ export const ensureCastsForFid = async (
 			farcasterCastsCollection.insert(row)
 		}
 		return { nextPageToken }
-	})
+	},
+)
 
 /** Resolve cast by full hash only. Uses collection lookup or Neynar API. */
 export const ensureCastByHash = async (
 	hash: `0x${string}`,
 ): Promise<FarcasterCastRow> => {
 	if (!isFullHash(hash)) throw new Error('Full hash required for hash-only lookup')
+	const norm = normalizeCastHash(hash)
 	const existingByHash = [...farcasterCastsCollection.state.values()].find(
-		(r) => (r as FarcasterCastRow).$id.hash === hash,
+		(r) => normalizeCastHash((r as FarcasterCastRow).$id.hash) === norm,
 	) as FarcasterCastRow | undefined
 	if (existingByHash) return ensureCast(existingByHash.$id.fid, hash)
 	const resolved = await fetchCastByHash(hash)
@@ -104,12 +121,12 @@ export const ensureCastByHash = async (
 	return ensureCast(resolved.fid, resolved.hash)
 }
 
-export const ensureCast = async (
-	fid: number,
-	hash: `0x${string}`,
-): Promise<FarcasterCastRow> =>
-	dedupeInFlight(`cast:${fid}:${hash}`, async () => {
-		const key = `${fid}:${hash}`
+export const ensureCast = singleFlight(
+	async (
+		fid: number,
+		hash: `0x${string}`,
+	): Promise<FarcasterCastRow> => {
+		const key = `${fid}:${normalizeCastHash(hash)}`
 		const existing = farcasterCastsCollection.state.get(key) as
 			| FarcasterCastRow
 			| undefined
@@ -142,13 +159,14 @@ export const ensureCast = async (
 		row.recastCount = recastsRes.messages?.length ?? 0
 		farcasterCastsCollection.insert(row)
 		return row
-	})
+	},
+)
 
-export const ensureCastsByMention = async (
-	fid: number,
-	pageToken?: string,
-): Promise<{ nextPageToken?: string }> =>
-	dedupeInFlight(`castsMention:${fid}:${pageToken ?? 'first'}`, async () => {
+export const ensureCastsByMention = singleFlight(
+	async (
+		fid: number,
+		pageToken?: string,
+	): Promise<{ nextPageToken?: string }> => {
 		const { messages, nextPageToken } = await fetchCastsByMention(fid, {
 			pageSize: 25,
 			pageToken,
@@ -159,7 +177,8 @@ export const ensureCastsByMention = async (
 			farcasterCastsCollection.insert(row)
 		}
 		return { nextPageToken }
-	})
+	},
+)
 
 /** Ensure cast and all ancestors are loaded. Used when viewing a reply to show full thread context. */
 export const ensureCastAncestorChain = async (
@@ -171,24 +190,22 @@ export const ensureCastAncestorChain = async (
 	await ensureCastAncestorChain(parent)
 }
 
-export const ensureRepliesForCast = async (
-	fid: number,
-	hash: `0x${string}`,
-	pageToken?: string,
-): Promise<{ nextPageToken?: string }> =>
-	dedupeInFlight(
-		`replies:${fid}:${hash}:${pageToken ?? 'first'}`,
-		async () => {
-			const { messages, nextPageToken } = await fetchCastsByParent({
-				fid,
-				hash,
-				pageSize: 25,
-				pageToken,
-			})
-			for (const m of messages) {
-				const row = normalizeCast(m)
-				farcasterCastsCollection.insert(row)
-			}
-			return { nextPageToken }
-		},
-	)
+export const ensureRepliesForCast = singleFlight(
+	async (
+		fid: number,
+		hash: `0x${string}`,
+		pageToken?: string,
+	): Promise<{ nextPageToken?: string }> => {
+		const { messages, nextPageToken } = await fetchCastsByParent({
+			fid,
+			hash,
+			pageSize: 25,
+			pageToken,
+		})
+		for (const m of messages) {
+			const row = normalizeCast(m)
+			farcasterCastsCollection.insert(row)
+		}
+		return { nextPageToken }
+	},
+)

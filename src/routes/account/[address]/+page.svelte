@@ -14,10 +14,9 @@
 	import { ChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { formatAddress, parseAccountAddressParam } from '$/lib/address.ts'
-	import { dedupeInFlight } from '$/lib/dedupeInFlight.ts'
+	import { singleFlight } from '$/lib/singleFlight.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
-
 
 	// Context
 	import { resolve } from '$app/paths'
@@ -76,6 +75,25 @@
 			: null),
 	)
 	const addr = $derived(account?.address ?? null)
+	const actorId = $derived(
+		account
+			? {
+				$network: { chainId: (account.chainId ?? 1) as import('$/data/Network.ts').Network$Id['chainId'] },
+				address: account.address,
+				...(account.interopAddress != null
+					? { interopAddress: account.interopAddress }
+					: {}),
+			}
+			: null,
+	)
+	const contractId = $derived(
+		account
+			? {
+				$network: { chainId: (account.chainId ?? 1) as import('$/data/Network.ts').Network$Id['chainId'] },
+				address: account.address,
+			}
+			: null,
+	)
 	const ensLoading = $derived(
 		parsed == null
 		&& isEnsName
@@ -101,7 +119,7 @@
 			return
 		}
 		farcasterFid = undefined
-		dedupeInFlight(`fidByAddress:${a}`, () => getFidByAddress(a))
+		singleFlight(getFidByAddress)(a)
 			.then((fid) => {
 				if (addr !== a) return
 				farcasterFid = fid
@@ -114,10 +132,9 @@
 
 
 	// Components
-	import Boundary from '$/components/Boundary.svelte'
 	import EntityView from '$/components/EntityView.svelte'
 	import EntityViewSkeleton from '$/components/EntityViewSkeleton.svelte'
-	import Heading from '$/components/Heading.svelte'
+	import Collapsible from '$/components/Collapsible.svelte'
 	import AccountContracts from '$/views/AccountContracts.svelte'
 	import { AddressFormat } from '$/views/Address.svelte'
 	import Channels from '$/views/Channels.svelte'
@@ -149,13 +166,7 @@
 	{:else}
 		<EntityView
 			entityType={EntityType.Actor}
-			entityId={{
-				$network: { chainId: (account.chainId ?? 1) as import('$/data/Network.ts').Network$Id['chainId'] },
-				address: account.address,
-				...(account.interopAddress != null
-					? { interopAddress: account.interopAddress }
-					: {}),
-			}}
+			entityId={actorId!}
 			idSerialized={account?.interopAddress ?? account?.address ?? ''}
 			href={resolve(`/account/${addrParam}`)}
 			label={formatAddress(account.address)}
@@ -166,64 +177,56 @@
 		>
 			{#snippet Title()}
 				<EvmActor
-					network={{ chainId: (account.chainId ?? 1) }}
-					address={account.address}
+					actorId={actorId}
 					format={AddressFormat.Full}
 					isVertical
 				/>
 			{/snippet}
 
-			<section data-column="gap-2">
-				<Boundary>
+			<div data-column>
+				<section>
 					<CoinBalances
-						selectedActor={addr}
+						actorId={actorId}
 						balanceTokens={erc20Instances.map((t) => ({
-							chainId: t.chainId,
-							tokenAddress: t.address,
+							chainId: t.$id.$network.chainId,
+							tokenAddress: t.$id.address,
 						}))}
-						availableAccounts={addr ? [addr] : []}
 					/>
-				</Boundary>
-				<Boundary>
-					<Transactions
-						selectedActor={addr ?? undefined}
-					/>
-				</Boundary>
-				<Boundary>
-					<LiquidityPositions
-						selectedActor={addr ?? undefined}
-					/>
-				</Boundary>
-				<Boundary>
-					<VerifiedContractSource
-						chainId={account.chainId ?? 1}
-						address={account.address}
-					/>
-				</Boundary>
-				<Boundary>
-					<AccountContracts selectedActor={addr} />
-				</Boundary>
-			</section>
+				</section>
+				<section>
+					<Transactions actorId={actorId ?? undefined} />
+				</section>
+				<section>
+					<LiquidityPositions actorId={actorId ?? undefined} />
+				</section>
+				<section>
+					{#if contractId}
+						<VerifiedContractSource contractId={contractId} />
+					{/if}
+				</section>
+				<section>
+					<AccountContracts actorId={actorId} />
+				</section>
+			</div>
 
-			<section data-column="gap-2">
-				{#if farcasterFid != null
-					&& farcasterFid > 0}
-					<Boundary>
+			<div data-column>
+				{#if farcasterFid != null && farcasterFid > 0}
+					<Collapsible title="Farcaster">
 						<p>
 							<a href="/farcaster/user/{farcasterFid}">Farcaster profile @{farcasterFid}</a>
 						</p>
-					</Boundary>
+					</Collapsible>
 				{/if}
-				<Boundary>
-					<WalletConnections selectedActor={addr} />
-				</Boundary>
-				<Boundary>
-					<RoomConnections selectedActor={addr} />
-				</Boundary>
-				<Boundary>
-					<Channels selectedActor={addr} />
-				</Boundary>
-			</section>
+				<section>
+					<WalletConnections actorId={actorId} />
+				</section>
+				<section>
+					<RoomConnections actorId={actorId} />
+				</section>
+				<section>
+					<Channels actorId={actorId} />
+				</section>
+			</div>
 		</EntityView>
 	{/if}
 </main>
