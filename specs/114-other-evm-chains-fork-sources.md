@@ -225,7 +225,7 @@ Sources that expose fork/upgrade schedules in a parseable format (JSON, TS, or H
 1. **Ethereum:** Already specified in Spec 113; sync script exists (Geth + consensus-specs). Add CL forks when `parseConsensusMainnetYaml` is wired (see specs/113-beacon-fork-sources.md).
 2. **OP Stack:** Add a sync path that fetches **superchain-registry** `superchain.toml` (mainnet + sepolia), parses `[hardforks]`, and emits fork entries with `activation: { timestamp }` for chainIds 10, 8453, 11155420, 84532. Single source covers all Superchain chains; low churn.
 3. **Polygon / Arbitrum / BSC:** No machine-readable canonical source. Either (A) maintain hand-curated JSON per chain family, updated when docs change, or (B) defer fork upgrades UI for these chains until an official or community JSON/API exists.
-4. **UI:** Existing `/network/[chainId]/forks` is mainnet-only (FORK_UPGRADES). When schedules.json (or equivalent) includes other chainIds, extend the page to show fork list from schedule for that chain; hide or “Fork upgrades not available” for chains without data.
+4. **UI:** Existing `/network/[chainId]/forks` uses `mainnetForksWithUpgrades` for mainnet; when fork data exists for other chainIds (from `forkByChainId[chainId]`), extend the page to show fork list for that chain; hide or “Fork upgrades not available” for chains without data.
 5. **Manifest:** In `fork-schedules.manifest.json`, record sources per chain or chain family (e.g. `superchain-registry`, `geth`, `consensus-specs`).
 
 ---
