@@ -30,38 +30,39 @@
 </script>
 
 
-<section>
-	<details data-card {open} {...detailsProps}>
-		<summary>
-			<div data-row="wrap">
-				{#if Summary}
-					{@render Summary({ title, annotation })}
-				{:else}
-					<Heading>
-						{#if href}
-							<a href={href}>{title}</a>
-						{:else}
-							{title}
-						{/if}
-					</Heading>
-
-					{#if Toolbar || annotation}
-						<div data-row="wrap">
-							{#if Toolbar}
-								{@render Toolbar()}
-							{/if}
-
-							{#if annotation}
-								<span data-text="annotation">{annotation}</span>
-							{/if}
-						</div>
+<details
+	data-card {open} {...detailsProps}
+	data-scroll-container
+>
+	<summary data-sticky>
+		<div data-row="wrap">
+			{#if Summary}
+				{@render Summary({ title, annotation })}
+			{:else}
+				<Heading>
+					{#if href}
+						<a href={href}>{title}</a>
+					{:else}
+						{title}
 					{/if}
-				{/if}
-			</div>
-		</summary>
+				</Heading>
 
-		{#if children}
-			{@render children()}
-		{/if}
-	</details>
-</section>
+				{#if Toolbar || annotation}
+					<div data-row="wrap">
+						{#if Toolbar}
+							{@render Toolbar()}
+						{/if}
+
+						{#if annotation}
+							<span data-text="annotation">{annotation}</span>
+						{/if}
+					</div>
+				{/if}
+			{/if}
+		</div>
+	</summary>
+
+	{#if children}
+		{@render children()}
+	{/if}
+</details>

@@ -1,16 +1,15 @@
 <script lang="ts">
 	// Types/constants
-	import type { ForkUpgrade } from '$/constants/fork-upgrades.ts'
-	import type { ForkActivation } from '$/data/fork-schedules/types.ts'
+	import type { Fork } from '$/constants/forks/index.ts'
 	import type { ProposalEntry } from '$/data/ProposalEntry.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { EntityLayout } from '$/components/EntityView.svelte'
 	import { proposalsCollection } from '$/collections/Proposals.ts'
-	import { FORK_SCHEDULE_BY_CHAIN_ID } from '$/constants/fork-schedules.ts'
 	import {
 		dateFromUnixSeconds,
-		FORK_UPGRADES,
-	} from '$/constants/fork-upgrades.ts'
+		forkByChainId,
+		mainnetForksWithUpgrades,
+	} from '$/constants/forks/index.ts'
 	import type { Network$Id } from '$/data/Network.ts'
 	import { ChainId } from '$/constants/networks.ts'
 	import { getForksPagePath } from '$/lib/network-paths.ts'
@@ -39,7 +38,7 @@
 	// (Derived)
 	const chainId = $derived(networkIdProp?.chainId ?? chainIdProp ?? undefined)
 	const scheduleForks = $derived(
-		chainId != null ? FORK_SCHEDULE_BY_CHAIN_ID[chainId]?.forks ?? null : null,
+		chainId != null ? forkByChainId[chainId]?.forks ?? null : null,
 	)
 	const showForkList = $derived(
 		chainId === ChainId.Ethereum ||
@@ -49,7 +48,7 @@
 		chainId != null ? resolve(getForksPagePath(chainId)) : '',
 	)
 	const isMainnet = $derived(chainId === ChainId.Ethereum)
-	const forksSet = $derived(new Set(FORK_UPGRADES))
+	const forksSet = $derived(new Set(mainnetForksWithUpgrades))
 
 	const proposalsQuery = useLiveQuery((q) =>
 		q
@@ -67,26 +66,28 @@
 
 
 	// Functions
-	const formatActivation = (f: ForkUpgrade) =>
-		f.activationBlock != null
-			? `Block ${f.activationBlock.toLocaleString()}`
-			: dateFromUnixSeconds(f.activationTimestamp)?.toISOString().slice(0, 10) ?? null
+	const formatActivation = (f: Fork) =>
+		f.activation.block != null
+			? `Block ${f.activation.block.toLocaleString()}`
+			: dateFromUnixSeconds(f.activation.timestamp)?.toISOString().slice(0, 10) ?? null
 
-	const forkLinkEntries = (f: ForkUpgrade) =>
-		[
-			f.links.ethereumOrg && { label: 'ethereum.org', href: f.links.ethereumOrg },
-			f.links.executionSpecs && {
-				label: 'execution-specs',
-				href: f.links.executionSpecs,
-			},
-			f.links.consensusSpecs && {
-				label: 'consensus-specs',
-				href: f.links.consensusSpecs,
-			},
-			f.links.forkcast && { label: 'Forkcast', href: f.links.forkcast },
-		].filter((x): x is { label: string; href: string } => x != null)
+	const forkLinkEntries = (f: Fork) =>
+		f.links
+			? [
+					f.links.ethereumOrg && { label: 'ethereum.org', href: f.links.ethereumOrg },
+					f.links.executionSpecs && {
+						label: 'execution-specs',
+						href: f.links.executionSpecs,
+					},
+					f.links.consensusSpecs && {
+						label: 'consensus-specs',
+						href: f.links.consensusSpecs,
+					},
+					f.links.forkcast && { label: 'Forkcast', href: f.links.forkcast },
+				].filter((x): x is { label: string; href: string } => x != null)
+			: []
 
-	const formatActivationSchedule = (f: ForkActivation) => {
+	const formatActivationSchedule = (f: Fork) => {
 		const a = f.activation
 		if (a.block != null) return `Block ${a.block.toLocaleString()}`
 		if (a.timestamp != null)
@@ -95,24 +96,29 @@
 		return null
 	}
 
-	const forkSlug = (f: ForkActivation) =>
+	const forkSlug = (f: Fork) =>
 		f.name.toLowerCase().replace(/\s+/g, '-')
 
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
-	import ItemsListView from '$/components/ItemsListView.svelte'
+	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
 	import Collapsible from '$/components/Collapsible.svelte'
 </script>
 
 {#if chainId != null && showForkList}
 	{#if isMainnet}
-		<ItemsListView
+		<ItemsListCollapsible
 			title="Forks"
 			loaded={forksSet.size}
 			items={forksSet}
-			getKey={(f) => f.slug}
-			getSortValue={(f) => -(f.activationBlock ?? f.activationTimestamp ?? 0)}
+			getKey={(f) => f.name.toLowerCase().replace(/\s+/g, '-')}
+			getSortValue={(f: Fork) => -(
+				f.activation.block ??
+				f.activation.timestamp ??
+				f.activation.epoch ??
+				0
+			)}
 			placeholderKeys={new Set()}
 			detailsProps={{ open: true, ...detailsProps }}
 			scrollPosition="Start"
@@ -125,8 +131,8 @@
 						<EntityView
 							entityType={EntityType.NetworkFork}
 							entity={item}
-							idSerialized={item.slug}
-							href={`${forksBase}#NetworkFork:${item.slug}`}
+							idSerialized={item.name.toLowerCase().replace(/\s+/g, '-')}
+							href={`${forksBase}#NetworkFork:${item.name.toLowerCase().replace(/\s+/g, '-')}`}
 							label={item.name}
 							layout={EntityLayout.PageSection}
 							metadata={((a: string | null) =>
@@ -148,11 +154,11 @@
 									{/each}
 								</nav>
 							{/if}
-							{#if item.eipNumbers.length > 0}
+							{#if (item.eipNumbers?.length ?? 0) > 0}
 								<section data-column>
 									<h3 class="sr-only">Included EIPs</h3>
 									<ul data-row="wrap" role="list">
-										{#each item.eipNumbers as num (num)}
+										{#each (item.eipNumbers ?? []) as num (num)}
 											{@const proposalEntry = entriesByNumber.get(num)}
 											<li>
 												<a
@@ -176,22 +182,22 @@
 					{/if}
 				</span>
 			{/snippet}
-		</ItemsListView>
-		{:else}
-			{@const forks = scheduleForks ?? []}
-			<ItemsListView
-				title="Forks"
-				loaded={forks.length}
-				items={new Set(forks)}
-				getKey={(f) => forkSlug(f)}
-				getSortValue={(f) => -(
-					f.activation.block ??
-					f.activation.timestamp ??
-					f.activation.epoch ??
-					0
-				)}
-				placeholderKeys={new Set()}
-				detailsProps={{ open: true, ...detailsProps }}
+		</ItemsListCollapsible>
+	{:else}
+		{@const forks = scheduleForks ?? []}
+		<ItemsListCollapsible
+			title="Forks"
+			loaded={forks.length}
+			items={new Set(forks)}
+			getKey={(f) => forkSlug(f)}
+			getSortValue={(f) => -(
+				f.activation.block ??
+				f.activation.timestamp ??
+				f.activation.epoch ??
+				0
+			)}
+			placeholderKeys={new Set()}
+			detailsProps={{ open: true, ...detailsProps }}
 			scrollPosition="Start"
 		>
 			{#snippet Item({ key, item, isPlaceholder })}
@@ -201,12 +207,7 @@
 					{:else if item}
 						<EntityView
 							entityType={EntityType.NetworkFork}
-							entity={{
-								name: item.name,
-								slug: key,
-								links: {},
-								eipNumbers: [],
-							}}
+							entity={item}
 							idSerialized={key}
 							href={`${forksBase}#NetworkFork:${key}`}
 							label={item.name}
@@ -219,7 +220,7 @@
 					{/if}
 				</span>
 			{/snippet}
-		</ItemsListView>
+		</ItemsListCollapsible>
 	{/if}
 {:else if forksHref}
 	<Collapsible title="Forks" detailsProps={{ ...detailsProps, open: true }}>

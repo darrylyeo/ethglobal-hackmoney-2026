@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import { SLOTS_PER_EPOCH } from '$/constants/fork-schedules.ts'
+	import { slotsPerEpoch } from '$/constants/forks/index.ts'
 
 
 	// Props
@@ -18,10 +18,10 @@
 
 
 	// Components
-	import ItemsListView from '$/components/ItemsListView.svelte'
+	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
 </script>
 
-<ItemsListView
+<ItemsListCollapsible
 	title="Consensus"
 	detailsProps={{ open: true, ...detailsProps }}
 	loaded={epochs.size}
@@ -48,7 +48,7 @@
 					<code>Epoch {item.toLocaleString()}</code>
 				{/if}
 				<span data-text="annotation">
-					Slots {(item * SLOTS_PER_EPOCH).toLocaleString()}–{(item * SLOTS_PER_EPOCH + SLOTS_PER_EPOCH - 1).toLocaleString()}
+					Slots {(item * slotsPerEpoch).toLocaleString()}–{(item * slotsPerEpoch + slotsPerEpoch - 1).toLocaleString()}
 				</span>
 				{#if key === currentEpoch}
 					<span data-text="annotation">(current)</span>
@@ -56,4 +56,4 @@
 			</span>
 		{/if}
 	{/snippet}
-</ItemsListView>
+</ItemsListCollapsible>

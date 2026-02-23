@@ -20,9 +20,9 @@
 
 
 	// (Derived)
-	const name = $derived(page.params.name ?? '')
+	const networkSlug = $derived(page.params.networkSlug ?? '')
 	const blockNumParam = $derived(page.params.blockNumber ?? '')
-	const route = $derived(parseNetworkNameParam(name))
+	const route = $derived(parseNetworkNameParam(networkSlug))
 	const blockNumParsed = $derived(parseInt(blockNumParam, 10))
 	const blockNumValid = $derived(
 		blockNumParam !== ''
@@ -41,7 +41,7 @@
 	const valid = $derived(!!route && blockNumValid)
 
 
-	// Context
+	// State
 	const blockQuery = useLiveQuery(
 		(q) =>
 			q
@@ -72,15 +72,11 @@
 		},
 	])
 
-
-	// (Derived)
 	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
 	const latestBlockNumber = $derived(
 		Number(latestBlockQuery.data?.[0] ?? 0),
 	)
 
-
-	// Actions
 	$effect(() => {
 		if (valid) fetchBlock(chainId, blockNum).catch(() => {})
 	})
@@ -89,8 +85,6 @@
 			ensureLatestBlockForChain(chainId).catch(() => {})
 	})
 
-
-	// State
 	let visiblePlaceholderBlockIds = $state<number[]>([])
 
 	// Components
@@ -99,7 +93,7 @@
 	import BlockNumber from '$/views/BlockNumber.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
 	import Block from '$/views/network/Block.svelte'
-	import NetworkView from '$/views/network/Network.svelte'
+	import Network from '$/views/network/Network.svelte'
 </script>
 
 
@@ -129,8 +123,8 @@
 				$network: { chainId },
 				blockNumber: blockNum,
 			}}
-			idSerialized={`${name}:${blockNum}`}
-			href={resolve(`/network/${name}/block/${blockNumParam}`)}
+			idSerialized={`${networkSlug}:${blockNum}`}
+			href={resolve(`/network/${networkSlug}/block/${blockNumParam}`)}
 			label={`Block ${blockNum} · ${networkName}`}
 		>
 			{#snippet Title()}
@@ -141,7 +135,7 @@
 			{/snippet}
 			{#snippet children()}
 				<p>
-					<a href={`/network/${name}#block:${blockNum}`} data-link>Show Context</a>
+					<a href={`/network/${networkSlug}#block:${blockNum}`} data-link>Show Context</a>
 				</p>
 				{#if block}
 					<Block
@@ -150,20 +144,13 @@
 						layout={EntityLayout.ContentOnly}
 					/>
 				{/if}
-				<NetworkView
-					data={network
-						? new Map([
-							[
-								network,
-								new Map<BlockEntry, Set<ChainTransactionEntry>>(),
-							],
-						])
-						: new Map()}
+				<Network
 					networkId={{ chainId }}
 					placeholderBlockIds={new Set([
 						...(blockNum > 0 ? [blockNum - 1] : []),
 						...(latestBlockNumber <= 0 || blockNum + 1 <= latestBlockNumber ? [blockNum + 1] : []),
 					])}
+					currentBlockNumber={latestBlockNumber || blockNum}
 					bind:visiblePlaceholderBlockIds
 				/>
 			{/snippet}

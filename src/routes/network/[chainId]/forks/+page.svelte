@@ -4,7 +4,7 @@
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { networksCollection } from '$/collections/Networks.ts'
 	import { ChainId } from '$/constants/networks.ts'
-	import { FORK_SCHEDULE_BY_CHAIN_ID } from '$/constants/fork-schedules.ts'
+	import { forkByChainId } from '$/constants/forks/index.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
@@ -19,7 +19,7 @@
 	const route = $derived(parseNetworkNameParam(chainIdParam))
 	const chainId = $derived(route?.chainId ?? 0)
 	const network = $derived(route?.network)
-	const scheduleForks = $derived(FORK_SCHEDULE_BY_CHAIN_ID[chainId]?.forks ?? null)
+	const scheduleForks = $derived(forkByChainId[chainId]?.forks ?? null)
 	const isMainnet = $derived(chainId === ChainId.Ethereum)
 	const showForkList = $derived(
 		isMainnet || (scheduleForks != null && scheduleForks.length > 0),

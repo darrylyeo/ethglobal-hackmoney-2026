@@ -18,7 +18,6 @@
 		loaded,
 		total,
 		detailsProps = {},
-		summaryProps = {},
 		items,
 		getKey,
 		getSortValue,
@@ -37,7 +36,6 @@
 		loaded: number
 		total?: number
 		detailsProps?: Record<string, unknown>
-		summaryProps?: Record<string, unknown>
 		items: Set<_Item>
 		getKey: (item: _Item) => _Key
 		getSortValue: (item: _Item) => number | string
@@ -71,33 +69,37 @@
 
 
 	// Components
+	import Collapsible from '$/components/Collapsible.svelte'
 	import Heading from '$/components/Heading.svelte'
-	import HeadingLevelProvider from '$/components/HeadingLevelProvider.svelte'
 	import ItemsList from '$/components/ItemsList.svelte'
 </script>
 
-{#snippet DefaultTitle({ title: t, countText: c }: { title: string; countText: string })}
-	<Heading>{t} ({c})</Heading>
-{/snippet}
 
-<HeadingLevelProvider>
-	<details data-scroll-container="block snap-block" {...detailsProps}>
-		<summary {...summaryProps}>
-			{@render (Title ?? DefaultTitle)({ title, countText })}
-		</summary>
-		<ItemsList
-			{items}
-			{getKey}
-			{getSortValue}
-			{getGroupKey}
-			{getGroupLabel}
-			{getGroupKeyForPlaceholder}
-			{placeholderKeys}
-			bind:visiblePlaceholderKeys
-			{scrollPosition}
-			{pagination}
-			{Item}
-			{GroupHeader}
-		/>
-	</details>
-</HeadingLevelProvider>
+<Collapsible
+	title={title}
+	annotation={countText}
+	detailsProps={{ 'data-scroll-container': 'block snap-block', ...detailsProps }}
+>
+	{#snippet Summary({ title: t, annotation: a })}
+		{#if Title}
+			{@render Title({ title: t, countText: a ?? '' })}
+		{:else}
+			<Heading>{t} ({a ?? ''})</Heading>
+		{/if}
+	{/snippet}
+
+	<ItemsList
+		{items}
+		{getKey}
+		{getSortValue}
+		{getGroupKey}
+		{getGroupLabel}
+		{getGroupKeyForPlaceholder}
+		{placeholderKeys}
+		bind:visiblePlaceholderKeys
+		{scrollPosition}
+		{pagination}
+		{Item}
+		{GroupHeader}
+	/>
+</Collapsible>

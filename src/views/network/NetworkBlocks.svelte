@@ -3,7 +3,7 @@
 	import type { Network$Id } from '$/data/Network.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { FORK_SCHEDULE_CHAIN_IDS, getEraAtBlock } from '$/constants/fork-schedules.ts'
+	import { forkChainIds, getEraAtBlock } from '$/constants/forks/index.ts'
 
 
 	// Props
@@ -34,15 +34,15 @@
 	const blocksSet = $derived(
 		new Set([...blocksMap.keys()].filter((b): b is BlockEntry => b != null)),
 	)
-	const forkSchedule = $derived(FORK_SCHEDULE_CHAIN_IDS.has(chainId))
+	const hasFork = $derived(forkChainIds.has(chainId))
 	const getGroupKey = $derived(
-		forkSchedule
+		hasFork
 			? (b: BlockEntry) => getEraAtBlock(chainId, b.$id.blockNumber)?.eraId ?? 'Unknown'
 			: undefined,
 	)
 	const getGroupLabel = $derived(forkSchedule ? (eraId: string) => eraId : undefined)
 	const getGroupKeyForPlaceholder = $derived(
-		forkSchedule ? (key: number) => getEraAtBlock(chainId, key)?.eraId ?? 'Unknown' : undefined,
+		hasFork ? (key: number) => getEraAtBlock(chainId, key)?.eraId ?? 'Unknown' : undefined,
 	)
 	const total = $derived.by(() => {
 		const range = [...placeholderBlockIds].find((k): k is [number, number] =>
@@ -58,10 +58,10 @@
 
 	// Components
 	import Block from '$/views/network/Block.svelte'
-	import ItemsListView from '$/components/ItemsListView.svelte'
+	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
 </script>
 
-<ItemsListView
+<ItemsListCollapsible
 	title="Execution"
 	detailsProps={{ open: true, ...detailsProps }}
 	loaded={blocksSet.size}
@@ -89,4 +89,4 @@
 			{/if}
 		</span>
 	{/snippet}
-</ItemsListView>
+</ItemsListCollapsible>

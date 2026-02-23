@@ -30,10 +30,10 @@
 
 
 	// (Derived)
-	const name = $derived(page.params.name ?? '')
+	const networkSlug = $derived(page.params.networkSlug ?? '')
 	const blockNumParam = $derived(page.params.blockNumber ?? '')
 	const txHashParam = $derived(page.params.transactionId ?? '')
-	const route = $derived(parseNetworkNameParam(name))
+	const route = $derived(parseNetworkNameParam(networkSlug))
 	const blockNumParsed = $derived(parseInt(blockNumParam, 10))
 	const blockNumValid = $derived(
 		blockNumParam !== ''
@@ -117,6 +117,10 @@
 	)
 
 
+	// State
+	let visiblePlaceholderBlockIds = $state<number[]>([])
+
+
 	// Actions
 	$effect(() => {
 		if (valid && txHash)
@@ -136,8 +140,8 @@
 	import EntityView from '$/components/EntityView.svelte'
 	import EvmTransactionId from '$/views/EvmTransactionId.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
-	import NetworkView from '$/views/network/Network.svelte'
-	import Transaction from '$/views/network/Transaction.svelte'
+		import Network from '$/views/network/Network.svelte'
+		import Transaction from '$/views/network/Transaction.svelte'
 </script>
 
 
@@ -156,7 +160,7 @@
 		<h1>Not found</h1>
 		<p>
 			{#if !route}
-				Network "{name}" could not be resolved.
+				Network "{networkSlug}" could not be resolved.
 			{:else if !blockNumValid}
 				Block number must be a non-negative decimal integer.
 			{:else}
@@ -166,9 +170,9 @@
 	{:else if txHash}
 		<EntityView
 			entityType={EntityType.Transaction}
-			idSerialized={`${name}:${txHash}`}
+			idSerialized={`${networkSlug}:${txHash}`}
 			href={resolve(
-				`/network/${name}/block/${blockNumParam}/transaction/${txHashParam}`,
+				`/network/${networkSlug}/block/${blockNumParam}/transaction/${txHashParam}`,
 			)}
 			label={`Tx ${txHash.slice(0, 10)}… · ${networkName}`}
 			annotation="Transaction"
@@ -186,7 +190,7 @@
 		{#snippet children()}
 			<p>
 				<a
-					href={`/network/${name}/block/${blockNumParam}#transaction:${txHash}`}
+					href={`/network/${networkSlug}/block/${blockNumParam}#transaction:${txHash}`}
 					data-link
 				>Show Context</a>
 			</p>
@@ -197,24 +201,14 @@
 					layout={EntityLayout.ContentOnly}
 				/>
 			{/if}
-			<NetworkView
-				data={network
-					? new Map([
-						[
-							network,
-							block
-								? new Map<BlockEntry, Set<ChainTransactionEntry>>([
-									[block, tx ? new Set([tx]) : new Set()],
-								])
-							: new Map(),
-						],
-					])
-					: new Map()}
+			<Network
 				networkId={{ chainId }}
 				placeholderBlockIds={new Set([
 					...(blockNum > 0 ? [blockNum - 1] : []),
 					...(latestBlockNumber <= 0 || blockNum + 1 <= latestBlockNumber ? [blockNum + 1] : []),
 				])}
+				currentBlockNumber={latestBlockNumber || blockNum}
+				bind:visiblePlaceholderBlockIds
 			/>
 		{/snippet}
 	</EntityView>

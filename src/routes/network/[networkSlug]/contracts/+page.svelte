@@ -9,8 +9,8 @@
 
 
 	// (Derived)
-	const name = $derived(page.params.name ?? '')
-	const route = $derived(parseNetworkNameParam(name))
+	const networkSlug = $derived(page.params.networkSlug ?? '')
+	const route = $derived(parseNetworkNameParam(networkSlug))
 	const chainId = $derived(route?.chainId ?? 0)
 	const network = $derived(route?.network ?? { name: '' })
 
@@ -34,14 +34,14 @@
 <main data-column="gap-4">
 	{#if !route}
 		<h1>Not found</h1>
-		<p>Network "{name}" could not be resolved.</p>
+		<p>Network "{networkSlug}" could not be resolved.</p>
 	{:else}
 		<h1>Contracts · <NetworkName networkId={{ chainId }} /></h1>
 		<p data-text="muted">
-			<a href={resolve(`/network/${name}`)} data-link>← {network.name}</a>
+			<a href={resolve(`/network/${networkSlug}`)} data-link>← {network.name}</a>
 		</p>
 		<p data-text="muted">
-			Browse a contract by visiting <code>/network/{name}/contract/[address]</code> with
+			Browse a contract by visiting <code>/network/{networkSlug}/contract/[address]</code> with
 			a contract address. Discover deployed contracts from an
 			<a href={resolve('/account/0x0000000000000000000000000000000000000000')} data-link>
 				account page

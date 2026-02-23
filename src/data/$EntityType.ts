@@ -37,7 +37,7 @@ import type { Wallet, Wallet$Id } from '$/data/Wallet.ts'
 import type { WalletConnectionBase, WalletConnection$Id } from '$/data/WalletConnection.ts'
 import type { YellowChannel } from '$/data/YellowChannel.ts'
 import type { YellowChannelState } from '$/data/YellowChannelState.ts'
-import type { ForkUpgrade } from '$/constants/fork-upgrades.ts'
+import type { Fork } from '$/constants/forks/index.ts'
 import type { Eip8004Agent, Eip8004Agent$Id } from '$/data/Eip8004Agent.ts'
 import type { CaipEntry, CaipEntry$Id } from '$/data/CaipEntry.ts'
 import type { ProposalEntry, ProposalEntry$Id } from '$/data/ProposalEntry.ts'
@@ -195,7 +195,7 @@ export type Entity<_EntityType extends EntityType = EntityType> = {
 	[EntityType.Dashboard]: DashboardState
 	[EntityType.Eip8004Agent]: Eip8004Agent
 	[EntityType.Caip]: CaipEntry
-	[EntityType.NetworkFork]: ForkUpgrade
+	[EntityType.NetworkFork]: Fork
 	[EntityType.Proposal]: ProposalEntry
 	[EntityType.SocialPostSession]: SocialPostSession
 	[EntityType.FarcasterCast]: FarcasterCast

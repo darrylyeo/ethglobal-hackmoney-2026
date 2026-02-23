@@ -12,11 +12,13 @@
 		DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK,
 	} from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
-	import { getEraAtBlock } from '$/constants/fork-schedules.ts'
+	import {
+		getEraAtBlock,
+		getForkSlugByEraName,
+	} from '$/constants/forks/index.ts'
 	import { formatGas, formatGwei } from '$/lib/format.ts'
 	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 	import { getBlockPath, getForksPagePath } from '$/lib/network-paths.ts'
-	import { getForkSlugByEraName } from '$/constants/fork-upgrades.ts'
 
 
 	// Props
@@ -104,7 +106,7 @@
 		fetchBlockTransactions(chainId, block.$id.blockNumber).catch(() => {})
 	})
 	// Components
-	import ItemsListView from '$/components/ItemsListView.svelte'
+	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
 	import EntityView from '$/components/EntityView.svelte'
 	import Timestamp from '$/components/Timestamp.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
@@ -192,7 +194,7 @@
 			</dl>
 		{/if}
 
-		<ItemsListView
+		<ItemsListCollapsible
 			title="Transactions"
 			loaded={transactionsSet.size}
 			total={block
@@ -221,6 +223,6 @@
 					{/if}
 				</span>
 			{/snippet}
-		</ItemsListView>
+		</ItemsListCollapsible>
 	{/snippet}
 </EntityView>

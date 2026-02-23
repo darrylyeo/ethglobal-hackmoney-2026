@@ -1,8 +1,9 @@
 <script lang="ts">
 	// Types/constants
+	import type { ChainId } from '$/constants/networks.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { type ChainId, networksByChainId } from '$/constants/networks.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 	import { getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 	import {
 		fetchBlock,
@@ -14,26 +15,26 @@
 		networkTransactionsCollection,
 		normalizeTxHash,
 	} from '$/collections/NetworkTransactions.ts'
-	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
-	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import { page } from '$app/state'
-	import { resolve } from '$app/paths'
-	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { EntityLayout } from '$/components/EntityView.svelte'
 	import EntityView from '$/components/EntityView.svelte'
 	import EvmTransactionId from '$/views/EvmTransactionId.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
-	import NetworkView from '$/views/network/Network.svelte'
+	import Network from '$/views/network/Network.svelte'
 	import Transaction from '$/views/network/Transaction.svelte'
+	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
+	import { page } from '$app/state'
+	import { resolve } from '$app/paths'
+	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 
 	const TX_HASH = /^0x[a-fA-F0-9]{64}$/
 
 
 	// (Derived)
-	const name = $derived(page.params.name ?? '')
+	const networkSlug = $derived(page.params.networkSlug ?? '')
 	const txHashParam = $derived(page.params.transactionId ?? '')
-	const route = $derived(parseNetworkNameParam(name))
+	const route = $derived(parseNetworkNameParam(networkSlug))
 	const txHash = $derived(
 		txHashParam && TX_HASH.test(txHashParam)
 			? normalizeTxHash(txHashParam as `0x${string}`)
@@ -47,6 +48,7 @@
 
 	// State
 	let blockNum = $state(0)
+	let visiblePlaceholderBlockIds = $state<number[]>([])
 
 
 	// (Derived)
@@ -145,7 +147,7 @@
 		<h1>Not found</h1>
 		<p>
 			{#if !route}
-				Network "{name}" could not be resolved.
+				Network "{networkSlug}" could not be resolved.
 			{:else}
 				Invalid transaction hash.
 			{/if}
@@ -153,8 +155,8 @@
 	{:else if txHash}
 		<EntityView
 			entityType={EntityType.Transaction}
-			idSerialized={`${name}:${txHash}`}
-			href={resolve(`/network/${name}/transaction/${txHash}`)}
+			idSerialized={`${networkSlug}:${txHash}`}
+			href={resolve(`/network/${networkSlug}/transaction/${txHash}`)}
 			label={`Tx ${txHash.slice(0, 10)}… · ${networkName}`}
 			annotation="Transaction"
 		>
@@ -170,16 +172,12 @@
 			{/snippet}
 			{#snippet children()}
 				{@const bn = blockNum || 0}
-				{@const placeholderBlockIds = new Set([
-					...(bn > 0 ? [bn - 1] : []),
-					...(latestBlockNumber <= 0 || bn + 1 <= latestBlockNumber ? [bn + 1] : []),
-				])}
 				<p>
 					<a
 						href={
 							blockNum > 0 ?
-								`/network/${name}/block/${blockNum}#transaction:${txHash}`
-							: `/network/${name}`
+								`/network/${networkSlug}/block/${blockNum}#transaction:${txHash}`
+							: `/network/${networkSlug}`
 						}
 						data-link
 					>Show Context</a>
@@ -191,23 +189,14 @@
 						layout={EntityLayout.ContentOnly}
 					/>
 				{/if}
-				<NetworkView
-					data={
-						network ?
-							new Map([
-								[
-									network,
-									block ?
-										new Map<BlockEntry, Set<ChainTransactionEntry>>([
-											[block, tx ? new Set([tx]) : new Set()],
-										])
-									: new Map(),
-								],
-							])
-						: new Map()
-					}
+				<Network
 					networkId={{ chainId }}
-					{placeholderBlockIds}
+					placeholderBlockIds={new Set([
+						...(bn > 0 ? [bn - 1] : []),
+						...(latestBlockNumber <= 0 || bn + 1 <= latestBlockNumber ? [bn + 1] : []),
+					])}
+					currentBlockNumber={latestBlockNumber || bn}
+					bind:visiblePlaceholderBlockIds
 				/>
 			{/snippet}
 		</EntityView>

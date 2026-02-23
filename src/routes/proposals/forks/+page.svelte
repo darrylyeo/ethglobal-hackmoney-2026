@@ -1,14 +1,14 @@
 <script lang="ts">
 	// Types/constants
-	import type { ForkUpgrade } from '$/constants/fork-upgrades.ts'
+	import type { Fork } from '$/constants/forks/index.ts'
 	import type { ProposalEntry } from '$/data/ProposalEntry.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { EntityLayout } from '$/components/EntityView.svelte'
 	import { proposalsCollection } from '$/collections/Proposals.ts'
 	import {
 		dateFromUnixSeconds,
-		FORK_UPGRADES,
-	} from '$/constants/fork-upgrades.ts'
+		mainnetForksWithUpgrades,
+	} from '$/constants/forks/index.ts'
 	import { getProposalPath, ProposalRealm } from '$/lib/proposal-paths.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
@@ -30,24 +30,26 @@
 	)
 
 	// Functions
-	const formatActivation = (f: ForkUpgrade) =>
-		f.activationBlock != null
-			? `Block ${f.activationBlock.toLocaleString()}`
-			: dateFromUnixSeconds(f.activationTimestamp)?.toISOString().slice(0, 10) ?? null
+	const formatActivation = (f: Fork) =>
+		f.activation.block != null
+			? `Block ${f.activation.block.toLocaleString()}`
+			: dateFromUnixSeconds(f.activation.timestamp)?.toISOString().slice(0, 10) ?? null
 
-	const forkLinkEntries = (f: ForkUpgrade) =>
-		[
-			f.links.ethereumOrg && { label: 'ethereum.org', href: f.links.ethereumOrg },
-			f.links.executionSpecs && {
-				label: 'execution-specs',
-				href: f.links.executionSpecs,
-			},
-			f.links.consensusSpecs && {
-				label: 'consensus-specs',
-				href: f.links.consensusSpecs,
-			},
-			f.links.forkcast && { label: 'Forkcast', href: f.links.forkcast },
-		].filter((x): x is { label: string; href: string } => x != null)
+	const forkLinkEntries = (f: Fork) =>
+		f.links
+			? [
+					f.links.ethereumOrg && { label: 'ethereum.org', href: f.links.ethereumOrg },
+					f.links.executionSpecs && {
+						label: 'execution-specs',
+						href: f.links.executionSpecs,
+					},
+					f.links.consensusSpecs && {
+						label: 'consensus-specs',
+						href: f.links.consensusSpecs,
+					},
+					f.links.forkcast && { label: 'Forkcast', href: f.links.forkcast },
+				].filter((x): x is { label: string; href: string } => x != null)
+			: []
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
@@ -96,13 +98,13 @@
 		</header>
 
 		<ul data-column="gap-4" role="list">
-			{#each FORK_UPGRADES as fork (fork.slug)}
+			{#each mainnetForksWithUpgrades as fork (fork.name.toLowerCase().replace(/\s+/g, '-'))}
 				<li>
 					<EntityView
 						entityType={EntityType.NetworkFork}
 						entity={fork}
-						idSerialized={fork.slug}
-						href={resolve(`/proposals/forks#NetworkFork:${fork.slug}`)}
+						idSerialized={fork.name.toLowerCase().replace(/\s+/g, '-')}
+						href={resolve(`/proposals/forks#NetworkFork:${fork.name.toLowerCase().replace(/\s+/g, '-')}`)}
 						label={fork.name}
 						layout={EntityLayout.PageSection}
 						metadata={((a: string | null) =>
@@ -124,11 +126,11 @@
 								{/each}
 							</nav>
 						{/if}
-						{#if fork.eipNumbers.length > 0}
+						{#if (fork.eipNumbers?.length ?? 0) > 0}
 							<section data-column>
 								<h3 class="sr-only">Included EIPs</h3>
 								<ul data-row="wrap" role="list">
-									{#each fork.eipNumbers as num (num)}
+									{#each (fork.eipNumbers ?? []) as num (num)}
 										{@const proposalEntry = entriesByNumber.get(num)}
 										<li>
 											<a

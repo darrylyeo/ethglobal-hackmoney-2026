@@ -13,9 +13,9 @@
 
 
 	// (Derived)
-	const name = $derived(page.params.name ?? '')
+	const networkSlug = $derived(page.params.networkSlug ?? '')
 	const addrParam = $derived(page.params.address ?? '')
-	const route = $derived(parseNetworkNameParam(name))
+	const route = $derived(parseNetworkNameParam(networkSlug))
 	const address = $derived(
 		addrParam && matchesEntityRefPattern(addrParam, PatternType.EvmAddress)
 			? normalizeAddress(
@@ -53,7 +53,7 @@
 		<h1>Not found</h1>
 		<p>
 			{#if !route}
-				Network "{name}" could not be resolved.
+				Network "{networkSlug}" could not be resolved.
 			{:else}
 				Invalid contract address.
 			{/if}
@@ -62,7 +62,7 @@
 		<Contract
 			contractId={{ $network: { chainId }, address }}
 			idSerialized={`${chainId}:${address.toLowerCase()}`}
-			href={resolve(`/network/${name}/contract/${address}`)}
+			href={resolve(`/network/${networkSlug}/contract/${address}`)}
 			label={formatAddress(address)}
 			metadata={[
 				{ term: 'Chain ID', detail: String(chainId) },

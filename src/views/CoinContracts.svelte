@@ -7,7 +7,7 @@
 	import { resolve } from '$app/paths'
 	import { formatAddress } from '$/lib/address.ts'
 	import Heading from '$/components/Heading.svelte'
-	import ItemsListView from '$/components/ItemsListView.svelte'
+	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
 	import Contract from '$/views/Contract.svelte'
 
 
@@ -33,7 +33,7 @@
 {#snippet ContractsTitle({ countText })}
 	<Heading>Contracts ({countText} chains)</Heading>
 {/snippet}
-<ItemsListView
+<ItemsListCollapsible
 		title="Contracts"
 		Title={ContractsTitle}
 		detailsProps={{ open: true, 'data-card': '' }}
@@ -64,4 +64,4 @@
 				{/if}
 		</span>
 	{/snippet}
-</ItemsListView>
+</ItemsListCollapsible>
