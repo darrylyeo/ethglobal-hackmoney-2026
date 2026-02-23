@@ -1,12 +1,12 @@
 # Spec 117: EVM opcodes and precompiles per network/fork
 
-Extend the EIPs/ERCs and fork-upgrade context (Spec 112, fork-upgrades, Spec 113 fork-era schedules) with **EVM implementation data**: which opcodes and precompiles exist and how they behave, scoped by **network** (chainId) and **fork/era** (or block). This supports explorer context (e.g. “which EVM features at this block”), calldata/bytecode tooling, and links to authoritative specs.
+Extend the EIPs/ERCs and fork context (Spec 112, Spec 113 fork-era schedules) with **EVM implementation data**: which opcodes and precompiles exist and how they behave, scoped by **network** (chainId) and **fork/era** (or block). This supports explorer context (e.g. “which EVM features at this block”), calldata/bytecode tooling, and links to authoritative specs.
 
 ## References
 
-- Spec 112 (EIP/ERC list and official sources), Spec 113 (fork-era schedules, getEraAtBlock, schedules.json)
-- `src/constants/fork-upgrades.ts` (FORK_UPGRADES, fork slug/name, EIP numbers)
-- `src/data/fork-schedules/` (types, schedules.json); `src/constants/fork-schedules.ts` (mappings, getEraAtBlock, getCurrentEpoch)
+- Spec 112 (EIP/ERC list and official sources), Spec 113 (fork-era schedules, getEraAtBlock)
+- `src/constants/forks/index.ts` (forks array, forkByChainId, mainnetForksWithUpgrades, getEraAtBlock, getCurrentEpoch; Fork has name, optional links, eipNumbers)
+- `src/constants/forks/types.ts` (Fork, ForkEntry, ChainForkSchedule); optional `src/data/fork-schedules/` (schedules.json from sync)
 
 ## Scope
 
@@ -25,7 +25,7 @@ Extend the EIPs/ERCs and fork-upgrade context (Spec 112, fork-upgrades, Spec 113
 | **ethereum/execution-specs** | Per-fork Python spec in `src/ethereum/forks/<fork>/`; opcode tables and gas in code | Python | Authoritative; requires parsing Python or using rendered docs; best as reference link |
 | **ethereum.org** (developers/docs/evm/opcodes) | Human-readable opcode reference | HTML | Link only; not machine-readable |
 
-**Recommendation:** Use **evm.codes `opcodes.json`** as primary ingest for opcode metadata and fork-scoped gas (raw URL with pinned ref). Map fork names (slug) to evm.codes dynamicFee keys (e.g. `berlin` → Berlin, `cancun` → Cancun). Maintain a small **fork → opcodes added** mapping (or derive from EIPs in FORK_UPGRADES) for “available in this fork” if needed. Link to execution-specs and ethereum.org for authority.
+**Recommendation:** Use **evm.codes `opcodes.json`** as primary ingest for opcode metadata and fork-scoped gas (raw URL with pinned ref). Map fork names (slug) to evm.codes dynamicFee keys (e.g. `berlin` → Berlin, `cancun` → Cancun). Maintain a small **fork → opcodes added** mapping (or derive from EIPs in Fork / mainnetForksWithUpgrades) for “available in this fork” if needed. Link to execution-specs and ethereum.org for authority.
 
 ### Precompiles
 
@@ -41,7 +41,7 @@ Extend the EIPs/ERCs and fork-upgrade context (Spec 112, fork-upgrades, Spec 113
 
 - **Opcodes:** evm.codes `opcodes.json` (pinned ref) + optional fork→opcode-set mapping; link to execution-specs.
 - **Precompiles:** evm.codes `precompiled.json` (pinned ref) + shemnon/precompiles per-chain schedule JSON where present (e.g. eip155-1-schedule.json for mainnet).
-- **Networks:** Align with existing fork schedules (Spec 113): chainId + block → era/fork via `getEraAtBlock`; fork slug/name from FORK_UPGRADES / schedules.
+- **Networks:** Align with existing fork schedules (Spec 113): chainId + block → era/fork via `getEraAtBlock` (from `src/constants/forks/index.ts`); fork name/slug from Fork (slug derived from name via `getForkSlugByEraName`).
 
 ## Data model (proposed)
 
