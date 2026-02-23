@@ -24,6 +24,8 @@ preservation across layout shifts.
   position across layout shifts (e.g. `overflow-anchor` / `scroll-anchor`
   alignment), based on the component’s layout direction.
 
+- Related: collapsible list sections use `ItemsListCollapsible` (Collapsible + ItemsList); see Spec 088.
+
 ## Non-goals
 
 - Virtualized rendering (e.g. windowing).
