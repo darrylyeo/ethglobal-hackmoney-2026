@@ -143,7 +143,7 @@
 						sideOffset={8}
 						collisionPadding={8}
 					>
-						<div data-row="gap-2 wrap start">
+						<div data-row="wrap start">
 							<button
 								type="button"
 								onclick={() => onToggleSplitDirection(root.id)}

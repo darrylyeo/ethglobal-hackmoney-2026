@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
+	import type { Network$Id } from '$/data/Network.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import { EntityLayout } from '$/components/EntityView.svelte'
@@ -21,19 +22,26 @@
 	// Props
 	let {
 		data,
-		chainId,
+		networkId: networkIdProp,
+		chainId: chainIdProp,
 		placeholderTransactionIds,
 		visiblePlaceholderTransactionIds = $bindable([] as number[]),
+		layout = EntityLayout.PageSection,
 	}: {
 		data: Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
-		chainId: ChainId
+		networkId?: Network$Id
+		chainId?: ChainId
 		placeholderTransactionIds?: Set<number | [number, number]>
 		visiblePlaceholderTransactionIds?: number[]
+		layout?: EntityLayout
 	} = $props()
 
 
 	// (Derived)
 	const block = $derived([...data.keys()][0])
+	const chainId = $derived(
+		networkIdProp?.chainId ?? chainIdProp ?? block?.$id.$network.chainId ?? (0 as ChainId),
+	)
 	const era = $derived(
 		block != null ? getEraAtBlock(chainId, block.$id.blockNumber) : null,
 	)
@@ -57,7 +65,7 @@
 		block
 			? (() => {
 				const relative = formatRelativeTime(
-					Date.now() - block.timestamp * 1000,
+					Date.now() - block.timestamp,
 				)
 				const txs = `${block.transactionCount ?? count} txs`
 				const gasPct =
@@ -89,10 +97,14 @@
 		if (transactionsSet.size > 0) return
 		fetchBlockTransactions(chainId, block.$id.blockNumber).catch(() => {})
 	}
-
-
+	$effect(() => {
+		if (layout !== EntityLayout.ContentOnly || !block || hasFetchedTransactions) return
+		hasFetchedTransactions = true
+		if (transactionsSet.size > 0) return
+		fetchBlockTransactions(chainId, block.$id.blockNumber).catch(() => {})
+	})
 	// Components
-	import EntityList from '$/components/EntityList.svelte'
+	import ItemsListView from '$/components/ItemsListView.svelte'
 	import EntityView from '$/components/EntityView.svelte'
 	import Timestamp from '$/components/Timestamp.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
@@ -108,10 +120,10 @@
 	idSerialized={block ? `block:${block.$id.blockNumber}` : 'block:loading'}
 	href={block ? getBlockPath(chainId, block.$id.blockNumber) : '#'}
 	label={block ? `Block ${block.$id.blockNumber}` : 'Loading block…'}
-	layout={EntityLayout.PageSection}
+	layout={layout}
 	open={false}
 	ontoggle={onToggle}
-	detailsProps={{ 'data-card': 'radius-2 padding-4' }}
+	detailsProps={layout === EntityLayout.ContentOnly ? {} : { 'data-card': '' }}
 	metadata={summaryMetadata}
 >
 	{#snippet Title()}
@@ -157,7 +169,7 @@
 
 				{#if block.miner}
 					<dt>Miner</dt>
-					<dd><Address network={{ chainId }} address={block.miner} /></dd>
+					<dd><Address actorId={{ $network: { chainId }, address: block.miner }} /></dd>
 				{/if}
 
 				<dt>Transactions</dt>
@@ -180,7 +192,7 @@
 			</dl>
 		{/if}
 
-		<EntityList
+		<ItemsListView
 			title="Transactions"
 			loaded={transactionsSet.size}
 			total={block
@@ -203,12 +215,12 @@
 					{:else}
 						<Transaction
 							data={new Map([[item, { events: item.logs }]])}
-							{chainId}
+							networkId={{ chainId }}
 							visiblePlaceholderEventIds={[]}
 						/>
 					{/if}
 				</span>
 			{/snippet}
-		</EntityList>
+		</ItemsListView>
 	{/snippet}
 </EntityView>

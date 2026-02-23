@@ -11,6 +11,7 @@
 	import {
 		fetchNetworkTransaction,
 		networkTransactionsCollection,
+		normalizeTxHash,
 	} from '$/collections/NetworkTransactions.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
@@ -47,7 +48,7 @@
 	)
 	const txHash = $derived(
 		txHashParam && TX_HASH.test(txHashParam)
-			? (txHashParam as `0x${string}`)
+			? normalizeTxHash(txHashParam as `0x${string}`)
 			: null,
 	)
 	const chainId = $derived(route?.chainId ?? (0 as ChainId))
@@ -131,10 +132,12 @@
 
 
 	// Components
+	import { EntityLayout } from '$/components/EntityView.svelte'
 	import EntityView from '$/components/EntityView.svelte'
 	import EvmTransactionId from '$/views/EvmTransactionId.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
 	import NetworkView from '$/views/network/Network.svelte'
+	import Transaction from '$/views/network/Transaction.svelte'
 </script>
 
 
@@ -148,7 +151,7 @@
 
 
 
-<main data-column="gap-2">
+<main data-column>
 	{#if !valid}
 		<h1>Not found</h1>
 		<p>
@@ -171,13 +174,13 @@
 			annotation="Transaction"
 		>
 		{#snippet Title()}
-			<span data-row="inline gap-2">
+			<span data-row="inline">
 				<EvmTransactionId
 					txHash={txHash}
 					{chainId}
 					isVertical
 				/>
-				<NetworkName {chainId} showIcon={false} />
+				<NetworkName networkId={{ chainId }} showIcon={false} />
 			</span>
 		{/snippet}
 		{#snippet children()}
@@ -187,6 +190,13 @@
 					data-link
 				>Show Context</a>
 			</p>
+			{#if tx}
+				<Transaction
+					data={new Map([[tx, { events: tx.logs ?? [], trace: undefined }]])}
+					networkId={{ chainId }}
+					layout={EntityLayout.ContentOnly}
+				/>
+			{/if}
 			<NetworkView
 				data={network
 					? new Map([
@@ -196,11 +206,11 @@
 								? new Map<BlockEntry, Set<ChainTransactionEntry>>([
 									[block, tx ? new Set([tx]) : new Set()],
 								])
-								: new Map(),
+							: new Map(),
 						],
 					])
 					: new Map()}
-				chainId={chainId}
+				networkId={{ chainId }}
 				placeholderBlockIds={new Set([
 					...(blockNum > 0 ? [blockNum - 1] : []),
 					...(latestBlockNumber <= 0 || blockNum + 1 <= latestBlockNumber ? [blockNum + 1] : []),

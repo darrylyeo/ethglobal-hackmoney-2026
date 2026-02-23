@@ -3,7 +3,7 @@
 	import type { Entity } from '$/data/$EntityType.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { networksCollection } from '$/collections/Networks.ts'
-	import { ChainId, networksByChainId } from '$/constants/networks.ts'
+	import { ChainId } from '$/constants/networks.ts'
 	import { FORK_SCHEDULE_BY_CHAIN_ID } from '$/constants/fork-schedules.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -19,8 +19,6 @@
 	const route = $derived(parseNetworkNameParam(chainIdParam))
 	const chainId = $derived(route?.chainId ?? 0)
 	const network = $derived(route?.network)
-	const slug = $derived(route?.slug ?? '')
-	const caip2 = $derived(route?.caip2 ?? '')
 	const scheduleForks = $derived(FORK_SCHEDULE_BY_CHAIN_ID[chainId]?.forks ?? null)
 	const isMainnet = $derived(chainId === ChainId.Ethereum)
 	const showForkList = $derived(
@@ -42,29 +40,16 @@
 				? ({
 					...networkQuery.data[0].row,
 					network: route.network,
-					slug: route.slug,
-					caip2: route.caip2,
-				} as Entity<EntityType.Network> & {
-					network: typeof route.network
-					slug: string
-					caip2: string
-				})
+				} as Entity<EntityType.Network> & { network: typeof route.network })
 				: { ...network, $id: { chainId: network.chainId } })
 			: undefined,
 	)
-
-	const mainnetForksHref = $derived(
-		resolve(
-			`/network/${networksByChainId[ChainId.Ethereum]?.slug ?? ChainId.Ethereum}/forks`,
-		),
-	)
-
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import Heading from '$/components/Heading.svelte'
 	import NetworkContracts from '$/views/network/NetworkContracts.svelte'
-	import NetworkForkSchedule from '$/views/network/NetworkForkSchedule.svelte'
+	import NetworkForks from '$/views/network/NetworkForks.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
 </script>
 
@@ -72,16 +57,16 @@
 	<title>Fork upgrades · {network?.name ?? 'Network'}</title>
 </svelte:head>
 
-<main data-column="gap-2">
+<main data-column>
 	{#if !route}
 		<Heading>Network not found</Heading>
 		<p>The network "{chainIdParam}" could not be resolved.</p>
 	{:else if !showForkList}
-		<header data-column="gap-2">
+		<header data-column>
 			<Heading>Fork upgrades</Heading>
 			<p data-text="annotation">
 				Fork schedule is not available for this network.
-				<a href={mainnetForksHref} data-link>View Ethereum mainnet fork upgrades</a>.
+				<a href={resolve(`/network/${ChainId.Ethereum}/forks`)} data-link>View Ethereum mainnet fork upgrades</a>.
 			</p>
 		</header>
 		<p>
@@ -91,12 +76,12 @@
 		<EntityView
 			entityType={EntityType.Network}
 			entity={networkEntity}
-			idSerialized={slug}
+			idSerialized={chainIdParam}
 			href={resolve(`/network/${chainIdParam}`)}
 			label={network?.name ?? ''}
 			metadata={[
 				{ term: 'Chain ID', detail: String(chainId) },
-				{ term: 'CAIP-2', detail: caip2 },
+				{ term: 'CAIP-2', detail: `eip155:${chainId}` },
 				...(
 					network && 'nativeCurrency' in network && network.nativeCurrency
 						? [{ term: 'Currency', detail: network.nativeCurrency.symbol }]
@@ -105,7 +90,7 @@
 			]}
 		>
 			{#snippet Title()}
-				<NetworkName {chainId} />
+				<NetworkName networkId={{ chainId: route!.chainId }} />
 			{/snippet}
 			{#snippet AfterTitle({ entity })}
 				{#if entity && 'network' in entity && entity.network?.type}
@@ -117,8 +102,8 @@
 					<a href={resolve(`/network/${chainIdParam}/contracts`)} data-link>Contracts</a>
 					<a href={resolve('/proposals')} data-link>Proposals (EIPs / ERCs)</a>
 				</p>
-				<NetworkContracts chainId={chainId} nameParam={chainIdParam} />
-				<nav data-row="gap-2 wrap" aria-label="External resources">
+				<NetworkContracts networkId={{ chainId: route!.chainId }} nameParam={chainIdParam} />
+				<nav data-row="wrap" aria-label="External resources">
 					<a
 						href="https://ethereum.org/ethereum-forks/"
 						target="_blank"
@@ -144,10 +129,9 @@
 						Forkcast
 					</a>
 				</nav>
-				<NetworkForkSchedule
-					chainId={chainId}
-					nameParam={chainIdParam}
-					detailsProps={{ 'data-card': 'radius-2 padding-4' }}
+				<NetworkForks
+					networkId={{ chainId: route!.chainId }}
+					detailsProps={{ 'data-card': '' }}
 				/>
 			{/snippet}
 		</EntityView>

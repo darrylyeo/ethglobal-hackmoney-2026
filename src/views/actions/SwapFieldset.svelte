@@ -51,7 +51,7 @@
 
 
 	<div data-column>
-		<label data-column="gap-2">
+		<label data-column>
 			<span>Network</span>
 			<NetworkInput
 				networks={filteredNetworks}
@@ -63,8 +63,8 @@
 			/>
 		</label>
 		{#if asNonEmptyCoins(coins)}
-			<div data-column="gap-2">
-				<label data-column="gap-2">
+			<div data-column>
+				<label data-column>
 					<span>From</span>
 					<CoinAmountInput
 						coins={coins}
@@ -80,8 +80,8 @@
 					/>
 				</label>
 			</div>
-			<div data-column="gap-2">
-				<label data-column="gap-2">
+			<div data-column>
+				<label data-column>
 					<span>To</span>
 					<CoinInput
 						coins={coins}
@@ -93,8 +93,8 @@
 					/>
 				</label>
 			</div>
-			<div data-column="gap-2">
-				<label data-column="gap-2">
+			<div data-column>
+				<label data-column>
 					<span>Slippage</span>
 					<Select
 						items={slippagePresets}

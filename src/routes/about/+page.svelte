@@ -53,7 +53,7 @@
 		data-scroll-item
 		data-column="gap-4"
 	>
-	<header class="about__header" data-column="gap-2">
+	<header class="about__header" data-column>
 		<h1>About</h1>
 		<p>
 			{APP_NAME} is a SvelteKit app for bridging, swapping, and tracking USDC
@@ -71,13 +71,13 @@
 	<section
 		class="about__legend"
 		data-card
-		data-column="gap-2"
+		data-column
 		aria-label="Diagram legend"
 	>
 		<h2>Legend</h2>
 		<div data-grid="columns-autofit column-min-12 gap-3" class="about__legend-grid">
 			{#each legendItems as item (item.id)}
-				<div class="about__legend-item" data-row="start gap-2">
+				<div class="about__legend-item" data-row="start">
 					<span
 						class="about__legend-swatch shape-rect"
 						data-row
@@ -89,27 +89,27 @@
 		</div>
 
 		<div data-grid="columns-autofit column-min-12 gap-3" class="about__legend-grid">
-			<div class="about__legend-item" data-row="start gap-2">
+			<div class="about__legend-item" data-row="start">
 				<span class="about__legend-swatch shape-rect" data-row></span>
 				<span>Flow / service node</span>
 			</div>
-			<div class="about__legend-item" data-row="start gap-2">
+			<div class="about__legend-item" data-row="start">
 				<span class="about__legend-swatch shape-circle" data-row></span>
 				<span>State or data node</span>
 			</div>
-			<div class="about__legend-item" data-row="start gap-2">
+			<div class="about__legend-item" data-row="start">
 				<span class="about__legend-swatch shape-diamond" data-row></span>
 				<span>Wallet / channel node</span>
 			</div>
-			<div class="about__legend-item" data-row="start gap-2">
+			<div class="about__legend-item" data-row="start">
 				<span class="about__legend-swatch shape-image" data-row></span>
 				<span>Chain icon node</span>
 			</div>
-			<div class="about__legend-item" data-row="start gap-2">
+			<div class="about__legend-item" data-row="start">
 				<span class="about__legend-swatch shape-line" data-row></span>
 				<span>Directional flow</span>
 			</div>
-			<div class="about__legend-item" data-row="start gap-2">
+			<div class="about__legend-item" data-row="start">
 				<span class="about__legend-swatch shape-dashed" data-row></span>
 				<span>Optional / enrichment path</span>
 			</div>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Types/constants
+	import type { Network$Id } from '$/data/Network.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import { FORK_SCHEDULE_CHAIN_IDS, getEraAtBlock } from '$/constants/fork-schedules.ts'
@@ -8,17 +9,25 @@
 	// Props
 	let {
 		blocksMap,
-		chainId,
+		networkId: networkIdProp,
+		chainId: chainIdProp,
 		placeholderBlockIds = new Set<number | [number, number]>([0]),
 		visiblePlaceholderBlockIds = $bindable([] as number[]),
 		detailsProps = {},
 	}: {
 		blocksMap: Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
-		chainId: number
+		networkId?: Network$Id
+		chainId?: number
 		placeholderBlockIds?: Set<number | [number, number]>
 		visiblePlaceholderBlockIds?: number[]
 		detailsProps?: Record<string, unknown>
 	} = $props()
+
+
+	// (Derived)
+	const chainId = $derived(
+		networkIdProp?.chainId ?? chainIdProp ?? 0,
+	)
 
 
 	// (Derived)
@@ -45,19 +54,18 @@
 				? 1
 				: 0
 	})
-	const totalDisplay = $derived(total > 0 ? total : undefined)
 
 
 	// Components
-	import EntityList from '$/components/EntityList.svelte'
 	import Block from '$/views/network/Block.svelte'
+	import ItemsListView from '$/components/ItemsListView.svelte'
 </script>
 
-<EntityList
+<ItemsListView
 	title="Execution"
 	detailsProps={{ open: true, ...detailsProps }}
 	loaded={blocksSet.size}
-	total={totalDisplay}
+	total={total > 0 ? total : undefined}
 	items={blocksSet}
 	getKey={(b) => b.$id.blockNumber}
 	getSortValue={(b) => -Number(b.number)}
@@ -77,8 +85,8 @@
 					BlockEntry | undefined,
 					Set<ChainTransactionEntry>
 				>([[item, blocksMap.get(item) ?? new Set()]])}
-				<Block data={blockData} chainId={item.$id.$network.chainId} />
+				<Block data={blockData} networkId={item.$id.$network} />
 			{/if}
 		</span>
 	{/snippet}
-</EntityList>
+</ItemsListView>

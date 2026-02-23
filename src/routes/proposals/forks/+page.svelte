@@ -5,7 +5,10 @@
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { EntityLayout } from '$/components/EntityView.svelte'
 	import { proposalsCollection } from '$/collections/Proposals.ts'
-	import { FORK_UPGRADES } from '$/constants/fork-upgrades.ts'
+	import {
+		dateFromUnixSeconds,
+		FORK_UPGRADES,
+	} from '$/constants/fork-upgrades.ts'
 	import { getProposalPath, ProposalRealm } from '$/lib/proposal-paths.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
@@ -30,9 +33,7 @@
 	const formatActivation = (f: ForkUpgrade) =>
 		f.activationBlock != null
 			? `Block ${f.activationBlock.toLocaleString()}`
-			: f.activationTimestamp != null
-				? new Date(f.activationTimestamp * 1000).toISOString().slice(0, 10)
-				: null
+			: dateFromUnixSeconds(f.activationTimestamp)?.toISOString().slice(0, 10) ?? null
 
 	const forkLinkEntries = (f: ForkUpgrade) =>
 		[
@@ -60,13 +61,13 @@
 
 <main data-column="gap-6">
 	<HeadingLevelProvider>
-		<header data-column="gap-2">
+		<header data-column>
 			<Heading>Fork upgrades</Heading>
 			<p data-text="annotation">
 				Ethereum mainnet protocol upgrades and included EIPs.
 				<a href={resolve('/proposals')} data-link>Browse all proposals</a>.
 			</p>
-			<nav data-row="gap-2 wrap" aria-label="External resources">
+			<nav data-row="wrap" aria-label="External resources">
 				<a
 					href="https://ethereum.org/ethereum-forks/"
 					target="_blank"
@@ -110,7 +111,7 @@
 						data-scroll-item="snap-block-start"
 					>
 						{#if forkLinkEntries(fork).length > 0}
-							<nav data-row="gap-2 wrap" aria-label="Specs and docs">
+							<nav data-row="wrap" aria-label="Specs and docs">
 								{#each forkLinkEntries(fork) as { label, href }}
 									<a
 										href={href}
@@ -124,9 +125,9 @@
 							</nav>
 						{/if}
 						{#if fork.eipNumbers.length > 0}
-							<section data-column="gap-2">
+							<section data-column>
 								<h3 class="sr-only">Included EIPs</h3>
-								<ul data-row="gap-2 wrap" role="list">
+								<ul data-row="wrap" role="list">
 									{#each fork.eipNumbers as num (num)}
 										{@const proposalEntry = entriesByNumber.get(num)}
 										<li>

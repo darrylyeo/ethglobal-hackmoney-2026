@@ -98,7 +98,7 @@
 				<div
 					role="group"
 					aria-label="Filters and sorts"
-					data-row="gap-2 wrap"
+					data-row="wrap"
 					onclick={(e) => e.stopPropagation()}
 					onkeydown={(e) => e.stopPropagation()}
 				>

@@ -114,14 +114,6 @@ export const dashboardsCollection = createCollection(
 	}),
 )
 
-for (const [key, row] of dashboardsCollection.state) {
-	if (row.$source !== DataSource.Local) {
-		dashboardsCollection.update(key, (draft) => {
-			draft.$source = DataSource.Local
-		})
-	}
-}
-
 export const ensureDefaultRow = () => {
 	if (dashboardsCollection.state.get(defaultRowKey)) return
 	const firstDashboardKey = [...dashboardsCollection.state].find(

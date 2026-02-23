@@ -2789,7 +2789,7 @@
 >
 	<summary
 		class="graph-scene-header"
-		data-row="gap-2 align-center"
+		data-row="align-center"
 	>
 		<h4 data-row-item="flexible">Data Graph</h4>
 		<Select
@@ -2899,8 +2899,8 @@
 				</div>
 			</div>
 
-			<aside class="graph-scene-sidebar" data-column="gap-2">
-				<div data-column="gap-2">
+			<aside class="graph-scene-sidebar" data-column>
+				<div data-column>
 					<label for="graph-scene-entity-types">Entity types</label>
 
 					{#if true}
@@ -2916,7 +2916,7 @@
 						>
 							{#snippet Item(item, selected)}
 								<span
-									data-row="gap-2 align-center"
+									data-row="align-center"
 									style="--color: {item.color}"
 								>
 									<span
@@ -2932,7 +2932,7 @@
 						</Combobox>
 					{/if}
 				</div>
-				<div data-column="gap-2">
+				<div data-column>
 					<label for="graph-scene-expanded">Expand scope (full collection)</label>
 					<Combobox
 						id="graph-scene-expanded"
@@ -2946,7 +2946,7 @@
 					>
 						{#snippet Item(item, selected)}
 							<span
-								data-row="gap-2 align-center"
+								data-row="align-center"
 								style="--color: {item.color}"
 							>
 								<span
@@ -2959,7 +2959,7 @@
 					</Combobox>
 				</div>
 				{#if entitySourceCombos.length > 0}
-					<div data-column="gap-2">
+					<div data-column>
 						<label for="graph-scene-sources">By source</label>
 						<Combobox
 							id="graph-scene-sources"
@@ -2975,16 +2975,16 @@
 					</div>
 				{/if}
 				{#if selectionItems.length > 0}
-					<div class="graph-scene-selection" data-column="gap-2">
+					<div class="graph-scene-selection" data-column>
 						<h5>Selection</h5>
-						<ul data-column="gap-2">
+						<ul data-column>
 							{#each selectionItems as item (item.id)}
 								<li>
 									{#if item.kind === 'node' && 'href' in item && item.href}
 										<a
 											href={item.href}
 											data-kind={item.kind}
-											data-row="gap-2 align-center"
+											data-row="align-center"
 											class="graph-scene-selection-link"
 										>
 											<strong data-row-item="flexible">{item.label}</strong>
@@ -2994,7 +2994,7 @@
 										<button
 											type="button"
 											data-kind={item.kind}
-											data-row="gap-2 align-center"
+											data-row="align-center"
 											onclick={() => {
 												if (item.kind === 'node') {
 													selection = {

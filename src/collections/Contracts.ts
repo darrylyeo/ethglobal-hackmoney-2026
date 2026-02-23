@@ -19,8 +19,9 @@ import {
 	type VerifiedContractSourceRow,
 } from '$/collections/VerifiedContractSources.ts'
 
+/** Normalize address to lowercase for consistent cache keys. */
 const getKey = (row: ContractEntry) =>
-	`${row.$id.$network.chainId}:${row.$id.address}`
+	`${row.$id.$network.chainId}:${row.$id.address.toLowerCase()}`
 
 const inFlight = new Set<string>()
 
@@ -38,7 +39,7 @@ export async function fetchContract(
 	address: `0x${string}`,
 	deployer?: `0x${string}`,
 ): Promise<ContractEntry | null> {
-	const keyStr = `${chainId}:${address}`
+	const keyStr = `${chainId}:${address.toLowerCase()}`
 	const key = keyStr as unknown as Parameters<
 		typeof contractsCollection.state.get
 	>[0]

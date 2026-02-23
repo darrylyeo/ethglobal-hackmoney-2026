@@ -7,7 +7,7 @@
 	import { resolve } from '$app/paths'
 	import { formatAddress } from '$/lib/address.ts'
 	import Heading from '$/components/Heading.svelte'
-	import EntityList from '$/components/EntityList.svelte'
+	import ItemsListView from '$/components/ItemsListView.svelte'
 	import Contract from '$/views/Contract.svelte'
 
 
@@ -16,17 +16,16 @@
 
 
 	// (Derived)
-	const tokens = $derived(
-		(erc20InstancesByCoinId.get(coinId) ?? []) as Erc20Token[],
+	const tokensSet = $derived(
+		new Set((erc20InstancesByCoinId.get(coinId) ?? []) as Erc20Token[]),
 	)
-	const tokensSet = $derived(new Set(tokens))
 
 	function getKey(t: Erc20Token): string {
-		return `${t.chainId}:${t.address}`
+		return `${t.$id.$network.chainId}:${t.$id.address}`
 	}
 	function getSortValue(t: Erc20Token): number | string {
-		const network = networksByChainId[t.chainId]
-		return network?.name ?? t.chainId
+		const network = networksByChainId[t.$id.$network.chainId]
+		return network?.name ?? t.$id.$network.chainId
 	}
 </script>
 
@@ -34,10 +33,10 @@
 {#snippet ContractsTitle({ countText })}
 	<Heading>Contracts ({countText} chains)</Heading>
 {/snippet}
-<EntityList
+<ItemsListView
 		title="Contracts"
 		Title={ContractsTitle}
-		detailsProps={{ open: true, 'data-card': 'radius-2 padding-4' }}
+		detailsProps={{ open: true, 'data-card': '' }}
 		loaded={tokensSet.size}
 		items={tokensSet}
 		getKey={getKey}
@@ -50,14 +49,12 @@
 				{#if isPlaceholder}
 					<code>Contract (loading…)</code>
 				{:else}
-					{@const network = networksByChainId[item.chainId]}
-					{@const slug = network?.slug ?? String(item.chainId)}
+					{@const network = networksByChainId[item.$id.$network.chainId]}
 					<Contract
-						chainId={item.chainId}
-						address={item.address}
-						idSerialized={`${slug}:${item.address}`}
-						href={resolve(`/network/${slug}/contract/${item.address}`)}
-						label={formatAddress(item.address)}
+						contractId={item.$id}
+						idSerialized={`${item.$id.$network.chainId}:${item.$id.address}`}
+						href={resolve(`/network/${item.$id.$network.chainId}/contract/${item.$id.address}`)}
+						label={formatAddress(item.$id.address)}
 						metadata={
 							network
 								? [{ term: 'Network', detail: network.name }]
@@ -67,4 +64,4 @@
 				{/if}
 		</span>
 	{/snippet}
-</EntityList>
+</ItemsListView>

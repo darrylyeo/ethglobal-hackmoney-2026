@@ -131,7 +131,7 @@
 
 
 {#if recipient && fromNetwork && toNetwork}
-	<div data-preview data-column="gap-2">
+	<div data-preview data-column>
 		<strong>Transfer preview</strong>
 		<dl class="bridge-summary">
 			<dt>Burn</dt>
@@ -171,7 +171,7 @@
 
 	<CctpAllowance {fastTransferSupported} {apiHost} />
 
-	<div data-column="gap-2">
+	<div data-column>
 		<CctpExecution
 			bind:isExecuting={executing}
 			{walletProvider}
@@ -210,7 +210,7 @@
 				</Dialog.Description>
 			{/if}
 			<div
-				data-row="gap-2"
+				data-row
 				class="dialog-actions"
 			>
 				<Button.Root

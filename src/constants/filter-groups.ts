@@ -15,7 +15,7 @@ export type NetworkFilterGroup = {
 
 const cctpChainIds = new Set(Object.keys(cctpDomainByChainId).map(Number))
 
-export const networkFilterGroups: readonly NetworkFilterGroup[] = [
+export const networkFilterGroups = [
 	{
 		id: 'cctp',
 		label: 'Circle CCTP',
@@ -35,7 +35,7 @@ export const networkFilterGroups: readonly NetworkFilterGroup[] = [
 			(n) => n.type === NetworkType.Testnet && !cctpChainIds.has(n.chainId),
 		),
 	},
-]
+] as const satisfies readonly NetworkFilterGroup[]
 
 import { CoinId } from '$/constants/coins.ts'
 
@@ -45,7 +45,7 @@ export type CoinIdGroup = {
 	coinIds: readonly CoinId[]
 }
 
-export const coinIdGroups: readonly CoinIdGroup[] = [
+export const coinIdGroups = [
 	{ id: 'stablecoins', label: 'Stablecoins', coinIds: [CoinId.USDC] },
 	{ id: 'native', label: 'Native', coinIds: [CoinId.ETH] },
-]
+] as const satisfies readonly CoinIdGroup[]

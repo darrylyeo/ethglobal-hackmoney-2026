@@ -111,7 +111,7 @@
 		class="number-input-label"
 		for={id ?? _id}
 	>
-		<div data-row="gap-2">
+		<div data-row>
 			<input
 				id={id ?? _id}
 				class="number-input-text"

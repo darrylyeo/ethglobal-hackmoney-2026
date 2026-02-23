@@ -61,15 +61,15 @@
 		{#snippet Before()}
 			{@const selectedNetworks = multiple ? networks.filter((n) => (Array.isArray(value) ? value : []).includes(n.chainId)) : (typeof value === 'number' ? [networks.find((n) => n.chainId === value)].filter(Boolean) : []) as Network[]}
 			{#if selectedNetworks.length > 0}
-				<span data-row="start gap-2">
+				<span data-row="start">
 					{#each selectedNetworks as network (network.chainId)}
-						<NetworkIcon chainId={network.chainId} />
+						<NetworkIcon networkId={{ chainId: network.chainId }} />
 					{/each}
 				</span>
 			{/if}
 		{/snippet}
 		{#snippet Item(network, selected)}
-			<NetworkName chainId={network.chainId} />
+			<NetworkName networkId={{ chainId: network.chainId }} />
 		{/snippet}
 	</SelectMultiple>
 {:else}
@@ -96,15 +96,15 @@
 		{#snippet Before()}
 			{@const selectedNetworks = multiple ? networks.filter((n) => (Array.isArray(value) ? value : []).includes(n.chainId)) : (typeof value === 'number' ? [networks.find((n) => n.chainId === value)].filter(Boolean) : []) as Network[]}
 			{#if selectedNetworks.length > 0}
-				<span data-row="start gap-2">
+				<span data-row="start">
 					{#each selectedNetworks as network (network.chainId)}
-						<NetworkIcon chainId={network.chainId} />
+						<NetworkIcon networkId={{ chainId: network.chainId }} />
 					{/each}
 				</span>
 			{/if}
 		{/snippet}
 		{#snippet Item(network, selected)}
-			<NetworkName chainId={network.chainId} />
+			<NetworkName networkId={{ chainId: network.chainId }} />
 		{/snippet}
 	</Select>
 {/if}

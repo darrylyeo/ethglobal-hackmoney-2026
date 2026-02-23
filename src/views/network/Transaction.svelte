@@ -32,14 +32,18 @@
 	// Props
 	let {
 		data,
-		chainId,
+		networkId: networkIdProp,
+		chainId: chainIdProp,
 		placeholderEventIds,
 		visiblePlaceholderEventIds = $bindable([] as number[]),
+		layout = EntityLayout.PageSection,
 	}: {
 		data: Map<ChainTransactionEntry | undefined, { trace?: TraceType; events?: EvmLog[] }>
-		chainId: ChainId
+		networkId?: import('$/data/Network.ts').Network$Id
+		chainId?: ChainId
 		placeholderEventIds?: Set<number | [number, number]>
 		visiblePlaceholderEventIds?: number[]
+		layout?: EntityLayout
 	} = $props()
 
 
@@ -49,6 +53,9 @@
 	)
 	const events = $derived(entry.events ?? [])
 	const tx = $derived([...data.keys()][0])
+	const chainId = $derived(
+		tx?.$id.$network.chainId ?? networkIdProp?.chainId ?? chainIdProp!,
+	)
 	const inputSelector = $derived(
 		tx?.input && tx.input.length >= 10
 			? (`0x${tx.input.slice(2, 10).toLowerCase().padStart(8, '0')}` as `0x${string}`)
@@ -108,7 +115,7 @@
 
 	// State
 	let arrowRects = $state<{ from: DOMRect; to: DOMRect; card: DOMRect } | null>(null)
-	let cardRef = $state<HTMLDetailsElement | null>(null)
+	let cardRef = $state<HTMLDetailsElement | HTMLElement | null>(null)
 	let fromRef = $state<HTMLElement | null>(null)
 	let hasFetched = $state(false)
 	let hasFetchedTrace = $state(false)
@@ -117,7 +124,6 @@
 
 
 	// Actions
-	const ethIconSrc = $derived(coinById[CoinId.ETH]?.icon)
 	$effect(() => {
 		if (inputSelector) void ensureFunctionSignatures(inputSelector).catch(() => {})
 	})
@@ -167,11 +173,27 @@
 			}).catch(() => {})
 		}
 	}
-
+	$effect(() => {
+		if (layout !== EntityLayout.ContentOnly || !tx) return
+		isOpen = true
+		if (!hasFetched && tx.status == null) {
+			hasFetched = true
+			fetchNetworkTransaction(tx.$id.$network.chainId, tx.$id.txHash).catch(
+				() => {},
+			)
+		}
+		if (!hasFetchedTrace) {
+			hasFetchedTrace = true
+			fetchTransactionTrace(tx.$id.$network.chainId, tx.$id.txHash, {
+				blockNumber: tx.blockNumber,
+			}).catch(() => {})
+		}
+	})
 
 	// Components
-	import EntityList from '$/components/EntityList.svelte'
+	import Collapsible from '$/components/Collapsible.svelte'
 	import EntityView from '$/components/EntityView.svelte'
+	import ItemsListView from '$/components/ItemsListView.svelte'
 	import FlowArrow from '$/components/FlowArrow.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import Address from '$/views/Address.svelte'
@@ -185,16 +207,18 @@
 	idSerialized={tx ? `transaction:${tx.$id.txHash}` : 'transaction:loading'}
 	href={tx ? getTxPath(chainId, tx.$id.txHash) : '#'}
 	label={tx ? `Tx ${tx.$id.txHash.slice(0, 10)}…` : 'Loading…'}
-	layout={EntityLayout.PageSection}
+	layout={layout}
 	annotation="Transaction"
 	showWatchButton={false}
 	open={false}
 	ontoggle={onToggle}
-	detailsProps={{ 'data-card': 'radius-2 padding-4', class: 'transaction-card' }}
+	detailsProps={layout === EntityLayout.ContentOnly
+		? { class: 'transaction-card' }
+		: { 'data-card': '', class: 'transaction-card' }}
 	bind:detailsRef={cardRef}
 >
 	{#snippet Title()}
-		<div data-row="wrap gap-2 align-center">
+		<div data-row="wrap align-center">
 			{#if tx}
 				{#if tx.status != null}
 					<span data-tag={tx.status === 1 ? 'success' : 'failure'}>
@@ -240,14 +264,14 @@
 				{/if}
 
 				<dt>From</dt>
-				<dd bind:this={fromRef}><Address network={tx.$id.$network} address={tx.from as `0x${string}`} /></dd>
+				<dd bind:this={fromRef}><Address actorId={{ $network: tx.$id.$network, address: tx.from as `0x${string}` }} /></dd>
 
 				<dt>To</dt>
 				<dd bind:this={toRef}>
 					{#if tx.contractAddress}
-						<Address network={tx.$id.$network} address={tx.contractAddress as `0x${string}`} /> (contract created)
+						<Address actorId={{ $network: tx.$id.$network, address: tx.contractAddress as `0x${string}` }} /> (contract created)
 					{:else if tx.to}
-						<Address network={tx.$id.$network} address={tx.to as `0x${string}`} />
+						<Address actorId={{ $network: tx.$id.$network, address: tx.to as `0x${string}` }} />
 					{:else}
 						Contract creation
 					{/if}
@@ -308,7 +332,7 @@
 					strokeWidth={1.5}
 					strokeColor="var(--color-accent)"
 					flowIconSrc={tx.value !== '0x0' && tx.value !== '0x'
-						? ethIconSrc
+						? coinById[CoinId.ETH]?.icon
 						: undefined}
 					flowIconSize={16}
 					relative
@@ -316,9 +340,11 @@
 			{/if}
 		{/if}
 
-		<details data-card="radius-2 padding-2">
-			<summary><h3>Detailed: Events</h3></summary>
-			<EntityList
+		<Collapsible
+			title="Detailed: Events"
+			detailsProps={{ 'data-card': 'padding-2' }}
+		>
+			<ItemsListView
 				title="Events"
 				loaded={eventsSet.size}
 				total={events.length || undefined}
@@ -345,11 +371,13 @@
 						{/if}
 					</span>
 				{/snippet}
-			</EntityList>
-		</details>
+			</ItemsListView>
+		</Collapsible>
 
-		<details data-card="radius-2 padding-2">
-			<summary><h3>Exhaustive: Trace</h3></summary>
+		<Collapsible
+			title="Exhaustive: Trace"
+			detailsProps={{ 'data-card': 'padding-2' }}
+		>
 			{#if trace}
 				<Trace {trace} {chainId} />
 			{:else if traceRow?.unavailable === true}
@@ -357,7 +385,7 @@
 			{:else}
 				<p data-text="muted">Open transaction to load trace…</p>
 			{/if}
-		</details>
+		</Collapsible>
 	{/snippet}
 </EntityView>
 

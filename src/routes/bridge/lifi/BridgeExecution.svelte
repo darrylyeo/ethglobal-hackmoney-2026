@@ -194,7 +194,7 @@
 
 
 {#if status.overall !== 'idle'}
-	<div data-column="gap-2">
+	<div data-column>
 		{#each status.steps as step (step.step)}
 			<div
 				data-row="gap-1"

@@ -170,7 +170,7 @@
 
 	<form
 		class="transfer-form"
-		data-column="gap-2"
+		data-column
 		onsubmit={(e) => {
 			e.preventDefault()
 			proposeTransfer()
@@ -202,10 +202,9 @@
 	{#if incoming.length > 0}
 		<h4>Incoming Requests</h4>
 		{#each incoming as request (request.id)}
-			<div data-row="wrap gap-2">
+			<div data-row="wrap">
 				<Address
-					network={1}
-					address={request.from}
+					actorId={{ $network: { chainId: 1 }, address: request.from }}
 				/>
 				<span>
 					requested {request.allocations[0]?.amount ?? '0'}
@@ -230,10 +229,9 @@
 	{#if outgoing.length > 0}
 		<h4>Outgoing Requests</h4>
 		{#each outgoing as request (request.id)}
-			<div data-row="wrap gap-2">
+			<div data-row="wrap">
 				<Address
-					network={1}
-					address={request.to}
+					actorId={{ $network: { chainId: 1 }, address: request.to }}
 				/>
 				<span>
 					{request.allocations[0]?.amount ?? '0'}

@@ -9,6 +9,7 @@ export type NormalizedTransfer = {
 	fromAddress: string
 	toAddress: string
 	amount: string
+	/** Unix time in milliseconds (normalized at API/parse boundary). */
 	timestamp: number
 	chainId: number
 }

@@ -78,7 +78,7 @@ export const colors = [
 	{ color: 'Violet' },
 	{ color: 'Wheat' },
 	{ color: 'White' },
-] as const
+] as const satisfies readonly { color: string }[]
 
 export const colorsByIndex = Object.fromEntries(
 	colors.map((entry, index) => [index, entry]),
@@ -126,7 +126,7 @@ export const adjectives = [
 	{ adjective: 'Wide' },
 	{ adjective: 'Windy' },
 	{ adjective: 'Wooded' },
-] as const
+] as const satisfies readonly { adjective: string }[]
 
 export const adjectivesByIndex = Object.fromEntries(
 	adjectives.map((entry, index) => [index, entry]),
@@ -178,7 +178,7 @@ export const nouns = [
 	{ noun: 'Village', icon: '🏘️' },
 	{ noun: 'Vista', icon: '🌄' },
 	{ noun: 'Volcano', icon: '🌋' },
-] as const
+] as const satisfies readonly { noun: string; icon: string }[]
 
 export const nounsByIndex = Object.fromEntries(
 	nouns.map((entry, index) => [index, entry]),

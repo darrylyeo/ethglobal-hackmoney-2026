@@ -23,7 +23,7 @@
 			<a
 				href={resolve(`/session?template=${template.actions[0].type}`)}
 				data-card
-				data-column="gap-2"
+				data-column
 			>
 				<span>{template.name}</span>
 			</a>

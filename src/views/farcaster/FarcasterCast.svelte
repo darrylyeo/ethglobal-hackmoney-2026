@@ -32,9 +32,9 @@
 </script>
 
 {#if isCompact}
-	<span data-row="gap-2 align-center">
+	<span data-row="align-center">
 		<span data-text="annotation">
-			{authorLabel} · {formatRelativeTime(Date.now() - cast.timestamp * 1000)}
+			{authorLabel} · {formatRelativeTime(Date.now() - cast.timestamp)}
 		</span>
 		<span>{cast.text.slice(0, 80)}{cast.text.length > 80
 			? '…'
@@ -43,12 +43,12 @@
 	</span>
 {:else}
 	<details
-		data-card="radius-2 padding-4"
+		data-card
 		id="cast:{cast.$id.fid}:{cast.$id.hash}"
 	>
-		<summary data-row="gap-2 align-center">
+		<summary data-row="align-center">
 			<span data-text="annotation">
-				{authorLabel} · {formatRelativeTime(Date.now() - cast.timestamp * 1000)}
+				{authorLabel} · {formatRelativeTime(Date.now() - cast.timestamp)}
 			</span>
 			<span>{cast.text.slice(0, 80)}{cast.text.length > 80
 				? '…'
@@ -61,7 +61,7 @@
 				<p>{cast.text}</p>
 			</a>
 			{#if cast.embeds?.length}
-				<ul data-column="gap-2">
+				<ul data-column>
 					{#each cast.embeds as embed}
 						{#if embed.url}
 							<li>

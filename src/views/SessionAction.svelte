@@ -28,8 +28,8 @@
 	data-column="gap-3"
 	{onsubmit}
 >
-	<header data-row="gap-2 align-center justify-between">
-		<div data-column="gap-2">
+	<header data-row="align-center justify-between">
+		<div data-column>
 			<h2>{title}</h2>
 			{#if description}
 				<p data-text="muted">{description}</p>

@@ -176,8 +176,7 @@
 							data-verification-status={myVerification?.status ?? null}
 						>
 							<Address
-								network={1}
-								address={s.address}
+								actorId={{ $network: { chainId: 1 }, address: s.address }}
 							/>
 							<span data-verification>
 								{#if myVerification == null}
@@ -231,8 +230,7 @@
 						{#each awaitingMySignature as ch (ch.id)}
 							<li data-challenge>
 								<Address
-									network={1}
-									address={ch.address}
+									actorId={{ $network: { chainId: 1 }, address: ch.address }}
 								/>
 								{#if canSign}
 									<Button.Root

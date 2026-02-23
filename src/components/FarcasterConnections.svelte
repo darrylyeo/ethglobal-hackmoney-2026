@@ -7,6 +7,7 @@
 	} from '$/data/FarcasterConnection.ts'
 	import { FarcasterConnectionTransport } from '$/data/FarcasterConnection.ts'
 	import { page } from '$app/state'
+	import { stringify } from 'devalue'
 	import { Button } from 'bits-ui'
 	import Dropdown from '$/components/Dropdown.svelte'
 	import SignInWithFarcaster from '$/components/SignInWithFarcaster.svelte'
@@ -86,9 +87,9 @@
 
 <div data-row="wrap align-start gap-4">
 	<details data-row-item="flexible" data-card="radius-4" open>
-		<summary data-row="gap-2 align-center wrap">
+		<summary data-row="align-center wrap">
 			<div data-row>
-				<div data-row="gap-2 align-center">
+				<div data-row="align-center">
 					<h3 class="section-heading">Signed in</h3>
 					<span
 						data-badge="small"
@@ -104,8 +105,8 @@
 				/>
 			</div>
 		</summary>
-		<ul class="list" data-column="gap-2">
-			{#each siwfConnections as conn (conn.$id.fid)}
+		<ul class="list" data-column>
+			{#each siwfConnections as conn (stringify(conn.$id))}
 				<li>
 					<FarcasterConnection
 						connection={conn}
@@ -118,9 +119,9 @@
 	</details>
 
 	<details data-row-item="flexible" data-card="radius-4" open>
-		<summary data-row="gap-2 align-center wrap">
+		<summary data-row="align-center wrap">
 			<div data-row>
-				<div data-row="gap-2 align-center">
+				<div data-row="align-center">
 					<h4>Watching</h4>
 					<span
 						data-badge="small"
@@ -144,11 +145,11 @@
 					{#snippet children()}
 						<form
 							class="add-form"
-							data-column="gap-2"
+							data-column
 							onsubmit={(e) => (e.preventDefault(), addWatch())}
 						>
-							<div data-column="gap-2">
-								<div data-row="gap-2 align-center">
+							<div data-column>
+								<div data-row="align-center">
 									<input
 										type="text"
 										placeholder="FID, @username, or name.eth"
@@ -177,8 +178,8 @@
 				</Dropdown>
 			</div>
 		</summary>
-		<ul class="list" data-column="gap-2">
-			{#each watchConnections as conn (conn.$id.fid)}
+		<ul class="list" data-column>
+			{#each watchConnections as conn (stringify(conn.$id))}
 				<li>
 					<FarcasterConnection
 						connection={conn}

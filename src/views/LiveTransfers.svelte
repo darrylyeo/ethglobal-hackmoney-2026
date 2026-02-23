@@ -135,7 +135,7 @@
 	{#if showHeader}
 		<header class="transfers-header" data-row="wrap gap-4">
 			<h2>Live transfers – {coin.symbol}</h2>
-			<nav class="period-selector" data-row="gap-2" aria-label="Time period">
+			<nav class="period-selector" data-row aria-label="Time period">
 				{#each periods as p (p.value)}
 					<a
 						class="period-link"

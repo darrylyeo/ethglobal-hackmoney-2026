@@ -42,7 +42,7 @@ export const adjectives = [
 	{ adjective: 'Wary' },
 	{ adjective: 'Wild' },
 	{ adjective: 'Wise' },
-] as const
+] as const satisfies readonly PeerAdjectiveEntry[]
 
 export const adjectivesByIndex = Object.fromEntries(
 	adjectives.map((entry, index) => [index, entry]),
@@ -87,7 +87,7 @@ export const nouns = [
 	{ noun: 'Turtle', icon: '🐢' },
 	{ noun: 'Whale', icon: '🐋' },
 	{ noun: 'Wolf', icon: '🐺' },
-] as const
+] as const satisfies readonly { noun: string; icon: string }[]
 
 export const nounsByIndex = Object.fromEntries(
 	nouns.map((entry, index) => [index, entry]),

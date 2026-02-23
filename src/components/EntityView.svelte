@@ -2,12 +2,16 @@
 	export enum EntityLayout {
 		Page = 'Page',
 		PageSection = 'PageSection',
+		ContentOnly = 'ContentOnly',
 	}
 </script>
 
 <script
 	lang="ts"
-	generics="_EntityType extends EntityType, _Entity extends Entity<_EntityType> = Entity<_EntityType>"
+	generics="
+		_EntityType extends EntityType,
+		_Entity extends Entity<_EntityType> = Entity<_EntityType>
+	"
 >
 	// Types/constants
 	import type { Entity, EntityId, EntityType } from '$/data/$EntityType.ts'
@@ -31,7 +35,7 @@
 		open = true,
 		ontoggle,
 		detailsProps = {},
-		detailsRef = $bindable(null as HTMLDetailsElement | null),
+		detailsRef = $bindable(null as HTMLDetailsElement | HTMLElement | null),
 		Title,
 		AfterTitle,
 		BeforeAnnotation,
@@ -52,7 +56,7 @@
 		open?: boolean
 		ontoggle?: (e: Event) => void
 		detailsProps?: Record<string, unknown>
-		detailsRef?: HTMLDetailsElement | null
+		detailsRef?: HTMLDetailsElement | HTMLElement | null
 		Title?: Snippet
 		AfterTitle?: Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
 		BeforeAnnotation?: Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
@@ -82,85 +86,97 @@
 </script>
 
 
-<article
-	id={articleId}
-	{...rest}
->
-	<HeadingLevelProvider>
-		<details
-			bind:this={detailsRef}
-			{open}
-			data-card
-			{...detailsProps}
-			ontoggle={ontoggle}
-		>
-			<summary>
-				<header data-row="wrap gap-4">
-					<div data-row="start gap-2">
-						<div data-row-item="flexible" data-column="gap-2">
-							<div data-row="start gap-2">
-								{#snippet HeadingContent()}
-									<Heading>
-										{#if Title}
-											{@render Title()}
-										{:else}
-											{label}
-										{/if}
-									</Heading>
-								{/snippet}
+{#if layout === EntityLayout.ContentOnly}
+	<div
+		data-column="gap-4"
+		bind:this={detailsRef}
+		{...detailsProps}
+	>
+		{#if children}
+			{@render children()}
+		{/if}
+	</div>
+{:else}
+	<article
+		id={articleId}
+		{...rest}
+	>
+		<HeadingLevelProvider>
+			<details
+				bind:this={detailsRef}
+				{open}
+				data-card
+				{...detailsProps}
+				ontoggle={ontoggle}
+			>
+				<summary>
+					<header data-row="wrap gap-4">
+						<div data-row="start">
+							<div data-row-item="flexible" data-column>
+								<div data-row="start">
+									{#snippet HeadingContent()}
+										<Heading>
+											{#if Title}
+												{@render Title()}
+											{:else}
+												{label}
+											{/if}
+										</Heading>
+									{/snippet}
 
-								{#if hasAnchorTitle}
-									<a href={`#${articleId}`}>
+									{#if hasAnchorTitle}
+										<a href={`#${articleId}`}>
+											{@render HeadingContent()}
+										</a>
+									{:else}
 										{@render HeadingContent()}
-									</a>
-								{:else}
-									{@render HeadingContent()}
-								{/if}
+									{/if}
 
-								{#if AfterTitle}
-									{@render AfterTitle({ entity, entityType })}
-								{/if}
+									{#if AfterTitle}
+										{@render AfterTitle({ entity, entityType })}
+									{/if}
 
-								{#if showWatchButton && entityId != null}
-									<WatchButton
-										{entityType}
-										{entityId}
-									/>
+									{#if showWatchButton && entityId != null}
+										<WatchButton
+											{entityType}
+											{entityId}
+										/>
+									{/if}
+								</div>
+
+								{#if metadata?.length}
+									<dl data-definition-list="horizontal">
+										{#each metadata as { term, detail }}
+											<div>
+												{#if term}
+													<dt>{term}</dt>
+												{/if}
+												<dd>{detail}</dd>
+											</div>
+										{/each}
+									</dl>
 								{/if}
 							</div>
-
-							{#if metadata?.length}
-								<dl data-definition-list="horizontal">
-									{#each metadata as { term, detail }}
-										<div>
-											{#if term}
-												<dt>{term}</dt>
-											{/if}
-											<dd>{detail}</dd>
-										</div>
-									{/each}
-								</dl>
-							{/if}
 						</div>
-					</div>
 
-					<div data-row="gap-2">
-						{#if BeforeAnnotation}
-							{@render BeforeAnnotation({ entity, entityType })}
-						{/if}
-						<span data-text="annotation">
-							{annotation
-								?? (entityTypes.find((e) => e.type === entityType)?.label ?? entityType)}
-						</span>
-					</div>
-				</header>
-			</summary>
+						<div data-row>
+							{#if BeforeAnnotation}
+								{@render BeforeAnnotation({ entity, entityType })}
+							{/if}
+							<span data-text="annotation">
+								{annotation
+									?? (entityTypes.find((e) => e.type === entityType)?.label ?? entityType)}
+							</span>
+						</div>
+					</header>
+				</summary>
 
-			{#if children}
-				<div data-column="gap-4">
-					{@render children()}
-				</div>
-			{/if}
-		</details>
-	</HeadingLevelProvider>
-</article>
+				{#if children}
+					<div data-column="gap-4">
+						{@render children()}
+					</div>
+				{/if}
+			</details>
+		</HeadingLevelProvider>
+	</article>
+{/if}

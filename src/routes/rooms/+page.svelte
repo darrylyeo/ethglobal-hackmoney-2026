@@ -76,7 +76,7 @@
 					e.preventDefault()
 					handleJoin()
 				}}
-				data-row="gap-2"
+				data-row
 			>
 				<label for="room-code">Room code</label>
 				<input

@@ -40,7 +40,7 @@
 </script>
 
 
-<details data-card data-column="gap-2" open={items.size > 0}>
+<details data-card data-column open={items.size > 0}>
 	<summary>
 		<h4>Submitted Transactions</h4>
 	</summary>

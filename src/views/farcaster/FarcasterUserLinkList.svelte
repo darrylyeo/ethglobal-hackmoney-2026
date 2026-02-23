@@ -27,13 +27,13 @@
 
 
 	// Components
+	import Collapsible from '$/components/Collapsible.svelte'
 	import EntityView from '$/components/EntityView.svelte'
 	import PaginationPlaceholder from '$/components/PaginationPlaceholder.svelte'
 </script>
 
-<details>
-	<summary>{title} ({links.length})</summary>
-	<div data-column="gap-2">
+<Collapsible title={title} annotation={String(links.length)}>
+	<div data-column>
 		{#each links as link}
 			{@const fid = getFid(link)}
 			{@const user = userByFid.get(fid)}
@@ -52,4 +52,4 @@
 		{isLoading}
 		label={loadMoreLabel}
 	/>
-</details>
+</Collapsible>

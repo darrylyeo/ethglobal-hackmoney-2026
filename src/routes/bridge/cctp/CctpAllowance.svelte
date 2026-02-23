@@ -67,7 +67,7 @@
 </script>
 
 
-<div data-column="gap-2">
+<div data-column>
 	<strong>Fast transfer allowance</strong>
 	{#if !fastTransferSupported}
 		<small data-text="muted">Not required for this source chain.</small>

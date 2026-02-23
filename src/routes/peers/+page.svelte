@@ -95,12 +95,12 @@
 	<p>Verified accounts (addresses you have verified in a room).</p>
 
 	<ul
-		data-column="gap-2"
+		data-column
 		data-card
 	>
 		{#each peersList as entry (entry.peerId + entry.address)}
 			<li
-				data-row="gap-2"
+				data-row
 				data-list-row
 			>
 				<a href={resolve(`/account/${encodeURIComponent(entry.address)}`)}>

@@ -33,7 +33,7 @@
 	data-simulation
 	data-e2e-simulation-status={simulation.status}
 >
-	<div data-row="gap-2 align-center">
+	<div data-row="align-center">
 		<span
 			data-tag
 			data-variant={simulation.status === SessionActionSimulationStatus.Success
@@ -57,9 +57,9 @@
 	{#if simulation.error && steps.length === 0}
 		<p data-error>{simulation.error}</p>
 	{:else if steps.length > 0}
-		<ol class="simulation-steps" data-column="gap-2">
+		<ol class="simulation-steps" data-column>
 			{#each steps as step, i}
-				<li data-row="gap-2 align-center" class="simulation-step">
+				<li data-row="align-center" class="simulation-step">
 					<span
 						data-tag
 						data-variant={step.summaryStatus === TevmSimulationSummaryStatus.Success

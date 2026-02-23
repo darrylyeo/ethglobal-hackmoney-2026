@@ -49,10 +49,10 @@
 	data-sticky-container
 >
 	<header data-row="wrap gap-4">
-		<div data-row="start gap-2" data-row-item="flexible">
+		<div data-row="start" data-row-item="flexible">
 			<h1>Agents</h1>
 		</div>
-		<div data-row="gap-2">
+		<div data-row>
 			<Button.Root href="/agents/registry">
 				EIP-8004 registry
 			</Button.Root>
@@ -68,14 +68,14 @@
 		{#each trees as tree (tree.id)}
 			<div
 				data-card
-				data-row="gap-2 align-center justify-between"
+				data-row="align-center justify-between"
 			>
 				<a
 					href="/agents/{tree.id}"
-					data-row="gap-2 align-center"
+					data-row="align-center"
 					data-row-item="flexible"
 				>
-					<div data-column="gap-2">
+					<div data-column>
 						<strong>{tree.name ?? 'Untitled'}</strong>
 						<small data-text="muted">{new Date(tree.updatedAt).toLocaleString()}</small>
 					</div>
@@ -83,7 +83,7 @@
 						<span data-text="muted">Pinned</span>
 					{/if}
 				</a>
-				<span data-row="gap-2">
+				<span data-row>
 					<Button.Root
 						onclick={(e: MouseEvent) => {
 							e.preventDefault()

@@ -442,9 +442,9 @@
 						<tr data-status={ch.status}>
 							<td>{shortId(ch.id)}</td>
 							<td>
-								<Address network={ch.chainId} address={ch.participant0} />
+								<Address actorId={{ $network: { chainId: ch.chainId }, address: ch.participant0 }} />
 								–
-								<Address network={ch.chainId} address={ch.participant1} />
+								<Address actorId={{ $network: { chainId: ch.chainId }, address: ch.participant1 }} />
 							</td>
 							<td>{formatSmallestToDecimal(myBal, 6)} USDC</td>
 							<td>{formatSmallestToDecimal(otherBal, 6)} USDC</td>

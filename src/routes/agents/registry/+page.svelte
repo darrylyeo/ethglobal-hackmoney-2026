@@ -114,7 +114,7 @@
 		</p>
 	{:else}
 		<div data-row="gap-4 wrap">
-			<label data-row="gap-2 align-center">
+			<label data-row="align-center">
 				<span>Search</span>
 				<input
 					type="search"

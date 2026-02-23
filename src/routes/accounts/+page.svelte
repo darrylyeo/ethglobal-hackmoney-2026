@@ -4,7 +4,7 @@
 </script>
 
 
-<main data-column="gap-2">
+<main data-column>
 	<h1>Accounts</h1>
 	<Accounts />
 </main>

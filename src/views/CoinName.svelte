@@ -54,7 +54,7 @@
 		{:else}
 			{@const chainId = coin.$id.$network.chainId}
 			{@const symbol = coin.symbol}
-			<NetworkIcon chainId={chainId} alt={chainId.toString()} />
+			<NetworkIcon networkId={{ chainId }} alt={chainId.toString()} />
 		{/if}
 
 		{#if coin.name || coin.symbol}

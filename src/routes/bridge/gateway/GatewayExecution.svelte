@@ -114,7 +114,7 @@
 </script>
 
 
-<div data-column="gap-2">
+<div data-column>
 	<strong>Status</strong>
 	<ol class="gateway-status">
 		{#if needsDeposit}

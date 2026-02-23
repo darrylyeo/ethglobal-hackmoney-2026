@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Types/constants
+	import type { Actor$Id } from '$/data/Actor.ts'
 	import { BalanceDisplayType } from '$/views/balance-display-type.ts'
 	import type { Erc20Token } from '$/constants/coin-instances.ts'
 	import { erc20TokenByNetwork, CoinInstanceType } from '$/constants/coin-instances.ts'
@@ -36,12 +37,12 @@
 
 	// Props
 	let {
-		selectedActor,
+		actorId,
 		balanceTokens = [],
 		availableAccounts = [],
 		displayType = BalanceDisplayType.Card,
 	}: {
-		selectedActor: `0x${string}` | null
+		actorId: Actor$Id | null
 		balanceTokens?: {
 			chainId: number
 			tokenAddress: `0x${string}`
@@ -52,6 +53,7 @@
 
 
 	// Functions
+	import { stringify } from 'devalue'
 	import { intentDraggable } from '$/lib/intents/intentDraggable.svelte.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { getStorkAssetIdForSymbol } from '$/lib/stork.ts'
@@ -180,8 +182,11 @@
 			filterFunction: (balance: BalanceFilterItem) => balance.symbol === symbol,
 		})),
 	)
+	const accountsForFilters = $derived(
+		availableAccounts.length > 0 ? availableAccounts : (actorId ? [actorId.address] : []),
+	)
 	const accountFilters = $derived(
-		availableAccounts.map((address) => ({
+		accountsForFilters.map((address) => ({
 			id: address,
 			label: `${address.slice(0, 6)}…${address.slice(-4)}`,
 			filterFunction: (balance: BalanceFilterItem) => (
@@ -209,8 +214,8 @@
 	const actors = $derived(
 		filterAddresses.length > 0
 			? filterAddresses
-			: selectedActor
-				? [selectedActor]
+			: actorId
+				? [actorId.address]
 				: [],
 	)
 	const balancesQuery = useLiveQuery(
@@ -436,6 +441,7 @@
 
 
 	// Components
+	import Collapsible from '$/components/Collapsible.svelte'
 	import Boundary from '$/components/Boundary.svelte'
 	import Filters from '$/components/Filters.svelte'
 	import Sorts from '$/components/Sorts.svelte'
@@ -451,12 +457,12 @@
 
 
 {#if actors.length > 0}
-		<details class="balances" data-card data-scroll-container="block" open>
-			<summary class="balances-summary">
+		{#snippet BalancesSummary({ title }: { title: string })}
+			<div class="balances-summary">
 				<div data-row="gap-4">
 					<div data-row="gap-4">
 						<h3 data-row-item="flexible" class="section-heading">
-							{balancesTitlePrefix}{#if singleAddress}<TruncatedValue
+							{title}{#if singleAddress}<TruncatedValue
 								value={singleAddress}
 								startLength={6}
 								endLength={4}
@@ -469,7 +475,7 @@
 							class="balances-filters"
 							role="group"
 							aria-label="Filters"
-							data-row="gap-2 wrap"
+							data-row="wrap"
 							onclick={(e) => e.stopPropagation()}
 							onkeydown={(e) => e.stopPropagation()}
 						>
@@ -556,7 +562,18 @@
 						</span>
 					{/if}
 				</div>
-			</summary>
+			</div>
+		{/snippet}
+		<Collapsible
+			title={balancesTitlePrefix}
+			Summary={BalancesSummary}
+			detailsProps={{
+				class: 'balances',
+				'data-card': '',
+				'data-scroll-container': 'block',
+				open: true,
+			}}
+		>
 			<Boundary>
 				{#if balancesQuery.isLoading && balances.length === 0}
 					<div data-balances data-grid="columns-autofit column-min-8 gap-3" data-balances-skeleton>
@@ -587,7 +604,7 @@
 								data-display-type={displayType}
 							>
 								<Skeleton width="4em" height="0.75em" rounded="0.2em" />
-								<div data-row="start gap-2">
+								<div data-row="start">
 									{#if coin}
 										<CoinName coin={coin} isDraggable={false} />
 									{:else}
@@ -600,7 +617,7 @@
 					</div>
 				{:else}
 					<div data-balances data-grid="columns-autofit column-min-10 gap-3">
-						{#each displayBalances as b (b.$id.$actor.$network.chainId + ':' + b.$id.$coin.address)}
+						{#each displayBalances as b (stringify(b.$id))}
 							{@const token = displayTokens.find(
 								(entry) =>
 									entry.chainId === b.$id.$coin.$network.chainId &&
@@ -664,7 +681,7 @@
 										{/if}
 									</dt>
 									{#if b.isLoading}
-										<span class="balance-loading" data-row="start gap-2" aria-busy="true">
+										<span class="balance-loading" data-row="start" aria-busy="true">
 											<Skeleton width="6em" height="1.25em" rounded="0.25em" />
 										</span>
 									{:else if b.error}
@@ -717,7 +734,7 @@
 								data-display-type={displayType}
 							>
 								<Skeleton width="4em" height="0.75em" rounded="0.2em" />
-								<div data-row="start gap-2">
+								<div data-row="start">
 									{#if coin}
 										<CoinName coin={coin} isDraggable={false} />
 									{:else}
@@ -730,7 +747,7 @@
 					</div>
 				{/snippet}
 			</Boundary>
-		</details>
+		</Collapsible>
 	{/if}
 
 

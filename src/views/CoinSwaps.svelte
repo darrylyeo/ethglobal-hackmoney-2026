@@ -6,7 +6,8 @@
 	import type { CoinInstance } from '$/constants/coin-instances.ts'
 	import type { CoinId } from '$/constants/coins.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import EntityList from '$/components/EntityList.svelte'
+	import Collapsible from '$/components/Collapsible.svelte'
+	import ItemsList from '$/components/ItemsList.svelte'
 	import TransferEvent from '$/views/TransferEvent.svelte'
 
 
@@ -55,18 +56,12 @@
 </script>
 
 
-	<details>
-		<summary>
-			<h3>Swaps</h3>
-			<span data-text="annotation">
-				{eventsSet.size > 0 ? eventsSet.size : '—'}
-			</span>
-		</summary>
+<Collapsible
+	title="Swaps"
+	annotation={eventsSet.size > 0 ? String(eventsSet.size) : '—'}
+>
 	{#if eventsSet.size > 0}
-		<EntityList
-			title="Swaps"
-			detailsProps={{ open: true, 'data-card': '' }}
-			loaded={eventsSet.size}
+		<ItemsList
 			items={eventsSet}
 			getKey={getEventKey}
 			getSortValue={(row) => -row.timestamp}
@@ -83,8 +78,8 @@
 					{/if}
 				</span>
 			{/snippet}
-		</EntityList>
+		</ItemsList>
 	{:else}
 		<p data-text="muted">No swaps in this period. DEX swap flows appear here when classification is available.</p>
 	{/if}
-</details>
+</Collapsible>

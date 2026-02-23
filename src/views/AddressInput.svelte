@@ -14,7 +14,7 @@
 		name,
 		id,
 		ariaLabel = 'Address',
-		network = 1 as Network$Id,
+		network = { chainId: 1 } as Network$Id,
 		getItemId = (item: Item) => item.address,
 		getItemLabel = (item: Item) => item.address,
 		...rootProps
@@ -104,7 +104,7 @@
 >
 	{#snippet Item(item, selected)}
 		<span data-row="start gap-0" data-selected={selected}>
-			<Address {network} address={item.address} isLinked={false} />
+			<Address actorId={{ $network: network, address: item.address }} isLinked={false} />
 		</span>
 	{/snippet}
 

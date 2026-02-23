@@ -20,20 +20,20 @@
 </svelte:head>
 
 
-<main data-column="gap-2">
-	<section data-column="gap-2">
+<main data-column>
+	<section data-column>
 		<h1><a href={resolve('/networks')}>Networks</a></h1>
-		<ul data-column="gap-2">
+		<ul data-column>
 		{#each networks as network (network.chainId)}
-			<li data-row="start gap-2 align-center">
+			<li data-row="start align-center">
 				<EntityId
-					link={resolve(`/network/${network.slug}`)}
+					link={resolve(`/network/${network.chainId}`)}
 					draggableText={network.name}
 					className=""
 					entityType={EntityType.Network}
 					entityId={{ chainId: network.chainId }}
 				>
-					<NetworkName chainId={network.chainId} />
+					<NetworkName networkId={{ chainId: network.chainId }} />
 				</EntityId>
 				<WatchButton
 					entityType={EntityType.Network}

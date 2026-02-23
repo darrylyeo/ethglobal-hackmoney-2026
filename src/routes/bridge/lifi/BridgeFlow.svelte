@@ -432,7 +432,7 @@
 			data-no-routes={
 				routesRow.error.code === ErrorCode.NoRoutes ? '' : undefined
 			}
-			data-column="gap-2"
+			data-column
 		>
 			<span
 				>{routesRow.error.code === ErrorCode.NoRoutes
@@ -446,7 +446,7 @@
 					<li>Check if the bridge is operational</li>
 				</ul>
 			{/if}
-			<div data-row="gap-2">
+			<div data-row>
 				<Button.Root onclick={onRefresh}>Retry</Button.Root>
 				<Button.Root
 					data-dismiss
@@ -469,13 +469,13 @@
 			data-column="gap-3"
 			data-testid="quote-result"
 		>
-			<div data-row="gap-2 align-center justify-between">
+			<div data-row="align-center justify-between">
 				<h3>
 					Routes {routesRow?.isLoading
 						? '(loading…)'
 						: `(${sortedRoutes.length})`}
 				</h3>
-				<label data-row="gap-2 align-center">
+				<label data-row="align-center">
 					<span>Sort</span>
 					<Select
 						id="route-sort"
@@ -510,20 +510,20 @@
 					</p>
 				{/if}
 			{/if}
-			<div data-column="gap-2">
+			<div data-column>
 				{#if routesRow?.isLoading && sortedRoutes.length === 0}
 					<p data-text="muted">Finding routes…</p>
 					{#each [1, 2, 3] as _}
 						<div
 							class="route-card route-card-skeleton"
 							data-card="radius-4 padding-3"
-							data-column="gap-2"
+							data-column
 						>
-							<div data-row="gap-2 align-center justify-between">
+							<div data-row="align-center justify-between">
 								<Skeleton width="6em" height="1.25em" rounded="0.25em" />
 								<Skeleton width="4em" height="1em" rounded="0.25em" />
 							</div>
-							<div data-row="gap-2" data-text="muted">
+							<div data-row data-text="muted">
 								<Skeleton width="10em" height="1em" rounded="0.25em" />
 								<Skeleton width="3em" height="1em" rounded="0.25em" />
 							</div>
@@ -535,17 +535,17 @@
 							class="route-card"
 							type="button"
 							data-card="radius-4 padding-3"
-							data-column="gap-2"
+							data-column
 							class:selected={r.id === selectedRouteId}
 							onclick={() => {
 								selectedRouteId = r.id
 							}}
 						>
-							<div data-row="gap-2 align-center justify-between">
+							<div data-row="align-center justify-between">
 								<strong>{formatTokenAmount(r.toAmount, 6)} USDC</strong>
 								<span data-text="muted">${r.gasCostUsd.toFixed(2)} fees</span>
 							</div>
-							<div data-row="gap-2" data-text="muted">
+							<div data-row data-text="muted">
 								<span
 									>{[...new Set(r.steps.map((st) => st.toolName))].join(
 										' → ',
@@ -562,9 +562,9 @@
 
 	{#if selectedRoute && fromNetwork && toNetwork}
 		<section data-card data-column>
-			<div data-row="gap-2 align-center justify-between">
+			<div data-row="align-center justify-between">
 				<h3>Quote Details</h3>
-				<div data-row="gap-2 align-center" data-text="muted">
+				<div data-row="align-center" data-text="muted">
 					{#if routesRow?.isLoading}
 						Refreshing…
 					{:else if quoteRemaining !== null}
@@ -583,7 +583,7 @@
 				<Popover.Trigger data-row="gap-1">
 					Slippage: <strong>{formatSlippagePercent(settings.slippage)}</strong>
 				</Popover.Trigger>
-				<Popover.Content data-column="gap-2">
+				<Popover.Content data-column>
 					<div data-row="gap-1">
 						{#each slippagePresets as preset (preset.id)}
 							<Button.Root
@@ -695,7 +695,7 @@
 					{/if}
 				</dl>
 				{#if warnDifferentRecipient || warnHighSlippage || warnLargeAmount}
-					<div class="warnings" data-column="gap-2">
+					<div class="warnings" data-column>
 						{#if warnDifferentRecipient}
 							<p class="warning">Recipient is not your connected wallet.</p>
 						{/if}
@@ -747,9 +747,9 @@
 		<section data-card data-column>
 			<button class="heading" type="button"> Transaction history </button>
 			{#if transactions.length > 0}
-				<div data-column="gap-2">
+				<div data-column>
 					{#each transactions as tx (stringify(tx.$id))}
-						<div class="tx-row" data-row="gap-2 align-center">
+						<div class="tx-row" data-row="align-center">
 							<span data-text="muted"
 								>{formatRelativeTime(now - tx.$id.createdAt)}</span
 							>

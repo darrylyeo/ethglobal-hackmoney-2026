@@ -57,31 +57,31 @@
 
 {#if action.type === ActionType.Transfer}
 	<div data-column>
-	<label data-column="gap-2">
+	<label data-column>
 		<span>From</span>
 		<AddressInput
 			items={actorItems}
 			bind:value={() => p.fromActor || null, (v) => {
 				if (action?.params != null) action = { ...action, params: { ...action.params, fromActor: v ?? ('0x0000000000000000000000000000000000000000' as `0x${string}`) } }
 			}}
-			network={p.chainId}
+			network={{ chainId: p.chainId }}
 			placeholder="Select or enter address"
 			ariaLabel="From address"
 		/>
 	</label>
-	<label data-column="gap-2">
+	<label data-column>
 		<span>To</span>
 		<AddressInput
 			items={actorItems}
 			bind:value={() => p.toActor || null, (v) => {
 				if (action?.params != null) action = { ...action, params: { ...action.params, toActor: v ?? ('0x0000000000000000000000000000000000000000' as `0x${string}`) } }
 			}}
-			network={p.chainId}
+			network={{ chainId: p.chainId }}
 			placeholder="Select or enter address"
 			ariaLabel="To address"
 		/>
 	</label>
-	<label data-column="gap-2">
+	<label data-column>
 		<span>Network</span>
 		<NetworkInput
 			networks={filteredNetworks}
@@ -90,7 +90,7 @@
 		/>
 	</label>
 	{#if asNonEmptyCoins(coins) && tokenCoin}
-		<label data-column="gap-2">
+		<label data-column>
 			<span>Token</span>
 			<CoinInput
 				coins={coins}
@@ -100,7 +100,7 @@
 				ariaLabel="Token"
 			/>
 		</label>
-		<label data-column="gap-2">
+		<label data-column>
 			<span>Amount</span>
 			<CoinAmountInput
 				coins={coins}
@@ -115,7 +115,7 @@
 			/>
 		</label>
 	{:else}
-		<label data-column="gap-2">
+		<label data-column>
 			<span>Token address</span>
 			<PatternInput
 				patternTypes={[PatternType.EvmAddress]}
@@ -129,7 +129,7 @@
 				ariaLabel="Token address"
 			/>
 		</label>
-		<label data-column="gap-2">
+		<label data-column>
 			<span>Amount</span>
 		<TokenAmountInput
 			coin={syntheticCoin}

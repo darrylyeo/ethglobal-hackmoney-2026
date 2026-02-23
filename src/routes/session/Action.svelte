@@ -466,7 +466,7 @@
 	data-card
 	open
 >
-	<summary data-row="gap-2 justify-between">
+	<summary data-row="justify-between">
 		<h3>
 			<Select
 				items={actionTypes as readonly ActionTypeDefinition[]}
@@ -607,7 +607,7 @@
 							</Dialog.Description>
 						{/if}
 					{/if}
-					<div data-row="gap-2" class="dialog-actions">
+					<div data-row class="dialog-actions">
 						<Button.Root
 							type="button"
 							onclick={() => {

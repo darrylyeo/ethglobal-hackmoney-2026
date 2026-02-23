@@ -24,7 +24,7 @@
 	import { Switch } from 'bits-ui'
 </script>
 
-<label data-row="gap-2 align-center" aria-label="Network environment">
+<label data-row="align-center" aria-label="Network environment">
 	<Switch.Root
 		checked={isTestnet}
 		onCheckedChange={onCheckedChange}

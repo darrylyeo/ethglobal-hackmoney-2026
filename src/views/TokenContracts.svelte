@@ -5,9 +5,11 @@
 	import { CoinId } from '$/constants/coins.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { resolve } from '$app/paths'
+	import { stringify } from 'devalue'
 
 
 	// Components
+	import Collapsible from '$/components/Collapsible.svelte'
 	import Address, { AddressFormat } from '$/views/Address.svelte'
 
 
@@ -22,25 +24,23 @@
 </script>
 
 {#if tokens.length > 0}
-	<details data-card="radius-2 padding-4">
-		<summary>
-			<h3>Token contracts</h3>
-			<span data-text="annotation">{tokens.length} chains</span>
-		</summary>
+	<Collapsible
+		title="Token contracts"
+		annotation={`${tokens.length} chains`}
+		detailsProps={{ 'data-card': '' }}
+	>
 		<ul data-column="gap-1">
-			{#each tokens as t (t.chainId + t.address)}
-				{@const network = networksByChainId[t.chainId]}
-				{@const slug = network ? network.slug : String(t.chainId)}
+			{#each tokens as t (stringify(t.$id))}
+				{@const network = networksByChainId[t.$id.$network.chainId]}
 				<li>
 					<a
-					href={resolve(`/network/${slug}/contract/${t.address}`)}
+					href={resolve(`/network/${t.$id.$network.chainId}/contract/${t.$id.address}`)}
 					data-link
 				>
 					<Address
-						network={t.chainId}
-						address={t.address}
-							format={AddressFormat.MiddleTruncated}
-						/>
+						actorId={{ $network: t.$id.$network, address: t.$id.address }}
+						format={AddressFormat.MiddleTruncated}
+					/>
 						{#if network}
 							<span data-text="muted"> · {network.name}</span>
 						{/if}
@@ -48,5 +48,5 @@
 				</li>
 			{/each}
 		</ul>
-	</details>
+	</Collapsible>
 {/if}

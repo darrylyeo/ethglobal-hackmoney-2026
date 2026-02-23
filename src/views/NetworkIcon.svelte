@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Types/constants
+	import type { Network$Id } from '$/data/Network.ts'
 	import type { SubiconProps } from '$/components/Icon.svelte'
 	import { IconShape } from '$/components/Icon.svelte'
 	import { networksByChainId } from '$/constants/networks.ts'
@@ -7,14 +8,16 @@
 
 	// Props
 	let {
-		chainId,
+		networkId: networkIdProp,
+		chainId: chainIdProp,
 		class: className,
 		size = '1em',
 		title = undefined,
 		alt = '',
 		subicon,
 	}: {
-		chainId: number
+		networkId?: Network$Id
+		chainId?: number
 		class?: string
 		size?: number | string
 		title?: string
@@ -24,7 +27,12 @@
 
 
 	// (Derived)
-	const network = $derived(networksByChainId[chainId])
+	const network = $derived(
+		(() => {
+			const c = networkIdProp?.chainId ?? chainIdProp
+			return c != null ? networksByChainId[c] : undefined
+		})(),
+	)
 
 
 	// Components

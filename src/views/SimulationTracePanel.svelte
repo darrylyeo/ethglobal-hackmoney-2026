@@ -28,10 +28,10 @@
 </script>
 
 
-<div data-simulation-trace data-column="gap-2">
-	<header data-row="gap-2 align-center justify-between">
+<div data-simulation-trace data-column>
+	<header data-row="align-center justify-between">
 		<h3>Trace</h3>
-		<div data-row="gap-2 align-center">
+		<div data-row="align-center">
 			<label for="trace-contract" class="sr-only">Filter by contract</label>
 			<input
 				id="trace-contract"
@@ -53,10 +53,10 @@
 	{#if filteredTrace.length === 0}
 		<p data-text="muted">No trace entries.</p>
 	{:else}
-		<ul data-column="gap-2" style="list-style: none; padding: 0;">
+		<ul data-column style="list-style: none; padding: 0;">
 			{#each filteredTrace as call (call.to + call.data + call.gasUsed)}
 				<li data-trace-call data-column="gap-0">
-					<div data-row="gap-2 align-center wrap">
+					<div data-row="align-center wrap">
 						<span data-text="muted">to</span>
 						<code>{formatAddress(call.to)}</code>
 						{#if call.selector}
@@ -75,12 +75,12 @@
 					{/if}
 					{#if call.children?.length}
 						<ul
-							data-column="gap-2"
+							data-column
 							style="list-style: none; padding-left: 1rem;"
 						>
 							{#each call.children as child (child.to + child.data)}
 								<li data-trace-call data-column="gap-0">
-									<div data-row="gap-2 align-center wrap">
+									<div data-row="align-center wrap">
 										<code>{formatAddress(child.to)}</code>
 										<code>{child.gasUsed}</code>
 									</div>

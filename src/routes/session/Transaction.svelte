@@ -18,7 +18,7 @@
 </script>
 
 <article data-card data-column="gap-1 padding-2" data-transaction data-tx-hash={transaction.txHash}>
-	<div data-row="gap-2 align-center">
+	<div data-row="align-center">
 		{#if txUrl}
 			<a href={txUrl} target="_blank" rel="noopener noreferrer" data-text="muted">
 				{txShort}

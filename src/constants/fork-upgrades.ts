@@ -21,12 +21,17 @@ export type ForkUpgrade = {
 	consensusProtocol?: ConsensusProtocol
 }
 
+/** Activation timestamps in ForkUpgrade / ForkActivation are Unix seconds. Use for display. */
+export const dateFromUnixSeconds = (
+	t: number | undefined | null,
+): Date | null => (t != null ? new Date(t * 1000) : null)
+
 const EXECUTION_SPECS_BASE =
 	'https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades'
 const CONSENSUS_SPECS_BASE = 'https://github.com/ethereum/consensus-specs/blob/master/specs'
 const FORKCAST_URL = 'https://forkcast.org'
 
-export const FORK_UPGRADES: readonly ForkUpgrade[] = [
+export const FORK_UPGRADES = [
 	{
 		name: 'Osaka',
 		slug: 'osaka',
@@ -249,7 +254,7 @@ export const FORK_UPGRADES: readonly ForkUpgrade[] = [
 		},
 		eipNumbers: [1],
 	},
-] as const
+] as const satisfies readonly ForkUpgrade[]
 
 export function getForkSlugByEraName(eraName: string): string | null {
 	const n = eraName.toLowerCase().replace(/\s+/g, '')

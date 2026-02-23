@@ -154,7 +154,7 @@
 			<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
 			{roomDisplayName}
 		{/snippet}
-		<nav data-row="gap-2 align-center wrap">
+		<nav data-row="align-center wrap">
 			<a
 				data-button
 				href={resolve(`/rooms/${roomId}`)}
@@ -184,7 +184,7 @@
 			<summary>
 				<header
 					data-card
-					data-row="wrap gap-2"
+					data-row="wrap"
 				>
 					<AccountsSelect
 						bind:connectedWallets

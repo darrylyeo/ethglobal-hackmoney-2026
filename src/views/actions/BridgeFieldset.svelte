@@ -87,7 +87,7 @@
 
 {#if action.type === ActionType.Bridge}
 	<div data-column>
-		<label data-column="gap-2">
+		<label data-column>
 			<span>From network</span>
 			<NetworkInput
 				networks={filteredNetworks}
@@ -96,7 +96,7 @@
 			/>
 		</label>
 		{#if bridgeCoins.length >= 1}
-			<label data-column="gap-2">
+			<label data-column>
 				<span>Coin</span>
 				<CoinInput
 					coins={bridgeCoins as [CoinInstance, ...CoinInstance[]]}
@@ -119,7 +119,7 @@
 				/>
 			</label>
 		{/if}
-		<label data-column="gap-2">
+		<label data-column>
 			<span>To network</span>
 			<NetworkInput
 				networks={filteredNetworks}
@@ -127,7 +127,7 @@
 				ariaLabel="To network"
 			/>
 		</label>
-		<label data-column="gap-2">
+		<label data-column>
 			<span>Amount</span>
 			{#if bridgeCoins.length >= 1}
 				<CoinAmountInput

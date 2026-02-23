@@ -32,6 +32,9 @@ export type BlockRow = BlockEntry & {
 	error?: string | null
 }
 
+/** BlockEntry.timestamp is always Unix ms. RPC returns seconds; normalize at ingest. */
+const toTimestampMs = (t: number): number => (t < 1e12 ? t * 1000 : t)
+
 export const blocksCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.Blocks,
@@ -139,7 +142,7 @@ export const fetchBlock = async (
 			number: block.number,
 			hash: block.hash,
 			parentHash: block.parentHash,
-			timestamp: block.timestamp,
+			timestamp: toTimestampMs(block.timestamp),
 			miner: block.miner,
 			gasUsed: block.gasUsed,
 			gasLimit: block.gasLimit,

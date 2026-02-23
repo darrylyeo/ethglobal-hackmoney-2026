@@ -12,7 +12,7 @@ import {
 	TRANSFER_TOPIC,
 } from '$/api/voltaire.ts'
 import { SQD_DATASETS_BY_CHAIN_ID } from '$/constants/sqd-datasets.ts'
-import { ChainId } from '$/constants/chain-ids.ts'
+import { ChainId } from '$/constants/networks.ts'
 import { streamSqdEvm } from '$/api/sqd.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import { normalizeAddress } from '$/lib/address.ts'
@@ -30,6 +30,7 @@ export type NormalizedTransferEvent = {
 	fromAddress: string
 	toAddress: string
 	amount: string
+	/** Unix time in milliseconds (normalized at API boundary). */
 	timestamp: number
 	chainId: number
 	blockNumber: number
@@ -209,7 +210,7 @@ async function fetchTransferLogsViaSqd(
 
 const USDC_CHAINS: ChainContract[] = (
 	erc20InstancesByCoinId.get(CoinId.USDC) ?? []
-).map((t) => ({ chainId: t.chainId, contractAddress: t.address }))
+).map((t) => ({ chainId: t.$id.$network.chainId, contractAddress: t.$id.address }))
 
 /** Resolve fromBlock/toBlock for a chain for the given time range (ms). */
 async function resolveBlockRange(

@@ -42,10 +42,10 @@
 </script>
 
 {#if action.type === ActionType.Bridge && p}
-	<div data-column="gap-2">
-		<div data-card data-column="gap-2">
+	<div data-column>
+		<div data-card data-column>
 			<h3>CCTP settings</h3>
-		<label data-column="gap-2">
+		<label data-column>
 			<span>Transfer speed</span>
 			<Select
 				items={transferSpeedItems}
@@ -58,7 +58,7 @@
 				ariaLabel="Transfer speed"
 			/>
 		</label>
-		<label data-row="gap-2 align-center">
+		<label data-row="align-center">
 			<input
 				type="checkbox"
 				checked={p.forwardingEnabled}

@@ -55,11 +55,11 @@
 
 <article
 	bind:this={articleRef}
-	data-card="radius-2 padding-2"
-	data-column="gap-2"
+	data-card="padding-2"
+	data-column
 	class="transfer-event-row"
 >
-	<dl data-row="wrap gap-2">
+	<dl data-row="wrap">
 		<dt>Tx</dt>
 		<dd>
 			<code>

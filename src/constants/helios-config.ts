@@ -52,7 +52,7 @@ export type HeliosConsensusEndpoint = {
 	label: string
 }
 
-export const heliosConsensusEndpoints: readonly HeliosConsensusEndpoint[] = [
+export const heliosConsensusEndpoints = [
 	// Mainnet
 	{
 		id: HeliosConsensusEndpointId.LodestarMainnet,
@@ -155,7 +155,7 @@ export const heliosConsensusEndpoints: readonly HeliosConsensusEndpoint[] = [
 		corsBrowser: false,
 		label: 'Nimbus Testing',
 	},
-] as const
+] as const satisfies readonly HeliosConsensusEndpoint[]
 
 /** Maps Helios network string (from HELIOS_CHAINS) to beacon network for consensus endpoint lookup. */
 export function heliosBeaconNetworkFor(network: string): HeliosBeaconNetwork {
@@ -194,13 +194,13 @@ export type HeliosLocalEndpoint = {
 	label: string
 }
 
-export const heliosLocalEndpoints: readonly HeliosLocalEndpoint[] = [
+export const heliosLocalEndpoints = [
 	{
 		id: HeliosLocalEndpointId.Default,
 		url: 'http://127.0.0.1:8545',
 		label: 'Local (127.0.0.1:8545)',
 	},
-] as const
+] as const satisfies readonly HeliosLocalEndpoint[]
 
 /**
  * Checkpoint is optional; when set, use a recent finalized beacon block hash

@@ -3,7 +3,8 @@
 	import type { TransferEventRow } from '$/collections/TransferEvents.ts'
 	import type { CoinInstance } from '$/constants/coin-instances.ts'
 	import type { CoinId } from '$/constants/coins.ts'
-	import EntityList from '$/components/EntityList.svelte'
+	import Collapsible from '$/components/Collapsible.svelte'
+	import ItemsList from '$/components/ItemsList.svelte'
 	import TransferEvent from '$/views/TransferEvent.svelte'
 
 
@@ -28,30 +29,23 @@
 </script>
 
 
-	<details>
-		<summary>
-			<h3>Transfers</h3>
-			<span data-text="annotation">{eventsSet.size}</span>
-		</summary>
-		<EntityList
-			title="Transfers"
-			detailsProps={{ open: true, 'data-card': '' }}
-			loaded={eventsSet.size}
-			items={eventsSet}
-			getKey={getEventKey}
-			getSortValue={(row) => -row.timestamp}
-			placeholderKeys={new Set()}
-			bind:visiblePlaceholderKeys
-			scrollPosition="End"
-		>
-			{#snippet Item({ key, item, isPlaceholder })}
-				<span id="transfer:{key}">
-					{#if isPlaceholder}
-						<code>Transfer (loading…)</code>
-					{:else}
-						<TransferEvent {item} {coin} symbol={coinId} />
-					{/if}
-				</span>
-			{/snippet}
-		</EntityList>
-	</details>
+<Collapsible title="Transfers" annotation={String(eventsSet.size)}>
+	<ItemsList
+		items={eventsSet}
+		getKey={getEventKey}
+		getSortValue={(row) => -row.timestamp}
+		placeholderKeys={new Set()}
+		bind:visiblePlaceholderKeys
+		scrollPosition="End"
+	>
+		{#snippet Item({ key, item, isPlaceholder })}
+			<span id="transfer:{key}">
+				{#if isPlaceholder}
+					<code>Transfer (loading…)</code>
+				{:else}
+					<TransferEvent {item} {coin} symbol={coinId} />
+				{/if}
+			</span>
+		{/snippet}
+	</ItemsList>
+</Collapsible>

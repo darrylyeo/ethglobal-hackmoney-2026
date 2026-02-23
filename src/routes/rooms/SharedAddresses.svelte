@@ -165,8 +165,7 @@
 				>
 					<span data-peer-name>{getPeerName(s.peerId)}</span>
 					<Address
-						network={1}
-						address={s.address}
+						actorId={{ $network: { chainId: 1 }, address: s.address }}
 					/>
 					<span data-verification>
 						{#if status === 'none'}

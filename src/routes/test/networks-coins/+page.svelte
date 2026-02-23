@@ -19,7 +19,7 @@
 	const coinsQuery = useLiveQuery((q) =>
 		q
 			.from({ row: coinsCollection })
-			.orderBy(({ row }) => row.chainId)
+			.orderBy(({ row }) => row.$id.$network.chainId)
 			.select(({ row }) => ({ row })),
 	)
 	const liveQueryEntries = [
@@ -77,8 +77,8 @@
 			<section>
 				<h2>USDC coins</h2>
 				<ul>
-					{#each coins as coin, i (`${i}-${coin.chainId}-${coin.address}`)}
-						<li>{coin.symbol} on chain {coin.chainId} — {coin.address}</li>
+					{#each coins as coin, i (`${i}-${coin.$id.$network.chainId}-${coin.$id.address}`)}
+						<li>{coin.symbol} on chain {coin.$id.$network.chainId} — {coin.$id.address}</li>
 					{/each}
 				</ul>
 			</section>

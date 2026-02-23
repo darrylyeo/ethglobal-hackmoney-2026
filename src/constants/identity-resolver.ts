@@ -5,7 +5,7 @@
  */
 
 import { DataSource } from '$/constants/data-sources.ts'
-import { ChainId } from '$/constants/chain-ids.ts'
+import { ChainId } from '$/constants/networks.ts'
 
 export enum IdentityInputKind {
 	Address = 'Address',
@@ -48,18 +48,18 @@ export type IdentityResolver = {
 	textRecordKeys?: string[],
 }
 
-export const IDENTITY_INPUT_KINDS: readonly IdentityInputKind[] = [
+export const IDENTITY_INPUT_KINDS = [
 	IdentityInputKind.Address,
 	IdentityInputKind.EnsName,
 	IdentityInputKind.EnsText,
-] as const
+] as const satisfies readonly IdentityInputKind[]
 
 export const ENS_REGISTRY_MAINNET =
 	'0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e' as const
 const ENS_UNIVERSAL_RESOLVER_MAINNET =
 	'0xc0497E381f536Be9ce14B0dD3817cBcAe57d2F62' as const
 
-export const identityResolvers: readonly IdentityResolver[] = [
+export const identityResolvers = [
 	{
 		id: 'ens-ethereum',
 		kind: IdentityInputKind.EnsName,
@@ -78,7 +78,7 @@ export const identityResolvers: readonly IdentityResolver[] = [
 		ensUniversalResolver: ENS_UNIVERSAL_RESOLVER_MAINNET,
 		textRecordKeys: ['avatar', 'url', 'twitter'],
 	},
-] as const
+] as const satisfies readonly IdentityResolver[]
 
 export const identityResolversById = Object.fromEntries(
 	identityResolvers.map((r) => [r.id, r]),

@@ -102,7 +102,7 @@
 	</dl>
 
 	<form
-		data-row="gap-2"
+		data-row
 		onsubmit={(e) => {
 			e.preventDefault()
 			handleDeposit()
@@ -124,7 +124,7 @@
 	</form>
 
 	<form
-		data-row="gap-2"
+		data-row
 		onsubmit={(e) => {
 			e.preventDefault()
 			handleWithdraw()

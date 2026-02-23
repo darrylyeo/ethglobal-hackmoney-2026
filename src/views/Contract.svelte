@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
-	import type { ContractAbi } from '$/data/Contract.ts'
+	import type { Contract$Id, ContractAbi } from '$/data/Contract.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { contractsCollection, fetchContract } from '$/collections/Contracts.ts'
@@ -14,8 +14,9 @@
 
 	// Props
 	let {
-		chainId,
-		address,
+		contractId: contractIdProp,
+		chainId: chainIdProp,
+		address: addressProp,
 		idSerialized,
 		href,
 		label,
@@ -23,8 +24,9 @@
 		abi: abiProp,
 		contractName,
 	}: {
-		chainId: ChainId
-		address: `0x${string}`
+		contractId?: Contract$Id
+		chainId?: ChainId
+		address?: `0x${string}`
 		idSerialized: string
 		href: string
 		label: string
@@ -34,7 +36,15 @@
 	} = $props()
 
 
+	// (Derived)
+	const chainId = $derived(contractIdProp?.$network.chainId ?? chainIdProp!)
+	const address = $derived(contractIdProp?.address ?? addressProp!)
+
+
 	// Context
+	const contractIdResolved = $derived(
+		contractIdProp ?? (chainId != null && address != null ? { $network: { chainId }, address } : null),
+	)
 	const contractQuery = useLiveQuery(
 		(q) =>
 			q
@@ -110,17 +120,21 @@
 	annotation="Contract"
 >
 	{#snippet Title()}
-		<span data-row="inline gap-2">
+		<span data-row="inline">
 			<code>{address}</code>
-			<NetworkName {chainId} showIcon={false} />
+			<NetworkName networkId={contractIdResolved?.$network} showIcon={false} />
 		</span>
 	{/snippet}
 
-	<Address network={chainId} {address} format={AddressFormat.MiddleTruncated} isVertical />
+	<Address
+		actorId={contractIdResolved ? { $network: contractIdResolved.$network, address: contractIdResolved.address } : undefined}
+		format={AddressFormat.MiddleTruncated}
+		isVertical
+	/>
 
 	{#if hasSourceFiles && sourceRow?.files}
 		<Boundary>
-			<details data-card="radius-2 padding-4" ontoggle={onSourceToggle}>
+			<details data-card ontoggle={onSourceToggle}>
 				<summary>
 					<h3>Verified Source</h3>
 					<span data-text="annotation">{DataSource.Sourcify}</span>
@@ -128,7 +142,7 @@
 				{#if sourceRow.metadata?.compiler}
 					<p data-text="muted">{sourceRow.metadata.compiler}</p>
 				{/if}
-				<div data-column="gap-2">
+				<div data-column>
 					{#each Object.entries(sourceRow.files) as [path, content]}
 						<details>
 							<summary><code>{path}</code></summary>
@@ -140,11 +154,10 @@
 		</Boundary>
 	{/if}
 
-	{#if hasAbi && abi}
+	{#if hasAbi && abi && contractIdResolved}
 		<Boundary>
 			<ContractAction
-				{chainId}
-				{address}
+				contractId={contractIdResolved}
 				{abi}
 				{contractName}
 			/>

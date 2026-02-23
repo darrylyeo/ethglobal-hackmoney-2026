@@ -19,6 +19,7 @@
 		networks,
 		testnetsForMainnet,
 	} from '$/constants/networks.ts'
+	import { stringify } from 'devalue'
 
 
 	// Context
@@ -54,7 +55,7 @@
 						type: 'item',
 						item: { kind: 'unlock', label: 'Unlock' },
 						id: `unlock-${wallet.$id.rdns}`,
-						onSelect: () => connect(wallet.$id.rdns),
+						onSelect: () => connect(stringify(wallet.$id)),
 					},
 					{
 						type: 'item',
@@ -363,7 +364,7 @@
 
 
 <div
-	data-row="gap-2 align-center wrap"
+	data-row="align-center wrap"
 	role="group"
 	aria-label="Network settings"
 >
@@ -380,7 +381,7 @@
 <div data-row>
 	{#if walletChips.length > 0}
 		{#if eip1193WalletChips.length > 0}
-			<div class="wallet-section" data-column="gap-2">
+			<div class="wallet-section" data-column>
 				{#if selectionMode === 'single'}
 					<ToggleGroup.Root
 						type="single"
@@ -388,9 +389,9 @@
 							() => selectedConnection?.wallet.$id.rdns ?? '',
 							onSingleSelectionChange
 						}
-						data-row="wrap gap-2"
+						data-row="wrap"
 					>
-						{#each eip1193WalletChips as { wallet, connection, status } (wallet.$id.rdns)}
+						{#each eip1193WalletChips as { wallet, connection, status } (stringify(wallet.$id))}
 							{@const isConnected = status === 'connected'}
 							{@const isReadOnly =
 								connection.transport === WalletConnectionTransport.None}
@@ -426,7 +427,7 @@
 							>
 								<span class={walletChipClass} data-row="start gap-1">
 									<NetworkIcon
-										chainId={chainId ?? selectedChainIdDerived ?? 1}
+										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
 											wallet.icon
 												? { src: wallet.icon }
@@ -438,8 +439,7 @@
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
-													network={chainId ?? selectedChainIdDerived ?? 1}
-													address={connection.activeActor}
+													actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: connection.activeActor }}
 													isLinked={false}
 												/>
 											</span>
@@ -472,17 +472,16 @@
 										{/snippet}
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option" data-row="start gap-2">
+												<span class="wallet-menu-option" data-row="start">
 													<Address
-														network={chainId ?? selectedChainIdDerived ?? 1}
-														address={item.actor}
+														actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: item.actor }}
 														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option" data-row="start gap-2">
+												<span class="wallet-menu-option" data-row="start">
 													<NetworkIcon
-														chainId={item.network.id}
+														networkId={{ chainId: item.network.id }}
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -501,9 +500,9 @@
 					<ToggleGroup.Root
 						type="multiple"
 						bind:value={() => selectedRdns, onMultipleSelectionChange}
-						data-row="wrap gap-2"
+						data-row="wrap"
 					>
-						{#each eip1193WalletChips as { wallet, connection, status } (wallet.$id.rdns)}
+						{#each eip1193WalletChips as { wallet, connection, status } (stringify(wallet.$id))}
 							{@const isConnected = status === 'connected'}
 							{@const isReadOnly =
 								connection.transport === WalletConnectionTransport.None}
@@ -539,7 +538,7 @@
 							>
 								<span class={walletChipClass} data-row="start gap-1">
 									<NetworkIcon
-										chainId={chainId ?? selectedChainIdDerived ?? 1}
+										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
 											wallet.icon
 												? { src: wallet.icon }
@@ -551,8 +550,7 @@
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
-													network={chainId ?? selectedChainIdDerived ?? 1}
-													address={connection.activeActor}
+													actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: connection.activeActor }}
 													isLinked={false}
 												/>
 											</span>
@@ -585,17 +583,16 @@
 										{/snippet}
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option" data-row="start gap-2">
+												<span class="wallet-menu-option" data-row="start">
 													<Address
-														network={chainId ?? selectedChainIdDerived ?? 1}
-														address={item.actor}
+														actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: item.actor }}
 														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option" data-row="start gap-2">
+												<span class="wallet-menu-option" data-row="start">
 													<NetworkIcon
-														chainId={item.network.id}
+														networkId={{ chainId: item.network.id }}
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -615,7 +612,7 @@
 		{/if}
 
 		{#if readOnlyWalletChips.length > 0}
-			<div class="wallet-section" data-column="gap-2">
+			<div class="wallet-section" data-column>
 				{#if selectionMode === 'single'}
 					<ToggleGroup.Root
 						type="single"
@@ -623,9 +620,9 @@
 							() => selectedConnection?.wallet.$id.rdns ?? '',
 							onSingleSelectionChange
 						}
-						data-row="wrap gap-2"
+						data-row="wrap"
 					>
-						{#each readOnlyWalletChips as { wallet, connection, status } (wallet.$id.rdns)}
+						{#each readOnlyWalletChips as { wallet, connection, status } (stringify(wallet.$id))}
 							{@const isConnected = status === 'connected'}
 							{@const isReadOnly =
 								connection.transport === WalletConnectionTransport.None}
@@ -661,7 +658,7 @@
 							>
 								<span class={walletChipClass} data-row="start gap-1">
 									<NetworkIcon
-										chainId={chainId ?? selectedChainIdDerived ?? 1}
+										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
 											wallet.icon
 												? { src: wallet.icon }
@@ -673,8 +670,7 @@
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
-													network={chainId ?? selectedChainIdDerived ?? 1}
-													address={connection.activeActor}
+													actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: connection.activeActor }}
 													isLinked={false}
 												/>
 											</span>
@@ -707,17 +703,16 @@
 										{/snippet}
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option" data-row="start gap-2">
+												<span class="wallet-menu-option" data-row="start">
 													<Address
-														network={chainId ?? selectedChainIdDerived ?? 1}
-														address={item.actor}
+														actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: item.actor }}
 														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option" data-row="start gap-2">
+												<span class="wallet-menu-option" data-row="start">
 													<NetworkIcon
-														chainId={item.network.id}
+														networkId={{ chainId: item.network.id }}
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -736,9 +731,9 @@
 					<ToggleGroup.Root
 						type="multiple"
 						bind:value={() => selectedRdns, onMultipleSelectionChange}
-						data-row="wrap gap-2"
+						data-row="wrap"
 					>
-						{#each readOnlyWalletChips as { wallet, connection, status } (wallet.$id.rdns)}
+						{#each readOnlyWalletChips as { wallet, connection, status } (stringify(wallet.$id))}
 							{@const isConnected = status === 'connected'}
 							{@const isReadOnly =
 								connection.transport === WalletConnectionTransport.None}
@@ -774,7 +769,7 @@
 							>
 								<span class={walletChipClass} data-row="start gap-1">
 									<NetworkIcon
-										chainId={chainId ?? selectedChainIdDerived ?? 1}
+										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
 											wallet.icon
 												? { src: wallet.icon }
@@ -786,8 +781,7 @@
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
-													network={chainId ?? selectedChainIdDerived ?? 1}
-													address={connection.activeActor}
+													actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: connection.activeActor }}
 													isLinked={false}
 												/>
 											</span>
@@ -820,17 +814,16 @@
 										{/snippet}
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option" data-row="start gap-2">
+												<span class="wallet-menu-option" data-row="start">
 													<Address
-														network={chainId ?? selectedChainIdDerived ?? 1}
-														address={item.actor}
+														actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: item.actor }}
 														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option" data-row="start gap-2">
+												<span class="wallet-menu-option" data-row="start">
 													<NetworkIcon
-														chainId={item.network.id}
+														networkId={{ chainId: item.network.id }}
 													/>
 													<span>{item.network.name}</span>
 												</span>
@@ -862,7 +855,7 @@
 								kind: 'wallet',
 								wallet,
 							},
-							onSelect: () => connect(wallet.$id.rdns),
+							onSelect: () => connect(stringify(wallet.$id)),
 						}))
 					:
 						[
@@ -895,7 +888,7 @@
 				{#if item.kind === 'wallet'}
 					<span
 						class="wallet-menu-option"
-						data-row="start gap-2"
+						data-row="start"
 						data-wallet-provider-option
 					>
 						{#if item.wallet.icon}
@@ -909,13 +902,13 @@
 			{/snippet}
 			<form
 				class="account-watching"
-				data-column="gap-2"
+				data-column
 				onsubmit={(event) => (event.preventDefault(), connectReadOnlyAddress())}
 			>
 				<label class="account-watching-label" for="account-watching-address">
 					Watching address
 				</label>
-				<div class="account-watching-field" data-row="gap-2">
+				<div class="account-watching-field" data-row>
 					<input
 						id="account-watching-address"
 						name="watching-address"

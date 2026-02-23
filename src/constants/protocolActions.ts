@@ -266,7 +266,7 @@ export const protocolActions = [
 			transferRequest: 'object',
 		}),
 	},
-] as const satisfies ProtocolAction[]
+] as const satisfies readonly ProtocolAction[]
 
 export type ProtocolActionEntry = (typeof protocolActions)[number]
 

@@ -329,7 +329,7 @@ span svg {
 	display: grid;
 	grid-template-columns: 1fr;
 	/* grid-template-columns: minmax(0, 1fr); */
-	gap: 1em;
+	gap: 0.5em;
 	align-content: start;
 
 	&[data-column~='start'] {
@@ -374,7 +374,7 @@ summary {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	gap: 1em;
+	gap: 0.5em;
 
 	&[data-row~='inline'] {
 		display: inline flex;
@@ -476,7 +476,7 @@ summary {
 [data-card] {
 	/* Inputs */
 	--card-backgroundColor: var(--color-bg);
-	--card-radius: 0.5em;
+	--card-radius: 0.25em;
 	--card-padding: 1em;
 
 	/* Rules */

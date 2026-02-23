@@ -137,12 +137,12 @@
 			{/if}
 		</p>
 	{:else if approvalError}
-		<div data-column="gap-2">
+		<div data-column>
 			<p data-error>{approvalError}</p>
 			<Button.Root onclick={handleApprove}>Retry</Button.Root>
 		</div>
 	{:else if hasError}
-		<div data-column="gap-2">
+		<div data-column>
 			<p data-error>{errorMessage ?? 'Failed to check approval'}</p>
 			<Button.Root onclick={() => fetchActorAllowance(allowanceId)}>
 				Retry
@@ -151,8 +151,8 @@
 	{:else if hasSufficientAllowance}
 		<p class="approval-success">✓ Approved</p>
 	{:else}
-		<div data-column="gap-2">
-			<label data-row="gap-2 align-center" data-text="muted">
+		<div data-column>
+			<label data-row="align-center" data-text="muted">
 				<Switch.Root
 					bind:checked={() => unlimited, (c) => (unlimited = c)}
 				>

@@ -35,7 +35,7 @@
 </script>
 
 <div data-column="gap-3" data-card="padding-3">
-	<div data-row="gap-2 align-center">
+	<div data-row="align-center">
 		<Select
 			items={socialPostActionTypes}
 			bind:value={() => activeDef ?? undefined, (v) => onActionTypeChange(v ?? undefined)}
@@ -46,7 +46,7 @@
 		/>
 	</div>
 
-	<div data-column="gap-2">
+	<div data-column>
 		<label for="post-text">Text</label>
 		<textarea
 			id="post-text"
@@ -60,7 +60,7 @@
 
 	{#if action.type === SocialPostActionType.ReplyToPost}
 		{@const replyParams = action.params as { parentFid: number; parentHash: string }}
-		<div data-row="gap-2 wrap">
+		<div data-row="wrap">
 			<div data-column="gap-1">
 				<label for="post-parent-fid">Parent FID</label>
 				<input

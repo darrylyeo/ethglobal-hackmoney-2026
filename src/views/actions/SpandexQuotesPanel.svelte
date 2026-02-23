@@ -138,7 +138,7 @@
 			<p data-muted>{error}</p>
 		{/if}
 		{#if provider && itemForProvider}
-			<div data-row="center gap-2">
+			<div data-row="center">
 				{#if itemForProvider.success}
 					<span>
 						{itemForProvider.simulatedOutputAmount?.toString() ?? '—'} out
@@ -155,7 +155,7 @@
 		{:else if !provider && itemsForRequest.length > 0}
 			<ul data-column>
 				{#each itemsForRequest as item}
-					<li data-row="center gap-2">
+					<li data-row="center">
 						<span>{item.provider}</span>
 						{#if item.success}
 							<span>

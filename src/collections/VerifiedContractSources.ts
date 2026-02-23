@@ -17,8 +17,9 @@ import type {
 	VerifiedContractSource$Id,
 } from '$/data/VerifiedContractSource.ts'
 
+/** Normalize address to lowercase for consistent cache keys. */
 const getKey = (row: VerifiedContractSourceRow) =>
-	`${row.$id.$network.chainId}:${row.$id.address}`
+	`${row.$id.$network.chainId}:${row.$id.address.toLowerCase()}`
 
 export type VerifiedContractSourceRow = VerifiedContractSourceEntry & {
 	$source: DataSource
@@ -40,7 +41,7 @@ export async function fetchVerifiedContractSource(
 	chainId: ChainId,
 	address: `0x${string}`,
 ): Promise<VerifiedContractSourceEntry | null> {
-	const key = `${chainId}:${address}` as unknown as Parameters<
+	const key = `${chainId}:${address.toLowerCase()}` as unknown as Parameters<
 		typeof verifiedContractSourcesCollection.state.get
 	>[0]
 

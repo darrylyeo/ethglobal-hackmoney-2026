@@ -18,10 +18,10 @@
 
 
 	// Components
-	import EntityList from '$/components/EntityList.svelte'
+	import ItemsListView from '$/components/ItemsListView.svelte'
 </script>
 
-<EntityList
+<ItemsListView
 	title="Consensus"
 	detailsProps={{ open: true, ...detailsProps }}
 	loaded={epochs.size}
@@ -56,4 +56,4 @@
 			</span>
 		{/if}
 	{/snippet}
-</EntityList>
+</ItemsListView>

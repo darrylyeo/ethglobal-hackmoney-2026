@@ -1,6 +1,6 @@
 /**
  * Chainlist (chainlist.org / DefiLlama) API client. Used only to populate ChainIdChains collection.
- * For slug→chainId use networksBySlug from $/constants/networks.ts exclusively.
+ * For chainId lookup use networksByChainId from $/constants/networks.ts.
  */
 
 export const CHAINLIST_RPCS_URL = 'https://chainlist.org/rpcs.json'

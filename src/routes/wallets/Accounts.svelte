@@ -14,6 +14,7 @@
 		networksByChainId,
 	} from '$/constants/networks.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
+	import { stringify } from 'devalue'
 
 	type WalletConnectItem =
 		| { kind: 'wallet'; wallet: WalletRow }
@@ -197,9 +198,9 @@
 
 <div data-row="wrap align-start">
 	<details data-row-item="flexible" data-card="radius-4" open>
-		<summary data-row="gap-2 align-center wrap">
+		<summary data-row="align-center wrap">
 			<div data-row>
-				<div data-row="gap-2 align-center">
+				<div data-row="align-center">
 					<h4>Watching addresses</h4>
 
 					<span
@@ -225,10 +226,10 @@
 					{#snippet children()}
 						<form
 							class="add-form"
-							data-column="gap-2"
+							data-column
 							onsubmit={(e) => (e.preventDefault(), connectReadOnlyAddress())}
 						>
-							<div data-row="gap-2 align-center">
+							<div data-row="align-center">
 								<span data-row-item="flexible">
 									<AddressInput
 										items={[]}
@@ -248,17 +249,16 @@
 			</div>
 		</summary>
 
-		<ul class="list" data-column="gap-2">
-			{#each readOnlyChips as { wallet, connection } (wallet.$id.rdns)}
+		<ul class="list" data-column>
+			{#each readOnlyChips as { wallet, connection } (stringify(wallet.$id))}
 				<li>
 					<div
 						data-card="padding-2 radius-3"
-						data-row="gap-2 align-center wrap"
+						data-row="align-center wrap"
 					>
 						{#if connection.activeActor}
 							<Address
-								network={1}
-								address={connection.activeActor}
+								actorId={{ $network: { chainId: 1 }, address: connection.activeActor }}
 								isLinked={false}
 							/>
 						{/if}
@@ -279,7 +279,7 @@
 	<details data-row-item="flexible" data-card="radius-4" open>
 		<summary>
 			<div data-row>
-				<div data-row="gap-2 align-center">
+				<div data-row="align-center">
 					<h3 class="section-heading">Wallet Connections</h3>
 
 					<span
@@ -304,7 +304,7 @@
 				>
 					{#snippet Item(item)}
 						{#if item.kind === 'wallet'}
-							<span data-row="gap-2 align-center" data-wallet-provider-option>
+							<span data-row="align-center" data-wallet-provider-option>
 								{#if item.wallet.icon}
 									<Icon src={item.wallet.icon} />
 								{/if}
@@ -319,7 +319,7 @@
 		</summary>
 
 		<ul data-list="unstyled">
-			{#each eip1193Chips as { wallet, connection, status } (wallet.$id.rdns)}
+			{#each eip1193Chips as { wallet, connection, status } (stringify(wallet.$id))}
 				{@const chainId = connection.chainId ?? 1}
 				{@const networkName = connection.chainId
 					? (networksByChainId[connection.chainId]?.name ??
@@ -328,11 +328,11 @@
 				{@const chainIcon = networksByChainId[chainId]?.icon}
 
 				<li>
-					<details data-card="radius-2" open>
+					<details data-card open>
 						<summary data-status={status}>
 							<div data-row>
 								<div data-row>
-									<span data-row="gap-2 align-center">
+									<span data-row="align-center">
 										{#if wallet.icon}
 											<Icon
 												src={wallet.icon}
@@ -350,11 +350,10 @@
 										<span>{wallet.name}</span>
 									</span>
 
-									<span class="meta" data-row="gap-2 align-center">
+									<span class="meta" data-row="align-center">
 										{#if connection.activeActor}
 											<Address
-												network={chainId}
-												address={connection.activeActor}
+												actorId={{ $network: { chainId }, address: connection.activeActor }}
 												isLinked={false}
 											/>
 										{:else}
@@ -382,13 +381,13 @@
 								</span>
 							</div>
 						</summary>
-						<div class="panel" data-column="gap-2">
+						<div class="panel" data-column>
 							{#if (connection.actors ?? []).length > 0}
 								<details class="nested" open>
 									<summary>
 										Accounts ({connection.actors.length})
 									</summary>
-									<ul class="list" data-column="gap-2">
+									<ul class="list" data-column>
 										{#each connection.actors ?? [] as actor}
 											<li>
 												<button
@@ -397,8 +396,7 @@
 													onclick={() => switchActiveActor(wallet.$id, actor)}
 												>
 													<Address
-														network={chainId}
-														address={actor}
+														actorId={{ $network: { chainId }, address: actor }}
 														isLinked={false}
 													/>
 													{#if connection.activeActor === actor}
@@ -414,7 +412,7 @@
 							{#if filteredNetworks.length > 0 && status === 'connected'}
 								<details class="nested" open>
 									<summary> Network </summary>
-									<div data-row="gap-2 align-center wrap">
+									<div data-row="align-center wrap">
 										<span>{networkName ?? 'Unknown'}</span>
 										<NetworkInput
 											networks={filteredNetworks}

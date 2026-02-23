@@ -56,8 +56,8 @@
 	const defaultBalanceTokens = $derived(
 		filteredNetworks.flatMap((n) =>
 			(erc20TokenByNetwork.get(n.chainId) ?? []).map((t) => ({
-				chainId: t.chainId,
-				tokenAddress: t.address,
+				chainId: t.$id.$network.chainId,
+				tokenAddress: t.$id.address,
 			})),
 		),
 	)
@@ -68,7 +68,7 @@
 						.get(t.chainId)
 						?.find(
 							(e) =>
-								e.address.toLowerCase() ===
+								e.$id.address.toLowerCase() ===
 								t.tokenAddress.toLowerCase(),
 						)
 					return e ? [e] : []
@@ -79,6 +79,14 @@
 	)
 	const effectiveBalanceTokens = $derived(
 		balanceTokens.length > 0 ? balanceTokens : defaultBalanceTokens,
+	)
+	const actorId = $derived(
+		selectedActor && selectedChainId != null
+			? ({
+				$network: { chainId: selectedChainId },
+				address: selectedActor,
+			} as import('$/data/Actor.ts').Actor$Id)
+			: null,
 	)
 
 	$effect(() => {
@@ -145,7 +153,7 @@
 		{/snippet}
 		<details open data-card>
 			<summary>
-				<header data-row="wrap gap-2">
+				<header data-row="wrap">
 					<AccountsSelect
 						bind:connectedWallets
 						bind:selectedActor
@@ -155,7 +163,7 @@
 			</summary>
 			<div data-column>
 				<CoinBalances
-					{selectedActor}
+					actorId={actorId}
 					balanceTokens={effectiveBalanceTokens}
 					availableAccounts={connectedWallets
 						.map((w) => w.connection.activeActor)

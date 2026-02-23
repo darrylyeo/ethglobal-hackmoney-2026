@@ -13,7 +13,7 @@
 	)
 </script>
 
-<div data-column="gap-2">
+<div data-column>
 	{#if agent.description}
 		<p>{agent.description}</p>
 	{/if}

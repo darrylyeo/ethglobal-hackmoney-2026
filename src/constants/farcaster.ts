@@ -19,7 +19,7 @@ export const FARCASTER_HUB_NODES = [
 		id: FarcasterHubNode.StandardCrypto,
 		url: 'https://hub.farcaster.standardcrypto.vc:2281',
 	},
-] as const
+] as const satisfies readonly { id: FarcasterHubNode; url: string }[]
 
 export const farcasterHubNodeUrlById = Object.fromEntries(
 	FARCASTER_HUB_NODES.map((e) => [e.id, e.url]),

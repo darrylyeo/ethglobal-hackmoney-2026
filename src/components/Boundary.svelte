@@ -39,11 +39,11 @@
 			{@render Failed(error, retry)}
 		{:else}
 			<div data-card>
-				<header data-row="wrap gap-2">
-					<div data-row="start gap-2" data-row-item="flexible">
+				<header data-row="wrap">
+					<div data-row="start" data-row-item="flexible">
 						<h3>Error</h3>
 					</div>
-					<div data-row="gap-2">
+					<div data-row>
 						{#if retry}
 							<button onclick={retry}>Retry</button>
 						{/if}

@@ -42,7 +42,8 @@ export const identityLinks = createCollection(
 
 export const ensureIdentityLink = (chainId: ChainId, raw: string): void => {
 	const key = identityLinkKey(chainId, raw)
-	if (identityLinks.state.get(key)) return
+	const existing = identityLinks.state.get(key) as IdentityLinkRow | undefined
+	if (existing && !existing.isLoading) return
 	fetchIdentityLink(chainId, raw).catch(() => {})
 }
 
@@ -76,12 +77,30 @@ export const fetchIdentityLink = async (
 	const existing = identityLinks.state.get(key) as
 		| IdentityLinkRow
 		| undefined
-	const partial = await resolveIdentity(
-		provider,
-		chainId,
-		raw,
-		existing ?? null,
-	)
+	let partial: Awaited<ReturnType<typeof resolveIdentity>>
+	try {
+		partial = await resolveIdentity(
+			provider,
+			chainId,
+			raw,
+			existing ?? null,
+		)
+	} catch {
+		const failed: IdentityLinkRow = {
+			id: key,
+			raw,
+			normalized,
+			kind,
+			chainId,
+			createdAt: existing?.createdAt ?? now,
+			updatedAt: now,
+			source: DataSource.Voltaire,
+			$source: DataSource.Voltaire,
+			isLoading: false,
+		}
+		identityLinks.utils.writeUpsert(failed)
+		throw new Error('Identity resolution failed')
+	}
 	const row: IdentityLinkRow = {
 		id: key,
 		raw,

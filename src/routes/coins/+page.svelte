@@ -38,11 +38,11 @@
 </svelte:head>
 
 
-<main data-column="gap-2">
+<main data-column>
 	<h1>Coins</h1>
-	<ul data-column="gap-2">
+	<ul data-column>
 		{#each coinsWithInstance as { coinId, coin } (coinId)}
-			<li data-row="start gap-2 align-center">
+			<li data-row="start align-center">
 				<EntityId
 					link={resolve(`/coin/${coinId}`)}
 					draggableText={coin.symbol}

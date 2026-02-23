@@ -1,31 +1,18 @@
 /**
- * Network-scoped path builders. Uses networksByChainId from constants/networks.
+ * Network-scoped path builders.
  */
 
-import { networksByChainId } from '$/constants/networks.ts'
-
-export const getTxPath = (chainId: number, txHash: string) => {
-	const slug = networksByChainId[chainId]?.slug
-	return slug != null
-		? `/network/${slug}/transaction/${txHash}`
-		: `/network/${chainId}/transaction/${txHash}`
-}
+export const getTxPath = (chainId: number, txHash: string) =>
+	`/network/${chainId}/transaction/${txHash}`
 
 export const getBlockPath = (
 	chainId: number,
 	blockNumber: number | string,
-) => {
-	const slug = networksByChainId[chainId]?.slug
-	return slug != null
-		? `/network/${slug}/block/${blockNumber}`
-		: `/network/${chainId}/block/${blockNumber}`
-}
+) => `/network/${chainId}/block/${blockNumber}`
 
-export const getForksPagePath = (chainId: number) => {
-	const slug = networksByChainId[chainId]?.slug
-	return slug != null
-		? `/network/${slug}/forks`
-		: `/network/${chainId}/forks`
-}
+export const getNetworkPath = (chainId: number) => `/network/${chainId}`
+
+export const getForksPagePath = (chainId: number) =>
+	`/network/${chainId}/forks`
 
 export const getAccountPath = (address: string) => `/account/${address}`

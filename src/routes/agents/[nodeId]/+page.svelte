@@ -172,7 +172,7 @@
 				annotation="Conversation"
 			>
 				<p data-text="muted">Start the conversation by typing a prompt.</p>
-				<div data-row="gap-2 align-center">
+				<div data-row="align-center">
 					<ModelInput
 						connections={llmConnections}
 						bind:value={modelValue}
@@ -199,7 +199,7 @@
 			annotation="Conversation"
 		>
 			<p data-text="muted">Start the conversation by typing a prompt.</p>
-			<div data-row="gap-2 align-center">
+			<div data-row="align-center">
 				<ModelInput
 					connections={llmConnections}
 					bind:value={modelValue}

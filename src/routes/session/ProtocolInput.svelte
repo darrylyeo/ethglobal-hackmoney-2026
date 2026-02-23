@@ -37,13 +37,13 @@
 {#if options.length === 0}
 	<p data-text="muted">No protocol for this action</p>
 {:else}
-	<div data-column="gap-2">
+	<div data-column>
 		{#each rows as row (row.option.id)}
 			<div
 				class="protocol-row"
 				data-card="radius-6 padding-3"
 				data-protocol={row.option.id}
-				data-row="gap-2 wrap"
+				data-row="wrap"
 				data-selected={
 					row.option.id === value || (resolvedProtocol === row.option.id && value !== '')
 						? ''

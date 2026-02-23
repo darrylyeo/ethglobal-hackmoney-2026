@@ -29,9 +29,9 @@
 </script>
 
 {#if action.type === ActionType.Bridge && p}
-	<div data-card data-column="gap-2">
+	<div data-card data-column>
 		<h3>LI.FI settings</h3>
-		<label data-column="gap-2">
+		<label data-column>
 			<span>Slippage</span>
 			<Select
 				items={slippagePresets}
@@ -54,7 +54,7 @@
 				ariaLabel="Slippage"
 			/>
 		</label>
-		<label data-column="gap-2">
+		<label data-column>
 			<span>Custom %</span>
 			<input
 				type="text"

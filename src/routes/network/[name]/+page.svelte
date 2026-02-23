@@ -36,8 +36,6 @@
 	const network = $derived(
 		route?.network ?? ({ name: '', type: 'Mainnet' } as unknown as ParsedNetworkParam['network']),
 	)
-	const slug = $derived(route?.slug ?? '')
-	const caip2 = $derived(route?.caip2 ?? '')
 
 
 	// State
@@ -171,7 +169,7 @@
 </svelte:head>
 
 
-<main data-column="gap-2">
+<main data-column>
 	{#if !route}
 		<h1>Network not found</h1>
 		<p>The network "{name}" could not be resolved.</p>
@@ -183,21 +181,15 @@
 					? ({
 						...networkQuery.data[0].row,
 						network: route.network,
-						slug: route.slug,
-						caip2: route.caip2,
-					} as Entity<EntityType.Network> & {
-						network: typeof route.network
-						slug: string
-						caip2: string
-					})
+					} as Entity<EntityType.Network> & { network: typeof route.network })
 					: undefined
 			}
-			idSerialized={slug}
+			idSerialized={name}
 			href={resolve(`/network/${name}`)}
 			label={network.name}
 			metadata={[
 				{ term: 'Chain ID', detail: String(chainId) },
-				{ term: 'CAIP-2', detail: caip2 },
+				{ term: 'CAIP-2', detail: `eip155:${chainId}` },
 				...(
 					'nativeCurrency' in network && network.nativeCurrency
 						? [{ term: 'Currency', detail: network.nativeCurrency.symbol }]
@@ -206,7 +198,7 @@
 			]}
 		>
 			{#snippet Title()}
-				<NetworkName {chainId} />
+				<NetworkName networkId={{ chainId }} />
 			{/snippet}
 			{#snippet AfterTitle({ entity })}
 				{#if entity && 'network' in entity && entity.network?.type}
@@ -230,13 +222,12 @@
 						{/if}
 					</div>
 				{/if}
-				<section data-column="gap-2">
-					<NetworkContracts chainId={chainId} nameParam={name} />
+				<section data-column>
+					<NetworkContracts networkId={{ chainId }} nameParam={name} />
 				</section>
 				<NetworkView
 					data={blocksViewFrom(chainId, blocksQuery.data ?? []).networkData}
-					chainId={chainId}
-					nameParam={name}
+					networkId={{ chainId }}
 					placeholderBlockIds={
 						new Set<number | [number, number]>([[0, latestBlockNumber]])
 					}

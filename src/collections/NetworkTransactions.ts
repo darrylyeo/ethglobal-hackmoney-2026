@@ -10,6 +10,7 @@ import {
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { ChainId } from '$/constants/networks.ts'
+import { normalizeAddress } from '$/lib/address.ts'
 import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 import {
@@ -18,8 +19,12 @@ import {
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 
+/** Normalize tx hash to lowercase for consistent cache keys. Use at route/API boundary. */
+export const normalizeTxHash = (h: `0x${string}`): `0x${string}` =>
+	h.slice(0, 2) + h.slice(2).toLowerCase() as `0x${string}`
+
 const getKey = (row: ChainTransactionEntry) =>
-	`${row.$id.$network.chainId}:${row.$id.txHash}`
+	`${row.$id.$network.chainId}:${normalizeTxHash(row.$id.txHash)}`
 
 export type ChainTransactionRow = ChainTransactionEntry & {
 	$source: DataSource
@@ -40,7 +45,8 @@ export const fetchNetworkTransaction = async (
 	chainId: ChainId,
 	txHash: `0x${string}`,
 ): Promise<ChainTransactionEntry> => {
-	const key = `${chainId}:${txHash}`
+	const normalized = normalizeTxHash(txHash)
+	const key = `${chainId}:${normalized}`
 	if (networkTransactionsCollection.state.get(key)) {
 		networkTransactionsCollection.update(key, (draft) => {
 			draft.isLoading = true
@@ -48,7 +54,7 @@ export const fetchNetworkTransaction = async (
 		})
 	} else {
 		networkTransactionsCollection.insert({
-			$id: { $network: { chainId }, txHash },
+			$id: { $network: { chainId }, txHash: normalized },
 			blockNumber: 0,
 			blockHash: '',
 			from: '',
@@ -85,12 +91,12 @@ export const fetchNetworkTransaction = async (
 			throw new Error('Transaction not found')
 		}
 		const row: ChainTransactionRow = {
-			$id: { $network: { chainId }, txHash },
+			$id: { $network: { chainId }, txHash: normalized },
 			blockNumber: parseInt(tx.blockNumber, 16),
 			blockHash: tx.blockHash,
 			transactionIndex: parseInt(tx.transactionIndex, 16),
-			from: tx.from,
-			to: tx.to,
+			from: (normalizeAddress(tx.from as `0x${string}`) ?? tx.from),
+			to: tx.to ? (normalizeAddress(tx.to as `0x${string}`) ?? tx.to) : null,
 			value: tx.value,
 			nonce: parseInt(tx.nonce, 16),
 			input: tx.input,
@@ -99,7 +105,9 @@ export const fetchNetworkTransaction = async (
 			type: tx.type ? parseInt(tx.type, 16) : undefined,
 			status: receipt ? parseInt(receipt.status, 16) : undefined,
 			gasUsed: receipt ? BigInt(receipt.gasUsed) : undefined,
-			contractAddress: receipt?.contractAddress ?? null,
+			contractAddress: receipt?.contractAddress
+				? (normalizeAddress(receipt.contractAddress as `0x${string}`) ?? receipt.contractAddress)
+				: null,
 			effectiveGasPrice: receipt?.effectiveGasPrice ? BigInt(receipt.effectiveGasPrice) : undefined,
 			logs: receipt?.logs ?? [],
 			$source: DataSource.Voltaire,

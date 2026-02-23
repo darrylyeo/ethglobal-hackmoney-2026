@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
-	import type { ContractAbi } from '$/data/Contract.ts'
+	import type { Contract$Id, ContractAbi } from '$/data/Contract.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import { encodeFunction, decodeParameters } from '@tevm/voltaire/Abi'
@@ -25,14 +25,16 @@
 
 	// Props
 	let {
-		chainId,
-		address,
+		contractId: contractIdProp,
+		chainId: chainIdProp,
+		address: addressProp,
 		abi,
 		contractName,
 		from: fromProp,
 	}: {
-		chainId: ChainId
-		address: `0x${string}`
+		contractId?: Contract$Id
+		chainId?: ChainId
+		address?: `0x${string}`
 		abi: ContractAbi
 		contractName?: string
 		from?: `0x${string}` | null
@@ -40,6 +42,8 @@
 
 
 	// (Derived)
+	const chainId = $derived(contractIdProp?.$network.chainId ?? chainIdProp!)
+	const address = $derived(contractIdProp?.address ?? addressProp!)
 	type AbiFn = (typeof abi)[number] & { type: 'function' }
 	const functions = $derived(
 		abi.filter((x): x is AbiFn => x.type === 'function') as AbiFn[],
@@ -224,7 +228,7 @@
 
 
 	<details>
-		<summary data-row="gap-2 justify-between">
+		<summary data-row="justify-between">
 			<h3>Smart Contract Interactions</h3>
 		</summary>
 
@@ -252,7 +256,7 @@
 				<h4>Parameters</h4>
 				{#each (selectedMethod.inputs ?? []) as input, i}
 					{@const key = getInputKey(input.name ?? `param${i}`, i)}
-					<label data-row="gap-2">
+					<label data-row>
 						<span>{input.name ?? `Param ${i + 1}`}</span>
 						{#if input.type === 'address'}
 							<PatternInput
@@ -282,7 +286,7 @@
 					</label>
 				{/each}
 				{#if selectedMethod.stateMutability === 'payable'}
-					<label data-row="gap-2">
+					<label data-row>
 						<span>Value (wei)</span>
 						<input
 							type="text"
@@ -295,7 +299,7 @@
 
 			<section data-card data-column>
 				<h4>Execute</h4>
-				<div data-row="gap-2">
+				<div data-row>
 					{#if isReadOnly}
 						<button
 							disabled={!getEncodedData() || !rpcUrl || simulateInProgress}

@@ -40,7 +40,7 @@
 </script>
 
 
-<details data-card data-column="gap-2">
+<details data-card data-column>
 	<summary>
 		<h4>Simulations</h4>
 	</summary>

@@ -1,7 +1,7 @@
 import type { Contract$Id } from '$/data/Contract.ts'
 import type { Media } from '$/constants/media.ts'
 import type { Network$Id } from '$/data/Network.ts'
-import { ChainId } from '$/constants/chain-ids.ts'
+import { ChainId } from '$/constants/networks.ts'
 import { CoinId } from '$/constants/coins.ts'
 import { networks } from '$/constants/networks.ts'
 

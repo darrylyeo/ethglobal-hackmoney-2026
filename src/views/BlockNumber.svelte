@@ -1,16 +1,19 @@
 <script lang="ts">
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
+	import type { Network$Id } from '$/data/Network.ts'
 	import { getBlockPath } from '$/lib/network-paths.ts'
 
 
 	// Props
 	let {
-		chainId,
+		networkId: networkIdProp,
+		chainId: chainIdProp,
 		blockNumber,
 		isLinked = true,
 	}: {
-		chainId: ChainId
+		networkId?: Network$Id
+		chainId?: ChainId
 		blockNumber: number
 		isLinked?: boolean
 	} = $props()
@@ -24,7 +27,7 @@
 
 <EntityId
 	link={isLinked
-		? getBlockPath(chainId, blockNumber)
+		? getBlockPath(networkIdProp?.chainId ?? chainIdProp ?? (0 as ChainId), blockNumber)
 		: undefined}
 	draggableText={String(blockNumber)}
 	className="block-number"

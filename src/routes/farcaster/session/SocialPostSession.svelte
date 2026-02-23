@@ -89,7 +89,7 @@
 		{/snippet}
 		<details open data-card>
 			<summary>
-				<header data-row="wrap gap-2">
+				<header data-row="wrap">
 					<FarcasterAccountSelect />
 				</header>
 			</summary>

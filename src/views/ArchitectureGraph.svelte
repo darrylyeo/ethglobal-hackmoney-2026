@@ -682,7 +682,7 @@
 
 		<aside
 			class="architecture-graph__details"
-			data-column="gap-2"
+			data-column
 			aria-live="polite"
 		>
 			<h3>Details</h3>

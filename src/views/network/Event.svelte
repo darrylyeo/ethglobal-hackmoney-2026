@@ -67,9 +67,9 @@
 </script>
 
 
-<details data-card="radius-2 padding-2" id="event:{logIndex}">
+<details data-card="padding-2" id="event:{logIndex}">
 	<summary>
-		<div data-row="wrap gap-2 align-center">
+		<div data-row="wrap align-center">
 			<code>#{logIndex}</code>
 			{#if decoded}
 				<code>{decoded.name}</code>
@@ -79,9 +79,9 @@
 						<span>{sig}</span>
 					{/each}
 				</code>
-				<Address network={chainId} address={event.address as `0x${string}`} />
+				<Address actorId={{ $network: { chainId }, address: event.address as `0x${string}` }} />
 			{:else}
-				<Address network={chainId} address={event.address as `0x${string}`} />
+				<Address actorId={{ $network: { chainId }, address: event.address as `0x${string}` }} />
 				{#if event.topics[0]}
 					<TruncatedValue value={event.topics[0]} startLength={10} endLength={4} />
 				{/if}
@@ -104,7 +104,7 @@
 				<dt>Log Index</dt>
 				<dd>{logIndex}</dd>
 				<dt>Address</dt>
-				<dd><Address network={chainId} address={event.address as `0x${string}`} /></dd>
+				<dd><Address actorId={{ $network: { chainId }, address: event.address as `0x${string}` }} /></dd>
 				{#each event.topics as topic, i}
 					<dt>Topic {i}</dt>
 					<dd><TruncatedValue value={topic} /></dd>
@@ -123,7 +123,7 @@
 			<dt>Log Index</dt>
 			<dd>{logIndex}</dd>
 			<dt>Address</dt>
-			<dd><Address network={chainId} address={event.address as `0x${string}`} /></dd>
+			<dd><Address actorId={{ $network: { chainId }, address: event.address as `0x${string}` }} /></dd>
 			{#each event.topics as topic, i}
 				<dt>Topic {i}</dt>
 				<dd><TruncatedValue value={topic} /></dd>

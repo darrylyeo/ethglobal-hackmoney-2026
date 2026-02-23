@@ -3,7 +3,7 @@
 	import type { ChainId } from '$/constants/networks.ts'
 	import { PatternType } from '$/constants/patterns.ts'
 	import { fetchContract } from '$/collections/Contracts.ts'
-	import { formatAddress } from '$/lib/address.ts'
+	import { formatAddress, normalizeAddress } from '$/lib/address.ts'
 	import { matchesEntityRefPattern, parseNetworkNameParam } from '$/lib/patterns.ts'
 
 
@@ -18,14 +18,13 @@
 	const route = $derived(parseNetworkNameParam(name))
 	const address = $derived(
 		addrParam && matchesEntityRefPattern(addrParam, PatternType.EvmAddress)
-			? (addrParam.startsWith('0x')
-				? (addrParam as `0x${string}`)
-				: (`0x${addrParam}` as `0x${string}`))
+			? normalizeAddress(
+				addrParam.startsWith('0x') ? addrParam : `0x${addrParam}`,
+			) ?? null
 			: null,
 	)
 	const chainId = $derived(route?.chainId ?? (0 as ChainId))
 	const network = $derived(route?.network ?? { name: '' })
-	const slug = $derived(route?.slug ?? '')
 	const valid = $derived(!!route && !!address)
 
 
@@ -49,7 +48,7 @@
 </svelte:head>
 
 
-<main data-column="gap-2">
+<main data-column>
 	{#if !valid}
 		<h1>Not found</h1>
 		<p>
@@ -61,9 +60,8 @@
 		</p>
 	{:else if address}
 		<Contract
-			chainId={chainId}
-			address={address}
-			idSerialized={`${slug}:${address.toLowerCase()}`}
+			contractId={{ $network: { chainId }, address }}
+			idSerialized={`${chainId}:${address.toLowerCase()}`}
 			href={resolve(`/network/${name}/contract/${address}`)}
 			label={formatAddress(address)}
 			metadata={[

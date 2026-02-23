@@ -77,12 +77,12 @@
 >
 	{#snippet Before()}
 		{#if uniqueValue.length > 0}
-			<span data-row="start gap-2">
+			<span data-row="start">
 				{#each uniqueValue as chainIdStr (chainIdStr)}
 					{@const chainId = Number(chainIdStr)}
 					{#if !Number.isNaN(chainId)}
 						<span class="network-input-icon">
-							<NetworkIcon {chainId} />
+							<NetworkIcon networkId={{ chainId }} />
 						</span>
 					{/if}
 				{/each}
@@ -90,9 +90,9 @@
 		{/if}
 	{/snippet}
 	{#snippet Item(network, selected)}
-		<span data-row="start gap-2" data-selected={selected}>
+		<span data-row="start" data-selected={selected}>
 			<span class="network-input-icon">
-				<NetworkIcon chainId={network.chainId} />
+				<NetworkIcon networkId={{ chainId: network.chainId }} />
 			</span>
 			<span>{network.name}</span>
 		</span>

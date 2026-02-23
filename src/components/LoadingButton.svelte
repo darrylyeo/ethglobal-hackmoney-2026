@@ -23,7 +23,7 @@
 
 <Button.Root
 	{...props}
-	data-row="start gap-2"
+	data-row="start"
 	class="loading-button"
 	disabled={isLoading || disabled}
 	aria-busy={isLoading || undefined}

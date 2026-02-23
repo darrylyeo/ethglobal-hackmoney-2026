@@ -118,12 +118,11 @@
 		{@const counterparty = getCounterparty(channel)}
 		{@const myBalance = getMyBalance(channel)}
 		<div
-			data-row="wrap gap-2"
+			data-row="wrap"
 			data-status={channel.status}
 		>
 			<Address
-				network={channel.chainId}
-				address={counterparty}
+				actorId={{ $network: { chainId: channel.chainId }, address: counterparty }}
 			/>
 			<span class="channel-balance">
 				{formatSmallestToDecimal(myBalance, 6)} USDC

@@ -112,7 +112,7 @@
 
 <form
 	data-entity-ref-input
-	data-row="gap-2"
+	data-row
 	onsubmit={(e) => (e.preventDefault(), handleSubmit())}
 >
 	<div data-row-item="flexible">

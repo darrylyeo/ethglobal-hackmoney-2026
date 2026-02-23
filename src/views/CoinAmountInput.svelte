@@ -52,7 +52,7 @@
 <div
 	{...rootProps}
 	class="coin-amount"
-	data-row="gap-2"
+	data-row
 	data-invalid={isInvalid ? '' : undefined}
 >
 	{#if effectiveCoin}

@@ -107,7 +107,7 @@
 >
 	<h1>Channels – {roomDisplayName}</h1>
 
-	<p data-row="wrap gap-2 align-center">
+	<p data-row="wrap align-center">
 		<span
 			data-partykit-status
 			data-status={roomState.connectionStatus}

@@ -4,9 +4,10 @@
 	import type { LlmConnectionRow } from '$/collections/LlmConnections.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import type { AgentChatTree } from '$/data/AgentChatTree.ts'
-	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
+	import type { AgentChatTurn } from '$/data/AgentChatTree.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import type { WalletConnection$Id } from '$/data/WalletConnection.ts'
+	import { stringify } from 'devalue'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
 
@@ -95,7 +96,7 @@
 	data-column="gap-4"
 	id="agent-chat:{tree.id}"
 >
-	<div data-row="gap-2 align-center">
+	<div data-row="align-center">
 		<input
 			type="text"
 			bind:value={() => tree.name ?? '', updateTreeName}
@@ -111,7 +112,7 @@
 	</div>
 
 	{#if connections.length > 0}
-		<div data-row="gap-2 align-center">
+		<div data-row="align-center">
 			<label for="tree-model-{tree.id}">Default model</label>
 			<ModelInput
 				id="tree-model-{tree.id}"
@@ -123,7 +124,7 @@
 		</div>
 	{/if}
 
-	<div data-row="gap-2 align-center">
+	<div data-row="align-center">
 		<label for="tree-payment-{tree.id}">Payment account</label>
 		<select
 			id="tree-payment-{tree.id}"
@@ -139,7 +140,7 @@
 			}}
 		>
 			<option value="">No payment wallet</option>
-			{#each eip1193Connections as conn (JSON.stringify(conn.$id))}
+			{#each eip1193Connections as conn (stringify(conn.$id))}
 				{@const connIdStr = JSON.stringify(conn.$id)}
 				{@const addr = conn.activeActor ?? conn.actors[0] ?? null}
 				<option value={connIdStr}>

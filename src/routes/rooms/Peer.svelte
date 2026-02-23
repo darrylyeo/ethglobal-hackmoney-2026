@@ -26,7 +26,7 @@
 </script>
 
 
-<span data-row="wrap gap-2 align-center">
+<span data-row="wrap align-center">
 	<span
 		class="peer-avatar-wrap"
 		data-connected={showStatus ? peer.isConnected : undefined}

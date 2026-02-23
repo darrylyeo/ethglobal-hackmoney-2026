@@ -60,7 +60,7 @@
 	data-card
 	data-column="gap-3"
 >
-	<header data-row="gap-2 align-center justify-between">
+	<header data-row="align-center justify-between">
 		<h3>{title}</h3>
 		<span data-text="muted">{assetIds.length} feeds</span>
 	</header>
@@ -68,12 +68,12 @@
 	{#if assetIds.length === 0}
 		<p data-text="muted">No Stork assets selected.</p>
 	{:else}
-		<ul data-column="gap-2">
+		<ul data-column>
 			{#each assetIds as assetId (assetId)}
 				{@const best = getBestStorkPrice(prices, assetId, chainId ?? null)}
 				<li
 					class="stork-price-row"
-					data-row="gap-2 align-center justify-between"
+					data-row="align-center justify-between"
 				>
 					<span class="stork-asset-id">{assetId}</span>
 					{#if best}

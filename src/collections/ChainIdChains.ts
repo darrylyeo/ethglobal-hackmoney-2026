@@ -1,6 +1,6 @@
 /**
  * Chainlist (chainlist.org) chains in TanStack DB. Populated by our API client only.
- * For slug→chainId use networksBySlug from $/constants/networks.ts exclusively.
+ * For chainId lookup use networksByChainId from $/constants/networks.ts.
  */
 
 import type { ChainListChain } from '$/api/chainlist.ts'

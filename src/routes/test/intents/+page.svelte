@@ -5,6 +5,7 @@
 	import { intents, IntentPlacement } from '$/constants/intents.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+	import { stringify } from 'devalue'
 
 
 	// Context
@@ -78,17 +79,17 @@
 
 	<section data-scroll-item data-column="gap-3">
 		<h2>Registered intents ({intents.length})</h2>
-		<div data-column="gap-2">
+		<div data-column>
 			{#each intents as intent}
-				<div data-card="padding-3" data-column="gap-2">
+				<div data-card="padding-3" data-column>
 					<strong>{intent.label}</strong>
 					<small data-text="muted">{intent.type}</small>
-					<div data-row="gap-2 wrap">
+					<div data-row="wrap">
 						{#each intent.entities as entity}
 							<code>{entity.name}: {entity.type}</code>
 						{/each}
 					</div>
-					<div data-row="gap-2 wrap">
+					<div data-row="wrap">
 						{#each intent.invocations as invocation}
 							<span data-text="muted">
 								{invocation.modality}: {invocation.entities.dragTarget} → {invocation.entities.dropTarget}
@@ -105,7 +106,7 @@
 		<div data-row="gap-3 wrap">
 			<div
 				class="intent-slot"
-				data-card="padding-4"
+				data-card
 				ondrop={onDrop('from')}
 				ondragover={onDragOver}
 				role="button"
@@ -120,7 +121,7 @@
 			</div>
 			<div
 				class="intent-slot"
-				data-card="padding-4"
+				data-card
 				ondrop={onDrop('to')}
 				ondragover={onDragOver}
 				role="button"
@@ -141,10 +142,10 @@
 		{#if actorCoins.length === 0}
 			<p data-text="muted">No cached balances yet.</p>
 		{:else}
-			<div data-column="gap-2">
-			{#each actorCoins as row (row.$id.$actor.$network.chainId + row.$id.$actor.address + row.$id.$coin.address)}
+			<div data-column>
+			{#each actorCoins as row (stringify(row.$id))}
 				{@const intent = entityIntent(EntityType.ActorCoin, row.$id, 'intent-test')}
-				<div data-row="gap-2 align-center">
+				<div data-row="align-center">
 					<EntityId
 						className="intent-entity"
 						draggableText={`${row.symbol} ${row.$id.$coin.address}`}
@@ -197,11 +198,11 @@
 				{:else if resolution.options.length === 0}
 					<p data-text="muted">No options resolved.</p>
 				{:else}
-					<div data-column="gap-2">
+					<div data-column>
 						{#each resolution.options as option, i (i)}
-							<div data-card="padding-2" data-column="gap-2">
+							<div data-card="padding-2" data-column>
 								<strong>{option.name}</strong>
-								<ol data-column="gap-2">
+								<ol data-column>
 									{#each option.sessionTemplate.actions as action (action.type)}
 										<li>{action.type}</li>
 									{/each}

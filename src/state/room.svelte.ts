@@ -26,6 +26,9 @@ import { dev } from '$app/environment'
 
 const SIWE_DEBUG = dev
 
+/** PartyKit may send seconds. Store as Unix ms at ingest. */
+const toTimestampMs = (t: number): number => (t < 1e12 ? t * 1000 : t)
+
 type RoomStateSync = {
 	room: Room
 	peers: RoomPeer[]
@@ -94,7 +97,11 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 	for (const s of state.sharedAddresses) {
 		upsert(
 			sharedAddressesCollection,
-			{ ...s, $source: DataSource.PartyKit },
+			{
+				...s,
+				sharedAt: toTimestampMs(s.sharedAt),
+				$source: DataSource.PartyKit,
+			},
 			(r) => r.id,
 		)
 	}
@@ -105,7 +112,12 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 	for (const c of state.challenges) {
 		upsert(
 			siweChallengesCollection,
-			{ ...c, $source: DataSource.PartyKit },
+			{
+				...c,
+				issuedAt: toTimestampMs(c.issuedAt),
+				expiresAt: toTimestampMs(c.expiresAt),
+				$source: DataSource.PartyKit,
+			},
 			(r) => r.id,
 		)
 	}
@@ -116,7 +128,12 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 	for (const v of state.verifications ?? []) {
 		upsert(
 			siweVerificationsCollection,
-			{ ...v, $source: DataSource.PartyKit },
+			{
+				...v,
+				requestedAt: toTimestampMs(v.requestedAt),
+				...(v.verifiedAt != null && { verifiedAt: toTimestampMs(v.verifiedAt) }),
+				$source: DataSource.PartyKit,
+			},
 			(r) => r.id,
 		)
 	}
@@ -146,7 +163,12 @@ function handleServerMessage(msg: RoomMessage) {
 			}
 			upsert(
 				siweChallengesCollection,
-				{ ...ch, $source: DataSource.PartyKit },
+				{
+					...ch,
+					issuedAt: toTimestampMs(ch.issuedAt),
+					expiresAt: toTimestampMs(ch.expiresAt),
+					$source: DataSource.PartyKit,
+				},
 				(r) => r.id,
 			)
 			break
@@ -167,9 +189,15 @@ function handleServerMessage(msg: RoomMessage) {
 			break
 		}
 		case 'verification-record': {
+			const v = msg.verification
 			upsert(
 				siweVerificationsCollection,
-				{ ...msg.verification, $source: DataSource.PartyKit },
+				{
+					...v,
+					requestedAt: toTimestampMs(v.requestedAt),
+					...(v.verifiedAt != null && { verifiedAt: toTimestampMs(v.verifiedAt) }),
+					$source: DataSource.PartyKit,
+				},
 				(r) => r.id,
 			)
 			break
@@ -214,8 +242,8 @@ function handleServerMessage(msg: RoomMessage) {
 				to: p.to,
 				allocations: p.allocations,
 				status: 'pending',
-				createdAt: p.createdAt,
-				expiresAt: p.expiresAt,
+				createdAt: toTimestampMs(p.createdAt),
+				expiresAt: toTimestampMs(p.expiresAt),
 			}
 			upsert(transferRequestsCollection, row, (r) => r.id)
 			break

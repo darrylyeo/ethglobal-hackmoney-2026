@@ -122,9 +122,9 @@
 	import Qr from '$/components/Qr.svelte'
 </script>
 
-<div data-column="gap-2">
+<div data-column>
 	{#if user && !buttonOnly}
-		<div data-row="gap-2 align-center">
+		<div data-row="align-center">
 			{#if user.pfpUrl}
 				<img
 					src={user.pfpUrl}
@@ -139,7 +139,7 @@
 		</div>
 	{:else}
 		{#if status === 'pending' && channelUrl}
-			<div data-column="gap-2">
+			<div data-column>
 				<p data-text="annotation">Scan with Warpcast or open link:</p>
 				<Qr value={channelUrl} size={200} />
 				<a href={channelUrl} target="_blank" rel="noopener noreferrer">

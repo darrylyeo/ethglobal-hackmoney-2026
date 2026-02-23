@@ -140,9 +140,9 @@
 
 
 <details>
-	<summary data-row="wrap gap-2">
+	<summary data-row="wrap">
 		<h3>Activity</h3>
-		<nav data-row="start gap-2" aria-label="Time period">
+		<nav data-row="start" aria-label="Time period">
 			{#each TIME_PERIODS as p (p.value)}
 				<a
 					class="period-link"

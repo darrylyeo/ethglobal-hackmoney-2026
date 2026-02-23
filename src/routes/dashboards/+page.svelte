@@ -94,24 +94,24 @@
 	data-column
 >
 	<header data-row="wrap gap-4">
-		<div data-row="start gap-2" data-row-item="flexible">
+		<div data-row="start" data-row-item="flexible">
 			<h1>Dashboards</h1>
 		</div>
-		<div data-row="gap-2">
+		<div data-row>
 			<button type="button" onclick={handleCreate}>New dashboard</button>
 			<a href={resolve(`/dashboard/${defaultId}`)}>Open default</a>
 		</div>
 	</header>
 
-	<ul data-column="gap-2">
+	<ul data-column>
 		{#each dashboards as dashboard (dashboard.id)}
 			<li
-				data-row="gap-2 wrap"
+				data-row="wrap"
 				class="dashboard-row"
 			>
 				{#if renameId === dashboard.id}
 					<form
-						data-row="gap-2"
+						data-row
 						class="dashboard-rename-form"
 						onsubmit={(e) => (e.preventDefault(), commitRename())}
 					>

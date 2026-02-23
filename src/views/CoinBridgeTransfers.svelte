@@ -6,7 +6,8 @@
 	import type { CoinInstance } from '$/constants/coin-instances.ts'
 	import type { CoinId } from '$/constants/coins.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
-	import EntityList from '$/components/EntityList.svelte'
+	import Collapsible from '$/components/Collapsible.svelte'
+	import ItemsList from '$/components/ItemsList.svelte'
 	import TransferEvent from '$/views/TransferEvent.svelte'
 
 
@@ -55,36 +56,30 @@
 </script>
 
 
-	<details>
-		<summary>
-			<h3>Bridge transfers</h3>
-			<span data-text="annotation">
-				{eventsSet.size > 0 ? eventsSet.size : '—'}
-			</span>
-		</summary>
-		{#if eventsSet.size > 0}
-			<EntityList
-				title="Bridge transfers"
-				detailsProps={{ open: true, 'data-card': '' }}
-				loaded={eventsSet.size}
-				items={eventsSet}
-				getKey={getEventKey}
-				getSortValue={(row) => -row.timestamp}
-				placeholderKeys={new Set()}
-				visiblePlaceholderKeys={[]}
-				scrollPosition="End"
-			>
-				{#snippet Item({ key, item, isPlaceholder })}
-					<span id="bridge-transfer:{key}">
-						{#if isPlaceholder}
-							<code>Bridge transfer (loading…)</code>
-						{:else}
-							<TransferEvent {item} {coin} symbol={coinId} />
-						{/if}
-					</span>
-				{/snippet}
-			</EntityList>
-		{:else}
-			<p data-text="muted">No bridge transfers in this period. CCTP and other bridge flows appear here when detected.</p>
-		{/if}
-</details>
+<Collapsible
+	title="Bridge transfers"
+	annotation={eventsSet.size > 0 ? String(eventsSet.size) : '—'}
+>
+	{#if eventsSet.size > 0}
+		<ItemsList
+			items={eventsSet}
+			getKey={getEventKey}
+			getSortValue={(row) => -row.timestamp}
+			placeholderKeys={new Set()}
+			visiblePlaceholderKeys={[]}
+			scrollPosition="End"
+		>
+			{#snippet Item({ key, item, isPlaceholder })}
+				<span id="bridge-transfer:{key}">
+					{#if isPlaceholder}
+						<code>Bridge transfer (loading…)</code>
+					{:else}
+						<TransferEvent {item} {coin} symbol={coinId} />
+					{/if}
+				</span>
+			{/snippet}
+		</ItemsList>
+	{:else}
+		<p data-text="muted">No bridge transfers in this period. CCTP and other bridge flows appear here when detected.</p>
+	{/if}
+</Collapsible>

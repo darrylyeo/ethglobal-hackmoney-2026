@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { ChainId } from '$/constants/networks.ts'
+	import type { VerifiedContractSource$Id } from '$/data/VerifiedContractSource.ts'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import {
 		fetchVerifiedContractSource,
@@ -11,11 +11,9 @@
 
 	// Props
 	let {
-		chainId,
-		address,
+		contractId,
 	}: {
-		chainId: ChainId
-		address: `0x${string}`
+		contractId: VerifiedContractSource$Id
 	} = $props()
 
 
@@ -26,12 +24,12 @@
 				.from({ row: verifiedContractSourcesCollection })
 				.where(({ row }) =>
 					and(
-						eq(row.$id.$network.chainId, chainId),
-						eq(row.$id.address, address),
+						eq(row.$id.$network.chainId, contractId.$network.chainId),
+						eq(row.$id.address, contractId.address),
 					),
 				)
 				.select(({ row }) => ({ row })),
-		[() => chainId, () => address],
+		[() => contractId.$network.chainId, () => contractId.address],
 	)
 
 
@@ -51,20 +49,24 @@
 		const details = e.currentTarget as HTMLDetailsElement
 		if (!details.open || hasFetched) return
 		hasFetched = true
-		fetchVerifiedContractSource(chainId, address).catch(() => {})
+		fetchVerifiedContractSource(contractId.$network.chainId, contractId.address).catch(() => {})
 	}
 
 
 	// Components
+	import Collapsible from '$/components/Collapsible.svelte'
 	import ContractSourceBlock from '$/views/ContractSourceBlock.svelte'
 </script>
 
 
-<details data-card="radius-2 padding-4" ontoggle={onToggle}>
-	<summary>
-		<h3>Verified Source</h3>
-		<span data-text="annotation">{DataSource.Sourcify}</span>
-	</summary>
+<Collapsible
+	title="Verified Source"
+	annotation={DataSource.Sourcify}
+	detailsProps={{
+		'data-card': '',
+		ontoggle: onToggle,
+	}}
+>
 	{#if row?.isLoading && !hasFiles}
 		<p data-text="muted">Loading…</p>
 	{:else if row?.notFound}
@@ -75,7 +77,7 @@
 		{#if row.metadata?.compiler}
 			<p data-text="muted">{row.metadata.compiler}</p>
 		{/if}
-		<div data-column="gap-2">
+		<div data-column>
 			{#each Object.entries(row.files ?? {}) as [path, content]}
 				<details>
 					<summary><code>{path}</code></summary>
@@ -84,5 +86,5 @@
 			{/each}
 		</div>
 	{/if}
-</details>
+</Collapsible>
 

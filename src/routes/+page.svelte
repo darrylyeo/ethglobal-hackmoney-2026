@@ -248,13 +248,13 @@ import { layerColors } from '$/views/architecture-graph.ts'
 						<a
 							href={resolve(href)}
 							data-card="padding-3"
-							data-column="gap-2"
+							data-column
 						>
 							<strong>{title}</strong>
 							<p class="landing-features-summary">{summary}</p>
 						</a>
 					{:else}
-						<div data-card="padding-3" data-column="gap-2">
+						<div data-card="padding-3" data-column>
 							<strong>{title}</strong>
 							<p class="landing-features-summary">{summary}</p>
 						</div>
@@ -271,7 +271,7 @@ import { layerColors } from '$/views/architecture-graph.ts'
 		data-column="gap-4"
 		aria-label="About"
 	>
-		<header class="landing-about__header" data-column="gap-2">
+		<header class="landing-about__header" data-column>
 			<h2>About</h2>
 			<p>
 				{APP_NAME} is a SvelteKit app for bridging, swapping, and tracking USDC
@@ -289,13 +289,13 @@ import { layerColors } from '$/views/architecture-graph.ts'
 		<section
 			class="landing-about__legend"
 			data-card
-			data-column="gap-2"
+			data-column
 			aria-label="Diagram legend"
 		>
 			<h3>Legend</h3>
 			<div data-grid="columns-autofit column-min-12 gap-3" class="landing-about__legend-grid">
 				{#each legendItems as item (item.id)}
-					<div class="landing-about__legend-item" data-row="start gap-2">
+					<div class="landing-about__legend-item" data-row="start">
 						<span
 							class="landing-about__legend-swatch shape-rect"
 							data-row
@@ -307,27 +307,27 @@ import { layerColors } from '$/views/architecture-graph.ts'
 			</div>
 
 			<div data-grid="columns-autofit column-min-12 gap-3" class="landing-about__legend-grid">
-				<div class="landing-about__legend-item" data-row="start gap-2">
+				<div class="landing-about__legend-item" data-row="start">
 					<span class="landing-about__legend-swatch shape-rect" data-row></span>
 					<span>Flow / service node</span>
 				</div>
-				<div class="landing-about__legend-item" data-row="start gap-2">
+				<div class="landing-about__legend-item" data-row="start">
 					<span class="landing-about__legend-swatch shape-circle" data-row></span>
 					<span>State or data node</span>
 				</div>
-				<div class="landing-about__legend-item" data-row="start gap-2">
+				<div class="landing-about__legend-item" data-row="start">
 					<span class="landing-about__legend-swatch shape-diamond" data-row></span>
 					<span>Wallet / channel node</span>
 				</div>
-				<div class="landing-about__legend-item" data-row="start gap-2">
+				<div class="landing-about__legend-item" data-row="start">
 					<span class="landing-about__legend-swatch shape-image" data-row></span>
 					<span>Chain icon node</span>
 				</div>
-				<div class="landing-about__legend-item" data-row="start gap-2">
+				<div class="landing-about__legend-item" data-row="start">
 					<span class="landing-about__legend-swatch shape-line" data-row></span>
 					<span>Directional flow</span>
 				</div>
-				<div class="landing-about__legend-item" data-row="start gap-2">
+				<div class="landing-about__legend-item" data-row="start">
 					<span class="landing-about__legend-swatch shape-dashed" data-row></span>
 					<span>Optional / enrichment path</span>
 				</div>

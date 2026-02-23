@@ -131,7 +131,7 @@
 		{@render children()}
 	{:else}
 		<Select.Trigger id={id ?? _id} aria-label={ariaLabel}>
-			<span data-row="gap-2">
+			<span data-row>
 				{#if Before}
 					{@render Before()}
 				{/if}
@@ -155,7 +155,7 @@
 										disabled={item.disabled}
 									>
 										{#snippet children({ selected })}
-											<span data-row="start gap-2">
+											<span data-row="start">
 												<span
 													class="select-item-check"
 													aria-hidden="true"
@@ -182,7 +182,7 @@
 								disabled={item.disabled}
 							>
 								{#snippet children({ selected })}
-									<span data-row="start gap-2">
+									<span data-row="start">
 										<span
 											class="select-item-check"
 											aria-hidden="true"

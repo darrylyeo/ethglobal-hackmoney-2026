@@ -17,7 +17,9 @@ export type YellowChannel = {
 	turnNum: number,
 	status: ChannelStatus,
 	roomId?: string,
+	/** Unix time in milliseconds (normalized at ingest). */
 	createdAt: number,
+	/** Unix time in milliseconds (normalized at ingest). */
 	updatedAt: number,
 }
 

@@ -42,7 +42,7 @@
 		data-row
 		data-scroll-container
 	>
-		<div data-row="start gap-2" data-row-item="flexible">
+		<div data-row="start" data-row-item="flexible">
 			<a
 				href="/"
 				aria-label="{APP_NAME} home"
@@ -55,7 +55,7 @@
 			</a>
 		</div>
 
-		<menu data-row="gap-2">
+		<menu data-row>
 			{#if headerActions}
 				<li>
 					{@render headerActions()}
@@ -96,7 +96,7 @@
 		/>
 	</div>
 
-	<footer data-sticky data-row="gap-2 align-center">
+	<footer data-sticky data-row="align-center">
 		<ProfileSwitcher />
 		<NetworkEnvironmentInput />
 	</footer>

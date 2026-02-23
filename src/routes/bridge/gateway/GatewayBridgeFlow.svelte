@@ -145,7 +145,7 @@
 </script>
 
 {#if recipient && fromNetwork && toNetwork}
-	<div data-preview data-column="gap-2">
+	<div data-preview data-column>
 		<strong>Transfer preview</strong>
 		<dl class="bridge-summary">
 			<dt>From</dt>
@@ -188,7 +188,7 @@
 		<p data-text="muted">Connect a wallet to continue.</p>
 	{/if}
 
-	<div data-column="gap-2">
+	<div data-column>
 		<GatewayExecution
 			bind:isExecuting={executing}
 			{walletProvider}
@@ -223,7 +223,7 @@
 					{needsDeposit ? ' Deposit will be executed first, then instant transfer.' : ''}
 				</Dialog.Description>
 			{/if}
-			<div data-row="gap-2" class="dialog-actions">
+			<div data-row class="dialog-actions">
 				<Button.Root
 					type="button"
 					onclick={() => {

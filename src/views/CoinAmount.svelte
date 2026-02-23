@@ -47,7 +47,7 @@
 		{@const chainId = coin.$id.$network.chainId}
 		{@const symbol = coin.symbol}
 		{@const network = networksByChainId[chainId]}
-		<span class="coin-amount" data-row="inline gap-2">
+		<span class="coin-amount" data-row="inline">
 			<span class="coin-icons" data-row="center gap-1">
 				{#if coin.icon?.original?.url}
 					<CoinIcon
@@ -63,7 +63,7 @@
 						: undefined}
 					/>
 				{:else}
-					<NetworkIcon chainId={chainId} alt={chainId.toString()} />
+					<NetworkIcon networkId={{ chainId }} alt={chainId.toString()} />
 				{/if}
 			</span>
 

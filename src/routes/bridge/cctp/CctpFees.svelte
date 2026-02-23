@@ -80,7 +80,7 @@
 </script>
 
 
-<div data-column="gap-2">
+<div data-column>
 	<strong>Fees</strong>
 	{#if feeLoading}
 		<small data-text="muted">Loading fees…</small>

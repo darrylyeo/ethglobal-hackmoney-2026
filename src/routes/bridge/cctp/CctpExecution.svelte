@@ -225,7 +225,7 @@
 </script>
 
 
-<div data-column="gap-2">
+<div data-column>
 	<strong>Status</strong>
 	<ol class="cctp-status">
 		<li

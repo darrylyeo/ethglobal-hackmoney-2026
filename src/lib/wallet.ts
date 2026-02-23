@@ -139,7 +139,7 @@ export const addChainToWallet = async (
 				rpcUrls: [rpcUrl],
 				blockExplorerUrls:
 					typeof window !== 'undefined'
-						? [`${window.location.origin}/network/${network.slug}`]
+						? [`${window.location.origin}/network/${network.chainId}`]
 						: undefined,
 			},
 		],

@@ -90,10 +90,15 @@
 	})
 
 
+	// State
+	let visiblePlaceholderBlockIds = $state<number[]>([])
+
 	// Components
+	import { EntityLayout } from '$/components/EntityView.svelte'
 	import EntityView from '$/components/EntityView.svelte'
 	import BlockNumber from '$/views/BlockNumber.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
+	import Block from '$/views/network/Block.svelte'
 	import NetworkView from '$/views/network/Network.svelte'
 </script>
 
@@ -107,7 +112,7 @@
 </svelte:head>
 
 
-<main data-column="gap-2">
+<main data-column>
 	{#if !valid}
 		<h1>Not found</h1>
 		<p>
@@ -129,33 +134,37 @@
 			label={`Block ${blockNum} · ${networkName}`}
 		>
 			{#snippet Title()}
-				<span data-row="inline gap-2">
-					<BlockNumber {chainId} blockNumber={blockNum} />
-					<NetworkName {chainId} showIcon={false} />
+				<span data-row="inline">
+					<BlockNumber networkId={{ chainId }} blockNumber={blockNum} />
+					<NetworkName networkId={{ chainId }} showIcon={false} />
 				</span>
 			{/snippet}
 			{#snippet children()}
 				<p>
 					<a href={`/network/${name}#block:${blockNum}`} data-link>Show Context</a>
 				</p>
+				{#if block}
+					<Block
+						data={new Map([[block, new Set()]])}
+						networkId={{ chainId }}
+						layout={EntityLayout.ContentOnly}
+					/>
+				{/if}
 				<NetworkView
 					data={network
 						? new Map([
 							[
 								network,
-								block
-									? new Map<BlockEntry, Set<ChainTransactionEntry>>([
-										[block, new Set()],
-									])
-									: new Map(),
+								new Map<BlockEntry, Set<ChainTransactionEntry>>(),
 							],
 						])
 						: new Map()}
-					chainId={chainId}
+					networkId={{ chainId }}
 					placeholderBlockIds={new Set([
 						...(blockNum > 0 ? [blockNum - 1] : []),
 						...(latestBlockNumber <= 0 || blockNum + 1 <= latestBlockNumber ? [blockNum + 1] : []),
 					])}
+					bind:visiblePlaceholderBlockIds
 				/>
 			{/snippet}
 		</EntityView>

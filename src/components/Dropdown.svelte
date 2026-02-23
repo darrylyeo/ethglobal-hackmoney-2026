@@ -434,7 +434,7 @@
 													})}
 												{:else}
 													<span
-														data-row="start gap-2"
+														data-row="start"
 													>
 														<span
 															class="dropdown-radio-check"
@@ -535,7 +535,7 @@
 										})}
 									{:else}
 										<span
-											data-row="start gap-2"
+											data-row="start"
 										>
 											<span
 												class="dropdown-radio-check"

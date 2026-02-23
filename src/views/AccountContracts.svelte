@@ -4,9 +4,9 @@
 		fetchContractsDeployedBy,
 		SUPPORTED_DISCOVERY_CHAINS,
 	} from '$/api/contract-discovery.ts'
+	import type { Actor$Id } from '$/data/Actor.ts'
 	import { contractsCollection, fetchContract } from '$/collections/Contracts.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
-	import { formatAddress } from '$/lib/address.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
@@ -16,14 +16,14 @@
 
 	// Props
 	let {
-		selectedActor,
+		actorId,
 	}: {
-		selectedActor: `0x${string}` | null
+		actorId: Actor$Id | null
 	} = $props()
 
 
 	// (Derived)
-	const addressNorm = $derived(selectedActor ?? null)
+	const addressNorm = $derived(actorId?.address ?? null)
 
 
 	// Context
@@ -53,12 +53,12 @@
 
 	// Actions
 	const discover = async () => {
-		if (!selectedActor) return
+		if (!actorId?.address) return
 		discovering = true
 		discoveryError = null
 		try {
 			for (const chainId of SUPPORTED_DISCOVERY_CHAINS) {
-				const items = await fetchContractsDeployedBy(chainId, selectedActor)
+				const items = await fetchContractsDeployedBy(chainId, actorId.address)
 				for (const c of items) {
 					await fetchContract(c.chainId, c.address, c.deployer)
 				}
@@ -72,21 +72,17 @@
 
 
 	// Components
+	import Collapsible from '$/components/Collapsible.svelte'
+	import Address, { AddressFormat } from '$/views/Address.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
-	import Address from '$/views/Address.svelte'
 </script>
 
-<details data-card data-column="gap-2">
-	<summary>
-		<div data-row="wrap">
-			<h3>Contracts</h3>
-			<span data-text="annotation">
-				{contracts.length} deployed
-			</span>
-		</div>
-	</summary>
-
-	{#if selectedActor}
+<Collapsible
+	title="Contracts"
+	annotation="{contracts.length} deployed"
+	detailsProps={{ 'data-column': 'gap-2' }}
+>
+	{#if actorId}
 		<button
 			disabled={discovering}
 			onclick={discover}
@@ -100,24 +96,20 @@
 		{#if contracts.length === 0}
 			<p data-text="muted">No contracts found. Click Discover to fetch from block explorers.</p>
 		{:else}
-			<ul data-column="gap-2">
+			<ul data-column>
 				{#each contracts as contract}
-					{@const slug =
-						networksByChainId[contract.$id.$network.chainId]?.slug ??
-						String(contract.$id.$network.chainId)}
 					<li>
 						<a
 							href={resolve(
-								`/network/${slug}/contract/${contract.$id.address}`,
+								`/network/${contract.$id.$network.chainId}/contract/${contract.$id.address}`,
 							)}
 							data-link
 						>
 							<Address
-								network={contract.$id.$network.chainId}
-								address={contract.$id.address}
-								format="middle-truncated"
+								actorId={{ $network: contract.$id.$network, address: contract.$id.address }}
+								format={AddressFormat.MiddleTruncated}
 							/>
-							<NetworkName chainId={contract.$id.$network.chainId} showIcon={false} />
+							<NetworkName networkId={contract.$id.$network} showIcon={false} />
 						</a>
 					</li>
 				{/each}
@@ -126,4 +118,4 @@
 	{:else}
 		<p data-text="muted">Connect or enter an address to view deployed contracts.</p>
 	{/if}
-</details>
+</Collapsible>

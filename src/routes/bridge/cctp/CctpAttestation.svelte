@@ -61,7 +61,7 @@
 </script>
 
 
-<div data-column="gap-2">
+<div data-column>
 	<strong>Attestation</strong>
 	{#if status === 'idle'}
 		<small data-text="muted"

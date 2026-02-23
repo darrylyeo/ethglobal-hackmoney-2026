@@ -83,19 +83,19 @@
 
 
 {#if action.type === ActionType.Swap}
-	<div data-column="gap-2">
+	<div data-column>
 		{#each rows as row (row.id)}
 			{#if row.type === 'auto'}
 				<div
 					class="protocol-row"
 					data-card="radius-6 padding-3"
-					data-row="gap-2 align-center wrap"
+					data-row="align-center wrap"
 					data-selected={swapProtocolIntent === SwapProtocolId.Auto ? '' : undefined}
 				>
 					<button
 						type="button"
 						class="protocol-row-main"
-						data-row="gap-2 align-center"
+						data-row="align-center"
 						onclick={() => setSwapProtocolIntent(SwapProtocolId.Auto)}
 					>
 						Auto
@@ -119,13 +119,13 @@
 				<div
 					class="protocol-row"
 					data-card="radius-6 padding-3"
-					data-row="gap-2 align-center wrap"
+					data-row="align-center wrap"
 					data-selected={swapProtocolIntent === row.id ? '' : undefined}
 				>
 					<button
 						type="button"
 						class="protocol-row-main"
-						data-row="gap-2 align-center"
+						data-row="align-center"
 						onclick={() => setSwapProtocolIntent(row.id)}
 					>
 						{#if row.def.icon.includes('/')}
@@ -133,7 +133,7 @@
 						{:else}
 							<Icon class="protocol-icon" icon={row.def.icon} size={20} alt="" />
 						{/if}
-						<div data-column="gap-2">
+						<div data-column>
 							<strong>{row.def.label}</strong>
 							<small data-text="muted">{row.def.detail}</small>
 						</div>

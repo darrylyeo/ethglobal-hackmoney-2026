@@ -34,14 +34,6 @@ export const actorAllowancesCollection = createCollection(
 	}),
 )
 
-for (const [key, row] of actorAllowancesCollection.state) {
-	if (row.$source !== DataSource.Voltaire) {
-		actorAllowancesCollection.update(key, (draft) => {
-			draft.$source = DataSource.Voltaire
-		})
-	}
-}
-
 export const toActorAllowance$Id = (
 	chainId: number,
 	address: `0x${string}`,

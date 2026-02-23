@@ -112,7 +112,7 @@
 		{/if}
 
 		<div
-			data-row="gap-2"
+			data-row
 			class="transfer-actions"
 		>
 			<Button.Root

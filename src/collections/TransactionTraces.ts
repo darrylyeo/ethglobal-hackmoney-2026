@@ -18,6 +18,7 @@ import { SQD_DATASETS_BY_CHAIN_ID } from '$/constants/sqd-datasets.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { ChainId } from '$/constants/networks.ts'
+import { normalizeTxHash } from '$/collections/NetworkTransactions.ts'
 import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import type {
 	TransactionTraceEntry,
@@ -25,7 +26,7 @@ import type {
 } from '$/data/TransactionTrace.ts'
 
 const getKey = (row: TransactionTraceRow) =>
-	`${row.$id.$network.chainId}:${row.$id.txHash}`
+	`${row.$id.$network.chainId}:${normalizeTxHash(row.$id.txHash)}`
 
 export type TransactionTraceRow = TransactionTraceEntry & {
 	$source: DataSource
@@ -48,7 +49,7 @@ export async function fetchTransactionTrace(
 	txHash: `0x${string}`,
 	opts?: { blockNumber?: number },
 ): Promise<void> {
-	const key = `${chainId}:${txHash}` as unknown as Parameters<
+	const key = `${chainId}:${normalizeTxHash(txHash)}` as unknown as Parameters<
 		typeof transactionTracesCollection.state.get
 	>[0]
 

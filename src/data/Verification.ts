@@ -11,7 +11,9 @@ export type Verification = {
 	verifiedPeerId: string
 	address: `0x${string}`
 	status: VerificationStatus
+	/** Unix time in milliseconds (normalized at ingest). */
 	requestedAt: number
+	/** Unix time in milliseconds (normalized at ingest). */
 	verifiedAt?: number
 	signature?: `0x${string}`
 	challengeId?: string,

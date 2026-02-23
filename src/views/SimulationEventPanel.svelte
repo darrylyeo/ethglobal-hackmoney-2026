@@ -47,10 +47,10 @@
 </script>
 
 
-<div data-simulation-events data-column="gap-2">
-	<header data-row="gap-2 align-center justify-between">
+<div data-simulation-events data-column>
+	<header data-row="align-center justify-between">
 		<h3>Events</h3>
-		<div data-row="gap-2 align-center">
+		<div data-row="align-center">
 			<button type="button" onclick={() => (showRaw = !showRaw)}>
 				{showRaw ? 'Decoded' : 'Raw'}
 			</button>
@@ -75,10 +75,10 @@
 	{#if filteredList.length === 0}
 		<p data-text="muted">No events.</p>
 	{:else}
-		<ul data-list="unstyled" data-column="gap-2">
+		<ul data-list="unstyled" data-column>
 			{#each filteredList as ev, i (showRaw ? ev.address + ev.data : ev.address + ev.topics.join('') + i)}
-				<li data-event data-card data-column="gap-2">
-					<div data-row="gap-2 align-center">
+				<li data-event data-card data-column>
+					<div data-row="align-center">
 						<code>{formatAddress(ev.address)}</code>
 						{#if !showRaw && (ev as TevmSimulationDecodedEvent).signature}
 							<span data-text="muted"

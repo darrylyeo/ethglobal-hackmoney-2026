@@ -4,5 +4,6 @@ export type SharedAddress = {
 	peerId: string
 	address: `0x${string}`
 	targetPeerIds: string[] | null
+	/** Unix time in milliseconds (normalized at ingest). */
 	sharedAt: number,
 }

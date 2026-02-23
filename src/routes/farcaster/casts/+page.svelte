@@ -108,7 +108,7 @@
 	const engagementScore = (c: FarcasterCastRow) =>
 		(c.likeCount ?? 0) + (c.recastCount ?? 0) + replyCount(c)
 	const trendingScore24h = (c: FarcasterCastRow) => {
-		const ageHours = Math.max(0, (Date.now() / 1000 - c.timestamp) / 3600)
+		const ageHours = Math.max(0, (Date.now() - c.timestamp) / (3600 * 1000))
 		const decay = 1 / (1 + ageHours / 12)
 		return engagementScore(c) * decay
 	}

@@ -475,7 +475,7 @@
 
 <div data-column="gap-4" data-transaction-flow>
 	{#if Summary}
-		<div data-column="gap-2">
+		<div data-column>
 			{@render Summary()}
 		</div>
 	{/if}
@@ -518,8 +518,8 @@
 				!confirmationReady ||
 				hasPendingExecution}
 
-			<section data-column="gap-2" data-transaction>
-				<div data-row="gap-2 align-center justify-between">
+			<section data-column data-transaction>
+				<div data-row="align-center justify-between">
 					<h3>{tx.title}</h3>
 					{#if txState.execution.status !== 'idle'}
 						<span data-text="muted">{txState.execution.status.replace('_', ' ')}</span>
@@ -531,7 +531,7 @@
 				{/if}
 
 				{#if tx.simulate}
-					<div data-row="gap-2 align-center" data-e2e-simulation-status={txState.simulation.status}>
+					<div data-row="align-center" data-e2e-simulation-status={txState.simulation.status}>
 						<Button.Root
 							type="button"
 							onclick={() => simulateTransaction(tx)}
@@ -548,7 +548,7 @@
 						{/if}
 					</div>
 					{#if txState.simulation.status === 'success' || txState.simulation.status === 'failed'}
-						<div data-row="gap-2 align-center wrap">
+						<div data-row="align-center wrap">
 							<Button.Root
 								type="button"
 								onclick={() => explainTransaction(tx, 'simulation')}
@@ -590,7 +590,7 @@
 					{:else if simulationExplain.status === 'success'}
 						{@const turn = getAgentChatTurn(simulationExplain.turnId)}
 						{#if turn?.assistantText}
-							<div data-card data-column="gap-2">
+							<div data-card data-column>
 								<p>{turn.assistantText}</p>
 								<small data-text="muted">
 									{turn.providerId ?? 'unknown'} ·
@@ -612,7 +612,7 @@
 					</p>
 				{/if}
 				{#if txState.execution.status === 'completed' || txState.execution.status === 'failed'}
-					<div data-row="gap-2 align-center wrap">
+					<div data-row="align-center wrap">
 						<Button.Root
 							type="button"
 							onclick={() => explainTransaction(tx, 'execution')}
@@ -652,7 +652,7 @@
 				{:else if executionExplain.status === 'success'}
 					{@const turn = getAgentChatTurn(executionExplain.turnId)}
 					{#if turn?.assistantText}
-						<div data-card data-column="gap-2">
+						<div data-card data-column>
 							<p>{turn.assistantText}</p>
 							<small data-text="muted">
 								{turn.providerId ?? 'unknown'} ·
@@ -664,7 +664,7 @@
 				{/if}
 
 				{#if needsChainSwitch && walletProvider}
-					<div data-card data-row="gap-2 align-center">
+					<div data-card data-row="align-center">
 						<span>Switch to {network?.name ?? `Chain ${tx.chainId}`}</span>
 						<Button.Root
 							type="button"
@@ -675,11 +675,11 @@
 				{/if}
 
 				{#if confirmationRequired}
-					<div data-column="gap-2" data-confirmation>
+					<div data-column data-confirmation>
 						{#if tx.Confirmation}
 							{@render tx.Confirmation(tx, txState)}
 						{/if}
-						<label data-row="gap-2 align-center">
+						<label data-row="align-center">
 							<Checkbox.Root
 								bind:checked={
 									() => txState.confirmed,
@@ -700,7 +700,7 @@
 					</div>
 				{/if}
 
-				<div data-row="gap-2 align-center wrap">
+				<div data-row="align-center wrap">
 					{#if executionUnsupported}
 						<p data-text="muted">Execution not available for this mode.</p>
 					{:else if !hasExecutionContext}

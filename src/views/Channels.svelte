@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Types/constants
+	import type { Actor$Id } from '$/data/Actor.ts'
 	import { stateChannelsCollection } from '$/collections/StateChannels.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
@@ -8,11 +9,11 @@
 
 	// Props
 	let {
-		selectedActor = null as `0x${string}` | null,
+		actorId = null as Actor$Id | null,
 		filterAddresses = $bindable([] as `0x${string}`[]),
 		availableAccounts = [],
 	}: {
-		selectedActor?: `0x${string}` | null
+		actorId?: Actor$Id | null
 		filterAddresses?: `0x${string}`[]
 		availableAccounts?: `0x${string}`[]
 	} = $props()
@@ -31,8 +32,8 @@
 	const actors = $derived(
 		filterAddresses.length > 0
 			? filterAddresses
-			: selectedActor
-				? [selectedActor]
+			: actorId
+				? [actorId.address]
 				: [],
 	)
 	const channels = $derived(
@@ -53,6 +54,7 @@
 
 
 	// Components
+	import Collapsible from '$/components/Collapsible.svelte'
 	import Boundary from '$/components/Boundary.svelte'
 	import ComboboxMultiple from '$/components/ComboboxMultiple.svelte'
 	import TruncatedValue, {
@@ -62,11 +64,11 @@
 </script>
 
 
-<details class="channels" data-card data-scroll-container="block" open>
-	<summary class="section-summary">
-		<div data-row="gap-2">
+{#snippet SectionSummary({ title }: { title: string })}
+	<div class="section-summary">
+		<div data-row>
 			<h3 data-row-item="flexible" class="section-heading">
-				Channels{#if singleAddress}
+				{title}{#if singleAddress}
 					{' '}for <TruncatedValue
 						value={singleAddress}
 						startLength={6}
@@ -82,7 +84,7 @@
 				class="section-filters"
 				role="group"
 				aria-label="Filters"
-				data-row="gap-2 wrap"
+				data-row="wrap"
 				onclick={(e) => e.stopPropagation()}
 				onkeydown={(e) => e.stopPropagation()}
 			>
@@ -97,8 +99,18 @@
 				/>
 			</div>
 		{/if}
-	</summary>
-
+	</div>
+{/snippet}
+<Collapsible
+	title="Channels"
+	Summary={SectionSummary}
+	detailsProps={{
+		class: 'channels',
+		'data-card': '',
+		'data-scroll-container': 'block',
+		open: true,
+	}}
+>
 	<Boundary>
 		{#if channels.length === 0}
 			<p data-text="muted">No channels for this account.</p>
@@ -123,7 +135,7 @@
 						data-status={ch.status}
 					>
 						<span class="channel-id" title={ch.id}>{ch.id.slice(0, 10)}…</span>
-						<Address network={ch.chainId} address={participantAddr} />
+						<Address actorId={{ $network: { chainId: ch.chainId }, address: participantAddr }} />
 						<span>{formatSmallestToDecimal(balance, 6)} USDC</span>
 						<span data-status>{ch.status}</span>
 						<a href="/positions/channels">View all</a>
@@ -132,7 +144,7 @@
 			</ul>
 		{/if}
 	</Boundary>
-</details>
+</Collapsible>
 
 
 <style>

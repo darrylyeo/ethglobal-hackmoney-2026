@@ -86,7 +86,7 @@ export const storkWebsocketBaseUrl =
 export const storkWebsocketUrl = `${storkWebsocketBaseUrl}/evm/subscribe`
 
 /** Fallback Stork oracle contract addresses by chain (RPC-only when REST/token unavailable). From https://docs.stork.network/resources/contract-addresses/evm */
-export const storkOracleContracts: readonly Contract$Id[] = [
+export const storkOracleContracts = [
 	{ $network: { chainId: ChainId.Ethereum }, address: '0x035B5438444f26e6Aab81E91d475b7B1Ac4Fb22b' },
 	{ $network: { chainId: ChainId.Optimism }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
 	{ $network: { chainId: ChainId.Arbitrum }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
@@ -109,7 +109,7 @@ export const storkOracleContracts: readonly Contract$Id[] = [
 	{ $network: { chainId: ChainId.MitosisTestnet }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
 	{ $network: { chainId: ChainId.RiseTestnet }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
 	{ $network: { chainId: ChainId.Tac }, address: '0xacC0a0cF13571d30B4b8637996F5D6D774d4fd62' },
-]
+] as const satisfies readonly Contract$Id[]
 
 export const storkOracleContractsByChainId: Partial<
 	Record<ChainId, `0x${string}`>
@@ -546,7 +546,7 @@ export const storkAssetIdByTokenSymbol: Record<string, string> =
 	)
 
 /** Stork deployments by chain (EVM). Fuel is non-EVM and not in ChainId; use CAIP-2 if needed. */
-export const storkNetworkDeployments: readonly StorkNetworkDeployment[] = [
+export const storkNetworkDeployments = [
 	{ chainId: ChainId.EduChain },
 	{ chainId: ChainId.Mitosis },
 	{ chainId: ChainId.MitosisTestnet },
@@ -555,7 +555,7 @@ export const storkNetworkDeployments: readonly StorkNetworkDeployment[] = [
 	{ chainId: ChainId.Plume },
 	{ chainId: ChainId.RiseTestnet },
 	{ chainId: ChainId.Tac },
-]
+] as const satisfies readonly StorkNetworkDeployment[]
 
 export const storkNetworkDeploymentByChainId: Partial<
 	Record<ChainId, StorkNetworkDeployment>
@@ -1553,6 +1553,6 @@ export const storkOracleChainIdsByAssetId = Object.fromEntries(
 		]),
 ) satisfies Record<string, readonly ChainId[]>
 
-export const storkPushedAssetIds: readonly string[] = [
+export const storkPushedAssetIds = [
 	...new Set(storkPushedAssets.map((asset) => asset.assetId)),
-]
+] as const satisfies readonly string[]

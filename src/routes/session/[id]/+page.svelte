@@ -143,10 +143,10 @@
 	{:else}
 		<section data-scroll-item data-column="gap-3">
 			<header data-row="wrap gap-4">
-				<div data-row="start gap-2" data-row-item="flexible">
+				<div data-row="start" data-row-item="flexible">
 					<h1>Session</h1>
 				</div>
-				<div data-row="gap-2">
+				<div data-row>
 					<span data-text="annotation">Session</span>
 				</div>
 			</header>

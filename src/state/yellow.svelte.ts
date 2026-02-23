@@ -33,6 +33,9 @@ import { decodeNitroRpc, type NitroRpcMessage } from '$/state/nitro-rpc.ts'
 
 const pendingChannelRooms = new Map<string, string>()
 
+/** Clearnode may send seconds. Store as Unix ms at ingest. */
+const toTimestampMs = (t: number): number => (t < 1e12 ? t * 1000 : t)
+
 export const tagChannelWithRoom = (channelId: string, roomId: string) => {
 	pendingChannelRooms.set(channelId, roomId)
 }
@@ -94,8 +97,8 @@ function normalizeChannelFromMessage(params: unknown): StateChannelRow | null {
 			? p.status
 			: 'pending') as StateChannelRow['status'],
 		roomId: typeof p.roomId === 'string' ? p.roomId : undefined,
-		createdAt: Number(p.createdAt ?? 0),
-		updatedAt: Number(p.updatedAt ?? 0),
+		createdAt: toTimestampMs(Number(p.createdAt ?? 0)),
+		updatedAt: toTimestampMs(Number(p.updatedAt ?? 0)),
 	}
 }
 
@@ -124,7 +127,7 @@ function normalizeTransferFromMessage(
 		to,
 		amount: BigInt(String(p.amount ?? 0)),
 		turnNum: Number(p.turnNum ?? 0),
-		timestamp: Number(p.timestamp ?? 0),
+		timestamp: toTimestampMs(Number(p.timestamp ?? 0)),
 		status: (typeof p.status === 'string'
 			? p.status
 			: 'pending') as YellowTransferRow['status'],

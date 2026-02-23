@@ -34,11 +34,11 @@
 
 
 	// Components
-	import EntityList from '$/components/EntityList.svelte'
+	import ItemsListView from '$/components/ItemsListView.svelte'
 	import FarcasterCast from '$/views/farcaster/FarcasterCast.svelte'
 </script>
 
-<EntityList
+<ItemsListView
 	{title}
 	{loaded}
 	{total}
@@ -69,4 +69,4 @@
 			{/if}
 		</span>
 	{/snippet}
-</EntityList>
+</ItemsListView>

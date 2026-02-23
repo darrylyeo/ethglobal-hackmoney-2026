@@ -90,7 +90,7 @@
 	{#snippet Item(coin, selected)}
 		{@const iconUrl = coinIconUrl(coin)}
 		{@const symbol = coin.symbol}
-		<span data-row="start gap-2" class="coin-input-item" data-selected={selected}>
+		<span data-row="start" class="coin-input-item" data-selected={selected}>
 			{#if iconUrl}
 				<span class="coin-input-icon">
 					<CoinIcon

@@ -71,30 +71,33 @@
 
 
 	// Components
+	import Heading from '$/components/Heading.svelte'
+	import HeadingLevelProvider from '$/components/HeadingLevelProvider.svelte'
 	import ItemsList from '$/components/ItemsList.svelte'
 </script>
 
+{#snippet DefaultTitle({ title: t, countText: c }: { title: string; countText: string })}
+	<Heading>{t} ({c})</Heading>
+{/snippet}
 
-<details data-scroll-container="block snap-block" {...detailsProps}>
-	<summary {...summaryProps}>
-		{#if Title}
-			{@render Title({ title, countText })}
-		{:else}
-			<h3>{title} ({countText})</h3>
-		{/if}
-	</summary>
-	<ItemsList
-		{items}
-		{getKey}
-		{getSortValue}
-		{getGroupKey}
-		{getGroupLabel}
-		{getGroupKeyForPlaceholder}
-		{placeholderKeys}
-		bind:visiblePlaceholderKeys
-		{scrollPosition}
-		{pagination}
-		{Item}
-		{GroupHeader}
-	/>
-</details>
+<HeadingLevelProvider>
+	<details data-scroll-container="block snap-block" {...detailsProps}>
+		<summary {...summaryProps}>
+			{@render (Title ?? DefaultTitle)({ title, countText })}
+		</summary>
+		<ItemsList
+			{items}
+			{getKey}
+			{getSortValue}
+			{getGroupKey}
+			{getGroupLabel}
+			{getGroupKeyForPlaceholder}
+			{placeholderKeys}
+			bind:visiblePlaceholderKeys
+			{scrollPosition}
+			{pagination}
+			{Item}
+			{GroupHeader}
+		/>
+	</details>
+</HeadingLevelProvider>

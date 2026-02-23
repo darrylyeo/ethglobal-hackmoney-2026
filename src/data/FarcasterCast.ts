@@ -13,6 +13,7 @@ export type FarcasterCast = {
 	parentFid?: number
 	parentHash?: CastHash
 	parentUrl?: string
+	/** Unix time in milliseconds (normalized at collection boundary). */
 	timestamp: number
 	mentions?: number[]
 	embeds?: Array<{ url?: string; castId?: FarcasterCast$Id }>

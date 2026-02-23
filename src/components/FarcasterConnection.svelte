@@ -26,10 +26,10 @@
 </script>
 
 
-<div data-card="padding-2 radius-3" data-row="gap-2 align-center wrap">
+<div data-card="padding-2 radius-3" data-row="align-center wrap">
 	<a
 		href="/farcaster/user/{connection.$id.fid}"
-		data-row="gap-2 align-center"
+		data-row="align-center"
 		data-link="camouflaged"
 	>
 		{#if connection.pfpUrl}

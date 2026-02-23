@@ -36,7 +36,7 @@
 		<h1>Not found</h1>
 		<p>Network "{name}" could not be resolved.</p>
 	{:else}
-		<h1>Contracts · <NetworkName chainId={chainId} /></h1>
+		<h1>Contracts · <NetworkName networkId={{ chainId }} /></h1>
 		<p data-text="muted">
 			<a href={resolve(`/network/${name}`)} data-link>← {network.name}</a>
 		</p>

@@ -78,7 +78,7 @@
 		<ul>
 			{#each pendingChallenges as ch (ch.id)}
 				<li data-challenge>
-					<Address network={1} address={ch.address} />
+					<Address actorId={{ $network: { chainId: 1 }, address: ch.address }} />
 					<span>Requested by {ch.fromPeerId.slice(0, 8)}</span>
 					{#if canSign}
 						<Button.Root type="button" onclick={() => signChallenge(ch)}>

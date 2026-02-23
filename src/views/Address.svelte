@@ -9,6 +9,7 @@
 
 <script lang="ts">
 	// Types/constants
+	import type { Actor$Id } from '$/data/Actor.ts'
 	import type { Network$Id } from '$/data/Network.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { resolve } from '$app/paths'
@@ -22,6 +23,7 @@
 
 	// Props
 	let {
+		actorId: actorIdProp,
 		network,
 		address,
 		ensName: ensNameProp,
@@ -30,8 +32,9 @@
 		showAvatar = true,
 		isVertical = false,
 	}: {
+		actorId?: Actor$Id | null
 		network?: Network$Id
-		address: `0x${string}`
+		address?: `0x${string}`
 		ensName?: string
 		format?: AddressFormat
 		isLinked?: boolean
@@ -40,8 +43,10 @@
 	} = $props()
 
 	// (Derived)
+	const networkResolved = $derived(actorIdProp?.$network ?? network)
+	const addressResolved = $derived(actorIdProp?.address ?? address ?? undefined)
 	const normalizedAddress = $derived(
-		address.toLowerCase() as `0x${string}`,
+		(addressResolved?.toLowerCase() ?? '') as `0x${string}`,
 	)
 
 	// State
@@ -50,9 +55,9 @@
 			q
 				.from({ row: evmActorProfilesCollection })
 				.where(({ row }) =>
-					network != null
+					networkResolved != null
 						? and(
-							eq(row.$id.$network.chainId, network.chainId),
+							eq(row.$id.$network.chainId, networkResolved.chainId),
 							eq(row.$id.address, normalizedAddress),
 						)
 						: and(
@@ -61,7 +66,7 @@
 						),
 				)
 				.select(({ row }) => ({ row })),
-		[() => network, () => normalizedAddress],
+		[() => networkResolved, () => normalizedAddress],
 	)
 
 	// (Derived)
@@ -74,8 +79,8 @@
 
 	// Actions
 	$effect(() => {
-		if (network == null || ensNameProp != null) return
-		ensureEvmActorProfile(network.chainId, normalizedAddress)
+		if (networkResolved == null || ensNameProp != null || !addressResolved) return
+		ensureEvmActorProfile(networkResolved.chainId, normalizedAddress)
 	})
 
 	// Components
@@ -85,15 +90,16 @@
 </script>
 
 
+{#if addressResolved}
 <EntityId
-	draggableText={address}
+	draggableText={addressResolved}
 	className="address-text"
-	entityType={network != null
+	entityType={networkResolved != null
 		? EntityType.Actor
 		: undefined}
-	entityId={{ ...(network != null && { network }), address }}
+	entityId={{ ...(networkResolved != null && { network: networkResolved }), address: addressResolved }}
 	link={isLinked
-		? resolve(`/account/${encodeURIComponent(address)}`)
+		? resolve(`/account/${encodeURIComponent(addressResolved)}`)
 		: undefined}
 	data-link={isLinked
 		? 'camouflaged'
@@ -103,14 +109,14 @@
 		? 'vertical'
 		: undefined}
 >
-	<span data-row="inline gap-2">
+	<span data-row="inline">
 		{#if showAvatar}
-			{@const net = network != null ? networksByChainId[network.chainId] : undefined}
+			{@const net = networkResolved != null ? networksByChainId[networkResolved.chainId] : undefined}
 			<Icon
 				shape={!profile?.avatarUrl
 					? IconShape.Square
 					: IconShape.Circle}
-				src={profile?.avatarUrl ?? blo(address)}
+				src={profile?.avatarUrl ?? blo(addressResolved)}
 				subicon={net?.icon
 					? {
 						src: net.icon,
@@ -123,9 +129,9 @@
 
 		<span data-text="font-monospace">
 			<TruncatedValue
-				value={address}
+				value={addressResolved}
 				startLength={format === AddressFormat.Full
-					? address.length
+					? addressResolved.length
 					: 6}
 				endLength={format === AddressFormat.Full
 					? 0
@@ -140,3 +146,4 @@
 		</small>
 	</span>
 </EntityId>
+{/if}

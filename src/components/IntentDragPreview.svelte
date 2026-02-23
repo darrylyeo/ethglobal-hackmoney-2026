@@ -250,7 +250,7 @@
 						</header>
 
 						{#if resolution.options.length > 0}
-							<ol data-list="unstyled" data-column="gap-2">
+							<ol data-list="unstyled" data-column>
 								{#each resolution.options as option, i (i)}
 									<li>
 										<button

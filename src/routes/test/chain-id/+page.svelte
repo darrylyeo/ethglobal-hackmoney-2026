@@ -50,14 +50,14 @@
 					submit()
 				}}
 			>
-				<fieldset data-row="gap-2">
+				<fieldset data-row>
 					<legend class="sr-only">RPC URL</legend>
 					<label
 						for="rpc-url"
 						class="sr-only"
 					>RPC URL</label>
 					<div
-						data-column="gap-2"
+						data-column
 						data-row-item="flexible"
 					>
 						<input

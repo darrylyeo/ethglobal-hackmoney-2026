@@ -99,11 +99,11 @@
 
 <div data-column="gap-4">
 	<header data-row="wrap gap-4">
-		<div data-row="start gap-2" data-row-item="flexible">
+		<div data-row="start" data-row-item="flexible">
 			<h2>Live transfers – {coin.symbol}</h2>
 		</div>
-		<div data-row="gap-2">
-			<nav data-row="start gap-2" aria-label="Time period">
+		<div data-row>
+			<nav data-row="start" aria-label="Time period">
 				{#each periods as p (p.value)}
 					<a
 						class="period-link"

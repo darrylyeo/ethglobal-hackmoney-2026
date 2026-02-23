@@ -90,7 +90,7 @@
 		<p>No liquidity positions found. Connect wallets and add liquidity via Session → Add Liquidity.</p>
 	{:else}
 		<section class="position-list">
-			<ul data-column="gap-2" data-list="unstyled">
+			<ul data-column data-list="unstyled">
 				{#each positions as pos (pos.id)}
 					{@const net = networksByChainId[pos.chainId]}
 					<li
@@ -99,7 +99,7 @@
 					>
 						<span class="position-id" title={pos.id}>{pos.id.slice(0, 10)}…</span>
 						<span class="position-chain">{net?.name ?? pos.chainId}</span>
-						<Address network={pos.chainId} address={pos.owner} />
+						<Address actorId={{ $network: { chainId: pos.chainId }, address: pos.owner }} />
 						<a href="/account/{pos.owner}">Account</a>
 						<a href="/session?template=AddLiquidity">Manage</a>
 					</li>

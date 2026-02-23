@@ -67,9 +67,9 @@
 </script>
 
 
-<details data-card="radius-2 padding-2" id="trace:{trace.index}">
+<details data-card="padding-2" id="trace:{trace.index}">
 	<summary>
-		<div data-row="wrap gap-2 align-center">
+		<div data-row="wrap align-center">
 			{#if trace.type}
 				<code>{trace.type.toUpperCase()}</code>
 			{/if}
@@ -86,12 +86,12 @@
 	<dl>
 		{#if trace.from}
 			<dt>From</dt>
-			<dd><Address network={chainId} address={trace.from as `0x${string}`} /></dd>
+			<dd><Address actorId={{ $network: { chainId }, address: trace.from as `0x${string}` }} /></dd>
 		{/if}
 
 		{#if trace.to}
 			<dt>To</dt>
-			<dd><Address network={chainId} address={trace.to as `0x${string}`} /></dd>
+			<dd><Address actorId={{ $network: { chainId }, address: trace.to as `0x${string}` }} /></dd>
 		{/if}
 
 		{#if trace.value && trace.value !== '0x0' && trace.value !== '0x'}
@@ -132,7 +132,7 @@
 	</dl>
 
 	{#if trace.children?.length}
-		<ul data-column="gap-2">
+		<ul data-column>
 			{#each trace.children as child (child.index)}
 				<li>
 					<Self trace={child} {chainId} />

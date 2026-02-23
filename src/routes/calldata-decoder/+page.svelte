@@ -157,7 +157,7 @@
 	<title>Calldata decoder</title>
 </svelte:head>
 
-<main data-card="radius-2 padding-2" style="max-width: 42rem;">
+<main data-card="padding-2" style="max-width: 42rem;">
 	<h1>Calldata decoder</h1>
 	<p>Paste transaction input or event data (hex) to resolve the function selector (4 bytes) and/or event topic (32 bytes) to human-readable signature(s). Use <code>?data=0x…</code> in the URL to open with hex pre-filled (shareable link).</p>
 

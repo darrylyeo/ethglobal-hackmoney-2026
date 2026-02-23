@@ -18,7 +18,7 @@ export type ZenFreeModel = {
 
 const ZEN_BASE = 'https://opencode.ai/zen/v1'
 
-export const zenFreeModels: readonly ZenFreeModel[] = [
+export const zenFreeModels = [
 	{
 		id: 'glm-4.7-free',
 		label: 'GLM 4.7 Free',
@@ -49,7 +49,7 @@ export const zenFreeModels: readonly ZenFreeModel[] = [
 		endpoint: `${ZEN_BASE}/chat/completions`,
 		kind: ZenEndpointKind.ChatCompletions,
 	},
-]
+] as const satisfies readonly ZenFreeModel[]
 
 export const zenFreeModelById: Partial<Record<string, ZenFreeModel>> =
 	Object.fromEntries(zenFreeModels.map((m) => [m.id, m]))

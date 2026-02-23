@@ -120,7 +120,7 @@
 								autofocus
 							/>
 						{:else}
-							<span data-row="gap-2 align-center">
+							<span data-row="align-center">
 								<Avatar
 									name={profile.name}
 									emoji={profile.emoji}

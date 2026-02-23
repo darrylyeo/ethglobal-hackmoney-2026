@@ -103,12 +103,12 @@
 {#if canReorder && reorder}
 	<div
 		class="editable-items-list"
-		data-column="gap-2"
+		data-column
 		class:many-items={manyItems}
 		{@attach reorder.list({ getArray: () => items, onDrop: onReorderDrop })}
 	>
 		{#each items as value, i (value)}
-			<div class="editable-item" data-row="gap-2" {@attach reorder.item(value, i)}>
+			<div class="editable-item" data-row {@attach reorder.item(value, i)}>
 				<span class="drag-handle" {@attach reorder.handle()} aria-hidden="true">⠿</span>
 				<div class="editable-item-content" data-row-item="flexible">
 					{@render Item({ item: value, index: i })}
@@ -118,9 +118,9 @@
 		{/each}
 	</div>
 {:else}
-	<div class="editable-items-list" data-column="gap-2" class:many-items={manyItems}>
+	<div class="editable-items-list" data-column class:many-items={manyItems}>
 		{#each items as item, index (index)}
-			<div class="editable-item" data-row="gap-2">
+			<div class="editable-item" data-row>
 				<div class="editable-item-content" data-row-item="flexible">
 					{@render Item({ item, index })}
 				</div>

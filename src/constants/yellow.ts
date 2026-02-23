@@ -44,7 +44,7 @@ export const yellowClearnodeEndpoints = [
 	},
 ] as const satisfies readonly YellowClearnodeEndpoint[]
 
-export const yellowContractDeployments: readonly YellowContractDeployment[] = [
+export const yellowContractDeployments = [
 	{
 		$network: { chainId: ChainId.Ethereum },
 		custody: '0x6F71a38d919ad713D0AfE0eB712b95064Fc2616f',
@@ -80,7 +80,7 @@ export const yellowContractDeployments: readonly YellowContractDeployment[] = [
 		custody: '0x019B65A265EB3363822f2752141b3dF16131b262',
 		adjudicator: '0x019B65A265EB3363822f2752141b3dF16131b262',
 	},
-]
+] as const satisfies readonly YellowContractDeployment[]
 
 export const yellowCustodyContracts: readonly Contract$Id[] =
 	yellowContractDeployments.map((d) => ({

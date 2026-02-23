@@ -157,7 +157,7 @@
 	{#if item.href}
 		<a
 			href={item.href}
-			data-row="start gap-2"
+			data-row="start"
 			aria-current={currentPathname === item.href ? 'page' : undefined}
 			onmouseenter={() => {
 				if (item.href && !item.href.startsWith('http')) {
@@ -169,9 +169,10 @@
 				rel: 'noopener noreferrer',
 			}}
 		>
-			<span data-row="start gap-2" data-row-item="flexible">
+			<span data-row="start" data-row-item="flexible">
 				{#if item.address}
 					<Address
+						actorId={item.address.network ? { $network: item.address.network, address: item.address.address } : undefined}
 						network={item.address.network}
 						address={item.address.address}
 						format={AddressFormat.MiddleTruncated}
@@ -206,10 +207,11 @@
 			{/if}
 		</a>
 	{:else}
-		<span data-row="start gap-2">
-			<span data-row="start gap-2" data-row-item="flexible">
+		<span data-row="start">
+			<span data-row="start" data-row-item="flexible">
 				{#if item.address}
 					<Address
+						actorId={item.address.network ? { $network: item.address.network, address: item.address.address } : undefined}
 						network={item.address.network}
 						address={item.address.address}
 						format={AddressFormat.MiddleTruncated}

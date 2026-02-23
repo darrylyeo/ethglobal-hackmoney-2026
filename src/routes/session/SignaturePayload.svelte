@@ -23,7 +23,7 @@
 </script>
 
 <article data-card data-signature-payload data-column="gap-2 padding-3">
-	<header data-row="gap-2 align-center">
+	<header data-row="align-center">
 		{#if payload.label}
 			<h4>{payload.label}</h4>
 		{/if}
@@ -31,13 +31,12 @@
 	<dl>
 		<dt>Network</dt>
 		<dd>
-			<NetworkName chainId={payload.chainId} showChainId={true} />
+			<NetworkName networkId={{ chainId: payload.chainId }} showChainId={true} />
 		</dd>
 		<dt>From</dt>
 		<dd>
 			<Address
-				network={payload.chainId}
-				address={payload.from}
+				actorId={{ $network: { chainId: payload.chainId }, address: payload.from }}
 				showAvatar={false}
 			/>
 		</dd>
@@ -45,8 +44,7 @@
 			<dt>To</dt>
 			<dd>
 				<Address
-					network={payload.chainId}
-					address={payload.to}
+					actorId={{ $network: { chainId: payload.chainId }, address: payload.to }}
 					showAvatar={false}
 				/>
 			</dd>

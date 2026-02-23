@@ -39,7 +39,7 @@
 
 {#if action.type === ActionType.AddLiquidity || action.type === ActionType.RemoveLiquidity || action.type === ActionType.CollectFees || action.type === ActionType.IncreaseLiquidity}
 	<div data-column>
-		<label data-column="gap-2">
+		<label data-column>
 			<span>Network</span>
 			<NetworkInput
 				networks={filteredNetworks}
@@ -48,7 +48,7 @@
 			/>
 		</label>
 		{#if asNonEmptyCoins(coins)}
-			<label data-column="gap-2">
+			<label data-column>
 				<span>Token 0</span>
 				<CoinInput
 					coins={coins}
@@ -58,7 +58,7 @@
 					ariaLabel="Token 0"
 				/>
 			</label>
-			<label data-column="gap-2">
+			<label data-column>
 				<span>Token 1</span>
 				<CoinInput
 					coins={coins}
@@ -68,7 +68,7 @@
 					ariaLabel="Token 1"
 				/>
 			</label>
-			<label data-column="gap-2">
+			<label data-column>
 				<span>Fee tier</span>
 				<Select
 					items={liquidityFeeTierPresets}
@@ -81,7 +81,7 @@
 					ariaLabel="Fee tier"
 				/>
 			</label>
-			<label data-column="gap-2">
+			<label data-column>
 				<span>Amount 0</span>
 				<CoinAmountInput
 					coins={coins}
@@ -94,7 +94,7 @@
 					ariaLabel="Amount 0"
 				/>
 			</label>
-			<label data-column="gap-2">
+			<label data-column>
 				<span>Amount 1</span>
 				<CoinAmountInput
 					coins={coins}

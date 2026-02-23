@@ -212,7 +212,7 @@
 					term: 'Author',
 					detail: `@${userByFid.get(cast.$id.fid)?.username ?? cast.$id.fid}`,
 				},
-				{ term: 'Time', detail: new Date(cast.timestamp * 1000).toLocaleString() },
+				{ term: 'Time', detail: new Date(cast.timestamp).toLocaleString() },
 				...(cast.likeCount != null || cast.recastCount != null
 					? [
 						{
@@ -240,7 +240,7 @@
 				{#if isReply && rootCast}
 					<details open>
 						<summary>In thread</summary>
-						<div data-column="gap-2">
+						<div data-column>
 							<span id={castAnchorId(rootCast.$id.fid, rootCast.$id.hash)}>
 								<FarcasterCast cast={rootCast} {userByFid} isCompact />
 							</span>
@@ -262,7 +262,7 @@
 				{/if}
 				<p>{cast.text}</p>
 				{#if cast.embeds?.length}
-					<ul data-column="gap-2">
+					<ul data-column>
 						{#each cast.embeds as embed}
 							{#if embed.url}
 								<li>

@@ -150,7 +150,7 @@
 
 
 <section
-	data-column="gap-2"
+	data-column
 	id="turn:{turn.id}"
 	class="turn-card status-{turn.status}"
 >
@@ -161,8 +161,8 @@
 		><span class="sr-only">Reply</span></a>
 	{/if}
 
-	<div data-row="gap-2 align-center justify-between">
-		<div data-column="gap-2" data-row-item="flexible">
+	<div data-row="align-center justify-between">
+		<div data-column data-row-item="flexible">
 			<strong>User</strong>
 			<p>{turn.userPrompt}</p>
 		</div>
@@ -175,8 +175,8 @@
 	{#if turn.status === 'generating'}
 		<p data-text="muted">Generating…</p>
 	{:else if turn.status === 'error'}
-		<div data-column="gap-2">
-			<div data-row="gap-2 align-center">
+		<div data-column>
+			<div data-row="align-center">
 				<p data-error>{turn.error ?? 'Generation failed.'}</p>
 				<button
 					type="button"
@@ -192,10 +192,10 @@
 	{:else if turn.status === 'cancelled'}
 		<p data-text="muted">Cancelled.</p>
 	{:else if turn.assistantText || (turn.toolCalls?.length ?? 0) > 0}
-		<div data-column="gap-2">
+		<div data-column>
 			<strong>Assistant</strong>
 			{#if turn.toolCalls && turn.toolCalls.length > 0}
-				<details data-card="radius-2 padding-2">
+				<details data-card="padding-2">
 					<summary>Tools ({turn.toolCalls.length})</summary>
 					<ul data-column="gap-1">
 						{#each turn.toolCalls as tc (tc.id)}
@@ -228,9 +228,9 @@
 		>
 			{#snippet content(item)}
 				{#if item.type === 'reply'}
-					<div data-column="gap-2">
+					<div data-column>
 						{#if connections.length > 0}
-							<div data-row="gap-2 align-center">
+							<div data-row="align-center">
 								<ModelInput
 									connections={connections}
 									bind:value={modelValue}
@@ -263,7 +263,7 @@
 			{/snippet}
 		</Tabs>
 	{:else if children.length > 0}
-		<div data-column="gap-2">
+		<div data-column>
 			{#each children as child (child.id)}
 				<div animate:flip={{ duration: 250, easing: expoOut }}>
 					<AgentChatTurnNode
@@ -278,9 +278,9 @@
 			{/each}
 		</div>
 	{:else if showPromptForm}
-		<div data-column="gap-2">
+		<div data-column>
 			{#if connections.length > 0}
-				<div data-row="gap-2 align-center">
+				<div data-row="align-center">
 					<ModelInput
 						connections={connections}
 						bind:value={modelValue}

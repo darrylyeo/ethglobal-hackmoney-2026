@@ -17,6 +17,8 @@ export type TransferRequest = {
 	to: `0x${string}`,
 	allocations: TransferAllocation[],
 	status: TransferRequestStatus,
+	/** Unix time in milliseconds (normalized at ingest). */
 	createdAt: number,
+	/** Unix time in milliseconds (normalized at ingest). */
 	expiresAt: number,
 }

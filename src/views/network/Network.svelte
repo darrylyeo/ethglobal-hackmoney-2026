@@ -3,6 +3,8 @@
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import type { Network } from '$/constants/networks.ts'
+	import Collapsible from '$/components/Collapsible.svelte'
+	import { EntityLayout } from '$/components/EntityView.svelte'
 	import {
 		BEACON_EPOCH_EXPLORER_BY_CHAIN_ID,
 		BELLATRIX_EPOCH_BY_CHAIN_ID,
@@ -10,13 +12,19 @@
 		getCurrentEpoch,
 		MERGE_BLOCK_BY_CHAIN_ID,
 	} from '$/constants/fork-schedules.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { getNetworkPath } from '$/lib/network-paths.ts'
+
+
+	// Context
+	import { resolve } from '$app/paths'
 
 
 	// Props
 	let {
 		data,
-		chainId,
-		nameParam,
+		networkId: networkIdProp,
+		chainId: chainIdProp,
 		placeholderBlockIds,
 		visiblePlaceholderBlockIds = $bindable([] as number[]),
 		currentBlockNumber,
@@ -27,8 +35,8 @@
 			Network | undefined,
 			Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
 		>
+		networkId?: import('$/data/Network.ts').Network$Id
 		chainId?: number
-		nameParam?: string
 		placeholderBlockIds?: Set<number | [number, number]>
 		visiblePlaceholderBlockIds?: number[]
 		currentBlockNumber?: number
@@ -38,11 +46,9 @@
 
 
 	// (Derived)
+	const chainId = $derived(networkIdProp?.chainId ?? chainIdProp ?? undefined)
 	const network = $derived([...data.keys()][0])
 	const blocksMap = $derived([...data.values()][0] ?? new Map())
-	const placeholderIds = $derived(
-		placeholderBlockIds ?? new Set<number | [number, number]>([0]),
-	)
 
 	const mergeBlock = $derived(
 		chainId != null ? MERGE_BLOCK_BY_CHAIN_ID[chainId] : undefined,
@@ -78,148 +84,92 @@
 	const beaconExplorerBase = $derived(
 		chainId != null ? BEACON_EPOCH_EXPLORER_BY_CHAIN_ID[chainId] : undefined,
 	)
-	const showExecution = $derived(chainId != null)
-	const showConsensusCol = $derived(hasConsensusSchedule)
-	const showForksCol = $derived(!!forksHref || (chainId != null && nameParam != null))
-	const columnCount = $derived(
-		[showForksCol, showExecution, showConsensusCol].filter(Boolean).length,
-	)
-	const gridColumns = $derived(
-		columnCount >= 3 ? 'columns-3 gap-2' : columnCount === 2 ? 'columns-2 gap-2' : 'gap-2',
-	)
+	const showForksCol = $derived(!!forksHref || chainId != null)
 	const cardDetailsProps = $derived(
-		isCompact ? { 'data-card': 'radius-2 padding-4' } : { 'data-card': '' },
+		{ 'data-card': '' },
+	)
+	const networkLayout = $derived(
+		isCompact ? EntityLayout.ContentOnly : EntityLayout.PageSection,
+	)
+
+	// (Derived)
+	const networkMetadata = $derived(
+		network && chainId != null
+			? [
+					{ term: 'Chain ID', detail: String(chainId) },
+					{ term: 'CAIP-2', detail: `eip155:${chainId}` },
+					{ term: 'Type', detail: network.type },
+					...(
+						network.nativeCurrency
+							? [{ term: 'Currency', detail: network.nativeCurrency.symbol }]
+							: []
+					),
+				]
+			: [],
+	)
+	const networkHref = $derived(
+		chainId != null ? resolve(getNetworkPath(chainId)) : '#',
 	)
 
 
 	// Components
+	import EntityView from '$/components/EntityView.svelte'
 	import NetworkBlocks from '$/views/network/NetworkBlocks.svelte'
 	import NetworkEpochs from '$/views/network/NetworkEpochs.svelte'
 	import NetworkForks from '$/views/network/NetworkForks.svelte'
 </script>
 
 
-{#if isCompact}
-	<div data-grid={gridColumns}>
-		{#if showForksCol}
-			<NetworkForks
-				chainId={chainId}
-				nameParam={nameParam}
-				forksHref={forksHref}
-				detailsProps={cardDetailsProps}
-			/>
+<EntityView
+	entityType={EntityType.Network}
+	entityId={chainId != null ? { chainId } : undefined}
+	idSerialized={network ? `network:${network.chainId}` : 'network:loading'}
+	href={networkHref}
+	label={network?.name ?? 'Loading network…'}
+	layout={networkLayout}
+	metadata={networkMetadata}
+	annotation="EVM Network"
+	detailsProps={isCompact ? cardDetailsProps : { open: true, 'data-card': '' }}
+>
+	{#snippet AfterTitle()}
+		{#if network}
+			<span data-tag>{network.type}</span>
 		{/if}
-		{#if showExecution && chainId != null}
-			<NetworkBlocks
-				blocksMap={blocksMap}
-				chainId={chainId}
-				placeholderBlockIds={placeholderIds}
-				bind:visiblePlaceholderBlockIds={visiblePlaceholderBlockIds}
-				detailsProps={cardDetailsProps}
-			/>
-		{/if}
-		{#if showConsensusCol}
-			{#if showConsensus && recentEpochs.length > 0}
-				<NetworkEpochs
-					epochs={new Set(recentEpochs)}
-					currentEpoch={currentEpoch}
-					beaconExplorerBase={beaconExplorerBase}
+	{/snippet}
+	{#snippet children()}
+		<div data-grid="columns-3 gap-2">
+			{#if showForksCol}
+				<NetworkForks
+					networkId={chainId != null ? { chainId } : undefined}
+					forksHref={forksHref}
 					detailsProps={cardDetailsProps}
 				/>
-			{:else}
-				<details open {...cardDetailsProps}>
-					<summary>Consensus</summary>
-					<p data-text="annotation">
-						{currentBlockNumber == null || currentBlockNumber < (mergeBlock ?? 0)
-							? 'Loading block height…'
-							: 'Loading epochs…'}
-					</p>
-				</details>
 			{/if}
-		{/if}
-	</div>
-{:else}
-	<details data-card="radius-2 padding-4" open id={network ? `network:${network.chainId}` : undefined}>
-		<summary>
-			{#if network}
-				<div data-row>
-					<div data-row>
-						<div data-column>
-							<h2>{network.name}</h2>
-						</div>
-
-						<span data-tag>{network.type}</span>
-					</div>
-
-					<span data-text="annotation">EVM Network</span>
-				</div>
-			{:else}
-				<code>Loading network…</code>
+			{#if chainId != null}
+				<NetworkBlocks
+					blocksMap={blocksMap}
+					networkId={{ chainId }}
+					placeholderBlockIds={placeholderBlockIds ?? new Set<number | [number, number]>([0])}
+					bind:visiblePlaceholderBlockIds={visiblePlaceholderBlockIds}
+					detailsProps={cardDetailsProps}
+				/>
 			{/if}
-		</summary>
-
-		<div data-column="gap-4">
-			{#if network}
-				<dl>
-					<div>
-						<dt>Chain ID</dt>
-						<dd><code>{network.chainId}</code></dd>
-					</div>
-					<div>
-						<dt>Chain Agnostic ID</dt>
-						<dd><code>eip155:{network.chainId}</code></dd>
-					</div>
-					<div>
-						<dt>Type</dt>
-						<dd>{network.type}</dd>
-					</div>
-					{#if network.nativeCurrency}
-						<div>
-							<dt>Currency</dt>
-							<dd>{network.nativeCurrency.symbol}</dd>
-						</div>
-					{/if}
-				</dl>
-			{/if}
-
-			<div data-grid={gridColumns}>
-				{#if showForksCol}
-					<NetworkForks
-						chainId={chainId}
-						nameParam={nameParam}
-						forksHref={forksHref}
+			{#if hasConsensusSchedule}
+				{#if showConsensus && recentEpochs.length > 0}
+					<NetworkEpochs
+						epochs={new Set(recentEpochs)}
+						currentEpoch={currentEpoch}
+						beaconExplorerBase={beaconExplorerBase}
 						detailsProps={cardDetailsProps}
 					/>
-				{/if}
-				{#if showExecution && chainId != null}
-					<NetworkBlocks
-						blocksMap={blocksMap}
-						chainId={chainId}
-						placeholderBlockIds={placeholderIds}
-						bind:visiblePlaceholderBlockIds={visiblePlaceholderBlockIds}
-						detailsProps={cardDetailsProps}
+				{:else}
+					<Collapsible
+						title="Consensus"
+						annotation="Loading consensus…"
+						detailsProps={{ ...cardDetailsProps, open: true }}
 					/>
 				{/if}
-				{#if showConsensusCol}
-					{#if showConsensus && recentEpochs.length > 0}
-						<NetworkEpochs
-							epochs={new Set(recentEpochs)}
-							currentEpoch={currentEpoch}
-							beaconExplorerBase={beaconExplorerBase}
-							detailsProps={cardDetailsProps}
-						/>
-					{:else}
-						<details open {...cardDetailsProps}>
-							<summary>Consensus</summary>
-							<p data-text="annotation">
-								{currentBlockNumber == null || currentBlockNumber < (mergeBlock ?? 0)
-									? 'Loading block height…'
-									: 'Loading epochs…'}
-							</p>
-						</details>
-					{/if}
-				{/if}
-			</div>
+			{/if}
 		</div>
-	</details>
-{/if}
+	{/snippet}
+</EntityView>

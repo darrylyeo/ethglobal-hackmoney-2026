@@ -81,11 +81,11 @@
 		data-column="gap-3"
 	>
 		<header data-row="wrap gap-4">
-			<div data-row="start gap-2" data-row-item="flexible">
+			<div data-row="start" data-row-item="flexible">
 				<h1>Sessions</h1>
 			</div>
 			{#if draftCount > 0}
-				<div data-row="gap-2">
+				<div data-row>
 					<button
 						type="button"
 						onclick={() => deleteAllDraftSessions()}
@@ -105,20 +105,20 @@
 				{#each sessions as session (session.id)}
 					<li
 						data-columns-item
-						data-card="radius-4 padding-4"
+						data-card="radius-4"
 					>
-						<div data-column="gap-2">
-							<div data-row="gap-2 align-center wrap">
+						<div data-column>
+							<div data-row="align-center wrap">
 								<a
 									href={sessionHref(session)}
 									data-row-item="flexible"
 								>
-									<span data-row="gap-2 align-center">
+									<span data-row="align-center">
 										<span aria-hidden="true">{sessionIcon(session)}</span>
 										{sessionTitle(session)}
 									</span>
 								</a>
-								<span data-row="gap-2 align-center">
+								<span data-row="align-center">
 									<span data-tag>{session.status}</span>
 									<WatchButton
 										entityType={EntityType.Session}
