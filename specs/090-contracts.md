@@ -91,7 +91,7 @@ Use `isReadable`, `isWritable`, `isReadableWithoutInputs` pattern for ABI functi
 - `AccountContracts`: queries contracts deployed by account address across supported networks
 - Discovery: Blockscout/Etherscan-style API per chain (contract creations from tx receipts)
 - Insert discovered contracts into `Contracts` collection
-- Render list linking to `/network/[slug]/contract/[address]`
+- Render list linking to `/network/[chainId]/contract/[address]` (network segment is numeric chainId)
 - Show when at least one contract exists, or always with "No contracts" when empty
 
 ## API additions

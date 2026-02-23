@@ -94,11 +94,11 @@ Prefer A or C so that a single script can refresh all sources without requiring 
 
 ## UI: fork upgrades page
 
-- **Route:** `/network/[chainId]/forks`. Param `chainId` is the network segment (slug or numeric chainId, same as `/network/[name]`); resolved via `parseNetworkNameParam`.
+- **Route:** `/network/[chainId]/forks`. Param is numeric chainId or `eip155:chainId`; resolved via `parseNetworkNameParam`.
 - **Data:** Fork list from `src/constants/fork-upgrades.ts` (`FORK_UPGRADES`: mainnet-only; name, slug, activation block/timestamp, links to ethereum.org, execution-specs, consensus-specs, Forkcast, `eipNumbers`). Proposal titles from `proposalsCollection` for EIP link labels.
-- **Non-mainnet / not found:** If network param invalid → `<Heading>Network not found</Heading>` and message. If valid but not Ethereum mainnet → `<Heading>Fork upgrades</Heading>`, message that schedule is mainnet-only, link to mainnet forks (`/network/1/forks` or slug), and link back to network.
+- **Non-mainnet / not found:** If network param invalid → `<Heading>Network not found</Heading>` and message. If valid but not Ethereum mainnet → `<Heading>Fork upgrades</Heading>`, message that schedule is mainnet-only, link to mainnet forks (`/network/1/forks`), and link back to network.
 - **Mainnet layout (aligned with Network / Block / Transaction):**
-  - **EntityView(Network)** at top: Title = NetworkName, AfterTitle = type tag, metadata = Chain ID, CAIP-2, Currency. Children:
+  - **EntityView(Network)** at top: Title = NetworkName, AfterTitle = type tag, metadata = Chain ID, CAIP-2 (derived as `eip155:${chainId}`), Currency. Children:
     - Links: Contracts (network contracts page), Proposals (EIPs/ERCs).
     - **NetworkContracts** (same preview as network page).
     - External nav (tag-style links): ethereum.org timeline, execution-specs, Forkcast.

@@ -44,7 +44,7 @@ may be used as discriminant fields in `src/constants` object arrays (e.g.
 Every constants module that exposes lookups MUST follow this structure only:
 
 1. **Enum(s)** — fixed sets as string enums (discriminant domain).
-2. **Single canonical array** — `readonly` array of objects; each object has one enum field as the discriminant (e.g. `id`, `type`, `serialization`).
+2. **Single canonical array** — use `as const satisfies readonly ElementType[]` so the array is a readonly tuple while satisfying the element type. Exception: arrays built with spread or where this would break downstream typing (e.g. type predicates, `Object.fromEntries` casts) may keep an explicit type annotation instead. Each object has one enum field as the discriminant (e.g. `id`, `type`, `serialization`).
 3. **Derived mapping(s)** — all lookups are derived from that array via `Object.fromEntries(...)`:
    - One primary map: discriminant field → full object (e.g. `byId = Object.fromEntries(arr.map(e => [e.id, e]))`).
    - Optionally other maps from the same array for other fields (e.g. `labelById = Object.fromEntries(arr.map(e => [e.id, e.label]))`).

@@ -42,7 +42,7 @@ Where a serialization format is described by one of these (e.g. decimal chain id
 
 | Entity | Enum | Example formats (label + patterns) |
 |--------|------|------------------------------------|
-| Network | `Network$IdSerializationType` | ChainId (decimal), Slug (e.g. ethereum), Caip2 (eip155:1) |
+| Network | `Network$IdSerializationType` | ChainId (decimal), Slug (numeric chainId string for URLs), Caip2 (eip155:chainId) |
 | Actor | `Actor$IdSerializationType` | PlainChainAddress (chainId-0x…), InteropEip7930 (EIP-7930) |
 | Contract | `Contract$IdSerializationType` | SlugAddress (slug:0x…), ChainIdAddress (chainId:0x…) |
 | Block | `Block$IdSerializationType` | ChainIdBlockNumber, SlugBlockNumber |
@@ -61,7 +61,7 @@ Conversion between `$id` and string **must not** live in `constants/id-serializa
 | Location | Functions | Use |
 |----------|-----------|-----|
 | `lib/id-serialization.ts` | `serializeNetworkId(id, format)`, `deserializeNetworkId(value)` | Canonical Network id ↔ string. |
-| `lib/patterns.ts` | `parseNetworkNameParam(name)` | Route param `[name]`: uses `deserializeNetworkId` then enriches with config/slug/caip2 for pages. |
+| `lib/patterns.ts` | `parseNetworkNameParam(name)` | Route param `[name]`: uses `deserializeNetworkId` then returns `{ chainId, network }` (ParsedNetworkParam). |
 | Route params | — | Use the above (e.g. `parseNetworkNameParam` for `/network/[name]`). |
 | Other entities | Add `serialize*` / `deserialize*` in `lib/id-serialization.ts` or next to route (e.g. block, contract, tx) when needed. |
 
@@ -75,7 +75,7 @@ Serializers take `($id, format: [Entity]$IdSerializationType)` and return `strin
   - Optional: derived map `[entityName]$IdSerializationsByType` for lookup by enum (no conversion logic).
 - **Helpers**: `src/lib/id-serialization.ts` (and existing `lib/patterns.ts`)
   - Network: `serializeNetworkId(id, format)`, `deserializeNetworkId(value)`.
-  - `parseNetworkNameParam` in `lib/patterns.ts` calls `deserializeNetworkId` and builds `ParsedNetworkParam` from network configs.
+  - `parseNetworkNameParam` in `lib/patterns.ts` calls `deserializeNetworkId` and returns `{ chainId, network }` (ParsedNetworkParam). Deserialize supports numeric chainId and `eip155:N` only; no slug/caip2 lookup maps.
 
 ## Status
 

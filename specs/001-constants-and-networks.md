@@ -10,7 +10,7 @@ Chain and token constants for USDC bridging.
 - `ChainId` enum (~40 chains): Ethereum, Optimism, Polygon, Arbitrum, Avalanche,
   Celo, Base, Linea, ZkSyncEra, Unichain, Monad, Sonic, WorldChain, HyperEVM,
   Sei, Ink, Codex, Plume, XDC, Arc, plus testnets (Sepolia, Amoy, Fuji, etc.)
-- `Network` type: `{ id: ChainId, name: string, type: NetworkType }`
+- `Network` type: `{ chainId: ChainId, name: string, type: NetworkType }` (and optional fields such as `nativeCurrency`, `explorerUrls`, `icon`, `color`). No `slug` or `caip2`; use chainId for URLs and derive CAIP-2 as `eip155:${chainId}` where needed.
 - `networks` array with `as const satisfies readonly Network[]`
 - `networksByChainId` lookup: derived via `Object.fromEntries(networks.map(...))` (see spec 045 constants file pattern).
 
@@ -24,7 +24,7 @@ Chain and token constants for USDC bridging.
 
 - [x] `NetworkType` enum with Mainnet/Testnet.
 - [x] `ChainId` enum with LI.FI / Circle supported chains (mainnets and testnets).
-- [x] `networks` array with id, name, and type for each chain.
+- [x] `networks` array with chainId, name, and type for each chain.
 - [x] `ercTokens` array with USDC address for each chain.
 - [x] Lookup objects for quick access by chain ID.
 - [x] Code style: tabs, no semicolons, `as const satisfies`.
