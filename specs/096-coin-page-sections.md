@@ -21,7 +21,7 @@ Restructure the coin page into named sections: **Contracts** and **Activity**. A
 ## Conventions
 
 - Follow `AccountContracts` pattern: section = `<details data-card><summary><h3>Section name</h3>...</summary>...</details>`.
-- Use `EntityList` / `ItemsListView` for lists where applicable (see Spec 088, 064).
+- Use `ItemsListCollapsible` for collapsible lists where applicable (see Spec 088, 062, 064).
 - Svelte 5: `$props`, `$state`, `$derived`, `$effect`; `<svelte:boundary>` not `{#await}`.
 
 ## Acceptance criteria

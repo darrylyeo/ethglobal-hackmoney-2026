@@ -1,6 +1,6 @@
 # Beacon (consensus layer) fork data — sources
 
-Research summary for **associated beacon chain forks**: best available sources to add CL fork schedules alongside existing EL fork data (Spec 113, `schedules.json`, fork upgrades page).
+Research summary for **associated beacon chain forks**: best available sources to add CL fork schedules alongside existing EL fork data (Spec 113, per-chain modules `src/constants/networks/[chainId].ts`, fork upgrades page).
 
 ## Canonical static source: consensus-specs YAML
 
@@ -33,7 +33,7 @@ For a single canonical **mainnet** CL schedule, consensus-specs `configs/mainnet
 
 To show "CL era" on an execution block page (e.g. "Part of: Deneb") we need epoch at that block:
 
-- **CL constants:** 32 slots/epoch, 12 s/slot (from consensus-specs: `SLOTS_PER_EPOCH` implicit 2^5, `SECONDS_PER_SLOT: 12`). Epoch E covers slots `E*32 .. E*32+31`.
+- **CL constants:** 32 slots/epoch, 12 s/slot (from consensus-specs: `slotsPerEpoch` implicit 2^5, `SECONDS_PER_SLOT: 12`). Epoch E covers slots `E*32 .. E*32+31`.
 - **Post-merge:** Execution blocks 1:1 with beacon slots (one EL block per slot when not skipped). So **slot_index = (execution_block_number - merge_block_number)** for blocks ≥ merge block.
 - **Merge block:** First post-merge EL block number is determined by TTD being reached (not by epoch alone). Geth/params or execution-specs give the actual merge block; consensus-specs give `TERMINAL_TOTAL_DIFFICULTY` and Bellatrix epoch. So epoch at block B (B ≥ merge_block) = floor((B - merge_block) / 32) + bellatrix_epoch (slot 0 of Bellatrix = first slot of that epoch).
 - **Practical:** Store merge block number (or derive from existing EL schedule + TTD) and Bellatrix fork epoch from consensus-specs; then `epochAtBlock(blockNum) = bellatrixEpoch + floor((blockNum - mergeBlock) / 32)` for blockNum ≥ mergeBlock. Pre-merge blocks have no CL epoch (or "Pre-merge").
@@ -62,13 +62,13 @@ To show "CL era" on an execution block page (e.g. "Part of: Deneb") we need epoc
 1. **Static (sync script):** Use **consensus-specs** `configs/mainnet.yaml` as the canonical static source for mainnet. For testnets (Sepolia, Holesky), use **eth-clients/sepolia** and **eth-clients/holesky** (no testnet YAMLs in consensus-specs). Extend the existing sync script to:
    - Parse mainnet.yaml (and optionally testnet configs from eth-clients) for `*_FORK_EPOCH` / `*_FORK_VERSION`.
    - Emit consensus forks with `kind: 'consensus'` and `activation: { epoch }`.
-   - Either merge into per-chain `forks` in `schedules.json` (with `kind` discriminator) or add a separate structure (e.g. `beaconSchedules` keyed by CONFIG_NAME, mapped to chainId).
+   - Per-chain fork data lives in `src/constants/networks/[chainId].ts` (Fork enum, `forks` array with `kind` discriminator). Chain 1 has consensus forks (Altair–Fulu) and exports `mergeBlock`, `bellatrixEpoch`, `hasConsensus`.
    - Filter out disabled forks (epoch 2^64-1).
 2. **Manifest:** Record consensus-specs ref/URL for mainnet; for testnets record eth-clients ref/URL per chain.
 3. **Beacon API:** Document or use later for runtime "current fork" or live checks; do not rely on it for build-time schedule.
 
 ## Current repo state
 
-- Sync script parses consensus-specs mainnet.yaml and merges CL forks into `schedules.json` for chain 1 (kind: 'consensus', activation.epoch). OP Stack and other chains in schedules are EL-only.
-- `getEraAtBlock()` and `getCurrentEpoch()` live in `src/constants/fork-schedules.ts`; schedule lookups use mappings (FORK_SCHEDULE_BY_CHAIN_ID, MERGE_BLOCK_BY_CHAIN_ID, etc.). Spec 115: Consensus section on network page.
+- **Per-chain modules** (`src/constants/networks/[chainId].ts`): Each chain has `export enum Fork { ... }` and `export const forks`. Mainnet `1.ts` includes CL forks (Altair, Bellatrix, Capella, Deneb, Electra, Fulu) and exports `mergeBlock`, `bellatrixEpoch`, `hasConsensus`. OP Stack and other chains are EL-only in their modules.
+- **Registry and API** `src/constants/forks/index.ts` builds the single `forks` array from per-chain modules and exports `mergeBlockByChainId`, `bellatrixEpochByChainId`, `forkChainIds`, `consensusChainIds`, `getEraAtBlock()`, `getCurrentEpoch()`.
 - Consensus data model and Execution/Consensus UI: see **specs/115-consensus-data-execution-consensus-ui.md**.

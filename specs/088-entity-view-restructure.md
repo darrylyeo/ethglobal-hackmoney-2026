@@ -2,8 +2,7 @@
 
 Restructure all single-entity pages to use a shared `<EntityView>` component with a
 consistent layout. Introduce `<Heading>` for dynamic heading levels. Use view components
-(NetworkName, CoinName, CoinAmount, etc.) for entity titles. Add `<EntityList>` for entity lists with
-correct heading hierarchy.
+(NetworkName, CoinName, CoinAmount, etc.) for entity titles. Use `<ItemsListCollapsible>` for collapsible list sections (Collapsible + ItemsList) with correct heading hierarchy.
 
 ## Scope
 
@@ -55,13 +54,12 @@ Entity pages use view components in `title` snippets:
 
 Networks and coins list pages use view components in list items (NetworkName, CoinName).
 
-### EntityList component
+### ItemsListCollapsible component
 
-`<EntityList>` wraps `<ItemsListView>` and uses the Heading system:
-- Same props as ItemsListView (title, loaded, total, items, getKey, getSortValue, Item, etc.)
-- Title renders via `<Heading>` (respects context level) when `Title` snippet not provided
-- Wraps in `HeadingLevelProvider` so list title gets correct subordinate level
-- Used for Blocks, Transactions, Events lists
+`<ItemsListCollapsible>` wraps `<Collapsible>` with `<ItemsList>` inside:
+- Props: title, Title (optional snippet), loaded, total, detailsProps, items, getKey, getSortValue, Item, etc. (same list surface as ItemsList plus collapsible title/annotation)
+- Summary uses inline snippet; default shows title and count via `<Heading>` (respects parent heading context; no internal HeadingLevelProvider)
+- Used for Blocks, Transactions, Events, Forks, Consensus, and other collapsible lists
 
 ### Definition list style
 
@@ -87,11 +85,12 @@ Internal app paths only. `getTxPath`, `getBlockPath`, `getAccountPath` in `$/con
 - `/rooms/[roomId]` — Room
 - `/session/[id]` — Session (via Session.svelte)
 
-### Components using EntityList
+### Components using ItemsListCollapsible
 
 - **Network.svelte** — Blocks list (compact and full modes)
 - **Block.svelte** — Transactions list
 - **Transaction.svelte** — Events list
+- **NetworkForks.svelte**, **NetworkEpochs.svelte**, **NetworkBlocks.svelte**, **CoinContracts.svelte**, **FarcasterCastsEntityList.svelte** — collapsible lists
 
 Query logic (live queries, placeholder handling, fetchBlockTransactions, fetchNetworkTransaction) preserved.
 
@@ -113,12 +112,12 @@ Query logic (live queries, placeholder handling, fetchBlockTransactions, fetchNe
 - [x] Coin page uses EntityView with CoinName title
 - [x] Networks list uses NetworkName; coins list uses CoinName
 - [x] Agents, Rooms, Session pages use EntityView
-- [x] `<EntityList>` wraps ItemsListView, uses Heading for title, wraps in HeadingLevelProvider
-- [x] Network uses EntityList for Blocks
-- [x] Block uses EntityList for Transactions
-- [x] Transaction uses EntityList for Events
+- [x] `<ItemsListCollapsible>` wraps Collapsible with ItemsList inside; Summary uses Heading (parent context)
+- [x] Network uses ItemsListCollapsible for Blocks
+- [x] Block uses ItemsListCollapsible for Transactions
+- [x] Transaction uses ItemsListCollapsible for Events
 - [x] Existing query logic preserved
 
 ## Status
 
-Complete. EntityView, HeadingLevelProvider, Heading, EntityList, view components (NetworkName, CoinName, CoinAmount), path helpers in networks.ts. All entity pages refactored. Blocks/Transactions/Events use EntityList.
+Complete. EntityView, HeadingLevelProvider, Heading, ItemsListCollapsible (Collapsible + ItemsList), view components (NetworkName, CoinName, CoinAmount), path helpers in networks.ts. All entity pages refactored. Blocks/Transactions/Events and other list sections use ItemsListCollapsible.
