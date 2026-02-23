@@ -9,7 +9,7 @@ Extend the fork/era model with protocol enums, add consensus (beacon) data conte
 
 ## Scope
 
-1. **Consensus data** — Beacon chain (Ethereum) and optionally other chains: static schedule from consensus-specs (already in schedules.json as `kind: 'consensus'` forks); runtime from Beacon API when needed.
+1. **Consensus data** — Beacon chain (Ethereum) and optionally other chains: static schedule from consensus-specs (per-chain modules `src/constants/forks/[chainId].ts` with `kind: 'consensus'` forks in the `forks` array); runtime from Beacon API when needed.
 2. **Protocol enums and Fork entity** — `ExecutionProtocol` and `ConsensusProtocol` enums; add optional fields to fork types so we can label which protocol/layer a fork belongs to.
 3. **Network page** — Rename "Blocks" section to "Execution"; when the chain has consensus data (e.g. Ethereum mainnet/Sepolia/Holesky), show a "Consensus" section with epochs/slots in a similar list structure.
 
@@ -22,16 +22,15 @@ Extend the fork/era model with protocol enums, add consensus (beacon) data conte
   - Values: `EthereumBeacon`, `None` (or omit for pre-merge / L2s without CL).
   - Used when `ForkScheduleKind` is Consensus.
 
-Location: `src/data/fork-schedules/types.ts` (alongside `ForkScheduleKind`).
+Location: `src/constants/forks/types.ts` (alongside `ForkScheduleKind`).
 
 ## Fork entity fields
 
-- **ForkActivation** (schedules.json / sync output): Add optional `executionProtocol?: ExecutionProtocol`, `consensusProtocol?: ConsensusProtocol`. When `kind === 'execution'` set `executionProtocol` per chain (Ethereum for Geth chains, OpStack for superchain). When `kind === 'consensus'` set `consensusProtocol: EthereumBeacon`.
-- **ForkUpgrade** (mainnet rich data in fork-upgrades.ts): Add optional `executionProtocol?: ExecutionProtocol`, `consensusProtocol?: ConsensusProtocol` for consistency (mainnet EL forks → Ethereum, CL not typically shown in FORK_UPGRADES but can be set if we add CL entries later).
+- **Fork** (single type for all fork data): Optional `executionProtocol?: ExecutionProtocol`, `consensusProtocol?: ConsensusProtocol`. Per-chain entries in `src/constants/forks/[chainId].ts` use `ForkEntry<ForkId>[]`; index builds `Fork[]` with `$id`, `name`. Mainnet upgrade data (links, eipNumbers) lives in `1.ts`; `mainnetForksWithUpgrades` from index filters mainnet forks with links/eipNumbers.
 
 ## Consensus data (Ethereum beacon and others)
 
-- **Ethereum:** CL fork schedule is in schedules.json (from consensus-specs mainnet.yaml); fork names Altair, Bellatrix, Capella, Deneb, Electra, Fulu with `activation.epoch`. Merge block = Paris fork block; Bellatrix epoch from schedule. Current epoch at a given EL block: `getCurrentEpoch(chainId, blockNumber)` = bellatrixEpoch + floor((blockNumber - mergeBlock) / 32) when blockNumber >= mergeBlock; otherwise null.
+- **Ethereum:** CL fork schedule is in `src/constants/forks/1.ts` (Fork enum, `forks` array; Altair, Bellatrix, Capella, Deneb, Electra, Fulu with `activation.epoch`). That module exports `mergeBlock` (Paris) and `bellatrixEpoch`. Current epoch at a given EL block: `getCurrentEpoch(chainId, blockNumber)` = bellatrixEpoch + floor((blockNumber - mergeBlock) / 32) when blockNumber >= mergeBlock; otherwise null.
 - **Other chains:** L2s (OP Stack, Arbitrum, etc.) do not expose a separate consensus list in the same way; Consensus section is shown only when chain has at least one `kind: 'consensus'` fork in schedule (i.e. Ethereum mainnet, Sepolia, Holesky).
 
 ## Network page: Execution and Consensus sections
@@ -43,19 +42,18 @@ Location: `src/data/fork-schedules/types.ts` (alongside `ForkScheduleKind`).
   - Epoch list is derived from current execution block height: `getCurrentEpoch(chainId, currentBlock)` and then [currentEpoch - N, ..., currentEpoch]. Requires merge block and Bellatrix epoch from schedule (Paris fork block, Bellatrix fork epoch).
 - **When to show Consensus:** Only when `hasConsensusSchedule(chainId)` is true (chain has at least one fork with `kind: 'consensus'`) and we can compute epoch from block (merge block and Bellatrix epoch present). Otherwise do not render the Consensus section.
 
-## Constants and helpers (src/constants/fork-schedules.ts)
+## Constants and helpers
 
-- **Mappings (from schedules.json):** `FORK_SCHEDULE_BY_CHAIN_ID`, `MERGE_BLOCK_BY_CHAIN_ID`, `BELLATRIX_EPOCH_BY_CHAIN_ID` (Partial<Record<number, T>>). `FORK_SCHEDULE_CHAIN_IDS`, `CONSENSUS_SCHEDULE_CHAIN_IDS` (Set<number>). `SLOTS_PER_EPOCH = 32`.
-- **Lookups:** Use mappings directly (e.g. `FORK_SCHEDULE_BY_CHAIN_ID[chainId]`, `CONSENSUS_SCHEDULE_CHAIN_IDS.has(chainId)`). No getter functions for merge block, Bellatrix epoch, or “has schedule”.
-- **Computed:** `getEraAtBlock(chainId, blockNumber): EraAtBlock | null`, `getCurrentEpoch(chainId, blockNumber): number | null` — remain as functions (pure computation from mappings).
-
+- **Per-chain modules** (`src/constants/forks/[chainId].ts`): Each chain has `export enum ForkId { ... }` and `export const forks: readonly ForkEntry<ForkId>[]`. No per-chain exports of mergeBlock/bellatrixEpoch—derived in index.
+- **Registry and API** (`src/constants/forks/index.ts`): Builds single `forks` array from per-chain modules; exports `forkByChainId`, `forkChainIds`, `consensusChainIds`, `mergeBlockByChainId`, `bellatrixEpochByChainId`, `beaconEpochExplorerByChainId`, `slotsPerEpoch`, `getEraAtBlock`, `getCurrentEpoch`, `mainnetForksWithUpgrades`, and re-exports `Fork`. No separate fork-schedules file.
+- **Lookups:** Import from `src/constants/forks/index.ts` (e.g. `forkByChainId[chainId]`, `consensusChainIds.has(chainId)`).
 ## Acceptance criteria
 
-- [x] ExecutionProtocol and ConsensusProtocol enums in types; ForkActivation and ForkUpgrade have optional executionProtocol, consensusProtocol.
+- [x] ExecutionProtocol and ConsensusProtocol enums in types; Fork has optional executionProtocol, consensusProtocol.
 - [x] Sync script sets executionProtocol/consensusProtocol on emitted forks where applicable.
 - [x] Network view: "Blocks" list renamed to "Execution"; when chain has consensus schedule and merge/Bellatrix data, show "Consensus" section with list of recent epochs (derived from current block height).
 - [x] Helpers getMergeBlock, getBellatrixEpoch, getCurrentEpoch, hasConsensusSchedule implemented and used.
 
 ## Status
 
-Complete. Enums and Fork fields in types.ts and fork-upgrades.ts; sync script emits protocols; Network.svelte uses "Execution" title and adds "Consensus" EntityList (recent epochs) when hasConsensusSchedule and currentBlockNumber available; network page passes currentBlockNumber to NetworkView.
+Complete. Enums and Fork fields in types.ts; fork data and upgrade info consolidated in `src/constants/forks/` (index + per-chain modules). Network.svelte uses "Execution" title and adds "Consensus" EntityList (recent epochs) when hasConsensusSchedule and currentBlockNumber available; network page passes currentBlockNumber to NetworkView.
