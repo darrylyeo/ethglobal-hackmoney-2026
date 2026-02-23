@@ -38,8 +38,6 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/dashboard': ['default'],
 	'/dashboard/[dashboardId]': ['default'],
 	'/dashboards': ['default'],
-	'/eips': ['default'],
-	'/eips/[number]': ['default', 'not-found'],
 	'/farcaster': ['default'],
 	'/farcaster/accounts': ['default'],
 	'/farcaster/cast/[fid]/[hash]': ['default', 'not-found'],
@@ -52,13 +50,16 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/farcaster/sessions': ['default'],
 	'/farcaster/user/[fid]': ['default', 'not-found'],
 	'/farcaster/users': ['default'],
-	'/network/[name]': ['default', 'not-found'],
-	'/network/[name]/block/[blockNumber]': ['default', 'not-found'],
-	'/network/[name]/block/[blockNumber]/transaction/[transactionId]': ['default', 'not-found'],
-	'/network/[name]/contract/[address]': ['default', 'not-found'],
-	'/network/[name]/contracts': ['default', 'not-found'],
-	'/network/[name]/transaction/[transactionId]': ['default', 'not-found'],
+	'/network/[chainId]': ['default', 'not-found'],
 	'/network/[chainId]/forks': ['default', 'not-found'],
+	'/network/[networkSlug]/block/[blockNumber]': ['default', 'not-found'],
+	'/network/[networkSlug]/block/[blockNumber]/transaction/[transactionId]': ['default', 'not-found'],
+	'/network/[networkSlug]/contract/[address]': ['default', 'not-found'],
+	'/network/[networkSlug]/contracts': ['default', 'not-found'],
+	'/network/[networkSlug]/transaction/[transactionId]': ['default', 'not-found'],
+	'/proposals': ['default'],
+	'/proposals/[realm]/[slug]': ['default', 'not-found'],
+	'/proposals/forks': ['default'],
 	'/networks': ['default'],
 	'/peers': ['default', 'empty'],
 	'/positions/channels': ['default'],
@@ -303,47 +304,27 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/eips',
-		branch: 'default',
-		path: '/eips',
-		assert: async (page) => {
-			await expect(
-				page.getByRole('heading', { name: 'EIPs / ERCs', level: 1 }),
-			).toBeVisible({ timeout: 15_000 })
-		},
-	},
-	{
-		route: '/eips/[number]',
-		branch: 'default',
-		path: '/eips/1',
-		assert: async (page) => {
-			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
-			await expect(
-				page.getByText(/Invalid EIP\/ERC number/),
-			).toBeHidden()
-		},
-	},
-	{
-		route: '/eips/[number]',
-		branch: 'not-found',
-		path: '/eips/not-a-number',
-		assert: async (page) => {
-			await expect(
-				page.getByRole('heading', { name: 'Not found', level: 1 }),
-			).toBeVisible({ timeout: 15_000 })
-			await expect(
-				page.getByText(/Invalid EIP\/ERC number/),
-			).toBeVisible()
-		},
-	},
-	{
 		route: '/network/[chainId]/forks',
 		branch: 'default',
 		path: '/network/1/forks',
 		assert: async (page) => {
+			await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible({ timeout: 15_000 })
 			await expect(
-				page.getByRole('heading', { name: 'Fork upgrades', level: 1 }),
+				page.getByRole('link', { name: 'Contracts' }).first(),
 			).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/network/[chainId]/forks',
+		branch: 'not-found',
+		path: '/network/unknown-chain-xyz/forks',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Network not found', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/could not be resolved/),
+			).toBeVisible()
 		},
 	},
 	{
@@ -814,7 +795,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]',
+		route: '/network/[chainId]',
 		branch: 'default',
 		path: '/network/1',
 		assert: async (page) => {
@@ -822,7 +803,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]',
+		route: '/network/[chainId]',
 		branch: 'not-found',
 		path: '/network/unknown-network-xyz',
 		assert: async (page) => {
@@ -835,7 +816,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]/block/[blockNumber]',
+		route: '/network/[networkSlug]/block/[blockNumber]',
 		branch: 'default',
 		path: '/network/1/block/1',
 		assert: async (page) => {
@@ -846,7 +827,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]/block/[blockNumber]',
+		route: '/network/[networkSlug]/block/[blockNumber]',
 		branch: 'not-found',
 		path: '/network/1/block/abc',
 		assert: async (page) => {
@@ -859,7 +840,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]/block/[blockNumber]/transaction/[transactionId]',
+		route: '/network/[networkSlug]/block/[blockNumber]/transaction/[transactionId]',
 		branch: 'default',
 		path: '/network/1/block/1/transaction/0x0000000000000000000000000000000000000000000000000000000000000000',
 		assert: async (page) => {
@@ -870,7 +851,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]/block/[blockNumber]/transaction/[transactionId]',
+		route: '/network/[networkSlug]/block/[blockNumber]/transaction/[transactionId]',
 		branch: 'not-found',
 		path: '/network/1/block/1/transaction/invalid-tx-hash',
 		assert: async (page) => {
@@ -883,7 +864,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]/transaction/[transactionId]',
+		route: '/network/[networkSlug]/transaction/[transactionId]',
 		branch: 'default',
 		path: '/network/1/transaction/0x0000000000000000000000000000000000000000000000000000000000000000',
 		assert: async (page) => {
@@ -894,7 +875,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]/transaction/[transactionId]',
+		route: '/network/[networkSlug]/transaction/[transactionId]',
 		branch: 'not-found',
 		path: '/network/1/transaction/invalid-tx-hash',
 		assert: async (page) => {
@@ -1071,7 +1052,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]/contract/[address]',
+		route: '/network/[networkSlug]/contract/[address]',
 		branch: 'default',
 		path: '/network/1/contract/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
 		assert: async (page) => {
@@ -1079,7 +1060,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]/contract/[address]',
+		route: '/network/[networkSlug]/contract/[address]',
 		branch: 'not-found',
 		path: '/network/1/contract/not-an-address',
 		assert: async (page) => {
@@ -1092,7 +1073,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]/contracts',
+		route: '/network/[networkSlug]/contracts',
 		branch: 'default',
 		path: '/network/1/contracts',
 		assert: async (page) => {
@@ -1100,7 +1081,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		},
 	},
 	{
-		route: '/network/[name]/contracts',
+		route: '/network/[networkSlug]/contracts',
 		branch: 'not-found',
 		path: '/network/unknown-network-xyz/contracts',
 		assert: async (page) => {
@@ -1118,6 +1099,50 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/networks',
 		assert: async (page) => {
 			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/proposals',
+		branch: 'default',
+		path: '/proposals',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Proposals', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/proposals/forks',
+		branch: 'default',
+		path: '/proposals/forks',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Fork upgrades', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/proposals/[realm]/[slug]',
+		branch: 'default',
+		path: '/proposals/ethereum/eip-1',
+		assert: async (page) => {
+			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('heading', { name: 'Not found', level: 1 }),
+			).toBeHidden()
+		},
+	},
+	{
+		route: '/proposals/[realm]/[slug]',
+		branch: 'not-found',
+		path: '/proposals/ethereum/eip-999999',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Not found', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/not in index|Browse proposals/),
+			).toBeVisible()
 		},
 	},
 	{
