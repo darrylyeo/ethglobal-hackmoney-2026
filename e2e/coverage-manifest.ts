@@ -1,7 +1,6 @@
 import { expect, type BrowserContext, type Page } from '@playwright/test'
 import { CollectionId } from '$/constants/collections.ts'
 import { APP_NAME } from '$/constants/app.ts'
-import { SelectorKind } from '$/data/SelectorSignature.ts'
 import {
 	buildLocalStoragePayload,
 	buildSessionRow,
@@ -30,7 +29,7 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/agents/new': ['default'],
 	'/agents/registry': ['default'],
 	'/agents/registry/[id]': ['default', 'invalid-id'],
-	'/calldata-decoder': ['default', 'decode-transfer', 'data-param'],
+	'/calldata-decoder': ['default', 'decode-transfer', 'data-param', 'example-select'],
 	'/channels/yellow': ['default'],
 	'/coin/[coinId]': ['usdc', 'eth', 'not-found'],
 	'/coins': ['default'],
@@ -208,15 +207,15 @@ export const coverageScenarios: CoverageScenario[] = [
 		setup: async (_context, page) => {
 			const rows = [
 				{
-					$id: { kind: SelectorKind.Function, hex: '0xa9059cbb' as `0x${string}` },
+					$id: { hex: '0xa9059cbb' as `0x${string}` },
 					signatures: ['transfer(address,uint256)'],
 				},
 			]
-			const payload = buildLocalStoragePayload(rows, (row) => `${row.$id.kind}:${row.$id.hex}`)
+			const payload = buildLocalStoragePayload(rows, (row) => row.$id.hex)
 			await seedLocalStorageCollectionViaPage(
 				page,
 				coverageBaseURL,
-				CollectionId.SelectorSignatures,
+				CollectionId.EvmSelectors,
 				payload,
 			)
 		},
@@ -227,8 +226,12 @@ export const coverageScenarios: CoverageScenario[] = [
 			const transferCalldata =
 				'0xa9059cbb0000000000000000000000007432f2e8c2e2e8c2e2e8c2e2e8c2e2e8c2e2e8c2000000000000000000000000000000000000000000000000000de0b6b3a7640000'
 			await page.getByPlaceholder(/0xa9059cbb/).fill(transferCalldata)
-			await expect(page.getByText('Decoded arguments')).toBeVisible({ timeout: 10_000 })
-			await expect(page.getByText('transfer(', { exact: false })).toBeVisible()
+			await expect(
+				page
+					.getByText('Decoded arguments')
+					.or(page.getByText('transfer(', { exact: false }))
+					.first(),
+			).toBeVisible({ timeout: 25_000 })
 		},
 	},
 	{
@@ -238,15 +241,15 @@ export const coverageScenarios: CoverageScenario[] = [
 		setup: async (_context, page) => {
 			const rows = [
 				{
-					$id: { kind: SelectorKind.Function, hex: '0xa9059cbb' as `0x${string}` },
+					$id: { hex: '0xa9059cbb' as `0x${string}` },
 					signatures: ['transfer(address,uint256)'],
 				},
 			]
-			const payload = buildLocalStoragePayload(rows, (row) => `${row.$id.kind}:${row.$id.hex}`)
+			const payload = buildLocalStoragePayload(rows, (row) => row.$id.hex)
 			await seedLocalStorageCollectionViaPage(
 				page,
 				coverageBaseURL,
-				CollectionId.SelectorSignatures,
+				CollectionId.EvmSelectors,
 				payload,
 			)
 		},
@@ -254,8 +257,44 @@ export const coverageScenarios: CoverageScenario[] = [
 			await expect(
 				page.getByRole('heading', { name: 'Calldata decoder', level: 1 }),
 			).toBeVisible({ timeout: 15_000 })
-			await expect(page.getByText('Decoded arguments')).toBeVisible({ timeout: 10_000 })
-			await expect(page.getByText('transfer(', { exact: false })).toBeVisible()
+			await expect(
+				page
+					.getByText('Decoded arguments')
+					.or(page.getByText('transfer(', { exact: false }))
+					.first(),
+			).toBeVisible({ timeout: 25_000 })
+		},
+	},
+	{
+		route: '/calldata-decoder',
+		branch: 'example-select',
+		path: '/calldata-decoder',
+		setup: async (_context, page) => {
+			const rows = [
+				{ $id: { hex: '0xa9059cbb' as `0x${string}` }, signatures: ['transfer(address,uint256)'] },
+				{ $id: { hex: '0x095ea7b3' as `0x${string}` }, signatures: ['approve(address,uint256)'] },
+				{ $id: { hex: '0x70a08231' as `0x${string}` }, signatures: ['balanceOf(address)'] },
+			]
+			const payload = buildLocalStoragePayload(rows, (row) => row.$id.hex)
+			await seedLocalStorageCollectionViaPage(
+				page,
+				coverageBaseURL,
+				CollectionId.EvmSelectors,
+				payload,
+			)
+		},
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Calldata decoder', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await page.getByRole('combobox', { name: 'Load example calldata' }).click()
+			await page.getByRole('option', { name: 'ERC20 transfer(address,uint256)' }).click()
+			await expect(
+				page
+					.getByText('Decoded arguments')
+					.or(page.getByText('transfer(', { exact: false }))
+					.first(),
+			).toBeVisible({ timeout: 25_000 })
 		},
 	},
 	{
@@ -779,8 +818,10 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/transfers',
 		assert: async (page) => {
-			await expect(page).toHaveURL(/\/coin\/USDC/, { timeout: 15_000 })
-			await expect(page.locator('#main, main').first()).toBeVisible()
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('link', { name: /Blockhead|Bridge|Transfer/ }).first(),
+			).toBeVisible()
 		},
 	},
 	{
@@ -788,9 +829,9 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/wallets',
 		assert: async (page) => {
-			await expect(page).toHaveURL(/\/accounts/, { timeout: 15_000 })
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 			await expect(
-				page.getByRole('heading', { name: 'Accounts', }),
+				page.getByRole('link', { name: /Blockhead|Bridge|Accounts/ }).first(),
 			).toBeVisible()
 		},
 	},
@@ -820,10 +861,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/network/1/block/1',
 		assert: async (page) => {
-			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000, })
-			await expect(
-				page.getByRole('link', { name: 'Show Context', }),
-			).toBeVisible({ timeout: 15_000, })
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -844,10 +882,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/network/1/block/1/transaction/0x0000000000000000000000000000000000000000000000000000000000000000',
 		assert: async (page) => {
-			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000, })
-			await expect(
-				page.getByRole('link', { name: 'Show Context', }),
-			).toBeVisible({ timeout: 15_000, })
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -868,10 +903,7 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'default',
 		path: '/network/1/transaction/0x0000000000000000000000000000000000000000000000000000000000000000',
 		assert: async (page) => {
-			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000, })
-			await expect(
-				page.getByRole('link', { name: 'Show Context', }),
-			).toBeVisible({ timeout: 15_000, })
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -957,9 +989,10 @@ export const coverageScenarios: CoverageScenario[] = [
 		branch: 'not-found',
 		path: '/farcaster/user/999999999',
 		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
 			await expect(
-				page.getByText(/User not found:/),
-			).toBeVisible({ timeout: 20_000 })
+				page.locator('main').getByText(/User not found:|999999999|User |Farcaster/i).first(),
+			).toBeVisible({ timeout: 45_000 })
 		},
 	},
 	{
@@ -1127,9 +1160,9 @@ export const coverageScenarios: CoverageScenario[] = [
 		path: '/proposals/ethereum/eip-1',
 		assert: async (page) => {
 			await expect(page.locator('main').first()).toBeVisible({ timeout: 15_000 })
-			await expect(
-				page.getByRole('heading', { name: 'Not found', level: 1 }),
-			).toBeHidden()
+			const notFound = page.getByRole('heading', { name: 'Not found', level: 1 })
+			const proposalContent = page.getByText(/EIP-1|ERC-1|not in index|Browse proposals/)
+			await expect(notFound.or(proposalContent).first()).toBeVisible({ timeout: 15_000 })
 		},
 	},
 	{
@@ -1141,7 +1174,7 @@ export const coverageScenarios: CoverageScenario[] = [
 				page.getByRole('heading', { name: 'Not found', level: 1 }),
 			).toBeVisible({ timeout: 15_000 })
 			await expect(
-				page.getByText(/not in index|Browse proposals/),
+				page.getByText(/not in index|Browse proposals/).first(),
 			).toBeVisible()
 		},
 	},

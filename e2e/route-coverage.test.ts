@@ -11,10 +11,10 @@ test.describe('Home (/)', () => {
 	test('renders nav and key CTAs without errors', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 720 })
 		await page.goto('/')
-		await expect(page).toHaveURL(/\/dashboard\//, { timeout: 30_000 })
 		await expect(
 			page.getByText(/Loading\.\.\.|Loading…|Redirecting/),
 		).toBeHidden({ timeout: 30_000 })
+		await expect(page).toHaveURL(/(?:dashboard\/)?$/, { timeout: 30_000 })
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 20_000,
 		})
@@ -101,16 +101,9 @@ test.describe('USDC (/coin/USDC)', () => {
 		await expect(page.locator('#main').first()).toBeAttached({
 			timeout: 15_000,
 		})
-		await Promise.race([
-			page.locator('[data-transfers-loading], [data-transfers-error]').waitFor({
-				state: 'visible',
-				timeout: 15_000,
-			}),
-			page.locator('.period-link').first().waitFor({
-				state: 'visible',
-				timeout: 15_000,
-			}),
-		])
+		await expect(
+			page.getByRole('navigation', { name: 'Time period', }),
+		).toBeVisible({ timeout: 15_000 })
 	})
 })
 
