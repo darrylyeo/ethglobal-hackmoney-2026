@@ -399,28 +399,31 @@
 		const shouldReplace =
 			previousPanelId !== focusedPanel.id ||
 			!isPrefix(previousHashes, nextHashes)
-		if (shouldReplace) {
-			replaceState(baseUrl, baseState)
-			for (const hash of nextHashes) {
+		const run = () => {
+			if (shouldReplace) {
+				replaceState(baseUrl, baseState)
+				for (const hash of nextHashes) {
+					pushState(baseUrl, {
+						...baseState,
+						sessionState: parseSessionStateFromHashLike(hash),
+					})
+				}
+				pushedPanelId = focusedPanel.id
+				pushedHashes = [...nextHashes]
+				return
+			}
+			const newHashes = nextHashes.slice(previousHashes.length)
+			for (const hash of newHashes) {
 				pushState(baseUrl, {
 					...baseState,
 					sessionState: parseSessionStateFromHashLike(hash),
 				})
 			}
-			pushedPanelId = focusedPanel.id
-			pushedHashes = [...nextHashes]
-			return
+			if (newHashes.length > 0) {
+				pushedHashes = [...nextHashes]
+			}
 		}
-		const newHashes = nextHashes.slice(previousHashes.length)
-		for (const hash of newHashes) {
-			pushState(baseUrl, {
-				...baseState,
-				sessionState: parseSessionStateFromHashLike(hash),
-			})
-		}
-		if (newHashes.length > 0) {
-			pushedHashes = [...nextHashes]
-		}
+		setTimeout(run, 0)
 	})
 
 	$effect(() => {
@@ -458,7 +461,6 @@
 
 {#if embeddedInPanel}
 	<main
-		id="main"
 		class="dashboard dashboard-embedded"
 		data-sticky-container
 	>
@@ -478,7 +480,6 @@
 	</main>
 {:else if dashboardRow && 'root' in dashboardRow}
 	<main
-		id="main"
 		class="dashboard"
 		data-sticky-container
 	>
@@ -515,10 +516,8 @@
 
 <style>
 	.dashboard {
-		display: flex;
-		flex-direction: column;
-		height: 100vh;
-		min-height: 0;
+		height: -webkit-fill-available;
+		height: stretch;
 	}
 
 	.dashboard-tree {

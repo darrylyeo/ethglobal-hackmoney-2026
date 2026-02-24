@@ -546,7 +546,7 @@
 				/>
 			{/if}
 
-			<section data-card data-column>
+			<section data-card class="proposed-transactions-section">
 				<h3>{proposedTransactionsHeading}</h3>
 				<TransactionSigningPayloadList payloads={signingPayloads} />
 				<div data-row>
@@ -623,6 +623,12 @@
 </details>
 
 <style>
+	.proposed-transactions-section {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
+	}
+
 	.dialog-actions {
 		margin-top: 1rem;
 	}

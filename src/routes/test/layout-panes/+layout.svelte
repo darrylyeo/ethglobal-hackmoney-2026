@@ -17,7 +17,7 @@
 >
 	<aside
 		id="aside"
-		data-scroll-item="pane-static"
+		data-scroll-iwtem="pane-static"
 	>
 		<a href="#main">Scroll to main</a>
 		<p>Aside</p>

@@ -150,7 +150,6 @@
 
 
 <main
-	id="main"
 	data-column="gap-4"
 	data-sticky-container
 >

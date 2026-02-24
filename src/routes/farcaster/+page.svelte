@@ -28,13 +28,3 @@
 	</header>
 	<FarcasterDashboard />
 </main>
-
-
-<style>
-	.farcaster-page {
-		display: flex;
-		flex-direction: column;
-		height: 100vh;
-		min-height: 0;
-	}
-</style>

@@ -31,7 +31,6 @@
 
 
 <main
-	id="main"
 	data-column
 	data-sticky-container
 >

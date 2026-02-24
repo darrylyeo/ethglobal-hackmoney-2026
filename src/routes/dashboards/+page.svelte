@@ -89,7 +89,6 @@
 
 <main
 	class="dashboards"
-	id="main"
 	data-sticky-container
 	data-column
 >

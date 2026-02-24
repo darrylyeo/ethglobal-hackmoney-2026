@@ -20,22 +20,43 @@
 	import SignaturePayload from './SignaturePayload.svelte'
 </script>
 
-{#if payloads.length === 0}
-	<p data-text="muted">No transactions for this action.</p>
-{:else}
-	<ItemsList
-		items={items}
-		getKey={(payload) => payload.stepIndex}
-		getSortValue={(payload) => payload.stepIndex}
-		placeholderKeys={new Set()}
-		data-list="unstyled gap-2"
-	>
-		{#snippet Item({ key, item, isPlaceholder })}
-			{#if isPlaceholder}
-				<div data-placeholder>…</div>
-			{:else if item}
-				<SignaturePayload payload={item} />
-			{/if}
-		{/snippet}
-	</ItemsList>
-{/if}
+<div class="proposed-tx-list" data-column="gap-2">
+	{#if payloads.length === 0}
+		<p data-text="muted">No transactions for this action.</p>
+	{:else}
+		<div
+			class="proposed-tx-scroll"
+			data-scroll-container="block"
+		>
+			<ItemsList
+				items={items}
+				getKey={(payload) => payload.stepIndex}
+				getSortValue={(payload) => payload.stepIndex}
+				placeholderKeys={new Set()}
+				data-list="unstyled gap-2"
+			>
+				{#snippet Item({ key, item, isPlaceholder })}
+					{#if isPlaceholder}
+						<div data-placeholder>…</div>
+					{:else if item}
+						<SignaturePayload payload={item} />
+					{/if}
+				{/snippet}
+			</ItemsList>
+		</div>
+	{/if}
+</div>
+
+<style>
+	.proposed-tx-list {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 0%;
+		min-block-size: 0;
+	}
+
+	.proposed-tx-scroll {
+		flex: 1 1 0%;
+		min-block-size: 0;
+	}
+</style>

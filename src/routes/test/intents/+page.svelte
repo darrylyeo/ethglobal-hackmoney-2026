@@ -68,7 +68,6 @@
 
 
 <main
-	id="main"
 	data-column="gap-6"
 	data-sticky-container
 >
@@ -200,7 +199,7 @@
 				{:else}
 					<div data-column>
 						{#each resolution.options as option, i (i)}
-							<div data-card="padding-2" data-column>
+							<div data-card data-column>
 								<strong>{option.name}</strong>
 								<ol data-column>
 									{#each option.sessionTemplate.actions as action (action.type)}

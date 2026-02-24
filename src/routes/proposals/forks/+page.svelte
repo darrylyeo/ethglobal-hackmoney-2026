@@ -1,14 +1,11 @@
 <script lang="ts">
 	// Types/constants
-	import type { Fork } from '$/constants/forks/index.ts'
+	import type { Fork } from '$/constants/forks/types.ts'
 	import type { ProposalEntry } from '$/data/ProposalEntry.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { EntityLayout } from '$/components/EntityView.svelte'
 	import { proposalsCollection } from '$/collections/Proposals.ts'
-	import {
-		dateFromUnixSeconds,
-		mainnetForksWithUpgrades,
-	} from '$/constants/forks/index.ts'
+	import { dateFromUnixSeconds, mainnetForksWithUpgrades } from '$/lib/forks.ts'
 	import { getProposalPath, ProposalRealm } from '$/lib/proposal-paths.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
@@ -54,7 +51,6 @@
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import Heading from '$/components/Heading.svelte'
-	import HeadingLevelProvider from '$/components/HeadingLevelProvider.svelte'
 </script>
 
 <svelte:head>
@@ -62,8 +58,7 @@
 </svelte:head>
 
 <main data-column="gap-6">
-	<HeadingLevelProvider>
-		<header data-column>
+	<header data-column>
 			<Heading>Fork upgrades</Heading>
 			<p data-text="annotation">
 				Ethereum mainnet protocol upgrades and included EIPs.
@@ -154,7 +149,6 @@
 				</li>
 			{/each}
 		</ul>
-	</HeadingLevelProvider>
 </main>
 
 <style>

@@ -1,13 +1,12 @@
 <script lang="ts">
 	// Types/constants
 	import {
-		ensureFunctionSignatures,
-		normalizeSelector4,
-		selectorSignaturesCollection,
-	} from '$/collections/SelectorSignatures.ts'
-	import { SelectorKind } from '$/data/SelectorSignature.ts'
+		ensureEvmFunctionSignatures,
+		evmSelectorsCollection,
+		normalizeEvmSelector4,
+	} from '$/collections/EvmSelectors.ts'
 	import { describePayloadData } from '$/lib/session/payloadDisplay.ts'
-	import { and, eq, not, useLiveQuery } from '@tanstack/svelte-db'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -27,31 +26,21 @@
 	)
 	const normalizedSelector = $derived(
 		selector
-			? normalizeSelector4(selector)
+			? normalizeEvmSelector4(selector)
 			: null,
 	)
 	const sigQuery = useLiveQuery(
 		(q) =>
 			normalizedSelector
 				? q
-						.from({ row: selectorSignaturesCollection })
-						.where(({ row }) =>
-							and(
-								eq(row.$id.kind, SelectorKind.Function),
-								eq(row.$id.hex, normalizedSelector!),
-							),
-						)
-						.select(({ row }) => ({ row }))
+					.from({ row: evmSelectorsCollection })
+					.where(({ row }) => eq(row.$id.hex, normalizedSelector))
+					.select(({ row }) => ({ row }))
 				: q
-						.from({ row: selectorSignaturesCollection })
-						.where(({ row }) =>
-							and(
-								eq(row.$id.hex, '0x' as `0x${string}`),
-								not(eq(row.$id.hex, '0x' as `0x${string}`)),
-							),
-						)
-						.select(({ row }) => ({ row })),
-			[() => normalizedSelector],
+					.from({ row: evmSelectorsCollection })
+					.where(({ row }) => eq(row.$id.hex, '0x' as `0x${string}`))
+					.select(({ row }) => ({ row })),
+		[() => normalizedSelector],
 	)
 	const signatures = $derived(sigQuery.data?.[0]?.row?.signatures ?? [])
 	const summary = $derived(
@@ -71,7 +60,7 @@
 
 	// Actions
 	$effect(() => {
-		if (normalizedSelector) void ensureFunctionSignatures(normalizedSelector)
+		if (normalizedSelector) void ensureEvmFunctionSignatures(normalizedSelector)
 	})
 </script>
 

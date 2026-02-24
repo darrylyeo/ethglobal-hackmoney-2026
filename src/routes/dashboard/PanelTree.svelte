@@ -93,34 +93,42 @@
 		indexInParent={indexInParent}
 	/>
 {:else}
-	<section
-		class="split-tree direction-{root.direction}"
-		style="--ratio: {displayRatio}; --ratio-min: 0.2; --ratio-max: 0.8; --col-1: {displayRatio}fr; --col-2: {1 -
-			displayRatio}fr"
+	<div
+		{...{
+			[SplitDirection.Horizontal]: { 'data-row': 'gap-0' },
+			[SplitDirection.Vertical]: { 'data-column': 'gap-0' },
+		}[root.direction]}
+		class="split-tree"
+		style="
+			--ratio: {displayRatio};
+			--ratio-min: 0.2;
+			--ratio-max: 0.8;
+			--col-1: {displayRatio}fr;
+			--col-2: {1 - displayRatio}fr;
+		"
 	>
-		<section class="split-tree-pane">
-			<PanelTree
-				root={root.first}
-				{focusedPanelId}
-				{excludeRoutePaths}
-				{splitRatioOverrides}
-				{onFocus}
-				{onSplit}
-				{onRemove}
-				{onSwap}
-				{onUpdateRoute}
-				{onAppendHash}
-				{onSetPanelHash}
-				{onNavigate}
-				{onOpenInNewPanel}
-				{onSetSplitRatio}
-				{onSetSplitRatioOverride}
-				{onClearSplitRatioOverride}
-				{onToggleSplitDirection}
-				parentSplit={root}
-				indexInParent={0}
-			/>
-		</section>
+		<PanelTree
+			root={root.first}
+			{focusedPanelId}
+			{excludeRoutePaths}
+			{splitRatioOverrides}
+			{onFocus}
+			{onSplit}
+			{onRemove}
+			{onSwap}
+			{onUpdateRoute}
+			{onAppendHash}
+			{onSetPanelHash}
+			{onNavigate}
+			{onOpenInNewPanel}
+			{onSetSplitRatio}
+			{onSetSplitRatioOverride}
+			{onClearSplitRatioOverride}
+			{onToggleSplitDirection}
+			parentSplit={root}
+			indexInParent={0}
+		/>
+
 		<div
 			class="split-tree-gutter"
 			data-row
@@ -159,29 +167,29 @@
 				</Tooltip.Portal>
 			</Tooltip.Root>
 		</div>
-		<section class="split-tree-pane">
-			<PanelTree
-				root={root.second}
-				{focusedPanelId}
-				{excludeRoutePaths}
-				{splitRatioOverrides}
-				{onFocus}
-				{onSplit}
-				{onRemove}
-				{onSwap}
-				{onUpdateRoute}
-				{onAppendHash}
-				{onSetPanelHash}
-				{onNavigate}
-				{onOpenInNewPanel}
-				{onSetSplitRatio}
-				{onSetSplitRatioOverride}
-				{onClearSplitRatioOverride}
-				{onToggleSplitDirection}
-				parentSplit={root}
-				indexInParent={1}
-			/>
-		</section>
+
+		<PanelTree
+			root={root.second}
+			{focusedPanelId}
+			{excludeRoutePaths}
+			{splitRatioOverrides}
+			{onFocus}
+			{onSplit}
+			{onRemove}
+			{onSwap}
+			{onUpdateRoute}
+			{onAppendHash}
+			{onSetPanelHash}
+			{onNavigate}
+			{onOpenInNewPanel}
+			{onSetSplitRatio}
+			{onSetSplitRatioOverride}
+			{onClearSplitRatioOverride}
+			{onToggleSplitDirection}
+			parentSplit={root}
+			indexInParent={1}
+		/>
+
 		<input
 			type="range"
 			data-pressable="no-scale"
@@ -201,7 +209,7 @@
 			}}
 			aria-label="Split ratio"
 		/>
-	</section>
+	</div>
 {/if}
 
 
@@ -214,10 +222,9 @@
 		);
 
 		display: grid;
-		height: 100%;
 		position: relative;
 
-		&.direction-horizontal {
+		&[data-row] {
 			grid-template:
 				1fr
 				/ minmax(0, var(--col-1)) var(--split-gutter-size) minmax(
@@ -250,7 +257,7 @@
 			}
 		}
 
-		&.direction-vertical {
+		&[data-column] {
 			grid-template:
 				minmax(0, var(--col-1)) var(--split-gutter-size) minmax(0, var(--col-2))
 				/ 1fr;
@@ -279,11 +286,6 @@
 					transform: translateY(var(--ratio-thumb-offset));
 				}
 			}
-		}
-
-		& > .split-tree-pane {
-			position: relative;
-			z-index: 0;
 		}
 
 		& > input[type='range'] {

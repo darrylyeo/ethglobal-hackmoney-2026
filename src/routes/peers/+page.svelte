@@ -86,7 +86,6 @@
 
 
 <main
-	id="main"
 	data-sticky-container
 	data-column
 >

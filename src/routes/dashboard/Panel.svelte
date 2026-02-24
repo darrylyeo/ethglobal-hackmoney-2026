@@ -141,6 +141,7 @@
 <section
 	class="dashboard-panel"
 	data-column
+	data-scroll-container="block"
 	class:focused={isFocused}
 	role="group"
 	aria-label="Panel"
@@ -149,7 +150,11 @@
 	ondragover={handleDragOver}
 	ondrop={handleDrop}
 >
-	<header data-row="wrap gap-3" data-scroll-container="inline">
+	<header
+		data-row="wrap"
+		data-sticky
+		data-scroll-container="inline"
+	>
 		<div data-row="wrap start" data-row-item="flexible" class="dashboard-panel-title">
 			<select
 				class="dashboard-panel-route"
@@ -184,6 +189,7 @@
 				onblur={commitHash}
 			/> -->
 		</div>
+
 		<div data-row="wrap start" class="dashboard-panel-controls">
 			<button type="button" onclick={() => onSplit(panel.id, SplitDirection.Horizontal)} title="Split horizontal">
 				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">→</span>
@@ -210,32 +216,32 @@
 		</div>
 	</header>
 
-	<section
+	<div
 		class="dashboard-panel-body"
 		data-column
-		data-scroll-container="block"
-		data-sticky-container
 		role="presentation"
 		tabindex="-1"
 		onclick={handlePanelClick}
 		onkeydown={() => undefined}
 	>
-		<section data-scroll-item data-column class="dashboard-panel-route-body">
-			{#key panel.route.path + '\0' + JSON.stringify(panel.route.params)}
-				<SvelteKitRoute
-					route={panel.route}
-					entry={routeEntry}
-					extraData={{
-						embeddedInPanel: true,
-						setPanelRoute,
-					}}
-				/>
-			{/key}
-		</section>
-	</section>
+		{#key panel.route.path + '\0' + JSON.stringify(panel.route.params)}
+			<SvelteKitRoute
+				route={panel.route}
+				entry={routeEntry}
+				extraData={{
+					embeddedInPanel: true,
+					setPanelRoute,
+				}}
+			/>
+		{/key}
+	</div>
 
 	{#if panel.hashHistory.length > 0}
-		<footer data-column class="dashboard-panel-history">
+		<footer
+			data-sticky
+			data-column
+			class="dashboard-panel-history"
+		>
 			<span>History</span>
 			<ul>
 				{#each panel.hashHistory as hash, index (index)}

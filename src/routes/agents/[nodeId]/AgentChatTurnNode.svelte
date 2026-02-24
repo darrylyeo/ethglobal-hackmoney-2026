@@ -195,7 +195,7 @@
 		<div data-column>
 			<strong>Assistant</strong>
 			{#if turn.toolCalls && turn.toolCalls.length > 0}
-				<details data-card="padding-2">
+				<details data-card>
 					<summary>Tools ({turn.toolCalls.length})</summary>
 					<ul data-column="gap-1">
 						{#each turn.toolCalls as tc (tc.id)}

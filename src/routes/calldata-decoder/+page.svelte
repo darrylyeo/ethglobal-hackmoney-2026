@@ -1,23 +1,30 @@
 <script lang="ts">
 	// Types/constants
+	import type { CalldataExample } from '$/constants/calldata-examples.ts'
 	import { goto } from '$app/navigation'
 	import { page } from '$app/stores'
+	import { calldataExamples } from '$/constants/calldata-examples.ts'
 	import {
-		ensureEventSignatures,
-		ensureFunctionSignatures,
-		selectorSignaturesCollection,
-	} from '$/collections/SelectorSignatures.ts'
-	import { SelectorKind } from '$/data/SelectorSignature.ts'
+		ensureEvmFunctionSignatures,
+		evmSelectorsCollection,
+		normalizeEvmSelector4,
+	} from '$/collections/EvmSelectors.ts'
+	import {
+		ensureEvmEventSignatures,
+		evmTopicsCollection,
+		normalizeEvmTopic32,
+	} from '$/collections/EvmTopics.ts'
 	import {
 		decodeCalldataWithSignature,
 		decodeEventDataWithSignature,
 		formatDecodedParamValue,
 	} from '$/lib/calldata-decode.ts'
-	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// State
 	let inputRaw = $state('')
+	let selectedExample = $state<CalldataExample | undefined>(undefined)
 
 	function hexFromParam(value: string | null): string {
 		if (!value) return ''
@@ -31,15 +38,8 @@
 
 
 	// (Derived)
-	const hexNormalized = $derived(
-		(() => {
-			const s = inputRaw.trim().replace(/^0x/i, '').replace(/\s/g, '')
-			if (s.length === 0) return ''
-			if (!/^[0-9a-fA-F]*$/.test(s)) return ''
-			return s.length % 2 === 0 ? s : s.slice(0, -1)
-		})(),
-	)
-	const hexWithPrefix = $derived(hexNormalized ? `0x${hexNormalized}` : '')
+	const hexWithPrefix = $derived(inputRaw.startsWith('0x') ? inputRaw : inputRaw ? `0x${inputRaw}` : '')
+	const hexNormalized = $derived(hexWithPrefix.slice(2).toLowerCase())
 	const selector = $derived(
 		hexNormalized.length >= 8
 			? (`0x${hexNormalized.slice(0, 8).toLowerCase()}` as `0x${string}`)
@@ -52,43 +52,29 @@
 	)
 	const byteCount = $derived(hexNormalized ? Math.floor(hexNormalized.length / 2) : 0)
 
+	const normalizedSelector = $derived(selector ? normalizeEvmSelector4(selector) : null)
 	const functionSigQuery = useLiveQuery(
 		(q) =>
-			selector
+			normalizedSelector
 				? q
-					.from({ row: selectorSignaturesCollection })
-					.where(({ row }) =>
-						and(
-							eq(row.$id.kind, SelectorKind.Function),
-							eq(row.$id.hex, selector),
-						),
-					)
+					.from({ row: evmSelectorsCollection })
+					.where(({ row }) => eq(row.$id.hex, normalizedSelector))
 					.select(({ row }) => ({ row }))
-				: q
-					.from({ row: selectorSignaturesCollection })
-					.where(({ row }) => eq(row.$id.kind, '' as typeof SelectorKind.Function))
-					.select(({ row }) => ({ row })),
-		[() => selector],
+				: q.from({ row: evmSelectorsCollection }).where(({ row }) => eq(row.$id.hex, '0x' as `0x${string}`)).select(({ row }) => ({ row })),
+		[() => normalizedSelector],
 	)
 	const functionSignatures = $derived(functionSigQuery.data?.[0]?.row?.signatures ?? [])
 
+	const normalizedTopic = $derived(topic ? normalizeEvmTopic32(topic) : null)
 	const eventSigQuery = useLiveQuery(
 		(q) =>
-			topic
+			normalizedTopic
 				? q
-					.from({ row: selectorSignaturesCollection })
-					.where(({ row }) =>
-						and(
-							eq(row.$id.kind, SelectorKind.Event),
-							eq(row.$id.hex, topic),
-						),
-					)
+					.from({ row: evmTopicsCollection })
+					.where(({ row }) => eq(row.$id.hex, normalizedTopic))
 					.select(({ row }) => ({ row }))
-				: q
-					.from({ row: selectorSignaturesCollection })
-					.where(({ row }) => eq(row.$id.kind, '' as typeof SelectorKind.Event))
-					.select(({ row }) => ({ row })),
-		[() => topic],
+				: q.from({ row: evmTopicsCollection }).where(({ row }) => eq(row.$id.hex, '0x' as `0x${string}`)).select(({ row }) => ({ row })),
+		[() => normalizedTopic],
 	)
 	const eventSignatures = $derived(eventSigQuery.data?.[0]?.row?.signatures ?? [])
 
@@ -101,7 +87,10 @@
 	)
 	const decodedCall = $derived(
 		hexWithPrefix && selector && signatureForDecode
-			? decodeCalldataWithSignature(signatureForDecode, hexWithPrefix)
+			? decodeCalldataWithSignature(
+					signatureForDecode,
+					hexWithPrefix as `0x${string}`,
+				)
 			: null,
 	)
 
@@ -116,9 +105,14 @@
 		hexWithPrefix &&
 			hexNormalized.length >= 64 &&
 			eventSignatureForDecode
-			? decodeEventDataWithSignature(eventSignatureForDecode, hexWithPrefix)
+			? decodeEventDataWithSignature(
+					eventSignatureForDecode,
+					hexWithPrefix as `0x${string}`,
+				)
 			: null,
 	)
+
+	const TRUNCATE_PARAM_LENGTH = 28
 
 	// Actions
 	$effect(() => {
@@ -136,10 +130,10 @@
 		void goto(url, { replaceState: true })
 	})
 	$effect(() => {
-		if (selector) void ensureFunctionSignatures(selector).catch(() => {})
+		if (selector) void ensureEvmFunctionSignatures(selector).catch(() => {})
 	})
 	$effect(() => {
-		if (topic) void ensureEventSignatures(topic).catch(() => {})
+		if (topic) void ensureEvmEventSignatures(topic).catch(() => {})
 	})
 	$effect(() => {
 		const _ = selector
@@ -151,111 +145,196 @@
 		const __ = eventSignatures.length
 		selectedEventSigIndex = 0
 	})
+	$effect(() => {
+		const ex = selectedExample
+		if (!ex) return
+		inputRaw = ex.hex
+		selectedExample = undefined
+	})
+
+	// Components
+	import Collapsible from '$/components/Collapsible.svelte'
+	import Heading from '$/components/Heading.svelte'
+	import Hexadecimal from '$/components/Hexadecimal.svelte'
+	import HexadecimalInput from '$/components/HexadecimalInput.svelte'
+	import Select from '$/components/Select.svelte'
+	import TruncatedValue from '$/components/TruncatedValue.svelte'
+	import Address, { AddressFormat } from '$/views/Address.svelte'
 </script>
 
 <svelte:head>
 	<title>Calldata decoder</title>
 </svelte:head>
 
-<main data-card="padding-2" style="max-width: 42rem;">
-	<h1>Calldata decoder</h1>
+<main data-card>
+	<Heading>Calldata decoder</Heading>
 	<p>Paste transaction input or event data (hex) to resolve the function selector (4 bytes) and/or event topic (32 bytes) to human-readable signature(s). Use <code>?data=0x…</code> in the URL to open with hex pre-filled (shareable link).</p>
 
-	<label>
-		<span class="visually-hidden">Calldata (hex)</span>
-		<textarea
-			bind:value={inputRaw}
-			placeholder="0xa9059cbb000000000000000000000000..."
-			rows="4"
-			spellcheck="false"
-			data-input="hex"
-			style="font-family: ui-monospace, monospace; width: 100%; box-sizing: border-box;"
-		></textarea>
+	<label data-column="gap-1">
+		<span class="visually-hidden">Load example</span>
+		<Select
+			items={calldataExamples}
+			bind:value={selectedExample}
+			getItemId={(ex) => ex.id}
+			getItemLabel={(ex) => ex.label}
+			placeholder="Load example…"
+			ariaLabel="Load example calldata"
+			data-example-select
+			style="font-family: ui-monospace, monospace; margin-bottom: 0.5rem;"
+		/>
 	</label>
 
+	<HexadecimalInput
+		bind:value={inputRaw}
+		placeholder="0xa9059cbb000000000000000000000000..."
+		rows={4}
+		ariaLabel="Calldata (hex)"
+	/>
+
 	{#if hexWithPrefix}
-		<dl data-row="gap-1" style="margin-top: 1rem;">
-			<dt>Selector (4 bytes)</dt>
-			<dd><code>{selector ?? '—'}</code></dd>
-			{#if functionSignatures.length > 0}
-				<dt>Function signatures</dt>
-				<dd>
-					{#if functionSignatures.length > 1}
-						<select
-							bind:value={selectedSigIndex}
-							aria-label="Choose function signature for decoding"
-							style="font-family: ui-monospace, monospace; max-width: 100%;"
-						>
-							{#each functionSignatures as sig, i}
-								<option value={i}>{sig}</option>
-							{/each}
-						</select>
-					{:else}
-						<code data-row="wrap gap-1">
-							{#each functionSignatures as sig}
-								<span>{sig}</span>
-							{/each}
-						</code>
-					{/if}
-				</dd>
-				{#if decodedCall}
-					<dt>Decoded arguments</dt>
-					<dd>
-						<code>{decodedCall.name}(</code>
-						<span data-row="wrap gap-1">
-							{#each decodedCall.params as param, i}
-								<code>{formatDecodedParamValue(param.type, param.value)}</code>{i < decodedCall.params.length - 1 ? ', ' : ''}
-							{/each}
-						</span>
-						<code>)</code>
-					</dd>
-				{/if}
-			{/if}
-			{#if topic}
-				<dt>Topic (32 bytes)</dt>
-				<dd><code>{topic}</code></dd>
-				{#if eventSignatures.length > 0}
-					<dt>Event signatures</dt>
-					<dd>
-						{#if eventSignatures.length > 1}
-							<select
-								bind:value={selectedEventSigIndex}
-								aria-label="Choose event signature for decoding"
-								style="font-family: ui-monospace, monospace; max-width: 100%;"
-							>
-								{#each eventSignatures as sig, i}
-									<option value={i}>{sig}</option>
-								{/each}
-							</select>
-						{:else}
-							<code data-row="wrap gap-1">
-								{#each eventSignatures as sig}
-									<span>{sig}</span>
-								{/each}
-							</code>
+		<Collapsible title="Result" open={true} detailsProps={{ style: 'margin-top: 1rem;' }}>
+			<div data-column="gap-4" class="calldata-result">
+				<section data-column="gap-2">
+					<span data-text="annotation">Function call</span>
+					<dl data-definition-list="vertical">
+						<div>
+							<dt>Selector</dt>
+							<dd>
+								<Hexadecimal
+									value={selector ?? ''}
+									bytesPerLine={4}
+									showOffset={false}
+									showAscii={false}
+								/>
+							</dd>
+						</div>
+						{#if functionSignatures.length > 0}
+							<div>
+								<dt>Signature</dt>
+								<dd>
+									{#if functionSignatures.length > 1}
+										<select
+											bind:value={selectedSigIndex}
+											aria-label="Choose function signature for decoding"
+											class="calldata-result-select"
+										>
+											{#each functionSignatures as sig, i}
+												<option value={i}>{sig}</option>
+											{/each}
+										</select>
+									{:else}
+										<code>{functionSignatures[0]}</code>
+									{/if}
+								</dd>
+							</div>
+							{#if decodedCall}
+								<div>
+									<dt>Arguments</dt>
+									<dd>
+										<dl data-definition-list="vertical" class="calldata-result-args">
+											{#each decodedCall.params as param, i}
+												<div class="calldata-result-arg">
+													<dt>{i}</dt>
+													<dd>
+														{#if param.type === 'address' && typeof param.value === 'string'}
+															<Address address={param.value as `0x${string}`} format={AddressFormat.Full} />
+														{:else}
+															{@const str = formatDecodedParamValue(param.type, param.value)}
+															{#if str.length > TRUNCATE_PARAM_LENGTH}
+																<TruncatedValue value={str} startLength={10} endLength={8} />
+															{:else}
+																<span class="calldata-result-arg-value">{str}</span>
+															{/if}
+														{/if}
+													</dd>
+												</div>
+											{/each}
+										</dl>
+									</dd>
+								</div>
+							{/if}
 						{/if}
-					</dd>
-					{#if decodedEvent}
-						<dt>Decoded event args</dt>
-						<dd>
-							<code>{decodedEvent.name}(</code>
-							<span data-row="wrap gap-1">
-								{#each decodedEvent.params as param, i}
-									<code>{formatDecodedParamValue(param.type, param.value)}</code>{i < decodedEvent.params.length - 1 ? ', ' : ''}
-								{/each}
-							</span>
-							<code>)</code>
-						</dd>
-					{/if}
+					</dl>
+				</section>
+
+				{#if topic}
+					<section data-column="gap-2">
+						<span data-text="annotation">Event (32+ bytes)</span>
+						<dl data-definition-list="vertical">
+							<div>
+								<dt>Topic</dt>
+								<dd>
+									<Hexadecimal
+										value={topic}
+										bytesPerLine={32}
+										showOffset={false}
+										showAscii={false}
+									/>
+								</dd>
+							</div>
+							{#if eventSignatures.length > 0}
+								<div>
+									<dt>Signature</dt>
+									<dd>
+										{#if eventSignatures.length > 1}
+											<select
+												bind:value={selectedEventSigIndex}
+												aria-label="Choose event signature for decoding"
+												class="calldata-result-select"
+											>
+												{#each eventSignatures as sig, i}
+													<option value={i}>{sig}</option>
+												{/each}
+											</select>
+										{:else}
+											<code>{eventSignatures[0]}</code>
+										{/if}
+									</dd>
+								</div>
+								{#if decodedEvent}
+									<div>
+										<dt>Arguments</dt>
+										<dd>
+											<dl data-definition-list="vertical" class="calldata-result-args">
+												{#each decodedEvent.params as param, i}
+													<div class="calldata-result-arg">
+														<dt>{i}</dt>
+														<dd>
+															{#if param.type === 'address' && typeof param.value === 'string'}
+																<Address address={param.value as `0x${string}`} format={AddressFormat.Full} />
+															{:else}
+																{@const str = formatDecodedParamValue(param.type, param.value)}
+																{#if str.length > TRUNCATE_PARAM_LENGTH}
+																	<TruncatedValue value={str} startLength={10} endLength={8} />
+																{:else}
+																	<span class="calldata-result-arg-value">{str}</span>
+																{/if}
+															{/if}
+														</dd>
+													</div>
+												{/each}
+											</dl>
+										</dd>
+									</div>
+								{/if}
+							{/if}
+						</dl>
+					</section>
 				{/if}
-			{/if}
-			<dt>Byte count</dt>
-			<dd>{byteCount}</dd>
-		</dl>
+
+				<dl data-definition-list="vertical">
+					<div>
+						<dt>Bytes</dt>
+						<dd>{byteCount}</dd>
+					</div>
+				</dl>
+			</div>
+		</Collapsible>
 	{:else if inputRaw.trim().length > 0}
 		<p>Enter valid hex (optional <code>0x</code>). Odd-length input is trimmed to even length.</p>
 	{/if}
 </main>
+
 
 <style>
 	.visually-hidden {
@@ -268,5 +347,20 @@
 		clip: rect(0, 0, 0, 0);
 		white-space: nowrap;
 		border: 0;
+	}
+	.calldata-result-select {
+		font-family: var(--fontFamily-monospace);
+		max-width: 100%;
+	}
+	.calldata-result-args {
+		margin: 0;
+	}
+	.calldata-result-arg dt {
+		font-family: var(--fontFamily-monospace);
+		min-inline-size: 1.5em;
+	}
+	.calldata-result-arg-value {
+		font-family: var(--fontFamily-monospace);
+		word-break: break-all;
 	}
 </style>
