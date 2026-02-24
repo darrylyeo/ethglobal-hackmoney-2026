@@ -593,6 +593,10 @@ export const mainnetIdForTestnetId = Object.fromEntries(
 	]),
 )
 
+export const mainnetChainIdByTestnetChainId = new Map(
+	mainnetTestnetMappings.map((m) => [m.testnetChainId, m.mainnetChainId]),
+)
+
 export const mainnetForTestnet = new Map(
 	Object.entries(mainnetIdForTestnetId).map(([testnetId, mainnetId]) => [
 		networksByChainId[Number(testnetId)]!,
