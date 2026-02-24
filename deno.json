@@ -37,6 +37,7 @@
     "test:e2e:structural": "deno run -A e2e/coverage-structural-check.mjs",
     "test:e2e:one-scenario": "deno run -A e2e/run-one-scenario.mjs",
     "format": "deno run -A scripts/_svelte-section-spacing.ts",
-    "forks:sync": "deno run -A scripts/sync-fork-schedules.ts"
+    "forks:sync": "deno run -A scripts/sync-fork-schedules.ts",
+    "precompiles:sync": "deno run -A scripts/sync-precompiles.ts"
   }
 }
