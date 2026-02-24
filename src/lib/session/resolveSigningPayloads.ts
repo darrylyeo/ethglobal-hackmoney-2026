@@ -55,6 +55,15 @@ export type ResolveSigningPayloadsOptions = {
 		gasLimit?: string
 		label?: string
 	}>
+	/** Pre-built tx for AddLiquidity (mint step), RemoveLiquidity, CollectFees, or IncreaseLiquidity when caller has encoded calldata. */
+	liquidityActionTx?: {
+		to: `0x${string}`
+		data: `0x${string}`
+		value?: string
+		chainId: number
+		gasLimit?: string
+		label?: string
+	}
 }
 
 export const spandexTxToSigningPayload = (
@@ -88,23 +97,10 @@ export const resolveSigningPayloads = (
 
 	switch (action.type) {
 		case ActionType.Swap: {
-			const chainId = (p.chainId as number) ?? ChainId.Ethereum
 			const spandexPayload =
 				options?.spandexQuoteTx &&
 				spandexTxToSigningPayload(options.spandexQuoteTx, from, rpcUrls)
-			if (spandexPayload) return [spandexPayload]
-			return [
-				{
-					stepIndex: 0,
-					label: 'Swap',
-					chainId,
-					from,
-					to: zeroAddress,
-					data: '0x' as `0x${string}`,
-					value: '0',
-					rpcUrl: rpcUrls[chainId],
-				},
-			]
+			return spandexPayload ? [spandexPayload] : []
 		}
 		case ActionType.Bridge: {
 			const lifiTxs = options?.lifiBridgeTxs
@@ -242,44 +238,7 @@ export const resolveSigningPayloads = (
 					return payloads
 				}
 			}
-			const payloads: TransactionSigningPayload[] = []
-			if (fromChainId != null) {
-				payloads.push({
-					stepIndex: payloads.length,
-					label: 'Deposit / Send',
-					chainId: fromChainId,
-					from,
-					to: zeroAddress,
-					data: '0x' as `0x${string}`,
-					value: String(amount),
-					rpcUrl: rpcUrls[fromChainId],
-				})
-			}
-			if (toChainId != null && toChainId !== fromChainId) {
-				payloads.push({
-					stepIndex: payloads.length,
-					label: 'Claim / Receive',
-					chainId: toChainId,
-					from,
-					to: zeroAddress,
-					data: '0x' as `0x${string}`,
-					value: '0',
-					rpcUrl: rpcUrls[toChainId],
-				})
-			}
-			if (payloads.length === 0) {
-				payloads.push({
-					stepIndex: 0,
-					label: 'Bridge',
-					chainId: fromChainId ?? toChainId ?? ChainId.Ethereum,
-					from,
-					to: zeroAddress,
-					data: '0x' as `0x${string}`,
-					value: '0',
-					rpcUrl: rpcUrls[fromChainId ?? toChainId ?? ChainId.Ethereum],
-				})
-			}
-			return payloads
+			return []
 		}
 		case ActionType.Transfer: {
 			const chainId =
@@ -291,6 +250,7 @@ export const resolveSigningPayloads = (
 				tokenAddress === zeroAddress && toActor !== zeroAddress && amount > 0n
 			const isErc20 =
 				tokenAddress !== zeroAddress && toActor !== zeroAddress && amount > 0n
+			if (!isNative && !isErc20) return []
 			return [
 				{
 					stepIndex: 0,
@@ -313,6 +273,7 @@ export const resolveSigningPayloads = (
 			const token0 = (p.token0 as `0x${string}`) ?? zeroAddress
 			const token1 = (p.token1 as `0x${string}`) ?? zeroAddress
 			const spender = POOL_MANAGER_ADDRESS[chainId as keyof typeof POOL_MANAGER_ADDRESS] ?? zeroAddress
+			if (spender === zeroAddress && !options?.liquidityActionTx) return []
 			const payloads: TransactionSigningPayload[] = []
 			if (token0 !== zeroAddress && spender !== zeroAddress) {
 				payloads.push({
@@ -338,33 +299,29 @@ export const resolveSigningPayloads = (
 					rpcUrl,
 				})
 			}
-			payloads.push({
-				stepIndex: payloads.length,
-				label: 'Add liquidity',
-				chainId,
-				from,
-				to: spender !== zeroAddress ? spender : zeroAddress,
-				data: '0x' as `0x${string}`,
-				value: '0',
-				rpcUrl,
-			})
-			return payloads.length > 0 ? payloads : [{
-				stepIndex: 0,
-				label: 'Add liquidity',
-				chainId,
-				from,
-				to: zeroAddress,
-				data: '0x' as `0x${string}`,
-				value: '0',
-				rpcUrl,
-			}]
+			const liquidityTx = options?.liquidityActionTx
+			if (liquidityTx?.to && liquidityTx?.data) {
+				payloads.push({
+					stepIndex: payloads.length,
+					label: liquidityTx.label ?? 'Add liquidity',
+					chainId: liquidityTx.chainId,
+					from,
+					to: liquidityTx.to,
+					data: liquidityTx.data,
+					value: liquidityTx.value ?? '0',
+					gasLimit: liquidityTx.gasLimit,
+					rpcUrl: rpcUrls[liquidityTx.chainId],
+				})
+			}
+			return payloads
 		}
 		case ActionType.RemoveLiquidity:
 		case ActionType.CollectFees:
 		case ActionType.IncreaseLiquidity: {
+			const liquidityTx = options?.liquidityActionTx
+			if (!liquidityTx?.to || !liquidityTx?.data) return []
 			const chainId =
 				((p.chainId as number) ?? fallbackChainId ?? ChainId.Ethereum) || ChainId.Ethereum
-			const rpcUrl = rpcUrls[chainId]
 			const label =
 				action.type === ActionType.RemoveLiquidity
 					? 'Remove liquidity'
@@ -374,34 +331,18 @@ export const resolveSigningPayloads = (
 			return [
 				{
 					stepIndex: 0,
-					label,
-					chainId,
+					label: liquidityTx.label ?? label,
+					chainId: liquidityTx.chainId,
 					from,
-					to: (POOL_MANAGER_ADDRESS[chainId as keyof typeof POOL_MANAGER_ADDRESS] ?? zeroAddress) as `0x${string}`,
-					data: '0x' as `0x${string}`,
-					value: '0',
-					rpcUrl,
+					to: liquidityTx.to,
+					data: liquidityTx.data,
+					value: liquidityTx.value ?? '0',
+					gasLimit: liquidityTx.gasLimit,
+					rpcUrl: rpcUrls[liquidityTx.chainId],
 				},
 			]
 		}
-		default: {
-			const chainId =
-				(p.chainId as number) ??
-				(p.fromChainId as number) ??
-				fallbackChainId ??
-				ChainId.Ethereum
-			return [
-				{
-					stepIndex: 0,
-					label: String(action.type),
-					chainId,
-					from,
-					to: zeroAddress,
-					data: '0x' as `0x${string}`,
-					value: '0',
-					rpcUrl: rpcUrls[chainId],
-				},
-			]
-		}
+		default:
+			return []
 	}
 }

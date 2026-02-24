@@ -10,9 +10,9 @@ export const matchesEntityRefPattern = (value: string, type: PatternType) => (
 	patternByPatternType[type].pattern.test(value)
 )
 
-/** Resolve [name] from /network/[name]: eip155:chainId or numeric chainId. */
-export const parseNetworkNameParam = (name: string) => {
-	const id = deserializeNetworkId(name)
+/** Resolve URL segment from /network/[chainId] or /network/[networkSlug]: eip155:chainId or numeric chainId. */
+export const parseNetworkNameParam = (segment: string) => {
+	const id = deserializeNetworkId(segment)
 	if (!id) return null
 	const network = networksByChainId[id.chainId] ?? null
 	return network ? { chainId: network.chainId, network } : null

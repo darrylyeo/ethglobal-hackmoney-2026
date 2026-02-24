@@ -1,5 +1,5 @@
 export const formatRelativeTime = (ms: number) => {
-	if (Math.abs(ms) < 1000) {
+	if (!Number.isFinite(ms) || Math.abs(ms) < 1000) {
 		return 'now'
 	}
 	const rtf = new Intl.RelativeTimeFormat('en', {
