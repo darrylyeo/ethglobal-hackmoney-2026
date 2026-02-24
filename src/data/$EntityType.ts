@@ -37,10 +37,13 @@ import type { Wallet, Wallet$Id } from '$/data/Wallet.ts'
 import type { WalletConnectionBase, WalletConnection$Id } from '$/data/WalletConnection.ts'
 import type { YellowChannel } from '$/data/YellowChannel.ts'
 import type { YellowChannelState } from '$/data/YellowChannelState.ts'
-import type { Fork } from '$/constants/forks/index.ts'
+import type { Fork } from '$/constants/forks/types.ts'
 import type { Eip8004Agent, Eip8004Agent$Id } from '$/data/Eip8004Agent.ts'
 import type { CaipEntry, CaipEntry$Id } from '$/data/CaipEntry.ts'
 import type { ProposalEntry, ProposalEntry$Id } from '$/data/ProposalEntry.ts'
+import type { EvmError, EvmError$Id } from '$/data/EvmError.ts'
+import type { EvmSelector, EvmSelector$Id } from '$/data/EvmSelector.ts'
+import type { EvmTopic, EvmTopic$Id } from '$/data/EvmTopic.ts'
 import type { YellowDeposit } from '$/data/YellowDeposit.ts'
 import type { YellowTransfer } from '$/data/YellowTransfer.ts'
 
@@ -62,6 +65,9 @@ export enum EntityType {
 	Eip8004Agent = 'Eip8004Agent',
 	Caip = 'Caip',
 	NetworkFork = 'NetworkFork',
+	EvmError = 'EvmError',
+	EvmSelector = 'EvmSelector',
+	EvmTopic = 'EvmTopic',
 	Proposal = 'Proposal',
 	SocialPostSession = 'SocialPostSession',
 	FarcasterCast = 'FarcasterCast',
@@ -148,6 +154,9 @@ export const entityTypes = [
 	{ type: EntityType.Caip, label: 'CAIP', labelPlural: 'CAIPs' },
 	{ type: EntityType.Eip8004Agent, label: 'EIP-8004 agent', labelPlural: 'EIP-8004 agents' },
 	{ type: EntityType.NetworkFork, label: 'Network fork', labelPlural: 'Network forks' },
+	{ type: EntityType.EvmError, label: 'EVM error', labelPlural: 'EVM errors' },
+	{ type: EntityType.EvmSelector, label: 'EVM selector', labelPlural: 'EVM selectors' },
+	{ type: EntityType.EvmTopic, label: 'EVM topic', labelPlural: 'EVM topics' },
 	{ type: EntityType.Proposal, label: 'Proposal', labelPlural: 'Proposals' },
 	{ type: EntityType.SocialPostSession, label: 'Social post session', labelPlural: 'Social post sessions' },
 	{ type: EntityType.FarcasterCast, label: 'Cast', labelPlural: 'Casts' },
@@ -196,6 +205,9 @@ export type Entity<_EntityType extends EntityType = EntityType> = {
 	[EntityType.Eip8004Agent]: Eip8004Agent
 	[EntityType.Caip]: CaipEntry
 	[EntityType.NetworkFork]: Fork
+	[EntityType.EvmError]: EvmError
+	[EntityType.EvmSelector]: EvmSelector
+	[EntityType.EvmTopic]: EvmTopic
 	[EntityType.Proposal]: ProposalEntry
 	[EntityType.SocialPostSession]: SocialPostSession
 	[EntityType.FarcasterCast]: FarcasterCast
@@ -242,6 +254,9 @@ export type EntityId<_EntityType extends EntityType = EntityType> = {
 	[EntityType.Eip8004Agent]: Eip8004Agent$Id
 	[EntityType.Caip]: CaipEntry$Id
 	[EntityType.NetworkFork]: StringId
+	[EntityType.EvmError]: EvmError$Id
+	[EntityType.EvmSelector]: EvmSelector$Id
+	[EntityType.EvmTopic]: EvmTopic$Id
 	[EntityType.Proposal]: ProposalEntry$Id
 	[EntityType.SocialPostSession]: StringId
 	[EntityType.FarcasterCast]: FarcasterCast$Id

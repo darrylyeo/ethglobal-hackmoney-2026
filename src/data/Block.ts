@@ -11,8 +11,8 @@ export type BlockEntry = {
 	number: bigint
 	hash?: `0x${string}`
 	parentHash?: `0x${string}`
-	/** Unix time in milliseconds (normalized at collection boundary). */
-	timestamp: number
+	/** Unix time in milliseconds (normalized at collection boundary). Omitted until block is loaded. */
+	timestamp?: number
 	miner?: `0x${string}`
 	gasUsed?: bigint
 	gasLimit?: bigint
