@@ -41,6 +41,7 @@
 			: null,
 	)
 	const chainId = $derived(route?.chainId ?? (0 as ChainId))
+	const networkId = $derived({ chainId })
 	const network = $derived(networksByChainId[chainId] ?? null)
 	const networkName = $derived(network?.name ?? route?.network?.name ?? '')
 	const valid = $derived(!!route && !!txHash)
@@ -155,8 +156,8 @@
 	{:else if txHash}
 		<EntityView
 			entityType={EntityType.Transaction}
-			idSerialized={`${networkSlug}:${txHash}`}
-			href={resolve(`/network/${networkSlug}/transaction/${txHash}`)}
+			idSerialized={`${chainId}:${txHash}`}
+			href={resolve(`/network/${chainId}/transaction/${txHash}`)}
 			label={`Tx ${txHash.slice(0, 10)}… · ${networkName}`}
 			annotation="Transaction"
 		>
@@ -167,30 +168,30 @@
 						{chainId}
 						isVertical
 					/>
-					<NetworkName networkId={{ chainId }} showIcon={false} />
+					<NetworkName {networkId} showIcon={false} />
 				</span>
 			{/snippet}
 			{#snippet children()}
 				{@const bn = blockNum || 0}
 				<p>
 					<a
-						href={
-							blockNum > 0 ?
-								`/network/${networkSlug}/block/${blockNum}#transaction:${txHash}`
-							: `/network/${networkSlug}`
-						}
+						href={resolve(
+							blockNum > 0
+								? `/network/${chainId}/block/${blockNum}#transaction:${txHash}`
+								: `/network/${chainId}`,
+						)}
 						data-link
 					>Show Context</a>
 				</p>
 				{#if tx}
 					<Transaction
 						data={new Map([[tx, { events: tx.logs ?? [], trace: undefined }]])}
-						networkId={{ chainId }}
+						{networkId}
 						layout={EntityLayout.ContentOnly}
 					/>
 				{/if}
 				<Network
-					networkId={{ chainId }}
+					{networkId}
 					placeholderBlockIds={new Set([
 						...(bn > 0 ? [bn - 1] : []),
 						...(latestBlockNumber <= 0 || bn + 1 <= latestBlockNumber ? [bn + 1] : []),

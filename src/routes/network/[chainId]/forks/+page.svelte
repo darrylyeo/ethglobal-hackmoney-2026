@@ -4,7 +4,7 @@
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { networksCollection } from '$/collections/Networks.ts'
 	import { ChainId } from '$/constants/networks.ts'
-	import { forkByChainId } from '$/constants/forks/index.ts'
+	import { forksByChainId } from '$/constants/forks/index.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
@@ -18,8 +18,9 @@
 	const chainIdParam = $derived((page.params as { chainId?: string }).chainId ?? '')
 	const route = $derived(parseNetworkNameParam(chainIdParam))
 	const chainId = $derived(route?.chainId ?? 0)
+	const networkId = $derived(route ? { chainId: route.chainId } : undefined)
 	const network = $derived(route?.network)
-	const scheduleForks = $derived(forkByChainId[chainId]?.forks ?? null)
+	const scheduleForks = $derived(forksByChainId[chainId] ?? null)
 	const isMainnet = $derived(chainId === ChainId.Ethereum)
 	const showForkList = $derived(
 		isMainnet || (scheduleForks != null && scheduleForks.length > 0),
@@ -48,7 +49,7 @@
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import Heading from '$/components/Heading.svelte'
-	import NetworkContracts from '$/views/network/NetworkContracts.svelte'
+	import ContractsList from '$/views/network/ContractsList.svelte'
 	import NetworkForks from '$/views/network/NetworkForks.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
 </script>
@@ -90,7 +91,7 @@
 			]}
 		>
 			{#snippet Title()}
-				<NetworkName networkId={{ chainId: route!.chainId }} />
+				<NetworkName {networkId} />
 			{/snippet}
 			{#snippet AfterTitle({ entity })}
 				{#if entity && 'network' in entity && entity.network?.type}
@@ -102,7 +103,7 @@
 					<a href={resolve(`/network/${chainIdParam}/contracts`)} data-link>Contracts</a>
 					<a href={resolve('/proposals')} data-link>Proposals (EIPs / ERCs)</a>
 				</p>
-				<NetworkContracts networkId={{ chainId: route!.chainId }} nameParam={chainIdParam} />
+				<ContractsList {networkId} />
 				<nav data-row="wrap" aria-label="External resources">
 					<a
 						href="https://ethereum.org/ethereum-forks/"
@@ -130,7 +131,7 @@
 					</a>
 				</nav>
 				<NetworkForks
-					networkId={{ chainId: route!.chainId }}
+					{networkId}
 					detailsProps={{ 'data-card': '' }}
 				/>
 			{/snippet}

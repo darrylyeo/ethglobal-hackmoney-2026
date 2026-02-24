@@ -36,6 +36,7 @@
 			: 0,
 	)
 	const chainId = $derived(route?.chainId ?? (0 as ChainId))
+	const networkId = $derived({ chainId })
 	const network = $derived(networksByChainId[chainId] ?? null)
 	const networkName = $derived(network?.name ?? route?.network?.name ?? '')
 	const valid = $derived(!!route && blockNumValid)
@@ -123,29 +124,29 @@
 				$network: { chainId },
 				blockNumber: blockNum,
 			}}
-			idSerialized={`${networkSlug}:${blockNum}`}
-			href={resolve(`/network/${networkSlug}/block/${blockNumParam}`)}
+			idSerialized={`${chainId}:${blockNum}`}
+			href={resolve(`/network/${chainId}/block/${blockNumParam}`)}
 			label={`Block ${blockNum} · ${networkName}`}
 		>
 			{#snippet Title()}
 				<span data-row="inline">
-					<BlockNumber networkId={{ chainId }} blockNumber={blockNum} />
-					<NetworkName networkId={{ chainId }} showIcon={false} />
+					<BlockNumber {networkId} blockNumber={blockNum} />
+					<NetworkName {networkId} showIcon={false} />
 				</span>
 			{/snippet}
 			{#snippet children()}
 				<p>
-					<a href={`/network/${networkSlug}#block:${blockNum}`} data-link>Show Context</a>
+					<a href={resolve(`/network/${chainId}#block:${blockNum}`)} data-link>Show Context</a>
 				</p>
 				{#if block}
 					<Block
 						data={new Map([[block, new Set()]])}
-						networkId={{ chainId }}
+						{networkId}
 						layout={EntityLayout.ContentOnly}
 					/>
 				{/if}
 				<Network
-					networkId={{ chainId }}
+					{networkId}
 					placeholderBlockIds={new Set([
 						...(blockNum > 0 ? [blockNum - 1] : []),
 						...(latestBlockNumber <= 0 || blockNum + 1 <= latestBlockNumber ? [blockNum + 1] : []),

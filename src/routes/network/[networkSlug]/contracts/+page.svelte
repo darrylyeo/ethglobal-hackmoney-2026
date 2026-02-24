@@ -12,11 +12,13 @@
 	const networkSlug = $derived(page.params.networkSlug ?? '')
 	const route = $derived(parseNetworkNameParam(networkSlug))
 	const chainId = $derived(route?.chainId ?? 0)
+	const networkId = $derived(route ? { chainId } : undefined)
 	const network = $derived(route?.network ?? { name: '' })
 
 
 	// Components
 	import NetworkName from '$/views/NetworkName.svelte'
+	import ContractsList from '$/views/network/ContractsList.svelte'
 </script>
 
 
@@ -24,9 +26,9 @@
 
 <svelte:head>
 	<title>
-		Contracts · {route
-			? network.name
-			: 'Network'}
+		{route
+			? `${network.name} · Contracts`
+			: 'Contracts'}
 	</title>
 </svelte:head>
 
@@ -36,16 +38,10 @@
 		<h1>Not found</h1>
 		<p>Network "{networkSlug}" could not be resolved.</p>
 	{:else}
-		<h1>Contracts · <NetworkName networkId={{ chainId }} /></h1>
+		<h1>Contracts · <NetworkName {networkId} /></h1>
 		<p data-text="muted">
-			<a href={resolve(`/network/${networkSlug}`)} data-link>← {network.name}</a>
+			<a href={resolve(`/network/${chainId}`)} data-link>← {network.name}</a>
 		</p>
-		<p data-text="muted">
-			Browse a contract by visiting <code>/network/{networkSlug}/contract/[address]</code> with
-			a contract address. Discover deployed contracts from an
-			<a href={resolve('/account/0x0000000000000000000000000000000000000000')} data-link>
-				account page
-			</a>.
-		</p>
+		<ContractsList {networkId} detailsProps={{ open: true }} />
 	{/if}
 </main>

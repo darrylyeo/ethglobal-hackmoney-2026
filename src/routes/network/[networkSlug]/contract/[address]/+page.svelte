@@ -42,7 +42,7 @@
 <svelte:head>
 	<title>
 		{valid && address
-			? `Contract ${formatAddress(address)} · ${network.name}`
+			? `${network.name} · ${formatAddress(address)}`
 			: 'Contract'}
 	</title>
 </svelte:head>
@@ -62,7 +62,7 @@
 		<Contract
 			contractId={{ $network: { chainId }, address }}
 			idSerialized={`${chainId}:${address.toLowerCase()}`}
-			href={resolve(`/network/${networkSlug}/contract/${address}`)}
+			href={resolve(`/network/${chainId}/contract/${address}`)}
 			label={formatAddress(address)}
 			metadata={[
 				{ term: 'Chain ID', detail: String(chainId) },

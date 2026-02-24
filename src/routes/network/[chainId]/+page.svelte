@@ -18,6 +18,7 @@
 	const chainIdParam = $derived(page.params.chainId ?? '')
 	const route = $derived(parseNetworkNameParam(chainIdParam))
 	const chainId = $derived((route?.chainId ?? 0) as ChainId)
+	const networkId = $derived({ chainId })
 
 
 	// State
@@ -57,7 +58,7 @@
 		<p>The network "{chainIdParam}" could not be resolved.</p>
 	{:else}
 		<Network
-			networkId={{ chainId }}
+			{networkId}
 			entity={
 				networkQuery.data?.[0]?.row && route
 					? ({
@@ -80,7 +81,7 @@
 			]}
 		>
 			{#snippet Title()}
-				<NetworkName networkId={{ chainId }} />
+				<NetworkName {networkId} />
 			{/snippet}
 			{#snippet AfterTitle({ entity })}
 				{#if entity && 'network' in entity && (entity as { network?: { type: string } }).network?.type}
