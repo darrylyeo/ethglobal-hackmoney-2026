@@ -182,7 +182,7 @@
 						<li
 							class="connection-item"
 							data-columns-item
-							data-card="padding-2"
+							data-card
 							data-row="gap-3"
 						>
 							<a

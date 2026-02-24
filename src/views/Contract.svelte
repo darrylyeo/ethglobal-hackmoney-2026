@@ -2,6 +2,7 @@
 	// Types/constants
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { Contract$Id, ContractAbi } from '$/data/Contract.ts'
+	import { EntityLayout } from '$/components/EntityView.svelte'
 	import { DataSource } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { contractsCollection, fetchContract } from '$/collections/Contracts.ts'
@@ -21,6 +22,8 @@
 		href,
 		label,
 		metadata,
+		layout = EntityLayout.Page,
+		open = true,
 		abi: abiProp,
 		contractName,
 	}: {
@@ -31,6 +34,8 @@
 		href: string
 		label: string
 		metadata: Array<{ term: string; detail: string }>
+		layout?: EntityLayout
+		open?: boolean
 		abi?: ContractAbi
 		contractName?: string
 	} = $props()
@@ -117,6 +122,9 @@
 	{href}
 	{label}
 	{metadata}
+	{layout}
+	{open}
+	detailsProps={layout === EntityLayout.ContentOnly ? {} : { 'data-card': '' }}
 	annotation="Contract"
 >
 	{#snippet Title()}

@@ -40,7 +40,6 @@
 	<header
 		data-sticky="block"
 		data-row
-		data-scroll-container
 	>
 		<div data-row="start" data-row-item="flexible">
 			<a

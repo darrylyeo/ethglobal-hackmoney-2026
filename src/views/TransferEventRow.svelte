@@ -55,7 +55,7 @@
 
 <article
 	bind:this={articleRef}
-	data-card="padding-2"
+	data-card
 	data-column
 	class="transfer-event-row"
 >

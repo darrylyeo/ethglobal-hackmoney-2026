@@ -7,34 +7,38 @@
 	} from '$/state/network-environment.svelte.ts'
 
 
+	// State
+	const networkEnvironmentItems: NetworkEnvironment[] = [
+		NetworkEnvironment.Mainnet,
+		NetworkEnvironment.Testnet,
+	]
+	let selected = $state<NetworkEnvironment>(networkEnvironmentState.current)
+
+
 	// (Derived)
-	const isTestnet = $derived(
-		networkEnvironmentState.current === NetworkEnvironment.Testnet,
-	)
-
-
-	// Actions
-	const onCheckedChange = (checked: boolean | 'indeterminate') =>
-		setNetworkEnvironment(
-			checked === true ? NetworkEnvironment.Testnet : NetworkEnvironment.Mainnet,
-		)
+	$effect(() => {
+		selected = networkEnvironmentState.current
+	})
+	$effect(() => {
+		if (selected !== networkEnvironmentState.current) setNetworkEnvironment(selected)
+	})
 
 
 	// Components
-	import { Switch } from 'bits-ui'
+	import Select from '$/components/Select.svelte'
 </script>
 
 <label data-row="align-center" aria-label="Network environment">
-	<Switch.Root
-		checked={isTestnet}
-		onCheckedChange={onCheckedChange}
-		aria-label="Mainnets / Testnets"
-		data-wallet-network-testnet={!isTestnet}
-		data-wallet-network-mainnet={isTestnet}
-	>
-		<Switch.Thumb />
-	</Switch.Root>
+	<Select
+		items={networkEnvironmentItems}
+		bind:value={selected}
+		getItemId={(e) => e}
+		getItemLabel={(e) => (e === NetworkEnvironment.Testnet ? 'Testnet' : 'Mainnet')}
+		ariaLabel="Network environment (Mainnet / Testnet)"
+		data-wallet-network-testnet={selected === NetworkEnvironment.Testnet}
+		data-wallet-network-mainnet={selected === NetworkEnvironment.Mainnet}
+	/>
 	<span data-wallet-network-label>
-		{isTestnet ? 'Testnet' : 'Mainnet'}
+		{selected === NetworkEnvironment.Testnet ? 'Testnet' : 'Mainnet'}
 	</span>
 </label>

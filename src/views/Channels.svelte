@@ -130,7 +130,7 @@
 					{@const balance = isParticipant0 ? ch.balance0 : ch.balance1}
 					<li
 						data-columns-item
-						data-card="padding-2"
+						data-card
 						data-row="gap-3 wrap"
 						data-status={ch.status}
 					>

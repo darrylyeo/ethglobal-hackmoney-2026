@@ -131,7 +131,7 @@
 						<li
 							class="tx-item"
 							data-columns-item
-							data-card="padding-2"
+							data-card
 							data-tag={tx.status}
 							data-row="gap-3"
 						>

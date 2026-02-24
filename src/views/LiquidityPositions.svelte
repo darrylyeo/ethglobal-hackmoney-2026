@@ -160,7 +160,7 @@
 						{@const net = networksByChainId[pos.chainId]}
 						<li
 							data-columns-item
-							data-card="padding-2"
+							data-card
 							data-row="gap-3 wrap"
 						>
 							<span class="position-id" title={pos.id}>{pos.id.slice(0, 10)}…</span>
