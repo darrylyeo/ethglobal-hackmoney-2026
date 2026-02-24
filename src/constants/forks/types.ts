@@ -63,3 +63,12 @@ export type ForkSchedulesManifest = {
 	sources: Record<string, { ref: string; url: string }>
 	lastSynced?: string
 }
+
+export type ConsensusSchedule = { mergeBlock: number; mergeEpoch: number }
+
+export type EraAtBlock = {
+	eraId: string
+	label: string
+	startBlock?: number
+	endBlock?: number
+}
