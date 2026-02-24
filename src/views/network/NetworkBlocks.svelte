@@ -3,21 +3,20 @@
 	import type { Network$Id } from '$/data/Network.ts'
 	import type { BlockEntry } from '$/data/Block.ts'
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
-	import { forkChainIds, getEraAtBlock } from '$/constants/forks/index.ts'
+	import { forksByChainId } from '$/constants/forks/index.ts'
+	import { getExecutionEraAtBlock } from '$/lib/forks.ts'
 
 
 	// Props
 	let {
 		blocksMap,
-		networkId: networkIdProp,
-		chainId: chainIdProp,
+		networkId,
 		placeholderBlockIds = new Set<number | [number, number]>([0]),
 		visiblePlaceholderBlockIds = $bindable([] as number[]),
 		detailsProps = {},
 	}: {
 		blocksMap: Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
-		networkId?: Network$Id
-		chainId?: number
+		networkId: Network$Id
 		placeholderBlockIds?: Set<number | [number, number]>
 		visiblePlaceholderBlockIds?: number[]
 		detailsProps?: Record<string, unknown>
@@ -25,24 +24,30 @@
 
 
 	// (Derived)
-	const chainId = $derived(
-		networkIdProp?.chainId ?? chainIdProp ?? 0,
-	)
+	const chainId = $derived(networkId.chainId)
 
 
 	// (Derived)
 	const blocksSet = $derived(
 		new Set([...blocksMap.keys()].filter((b): b is BlockEntry => b != null)),
 	)
-	const hasFork = $derived(forkChainIds.has(chainId))
+	const hasFork = $derived(chainId in forksByChainId)
 	const getGroupKey = $derived(
 		hasFork
-			? (b: BlockEntry) => getEraAtBlock(chainId, b.$id.blockNumber)?.eraId ?? 'Unknown'
+			? (b: BlockEntry) =>
+					getExecutionEraAtBlock(
+						chainId,
+						b.$id.blockNumber,
+						b.timestamp,
+					)?.eraId ?? 'Unknown'
 			: undefined,
 	)
-	const getGroupLabel = $derived(forkSchedule ? (eraId: string) => eraId : undefined)
+	const getGroupLabel = $derived(hasFork ? (eraId: string) => eraId : undefined)
 	const getGroupKeyForPlaceholder = $derived(
-		hasFork ? (key: number) => getEraAtBlock(chainId, key)?.eraId ?? 'Unknown' : undefined,
+		hasFork
+			? (key: number) =>
+					getExecutionEraAtBlock(chainId, key)?.eraId ?? 'Unknown'
+			: undefined,
 	)
 	const total = $derived.by(() => {
 		const range = [...placeholderBlockIds].find((k): k is [number, number] =>
@@ -85,7 +90,8 @@
 					BlockEntry | undefined,
 					Set<ChainTransactionEntry>
 				>([[item, blocksMap.get(item) ?? new Set()]])}
-				<Block data={blockData} networkId={item.$id.$network} />
+				{@const networkId = item.$id.$network}
+				<Block data={blockData} {networkId} />
 			{/if}
 		</span>
 	{/snippet}

@@ -13,9 +13,9 @@
 	} from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import {
-		getEraAtBlock,
+		getExecutionEraAtBlock,
 		getForkSlugByEraName,
-	} from '$/constants/forks/index.ts'
+	} from '$/lib/forks.ts'
 	import { formatGas, formatGwei } from '$/lib/format.ts'
 	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 	import { getBlockPath, getForksPagePath } from '$/lib/network-paths.ts'
@@ -25,14 +25,12 @@
 	let {
 		data,
 		networkId: networkIdProp,
-		chainId: chainIdProp,
 		placeholderTransactionIds,
 		visiblePlaceholderTransactionIds = $bindable([] as number[]),
 		layout = EntityLayout.PageSection,
 	}: {
 		data: Map<BlockEntry | undefined, Set<ChainTransactionEntry>>
 		networkId?: Network$Id
-		chainId?: ChainId
 		placeholderTransactionIds?: Set<number | [number, number]>
 		visiblePlaceholderTransactionIds?: number[]
 		layout?: EntityLayout
@@ -42,10 +40,16 @@
 	// (Derived)
 	const block = $derived([...data.keys()][0])
 	const chainId = $derived(
-		networkIdProp?.chainId ?? chainIdProp ?? block?.$id.$network.chainId ?? (0 as ChainId),
+		networkIdProp?.chainId ?? block?.$id.$network.chainId ?? (0 as ChainId),
 	)
 	const era = $derived(
-		block != null ? getEraAtBlock(chainId, block.$id.blockNumber) : null,
+		block != null
+			? getExecutionEraAtBlock(
+					chainId,
+					block.$id.blockNumber,
+					block.timestamp,
+				)
+			: null,
 	)
 	const forkSlug = $derived(era ? getForkSlugByEraName(era.label) : null)
 	const forkPageHref = $derived(
@@ -66,9 +70,10 @@
 	const summaryMetadata = $derived(
 		block
 			? (() => {
-				const relative = formatRelativeTime(
-					Date.now() - block.timestamp,
-				)
+				const relative =
+					block.timestamp != null
+						? formatRelativeTime(Date.now() - block.timestamp)
+						: null
 				const txs = `${block.transactionCount ?? count} txs`
 				const gasPct =
 					block.gasUsed != null
@@ -215,10 +220,10 @@
 					{#if isPlaceholder}
 						<code>Transaction #{key} (loading…)</code>
 					{:else}
+						{@const networkId = { chainId }}
 						<Transaction
 							data={new Map([[item, { events: item.logs }]])}
-							networkId={{ chainId }}
-							visiblePlaceholderEventIds={[]}
+							{networkId}
 						/>
 					{/if}
 				</span>

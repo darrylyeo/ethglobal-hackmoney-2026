@@ -3,12 +3,12 @@
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { Trace as TraceType } from '$/data/Trace.ts'
 	import {
-		ensureFunctionSignatures,
-		selectorSignaturesCollection,
-	} from '$/collections/SelectorSignatures.ts'
-	import { SelectorKind } from '$/data/SelectorSignature.ts'
+		ensureEvmFunctionSignatures,
+		evmSelectorsCollection,
+		normalizeEvmSelector4,
+	} from '$/collections/EvmSelectors.ts'
 	import { formatWei, formatGas } from '$/lib/format.ts'
-	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -30,23 +30,21 @@
 
 
 	// Context
+	const normalizedSelector = $derived(
+		inputSelector ? normalizeEvmSelector4(inputSelector) : null,
+	)
 	const functionSigQuery = useLiveQuery(
 		(q) =>
-			inputSelector
+			normalizedSelector
 				? q
-					.from({ row: selectorSignaturesCollection })
-					.where(({ row }) =>
-						and(
-							eq(row.$id.kind, SelectorKind.Function),
-							eq(row.$id.hex, inputSelector),
-						),
-					)
+					.from({ row: evmSelectorsCollection })
+					.where(({ row }) => eq(row.$id.hex, normalizedSelector))
 					.select(({ row }) => ({ row }))
 				: q
-					.from({ row: selectorSignaturesCollection })
-					.where(({ row }) => eq(row.$id.kind, '' as typeof SelectorKind.Function))
+					.from({ row: evmSelectorsCollection })
+					.where(({ row }) => eq(row.$id.hex, '0x' as `0x${string}`))
 					.select(({ row }) => ({ row })),
-		[() => inputSelector],
+		[() => normalizedSelector],
 	)
 
 
@@ -56,7 +54,7 @@
 
 	// Actions
 	$effect(() => {
-		if (inputSelector) void ensureFunctionSignatures(inputSelector).catch(() => {})
+		if (inputSelector) void ensureEvmFunctionSignatures(inputSelector).catch(() => {})
 	})
 
 
@@ -67,7 +65,7 @@
 </script>
 
 
-<details data-card="padding-2" id="trace:{trace.index}">
+<details data-card id="trace:{trace.index}">
 	<summary>
 		<div data-row="wrap align-center">
 			{#if trace.type}

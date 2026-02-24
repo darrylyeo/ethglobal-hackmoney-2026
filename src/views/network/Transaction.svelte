@@ -5,16 +5,15 @@
 	import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 	import type { Trace as TraceType } from '$/data/Trace.ts'
 	import {
-		ensureFunctionSignatures,
-		selectorSignaturesCollection,
-	} from '$/collections/SelectorSignatures.ts'
+		ensureEvmFunctionSignatures,
+		evmSelectorsCollection,
+		normalizeEvmSelector4,
+	} from '$/collections/EvmSelectors.ts'
 	import { fetchNetworkTransaction } from '$/collections/NetworkTransactions.ts'
 	import {
 		fetchTransactionTrace,
 		transactionTracesCollection,
 	} from '$/collections/TransactionTraces.ts'
-	import { SelectorKind } from '$/data/SelectorSignature.ts'
-	import { CoinId, coinById } from '$/constants/coins.ts'
 	import { formatWei, formatGas, formatGwei } from '$/lib/format.ts'
 	import { getTxPath } from '$/lib/network-paths.ts'
 	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -33,16 +32,10 @@
 	let {
 		data,
 		networkId: networkIdProp,
-		chainId: chainIdProp,
-		placeholderEventIds,
-		visiblePlaceholderEventIds = $bindable([] as number[]),
 		layout = EntityLayout.PageSection,
 	}: {
 		data: Map<ChainTransactionEntry | undefined, { trace?: TraceType; events?: EvmLog[] }>
 		networkId?: import('$/data/Network.ts').Network$Id
-		chainId?: ChainId
-		placeholderEventIds?: Set<number | [number, number]>
-		visiblePlaceholderEventIds?: number[]
 		layout?: EntityLayout
 	} = $props()
 
@@ -54,7 +47,7 @@
 	const events = $derived(entry.events ?? [])
 	const tx = $derived([...data.keys()][0])
 	const chainId = $derived(
-		tx?.$id.$network.chainId ?? networkIdProp?.chainId ?? chainIdProp!,
+		tx?.$id.$network.chainId ?? networkIdProp?.chainId ?? (0 as ChainId),
 	)
 	const inputSelector = $derived(
 		tx?.input && tx.input.length >= 10
@@ -82,23 +75,21 @@
 					.select(({ row }) => ({ row })),
 		[() => tx?.$id.$network.chainId ?? -1, () => tx?.$id.txHash ?? ''],
 	)
+	const normalizedSelector = $derived(
+		inputSelector ? normalizeEvmSelector4(inputSelector) : null,
+	)
 	const functionSigQuery = useLiveQuery(
 		(q) =>
-			inputSelector
+			normalizedSelector
 				? q
-					.from({ row: selectorSignaturesCollection })
-					.where(({ row }) =>
-						and(
-							eq(row.$id.kind, SelectorKind.Function),
-							eq(row.$id.hex, inputSelector),
-						),
-					)
+					.from({ row: evmSelectorsCollection })
+					.where(({ row }) => eq(row.$id.hex, normalizedSelector))
 					.select(({ row }) => ({ row }))
 				: q
-					.from({ row: selectorSignaturesCollection })
-					.where(({ row }) => eq(row.$id.kind, '' as typeof SelectorKind.Function))
+					.from({ row: evmSelectorsCollection })
+					.where(({ row }) => eq(row.$id.hex, '0x' as `0x${string}`))
 					.select(({ row }) => ({ row })),
-		[() => inputSelector],
+		[() => normalizedSelector],
 	)
 
 
@@ -114,51 +105,16 @@
 
 
 	// State
-	let arrowRects = $state<{ from: DOMRect; to: DOMRect; card: DOMRect } | null>(null)
-	let cardRef = $state<HTMLDetailsElement | HTMLElement | null>(null)
-	let fromRef = $state<HTMLElement | null>(null)
 	let hasFetched = $state(false)
 	let hasFetchedTrace = $state(false)
-	let isOpen = $state(false)
-	let toRef = $state<HTMLElement | null>(null)
 
 
 	// Actions
 	$effect(() => {
-		if (inputSelector) void ensureFunctionSignatures(inputSelector).catch(() => {})
-	})
-	const measureRects = () => {
-		if (!fromRef || !toRef || !cardRef || !isOpen) {
-			arrowRects = null
-			return
-		}
-		const cardRect = cardRef.getBoundingClientRect()
-		const fromRect = fromRef.getBoundingClientRect()
-		const toRect = toRef.getBoundingClientRect()
-		arrowRects = {
-			from: new DOMRect(
-				fromRect.left - cardRect.left,
-				fromRect.top - cardRect.top,
-				fromRect.width,
-				fromRect.height,
-			),
-			to: new DOMRect(
-				toRect.left - cardRect.left,
-				toRect.top - cardRect.top,
-				toRect.width,
-				toRect.height,
-			),
-			card: cardRect,
-		}
-	}
-
-	$effect(() => {
-		if (!isOpen) { arrowRects = null; return }
-		measureRects()
+		if (inputSelector) void ensureEvmFunctionSignatures(inputSelector).catch(() => {})
 	})
 	const onToggle = (e: Event) => {
 		const details = e.currentTarget as HTMLDetailsElement
-		isOpen = details.open
 		if (!details.open || !tx) return
 		if (!hasFetched && tx.status == null) {
 			hasFetched = true
@@ -175,7 +131,6 @@
 	}
 	$effect(() => {
 		if (layout !== EntityLayout.ContentOnly || !tx) return
-		isOpen = true
 		if (!hasFetched && tx.status == null) {
 			hasFetched = true
 			fetchNetworkTransaction(tx.$id.$network.chainId, tx.$id.txHash).catch(
@@ -194,29 +149,24 @@
 	import Collapsible from '$/components/Collapsible.svelte'
 	import EntityView from '$/components/EntityView.svelte'
 	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
-	import FlowArrow from '$/components/FlowArrow.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import Address from '$/views/Address.svelte'
 	import EventView from '$/views/network/Event.svelte'
 	import Trace from '$/views/network/Trace.svelte'
 </script>
 
-
 <EntityView
-	entityType={EntityType.Transaction}
-	idSerialized={tx ? `transaction:${tx.$id.txHash}` : 'transaction:loading'}
-	href={tx ? getTxPath(chainId, tx.$id.txHash) : '#'}
-	label={tx ? `Tx ${tx.$id.txHash.slice(0, 10)}…` : 'Loading…'}
-	layout={layout}
-	annotation="Transaction"
-	showWatchButton={false}
-	open={false}
-	ontoggle={onToggle}
-	detailsProps={layout === EntityLayout.ContentOnly
-		? { class: 'transaction-card' }
-		: { 'data-card': '', class: 'transaction-card' }}
-	bind:detailsRef={cardRef}
->
+		entityType={EntityType.Transaction}
+		idSerialized={tx ? `transaction:${tx.$id.txHash}` : 'transaction:loading'}
+		href={tx ? getTxPath(chainId, tx.$id.txHash) : '#'}
+		label={tx ? `Tx ${tx.$id.txHash.slice(0, 10)}…` : 'Loading…'}
+		layout={layout}
+		annotation="Transaction"
+		showWatchButton={false}
+		open={false}
+		ontoggle={onToggle}
+		detailsProps={layout === EntityLayout.ContentOnly ? {} : { 'data-card': '' }}
+	>
 	{#snippet Title()}
 		<div data-row="wrap align-center">
 			{#if tx}
@@ -264,10 +214,10 @@
 				{/if}
 
 				<dt>From</dt>
-				<dd bind:this={fromRef}><Address actorId={{ $network: tx.$id.$network, address: tx.from as `0x${string}` }} /></dd>
+				<dd><Address actorId={{ $network: tx.$id.$network, address: tx.from as `0x${string}` }} /></dd>
 
 				<dt>To</dt>
-				<dd bind:this={toRef}>
+				<dd>
 					{#if tx.contractAddress}
 						<Address actorId={{ $network: tx.$id.$network, address: tx.contractAddress as `0x${string}` }} /> (contract created)
 					{:else if tx.to}
@@ -322,22 +272,6 @@
 					</dd>
 				{/if}
 			</dl>
-
-			{#if arrowRects && (tx.to || tx.contractAddress)}
-				<FlowArrow
-					sourceRect={arrowRects.from}
-					targetRect={arrowRects.to}
-					gap={4}
-					arrowHeadSize={8}
-					strokeWidth={1.5}
-					strokeColor="var(--color-accent)"
-					flowIconSrc={tx.value !== '0x0' && tx.value !== '0x'
-						? coinById[CoinId.ETH]?.icon
-						: undefined}
-					flowIconSize={16}
-					relative
-				/>
-			{/if}
 		{/if}
 
 		<Collapsible
@@ -352,14 +286,11 @@
 				getKey={(e) => parseInt(e.logIndex, 16)}
 				getSortValue={(e) => parseInt(e.logIndex, 16)}
 				placeholderKeys={
-					placeholderEventIds
-					?? (
-						events.length
-							? new Set<number | [number, number]>([[0, Math.max(0, events.length - 1)]])
-							: new Set<number | [number, number]>([0])
-					)
+					events.length
+						? new Set<number | [number, number]>([[0, Math.max(0, events.length - 1)]])
+						: new Set<number | [number, number]>([0])
 				}
-				bind:visiblePlaceholderKeys={visiblePlaceholderEventIds}
+				visiblePlaceholderKeys={[]}
 				scrollPosition="End"
 			>
 				{#snippet Item({ key, item, isPlaceholder })}
@@ -388,10 +319,3 @@
 		</Collapsible>
 	{/snippet}
 </EntityView>
-
-
-<style>
-	:global(.transaction-card) {
-		position: relative;
-	}
-</style>

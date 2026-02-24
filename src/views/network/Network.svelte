@@ -1,3 +1,11 @@
+<script module lang="ts">
+	export enum NetworkLayout {
+		Summary = 'Summary',
+		Page = 'Page',
+	}
+</script>
+
+
 <script lang="ts">
 	// Types/constants
 	import type { Snippet } from 'svelte'
@@ -6,15 +14,11 @@
 	import type { Entity } from '$/data/$EntityType.ts'
 	import type { Network } from '$/constants/networks.ts'
 	import type { Network$Id } from '$/data/Network.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 	import Collapsible from '$/components/Collapsible.svelte'
 	import { EntityLayout } from '$/components/EntityView.svelte'
-	import {
-		beaconEpochExplorerByChainId,
-		bellatrixEpochByChainId,
-		consensusChainIds,
-		getCurrentEpoch,
-		mergeBlockByChainId,
-	} from '$/constants/forks/index.ts'
+	import { beaconEpochExplorerByChainId } from '$/constants/forks/index.ts'
+	import { getConsensusSchedule, getCurrentEpoch } from '$/lib/forks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { getNetworkPath } from '$/lib/network-paths.ts'
 	import {
@@ -45,6 +49,7 @@
 	// Props
 	let {
 		networkId,
+		network: networkOverride,
 		entity,
 		idSerialized,
 		href,
@@ -57,8 +62,10 @@
 		currentBlockNumber: currentBlockNumberOverride,
 		visiblePlaceholderBlockIds = $bindable([] as number[]),
 		forksHref: forksHrefOverride,
+		layout = NetworkLayout.Page,
 	}: {
 		networkId: Network$Id
+		network?: Network
 		entity?: Entity<EntityType.Network>
 		idSerialized?: string
 		href?: string
@@ -71,6 +78,7 @@
 		currentBlockNumber?: number
 		visiblePlaceholderBlockIds?: number[]
 		forksHref?: string
+		layout?: NetworkLayout
 	} = $props()
 
 
@@ -105,14 +113,23 @@
 	const data = $derived(
 		dataOverride ?? blocksViewFrom(chainId, blocksQuery.data ?? []).networkData,
 	)
-	const network = $derived([...data.keys()][0])
+	const networkFromData = $derived([...data.keys()][0])
+	const network = $derived(
+		networkOverride ?? networksByChainId[chainId] ?? networkFromData,
+	)
 	const blocksMap = $derived([...data.values()][0] ?? new Map())
 
 	let heliosSyncStatusTick = $state(0)
 	let rpcBlockNumber = $state(0)
+	let rpcBlockNumberChainId = $state<number | null>(null)
 	const latestBlockNumber = $derived(Number(latestBlockQuery.data?.[0] ?? 0))
 	const effectiveBlockNumber = $derived(
-		latestBlockNumber || (rpcBlockNumber > 0 ? rpcBlockNumber : 0),
+		latestBlockNumber ||
+			(rpcBlockNumberChainId != null &&
+				rpcBlockNumberChainId === chainId &&
+				rpcBlockNumber > 0 ?
+				rpcBlockNumber
+			: 0),
 	)
 	const currentBlockNumber = $derived(
 		currentBlockNumberOverride ?? effectiveBlockNumber,
@@ -124,7 +141,6 @@
 	const forksHref = $derived(
 		forksHrefOverride ?? resolve(getNetworkPath(chainId)) + '/forks',
 	)
-	const chainIdParam = $derived(idSerialized ?? String(chainId))
 
 	const heliosSupported = $derived(chainId in HELIOS_CHAINS)
 	const heliosBrowserOn = $derived(getHeliosBrowserEnabled(chainId))
@@ -155,11 +171,20 @@
 
 	const BLOCK_POLL_MS = 12_000
 	$effect(() => {
-		if (getEffectiveRpcUrl(chainId) && latestBlockNumber === 0)
-			getCurrentBlockNumber(createProviderForChain(chainId))
-				.then((n) => (rpcBlockNumber = n))
-				.catch(() => {})
-		return () => (rpcBlockNumber = 0)
+		if (chainId !== rpcBlockNumberChainId) {
+			rpcBlockNumber = 0
+			rpcBlockNumberChainId = chainId
+		}
+	})
+	$effect(() => {
+		if (!getEffectiveRpcUrl(chainId) || latestBlockNumber !== 0) return
+		const c = chainId
+		getCurrentBlockNumber(createProviderForChain(c))
+			.then((n) => {
+				rpcBlockNumber = n
+				rpcBlockNumberChainId = c
+			})
+			.catch(() => {})
 	})
 	$effect(() => {
 		if (!getEffectiveRpcUrl(chainId)) return
@@ -205,11 +230,10 @@
 		return () => setHeliosBrowserSyncStatusHandler(null)
 	})
 
-	const mergeBlock = $derived(mergeBlockByChainId[chainId])
-	const hasConsensusSchedule = $derived(
-		consensusChainIds.has(chainId) &&
-			mergeBlock != null &&
-			bellatrixEpochByChainId[chainId] != null,
+	const consensusSchedule = $derived(getConsensusSchedule(chainId))
+	const showConsensus = $derived(
+		consensusSchedule != null &&
+			currentBlockNumber >= consensusSchedule.mergeBlock,
 	)
 	const currentEpoch = $derived(getCurrentEpoch(chainId, currentBlockNumber))
 	const recentEpochs = $derived.by(() => {
@@ -224,73 +248,88 @@
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import NetworkBlocks from '$/views/network/NetworkBlocks.svelte'
-	import NetworkContracts from '$/views/network/NetworkContracts.svelte'
+	import ContractsList from '$/views/network/ContractsList.svelte'
 	import NetworkEpochs from '$/views/network/NetworkEpochs.svelte'
 	import NetworkForks from '$/views/network/NetworkForks.svelte'
 </script>
 
 
-<EntityView
-	entityType={EntityType.Network}
-	entity={entity}
-	entityId={{ chainId }}
-	idSerialized={idSerialized ?? (network ? `network:${network.chainId}` : 'network:loading')}
-	href={href ?? resolve(getNetworkPath(chainId))}
-	label={label ?? (network?.name ?? 'Loading network…')}
-	metadata={metadata ?? (network ? [{ term: 'Chain ID', detail: String(chainId) }, { term: 'CAIP-2', detail: `eip155:${chainId}` }, { term: 'Type', detail: network.type }, ...(network.nativeCurrency ? [{ term: 'Currency', detail: network.nativeCurrency.symbol }] : [])] : [])}
-	layout={href && label ? EntityLayout.Page : EntityLayout.ContentOnly}
-	Title={Title}
-	AfterTitle={AfterTitle}
->
-	{#if helios?.supported}
-		<section>
-			<div data-row data-gap="2" data-wrap>
-				<label data-row data-gap="1">
-					<input
-						type="checkbox"
-						checked={helios.on}
-						onchange={() => helios.onToggle(!helios.on)}
-					/>
-					<span>Use Helios (browser)</span>
-				</label>
-				{#if helios.on && helios.statusLabel}
-					<span data-text="annotation">{helios.statusLabel}</span>
-				{/if}
-			</div>
-		</section>
-	{/if}
-	<section>
-		<NetworkContracts networkId={{ chainId }} nameParam={chainIdParam} />
-	</section>
-
-	<div data-grid="columns-3 gap-2">
-		<section>
-			<NetworkForks
-				networkId={{ chainId }}
-				forksHref={forksHref}
-				detailsProps={{ 'data-card': '' }}
-			/>
-		</section>
-
-		<section>
-			<NetworkBlocks
-				blocksMap={blocksMap}
-				networkId={{ chainId }}
-				placeholderBlockIds={placeholderBlockIds}
-				bind:visiblePlaceholderBlockIds
-				detailsProps={{ 'data-card': '' }}
-			/>
-		</section>
-
-		{#if hasConsensusSchedule && mergeBlock != null && currentBlockNumber >= mergeBlock}
+{#if layout === NetworkLayout.Summary}
+	<EntityView
+		entityType={EntityType.Network}
+		entity={entity}
+		entityId={{ chainId }}
+		idSerialized={idSerialized ?? (network ? `network:${network.chainId}` : 'network:loading')}
+		href={href ?? resolve(getNetworkPath(chainId))}
+		label={label ?? (network?.name ?? 'Loading network…')}
+		metadata={metadata ?? (network ? [{ term: 'Chain ID', detail: String(chainId) }, { term: 'CAIP-2', detail: `eip155:${chainId}` }, { term: 'Type', detail: network.type }, ...(network.nativeCurrency ? [{ term: 'Currency', detail: network.nativeCurrency.symbol }] : [])] : [])}
+		layout={EntityLayout.PageSection}
+		Title={Title}
+		AfterTitle={AfterTitle}
+	/>
+{:else}
+	<EntityView
+		entityType={EntityType.Network}
+		entity={entity}
+		entityId={{ chainId }}
+		idSerialized={idSerialized ?? (network ? `network:${network.chainId}` : 'network:loading')}
+		href={href ?? resolve(getNetworkPath(chainId))}
+		label={label ?? (network?.name ?? 'Loading network…')}
+		metadata={metadata ?? (network ? [{ term: 'Chain ID', detail: String(chainId) }, { term: 'CAIP-2', detail: `eip155:${chainId}` }, { term: 'Type', detail: network.type }, ...(network.nativeCurrency ? [{ term: 'Currency', detail: network.nativeCurrency.symbol }] : [])] : [])}
+		layout={href && label ? EntityLayout.Page : EntityLayout.ContentOnly}
+		Title={Title}
+		AfterTitle={AfterTitle}
+	>
+		{#if helios?.supported}
 			<section>
-				<NetworkEpochs
-					epochs={new Set(recentEpochs)}
-					currentEpoch={currentEpoch}
-					beaconExplorerBase={beaconEpochExplorerByChainId[chainId]}
+				<div data-row data-gap="2" data-wrap>
+					<label data-row data-gap="1">
+						<input
+							type="checkbox"
+							checked={helios.on}
+							onchange={() => helios.onToggle(!helios.on)}
+						/>
+						<span>Use Helios (browser)</span>
+					</label>
+					{#if helios.on && helios.statusLabel}
+						<span data-text="annotation">{helios.statusLabel}</span>
+					{/if}
+				</div>
+			</section>
+		{/if}
+
+		<section>
+			<ContractsList {networkId} detailsProps={{ 'data-card': '' }} />
+		</section>
+
+		<div data-grid="columns-3 gap-2">
+			<section>
+				<NetworkForks
+					{networkId}
 					detailsProps={{ 'data-card': '' }}
 				/>
 			</section>
-		{/if}
-	</div>
-</EntityView>
+
+			<section>
+				<NetworkBlocks
+					{blocksMap}
+					{networkId}
+					placeholderBlockIds={placeholderBlockIds}
+					bind:visiblePlaceholderBlockIds
+					detailsProps={{ 'data-card': '' }}
+				/>
+			</section>
+
+			{#if showConsensus}
+				<section>
+					<NetworkEpochs
+						epochs={new Set(recentEpochs)}
+						currentEpoch={currentEpoch}
+						beaconExplorerBase={beaconEpochExplorerByChainId[chainId]}
+						detailsProps={{ 'data-card': '' }}
+					/>
+				</section>
+			{/if}
+		</div>
+	</EntityView>
+{/if}

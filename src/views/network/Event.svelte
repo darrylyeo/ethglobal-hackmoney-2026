@@ -3,11 +3,11 @@
 	import type { EvmLog } from '$/api/voltaire.ts'
 	import type { ChainId } from '$/constants/networks.ts'
 	import {
-		ensureEventSignatures,
-		selectorSignaturesCollection,
-	} from '$/collections/SelectorSignatures.ts'
-	import { SelectorKind } from '$/data/SelectorSignature.ts'
-	import { and, eq, useLiveQuery } from '@tanstack/svelte-db'
+		ensureEvmEventSignatures,
+		evmTopicsCollection,
+		normalizeEvmTopic32,
+	} from '$/collections/EvmTopics.ts'
+	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
@@ -32,18 +32,21 @@
 
 
 	// Context
+	const normalizedTopic0 = $derived(
+		topic0 ? normalizeEvmTopic32(topic0) : null,
+	)
 	const eventSigQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: selectorSignaturesCollection })
+				.from({ row: evmTopicsCollection })
 				.where(({ row }) =>
-					and(
-						eq(row.$id.kind, SelectorKind.Event),
-						eq(row.$id.hex, topic0 ?? ('0x' + '0'.repeat(64) as `0x${string}`)),
+					eq(
+						row.$id.hex,
+						normalizedTopic0 ?? (`0x${'0'.repeat(64)}` as `0x${string}`),
 					),
 				)
 				.select(({ row }) => ({ row })),
-		[() => topic0],
+		[() => normalizedTopic0],
 	)
 
 
@@ -57,7 +60,7 @@
 
 	// Actions
 	$effect(() => {
-		if (topic0) void ensureEventSignatures(topic0).catch(() => {})
+		if (topic0) void ensureEvmEventSignatures(topic0).catch(() => {})
 	})
 
 
@@ -67,7 +70,7 @@
 </script>
 
 
-<details data-card="padding-2" id="event:{logIndex}">
+<details data-card id="event:{logIndex}">
 	<summary>
 		<div data-row="wrap align-center">
 			<code>#{logIndex}</code>
