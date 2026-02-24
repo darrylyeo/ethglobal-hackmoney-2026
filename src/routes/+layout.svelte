@@ -21,6 +21,7 @@
 	import { toasts } from '$/lib/toast.svelte.ts'
 	import { NavigationItems } from '$/routes/navigationItems.svelte.ts'
 	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
+	import { useHeadingLevel } from '$/svelte/heading-context.ts'
 	import {
 		createLiveQueryContext,
 		setGlobalLiveQueryContext,
@@ -29,6 +30,7 @@
 
 
 	// Context
+	useHeadingLevel()
 	const globalLiveQueryCtx = createLiveQueryContext()
 	const localLiveQueryCtx = createLiveQueryContext()
 	setGlobalLiveQueryContext(globalLiveQueryCtx)
@@ -117,7 +119,7 @@
 			tabindex="-1"
 			data-scroll-item="pane-flexible"
 			data-sticky-container
-			data-column
+			data-column="layout-flex"
 		>
 			<!-- <aside
 				id="global-graph"
@@ -185,7 +187,11 @@
 			--sticky-paddingInlineStart: clamp(1rem, 6cqi, 2rem);
 			--sticky-paddingInlineEnd: clamp(1rem, 6cqi, 2rem);
 
-			padding: 1.5rem;
+			> :global(main) {
+				min-height: 100%;
+
+				padding: 1.5rem;
+			}
 
 			/* > :global(main) {
 				--graph-scroll-blur-size: 1rem;

@@ -5,6 +5,9 @@ import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
 import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
 import { contractsCollection } from '$/collections/Contracts.ts'
 import { dashboardsCollection, ensureDefaultRow } from '$/collections/Dashboards.ts'
+import { evmErrorsCollection } from '$/collections/EvmErrors.ts'
+import { evmSelectorsCollection } from '$/collections/EvmSelectors.ts'
+import { evmTopicsCollection } from '$/collections/EvmTopics.ts'
 import { socialPostSessionsCollection } from '$/collections/SocialPostSessions.ts'
 import { farcasterConnectionsCollection } from '$/collections/FarcasterConnections.ts'
 import { myPeerIdsCollection } from '$/collections/MyPeerIds.ts'
@@ -37,6 +40,7 @@ import {
 import { WalletConnectionTransport, toWalletConnectionStatus } from '$/data/WalletConnection.ts'
 
 import { formatAddress } from '$/lib/address.ts'
+import { getEvmErrorPath, getEvmSelectorPath, getEvmTopicPath } from '$/lib/signature-paths.ts'
 import { roomIdToPlaceEmoji } from '$/lib/rooms/room.ts'
 import { formatSocialPostSessionPlaceholderName } from '$/lib/session/socialPostSessionUrl.ts'
 import { buildSessionPath, formatSessionPlaceholderName } from '$/lib/session/sessions.ts'
@@ -199,6 +203,30 @@ export function deriveWatchedEntityRow(stored: WatchedEntityStoredRow): WatchedE
 								href: `/proposals/${realm}/${p.id}`,
 							}
 						}
+						case EntityType.EvmError: {
+							const e = parsedId as EntityId<EntityType.EvmError>
+							return {
+								entityId: e,
+								label: e.hex,
+								href: getEvmErrorPath(e.hex),
+							}
+						}
+						case EntityType.EvmSelector: {
+							const s = parsedId as EntityId<EntityType.EvmSelector>
+							return {
+								entityId: s,
+								label: s.hex,
+								href: getEvmSelectorPath(s.hex),
+							}
+						}
+						case EntityType.EvmTopic: {
+							const t = parsedId as EntityId<EntityType.EvmTopic>
+							return {
+								entityId: t,
+								label: t.hex,
+								href: getEvmTopicPath(t.hex),
+							}
+						}
 						default:
 							return {
 								entityId: parsedId as EntityId,
@@ -291,6 +319,16 @@ export class NavigationItems {
 	readonly contractsQuery = useLiveQuery(
 		(q) => q.from({ row: contractsCollection }).select(({ row }) => ({ row })),
 	)
+	readonly evmErrorsQuery = useLiveQuery(
+		(q) => q.from({ row: evmErrorsCollection }).select(({ row }) => ({ row })),
+	)
+	readonly evmSelectorsQuery = useLiveQuery(
+		(q) =>
+			q.from({ row: evmSelectorsCollection }).select(({ row }) => ({ row })),
+	)
+	readonly evmTopicsQuery = useLiveQuery(
+		(q) => q.from({ row: evmTopicsCollection }).select(({ row }) => ({ row })),
+	)
 	readonly farcasterConnectionsQuery = useLiveQuery(
 		(q) =>
 			q
@@ -345,6 +383,10 @@ export class NavigationItems {
 		const watchedCoinRows = watchedByType.get(EntityType.Coin) ?? []
 		const watchedNetworkRows = watchedByType.get(EntityType.Network) ?? []
 		const watchedProposalRows = watchedByType.get(EntityType.Proposal) ?? []
+		const watchedEvmErrorRows = watchedByType.get(EntityType.EvmError) ?? []
+		const watchedEvmSelectorRows =
+			watchedByType.get(EntityType.EvmSelector) ?? []
+		const watchedEvmTopicRows = watchedByType.get(EntityType.EvmTopic) ?? []
 		const isTestnet = this.options.isTestnet()
 		const chainIdMatchesEnv = (chainId: number) =>
 			networksByChainId[chainId]?.type ===
@@ -538,6 +580,29 @@ export class NavigationItems {
 					iconOverride ?? (coinId != null ? coinById[coinId]?.icon : undefined) ?? '🪙',
 			}
 		})
+		const evmErrorNavItemsFromWatched = watchedEvmErrorRows.map((row) => ({
+			id: row.id,
+			title: row.label,
+			href: row.href,
+			icon: '⚠️',
+			manualWatch: true,
+		}))
+		const evmSelectorNavItemsFromWatched = watchedEvmSelectorRows.map(
+			(row) => ({
+				id: row.id,
+				title: row.label,
+				href: row.href,
+				icon: '🔖',
+				manualWatch: true,
+			}),
+		)
+		const evmTopicNavItemsFromWatched = watchedEvmTopicRows.map((row) => ({
+			id: row.id,
+			title: row.label,
+			href: row.href,
+			icon: '📋',
+			manualWatch: true,
+		}))
 		const proposalsNavItemsFromWatched = watchedProposalRows.map((row) => ({
 			id: row.id,
 			title: row.label,
@@ -856,7 +921,57 @@ export class NavigationItems {
 				icon: '🔧',
 				defaultIsOpen: true,
 				children: [
-					{ id: 'calldata-decoder', title: 'Calldata decoder', href: '/calldata-decoder', icon: '🔍' },
+					{
+						id: 'signatures',
+						title: 'EVM Signatures',
+						href: '/evm',
+						icon: '✍️',
+						defaultIsOpen: true,
+						children: [
+							{
+								id: 'evm-selectors',
+								title: 'Selectors',
+								href: '/evm/selectors',
+								icon: '🔖',
+								tag:
+									watchedEvmSelectorRows.length > 0
+										? String(watchedEvmSelectorRows.length)
+										: undefined,
+								children: evmSelectorNavItemsFromWatched,
+								allChildren: evmSelectorNavItemsFromWatched,
+							},
+							{
+								id: 'evm-topics',
+								title: 'Topics',
+								href: '/evm/topics',
+								icon: '📋',
+								tag:
+									watchedEvmTopicRows.length > 0
+										? String(watchedEvmTopicRows.length)
+										: undefined,
+								children: evmTopicNavItemsFromWatched,
+								allChildren: evmTopicNavItemsFromWatched,
+							},
+							{
+								id: 'evm-errors',
+								title: 'Errors',
+								href: '/evm/errors',
+								icon: '⚠️',
+								tag:
+									watchedEvmErrorRows.length > 0
+										? String(watchedEvmErrorRows.length)
+										: undefined,
+								children: evmErrorNavItemsFromWatched,
+								allChildren: evmErrorNavItemsFromWatched,
+							},
+						],
+					},
+					{
+						id: 'calldata-decoder',
+						title: 'Calldata decoder',
+						href: '/calldata-decoder',
+						icon: '🔍',
+					},
 				],
 			},
 		]
@@ -907,6 +1022,27 @@ export class NavigationItems {
 					id: 'layout-contracts',
 					label: 'Contracts',
 					query: this.contractsQuery,
+				})
+			}
+			if (watchedTypes.has(EntityType.EvmError)) {
+				entries.push({
+					id: 'layout-evm-errors',
+					label: 'EVM errors',
+					query: this.evmErrorsQuery,
+				})
+			}
+			if (watchedTypes.has(EntityType.EvmSelector)) {
+				entries.push({
+					id: 'layout-evm-selectors',
+					label: 'EVM selectors',
+					query: this.evmSelectorsQuery,
+				})
+			}
+			if (watchedTypes.has(EntityType.EvmTopic)) {
+				entries.push({
+					id: 'layout-evm-topics',
+					label: 'EVM topics',
+					query: this.evmTopicsQuery,
 				})
 			}
 			if (watchedTypes.has(EntityType.Actor)) {
