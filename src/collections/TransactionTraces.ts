@@ -53,18 +53,11 @@ export async function fetchTransactionTrace(
 		typeof transactionTracesCollection.state.get
 	>[0]
 
-	if (transactionTracesCollection.state.get(key)) {
+	const existing = transactionTracesCollection.state.get(key)
+	if (existing) {
 		transactionTracesCollection.update(key, (draft) => {
 			draft.isLoading = true
 			draft.error = null
-		})
-	} else {
-		transactionTracesCollection.insert({
-			$id: { $network: { chainId }, txHash },
-			trace: { index: 0 },
-			$source: DataSource.Voltaire,
-			isLoading: true,
-			error: null,
 		})
 	}
 
@@ -81,15 +74,21 @@ export async function fetchTransactionTrace(
 				txHash,
 			)
 			if (trace != null) {
-				transactionTracesCollection.update(key, (draft) => {
-					Object.assign(draft, {
-						trace,
-						$source: DataSource.Sqd,
-						unavailable: false,
-						isLoading: false,
-						error: null,
+				const row: TransactionTraceRow = {
+					$id: { $network: { chainId }, txHash },
+					trace,
+					$source: DataSource.Sqd,
+					unavailable: false,
+					isLoading: false,
+					error: null,
+				}
+				if (existing) {
+					transactionTracesCollection.update(key, (draft) => {
+						Object.assign(draft, row)
 					})
-				})
+				} else {
+					transactionTracesCollection.insert(row)
+				}
 				return
 			}
 		} catch {
@@ -99,44 +98,57 @@ export async function fetchTransactionTrace(
 
 	const url = getEffectiveRpcUrl(chainId)
 	if (!url) {
-		const err = `No RPC URL for chain ${chainId}`
-		transactionTracesCollection.update(key, (draft) => {
-			draft.isLoading = false
-			draft.error = err
-		})
-		throw new Error(err)
+		if (existing)
+			transactionTracesCollection.update(key, (draft) => {
+				draft.isLoading = false
+				draft.error = `No RPC URL for chain ${chainId}`
+			})
+		throw new Error(`No RPC URL for chain ${chainId}`)
 	}
 
 	try {
 		const provider = createProviderForChain(chainId)
 		const raw = await debugTraceTransaction(provider, txHash)
 		if (raw == null) {
-			transactionTracesCollection.update(key, (draft) => {
-				Object.assign(draft, {
-					trace: undefined,
-					unavailable: true,
-					isLoading: false,
-					error: null,
+			const row: TransactionTraceRow = {
+				$id: { $network: { chainId }, txHash },
+				$source: DataSource.Voltaire,
+				unavailable: true,
+				isLoading: false,
+				error: null,
+			}
+			if (existing) {
+				transactionTracesCollection.update(key, (draft) => {
+					Object.assign(draft, row)
 				})
-			})
+			} else {
+				transactionTracesCollection.insert(row)
+			}
 			return
 		}
 		const trace = rawTraceToTrace(raw as RawTrace)
-		transactionTracesCollection.update(key, (draft) => {
-			Object.assign(draft, {
-				trace,
-				$source: DataSource.Voltaire,
-				unavailable: false,
-				isLoading: false,
-				error: null,
+		const row: TransactionTraceRow = {
+			$id: { $network: { chainId }, txHash },
+			trace,
+			$source: DataSource.Voltaire,
+			unavailable: false,
+			isLoading: false,
+			error: null,
+		}
+		if (existing) {
+			transactionTracesCollection.update(key, (draft) => {
+				Object.assign(draft, row)
 			})
-		})
+		} else {
+			transactionTracesCollection.insert(row)
+		}
 	} catch (e) {
 		const message = e instanceof Error ? e.message : String(e)
-		transactionTracesCollection.update(key, (draft) => {
-			draft.isLoading = false
-			draft.error = message
-		})
+		if (existing)
+			transactionTracesCollection.update(key, (draft) => {
+				draft.isLoading = false
+				draft.error = message
+			})
 		throw e
 	}
 }

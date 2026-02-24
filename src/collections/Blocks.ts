@@ -102,31 +102,21 @@ export const fetchBlock = async (
 		typeof blocksCollection.state.get
 	>[0]
 	const existing = blocksCollection.state.get(key)
-
 	if (existing) {
 		blocksCollection.update(key, (draft) => {
 			draft.isLoading = true
 			draft.error = null
 		})
-	} else {
-		blocksCollection.insert({
-			$id: { $network: { chainId }, blockNumber },
-			number: BigInt(blockNumber),
-			timestamp: 0,
-			$source: DataSource.Voltaire,
-			isLoading: true,
-			error: null,
-		})
 	}
 
 	const url = getEffectiveRpcUrl(chainId)
 	if (!url) {
-		const err = `No RPC URL for chain ${chainId}`
-		blocksCollection.update(key, (draft) => {
-			draft.isLoading = false
-			draft.error = err
-		})
-		throw new Error(err)
+		if (existing)
+			blocksCollection.update(key, (draft) => {
+				draft.isLoading = false
+				draft.error = `No RPC URL for chain ${chainId}`
+			})
+		throw new Error(`No RPC URL for chain ${chainId}`)
 	}
 
 	try {
@@ -152,21 +142,25 @@ export const fetchBlock = async (
 			isLoading: false,
 			error: null,
 		}
-		blocksCollection.update(key, (draft) => {
-			Object.assign(draft, {
-				number: row.number,
-				hash: row.hash,
-				parentHash: row.parentHash,
-				timestamp: row.timestamp,
-				miner: row.miner,
-				gasUsed: row.gasUsed,
-				gasLimit: row.gasLimit,
-				baseFeePerGas: row.baseFeePerGas,
-				transactionCount,
-				isLoading: false,
-				error: null,
+		if (existing) {
+			blocksCollection.update(key, (draft) => {
+				Object.assign(draft, {
+					number: row.number,
+					hash: row.hash,
+					parentHash: row.parentHash,
+					timestamp: row.timestamp,
+					miner: row.miner,
+					gasUsed: row.gasUsed,
+					gasLimit: row.gasLimit,
+					baseFeePerGas: row.baseFeePerGas,
+					transactionCount,
+					isLoading: false,
+					error: null,
+				})
 			})
-		})
+		} else {
+			blocksCollection.insert(row)
+		}
 		return {
 			$id: { $network: { chainId }, blockNumber },
 			number: row.number,
@@ -181,10 +175,11 @@ export const fetchBlock = async (
 		}
 	} catch (e) {
 		const message = e instanceof Error ? e.message : String(e)
-		blocksCollection.update(key, (draft) => {
-			draft.isLoading = false
-			draft.error = message
-		})
+		if (existing)
+			blocksCollection.update(key, (draft) => {
+				draft.isLoading = false
+				draft.error = message
+			})
 		throw e
 	}
 }

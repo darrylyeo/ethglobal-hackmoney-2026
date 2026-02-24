@@ -57,30 +57,11 @@ export const fetchActorAllowance = async (
 	const key = allowanceKeyParts($id)
 	const existing = actorAllowancesCollection.state.get(key)
 
-	// Set loading state
 	if (existing) {
 		actorAllowancesCollection.update(key, (draft) => {
 			draft.$source = DataSource.Voltaire
 			draft.isLoading = true
 			draft.error = null
-		})
-	} else {
-		const full$id: ActorAllowance$Id = {
-			...$id,
-			interopAddress:
-				$id.interopAddress
-					?? toInteropName(
-							$id.$actorCoin.$actor.$network.chainId,
-							$id.$actorCoin.$actor.address,
-						),
-		}
-		actorAllowancesCollection.insert({
-			$id: full$id,
-			$source: DataSource.Voltaire,
-			allowance: 0n,
-			isLoading: true,
-			error: null,
-			lastChecked: Date.now(),
 		})
 	}
 
@@ -92,27 +73,43 @@ export const fetchActorAllowance = async (
 			$id.$actorCoin.$actor.address,
 			$id.$spender.address,
 		)
-
-		actorAllowancesCollection.update(key, (draft) => {
-			draft.$source = DataSource.Voltaire
-			draft.allowance = allowance
-			draft.isLoading = false
-			draft.error = null
-			draft.lastChecked = Date.now()
-		})
+		const full$id: ActorAllowance$Id = {
+			...$id,
+			interopAddress:
+				$id.interopAddress
+					?? toInteropName(
+							$id.$actorCoin.$actor.$network.chainId,
+							$id.$actorCoin.$actor.address,
+						),
+		}
+		const row: ActorAllowanceRow = {
+			$id: full$id,
+			$source: DataSource.Voltaire,
+			allowance,
+			isLoading: false,
+			error: null,
+			lastChecked: Date.now(),
+		}
+		if (existing) {
+			actorAllowancesCollection.update(key, (draft) => {
+				Object.assign(draft, row)
+			})
+		} else {
+			actorAllowancesCollection.insert(row)
+		}
 		return actorAllowancesCollection.state.get(key)!
 	} catch (e) {
-		actorAllowancesCollection.update(key, (draft) => {
-			draft.$source = DataSource.Voltaire
-			draft.isLoading = false
-			draft.error = (
-				e instanceof Error
-					? e.message
-					: String(e)
-			)
-			draft.lastChecked = Date.now()
-		})
-		return actorAllowancesCollection.state.get(key)!
+		const message = e instanceof Error ? e.message : String(e)
+		if (existing) {
+			actorAllowancesCollection.update(key, (draft) => {
+				draft.$source = DataSource.Voltaire
+				draft.isLoading = false
+				draft.error = message
+				draft.lastChecked = Date.now()
+			})
+			return actorAllowancesCollection.state.get(key)!
+		}
+		throw e
 	}
 }
 

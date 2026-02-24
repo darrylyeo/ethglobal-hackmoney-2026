@@ -33,9 +33,10 @@ const getKey = (row: FarcasterCastRow) =>
 /** FarcasterCast.timestamp is stored as Unix ms. API returns seconds; normalize at ingest. */
 const toTimestampMs = (t: number): number => (t < 1e12 ? t * 1000 : t)
 
-const normalizeCast = (m: CastMessage): FarcasterCastRow => {
-	const body = m.data?.castAddBody ?? { text: '', mentions: [], embeds: [] }
-	const data = m.data ?? { fid: 0, timestamp: 0 }
+const normalizeCast = (m: CastMessage): FarcasterCastRow | null => {
+	const data = m.data
+	if (!data) return null
+	const body = data.castAddBody ?? { text: '', mentions: [], embeds: [] }
 	return {
 		$id: { fid: data.fid, hash: normalizeCastHash(m.hash as `0x${string}`) },
 		text: body.text ?? '',
@@ -82,7 +83,7 @@ export const ensureCastsForChannel = singleFlight(
 		})
 		for (const m of messages) {
 			const row = normalizeCast(m)
-			farcasterCastsCollection.insert(row)
+			if (row) farcasterCastsCollection.insert(row)
 		}
 		return { nextPageToken }
 	},
@@ -100,7 +101,7 @@ export const ensureCastsForFid = singleFlight(
 		})
 		for (const m of messages) {
 			const row = normalizeCast(m)
-			farcasterCastsCollection.insert(row)
+			if (row) farcasterCastsCollection.insert(row)
 		}
 		return { nextPageToken }
 	},
@@ -146,6 +147,7 @@ export const ensureCast = singleFlight(
 			if (!m) throw new Error('Cast not found')
 		}
 		const row = normalizeCast(m)
+		if (!row) throw new Error('Cast not found')
 		const fullHash = m.hash
 		const [likesRes, recastsRes] = await Promise.all([
 			fetchReactionsByCast(fid, fullHash, { reactionType: REACTION_TYPE_LIKE }).catch(
@@ -174,7 +176,7 @@ export const ensureCastsByMention = singleFlight(
 		})
 		for (const m of messages) {
 			const row = normalizeCast(m)
-			farcasterCastsCollection.insert(row)
+			if (row) farcasterCastsCollection.insert(row)
 		}
 		return { nextPageToken }
 	},
@@ -204,7 +206,7 @@ export const ensureRepliesForCast = singleFlight(
 		})
 		for (const m of messages) {
 			const row = normalizeCast(m)
-			farcasterCastsCollection.insert(row)
+			if (row) farcasterCastsCollection.insert(row)
 		}
 		return { nextPageToken }
 	},

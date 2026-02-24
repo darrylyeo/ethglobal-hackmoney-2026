@@ -45,51 +45,57 @@ export async function fetchVerifiedContractSource(
 		typeof verifiedContractSourcesCollection.state.get
 	>[0]
 
-	if (verifiedContractSourcesCollection.state.get(key)) {
+	const existing = verifiedContractSourcesCollection.state.get(key)
+	if (existing) {
 		verifiedContractSourcesCollection.update(key, (draft) => {
 			draft.isLoading = true
 			draft.error = null
-		})
-	} else {
-		verifiedContractSourcesCollection.insert({
-			$id: {
-				$network: { chainId },
-				address,
-			},
-			files: {},
-			$source: DataSource.Sourcify,
-			isLoading: true,
-			error: null,
 		})
 	}
 
 	try {
 		const entry = await fetchVerifiedContract(chainId, address)
+		const $id = { $network: { chainId }, address }
 		if (entry == null) {
-			verifiedContractSourcesCollection.update(key, (draft) => {
-				Object.assign(draft, {
-					notFound: true,
-					isLoading: false,
-					error: null,
-				})
-			})
-			return null
-		}
-		verifiedContractSourcesCollection.update(key, (draft) => {
-			Object.assign(draft, {
-				...entry,
-				notFound: false,
+			const row: VerifiedContractSourceRow = {
+				$id,
+				files: {},
+				$source: DataSource.Sourcify,
+				notFound: true,
 				isLoading: false,
 				error: null,
+			}
+			if (existing) {
+				verifiedContractSourcesCollection.update(key, (draft) => {
+					Object.assign(draft, row)
+				})
+			} else {
+				verifiedContractSourcesCollection.insert(row)
+			}
+			return null
+		}
+		const row: VerifiedContractSourceRow = {
+			...entry,
+			$source: DataSource.Sourcify,
+			notFound: false,
+			isLoading: false,
+			error: null,
+		}
+		if (existing) {
+			verifiedContractSourcesCollection.update(key, (draft) => {
+				Object.assign(draft, row)
 			})
-		})
+		} else {
+			verifiedContractSourcesCollection.insert(row)
+		}
 		return entry
 	} catch (e) {
 		const message = e instanceof Error ? e.message : String(e)
-		verifiedContractSourcesCollection.update(key, (draft) => {
-			draft.isLoading = false
-			draft.error = message
-		})
+		if (existing)
+			verifiedContractSourcesCollection.update(key, (draft) => {
+				draft.isLoading = false
+				draft.error = message
+			})
 		throw e
 	}
 }

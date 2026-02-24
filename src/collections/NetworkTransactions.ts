@@ -47,34 +47,22 @@ export const fetchNetworkTransaction = async (
 ): Promise<ChainTransactionEntry> => {
 	const normalized = normalizeTxHash(txHash)
 	const key = `${chainId}:${normalized}`
-	if (networkTransactionsCollection.state.get(key)) {
+	const existing = networkTransactionsCollection.state.get(key)
+	if (existing) {
 		networkTransactionsCollection.update(key, (draft) => {
 			draft.isLoading = true
 			draft.error = null
-		})
-	} else {
-		networkTransactionsCollection.insert({
-			$id: { $network: { chainId }, txHash: normalized },
-			blockNumber: 0,
-			blockHash: '',
-			from: '',
-			to: null,
-			value: '0x0',
-			logs: [],
-			$source: DataSource.Voltaire,
-			isLoading: true,
-			error: null,
 		})
 	}
 
 	const url = getEffectiveRpcUrl(chainId)
 	if (!url) {
-		const err = `No RPC URL for chain ${chainId}`
-		networkTransactionsCollection.update(key, (draft) => {
-			draft.isLoading = false
-			draft.error = err
-		})
-		throw new Error(err)
+		if (existing)
+			networkTransactionsCollection.update(key, (draft) => {
+				draft.isLoading = false
+				draft.error = `No RPC URL for chain ${chainId}`
+			})
+		throw new Error(`No RPC URL for chain ${chainId}`)
 	}
 
 	try {
@@ -84,10 +72,11 @@ export const fetchNetworkTransaction = async (
 			getTransactionReceipt(provider, txHash),
 		])
 		if (!tx) {
-			networkTransactionsCollection.update(key, (draft) => {
-				draft.isLoading = false
-				draft.error = 'Transaction not found'
-			})
+			if (existing)
+				networkTransactionsCollection.update(key, (draft) => {
+					draft.isLoading = false
+					draft.error = 'Transaction not found'
+				})
 			throw new Error('Transaction not found')
 		}
 		const row: ChainTransactionRow = {
@@ -114,28 +103,32 @@ export const fetchNetworkTransaction = async (
 			isLoading: false,
 			error: null,
 		}
-		networkTransactionsCollection.update(key, (draft) => {
-			Object.assign(draft, {
-				blockNumber: row.blockNumber,
-				blockHash: row.blockHash,
-				transactionIndex: row.transactionIndex,
-				from: row.from,
-				to: row.to,
-				value: row.value,
-				nonce: row.nonce,
-				input: row.input,
-				gas: row.gas,
-				gasPrice: row.gasPrice,
-				type: row.type,
-				status: row.status,
-				gasUsed: row.gasUsed,
-				contractAddress: row.contractAddress,
-				effectiveGasPrice: row.effectiveGasPrice,
-				logs: row.logs,
-				isLoading: false,
-				error: null,
+		if (existing) {
+			networkTransactionsCollection.update(key, (draft) => {
+				Object.assign(draft, {
+					blockNumber: row.blockNumber,
+					blockHash: row.blockHash,
+					transactionIndex: row.transactionIndex,
+					from: row.from,
+					to: row.to,
+					value: row.value,
+					nonce: row.nonce,
+					input: row.input,
+					gas: row.gas,
+					gasPrice: row.gasPrice,
+					type: row.type,
+					status: row.status,
+					gasUsed: row.gasUsed,
+					contractAddress: row.contractAddress,
+					effectiveGasPrice: row.effectiveGasPrice,
+					logs: row.logs,
+					isLoading: false,
+					error: null,
+				})
 			})
-		})
+		} else {
+			networkTransactionsCollection.insert(row)
+		}
 		return {
 			$id: row.$id,
 			blockNumber: row.blockNumber,
@@ -157,10 +150,11 @@ export const fetchNetworkTransaction = async (
 		}
 	} catch (e) {
 		const message = e instanceof Error ? e.message : String(e)
-		networkTransactionsCollection.update(key, (draft) => {
-			draft.isLoading = false
-			draft.error = message
-		})
+		if (existing)
+			networkTransactionsCollection.update(key, (draft) => {
+				draft.isLoading = false
+				draft.error = message
+			})
 		throw e
 	}
 }
