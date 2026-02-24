@@ -14,7 +14,7 @@ Integrate all external APIs used for contract ABI and selector/signature lookups
 ## Definitions
 
 - **ABI lookup**: Fetch contract ABI by chain + address (Sourcify, Etherscan, Blockscout).
-- **Signature lookup**: Resolve 4-byte function selector or 32-byte event topic to human-readable text signature (OpenChain, 4byte).
+- **Signature lookup**: Resolve 4-byte function selector or 32-byte event topic to human-readable text signature (4byte.sourcify.dev, 4byte.directory).
 
 ## Codebase conventions (src/api)
 
@@ -63,16 +63,16 @@ Existing module: `src/api/sourcify.ts` — `fetchContractWithAbi`, `fetchContrac
 | Success (getsourcecode) | `result` array with one object containing `ABI` (string), `SourceCode`, etc. |
 | Docs | https://docs.blockscout.com/devs/apis/rpc/contract, https://docs.blockscout.com/api-reference/contract/get-contract-source-code-for-verified-contract |
 
-### 4. OpenChain signature lookup
+### 4. 4byte.sourcify.dev signature lookup (replaces openchain.xyz)
 
 | Item | Value |
 |------|--------|
-| Base | `https://api.openchain.xyz/signature-database/v1` |
+| Base | `https://api.4byte.sourcify.dev/signature-database/v1` |
 | Lookup | `GET /lookup?function={hex4}&event={hex32}` — both query params optional; at least one required |
 | Function | 4-byte selector, e.g. `0xa9059cbb` |
 | Event | 32-byte topic hash (no 0x or with 0x) |
 | Response | `{ ok: true, result: { function: { "0x...": [{ name: "transfer(address,uint256)", ... }] }, event: { ... } } }`; `ok: false` on error |
-| Docs | https://openchain.xyz/ (API implied by usage; no separate doc page) |
+| Docs | https://4byte.sourcify.dev/ |
 
 ### 5. 4byte.directory
 
@@ -110,16 +110,16 @@ Existing module: `src/api/sourcify.ts` — `fetchContractWithAbi`, `fetchContrac
 - **Behavior**: GET `{base}?module=contract&action=getabi&address={address}` (+ optional `apikey`). Blockscout getabi is Etherscan-compatible: `result` is a JSON string of the ABI array. If `status === '1'` and `result` is a non-empty string, parse `JSON.parse(result)` and return as `ContractAbi`; otherwise return `null`.
 - **Types**: Raw response type same as Etherscan: `{ status: string; message: string; result?: string }`.
 
-### OpenChain signatures (`src/api/openchain.ts` — new)
+### 4byte.sourcify.dev signatures (`src/api/openchain.ts`)
 
-- **Module**: `src/api/openchain.ts`.
-- **Base**: `https://api.openchain.xyz/signature-database/v1`.
+- **Module**: `src/api/openchain.ts`. 4byte.sourcify.dev replaces openchain.xyz (same API).
+- **Base**: `https://api.4byte.sourcify.dev/signature-database/v1`.
 - **Exports**:
   - `fetchFunctionSignatures(selector: \`0x${string}\`): Promise<string[]>` — GET `/lookup?function={selector}`; return `result.function[selector]?.map(e => e.name) ?? []`; normalize selector to 4-byte hex with 0x.
   - `fetchEventSignatures(topicHash: \`0x${string}\`): Promise<string[]>` — GET `/lookup?event={topicHash}`; return `result.event[topicHash]?.map(e => e.name) ?? []`.
   - Optional: single `fetchSignatures({ function?: \`0x${string}\`, event?: \`0x${string}\` })` returning `{ functions: string[], events: string[] }`.
-- **Behavior**: On `!res.ok` or `!json.ok` return empty arrays. No API key. Normalize selector/topic to lowercase hex with `0x` so response key lookup matches (OpenChain returns keys like `"0xa9059cbb"`).
-- **Caching**: Signature data is cached in the SelectorSignatures collection; the collection layer calls these fetch functions and upserts (see TanStack DB section).
+- **Behavior**: On `!res.ok` or `!json.ok` return empty arrays. No API key. Normalize selector/topic to lowercase hex with `0x` so response key lookup matches.
+- **Caching**: Signature data is cached in the EvmSelectors and EvmTopics collections; the collection layer calls these fetch functions and upserts (see TanStack DB section).
 
 ### 4byte signatures (`src/api/fourbyte.ts` — new)
 
@@ -150,35 +150,39 @@ Per Spec 065 and Spec 002, external API data consumed by UI is stored in TanStac
 - **Fetch flow**: In `fetchContract`: (1) Call `fetchContractFull(chainId, address)` (Sourcify) as today. (2) If `full` is non-null, update VerifiedContractSources from `full.source` (existing behavior; do this whether or not `full.abi` is set). If `full.abi` is set, update contract row with `draft.abi = full.abi`, `draft.source = DataSource.Sourcify`, and return. (3) If we still have no ABI (full was null or full.abi undefined), call `fetchAbiFromEtherscan(chainId, address, options)`. If non-null ABI, update contract row with `draft.abi` and `draft.source = DataSource.Etherscan`; return. (4) Else call `fetchAbiFromBlockscout(chainId, address, options)`. If non-null ABI, update contract row with `draft.abi` and `draft.source = DataSource.Blockscout`. (5) Do not create or update VerifiedContractSources when ABI comes from Etherscan or Blockscout (VerifiedContractSources is Sourcify-only for source files). When full is null, existing code already inserts a notFound VerifiedContractSource row; keep that. Normalization: parse API response into `ContractAbi`; set `source` to the corresponding `DataSource` (Sourcify, Etherscan, or Blockscout).
 - **Registration**: `CollectionId.Contracts` already in `src/constants/collections.ts`. Contracts is not in `PROFILE_SCOPED_STORAGE_KEYS` (profile.ts); it is a global cache. No change to profile.ts for Contracts.
 
-### 2. SelectorSignatures collection (new)
+### 2. EvmSelectors and EvmTopics collections
 
-- **Purpose**: Cache function selector (4-byte) and event topic (32-byte) → human-readable signatures from OpenChain and 4byte. Used by calldata/decoder UI so selector/topic lookups are read via live query and persisted across sessions.
-- **Data type**: New `src/data/SelectorSignature.ts`.
-  - `SelectorKind` enum: `Function = 'function'`, `Event = 'event'` (string enum for stable getKey and serialization).
-  - `SelectorSignature$Id = { kind: SelectorKind, hex: \`0x${string}\` }` — `hex` is 4-byte for function, 32-byte for event (with 0x).
-  - `SelectorSignatureEntry = { $id: SelectorSignature$Id, signatures: string[] }` — `signatures` is the list of text signatures (e.g. `transfer(address,uint256)`).
-- **Collection**: New `src/collections/SelectorSignatures.ts`.
-  - `getKey(row) = \`${row.$id.kind}:${row.$id.hex}\`` (stable, unique per kind+hex; `kind` is enum value so string `'function'` or `'event'`).
-  - `selectorSignaturesCollection = createCollection(localStorageCollectionOptions({ id: CollectionId.SelectorSignatures, storageKey: CollectionId.SelectorSignatures, getKey, parser: { stringify, parse } }))`.
-- **Persistence**: Same as Contracts — localStorage under `CollectionId.SelectorSignatures`; `devalue` for serialization.
-- **Fetch flow**: `ensureFunctionSignatures(selector)` and `ensureEventSignatures(topicHash)` (or single `ensureSelectorSignatures(kind: SelectorKind, hex)`):
-  - If collection already has a row for the key (`SelectorKind.Function` or `SelectorKind.Event` plus hex), skip fetch.
-  - Else call OpenChain and 4byte (both) for that selector/topic, merge and dedupe the two result arrays, then `insert` normalized entry.
-  - Normalization: `signatures` = sorted unique array of strings; hex normalized to lowercase with `0x` prefix.
-- **Registration**: Add `SelectorSignatures = 'SelectorSignatures'` to `CollectionId` in `src/constants/collections.ts`. `collectionEntries` is derived from `Object.values(CollectionId)`, so the new collection is included automatically for any flow that iterates collection IDs.
+- **Purpose**: Cache Evm function selector (4-byte) and Evm event topic (32-byte) → human-readable signatures from 4byte.sourcify.dev and 4byte.directory. Used by calldata decoder, signature explorer, and network views; selector/topic lookups are read via live query and persisted in localStorage.
+- **Data types**:
+  - `src/data/EvmSelector.ts`: `EvmSelector$Id = { hex: \`0x${string}\` }` (4-byte); `EvmSelector = { $id, signatures: string[] }`.
+  - `src/data/EvmTopic.ts`: `EvmTopic$Id = { hex: \`0x${string}\` }` (32-byte); `EvmTopic = { $id, signatures: string[] }`.
+- **Collections**:
+  - `src/collections/EvmSelectors.ts`: `getKey(row) = row.$id.hex` (normalized 4-byte); `evmSelectorsCollection` with `CollectionId.EvmSelectors`; `normalizeEvmSelector4(hex)`; `ensureEvmFunctionSignatures(selector)` — call 4byte.sourcify.dev and 4byte.directory, merge/dedupe, insert.
+  - `src/collections/EvmTopics.ts`: `getKey(row) = row.$id.hex` (normalized 32-byte); `evmTopicsCollection` with `CollectionId.EvmTopics`; `normalizeEvmTopic32(hex)`; `ensureEvmEventSignatures(topicHash)` — same fetch/merge/insert pattern.
+- **Persistence**: Same as Contracts — localStorage under `CollectionId.EvmSelectors` and `CollectionId.EvmTopics`; `devalue` for serialization.
+- **Fetch flow**: For each collection, if a row for the normalized hex exists, skip; else call both 4byte.sourcify.dev and 4byte.directory, merge and dedupe the text arrays, then insert. Normalization: hex lowercase with `0x`, 4-byte padded to 8 hex chars for selectors, 32-byte padded to 64 for topics; `signatures` = sorted unique strings.
+- **Registration**: `EvmSelectors` and `EvmTopics` in `CollectionId` (`src/constants/collections.ts`). No backcompat re-export; callers import from `EvmSelectors.ts` or `EvmTopics.ts` directly.
 
 ### 3. Constants and registration checklist
 
-- **`src/constants/collections.ts`**: Add `SelectorSignatures = 'SelectorSignatures'` to `CollectionId` enum.
+- **`src/constants/collections.ts`**: Add `EvmSelectors` and `EvmTopics` to `CollectionId` enum.
 - **`src/constants/data-sources.ts`**: Add `Etherscan = 'Etherscan'` and `Blockscout = 'Blockscout'` to `DataSource` enum.
 - **`src/data/Contract.ts`**: Type `source` as `DataSource` (optional). Existing Sourcify usage becomes `DataSource.Sourcify`; new fallbacks use `DataSource.Etherscan`, `DataSource.Blockscout`.
-- **`src/data/SelectorSignature.ts`**: New file; export `SelectorKind` enum, `SelectorSignature$Id`, `SelectorSignatureEntry`.
+- **`src/data/EvmSelector.ts`**: Export `EvmSelector$Id`, `EvmSelector`.
+- **`src/data/EvmTopic.ts`**: Export `EvmTopic$Id`, `EvmTopic`.
 - **`src/collections/Contracts.ts`**: Update `fetchContract` to try Etherscan then Blockscout when Sourcify returns no ABI; set `draft.source` (DataSource) and `draft.abi` from the winning provider.
-- **`src/collections/SelectorSignatures.ts`**: New file; collection + `ensureFunctionSignatures(selector)`, `ensureEventSignatures(topicHash)` (or single `ensureSelectorSignatures(kind: SelectorKind, hex)`), calling `fetchFunctionSignatures` / `fetchEventSignatures` from openchain and fourbyte, merge/dedupe, upsert.
+- **`src/collections/EvmSelectors.ts`**: Collection + `normalizeEvmSelector4`, `ensureEvmFunctionSignatures`; call openchain (4byte.sourcify.dev) and fourbyte `fetchFunctionSignatures`, merge/dedupe, insert.
+- **`src/collections/EvmTopics.ts`**: Collection + `normalizeEvmTopic32`, `ensureEvmEventSignatures`; call openchain (4byte.sourcify.dev) and fourbyte `fetchEventSignatures`, merge/dedupe, insert.
 
 ### 4. Profile / backup
 
-- Profile export (`src/lib/profile.ts`) uses a fixed list `PROFILE_SCOPED_STORAGE_KEYS` (CollectionId values and `ROOM_PERSISTENT_PEER_ID_STORAGE_KEY`). Only those keys are exported/restored per profile. Contracts and VerifiedContractSources are not in that list (they are global caches). SelectorSignatures is the same: add `CollectionId.SelectorSignatures` to the enum only; do not add it to `PROFILE_SCOPED_STORAGE_KEYS` unless the product decision is to make signature cache profile-scoped. No change to profile.ts required for this spec.
+- Profile export (`src/lib/profile.ts`) uses a fixed list `PROFILE_SCOPED_STORAGE_KEYS` (CollectionId values and `ROOM_PERSISTENT_PEER_ID_STORAGE_KEY`). Only those keys are exported/restored per profile. Contracts and VerifiedContractSources are not in that list (they are global caches). EvmSelectors and EvmTopics are the same: add their `CollectionId` values to the enum only; do not add to `PROFILE_SCOPED_STORAGE_KEYS` unless the product decision is to make signature cache profile-scoped. No change to profile.ts required for this spec.
+
+### 5. Calldata decoder page (examples and E2E)
+
+- **Examples constant**: `src/constants/calldata-examples.ts` exports type `CalldataExample` (`id`, `label`, `hex`), array `calldataExamples` (e.g. ERC20 transfer, approve, balanceOf), and `calldataExampleById` lookup. Conventions follow other constants (e.g. slippage presets). Used by the decoder page and E2E.
+- **Example selector**: The `/calldata-decoder` page includes a "Load example…" select; choosing an example fills the hex textarea with that example’s calldata; the select resets to the placeholder after load.
+- **E2E**: Coverage manifest (`e2e/coverage-manifest.ts`) includes branch `example-select` for `/calldata-decoder`: seed `CollectionId.EvmSelectors` for the example selectors (transfer, approve, balanceOf), open the page, select the transfer example from the "Load example calldata" combobox, assert "Decoded arguments" or `transfer(` is visible.
 
 ## ABI source precedence (for contract ABI resolution)
 
@@ -193,7 +197,7 @@ Order is configurable (e.g. Sourcify first, then Etherscan, then Blockscout). Co
 ## Spec 065 alignment
 
 - **ABI data** that feeds UI (e.g. contract view, calldata decoder) must be written into the Contracts collection and read via live queries. The fetch functions in `sourcify.ts`, `etherscan.ts`, and `blockscout.ts` are called only from the collection layer (`fetchContract` in Contracts.ts); the collection normalizes and upserts.
-- **Signature lookups** (OpenChain, 4byte): Results are written into the SelectorSignatures collection and read via live queries. The fetch functions in `openchain.ts` and `fourbyte.ts` are called only from the collection layer (`ensureFunctionSignatures` / `ensureEventSignatures` in SelectorSignatures.ts); the collection merges both sources, dedupes, and upserts.
+- **Signature lookups** (4byte.sourcify.dev, 4byte.directory): Results are written into the EvmSelectors and EvmTopics collections and read via live queries. The fetch functions in `openchain.ts` (Sourcify) and `fourbyte.ts` are called only from the collection layer (`ensureEvmFunctionSignatures` in EvmSelectors.ts, `ensureEvmEventSignatures` in EvmTopics.ts); each collection merges both sources, dedupes, and inserts.
 
 ## Acceptance criteria
 
@@ -210,7 +214,7 @@ Order is configurable (e.g. Sourcify first, then Etherscan, then Blockscout). Co
 
 - [x] `src/constants/data-sources.ts`: `DataSource` enum includes `Etherscan` and `Blockscout`.
 - [x] `src/data/Contract.ts`: `source` typed as `DataSource` (optional).
-- [x] `src/data/SelectorSignature.ts` exists; exports `SelectorKind` enum (Function, Event), `SelectorSignature$Id` (`kind: SelectorKind`, `hex`), and `SelectorSignatureEntry` (`$id`, `signatures: string[]`).
+- [x] `src/data/EvmSelector.ts` exists; exports `EvmSelector$Id` (`hex`), `EvmSelector` (`$id`, `signatures`). `src/data/EvmTopic.ts` exists; exports `EvmTopic$Id`, `EvmTopic`.
 
 **TanStack DB: collections and persistence**
 
@@ -221,8 +225,13 @@ Order is configurable (e.g. Sourcify first, then Etherscan, then Blockscout). Co
 **Tests and Spec 065**
 
 - [x] Unit tests (or integration tests) for at least one fetch per new API module (e.g. mock fetch or live call with known address/selector) to verify shape and null/empty behavior.
-- [x] Spec 065: ABI used by UI is read via `contractsCollection` and live query; signature lookups used by UI are read via `selectorSignaturesCollection` and live query (ensure* writes, components use `useLiveQuery`).
+- [x] Spec 065: ABI used by UI is read via `contractsCollection` and live query; signature lookups used by UI are read via `evmSelectorsCollection` and `evmTopicsCollection` and live query (ensure* writes, components use `useLiveQuery`).
+
+**Calldata decoder UI**
+
+- [x] `src/constants/calldata-examples.ts` exists; exports `CalldataExample`, `calldataExamples`, and `calldataExampleById`; decoder page has "Load example" select that fills hex from selected example (select resets after load).
+- [x] E2E coverage for `/calldata-decoder` includes branch `example-select` (seed signatures, select example, assert decoded output visible).
 
 ## Status
 
-Complete.
+Complete. Updated 2026-02-23: added §5 (Calldata decoder page: examples constant, example selector, E2E branch `example-select`) and AC under "Calldata decoder UI".

@@ -43,6 +43,14 @@ Extend the EIPs/ERCs and fork context (Spec 112, Spec 113 fork-era schedules) wi
 - **Precompiles:** evm.codes `precompiled.json` (pinned ref) + shemnon/precompiles per-chain schedule JSON where present (e.g. eip155-1-schedule.json for mainnet).
 - **Networks:** Align with existing fork schedules (Spec 113): chainId + block → era/fork via `getEraAtBlock` (from `src/constants/forks/index.ts`); fork name/slug from Fork (slug derived from name via `getForkSlugByEraName`).
 
+## EVM opcodes (implemented)
+
+- **Sources:** evm.codes `opcodes.json` (duneanalytics/evm.codes), ethereum.org opcodes table, execution-specs (per-fork Python), EIPs (e.g. EIP-145 SHL/SHR/SAR, EIP-1014 CREATE2, EIP-3855 PUSH0, EIP-1153 TLOAD/TSTORE, EIP-5656 MCOPY).
+- **Enum:** `EvmOpcode` in `src/constants/opcodes/types.ts`: PascalCase mnemonic = two-char hex value (e.g. `EvmOpcode.SHL = '1b'`). Covers all assigned opcodes from Frontier through Cancun/Prague.
+- **Constants:** `opcodeEntries` (hex → mnemonic, input, output, description); `executionForkOpcodesAdded` (ForkId → EvmOpcode[] for opcodes first introduced in that fork). Execution forks from `src/constants/forks/1.ts` (Frontier … Osaka); consensus forks excluded from opcode lookup.
+- **Networks:** Which networks support which opcodes is derived from fork schedules: `getExecutionEraAtBlock(chainId, blockNumber)` returns the active execution fork; `getOpcodesForEra(chainId, blockNumber)` returns the cumulative opcode set for that fork. Chains in `forkByChainId` (1, 10, 8453, 17000, 84532, 11155111, 11155420) have opcode support per block.
+- **Integration:** `src/constants/opcodes/` (types, enum, entries, fork mapping); `src/constants/forks/index.ts` exports `getExecutionEraAtBlock` and re-exports or uses `getOpcodesForEra` from opcodes.
+
 ## Data model (proposed)
 
 - **Opcodes:** List or map of `{ hex, mnemonic?, input, output, description, gasBase?, dynamicFeeByFork? }`; fork slug from our fork set. Optionally `forkOpcodes: Record<forkSlug, hex[]>` for “opcodes available in fork”.
@@ -60,10 +68,10 @@ Extend the EIPs/ERCs and fork context (Spec 112, Spec 113 fork-era schedules) wi
 
 ## Acceptance criteria
 
-- [ ] Documented data sources and recommendations (evm.codes, shemnon/precompiles, execution-specs) in this spec or a linked doc.
-- [ ] Normalized types/schema for opcodes and precompiles (and optionally per-chain precompile schedule) that align with existing fork slugs and Spec 113 era model.
-- [ ] Either: (A) vendored/generated JSON + sync script from pinned evm.codes (and optionally shemnon) refs, with manifest; or (B) minimal in-repo constants derived from evm.codes with links to upstream, and a short “how to refresh” note.
-- [ ] Helper(s) to resolve “opcodes / precompiles for this fork or chain+block” using fork schedules where applicable.
+- [x] Documented data sources and recommendations (evm.codes, shemnon/precompiles, execution-specs) in this spec or a linked doc.
+- [x] Normalized types/schema for opcodes and precompiles (and optionally per-chain precompile schedule) that align with existing fork slugs and Spec 113 era model.
+- [x] Either: (A) vendored/generated JSON + sync script from pinned evm.codes (and optionally shemnon) refs, with manifest; or (B) minimal in-repo constants derived from evm.codes with links to upstream, and a short “how to refresh” note.
+- [x] Helper(s) to resolve “opcodes / precompiles for this fork or chain+block” using fork schedules where applicable. (Opcodes: `getOpcodesForExecutionFork`, `getOpcodesForEra`, `getExecutionEraAtBlock`.)
 - [ ] Optional: Explorer surface (link or section) for EVM opcodes/precompiles in fork/era context.
 
 ## Status
