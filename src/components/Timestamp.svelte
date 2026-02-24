@@ -20,7 +20,7 @@
 
 	// (Derived)
 	const date = $derived(
-		typeof timestamp === 'number'
+		timestamp && typeof timestamp === 'number'
 			? new Date(timestamp)
 			: undefined,
 	)
@@ -35,7 +35,7 @@
 
 	// (Derived)
 	const relativeTime = $derived(
-		typeof timestamp === 'number'
+		timestamp && typeof timestamp === 'number'
 			? formatRelativeTime(now - timestamp)
 			: undefined,
 	)

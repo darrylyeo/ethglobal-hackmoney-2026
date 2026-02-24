@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { Snippet } from 'svelte'
+	import { provideHeadingLevel } from '$/svelte/heading-context.ts'
 
 
 	// Props
@@ -10,6 +11,8 @@
 		open = true,
 		annotation,
 		detailsProps = {},
+		incrementHeadingLevel = true,
+		ontoggle,
 		Summary,
 		Toolbar,
 		children,
@@ -19,10 +22,16 @@
 		open?: boolean
 		annotation?: string
 		detailsProps?: Record<string, unknown>
+		/** When false, summary heading uses current level (e.g. h1 for top-level entity card). Default true for nested sections. */
+		incrementHeadingLevel?: boolean
+		ontoggle?: (e: Event) => void
 		Summary?: Snippet<[{ title: string; annotation?: string }]>
 		Toolbar?: Snippet
 		children?: Snippet
 	} = $props()
+
+	// Heading context set at init so Summary sees it; prop is stable (entity layout does not change at runtime).
+	if (incrementHeadingLevel) provideHeadingLevel()
 
 
 	// Components
@@ -31,11 +40,14 @@
 
 
 <details
-	data-card {open} {...detailsProps}
-	data-scroll-container
+	data-card
+	{open}
+	{...detailsProps}
+	data-scroll-container="block snap-block"
+	ontoggle={ontoggle}
 >
 	<summary data-sticky>
-		<div data-row="wrap">
+		<!-- <div data-row="wrap"> -->
 			{#if Summary}
 				{@render Summary({ title, annotation })}
 			{:else}
@@ -59,7 +71,7 @@
 					</div>
 				{/if}
 			{/if}
-		</div>
+		<!-- </div> -->
 	</summary>
 
 	{#if children}

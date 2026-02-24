@@ -35,7 +35,6 @@
 		open = true,
 		ontoggle,
 		detailsProps = {},
-		detailsRef = $bindable(null as HTMLDetailsElement | HTMLElement | null),
 		Title,
 		AfterTitle,
 		BeforeAnnotation,
@@ -56,7 +55,6 @@
 		open?: boolean
 		ontoggle?: (e: Event) => void
 		detailsProps?: Record<string, unknown>
-		detailsRef?: HTMLDetailsElement | HTMLElement | null
 		Title?: Snippet
 		AfterTitle?: Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
 		BeforeAnnotation?: Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
@@ -80,16 +78,15 @@
 
 
 	// Components
+	import Collapsible from '$/components/Collapsible.svelte'
 	import Heading from '$/components/Heading.svelte'
-	import HeadingLevelProvider from '$/components/HeadingLevelProvider.svelte'
 	import WatchButton from '$/components/WatchButton.svelte'
 </script>
 
-
 {#if layout === EntityLayout.ContentOnly}
 	<div
+		class="entity-content"
 		data-column="gap-4"
-		bind:this={detailsRef}
 		{...detailsProps}
 	>
 		{#if children}
@@ -101,82 +98,114 @@
 		id={articleId}
 		{...rest}
 	>
-		<HeadingLevelProvider>
-			<details
-				bind:this={detailsRef}
-				{open}
-				data-card
-				{...detailsProps}
-				ontoggle={ontoggle}
-			>
-				<summary>
-					<header data-row="wrap gap-4">
-						<div data-row="start">
-							<div data-row-item="flexible" data-column>
-								<div data-row="start">
-									{#snippet HeadingContent()}
-										<Heading>
-											{#if Title}
-												{@render Title()}
-											{:else}
-												{label}
-											{/if}
-										</Heading>
-									{/snippet}
+		<Collapsible
+			title={label}
+			open={open}
+			annotation={annotation ?? (entityTypes.find((e) => e.type === entityType)?.label ?? entityType)}
+			detailsProps={{ 'data-card': '', ...detailsProps }}
+			incrementHeadingLevel={layout !== EntityLayout.Page}
+			{ontoggle}
+		>
+			{#snippet Summary({ title: _title, annotation: _annotation })}
+				<header data-row="wrap gap-4">
+					<div data-row="start">
+						<div data-row-item="flexible" data-column>
+							<div data-row="start">
+								{#snippet HeadingContent()}
+									<Heading>
+										{#if Title}
+											{@render Title()}
+										{:else}
+											{label}
+										{/if}
+									</Heading>
+								{/snippet}
 
-									{#if hasAnchorTitle}
-										<a href={`#${articleId}`}>
-											{@render HeadingContent()}
-										</a>
-									{:else}
+								{#if hasAnchorTitle}
+									<a href={`#${articleId}`}>
 										{@render HeadingContent()}
-									{/if}
+									</a>
+								{:else}
+									{@render HeadingContent()}
+								{/if}
 
-									{#if AfterTitle}
-										{@render AfterTitle({ entity, entityType })}
-									{/if}
+								{#if AfterTitle}
+									{@render AfterTitle({ entity, entityType })}
+								{/if}
 
-									{#if showWatchButton && entityId != null}
-										<WatchButton
-											{entityType}
-											{entityId}
-										/>
-									{/if}
-								</div>
-
-								{#if metadata?.length}
-									<dl data-definition-list="horizontal">
-										{#each metadata as { term, detail }}
-											<div>
-												{#if term}
-													<dt>{term}</dt>
-												{/if}
-												<dd>{detail}</dd>
-											</div>
-										{/each}
-									</dl>
+								{#if showWatchButton && entityId != null}
+									<WatchButton
+										{entityType}
+										{entityId}
+									/>
 								{/if}
 							</div>
-						</div>
 
-						<div data-row>
-							{#if BeforeAnnotation}
-								{@render BeforeAnnotation({ entity, entityType })}
+							{#if metadata?.length}
+								<dl data-definition-list="horizontal">
+									{#each metadata as { term, detail }}
+										<div>
+											{#if term}
+												<dt>{term}</dt>
+											{/if}
+											<dd>{detail}</dd>
+										</div>
+									{/each}
+								</dl>
 							{/if}
-							<span data-text="annotation">
-								{annotation
-									?? (entityTypes.find((e) => e.type === entityType)?.label ?? entityType)}
-							</span>
 						</div>
-					</header>
-				</summary>
-
-				{#if children}
-					<div data-column="gap-4">
-						{@render children()}
 					</div>
-				{/if}
-			</details>
-		</HeadingLevelProvider>
+
+					<div data-row>
+						{#if BeforeAnnotation}
+							{@render BeforeAnnotation({ entity, entityType })}
+						{/if}
+						<span data-text="annotation">
+							{annotation
+								?? (entityTypes.find((e) => e.type === entityType)?.label ?? entityType)}
+						</span>
+					</div>
+				</header>
+			{/snippet}
+
+			{#if children}
+				<div
+					class="entity-content"
+					data-column="layout-flex"
+				>
+					{@render children()}
+				</div>
+			{/if}
+		</Collapsible>
 	</article>
 {/if}
+
+
+<style>
+	:global(details > .entity-content) {
+		padding-top: var(--card-padding, 1em);
+		border-top: 1px solid var(--color-border);
+	}
+
+	.entity-content :global([data-definition-list='vertical']) {
+		row-gap: 1em;
+		column-gap: 1.5em;
+	}
+
+	.entity-content :global([data-definition-list='vertical'] dt) {
+		min-width: 8em;
+	}
+
+	.entity-content :global([data-definition-list='vertical'] dd code) {
+		word-break: break-all;
+		font-size: 0.9em;
+	}
+
+	.entity-content :global([data-definition-list='vertical'] ul[role='list']) {
+		list-style: none;
+		padding-inline-start: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.35em;
+	}
+</style>
