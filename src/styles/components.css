@@ -2,7 +2,6 @@
 a {
 	color: color-mix(in oklch, var(--color-fg) 33%, var(--color-accent));
 	text-decoration: none;
-	font-weight: 500;
 
 	transition-property:
 		color,
@@ -86,11 +85,11 @@ details {
 		transform-origin: center top;
 
 		/* @starting-style {
-    	height: 0;
-    	opacity: 0;
-    	filter: blur(4px);
-    	transform: perspective(1000px) rotateX(-1deg);
-    } */
+			height: 0;
+			opacity: 0;
+			filter: blur(4px);
+			transform: perspective(1000px) rotateX(-1deg);
+		} */
 	}
 
 	&:not([open])::details-content {
@@ -131,9 +130,9 @@ details {
 			&:has(> :only-child[data-row~='wrap']) {
 				justify-content: end;
 
-				> :only-child[data-row~='wrap'] {
+				/* > :only-child[data-row~='wrap'] {
 					display: contents;
-				}
+				} */
 
 				&::after {
 					align-self: end;
@@ -156,6 +155,12 @@ details {
 
 		> summary {
 			padding: var(--card-padding);
+			border-start-start-radius: var(--card-radius);
+			border-start-end-radius: var(--card-radius);
+
+			&:is([data-sticky-container] [data-sticky]) {
+				--sticky-backgroundColor: var(--card-backgroundColor);
+			}
 		}
 
 		> summary + :last-child {
@@ -169,6 +174,7 @@ select,
 button,
 input,
 label:has(> input:is([type='checkbox'], [type='radio'])),
+textarea,
 [contenteditable] {
 	cursor: pointer;
 
@@ -214,6 +220,11 @@ label:has(> input:is([type='checkbox'], [type='radio'])),
 		background-color: color-mix(in oklch, var(--color-accent) 40%, var(--color-bg));
 		border-color: color-mix(in oklch, var(--color-accent) 65%, var(--color-border));
 	}
+}
+
+textarea {
+	box-sizing: content-box;
+	min-height: 4lh;
 }
 
 option,
@@ -366,6 +377,11 @@ span svg {
 	&[data-column~='gap-8'] {
 		gap: 2em;
 	}
+
+	&[data-column~="layout-flex"] {
+		display: flex;
+		flex-direction: column;
+	}
 }
 
 [data-row],
@@ -476,7 +492,7 @@ summary {
 [data-card] {
 	/* Inputs */
 	--card-backgroundColor: var(--color-bg);
-	--card-radius: 0.25em;
+	--card-radius: 0.5em;
 	--card-padding: 1em;
 
 	/* Rules */
