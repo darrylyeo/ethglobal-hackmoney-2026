@@ -32,7 +32,7 @@ export const executeNavigate = async (input: NavigateInput) => {
 
 export const executeListWatchedEntities = async () => {
 	const stored = [...watchedEntitiesCollection.state.values()].filter(
-		(r): r is WatchedEntityStoredRow => r != null && 'entityType' in r && 'entityId' in r,
+		(r): r is WatchedEntityStored => r != null && 'entityType' in r && 'entityId' in r,
 	)
 	const derived = stored.map((r) => deriveWatchedEntityRow(r))
 	return derived.map((r) => ({ id: r.id, label: r.label, href: r.href, entityType: r.entityType }))

@@ -7,6 +7,7 @@ import {
 	getSession,
 	updateSessionParams,
 } from '$/lib/session/sessions.ts'
+import { setSessionCommand } from '$/state/session-command.svelte.ts'
 
 import type {
 	createSessionSchema,
@@ -50,10 +51,10 @@ export const executeCreateSession = async (input: CreateSessionInput) => {
 	const session = createSession({ actions, params: {} })
 
 	if (persist) {
-		await goto(buildSessionPath(session.id), { replaceState: false })
-		return { sessionId: session.id, path: buildSessionPath(session.id) }
+		await goto(buildSessionPath(session.$id.id), { replaceState: false })
+		return { sessionId: session.$id.id, path: buildSessionPath(session.$id.id) }
 	}
-	return { sessionId: session.id, ephemeral: true }
+	return { sessionId: session.$id.id, ephemeral: true }
 }
 
 export const executeUpdateSessionParams = async (input: UpdateSessionParamsInput) => {
@@ -67,7 +68,7 @@ export const executeGetSession = async (input: SessionIdInput) => {
 	const session = getSession(input.sessionId as string)
 	if (!session) return { error: 'Session not found' }
 	return {
-		id: session.id,
+		id: session.$id.id,
 		name: session.name,
 		status: session.status,
 		actions: session.actions,
@@ -77,4 +78,30 @@ export const executeGetSession = async (input: SessionIdInput) => {
 			),
 		),
 	}
+}
+
+export const executeSimulateSession = async (
+	input: SessionIdInput,
+	requestUserInteraction?: (cb: () => Promise<unknown>) => Promise<unknown>,
+) => {
+	const sessionId = input.sessionId as string
+	if (!getSession(sessionId)) return { error: 'Session not found' }
+	const promise = setSessionCommand(sessionId, 'simulate')
+	await goto(buildSessionPath(sessionId), { replaceState: false })
+	if (requestUserInteraction) await requestUserInteraction(() => promise)
+	else await promise
+	return { sessionId, simulated: true }
+}
+
+export const executeExecuteSession = async (
+	input: SessionIdInput,
+	requestUserInteraction?: (cb: () => Promise<unknown>) => Promise<unknown>,
+) => {
+	const sessionId = input.sessionId as string
+	if (!getSession(sessionId)) return { error: 'Session not found' }
+	const promise = setSessionCommand(sessionId, 'execute')
+	await goto(buildSessionPath(sessionId), { replaceState: false })
+	if (requestUserInteraction) await requestUserInteraction(() => promise)
+	else await promise
+	return { sessionId, executed: true }
 }

@@ -13,6 +13,7 @@
 		formatSessionPlaceholderName,
 		setSessionActions,
 	} from '$/lib/session/sessions.ts'
+	import { getSessionCommand } from '$/state/session-command.svelte.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 	import { stringify } from 'devalue'
@@ -30,17 +31,17 @@
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: sessionsCollection })
-				.where(({ row }) => eq(row.id, sessionId))
-				.select(({ row }) => ({ row })),
+				.from({ session: sessionsCollection })
+				.where(({ session }) => eq(session.$id.id, sessionId))
+				.select(({ session }) => ({ session })),
 		[() => sessionId],
 	)
 	const sessionActionsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: sessionActionsCollection })
-				.where(({ row }) => eq(row.sessionId, sessionId))
-				.select(({ row }) => ({ row })),
+				.from({ sessionAction: sessionActionsCollection })
+				.where(({ sessionAction }) => eq(sessionAction.sessionId, sessionId))
+				.select(({ sessionAction }) => ({ sessionAction })),
 		[() => sessionId],
 	)
 	const liveQueryEntries = [
@@ -59,16 +60,18 @@
 
 
 	// (Derived)
-	const dbSession = $derived(sessionQuery.data?.[0]?.row ?? null)
+	const dbSession = $derived(
+		(sessionQuery.data?.[0]?.row as Session | undefined) ?? null,
+	)
 	const sessionQueryResolved = $derived(sessionQuery.data !== undefined)
-	const sessionActionsRows = $derived(
-		(sessionActionsQuery.data?.map((d) => d.row) ?? []).sort(
-			(a, b) => a.indexInSequence - b.indexInSequence,
-		),
+	const sessionActions = $derived(
+		(sessionActionsQuery.data ?? [])
+			.map(({ sessionAction: action }) => action)
+			.sort((a, b) => a.indexInSequence - b.indexInSequence),
 	)
 	const mergedActions = $derived(
-		sessionActionsRows.length > 0
-			? sessionActionsRows.map((r) => r.action)
+		sessionActions.length > 0
+			? sessionActions.map((r) => r.action)
 			: dbSession?.actions ?? [],
 	)
 	const sessionFromDb = $derived.by(() => {
@@ -116,6 +119,12 @@
 			? (activeSession.name ?? formatSessionPlaceholderName(activeSession.actions))
 			: 'Session',
 	)
+	const pendingSessionCommand = $derived(
+		(() => {
+			const cmd = getSessionCommand()
+			return cmd && cmd.sessionId === sessionId ? cmd.command : null
+		})(),
+	)
 
 
 	// Components
@@ -133,7 +142,10 @@
 	data-sticky-container
 >
 	{#if activeSession}
-		<SessionView bind:session={activeSession} />
+		<SessionView
+			bind:session={activeSession}
+			pendingSessionCommand={pendingSessionCommand}
+		/>
 	{:else if sessionQueryResolved && dbSession === null}
 		<section data-scroll-item>
 			<p data-text="muted">Session not found.</p>
