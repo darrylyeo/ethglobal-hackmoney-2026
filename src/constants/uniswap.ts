@@ -1,9 +1,29 @@
 /**
- * Uniswap V4 contract addresses and fee tiers.
+ * Uniswap V4 contract addresses, fee tiers, and subgraph endpoints.
  * PoolManager and Universal Router addresses per chain (placeholder until V4 deployment).
  */
 
 import { ChainId } from '$/constants/networks.ts'
+
+const THE_GRAPH_GATEWAY = 'https://gateway.thegraph.com/api'
+
+/** Uniswap V4 subgraph IDs per chain (The Graph). See docs.uniswap.org/api/subgraph/guides/v4-examples */
+export const UNISWAP_V4_SUBGRAPH_ID: Partial<Record<number, string>> = {
+	[ChainId.Ethereum]: '6XvRX3WHSvzBVTiPdF66XSBVbxWuHqijWANbjJxRDyzr',
+	[ChainId.Unichain]: 'EoCvJ5tyMLMJcTnLQwWpjAtPdn74PcrZgzfcT5bYxNBH',
+	[ChainId.Optimism]: undefined,
+	[ChainId.Base]: '5f2npKL2a8oC6thaahyGW5NhJPAtDyMRnQHVmaNSJZ6o',
+	[ChainId.Arbitrum]: 'DiYPVdygkfjDWhbxGSqAQxwBKmfKnkWQojqeM2rkLb3G',
+}
+
+export const getSubgraphUrl = (
+	chainId: number,
+	apiKey: string | undefined,
+): string | null => {
+	const id = UNISWAP_V4_SUBGRAPH_ID[chainId]
+	if (!id || !apiKey) return null
+	return `${THE_GRAPH_GATEWAY}/${apiKey}/subgraphs/id/${id}`
+}
 
 type Address = `0x${string}`
 

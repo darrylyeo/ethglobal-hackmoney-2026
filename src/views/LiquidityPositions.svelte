@@ -50,9 +50,9 @@
 		actors.length === 0
 			? []
 			: (query.data ?? [])
-					.map((r) => r.row)
-					.filter((row) =>
-						actors.some((a) => row.owner === a),
+					.map(({ row: position }) => position)
+					.filter((position) =>
+						actors.some((a) => position.owner === a),
 					)
 					.sort((a, b) =>
 						a.chainId !== b.chainId
@@ -65,7 +65,7 @@
 		[
 			...new Map(
 				(connectionsQuery.data ?? [])
-					.map((r) => r.row)
+					.map(({ row: position }) => position)
 					.filter((c) => c.status === 'connected' && c.chainId != null)
 					.flatMap((c) =>
 						c.actors
@@ -156,14 +156,14 @@
 					data-list="unstyled"
 					class="positions-list"
 				>
-					{#each positions as pos (pos.id)}
+					{#each positions as pos (pos.chainId + ':' + pos.id)}
 						{@const net = networksByChainId[pos.chainId]}
 						<li
 							data-columns-item
 							data-card
 							data-row="gap-3 wrap"
 						>
-							<span class="position-id" title={pos.id}>{pos.id.slice(0, 10)}…</span>
+							<a href="/positions/liquidity/position/{pos.chainId}/{pos.id}" class="position-id" title={pos.id}>{pos.id.slice(0, 10)}…</a>
 							<span>{net?.name ?? pos.chainId}</span>
 							<a href="/positions/liquidity">View all</a>
 							<a href="/session?template=AddLiquidity">Manage</a>

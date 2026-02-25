@@ -2,7 +2,7 @@
  * Uniswap V4 position normalizer (no svelte-db dependency for Deno tests).
  */
 
-import type { UniswapPosition } from '$/data/UniswapPosition.ts'
+import type { UniswapPosition, UniswapPosition$Id } from '$/data/UniswapPosition.ts'
 import { normalizeAddress } from '$/lib/address.ts'
 
 const toBigInt = (v: unknown): bigint => {
@@ -19,12 +19,25 @@ const toBigInt = (v: unknown): bigint => {
 	return BigInt(s.startsWith('0x') ? s : `0x${s}`)
 }
 
-export const normalizeUniswapPosition = (
-	entry: UniswapPosition,
-): UniswapPosition => ({
-	...entry,
+type UniswapPositionInput = (Partial<UniswapPosition> & Pick<UniswapPosition, 'poolId' | 'owner'>) &
+	({ $id: UniswapPosition$Id } | { id: string; chainId: number })
+
+export const normalizeUniswapPosition = (entry: UniswapPositionInput): UniswapPosition => {
+	const chainId = '$id' in entry ? entry.$id.chainId : entry.chainId
+	const id = '$id' in entry ? entry.$id.id : entry.id
+	return {
+		$id: { chainId, id },
+		poolId: entry.poolId ?? '',
 	owner: (normalizeAddress(entry.owner) ?? entry.owner) as `0x${string}`,
+	tickLower: entry.tickLower ?? 0,
+	tickUpper: entry.tickUpper ?? 0,
 	liquidity: toBigInt(entry.liquidity),
 	token0Owed: toBigInt(entry.token0Owed),
 	token1Owed: toBigInt(entry.token1Owed),
-})
+	...(entry.tokenId != null && { tokenId: entry.tokenId }),
+	...(entry.origin != null && {
+		origin: (normalizeAddress(entry.origin) ?? entry.origin) as `0x${string}`,
+	}),
+	...(entry.createdAtTimestamp != null && { createdAtTimestamp: entry.createdAtTimestamp }),
+	}
+}

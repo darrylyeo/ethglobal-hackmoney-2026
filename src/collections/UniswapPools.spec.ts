@@ -1,12 +1,11 @@
 /// <reference lib='deno.ns' />
-import type { UniswapPool } from '$/data/UniswapPool.ts'
 import { normalizeUniswapPool } from './UniswapPoolsNormalize.ts'
 import { assertEquals, assertExists } from 'jsr:@std/assert'
 
 Deno.test(
 	'normalizeUniswapPool returns pool with bigint sqrtPriceX96 and liquidity',
 	() => {
-		const entry: UniswapPool = {
+		const entry = {
 			id: '0xabc',
 			chainId: 1,
 			token0: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as `0x${string}`,
@@ -18,16 +17,16 @@ Deno.test(
 			liquidity: 1000000n,
 			tick: 0,
 		}
-		const row = normalizeUniswapPool(entry)
-		assertExists(row.id)
-		assertEquals(row.chainId, 1)
-		assertEquals(row.sqrtPriceX96, 79228162514264337593543950336n)
-		assertEquals(row.liquidity, 1000000n)
+		const pool = normalizeUniswapPool(entry)
+		assertExists(pool.$id.id)
+		assertEquals(pool.$id.chainId, 1)
+		assertEquals(pool.sqrtPriceX96, 79228162514264337593543950336n)
+		assertEquals(pool.liquidity, 1000000n)
 	},
 )
 
 Deno.test('normalizeUniswapPool coerces string amounts to bigint', () => {
-	const row = normalizeUniswapPool({
+	const pool = normalizeUniswapPool({
 		id: '0x',
 		chainId: 1,
 		token0: '0x0' as `0x${string}`,
@@ -39,7 +38,7 @@ Deno.test('normalizeUniswapPool coerces string amounts to bigint', () => {
 		liquidity: '200' as unknown as bigint,
 		tick: 0,
 	})
-	assertEquals(row.sqrtPriceX96, 100n)
-	assertEquals(row.liquidity, 200n)
+	assertEquals(pool.sqrtPriceX96, 100n)
+	assertEquals(pool.liquidity, 200n)
 })
 

@@ -34,7 +34,7 @@
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const connectedConnections = $derived(
 		(connectionsQuery.data ?? [])
-			.map((r) => r.row)
+			.map(({ row }) => row)
 			.filter((c) => c.status === 'connected'),
 	)
 	const ownerChainPairs = $derived(
@@ -68,8 +68,8 @@
 	)
 	const positions = $derived(
 		(positionsQuery.data ?? [])
-			.map((r) => r.row)
-			.filter((row) => allActorsLower.has(row.owner.toLowerCase()))
+			.map(({ row }) => row)
+			.filter((position) => allActorsLower.has(position.owner.toLowerCase()))
 			.sort((a, b) => (a.chainId !== b.chainId ? a.chainId - b.chainId : a.id.localeCompare(b.id))),
 	)
 	// Components
@@ -85,19 +85,20 @@
 <main data-column data-sticky-container>
 	<h1>Liquidity</h1>
 	<p data-text="muted">Uniswap V4 positions for all connected accounts.</p>
+	<p><a href="/positions/liquidity/pools">Pools</a></p>
 
 	{#if positions.length === 0}
 		<p>No liquidity positions found. Connect wallets and add liquidity via Session → Add Liquidity.</p>
 	{:else}
 		<section class="position-list">
 			<ul data-column data-list="unstyled">
-				{#each positions as pos (pos.id)}
+				{#each positions as pos (pos.chainId + ':' + pos.id)}
 					{@const net = networksByChainId[pos.chainId]}
 					<li
 						data-card="padding-2 radius-4"
 						data-row="gap-3 align-center wrap"
 					>
-						<span class="position-id" title={pos.id}>{pos.id.slice(0, 10)}…</span>
+						<a href="/positions/liquidity/position/{pos.chainId}/{pos.id}" class="position-id" title={pos.id}>{pos.id.slice(0, 10)}…</a>
 						<span class="position-chain">{net?.name ?? pos.chainId}</span>
 						<Address actorId={{ $network: { chainId: pos.chainId }, address: pos.owner }} />
 						<a href="/account/{pos.owner}">Account</a>

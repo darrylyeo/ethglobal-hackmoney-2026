@@ -1,6 +1,7 @@
+export type UniswapPool$Id = { chainId: number; id: string }
+
 export type UniswapPool = {
-	id: string
-	chainId: number
+	$id: UniswapPool$Id
 	token0: `0x${string}`
 	token1: `0x${string}`
 	fee: number
@@ -9,5 +10,11 @@ export type UniswapPool = {
 	sqrtPriceX96: bigint
 	liquidity: bigint
 	tick: number
+	token0Symbol?: string
+	token1Symbol?: string
+	token0Decimals?: number
+	token1Decimals?: number
+	volumeUSD?: string | number
+	totalValueLockedUSD?: string | number
 }
 

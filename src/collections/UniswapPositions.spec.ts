@@ -1,12 +1,11 @@
 /// <reference lib='deno.ns' />
-import type { UniswapPosition } from '$/data/UniswapPosition.ts'
 import { normalizeUniswapPosition } from './UniswapPositionsNormalize.ts'
 import { assertEquals, assertExists } from 'jsr:@std/assert'
 
 Deno.test(
 	'normalizeUniswapPosition returns position with bigint liquidity and owed',
 	() => {
-		const entry: UniswapPosition = {
+		const entry = {
 			id: '1',
 			chainId: 1,
 			poolId: '0xpool',
@@ -17,10 +16,10 @@ Deno.test(
 			token0Owed: 0n,
 			token1Owed: 0n,
 		}
-		const row = normalizeUniswapPosition(entry)
-		assertExists(row.id)
-		assertEquals(row.liquidity, 5000n)
-		assertEquals(row.token0Owed, 0n)
-		assertEquals(row.token1Owed, 0n)
+		const position = normalizeUniswapPosition(entry)
+		assertExists(position.$id.id)
+		assertEquals(position.liquidity, 5000n)
+		assertEquals(position.token0Owed, 0n)
+		assertEquals(position.token1Owed, 0n)
 	},
 )
