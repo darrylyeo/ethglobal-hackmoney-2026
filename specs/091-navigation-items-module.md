@@ -6,11 +6,11 @@ All sidebar navigation data logic lives in `src/routes/navigationItems.svelte.ts
 
 - **Module:** `src/routes/navigationItems.svelte.ts`
   - **Pure:** `getNavigationItems(input: NavigationItemsInput): NavigationItem[]` – builds the full nav tree from a single input object (query results, defaultDashboardId, coinIcons, isTestnet).
-  - **Hook:** `useNavigationItems(options: { isTestnet: () => boolean }): NavigationItem[]` – runs all live queries (rooms, sessions, agentChatTrees, watchedEntities, recentTransactions, wallets, walletConnections, verifications, roomPeers, myPeerIds, dashboards, defaultDashboardRow), runs `$effect(ensureDefaultRow)`, calls `registerGlobalLiveQueryStack` with the same query list, and returns `$derived(getNavigationItems({ ... }))` so the layout gets a single reactive array.
+  - **Hook:** `useNavigationItems(options: { isTestnet: () => boolean }): NavigationItem[]` – runs all live queries (rooms, sessions, agentChatTrees, watchedEntities, recentTransactions, wallets, walletConnections, verifications, roomPeers, myPeerIds, dashboards, defaultDashboardRowQuery), runs `$effect(ensureDefaultRow)`, calls `registerGlobalLiveQueryStack` with the same query list, and returns `$derived(getNavigationItems({ ... }))` so the layout gets a single reactive array. Derived values use `defaultDashboardId` from the default dashboard row.
 - **Layout:** `+layout.svelte` only:
   - Calls `const navigationItems = useNavigationItems({ isTestnet: () => networkEnvironmentState.current === NetworkEnvironment.Testnet })`.
   - Passes `{ navigationItems }` to `<Navigation>` (which passes `items={navigationItems}` to `<NavigationItems>`).
-- **Watched entities:** The `watchedEntitiesCollection` is the **sole source** for entity children in nav. Raw rows are mapped through `deriveWatchedEntityRow` before `getNavigationItems`. Sessions, Accounts, Rooms, Agents, Coins, Networks—all derive their children from WatchedEntities. No hardcoded entity lists; defaults come from `DEFAULT_WATCHED_ENTITIES` seeded on profile creation (spec 084, 093).
+- **Watched entities:** The `watchedEntitiesCollection` is the **sole source** for entity children in nav. Stored items are mapped through `deriveWatchedEntity` before `getNavigationItems`. Sessions, Accounts, Rooms, Agents, Coins, Networks—all derive their children from WatchedEntities. No hardcoded entity lists; defaults come from `DEFAULT_WATCHED_ENTITIES` seeded on profile creation (spec 084, 093). Query result arrays are destructured with semantic names (e.g. `.map(({ row: wallet }) => [wallet.$id.rdns, wallet])`) when building keyed maps (spec 127).
 
 ## Output
 
@@ -28,7 +28,7 @@ All sidebar navigation data logic lives in `src/routes/navigationItems.svelte.ts
 - [x] `ensureDefaultRow` and `registerGlobalLiveQueryStack` run inside the hook.
 - [x] Layout derives navigation with one call: `useNavigationItems({ isTestnet })`.
 - [x] Layout passes a single `navigationItems` array to `<Navigation>`.
-- [x] Watched-entity rows are derived via `deriveWatchedEntityRow` before `getNavigationItems`.
+- [x] Watched-entity items are derived via `deriveWatchedEntity` before `getNavigationItems`.
 
 ## Status
 

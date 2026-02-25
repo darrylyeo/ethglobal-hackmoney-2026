@@ -80,9 +80,10 @@ Every external API that provides data to the UI or routes must be cached in a Ta
 | Token list URLs                    | `TokenListCoins.ts`                              | fetch → upsert                                    |
 | ethereum/EIPs, ethereum/ercs (GitHub) | `Proposals.ts`                               | queryFn / fetchProposalEntries → upsert          |
 | ChainAgnostic/CAIPs (GitHub)         | `Caips.ts`                                   | queryFn / fetchCaipEntries → upsert              |
-| spanDEX (getQuotes / getQuote)     | `SpandexQuoteItems.ts`                           | `fetchSpandexQuotes` (all; optional strategy sorts by bestPrice/fastest/estimatedGas) / `fetchSpandexQuoteForProvider` → upsert |
+| spanDEX (getQuotes / getQuote)     | `ProtocolAggregatorQuoteItems.ts`                 | `fetchSpandexQuotes` (all; optional strategy sorts by bestPrice/fastest/estimatedGas) / `fetchSpandexQuoteForProvider` → upsert |
 | spanDEX (best quote → swap quote)  | `SwapQuotes.ts`                                  | `fetchSpandexSwapQuote(strategy?)` → upsert (strategy from protocol tag) |
 | Uniswap (quote)                    | `SwapQuotes.ts`                                  | `fetchSwapQuote` → upsert                         |
+| Uniswap V4 Subgraph (The Graph)   | `UniswapPositions.ts`, `UniswapPools.ts`         | `fetchPositionsFromSubgraph` / `fetchPoolsFromSubgraph` (api) → `fetchUniswapPositions` / `fetchUniswapPoolsFromSubgraphAndUpsert` → upsert |
 | Transfers indexer / logs           | `TransferEvents.ts`                              | `fetchTransferEventsForPeriod` (api) → collection |
 | Identity (RPC / resolver)          | `IdentityLinks.ts`                               | fetch → upsert                                    |
 | Voltaire (ENS reverse + forward)   | `EvmActorProfiles.ts`                             | `fetchEvmActorProfile` → upsert                   |

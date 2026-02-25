@@ -97,14 +97,14 @@ Expand the Liquidity feature with concrete data sources for Uniswap V4 positions
 - **Entity type:** Already in EntityType. **UniswapPosition$Id:** e.g. `{ chainId: number; id: string }` where id = tokenId string; used in EntityIdByType and path helpers.
 - **List:** Existing `/positions/liquidity`; filter by connected actors. Enrich list rows with pool token symbols (join uniswapPoolsCollection by poolId, or denormalize onto position when we have poolId).
 - **Detail:** Route `/positions/liquidity/position/[id]/+page.svelte` (id = tokenId). Load position from collection (key = composite chainId+id or by id if unique across chains). Render `<EntityView entityType={EntityType.UniswapPosition}>` with **UniswapPosition.svelte**: pool link, owner, tick range, liquidity, token0/token1 owed, actions (Collect, Remove, Increase) when wallet connected and is owner. Optionally trigger on-chain enrichment when opening detail if poolId/tick/liquidity missing.
-- **View:** `src/views/UniswapPosition.svelte` — props `entry: UniswapPosition`; show pool (link to pool detail), network, tick range, liquidity, fees owed; action buttons when applicable.
+- **View:** `src/views/UniswapPosition.svelte` — props `position: UniswapPosition`; show pool (link to pool detail), network, tick range, liquidity, fees owed; action buttons when applicable (spec 127).
 
 ### UniswapPool
 
 - **Entity type:** Already in EntityType. **UniswapPool$Id:** `{ chainId: number; id: string }` (id = PoolId hex).
 - **List:** Route `/positions/liquidity/pools` — live query on `uniswapPoolsCollection`, filter by chain; Sorts (liquidity, volume). Trigger `fetchPoolsFromSubgraph(chainId)` when page loads or chain changes.
 - **Detail:** Route `/positions/liquidity/pool/[id]/+page.svelte`. Load pool from collection; render `<EntityView entityType={EntityType.UniswapPool}>` with **UniswapPool.svelte**: token0/token1 (symbols, addresses, links to coin/contract), fee tier, tick, liquidity, volumeUSD, totalValueLockedUSD; optional list of positions in pool later.
-- **View:** `src/views/UniswapPool.svelte` — props `entry: UniswapPool`; token pair, fee, sqrtPrice/liquidity/tick, TVL/volume if present.
+- **View:** `src/views/UniswapPool.svelte` — props `pool: UniswapPool`; token pair, fee, sqrtPrice/liquidity/tick, TVL/volume if present (spec 127).
 
 ### Navigation
 

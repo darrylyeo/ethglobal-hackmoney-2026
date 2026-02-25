@@ -79,8 +79,8 @@ Evm selector and Evm topic lookups are served by 4byte.sourcify.dev and 4byte.di
 
 ### Watched-entity derivation
 
-- **`deriveWatchedEntityRow`**: Cases `EntityType.EvmSelector` and `EntityType.EvmTopic`. Label = `entityId.hex`; href = `getEvmSelectorPath(hex)` / `getEvmTopicPath(hex)`.
-- **Watched nav items**: `watchedEvmSelectorRows` and `watchedEvmTopicRows` from `watchedByType`; mapped to nav items with `id`, `title` (label), `href`, `icon`, `manualWatch: true`; set as children of Evm selectors / Evm topics in Tools.
+- **`deriveWatchedEntity`**: Cases `EntityType.EvmSelector` and `EntityType.EvmTopic`. Label = `entityId.hex`; href = `getEvmSelectorPath(hex)` / `getEvmTopicPath(hex)`.
+- **Watched nav items**: `watchedEvmSelectors` and `watchedEvmTopics` from `watchedByType`; mapped to nav items with `id`, `title` (label), `href`, `icon`, `manualWatch: true`; set as children of Evm selectors / Evm topics in Tools (spec 127).
 - **Layout**: When `watchedTypes.has(EntityType.EvmSelector)` or `has(EntityType.EvmTopic)`, register `evmSelectorsQuery` / `evmTopicsQuery` in the global live-query stack so those collections are subscribed.
 
 ### Callers (no backcompat barrel)
@@ -93,7 +93,7 @@ Evm selector and Evm topic lookups are served by 4byte.sourcify.dev and 4byte.di
 - [x] Landing at `/evm`; list routes at `/evm/selectors`, `/evm/topics`, `/evm/errors` with live query and Sorts; detail routes at `/evm/selector/[hex]`, `/evm/topic/[hex]`, `/evm/error/[hex]` (singular segment).
 - [x] Detail pages ensure row via collection API and render EntityView with EvmSelector / EvmTopic view component.
 - [x] Tools nav: EVM Signatures parent with Evm selectors and Evm topics (with watched children); Calldata decoder sibling.
-- [x] `deriveWatchedEntityRow` handles EvmSelector and EvmTopic; watched entities appear as children under Evm selectors / Evm topics in nav.
+- [x] `deriveWatchedEntity` handles EvmSelector and EvmTopic; watched entities appear as children under Evm selectors / Evm topics in nav.
 - [x] Path helpers and collection/ensure functions use evm-prefixed names; no SelectorSignatures barrel.
 
 ## Status
