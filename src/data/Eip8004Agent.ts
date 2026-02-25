@@ -8,14 +8,21 @@ export type Eip8004Agent$Id = {
 	identityId: string
 }
 
+export type Eip8004AgentService = {
+	type: string
+	url?: string
+	name?: string
+}
+
 export type Eip8004Agent = {
-	identityId: string
-	chainId: number
+	$id: Eip8004Agent$Id
 	contractAddress: `0x${string}`
 	registrationUri: string
 	name?: string
 	description?: string
+	image?: string
 	contactEndpoint?: string
+	services?: Eip8004AgentService[]
 	fetchedAt: number
 }
 

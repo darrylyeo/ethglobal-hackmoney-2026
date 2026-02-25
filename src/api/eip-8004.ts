@@ -7,7 +7,7 @@
 import type { VoltaireProvider } from '$/api/voltaire.ts'
 import { createProviderForChain } from '$/lib/helios-rpc.ts'
 import type { Eip8004Agent, Eip8004Agent$Id } from '$/data/Eip8004Agent.ts'
-import { eip8004RegistryConfigs } from '$/constants/eip8004-registry.ts'
+import { eip8004RegistryConfigs } from '$/constants/eip-8004-registry.ts'
 import { Abi, decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
 import { fromBytes as hexFromBytes, toBytes } from '@tevm/voltaire/Hex'
 
@@ -102,18 +102,37 @@ async function fetchAgentUri(
 export type RegistrationDocument = {
 	name?: string
 	description?: string
+	image?: string
 	contactEndpoint?: string
+	services?: Array<{ type: string; url?: string; name?: string }>
 }
 
 const IPFS_GATEWAY = 'https://ipfs.io/ipfs/'
 
-function ipfsUriToHttp(uri: string): string {
+export function ipfsUriToHttp(uri: string): string {
 	const trimmed = uri.trim()
 	if (trimmed.startsWith('ipfs://'))
 		return `${IPFS_GATEWAY}${trimmed.slice(7)}`
 	if (trimmed.startsWith('https://') || trimmed.startsWith('http://'))
 		return trimmed
 	return `${IPFS_GATEWAY}${trimmed}`
+}
+
+function parseServices(raw: unknown): Array<{ type: string; url?: string; name?: string }> | undefined {
+	if (!Array.isArray(raw)) return undefined
+	return raw
+		.map((item) => {
+			if (item == null || typeof item !== 'object') return null
+			const o = item as Record<string, unknown>
+			const type = typeof o.type === 'string' ? o.type : undefined
+			if (!type) return null
+			return {
+				type,
+				url: typeof o.url === 'string' ? o.url : undefined,
+				name: typeof o.name === 'string' ? o.name : undefined,
+			}
+		})
+		.filter((x): x is { type: string; url?: string; name?: string } => x !== null)
 }
 
 export async function fetchRegistrationDocument(
@@ -128,12 +147,14 @@ export async function fetchRegistrationDocument(
 			name: typeof json.name === 'string' ? json.name : undefined,
 			description:
 				typeof json.description === 'string' ? json.description : undefined,
+			image: typeof json.image === 'string' ? json.image : undefined,
 			contactEndpoint:
 				typeof json.contactEndpoint === 'string'
 					? json.contactEndpoint
 					: typeof json.contact === 'string'
 						? json.contact
 						: undefined,
+			services: parseServices(json.services ?? json.endpoints),
 		}
 	} catch {
 		return null
@@ -162,13 +183,14 @@ export async function fetchEip8004Agents(): Promise<Eip8004Agent[]> {
 			)
 			const doc = uri ? await fetchRegistrationDocument(uri) : null
 			results.push({
-				identityId,
-				chainId: $network.chainId,
+				$id: { chainId: $network.chainId, identityId },
 				contractAddress: address,
 				registrationUri: uri ?? '',
 				name: doc?.name,
 				description: doc?.description,
+				image: doc?.image,
 				contactEndpoint: doc?.contactEndpoint,
+				services: doc?.services,
 				fetchedAt: now,
 			})
 		}
@@ -191,13 +213,14 @@ export async function fetchEip8004Agent(
 	)
 	const doc = uri ? await fetchRegistrationDocument(uri) : null
 	return {
-		identityId: id.identityId,
-		chainId: id.chainId,
+		$id: id,
 		contractAddress: config.contract.address,
 		registrationUri: uri ?? '',
 		name: doc?.name,
 		description: doc?.description,
+		image: doc?.image,
 		contactEndpoint: doc?.contactEndpoint,
+		services: doc?.services,
 		fetchedAt: Date.now(),
 	}
 }

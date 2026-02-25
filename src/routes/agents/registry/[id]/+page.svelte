@@ -6,8 +6,9 @@
 		eip8004AgentIdFromString,
 		eip8004AgentIdToString,
 	} from '$/data/Eip8004Agent.ts'
-	import { fetchEip8004Agent } from '$/api/eip8004.ts'
+	import { fetchEip8004Agent } from '$/api/eip-8004.ts'
 	import { eip8004AgentsCollection } from '$/collections/Eip8004Agents.ts'
+	import { networksByChainId } from '$/constants/networks.ts'
 
 	// Context
 	import { page } from '$app/state'
@@ -46,13 +47,16 @@
 	})
 
 	const label = $derived(
-		agent ? (agent.name ?? agent.identityId) : idParam || 'Agent',
+		agent ? (agent.name ?? agent.$id.identityId) : idParam || 'Agent',
 	)
 	const metadata = $derived(
 		agent
 			? [
-					{ term: 'Identity', detail: agent.identityId },
-					{ term: 'Chain', detail: String(agent.chainId) },
+					{ term: 'Identity', detail: agent.$id.identityId },
+					{
+						term: 'Chain',
+						detail: networksByChainId[agent.$id.chainId]?.name ?? String(agent.$id.chainId),
+					},
 					...(agent.contactEndpoint
 						? [{ term: 'Contact', detail: agent.contactEndpoint }]
 						: []),
@@ -67,7 +71,7 @@
 
 <svelte:head>
 	<title>
-		{agent ? (agent.name ?? agent.identityId) : 'Agent'}
+		{agent ? (agent.name ?? agent.$id.identityId) : 'Agent'}
 		– EIP-8004 registry
 	</title>
 </svelte:head>
@@ -83,9 +87,7 @@
 		<EntityView
 			entityType={EntityType.Eip8004Agent}
 			entity={agent}
-			entityId={{ chainId: agent.chainId, identityId: agent.identityId }}
-			idSerialized={key!}
-			href={resolve(`/agents/registry/${encodeURIComponent(idParam)}`)}
+			titleHref={resolve(`/agents/registry/${encodeURIComponent(idParam)}`)}
 			{label}
 			{metadata}
 		>

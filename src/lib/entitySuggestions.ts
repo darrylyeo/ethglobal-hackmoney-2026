@@ -11,32 +11,25 @@ import { stringify } from 'devalue'
 
 export type EntitySuggestion = { ref: EntityRef, label: string }
 
-const agentToSuggestion = (row: {
-	chainId: number
-	identityId: string
-	name?: string
-}): EntitySuggestion => {
-	const id = eip8004AgentIdToString({
-		chainId: row.chainId,
-		identityId: row.identityId,
-	})
+const agentToSuggestion = (row: { $id: { chainId: number; identityId: string }; name?: string }): EntitySuggestion => {
+	const id = eip8004AgentIdToString(row.$id)
 	return {
 		ref: {
 			entityType: EntityType.Eip8004Agent,
 			entityId: id,
-			displayLabel: `@Agent:${row.identityId}`,
+			displayLabel: `@Agent:${row.$id.identityId}`,
 		},
-		label: row.name ?? row.identityId,
+		label: row.name ?? row.$id.identityId,
 	}
 }
 
-const agentChatTurnToSuggestion = (turn: { id: string, userPrompt: string }): EntitySuggestion => ({
+const agentChatTurnToSuggestion = (turn: { $id: string; userPrompt: string }): EntitySuggestion => ({
 	ref: {
 		entityType: EntityType.AgentChatTurn,
-		entityId: turn.id,
-		displayLabel: `@${turn.id}`,
+		entityId: turn.$id,
+		displayLabel: `@${turn.$id}`,
 	},
-	label: turn.userPrompt.slice(0, 40) || turn.id,
+	label: turn.userPrompt.slice(0, 40) || turn.$id,
 })
 
 const actorToSuggestion = (row: { $id: { $network: { chainId: number }, address: `0x${string}` } }): EntitySuggestion => {
@@ -79,20 +72,20 @@ export function getEntitySuggestionsFromCache(query: string): EntitySuggestion[]
 	const q = query.trim().toLowerCase()
 	const results: EntitySuggestion[] = []
 
-	for (const row of eip8004AgentsCollection.state.values())
-		results.push(agentToSuggestion(row))
+	for (const agent of eip8004AgentsCollection.state.values())
+		results.push(agentToSuggestion(agent))
 
 	for (const turn of agentChatTurnsCollection.state.values())
 		results.push(agentChatTurnToSuggestion(turn))
 
-	for (const row of actorsCollection.state.values())
-		results.push(actorToSuggestion(row))
+	for (const actor of actorsCollection.state.values())
+		results.push(actorToSuggestion(actor))
 
-	for (const row of blocksCollection.state.values())
-		results.push(blockToSuggestion(row))
+	for (const block of blocksCollection.state.values())
+		results.push(blockToSuggestion(block))
 
-	for (const row of bridgeTransactionsCollection.state.values())
-		results.push(txToSuggestion(row))
+	for (const tx of bridgeTransactionsCollection.state.values())
+		results.push(txToSuggestion(tx))
 
 	if (q === '') return results.slice(0, 50)
 	return results
