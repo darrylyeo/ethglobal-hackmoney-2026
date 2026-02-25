@@ -5,92 +5,86 @@
 import { CollectionId } from '$/constants/collections.ts'
 import { DEFAULT_WATCHED_ENTITIES } from '$/constants/default-watched-entities.ts'
 import { EntityType, type EntityId } from '$/data/$EntityType.ts'
+import { entityKey } from '$/lib/entity-key.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 
+export const watchedEntityKey = entityKey
 const encodeStorageKey = (key: string) => `s:${key}`
 
-export type WatchedEntityStoredRow = {
+export type WatchedEntityStored = {
 	entityType: EntityType
 	entityId: EntityId
 	addedAt: number
 }
 
-export type WatchedEntityRow = WatchedEntityStoredRow & {
+export type WatchedEntity = WatchedEntityStored & {
 	id: string
 	label: string
 	href: string
 }
 
-export const watchedEntityKey = (row: {
-	entityType: EntityType
-	entityId: string | EntityId
-}) =>
-	`${row.entityType}:${
-		typeof row.entityId === 'string' ? row.entityId : stringify(row.entityId)
-	}`
-
 export const watchedEntitiesCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.WatchedEntities,
 		storageKey: CollectionId.WatchedEntities,
-		getKey: (row: WatchedEntityStoredRow) =>
-			watchedEntityKey({
-				entityType: row.entityType,
-				entityId: row.entityId,
+		getKey: (item: WatchedEntityStored) =>
+			entityKey({
+				entityType: item.entityType,
+				entityId: item.entityId,
 			}),
 		parser: { stringify, parse },
 	}),
 )
 
-export const watchEntity = (row: {
+export const watchEntity = (entity: {
 	entityType: EntityType
 	entityId: EntityId
 }) => {
-	const key = watchedEntityKey(row)
+	const key = entityKey(entity)
 	const existing = watchedEntitiesCollection.state.get(key) as
-		| WatchedEntityStoredRow
+		| WatchedEntityStored
 		| undefined
 	const now = Date.now()
 	if (existing) {
 		watchedEntitiesCollection.update(key, (draft) => {
-			;(draft as WatchedEntityStoredRow).addedAt = now
+			;(draft as WatchedEntityStored).addedAt = now
 		})
 		return
 	}
 	watchedEntitiesCollection.insert({
-		...row,
+		...entity,
 		addedAt: now,
 	})
 }
 
 export const unwatchEntity = (entityType: EntityType, entityId: EntityId) => {
-	watchedEntitiesCollection.delete(watchedEntityKey({ entityType, entityId }))
+	watchedEntitiesCollection.delete(entityKey({ entityType, entityId }))
 }
 
 export const isEntityWatched = (entityType: EntityType, entityId: EntityId) =>
 	watchedEntitiesCollection.state.has(
-		watchedEntityKey({ entityType, entityId }),
+		entityKey({ entityType, entityId }),
 	)
 
 export const seedDefaultWatchedEntities = () => {
-	for (const row of DEFAULT_WATCHED_ENTITIES) watchEntity(row)
+	for (const entity of DEFAULT_WATCHED_ENTITIES) watchEntity(entity)
 }
 
 export const defaultWatchedEntitiesBlob = (): string => {
 	const now = Date.now()
 	const obj: Record<
 		string,
-		{ versionKey: string; data: WatchedEntityStoredRow }
+		{ versionKey: string; data: WatchedEntityStored }
 	> = {}
-	for (const row of DEFAULT_WATCHED_ENTITIES) {
-		const key = encodeStorageKey(watchedEntityKey(row))
+	for (const entity of DEFAULT_WATCHED_ENTITIES) {
+		const key = encodeStorageKey(entityKey(entity))
 		obj[key] = {
 			versionKey: crypto.randomUUID(),
-			data: { ...row, addedAt: now },
+			data: { ...entity, addedAt: now },
 		}
 	}
 	return stringify(obj)

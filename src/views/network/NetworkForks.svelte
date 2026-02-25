@@ -3,6 +3,7 @@
 	import type { Fork } from '$/constants/forks/types.ts'
 	import type { ProposalEntry } from '$/data/ProposalEntry.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+import { entityKey } from '$/lib/entity-key.ts'
 	import { EntityLayout } from '$/components/EntityView.svelte'
 	import { proposalsCollection } from '$/collections/Proposals.ts'
 	import { forksByChainId } from '$/constants/forks/index.ts'
@@ -49,8 +50,8 @@
 	const entriesByNumber = $derived(
 		new Map<number, ProposalEntry>(
 			(proposalsQuery.data ?? []).map((r) => {
-				const row = r.row as ProposalEntry
-				return [row.number, row]
+				const proposal = r.row as ProposalEntry
+				return [proposal.number, proposal]
 			}),
 		),
 	)
@@ -108,7 +109,7 @@
 	scrollPosition="Start"
 >
 	{#snippet Item({ key, item, isPlaceholder })}
-		<span id="NetworkFork:{key}">
+		<span>
 			{#if isPlaceholder}
 				<code>{key} (loading…)</code>
 			{:else if item}
@@ -116,8 +117,7 @@
 				<EntityView
 					entityType={EntityType.NetworkFork}
 					entity={item}
-					idSerialized={key}
-					href={`${forksBase}#NetworkFork:${key}`}
+					titleHref={`${forksBase}#${entityKey(EntityType.NetworkFork, item)}`}
 					label={item.name}
 					layout={EntityLayout.PageSection}
 					metadata={activation ? [{ term: 'Activation', detail: activation }] : []}

@@ -3,9 +3,9 @@
  * if a row is in the watched set (default scope) or expanded (full collection).
  */
 
-import { watchedEntityKey } from '$/collections/WatchedEntities.ts'
+import type { WatchedEntityStored } from '$/collections/WatchedEntities.ts'
 import { EntityType } from '$/data/$EntityType.ts'
-import type { WatchedEntityStoredRow } from '$/collections/WatchedEntities.ts'
+import { entityKey } from '$/lib/entity-key.ts'
 
 export type WatchedKeysByType = Map<EntityType, Set<string>>
 
@@ -13,22 +13,22 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
 	typeof v === 'object' && v !== null
 
 const toKey = (entityType: EntityType, entityId: unknown) =>
-	watchedEntityKey({
+	entityKey({
 		entityType,
 		entityId:
 			typeof entityId === 'string' ? entityId : (entityId as object),
 	})
 
 export function buildWatchedKeys(
-	watchedRows: { row: WatchedEntityStoredRow }[],
+	watched: { row: WatchedEntityStored }[],
 	recentTxHashes?: string[],
 ): WatchedKeysByType {
 	const byType = new Map<EntityType, Set<string>>()
-	for (const { row } of watchedRows) {
-		const key = watchedEntityKey(row)
-		const set = byType.get(row.entityType) ?? new Set()
+	for (const { row: item } of watched) {
+		const key = entityKey(item)
+		const set = byType.get(item.entityType) ?? new Set()
 		set.add(key)
-		byType.set(row.entityType, set)
+		byType.set(item.entityType, set)
 	}
 	if (recentTxHashes?.length) {
 		const set = byType.get(EntityType.Transaction) ?? new Set()
@@ -39,11 +39,11 @@ export function buildWatchedKeys(
 	return byType
 }
 
-function rowToWatchedKey(
+function entityToWatchedKey(
 	entityType: EntityType,
-	row: Record<string, unknown>,
+	item: Record<string, unknown>,
 ): string | null {
-	const $id = row.$id
+	const $id = item.$id
 	if ($id == null) return null
 	const idRec = isRecord($id) ? $id : null
 	if (!idRec) return null
@@ -65,7 +65,7 @@ function rowToWatchedKey(
 		entityType === EntityType.SocialPostSession ||
 		entityType === EntityType.TransferRequest
 	) {
-		const id = row.id ?? idRec.id
+		const id = item.id ?? idRec.id
 		return typeof id === 'string' ? toKey(entityType, { id }) : null
 	}
 	if (entityType === EntityType.Network) {
@@ -73,7 +73,7 @@ function rowToWatchedKey(
 		return typeof chainId === 'number' ? toKey(entityType, { chainId }) : null
 	}
 	if (entityType === EntityType.Transaction) {
-		const sourceTxHash = idRec.sourceTxHash ?? row.sourceTxHash
+		const sourceTxHash = idRec.sourceTxHash ?? item.sourceTxHash
 		return typeof sourceTxHash === 'string'
 			? toKey(entityType, { sourceTxHash })
 			: null
@@ -94,8 +94,8 @@ function rowToWatchedKey(
 	return null
 }
 
-function actorIdFromRow(row: Record<string, unknown>): unknown {
-	const $id = row.$id
+function actorIdFrom(item: Record<string, unknown>): unknown {
+	const $id = item.$id
 	if (!isRecord($id)) return null
 	if ('$actor' in $id && isRecord($id.$actor)) return $id.$actor
 	if ('$actorCoin' in $id && isRecord($id.$actorCoin)) {
@@ -106,21 +106,21 @@ function actorIdFromRow(row: Record<string, unknown>): unknown {
 	return null
 }
 
-export function isRowInWatchedScope(
+export function isInWatchedScope(
 	entityType: EntityType,
-	row: Record<string, unknown>,
+	item: Record<string, unknown>,
 	watchedKeys: WatchedKeysByType,
 ): boolean {
-	const rowKey = rowToWatchedKey(entityType, row)
-	if (rowKey && watchedKeys.get(entityType)?.has(rowKey)) return true
+	const key = entityToWatchedKey(entityType, item)
+	if (key && watchedKeys.get(entityType)?.has(key)) return true
 	if (
 		entityType === EntityType.ActorCoin ||
 		entityType === EntityType.ActorAllowance
 	) {
-		const actorId = actorIdFromRow(row)
+		const actorId = actorIdFrom(item)
 		if (actorId != null) {
-			const key = toKey(EntityType.Actor, actorId)
-			if (watchedKeys.get(EntityType.Actor)?.has(key)) return true
+			const actorKey = toKey(EntityType.Actor, actorId)
+			if (watchedKeys.get(EntityType.Actor)?.has(actorKey)) return true
 		}
 	}
 	if (
@@ -130,9 +130,9 @@ export function isRowInWatchedScope(
 		entityType === EntityType.TransferRequest
 	) {
 		const roomId =
-			row.roomId ??
-			(isRecord(row.$id)
-				? (row.$id as Record<string, unknown>).roomId
+			item.roomId ??
+			(isRecord(item.$id)
+				? (item.$id as Record<string, unknown>).roomId
 				: undefined)
 		if (
 			typeof roomId === 'string' &&
@@ -141,7 +141,7 @@ export function isRowInWatchedScope(
 			return true
 	}
 	if (entityType === EntityType.SessionSimulation) {
-		const sessionId = row.sessionId
+		const sessionId = item.sessionId
 		if (
 			typeof sessionId === 'string' &&
 			watchedKeys.get(EntityType.Session)?.has(
@@ -152,3 +152,5 @@ export function isRowInWatchedScope(
 	}
 	return false
 }
+
+export const isRowInWatchedScope = isInWatchedScope

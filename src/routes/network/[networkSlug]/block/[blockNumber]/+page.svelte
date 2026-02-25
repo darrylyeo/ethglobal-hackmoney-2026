@@ -6,6 +6,7 @@
 	import { fetchBlock, blocksCollection, ensureLatestBlockForChain } from '$/collections/Blocks.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+import { entityKey } from '$/lib/entity-key.ts'
 	import { getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
@@ -74,6 +75,9 @@
 	])
 
 	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
+	const blockId = $derived(
+		block?.$id ?? { $network: { chainId }, blockNumber: blockNum },
+	)
 	const latestBlockNumber = $derived(
 		Number(latestBlockQuery.data?.[0] ?? 0),
 	)
@@ -120,13 +124,10 @@
 	{:else}
 		<EntityView
 			entityType={EntityType.Block}
-			entityId={{
-				$network: { chainId },
-				blockNumber: blockNum,
-			}}
-			idSerialized={`${chainId}:${blockNum}`}
-			href={resolve(`/network/${chainId}/block/${blockNumParam}`)}
+			entity={block ?? undefined}
+			titleHref={resolve(`/network/${chainId}/block/${blockNumParam}`)}
 			label={`Block ${blockNum} · ${networkName}`}
+			{...(block ? {} : { entityId: blockId })}
 		>
 			{#snippet Title()}
 				<span data-row="inline">
@@ -136,7 +137,7 @@
 			{/snippet}
 			{#snippet children()}
 				<p>
-					<a href={resolve(`/network/${chainId}#block:${blockNum}`)} data-link>Show Context</a>
+					<a href={resolve(`/network/${chainId}#${entityKey({ entityType: EntityType.Block, entityId: blockId })}`)} data-link>Show Context</a>
 				</p>
 				{#if block}
 					<Block

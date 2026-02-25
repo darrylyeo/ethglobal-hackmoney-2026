@@ -3,9 +3,14 @@
  */
 
 import { castUrl } from '$/constants/farcaster.ts'
+import { EntityType } from '$/data/$EntityType.ts'
+import { entityKey } from '$/lib/entity-key.ts'
 
 export const castAnchorId = (fid: number, hash: `0x${string}`) =>
-	`cast:${fid}:${hash}`
+	entityKey({
+		entityType: EntityType.FarcasterCast,
+		entityId: { fid, hash },
+	})
 
 export const getCastUrl = (fid: number, hash: `0x${string}`) => castUrl(fid, hash)
 

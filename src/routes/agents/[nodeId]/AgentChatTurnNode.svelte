@@ -3,6 +3,8 @@
 	import type { LlmConnectionRow } from '$/collections/LlmConnections.ts'
 	import type { AgentChatTree } from '$/data/AgentChatTree.ts'
 	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { entityKey } from '$/lib/entity-key.ts'
 
 
 	// Context
@@ -29,7 +31,7 @@
 
 	// (Derived)
 	const children = $derived(
-		allTurns.filter((t) => t.parentId === turn.id),
+		allTurns.filter((t) => t.parentId === turn.$id),
 	)
 
 	type TabItem =
@@ -60,13 +62,16 @@
 	} from '$/lib/agentChat.ts'
 	import { goto } from '$app/navigation'
 
+	const turnHash = (id: string) =>
+		'#' + entityKey({ entityType: EntityType.AgentChatTurn, entityId: id })
+
 	const handleDelete = () => {
-		const ids = collectAgentChatTurnDescendantIds(turn.id, allTurns)
+		const ids = collectAgentChatTurnDescendantIds(turn.$id, allTurns)
 		const currentHash = page.url.hash
-		const hashWasDeleted = [...ids].some((id) => currentHash === `#turn:${id}`)
-		deleteAgentChatTurn(turn.id, allTurns)
+		const hashWasDeleted = [...ids].some((id) => currentHash === turnHash(id))
+		deleteAgentChatTurn(turn.$id, allTurns)
 		if (hashWasDeleted && turn.parentId)
-			goto(`${page.url.pathname}#turn:${turn.parentId}`, { replaceState: true })
+			goto(`${page.url.pathname}${turnHash(turn.parentId)}`, { replaceState: true })
 		else if (hashWasDeleted)
 			goto(page.url.pathname, { replaceState: true })
 	}
@@ -80,8 +85,8 @@
 	const handleSubmit = async (value: string, entityRefs: import('$/data/EntityRef.ts').EntityRef[]) => {
 		const [connectionId, modelId] = parseModelValue(modelValue)
 		const turnId = await submitAgentChatTurn({
-			treeId: tree.id,
-			parentId: turn.id,
+			treeId: tree.$id.id,
+			parentId: turn.$id,
 			userPrompt: value,
 			entityRefs,
 			systemPrompt: tree.systemPrompt,
@@ -90,7 +95,7 @@
 			requestUserInteraction,
 			toolsForChat: toolsForChat ?? undefined,
 		})
-		goto(`${page.url.pathname}#turn:${turnId}`, { replaceState: true })
+		goto(`${page.url.pathname}${turnHash(turnId)}`, { replaceState: true })
 	}
 
 
@@ -99,15 +104,16 @@
 	let modelValue = $state('')
 	let activeTab = $state('')
 
-	const isTarget = $derived(page.url.hash === `#turn:${turn.id}`)
+	const turnHashPrefix = '#' + EntityType.AgentChatTurn + ':'
+	const isTarget = $derived(page.url.hash === turnHash(turn.$id))
 
 	$effect(() => {
 		if (!useTabs) return
 		const hash = page.url.hash
-		if (hash === `#turn:${turn.id}` && showPromptForm)
+		if (hash === turnHash(turn.$id) && showPromptForm)
 			activeTab = 'reply'
-		else if (hash?.startsWith('#turn:')) {
-			const turnId = hash.slice(6)
+		else if (hash?.startsWith(turnHashPrefix)) {
+			const turnId = hash.slice(turnHashPrefix.length)
 			if (tabItems.some((t) => t.id === turnId))
 				activeTab = turnId
 		}
@@ -129,7 +135,7 @@
 	// Actions
 	const handleRetry = () => {
 		retryAgentChatTurn({
-			turnId: turn.id,
+			turnId: turn.$id,
 			allTurns,
 			systemPrompt: tree.systemPrompt,
 		})
@@ -151,12 +157,12 @@
 
 <section
 	data-column
-	id="turn:{turn.id}"
+	id="turn:{turn.$id}"
 	class="turn-card status-{turn.status}"
 >
 	{#if (turn.status === 'complete' || turn.status === 'error') && !showPromptForm}
 		<a
-			href="#turn:{turn.id}"
+			href="#turn:{turn.$id}"
 			class="turn-card-reply"
 		><span class="sr-only">Reply</span></a>
 	{/if}

@@ -2,6 +2,7 @@
 	// Types/constants
 	import type { AgentChatTree as AgentChatTreeData } from '$/data/AgentChatTree.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+	import { entityKey } from '$/lib/entity-key.ts'
 
 
 	
@@ -28,7 +29,7 @@
 		(q) =>
 			q
 				.from({ row: agentChatTreesCollection })
-				.where(({ row }) => eq(row.id, nodeId))
+				.where(({ row }) => eq(row.$id.id, nodeId))
 				.select(({ row }) => ({ row })),
 		[],
 	)
@@ -37,24 +38,22 @@
 		(q) =>
 			q
 				.from({ row: agentChatTurnsCollection })
-				.where(({ row }) => eq(row.id, nodeId))
+				.where(({ row }) => eq(row.$id, nodeId))
 				.select(({ row }) => ({ row })),
 		[],
 	)
 
 	const resolvedTreeId = $derived(
-		treeByIdQuery.data?.[0]?.row.id
-			?? turnByIdQuery.data?.[0]?.row.treeId
-			?? null,
+		treeByIdQuery.data?.[0]?.row?.$id.id ?? turnByIdQuery.data?.[0]?.row?.treeId ?? null,
 	)
 
 	const treeQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ row: agentChatTreesCollection })
-				.where(({ row }) => eq(row.id, resolvedTreeId ?? ''))
+				.where(({ row }) => eq(row.$id.id, resolvedTreeId ?? ''))
 				.select(({ row }) => ({ row })),
-		[],
+		[() => resolvedTreeId],
 	)
 
 	const turnsQuery = useLiveQuery(
@@ -63,16 +62,14 @@
 				.from({ row: agentChatTurnsCollection })
 				.where(({ row }) => eq(row.treeId, resolvedTreeId ?? ''))
 				.select(({ row }) => ({ row })),
-		[],
+		[() => resolvedTreeId],
 	)
 
-	const tree = $derived<AgentChatTreeData | null>(
-		treeQuery.data?.[0]?.row ?? null,
+	const tree = $derived(
+		(treeQuery.data?.[0]?.row as AgentChatTreeData | undefined) ?? null,
 	)
 
-	const turns = $derived(
-		(turnsQuery.data ?? []).map((result) => result.row),
-	)
+	const turns = $derived((turnsQuery.data ?? []).map(({ row: turn }) => turn))
 
 	const llmConnectionsQuery = useLiveQuery((q) =>
 		q
@@ -80,7 +77,7 @@
 			.select(({ row }) => ({ row })),
 	)
 	const llmConnectionsRaw = $derived(
-		(llmConnectionsQuery.data ?? []).map((r) => r.row),
+		(llmConnectionsQuery.data ?? []).map(({ row: connection }) => connection).filter(Boolean),
 	)
 	const hasZenConnection = $derived(
 		llmConnectionsRaw.some((c) => c.provider === 'zen'),
@@ -111,10 +108,10 @@
 	import { createAgentChatTree, submitAgentChatTurn } from '$/lib/agentChat.ts'
 
 	const handleFirstPrompt = async (value: string, entityRefs: import('$/data/EntityRef.ts').EntityRef[]) => {
-		const effectiveTree = tree ?? createAgentChatTree({ id: nodeId })
+		const effectiveTree = tree ?? createAgentChatTree({ $id: { id: nodeId } })
 		const [connectionId, modelId] = parseModelValue(modelValue)
 		const turnId = await submitAgentChatTurn({
-			treeId: effectiveTree.id,
+			treeId: effectiveTree.$id.id,
 			parentId: null,
 			userPrompt: value,
 			entityRefs,
@@ -124,7 +121,13 @@
 			requestUserInteraction,
 			toolsForChat: toolsForChat ?? undefined,
 		})
-		goto(`/agents/${effectiveTree.id}#turn:${turnId}`, { replaceState: true })
+		goto(
+			`/agents/${effectiveTree.$id.id}#${entityKey({
+				entityType: EntityType.AgentChatTurn,
+				entityId: turnId,
+			})}`,
+			{ replaceState: true },
+		)
 	}
 
 
@@ -165,8 +168,8 @@
 		{:else}
 			<EntityView
 				entityType={EntityType.AgentChatTree}
-				idSerialized={tree.id}
-				href={resolve(`/agents/${tree.id}`)}
+				entity={tree}
+				titleHref={resolve(`/agents/${tree.$id.id}`)}
 				label={tree.name ?? 'New conversation'}
 				annotation="Conversation"
 			>
@@ -193,7 +196,7 @@
 		<EntityView
 			entityType={EntityType.AgentChatTree}
 			idSerialized={nodeId}
-			href={resolve(`/agents/${nodeId}`)}
+			titleHref={resolve(`/agents/${nodeId}`)}
 			label="New conversation"
 			annotation="Conversation"
 		>

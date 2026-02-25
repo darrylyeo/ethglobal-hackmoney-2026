@@ -16,6 +16,7 @@
 		normalizeTxHash,
 	} from '$/collections/NetworkTransactions.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+import { entityKey } from '$/lib/entity-key.ts'
 	import { EntityLayout } from '$/components/EntityView.svelte'
 	import EntityView from '$/components/EntityView.svelte'
 	import EvmTransactionId from '$/views/EvmTransactionId.svelte'
@@ -112,6 +113,9 @@
 	])
 
 	const tx = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
+	const txId = $derived(
+		tx?.$id ?? { $network: { chainId }, txHash: txHash ?? ('0x' as `0x${string}`) },
+	)
 	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
 	const latestBlockNumber = $derived(
 		Number(latestBlockQuery.data?.[0] ?? 0),
@@ -156,10 +160,11 @@
 	{:else if txHash}
 		<EntityView
 			entityType={EntityType.Transaction}
-			idSerialized={`${chainId}:${txHash}`}
-			href={resolve(`/network/${chainId}/transaction/${txHash}`)}
+			entity={tx ?? undefined}
+			titleHref={resolve(`/network/${chainId}/transaction/${txHash}`)}
 			label={`Tx ${txHash.slice(0, 10)}… · ${networkName}`}
 			annotation="Transaction"
+			{...(tx ? {} : { entityId: txId })}
 		>
 			{#snippet Title()}
 				<span data-row="inline">
@@ -177,7 +182,7 @@
 					<a
 						href={resolve(
 							blockNum > 0
-								? `/network/${chainId}/block/${blockNum}#transaction:${txHash}`
+								? `/network/${chainId}/block/${blockNum}#${entityKey({ entityType: EntityType.Transaction, entityId: txId })}`
 								: `/network/${chainId}`,
 						)}
 						data-link

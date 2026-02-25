@@ -5,20 +5,23 @@
 		unwatchEntity,
 		watchEntity,
 		watchedEntitiesCollection,
-		watchedEntityKey,
 	} from '$/collections/WatchedEntities.ts'
+	import { entityKey } from '$/lib/entity-key.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
 
 	// Props
 	let {
 		entityType,
+		entity,
 		entityId,
 	}: {
 		entityType: EntityType
-		entityId: EntityId
+		entity?: { $id: EntityId }
+		entityId?: EntityId
 	} = $props()
 
+	const effectiveEntityId = $derived(entity?.$id ?? entityId)
 
 	// Context
 	const watchedQuery = useLiveQuery((q) =>
@@ -28,34 +31,39 @@
 
 	// (Derived)
 	const isManuallyWatched = $derived(
-		(watchedQuery.data ?? []).some(
+		effectiveEntityId != null
+		&& (watchedQuery.data ?? []).some(
 			(r) =>
-				watchedEntityKey({
+				entityKey({
 					entityType: r.row.entityType,
 					entityId: r.row.entityId,
-				}) === watchedEntityKey({ entityType, entityId }),
+				}) === entityKey({ entityType, entityId: effectiveEntityId }),
 		),
 	)
 
 
 	// Actions
-	const toggle = () =>
+	const toggle = () => {
+		if (effectiveEntityId == null) return
 		isManuallyWatched
-			? unwatchEntity(entityType, entityId)
-			: watchEntity({ entityType, entityId })
+			? unwatchEntity(entityType, effectiveEntityId)
+			: watchEntity({ entityType, entityId: effectiveEntityId })
+	}
 </script>
 
-<button
-	type="button"
-	aria-label={isManuallyWatched
-		? 'Unwatch (remove from nav)'
-		: 'Watch (pin to nav)'}
-	title={isManuallyWatched
-		? 'Unwatch'
-		: 'Watch'}
-	onclick={toggle}
->
-	{isManuallyWatched
-		? 'Unwatch'
-		: 'Watch'}
-</button>
+{#if effectiveEntityId != null}
+	<button
+		type="button"
+		aria-label={isManuallyWatched
+			? 'Unwatch (remove from nav)'
+			: 'Watch (pin to nav)'}
+		title={isManuallyWatched
+			? 'Unwatch'
+			: 'Watch'}
+		onclick={toggle}
+	>
+		{isManuallyWatched
+			? 'Unwatch'
+			: 'Watch'}
+	</button>
+{/if}

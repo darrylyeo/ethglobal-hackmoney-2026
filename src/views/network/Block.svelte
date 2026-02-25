@@ -11,8 +11,9 @@
 		averageTransactionsPerBlockByChainId,
 		DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK,
 	} from '$/constants/networks.ts'
-	import { EntityType } from '$/data/$EntityType.ts'
-	import {
+import { EntityType } from '$/data/$EntityType.ts'
+import { entityKey } from '$/lib/entity-key.ts'
+import {
 		getExecutionEraAtBlock,
 		getForkSlugByEraName,
 	} from '$/lib/forks.ts'
@@ -54,7 +55,10 @@
 	const forkSlug = $derived(era ? getForkSlugByEraName(era.label) : null)
 	const forkPageHref = $derived(
 		era && forkSlug
-			? getForksPagePath(chainId) + `#NetworkFork:${forkSlug}`
+			? getForksPagePath(chainId) + '#' + entityKey({
+					entityType: EntityType.NetworkFork,
+					entityId: { chainId, forkId: forkSlug },
+				})
 			: '',
 	)
 	const transactionsSet = $derived(
@@ -123,9 +127,8 @@
 <EntityView
 	entityType={EntityType.Block}
 	entity={block ?? undefined}
-	entityId={block?.$id}
-	idSerialized={block ? `block:${block.$id.blockNumber}` : 'block:loading'}
-	href={block ? getBlockPath(chainId, block.$id.blockNumber) : '#'}
+	titleHref={block ? getBlockPath(chainId, block.$id.blockNumber) : '#'}
+	{...(block == null ? { idSerialized: 'block:loading' } : {})}
 	label={block ? `Block ${block.$id.blockNumber}` : 'Loading block…'}
 	layout={layout}
 	open={false}

@@ -15,6 +15,7 @@
 	} from '$/collections/NetworkTransactions.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+import { entityKey } from '$/lib/entity-key.ts'
 	import { getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 	import { parseNetworkNameParam } from '$/lib/patterns.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
@@ -113,6 +114,9 @@
 	// (Derived)
 	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
 	const tx = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
+	const txId = $derived(
+		tx?.$id ?? { $network: { chainId }, txHash: txHash ?? ('0x' as `0x${string}`) },
+	)
 	const latestBlockNumber = $derived(
 		Number(latestBlockQuery.data?.[0] ?? 0),
 	)
@@ -171,12 +175,13 @@
 	{:else if txHash}
 		<EntityView
 			entityType={EntityType.Transaction}
-			idSerialized={`${chainId}:${txHash}`}
-			href={resolve(
+			entity={tx ?? undefined}
+			titleHref={resolve(
 				`/network/${chainId}/block/${blockNumParam}/transaction/${txHashParam}`,
 			)}
 			label={`Tx ${txHash.slice(0, 10)}… · ${networkName}`}
 			annotation="Transaction"
+			{...(tx ? {} : { entityId: txId })}
 		>
 		{#snippet Title()}
 			<span data-row="inline">
@@ -191,7 +196,7 @@
 		{#snippet children()}
 			<p>
 				<a
-					href={resolve(`/network/${chainId}/block/${blockNumParam}#transaction:${txHash}`)}
+					href={resolve(`/network/${chainId}/block/${blockNumParam}#${entityKey({ entityType: EntityType.Transaction, entityId: txId })}`)}
 					data-link
 				>Show Context</a>
 			</p>

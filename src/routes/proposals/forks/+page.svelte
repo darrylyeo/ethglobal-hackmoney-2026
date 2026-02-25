@@ -3,6 +3,7 @@
 	import type { Fork } from '$/constants/forks/types.ts'
 	import type { ProposalEntry } from '$/data/ProposalEntry.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
+import { entityKey } from '$/lib/entity-key.ts'
 	import { EntityLayout } from '$/components/EntityView.svelte'
 	import { proposalsCollection } from '$/collections/Proposals.ts'
 	import { dateFromUnixSeconds, mainnetForksWithUpgrades } from '$/lib/forks.ts'
@@ -20,8 +21,8 @@
 					.from({ row: proposalsCollection })
 					.select(({ row }) => ({ row })),
 			).data ?? []).map((r) => {
-				const row = r.row as ProposalEntry
-				return [row.number, row]
+				const proposal = r.row as ProposalEntry
+				return [proposal.number, proposal]
 			}),
 		),
 	)
@@ -98,8 +99,7 @@
 					<EntityView
 						entityType={EntityType.NetworkFork}
 						entity={fork}
-						idSerialized={fork.name.toLowerCase().replace(/\s+/g, '-')}
-						href={resolve(`/proposals/forks#NetworkFork:${fork.name.toLowerCase().replace(/\s+/g, '-')}`)}
+						titleHref={resolve(`/proposals/forks#${entityKey(EntityType.NetworkFork, fork)}`)}
 						label={fork.name}
 						layout={EntityLayout.PageSection}
 						metadata={((a: string | null) =>
