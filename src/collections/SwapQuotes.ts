@@ -6,7 +6,7 @@ import {
 	getSpandexQuote,
 	spandexQuoteToSwapQuote,
 	toSpandexSwapParams,
-} from '$/api/spandex.ts'
+} from '$/api/protocol-aggregator.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { ProtocolStrategy } from '$/constants/protocols.ts'
 import { DataSource } from '$/constants/data-sources.ts'
@@ -36,14 +36,14 @@ export const fetchSwapQuote = async (
 ) => {
 	const quote = await getQuote(params)
 	const key = quote.id
-	const row = { ...normalizeSwapQuote(quote), $source: DataSource.Uniswap }
+	const item = { ...normalizeSwapQuote(quote), $source: DataSource.Uniswap }
 	const existing = swapQuotesCollection.state.get(key)
 	if (existing) {
 		swapQuotesCollection.update(key, (draft) => {
-			Object.assign(draft, row)
+			Object.assign(draft, item)
 		})
 	} else {
-		swapQuotesCollection.insert(row)
+		swapQuotesCollection.insert(item)
 	}
 	return quote
 }
@@ -57,7 +57,7 @@ export const fetchSpandexSwapQuote = async (
 	const quote = await getSpandexQuote(swap, strategy)
 	if (!quote) return null
 	const normalized = spandexQuoteToSwapQuote(quote, params)
-	const row = {
+	const item = {
 		...normalizeSwapQuote(normalized),
 		$source: DataSource.Spandex,
 	}
@@ -65,10 +65,10 @@ export const fetchSpandexSwapQuote = async (
 	const existing = swapQuotesCollection.state.get(key)
 	if (existing) {
 		swapQuotesCollection.update(key, (draft) => {
-			Object.assign(draft, row)
+			Object.assign(draft, item)
 		})
 	} else {
-		swapQuotesCollection.insert(row)
+		swapQuotesCollection.insert(item)
 	}
 	return normalized
 }

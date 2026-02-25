@@ -3,7 +3,7 @@
  * Protocols are first-class; spanDEX is the aggregation layer, not a protocol.
  */
 
-import { Protocol } from '$/constants/protocols.ts'
+import { ProtocolId } from '$/constants/protocols.ts'
 
 /** Swap option id. Auto = spanDEX aggregates with strategy. */
 export enum SwapProtocolId {
@@ -13,33 +13,35 @@ export enum SwapProtocolId {
 	Odos = 'odos',
 	KyberSwap = 'kyberswap',
 	Relay = 'relay',
+	NearIntents = 'near-intents',
 }
 
 export const swapProtocolMappings = [
 	{ id: SwapProtocolId.Auto, protocol: null },
-	{ id: SwapProtocolId.UniswapV4, protocol: Protocol.UniswapV4 },
-	{ id: SwapProtocolId.LiFi, protocol: Protocol.LiFi },
-	{ id: SwapProtocolId.Odos, protocol: Protocol.Odos },
-	{ id: SwapProtocolId.KyberSwap, protocol: Protocol.KyberSwap },
-	{ id: SwapProtocolId.Relay, protocol: Protocol.Relay },
-] as const satisfies readonly { id: SwapProtocolId; protocol: Protocol | null }[]
+	{ id: SwapProtocolId.UniswapV4, protocol: ProtocolId.UniswapV4 },
+	{ id: SwapProtocolId.LiFi, protocol: ProtocolId.LiFi },
+	{ id: SwapProtocolId.Odos, protocol: ProtocolId.Odos },
+	{ id: SwapProtocolId.KyberSwap, protocol: ProtocolId.KyberSwap },
+	{ id: SwapProtocolId.Relay, protocol: ProtocolId.Relay },
+	{ id: SwapProtocolId.NearIntents, protocol: ProtocolId.NearIntents },
+] as const satisfies readonly { id: SwapProtocolId; protocol: ProtocolId | null }[]
 
-export const swapIdToProtocol: Partial<Record<SwapProtocolId, Protocol>> =
+export const swapIdToProtocol: Partial<Record<SwapProtocolId, ProtocolId>> =
 	Object.fromEntries(
 		swapProtocolMappings
-			.filter((m): m is typeof m & { protocol: Protocol } => m.protocol != null)
+			.filter((m): m is typeof m & { protocol: ProtocolId } => m.protocol != null)
 			.map((m) => [m.id, m.protocol]),
-	) as Partial<Record<SwapProtocolId, Protocol>>
-export const protocolToSwapId: Partial<Record<Protocol, SwapProtocolId>> =
+	) as Partial<Record<SwapProtocolId, ProtocolId>>
+export const protocolToSwapId: Partial<Record<ProtocolId, SwapProtocolId>> =
 	Object.fromEntries(
 		swapProtocolMappings
-			.filter((m): m is typeof m & { protocol: Protocol } => m.protocol != null)
+			.filter((m): m is typeof m & { protocol: ProtocolId } => m.protocol != null)
 			.map((m) => [m.protocol, m.id]),
-	) as Partial<Record<Protocol, SwapProtocolId>>
+	) as Partial<Record<ProtocolId, SwapProtocolId>>
 
 export const swapProtocolIdsWithDef: {
 	id: SwapProtocolId
-	protocol: Protocol | null
+	protocol: ProtocolId | null
 }[] = swapProtocolMappings.map((m) => ({
 	id: m.id,
 	protocol: m.protocol,

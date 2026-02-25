@@ -13,8 +13,7 @@ import {
 } from '$/constants/intents.ts'
 import { protocolActions } from '$/constants/protocolActions.ts'
 import type { ProtocolAction } from '$/constants/protocolActions.ts'
-import { Protocol } from '$/constants/protocols.ts'
-import { protocolsById } from '$/constants/protocols.ts'
+import { ProtocolId, protocolsById } from '$/constants/protocols.ts'
 import type { Action } from '$/constants/actions.ts'
 import type { Entity } from '$/data/$EntityType.ts'
 
@@ -55,11 +54,11 @@ export const formatIntentOptionLabel = (
 // Derived lookups from protocolActions
 
 export const actionsByProtocol = Object.fromEntries(
-	Object.values(Protocol).map(protocol => [
+	Object.values(ProtocolId).map((protocol) => [
 		protocol,
 		protocolActions
-			.filter(pa => pa.id.protocol === protocol)
-			.map(pa => pa.id.actionType),
+			.filter((pa) => pa.id.protocol === protocol)
+			.map((pa) => pa.id.actionType),
 	]),
 )
 

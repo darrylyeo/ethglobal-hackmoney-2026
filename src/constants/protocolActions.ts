@@ -1,12 +1,12 @@
 import type { Type } from 'arktype'
 import { type } from 'arktype'
 import { ActionType } from '$/constants/actions.ts'
-import { Protocol } from '$/constants/protocols.ts'
+import { ProtocolId } from '$/constants/protocols.ts'
 
 export type ProtocolAction = {
 	id: {
 		actionType: ActionType
-		protocol: Protocol
+		protocol: ProtocolId
 	}
 	payloadSchema: Type
 }
@@ -15,7 +15,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Swap,
-			protocol: Protocol.UniswapV4,
+			protocol: ProtocolId.UniswapV4,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',
@@ -25,7 +25,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Swap,
-			protocol: Protocol.LiFi,
+			protocol: ProtocolId.LiFi,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',
@@ -35,7 +35,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Swap,
-			protocol: Protocol.Odos,
+			protocol: ProtocolId.Odos,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',
@@ -45,7 +45,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Swap,
-			protocol: Protocol.KyberSwap,
+			protocol: ProtocolId.KyberSwap,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',
@@ -55,7 +55,17 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Swap,
-			protocol: Protocol.Relay,
+			protocol: ProtocolId.Relay,
+		},
+		payloadSchema: type({
+			fromActorCoin: 'object',
+			toActorCoin: 'object',
+		}),
+	},
+	{
+		id: {
+			actionType: ActionType.Swap,
+			protocol: ProtocolId.NearIntents,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',
@@ -65,7 +75,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Bridge,
-			protocol: Protocol.Cctp,
+			protocol: ProtocolId.Cctp,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',
@@ -75,7 +85,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Bridge,
-			protocol: Protocol.LiFi,
+			protocol: ProtocolId.LiFi,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',
@@ -85,7 +95,17 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Bridge,
-			protocol: Protocol.CircleGateway,
+			protocol: ProtocolId.CircleGateway,
+		},
+		payloadSchema: type({
+			fromActorCoin: 'object',
+			toActorCoin: 'object',
+		}),
+	},
+	{
+		id: {
+			actionType: ActionType.Bridge,
+			protocol: ProtocolId.NearIntents,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',
@@ -95,7 +115,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Transfer,
-			protocol: Protocol.Yellow,
+			protocol: ProtocolId.Yellow,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',
@@ -105,7 +125,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.Transfer,
-			protocol: Protocol.LiFi,
+			protocol: ProtocolId.LiFi,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',
@@ -115,7 +135,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.CreateChannel,
-			protocol: Protocol.Yellow,
+			protocol: ProtocolId.Yellow,
 		},
 		payloadSchema: type({
 			actor: 'object',
@@ -124,7 +144,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.AddChannelMember,
-			protocol: Protocol.Yellow,
+			protocol: ProtocolId.Yellow,
 		},
 		payloadSchema: type({
 			actor: 'object',
@@ -133,7 +153,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.CloseChannel,
-			protocol: Protocol.Yellow,
+			protocol: ProtocolId.Yellow,
 		},
 		payloadSchema: type({
 			channel: 'object',
@@ -143,7 +163,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.AddLiquidity,
-			protocol: Protocol.UniswapV4,
+			protocol: ProtocolId.UniswapV4,
 		},
 		payloadSchema: type({
 			actorCoin: 'object',
@@ -153,7 +173,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.RemoveLiquidity,
-			protocol: Protocol.UniswapV4,
+			protocol: ProtocolId.UniswapV4,
 		},
 		payloadSchema: type({
 			position: 'object',
@@ -163,7 +183,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.CollectFees,
-			protocol: Protocol.UniswapV4,
+			protocol: ProtocolId.UniswapV4,
 		},
 		payloadSchema: type({
 			position: 'object',
@@ -173,7 +193,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.IncreaseLiquidity,
-			protocol: Protocol.UniswapV4,
+			protocol: ProtocolId.UniswapV4,
 		},
 		payloadSchema: type({
 			actorCoin: 'object',
@@ -183,7 +203,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.ShareAddress,
-			protocol: Protocol.PartyKit,
+			protocol: ProtocolId.PartyKit,
 		},
 		payloadSchema: type({
 			actor: 'object',
@@ -193,7 +213,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.ProposeTransfer,
-			protocol: Protocol.PartyKit,
+			protocol: ProtocolId.PartyKit,
 		},
 		payloadSchema: type({
 			fromActorCoin: 'object',
@@ -203,7 +223,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.RequestVerification,
-			protocol: Protocol.PartyKit,
+			protocol: ProtocolId.PartyKit,
 		},
 		payloadSchema: type({
 			actor: 'object',
@@ -213,7 +233,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.DepositToCustody,
-			protocol: Protocol.Yellow,
+			protocol: ProtocolId.Yellow,
 		},
 		payloadSchema: type({
 			actorCoin: 'object',
@@ -222,7 +242,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.WithdrawFromCustody,
-			protocol: Protocol.Yellow,
+			protocol: ProtocolId.Yellow,
 		},
 		payloadSchema: type({
 			actorCoin: 'object',
@@ -231,7 +251,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.ResizeChannel,
-			protocol: Protocol.Yellow,
+			protocol: ProtocolId.Yellow,
 		},
 		payloadSchema: type({
 			channel: 'object',
@@ -241,7 +261,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.CreatePool,
-			protocol: Protocol.UniswapV4,
+			protocol: ProtocolId.UniswapV4,
 		},
 		payloadSchema: type({
 			token0: 'object',
@@ -251,7 +271,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.AcceptTransfer,
-			protocol: Protocol.PartyKit,
+			protocol: ProtocolId.PartyKit,
 		},
 		payloadSchema: type({
 			transferRequest: 'object',
@@ -260,7 +280,7 @@ export const protocolActions = [
 	{
 		id: {
 			actionType: ActionType.RejectTransfer,
-			protocol: Protocol.PartyKit,
+			protocol: ProtocolId.PartyKit,
 		},
 		payloadSchema: type({
 			transferRequest: 'object',
@@ -271,10 +291,10 @@ export const protocolActions = [
 export type ProtocolActionEntry = (typeof protocolActions)[number]
 
 export const protocolActionByActionAndProtocol: Partial<
-	Record<`${ActionType}:${Protocol}`, ProtocolActionEntry>
+	Record<`${ActionType}:${ProtocolId}`, ProtocolActionEntry>
 > = Object.fromEntries(
 	protocolActions.map((pa) => [
-		`${pa.id.actionType}:${pa.id.protocol}` as `${ActionType}:${Protocol}`,
+		`${pa.id.actionType}:${pa.id.protocol}` as `${ActionType}:${ProtocolId}`,
 		pa,
 	]),
 )

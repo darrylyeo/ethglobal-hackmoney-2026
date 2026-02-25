@@ -1,7 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import type { ActionParams } from '$/constants/actions.ts'
-	import { ActionType } from '$/constants/actions.ts'
+	import type { BridgeParams } from '$/constants/actions.ts'
 	import {
 		fetchBridgeQuote,
 		getBridgeQuote,
@@ -13,7 +12,7 @@
 		params,
 		fromAddress,
 	}: {
-		params: ActionParams<ActionType.Bridge> | null
+		params: BridgeParams | null
 		fromAddress: `0x${string}` | null
 	} = $props()
 
@@ -22,34 +21,25 @@
 	let error = $state<string | undefined>(undefined)
 
 	// (Derived)
-	const bridgeParams = $derived(
-		params &&
-		'fromChainId' in params &&
-		'toChainId' in params &&
-		'amount' in params &&
-		(params as ActionParams<ActionType.Bridge>).fromChainId != null &&
-		(params as ActionParams<ActionType.Bridge>).toChainId != null &&
-		(params as ActionParams<ActionType.Bridge>).amount > 0n &&
-		fromAddress
-			? (params as ActionParams<ActionType.Bridge>)
-			: null,
-	)
-	const requestId = $derived(
-		bridgeParams && fromAddress
-			? {
-					fromChainId: bridgeParams.fromChainId!,
-					toChainId: bridgeParams.toChainId!,
-					amount: bridgeParams.amount,
-					fromAddress,
-					slippage: bridgeParams.slippage ?? 0.005,
-				}
-			: null,
-	)
-	const requestKey = $derived(
-		requestId ? getBridgeQuoteRequestKey(requestId) : '',
-	)
-	const quoteRow = $derived(requestKey ? getBridgeQuote(requestId!) : null)
-	const canFetch = $derived(Boolean(requestId && !fetching))
+	const bridgeParams = $derived.by((): BridgeParams | null => {
+		if (!params || !fromAddress) return null
+		if (params.fromChainId == null || params.toChainId == null || params.amount <= 0n) return null
+		return params
+	})
+	const requestId = $derived.by(() => {
+		if (!bridgeParams || !fromAddress || bridgeParams.fromChainId == null || bridgeParams.toChainId == null)
+			return null
+		return {
+			fromChainId: bridgeParams.fromChainId!,
+			toChainId: bridgeParams.toChainId!,
+			amount: bridgeParams.amount,
+			fromAddress,
+			slippage: bridgeParams.slippage ?? 0.005,
+		}
+	})
+	const requestKey = $derived(requestId ? getBridgeQuoteRequestKey(requestId) : '')
+	const quoteRow = $derived(requestId ? getBridgeQuote(requestId) : null)
+	const canFetch = $derived(!!requestId && !fetching)
 
 	// Actions
 	const onFetch = async () => {
@@ -67,8 +57,7 @@
 </script>
 
 {#if params && fromAddress}
-	<section data-card data-column>
-		<h3>LiFi quote</h3>
+	<div data-column>
 		<button
 			type="button"
 			disabled={!canFetch}
@@ -90,5 +79,5 @@
 		{:else if requestKey && !fetching}
 			<p data-text="muted">Click "Fetch quote" for transaction details.</p>
 		{/if}
-	</section>
+	</div>
 {/if}

@@ -5,21 +5,20 @@
 
 import { getQuotes, sortQuotesByPerformance } from '@spandex/core'
 import type { ProviderKey, SimulatedQuote, SuccessfulSimulatedQuote } from '@spandex/core'
-import { ProtocolStrategy } from '$/constants/protocols.ts'
-import { spandexQuoteMetricByStrategy } from '$/constants/spandex-quote-strategies.ts'
+import type { ProtocolStrategy } from '$/constants/protocols.ts'
+import { protocolStrategyQuoteMetric } from '$/constants/protocol-aggregator-quote-strategies.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type {
 	SpandexQuoteItem,
 	SpandexQuoteRequestId,
-} from '$/data/SpandexQuoteItem.ts'
+} from '$/data/ProtocolAggregatorQuoteItem.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
-import { normalizeAddress } from '$/lib/address.ts'
-import { getSpandexQuoteForProvider, spandexConfig } from '$/api/spandex.ts'
+import { getSpandexQuoteForProvider, spandexConfig } from '$/api/protocol-aggregator.ts'
 import type { FetchSwapQuoteParams } from '$/data/SwapQuote.ts'
 
 export type SpandexQuoteItemRow = SpandexQuoteItem & { $source: DataSource }
@@ -30,7 +29,7 @@ export const getRequestKeyForParams = (
 	params: FetchSwapQuoteParams,
 	swapperAccount: `0x${string}`,
 ): string =>
-	requestIdString({
+	stringify({
 		chainId: params.chainId,
 		inputToken: params.tokenIn,
 		outputToken: params.tokenOut,
@@ -38,17 +37,6 @@ export const getRequestKeyForParams = (
 		slippageBps: Math.round(params.slippage * 10_000),
 		swapperAccount,
 	})
-
-function requestIdString(r: SpandexQuoteRequestId): string {
-	return stringify({
-		chainId: r.chainId,
-		inputToken: normalizeAddress(r.inputToken) ?? r.inputToken,
-		outputToken: normalizeAddress(r.outputToken) ?? r.outputToken,
-		amountIn: r.amountIn.toString(),
-		slippageBps: r.slippageBps,
-		swapperAccount: normalizeAddress(r.swapperAccount) ?? r.swapperAccount,
-	})
-}
 
 function mismatchBps(quoted: bigint, simulated: bigint): number | null {
 	if (quoted === 0n) return null
@@ -64,7 +52,7 @@ function normalizedItem(
 	quote: SimulatedQuote,
 	fetchedAt: number,
 ): SpandexQuoteItem {
-	const reqKey = requestIdString(requestId)
+	const reqKey = stringify(requestId)
 	const provider = quote.provider
 	const success = quote.success
 	let quotedOutputAmount = 0n
@@ -118,7 +106,7 @@ function normalizedItem(
 export const spandexQuoteItemsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.SpandexQuoteItems,
-		getKey: (row: SpandexQuoteItemRow) => stringify(row.$id),
+		getKey: (item: SpandexQuoteItemRow) => stringify(item.$id),
 	}),
 )
 
@@ -141,20 +129,20 @@ export const fetchSpandexQuoteForProvider = async (
 	const quote = await getSpandexQuoteForProvider(swap, provider)
 	if (!quote) return null
 	const fetchedAt = Date.now()
-	const row: SpandexQuoteItemRow = {
+	const item: SpandexQuoteItemRow = {
 		...normalizedItem(params, quote, fetchedAt),
 		$source: DataSource.Spandex,
 	}
-	const key = stringify(row.$id)
+	const key = stringify(item.$id)
 	const existing = spandexQuoteItemsCollection.state.get(key)
 	if (existing) {
 		spandexQuoteItemsCollection.update(key, (draft) => {
-			Object.assign(draft, row)
+			Object.assign(draft, item)
 		})
 	} else {
-		spandexQuoteItemsCollection.insert(row)
+		spandexQuoteItemsCollection.insert(item)
 	}
-	return row
+	return item
 }
 
 /** Fetch quotes from all providers, normalize, upsert to collection, return items. Optional strategy sorts successful quotes by that metric (best price, fastest, lowest gas). */
@@ -173,7 +161,7 @@ export const fetchSpandexQuotes = async (
 	}
 	const quotes = await getQuotes({ config: spandexConfig, swap })
 	const fetchedAt = Date.now()
-	const reqKey = requestIdString(params)
+	const reqKey = stringify(params)
 	const successful = quotes.filter(
 		(q): q is SuccessfulSimulatedQuote =>
 			q.success && 'simulation' in q && (q as SuccessfulSimulatedQuote).simulation.success,
@@ -182,16 +170,16 @@ export const fetchSpandexQuotes = async (
 		(q) => !q.success || !(q as SuccessfulSimulatedQuote).simulation?.success,
 	)
 	const orderedQuotes: SimulatedQuote[] =
-		options?.strategy && options.strategy !== ProtocolStrategy.Priority && successful.length > 0
+		options?.strategy && successful.length > 0
 			? [
 					...sortQuotesByPerformance({
 						quotes: successful,
-						...spandexQuoteMetricByStrategy[options.strategy],
+						...protocolStrategyQuoteMetric[options.strategy],
 					}),
 					...failed,
 				]
 			: [...successful, ...failed]
-	const rows: SpandexQuoteItemRow[] = orderedQuotes.map((q) => ({
+	const items: SpandexQuoteItemRow[] = orderedQuotes.map((q) => ({
 		...normalizedItem(params, q, fetchedAt),
 		$source: DataSource.Spandex,
 	}))
@@ -199,26 +187,35 @@ export const fetchSpandexQuotes = async (
 	const existingKeys = new Set(
 		[...spandexQuoteItemsCollection.state]
 			.filter(
-				([_, row]) =>
-					row.$source === DataSource.Spandex &&
-					requestIdString(row.requestId) === reqKey,
+				([_, item]) =>
+					item.$source === DataSource.Spandex &&
+					stringify(item.requestId) === reqKey,
 			)
 			.map(([k]) => k),
 	)
 	for (const key of existingKeys) {
-		if (!rows.some((r) => stringify(r.$id) === key))
+		if (!items.some((r) => stringify(r.$id) === key))
 			spandexQuoteItemsCollection.delete(key)
 	}
-	for (const row of rows) {
-		const key = stringify(row.$id)
+	for (const item of items) {
+		const key = stringify(item.$id)
 		const existing = spandexQuoteItemsCollection.state.get(key)
 		if (existing) {
 			spandexQuoteItemsCollection.update(key, (draft) => {
-				Object.assign(draft, row)
+				Object.assign(draft, item)
 			})
 		} else {
-			spandexQuoteItemsCollection.insert(row)
+			spandexQuoteItemsCollection.insert(item)
 		}
 	}
-	return rows
+	return items
 }
+
+export type SwapQuoteRequestId = SpandexQuoteRequestId
+export type ProtocolAggregatorQuoteRequestId = SpandexQuoteRequestId
+export const swapQuoteItemsCollection = spandexQuoteItemsCollection
+export const protocolAggregatorQuoteItemsCollection = spandexQuoteItemsCollection
+export const fetchSwapQuotes = fetchSpandexQuotes
+export const fetchSwapQuoteForProvider = fetchSpandexQuoteForProvider
+export const fetchProtocolAggregatorQuotes = fetchSpandexQuotes
+export const fetchProtocolAggregatorQuoteForProvider = fetchSpandexQuoteForProvider

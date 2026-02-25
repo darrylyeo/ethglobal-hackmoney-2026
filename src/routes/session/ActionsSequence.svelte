@@ -21,6 +21,8 @@
 		selectedChainId = null,
 		isTestnet = false,
 		sessionId = '',
+		triggerSimulate = false,
+		triggerExecute = false,
 	}: {
 		actions: Action[]
 		operations?: ItemsListOperation[]
@@ -29,6 +31,8 @@
 		selectedChainId?: number | null
 		isTestnet?: boolean
 		sessionId?: string
+		triggerSimulate?: boolean
+		triggerExecute?: boolean
 	} = $props()
 
 
@@ -74,6 +78,8 @@
 				{selectedChainId}
 				{isTestnet}
 				{sessionId}
+				triggerSimulate={index === 0 && triggerSimulate}
+				triggerExecute={index === 0 && triggerExecute}
 			/>
 		{/if}
 	{/snippet}

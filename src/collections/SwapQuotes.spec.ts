@@ -18,10 +18,10 @@ Deno.test(
 			gasEstimate: 150_000n,
 			timestamp: Date.now(),
 		}
-		const row = normalizeSwapQuote(entry)
-		assertExists(row.id)
-		assertEquals(row.amountIn, 1_000_000n)
-		assertEquals(row.amountOut, 500_000n)
-		assertEquals(row.gasEstimate, 150_000n)
+		const quote = normalizeSwapQuote(entry)
+		assertExists(quote.id)
+		assertEquals(quote.amountIn, 1_000_000n)
+		assertEquals(quote.amountOut, 500_000n)
+		assertEquals(quote.gasEstimate, 150_000n)
 	},
 )

@@ -20,16 +20,16 @@
 	const transactionsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: sessionActionTransactionsCollection })
-				.where(({ row }) =>
-					and(eq(row.sessionId, sessionId), eq(row.indexInSequence, indexInSequence)),
+				.from({ transaction: sessionActionTransactionsCollection })
+				.where(({ transaction }) =>
+					and(eq(transaction.sessionId, sessionId), eq(transaction.indexInSequence, indexInSequence)),
 				)
-				.select(({ row }) => ({ row })),
+				.select(({ transaction }) => ({ transaction })),
 		[() => sessionId, () => indexInSequence],
 	)
 	const items = $derived(
 		new SvelteSet(
-			(transactionsQuery.data?.map((d) => d.row) ?? []) as SessionActionTransaction[],
+			(transactionsQuery.data?.map(({ transaction: tx }) => tx) ?? []) as SessionActionTransaction[],
 		),
 	)
 

@@ -3,13 +3,9 @@ import {
 	ActionType,
 	actionTypeDefinitionByActionType,
 } from '$/constants/actions.ts'
-import {
-	IntentType,
-	Protocol,
-	type IntentEntityRef,
-} from '$/constants/intents.ts'
+import { IntentType, type IntentEntityRef } from '$/constants/intents.ts'
 import { protocolActions } from '$/constants/protocolActions.ts'
-import { protocolsById as protocolSpecs } from '$/constants/protocols.ts'
+import { ProtocolId, protocolsById as protocolSpecs } from '$/constants/protocols.ts'
 import {
 	actionsByProtocol,
 	intentEntityTypes,
@@ -37,7 +33,7 @@ describe('resolveIntentForDrag', () => {
 		expect(result.intent.type).toBe(IntentType.SwapAndBridge)
 		expect(result.options.length).toBe(3)
 		expect(result.options[2].label).toBe('Bridge via Circle Gateway')
-		expect(result.options[2].actions[0].protocolAction.id.protocol).toBe(Protocol.CircleGateway)
+		expect(result.options[2].actions[0].protocolAction.id.protocol).toBe(ProtocolId.CircleGateway)
 	})
 
 	it('matches Actor → Actor as CreateChannelAndAddMember', () => {
@@ -51,7 +47,7 @@ describe('resolveIntentForDrag', () => {
 		expect(result.options.length).toBe(1)
 		expect(result.options[0].actions.length).toBe(2)
 		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.CreateChannel)
-		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.Yellow)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(ProtocolId.Yellow)
 		expect(result.options[0].actions[1].protocolAction.id.actionType).toBe(ActionType.AddChannelMember)
 	})
 
@@ -78,7 +74,7 @@ describe('resolveIntentForDrag', () => {
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.AddLiquidity)
 		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.AddLiquidity)
-		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.UniswapV4)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(ProtocolId.UniswapV4)
 	})
 
 	it('matches UniswapPosition → Actor as RemoveLiquidity', () => {
@@ -132,19 +128,19 @@ describe('resolveIntentForDrag', () => {
 
 describe('derived lookups', () => {
 	it('actionsByProtocol maps each protocol to its action types', () => {
-		expect(actionsByProtocol[Protocol.Yellow]).toContain(ActionType.Transfer)
-		expect(actionsByProtocol[Protocol.Yellow]).toContain(ActionType.CreateChannel)
-		expect(actionsByProtocol[Protocol.UniswapV4]).toContain(ActionType.Swap)
-		expect(actionsByProtocol[Protocol.UniswapV4]).toContain(ActionType.AddLiquidity)
-		expect(actionsByProtocol[Protocol.UniswapV4]).toContain(ActionType.RemoveLiquidity)
+		expect(actionsByProtocol[ProtocolId.Yellow]).toContain(ActionType.Transfer)
+		expect(actionsByProtocol[ProtocolId.Yellow]).toContain(ActionType.CreateChannel)
+		expect(actionsByProtocol[ProtocolId.UniswapV4]).toContain(ActionType.Swap)
+		expect(actionsByProtocol[ProtocolId.UniswapV4]).toContain(ActionType.AddLiquidity)
+		expect(actionsByProtocol[ProtocolId.UniswapV4]).toContain(ActionType.RemoveLiquidity)
 	})
 
 	it('protocolsByAction maps each action to its protocols', () => {
-		expect(protocolsByAction[ActionType.Swap]).toContain(Protocol.UniswapV4)
-		expect(protocolsByAction[ActionType.Swap]).toContain(Protocol.LiFi)
-		expect(protocolsByAction[ActionType.Bridge]).toContain(Protocol.Cctp)
-		expect(protocolsByAction[ActionType.Bridge]).toContain(Protocol.LiFi)
-		expect(protocolsByAction[ActionType.AddLiquidity]).toEqual([Protocol.UniswapV4])
+		expect(protocolsByAction[ActionType.Swap]).toContain(ProtocolId.UniswapV4)
+		expect(protocolsByAction[ActionType.Swap]).toContain(ProtocolId.LiFi)
+		expect(protocolsByAction[ActionType.Bridge]).toContain(ProtocolId.Cctp)
+		expect(protocolsByAction[ActionType.Bridge]).toContain(ProtocolId.LiFi)
+		expect(protocolsByAction[ActionType.AddLiquidity]).toEqual([ProtocolId.UniswapV4])
 	})
 
 	it('intentEntityTypes contains all entity types from intent definitions', () => {

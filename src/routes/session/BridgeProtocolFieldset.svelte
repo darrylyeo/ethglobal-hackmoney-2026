@@ -5,7 +5,7 @@
 		BridgeProtocolId,
 		protocolToBridgeId,
 	} from '$/constants/bridge-protocol-intents.ts'
-	import { Protocol } from '$/constants/protocols.ts'
+	import { ProtocolId } from '$/constants/protocols.ts'
 	import { isCctpSupportedChain } from '$/lib/cctp.ts'
 	import { isGatewaySupportedChain } from '$/lib/gateway.ts'
 
@@ -49,7 +49,7 @@
 	const activeProtocol = $derived(
 		(protocolIntent ??
 			(action.protocolAction?.protocol != null
-				? (protocolToBridgeId[action.protocolAction.protocol as Protocol] ?? null)
+				? (protocolToBridgeId[action.protocolAction.protocol as ProtocolId] ?? null)
 				: null) ??
 			(cctpPairSupported ? BridgeProtocolId.Cctp : gatewayPairSupported ? BridgeProtocolId.Gateway : lifiPairSupported ? BridgeProtocolId.Lifi : null)) as BridgeProtocolId | null,
 	)
@@ -70,8 +70,10 @@
 			<LifiBridgeSettingsFieldset bind:action />
 		{:else if activeProtocol === BridgeProtocolId.Gateway}
 			<GatewayBridgeSettingsFieldset bind:action actors={actors} network={fromChainId ?? undefined} />
+		{:else if activeProtocol === BridgeProtocolId.NearIntents}
+			<p data-text="muted">Quote from order server below.</p>
 		{:else if fromChainId !== null && toChainId !== null}
-			<p data-error>This chain pair is not supported by CCTP, LI.FI, or Gateway.</p>
+			<p data-error>This chain pair is not supported by CCTP, LI.FI, Gateway, or NEAR Intents.</p>
 		{/if}
 	</div>
 {/if}

@@ -6,13 +6,15 @@
 		swapIdToProtocol,
 		swapProtocolIdsWithDef,
 	} from '$/constants/swap-protocol-intents.ts'
-	import { spandexQuoteStrategies } from '$/constants/spandex-quote-strategies.ts'
 	import {
-		labelByProtocolStrategy,
-		ProtocolStrategy,
+		protocolAggregatorIds,
+		protocolStrategies,
+		protocolAggregatorsById,
 		protocolsById,
+		ProtocolAggregatorId,
+		ProtocolStrategy,
 	} from '$/constants/protocols.ts'
-	import type { ProtocolDefinition } from '$/constants/protocols.ts'
+	import type { Protocol } from '$/constants/protocols.ts'
 
 	// Components
 	import Icon from '$/components/Icon.svelte'
@@ -32,6 +34,7 @@
 		action.type === ActionType.Swap
 			? (action.params as {
 					swapProtocolIntent: string
+					swapAggregator: string
 					swapStrategy: string
 			  })
 			: null,
@@ -39,11 +42,17 @@
 	const swapProtocolIntent = $derived(
 		(p?.swapProtocolIntent as SwapProtocolId) ?? SwapProtocolId.Auto,
 	)
+	const swapAggregator = $derived(
+		(p?.swapAggregator as ProtocolAggregatorId) ?? ProtocolAggregatorId.Spandex,
+	)
 	const swapStrategy = $derived(
 		(p?.swapStrategy as ProtocolStrategy) ?? ProtocolStrategy.BestPrice,
 	)
+	const strategiesForAggregator = $derived(
+		protocolAggregatorsById[swapAggregator]?.strategies ?? [],
+	)
 
-	const protocolDef = (id: SwapProtocolId): ProtocolDefinition | null =>
+	const protocolDef = (id: SwapProtocolId): Protocol | null =>
 		swapIdToProtocol[id] ? protocolsById[swapIdToProtocol[id]!] ?? null : null
 
 	const rows = $derived(
@@ -71,9 +80,15 @@
 		} as Action
 	}
 
-	const setSwapStrategy = (value: string) => {
-		if (action.type !== ActionType.Swap || typeof value !== 'string') return
-		if (!spandexQuoteStrategies.includes(value as (typeof spandexQuoteStrategies)[number])) return
+	const setSwapAggregator = (value: ProtocolAggregatorId) => {
+		if (action.type !== ActionType.Swap) return
+		action = {
+			...action,
+			params: { ...action.params, swapAggregator: value },
+		} as Action
+	}
+	const setSwapStrategy = (value: ProtocolStrategy) => {
+		if (action.type !== ActionType.Swap) return
 		action = {
 			...action,
 			params: { ...action.params, swapStrategy: value },
@@ -101,18 +116,30 @@
 						Auto
 					</button>
 					{#if swapProtocolIntent === SwapProtocolId.Auto}
-						<span>Strategy</span>
+						<span>Aggregator</span>
 						<Select
-							items={spandexQuoteStrategies}
-							getItemId={(s) => s}
-							getItemLabel={(s) => labelByProtocolStrategy[s] ?? s}
-							bind:value={() => swapStrategy, (v: string | string[] | undefined) => {
-								const s = typeof v === 'string' ? v : (Array.isArray(v) ? v[0] : '')
-								if (s && spandexQuoteStrategies.includes(s as (typeof spandexQuoteStrategies)[number]))
-									setSwapStrategy(s)
+							items={protocolAggregatorIds}
+							getItemId={(a) => a}
+							getItemLabel={(a) => protocolAggregatorsById[a]?.label ?? a}
+							bind:value={() => swapAggregator, (v) => {
+								if (v != null && protocolAggregatorIds.includes(v))
+									setSwapAggregator(v)
 							}}
-							ariaLabel="Strategy"
+							ariaLabel="Aggregator"
 						/>
+						{#if strategiesForAggregator.length > 0}
+							<span>Strategy</span>
+							<Select
+								items={strategiesForAggregator}
+								getItemId={(s) => s}
+								getItemLabel={(s) => protocolStrategies.find((d) => d.id === s)?.label ?? s}
+								bind:value={() => swapStrategy, (v) => {
+									if (v != null && strategiesForAggregator.includes(v))
+										setSwapStrategy(v)
+								}}
+								ariaLabel="Strategy"
+							/>
+						{/if}
 					{/if}
 				</div>
 			{:else if row.def}

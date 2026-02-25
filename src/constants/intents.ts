@@ -6,7 +6,7 @@ import {
 	protocolActionByActionAndProtocol,
 	protocolActions,
 } from '$/constants/protocolActions.ts'
-import { Protocol, protocolsById } from '$/constants/protocols.ts'
+import { ProtocolId, protocolsById } from '$/constants/protocols.ts'
 import type { ProtocolAction } from '$/constants/protocolActions.ts'
 import type { SessionTemplate } from '$/data/Session.ts'
 import { EntityType, type Entity } from '$/data/$EntityType.ts'
@@ -141,15 +141,15 @@ export const intents: IntentDefinition[] = [
 		resolveOptions: ({ fromActorCoin, toActorNetwork }) => {
 			const payload = { fromActorCoin, toActorCoin: toActorNetwork }
 			const lifi = [
-				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${Protocol.LiFi}`]!, payload },
-				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${Protocol.LiFi}`]!, payload },
+				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${ProtocolId.LiFi}`]!, payload },
+				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${ProtocolId.LiFi}`]!, payload },
 			]
 			const uniswapCctp = [
-				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${Protocol.UniswapV4}`]!, payload },
-				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${Protocol.Cctp}`]!, payload },
+				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${ProtocolId.UniswapV4}`]!, payload },
+				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${ProtocolId.Cctp}`]!, payload },
 			]
 			const gateway = [
-				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${Protocol.CircleGateway}`]!, payload },
+				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${ProtocolId.CircleGateway}`]!, payload },
 			]
 			return [
 				toIntentOption(formatIntentOptionLabel(lifi.map((a) => a.protocolAction)), lifi),
@@ -191,24 +191,24 @@ export const intents: IntentDefinition[] = [
 			const payload = { fromActorCoin: fromAc, toActorCoin: toAc }
 
 			const lifiActions = [
-				...(!sameCoin ? [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${Protocol.LiFi}`]!, payload }] : []),
-				...(!sameNetwork ? [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${Protocol.LiFi}`]!, payload }] : []),
+				...(!sameCoin ? [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${ProtocolId.LiFi}`]!, payload }] : []),
+				...(!sameNetwork ? [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${ProtocolId.LiFi}`]!, payload }] : []),
 			]
 			const uniswapCctpActions = [
-				...(!sameCoin ? [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${Protocol.UniswapV4}`]!, payload }] : []),
-				...(!sameNetwork ? [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${Protocol.Cctp}`]!, payload }] : []),
+				...(!sameCoin ? [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${ProtocolId.UniswapV4}`]!, payload }] : []),
+				...(!sameNetwork ? [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${ProtocolId.Cctp}`]!, payload }] : []),
 			]
 			const gatewayActions = [
-				...(!sameCoin ? [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${Protocol.UniswapV4}`]!, payload }] : []),
-				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${Protocol.CircleGateway}`]!, payload },
+				...(!sameCoin ? [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${ProtocolId.UniswapV4}`]!, payload }] : []),
+				{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Bridge}:${ProtocolId.CircleGateway}`]!, payload },
 			]
 			return [
 				...(!sameCoin || !sameNetwork ? [toIntentOption(formatIntentOptionLabel(lifiActions.map((a) => a.protocolAction)), lifiActions)] : []),
 				...(!sameCoin || !sameNetwork ? [toIntentOption(formatIntentOptionLabel(uniswapCctpActions.map((a) => a.protocolAction)), uniswapCctpActions)] : []),
 				...(!sameNetwork ? [toIntentOption(formatIntentOptionLabel(gatewayActions.map((a) => a.protocolAction)), gatewayActions)] : []),
 				...(sameCoin && sameNetwork && !sameActor ? [
-					toIntentOption(formatIntentOptionLabel([protocolActionByActionAndProtocol[`${ActionType.Transfer}:${Protocol.LiFi}`]!]), [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Transfer}:${Protocol.LiFi}`]!, payload }]),
-					toIntentOption(formatIntentOptionLabel([protocolActionByActionAndProtocol[`${ActionType.Transfer}:${Protocol.Yellow}`]!]), [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Transfer}:${Protocol.Yellow}`]!, payload }]),
+					toIntentOption(formatIntentOptionLabel([protocolActionByActionAndProtocol[`${ActionType.Transfer}:${ProtocolId.LiFi}`]!]), [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Transfer}:${ProtocolId.LiFi}`]!, payload }]),
+					toIntentOption(formatIntentOptionLabel([protocolActionByActionAndProtocol[`${ActionType.Transfer}:${ProtocolId.Yellow}`]!]), [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Transfer}:${ProtocolId.Yellow}`]!, payload }]),
 				] : []),
 			]
 		},
@@ -235,8 +235,8 @@ export const intents: IntentDefinition[] = [
 
 		resolveOptions: ({ actorCoin, coin }) => {
 			const payload = { fromActorCoin: actorCoin, toActorCoin: coin }
-			const uniswap = [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${Protocol.UniswapV4}`]!, payload }]
-			const lifi = [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${Protocol.LiFi}`]!, payload }]
+			const uniswap = [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${ProtocolId.UniswapV4}`]!, payload }]
+			const lifi = [{ protocolAction: protocolActionByActionAndProtocol[`${ActionType.Swap}:${ProtocolId.LiFi}`]!, payload }]
 			return [
 				toIntentOption(formatIntentOptionLabel(uniswap.map((a) => a.protocolAction)), uniswap),
 				toIntentOption(formatIntentOptionLabel(lifi.map((a) => a.protocolAction)), lifi),
@@ -274,11 +274,11 @@ export const intents: IntentDefinition[] = [
 		resolveOptions: ({ fromActor, toActor }) => [
 			toIntentOption('Create EIP-7824 channel + Add member', [
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.CreateChannel}:${Protocol.Yellow}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.CreateChannel}:${ProtocolId.Yellow}`]!,
 					payload: { actor: fromActor },
 				},
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.AddChannelMember}:${Protocol.Yellow}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.AddChannelMember}:${ProtocolId.Yellow}`]!,
 					payload: { actor: toActor },
 				},
 			]),
@@ -307,15 +307,15 @@ export const intents: IntentDefinition[] = [
 		resolveOptions: ({ fromActorCoin, toActor }) => [
 			toIntentOption('Create EIP-7824 channel + Add member + Transfer', [
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.CreateChannel}:${Protocol.Yellow}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.CreateChannel}:${ProtocolId.Yellow}`]!,
 					payload: { actor: fromActorCoin },
 				},
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.AddChannelMember}:${Protocol.Yellow}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.AddChannelMember}:${ProtocolId.Yellow}`]!,
 					payload: { actor: toActor },
 				},
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.Transfer}:${Protocol.Yellow}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.Transfer}:${ProtocolId.Yellow}`]!,
 					payload: { fromActorCoin, toActorCoin: toActor },
 				},
 			]),
@@ -344,7 +344,7 @@ export const intents: IntentDefinition[] = [
 		resolveOptions: ({ actorCoin, pool }) => [
 			toIntentOption('Add liquidity via Uniswap V4', [
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.AddLiquidity}:${Protocol.UniswapV4}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.AddLiquidity}:${ProtocolId.UniswapV4}`]!,
 					payload: { actorCoin, pool },
 				},
 			]),
@@ -373,13 +373,13 @@ export const intents: IntentDefinition[] = [
 		resolveOptions: ({ position, actor }) => [
 			toIntentOption('Collect fees via Uniswap V4', [
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.CollectFees}:${Protocol.UniswapV4}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.CollectFees}:${ProtocolId.UniswapV4}`]!,
 					payload: { position, actor },
 				},
 			]),
 			toIntentOption('Remove liquidity via Uniswap V4', [
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.RemoveLiquidity}:${Protocol.UniswapV4}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.RemoveLiquidity}:${ProtocolId.UniswapV4}`]!,
 					payload: { position, actor },
 				},
 			]),
@@ -408,7 +408,7 @@ export const intents: IntentDefinition[] = [
 		resolveOptions: ({ actorCoin, position }) => [
 			toIntentOption('Increase liquidity via Uniswap V4', [
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.IncreaseLiquidity}:${Protocol.UniswapV4}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.IncreaseLiquidity}:${ProtocolId.UniswapV4}`]!,
 					payload: { actorCoin, position },
 				},
 			]),
@@ -437,7 +437,7 @@ export const intents: IntentDefinition[] = [
 		resolveOptions: ({ actor, room }) => [
 			toIntentOption('Share address in room via PartyKit', [
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.ShareAddress}:${Protocol.PartyKit}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.ShareAddress}:${ProtocolId.PartyKit}`]!,
 					payload: { actor, room },
 				},
 			]),
@@ -466,7 +466,7 @@ export const intents: IntentDefinition[] = [
 		resolveOptions: ({ actorCoin, peer }) => [
 			toIntentOption('Propose transfer to peer via PartyKit', [
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.ProposeTransfer}:${Protocol.PartyKit}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.ProposeTransfer}:${ProtocolId.PartyKit}`]!,
 					payload: { fromActorCoin: actorCoin, toPeer: peer },
 				},
 			]),
@@ -495,7 +495,7 @@ export const intents: IntentDefinition[] = [
 		resolveOptions: ({ actor, peer }) => [
 			toIntentOption('Request SIWE verification via PartyKit', [
 				{
-					protocolAction: protocolActionByActionAndProtocol[`${ActionType.RequestVerification}:${Protocol.PartyKit}`]!,
+					protocolAction: protocolActionByActionAndProtocol[`${ActionType.RequestVerification}:${ProtocolId.PartyKit}`]!,
 					payload: { actor, peer },
 				},
 			]),

@@ -2,7 +2,7 @@ import { type } from 'arktype'
 import { address } from '$/constants/arktype.ts'
 import { ChainId } from '$/constants/networks.ts'
 import { BridgeProtocolId } from '$/constants/bridge-protocol-intents.ts'
-import { ProtocolStrategy } from '$/constants/protocols.ts'
+import { ProtocolAggregatorId, ProtocolStrategy } from '$/constants/protocols.ts'
 import { SwapProtocolId } from '$/constants/swap-protocol-intents.ts'
 
 const zeroAddress = '0x0000000000000000000000000000000000000000' as `0x${string}`
@@ -70,6 +70,7 @@ export const actionTypeDefinitions = [
 			slippage: type('number').default(0.005),
 			isTestnet: type('boolean').default(false),
 			swapProtocolIntent: type.valueOf(SwapProtocolId).default(SwapProtocolId.Auto),
+			swapAggregator: type.valueOf(ProtocolAggregatorId).default(ProtocolAggregatorId.Spandex),
 			swapStrategy: type.valueOf(ProtocolStrategy).default(ProtocolStrategy.BestPrice),
 		}),
 	},
@@ -263,13 +264,40 @@ export const actionTypeDefinitionByActionType = Object.fromEntries(
 
 export const actionTypes = withGetDefaultParams
 
-type _DefinitionFor<T extends ActionType> = Extract<
-	(typeof withGetDefaultParams)[number],
-	{ type: T }
->
-export type ActionParams<_ActionType extends ActionType> = ReturnType<
-	_DefinitionFor<_ActionType>['getDefaultParams']
->
+type _Def = (typeof withGetDefaultParams)[number]
+export type ActionParamsMap = {
+	[K in ActionType]: ReturnType<Extract<_Def, { type: K }>['getDefaultParams']>
+}
+export type ActionParams<_ActionType extends ActionType> = ActionParamsMap[_ActionType]
+
+export interface SwapParams {
+	chainId: number
+	tokenIn: `0x${string}` | false
+	tokenOut: `0x${string}` | false
+	amount: bigint
+	slippage: number
+	isTestnet: boolean
+	swapProtocolIntent: SwapProtocolId
+	swapAggregator: ProtocolAggregatorId
+	swapStrategy: ProtocolStrategy
+}
+
+export interface BridgeParams {
+	slippage: number
+	sortBy: BridgeRouteSort
+	fromChainId: number | null
+	toChainId: number | null
+	tokenAddress: `0x${string}` | false
+	tokenSymbol: string
+	tokenDecimals: number
+	amount: bigint
+	useCustomRecipient: boolean
+	customRecipient: string
+	isTestnet: boolean
+	protocolIntent: BridgeProtocolId | null
+	transferSpeed: TransferSpeed
+	forwardingEnabled: boolean
+}
 
 export type SessionDefaults = Partial<{
 	addLiquidity: ActionParams<ActionType.AddLiquidity>

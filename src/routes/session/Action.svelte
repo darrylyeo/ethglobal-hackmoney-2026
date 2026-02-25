@@ -8,7 +8,9 @@
 		type Action,
 		type ActionParams,
 		type ActionTypeDefinition,
+		type BridgeParams,
 		type LiquidityAction,
+		type SwapParams,
 	} from '$/constants/actions.ts'
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { CoinInstance } from '$/constants/coin-instances.ts'
@@ -20,8 +22,14 @@
 		protocolToBridgeId,
 	} from '$/constants/bridge-protocol-intents.ts'
 	import { SwapProtocolId, swapIdToProtocol } from '$/constants/swap-protocol-intents.ts'
-	import { protocolToSpandexProvider, spandexSwapProtocols } from '$/constants/spandex-providers.ts'
-	import { Protocol, protocolsById } from '$/constants/protocols.ts'
+	import { aggregatorBackedProtocols, protocolToQuoteProvider } from '$/constants/protocol-aggregator-providers.ts'
+	import {
+		ProtocolId,
+		ProtocolAggregatorId,
+		protocolAggregatorsById,
+		protocolsById,
+		ProtocolStrategy,
+	} from '$/constants/protocols.ts'
 	import { getBridgeProtocolOptions } from '$/lib/protocols/bridgeProtocolOptions.ts'
 	import { NetworkType, networks, networksByChainId } from '$/constants/networks.ts'
 	import { getEffectiveRpcUrls } from '$/lib/helios-rpc.ts'
@@ -35,10 +43,12 @@
 	runTevmSimulationFromClientBatch,
 	type TevmSimulationPayload,
 } from '$/api/tevm/tevmSimulation.ts'
+	import { assertActionParams, getValidatedActionParams } from '$/lib/session/params.ts'
 	import {
 		resolveSigningPayloads,
 	} from '$/lib/session/resolveSigningPayloads.ts'
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
+	import { stringify as devalueStringify } from 'devalue'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import {
 		getBridgeQuoteRequestKey,
@@ -47,13 +57,14 @@
 	} from '$/collections/BridgeQuoteItems.ts'
 	import {
 		getRequestKeyForParams,
-		spandexQuoteItemsCollection,
-	} from '$/collections/SpandexQuoteItems.ts'
+		protocolAggregatorQuoteItemsCollection,
+	} from '$/collections/ProtocolAggregatorQuoteItems.ts'
 	import { sessionActionTransactionSimulationsCollection } from '$/collections/SessionActionTransactionSimulations.ts'
 	import { sessionActionTransactionsCollection } from '$/collections/SessionActionTransactions.ts'
 	import { stringify } from '$/lib/stringify.ts'
 	import { formatAddress } from '$/lib/address.ts'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { consumeSessionCommand } from '$/state/session-command.svelte.ts'
 	import { Button, Dialog } from 'bits-ui'
 
 
@@ -66,6 +77,8 @@
 		selectedChainId = null,
 		isTestnet = false,
 		sessionId = '',
+		triggerSimulate = false,
+		triggerExecute = false,
 	}: {
 		action: Action
 		indexInSequence?: number
@@ -74,6 +87,8 @@
 		selectedChainId?: number | null
 		isTestnet?: boolean
 		sessionId?: string
+		triggerSimulate?: boolean
+		triggerExecute?: boolean
 	} = $props()
 
 
@@ -96,9 +111,19 @@
 	const protocolsForAction = $derived(
 		protocolActions.filter((pa) => pa.id.actionType === action.type),
 	)
+	const validatedSwapParams = $derived(
+		action.type === ActionType.Swap
+			? getValidatedActionParams(ActionType.Swap, action.params)
+			: null,
+	)
+	const validatedBridgeParams = $derived(
+		action.type === ActionType.Bridge
+			? getValidatedActionParams(ActionType.Bridge, action.params)
+			: null,
+	)
 	const bridgeParams = $derived(
 		action.type === ActionType.Bridge
-			? (action.params as { fromChainId: number | null; toChainId: number | null; protocolIntent?: 'cctp' | 'lifi' | 'gateway' | null })
+			? (validatedBridgeParams ?? (action.params as BridgeParams))
 			: null,
 	)
 	const protocolOptions = $derived(
@@ -110,19 +135,14 @@
 			)
 			: (protocolsForAction
 				.map((pa) => protocolsById[pa.id.protocol])
-				.filter(Boolean) as import('$/constants/protocols.ts').ProtocolDefinition[]),
+				.filter(Boolean) as import('$/constants/protocols.ts').Protocol[]),
 	)
 	const swapParams = $derived(
-		action.type === ActionType.Swap
-			? (action.params as { swapProtocolIntent?: string; swapStrategy?: string })
-			: null,
+		action.type === ActionType.Swap ? (validatedSwapParams ?? (action.params as SwapParams)) : null,
 	)
-	const swapProtocolIntent = $derived(
-		(swapParams?.swapProtocolIntent as SwapProtocolId) ?? SwapProtocolId.Auto,
-	)
-	const swapStrategy = $derived(
-		(swapParams?.swapStrategy as 'bestPrice' | 'fastest' | 'estimatedGas') ?? 'bestPrice',
-	)
+	const swapProtocolIntent = $derived(swapParams?.swapProtocolIntent ?? SwapProtocolId.Auto)
+	const swapAggregator = $derived(swapParams?.swapAggregator ?? ProtocolAggregatorId.Spandex)
+	const swapStrategy = $derived(swapParams?.swapStrategy ?? ProtocolStrategy.BestPrice)
 	const resolvedProtocol = $derived(
 		action.type === ActionType.Swap
 			? (swapProtocolIntent !== SwapProtocolId.Auto && swapIdToProtocol[swapProtocolIntent])
@@ -132,33 +152,23 @@
 					const sel = action.protocolSelection ?? action.protocolAction?.protocol ?? ''
 					if (!sel) return null
 					if (protocolOptions.some((o) => o.id === sel))
-						return sel as Protocol
-					return (action.protocolAction?.protocol ?? null) as Protocol | null
+						return sel as ProtocolId
+					return (action.protocolAction?.protocol ?? null) as ProtocolId | null
 				})(),
 	)
-	const protocolValue = $derived(
-		action.type === ActionType.Bridge && bridgeParams
-			? (bridgeParams.protocolIntent
-				? bridgeIdToProtocol[bridgeParams.protocolIntent]
-				: action.protocolAction?.protocol ?? '')
-			: (action.protocolSelection ?? action.protocolAction?.protocol ?? ''),
-	)
-	const swapUsesSpandex = $derived(
+	const swapShowsQuoteSection = $derived(
 		action.type === ActionType.Swap &&
+			(protocolAggregatorsById[swapAggregator]?.strategies.length ?? 0) > 0 &&
 			(swapProtocolIntent === SwapProtocolId.Auto ||
 				(swapIdToProtocol[swapProtocolIntent] != null &&
-					spandexSwapProtocols.includes(swapIdToProtocol[swapProtocolIntent]!))),
-	)
-	const spandexStrategy = $derived(
-		swapProtocolIntent === SwapProtocolId.Auto ? swapStrategy : undefined,
+					aggregatorBackedProtocols.includes(swapIdToProtocol[swapProtocolIntent]!))),
 	)
 	const paramsHash = $derived(stringify(action.params))
 	const isCctpBridge = $derived(
 		action.type === ActionType.Bridge &&
 			(bridgeParams?.protocolIntent === BridgeProtocolId.Cctp ||
-				resolvedProtocol === Protocol.Cctp),
+				resolvedProtocol === ProtocolId.Cctp),
 	)
-
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
 			isTestnet
@@ -177,74 +187,71 @@
 		return def.params.allows(action.params)
 	})
 
-	const swapParamsForRequest = $derived.by((): ActionParams<ActionType.Swap> | null => {
-		if (action.type !== ActionType.Swap || !selectedActor) return null
-		const p = action.params as ActionParams<ActionType.Swap>
-		return p.chainId != null && p.tokenIn && p.tokenOut && p.amount > 0n ? p : null
-	})
+	const swapParamsForRequest = $derived(
+		validatedSwapParams && selectedActor ? validatedSwapParams : null,
+	)
 	const swapRequestKey = $derived.by(() => {
-		const sp = swapParamsForRequest
-		if (!sp || !selectedActor) return ''
+		if (!validatedSwapParams || !selectedActor) return ''
 		return getRequestKeyForParams(
 			{
-				chainId: sp.chainId,
-				tokenIn: sp.tokenIn,
-				tokenOut: sp.tokenOut,
-				amountIn: sp.amount,
-				slippage: sp.slippage,
+				chainId: validatedSwapParams.chainId,
+				tokenIn: validatedSwapParams.tokenIn as `0x${string}`,
+				tokenOut: validatedSwapParams.tokenOut as `0x${string}`,
+				amountIn: validatedSwapParams.amount,
+				slippage: validatedSwapParams.slippage,
 			},
 			selectedActor,
 		)
 	})
-	const spandexProvider = $derived(
+	const selectedQuoteProvider = $derived(
 		action.type === ActionType.Swap &&
 			swapProtocolIntent !== SwapProtocolId.Auto &&
 			resolvedProtocol
-			? (protocolToSpandexProvider[resolvedProtocol] ?? null)
+			? (protocolToQuoteProvider[resolvedProtocol] ?? null)
 			: null,
 	)
-	const spandexQuotesQuery = useLiveQuery((q) =>
+	const swapQuotesQuery = useLiveQuery((q) =>
 		q
-			.from({ row: spandexQuoteItemsCollection })
+			.from({ row: protocolAggregatorQuoteItemsCollection })
 			.select(({ row }) => ({ row })),
 	)
-	const spandexQuoteTx = $derived(
-		swapRequestKey &&
-			spandexQuotesQuery.data &&
-			swapUsesSpandex
-			? (() => {
-					const items = spandexQuotesQuery.data!
-						.filter((r) => r.row.$id.requestId === swapRequestKey && r.row.success && r.row.transactionRequest)
-						.map((r) => r.row)
-					const item = spandexProvider
-						? items.find((r) => r.provider === spandexProvider)
-						: [...items].sort(
-								(a, b) =>
-									(b.simulatedOutputAmount ?? 0n) > (a.simulatedOutputAmount ?? 0n)
-										? 1
-										: -1,
-							)[0]
-					return item?.transactionRequest
-				})()
-			: undefined,
-	)
-	const bridgeParamsForQuote = $derived(
-		action.type === ActionType.Bridge &&
-		selectedActor &&
-		bridgeParams &&
-		(bridgeParams.protocolIntent === 'lifi' || resolvedProtocol === Protocol.LiFi) &&
-		bridgeParams.fromChainId != null &&
-		bridgeParams.toChainId != null &&
-		((action.params as { amount?: bigint }).amount ?? 0n) > 0n
-			? {
-					fromChainId: bridgeParams.fromChainId!,
-					toChainId: bridgeParams.toChainId!,
-					amount: (action.params as { amount?: bigint }).amount ?? 0n,
-					fromAddress: selectedActor,
-					slippage: (action.params as { slippage?: number }).slippage ?? 0.005,
-				}
-			: null,
-	)
+	const swapQuoteTx = $derived.by(() => {
+		if (!swapRequestKey || !swapQuotesQuery.data || !swapShowsQuoteSection) return undefined
+		const items = (swapQuotesQuery.data ?? [])
+			.map(({ row }) => row)
+			.filter(
+				(quote) =>
+					quote.$id.requestId === swapRequestKey &&
+					quote.success &&
+					quote.transactionRequest != null,
+			)
+		const item = selectedQuoteProvider
+			? items.find((r) => r.provider === selectedQuoteProvider)
+			: [...items].sort(
+					(a, b) => ((b.simulatedOutputAmount ?? 0n) > (a.simulatedOutputAmount ?? 0n) ? 1 : -1),
+				)[0]
+		return item?.transactionRequest ?? undefined
+	})
+	const bridgeParamsForQuote = $derived.by(() => {
+		if (
+			action.type !== ActionType.Bridge ||
+			!selectedActor ||
+			!validatedBridgeParams ||
+			(validatedBridgeParams.protocolIntent !== BridgeProtocolId.Lifi &&
+				resolvedProtocol !== ProtocolId.LiFi) ||
+			validatedBridgeParams.fromChainId == null ||
+			validatedBridgeParams.toChainId == null ||
+			validatedBridgeParams.amount <= 0n
+		)
+			return null
+		return {
+			fromChainId: validatedBridgeParams.fromChainId,
+			toChainId: validatedBridgeParams.toChainId,
+			amount: validatedBridgeParams.amount,
+			fromAddress: selectedActor,
+			slippage: validatedBridgeParams.slippage ?? 0.005,
+		}
+	})
 	const bridgeQuoteRequestKey = $derived(
 		bridgeParamsForQuote ? getBridgeQuoteRequestKey(bridgeParamsForQuote) : '',
 	)
@@ -253,25 +260,18 @@
 			.from({ row: bridgeQuoteItemsCollection })
 			.select(({ row }) => ({ row })),
 	)
-	const lifiBridgeTxs = $derived(
-		bridgeQuoteRequestKey && bridgeQuotesQuery.data
-			? bridgeQuotesQuery.data.find(
-					(r) => r.row.$id === bridgeQuoteRequestKey && r.row.success,
-				)?.row?.transactionRequests
-			: undefined,
-	)
+	const lifiBridgeTxs = $derived.by(() => {
+		bridgeQuotesQuery.data
+		const quote = bridgeQuoteItemsCollection.state.get(bridgeQuoteRequestKey)
+		return quote?.success ? quote.transactionRequests : undefined
+	})
 	const signingPayloads = $derived(
 		resolveSigningPayloads(action, getEffectiveRpcUrls(), selectedActor, {
 			selectedChainId,
 			isTestnet,
-			spandexQuoteTx,
+			swapQuoteTx,
 			lifiBridgeTxs,
 		}),
-	)
-	const proposedTransactionsHeading = $derived(
-		new Intl.PluralRules('en').select(signingPayloads.length) === 'one'
-			? 'Proposed Transaction'
-			: 'Proposed Transactions',
 	)
 	const selectedConnection = $derived(
 		connectedWallets.find((c) => c.connection.selected),
@@ -320,7 +320,7 @@
 		}
 		const valid = protocolOptions.some((o) => o.id === value)
 		const bridgeIntent =
-			action.type === ActionType.Bridge && valid ? protocolToBridgeId[value as Protocol] : undefined
+			action.type === ActionType.Bridge && valid ? protocolToBridgeId[value as ProtocolId] : undefined
 		action = {
 			...action,
 			protocolSelection: value,
@@ -348,10 +348,26 @@
 			(p): p is typeof p & { rpcUrl: string } => Boolean(p.rpcUrl),
 		)
 		if (withRpc.length === 0) return
+		try {
+			assertActionParams(action.type, action.params)
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err)
+			sessionActionTransactionSimulationsCollection.insert({
+				id: globalThis.crypto?.randomUUID?.() ?? `sim-${Date.now()}`,
+				sessionId,
+				indexInSequence,
+				status: SessionActionSimulationStatus.Failed,
+				createdAt: Date.now(),
+				paramsHash,
+				result: null,
+				error: message,
+			})
+			return
+		}
 		simulateInProgress = true
 		const id = globalThis.crypto?.randomUUID?.() ?? `sim-${Date.now()}`
 		try {
-			const payloads: TevmSimulationPayload[] = withRpc.map((p) => ({
+			const payloads = withRpc.map((p) => ({
 				rpcUrl: p.rpcUrl,
 				chainId: p.chainId,
 				from: p.from,
@@ -367,7 +383,7 @@
 					? SessionActionSimulationStatus.Success
 					: SessionActionSimulationStatus.Failed
 			const firstRevert = steps.find((s) => s.revertReason)?.revertReason
-			const row: SessionActionTransactionSimulation = {
+			const simulation: SessionActionTransactionSimulation = {
 				id,
 				sessionId,
 				indexInSequence,
@@ -377,7 +393,7 @@
 				result,
 				error: firstRevert,
 			}
-			sessionActionTransactionSimulationsCollection.insert(row)
+			sessionActionTransactionSimulationsCollection.insert(simulation)
 		} catch (err) {
 			const message = err instanceof Error ? err.message : String(err)
 			sessionActionTransactionSimulationsCollection.insert({
@@ -407,11 +423,16 @@
 
 	const onCctpConfirm = () => {
 		cctpConfirmOpen = false
-		broadcast()
+		broadcast().finally(consumeSessionCommand)
 	}
 
 	const broadcast = async () => {
 		if (!sessionId || !walletProvider || signingPayloads.length === 0) return
+		try {
+			assertActionParams(action.type, action.params)
+		} catch {
+			return
+		}
 		const payload = signingPayloads[0]
 		broadcastInProgress = true
 		try {
@@ -444,13 +465,25 @@
 		}
 	}
 
+	$effect(() => {
+		if (triggerSimulate && sessionId) {
+			runSimulation().finally(consumeSessionCommand)
+		}
+	})
+	$effect(() => {
+		if (!triggerExecute || !sessionId) return
+		if (isCctpBridge) cctpConfirmOpen = true
+		else broadcast().finally(consumeSessionCommand)
+	})
+
 
 	// Components
 	import Select from '$/components/Select.svelte'
 	import AddLiquidityFieldset from '$/views/actions/AddLiquidityFieldset.svelte'
 	import BridgeFieldset from '$/views/actions/BridgeFieldset.svelte'
-	import BridgeQuotesPanel from '$/views/actions/BridgeQuotesPanel.svelte'
-	import SpandexQuotesPanel from '$/views/actions/SpandexQuotesPanel.svelte'
+	import BridgeQuotes from '$/views/actions/BridgeQuotes.svelte'
+	import IntentsQuote from '$/views/actions/IntentsQuote.svelte'
+	import ProtocolAggregatorQuotes from '$/views/actions/ProtocolAggregatorQuotes.svelte'
 	import SwapFieldset from '$/views/actions/SwapFieldset.svelte'
 	import TransferFieldset from '$/views/actions/TransferFieldset.svelte'
 	import BridgeProtocolFieldset from './BridgeProtocolFieldset.svelte'
@@ -517,6 +550,11 @@
 				{#if action.type === ActionType.Swap}
 					<SwapProtocolFieldset bind:action />
 				{:else}
+					{@const protocolValue = action.type === ActionType.Bridge && bridgeParams
+						? (bridgeParams.protocolIntent
+							? bridgeIdToProtocol[bridgeParams.protocolIntent]
+							: action.protocolAction?.protocol ?? '')
+						: (action.protocolSelection ?? action.protocolAction?.protocol ?? '')}
 					<ProtocolInput
 						options={protocolOptions}
 						value={protocolValue}
@@ -529,54 +567,79 @@
 				{/if}
 			</section>
 
-			{#if action.type === ActionType.Swap && swapUsesSpandex}
-				<SpandexQuotesPanel
-					params={action.params as ActionParams<ActionType.Swap>}
-					provider={spandexProvider ?? undefined}
-					strategy={spandexStrategy
-						? (spandexStrategy as import('$/constants/protocols.ts').ProtocolStrategy)
-						: undefined}
-					swapperAccount={selectedActor}
-				/>
-			{/if}
-			{#if action.type === ActionType.Bridge && (bridgeParams?.protocolIntent === 'lifi' || resolvedProtocol === Protocol.LiFi)}
-				<BridgeQuotesPanel
-					params={action.params as ActionParams<ActionType.Bridge>}
-					fromAddress={selectedActor}
-				/>
+			{#if action.type === ActionType.Swap || action.type === ActionType.Bridge}
+				<section data-card data-column>
+					<h3>Quote</h3>
+					{#if action.type === ActionType.Swap}
+					{#if swapShowsQuoteSection}
+						<ProtocolAggregatorQuotes
+							params={validatedSwapParams}
+							provider={selectedQuoteProvider ?? undefined}
+							strategy={swapStrategy}
+							swapperAccount={selectedActor}
+						/>
+						{/if}
+						{#if swapProtocolIntent === SwapProtocolId.NearIntents}
+							<IntentsQuote
+								flow="swap"
+								params={validatedSwapParams}
+								fromAddress={selectedActor}
+							/>
+						{/if}
+					{:else if action.type === ActionType.Bridge}
+						{#if bridgeParams?.protocolIntent === BridgeProtocolId.Lifi || resolvedProtocol === ProtocolId.LiFi}
+							<BridgeQuotes
+								params={validatedBridgeParams}
+								fromAddress={selectedActor}
+							/>
+						{/if}
+						{#if bridgeParams?.protocolIntent === BridgeProtocolId.NearIntents || resolvedProtocol === ProtocolId.NearIntents}
+							<IntentsQuote
+								flow="bridge"
+								params={validatedBridgeParams}
+								fromAddress={selectedActor}
+							/>
+						{/if}
+					{/if}
+				</section>
 			{/if}
 
 			<section data-card class="proposed-transactions-section">
-				<h3>{proposedTransactionsHeading}</h3>
-				<TransactionSigningPayloadList payloads={signingPayloads} />
-				<div data-row>
-					<button
-						type="submit"
-						name="action"
-						value="simulate"
-						disabled={
-							!isParamsValid
-							|| signingPayloads.length === 0
-							|| signingPayloads.every((p) => !p.rpcUrl)
-							|| simulateInProgress
-						}
-					>
-						{simulateInProgress ? 'Simulating…' : 'Simulate'}
-					</button>
-					<button
-						type="submit"
-						name="action"
-						value="broadcast"
-						disabled={
-							!isParamsValid
-							|| !selectedConnectionSupportsSigning
-							|| signingPayloads.length === 0
-							|| broadcastInProgress
-						}
-					>
-						{broadcastInProgress ? 'Signing and broadcasting…' : 'Sign & Broadcast'}
-					</button>
-				</div>
+				{#if true}
+					{@const proposedTransactionsHeading = new Intl.PluralRules('en').select(signingPayloads.length) === 'one'
+						? 'Proposed Transaction'
+						: 'Proposed Transactions'}
+					<h3>{proposedTransactionsHeading}</h3>
+					<TransactionSigningPayloadList payloads={signingPayloads} />
+					<div data-row>
+						<button
+							type="submit"
+							name="action"
+							value="simulate"
+							disabled={
+								!isParamsValid
+								|| signingPayloads.length === 0
+								|| signingPayloads.every((p) => !p.rpcUrl)
+								|| simulateInProgress
+							}
+						>
+							{simulateInProgress ? 'Simulating…' : 'Simulate'}
+						</button>
+						<button
+							type="submit"
+							name="action"
+							value="broadcast"
+							disabled={
+								!isParamsValid
+								|| !selectedConnectionSupportsSigning
+								|| signingPayloads.length === 0
+								|| broadcastInProgress
+							}
+						>
+							{broadcastInProgress ? 'Signing and broadcasting…' : 'Sign & Broadcast'}
+						</button>
+					</div>
+				{/if}
 			</section>
 		</form>
 
@@ -597,12 +660,12 @@
 			<Dialog.Portal>
 				<Dialog.Content>
 					<Dialog.Title>Confirm CCTP transfer</Dialog.Title>
-					{#if bridgeParams && selectedActor}
+					{#if bridgeParams && selectedActor && bridgeParams.fromChainId != null && bridgeParams.toChainId != null}
 						{@const fromNet = Object.values(networksByChainId).find((n) => n?.chainId === bridgeParams.fromChainId)}
 						{@const toNet = Object.values(networksByChainId).find((n) => n?.chainId === bridgeParams.toChainId)}
 						{#if fromNet && toNet}
 							<Dialog.Description>
-								Send {formatSmallestToDecimal((action.params as { amount?: bigint }).amount ?? 0n, 6)} USDC from {fromNet.name}
+								Send {formatSmallestToDecimal(bridgeParams.amount ?? 0n, 6)} USDC from {fromNet.name}
 								to {toNet.name}. Recipient: {formatAddress(selectedActor)}.
 							</Dialog.Description>
 						{/if}

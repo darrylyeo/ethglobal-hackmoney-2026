@@ -16,9 +16,11 @@
 	// Props
 	let {
 		onPersist,
+		pendingSessionCommand = null,
 		session = $bindable(),
 	}: {
 		onPersist?: () => void
+		pendingSessionCommand?: 'simulate' | 'execute' | null
 		session: Session
 	} = $props()
 
@@ -135,11 +137,10 @@
 	<EntityView
 		data-scroll-item
 		entityType={EntityType.Session}
-		idSerialized={session.id}
-		href={resolve(buildSessionPath(session.id))}
+		entity={session}
+		titleHref={false}
 		label={displayLabel}
 		annotation="Session"
-		hasAnchorTitle={false}
 	>
 		{#snippet Title()}
 			<span class="sr-only">Session</span>
@@ -180,7 +181,9 @@
 			{selectedActor}
 			{selectedChainId}
 			{isTestnet}
-			sessionId={session.id}
+			sessionId={session.$id.id}
+			triggerSimulate={pendingSessionCommand === 'simulate'}
+			triggerExecute={pendingSessionCommand === 'execute'}
 		/>
 	</section>
 </div>

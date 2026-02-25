@@ -4,8 +4,8 @@
 
 import { CollectionId } from '$/constants/collections.ts'
 import { DataSource } from '$/constants/data-sources.ts'
-import { SpandexProviderId } from '$/constants/spandex-providers.ts'
-import type { SpandexProviderRow } from '$/data/SpandexProvider.ts'
+import { SpandexProviderId } from '$/constants/protocol-aggregator-providers.ts'
+import type { SpandexProviderRow } from '$/data/ProtocolAggregatorProvider.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
@@ -32,12 +32,12 @@ const initialRows: SpandexProviderCollectionRow[] = (
 export const spandexProvidersCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.SpandexProviders,
-		getKey: (row: SpandexProviderCollectionRow) => row.id,
+		getKey: (provider: SpandexProviderCollectionRow) => provider.id,
 	}),
 )
 
 if (spandexProvidersCollection.state.size === 0) {
-	for (const row of initialRows) {
-		spandexProvidersCollection.insert(row)
+	for (const provider of initialRows) {
+		spandexProvidersCollection.insert(provider)
 	}
 }

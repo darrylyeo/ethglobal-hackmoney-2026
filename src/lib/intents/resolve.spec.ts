@@ -3,13 +3,9 @@ import {
 	ActionType,
 	actionTypeDefinitionByActionType,
 } from '$/constants/actions.ts'
-import {
-	IntentType,
-	Protocol,
-	type IntentEntityRef,
-} from '$/constants/intents.ts'
+import { IntentType, type IntentEntityRef } from '$/constants/intents.ts'
 import { protocolActions } from '$/constants/protocolActions.ts'
-import { protocolsById as protocolSpecs } from '$/constants/protocols.ts'
+import { ProtocolId, protocolsById as protocolSpecs } from '$/constants/protocols.ts'
 import {
 	actionsByProtocol,
 	intentEntityTypes,
@@ -38,7 +34,7 @@ describe('resolveIntentForDrag', () => {
 		expect(result.intent.type).toBe(IntentType.SwapAndBridge)
 		expect(result.options.length).toBe(3)
 		expect(result.options[2].label).toBe('Bridge via Circle Gateway')
-		expect(result.options[2].actions[0].protocolAction.id.protocol).toBe(Protocol.CircleGateway)
+		expect(result.options[2].actions[0].protocolAction.id.protocol).toBe(ProtocolId.CircleGateway)
 	})
 
 	it('matches Actor → Actor as CreateChannelAndAddMember', () => {
@@ -52,7 +48,7 @@ describe('resolveIntentForDrag', () => {
 		expect(result.options.length).toBe(1)
 		expect(result.options[0].actions.length).toBe(2)
 		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.CreateChannel)
-		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.Yellow)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(ProtocolId.Yellow)
 		expect(result.options[0].actions[1].protocolAction.id.actionType).toBe(ActionType.AddChannelMember)
 	})
 
@@ -79,7 +75,7 @@ describe('resolveIntentForDrag', () => {
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.AddLiquidity)
 		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.AddLiquidity)
-		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.UniswapV4)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(ProtocolId.UniswapV4)
 	})
 
 	it('matches UniswapPosition → Actor as ManagePosition with CollectFees + RemoveLiquidity options', () => {
@@ -104,7 +100,7 @@ describe('resolveIntentForDrag', () => {
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.IncreasePositionLiquidity)
 		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.IncreaseLiquidity)
-		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.UniswapV4)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(ProtocolId.UniswapV4)
 	})
 
 	it('matches Actor → Room as ShareAddressInRoom', () => {
@@ -116,7 +112,7 @@ describe('resolveIntentForDrag', () => {
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.ShareAddressInRoom)
 		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.ShareAddress)
-		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.PartyKit)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(ProtocolId.PartyKit)
 	})
 
 	it('matches ActorCoin → RoomPeer as ProposeRoomTransfer', () => {
@@ -128,7 +124,7 @@ describe('resolveIntentForDrag', () => {
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.ProposeRoomTransfer)
 		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.ProposeTransfer)
-		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.PartyKit)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(ProtocolId.PartyKit)
 	})
 
 	it('matches Actor → RoomPeer as RequestPeerVerification', () => {
@@ -140,7 +136,7 @@ describe('resolveIntentForDrag', () => {
 		if (!result.matched) return
 		expect(result.intent.type).toBe(IntentType.RequestPeerVerification)
 		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.RequestVerification)
-		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.PartyKit)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(ProtocolId.PartyKit)
 	})
 
 	it('matches ActorCoin → Coin as SwapToCoin', () => {
@@ -153,8 +149,8 @@ describe('resolveIntentForDrag', () => {
 		expect(result.intent.type).toBe(IntentType.SwapToCoin)
 		expect(result.options.length).toBe(2)
 		expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.Swap)
-		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.UniswapV4)
-		expect(result.options[1].actions[0].protocolAction.id.protocol).toBe(Protocol.LiFi)
+		expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(ProtocolId.UniswapV4)
+		expect(result.options[1].actions[0].protocolAction.id.protocol).toBe(ProtocolId.LiFi)
 	})
 
 	describe('SendFunds (ActorCoin → ActorCoin)', () => {
@@ -216,9 +212,9 @@ describe('resolveIntentForDrag', () => {
 			expect(result.options[0].label).toBe('Transfer via LI.FI')
 			expect(result.options[0].actions.length).toBe(1)
 			expect(result.options[0].actions[0].protocolAction.id.actionType).toBe(ActionType.Transfer)
-			expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(Protocol.LiFi)
+			expect(result.options[0].actions[0].protocolAction.id.protocol).toBe(ProtocolId.LiFi)
 			expect(result.options[1].label).toBe('Transfer via Yellow Network')
-			expect(result.options[1].actions[0].protocolAction.id.protocol).toBe(Protocol.Yellow)
+			expect(result.options[1].actions[0].protocolAction.id.protocol).toBe(ProtocolId.Yellow)
 		})
 
 		it('different actor, same network, different coin → Swap via LI.FI (native recipient)', () => {
@@ -336,7 +332,7 @@ describe('resolveIntentForDrag', () => {
 
 describe('derived lookups', () => {
 	it('actionsByProtocol maps Yellow to channel, transfer, and custody actions', () => {
-		const yellowActions = actionsByProtocol[Protocol.Yellow]
+		const yellowActions = actionsByProtocol[ProtocolId.Yellow]
 		expect(yellowActions).toContain(ActionType.Transfer)
 		expect(yellowActions).toContain(ActionType.CreateChannel)
 		expect(yellowActions).toContain(ActionType.AddChannelMember)
@@ -347,7 +343,7 @@ describe('derived lookups', () => {
 	})
 
 	it('actionsByProtocol maps UniswapV4 to swap, liquidity, fee, and pool actions', () => {
-		const uniActions = actionsByProtocol[Protocol.UniswapV4]
+		const uniActions = actionsByProtocol[ProtocolId.UniswapV4]
 		expect(uniActions).toContain(ActionType.Swap)
 		expect(uniActions).toContain(ActionType.AddLiquidity)
 		expect(uniActions).toContain(ActionType.RemoveLiquidity)
@@ -357,7 +353,7 @@ describe('derived lookups', () => {
 	})
 
 	it('actionsByProtocol maps PartyKit to room actions including accept/reject', () => {
-		const partyKitActions = actionsByProtocol[Protocol.PartyKit]
+		const partyKitActions = actionsByProtocol[ProtocolId.PartyKit]
 		expect(partyKitActions).toContain(ActionType.ShareAddress)
 		expect(partyKitActions).toContain(ActionType.ProposeTransfer)
 		expect(partyKitActions).toContain(ActionType.RequestVerification)
@@ -366,37 +362,37 @@ describe('derived lookups', () => {
 	})
 
 	it('actionsByProtocol maps Gateway to Bridge', () => {
-		const gatewayActions = actionsByProtocol[Protocol.CircleGateway]
+		const gatewayActions = actionsByProtocol[ProtocolId.CircleGateway]
 		expect(gatewayActions).toContain(ActionType.Bridge)
 	})
 
 	it('protocolsByAction maps Swap to UniswapV4 and LiFi', () => {
 		const swapProtocols = protocolsByAction[ActionType.Swap]
-		expect(swapProtocols).toContain(Protocol.UniswapV4)
-		expect(swapProtocols).toContain(Protocol.LiFi)
+		expect(swapProtocols).toContain(ProtocolId.UniswapV4)
+		expect(swapProtocols).toContain(ProtocolId.LiFi)
 	})
 
 	it('protocolsByAction maps Bridge to Cctp, LiFi, and Gateway', () => {
 		const bridgeProtocols = protocolsByAction[ActionType.Bridge]
-		expect(bridgeProtocols).toContain(Protocol.Cctp)
-		expect(bridgeProtocols).toContain(Protocol.LiFi)
-		expect(bridgeProtocols).toContain(Protocol.CircleGateway)
+		expect(bridgeProtocols).toContain(ProtocolId.Cctp)
+		expect(bridgeProtocols).toContain(ProtocolId.LiFi)
+		expect(bridgeProtocols).toContain(ProtocolId.CircleGateway)
 	})
 
 	it('protocolsByAction maps Transfer to Yellow and LiFi', () => {
 		const transferProtocols = protocolsByAction[ActionType.Transfer]
-		expect(transferProtocols).toContain(Protocol.Yellow)
-		expect(transferProtocols).toContain(Protocol.LiFi)
+		expect(transferProtocols).toContain(ProtocolId.Yellow)
+		expect(transferProtocols).toContain(ProtocolId.LiFi)
 	})
 
 	it('protocolsByAction maps AddLiquidity to UniswapV4 only', () => {
 		const protocols = protocolsByAction[ActionType.AddLiquidity]
-		expect(protocols).toEqual([Protocol.UniswapV4])
+		expect(protocols).toEqual([ProtocolId.UniswapV4])
 	})
 
 	it('protocolsByAction maps ShareAddress to PartyKit only', () => {
 		const protocols = protocolsByAction[ActionType.ShareAddress]
-		expect(protocols).toEqual([Protocol.PartyKit])
+		expect(protocols).toEqual([ProtocolId.PartyKit])
 	})
 
 	it('intentEntityTypes contains all entity types from intent definitions', () => {
@@ -423,8 +419,8 @@ describe('action and protocol specs', () => {
 		}
 	})
 
-	it('protocolSpecs covers all Protocol values', () => {
-		for (const protocol of Object.values(Protocol)) {
+	it('protocolSpecs covers all ProtocolId values', () => {
+		for (const protocol of Object.values(ProtocolId)) {
 			expect(protocolSpecs[protocol]).toBeDefined()
 			expect(protocolSpecs[protocol].label).toBeTruthy()
 		}
