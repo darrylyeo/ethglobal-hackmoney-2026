@@ -1,6 +1,6 @@
 # Atomic Commits Methodology
 
-Agent instructions for creating granular, atomic commits in topological order.
+Agent instructions for creating granular, atomic commits in topological order. **Each commit must be hunk-aware and leave the project buildable.**
 
 ---
 
@@ -8,32 +8,36 @@ Agent instructions for creating granular, atomic commits in topological order.
 
 When the user asks you to commit staged/modified changes atomically:
 
-1. **Analyze** all modified, added, and deleted files
-2. **Plan** commits in topological order (dependencies first)
-3. **Execute** each commit, staging only relevant hunks
-4. **Verify** the build remains valid after each commit
+1. **Analyze** all changes at **hunk level** (not just file level)
+2. **Plan** commits in topological order (dependencies first), assigning **hunks** to commits
+3. **Execute** each commit by staging only the **relevant hunks** (`git add -p` when a file spans multiple commits)
+4. **Verify** the build after **every** commit; if it fails, undo, split, and re-commit until the commit passes
 
 ---
 
-## Phase 1: Analyze Changes
+## Phase 1: Analyze Changes (hunk-aware)
+
+Work at **hunk granularity** so a single file can be split across multiple commits. Use `git diff` to see hunk boundaries (`@@ -start,count +start,count @@`).
 
 ```bash
 # Get overview of all changes
 git status --short
 
-# Get hunk boundaries for modified files
-git diff --no-color -U0 | grep -E '^(@@|diff --git)'
+# Full diff with hunk boundaries (use to assign hunks to commits)
+git diff --no-color -U0
+# Boundaries only: git diff --no-color -U0 | grep -E '^(@@|diff --git)'
 
 # Check recent commit style
 git log --oneline -20
 ```
 
-Categorize each change:
+Categorize each **hunk** (or file when it has a single concern):
 
 - **Independent**: Can be committed in any order
-- **Dependency**: Must come before files that import it
-- **Atomic group**: Multiple files that must change together (e.g., prop renames)
+- **Dependency**: Must come before files/hunks that import or use it
+- **Atomic group**: Hunks (possibly across files) that must change together (e.g., prop renames)
 - **Deletion**: Must come after removing all usages
+- **Mixed file**: List which hunks go in which commit; stage with `git add -p` when executing
 
 ---
 
@@ -44,7 +48,7 @@ Create a `COMMIT_PLAN.md` with:
 1. **Phases** grouping related changes
 2. **Topological order** within each phase
 3. **Commit message** following project style
-4. **Files/hunks** for each commit
+4. **Files and hunks** for each commit (when a file has mixed concerns, list which hunks go in which commit, e.g. by line range or hunk index)
 5. **Dependencies** noted where relevant
 
 ### Commit Message Style
@@ -68,48 +72,44 @@ Analyze `git log` to match existing style. Common patterns:
 
 ---
 
-## Phase 3: Execute Commits
+## Phase 3: Execute Commits (hunk granularity)
 
-For each planned commit:
+For each planned commit, stage **only the hunks** that belong to that commit. When a file contains hunks for more than one commit, use `git add -p` and accept (y) or skip (n) by hunk.
 
 ```bash
-# Stage specific file(s)
-git add -- path/to/file.ts
-
-# Or stage specific hunks interactively
+# Prefer staging by hunk when a file spans multiple commits
 git add -p path/to/file.ts
+
+# When the whole file belongs to this commit
+git add -- path/to/file.ts
 
 # For deletions
 git rm -- path/to/deleted.ts
 
-# Commit with HEREDOC for message formatting
 git commit -m "$(cat <<'EOF'
 Commit message here
 EOF
 )"
 ```
 
+Do not stage a whole file for one commit if it has hunks that belong to another; split by hunk.
+
 ### Handling Complex Diffs
 
-When a file has mixed changes (some for now, some for later):
+When a file has mixed changes and `git add -p` is impractical:
 
 1. **Stash** current working tree state
 2. **Checkout** the file from HEAD
-3. **Apply** only the changes needed for this commit
+3. **Apply** only the changes (or paste only the hunks) needed for this commit
 4. **Commit**
 5. **Restore** full working tree state
 
 ```bash
-# Save full state
 cp path/to/file.ts /tmp/file.ts.full
-
-# Reset to committed state + apply partial changes
 git checkout HEAD -- path/to/file.ts
 # ... make only the changes for this commit ...
 git add -- path/to/file.ts
 git commit -m "message"
-
-# Restore full state
 cp /tmp/file.ts.full path/to/file.ts
 ```
 
@@ -127,18 +127,18 @@ EOF
 
 ---
 
-## Phase 4: Verify
+## Phase 4: Verify (mandatory)
 
-After each commit, optionally verify the build:
+After **every** commit, run the project's check/build. Each commit must leave the tree buildable.
 
 ```bash
-deno task build
+deno task check
+# or: deno task build
 ```
 
-If verification fails:
-
-1. Fix the issue
-2. Amend the commit (if not pushed) or create a fix commit
+- **If it passes:** proceed to the next commit.
+- **If it fails:** the commit is not atomic. Undo it (`git reset --soft HEAD~1`), split into smaller steps (by dependency or by hunk), re-stage and commit in smaller pieces, and run verification after each piece. Do not proceed until the current commit passes.
+- Do not amend with unrelated fixes; split the commit so each piece is self-contained and passes.
 
 ---
 
