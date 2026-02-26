@@ -1,7 +1,9 @@
 import type { WalletConnection$Id } from '$/data/WalletConnection.ts'
 
+export type AgentChatTree$Id = { id: string }
+
 export type AgentChatTree = {
-	id: string
+	$id: AgentChatTree$Id
 	name: string | null
 	pinned: boolean
 	systemPrompt: string

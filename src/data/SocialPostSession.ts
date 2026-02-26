@@ -7,8 +7,10 @@ export enum SocialPostSessionStatus {
 	Finalized = 'Finalized',
 }
 
+export type SocialPostSession$Id = { id: string }
+
 export type SocialPostSession = {
-	id: string
+	$id: SocialPostSession$Id
 	name?: string
 	actions: SocialPostAction[]
 	status: SocialPostSessionStatus

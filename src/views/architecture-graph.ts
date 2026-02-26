@@ -736,7 +736,7 @@ const baseNetworkNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 		)
 		.map((network, index) => {
 			const column = index % 4
-			const row = Math.floor(index / 4)
+			const gridRow = Math.floor(index / 4)
 			const icon = network.icon ?? ''
 			const shape: ArchitectureNode['shape'] =
 				icon.length > 0 ? 'image' : 'circle'
@@ -746,7 +746,7 @@ const baseNetworkNodes: Omit<ArchitectureNode, 'color' | 'combo'>[] = [
 				label: network.name,
 				layer: networkLayer,
 				x: layerX.networks + column * 140,
-				y: rowY(row, 140, 90),
+				y: rowY(gridRow, 140, 90),
 				size: 44,
 				shape,
 				icon: icon.length > 0 ? icon : undefined,

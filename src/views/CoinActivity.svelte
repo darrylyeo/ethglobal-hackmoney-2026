@@ -76,21 +76,21 @@
 			| { row: import('$/collections/TransferGraphs.ts').TransferGraphRow }
 			| undefined,
 	)
-	const allRows = $derived(eventsQuery.data ?? [])
-	const eventRows = $derived(
-		allRows.filter(
+	const allEvents = $derived(eventsQuery.data ?? [])
+	const events = $derived(
+		allEvents.filter(
 			(r): r is { row: TransferEventRowType } =>
 				((r.row as TransferEventRowType).$id.$network.chainId as number) !== -1,
 		),
 	)
 	const metaRow = $derived(
-		allRows.find(
+		allEvents.find(
 			(r) =>
 				(r.row as TransferEventsMetaRow).$id?.$network?.chainId === -1,
 		)?.row as TransferEventsMetaRow | undefined,
 	)
 	const eventsSet = $derived(
-		new Set(eventRows.map((r) => r.row)) as Set<TransferEventRowType>,
+		new Set(events.map(({ row: event }) => event)) as Set<TransferEventRowType>,
 	)
 	const loading = $derived(metaRow?.isLoading ?? true)
 	const errorMessage = $derived(metaRow?.error ?? null)

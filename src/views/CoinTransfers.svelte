@@ -33,7 +33,7 @@
 	<ItemsList
 		items={eventsSet}
 		getKey={getEventKey}
-		getSortValue={(row) => -row.timestamp}
+		getSortValue={(event) => -event.timestamp}
 		placeholderKeys={new Set()}
 		bind:visiblePlaceholderKeys
 		scrollPosition="End"

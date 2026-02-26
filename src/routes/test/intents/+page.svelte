@@ -35,7 +35,7 @@
 
 
 	// (Derived)
-	const actorCoins = $derived((actorCoinsQuery.data ?? []).map((r) => r.row))
+	const actorCoins = $derived((actorCoinsQuery.data ?? []).map(({ row: coin }) => coin))
 
 	const resolution = $derived(
 		fromPayload && toPayload
@@ -149,7 +149,7 @@
 						className="intent-entity"
 						draggableText={`${row.symbol} ${row.$id.$coin.address}`}
 						entityType={EntityType.ActorCoin}
-						entityId={row.$id}
+						entity={row}
 						source="intent-test"
 					>
 						<span>

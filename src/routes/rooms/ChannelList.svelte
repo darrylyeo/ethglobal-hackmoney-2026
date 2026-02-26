@@ -22,13 +22,13 @@
 	const sharedQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: sharedAddressesCollection })
-				.where(({ row }) => eq(row.roomId, roomId))
-				.select(({ row }) => ({ row })),
+				.from({ sharedAddress: sharedAddressesCollection })
+				.where(({ sharedAddress }) => eq(sharedAddress.roomId, roomId))
+				.select(({ sharedAddress }) => ({ sharedAddress })),
 		[() => roomId],
 	)
 	const channelsQuery = useLiveQuery((q) =>
-		q.from({ row: stateChannelsCollection }).select(({ row }) => ({ row })),
+		q.from({ stateChannel: stateChannelsCollection }).select(({ stateChannel }) => ({ stateChannel })),
 	)
 	const liveQueryEntries = [
 		{
@@ -44,10 +44,10 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const roomAddresses = $derived(
-		(sharedQuery.data ?? []).map((r) => r.row.address.toLowerCase()),
+		(sharedQuery.data ?? []).map(({ sharedAddress }) => sharedAddress.address.toLowerCase()),
 	)
 	const myAddress = $derived(yellowState.address?.toLowerCase() ?? null)
-	const allChannels = $derived((channelsQuery.data ?? []).map((r) => r.row))
+	const allChannels = $derived((channelsQuery.data ?? []).map(({ stateChannel: channel }) => channel))
 	const roomChannels = $derived(
 		myAddress
 			? allChannels.filter((ch) => {

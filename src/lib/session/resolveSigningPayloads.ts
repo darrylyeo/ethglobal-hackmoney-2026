@@ -1,4 +1,9 @@
-import { ActionType, TransferSpeed, type Action } from '$/constants/actions.ts'
+import {
+	ActionType,
+	TransferSpeed,
+	type Action,
+	type ActionParams,
+} from '$/constants/actions.ts'
 import { BridgeProtocolId } from '$/constants/bridge-protocol-intents.ts'
 import { ChainId } from '$/constants/networks.ts'
 import {
@@ -39,7 +44,7 @@ const zeroAddress = '0x0000000000000000000000000000000000000000' as `0x${string}
 export type ResolveSigningPayloadsOptions = {
 	selectedChainId?: number | null
 	isTestnet?: boolean
-	spandexQuoteTx?: {
+	swapQuoteTx?: {
 		to: `0x${string}`
 		data: `0x${string}`
 		value: string
@@ -66,8 +71,8 @@ export type ResolveSigningPayloadsOptions = {
 	}
 }
 
-export const spandexTxToSigningPayload = (
-	tx: ResolveSigningPayloadsOptions['spandexQuoteTx'],
+export const swapQuoteTxToSigningPayload = (
+	tx: ResolveSigningPayloadsOptions['swapQuoteTx'],
 	from: `0x${string}`,
 	rpcUrls: Partial<Record<number, string>>,
 ): TransactionSigningPayload | null =>
@@ -92,15 +97,15 @@ export const resolveSigningPayloads = (
 	options?: ResolveSigningPayloadsOptions,
 ): TransactionSigningPayload[] => {
 	const from = fromAddress ?? zeroAddress
-	const p = action.params as Record<string, unknown>
+	const p = (options?.validatedParams ?? action.params) as Record<string, unknown>
 	const fallbackChainId = options?.selectedChainId ?? null
 
 	switch (action.type) {
 		case ActionType.Swap: {
-			const spandexPayload =
-				options?.spandexQuoteTx &&
-				spandexTxToSigningPayload(options.spandexQuoteTx, from, rpcUrls)
-			return spandexPayload ? [spandexPayload] : []
+			const swapPayload =
+				options?.swapQuoteTx &&
+				swapQuoteTxToSigningPayload(options.swapQuoteTx, from, rpcUrls)
+			return swapPayload ? [swapPayload] : []
 		}
 		case ActionType.Bridge: {
 			const lifiTxs = options?.lifiBridgeTxs

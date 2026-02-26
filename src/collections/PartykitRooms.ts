@@ -15,6 +15,6 @@ export type RoomRow = Room & { $source: DataSource }
 export const partykitRoomsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.PartykitRooms,
-		getKey: (row: RoomRow) => row.id,
+		getKey: (room: RoomRow) => room.$id.id,
 	}),
 )

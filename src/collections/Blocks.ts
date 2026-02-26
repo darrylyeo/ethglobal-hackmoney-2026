@@ -39,7 +39,7 @@ export const blocksCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.Blocks,
 		storageKey: CollectionId.Blocks,
-		getKey: (row: BlockRow) => `${row.$id.$network.chainId}:${row.$id.blockNumber}`,
+		getKey: (block: BlockRow) => `${block.$id.$network.chainId}:${block.$id.blockNumber}`,
 		parser: { stringify, parse },
 	}),
 )
@@ -58,7 +58,7 @@ export function blocksViewFrom(
 		BlockEntry | undefined,
 		Set<ChainTransactionEntry>
 	>()
-	for (const { row } of queryData) blocksMap.set(row, new Set())
+	for (const { row: block } of queryData) blocksMap.set(block, new Set())
 	const network = networksByChainId[chainId] ?? undefined
 	return {
 		blocksMap,
@@ -127,7 +127,7 @@ export const fetchBlock = async (
 			getBlockByNumber(provider, blockNum),
 			getBlockTransactionCount(provider, blockNum),
 		])
-		const row: BlockRow = {
+		const blockRow: BlockRow = {
 			$id: { $network: { chainId }, blockNumber },
 			number: block.number,
 			hash: block.hash,
@@ -145,32 +145,32 @@ export const fetchBlock = async (
 		if (existing) {
 			blocksCollection.update(key, (draft) => {
 				Object.assign(draft, {
-					number: row.number,
-					hash: row.hash,
-					parentHash: row.parentHash,
-					timestamp: row.timestamp,
-					miner: row.miner,
-					gasUsed: row.gasUsed,
-					gasLimit: row.gasLimit,
-					baseFeePerGas: row.baseFeePerGas,
+					number: blockRow.number,
+					hash: blockRow.hash,
+					parentHash: blockRow.parentHash,
+					timestamp: blockRow.timestamp,
+					miner: blockRow.miner,
+					gasUsed: blockRow.gasUsed,
+					gasLimit: blockRow.gasLimit,
+					baseFeePerGas: blockRow.baseFeePerGas,
 					transactionCount,
 					isLoading: false,
 					error: null,
 				})
 			})
 		} else {
-			blocksCollection.insert(row)
+			blocksCollection.insert(blockRow)
 		}
 		return {
 			$id: { $network: { chainId }, blockNumber },
-			number: row.number,
-			hash: row.hash,
-			parentHash: row.parentHash,
-			timestamp: row.timestamp,
-			miner: row.miner,
-			gasUsed: row.gasUsed,
-			gasLimit: row.gasLimit,
-			baseFeePerGas: row.baseFeePerGas,
+			number: blockRow.number,
+			hash: blockRow.hash,
+			parentHash: blockRow.parentHash,
+			timestamp: blockRow.timestamp,
+			miner: blockRow.miner,
+			gasUsed: blockRow.gasUsed,
+			gasLimit: blockRow.gasLimit,
+			baseFeePerGas: blockRow.baseFeePerGas,
 			transactionCount,
 		}
 	} catch (e) {

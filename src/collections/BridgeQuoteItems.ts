@@ -62,7 +62,7 @@ export const fetchBridgeQuote = async (
 ): Promise<BridgeQuoteItem | null> => {
 	const key = getBridgeQuoteRequestKey($id)
 	const existing = bridgeQuoteItemsCollection.state.get(key)
-	const row: BridgeQuoteItemRow = {
+	const item: BridgeQuoteItemRow = {
 		$id: key,
 		request: $id,
 		success: false,
@@ -73,7 +73,7 @@ export const fetchBridgeQuote = async (
 	}
 	if (existing) {
 		bridgeQuoteItemsCollection.update(key, (draft) => {
-			draft.fetchedAt = row.fetchedAt
+			draft.fetchedAt = item.fetchedAt
 			draft.error = null
 		})
 	}
@@ -86,21 +86,21 @@ export const fetchBridgeQuote = async (
 			slippage: $id.slippage ?? 0.005,
 		})
 		const txRequests = stepToTransactionRequests(step)
-		row.success = txRequests.length > 0
-		row.transactionRequests = txRequests
+		item.success = txRequests.length > 0
+		item.transactionRequests = txRequests
 	} catch (e) {
-		row.error = e instanceof Error ? e.message : String(e)
+		item.error = e instanceof Error ? e.message : String(e)
 	}
-	const finalKey = row.$id
+	const finalKey = item.$id
 	const existingRow = bridgeQuoteItemsCollection.state.get(finalKey)
 	if (existingRow) {
 		bridgeQuoteItemsCollection.update(finalKey, (draft) => {
-			Object.assign(draft, row)
+			Object.assign(draft, item)
 		})
 	} else {
-		bridgeQuoteItemsCollection.insert(row)
+		bridgeQuoteItemsCollection.insert(item)
 	}
-	return row
+	return item
 }
 
 export const getBridgeQuote = ($id: BridgeRoutes$Id) =>

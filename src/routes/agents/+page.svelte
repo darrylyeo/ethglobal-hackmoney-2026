@@ -15,11 +15,10 @@
 		[],
 	)
 
-
 	// (Derived)
 	const trees = $derived(
 		(treesQuery.data ?? [])
-			.map((result) => result.row)
+			.map(({ row }) => row)
 			.sort((a, b) => b.updatedAt - a.updatedAt),
 	)
 
@@ -64,13 +63,13 @@
 	{#if trees.length === 0}
 		<p data-text="muted">No conversations yet.</p>
 	{:else}
-		{#each trees as tree (tree.id)}
+		{#each trees as tree (tree.$id.id)}
 			<div
 				data-card
 				data-row="align-center justify-between"
 			>
 				<a
-					href="/agents/{tree.id}"
+					href="/agents/{tree.$id.id}"
 					data-row="align-center"
 					data-row-item="flexible"
 				>
@@ -87,7 +86,7 @@
 						onclick={(e: MouseEvent) => {
 							e.preventDefault()
 							e.stopPropagation()
-							togglePin(tree.id)
+							togglePin(tree.$id.id)
 						}}
 					>
 						{tree.pinned ? 'Unpin' : 'Pin'}
@@ -96,7 +95,7 @@
 						onclick={(e: MouseEvent) => {
 							e.preventDefault()
 							e.stopPropagation()
-							deleteAgentChatTree(tree.id)
+							deleteAgentChatTree(tree.$id.id)
 						}}
 					>
 						Delete

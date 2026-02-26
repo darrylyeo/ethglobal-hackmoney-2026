@@ -5,10 +5,11 @@
 	import {
 		dashboardsCollection,
 		ensureDefaultRow,
+		getDashboardState,
 	} from '$/collections/Dashboards.ts'
-import { APP_NAME } from '$/constants/app.ts'
-import { CoinId } from '$/constants/coins.ts'
-import { layerColors } from '$/views/architecture-graph.ts'
+	import { APP_NAME } from '$/constants/app.ts'
+	import { CoinId } from '$/constants/coins.ts'
+	import { layerColors } from '$/views/architecture-graph.ts'
 	import { and, eq, not, useLiveQuery } from '@tanstack/svelte-db'
 
 	const valuePhrases = [
@@ -111,44 +112,42 @@ import { layerColors } from '$/views/architecture-graph.ts'
 			q
 				.from({ row: dashboardsCollection })
 				.where(({ row }) => eq(row.$id.id, '__default__'))
-				.select(({ row }) =>
-					'defaultDashboardId' in row ?
-						{ defaultDashboardId: row.defaultDashboardId }
-					: { defaultDashboardId: undefined as string | undefined },
-				),
+				.select(({ row }) => ({ row })),
 		[],
 	)
 
 
 	// (Derived)
 	const defaultDashboardId = $derived(
-		defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
+		(() => {
+			const dashboard = defaultRowQuery.data?.[0]?.row
+			return dashboard && 'defaultDashboardId' in dashboard ? dashboard.defaultDashboardId : undefined
+		})() ?? 'default',
 	)
 
 
 	// Context
-	const dashboardRowQuery = useLiveQuery(
+	const dashboardRowVersionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: dashboardsCollection })
-				.where(({ row }) =>
+				.from({ dashboard: dashboardsCollection })
+				.where(({ dashboard }) =>
 					and(
-						not(eq(row.$id.id, '__default__')),
-						eq(row.$id.id, defaultDashboardId),
+						not(eq(dashboard.$id.id, '__default__')),
+						eq(dashboard.$id.id, defaultDashboardId),
 					),
 				)
-				.select(({ row }) => ({ row })),
+				.select(({ dashboard }) => ({ dashboard })),
 		[() => defaultDashboardId],
 	)
 
-
-	// (Derived)
-	const previewRow = $derived(dashboardRowQuery.data?.[0]?.row)
-	const previewRoot = $derived(
-		previewRow && 'root' in previewRow ?
-			previewRow.root
-		: undefined,
-	)
+	// (Derived) — plain copy so SSR/devalue never sees TanStack refs
+	const previewRoot = $derived.by(() => {
+		dashboardRowVersionQuery.data
+		const row = getDashboardState(defaultDashboardId)
+		const root = row && 'root' in row ? row.root : undefined
+		return root != null ? (JSON.parse(JSON.stringify(root)) as PanelTreeNode) : undefined
+	})
 
 
 	// Functions
@@ -447,71 +446,6 @@ import { layerColors } from '$/views/architecture-graph.ts'
 
 		& .landing-value-sep {
 			opacity: 0.7;
-		}
-
-		& .landing-dashboard-preview {
-			display: block;
-			text-decoration: none;
-			color: inherit;
-			margin-block-start: 2rem;
-			perspective: 1200px;
-			transform-style: preserve-3d;
-
-			&:hover .landing-dashboard-preview-inner {
-				transform: rotateX(6deg) rotateY(-4deg) scale(0.95);
-				box-shadow:
-					0 32px 64px -12px rgb(0 0 0 / 0.25),
-					0 0 0 1px var(--color-border);
-			}
-		}
-
-		& .landing-dashboard-preview-zoom {
-			zoom: 0.75;
-			width: min(180vw, 84rem);
-			height: min(100vh, 40rem);
-			margin-inline: auto;
-			overflow: hidden;
-		}
-
-		& .landing-dashboard-preview-inner {
-			position: relative;
-			display: block;
-			width: 100%;
-			height: 100%;
-			transform: rotateX(10deg) rotateY(-6deg) scale(0.92);
-			transform-style: preserve-3d;
-			border-radius: 0.5rem;
-			box-shadow:
-				0 25px 50px -12px rgb(0 0 0 / 0.2),
-				0 0 0 1px var(--color-border);
-			overflow: hidden;
-			transition: transform 0.35s ease, box-shadow 0.35s ease;
-			pointer-events: none;
-
-			& :global(.split-tree),
-			& :global(.dashboard-panel) {
-				height: 100%;
-				min-height: 0;
-			}
-
-			& :global(.dashboard-panel) {
-				font-size: 0.875rem;
-			}
-
-			& :global(.dashboard-panel header) {
-				padding: 0.35rem 0.5rem;
-				gap: 0.35rem;
-			}
-
-			& :global(.dashboard-panel-route),
-			& :global(.dashboard-panel-hash) {
-				min-width: 0;
-				font-size: 0.75rem;
-			}
-
-			& :global(.dashboard-panel-history) {
-				display: none;
-			}
 		}
 
 		@keyframes routes-reveal {

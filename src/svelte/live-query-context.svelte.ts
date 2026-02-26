@@ -9,7 +9,7 @@ import { getContext, setContext, untrack } from 'svelte'
 export type LiveQueryEntry = {
 	id: string
 	label: string
-	query: { data: { row: unknown }[] | undefined }
+	query: { data: Record<string, unknown>[] | undefined }
 }
 
 type LiveQueryRegistryEntry = {

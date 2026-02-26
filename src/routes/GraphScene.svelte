@@ -55,7 +55,7 @@
 	import { untrack } from 'svelte'
 	import {
 		buildWatchedKeys,
-		isRowInWatchedScope,
+		isInWatchedScope,
 	} from '$/lib/graphWatchedScope.ts'
 	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits.ts'
@@ -202,7 +202,7 @@
 		visibleCollections.has(entityType) &&
 		!hiddenEntitySources.has(`${entityType}:${source}`)
 
-	const skipRow = (entityType: string, source: string | undefined) =>
+	const skipEntity = (entityType: string, source: string | undefined) =>
 		source != null && !isEntitySourceVisible(entityType, source)
 
 	const walletsQuery = useLiveQuery((q) =>
@@ -352,9 +352,9 @@
 	const graphQueries = entityQueryList.map(([, q]) => q)
 
 	const entitySourceCombos = $derived(
-		(entitySourcesQuery.data ?? []).map(({ row }) => ({
-			entityType: row.entityType,
-			source: row.source,
+		(entitySourcesQuery.data ?? []).map(({ row: item }) => ({
+			entityType: item.entityType,
+			source: item.source,
 		})),
 	)
 	const allSourceKeys = $derived(
@@ -983,6 +983,7 @@
 	const graphModel = $derived.by(() => {
 		if (!isVisible) return null
 
+		const watchedKeys = buildWatchedKeys(watchedEntitiesQuery.data ?? [])
 		const take = <T,>(a: T[] | undefined) =>
 			(a ?? []).slice(0, GRAPH_SCENE_MAX_PER_COLLECTION)
 		const rowsForType = <T extends { row: Record<string, unknown> }>(
@@ -991,8 +992,8 @@
 		) => {
 			const taken = take(data)
 			if (expandedCollections.has(entityType)) return taken
-			return taken.filter(({ row }) =>
-				isRowInWatchedScope(entityType, row, watchedKeys),
+			return taken.filter(({ row: item }) =>
+				isInWatchedScope(entityType, item, watchedKeys),
 			)
 		}
 		const g = new Graph({ multi: true, allowSelfLoops: true })
@@ -1043,9 +1044,9 @@
 		// Add wallet nodes (center)
 		if (visibleCollections.has(EntityType.Wallet)) {
 			const wallets = rowsForType(EntityType.Wallet, walletsQuery.data)
-			wallets.forEach(({ row }, i) => {
-				if (skipRow(EntityType.Wallet, undefined)) return
-				const rdns = row.$id?.rdns
+			wallets.forEach(({ row: wallet }, i) => {
+				if (skipEntity(EntityType.Wallet, undefined)) return
+				const rdns = wallet.$id?.rdns
 				if (!rdns) return
 				const pos = positionInRing(
 					collections[EntityType.Wallet].ring,
@@ -1055,11 +1056,11 @@
 				addNode(
 					baseNode(EntityType.Wallet, pos, {
 						id: `wallet:${rdns}`,
-						label: row.name,
-						type: row.icon ? 'image' : 'circle',
-						image: row.icon || undefined,
-						g6Type: row.icon ? 'image' : collections[EntityType.Wallet].g6Type,
-						details: { rdns: row.rdns },
+						label: wallet.name,
+						type: wallet.icon ? 'image' : 'circle',
+						image: wallet.icon || undefined,
+						g6Type: wallet.icon ? 'image' : collections[EntityType.Wallet].g6Type,
+						details: { rdns: wallet.rdns },
 					}),
 				)
 			})
@@ -1071,9 +1072,9 @@
 				EntityType.WalletConnection,
 				connectionsQuery.data,
 			)
-			connections.forEach(({ row }, i) => {
-				if (skipRow(EntityType.WalletConnection, undefined)) return
-				const rdns = row.$id?.wallet$id?.rdns
+			connections.forEach(({ row: conn }, i) => {
+				if (skipEntity(EntityType.WalletConnection, undefined)) return
+				const rdns = conn.$id?.wallet$id?.rdns
 				if (!rdns) return
 				const connId = `connection:${rdns}`
 				if (g.hasNode(connId)) return
@@ -1083,18 +1084,18 @@
 					connections.length,
 				)
 				const statusColor =
-					row.status === 'connected'
+					conn.status === 'connected'
 						? '#22c55e'
-						: row.status === 'error'
+						: conn.status === 'error'
 							? '#ef4444'
 							: '#f59e0b'
-				const chainName = row.chainId ? getChainName(row.chainId) : null
+				const chainName = conn.chainId ? getChainName(conn.chainId) : null
 				addNode({
 					id: connId,
 					label:
-						row.status === 'connected'
-							? `${row.actors.length} acct${row.actors.length !== 1 ? 's' : ''}${chainName ? ` · ${chainName}` : ''}`
-							: row.status,
+						conn.status === 'connected'
+							? `${conn.actors.length} acct${conn.actors.length !== 1 ? 's' : ''}${chainName ? ` · ${chainName}` : ''}`
+							: conn.status,
 					...pos,
 					size: collections[EntityType.WalletConnection].size,
 					color: statusColor,
@@ -1105,18 +1106,18 @@
 						...collections[EntityType.WalletConnection].g6Style,
 						badge: {
 							text:
-								row.status === 'connected'
+								conn.status === 'connected'
 									? 'ON'
-									: row.status === 'error'
+									: conn.status === 'error'
 										? 'ERR'
 										: 'OFF',
 						},
 					},
-					disabled: row.status === 'error',
+					disabled: conn.status === 'error',
 					details: {
-						status: row.status,
-						chainId: row.chainId,
-						actors: row.actors.length,
+						status: conn.status,
+						chainId: conn.chainId,
+						actors: conn.actors.length,
 					},
 				})
 				if (visibleCollections.has(EntityType.Wallet)) {
@@ -1144,33 +1145,33 @@
 				EntityType.WalletConnection,
 				connectionsQuery.data,
 			)
-			actors.forEach(({ row }, i) => {
-				if (skipRow(EntityType.Actor, row.$source)) return
-				const actorId = `actor:${row.$id.$network.chainId}:${row.$id.address}`
+			actors.forEach(({ row: actor }, i) => {
+				if (skipEntity(EntityType.Actor, actor.$source)) return
+				const actorId = `actor:${actor.$id.$network.chainId}:${actor.$id.address}`
 				if (g.hasNode(actorId)) return
 				const pos = positionInRing(
 					collections[EntityType.Actor].ring,
 					i,
 					actors.length,
 				)
-				const chainName = getChainName(row.$id.$network.chainId)
+				const chainName = getChainName(actor.$id.$network.chainId)
 				addNode(
 					baseNode(EntityType.Actor, pos, {
 						id: actorId,
-						label: `${row.$id.address.slice(0, 6)}…${row.$id.address.slice(-4)}`,
+						label: `${actor.$id.address.slice(0, 6)}…${actor.$id.address.slice(-4)}`,
 						type: 'circle',
-						intent: toIntentPayload(EntityType.Actor, row.$id),
+						intent: toIntentPayload(EntityType.Actor, actor.$id),
 						details: {
-							address: row.$id.address,
+							address: actor.$id.address,
 							chain: chainName,
-							chainId: row.$id.$network.chainId,
+							chainId: actor.$id.$network.chainId,
 						},
 					}),
 				)
 				// Connect actor to connection
 				if (visibleCollections.has(EntityType.WalletConnection)) {
 					for (const { row: conn } of connections) {
-						if (conn.actors.includes(row.$id.address)) {
+						if (conn.actors.includes(actor.$id.address)) {
 							const connRdns = conn.$id?.wallet$id?.rdns
 							if (connRdns && g.hasNode(`connection:${connRdns}`)) {
 								addEdge({
@@ -1193,23 +1194,23 @@
 		// Add coin balance nodes
 		if (visibleCollections.has(EntityType.ActorCoin)) {
 			const coins = rowsForType(EntityType.ActorCoin, actorCoinsQuery.data)
-			coins.forEach(({ row }, i) => {
-				if (skipRow(EntityType.ActorCoin, row.$source)) return
-				const coinId = `coin:${row.$id.$actor.$network.chainId}:${row.$id.$actor.address}:${row.$id.$coin.address}`
+			coins.forEach(({ row: coin }, i) => {
+				if (skipEntity(EntityType.ActorCoin, coin.$source)) return
+				const coinId = `coin:${coin.$id.$actor.$network.chainId}:${coin.$id.$actor.address}:${coin.$id.$coin.address}`
 				if (g.hasNode(coinId)) return
 				const pos = positionInRing(
 					collections[EntityType.ActorCoin].ring,
 					i,
 					coins.length,
 				)
-				const hasBalance = row.balance > 0n
-				const chainName = getChainName(row.$id.$actor.$network.chainId)
+				const hasBalance = coin.balance > 0n
+				const chainName = getChainName(coin.$id.$actor.$network.chainId)
 				const balanceStr = hasBalance
-					? formatSmallestToDecimal(row.balance, row.decimals, 2)
+					? formatSmallestToDecimal(coin.balance, coin.decimals, 2)
 					: '0'
 				addNode({
 					id: coinId,
-					label: `${balanceStr} ${row.symbol}`,
+					label: `${balanceStr} ${coin.symbol}`,
 					...pos,
 					size: hasBalance
 						? collections[EntityType.ActorCoin].size + 3
@@ -1225,17 +1226,17 @@
 						opacity: hasBalance ? 1 : 0.6,
 						lineDash: hasBalance ? undefined : [3, 3],
 					},
-					intent: toIntentPayload(EntityType.ActorCoin, row.$id),
+					intent: toIntentPayload(EntityType.ActorCoin, coin.$id),
 					disabled: !hasBalance,
 					details: {
-						symbol: row.symbol,
+						symbol: coin.symbol,
 						balance: balanceStr,
 						chain: chainName,
 						hasBalance,
 					},
 				})
 				if (visibleCollections.has(EntityType.Actor)) {
-					const actorId = `actor:${row.$id.$actor.$network.chainId}:${row.$id.$actor.address}`
+					const actorId = `actor:${coin.$id.$actor.$network.chainId}:${coin.$id.$actor.address}`
 					if (g.hasNode(actorId)) {
 						addRelationEdge('balance', actorId, coinId, {
 							size: hasBalance ? 1.5 : 0.5,
@@ -1255,17 +1256,17 @@
 				EntityType.ActorAllowance,
 				allowancesQuery.data,
 			)
-			allowances.forEach(({ row }, i) => {
-				if (skipRow(EntityType.ActorAllowance, row.$source)) return
-				const allowanceId = `allowance:${row.$id.$actorCoin.$actor.$network.chainId}:${row.$id.$actorCoin.$actor.address}:${row.$id.$actorCoin.$coin.address}:${row.$id.$spender.address}`
+			allowances.forEach(({ row: allowance }, i) => {
+				if (skipEntity(EntityType.ActorAllowance, allowance.$source)) return
+				const allowanceId = `allowance:${allowance.$id.$actorCoin.$actor.$network.chainId}:${allowance.$id.$actorCoin.$actor.address}:${allowance.$id.$actorCoin.$coin.address}:${allowance.$id.$spender.address}`
 				if (g.hasNode(allowanceId)) return
 				const pos = positionInRing(
 					collections[EntityType.ActorAllowance].ring,
 					i,
 					allowances.length,
 				)
-				const hasAllowance = row.allowance > 0n
-				const chainName = getChainName(row.$id.$actorCoin.$actor.$network.chainId)
+				const hasAllowance = allowance.allowance > 0n
+				const chainName = getChainName(allowance.$id.$actorCoin.$actor.$network.chainId)
 				addNode({
 					id: allowanceId,
 					label: hasAllowance ? '✓ Approved' : '○ Pending',
@@ -1288,11 +1289,11 @@
 					details: {
 						chain: chainName,
 						approved: hasAllowance,
-						spender: row.$id.$spender.address.slice(0, 10) + '…',
+						spender: allowance.$id.$spender.address.slice(0, 10) + '…',
 					},
 				})
 				if (visibleCollections.has(EntityType.ActorCoin)) {
-					const coinId = `coin:${row.$id.$actorCoin.$actor.$network.chainId}:${row.$id.$actorCoin.$actor.address}:${row.$id.$actorCoin.$coin.address}`
+					const coinId = `coin:${allowance.$id.$actorCoin.$actor.$network.chainId}:${allowance.$id.$actorCoin.$actor.address}:${allowance.$id.$actorCoin.$coin.address}`
 					if (g.hasNode(coinId)) {
 						addRelationEdge('allowance', coinId, allowanceId, {
 							size: hasAllowance ? 1 : 0.5,
@@ -1309,9 +1310,9 @@
 		// Add network nodes
 		if (visibleCollections.has(EntityType.Network)) {
 			const networks = rowsForType(EntityType.Network, networksQuery.data)
-			networks.forEach(({ row }, i) => {
-				if (skipRow(EntityType.Network, row.$source)) return
-				const networkId = `network:${row.$id.chainId}`
+			networks.forEach(({ row: network }, i) => {
+				if (skipEntity(EntityType.Network, network.$source)) return
+				const networkId = `network:${network.$id.chainId}`
 				if (g.hasNode(networkId)) return
 				const pos = positionInRing(
 					collections[EntityType.Network].ring,
@@ -1321,22 +1322,22 @@
 				addNode(
 					baseNode(EntityType.Network, pos, {
 						id: networkId,
-						label: row.name,
+						label: network.name,
 						type: 'circle',
 						g6Style: {
 							...collections[EntityType.Network].g6Style,
 							badge: {
-								text: row.type === NetworkType.Testnet ? 'TEST' : 'MAIN',
+								text: network.type === NetworkType.Testnet ? 'TEST' : 'MAIN',
 							},
-							lineDash: row.type === NetworkType.Testnet ? [3, 3] : undefined,
-							opacity: row.type === NetworkType.Testnet ? 0.7 : 1,
+							lineDash: network.type === NetworkType.Testnet ? [3, 3] : undefined,
+							opacity: network.type === NetworkType.Testnet ? 0.7 : 1,
 						},
 						details: {
-							chainId: row.$id.chainId,
-							type: row.type,
-							name: row.name,
-							caip2: networksByChainId[row.$id.chainId]?.caip2 ?? `eip155:${row.$id.chainId}`,
-							slug: networksByChainId[row.$id.chainId]?.slug ?? row.name.toLowerCase().replace(/\s+/g, '-'),
+							chainId: network.$id.chainId,
+							type: network.type,
+							name: network.name,
+							caip2: networksByChainId[network.$id.chainId]?.caip2 ?? `eip155:${network.$id.chainId}`,
+							slug: networksByChainId[network.$id.chainId]?.slug ?? network.name.toLowerCase().replace(/\s+/g, '-'),
 						},
 					}),
 				)
@@ -1345,9 +1346,9 @@
 
 		if (visibleCollections.has(EntityType.Block)) {
 			const blocks = rowsForType(EntityType.Block, blocksQuery.data)
-			blocks.forEach(({ row }, i) => {
-				if (skipRow(EntityType.Block, row.$source)) return
-				const blockId = `block:${row.$id.$network.chainId}:${row.$id.blockNumber}`
+			blocks.forEach(({ row: block }, i) => {
+				if (skipEntity(EntityType.Block, block.$source)) return
+				const blockId = `block:${block.$id.$network.chainId}:${block.$id.blockNumber}`
 				if (g.hasNode(blockId)) return
 				const pos = positionInRing(
 					collections[EntityType.Block].ring,
@@ -1356,7 +1357,7 @@
 				)
 				addNode({
 					id: blockId,
-					label: `#${row.$id.blockNumber}`,
+					label: `#${block.$id.blockNumber}`,
 					...pos,
 					size: collections[EntityType.Block].size,
 					color: collections[EntityType.Block].color,
@@ -1365,17 +1366,17 @@
 					g6Type: collections[EntityType.Block].g6Type,
 					g6Style: collections[EntityType.Block].g6Style,
 					details: {
-						chainId: row.$id.$network.chainId,
-						blockNumber: row.$id.blockNumber,
-						timestamp: row.timestamp,
+						chainId: block.$id.$network.chainId,
+						blockNumber: block.$id.blockNumber,
+						timestamp: block.timestamp,
 						networkSlug:
-							networksByChainId[row.$id.$network.chainId]?.slug ?? '',
+							networksByChainId[block.$id.$network.chainId]?.slug ?? '',
 					},
 				})
 			})
-			blocks.forEach(({ row }) => {
-				const blockId = `block:${row.$id.$network.chainId}:${row.$id.blockNumber}`
-				const networkId = `network:${row.$id.$network.chainId}`
+			blocks.forEach(({ row: block }) => {
+				const blockId = `block:${block.$id.$network.chainId}:${block.$id.blockNumber}`
+				const networkId = `network:${block.$id.$network.chainId}`
 				if (g.hasNode(networkId)) {
 					addEdge({
 						id: `edge:${edgeIndex++}`,
@@ -1397,20 +1398,20 @@
 				EntityType.BridgeRoute,
 				routesQuery.data,
 			)
-			routes.forEach(({ row }, i) => {
-				if (skipRow(EntityType.BridgeRoute, row.$source)) return
-				const routeId = `route:${row.$id.routeId}`
+			routes.forEach(({ row: route }, i) => {
+				if (skipEntity(EntityType.BridgeRoute, route.$source)) return
+				const routeId = `route:${route.$id.routeId}`
 				if (g.hasNode(routeId)) return
 				const pos = positionInRing(
 					collections[EntityType.BridgeRoute].ring,
 					i,
 					routes.length,
 				)
-				const fromChain = getChainName(row.fromChainId)
-				const toChain = getChainName(row.toChainId)
+				const fromChain = getChainName(route.fromChainId)
+				const toChain = getChainName(route.toChainId)
 				addNode({
 					id: routeId,
-					label: `${formatSmallestToDecimal(row.toAmount, 6, 4)} USDC`,
+					label: `${formatSmallestToDecimal(route.toAmount, 6, 4)} USDC`,
 					...pos,
 					size: collections[EntityType.BridgeRoute].size,
 					color: collections[EntityType.BridgeRoute].color,
@@ -1421,31 +1422,31 @@
 						...collections[EntityType.BridgeRoute].g6Style,
 						badge: {
 							text:
-								row.tags
+								route.tags
 									.find((tag) => tag.toLowerCase().includes('fast'))
 									?.slice(0, 4)
 									.toUpperCase() ??
-								row.tags
+								route.tags
 									.find((tag) => tag.toLowerCase().includes('cheap'))
 									?.slice(0, 4)
 									.toUpperCase() ??
-								row.tags[0]?.slice(0, 4).toUpperCase() ??
+								route.tags[0]?.slice(0, 4).toUpperCase() ??
 								'ROUT',
 						},
 					},
 					details: {
 						from: fromChain,
 						to: toChain,
-						tools: [...new Set(row.steps.map((step) => step.toolName))].join(
+						tools: [...new Set(route.steps.map((step) => step.toolName))].join(
 							' → ',
 						),
-						duration: `${Math.ceil(row.estimatedDurationSeconds / 60)}m`,
-						tags: row.tags.join(', '),
+						duration: `${Math.ceil(route.estimatedDurationSeconds / 60)}m`,
+						tags: route.tags.join(', '),
 					},
 				})
 				if (visibleCollections.has(EntityType.Network)) {
-					const fromNetworkId = `network:${row.fromChainId}`
-					const toNetworkId = `network:${row.toChainId}`
+					const fromNetworkId = `network:${route.fromChainId}`
+					const toNetworkId = `network:${route.toChainId}`
 					if (g.hasNode(fromNetworkId)) {
 						addRelationEdge('route', fromNetworkId, routeId)
 					}
@@ -1459,9 +1460,9 @@
 		// Add transaction nodes
 		if (visibleCollections.has(EntityType.Transaction)) {
 			const txs = rowsForType(EntityType.Transaction, txQuery.data)
-			txs.forEach(({ row }, i) => {
-				if (skipRow(EntityType.Transaction, undefined)) return
-				const txId = `tx:${row.$id.sourceTxHash}`
+			txs.forEach(({ row: tx }, i) => {
+				if (skipEntity(EntityType.Transaction, undefined)) return
+				const txId = `tx:${tx.$id.sourceTxHash}`
 				if (g.hasNode(txId)) return
 				const pos = positionInRing(
 					collections[EntityType.Transaction].ring,
@@ -1474,35 +1475,35 @@
 					failed: '#ef4444',
 				}
 				const statusIcon = { pending: '⏳', completed: '✓', failed: '✗' }
-				const fromChain = getChainName(row.fromChainId)
-				const toChain = getChainName(row.toChainId)
+				const fromChain = getChainName(tx.fromChainId)
+				const toChain = getChainName(tx.toChainId)
 				addNode({
 					id: txId,
-					label: `${statusIcon[row.status]} ${fromChain} → ${toChain}`,
+					label: `${statusIcon[tx.status]} ${fromChain} → ${toChain}`,
 					...pos,
 					size: collections[EntityType.Transaction].size,
 					color:
-						statusColors[row.status] ??
+						statusColors[tx.status] ??
 						collections[EntityType.Transaction].color,
 					type: 'circle',
 					collection: EntityType.Transaction,
 					g6Type: collections[EntityType.Transaction].g6Type,
 					g6Style: {
 						...collections[EntityType.Transaction].g6Style,
-						badge: { text: toStatusBadge(row.status) ?? 'TX' },
-						lineDash: statusLineDash(row.status),
-						opacity: statusOpacity(row.status),
+						badge: { text: toStatusBadge(tx.status) ?? 'TX' },
+						lineDash: statusLineDash(tx.status),
+						opacity: statusOpacity(tx.status),
 					},
-					disabled: row.status === 'failed',
+					disabled: tx.status === 'failed',
 					details: {
-						status: row.status,
+						status: tx.status,
 						from: fromChain,
 						to: toChain,
-						hash: row.$id.sourceTxHash.slice(0, 10) + '…',
+						hash: tx.$id.sourceTxHash.slice(0, 10) + '…',
 					},
 				})
 				if (visibleCollections.has(EntityType.Actor)) {
-					const actorId = `actor:${row.fromChainId}:${row.$id.address}`
+					const actorId = `actor:${tx.fromChainId}:${tx.$id.address}`
 					if (g.hasNode(actorId)) {
 						addEdge({
 							id: `edge:${edgeIndex++}`,
@@ -1513,7 +1514,7 @@
 							type: 'curvedArrow',
 							relation: 'transaction',
 							g6Style: edgeStyles.transaction,
-							disabled: row.status === 'failed',
+							disabled: tx.status === 'failed',
 						})
 					}
 				}
@@ -1523,9 +1524,9 @@
 		// Add coin nodes
 		if (visibleCollections.has(EntityType.Coin)) {
 			const coins = rowsForType(EntityType.Coin, coinsQuery.data)
-			coins.forEach(({ row }, i) => {
-				if (skipRow(EntityType.Coin, row.$source)) return
-				const coinId = `erc20:${row.$id.$network.chainId}:${row.$id.address}`
+			coins.forEach(({ row: coin }, i) => {
+				if (skipEntity(EntityType.Coin, coin.$source)) return
+				const coinId = `erc20:${coin.$id.$network.chainId}:${coin.$id.address}`
 				if (g.hasNode(coinId)) return
 				const pos = positionInRing(
 					collections[EntityType.Coin].ring,
@@ -1535,18 +1536,18 @@
 				addNode(
 					baseNode(EntityType.Coin, pos, {
 						id: coinId,
-						label: row.symbol,
+						label: coin.symbol,
 						type: 'circle',
-						intent: toIntentPayload(EntityType.Coin, row.$id),
+						intent: toIntentPayload(EntityType.Coin, coin.$id),
 						details: {
-							address: row.$id.address,
-							chainId: row.$id.$network.chainId,
-							symbol: row.symbol,
+							address: coin.$id.address,
+							chainId: coin.$id.$network.chainId,
+							symbol: coin.symbol,
 						},
 					}),
 				)
 				if (visibleCollections.has(EntityType.Network)) {
-					const networkId = `network:${row.$id.$network.chainId}`
+					const networkId = `network:${coin.$id.$network.chainId}`
 					if (g.hasNode(networkId)) {
 						addRelationEdge('coin', networkId, coinId, {
 							size: 1,
@@ -1563,9 +1564,9 @@
 				EntityType.TokenListCoin,
 				tokenListCoinsQuery.data,
 			)
-			tokens.forEach(({ row }, i) => {
-				if (skipRow(EntityType.TokenListCoin, row.$source)) return
-				const tokenId = `token:${row.$id.$network.chainId}:${row.$id.address}`
+			tokens.forEach(({ row: token }, i) => {
+				if (skipEntity(EntityType.TokenListCoin, token.$source)) return
+				const tokenId = `token:${token.$id.$network.chainId}:${token.$id.address}`
 				if (g.hasNode(tokenId)) return
 				const pos = positionInRing(
 					collections[EntityType.TokenListCoin].ring,
@@ -1575,18 +1576,18 @@
 				addNode(
 					baseNode(EntityType.TokenListCoin, pos, {
 						id: tokenId,
-						label: row.symbol,
+						label: token.symbol,
 						type: 'circle',
-						intent: toIntentPayload(EntityType.TokenListCoin, row.$id),
+						intent: toIntentPayload(EntityType.TokenListCoin, token.$id),
 						details: {
-							address: row.$id.address,
-							chainId: row.$id.$network.chainId,
-							symbol: row.symbol,
+							address: token.$id.address,
+							chainId: token.$id.$network.chainId,
+							symbol: token.symbol,
 						},
 					}),
 				)
 				if (visibleCollections.has(EntityType.Network)) {
-					const networkId = `network:${row.$id.$network.chainId}`
+					const networkId = `network:${token.$id.$network.chainId}`
 					if (g.hasNode(networkId)) {
 						addRelationEdge('token', networkId, tokenId, {
 							size: 1,
@@ -1603,9 +1604,9 @@
 				EntityType.StorkPrice,
 				storkPricesQuery.data,
 			)
-			prices.forEach(({ row }, i) => {
-				if (skipRow(EntityType.StorkPrice, row.$source)) return
-				const priceId = toNodeId('stork', row.$id)
+			prices.forEach(({ row: price }, i) => {
+				if (skipEntity(EntityType.StorkPrice, price.$source)) return
+				const priceId = toNodeId('stork', price.$id)
 				if (g.hasNode(priceId)) return
 				const pos = positionInRing(
 					collections[EntityType.StorkPrice].ring,
@@ -1615,7 +1616,7 @@
 				addNode({
 					id: priceId,
 					label:
-						row.assetId.length > 10 ? row.assetId.slice(0, 10) : row.assetId,
+						price.assetId.length > 10 ? price.assetId.slice(0, 10) : price.assetId,
 					...pos,
 					size: collections[EntityType.StorkPrice].size,
 					color: collections[EntityType.StorkPrice].color,
@@ -1623,21 +1624,21 @@
 					collection: EntityType.StorkPrice,
 					g6Type: collections[EntityType.StorkPrice].g6Type,
 					g6Style: collections[EntityType.StorkPrice].g6Style,
-					disabled: row.isLoading || row.error !== null,
+					disabled: price.isLoading || price.error !== null,
 					details: {
-						assetId: row.assetId,
-						transport: row.transport,
-						chainId: row.$id.$network?.chainId ?? null,
-						price: row.price.toString(),
+						assetId: price.assetId,
+						transport: price.transport,
+						chainId: price.$id.$network?.chainId ?? null,
+						price: price.price.toString(),
 					},
 				})
-				if (visibleCollections.has(EntityType.Network) && row.$id.$network?.chainId) {
-					const networkId = `network:${row.$id.$network.chainId}`
+				if (visibleCollections.has(EntityType.Network) && price.$id.$network?.chainId) {
+					const networkId = `network:${price.$id.$network.chainId}`
 					if (g.hasNode(networkId)) {
 						addRelationEdge('stork', networkId, priceId, {
 							size: 1,
 							type: 'line',
-							disabled: row.isLoading || row.error !== null,
+							disabled: price.isLoading || price.error !== null,
 						})
 					}
 				}
@@ -1650,19 +1651,19 @@
 				EntityType.SwapQuote,
 				swapQuotesQuery.data,
 			)
-			quotes.forEach(({ row }, i) => {
-				if (skipRow(EntityType.SwapQuote, row.$source)) return
-				const quoteId = `swap:${row.id}`
+			quotes.forEach(({ row: quote }, i) => {
+				if (skipEntity(EntityType.SwapQuote, quote.$source)) return
+				const quoteId = `swap:${quote.id}`
 				if (g.hasNode(quoteId)) return
 				const pos = positionInRing(
 					collections[EntityType.SwapQuote].ring,
 					i,
 					quotes.length,
 				)
-				const priceImpact = parseNumber(row.priceImpact)
+				const priceImpact = parseNumber(quote.priceImpact)
 				addNode({
 					id: quoteId,
-					label: `${row.tokenIn.slice(0, 6)}→${row.tokenOut.slice(0, 6)}`,
+					label: `${quote.tokenIn.slice(0, 6)}→${quote.tokenOut.slice(0, 6)}`,
 					...pos,
 					size: collections[EntityType.SwapQuote].size,
 					color: collections[EntityType.SwapQuote].color,
@@ -1681,14 +1682,14 @@
 							priceImpact !== null && priceImpact >= 0.02 ? [4, 2] : undefined,
 					},
 					details: {
-						chainId: row.chainId,
-						priceImpact: row.priceImpact,
-						tokenIn: row.tokenIn,
-						tokenOut: row.tokenOut,
+						chainId: quote.chainId,
+						priceImpact: quote.priceImpact,
+						tokenIn: quote.tokenIn,
+						tokenOut: quote.tokenOut,
 					},
 				})
 				if (visibleCollections.has(EntityType.Network)) {
-					const networkId = `network:${row.chainId}`
+					const networkId = `network:${quote.chainId}`
 					if (g.hasNode(networkId)) {
 						addEdge({
 							id: `edge:${edgeIndex++}`,
@@ -1711,9 +1712,9 @@
 				EntityType.UniswapPool,
 				uniswapPoolsQuery.data,
 			)
-			pools.forEach(({ row }, i) => {
-				if (skipRow(EntityType.UniswapPool, row.$source)) return
-				const poolId = `pool:${row.id}`
+			pools.forEach(({ row: pool }, i) => {
+				if (skipEntity(EntityType.UniswapPool, pool.$source)) return
+				const poolId = `pool:${pool.$id.id}`
 				if (g.hasNode(poolId)) return
 				const pos = positionInRing(
 					collections[EntityType.UniswapPool].ring,
@@ -1722,7 +1723,7 @@
 				)
 				addNode({
 					id: poolId,
-					label: `${row.token0.slice(0, 6)} / ${row.token1.slice(0, 6)}`,
+					label: `${pool.token0.slice(0, 6)} / ${pool.token1.slice(0, 6)}`,
 					...pos,
 					size: collections[EntityType.UniswapPool].size,
 					color: collections[EntityType.UniswapPool].color,
@@ -1732,18 +1733,18 @@
 					g6Style: {
 						...collections[EntityType.UniswapPool].g6Style,
 						badge:
-							typeof row.fee === 'number'
-								? { text: `${(row.fee / 10000).toFixed(2)}%` }
+							typeof pool.fee === 'number'
+								? { text: `${(pool.fee / 10000).toFixed(2)}%` }
 								: undefined,
 					},
 					details: {
-						chainId: row.chainId,
-						fee: row.fee,
-						hooks: row.hooks,
+						chainId: pool.$id.chainId,
+						fee: pool.fee,
+						hooks: pool.hooks,
 					},
 				})
 				if (visibleCollections.has(EntityType.Network)) {
-					const networkId = `network:${row.chainId}`
+					const networkId = `network:${pool.$id.chainId}`
 					if (g.hasNode(networkId)) {
 						addRelationEdge('pool', networkId, poolId, {
 							size: 1.5,
@@ -1760,9 +1761,9 @@
 				EntityType.UniswapPosition,
 				uniswapPositionsQuery.data,
 			)
-			positions.forEach(({ row }, i) => {
-				if (skipRow(EntityType.UniswapPosition, row.$source)) return
-				const positionId = `position:${row.id}`
+			positions.forEach(({ row: position }, i) => {
+				if (skipEntity(EntityType.UniswapPosition, position.$source)) return
+				const positionId = `position:${position.$id.id}`
 				if (g.hasNode(positionId)) return
 				const pos = positionInRing(
 					collections[EntityType.UniswapPosition].ring,
@@ -1771,7 +1772,7 @@
 				)
 				addNode({
 					id: positionId,
-					label: `Pos ${row.owner.slice(0, 6)}…`,
+					label: `Pos ${position.owner.slice(0, 6)}…`,
 					...pos,
 					size: collections[EntityType.UniswapPosition].size,
 					color: collections[EntityType.UniswapPosition].color,
@@ -1780,12 +1781,12 @@
 					g6Type: collections[EntityType.UniswapPosition].g6Type,
 					g6Style: collections[EntityType.UniswapPosition].g6Style,
 					details: {
-						chainId: row.chainId,
-						poolId: row.poolId,
-						owner: row.owner,
+						chainId: position.$id.chainId,
+						poolId: position.poolId,
+						owner: position.owner,
 					},
 				})
-				const poolId = `pool:${row.poolId}`
+				const poolId = `pool:${position.poolId}`
 				if (g.hasNode(poolId)) {
 					addRelationEdge('position', poolId, positionId, { size: 1.2 })
 				}
@@ -1798,9 +1799,9 @@
 				EntityType.CctpAllowance,
 				cctpAllowanceQuery.data,
 			)
-			allowances.forEach(({ row }, i) => {
-				if (skipRow(EntityType.CctpAllowance, row.$source)) return
-				const allowanceId = toNodeId('cctp-allowance', row.$id)
+			allowances.forEach(({ row: cctpAllowance }, i) => {
+				if (skipEntity(EntityType.CctpAllowance, cctpAllowance.$source)) return
+				const allowanceId = toNodeId('cctp-allowance', cctpAllowance.$id)
 				if (g.hasNode(allowanceId)) return
 				const pos = positionInRing(
 					collections[EntityType.CctpAllowance].ring,
@@ -1810,9 +1811,9 @@
 				addNode({
 					id: allowanceId,
 					label:
-						row.allowance === null
+						cctpAllowance.allowance === null
 							? 'Allowance n/a'
-							: `Allowance ${row.allowance}`,
+							: `Allowance ${cctpAllowance.allowance}`,
 					...pos,
 					size: collections[EntityType.CctpAllowance].size,
 					color: collections[EntityType.CctpAllowance].color,
@@ -1820,11 +1821,11 @@
 					collection: EntityType.CctpAllowance,
 					g6Type: collections[EntityType.CctpAllowance].g6Type,
 					g6Style: collections[EntityType.CctpAllowance].g6Style,
-					disabled: row.isLoading || row.error !== null,
+					disabled: cctpAllowance.isLoading || cctpAllowance.error !== null,
 					details: {
-						apiHost: row.$id.apiHost,
-						lastUpdated: row.lastUpdated,
-						error: row.error,
+						apiHost: cctpAllowance.$id.apiHost,
+						lastUpdated: cctpAllowance.lastUpdated,
+						error: cctpAllowance.error,
 					},
 				})
 			})
@@ -1833,9 +1834,9 @@
 		// Add CCTP fee nodes
 		if (visibleCollections.has(EntityType.CctpFee)) {
 			const fees = rowsForType(EntityType.CctpFee, cctpFeesQuery.data)
-			fees.forEach(({ row }, i) => {
-				if (skipRow(EntityType.CctpFee, row.$source)) return
-				const feeId = toNodeId('cctp-fee', row.$id)
+			fees.forEach(({ row: fee }, i) => {
+				if (skipEntity(EntityType.CctpFee, fee.$source)) return
+				const feeId = toNodeId('cctp-fee', fee.$id)
 				if (g.hasNode(feeId)) return
 				const pos = positionInRing(
 					collections[EntityType.CctpFee].ring,
@@ -1844,7 +1845,7 @@
 				)
 				addNode({
 					id: feeId,
-					label: `${row.$id.fromDomain}→${row.$id.toDomain}`,
+					label: `${fee.$id.fromDomain}→${fee.$id.toDomain}`,
 					...pos,
 					size: collections[EntityType.CctpFee].size,
 					color: collections[EntityType.CctpFee].color,
@@ -1852,11 +1853,11 @@
 					collection: EntityType.CctpFee,
 					g6Type: collections[EntityType.CctpFee].g6Type,
 					g6Style: collections[EntityType.CctpFee].g6Style,
-					disabled: row.isLoading || row.error !== null,
+					disabled: fee.isLoading || fee.error !== null,
 					details: {
-						apiHost: row.$id.apiHost,
-						rows: row.rows.length,
-						error: row.error,
+						apiHost: fee.$id.apiHost,
+						rows: fee.rows.length,
+						error: fee.error,
 					},
 				})
 			})
@@ -1865,9 +1866,9 @@
 		// Add transaction session nodes
 		if (visibleCollections.has(EntityType.Session)) {
 			const sessions = rowsForType(EntityType.Session, SessionsQuery.data)
-			sessions.forEach(({ row }, i) => {
-				if (skipRow(EntityType.Session, undefined)) return
-				const sessionId = `session:${row.id}`
+			sessions.forEach(({ row: session }, i) => {
+				if (skipEntity(EntityType.Session, undefined)) return
+				const sessionId = `session:${session.$id.id}`
 				if (g.hasNode(sessionId)) return
 				const pos = positionInRing(
 					collections[EntityType.Session].ring,
@@ -1876,7 +1877,7 @@
 				)
 				addNode({
 					id: sessionId,
-					label: `Session ${row.id.slice(0, 6)}`,
+					label: `Session ${session.$id.id.slice(0, 6)}`,
 					...pos,
 					size: collections[EntityType.Session].size,
 					color: collections[EntityType.Session].color,
@@ -1885,20 +1886,20 @@
 					g6Type: collections[EntityType.Session].g6Type,
 					g6Style: {
 						...collections[EntityType.Session].g6Style,
-						badge: { text: toStatusBadge(row.status) ?? 'LIVE' },
-						lineDash: statusLineDash(row.status),
-						opacity: statusOpacity(row.status),
+						badge: { text: toStatusBadge(session.status) ?? 'LIVE' },
+						lineDash: statusLineDash(session.status),
+						opacity: statusOpacity(session.status),
 					},
-					disabled: row.status === 'Finalized',
+					disabled: session.status === 'Finalized',
 					details: {
-						status: row.status,
-						actions: row.actions.join(', '),
-						simulations: row.simulationCount ?? 0,
+						status: session.status,
+						actions: session.actions.join(', '),
+						simulations: session.simulationCount ?? 0,
 					},
 				})
 				if (visibleCollections.has(EntityType.Network)) {
-					if (row.execution?.chainId) {
-						const networkId = `network:${row.execution.chainId}`
+					if (session.execution?.chainId) {
+						const networkId = `network:${session.execution.chainId}`
 						if (g.hasNode(networkId)) {
 							addRelationEdge('session', networkId, sessionId)
 						}
@@ -1913,9 +1914,9 @@
 				EntityType.SessionSimulation,
 				sessionSimulationsQuery.data,
 			)
-			simulations.forEach(({ row }, i) => {
-				if (skipRow(EntityType.SessionSimulation, undefined)) return
-				const simulationId = `simulation:${row.id}`
+			simulations.forEach(({ row: simulation }, i) => {
+				if (skipEntity(EntityType.SessionSimulation, undefined)) return
+				const simulationId = `simulation:${simulation.id}`
 				if (g.hasNode(simulationId)) return
 				const pos = positionInRing(
 					collections[EntityType.SessionSimulation].ring,
@@ -1924,7 +1925,7 @@
 				)
 				addNode({
 					id: simulationId,
-					label: `Sim ${row.id.slice(0, 6)}`,
+					label: `Sim ${simulation.id.slice(0, 6)}`,
 					...pos,
 					size: collections[EntityType.SessionSimulation].size,
 					color: collections[EntityType.SessionSimulation].color,
@@ -1933,21 +1934,21 @@
 					g6Type: collections[EntityType.SessionSimulation].g6Type,
 					g6Style: {
 						...collections[EntityType.SessionSimulation].g6Style,
-						badge: { text: toStatusBadge(row.status) ?? 'SIM' },
-						lineDash: statusLineDash(row.status),
-						opacity: statusOpacity(row.status),
+						badge: { text: toStatusBadge(simulation.status) ?? 'SIM' },
+						lineDash: statusLineDash(simulation.status),
+						opacity: statusOpacity(simulation.status),
 					},
-					disabled: row.status === 'failed',
+					disabled: simulation.status === 'failed',
 					details: {
-						status: row.status,
-						sessionId: row.sessionId,
+						status: simulation.status,
+						sessionId: simulation.sessionId,
 					},
 				})
-				const sessionId = `session:${row.sessionId}`
+				const sessionId = `session:${simulation.sessionId}`
 				if (g.hasNode(sessionId)) {
 					addRelationEdge('simulation', sessionId, simulationId, {
 						size: 1,
-						disabled: row.status === 'failed',
+						disabled: simulation.status === 'failed',
 					})
 				}
 			})
@@ -1959,9 +1960,9 @@
 				EntityType.TransferGraph,
 				transferGraphsQuery.data,
 			)
-			graphs.forEach(({ row }, i) => {
-				if (skipRow(EntityType.TransferGraph, row.$source)) return
-				const graphId = `transfer-graph:${row.$id.symbol}:${row.$id.period}`
+			graphs.forEach(({ row: graph }, i) => {
+				if (skipEntity(EntityType.TransferGraph, graph.$source)) return
+				const graphId = `transfer-graph:${graph.$id.symbol}:${graph.$id.period}`
 				if (g.hasNode(graphId)) return
 				const pos = positionInRing(
 					collections[EntityType.TransferGraph].ring,
@@ -1970,7 +1971,7 @@
 				)
 				addNode({
 					id: graphId,
-					label: `${row.$id.symbol} ${row.period}`,
+					label: `${graph.$id.symbol} ${graph.period}`,
 					...pos,
 					size: collections[EntityType.TransferGraph].size,
 					color: collections[EntityType.TransferGraph].color,
@@ -1978,11 +1979,11 @@
 					collection: EntityType.TransferGraph,
 					g6Type: collections[EntityType.TransferGraph].g6Type,
 					g6Style: collections[EntityType.TransferGraph].g6Style,
-					disabled: row.isLoading || row.error !== null,
+					disabled: graph.isLoading || graph.error !== null,
 					details: {
-						nodes: row.graph.nodes.length,
-						edges: row.graph.edges.length,
-						error: row.error,
+						nodes: graph.graph.nodes.length,
+						edges: graph.graph.edges.length,
+						error: graph.error,
 					},
 				})
 			})
@@ -1991,9 +1992,9 @@
 		// Add room nodes
 		if (visibleCollections.has(EntityType.Room)) {
 			const rooms = rowsForType(EntityType.Room, roomsQuery.data)
-			rooms.forEach(({ row }, i) => {
-				if (skipRow(EntityType.Room, row.$source)) return
-				const roomId = `room:${row.id}`
+			rooms.forEach(({ row: room }, i) => {
+				if (skipEntity(EntityType.Room, room.$source)) return
+				const roomId = `room:${room.$id.id}`
 				if (g.hasNode(roomId)) return
 				const pos = positionInRing(
 					collections[EntityType.Room].ring,
@@ -2002,7 +2003,7 @@
 				)
 				addNode({
 					id: roomId,
-					label: row.name ?? row.id,
+					label: room.name ?? room.$id.id,
 					...pos,
 					size: collections[EntityType.Room].size,
 					color: collections[EntityType.Room].color,
@@ -2011,8 +2012,8 @@
 					g6Type: collections[EntityType.Room].g6Type,
 					g6Style: collections[EntityType.Room].g6Style,
 					details: {
-						createdBy: row.createdBy,
-						createdAt: row.createdAt,
+						createdBy: room.createdBy,
+						createdAt: room.createdAt,
 					},
 				})
 			})
@@ -2024,9 +2025,9 @@
 				EntityType.RoomPeer,
 				roomPeersQuery.data,
 			)
-			peers.forEach(({ row }, i) => {
-				if (skipRow(EntityType.RoomPeer, row.$source)) return
-				const peerId = `peer:${row.id}`
+			peers.forEach(({ row: peer }, i) => {
+				if (skipEntity(EntityType.RoomPeer, peer.$source)) return
+				const peerId = `peer:${peer.id}`
 				if (g.hasNode(peerId)) return
 				const pos = positionInRing(
 					collections[EntityType.RoomPeer].ring,
@@ -2035,7 +2036,7 @@
 				)
 				addNode({
 					id: peerId,
-					label: row.displayName ?? row.peerId,
+					label: peer.displayName ?? peer.peerId,
 					...pos,
 					size: collections[EntityType.RoomPeer].size,
 					color: collections[EntityType.RoomPeer].color,
@@ -2044,26 +2045,26 @@
 					g6Type: collections[EntityType.RoomPeer].g6Type,
 					g6Style: {
 						...collections[EntityType.RoomPeer].g6Style,
-						badge: { text: row.isConnected ? 'ON' : 'OFF' },
-						lineDash: row.isConnected ? undefined : [4, 4],
-						opacity: row.isConnected ? 1 : 0.6,
+						badge: { text: peer.isConnected ? 'ON' : 'OFF' },
+						lineDash: peer.isConnected ? undefined : [4, 4],
+						opacity: peer.isConnected ? 1 : 0.6,
 					},
-					disabled: !row.isConnected,
+					disabled: !peer.isConnected,
 					intent: toIntentPayload(EntityType.RoomPeer, {
-						roomId: row.roomId,
-						peerId: row.peerId,
+						roomId: peer.roomId,
+						peerId: peer.peerId,
 					}),
 					details: {
-						roomId: row.roomId,
-						peerId: row.peerId,
-						connected: row.isConnected,
+						roomId: peer.roomId,
+						peerId: peer.peerId,
+						connected: peer.isConnected,
 					},
 				})
-				const roomId = `room:${row.roomId}`
+				const roomId = `room:${peer.roomId}`
 				if (g.hasNode(roomId)) {
 					addRelationEdge('peer', roomId, peerId, {
 						size: 1,
-						disabled: !row.isConnected,
+						disabled: !peer.isConnected,
 					})
 				}
 			})
@@ -2075,13 +2076,13 @@
 				EntityType.SharedAddress,
 				sharedAddressesQuery.data,
 			)
-			shared.forEach(({ row }, i) => {
+			shared.forEach(({ row: sharedAddr }, i) => {
 				if (
-					row.$source != null &&
-					!isEntitySourceVisible(EntityType.SharedAddress, row.$source)
+					sharedAddr.$source != null &&
+					!isEntitySourceVisible(EntityType.SharedAddress, sharedAddr.$source)
 				)
 					return
-				const sharedId = `shared:${row.id}`
+				const sharedId = `shared:${sharedAddr.id}`
 				if (g.hasNode(sharedId)) return
 				const pos = positionInRing(
 					collections[EntityType.SharedAddress].ring,
@@ -2090,7 +2091,7 @@
 				)
 				addNode({
 					id: sharedId,
-					label: row.address.slice(0, 10) + '…',
+					label: sharedAddr.address.slice(0, 10) + '…',
 					...pos,
 					size: collections[EntityType.SharedAddress].size,
 					color: collections[EntityType.SharedAddress].color,
@@ -2102,11 +2103,11 @@
 						badge: { text: '' },
 					},
 					details: {
-						roomId: row.roomId,
-						peerId: row.peerId,
+						roomId: sharedAddr.roomId,
+						peerId: sharedAddr.peerId,
 					},
 				})
-				const roomId = `room:${row.roomId}`
+				const roomId = `room:${sharedAddr.roomId}`
 				if (g.hasNode(roomId)) {
 					addRelationEdge('shared', roomId, sharedId, {
 						size: 1,
@@ -2122,9 +2123,9 @@
 				EntityType.SiweChallenge,
 				siweChallengesQuery.data,
 			)
-			challenges.forEach(({ row }, i) => {
-				if (skipRow(EntityType.SiweChallenge, row.$source)) return
-				const challengeId = `siwe:${row.id}`
+			challenges.forEach(({ row: challenge }, i) => {
+				if (skipEntity(EntityType.SiweChallenge, challenge.$source)) return
+				const challengeId = `siwe:${challenge.id}`
 				if (g.hasNode(challengeId)) return
 				const pos = positionInRing(
 					collections[EntityType.SiweChallenge].ring,
@@ -2133,7 +2134,7 @@
 				)
 				addNode({
 					id: challengeId,
-					label: `SIWE ${row.address.slice(0, 6)}…`,
+					label: `SIWE ${challenge.address.slice(0, 6)}…`,
 					...pos,
 					size: collections[EntityType.SiweChallenge].size,
 					color: collections[EntityType.SiweChallenge].color,
@@ -2142,22 +2143,22 @@
 					g6Type: collections[EntityType.SiweChallenge].g6Type,
 					g6Style: {
 						...collections[EntityType.SiweChallenge].g6Style,
-						badge: { text: row.verified ? 'VER' : 'PEND' },
-						lineDash: row.verified ? undefined : [4, 2],
-						opacity: row.verified ? 1 : 0.8,
+						badge: { text: challenge.verified ? 'VER' : 'PEND' },
+						lineDash: challenge.verified ? undefined : [4, 2],
+						opacity: challenge.verified ? 1 : 0.8,
 					},
-					disabled: !row.verified,
+					disabled: !challenge.verified,
 					details: {
-						roomId: row.roomId,
-						address: row.address,
-						verified: row.verified,
+						roomId: challenge.roomId,
+						address: challenge.address,
+						verified: challenge.verified,
 					},
 				})
-				const roomId = `room:${row.roomId}`
+				const roomId = `room:${challenge.roomId}`
 				if (g.hasNode(roomId)) {
 					addRelationEdge('siwe', roomId, challengeId, {
 						size: 1,
-						disabled: !row.verified,
+						disabled: !challenge.verified,
 					})
 				}
 			})
@@ -2169,19 +2170,19 @@
 				EntityType.TransferRequest,
 				transferRequestsQuery.data,
 			)
-			requests.forEach(({ row }, i) => {
-				if (skipRow(EntityType.TransferRequest, row.$source)) return
-				const requestId = `transfer-request:${row.id}`
+			requests.forEach(({ row: request }, i) => {
+				if (skipEntity(EntityType.TransferRequest, request.$source)) return
+				const requestId = `transfer-request:${request.id}`
 				if (g.hasNode(requestId)) return
 				const pos = positionInRing(
 					collections[EntityType.TransferRequest].ring,
 					i,
 					requests.length,
 				)
-				const disabled = row.status === 'rejected' || row.status === 'expired'
+				const disabled = request.status === 'rejected' || request.status === 'expired'
 				addNode({
 					id: requestId,
-					label: `Request ${row.status}`,
+					label: `Request ${request.status}`,
 					...pos,
 					size: collections[EntityType.TransferRequest].size,
 					color: collections[EntityType.TransferRequest].color,
@@ -2190,18 +2191,18 @@
 					g6Type: collections[EntityType.TransferRequest].g6Type,
 					g6Style: {
 						...collections[EntityType.TransferRequest].g6Style,
-						badge: { text: toStatusBadge(row.status) ?? 'REQ' },
-						lineDash: statusLineDash(row.status),
-						opacity: statusOpacity(row.status),
+						badge: { text: toStatusBadge(request.status) ?? 'REQ' },
+						lineDash: statusLineDash(request.status),
+						opacity: statusOpacity(request.status),
 					},
 					disabled,
 					details: {
-						from: row.from,
-						to: row.to,
-						allocations: row.allocations.length,
+						from: request.from,
+						to: request.to,
+						allocations: request.allocations.length,
 					},
 				})
-				const roomId = `room:${row.roomId}`
+				const roomId = `room:${request.roomId}`
 				if (g.hasNode(roomId)) {
 					addEdge({
 						id: `edge:${edgeIndex++}`,
@@ -2224,9 +2225,9 @@
 				EntityType.StateChannel,
 				yellowChannelsQuery.data,
 			)
-			channels.forEach(({ row }, i) => {
-				if (skipRow(EntityType.StateChannel, row.$source)) return
-				const channelId = `yellow:${row.id}`
+			channels.forEach(({ row: channel }, i) => {
+				if (skipEntity(EntityType.StateChannel, channel.$source)) return
+				const channelId = `yellow:${channel.id}`
 				if (g.hasNode(channelId)) return
 				const pos = positionInRing(
 					collections[EntityType.StateChannel].ring,
@@ -2235,7 +2236,7 @@
 				)
 				addNode({
 					id: channelId,
-					label: `Channel ${row.id.slice(0, 6)}`,
+					label: `Channel ${channel.id.slice(0, 6)}`,
 					...pos,
 					size: collections[EntityType.StateChannel].size,
 					color: collections[EntityType.StateChannel].color,
@@ -2244,23 +2245,23 @@
 					g6Type: collections[EntityType.StateChannel].g6Type,
 					g6Style: {
 						...collections[EntityType.StateChannel].g6Style,
-						badge: { text: toStatusBadge(row.status) ?? 'LIVE' },
-						lineDash: statusLineDash(row.status),
-						opacity: statusOpacity(row.status),
+						badge: { text: toStatusBadge(channel.status) ?? 'LIVE' },
+						lineDash: statusLineDash(channel.status),
+						opacity: statusOpacity(channel.status),
 					},
-					disabled: row.status === 'closed',
+					disabled: channel.status === 'closed',
 					details: {
-						status: row.status,
-						chainId: row.chainId,
-						asset: row.asset,
+						status: channel.status,
+						chainId: channel.chainId,
+						asset: channel.asset,
 					},
 				})
 				if (visibleCollections.has(EntityType.Network)) {
-					const networkId = `network:${row.chainId}`
+					const networkId = `network:${channel.chainId}`
 					if (g.hasNode(networkId)) {
 						addRelationEdge('yellow', networkId, channelId, {
 							size: 1.5,
-							disabled: row.status === 'closed',
+							disabled: channel.status === 'closed',
 						})
 					}
 				}
@@ -2273,9 +2274,9 @@
 				EntityType.StateChannelState,
 				stateChannelStatesQuery.data,
 			)
-			states.forEach(({ row }, i) => {
-				if (skipRow(EntityType.StateChannelState, row.$source)) return
-				const stateId = `yellow-state:${row.id}`
+			states.forEach(({ row: state }, i) => {
+				if (skipEntity(EntityType.StateChannelState, state.$source)) return
+				const stateId = `yellow-state:${state.id}`
 				if (g.hasNode(stateId)) return
 				const pos = positionInRing(
 					collections[EntityType.StateChannelState].ring,
@@ -2284,7 +2285,7 @@
 				)
 				addNode({
 					id: stateId,
-					label: `State v${row.version}`,
+					label: `State v${state.version}`,
 					...pos,
 					size: collections[EntityType.StateChannelState].size,
 					color: collections[EntityType.StateChannelState].color,
@@ -2293,22 +2294,22 @@
 					g6Type: collections[EntityType.StateChannelState].g6Type,
 					g6Style: {
 						...collections[EntityType.StateChannelState].g6Style,
-						badge: { text: row.isFinal ? 'FINAL' : 'LIVE' },
-						lineDash: row.isFinal ? [6, 3] : undefined,
-						opacity: row.isFinal ? 0.75 : 1,
+						badge: { text: state.isFinal ? 'FINAL' : 'LIVE' },
+						lineDash: state.isFinal ? [6, 3] : undefined,
+						opacity: state.isFinal ? 0.75 : 1,
 					},
-					disabled: row.isFinal,
+					disabled: state.isFinal,
 					details: {
-						channelId: row.channelId,
-						intent: row.intent,
-						isFinal: row.isFinal,
+						channelId: state.channelId,
+						intent: state.intent,
+						isFinal: state.isFinal,
 					},
 				})
-				const channelId = `yellow:${row.channelId}`
+				const channelId = `yellow:${state.channelId}`
 				if (g.hasNode(channelId)) {
 					addRelationEdge('yellow', channelId, stateId, {
 						size: 1,
-						disabled: row.isFinal,
+						disabled: state.isFinal,
 					})
 				}
 			})
@@ -2320,9 +2321,9 @@
 				EntityType.StateChannelDeposit,
 				stateChannelDepositsQuery.data,
 			)
-			deposits.forEach(({ row }, i) => {
-				if (skipRow(EntityType.StateChannelDeposit, row.$source)) return
-				const depositId = `yellow-deposit:${row.id}`
+			deposits.forEach(({ row: deposit }, i) => {
+				if (skipEntity(EntityType.StateChannelDeposit, deposit.$source)) return
+				const depositId = `yellow-deposit:${deposit.id}`
 				if (g.hasNode(depositId)) return
 				const pos = positionInRing(
 					collections[EntityType.StateChannelDeposit].ring,
@@ -2331,7 +2332,7 @@
 				)
 				addNode({
 					id: depositId,
-					label: `Deposit ${row.address.slice(0, 6)}…`,
+					label: `Deposit ${deposit.address.slice(0, 6)}…`,
 					...pos,
 					size: collections[EntityType.StateChannelDeposit].size,
 					color: collections[EntityType.StateChannelDeposit].color,
@@ -2340,16 +2341,16 @@
 					g6Type: collections[EntityType.StateChannelDeposit].g6Type,
 					g6Style: {
 						...collections[EntityType.StateChannelDeposit].g6Style,
-						badge: row.lockedBalance > 0n ? { text: 'LOCK' } : { text: 'FREE' },
+						badge: deposit.lockedBalance > 0n ? { text: 'LOCK' } : { text: 'FREE' },
 					},
 					details: {
-						chainId: row.chainId,
-						available: row.availableBalance.toString(),
-						locked: row.lockedBalance.toString(),
+						chainId: deposit.chainId,
+						available: deposit.availableBalance.toString(),
+						locked: deposit.lockedBalance.toString(),
 					},
 				})
 				if (visibleCollections.has(EntityType.Network)) {
-					const networkId = `network:${row.chainId}`
+					const networkId = `network:${deposit.chainId}`
 					if (g.hasNode(networkId)) {
 						addRelationEdge('yellow', networkId, depositId, {
 							size: 1,
@@ -2366,9 +2367,9 @@
 				EntityType.StateChannelTransfer,
 				stateChannelTransfersQuery.data,
 			)
-			transfers.forEach(({ row }, i) => {
-				if (skipRow(EntityType.StateChannelTransfer, row.$source)) return
-				const transferId = `yellow-transfer:${row.id}`
+			transfers.forEach(({ row: transfer }, i) => {
+				if (skipEntity(EntityType.StateChannelTransfer, transfer.$source)) return
+				const transferId = `yellow-transfer:${transfer.id}`
 				if (g.hasNode(transferId)) return
 				const pos = positionInRing(
 					collections[EntityType.StateChannelTransfer].ring,
@@ -2377,7 +2378,7 @@
 				)
 				addNode({
 					id: transferId,
-					label: `${row.status} transfer`,
+					label: `${transfer.status} transfer`,
 					...pos,
 					size: collections[EntityType.StateChannelTransfer].size,
 					color: collections[EntityType.StateChannelTransfer].color,
@@ -2386,22 +2387,22 @@
 					g6Type: collections[EntityType.StateChannelTransfer].g6Type,
 					g6Style: {
 						...collections[EntityType.StateChannelTransfer].g6Style,
-						badge: { text: toStatusBadge(row.status) ?? 'XFER' },
-						lineDash: statusLineDash(row.status),
-						opacity: statusOpacity(row.status),
+						badge: { text: toStatusBadge(transfer.status) ?? 'XFER' },
+						lineDash: statusLineDash(transfer.status),
+						opacity: statusOpacity(transfer.status),
 					},
-					disabled: row.status === 'failed',
+					disabled: transfer.status === 'failed',
 					details: {
-						channelId: row.channelId,
-						amount: row.amount.toString(),
-						status: row.status,
+						channelId: transfer.channelId,
+						amount: transfer.amount.toString(),
+						status: transfer.status,
 					},
 				})
-				const channelId = `yellow:${row.channelId}`
+				const channelId = `yellow:${transfer.channelId}`
 				if (g.hasNode(channelId)) {
 					addRelationEdge('yellow', channelId, transferId, {
 						size: 1,
-						disabled: row.status === 'failed',
+						disabled: transfer.status === 'failed',
 					})
 				}
 			})
@@ -2413,9 +2414,9 @@
 				EntityType.Dashboard,
 				dashboardsQuery.data,
 			)
-			panels.forEach(({ row }, i) => {
-				if (skipRow(EntityType.Dashboard, undefined)) return
-				const panelId = toNodeId('dashboard', row.$id)
+			panels.forEach(({ row: panel }, i) => {
+				if (skipEntity(EntityType.Dashboard, undefined)) return
+				const panelId = toNodeId('dashboard', panel.$id)
 				if (g.hasNode(panelId)) return
 				const pos = positionInRing(
 					collections[EntityType.Dashboard].ring,
@@ -2424,7 +2425,7 @@
 				)
 				addNode({
 					id: panelId,
-					label: `Dashboard ${row.$id.id}`,
+					label: `Dashboard ${panel.$id.id}`,
 					...pos,
 					size: collections[EntityType.Dashboard].size,
 					color: collections[EntityType.Dashboard].color,
@@ -2433,8 +2434,8 @@
 					g6Type: collections[EntityType.Dashboard].g6Type,
 					g6Style: collections[EntityType.Dashboard].g6Style,
 					details:
-						'focusedPanelId' in row
-							? { focusedPanelId: row.focusedPanelId }
+						'focusedPanelId' in panel
+							? { focusedPanelId: panel.focusedPanelId }
 							: {},
 				})
 			})
@@ -2449,9 +2450,14 @@
 		const nodes: string[] = []
 		for (const entry of stack ?? []) {
 			for (const item of entry.query.data ?? []) {
-				const row = isRecord(item) && 'row' in item ? item.row : null
-				if (!isRecord(row)) continue
-				const rowId = '$id' in row ? row.$id : undefined
+				const entity =
+					isRecord(item) && 'row' in item
+						? item.row
+						: isRecord(item) && Object.keys(item).length === 1
+							? Object.values(item)[0]
+							: null
+				if (!isRecord(entity)) continue
+				const rowId = '$id' in entity ? entity.$id : undefined
 				const rowIdRecord = isRecord(rowId) ? rowId : null
 
 				if (rowIdRecord) {
@@ -2470,7 +2476,7 @@
 						const address = rowIdRecord.address
 						if (typeof network === 'number' && typeof address === 'string') {
 							nodes.push(
-								'symbol' in row && typeof row.symbol === 'string'
+								'symbol' in entity && typeof entity.symbol === 'string'
 									? `erc20:${network}:${address}`
 									: `actor:${network}:${address}`,
 							)
@@ -2541,39 +2547,39 @@
 				const rowIdString =
 					typeof rowId === 'string'
 						? rowId
-						: 'id' in row && typeof row.id === 'string'
-							? row.id
+						: 'id' in entity && typeof entity.id === 'string'
+							? entity.id
 							: null
 
 				if (!rowIdString) continue
 
-				if ('tokenIn' in row && 'tokenOut' in row) {
+				if ('tokenIn' in entity && 'tokenOut' in entity) {
 					nodes.push(`swap:${rowIdString}`)
-				} else if ('token0' in row && 'token1' in row) {
+				} else if ('token0' in entity && 'token1' in entity) {
 					nodes.push(`pool:${rowIdString}`)
-				} else if ('poolId' in row && 'owner' in row) {
+				} else if ('poolId' in entity && 'owner' in entity) {
 					nodes.push(`position:${rowIdString}`)
-				} else if ('actions' in row && Array.isArray(row.actions)) {
+				} else if ('actions' in entity && Array.isArray(entity.actions)) {
 					nodes.push(`session:${rowIdString}`)
-				} else if ('sessionId' in row && 'status' in row) {
+				} else if ('sessionId' in entity && 'status' in entity) {
 					nodes.push(`simulation:${rowIdString}`)
-				} else if ('createdBy' in row && 'createdAt' in row) {
+				} else if ('createdBy' in entity && 'createdAt' in entity) {
 					nodes.push(`room:${rowIdString}`)
-				} else if ('peerId' in row && 'roomId' in row && 'isConnected' in row) {
+				} else if ('peerId' in entity && 'roomId' in entity && 'isConnected' in entity) {
 					nodes.push(`peer:${rowIdString}`)
-				} else if ('peerId' in row && 'address' in row && 'sharedAt' in row) {
+				} else if ('peerId' in entity && 'address' in entity && 'sharedAt' in entity) {
 					nodes.push(`shared:${rowIdString}`)
-				} else if ('nonce' in row && 'message' in row) {
+				} else if ('nonce' in entity && 'message' in entity) {
 					nodes.push(`siwe:${rowIdString}`)
-				} else if ('allocations' in row && Array.isArray(row.allocations)) {
+				} else if ('allocations' in entity && Array.isArray(entity.allocations)) {
 					nodes.push(`transfer-request:${rowIdString}`)
-				} else if ('participant0' in row && 'participant1' in row) {
+				} else if ('participant0' in entity && 'participant1' in entity) {
 					nodes.push(`yellow:${rowIdString}`)
-				} else if ('channelId' in row && 'stateData' in row) {
+				} else if ('channelId' in entity && 'stateData' in entity) {
 					nodes.push(`yellow-state:${rowIdString}`)
-				} else if ('availableBalance' in row && 'lockedBalance' in row) {
+				} else if ('availableBalance' in entity && 'lockedBalance' in entity) {
 					nodes.push(`yellow-deposit:${rowIdString}`)
-				} else if ('channelId' in row && 'amount' in row && 'turnNum' in row) {
+				} else if ('channelId' in entity && 'amount' in entity && 'turnNum' in entity) {
 					nodes.push(`yellow-transfer:${rowIdString}`)
 				}
 			}

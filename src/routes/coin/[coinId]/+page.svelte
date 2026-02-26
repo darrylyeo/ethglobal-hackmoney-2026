@@ -57,9 +57,8 @@
 		<section data-scroll-item>
 			<EntityView
 				entityType={EntityType.Coin}
-				entityId={coin.$id}
-				idSerialized={route.coinId}
-				href={resolve(`/coin/${route.coinId}`)}
+				entity={coin}
+				titleHref={resolve(`/coin/${route.coinId}`)}
 				label={coin.symbol}
 				annotation="Coin"
 			>

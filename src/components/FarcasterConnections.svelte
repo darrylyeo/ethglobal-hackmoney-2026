@@ -38,7 +38,7 @@
 	// (Derived)
 	const connectionsQuery = useFarcasterConnections()
 	const allConnections = $derived(
-		(connectionsQuery.data ?? []).map((r) => r.row) as FarcasterConnectionRow[],
+		(connectionsQuery.data ?? []).map(({ farcasterConnection: connection }) => connection) as FarcasterConnectionRow[],
 	)
 	const siwfConnections = $derived(
 		allConnections

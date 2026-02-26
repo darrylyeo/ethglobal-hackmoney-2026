@@ -44,7 +44,7 @@
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const eventsSet = $derived(
 		new Set(
-			(query.data ?? []).map((r) => r.row as TransferEventRow),
+			(query.data ?? []).map(({ row: event }) => event as TransferEventRow),
 		) as Set<TransferEventRow>,
 	)
 
@@ -64,7 +64,7 @@
 		<ItemsList
 			items={eventsSet}
 			getKey={getEventKey}
-			getSortValue={(row) => -row.timestamp}
+			getSortValue={(event) => -event.timestamp}
 			placeholderKeys={new Set()}
 			visiblePlaceholderKeys={[]}
 			scrollPosition="End"

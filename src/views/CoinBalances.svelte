@@ -85,27 +85,27 @@
 	const tokenListQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: tokenListCoinsCollection })
-				.where(({ row }) =>
+				.from({ token: tokenListCoinsCollection })
+				.where(({ token }) =>
 					normalizedBalanceTokens.length > 0
 						? normalizedBalanceTokens
-								.map((token) =>
+								.map((t) =>
 									and(
-										eq(row.$id.$network.chainId, token.chainId),
-										eq(row.$id.address, token.tokenAddress),
+										eq(token.$id.$network.chainId, t.chainId),
+										eq(token.$id.address, t.tokenAddress),
 									),
 								)
 								.reduce((acc, filter) => or(acc, filter))
 						: and(
-								eq(row.$id.$network.chainId, -1),
-								eq(row.$id.$network.chainId, 0),
+								eq(token.$id.$network.chainId, -1),
+								eq(token.$id.$network.chainId, 0),
 							),
 				)
-				.select(({ row }) => ({ row })),
+				.select(({ token }) => ({ token })),
 		[() => normalizedBalanceTokens],
 	)
 	const filteredTokenListCoins = $derived(
-		(tokenListQuery.data ?? []).map((r) => r.row),
+		(tokenListQuery.data ?? []).map(({ token }) => token),
 	)
 	const fallbackTokens = $derived(
 		balanceTokens
@@ -221,43 +221,43 @@
 	const balancesQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: actorCoinsCollection })
-				.where(({ row }) => {
+				.from({ balance: actorCoinsCollection })
+				.where(({ balance }) => {
 					const addrCondition =
 						actors.length === 0
 							? and(
-									eq(row.$id.$actor.address, '0x0000000000000000000000000000000000000000'),
-									eq(row.$id.$actor.address, '0x0000000000000000000000000000000000000001'),
+									eq(balance.$id.$actor.address, '0x0000000000000000000000000000000000000000'),
+									eq(balance.$id.$actor.address, '0x0000000000000000000000000000000000000001'),
 								)
 							: actors.length === 1
-								? eq(row.$id.$actor.address, actors[0])
+								? eq(balance.$id.$actor.address, actors[0])
 								: actors
-										.map((a) => eq(row.$id.$actor.address, a))
+										.map((a) => eq(balance.$id.$actor.address, a))
 										.reduce((acc, cond) => or(acc, cond))
 					const tokenCondition =
 						displayTokens.length > 0
 							? displayTokens
 									.map((token) =>
 										and(
-											eq(row.$id.$coin.$network.chainId, token.chainId),
-											eq(row.$id.$coin.address, token.address),
+											eq(balance.$id.$coin.$network.chainId, token.chainId),
+											eq(balance.$id.$coin.address, token.address),
 										),
 									)
 									.reduce((acc, filter) => or(acc, filter))
 							: and(
-									eq(row.$id.$actor.$network.chainId, -1),
-									eq(row.$id.$actor.$network.chainId, 0),
+									eq(balance.$id.$actor.$network.chainId, -1),
+									eq(balance.$id.$actor.$network.chainId, 0),
 								)
 					const chainCondition =
 						filterChainIdsNum.length > 0
 							? filterChainIdsNum
-									.map((c) => eq(row.$id.$actor.$network.chainId, c))
+									.map((c) => eq(balance.$id.$actor.$network.chainId, c))
 									.reduce((acc, cond) => or(acc, cond))
 							: null
 					const symbolCondition =
 						filterSymbols.length > 0
 							? filterSymbols
-									.map((s) => eq(row.symbol, s))
+									.map((s) => eq(balance.symbol, s))
 									.reduce((acc, cond) => or(acc, cond))
 							: null
 					return and(
@@ -267,11 +267,11 @@
 						...(symbolCondition ? [symbolCondition] : []),
 					)
 				})
-				.select(({ row }) => ({ row })),
+				.select(({ balance }) => ({ balance })),
 		[() => actors, () => displayTokens, () => filterChainIdsNum, () => filterSymbols],
 	)
 	const pricesQuery = useLiveQuery((q) =>
-		q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })),
+		q.from({ price: storkPricesCollection }).select(({ price }) => ({ price })),
 	)
 	const liveQueryEntries = [
 		{
@@ -291,8 +291,8 @@
 		},
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
-	const balances = $derived((balancesQuery.data ?? []).map((r) => r.row))
-	const prices = $derived((pricesQuery.data ?? []).map((r) => r.row))
+	const balances = $derived((balancesQuery.data ?? []).map(({ balance }) => balance))
+	const prices = $derived((pricesQuery.data ?? []).map(({ price }) => price))
 	const balanceAssetIds = $derived([
 		...new Set(
 			balances.flatMap((balance) => {

@@ -30,7 +30,7 @@
 				.select(({ row }) => ({ row })),
 		[() => chainId],
 	)
-	const contracts = $derived((contractsQuery.data ?? []).map((r) => r.row))
+	const contracts = $derived((contractsQuery.data ?? []).map(({ row: contract }) => contract))
 	const precompiles = $derived(getPrecompilesForChain(chainId))
 	const norm = (addr: string) => addr.slice(2).toLowerCase().padStart(40, '0')
 	const precompileAddrs = $derived(new Set(precompiles.map((p) => norm(p.address))))
@@ -85,7 +85,7 @@
 				<Contract
 					contractId={{ $network: { chainId }, address: item.address }}
 					idSerialized={`${chainId}:${item.address.toLowerCase()}`}
-					href={resolve(`/network/${chainId}/contract/${item.address}`)}
+					titleHref={resolve(`/network/${chainId}/contract/${item.address}`)}
 					label={item.name ?? formatAddress(item.address)}
 					metadata={[]}
 					layout={EntityLayout.PageSection}

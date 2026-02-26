@@ -12,7 +12,7 @@
 	const query = useLiveQuery((q) =>
 		q.from({ row: evmTopicsCollection }).select(({ row }) => ({ row })),
 	)
-	const rows = $derived((query.data ?? []).map((r) => r.row as EvmTopic))
+	const rows = $derived((query.data ?? []).map(({ row: topic }) => topic as EvmTopic))
 
 	const sortOptions: Sort<EvmTopic, 'hex' | 'first-sig'>[] = [
 		{ id: 'hex', label: 'Hex', compare: (a, b) => a.$id.hex.localeCompare(b.$id.hex) },
@@ -66,9 +66,7 @@
 					<EntityView
 						entityType={EntityType.EvmTopic}
 						entity={entry}
-						entityId={{ hex: entry.$id.hex }}
-						idSerialized={entry.$id.hex}
-						href={getEvmTopicPath(entry.$id.hex)}
+						titleHref={getEvmTopicPath(entry.$id.hex)}
 						label={entry.signatures[0] ?? entry.$id.hex}
 						layout={EntityLayout.PageSection}
 						metadata={[{ term: 'Hex', detail: entry.$id.hex }]}

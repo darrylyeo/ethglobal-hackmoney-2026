@@ -18,9 +18,9 @@
 	const peersQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: partykitRoomPeersCollection })
-				.where(({ row }) => eq(row.roomId, roomId))
-				.select(({ row }) => ({ row })),
+				.from({ roomPeer: partykitRoomPeersCollection })
+				.where(({ roomPeer }) => eq(roomPeer.roomId, roomId))
+				.select(({ roomPeer }) => ({ roomPeer })),
 		[() => roomId],
 	)
 	registerLocalLiveQueryStack(() => [
@@ -33,7 +33,7 @@
 
 
 	// (Derived)
-	const peers = $derived((peersQuery.data ?? []).map((r) => r.row))
+	const peers = $derived((peersQuery.data ?? []).map(({ roomPeer: peer }) => peer))
 
 
 	// Components

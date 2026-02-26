@@ -239,17 +239,26 @@
 										disabled={item.disabled}
 									>
 										{#snippet children({ selected })}
-											{#if Before}
-												{@render Before()}
-											{/if}
-											{#if ItemSnippet}
-												{@render ItemSnippet(item.item, selected)}
-											{:else}
-												{item.label}
-											{/if}
-											{#if After}
-												{@render After()}
-											{/if}
+											<span data-row="start gap-1">
+												<span data-row-item="flexible">
+													{#if Before}
+														{@render Before()}
+													{/if}
+													{#if ItemSnippet}
+														{@render ItemSnippet(item.item, selected)}
+													{:else}
+														{item.label}
+													{/if}
+													{#if After}
+														{@render After()}
+													{/if}
+												</span>
+												<span
+													data-combobox-item-indicator
+													data-selected={selected || undefined}
+													aria-hidden="true"
+												></span>
+											</span>
 										{/snippet}
 									</Combobox.Item>
 								{/each}
@@ -263,17 +272,26 @@
 								disabled={item.disabled}
 							>
 								{#snippet children({ selected })}
-									{#if Before}
-										{@render Before()}
-									{/if}
-									{#if ItemSnippet}
-										{@render ItemSnippet(item.item, selected)}
-									{:else}
-										{item.label}
-									{/if}
-									{#if After}
-										{@render After()}
-									{/if}
+									<span data-row="start gap-1">
+										<span data-row-item="flexible">
+											{#if Before}
+												{@render Before()}
+											{/if}
+											{#if ItemSnippet}
+												{@render ItemSnippet(item.item, selected)}
+											{:else}
+												{item.label}
+											{/if}
+											{#if After}
+												{@render After()}
+											{/if}
+										</span>
+										<span
+											data-combobox-item-indicator
+											data-selected={selected || undefined}
+											aria-hidden="true"
+										></span>
+									</span>
 								{/snippet}
 							</Combobox.Item>
 						{/each}

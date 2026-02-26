@@ -183,22 +183,22 @@
 	data-sticky-container
 	{...rootProps}
 >
-	{#each allRows as row (row.type === 'group' ?
-		`group:${row.groupKey}`
-	: row.key)}
-		{#if row.type === 'group'}
+	{#each allRows as item (item.type === 'group' ?
+		`group:${item.groupKey}`
+	: item.key)}
+		{#if item.type === 'group'}
 			<li data-sticky data-scroll-item="snap-block-start">
 				{#if GroupHeader}
-					{@render GroupHeader({ groupKey: row.groupKey })}
+					{@render GroupHeader({ groupKey: item.groupKey })}
 				{:else}
-					{getGroupLabel!(row.groupKey)}
+					{getGroupLabel!(item.groupKey)}
 				{/if}
 			</li>
-		{:else if row.type === 'placeholder'}
+		{:else if item.type === 'placeholder'}
 			<li data-placeholder data-scroll-item="snap-block-start">
-				{@render Item({ key: row.key, isPlaceholder: true as const })}
+				{@render Item({ key: item.key, isPlaceholder: true as const })}
 			</li>
-		{:else if row.type === 'pagination'}
+		{:else if item.type === 'pagination'}
 			<li
 				data-pagination
 				data-scroll-item="snap-block-start"
@@ -217,8 +217,8 @@
 		{:else}
 			<li data-scroll-item="snap-block-start">
 				{@render Item({
-					key: row.key,
-					item: row.item,
+					key: item.key,
+					item: item.item,
 					isPlaceholder: false as const,
 				})}
 			</li>

@@ -197,10 +197,10 @@ export const updateDashboardState = (
 	apply: (state: DashboardStateRow) => DashboardStateRow,
 ) => {
 	const key = stateKey(id)
-	const row = dashboardsCollection.state.get(key) as
+	const dashboard = dashboardsCollection.state.get(key) as
 		| DashboardStateRow
 		| undefined
-	if (!row) return undefined
+	if (!dashboard) return undefined
 	dashboardsCollection.update(key, (draft) => {
 		Object.assign(draft, apply(draft as DashboardStateRow))
 	})
@@ -209,10 +209,10 @@ export const updateDashboardState = (
 
 export const setDashboardRoot = (id: string, root: DashboardNode) => {
 	const key = stateKey(id)
-	const row = dashboardsCollection.state.get(key) as
+	const dashboard = dashboardsCollection.state.get(key) as
 		| DashboardStateRow
 		| undefined
-	if (!row) return undefined
+	if (!dashboard) return undefined
 	dashboardsCollection.update(key, (draft) => {
 		;(draft as DashboardStateRow).root = root
 	})
@@ -221,10 +221,10 @@ export const setDashboardRoot = (id: string, root: DashboardNode) => {
 
 export const setDashboardFocus = (id: string, panelId: string) => {
 	const key = stateKey(id)
-	const row = dashboardsCollection.state.get(key) as
+	const dashboard = dashboardsCollection.state.get(key) as
 		| DashboardStateRow
 		| undefined
-	if (!row) return undefined
+	if (!dashboard) return undefined
 	dashboardsCollection.update(key, (draft) => {
 		;(draft as DashboardStateRow).focusedPanelId = panelId
 	})
@@ -234,8 +234,8 @@ export const setDashboardFocus = (id: string, panelId: string) => {
 export const createDashboard = (name?: string): string => {
 	ensureDefaultRow()
 	const id = crypto.randomUUID()
-	const row = createDashboardRow(id, '/session', name)
-	dashboardsCollection.insert(row)
+	const dashboard = createDashboardRow(id, '/session', name)
+	dashboardsCollection.insert(dashboard)
 	return id
 }
 
@@ -243,7 +243,7 @@ export const deleteDashboard = (id: string): boolean => {
 	ensureDefaultRow()
 	const defaultId = getDefaultDashboardId()
 	const keys = [...dashboardsCollection.state]
-		.filter(([, row]) => !isDefaultRow(row))
+		.filter(([, item]) => !isDefaultRow(item))
 		.map(([k]) => k)
 	if (keys.length <= 1) return false
 	const key = stateKey(id)
@@ -258,10 +258,10 @@ export const deleteDashboard = (id: string): boolean => {
 
 export const renameDashboard = (id: string, name: string) => {
 	const key = stateKey(id)
-	const row = dashboardsCollection.state.get(key) as
+	const dashboard = dashboardsCollection.state.get(key) as
 		| DashboardStateRow
 		| undefined
-	if (!row) return undefined
+	if (!dashboard) return undefined
 	dashboardsCollection.update(key, (draft) => {
 		;(draft as DashboardStateRow).name = name
 	})
@@ -270,10 +270,10 @@ export const renameDashboard = (id: string, name: string) => {
 
 export const setDashboardIcon = (id: string, icon: string) => {
 	const key = stateKey(id)
-	const row = dashboardsCollection.state.get(key) as
+	const dashboard = dashboardsCollection.state.get(key) as
 		| DashboardStateRow
 		| undefined
-	if (!row) return undefined
+	if (!dashboard) return undefined
 	dashboardsCollection.update(key, (draft) => {
 		;(draft as DashboardStateRow).icon = icon
 	})

@@ -38,7 +38,7 @@ export function upsertSwapTransferEvents(
 	for (const key of swapTransferEventsCollection.state.keys()) {
 		if (key.startsWith(pre)) swapTransferEventsCollection.delete(key)
 	}
-	for (const row of rows) {
-		if (isSwapTransfer(row)) swapTransferEventsCollection.insert(row)
+	for (const event of rows) {
+		if (isSwapTransfer(event)) swapTransferEventsCollection.insert(event)
 	}
 }

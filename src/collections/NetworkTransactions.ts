@@ -23,8 +23,8 @@ import { parse, stringify } from 'devalue'
 export const normalizeTxHash = (h: `0x${string}`): `0x${string}` =>
 	h.slice(0, 2) + h.slice(2).toLowerCase() as `0x${string}`
 
-const getKey = (row: ChainTransactionEntry) =>
-	`${row.$id.$network.chainId}:${normalizeTxHash(row.$id.txHash)}`
+const getKey = (tx: ChainTransactionEntry) =>
+	`${tx.$id.$network.chainId}:${normalizeTxHash(tx.$id.txHash)}`
 
 export type ChainTransactionRow = ChainTransactionEntry & {
 	$source: DataSource
@@ -36,7 +36,7 @@ export const networkTransactionsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.NetworkTransactions,
 		storageKey: CollectionId.NetworkTransactions,
-		getKey: (row: ChainTransactionRow) => getKey(row),
+		getKey: (tx: ChainTransactionRow) => getKey(tx),
 		parser: { stringify, parse },
 	}),
 )
@@ -79,7 +79,7 @@ export const fetchNetworkTransaction = async (
 				})
 			throw new Error('Transaction not found')
 		}
-		const row: ChainTransactionRow = {
+		const txRow: ChainTransactionRow = {
 			$id: { $network: { chainId }, txHash: normalized },
 			blockNumber: parseInt(tx.blockNumber, 16),
 			blockHash: tx.blockHash,
@@ -106,47 +106,47 @@ export const fetchNetworkTransaction = async (
 		if (existing) {
 			networkTransactionsCollection.update(key, (draft) => {
 				Object.assign(draft, {
-					blockNumber: row.blockNumber,
-					blockHash: row.blockHash,
-					transactionIndex: row.transactionIndex,
-					from: row.from,
-					to: row.to,
-					value: row.value,
-					nonce: row.nonce,
-					input: row.input,
-					gas: row.gas,
-					gasPrice: row.gasPrice,
-					type: row.type,
-					status: row.status,
-					gasUsed: row.gasUsed,
-					contractAddress: row.contractAddress,
-					effectiveGasPrice: row.effectiveGasPrice,
-					logs: row.logs,
+					blockNumber: txRow.blockNumber,
+					blockHash: txRow.blockHash,
+					transactionIndex: txRow.transactionIndex,
+					from: txRow.from,
+					to: txRow.to,
+					value: txRow.value,
+					nonce: txRow.nonce,
+					input: txRow.input,
+					gas: txRow.gas,
+					gasPrice: txRow.gasPrice,
+					type: txRow.type,
+					status: txRow.status,
+					gasUsed: txRow.gasUsed,
+					contractAddress: txRow.contractAddress,
+					effectiveGasPrice: txRow.effectiveGasPrice,
+					logs: txRow.logs,
 					isLoading: false,
 					error: null,
 				})
 			})
 		} else {
-			networkTransactionsCollection.insert(row)
+			networkTransactionsCollection.insert(txRow)
 		}
 		return {
-			$id: row.$id,
-			blockNumber: row.blockNumber,
-			blockHash: row.blockHash,
-			transactionIndex: row.transactionIndex,
-			from: row.from,
-			to: row.to,
-			value: row.value,
-			nonce: row.nonce,
-			input: row.input,
-			gas: row.gas,
-			gasPrice: row.gasPrice,
-			type: row.type,
-			status: row.status,
-			gasUsed: row.gasUsed,
-			contractAddress: row.contractAddress,
-			effectiveGasPrice: row.effectiveGasPrice,
-			logs: row.logs,
+			$id: txRow.$id,
+			blockNumber: txRow.blockNumber,
+			blockHash: txRow.blockHash,
+			transactionIndex: txRow.transactionIndex,
+			from: txRow.from,
+			to: txRow.to,
+			value: txRow.value,
+			nonce: txRow.nonce,
+			input: txRow.input,
+			gas: txRow.gas,
+			gasPrice: txRow.gasPrice,
+			type: txRow.type,
+			status: txRow.status,
+			gasUsed: txRow.gasUsed,
+			contractAddress: txRow.contractAddress,
+			effectiveGasPrice: txRow.effectiveGasPrice,
+			logs: txRow.logs,
 		}
 	} catch (e) {
 		const message = e instanceof Error ? e.message : String(e)

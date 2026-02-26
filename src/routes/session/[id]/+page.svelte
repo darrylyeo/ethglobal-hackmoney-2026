@@ -108,7 +108,7 @@
 		const hash = stringify(s.actions)
 		if (hash !== lastActionsHash) {
 			lastActionsHash = hash
-			setSessionActions(s.id, s.actions)
+			setSessionActions(s.$id.id, s.actions)
 		}
 	})
 

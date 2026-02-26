@@ -11,7 +11,6 @@ export enum ProtocolId {
 	Yellow = 'Yellow',
 }
 
-export const Protocol = ProtocolId
 export type Protocol = {
 	id: ProtocolId
 	label: string

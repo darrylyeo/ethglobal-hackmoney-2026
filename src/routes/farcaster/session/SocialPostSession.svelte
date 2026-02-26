@@ -70,11 +70,10 @@
 	<EntityView
 		data-scroll-item
 		entityType={EntityType.SocialPostSession}
-		idSerialized={session.id}
-		href={resolve(buildSocialPostSessionPath(session.id))}
+		entity={session}
+		titleHref={false}
 		label={session.name ?? placeholderName}
 		annotation="Social post"
-		hasAnchorTitle={false}
 	>
 		{#snippet Title()}
 			<span class="sr-only">Social post</span>

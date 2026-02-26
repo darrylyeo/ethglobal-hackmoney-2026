@@ -22,8 +22,10 @@ export type SessionSimulationSummary = {
 	gasTotals: { used: string; refund?: string },
 }
 
+export type Session$Id = { id: string }
+
 export type Session = {
-	id: string
+	$id: Session$Id
 	name?: string
 	actions: Action[]
 	status: SessionStatus

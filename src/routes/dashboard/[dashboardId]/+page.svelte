@@ -206,8 +206,8 @@
 	$effect(() => {
 		const id = dashboardId
 		if (!id) return
-		const row = dashboardRowQuery.data?.[0]?.row
-		if (!row) ensureDashboardState(defaultRoutePath, id)
+		const dashboard = dashboardRowQuery.data?.[0]?.row
+		if (!dashboard) ensureDashboardState(defaultRoutePath, id)
 	})
 	const dashboardRow = $derived(dashboardRowQuery.data?.[0]?.row)
 	const root = $derived(

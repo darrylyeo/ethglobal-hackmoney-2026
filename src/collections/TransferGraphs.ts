@@ -32,7 +32,7 @@ export const transferGraphsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.TransferGraphs,
 		storageKey: CollectionId.TransferGraphs,
-		getKey: (row: TransferGraphRow) => `${row.$id.symbol}:${row.$id.period}`,
+		getKey: (item: TransferGraphRow) => `${item.$id.symbol}:${item.$id.period}`,
 		parser: { stringify, parse },
 	}),
 )
@@ -52,7 +52,7 @@ export function upsertGraphFromEvents(
 	const graph = buildGraph(transfers)
 	const key = `${symbol}:${period}`
 	const existing = transferGraphsCollection.state.get(key)
-	const row: Omit<TransferGraphRow, 'isLoading' | 'error'> & {
+	const item: Omit<TransferGraphRow, 'isLoading' | 'error'> & {
 		isLoading: boolean
 		error: string | null
 	} = {
@@ -66,13 +66,13 @@ export function upsertGraphFromEvents(
 	}
 	if (existing)
 		transferGraphsCollection.update(key, (draft) => {
-			draft.graph = row.graph
-			draft.period = row.period
-			draft.periods = [...row.periods]
+			draft.graph = item.graph
+			draft.period = item.period
+			draft.periods = [...item.periods]
 			draft.isLoading = false
 			draft.error = null
 		})
-	else transferGraphsCollection.insert(row)
+	else transferGraphsCollection.insert(item)
 }
 
 export const getTransferGraph = (symbol: string, period: string) =>

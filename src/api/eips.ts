@@ -82,6 +82,7 @@ const fetchEntriesFromRepo = async (
 						? ProposalType.Erc
 						: ProposalType.Eip
 				return {
+					$id: { id: String(eipNum) },
 					number: eipNum,
 					title,
 					status,

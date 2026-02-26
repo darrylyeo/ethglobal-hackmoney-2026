@@ -19,8 +19,10 @@ export type AgentChatTurnStatus =
 	| 'error'
 	| 'cancelled'
 
+export type AgentChatTurn$Id = string
+
 export type AgentChatTurn = {
-	id: string
+	$id: AgentChatTurn$Id
 	treeId: string
 	parentId: string | null
 	userPrompt: string

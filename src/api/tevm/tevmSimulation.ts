@@ -3,6 +3,8 @@
  * session summary for persisting on Session.simulation.
  */
 
+import { type } from 'arktype'
+import { address, hexString } from '$/constants/arktype.ts'
 import {
 	runTevmSimulation,
 	runTevmSimulationSequence,
@@ -13,16 +15,18 @@ import {
 	type TevmSimulationResult,
 } from '$/data/TevmSimulationResult.ts'
 
-export type TevmSimulationPayload = {
-	rpcUrl: string
-	chainId: number
-	from: `0x${string}`
-	to?: `0x${string}`
-	data?: `0x${string}`
-	value?: string
-	gasLimit?: string
-	blockTag?: number | 'latest'
-}
+const simulatePayloadSchema = type({
+	rpcUrl: type('string'),
+	chainId: type('number.integer'),
+	from: address,
+	to: address.optional(),
+	data: hexString.optional(),
+	value: type('string').optional(),
+	gasLimit: type('string').optional(),
+	blockTag: type('number.integer').or(type("'latest'")).optional(),
+})
+
+export type TevmSimulationPayload = typeof simulatePayloadSchema.infer
 
 const payloadToBody = (p: TevmSimulationPayload) => ({
 	rpcUrl: p.rpcUrl,
@@ -32,15 +36,17 @@ const payloadToBody = (p: TevmSimulationPayload) => ({
 	data: p.data,
 	value: p.value,
 	gasLimit: p.gasLimit,
+	blockTag: p.blockTag,
 })
 
 export const runTevmSimulationFromClient = async (
-	payload: TevmSimulationPayload,
+	payload: unknown,
 ): Promise<{
 	result: TevmSimulationResult
 	summary: SessionSimulationSummary
 }> => {
-	const result = await runTevmSimulation(payloadToBody(payload))
+	const valid = simulatePayloadSchema.assert(payload)
+	const result = await runTevmSimulation(payloadToBody(valid))
 	const summary: SessionSimulationSummary = {
 		forkMetadata: result.forkMetadata,
 		summaryStatus: result.summaryStatus,
@@ -55,7 +61,7 @@ export type SimulationRunResult =
 
 /** Run all payloads; same-chain payloads run in sequence on one fork for accurate state. Returns single result or multi-step result. */
 export const runTevmSimulationFromClientBatch = async (
-	payloads: TevmSimulationPayload[],
+	payloads: unknown[],
 ): Promise<{ result: SimulationRunResult; summary: SessionSimulationSummary }> => {
 	if (payloads.length === 0) {
 		return {
@@ -68,18 +74,19 @@ export const runTevmSimulationFromClientBatch = async (
 		}
 	}
 	if (payloads.length === 1) {
-		const { result, summary } = await runTevmSimulationFromClient(payloads[0])
+		const { result, summary } = await runTevmSimulationFromClient(payloads[0] as unknown)
 		return { result, summary }
 	}
 
-	const first = payloads[0]
-	const sameChain = payloads.every(
+	const validPayloads = payloads.map((p) => simulatePayloadSchema.assert(p))
+	const first = validPayloads[0]
+	const sameChain = validPayloads.every(
 		(p) => p.rpcUrl === first.rpcUrl && p.chainId === first.chainId,
 	)
 
 	if (sameChain) {
 		const steps = await runTevmSimulationSequence(
-			payloads.map((p) => payloadToBody(p)),
+			validPayloads.map((p) => payloadToBody(p)),
 		)
 		const failed = steps.find((s) => s.summaryStatus !== TevmSimulationSummaryStatus.Success)
 		const summary: SessionSimulationSummary = {
@@ -96,7 +103,7 @@ export const runTevmSimulationFromClientBatch = async (
 	}
 
 	const results = await Promise.all(
-		payloads.map((p) => runTevmSimulation(payloadToBody(p))),
+		validPayloads.map((p) => runTevmSimulation(payloadToBody(p))),
 	)
 	const steps = results
 	const failed = steps.find((s) => s.summaryStatus !== TevmSimulationSummaryStatus.Success)

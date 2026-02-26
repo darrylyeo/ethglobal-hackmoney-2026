@@ -23,8 +23,8 @@
 		}
 		status = 'loading'
 		ensureCastByHash(hash)
-			.then((row) =>
-				goto(castUrl(row.$id.fid, row.$id.hash), {
+			.then((cast) =>
+				goto(castUrl(cast.$id.fid, cast.$id.hash), {
 					replaceState: true,
 				}),
 			)

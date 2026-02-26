@@ -32,11 +32,11 @@ export const networksCollection = createCollection(
 /** Seed collection from constants when empty. Call once in browser (e.g. layout). */
 export function ensureNetworksHydrated(): void {
 	for (const entry of networks) {
-		const row: NetworkRow = {
+		const network: NetworkRow = {
 			...normalizeNetwork(entry),
 			$source: DataSource.Local,
 		}
-		const key = String(row.$id.chainId)
-		if (!networksCollection.state.get(key)) networksCollection.insert(row)
+		const key = String(network.$id.chainId)
+		if (!networksCollection.state.get(key)) networksCollection.insert(network)
 	}
 }

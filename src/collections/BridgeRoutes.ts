@@ -34,14 +34,14 @@ const ROUTES_REQUEST_TIMEOUT_MS = 45_000
 export const bridgeRoutesCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.BridgeRoutes,
-		getKey: (row: BridgeRoutesRow) => stringify(row.$id),
+		getKey: (route: BridgeRoutesRow) => stringify(route.$id),
 	}),
 )
 
 export const bridgeRouteItemsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.BridgeRouteItems,
-		getKey: (row: BridgeRouteItemRow) => stringify(row.$id),
+		getKey: (routeItem: BridgeRouteItemRow) => stringify(routeItem.$id),
 	}),
 )
 
@@ -115,7 +115,7 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$Id) => {
 			draft.isLoading = false
 			draft.error = null
 		})
-		const routeRows = routes.map((route) => ({
+		const routeEntries = routes.map((route) => ({
 			...route,
 			$id: {
 				routeId: route.id,
@@ -124,24 +124,24 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$Id) => {
 			$source: DataSource.LiFi,
 			fetchedAt,
 		}))
-		const routeKeys = new Set(routeRows.map((row) => stringify(row.$id)))
-		for (const [rowKey, row] of bridgeRouteItemsCollection.state) {
+		const routeKeys = new Set(routeEntries.map((route) => stringify(route.$id)))
+		for (const [routeKey, route] of bridgeRouteItemsCollection.state) {
 			if (
-				row.$source === DataSource.LiFi &&
-				stringify(row.$id.quote) === key &&
-				!routeKeys.has(rowKey)
+				route.$source === DataSource.LiFi &&
+				stringify(route.$id.quote) === key &&
+				!routeKeys.has(routeKey)
 			)
-				bridgeRouteItemsCollection.delete(rowKey)
+				bridgeRouteItemsCollection.delete(routeKey)
 		}
-		for (const row of routeRows) {
-			const rowKey = stringify(row.$id)
-			const existingRow = bridgeRouteItemsCollection.state.get(rowKey)
+		for (const route of routeEntries) {
+			const routeKey = stringify(route.$id)
+			const existingRow = bridgeRouteItemsCollection.state.get(routeKey)
 			if (existingRow) {
-				bridgeRouteItemsCollection.update(rowKey, (draft) => {
-					Object.assign(draft, row)
+				bridgeRouteItemsCollection.update(routeKey, (draft) => {
+					Object.assign(draft, route)
 				})
 			} else {
-				bridgeRouteItemsCollection.insert(row)
+				bridgeRouteItemsCollection.insert(route)
 			}
 		}
 		return { routes, fetchedAt }

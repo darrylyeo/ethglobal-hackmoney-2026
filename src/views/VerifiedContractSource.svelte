@@ -34,9 +34,9 @@
 
 
 	// (Derived)
-	const row = $derived(sourceQuery.data?.[0]?.row)
+	const source = $derived(sourceQuery.data?.[0]?.row)
 	const hasFiles = $derived(
-		row != null && Object.keys(row.files ?? {}).length > 0,
+		source != null && Object.keys(source.files ?? {}).length > 0,
 	)
 
 
@@ -67,18 +67,18 @@
 		ontoggle: onToggle,
 	}}
 >
-	{#if row?.isLoading && !hasFiles}
+	{#if source?.isLoading && !hasFiles}
 		<p data-text="muted">Loading…</p>
-	{:else if row?.notFound}
+	{:else if source?.notFound}
 		<p data-text="muted">Contract not verified on Sourcify</p>
-	{:else if row?.error}
-		<p data-tag="failure">{row.error}</p>
-	{:else if hasFiles && row}
-		{#if row.metadata?.compiler}
-			<p data-text="muted">{row.metadata.compiler}</p>
+	{:else if source?.error}
+		<p data-tag="failure">{source.error}</p>
+	{:else if hasFiles && source}
+		{#if source.metadata?.compiler}
+			<p data-text="muted">{source.metadata.compiler}</p>
 		{/if}
 		<div data-column>
-			{#each Object.entries(row.files ?? {}) as [path, content]}
+			{#each Object.entries(source.files ?? {}) as [path, content]}
 				<details>
 					<summary><code>{path}</code></summary>
 					<ContractSourceBlock {path} {content} />

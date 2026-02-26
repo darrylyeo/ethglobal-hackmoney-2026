@@ -52,13 +52,13 @@
 				: [],
 	)
 	const walletsByRdns = $derived(
-		new Map((walletsQuery.data ?? []).map((r) => [r.row.$id.rdns, r.row])),
+		new Map((walletsQuery.data ?? []).map(({ row: wallet }) => [wallet.$id.rdns, wallet])),
 	)
 	const connections = $derived(
 		actors.length === 0
 			? []
 			: (connectionsQuery.data ?? [])
-					.map((r) => r.row)
+					.map(({ row: wallet }) => wallet)
 					.filter((c) =>
 						c.actors.some((a) =>
 							actors.some((addr) => a === addr),

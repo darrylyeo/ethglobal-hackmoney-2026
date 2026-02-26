@@ -12,6 +12,7 @@
 		draggableText,
 		className,
 		entityType,
+		entity,
 		entityId,
 		source,
 		children,
@@ -21,17 +22,19 @@
 		draggableText: string
 		className: string
 		entityType?: EntityType
+		entity?: { $id: Record<string, unknown> }
 		entityId?: Record<string, unknown>
 		source?: string
 		children?: Snippet
 		[key: string]: unknown
 	} = $props()
 
+	const effectiveEntityId = $derived(entity?.$id ?? entityId)
 
 	// (Derived)
 	const intent = $derived(
-		entityType && entityId
-			? entityIntent(entityType, entityId, source)
+		entityType && effectiveEntityId
+			? entityIntent(entityType, effectiveEntityId, source)
 			: undefined,
 	)
 </script>

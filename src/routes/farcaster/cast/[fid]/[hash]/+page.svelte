@@ -61,7 +61,7 @@
 	// (Derived)
 	const cast = $derived(castQuery.data?.[0]?.row as FarcasterCastRow | undefined)
 	const allCasts = $derived(
-		(allCastsQuery.data ?? []).map((r) => r.row as FarcasterCastRow),
+		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as FarcasterCastRow),
 	)
 	const replies = $derived(
 		allCasts.filter((c) =>
@@ -105,7 +105,7 @@
 	)
 	const userByFid = $derived(
 		new Map(
-			(usersQuery.data ?? []).map((r) => [r.row.$id.fid, r.row]),
+			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user]),
 		),
 	)
 
@@ -138,13 +138,13 @@
 		if (fid > 0 && hash) {
 			isEnsureCastPending = true
 			ensureCast(fid, hash)
-				.then((row) => {
-					if (row.$id.hash !== hash)
-						goto(`/farcaster/cast/${fid}/${row.$id.hash}`, {
+				.then((cast) => {
+					if (cast.$id.hash !== hash)
+						goto(`/farcaster/cast/${fid}/${cast.$id.hash}`, {
 							replaceState: true,
 						})
 					else
-						ensureRepliesForCast(fid, row.$id.hash)
+						ensureRepliesForCast(fid, cast.$id.hash)
 							.then(({ nextPageToken }) => (repliesNextToken = nextPageToken))
 							.catch(() => {})
 				})
@@ -204,8 +204,7 @@
 		<EntityView
 			entityType={EntityType.FarcasterCast}
 			entity={cast}
-			idSerialized={`${cast.$id.fid}:${cast.$id.hash}`}
-			href="/farcaster/cast/{cast.$id.fid}/{cast.$id.hash}"
+			titleHref="/farcaster/cast/{cast.$id.fid}/{cast.$id.hash}"
 			label={cast.text.length > 60 ? cast.text.slice(0, 60) + '…' : cast.text}
 			metadata={[
 				{
@@ -279,8 +278,7 @@
 										<EntityView
 											entityType={EntityType.FarcasterCast}
 											entity={quotedCast}
-											idSerialized={`${quotedCast.$id.fid}:${quotedCast.$id.hash}`}
-											href="/farcaster/cast/{quotedCast.$id.fid}/{quotedCast.$id.hash}"
+											titleHref="/farcaster/cast/{quotedCast.$id.fid}/{quotedCast.$id.hash}"
 											label={quotedCast.text.length > 60 ? quotedCast.text.slice(0, 60) + '…' : quotedCast.text}
 											metadata={[
 												{

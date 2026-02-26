@@ -15,8 +15,8 @@
 	// (Derived)
 	const siwfConnections = $derived(
 		(
-			((connectionsQuery.data ?? []) as { row: FarcasterConnectionSiwf }[])
-				.map((r) => r.row)
+			(connectionsQuery.data ?? [])
+				.map(({ farcasterConnection: connection }) => connection)
 				.filter((c) => c.transport === FarcasterConnectionTransport.Siwf)
 				.sort((a, b) => b.connectedAt - a.connectedAt)
 		),

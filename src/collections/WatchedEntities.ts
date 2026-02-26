@@ -12,7 +12,6 @@ import {
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 
-export const watchedEntityKey = entityKey
 const encodeStorageKey = (key: string) => `s:${key}`
 
 export type WatchedEntityStored = {

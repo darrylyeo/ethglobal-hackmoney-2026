@@ -141,21 +141,21 @@
 	const toNetwork = $derived(resolveNetwork(settings.toChainId))
 
 	const routesQuery = useLiveQuery((q) =>
-		q.from({ row: bridgeRoutesCollection }).select(({ row }) => ({ row })),
+		q.from({ bridgeRoute: bridgeRoutesCollection }).select(({ bridgeRoute }) => ({ bridgeRoute })),
 	)
 	const balancesQuery = useLiveQuery((q) =>
-		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
+		q.from({ actorCoin: actorCoinsCollection }).select(({ actorCoin }) => ({ actorCoin })),
 	)
 	const allowancesQuery = useLiveQuery((q) =>
 		q
-			.from({ row: actorAllowancesCollection })
-			.select(({ row }) => ({ row })),
+			.from({ allowance: actorAllowancesCollection })
+			.select(({ allowance }) => ({ allowance })),
 	)
 	const txQuery = useLiveQuery((q) =>
 		q
-			.from({ row: bridgeTransactionsCollection })
-			.orderBy(({ row }) => row.$id?.createdAt ?? 0, 'desc')
-			.select(({ row }) => ({ row })),
+			.from({ bridgeTransaction: bridgeTransactionsCollection })
+			.orderBy(({ bridgeTransaction }) => bridgeTransaction.$id?.createdAt ?? 0, 'desc')
+			.select(({ bridgeTransaction }) => ({ bridgeTransaction })),
 	)
 	const liveQueryEntries = [
 		{
@@ -187,7 +187,7 @@
 	const balances = $derived(
 		selectedActor
 			? (balancesQuery.data ?? [])
-					.map((r) => r.row)
+					.map(({ actorCoin }) => actorCoin)
 					.filter(
 						(b) => b.$id.$actor.address === selectedActor,
 					)
@@ -229,12 +229,12 @@
 		quoteParams
 			? (routesQuery.data?.find(
 					(r) =>
-						r.row.$id.fromChainId === quoteParams.fromChainId &&
-						r.row.$id.toChainId === quoteParams.toChainId &&
-						r.row.$id.amount === quoteParams.amount &&
-						r.row.$id.fromAddress === quoteParams.fromAddress &&
-						r.row.$id.slippage === quoteParams.slippage,
-				)?.row ?? null)
+						r.bridgeRoute.$id.fromChainId === quoteParams.fromChainId &&
+						r.bridgeRoute.$id.toChainId === quoteParams.toChainId &&
+						r.bridgeRoute.$id.amount === quoteParams.amount &&
+						r.bridgeRoute.$id.fromAddress === quoteParams.fromAddress &&
+						r.bridgeRoute.$id.slippage === quoteParams.slippage,
+				)?.bridgeRoute ?? null)
 			: null,
 	)
 	const routes = $derived<BridgeRoute[]>(routesRow?.routes ?? [])
@@ -271,12 +271,12 @@
 		selectedActor && fromNetwork && approvalAddress
 			? (allowancesQuery.data?.find(
 					(r) =>
-						r.row.$id.$actorCoin.$actor.$network.chainId === fromNetwork.id &&
-						r.row.$id.$actorCoin.$actor.address === selectedActor &&
-						r.row.$id.$actorCoin.$coin.address ===
+						r.allowance.$id.$actorCoin.$actor.$network.chainId === fromNetwork.id &&
+						r.allowance.$id.$actorCoin.$actor.address === selectedActor &&
+						r.allowance.$id.$actorCoin.$coin.address ===
 							getUsdcAddress(fromNetwork.id) &&
-						r.row.$id.$spender.address === approvalAddress,
-				)?.row.allowance ?? 0n)
+						r.allowance.$id.$spender.address === approvalAddress,
+				)?.allowance.allowance ?? 0n)
 			: 0n,
 	)
 	const approved = $derived(currentAllowance >= settings.amount)
@@ -307,7 +307,7 @@
 	const warnLargeAmount = $derived(fromAmountUsd > 10_000)
 	const transactions = $derived(
 		(txQuery.data ?? [])
-			.map((r) => r.row)
+			.map(({ bridgeTransaction }) => bridgeTransaction)
 			.filter(
 				(tx) => selectedActor != null && tx.$id.address === selectedActor,
 			)
@@ -593,7 +593,7 @@
 										slippage: preset.value,
 									}
 								}}
-								class:selected={settings.slippage === preset.value}
+								class={settings.slippage === preset.value ? 'selected' : ''}
 							>
 								{formatSlippagePercent(preset.value)}
 							</Button.Root>

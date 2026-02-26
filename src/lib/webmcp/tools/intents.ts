@@ -44,6 +44,6 @@ export const executeCreateSessionFromIntent = async (input: CreateSessionFromInt
 		actions: option.sessionTemplate.actions,
 		name: option.sessionTemplate.name,
 	})
-	await goto(buildSessionPath(session.id), { replaceState: false })
-	return { sessionId: session.id, path: buildSessionPath(session.id) }
+	await goto(buildSessionPath(session.$id.id), { replaceState: false })
+	return { sessionId: session.$id.id, path: buildSessionPath(session.$id.id) }
 }

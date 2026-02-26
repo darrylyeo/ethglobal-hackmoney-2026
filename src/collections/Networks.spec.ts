@@ -6,18 +6,18 @@ import { normalizeNetwork } from './Networks.ts'
 Deno.test(
 	'networks collection normalization: returns one network row with $id, id, name and type',
 	() => {
-		const row = normalizeNetwork({
+		const network = normalizeNetwork({
 			id: 1,
 			name: 'Ethereum',
 			type: NetworkType.Mainnet,
 		})
-		assertExists(row.$id)
-		assertExists(row.id)
-		assertExists(row.name)
-		assertExists(row.type)
-		assertEquals(row.$id, 1)
-		assertEquals(row.id, 1)
-		assertEquals(row.name, 'Ethereum')
-		assertEquals(row.type, NetworkType.Mainnet)
+		assertExists(network.$id)
+		assertExists(network.id)
+		assertExists(network.name)
+		assertExists(network.type)
+		assertEquals(network.$id, 1)
+		assertEquals(network.id, 1)
+		assertEquals(network.name, 'Ethereum')
+		assertEquals(network.type, NetworkType.Mainnet)
 	},
 )

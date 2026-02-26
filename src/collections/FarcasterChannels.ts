@@ -75,7 +75,7 @@ export const ensureFarcasterChannel = async (
 	}
 	try {
 		const { result } = await fetchChannel(channelId)
-		const row = normalizeChannel(result.channel)
+		const channel = normalizeChannel(result.channel)
 		channelsRemainder = channelsRemainder.filter((c) => c.$id.id !== channelId)
 		const current = queryClient.getQueryData<FarcasterChannelRow[]>(
 			farcasterChannelsQueryKey,
@@ -84,9 +84,9 @@ export const ensureFarcasterChannel = async (
 		if (!exists)
 			queryClient.setQueryData(farcasterChannelsQueryKey, [
 				...(current ?? []),
-				row,
+				channel,
 			])
-		return row
+		return channel
 	} catch {
 		return null
 	}

@@ -354,6 +354,7 @@ export const submitExplainTurn = (options: {
 
 	if (!agentChatTreesCollection.state.has(treeId)) {
 		agentChatTreesCollection.insert({
+			$id: { id: treeId },
 			id: treeId,
 			name: `Explain: ${options.sessionId.slice(0, 8)}`,
 			pinned: false,
@@ -386,6 +387,7 @@ export const submitExplainTurn = (options: {
 	]
 
 	agentChatTurnsCollection.insert({
+		$id: turnId,
 		id: turnId,
 		treeId,
 		parentId: null,

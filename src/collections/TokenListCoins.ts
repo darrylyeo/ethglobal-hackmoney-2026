@@ -77,11 +77,11 @@ const fetchTokenListEntries = async (): Promise<TokenListCoinRow[]> => {
 		.filter((entry): entry is TokenListCoin => entry !== null)
 		.map((entry) => ({ ...entry, $source: DataSource.TokenLists }))
 	const unique = new Map<string, TokenListCoinRow>()
-	for (const row of rows) {
+	for (const coin of rows) {
 		if (unique.size >= TOKEN_LIST_MAX_ENTRIES) break
 		unique.set(
-			`${row.$id.$network.chainId}-${row.$id.address.toLowerCase()}`,
-			row,
+			`${coin.$id.$network.chainId}-${coin.$id.address.toLowerCase()}`,
+			coin,
 		)
 	}
 	return [...unique.values()]

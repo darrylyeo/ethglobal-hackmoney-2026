@@ -25,8 +25,8 @@ import type {
 	TransactionTrace$Id,
 } from '$/data/TransactionTrace.ts'
 
-const getKey = (row: TransactionTraceRow) =>
-	`${row.$id.$network.chainId}:${normalizeTxHash(row.$id.txHash)}`
+const getKey = (trace: TransactionTraceRow) =>
+	`${trace.$id.$network.chainId}:${normalizeTxHash(trace.$id.txHash)}`
 
 export type TransactionTraceRow = TransactionTraceEntry & {
 	$source: DataSource
@@ -39,7 +39,7 @@ export const transactionTracesCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.TransactionTraces,
 		storageKey: CollectionId.TransactionTraces,
-		getKey: (row: TransactionTraceRow) => getKey(row),
+		getKey: (trace: TransactionTraceRow) => getKey(trace),
 		parser: { stringify, parse },
 	}),
 )
@@ -74,7 +74,7 @@ export async function fetchTransactionTrace(
 				txHash,
 			)
 			if (trace != null) {
-				const row: TransactionTraceRow = {
+				const item: TransactionTraceRow = {
 					$id: { $network: { chainId }, txHash },
 					trace,
 					$source: DataSource.Sqd,
@@ -84,10 +84,10 @@ export async function fetchTransactionTrace(
 				}
 				if (existing) {
 					transactionTracesCollection.update(key, (draft) => {
-						Object.assign(draft, row)
+						Object.assign(draft, item)
 					})
 				} else {
-					transactionTracesCollection.insert(row)
+					transactionTracesCollection.insert(item)
 				}
 				return
 			}
@@ -110,7 +110,7 @@ export async function fetchTransactionTrace(
 		const provider = createProviderForChain(chainId)
 		const raw = await debugTraceTransaction(provider, txHash)
 		if (raw == null) {
-			const row: TransactionTraceRow = {
+			const item: TransactionTraceRow = {
 				$id: { $network: { chainId }, txHash },
 				$source: DataSource.Voltaire,
 				unavailable: true,
@@ -119,15 +119,15 @@ export async function fetchTransactionTrace(
 			}
 			if (existing) {
 				transactionTracesCollection.update(key, (draft) => {
-					Object.assign(draft, row)
+					Object.assign(draft, item)
 				})
 			} else {
-				transactionTracesCollection.insert(row)
+				transactionTracesCollection.insert(item)
 			}
 			return
 		}
 		const trace = rawTraceToTrace(raw as RawTrace)
-		const row: TransactionTraceRow = {
+		const item: TransactionTraceRow = {
 			$id: { $network: { chainId }, txHash },
 			trace,
 			$source: DataSource.Voltaire,
@@ -137,10 +137,10 @@ export async function fetchTransactionTrace(
 		}
 		if (existing) {
 			transactionTracesCollection.update(key, (draft) => {
-				Object.assign(draft, row)
+				Object.assign(draft, item)
 			})
 		} else {
-			transactionTracesCollection.insert(row)
+			transactionTracesCollection.insert(item)
 		}
 	} catch (e) {
 		const message = e instanceof Error ? e.message : String(e)

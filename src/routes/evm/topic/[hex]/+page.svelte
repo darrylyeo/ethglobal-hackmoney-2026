@@ -63,8 +63,7 @@
 			entityType={EntityType.EvmTopic}
 			entity={entry}
 			entityId={{ hex: parsed }}
-			idSerialized={parsed}
-			{href}
+			titleHref={href}
 			{label}
 			layout={EntityLayout.Page}
 			metadata={[{ term: 'Hex', detail: parsed }]}

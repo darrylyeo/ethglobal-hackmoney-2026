@@ -48,13 +48,13 @@
 					draggableText={coin.symbol}
 					className=""
 					entityType={EntityType.Coin}
-					entityId={coin.$id}
+					entity={coin}
 				>
 					<CoinName {coin} />
 				</EntityId>
 				<WatchButton
 					entityType={EntityType.Coin}
-					entityId={coin.$id}
+					entity={coin}
 				/>
 			</li>
 		{/each}

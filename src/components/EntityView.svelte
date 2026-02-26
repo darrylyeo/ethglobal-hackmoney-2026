@@ -16,6 +16,7 @@
 	// Types/constants
 	import type { Entity, EntityId, EntityType } from '$/data/$EntityType.ts'
 	import type { Snippet } from 'svelte'
+	import { stringify } from 'devalue'
 	import { EntityType as EntityTypeEnum, entityTypes } from '$/data/$EntityType.ts'
 
 
@@ -24,13 +25,13 @@
 		entityType,
 		entity,
 		entityId: entityIdProp,
-		idSerialized,
-		href,
+		idSerialized = '',
+		/** Omit = fragment #articleId, string = that URL, false = no link. Only when no custom Title. */
+		titleHref,
 		label,
 		layout = EntityLayout.Page,
 		metadata,
 		annotation,
-		hasAnchorTitle = true,
 		showWatchButton = true,
 		open = true,
 		ontoggle,
@@ -44,13 +45,12 @@
 		entityType: _EntityType
 		entity?: _Entity
 		entityId?: EntityId
-		idSerialized: string
-		href: string
+		idSerialized?: string
 		label: string
+		titleHref?: true | string | false
 		layout?: EntityLayout
 		metadata?: Array<{ term: string; detail: string }>
 		annotation?: string
-		hasAnchorTitle?: boolean
 		showWatchButton?: boolean
 		open?: boolean
 		ontoggle?: (e: Event) => void
@@ -64,16 +64,18 @@
 
 
 	// (Derived)
-	const articleId = $derived(`${entityType}:${idSerialized}`)
 	const entityId = $derived(
 		entityIdProp
 		?? (entity as { $id?: EntityId } | undefined)?.$id
 		?? (
-			idSerialized != null
+			idSerialized !== ''
 			&& [EntityTypeEnum.Session, EntityTypeEnum.Room, EntityTypeEnum.AgentChatTree].includes(entityType)
 				? ({ id: idSerialized } as EntityId)
 				: undefined
 		),
+	)
+	const articleId = $derived(
+		`${entityType}:${entityId != null ? stringify(entityId) : idSerialized}`,
 	)
 
 
@@ -121,13 +123,13 @@
 									</Heading>
 								{/snippet}
 
-								{#if hasAnchorTitle}
-									<a href={`#${articleId}`}>
+							{#if titleHref !== false && !Title}
+									<a href={titleHref === true || titleHref === undefined ? `#${articleId}` : titleHref}>
 										{@render HeadingContent()}
 									</a>
-								{:else}
+									{:else}
 									{@render HeadingContent()}
-								{/if}
+									{/if}
 
 								{#if AfterTitle}
 									{@render AfterTitle({ entity, entityType })}
@@ -136,7 +138,8 @@
 								{#if showWatchButton && entityId != null}
 									<WatchButton
 										{entityType}
-										{entityId}
+										entity={entity as { $id: EntityId } | undefined}
+										{...(entity == null ? { entityId } : {})}
 									/>
 								{/if}
 							</div>

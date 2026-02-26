@@ -26,7 +26,7 @@
 		[],
 	)
 	const myPeerIdsSet = $derived(
-		new Set((myPeerIdsQuery.data ?? []).map((r) => r.row.peerId)),
+		new Set((myPeerIdsQuery.data ?? []).map(({ row: peer }) => peer.peerId)),
 	)
 	const verifiedByMeVerifications = $derived(
 		(verificationsQuery.data ?? []).filter(

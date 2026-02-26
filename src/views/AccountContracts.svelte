@@ -31,19 +31,19 @@
 		(q) =>
 			addressNorm
 				? q
-						.from({ row: contractsCollection })
-						.where(({ row }) => eq(row.deployer, addressNorm))
-						.select(({ row }) => ({ row }))
+.from({ contract: contractsCollection })
+				.where(({ contract }) => eq(contract.deployer, addressNorm))
+				.select(({ contract }) => ({ contract }))
 				: q
-						.from({ row: contractsCollection })
-						.where(({ row }) => eq(row.$id.$network.chainId, -1))
-						.select(({ row }) => ({ row })),
+.from({ contract: contractsCollection })
+				.where(({ contract }) => eq(contract.$id.$network.chainId, -1))
+				.select(({ contract }) => ({ contract })),
 		[() => addressNorm],
 	)
 
 
 	// (Derived)
-	const contracts = $derived((contractsQuery.data ?? []).map((r) => r.row))
+	const contracts = $derived((contractsQuery.data ?? []).map(({ contract }) => contract))
 
 
 	// State

@@ -46,7 +46,7 @@
 		[],
 	)
 	const eip1193Connections = $derived(
-		(walletConnectionsQuery.data ?? []).map((r) => r.row),
+		(walletConnectionsQuery.data ?? []).map(({ row: connection }) => connection).filter(Boolean),
 	)
 	const paymentConnectionIdStr = $derived(
 		tree.paymentWalletConnection$id
@@ -57,7 +57,7 @@
 
 	// Functions
 	const updateTreeName = (name: string) => {
-		agentChatTreesCollection.update(tree.id, (draft) => {
+		agentChatTreesCollection.update(tree.$id.id, (draft) => {
 			draft.name = name || null
 			draft.updatedAt = Date.now()
 		})
@@ -65,20 +65,20 @@
 	const updateTreeModel = (v: string) => {
 		const [connectionId, modelId] =
 			v && v.includes(':') ? v.split(':').map((s) => s?.trim() ?? null) : [null, null]
-		agentChatTreesCollection.update(tree.id, (draft) => {
+		agentChatTreesCollection.update(tree.$id.id, (draft) => {
 			draft.defaultConnectionId = connectionId ?? undefined
 			draft.defaultModelId = modelId ?? undefined
 			draft.updatedAt = Date.now()
 		})
 	}
 	const togglePin = () => {
-		agentChatTreesCollection.update(tree.id, (draft) => {
+		agentChatTreesCollection.update(tree.$id.id, (draft) => {
 			draft.pinned = !draft.pinned
 			draft.updatedAt = Date.now()
 		})
 	}
 	const setTreePaymentWallet = ($id: WalletConnection$Id | null) => {
-		agentChatTreesCollection.update(tree.id, (draft) => {
+		agentChatTreesCollection.update(tree.$id.id, (draft) => {
 			draft.paymentWalletConnection$id = $id ?? undefined
 			draft.updatedAt = Date.now()
 		})
@@ -94,7 +94,7 @@
 
 <div
 	data-column="gap-4"
-	id="agent-chat:{tree.id}"
+	id="agent-chat:{tree.$id.id}"
 >
 	<div data-row="align-center">
 		<input
@@ -113,9 +113,9 @@
 
 	{#if connections.length > 0}
 		<div data-row="align-center">
-			<label for="tree-model-{tree.id}">Default model</label>
+			<label for="tree-model-{tree.$id.id}">Default model</label>
 			<ModelInput
-				id="tree-model-{tree.id}"
+				id="tree-model-{tree.$id.id}"
 				connections={connections}
 				bind:value={() => treeModelValue, updateTreeModel}
 				placeholder="Default model"
@@ -125,9 +125,9 @@
 	{/if}
 
 	<div data-row="align-center">
-		<label for="tree-payment-{tree.id}">Payment account</label>
+		<label for="tree-payment-{tree.$id.id}">Payment account</label>
 		<select
-			id="tree-payment-{tree.id}"
+			id="tree-payment-{tree.$id.id}"
 			aria-label="Wallet for agent payments (x402)"
 			value={paymentConnectionIdStr}
 			onchange={(e) => {

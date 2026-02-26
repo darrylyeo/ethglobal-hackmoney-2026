@@ -18,7 +18,8 @@ import { siweVerificationsCollection } from '$/collections/SiweVerifications.ts'
 import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 import { walletsCollection } from '$/collections/Wallets.ts'
 import type { WatchedEntityRow, WatchedEntityStoredRow } from '$/collections/WatchedEntities.ts'
-import { watchedEntitiesCollection, watchedEntityKey } from '$/collections/WatchedEntities.ts'
+import { watchedEntitiesCollection } from '$/collections/WatchedEntities.ts'
+import { entityKey } from '$/lib/entity-key.ts'
 
 import { ActionType, actionTypeDefinitionByActionType } from '$/constants/actions.ts'
 import {
@@ -55,7 +56,7 @@ import type { NavigationItem } from '$/views/NavigationItem.svelte'
 export function deriveWatchedEntityRow(stored: WatchedEntityStoredRow): WatchedEntityRow {
 	const entityType = stored.entityType
 	const entityIdRaw = stored.entityId
-	const id = watchedEntityKey({ entityType, entityId: entityIdRaw })
+	const id = entityKey({ entityType, entityId: entityIdRaw })
 	const addedAt = stored.addedAt
 	const parsedId =
 		typeof entityIdRaw === 'string' &&
@@ -412,7 +413,7 @@ export class NavigationItems {
 		const watchedSocialPostSessionRows =
 			watchedByType.get(EntityType.SocialPostSession) ?? []
 		const socialPostSessionsById = new Map(
-			(this.socialPostSessionsQuery.data ?? []).map((r) => [r.row.id, r.row]),
+			(this.socialPostSessionsQuery.data ?? []).map((r) => [r.row.$id.id, r.row]),
 		)
 		const socialPostSessionNavItemsFromWatched = watchedSocialPostSessionRows
 			.map((row) => ({
@@ -441,7 +442,7 @@ export class NavigationItems {
 					: '✍️',
 			}))
 		const sessionsById = new Map(
-			(this.sessionsQuery.data ?? []).map((r) => [r.row.id, r.row]),
+			(this.sessionsQuery.data ?? []).map((r) => [r.row.$id.id, r.row]),
 		)
 		const sessionNavItemsFromWatched = watchedSessionRows
 			.map((row) => ({

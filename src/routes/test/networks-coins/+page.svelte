@@ -44,9 +44,9 @@
 	// (Derived)
 
 	const networks = $derived(
-		(networksQuery.data ?? []).map((entry) => entry.row),
+		(networksQuery.data ?? []).map(({ row: network }) => network),
 	)
-	const coins = $derived((coinsQuery.data ?? []).map((entry) => entry.row))
+	const coins = $derived((coinsQuery.data ?? []).map(({ row: coin }) => coin))
 </script>
 
 

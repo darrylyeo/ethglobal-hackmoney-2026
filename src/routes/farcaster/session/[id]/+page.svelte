@@ -32,9 +32,9 @@
 	const sessionQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: socialPostSessionsCollection })
-				.where(({ row }) => eq(row.id, sessionId))
-				.select(({ row }) => ({ row })),
+				.from({ socialPostSession: socialPostSessionsCollection })
+				.where(({ socialPostSession }) => eq(socialPostSession.$id.id, sessionId))
+				.select(({ socialPostSession }) => ({ socialPostSession })),
 		[() => sessionId],
 	)
 	const connectionsQuery = useFarcasterConnections()
@@ -45,11 +45,11 @@
 
 	// (Derived)
 	const dbSession = $derived(
-		sessionQuery.data?.[0]?.row as SocialPostSession | undefined ?? null,
+		sessionQuery.data?.[0]?.socialPostSession as SocialPostSession | undefined ?? null,
 	)
 	const selectedSiwfConnection = $derived(
-		((connectionsQuery.data ?? []) as { row: FarcasterConnectionSiwf }[])
-			.map((r) => r.row)
+		(connectionsQuery.data ?? [])
+			.map(({ farcasterConnection }) => farcasterConnection)
 			.find(
 				(c) =>
 					c.transport === FarcasterConnectionTransport.Siwf && c.selected,
@@ -72,11 +72,11 @@
 	})
 	$effect(() => {
 		const s = activeSession
-		if (!s || s.id.startsWith('ephemeral-')) return
+		if (!s || s.$id.id.startsWith('ephemeral-')) return
 		const snap = stringify({ actions: s.actions, params: s.params })
 		if (snap === lastWrittenSnapshot) return
 		lastWrittenSnapshot = snap
-		updateSocialPostSession(s.id, (draft) => {
+		updateSocialPostSession(s.$id.id, (draft) => {
 			draft.actions = s.actions
 			draft.params = { ...s.params }
 		})

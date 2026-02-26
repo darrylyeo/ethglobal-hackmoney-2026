@@ -156,9 +156,7 @@
 			<EntityView
 				entityType={EntityType.Proposal}
 				entity={proposalEntry}
-				entityId={{ id: idSerialized }}
-				{idSerialized}
-				href={getProposalPath(ProposalRealm.Ethereum, proposalEntry)}
+				titleHref={getProposalPath(ProposalRealm.Ethereum, proposalEntry)}
 				{label}
 				{metadata}
 				annotation={proposalEntry.type === ProposalType.Erc ? 'ERC' : 'EIP'}
@@ -175,9 +173,7 @@
 			<EntityView
 				entityType={EntityType.Caip}
 				entity={caipEntry}
-				entityId={{ id: idSerialized }}
-				{idSerialized}
-				href={getProposalPath(ProposalRealm.ChainAgnostic, caipEntry)}
+				titleHref={getProposalPath(ProposalRealm.ChainAgnostic, caipEntry)}
 				{label}
 				{metadata}
 				annotation="CAIP"

@@ -77,8 +77,7 @@
 		<EntityView
 			entityType={EntityType.Network}
 			entity={networkEntity}
-			idSerialized={chainIdParam}
-			href={resolve(`/network/${chainIdParam}`)}
+			titleHref={resolve(`/network/${chainIdParam}`)}
 			label={network?.name ?? ''}
 			metadata={[
 				{ term: 'Chain ID', detail: String(chainId) },

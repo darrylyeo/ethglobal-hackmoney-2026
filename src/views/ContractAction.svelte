@@ -63,23 +63,23 @@
 	const connectionsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: walletConnectionsCollection })
-				.where(({ row }) => eq(row.transport, WalletConnectionTransport.Eip1193))
-				.select(({ row }) => ({ row })),
+				.from({ walletConnection: walletConnectionsCollection })
+				.where(({ walletConnection }) => eq(walletConnection.transport, WalletConnectionTransport.Eip1193))
+				.select(({ walletConnection }) => ({ walletConnection })),
 		[],
 	)
 	const walletsQuery = useLiveQuery(
-		(q) => q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
+		(q) => q.from({ wallet: walletsCollection }).select(({ wallet }) => ({ wallet })),
 		[],
 	)
 	const selectedConnection = $derived(
 		(connectionsQuery.data ?? [])
-			.map((r) => r.row)
+			.map(({ walletConnection }) => walletConnection)
 			.find((c) => c.selected),
 	)
 	const walletRow = $derived(
 		selectedConnection ?
-			(walletsQuery.data ?? []).map((r) => r.row).find(
+			(walletsQuery.data ?? []).map(({ wallet }) => wallet).find(
 				(w) => w.$id.rdns === selectedConnection.$id.wallet$id.rdns,
 			)
 		: null,

@@ -21,7 +21,7 @@ const collectAncestors = (
 	const ancestors: AgentChatTurn[] = []
 	let current: AgentChatTurn | undefined = turn
 	while (current?.parentId) {
-		current = turns.find((t) => t.id === current!.parentId)
+		current = turns.find((t) => t.$id === current!.parentId)
 		if (current) ancestors.unshift(current)
 	}
 	return ancestors
@@ -69,7 +69,7 @@ export const submitAgentChatTurn = async (options: {
 	const modelId = options.modelId ?? undefined
 
 	const turn: AgentChatTurn = {
-		id: turnId,
+		$id: turnId,
 		treeId: options.treeId,
 		parentId: options.parentId,
 		userPrompt: options.userPrompt,
@@ -89,7 +89,7 @@ export const submitAgentChatTurn = async (options: {
 	agentChatTurnsCollection.insert(turn)
 
 	const allTurns = [...agentChatTurnsCollection.state.values()]
-		.filter((row) => row.treeId === options.treeId)
+		.filter((turn) => turn.treeId === options.treeId)
 
 	const messages = buildAgentChatMessages(allTurns, turn, options.systemPrompt)
 	const tree = agentChatTreesCollection.state.get(options.treeId)
@@ -149,7 +149,7 @@ export const retryAgentChatTurn = async (options: {
 	systemPrompt: string
 	onProgress?: (progress: number) => void
 }) => {
-	const turn = options.allTurns.find((t) => t.id === options.turnId)
+	const turn = options.allTurns.find((t) => t.$id === options.turnId)
 	if (!turn || turn.status !== 'error') return
 
 	agentChatTurnsCollection.update(options.turnId, (draft) => {
@@ -195,7 +195,7 @@ export const createAgentChatTree = (overrides?: Partial<AgentChatTree>) => {
 	const now = Date.now()
 
 	const tree: AgentChatTree = {
-		id,
+		$id: { id },
 		name: null,
 		pinned: false,
 		systemPrompt: DEFAULT_SYSTEM_PROMPT,
@@ -219,9 +219,9 @@ export const collectAgentChatTurnDescendantIds = (
 		const next: string[] = []
 		for (const id of frontier) {
 			for (const t of allTurns)
-				if (t.parentId === id && !ids.has(t.id)) {
-					ids.add(t.id)
-					next.push(t.id)
+				if (t.parentId === id && !ids.has(t.$id)) {
+					ids.add(t.$id)
+					next.push(t.$id)
 				}
 		}
 		frontier = next

@@ -9,6 +9,8 @@ import { getToolDefinitions, executeTool } from '$/lib/webmcp/handlers.ts'
 
 export const TOOLS_FOR_CHAT = [
 	'getSession',
+	'simulateSession',
+	'executeSession',
 	'navigate',
 	'listWatchedEntities',
 	'watchEntity',

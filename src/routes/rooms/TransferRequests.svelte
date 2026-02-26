@@ -24,22 +24,22 @@
 	const verifiedQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: sharedAddressesCollection })
-				.where(({ row }) => eq(row.roomId, roomId))
-				.select(({ row }) => ({ row })),
+				.from({ sharedAddress: sharedAddressesCollection })
+				.where(({ sharedAddress }) => eq(sharedAddress.roomId, roomId))
+				.select(({ sharedAddress }) => ({ sharedAddress })),
 		[() => roomId],
 	)
 	const depositQuery = useLiveQuery((q) =>
 		q
-			.from({ row: stateChannelDepositsCollection })
-			.select(({ row }) => ({ row })),
+			.from({ deposit: stateChannelDepositsCollection })
+			.select(({ deposit }) => ({ deposit })),
 	)
 	const requestsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: transferRequestsCollection })
-				.where(({ row }) => eq(row.roomId, roomId))
-				.select(({ row }) => ({ row })),
+				.from({ transferRequest: transferRequestsCollection })
+				.where(({ transferRequest }) => eq(transferRequest.roomId, roomId))
+				.select(({ transferRequest }) => ({ transferRequest })),
 		[() => roomId],
 	)
 	registerLocalLiveQueryStack(() => [
@@ -73,14 +73,14 @@
 	const otherVerified = $derived(
 		myAddress
 			? (verifiedQuery.data ?? [])
-					.map((r) => r.row)
+					.map(({ sharedAddress }) => sharedAddress)
 					.filter((s) => s.address.toLowerCase() !== myAddress)
 			: [],
 	)
 	const availableBalance = $derived(
 		myAddress && yellowState.chainId
 			? ((depositQuery.data ?? [])
-					.map((r) => r.row)
+					.map(({ deposit }) => deposit)
 					.find(
 						(d) =>
 							d.address.toLowerCase() === myAddress &&
@@ -91,7 +91,7 @@
 	const incoming = $derived(
 		myAddress
 			? (requestsQuery.data ?? [])
-					.map((r) => r.row)
+					.map(({ transferRequest }) => transferRequest)
 					.filter(
 						(p) => p.to.toLowerCase() === myAddress && p.status === 'pending',
 					)
@@ -100,7 +100,7 @@
 	const outgoing = $derived(
 		myAddress
 			? (requestsQuery.data ?? [])
-					.map((r) => r.row)
+					.map(({ transferRequest }) => transferRequest)
 					.filter((p) => p.from.toLowerCase() === myAddress)
 			: [],
 	)
@@ -134,7 +134,7 @@
 			return
 		}
 		const request = (requestsQuery.data ?? [])
-			.map((r) => r.row)
+			.map(({ transferRequest }) => transferRequest)
 			.find((r) => r.id === requestId)
 		if (!request) return
 		sendError = null

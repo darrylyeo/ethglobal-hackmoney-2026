@@ -40,12 +40,12 @@
 		actors.length === 0
 			? []
 			: (query.data ?? [])
-					.map((r) => r.row)
-					.filter((row) =>
+					.map(({ row: channel }) => channel)
+					.filter((channel) =>
 						actors.some(
 							(a) =>
-								row.participant0 === a ||
-								row.participant1 === a,
+								channel.participant0 === a ||
+								channel.participant1 === a,
 						),
 					)
 					.sort((a, b) => b.updatedAt - a.updatedAt),

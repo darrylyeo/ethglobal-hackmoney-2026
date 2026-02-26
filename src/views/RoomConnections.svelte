@@ -32,7 +32,9 @@
 	)
 	const roomsQuery = useLiveQuery(
 		(q) =>
-			q.from({ row: partykitRoomsCollection }).select(({ row }) => ({ row })),
+			q
+				.from({ row: partykitRoomsCollection })
+				.select(({ row }) => ({ row })),
 		[],
 	)
 	const roomPeersQuery = useLiveQuery(
@@ -66,25 +68,25 @@
 				: [],
 	)
 	const verificationsList = $derived(
-		(verificationsQuery.data ?? []).map((r) => r.row),
+		(verificationsQuery.data ?? []).map(({ row: verification }) => verification).filter(Boolean),
 	)
-	const sharedRows = $derived(
+	const sharedAddresses = $derived(
 		actors.length === 0
 			? []
 			: (sharedAddressesQuery.data ?? [])
-					.map((r) => r.row)
-					.filter((row) =>
-						actors.some((a) => row.address === a),
-					),
+					.map(({ row }) => row)
+					.filter((item) => actors.some((a) => item.address === a)),
 	)
 	const roomsById = $derived(
-		new Map((roomsQuery.data ?? []).map((r) => [r.row.id, r.row])),
+		new Map(
+			(roomsQuery.data ?? []).map(({ row: room }) => [room.$id.id, room]),
+		),
 	)
 	const peersByRoomAndPeer = $derived(
 		new Map(
-			(roomPeersQuery.data ?? []).map((r) => [
-				`${r.row.roomId}:${r.row.peerId}`,
-				r.row,
+			(roomPeersQuery.data ?? []).map(({ row: peer }) => [
+				`${peer.roomId}:${peer.peerId}`,
+				peer,
 			]),
 		),
 	)
@@ -163,7 +165,7 @@
 	}}
 >
 	<Boundary>
-			{#if sharedRows.length === 0}
+			{#if sharedAddresses.length === 0}
 				<p data-text="muted">No room or peer connections for this account.</p>
 			{:else}
 				<ul
@@ -171,7 +173,7 @@
 					data-list="unstyled"
 					class="connections-list"
 				>
-					{#each sharedRows as s (s.id)}
+					{#each sharedAddresses as s (s.id)}
 						{@const room = roomsById.get(s.roomId)}
 						{@const peer = peersByRoomAndPeer.get(`${s.roomId}:${s.peerId}`)}
 						{@const verificationStatus = getVerificationStatus(

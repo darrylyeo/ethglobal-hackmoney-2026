@@ -15,7 +15,9 @@ import {
 } from '$/lib/webmcp/schemas.ts'
 import {
 	executeCreateSession,
+	executeExecuteSession,
 	executeGetSession,
+	executeSimulateSession,
 	executeUpdateSessionParams,
 } from '$/lib/webmcp/tools/action-flows.ts'
 import {
@@ -76,6 +78,26 @@ const tools: (ToolDefinition & { execute: (input: unknown, ctx: ExecuteContext) 
 		inputSchema: sessionIdSchema,
 		annotations: { readOnlyHint: true },
 		execute: (i, _ctx) => executeGetSession(i as Parameters<typeof executeGetSession>[0]),
+	},
+	{
+		name: 'simulateSession',
+		description: 'Run TEVM simulation for a session. Navigates to the session and triggers simulation; user confirmation may be required.',
+		inputSchema: sessionIdSchema,
+		execute: (i, ctx) =>
+			executeSimulateSession(
+				i as Parameters<typeof executeSimulateSession>[0],
+				ctx.requestUserInteraction,
+			),
+	},
+	{
+		name: 'executeSession',
+		description: 'Sign and broadcast the first action of a session. Navigates to the session and triggers execution; user must sign in wallet.',
+		inputSchema: sessionIdSchema,
+		execute: (i, ctx) =>
+			executeExecuteSession(
+				i as Parameters<typeof executeExecuteSession>[0],
+				ctx.requestUserInteraction,
+			),
 	},
 	{
 		name: 'navigate',

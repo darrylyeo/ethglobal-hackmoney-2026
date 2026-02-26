@@ -24,10 +24,10 @@ export type EnsAvatarRow = {
 
 const getKeyFromId = (id: EnsAvatar$Id) =>
 	`${id.$network.chainId}:${id.address.toLowerCase()}`
-const getKey = (row: EnsAvatarRow | { chainId: number; address: string }) =>
-	'$id' in row && row.$id
-		? getKeyFromId(row.$id)
-		: `${(row as { chainId: number }).chainId}:${(row as { address: string }).address.toLowerCase()}`
+const getKey = (item: EnsAvatarRow | { chainId: number; address: string }) =>
+	'$id' in item && item.$id
+		? getKeyFromId(item.$id)
+		: `${(item as { chainId: number }).chainId}:${(item as { address: string }).address.toLowerCase()}`
 
 export const ensAvatarsCollection = createCollection(
 	localStorageCollectionOptions({
@@ -46,16 +46,16 @@ export const getCachedEnsAvatar = (
 		getKeyFromId({ $network: { chainId }, address }),
 	) as EnsAvatarRow | undefined
 
-export const setCachedEnsAvatar = (row: EnsAvatarRow) => {
-	const key = getKey(row)
+export const setCachedEnsAvatar = (avatar: EnsAvatarRow) => {
+	const key = getKey(avatar)
 	const existing = ensAvatarsCollection.state.get(key)
 	if (existing) {
 		ensAvatarsCollection.update(key, (draft) => {
-			;(draft as EnsAvatarRow).$id = row.$id
-			;(draft as EnsAvatarRow).avatarUrl = row.avatarUrl
-			;(draft as EnsAvatarRow).primaryName = row.primaryName
+			;(draft as EnsAvatarRow).$id = avatar.$id
+			;(draft as EnsAvatarRow).avatarUrl = avatar.avatarUrl
+			;(draft as EnsAvatarRow).primaryName = avatar.primaryName
 		})
 	} else {
-		ensAvatarsCollection.insert(row)
+		ensAvatarsCollection.insert(avatar)
 	}
 }

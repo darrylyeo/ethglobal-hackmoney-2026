@@ -36,10 +36,10 @@
 
 
 	// (Derived)
-	const isEphemeral = $derived(activeSession.id.startsWith('ephemeral-'))
+	const isEphemeral = $derived(activeSession.$id.id.startsWith('ephemeral-'))
 	const selectedSiwfConnection = $derived(
 		((connectionsQuery.data ?? []) as { row: FarcasterConnectionSiwf }[])
-			.map((r) => r.row)
+			.map(({ row }) => row)
 			.find((c) => c.transport === FarcasterConnectionTransport.Siwf && c.selected)
 		?? null,
 	)
@@ -54,17 +54,17 @@
 	})
 	const persistSession = () => {
 		if (!isEphemeral) return
-		const row = createSocialPostSession(
+		const session = createSocialPostSession(
 			activeSession.actions[0]?.type ?? SocialPostActionType.CreatePost,
 			SocialProtocol.Farcaster,
 			selectedSiwfConnection?.$id.fid ?? activeSession.authorId ?? 0,
 			activeSession.actions[0]?.params as Record<string, unknown>,
 		)
-		socialPostSessionsCollection.insert(row)
+		socialPostSessionsCollection.insert(session)
 		if (setPanelRoute) {
-			setPanelRoute('/farcaster/session/[id]', { id: row.id })
+			setPanelRoute('/farcaster/session/[id]', { id: session.$id.id })
 		} else {
-			replaceState(`/farcaster/session/${row.id}`, {})
+			replaceState(`/farcaster/session/${session.$id.id}`, {})
 		}
 	}
 

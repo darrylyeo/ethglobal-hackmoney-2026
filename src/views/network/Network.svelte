@@ -258,9 +258,8 @@
 	<EntityView
 		entityType={EntityType.Network}
 		entity={entity}
-		entityId={{ chainId }}
-		idSerialized={idSerialized ?? (network ? `network:${network.chainId}` : 'network:loading')}
-		href={href ?? resolve(getNetworkPath(chainId))}
+		titleHref={href ?? resolve(getNetworkPath(chainId))}
+		{...(entity == null ? { entityId: { chainId }, idSerialized: idSerialized ?? (network ? `network:${network.chainId}` : 'network:loading') } : {})}
 		label={label ?? (network?.name ?? 'Loading network…')}
 		metadata={metadata ?? (network ? [{ term: 'Chain ID', detail: String(chainId) }, { term: 'CAIP-2', detail: `eip155:${chainId}` }, { term: 'Type', detail: network.type }, ...(network.nativeCurrency ? [{ term: 'Currency', detail: network.nativeCurrency.symbol }] : [])] : [])}
 		layout={EntityLayout.PageSection}
@@ -271,9 +270,8 @@
 	<EntityView
 		entityType={EntityType.Network}
 		entity={entity}
-		entityId={{ chainId }}
-		idSerialized={idSerialized ?? (network ? `network:${network.chainId}` : 'network:loading')}
-		href={href ?? resolve(getNetworkPath(chainId))}
+		titleHref={href ?? resolve(getNetworkPath(chainId))}
+		{...(entity == null ? { entityId: { chainId }, idSerialized: idSerialized ?? (network ? `network:${network.chainId}` : 'network:loading') } : {})}
 		label={label ?? (network?.name ?? 'Loading network…')}
 		metadata={metadata ?? (network ? [{ term: 'Chain ID', detail: String(chainId) }, { term: 'CAIP-2', detail: `eip155:${chainId}` }, { term: 'Type', detail: network.type }, ...(network.nativeCurrency ? [{ term: 'Currency', detail: network.nativeCurrency.symbol }] : [])] : [])}
 		layout={href && label ? EntityLayout.Page : EntityLayout.ContentOnly}

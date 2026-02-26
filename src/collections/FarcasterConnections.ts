@@ -18,7 +18,7 @@ import type {
 import { FarcasterConnectionTransport } from '$/data/FarcasterConnection.ts'
 import type { FarcasterAuthUser } from '$/state/farcaster-auth.svelte.ts'
 
-const getKey = (row: FarcasterConnectionRow) => `fid:${row.$id.fid}`
+const getKey = (connection: FarcasterConnectionRow) => `fid:${connection.$id.fid}`
 
 export const farcasterConnectionsCollection = createCollection(
 	localStorageCollectionOptions({
@@ -35,7 +35,7 @@ export const addFarcasterConnectionSiwf = (
 ) => {
 	const key = getKey({ $id: { fid: user.fid } })
 	const existing = farcasterConnectionsCollection.state.get(key)
-	const row: FarcasterConnectionSiwf = {
+	const connection: FarcasterConnectionSiwf = {
 		$id: { fid: user.fid },
 		transport: FarcasterConnectionTransport.Siwf,
 		username: user.username,
@@ -57,10 +57,10 @@ export const addFarcasterConnectionSiwf = (
 	}
 	if (existing) {
 		farcasterConnectionsCollection.update(key, (draft) => {
-			Object.assign(draft, row)
+			Object.assign(draft, connection)
 		})
 	} else {
-		farcasterConnectionsCollection.insert(row)
+		farcasterConnectionsCollection.insert(connection)
 	}
 }
 
@@ -71,7 +71,7 @@ export const addFarcasterConnectionWatch = (
 ) => {
 	const key = getKey({ $id: { fid } })
 	if (farcasterConnectionsCollection.state.get(key)) return
-	const row: FarcasterConnectionWatch = {
+	const connection: FarcasterConnectionWatch = {
 		$id: { fid },
 		transport: FarcasterConnectionTransport.Watch,
 		username: profile?.username,
@@ -89,7 +89,7 @@ export const addFarcasterConnectionWatch = (
 			}
 		}
 	}
-	farcasterConnectionsCollection.insert(row)
+	farcasterConnectionsCollection.insert(connection)
 }
 
 export const removeFarcasterConnection = (fid: number) => {
@@ -107,6 +107,9 @@ export const selectFarcasterConnection = (fid: number) => {
 
 export const useFarcasterConnections = () =>
 	useLiveQuery(
-		(q) => q.from({ row: farcasterConnectionsCollection }).select(({ row }) => ({ row })),
+		(q) =>
+			q
+				.from({ farcasterConnection: farcasterConnectionsCollection })
+				.select(({ farcasterConnection }) => ({ farcasterConnection })),
 		[],
 	)

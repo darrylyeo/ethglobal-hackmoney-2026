@@ -25,9 +25,9 @@
 	const challengesQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: siweChallengesCollection })
-				.where(({ row }) => eq(row.roomId, roomId))
-				.select(({ row }) => ({ row })),
+				.from({ siweChallenge: siweChallengesCollection })
+				.where(({ siweChallenge }) => eq(siweChallenge.roomId, roomId))
+				.select(({ siweChallenge }) => ({ siweChallenge })),
 		[() => roomId],
 	)
 	registerLocalLiveQueryStack(() => [
@@ -36,7 +36,7 @@
 
 	const pendingChallenges = $derived(
 		(challengesQuery.data ?? [])
-			.map((r) => r.row)
+			.map(({ siweChallenge }) => siweChallenge)
 			.filter(
 				(ch: SiweChallengeRow) =>
 					ch.toPeerId === roomState.peerId && !ch.verified && !ch.signature,

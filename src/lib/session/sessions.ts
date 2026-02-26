@@ -173,8 +173,9 @@ export const sessionFromParsedHash = (parsed: SessionHashResult): Session => {
 		actions,
 		actions[0]?.params ?? {},
 	)
+	const id = `ephemeral-${createSessionId()}`
 	return {
-		id: `ephemeral-${createSessionId()}`,
+		$id: { id },
 		actions,
 		status: SessionStatus.Draft,
 		createdAt: now,
@@ -189,15 +190,15 @@ export const createSessionId = () =>
 		: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 
 export const getSessionActions = (sessionId: string): Action[] => {
-	const rows = [...sessionActionsCollection.state.values()]
-		.filter((row) => row.sessionId === sessionId)
+	const sessionActions = [...sessionActionsCollection.state.values()]
+		.filter((item) => item.sessionId === sessionId)
 		.sort((a, b) => a.indexInSequence - b.indexInSequence)
-	return rows.map((row) => row.action)
+	return sessionActions.map((item) => item.action)
 }
 
 export const setSessionActions = (sessionId: string, actions: Action[]) => {
-	for (const [id, row] of sessionActionsCollection.state) {
-		if (row.sessionId === sessionId) sessionActionsCollection.delete(id)
+	for (const [id, item] of sessionActionsCollection.state) {
+		if (item.sessionId === sessionId) sessionActionsCollection.delete(id)
 	}
 	actions.forEach((action, indexInSequence) => {
 		sessionActionsCollection.insert({
@@ -237,7 +238,7 @@ export const createSessionWithId = (
 		args.defaults,
 	)
 	const session: Session = {
-		id,
+		$id: { id },
 		name: args.name,
 		actions: sessionActions,
 		status: args.status ?? SessionStatus.Draft,
@@ -251,12 +252,13 @@ export const createSessionWithId = (
 }
 
 export const getSession = (sessionId: string): Session | null => {
-	const row = sessionsCollection.state.get(sessionId) ?? null
-	if (!row) return null
+	const session = sessionsCollection.state.get(sessionId) ?? null
+	if (!session) return null
 	const actionsFromCollection = getSessionActions(sessionId)
 	const actions =
-		actionsFromCollection.length > 0 ? actionsFromCollection : row.actions
-	return { ...row, actions }
+		actionsFromCollection.length > 0 ? actionsFromCollection : session.actions
+	const $id = '$id' in session && session.$id ? session.$id : { id: (session as { id?: string }).id ?? sessionId }
+	return { ...session, $id, actions }
 }
 
 export const updateSession = (

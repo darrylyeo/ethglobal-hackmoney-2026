@@ -40,12 +40,12 @@ let walletSubscriptionsReady = false
 const createWalletContext = () => {
 	// Queries for subscription effects
 	const walletsQuery = useLiveQuery((q) =>
-		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
+		q.from({ wallet: walletsCollection }).select(({ wallet }) => ({ wallet })),
 	)
 	const connectionsQuery = useLiveQuery((q) =>
 		q
-			.from({ row: walletConnectionsCollection })
-			.select(({ row }) => ({ row })),
+			.from({ walletConnection: walletConnectionsCollection })
+			.select(({ walletConnection }) => ({ walletConnection })),
 	)
 
 	// Track which wallets we've attempted to reconnect
@@ -99,11 +99,11 @@ const createWalletContext = () => {
 					provider: p.provider,
 				})
 			}
-			const connectionRows = Array.from(
+			const connectionStates = Array.from(
 				walletConnectionsCollection.state.values(),
-			).filter((row) => row.$id?.wallet$id?.rdns)
-			for (const row of connectionRows) {
-				const rdns = row.$id.wallet$id.rdns
+			).filter((conn) => conn.$id?.wallet$id?.rdns)
+			for (const conn of connectionStates) {
+				const rdns = conn.$id.wallet$id.rdns
 				if (!providerRdnsSet.has(rdns) || reconnectAttempted.has(rdns)) continue
 				reconnectAttempted.add(rdns)
 				reconnectWallet({ rdns })
@@ -122,16 +122,16 @@ const createWalletContext = () => {
 	const cleanups = new Map<string, () => void>()
 	$effect(() => {
 		const connections = (connectionsQuery.data ?? []).filter(
-			(c) => c?.row?.$id?.wallet$id?.rdns,
+			(c) => c?.walletConnection?.$id?.wallet$id?.rdns,
 		)
-		const walletRows = (walletsQuery.data ?? []).filter(
-			(w) => w?.row?.$id?.rdns,
+		const wallets = (walletsQuery.data ?? []).filter(
+			(w) => w?.wallet?.$id?.rdns,
 		)
 
 		const connectedRdns = new Set(
 			connections
-				.filter((c) => c.row.status === ConnectionStatus.Connected)
-				.map((c) => c.row.$id.wallet$id.rdns),
+				.filter(({ walletConnection: connection }) => connection.status === ConnectionStatus.Connected)
+				.map(({ walletConnection: connection }) => connection.$id.wallet$id.rdns),
 		)
 
 		// Clean up subscriptions for disconnected wallets
@@ -144,23 +144,23 @@ const createWalletContext = () => {
 
 		// Set up subscriptions for new connections
 		for (const conn of connections) {
-			if (conn.row.status !== 'connected') continue
-			const rdns = conn.row.$id.wallet$id.rdns
+			if (conn.walletConnection.status !== 'connected') continue
+			const rdns = conn.walletConnection.$id.wallet$id.rdns
 			if (cleanups.has(rdns)) continue
 
-			const walletRow = walletRows.find((w) => w.row.$id.rdns === rdns)
-			if (!walletRow) continue
+			const walletEntry = wallets.find(({ wallet }) => wallet.$id.rdns === rdns)
+			if (!walletEntry) continue
 
 			// Get initial chain
-			getWalletChainId(walletRow.row.provider).then((chainId) => {
-				if (chainId !== conn.row.chainId) {
+			getWalletChainId(walletEntry.wallet.provider).then((chainId) => {
+				if (chainId !== conn.walletConnection.chainId) {
 					updateWalletChain({ rdns }, chainId)
 				}
 			})
 
 			// Subscribe to chain changes
 			const chainCleanup = subscribeChainChanged(
-				walletRow.row.provider,
+				walletEntry.wallet.provider,
 				(chainId) => {
 					updateWalletChain({ rdns }, chainId)
 				},
@@ -168,7 +168,7 @@ const createWalletContext = () => {
 
 			// Subscribe to account changes
 			const accountsCleanup = subscribeAccountsChanged(
-				walletRow.row.provider,
+				walletEntry.wallet.provider,
 				(actors) => {
 					updateConnectionActors({ rdns }, actors)
 				},

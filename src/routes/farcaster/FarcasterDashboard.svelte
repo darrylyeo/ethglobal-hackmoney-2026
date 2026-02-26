@@ -172,8 +172,8 @@
 		[],
 	)
 	$effect(() => {
-		const row = dashboardRowQuery.data?.[0]?.row
-		if (!row) ensureFarcasterDashboardState()
+		const dashboard = dashboardRowQuery.data?.[0]?.row
+		if (!dashboard) ensureFarcasterDashboardState()
 	})
 	const dashboardRow = $derived(dashboardRowQuery.data?.[0]?.row)
 	const root = $derived(

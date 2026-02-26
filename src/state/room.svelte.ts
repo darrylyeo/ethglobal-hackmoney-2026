@@ -40,20 +40,20 @@ type RoomStateSync = {
 function upsert<T extends object>(
 	col: {
 		state: Map<string, T>
-		insert: (row: T) => void
+		insert: (item: T) => void
 		update: (key: string, fn: (draft: T) => void) => void,
 	},
-	row: T,
-	getKey: (row: T) => string,
+	item: T,
+	getKey: (item: T) => string,
 ) {
-	const key = getKey(row)
+	const key = getKey(item)
 	const existing = col.state.get(key)
 	if (existing) {
 		col.update(key, (draft) => {
-			Object.assign(draft, row)
+			Object.assign(draft, item)
 		})
 	} else {
-		col.insert(row)
+		col.insert(item)
 	}
 }
 
@@ -65,8 +65,12 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 
 	upsert(
 		partykitRoomsCollection,
-		{ ...state.room, $source: DataSource.PartyKit },
-		(r) => r.id,
+		{
+			...state.room,
+			$id: state.room.$id ?? { id: (state.room as { id?: string }).id ?? '' },
+			$source: DataSource.PartyKit,
+		},
+		(r) => r.$id.id,
 	)
 	for (const p of state.peers) {
 		if (p.peerId === roomState.peerId) continue
@@ -82,15 +86,15 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 	const verifiedByMePeerIds = new Set(
 		[...siweVerificationsCollection.state.values()]
 			.filter(
-				(row) => myPeerIds.has(row.verifierPeerId) && row.status === VerificationStatus.Verified,
+				(v) => myPeerIds.has(v.verifierPeerId) && v.status === VerificationStatus.Verified,
 			)
-			.map((row) => row.verifiedPeerId),
+			.map((v) => v.verifiedPeerId),
 	)
-	for (const [key, row] of partykitRoomPeersCollection.state) {
+	for (const [key, peer] of partykitRoomPeersCollection.state) {
 		if (
-			row.roomId === roomId &&
+			peer.roomId === roomId &&
 			!peerIds.has(key) &&
-			!verifiedByMePeerIds.has(row.peerId)
+			!verifiedByMePeerIds.has(peer.peerId)
 		)
 			partykitRoomPeersCollection.delete(key)
 	}
@@ -147,7 +151,10 @@ function handleServerMessage(msg: RoomMessage) {
 	switch (msg.type) {
 		case 'sync':
 			syncStateToCollections(
-				(msg.state as RoomStateSync).room.id,
+				(() => {
+					const room = (msg.state as RoomStateSync).room
+					return room.$id?.id ?? (room as { id?: string }).id ?? ''
+				})(),
 				msg.state as RoomStateSync,
 			)
 			break

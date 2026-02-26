@@ -21,22 +21,22 @@ import {
 } from '$/constants/evm-signature-seed.ts'
 
 export function seedEvmSignatureCollections() {
-	for (const row of popularEvmSelectors) {
-		const hex = normalizeEvmSelector4(row.$id.hex)
+	for (const selector of popularEvmSelectors) {
+		const hex = normalizeEvmSelector4(selector.$id.hex)
 		if (!evmSelectorsCollection.state.get(hex)) {
-			evmSelectorsCollection.insert({ $id: { hex }, signatures: row.signatures })
+			evmSelectorsCollection.insert({ $id: { hex }, signatures: selector.signatures })
 		}
 	}
-	for (const row of popularEvmTopics) {
-		const hex = normalizeEvmTopic32(row.$id.hex)
+	for (const topic of popularEvmTopics) {
+		const hex = normalizeEvmTopic32(topic.$id.hex)
 		if (!evmTopicsCollection.state.get(hex)) {
-			evmTopicsCollection.insert({ $id: { hex }, signatures: row.signatures })
+			evmTopicsCollection.insert({ $id: { hex }, signatures: topic.signatures })
 		}
 	}
-	for (const row of popularEvmErrors) {
-		const hex = normalizeEvmError4(row.$id.hex)
+	for (const error of popularEvmErrors) {
+		const hex = normalizeEvmError4(error.$id.hex)
 		if (!evmErrorsCollection.state.get(hex)) {
-			evmErrorsCollection.insert({ $id: { hex }, signatures: row.signatures })
+			evmErrorsCollection.insert({ $id: { hex }, signatures: error.signatures })
 		}
 	}
 }

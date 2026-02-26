@@ -38,7 +38,7 @@ export function upsertBridgeTransferEvents(
 	for (const key of bridgeTransferEventsCollection.state.keys()) {
 		if (key.startsWith(pre)) bridgeTransferEventsCollection.delete(key)
 	}
-	for (const row of rows) {
-		if (isBridgeTransfer(row)) bridgeTransferEventsCollection.insert(row)
+	for (const event of rows) {
+		if (isBridgeTransfer(event)) bridgeTransferEventsCollection.insert(event)
 	}
 }

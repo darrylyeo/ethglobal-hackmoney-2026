@@ -15,7 +15,7 @@ export const proposalsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.Proposals,
 		storageKey: CollectionId.Proposals,
-		getKey: (row: ProposalEntry) => String(row.number),
+		getKey: (proposal: ProposalEntry) => proposal.$id?.id ?? String(proposal.number),
 		parser: { stringify, parse },
 	}),
 )
@@ -23,14 +23,14 @@ export const proposalsCollection = createCollection(
 /** Fetch from API and upsert into collection. Call when proposals are needed (e.g. proposals page). */
 export async function ensureProposalsSync(): Promise<void> {
 	const entries = await fetchProposalEntries()
-	for (const row of entries) {
-		const key = String(row.number)
+	for (const proposal of entries) {
+		const key = proposal.$id?.id ?? String(proposal.number)
 		if (proposalsCollection.state.get(key)) {
 			proposalsCollection.update(key, (draft) => {
-				Object.assign(draft, row)
+				Object.assign(draft, proposal)
 			})
 		} else {
-			proposalsCollection.insert(row)
+			proposalsCollection.insert(proposal)
 		}
 	}
 }

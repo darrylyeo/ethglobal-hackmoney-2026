@@ -142,13 +142,13 @@
 	useWalletSubscriptions()
 
 	const walletsQuery = useLiveQuery((q) =>
-		q.from({ row: walletsCollection }).select(({ row }) => ({ row })),
+		q.from({ wallet: walletsCollection }).select(({ wallet }) => ({ wallet })),
 	)
 
 	const connectionsQuery = useLiveQuery((q) =>
 		q
-			.from({ row: walletConnectionsCollection })
-			.select(({ row }) => ({ row })),
+			.from({ walletConnection: walletConnectionsCollection })
+			.select(({ walletConnection }) => ({ walletConnection })),
 	)
 
 	const walletsLiveQueryEntries = [
@@ -163,13 +163,13 @@
 
 	const connections = $derived(
 		(connectionsQuery.data ?? [])
-			.map((c) => c.row)
+			.map(({ walletConnection: connection }) => connection)
 			.filter((c) => c?.$id?.wallet$id?.rdns),
 	)
 
 	const wallets = $derived(
 		(walletsQuery.data ?? [])
-			.map((w) => w.row)
+			.map(({ wallet }) => wallet)
 			.filter((w): w is WalletRow => !!w?.$id?.rdns),
 	)
 
@@ -315,11 +315,9 @@
 
 	// Actions
 	const connect = (rdns: string) => {
-		queueMicrotask(() => {
-			requestWalletConnection({ rdns }).catch((e) => {
-				if (dev && typeof console !== 'undefined' && console.error)
-					console.error('[AccountsSelect] connect failed', rdns, e)
-			})
+		requestWalletConnection({ rdns }).catch((e) => {
+			if (dev && typeof console !== 'undefined' && console.error)
+				console.error('[AccountsSelect] connect failed', rdns, e)
 		})
 	}
 	const onNetworkValueChange = (value: number | number[] | null) => {

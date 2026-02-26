@@ -31,7 +31,7 @@
 	// (Derived)
 	const sessions = $derived(
 		(sessionsQuery.data ?? [])
-			.map((result) => result.row)
+			.map(({ row: session }) => session)
 			.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)),
 	)
 	const draftCount = $derived(
@@ -47,7 +47,7 @@
 			session.actions[0]?.type
 		]?.icon ?? '📋'
 	const sessionHref = (session: { id: string }) =>
-		buildSessionPath(session.id)
+		buildSessionPath(session.$id.id)
 
 
 	// State
@@ -101,7 +101,7 @@
 				data-columns="width-5 gap-3"
 				data-list="unstyled"
 			>
-				{#each sessions as session (session.id)}
+				{#each sessions as session (session.$id.id)}
 					<li
 						data-columns-item
 						data-card="radius-4"
@@ -121,12 +121,12 @@
 									<span data-tag>{session.status}</span>
 									<WatchButton
 										entityType={EntityType.Session}
-										entityId={{ id: session.id }}
+										entity={session}
 									/>
 									<button
 										type="button"
 										aria-label="Delete session"
-										onclick={() => deleteSession(session.id)}
+										onclick={() => deleteSession(session.$id.id)}
 									>
 										Delete
 									</button>

@@ -49,13 +49,13 @@
 
 	const walletsQuery = useLiveQuery((q) =>
 		q
-			.from({ row: walletsCollection })
-			.select(({ row }) => ({ row })),
+			.from({ wallet: walletsCollection })
+			.select(({ wallet }) => ({ wallet })),
 	)
 	const connectionsQuery = useLiveQuery((q) =>
 		q
-			.from({ row: walletConnectionsCollection })
-			.select(({ row }) => ({ row })),
+			.from({ walletConnection: walletConnectionsCollection })
+			.select(({ walletConnection }) => ({ walletConnection })),
 	)
 	const liveQueryEntries = [
 		{ id: 'accounts-watching', label: 'Watching', query: walletsQuery },
@@ -71,12 +71,12 @@
 	// (Derived)
 	const connections = $derived(
 		(connectionsQuery.data ?? [])
-			.map((c) => c.row)
+			.map(({ walletConnection: connection }) => connection)
 			.filter((c) => c?.$id?.wallet$id?.rdns),
 	)
 	const wallets = $derived(
 		(walletsQuery.data ?? [])
-			.map((w) => w.row)
+			.map(({ wallet }) => wallet)
 			.filter((w): w is WalletRow => !!w?.$id?.rdns),
 	)
 	const walletsByRdns = $derived(new Map(wallets.map((w) => [w.$id.rdns, w])))
@@ -360,8 +360,10 @@
 											<span class="meta status" data-badge="small">
 												{status === 'connecting'
 													? 'Connecting…'
-													: status === 'error' && connection.error
-														? connection.error
+													: status === 'error' && connection.error != null
+														? (connection.error instanceof Error
+															? connection.error.message
+															: String(connection.error))
 														: '—'}
 											</span>
 										{/if}

@@ -18,13 +18,11 @@ import {
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 
-export type SocialPostSessionRow = SocialPostSession
-
 export const socialPostSessionsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.SocialPostSessions,
 		storageKey: CollectionId.SocialPostSessions,
-		getKey: (row: SocialPostSessionRow) => row.id,
+		getKey: (session: SocialPostSession) => session.$id.id,
 		parser: { stringify, parse },
 	}),
 )
@@ -38,11 +36,12 @@ export const createSocialPostSession = (
 	protocol: SocialProtocol,
 	authorId: number,
 	params?: Record<string, unknown>,
-): SocialPostSessionRow => {
+): SocialPostSession => {
 	const now = Date.now()
+	const id = createSessionId()
 	const action = createSocialPostAction(template, params as Record<string, unknown>)
 	return {
-		id: createSessionId(),
+		$id: { id },
 		name: undefined,
 		actions: [action],
 		status: SocialPostSessionStatus.Draft,
@@ -56,19 +55,19 @@ export const createSocialPostSession = (
 
 export const updateSocialPostSession = (
 	id: string,
-	updater: (draft: SocialPostSessionRow) => void,
+	updater: (draft: SocialPostSession) => void,
 ) => {
 	const key = id
 	const existing = socialPostSessionsCollection.state.get(key)
 	if (!existing) return
 	socialPostSessionsCollection.update(key, (draft) => {
-		updater(draft as SocialPostSessionRow)
-		;(draft as SocialPostSessionRow).updatedAt = Date.now()
+		updater(draft as SocialPostSession)
+		;(draft as SocialPostSession).updatedAt = Date.now()
 	})
 }
 
-export const getSocialPostSession = (id: string): SocialPostSessionRow | undefined =>
-	socialPostSessionsCollection.state.get(id) as SocialPostSessionRow | undefined
+export const getSocialPostSession = (id: string): SocialPostSession | undefined =>
+	socialPostSessionsCollection.state.get(id) as SocialPostSession | undefined
 
 export const deleteSocialPostSession = (id: string) => {
 	socialPostSessionsCollection.delete(id)

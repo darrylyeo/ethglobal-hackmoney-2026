@@ -152,5 +152,3 @@ export function isInWatchedScope(
 	}
 	return false
 }
-
-export const isRowInWatchedScope = isInWatchedScope

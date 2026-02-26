@@ -67,7 +67,7 @@ const socialPostSessionFromParsed = (
 	const actions = raw as SocialPostAction[]
 	const firstParams = actions[0]?.params ?? {}
 	return {
-		id: `ephemeral-${createEphemeralId()}`,
+		$id: { id: `ephemeral-${createEphemeralId()}` },
 		name: undefined,
 		actions,
 		status: SocialPostSessionStatus.Draft,
@@ -92,7 +92,7 @@ export const getSocialPostSessionInputFromUrl = (
 			if (parsed?.actions?.length) {
 				session = {
 					...parsed,
-					id: `ephemeral-${createEphemeralId()}`,
+					$id: { id: `ephemeral-${createEphemeralId()}` },
 					status: SocialPostSessionStatus.Draft,
 					createdAt: Date.now(),
 					updatedAt: Date.now(),

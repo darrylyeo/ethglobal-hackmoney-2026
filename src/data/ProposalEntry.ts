@@ -14,6 +14,7 @@ export enum ProposalType {
 export type ProposalEntry$Id = { id: string }
 
 export type ProposalEntry = {
+	$id: ProposalEntry$Id
 	number: number
 	title: string
 	status: string

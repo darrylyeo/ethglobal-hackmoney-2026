@@ -62,17 +62,17 @@
 	)
 
 	// (Derived)
-	const proposalRows = $derived(
+	const proposalViews = $derived(
 		(proposalsQuery.data ?? []).map((r) =>
 			({ realm: ProposalRealm.Ethereum, entry: r.row as ProposalEntry }),
 		),
 	)
-	const caipRows = $derived(
+	const caipViews = $derived(
 		(caipsQuery.data ?? []).map((r) =>
 			({ realm: ProposalRealm.ChainAgnostic, entry: r.row as CaipEntry }),
 		),
 	)
-	const views = $derived([...proposalRows, ...caipRows])
+	const views = $derived([...proposalViews, ...caipViews])
 	const statuses = $derived([...new Set(views.map((i) => i.entry.status))].sort())
 	const filterGroups = $derived([
 		{
@@ -238,9 +238,7 @@
 						<EntityView
 							entityType={EntityType.Proposal}
 							entity={entry}
-							entityId={{ id: String(entry.number) }}
-							idSerialized={String(entry.number)}
-							href={getProposalPath(ProposalRealm.Ethereum, entry)}
+							titleHref={getProposalPath(ProposalRealm.Ethereum, entry)}
 							label={`${entry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-${entry.number} ${entry.title}`}
 							layout={EntityLayout.PageSection}
 							metadata={[
@@ -260,9 +258,7 @@
 						<EntityView
 							entityType={EntityType.Caip}
 							entity={entry}
-							entityId={{ id: String(entry.number) }}
-							idSerialized={String(entry.number)}
-							href={getProposalPath(ProposalRealm.ChainAgnostic, entry)}
+							titleHref={getProposalPath(ProposalRealm.ChainAgnostic, entry)}
 							label={`CAIP-${entry.number} ${entry.title}`}
 							layout={EntityLayout.PageSection}
 							metadata={[

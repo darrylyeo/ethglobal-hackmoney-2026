@@ -67,7 +67,7 @@
 	// (Derived)
 	const others = $derived(
 		(peersQuery.data ?? [])
-			.map((r) => r.row)
+			.map(({ row }) => row)
 			.filter((p) => p.peerId !== roomState.peerId),
 	)
 	const selectedWallets = $derived(
@@ -103,9 +103,7 @@
 		}
 		const tokenAtCleanup = leaveToken
 		return () => {
-			queueMicrotask(() => {
-				if (leaveToken === tokenAtCleanup) leaveRoom()
-			})
+			if (leaveToken === tokenAtCleanup) leaveRoom()
 		}
 	})
 
@@ -126,17 +124,15 @@
 	<EntityView
 		data-scroll-item
 		entityType={EntityType.Room}
-		entityId={{ id: roomId }}
 		entity={{
-			id: roomId,
+			$id: { id: roomId },
 			createdAt: 0,
 			createdBy: '',
 			name: roomDisplayName,
 			connectionStatusLabel,
 			connectionStatus: roomState.connectionStatus,
 		}}
-		idSerialized={roomId}
-		href={resolve(`/rooms/${roomId}`)}
+		titleHref={resolve(`/rooms/${roomId}`)}
 		label={roomDisplayName}
 	>
 		{#snippet AfterTitle({ entity })}

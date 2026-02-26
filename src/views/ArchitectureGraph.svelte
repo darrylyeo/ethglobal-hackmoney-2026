@@ -251,7 +251,7 @@
 					const { ForceLayout } = await import('@antv/layout')
 					if (cancelled) return
 
-					let graph: G6Graph | undefined
+					let g6Graph: G6Graph | undefined
 					let resizeObserver: ResizeObserver | undefined
 					const reducedMotion = window.matchMedia(
 						'(prefers-reduced-motion: reduce)',
@@ -326,7 +326,7 @@
 						? (getNumber(node.style.size) ?? 28)
 						: 28
 
-					graph = new Graph({
+					g6Graph = new Graph({
 						container,
 						width,
 						height,
@@ -547,10 +547,10 @@
 				})
 
 				const updateSelection = () => {
-					if (!graph) return
-					const nodes = graph.getElementDataByState('node', 'selected')
-					const edges = graph.getElementDataByState('edge', 'selected')
-					const combos = graph.getElementDataByState('combo', 'selected')
+					if (!g6Graph) return
+					const nodes = g6Graph.getElementDataByState('node', 'selected')
+					const edges = g6Graph.getElementDataByState('edge', 'selected')
+					const combos = g6Graph.getElementDataByState('combo', 'selected')
 					selectionSummary = toSelectionLabel({
 						nodes,
 						edges,
@@ -600,16 +600,16 @@
 				}
 
 				if (cancelled || !container.isConnected) {
-					graph?.destroy()
+					g6Graph?.destroy()
 					return
 				}
 
-				graph.render()
+				g6Graph.render()
 
-				graph.on(NodeEvent.CLICK, () => updateSelection())
-				graph.on(EdgeEvent.CLICK, () => updateSelection())
-				graph.on(ComboEvent.CLICK, () => updateSelection())
-				graph.on(NodeEvent.POINTER_OVER, (event) => {
+				g6Graph.on(NodeEvent.CLICK, () => updateSelection())
+				g6Graph.on(EdgeEvent.CLICK, () => updateSelection())
+				g6Graph.on(ComboEvent.CLICK, () => updateSelection())
+				g6Graph.on(NodeEvent.POINTER_OVER, (event) => {
 					const targetId = getTargetId(event)
 					if (!targetId) return
 					const node = nodeById.get(targetId)
@@ -622,10 +622,10 @@
 							}
 						: null
 				})
-				graph.on(NodeEvent.POINTER_OUT, () => {
+				g6Graph.on(NodeEvent.POINTER_OUT, () => {
 					hoveredItem = null
 				})
-				graph.on(EdgeEvent.POINTER_OVER, (event) => {
+				g6Graph.on(EdgeEvent.POINTER_OVER, (event) => {
 					const targetId = getTargetId(event)
 					if (!targetId) return
 					const edge = edgeById.get(targetId)
@@ -638,7 +638,7 @@
 							}
 						: null
 				})
-				graph.on(EdgeEvent.POINTER_OUT, () => {
+				g6Graph.on(EdgeEvent.POINTER_OUT, () => {
 					hoveredItem = null
 				})
 
@@ -646,9 +646,9 @@
 					if (event.key === 'Escape') {
 						selectedItem = null
 						selectionSummary = 'No selection'
-						graph?.clearElementState('node', 'selected')
-						graph?.clearElementState('edge', 'selected')
-						graph?.clearElementState('combo', 'selected')
+						g6Graph?.clearElementState('node', 'selected')
+						g6Graph?.clearElementState('edge', 'selected')
+						g6Graph?.clearElementState('combo', 'selected')
 					}
 				}
 
@@ -656,12 +656,12 @@
 
 				resizeObserver = new ResizeObserver((entries) => {
 					const entry = entries[0]
-					if (!entry || !graph) return
+					if (!entry || !g6Graph) return
 					const nextWidth = Math.max(1, entry.contentRect.width)
 					const nextHeight = Math.max(1, entry.contentRect.height)
-					const resize = graph.resize
+					const resize = g6Graph.resize
 					if (typeof resize === 'function') {
-						resize.call(graph, nextWidth, nextHeight)
+						resize.call(g6Graph, nextWidth, nextHeight)
 					}
 				})
 				resizeObserver.observe(container)
@@ -669,8 +669,8 @@
 					cleanup = () => {
 						container.removeEventListener('keydown', handleKeydown)
 						resizeObserver?.disconnect()
-						graph?.destroy()
-						graph = undefined
+						g6Graph?.destroy()
+						g6Graph = undefined
 					}
 				})()
 				return () => {

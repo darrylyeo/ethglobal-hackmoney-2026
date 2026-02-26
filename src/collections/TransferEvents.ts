@@ -44,8 +44,8 @@ export type TransferEventsMetaRow = {
 	error: string | null
 }
 
-function getKey(row: TransferEventRow | TransferEventsMetaRow): string {
-	const { $network, symbol, period, blockNumber, logIndex } = row.$id
+function getKey(item: TransferEventRow | TransferEventsMetaRow): string {
+	const { $network, symbol, period, blockNumber, logIndex } = item.$id
 	const chainId = $network.chainId
 	return (chainId as number) === -1
 		? `${symbol}:${period}:meta`
@@ -146,7 +146,7 @@ export async function fetchTransferEvents(
 			for (const e of events) {
 				const key = `${coinId}:${period}:${e.chainId}:${e.blockNumber}:${e.logIndex}`
 				const existingRow = transferEventsCollection.state.get(key)
-				const row: TransferEventRow = {
+				const event: TransferEventRow = {
 					$id: {
 						$network: { chainId: e.chainId },
 						symbol: coinId,
@@ -166,9 +166,9 @@ export async function fetchTransferEvents(
 				}
 				if (existingRow)
 					transferEventsCollection.update(key, (draft) => {
-						Object.assign(draft, row)
+						Object.assign(draft, event)
 					})
-				else transferEventsCollection.insert(row)
+				else transferEventsCollection.insert(event)
 			}
 			transferEventsCollection.update(metaKey, (draft) => {
 				;(draft as TransferEventsMetaRow).isLoading = false

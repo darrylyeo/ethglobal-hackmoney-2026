@@ -60,8 +60,8 @@
 		},
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
-	const wallets = $derived((walletsQuery.data ?? []).map((r) => r.row))
-	const connections = $derived((connectionsQuery.data ?? []).map((r) => r.row))
+	const wallets = $derived((walletsQuery.data ?? []).map(({ row: wallet }) => wallet))
+	const connections = $derived((connectionsQuery.data ?? []).map(({ row: connection }) => connection))
 	const selectedConnection = $derived(
 		connections.find((c) => c.selected) ?? null,
 	)

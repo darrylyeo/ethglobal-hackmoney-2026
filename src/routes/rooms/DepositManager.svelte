@@ -38,7 +38,7 @@
 	const depositRow = $derived(
 		yellowState.chainId && yellowState.address
 			? (depositQuery.data ?? [])
-					.map((r) => r.row)
+					.map(({ row }) => row)
 					.find(
 						(d) =>
 							d.chainId === yellowState.chainId &&

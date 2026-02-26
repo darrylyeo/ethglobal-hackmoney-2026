@@ -62,6 +62,7 @@ export const fetchCaipEntries = async (): Promise<CaipEntry[]> => {
 				const status = fm.status ?? 'Draft'
 				const type = fm.type ?? 'Informational'
 				return {
+					$id: { id: String(caipNum) },
 					number: caipNum,
 					title,
 					status,

@@ -82,7 +82,7 @@ export const fetchActorAllowance = async (
 							$id.$actorCoin.$actor.address,
 						),
 		}
-		const row: ActorAllowanceRow = {
+		const item: ActorAllowanceRow = {
 			$id: full$id,
 			$source: DataSource.Voltaire,
 			allowance,
@@ -92,10 +92,10 @@ export const fetchActorAllowance = async (
 		}
 		if (existing) {
 			actorAllowancesCollection.update(key, (draft) => {
-				Object.assign(draft, row)
+				Object.assign(draft, item)
 			})
 		} else {
-			actorAllowancesCollection.insert(row)
+			actorAllowancesCollection.insert(item)
 		}
 		return actorAllowancesCollection.state.get(key)!
 	} catch (e) {
@@ -115,10 +115,10 @@ export const fetchActorAllowance = async (
 
 // Check if allowance is sufficient for amount
 export const hasApproval = ($id: ActorAllowance$Id, amount: bigint) => {
-	const row = getActorAllowance($id)
+	const allowanceRow = getActorAllowance($id)
 	return (
-		row
-			? row.allowance >= amount
+		allowanceRow
+			? allowanceRow.allowance >= amount
 			: false
 	)
 }

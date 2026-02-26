@@ -48,9 +48,9 @@
 		actors.length === 0
 			? []
 			: (query.data ?? [])
-					.map((r) => r.row)
-					.filter((row) =>
-						actors.some((a) => row.$id.address === a),
+					.map(({ row: tx }) => tx)
+					.filter((tx) =>
+						actors.some((a) => tx.$id.address === a),
 					)
 					.sort((a, b) => b.$id.createdAt - a.$id.createdAt),
 	)

@@ -17,19 +17,19 @@
 	// Context
 	const connectionsQuery = useFarcasterConnections()
 	const linksQuery = useLiveQuery(
-		(q) => q.from({ row: farcasterLinksCollection }).select(({ row }) => ({ row })),
+		(q) => q.from({ link: farcasterLinksCollection }).select(({ link }) => ({ link })),
 		[],
 	)
 	const usersQuery = useLiveQuery(
 		(q) =>
-			q.from({ row: farcasterUsersCollection }).select(({ row }) => ({ row })),
+			q.from({ farcasterUser: farcasterUsersCollection }).select(({ farcasterUser }) => ({ farcasterUser })),
 		[],
 	)
 
 
 	// (Derived)
 	const connections = $derived(
-		(connectionsQuery.data ?? []).map((r) => r.row as {
+		(connectionsQuery.data ?? []).map(({ farcasterConnection: connection }) => connection as {
 			$id: { fid: number }
 			username?: string
 		}),
@@ -38,10 +38,10 @@
 		new Set(connections.map((r) => r.username ?? `fid:${r.$id.fid}`)),
 	)
 	const allLinks = $derived(
-		(linksQuery.data ?? []).map((r) => r.row as { $id: { sourceFid: number; targetFid: number } }),
+		(linksQuery.data ?? []).map(({ link }) => link as { $id: { sourceFid: number; targetFid: number } }),
 	)
 	const allUsers = $derived(
-		(usersQuery.data ?? []).map((r) => r.row) as FarcasterUserRow[],
+		(usersQuery.data ?? []).map(({ farcasterUser: user }) => user) as FarcasterUserRow[],
 	)
 	const usernameFilters = $derived(
 		[...new Set(allUsers.map((u) => u.username ?? `fid:${u.$id.fid}`).filter(Boolean))]
@@ -170,8 +170,7 @@
 			<EntityView
 				entityType={EntityType.FarcasterUser}
 				entity={user}
-				idSerialized={String(user.$id.fid)}
-				href="/farcaster/user/{user.$id.fid}"
+				titleHref="/farcaster/user/{user.$id.fid}"
 				label={user.username ? `@${user.username}` : `@${user.$id.fid}`}
 				metadata={
 					user.displayName ?

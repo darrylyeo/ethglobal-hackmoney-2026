@@ -43,8 +43,9 @@
 
 	// Actions
 	$effect(() => {
-		if (browser) void registerWebMcpTools()
+		registerWebMcpTools()
 	})
+
 	$effect(() => {
 		setHeliosFallbackNoticeHandler((chainId) => {
 			toasts.warning(
@@ -52,17 +53,23 @@
 				{ title: 'Helios fallback' },
 			)
 		})
+
 		return () => setHeliosFallbackNoticeHandler(null)
 	})
 
 
-	// (Derived)
-	const nav = new NavigationItems({
-		isTestnet: () =>
-			networkEnvironmentState.current === NetworkEnvironment.Testnet,
-		iconEth,
-		iconUsdc,
+	// (Derived) — create nav inside $effect so useLiveQuery runs in effect context (effect_orphan); single Svelte instance (resolve.dedupe) so operations.js is initialized
+	let nav = $state<InstanceType<typeof NavigationItems> | null>(null)
+	$effect(() => {
+		if (browser && nav === null)
+			nav = new NavigationItems({
+				isTestnet: () =>
+					networkEnvironmentState.current === NetworkEnvironment.Testnet,
+				iconEth,
+				iconUsdc,
+			})
 	})
+	const navigationItems = $derived(nav?.items ?? [])
 
 
 	// Components
@@ -111,7 +118,7 @@
 		>Skip to main content</a>
 
 		<Navigation
-			navigationItems={nav.items}
+			{navigationItems}
 		/>
 
 		<div

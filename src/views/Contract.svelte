@@ -119,7 +119,7 @@
 	entityType={EntityType.Contract}
 	entityId={{ $network: { chainId }, address }}
 	{idSerialized}
-	{href}
+	titleHref={href}
 	{label}
 	{metadata}
 	{layout}

@@ -6,13 +6,11 @@ import {
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 
-export type AgentChatTurnRow = AgentChatTurn
-
 export const agentChatTurnsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.AgentChatTurns,
 		storageKey: CollectionId.AgentChatTurns,
-		getKey: (row: AgentChatTurnRow) => row.id,
+		getKey: (turn: AgentChatTurn) => turn.$id,
 		parser: { stringify, parse },
 	}),
 )

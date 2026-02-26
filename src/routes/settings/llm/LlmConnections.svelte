@@ -22,8 +22,8 @@
 
 	const connectionsQuery = useLiveQuery((q) =>
 		q
-			.from({ row: llmConnectionsCollection })
-			.select(({ row }) => ({ row })),
+			.from({ llmConnection: llmConnectionsCollection })
+			.select(({ llmConnection }) => ({ llmConnection })),
 	)
 	registerLocalLiveQueryStack(() => [
 		{ id: 'llm-connections', label: 'LLM Connections', query: connectionsQuery },
@@ -32,7 +32,7 @@
 
 	// (Derived)
 	const connections = $derived(
-		(connectionsQuery.data ?? []).map((r) => r.row).filter(Boolean) as LlmConnectionRow[],
+		(connectionsQuery.data ?? []).map(({ llmConnection: connection }) => connection).filter(Boolean) as LlmConnectionRow[],
 	)
 	const addItems = $derived(
 		(

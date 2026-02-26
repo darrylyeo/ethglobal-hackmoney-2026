@@ -28,33 +28,33 @@
 	const sharedQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: sharedAddressesCollection })
-				.where(({ row }) => eq(row.roomId, roomId))
-				.select(({ row }) => ({ row })),
+				.from({ sharedAddress: sharedAddressesCollection })
+				.where(({ sharedAddress }) => eq(sharedAddress.roomId, roomId))
+				.select(({ sharedAddress }) => ({ sharedAddress })),
 		[() => roomId],
 	)
 	const peersQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: partykitRoomPeersCollection })
-				.where(({ row }) => eq(row.roomId, roomId))
-				.select(({ row }) => ({ row })),
+				.from({ roomPeer: partykitRoomPeersCollection })
+				.where(({ roomPeer }) => eq(roomPeer.roomId, roomId))
+				.select(({ roomPeer }) => ({ roomPeer })),
 		[() => roomId],
 	)
 	const verificationsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: siweVerificationsCollection })
-				.where(({ row }) => eq(row.roomId, roomId))
-				.select(({ row }) => ({ row })),
+				.from({ verification: siweVerificationsCollection })
+				.where(({ verification }) => eq(verification.roomId, roomId))
+				.select(({ verification }) => ({ verification })),
 		[() => roomId],
 	)
 	const challengesQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: siweChallengesCollection })
-				.where(({ row }) => eq(row.roomId, roomId))
-				.select(({ row }) => ({ row })),
+				.from({ siweChallenge: siweChallengesCollection })
+				.where(({ siweChallenge }) => eq(siweChallenge.roomId, roomId))
+				.select(({ siweChallenge }) => ({ siweChallenge })),
 		[() => roomId],
 	)
 	const liveQueryEntries = [
@@ -75,9 +75,9 @@
 
 
 	// (Derived)
-	const sharedRows = $derived((sharedQuery.data ?? []).map((r) => r.row))
+	const sharedAddresses = $derived((sharedQuery.data ?? []).map(({ sharedAddress }) => sharedAddress))
 	const sharedVisibleToMe = $derived(
-		sharedRows.filter(
+		sharedAddresses.filter(
 			(s) =>
 				s.peerId !== roomState.peerId &&
 				(s.targetPeerIds === null ||
@@ -85,11 +85,11 @@
 						s.targetPeerIds.includes(roomState.peerId))),
 		),
 	)
-	const peers = $derived((peersQuery.data ?? []).map((r) => r.row))
+	const peers = $derived((peersQuery.data ?? []).map(({ roomPeer: peer }) => peer))
 	const verifications = $derived(
-		(verificationsQuery.data ?? []).map((r) => r.row),
+		(verificationsQuery.data ?? []).map(({ verification }) => verification),
 	)
-	const challenges = $derived((challengesQuery.data ?? []).map((r) => r.row))
+	const challenges = $derived((challengesQuery.data ?? []).map(({ siweChallenge: challenge }) => challenge))
 
 
 	// Functions

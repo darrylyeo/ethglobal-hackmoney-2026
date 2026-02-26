@@ -33,7 +33,7 @@
 
 	const sessions = $derived(
 		(sessionsQuery.data ?? [])
-			.map((r) => r.row)
+			.map(({ row: session }) => session)
 			.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)),
 	)
 	const draftCount = $derived(
@@ -64,7 +64,7 @@
 						onclick={() => {
 							for (const s of sessions) {
 								if (s.status === SocialPostSessionStatus.Draft)
-									deleteSocialPostSession(s.id)
+									deleteSocialPostSession(s.$id.id)
 							}
 						}}
 					>
@@ -80,12 +80,12 @@
 			</p>
 		{:else}
 			<ul data-columns="width-5 gap-3" data-list="unstyled">
-				{#each sessions as session (session.id)}
+				{#each sessions as session (session.$id.id)}
 					<li data-columns-item data-card="radius-4">
 						<div data-column>
 							<div data-row="align-center wrap">
 								<a
-									href="/farcaster/session/{session.id}"
+									href="/farcaster/session/{session.$id.id}"
 									data-row-item="flexible"
 								>
 									<span data-row="align-center">
@@ -97,12 +97,12 @@
 									<span data-tag>{session.status}</span>
 									<WatchButton
 										entityType={EntityType.SocialPostSession}
-										entityId={{ id: session.id }}
+										entity={session}
 									/>
 									<button
 										type="button"
 										aria-label="Delete social post session"
-										onclick={() => deleteSocialPostSession(session.id)}
+										onclick={() => deleteSocialPostSession(session.$id.id)}
 									>
 										Delete
 									</button>

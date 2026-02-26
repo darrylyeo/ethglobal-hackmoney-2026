@@ -82,8 +82,8 @@
 		},
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
-	const connections = $derived((connectionsQuery.data ?? []).map((r) => r.row))
-	const wallets = $derived((walletsQuery.data ?? []).map((r) => r.row))
+	const connections = $derived((connectionsQuery.data ?? []).map(({ row: connection }) => connection))
+	const wallets = $derived((walletsQuery.data ?? []).map(({ row: wallet }) => wallet))
 	const connectedConnections = $derived(
 		connections.filter((c) => c.status === 'connected'),
 	)
@@ -115,7 +115,7 @@
 		?? connections.find((c) => c.activeActor)?.activeActor
 		?? null
 	)
-	const allChannels = $derived((channelsQuery.data ?? []).map((r) => r.row))
+	const allChannels = $derived((channelsQuery.data ?? []).map(({ row: channel }) => channel))
 	const channelsForConnectedAccounts = $derived(
 		allChannels.filter(
 			(ch) =>
@@ -135,7 +135,7 @@
 		),
 	)
 	const roomsById = $derived(
-		new Map((roomsQuery.data ?? []).map((r) => [r.row.id, r.row])),
+		new Map((roomsQuery.data ?? []).map(({ row: room }) => [room.$id.id, room])),
 	)
 
 

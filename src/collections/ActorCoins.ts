@@ -84,16 +84,16 @@ export const fetchActorCoinBalance = async (
 		error,
 	})
 	const upsertResult = (balance: bigint, error: string | null) => {
-		const row = fullRow(balance, error)
+		const item = fullRow(balance, error)
 		if (actorCoinsCollection.state.get(key))
 			actorCoinsCollection.update(key, (draft) => {
-				draft.$source = row.$source
-				draft.balance = row.balance
-				draft.isLoading = row.isLoading
-				draft.error = row.error
+				draft.$source = item.$source
+				draft.balance = item.balance
+				draft.isLoading = item.isLoading
+				draft.error = item.error
 			})
-		else actorCoinsCollection.insert(row)
-		return actorCoinsCollection.state.get(key) ?? row
+		else actorCoinsCollection.insert(item)
+		return actorCoinsCollection.state.get(key) ?? item
 	}
 	try {
 		const chainId = $id.$actor.$network.chainId

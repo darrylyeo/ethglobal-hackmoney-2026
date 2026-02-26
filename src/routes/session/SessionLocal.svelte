@@ -27,7 +27,7 @@
 
 
 	// (Derived)
-	const isEphemeral = $derived(activeSession.id.startsWith('ephemeral-'))
+	const isEphemeral = $derived(activeSession.$id.id.startsWith('ephemeral-'))
 
 
 	// Actions
@@ -39,9 +39,9 @@
 			params: activeSession.params,
 		})
 		if (setPanelRoute) {
-			setPanelRoute('/session/[id]', { id: created.id })
+			setPanelRoute('/session/[id]', { id: created.$id.id })
 		} else {
-			replaceState(buildSessionPath(created.id), {})
+			replaceState(buildSessionPath(created.$id.id), {})
 		}
 	}
 

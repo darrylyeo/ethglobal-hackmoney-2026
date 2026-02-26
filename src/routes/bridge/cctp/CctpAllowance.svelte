@@ -38,7 +38,7 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const allowanceRow = $derived(
-		(allowanceQuery.data ?? []).find((r) => r.row.$id.apiHost === apiHost)
+		(allowanceQuery.data ?? []).find(({ row: allowance }) => allowance.$id.apiHost === apiHost)
 			?.row ?? null,
 	)
 	const allowance = $derived(

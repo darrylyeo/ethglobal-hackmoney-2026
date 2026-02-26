@@ -18,8 +18,8 @@ import type {
 } from '$/data/VerifiedContractSource.ts'
 
 /** Normalize address to lowercase for consistent cache keys. */
-const getKey = (row: VerifiedContractSourceRow) =>
-	`${row.$id.$network.chainId}:${row.$id.address.toLowerCase()}`
+const getKey = (source: VerifiedContractSourceRow) =>
+	`${source.$id.$network.chainId}:${source.$id.address.toLowerCase()}`
 
 export type VerifiedContractSourceRow = VerifiedContractSourceEntry & {
 	$source: DataSource
@@ -32,7 +32,7 @@ export const verifiedContractSourcesCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.VerifiedContractSources,
 		storageKey: CollectionId.VerifiedContractSources,
-		getKey: (row: VerifiedContractSourceRow) => getKey(row),
+		getKey: (source: VerifiedContractSourceRow) => getKey(source),
 		parser: { stringify, parse },
 	}),
 )
@@ -57,7 +57,7 @@ export async function fetchVerifiedContractSource(
 		const entry = await fetchVerifiedContract(chainId, address)
 		const $id = { $network: { chainId }, address }
 		if (entry == null) {
-			const row: VerifiedContractSourceRow = {
+			const source: VerifiedContractSourceRow = {
 				$id,
 				files: {},
 				$source: DataSource.Sourcify,
@@ -67,14 +67,14 @@ export async function fetchVerifiedContractSource(
 			}
 			if (existing) {
 				verifiedContractSourcesCollection.update(key, (draft) => {
-					Object.assign(draft, row)
+					Object.assign(draft, source)
 				})
 			} else {
-				verifiedContractSourcesCollection.insert(row)
+				verifiedContractSourcesCollection.insert(source)
 			}
 			return null
 		}
-		const row: VerifiedContractSourceRow = {
+		const source: VerifiedContractSourceRow = {
 			...entry,
 			$source: DataSource.Sourcify,
 			notFound: false,
@@ -83,10 +83,10 @@ export async function fetchVerifiedContractSource(
 		}
 		if (existing) {
 			verifiedContractSourcesCollection.update(key, (draft) => {
-				Object.assign(draft, row)
+				Object.assign(draft, source)
 			})
 		} else {
-			verifiedContractSourcesCollection.insert(row)
+			verifiedContractSourcesCollection.insert(source)
 		}
 		return entry
 	} catch (e) {

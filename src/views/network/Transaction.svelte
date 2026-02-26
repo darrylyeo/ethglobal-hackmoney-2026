@@ -95,10 +95,10 @@
 
 	// (Derived)
 	const functionSignatures = $derived(functionSigQuery.data?.[0]?.row?.signatures ?? [])
-	const traceRow = $derived(traceQuery.data?.[0]?.row)
+	const traceRecord = $derived(traceQuery.data?.[0]?.row)
 	const trace = $derived(
-		traceRow && !traceRow.unavailable
-			? traceRow.trace
+		traceRecord && !traceRecord.unavailable
+			? traceRecord.trace
 			: entry.trace,
 	)
 	const eventsSet = $derived(new Set(events))
@@ -157,8 +157,9 @@
 
 <EntityView
 		entityType={EntityType.Transaction}
-		idSerialized={tx ? `transaction:${tx.$id.txHash}` : 'transaction:loading'}
-		href={tx ? getTxPath(chainId, tx.$id.txHash) : '#'}
+		entity={tx ?? undefined}
+		titleHref={tx ? getTxPath(chainId, tx.$id.txHash) : '#'}
+		{...(tx == null ? { idSerialized: 'transaction:loading' } : {})}
 		label={tx ? `Tx ${tx.$id.txHash.slice(0, 10)}…` : 'Loading…'}
 		layout={layout}
 		annotation="Transaction"
@@ -311,7 +312,7 @@
 		>
 			{#if trace}
 				<Trace {trace} {chainId} />
-			{:else if traceRow?.unavailable === true}
+			{:else if traceRecord?.unavailable === true}
 				<p data-text="muted">Trace unavailable (RPC does not support debug_traceTransaction)</p>
 			{:else}
 				<p data-text="muted">Open transaction to load trace…</p>

@@ -19,6 +19,7 @@
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
 	// Context
+	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 	import { page } from '$app/state'
 
@@ -113,6 +114,10 @@
 		ensureIdentityLink(ChainId.Ethereum, addrParam)
 	})
 	$effect(() => {
+		if (!account?.address || !isEnsName || addrParam === account.address) return
+		goto(resolve(`/account/${account.address}`), { replaceState: true })
+	})
+	$effect(() => {
 		const a = addr
 		if (!a) {
 			farcasterFid = undefined
@@ -167,8 +172,7 @@
 		<EntityView
 			entityType={EntityType.Actor}
 			entityId={actorId!}
-			idSerialized={account?.interopAddress ?? account?.address ?? ''}
-			href={resolve(`/account/${addrParam}`)}
+			titleHref={resolve(`/account/${addrParam}`)}
 			label={formatAddress(account.address)}
 			metadata={account?.interopAddress
 				? [{ term: 'Interop', detail: account.interopAddress }]

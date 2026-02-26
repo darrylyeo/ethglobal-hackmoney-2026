@@ -58,15 +58,11 @@ function buildResult(
 
 	let revertReason: string | undefined
 	let errorSelector: string | undefined
-	if (
-		execResult.exceptionError &&
-		execResult.returnValue &&
-		execResult.returnValue.length >= 4
-	) {
-		errorSelector = toHex(execResult.returnValue.slice(0, 4))
-		if (execResult.returnValue.length > 4) {
-			revertReason = toHex(execResult.returnValue)
-		}
+	const returnValue =
+		execResult.returnValue instanceof Uint8Array ? execResult.returnValue : undefined
+	if (execResult.exceptionError && returnValue && returnValue.length >= 4) {
+		errorSelector = toHex(returnValue.slice(0, 4))
+		if (returnValue.length > 4) revertReason = toHex(returnValue)
 	}
 	if (!revertReason && execResult.exceptionError) {
 		revertReason =

@@ -47,7 +47,7 @@ export const ensureFarcasterUser = singleFlight(
 			fetchVerificationsByFid(fid).catch(() => ({ messages: [] })),
 		])
 
-		const row: FarcasterUserRow = {
+		const user: FarcasterUserRow = {
 			$id: { fid },
 			$source: DataSource.Farcaster,
 		}
@@ -56,20 +56,20 @@ export const ensureFarcasterUser = singleFlight(
 			const type = m.data?.userDataBody?.type
 			const value = m.data?.userDataBody?.value
 			if (!value) continue
-			if (type === USER_DATA_TYPE.PFP) row.pfpUrl = value
-			else if (type === USER_DATA_TYPE.DISPLAY) row.displayName = value
-			else if (type === USER_DATA_TYPE.BIO) row.bio = value
-			else if (type === USER_DATA_TYPE.URL) (row as Record<string, unknown>).url = value
+			if (type === USER_DATA_TYPE.PFP) user.pfpUrl = value
+			else if (type === USER_DATA_TYPE.DISPLAY) user.displayName = value
+			else if (type === USER_DATA_TYPE.BIO) user.bio = value
+			else if (type === USER_DATA_TYPE.URL) (user as Record<string, unknown>).url = value
 		}
 
 		const fname = proofsRes.proofs?.[0]?.name
-		if (fname) (row as FarcasterUserRow).username = fname
+		if (fname) (user as FarcasterUserRow).username = fname
 
 		const addr =
 			verificationsRes.messages?.[0]?.data?.verificationAddEthAddressBody?.address
-		if (addr) (row as FarcasterUserRow).verifiedAddress = addr
+		if (addr) (user as FarcasterUserRow).verifiedAddress = addr
 
-		farcasterUsersCollection.insert(row)
-		return row
+		farcasterUsersCollection.insert(user)
+		return user
 	},
 )

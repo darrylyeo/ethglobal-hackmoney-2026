@@ -11,13 +11,11 @@ import {
 import { stringify, parse } from 'devalue'
 import type { Session } from '$/data/Session.ts'
 
-export type SessionRow = Session
-
 export const sessionsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.Sessions,
 		storageKey: CollectionId.Sessions,
-		getKey: (row: SessionRow) => row.id,
+		getKey: (session: Session) => session.$id.id,
 		parser: { stringify, parse },
 	}),
 )

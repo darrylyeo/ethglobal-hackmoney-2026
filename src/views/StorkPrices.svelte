@@ -33,7 +33,7 @@
 
 	// State
 	const pricesQuery = useLiveQuery((q) =>
-		q.from({ row: storkPricesCollection }).select(({ row }) => ({ row })),
+		q.from({ price: storkPricesCollection }).select(({ price }) => ({ price })),
 	)
 	const liveQueryEntries = [
 		{
@@ -44,7 +44,7 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const prices = $derived<StorkPriceRow[]>(
-		(pricesQuery.data ?? []).map((r) => r.row),
+		(pricesQuery.data ?? []).map(({ price }) => price),
 	)
 
 	$effect(() => {

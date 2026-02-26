@@ -58,15 +58,15 @@ export const storkPricesCollection = createCollection(
 	}),
 )
 
-const updateStorkPrice = (row: StorkPriceRow) => {
-	const key = stringify(row.$id)
+const updateStorkPrice = (price: StorkPriceRow) => {
+	const key = stringify(price.$id)
 	const existing = storkPricesCollection.state.get(key)
 	if (existing) {
 		storkPricesCollection.update(key, (draft) => {
-			Object.assign(draft, row)
+			Object.assign(draft, price)
 		})
 	} else {
-		storkPricesCollection.insert(row)
+		storkPricesCollection.insert(price)
 	}
 }
 
@@ -556,13 +556,13 @@ export const getBestStorkPrice = (
 	chainId: number | null,
 ): StorkPriceRow | null => {
 	const candidates = rows.filter(
-		(row) =>
-			row.assetId === assetId &&
-			(row.transport !== StorkPriceTransport.Rpc ||
-				(chainId !== null && row.$id.$network?.chainId === chainId)),
+		(price) =>
+			price.assetId === assetId &&
+			(price.transport !== StorkPriceTransport.Rpc ||
+				(chainId !== null && price.$id.$network?.chainId === chainId)),
 	)
 	const ready = candidates.filter(
-		(row) => !row.isLoading && row.error === null,
+		(price) => !price.isLoading && price.error === null,
 	)
 	if (ready.length === 0) return null
 	const priority: StorkPriceTransport[] = [
@@ -572,7 +572,7 @@ export const getBestStorkPrice = (
 	]
 	for (const transport of priority) {
 		const best = ready
-			.filter((row) => row.transport === transport)
+			.filter((price) => price.transport === transport)
 			.sort((a, b) => (a.timestampNs > b.timestampNs ? -1 : 1))[0]
 		if (best) return best
 	}

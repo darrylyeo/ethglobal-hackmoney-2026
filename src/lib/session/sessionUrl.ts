@@ -149,7 +149,7 @@ const sessionFromParsedHash = (parsed: SessionHashResult): Session => {
 		(actions[0]?.params ?? {}) as Record<string, unknown>,
 	) as Record<string, unknown>
 	return {
-		id: `ephemeral-${createEphemeralId()}`,
+		$id: { id: `ephemeral-${createEphemeralId()}` },
 		actions,
 		status: SessionStatus.Draft,
 		createdAt: now,
@@ -173,7 +173,7 @@ export const getSessionInputFromUrl = (url: URL): SessionInput => {
 			if (parsed?.actions?.length) {
 				session = {
 					...parsed,
-					id: `ephemeral-${createEphemeralId()}`,
+					$id: { id: `ephemeral-${createEphemeralId()}` },
 					status: SessionStatus.Draft,
 					createdAt: Date.now(),
 					updatedAt: Date.now(),

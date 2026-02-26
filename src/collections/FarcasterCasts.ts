@@ -82,8 +82,8 @@ export const ensureCastsForChannel = singleFlight(
 			pageToken,
 		})
 		for (const m of messages) {
-			const row = normalizeCast(m)
-			if (row) farcasterCastsCollection.insert(row)
+			const cast = normalizeCast(m)
+			if (cast) farcasterCastsCollection.insert(cast)
 		}
 		return { nextPageToken }
 	},
@@ -100,8 +100,8 @@ export const ensureCastsForFid = singleFlight(
 			reverse: true,
 		})
 		for (const m of messages) {
-			const row = normalizeCast(m)
-			if (row) farcasterCastsCollection.insert(row)
+			const cast = normalizeCast(m)
+			if (cast) farcasterCastsCollection.insert(cast)
 		}
 		return { nextPageToken }
 	},
@@ -146,8 +146,8 @@ export const ensureCast = singleFlight(
 				m = await resolveCastByTruncatedHash(fid, hash)
 			if (!m) throw new Error('Cast not found')
 		}
-		const row = normalizeCast(m)
-		if (!row) throw new Error('Cast not found')
+		const cast = normalizeCast(m)
+		if (!cast) throw new Error('Cast not found')
 		const fullHash = m.hash
 		const [likesRes, recastsRes] = await Promise.all([
 			fetchReactionsByCast(fid, fullHash, { reactionType: REACTION_TYPE_LIKE }).catch(
@@ -157,10 +157,10 @@ export const ensureCast = singleFlight(
 				() => ({ messages: [] }),
 			),
 		])
-		row.likeCount = likesRes.messages?.length ?? 0
-		row.recastCount = recastsRes.messages?.length ?? 0
-		farcasterCastsCollection.insert(row)
-		return row
+		cast.likeCount = likesRes.messages?.length ?? 0
+		cast.recastCount = recastsRes.messages?.length ?? 0
+		farcasterCastsCollection.insert(cast)
+		return cast
 	},
 )
 
@@ -175,8 +175,8 @@ export const ensureCastsByMention = singleFlight(
 			reverse: true,
 		})
 		for (const m of messages) {
-			const row = normalizeCast(m)
-			if (row) farcasterCastsCollection.insert(row)
+			const cast = normalizeCast(m)
+			if (cast) farcasterCastsCollection.insert(cast)
 		}
 		return { nextPageToken }
 	},
@@ -205,8 +205,8 @@ export const ensureRepliesForCast = singleFlight(
 			pageToken,
 		})
 		for (const m of messages) {
-			const row = normalizeCast(m)
-			if (row) farcasterCastsCollection.insert(row)
+			const cast = normalizeCast(m)
+			if (cast) farcasterCastsCollection.insert(cast)
 		}
 		return { nextPageToken }
 	},

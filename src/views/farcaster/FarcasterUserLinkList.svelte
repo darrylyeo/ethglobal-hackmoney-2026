@@ -40,7 +40,6 @@
 			<EntityView
 				entityType={EntityType.FarcasterUser}
 				entity={user}
-				idSerialized={String(fid)}
 				href="/farcaster/user/{fid}"
 				label={user?.username ? `@${user.username}` : `@${fid}`}
 			/>

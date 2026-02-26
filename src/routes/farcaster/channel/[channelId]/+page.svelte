@@ -63,11 +63,11 @@
 	// (Derived)
 	const userByFid = $derived(
 		new Map(
-			(usersQuery.data ?? []).map((r) => [r.row.$id.fid, r.row]),
+			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user]),
 		),
 	)
 	const castsByChannel = $derived(
-		(castsQuery.data ?? []).map((r) => r.row as FarcasterCastRow),
+		(castsQuery.data ?? []).map(({ row: cast }) => cast as FarcasterCastRow),
 	)
 	const rootCasts = $derived(
 		castsByChannel.filter((c) => !c.parentFid || !c.parentHash),
@@ -126,8 +126,7 @@
 		<EntityView
 			entityType={EntityType.FarcasterChannel}
 			entity={channel}
-			idSerialized={channel.$id.id}
-			href="/farcaster/channel/{encodeURIComponent(channel.$id.id)}"
+			titleHref="/farcaster/channel/{encodeURIComponent(channel.$id.id)}"
 			label={channel.name}
 			metadata={
 				channel.followerCount != null

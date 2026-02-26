@@ -39,8 +39,8 @@ export const coinsCollection = createCollection(
 /** Seed collection from constants when empty. Call once in browser (e.g. layout). */
 export function ensureCoinsHydrated(): void {
 	for (const t of erc20Instances) {
-		const row = toCoinRow(t)
-		const key = `${row.$id.$network.chainId}-${row.$id.address.toLowerCase()}`
-		if (!coinsCollection.state.get(key)) coinsCollection.insert(row)
+		const coin = toCoinRow(t)
+		const key = `${coin.$id.$network.chainId}-${coin.$id.address.toLowerCase()}`
+		if (!coinsCollection.state.get(key)) coinsCollection.insert(coin)
 	}
 }

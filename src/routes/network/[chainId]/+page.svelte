@@ -68,7 +68,7 @@
 					: undefined
 			}
 			idSerialized={chainIdParam}
-			href={resolve(`/network/${chainIdParam}`)}
+			titleHref={resolve(`/network/${chainIdParam}`)}
 			label={route.network.name}
 			metadata={[
 				{ term: 'Chain ID', detail: String(chainId) },

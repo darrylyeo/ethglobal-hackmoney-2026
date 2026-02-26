@@ -15,6 +15,6 @@ export type RoomRow = Room & { $source: DataSource }
 export const roomsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.Rooms,
-		getKey: (row: RoomRow) => row.id,
+		getKey: (room: RoomRow) => room.$id.id,
 	}),
 )

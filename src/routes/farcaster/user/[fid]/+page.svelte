@@ -81,15 +81,15 @@
 	const user = $derived(userQuery.data?.[0]?.row)
 	const userByFid = $derived(
 		new Map(
-			(usersQuery.data ?? []).map((r) => [r.row.$id.fid, r.row]),
+			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user]),
 		),
 	)
-	const allCasts = $derived((castsQuery.data ?? []).map((r) => r.row as FarcasterCastRow))
+	const allCasts = $derived((castsQuery.data ?? []).map(({ row: cast }) => cast as FarcasterCastRow))
 	const allCastsFromDb = $derived(
-		(allCastsQuery.data ?? []).map((r) => r.row as FarcasterCastRow),
+		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as FarcasterCastRow),
 	)
 	const links = $derived(
-		(linksQuery.data ?? []).map((r) => r.row as { $id: { sourceFid: number; targetFid: number; linkType: string } }),
+		(linksQuery.data ?? []).map(({ row: link }) => link as { $id: { sourceFid: number; targetFid: number; linkType: string } }),
 	)
 	const mentions = $derived(
 		allCastsFromDb.filter((c) => c.mentions?.includes(fid)),
@@ -201,9 +201,9 @@
 		<EntityView
 			entityType={EntityType.FarcasterUser}
 			entity={user}
-			idSerialized={String(fid)}
-			href="/farcaster/user/{fid}"
+			titleHref="/farcaster/user/{fid}"
 			label={label}
+			{...(user ? {} : { entityId: { fid } })}
 			metadata={
 				user?.bio || user?.verifiedAddress
 					? [

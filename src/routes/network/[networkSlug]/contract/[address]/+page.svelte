@@ -62,7 +62,7 @@
 		<Contract
 			contractId={{ $network: { chainId }, address }}
 			idSerialized={`${chainId}:${address.toLowerCase()}`}
-			href={resolve(`/network/${chainId}/contract/${address}`)}
+			titleHref={resolve(`/network/${chainId}/contract/${address}`)}
 			label={formatAddress(address)}
 			metadata={[
 				{ term: 'Chain ID', detail: String(chainId) },

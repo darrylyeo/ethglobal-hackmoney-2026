@@ -23,7 +23,7 @@ const toCctpFeeItem = (value: unknown): CctpFeeItem | null => {
 export const cctpFeesCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.CctpFees,
-		getKey: (row: CctpFeeRow) => stringify(row.$id),
+		getKey: (fee: CctpFeeRow) => stringify(fee.$id),
 	}),
 )
 
@@ -57,7 +57,7 @@ export const fetchCctpFees = async ($id: CctpFee$Id): Promise<CctpFeeRow> => {
 			Array.isArray(data) ?
 				data
 					.map(toCctpFeeItem)
-					.filter((row): row is CctpFeeItem => row !== null)
+					.filter((fee): fee is CctpFeeItem => fee !== null)
 			:
 				[]
 		)

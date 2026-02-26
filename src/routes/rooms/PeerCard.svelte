@@ -31,28 +31,28 @@
 	const sharedQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: sharedAddressesCollection })
+				.from({ sharedAddress: sharedAddressesCollection })
 				.where(
-					({ row }) =>
-						eq(row.roomId, roomId) && eq(row.peerId, peer.peerId),
+					({ sharedAddress }) =>
+						eq(sharedAddress.roomId, roomId) && eq(sharedAddress.peerId, peer.peerId),
 				)
-				.select(({ row }) => ({ row })),
+				.select(({ sharedAddress }) => ({ sharedAddress })),
 		[() => roomId, () => peer.peerId],
 	)
 	const challengesQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: siweChallengesCollection })
-				.where(({ row }) => eq(row.roomId, roomId))
-				.select(({ row }) => ({ row })),
+				.from({ siweChallenge: siweChallengesCollection })
+				.where(({ siweChallenge }) => eq(siweChallenge.roomId, roomId))
+				.select(({ siweChallenge }) => ({ siweChallenge })),
 		[() => roomId],
 	)
 	const verificationsQuery = useLiveQuery(
 		(q) =>
 			q
-				.from({ row: siweVerificationsCollection })
-				.where(({ row }) => eq(row.roomId, roomId))
-				.select(({ row }) => ({ row })),
+				.from({ verification: siweVerificationsCollection })
+				.where(({ verification }) => eq(verification.roomId, roomId))
+				.select(({ verification }) => ({ verification })),
 		[() => roomId],
 	)
 	registerLocalLiveQueryStack(() => [
@@ -67,7 +67,7 @@
 
 
 	// (Derived)
-	const allShared = $derived((sharedQuery.data ?? []).map((r) => r.row))
+	const allShared = $derived((sharedQuery.data ?? []).map(({ row: sharedAddress }) => sharedAddress))
 	const addressesVisibleToMe = $derived(
 		allShared.filter(
 			(s) =>
@@ -76,11 +76,11 @@
 		),
 	)
 	const verifications = $derived(
-		(verificationsQuery.data ?? []).map((r) => r.row),
+		(verificationsQuery.data ?? []).map(({ verification }) => verification),
 	)
 	const awaitingMySignature = $derived(
 		(challengesQuery.data ?? [])
-			.map((r) => r.row)
+			.map(({ siweChallenge }) => siweChallenge)
 			.filter(
 				(ch: SiweChallengeRow) =>
 					ch.toPeerId === peer.peerId &&

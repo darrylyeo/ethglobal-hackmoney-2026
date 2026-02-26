@@ -54,11 +54,11 @@
 		),
 	)
 	const allCasts = $derived(
-		(castsQuery.data ?? []).map((r) => r.row) as FarcasterCastRow[],
+		(castsQuery.data ?? []).map(({ row: cast }) => cast) as FarcasterCastRow[],
 	)
 	const userByFid = $derived(
 		new Map(
-			(usersQuery.data ?? []).map((r) => [r.row.$id.fid, r.row as FarcasterUserRow]),
+			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user as FarcasterUserRow]),
 		),
 	)
 	const fidOptions = $derived(
