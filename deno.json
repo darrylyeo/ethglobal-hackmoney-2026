@@ -18,6 +18,7 @@
   "tasks": {
     "dev": "vite dev",
     "dev:partykit": "partykit dev",
+    "dev:webmcp": "deno run -A npm:@mcp-b/native-server/dist/index.js",
     "deploy:partykit": "deno run -A npm:partykit deploy",
     "build": "vite build",
     "preview": "vite preview",
@@ -38,6 +39,5 @@
     "test:e2e:one-scenario": "deno run -A e2e/run-one-scenario.mjs",
     "format": "deno run -A scripts/_svelte-section-spacing.ts",
     "forks:sync": "deno run -A scripts/sync-fork-schedules.ts",
-    "precompiles:sync": "deno run -A scripts/sync-precompiles.ts"
   }
 }
