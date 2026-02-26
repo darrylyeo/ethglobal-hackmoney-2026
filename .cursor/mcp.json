@@ -2,20 +2,14 @@
   "mcpServers": {
     "svelte": {
       "command": "deno",
-      "args": [
-        "run",
-        "-A",
-        "npm:@sveltejs/mcp"
-      ]
+      "args": ["run", "-A", "npm:@sveltejs/mcp"]
     },
     "voltaire": {
       "command": "deno",
-      "args": [
-        "run",
-        "-A",
-        "npm:mcp-remote",
-        "https://voltaire.tevm.sh/mcp"
-      ]
+      "args": ["run", "-A", "npm:mcp-remote", "https://voltaire.tevm.sh/mcp"]
+    },
+    "webmcp": {
+      "url": "http://127.0.0.1:12306/mcp"
     }
   }
 }
