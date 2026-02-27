@@ -1068,10 +1068,10 @@ dl {
 
 	/* Firefox: not supported (find workaround to support resetting nested `[data-scroll-container]`s) */
 	/* @scope (
-  	&
-  ) to (
-  	[data-scroll-container] > *
-  ) { */
+		&
+	) to (
+		[data-scroll-container] > *
+	) { */
 	[data-sticky-container]:not(&) {
 		--sticky-level: 1;
 
