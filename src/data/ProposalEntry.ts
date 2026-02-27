@@ -22,5 +22,7 @@ export type ProposalEntry = {
 	category: string
 	url: string
 	type: ProposalType
+	/** YYYY-MM-DD from frontmatter `created` (first date if comma-separated) */
+	created?: string
 	$source: DataSource
 }

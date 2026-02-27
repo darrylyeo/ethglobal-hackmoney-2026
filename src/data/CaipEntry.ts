@@ -15,5 +15,7 @@ export type CaipEntry = {
 	/** Standard, Meta, Informational */
 	type: string
 	url: string
+	/** YYYY-MM-DD from frontmatter `created` (first date if comma-separated) */
+	created?: string
 	$source: DataSource
 }
