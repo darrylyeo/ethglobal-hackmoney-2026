@@ -13,7 +13,7 @@ Types follow spec 045 (cf. spec 001, 042).
   `AssetStyle` (string), `FetchType` (Url | Png | Zip), `AssetSource` (subject, id, kind?, style?, fetch),
   `AssetAlias` (subject, fromId, toId).
 - **IDs:** chains use `ChainId`; coins and brands use string (lowercase).
-- **Helpers:** `assetFilename(id, kind?, style?)`, `assetSuffix()`, `isDefaultAsset()`.
+- **Helpers:** `assetFilename(id, kind?, style?)`, `assetSuffix()`, `isDefaultAsset()` in `src/lib/assetUtils.ts` (spec 045: no helpers in constants).
 - **Sources:** `chainAssetSources`, `chainAssetAliases`, `coinAssetSources`, `providerAssetSources`;
   all with documented source comments (discovery: chain registries, brand kits, token lists, Simple Icons, etc.).
 - **Discovery:** Documented in file header and per-entry comments; fetch URL is source of truth.
