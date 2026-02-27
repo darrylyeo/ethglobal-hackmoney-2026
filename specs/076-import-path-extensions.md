@@ -13,6 +13,7 @@ Mandate file extensions on import paths and consistent asset import style. Appli
 - **`$/` alias:** Always include the file extension: `.ts` for TypeScript/JS modules, `.svelte` for Svelte components, `.svg` (or `?url`) for assets. Example: `from '$/constants/intents.ts'`, `from '$/views/Navigation.svelte'`.
 - **Relative imports:** Prefer explicit extensions (`.ts`, `.svelte`) for consistency and tooling.
 - **Assets:** In constants and other TS modules use inline `(await import('$/assets/...')).default` at the use site. In Svelte components use regular `import x from '$/assets/...'` (e.g. `import iconEth from '$/assets/coins/eth.svg?url'`). Group asset imports with the Components section in Svelte files.
+- **No barrel files or re-exports:** Do not add `index.ts` (or similar) files that only re-export from other modules. Import directly from the defining module (e.g. `from '$/api/farcaster/hub.ts'` not `from '$/api/farcaster/index.ts'`). Do not re-export types or values from a module that only forwards them from elsewhere; consumers import from the source. Avoid legacy or deprecated export names; use a single canonical export name.
 
 ## Acceptance criteria
 
@@ -21,6 +22,7 @@ Mandate file extensions on import paths and consistent asset import style. Appli
 - [x] Constants/TS modules that reference assets use inline `(await import('$/assets/...')).default`.
 - [x] Components that reference assets use top-level `import x from '$/assets/...'`.
 - [x] No path builder helpers or remote asset URLs for bundled icons/assets.
+- [x] No barrel files (index.ts that only re-export); no re-exports; imports point at defining modules; no legacy/deprecated export aliases.
 
 ## Status
 

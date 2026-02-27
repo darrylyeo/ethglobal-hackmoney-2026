@@ -254,7 +254,6 @@ All files below: one file per run; format to repo preferences (section spacing m
 - [x] `src/lib/debounce.ts`
 - [x] `src/lib/format.spec.ts`
 - [x] `src/lib/format.ts`
-- [x] `src/lib/index.ts`
 - [x] `src/lib/intents/drag.spec.ts`
 - [x] `src/lib/intents/drag.ts`
 - [x] `src/lib/intents/routes.ts`
