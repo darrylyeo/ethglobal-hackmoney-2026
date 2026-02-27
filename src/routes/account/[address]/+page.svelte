@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import { getFidByAddress } from '$/api/farcaster/index.ts'
+	import { getFidByAddress } from '$/api/farcaster/hub.ts'
 	import { normalizeIdentity } from '$/api/identity-resolve.ts'
 	import {
 		ensureIdentityLink,

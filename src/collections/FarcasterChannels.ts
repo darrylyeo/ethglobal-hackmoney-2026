@@ -8,7 +8,7 @@ import {
 	fetchAllChannels,
 	fetchChannel,
 	type Channel,
-} from '$/api/farcaster/index.ts'
+} from '$/api/farcaster/client.ts'
 
 export const INITIAL_CHANNELS_LIMIT = 100
 

@@ -11,7 +11,7 @@ import {
 	fetchUserDataByFid,
 	fetchUsernameProofsByFid,
 	fetchVerificationsByFid,
-} from '$/api/farcaster/index.ts'
+} from '$/api/farcaster/hub.ts'
 
 const USER_DATA_TYPE = {
 	PFP: 'USER_DATA_TYPE_PFP',

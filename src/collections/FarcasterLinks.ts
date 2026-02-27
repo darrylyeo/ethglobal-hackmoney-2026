@@ -12,7 +12,7 @@ import {
 	fetchLinksByTargetFid,
 	LINK_TYPE_FOLLOW,
 	type LinkMessage,
-} from '$/api/farcaster/index.ts'
+} from '$/api/farcaster/hub.ts'
 import { ensureFarcasterUser } from '$/collections/FarcasterUsers.ts'
 
 const getKey = (row: WithSource<FarcasterLink>) =>

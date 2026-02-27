@@ -2,7 +2,7 @@
 	// Types/constants
 	import type { WithSource } from '$/constants/data-sources.ts'
 	import type { FarcasterCast } from '$/data/FarcasterCast.ts'
-	import { LINK_TYPE_FOLLOW } from '$/api/farcaster/index.ts'
+	import { LINK_TYPE_FOLLOW } from '$/api/farcaster/hub.ts'
 	import {
 		ensureCastsByMention,
 		ensureCastsForFid,

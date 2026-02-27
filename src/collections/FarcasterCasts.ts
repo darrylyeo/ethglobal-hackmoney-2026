@@ -9,7 +9,6 @@ import type { FarcasterCast, FarcasterCast$Id } from '$/data/FarcasterCast.ts'
 import { singleFlight } from '$/lib/singleFlight.ts'
 import {
 	fetchCastById,
-	fetchCastByHash,
 	fetchCastsByMention,
 	fetchCastsByParent,
 	fetchReactionsByCast,
@@ -19,7 +18,8 @@ import {
 	REACTION_TYPE_RECAST,
 	resolveCastByTruncatedHash,
 	type CastMessage,
-} from '$/api/farcaster/index.ts'
+} from '$/api/farcaster/hub.ts'
+import { fetchCastByHash } from '$/api/farcaster/neynar.ts'
 
 /** Normalize cast hash to lowercase for consistent cache keys. */
 const normalizeCastHash = (h: `0x${string}`): `0x${string}` =>
