@@ -4,10 +4,11 @@
  */
 
 import { type } from 'arktype'
-import { address, hexString } from '$/constants/arktype.ts'
+import { normalizeAddress } from '$/lib/address.ts'
 import {
 	runTevmSimulation,
 	runTevmSimulationSequence,
+	type SimulatePayload,
 } from '$/api/simulate.ts'
 import type { SessionSimulationSummary } from '$/data/Session.ts'
 import {
@@ -18,26 +19,33 @@ import {
 const simulatePayloadSchema = type({
 	rpcUrl: type('string'),
 	chainId: type('number.integer'),
-	from: address,
-	to: address.optional(),
-	data: hexString.optional(),
+	from: type('string'),
+	to: type('string').optional(),
+	data: type('string').optional(),
 	value: type('string').optional(),
 	gasLimit: type('string').optional(),
 	blockTag: type('number.integer').or(type("'latest'")).optional(),
+}).pipe((obj, ctx) => {
+	if (normalizeAddress(obj.from) == null) return ctx.mustBe('from: valid address')
+	if (obj.to != null && normalizeAddress(obj.to) == null) return ctx.mustBe('to: valid address')
+	if (obj.data != null && !/^0x[0-9a-fA-F]*$/.test(obj.data)) return ctx.mustBe('data: hex string')
+	return obj
 })
 
 export type TevmSimulationPayload = typeof simulatePayloadSchema.infer
 
-const payloadToBody = (p: TevmSimulationPayload) => ({
-	rpcUrl: p.rpcUrl,
-	chainId: p.chainId,
-	from: p.from,
-	to: p.to,
-	data: p.data,
-	value: p.value,
-	gasLimit: p.gasLimit,
-	blockTag: p.blockTag,
-})
+function payloadToBody(p: TevmSimulationPayload): SimulatePayload {
+	return {
+		rpcUrl: p.rpcUrl,
+		chainId: p.chainId,
+		from: p.from,
+		to: p.to,
+		data: p.data,
+		value: p.value,
+		gasLimit: p.gasLimit,
+		blockTag: p.blockTag,
+	}
+}
 
 export const runTevmSimulationFromClient = async (
 	payload: unknown,
