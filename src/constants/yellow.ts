@@ -11,7 +11,7 @@ export enum YellowEnvironment {
 	Sandbox = 'Sandbox',
 }
 
-export enum YellowChallengePeriodLimit {
+export enum YellowChallengePeriodLimitId {
 	DefaultSeconds = 'DefaultSeconds',
 	MinimumSeconds = 'MinimumSeconds',
 	MaximumSeconds = 'MaximumSeconds',
@@ -28,9 +28,9 @@ export type YellowContractDeployment = {
 	adjudicator: `0x${string}`
 }
 
-export type YellowChallengePeriodLimitEntry = {
-	limit: YellowChallengePeriodLimit
-	seconds: number,
+export type YellowChallengePeriodLimit = {
+	limit: YellowChallengePeriodLimitId
+	seconds: number
 }
 
 export const yellowClearnodeEndpoints = [
@@ -90,18 +90,18 @@ export const yellowCustodyContracts: readonly Contract$Id[] =
 
 export const yellowChallengePeriodLimits = [
 	{
-		limit: YellowChallengePeriodLimit.DefaultSeconds,
+		limit: YellowChallengePeriodLimitId.DefaultSeconds,
 		seconds: 24 * 60 * 60,
 	},
 	{
-		limit: YellowChallengePeriodLimit.MinimumSeconds,
+		limit: YellowChallengePeriodLimitId.MinimumSeconds,
 		seconds: 60 * 60,
 	},
 	{
-		limit: YellowChallengePeriodLimit.MaximumSeconds,
+		limit: YellowChallengePeriodLimitId.MaximumSeconds,
 		seconds: 7 * 24 * 60 * 60,
 	},
-] as const satisfies readonly YellowChallengePeriodLimitEntry[]
+] as const satisfies readonly YellowChallengePeriodLimit[]
 
 export const yellowClearnodeEndpointByEnvironment: Partial<
 	Record<YellowEnvironment, string>
@@ -122,7 +122,7 @@ export const yellowDeploymentByChainId: Partial<
 )
 
 export const yellowChallengePeriodByLimit: Partial<
-	Record<YellowChallengePeriodLimit, number>
+	Record<YellowChallengePeriodLimitId, number>
 > = Object.fromEntries(
 	yellowChallengePeriodLimits.map((entry) => [entry.limit, entry.seconds]),
 )
@@ -136,11 +136,11 @@ export const CLEARNODE_WS_URL_SANDBOX =
 	yellowClearnodeEndpointByEnvironment[YellowEnvironment.Sandbox]
 
 export const CHALLENGE_PERIOD =
-	yellowChallengePeriodByLimit[YellowChallengePeriodLimit.DefaultSeconds]
+	yellowChallengePeriodByLimit[YellowChallengePeriodLimitId.DefaultSeconds]
 
 export const CHALLENGE_PERIOD_MIN_SECONDS =
-	yellowChallengePeriodByLimit[YellowChallengePeriodLimit.MinimumSeconds]
+	yellowChallengePeriodByLimit[YellowChallengePeriodLimitId.MinimumSeconds]
 
 export const CHALLENGE_PERIOD_MAX_SECONDS =
-	yellowChallengePeriodByLimit[YellowChallengePeriodLimit.MaximumSeconds]
+	yellowChallengePeriodByLimit[YellowChallengePeriodLimitId.MaximumSeconds]
 
