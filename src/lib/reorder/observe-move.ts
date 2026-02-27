@@ -50,7 +50,7 @@ export function observeMove(
 
 		let isFirstUpdate = true
 
-		function handleObserve(entries: IntersectionObserverEntry[]) {
+		function onObserve(entries: IntersectionObserverEntry[]) {
 			if (!isEnabled()) return
 			const ratio = entries[0]?.intersectionRatio ?? 0
 			if (ratio !== threshold) {
@@ -65,13 +65,13 @@ export function observeMove(
 		}
 
 		try {
-			io = new IntersectionObserver(handleObserve, {
+			io = new IntersectionObserver(onObserve, {
 				rootMargin,
 				threshold: Math.max(0, Math.min(1, threshold)) || 1,
 				root: root.ownerDocument ?? undefined,
 			})
 		} catch {
-			io = new IntersectionObserver(handleObserve, { rootMargin, threshold })
+			io = new IntersectionObserver(onObserve, { rootMargin, threshold })
 		}
 		io.observe(element)
 	}
