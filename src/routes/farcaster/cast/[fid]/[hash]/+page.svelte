@@ -191,7 +191,7 @@
 	import EntityView from '$/components/EntityView.svelte'
 	import Media from '$/components/Media.svelte'
 	import PaginationPlaceholder from '$/components/PaginationPlaceholder.svelte'
-	import TreeNode from '$/components/TreeNode.svelte'
+	import Tree from '$/components/Tree.svelte'
 	import FarcasterCastView from '$/views/farcaster/FarcasterCast.svelte'
 </script>
 
@@ -243,19 +243,19 @@
 							<span id={castAnchorId(rootCast.$id.fid, rootCast.$id.hash)}>
 								<FarcasterCastView cast={rootCast} {userByFid} isCompact />
 							</span>
-							<TreeNode
-								nodes={getChildren(rootCast)}
+							<Tree
+								items={getChildren(rootCast)}
 								getKey={(n) => `${n.$id.fid}:${n.$id.hash}`}
 								{getChildren}
-								{isOpen}
-								{onOpenChange}
+								getIsOpen={isOpen}
+								onIsOpenChange={onOpenChange}
 							>
 								{#snippet Content({ node })}
 									<span id={castAnchorId(node.$id.fid, node.$id.hash)}>
 										<FarcasterCastView cast={node} {userByFid} isCompact />
 									</span>
 								{/snippet}
-							</TreeNode>
+							</Tree>
 						</div>
 					</details>
 				{/if}
@@ -304,19 +304,19 @@
 				{#if replies.length > 0}
 					<details open>
 						<summary>Replies ({replies.length})</summary>
-						<TreeNode
-							nodes={replies}
+						<Tree
+							items={replies}
 							getKey={(n) => `${n.$id.fid}:${n.$id.hash}`}
 							getChildren={getChildren}
-							isOpen={isOpen}
-							onOpenChange={onOpenChange}
+							getIsOpen={isOpen}
+							onIsOpenChange={onOpenChange}
 						>
 							{#snippet Content({ node })}
 								<span id={castAnchorId(node.$id.fid, node.$id.hash)}>
 									<FarcasterCastView cast={node} userByFid={userByFid} isCompact />
 								</span>
 							{/snippet}
-						</TreeNode>
+						</Tree>
 						<PaginationPlaceholder
 							hasMore={!!repliesNextToken}
 							onLoadMore={loadMoreReplies}

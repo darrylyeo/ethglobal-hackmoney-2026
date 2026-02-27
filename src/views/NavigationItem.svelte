@@ -60,7 +60,7 @@
 	import Address, { AddressFormat } from '$/views/Address.svelte'
 	import Icon from '$/components/Icon.svelte'
 	import SearchableText from '$/components/SearchableText.svelte'
-	import TreeNode from '$/components/TreeNode.svelte'
+	import Tree from '$/components/Tree.svelte'
 </script>
 
 
@@ -113,18 +113,18 @@
 		}}
 	/>
 
-	<TreeNode
-		nodes={items}
+	<Tree
+		items={items}
 		getKey={(item) => item.id}
 		getChildren={(item) => item.children ?? item.allChildren}
-		isOpen={(item) => treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false)}
-		onOpenChange={(item, isOpen) => {
-			treeOpenState.set(item.id, isOpen)
+		getIsOpen={(item) => treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false)}
+		onIsOpenChange={(item, open) => {
+			treeOpenState.set(item.id, open)
 		}}
-		isHidden={(item, isHidden) => (
+		getIsHidden={(item, getIsHidden) => (
 			!!searchQuery
 			&& !item.title.toLowerCase().includes(searchQuery)
-			&& ((item.children ?? item.allChildren)?.every((child) => isHidden(child, isHidden)) ?? true)
+			&& ((item.children ?? item.allChildren)?.every((child) => getIsHidden(child, getIsHidden)) ?? true)
 		)}
 		listTag="menu"
 		listAttrs={{ 'data-column': 'gap-0' }}
@@ -220,7 +220,7 @@
 				</span>
 			{/if}
 		{/snippet}
-	</TreeNode>
+	</Tree>
 </search>
 
 

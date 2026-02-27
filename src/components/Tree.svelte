@@ -21,24 +21,24 @@
 
 	// Props
 	let {
-		nodes,
+		items,
 		getKey,
 		getChildren,
-		isOpen,
-		onOpenChange,
-		isHidden,
+		getIsOpen,
+		onIsOpenChange,
+		getIsHidden,
 		Content,
 		listTag = 'ul' as _ListTag,
 		listAttrs,
 		detailsAttrs,
 		summaryAttrs,
 	}: {
-		nodes: _Node[]
+		items: _Node[]
 		getKey: (node: _Node) => _Key
 		getChildren: (node: _Node) => _Node[] | undefined
-		isOpen: IsOpen
-		onOpenChange?: (node: _Node, isOpen: boolean) => void
-		isHidden?: IsHidden
+		getIsOpen: IsOpen
+		onIsOpenChange?: (node: _Node, open: boolean) => void
+		getIsHidden?: IsHidden
 		Content: Snippet<[{ node: _Node }]>
 		listTag?: _ListTag
 		listAttrs?: Partial<SvelteHTMLElements[_ListTag]>
@@ -48,7 +48,7 @@
 
 
 	// Components
-	import TreeNode from '$/components/TreeNode.svelte'
+	import Tree from '$/components/Tree.svelte'
 </script>
 
 
@@ -56,34 +56,34 @@
 	this={listTag as ListTag}
 	{...listAttrs}
 >
-	{#each nodes as node (getKey(node))}
-		{@const childNodes = getChildren(node)}
+	{#each items as node (getKey(node))}
+		{@const childItems = getChildren(node)}
 
 		<li
-			{...isHidden && isHidden(node, isHidden) && {
+			{...getIsHidden && getIsHidden(node, getIsHidden) && {
 				hidden: true,
 				inert: true,
 			}}
 		>
-			{#if childNodes?.length}
+			{#if childItems?.length}
 				<details
 					{...detailsAttrs}
-					open={isOpen(node, isOpen)}
+					open={getIsOpen(node, getIsOpen)}
 					ontoggle={(e: Event & { currentTarget: HTMLDetailsElement }) => {
-						onOpenChange?.(node, e.currentTarget.open)
+						onIsOpenChange?.(node, e.currentTarget.open)
 					}}
 				>
 					<summary {...summaryAttrs}>
 						{@render Content({ node })}
 					</summary>
 
-					<TreeNode
-						nodes={childNodes}
+					<Tree
+						items={childItems}
 						{getKey}
 						{getChildren}
-						{isOpen}
-						{onOpenChange}
-						{isHidden}
+						{getIsOpen}
+						{onIsOpenChange}
+						{getIsHidden}
 						{Content}
 						{listTag}
 						{listAttrs}

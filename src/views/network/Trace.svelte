@@ -22,14 +22,14 @@
 
 	// Components
 	import TraceContent from '$/views/network/TraceContent.svelte'
-	import TreeNode from '$/components/TreeNode.svelte'
+	import Tree from '$/components/Tree.svelte'
 </script>
 
-<TreeNode
-	nodes={[trace]}
+<Tree
+	items={[trace]}
 	getKey={getKey}
 	getChildren={(t) => t.children}
-	isOpen={() => true}
+	getIsOpen={() => true}
 	listTag="ul"
 	listAttrs={{ 'data-column': '' }}
 	detailsAttrs={{ 'data-card': '' }}
@@ -38,4 +38,4 @@
 	{#snippet Content({ node }: { node: TraceType })}
 		<TraceContent trace={node} {chainId} />
 	{/snippet}
-</TreeNode>
+</Tree>

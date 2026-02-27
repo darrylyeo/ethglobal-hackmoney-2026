@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { TevmSimulationTraceCall } from '$/data/TevmSimulationResult.ts'
 
-	import TreeNode from '$/components/TreeNode.svelte'
+	import Tree from '$/components/Tree.svelte'
 
 
 	let {
@@ -28,15 +28,17 @@
 		)
 	}
 
-	const hasVisible = $derived.by(() => {
-		function visible(call: TevmSimulationTraceCall): boolean {
-			return (
-				matchesFilter(call) ||
-				(call.children ?? []).some(visible)
-			)
-		}
-		return trace.some(visible)
-	})
+	function isHiddenCall(
+		call: TevmSimulationTraceCall,
+		getIsHidden: (c: TevmSimulationTraceCall, getIsHidden: typeof isHiddenCall) => boolean,
+	): boolean {
+		return (
+			!matchesFilter(call) &&
+			((call.children ?? []).every((c) => getIsHidden(c, getIsHidden)) ?? true)
+		)
+	}
+
+	const hasVisible = $derived(trace.some((call) => !isHiddenCall(call, isHiddenCall)))
 </script>
 
 <div data-simulation-trace data-column>
@@ -66,15 +68,12 @@
 	{:else if !hasVisible}
 		<p data-text="muted">No matching entries.</p>
 	{:else}
-		<TreeNode
-			nodes={trace}
+		<Tree
+			items={trace}
 			getKey={(c) => c.to + c.data + (c.gasUsed ?? '')}
 			getChildren={(c) => c.children}
-			isOpen={() => true}
-			isHidden={(call, isHidden) =>
-				!matchesFilter(call) &&
-				((call.children ?? []).every((c) => isHidden(c, isHidden)) ?? true)
-			}
+			getIsOpen={() => true}
+			getIsHidden={isHiddenCall}
 			listTag="ul"
 			listAttrs={{ 'data-column': '', style: 'list-style: none; padding: 0;' }}
 			detailsAttrs={{}}
@@ -101,7 +100,7 @@
 					{/if}
 				</div>
 			{/snippet}
-		</TreeNode>
+		</Tree>
 	{/if}
 </div>
 
