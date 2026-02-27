@@ -1,10 +1,11 @@
 <script lang="ts">
 	// Types/constants
-	import type { RoomPeerRow } from '$/collections/PartykitRoomPeers.ts'
-	import type { SiweChallengeRow } from '$/collections/SiweChallenges.ts'
-	import type { VerificationRow } from '$/collections/SiweVerifications.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { RoomPeer } from '$/data/RoomPeer.ts'
+	import type { SiweChallenge } from '$/data/SiweChallenge.ts'
+	import type { Verification } from '$/data/Verification.ts'
 	import type { EIP1193Provider } from '$/lib/rooms/siwe.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { VerificationStatus } from '$/data/Verification.ts'
 	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'
 	import { siweChallengesCollection } from '$/collections/SiweChallenges.ts'
@@ -21,7 +22,7 @@
 		roomId,
 		provider,
 	}: {
-		peer: RoomPeerRow
+		peer: WithSource<RoomPeer>
 		roomId: string
 		provider: EIP1193Provider | null
 	} = $props()
@@ -82,7 +83,7 @@
 		(challengesQuery.data ?? [])
 			.map(({ siweChallenge }) => siweChallenge)
 			.filter(
-				(ch: SiweChallengeRow) =>
+				(ch: WithSource<SiweChallenge>) =>
 					ch.toPeerId === peer.peerId &&
 					ch.fromPeerId === roomState.peerId &&
 					!ch.signature,
@@ -94,7 +95,7 @@
 	// Functions
 	const getMyVerification = (
 		address: `0x${string}`,
-	): VerificationRow | undefined =>
+	): WithSource<Verification> | undefined =>
 		roomState.peerId == null ?
 			undefined
 		: (
@@ -110,7 +111,7 @@
 
 
 	// Actions
-	const signChallenge = async (challenge: SiweChallengeRow) => {
+	const signChallenge = async (challenge: WithSource<SiweChallenge>) => {
 		if (!provider) return
 		try {
 			const signature = await signSiweMessage({

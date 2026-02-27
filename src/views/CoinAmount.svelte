@@ -1,6 +1,7 @@
 <script lang="ts" generics="_CoinType extends CoinInstance = CoinInstance">
 	// Types/constants
-	import type { StorkPriceRow } from '$/collections/StorkPrices.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { StorkPrice } from '$/data/StorkPrice.ts'
 	import { IconShape } from '$/components/Icon.svelte'
 	import { CoinInstanceType, type CoinInstance } from '$/constants/coin-instances.ts'
 	import { coinById } from '$/constants/coins.ts'
@@ -20,7 +21,7 @@
 		amount?: bigint
 		isDraggable?: boolean
 		showName?: boolean
-		priceRow?: StorkPriceRow | undefined
+		priceRow?: WithSource<StorkPrice> | undefined
 		showPriceTooltip?: boolean
 	} = $props()
 

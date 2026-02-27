@@ -2,7 +2,7 @@
 	// Types/constants
 
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { networksCollection } from '$/collections/Networks.ts'
 	import { coinsCollection } from '$/collections/Coins.ts'

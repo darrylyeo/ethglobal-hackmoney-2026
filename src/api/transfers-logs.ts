@@ -14,7 +14,7 @@ import {
 import { SQD_DATASETS_BY_CHAIN_ID } from '$/constants/sqd-datasets.ts'
 import { ChainId } from '$/constants/networks.ts'
 import { streamSqdEvm } from '$/api/sqd.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import { normalizeAddress } from '$/lib/address.ts'
 import { type ChainContract, TIME_PERIODS, periodToRange } from '$/api/transfers-indexer.ts'
 import { erc20InstancesByCoinId } from '$/constants/coin-instances.ts'
@@ -245,7 +245,7 @@ async function resolveBlockRange(
 }
 
 export type NormalizedTransferEventWithSource = NormalizedTransferEvent & {
-	$source: DataSource
+	$source: DataSourceId
 }
 
 /**
@@ -283,7 +283,7 @@ export async function fetchTransferEventsForPeriod(
 							r.range.fromBlock,
 							r.range.toBlock,
 						)
-						return events.map((e) => ({ ...e, $source: DataSource.Sqd }))
+						return events.map((e) => ({ ...e, $source: DataSourceId.Sqd }))
 					} catch {
 						// fall through to Voltaire
 					}
@@ -296,7 +296,7 @@ export async function fetchTransferEventsForPeriod(
 					r.range.toBlock,
 					rpcUrl,
 				)
-				return events.map((e) => ({ ...e, $source: DataSource.Voltaire }))
+				return events.map((e) => ({ ...e, $source: DataSourceId.Voltaire }))
 			},
 		),
 	)

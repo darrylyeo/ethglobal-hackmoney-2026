@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { FarcasterUserRow } from '$/collections/FarcasterUsers.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { FarcasterUser } from '$/data/FarcasterUser.ts'
 	import type { Sort } from '$/components/Sorts.svelte'
 	import {
 		ensureFollowersForUser,
@@ -49,7 +50,7 @@
 		(linksQuery.data ?? []).map(({ link }) => link as { $id: { sourceFid: number; targetFid: number } }),
 	)
 	const allUsers = $derived(
-		(usersQuery.data ?? []).map(({ farcasterUser: user }) => user) as FarcasterUserRow[],
+		(usersQuery.data ?? []).map(({ farcasterUser: user }) => user) as WithSource<FarcasterUser>[],
 	)
 	const usernameFilters = $derived(
 		[...new Set(allUsers.map((u) => u.username ?? `fid:${u.$id.fid}`).filter(Boolean))]
@@ -57,7 +58,7 @@
 			.map((username) => ({
 				id: username,
 				label: username.startsWith('fid:') ? username : `@${username}`,
-				filterFunction: (user: FarcasterUserRow) =>
+				filterFunction: (user: WithSource<FarcasterUser>) =>
 					(user.username ?? `fid:${user.$id.fid}`) === username,
 			})),
 	)
@@ -70,7 +71,7 @@
 				{
 					id: `followed-by:${connFid}`,
 					label: `Followed by ${label}`,
-					filterFunction: (u: FarcasterUserRow) =>
+					filterFunction: (u: WithSource<FarcasterUser>) =>
 						allLinks.some(
 							(l) =>
 								l.$id.sourceFid === connFid && l.$id.targetFid === u.$id.fid,
@@ -79,7 +80,7 @@
 				{
 					id: `following:${connFid}`,
 					label: `Following ${label}`,
-					filterFunction: (u: FarcasterUserRow) =>
+					filterFunction: (u: WithSource<FarcasterUser>) =>
 						allLinks.some(
 							(l) =>
 								l.$id.sourceFid === u.$id.fid && l.$id.targetFid === connFid,
@@ -180,7 +181,7 @@
 							label: 'Following (low first)',
 							compare: (a, b) => followingCount(a.$id.fid) - followingCount(b.$id.fid),
 						},
-					] as Sort<FarcasterUserRow, FarcasterUserSort>[]}
+					] as Sort<WithSource<FarcasterUser>, FarcasterUserSort>[]}
 					defaultSortId={FarcasterUserSort.UsernameAsc}
 					getKey={(u) => String(u.$id.fid)}
 					bind:displayCount

@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { LlmConnectionRow } from '$/collections/LlmConnections.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { LlmConnection } from '$/data/LlmConnection.ts'
 	import { getModelsForConnection } from '$/api/llm/connection-provider.ts'
 
 
@@ -14,7 +15,7 @@
 		ariaLabel = 'Model',
 		...rootProps
 	}: {
-		connections: readonly LlmConnectionRow[]
+		connections: readonly WithSource<LlmConnection>[]
 		value?: string
 		placeholder?: string
 		disabled?: boolean

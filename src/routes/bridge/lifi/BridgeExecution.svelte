@@ -6,7 +6,8 @@
 		BridgeTransactionStatus,
 		type Transaction$Id,
 	} from '$/data/Transaction.ts'
-	import type { WalletRow } from '$/collections/Wallets.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { Wallet } from '$/data/Wallet.ts'
 	import {
 		BridgeOverallStatus,
 		createInitialStatus,
@@ -36,7 +37,7 @@
 		onExecute,
 	}: {
 		route: BridgeRoute,
-		walletRow: WalletRow,
+		walletRow: WithSource<Wallet>,
 		walletAddress: `0x${string}`,
 		fromChainId: number,
 		toChainId: number,

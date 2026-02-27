@@ -14,10 +14,12 @@
 	"
 >
 	// Types/constants
+	import type { DataSourceId } from '$/constants/data-sources.ts'
 	import type { Entity, EntityId, EntityType } from '$/data/$EntityType.ts'
 	import type { Snippet } from 'svelte'
 	import { stringify } from 'devalue'
 	import { EntityType as EntityTypeEnum, entityTypes } from '$/data/$EntityType.ts'
+	import { formatSourceList } from '$/lib/formatSourceList.ts'
 
 
 	// Props
@@ -40,6 +42,8 @@
 		AfterTitle,
 		BeforeAnnotation,
 		children,
+		sources = [],
+		sourceLinks = [],
 		...rest
 	}: {
 		entityType: _EntityType
@@ -59,6 +63,8 @@
 		AfterTitle?: Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
 		BeforeAnnotation?: Snippet<[{ entity: _Entity | undefined; entityType: _EntityType }]>
 		children?: Snippet
+		sources?: DataSourceId[]
+		sourceLinks?: Array<{ label: string; href: string }>
 		[key: string]: unknown
 	} = $props()
 
@@ -77,6 +83,11 @@
 	const articleId = $derived(
 		`${entityType}:${entityId != null ? stringify(entityId) : idSerialized}`,
 	)
+	const showFooter = $derived(
+		layout !== EntityLayout.ContentOnly &&
+		((sources?.length ?? 0) > 0 || (sourceLinks?.length ?? 0) > 0),
+	)
+	const sourcesFormatted = $derived(formatSourceList(sources ?? []))
 
 
 	// Components
@@ -180,6 +191,29 @@
 				</div>
 			{/if}
 		</Collapsible>
+		{#if showFooter}
+			<footer class="entity-footer" data-column="gap-2">
+				{#if (sources?.length ?? 0) > 0}
+					<p data-text="muted">
+						Data from: {sourcesFormatted}
+					</p>
+				{/if}
+				{#if (sourceLinks?.length ?? 0) > 0}
+					<nav aria-label="Source links" data-row="wrap gap-2">
+						{#each sourceLinks as link}
+							<a
+								href={link.href}
+								target="_blank"
+								rel="noopener noreferrer"
+								data-link
+							>
+								{link.label}
+							</a>
+						{/each}
+					</nav>
+				{/if}
+			</footer>
+		{/if}
 	</article>
 {/if}
 
@@ -210,5 +244,11 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.35em;
+	}
+
+	.entity-footer {
+		margin-top: 1em;
+		padding-top: 1em;
+		border-top: 1px solid var(--color-border);
 	}
 </style>

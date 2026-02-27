@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { Actor$Id } from '$/data/Actor.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
 	import { partykitRoomsCollection } from '$/collections/PartykitRooms.ts'
 	import { sharedAddressesCollection } from '$/collections/SharedAddresses.ts'

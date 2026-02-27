@@ -2,7 +2,7 @@
 	// Types/constants
 	import type { Actor$Id } from '$/data/Actor.ts'
 	import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { stringify } from 'devalue'
 	import { formatSmallestToDecimal } from '$/lib/format.ts'

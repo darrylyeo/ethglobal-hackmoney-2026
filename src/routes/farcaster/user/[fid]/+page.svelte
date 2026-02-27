@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { FarcasterCast } from '$/data/FarcasterCast.ts'
 	import { LINK_TYPE_FOLLOW } from '$/api/farcaster/index.ts'
 	import {
 		ensureCastsByMention,
@@ -84,9 +85,9 @@
 			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user]),
 		),
 	)
-	const allCasts = $derived((castsQuery.data ?? []).map(({ row: cast }) => cast as FarcasterCastRow))
+	const allCasts = $derived((castsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>))
 	const allCastsFromDb = $derived(
-		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as FarcasterCastRow),
+		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>),
 	)
 	const links = $derived(
 		(linksQuery.data ?? []).map(({ row: link }) => link as { $id: { sourceFid: number; targetFid: number; linkType: string } }),

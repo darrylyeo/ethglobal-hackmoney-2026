@@ -10,7 +10,7 @@
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { ZEN_DEFAULT_CONNECTION_ID } from '$/constants/opencode-zen.ts'
 	import { PUBLIC_OPENCODE_API_KEY } from '$env/static/public'
 	import { agentChatTreesCollection } from '$/collections/AgentChatTrees.ts'
@@ -95,7 +95,7 @@
 									label: 'OpenCode Zen',
 									createdAt: 0,
 									updatedAt: 0,
-									$source: DataSource.Local,
+									$source: DataSourceId.Local,
 								},
 							]
 						: []),

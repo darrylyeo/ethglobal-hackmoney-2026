@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
-	import type { FarcasterUserRow } from '$/collections/FarcasterUsers.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { FarcasterCast } from '$/data/FarcasterCast.ts'
+	import type { FarcasterUser } from '$/data/FarcasterUser.ts'
 	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 
 
@@ -11,8 +12,8 @@
 		userByFid,
 		isCompact = false,
 	}: {
-		cast: FarcasterCastRow
-		userByFid: Map<number, FarcasterUserRow>
+		cast: WithSource<FarcasterCast>
+		userByFid: Map<number, WithSource<FarcasterUser>>
 		isCompact?: boolean
 	} = $props()
 

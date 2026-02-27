@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { FarcasterChannelRow } from '$/collections/FarcasterChannels.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { FarcasterChannel } from '$/data/FarcasterChannel.ts'
 	import type { Sort } from '$/components/Sorts.svelte'
 	import { farcasterCastsCollection } from '$/collections/FarcasterCasts.ts'
 	import {
@@ -10,7 +11,7 @@
 		loadMoreChannels,
 	} from '$/collections/FarcasterChannels.ts'
 	import { useFarcasterConnections } from '$/collections/FarcasterConnections.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { farcasterComboboxFilterGroup } from '$/lib/farcaster-filters.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
@@ -33,7 +34,7 @@
 		(q) =>
 			q
 				.from({ row: farcasterChannelsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.Farcaster))
+				.where(({ row }) => eq(row.$source, DataSourceId.Farcaster))
 				.select(({ row }) => ({ row })),
 		[],
 	)
@@ -56,13 +57,13 @@
 		),
 	)
 	const allChannels = $derived(
-		(channelsQuery.data ?? []).map(({ row: channel }) => channel) as FarcasterChannelRow[],
+		(channelsQuery.data ?? []).map(({ row: channel }) => channel) as WithSource<FarcasterChannel>[],
 	)
 	const nameFilters = $derived(
 		[...new Set(allChannels.map((c) => c.name))].sort().map((name) => ({
 			id: name,
 			label: name,
-			filterFunction: (ch: FarcasterChannelRow) => (ch.name === name),
+			filterFunction: (ch: WithSource<FarcasterChannel>) => (ch.name === name),
 		})),
 	)
 	const connectionFilters = $derived(
@@ -71,7 +72,7 @@
 					{
 						id: 'has-connected-casts',
 						label: 'Has casts from connected account',
-						filterFunction: (ch: FarcasterChannelRow) =>
+						filterFunction: (ch: WithSource<FarcasterChannel>) =>
 							!!(ch.url && connectedChannelUrls.has(ch.url)),
 					},
 				]
@@ -148,7 +149,7 @@
 							label: 'Followers (low first)',
 							compare: (a, b) => (a.followerCount ?? 0) - (b.followerCount ?? 0),
 						},
-					] as Sort<FarcasterChannelRow, FarcasterChannelSort>[]}
+					] as Sort<WithSource<FarcasterChannel>, FarcasterChannelSort>[]}
 					defaultSortId={FarcasterChannelSort.NameAsc}
 					getKey={(ch) => ch.$id.id}
 					bind:displayCount

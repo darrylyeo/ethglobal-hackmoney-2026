@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
-	import type { FarcasterUserRow } from '$/collections/FarcasterUsers.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { FarcasterCast } from '$/data/FarcasterCast.ts'
+	import type { FarcasterUser } from '$/data/FarcasterUser.ts'
 	import type { ItemsListPagination } from '$/components/ItemsList.types.ts'
 
 
@@ -17,10 +18,10 @@
 		pagination,
 	}: {
 		title: string
-		items: Set<FarcasterCastRow>
+		items: Set<WithSource<FarcasterCast>>
 		loaded: number
 		total?: number
-		userByFid: Map<number, FarcasterUserRow>
+		userByFid: Map<number, WithSource<FarcasterUser>>
 		placeholderKeys?: Set<string | [number, number]>
 		placeholderText?: string
 		pagination?: ItemsListPagination
@@ -30,7 +31,7 @@
 	// Functions
 	import { castAnchorId } from '$/lib/farcaster-paths.ts'
 
-	const getKey = (c: FarcasterCastRow) => `${c.$id.fid}:${c.$id.hash}`
+	const getKey = (c: WithSource<FarcasterCast>) => `${c.$id.fid}:${c.$id.hash}`
 
 
 	// Components

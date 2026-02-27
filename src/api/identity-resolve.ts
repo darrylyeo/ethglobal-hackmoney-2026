@@ -4,7 +4,7 @@
  */
 
 import type { VoltaireProvider } from '$/api/voltaire.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import {
 	IdentityInputKind,
 	identityResolversByKind,
@@ -237,7 +237,7 @@ export async function resolveIdentity(
 		kind,
 		chainId,
 		resolverId: resolver.id,
-		source: DataSource.Voltaire,
+		source: DataSourceId.Voltaire,
 		updatedAt: now,
 	}
 	if (kind === IdentityInputKind.EnsName) {

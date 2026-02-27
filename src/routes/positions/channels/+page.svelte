@@ -6,7 +6,7 @@
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
 	import { closeChannel, challengeChannel, openChannel, sendTransfer } from '$/api/yellow.ts'
 	import { getUsdcAddress } from '$/api/lifi.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 
 
 	// Context

@@ -9,7 +9,7 @@ import {
 	CoinInstanceType,
 } from '$/constants/coin-instances.ts'
 import { CoinId } from '$/constants/coins.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import { ChainId } from '$/constants/networks.ts'
 import { BridgeRouteStepType } from '$/data/BridgeRoute.ts'
 import {
@@ -300,7 +300,7 @@ export async function getRoutesForUsdcBridge(
 	const sdk = await getLifiSdk()
 	return await queryClient.fetchQuery({
 		queryKey: [
-			DataSource.LiFi,
+			DataSourceId.LiFi,
 			'routes',
 			fromChain,
 			toChain,
@@ -376,7 +376,7 @@ export async function fetchQuoteCached(
 	const { fromChain, toChain, fromAmount, toAddress, slippage = 0.005 } = params
 	return await queryClient.fetchQuery({
 		queryKey: [
-			DataSource.LiFi,
+			DataSourceId.LiFi,
 			'quote',
 			fromChain,
 			toChain,

@@ -281,7 +281,7 @@ export async function loadArchitectureGraph() {
 		priority: 'secondary',
 		details: {
 			purpose: 'Attribution for LiFi, CCTP, Voltaire, Stork, and more',
-			tech: 'DataSource enum',
+			tech: 'DataSourceId enum',
 		},
 	},
 	{

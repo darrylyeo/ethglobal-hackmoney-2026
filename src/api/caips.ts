@@ -8,7 +8,7 @@ import {
 	parseFrontmatter,
 	stripFrontmatter,
 } from '$/api/frontmatter.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import type { CaipEntry } from '$/data/CaipEntry.ts'
 
 const CAIPS_API = 'https://api.github.com/repos/ChainAgnostic/CAIPs/contents/CAIPs?ref=main'
@@ -60,7 +60,7 @@ export const fetchCaipEntries = async (): Promise<CaipEntry[]> => {
 					type,
 					url: `${OFFICIAL_BASE}${caipNum}`,
 					...(created ? { created } : {}),
-					$source: DataSource.Caips,
+					$source: DataSourceId.Caips,
 				} satisfies CaipEntry
 			}),
 		)

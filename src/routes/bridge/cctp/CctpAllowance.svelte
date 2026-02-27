@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Types/constants
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 
 
 	// Context

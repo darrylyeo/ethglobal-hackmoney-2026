@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 

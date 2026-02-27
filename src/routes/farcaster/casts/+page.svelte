@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
-	import type { FarcasterUserRow } from '$/collections/FarcasterUsers.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { FarcasterCast } from '$/data/FarcasterCast.ts'
+	import type { FarcasterUser } from '$/data/FarcasterUser.ts'
 	import type { Sort } from '$/components/Sorts.svelte'
 	import { farcasterCastsCollection } from '$/collections/FarcasterCasts.ts'
 	import { useFarcasterConnections } from '$/collections/FarcasterConnections.ts'
@@ -24,19 +25,19 @@
 		{
 			id: 'has-embeds',
 			label: 'Has embeds',
-			filterFunction: (c: FarcasterCastRow) =>
+			filterFunction: (c: WithSource<FarcasterCast>) =>
 				(c.embeds?.length ?? 0) > 0,
 		},
 		{
 			id: 'has-quote',
 			label: 'Has quote',
-			filterFunction: (c: FarcasterCastRow) =>
+			filterFunction: (c: WithSource<FarcasterCast>) =>
 				(c.embeds?.some((e) => e.castId) ?? false),
 		},
 		{
 			id: 'has-url',
 			label: 'Has URL embed',
-			filterFunction: (c: FarcasterCastRow) =>
+			filterFunction: (c: WithSource<FarcasterCast>) =>
 				(c.embeds?.some((e) => e.url) ?? false),
 		},
 	]
@@ -65,11 +66,11 @@
 		),
 	)
 	const allCasts = $derived(
-		(castsQuery.data ?? []).map(({ row: cast }) => cast) as FarcasterCastRow[],
+		(castsQuery.data ?? []).map(({ row: cast }) => cast) as WithSource<FarcasterCast>[],
 	)
 	const userByFid = $derived(
 		new Map(
-			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user as FarcasterUserRow]),
+			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user as WithSource<FarcasterUser>]),
 		),
 	)
 	const fidOptions = $derived(
@@ -89,14 +90,14 @@
 		fidOptions.map(([fid, label]) => ({
 			id: String(fid),
 			label,
-			filterFunction: (cast: FarcasterCastRow) => (cast.$id.fid === fid),
+			filterFunction: (cast: WithSource<FarcasterCast>) => (cast.$id.fid === fid),
 		})),
 	)
 	const channelFilters = $derived(
 		parentUrlOptions.map((url) => ({
 			id: url,
 			label: url.replace(/^https?:\/\//, '').replace(/\/$/, ''),
-			filterFunction: (cast: FarcasterCastRow) => (cast.parentUrl === url),
+			filterFunction: (cast: WithSource<FarcasterCast>) => (cast.parentUrl === url),
 		})),
 	)
 	const filterGroups = $derived([
@@ -111,19 +112,19 @@
 
 
 	// Functions
-	const replyCount = (cast: FarcasterCastRow) =>
+	const replyCount = (cast: WithSource<FarcasterCast>) =>
 		allCasts.filter(
 			(c) =>
 				c.parentFid === cast.$id.fid && c.parentHash === cast.$id.hash,
 		).length
-	const engagementScore = (c: FarcasterCastRow) =>
+	const engagementScore = (c: WithSource<FarcasterCast>) =>
 		(c.likeCount ?? 0) + (c.recastCount ?? 0) + replyCount(c)
-	const trendingScore24h = (c: FarcasterCastRow) => {
+	const trendingScore24h = (c: WithSource<FarcasterCast>) => {
 		const ageHours = Math.max(0, (Date.now() - c.timestamp) / (3600 * 1000))
 		const decay = 1 / (1 + ageHours / 12)
 		return engagementScore(c) * decay
 	}
-	const viralityScore = (c: FarcasterCastRow) =>
+	const viralityScore = (c: WithSource<FarcasterCast>) =>
 		(c.recastCount ?? 0) * 2 + (c.likeCount ?? 0)
 
 
@@ -196,7 +197,7 @@
 							label: 'Recasts (high first)',
 							compare: (a, b) => (b.recastCount ?? 0) - (a.recastCount ?? 0),
 						},
-					] as Sort<FarcasterCastRow, FarcasterCastSort>[]}
+					] as Sort<WithSource<FarcasterCast>, FarcasterCastSort>[]}
 					defaultSortId={FarcasterCastSort.Newest}
 					getKey={(c) => `${c.$id.fid}:${c.$id.hash}`}
 					filter={(c) => !c.parentFid || !c.parentHash}

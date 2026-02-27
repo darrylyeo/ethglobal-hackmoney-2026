@@ -42,7 +42,7 @@
 	import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'
 	import { stateChannelTransfersCollection } from '$/collections/StateChannelTransfers.ts'
 	import { entitySourcesCollection } from '$/collections/_EntitySources.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import {
 		NetworkType,
 		networksByChainId,

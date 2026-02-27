@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { Actor$Id } from '$/data/Actor.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { walletConnectionsCollection } from '$/collections/WalletConnections.ts'
 	import { walletsCollection } from '$/collections/Wallets.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'

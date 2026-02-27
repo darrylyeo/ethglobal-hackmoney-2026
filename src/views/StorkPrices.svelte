@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Types/constants
-	import { DataSource } from '$/constants/data-sources.ts'
-	import type { StorkPriceRow } from '$/collections/StorkPrices.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { StorkPrice } from '$/data/StorkPrice.ts'
 
 
 	// Context
@@ -43,7 +44,7 @@
 		},
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
-	const prices = $derived<StorkPriceRow[]>(
+	const prices = $derived<WithSource<StorkPrice>[]>(
 		(pricesQuery.data ?? []).map(({ price }) => price),
 	)
 

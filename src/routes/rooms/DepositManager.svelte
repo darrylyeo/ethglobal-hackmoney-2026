@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { EIP1193Provider } from '$/lib/wallet.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { getUsdcAddress } from '$/api/lifi.ts'
 	import { depositToCustody, withdrawFromCustody } from '$/api/yellow.ts'
 	import { stateChannelDepositsCollection } from '$/collections/StateChannelDeposits.ts'

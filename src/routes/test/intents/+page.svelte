@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { IntentDragPayload } from '$/constants/intents.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { intents, IntentPlacement } from '$/constants/intents.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { EntityType } from '$/data/$EntityType.ts'

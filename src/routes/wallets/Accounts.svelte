@@ -5,8 +5,9 @@
 		ReadOnlyWalletRow,
 		WalletConnectionRow,
 	} from '$/collections/WalletConnections.ts'
-	import type { WalletRow } from '$/collections/Wallets.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { Wallet } from '$/data/Wallet.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { NetworkEnvironment } from '$/constants/network-environment.ts'
 	import {
 		NetworkType,
@@ -17,7 +18,7 @@
 	import { stringify } from 'devalue'
 
 	type WalletConnectItem =
-		| { kind: 'wallet'; wallet: WalletRow }
+		| { kind: 'wallet'; wallet: WithSource<Wallet> }
 		| { kind: 'empty'; label: string }
 	type WalletConnectEntry =
 		| {
@@ -77,7 +78,7 @@
 	const wallets = $derived(
 		(walletsQuery.data ?? [])
 			.map(({ wallet }) => wallet)
-			.filter((w): w is WalletRow => !!w?.$id?.rdns),
+			.filter((w): w is WithSource<Wallet> => !!w?.$id?.rdns),
 	)
 	const walletsByRdns = $derived(new Map(wallets.map((w) => [w.$id.rdns, w])))
 
@@ -149,7 +150,7 @@
 		requestWalletConnection({ rdns }).catch(() => {})
 	const switchNetwork = (
 		connection: WalletConnectionRow,
-		wallet: WalletRow | ReadOnlyWalletRow,
+		wallet: WithSource<Wallet> | ReadOnlyWalletRow,
 		chainId: number,
 	) =>
 		connection.transport === WalletConnectionTransport.Eip1193 &&

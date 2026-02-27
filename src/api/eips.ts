@@ -4,7 +4,7 @@
  * https://github.com/ethereum/EIPs, https://github.com/ethereum/ercs, https://eips.ethereum.org/
  */
 
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import { ProposalType, type ProposalEntry } from '$/data/ProposalEntry.ts'
 import {
 	normalizeCreated,
@@ -90,7 +90,7 @@ const fetchEntriesFromRepo = async (
 					url: `${OFFICIAL_BASE}${eipNum}`,
 					type,
 					...(created ? { created } : {}),
-					$source: DataSource.Eips,
+					$source: DataSourceId.Eips,
 				} satisfies ProposalEntry
 			}),
 		)

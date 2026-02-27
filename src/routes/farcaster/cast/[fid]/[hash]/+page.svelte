@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { FarcasterCast } from '$/data/FarcasterCast.ts'
 	import {
 		ensureCast,
 		ensureCastAncestorChain,
@@ -59,9 +60,9 @@
 
 
 	// (Derived)
-	const cast = $derived(castQuery.data?.[0]?.row as FarcasterCastRow | undefined)
+	const cast = $derived(castQuery.data?.[0]?.row as WithSource<FarcasterCast> | undefined)
 	const allCasts = $derived(
-		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as FarcasterCastRow),
+		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>),
 	)
 	const replies = $derived(
 		allCasts.filter((c) =>
@@ -74,20 +75,20 @@
 	// Functions
 	const findInAll = (fid: number, h: `0x${string}`) =>
 		allCasts.find((c) => c.$id.fid === fid && c.$id.hash === h)
-	const getChildren = (node: FarcasterCastRow) =>
+	const getChildren = (node: WithSource<FarcasterCast>) =>
 		allCasts.filter((c) =>
 			c.parentFid === node.$id.fid
 			&& c.parentHash === node.$id.hash,
 		)
-	const isOpen = (node: FarcasterCastRow) =>
+	const isOpen = (node: WithSource<FarcasterCast>) =>
 		openNodes.has(`${node.$id.fid}:${node.$id.hash}`)
 
 
 	// (Derived)
 	const ancestorChain = $derived.by(() => {
 		if (!cast?.parentFid || !cast?.parentHash) return []
-		const chain: FarcasterCastRow[] = []
-		let c: FarcasterCastRow | undefined = cast
+		const chain: WithSource<FarcasterCast>[] = []
+		let c: WithSource<FarcasterCast> | undefined = cast
 		while (c?.parentFid != null && c?.parentHash) {
 			const parent = findInAll(c.parentFid, c.parentHash)
 			if (!parent) break
@@ -126,7 +127,7 @@
 			.catch(() => {})
 			.finally(() => (isLoadingMoreReplies = false))
 	}
-	const onOpenChange = (node: FarcasterCastRow, open: boolean) => {
+	const onOpenChange = (node: WithSource<FarcasterCast>, open: boolean) => {
 		openNodes = new Set(openNodes)
 		if (open) {
 			openNodes.add(`${node.$id.fid}:${node.$id.hash}`)

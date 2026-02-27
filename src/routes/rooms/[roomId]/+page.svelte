@@ -2,7 +2,7 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import {

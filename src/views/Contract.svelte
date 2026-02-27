@@ -3,7 +3,7 @@
 	import type { ChainId } from '$/constants/networks.ts'
 	import type { Contract$Id, ContractAbi } from '$/data/Contract.ts'
 	import { EntityLayout } from '$/components/EntityView.svelte'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { contractsCollection, fetchContract } from '$/collections/Contracts.ts'
 	import {
@@ -145,7 +145,7 @@
 			<details data-card ontoggle={onSourceToggle}>
 				<summary>
 					<h3>Verified Source</h3>
-					<span data-text="annotation">{DataSource.Sourcify}</span>
+					<span data-text="annotation">{DataSourceId.Sourcify}</span>
 				</summary>
 				{#if sourceRow.metadata?.compiler}
 					<p data-text="muted">{sourceRow.metadata.compiler}</p>

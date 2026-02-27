@@ -2,7 +2,8 @@
 	// Types/constants
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute.ts'
-	import type { WalletRow } from '$/collections/Wallets.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+import type { Wallet } from '$/data/Wallet.ts'
 	import {
 		BridgeOverallStatus,
 		createInitialStatus,
@@ -22,7 +23,7 @@
 		USDC_MAX_AMOUNT,
 		USDC_MIN_AMOUNT,
 	} from '$/constants/bridge-limits.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 	import { slippagePresets } from '$/constants/slippage.ts'
 	import {
@@ -66,7 +67,7 @@
 		resolveNetwork(chainId)?.name ?? `Chain ${chainId}`
 	const isEip1193Wallet = (
 		wallet: ConnectedWallet | null,
-	): wallet is { wallet: WalletRow; connection: WalletConnectionEip1193 } =>
+	): wallet is { wallet: WithSource<Wallet>; connection: WalletConnectionEip1193 } =>
 		Boolean(
 			wallet &&
 			wallet.connection.transport === WalletConnectionTransport.Eip1193,

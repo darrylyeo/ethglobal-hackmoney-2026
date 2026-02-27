@@ -29,7 +29,7 @@ import {
 import { getCoinIdForCoinEntity } from '$/lib/coin-entity.ts'
 import { erc20TokenByNetwork, nativeCurrencyByNetwork } from '$/constants/coin-instances.ts'
 import { CoinId, coinById } from '$/constants/coins.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import { interopFormatConfig, toInteropName } from '$/constants/interop.ts'
 import { networksByChainId, NetworkType } from '$/constants/networks.ts'
 
@@ -261,7 +261,7 @@ export class NavigationItems {
 		(q) =>
 			q
 				.from({ row: partykitRoomsCollection })
-				.where(({ row }) => eq(row.$source, DataSource.PartyKit))
+				.where(({ row }) => eq(row.$source, DataSourceId.PartyKit))
 				.select(({ row }) => ({ row })),
 	)
 	readonly sessionsQuery = useLiveQuery(

@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { StorkPriceRow } from '$/collections/StorkPrices.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { StorkPrice } from '$/data/StorkPrice.ts'
 
 
 	// Props
@@ -9,7 +10,7 @@
 		priceRow,
 	}: {
 		symbol: string
-		priceRow: StorkPriceRow | null
+		priceRow: WithSource<StorkPrice> | null
 	} = $props()
 
 

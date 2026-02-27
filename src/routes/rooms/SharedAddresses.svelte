@@ -2,8 +2,9 @@
 	// Types/constants
 	import type { SharedAddress } from '$/data/SharedAddress.ts'
 	import { VerificationStatus } from '$/data/Verification.ts'
-	import type { VerificationRow } from '$/collections/SiweVerifications.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { Verification } from '$/data/Verification.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 
 
 	// Context
@@ -98,7 +99,7 @@
 			? getOrCreatePeerDisplayName()
 			: (peers.find((p) => p.peerId === peerId)?.displayName ??
 				peerId.slice(0, 8))
-	const getMyVerification = (s: SharedAddress): VerificationRow | undefined =>
+	const getMyVerification = (s: SharedAddress): WithSource<Verification> | undefined =>
 		roomState.peerId == null
 			? undefined
 			: [...verifications]

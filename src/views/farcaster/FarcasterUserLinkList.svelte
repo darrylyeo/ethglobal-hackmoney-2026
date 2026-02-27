@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { FarcasterUserRow } from '$/collections/FarcasterUsers.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { FarcasterUser } from '$/data/FarcasterUser.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 
 
@@ -18,7 +19,7 @@
 		title: string
 		links: Array<{ $id: { sourceFid: number; targetFid: number } }>
 		getFid: (link: { $id: { sourceFid: number; targetFid: number } }) => number
-		userByFid: Map<number, FarcasterUserRow>
+		userByFid: Map<number, WithSource<FarcasterUser>>
 		hasMore: boolean
 		onLoadMore: () => void
 		isLoading: boolean

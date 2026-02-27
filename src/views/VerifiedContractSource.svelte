@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { VerifiedContractSource$Id } from '$/data/VerifiedContractSource.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import {
 		fetchVerifiedContractSource,
 		verifiedContractSourcesCollection,
@@ -61,7 +61,7 @@
 
 <Collapsible
 	title="Verified Source"
-	annotation={DataSource.Sourcify}
+	annotation={DataSourceId.Sourcify}
 	detailsProps={{
 		'data-card': '',
 		ontoggle: onToggle,

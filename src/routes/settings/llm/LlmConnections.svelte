@@ -1,8 +1,9 @@
 <script lang="ts">
 	// Types/constants
 	import { getModelsForConnection } from '$/api/llm/connection-provider.ts'
-	import type { LlmConnectionRow } from '$/collections/LlmConnections.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { LlmConnection } from '$/data/LlmConnection.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import {
 		type LlmConnectionProviderType,
 		LlmConnectionProvider,
@@ -32,7 +33,7 @@
 
 	// (Derived)
 	const connections = $derived(
-		(connectionsQuery.data ?? []).map(({ llmConnection: connection }) => connection).filter(Boolean) as LlmConnectionRow[],
+		(connectionsQuery.data ?? []).map(({ llmConnection: connection }) => connection).filter(Boolean) as WithSource<LlmConnection>[],
 	)
 	const addItems = $derived(
 		(

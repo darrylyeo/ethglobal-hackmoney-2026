@@ -67,7 +67,8 @@
 
 
 	// State
-	import type { ActorCoinRow } from '$/collections/ActorCoins.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { ActorCoin } from '$/data/ActorCoin.ts'
 	import { actorCoinsCollection } from '$/collections/ActorCoins.ts'
 	import { fetchAllBalancesForAddress } from '$/collections/ActorCoins.ts'
 	import {
@@ -77,7 +78,7 @@
 	} from '$/collections/StorkPrices.ts'
 	import { tokenListCoinsCollection } from '$/collections/TokenListCoins.ts'
 	let activeFilters = $state(new Set<Filter<BalanceFilterItem, BalanceFilterId>>())
-	let sortedBalances = $state<ActorCoinRow[]>([])
+	let sortedBalances = $state<WithSource<ActorCoin>[]>([])
 
 
 	// (Derived)
@@ -354,20 +355,20 @@
 			{
 				id: ActorCoinSort.SymbolAsc,
 				label: 'Symbol A–Z',
-				compare: (a: ActorCoinRow, b: ActorCoinRow) =>
+				compare: (a: WithSource<ActorCoin>, b: WithSource<ActorCoin>) =>
 					a.symbol.localeCompare(b.symbol),
 			},
 			{
 				id: ActorCoinSort.SymbolDesc,
 				label: 'Symbol Z–A',
-				compare: (a: ActorCoinRow, b: ActorCoinRow) =>
+				compare: (a: WithSource<ActorCoin>, b: WithSource<ActorCoin>) =>
 					b.symbol.localeCompare(a.symbol),
 			},
 			{
 				id: ActorCoinSort.ValueDesc,
 				label: 'Value (high first)',
-				compare: (a: ActorCoinRow, b: ActorCoinRow) => {
-					const valueUsd = (x: ActorCoinRow) => {
+				compare: (a: WithSource<ActorCoin>, b: WithSource<ActorCoin>) => {
+					const valueUsd = (x: WithSource<ActorCoin>) => {
 						const aid = getStorkAssetIdForSymbol(x.symbol)
 						if (!aid) return 0n
 						const pr = getBestStorkPrice(
@@ -387,8 +388,8 @@
 			{
 				id: ActorCoinSort.ValueAsc,
 				label: 'Value (low first)',
-				compare: (a: ActorCoinRow, b: ActorCoinRow) => {
-					const valueUsd = (x: ActorCoinRow) => {
+				compare: (a: WithSource<ActorCoin>, b: WithSource<ActorCoin>) => {
+					const valueUsd = (x: WithSource<ActorCoin>) => {
 						const aid = getStorkAssetIdForSymbol(x.symbol)
 						if (!aid) return 0n
 						const pr = getBestStorkPrice(
@@ -405,7 +406,7 @@
 					return va > vb ? 1 : va < vb ? -1 : 0
 				},
 			},
-		] as Sort<ActorCoinRow, ActorCoinSort>[],
+		] as Sort<WithSource<ActorCoin>, ActorCoinSort>[],
 	)
 	const hasSortOptions = $derived(balanceSortOptions.length > 1)
 	const displayBalances = $derived(hasSortOptions ? sortedBalances : balances)

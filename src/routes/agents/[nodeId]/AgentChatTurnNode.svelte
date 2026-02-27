@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { LlmConnectionRow } from '$/collections/LlmConnections.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { LlmConnection } from '$/data/LlmConnection.ts'
 	import type { AgentChatTree } from '$/data/AgentChatTree.ts'
 	import type { AgentChatTurn } from '$/data/AgentChatTurn.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
@@ -23,7 +24,7 @@
 		turn: AgentChatTurn
 		allTurns: AgentChatTurn[]
 		tree: AgentChatTree
-		connections?: readonly LlmConnectionRow[]
+		connections?: readonly WithSource<LlmConnection>[]
 		requestUserInteraction?: (callback: () => Promise<unknown>) => Promise<unknown>
 		toolsForChat?: string[] | null
 	} = $props()

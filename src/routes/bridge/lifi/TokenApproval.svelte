@@ -9,7 +9,7 @@
 		setActorAllowance,
 		toActorAllowance$Id,
 	} from '$/collections/ActorAllowances.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { getTxPath } from '$/lib/network-paths.ts'
 
 

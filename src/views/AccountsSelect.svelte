@@ -3,7 +3,6 @@
 	import { dev } from '$app/environment'
 	import type {
 		ConnectedWallet,
-		ReadOnlyWalletRow,
 		WalletConnectionRow,
 	} from '$/collections/WalletConnections.ts'
 	import type {
@@ -36,7 +35,8 @@
 		disconnectWallet,
 		connectReadOnly,
 	} from '$/collections/WalletConnections.ts'
-	import type { WalletRow } from '$/collections/Wallets.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { Wallet } from '$/data/Wallet.ts'
 	type NetworkInfo = (typeof networks)[number]
 	type WalletMenuItem = {
 		kind: string
@@ -45,7 +45,7 @@
 		network?: NetworkInfo
 	}
 	const getWalletMenuEntries = (
-		wallet: WalletRow | ReadOnlyWalletRow,
+		wallet: WithSource<Wallet> | ReadOnlyWithSource<Wallet>,
 		connection: WalletConnectionEip1193 | WalletConnectionNone,
 		status: 'connected' | 'connecting' | 'error',
 	): WalletMenuEntry[] =>
@@ -121,7 +121,7 @@
 	type WalletConnectItem = {
 		kind: string
 		label?: string
-		wallet?: WalletRow
+		wallet?: WithSource<Wallet>
 	}
 	type WalletConnectEntry =
 		| {
@@ -170,7 +170,7 @@
 	const wallets = $derived(
 		(walletsQuery.data ?? [])
 			.map(({ wallet }) => wallet)
-			.filter((w): w is WalletRow => !!w?.$id?.rdns),
+			.filter((w): w is WithSource<Wallet> => !!w?.$id?.rdns),
 	)
 
 	$effect(() => {
@@ -337,7 +337,7 @@
 		setSelectedConnections(new Set(value ?? []))
 	const switchNetwork = (
 		connection: WalletConnectionEip1193 | WalletConnectionNone,
-		wallet: WalletRow | ReadOnlyWalletRow,
+		wallet: WithSource<Wallet> | ReadOnlyWithSource<Wallet>,
 		chainId: number,
 	) =>
 		connection.transport === WalletConnectionTransport.Eip1193 &&

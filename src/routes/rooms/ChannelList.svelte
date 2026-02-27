@@ -2,7 +2,7 @@
 	// Types/constants
 	import type { StateChannelRow } from '$/collections/StateChannels.ts'
 	import { closeChannel } from '$/api/yellow.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 
 
 	// Context

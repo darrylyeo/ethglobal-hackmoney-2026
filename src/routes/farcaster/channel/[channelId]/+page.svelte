@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Types/constants
-	import type { FarcasterCastRow } from '$/collections/FarcasterCasts.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { FarcasterCast } from '$/data/FarcasterCast.ts'
 	import {
 		ensureCastsForChannel,
 		farcasterCastsCollection,
@@ -13,7 +14,7 @@
 		ensureFarcasterUser,
 		farcasterUsersCollection,
 	} from '$/collections/FarcasterUsers.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
@@ -67,7 +68,7 @@
 		),
 	)
 	const castsByChannel = $derived(
-		(castsQuery.data ?? []).map(({ row: cast }) => cast as FarcasterCastRow),
+		(castsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>),
 	)
 	const rootCasts = $derived(
 		castsByChannel.filter((c) => !c.parentFid || !c.parentHash),

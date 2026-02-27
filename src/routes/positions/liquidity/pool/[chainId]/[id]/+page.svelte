@@ -4,7 +4,7 @@
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { fetchPoolFromSubgraph } from '$/api/uniswap-subgraph.ts'
 	import { uniswapPoolsCollection } from '$/collections/UniswapPools.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 	import { normalizeUniswapPool } from '$/collections/UniswapPoolsNormalize.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { and, eq } from '@tanstack/svelte-db'
@@ -53,7 +53,7 @@
 		void fetchPoolFromSubgraph({ chainId, poolId: idParam }).then(
 			(p) => {
 				if (p) {
-					const pool = { ...normalizeUniswapPool(p), $source: DataSource.Uniswap }
+					const pool = { ...normalizeUniswapPool(p), $source: DataSourceId.Uniswap }
 					const key = `${pool.$id.chainId}:${pool.$id.id}`
 					const existing = uniswapPoolsCollection.state.get(key)
 					if (existing) {

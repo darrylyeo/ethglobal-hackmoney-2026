@@ -1,8 +1,9 @@
 <script lang="ts">
 	// Types/constants
-	import type { SiweChallengeRow } from '$/collections/SiweChallenges.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
+	import type { SiweChallenge } from '$/data/SiweChallenge.ts'
 	import type { EIP1193Provider } from '$/lib/rooms/siwe.ts'
-	import { DataSource } from '$/constants/data-sources.ts'
+	import { DataSourceId } from '$/constants/data-sources.ts'
 
 
 	// Props
@@ -44,7 +45,7 @@
 	)
 
 	const canSign = $derived(provider != null)
-	const signChallenge = async (challenge: SiweChallengeRow) => {
+	const signChallenge = async (challenge: WithSource<SiweChallenge>) => {
 		if (!provider) return
 		try {
 			const signature = await signSiweMessage({
