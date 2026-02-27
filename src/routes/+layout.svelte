@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Profiles (boot/migrate before collections read from localStorage; browser-only)
 	import { browser } from '$app/environment'
+	import { onNavigate } from '$app/navigation'
 	import { ensureNetworksHydrated } from '$/collections/Networks.ts'
 	import { ensureCoinsHydrated } from '$/collections/Coins.ts'
 	import { ensureProfilesMeta } from '$/lib/profile.ts'
@@ -8,6 +9,17 @@
 		ensureProfilesMeta()
 		ensureNetworksHydrated()
 		ensureCoinsHydrated()
+		onNavigate((navigation) => {
+			if (!('startViewTransition' in document)) return
+			return new Promise<void>((resolve) => {
+				document
+					.startViewTransition(async () => {
+						await navigation.complete
+					})
+					.finished.then(resolve)
+					.catch(resolve)
+			})
+		})
 	}
 
 

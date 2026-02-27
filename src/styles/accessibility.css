@@ -37,4 +37,10 @@
 		animation: none !important;
 		background: var(--color-skeleton) !important;
 	}
+
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none !important;
+	}
 }
