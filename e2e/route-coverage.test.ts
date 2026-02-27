@@ -5,7 +5,7 @@
 
 import { APP_NAME } from '$/constants/app.ts'
 import { expect, test } from './fixtures/tevm.ts'
-import { addTevmWallet } from './support/test-setup.ts'
+import { addTevmWallet } from './support/wallet-mock.ts'
 
 test.describe('Home (/)', () => {
 	test('renders nav and key CTAs without errors', async ({ page }) => {

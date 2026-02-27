@@ -1,12 +1,11 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { addTevmWallet } from './support/wallet-mock.ts'
 import {
-	addLifiRoutesMock,
-	addLifiRoutesMockToContext,
-	addTevmWallet,
 	ensureWalletConnected,
-	selectProtocolOption,
 	selectChainOption,
-} from './support/test-setup.ts'
+	selectProtocolOption,
+} from './support/page-helpers.ts'
+import { addLifiRoutesMockToContext } from './support/api-mocks.ts'
 
 test.describe('E2E bridge flow', () => {
 	test.describe('happy path with tevm wallet', () => {

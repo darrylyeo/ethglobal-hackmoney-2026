@@ -1,11 +1,11 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { addTevmWallet } from './support/wallet-mock.ts'
 import {
-	addGatewayMocks,
-	addTevmWallet,
 	ensureWalletConnected,
 	selectChainOption,
 	selectProtocolOption,
-} from './support/test-setup.ts'
+} from './support/page-helpers.ts'
+import { addGatewayMocks } from './support/api-mocks.ts'
 
 test.describe('Gateway Bridge (Spec 074)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {

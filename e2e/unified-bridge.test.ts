@@ -1,10 +1,10 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { addTevmWallet } from './support/wallet-mock.ts'
 import {
-	addTevmWallet,
 	ensureWalletConnected,
-	selectProtocolOption,
 	selectChainOption,
-} from './support/test-setup.ts'
+	selectProtocolOption,
+} from './support/page-helpers.ts'
 
 test.describe('Unified Bridge (Spec 037)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {

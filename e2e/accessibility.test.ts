@@ -1,13 +1,15 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test } from './fixtures/tevm.ts'
+import { addTevmWallet } from './support/wallet-mock.ts'
+import {
+	ensureWalletConnected,
+	selectChainOption,
+	selectProtocolOption,
+} from './support/page-helpers.ts'
 import {
 	addLifiRoutesMock,
 	addLifiRoutesMockToContext,
-	addTevmWallet,
-	ensureWalletConnected,
-	selectProtocolOption,
-	selectChainOption,
-} from './support/test-setup.ts'
+} from './support/api-mocks.ts'
 
 test.describe('Accessibility (axe-core)', () => {
 	test('skip link is present and points to main', async ({ page }) => {

@@ -1,12 +1,14 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { addTevmWallet } from './support/wallet-mock.ts'
 import {
-	addLifiRoutesMock,
-	addLifiRoutesMockToContext,
-	addTevmWallet,
 	ensureWalletConnected,
 	selectChainOption,
 	selectProtocolOption,
-} from './support/test-setup.ts'
+} from './support/page-helpers.ts'
+import {
+	addLifiRoutesMock,
+	addLifiRoutesMockToContext,
+} from './support/api-mocks.ts'
 
 const isHexHash = (value: string | null): value is `0x${string}` =>
 	typeof value === 'string' && value.startsWith('0x')

@@ -1,11 +1,11 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { addTevmWallet } from './support/wallet-mock.ts'
 import {
-	addLifiRoutesMock,
-	addTevmWallet,
 	ensureWalletConnected,
-	selectProtocolOption,
 	selectChainOption,
-} from './support/test-setup.ts'
+	selectProtocolOption,
+} from './support/page-helpers.ts'
+import { addLifiRoutesMock } from './support/api-mocks.ts'
 
 test.describe('Bridge UI (Spec 004)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {

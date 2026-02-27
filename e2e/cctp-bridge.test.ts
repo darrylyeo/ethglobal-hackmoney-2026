@@ -1,11 +1,11 @@
 import { expect, test } from './fixtures/tevm.ts'
+import { addTevmWallet } from './support/wallet-mock.ts'
 import {
-	addCctpMocks,
-	addTevmWallet,
 	ensureWalletConnected,
 	selectChainOption,
 	selectProtocolOption,
-} from './support/test-setup.ts'
+} from './support/page-helpers.ts'
+import { addCctpMocks } from './support/api-mocks.ts'
 
 test.describe('CCTP Bridge (Spec 036)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {

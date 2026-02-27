@@ -59,7 +59,9 @@ All files below: one file per run; format to repo preferences (section spacing m
 - [x] `e2e/prompt-input.test.ts`
 - [x] `e2e/responsive.test.ts`
 - [x] `e2e/route-coverage.test.ts`
-- [x] `e2e/support/test-setup.ts`
+- [x] `e2e/support/api-mocks.ts`
+- [x] `e2e/support/page-helpers.ts`
+- [x] `e2e/support/wallet-mock.ts`
 - [x] `e2e/tevm-execution.test.ts`
 - [x] `e2e/unified-bridge.test.ts`
 - [x] `e2e/wallet.test.ts`

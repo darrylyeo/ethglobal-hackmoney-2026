@@ -4,7 +4,8 @@
  */
 
 import { expect, test } from './fixtures/tevm.ts'
-import { addTevmWallet, ensureWalletConnected } from './support/test-setup.ts'
+import { addTevmWallet } from './support/wallet-mock.ts'
+import { ensureWalletConnected } from './support/page-helpers.ts'
 
 const isHexHash = (value: string | null): value is `0x${string}` =>
 	typeof value === 'string' && value.startsWith('0x')
