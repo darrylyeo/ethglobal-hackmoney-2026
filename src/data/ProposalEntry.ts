@@ -4,7 +4,7 @@
  * Official link: https://eips.ethereum.org/EIPS/eip-{number}
  */
 
-import type { DataSource } from '$/constants/data-sources.ts'
+import type { DataSourceId } from '$/constants/data-sources.ts'
 
 export enum ProposalType {
 	Eip = 'Eip',
@@ -24,5 +24,5 @@ export type ProposalEntry = {
 	type: ProposalType
 	/** YYYY-MM-DD from frontmatter `created` (first date if comma-separated) */
 	created?: string
-	$source: DataSource
+	$source: DataSourceId
 }

@@ -3,7 +3,7 @@
  * Official link: https://chainagnostic.org/CAIPs/caip-{number}
  */
 
-import type { DataSource } from '$/constants/data-sources.ts'
+import type { DataSourceId } from '$/constants/data-sources.ts'
 
 export type CaipEntry$Id = { id: string }
 
@@ -17,5 +17,5 @@ export type CaipEntry = {
 	url: string
 	/** YYYY-MM-DD from frontmatter `created` (first date if comma-separated) */
 	created?: string
-	$source: DataSource
+	$source: DataSourceId
 }

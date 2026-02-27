@@ -1,4 +1,4 @@
-import type { DataSource } from '$/constants/data-sources.ts'
+import type { DataSourceId } from '$/constants/data-sources.ts'
 import type { Network$Id } from '$/data/Network.ts'
 
 export type EvmActorProfile$Id = {
@@ -10,5 +10,5 @@ export type EvmActorProfile = {
 	$id: EvmActorProfile$Id
 	primaryName?: string
 	avatarUrl?: string
-	$source: DataSource
+	$source: DataSourceId
 }

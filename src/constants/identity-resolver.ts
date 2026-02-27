@@ -4,7 +4,7 @@
  * resolution API (Voltaire).
  */
 
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import { ChainId } from '$/constants/networks.ts'
 
 export enum IdentityInputKind {
@@ -35,14 +35,14 @@ export type IdentityResolution = {
 	name?: string
 	textRecords?: Record<string, string>
 	avatarUrl?: string
-	source: DataSource,
+	source: DataSourceId,
 }
 
 export type IdentityResolver = {
 	id: string
 	kind: IdentityInputKind
 	chainId: ChainId
-	source: DataSource
+	source: DataSourceId
 	ensRegistry?: `0x${string}`
 	ensUniversalResolver?: `0x${string}`
 	textRecordKeys?: string[],
@@ -64,7 +64,7 @@ export const identityResolvers = [
 		id: 'ens-ethereum',
 		kind: IdentityInputKind.EnsName,
 		chainId: ChainId.Ethereum,
-		source: DataSource.Voltaire,
+		source: DataSourceId.Voltaire,
 		ensRegistry: ENS_REGISTRY_MAINNET,
 		ensUniversalResolver: ENS_UNIVERSAL_RESOLVER_MAINNET,
 		textRecordKeys: ['avatar', 'url', 'twitter'],
@@ -73,7 +73,7 @@ export const identityResolvers = [
 		id: 'ens-ethereum-reverse',
 		kind: IdentityInputKind.Address,
 		chainId: ChainId.Ethereum,
-		source: DataSource.Voltaire,
+		source: DataSourceId.Voltaire,
 		ensRegistry: ENS_REGISTRY_MAINNET,
 		ensUniversalResolver: ENS_UNIVERSAL_RESOLVER_MAINNET,
 		textRecordKeys: ['avatar', 'url', 'twitter'],
