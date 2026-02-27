@@ -36,16 +36,21 @@ const GOOGLE_DEFAULT_MODEL = 'gemini-1.5-flash'
 
 const MAX_TOOL_STEPS = 10
 
+type GenerateTextResultShape = Pick<
+	Awaited<ReturnType<typeof generateText>>,
+	'text' | 'toolCalls' | 'toolResults'
+>
+
 function mapGenerateTextResultToOutput(
-	result: { text: string, toolCalls?: unknown[], toolResults?: unknown[] },
+	result: GenerateTextResultShape,
 	providerId: string,
 ): LlmGenerateWithToolsOutput {
-	const toolCalls = (result.toolCalls ?? []).map((tc: { toolCallId?: string, toolName?: string, input?: unknown }) => ({
+	const toolCalls = (result.toolCalls ?? []).map((tc) => ({
 		id: tc.toolCallId ?? '',
 		name: tc.toolName ?? '',
 		arguments: typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input ?? {}),
 	}))
-	const toolResults = (result.toolResults ?? []).map((tr: { toolCallId?: string, output?: unknown }) => ({
+	const toolResults = (result.toolResults ?? []).map((tr) => ({
 		toolCallId: tr.toolCallId ?? '',
 		result: tr.output,
 	}))
@@ -110,14 +115,7 @@ export const createLlmProviderFromConnection = (
 					tools,
 					stopWhen: stepCountIs(MAX_TOOL_STEPS),
 				})
-				return mapGenerateTextResultToOutput(
-					{
-						text: result.text,
-						toolCalls: [...(result.toolCalls ?? [])],
-						toolResults: [...(result.toolResults ?? [])],
-					},
-					theModel,
-				)
+				return mapGenerateTextResultToOutput(result, theModel)
 			},
 		}
 	}
@@ -153,14 +151,7 @@ export const createLlmProviderFromConnection = (
 					tools,
 					stopWhen: stepCountIs(MAX_TOOL_STEPS),
 				})
-				return mapGenerateTextResultToOutput(
-					{
-						text: result.text,
-						toolCalls: [...(result.toolCalls ?? [])],
-						toolResults: [...(result.toolResults ?? [])],
-					},
-					theModel,
-				)
+				return mapGenerateTextResultToOutput(result, theModel)
 			},
 		}
 	}
@@ -196,14 +187,7 @@ export const createLlmProviderFromConnection = (
 					tools,
 					stopWhen: stepCountIs(MAX_TOOL_STEPS),
 				})
-				return mapGenerateTextResultToOutput(
-					{
-						text: result.text,
-						toolCalls: [...(result.toolCalls ?? [])],
-						toolResults: [...(result.toolResults ?? [])],
-					},
-					theModel,
-				)
+				return mapGenerateTextResultToOutput(result, theModel)
 			},
 		}
 	}
