@@ -46,7 +46,7 @@
 	const valueOut = $derived(hexEven ? `0x${hexEven.toLowerCase()}` : '')
 
 	// Actions
-	function onInput(e: Event) {
+	function oninput(e: Event) {
 		const t = e.currentTarget
 		if (!(t instanceof HTMLTextAreaElement)) return
 		const hexOnly = t.value.replace(/[^0-9a-fA-F]/g, '')
@@ -70,7 +70,7 @@
 		spellcheck="false"
 		autocapitalize="off"
 		value={raw}
-		oninput={onInput}
+		{oninput}
 	></textarea>
 	{#if showPreview && valueOut}
 		<Hexadecimal

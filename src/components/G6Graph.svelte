@@ -625,13 +625,13 @@
 
 			// --- Keyboard ---
 
-			const handleKeydown = (event: KeyboardEvent) => {
+			const onKeydown = (event: KeyboardEvent) => {
 				if (event.key === 'Escape')
 					selection = { nodes: [], edges: [] }
 				if (event.key === 'Enter' && selection.nodes[0])
 					graph.focusElement?.(selection.nodes[0])?.catch?.(() => {})
 			}
-			container.addEventListener('keydown', handleKeydown)
+			container.addEventListener('keydown', onKeydown)
 
 
 			// --- Resize ---
@@ -650,7 +650,7 @@
 			// --- Cleanup ---
 
 			cleanup = () => {
-				container.removeEventListener('keydown', handleKeydown)
+				container.removeEventListener('keydown', onKeydown)
 				sourceProxy?.remove()
 				targetProxy?.remove()
 				resizeObserver.disconnect()

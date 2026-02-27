@@ -158,7 +158,7 @@
 		})
 	}
 
-	function handleInput() {
+	function oninput() {
 		if (!editEl) return
 		const pos = getSegmentIndexAndOffset(editEl)
 		const { segments: nextSegments, refs: nextRefs } = parseContent(editEl)
@@ -235,14 +235,14 @@
 		else closeComboboxAndAppendAt()
 	}
 
-	function handlePaste(e: ClipboardEvent) {
+	function onpaste(e: ClipboardEvent) {
 		const text = e.clipboardData?.getData('text/plain')
 		if (text == null) return
 		e.preventDefault()
 		document.execCommand?.('insertText', false, text)
 	}
 
-	function handleKeydown(e: KeyboardEvent) {
+	function onkeydown(e: KeyboardEvent) {
 		const trigger = e.key in triggerConfig ? (e.key as string) : null
 		if (trigger) {
 			insertPlaceholderAtSelection(trigger)
@@ -287,9 +287,9 @@
 	role="textbox"
 	aria-label={placeholderText}
 	tabindex="0"
-	oninput={handleInput}
-	onpaste={handlePaste}
-	onkeydown={handleKeydown}
+	{oninput}
+	{onpaste}
+	{onkeydown}
 >
 	{#each segments as segment, i (i)}
 		{segment}

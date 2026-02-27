@@ -154,7 +154,7 @@
 		})
 	}
 
-	function handleInput() {
+	function oninput() {
 		if (!editEl) return
 		const pos = getSegmentIndexAndOffset(editEl)
 		const { segments: nextSegments, refs: nextRefs } = parseContent(editEl)
@@ -231,14 +231,14 @@
 		else closeComboboxAndAppendAt()
 	}
 
-	function handlePaste(e: ClipboardEvent) {
+	function onpaste(e: ClipboardEvent) {
 		const text = e.clipboardData?.getData('text/plain')
 		if (text == null) return
 		e.preventDefault()
 		document.execCommand?.('insertText', false, text)
 	}
 
-	function handleKeydown(e: KeyboardEvent) {
+	function onkeydown(e: KeyboardEvent) {
 		if (e.key === 'Tab' && editEl) {
 			e.preventDefault()
 			const root = editEl.closest('form, [role="group"]') ?? document
@@ -312,9 +312,9 @@
 	role="textbox"
 	aria-label={placeholderText}
 	tabindex="0"
-	oninput={handleInput}
-	onpaste={handlePaste}
-	onkeydown={handleKeydown}
+	{oninput}
+	{onpaste}
+	{onkeydown}
 >
 	{#each segments as segment, i (i)}
 		{segment}

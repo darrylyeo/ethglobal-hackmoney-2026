@@ -63,7 +63,7 @@
 	const camelToKebab = (s: string) =>
 		s.replace(/([A-Z])/g, (m) => `-${m.toLowerCase()}`)
 
-	function handleKeydown(e: KeyboardEvent) {
+	function onKeydown(e: KeyboardEvent) {
 		if (e.key === 'ArrowLeft') {
 			e.preventDefault()
 			onMoveCaret?.('left')
@@ -76,7 +76,7 @@
 		}
 	}
 
-	function handleFocusout(container: HTMLElement, e: FocusEvent) {
+	function onFocusout(container: HTMLElement, e: FocusEvent) {
 		if (!container.contains(e.relatedTarget as Node)) onBlur?.()
 	}
 
@@ -92,11 +92,11 @@
 			data-trigger={triggerCharacter}
 			role="presentation"
 			{@attach (el) => {
-				const blur = (e: FocusEvent) => handleFocusout(el, e)
-				el.addEventListener('keydown', handleKeydown, true)
+				const blur = (e: FocusEvent) => onFocusout(el, e)
+				el.addEventListener('keydown', onKeydown, true)
 				el.addEventListener('focusout', blur, true)
 				return () => {
-					el.removeEventListener('keydown', handleKeydown, true)
+					el.removeEventListener('keydown', onKeydown, true)
 					el.removeEventListener('focusout', blur, true)
 				}
 			}}
@@ -109,7 +109,7 @@
 				bind:inputValue={filterValue}
 				placeholder=""
 				ariaLabel="Entity reference"
-				onInputKeydown={handleKeydown}
+				onInputKeydown={onKeydown}
 			/>
 		</div>
 	{:else if isEditable}

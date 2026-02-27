@@ -97,7 +97,7 @@
 		textSegments = segments
 		refs = parsed
 	})
-	const handleSubmit = () => {
+	const onSubmit = () => {
 		if (hasPlaceholder) return
 		const v = getValueFromSegmentsAndRefs(textSegments, refs)
 		if (!v.trim()) return
@@ -113,7 +113,7 @@
 <form
 	data-entity-ref-input
 	data-row
-	onsubmit={(e) => (e.preventDefault(), handleSubmit())}
+	onsubmit={(e) => (e.preventDefault(), onSubmit())}
 >
 	<div data-row-item="flexible">
 		<RichTextarea

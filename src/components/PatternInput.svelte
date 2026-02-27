@@ -42,7 +42,7 @@
 
 
 	// Actions
-	const handleInput = (e: Event) => {
+	const oninput = (e: Event) => {
 		const target = e.currentTarget
 		if (!(target instanceof HTMLInputElement)) return
 		if (!isControlled) value = target.value
@@ -55,7 +55,7 @@
 	type="text"
 	{...rootProps}
 	value={inputValue}
-	oninput={handleInput}
+	{oninput}
 	placeholder={computedPlaceholder}
 	{disabled}
 	{name}
