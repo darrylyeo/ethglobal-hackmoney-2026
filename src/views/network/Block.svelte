@@ -114,12 +114,15 @@ import {
 		if (transactionsSet.size > 0) return
 		fetchBlockTransactions(chainId, block.$id.blockNumber).catch(() => {})
 	})
+
 	// Components
+	import BlockNumber from '$/views/BlockNumber.svelte'
 	import CollapsibleList from '$/components/CollapsibleList.svelte'
 	import EntityView from '$/components/EntityView.svelte'
 	import Timestamp from '$/components/Timestamp.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import Address from '$/views/Address.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
 	import Transaction from '$/views/network/Transaction.svelte'
 </script>
 
@@ -127,7 +130,7 @@ import {
 <EntityView
 	entityType={EntityType.Block}
 	entity={block ?? undefined}
-	titleHref={block ? getBlockPath(chainId, block.$id.blockNumber) : '#'}
+	titleHref={block ? getBlockPath(block.$id.$network.chainId, block.$id.blockNumber) : '#'}
 	{...(block == null ? { idSerialized: 'block:loading' } : {})}
 	label={block ? `Block ${block.$id.blockNumber}` : 'Loading block…'}
 	layout={layout}
@@ -138,7 +141,10 @@ import {
 >
 	{#snippet Title()}
 		{#if block}
-			<code>#{block.$id.blockNumber}</code>
+			<span data-row="inline">
+				<BlockNumber blockNumber={block.$id.blockNumber} networkId={block.$id.$network} />
+				<NetworkName networkId={block.$id.$network} showIcon={false} />
+			</span>
 		{:else}
 			<code>Loading block…</code>
 		{/if}
@@ -229,7 +235,6 @@ import {
 						{@const networkId = { chainId }}
 						<Transaction
 							data={new Map([[item, { events: item.logs }]])}
-							{networkId}
 						/>
 					{/if}
 				</span>

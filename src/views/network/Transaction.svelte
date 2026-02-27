@@ -31,11 +31,9 @@
 	// Props
 	let {
 		data,
-		networkId: networkIdProp,
 		layout = EntityLayout.PageSection,
 	}: {
 		data: Map<ChainTransactionEntry | undefined, { trace?: TraceType; events?: EvmLog[] }>
-		networkId?: import('$/data/Network.ts').Network$Id
 		layout?: EntityLayout
 	} = $props()
 
@@ -46,9 +44,6 @@
 	)
 	const events = $derived(entry.events ?? [])
 	const tx = $derived([...data.keys()][0])
-	const chainId = $derived(
-		tx?.$id.$network.chainId ?? networkIdProp?.chainId ?? (0 as ChainId),
-	)
 	const inputSelector = $derived(
 		tx?.input && tx.input.length >= 10
 			? (`0x${tx.input.slice(2, 10).toLowerCase().padStart(8, '0')}` as `0x${string}`)
@@ -152,13 +147,15 @@
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import Address from '$/views/Address.svelte'
 	import EventView from '$/views/network/Event.svelte'
+	import EvmTransactionId from '$/views/EvmTransactionId.svelte'
+	import NetworkName from '$/views/NetworkName.svelte'
 	import Trace from '$/views/network/Trace.svelte'
 </script>
 
 <EntityView
 		entityType={EntityType.Transaction}
 		entity={tx ?? undefined}
-		titleHref={tx ? getTxPath(chainId, tx.$id.txHash) : '#'}
+		titleHref={tx ? getTxPath(tx.$id.$network.chainId, tx.$id.txHash) : '#'}
 		{...(tx == null ? { idSerialized: 'transaction:loading' } : {})}
 		label={tx ? `Tx ${tx.$id.txHash.slice(0, 10)}…` : 'Loading…'}
 		layout={layout}
@@ -169,29 +166,22 @@
 		detailsProps={layout === EntityLayout.ContentOnly ? {} : { 'data-card': '' }}
 	>
 	{#snippet Title()}
-		<div data-row="wrap align-center">
-			{#if tx}
-				{#if tx.status != null}
-					<span data-tag={tx.status === 1 ? 'success' : 'failure'}>
-						{tx.status === 1 ? '✓' : '✗'}
-					</span>
-				{/if}
-				<TruncatedValue value={tx.$id.txHash} startLength={10} endLength={8} />
-				<span>from <TruncatedValue value={tx.from} startLength={8} endLength={4} /></span>
-				{#if tx.value !== '0x0' && tx.value !== '0x'}
-					<span>{formatWei(tx.value)} ETH</span>
-				{/if}
-			{:else}
-				<code>Loading…</code>
-			{/if}
-		</div>
+		{#if tx}
+			<span data-row="inline">
+				<EvmTransactionId txHash={tx.$id.txHash} chainId={tx.$id.$network.chainId} isVertical />
+				<NetworkName networkId={tx.$id.$network} showIcon={false} />
+			</span>
+		{:else}
+			<code>Loading…</code>
+		{/if}
 	{/snippet}
 	{#snippet children()}
 		{#if tx}
+			{@const chainIdForTx = tx.$id.$network.chainId}
 			<dl>
 				<dt>Hash</dt>
 				<dd>
-					<a href={getTxPath(chainId, tx.$id.txHash)}>
+					<a href={getTxPath(tx.$id.$network.chainId, tx.$id.txHash)}>
 						<TruncatedValue value={tx.$id.txHash} />
 					</a>
 				</dd>
@@ -302,7 +292,7 @@
 						{#if isPlaceholder}
 							<code>Event #{key} (loading…)</code>
 						{:else}
-							<EventView event={item} {chainId} />
+							<EventView event={item} chainId={chainIdForTx} />
 						{/if}
 					</span>
 				{/snippet}
@@ -314,7 +304,7 @@
 			detailsProps={{ 'data-card': 'padding-2' }}
 		>
 			{#if trace}
-				<Trace {trace} {chainId} />
+				<Trace {trace} chainId={chainIdForTx} />
 			{:else if traceRecord?.unavailable === true}
 				<p data-text="muted">Trace unavailable (RPC does not support debug_traceTransaction)</p>
 			{:else}

@@ -191,7 +191,6 @@ import { entityKey } from '$/lib/entity-key.ts'
 				{#if tx}
 					<Transaction
 						data={new Map([[tx, { events: tx.logs ?? [], trace: undefined }]])}
-						{networkId}
 						layout={EntityLayout.ContentOnly}
 					/>
 				{/if}
