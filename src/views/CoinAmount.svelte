@@ -7,7 +7,6 @@
 	import { coinById } from '$/constants/coins.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 
-
 	// Props
 	let {
 		coin,
@@ -25,11 +24,9 @@
 		showPriceTooltip?: boolean
 	} = $props()
 
-
 	// Functions
 	import { draggable } from '$/components/Draggable.svelte.ts'
 	import { stringify } from '$/lib/stringify.ts'
-
 
 	// Components
 	import Tooltip from '$/components/Tooltip.svelte'
@@ -40,6 +37,7 @@
 
 
 <div
+	class="coin-amount-root"
 	role="term"
 	{@attach draggable({ text: stringify(coin), enabled: isDraggable })}
 	data-row="inline wrap gap-1"
@@ -55,13 +53,15 @@
 						coin={coinById[coin.coinId]!}
 						src={coin.icon.original.url}
 						alt={symbol ?? ''}
-						subicon={network?.icon
-						? {
-							src: network.icon,
-							alt: chainId.toString(),
-							shape: IconShape.Circle,
-						}
-						: undefined}
+						subicon={(
+							network?.icon
+								? {
+									src: network.icon,
+									alt: chainId.toString(),
+									shape: IconShape.Circle,
+								}
+								: undefined
+						)}
 					/>
 				{:else}
 					<NetworkIcon networkId={{ chainId }} alt={chainId.toString()} />
@@ -71,13 +71,21 @@
 			<span data-row="inline align-baseline gap-1">
 				{#if amount !== undefined}
 					<span class="balance">
-						{#each new Intl.NumberFormat(
-							undefined,
-							{ minimumFractionDigits: 2, maximumFractionDigits: 6, compactDisplay: 'short' },
-						).formatToParts(
-							coin.decimals ? Number(amount) / Math.pow(10, coin.decimals) : Number(amount),
+						{#each (
+							new Intl.NumberFormat(
+								undefined,
+								{
+									minimumFractionDigits: 2,
+									maximumFractionDigits: 6,
+									compactDisplay: 'short',
+								},
+							).formatToParts(
+								coin.decimals
+									? Number(amount) / Math.pow(10, coin.decimals)
+									: Number(amount),
+							)
 						) as part}
-							<span data-part={part.type}>{part.value}</span>
+							<span class="balance-part" class:fraction={part.type === 'fraction'}>{part.value}</span>
 						{/each}
 					</span>
 				{/if}
@@ -85,9 +93,13 @@
 				{#if coin.name || symbol}
 					<abbr
 						class="coin"
-					title={coin.type === CoinInstanceType.NativeCurrency
-						? 'Native Currency'
-						: coin.type === CoinInstanceType.Erc20Token ? coin.$id.address : undefined}
+						title={(
+							coin.type === CoinInstanceType.NativeCurrency
+								? 'Native Currency'
+							: coin.type === CoinInstanceType.Erc20Token
+								? coin.$id.address
+							: undefined
+						)}
 					>
 						{showName && coin.name && symbol
 							? `${symbol} (${coin.name})`
@@ -113,20 +125,23 @@
 
 
 <style>
-	.balance {
-		font-weight: 600;
-		font-variant-numeric: tabular-nums;
+	.coin-amount-root {
+		.coin-amount {
+			.balance {
+				font-weight: 600;
+				font-variant-numeric: tabular-nums;
 
-		> [data-part='fraction'] {
-			opacity: 0.6;
+				> .balance-part.fraction {
+					opacity: 0.6;
+				}
+			}
+
+			.coin {
+				color: var(--text-secondary);
+				font-size: smaller;
+				text-decoration: none;
+				cursor: help;
+			}
 		}
-	}
-
-
-	.coin {
-		color: var(--text-secondary);
-		font-size: smaller;
-		text-decoration: none;
-		cursor: help;
 	}
 </style>

@@ -1,10 +1,13 @@
-export type Match = { start: number; end: number }
+export type Match = {
+	start: number
+	end: number
+}
 
 /**
  * Fuzzy subsequence match: query characters must appear in order in text (case-insensitive).
  * Returns non-overlapping spans for the matched segments.
  */
-export function fuzzyMatch(text: string, query: string): Match[] {
+export function fuzzyMatch(text: string, query: string) {
 	const q = query.trim().toLowerCase()
 	if (!q) return []
 	const lower = text.toLowerCase()

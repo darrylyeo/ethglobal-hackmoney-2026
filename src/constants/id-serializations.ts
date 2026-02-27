@@ -1,7 +1,5 @@
 /**
- * Entity ID serialization formats and pattern metadata (spec 094).
- * Enums list allowed formats; arrays associate each with label and patterns.
- * Patterns may be format-specific (regex), reference constants/patterns.ts (PatternType), or EIP/CAIP refs.
+ * Entity ID serialization formats and pattern metadata (spec 094). Structure follows spec 045.
  */
 
 import { PatternType } from '$/constants/patterns.ts'
@@ -25,7 +23,7 @@ export type Network$IdSerializationEntry = {
 	patterns: IdPattern[]
 }
 
-export const networkIdSerializations: readonly Network$IdSerializationEntry[] = [
+export const networkIdSerializations = [
 	{
 		serialization: Network$IdSerializationType.ChainId,
 		label: 'Chain ID (decimal)',
@@ -41,9 +39,9 @@ export const networkIdSerializations: readonly Network$IdSerializationEntry[] = 
 		label: 'CAIP-2 chain reference',
 		patterns: [{ kind: 'caip', ref: 'CAIP-2', section: 'chain_id' }],
 	},
-]
+] as const satisfies readonly Network$IdSerializationEntry[]
 
-export const networkIdSerializationsByType = Object.fromEntries(
+export const networkIdSerializationsBySerialization = Object.fromEntries(
 	networkIdSerializations.map((e) => [e.serialization, e]),
 ) as Record<Network$IdSerializationType, Network$IdSerializationEntry>
 
@@ -59,7 +57,7 @@ export type Actor$IdSerializationEntry = {
 	patterns: IdPattern[]
 }
 
-export const actorIdSerializations: readonly Actor$IdSerializationEntry[] = [
+export const actorIdSerializations = [
 	{
 		serialization: Actor$IdSerializationType.PlainChainAddress,
 		label: 'Chain ID + address',
@@ -76,9 +74,9 @@ export const actorIdSerializations: readonly Actor$IdSerializationEntry[] = [
 		label: 'Interop address (EIP-7930)',
 		patterns: [{ kind: 'eip', ref: 'EIP-7930' }, { kind: 'eip', ref: 'ERC-7828' }],
 	},
-]
+] as const satisfies readonly Actor$IdSerializationEntry[]
 
-export const actorIdSerializationsByType = Object.fromEntries(
+export const actorIdSerializationsBySerialization = Object.fromEntries(
 	actorIdSerializations.map((e) => [e.serialization, e]),
 ) as Record<Actor$IdSerializationType, Actor$IdSerializationEntry>
 
@@ -94,7 +92,7 @@ export type Contract$IdSerializationEntry = {
 	patterns: IdPattern[]
 }
 
-export const contractIdSerializations: readonly Contract$IdSerializationEntry[] = [
+export const contractIdSerializations = [
 	{
 		serialization: Contract$IdSerializationType.SlugAddress,
 		label: 'Slug : address',
@@ -117,9 +115,9 @@ export const contractIdSerializations: readonly Contract$IdSerializationEntry[] 
 			},
 		],
 	},
-]
+] as const satisfies readonly Contract$IdSerializationEntry[]
 
-export const contractIdSerializationsByType = Object.fromEntries(
+export const contractIdSerializationsBySerialization = Object.fromEntries(
 	contractIdSerializations.map((e) => [e.serialization, e]),
 ) as Record<Contract$IdSerializationType, Contract$IdSerializationEntry>
 
@@ -135,7 +133,7 @@ export type Block$IdSerializationEntry = {
 	patterns: IdPattern[]
 }
 
-export const blockIdSerializations: readonly Block$IdSerializationEntry[] = [
+export const blockIdSerializations = [
 	{
 		serialization: Block$IdSerializationType.ChainIdBlockNumber,
 		label: 'Chain ID : block number',
@@ -152,9 +150,9 @@ export const blockIdSerializations: readonly Block$IdSerializationEntry[] = [
 			},
 		],
 	},
-]
+] as const satisfies readonly Block$IdSerializationEntry[]
 
-export const blockIdSerializationsByType = Object.fromEntries(
+export const blockIdSerializationsBySerialization = Object.fromEntries(
 	blockIdSerializations.map((e) => [e.serialization, e]),
 ) as Record<Block$IdSerializationType, Block$IdSerializationEntry>
 
@@ -171,7 +169,7 @@ export type Coin$IdSerializationEntry = {
 	patterns: IdPattern[]
 }
 
-export const coinIdSerializations: readonly Coin$IdSerializationEntry[] = [
+export const coinIdSerializations = [
 	{
 		serialization: Coin$IdSerializationType.PlainChainAddress,
 		label: 'Chain ID + address',
@@ -193,9 +191,9 @@ export const coinIdSerializations: readonly Coin$IdSerializationEntry[] = [
 		label: 'Symbol (display)',
 		patterns: [{ kind: 'regex', regex: /^[A-Z0-9]+$/i, description: 'Token symbol e.g. USDC, ETH' }],
 	},
-]
+] as const satisfies readonly Coin$IdSerializationEntry[]
 
-export const coinIdSerializationsByType = Object.fromEntries(
+export const coinIdSerializationsBySerialization = Object.fromEntries(
 	coinIdSerializations.map((e) => [e.serialization, e]),
 ) as Record<Coin$IdSerializationType, Coin$IdSerializationEntry>
 
@@ -211,7 +209,7 @@ export type ActorCoin$IdSerializationEntry = {
 	patterns: IdPattern[]
 }
 
-export const actorCoinIdSerializations: readonly ActorCoin$IdSerializationEntry[] = [
+export const actorCoinIdSerializations = [
 	{
 		serialization: ActorCoin$IdSerializationType.Composite,
 		label: 'Chain : owner : token address',
@@ -228,9 +226,9 @@ export const actorCoinIdSerializations: readonly ActorCoin$IdSerializationEntry[
 		label: 'Stringified $id (devalue)',
 		patterns: [{ kind: 'regex', regex: /^\{/, description: 'Serialized object (e.g. devalue)' }],
 	},
-]
+] as const satisfies readonly ActorCoin$IdSerializationEntry[]
 
-export const actorCoinIdSerializationsByType = Object.fromEntries(
+export const actorCoinIdSerializationsBySerialization = Object.fromEntries(
 	actorCoinIdSerializations.map((e) => [e.serialization, e]),
 ) as Record<ActorCoin$IdSerializationType, ActorCoin$IdSerializationEntry>
 
@@ -246,7 +244,7 @@ export type ChainTransaction$IdSerializationEntry = {
 	patterns: IdPattern[]
 }
 
-export const chainTransactionIdSerializations: readonly ChainTransaction$IdSerializationEntry[] = [
+export const chainTransactionIdSerializations = [
 	{
 		serialization: ChainTransaction$IdSerializationType.ChainIdTxHash,
 		label: 'Chain ID : tx hash',
@@ -269,9 +267,9 @@ export const chainTransactionIdSerializations: readonly ChainTransaction$IdSeria
 			},
 		],
 	},
-]
+] as const satisfies readonly ChainTransaction$IdSerializationEntry[]
 
-export const chainTransactionIdSerializationsByType = Object.fromEntries(
+export const chainTransactionIdSerializationsBySerialization = Object.fromEntries(
 	chainTransactionIdSerializations.map((e) => [e.serialization, e]),
 ) as Record<ChainTransaction$IdSerializationType, ChainTransaction$IdSerializationEntry>
 
@@ -287,7 +285,7 @@ export type TransactionTrace$IdSerializationEntry = {
 	patterns: IdPattern[]
 }
 
-export const transactionTraceIdSerializations: readonly TransactionTrace$IdSerializationEntry[] = [
+export const transactionTraceIdSerializations = [
 	{
 		serialization: TransactionTrace$IdSerializationType.ChainIdTxHash,
 		label: 'Chain ID : tx hash',
@@ -310,9 +308,9 @@ export const transactionTraceIdSerializations: readonly TransactionTrace$IdSeria
 			},
 		],
 	},
-]
+] as const satisfies readonly TransactionTrace$IdSerializationEntry[]
 
-export const transactionTraceIdSerializationsByType = Object.fromEntries(
+export const transactionTraceIdSerializationsBySerialization = Object.fromEntries(
 	transactionTraceIdSerializations.map((e) => [e.serialization, e]),
 ) as Record<TransactionTrace$IdSerializationType, TransactionTrace$IdSerializationEntry>
 
@@ -328,36 +326,34 @@ export type VerifiedContractSource$IdSerializationEntry = {
 	patterns: IdPattern[]
 }
 
-export const verifiedContractSourceIdSerializations: readonly VerifiedContractSource$IdSerializationEntry[] =
-	[
-		{
-			serialization: VerifiedContractSource$IdSerializationType.SlugAddress,
-			label: 'Slug : address',
-			patterns: [
-				{
-					kind: 'regex',
-					regex: /^[a-z0-9-]+:0x[0-9a-fA-F]{40}$/i,
-					description: 'networkSlug:0xaddress',
-				},
-			],
-		},
-		{
-			serialization: VerifiedContractSource$IdSerializationType.ChainIdAddress,
-			label: 'Chain ID : address',
-			patterns: [
-				{
-					kind: 'regex',
-					regex: /^\d+:0x[0-9a-fA-F]{40}$/,
-					description: 'chainId:0xaddress',
-				},
-			],
-		},
-	]
+export const verifiedContractSourceIdSerializations = [
+	{
+		serialization: VerifiedContractSource$IdSerializationType.SlugAddress,
+		label: 'Slug : address',
+		patterns: [
+			{
+				kind: 'regex',
+				regex: /^[a-z0-9-]+:0x[0-9a-fA-F]{40}$/i,
+				description: 'networkSlug:0xaddress',
+			},
+		],
+	},
+	{
+		serialization: VerifiedContractSource$IdSerializationType.ChainIdAddress,
+		label: 'Chain ID : address',
+		patterns: [
+			{
+				kind: 'regex',
+				regex: /^\d+:0x[0-9a-fA-F]{40}$/,
+				description: 'chainId:0xaddress',
+			},
+		],
+	},
+] as const satisfies readonly VerifiedContractSource$IdSerializationEntry[]
 
-export const verifiedContractSourceIdSerializationsByType = Object.fromEntries(
+export const verifiedContractSourceIdSerializationsBySerialization = Object.fromEntries(
 	verifiedContractSourceIdSerializations.map((e) => [e.serialization, e]),
 ) as Record<
 	VerifiedContractSource$IdSerializationType,
 	VerifiedContractSource$IdSerializationEntry
 >
-
