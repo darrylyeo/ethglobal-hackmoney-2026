@@ -10,12 +10,10 @@ import {
 import { stringify, parse } from 'devalue'
 import { getErc20Allowance } from '$/api/voltaire.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import { toInteropName } from '$/constants/interop.ts'
 import { createProviderForChain } from '$/lib/helios-rpc.ts'
 import type { ActorAllowance, ActorAllowance$Id } from '$/data/ActorAllowance.ts'
-
-export type ActorAllowanceRow = ActorAllowance & { $source: DataSource }
 
 const allowanceKeyParts = (id: ActorAllowance$Id) =>
 	stringify({
@@ -29,7 +27,7 @@ export const actorAllowancesCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.ActorAllowances,
 		storageKey: CollectionId.ActorAllowances,
-		getKey: (row: ActorAllowanceRow) => allowanceKeyParts(row.$id),
+		getKey: (row: WithSource<ActorAllowance>) => allowanceKeyParts(row.$id),
 		parser: { stringify, parse },
 	}),
 )
@@ -53,13 +51,13 @@ export const getActorAllowance = ($id: ActorAllowance$Id) =>
 
 export const fetchActorAllowance = async (
 	$id: ActorAllowance$Id,
-): Promise<ActorAllowanceRow> => {
+): Promise<WithSource<ActorAllowance>> => {
 	const key = allowanceKeyParts($id)
 	const existing = actorAllowancesCollection.state.get(key)
 
 	if (existing) {
 		actorAllowancesCollection.update(key, (draft) => {
-			draft.$source = DataSource.Voltaire
+			draft.$source = DataSourceId.Voltaire
 			draft.isLoading = true
 			draft.error = null
 		})
@@ -82,9 +80,9 @@ export const fetchActorAllowance = async (
 							$id.$actorCoin.$actor.address,
 						),
 		}
-		const item: ActorAllowanceRow = {
+		const item: WithSource<ActorAllowance> = {
 			$id: full$id,
-			$source: DataSource.Voltaire,
+			$source: DataSourceId.Voltaire,
 			allowance,
 			isLoading: false,
 			error: null,
@@ -102,7 +100,7 @@ export const fetchActorAllowance = async (
 		const message = e instanceof Error ? e.message : String(e)
 		if (existing) {
 			actorAllowancesCollection.update(key, (draft) => {
-				draft.$source = DataSource.Voltaire
+				draft.$source = DataSourceId.Voltaire
 				draft.isLoading = false
 				draft.error = message
 				draft.lastChecked = Date.now()
@@ -141,14 +139,14 @@ export const setActorAllowance = (
 	const existing = actorAllowancesCollection.state.get(key)
 	if (existing) {
 		actorAllowancesCollection.update(key, (draft) => {
-			draft.$source = DataSource.Voltaire
+			draft.$source = DataSourceId.Voltaire
 			draft.allowance = allowance
 			draft.lastChecked = Date.now()
 		})
 	} else {
 		actorAllowancesCollection.insert({
 			$id: full$id,
-			$source: DataSource.Voltaire,
+			$source: DataSourceId.Voltaire,
 			allowance,
 			isLoading: false,
 			error: null,

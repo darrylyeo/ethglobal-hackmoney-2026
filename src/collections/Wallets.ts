@@ -4,7 +4,7 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type { Wallet, Wallet$Id } from '$/data/Wallet.ts'
 import {
 	createCollection,
@@ -12,12 +12,10 @@ import {
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
 
-export type WalletRow = Wallet & { $source: DataSource }
-
 export const walletsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.Wallets,
-		getKey: (row: WalletRow) => stringify(row.$id),
+		getKey: (row: WithSource<Wallet>) => stringify(row.$id),
 	}),
 )
 
@@ -34,9 +32,9 @@ export const upsertWallet = (row: Wallet) => {
 			draft.icon = row.icon
 			draft.rdns = row.rdns
 			draft.provider = row.provider
-			draft.$source = DataSource.Local
+			draft.$source = DataSourceId.Local
 		})
 	} else {
-		walletsCollection.insert({ ...row, $source: DataSource.Local })
+		walletsCollection.insert({ ...row, $source: DataSourceId.Local })
 	}
 }

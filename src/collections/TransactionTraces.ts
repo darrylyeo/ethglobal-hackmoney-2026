@@ -16,7 +16,7 @@ import {
 } from '$/api/voltaire.ts'
 import { SQD_DATASETS_BY_CHAIN_ID } from '$/constants/sqd-datasets.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import type { ChainId } from '$/constants/networks.ts'
 import { normalizeTxHash } from '$/collections/NetworkTransactions.ts'
 import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
@@ -29,7 +29,7 @@ const getKey = (trace: TransactionTraceRow) =>
 	`${trace.$id.$network.chainId}:${normalizeTxHash(trace.$id.txHash)}`
 
 export type TransactionTraceRow = TransactionTraceEntry & {
-	$source: DataSource
+	$source: DataSourceId
 	unavailable?: boolean
 	isLoading?: boolean
 	error?: string | null
@@ -77,7 +77,7 @@ export async function fetchTransactionTrace(
 				const item: TransactionTraceRow = {
 					$id: { $network: { chainId }, txHash },
 					trace,
-					$source: DataSource.Sqd,
+					$source: DataSourceId.Sqd,
 					unavailable: false,
 					isLoading: false,
 					error: null,
@@ -112,7 +112,7 @@ export async function fetchTransactionTrace(
 		if (raw == null) {
 			const item: TransactionTraceRow = {
 				$id: { $network: { chainId }, txHash },
-				$source: DataSource.Voltaire,
+				$source: DataSourceId.Voltaire,
 				unavailable: true,
 				isLoading: false,
 				error: null,
@@ -130,7 +130,7 @@ export async function fetchTransactionTrace(
 		const item: TransactionTraceRow = {
 			$id: { $network: { chainId }, txHash },
 			trace,
-			$source: DataSource.Voltaire,
+			$source: DataSourceId.Voltaire,
 			unavailable: false,
 			isLoading: false,
 			error: null,

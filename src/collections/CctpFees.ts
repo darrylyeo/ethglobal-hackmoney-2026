@@ -1,13 +1,11 @@
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type { CctpFee, CctpFee$Id, CctpFeeItem } from '$/data/CctpFee.ts'
 import { stringify } from 'devalue'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
-
-export type CctpFeeRow = CctpFee & { $source: DataSource }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null
@@ -23,11 +21,11 @@ const toCctpFeeItem = (value: unknown): CctpFeeItem | null => {
 export const cctpFeesCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.CctpFees,
-		getKey: (fee: CctpFeeRow) => stringify(fee.$id),
+		getKey: (fee: WithSource<CctpFee>) => stringify(fee.$id),
 	}),
 )
 
-export const fetchCctpFees = async ($id: CctpFee$Id): Promise<CctpFeeRow> => {
+export const fetchCctpFees = async ($id: CctpFee$Id): Promise<WithSource<CctpFee>> => {
 	const key = stringify($id)
 	if (cctpFeesCollection.state.get(key)) {
 		cctpFeesCollection.update(key, (draft) => {
@@ -37,7 +35,7 @@ export const fetchCctpFees = async ($id: CctpFee$Id): Promise<CctpFeeRow> => {
 	} else {
 		cctpFeesCollection.insert({
 			$id,
-			$source: DataSource.Cctp,
+			$source: DataSourceId.Cctp,
 			rows: [],
 			fetchedAt: 0,
 			isLoading: true,

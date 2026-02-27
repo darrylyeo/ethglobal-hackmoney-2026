@@ -8,29 +8,26 @@ import type {
 	Erc20Token,
 } from '$/constants/coin-instances.ts'
 import { erc20Instances } from '$/constants/coin-instances.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 
-export type CoinRow = Omit<Erc20Token, '$id'> & {
-	$id: Erc20Coin$Id
-	$source: DataSource
-}
+type Coin = Omit<Erc20Token, '$id'> & { $id: Erc20Coin$Id }
 
-export const toCoinRow = (t: Erc20Token): CoinRow => ({
+export const toCoinRow = (t: Erc20Token): WithSource<Coin> => ({
 	...t,
 	$id: t.$id,
-	$source: DataSource.Local,
+	$source: DataSourceId.Local,
 })
 
 export const coinsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.Coins,
 		storageKey: CollectionId.Coins,
-		getKey: (row: CoinRow) =>
+		getKey: (row: WithSource<Coin>) =>
 			`${row.$id.$network.chainId}-${row.$id.address.toLowerCase()}`,
 		parser: { stringify, parse },
 	}),

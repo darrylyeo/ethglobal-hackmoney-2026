@@ -1,5 +1,5 @@
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type { FarcasterChannel, FarcasterChannel$Id } from '$/data/FarcasterChannel.ts'
 import { queryClient } from '$/lib/db/queryClient.ts'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
@@ -10,15 +10,13 @@ import {
 	type Channel,
 } from '$/api/farcaster/index.ts'
 
-export type FarcasterChannelRow = FarcasterChannel & { $source: DataSource }
-
 export const INITIAL_CHANNELS_LIMIT = 100
 
 const farcasterChannelsQueryKey = [CollectionId.FarcasterChannels] as const
 
-let channelsRemainder: FarcasterChannelRow[] = []
+let channelsRemainder: WithSource<FarcasterChannel>[] = []
 
-const normalizeChannel = (c: Channel): FarcasterChannelRow => ({
+const normalizeChannel = (c: Channel): WithSource<FarcasterChannel> => ({
 	$id: { id: c.id },
 	name: c.name,
 	url: c.url,
@@ -26,7 +24,7 @@ const normalizeChannel = (c: Channel): FarcasterChannelRow => ({
 	imageUrl: c.imageUrl,
 	followerCount: c.followerCount,
 	memberCount: c.memberCount,
-	$source: DataSource.Farcaster,
+	$source: DataSourceId.Farcaster,
 })
 
 export const farcasterChannelsCollection = createCollection(
@@ -44,7 +42,7 @@ export const farcasterChannelsCollection = createCollection(
 			return all
 		},
 		queryClient,
-		getKey: (row: FarcasterChannelRow) => row.$id.id,
+		getKey: (row: WithSource<FarcasterChannel>) => row.$id.id,
 	}),
 )
 
@@ -52,7 +50,7 @@ export const channelsRemainderCount = () => channelsRemainder.length
 
 export const loadMoreChannels = (): void => {
 	if (channelsRemainder.length === 0) return
-	const current = queryClient.getQueryData<FarcasterChannelRow[]>(
+	const current = queryClient.getQueryData<WithSource<FarcasterChannel>[]>(
 		farcasterChannelsQueryKey,
 	)
 	const full = current ? [...current, ...channelsRemainder] : [...channelsRemainder]
@@ -62,10 +60,10 @@ export const loadMoreChannels = (): void => {
 
 export const ensureFarcasterChannel = async (
 	channelId: string,
-): Promise<FarcasterChannelRow | null> => {
+): Promise<WithSource<FarcasterChannel> | null> => {
 	const key = channelId
 	const existing = farcasterChannelsCollection.state.get(key) as
-		| FarcasterChannelRow
+		| WithSource<FarcasterChannel>
 		| undefined
 	if (existing) return existing
 	const remainderMatch = channelsRemainder.find((c) => c.$id.id === channelId)
@@ -77,7 +75,7 @@ export const ensureFarcasterChannel = async (
 		const { result } = await fetchChannel(channelId)
 		const channel = normalizeChannel(result.channel)
 		channelsRemainder = channelsRemainder.filter((c) => c.$id.id !== channelId)
-		const current = queryClient.getQueryData<FarcasterChannelRow[]>(
+		const current = queryClient.getQueryData<WithSource<FarcasterChannel>[]>(
 			farcasterChannelsQueryKey,
 		)
 		const exists = current?.some((c) => c.$id.id === channelId)

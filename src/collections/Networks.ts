@@ -3,7 +3,7 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type { Network } from '$/constants/networks.ts'
 import { networks } from '$/constants/networks.ts'
 import type { NetworkEntry } from '$/data/Network.ts'
@@ -12,8 +12,6 @@ import {
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
-
-export type NetworkRow = NetworkEntry & { $source: DataSource }
 
 export const normalizeNetwork = (entry: Network): NetworkEntry => ({
 	...entry,
@@ -24,7 +22,7 @@ export const networksCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.Networks,
 		storageKey: CollectionId.Networks,
-		getKey: (row: NetworkRow) => String(row.$id.chainId),
+		getKey: (row: WithSource<NetworkEntry>) => String(row.$id.chainId),
 		parser: { stringify, parse },
 	}),
 )
@@ -32,9 +30,9 @@ export const networksCollection = createCollection(
 /** Seed collection from constants when empty. Call once in browser (e.g. layout). */
 export function ensureNetworksHydrated(): void {
 	for (const entry of networks) {
-		const network: NetworkRow = {
+		const network: WithSource<NetworkEntry> = {
 			...normalizeNetwork(entry),
-			$source: DataSource.Local,
+			$source: DataSourceId.Local,
 		}
 		const key = String(network.$id.chainId)
 		if (!networksCollection.state.get(key)) networksCollection.insert(network)

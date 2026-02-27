@@ -3,7 +3,7 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import { SpandexProviderId } from '$/constants/protocol-aggregator-providers.ts'
 import type { SpandexProviderRow } from '$/data/ProtocolAggregatorProvider.ts'
 import {
@@ -12,7 +12,7 @@ import {
 } from '@tanstack/svelte-db'
 
 export type SpandexProviderCollectionRow = SpandexProviderRow & {
-	$source: DataSource
+	$source: DataSourceId
 }
 
 const initialRows: SpandexProviderCollectionRow[] = (
@@ -26,7 +26,7 @@ const initialRows: SpandexProviderCollectionRow[] = (
 	id,
 	name: id,
 	enabled: true,
-	$source: DataSource.Spandex,
+	$source: DataSourceId.Spandex,
 }))
 
 export const spandexProvidersCollection = createCollection(

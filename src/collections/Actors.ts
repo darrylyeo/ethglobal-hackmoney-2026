@@ -4,14 +4,12 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import { toInteropName } from '$/constants/interop.ts'
 import type { Actor } from '$/data/Actor.ts'
 import { queryClient } from '$/lib/db/queryClient.ts'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { createCollection } from '@tanstack/svelte-db'
-
-export type ActorRow = Actor & { $source: DataSource }
 
 export const actorKey = (chainId: number, address: `0x${string}`) =>
 	`${chainId}-${address.toLowerCase()}`
@@ -20,14 +18,14 @@ export const actorsCollection = createCollection(
 	queryCollectionOptions({
 		id: CollectionId.Actors,
 		queryKey: [CollectionId.Actors],
-		queryFn: () => Promise.resolve<ActorRow[]>([]),
+		queryFn: () => Promise.resolve<WithSource<Actor>[]>([]),
 		queryClient,
-		getKey: (row: ActorRow) => actorKey(row.$id.$network.chainId, row.$id.address),
+		getKey: (row: WithSource<Actor>) => actorKey(row.$id.$network.chainId, row.$id.address),
 	}),
 )
 
 export const insertActor = (actor: Actor) => {
-	actorsCollection.utils.writeUpsert({ ...actor, $source: DataSource.Local })
+	actorsCollection.utils.writeUpsert({ ...actor, $source: DataSourceId.Local })
 }
 
 export const insertActorsForAddress = (
@@ -41,7 +39,7 @@ export const insertActorsForAddress = (
 				address,
 				interopAddress: toInteropName(chainId, address),
 			},
-			$source: DataSource.Local,
+			$source: DataSourceId.Local,
 		})
 	}
 }

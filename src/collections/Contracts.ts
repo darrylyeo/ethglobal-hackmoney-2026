@@ -11,7 +11,7 @@ import { fetchAbiFromBlockscout } from '$/api/blockscout.ts'
 import { fetchAbiFromEtherscan } from '$/api/etherscan.ts'
 import { fetchContractFull } from '$/api/sourcify.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import type { ChainId } from '$/constants/networks.ts'
 import type { ContractEntry, Contract$Id } from '$/data/Contract.ts'
 import {
@@ -72,7 +72,7 @@ export async function fetchContract(
 			if (full.abi) {
 				contractsCollection.update(key, (draft) => {
 					draft.abi = full.abi
-					draft.source = DataSource.Sourcify
+					draft.source = DataSourceId.Sourcify
 				})
 			}
 			const sourceKey = key as unknown as Parameters<
@@ -90,7 +90,7 @@ export async function fetchContract(
 			} else {
 				verifiedContractSourcesCollection.insert({
 					...full.source,
-					$source: DataSource.Sourcify,
+					$source: DataSourceId.Sourcify,
 					isLoading: false,
 					error: null,
 				} satisfies VerifiedContractSourceRow)
@@ -102,7 +102,7 @@ export async function fetchContract(
 			if (abiE) {
 				contractsCollection.update(key, (draft) => {
 					draft.abi = abiE
-					draft.source = DataSource.Etherscan
+					draft.source = DataSourceId.Etherscan
 				})
 				return contractsCollection.state.get(key) ?? entry
 			}
@@ -110,7 +110,7 @@ export async function fetchContract(
 			if (abiB) {
 				contractsCollection.update(key, (draft) => {
 					draft.abi = abiB
-					draft.source = DataSource.Blockscout
+					draft.source = DataSourceId.Blockscout
 				})
 				return contractsCollection.state.get(key) ?? entry
 			}
@@ -129,7 +129,7 @@ export async function fetchContract(
 				verifiedContractSourcesCollection.insert({
 					$id: { $network: { chainId }, address },
 					files: {},
-					$source: DataSource.Sourcify,
+					$source: DataSourceId.Sourcify,
 					notFound: true,
 					isLoading: false,
 					error: null,

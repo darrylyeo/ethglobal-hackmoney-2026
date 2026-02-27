@@ -9,7 +9,7 @@ import {
 } from '$/api/protocol-aggregator.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { ProtocolStrategy } from '$/constants/protocols.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type {
 	FetchSwapQuoteParams,
 	SwapQuote,
@@ -21,12 +21,10 @@ import {
 } from '@tanstack/svelte-db'
 import { normalizeSwapQuote } from './SwapQuotesNormalize.ts'
 
-export type SwapQuoteRow = SwapQuote & { $source: DataSource }
-
 export const swapQuotesCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.SwapQuotes,
-		getKey: (row: SwapQuoteRow) => row.id,
+		getKey: (row: WithSource<SwapQuote>) => row.id,
 	}),
 )
 
@@ -36,7 +34,7 @@ export const fetchSwapQuote = async (
 ) => {
 	const quote = await getQuote(params)
 	const key = quote.id
-	const item = { ...normalizeSwapQuote(quote), $source: DataSource.Uniswap }
+	const item = { ...normalizeSwapQuote(quote), $source: DataSourceId.Uniswap }
 	const existing = swapQuotesCollection.state.get(key)
 	if (existing) {
 		swapQuotesCollection.update(key, (draft) => {
@@ -59,7 +57,7 @@ export const fetchSpandexSwapQuote = async (
 	const normalized = spandexQuoteToSwapQuote(quote, params)
 	const item = {
 		...normalizeSwapQuote(normalized),
-		$source: DataSource.Spandex,
+		$source: DataSourceId.Spandex,
 	}
 	const key = normalized.id
 	const existing = swapQuotesCollection.state.get(key)

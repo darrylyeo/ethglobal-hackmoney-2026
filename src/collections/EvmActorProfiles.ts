@@ -12,7 +12,7 @@ import {
 	setCachedEnsAvatar,
 } from '$/collections/EnsAvatars.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import { identityResolvers } from '$/constants/identity-resolver.ts'
 import type { ChainId } from '$/constants/networks.ts'
 import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
@@ -59,7 +59,7 @@ export const ensureEvmActorProfile = (
 			$id: { $network: { chainId }, address: normalized },
 			primaryName: cached.primaryName,
 			avatarUrl: cached.avatarUrl,
-			$source: DataSource.Voltaire,
+			$source: DataSourceId.Voltaire,
 		})
 		return
 	}
@@ -84,7 +84,7 @@ export const fetchEvmActorProfile = async (
 	} else {
 		evmActorProfilesCollection.insert({
 			$id,
-			$source: DataSource.Voltaire,
+			$source: DataSourceId.Voltaire,
 			isLoading: true,
 			error: null,
 		})
@@ -100,7 +100,7 @@ export const fetchEvmActorProfile = async (
 			draft.isLoading = false
 			draft.error = err
 		})
-		return { $id, $source: DataSource.Voltaire }
+		return { $id, $source: DataSourceId.Voltaire }
 	}
 
 	try {
@@ -124,7 +124,7 @@ export const fetchEvmActorProfile = async (
 			$id,
 			primaryName: primaryName ?? undefined,
 			avatarUrl,
-			$source: DataSource.Voltaire,
+			$source: DataSourceId.Voltaire,
 			isLoading: false,
 			error: null,
 		}

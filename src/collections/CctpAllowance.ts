@@ -1,5 +1,5 @@
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type { CctpAllowance, CctpAllowance$Id } from '$/data/CctpAllowance.ts'
 import { stringify } from 'devalue'
 import {
@@ -7,21 +7,19 @@ import {
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 
-export type CctpAllowanceRow = CctpAllowance & { $source: DataSource }
-
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null
 
 export const cctpAllowanceCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.CctpAllowance,
-		getKey: (row: CctpAllowanceRow) => stringify(row.$id),
+		getKey: (row: WithSource<CctpAllowance>) => stringify(row.$id),
 	}),
 )
 
 export const fetchCctpAllowance = async (
 	$id: CctpAllowance$Id,
-): Promise<CctpAllowanceRow> => {
+): Promise<WithSource<CctpAllowance>> => {
 	const key = stringify($id)
 	if (cctpAllowanceCollection.state.get(key)) {
 		cctpAllowanceCollection.update(key, (draft) => {
@@ -31,7 +29,7 @@ export const fetchCctpAllowance = async (
 	} else {
 		cctpAllowanceCollection.insert({
 			$id,
-			$source: DataSource.Cctp,
+			$source: DataSourceId.Cctp,
 			allowance: null,
 			lastUpdated: null,
 			fetchedAt: 0,

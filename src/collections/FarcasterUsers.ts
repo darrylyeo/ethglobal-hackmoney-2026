@@ -5,15 +5,13 @@ import {
 import { parse, stringify } from 'devalue'
 import { singleFlight } from '$/lib/singleFlight.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type { FarcasterUser } from '$/data/FarcasterUser.ts'
 import {
 	fetchUserDataByFid,
 	fetchUsernameProofsByFid,
 	fetchVerificationsByFid,
 } from '$/api/farcaster/index.ts'
-
-export type FarcasterUserRow = FarcasterUser & { $source: DataSource }
 
 const USER_DATA_TYPE = {
 	PFP: 'USER_DATA_TYPE_PFP',
@@ -22,7 +20,7 @@ const USER_DATA_TYPE = {
 	URL: 'USER_DATA_TYPE_URL',
 } as const
 
-const getKey = (row: FarcasterUserRow) => `fid:${row.$id.fid}`
+const getKey = (row: WithSource<FarcasterUser>) => `fid:${row.$id.fid}`
 
 export const farcasterUsersCollection = createCollection(
 	localStorageCollectionOptions({
@@ -34,10 +32,10 @@ export const farcasterUsersCollection = createCollection(
 )
 
 export const ensureFarcasterUser = singleFlight(
-	async (fid: number): Promise<FarcasterUserRow> => {
+	async (fid: number): Promise<WithSource<FarcasterUser>> => {
 		const key = `fid:${fid}`
 		const existing = farcasterUsersCollection.state.get(key) as
-			| FarcasterUserRow
+			| WithSource<FarcasterUser>
 			| undefined
 		if (existing) return existing
 
@@ -47,9 +45,9 @@ export const ensureFarcasterUser = singleFlight(
 			fetchVerificationsByFid(fid).catch(() => ({ messages: [] })),
 		])
 
-		const user: FarcasterUserRow = {
+		const user: WithSource<FarcasterUser> = {
 			$id: { fid },
-			$source: DataSource.Farcaster,
+			$source: DataSourceId.Farcaster,
 		}
 
 		for (const m of userDataRes.messages ?? []) {
@@ -63,11 +61,11 @@ export const ensureFarcasterUser = singleFlight(
 		}
 
 		const fname = proofsRes.proofs?.[0]?.name
-		if (fname) (user as FarcasterUserRow).username = fname
+		if (fname) (user as WithSource<FarcasterUser>).username = fname
 
 		const addr =
 			verificationsRes.messages?.[0]?.data?.verificationAddEthAddressBody?.address
-		if (addr) (user as FarcasterUserRow).verifiedAddress = addr
+		if (addr) (user as WithSource<FarcasterUser>).verifiedAddress = addr
 
 		farcasterUsersCollection.insert(user)
 		return user

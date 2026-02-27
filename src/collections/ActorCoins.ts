@@ -10,18 +10,16 @@ import {
 import { parse, stringify } from 'devalue'
 import { getErc20Balance } from '$/api/voltaire.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import { erc20Instances, type Erc20Token } from '$/constants/coin-instances.ts'
 import type { ChainId } from '$/constants/networks.ts'
 import { toInteropName } from '$/constants/interop.ts'
 import { createProviderForChain } from '$/lib/helios-rpc.ts'
 import type { ActorCoin, ActorCoin$Id, ActorCoinToken } from '$/data/ActorCoin.ts'
 
-export type ActorCoinRow = ActorCoin & { $source: DataSource }
-
 const actorCoinKeyParts = (id: ActorCoin$Id) => stringify(id)
 
-const actorCoinKey = (row: ActorCoinRow) => actorCoinKeyParts(row.$id)
+const actorCoinKey = (row: WithSource<ActorCoin>) => actorCoinKeyParts(row.$id)
 
 export const actorCoinsCollection = createCollection(
 	localStorageCollectionOptions({
@@ -52,20 +50,20 @@ export const fetchActorCoinBalance = async (
 	$id: ActorCoin$Id,
 	symbol: string,
 	decimals: number,
-): Promise<ActorCoinRow> => {
+): Promise<WithSource<ActorCoin>> => {
 	const key = actorCoinKeyParts($id)
 
 	// Set loading state
 	if (actorCoinsCollection.state.get(key)) {
 		actorCoinsCollection.update(key, (draft) => {
-			draft.$source = DataSource.Voltaire
+			draft.$source = DataSourceId.Voltaire
 			draft.isLoading = true
 			draft.error = null
 		})
 	} else {
 		actorCoinsCollection.insert({
 			$id,
-			$source: DataSource.Voltaire,
+			$source: DataSourceId.Voltaire,
 			symbol,
 			decimals,
 			balance: 0n,
@@ -74,9 +72,9 @@ export const fetchActorCoinBalance = async (
 		})
 	}
 
-	const fullRow = (balance: bigint, error: string | null): ActorCoinRow => ({
+	const fullRow = (balance: bigint, error: string | null): WithSource<ActorCoin> => ({
 		$id,
-		$source: DataSource.Voltaire,
+		$source: DataSourceId.Voltaire,
 		symbol,
 		decimals,
 		balance,

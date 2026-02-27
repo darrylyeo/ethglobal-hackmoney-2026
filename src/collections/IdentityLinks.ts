@@ -6,7 +6,7 @@
 
 import { resolveIdentity } from '$/api/identity-resolve.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import { ChainId } from '$/constants/networks.ts'
 import { IdentityInputKind, type IdentityResolution } from '$/constants/identity-resolver.ts'
 import { normalizeIdentity } from '$/api/identity-resolve.ts'
@@ -18,7 +18,7 @@ import {
 import { parse, stringify } from 'devalue'
 
 export type IdentityLinkRow = IdentityResolution & {
-	$source: DataSource
+	$source: DataSourceId
 	isLoading?: boolean
 }
 
@@ -63,8 +63,8 @@ export const fetchIdentityLink = async (
 		chainId,
 		createdAt: now,
 		updatedAt: now,
-		source: DataSource.Voltaire,
-		$source: DataSource.Voltaire,
+		source: DataSourceId.Voltaire,
+		$source: DataSourceId.Voltaire,
 		isLoading: true,
 	}
 	if (!url) {
@@ -94,8 +94,8 @@ export const fetchIdentityLink = async (
 			chainId,
 			createdAt: existing?.createdAt ?? now,
 			updatedAt: now,
-			source: DataSource.Voltaire,
-			$source: DataSource.Voltaire,
+			source: DataSourceId.Voltaire,
+			$source: DataSourceId.Voltaire,
 			isLoading: false,
 		}
 		identityLinks.utils.writeUpsert(failed)
@@ -116,8 +116,8 @@ export const fetchIdentityLink = async (
 		name: partial.name,
 		textRecords: partial.textRecords,
 		avatarUrl: partial.avatarUrl,
-		source: DataSource.Voltaire,
-		$source: DataSource.Voltaire,
+		source: DataSourceId.Voltaire,
+		$source: DataSourceId.Voltaire,
 		isLoading: false,
 	}
 	identityLinks.utils.writeUpsert(row)

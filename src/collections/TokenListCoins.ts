@@ -1,5 +1,5 @@
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import { toInteropName } from '$/constants/interop.ts'
 import { TOKEN_LIST_MAX_ENTRIES } from '$/constants/query-limits.ts'
 import { tokenListUrls } from '$/constants/token-lists.ts'
@@ -8,8 +8,6 @@ import { normalizeAddress } from '$/lib/address.ts'
 import { queryClient } from '$/lib/db/queryClient.ts'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { createCollection } from '@tanstack/svelte-db'
-
-export type TokenListCoinRow = TokenListCoin & { $source: DataSource }
 
 type TokenListEntry = {
 	chainId: number
@@ -65,7 +63,7 @@ const fetchTokenList = async (url: string): Promise<TokenListEntry[]> => {
 		.filter((entry): entry is TokenListEntry => entry !== null)
 }
 
-const fetchTokenListEntries = async (): Promise<TokenListCoinRow[]> => {
+const fetchTokenListEntries = async (): Promise<WithSource<TokenListCoin>[]> => {
 	const results = await Promise.allSettled(tokenListUrls.map(fetchTokenList))
 	const rows = results
 		.filter(
@@ -75,8 +73,8 @@ const fetchTokenListEntries = async (): Promise<TokenListCoinRow[]> => {
 		.flatMap((result) => result.value)
 		.map(normalizeTokenListEntry)
 		.filter((entry): entry is TokenListCoin => entry !== null)
-		.map((entry) => ({ ...entry, $source: DataSource.TokenLists }))
-	const unique = new Map<string, TokenListCoinRow>()
+		.map((entry) => ({ ...entry, $source: DataSourceId.TokenLists }))
+	const unique = new Map<string, WithSource<TokenListCoin>>()
 	for (const coin of rows) {
 		if (unique.size >= TOKEN_LIST_MAX_ENTRIES) break
 		unique.set(
@@ -93,7 +91,7 @@ export const tokenListCoinsCollection = createCollection(
 		queryKey: [CollectionId.TokenListCoins],
 		queryFn: fetchTokenListEntries,
 		queryClient,
-		getKey: (row: TokenListCoinRow) =>
+		getKey: (row: WithSource<TokenListCoin>) =>
 			`${row.$id.$network.chainId}-${row.$id.address.toLowerCase()}`,
 	}),
 )

@@ -1,5 +1,5 @@
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import {
 	storkEncodedAssetIdByAssetId,
@@ -22,8 +22,6 @@ import { Abi, decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
 import { toBytes } from '@tevm/voltaire/Hex'
 import { parse, stringify } from 'devalue'
 import { env } from '$env/dynamic/public'
-
-export type StorkPriceRow = StorkPrice & { $source: DataSource }
 
 type StorkPricePayload = {
 	assetId: string
@@ -53,12 +51,12 @@ export const storkPricesCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.StorkPrices,
 		storageKey: CollectionId.StorkPrices,
-		getKey: (row: StorkPriceRow) => stringify(row.$id),
+		getKey: (row: WithSource<StorkPrice>) => stringify(row.$id),
 		parser: { stringify, parse },
 	}),
 )
 
-const updateStorkPrice = (price: StorkPriceRow) => {
+const updateStorkPrice = (price: WithSource<StorkPrice>) => {
 	const key = stringify(price.$id)
 	const existing = storkPricesCollection.state.get(key)
 	if (existing) {
@@ -78,7 +76,7 @@ const setStorkPriceLoading = (
 	const existing = storkPricesCollection.state.get(key)
 	const next = {
 		$id,
-		$source: DataSource.Stork,
+		$source: DataSourceId.Stork,
 		assetId: $id.assetId,
 		transport: $id.transport,
 		encodedAssetId,
@@ -100,7 +98,7 @@ const setStorkPriceError = (
 	const existing = storkPricesCollection.state.get(key)
 	updateStorkPrice({
 		$id,
-		$source: DataSource.Stork,
+		$source: DataSourceId.Stork,
 		assetId: $id.assetId,
 		transport: $id.transport,
 		encodedAssetId,
@@ -124,7 +122,7 @@ const upsertStorkPricePayload = (
 			transport,
 			...(chainId !== null && chainId !== undefined ? { $network: { chainId } } : {}),
 		},
-		$source: DataSource.Stork,
+		$source: DataSourceId.Stork,
 		assetId: payload.assetId,
 		transport,
 		encodedAssetId,
@@ -551,10 +549,10 @@ export const subscribeStorkPrices = ({
 }
 
 export const getBestStorkPrice = (
-	rows: StorkPriceRow[],
+	rows: WithSource<StorkPrice>[],
 	assetId: string,
 	chainId: number | null,
-): StorkPriceRow | null => {
+): WithSource<StorkPrice> | null => {
 	const candidates = rows.filter(
 		(price) =>
 			price.assetId === assetId &&

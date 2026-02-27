@@ -11,7 +11,7 @@ import {
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
 import { getRoutesForUsdcBridge, type NormalizedRoute } from '$/api/lifi.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type {
 	BridgeRoute,
 	BridgeRoutes,
@@ -19,13 +19,12 @@ import type {
 } from '$/data/BridgeRoute.ts'
 import { categorizeError, isBridgeError } from '$/lib/bridge/errors.ts'
 
-export type BridgeRoutesRow = BridgeRoutes & { $source: DataSource }
 export type BridgeRouteItemRow = BridgeRoute & {
 	$id: {
 		routeId: string
 		quote: BridgeRoutes$Id
 	}
-	$source: DataSource
+	$source: DataSourceId
 	fetchedAt: number
 }
 
@@ -34,7 +33,7 @@ const ROUTES_REQUEST_TIMEOUT_MS = 45_000
 export const bridgeRoutesCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.BridgeRoutes,
-		getKey: (route: BridgeRoutesRow) => stringify(route.$id),
+		getKey: (route: WithSource<BridgeRoutes>) => stringify(route.$id),
 	}),
 )
 
@@ -74,14 +73,14 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$Id) => {
 	// Set loading state
 	if (existing) {
 		bridgeRoutesCollection.update(key, (draft) => {
-			draft.$source = DataSource.LiFi
+			draft.$source = DataSourceId.LiFi
 			draft.isLoading = true
 			draft.error = null
 		})
 	} else {
 		bridgeRoutesCollection.insert({
 			$id,
-			$source: DataSource.LiFi,
+			$source: DataSourceId.LiFi,
 			routes: [],
 			fetchedAt: 0,
 			isLoading: true,
@@ -109,7 +108,7 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$Id) => {
 		const routes = apiRoutes.map(normalizedToBridgeRoute)
 		const fetchedAt = Date.now()
 		bridgeRoutesCollection.update(key, (draft) => {
-			draft.$source = DataSource.LiFi
+			draft.$source = DataSourceId.LiFi
 			draft.routes = routes
 			draft.fetchedAt = fetchedAt
 			draft.isLoading = false
@@ -121,13 +120,13 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$Id) => {
 				routeId: route.id,
 				quote: $id,
 			},
-			$source: DataSource.LiFi,
+			$source: DataSourceId.LiFi,
 			fetchedAt,
 		}))
 		const routeKeys = new Set(routeEntries.map((route) => stringify(route.$id)))
 		for (const [routeKey, route] of bridgeRouteItemsCollection.state) {
 			if (
-				route.$source === DataSource.LiFi &&
+				route.$source === DataSourceId.LiFi &&
 				stringify(route.$id.quote) === key &&
 				!routeKeys.has(routeKey)
 			)
@@ -147,7 +146,7 @@ export const fetchBridgeRoutes = async ($id: BridgeRoutes$Id) => {
 		return { routes, fetchedAt }
 	} catch (e) {
 		bridgeRoutesCollection.update(key, (draft) => {
-			draft.$source = DataSource.LiFi
+			draft.$source = DataSourceId.LiFi
 			draft.isLoading = false
 			draft.error = isBridgeError(e) ? e : categorizeError(e)
 		})

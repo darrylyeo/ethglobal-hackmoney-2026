@@ -7,7 +7,7 @@ import type { NormalizedTransferEvent } from '$/api/transfers-logs.ts'
 import { fetchTransferEventsForPeriod } from '$/api/transfers-logs.ts'
 import type { CoinId } from '$/constants/coins.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,
@@ -28,7 +28,7 @@ export type TransferEvent$Id = {
 
 export type TransferEventRow = {
 	$id: TransferEvent$Id
-	$source: DataSource
+	$source: DataSourceId
 } & NormalizedTransferEvent
 
 export type TransferEventsMetaRow = {
@@ -39,7 +39,7 @@ export type TransferEventsMetaRow = {
 		blockNumber: -1
 		logIndex: -1
 	}
-	$source: DataSource
+	$source: DataSourceId
 	isLoading: boolean
 	error: string | null
 }
@@ -127,7 +127,7 @@ export async function fetchTransferEvents(
 						blockNumber: -1,
 						logIndex: -1,
 					},
-					$source: DataSource.Voltaire,
+					$source: DataSourceId.Voltaire,
 					isLoading: true,
 					error: null,
 				} as TransferEventsMetaRow)
@@ -154,7 +154,7 @@ export async function fetchTransferEvents(
 						blockNumber: e.blockNumber,
 						logIndex: e.logIndex,
 					},
-					$source: '$source' in e ? e.$source : DataSource.Voltaire,
+					$source: '$source' in e ? e.$source : DataSourceId.Voltaire,
 					transactionHash: e.transactionHash,
 					fromAddress: e.fromAddress,
 					toAddress: e.toAddress,
@@ -183,7 +183,7 @@ export async function fetchTransferEvents(
 					blockNumber: e.blockNumber,
 					logIndex: e.logIndex,
 				},
-				$source: '$source' in e ? e.$source : DataSource.Voltaire,
+				$source: '$source' in e ? e.$source : DataSourceId.Voltaire,
 				...e,
 			})) as TransferEventRow[]
 			upsertBridgeTransferEvents(coinId, period, rows)

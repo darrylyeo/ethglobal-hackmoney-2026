@@ -1,5 +1,5 @@
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import {
 	type LlmConnection,
 	LlmConnectionProvider,
@@ -10,13 +10,11 @@ import {
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 
-export type LlmConnectionRow = LlmConnection & { $source: DataSource }
-
 export const llmConnectionsCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.LlmConnections,
 		storageKey: CollectionId.LlmConnections,
-		getKey: (row: LlmConnectionRow) => row.id,
+		getKey: (row: WithSource<LlmConnection>) => row.id,
 		parser: { stringify, parse },
 	}),
 )
@@ -29,7 +27,7 @@ export const addLlmConnection = (connection: Omit<LlmConnection, 'id' | 'created
 		id,
 		createdAt: now,
 		updatedAt: now,
-		$source: DataSource.Local,
+		$source: DataSourceId.Local,
 	})
 	return id
 }

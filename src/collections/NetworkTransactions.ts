@@ -8,7 +8,7 @@ import {
 	getTransactionReceipt,
 } from '$/api/voltaire.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import type { ChainId } from '$/constants/networks.ts'
 import { normalizeAddress } from '$/lib/address.ts'
 import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
@@ -27,7 +27,7 @@ const getKey = (tx: ChainTransactionEntry) =>
 	`${tx.$id.$network.chainId}:${normalizeTxHash(tx.$id.txHash)}`
 
 export type ChainTransactionRow = ChainTransactionEntry & {
-	$source: DataSource
+	$source: DataSourceId
 	isLoading?: boolean
 	error?: string | null
 }
@@ -99,7 +99,7 @@ export const fetchNetworkTransaction = async (
 				: null,
 			effectiveGasPrice: receipt?.effectiveGasPrice ? BigInt(receipt.effectiveGasPrice) : undefined,
 			logs: receipt?.logs ?? [],
-			$source: DataSource.Voltaire,
+			$source: DataSourceId.Voltaire,
 			isLoading: false,
 			error: null,
 		}

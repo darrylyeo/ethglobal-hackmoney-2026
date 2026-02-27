@@ -3,18 +3,16 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { type WithSource } from '$/constants/data-sources.ts'
 import type { Room } from '$/data/Room.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 
-export type RoomRow = Room & { $source: DataSource }
-
 export const partykitRoomsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.PartykitRooms,
-		getKey: (room: RoomRow) => room.$id.id,
+		getKey: (room: WithSource<Room>) => room.$id.id,
 	}),
 )

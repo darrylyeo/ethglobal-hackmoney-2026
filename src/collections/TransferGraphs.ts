@@ -11,7 +11,7 @@ import {
 } from '$/api/transfers-indexer.ts'
 import type { NormalizedTransferEvent } from '$/api/transfers-logs.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,
@@ -23,7 +23,7 @@ export type TransferGraphRow = {
 	graph: TransferGraph
 	period: string
 	periods: readonly TimePeriodEntry[]
-	$source: DataSource
+	$source: DataSourceId
 	isLoading: boolean
 	error: string | null
 }
@@ -60,7 +60,7 @@ export function upsertGraphFromEvents(
 		graph,
 		period,
 		periods: TIME_PERIODS,
-		$source: DataSource.Voltaire,
+		$source: DataSourceId.Voltaire,
 		isLoading: false,
 		error: null,
 	}

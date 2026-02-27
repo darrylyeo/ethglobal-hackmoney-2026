@@ -4,7 +4,7 @@
 
 import { getQuoteStepWithTransaction } from '$/api/lifi.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type {
 	BridgeQuoteItem,
 	BridgeQuoteTransactionRequest,
@@ -15,8 +15,6 @@ import {
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify } from 'devalue'
-
-export type BridgeQuoteItemRow = BridgeQuoteItem & { $source: DataSource }
 
 function stepToTransactionRequests(
 	step: {
@@ -50,7 +48,7 @@ function stepToTransactionRequests(
 export const bridgeQuoteItemsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.BridgeQuoteItems,
-		getKey: (row: BridgeQuoteItemRow) => row.$id,
+		getKey: (row: WithSource<BridgeQuoteItem>) => row.$id,
 	}),
 )
 
@@ -62,14 +60,14 @@ export const fetchBridgeQuote = async (
 ): Promise<BridgeQuoteItem | null> => {
 	const key = getBridgeQuoteRequestKey($id)
 	const existing = bridgeQuoteItemsCollection.state.get(key)
-	const item: BridgeQuoteItemRow = {
+	const item: WithSource<BridgeQuoteItem> = {
 		$id: key,
 		request: $id,
 		success: false,
 		transactionRequests: [],
 		fetchedAt: Date.now(),
 		error: null,
-		$source: DataSource.LiFi,
+		$source: DataSourceId.LiFi,
 	}
 	if (existing) {
 		bridgeQuoteItemsCollection.update(key, (draft) => {

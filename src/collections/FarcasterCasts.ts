@@ -4,7 +4,7 @@ import {
 } from '@tanstack/svelte-db'
 import { parse, stringify } from 'devalue'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type { FarcasterCast, FarcasterCast$Id } from '$/data/FarcasterCast.ts'
 import { singleFlight } from '$/lib/singleFlight.ts'
 import {
@@ -21,19 +21,17 @@ import {
 	type CastMessage,
 } from '$/api/farcaster/index.ts'
 
-export type FarcasterCastRow = FarcasterCast & { $source: DataSource }
-
 /** Normalize cast hash to lowercase for consistent cache keys. */
 const normalizeCastHash = (h: `0x${string}`): `0x${string}` =>
 	h.slice(0, 2) + h.slice(2).toLowerCase() as `0x${string}`
 
-const getKey = (row: FarcasterCastRow) =>
+const getKey = (row: WithSource<FarcasterCast>) =>
 	`${row.$id.fid}:${normalizeCastHash(row.$id.hash)}`
 
 /** FarcasterCast.timestamp is stored as Unix ms. API returns seconds; normalize at ingest. */
 const toTimestampMs = (t: number): number => (t < 1e12 ? t * 1000 : t)
 
-const normalizeCast = (m: CastMessage): FarcasterCastRow | null => {
+const normalizeCast = (m: CastMessage): WithSource<FarcasterCast> | null => {
 	const data = m.data
 	if (!data) return null
 	const body = data.castAddBody ?? { text: '', mentions: [], embeds: [] }
@@ -58,7 +56,7 @@ const normalizeCast = (m: CastMessage): FarcasterCastRow | null => {
 						}
 					: { url: 'url' in e ? e.url : undefined },
 			) ?? [],
-		$source: DataSource.Farcaster,
+		$source: DataSourceId.Farcaster,
 	}
 }
 
@@ -110,12 +108,12 @@ export const ensureCastsForFid = singleFlight(
 /** Resolve cast by full hash only. Uses collection lookup or Neynar API. */
 export const ensureCastByHash = async (
 	hash: `0x${string}`,
-): Promise<FarcasterCastRow> => {
+): Promise<WithSource<FarcasterCast>> => {
 	if (!isFullHash(hash)) throw new Error('Full hash required for hash-only lookup')
 	const norm = normalizeCastHash(hash)
 	const existingByHash = [...farcasterCastsCollection.state.values()].find(
-		(r) => normalizeCastHash((r as FarcasterCastRow).$id.hash) === norm,
-	) as FarcasterCastRow | undefined
+		(r) => normalizeCastHash((r as WithSource<FarcasterCast>).$id.hash) === norm,
+	) as WithSource<FarcasterCast> | undefined
 	if (existingByHash) return ensureCast(existingByHash.$id.fid, hash)
 	const resolved = await fetchCastByHash(hash)
 	if (!resolved) throw new Error('Cast not found')
@@ -126,10 +124,10 @@ export const ensureCast = singleFlight(
 	async (
 		fid: number,
 		hash: `0x${string}`,
-	): Promise<FarcasterCastRow> => {
+	): Promise<WithSource<FarcasterCast>> => {
 		const key = `${fid}:${normalizeCastHash(hash)}`
 		const existing = farcasterCastsCollection.state.get(key) as
-			| FarcasterCastRow
+			| WithSource<FarcasterCast>
 			| undefined
 		if (
 			existing &&
@@ -184,7 +182,7 @@ export const ensureCastsByMention = singleFlight(
 
 /** Ensure cast and all ancestors are loaded. Used when viewing a reply to show full thread context. */
 export const ensureCastAncestorChain = async (
-	c: FarcasterCastRow,
+	c: WithSource<FarcasterCast>,
 ): Promise<void> => {
 	if (!c.parentFid || !c.parentHash) return
 	const parent = await ensureCast(c.parentFid, c.parentHash)

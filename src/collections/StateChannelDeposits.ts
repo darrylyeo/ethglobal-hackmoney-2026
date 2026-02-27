@@ -3,7 +3,7 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import { Protocol } from '$/constants/protocol.ts'
 import type { YellowDeposit } from '$/data/YellowDeposit.ts'
 import {
@@ -12,7 +12,7 @@ import {
 } from '@tanstack/svelte-db'
 
 export type StateChannelDepositRow = YellowDeposit & {
-	$source: DataSource
+	$source: DataSourceId
 	protocol: Protocol
 }
 

@@ -5,7 +5,7 @@
 import type { FetchPositionsParams } from '$/api/uniswap.ts'
 import { fetchPositionsFromSubgraph } from '$/api/uniswap-subgraph.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type { UniswapPosition } from '$/data/UniswapPosition.ts'
 import {
 	createCollection,
@@ -14,9 +14,7 @@ import {
 import { parse, stringify } from 'devalue'
 import { normalizeUniswapPosition } from './UniswapPositionsNormalize.ts'
 
-export type UniswapPositionRow = UniswapPosition & { $source: DataSource }
-
-const getKey = (position: UniswapPositionRow) => `${position.$id.chainId}:${position.$id.id}`
+const getKey = (position: WithSource<UniswapPosition>) => `${position.$id.chainId}:${position.$id.id}`
 
 export const uniswapPositionsCollection = createCollection(
 	localStorageCollectionOptions({
@@ -35,34 +33,34 @@ export const fetchUniswapPositions = async (
 ): Promise<UniswapPosition[]> => {
 	const fromSubgraph = await fetchPositionsFromSubgraph(params).catch(() => [])
 	for (const pos of fromSubgraph) {
-		const position: UniswapPositionRow = {
+		const row: WithSource<UniswapPosition> = {
 			...normalizeUniswapPosition(pos),
-			$source: DataSource.Uniswap,
+			$source: DataSourceId.Uniswap,
 		}
-		const key = getKey(position)
+		const key = getKey(row)
 		const existing = uniswapPositionsCollection.state.get(key)
 		if (existing) {
 			uniswapPositionsCollection.update(key, (draft) => {
-				Object.assign(draft, position)
+				Object.assign(draft, row)
 			})
 		} else {
-			uniswapPositionsCollection.insert(position)
+			uniswapPositionsCollection.insert(row)
 		}
 	}
 	const fromSdk = getPositions ? await getPositions(params).catch(() => []) : []
 	for (const pos of fromSdk) {
-		const position: UniswapPositionRow = {
+		const row: WithSource<UniswapPosition> = {
 			...normalizeUniswapPosition(pos),
-			$source: DataSource.Uniswap,
+			$source: DataSourceId.Uniswap,
 		}
-		const key = getKey(position)
+		const key = getKey(row)
 		const existing = uniswapPositionsCollection.state.get(key)
 		if (existing) {
 			uniswapPositionsCollection.update(key, (draft) => {
-				Object.assign(draft, position)
+				Object.assign(draft, row)
 			})
 		} else {
-			uniswapPositionsCollection.insert(position)
+			uniswapPositionsCollection.insert(row)
 		}
 	}
 	return fromSubgraph.length ? fromSubgraph : fromSdk

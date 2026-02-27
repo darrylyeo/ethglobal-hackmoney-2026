@@ -8,7 +8,7 @@ import type { ProviderKey, SimulatedQuote, SuccessfulSimulatedQuote } from '@spa
 import type { ProtocolStrategy } from '$/constants/protocols.ts'
 import { protocolStrategyQuoteMetric } from '$/constants/protocol-aggregator-quote-strategies.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type {
 	SpandexQuoteItem,
 	SpandexQuoteRequestId,
@@ -20,8 +20,6 @@ import {
 import { stringify } from 'devalue'
 import { getSpandexQuoteForProvider, spandexConfig } from '$/api/protocol-aggregator.ts'
 import type { FetchSwapQuoteParams } from '$/data/SwapQuote.ts'
-
-export type SpandexQuoteItemRow = SpandexQuoteItem & { $source: DataSource }
 
 const MISMATCH_THRESHOLD_BPS = 50
 
@@ -106,7 +104,7 @@ function normalizedItem(
 export const spandexQuoteItemsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.SpandexQuoteItems,
-		getKey: (item: SpandexQuoteItemRow) => stringify(item.$id),
+		getKey: (item: WithSource<SpandexQuoteItem>) => stringify(item.$id),
 	}),
 )
 
@@ -129,9 +127,9 @@ export const fetchSpandexQuoteForProvider = async (
 	const quote = await getSpandexQuoteForProvider(swap, provider)
 	if (!quote) return null
 	const fetchedAt = Date.now()
-	const item: SpandexQuoteItemRow = {
+	const item: WithSource<SpandexQuoteItem> = {
 		...normalizedItem(params, quote, fetchedAt),
-		$source: DataSource.Spandex,
+		$source: DataSourceId.Spandex,
 	}
 	const key = stringify(item.$id)
 	const existing = spandexQuoteItemsCollection.state.get(key)
@@ -179,16 +177,16 @@ export const fetchSpandexQuotes = async (
 					...failed,
 				]
 			: [...successful, ...failed]
-	const items: SpandexQuoteItemRow[] = orderedQuotes.map((q) => ({
+	const items: WithSource<SpandexQuoteItem>[] = orderedQuotes.map((q) => ({
 		...normalizedItem(params, q, fetchedAt),
-		$source: DataSource.Spandex,
+		$source: DataSourceId.Spandex,
 	}))
 
 	const existingKeys = new Set(
 		[...spandexQuoteItemsCollection.state]
 			.filter(
 				([_, item]) =>
-					item.$source === DataSource.Spandex &&
+					item.$source === DataSourceId.Spandex &&
 					stringify(item.requestId) === reqKey,
 			)
 			.map(([k]) => k),

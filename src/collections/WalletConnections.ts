@@ -6,12 +6,15 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,
 } from '@tanstack/svelte-db'
 import { stringify, parse } from 'devalue'
-import { type WalletRow, getWallet } from '$/collections/Wallets.ts'
+import { getWallet } from '$/collections/Wallets.ts'
+import type { WithSource } from '$/constants/data-sources.ts'
+import type { Wallet } from '$/data/Wallet.ts'
 import type {
 	ReadOnlyWallet,
 	WalletConnection$Id,
@@ -34,7 +37,7 @@ export type WalletConnectionRow =
 export type ReadOnlyWalletRow = ReadOnlyWallet
 
 export type ConnectedWallet =
-	| { wallet: WalletRow; connection: WalletConnectionEip1193 }
+	| { wallet: WithSource<Wallet>; connection: WalletConnectionEip1193 }
 	| { wallet: ReadOnlyWalletRow; connection: WalletConnectionNone }
 
 export const walletConnectionsCollection = createCollection(
@@ -187,7 +190,7 @@ export const setSelectedConnections = (rdnsSet: Set<string>) => {
 		const shouldSelect = rdnsSet.has(rdns)
 		if (conn.selected !== shouldSelect) {
 			walletConnectionsCollection.update(key, (draft) => {
-				draft.$source = DataSource.Local
+				draft.$source = DataSourceId.Local
 				draft.selected = shouldSelect
 			})
 		}

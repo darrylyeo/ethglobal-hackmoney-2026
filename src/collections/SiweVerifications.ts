@@ -4,19 +4,17 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { type WithSource } from '$/constants/data-sources.ts'
 import {
 	createCollection,
 	localOnlyCollectionOptions,
 } from '@tanstack/svelte-db'
 import type { Verification } from '$/data/Verification.ts'
 
-export type VerificationRow = Verification & { $source: DataSource }
-
 export const siweVerificationsCollection = createCollection(
 	localOnlyCollectionOptions({
 		id: CollectionId.SiweVerifications,
-		getKey: (row: VerificationRow) => row.id,
+		getKey: (row: WithSource<Verification>) => row.id,
 	}),
 )
 

@@ -5,7 +5,7 @@
 import type { FetchPoolsParams } from '$/api/uniswap.ts'
 import { fetchPoolsFromSubgraph } from '$/api/uniswap-subgraph.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type { UniswapPool } from '$/data/UniswapPool.ts'
 import {
 	createCollection,
@@ -14,9 +14,7 @@ import {
 import { parse, stringify } from 'devalue'
 import { normalizeUniswapPool } from './UniswapPoolsNormalize.ts'
 
-export type UniswapPoolRow = UniswapPool & { $source: DataSource }
-
-const getKey = (pool: UniswapPoolRow) => `${pool.$id.chainId}:${pool.$id.id}`
+const getKey = (pool: WithSource<UniswapPool>) => `${pool.$id.chainId}:${pool.$id.id}`
 
 export const uniswapPoolsCollection = createCollection(
 	localStorageCollectionOptions({
@@ -33,18 +31,18 @@ export const fetchUniswapPools = async (
 ): Promise<UniswapPool[]> => {
 	const pools = await getPools(params)
 	for (const pool of pools) {
-		const pool: UniswapPoolRow = {
+		const row: WithSource<UniswapPool> = {
 			...normalizeUniswapPool(pool),
-			$source: DataSource.Uniswap,
+			$source: DataSourceId.Uniswap,
 		}
-		const key = getKey(pool)
+		const key = getKey(row)
 		const existing = uniswapPoolsCollection.state.get(key)
 		if (existing) {
 			uniswapPoolsCollection.update(key, (draft) => {
-				Object.assign(draft, pool)
+				Object.assign(draft, row)
 			})
 		} else {
-			uniswapPoolsCollection.insert(pool)
+			uniswapPoolsCollection.insert(row)
 		}
 	}
 	return pools
@@ -57,18 +55,18 @@ export const fetchUniswapPoolsFromSubgraphAndUpsert = async (
 ): Promise<UniswapPool[]> => {
 	const pools = await fetchPoolsFromSubgraph({ chainId, first, skip })
 	for (const pool of pools) {
-		const pool: UniswapPoolRow = {
+		const row: WithSource<UniswapPool> = {
 			...normalizeUniswapPool(pool),
-			$source: DataSource.Uniswap,
+			$source: DataSourceId.Uniswap,
 		}
-		const key = getKey(pool)
+		const key = getKey(row)
 		const existing = uniswapPoolsCollection.state.get(key)
 		if (existing) {
 			uniswapPoolsCollection.update(key, (draft) => {
-				Object.assign(draft, pool)
+				Object.assign(draft, row)
 			})
 		} else {
-			uniswapPoolsCollection.insert(pool)
+			uniswapPoolsCollection.insert(row)
 		}
 	}
 	return pools

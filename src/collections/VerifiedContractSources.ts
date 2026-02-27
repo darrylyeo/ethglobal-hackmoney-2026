@@ -10,7 +10,7 @@ import {
 import { parse, stringify } from 'devalue'
 import { fetchVerifiedContract } from '$/api/sourcify.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import type { ChainId } from '$/constants/networks.ts'
 import type {
 	VerifiedContractSourceEntry,
@@ -22,7 +22,7 @@ const getKey = (source: VerifiedContractSourceRow) =>
 	`${source.$id.$network.chainId}:${source.$id.address.toLowerCase()}`
 
 export type VerifiedContractSourceRow = VerifiedContractSourceEntry & {
-	$source: DataSource
+	$source: DataSourceId
 	isLoading?: boolean
 	notFound?: boolean
 	error?: string | null
@@ -60,7 +60,7 @@ export async function fetchVerifiedContractSource(
 			const source: VerifiedContractSourceRow = {
 				$id,
 				files: {},
-				$source: DataSource.Sourcify,
+				$source: DataSourceId.Sourcify,
 				notFound: true,
 				isLoading: false,
 				error: null,
@@ -76,7 +76,7 @@ export async function fetchVerifiedContractSource(
 		}
 		const source: VerifiedContractSourceRow = {
 			...entry,
-			$source: DataSource.Sourcify,
+			$source: DataSourceId.Sourcify,
 			notFound: false,
 			isLoading: false,
 			error: null,

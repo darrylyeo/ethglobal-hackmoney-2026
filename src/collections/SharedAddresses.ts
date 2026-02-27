@@ -3,7 +3,7 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import {
 	createCollection,
 	localStorageCollectionOptions,
@@ -11,13 +11,11 @@ import {
 import { parse, stringify } from 'devalue'
 import type { SharedAddress } from '$/data/SharedAddress.ts'
 
-export type SharedAddressRow = SharedAddress & { $source: DataSource }
-
 export const sharedAddressesCollection = createCollection(
 	localStorageCollectionOptions({
 		id: CollectionId.SharedAddresses,
 		storageKey: CollectionId.SharedAddresses,
-		getKey: (row: SharedAddressRow) => row.id,
+		getKey: (row: WithSource<SharedAddress>) => row.id,
 		parser: { stringify, parse },
 	}),
 )

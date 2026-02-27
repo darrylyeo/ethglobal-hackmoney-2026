@@ -16,7 +16,7 @@ import {
 } from '$/api/voltaire.ts'
 import { fetchNetworkTransaction } from '$/collections/NetworkTransactions.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import {
 	type ChainId,
 	type Network,
@@ -27,7 +27,7 @@ import type { BlockEntry, Block$Id } from '$/data/Block.ts'
 import type { ChainTransactionEntry } from '$/data/ChainTransaction.ts'
 
 export type BlockRow = BlockEntry & {
-	$source: DataSource
+	$source: DataSourceId
 	isLoading?: boolean
 	error?: string | null
 }
@@ -138,7 +138,7 @@ export const fetchBlock = async (
 			gasLimit: block.gasLimit,
 			baseFeePerGas: block.baseFeePerGas,
 			transactionCount,
-			$source: DataSource.Voltaire,
+			$source: DataSourceId.Voltaire,
 			isLoading: false,
 			error: null,
 		}

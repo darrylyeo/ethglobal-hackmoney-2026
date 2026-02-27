@@ -6,7 +6,7 @@
 import type { ChainListChain } from '$/api/chainlist.ts'
 import { fetchChainlistChains } from '$/api/chainlist.ts'
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import { queryClient } from '$/lib/db/queryClient.ts'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { createCollection } from '@tanstack/svelte-db'
@@ -15,7 +15,7 @@ export type ChainIdChain$Id = { chainId: number }
 
 export type ChainIdChainRow = ChainListChain & {
 	$id: ChainIdChain$Id
-	$source: DataSource
+	$source: DataSourceId
 }
 
 export const chainIdChainsCollection = createCollection(
@@ -28,7 +28,7 @@ export const chainIdChainsCollection = createCollection(
 				(c): ChainIdChainRow => ({
 					...c,
 					$id: { chainId: c.chainId },
-					$source: DataSource.ChainList,
+					$source: DataSourceId.ChainList,
 				}),
 			)
 		},

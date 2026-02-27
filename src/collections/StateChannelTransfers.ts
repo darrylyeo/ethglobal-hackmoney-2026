@@ -3,7 +3,7 @@
  */
 
 import { CollectionId } from '$/constants/collections.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 import { Protocol } from '$/constants/protocol.ts'
 import type { YellowTransfer } from '$/data/YellowTransfer.ts'
 import {
@@ -12,7 +12,7 @@ import {
 } from '@tanstack/svelte-db'
 
 export type StateChannelTransferRow = YellowTransfer & {
-	$source: DataSource
+	$source: DataSourceId
 	protocol: Protocol
 }
 

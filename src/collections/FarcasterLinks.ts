@@ -5,7 +5,7 @@ import {
 import { parse, stringify } from 'devalue'
 import { CollectionId } from '$/constants/collections.ts'
 import { singleFlight } from '$/lib/singleFlight.ts'
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import type { FarcasterLink } from '$/data/FarcasterLink.ts'
 import {
 	fetchLinksByFid,
@@ -15,18 +15,16 @@ import {
 } from '$/api/farcaster/index.ts'
 import { ensureFarcasterUser } from '$/collections/FarcasterUsers.ts'
 
-export type FarcasterLinkRow = FarcasterLink & { $source: DataSource }
-
-const getKey = (row: FarcasterLinkRow) =>
+const getKey = (row: WithSource<FarcasterLink>) =>
 	`${row.$id.sourceFid}:${row.$id.targetFid}:${row.$id.linkType}`
 
 const normalizeLink = (
 	sourceFid: number,
 	targetFid: number,
 	linkType: string,
-): FarcasterLinkRow => ({
+): WithSource<FarcasterLink> => ({
 	$id: { sourceFid, targetFid, linkType },
-	$source: DataSource.Farcaster,
+	$source: DataSourceId.Farcaster,
 })
 
 export const farcasterLinksCollection = createCollection(
