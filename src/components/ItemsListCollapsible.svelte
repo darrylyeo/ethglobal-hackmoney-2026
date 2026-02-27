@@ -73,7 +73,7 @@
 	// Components
 	import Collapsible from '$/components/Collapsible.svelte'
 	import Heading from '$/components/Heading.svelte'
-	import ItemsList from '$/components/ItemsList.svelte'
+	import List from '$/components/List.svelte'
 </script>
 
 

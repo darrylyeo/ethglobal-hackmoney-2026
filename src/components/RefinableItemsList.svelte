@@ -164,7 +164,7 @@
 
 	// Components
 	import Filters from '$/components/Filters.svelte'
-	import ItemsList from '$/components/ItemsList.svelte'
+	import List from '$/components/List.svelte'
 	import Sorts from '$/components/Sorts.svelte'
 </script>
 

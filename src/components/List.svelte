@@ -9,7 +9,7 @@
 	// Types/constants
 	import type { Match } from '$/lib/fuzzyMatch.ts'
 	import type { Snippet } from 'svelte'
-	import type { ItemsListPagination } from '$/components/ItemsList.types.ts'
+	import type { ListPagination } from '$/components/List.types.ts'
 	import { useVisibleAction } from '$/lib/useVisibleAction.ts'
 	import { createViewTransition } from '$/lib/viewTransition.ts'
 	import { untrack } from 'svelte'
@@ -46,7 +46,7 @@
 		placeholderKeys: Set<_Key | [number, number]>
 		visiblePlaceholderKeys?: _Key[]
 		scrollPosition?: 'Start' | 'End' | 'Auto'
-		pagination?: ItemsListPagination
+		pagination?: ListPagination
 		searchQuery?: string
 		matchesForItem?: SvelteMap<_Item, SvelteSet<Match>>
 		GroupHeader?: Snippet<[{ groupKey: _GroupKey }]>

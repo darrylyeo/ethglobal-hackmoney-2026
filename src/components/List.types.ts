@@ -1,6 +1,6 @@
 import type { Snippet } from 'svelte'
 
-export type ItemsListPagination = {
+export type ListPagination = {
 	hasMore: boolean
 	onLoadMore: () => void
 	loading?: boolean
