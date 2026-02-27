@@ -3,6 +3,11 @@
  * https://github.com/ChainAgnostic/CAIPs, https://chainagnostic.org/CAIPs/
  */
 
+import {
+	normalizeCreated,
+	parseFrontmatter,
+	stripFrontmatter,
+} from '$/api/frontmatter.ts'
 import { DataSource } from '$/constants/data-sources.ts'
 import type { CaipEntry } from '$/data/CaipEntry.ts'
 
@@ -11,21 +16,6 @@ const CAIPS_RAW = 'https://raw.githubusercontent.com/ChainAgnostic/CAIPs/main/CA
 const OFFICIAL_BASE = 'https://chainagnostic.org/CAIPs/caip-'
 
 type GhFile = { name: string; download_url: string | null; type: string }
-
-const parseFrontmatter = (text: string): Record<string, string> => {
-	const match = text.match(/^---\s*\n([\s\S]*?)\n---/)
-	if (!match) return {}
-	const block = match[1]
-	const out: Record<string, string> = {}
-	for (const line of block.split('\n')) {
-		const colon = line.indexOf(':')
-		if (colon < 0) continue
-		const key = line.slice(0, colon).trim().toLowerCase()
-		const val = line.slice(colon + 1).trim().replace(/^['"]|['"]$/g, '')
-		if (key && val) out[key] = val
-	}
-	return out
-}
 
 const extractNumber = (name: string): number | null => {
 	const m = name.match(/^caip-(\d+)\.md$/)
@@ -59,8 +49,9 @@ export const fetchCaipEntries = async (): Promise<CaipEntry[]> => {
 				const fm = parseFrontmatter(text)
 				const caipNum = fm.caip ? parseInt(fm.caip, 10) : num
 				const title = fm.title ?? f.name.replace(/\.md$/, '')
-				const status = fm.status ?? 'Draft'
-				const type = fm.type ?? 'Informational'
+				const status = fm.status ?? ''
+				const type = fm.type ?? ''
+				const created = normalizeCreated(fm.created)
 				return {
 					$id: { id: String(caipNum) },
 					number: caipNum,
@@ -68,6 +59,7 @@ export const fetchCaipEntries = async (): Promise<CaipEntry[]> => {
 					status,
 					type,
 					url: `${OFFICIAL_BASE}${caipNum}`,
+					...(created ? { created } : {}),
 					$source: DataSource.Caips,
 				} satisfies CaipEntry
 			}),
@@ -76,4 +68,11 @@ export const fetchCaipEntries = async (): Promise<CaipEntry[]> => {
 		if (i + BATCH_SIZE < files.length) await delay(100)
 	}
 	return entries.sort((a, b) => a.number - b.number)
+}
+
+export const fetchCaipBody = async (entry: CaipEntry): Promise<string> => {
+	const res = await fetch(`${CAIPS_RAW}/caip-${entry.number}.md`)
+	if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`)
+	const text = await res.text()
+	return stripFrontmatter(text)
 }

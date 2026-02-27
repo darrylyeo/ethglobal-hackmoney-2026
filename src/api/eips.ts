@@ -6,6 +6,11 @@
 
 import { DataSource } from '$/constants/data-sources.ts'
 import { ProposalType, type ProposalEntry } from '$/data/ProposalEntry.ts'
+import {
+	normalizeCreated,
+	parseFrontmatter,
+	stripFrontmatter,
+} from '$/api/frontmatter.ts'
 
 const EIPS_API = 'https://api.github.com/repos/ethereum/EIPs/contents/EIPS?ref=master'
 const ERCS_API = 'https://api.github.com/repos/ethereum/ercs/contents/ERCS?ref=master'
@@ -14,21 +19,6 @@ const ERCS_RAW = 'https://raw.githubusercontent.com/ethereum/ercs/master/ERCS'
 const OFFICIAL_BASE = 'https://eips.ethereum.org/EIPS/eip-'
 
 type GhFile = { name: string; download_url: string | null; type: string }
-
-const parseFrontmatter = (text: string): Record<string, string> => {
-	const match = text.match(/^---\s*\n([\s\S]*?)\n---/)
-	if (!match) return {}
-	const block = match[1]
-	const out: Record<string, string> = {}
-	for (const line of block.split('\n')) {
-		const colon = line.indexOf(':')
-		if (colon < 0) continue
-		const key = line.slice(0, colon).trim().toLowerCase()
-		const val = line.slice(colon + 1).trim().replace(/^['"]|['"]$/g, '')
-		if (key && val) out[key] = val
-	}
-	return out
-}
 
 const extractNumber = (name: string): number | null => {
 	const m = name.match(/^(?:eip|erc)-(\d+)\.md$/)
@@ -48,6 +38,16 @@ const fetchFrontmatter = async (url: string): Promise<Record<string, string>> =>
 	if (!res.ok) return {}
 	const text = await res.text()
 	return parseFrontmatter(text)
+}
+
+export const fetchProposalBody = async (entry: ProposalEntry): Promise<string> => {
+	const filename =
+		entry.type === ProposalType.Erc ? `erc-${entry.number}.md` : `eip-${entry.number}.md`
+	const base = entry.type === ProposalType.Erc ? ERCS_RAW : EIPS_RAW
+	const res = await fetch(`${base}/${filename}`)
+	if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`)
+	const text = await res.text()
+	return stripFrontmatter(text)
 }
 
 const BATCH_SIZE = 8
@@ -72,15 +72,15 @@ const fetchEntriesFromRepo = async (
 				const fm = await fetchFrontmatter(url)
 				const eipNum = fm.eip ? parseInt(fm.eip, 10) : num
 				const title = fm.title ?? f.name.replace(/\.md$/, '')
-				const status = fm.status ?? 'Draft'
-				const category =
-					fm.category ?? fm.type ?? (repoKind === 'erc' ? 'ERC' : 'Unknown')
+				const status = fm.status ?? ''
+				const category = fm.category ?? fm.type ?? ''
 				const type: ProposalType =
 					repoKind === 'erc' ||
 					(fm.type && isErcType(fm.type)) ||
 					(fm.category && isErcType(fm.category))
 						? ProposalType.Erc
 						: ProposalType.Eip
+				const created = normalizeCreated(fm.created)
 				return {
 					$id: { id: String(eipNum) },
 					number: eipNum,
@@ -89,6 +89,7 @@ const fetchEntriesFromRepo = async (
 					category,
 					url: `${OFFICIAL_BASE}${eipNum}`,
 					type,
+					...(created ? { created } : {}),
 					$source: DataSource.Eips,
 				} satisfies ProposalEntry
 			}),
