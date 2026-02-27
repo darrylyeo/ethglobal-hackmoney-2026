@@ -3,7 +3,7 @@
 	import type { WithSource } from '$/constants/data-sources.ts'
 	import type { FarcasterCast } from '$/data/FarcasterCast.ts'
 	import type { FarcasterUser } from '$/data/FarcasterUser.ts'
-	import type { ListPagination } from '$/components/List.types.ts'
+	import type { ListPagination } from '$/components/List.svelte.ts'
 
 
 	// Props

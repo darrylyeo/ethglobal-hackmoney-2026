@@ -8,7 +8,7 @@
 >
 	// Types/constants
 	import type { Snippet } from 'svelte'
-	import type { ListPagination } from '$/components/List.types.ts'
+	import type { ListPagination } from '$/components/List.svelte.ts'
 
 
 	// Props

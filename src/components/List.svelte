@@ -1,3 +1,9 @@
+<script module lang="ts">
+	export type { ListPagination } from '$/components/List.svelte.ts'
+</script>
+
+
+
 <script
 	lang="ts"
 	generics="
@@ -9,7 +15,7 @@
 	// Types/constants
 	import type { Match } from '$/lib/fuzzyMatch.ts'
 	import type { Snippet } from 'svelte'
-	import type { ListPagination } from '$/components/List.types.ts'
+	import type { ListPagination } from '$/components/List.svelte.ts'
 	import { useVisibleAction } from '$/lib/useVisibleAction.ts'
 	import { createViewTransition } from '$/lib/viewTransition.ts'
 	import { untrack } from 'svelte'
