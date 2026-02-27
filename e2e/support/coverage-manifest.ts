@@ -34,6 +34,13 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/coin/[coinId]': ['usdc', 'eth', 'not-found'],
 	'/coins': ['default'],
 	'/explore/coin/[coinId]': ['default'],
+	'/evm': ['default'],
+	'/evm/error/[hex]': ['default', 'invalid-hex'],
+	'/evm/errors': ['default'],
+	'/evm/selector/[hex]': ['default', 'invalid-hex'],
+	'/evm/selectors': ['default'],
+	'/evm/topic/[hex]': ['default', 'invalid-hex'],
+	'/evm/topics': ['default'],
 	'/dashboard': ['default'],
 	'/dashboard/[dashboardId]': ['default'],
 	'/dashboards': ['default'],
@@ -63,6 +70,9 @@ export const routeBranchRequirements: Record<string, string[]> = {
 	'/peers': ['default', 'empty'],
 	'/positions/channels': ['default'],
 	'/positions/liquidity': ['default'],
+	'/positions/liquidity/pool/[chainId]/[id]': ['default', 'invalid'],
+	'/positions/liquidity/pools': ['default'],
+	'/positions/liquidity/position/[chainId]/[id]': ['default', 'invalid'],
 	'/rooms': ['join-disabled', 'join-enabled'],
 	'/rooms/[roomId]': ['share', 'peers-empty'],
 	'/rooms/[roomId]/channels': ['default'],
@@ -340,6 +350,121 @@ export const coverageScenarios: CoverageScenario[] = [
 		assert: async (page) => {
 			await expect(page).toHaveURL(/\/coin\/USDC/, { timeout: 15_000 })
 			await expect(page.locator('#main, main').first()).toBeVisible()
+		},
+	},
+	{
+		route: '/evm',
+		branch: 'default',
+		path: '/evm',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'EVM Signatures', level: 1 }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('link', { name: 'EVM selectors' }),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/evm/selectors',
+		branch: 'default',
+		path: '/evm/selectors',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/evm/errors',
+		branch: 'default',
+		path: '/evm/errors',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/evm/topics',
+		branch: 'default',
+		path: '/evm/topics',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/evm/selector/[hex]',
+		branch: 'default',
+		path: '/evm/selector/0xa9059cbb',
+		setup: async (_context, page) => {
+			const rows = [
+				{ $id: { hex: '0xa9059cbb' as `0x${string}` }, signatures: ['transfer(address,uint256)'] },
+			]
+			const payload = buildLocalStoragePayload(rows, (row) => row.$id.hex)
+			await seedLocalStorageCollectionViaPage(
+				page,
+				coverageBaseURL,
+				CollectionId.EvmSelectors,
+				payload,
+			)
+		},
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByText(/transfer\(address,uint256\)|Selector|0xa9059cbb/i).first(),
+			).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/evm/selector/[hex]',
+		branch: 'invalid-hex',
+		path: '/evm/selector/0x1',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Invalid selector' }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('link', { name: 'Back to EVM selectors' }),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/evm/error/[hex]',
+		branch: 'default',
+		path: '/evm/error/0x08c379a0',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/evm/error/[hex]',
+		branch: 'invalid-hex',
+		path: '/evm/error/0x1',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Invalid error selector' }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('link', { name: 'Back to EVM errors' }),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/evm/topic/[hex]',
+		branch: 'default',
+		path: '/evm/topic/0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/evm/topic/[hex]',
+		branch: 'invalid-hex',
+		path: '/evm/topic/0x1',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Invalid topic' }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('link', { name: 'Back to EVM topics' }),
+			).toBeVisible()
 		},
 	},
 	{
@@ -691,6 +816,56 @@ export const coverageScenarios: CoverageScenario[] = [
 		assert: async (page) => {
 			await expect(
 				page.getByRole('heading', { name: 'Liquidity', }),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/positions/liquidity/pools',
+		branch: 'default',
+		path: '/positions/liquidity/pools',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/positions/liquidity/pool/[chainId]/[id]',
+		branch: 'default',
+		path: '/positions/liquidity/pool/1/some-pool-id',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/positions/liquidity/pool/[chainId]/[id]',
+		branch: 'invalid',
+		path: '/positions/liquidity/pool/abc/xyz',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Invalid pool' }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('link', { name: 'Back to Pools' }),
+			).toBeVisible()
+		},
+	},
+	{
+		route: '/positions/liquidity/position/[chainId]/[id]',
+		branch: 'default',
+		path: '/positions/liquidity/position/1/some-position-id',
+		assert: async (page) => {
+			await expect(page.locator('#main, main').first()).toBeVisible({ timeout: 15_000 })
+		},
+	},
+	{
+		route: '/positions/liquidity/position/[chainId]/[id]',
+		branch: 'invalid',
+		path: '/positions/liquidity/position/abc/xyz',
+		assert: async (page) => {
+			await expect(
+				page.getByRole('heading', { name: 'Invalid position' }),
+			).toBeVisible({ timeout: 15_000 })
+			await expect(
+				page.getByRole('link', { name: 'Back to Liquidity' }),
 			).toBeVisible()
 		},
 	},
