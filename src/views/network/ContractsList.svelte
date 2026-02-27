@@ -59,10 +59,10 @@
 	// Components
 	import Heading from '$/components/Heading.svelte'
 	import Contract from '$/views/Contract.svelte'
-	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
+	import CollapsibleList from '$/components/CollapsibleList.svelte'
 </script>
 
-<ItemsListCollapsible
+<CollapsibleList
 	title="Contracts"
 	loaded={displayItems.length}
 	{items}
@@ -97,4 +97,4 @@
 			{/if}
 		</span>
 	{/snippet}
-</ItemsListCollapsible>
+</CollapsibleList>

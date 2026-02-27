@@ -148,7 +148,7 @@
 	// Components
 	import Collapsible from '$/components/Collapsible.svelte'
 	import EntityView from '$/components/EntityView.svelte'
-	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
+	import CollapsibleList from '$/components/CollapsibleList.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import Address from '$/views/Address.svelte'
 	import EventView from '$/views/network/Event.svelte'
@@ -279,7 +279,7 @@
 			title="Detailed: Events"
 			detailsProps={{ 'data-card': 'padding-2' }}
 		>
-			<ItemsListCollapsible
+			<CollapsibleList
 				title="Events"
 				loaded={eventsSet.size}
 				total={events.length || undefined}
@@ -306,7 +306,7 @@
 						{/if}
 					</span>
 				{/snippet}
-			</ItemsListCollapsible>
+			</CollapsibleList>
 		</Collapsible>
 
 		<Collapsible

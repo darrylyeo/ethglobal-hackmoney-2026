@@ -35,11 +35,11 @@
 
 
 	// Components
-	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
+	import CollapsibleList from '$/components/CollapsibleList.svelte'
 	import FarcasterCast from '$/views/farcaster/FarcasterCast.svelte'
 </script>
 
-<ItemsListCollapsible
+<CollapsibleList
 	{title}
 	{loaded}
 	{total}
@@ -70,4 +70,4 @@
 			{/if}
 		</span>
 	{/snippet}
-</ItemsListCollapsible>
+</CollapsibleList>

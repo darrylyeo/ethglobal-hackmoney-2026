@@ -115,7 +115,7 @@ import {
 		fetchBlockTransactions(chainId, block.$id.blockNumber).catch(() => {})
 	})
 	// Components
-	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
+	import CollapsibleList from '$/components/CollapsibleList.svelte'
 	import EntityView from '$/components/EntityView.svelte'
 	import Timestamp from '$/components/Timestamp.svelte'
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
@@ -202,7 +202,7 @@ import {
 			</dl>
 		{/if}
 
-		<ItemsListCollapsible
+		<CollapsibleList
 			title="Transactions"
 			loaded={transactionsSet.size}
 			total={block
@@ -234,6 +234,6 @@ import {
 					{/if}
 				</span>
 			{/snippet}
-		</ItemsListCollapsible>
+		</CollapsibleList>
 	{/snippet}
 </EntityView>

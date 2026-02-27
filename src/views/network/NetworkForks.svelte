@@ -89,11 +89,11 @@ import { entityKey } from '$/lib/entity-key.ts'
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
-	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
+	import CollapsibleList from '$/components/CollapsibleList.svelte'
 </script>
 
 
-<ItemsListCollapsible
+<CollapsibleList
 	title="Forks"
 	loaded={forksToShow.length}
 	items={new Set(forksToShow)}
@@ -168,4 +168,4 @@ import { entityKey } from '$/lib/entity-key.ts'
 			{/if}
 		</span>
 	{/snippet}
-</ItemsListCollapsible>
+</CollapsibleList>

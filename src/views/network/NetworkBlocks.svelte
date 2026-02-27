@@ -63,10 +63,10 @@
 
 	// Components
 	import Block from '$/views/network/Block.svelte'
-	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
+	import CollapsibleList from '$/components/CollapsibleList.svelte'
 </script>
 
-<ItemsListCollapsible
+<CollapsibleList
 	title="Execution"
 	detailsProps={{ open: true, ...detailsProps }}
 	loaded={blocksSet.size}
@@ -98,4 +98,4 @@
 			{/if}
 		</span>
 	{/snippet}
-</ItemsListCollapsible>
+</CollapsibleList>

@@ -18,10 +18,10 @@
 
 
 	// Components
-	import ItemsListCollapsible from '$/components/ItemsListCollapsible.svelte'
+	import CollapsibleList from '$/components/CollapsibleList.svelte'
 </script>
 
-<ItemsListCollapsible
+<CollapsibleList
 	title="Consensus"
 	detailsProps={{ open: true, ...detailsProps }}
 	loaded={epochs.size}
@@ -59,4 +59,4 @@
 			</span>
 		{/if}
 	{/snippet}
-</ItemsListCollapsible>
+</CollapsibleList>
