@@ -1,7 +1,11 @@
 <script lang="ts">
 	// Types/constants
+	import {
+		type NetworkFilterGroupId,
+		networkFilterGroups,
+		networkFilterGroupsById,
+	} from '$/constants/filter-groups.ts'
 	import type { Network } from '$/constants/networks.ts'
-	import { networkFilterGroups } from '$/constants/filter-groups.ts'
 
 
 	// Props
@@ -29,13 +33,6 @@
 			),
 	)
 	const items = $derived(itemsWithGroup.map((x) => x.item))
-	const groupLabelById = $derived(
-		Object.fromEntries(
-			networkFilterGroups
-				.filter((g) => g.networks.length > 0)
-				.map((g) => [g.id, g.label]),
-		),
-	)
 	const uniqueValue = $derived(
 		[...new Set((value ?? []).filter((id): id is string => id != null && id !== ''))],
 	)
@@ -72,7 +69,8 @@
 	getItemGroupId={(n) =>
 		itemsWithGroup.find((x) => x.item.chainId === n.chainId)?.groupId ?? ''
 	}
-	getGroupLabel={(id) => groupLabelById[id] ?? id}
+	getGroupLabel={(id) =>
+		networkFilterGroupsById[id as NetworkFilterGroupId]?.label ?? id}
 >
 	{#snippet Before()}
 		{#if uniqueValue.length > 0}

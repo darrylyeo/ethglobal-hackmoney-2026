@@ -1,7 +1,11 @@
 <script lang="ts">
 	// Types/constants
 	import { type CoinId } from '$/constants/coins.ts'
-	import { coinIdGroups } from '$/constants/filter-groups.ts'
+	import {
+		type CoinIdGroupId,
+		coinIdGroups,
+		coinIdGroupsById,
+	} from '$/constants/filter-groups.ts'
 
 
 	// Props
@@ -37,7 +41,8 @@
 	)
 	const getGroupLabel = $derived.by(() =>
 		useDefaultGroups
-			? (id: string) => coinIdGroups.find((g) => g.id === id)?.label ?? id
+			? (id: string) =>
+					coinIdGroupsById[id as CoinIdGroupId]?.label ?? id
 			: undefined,
 	)
 
