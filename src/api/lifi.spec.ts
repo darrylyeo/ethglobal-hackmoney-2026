@@ -191,6 +191,7 @@ describe('routes', () => {
 			steps: [
 				{
 					tool: 'stargate',
+					type: 'lifi',
 					toolDetails: { key: 'stargate', name: 'Stargate', logoURI: '' },
 					action: {
 						fromChainId: 1,
@@ -207,7 +208,11 @@ describe('routes', () => {
 			] as Route['steps'],
 			tags: ['RECOMMENDED', 'CHEAPEST'],
 		} as Route
-		const out = normalizeRoute(route)
+		const routeWithStringStepType = {
+			...route,
+			steps: route.steps.map((step) => ({ ...step, type: String(step.type) })),
+		}
+		const out = normalizeRoute(routeWithStringStepType, route)
 		expect(out.id).toBe('r1')
 		expect(out.originalRoute).toBe(route)
 		expect(out.steps).toHaveLength(1)

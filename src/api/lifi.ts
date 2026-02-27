@@ -243,10 +243,18 @@ export function normalizeQuote(step: LiFiStep): NormalizedQuote {
 
 const ROUTE_TAG_ORDER = ['RECOMMENDED', 'CHEAPEST', 'FASTEST'] as const
 
-export function normalizeRoute(route: Route): NormalizedRoute {
+/** Route with step.type widened to string so we can compare to 'swap' | 'cross'. Produced by transforming SDK routes at the fetch boundary. */
+type RouteWithStringStepType = Omit<Route, 'steps'> & {
+	steps: Array<Omit<Route['steps'][number], 'type'> & { type: string }>
+}
+
+export function normalizeRoute(
+	route: RouteWithStringStepType,
+	originalRoute: Route,
+): NormalizedRoute {
 	return {
 		id: route.id,
-		originalRoute: route,
+		originalRoute,
 		steps: route.steps.map((step) => ({
 			tool: step.tool,
 			toolName: step.toolDetails?.name ?? step.tool,
@@ -315,7 +323,16 @@ export async function getRoutesForUsdcBridge(
 					maxPriceImpact: 0.1,
 				},
 			})
-			return result.routes.slice(0, 5).map(normalizeRoute)
+			return result.routes.slice(0, 5).map((route) => {
+				const routeWithStringStepType: RouteWithStringStepType = {
+					...route,
+					steps: route.steps.map((step) => ({
+						...step,
+						type: String(step.type),
+					})),
+				}
+				return normalizeRoute(routeWithStringStepType, route)
+			})
 		},
 		staleTime: ROUTES_STALE_MS,
 	})
