@@ -1,11 +1,13 @@
 /**
  * Asset (icon) fetch schema and sources for chains, coins, brands.
  * All sources and discovery documentation in one place per spec 052.
+ * Structure follows spec 045: enums, types, canonical arrays only; no helper functions.
  *
  * Discovery: chains → chain registries, official brand kits; coins → token lists, official
  * assets (ethereum.org, circle.com), Wikimedia; brands → official kits, Simple Icons,
  * VectorLogo.zone. Document each source in comments; fetch URL is source of truth.
  * Sync: run scripts/_sync-assets.ts to download/unpack/optimize only sources not yet synced.
+ * Format helpers (assetSuffix, isDefaultAsset, assetFilename) live in src/lib/assetUtils.ts.
  */
 
 import { ChainId } from './networks.ts'
@@ -47,32 +49,6 @@ export type AssetAlias = {
 	subject: AssetSubject
 	fromId: string | number
 	toId: string | number
-}
-
-export function assetSuffix(
-	kind: AssetKind | undefined,
-	style: AssetStyle | undefined,
-): string {
-	const k = kind ?? AssetKind.Logo
-	if (k === AssetKind.Wordmark)
-		return style != null ? `wordmark-${style}` : 'wordmark'
-	if (k === AssetKind.LogoAndWordmark)
-		return style != null ? `logo-and-wordmark-${style}` : 'logo-and-wordmark'
-	if (k === AssetKind.Logo && style != null) return style
-	return ''
-}
-
-export function isDefaultAsset(kind?: AssetKind, style?: AssetStyle): boolean {
-	return (kind === undefined || kind === AssetKind.Logo) && style == null
-}
-
-export function assetFilename(
-	id: string | number,
-	kind?: AssetKind,
-	style?: AssetStyle,
-): string {
-	const suffix = assetSuffix(kind, style)
-	return suffix ? `${id}-${suffix}.svg` : `${id}.svg`
 }
 
 /** Chain asset sources. IDs = ChainId from networks.ts. */
@@ -3961,6 +3937,26 @@ export const providerAssetSources = [
 		fetch: {
 			fetchType: FetchTypeKind.Url,
 			url: 'https://docs.partykit.io/favicon.svg',
+		},
+	},
+	/** DataSourceId.Farcaster — Simple Icons */
+	{
+		subject: AssetSubject.Brand,
+		id: 'farcaster',
+		kind: AssetKind.Logo,
+		fetch: {
+			fetchType: FetchTypeKind.Url,
+			url: 'https://cdn.simpleicons.org/farcaster/8B5CF6',
+		},
+	},
+	/** DataSourceId.Covalent — Simple Icons */
+	{
+		subject: AssetSubject.Brand,
+		id: 'covalent',
+		kind: AssetKind.Logo,
+		fetch: {
+			fetchType: FetchTypeKind.Url,
+			url: 'https://cdn.simpleicons.org/covalent/375BD2',
 		},
 	},
 	/** Other brands (architecture graph etc.): Simple Icons / VectorLogo.zone */
