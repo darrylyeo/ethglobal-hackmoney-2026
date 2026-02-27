@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Types/constants
 	import type { PatternType } from '$/constants/patterns.ts'
-	import { patternByPatternType } from '$/constants/patterns.ts'
+	import { patternsByType } from '$/constants/patterns.ts'
 
 
 	// Props
@@ -32,9 +32,9 @@
 			(patternTypes.length === 0
 				? ''
 				: patternTypes.length === 1
-					? patternByPatternType[patternTypes[0]].placeholder
+					? patternsByType[patternTypes[0]].placeholder
 					: patternTypes
-							.map((t) => patternByPatternType[t].placeholder)
+							.map((t) => patternsByType[t].placeholder)
 							.join(' or ')),
 	)
 	const isControlled = $derived('value' in rootProps && rootProps.value !== undefined)

@@ -1,6 +1,6 @@
 import type { EntityRef } from '$/data/EntityRef.ts'
 import { EntityType } from '$/data/$EntityType.ts'
-import { PatternType, patternByPatternType } from '$/constants/patterns.ts'
+import { PatternType, patternsByType } from '$/constants/patterns.ts'
 
 export type EntityRefTriggerConfig = Record<
 	string,
@@ -22,7 +22,7 @@ const entityRefPatternTypeToEntityType = {
 } as const satisfies Record<PatternType, EntityType>
 
 const entityRefConfigs = entityRefPatternTypes
-	.map((t) => patternByPatternType[t])
+	.map((t) => patternsByType[t])
 	.sort((a, b) => (b.matchComplexity - a.matchComplexity))
 
 const entityPatternSource = `(?:${entityRefConfigs

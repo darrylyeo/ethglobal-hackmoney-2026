@@ -5,13 +5,13 @@
 
 import {
 	PatternType,
-	patternByPatternType,
+	patternsByType,
 } from '$/constants/patterns.ts'
 import { ChainId } from '$/constants/networks.ts'
 import { createProviderForChain, getEffectiveRpcUrl } from '$/lib/helios-rpc.ts'
 import { resolveEnsForward } from '$/api/identity-resolve.ts'
 import { ENS_REGISTRY_MAINNET } from '$/constants/identity-resolver.ts'
-import { getFidByAddress } from '$/api/farcaster/index.ts'
+import { getFidByAddress } from '$/api/farcaster/hub.ts'
 import { fetchUserByUsername } from '$/api/farcaster/neynar.ts'
 import { ensureFarcasterUser } from '$/collections/FarcasterUsers.ts'
 
@@ -34,7 +34,7 @@ export const parseFarcasterWatchInput = (
 	if (/^\d+$/.test(trimmed) && !Number.isNaN(fid) && fid >= 1)
 		return { kind: 'fid', fid }
 
-	if (patternByPatternType[PatternType.EnsName].pattern.test(trimmed))
+	if (patternsByType[PatternType.EnsName].pattern.test(trimmed))
 		return { kind: 'ens', ens: trimmed.toLowerCase() }
 
 	const username = trimmed.startsWith('@') ? trimmed.slice(1) : trimmed
