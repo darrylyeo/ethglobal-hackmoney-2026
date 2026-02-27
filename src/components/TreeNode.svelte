@@ -1,26 +1,34 @@
+<script module lang="ts">
+	type ListTag = 'ul' | 'ol' | 'menu'
+</script>
+
+
 <script
 	lang="ts"
 	generics="
 		_Node,
-		_Key extends string | number = string | number
+		_Key extends string | number = string | number,
+		_ListTag extends ListTag = 'ul'
 	"
 >
 	// Types/constants
 	import type { Snippet } from 'svelte'
 	import type { SvelteHTMLElements } from 'svelte/elements'
 
+	type IsOpen = (node: _Node, isOpen: IsOpen) => boolean
+	type IsHidden = (node: _Node, isHidden: IsHidden) => boolean
+
 
 	// Props
-	type ListTag = keyof Pick<SvelteHTMLElements, 'ul' | 'ol' | 'menu'>
-
 	let {
 		nodes,
 		getKey,
 		getChildren,
 		isOpen,
 		onOpenChange,
+		isHidden,
 		Content,
-		listTag = 'ul' as ListTag,
+		listTag = 'ul' as _ListTag,
 		listAttrs,
 		detailsAttrs,
 		summaryAttrs,
@@ -28,11 +36,12 @@
 		nodes: _Node[]
 		getKey: (node: _Node) => _Key
 		getChildren: (node: _Node) => _Node[] | undefined
-		isOpen: (node: _Node) => boolean
-		onOpenChange?: (node: _Node, open: boolean) => void
+		isOpen: IsOpen
+		onOpenChange?: (node: _Node, isOpen: boolean) => void
+		isHidden?: IsHidden
 		Content: Snippet<[{ node: _Node }]>
-		listTag?: ListTag
-		listAttrs?: Partial<SvelteHTMLElements[ListTag]>
+		listTag?: _ListTag
+		listAttrs?: Partial<SvelteHTMLElements[_ListTag]>
 		detailsAttrs?: Partial<SvelteHTMLElements['details']>
 		summaryAttrs?: Partial<SvelteHTMLElements['summary']>
 	} = $props()
@@ -44,18 +53,22 @@
 
 
 <svelte:element
-	this={listTag}
-	class="tree-node"
+	this={listTag as ListTag}
 	{...listAttrs}
 >
 	{#each nodes as node (getKey(node))}
 		{@const childNodes = getChildren(node)}
 
-		<li>
+		<li
+			{...isHidden && isHidden(node, isHidden) && {
+				hidden: true,
+				inert: true,
+			}}
+		>
 			{#if childNodes?.length}
 				<details
 					{...detailsAttrs}
-					open={isOpen(node)}
+					open={isOpen(node, isOpen)}
 					ontoggle={(e: Event & { currentTarget: HTMLDetailsElement }) => {
 						onOpenChange?.(node, e.currentTarget.open)
 					}}
@@ -70,6 +83,7 @@
 						{getChildren}
 						{isOpen}
 						{onOpenChange}
+						{isHidden}
 						{Content}
 						{listTag}
 						{listAttrs}
