@@ -8,7 +8,7 @@
 >
 	// Types/constants
 	import type { Snippet } from 'svelte'
-	import type { ItemsListPagination } from '$/components/ItemsList.types.ts'
+	import type { ListPagination } from '$/components/List.types.ts'
 
 
 	// Props
@@ -46,7 +46,7 @@
 		placeholderKeys: Set<_Key | [number, number]>
 		visiblePlaceholderKeys?: _Key[]
 		scrollPosition?: 'Start' | 'End' | 'Auto'
-		pagination?: ItemsListPagination
+		pagination?: ListPagination
 		GroupHeader?: Snippet<[{ groupKey: _GroupKey }]>
 		Empty?: Snippet<[]>
 		Item: Snippet<
@@ -90,7 +90,7 @@
 		{/if}
 	{/snippet}
 
-	<ItemsList
+	<List
 		{items}
 		{getKey}
 		{getSortValue}

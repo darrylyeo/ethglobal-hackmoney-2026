@@ -3,7 +3,7 @@
 	import type { WithSource } from '$/constants/data-sources.ts'
 	import type { FarcasterCast } from '$/data/FarcasterCast.ts'
 	import type { FarcasterUser } from '$/data/FarcasterUser.ts'
-	import type { ItemsListPagination } from '$/components/ItemsList.types.ts'
+	import type { ListPagination } from '$/components/List.types.ts'
 
 
 	// Props
@@ -24,7 +24,7 @@
 		userByFid: Map<number, WithSource<FarcasterUser>>
 		placeholderKeys?: Set<string | [number, number]>
 		placeholderText?: string
-		pagination?: ItemsListPagination
+		pagination?: ListPagination
 	} = $props()
 
 

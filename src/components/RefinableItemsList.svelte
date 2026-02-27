@@ -11,7 +11,7 @@
 	// Types/constants
 	import type { Filter, FilterGroup } from '$/components/Filters.svelte'
 	import type { Sort } from '$/components/Sorts.svelte'
-	import type { ItemsListPagination } from '$/components/ItemsList.types.ts'
+	import type { ListPagination } from '$/components/List.types.ts'
 	import type { Match } from '$/lib/fuzzyMatch.ts'
 	import type { Snippet } from 'svelte'
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity'
@@ -58,7 +58,7 @@
 		placeholderKeys?: Set<_Key | [number, number]>
 		visiblePlaceholderKeys?: _Key[]
 		scrollPosition?: 'Start' | 'End' | 'Auto'
-		pagination?: ItemsListPagination
+		pagination?: ListPagination
 		searchQuery?: string
 		searchPlaceholder?: string
 		searchInputRef?: HTMLInputElement | null
@@ -216,7 +216,7 @@
 			{/if}
 		</div>
 	{/if}
-	<ItemsList
+	<List
 		items={itemsSet}
 		{getKey}
 		getSortValue={getSortValue ?? ((item: _Item) => orderMap.get(getKey(item)) ?? Infinity)}
