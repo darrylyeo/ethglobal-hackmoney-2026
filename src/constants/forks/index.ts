@@ -37,5 +37,3 @@ export const beaconEpochExplorerByChainId: Partial<Record<number, string>> = {
 }
 
 export const EIPS_OFFICIAL_BASE = 'https://eips.ethereum.org/EIPS/eip-'
-
-export type { Fork } from '$/constants/forks/types.ts'

@@ -50,6 +50,3 @@ export function getPrecompileAddressToName(chainId: number): Map<string, string>
 		]),
 	)
 }
-
-export type { Precompile, PrecompileEntry } from '$/constants/precompiles/types.ts'
-export type { Precompile$Id } from '$/constants/precompiles/types.ts'

@@ -1,7 +1,7 @@
 /**
- * Identity input and resolver: schema types, canonical kinds, and resolver config
- * for ENS (and future) resolution. Used by identity-links collection and
- * resolution API (Voltaire).
+ * Identity input and resolver: schema types and resolver config for ENS (and future)
+ * resolution. Used by identity-links collection and resolution API (Voltaire).
+ * Structure follows spec 045.
  */
 
 import { DataSourceId } from '$/constants/data-sources.ts'
@@ -48,12 +48,6 @@ export type IdentityResolver = {
 	textRecordKeys?: string[],
 }
 
-export const IDENTITY_INPUT_KINDS = [
-	IdentityInputKind.Address,
-	IdentityInputKind.EnsName,
-	IdentityInputKind.EnsText,
-] as const satisfies readonly IdentityInputKind[]
-
 export const ENS_REGISTRY_MAINNET =
 	'0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e' as const
 const ENS_UNIVERSAL_RESOLVER_MAINNET =
@@ -85,7 +79,7 @@ export const identityResolversById = Object.fromEntries(
 ) as Record<string, IdentityResolver>
 
 export const identityResolversByKind = Object.fromEntries(
-	IDENTITY_INPUT_KINDS.map((k) => [
+	(Object.values(IdentityInputKind) as IdentityInputKind[]).map((k) => [
 		k,
 		identityResolvers.filter((r) => r.kind === k),
 	]),

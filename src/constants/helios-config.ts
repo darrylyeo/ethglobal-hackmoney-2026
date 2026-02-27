@@ -21,8 +21,6 @@
 
 import { HeliosBeaconNetwork } from '$/constants/helios-chains.ts'
 
-export { HeliosBeaconNetwork } from '$/constants/helios-chains.ts'
-
 export enum HeliosConsensusEndpointId {
 	LodestarMainnet = 'lodestar-mainnet',
 	NimbusUnstableMainnet = 'nimbus-unstable-mainnet',
