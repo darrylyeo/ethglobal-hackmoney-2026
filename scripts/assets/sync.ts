@@ -8,15 +8,14 @@ import { unzipSync } from 'npm:fflate'
 import { optimize } from 'npm:svgo'
 import {
 	AssetKind,
-	assetFilename,
 	chainAssetAliases,
 	chainAssetSources,
 	coinAssetSources,
 	FetchTypeKind,
-	isDefaultAsset,
 	providerAssetSources,
 	type AssetSource,
 } from '$/constants/assets.ts'
+import { assetFilename, isDefaultAsset } from '$/lib/assetUtils.ts'
 
 const subjectToDirKey = {
 	Network: 'network',
