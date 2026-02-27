@@ -22,52 +22,63 @@
 	// Context
 	import { preloadData } from '$app/navigation'
 
+
 	// Props
 	let {
 		items,
 		currentPathname,
-	}: { items: NavigationItem[]; currentPathname?: string } = $props()
+	}: {
+		items: NavigationItem[]
+		currentPathname?: string
+	} = $props()
+
 
 	// Functions
-	function filterTree(nodes: NavigationItem[], query: string): NavigationItem[] {
-		if (!query) return nodes
+	function filterTree(nodes: NavigationItem[], q: string): NavigationItem[] {
+		if (!q) return nodes
 		return nodes.flatMap((n) => {
-			const matches = n.title.toLowerCase().includes(query)
-			const children = treeGetChildren(n)
-			const filteredChildren = children ? filterTree(children, query) : []
-			return matches || filteredChildren.length > 0 ?
-				[{ ...n, children: filteredChildren.length ? filteredChildren : children }]
-			: []
+			const children = (n.children ?? n.allChildren ?? undefined)
+			const filtered = children ? filterTree(children, q) : []
+			const matches = n.title.toLowerCase().includes(q)
+			return (
+				matches || filtered.length > 0
+					? [
+							{
+								...n,
+								children: filtered.length ? filtered : children,
+							},
+						]
+					: []
+			)
 		})
 	}
-	function navIconProps(icon: string): { icon?: string; src?: string } {
-		return icon.startsWith('data:') || icon.startsWith('/') || icon.startsWith('http') ?
-			{ src: icon }
-		: { icon }
+
+	function navIconProps(icon: string): {
+		icon?: string
+		src?: string
+	} {
+		return (
+			icon.startsWith('data:') || icon.startsWith('/') || icon.startsWith('http')
+				? { src: icon }
+				: { icon }
+		)
 	}
-	const treeGetChildren = (item: NavigationItem) =>
-		(item.children ?? item.allChildren ?? undefined)
+
 
 	// State
 	let searchValue = $state('')
 	let treeOpenState = $state(new Map<string, boolean>())
-	const treeIsOpen = (item: NavigationItem) =>
-		(treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false))
+
 
 	// (Derived)
-	const query = $derived(searchValue.trim().toLowerCase())
-	const filteredItems = $derived(filterTree(items, query))
+	const searchQuery = $derived(searchValue.trim().toLowerCase())
 
-	// Actions
-	const treeOnOpenChange = (item: NavigationItem, open: boolean) => {
-		treeOpenState = new Map(treeOpenState).set(item.id, open)
-	}
 
 	// Components
-	import SearchableText from '$/components/SearchableText.svelte'
-	import Icon from '$/components/Icon.svelte'
-	import TreeNode from '$/components/TreeNode.svelte'
 	import Address, { AddressFormat } from '$/views/Address.svelte'
+	import Icon from '$/components/Icon.svelte'
+	import SearchableText from '$/components/SearchableText.svelte'
+	import TreeNode from '$/components/TreeNode.svelte'
 </script>
 
 
@@ -121,11 +132,13 @@
 	/>
 
 	<TreeNode
-		nodes={filteredItems}
+		nodes={filterTree(items, searchQuery)}
 		getKey={(item) => item.id}
-		getChildren={treeGetChildren}
-		isOpen={treeIsOpen}
-		onOpenChange={treeOnOpenChange}
+		getChildren={(item) => item.children ?? item.allChildren}
+		isOpen={(item) => treeOpenState.get(item.id) ?? (item.defaultIsOpen ?? false)}
+		onOpenChange={(item, open) => {
+			treeOpenState = new Map(treeOpenState).set(item.id, open)
+		}}
 		Content={NavContent}
 		listTag="menu"
 		listAttrs={{ 'data-column': 'gap-0' }}
@@ -134,55 +147,52 @@
 	/>
 </search>
 
-{#snippet NavContent({ node }: { node: NavigationItem })}
-	{@render Linkable(node)}
-{/snippet}
 
-{#snippet Linkable(item: NavigationItem)}
-	{#if item.href}
+{#snippet NavContent({ node }: { node: NavigationItem })}
+	{#if node.href}
 		<a
-			href={item.href}
+			href={node.href}
 			data-row="start"
-			aria-current={currentPathname === item.href ? 'page' : undefined}
+			aria-current={currentPathname === node.href ? 'page' : undefined}
 			onmouseenter={() => {
-				if (item.href && !item.href.startsWith('http')) {
-					preloadData(item.href)
+				if (node.href && !node.href.startsWith('http')) {
+					preloadData(node.href)
 				}
 			}}
-			{...item.href.startsWith('http') && {
+			{...node.href.startsWith('http') && {
 				target: '_blank',
 				rel: 'noopener noreferrer',
 			}}
 		>
 			<span data-row="start" data-row-item="flexible">
-				{#if item.address}
+				{#if node.address}
 					<Address
-						actorId={item.address.network ? { $network: item.address.network, address: item.address.address } : undefined}
-						network={item.address.network}
-						address={item.address.address}
+						actorId={node.address.network ? { $network: node.address.network, address: node.address.address } : undefined}
+						network={node.address.network}
+						address={node.address.address}
 						format={AddressFormat.MiddleTruncated}
 						isLinked={false}
 						showAvatar={true}
 					/>
-				{:else if item.icon}
-					<Icon {...navIconProps(item.icon)} size="1em" />
+				{:else if node.icon}
+					<Icon {...navIconProps(node.icon)} size="1em" />
 				{/if}
 
-				{#if !item.address}
-					<SearchableText text={item.title} query={query} />
+				{#if !node.address}
+					<SearchableText text={node.title} query={searchQuery} />
 				{/if}
 			</span>
-			{#if item.tag || item.manualWatch}
+			{#if node.tag || node.manualWatch}
 				<span data-row="start gap-1">
-					{#if item.tag}
-						<span data-tag={item.tag} data-row="start gap-1">
-							{#if item.tagIcon}
-								<Icon {...navIconProps(item.tagIcon)} size="1em" />
+					{#if node.tag}
+						<span data-tag={node.tag} data-row="start gap-1">
+							{#if node.tagIcon}
+								<Icon {...navIconProps(node.tagIcon)} size="1em" />
 							{/if}
-							{item.tag}
+							{node.tag}
 						</span>
 					{/if}
-					{#if item.manualWatch}
+					{#if node.manualWatch}
 						<Icon icon="★" aria-label="Pinned" size="1em" />
 					{/if}
 				</span>
@@ -191,34 +201,34 @@
 	{:else}
 		<span data-row="start">
 			<span data-row="start" data-row-item="flexible">
-				{#if item.address}
+				{#if node.address}
 					<Address
-						actorId={item.address.network ? { $network: item.address.network, address: item.address.address } : undefined}
-						network={item.address.network}
-						address={item.address.address}
+						actorId={node.address.network ? { $network: node.address.network, address: node.address.address } : undefined}
+						network={node.address.network}
+						address={node.address.address}
 						format={AddressFormat.MiddleTruncated}
 						isLinked={false}
 						showAvatar={true}
 					/>
-				{:else if item.icon}
-					<Icon {...navIconProps(item.icon)} size="1em" />
+				{:else if node.icon}
+					<Icon {...navIconProps(node.icon)} size="1em" />
 				{/if}
 
-				{#if !item.address}
-					<SearchableText text={item.title} query={query} />
+				{#if !node.address}
+					<SearchableText text={node.title} query={searchQuery} />
 				{/if}
 			</span>
-			{#if item.tag || item.manualWatch}
+			{#if node.tag || node.manualWatch}
 				<span data-row="start gap-1">
-					{#if item.tag}
-						<span data-tag={item.tag} data-row="start gap-1">
-							{#if item.tagIcon}
-								<Icon {...navIconProps(item.tagIcon)} size="1em" />
+					{#if node.tag}
+						<span data-tag={node.tag} data-row="start gap-1">
+							{#if node.tagIcon}
+								<Icon {...navIconProps(node.tagIcon)} size="1em" />
 							{/if}
-							{item.tag}
+							{node.tag}
 						</span>
 					{/if}
-					{#if item.manualWatch}
+					{#if node.manualWatch}
 						<Icon icon="★" aria-label="Pinned" size="1em" />
 					{/if}
 				</span>
