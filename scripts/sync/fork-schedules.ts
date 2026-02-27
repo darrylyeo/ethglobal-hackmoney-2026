@@ -11,7 +11,7 @@ const CONSENSUS_MAINNET_URL = `https://raw.githubusercontent.com/ethereum/consen
 const SUPERCHAIN_REF = 'main'
 const SUPERCHAIN_MAINNET_URL = `https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/${SUPERCHAIN_REF}/superchain/configs/mainnet/superchain.toml`
 const SUPERCHAIN_SEPOLIA_URL = `https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/${SUPERCHAIN_REF}/superchain/configs/sepolia/superchain.toml`
-const OUT_DIR = new URL('../src/data/fork-schedules/', import.meta.url).pathname
+const OUT_DIR = new URL('../../src/data/fork-schedules/', import.meta.url).pathname
 
 const DISABLED_EPOCH = 18446744073709551615
 

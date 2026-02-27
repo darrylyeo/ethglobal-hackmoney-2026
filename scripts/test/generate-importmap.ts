@@ -17,7 +17,7 @@ async function* walk(dir: string): AsyncGenerator<string> {
 	}
 }
 
-const root = new URL('../..', import.meta.url).pathname.slice(0, -1)
+const root = new URL('../../', import.meta.url).pathname.replace(/\/$/, '')
 const seen = new Set<string>()
 for await (const file of walk(`${root}/src`)) {
 	const text = await Deno.readTextFile(file)
