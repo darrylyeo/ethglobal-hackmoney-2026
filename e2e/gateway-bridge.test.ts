@@ -5,7 +5,7 @@ import {
 	ensureWalletConnected,
 	selectChainOption,
 	selectProtocolOption,
-} from './test-setup.ts'
+} from './support/test-setup.ts'
 
 test.describe('Gateway Bridge (Spec 074)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {

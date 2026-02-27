@@ -6,7 +6,7 @@ import {
 	ensureWalletConnected,
 	selectProtocolOption,
 	selectChainOption,
-} from './test-setup.ts'
+} from './support/test-setup.ts'
 
 test.describe('E2E bridge flow', () => {
 	test.describe('happy path with tevm wallet', () => {

@@ -5,7 +5,7 @@ import {
 	ensureWalletConnected,
 	selectChainOption,
 	selectProtocolOption,
-} from './test-setup.ts'
+} from './support/test-setup.ts'
 
 test.describe('CCTP Bridge (Spec 036)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {

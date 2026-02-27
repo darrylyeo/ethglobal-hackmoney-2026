@@ -7,7 +7,7 @@ import {
 	ensureWalletConnected,
 	selectProtocolOption,
 	selectChainOption,
-} from './test-setup.ts'
+} from './support/test-setup.ts'
 
 test.describe('Accessibility (axe-core)', () => {
 	test('skip link is present and points to main', async ({ page }) => {

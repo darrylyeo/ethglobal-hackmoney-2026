@@ -34,7 +34,7 @@ async function listAppRoutes(): Promise<string[]> {
 		.sort()
 }
 
-const raw = await Deno.readTextFile(`${Deno.cwd()}/e2e/coverage-manifest.ts`)
+const raw = await Deno.readTextFile(`${Deno.cwd()}/e2e/support/coverage-manifest.ts`)
 
 const routeKeysMatch = raw.match(
 	/routeBranchRequirements:\s*Record<string,\s*string\[\]>\s*=\s*\{([^}]+)\}/s,

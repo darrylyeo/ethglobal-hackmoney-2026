@@ -1,5 +1,5 @@
 import { expect, test } from './fixtures/tevm.ts'
-import { addTevmWallet, ensureWalletConnected } from './test-setup.ts'
+import { addTevmWallet, ensureWalletConnected } from './support/test-setup.ts'
 
 test.describe('Wallet provider & balances (Spec 005)', () => {
 	test.use({ viewport: { width: 1280, height: 720 } })

@@ -2,8 +2,8 @@ import { expect, test } from './fixtures/profile.ts'
 import {
 	coverageScenarios,
 	routeBranchRequirements,
-} from './coverage-manifest.ts'
-import { listAppRoutes } from './coverage-utils.ts'
+} from './support/coverage-manifest.ts'
+import { listAppRoutes } from './support/coverage-utils.ts'
 
 test('coverage manifest matches app routes', () => {
 	const appRoutes = new Set(listAppRoutes())

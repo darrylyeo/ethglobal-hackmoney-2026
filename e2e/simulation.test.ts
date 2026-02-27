@@ -3,7 +3,7 @@
  */
 
 import { expect, test } from './fixtures/tevm.ts'
-import { addTevmWallet, ensureWalletConnected } from './test-setup.ts'
+import { addTevmWallet, ensureWalletConnected } from './support/test-setup.ts'
 
 const buildTransferSearch = (params: {
 	fromActor: string

@@ -2,7 +2,7 @@ import { expect, test } from './fixtures/tevm.ts'
 import {
 	buildActorCoinSeedRow,
 	buildActorCoinsPayload,
-} from './coverage-helpers.ts'
+} from './support/coverage-helpers.ts'
 import { CollectionId } from '$/constants/collections.ts'
 import { E2E_TEVM_CHAIN_ID, E2E_TEVM_WALLET_ADDRESS } from '$/tests/tevmConfig.ts'
 

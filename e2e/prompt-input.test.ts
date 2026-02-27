@@ -1,5 +1,5 @@
 import { expect, test } from './fixtures/profile.ts'
-import { buildLocalStoragePayload } from './coverage-helpers.ts'
+import { buildLocalStoragePayload } from './support/coverage-helpers.ts'
 
 /** Returns the full display text of the prompt (segments + chip labels; when placeholder open, filter text is included). Spaces from empty segments are normalized. */
 async function getPromptText(page: import('@playwright/test').Page): Promise<string> {

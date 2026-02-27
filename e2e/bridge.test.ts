@@ -5,7 +5,7 @@ import {
 	ensureWalletConnected,
 	selectProtocolOption,
 	selectChainOption,
-} from './test-setup.ts'
+} from './support/test-setup.ts'
 
 test.describe('Bridge UI (Spec 004)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {

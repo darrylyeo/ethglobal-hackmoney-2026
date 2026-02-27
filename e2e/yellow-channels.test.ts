@@ -4,7 +4,7 @@
  */
 
 import { test, expect } from './fixtures/mock-clearnode.ts'
-import { ensureWalletConnected } from './test-setup.ts'
+import { ensureWalletConnected } from './support/test-setup.ts'
 import {
 	E2E_TEVM_WALLET_ADDRESS,
 	E2E_TEVM_PROVIDER_NAME,

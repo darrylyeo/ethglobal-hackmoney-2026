@@ -4,7 +4,7 @@ import {
 	ensureWalletConnected,
 	selectProtocolOption,
 	selectChainOption,
-} from './test-setup.ts'
+} from './support/test-setup.ts'
 
 test.describe('Unified Bridge (Spec 037)', () => {
 	test.beforeEach(async ({ context, page, tevm }) => {

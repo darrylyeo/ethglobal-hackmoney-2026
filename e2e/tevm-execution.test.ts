@@ -6,7 +6,7 @@ import {
 	ensureWalletConnected,
 	selectChainOption,
 	selectProtocolOption,
-} from './test-setup.ts'
+} from './support/test-setup.ts'
 
 const isHexHash = (value: string | null): value is `0x${string}` =>
 	typeof value === 'string' && value.startsWith('0x')

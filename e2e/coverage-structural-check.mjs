@@ -30,7 +30,7 @@ const listAppRoutes = () =>
 		.filter(Boolean)
 		.sort()
 
-const manifestPath = path.join(process.cwd(), 'e2e', 'coverage-manifest.ts')
+const manifestPath = path.join(process.cwd(), 'e2e', 'support', 'coverage-manifest.ts')
 const raw = fs.readFileSync(manifestPath, 'utf8')
 
 const routeKeysMatch = raw.match(/routeBranchRequirements:\s*Record<string,\s*string\[\]>\s*=\s*\{([^}]+)\}/s)
