@@ -60,6 +60,7 @@ export enum EntityType {
 	CctpFee = 'CctpFee',
 	ChannelProposal = 'ChannelProposal',
 	Coin = 'Coin',
+	ConsensusEpoch = 'ConsensusEpoch',
 	Contract = 'Contract',
 	Dashboard = 'Dashboard',
 	Eip8004Service = 'Eip8004Service',
@@ -149,6 +150,7 @@ export const entityTypes = [
 	{ type: EntityType.CctpFee, label: 'CCTP fee', labelPlural: 'CCTP fees' },
 	{ type: EntityType.ChannelProposal, label: 'Channel proposal', labelPlural: 'Channel proposals' },
 	{ type: EntityType.Coin, label: 'Token', labelPlural: 'Tokens' },
+	{ type: EntityType.ConsensusEpoch, label: 'Epoch', labelPlural: 'Epochs' },
 	{ type: EntityType.Contract, label: 'Contract', labelPlural: 'Contracts' },
 	{ type: EntityType.Dashboard, label: 'Dashboard', labelPlural: 'Dashboards' },
 	{ type: EntityType.Caip, label: 'CAIP', labelPlural: 'CAIPs' },
@@ -200,6 +202,7 @@ export type Entity<_EntityType extends EntityType = EntityType> = {
 	[EntityType.CctpFee]: CctpFee
 	[EntityType.ChannelProposal]: Record<string, unknown>
 	[EntityType.Coin]: CoinInstanceEntry
+	[EntityType.ConsensusEpoch]: { $id: { epoch: number } }
 	[EntityType.Contract]: ContractEntry
 	[EntityType.Dashboard]: DashboardState
 	[EntityType.Eip8004Service]: Eip8004Service
@@ -249,6 +252,7 @@ export type EntityId<_EntityType extends EntityType = EntityType> = {
 	[EntityType.CctpFee]: CctpFee$Id
 	[EntityType.ChannelProposal]: Record<string, unknown>
 	[EntityType.Coin]: CoinInstance$Id
+	[EntityType.ConsensusEpoch]: { epoch: number }
 	[EntityType.Contract]: Contract$Id
 	[EntityType.Dashboard]: DashboardState$Id
 	[EntityType.Eip8004Service]: Eip8004Service$Id

@@ -231,9 +231,11 @@
 	})
 
 	const consensusSchedule = $derived(getConsensusSchedule(chainId))
-	const showConsensus = $derived(
-		consensusSchedule != null &&
-			currentBlockNumber >= consensusSchedule.mergeBlock,
+	const showConsensus = $derived(consensusSchedule != null)
+	const isConsensusLoading = $derived(
+		showConsensus &&
+			latestBlockQuery.data === undefined &&
+			(rpcBlockNumberChainId !== chainId || rpcBlockNumber === 0),
 	)
 	const currentEpoch = $derived(getCurrentEpoch(chainId, currentBlockNumber))
 	const recentEpochs = $derived.by(() => {
@@ -324,6 +326,7 @@
 						epochs={new Set(recentEpochs)}
 						currentEpoch={currentEpoch}
 						beaconExplorerBase={beaconEpochExplorerByChainId[chainId]}
+						isLoading={isConsensusLoading}
 						detailsProps={{ 'data-card': '' }}
 					/>
 				</section>
