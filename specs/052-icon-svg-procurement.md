@@ -25,7 +25,7 @@ Types follow spec 045 (cf. spec 001, 042).
 
 ### Sync script
 
-- **`scripts/_sync-assets.ts`:** Imports all sources from `src/constants/assets.ts`; writes to `src/assets/{networks|coins|providers}/`.
+- **`scripts/assets/sync.ts`:** Imports all sources from `src/constants/assets.ts`; writes to `src/assets/{networks|coins|providers}/`.
 - Only syncs sources not yet present on disk; skips existing files (package-manager style).
 - Optional CLI arg `chain` | `coin` | `provider` to limit to one subject.
 - PNG wrapping when SVG unavailable; ZIP fetched once per URL and cached in memory.
@@ -61,7 +61,7 @@ When adding or replacing icons manually (outside `_sync-assets.ts`), agents must
 
 ## Testing
 
-- `deno run -A scripts/_sync-assets.ts` (all) or `... _sync-assets.ts coin`, etc.
+- `deno task assets:sync` or `deno run -A scripts/assets/sync.ts [chain|coin|provider]`.
 
 ## References
 

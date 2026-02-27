@@ -97,7 +97,7 @@ Every constants module that exposes lookups MUST follow this structure only:
 
 ## Status
 
-Complete. 2026-02-05 (PROMPT_build execute one spec): Enum usage AC implemented. stork.ts: StorkApiRegion (Jp, Dev), StorkApiTransport (Rest, Websocket) as string enums; storkApiEndpoints and storkDefaultRegion use enum values. assets.ts: AssetSubject (Network, Coin, Brand), FetchTypeKind (Zip, Png, Url); AssetSource uses subject. Script _sync-assets.ts uses FetchTypeKind and AssetSubject (see spec 052). test:unit 41 Deno + 101 Vitest passed.
+Complete. 2026-02-05 (PROMPT_build execute one spec): Enum usage AC implemented. stork.ts: StorkApiRegion (Jp, Dev), StorkApiTransport (Rest, Websocket) as string enums; storkApiEndpoints and storkDefaultRegion use enum values. assets.ts: AssetSubject (Network, Coin, Brand), FetchTypeKind (Zip, Png, Url); AssetSource uses subject. Script scripts/assets/sync.ts uses FetchTypeKind and AssetSubject (see spec 052). test:unit 41 Deno + 101 Vitest passed.
 
 ## Output when complete
 

@@ -182,7 +182,7 @@ Per Spec 065 and Spec 002, external API data consumed by UI is stored in TanStac
 
 - **Examples constant**: `src/constants/calldata-examples.ts` exports type `CalldataExample` (`id`, `label`, `hex`), array `calldataExamples` (e.g. ERC20 transfer, approve, balanceOf), and `calldataExampleById` lookup. Conventions follow other constants (e.g. slippage presets). Used by the decoder page and E2E.
 - **Example selector**: The `/calldata-decoder` page includes a "Load example…" select; choosing an example fills the hex textarea with that example’s calldata; the select resets to the placeholder after load.
-- **E2E**: Coverage manifest (`e2e/coverage-manifest.ts`) includes branch `example-select` for `/calldata-decoder`: seed `CollectionId.EvmSelectors` for the example selectors (transfer, approve, balanceOf), open the page, select the transfer example from the "Load example calldata" combobox, assert "Decoded arguments" or `transfer(` is visible.
+- **E2E**: Coverage manifest (`e2e/support/coverage-manifest.ts`) includes branch `example-select` for `/calldata-decoder`: seed `CollectionId.EvmSelectors` for the example selectors (transfer, approve, balanceOf), open the page, select the transfer example from the "Load example calldata" combobox, assert "Decoded arguments" or `transfer(` is visible.
 
 ## ABI source precedence (for contract ABI resolution)
 

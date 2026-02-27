@@ -379,7 +379,7 @@ fixture so the test profile is seeded automatically; no per-file
 ### Seeding test data
 
 `seedLocalStorageCollection` and `seedLocalStorageCollectionViaPage` (from
-`e2e/coverage-helpers.ts`) write to un-namespaced keys. This is correct — they
+`e2e/support/coverage-helpers.ts`) write to un-namespaced keys. This is correct — they
 write to the working copy, which belongs to the test profile. No changes needed.
 
 ### Test profile constant

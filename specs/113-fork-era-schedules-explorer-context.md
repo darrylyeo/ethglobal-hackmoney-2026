@@ -76,7 +76,7 @@ Prefer A or C so that a single script can refresh all sources without requiring 
 - `src/constants/forks/[chainId].ts` — per-chain `enum ForkId` and `forks: readonly ForkEntry<ForkId>[]` (e.g. `1.ts`, `10.ts`, `8453.ts`, `17000.ts`, `84532.ts`, `11155111.ts`, `11155420.ts`). Mainnet `1.ts` includes upgrade data (links, optional eipNumbers).
 - `src/constants/forks/index.ts` — single `forks` array (from per-chain modules), and all derived API: `forkByChainId`, `forkChainIds`, `consensusChainIds`, `mergeBlockByChainId`, `bellatrixEpochByChainId`, `beaconEpochExplorerByChainId`, `mainnetForksWithUpgrades`, `getEraAtBlock`, `getCurrentEpoch`, `slotsPerEpoch`, `dateFromUnixSeconds`, `getForkSlugByEraName`, `EraAtBlock` type, `Fork` type re-export. No separate fork-schedules or fork-upgrades files.
 - `src/constants/forks/types.ts` — Fork, ForkEntry, Fork$Id, ForkLinks, ChainForkSchedule, ForkScheduleKind, ExecutionProtocol, ConsensusProtocol.
-- Optional (sync): `src/data/fork-schedules/schedules.json`, `manifest.json`; `scripts/sync-fork-schedules.ts` — fetches from pinned URLs, writes JSON. Invoked by `deno task forks:sync`. App runtime uses the TS modules above, not the JSON.
+- Optional (sync): `src/data/fork-schedules/schedules.json`, `manifest.json`; `scripts/sync/fork-schedules.ts` — fetches from pinned URLs, writes JSON. Invoked by `deno task forks:sync`. App runtime uses the TS modules above, not the JSON.
 
 ## UI: era labels in block lists
 
@@ -115,7 +115,7 @@ Prefer A or C so that a single script can refresh all sources without requiring 
 
 ## Acceptance criteria
 
-- [x] A sync script (e.g. `scripts/sync-fork-schedules.ts`) fetches fork data from pinned raw GitHub (or equivalent) URLs; may write `schedules.json` and `manifest.json` under `src/data/fork-schedules/`. App runtime uses per-chain TypeScript modules `src/constants/forks/[chainId].ts` (enum ForkId, `forks: ForkEntry<ForkId>[]`) and `src/constants/forks/index.ts`. No git submodules.
+- [x] A sync script (e.g. `scripts/sync/fork-schedules.ts`) fetches fork data from pinned raw GitHub (or equivalent) URLs; may write `schedules.json` and `manifest.json` under `src/data/fork-schedules/`. App runtime uses per-chain TypeScript modules `src/constants/forks/[chainId].ts` (enum ForkId, `forks: ForkEntry<ForkId>[]`) and `src/constants/forks/index.ts`. No git submodules.
 - [x] Manifest records source refs (and optionally lastSynced). `deno task forks:sync` (or equivalent) runs the script.
 - [x] Normalized schema includes per-chain `forks` with `name`, `activation` (block/timestamp/epoch), optional `forkHash`, and ordering; helper `getEraAtBlock(chainId, blockNumber)` (or equivalent) returns era id and label.
 - [x] Network view Blocks list uses `getGroupKey`/`getGroupLabel` (and optionally `GroupHeader`) so blocks are grouped by era; group order follows block order (e.g. newest era first).
