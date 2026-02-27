@@ -298,11 +298,10 @@
 			</section>
 		{/if}
 
-		<section>
-			<ContractsList {networkId} detailsProps={{ 'data-card': '' }} />
-		</section>
-
-		<div data-grid="columns-3 gap-2">
+		<div
+			class="network-layers"
+			data-grid="columns-3 gap-2"
+		>
 			<section>
 				<NetworkForks
 					{networkId}
@@ -332,5 +331,16 @@
 				</section>
 			{/if}
 		</div>
+
+		<section>
+			<ContractsList {networkId} detailsProps={{ 'data-card': '' }} />
+		</section>
 	</EntityView>
 {/if}
+
+
+<style>
+	.network-layers {
+		max-height: 80cqb;
+	}
+</style>
