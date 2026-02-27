@@ -292,12 +292,5 @@
 			padding-inline-start: 0.75em;
 			box-shadow: -1px 0 var(--color-border);
 		}
-
-		:global(mark) {
-			font-weight: 600;
-			text-decoration: underline;
-			background-color: transparent;
-			color: inherit;
-		}
 	}
 </style>

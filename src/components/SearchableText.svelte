@@ -45,15 +45,31 @@
 		highlightRanges(escapeHtml(text), matchRanges),
 	)
 
+	// State — ranges this instance added so we can remove then re-add (allows multiple SearchableText to share one Set)
+	let previousRanges: Match[] = []
 	// (Derived) — sync to parent Set when provided (untrack write to avoid effect loop)
 	$effect(() => {
 		if (!matches) return
 		const ranges = fuzzyMatch(text, query)
 		untrack(() => {
-			matches.clear()
+			for (const m of previousRanges) matches.delete(m)
+			previousRanges = ranges
 			for (const m of ranges) matches.add(m)
 		})
 	})
 </script>
 
+
 <span>{@html html}</span>
+
+
+<style>
+	span {
+		:global(mark) {
+			font-weight: 600;
+			text-decoration: underline;
+			background-color: transparent;
+			color: inherit;
+		}
+	}
+</style>
