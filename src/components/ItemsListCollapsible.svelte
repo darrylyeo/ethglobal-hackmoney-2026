@@ -30,6 +30,7 @@
 		pagination,
 		Item,
 		GroupHeader,
+		Empty,
 	}: {
 		title: string
 		Title?: Snippet<[{ title: string; countText: string }]>
@@ -47,6 +48,7 @@
 		scrollPosition?: 'Start' | 'End' | 'Auto'
 		pagination?: ItemsListPagination
 		GroupHeader?: Snippet<[{ groupKey: _GroupKey }]>
+		Empty?: Snippet<[]>
 		Item: Snippet<
 			[
 				{
@@ -101,5 +103,6 @@
 		{pagination}
 		{Item}
 		{GroupHeader}
+		{Empty}
 	/>
 </Collapsible>

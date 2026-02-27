@@ -7,10 +7,13 @@
 	"
 >
 	// Types/constants
+	import type { Match } from '$/lib/fuzzyMatch.ts'
 	import type { Snippet } from 'svelte'
 	import type { ItemsListPagination } from '$/components/ItemsList.types.ts'
 	import { useVisibleAction } from '$/lib/useVisibleAction.ts'
-	import { SvelteSet } from 'svelte/reactivity'
+	import { createViewTransition } from '$/lib/viewTransition.ts'
+	import { untrack } from 'svelte'
+	import { SvelteMap, SvelteSet } from 'svelte/reactivity'
 
 
 	// Props
@@ -25,8 +28,13 @@
 		visiblePlaceholderKeys = $bindable([] as _Key[]),
 		scrollPosition = 'Auto',
 		pagination,
+		searchQuery = $bindable(''),
+		matchesForItem = $bindable(
+			new SvelteMap<_Item, SvelteSet<Match>>()
+		),
 		Item,
 		GroupHeader,
+		Empty,
 		...rootProps
 	}: {
 		items: Set<_Item>
@@ -39,13 +47,21 @@
 		visiblePlaceholderKeys?: _Key[]
 		scrollPosition?: 'Start' | 'End' | 'Auto'
 		pagination?: ItemsListPagination
+		searchQuery?: string
+		matchesForItem?: SvelteMap<_Item, SvelteSet<Match>>
 		GroupHeader?: Snippet<[{ groupKey: _GroupKey }]>
+		Empty?: Snippet<[]>
 		Item: Snippet<
 			[
 				{
 					key: _Key
 				} & (
-					| { item: _Item; isPlaceholder: false }
+					| {
+							item: _Item
+							isPlaceholder: false
+							searchQuery?: string
+							matches?: SvelteSet<Match>
+						}
 					| { item?: never; isPlaceholder: true }
 				),
 			]
@@ -65,6 +81,8 @@
 				return true
 		return false
 	}
+	const viewTransitionName = (key: _Key): string =>
+		'list-item-' + String(key).replace(/^\d/, '_$&').replace(/[^a-zA-Z0-9_-]/g, '_')
 
 
 	// (Derived)
@@ -79,9 +97,64 @@
 			: 0
 		}),
 	)
+	const searchQueryNormalized = $derived(searchQuery.trim().toLowerCase())
+	const hasSearch = $derived(!!searchQueryNormalized)
+	$effect(() => {
+		const query = searchQueryNormalized
+		const _itemsSize = items.size
+		if (!query) {
+			untrack(() => matchesForItem.clear())
+			return
+		}
+		untrack(() => {
+			for (const item of sortedItems) {
+				if (!matchesForItem.has(item)) matchesForItem.set(item, new SvelteSet())
+			}
+		})
+	})
+	const itemsToShow = $derived(sortedItems)
+	const matchOrder = $derived(
+		hasSearch
+			? (() => {
+					const score = (ms: SvelteSet<Match> | undefined) => {
+						if (!ms?.size) return { total: 0, spans: 0, minStart: Infinity, spread: Infinity }
+						const arr = [...ms]
+						const total = arr.reduce((s, m) => s + (m.end - m.start), 0)
+						const minStart = Math.min(...arr.map((m) => m.start))
+						const maxEnd = Math.max(...arr.map((m) => m.end))
+						return {
+							total,
+							spans: ms.size,
+							minStart,
+							spread: maxEnd - minStart,
+						}
+					}
+					return [...sortedItems].sort((a, b) => {
+						const sa = score(matchesForItem.get(a))
+						const sb = score(matchesForItem.get(b))
+						if (sb.total !== sa.total) return sb.total - sa.total
+						if (sa.spans !== sb.spans) return sa.spans - sb.spans
+						if (sa.minStart !== sb.minStart) return sa.minStart - sb.minStart
+						if (sa.spread !== sb.spread) return sa.spread - sb.spread
+						return getSortValue(a) < getSortValue(b) ? -1 : getSortValue(a) > getSortValue(b) ? 1 : 0
+					})
+				})()
+			: [],
+	)
+
+	// State: order applied inside view transition so reorder animates
+	let committedMatchOrder = $state<_Item[]>([])
+	const viewTransition = createViewTransition()
+	$effect(() => {
+		const next = matchOrder
+		viewTransition.schedule(() => {
+			committedMatchOrder = next
+		})
+	})
+
 	const groupEntries = $derived(
 		getGroupKey && getGroupLabel ?
-			[...Map.groupBy(sortedItems, getGroupKey!).entries()]
+			[...Map.groupBy(itemsToShow, getGroupKey!).entries()]
 		: null,
 	)
 	const itemRows = $derived(
@@ -95,7 +168,7 @@
 					isPlaceholder: false as const,
 				})),
 			])
-		: sortedItems.map((item) => ({
+		: itemsToShow.map((item) => ({
 				type: 'item' as const,
 				key: getKey(item),
 				item,
@@ -110,6 +183,9 @@
 				key,
 				isPlaceholder: true as const,
 			})),
+	)
+	const isEmpty = $derived(
+		itemRows.length === 0 && placeholderRows.length === 0,
 	)
 	const allRows = $derived.by(() => {
 		if (
@@ -176,66 +252,88 @@
 </script>
 
 
-<!-- scrollPosition: Start/End = overflow-anchor on first/last li; Auto = browser default -->
-<ul
-	class="items-list anchor-{scrollPosition.toLowerCase()}"
-	class:many-items={allRows.length > 200}
-	data-sticky-container
-	{...rootProps}
->
-	{#each allRows as item (item.type === 'group' ?
-		`group:${item.groupKey}`
-	: item.key)}
-		{#if item.type === 'group'}
-			<li data-sticky data-scroll-item="snap-block-start">
-				{#if GroupHeader}
-					{@render GroupHeader({ groupKey: item.groupKey })}
-				{:else}
-					{getGroupLabel!(item.groupKey)}
-				{/if}
-			</li>
-		{:else if item.type === 'placeholder'}
-			<li data-placeholder data-scroll-item="snap-block-start">
-				{@render Item({ key: item.key, isPlaceholder: true as const })}
-			</li>
-		{:else if item.type === 'pagination'}
-			<li
-				data-pagination
-				data-scroll-item="snap-block-start"
-				use:useVisibleAction={pagination?.onLoadMore}
-			>
-				{#if pagination?.Placeholder}
-					{@render pagination.Placeholder({ loading: pagination.loading ?? false })}
-				{:else}
-					<code data-text="muted">
-						{(pagination?.loading ?? false) ?
-							'Loading…'
-						: (pagination?.label ?? 'Load more')}
-					</code>
-				{/if}
-			</li>
-		{:else}
-			<li data-scroll-item="snap-block-start">
-				{@render Item({
-					key: item.key,
-					item: item.item,
-					isPlaceholder: false as const,
-				})}
-			</li>
-		{/if}
-	{/each}
-</ul>
+{#if isEmpty && Empty}
+	<div data-empty>
+		{@render Empty()}
+	</div>
+{:else}
+	<ul
+		class="items-list anchor-{scrollPosition.toLowerCase()}"
+		class:many-items={allRows.length > 200}
+		data-list="unstyled"
+		data-sticky-container
+		{...rootProps}
+	>
+		{#each allRows.slice(0, 100) as item (item.type === 'group' ?
+			`group:${item.groupKey}`
+		: item.key)}
+			{#if item.type === 'group'}
+				<li data-list-item data-sticky data-scroll-item="snap-block-start">
+					{#if GroupHeader}
+						{@render GroupHeader({ groupKey: item.groupKey })}
+					{:else}
+						{getGroupLabel!(item.groupKey)}
+					{/if}
+				</li>
+			{:else if item.type === 'placeholder'}
+				<li data-list-item data-placeholder data-scroll-item="snap-block-start">
+					{@render Item({ key: item.key, isPlaceholder: true as const })}
+				</li>
+			{:else if item.type === 'pagination'}
+				<li
+					data-list-item
+					data-pagination
+					data-scroll-item="snap-block-start"
+					use:useVisibleAction={pagination?.onLoadMore}
+				>
+					{#if pagination?.Placeholder}
+						{@render pagination.Placeholder({ loading: pagination.loading ?? false })}
+					{:else}
+						<code data-text="muted">
+							{(pagination?.loading ?? false) ?
+								'Loading…'
+							: (pagination?.label ?? 'Load more')}
+						</code>
+					{/if}
+				</li>
+			{:else}
+				{@const hasNoSearchMatches = hasSearch && (matchesForItem.get(item.item)?.size ?? 0) === 0}
+				{@const visualOrder = hasSearch ? committedMatchOrder.indexOf(item.item) + 1 : undefined}
+
+				<li
+					data-list-item
+					data-scroll-item="snap-block-start"
+					style={visualOrder != null ? `order: ${visualOrder}` : undefined}
+					style:view-transition-name={viewTransitionName(item.key)}
+					inert={hasNoSearchMatches}
+					hidden={hasNoSearchMatches}
+				>
+					{@render Item({
+						key: item.key,
+						item: item.item,
+						isPlaceholder: false as const,
+						searchQuery,
+						matches: matchesForItem.get(item.item),
+					})}
+				</li>
+			{/if}
+		{/each}
+	</ul>
+{/if}
 
 
 <style>
 	.items-list {
-		&.anchor-start > li:first-child {
+		&.anchor-start > li:first-child,
+		&.anchor-start > [data-list-item]:first-child {
 			overflow-anchor: auto;
 		}
-		&.anchor-end > li:last-child {
+		&.anchor-end > li:last-child,
+		&.anchor-end > [data-list-item]:last-child {
 			overflow-anchor: auto;
 		}
-		&.many-items > li {
+		&.many-items > li,
+		&.many-items > [data-list-item] {
 			content-visibility: auto;
 			contain-intrinsic-block-size: 0 60px;
 		}
