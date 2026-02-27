@@ -4,7 +4,10 @@ import { PatternType, patternsByType } from '$/constants/patterns.ts'
 
 export type EntityRefTriggerConfig = Record<
 	string,
-	{ pattern: RegExp, buildRef: (value: string) => EntityRef }
+	{
+		pattern: RegExp,
+		buildRef: (value: string) => EntityRef
+	}
 >
 
 export const entityRefPatternTypes: readonly PatternType[] = [
@@ -33,7 +36,7 @@ const entityValuePattern = new RegExp('^(?:' + entityPatternSource + ')$')
 
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-function buildEntityRefFromGroups(trigger: string, groups: Record<string, string>): EntityRef {
+const buildEntityRefFromGroups = (trigger: string, groups: Record<string, string>) => {
 	const matched = entityRefConfigs.find((p) => groups[p.type])
 	if (!matched) throw new Error('No matching group')
 	const value = groups[matched.type]
@@ -45,29 +48,27 @@ function buildEntityRefFromGroups(trigger: string, groups: Record<string, string
 	}
 }
 
-export function buildDefaultEntityTriggerConfig(): EntityRefTriggerConfig {
-	return {
-		'@': {
-			pattern: new RegExp(entityPatternSource),
-			buildRef: (value: string) => {
-				const m = value.match(entityValuePattern)
-				if (!m?.groups)
-					return {
-						entityType: EntityType.AgentChatTurn,
-						entityId: value,
-						displayLabel: `@${value}`,
-						trigger: '@',
-					}
-				return buildEntityRefFromGroups('@', m.groups as Record<string, string>)
-			},
+export const buildDefaultEntityTriggerConfig = () => ({
+	'@': {
+		pattern: new RegExp(entityPatternSource),
+		buildRef: (value: string) => {
+			const m = value.match(entityValuePattern)
+			if (!m?.groups)
+				return {
+					entityType: EntityType.AgentChatTurn,
+					entityId: value,
+					displayLabel: `@${value}`,
+					trigger: '@',
+				}
+			return buildEntityRefFromGroups('@', m.groups as Record<string, string>)
 		},
-	}
-}
+	},
+})
 
-export function parseValueToSegmentsAndRefs(
+export const parseValueToSegmentsAndRefs = (
 	value: string,
 	triggerConfig: EntityRefTriggerConfig,
-): { segments: string[], refs: EntityRef[] } {
+) => {
 	const allMatches: { index: number, trigger: string, fullMatch: string, value: string }[] = []
 	for (const trigger of Object.keys(triggerConfig)) {
 		const { pattern } = triggerConfig[trigger]
@@ -98,16 +99,16 @@ export function parseValueToSegmentsAndRefs(
 	return { segments, refs }
 }
 
-export function getValueFromSegmentsAndRefs(
+export const getValueFromSegmentsAndRefs = (
 	segments: string[],
 	refs: EntityRef[],
-): string {
+) => {
 	if (segments.length !== refs.length + 1) return segments.join('')
 	return segments.reduce(
 		(acc, seg, i) => (
-			i < refs.length
-				? acc + seg + refs[i].displayLabel
-				: acc + seg
+			i < refs.length ?
+				acc + seg + refs[i].displayLabel
+			: acc + seg
 		),
 		'',
 	)
