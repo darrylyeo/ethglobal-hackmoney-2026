@@ -84,7 +84,7 @@ function entityToWatchedKey(
 	}
 	if (entityType === EntityType.WalletConnection)
 		return toKey(entityType, { wallet$id: idRec.wallet$id })
-	if (entityType === EntityType.Eip8004Agent) {
+	if (entityType === EntityType.Eip8004Service) {
 		const chainId = idRec.chainId
 		const identityId = idRec.identityId
 		return typeof chainId === 'number' && typeof identityId === 'string'

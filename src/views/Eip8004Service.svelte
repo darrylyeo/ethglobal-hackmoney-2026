@@ -1,19 +1,19 @@
 <script lang="ts">
 	// Types/constants
-	import type { Eip8004Agent } from '$/data/Eip8004Agent.ts'
-	import { eip8004AgentIdToString } from '$/data/Eip8004Agent.ts'
+	import type { Eip8004Service } from '$/data/Eip8004Service.ts'
+	import { eip8004ServiceIdToString } from '$/data/Eip8004Service.ts'
 	import { ipfsUriToHttp } from '$/api/eip-8004.ts'
 
 	// Props
-	let { agent }: { agent: Eip8004Agent } = $props()
+	let { service }: { service: Eip8004Service } = $props()
 
 	// (Derived)
-	const agentsRef = $derived(`@Agent:${agent.$id.identityId}`)
-	const agentsHref = $derived(
-		`/agents?ref=${encodeURIComponent(eip8004AgentIdToString(agent.$id))}`,
+	const serviceRef = $derived(`@Service:${service.$id.identityId}`)
+	const serviceHref = $derived(
+		`/agents?ref=${encodeURIComponent(eip8004ServiceIdToString(service.$id))}`,
 	)
-	const imageSrc = $derived(agent.image ? ipfsUriToHttp(agent.image) : null)
-	const hasServices = $derived(agent.services != null && agent.services.length > 0)
+	const imageSrc = $derived(service.image ? ipfsUriToHttp(service.image) : null)
+	const hasCapabilities = $derived(service.services != null && service.services.length > 0)
 </script>
 
 <div data-column="gap-3">
@@ -28,28 +28,28 @@
 			/>
 		</p>
 	{/if}
-	{#if agent.description}
-		<p>{agent.description}</p>
+	{#if service.description}
+		<p>{service.description}</p>
 	{/if}
-	{#if agent.contactEndpoint}
+	{#if service.contactEndpoint}
 		<p>
 			<strong>Contact:</strong>
 			<a
-				href={agent.contactEndpoint}
+				href={service.contactEndpoint}
 				target="_blank"
 				rel="noopener noreferrer"
 				data-link
 			>
-				{agent.contactEndpoint}
+				{service.contactEndpoint}
 			</a>
 		</p>
 	{/if}
-	{#if hasServices}
+	{#if hasCapabilities}
 		<dl data-definition-list="vertical">
 			<dt>Services</dt>
 			<dd>
 				<ul role="list" data-column="gap-0.5">
-					{#each agent.services! as svc}
+					{#each service.services! as svc}
 						<li>
 							{svc.name ?? svc.type}
 							{#if svc.url}
@@ -69,10 +69,10 @@
 			</dd>
 		</dl>
 	{/if}
-	{#if agent.registrationUri}
+	{#if service.registrationUri}
 		<p>
 			<a
-				href={agent.registrationUri.startsWith('http') ? agent.registrationUri : ipfsUriToHttp(agent.registrationUri)}
+				href={service.registrationUri.startsWith('http') ? service.registrationUri : ipfsUriToHttp(service.registrationUri)}
 				target="_blank"
 				rel="noopener noreferrer"
 				data-link
@@ -82,9 +82,9 @@
 		</p>
 	{/if}
 	<p>
-		<a href={agentsHref} data-link>
+		<a href={serviceHref} data-link>
 			Use in chat
 		</a>
-		— reference as {agentsRef} in agent conversations.
+		— reference as {serviceRef} in agent conversations.
 	</p>
 </div>

@@ -30,7 +30,7 @@ export enum CollectionId {
 	Dashboards = 'Dashboards',
 	Proposals = 'Proposals',
 	Caips = 'Caips',
-	Eip8004Agents = 'Eip8004Agents',
+	Eip8004Services = 'Eip8004Services',
 	EntitySources = 'EntitySources',
 	EnsAvatars = 'EnsAvatars',
 	EvmActorProfiles = 'EvmActorProfiles',

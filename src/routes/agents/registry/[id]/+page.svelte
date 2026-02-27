@@ -1,13 +1,13 @@
 <script lang="ts">
 	// Types/constants
 	import { EntityType } from '$/data/$EntityType.ts'
-	import type { Eip8004Agent } from '$/data/Eip8004Agent.ts'
+	import type { Eip8004Service } from '$/data/Eip8004Service.ts'
 	import {
-		eip8004AgentIdFromString,
-		eip8004AgentIdToString,
-	} from '$/data/Eip8004Agent.ts'
-	import { fetchEip8004Agent } from '$/api/eip-8004.ts'
-	import { eip8004AgentsCollection } from '$/collections/Eip8004Agents.ts'
+		eip8004ServiceIdFromString,
+		eip8004ServiceIdToString,
+	} from '$/data/Eip8004Service.ts'
+	import { fetchEip8004Service } from '$/api/eip-8004.ts'
+	import { eip8004ServicesCollection } from '$/collections/Eip8004Services.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 
 	// Context
@@ -17,29 +17,29 @@
 	// (Derived)
 	const idParam = $derived(page.params.id ?? '')
 	const parsedId = $derived(
-		idParam ? eip8004AgentIdFromString(decodeURIComponent(idParam)) : null,
+		idParam ? eip8004ServiceIdFromString(decodeURIComponent(idParam)) : null,
 	)
 	const key = $derived(
-		parsedId ? eip8004AgentIdToString(parsedId) : null,
+		parsedId ? eip8004ServiceIdToString(parsedId) : null,
 	)
-	const agentFromCollection = $derived(
-		key ? (eip8004AgentsCollection.state.get(key) as Eip8004Agent | undefined) : undefined,
+	const serviceFromCollection = $derived(
+		key ? (eip8004ServicesCollection.state.get(key) as Eip8004Service | undefined) : undefined,
 	)
 
 	// State
-	let agentOverride = $state<Eip8004Agent | null>(null)
+	let serviceOverride = $state<Eip8004Service | null>(null)
 	let loadError = $state<string | null>(null)
 
 	// (Derived)
-	const agent = $derived(agentFromCollection ?? agentOverride)
+	const service = $derived(serviceFromCollection ?? serviceOverride)
 
 	// Effects
 	$effect(() => {
-		if (!parsedId || agentFromCollection) return
+		if (!parsedId || serviceFromCollection) return
 		loadError = null
-		fetchEip8004Agent(parsedId)
-			.then((a) => {
-				agentOverride = a
+		fetchEip8004Service(parsedId)
+			.then((s) => {
+				serviceOverride = s
 			})
 			.catch((e) => {
 				loadError = e instanceof Error ? e.message : String(e)
@@ -47,18 +47,18 @@
 	})
 
 	const label = $derived(
-		agent ? (agent.name ?? agent.$id.identityId) : idParam || 'Agent',
+		service ? (service.name ?? service.$id.identityId) : idParam || 'Service',
 	)
 	const metadata = $derived(
-		agent
+		service
 			? [
-					{ term: 'Identity', detail: agent.$id.identityId },
+					{ term: 'Identity', detail: service.$id.identityId },
 					{
 						term: 'Chain',
-						detail: networksByChainId[agent.$id.chainId]?.name ?? String(agent.$id.chainId),
+						detail: networksByChainId[service.$id.chainId]?.name ?? String(service.$id.chainId),
 					},
-					...(agent.contactEndpoint
-						? [{ term: 'Contact', detail: agent.contactEndpoint }]
+					...(service.contactEndpoint
+						? [{ term: 'Contact', detail: service.contactEndpoint }]
 						: []),
 				]
 			: [],
@@ -66,33 +66,33 @@
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
-	import Eip8004AgentView from '$/views/Eip8004Agent.svelte'
+	import Eip8004ServiceView from '$/views/Eip8004Service.svelte'
 </script>
 
 <svelte:head>
 	<title>
-		{agent ? (agent.name ?? agent.$id.identityId) : 'Agent'}
+		{service ? (service.name ?? service.$id.identityId) : 'Service'}
 		– EIP-8004 registry
 	</title>
 </svelte:head>
 
 <main>
 	{#if !parsedId}
-		<h1>Invalid agent id</h1>
-		<p>Could not parse agent id from "{idParam}".</p>
+		<h1>Invalid service id</h1>
+		<p>Could not parse service id from "{idParam}".</p>
 	{:else if loadError}
 		<h1>Error</h1>
 		<p>{loadError}</p>
-	{:else if agent}
+	{:else if service}
 		<EntityView
-			entityType={EntityType.Eip8004Agent}
-			entity={agent}
+			entityType={EntityType.Eip8004Service}
+			entity={service}
 			titleHref={resolve(`/agents/registry/${encodeURIComponent(idParam)}`)}
 			{label}
 			{metadata}
 		>
 			<svelte:fragment slot="children">
-				<Eip8004AgentView {agent} />
+				<Eip8004ServiceView {service} />
 			</svelte:fragment>
 		</EntityView>
 	{:else}

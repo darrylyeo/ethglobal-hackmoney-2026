@@ -1,12 +1,12 @@
 /**
- * EIP-8004 Trustless Agent Registry: fetch agent ids and URIs from chain,
+ * EIP-8004 Identity Registry: fetch service ids and URIs from chain,
  * then resolve registration document (name, description, contact).
  * https://eips.ethereum.org/EIPS/eip-8004
  */
 
 import type { VoltaireProvider } from '$/api/voltaire.ts'
 import { createProviderForChain } from '$/lib/helios-rpc.ts'
-import type { Eip8004Agent, Eip8004Agent$Id } from '$/data/Eip8004Agent.ts'
+import type { Eip8004Service, Eip8004Service$Id } from '$/data/Eip8004Service.ts'
 import { eip8004RegistryConfigs } from '$/constants/eip-8004-registry.ts'
 import { Abi, decodeParameters, encodeFunction } from '@tevm/voltaire/Abi'
 import { fromBytes as hexFromBytes, toBytes } from '@tevm/voltaire/Hex'
@@ -161,8 +161,8 @@ export async function fetchRegistrationDocument(
 	}
 }
 
-export async function fetchEip8004Agents(): Promise<Eip8004Agent[]> {
-	const results: Eip8004Agent[] = []
+export async function fetchEip8004Services(): Promise<Eip8004Service[]> {
+	const results: Eip8004Service[] = []
 	const now = Date.now()
 	for (const { contract } of eip8004RegistryConfigs) {
 		const { $network, address } = contract
@@ -198,9 +198,9 @@ export async function fetchEip8004Agents(): Promise<Eip8004Agent[]> {
 	return results
 }
 
-export async function fetchEip8004Agent(
-	id: Eip8004Agent$Id,
-): Promise<Eip8004Agent | null> {
+export async function fetchEip8004Service(
+	id: Eip8004Service$Id,
+): Promise<Eip8004Service | null> {
 	const config = eip8004RegistryConfigs.find(
 		(c) => c.contract.$network.chainId === id.chainId,
 	)

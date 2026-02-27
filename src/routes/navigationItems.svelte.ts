@@ -183,12 +183,12 @@ export function deriveWatchedEntityRow(stored: WatchedEntityStoredRow): WatchedE
 								href: `/farcaster/cast/${c.fid}/${c.hash}`,
 							}
 						}
-						case EntityType.Eip8004Agent: {
-							const a = parsedId as EntityId<EntityType.Eip8004Agent>
-							const idStr = `${a.chainId}:${a.identityId}`
+						case EntityType.Eip8004Service: {
+							const s = parsedId as EntityId<EntityType.Eip8004Service>
+							const idStr = `${s.chainId}:${s.identityId}`
 							return {
-								entityId: a,
-								label: a.identityId,
+								entityId: s,
+								label: s.identityId,
 								href: `/agents/registry/${encodeURIComponent(idStr)}`,
 							}
 						}

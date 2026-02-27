@@ -38,7 +38,7 @@ import type { WalletConnectionBase, WalletConnection$Id } from '$/data/WalletCon
 import type { YellowChannel } from '$/data/YellowChannel.ts'
 import type { YellowChannelState } from '$/data/YellowChannelState.ts'
 import type { Fork } from '$/constants/forks/types.ts'
-import type { Eip8004Agent, Eip8004Agent$Id } from '$/data/Eip8004Agent.ts'
+import type { Eip8004Service, Eip8004Service$Id } from '$/data/Eip8004Service.ts'
 import type { CaipEntry, CaipEntry$Id } from '$/data/CaipEntry.ts'
 import type { ProposalEntry, ProposalEntry$Id } from '$/data/ProposalEntry.ts'
 import type { EvmError, EvmError$Id } from '$/data/EvmError.ts'
@@ -62,7 +62,7 @@ export enum EntityType {
 	Coin = 'Coin',
 	Contract = 'Contract',
 	Dashboard = 'Dashboard',
-	Eip8004Agent = 'Eip8004Agent',
+	Eip8004Service = 'Eip8004Service',
 	Caip = 'Caip',
 	NetworkFork = 'NetworkFork',
 	EvmError = 'EvmError',
@@ -108,7 +108,7 @@ export const graphSceneEntityTypes = [
 	EntityType.Coin,
 	EntityType.Contract,
 	EntityType.Dashboard,
-	EntityType.Eip8004Agent,
+	EntityType.Eip8004Service,
 	EntityType.SocialPostSession,
 	EntityType.FarcasterCast,
 	EntityType.FarcasterChannel,
@@ -152,7 +152,7 @@ export const entityTypes = [
 	{ type: EntityType.Contract, label: 'Contract', labelPlural: 'Contracts' },
 	{ type: EntityType.Dashboard, label: 'Dashboard', labelPlural: 'Dashboards' },
 	{ type: EntityType.Caip, label: 'CAIP', labelPlural: 'CAIPs' },
-	{ type: EntityType.Eip8004Agent, label: 'EIP-8004 agent', labelPlural: 'EIP-8004 agents' },
+	{ type: EntityType.Eip8004Service, label: 'EIP-8004 service', labelPlural: 'EIP-8004 services' },
 	{ type: EntityType.NetworkFork, label: 'Network fork', labelPlural: 'Network forks' },
 	{ type: EntityType.EvmError, label: 'EVM error', labelPlural: 'EVM errors' },
 	{ type: EntityType.EvmSelector, label: 'EVM selector', labelPlural: 'EVM selectors' },
@@ -202,7 +202,7 @@ export type Entity<_EntityType extends EntityType = EntityType> = {
 	[EntityType.Coin]: CoinInstanceEntry
 	[EntityType.Contract]: ContractEntry
 	[EntityType.Dashboard]: DashboardState
-	[EntityType.Eip8004Agent]: Eip8004Agent
+	[EntityType.Eip8004Service]: Eip8004Service
 	[EntityType.Caip]: CaipEntry
 	[EntityType.NetworkFork]: Fork
 	[EntityType.EvmError]: EvmError
@@ -251,7 +251,7 @@ export type EntityId<_EntityType extends EntityType = EntityType> = {
 	[EntityType.Coin]: CoinInstance$Id
 	[EntityType.Contract]: Contract$Id
 	[EntityType.Dashboard]: DashboardState$Id
-	[EntityType.Eip8004Agent]: Eip8004Agent$Id
+	[EntityType.Eip8004Service]: Eip8004Service$Id
 	[EntityType.Caip]: CaipEntry$Id
 	[EntityType.NetworkFork]: StringId
 	[EntityType.EvmError]: EvmError$Id

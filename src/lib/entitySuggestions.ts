@@ -1,9 +1,9 @@
 import type { EntityRef } from '$/data/EntityRef.ts'
 import { EntityType } from '$/data/$EntityType.ts'
-import { eip8004AgentIdToString } from '$/data/Eip8004Agent.ts'
+import { eip8004ServiceIdToString } from '$/data/Eip8004Service.ts'
 import { agentChatTurnsCollection } from '$/collections/AgentChatTurns.ts'
 import { actorsCollection } from '$/collections/Actors.ts'
-import { eip8004AgentsCollection } from '$/collections/Eip8004Agents.ts'
+import { eip8004ServicesCollection } from '$/collections/Eip8004Services.ts'
 import { actorKey } from '$/collections/Actors.ts'
 import { blocksCollection } from '$/collections/Blocks.ts'
 import { bridgeTransactionsCollection } from '$/collections/BridgeTransactions.ts'
@@ -11,13 +11,13 @@ import { stringify } from 'devalue'
 
 export type EntitySuggestion = { ref: EntityRef, label: string }
 
-const agentToSuggestion = (row: { $id: { chainId: number; identityId: string }; name?: string }): EntitySuggestion => {
-	const id = eip8004AgentIdToString(row.$id)
+const serviceToSuggestion = (row: { $id: { chainId: number; identityId: string }; name?: string }): EntitySuggestion => {
+	const id = eip8004ServiceIdToString(row.$id)
 	return {
 		ref: {
-			entityType: EntityType.Eip8004Agent,
+			entityType: EntityType.Eip8004Service,
 			entityId: id,
-			displayLabel: `@Agent:${row.$id.identityId}`,
+			displayLabel: `@Service:${row.$id.identityId}`,
 		},
 		label: row.name ?? row.$id.identityId,
 	}
@@ -72,8 +72,8 @@ export function getEntitySuggestionsFromCache(query: string): EntitySuggestion[]
 	const q = query.trim().toLowerCase()
 	const results: EntitySuggestion[] = []
 
-	for (const agent of eip8004AgentsCollection.state.values())
-		results.push(agentToSuggestion(agent))
+	for (const service of eip8004ServicesCollection.state.values())
+		results.push(serviceToSuggestion(service))
 
 	for (const turn of agentChatTurnsCollection.state.values())
 		results.push(agentChatTurnToSuggestion(turn))

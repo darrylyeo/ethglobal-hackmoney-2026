@@ -4,12 +4,17 @@
 	import type { Sort } from '$/components/Sorts.svelte'
 	import { FilterDisplayType, FilterOperation } from '$/components/Filters.svelte'
 	import { ipfsUriToHttp } from '$/api/eip-8004.ts'
-	import { agentRegistries } from '$/constants/agent-registries.ts'
-	import { eip8004AgentsCollection } from '$/collections/Eip8004Agents.ts'
-	import type { Eip8004Agent } from '$/data/Eip8004Agent.ts'
-	import { eip8004AgentIdToString } from '$/data/Eip8004Agent.ts'
+	import { serviceRegistries } from '$/constants/service-registries.ts'
+	import { eip8004ServicesCollection } from '$/collections/Eip8004Services.ts'
+	import type { Eip8004Service } from '$/data/Eip8004Service.ts'
+	import { eip8004ServiceIdToString } from '$/data/Eip8004Service.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 	import { networksByChainId } from '$/constants/networks.ts'
+
+	enum ServiceSort {
+		Name = 'name',
+		Chain = 'chain',
+	}
 
 	// Context
 	import { resolve } from '$app/paths'
@@ -17,12 +22,12 @@
 	// (Derived)
 	const entriesQuery = useLiveQuery((q) =>
 		q
-			.from({ row: eip8004AgentsCollection })
+			.from({ row: eip8004ServicesCollection })
 			.select(({ row }) => ({ row })),
 	)
 	const views = $derived(
 		(entriesQuery.data ?? [])
-			.map(({ row: agent }) => agent as Eip8004Agent)
+			.map(({ row: service }) => service as Eip8004Service)
 			.filter(Boolean),
 	)
 	const chainIds = $derived([...new Set(views.map((e) => e.$id.chainId))].sort())
@@ -39,35 +44,33 @@
 				...chainIds.map((c) => ({
 					id: String(c),
 					label: networksByChainId[c]?.name ?? String(c),
-					filterFunction: (e: Eip8004Agent) => e.$id.chainId === c,
+					filterFunction: (e: Eip8004Service) => e.$id.chainId === c,
 				})),
 			],
 		},
-	] as FilterGroup<Eip8004Agent, string>[])
+	] as FilterGroup<Eip8004Service, string>[])
 
-	const primaryRegistry = $derived(agentRegistries[0])
-	const sortOptions: Sort<Eip8004Agent, 'name' | 'chain'>[] = [
+	const primaryRegistry = $derived(serviceRegistries[0])
+	const sortOptions: Sort<Eip8004Service, ServiceSort>[] = [
 		{
-			id: 'name',
+			id: ServiceSort.Name,
 			label: 'Name',
 			compare: (a, b) =>
 				(a.name ?? a.$id.identityId).localeCompare(b.name ?? b.$id.identityId),
 		},
 		{
-			id: 'chain',
+			id: ServiceSort.Chain,
 			label: 'Chain',
 			compare: (a, b) => a.$id.chainId - b.$id.chainId || a.$id.identityId.localeCompare(b.$id.identityId),
 		},
 	]
 
 	// State
-	let activeFilters = $state<Set<Filter<Eip8004Agent, string>>>(new Set())
-	let filteredItems = $state<Eip8004Agent[]>([])
-	let sortedItems = $state<Eip8004Agent[]>([])
+	let activeFilters = $state<Set<Filter<Eip8004Service, string>>>(new Set())
 	let searchQuery = $state('')
+	let displayCount = $state(0)
 
 	// (Derived)
-	const hasFilterGroups = $derived(filterGroups.length > 0)
 	const searchLower = $derived(searchQuery.trim().toLowerCase())
 	const searchFiltered = $derived(
 		searchLower
@@ -79,35 +82,29 @@
 				)
 			: views,
 	)
-	const itemsToSort = $derived(
-		hasFilterGroups ? filteredItems : searchFiltered,
-	)
-	const displayItems = $derived(
-		sortOptions.length > 1 ? sortedItems : itemsToSort,
-	)
+	const getKey = (s: Eip8004Service) => eip8004ServiceIdToString(s.$id)
 
 	// Components
-	import Filters from '$/components/Filters.svelte'
-	import Sorts from '$/components/Sorts.svelte'
+	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
 </script>
 
 <svelte:head>
-	<title>{primaryRegistry?.label ?? 'Agent'} registry – Agents</title>
+	<title>{primaryRegistry?.label ?? 'Service'} registry – Agents</title>
 </svelte:head>
 
 <main data-column="gap-4">
-	<h1>{primaryRegistry?.label ?? 'Agent'} registry</h1>
+	<h1>{primaryRegistry?.label ?? 'Service'} registry</h1>
 	<p data-text="muted">
-		Explore agents from the
+		Explore EIP-8004 services from the
 		<a
 			href="https://eips.ethereum.org/EIPS/eip-8004"
 			target="_blank"
 			rel="noopener noreferrer"
 			data-link
 		>
-			EIP-8004 Trustless Agent
+			EIP-8004
 		</a>
-		Identity Registry. Reference them in agent chat with <code>@Agent:…</code>.
+		Identity Registry. Reference them in agent chat with <code>@Service:…</code>.
 		Learn more:
 		<a
 			href="https://8004.org"
@@ -128,7 +125,7 @@
 	{:else if entriesQuery.isError}
 		<p>
 			Failed to load:
-			{(eip8004AgentsCollection.utils.lastError as unknown as { message?: string })?.message ?? 'Unknown error'}
+			{(eip8004ServicesCollection.utils.lastError as unknown as { message?: string })?.message ?? 'Unknown error'}
 		</p>
 	{:else}
 		<div data-row="gap-4 wrap">
@@ -140,61 +137,58 @@
 					placeholder="Name, description, identity…"
 				/>
 			</label>
-			{#if filterGroups.length > 0}
-				<Filters
-					items={searchFiltered}
-					{filterGroups}
-					bind:activeFilters
-					bind:filteredItems
-				/>
-			{/if}
-			{#if sortOptions.length > 1}
-				<Sorts
-					items={itemsToSort}
-					sortOptions={sortOptions}
-					defaultSortId="name"
-					bind:sortedItems
-				/>
-			{/if}
 		</div>
-		<p>{displayItems.length} of {views.length} agents</p>
-		{#if displayItems.length === 0}
-			<p data-text="muted">
-				No agents in registry. Data is read from chain (Identity Registry + agentURI); add chains in
-				<code>eip-8004-registry</code>.
-			</p>
-		{:else}
-			<ul data-column="gap-1" role="list">
-				{#each displayItems as agent (eip8004AgentIdToString(agent.$id))}
-					<li data-row="align-center gap-2">
-						{#if agent.image}
-							<img
-								src={ipfsUriToHttp(agent.image)}
-								alt=""
-								width="32"
-								height="32"
-								style="border-radius: 50%; object-fit: cover;"
-							/>
-						{/if}
-						<span data-row="wrap align-center gap-1">
-							<a
-								href={resolve(
-									`/agents/registry/${encodeURIComponent(eip8004AgentIdToString(agent.$id))}`,
-								)}
-								data-link
-							>
-								<strong>{agent.name ?? agent.$id.identityId}</strong>
-							</a>
-							{#if agent.name && agent.$id.identityId !== agent.name}
-								<span data-text="muted">{agent.$id.identityId}</span>
+		<p>{displayCount} of {views.length} services</p>
+		<RefinableItemsList
+			items={searchFiltered}
+			{filterGroups}
+			defaultFilterIds={new Set<string>()}
+			{sortOptions}
+			defaultSortId={ServiceSort.Name}
+			{getKey}
+			bind:activeFilters
+			bind:displayCount
+			placeholderKeys={new Set<string>()}
+			data-column="gap-1"
+			role="list"
+		>
+				{#snippet Empty()}
+					<p data-text="muted">
+						No services in registry. Data is read from chain (Identity Registry + agentURI); add chains in
+						<code>eip-8004-registry</code>.
+					</p>
+				{/snippet}
+				{#snippet Item({ key: _k, item: service, isPlaceholder })}
+					{#if !isPlaceholder && service != null}
+						<div data-row="align-center gap-2">
+							{#if service.image}
+								<img
+									src={ipfsUriToHttp(service.image)}
+									alt=""
+									width="32"
+									height="32"
+									style="border-radius: 50%; object-fit: cover;"
+								/>
 							{/if}
-							<span data-text="muted">
-								{networksByChainId[agent.$id.chainId]?.name ?? agent.$id.chainId}
+							<span data-row="wrap align-center gap-1">
+								<a
+									href={resolve(
+										`/agents/registry/${encodeURIComponent(eip8004ServiceIdToString(service.$id))}`,
+									)}
+									data-link
+								>
+									<strong>{service.name ?? service.$id.identityId}</strong>
+								</a>
+								{#if service.name && service.$id.identityId !== service.name}
+									<span data-text="muted">{service.$id.identityId}</span>
+								{/if}
+								<span data-text="muted">
+									{networksByChainId[service.$id.chainId]?.name ?? service.$id.chainId}
+								</span>
 							</span>
-						</span>
-					</li>
-				{/each}
-			</ul>
-		{/if}
+						</div>
+					{/if}
+				{/snippet}
+		</RefinableItemsList>
 	{/if}
 </main>
