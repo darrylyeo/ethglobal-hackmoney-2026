@@ -13,13 +13,13 @@
 
 
 	// Components
-	import ItemsList from '$/components/ItemsList.svelte'
+	import List from '$/components/List.svelte'
 	import NetworkView from '$/views/network/Network.svelte'
 	import { NetworkLayout } from '$/views/network/Network.svelte'
 </script>
 
 
-<ItemsList
+<List
 	items={items}
 	getKey={(network) => network.chainId}
 	getSortValue={(network) => network.chainId}
@@ -40,4 +40,4 @@
 			/>
 		{/if}
 	{/snippet}
-</ItemsList>
+</List>

@@ -4,7 +4,7 @@
 	import type { CoinInstance } from '$/constants/coin-instances.ts'
 	import type { CoinId } from '$/constants/coins.ts'
 	import Collapsible from '$/components/Collapsible.svelte'
-	import ItemsList from '$/components/ItemsList.svelte'
+	import List from '$/components/List.svelte'
 	import TransferEvent from '$/views/TransferEvent.svelte'
 
 
@@ -30,7 +30,7 @@
 
 
 <Collapsible title="Transfers" annotation={String(eventsSet.size)}>
-	<ItemsList
+	<List
 		items={eventsSet}
 		getKey={getEventKey}
 		getSortValue={(event) => -event.timestamp}
@@ -50,5 +50,5 @@
 				{/if}
 			</span>
 		{/snippet}
-	</ItemsList>
+	</List>
 </Collapsible>

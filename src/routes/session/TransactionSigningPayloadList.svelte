@@ -16,7 +16,7 @@
 
 
 	// Components
-	import ItemsList from '$/components/ItemsList.svelte'
+	import List from '$/components/List.svelte'
 	import SignaturePayload from './SignaturePayload.svelte'
 </script>
 
@@ -25,7 +25,7 @@
 		class="proposed-tx-scroll"
 		data-scroll-container="block"
 	>
-		<ItemsList
+		<List
 			items={items}
 			getKey={(payload) => payload.stepIndex}
 			getSortValue={(payload) => payload.stepIndex}
@@ -42,7 +42,7 @@
 					<SignaturePayload payload={item} />
 				{/if}
 			{/snippet}
-		</ItemsList>
+		</List>
 	</div>
 </div>
 

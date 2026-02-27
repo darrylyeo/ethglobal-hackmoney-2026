@@ -7,7 +7,7 @@
 	import type { CoinId } from '$/constants/coins.ts'
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import Collapsible from '$/components/Collapsible.svelte'
-	import ItemsList from '$/components/ItemsList.svelte'
+	import List from '$/components/List.svelte'
 	import TransferEvent from '$/views/TransferEvent.svelte'
 
 
@@ -60,7 +60,7 @@
 	title="Bridge transfers"
 	annotation={eventsSet.size > 0 ? String(eventsSet.size) : '—'}
 >
-	<ItemsList
+	<List
 		items={eventsSet}
 		getKey={getEventKey}
 		getSortValue={(event) => -event.timestamp}
@@ -80,5 +80,5 @@
 				{/if}
 			</span>
 		{/snippet}
-	</ItemsList>
+	</List>
 </Collapsible>

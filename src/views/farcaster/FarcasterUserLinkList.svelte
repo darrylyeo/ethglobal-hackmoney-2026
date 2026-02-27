@@ -36,13 +36,13 @@
 	// Components
 	import Collapsible from '$/components/Collapsible.svelte'
 	import EntityView from '$/components/EntityView.svelte'
-	import ItemsList from '$/components/ItemsList.svelte'
+	import List from '$/components/List.svelte'
 	import PaginationPlaceholder from '$/components/PaginationPlaceholder.svelte'
 </script>
 
 <Collapsible title={title} annotation={String(links.length)}>
 	<div data-column>
-		<ItemsList
+		<List
 			items={linksSet}
 			{getKey}
 			getSortValue={(link) => getFid(link)}
@@ -63,7 +63,7 @@
 					/>
 				{/if}
 			{/snippet}
-		</ItemsList>
+		</List>
 		<PaginationPlaceholder
 			{hasMore}
 			{onLoadMore}

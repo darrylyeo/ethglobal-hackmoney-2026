@@ -35,7 +35,7 @@
 
 
 	// Components
-	import ItemsList from '$/components/ItemsList.svelte'
+	import List from '$/components/List.svelte'
 	import Simulation from './Simulation.svelte'
 </script>
 
@@ -45,7 +45,7 @@
 		<h4>Simulations</h4>
 	</summary>
 
-	<ItemsList
+	<List
 		items={items}
 		getKey={(item) => item.id}
 		getSortValue={(item) => -item.createdAt}
@@ -61,5 +61,5 @@
 				<Simulation simulation={item} />
 			{/if}
 		{/snippet}
-	</ItemsList>
+	</List>
 </details>

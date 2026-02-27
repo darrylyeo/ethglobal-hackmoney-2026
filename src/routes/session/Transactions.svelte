@@ -35,7 +35,7 @@
 
 
 	// Components
-	import ItemsList from '$/components/ItemsList.svelte'
+	import List from '$/components/List.svelte'
 	import Transaction from './Transaction.svelte'
 </script>
 
@@ -44,7 +44,7 @@
 	<summary>
 		<h4>Submitted Transactions</h4>
 	</summary>
-	<ItemsList
+	<List
 		items={items}
 		getKey={(item) => item.id}
 		getSortValue={(item) => -item.createdAt}
@@ -60,5 +60,5 @@
 				<Transaction transaction={item} />
 			{/if}
 		{/snippet}
-	</ItemsList>
+	</List>
 </details>
