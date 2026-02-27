@@ -3,7 +3,7 @@
  */
 
 // Constants
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId } from '$/constants/data-sources.ts'
 
 
 // Collections
@@ -17,6 +17,7 @@ import {
 	stateChannelTransfersCollection,
 	type StateChannelTransferRow,
 } from '$/collections/StateChannelTransfers.ts'
+import type { YellowTransfer } from '$/data/YellowTransfer.ts'
 
 
 // Functions
@@ -49,14 +50,14 @@ function upsertChannel(row: StateChannelRow) {
 	if (existing) {
 		stateChannelsCollection.update(row.id, (draft) => {
 			Object.assign(draft, row)
-			draft.$source = DataSource.Eip7824
+			draft.$source = DataSourceId.Eip7824
 			draft.protocol = Protocol.Yellow
 			if (roomId) draft.roomId = roomId
 		})
 	} else {
 		stateChannelsCollection.insert({
 			...row,
-			$source: DataSource.Eip7824,
+			$source: DataSourceId.Eip7824,
 			protocol: Protocol.Yellow,
 			...(roomId && { roomId }),
 		})
@@ -83,7 +84,7 @@ function normalizeChannelFromMessage(params: unknown): StateChannelRow | null {
 	if (!id || !participant0 || !participant1 || !asset) return null
 	return {
 		id,
-		$source: DataSource.Eip7824,
+		$source: DataSourceId.Eip7824,
 		protocol: Protocol.Yellow,
 		chainId,
 		participant0,
@@ -120,7 +121,7 @@ function normalizeTransferFromMessage(
 	if (!id || !channelId || !from || !to) return null
 	return {
 		id,
-		$source: DataSource.Eip7824,
+		$source: DataSourceId.Eip7824,
 		protocol: Protocol.Yellow,
 		channelId,
 		from,
@@ -130,7 +131,7 @@ function normalizeTransferFromMessage(
 		timestamp: toTimestampMs(Number(p.timestamp ?? 0)),
 		status: (typeof p.status === 'string'
 			? p.status
-			: 'pending') as YellowTransferRow['status'],
+			: 'pending') as YellowTransfer['status'],
 	}
 }
 
@@ -194,7 +195,7 @@ function handleClearnodeMessage(msg: NitroRpcMessage) {
 			const now = Date.now()
 			if (existing) {
 				stateChannelDepositsCollection.update(depositId, (draft) => {
-					draft.$source = DataSource.Eip7824
+					draft.$source = DataSourceId.Eip7824
 					draft.availableBalance = update.availableBalance
 					draft.lockedBalance = update.lockedBalance
 					draft.lastUpdated = now
@@ -202,7 +203,8 @@ function handleClearnodeMessage(msg: NitroRpcMessage) {
 			} else {
 				stateChannelDepositsCollection.insert({
 					id: depositId,
-					$source: DataSource.Eip7824,
+					$source: DataSourceId.Eip7824,
+					protocol: Protocol.Yellow,
 					chainId: yellowState.chainId ?? 0,
 					address: update.address,
 					availableBalance: update.availableBalance,
@@ -259,14 +261,14 @@ export const connectToYellow = async (
 	const now = Date.now()
 	if (existing) {
 		stateChannelDepositsCollection.update(depositId, (draft) => {
-			draft.$source = DataSource.Eip7824
+			draft.$source = DataSourceId.Eip7824
 			draft.availableBalance = balance
 			draft.lastUpdated = now
 		})
 	} else {
 		stateChannelDepositsCollection.insert({
 			id: depositId,
-			$source: DataSource.Eip7824,
+			$source: DataSourceId.Eip7824,
 			protocol: Protocol.Yellow,
 			chainId,
 			address,

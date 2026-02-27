@@ -2,7 +2,7 @@
  * Room state: PartyKit connection, join/leave, sync from server to collections.
  */
 
-import { DataSource } from '$/constants/data-sources.ts'
+import { DataSourceId, type WithSource } from '$/constants/data-sources.ts'
 import { myPeerIdsCollection } from '$/collections/MyPeerIds.ts'
 import { partykitRoomPeersCollection } from '$/collections/PartykitRoomPeers.ts'
 import { partykitRoomsCollection } from '$/collections/PartykitRooms.ts'
@@ -68,7 +68,7 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 		{
 			...state.room,
 			$id: state.room.$id ?? { id: (state.room as { id?: string }).id ?? '' },
-			$source: DataSource.PartyKit,
+			$source: DataSourceId.PartyKit,
 		},
 		(r) => r.$id.id,
 	)
@@ -76,7 +76,7 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 		if (p.peerId === roomState.peerId) continue
 		upsert(
 			partykitRoomPeersCollection,
-			{ ...p, $source: DataSource.PartyKit },
+			{ ...p, $source: DataSourceId.PartyKit },
 			(r) => r.id,
 		)
 	}
@@ -104,7 +104,7 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 			{
 				...s,
 				sharedAt: toTimestampMs(s.sharedAt),
-				$source: DataSource.PartyKit,
+				$source: DataSourceId.PartyKit,
 			},
 			(r) => r.id,
 		)
@@ -120,7 +120,7 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 				...c,
 				issuedAt: toTimestampMs(c.issuedAt),
 				expiresAt: toTimestampMs(c.expiresAt),
-				$source: DataSource.PartyKit,
+				$source: DataSourceId.PartyKit,
 			},
 			(r) => r.id,
 		)
@@ -136,7 +136,7 @@ function syncStateToCollections(roomId: string, state: RoomStateSync) {
 				...v,
 				requestedAt: toTimestampMs(v.requestedAt),
 				...(v.verifiedAt != null && { verifiedAt: toTimestampMs(v.verifiedAt) }),
-				$source: DataSource.PartyKit,
+				$source: DataSourceId.PartyKit,
 			},
 			(r) => r.id,
 		)
@@ -174,7 +174,7 @@ function handleServerMessage(msg: RoomMessage) {
 					...ch,
 					issuedAt: toTimestampMs(ch.issuedAt),
 					expiresAt: toTimestampMs(ch.expiresAt),
-					$source: DataSource.PartyKit,
+					$source: DataSourceId.PartyKit,
 				},
 				(r) => r.id,
 			)
@@ -189,7 +189,7 @@ function handleServerMessage(msg: RoomMessage) {
 			const existing = siweChallengesCollection.state.get(msg.challengeId)
 			if (existing) {
 				siweChallengesCollection.update(msg.challengeId, (draft) => {
-					draft.$source = DataSource.PartyKit
+					draft.$source = DataSourceId.PartyKit
 					draft.verified = msg.verified
 				})
 			}
@@ -203,7 +203,7 @@ function handleServerMessage(msg: RoomMessage) {
 					...v,
 					requestedAt: toTimestampMs(v.requestedAt),
 					...(v.verifiedAt != null && { verifiedAt: toTimestampMs(v.verifiedAt) }),
-					$source: DataSource.PartyKit,
+					$source: DataSourceId.PartyKit,
 				},
 				(r) => r.id,
 			)
@@ -241,9 +241,9 @@ function handleServerMessage(msg: RoomMessage) {
 		}
 		case 'transfer-request': {
 			const p = msg.request
-			const row: TransferRequest = {
+			const row: WithSource<TransferRequest> = {
 				id: p.id,
-				$source: DataSource.PartyKit,
+				$source: DataSourceId.PartyKit,
 				roomId: p.roomId,
 				from: p.from,
 				to: p.to,
@@ -259,7 +259,7 @@ function handleServerMessage(msg: RoomMessage) {
 			const existing = transferRequestsCollection.state.get(msg.requestId)
 			if (existing) {
 				transferRequestsCollection.update(msg.requestId, (draft) => {
-					draft.$source = DataSource.PartyKit
+					draft.$source = DataSourceId.PartyKit
 					draft.status = 'accepted'
 				})
 			}
@@ -269,7 +269,7 @@ function handleServerMessage(msg: RoomMessage) {
 			const existing = transferRequestsCollection.state.get(msg.requestId)
 			if (existing) {
 				transferRequestsCollection.update(msg.requestId, (draft) => {
-					draft.$source = DataSource.PartyKit
+					draft.$source = DataSourceId.PartyKit
 					draft.status = 'rejected'
 				})
 			}
@@ -279,7 +279,7 @@ function handleServerMessage(msg: RoomMessage) {
 			const existing = transferRequestsCollection.state.get(msg.requestId)
 			if (existing) {
 				transferRequestsCollection.update(msg.requestId, (draft) => {
-					draft.$source = DataSource.PartyKit
+					draft.$source = DataSourceId.PartyKit
 					draft.status = 'sent'
 				})
 			}
