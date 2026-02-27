@@ -1,6 +1,9 @@
 <script lang="ts">
 	import type { TevmSimulationTraceCall } from '$/data/TevmSimulationResult.ts'
 
+	import TreeNode from '$/components/TreeNode.svelte'
+
+
 	let {
 		trace = [],
 		contractFilter = $bindable(''),
@@ -11,22 +14,30 @@
 		selectorFilter?: string
 	} = $props()
 
-	const filteredTrace = $derived(
-		trace.filter(
-			(call) =>
-				(!contractFilter ||
-					call.to.toLowerCase().includes(contractFilter.toLowerCase())) &&
-				(!selectorFilter ||
-					(call.selector ?? call.data?.slice(0, 10) ?? '')
-						.toLowerCase()
-						.includes(selectorFilter.toLowerCase())),
-		),
-	)
-
 	const formatAddress = (addr: string) =>
 		addr.length > 14 ? `${addr.slice(0, 8)}…${addr.slice(-6)}` : addr
-</script>
 
+	function matchesFilter(call: TevmSimulationTraceCall): boolean {
+		return (
+			(!contractFilter ||
+				call.to.toLowerCase().includes(contractFilter.toLowerCase())) &&
+			(!selectorFilter ||
+				(call.selector ?? call.data?.slice(0, 10) ?? '')
+					.toLowerCase()
+					.includes(selectorFilter.toLowerCase()))
+		)
+	}
+
+	const hasVisible = $derived.by(() => {
+		function visible(call: TevmSimulationTraceCall): boolean {
+			return (
+				matchesFilter(call) ||
+				(call.children ?? []).some(visible)
+			)
+		}
+		return trace.some(visible)
+	})
+</script>
 
 <div data-simulation-trace data-column>
 	<header data-row="align-center justify-between">
@@ -50,53 +61,49 @@
 			/>
 		</div>
 	</header>
-	{#if filteredTrace.length === 0}
+	{#if trace.length === 0}
 		<p data-text="muted">No trace entries.</p>
+	{:else if !hasVisible}
+		<p data-text="muted">No matching entries.</p>
 	{:else}
-		<ul data-column style="list-style: none; padding: 0;">
-			{#each filteredTrace as call (call.to + call.data + call.gasUsed)}
-				<li data-trace-call data-column="gap-0">
+		<TreeNode
+			nodes={trace}
+			getKey={(c) => c.to + c.data + (c.gasUsed ?? '')}
+			getChildren={(c) => c.children}
+			isOpen={() => true}
+			isHidden={(call, isHidden) =>
+				!matchesFilter(call) &&
+				((call.children ?? []).every((c) => isHidden(c, isHidden)) ?? true)
+			}
+			listTag="ul"
+			listAttrs={{ 'data-column': '', style: 'list-style: none; padding: 0;' }}
+			detailsAttrs={{}}
+			summaryAttrs={{}}
+		>
+			{#snippet Content({ node }: { node: TevmSimulationTraceCall })}
+				<div data-trace-call data-column="gap-0">
 					<div data-row="align-center wrap">
 						<span data-text="muted">to</span>
-						<code>{formatAddress(call.to)}</code>
-						{#if call.selector}
+						<code>{formatAddress(node.to)}</code>
+						{#if node.selector}
 							<span data-text="muted">selector</span>
-							<code>{call.selector}</code>
+							<code>{node.selector}</code>
 						{/if}
 						<span data-text="muted">gas</span>
-						<code>{call.gasUsed}</code>
-						{#if call.value !== '0'}
+						<code>{node.gasUsed}</code>
+						{#if node.value !== '0'}
 							<span data-text="muted">value</span>
-							<code>{call.value}</code>
+							<code>{node.value}</code>
 						{/if}
 					</div>
-					{#if call.revert}
-						<p data-error>{call.revert}</p>
+					{#if node.revert}
+						<p data-error>{node.revert}</p>
 					{/if}
-					{#if call.children?.length}
-						<ul
-							data-column
-							style="list-style: none; padding-left: 1rem;"
-						>
-							{#each call.children as child (child.to + child.data)}
-								<li data-trace-call data-column="gap-0">
-									<div data-row="align-center wrap">
-										<code>{formatAddress(child.to)}</code>
-										<code>{child.gasUsed}</code>
-									</div>
-									{#if child.revert}
-										<p data-error>{child.revert}</p>
-									{/if}
-								</li>
-							{/each}
-						</ul>
-					{/if}
-				</li>
-			{/each}
-		</ul>
+				</div>
+			{/snippet}
+		</TreeNode>
 	{/if}
 </div>
-
 
 <style>
 	.sr-only {
@@ -112,5 +119,8 @@
 	}
 	[data-input] {
 		max-width: 8rem;
+	}
+	:global([data-simulation-trace] li ul) {
+		padding-left: 1rem;
 	}
 </style>
