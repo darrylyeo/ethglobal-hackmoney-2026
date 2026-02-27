@@ -1,17 +1,14 @@
-import {
-	ActionType,
-	actionTypeDefinitionByActionType,
-} from '$/constants/actions.ts'
+import { ActionType } from '$/constants/actions.ts'
 import {
 	protocolActionByActionAndProtocol,
 	protocolActions,
 } from '$/constants/protocolActions.ts'
-import { ProtocolId, protocolsById } from '$/constants/protocols.ts'
 import type { ProtocolAction } from '$/constants/protocolActions.ts'
+import { ProtocolId } from '$/constants/protocols.ts'
+import { formatIntentOptionLabel } from '$/lib/formatIntentOptionLabel.ts'
 import type { SessionTemplate } from '$/data/Session.ts'
 import { EntityType, type Entity } from '$/data/$EntityType.ts'
 import { createAction } from '$/constants/actions.ts'
-import { formatIntentOptionLabel } from '$/lib/intents.ts'
 
 
 // Drag payload types (used by drag infrastructure)
