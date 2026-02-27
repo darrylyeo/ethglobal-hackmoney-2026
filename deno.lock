@@ -62,6 +62,7 @@
     "npm:uuid@13": "13.0.0",
     "npm:viem@2.45.3": "2.45.3_typescript@6.0.0-dev.20260220_ws@8.18.3",
     "npm:vite-plugin-devtools-json@1": "1.0.0_vite@7.3.1__picomatch@4.0.3",
+    "npm:vite@7.3.1": "7.3.1_picomatch@4.0.3",
     "npm:vite@^7.3.1": "7.3.1_picomatch@4.0.3",
     "npm:vitest@^4.0.18": "4.0.18_vite@7.3.1__picomatch@4.0.3",
     "npm:ws@^8.19.0": "8.19.0_bufferutil@4.1.0_utf-8-validate@5.0.10"

@@ -16,7 +16,7 @@
     }
   },
   "tasks": {
-    "dev": "vite dev",
+    "dev": "vite dev --port 5000",
     "dev:partykit": "partykit dev",
     "dev:webmcp": "deno run -A npm:@mcp-b/native-server/dist/index.js",
     "deploy:partykit": "deno run -A npm:partykit deploy",
