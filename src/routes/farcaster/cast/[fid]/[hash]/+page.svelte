@@ -112,9 +112,11 @@
 
 
 	// State
+	import { SvelteSet } from 'svelte/reactivity'
+
 	let isEnsureCastPending = $state(false)
 	let isLoadingMoreReplies = $state(false)
-	let openNodes = $state<Set<string>>(new Set())
+	let openNodes = $state(new SvelteSet<string>())
 	let repliesNextToken = $state<string | undefined>(undefined)
 
 
@@ -128,7 +130,6 @@
 			.finally(() => (isLoadingMoreReplies = false))
 	}
 	const onOpenChange = (node: WithSource<FarcasterCast>, open: boolean) => {
-		openNodes = new Set(openNodes)
 		if (open) {
 			openNodes.add(`${node.$id.fid}:${node.$id.hash}`)
 		} else {
@@ -157,10 +158,8 @@
 	})
 	$effect(() => {
 		if (isReply && ancestorChain.length > 0)
-			openNodes = new Set([
-				...openNodes,
-				...ancestorChain.map((a) => `${a.$id.fid}:${a.$id.hash}`),
-			])
+			for (const a of ancestorChain)
+				openNodes.add(`${a.$id.fid}:${a.$id.hash}`)
 	})
 	$effect(() => {
 		if (cast) {
@@ -193,7 +192,7 @@
 	import Media from '$/components/Media.svelte'
 	import PaginationPlaceholder from '$/components/PaginationPlaceholder.svelte'
 	import TreeNode from '$/components/TreeNode.svelte'
-	import FarcasterCast from '$/views/farcaster/FarcasterCast.svelte'
+	import FarcasterCastView from '$/views/farcaster/FarcasterCast.svelte'
 </script>
 
 <svelte:head>
@@ -242,7 +241,7 @@
 						<summary>In thread</summary>
 						<div data-column>
 							<span id={castAnchorId(rootCast.$id.fid, rootCast.$id.hash)}>
-								<FarcasterCast cast={rootCast} {userByFid} isCompact />
+								<FarcasterCastView cast={rootCast} {userByFid} isCompact />
 							</span>
 							<TreeNode
 								nodes={getChildren(rootCast)}
@@ -253,7 +252,7 @@
 							>
 								{#snippet Content({ node })}
 									<span id={castAnchorId(node.$id.fid, node.$id.hash)}>
-										<FarcasterCast cast={node} {userByFid} isCompact />
+										<FarcasterCastView cast={node} {userByFid} isCompact />
 									</span>
 								{/snippet}
 							</TreeNode>
@@ -289,7 +288,7 @@
 											]}
 										>
 											{#snippet children()}
-												<FarcasterCast cast={quotedCast} userByFid={userByFid} />
+												<FarcasterCastView cast={quotedCast} userByFid={userByFid} />
 											{/snippet}
 										</EntityView>
 									{:else}
@@ -314,7 +313,7 @@
 						>
 							{#snippet Content({ node })}
 								<span id={castAnchorId(node.$id.fid, node.$id.hash)}>
-									<FarcasterCast cast={node} userByFid={userByFid} isCompact />
+									<FarcasterCastView cast={node} userByFid={userByFid} isCompact />
 								</span>
 							{/snippet}
 						</TreeNode>
