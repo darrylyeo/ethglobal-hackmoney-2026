@@ -24,7 +24,7 @@ Formalize how entity **identities** are turned into **strings** (URLs, storage k
 
 - **`PatternType`** enum: `EvmAddress`, `EnsName`, `EvmBlockNumber`, `EvmTransactionHash`, `EntityId`
 - **`PatternConfig`**: `{ type, label, placeholder, pattern: RegExp, matchComplexity, isHumanReadable }`
-- **`patterns`**: array of configs; **`patternByPatternType`**: map by enum.
+- **`patterns`**: array of configs; **`patternsByType`**: map by enum.
 
 Where a serialization format is described by one of these (e.g. decimal chain id ≈ `EvmBlockNumber`, address segment = `EvmAddress`), id-serialization metadata **references** that type instead of redefining a regex.
 

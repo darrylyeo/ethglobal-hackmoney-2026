@@ -1,3 +1,4 @@
+/** Input pattern types and config (spec 045). */
 export enum PatternType {
 	EvmAddress = 'EvmAddress',
 	EnsName = 'EnsName',
@@ -15,7 +16,7 @@ export type PatternConfig = {
 	isHumanReadable: boolean
 }
 
-export const patterns: PatternConfig[] = [
+export const patterns = [
 	{
 		type: PatternType.EvmAddress,
 		label: 'Address',
@@ -56,8 +57,8 @@ export const patterns: PatternConfig[] = [
 		matchComplexity: 2,
 		isHumanReadable: false,
 	},
-]
+] as const satisfies readonly PatternConfig[]
 
-export const patternByPatternType = Object.fromEntries(
+export const patternsByType = Object.fromEntries(
 	patterns.map((p) => [p.type, p]),
 ) as Record<PatternType, PatternConfig>
