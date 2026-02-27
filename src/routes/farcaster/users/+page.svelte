@@ -115,12 +115,12 @@
 	})
 
 
-	// State (bound from RefinableItemsList)
+	// State (bound from RefinableList)
 	let displayCount = $state(0)
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
-	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
+	import RefinableList from '$/components/RefinableList.svelte'
 </script>
 
 
@@ -140,7 +140,7 @@
 			<p data-text="muted">No users yet. Sign in with Farcaster or visit casts to load users.</p>
 		{:else}
 			<div data-column="gap-4">
-				<RefinableItemsList
+				<RefinableList
 					items={allUsers}
 					{filterGroups}
 					defaultFilterIds={defaultFilterIds}
@@ -206,7 +206,7 @@
 							/>
 						{/if}
 					{/snippet}
-				</RefinableItemsList>
+				</RefinableList>
 			</div>
 		{/if}
 	</details>

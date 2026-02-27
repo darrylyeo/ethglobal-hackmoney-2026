@@ -25,7 +25,7 @@
 		},
 	]
 
-	// State (bound from RefinableItemsList)
+	// State (bound from RefinableList)
 	let displayCount = $state(0)
 
 	// (Derived)
@@ -34,7 +34,7 @@
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import Heading from '$/components/Heading.svelte'
-	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
+	import RefinableList from '$/components/RefinableList.svelte'
 	import EvmTopic from '$/views/EvmTopic.svelte'
 </script>
 
@@ -58,7 +58,7 @@
 		<p>Failed to load topics.</p>
 	{:else}
 		<p>{displayCount} entries</p>
-		<RefinableItemsList
+		<RefinableList
 			items={rows}
 			filterGroups={[]}
 			defaultFilterIds={new Set<string>()}
@@ -90,6 +90,6 @@
 					</EntityView>
 				{/if}
 			{/snippet}
-		</RefinableItemsList>
+		</RefinableList>
 	{/if}
 </main>

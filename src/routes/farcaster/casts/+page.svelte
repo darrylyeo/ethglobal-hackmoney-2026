@@ -136,12 +136,12 @@
 	})
 
 
-	// State (bound from RefinableItemsList)
+	// State (bound from RefinableList)
 	let displayCount = $state(0)
 
 	// Components
 	import FarcasterCast from '$/views/farcaster/FarcasterCast.svelte'
-	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
+	import RefinableList from '$/components/RefinableList.svelte'
 </script>
 
 <svelte:head>
@@ -160,7 +160,7 @@
 			<p data-text="muted">No casts yet. Visit channels or users to load casts.</p>
 		{:else}
 			<div data-column="gap-4">
-				<RefinableItemsList
+				<RefinableList
 					items={allCasts}
 					{filterGroups}
 					defaultFilterIds={defaultFilterIds}
@@ -213,7 +213,7 @@
 							<FarcasterCast {cast} {userByFid} />
 						{/if}
 					{/snippet}
-				</RefinableItemsList>
+				</RefinableList>
 			</div>
 		{/if}
 	</details>

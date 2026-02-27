@@ -85,7 +85,7 @@
 	const getKey = (s: Eip8004Service) => eip8004ServiceIdToString(s.$id)
 
 	// Components
-	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
+	import RefinableList from '$/components/RefinableList.svelte'
 </script>
 
 <svelte:head>
@@ -139,7 +139,7 @@
 			</label>
 		</div>
 		<p>{displayCount} of {views.length} services</p>
-		<RefinableItemsList
+		<RefinableList
 			items={searchFiltered}
 			{filterGroups}
 			defaultFilterIds={new Set<string>()}
@@ -189,6 +189,6 @@
 						</div>
 					{/if}
 				{/snippet}
-		</RefinableItemsList>
+		</RefinableList>
 	{/if}
 </main>

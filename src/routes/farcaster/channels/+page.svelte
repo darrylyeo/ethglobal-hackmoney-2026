@@ -99,13 +99,13 @@
 	)
 
 
-	// State (bound from RefinableItemsList)
+	// State (bound from RefinableList)
 	let displayCount = $state(0)
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import LoadMorePlaceholder from '$/components/LoadMorePlaceholder.svelte'
-	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
+	import RefinableList from '$/components/RefinableList.svelte'
 </script>
 
 <svelte:head>
@@ -124,7 +124,7 @@
 			<p data-text="muted">No channels found.</p>
 		{:else}
 			<div data-column="gap-4">
-				<RefinableItemsList
+				<RefinableList
 					items={allChannels}
 					{filterGroups}
 					defaultFilterIds={defaultFilterIds}
@@ -174,7 +174,7 @@
 							/>
 						{/if}
 					{/snippet}
-				</RefinableItemsList>
+				</RefinableList>
 				<LoadMorePlaceholder
 					count={remainderCount}
 					onLoadMore={loadMoreChannels}

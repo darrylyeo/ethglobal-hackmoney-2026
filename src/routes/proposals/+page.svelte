@@ -198,12 +198,12 @@
 	// (Derived)
 	const getItemKey = (item: ProposalListItem) => item.realm + '-' + item.entry.number
 
-	// State (bound from RefinableItemsList)
+	// State (bound from RefinableList)
 	let displayCount = $state(0)
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
-	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
+	import RefinableList from '$/components/RefinableList.svelte'
 	import SearchableText from '$/components/SearchableText.svelte'
 	import Caip from '$/views/Caip.svelte'
 	import Proposal from '$/views/Proposal.svelte'
@@ -235,7 +235,7 @@
 		</p>
 	{:else}
 		<p>{displayCount} of {views.length} entries</p>
-		<RefinableItemsList
+		<RefinableList
 			items={views}
 			{filterGroups}
 			defaultFilterIds={new Set<string>()}
@@ -336,6 +336,6 @@
 					{/if}
 				{/if}
 			{/snippet}
-		</RefinableItemsList>
+		</RefinableList>
 	{/if}
 </main>
