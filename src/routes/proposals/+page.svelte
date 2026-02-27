@@ -19,7 +19,14 @@
 		TitleAz = 'title-az',
 		TitleZa = 'title-za',
 		Status = 'status',
+		CreatedDesc = 'created-desc',
+		CreatedAsc = 'created-asc',
 	}
+
+	const formatCreated = (created: string | undefined) =>
+		created
+			? new Date(created + 'Z').toLocaleDateString(undefined, { dateStyle: 'medium' })
+			: ''
 
 	type ProposalListItem = {
 		realm: ProposalRealm
@@ -52,6 +59,18 @@
 			label: 'Status',
 			compare: (a, b) =>
 				a.entry.status.localeCompare(b.entry.status) || a.entry.number - b.entry.number,
+		},
+		{
+			id: ProposalSort.CreatedDesc,
+			label: 'Created (newest)',
+			compare: (a, b) =>
+				(b.entry.created ?? '').localeCompare(a.entry.created ?? '') || a.entry.number - b.entry.number,
+		},
+		{
+			id: ProposalSort.CreatedAsc,
+			label: 'Created (oldest)',
+			compare: (a, b) =>
+				(a.entry.created ?? '').localeCompare(b.entry.created ?? '') || a.entry.number - b.entry.number,
 		},
 	]
 
@@ -242,11 +261,15 @@
 							entityType={EntityType.Proposal}
 							entity={entry}
 							titleHref={getProposalPath(ProposalRealm.Ethereum, entry)}
+							open={false}
 							label={`${entry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-${entry.number} ${entry.title}`}
 							layout={EntityLayout.PageSection}
 							metadata={[
 								{ term: 'Status', detail: entry.status },
 								{ term: 'Category', detail: entry.category },
+								...(entry.created
+									? [{ term: 'Created', detail: formatCreated(entry.created) }]
+									: []),
 							]}
 							annotation={entry.type === ProposalType.Erc ? 'ERC' : 'EIP'}
 						>
@@ -277,11 +300,15 @@
 							entityType={EntityType.Caip}
 							entity={entry}
 							titleHref={getProposalPath(ProposalRealm.ChainAgnostic, entry)}
+							open={false}
 							label={`CAIP-${entry.number} ${entry.title}`}
 							layout={EntityLayout.PageSection}
 							metadata={[
 								{ term: 'Status', detail: entry.status },
 								{ term: 'Type', detail: entry.type },
+								...(entry.created
+									? [{ term: 'Created', detail: formatCreated(entry.created) }]
+									: []),
 							]}
 							annotation="CAIP"
 						>

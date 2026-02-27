@@ -157,9 +157,12 @@
 				entityType={EntityType.Proposal}
 				entity={proposalEntry}
 				titleHref={getProposalPath(ProposalRealm.Ethereum, proposalEntry)}
+				open={false}
 				{label}
 				{metadata}
 				annotation={proposalEntry.type === ProposalType.Erc ? 'ERC' : 'EIP'}
+				sources={[proposalEntry.$source]}
+				sourceLinks={[{ label: 'Official EIP', href: proposalEntry.url }]}
 			>
 				{#snippet Title()}
 					<strong>{proposalEntry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-{proposalEntry.number}</strong>
@@ -174,9 +177,12 @@
 				entityType={EntityType.Caip}
 				entity={caipEntry}
 				titleHref={getProposalPath(ProposalRealm.ChainAgnostic, caipEntry)}
+				open={false}
 				{label}
 				{metadata}
 				annotation="CAIP"
+				sources={[caipEntry.$source]}
+				sourceLinks={[{ label: 'Official CAIP', href: caipEntry.url }]}
 			>
 				{#snippet Title()}
 					<strong>CAIP-{caipEntry.number}</strong>
