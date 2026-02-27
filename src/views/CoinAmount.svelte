@@ -1,11 +1,11 @@
 <script lang="ts" generics="_CoinType extends CoinInstance = CoinInstance">
 	// Types/constants
-	import type { WithSource } from '$/constants/data-sources.ts'
-	import type { StorkPrice } from '$/data/StorkPrice.ts'
 	import { IconShape } from '$/components/Icon.svelte'
 	import { CoinInstanceType, type CoinInstance } from '$/constants/coin-instances.ts'
 	import { coinById } from '$/constants/coins.ts'
+	import type { WithSource } from '$/constants/data-sources.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
+	import type { StorkPrice } from '$/data/StorkPrice.ts'
 
 	// Props
 	let {
@@ -13,7 +13,7 @@
 		amount,
 		isDraggable = true,
 		showName = false,
-		priceRow = undefined,
+		priceRow,
 		showPriceTooltip = priceRow != null,
 	}: {
 		coin: CoinInstance
@@ -25,8 +25,10 @@
 	} = $props()
 
 	// Functions
-	import { draggable } from '$/components/Draggable.svelte.ts'
 	import { stringify } from '$/lib/stringify.ts'
+
+	// Actions
+	import { draggable } from '$/components/Draggable.svelte.ts'
 
 	// Components
 	import Tooltip from '$/components/Tooltip.svelte'
@@ -46,8 +48,14 @@
 		{@const chainId = coin.$id.$network.chainId}
 		{@const symbol = coin.symbol}
 		{@const network = networksByChainId[chainId]}
-		<span class="coin-amount" data-row="inline">
-			<span class="coin-icons" data-row="center gap-1">
+		<span
+			class="coin-amount"
+			data-row="inline"
+		>
+			<span
+				class="coin-icons"
+				data-row="center gap-1"
+			>
 				{#if coin.icon?.original?.url}
 					<CoinIcon
 						coin={coinById[coin.coinId]!}
@@ -64,41 +72,43 @@
 						)}
 					/>
 				{:else}
-					<NetworkIcon networkId={{ chainId }} alt={chainId.toString()} />
+					<NetworkIcon
+						networkId={{ chainId }}
+						alt={chainId.toString()}
+					/>
 				{/if}
 			</span>
 
 			<span data-row="inline align-baseline gap-1">
 				{#if amount !== undefined}
+					{@const rawNum = coin.decimals ? Number(amount) / Math.pow(10, coin.decimals) : Number(amount)}
+					{@const balanceParts = new Intl.NumberFormat(undefined, {
+						minimumFractionDigits: 2,
+						maximumFractionDigits: 6,
+						compactDisplay: 'short',
+					}).formatToParts(rawNum)}
 					<span class="balance">
-						{#each (
-							new Intl.NumberFormat(
-								undefined,
-								{
-									minimumFractionDigits: 2,
-									maximumFractionDigits: 6,
-									compactDisplay: 'short',
-								},
-							).formatToParts(
-								coin.decimals
-									? Number(amount) / Math.pow(10, coin.decimals)
-									: Number(amount),
-							)
-						) as part}
-							<span class="balance-part" class:fraction={part.type === 'fraction'}>{part.value}</span>
+						{#each balanceParts as part}
+							<span
+								class="balance-part"
+								class:fraction={part.type === 'fraction'}
+							>
+								{part.value}
+							</span>
 						{/each}
 					</span>
 				{/if}
 
 				{#if coin.name || symbol}
 					<abbr
-						class="coin"
+						class="coin-label"
 						title={(
 							coin.type === CoinInstanceType.NativeCurrency
 								? 'Native Currency'
 							: coin.type === CoinInstanceType.Erc20Token
 								? coin.$id.address
-							: undefined
+							:
+								undefined
 						)}
 					>
 						{showName && coin.name && symbol
@@ -113,7 +123,10 @@
 	{#if showPriceTooltip}
 		<Tooltip contentProps={{ side: 'top' }}>
 			{#snippet Content()}
-				<StorkPriceFeed symbol={coin.symbol} priceRow={priceRow ?? null} />
+				<StorkPriceFeed
+					symbol={coin.symbol}
+					priceRow={priceRow ?? null}
+				/>
 			{/snippet}
 
 			{@render CoinAmountBody()}
@@ -136,8 +149,8 @@
 				}
 			}
 
-			.coin {
-				color: var(--text-secondary);
+			.coin-label {
+				color: var(--color-fg-muted);
 				font-size: smaller;
 				text-decoration: none;
 				cursor: help;
