@@ -120,19 +120,19 @@ export function ipfsUriToHttp(uri: string): string {
 
 function parseServices(raw: unknown): Array<{ type: string; url?: string; name?: string }> | undefined {
 	if (!Array.isArray(raw)) return undefined
-	return raw
-		.map((item) => {
-			if (item == null || typeof item !== 'object') return null
-			const o = item as Record<string, unknown>
-			const type = typeof o.type === 'string' ? o.type : undefined
-			if (!type) return null
-			return {
+	return raw.flatMap((item) => {
+		if (item == null || typeof item !== 'object') return []
+		const o = item as Record<string, unknown>
+		const type = typeof o.type === 'string' ? o.type : undefined
+		if (!type) return []
+		return [
+			{
 				type,
-				url: typeof o.url === 'string' ? o.url : undefined,
-				name: typeof o.name === 'string' ? o.name : undefined,
-			}
-		})
-		.filter((x): x is { type: string; url?: string; name?: string } => x !== null)
+				...(typeof o.url === 'string' && { url: o.url }),
+				...(typeof o.name === 'string' && { name: o.name }),
+			},
+		]
+	})
 }
 
 export async function fetchRegistrationDocument(
