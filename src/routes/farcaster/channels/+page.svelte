@@ -15,6 +15,12 @@
 	import { farcasterComboboxFilterGroup } from '$/lib/farcaster-filters.ts'
 	import { eq, useLiveQuery } from '@tanstack/svelte-db'
 
+	enum FarcasterChannelSort {
+		NameAsc = 'name-asc',
+		NameDesc = 'name-desc',
+		FollowersDesc = 'followers-desc',
+		FollowersAsc = 'followers-asc',
+	}
 
 	// Context
 	const connectionsQuery = useFarcasterConnections()
@@ -86,15 +92,19 @@
 				.map((c) => c.name),
 		),
 	)
+
 	const remainderCount = $derived(
 		allChannels.length === INITIAL_CHANNELS_LIMIT ? channelsRemainderCount() : 0,
 	)
 
 
+	// State (bound from RefinableItemsList)
+	let displayCount = $state(0)
+
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import LoadMorePlaceholder from '$/components/LoadMorePlaceholder.svelte'
-	import FarcasterFilteredEntityList from '$/views/farcaster/FarcasterFilteredEntityList.svelte'
+	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
 </script>
 
 <svelte:head>
@@ -103,57 +113,80 @@
 
 <main data-column="gap-4">
 	<h1>Channels</h1>
-	<FarcasterFilteredEntityList
-		title="Channels"
-		items={allChannels}
-		isLoading={channelsQuery.isLoading}
-		{filterGroups}
-		defaultFilterIds={defaultFilterIds}
-		sortOptions={[
-			{
-				id: 'name-asc',
-				label: 'Name A–Z',
-				compare: (a, b) => a.name.localeCompare(b.name),
-			},
-			{
-				id: 'name-desc',
-				label: 'Name Z–A',
-				compare: (a, b) => b.name.localeCompare(a.name),
-			},
-			{
-				id: 'followers-desc',
-				label: 'Followers (high first)',
-				compare: (a, b) => (b.followerCount ?? 0) - (a.followerCount ?? 0),
-			},
-			{
-				id: 'followers-asc',
-				label: 'Followers (low first)',
-				compare: (a, b) => (a.followerCount ?? 0) - (b.followerCount ?? 0),
-			},
-		] as Sort<FarcasterChannelRow, 'name-asc' | 'name-desc' | 'followers-desc' | 'followers-asc'>[]}
-		defaultSortId="name-asc"
-		getKey={(ch) => ch.$id.id}
-		emptyMessage="No channels found."
-	>
-		{#snippet Item({ item: ch })}
-			<EntityView
-				entityType={EntityType.FarcasterChannel}
-				entity={ch}
-				titleHref="/farcaster/channel/{encodeURIComponent(ch.$id.id)}"
-				label={ch.name}
-				metadata={
-					ch.followerCount != null
-						? [{ term: 'Followers', detail: String(ch.followerCount) }]
-						: undefined
-				}
-			/>
-		{/snippet}
-		{#snippet AfterList()}
-			<LoadMorePlaceholder
-				count={remainderCount}
-				onLoadMore={loadMoreChannels}
-				label="Load more channels"
-			/>
-		{/snippet}
-	</FarcasterFilteredEntityList>
+	<details data-card data-scroll-container="block" open>
+		<summary>
+			<h3 class="section-heading">Channels ({displayCount})</h3>
+		</summary>
+		{#if allChannels.length === 0 && channelsQuery.isLoading}
+			<p data-text="muted">Loading…</p>
+		{:else if allChannels.length === 0}
+			<p data-text="muted">No channels found.</p>
+		{:else}
+			<div data-column="gap-4">
+				<RefinableItemsList
+					items={allChannels}
+					{filterGroups}
+					defaultFilterIds={defaultFilterIds}
+					sortOptions={[
+						{
+							id: FarcasterChannelSort.NameAsc,
+							label: 'Name A–Z',
+							compare: (a, b) => a.name.localeCompare(b.name),
+						},
+						{
+							id: FarcasterChannelSort.NameDesc,
+							label: 'Name Z–A',
+							compare: (a, b) => b.name.localeCompare(a.name),
+						},
+						{
+							id: FarcasterChannelSort.FollowersDesc,
+							label: 'Followers (high first)',
+							compare: (a, b) => (b.followerCount ?? 0) - (a.followerCount ?? 0),
+						},
+						{
+							id: FarcasterChannelSort.FollowersAsc,
+							label: 'Followers (low first)',
+							compare: (a, b) => (a.followerCount ?? 0) - (b.followerCount ?? 0),
+						},
+					] as Sort<FarcasterChannelRow, FarcasterChannelSort>[]}
+					defaultSortId={FarcasterChannelSort.NameAsc}
+					getKey={(ch) => ch.$id.id}
+					bind:displayCount
+					placeholderKeys={new Set<string>()}
+				>
+					{#snippet Empty()}
+						<p data-text="muted">No channels match filters.</p>
+					{/snippet}
+					{#snippet Item({ key: _key, item: row, isPlaceholder })}
+						{#if !isPlaceholder && row != null}
+							{@const ch = row}
+							<EntityView
+								entityType={EntityType.FarcasterChannel}
+								entity={ch}
+								titleHref="/farcaster/channel/{encodeURIComponent(ch.$id.id)}"
+								label={ch.name}
+								metadata={
+									ch.followerCount != null
+										? [{ term: 'Followers', detail: String(ch.followerCount) }]
+										: undefined
+								}
+							/>
+						{/if}
+					{/snippet}
+				</RefinableItemsList>
+				<LoadMorePlaceholder
+					count={remainderCount}
+					onLoadMore={loadMoreChannels}
+					label="Load more channels"
+				/>
+			</div>
+		{/if}
+	</details>
 </main>
+
+<style>
+	.section-heading {
+		font-size: 1rem;
+		margin: 0;
+	}
+</style>

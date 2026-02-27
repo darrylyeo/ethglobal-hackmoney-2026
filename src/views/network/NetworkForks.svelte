@@ -108,6 +108,9 @@ import { entityKey } from '$/lib/entity-key.ts'
 	detailsProps={{ open: true, ...detailsProps }}
 	scrollPosition="Start"
 >
+	{#snippet Empty()}
+		<p data-text="muted">No forks.</p>
+	{/snippet}
 	{#snippet Item({ key, item, isPlaceholder })}
 		<span>
 			{#if isPlaceholder}

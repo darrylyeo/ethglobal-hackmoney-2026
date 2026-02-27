@@ -10,8 +10,9 @@
 
 	import { untrack } from 'svelte'
 	import { and, eq, not, useLiveQuery } from '@tanstack/svelte-db'
-	import { page } from '$app/state'
+	import { browser } from '$app/environment'
 	import { pushState, replaceState } from '$app/navigation'
+	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
 	import {
 		dashboardsCollection,
@@ -385,7 +386,7 @@
 	})
 
 	$effect(() => {
-		if (!dashboardRow || !focusedPanel) return
+		if (!browser || !dashboardRow || !focusedPanel) return
 		const nextHashes = focusedPanel.hashHistory
 		const { previousPanelId, previousHashes } = untrack(() => ({
 			previousPanelId: pushedPanelId,

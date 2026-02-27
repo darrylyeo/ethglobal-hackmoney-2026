@@ -95,7 +95,7 @@
 					hashInput = ''
 				})()
 
-	const handlePanelClick = (event: MouseEvent) =>
+	const onPanelClick = (event: MouseEvent) =>
 		event.defaultPrevented || event.button !== 0
 			? undefined
 			: (() => {
@@ -112,7 +112,7 @@
 					action(panel.id, navigation.route, navigation.hash)
 				})()
 
-	const handleDragOver = (event: DragEvent) => {
+	const ondragover = (event: DragEvent) => {
 		const dt = event.dataTransfer
 		if (
 			dt?.types.includes('text/uri-list') ||
@@ -123,7 +123,7 @@
 		}
 	}
 
-	const handleDrop = (event: DragEvent) => {
+	const ondrop = (event: DragEvent) => {
 		const raw =
 			event.dataTransfer?.getData('text/uri-list')?.trim().split(/\r?\n/)[0] ??
 			event.dataTransfer?.getData('text/plain')?.trim()
@@ -147,8 +147,8 @@
 	aria-label="Panel"
 	onpointerdown={() => onFocus(panel.id)}
 	onfocusin={() => onFocus(panel.id)}
-	ondragover={handleDragOver}
-	ondrop={handleDrop}
+	{ondragover}
+	{ondrop}
 >
 	<header
 		data-row="wrap"
@@ -221,7 +221,7 @@
 		data-column
 		role="presentation"
 		tabindex="-1"
-		onclick={handlePanelClick}
+		onclick={onPanelClick}
 		onkeydown={() => undefined}
 	>
 		{#key panel.route.path + '\0' + JSON.stringify(panel.route.params)}

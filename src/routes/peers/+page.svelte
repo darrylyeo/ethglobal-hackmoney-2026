@@ -67,7 +67,7 @@
 
 
 	// Actions
-	const handleForget = (peerId: string) => {
+	const onForget = (peerId: string) => {
 		if (
 			!peersByPeerId.get(peerId)?.every((p) => !p.isConnected) ||
 			!confirm(
@@ -111,7 +111,7 @@
 				{#if !entry.isConnected}
 					<button
 						type="button"
-						onclick={() => handleForget(entry.peerId)}
+						onclick={() => onForget(entry.peerId)}
 						aria-label="Forget peer"
 					>
 						Forget

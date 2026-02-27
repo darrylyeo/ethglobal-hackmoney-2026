@@ -159,7 +159,6 @@ import { entityKey } from '$/lib/entity-key.ts'
 </svelte:head>
 
 
-
 <main data-column>
 	{#if !valid}
 		<h1>Not found</h1>

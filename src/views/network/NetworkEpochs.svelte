@@ -32,6 +32,9 @@
 	placeholderKeys={new Set()}
 	scrollPosition="Start"
 >
+	{#snippet Empty()}
+		<p data-text="muted">No epochs.</p>
+	{/snippet}
 	{#snippet Item({ key, item })}
 		{#if item != null}
 			<span id="epoch:{key}">

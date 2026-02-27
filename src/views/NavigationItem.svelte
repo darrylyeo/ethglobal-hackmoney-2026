@@ -29,16 +29,6 @@
 	}: { items: NavigationItem[]; currentPathname?: string } = $props()
 
 	// Functions
-	function escapeHtml(s: string): string {
-		return s
-			.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;')
-			.replace(/"/g, '&quot;')
-	}
-	function escapeRegex(s: string): string {
-		return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-	}
 	function filterTree(nodes: NavigationItem[], query: string): NavigationItem[] {
 		if (!query) return nodes
 		return nodes.flatMap((n) => {
@@ -49,12 +39,6 @@
 				[{ ...n, children: filteredChildren.length ? filteredChildren : children }]
 			: []
 		})
-	}
-	function highlightText(text: string, query: string): string {
-		if (!query) return escapeHtml(text)
-		const esc = escapeHtml(text)
-		const re = new RegExp(`(${escapeRegex(query)})`, 'gi')
-		return esc.replace(re, '<mark>$1</mark>')
 	}
 	function navIconProps(icon: string): { icon?: string; src?: string } {
 		return icon.startsWith('data:') || icon.startsWith('/') || icon.startsWith('http') ?
@@ -80,6 +64,7 @@
 	}
 
 	// Components
+	import SearchableText from '$/components/SearchableText.svelte'
 	import Icon from '$/components/Icon.svelte'
 	import TreeNode from '$/components/TreeNode.svelte'
 	import Address, { AddressFormat } from '$/views/Address.svelte'
@@ -184,10 +169,7 @@
 				{/if}
 
 				{#if !item.address}
-					<span
-						>{@html query ?
-							highlightText(item.title, query)
-						: escapeHtml(item.title)}</span>
+					<SearchableText text={item.title} query={query} />
 				{/if}
 			</span>
 			{#if item.tag || item.manualWatch}
@@ -223,10 +205,7 @@
 				{/if}
 
 				{#if !item.address}
-					<span
-						>{@html query ?
-							highlightText(item.title, query)
-						: escapeHtml(item.title)}</span>
+					<SearchableText text={item.title} query={query} />
 				{/if}
 			</span>
 			{#if item.tag || item.manualWatch}

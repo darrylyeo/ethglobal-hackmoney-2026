@@ -46,22 +46,22 @@
 		activeProfile = getActiveProfile()
 	}
 
-	const handleSwitch = (id: string) => {
+	const onSwitch = (id: string) => {
 		switchProfile(id, getNetworkEnvironment())
 		refresh()
 	}
 
-	const handleCreate = () => {
+	const onCreate = () => {
 		const profile = createProfile()
 		switchProfile(profile.id, getNetworkEnvironment())
 		refresh()
 	}
 
-	const handleExport = (id: string) => {
+	const onExport = (id: string) => {
 		exportProfile(id)
 	}
 
-	const handleDelete = (id: string) => {
+	const onDelete = (id: string) => {
 		if (profiles.length <= 1) return
 		deleteProfile(id, getNetworkEnvironment())
 		refresh()
@@ -81,7 +81,7 @@
 		editingId = undefined
 	}
 
-	const handleImport = () => {
+	const onImport = () => {
 		const input = document.createElement('input')
 		input.type = 'file'
 		input.accept = '.json,.blockhead.json'
@@ -92,7 +92,7 @@
 			try {
 				const profile = await importProfile(file)
 				refresh()
-				handleSwitch(profile.id)
+				onSwitch(profile.id)
 			} catch (e) {
 				importError = e instanceof Error ? e.message : String(e)
 			}
@@ -160,7 +160,7 @@
 					<button
 						type="button"
 						class="profile-switch"
-						onclick={() => handleSwitch(profile.id)}
+						onclick={() => onSwitch(profile.id)}
 					>
 						<Avatar name={profile.name} emoji={profile.emoji} size="2rem" />
 						<span class="profile-info">
@@ -187,7 +187,7 @@
 						<button
 							type="button"
 							aria-label="Export {profile.name}"
-							onclick={() => handleExport(profile.id)}
+							onclick={() => onExport(profile.id)}
 						>
 							&#x21E9;
 						</button>
@@ -195,7 +195,7 @@
 							<button
 								type="button"
 								aria-label="Delete {profile.name}"
-								onclick={() => handleDelete(profile.id)}
+								onclick={() => onDelete(profile.id)}
 							>
 								&#x2715;
 							</button>
@@ -207,10 +207,10 @@
 	</ul>
 
 	<div class="profile-actions-row">
-		<button type="button" onclick={handleCreate}>
+		<button type="button" onclick={onCreate}>
 			+ New Profile
 		</button>
-		<button type="button" onclick={handleImport}>
+		<button type="button" onclick={onImport}>
 			Import profile
 		</button>
 	</div>

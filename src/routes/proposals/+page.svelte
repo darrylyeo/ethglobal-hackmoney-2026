@@ -13,34 +13,42 @@
 	import { getProposalPath, ProposalRealm } from '$/lib/proposal-paths.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
+	enum ProposalSort {
+		NumberAsc = 'number-asc',
+		NumberDesc = 'number-desc',
+		TitleAz = 'title-az',
+		TitleZa = 'title-za',
+		Status = 'status',
+	}
+
 	type ProposalListItem = {
 		realm: ProposalRealm
 		entry: ProposalEntry | CaipEntry
 	}
 
-	const sortOptions: Sort<ProposalListItem, 'number-asc' | 'number-desc' | 'title-az' | 'title-za' | 'status'>[] = [
+	const sortOptions: Sort<ProposalListItem, ProposalSort>[] = [
 		{
-			id: 'number-asc',
+			id: ProposalSort.NumberAsc,
 			label: 'Number ↑',
 			compare: (a, b) => a.entry.number - b.entry.number,
 		},
 		{
-			id: 'number-desc',
+			id: ProposalSort.NumberDesc,
 			label: 'Number ↓',
 			compare: (a, b) => b.entry.number - a.entry.number,
 		},
 		{
-			id: 'title-az',
+			id: ProposalSort.TitleAz,
 			label: 'Title A–Z',
 			compare: (a, b) => a.entry.title.localeCompare(b.entry.title),
 		},
 		{
-			id: 'title-za',
+			id: ProposalSort.TitleZa,
 			label: 'Title Z–A',
 			compare: (a, b) => b.entry.title.localeCompare(a.entry.title),
 		},
 		{
-			id: 'status',
+			id: ProposalSort.Status,
 			label: 'Status',
 			compare: (a, b) =>
 				a.entry.status.localeCompare(b.entry.status) || a.entry.number - b.entry.number,
@@ -143,8 +151,7 @@
 
 	// State
 	let activeFilters = $state<Set<Filter<ProposalListItem, string>>>(new Set())
-	let filteredItems = $state<ProposalListItem[]>([])
-	let sortedItems = $state<ProposalListItem[]>([])
+	let searchValue = $state('')
 
 	$effect(() => {
 		const kind = $page.url.searchParams.get('kind')
@@ -170,16 +177,15 @@
 	})
 
 	// (Derived)
-	const hasFilterGroups = $derived(filterGroups.length > 0)
-	const itemsToSort = $derived(hasFilterGroups ? filteredItems : views)
-	const displayItems = $derived(
-		sortOptions.length > 1 ? sortedItems : itemsToSort,
-	)
+	const getItemKey = (item: ProposalListItem) => item.realm + '-' + item.entry.number
+
+	// State (bound from RefinableItemsList)
+	let displayCount = $state(0)
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
-	import Filters from '$/components/Filters.svelte'
-	import Sorts from '$/components/Sorts.svelte'
+	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
+	import SearchableText from '$/components/SearchableText.svelte'
 	import Caip from '$/views/Caip.svelte'
 	import Proposal from '$/views/Proposal.svelte'
 </script>
@@ -209,30 +215,27 @@
 			Failed to load proposals and CAIPs.
 		</p>
 	{:else}
-		{#if filterGroups.length > 0 || sortOptions.length > 1}
-			<div data-row="gap-4 wrap">
-				{#if filterGroups.length > 0}
-					<Filters
-						items={views}
-						{filterGroups}
-						bind:activeFilters
-						bind:filteredItems
-					/>
-				{/if}
-				{#if sortOptions.length > 1}
-					<Sorts
-						items={itemsToSort}
-						sortOptions={sortOptions}
-						defaultSortId="number-asc"
-						bind:sortedItems
-					/>
-				{/if}
-			</div>
-		{/if}
-		<p>{displayItems.length} of {views.length} entries</p>
-		<ul data-column="gap-4" role="list">
-			{#each displayItems as item (item.realm + '-' + item.entry.number)}
-				<li>
+		<p>{displayCount} of {views.length} entries</p>
+		<RefinableItemsList
+			items={views}
+			{filterGroups}
+			defaultFilterIds={new Set<string>()}
+			{sortOptions}
+			defaultSortId={ProposalSort.NumberAsc}
+			bind:activeFilters
+			bind:displayCount
+			getKey={getItemKey}
+			bind:searchQuery={searchValue}
+			searchPlaceholder="Search proposals"
+			placeholderKeys={new Set<string>()}
+			data-column="gap-4"
+			role="list"
+		>
+			{#snippet Empty()}
+				<p data-text="muted">No proposals match.</p>
+			{/snippet}
+			{#snippet Item({ key: _k, item, isPlaceholder, searchQuery, matches })}
+				{#if !isPlaceholder && item != null}
 					{#if item.realm === ProposalRealm.Ethereum}
 						{@const entry = item.entry as ProposalEntry}
 						<EntityView
@@ -248,8 +251,23 @@
 							annotation={entry.type === ProposalType.Erc ? 'ERC' : 'EIP'}
 						>
 							{#snippet Title()}
-								<strong>{entry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-{entry.number}</strong>
-								{entry.title}
+								<strong>
+									{#if searchQuery != null}
+										<SearchableText
+											text={`${entry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-${entry.number}`}
+											query={searchQuery}
+											{matches}
+										/>
+									{:else}
+										{entry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-{entry.number}
+									{/if}
+								</strong>
+								{' '}
+								{#if searchQuery != null}
+									<SearchableText text={entry.title} query={searchQuery} {matches} />
+								{:else}
+									{entry.title}
+								{/if}
 							{/snippet}
 							<Proposal {entry} />
 						</EntityView>
@@ -268,14 +286,29 @@
 							annotation="CAIP"
 						>
 							{#snippet Title()}
-								<strong>CAIP-{entry.number}</strong>
-								{entry.title}
+								<strong>
+									{#if searchQuery != null}
+										<SearchableText
+											text={`CAIP-${entry.number}`}
+											query={searchQuery}
+											{matches}
+										/>
+									{:else}
+										CAIP-{entry.number}
+									{/if}
+								</strong>
+								{' '}
+								{#if searchQuery != null}
+									<SearchableText text={entry.title} query={searchQuery} {matches} />
+								{:else}
+									{entry.title}
+								{/if}
 							{/snippet}
 							<Caip {entry} />
 						</EntityView>
 					{/if}
-				</li>
-			{/each}
-		</ul>
+				{/if}
+			{/snippet}
+		</RefinableItemsList>
 	{/if}
 </main>

@@ -29,6 +29,13 @@
 		}
 	}
 
+	enum ActorCoinSort {
+		SymbolAsc = 'symbol-asc',
+		SymbolDesc = 'symbol-desc',
+		ValueDesc = 'value-desc',
+		ValueAsc = 'value-asc',
+	}
+
 
 	// Context
 	import { and, eq, or, useLiveQuery } from '@tanstack/svelte-db'
@@ -345,19 +352,19 @@
 	const balanceSortOptions = $derived(
 		[
 			{
-				id: 'symbol-asc',
+				id: ActorCoinSort.SymbolAsc,
 				label: 'Symbol A–Z',
 				compare: (a: ActorCoinRow, b: ActorCoinRow) =>
 					a.symbol.localeCompare(b.symbol),
 			},
 			{
-				id: 'symbol-desc',
+				id: ActorCoinSort.SymbolDesc,
 				label: 'Symbol Z–A',
 				compare: (a: ActorCoinRow, b: ActorCoinRow) =>
 					b.symbol.localeCompare(a.symbol),
 			},
 			{
-				id: 'value-desc',
+				id: ActorCoinSort.ValueDesc,
 				label: 'Value (high first)',
 				compare: (a: ActorCoinRow, b: ActorCoinRow) => {
 					const valueUsd = (x: ActorCoinRow) => {
@@ -378,7 +385,7 @@
 				},
 			},
 			{
-				id: 'value-asc',
+				id: ActorCoinSort.ValueAsc,
 				label: 'Value (low first)',
 				compare: (a: ActorCoinRow, b: ActorCoinRow) => {
 					const valueUsd = (x: ActorCoinRow) => {
@@ -398,7 +405,7 @@
 					return va > vb ? 1 : va < vb ? -1 : 0
 				},
 			},
-		] as Sort<ActorCoinRow, 'symbol-asc' | 'symbol-desc' | 'value-desc' | 'value-asc'>[],
+		] as Sort<ActorCoinRow, ActorCoinSort>[],
 	)
 	const hasSortOptions = $derived(balanceSortOptions.length > 1)
 	const displayBalances = $derived(hasSortOptions ? sortedBalances : balances)
@@ -549,7 +556,7 @@
 								<Sorts
 									items={balances}
 									sortOptions={balanceSortOptions}
-									defaultSortId="value-desc"
+									defaultSortId={ActorCoinSort.ValueDesc}
 									bind:sortedItems={sortedBalances}
 								/>
 							{/if}

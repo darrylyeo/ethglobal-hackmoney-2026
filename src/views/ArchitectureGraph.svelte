@@ -642,7 +642,7 @@
 					hoveredItem = null
 				})
 
-				const handleKeydown = (event: KeyboardEvent) => {
+				const onKeydown = (event: KeyboardEvent) => {
 					if (event.key === 'Escape') {
 						selectedItem = null
 						selectionSummary = 'No selection'
@@ -652,7 +652,7 @@
 					}
 				}
 
-				container.addEventListener('keydown', handleKeydown)
+				container.addEventListener('keydown', onKeydown)
 
 				resizeObserver = new ResizeObserver((entries) => {
 					const entry = entries[0]
@@ -667,7 +667,7 @@
 				resizeObserver.observe(container)
 
 					cleanup = () => {
-						container.removeEventListener('keydown', handleKeydown)
+						container.removeEventListener('keydown', onKeydown)
 						resizeObserver?.disconnect()
 						g6Graph?.destroy()
 						g6Graph = undefined

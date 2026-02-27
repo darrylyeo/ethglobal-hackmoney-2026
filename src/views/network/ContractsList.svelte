@@ -72,6 +72,9 @@
 	detailsProps={{ open: true, ...detailsProps }}
 	scrollPosition="Start"
 >
+	{#snippet Empty()}
+		<p data-text="muted">No contracts.</p>
+	{/snippet}
 	{#snippet Title({ title, countText })}
 		<Heading>
 			<a href={resolve(`/network/${chainId}/contracts`)} data-link>{title}</a> ({countText} known)

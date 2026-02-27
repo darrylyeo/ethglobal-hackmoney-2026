@@ -60,26 +60,25 @@
 	title="Bridge transfers"
 	annotation={eventsSet.size > 0 ? String(eventsSet.size) : '—'}
 >
-	{#if eventsSet.size > 0}
-		<ItemsList
-			items={eventsSet}
-			getKey={getEventKey}
-			getSortValue={(event) => -event.timestamp}
-			placeholderKeys={new Set()}
-			visiblePlaceholderKeys={[]}
-			scrollPosition="End"
-		>
-			{#snippet Item({ key, item, isPlaceholder })}
-				<span id="bridge-transfer:{key}">
-					{#if isPlaceholder}
-						<code>Bridge transfer (loading…)</code>
-					{:else}
-						<TransferEvent {item} {coin} symbol={coinId} />
-					{/if}
-				</span>
-			{/snippet}
-		</ItemsList>
-	{:else}
-		<p data-text="muted">No bridge transfers in this period. CCTP and other bridge flows appear here when detected.</p>
-	{/if}
+	<ItemsList
+		items={eventsSet}
+		getKey={getEventKey}
+		getSortValue={(event) => -event.timestamp}
+		placeholderKeys={new Set()}
+		visiblePlaceholderKeys={[]}
+		scrollPosition="End"
+	>
+		{#snippet Empty()}
+			<p data-text="muted">No bridge transfers in this period. CCTP and other bridge flows appear here when detected.</p>
+		{/snippet}
+		{#snippet Item({ key, item, isPlaceholder })}
+			<span id="bridge-transfer:{key}">
+				{#if isPlaceholder}
+					<code>Bridge transfer (loading…)</code>
+				{:else}
+					<TransferEvent {item} {coin} symbol={coinId} />
+				{/if}
+			</span>
+		{/snippet}
+	</ItemsList>
 </Collapsible>

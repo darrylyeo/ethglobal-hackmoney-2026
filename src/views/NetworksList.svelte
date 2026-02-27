@@ -26,6 +26,9 @@
 	placeholderKeys={new Set()}
 	data-column
 >
+	{#snippet Empty()}
+		<p data-text="muted">No networks.</p>
+	{/snippet}
 	{#snippet Item({ key, item, isPlaceholder })}
 		{#if isPlaceholder}
 			<span data-placeholder>…</span>

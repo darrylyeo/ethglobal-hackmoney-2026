@@ -50,6 +50,9 @@
 		getSortValue={(item) => -item.createdAt}
 		placeholderKeys={new Set()}
 	>
+		{#snippet Empty()}
+			<p data-text="muted">No transactions.</p>
+		{/snippet}
 		{#snippet Item({ key, item, isPlaceholder })}
 			{#if isPlaceholder}
 				<div data-placeholder>…</div>

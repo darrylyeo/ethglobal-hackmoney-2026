@@ -35,7 +35,7 @@
 
 
 	// Actions
-	const handleSend = async () => {
+	const onSend = async () => {
 		if (!yellowState.clearnodeConnection) return
 		if (!yellowState.address) {
 			error = 'Missing wallet address'
@@ -125,7 +125,7 @@
 			</Button.Root>
 			<Button.Root
 				type="button"
-				onclick={handleSend}
+				onclick={onSend}
 				disabled={sending || !amount}
 			>
 				{sending ? 'Sending...' : 'Send'}

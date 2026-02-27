@@ -10,6 +10,7 @@
 
 	import { untrack } from 'svelte'
 	import { and, eq, not, useLiveQuery } from '@tanstack/svelte-db'
+	import { browser } from '$app/environment'
 	import { pushState, replaceState } from '$app/navigation'
 	import { resolve } from '$app/paths'
 	import {
@@ -329,7 +330,7 @@
 	})
 
 	$effect(() => {
-		if (!dashboardRow || !focusedPanel) return
+		if (!browser || !dashboardRow || !focusedPanel) return
 		const nextHashes = focusedPanel.hashHistory
 		const { previousPanelId, previousHashes } = untrack(() => ({
 			previousPanelId: pushedPanelId,
@@ -343,26 +344,29 @@
 		const shouldReplace =
 			previousPanelId !== focusedPanel.id ||
 			!isPrefix(previousHashes, nextHashes)
-		if (shouldReplace) {
-			replaceState(baseUrl, baseState)
-			for (const hash of nextHashes) {
+		const run = () => {
+			if (shouldReplace) {
+				replaceState(baseUrl, baseState)
+				for (const hash of nextHashes) {
+					pushState(baseUrl, {
+						...baseState,
+						sessionState: parseSessionStateFromHashLike(hash),
+					})
+				}
+				pushedPanelId = focusedPanel.id
+				pushedHashes = [...nextHashes]
+				return
+			}
+			const newHashes = nextHashes.slice(previousHashes.length)
+			for (const hash of newHashes) {
 				pushState(baseUrl, {
 					...baseState,
 					sessionState: parseSessionStateFromHashLike(hash),
 				})
 			}
-			pushedPanelId = focusedPanel.id
-			pushedHashes = [...nextHashes]
-			return
+			if (newHashes.length > 0) pushedHashes = [...nextHashes]
 		}
-		const newHashes = nextHashes.slice(previousHashes.length)
-		for (const hash of newHashes) {
-			pushState(baseUrl, {
-				...baseState,
-				sessionState: parseSessionStateFromHashLike(hash),
-			})
-		}
-		if (newHashes.length > 0) pushedHashes = [...nextHashes]
+		setTimeout(run, 0)
 	})
 </script>
 

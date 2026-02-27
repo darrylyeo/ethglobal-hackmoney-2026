@@ -22,8 +22,6 @@
 </script>
 
 
-
-
 <svelte:head>
 	<title>
 		{route

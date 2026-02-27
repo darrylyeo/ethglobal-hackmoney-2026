@@ -1,10 +1,11 @@
 <script lang="ts">
 	// Types/constants
 	import type { Sort } from '$/components/Sorts.svelte'
-	import type { EvmError } from '$/data/EvmError.ts'
+	import type { EvmError as EvmErrorRow } from '$/data/EvmError.ts'
 	import { EntityLayout } from '$/components/EntityView.svelte'
 	import { EntityType } from '$/data/$EntityType.ts'
 	import { evmErrorsCollection } from '$/collections/EvmErrors.ts'
+	import { EvmSignatureSort } from '$/lib/evm-signature-sorts.ts'
 	import { getEvmErrorPath } from '$/lib/signature-paths.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
@@ -12,25 +13,28 @@
 	const query = useLiveQuery((q) =>
 		q.from({ row: evmErrorsCollection }).select(({ row }) => ({ row })),
 	)
-	const rows = $derived((query.data ?? []).map(({ row: error }) => error as EvmError))
+	const rows = $derived((query.data ?? []).map(({ row: error }) => error as EvmErrorRow))
 
-	const sortOptions: Sort<EvmError, 'hex' | 'first-sig'>[] = [
-		{ id: 'hex', label: 'Hex', compare: (a, b) => a.$id.hex.localeCompare(b.$id.hex) },
+	const sortOptions: Sort<EvmErrorRow, EvmSignatureSort>[] = [
+		{ id: EvmSignatureSort.Hex, label: 'Hex', compare: (a, b) => a.$id.hex.localeCompare(b.$id.hex) },
 		{
-			id: 'first-sig',
+			id: EvmSignatureSort.FirstSig,
 			label: 'First signature',
 			compare: (a, b) =>
 				(a.signatures[0] ?? '').localeCompare(b.signatures[0] ?? ''),
 		},
 	]
 
-	// State
-	let sortedItems = $state<EvmError[]>([])
+	// State (bound from RefinableItemsList)
+	let displayCount = $state(0)
+
+	// (Derived)
+	const getKey = (e: EvmErrorRow) => e.$id.hex
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import Heading from '$/components/Heading.svelte'
-	import Sorts from '$/components/Sorts.svelte'
+	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
 	import EvmError from '$/views/EvmError.svelte'
 </script>
 
@@ -53,16 +57,24 @@
 	{:else if query.isError}
 		<p>Failed to load errors.</p>
 	{:else}
-		<Sorts
+		<p>{displayCount} entries</p>
+		<RefinableItemsList
 			items={rows}
-			sortOptions={sortOptions}
-			defaultSortId="hex"
-			bind:sortedItems
-		/>
-		<p>{sortedItems.length} entries</p>
-		<ul data-column="gap-4" role="list">
-			{#each sortedItems as entry (entry.$id.hex)}
-				<li>
+			filterGroups={[]}
+			defaultFilterIds={new Set<string>()}
+			{sortOptions}
+			defaultSortId={EvmSignatureSort.Hex}
+			{getKey}
+			bind:displayCount
+			placeholderKeys={new Set<string>()}
+			data-column="gap-4"
+			role="list"
+		>
+			{#snippet Empty()}
+				<p>No error selectors in cache. Open an error selector detail by hex to look one up.</p>
+			{/snippet}
+			{#snippet Item({ key: _k, item: entry, isPlaceholder })}
+				{#if !isPlaceholder && entry != null}
 					<EntityView
 						entityType={EntityType.EvmError}
 						entity={entry}
@@ -73,14 +85,11 @@
 						annotation="error"
 					>
 						{#snippet children()}
-							<EvmError {entry} />
+							<EvmError entry={entry} />
 						{/snippet}
 					</EntityView>
-				</li>
-			{/each}
-		</ul>
-		{#if rows.length === 0}
-			<p>No error selectors in cache. Open an error selector detail by hex to look one up.</p>
-		{/if}
+				{/if}
+			{/snippet}
+		</RefinableItemsList>
 	{/if}
 </main>

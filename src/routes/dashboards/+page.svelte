@@ -57,14 +57,14 @@
 
 
 	// Actions
-	const handleCreate = () => {
+	const onCreate = () => {
 		const id = createDashboard()
 		goto(resolve(`/dashboard/${id}`))
 	}
 
-	const handleSetDefault = (id: string) => setDefaultDashboardId(id)
+	const onSetDefault = (id: string) => setDefaultDashboardId(id)
 
-	const handleDelete = (id: string) => deleteDashboard(id)
+	const onDelete = (id: string) => deleteDashboard(id)
 
 	const startRename = (id: string, currentName?: string) => (
 		(renameId = id),
@@ -77,7 +77,7 @@
 		renameId = null
 	}
 
-	const handleSetIcon = (id: string, icon: string) =>
+	const onSetIcon = (id: string, icon: string) =>
 		setDashboardIcon(id, icon.trim())
 </script>
 
@@ -97,7 +97,7 @@
 			<h1>Dashboards</h1>
 		</div>
 		<div data-row>
-			<button type="button" onclick={handleCreate}>New dashboard</button>
+			<button type="button" onclick={onCreate}>New dashboard</button>
 			<a href={resolve(`/dashboard/${defaultId}`)}>Open default</a>
 		</div>
 	</header>
@@ -146,7 +146,7 @@
 						class="dashboard-icon-input"
 						placeholder="📊"
 						value={dashboard.icon ?? ''}
-						onchange={(e) => handleSetIcon(dashboard.id, e.currentTarget.value)}
+						onchange={(e) => onSetIcon(dashboard.id, e.currentTarget.value)}
 						aria-label="Dashboard icon (emoji)"
 						maxlength="4"
 					/>
@@ -164,7 +164,7 @@
 					{#if dashboard.id !== defaultId}
 						<button
 							type="button"
-							onclick={() => handleSetDefault(dashboard.id)}
+							onclick={() => onSetDefault(dashboard.id)}
 						>
 							Set default
 						</button>
@@ -172,7 +172,7 @@
 					<button
 						type="button"
 						disabled={dashboards.length <= 1}
-						onclick={() => handleDelete(dashboard.id)}
+						onclick={() => onDelete(dashboard.id)}
 						title={dashboards.length <= 1 ?
 							'At least one dashboard required'
 						: 'Delete'}

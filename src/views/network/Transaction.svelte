@@ -294,6 +294,9 @@
 				visiblePlaceholderKeys={[]}
 				scrollPosition="End"
 			>
+				{#snippet Empty()}
+					<p data-text="muted">No events.</p>
+				{/snippet}
 				{#snippet Item({ key, item, isPlaceholder })}
 					<span id="event:{key}">
 						{#if isPlaceholder}

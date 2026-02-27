@@ -34,34 +34,37 @@
 	<Heading>Contracts ({countText} chains)</Heading>
 {/snippet}
 <ItemsListCollapsible
-		title="Contracts"
-		Title={ContractsTitle}
-		detailsProps={{ open: true, 'data-card': '' }}
-		loaded={tokensSet.size}
-		items={tokensSet}
-		getKey={getKey}
-		getSortValue={getSortValue}
-		placeholderKeys={new Set()}
-		scrollPosition="Start"
-	>
-		{#snippet Item({ key, item, isPlaceholder })}
-			<span id="contract:{key}">
-				{#if isPlaceholder}
-					<code>Contract (loading…)</code>
-				{:else}
-					{@const network = networksByChainId[item.$id.$network.chainId]}
-					<Contract
-						contractId={item.$id}
-						idSerialized={`${item.$id.$network.chainId}:${item.$id.address}`}
-						href={resolve(`/network/${item.$id.$network.chainId}/contract/${item.$id.address}`)}
-						label={formatAddress(item.$id.address)}
-						metadata={
-							network
-								? [{ term: 'Network', detail: network.name }]
-								: []
-						}
-					/>
-				{/if}
+	title="Contracts"
+	Title={ContractsTitle}
+	detailsProps={{ open: true, 'data-card': '' }}
+	loaded={tokensSet.size}
+	items={tokensSet}
+	getKey={getKey}
+	getSortValue={getSortValue}
+	placeholderKeys={new Set()}
+	scrollPosition="Start"
+>
+	{#snippet Empty()}
+		<p data-text="muted">No contracts.</p>
+	{/snippet}
+	{#snippet Item({ key, item, isPlaceholder })}
+		<span id="contract:{key}">
+			{#if isPlaceholder}
+				<code>Contract (loading…)</code>
+			{:else}
+				{@const network = networksByChainId[item.$id.$network.chainId]}
+				<Contract
+					contractId={item.$id}
+					idSerialized={`${item.$id.$network.chainId}:${item.$id.address}`}
+					href={resolve(`/network/${item.$id.$network.chainId}/contract/${item.$id.address}`)}
+					label={formatAddress(item.$id.address)}
+					metadata={
+						network
+							? [{ term: 'Network', detail: network.name }]
+							: []
+					}
+				/>
+			{/if}
 		</span>
 	{/snippet}
 </ItemsListCollapsible>

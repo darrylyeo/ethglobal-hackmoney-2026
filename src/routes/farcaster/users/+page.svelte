@@ -13,6 +13,14 @@
 	import { farcasterComboboxFilterGroup } from '$/lib/farcaster-filters.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
+	enum FarcasterUserSort {
+		UsernameAsc = 'username-asc',
+		UsernameDesc = 'username-desc',
+		FollowersDesc = 'followers-desc',
+		FollowersAsc = 'followers-asc',
+		FollowingDesc = 'following-desc',
+		FollowingAsc = 'following-asc',
+	}
 
 	// Context
 	const connectionsQuery = useFarcasterConnections()
@@ -106,9 +114,12 @@
 	})
 
 
+	// State (bound from RefinableItemsList)
+	let displayCount = $state(0)
+
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
-	import FarcasterFilteredEntityList from '$/views/farcaster/FarcasterFilteredEntityList.svelte'
+	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
 </script>
 
 
@@ -118,66 +129,91 @@
 
 <main data-column="gap-4">
 	<h1>Users</h1>
-	<FarcasterFilteredEntityList
-		title="Users"
-		items={allUsers}
-		isLoading={usersQuery.isLoading}
-		{filterGroups}
-		defaultFilterIds={defaultFilterIds}
-		sortOptions={[
-			{
-				id: 'username-asc',
-				label: 'Username A–Z',
-				compare: (a, b) =>
-					(a.username ?? String(a.$id.fid)).localeCompare(
-						b.username ?? String(b.$id.fid),
-					),
-			},
-			{
-				id: 'username-desc',
-				label: 'Username Z–A',
-				compare: (a, b) =>
-					(b.username ?? String(b.$id.fid)).localeCompare(
-						a.username ?? String(a.$id.fid),
-					),
-			},
-			{
-				id: 'followers-desc',
-				label: 'Followers (high first)',
-				compare: (a, b) => followerCount(b.$id.fid) - followerCount(a.$id.fid),
-			},
-			{
-				id: 'followers-asc',
-				label: 'Followers (low first)',
-				compare: (a, b) => followerCount(a.$id.fid) - followerCount(b.$id.fid),
-			},
-			{
-				id: 'following-desc',
-				label: 'Following (high first)',
-				compare: (a, b) => followingCount(b.$id.fid) - followingCount(a.$id.fid),
-			},
-			{
-				id: 'following-asc',
-				label: 'Following (low first)',
-				compare: (a, b) => followingCount(a.$id.fid) - followingCount(b.$id.fid),
-			},
-		] as Sort<FarcasterUserRow, 'username-asc' | 'username-desc' | 'followers-desc' | 'followers-asc' | 'following-desc' | 'following-asc'>[]}
-		defaultSortId="username-asc"
-		getKey={(u) => String(u.$id.fid)}
-		emptyMessage="No users yet. Sign in with Farcaster or visit casts to load users."
-	>
-		{#snippet Item({ item: user })}
-			<EntityView
-				entityType={EntityType.FarcasterUser}
-				entity={user}
-				titleHref="/farcaster/user/{user.$id.fid}"
-				label={user.username ? `@${user.username}` : `@${user.$id.fid}`}
-				metadata={
-					user.displayName ?
-						[{ term: 'Display name', detail: user.displayName }]
-					:	undefined
-				}
-			/>
-		{/snippet}
-	</FarcasterFilteredEntityList>
+	<details data-card data-scroll-container="block" open>
+		<summary>
+			<h3 class="section-heading">Users ({displayCount})</h3>
+		</summary>
+		{#if allUsers.length === 0 && usersQuery.isLoading}
+			<p data-text="muted">Loading…</p>
+		{:else if allUsers.length === 0}
+			<p data-text="muted">No users yet. Sign in with Farcaster or visit casts to load users.</p>
+		{:else}
+			<div data-column="gap-4">
+				<RefinableItemsList
+					items={allUsers}
+					{filterGroups}
+					defaultFilterIds={defaultFilterIds}
+					sortOptions={[
+						{
+							id: FarcasterUserSort.UsernameAsc,
+							label: 'Username A–Z',
+							compare: (a, b) =>
+								(a.username ?? String(a.$id.fid)).localeCompare(
+									b.username ?? String(b.$id.fid),
+								),
+						},
+						{
+							id: FarcasterUserSort.UsernameDesc,
+							label: 'Username Z–A',
+							compare: (a, b) =>
+								(b.username ?? String(b.$id.fid)).localeCompare(
+									a.username ?? String(a.$id.fid),
+								),
+						},
+						{
+							id: FarcasterUserSort.FollowersDesc,
+							label: 'Followers (high first)',
+							compare: (a, b) => followerCount(b.$id.fid) - followerCount(a.$id.fid),
+						},
+						{
+							id: FarcasterUserSort.FollowersAsc,
+							label: 'Followers (low first)',
+							compare: (a, b) => followerCount(a.$id.fid) - followerCount(b.$id.fid),
+						},
+						{
+							id: FarcasterUserSort.FollowingDesc,
+							label: 'Following (high first)',
+							compare: (a, b) => followingCount(b.$id.fid) - followingCount(a.$id.fid),
+						},
+						{
+							id: FarcasterUserSort.FollowingAsc,
+							label: 'Following (low first)',
+							compare: (a, b) => followingCount(a.$id.fid) - followingCount(b.$id.fid),
+						},
+					] as Sort<FarcasterUserRow, FarcasterUserSort>[]}
+					defaultSortId={FarcasterUserSort.UsernameAsc}
+					getKey={(u) => String(u.$id.fid)}
+					bind:displayCount
+					placeholderKeys={new Set<string>()}
+				>
+					{#snippet Empty()}
+						<p data-text="muted">No users match filters.</p>
+					{/snippet}
+					{#snippet Item({ key: _key, item: row, isPlaceholder })}
+						{#if !isPlaceholder && row != null}
+							{@const user = row}
+							<EntityView
+								entityType={EntityType.FarcasterUser}
+								entity={user}
+								titleHref="/farcaster/user/{user.$id.fid}"
+								label={user.username ? `@${user.username}` : `@${user.$id.fid}`}
+								metadata={
+									user.displayName ?
+										[{ term: 'Display name', detail: user.displayName }]
+									:	undefined
+								}
+							/>
+						{/if}
+					{/snippet}
+				</RefinableItemsList>
+			</div>
+		{/if}
+	</details>
 </main>
+
+<style>
+	.section-heading {
+		font-size: 1rem;
+		margin: 0;
+	}
+</style>

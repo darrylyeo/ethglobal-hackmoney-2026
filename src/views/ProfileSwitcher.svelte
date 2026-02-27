@@ -42,19 +42,19 @@
 		activeProfile = getActiveProfile()
 		profiles = listProfiles()
 	}
-	const handleSwitch = (id: string) => {
+	const onSwitch = (id: string) => {
 		switchProfile(id, getNetworkEnvironment())
 		refresh()
 	}
-	const handleCreate = () => {
+	const onCreate = () => {
 		const profile = createProfile()
 		switchProfile(profile.id, getNetworkEnvironment())
 		refresh()
 	}
-	const handleExport = (id: string) => {
+	const onExport = (id: string) => {
 		exportProfile(id)
 	}
-	const handleDelete = (id: string) => {
+	const onDelete = (id: string) => {
 		if (profiles.length <= 1) return
 		deleteProfile(id, getNetworkEnvironment())
 		refresh()
@@ -104,7 +104,7 @@
 				{#each profiles as profile (profile.id)}
 					<DropdownMenu.Item
 						data-active={profile.id === activeProfile.id ? '' : undefined}
-						onclick={() => handleSwitch(profile.id)}
+						onclick={() => onSwitch(profile.id)}
 					>
 						{#if editingId === profile.id}
 							<!-- svelte-ignore a11y_autofocus -->
@@ -143,7 +143,7 @@
 								<button
 									type="button"
 									aria-label="Export {profile.name}"
-									onclick={(e) => { e.stopPropagation(); handleExport(profile.id) }}
+									onclick={(e) => { e.stopPropagation(); onExport(profile.id) }}
 								>
 									&#x21E9;
 								</button>
@@ -151,7 +151,7 @@
 									<button
 										type="button"
 										aria-label="Delete {profile.name}"
-										onclick={(e) => { e.stopPropagation(); handleDelete(profile.id) }}
+										onclick={(e) => { e.stopPropagation(); onDelete(profile.id) }}
 									>
 										&#x2715;
 									</button>
@@ -165,7 +165,7 @@
 			<DropdownMenu.Separator />
 
 			<DropdownMenu.Item
-				onclick={handleCreate}
+				onclick={onCreate}
 			>
 				+ New Profile
 			</DropdownMenu.Item>

@@ -24,7 +24,6 @@
 </script>
 
 
-
 <EntityId
 	link={isLinked
 		? getBlockPath(networkIdProp?.chainId ?? chainIdProp ?? (0 as ChainId), blockNumber)

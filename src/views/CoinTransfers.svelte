@@ -38,6 +38,9 @@
 		bind:visiblePlaceholderKeys
 		scrollPosition="End"
 	>
+		{#snippet Empty()}
+			<p data-text="muted">No transfers.</p>
+		{/snippet}
 		{#snippet Item({ key, item, isPlaceholder })}
 			<span id="transfer:{key}">
 				{#if isPlaceholder}

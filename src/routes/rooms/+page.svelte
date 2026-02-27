@@ -15,7 +15,7 @@
 
 
 	// Actions
-	const handleCreate = () => {
+	const onCreate = () => {
 		creating = true
 		createRoom()
 			.then((roomId) => {
@@ -26,7 +26,7 @@
 			})
 	}
 
-	const handleJoin = () => {
+	const onJoin = () => {
 		const roomId = normalizeRoomInput(joinCode)
 		if (!roomId) return
 		joining = true
@@ -59,7 +59,7 @@
 			<button
 				type="button"
 				disabled={creating}
-				onclick={handleCreate}
+				onclick={onCreate}
 			>
 				{creating ? 'Creating…' : 'Create room'}
 			</button>
@@ -73,7 +73,7 @@
 			<form
 				onsubmit={(e) => {
 					e.preventDefault()
-					handleJoin()
+					onJoin()
 				}}
 				data-row
 			>

@@ -218,6 +218,9 @@ import {
 			bind:visiblePlaceholderKeys={visiblePlaceholderTransactionIds}
 			scrollPosition="End"
 		>
+			{#snippet Empty()}
+				<p data-text="muted">No transactions.</p>
+			{/snippet}
 			{#snippet Item({ key, item, isPlaceholder })}
 				<span id="transaction:{key}">
 					{#if isPlaceholder}

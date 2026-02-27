@@ -107,7 +107,7 @@
 	import { goto } from '$app/navigation'
 	import { createAgentChatTree, submitAgentChatTurn } from '$/lib/agentChat.ts'
 
-	const handleFirstPrompt = async (value: string, entityRefs: import('$/data/EntityRef.ts').EntityRef[]) => {
+	const onFirstPrompt = async (value: string, entityRefs: import('$/data/EntityRef.ts').EntityRef[]) => {
 		const effectiveTree = tree ?? createAgentChatTree({ $id: { id: nodeId } })
 		const [connectionId, modelId] = parseModelValue(modelValue)
 		const turnId = await submitAgentChatTurn({
@@ -185,7 +185,7 @@
 				<EntityRefInput
 					bind:value={promptValue}
 					onsubmit={(value, entityRefs) => {
-						handleFirstPrompt(value, entityRefs)
+						onFirstPrompt(value, entityRefs)
 						promptValue = ''
 					}}
 					placeholder="Ask something…"
@@ -212,7 +212,7 @@
 			<EntityRefInput
 				bind:value={promptValue}
 				onsubmit={(value, entityRefs) => {
-					handleFirstPrompt(value, entityRefs)
+					onFirstPrompt(value, entityRefs)
 					promptValue = ''
 				}}
 				placeholder="Ask something…"

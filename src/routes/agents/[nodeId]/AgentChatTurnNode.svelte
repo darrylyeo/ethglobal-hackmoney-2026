@@ -65,7 +65,7 @@
 	const turnHash = (id: string) =>
 		'#' + entityKey({ entityType: EntityType.AgentChatTurn, entityId: id })
 
-	const handleDelete = () => {
+	const onDelete = () => {
 		const ids = collectAgentChatTurnDescendantIds(turn.$id, allTurns)
 		const currentHash = page.url.hash
 		const hashWasDeleted = [...ids].some((id) => currentHash === turnHash(id))
@@ -82,7 +82,7 @@
 		return [a?.trim() ?? null, b?.trim() ?? null]
 	}
 
-	const handleSubmit = async (value: string, entityRefs: import('$/data/EntityRef.ts').EntityRef[]) => {
+	const onSubmit = async (value: string, entityRefs: import('$/data/EntityRef.ts').EntityRef[]) => {
 		const [connectionId, modelId] = parseModelValue(modelValue)
 		const turnId = await submitAgentChatTurn({
 			treeId: tree.$id.id,
@@ -133,7 +133,7 @@
 
 
 	// Actions
-	const handleRetry = () => {
+	const onRetry = () => {
 		retryAgentChatTurn({
 			turnId: turn.$id,
 			allTurns,
@@ -174,7 +174,7 @@
 		</div>
 		<button
 			type="button"
-			onclick={handleDelete}
+			onclick={onDelete}
 		>Delete</button>
 	</div>
 
@@ -186,7 +186,7 @@
 				<p data-error>{turn.error ?? 'Generation failed.'}</p>
 				<button
 					type="button"
-					onclick={handleRetry}
+					onclick={onRetry}
 				>Retry</button>
 			</div>
 			{#if turn.error?.includes('payment') || turn.error?.includes('402')}
@@ -250,7 +250,7 @@
 							disabled={turn.status === 'error'}
 							autofocus={isTarget}
 							onsubmit={(value, entityRefs) => {
-								handleSubmit(value, entityRefs)
+								onSubmit(value, entityRefs)
 								promptValue = ''
 							}}
 							placeholder="Continue the conversation…"
@@ -300,7 +300,7 @@
 				disabled={turn.status === 'error'}
 				autofocus={isTarget}
 				onsubmit={(value, entityRefs) => {
-					handleSubmit(value, entityRefs)
+					onSubmit(value, entityRefs)
 					promptValue = ''
 				}}
 				placeholder="Continue the conversation…"

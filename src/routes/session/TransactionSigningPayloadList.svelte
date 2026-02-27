@@ -21,30 +21,29 @@
 </script>
 
 <div class="proposed-tx-list" data-column="gap-2">
-	{#if payloads.length === 0}
-		<p data-text="muted">No transactions for this action.</p>
-	{:else}
-		<div
-			class="proposed-tx-scroll"
-			data-scroll-container="block"
+	<div
+		class="proposed-tx-scroll"
+		data-scroll-container="block"
+	>
+		<ItemsList
+			items={items}
+			getKey={(payload) => payload.stepIndex}
+			getSortValue={(payload) => payload.stepIndex}
+			placeholderKeys={new Set()}
+			data-list="unstyled gap-2"
 		>
-			<ItemsList
-				items={items}
-				getKey={(payload) => payload.stepIndex}
-				getSortValue={(payload) => payload.stepIndex}
-				placeholderKeys={new Set()}
-				data-list="unstyled gap-2"
-			>
-				{#snippet Item({ key, item, isPlaceholder })}
-					{#if isPlaceholder}
-						<div data-placeholder>…</div>
-					{:else if item}
-						<SignaturePayload payload={item} />
-					{/if}
-				{/snippet}
-			</ItemsList>
-		</div>
-	{/if}
+			{#snippet Empty()}
+				<p data-text="muted">No transactions for this action.</p>
+			{/snippet}
+			{#snippet Item({ key, item, isPlaceholder })}
+				{#if isPlaceholder}
+					<div data-placeholder>…</div>
+				{:else if item}
+					<SignaturePayload payload={item} />
+				{/if}
+			{/snippet}
+		</ItemsList>
+	</div>
 </div>
 
 <style>

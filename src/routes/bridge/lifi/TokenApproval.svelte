@@ -86,7 +86,7 @@
 		fetchActorAllowance(allowanceId).catch(() => {})
 	})
 
-	const handleApprove = async () => {
+	const onApprove = async () => {
 		isApproving = true
 		approvalError = null
 		try {
@@ -139,7 +139,7 @@
 	{:else if approvalError}
 		<div data-column>
 			<p data-error>{approvalError}</p>
-			<Button.Root onclick={handleApprove}>Retry</Button.Root>
+			<Button.Root onclick={onApprove}>Retry</Button.Root>
 		</div>
 	{:else if hasError}
 		<div data-column>
@@ -160,7 +160,7 @@
 				</Switch.Root>
 				Unlimited approval
 			</label>
-			<Button.Root onclick={handleApprove}>Approve USDC</Button.Root>
+			<Button.Root onclick={onApprove}>Approve USDC</Button.Root>
 		</div>
 	{/if}
 

@@ -60,26 +60,25 @@
 	title="Swaps"
 	annotation={eventsSet.size > 0 ? String(eventsSet.size) : '—'}
 >
-	{#if eventsSet.size > 0}
-		<ItemsList
-			items={eventsSet}
-			getKey={getEventKey}
-			getSortValue={(event) => -event.timestamp}
-			placeholderKeys={new Set()}
-			visiblePlaceholderKeys={[]}
-			scrollPosition="End"
-		>
-			{#snippet Item({ key, item, isPlaceholder })}
-				<span id="swap:{key}">
-					{#if isPlaceholder}
-						<code>Swap (loading…)</code>
-					{:else}
-						<TransferEvent {item} {coin} symbol={coinId} />
-					{/if}
-				</span>
-			{/snippet}
-		</ItemsList>
-	{:else}
-		<p data-text="muted">No swaps in this period. DEX swap flows appear here when classification is available.</p>
-	{/if}
+	<ItemsList
+		items={eventsSet}
+		getKey={getEventKey}
+		getSortValue={(event) => -event.timestamp}
+		placeholderKeys={new Set()}
+		visiblePlaceholderKeys={[]}
+		scrollPosition="End"
+	>
+		{#snippet Empty()}
+			<p data-text="muted">No swaps in this period. DEX swap flows appear here when classification is available.</p>
+		{/snippet}
+		{#snippet Item({ key, item, isPlaceholder })}
+			<span id="swap:{key}">
+				{#if isPlaceholder}
+					<code>Swap (loading…)</code>
+				{:else}
+					<TransferEvent {item} {coin} symbol={coinId} />
+				{/if}
+			</span>
+		{/snippet}
+	</ItemsList>
 </Collapsible>

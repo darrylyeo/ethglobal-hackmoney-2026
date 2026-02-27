@@ -57,7 +57,7 @@
 
 
 	// Actions
-	const handleDeposit = async () => {
+	const onDeposit = async () => {
 		if (!provider || !yellowState.chainId) return
 		loading = true
 		try {
@@ -72,7 +72,7 @@
 			loading = false
 		}
 	}
-	const handleWithdraw = async () => {
+	const onWithdraw = async () => {
 		if (!provider || !yellowState.chainId) return
 		loading = true
 		try {
@@ -105,7 +105,7 @@
 		data-row
 		onsubmit={(e) => {
 			e.preventDefault()
-			handleDeposit()
+			onDeposit()
 		}}
 	>
 		<input
@@ -127,7 +127,7 @@
 		data-row
 		onsubmit={(e) => {
 			e.preventDefault()
-			handleWithdraw()
+			onWithdraw()
 		}}
 	>
 		<input

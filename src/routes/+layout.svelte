@@ -138,19 +138,11 @@
 				/>
 			</aside> -->
 
-			<svelte:boundary>
-				{@render children()}
-
-				{#snippet failed(error, retry)}
-					<main data-column>
-						<h2>Error</h2>
-						<p>{error instanceof Error ? error.message : String(error)}</p>
-						{#if retry}
-							<button type="button" onclick={retry}>Retry</button>
-						{/if}
-					</main>
+			<Boundary>
+				{#snippet children()}
+					{@render children()}
 				{/snippet}
-			</svelte:boundary>
+			</Boundary>
 		</div>
 	</div>
 

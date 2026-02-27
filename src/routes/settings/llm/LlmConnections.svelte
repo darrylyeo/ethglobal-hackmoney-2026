@@ -67,14 +67,14 @@
 
 
 	// Actions
-	const handleRemove = (id: string) => removeLlmConnection(id)
-	const handleLabelChange = (id: string, value: string) =>
+	const onRemove = (id: string) => removeLlmConnection(id)
+	const onLabelChange = (id: string, value: string) =>
 		updateLlmConnection(id, { label: value })
-	const handleApiKeyChange = (id: string, value: string) =>
+	const onApiKeyChange = (id: string, value: string) =>
 		updateLlmConnection(id, { apiKey: value })
-	const handleEndpointChange = (id: string, value: string) =>
+	const onEndpointChange = (id: string, value: string) =>
 		updateLlmConnection(id, { endpoint: value })
-	const handleDefaultModelChange = (id: string, value: string) =>
+	const onDefaultModelChange = (id: string, value: string) =>
 		updateLlmConnection(id, { defaultModelId: value || undefined })
 
 
@@ -126,7 +126,7 @@
 								<Button.Root
 									type="button"
 									data-text="muted"
-									onclick={() => handleRemove(conn.id)}
+									onclick={() => onRemove(conn.id)}
 								>
 									Remove
 								</Button.Root>
@@ -139,7 +139,7 @@
 									id="llm-label-{conn.id}"
 									type="text"
 									data-block
-									bind:value={() => conn.label, (v) => handleLabelChange(conn.id, v)}
+									bind:value={() => conn.label, (v) => onLabelChange(conn.id, v)}
 								/>
 							</div>
 							{#if needsApiKey(conn.provider)}
@@ -151,7 +151,7 @@
 										data-block
 										placeholder="Optional if set in env"
 										bind:value={() => conn.apiKey ?? '', (v) =>
-											handleApiKeyChange(conn.id, v)}
+											onApiKeyChange(conn.id, v)}
 									/>
 								</div>
 							{/if}
@@ -164,7 +164,7 @@
 										data-block
 										placeholder="https://..."
 										bind:value={() => conn.endpoint ?? '', (v) =>
-											handleEndpointChange(conn.id, v)}
+											onEndpointChange(conn.id, v)}
 									/>
 								</div>
 							{/if}
@@ -177,7 +177,7 @@
 										data-block
 										placeholder="Optional if PUBLIC_OPENCODE_API_KEY set"
 										bind:value={() => conn.apiKey ?? '', (v) =>
-											handleApiKeyChange(conn.id, v)}
+											onApiKeyChange(conn.id, v)}
 									/>
 								</div>
 							{/if}
@@ -187,7 +187,7 @@
 									<select
 										id="llm-model-{conn.id}"
 										bind:value={() => conn.defaultModelId ?? '', (v) =>
-											handleDefaultModelChange(conn.id, v)}
+											onDefaultModelChange(conn.id, v)}
 									>
 										<option value="">—</option>
 										{#each models as m (m.id)}

@@ -52,7 +52,7 @@
 		</div>
 		<div data-row>
 			<Button.Root href="/agents/registry">
-				EIP-8004 registry
+				EIP-8004 services
 			</Button.Root>
 			<Button.Root href="/agents/new">
 				New conversation

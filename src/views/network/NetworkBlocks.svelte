@@ -81,6 +81,9 @@
 	bind:visiblePlaceholderKeys={visiblePlaceholderBlockIds}
 	scrollPosition="Start"
 >
+	{#snippet Empty()}
+		<p data-text="muted">No blocks.</p>
+	{/snippet}
 	{#snippet Item({ key, item, isPlaceholder })}
 		<span id="block:{key}">
 			{#if isPlaceholder}

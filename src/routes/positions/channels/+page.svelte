@@ -232,7 +232,7 @@
 
 
 	// Actions
-	const handleConnect = async () => {
+	const onConnect = async () => {
 		if (!walletProvider || !connectedAddress) {
 			connectError = 'Connect a wallet first'
 			return
@@ -252,11 +252,11 @@
 		}
 	}
 
-	const handleDisconnect = () => {
+	const onDisconnect = () => {
 		disconnectFromYellow()
 	}
 
-	const handleCreateChannel = async () => {
+	const onCreateChannel = async () => {
 		if (!yellowState.clearnodeConnection || !yellowState.chainId) {
 			createError = 'Connect to Yellow first'
 			return
@@ -276,7 +276,7 @@
 		}
 	}
 
-	const handleClose = async (ch: StateChannelRow) => {
+	const onClose = async (ch: StateChannelRow) => {
 		if (!yellowState.clearnodeConnection || !yellowState.address) {
 			actionError = 'Connect to Yellow before closing'
 			return
@@ -295,7 +295,7 @@
 			closingChannelId = null
 		}
 	}
-	const handleChallenge = async (ch: StateChannelRow) => {
+	const onChallenge = async (ch: StateChannelRow) => {
 		const latestState = channelStatesByChannelId[ch.id]
 		if (!latestState) {
 			actionError = 'No state available to challenge'
@@ -354,13 +354,13 @@
 		<section class="connection" data-row="gap-4" data-yellow-connection>
 			{#if isConnected}
 				<span data-yellow-status="connected">Connected</span>
-				<Button.Root type="button" onclick={handleDisconnect} data-yellow-disconnect>
+				<Button.Root type="button" onclick={onDisconnect} data-yellow-disconnect>
 					Disconnect
 				</Button.Root>
 				<Button.Root
 					type="button"
 					disabled={creatingChannel}
-					onclick={handleCreateChannel}
+					onclick={onCreateChannel}
 					data-yellow-create-channel
 				>
 					{creatingChannel ? 'Creating…' : 'Create Channel'}
@@ -370,7 +370,7 @@
 				<Button.Root
 					type="button"
 				disabled={connecting || !walletProvider || !connectedAddress}
-				onclick={handleConnect}
+				onclick={onConnect}
 				data-yellow-connect
 				>
 					{connecting ? 'Connecting…' : 'Connect to Yellow'}
@@ -475,7 +475,7 @@
 									<Button.Root
 										type="button"
 										disabled={closingChannelId === ch.id}
-										onclick={() => handleClose(ch)}
+										onclick={() => onClose(ch)}
 									>
 										{closingChannelId === ch.id ? 'Closing…' : 'Close'}
 									</Button.Root>
@@ -485,7 +485,7 @@
 										type="button"
 										disabled={challengeChannelId === ch.id ||
 											!channelStatesByChannelId[ch.id]}
-										onclick={() => handleChallenge(ch)}
+										onclick={() => onChallenge(ch)}
 									>
 										{challengeChannelId === ch.id
 											? 'Challenging…'

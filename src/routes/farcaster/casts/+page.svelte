@@ -9,6 +9,17 @@
 	import { farcasterComboboxFilterGroup } from '$/lib/farcaster-filters.ts'
 	import { useLiveQuery } from '@tanstack/svelte-db'
 
+	enum FarcasterCastSort {
+		Newest = 'newest',
+		Oldest = 'oldest',
+		NeynarTrending = 'neynar-trending',
+		OpenrankEngagement = 'openrank-engagement',
+		Virality = 'virality',
+		RepliesDesc = 'replies-desc',
+		LikesDesc = 'likes-desc',
+		RecastsDesc = 'recasts-desc',
+	}
+
 	const contentFilters = [
 		{
 			id: 'has-embeds',
@@ -124,9 +135,12 @@
 	})
 
 
+	// State (bound from RefinableItemsList)
+	let displayCount = $state(0)
+
 	// Components
 	import FarcasterCast from '$/views/farcaster/FarcasterCast.svelte'
-	import FarcasterFilteredEntityList from '$/views/farcaster/FarcasterFilteredEntityList.svelte'
+	import RefinableItemsList from '$/components/RefinableItemsList.svelte'
 </script>
 
 <svelte:head>
@@ -135,54 +149,78 @@
 
 <main data-column="gap-4">
 	<h1>Casts</h1>
-	<FarcasterFilteredEntityList
-		title="Casts"
-		items={allCasts}
-		isLoading={castsQuery.isLoading}
-		{filterGroups}
-		defaultFilterIds={defaultFilterIds}
-		sortOptions={[
-			{ id: 'newest', label: 'Newest first', compare: (a, b) => b.timestamp - a.timestamp },
-			{ id: 'oldest', label: 'Oldest first', compare: (a, b) => a.timestamp - b.timestamp },
-			{
-				id: 'neynar-trending',
-				label: 'Neynar trending (24h)',
-				compare: (a, b) => trendingScore24h(b) - trendingScore24h(a),
-			},
-			{
-				id: 'openrank-engagement',
-				label: 'OpenRank engagement',
-				compare: (a, b) => engagementScore(b) - engagementScore(a),
-			},
-			{
-				id: 'virality',
-				label: 'Virality (recasts)',
-				compare: (a, b) => viralityScore(b) - viralityScore(a),
-			},
-			{
-				id: 'replies-desc',
-				label: 'Replies (high first)',
-				compare: (a, b) => replyCount(b) - replyCount(a),
-			},
-			{
-				id: 'likes-desc',
-				label: 'Likes (high first)',
-				compare: (a, b) => (b.likeCount ?? 0) - (a.likeCount ?? 0),
-			},
-			{
-				id: 'recasts-desc',
-				label: 'Recasts (high first)',
-				compare: (a, b) => (b.recastCount ?? 0) - (a.recastCount ?? 0),
-			},
-		] as Sort<FarcasterCastRow, 'newest' | 'oldest' | 'neynar-trending' | 'openrank-engagement' | 'virality' | 'replies-desc' | 'likes-desc' | 'recasts-desc'>[]}
-		defaultSortId="newest"
-		getKey={(c) => `${c.$id.fid}:${c.$id.hash}`}
-		filter={(c) => !c.parentFid || !c.parentHash}
-		loadingMessage="Loading casts…"
-		emptyMessage="No casts yet. Visit channels or users to load casts."
-	>
-		{#snippet Item({ item: cast })}
-			<FarcasterCast {cast} {userByFid} />
-		{/snippet}
-	</FarcasterFilteredEntityList>
+	<details data-card data-scroll-container="block" open>
+		<summary>
+			<h3 class="section-heading">Casts ({displayCount})</h3>
+		</summary>
+		{#if allCasts.length === 0 && castsQuery.isLoading}
+			<p data-text="muted">Loading casts…</p>
+		{:else if allCasts.length === 0}
+			<p data-text="muted">No casts yet. Visit channels or users to load casts.</p>
+		{:else}
+			<div data-column="gap-4">
+				<RefinableItemsList
+					items={allCasts}
+					{filterGroups}
+					defaultFilterIds={defaultFilterIds}
+					sortOptions={[
+						{ id: FarcasterCastSort.Newest, label: 'Newest first', compare: (a, b) => b.timestamp - a.timestamp },
+						{ id: FarcasterCastSort.Oldest, label: 'Oldest first', compare: (a, b) => a.timestamp - b.timestamp },
+						{
+							id: FarcasterCastSort.NeynarTrending,
+							label: 'Neynar trending (24h)',
+							compare: (a, b) => trendingScore24h(b) - trendingScore24h(a),
+						},
+						{
+							id: FarcasterCastSort.OpenrankEngagement,
+							label: 'OpenRank engagement',
+							compare: (a, b) => engagementScore(b) - engagementScore(a),
+						},
+						{
+							id: FarcasterCastSort.Virality,
+							label: 'Virality (recasts)',
+							compare: (a, b) => viralityScore(b) - viralityScore(a),
+						},
+						{
+							id: FarcasterCastSort.RepliesDesc,
+							label: 'Replies (high first)',
+							compare: (a, b) => replyCount(b) - replyCount(a),
+						},
+						{
+							id: FarcasterCastSort.LikesDesc,
+							label: 'Likes (high first)',
+							compare: (a, b) => (b.likeCount ?? 0) - (a.likeCount ?? 0),
+						},
+						{
+							id: FarcasterCastSort.RecastsDesc,
+							label: 'Recasts (high first)',
+							compare: (a, b) => (b.recastCount ?? 0) - (a.recastCount ?? 0),
+						},
+					] as Sort<FarcasterCastRow, FarcasterCastSort>[]}
+					defaultSortId={FarcasterCastSort.Newest}
+					getKey={(c) => `${c.$id.fid}:${c.$id.hash}`}
+					filter={(c) => !c.parentFid || !c.parentHash}
+					bind:displayCount
+					placeholderKeys={new Set<string>()}
+				>
+					{#snippet Empty()}
+						<p data-text="muted">No casts match filters.</p>
+					{/snippet}
+					{#snippet Item({ key: _key, item: row, isPlaceholder })}
+						{#if !isPlaceholder && row != null}
+							{@const cast = row}
+							<FarcasterCast {cast} {userByFid} />
+						{/if}
+					{/snippet}
+				</RefinableItemsList>
+			</div>
+		{/if}
+	</details>
 </main>
+
+<style>
+	.section-heading {
+		font-size: 1rem;
+		margin: 0;
+	}
+</style>
