@@ -3,7 +3,6 @@
 </script>
 
 
-
 <script
 	lang="ts"
 	generics="
@@ -13,9 +12,9 @@
 	"
 >
 	// Types/constants
+	import type { ListPagination } from '$/components/List.svelte.ts'
 	import type { Match } from '$/lib/fuzzyMatch.ts'
 	import type { Snippet } from 'svelte'
-	import type { ListPagination } from '$/components/List.svelte.ts'
 	import { useVisibleAction } from '$/lib/useVisibleAction.ts'
 	import { createViewTransition } from '$/lib/viewTransition.ts'
 	import { untrack } from 'svelte'
@@ -27,6 +26,7 @@
 		items = $bindable(new SvelteSet()),
 		getKey,
 		getSortValue,
+		getIsHidden,
 		getGroupKey,
 		getGroupLabel,
 		getGroupKeyForPlaceholder,
@@ -38,14 +38,15 @@
 		matchesForItem = $bindable(
 			new SvelteMap<_Item, SvelteSet<Match>>()
 		),
-		Item,
 		GroupHeader,
+		Item,
 		Empty,
 		...rootProps
 	}: {
 		items: Set<_Item>
 		getKey: (item: _Item) => _Key
 		getSortValue: (item: _Item) => number | string
+		getIsHidden?: (item: _Item) => boolean
 		getGroupKey?: (item: _Item) => _GroupKey
 		getGroupLabel?: (groupKey: _GroupKey) => string
 		getGroupKeyForPlaceholder?: (key: _Key) => _GroupKey
@@ -56,7 +57,6 @@
 		searchQuery?: string
 		matchesForItem?: SvelteMap<_Item, SvelteSet<Match>>
 		GroupHeader?: Snippet<[{ groupKey: _GroupKey }]>
-		Empty?: Snippet<[]>
 		Item: Snippet<
 			[
 				{
@@ -72,6 +72,7 @@
 				),
 			]
 		>
+		Empty?: Snippet<[]>
 		[key: string]: unknown
 	} = $props()
 
@@ -304,6 +305,7 @@
 				</li>
 			{:else}
 				{@const hasNoSearchMatches = hasSearch && (matchesForItem.get(item.item)?.size ?? 0) === 0}
+				{@const isHidden = getIsHidden ? getIsHidden(item.item) : false}
 				{@const visualOrder = hasSearch ? committedMatchOrder.indexOf(item.item) + 1 : undefined}
 
 				<li
@@ -311,8 +313,10 @@
 					data-scroll-item="snap-block-start"
 					style={visualOrder != null ? `order: ${visualOrder}` : undefined}
 					style:view-transition-name={viewTransitionName(item.key)}
-					inert={hasNoSearchMatches}
-					hidden={hasNoSearchMatches}
+					{...(isHidden || hasNoSearchMatches) && {
+						hidden: true,
+						inert: true,
+					}}
 				>
 					{@render Item({
 						key: item.key,
