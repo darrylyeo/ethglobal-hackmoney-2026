@@ -33,9 +33,10 @@
 		q.from({ row: actorCoinsCollection }).select(({ row }) => ({ row })),
 	)
 
-
 	// (Derived)
-	const actorCoins = $derived((actorCoinsQuery.data ?? []).map(({ row: coin }) => coin))
+	const actorCoins = $derived(
+		(actorCoinsQuery.data ?? []).map(({ row: coin }) => coin)
+	)
 
 	const resolution = $derived(
 		fromPayload && toPayload
@@ -234,4 +235,3 @@
 		cursor: grabbing;
 	}
 </style>
-

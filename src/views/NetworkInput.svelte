@@ -68,6 +68,7 @@
 				</span>
 			{/if}
 		{/snippet}
+
 		{#snippet Item(network, selected)}
 			<NetworkName networkId={{ chainId: network.chainId }} />
 		{/snippet}
@@ -103,6 +104,7 @@
 				</span>
 			{/if}
 		{/snippet}
+
 		{#snippet Item(network, selected)}
 			<NetworkName networkId={{ chainId: network.chainId }} />
 		{/snippet}

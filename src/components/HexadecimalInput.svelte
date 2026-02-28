@@ -30,7 +30,9 @@
 	} = $props()
 
 	// State
-	let raw = $state(value)
+	let raw = $state(
+		value
+	)
 
 	// (Derived)
 	const normalized = $derived(
@@ -43,7 +45,9 @@
 	const hexEven = $derived(
 		normalized.length % 2 === 0 ? normalized : normalized.slice(0, -1),
 	)
-	const valueOut = $derived(hexEven ? `0x${hexEven.toLowerCase()}` : '')
+	const valueOut = $derived(
+		hexEven ? `0x${hexEven.toLowerCase()}` : ''
+	)
 
 	// Actions
 	function oninput(e: Event) {
@@ -59,6 +63,7 @@
 		if (pref !== raw.trim().replace(/^0x/i, '').replace(/\s/g, '')) raw = pref
 	})
 </script>
+
 
 <div class="hex-input {className ?? ''}" data-input="hex">
 	<textarea
@@ -83,6 +88,7 @@
 		/>
 	{/if}
 </div>
+
 
 <style>
 	.hex-input {

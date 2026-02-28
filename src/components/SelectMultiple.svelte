@@ -56,7 +56,6 @@
 		[key: string]: unknown
 	} = $props()
 
-
 	// (Derived)
 	const normalizedItems = $derived(
 		items.map((item) => ({

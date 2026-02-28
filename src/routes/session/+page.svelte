@@ -15,11 +15,16 @@
 		data: SessionInput & { urlKey?: string; setPanelRoute?: (path: string, params: Record<string, string>) => void }
 	} = $props()
 
-
 	// (Derived)
-	const initialSession = $derived(sessionFromInput(data))
-	const urlKey = $derived(data.urlKey ?? '')
-	const setPanelRoute = $derived(data.setPanelRoute)
+	const initialSession = $derived(
+		sessionFromInput(data)
+	)
+	const urlKey = $derived(
+		data.urlKey ?? ''
+	)
+	const setPanelRoute = $derived(
+		data.setPanelRoute
+	)
 
 
 	// Components

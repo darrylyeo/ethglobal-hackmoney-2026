@@ -11,11 +11,16 @@
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
 
-
 	// (Derived)
-	const networkSlug = $derived(page.params.networkSlug ?? '')
-	const addrParam = $derived(page.params.address ?? '')
-	const route = $derived(parseNetworkNameParam(networkSlug))
+	const networkSlug = $derived(
+		page.params.networkSlug ?? ''
+	)
+	const addrParam = $derived(
+		page.params.address ?? ''
+	)
+	const route = $derived(
+		parseNetworkNameParam(networkSlug)
+	)
 	const address = $derived(
 		addrParam && matchesEntityRefPattern(addrParam, PatternType.EvmAddress)
 			? normalizeAddress(
@@ -23,9 +28,15 @@
 			) ?? null
 			: null,
 	)
-	const chainId = $derived(route?.chainId ?? (0 as ChainId))
-	const network = $derived(route?.network ?? { name: '' })
-	const valid = $derived(!!route && !!address)
+	const chainId = $derived(
+		route?.chainId ?? (0 as ChainId)
+	)
+	const network = $derived(
+		route?.network ?? { name: '' }
+	)
+	const valid = $derived(
+		!!route && !!address
+	)
 
 
 	// Actions

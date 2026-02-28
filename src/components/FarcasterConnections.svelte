@@ -15,6 +15,7 @@
 	// Components
 	import FarcasterConnection from '$/components/FarcasterConnection.svelte'
 
+
 	// State
 	import {
 		addFarcasterConnectionWatch,
@@ -30,10 +31,15 @@
 		resolveFidFromWatchInput,
 	} from '$/lib/farcaster-watch.ts'
 
+
 	// State
-	let watchFidInput = $state('')
+	let watchFidInput = $state(
+		''
+	)
 	let watchResolveError = $state<string | null>(null)
-	let watchResolving = $state(false)
+	let watchResolving = $state(
+		false
+	)
 
 	// (Derived)
 	const connectionsQuery = useFarcasterConnections()
@@ -50,13 +56,18 @@
 			.filter((c): c is FarcasterConnectionWatch => c.transport === FarcasterConnectionTransport.Watch)
 			.sort((a, b) => b.connectedAt - a.connectedAt),
 	)
-	const siwfDomain = $derived(page.url.hostname || 'localhost')
-	const siwfUri = $derived(`${page.url.origin}/farcaster`)
+	const siwfDomain = $derived(
+		page.url.hostname || 'localhost'
+	)
+	const siwfUri = $derived(
+		`${page.url.origin}/farcaster`
+	)
 
 	$effect(() => {
 		watchFidInput
 		watchResolveError = null
 	})
+
 
 	// Actions
 	const addWatch = () => {
@@ -84,6 +95,7 @@
 		removeFarcasterConnection(conn.$id.fid)
 	}
 </script>
+
 
 <div data-row="wrap align-start gap-4">
 	<details data-row-item="flexible" data-card="radius-4" open>
@@ -191,6 +203,7 @@
 		</ul>
 	</details>
 </div>
+
 
 <style>
 	.section-heading {

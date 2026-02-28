@@ -14,9 +14,15 @@
 	import { page } from '$app/state'
 
 	// (Derived)
-	const hexParam = $derived(page.params?.hex ?? '')
-	const parsed = $derived(parseEvmErrorHex(hexParam))
-	const href = $derived(parsed ? getEvmErrorPath(parsed) : '/evm/errors')
+	const hexParam = $derived(
+		page.params?.hex ?? ''
+	)
+	const parsed = $derived(
+		parseEvmErrorHex(hexParam)
+	)
+	const href = $derived(
+		parsed ? getEvmErrorPath(parsed) : '/evm/errors'
+	)
 
 	const entryQuery = useLiveQuery(
 		(q) =>
@@ -34,7 +40,9 @@
 	const entry = $derived(
 		entryQuery.data?.[0]?.row as EvmError | undefined,
 	)
-	const label = $derived(entry?.signatures[0] ?? (parsed ?? ''))
+	const label = $derived(
+		entry?.signatures[0] ?? (parsed ?? '')
+	)
 
 	// Actions
 	$effect(() => {
@@ -47,6 +55,7 @@
 	import Heading from '$/components/Heading.svelte'
 	import EvmError from '$/views/EvmError.svelte'
 </script>
+
 
 <svelte:head>
 	<title>{parsed ?? 'Error'} — EVM errors</title>

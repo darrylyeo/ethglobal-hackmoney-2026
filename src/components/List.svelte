@@ -91,7 +91,6 @@
 	const viewTransitionName = (key: _Key): string =>
 		'list-item-' + String(key).replace(/^\d/, '_$&').replace(/[^a-zA-Z0-9_-]/g, '_')
 
-
 	// (Derived)
 	const sortedItems = $derived(
 		[...items].sort((itemA, itemB) => {
@@ -104,8 +103,12 @@
 			: 0
 		}),
 	)
-	const searchQueryNormalized = $derived(searchQuery.trim().toLowerCase())
-	const hasSearch = $derived(!!searchQueryNormalized)
+	const searchQueryNormalized = $derived(
+		searchQuery.trim().toLowerCase()
+	)
+	const hasSearch = $derived(
+		!!searchQueryNormalized
+	)
 	$effect(() => {
 		const query = searchQueryNormalized
 		const _itemsSize = items.size
@@ -119,7 +122,9 @@
 			}
 		})
 	})
-	const itemsToShow = $derived(sortedItems)
+	const itemsToShow = $derived(
+		sortedItems
+	)
 	const matchOrder = $derived(
 		hasSearch
 			? (() => {

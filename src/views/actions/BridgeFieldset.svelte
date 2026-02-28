@@ -22,13 +22,16 @@
 
 
 	// State
-	let invalid = $state(false)
-
+	let invalid = $state(
+		false
+	)
 
 	// (Derived)
 	const getParams = (a: Action<ActionType.Bridge>): ActionParams<ActionType.Bridge> =>
 		a.params as ActionParams<ActionType.Bridge>
-	const p: ActionParams<ActionType.Bridge> = $derived(getParams(action))
+	const p: ActionParams<ActionType.Bridge> = $derived(
+		getParams(action)
+	)
 	const bridgeCoins = $derived.by(() => {
 		const chainId = p.fromChainId ?? ChainId.Ethereum
 		const native = nativeCurrencyByNetwork.get(chainId) ?? []

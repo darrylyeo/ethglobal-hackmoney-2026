@@ -14,7 +14,9 @@
 
 
 	// State
-	let paused = $state(false)
+	let paused = $state(
+		false
+	)
 
 
 	// Components

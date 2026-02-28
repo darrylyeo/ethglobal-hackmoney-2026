@@ -23,16 +23,25 @@
 
 
 	// State
-	let invalid = $state(false)
-
+	let invalid = $state(
+		false
+	)
 
 	// (Derived)
 	const getParams = (a: Action<ActionType.Transfer>): ActionParams<ActionType.Transfer> =>
 		a.params as ActionParams<ActionType.Transfer>
-	const p: ActionParams<ActionType.Transfer> = $derived(getParams(action))
-	const coins = $derived(chainCoins(p.chainId))
-	const tokenCoin = $derived(asNonEmptyCoins(coins) ? (coins.find((c) => c.address === p.tokenAddress) ?? coins[0]) : null)
-	const actorItems = $derived(actors.map((a) => ({ address: a })))
+	const p: ActionParams<ActionType.Transfer> = $derived(
+		getParams(action)
+	)
+	const coins = $derived(
+		chainCoins(p.chainId)
+	)
+	const tokenCoin = $derived(
+		asNonEmptyCoins(coins) ? (coins.find((c) => c.address === p.tokenAddress) ?? coins[0]) : null
+	)
+	const actorItems = $derived(
+		actors.map((a) => ({ address: a }))
+	)
 	const syntheticCoin = $derived({
 		type: CoinInstanceType.Erc20Token as const,
 		$id: {

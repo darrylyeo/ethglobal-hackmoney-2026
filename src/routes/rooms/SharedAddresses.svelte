@@ -74,9 +74,10 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
-
 	// (Derived)
-	const sharedAddresses = $derived((sharedQuery.data ?? []).map(({ sharedAddress }) => sharedAddress))
+	const sharedAddresses = $derived(
+		(sharedQuery.data ?? []).map(({ sharedAddress }) => sharedAddress)
+	)
 	const sharedVisibleToMe = $derived(
 		sharedAddresses.filter(
 			(s) =>
@@ -86,11 +87,15 @@
 						s.targetPeerIds.includes(roomState.peerId))),
 		),
 	)
-	const peers = $derived((peersQuery.data ?? []).map(({ roomPeer: peer }) => peer))
+	const peers = $derived(
+		(peersQuery.data ?? []).map(({ roomPeer: peer }) => peer)
+	)
 	const verifications = $derived(
 		(verificationsQuery.data ?? []).map(({ verification }) => verification),
 	)
-	const challenges = $derived((challengesQuery.data ?? []).map(({ siweChallenge: challenge }) => challenge))
+	const challenges = $derived(
+		(challengesQuery.data ?? []).map(({ siweChallenge: challenge }) => challenge)
+	)
 
 
 	// Functions

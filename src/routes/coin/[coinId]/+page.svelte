@@ -13,7 +13,6 @@
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
 
-
 	// (Derived)
 	const route = $derived(
 		(() => {

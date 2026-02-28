@@ -8,7 +8,6 @@
 	// Props
 	let { action = $bindable() }: { action: Action } = $props()
 
-
 	// (Derived)
 	const p = $derived(
 		action.type === ActionType.Bridge
@@ -25,8 +24,12 @@
 		{ id: TransferSpeed.Fast, label: 'Fast' },
 		{ id: TransferSpeed.Standard, label: 'Standard' },
 	])
-	const fromDomain = $derived(p ? getCctpDomainId(p.fromChainId) : null)
-	const toDomain = $derived(p ? getCctpDomainId(p.toChainId) : null)
+	const fromDomain = $derived(
+		p ? getCctpDomainId(p.fromChainId) : null
+	)
+	const toDomain = $derived(
+		p ? getCctpDomainId(p.toChainId) : null
+	)
 	const apiHost = $derived(
 		p?.isTestnet ? 'https://iris-api-sandbox.circle.com' : 'https://iris-api.circle.com',
 	)

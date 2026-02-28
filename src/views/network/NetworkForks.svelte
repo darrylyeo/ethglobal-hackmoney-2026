@@ -31,11 +31,16 @@ import { entityKey } from '$/lib/entity-key.ts'
 		detailsProps?: Record<string, unknown>
 	} = $props()
 
-
 	// (Derived)
-	const chainId = $derived(Number(networkId.chainId))
-	const scheduleForks = $derived(forksByChainId[chainId] ?? null)
-	const forksBase = $derived(resolve(getForksPagePath(chainId)))
+	const chainId = $derived(
+		Number(networkId.chainId)
+	)
+	const scheduleForks = $derived(
+		forksByChainId[chainId] ?? null
+	)
+	const forksBase = $derived(
+		resolve(getForksPagePath(chainId))
+	)
 	const forksToShow = $derived(
 		chainId === ChainId.Ethereum
 			? mainnetForksWithUpgrades
@@ -111,6 +116,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 	{#snippet Empty()}
 		<p data-text="muted">No forks.</p>
 	{/snippet}
+
 	{#snippet Item({ key, item, isPlaceholder })}
 		<span>
 			{#if isPlaceholder}

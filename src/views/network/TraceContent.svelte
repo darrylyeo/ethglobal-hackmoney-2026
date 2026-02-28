@@ -20,7 +20,6 @@
 		chainId: ChainId
 	} = $props()
 
-
 	// (Derived)
 	const inputSelector = $derived(
 		trace.input && trace.input.length >= 10
@@ -47,9 +46,10 @@
 		[() => normalizedSelector],
 	)
 
-
 	// (Derived)
-	const functionSignatures = $derived(functionSigQuery.data?.[0]?.row?.signatures ?? [])
+	const functionSignatures = $derived(
+		functionSigQuery.data?.[0]?.row?.signatures ?? []
+	)
 
 
 	// Actions
@@ -62,6 +62,7 @@
 	import TruncatedValue from '$/components/TruncatedValue.svelte'
 	import Address from '$/views/Address.svelte'
 </script>
+
 
 <div data-row="wrap align-center">
 	{#if trace.type}

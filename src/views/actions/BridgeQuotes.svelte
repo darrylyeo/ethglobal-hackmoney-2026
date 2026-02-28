@@ -17,7 +17,9 @@
 	} = $props()
 
 	// State
-	let fetching = $state(false)
+	let fetching = $state(
+		false
+	)
 	let error = $state<string | undefined>(undefined)
 
 	// (Derived)
@@ -37,9 +39,15 @@
 			slippage: bridgeParams.slippage ?? 0.005,
 		}
 	})
-	const requestKey = $derived(requestId ? getBridgeQuoteRequestKey(requestId) : '')
-	const quoteRow = $derived(requestId ? getBridgeQuote(requestId) : null)
-	const canFetch = $derived(!!requestId && !fetching)
+	const requestKey = $derived(
+		requestId ? getBridgeQuoteRequestKey(requestId) : ''
+	)
+	const quoteRow = $derived(
+		requestId ? getBridgeQuote(requestId) : null
+	)
+	const canFetch = $derived(
+		!!requestId && !fetching
+	)
 
 	// Actions
 	const onFetch = async () => {

@@ -8,7 +8,9 @@
 
 
 	// State
-	let started = $state(false)
+	let started = $state(
+		false
+	)
 	$effect(() => {
 		if (started) return
 		started = true

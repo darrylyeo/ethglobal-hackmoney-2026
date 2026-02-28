@@ -58,7 +58,9 @@
 
 
 	// State
-	let lastRunAt = $state(0)
+	let lastRunAt = $state(
+		0
+	)
 	let burnTxHash = $state<string | null>(null)
 	let attestationPayload = $state<{
 		message: string
@@ -70,17 +72,22 @@
 		'idle' | 'approving' | 'burning' | 'attestation' | 'minting' | 'done'
 	>('idle')
 
-
 	// (Derived)
-	const tokenMessenger = $derived(getCctpTokenMessenger(fromChainId, isTestnet))
+	const tokenMessenger = $derived(
+		getCctpTokenMessenger(fromChainId, isTestnet)
+	)
 	const messageTransmitterDest = $derived(
 		getCctpMessageTransmitter(toChainId, isTestnet),
 	)
 	const burnToken = $derived(
 		fromChainId !== null ? getUsdcAddress(fromChainId) : null,
 	)
-	const destinationDomain = $derived(getCctpDomainId(toChainId))
-	const fromDomain = $derived(getCctpDomainId(fromChainId))
+	const destinationDomain = $derived(
+		getCctpDomainId(toChainId)
+	)
+	const fromDomain = $derived(
+		getCctpDomainId(fromChainId)
+	)
 
 	const apiHost = $derived(
 		isTestnet

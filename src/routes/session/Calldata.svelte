@@ -16,9 +16,10 @@
 		data?: `0x${string}`
 	} = $props()
 
-
 	// (Derived)
-	const desc = $derived(describePayloadData({ data }))
+	const desc = $derived(
+		describePayloadData({ data })
+	)
 	const selector = $derived(
 		(data?.length ?? 0) >= 10
 			? (data!.slice(0, 10) as `0x${string}`)
@@ -42,7 +43,9 @@
 					.select(({ row }) => ({ row })),
 		[() => normalizedSelector],
 	)
-	const signatures = $derived(sigQuery.data?.[0]?.row?.signatures ?? [])
+	const signatures = $derived(
+		sigQuery.data?.[0]?.row?.signatures ?? []
+	)
 	const summary = $derived(
 		desc.kind === 'empty'
 			? '—'
@@ -63,5 +66,6 @@
 		if (normalizedSelector) void ensureEvmFunctionSignatures(normalizedSelector)
 	})
 </script>
+
 
 <span data-text="font-monospace">{summary}</span>

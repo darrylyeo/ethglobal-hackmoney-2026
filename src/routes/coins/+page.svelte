@@ -12,7 +12,6 @@
 	// Context
 	import { resolve } from '$app/paths'
 
-
 	// (Derived)
 	const coinsWithInstance = $derived(
 		coins

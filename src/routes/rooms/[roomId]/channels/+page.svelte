@@ -18,10 +18,13 @@
 	import { registerLocalLiveQueryStack } from '$/svelte/live-query-context.svelte.ts'
 	import { useLiveQuery, eq } from '@tanstack/svelte-db'
 
-
 	// (Derived)
-	const roomId = $derived(page.params.roomId ?? '')
-	const roomDisplayName = $derived(roomIdToDisplayName(roomId))
+	const roomId = $derived(
+		page.params.roomId ?? ''
+	)
+	const roomDisplayName = $derived(
+		roomIdToDisplayName(roomId)
+	)
 
 
 	// Functions
@@ -45,7 +48,6 @@
 			.select(({ row }) => ({ row })),
 	)
 
-
 	// (Derived)
 	const liveQueryEntries = [
 		{
@@ -60,8 +62,12 @@
 		},
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
-	const wallets = $derived((walletsQuery.data ?? []).map(({ row: wallet }) => wallet))
-	const connections = $derived((connectionsQuery.data ?? []).map(({ row: connection }) => connection))
+	const wallets = $derived(
+		(walletsQuery.data ?? []).map(({ row: wallet }) => wallet)
+	)
+	const connections = $derived(
+		(connectionsQuery.data ?? []).map(({ row: connection }) => connection)
+	)
 	const selectedConnection = $derived(
 		connections.find((c) => c.selected) ?? null,
 	)

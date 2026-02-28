@@ -28,7 +28,9 @@
 
 
 	// State
-	let inputRaw = $state('')
+	let inputRaw = $state(
+		''
+	)
 	let selectedExample = $state<CalldataExample | undefined>(undefined)
 
 	function hexFromParam(value: string | null): string {
@@ -38,13 +40,20 @@
 		const even = s.length % 2 === 0 ? s : s.slice(0, -1)
 		return even ? `0x${even}` : ''
 	}
-	let selectedSigIndex = $state(0)
-	let selectedEventSigIndex = $state(0)
-
+	let selectedSigIndex = $state(
+		0
+	)
+	let selectedEventSigIndex = $state(
+		0
+	)
 
 	// (Derived)
-	const hexWithPrefix = $derived(inputRaw.startsWith('0x') ? inputRaw : inputRaw ? `0x${inputRaw}` : '')
-	const hexNormalized = $derived(hexWithPrefix.slice(2).toLowerCase())
+	const hexWithPrefix = $derived(
+		inputRaw.startsWith('0x') ? inputRaw : inputRaw ? `0x${inputRaw}` : ''
+	)
+	const hexNormalized = $derived(
+		hexWithPrefix.slice(2).toLowerCase()
+	)
 	const selector = $derived(
 		hexNormalized.length >= 8
 			? (`0x${hexNormalized.slice(0, 8).toLowerCase()}` as `0x${string}`)
@@ -55,9 +64,13 @@
 			? (`0x${hexNormalized.slice(0, 64).toLowerCase()}` as `0x${string}`)
 			: null,
 	)
-	const byteCount = $derived(hexNormalized ? Math.floor(hexNormalized.length / 2) : 0)
+	const byteCount = $derived(
+		hexNormalized ? Math.floor(hexNormalized.length / 2) : 0
+	)
 
-	const normalizedSelector = $derived(selector ? normalizeEvmSelector4(selector) : null)
+	const normalizedSelector = $derived(
+		selector ? normalizeEvmSelector4(selector) : null
+	)
 	const functionSigQuery = useLiveQuery(
 		(q) =>
 			normalizedSelector
@@ -71,9 +84,13 @@
 	const selectorEntry = $derived(
 		functionSigQuery.data?.[0]?.row as EvmSelector | undefined,
 	)
-	const functionSignatures = $derived(selectorEntry?.signatures ?? [])
+	const functionSignatures = $derived(
+		selectorEntry?.signatures ?? []
+	)
 
-	const normalizedTopic = $derived(topic ? normalizeEvmTopic32(topic) : null)
+	const normalizedTopic = $derived(
+		topic ? normalizeEvmTopic32(topic) : null
+	)
 	const eventSigQuery = useLiveQuery(
 		(q) =>
 			normalizedTopic
@@ -87,7 +104,9 @@
 	const topicEntry = $derived(
 		eventSigQuery.data?.[0]?.row as EvmTopic | undefined,
 	)
-	const eventSignatures = $derived(topicEntry?.signatures ?? [])
+	const eventSignatures = $derived(
+		topicEntry?.signatures ?? []
+	)
 
 	const signatureForDecode = $derived(
 		functionSignatures.length > 0
@@ -174,9 +193,11 @@
 	import Address, { AddressFormat } from '$/views/Address.svelte'
 </script>
 
+
 <svelte:head>
 	<title>Calldata decoder</title>
 </svelte:head>
+
 
 <main data-card>
 	<Heading>Calldata decoder</Heading>

@@ -176,7 +176,9 @@
 		const dashboard = dashboardRowQuery.data?.[0]?.row
 		if (!dashboard) ensureFarcasterDashboardState()
 	})
-	const dashboardRow = $derived(dashboardRowQuery.data?.[0]?.row)
+	const dashboardRow = $derived(
+		dashboardRowQuery.data?.[0]?.row
+	)
 	const root = $derived(
 		dashboardRow && 'root' in dashboardRow ? dashboardRow.root : undefined,
 	)
@@ -189,7 +191,9 @@
 	const focusedPanel = $derived(
 		root ? getPanelById(root, focusedPanelId) : null,
 	)
-	const panelIds = $derived(root ? listPanelIds(root) : [])
+	const panelIds = $derived(
+		root ? listPanelIds(root) : []
+	)
 
 	const isPrefix = (a: string[], b: string[]) =>
 		a.every((value, index) => value === b[index])

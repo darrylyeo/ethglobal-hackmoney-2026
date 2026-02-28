@@ -9,9 +9,15 @@
 
 
 	// State
-	let joinCode = $state('')
-	let creating = $state(false)
-	let joining = $state(false)
+	let joinCode = $state(
+		''
+	)
+	let creating = $state(
+		false
+	)
+	let joining = $state(
+		false
+	)
 
 
 	// Actions

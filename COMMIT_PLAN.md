@@ -1,39 +1,74 @@
-# Atomic commits — current changes
+# Commit plan: current working tree (formatting/style)
 
-All modified + untracked (except temp scripts). Topological order; verify with `deno task check` after each code commit.
+## Analysis
 
-## Plan (current batch)
+All current changes are **style-only** (no logic or API changes):
 
-(All committed; see Completed below.)
+- **Script section order:** Types/constants → Context → State → (Derived) → Functions → etc. (specs 041, 056).
+- **Rune line breaks:** `$state(x)` and `$derived(x)` → value on its own indented line.
+- **Blank lines:** Two between Svelte sections and script comment groups; remove stray extra newlines.
 
-Commit later / leave untracked: scripts/assets/_fetch-one-provider.ts
+No topological dependencies; safe to commit in one or more groups by directory.
 
-## Completed (SHAs)
+## Minimal commit set (recommended)
 
-| # | SHA | Message |
-|---|-----|---------|
-| 1 | 5836b89 | e2e: move support files to e2e/support/ |
-| 2 | 8990545 | scripts: add sync/fork-schedules, remove obsolete paths and format task |
-| 3 | 52a40c8 | deno: update lockfile |
-| 4 | 13519a3 | cursor: format rule — manual Svelte spacing only |
-| 5 | 700e3d4 | specs: update paths and format docs (e2e/support, scripts, remove format task) |
-| 6 | f489569 | src: formatting and type style (id-serializations, fuzzyMatch, CoinAmount) |
-| 7 | 9b83665 | docs: COMMIT_PLAN for script/e2e reorg and spec updates |
-| 8 | 108315a | lib: add assetUtils (asset helpers from constants) |
-| 9 | c9d41b0 | constants: assets — move helpers to lib, add Farcaster/Covalent |
-| 10 | b5e1697 | scripts: sync assets use assetUtils |
-| 11 | 3ea2a53 | specs: 052 asset helpers in lib |
-| 12 | 10c749e | constants: filter-groups enums and *ById |
-| 13 | 7d40541 | CoinsInput, NetworksInput: use filter-groups byId |
-| 14 | c9fbf24 | constants: remove re-exports (forks, precompiles, identity, helios) |
-| 15 | b3bf322 | api/farcaster: remove barrel, use hub/client/neynar |
-| 16 | 0ef8f34 | constants/opcodes: remove barrel |
-| 17 | 4d11a29 | lib: remove index barrel |
-| 18 | 16bd5d5 | formatIntentOptionLabel, formatSourceList: single-expression style |
-| 19 | be00536 | promptValue: arrow and style |
-| 20 | 287bef2 | CoinAmount: markup, .coin-label, CSS var |
-| 21 | b230001 | NavigationItem: props type, filterTree |
-| 22 | 0dbfa40 | components.css: whitespace |
-| 23 | f35581a | e2e: coverage-manifest EVM and liquidity routes |
-| 24 | ee6eb40 | specs: 056, 076, 113 |
-| 25 | 3be8cc5 | deno: lockfile |
+**One commit** — same concern everywhere.
+
+| # | Message | Files |
+|---|---------|--------|
+| 1 | `style: script section order and $state/$derived line breaks` | All modified except COMMIT_PLAN.md |
+
+Optional second commit: `docs: update COMMIT_PLAN` (this file) — or leave uncommitted.
+
+---
+
+## Exact git commands (do not run until you approve)
+
+```bash
+# Commit 1 — all formatting (components, lib, routes, views)
+git add src/components/ src/lib/ src/routes/ src/views/
+git commit -m "style: script section order and \$state/\$derived line breaks"
+
+# Verify
+deno task check
+```
+
+To include COMMIT_PLAN in the same commit:
+
+```bash
+git add COMMIT_PLAN.md
+# (add to the same git add as above, then single commit)
+```
+
+To commit COMMIT_PLAN separately:
+
+```bash
+git add COMMIT_PLAN.md
+git commit -m "docs: update COMMIT_PLAN for format pass"
+```
+
+---
+
+## Alternative: split by directory (4 commits)
+
+If you prefer smaller commits by area:
+
+| # | Message | Paths |
+|---|---------|--------|
+| 1 | `style: script order and rune line breaks in components` | `src/components/` |
+| 2 | `style: script order and rune line breaks in lib` | `src/lib/reorder/` |
+| 3 | `style: script order and rune line breaks in routes` | `src/routes/` |
+| 4 | `style: script order and rune line breaks in views` | `src/views/` |
+
+After each: `deno task check`.
+
+---
+
+## Completed (previous session)
+
+| SHA       | Message |
+|-----------|---------|
+| 05411514  | Block, Transaction: EntityView Title and entity.$id; drop networkId; update callers |
+| 017fa684  | Network page: pass href instead of titleHref |
+| fb08eeeb  | Consensus/Epochs: EntityType, NetworkEpochs, Network showConsensus + isLoading |
+| b9c2865e  | Layout: Contracts below grid, .network-layers |

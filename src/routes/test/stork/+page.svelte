@@ -6,7 +6,9 @@
 
 	// State
 	let result = $state<{ ok: boolean; status: number; body: string } | null>(null)
-	let loading = $state(false)
+	let loading = $state(
+		false
+	)
 
 	// Actions
 	const fetchStork = async () => {

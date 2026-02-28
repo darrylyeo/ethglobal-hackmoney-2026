@@ -28,7 +28,6 @@
 		action: Action
 	} = $props()
 
-
 	// (Derived)
 	const p = $derived(
 		action.type === ActionType.Swap

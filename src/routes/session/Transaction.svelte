@@ -7,15 +7,17 @@
 	// Props
 	let { transaction }: { transaction: SessionActionTransaction } = $props()
 
-
 	// (Derived)
-	const txUrl = $derived(getTxPath(transaction.chainId, transaction.txHash))
+	const txUrl = $derived(
+		getTxPath(transaction.chainId, transaction.txHash)
+	)
 	const txShort = $derived(
 		transaction.txHash.length > 14 ?
 			`${transaction.txHash.slice(0, 10)}…${transaction.txHash.slice(-8)}`
 		: transaction.txHash,
 	)
 </script>
+
 
 <article data-card data-column="gap-1 padding-2" data-transaction data-tx-hash={transaction.txHash}>
 	<div data-row="align-center">

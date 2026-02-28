@@ -60,6 +60,9 @@
 	import { entityIntent } from '$/lib/intents/intentDraggable.svelte.ts'
 	import { GRAPH_SCENE_MAX_PER_COLLECTION } from '$/constants/query-limits.ts'
 	import { graphSceneState } from '$/state/graph-scene.svelte.ts'
+	import Graph from 'graphology'
+	import { formatSmallestToDecimal } from '$/lib/format.ts'
+	import { stringify } from '$/lib/stringify.ts'
 
 
 	// Context
@@ -69,14 +72,8 @@
 		useLocalQueries,
 		type LiveQueryEntry,
 	} from '$/svelte/live-query-context.svelte.ts'
-
-
-	// Functions
-	import Graph from 'graphology'
-	import { formatSmallestToDecimal } from '$/lib/format.ts'
-	import { stringify } from '$/lib/stringify.ts'
-	const comboKey = (entityType: string, source: string) =>
-		`${entityType}:${source}`
+	const globalLiveQueryCtx = useGlobalQueries()
+	const localLiveQueryCtx = useLocalQueries()
 
 
 	// Components
@@ -84,11 +81,6 @@
 	import G6Graph from '$/components/G6Graph.svelte'
 	import Select from '$/components/Select.svelte'
 	import SigmaGraphView from '$/components/SigmaGraphView.svelte'
-
-
-	// Context
-	const globalLiveQueryCtx = useGlobalQueries()
-	const localLiveQueryCtx = useLocalQueries()
 
 
 	// Props
@@ -123,8 +115,12 @@
 			),
 		),
 	)
-	const graphFramework = $derived(graphSceneState.current.graphFramework)
-	const isVisible = $derived(graphSceneState.current.isVisible ?? defaultIsVisible)
+	const graphFramework = $derived(
+		graphSceneState.current.graphFramework
+	)
+	const isVisible = $derived(
+		graphSceneState.current.isVisible ?? defaultIsVisible
+	)
 	const graphFrameworkItems = [GraphFramework.Sigma, GraphFramework.G6] as const
 	let frameworkSelection = $state<GraphFramework>(graphSceneState.current.graphFramework)
 	$effect(() => {
@@ -195,8 +191,12 @@
 		nodes: [],
 		edges: [],
 	})
-	const selectedNodes = $derived(selection.nodes)
-	const selectedEdges = $derived(selection.edges)
+	const selectedNodes = $derived(
+		selection.nodes
+	)
+	const selectedEdges = $derived(
+		selection.edges
+	)
 
 	const isEntitySourceVisible = (entityType: string, source: string) =>
 		visibleCollections.has(entityType) &&
@@ -385,7 +385,7 @@
 		})
 	})
 
-	// Types/constants
+	// Constants (scene styles)
 	type CollectionStyle = {
 		color: string
 		label: string
@@ -907,6 +907,9 @@
 		panel: { lineDash: [2, 2], labelPlacement: 'center' },
 	}
 
+	// Functions
+	const comboKey = (entityType: string, source: string) =>
+		`${entityType}:${source}`
 	const normalizeStatus = (status?: string) => status?.toLowerCase() ?? ''
 	const toStatusBadge = (status?: string) => {
 		const n = normalizeStatus(status)
@@ -938,20 +941,6 @@
 		}
 		return null
 	}
-
-
-	// (Derived)
-	const counts = $derived(
-		Object.fromEntries(
-			(Object.keys(collections) as EntityType[]).map((t) => [
-				t,
-				queryByEntityType[t]?.data?.length ?? 0,
-			]),
-		) as Record<EntityType, number>,
-	)
-
-
-	// Functions
 	const isRecord = (value: unknown): value is Record<string, unknown> =>
 		typeof value === 'object' && value !== null
 
@@ -978,6 +967,15 @@
 		...overrides,
 	})
 
+	// (Derived)
+	const counts = $derived(
+		Object.fromEntries(
+			(Object.keys(collections) as EntityType[]).map((t) => [
+				t,
+				queryByEntityType[t]?.data?.length ?? 0,
+			]),
+		) as Record<EntityType, number>,
+	)
 
 	// (Derived)
 	const graphModel = $derived.by(() => {
@@ -2444,7 +2442,6 @@
 		return { graph: g, nodes, edges }
 	})
 
-
 	// (Derived)
 	const buildHighlightedNodes = (stack: LiveQueryEntry[] | undefined) => {
 		const nodes: string[] = []
@@ -2595,16 +2592,23 @@
 		buildHighlightedNodes(globalQueryStack ?? globalLiveQueryCtx.stack),
 	)
 
-	const highlightedSet = $derived(new Set(highlightedNodes))
-	const globalHighlightedSet = $derived(new Set(globalHighlightedNodes))
+	const highlightedSet = $derived(
+		new Set(highlightedNodes)
+	)
+	const globalHighlightedSet = $derived(
+		new Set(globalHighlightedNodes)
+	)
 	const showGlobalHighlights = $derived(
 		globalQueryStack !== undefined || globalLiveQueryCtx.stack.length > 0,
 	)
 
-
 	// (Derived)
-	const selectedNodeSet = $derived(new Set(selectedNodes))
-	const selectedEdgeSet = $derived(new Set(selectedEdges))
+	const selectedNodeSet = $derived(
+		new Set(selectedNodes)
+	)
+	const selectedEdgeSet = $derived(
+		new Set(selectedEdges)
+	)
 
 	const hexToRgb = (hex: string) => {
 		const normalized = hex.replace('#', '')
@@ -2705,7 +2709,6 @@
 		}
 	}
 
-
 	// (Derived)
 	const hoveredNodeData = $derived(
 		hoveredNode && graphModel
@@ -2716,7 +2719,9 @@
 		const details = hoveredNodeData?.details
 		return isRecord(details) ? Object.entries(details) : []
 	})
-	const selectionCount = $derived(selectedNodes.length + selectedEdges.length)
+	const selectionCount = $derived(
+		selectedNodes.length + selectedEdges.length
+	)
 	const selectionAnnouncement = $derived.by(() => {
 		const count = selectionCount
 		if (count === 0) return 'Selection cleared'
@@ -2775,7 +2780,6 @@
 			return items
 		},
 	)
-
 
 	// (Derived)
 	const refreshKey = $derived(

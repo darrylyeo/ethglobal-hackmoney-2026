@@ -25,9 +25,10 @@
 	// svelte-ignore state_referenced_locally
 	let activeSession = $state<Session>(structuredClone(initialSession))
 
-
 	// (Derived)
-	const isEphemeral = $derived(activeSession.$id.id.startsWith('ephemeral-'))
+	const isEphemeral = $derived(
+		activeSession.$id.id.startsWith('ephemeral-')
+	)
 
 
 	// Actions

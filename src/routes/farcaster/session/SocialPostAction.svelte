@@ -11,7 +11,6 @@
 	// Props
 	let { action = $bindable() }: { action: SocialPostAction } = $props()
 
-
 	// (Derived)
 	const activeDef = $derived(
 		socialPostActionTypes.find((d) => d.type === action.type),
@@ -33,6 +32,7 @@
 	// Components
 	import Select from '$/components/Select.svelte'
 </script>
+
 
 <div data-column="gap-3" data-card="padding-3">
 	<div data-row="align-center">
@@ -84,6 +84,7 @@
 		</div>
 	{/if}
 </div>
+
 
 <style>
 	.post-text-input {

@@ -23,7 +23,6 @@
 		page.params.nodeId ?? ''
 	)
 
-
 	// (Derived)
 	const treeByIdQuery = useLiveQuery(
 		(q) =>
@@ -69,7 +68,9 @@
 		(treeQuery.data?.[0]?.row as AgentChatTreeData | undefined) ?? null,
 	)
 
-	const turns = $derived((turnsQuery.data ?? []).map(({ row: turn }) => turn))
+	const turns = $derived(
+		(turnsQuery.data ?? []).map(({ row: turn }) => turn)
+	)
 
 	const llmConnectionsQuery = useLiveQuery((q) =>
 		q
@@ -132,8 +133,12 @@
 
 
 	// State
-	let promptValue = $state('')
-	let modelValue = $state('')
+	let promptValue = $state(
+		''
+	)
+	let modelValue = $state(
+		''
+	)
 	let requestUserInteraction: ((callback: () => Promise<unknown>) => Promise<unknown>) | undefined = undefined
 	let toolsForChat: string[] | null = null
 

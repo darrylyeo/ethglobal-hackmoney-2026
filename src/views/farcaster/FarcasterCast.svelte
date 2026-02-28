@@ -17,15 +17,18 @@
 		isCompact?: boolean
 	} = $props()
 
-
 	// (Derived)
-	const author = $derived(userByFid.get(cast.$id.fid))
+	const author = $derived(
+		userByFid.get(cast.$id.fid)
+	)
 	const authorLabel = $derived(
 		author?.username
 			? `@${author.username}`
 			: `@${cast.$id.fid}`,
 	)
-	const castHref = $derived(`/farcaster/cast/${cast.$id.fid}/${cast.$id.hash}`)
+	const castHref = $derived(
+		`/farcaster/cast/${cast.$id.fid}/${cast.$id.hash}`
+	)
 
 
 	// Components

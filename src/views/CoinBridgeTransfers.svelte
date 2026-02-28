@@ -68,9 +68,6 @@
 		visiblePlaceholderKeys={[]}
 		scrollPosition="End"
 	>
-		{#snippet Empty()}
-			<p data-text="muted">No bridge transfers in this period. CCTP and other bridge flows appear here when detected.</p>
-		{/snippet}
 		{#snippet Item({ key, item, isPlaceholder })}
 			<span id="bridge-transfer:{key}">
 				{#if isPlaceholder}
@@ -79,6 +76,10 @@
 					<TransferEvent {item} {coin} symbol={coinId} />
 				{/if}
 			</span>
+		{/snippet}
+
+		{#snippet Empty()}
+			<p data-text="muted">No bridge transfers in this period. CCTP and other bridge flows appear here when detected.</p>
 		{/snippet}
 	</List>
 </Collapsible>

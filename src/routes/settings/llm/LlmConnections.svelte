@@ -30,7 +30,6 @@
 		{ id: 'llm-connections', label: 'LLM Connections', query: connectionsQuery },
 	])
 
-
 	// (Derived)
 	const connections = $derived(
 		(connectionsQuery.data ?? []).map(({ llmConnection: connection }) => connection).filter(Boolean) as WithSource<LlmConnection>[],

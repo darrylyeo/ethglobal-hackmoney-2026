@@ -56,7 +56,6 @@
 		[],
 	)
 
-
 	// (Derived)
 	const defaultFilterIds = $derived(
 		new Set(
@@ -137,16 +136,20 @@
 
 
 	// State (bound from RefinableList)
-	let displayCount = $state(0)
+	let displayCount = $state(
+		0
+	)
 
 	// Components
 	import FarcasterCast from '$/views/farcaster/FarcasterCast.svelte'
 	import RefinableList from '$/components/RefinableList.svelte'
 </script>
 
+
 <svelte:head>
 	<title>Casts · Farcaster</title>
 </svelte:head>
+
 
 <main data-column="gap-4">
 	<h1>Casts</h1>
@@ -207,6 +210,7 @@
 					{#snippet Empty()}
 						<p data-text="muted">No casts match filters.</p>
 					{/snippet}
+
 					{#snippet Item({ key: _key, item: row, isPlaceholder })}
 						{#if !isPlaceholder && row != null}
 							{@const cast = row}
@@ -218,6 +222,7 @@
 		{/if}
 	</details>
 </main>
+
 
 <style>
 	.section-heading {

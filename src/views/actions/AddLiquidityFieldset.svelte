@@ -19,14 +19,21 @@
 		asNonEmptyCoins: (coins: CoinInstance[]) => coins is [CoinInstance, ...CoinInstance[]]
 	} = $props()
 
-
 	// (Derived)
 	const getParams = (a: LiquidityAction): ActionParams<ActionType.AddLiquidity> =>
 		a.params as ActionParams<ActionType.AddLiquidity>
-	const p: ActionParams<ActionType.AddLiquidity> = $derived(getParams(action))
-	const coins = $derived(chainCoins(p.chainId))
-	const token0Coin = $derived(coins.find((c) => c.address === p.token0) ?? coins[0])
-	const token1Coin = $derived(coins.find((c) => c.address === p.token1) ?? (coins[1] ?? coins[0]))
+	const p: ActionParams<ActionType.AddLiquidity> = $derived(
+		getParams(action)
+	)
+	const coins = $derived(
+		chainCoins(p.chainId)
+	)
+	const token0Coin = $derived(
+		coins.find((c) => c.address === p.token0) ?? coins[0]
+	)
+	const token1Coin = $derived(
+		coins.find((c) => c.address === p.token1) ?? (coins[1] ?? coins[0])
+	)
 
 
 	// Components

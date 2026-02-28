@@ -31,27 +31,43 @@ import { entityKey } from '$/lib/entity-key.ts'
 
 	const TX_HASH = /^0x[a-fA-F0-9]{64}$/
 
-
 	// (Derived)
-	const networkSlug = $derived(page.params.networkSlug ?? '')
-	const txHashParam = $derived(page.params.transactionId ?? '')
-	const route = $derived(parseNetworkNameParam(networkSlug))
+	const networkSlug = $derived(
+		page.params.networkSlug ?? ''
+	)
+	const txHashParam = $derived(
+		page.params.transactionId ?? ''
+	)
+	const route = $derived(
+		parseNetworkNameParam(networkSlug)
+	)
 	const txHash = $derived(
 		txHashParam && TX_HASH.test(txHashParam)
 			? normalizeTxHash(txHashParam as `0x${string}`)
 			: null,
 	)
-	const chainId = $derived(route?.chainId ?? (0 as ChainId))
-	const networkId = $derived({ chainId })
-	const network = $derived(networksByChainId[chainId] ?? null)
-	const networkName = $derived(network?.name ?? route?.network?.name ?? '')
-	const valid = $derived(!!route && !!txHash)
+	const chainId = $derived(
+		route?.chainId ?? (0 as ChainId)
+	)
+	const networkId = $derived(
+		{ chainId }
+	)
+	const network = $derived(
+		networksByChainId[chainId] ?? null
+	)
+	const networkName = $derived(
+		network?.name ?? route?.network?.name ?? ''
+	)
+	const valid = $derived(
+		!!route && !!txHash
+	)
 
 
 	// State
-	let blockNum = $state(0)
+	let blockNum = $state(
+		0
+	)
 	let visiblePlaceholderBlockIds = $state<number[]>([])
-
 
 	// (Derived)
 	const txQuery = useLiveQuery(
@@ -112,11 +128,15 @@ import { entityKey } from '$/lib/entity-key.ts'
 		},
 	])
 
-	const tx = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
+	const tx = $derived(
+		txQuery.data?.[0]?.row as ChainTransactionEntry | null
+	)
 	const txId = $derived(
 		tx?.$id ?? { $network: { chainId }, txHash: txHash ?? ('0x' as `0x${string}`) },
 	)
-	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
+	const block = $derived(
+		blockQuery.data?.[0]?.row as BlockEntry | null
+	)
 	const latestBlockNumber = $derived(
 		Number(latestBlockQuery.data?.[0] ?? 0),
 	)
@@ -176,6 +196,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 					<NetworkName {networkId} showIcon={false} />
 				</span>
 			{/snippet}
+
 			{#snippet children()}
 				{@const bn = blockNum || 0}
 				<p>

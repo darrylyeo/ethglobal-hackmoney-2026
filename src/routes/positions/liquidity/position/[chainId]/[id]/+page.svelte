@@ -10,9 +10,15 @@
 	import { page } from '$app/state'
 
 	// (Derived)
-	const chainIdParam = $derived(page.params?.chainId ?? '')
-	const idParam = $derived(page.params?.id ?? '')
-	const chainId = $derived(parseInt(chainIdParam, 10))
+	const chainIdParam = $derived(
+		page.params?.chainId ?? ''
+	)
+	const idParam = $derived(
+		page.params?.id ?? ''
+	)
+	const chainId = $derived(
+		parseInt(chainIdParam, 10)
+	)
 	const valid = $derived(
 		chainIdParam !== '' && !Number.isNaN(chainId) && idParam !== '',
 	)
@@ -35,7 +41,9 @@
 	const position = $derived(
 		positionQuery.data?.[0]?.row as UniswapPosition | undefined,
 	)
-	const positionId = $derived(position?.$id ?? { chainId, id: idParam })
+	const positionId = $derived(
+		position?.$id ?? { chainId, id: idParam }
+	)
 	const label = $derived(
 		position
 			? `Position ${idParam.slice(0, 10)}${idParam.length > 10 ? '…' : ''}`
@@ -46,6 +54,7 @@
 	import EntityView from '$/components/EntityView.svelte'
 	import UniswapPosition from '$/views/UniswapPosition.svelte'
 </script>
+
 
 <svelte:head>
 	<title>Position {idParam} — Liquidity</title>

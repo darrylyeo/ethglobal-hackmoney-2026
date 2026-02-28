@@ -18,16 +18,22 @@
 		}
 	} = $props()
 
-
 	// (Derived)
-	const initialSession = $derived(socialPostSessionFromInput(data))
-	const setPanelRoute = $derived(data.setPanelRoute)
-	const urlKey = $derived(data.urlKey ?? '')
+	const initialSession = $derived(
+		socialPostSessionFromInput(data)
+	)
+	const setPanelRoute = $derived(
+		data.setPanelRoute
+	)
+	const urlKey = $derived(
+		data.urlKey ?? ''
+	)
 
 
 	// Components
 	import SocialPostSessionLocal from './SocialPostSessionLocal.svelte'
 </script>
+
 
 <svelte:head>
 	<title>
@@ -37,6 +43,7 @@
 		– {APP_NAME}
 	</title>
 </svelte:head>
+
 
 <main data-column data-sticky-container>
 	{#if initialSession}

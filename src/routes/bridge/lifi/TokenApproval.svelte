@@ -36,7 +36,6 @@
 		ownerAddress: `0x${string}`,
 	} = $props()
 
-
 	// (Derived)
 	const allowancesQuery = useLiveQuery((q) =>
 		q
@@ -66,9 +65,15 @@
 		)?.row ?? null,
 	)
 
-	const isChecking = $derived(allowanceRow?.isLoading ?? true)
-	const hasError = $derived(allowanceRow?.error !== null)
-	const errorMessage = $derived(allowanceRow?.error ?? null)
+	const isChecking = $derived(
+		allowanceRow?.isLoading ?? true
+	)
+	const hasError = $derived(
+		allowanceRow?.error !== null
+	)
+	const errorMessage = $derived(
+		allowanceRow?.error ?? null
+	)
 	const hasSufficientAllowance = $derived(
 		allowanceRow ? allowanceRow.allowance >= amount : false,
 	)
@@ -76,8 +81,12 @@
 
 	// State
 	let txHash = $state<`0x${string}` | null>(null)
-	let unlimited = $state(false)
-	let isApproving = $state(false)
+	let unlimited = $state(
+		false
+	)
+	let isApproving = $state(
+		false
+	)
 	let approvalError = $state<string | null>(null)
 
 

@@ -25,7 +25,6 @@
 		[key: string]: unknown
 	} = $props()
 
-
 	// (Derived)
 	const computedPlaceholder = $derived(
 		placeholder ??
@@ -37,8 +36,12 @@
 							.map((t) => patternsByType[t].placeholder)
 							.join(' or ')),
 	)
-	const isControlled = $derived('value' in rootProps && rootProps.value !== undefined)
-	const inputValue = $derived(isControlled ? (rootProps.value as string) : value)
+	const isControlled = $derived(
+		'value' in rootProps && rootProps.value !== undefined
+	)
+	const inputValue = $derived(
+		isControlled ? (rootProps.value as string) : value
+	)
 
 
 	// Actions

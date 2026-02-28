@@ -8,7 +8,9 @@
 	import { castUrl } from '$/constants/farcaster.ts'
 
 	// (Derived)
-	const hashParam = $derived(page.params.hash ?? '')
+	const hashParam = $derived(
+		page.params.hash ?? ''
+	)
 	const hash = $derived(
 		(hashParam?.startsWith('0x') ?
 			hashParam
@@ -32,9 +34,11 @@
 	})
 </script>
 
+
 <svelte:head>
 	<title>Cast · Farcaster</title>
 </svelte:head>
+
 
 <main data-column="gap-4">
 	{#if status === 'loading'}

@@ -17,9 +17,10 @@
 		showChainId?: boolean
 	} = $props()
 
-
 	// (Derived)
-	const chainId = $derived(networkIdProp?.chainId ?? chainIdProp ?? undefined)
+	const chainId = $derived(
+		networkIdProp?.chainId ?? chainIdProp ?? undefined
+	)
 	const name = $derived(
 		chainId != null
 			? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
@@ -30,6 +31,7 @@
 	// Components
 	import NetworkIcon from '$/views/NetworkIcon.svelte'
 </script>
+
 
 <span class="network-name" data-row="inline gap-1">
 	{#if showIcon && chainId != null}
@@ -45,6 +47,7 @@
 		<abbr class="chain-id" title="Chain ID">(Chain ID {chainId})</abbr>
 	{/if}
 </span>
+
 
 <style>
 	.label {

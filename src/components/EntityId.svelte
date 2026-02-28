@@ -29,7 +29,9 @@
 		[key: string]: unknown
 	} = $props()
 
-	const effectiveEntityId = $derived(entity?.$id ?? entityId)
+	const effectiveEntityId = $derived(
+		entity?.$id ?? entityId
+	)
 
 	// (Derived)
 	const intent = $derived(

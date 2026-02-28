@@ -122,7 +122,6 @@
 		onExecutionSuccess?: (args: { txHash?: `0x${string}` }) => void
 	} = $props()
 
-
 	// (Derived)
 	const walletProvider = $derived(
 		walletConnection &&
@@ -135,7 +134,9 @@
 	const walletAddress = $derived(
 		walletConnection?.connection.activeActor ?? null,
 	)
-	const e2eProvider = $derived(E2E_TEVM_ENABLED ? getE2eProvider() : null)
+	const e2eProvider = $derived(
+		E2E_TEVM_ENABLED ? getE2eProvider() : null
+	)
 
 
 	// Functions
@@ -454,7 +455,6 @@
 	// State
 	let explainAvailability = $state<ExplainAvailability>(LlmAvailability.Unavailable)
 	let txOverrides = $state<Record<string, TransactionFlowItemState>>({})
-
 
 	// (Derived)
 	const txStates = $derived(

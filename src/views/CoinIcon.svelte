@@ -26,11 +26,16 @@
 		subicon?: SubiconProps
 	} = $props()
 
-
 	// (Derived)
-	const effectiveSrc = $derived(src ?? coin.icon ?? coinById[CoinId.ETH]?.icon ?? '')
-	const effectiveSymbol = $derived(symbol ?? coin.symbol ?? '')
-	const backgroundColor = $derived(coin.color)
+	const effectiveSrc = $derived(
+		src ?? coin.icon ?? coinById[CoinId.ETH]?.icon ?? ''
+	)
+	const effectiveSymbol = $derived(
+		symbol ?? coin.symbol ?? ''
+	)
+	const backgroundColor = $derived(
+		coin.color
+	)
 
 	// Components
 	import Icon from '$/components/Icon.svelte'

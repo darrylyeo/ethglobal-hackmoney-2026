@@ -13,9 +13,15 @@
 	import { page } from '$app/state'
 
 	// (Derived)
-	const chainIdParam = $derived(page.params?.chainId ?? '')
-	const idParam = $derived(page.params?.id ?? '')
-	const chainId = $derived(parseInt(chainIdParam, 10))
+	const chainIdParam = $derived(
+		page.params?.chainId ?? ''
+	)
+	const idParam = $derived(
+		page.params?.id ?? ''
+	)
+	const chainId = $derived(
+		parseInt(chainIdParam, 10)
+	)
 	const valid = $derived(
 		chainIdParam !== '' && !Number.isNaN(chainId) && idParam !== '',
 	)
@@ -38,7 +44,9 @@
 	const pool = $derived(
 		poolQuery.data?.[0]?.row as UniswapPool | undefined,
 	)
-	const poolId = $derived(pool?.$id ?? { chainId, id: idParam })
+	const poolId = $derived(
+		pool?.$id ?? { chainId, id: idParam }
+	)
 	const pairLabel = $derived(
 		pool?.token0Symbol && pool?.token1Symbol
 			? `${pool.token0Symbol}–${pool.token1Symbol}`
@@ -72,6 +80,7 @@
 	import EntityView from '$/components/EntityView.svelte'
 	import UniswapPoolView from '$/views/UniswapPool.svelte'
 </script>
+
 
 <svelte:head>
 	<title>Pool {idParam.slice(0, 10)}… — Liquidity</title>

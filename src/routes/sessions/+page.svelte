@@ -27,7 +27,6 @@
 		{ id: 'sessions-list', label: 'Sessions', query: sessionsQuery },
 	])
 
-
 	// (Derived)
 	const sessions = $derived(
 		(sessionsQuery.data ?? [])
@@ -51,7 +50,9 @@
 
 
 	// State
-	let now = $state(Date.now())
+	let now = $state(
+		Date.now()
+	)
 
 
 	// Actions

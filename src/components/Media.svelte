@@ -30,7 +30,6 @@
 		return MediaType.Other
 	}
 
-
 	// (Derived)
 	const format = $derived(
 		isFullMedia(media)

@@ -7,13 +7,22 @@
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
 
-
 	// (Derived)
-	const networkSlug = $derived(page.params.networkSlug ?? '')
-	const route = $derived(parseNetworkNameParam(networkSlug))
-	const chainId = $derived(route?.chainId ?? 0)
-	const networkId = $derived(route ? { chainId } : undefined)
-	const network = $derived(route?.network ?? { name: '' })
+	const networkSlug = $derived(
+		page.params.networkSlug ?? ''
+	)
+	const route = $derived(
+		parseNetworkNameParam(networkSlug)
+	)
+	const chainId = $derived(
+		route?.chainId ?? 0
+	)
+	const networkId = $derived(
+		route ? { chainId } : undefined
+	)
+	const network = $derived(
+		route?.network ?? { name: '' }
+	)
 
 
 	// Components

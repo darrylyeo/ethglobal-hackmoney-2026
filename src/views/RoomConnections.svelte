@@ -58,7 +58,6 @@
 		{ id: 'verifications', label: 'Verifications', query: verificationsQuery },
 	])
 
-
 	// (Derived)
 	const actors = $derived(
 		filterAddresses.length > 0
@@ -90,7 +89,9 @@
 			]),
 		),
 	)
-	const singleAddress = $derived(actors.length === 1 ? actors[0] : null)
+	const singleAddress = $derived(
+		actors.length === 1 ? actors[0] : null
+	)
 
 
 	// Functions

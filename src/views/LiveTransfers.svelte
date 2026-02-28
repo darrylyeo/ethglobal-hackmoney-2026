@@ -57,7 +57,9 @@
 	)
 
 	// State: stagger edges by timestamp over 2s
-	let visibleEdgeCount = $state(0)
+	let visibleEdgeCount = $state(
+		0
+	)
 	$effect(() => {
 		const edges = sortedEdges
 		visibleEdgeCount = 0
@@ -72,8 +74,12 @@
 		return () => clearInterval(id)
 	})
 
-	let vizWidth = $state(400)
-	let vizHeight = $state(400)
+	let vizWidth = $state(
+		400
+	)
+	let vizHeight = $state(
+		400
+	)
 
 	const node2d = $derived(
 		new Map(
@@ -106,7 +112,9 @@
 			: [],
 	)
 
-	const visibleEdges = $derived(sortedEdges.slice(0, visibleEdgeCount))
+	const visibleEdges = $derived(
+		sortedEdges.slice(0, visibleEdgeCount)
+	)
 	const edgeGeometry = $derived.by(() => {
 		const geom = new THREE.BufferGeometry()
 		if (visibleEdges.length === 0) return geom

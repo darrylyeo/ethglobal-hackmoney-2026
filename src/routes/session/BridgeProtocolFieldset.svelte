@@ -21,16 +21,21 @@
 		actors?: readonly `0x${string}`[]
 	} = $props()
 
-
 	// (Derived)
 	const p = $derived(
 		action.type === ActionType.Bridge
 			? (action.params as { fromChainId: number | null; toChainId: number | null; protocolIntent: BridgeProtocolId | null })
 			: null,
 	)
-	const fromChainId = $derived(p?.fromChainId ?? null)
-	const toChainId = $derived(p?.toChainId ?? null)
-	const protocolIntent = $derived(p?.protocolIntent ?? null)
+	const fromChainId = $derived(
+		p?.fromChainId ?? null
+	)
+	const toChainId = $derived(
+		p?.toChainId ?? null
+	)
+	const protocolIntent = $derived(
+		p?.protocolIntent ?? null
+	)
 
 	const cctpPairSupported = $derived(
 		fromChainId !== null &&
@@ -38,7 +43,9 @@
 			isCctpSupportedChain(fromChainId) &&
 			isCctpSupportedChain(toChainId),
 	)
-	const lifiPairSupported = $derived(fromChainId !== null && toChainId !== null)
+	const lifiPairSupported = $derived(
+		fromChainId !== null && toChainId !== null
+	)
 	const gatewayPairSupported = $derived(
 		fromChainId !== null &&
 			toChainId !== null &&

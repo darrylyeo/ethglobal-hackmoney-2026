@@ -43,8 +43,12 @@
 	} = $props()
 
 	// (Derived)
-	const networkResolved = $derived(actorIdProp?.$network ?? network)
-	const addressResolved = $derived(actorIdProp?.address ?? address ?? undefined)
+	const networkResolved = $derived(
+		actorIdProp?.$network ?? network
+	)
+	const addressResolved = $derived(
+		actorIdProp?.address ?? address ?? undefined
+	)
 	const normalizedAddress = $derived(
 		(addressResolved?.toLowerCase() ?? '') as `0x${string}`,
 	)

@@ -122,6 +122,7 @@
 	import Qr from '$/components/Qr.svelte'
 </script>
 
+
 <div data-column>
 	{#if user && !buttonOnly}
 		<div data-row="align-center">

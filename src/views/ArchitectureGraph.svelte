@@ -219,8 +219,9 @@
 	} | null>(
 		null,
 	)
-	let selectionSummary = $state('No selection')
-
+	let selectionSummary = $state(
+		'No selection'
+	)
 
 	// (Derived)
 	const selectionAnnouncement = $derived(

@@ -15,7 +15,6 @@
 		indexInSequence: number
 	} = $props()
 
-
 	// (Derived)
 	const simulationsQuery = useLiveQuery(
 		(q) =>
@@ -51,15 +50,16 @@
 		getSortValue={(item) => -item.createdAt}
 		placeholderKeys={new Set()}
 	>
-		{#snippet Empty()}
-			<p data-text="muted">No simulations.</p>
-		{/snippet}
 		{#snippet Item({ key, item, isPlaceholder })}
 			{#if isPlaceholder}
 				<div data-placeholder>…</div>
 			{:else if item}
 				<Simulation simulation={item} />
-			{/if}
+		{/if}
+	{/snippet}
+
+		{#snippet Empty()}
+			<p data-text="muted">No simulations.</p>
 		{/snippet}
 	</List>
 </details>

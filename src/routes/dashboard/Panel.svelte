@@ -52,7 +52,9 @@
 	const routeEntry = $derived(
 		routeEntriesForPanel.find((entry) => entry.path === panel.route.path) ?? null,
 	)
-	const paramKeys = $derived(routeEntry?.paramKeys ?? [])
+	const paramKeys = $derived(
+		routeEntry?.paramKeys ?? []
+	)
 
 	// Functions
 	import { routeEntriesForPanel, toPanelNavigation } from './route-map.ts'

@@ -10,7 +10,9 @@
 	// State
 	let body = $state<string | null>(null)
 	let loadError = $state<Error | null>(null)
-	let loading = $state(true)
+	let loading = $state(
+		true
+	)
 
 	// (Derived)
 	$effect(() => {
@@ -33,6 +35,7 @@
 			})
 	})
 </script>
+
 
 <p>
 	<a

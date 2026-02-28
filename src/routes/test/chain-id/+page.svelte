@@ -6,9 +6,13 @@
 
 
 	// State
-	let rpcUrl = $state('')
+	let rpcUrl = $state(
+		''
+	)
 	let chainIdResult = $state<string | null>(null)
-	let loading = $state(false)
+	let loading = $state(
+		false
+	)
 	let error = $state<string | null>(null)
 
 

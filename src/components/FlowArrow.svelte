@@ -37,7 +37,6 @@
 		relative?: boolean
 	} = $props()
 
-
 	// (Derived)
 	const arrowData = $derived(
 		computeArrow(sourceRect, targetRect, { padStart: gap, padEnd: arrowHeadSize }),
@@ -54,8 +53,12 @@
 	const useGradient = $derived(
 		!!(sourceColor ?? targetColor),
 	)
-	const gradientStart = $derived(sourceColor ?? 'var(--color-accent)')
-	const gradientEnd = $derived(targetColor ?? 'var(--color-accent)')
+	const gradientStart = $derived(
+		sourceColor ?? 'var(--color-accent)'
+	)
+	const gradientEnd = $derived(
+		targetColor ?? 'var(--color-accent)'
+	)
 	const gradientId = $derived(
 		`flow-arrow-gradient-${Math.round(arrowData[0])}-${Math.round(arrowData[1])}-${Math.round(arrowData[4])}-${Math.round(arrowData[5])}`,
 	)

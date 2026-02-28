@@ -19,12 +19,19 @@ import { entityKey } from '$/lib/entity-key.ts'
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
 
-
 	// (Derived)
-	const networkSlug = $derived(page.params.networkSlug ?? '')
-	const blockNumParam = $derived(page.params.blockNumber ?? '')
-	const route = $derived(parseNetworkNameParam(networkSlug))
-	const blockNumParsed = $derived(parseInt(blockNumParam, 10))
+	const networkSlug = $derived(
+		page.params.networkSlug ?? ''
+	)
+	const blockNumParam = $derived(
+		page.params.blockNumber ?? ''
+	)
+	const route = $derived(
+		parseNetworkNameParam(networkSlug)
+	)
+	const blockNumParsed = $derived(
+		parseInt(blockNumParam, 10)
+	)
 	const blockNumValid = $derived(
 		blockNumParam !== ''
 		&& DECIMAL_ONLY.test(blockNumParam)
@@ -36,11 +43,21 @@ import { entityKey } from '$/lib/entity-key.ts'
 			? blockNumParsed
 			: 0,
 	)
-	const chainId = $derived(route?.chainId ?? (0 as ChainId))
-	const networkId = $derived({ chainId })
-	const network = $derived(networksByChainId[chainId] ?? null)
-	const networkName = $derived(network?.name ?? route?.network?.name ?? '')
-	const valid = $derived(!!route && blockNumValid)
+	const chainId = $derived(
+		route?.chainId ?? (0 as ChainId)
+	)
+	const networkId = $derived(
+		{ chainId }
+	)
+	const network = $derived(
+		networksByChainId[chainId] ?? null
+	)
+	const networkName = $derived(
+		network?.name ?? route?.network?.name ?? ''
+	)
+	const valid = $derived(
+		!!route && blockNumValid
+	)
 
 
 	// State
@@ -74,7 +91,9 @@ import { entityKey } from '$/lib/entity-key.ts'
 		},
 	])
 
-	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
+	const block = $derived(
+		blockQuery.data?.[0]?.row as BlockEntry | null
+	)
 	const blockId = $derived(
 		block?.$id ?? { $network: { chainId }, blockNumber: blockNum },
 	)
@@ -135,6 +154,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 					<NetworkName {networkId} showIcon={false} />
 				</span>
 			{/snippet}
+
 			{#snippet children()}
 				<p>
 					<a href={resolve(`/network/${chainId}#${entityKey({ entityType: EntityType.Block, entityId: blockId })}`)} data-link>Show Context</a>

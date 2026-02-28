@@ -37,7 +37,9 @@
 
 
 	// State
-	let lastRunAt = $state(0)
+	let lastRunAt = $state(
+		0
+	)
 	let depositTxHash = $state<string | null>(null)
 	let mintTxHash = $state<string | null>(null)
 	let error = $state<string | null>(null)

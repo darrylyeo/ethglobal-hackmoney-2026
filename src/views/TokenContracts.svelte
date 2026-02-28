@@ -16,7 +16,6 @@
 	// Props
 	let { coinId }: { coinId: CoinId } = $props()
 
-
 	// (Derived)
 	const tokens = $derived(
 		(erc20InstancesByCoinId.get(coinId) ?? []) as Erc20Token[],

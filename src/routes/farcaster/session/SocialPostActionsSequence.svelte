@@ -23,6 +23,7 @@
 	import SocialPostActionComponent from './SocialPostAction.svelte'
 </script>
 
+
 <EditableItemsList
 	bind:items={actions}
 	{operations}

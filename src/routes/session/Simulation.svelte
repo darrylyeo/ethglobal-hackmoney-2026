@@ -13,7 +13,6 @@
 		simulation: SessionActionTransactionSimulation
 	} = $props()
 
-
 	// (Derived)
 	const steps = $derived(
 		simulation.result != null
@@ -26,6 +25,7 @@
 				: [],
 	)
 </script>
+
 
 <article
 	data-card
@@ -87,6 +87,7 @@
 		<p data-text="muted">Result attached</p>
 	{/if}
 </article>
+
 
 <style>
 	.simulation-steps {

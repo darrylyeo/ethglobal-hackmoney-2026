@@ -42,7 +42,6 @@
 		{ id: 'wallets', label: 'Wallets', query: walletsQuery },
 	])
 
-
 	// (Derived)
 	const actors = $derived(
 		filterAddresses.length > 0
@@ -65,7 +64,9 @@
 						),
 					),
 	)
-	const singleAddress = $derived(actors.length === 1 ? actors[0] : null)
+	const singleAddress = $derived(
+		actors.length === 1 ? actors[0] : null
+	)
 
 
 	// Components

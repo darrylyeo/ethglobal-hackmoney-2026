@@ -19,7 +19,6 @@
 		onSelect: (protocol: string | null) => void
 	} = $props()
 
-
 	// (Derived)
 	const rows = $derived(
 		options.map((option) => ({ type: 'protocol' as const, option })),

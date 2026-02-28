@@ -30,7 +30,9 @@
 			.map(({ row: service }) => service as Eip8004Service)
 			.filter(Boolean),
 	)
-	const chainIds = $derived([...new Set(views.map((e) => e.$id.chainId))].sort())
+	const chainIds = $derived(
+		[...new Set(views.map((e) => e.$id.chainId))].sort()
+	)
 	const filterGroups = $derived([
 		{
 			id: 'chain',
@@ -50,7 +52,9 @@
 		},
 	] as FilterGroup<Eip8004Service, string>[])
 
-	const primaryRegistry = $derived(serviceRegistries[0])
+	const primaryRegistry = $derived(
+		serviceRegistries[0]
+	)
 	const sortOptions: Sort<Eip8004Service, ServiceSort>[] = [
 		{
 			id: ServiceSort.Name,
@@ -67,11 +71,17 @@
 
 	// State
 	let activeFilters = $state<Set<Filter<Eip8004Service, string>>>(new Set())
-	let searchQuery = $state('')
-	let displayCount = $state(0)
+	let searchQuery = $state(
+		''
+	)
+	let displayCount = $state(
+		0
+	)
 
 	// (Derived)
-	const searchLower = $derived(searchQuery.trim().toLowerCase())
+	const searchLower = $derived(
+		searchQuery.trim().toLowerCase()
+	)
 	const searchFiltered = $derived(
 		searchLower
 			? views.filter(
@@ -84,13 +94,17 @@
 	)
 	const getKey = (s: Eip8004Service) => eip8004ServiceIdToString(s.$id)
 
+
 	// Components
 	import RefinableList from '$/components/RefinableList.svelte'
+	import SearchableText from '$/components/SearchableText.svelte'
 </script>
+
 
 <svelte:head>
 	<title>{primaryRegistry?.label ?? 'Service'} registry – Agents</title>
 </svelte:head>
+
 
 <main data-column="gap-4">
 	<h1>{primaryRegistry?.label ?? 'Service'} registry</h1>
@@ -158,8 +172,10 @@
 						<code>eip-8004-registry</code>.
 					</p>
 				{/snippet}
-				{#snippet Item({ key: _k, item: service, isPlaceholder })}
+
+				{#snippet Item({ key: _k, item: service, isPlaceholder, searchQuery: q, matches })}
 					{#if !isPlaceholder && service != null}
+						{@const name = service.name ?? service.$id.identityId}
 						<div data-row="align-center gap-2">
 							{#if service.image}
 								<img
@@ -177,7 +193,13 @@
 									)}
 									data-link
 								>
-									<strong>{service.name ?? service.$id.identityId}</strong>
+									<strong>
+										{#if q != null && q !== ''}
+											<SearchableText text={name} query={q} {matches} />
+										{:else}
+											{name}
+										{/if}
+									</strong>
 								</a>
 								{#if service.name && service.$id.identityId !== service.name}
 									<span data-text="muted">{service.$id.identityId}</span>

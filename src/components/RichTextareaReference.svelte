@@ -41,12 +41,17 @@
 
 
 	// State
-	let filterValue = $state('')
-	let selectedId = $state('')
-
+	let filterValue = $state(
+		''
+	)
+	let selectedId = $state(
+		''
+	)
 
 	// (Derived)
-	const items = $derived(getSuggestions(filterValue))
+	const items = $derived(
+		getSuggestions(filterValue)
+	)
 
 
 	// Actions
@@ -84,6 +89,7 @@
 	// Components
 	import Combobox from '$/components/Combobox.svelte'
 </script>
+
 
 <span data-ref>
 	{#if isEditable && isFocused}
@@ -129,6 +135,7 @@
 		</span>
 	{/if}
 </span>
+
 
 <style>
 	[data-ref] {

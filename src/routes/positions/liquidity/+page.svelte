@@ -11,7 +11,6 @@
 	import { fetchPositions } from '$/api/uniswap.ts'
 	import { networksByChainId } from '$/constants/networks.ts'
 
-
 	// (Derived)
 	const positionsQuery = useLiveQuery((q) =>
 		q.from({ row: uniswapPositionsCollection }).select(({ row }) => ({ row })),

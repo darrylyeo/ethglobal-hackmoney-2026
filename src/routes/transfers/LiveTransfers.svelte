@@ -25,7 +25,6 @@
 		periods: readonly { value: string; label: string; ms: number }[]
 	} = $props()
 
-
 	// (Derived) layout: nodes in circle
 	const radius = 8
 	const nodePositionByAddress = $derived.by(() => {
@@ -56,7 +55,9 @@
 
 
 	// State: stagger edges by timestamp over 2s
-	let visibleEdgeCount = $state(0)
+	let visibleEdgeCount = $state(
+		0
+	)
 	$effect(() => {
 		const edges = sortedEdges
 		visibleEdgeCount = 0
@@ -72,7 +73,9 @@
 	})
 
 
-	const visibleEdges = $derived(sortedEdges.slice(0, visibleEdgeCount))
+	const visibleEdges = $derived(
+		sortedEdges.slice(0, visibleEdgeCount)
+	)
 	const edgeGeometry = $derived.by(() => {
 		const geom = new THREE.BufferGeometry()
 		if (visibleEdges.length === 0) return geom

@@ -22,16 +22,18 @@
 		detailsProps?: Record<string, unknown>
 	} = $props()
 
-
 	// (Derived)
-	const chainId = $derived(networkId.chainId)
-
+	const chainId = $derived(
+		networkId.chainId
+	)
 
 	// (Derived)
 	const blocksSet = $derived(
 		new Set([...blocksMap.keys()].filter((b): b is BlockEntry => b != null)),
 	)
-	const hasFork = $derived(chainId in forksByChainId)
+	const hasFork = $derived(
+		chainId in forksByChainId
+	)
 	const getGroupKey = $derived(
 		hasFork
 			? (b: BlockEntry) =>
@@ -42,7 +44,9 @@
 					)?.eraId ?? 'Unknown'
 			: undefined,
 	)
-	const getGroupLabel = $derived(hasFork ? (eraId: string) => eraId : undefined)
+	const getGroupLabel = $derived(
+		hasFork ? (eraId: string) => eraId : undefined
+	)
 	const getGroupKeyForPlaceholder = $derived(
 		hasFork
 			? (key: number) =>
@@ -66,6 +70,7 @@
 	import CollapsibleList from '$/components/CollapsibleList.svelte'
 </script>
 
+
 <CollapsibleList
 	title="Execution"
 	detailsProps={{ open: true, ...detailsProps }}
@@ -84,6 +89,7 @@
 	{#snippet Empty()}
 		<p data-text="muted">No blocks.</p>
 	{/snippet}
+
 	{#snippet Item({ key, item, isPlaceholder })}
 		<span id="block:{key}">
 			{#if isPlaceholder}

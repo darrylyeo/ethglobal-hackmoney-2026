@@ -47,11 +47,18 @@
 	// State
 	let unifiedBalance = $state<bigint | null>(null)
 	let balanceError = $state<string | null>(null)
-	let balanceLoading = $state(false)
-	let confirmOpen = $state(false)
-	let executing = $state(false)
-	let runExecutionAt = $state(0)
-
+	let balanceLoading = $state(
+		false
+	)
+	let confirmOpen = $state(
+		false
+	)
+	let executing = $state(
+		false
+	)
+	let runExecutionAt = $state(
+		0
+	)
 
 	// (Derived)
 	const selectedWallet = $derived(

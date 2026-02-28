@@ -49,11 +49,17 @@
 	// State
 	import { SvelteMap } from 'svelte/reactivity'
 
-	let searchValue = $state('')
-	let treeOpenState = $state(new SvelteMap<string, boolean>())
+	let searchValue = $state(
+		''
+	)
+	let treeOpenState = $state(
+		new SvelteMap<string, boolean>()
+	)
 
 	// (Derived)
-	const searchQuery = $derived(searchValue.trim().toLowerCase())
+	const searchQuery = $derived(
+		searchValue.trim().toLowerCase()
+	)
 
 
 	// Components
@@ -73,7 +79,9 @@
 		{@attach (element) => {
 			const abortController = new AbortController()
 
-			let lastFocusedElement: HTMLElement | undefined = $state()
+			let lastFocusedElement: HTMLElement | undefined = $state(
+		
+	)
 
 			globalThis.addEventListener(
 				'keydown',

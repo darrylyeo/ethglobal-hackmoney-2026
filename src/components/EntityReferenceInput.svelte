@@ -28,8 +28,9 @@
 
 
 	// State
-	let selectedId = $state('')
-
+	let selectedId = $state(
+		''
+	)
 
 	// (Derived)
 	$effect(() => {

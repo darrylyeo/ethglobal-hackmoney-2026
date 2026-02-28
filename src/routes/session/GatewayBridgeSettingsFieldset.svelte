@@ -15,15 +15,18 @@
 		network?: number
 	} = $props()
 
-
 	// (Derived)
 	const p = $derived(
 		action.type === ActionType.Bridge
 			? (action.params as { useCustomRecipient: boolean; customRecipient: string; fromChainId?: number })
 			: null,
 	)
-	const actorItems = $derived(actors.map((a) => ({ address: a })))
-	const effectiveNetwork = $derived(p?.fromChainId ?? network)
+	const actorItems = $derived(
+		actors.map((a) => ({ address: a }))
+	)
+	const effectiveNetwork = $derived(
+		p?.fromChainId ?? network
+	)
 
 
 	// Components

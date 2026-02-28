@@ -42,12 +42,17 @@
 
 
 	// State
-	let filterValue = $state('')
-	let selectedId = $state('')
-
+	let filterValue = $state(
+		''
+	)
+	let selectedId = $state(
+		''
+	)
 
 	// (Derived)
-	const items = $derived(getSuggestions(filterValue))
+	const items = $derived(
+		getSuggestions(filterValue)
+	)
 
 	$effect(() => {
 		const id = selectedId
@@ -79,6 +84,7 @@
 		if (!container.contains(e.relatedTarget as Node)) onBlur?.()
 	}
 </script>
+
 
 <span data-ref>
 	{#if isEditable && isFocused}
@@ -123,6 +129,7 @@
 		</span>
 	{/if}
 </span>
+
 
 <style>
 	[data-ref] {

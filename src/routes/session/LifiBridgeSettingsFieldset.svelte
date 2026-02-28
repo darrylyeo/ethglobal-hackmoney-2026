@@ -13,8 +13,9 @@
 
 
 	// State
-	let customInput = $state('')
-
+	let customInput = $state(
+		''
+	)
 
 	// (Derived)
 	const p = $derived(

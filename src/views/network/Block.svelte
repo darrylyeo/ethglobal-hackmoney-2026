@@ -37,9 +37,10 @@ import {
 		layout?: EntityLayout
 	} = $props()
 
-
 	// (Derived)
-	const block = $derived([...data.keys()][0])
+	const block = $derived(
+		[...data.keys()][0]
+	)
 	const chainId = $derived(
 		networkIdProp?.chainId ?? block?.$id.$network.chainId ?? (0 as ChainId),
 	)
@@ -52,7 +53,9 @@ import {
 				)
 			: null,
 	)
-	const forkSlug = $derived(era ? getForkSlugByEraName(era.label) : null)
+	const forkSlug = $derived(
+		era ? getForkSlugByEraName(era.label) : null
+	)
 	const forkPageHref = $derived(
 		era && forkSlug
 			? getForksPagePath(chainId) + '#' + entityKey({
@@ -97,7 +100,9 @@ import {
 
 
 	// State
-	let hasFetchedTransactions = $state(false)
+	let hasFetchedTransactions = $state(
+		false
+	)
 
 
 	// Actions
@@ -149,6 +154,7 @@ import {
 			<code>Loading block…</code>
 		{/if}
 	{/snippet}
+
 	{#snippet children()}
 		{#if block}
 			<dl>
@@ -227,6 +233,7 @@ import {
 			{#snippet Empty()}
 				<p data-text="muted">No transactions.</p>
 			{/snippet}
+
 			{#snippet Item({ key, item, isPlaceholder })}
 				<span id="transaction:{key}">
 					{#if isPlaceholder}

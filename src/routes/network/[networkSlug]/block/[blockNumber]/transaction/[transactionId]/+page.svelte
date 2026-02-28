@@ -29,13 +29,22 @@ import { entityKey } from '$/lib/entity-key.ts'
 	import { resolve } from '$app/paths'
 	import { page } from '$app/state'
 
-
 	// (Derived)
-	const networkSlug = $derived(page.params.networkSlug ?? '')
-	const blockNumParam = $derived(page.params.blockNumber ?? '')
-	const txHashParam = $derived(page.params.transactionId ?? '')
-	const route = $derived(parseNetworkNameParam(networkSlug))
-	const blockNumParsed = $derived(parseInt(blockNumParam, 10))
+	const networkSlug = $derived(
+		page.params.networkSlug ?? ''
+	)
+	const blockNumParam = $derived(
+		page.params.blockNumber ?? ''
+	)
+	const txHashParam = $derived(
+		page.params.transactionId ?? ''
+	)
+	const route = $derived(
+		parseNetworkNameParam(networkSlug)
+	)
+	const blockNumParsed = $derived(
+		parseInt(blockNumParam, 10)
+	)
 	const blockNumValid = $derived(
 		blockNumParam !== ''
 		&& DECIMAL_ONLY.test(blockNumParam)
@@ -52,10 +61,18 @@ import { entityKey } from '$/lib/entity-key.ts'
 			? normalizeTxHash(txHashParam as `0x${string}`)
 			: null,
 	)
-	const chainId = $derived(route?.chainId ?? (0 as ChainId))
-	const networkId = $derived({ chainId })
-	const network = $derived(networksByChainId[chainId] ?? null)
-	const networkName = $derived(network?.name ?? route?.network?.name ?? '')
+	const chainId = $derived(
+		route?.chainId ?? (0 as ChainId)
+	)
+	const networkId = $derived(
+		{ chainId }
+	)
+	const network = $derived(
+		networksByChainId[chainId] ?? null
+	)
+	const networkName = $derived(
+		network?.name ?? route?.network?.name ?? ''
+	)
 	const valid = $derived(
 		!!route && blockNumValid && txHash !== null,
 	)
@@ -110,10 +127,13 @@ import { entityKey } from '$/lib/entity-key.ts'
 		},
 	])
 
-
 	// (Derived)
-	const block = $derived(blockQuery.data?.[0]?.row as BlockEntry | null)
-	const tx = $derived(txQuery.data?.[0]?.row as ChainTransactionEntry | null)
+	const block = $derived(
+		blockQuery.data?.[0]?.row as BlockEntry | null
+	)
+	const tx = $derived(
+		txQuery.data?.[0]?.row as ChainTransactionEntry | null
+	)
 	const txId = $derived(
 		tx?.$id ?? { $network: { chainId }, txHash: txHash ?? ('0x' as `0x${string}`) },
 	)
@@ -192,6 +212,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 				<NetworkName {networkId} showIcon={false} />
 			</span>
 		{/snippet}
+
 		{#snippet children()}
 			<p>
 				<a

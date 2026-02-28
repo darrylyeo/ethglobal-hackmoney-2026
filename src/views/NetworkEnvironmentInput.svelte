@@ -14,7 +14,6 @@
 	]
 	let selected = $state<NetworkEnvironment>(networkEnvironmentState.current)
 
-
 	// (Derived)
 	$effect(() => {
 		selected = networkEnvironmentState.current
@@ -27,6 +26,7 @@
 	// Components
 	import Select from '$/components/Select.svelte'
 </script>
+
 
 <label data-row="align-center" aria-label="Network environment">
 	<Select

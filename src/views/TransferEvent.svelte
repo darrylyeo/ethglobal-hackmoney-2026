@@ -17,7 +17,6 @@
 		symbol: string
 	} = $props()
 
-
 	// (Derived)
 	const coinIconSrc = $derived(
 		coin.icon?.original?.url ??

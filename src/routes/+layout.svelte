@@ -1,10 +1,30 @@
 <script lang="ts">
-	// Profiles (boot/migrate before collections read from localStorage; browser-only)
+	// Types/constants
 	import { browser } from '$app/environment'
 	import { onNavigate } from '$app/navigation'
-	import { ensureNetworksHydrated } from '$/collections/Networks.ts'
 	import { ensureCoinsHydrated } from '$/collections/Coins.ts'
+	import { ensureNetworksHydrated } from '$/collections/Networks.ts'
+	import { NetworkEnvironment } from '$/constants/network-environment.ts'
+	import { setHeliosFallbackNoticeHandler } from '$/lib/helios-rpc.ts'
 	import { ensureProfilesMeta } from '$/lib/profile.ts'
+	import { toasts } from '$/lib/toast.svelte.ts'
+	import { registerWebMcpTools } from '$/lib/webmcp/register.ts'
+	import { NavigationItems } from '$/routes/navigationItems.svelte.ts'
+	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
+	import { useHeadingLevel } from '$/svelte/heading-context.ts'
+	import {
+		createLiveQueryContext,
+		setGlobalLiveQueryContext,
+		setLocalLiveQueryContext,
+	} from '$/svelte/live-query-context.svelte.ts'
+
+
+	// Context
+	useHeadingLevel()
+	const globalLiveQueryCtx = createLiveQueryContext()
+	const localLiveQueryCtx = createLiveQueryContext()
+	setGlobalLiveQueryContext(globalLiveQueryCtx)
+	setLocalLiveQueryContext(localLiveQueryCtx)
 	if (browser) {
 		ensureProfilesMeta()
 		ensureNetworksHydrated()
@@ -23,34 +43,27 @@
 	}
 
 
-	// WebMCP (client-only; registers tools with navigator.modelContext when available)
-	import { registerWebMcpTools } from '$/lib/webmcp/register.ts'
-
-
-	// Types/constants
-	import { NetworkEnvironment } from '$/constants/network-environment.ts'
-	import { setHeliosFallbackNoticeHandler } from '$/lib/helios-rpc.ts'
-	import { toasts } from '$/lib/toast.svelte.ts'
-	import { NavigationItems } from '$/routes/navigationItems.svelte.ts'
-	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
-	import { useHeadingLevel } from '$/svelte/heading-context.ts'
-	import {
-		createLiveQueryContext,
-		setGlobalLiveQueryContext,
-		setLocalLiveQueryContext,
-	} from '$/svelte/live-query-context.svelte.ts'
-
-
-	// Context
-	useHeadingLevel()
-	const globalLiveQueryCtx = createLiveQueryContext()
-	const localLiveQueryCtx = createLiveQueryContext()
-	setGlobalLiveQueryContext(globalLiveQueryCtx)
-	setLocalLiveQueryContext(localLiveQueryCtx)
-
-
 	// Props
 	let { children } = $props()
+
+
+	// State
+	let nav = $state<InstanceType<typeof NavigationItems> | null>(null)
+
+
+	// (Derived)
+	$effect(() => {
+		if (browser && nav === null)
+			nav = new NavigationItems({
+				isTestnet: () =>
+					networkEnvironmentState.current === NetworkEnvironment.Testnet,
+				iconEth,
+				iconUsdc,
+			})
+	})
+	const navigationItems = $derived(
+		nav?.items ?? []
+	)
 
 
 	// Actions
@@ -68,20 +81,6 @@
 
 		return () => setHeliosFallbackNoticeHandler(null)
 	})
-
-
-	// (Derived) — create nav inside $effect so useLiveQuery runs in effect context (effect_orphan); single Svelte instance (resolve.dedupe) so operations.js is initialized
-	let nav = $state<InstanceType<typeof NavigationItems> | null>(null)
-	$effect(() => {
-		if (browser && nav === null)
-			nav = new NavigationItems({
-				isTestnet: () =>
-					networkEnvironmentState.current === NetworkEnvironment.Testnet,
-				iconEth,
-				iconUsdc,
-			})
-	})
-	const navigationItems = $derived(nav?.items ?? [])
 
 
 	// Components

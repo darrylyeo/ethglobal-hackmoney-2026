@@ -14,7 +14,6 @@
 	// Props
 	let { coinId }: { coinId: CoinId } = $props()
 
-
 	// (Derived)
 	const tokensSet = $derived(
 		new Set((erc20InstancesByCoinId.get(coinId) ?? []) as Erc20Token[]),
@@ -47,6 +46,7 @@
 	{#snippet Empty()}
 		<p data-text="muted">No contracts.</p>
 	{/snippet}
+
 	{#snippet Item({ key, item, isPlaceholder })}
 		<span id="contract:{key}">
 			{#if isPlaceholder}

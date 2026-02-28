@@ -27,9 +27,10 @@
 		extraData?: Record<string, unknown>,
 	} = $props()
 
-
 	// (Derived)
-	const routeKey = $derived(route.path + '\0' + JSON.stringify(route.params))
+	const routeKey = $derived(
+		route.path + '\0' + JSON.stringify(route.params)
+	)
 	const loadPromise = $derived.by(() => {
 		if (!entry) return Promise.reject(new Error('Route module not found.'))
 		const [path, paramsStr] = routeKey.split('\0')

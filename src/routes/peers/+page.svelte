@@ -9,7 +9,6 @@
 	import { formatAddress } from '$/lib/address.ts'
 	import { forgetPeer } from '$/state/room.svelte.ts'
 
-
 	// (Derived)
 	const verificationsQuery = useLiveQuery(
 		(q) =>

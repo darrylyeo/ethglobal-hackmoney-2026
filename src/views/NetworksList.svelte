@@ -7,9 +7,10 @@
 	// Props
 	let { networks }: { networks: Network[] } = $props()
 
-
 	// (Derived)
-	const items = $derived(new SvelteSet(networks))
+	const items = $derived(
+		new SvelteSet(networks)
+	)
 
 
 	// Components
@@ -26,9 +27,6 @@
 	placeholderKeys={new Set()}
 	data-column
 >
-	{#snippet Empty()}
-		<p data-text="muted">No networks.</p>
-	{/snippet}
 	{#snippet Item({ key, item, isPlaceholder })}
 		{#if isPlaceholder}
 			<span data-placeholder>…</span>
@@ -39,5 +37,9 @@
 				layout={NetworkLayout.Summary}
 			/>
 		{/if}
+	{/snippet}
+
+	{#snippet Empty()}
+		<p data-text="muted">No networks.</p>
 	{/snippet}
 </List>

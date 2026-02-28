@@ -13,7 +13,9 @@
 	const query = useLiveQuery((q) =>
 		q.from({ row: evmSelectorsCollection }).select(({ row }) => ({ row })),
 	)
-	const rows = $derived((query.data ?? []).map(({ row: selector }) => selector as EvmSelectorRow))
+	const rows = $derived(
+		(query.data ?? []).map(({ row: selector }) => selector as EvmSelectorRow)
+	)
 
 	const sortOptions: Sort<EvmSelectorRow, EvmSignatureSort>[] = [
 		{ id: EvmSignatureSort.Hex, label: 'Hex', compare: (a, b) => a.$id.hex.localeCompare(b.$id.hex) },
@@ -25,22 +27,29 @@
 		},
 	]
 
+
 	// State (bound from RefinableList)
-	let displayCount = $state(0)
+	let displayCount = $state(
+		0
+	)
 
 	// (Derived)
 	const getKey = (e: EvmSelectorRow) => e.$id.hex
+
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import Heading from '$/components/Heading.svelte'
 	import RefinableList from '$/components/RefinableList.svelte'
+	import SearchableText from '$/components/SearchableText.svelte'
 	import EvmSelector from '$/views/EvmSelector.svelte'
 </script>
+
 
 <svelte:head>
 	<title>EVM selectors</title>
 </svelte:head>
+
 
 <main data-column="gap-4">
 	<Heading>EVM selectors</Heading>
@@ -73,17 +82,27 @@
 			{#snippet Empty()}
 				<p>No selectors in cache. Use the <a href="/calldata-decoder">calldata decoder</a> to look one up.</p>
 			{/snippet}
-			{#snippet Item({ key: _k, item: entry, isPlaceholder })}
+
+			{#snippet Item({ key: _k, item: entry, isPlaceholder, searchQuery: q, matches })}
 				{#if !isPlaceholder && entry != null}
+					{@const label = entry.signatures[0] ?? entry.$id.hex}
 					<EntityView
 						entityType={EntityType.EvmSelector}
 						entity={entry}
 						titleHref={getEvmSelectorPath(entry.$id.hex)}
-						label={entry.signatures[0] ?? entry.$id.hex}
+						{label}
 						layout={EntityLayout.PageSection}
 						metadata={[{ term: 'Hex', detail: entry.$id.hex }]}
 						annotation="selector"
 					>
+						{#snippet Title()}
+							{#if q != null && q !== ''}
+								<SearchableText text={label} query={q} {matches} />
+							{:else}
+								{label}
+							{/if}
+						{/snippet}
+
 						{#snippet children()}
 							<EvmSelector entry={entry} />
 						{/snippet}

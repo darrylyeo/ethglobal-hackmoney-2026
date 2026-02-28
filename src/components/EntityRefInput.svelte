@@ -73,10 +73,13 @@
 	let textSegments = $state<string[]>([''])
 	let refs = $state<EntityRef[]>([])
 
-
 	// (Derived)
-	const hasPlaceholder = $derived(refs.some(isPlaceholder))
-	const resolvedRefs = $derived(refs.filter((r) => !isPlaceholder(r)))
+	const hasPlaceholder = $derived(
+		refs.some(isPlaceholder)
+	)
+	const resolvedRefs = $derived(
+		refs.filter((r) => !isPlaceholder(r))
+	)
 	const computedPlaceholder = $derived(
 		placeholder ?? 'Type a message… Use @ to reference entities',
 	)

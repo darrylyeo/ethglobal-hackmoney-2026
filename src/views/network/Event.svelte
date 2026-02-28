@@ -21,9 +21,10 @@
 		decoded?: { name: string; args: Record<string, unknown> }
 	} = $props()
 
-
 	// (Derived)
-	const logIndex = $derived(parseInt(event.logIndex, 16))
+	const logIndex = $derived(
+		parseInt(event.logIndex, 16)
+	)
 	const topic0 = $derived(
 		event.topics[0] && event.topics[0].length >= 66
 			? (`0x${event.topics[0].slice(2).toLowerCase().padStart(64, '0')}` as `0x${string}`)
@@ -48,7 +49,6 @@
 				.select(({ row }) => ({ row })),
 		[() => normalizedTopic0],
 	)
-
 
 	// (Derived)
 	const eventSignatures = $derived(

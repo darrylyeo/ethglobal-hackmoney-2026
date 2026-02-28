@@ -29,8 +29,9 @@
 
 	// State
 	let initialSnapshot = $state<string | null>(null)
-	let persisted = $state(false)
-
+	let persisted = $state(
+		false
+	)
 
 	// (Derived)
 	const canDraft = $derived(
@@ -65,6 +66,7 @@
 	import FarcasterAccountSelect from '$/components/FarcasterAccountSelect.svelte'
 	import SocialPostActionsSequence from './SocialPostActionsSequence.svelte'
 </script>
+
 
 <div data-social-post-session data-column="gap-4" data-sticky-container>
 	<EntityView
@@ -103,6 +105,7 @@
 		<p data-text="muted">Sign in with Farcaster to draft posts.</p>
 	{/if}
 </div>
+
 
 <style>
 	.session-name-input:placeholder-shown:not(:focus) {

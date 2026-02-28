@@ -25,9 +25,10 @@
 		[key: string]: unknown
 	} = $props()
 
-
 	// (Derived)
-	const useDefaultGroups = $derived(itemsProp == null || itemsProp.length === 0)
+	const useDefaultGroups = $derived(
+		itemsProp == null || itemsProp.length === 0
+	)
 	const items = $derived(
 		useDefaultGroups
 			? coinIdGroups.flatMap((g) => [...g.coinIds])

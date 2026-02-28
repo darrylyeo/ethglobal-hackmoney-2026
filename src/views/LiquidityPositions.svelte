@@ -37,7 +37,6 @@
 		},
 	])
 
-
 	// (Derived)
 	const actors = $derived(
 		filterAddresses.length > 0
@@ -60,7 +59,9 @@
 							: a.id.localeCompare(b.id),
 					),
 	)
-	const singleAddress = $derived(actors.length === 1 ? actors[0] : undefined)
+	const singleAddress = $derived(
+		actors.length === 1 ? actors[0] : undefined
+	)
 	const ownerChainPairs = $derived(
 		[
 			...new Map(

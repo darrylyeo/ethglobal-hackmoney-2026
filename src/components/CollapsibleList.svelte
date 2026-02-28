@@ -61,7 +61,6 @@
 		>
 	} = $props()
 
-
 	// (Derived)
 	const countText = $derived(
 		total != null ?
@@ -101,8 +100,8 @@
 		bind:visiblePlaceholderKeys
 		{scrollPosition}
 		{pagination}
-		{Item}
 		{GroupHeader}
+		{Item}
 		{Empty}
 	/>
 </Collapsible>

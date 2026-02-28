@@ -40,7 +40,9 @@
 	}
 
 	// (Derived)
-	const matchRanges = $derived(fuzzyMatch(text, query))
+	const matchRanges = $derived(
+		fuzzyMatch(text, query)
+	)
 	const html = $derived(
 		highlightRanges(escapeHtml(text), matchRanges),
 	)

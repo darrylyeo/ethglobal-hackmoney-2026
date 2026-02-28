@@ -43,7 +43,9 @@
 
 	// State
 	let editEl = $state<HTMLDivElement | null>(null)
-	let placeholderFocused = $state(false)
+	let placeholderFocused = $state(
+		false
+	)
 
 	// Functions
 	function parseContent(container: HTMLElement): { segments: string[], refs: Ref[] } {
@@ -276,6 +278,7 @@
 	import RichTextareaReferenceOld from '$/components/RichTextareaReferenceOld.svelte'
 </script>
 
+
 <div
 	bind:this={editEl}
 	class="rich-textarea"
@@ -316,6 +319,7 @@
 		{/if}
 	{/each}
 </div>
+
 
 <style>
 	.rich-textarea {

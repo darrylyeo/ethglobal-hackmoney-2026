@@ -6,7 +6,9 @@
 	let { content = '' }: { content: string } = $props()
 
 	// (Derived)
-	const html = $derived(markdownToHtml(content))
+	const html = $derived(
+		markdownToHtml(content)
+	)
 </script>
 
 

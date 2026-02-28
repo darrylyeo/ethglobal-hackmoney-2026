@@ -40,12 +40,19 @@
 		reorderContent?: ContentSnippet<_Item>
 	} = $props()
 
-
 	// (Derived)
-	const canDelete = $derived(operations.includes(ItemsListOperation.Delete))
-	const canDuplicate = $derived(operations.includes(ItemsListOperation.Duplicate))
-	const canReorder = $derived(operations.includes(ItemsListOperation.Reorder))
-	const manyItems = $derived(items.length > 200)
+	const canDelete = $derived(
+		operations.includes(ItemsListOperation.Delete)
+	)
+	const canDuplicate = $derived(
+		operations.includes(ItemsListOperation.Duplicate)
+	)
+	const canReorder = $derived(
+		operations.includes(ItemsListOperation.Reorder)
+	)
+	const manyItems = $derived(
+		items.length > 200
+	)
 
 
 	// State

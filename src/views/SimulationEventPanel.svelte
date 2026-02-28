@@ -18,8 +18,9 @@
 
 
 	// State
-	let showRaw = $state(false)
-
+	let showRaw = $state(
+		false
+	)
 
 	// (Derived)
 	const filteredList = $derived(

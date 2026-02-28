@@ -43,9 +43,10 @@
 		[],
 	)
 
-
 	// (Derived)
-	const dashboards = $derived(dashboardsQuery.data ?? [])
+	const dashboards = $derived(
+		dashboardsQuery.data ?? []
+	)
 	const defaultId = $derived(
 		defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
 	)
@@ -53,7 +54,9 @@
 
 	// State
 	let renameId = $state<string | null>(null)
-	let renameValue = $state('')
+	let renameValue = $state(
+		''
+	)
 
 
 	// Actions

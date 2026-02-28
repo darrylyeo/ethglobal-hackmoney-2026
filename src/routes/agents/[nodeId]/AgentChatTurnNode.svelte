@@ -29,7 +29,6 @@
 		toolsForChat?: string[] | null
 	} = $props()
 
-
 	// (Derived)
 	const children = $derived(
 		allTurns.filter((t) => t.parentId === turn.$id),
@@ -51,7 +50,9 @@
 		return items
 	})
 
-	const useTabs = $derived(tabItems.length > 1)
+	const useTabs = $derived(
+		tabItems.length > 1
+	)
 
 
 	// Functions
@@ -101,12 +102,20 @@
 
 
 	// State
-	let promptValue = $state('')
-	let modelValue = $state('')
-	let activeTab = $state('')
+	let promptValue = $state(
+		''
+	)
+	let modelValue = $state(
+		''
+	)
+	let activeTab = $state(
+		''
+	)
 
 	const turnHashPrefix = '#' + EntityType.AgentChatTurn + ':'
-	const isTarget = $derived(page.url.hash === turnHash(turn.$id))
+	const isTarget = $derived(
+		page.url.hash === turnHash(turn.$id)
+	)
 
 	$effect(() => {
 		if (!useTabs) return
@@ -124,7 +133,6 @@
 		if (useTabs && !activeTab && tabItems.length > 0)
 			activeTab = tabItems[0].id
 	})
-
 
 	// (Derived)
 	const showPromptForm = $derived(

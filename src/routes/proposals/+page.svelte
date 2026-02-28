@@ -99,8 +99,12 @@
 			({ realm: ProposalRealm.ChainAgnostic, entry: r.row as CaipEntry }),
 		),
 	)
-	const views = $derived([...proposalViews, ...caipViews])
-	const statuses = $derived([...new Set(views.map((i) => i.entry.status))].sort())
+	const views = $derived(
+		[...proposalViews, ...caipViews]
+	)
+	const statuses = $derived(
+		[...new Set(views.map((i) => i.entry.status))].sort()
+	)
 	const filterGroups = $derived([
 		{
 			id: 'realm',
@@ -170,7 +174,9 @@
 
 	// State
 	let activeFilters = $state<Set<Filter<ProposalListItem, string>>>(new Set())
-	let searchValue = $state('')
+	let searchValue = $state(
+		''
+	)
 
 	$effect(() => {
 		const kind = $page.url.searchParams.get('kind')
@@ -199,7 +205,9 @@
 	const getItemKey = (item: ProposalListItem) => item.realm + '-' + item.entry.number
 
 	// State (bound from RefinableList)
-	let displayCount = $state(0)
+	let displayCount = $state(
+		0
+	)
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
@@ -209,9 +217,11 @@
 	import Proposal from '$/views/Proposal.svelte'
 </script>
 
+
 <svelte:head>
 	<title>Proposals</title>
 </svelte:head>
+
 
 <main data-column="gap-4">
 	<h1>Proposals</h1>
@@ -253,6 +263,7 @@
 			{#snippet Empty()}
 				<p data-text="muted">No proposals match.</p>
 			{/snippet}
+
 			{#snippet Item({ key: _k, item, isPlaceholder, searchQuery, matches })}
 				{#if !isPlaceholder && item != null}
 					{#if item.realm === ProposalRealm.Ethereum}

@@ -37,13 +37,16 @@
 		layout?: EntityLayout
 	} = $props()
 
-
 	// (Derived)
 	const entry = $derived(
 		[...data.values()][0] ?? { trace: undefined, events: [] },
 	)
-	const events = $derived(entry.events ?? [])
-	const tx = $derived([...data.keys()][0])
+	const events = $derived(
+		entry.events ?? []
+	)
+	const tx = $derived(
+		[...data.keys()][0]
+	)
 	const inputSelector = $derived(
 		tx?.input && tx.input.length >= 10
 			? (`0x${tx.input.slice(2, 10).toLowerCase().padStart(8, '0')}` as `0x${string}`)
@@ -87,21 +90,30 @@
 		[() => normalizedSelector],
 	)
 
-
 	// (Derived)
-	const functionSignatures = $derived(functionSigQuery.data?.[0]?.row?.signatures ?? [])
-	const traceRecord = $derived(traceQuery.data?.[0]?.row)
+	const functionSignatures = $derived(
+		functionSigQuery.data?.[0]?.row?.signatures ?? []
+	)
+	const traceRecord = $derived(
+		traceQuery.data?.[0]?.row
+	)
 	const trace = $derived(
 		traceRecord && !traceRecord.unavailable
 			? traceRecord.trace
 			: entry.trace,
 	)
-	const eventsSet = $derived(new Set(events))
+	const eventsSet = $derived(
+		new Set(events)
+	)
 
 
 	// State
-	let hasFetched = $state(false)
-	let hasFetchedTrace = $state(false)
+	let hasFetched = $state(
+		false
+	)
+	let hasFetchedTrace = $state(
+		false
+	)
 
 
 	// Actions
@@ -152,6 +164,7 @@
 	import Trace from '$/views/network/Trace.svelte'
 </script>
 
+
 <EntityView
 		entityType={EntityType.Transaction}
 		entity={tx ?? undefined}
@@ -175,6 +188,7 @@
 			<code>Loading…</code>
 		{/if}
 	{/snippet}
+
 	{#snippet children()}
 		{#if tx}
 			{@const chainIdForTx = tx.$id.$network.chainId}
@@ -287,6 +301,7 @@
 				{#snippet Empty()}
 					<p data-text="muted">No events.</p>
 				{/snippet}
+
 				{#snippet Item({ key, item, isPlaceholder })}
 					<span id="event:{key}">
 						{#if isPlaceholder}

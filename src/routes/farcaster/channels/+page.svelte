@@ -23,6 +23,7 @@
 		FollowersAsc = 'followers-asc',
 	}
 
+
 	// Context
 	const connectionsQuery = useFarcasterConnections()
 	const castsQuery = useLiveQuery(
@@ -38,7 +39,6 @@
 				.select(({ row }) => ({ row })),
 		[],
 	)
-
 
 	// (Derived)
 	const connectedFids = $derived(
@@ -99,18 +99,24 @@
 	)
 
 
-	// State (bound from RefinableList)
-	let displayCount = $state(0)
+	// State
+	let displayCount = $state(
+		0
+	)
+
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import LoadMorePlaceholder from '$/components/LoadMorePlaceholder.svelte'
 	import RefinableList from '$/components/RefinableList.svelte'
+	import SearchableText from '$/components/SearchableText.svelte'
 </script>
+
 
 <svelte:head>
 	<title>Channels · Farcaster</title>
 </svelte:head>
+
 
 <main data-column="gap-4">
 	<h1>Channels</h1>
@@ -158,7 +164,8 @@
 					{#snippet Empty()}
 						<p data-text="muted">No channels match filters.</p>
 					{/snippet}
-					{#snippet Item({ key: _key, item: row, isPlaceholder })}
+
+					{#snippet Item({ key: _key, item: row, isPlaceholder, searchQuery: q, matches })}
 						{#if !isPlaceholder && row != null}
 							{@const ch = row}
 							<EntityView
@@ -171,7 +178,15 @@
 										? [{ term: 'Followers', detail: String(ch.followerCount) }]
 										: undefined
 								}
-							/>
+							>
+								{#snippet Title()}
+									{#if q != null && q !== ''}
+										<SearchableText text={ch.name} query={q} {matches} />
+									{:else}
+										{ch.name}
+									{/if}
+								{/snippet}
+							</EntityView>
 						{/if}
 					{/snippet}
 				</RefinableList>
@@ -184,6 +199,7 @@
 		{/if}
 	</details>
 </main>
+
 
 <style>
 	.section-heading {

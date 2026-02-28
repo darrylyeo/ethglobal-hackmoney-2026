@@ -24,11 +24,16 @@
 	import { goto } from '$app/navigation'
 	import { page } from '$app/state'
 
-
 	// (Derived)
-	const fidParam = $derived(page.params.fid ?? '')
-	const hashParam = $derived(page.params.hash ?? '')
-	const fid = $derived(parseInt(fidParam, 10))
+	const fidParam = $derived(
+		page.params.fid ?? ''
+	)
+	const hashParam = $derived(
+		page.params.hash ?? ''
+	)
+	const fid = $derived(
+		parseInt(fidParam, 10)
+	)
 	const hash = $derived(
 		hashParam?.startsWith('0x')
 			? (hashParam as `0x${string}`)
@@ -58,9 +63,10 @@
 		[],
 	)
 
-
 	// (Derived)
-	const cast = $derived(castQuery.data?.[0]?.row as WithSource<FarcasterCast> | undefined)
+	const cast = $derived(
+		castQuery.data?.[0]?.row as WithSource<FarcasterCast> | undefined
+	)
 	const allCasts = $derived(
 		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>),
 	)
@@ -83,7 +89,6 @@
 	const isOpen = (node: WithSource<FarcasterCast>) =>
 		openNodes.has(`${node.$id.fid}:${node.$id.hash}`)
 
-
 	// (Derived)
 	const ancestorChain = $derived.by(() => {
 		if (!cast?.parentFid || !cast?.parentHash) return []
@@ -97,8 +102,12 @@
 		}
 		return chain
 	})
-	const rootCast = $derived(ancestorChain.at(-1) ?? cast ?? null)
-	const isReply = $derived(ancestorChain.length > 0)
+	const rootCast = $derived(
+		ancestorChain.at(-1) ?? cast ?? null
+	)
+	const isReply = $derived(
+		ancestorChain.length > 0
+	)
 	const showContext = $derived(
 		cast
 			? getCastContextPath(cast)
@@ -114,9 +123,15 @@
 	// State
 	import { SvelteSet } from 'svelte/reactivity'
 
-	let isEnsureCastPending = $state(false)
-	let isLoadingMoreReplies = $state(false)
-	let openNodes = $state(new SvelteSet<string>())
+	let isEnsureCastPending = $state(
+		false
+	)
+	let isLoadingMoreReplies = $state(
+		false
+	)
+	let openNodes = $state(
+		new SvelteSet<string>()
+	)
 	let repliesNextToken = $state<string | undefined>(undefined)
 
 
@@ -195,9 +210,11 @@
 	import FarcasterCastView from '$/views/farcaster/FarcasterCast.svelte'
 </script>
 
+
 <svelte:head>
 	<title>Cast · Farcaster</title>
 </svelte:head>
+
 
 <main data-column="gap-4">
 	{#if cast}

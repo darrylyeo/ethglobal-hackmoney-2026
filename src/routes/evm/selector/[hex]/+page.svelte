@@ -14,9 +14,15 @@
 	import { page } from '$app/state'
 
 	// (Derived)
-	const hexParam = $derived(page.params?.hex ?? '')
-	const parsed = $derived(parseEvmSelectorHex(hexParam))
-	const href = $derived(parsed ? getEvmSelectorPath(parsed) : '/evm/selectors')
+	const hexParam = $derived(
+		page.params?.hex ?? ''
+	)
+	const parsed = $derived(
+		parseEvmSelectorHex(hexParam)
+	)
+	const href = $derived(
+		parsed ? getEvmSelectorPath(parsed) : '/evm/selectors'
+	)
 
 	const entryQuery = useLiveQuery(
 		(q) =>
@@ -34,7 +40,9 @@
 	const entry = $derived(
 		entryQuery.data?.[0]?.row as EvmSelector | undefined,
 	)
-	const label = $derived(entry?.signatures[0] ?? (parsed ?? ''))
+	const label = $derived(
+		entry?.signatures[0] ?? (parsed ?? '')
+	)
 
 	// Actions
 	$effect(() => {
@@ -47,6 +55,7 @@
 	import Heading from '$/components/Heading.svelte'
 	import EvmSelector from '$/views/EvmSelector.svelte'
 </script>
+
 
 <svelte:head>
 	<title>{parsed ?? 'Selector'} — EVM selectors</title>

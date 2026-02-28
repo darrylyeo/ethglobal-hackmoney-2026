@@ -96,13 +96,20 @@
 	let paramsByType = $state<Partial<Record<ActionType, Record<string, unknown>>>>(
 		{},
 	)
-	let broadcastInProgress = $state(false)
-	let simulateInProgress = $state(false)
-	let cctpConfirmOpen = $state(false)
-
+	let broadcastInProgress = $state(
+		false
+	)
+	let simulateInProgress = $state(
+		false
+	)
+	let cctpConfirmOpen = $state(
+		false
+	)
 
 	// (Derived)
-	const actionTypeValue = $derived(String(action.type))
+	const actionTypeValue = $derived(
+		String(action.type)
+	)
 	const activeSpec = $derived(
 		(actionTypes as readonly ActionTypeDefinition[]).find(
 			(s) => s.type === action.type,
@@ -140,9 +147,15 @@
 	const swapParams = $derived(
 		action.type === ActionType.Swap ? (validatedSwapParams ?? (action.params as SwapParams)) : null,
 	)
-	const swapProtocolIntent = $derived(swapParams?.swapProtocolIntent ?? SwapProtocolId.Auto)
-	const swapAggregator = $derived(swapParams?.swapAggregator ?? ProtocolAggregatorId.Spandex)
-	const swapStrategy = $derived(swapParams?.swapStrategy ?? ProtocolStrategy.BestPrice)
+	const swapProtocolIntent = $derived(
+		swapParams?.swapProtocolIntent ?? SwapProtocolId.Auto
+	)
+	const swapAggregator = $derived(
+		swapParams?.swapAggregator ?? ProtocolAggregatorId.Spandex
+	)
+	const swapStrategy = $derived(
+		swapParams?.swapStrategy ?? ProtocolStrategy.BestPrice
+	)
 	const resolvedProtocol = $derived(
 		action.type === ActionType.Swap
 			? (swapProtocolIntent !== SwapProtocolId.Auto && swapIdToProtocol[swapProtocolIntent])
@@ -163,7 +176,9 @@
 				(swapIdToProtocol[swapProtocolIntent] != null &&
 					aggregatorBackedProtocols.includes(swapIdToProtocol[swapProtocolIntent]!))),
 	)
-	const paramsHash = $derived(stringify(action.params))
+	const paramsHash = $derived(
+		stringify(action.params)
+	)
 	const isCctpBridge = $derived(
 		action.type === ActionType.Bridge &&
 			(bridgeParams?.protocolIntent === BridgeProtocolId.Cctp ||
@@ -644,7 +659,7 @@
 		</form>
 
 		{#if sessionId}
-			<div data-row="gap-4">
+			<div data-row="gap-4 align-start">
 				<div data-row-item="flexible">
 					<Simulations sessionId={sessionId} {indexInSequence} />
 				</div>
@@ -684,6 +699,7 @@
 		</Dialog.Root>
 	{/if}
 </details>
+
 
 <style>
 	.proposed-transactions-section {

@@ -54,7 +54,6 @@
 		[key: string]: unknown
 	} = $props()
 
-
 	// (Derived)
 	const normalizedItems = $derived(
 		items.map((item) => ({
@@ -100,7 +99,6 @@
 	let open = $state(
 		false,
 	)
-
 
 	// (Derived)
 	$effect(() => {

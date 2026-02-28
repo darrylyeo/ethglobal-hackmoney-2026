@@ -22,14 +22,17 @@
 
 
 	// State
-	let invalid = $state(false)
-
+	let invalid = $state(
+		false
+	)
 
 	// (Derived)
 	const params = $derived(
 		action?.params != null ? (action.params as ActionParams<ActionType.Swap>) : null,
 	)
-	const coins = $derived(params ? chainCoins(params.chainId) : [])
+	const coins = $derived(
+		params ? chainCoins(params.chainId) : []
+	)
 	const tokenInCoin = $derived(
 		params && typeof params.tokenIn === 'string' && coins.length
 			? (coins.find((c) => c.address === params.tokenIn) ?? coins[0])

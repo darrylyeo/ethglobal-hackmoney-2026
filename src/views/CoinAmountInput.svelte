@@ -38,9 +38,10 @@
 		[key: string]: unknown
 	} = $props()
 
-
 	// (Derived)
-	const effectiveCoin = $derived(coin ?? coins[0])
+	const effectiveCoin = $derived(
+		coin ?? coins[0]
+	)
 
 
 	// Components

@@ -35,7 +35,6 @@
 		[],
 	)
 
-
 	// (Derived)
 	const connections = $derived(
 		(connectionsQuery.data ?? []).map(({ farcasterConnection: connection }) => connection as {
@@ -116,17 +115,22 @@
 
 
 	// State (bound from RefinableList)
-	let displayCount = $state(0)
+	let displayCount = $state(
+		0
+	)
+
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import RefinableList from '$/components/RefinableList.svelte'
+	import SearchableText from '$/components/SearchableText.svelte'
 </script>
 
 
 <svelte:head>
 	<title>Users · Farcaster</title>
 </svelte:head>
+
 
 <main data-column="gap-4">
 	<h1>Users</h1>
@@ -190,20 +194,30 @@
 					{#snippet Empty()}
 						<p data-text="muted">No users match filters.</p>
 					{/snippet}
-					{#snippet Item({ key: _key, item: row, isPlaceholder })}
+
+					{#snippet Item({ key: _key, item: row, isPlaceholder, searchQuery: q, matches })}
 						{#if !isPlaceholder && row != null}
 							{@const user = row}
+							{@const label = user.username ? `@${user.username}` : `@${user.$id.fid}`}
 							<EntityView
 								entityType={EntityType.FarcasterUser}
 								entity={user}
 								titleHref="/farcaster/user/{user.$id.fid}"
-								label={user.username ? `@${user.username}` : `@${user.$id.fid}`}
+								label={label}
 								metadata={
 									user.displayName ?
 										[{ term: 'Display name', detail: user.displayName }]
 									:	undefined
 								}
-							/>
+							>
+								{#snippet Title()}
+									{#if q != null && q !== ''}
+										<SearchableText text={label} query={q} {matches} />
+									{:else}
+										{label}
+									{/if}
+								{/snippet}
+							</EntityView>
 						{/if}
 					{/snippet}
 				</RefinableList>
@@ -211,6 +225,7 @@
 		{/if}
 	</details>
 </main>
+
 
 <style>
 	.section-heading {

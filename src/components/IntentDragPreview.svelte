@@ -56,11 +56,17 @@
 
 	// State
 	let tooltipContentRef = $state<HTMLDivElement | null>(null)
-	let prefersReducedMotion = $state(false)
+	let prefersReducedMotion = $state(
+		false
+	)
 	let pointerPosition = $state<{ x: number; y: number } | null>(null)
 	// (Derived)
-	const sourcePayload = $derived(intentDragPreviewState.source?.payload ?? null)
-	const targetPayload = $derived(intentDragPreviewState.target?.payload ?? null)
+	const sourcePayload = $derived(
+		intentDragPreviewState.source?.payload ?? null
+	)
+	const targetPayload = $derived(
+		intentDragPreviewState.target?.payload ?? null
+	)
 
 	const resolution = $derived(
 		sourcePayload && targetPayload ?
@@ -68,8 +74,12 @@
 		: null,
 	)
 
-	const isActive = $derived(intentDragPreviewState.status !== 'idle')
-	const isInteractive = $derived(intentDragPreviewState.status === 'selected')
+	const isActive = $derived(
+		intentDragPreviewState.status !== 'idle'
+	)
+	const isInteractive = $derived(
+		intentDragPreviewState.status === 'selected'
+	)
 	const effectiveTargetRect = $derived(
 		intentDragPreviewState.target?.rect ??
 		(pointerPosition ?

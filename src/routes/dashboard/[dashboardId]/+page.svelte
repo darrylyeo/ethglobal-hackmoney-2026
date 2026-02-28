@@ -39,7 +39,9 @@
 		data?: Record<string, unknown>,
 	} = $props()
 
-	const embeddedInPanel = $derived(data?.embeddedInPanel === true)
+	const embeddedInPanel = $derived(
+		data?.embeddedInPanel === true
+	)
 	const panelRouteLinks = $derived(
 		routeEntries.filter((entry) => !entry.path.startsWith('/dashboard')),
 	)
@@ -190,7 +192,9 @@
 	const defaultDashboardId = $derived(
 		defaultDashboardRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
 	)
-	const dashboardId = $derived(page.params.dashboardId ?? 'default')
+	const dashboardId = $derived(
+		page.params.dashboardId ?? 'default'
+	)
 	const dashboardRowQuery = useLiveQuery(
 		(q) =>
 			q
@@ -210,7 +214,9 @@
 		const dashboard = dashboardRowQuery.data?.[0]?.row
 		if (!dashboard) ensureDashboardState(defaultRoutePath, id)
 	})
-	const dashboardRow = $derived(dashboardRowQuery.data?.[0]?.row)
+	const dashboardRow = $derived(
+		dashboardRowQuery.data?.[0]?.row
+	)
 	const root = $derived(
 		dashboardRow && 'root' in dashboardRow ? dashboardRow.root : undefined,
 	)
@@ -220,12 +226,13 @@
 			: '',
 	)
 
-
 	// (Derived)
 	const focusedPanel = $derived(
 		root ? getPanelById(root, focusedPanelId) : null,
 	)
-	const panelIds = $derived(root ? listPanelIds(root) : [])
+	const panelIds = $derived(
+		root ? listPanelIds(root) : []
+	)
 
 
 	// Functions

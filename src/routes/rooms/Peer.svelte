@@ -13,10 +13,13 @@
 		showStatus?: boolean,
 	} = $props()
 
-
 	// (Derived)
-	const name = $derived(peer.displayName ?? peer.peerId.slice(0, 8))
-	const emoji = $derived(peerNameToEmoji(peer.displayName, peer.peerId))
+	const name = $derived(
+		peer.displayName ?? peer.peerId.slice(0, 8)
+	)
+	const emoji = $derived(
+		peerNameToEmoji(peer.displayName, peer.peerId)
+	)
 
 
 	// Components

@@ -21,13 +21,14 @@
 		entityId?: EntityId
 	} = $props()
 
-	const effectiveEntityId = $derived(entity?.$id ?? entityId)
+	const effectiveEntityId = $derived(
+		entity?.$id ?? entityId
+	)
 
 	// Context
 	const watchedQuery = useLiveQuery((q) =>
 		q.from({ row: watchedEntitiesCollection }).select(({ row }) => ({ row })),
 	)
-
 
 	// (Derived)
 	const isManuallyWatched = $derived(

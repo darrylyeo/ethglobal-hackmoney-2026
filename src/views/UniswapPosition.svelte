@@ -6,11 +6,14 @@
 	let { position }: { position: UniswapPosition } = $props()
 
 	// (Derived)
-	const network = $derived(networksByChainId[position.$id.chainId])
+	const network = $derived(
+		networksByChainId[position.$id.chainId]
+	)
 	const poolLabel = $derived(
 		position.poolId ? `Pool ${position.poolId.slice(0, 10)}…` : 'Pool (unknown)',
 	)
 </script>
+
 
 <section>
 	<dl data-definition-list="vertical">

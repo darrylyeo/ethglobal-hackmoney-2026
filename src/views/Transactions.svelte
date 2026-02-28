@@ -21,7 +21,6 @@
 		availableAccounts?: `0x${string}`[]
 	} = $props()
 
-
 	// (Derived)
 	const actors = $derived(
 		filterAddresses.length > 0
@@ -41,7 +40,6 @@
 	registerLocalLiveQueryStack(() => [
 		{ id: 'transactions', label: 'Transactions', query },
 	])
-
 
 	// (Derived)
 	const transactions = $derived(

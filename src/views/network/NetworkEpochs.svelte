@@ -26,6 +26,7 @@
 	import EntityView from '$/components/EntityView.svelte'
 </script>
 
+
 <CollapsibleList
 	title="Consensus"
 	detailsProps={{ open: true, ...detailsProps }}
@@ -42,6 +43,7 @@
 			{isLoading ? 'Loading consensus…' : 'No epochs.'}
 		</p>
 	{/snippet}
+
 	{#snippet Item({ key, item, isPlaceholder })}
 		{#if isPlaceholder}
 			<code>Epoch {key} (loading…)</code>

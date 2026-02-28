@@ -24,20 +24,31 @@
 	// Context
 	import { page } from '$app/state'
 
-
 	// (Derived)
-	const fidParam = $derived(page.params.fid ?? '')
-	const fid = $derived(parseInt(fidParam, 10))
+	const fidParam = $derived(
+		page.params.fid ?? ''
+	)
+	const fid = $derived(
+		parseInt(fidParam, 10)
+	)
 
 
 	// State
 	let castsNextToken = $state<string | undefined>(undefined)
 	let followersNextToken = $state<string | undefined>(undefined)
 	let followingNextToken = $state<string | undefined>(undefined)
-	let isLoadingMoreCasts = $state(false)
-	let isLoadingMoreFollowers = $state(false)
-	let isLoadingMoreFollowing = $state(false)
-	let isLoadingMoreMentions = $state(false)
+	let isLoadingMoreCasts = $state(
+		false
+	)
+	let isLoadingMoreFollowers = $state(
+		false
+	)
+	let isLoadingMoreFollowing = $state(
+		false
+	)
+	let isLoadingMoreMentions = $state(
+		false
+	)
 	let mentionsNextToken = $state<string | undefined>(undefined)
 
 
@@ -77,15 +88,18 @@
 		[],
 	)
 
-
 	// (Derived)
-	const user = $derived(userQuery.data?.[0]?.row)
+	const user = $derived(
+		userQuery.data?.[0]?.row
+	)
 	const userByFid = $derived(
 		new Map(
 			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user]),
 		),
 	)
-	const allCasts = $derived((castsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>))
+	const allCasts = $derived(
+		(castsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>)
+	)
 	const allCastsFromDb = $derived(
 		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>),
 	)
@@ -107,7 +121,9 @@
 			|| !c.parentHash,
 		),
 	)
-	const castsSet = $derived(new Set(rootCasts))
+	const castsSet = $derived(
+		new Set(rootCasts)
+	)
 	const label = $derived(
 		user?.username
 			? `@${user.username}`
@@ -193,9 +209,11 @@
 	import FarcasterUserLinkList from '$/views/farcaster/FarcasterUserLinkList.svelte'
 </script>
 
+
 <svelte:head>
 	<title>{label} · Farcaster</title>
 </svelte:head>
+
 
 <main data-column="gap-4">
 	{#if user || fid > 0}

@@ -25,7 +25,6 @@
 		subicon?: SubiconProps
 	} = $props()
 
-
 	// (Derived)
 	const network = $derived(
 		(() => {

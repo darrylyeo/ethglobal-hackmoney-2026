@@ -62,7 +62,6 @@
 		[key: string]: unknown
 	} = $props()
 
-
 	// (Derived)
 	const a11yLabel = $derived(
 		label ?? alt

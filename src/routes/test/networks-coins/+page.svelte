@@ -40,13 +40,14 @@
 
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
-
 	// (Derived)
 
 	const networks = $derived(
 		(networksQuery.data ?? []).map(({ row: network }) => network),
 	)
-	const coins = $derived((coinsQuery.data ?? []).map(({ row: coin }) => coin))
+	const coins = $derived(
+		(coinsQuery.data ?? []).map(({ row: coin }) => coin)
+	)
 </script>
 
 

@@ -64,12 +64,14 @@
 	}
 </script>
 
+
 <pre
 	data-card
 	class="hex-viewer {className ?? ''}"
 	role="img"
 	aria-label="Hexadecimal dump"
 >{#if lines.length === 0}<span class="hex-empty">—</span>{:else}{#if showOffset}<span class="hex-col hex-col-offset">{#each lines as { offset }}<span class="hex-cell">{offset.toString(16).padStart(8, '0')}</span>{/each}</span>{/if}<span class="hex-col hex-col-bytes">{#each lines as { bytes: lineBytes }}<span class="hex-cell">{#each lineGroups(lineBytes) as g}<span class="hex-group">{g}</span>{/each}</span>{/each}</span>{#if showAscii}<span class="hex-col hex-col-ascii">{#each lines as { bytes: lineBytes }}<span class="hex-cell">{asciiGroup(lineBytes)}</span>{/each}</span>{/if}{/if}</pre>
+
 
 <style>
 	.hex-viewer {

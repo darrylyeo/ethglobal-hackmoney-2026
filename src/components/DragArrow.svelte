@@ -37,7 +37,6 @@
 		flowIconSrc?: string
 	} = $props()
 
-
 	// (Derived)
 	const arrowData = $derived(
 		computeArrow(sourceRect, targetRect, { padStart: gap, padEnd: arrowHeadSize }),
@@ -46,7 +45,9 @@
 		arrowToPathD(arrowData),
 	)
 	const tooltipOffset = 16
-	const arcMid = $derived(arrowMidPoint(arrowData))
+	const arcMid = $derived(
+		arrowMidPoint(arrowData)
+	)
 	const tooltipAnchor = $derived(
 		arrowTooltipAnchor(arrowData, tooltipOffset),
 	)

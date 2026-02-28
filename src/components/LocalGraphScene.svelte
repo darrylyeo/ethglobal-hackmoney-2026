@@ -7,7 +7,9 @@
 	import GraphScene from '$/routes/GraphScene.svelte'
 
 	const localCtx = useLocalQueries()
-	let open = $state(false)
+	let open = $state(
+		false
+	)
 </script>
 
 

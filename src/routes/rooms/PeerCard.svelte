@@ -66,9 +66,10 @@
 		},
 	])
 
-
 	// (Derived)
-	const allShared = $derived((sharedQuery.data ?? []).map(({ row: sharedAddress }) => sharedAddress))
+	const allShared = $derived(
+		(sharedQuery.data ?? []).map(({ row: sharedAddress }) => sharedAddress)
+	)
 	const addressesVisibleToMe = $derived(
 		allShared.filter(
 			(s) =>
@@ -89,7 +90,9 @@
 					!ch.signature,
 			),
 	)
-	const canSign = $derived(provider != null)
+	const canSign = $derived(
+		provider != null
+	)
 
 
 	// Functions

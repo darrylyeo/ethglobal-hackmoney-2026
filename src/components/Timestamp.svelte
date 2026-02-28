@@ -24,14 +24,20 @@
 			? new Date(timestamp)
 			: undefined,
 	)
-	const isoString = $derived(date?.toISOString())
-	const absoluteTime = $derived(date?.toLocaleString())
+	const isoString = $derived(
+		date?.toISOString()
+	)
+	const absoluteTime = $derived(
+		date?.toLocaleString()
+	)
 
 	// Functions
 	import { formatRelativeTime } from '$/lib/formatRelativeTime.ts'
 
 	// State
-	let now = $state(Date.now())
+	let now = $state(
+		Date.now()
+	)
 
 	// (Derived)
 	const relativeTime = $derived(

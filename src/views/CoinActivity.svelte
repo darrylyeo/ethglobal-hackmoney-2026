@@ -28,7 +28,6 @@
 	// Props
 	let { coinId, period }: { coinId: CoinId; period: string } = $props()
 
-
 	// (Derived)
 	const coin = $derived(
 		coinInstanceByChainAndCoinId.get(`${ChainId.Ethereum}:${coinId}`)
@@ -76,7 +75,9 @@
 			| { row: import('$/collections/TransferGraphs.ts').TransferGraphRow }
 			| undefined,
 	)
-	const allEvents = $derived(eventsQuery.data ?? [])
+	const allEvents = $derived(
+		eventsQuery.data ?? []
+	)
 	const events = $derived(
 		allEvents.filter(
 			(r): r is { row: TransferEventRowType } =>
@@ -92,8 +93,12 @@
 	const eventsSet = $derived(
 		new Set(events.map(({ row: event }) => event)) as Set<TransferEventRowType>,
 	)
-	const loading = $derived(metaRow?.isLoading ?? true)
-	const errorMessage = $derived(metaRow?.error ?? null)
+	const loading = $derived(
+		metaRow?.isLoading ?? true
+	)
+	const errorMessage = $derived(
+		metaRow?.error ?? null
+	)
 	const errorShort = $derived(
 		errorMessage?.includes('trace-id')
 			? 'Temporary internal error. Please retry.'

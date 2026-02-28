@@ -40,10 +40,13 @@
 		from?: `0x${string}` | null
 	} = $props()
 
-
 	// (Derived)
-	const chainId = $derived(contractIdProp?.$network.chainId ?? chainIdProp!)
-	const address = $derived(contractIdProp?.address ?? addressProp!)
+	const chainId = $derived(
+		contractIdProp?.$network.chainId ?? chainIdProp!
+	)
+	const address = $derived(
+		contractIdProp?.address ?? addressProp!
+	)
 	type AbiFn = (typeof abi)[number] & { type: 'function' }
 	const functions = $derived(
 		abi.filter((x): x is AbiFn => x.type === 'function') as AbiFn[],
@@ -57,8 +60,12 @@
 	const actions = $derived(
 		functions.filter((f) => isWritable(f)),
 	)
-	const rpcUrl = $derived(getEffectiveRpcUrl(chainId) ?? null)
-	const methodItems = $derived([...variables, ...queries, ...actions])
+	const rpcUrl = $derived(
+		getEffectiveRpcUrl(chainId) ?? null
+	)
+	const methodItems = $derived(
+		[...variables, ...queries, ...actions]
+	)
 
 	const connectionsQuery = useLiveQuery(
 		(q) =>
@@ -108,12 +115,20 @@
 			selectedMethod = (methods[0] as AbiFn) ?? undefined
 	})
 	let inputValues = $state<Record<string, string>>({})
-	let payableValue = $state(0n)
+	let payableValue = $state(
+		0n
+	)
 	let queryResult = $state<unknown[] | string | null>(null)
 	let simulateResult = $state<{ status: string; error?: string } | null>(null)
-	let simulateInProgress = $state(false)
-	let queryInProgress = $state(false)
-	let broadcastInProgress = $state(false)
+	let simulateInProgress = $state(
+		false
+	)
+	let queryInProgress = $state(
+		false
+	)
+	let broadcastInProgress = $state(
+		false
+	)
 
 
 	// Actions
@@ -223,7 +238,9 @@
 		}
 	}
 
-	const isReadOnly = $derived(selectedMethod && isReadable(selectedMethod))
+	const isReadOnly = $derived(
+		selectedMethod && isReadable(selectedMethod)
+	)
 </script>
 
 

@@ -288,8 +288,9 @@
 
 	// State
 	let editEl = $state<HTMLDivElement | null>(null)
-	let placeholderFocused = $state(false)
-
+	let placeholderFocused = $state(
+		false
+	)
 
 	// (Derived)
 	$effect(() => {
@@ -300,6 +301,7 @@
 	// Components
 	import RichTextareaReference from '$/components/RichTextareaReference.svelte'
 </script>
+
 
 <div
 	bind:this={editEl}
@@ -341,6 +343,7 @@
 		{/if}
 	{/each}
 </div>
+
 
 <style>
 	.rich-textarea {

@@ -23,13 +23,16 @@
 	import { resolve } from '$app/paths'
 	import { page } from '$app/state'
 
-
 	// (Derived)
-	const addrParam = $derived(page.params.address ?? '')
+	const addrParam = $derived(
+		page.params.address ?? ''
+	)
 	const isEnsName = $derived(
 		normalizeIdentity(addrParam).kind === IdentityInputKind.EnsName,
 	)
-	const parsed = $derived(parseAccountAddressParam(addrParam))
+	const parsed = $derived(
+		parseAccountAddressParam(addrParam)
+	)
 
 
 	// Context
@@ -62,9 +65,10 @@
 		{ id: 'account-verifications', label: 'Verifications', query: verificationsQuery },
 	])
 
-
 	// (Derived)
-	const link = $derived(identityLinkQuery.data?.[0]?.row)
+	const link = $derived(
+		identityLinkQuery.data?.[0]?.row
+	)
 	const account = $derived(
 		parsed
 		?? (link?.address
@@ -75,7 +79,9 @@
 			}
 			: null),
 	)
-	const addr = $derived(account?.address ?? null)
+	const addr = $derived(
+		account?.address ?? null
+	)
 	const actorId = $derived(
 		account
 			? {

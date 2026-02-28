@@ -20,11 +20,21 @@
 	import { resolve } from '$app/paths'
 
 	// (Derived)
-	const realmParam = $derived(page.params?.realm ?? '')
-	const slugParam = $derived(page.params?.slug ?? '')
-	const realm = $derived(parseProposalRealmParam(realmParam))
-	const parsed = $derived(parseProposalSlug(slugParam))
-	const isValidRealm = $derived(realm != null)
+	const realmParam = $derived(
+		page.params?.realm ?? ''
+	)
+	const slugParam = $derived(
+		page.params?.slug ?? ''
+	)
+	const realm = $derived(
+		parseProposalRealmParam(realmParam)
+	)
+	const parsed = $derived(
+		parseProposalSlug(slugParam)
+	)
+	const isValidRealm = $derived(
+		realm != null
+	)
 
 	const proposalsQuery = useLiveQuery((q) =>
 		q
@@ -52,13 +62,19 @@
 			: undefined,
 	)
 
-	const entry = $derived(proposalEntry ?? caipEntry)
-	const canonicalSlug = $derived(entry ? proposalSlug(entry) : null)
+	const entry = $derived(
+		proposalEntry ?? caipEntry
+	)
+	const canonicalSlug = $derived(
+		entry ? proposalSlug(entry) : null
+	)
 	const shouldRedirect = $derived(
 		entry != null && canonicalSlug != null && slugParam !== canonicalSlug,
 	)
 
-	const idSerialized = $derived(String(entry?.number ?? parsed?.number ?? ''))
+	const idSerialized = $derived(
+		String(entry?.number ?? parsed?.number ?? '')
+	)
 	const label = $derived(
 		entry
 			? 'type' in entry && entry.type !== undefined
@@ -106,6 +122,7 @@
 	})
 </script>
 
+
 <svelte:head>
 	<title>
 		{proposalEntry
@@ -120,6 +137,7 @@
 		– Proposals
 	</title>
 </svelte:head>
+
 
 <main>
 	{#if !isValidRealm || !parsed}

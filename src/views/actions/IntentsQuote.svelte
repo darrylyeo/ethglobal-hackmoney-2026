@@ -20,7 +20,9 @@
 
 	// State
 	let quote = $state<IntentsQuote | null>(null)
-	let fetching = $state(false)
+	let fetching = $state(
+		false
+	)
 	let error = $state<string | undefined>(undefined)
 
 	// (Derived)

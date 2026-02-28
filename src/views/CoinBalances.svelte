@@ -77,9 +77,10 @@
 		getBestStorkPrice,
 	} from '$/collections/StorkPrices.ts'
 	import { tokenListCoinsCollection } from '$/collections/TokenListCoins.ts'
-	let activeFilters = $state(new Set<Filter<BalanceFilterItem, BalanceFilterId>>())
+	let activeFilters = $state(
+		new Set<Filter<BalanceFilterItem, BalanceFilterId>>()
+	)
 	let sortedBalances = $state<WithSource<ActorCoin>[]>([])
-
 
 	// (Derived)
 	const normalizedBalanceTokens = $derived([
@@ -202,9 +203,15 @@
 			),
 		})),
 	)
-	const networkFilterIds = $derived(new Set(networkFilters.map((f) => f.id)))
-	const coinFilterIds = $derived(new Set(coinFilters.map((f) => f.id)))
-	const accountFilterIds = $derived(new Set(accountFilters.map((f) => f.id)))
+	const networkFilterIds = $derived(
+		new Set(networkFilters.map((f) => f.id))
+	)
+	const coinFilterIds = $derived(
+		new Set(coinFilters.map((f) => f.id))
+	)
+	const accountFilterIds = $derived(
+		new Set(accountFilters.map((f) => f.id))
+	)
 	const filterChainIdsNum = $derived(
 		[...activeFilters]
 			.filter((f) => networkFilterIds.has(f.id))
@@ -299,8 +306,12 @@
 		},
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
-	const balances = $derived((balancesQuery.data ?? []).map(({ balance }) => balance))
-	const prices = $derived((pricesQuery.data ?? []).map(({ price }) => price))
+	const balances = $derived(
+		(balancesQuery.data ?? []).map(({ balance }) => balance)
+	)
+	const prices = $derived(
+		(pricesQuery.data ?? []).map(({ price }) => price)
+	)
 	const balanceAssetIds = $derived([
 		...new Set(
 			balances.flatMap((balance) => {
@@ -408,8 +419,12 @@
 			},
 		] as Sort<WithSource<ActorCoin>, ActorCoinSort>[],
 	)
-	const hasSortOptions = $derived(balanceSortOptions.length > 1)
-	const displayBalances = $derived(hasSortOptions ? sortedBalances : balances)
+	const hasSortOptions = $derived(
+		balanceSortOptions.length > 1
+	)
+	const displayBalances = $derived(
+		hasSortOptions ? sortedBalances : balances
+	)
 	const balancesTitlePrefix = $derived(
 		useDynamicTitle
 			? (() => {
@@ -502,6 +517,7 @@
 									ariaLabel="Filter by network"
 								/>
 							{/snippet}
+
 							{#snippet CoinFilters({
 								bindValueIds,
 							}: {

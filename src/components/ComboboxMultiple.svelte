@@ -58,7 +58,6 @@
 		[key: string]: unknown
 	} = $props()
 
-
 	// (Derived)
 	const normalizedItems = $derived(
 		items.map((item) => ({
@@ -94,9 +93,12 @@
 
 
 	// State
-	let isFocused = $state(false)
-	let open = $state(false)
-
+	let isFocused = $state(
+		false
+	)
+	let open = $state(
+		false
+	)
 
 	// (Derived)
 	const filteredItems = $derived(

@@ -35,7 +35,9 @@
 
 
 	// State
-	let persisted = $state(false)
+	let persisted = $state(
+		false
+	)
 	let initialSnapshot = $state<string | null>(null)
 	let connectedWallets = $state<ConnectedWallet[]>([])
 	let selectedActor = $state<`0x${string}` | null>(null)
@@ -118,8 +120,12 @@
 			onPersist()
 		}
 	})
-	const placeholderName = $derived(formatSessionPlaceholderName(session.actions))
-	const displayLabel = $derived(session.name || placeholderName)
+	const placeholderName = $derived(
+		formatSessionPlaceholderName(session.actions)
+	)
+	const displayLabel = $derived(
+		session.name || placeholderName
+	)
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'

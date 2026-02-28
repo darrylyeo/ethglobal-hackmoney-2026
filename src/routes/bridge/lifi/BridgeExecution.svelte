@@ -47,7 +47,6 @@
 		onExecute?: (fn: () => Promise<{ txHash?: `0x${string}` } | undefined>) => void,
 	} = $props()
 
-
 	// (Derived)
 	const providerDetail = $derived({
 		info: {
@@ -137,9 +136,10 @@
 		},
 	})
 
-
 	// (Derived)
-	const failed = $derived(actionTx?.state === 'failed')
+	const failed = $derived(
+		actionTx?.state === 'failed'
+	)
 
 
 	// Actions

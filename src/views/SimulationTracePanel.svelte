@@ -38,8 +38,11 @@
 		)
 	}
 
-	const hasVisible = $derived(trace.some((call) => !isHiddenCall(call, isHiddenCall)))
+	const hasVisible = $derived(
+		trace.some((call) => !isHiddenCall(call, isHiddenCall))
+	)
 </script>
+
 
 <div data-simulation-trace data-column>
 	<header data-row="align-center justify-between">
@@ -103,6 +106,7 @@
 		</Tree>
 	{/if}
 </div>
+
 
 <style>
 	.sr-only {

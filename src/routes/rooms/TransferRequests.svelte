@@ -62,14 +62,17 @@
 
 
 	// State
-	let amount = $state('')
+	let amount = $state(
+		''
+	)
 	let selectedAddress = $state<`0x${string}` | null>(null)
 	let sendingRequestId = $state<string | null>(null)
 	let sendError = $state<string | null>(null)
 
-
 	// (Derived)
-	const myAddress = $derived(yellowState.address?.toLowerCase() ?? null)
+	const myAddress = $derived(
+		yellowState.address?.toLowerCase() ?? null
+	)
 	const otherVerified = $derived(
 		myAddress
 			? (verifiedQuery.data ?? [])

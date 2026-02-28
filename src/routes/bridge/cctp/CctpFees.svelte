@@ -50,9 +50,15 @@
 				)?.row ?? null)
 			: null,
 	)
-	const fees = $derived(feeRow?.rows ?? null)
-	const feeLoading = $derived(feeRow?.isLoading ?? false)
-	const feeError = $derived(feeRow?.error ?? null)
+	const fees = $derived(
+		feeRow?.rows ?? null
+	)
+	const feeLoading = $derived(
+		feeRow?.isLoading ?? false
+	)
+	const feeError = $derived(
+		feeRow?.error ?? null
+	)
 	const feeFastBps = $derived(
 		fees?.find((fee) => fee.finalityThreshold === 1000)?.minimumFee ?? null,
 	)

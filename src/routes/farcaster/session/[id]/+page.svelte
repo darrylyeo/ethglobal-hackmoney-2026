@@ -18,14 +18,17 @@
 	// Context
 	import { page } from '$app/state'
 
-
 	// (Derived)
-	const sessionId = $derived(page.params.id ?? '')
+	const sessionId = $derived(
+		page.params.id ?? ''
+	)
 
 
 	// State
 	let activeSession = $state<SocialPostSession | null>(null)
-	let lastWrittenSnapshot = $state('')
+	let lastWrittenSnapshot = $state(
+		''
+	)
 
 
 	// Context
@@ -42,7 +45,6 @@
 		{ id: 'social-post-session-by-id', label: 'Social post session', query: sessionQuery },
 	])
 
-
 	// (Derived)
 	const dbSession = $derived(
 		sessionQuery.data?.[0]?.socialPostSession as SocialPostSession | undefined ?? null,
@@ -55,7 +57,9 @@
 					c.transport === FarcasterConnectionTransport.Siwf && c.selected,
 			) ?? null,
 	)
-	const sessionQueryResolved = $derived(sessionQuery.data !== undefined)
+	const sessionQueryResolved = $derived(
+		sessionQuery.data !== undefined
+	)
 	const pageTitle = $derived(
 		activeSession
 			? (activeSession.name ?? formatSocialPostSessionPlaceholderName(activeSession.actions))
@@ -87,9 +91,11 @@
 	import SocialPostSessionView from '../SocialPostSession.svelte'
 </script>
 
+
 <svelte:head>
 	<title>{pageTitle} – {APP_NAME}</title>
 </svelte:head>
+
 
 <main data-column data-sticky-container>
 	{#if activeSession}

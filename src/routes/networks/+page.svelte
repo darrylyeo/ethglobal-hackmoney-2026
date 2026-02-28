@@ -17,7 +17,6 @@
 	// Context
 	import { resolve } from '$app/paths'
 
-
 	// (Derived)
 	const getMainnetChainId = (n: (typeof networks)[number]) =>
 		n.type === NetworkType.Mainnet ?
@@ -47,8 +46,12 @@
 		},
 	] as FilterGroup<(typeof networks)[number], NetworkEnvironment>[])
 
-	const mainnetFilter = $derived(filterGroups[0].filters[0])
-	const testnetFilter = $derived(filterGroups[0].filters[1])
+	const mainnetFilter = $derived(
+		filterGroups[0].filters[0]
+	)
+	const testnetFilter = $derived(
+		filterGroups[0].filters[1]
+	)
 
 	type NetworkItem = (typeof networks)[number]
 	const sortOptions: Sort<NetworkItem, 'mainnetChain' | 'chainId'>[] = [
@@ -61,18 +64,22 @@
 		{
 			id: 'chainId',
 			label: 'Chain ID',
-		compare: (a, b) => a.chainId - b.chainId,
-	},
+			compare: (a, b) => a.chainId - b.chainId,
+		},
 	]
-	const displayItems = $derived(
-		sortOptions.length > 1 ? sortedItems : filteredItems,
+
+	const defaultFilterIds = $derived(
+		new Set<NetworkEnvironment>([networkEnvironmentState.current]),
 	)
 
 
 	// State
-	let activeFilters = $state(new Set<Filter<NetworkItem, NetworkEnvironment>>())
-	let filteredItems = $state<NetworkItem[]>([])
-	let sortedItems = $state<NetworkItem[]>([])
+	let activeFilters = $state(
+		new Set<Filter<NetworkItem, NetworkEnvironment>>()
+	)
+	let displayCount = $state(
+		0
+	)
 
 
 	// Actions
@@ -93,9 +100,9 @@
 
 
 	// Components
-	import Filters from '$/components/Filters.svelte'
-	import NetworksList from '$/views/NetworksList.svelte'
-	import Sorts from '$/components/Sorts.svelte'
+	import NetworkView from '$/views/network/Network.svelte'
+	import { NetworkLayout } from '$/views/network/Network.svelte'
+	import RefinableList from '$/components/RefinableList.svelte'
 </script>
 
 
@@ -107,23 +114,36 @@
 <main data-column>
 	<section data-column>
 		<h1><a href={resolve('/networks')}>Networks</a></h1>
-		<div data-row="gap-4 wrap">
-			<Filters
-				items={[...networks]}
-				{filterGroups}
-				bind:activeFilters
-				bind:filteredItems
-				aria-label="Networks environment"
-			/>
-			{#if sortOptions.length > 1}
-				<Sorts
-					items={filteredItems}
-					{sortOptions}
-					defaultSortId="mainnetChain"
-					bind:sortedItems
-				/>
-			{/if}
-		</div>
-		<NetworksList networks={displayItems} />
+		<RefinableList
+			items={[...networks]}
+			{filterGroups}
+			defaultFilterIds={defaultFilterIds}
+			{sortOptions}
+			defaultSortId="mainnetChain"
+			getKey={(n) => n.chainId}
+			getSortValue={(n) => getMainnetChainId(n)}
+			placeholderKeys={new Set()}
+			bind:activeFilters
+			bind:displayCount
+			data-column
+			role="list"
+			aria-label="Networks environment"
+		>
+			{#snippet Item({ key, item: network, isPlaceholder })}
+				{#if isPlaceholder}
+					<span data-placeholder>…</span>
+				{:else if network}
+					<NetworkView
+						networkId={{ chainId: network.chainId }}
+						network={network}
+						layout={NetworkLayout.Summary}
+					/>
+				{/if}
+			{/snippet}
+
+			{#snippet Empty()}
+				<p data-text="muted">No networks.</p>
+			{/snippet}
+		</RefinableList>
 	</section>
 </main>

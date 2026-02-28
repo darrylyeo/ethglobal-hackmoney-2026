@@ -29,8 +29,12 @@
 		stop,
 	}: DragProps<T> = $props()
 
-	let x = $state(0)
-	let y = $state(0)
+	let x = $state(
+		0
+	)
+	let y = $state(
+		0
+	)
 	$effect(() => {
 		x = position.x - offset.x
 		y = position.y - offset.y

@@ -119,14 +119,21 @@ import type { Wallet } from '$/data/Wallet.ts'
 
 
 	// State
-	let slippageInput = $state('')
-	let invalidAmountInput = $state(false)
+	let slippageInput = $state(
+		''
+	)
+	let invalidAmountInput = $state(
+		false
+	)
 	let selectedRouteId = $state<string | null>(null)
-	let executing = $state(false)
+	let executing = $state(
+		false
+	)
 	let executeFunction = $state<(() => Promise<{ txHash?: `0x${string}` } | void>) | null>(null)
 	let executionStatus = $state<BridgeStatus>(createInitialStatus())
-	let now = $state(Date.now())
-
+	let now = $state(
+		Date.now()
+	)
 
 	// (Derived)
 	const selectedWallet = $derived(
@@ -138,8 +145,12 @@ import type { Wallet } from '$/data/Wallet.ts'
 	const selectedWalletProvider = $derived(
 		selectedEip1193Wallet ? selectedEip1193Wallet.provider : null,
 	)
-	const fromNetwork = $derived(resolveNetwork(settings.fromChainId))
-	const toNetwork = $derived(resolveNetwork(settings.toChainId))
+	const fromNetwork = $derived(
+		resolveNetwork(settings.fromChainId)
+	)
+	const toNetwork = $derived(
+		resolveNetwork(settings.toChainId)
+	)
 
 	const routesQuery = useLiveQuery((q) =>
 		q.from({ bridgeRoute: bridgeRoutesCollection }).select(({ bridgeRoute }) => ({ bridgeRoute })),
@@ -214,7 +225,9 @@ import type { Wallet } from '$/data/Wallet.ts'
 
 	const PLACEHOLDER_ADDRESS: `0x${string}` =
 		'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
-	const quoteAddress = $derived(selectedActor ?? PLACEHOLDER_ADDRESS)
+	const quoteAddress = $derived(
+		selectedActor ?? PLACEHOLDER_ADDRESS
+	)
 	const quoteParams = $derived<BridgeRoutes$Id | null>(
 		fromNetwork && toNetwork && settings.amount > 0n && validation.isValid
 			? {
@@ -280,16 +293,24 @@ import type { Wallet } from '$/data/Wallet.ts'
 				)?.allowance.allowance ?? 0n)
 			: 0n,
 	)
-	const approved = $derived(currentAllowance >= settings.amount)
-	const canSend = $derived(!needsApproval || approved)
+	const approved = $derived(
+		currentAllowance >= settings.amount
+	)
+	const canSend = $derived(
+		!needsApproval || approved
+	)
 
 	const recipient = $derived<`0x${string}`>(
 		settings.useCustomRecipient && isValidAddress(settings.customRecipient)
 			? normalizeAddress(settings.customRecipient)!
 			: (selectedActor ?? '0x0000000000000000000000000000000000000000'),
 	)
-	const output = $derived(selectedRoute?.toAmount ?? 0n)
-	const minOutput = $derived(calculateMinOutput(output, settings.slippage))
+	const output = $derived(
+		selectedRoute?.toAmount ?? 0n
+	)
+	const minOutput = $derived(
+		calculateMinOutput(output, settings.slippage)
+	)
 	const fees = $derived(
 		selectedRoute
 			? extractFeeBreakdown({
@@ -303,9 +324,15 @@ import type { Wallet } from '$/data/Wallet.ts'
 			? parseFloat(selectedRoute.originalRoute.fromAmountUSD ?? '0')
 			: 0,
 	)
-	const warnDifferentRecipient = $derived(settings.useCustomRecipient)
-	const warnHighSlippage = $derived(settings.slippage > 0.01)
-	const warnLargeAmount = $derived(fromAmountUsd > 10_000)
+	const warnDifferentRecipient = $derived(
+		settings.useCustomRecipient
+	)
+	const warnHighSlippage = $derived(
+		settings.slippage > 0.01
+	)
+	const warnLargeAmount = $derived(
+		fromAmountUsd > 10_000
+	)
 	const transactions = $derived(
 		(txQuery.data ?? [])
 			.map(({ bridgeTransaction }) => bridgeTransaction)
@@ -393,7 +420,9 @@ import type { Wallet } from '$/data/Wallet.ts'
 	const quoteRemaining = $derived(
 		quoteExpiry ? Math.max(0, Math.ceil((quoteExpiry - now) / 1000)) : null,
 	)
-	const quoteExpired = $derived(quoteRemaining !== null && quoteRemaining <= 0)
+	const quoteExpired = $derived(
+		quoteRemaining !== null && quoteRemaining <= 0
+	)
 
 	const sortOptions: { id: ActionParams<ActionType.Bridge>['sortBy']; label: string }[] = [
 		{ id: BridgeRouteSort.Recommended, label: 'Recommended' },

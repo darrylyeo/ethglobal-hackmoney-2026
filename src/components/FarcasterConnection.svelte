@@ -14,7 +14,6 @@
 		onAction: () => void
 	} = $props()
 
-
 	// (Derived)
 	const label = $derived(
 		connection.username ? `@${connection.username}` : `@${connection.$id.fid}`,

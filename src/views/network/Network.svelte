@@ -81,9 +81,10 @@
 		layout?: NetworkLayout
 	} = $props()
 
-
 	// (Derived)
-	const chainId = $derived(networkId.chainId)
+	const chainId = $derived(
+		networkId.chainId
+	)
 
 	const blocksQuery = useLiveQuery(
 		(q) =>
@@ -113,16 +114,26 @@
 	const data = $derived(
 		dataOverride ?? blocksViewFrom(chainId, blocksQuery.data ?? []).networkData,
 	)
-	const networkFromData = $derived([...data.keys()][0])
+	const networkFromData = $derived(
+		[...data.keys()][0]
+	)
 	const network = $derived(
 		networkOverride ?? networksByChainId[chainId] ?? networkFromData,
 	)
-	const blocksMap = $derived([...data.values()][0] ?? new Map())
+	const blocksMap = $derived(
+		[...data.values()][0] ?? new Map()
+	)
 
-	let heliosSyncStatusTick = $state(0)
-	let rpcBlockNumber = $state(0)
+	let heliosSyncStatusTick = $state(
+		0
+	)
+	let rpcBlockNumber = $state(
+		0
+	)
 	let rpcBlockNumberChainId = $state<number | null>(null)
-	const latestBlockNumber = $derived(Number(latestBlockQuery.data?.[0] ?? 0))
+	const latestBlockNumber = $derived(
+		Number(latestBlockQuery.data?.[0] ?? 0)
+	)
 	const effectiveBlockNumber = $derived(
 		latestBlockNumber ||
 			(rpcBlockNumberChainId != null &&
@@ -142,8 +153,12 @@
 		forksHrefOverride ?? resolve(getNetworkPath(chainId)) + '/forks',
 	)
 
-	const heliosSupported = $derived(chainId in HELIOS_CHAINS)
-	const heliosBrowserOn = $derived(getHeliosBrowserEnabled(chainId))
+	const heliosSupported = $derived(
+		chainId in HELIOS_CHAINS
+	)
+	const heliosBrowserOn = $derived(
+		getHeliosBrowserEnabled(chainId)
+	)
 	const heliosSyncStatus = $derived.by(() => {
 		heliosSyncStatusTick
 		return getHeliosBrowserSyncStatus(chainId)
@@ -230,14 +245,20 @@
 		return () => setHeliosBrowserSyncStatusHandler(null)
 	})
 
-	const consensusSchedule = $derived(getConsensusSchedule(chainId))
-	const showConsensus = $derived(consensusSchedule != null)
+	const consensusSchedule = $derived(
+		getConsensusSchedule(chainId)
+	)
+	const showConsensus = $derived(
+		consensusSchedule != null
+	)
 	const isConsensusLoading = $derived(
 		showConsensus &&
 			latestBlockQuery.data === undefined &&
 			(rpcBlockNumberChainId !== chainId || rpcBlockNumber === 0),
 	)
-	const currentEpoch = $derived(getCurrentEpoch(chainId, currentBlockNumber))
+	const currentEpoch = $derived(
+		getCurrentEpoch(chainId, currentBlockNumber)
+	)
 	const recentEpochs = $derived.by(() => {
 		if (currentEpoch == null || currentEpoch < 0) return []
 		const start = Math.max(0, currentEpoch - 9)
@@ -246,6 +267,7 @@
 			(_, i) => start + i,
 		).reverse()
 	})
+
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'

@@ -44,18 +44,27 @@
 		[key: string]: unknown
 	} = $props()
 
-
 	// (Derived)
-	const sliderMin = $derived(Number(min))
-	const sliderMax = $derived(Number(max))
-	const sliderValue = $derived(Number(value))
+	const sliderMin = $derived(
+		Number(min)
+	)
+	const sliderMax = $derived(
+		Number(max)
+	)
+	const sliderValue = $derived(
+		Number(value)
+	)
 
 
 	// State
 	let sliderEl = $state<HTMLInputElement | undefined>()
 	let textDragStarted = false
-	let focused = $state(false)
-	let displayValue = $state('')
+	let focused = $state(
+		false
+	)
+	let displayValue = $state(
+		''
+	)
 
 
 	// Actions

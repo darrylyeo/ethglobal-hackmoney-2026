@@ -13,12 +13,19 @@
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
 
-
 	// (Derived)
-	const chainIdParam = $derived(page.params.chainId ?? '')
-	const route = $derived(parseNetworkNameParam(chainIdParam))
-	const chainId = $derived((route?.chainId ?? 0) as ChainId)
-	const networkId = $derived({ chainId })
+	const chainIdParam = $derived(
+		page.params.chainId ?? ''
+	)
+	const route = $derived(
+		parseNetworkNameParam(chainIdParam)
+	)
+	const chainId = $derived(
+		(route?.chainId ?? 0) as ChainId
+	)
+	const networkId = $derived(
+		{ chainId }
+	)
 
 
 	// State
@@ -44,6 +51,7 @@
 	import NetworkName from '$/views/NetworkName.svelte'
 </script>
 
+
 <svelte:head>
 	<title>
 		{route
@@ -51,6 +59,7 @@
 			: 'Network'}
 	</title>
 </svelte:head>
+
 
 <main data-column>
 	{#if !route}
@@ -83,6 +92,7 @@
 			{#snippet Title()}
 				<NetworkName {networkId} />
 			{/snippet}
+
 			{#snippet AfterTitle({ entity })}
 				{#if entity && 'network' in entity && (entity as { network?: { type: string } }).network?.type}
 					{@const net = (entity as { network: { type: string } }).network}

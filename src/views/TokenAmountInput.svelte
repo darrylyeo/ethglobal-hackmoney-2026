@@ -44,8 +44,12 @@
 
 
 	// State
-	let focused = $state(false)
-	let displayValue = $state('')
+	let focused = $state(
+		false
+	)
+	let displayValue = $state(
+		''
+	)
 
 	// (Derived)
 	$effect(() => {

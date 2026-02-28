@@ -27,7 +27,6 @@
 		{ id: 'yellow-channels', label: 'Yellow Channels', query },
 	])
 
-
 	// (Derived)
 	const actors = $derived(
 		filterAddresses.length > 0
@@ -50,7 +49,9 @@
 					)
 					.sort((a, b) => b.updatedAt - a.updatedAt),
 	)
-	const singleAddress = $derived(actors.length === 1 ? actors[0] : null)
+	const singleAddress = $derived(
+		actors.length === 1 ? actors[0] : null
+	)
 
 
 	// Components

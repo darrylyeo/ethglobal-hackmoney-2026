@@ -13,15 +13,28 @@
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
 
-
 	// (Derived)
-	const chainIdParam = $derived((page.params as { chainId?: string }).chainId ?? '')
-	const route = $derived(parseNetworkNameParam(chainIdParam))
-	const chainId = $derived(route?.chainId ?? 0)
-	const networkId = $derived(route ? { chainId: route.chainId } : undefined)
-	const network = $derived(route?.network)
-	const scheduleForks = $derived(forksByChainId[chainId] ?? null)
-	const isMainnet = $derived(chainId === ChainId.Ethereum)
+	const chainIdParam = $derived(
+		(page.params as { chainId?: string }).chainId ?? ''
+	)
+	const route = $derived(
+		parseNetworkNameParam(chainIdParam)
+	)
+	const chainId = $derived(
+		route?.chainId ?? 0
+	)
+	const networkId = $derived(
+		route ? { chainId: route.chainId } : undefined
+	)
+	const network = $derived(
+		route?.network
+	)
+	const scheduleForks = $derived(
+		forksByChainId[chainId] ?? null
+	)
+	const isMainnet = $derived(
+		chainId === ChainId.Ethereum
+	)
 	const showForkList = $derived(
 		isMainnet || (scheduleForks != null && scheduleForks.length > 0),
 	)
@@ -54,9 +67,11 @@
 	import NetworkName from '$/views/NetworkName.svelte'
 </script>
 
+
 <svelte:head>
 	<title>Fork upgrades · {network?.name ?? 'Network'}</title>
 </svelte:head>
+
 
 <main data-column>
 	{#if !route}
@@ -92,11 +107,13 @@
 			{#snippet Title()}
 				<NetworkName {networkId} />
 			{/snippet}
+
 			{#snippet AfterTitle({ entity })}
 				{#if entity && 'network' in entity && entity.network?.type}
 					<span data-tag={entity.network.type}>{entity.network.type}</span>
 				{/if}
 			{/snippet}
+
 			{#snippet children()}
 				<p>
 					<a href={resolve(`/network/${chainIdParam}/contracts`)} data-link>Contracts</a>

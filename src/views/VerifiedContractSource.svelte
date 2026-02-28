@@ -32,16 +32,19 @@
 		[() => contractId.$network.chainId, () => contractId.address],
 	)
 
-
 	// (Derived)
-	const source = $derived(sourceQuery.data?.[0]?.row)
+	const source = $derived(
+		sourceQuery.data?.[0]?.row
+	)
 	const hasFiles = $derived(
 		source != null && Object.keys(source.files ?? {}).length > 0,
 	)
 
 
 	// State
-	let hasFetched = $state(false)
+	let hasFetched = $state(
+		false
+	)
 
 
 	// Actions

@@ -33,7 +33,6 @@
 		},
 	])
 
-
 	// (Derived)
 	const depositRow = $derived(
 		yellowState.chainId && yellowState.address
@@ -46,14 +45,24 @@
 					)
 			: null,
 	)
-	const availableBalance = $derived(depositRow?.availableBalance ?? 0n)
-	const lockedBalance = $derived(depositRow?.lockedBalance ?? 0n)
+	const availableBalance = $derived(
+		depositRow?.availableBalance ?? 0n
+	)
+	const lockedBalance = $derived(
+		depositRow?.lockedBalance ?? 0n
+	)
 
 
 	// State
-	let depositAmount = $state('')
-	let withdrawAmount = $state('')
-	let loading = $state(false)
+	let depositAmount = $state(
+		''
+	)
+	let withdrawAmount = $state(
+		''
+	)
+	let loading = $state(
+		false
+	)
 
 
 	// Actions

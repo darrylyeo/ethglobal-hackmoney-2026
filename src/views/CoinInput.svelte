@@ -87,6 +87,7 @@
 			{/if}
 		{/if}
 	{/snippet}
+
 	{#snippet Item(coin, selected)}
 		{@const iconUrl = coinIconUrl(coin)}
 		{@const symbol = coin.symbol}

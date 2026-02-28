@@ -6,6 +6,7 @@
 	let { entry }: { entry: EvmSelector } = $props()
 </script>
 
+
 <section>
 	<dl data-definition-list="vertical">
 		<div>

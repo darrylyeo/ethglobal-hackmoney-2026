@@ -31,7 +31,6 @@
 		'request' in value &&
 		typeof value.request === 'function'
 
-
 	// (Derived)
 	const channelsQuery = useLiveQuery((q) =>
 		q.from({ row: stateChannelsCollection }).select(({ row }) => ({ row })),
@@ -82,12 +81,18 @@
 		},
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
-	const connections = $derived((connectionsQuery.data ?? []).map(({ row: connection }) => connection))
-	const wallets = $derived((walletsQuery.data ?? []).map(({ row: wallet }) => wallet))
+	const connections = $derived(
+		(connectionsQuery.data ?? []).map(({ row: connection }) => connection)
+	)
+	const wallets = $derived(
+		(walletsQuery.data ?? []).map(({ row: wallet }) => wallet)
+	)
 	const connectedConnections = $derived(
 		connections.filter((c) => c.status === 'connected'),
 	)
-	const myAddress = $derived(yellowState.address?.toLowerCase() ?? null)
+	const myAddress = $derived(
+		yellowState.address?.toLowerCase() ?? null
+	)
 	const allActorsLower = $derived(
 		new Set([
 			...connectedConnections.flatMap((c) => c.actors.map((a) => a.toLowerCase())),
@@ -115,7 +120,9 @@
 		?? connections.find((c) => c.activeActor)?.activeActor
 		?? null
 	)
-	const allChannels = $derived((channelsQuery.data ?? []).map(({ row: channel }) => channel))
+	const allChannels = $derived(
+		(channelsQuery.data ?? []).map(({ row: channel }) => channel)
+	)
 	const channelsForConnectedAccounts = $derived(
 		allChannels.filter(
 			(ch) =>
@@ -150,11 +157,12 @@
 	type OriginFilter = 'all' | 'room' | 'external'
 	let statusFilter = $state<StatusFilter>('all')
 	let originFilter = $state<OriginFilter>('all')
-	let myChannelsOnly = $state(true)
+	let myChannelsOnly = $state(
+		true
+	)
 	let closingChannelId = $state<string | null>(null)
 	let challengeChannelId = $state<string | null>(null)
 	let actionError = $state<string | null>(null)
-
 
 	// (Derived) filtered list
 	const statusMatches = (status: ChannelStatus) =>
@@ -178,7 +186,9 @@
 			return true
 		}),
 	)
-	const totalChannels = $derived(channelsForConnectedAccounts.length)
+	const totalChannels = $derived(
+		channelsForConnectedAccounts.length
+	)
 	const activeChannels = $derived(
 		channelsForConnectedAccounts.filter((ch) => ch.status === 'active').length,
 	)
@@ -211,12 +221,18 @@
 
 
 	// State (connection + channel creation)
-	let connecting = $state(false)
+	let connecting = $state(
+		false
+	)
 	let connectError = $state<string | null>(null)
-	let creatingChannel = $state(false)
+	let creatingChannel = $state(
+		false
+	)
 	let createError = $state<string | null>(null)
 
-	const isConnected = $derived(yellowState.clearnodeConnection !== null)
+	const isConnected = $derived(
+		yellowState.clearnodeConnection !== null
+	)
 
 	// Expose for e2e testing
 	if (typeof globalThis.window !== 'undefined' && (globalThis.window as unknown as Record<string, unknown>).__E2E_TEVM__) {
@@ -337,7 +353,9 @@
 	import { Button } from 'bits-ui'
 	import TransferDialog from '$/routes/rooms/TransferDialog.svelte'
 
-	let transferOpen = $state(false)
+	let transferOpen = $state(
+		false
+	)
 	let transferChannel = $state<StateChannelRow | null>(null)
 </script>
 

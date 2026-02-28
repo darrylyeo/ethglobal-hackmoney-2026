@@ -68,7 +68,6 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
-
 	// (Derived)
 	const connections = $derived(
 		(connectionsQuery.data ?? [])
@@ -80,7 +79,9 @@
 			.map(({ wallet }) => wallet)
 			.filter((w): w is WithSource<Wallet> => !!w?.$id?.rdns),
 	)
-	const walletsByRdns = $derived(new Map(wallets.map((w) => [w.$id.rdns, w])))
+	const walletsByRdns = $derived(
+		new Map(wallets.map((w) => [w.$id.rdns, w]))
+	)
 
 
 	// Functions
@@ -99,7 +100,6 @@
 			: ((wallet) => (wallet ? { wallet, connection: c } : null))(
 					walletsByRdns.get(c.$id.wallet$id.rdns),
 				)
-
 
 	// (Derived)
 	const walletChips = $derived<
@@ -162,7 +162,6 @@
 			readOnlyAddress = null
 		}
 	}
-
 
 	// (Derived)
 	const walletConnectItems = $derived<WalletConnectEntry[]>([

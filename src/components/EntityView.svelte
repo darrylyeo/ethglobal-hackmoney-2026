@@ -6,6 +6,7 @@
 	}
 </script>
 
+
 <script
 	lang="ts"
 	generics="
@@ -68,7 +69,6 @@
 		[key: string]: unknown
 	} = $props()
 
-
 	// (Derived)
 	const entityId = $derived(
 		entityIdProp
@@ -87,7 +87,9 @@
 		layout !== EntityLayout.ContentOnly &&
 		((sources?.length ?? 0) > 0 || (sourceLinks?.length ?? 0) > 0),
 	)
-	const sourcesFormatted = $derived(formatSourceList(sources ?? []))
+	const sourcesFormatted = $derived(
+		formatSourceList(sources ?? [])
+	)
 
 
 	// Components

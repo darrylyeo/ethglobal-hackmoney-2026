@@ -116,7 +116,6 @@
 		[],
 	)
 
-
 	// (Derived)
 	const defaultDashboardId = $derived(
 		(() => {

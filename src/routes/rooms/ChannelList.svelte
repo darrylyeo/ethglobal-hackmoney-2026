@@ -17,7 +17,6 @@
 	// Props
 	let { roomId }: { roomId: string } = $props()
 
-
 	// (Derived)
 	const sharedQuery = useLiveQuery(
 		(q) =>
@@ -46,8 +45,12 @@
 	const roomAddresses = $derived(
 		(sharedQuery.data ?? []).map(({ sharedAddress }) => sharedAddress.address.toLowerCase()),
 	)
-	const myAddress = $derived(yellowState.address?.toLowerCase() ?? null)
-	const allChannels = $derived((channelsQuery.data ?? []).map(({ stateChannel: channel }) => channel))
+	const myAddress = $derived(
+		yellowState.address?.toLowerCase() ?? null
+	)
+	const allChannels = $derived(
+		(channelsQuery.data ?? []).map(({ stateChannel: channel }) => channel)
+	)
 	const roomChannels = $derived(
 		myAddress
 			? allChannels.filter((ch) => {
@@ -76,7 +79,9 @@
 
 
 	// State
-	let transferOpen = $state(false)
+	let transferOpen = $state(
+		false
+	)
 	let transferChannel = $state<StateChannelRow | null>(null)
 	let closingChannelId = $state<string | null>(null)
 	let closeError = $state<string | null>(null)

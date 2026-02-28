@@ -11,7 +11,6 @@
 	// Context
 	const connectionsQuery = useFarcasterConnections()
 
-
 	// (Derived)
 	const siwfConnections = $derived(
 		(

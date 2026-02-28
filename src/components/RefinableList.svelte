@@ -96,19 +96,30 @@
 	// State
 	let filteredItems = $state<_Item[]>([])
 	let sortedItems = $state<_Item[]>([])
-	let hasAppliedDefaultFilters = $state(false)
+	let hasAppliedDefaultFilters = $state(
+		false
+	)
 
 	// (Derived)
 	const hasFilterGroups = $derived(
 		filterGroups.length > 0 && filterGroups.some((g) => g.filters.length > 1),
 	)
-	const hasSortOptions = $derived((sortOptions?.length ?? 0) > 1)
+	const hasSortOptions = $derived(
+		(sortOptions?.length ?? 0) > 1
+	)
 	const itemsToSort = $derived(
 		(filter ? (hasFilterGroups ? filteredItems : items).filter(filter) : (hasFilterGroups ? filteredItems : items)),
 	)
-	const displayItems = $derived(hasSortOptions ? sortedItems : itemsToSort)
-	const itemsSet = $derived(new SvelteSet(displayItems))
-	const orderMap = $derived(new Map(displayItems.map((item, i) => [getKey(item), i])))
+	const displayItems = $derived(
+		hasSortOptions ? sortedItems : itemsToSort
+	)
+	const itemsSet = $derived(
+		new SvelteSet(displayItems)
+	)
+	const orderMap = $derived(
+		new Map(displayItems.map((item, i) => [getKey(item), i]))
+	)
+
 
 	// Actions
 	$effect(() => {
@@ -162,15 +173,17 @@
 		searchQuery = searchQuery + e.key
 	}
 
+
 	// Components
 	import Filters from '$/components/Filters.svelte'
 	import List from '$/components/List.svelte'
 	import Sorts from '$/components/Sorts.svelte'
 </script>
 
+
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
-	data-refinable-items-list
+	data-column
 	data-sticky-container
 	role="group"
 	aria-label="Refinable list"
@@ -229,8 +242,8 @@
 		{pagination}
 		bind:searchQuery
 		bind:matchesForItem
-		{Item}
 		{GroupHeader}
+		{Item}
 		{Empty}
 		{...rootProps}
 	/>

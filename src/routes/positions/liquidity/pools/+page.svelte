@@ -41,9 +41,11 @@
 
 </script>
 
+
 <svelte:head>
 	<title>Pools — Liquidity</title>
 </svelte:head>
+
 
 <main data-column data-sticky-container>
 	<h1>Pools</h1>
@@ -87,6 +89,7 @@
 		</section>
 	{/if}
 </main>
+
 
 <style>
 	.pool-list ul {

@@ -34,9 +34,10 @@
 	// svelte-ignore state_referenced_locally
 	let activeSession = $state<SocialPostSession>(structuredClone(initialSession))
 
-
 	// (Derived)
-	const isEphemeral = $derived(activeSession.$id.id.startsWith('ephemeral-'))
+	const isEphemeral = $derived(
+		activeSession.$id.id.startsWith('ephemeral-')
+	)
 	const selectedSiwfConnection = $derived(
 		((connectionsQuery.data ?? []) as { row: FarcasterConnectionSiwf }[])
 			.map(({ row }) => row)
@@ -72,6 +73,7 @@
 	// Components
 	import SocialPostSessionView from './SocialPostSession.svelte'
 </script>
+
 
 <SocialPostSessionView
 	bind:session={activeSession}

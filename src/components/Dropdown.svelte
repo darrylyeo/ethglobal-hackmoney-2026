@@ -188,7 +188,6 @@
 	const isGroup = (value: unknown): value is DropdownGroup<Item> =>
 		isRecord(value) && Array.isArray(value.items) && !isDeclaredItem(value)
 
-
 	// (Derived)
 	const normalizedEntries: NormalizedItem<Item>[] = $derived(
 		items.map((entry, index) =>

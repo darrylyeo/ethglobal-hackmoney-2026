@@ -51,12 +51,17 @@
 
 
 	// State
-	let confirmOpen = $state(false)
+	let confirmOpen = $state(
+		false
+	)
 	let feeFastBps = $state<number | null>(null)
 	let feeStandardBps = $state<number | null>(null)
-	let executing = $state(false)
-	let runExecutionAt = $state(0)
-
+	let executing = $state(
+		false
+	)
+	let runExecutionAt = $state(
+		0
+	)
 
 	// (Derived)
 	const selectedWallet = $derived(
@@ -74,11 +79,21 @@
 					(entry) => entry?.chainId === chainId,
 				) ?? null)
 			: null
-	const fromNetwork = $derived(resolveNetwork(settings.fromChainId))
-	const toNetwork = $derived(resolveNetwork(settings.toChainId))
-	const fromDomain = $derived(getCctpDomainId(settings.fromChainId))
-	const toDomain = $derived(getCctpDomainId(settings.toChainId))
-	const cctpPairSupported = $derived(fromDomain !== null && toDomain !== null)
+	const fromNetwork = $derived(
+		resolveNetwork(settings.fromChainId)
+	)
+	const toNetwork = $derived(
+		resolveNetwork(settings.toChainId)
+	)
+	const fromDomain = $derived(
+		getCctpDomainId(settings.fromChainId)
+	)
+	const toDomain = $derived(
+		getCctpDomainId(settings.toChainId)
+	)
+	const cctpPairSupported = $derived(
+		fromDomain !== null && toDomain !== null
+	)
 	const fastTransferSupported = $derived(
 		settings.fromChainId !== null &&
 			CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS.has(settings.fromChainId),

@@ -25,9 +25,10 @@
 	import { resolve } from '$app/paths'
 	import { page } from '$app/state'
 
-
 	// (Derived)
-	const roomId = $derived(page.params.roomId ?? '')
+	const roomId = $derived(
+		page.params.roomId ?? ''
+	)
 
 
 	// Context
@@ -63,7 +64,6 @@
 	let selectedChainId = $state<number | null>(null)
 	let leaveToken = 0
 
-
 	// (Derived)
 	const others = $derived(
 		(peersQuery.data ?? [])
@@ -76,8 +76,12 @@
 	const provider = $derived(
 		selectedWallets.find(isEip1193Wallet)?.wallet.provider ?? null,
 	)
-	const roomDisplayName = $derived(roomIdToDisplayName(roomId))
-	const roomPlaceEmoji = $derived(roomIdToPlaceEmoji(roomId))
+	const roomDisplayName = $derived(
+		roomIdToDisplayName(roomId)
+	)
+	const roomPlaceEmoji = $derived(
+		roomIdToPlaceEmoji(roomId)
+	)
 	const connectionStatusLabel = $derived(
 		partyKitStatusLabel(roomState.connectionStatus),
 	)
@@ -145,6 +149,7 @@
 				</span>
 			{/if}
 		{/snippet}
+
 		{#snippet Title()}
 			<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
 			{roomDisplayName}

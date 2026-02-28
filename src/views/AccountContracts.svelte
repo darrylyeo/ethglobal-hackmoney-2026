@@ -21,9 +21,10 @@
 		actorId: Actor$Id | null
 	} = $props()
 
-
 	// (Derived)
-	const addressNorm = $derived(actorId?.address ?? null)
+	const addressNorm = $derived(
+		actorId?.address ?? null
+	)
 
 
 	// Context
@@ -41,13 +42,16 @@
 		[() => addressNorm],
 	)
 
-
 	// (Derived)
-	const contracts = $derived((contractsQuery.data ?? []).map(({ contract }) => contract))
+	const contracts = $derived(
+		(contractsQuery.data ?? []).map(({ contract }) => contract)
+	)
 
 
 	// State
-	let discovering = $state(false)
+	let discovering = $state(
+		false
+	)
 	let discoveryError = $state<string | null>(null)
 
 
@@ -76,6 +80,7 @@
 	import Address, { AddressFormat } from '$/views/Address.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
 </script>
+
 
 <Collapsible
 	title="Contracts"

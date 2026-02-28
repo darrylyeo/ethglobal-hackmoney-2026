@@ -195,7 +195,9 @@
 		)
 	})
 
-	const walletsByRdns = $derived(new Map(wallets.map((w) => [w.$id.rdns, w])))
+	const walletsByRdns = $derived(
+		new Map(wallets.map((w) => [w.$id.rdns, w]))
+	)
 
 	const joinWallet = (c: WalletConnectionRow): ConnectedWallet | null =>
 		c.transport === WalletConnectionTransport.None
@@ -290,7 +292,9 @@
 		),
 	)
 
-	let readOnlyAddress = $state('')
+	let readOnlyAddress = $state(
+		''
+	)
 
 
 	// Props
@@ -468,6 +472,7 @@
 												<circle cx="6" cy="10" r="1.5" />
 											</svg>
 										{/snippet}
+
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
 												<span class="wallet-menu-option" data-row="start">
@@ -579,6 +584,7 @@
 												<circle cx="6" cy="10" r="1.5" />
 											</svg>
 										{/snippet}
+
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
 												<span class="wallet-menu-option" data-row="start">
@@ -699,6 +705,7 @@
 												<circle cx="6" cy="10" r="1.5" />
 											</svg>
 										{/snippet}
+
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
 												<span class="wallet-menu-option" data-row="start">
@@ -810,6 +817,7 @@
 												<circle cx="6" cy="10" r="1.5" />
 											</svg>
 										{/snippet}
+
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
 												<span class="wallet-menu-option" data-row="start">

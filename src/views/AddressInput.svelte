@@ -32,7 +32,6 @@
 		[key: string]: unknown,
 	} = $props()
 
-
 	// (Derived)
 	const selectedItem = $derived(
 		value ?

@@ -22,9 +22,10 @@
 	// Context
 	import { page } from '$app/state'
 
-
 	// (Derived)
-	const channelId = $derived(page.params.channelId ?? '')
+	const channelId = $derived(
+		page.params.channelId ?? ''
+	)
 
 
 	// Context
@@ -42,9 +43,10 @@
 		[],
 	)
 
-
 	// (Derived)
-	const channel = $derived(channelsQuery.data?.[0]?.row)
+	const channel = $derived(
+		channelsQuery.data?.[0]?.row
+	)
 	const channelUrl = $derived(
 		channel?.url ?? `https://warpcast.com/~/channel/${channelId}`,
 	)
@@ -60,7 +62,6 @@
 		[() => [channelUrl]],
 	)
 
-
 	// (Derived)
 	const userByFid = $derived(
 		new Map(
@@ -73,7 +74,9 @@
 	const rootCasts = $derived(
 		castsByChannel.filter((c) => !c.parentFid || !c.parentHash),
 	)
-	const castsSet = $derived(new Set(rootCasts))
+	const castsSet = $derived(
+		new Set(rootCasts)
+	)
 	const placeholderKeys = $derived(
 		new Set<string | [number, number]>(['loading']),
 	)
@@ -81,7 +84,9 @@
 
 	// State
 	let castsNextToken = $state<string | undefined>(undefined)
-	let isLoadingMoreCasts = $state(false)
+	let isLoadingMoreCasts = $state(
+		false
+	)
 
 
 	// Actions
@@ -118,9 +123,11 @@
 	import FarcasterCastsEntityList from '$/views/farcaster/FarcasterCastsEntityList.svelte'
 </script>
 
+
 <svelte:head>
 	<title>{channel?.name ?? channelId} · Farcaster</title>
 </svelte:head>
+
 
 <main data-column="gap-4">
 	{#if channel}

@@ -30,7 +30,6 @@
 		setSortById?: (sortId: _SortId | '') => void
 	} = $props()
 
-
 	// (Derived)
 	const effectiveSortId = $derived(
 		(activeSortId === '' ? (defaultSortId ?? sortOptions[0]?.id) : activeSortId) ?? '',

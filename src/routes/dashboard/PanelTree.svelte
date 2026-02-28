@@ -59,7 +59,6 @@
 		indexInParent?: 0 | 1,
 	} = $props()
 
-
 	// (Derived)
 	const displayRatio = $derived(
 		root.type === 'split' ?

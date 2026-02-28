@@ -10,6 +10,7 @@
 	import '$/styles/components.css'
 </script>
 
+
 <div
 	class="panes-test"
 	data-scroll-container="layout-inline-panes"
@@ -33,6 +34,7 @@
 		{@render children()}
 	</main>
 </div>
+
 
 <style>
 	.panes-test {

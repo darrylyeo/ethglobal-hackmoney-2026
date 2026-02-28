@@ -23,7 +23,6 @@
 		[key: string]: unknown
 	} = $props()
 
-
 	// (Derived)
 	const itemsWithGroup = $derived(
 		networkFilterGroups
@@ -32,7 +31,9 @@
 				group.networks.map((network) => ({ item: network, groupId: group.id, groupLabel: group.label })),
 			),
 	)
-	const items = $derived(itemsWithGroup.map((x) => x.item))
+	const items = $derived(
+		itemsWithGroup.map((x) => x.item)
+	)
 	const uniqueValue = $derived(
 		[...new Set((value ?? []).filter((id): id is string => id != null && id !== ''))],
 	)
@@ -86,6 +87,7 @@
 			</span>
 		{/if}
 	{/snippet}
+
 	{#snippet Item(network, selected)}
 		<span data-row="start" data-selected={selected}>
 			<span class="network-input-icon">

@@ -22,9 +22,10 @@
 	// Context
 	import { page } from '$app/state'
 
-
 	// (Derived)
-	const sessionId = $derived(page.params.id ?? '')
+	const sessionId = $derived(
+		page.params.id ?? ''
+	)
 
 
 	// Context
@@ -58,12 +59,13 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
-
 	// (Derived)
 	const dbSession = $derived(
 		(sessionQuery.data?.[0]?.row as Session | undefined) ?? null,
 	)
-	const sessionQueryResolved = $derived(sessionQuery.data !== undefined)
+	const sessionQueryResolved = $derived(
+		sessionQuery.data !== undefined
+	)
 	const sessionActions = $derived(
 		(sessionActionsQuery.data ?? [])
 			.map(({ sessionAction: action }) => action)
@@ -87,7 +89,9 @@
 
 	// State
 	let activeSession = $state<Session | null>(null)
-	let lastActionsHash = $state('')
+	let lastActionsHash = $state(
+		''
+	)
 
 
 	// Actions
@@ -111,7 +115,6 @@
 			setSessionActions(s.$id.id, s.actions)
 		}
 	})
-
 
 	// (Derived)
 	const pageTitle = $derived(

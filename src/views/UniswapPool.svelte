@@ -8,13 +8,16 @@
 	let { pool }: { pool: UniswapPool } = $props()
 
 	// (Derived)
-	const network = $derived(networksByChainId[pool.$id.chainId])
+	const network = $derived(
+		networksByChainId[pool.$id.chainId]
+	)
 	const pairLabel = $derived(
 		pool.token0Symbol && pool.token1Symbol
 			? `${pool.token0Symbol}–${pool.token1Symbol}`
 			: `${pool.token0.slice(0, 6)}… / ${pool.token1.slice(0, 6)}…`,
 	)
 </script>
+
 
 <section>
 	<dl data-definition-list="vertical">

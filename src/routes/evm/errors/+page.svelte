@@ -13,7 +13,9 @@
 	const query = useLiveQuery((q) =>
 		q.from({ row: evmErrorsCollection }).select(({ row }) => ({ row })),
 	)
-	const rows = $derived((query.data ?? []).map(({ row: error }) => error as EvmErrorRow))
+	const rows = $derived(
+		(query.data ?? []).map(({ row: error }) => error as EvmErrorRow)
+	)
 
 	const sortOptions: Sort<EvmErrorRow, EvmSignatureSort>[] = [
 		{ id: EvmSignatureSort.Hex, label: 'Hex', compare: (a, b) => a.$id.hex.localeCompare(b.$id.hex) },
@@ -25,22 +27,29 @@
 		},
 	]
 
+
 	// State (bound from RefinableList)
-	let displayCount = $state(0)
+	let displayCount = $state(
+		0
+	)
 
 	// (Derived)
 	const getKey = (e: EvmErrorRow) => e.$id.hex
+
 
 	// Components
 	import EntityView from '$/components/EntityView.svelte'
 	import Heading from '$/components/Heading.svelte'
 	import RefinableList from '$/components/RefinableList.svelte'
+	import SearchableText from '$/components/SearchableText.svelte'
 	import EvmError from '$/views/EvmError.svelte'
 </script>
+
 
 <svelte:head>
 	<title>EVM errors</title>
 </svelte:head>
+
 
 <main data-column="gap-4">
 	<Heading>EVM errors</Heading>
@@ -73,17 +82,27 @@
 			{#snippet Empty()}
 				<p>No error selectors in cache. Open an error selector detail by hex to look one up.</p>
 			{/snippet}
-			{#snippet Item({ key: _k, item: entry, isPlaceholder })}
+
+			{#snippet Item({ key: _k, item: entry, isPlaceholder, searchQuery: q, matches })}
 				{#if !isPlaceholder && entry != null}
+					{@const label = entry.signatures[0] ?? entry.$id.hex}
 					<EntityView
 						entityType={EntityType.EvmError}
 						entity={entry}
 						titleHref={getEvmErrorPath(entry.$id.hex)}
-						label={entry.signatures[0] ?? entry.$id.hex}
+						{label}
 						layout={EntityLayout.PageSection}
 						metadata={[{ term: 'Hex', detail: entry.$id.hex }]}
 						annotation="error"
 					>
+						{#snippet Title()}
+							{#if q != null && q !== ''}
+								<SearchableText text={label} query={q} {matches} />
+							{:else}
+								{label}
+							{/if}
+						{/snippet}
+
 						{#snippet children()}
 							<EvmError entry={entry} />
 						{/snippet}

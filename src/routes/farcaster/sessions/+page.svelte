@@ -39,16 +39,20 @@
 	const draftCount = $derived(
 		sessions.filter((s) => s.status === SocialPostSessionStatus.Draft).length,
 	)
-	let now = $state(Date.now())
+	let now = $state(
+		Date.now()
+	)
 	$effect(() => {
 		const id = setInterval(() => (now = Date.now()), 60_000)
 		return () => clearInterval(id)
 	})
 </script>
 
+
 <svelte:head>
 	<title>Social posts – {APP_NAME}</title>
 </svelte:head>
+
 
 <main data-column data-sticky-container>
 	<section data-scroll-item data-column="gap-3">

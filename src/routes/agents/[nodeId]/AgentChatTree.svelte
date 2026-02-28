@@ -27,7 +27,6 @@
 		toolsForChat?: string[] | null
 	} = $props()
 
-
 	// (Derived)
 	const rootTurn = $derived(
 		turns.find((t) => t.parentId === null),

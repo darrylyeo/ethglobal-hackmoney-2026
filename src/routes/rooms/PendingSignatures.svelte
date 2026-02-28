@@ -44,7 +44,9 @@
 			),
 	)
 
-	const canSign = $derived(provider != null)
+	const canSign = $derived(
+		provider != null
+	)
 	const signChallenge = async (challenge: WithSource<SiweChallenge>) => {
 		if (!provider) return
 		try {

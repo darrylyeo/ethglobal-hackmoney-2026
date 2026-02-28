@@ -10,15 +10,17 @@
 		payloads: readonly TransactionSigningPayload[]
 	} = $props()
 
-
 	// (Derived)
-	const items = $derived(new Set(payloads))
+	const items = $derived(
+		new Set(payloads)
+	)
 
 
 	// Components
 	import List from '$/components/List.svelte'
 	import SignaturePayload from './SignaturePayload.svelte'
 </script>
+
 
 <div class="proposed-tx-list" data-column="gap-2">
 	<div
@@ -32,9 +34,6 @@
 			placeholderKeys={new Set()}
 			data-list="unstyled gap-2"
 		>
-			{#snippet Empty()}
-				<p data-text="muted">No transactions for this action.</p>
-			{/snippet}
 			{#snippet Item({ key, item, isPlaceholder })}
 				{#if isPlaceholder}
 					<div data-placeholder>…</div>
@@ -42,9 +41,14 @@
 					<SignaturePayload payload={item} />
 				{/if}
 			{/snippet}
+
+			{#snippet Empty()}
+				<p data-text="muted">No transactions for this action.</p>
+			{/snippet}
 		</List>
 	</div>
 </div>
+
 
 <style>
 	.proposed-tx-list {

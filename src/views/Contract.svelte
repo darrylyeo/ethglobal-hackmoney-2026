@@ -40,10 +40,13 @@
 		contractName?: string
 	} = $props()
 
-
 	// (Derived)
-	const chainId = $derived(contractIdProp?.$network.chainId ?? chainIdProp!)
-	const address = $derived(contractIdProp?.address ?? addressProp!)
+	const chainId = $derived(
+		contractIdProp?.$network.chainId ?? chainIdProp!
+	)
+	const address = $derived(
+		contractIdProp?.address ?? addressProp!
+	)
 
 
 	// Context
@@ -71,26 +74,39 @@
 		[() => chainId, () => address],
 	)
 
-
 	// (Derived)
-	const contractRow = $derived(contractQuery.data?.[0]?.row)
-	const abi = $derived(abiProp ?? contractRow?.abi)
-	const sourceRow = $derived(sourceQuery.data?.[0]?.row)
+	const contractRow = $derived(
+		contractQuery.data?.[0]?.row
+	)
+	const abi = $derived(
+		abiProp ?? contractRow?.abi
+	)
+	const sourceRow = $derived(
+		sourceQuery.data?.[0]?.row
+	)
 	const hasSourceFiles = $derived(
 		sourceRow != null
 		&& !sourceRow.notFound
 		&& Object.keys(sourceRow.files ?? {}).length > 0,
 	)
-	const hasAbi = $derived(Array.isArray(abi) && abi.length > 0)
+	const hasAbi = $derived(
+		Array.isArray(abi) && abi.length > 0
+	)
 	const fetchSettled = $derived(
 		sourceRow != null && sourceRow.isLoading === false,
 	)
-	const isLoading = $derived(!fetchSettled && !hasAbi)
-	const showNotVerified = $derived(fetchSettled && !hasAbi)
+	const isLoading = $derived(
+		!fetchSettled && !hasAbi
+	)
+	const showNotVerified = $derived(
+		fetchSettled && !hasAbi
+	)
 
 
 	// State
-	let hasFetchedSource = $state(false)
+	let hasFetchedSource = $state(
+		false
+	)
 
 
 	// Actions

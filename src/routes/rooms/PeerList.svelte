@@ -31,9 +31,10 @@
 		},
 	])
 
-
 	// (Derived)
-	const peers = $derived((peersQuery.data ?? []).map(({ roomPeer: peer }) => peer))
+	const peers = $derived(
+		(peersQuery.data ?? []).map(({ roomPeer: peer }) => peer)
+	)
 
 
 	// Components

@@ -15,7 +15,9 @@
 	import { resolve } from '$app/paths'
 
 	// (Derived)
-	const idParam = $derived(page.params.id ?? '')
+	const idParam = $derived(
+		page.params.id ?? ''
+	)
 	const parsedId = $derived(
 		idParam ? eip8004ServiceIdFromString(decodeURIComponent(idParam)) : null,
 	)
@@ -31,7 +33,9 @@
 	let loadError = $state<string | null>(null)
 
 	// (Derived)
-	const service = $derived(serviceFromCollection ?? serviceOverride)
+	const service = $derived(
+		serviceFromCollection ?? serviceOverride
+	)
 
 	// Effects
 	$effect(() => {
@@ -69,12 +73,14 @@
 	import Eip8004ServiceView from '$/views/Eip8004Service.svelte'
 </script>
 
+
 <svelte:head>
 	<title>
 		{service ? (service.name ?? service.$id.identityId) : 'Service'}
 		– EIP-8004 registry
 	</title>
 </svelte:head>
+
 
 <main>
 	{#if !parsedId}

@@ -25,6 +25,7 @@
 	import Tree from '$/components/Tree.svelte'
 </script>
 
+
 <Tree
 	items={[trace]}
 	getKey={getKey}

@@ -24,7 +24,6 @@
 		[key: string]: unknown
 	} = $props()
 
-
 	// (Derived)
 	const modelItems = $derived(
 		connections.flatMap((conn) =>
@@ -34,7 +33,9 @@
 			})),
 		),
 	)
-	const options = $derived(['', ...modelItems.map((item) => item.value)])
+	const options = $derived(
+		['', ...modelItems.map((item) => item.value)]
+	)
 
 
 	// Components

@@ -18,7 +18,6 @@
 		isOpen: boolean
 	} = $props()
 
-
 	// (Derived)
 	const myBalance = $derived(
 		yellowState.address &&
@@ -29,9 +28,13 @@
 
 
 	// State
-	let amount = $state('')
+	let amount = $state(
+		''
+	)
 	let error = $state<string | null>(null)
-	let sending = $state(false)
+	let sending = $state(
+		false
+	)
 
 
 	// Actions

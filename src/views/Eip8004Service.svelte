@@ -8,13 +8,20 @@
 	let { service }: { service: Eip8004Service } = $props()
 
 	// (Derived)
-	const serviceRef = $derived(`@Service:${service.$id.identityId}`)
+	const serviceRef = $derived(
+		`@Service:${service.$id.identityId}`
+	)
 	const serviceHref = $derived(
 		`/agents?ref=${encodeURIComponent(eip8004ServiceIdToString(service.$id))}`,
 	)
-	const imageSrc = $derived(service.image ? ipfsUriToHttp(service.image) : null)
-	const hasCapabilities = $derived(service.services != null && service.services.length > 0)
+	const imageSrc = $derived(
+		service.image ? ipfsUriToHttp(service.image) : null
+	)
+	const hasCapabilities = $derived(
+		service.services != null && service.services.length > 0
+	)
 </script>
+
 
 <div data-column="gap-3">
 	{#if imageSrc}

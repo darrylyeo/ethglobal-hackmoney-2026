@@ -11,9 +11,10 @@
 		payload: TransactionSigningPayload
 	} = $props()
 
-
 	// (Derived)
-	const valueFormatted = $derived(formatPayloadValue(payload.value))
+	const valueFormatted = $derived(
+		formatPayloadValue(payload.value)
+	)
 
 
 	// Components
@@ -21,6 +22,7 @@
 	import Address from '$/views/Address.svelte'
 	import NetworkName from '$/views/NetworkName.svelte'
 </script>
+
 
 <article data-card data-signature-payload data-column="gap-2 padding-3">
 	<header data-row="align-center">
@@ -61,6 +63,7 @@
 		{/if}
 	</dl>
 </article>
+
 
 <style>
 	[data-signature-payload] dl dd {
