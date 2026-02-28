@@ -10,7 +10,7 @@ When the user asks you to commit staged/modified changes atomically:
 
 1. **Analyze** all changes at **hunk level** (not just file level)
 2. **Plan** commits in topological order (dependencies first), assigning **hunks** to commits
-3. **Execute** each commit by staging only the **relevant hunks** (`git add -p` when a file spans multiple commits)
+3. **Execute** each commit by staging only the **relevant hunks** (see "Staging hunks" below — do **not** use `git add -p`; it is interactive and fails in this environment)
 4. **Verify** the build after **every** commit; if it fails, undo, split, and re-commit until the commit passes
 
 ---
@@ -37,7 +37,7 @@ Categorize each **hunk** (or file when it has a single concern):
 - **Dependency**: Must come before files/hunks that import or use it
 - **Atomic group**: Hunks (possibly across files) that must change together (e.g., prop renames)
 - **Deletion**: Must come after removing all usages
-- **Mixed file**: List which hunks go in which commit; stage with `git add -p` when executing
+- **Mixed file**: List which hunks go in which commit; stage with `scripts/stage-hunk.sh` or `git apply --cached` (see "Staging hunks" below)
 
 ---
 
@@ -74,29 +74,29 @@ Analyze `git log` to match existing style. Common patterns:
 
 ## Phase 3: Execute Commits (hunk granularity)
 
-For each planned commit, stage **only the hunks** that belong to that commit. When a file contains hunks for more than one commit, use `git add -p` and accept (y) or skip (n) by hunk.
+For each planned commit, stage **only the hunks** that belong to that commit. **Do not use `git add -p`** — interactive prompts do not work in this environment. Use the script or `git apply --cached` (see rule `atomic-commit-staging.mdc`).
+
+### Staging hunks (non-interactive)
+
+- **Whole file** for this commit: `git add -- path/to/file.ts`
+- **Pipe into git add -p** (built-in): `printf 'y\nn\ny\n' | git add -p -- path/to/file.ts` — one `y` or `n` per hunk in order. Works when stdin is a pipe; if it hangs, use the script below.
+- **Specific hunks** (1-based indices): `./scripts/stage-hunk.sh path/to/file.ts 1 3` (e.g. stage 1st and 3rd hunk). Uses `git apply --cached`; use when piping doesn’t work.
+- **Deletions**: `git rm -- path/to/deleted.ts`
 
 ```bash
-# Prefer staging by hunk when a file spans multiple commits
-git add -p path/to/file.ts
-
-# When the whole file belongs to this commit
-git add -- path/to/file.ts
-
-# For deletions
-git rm -- path/to/deleted.ts
-
+# Example: stage 2nd and 4th hunk of a file, then commit
+./scripts/stage-hunk.sh src/foo.svelte 2 4
 git commit -m "$(cat <<'EOF'
 Commit message here
 EOF
 )"
 ```
 
-Do not stage a whole file for one commit if it has hunks that belong to another; split by hunk.
+Do not stage a whole file for one commit if it has hunks that belong to another; split by hunk using `stage-hunk.sh` or by building a patch and `git apply --cached`.
 
 ### Handling Complex Diffs
 
-When a file has mixed changes and `git add -p` is impractical:
+When a file has mixed changes, prefer `./scripts/stage-hunk.sh <file> <index...>` to stage only the hunks for this commit. If you need to stage in a different order or the script fails, use the stash/checkout/restore flow:
 
 1. **Stash** current working tree state
 2. **Checkout** the file from HEAD
@@ -175,6 +175,20 @@ git commit -m "Utils: remove deprecated module"
 
 ---
 
+## git absorb (alternative workflow)
+
+When the user’s changes are **amendments to recent commits** (e.g. review fixes, small tweaks) rather than new work to split into new commits, use **git absorb** instead of manual hunk staging.
+
+**Requires:** `git-absorb` installed (e.g. `brew install git-absorb`).
+
+1. Stage the changes: `git add <files>` (or stage only the hunks that are amendments using the staging options above).
+2. Run `git absorb` — it matches each staged hunk to the recent commit that touched those lines and creates `fixup!` commits.
+3. Fold into history: `git rebase -i --autosquash <base>` (e.g. `origin/main`), or `git absorb --and-rebase` to do steps 2 and 3 together.
+
+Use `--dry-run` to preview. Only staged content is absorbed; default stack size is the last ~10 commits (configurable). If something goes wrong: `git reset --soft PRE_ABSORB_HEAD` or use reflog to restore.
+
+---
+
 ## Flags
 
 The user may specify:
@@ -183,6 +197,7 @@ The user may specify:
 - **"commit later"** — Mark section as deferred
 - **"one commit per file"** — Don't batch related changes
 - **"batch all"** — Single commit for everything
+- **"absorb"** or **"fold into existing"** — Use `git absorb` to turn changes into fixups for recent commits instead of new commits
 
 ---
 
