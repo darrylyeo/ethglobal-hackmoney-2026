@@ -45,7 +45,10 @@
 </svelte:head>
 
 
-<main data-column data-sticky-container>
+<main
+	data-column
+	data-sticky-container
+>
 	{#if initialSession}
 		{#key urlKey}
 			<SocialPostSessionLocal
@@ -54,12 +57,19 @@
 			/>
 		{/key}
 	{:else}
-		<section data-scroll-item data-column="gap-3">
+		<section
+			data-scroll-item
+			data-column="gap-3"
+		>
 			<header data-row="wrap gap-4">
-				<h1>Social post</h1>
+				<h1>
+					Social post
+				</h1>
 			</header>
 
-			<p data-text="muted">Loading…</p>
+			<p data-text="muted">
+				Loading…
+			</p>
 		</section>
 	{/if}
 </main>

@@ -33,8 +33,14 @@
 		{#if Pending}
 			{@render Pending()}
 		{:else}
-			<div data-card data-row class="loading">
-				<p>Loading...</p>
+			<div
+				data-card
+				data-row
+				class="loading"
+			>
+				<p>
+					Loading...
+				</p>
 			</div>
 		{/if}
 	{/snippet}
@@ -45,15 +51,24 @@
 		{#if Failed}
 			{@render Failed(error, retry)}
 		{:else}
-			<div data-card class="error-card">
+			<div
+				data-card
+				class="error-card"
+			>
 				<header data-row="wrap">
-					<div data-row="start" data-row-item="flexible">
+					<div
+						data-row="start"
+						data-row-item="flexible"
+					>
 						<h3>
 							{error instanceof Error ? error.name : 'Error'}
 						</h3>
 					</div>
 
-					<div data-row class="error-actions">
+					<div
+						data-row
+						class="error-actions"
+					>
 						<button
 							type="button"
 							onclick={() => navigator.clipboard.writeText(errorDisplayText(error))}
@@ -62,7 +77,12 @@
 						</button>
 
 						{#if retry}
-							<button type="button" onclick={retry}>Retry</button>
+							<button
+								type="button"
+								onclick={retry}
+							>
+								Retry
+							</button>
 						{/if}
 					</div>
 				</header>
@@ -72,7 +92,9 @@
 						<p class="error-message">{error.message}</p>
 						{#if error.stack}
 							<details class="error-stack">
-								<summary>Stack trace</summary>
+								<summary>
+									Stack trace
+								</summary>
 								<pre>{error.stack}</pre>
 							</details>
 						{/if}

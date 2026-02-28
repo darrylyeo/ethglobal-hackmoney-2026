@@ -81,8 +81,13 @@
 		data-column="gap-3"
 	>
 		<header data-row="wrap gap-4">
-			<div data-row="start" data-row-item="flexible">
-				<h1>Sessions</h1>
+			<div
+				data-row="start"
+				data-row-item="flexible"
+			>
+				<h1>
+					Sessions
+				</h1>
 			</div>
 
 			{#if draftCount > 0}
@@ -98,7 +103,9 @@
 		</header>
 
 		{#if sessions.length === 0}
-			<p data-text="muted">No sessions yet.</p>
+			<p data-text="muted">
+				No sessions yet.
+			</p>
 		{:else}
 			<ul
 				data-columns="width-5 gap-3"

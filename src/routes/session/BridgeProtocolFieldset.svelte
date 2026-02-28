@@ -76,11 +76,19 @@
 		{:else if activeProtocol === BridgeProtocolId.Lifi}
 			<LifiBridgeSettingsFieldset bind:action />
 		{:else if activeProtocol === BridgeProtocolId.Gateway}
-			<GatewayBridgeSettingsFieldset bind:action actors={actors} network={fromChainId ?? undefined} />
+			<GatewayBridgeSettingsFieldset
+				bind:action
+				actors={actors}
+				network={fromChainId ?? undefined}
+			/>
 		{:else if activeProtocol === BridgeProtocolId.NearIntents}
-			<p data-text="muted">Quote from order server below.</p>
+			<p data-text="muted">
+				Quote from order server below.
+			</p>
 		{:else if fromChainId !== null && toChainId !== null}
-			<p data-error>This chain pair is not supported by CCTP, LI.FI, Gateway, or NEAR Intents.</p>
+			<p data-error>
+				This chain pair is not supported by CCTP, LI.FI, Gateway, or NEAR Intents.
+			</p>
 		{/if}
 	</div>
 {/if}

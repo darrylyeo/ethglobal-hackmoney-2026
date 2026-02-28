@@ -34,9 +34,16 @@
 </script>
 
 {#if action.type === ActionType.Bridge && p}
-	<div data-card data-column>
-		<h3>Gateway settings</h3>
-		<p data-text="muted">Gateway uses the amount and networks above.</p>
+	<div
+		data-card
+		data-column
+	>
+		<h3>
+			Gateway settings
+		</h3>
+		<p data-text="muted">
+			Gateway uses the amount and networks above.
+		</p>
 		<label data-row="align-center">
 			<input
 				type="checkbox"
@@ -53,7 +60,9 @@
 
 		{#if p.useCustomRecipient}
 			<label data-column>
-				<span>Recipient address</span>
+				<span>
+					Recipient address
+				</span>
 
 				<AddressInput
 					items={actorItems}

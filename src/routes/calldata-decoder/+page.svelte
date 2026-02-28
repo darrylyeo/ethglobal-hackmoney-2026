@@ -214,10 +214,14 @@
 
 <main>
 	<Heading>Calldata decoder</Heading>
-	<p>Paste transaction input or event data (hex) to resolve the function selector (4 bytes) and/or event topic (32 bytes) to human-readable signature(s). Use <code>?data=0x…</code> in the URL to open with hex pre-filled (shareable link).</p>
+	<p>
+		Paste transaction input or event data (hex) to resolve the function selector (4 bytes) and/or event topic (32 bytes) to human-readable signature(s). Use <code>?data=0x…</code> in the URL to open with hex pre-filled (shareable link).
+	</p>
 
 	<label data-column="gap-1">
-		<span class="visually-hidden">Load example</span>
+		<span class="visually-hidden">
+			Load example
+		</span>
 		<Select
 			items={calldataExamples}
 			bind:value={selectedExample}
@@ -238,8 +242,16 @@
 	/>
 
 	{#if hexWithPrefix}
-		<Collapsible title="Result" open={true} detailsProps={{ style: 'margin-top: 1rem;' }}>
-			<ul data-column="gap-4" class="calldata-result" role="list">
+		<Collapsible
+			title="Result"
+			open={true}
+			detailsProps={{ style: 'margin-top: 1rem;' }}
+		>
+			<ul
+				data-column="gap-4"
+				class="calldata-result"
+				role="list"
+			>
 				{#if selector}
 					<li>
 						<EntityView
@@ -256,7 +268,9 @@
 								{#if functionSignatures.length > 0}
 									<dl data-definition-list="vertical">
 										<div>
-											<dt>Signature</dt>
+											<dt>
+												Signature
+											</dt>
 											<dd>
 												{#if functionSignatures.length > 1}
 													<select
@@ -276,20 +290,32 @@
 
 										{#if decodedCall}
 											<div>
-												<dt>Arguments</dt>
+												<dt>
+													Arguments
+												</dt>
 												<dd>
-													<dl data-definition-list="vertical" class="calldata-result-args">
+													<dl
+														data-definition-list="vertical"
+														class="calldata-result-args"
+													>
 														{#each decodedCall.params as param, i}
 															<div class="calldata-result-arg">
 																<dt>{i}</dt>
 																<dd>
 																	{#if param.type === 'address' && typeof param.value === 'string'}
-																		<Address address={param.value as `0x${string}`} format={AddressFormat.Full} />
+																		<Address
+																		address={param.value as `0x${string}`}
+																		format={AddressFormat.Full}
+																	/>
 																	{:else}
 																		{@const str = formatDecodedParamValue(param.type, param.value)}
 
 																		{#if str.length > TRUNCATE_PARAM_LENGTH}
-																			<TruncatedValue value={str} startLength={10} endLength={8} />
+																			<TruncatedValue
+																			value={str}
+																			startLength={10}
+																			endLength={8}
+																		/>
 																		{:else}
 																			<span class="calldata-result-arg-value">{str}</span>
 																		{/if}
@@ -324,7 +350,9 @@
 								{#if eventSignatures.length > 0}
 									<dl data-definition-list="vertical">
 										<div>
-											<dt>Signature</dt>
+											<dt>
+												Signature
+											</dt>
 											<dd>
 												{#if eventSignatures.length > 1}
 													<select
@@ -344,20 +372,32 @@
 
 										{#if decodedEvent}
 											<div>
-												<dt>Arguments</dt>
+												<dt>
+													Arguments
+												</dt>
 												<dd>
-													<dl data-definition-list="vertical" class="calldata-result-args">
+													<dl
+														data-definition-list="vertical"
+														class="calldata-result-args"
+													>
 														{#each decodedEvent.params as param, i}
 															<div class="calldata-result-arg">
 																<dt>{i}</dt>
 																<dd>
 																	{#if param.type === 'address' && typeof param.value === 'string'}
-																		<Address address={param.value as `0x${string}`} format={AddressFormat.Full} />
+																		<Address
+																		address={param.value as `0x${string}`}
+																		format={AddressFormat.Full}
+																	/>
 																	{:else}
 																		{@const str = formatDecodedParamValue(param.type, param.value)}
 
 																		{#if str.length > TRUNCATE_PARAM_LENGTH}
-																			<TruncatedValue value={str} startLength={10} endLength={8} />
+																			<TruncatedValue
+																			value={str}
+																			startLength={10}
+																			endLength={8}
+																		/>
 																		{:else}
 																			<span class="calldata-result-arg-value">{str}</span>
 																		{/if}
@@ -379,15 +419,21 @@
 				<li>
 					<dl data-definition-list="vertical">
 						<div>
-							<dt>Bytes</dt>
-							<dd>{byteCount}</dd>
+							<dt>
+								Bytes
+							</dt>
+							<dd>
+								{byteCount}
+							</dd>
 						</div>
 					</dl>
 				</li>
 			</ul>
 		</Collapsible>
 	{:else if inputRaw.trim().length > 0}
-		<p>Enter valid hex (optional <code>0x</code>). Odd-length input is trimmed to even length.</p>
+		<p>
+			Enter valid hex (optional <code>0x</code>). Odd-length input is trimmed to even length.
+		</p>
 	{/if}
 </main>
 

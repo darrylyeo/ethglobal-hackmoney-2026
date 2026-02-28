@@ -2813,7 +2813,9 @@
 		class="graph-scene-header"
 		data-row="align-center"
 	>
-		<h4 data-row-item="flexible">Data Graph</h4>
+		<h4 data-row-item="flexible">
+			Data Graph
+		</h4>
 
 		<Select
 			class="graph-scene-framework"
@@ -2853,7 +2855,10 @@
 	</summary>
 
 	{#if graphModel}
-		<div class="graph-scene-body" data-row="gap-0 align-stretch">
+		<div
+			class="graph-scene-body"
+			data-row="gap-0 align-stretch"
+		>
 			<div class="graph-scene-container">
 				{#if graphFramework === GraphFramework.G6}
 				<G6Graph
@@ -2925,9 +2930,14 @@
 				</div>
 			</div>
 
-			<aside class="graph-scene-sidebar" data-column>
+			<aside
+				class="graph-scene-sidebar"
+				data-column
+			>
 				<div data-column>
-					<label for="graph-scene-entity-types">Entity types</label>
+					<label for="graph-scene-entity-types">
+						Entity types
+					</label>
 
 					{#if true}
 						<Combobox
@@ -2960,7 +2970,9 @@
 				</div>
 
 				<div data-column>
-					<label for="graph-scene-expanded">Expand scope (full collection)</label>
+					<label for="graph-scene-expanded">
+						Expand scope (full collection)
+					</label>
 
 					<Combobox
 						id="graph-scene-expanded"
@@ -2989,7 +3001,9 @@
 
 				{#if entitySourceCombos.length > 0}
 					<div data-column>
-						<label for="graph-scene-sources">By source</label>
+						<label for="graph-scene-sources">
+							By source
+						</label>
 
 						<Combobox
 							id="graph-scene-sources"
@@ -3006,8 +3020,13 @@
 				{/if}
 
 				{#if selectionItems.length > 0}
-					<div class="graph-scene-selection" data-column>
-						<h5>Selection</h5>
+					<div
+						class="graph-scene-selection"
+						data-column
+					>
+						<h5>
+							Selection
+						</h5>
 						<ul data-column>
 							{#each selectionItems as item (item.id)}
 								<li>

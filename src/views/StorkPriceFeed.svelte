@@ -19,42 +19,57 @@
 </script>
 
 
-<div class="stork-price-feed" data-column>
+<div
+	class="stork-price-feed"
+	data-column
+>
 	<strong>{symbol} price</strong>
 	{#if priceRow}
 		{#if priceRow.error}
 			<span data-error>{priceRow.error}</span>
 		{:else}
 			<div data-row>
-				<span data-text="muted">Asset</span>
+				<span data-text="muted">
+					Asset
+				</span>
 				<span>{priceRow.assetId}</span>
 			</div>
 
 			{#if priceRow.encodedAssetId}
 				<div data-row>
-					<span data-text="muted">Encoded</span>
+					<span data-text="muted">
+						Encoded
+					</span>
 					<span>{priceRow.encodedAssetId}</span>
 				</div>
 			{/if}
 
 			<div data-row>
-				<span data-text="muted">Feed</span>
+				<span data-text="muted">
+					Feed
+				</span>
 				<span>{priceRow.transport}{priceRow.chainId ?
 					` · ${priceRow.chainId}`
 				: ''}</span>
 			</div>
 
 			<div data-row>
-				<span data-text="muted">Updated</span>
+				<span data-text="muted">
+					Updated
+				</span>
 				<span>{formatRelativeTime(Date.now() - priceRow.updatedAt)}</span>
 			</div>
 
 			{#if priceRow.isLoading}
-				<span data-text="muted">Updating price…</span>
+				<span data-text="muted">
+					Updating price…
+				</span>
 			{/if}
 		{/if}
 	{:else}
-		<span data-text="muted">Waiting for price feed</span>
+		<span data-text="muted">
+			Waiting for price feed
+		</span>
 	{/if}
 </div>
 

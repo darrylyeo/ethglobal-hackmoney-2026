@@ -82,7 +82,10 @@
 					/>
 				</span>
 			{:else}
-				<span class="coin-input-placeholder" aria-hidden="true"></span>
+				<span
+					class="coin-input-placeholder"
+					aria-hidden="true"
+				></span>
 			{/if}
 		{/if}
 	{/snippet}
@@ -92,7 +95,11 @@
 
 		{@const symbol = coin.symbol}
 
-		<span data-row="start" class="coin-input-item" data-selected={selected}>
+		<span
+			data-row="start"
+			class="coin-input-item"
+			data-selected={selected}
+		>
 			{#if iconUrl}
 				<span class="coin-input-icon">
 					<CoinIcon
@@ -102,7 +109,10 @@
 					/>
 				</span>
 			{:else}
-				<span class="coin-input-placeholder" aria-hidden="true"></span>
+				<span
+					class="coin-input-placeholder"
+					aria-hidden="true"
+				></span>
 			{/if}
 
 			<span>{symbol}</span>

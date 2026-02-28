@@ -81,7 +81,11 @@
 	/>
 
 {#if TooltipContent}
-	<Tooltip.Root open={true} delayDuration={0} disableHoverableContent={false}>
+	<Tooltip.Root
+		open={true}
+		delayDuration={0}
+		disableHoverableContent={false}
+	>
 		<Tooltip.Trigger>
 			{#snippet child({ props })}
 				<div

@@ -68,7 +68,11 @@
 </script>
 
 
-<div data-social-post-session data-column="gap-4" data-sticky-container>
+<div
+	data-social-post-session
+	data-column="gap-4"
+	data-sticky-container
+>
 	<EntityView
 		data-scroll-item
 		entityType={EntityType.SocialPostSession}
@@ -78,7 +82,9 @@
 		annotation="Social post"
 	>
 		{#snippet Title()}
-			<span class="sr-only">Social post</span>
+			<span class="sr-only">
+				Social post
+			</span>
 
 			<input
 				type="text"
@@ -90,7 +96,10 @@
 			/>
 		{/snippet}
 
-		<details open data-card>
+		<details
+			open
+			data-card
+		>
 			<summary>
 				<header data-row="wrap">
 					<FarcasterAccountSelect />
@@ -100,11 +109,16 @@
 	</EntityView>
 
 	{#if canDraft}
-		<section data-scroll-item data-column="gap-4">
+		<section
+			data-scroll-item
+			data-column="gap-4"
+		>
 			<SocialPostActionsSequence bind:actions={session.actions} />
 		</section>
 	{:else}
-		<p data-text="muted">Sign in with Farcaster to draft posts.</p>
+		<p data-text="muted">
+			Sign in with Farcaster to draft posts.
+		</p>
 	{/if}
 </div>
 

@@ -1,4 +1,7 @@
-<script module lang="ts">
+<script
+	module
+	lang="ts"
+>
 	export type { ListPagination } from '$/components/List.svelte.ts'
 </script>
 
@@ -292,7 +295,11 @@
 		:
 			item.key)}
 			{#if item.type === 'group'}
-				<li data-list-item data-sticky data-scroll-item="snap-block-start">
+				<li
+					data-list-item
+					data-sticky
+					data-scroll-item="snap-block-start"
+				>
 					{#if GroupHeader}
 						{@render GroupHeader({ groupKey: item.groupKey })}
 					{:else}
@@ -300,7 +307,11 @@
 					{/if}
 				</li>
 			{:else if item.type === 'placeholder'}
-				<li data-list-item data-placeholder data-scroll-item="snap-block-start">
+				<li
+					data-list-item
+					data-placeholder
+					data-scroll-item="snap-block-start"
+				>
 					{@render Item({ key: item.key, isPlaceholder: true as const })}
 				</li>
 			{:else if item.type === 'pagination'}

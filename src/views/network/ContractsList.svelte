@@ -83,7 +83,9 @@
 	scrollPosition="Start"
 >
 	{#snippet Empty()}
-		<p data-text="muted">No contracts.</p>
+		<p data-text="muted">
+			No contracts.
+		</p>
 	{/snippet}
 
 	{#snippet Title({ title, countText })}
@@ -95,7 +97,9 @@
 	{#snippet Item({ key, item, isPlaceholder })}
 		<span id="contract:{key}">
 			{#if isPlaceholder}
-				<code>Contract (loading…)</code>
+				<code>
+					Contract (loading…)
+				</code>
 			{:else if item}
 				<Contract
 					contractId={{ $network: { chainId }, address: item.address }}

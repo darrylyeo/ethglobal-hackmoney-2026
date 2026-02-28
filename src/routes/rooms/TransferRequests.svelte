@@ -165,7 +165,9 @@
 
 
 <section class="transfer-requests">
-	<h3>Request Transfer</h3>
+	<h3>
+		Request Transfer
+	</h3>
 
 	<div class="available-balance">
 		Available: {formatSmallestToDecimal(availableBalance, 6)} USDC
@@ -203,7 +205,9 @@
 	</form>
 
 	{#if incoming.length > 0}
-		<h4>Incoming Requests</h4>
+		<h4>
+			Incoming Requests
+		</h4>
 		{#each incoming as request (request.id)}
 			<div data-row="wrap">
 				<Address
@@ -232,7 +236,9 @@
 	{/if}
 
 	{#if outgoing.length > 0}
-		<h4>Outgoing Requests</h4>
+		<h4>
+			Outgoing Requests
+		</h4>
 		{#each outgoing as request (request.id)}
 			<div data-row="wrap">
 				<Address

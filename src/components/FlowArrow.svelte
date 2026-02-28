@@ -81,8 +81,14 @@
 				x2={arrowData[4]}
 				y2={arrowData[5]}
 			>
-				<stop offset="0" stop-color={gradientStart} />
-				<stop offset="1" stop-color={gradientEnd} />
+				<stop
+					offset="0"
+					stop-color={gradientStart}
+				/>
+				<stop
+					offset="1"
+					stop-color={gradientEnd}
+				/>
 			</linearGradient>
 		{/if}
 

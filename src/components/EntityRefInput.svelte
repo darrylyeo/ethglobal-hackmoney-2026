@@ -135,7 +135,10 @@
 		/>
 	</div>
 
-	<button type="submit" disabled={disabled || hasPlaceholder}>
+	<button
+		type="submit"
+		disabled={disabled || hasPlaceholder}
+	>
 		Send
 	</button>
 </form>

@@ -64,7 +64,11 @@
 {#if !parsed}
 	<main data-card>
 		<Heading>Invalid topic</Heading>
-		<p>Hex must be 32 bytes. <a href="/evm/topics">Back to EVM topics</a>.</p>
+		<p>
+			Hex must be 32 bytes. <a href="/evm/topics">
+				Back to EVM topics
+			</a>.
+		</p>
 	</main>
 {:else}
 	<main data-card>
@@ -82,9 +86,13 @@
 				{#if entry}
 					<EvmTopic {entry} />
 				{:else if entryQuery.isLoading}
-					<p>Loading signatures…</p>
+					<p>
+						Loading signatures…
+					</p>
 				{:else}
-					<p>No signatures found for this topic.</p>
+					<p>
+						No signatures found for this topic.
+					</p>
 				{/if}
 			{/snippet}
 		</EntityView>

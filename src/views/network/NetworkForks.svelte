@@ -114,7 +114,9 @@ import { entityKey } from '$/lib/entity-key.ts'
 	scrollPosition="Start"
 >
 	{#snippet Empty()}
-		<p data-text="muted">No forks.</p>
+		<p data-text="muted">
+			No forks.
+		</p>
 	{/snippet}
 
 	{#snippet Item({ key, item, isPlaceholder })}
@@ -134,7 +136,10 @@ import { entityKey } from '$/lib/entity-key.ts'
 					data-scroll-item="snap-block-start"
 				>
 					{#if forkLinkEntries(item).length > 0}
-						<nav data-row="wrap" aria-label="Specs and docs">
+						<nav
+							data-row="wrap"
+							aria-label="Specs and docs"
+						>
 							{#each forkLinkEntries(item) as { label, href }}
 								<a
 									href={href}
@@ -150,8 +155,13 @@ import { entityKey } from '$/lib/entity-key.ts'
 
 					{#if (item.eipNumbers?.length ?? 0) > 0}
 						<section data-column>
-							<h3 class="sr-only">Included EIPs</h3>
-							<ul data-row="wrap" role="list">
+							<h3 class="sr-only">
+								Included EIPs
+							</h3>
+							<ul
+								data-row="wrap"
+								role="list"
+							>
 								{#each (item.eipNumbers ?? []) as num (num)}
 									{@const proposalEntry = entriesByNumber.get(num)}
 
@@ -171,7 +181,9 @@ import { entityKey } from '$/lib/entity-key.ts'
 							</ul>
 						</section>
 					{:else}
-						<p data-text="muted">No EIPs listed for this fork.</p>
+						<p data-text="muted">
+							No EIPs listed for this fork.
+						</p>
 					{/if}
 				</EntityView>
 			{/if}

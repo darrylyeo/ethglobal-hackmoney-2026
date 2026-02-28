@@ -181,7 +181,9 @@ import { entityKey } from '$/lib/entity-key.ts'
 
 <main data-column>
 	{#if !valid}
-		<h1>Not found</h1>
+		<h1>
+			Not found
+		</h1>
 		<p>
 			{#if !route}
 				Network "{networkSlug}" could not be resolved.
@@ -209,7 +211,10 @@ import { entityKey } from '$/lib/entity-key.ts'
 					{chainId}
 					isVertical
 				/>
-				<NetworkName {networkId} showIcon={false} />
+				<NetworkName
+					{networkId}
+					showIcon={false}
+				/>
 			</span>
 		{/snippet}
 
@@ -218,7 +223,9 @@ import { entityKey } from '$/lib/entity-key.ts'
 				<a
 					href={resolve(`/network/${chainId}/block/${blockNumParam}#${entityKey({ entityType: EntityType.Transaction, entityId: txId })}`)}
 					data-link
-				>Show Context</a>
+				>
+					Show Context
+				</a>
 			</p>
 
 			{#if tx}

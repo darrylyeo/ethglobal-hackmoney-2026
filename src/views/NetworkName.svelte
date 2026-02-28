@@ -33,9 +33,15 @@
 </script>
 
 
-<span class="network-name" data-row="inline gap-1">
+<span
+	class="network-name"
+	data-row="inline gap-1"
+>
 	{#if showIcon && chainId != null}
-		<span class="icon" data-row="center">
+		<span
+			class="icon"
+			data-row="center"
+		>
 			<NetworkIcon
 				networkId={networkIdProp ?? (chainId != null ? { chainId } : undefined)}
 				alt={name}
@@ -45,7 +51,12 @@
 
 	<span class="label">{name}</span>
 	{#if showChainId && chainId != null}
-		<abbr class="chain-id" title="Chain ID">(Chain ID {chainId})</abbr>
+		<abbr
+			class="chain-id"
+			title="Chain ID"
+		>
+			(Chain ID {chainId})
+		</abbr>
 	{/if}
 </span>
 

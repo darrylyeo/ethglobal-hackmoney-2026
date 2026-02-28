@@ -1,4 +1,7 @@
-<script lang="ts" generics="Item extends { address: `0x${string}` }">
+<script
+	lang="ts"
+	generics="Item extends { address: `0x${string}` }"
+>
 	// Types/constants
 	import type { Network$Id } from '$/data/Network.ts'
 	import { IdentityInputKind } from '$/constants/identity-resolver.ts'
@@ -102,8 +105,14 @@
 	}}
 >
 	{#snippet Item(item, selected)}
-		<span data-row="start gap-0" data-selected={selected}>
-			<Address actorId={{ $network: network, address: item.address }} isLinked={false} />
+		<span
+			data-row="start gap-0"
+			data-selected={selected}
+		>
+			<Address
+				actorId={{ $network: network, address: item.address }}
+				isLinked={false}
+			/>
 		</span>
 	{/snippet}
 

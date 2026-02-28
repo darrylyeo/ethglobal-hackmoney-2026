@@ -62,8 +62,14 @@
 
 {#if !valid}
 	<main data-card>
-		<h1>Invalid position</h1>
-		<p>Chain ID and position ID are required. <a href="/positions/liquidity">Back to Liquidity</a>.</p>
+		<h1>
+			Invalid position
+		</h1>
+		<p>
+			Chain ID and position ID are required. <a href="/positions/liquidity">
+				Back to Liquidity
+			</a>.
+		</p>
 	</main>
 {:else}
 	<main data-card>
@@ -82,10 +88,18 @@
 				{#if position}
 					<UniswapPosition position={position} />
 				{:else if positionQuery.isLoading}
-					<p>Loading position…</p>
+					<p>
+						Loading position…
+					</p>
 				{:else}
-					<p>Position not found. It may not be indexed yet.</p>
-					<p><a href="/positions/liquidity">Back to Liquidity</a>.</p>
+					<p>
+						Position not found. It may not be indexed yet.
+					</p>
+					<p>
+						<a href="/positions/liquidity">
+							Back to Liquidity
+						</a>.
+					</p>
 				{/if}
 			{/snippet}
 		</EntityView>

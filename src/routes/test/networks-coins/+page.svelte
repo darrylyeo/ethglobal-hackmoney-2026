@@ -56,13 +56,19 @@
 	data-sticky-container
 >
 	<section data-scroll-item>
-		<h1>Networks and coins</h1>
+		<h1>
+			Networks and coins
+		</h1>
 
 		{#if networksQuery.isLoading}
-			<p>Loading networks…</p>
+			<p>
+				Loading networks…
+			</p>
 		{:else}
 			<section>
-				<h2>Networks</h2>
+				<h2>
+					Networks
+				</h2>
 				<ul>
 					{#each networks as network, i (`${i}-${network.id}`)}
 						<li>{network.name} (ID: {network.id})</li>
@@ -72,10 +78,14 @@
 		{/if}
 
 		{#if coinsQuery.isLoading}
-			<p>Loading coins…</p>
+			<p>
+				Loading coins…
+			</p>
 		{:else}
 			<section>
-				<h2>USDC coins</h2>
+				<h2>
+					USDC coins
+				</h2>
 				<ul>
 					{#each coins as coin, i (`${i}-${coin.$id.$network.chainId}-${coin.$id.address}`)}
 						<li>{coin.symbol} on chain {coin.$id.$network.chainId} — {coin.$id.address}</li>

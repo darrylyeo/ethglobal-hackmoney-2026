@@ -29,7 +29,10 @@
 </script>
 
 
-<Collapsible title="Transfers" annotation={String(eventsSet.size)}>
+<Collapsible
+	title="Transfers"
+	annotation={String(eventsSet.size)}
+>
 	<List
 		items={eventsSet}
 		getKey={getEventKey}
@@ -41,15 +44,23 @@
 		{#snippet Item({ key, item, isPlaceholder })}
 			<span id="transfer:{key}">
 				{#if isPlaceholder}
-					<code>Transfer (loading…)</code>
+					<code>
+						Transfer (loading…)
+					</code>
 				{:else}
-					<TransferEvent {item} {coin} symbol={coinId} />
+					<TransferEvent
+						{item}
+						{coin}
+						symbol={coinId}
+					/>
 				{/if}
 			</span>
 		{/snippet}
 
 		{#snippet Empty()}
-			<p data-text="muted">No transfers.</p>
+			<p data-text="muted">
+				No transfers.
+			</p>
 		{/snippet}
 	</List>
 </Collapsible>

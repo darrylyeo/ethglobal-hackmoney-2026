@@ -115,7 +115,9 @@
 
 	{#if connections.length > 0}
 		<div data-row="align-center">
-			<label for="tree-model-{tree.$id.id}">Default model</label>
+			<label for="tree-model-{tree.$id.id}">
+				Default model
+			</label>
 
 			<ModelInput
 				id="tree-model-{tree.$id.id}"
@@ -128,7 +130,9 @@
 	{/if}
 
 	<div data-row="align-center">
-		<label for="tree-payment-{tree.$id.id}">Payment account</label>
+		<label for="tree-payment-{tree.$id.id}">
+			Payment account
+		</label>
 
 		<select
 			id="tree-payment-{tree.$id.id}"
@@ -159,7 +163,9 @@
 	</div>
 
 	<details>
-		<summary>System prompt</summary>
+		<summary>
+			System prompt
+		</summary>
 		<pre data-card>{tree.systemPrompt}</pre>
 	</details>
 
@@ -173,6 +179,8 @@
 			{toolsForChat}
 		/>
 	{:else}
-		<p data-text="muted">No messages yet. Type a prompt below to start.</p>
+		<p data-text="muted">
+			No messages yet. Type a prompt below to start.
+		</p>
 	{/if}
 </div>

@@ -160,8 +160,12 @@
 			{/snippet}
 		</EntityView>
 	{:else if channelsQuery.isLoading}
-		<p>Loading channel…</p>
+		<p>
+			Loading channel…
+		</p>
 	{:else}
-		<p>Channel not found: {channelId}</p>
+		<p>
+			Channel not found: {channelId}
+		</p>
 	{/if}
 </main>

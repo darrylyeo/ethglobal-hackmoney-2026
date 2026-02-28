@@ -385,7 +385,10 @@
 <div data-row>
 	{#if walletChips.length > 0}
 		{#if eip1193WalletChips.length > 0}
-			<div class="wallet-section" data-column>
+			<div
+				class="wallet-section"
+				data-column
+			>
 				{#if selectionMode === 'single'}
 					<ToggleGroup.Root
 						type="single"
@@ -435,7 +438,10 @@
 								data-failed={status === 'error'}
 								class="wallet-connection-item"
 							>
-								<span class={walletChipClass} data-row="start gap-1">
+								<span
+									class={walletChipClass}
+									data-row="start gap-1"
+								>
 									<NetworkIcon
 										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
@@ -445,7 +451,10 @@
 										}
 										title={networkName ?? 'Unknown network'}
 									/>
-									<span class="wallet-details" data-column="gap-0">
+									<span
+										class="wallet-details"
+										data-column="gap-0"
+									>
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
@@ -477,22 +486,40 @@
 												viewBox="0 0 12 12"
 												fill="currentColor"
 											>
-												<circle cx="6" cy="2" r="1.5" />
-												<circle cx="6" cy="6" r="1.5" />
-												<circle cx="6" cy="10" r="1.5" />
+												<circle
+													cx="6"
+													cy="2"
+													r="1.5"
+												/>
+												<circle
+													cx="6"
+													cy="6"
+													r="1.5"
+												/>
+												<circle
+													cx="6"
+													cy="10"
+													r="1.5"
+												/>
 											</svg>
 										{/snippet}
 
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option" data-row="start">
+												<span
+													class="wallet-menu-option"
+													data-row="start"
+												>
 													<Address
 														actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: item.actor }}
 														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option" data-row="start">
+												<span
+													class="wallet-menu-option"
+													data-row="start"
+												>
 													<NetworkIcon
 														networkId={{ chainId: item.network.id }}
 													/>
@@ -555,7 +582,10 @@
 								data-failed={status === 'error'}
 								class="wallet-connection-item"
 							>
-								<span class={walletChipClass} data-row="start gap-1">
+								<span
+									class={walletChipClass}
+									data-row="start gap-1"
+								>
 									<NetworkIcon
 										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
@@ -565,7 +595,10 @@
 										}
 										title={networkName ?? 'Unknown network'}
 									/>
-									<span class="wallet-details" data-column="gap-0">
+									<span
+										class="wallet-details"
+										data-column="gap-0"
+									>
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
@@ -597,22 +630,40 @@
 												viewBox="0 0 12 12"
 												fill="currentColor"
 											>
-												<circle cx="6" cy="2" r="1.5" />
-												<circle cx="6" cy="6" r="1.5" />
-												<circle cx="6" cy="10" r="1.5" />
+												<circle
+													cx="6"
+													cy="2"
+													r="1.5"
+												/>
+												<circle
+													cx="6"
+													cy="6"
+													r="1.5"
+												/>
+												<circle
+													cx="6"
+													cy="10"
+													r="1.5"
+												/>
 											</svg>
 										{/snippet}
 
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option" data-row="start">
+												<span
+													class="wallet-menu-option"
+													data-row="start"
+												>
 													<Address
 														actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: item.actor }}
 														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option" data-row="start">
+												<span
+													class="wallet-menu-option"
+													data-row="start"
+												>
 													<NetworkIcon
 														networkId={{ chainId: item.network.id }}
 													/>
@@ -634,7 +685,10 @@
 		{/if}
 
 		{#if readOnlyWalletChips.length > 0}
-			<div class="wallet-section" data-column>
+			<div
+				class="wallet-section"
+				data-column
+			>
 				{#if selectionMode === 'single'}
 					<ToggleGroup.Root
 						type="single"
@@ -684,7 +738,10 @@
 								data-failed={status === 'error'}
 								class="wallet-connection-item"
 							>
-								<span class={walletChipClass} data-row="start gap-1">
+								<span
+									class={walletChipClass}
+									data-row="start gap-1"
+								>
 									<NetworkIcon
 										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
@@ -694,7 +751,10 @@
 										}
 										title={networkName ?? 'Unknown network'}
 									/>
-									<span class="wallet-details" data-column="gap-0">
+									<span
+										class="wallet-details"
+										data-column="gap-0"
+									>
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
@@ -726,22 +786,40 @@
 												viewBox="0 0 12 12"
 												fill="currentColor"
 											>
-												<circle cx="6" cy="2" r="1.5" />
-												<circle cx="6" cy="6" r="1.5" />
-												<circle cx="6" cy="10" r="1.5" />
+												<circle
+													cx="6"
+													cy="2"
+													r="1.5"
+												/>
+												<circle
+													cx="6"
+													cy="6"
+													r="1.5"
+												/>
+												<circle
+													cx="6"
+													cy="10"
+													r="1.5"
+												/>
 											</svg>
 										{/snippet}
 
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option" data-row="start">
+												<span
+													class="wallet-menu-option"
+													data-row="start"
+												>
 													<Address
 														actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: item.actor }}
 														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option" data-row="start">
+												<span
+													class="wallet-menu-option"
+													data-row="start"
+												>
 													<NetworkIcon
 														networkId={{ chainId: item.network.id }}
 													/>
@@ -804,7 +882,10 @@
 								data-failed={status === 'error'}
 								class="wallet-connection-item"
 							>
-								<span class={walletChipClass} data-row="start gap-1">
+								<span
+									class={walletChipClass}
+									data-row="start gap-1"
+								>
 									<NetworkIcon
 										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
@@ -814,7 +895,10 @@
 										}
 										title={networkName ?? 'Unknown network'}
 									/>
-									<span class="wallet-details" data-column="gap-0">
+									<span
+										class="wallet-details"
+										data-column="gap-0"
+									>
 										{#if connection.activeActor}
 											<span data-wallet-address>
 												<Address
@@ -846,22 +930,40 @@
 												viewBox="0 0 12 12"
 												fill="currentColor"
 											>
-												<circle cx="6" cy="2" r="1.5" />
-												<circle cx="6" cy="6" r="1.5" />
-												<circle cx="6" cy="10" r="1.5" />
+												<circle
+													cx="6"
+													cy="2"
+													r="1.5"
+												/>
+												<circle
+													cx="6"
+													cy="6"
+													r="1.5"
+												/>
+												<circle
+													cx="6"
+													cy="10"
+													r="1.5"
+												/>
 											</svg>
 										{/snippet}
 
 										{#snippet Item(item)}
 											{#if item.kind === 'actor'}
-												<span class="wallet-menu-option" data-row="start">
+												<span
+													class="wallet-menu-option"
+													data-row="start"
+												>
 													<Address
 														actorId={{ $network: { chainId: chainId ?? selectedChainIdDerived ?? 1 }, address: item.actor }}
 														isLinked={false}
 													/>
 												</span>
 											{:else if item.kind === 'network'}
-												<span class="wallet-menu-option" data-row="start">
+												<span
+													class="wallet-menu-option"
+													data-row="start"
+												>
 													<NetworkIcon
 														networkId={{ chainId: item.network.id }}
 													/>
@@ -948,11 +1050,17 @@
 				data-column
 				onsubmit={(event) => (event.preventDefault(), connectReadOnlyAddress())}
 			>
-				<label class="account-watching-label" for="account-watching-address">
+				<label
+					class="account-watching-label"
+					for="account-watching-address"
+				>
 					Watching address
 				</label>
 
-				<div class="account-watching-field" data-row>
+				<div
+					class="account-watching-field"
+					data-row
+				>
 					<input
 						id="account-watching-address"
 						name="watching-address"
@@ -962,7 +1070,11 @@
 						data-row-item="flexible"
 						bind:value={readOnlyAddress}
 					/>
-					<Button.Root type="submit">Add</Button.Root>
+					<Button.Root
+						type="submit"
+					>
+						Add
+					</Button.Root>
 				</div>
 			</form>
 		</Dropdown>

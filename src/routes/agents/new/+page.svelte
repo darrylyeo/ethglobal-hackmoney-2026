@@ -21,5 +21,7 @@
 
 
 <main>
-	<p data-text="muted">Starting new conversation…</p>
+	<p data-text="muted">
+		Starting new conversation…
+	</p>
 </main>

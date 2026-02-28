@@ -68,7 +68,10 @@
 {#snippet SectionSummary({ title }: { title: string })}
 	<div class="section-summary">
 		<div data-row>
-			<h3 data-row-item="flexible" class="section-heading">
+			<h3
+				data-row-item="flexible"
+				class="section-heading"
+			>
 				{title}{#if singleAddress}
 					{' '}for <TruncatedValue
 						value={singleAddress}
@@ -116,7 +119,9 @@
 >
 	<Boundary>
 		{#if channels.length === 0}
-			<p data-text="muted">No channels for this account.</p>
+			<p data-text="muted">
+				No channels for this account.
+			</p>
 		{:else}
 			<ul
 				data-columns="width-4 gap-2"
@@ -139,11 +144,18 @@
 						data-row="gap-3 wrap"
 						data-status={ch.status}
 					>
-						<span class="channel-id" title={ch.id}>{ch.id.slice(0, 10)}…</span>
+						<span
+							class="channel-id"
+							title={ch.id}
+							>
+								{ch.id.slice(0, 10)}…
+							</span>
 						<Address actorId={{ $network: { chainId: ch.chainId }, address: participantAddr }} />
 						<span>{formatSmallestToDecimal(balance, 6)} USDC</span>
 						<span data-status>{ch.status}</span>
-						<a href="/positions/channels">View all</a>
+						<a href="/positions/channels">
+							View all
+						</a>
 					</li>
 				{/each}
 			</ul>

@@ -401,7 +401,9 @@
 		/>
 	</section>
 {:else}
-	<p>Loading…</p>
+	<p>
+		Loading…
+	</p>
 {/if}
 
 <style>

@@ -154,11 +154,19 @@
 	{#snippet Title()}
 		{#if block}
 			<span data-row="inline">
-				<BlockNumber blockNumber={block.$id.blockNumber} networkId={block.$id.$network} />
-				<NetworkName networkId={block.$id.$network} showIcon={false} />
+				<BlockNumber
+					blockNumber={block.$id.blockNumber}
+					networkId={block.$id.$network}
+				/>
+				<NetworkName
+					networkId={block.$id.$network}
+					showIcon={false}
+				/>
 			</span>
 		{:else}
-			<code>Loading block…</code>
+			<code>
+				Loading block…
+			</code>
 		{/if}
 	{/snippet}
 
@@ -167,10 +175,15 @@
 			<dl>
 				{#if era}
 					<div>
-						<dt>Part of</dt>
+						<dt>
+							Part of
+						</dt>
 						<dd>
 							{#if forkPageHref}
-								<a href={forkPageHref} data-link>{era.label}</a>
+								<a
+									href={forkPageHref}
+									data-link
+								>{era.label}</a>
 							{:else}
 								{era.label}
 							{/if}
@@ -182,42 +195,65 @@
 					</div>
 				{/if}
 
-				<dt>Number</dt>
+				<dt>
+					Number
+				</dt>
 				<dd><code>{block.number.toString()}</code></dd>
 
 				{#if block.hash}
-					<dt>Hash</dt>
+					<dt>
+						Hash
+					</dt>
 					<dd><TruncatedValue value={block.hash} /></dd>
 				{/if}
 
 				{#if block.parentHash}
-					<dt>Parent Hash</dt>
+					<dt>
+						Parent Hash
+					</dt>
 					<dd><TruncatedValue value={block.parentHash} /></dd>
 				{/if}
 
-				<dt>Timestamp</dt>
-				<dd><Timestamp timestamp={block.timestamp} format={TimestampFormat.Both} /></dd>
+				<dt>
+					Timestamp
+				</dt>
+				<dd>
+					<Timestamp
+						timestamp={block.timestamp}
+						format={TimestampFormat.Both}
+					/>
+				</dd>
 
 				{#if block.miner}
-					<dt>Miner</dt>
+					<dt>
+						Miner
+					</dt>
 					<dd><Address actorId={{ $network: { chainId }, address: block.miner }} /></dd>
 				{/if}
 
-				<dt>Transactions</dt>
+				<dt>
+					Transactions
+				</dt>
 				<dd>{block.transactionCount ?? count}</dd>
 
 				{#if block.gasUsed != null}
-					<dt>Gas Used</dt>
+					<dt>
+						Gas Used
+					</dt>
 					<dd>{formatGas(block.gasUsed)}</dd>
 				{/if}
 
 				{#if block.gasLimit != null}
-					<dt>Gas Limit</dt>
+					<dt>
+						Gas Limit
+					</dt>
 					<dd>{formatGas(block.gasLimit)}</dd>
 				{/if}
 
 				{#if block.baseFeePerGas != null}
-					<dt>Base Fee</dt>
+					<dt>
+						Base Fee
+					</dt>
 					<dd>{formatGwei(block.baseFeePerGas)} Gwei</dd>
 				{/if}
 			</dl>
@@ -240,13 +276,17 @@
 			scrollPosition="End"
 		>
 			{#snippet Empty()}
-				<p data-text="muted">No transactions.</p>
+				<p data-text="muted">
+					No transactions.
+				</p>
 			{/snippet}
 
 			{#snippet Item({ key, item, isPlaceholder })}
 				<span id="transaction:{key}">
 					{#if isPlaceholder}
-						<code>Transaction #{key} (loading…)</code>
+						<code>
+							Transaction #{key} (loading…)
+						</code>
 					{:else}
 						{@const networkId = { chainId }}
 

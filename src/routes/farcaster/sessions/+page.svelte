@@ -54,15 +54,31 @@
 </svelte:head>
 
 
-<main data-column data-sticky-container>
-	<section data-scroll-item data-column="gap-3">
+<main
+	data-column
+	data-sticky-container
+>
+	<section
+		data-scroll-item
+		data-column="gap-3"
+	>
 		<header data-row="wrap gap-4">
-			<div data-row="start" data-row-item="flexible">
-				<h1>Social posts</h1>
+			<div
+				data-row="start"
+				data-row-item="flexible"
+			>
+				<h1>
+					Social posts
+				</h1>
 			</div>
 
 			<div data-row>
-				<a href="/farcaster/session?template=CreatePost" data-button>New post</a>
+				<a
+					href="/farcaster/session?template=CreatePost"
+					data-button
+				>
+					New post
+				</a>
 				{#if draftCount > 0}
 					<button
 						type="button"
@@ -80,14 +96,25 @@
 		</header>
 
 		{#if sessions.length === 0}
-			<p data-text="muted">No social post sessions yet.</p>
 			<p data-text="muted">
-				<a href="/farcaster/session?template=CreatePost">Create a post</a> to get started.
+				No social post sessions yet.
+			</p>
+			<p data-text="muted">
+				<a href="/farcaster/session?template=CreatePost">
+					Create a post
+				</a>
+				to get started.
 			</p>
 		{:else}
-			<ul data-columns="width-5 gap-3" data-list="unstyled">
+			<ul
+				data-columns="width-5 gap-3"
+				data-list="unstyled"
+			>
 				{#each sessions as session (session.$id.id)}
-					<li data-columns-item data-card="radius-4">
+					<li
+						data-columns-item
+						data-card="radius-4"
+					>
 						<div data-column>
 							<div data-row="align-center wrap">
 								<a

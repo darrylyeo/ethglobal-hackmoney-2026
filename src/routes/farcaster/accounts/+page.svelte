@@ -13,6 +13,8 @@
 
 
 <main data-column="gap-4">
-	<h1>Farcaster Accounts</h1>
+	<h1>
+		Farcaster Accounts
+	</h1>
 	<FarcasterConnections />
 </main>

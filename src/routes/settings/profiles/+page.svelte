@@ -107,7 +107,9 @@
 
 
 <main data-column>
-	<h1>Profiles</h1>
+	<h1>
+		Profiles
+	</h1>
 
 	<p class="muted">
 		Profiles isolate local state (sessions, watched entities, wallet connections).
@@ -115,10 +117,16 @@
 	</p>
 
 	{#if importError}
-		<p class="error" role="alert">{importError}</p>
+		<p
+			class="error"
+			role="alert"
+		>{importError}</p>
 	{/if}
 
-	<ul class="profile-list" role="list">
+	<ul
+		class="profile-list"
+		role="list"
+	>
 		{#each profiles as profile (profile.id)}
 			<li
 				class="profile-row"
@@ -132,7 +140,11 @@
 							finishEditing()
 						}}
 					>
-						<Avatar name={editingName} emoji={editingEmoji} size="2rem" />
+						<Avatar
+							name={editingName}
+							emoji={editingEmoji}
+							size="2rem"
+						/>
 
 						<input
 							type="text"
@@ -149,7 +161,9 @@
 							maxlength="2"
 						/>
 						<span class="profile-actions">
-							<button type="submit">Save</button>
+							<button type="submit">
+								Save
+							</button>
 
 							<button
 								type="button"
@@ -165,7 +179,11 @@
 						class="profile-switch"
 						onclick={() => onSwitch(profile.id)}
 					>
-						<Avatar name={profile.name} emoji={profile.emoji} size="2rem" />
+						<Avatar
+							name={profile.name}
+							emoji={profile.emoji}
+							size="2rem"
+						/>
 						<span class="profile-info">
 							<span class="profile-name">{profile.name}</span>
 
@@ -178,7 +196,9 @@
 						</span>
 
 						{#if profile.id === activeProfile.id}
-							<span data-tag>Active</span>
+							<span data-tag>
+								Active
+							</span>
 						{/if}
 					</button>
 
@@ -215,11 +235,17 @@
 	</ul>
 
 	<div class="profile-actions-row">
-		<button type="button" onclick={onCreate}>
+		<button
+			type="button"
+			onclick={onCreate}
+		>
 			+ New Profile
 		</button>
 
-		<button type="button" onclick={onImport}>
+		<button
+			type="button"
+			onclick={onImport}
+		>
 			Import profile
 		</button>
 	</div>

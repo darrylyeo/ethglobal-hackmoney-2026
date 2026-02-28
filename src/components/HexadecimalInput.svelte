@@ -65,7 +65,10 @@
 </script>
 
 
-<div class="hex-input {className ?? ''}" data-input="hex">
+<div
+	class="hex-input {className ?? ''}"
+	data-input="hex"
+>
 	<textarea
 		class="hex-input-field"
 		{rows}

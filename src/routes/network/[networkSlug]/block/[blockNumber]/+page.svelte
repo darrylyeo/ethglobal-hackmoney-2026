@@ -132,7 +132,9 @@ import { entityKey } from '$/lib/entity-key.ts'
 
 <main data-column>
 	{#if !valid}
-		<h1>Not found</h1>
+		<h1>
+			Not found
+		</h1>
 		<p>
 			{#if !route}
 				Network "{name}" could not be resolved.
@@ -150,14 +152,25 @@ import { entityKey } from '$/lib/entity-key.ts'
 		>
 			{#snippet Title()}
 				<span data-row="inline">
-					<BlockNumber {networkId} blockNumber={blockNum} />
-					<NetworkName {networkId} showIcon={false} />
+					<BlockNumber
+						{networkId}
+						blockNumber={blockNum}
+					/>
+					<NetworkName
+						{networkId}
+						showIcon={false}
+					/>
 				</span>
 			{/snippet}
 
 			{#snippet children()}
 				<p>
-					<a href={resolve(`/network/${chainId}#${entityKey({ entityType: EntityType.Block, entityId: blockId })}`)} data-link>Show Context</a>
+					<a
+						href={resolve(`/network/${chainId}#${entityKey({ entityType: EntityType.Block, entityId: blockId })}`)}
+						data-link
+					>
+						Show Context
+					</a>
 				</p>
 
 				{#if block}

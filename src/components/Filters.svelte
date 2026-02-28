@@ -1,4 +1,7 @@
-<script module lang="ts">
+<script
+	module
+	lang="ts"
+>
 	import type { Snippet } from 'svelte'
 
 	export enum FilterDisplayType {
@@ -59,7 +62,10 @@
 </script>
 
 
-<script lang="ts" generics="_Item, _FilterId extends string = string">
+<script
+	lang="ts"
+	generics="_Item, _FilterId extends string = string"
+>
 	// Types/constants
 	import type { SvelteHTMLElements } from 'svelte/elements'
 
@@ -209,7 +215,12 @@
 </script>
 
 
-<form class="filters" data-card="padding-5 radius-4" data-row="gap-6 wrap" {...restProps}>
+<form
+	class="filters"
+	data-card="padding-5 radius-4"
+	data-row="gap-6 wrap"
+	{...restProps}
+>
 	{#each (
 		filterGroups
 			.map((group) => ({
@@ -230,7 +241,10 @@
 
 		{@const getFilterLabel = (f: Filter<_Item, _FilterId>) => f.label}
 
-		<fieldset data-filter-group={group.id} data-column="gap-1">
+		<fieldset
+			data-filter-group={group.id}
+			data-column="gap-1"
+		>
 			<legend>{group.label}</legend>
 
 			{#if group.displayType === FilterDisplayType.Snippet}
@@ -275,7 +289,10 @@
 							)}
 
 							{#if filter.icon}
-								<span class="icon" aria-hidden="true">{@html filter.icon}</span>
+								<span
+									class="icon"
+									aria-hidden="true"
+								>{@html filter.icon}</span>
 							{/if}
 
 							<span class="label">{filter.label}</span>
@@ -309,7 +326,10 @@
 							)}
 
 							{#if filter.icon}
-								<span class="icon" aria-hidden="true">{@html filter.icon}</span>
+								<span
+									class="icon"
+									aria-hidden="true"
+								>{@html filter.icon}</span>
 							{/if}
 
 							<span class="label">{filter.label}</span>
@@ -321,7 +341,10 @@
 				{:else}
 					{@const activeFilter = [...activeFilters].find((filter) => filters.has(filter)) ?? undefined}
 
-					<div class="group" data-column="gap-1">
+					<div
+						class="group"
+						data-column="gap-1"
+					>
 						{#each visibleFilters as filter (filter.id)}
 							{@const count = (
 								(group.operation ?? FilterOperation.Intersection) === FilterOperation.Union ?
@@ -349,7 +372,10 @@
 									}}
 								/>
 								{#if filter.icon}
-									<span class="icon" aria-hidden="true">{@html filter.icon}</span>
+									<span
+									class="icon"
+									aria-hidden="true"
+								>{@html filter.icon}</span>
 								{/if}
 
 								<span class="label">{filter.label}</span>
@@ -388,7 +414,10 @@
 							)}
 
 							{#if filter.icon}
-								<span class="icon" aria-hidden="true">{@html filter.icon}</span>
+								<span
+									class="icon"
+									aria-hidden="true"
+								>{@html filter.icon}</span>
 							{/if}
 
 							<span class="label">{filter.label}</span>
@@ -425,7 +454,10 @@
 							)}
 
 							{#if filter.icon}
-								<span class="icon" aria-hidden="true">{@html filter.icon}</span>
+								<span
+									class="icon"
+									aria-hidden="true"
+								>{@html filter.icon}</span>
 							{/if}
 
 							<span class="label">{filter.label}</span>
@@ -435,7 +467,10 @@
 						{/snippet}
 					</ComboboxMultiple>
 				{:else}
-					<div class="group" data-column="gap-1">
+					<div
+						class="group"
+						data-column="gap-1"
+					>
 						{#each visibleFilters as filter (filter.id)}
 							{@const isChecked = activeFilters.has(filter)}
 
@@ -472,7 +507,10 @@
 									}}
 								/>
 								{#if filter.icon}
-									<span class="icon" aria-hidden="true">{@html filter.icon}</span>
+									<span
+									class="icon"
+									aria-hidden="true"
+								>{@html filter.icon}</span>
 								{/if}
 
 								<span class="label">{filter.label}</span>
@@ -487,7 +525,9 @@
 		</fieldset>
 	{/each}
 
-	<button type="reset">Clear filters</button>
+	<button type="reset">
+		Clear filters
+	</button>
 </form>
 
 

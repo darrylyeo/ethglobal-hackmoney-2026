@@ -100,7 +100,9 @@
 		{/if}
 
 		{#if contracts.length === 0}
-			<p data-text="muted">No contracts found. Click Discover to fetch from block explorers.</p>
+			<p data-text="muted">
+				No contracts found. Click Discover to fetch from block explorers.
+			</p>
 		{:else}
 			<ul data-column>
 				{#each contracts as contract}
@@ -115,13 +117,18 @@
 								actorId={{ $network: contract.$id.$network, address: contract.$id.address }}
 								format={AddressFormat.MiddleTruncated}
 							/>
-							<NetworkName networkId={contract.$id.$network} showIcon={false} />
+							<NetworkName
+								networkId={contract.$id.$network}
+								showIcon={false}
+							/>
 						</a>
 					</li>
 				{/each}
 			</ul>
 		{/if}
 	{:else}
-		<p data-text="muted">Connect or enter an address to view deployed contracts.</p>
+		<p data-text="muted">
+			Connect or enter an address to view deployed contracts.
+		</p>
 	{/if}
 </Collapsible>

@@ -69,44 +69,70 @@
 		<code>{trace.type.toUpperCase()}</code>
 	{/if}
 
-	<span>#{trace.index}</span>
+	<span>
+		#{trace.index}
+	</span>
 	{#if trace.to}
-		<TruncatedValue value={trace.to} startLength={10} endLength={4} />
+		<TruncatedValue
+			value={trace.to}
+			startLength={10}
+			endLength={4}
+		/>
 	{/if}
 
 	{#if trace.error}
-		<span data-tag="failure">⚠ {trace.error}</span>
+		<span data-tag="failure">
+			⚠ {trace.error}
+		</span>
 	{/if}
 </div>
 
 <dl>
 	{#if trace.from}
-		<dt>From</dt>
+		<dt>
+			From
+		</dt>
 		<dd><Address actorId={{ $network: { chainId }, address: trace.from as `0x${string}` }} /></dd>
 	{/if}
 
 	{#if trace.to}
-		<dt>To</dt>
+		<dt>
+			To
+		</dt>
 		<dd><Address actorId={{ $network: { chainId }, address: trace.to as `0x${string}` }} /></dd>
 	{/if}
 
 	{#if trace.value && trace.value !== '0x0' && trace.value !== '0x'}
-		<dt>Value</dt>
-		<dd>{formatWei(trace.value)} ETH</dd>
+		<dt>
+			Value
+		</dt>
+		<dd>
+			{formatWei(trace.value)} ETH
+		</dd>
 	{/if}
 
 	{#if trace.gas != null}
-		<dt>Gas</dt>
-		<dd>{formatGas(trace.gas)}</dd>
+		<dt>
+			Gas
+		</dt>
+		<dd>
+			{formatGas(trace.gas)}
+		</dd>
 	{/if}
 
 	{#if trace.gasUsed != null}
-		<dt>Gas Used</dt>
-		<dd>{formatGas(trace.gasUsed)}</dd>
+		<dt>
+			Gas Used
+		</dt>
+		<dd>
+			{formatGas(trace.gasUsed)}
+		</dd>
 	{/if}
 
 	{#if trace.input && trace.input !== '0x'}
-		<dt>Input</dt>
+		<dt>
+			Input
+		</dt>
 		<dd>
 			{#if functionSignatures.length > 0}
 				<code data-row="wrap gap-1">
@@ -118,13 +144,27 @@
 				<span> · </span>
 			{/if}
 
-			<TruncatedValue value={trace.input} startLength={10} endLength={0} />
-			<span>({Math.max(0, (trace.input.length - 2) / 2)} bytes)</span>
+			<TruncatedValue
+				value={trace.input}
+				startLength={10}
+				endLength={0}
+			/>
+			<span>
+				({Math.max(0, (trace.input.length - 2) / 2)} bytes)
+			</span>
 		</dd>
 	{/if}
 
 	{#if trace.output && trace.output !== '0x'}
-		<dt>Output</dt>
-		<dd><TruncatedValue value={trace.output} startLength={10} endLength={8} /></dd>
+		<dt>
+			Output
+		</dt>
+		<dd>
+			<TruncatedValue
+				value={trace.output}
+				startLength={10}
+				endLength={8}
+			/>
+		</dd>
 	{/if}
 </dl>

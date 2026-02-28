@@ -82,7 +82,10 @@
 {#snippet SectionSummary({ title }: { title: string })}
 	<div class="section-summary">
 		<div data-row>
-			<h3 data-row-item="flexible" class="section-heading">
+			<h3
+				data-row-item="flexible"
+				class="section-heading"
+			>
 				{title}{#if singleAddress}
 					{' '}for <TruncatedValue
 						value={singleAddress}
@@ -130,7 +133,9 @@
 >
 	<Boundary>
 			{#if connections.length === 0}
-				<p data-text="muted">No wallet connections for this account.</p>
+				<p data-text="muted">
+					No wallet connections for this account.
+				</p>
 			{:else}
 				<ul
 					data-columns="width-4 gap-2"
@@ -150,7 +155,10 @@
 							data-tag={conn.status}
 							data-row="gap-3"
 						>
-							<span class="connection-name" data-row-item="flexible">
+							<span
+								class="connection-name"
+								data-row-item="flexible"
+							>
 								{conn.transport === WalletConnectionTransport.None
 									? 'Watching'
 									: (wallet?.name ?? conn.$id.wallet$id.rdns)}
@@ -158,7 +166,9 @@
 
 							<span class="connection-status">{conn.status}</span>
 							{#if conn.selected}
-								<span class="connection-badge">Selected</span>
+								<span class="connection-badge">
+									Selected
+								</span>
 							{/if}
 						</li>
 					{/each}

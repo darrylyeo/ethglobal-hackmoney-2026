@@ -46,7 +46,9 @@
 
 	{#snippet Item({ key, item, isPlaceholder })}
 		{#if isPlaceholder}
-			<code>Epoch {key} (loading…)</code>
+			<code>
+				Epoch {key} (loading…)
+			</code>
 		{:else if item != null}
 			{@const epochEntity = { $id: { epoch: item } }}
 

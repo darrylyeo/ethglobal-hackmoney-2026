@@ -530,9 +530,17 @@
 	</summary>
 
 	<div data-column="gap-4">
-		<form data-grid="columns-autofit column-min-16 gap-4" onsubmit={onSubmit}>
-			<section data-card data-column>
-				<h3>Parameters</h3>
+		<form
+			data-grid="columns-autofit column-min-16 gap-4"
+			onsubmit={onSubmit}
+		>
+			<section
+				data-card
+				data-column
+			>
+				<h3>
+					Parameters
+				</h3>
 				{#if action.type === ActionType.Swap}
 					<SwapFieldset
 						bind:action={action as Action<ActionType.Swap>}
@@ -541,7 +549,10 @@
 						{asNonEmptyCoins}
 					/>
 				{:else if action.type === ActionType.Bridge}
-					<BridgeFieldset bind:action={action as Action<ActionType.Bridge>} {filteredNetworks} />
+					<BridgeFieldset
+						bind:action={action as Action<ActionType.Bridge>}
+						{filteredNetworks}
+					/>
 				{:else if action.type === ActionType.Transfer}
 					<TransferFieldset
 						bind:action={action as Action<ActionType.Transfer>}
@@ -562,8 +573,13 @@
 				{/if}
 			</section>
 
-			<section data-card data-column>
-				<h3>Protocol</h3>
+			<section
+				data-card
+				data-column
+			>
+				<h3>
+					Protocol
+				</h3>
 				{#if action.type === ActionType.Swap}
 					<SwapProtocolFieldset bind:action />
 				{:else}
@@ -579,14 +595,23 @@
 						onSelect={(protocol) => onProtocolChange(protocol ?? undefined)}
 					/>
 					{#if action.type === ActionType.Bridge}
-						<BridgeProtocolFieldset bind:action isTestnet={isTestnet} actors={actors} />
+						<BridgeProtocolFieldset
+							bind:action
+							isTestnet={isTestnet}
+							actors={actors}
+						/>
 					{/if}
 				{/if}
 			</section>
 
 			{#if action.type === ActionType.Swap || action.type === ActionType.Bridge}
-				<section data-card data-column>
-					<h3>Quote</h3>
+				<section
+				data-card
+				data-column
+			>
+					<h3>
+						Quote
+					</h3>
 					{#if action.type === ActionType.Swap}
 					{#if swapShowsQuoteSection}
 						<ProtocolAggregatorQuotes
@@ -623,7 +648,10 @@
 				</section>
 			{/if}
 
-			<section data-card class="proposed-transactions-section">
+			<section
+				data-card
+				class="proposed-transactions-section"
+			>
 				{#if true}
 					{@const proposedTransactionsHeading = new Intl.PluralRules('en').select(signingPayloads.length) === 'one'
 						? 'Proposed Transaction'
@@ -666,11 +694,17 @@
 		{#if sessionId}
 			<div data-row="gap-4 align-start">
 				<div data-row-item="flexible">
-					<Simulations sessionId={sessionId} {indexInSequence} />
+					<Simulations
+						sessionId={sessionId}
+						{indexInSequence}
+					/>
 				</div>
 
 				<div data-row-item="flexible">
-					<Transactions sessionId={sessionId} {indexInSequence} />
+					<Transactions
+						sessionId={sessionId}
+						{indexInSequence}
+					/>
 				</div>
 			</div>
 		{/if}
@@ -694,14 +728,20 @@
 						{/if}
 					{/if}
 
-					<div data-row class="dialog-actions">
+					<div
+						data-row
+						class="dialog-actions"
+					>
 						<Button.Root
 							type="button"
 							onclick={() => {
 								cctpConfirmOpen = false
 							}}
 						>Cancel</Button.Root>
-						<Button.Root type="button" onclick={onCctpConfirm}>Confirm</Button.Root>
+						<Button.Root
+							type="button"
+							onclick={onCctpConfirm}
+							>Confirm</Button.Root>
 					</div>
 				</Dialog.Content>
 			</Dialog.Portal>

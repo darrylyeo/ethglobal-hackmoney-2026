@@ -135,7 +135,9 @@
 
 
 	{#if isChecking}
-		<p data-text="muted">Checking approval…</p>
+		<p data-text="muted">
+			Checking approval…
+		</p>
 	{:else if isApproving}
 		<p data-text="muted">
 			Approving…
@@ -162,10 +164,15 @@
 			</Button.Root>
 		</div>
 	{:else if hasSufficientAllowance}
-		<p class="approval-success">✓ Approved</p>
+		<p class="approval-success">
+			✓ Approved
+		</p>
 	{:else}
 		<div data-column>
-			<label data-row="align-center" data-text="muted">
+			<label
+				data-row="align-center"
+				data-text="muted"
+			>
 				<Switch.Root
 					bind:checked={() => unlimited, (c) => (unlimited = c)}
 				>

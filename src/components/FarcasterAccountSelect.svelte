@@ -72,6 +72,8 @@
 	</Dropdown>
 {:else}
 	<p data-text="muted">
-		<a href="/farcaster/accounts">Sign in with Farcaster</a> to draft posts.
+		<a href="/farcaster/accounts">
+			Sign in with Farcaster
+		</a> to draft posts.
 	</p>
 {/if}

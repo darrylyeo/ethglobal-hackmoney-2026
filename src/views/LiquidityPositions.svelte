@@ -104,7 +104,10 @@
 {#snippet SectionSummary({ title }: { title: string })}
 	<div class="section-summary">
 		<div data-row>
-			<h3 data-row-item="flexible" class="section-heading">
+			<h3
+				data-row-item="flexible"
+				class="section-heading"
+			>
 				{title}{#if singleAddress}
 					{' '}for <TruncatedValue
 						value={singleAddress}
@@ -152,7 +155,9 @@
 >
 	<Boundary>
 			{#if positions.length === 0}
-				<p data-text="muted">No liquidity positions for this account.</p>
+				<p data-text="muted">
+					No liquidity positions for this account.
+				</p>
 			{:else}
 				<ul
 					data-columns="width-4 gap-2"
@@ -167,10 +172,20 @@
 							data-card
 							data-row="gap-3 wrap"
 						>
-							<a href="/positions/liquidity/position/{pos.chainId}/{pos.id}" class="position-id" title={pos.id}>{pos.id.slice(0, 10)}…</a>
+							<a
+								href="/positions/liquidity/position/{pos.chainId}/{pos.id}"
+								class="position-id"
+								title={pos.id}
+							>
+								{pos.id.slice(0, 10)}…
+							</a>
 							<span>{net?.name ?? pos.chainId}</span>
-							<a href="/positions/liquidity">View all</a>
-							<a href="/session?template=AddLiquidity">Manage</a>
+							<a href="/positions/liquidity">
+								View all
+							</a>
+							<a href="/session?template=AddLiquidity">
+								Manage
+							</a>
 						</li>
 					{/each}
 				</ul>

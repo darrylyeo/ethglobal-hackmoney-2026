@@ -97,7 +97,10 @@
 </svelte:head>
 
 
-<main data-column data-sticky-container>
+<main
+	data-column
+	data-sticky-container
+>
 	{#if activeSession}
 		<SocialPostSessionView
 			bind:session={activeSession}
@@ -105,16 +108,27 @@
 		/>
 	{:else if sessionQueryResolved && dbSession === null}
 		<section data-scroll-item>
-			<p data-text="muted">Social post session not found.</p>
-			<a href="/farcaster/session">New post</a>
+			<p data-text="muted">
+				Social post session not found.
+			</p>
+			<a href="/farcaster/session">
+				New post
+			</a>
 		</section>
 	{:else}
-		<section data-scroll-item data-column="gap-3">
+		<section
+			data-scroll-item
+			data-column="gap-3"
+		>
 			<header data-row="wrap gap-4">
-				<h1>Social post</h1>
+				<h1>
+					Social post
+				</h1>
 			</header>
 
-			<p data-text="muted">Loading…</p>
+			<p data-text="muted">
+				Loading…
+			</p>
 		</section>
 	{/if}
 </main>

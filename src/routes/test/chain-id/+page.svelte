@@ -39,14 +39,18 @@
 	data-sticky-container
 >
 	<section data-scroll-item>
-		<h1>Tests</h1>
+		<h1>
+			Tests
+		</h1>
 
 		<section
 			data-card
 			data-column="gap-4"
 			aria-labelledby="chainid-heading"
 		>
-			<h2 id="chainid-heading">Chain ID (Voltaire)</h2>
+			<h2 id="chainid-heading">
+				Chain ID (Voltaire)
+			</h2>
 
 			<form
 				aria-labelledby="chainid-heading"
@@ -56,12 +60,16 @@
 				}}
 			>
 				<fieldset data-row>
-					<legend class="sr-only">RPC URL</legend>
+					<legend class="sr-only">
+						RPC URL
+					</legend>
 
 					<label
 						for="rpc-url"
 						class="sr-only"
-					>RPC URL</label>
+					>
+						RPC URL
+					</label>
 
 					<div
 						data-column

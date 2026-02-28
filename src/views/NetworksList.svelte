@@ -29,7 +29,9 @@
 >
 	{#snippet Item({ key, item, isPlaceholder })}
 		{#if isPlaceholder}
-			<span data-placeholder>…</span>
+			<span data-placeholder>
+				…
+			</span>
 		{:else if item}
 			<NetworkView
 				networkId={{ chainId: item.chainId }}
@@ -40,6 +42,8 @@
 	{/snippet}
 
 	{#snippet Empty()}
-		<p data-text="muted">No networks.</p>
+		<p data-text="muted">
+			No networks.
+		</p>
 	{/snippet}
 </List>

@@ -1,4 +1,7 @@
-<script module lang="ts">
+<script
+	module
+	lang="ts"
+>
 	// Types/constants
 	export enum IconShape {
 		Square = 'square',
@@ -93,7 +96,10 @@
 		'img'
 		: undefined}
 >
-	<span data-row class="icon-main">
+	<span
+		data-row
+		class="icon-main"
+	>
 		{#if src}
 			<img
 				{src}

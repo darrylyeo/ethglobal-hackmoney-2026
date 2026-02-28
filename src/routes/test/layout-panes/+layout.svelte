@@ -20,8 +20,12 @@
 		id="aside"
 		data-scroll-iwtem="pane-static"
 	>
-		<a href="#main">Scroll to main</a>
-		<p>Aside</p>
+		<a href="#main">
+			Scroll to main
+		</a>
+		<p>
+			Aside
+		</p>
 	</aside>
 
 	<main
@@ -30,7 +34,9 @@
 		data-column
 		data-sticky-container
 	>
-		<a href="#aside">Scroll to aside</a>
+		<a href="#aside">
+			Scroll to aside
+		</a>
 		{@render children()}
 	</main>
 </div>

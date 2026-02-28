@@ -53,8 +53,13 @@
 		data-scroll-item
 		data-column="gap-4"
 	>
-	<header class="about__header" data-column>
-		<h1>About</h1>
+	<header
+		class="about__header"
+		data-column
+	>
+		<h1>
+			About
+		</h1>
 		<p>
 			{APP_NAME} is a SvelteKit app for bridging, swapping, and tracking USDC
 			across supported chains. It combines TanStack DB collections, Voltaire
@@ -64,7 +69,10 @@
 		</p>
 	</header>
 
-	<section class="diagram-section" aria-label="Architecture diagram">
+	<section
+		class="diagram-section"
+		aria-label="Architecture diagram"
+	>
 		<ArchitectureGraph height="72vh" />
 	</section>
 
@@ -74,10 +82,18 @@
 		data-column
 		aria-label="Diagram legend"
 	>
-		<h2>Legend</h2>
-		<div data-grid="columns-autofit column-min-12 gap-3" class="about__legend-grid">
+		<h2>
+			Legend
+		</h2>
+		<div
+			data-grid="columns-autofit column-min-12 gap-3"
+			class="about__legend-grid"
+		>
 			{#each legendItems as item (item.id)}
-				<div class="about__legend-item" data-row="start">
+				<div
+					class="about__legend-item"
+					data-row="start"
+				>
 					<span
 						class="about__legend-swatch shape-rect"
 						data-row
@@ -88,48 +104,110 @@
 			{/each}
 		</div>
 
-		<div data-grid="columns-autofit column-min-12 gap-3" class="about__legend-grid">
-			<div class="about__legend-item" data-row="start">
-				<span class="about__legend-swatch shape-rect" data-row></span>
-				<span>Flow / service node</span>
+		<div
+			data-grid="columns-autofit column-min-12 gap-3"
+			class="about__legend-grid"
+		>
+			<div
+				class="about__legend-item"
+				data-row="start"
+			>
+				<span
+					class="about__legend-swatch shape-rect"
+					data-row
+				></span>
+				<span>
+					Flow / service node
+				</span>
 			</div>
 
-			<div class="about__legend-item" data-row="start">
-				<span class="about__legend-swatch shape-circle" data-row></span>
-				<span>State or data node</span>
+			<div
+				class="about__legend-item"
+				data-row="start"
+			>
+				<span
+					class="about__legend-swatch shape-circle"
+					data-row
+				></span>
+				<span>
+					State or data node
+				</span>
 			</div>
 
-			<div class="about__legend-item" data-row="start">
-				<span class="about__legend-swatch shape-diamond" data-row></span>
-				<span>Wallet / channel node</span>
+			<div
+				class="about__legend-item"
+				data-row="start"
+			>
+				<span
+					class="about__legend-swatch shape-diamond"
+					data-row
+				></span>
+				<span>
+					Wallet / channel node
+				</span>
 			</div>
 
-			<div class="about__legend-item" data-row="start">
-				<span class="about__legend-swatch shape-image" data-row></span>
-				<span>Chain icon node</span>
+			<div
+				class="about__legend-item"
+				data-row="start"
+			>
+				<span
+					class="about__legend-swatch shape-image"
+					data-row
+				></span>
+				<span>
+					Chain icon node
+				</span>
 			</div>
 
-			<div class="about__legend-item" data-row="start">
-				<span class="about__legend-swatch shape-line" data-row></span>
-				<span>Directional flow</span>
+			<div
+				class="about__legend-item"
+				data-row="start"
+			>
+				<span
+					class="about__legend-swatch shape-line"
+					data-row
+				></span>
+				<span>
+					Directional flow
+				</span>
 			</div>
 
-			<div class="about__legend-item" data-row="start">
-				<span class="about__legend-swatch shape-dashed" data-row></span>
-				<span>Optional / enrichment path</span>
+			<div
+				class="about__legend-item"
+				data-row="start"
+			>
+				<span
+					class="about__legend-swatch shape-dashed"
+					data-row
+				></span>
+				<span>
+					Optional / enrichment path
+				</span>
 			</div>
 		</div>
 
-		<dl class="about__legend-details" data-row="wrap gap-x-4 gap-y-1">
-			<dt>Edges</dt>
+		<dl
+			class="about__legend-details"
+			data-row="wrap gap-x-4 gap-y-1"
+		>
+			<dt>
+				Edges
+			</dt>
 			<dd>
 				Arrows show action direction. Solid = sync, dashed = async or optional.
 				Thicker blue edges = critical execution paths.
 			</dd>
 
-			<dt>Networks</dt>
-			<dd>Mainnets use solid outlines; testnets use dashed outlines.</dd>
-			<dt>Interactions</dt>
+			<dt>
+				Networks
+			</dt>
+			<dd>
+				Mainnets use solid outlines; testnets use dashed outlines.
+			</dd>
+			<dt>
+				Interactions
+			</dt>
 			<dd>
 				Drag to pan; scroll or <kbd>+</kbd>/<kbd>−</kbd> to zoom; <kbd>0</kbd>
 				to fit; <kbd>Escape</kbd> to clear selection. Hover for details.

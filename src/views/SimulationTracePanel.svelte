@@ -44,11 +44,21 @@
 </script>
 
 
-<div data-simulation-trace data-column>
+<div
+	data-simulation-trace
+	data-column
+>
 	<header data-row="align-center justify-between">
-		<h3>Trace</h3>
+		<h3>
+			Trace
+		</h3>
 		<div data-row="align-center">
-			<label for="trace-contract" class="sr-only">Filter by contract</label>
+			<label
+				for="trace-contract"
+				class="sr-only"
+			>
+				Filter by contract
+			</label>
 
 			<input
 				id="trace-contract"
@@ -57,7 +67,12 @@
 				bind:value={contractFilter}
 				data-input
 			/>
-			<label for="trace-selector" class="sr-only">Filter by selector</label>
+			<label
+				for="trace-selector"
+				class="sr-only"
+			>
+				Filter by selector
+			</label>
 
 			<input
 				id="trace-selector"
@@ -70,9 +85,13 @@
 	</header>
 
 	{#if trace.length === 0}
-		<p data-text="muted">No trace entries.</p>
+		<p data-text="muted">
+			No trace entries.
+		</p>
 	{:else if !hasVisible}
-		<p data-text="muted">No matching entries.</p>
+		<p data-text="muted">
+			No matching entries.
+		</p>
 	{:else}
 		<Tree
 			items={trace}
@@ -86,19 +105,30 @@
 			summaryAttrs={{}}
 		>
 			{#snippet Content({ node }: { node: TevmSimulationTraceCall })}
-				<div data-trace-call data-column="gap-0">
+				<div
+					data-trace-call
+					data-column="gap-0"
+				>
 					<div data-row="align-center wrap">
-						<span data-text="muted">to</span>
+						<span data-text="muted">
+							to
+						</span>
 						<code>{formatAddress(node.to)}</code>
 						{#if node.selector}
-							<span data-text="muted">selector</span>
+							<span data-text="muted">
+								selector
+							</span>
 							<code>{node.selector}</code>
 						{/if}
 
-						<span data-text="muted">gas</span>
+						<span data-text="muted">
+							gas
+						</span>
 						<code>{node.gasUsed}</code>
 						{#if node.value !== '0'}
-							<span data-text="muted">value</span>
+							<span data-text="muted">
+								value
+							</span>
 							<code>{node.value}</code>
 						{/if}
 					</div>

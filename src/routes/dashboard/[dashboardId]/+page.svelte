@@ -518,8 +518,13 @@
 		</section>
 	</main>
 {:else}
-	<main class="dashboard" data-sticky-container>
-		<p>Loading dashboard…</p>
+	<main
+		class="dashboard"
+		data-sticky-container
+	>
+		<p>
+			Loading dashboard…
+		</p>
 	</main>
 {/if}
 

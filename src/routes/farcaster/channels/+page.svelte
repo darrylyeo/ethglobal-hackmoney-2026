@@ -119,16 +119,28 @@
 
 
 <main data-column="gap-4">
-	<h1>Channels</h1>
-	<details data-card data-scroll-container="block" open>
+	<h1>
+		Channels
+	</h1>
+	<details
+		data-card
+		data-scroll-container="block"
+		open
+	>
 		<summary>
-			<h3 class="section-heading">Channels ({displayCount})</h3>
+			<h3 class="section-heading">
+				Channels ({displayCount})
+			</h3>
 		</summary>
 
 		{#if allChannels.length === 0 && channelsQuery.isLoading}
-			<p data-text="muted">Loading…</p>
+			<p data-text="muted">
+				Loading…
+			</p>
 		{:else if allChannels.length === 0}
-			<p data-text="muted">No channels found.</p>
+			<p data-text="muted">
+				No channels found.
+			</p>
 		{:else}
 			<div data-column="gap-4">
 				<RefinableList
@@ -163,7 +175,9 @@
 					placeholderKeys={new Set<string>()}
 				>
 					{#snippet Empty()}
-						<p data-text="muted">No channels match filters.</p>
+						<p data-text="muted">
+							No channels match filters.
+						</p>
 					{/snippet}
 
 					{#snippet Item({ key: _key, item: row, isPlaceholder, searchQuery: q, matches })}
@@ -183,7 +197,11 @@
 							>
 								{#snippet Title()}
 									{#if q != null && q !== ''}
-										<SearchableText text={ch.name} query={q} {matches} />
+										<SearchableText
+											text={ch.name}
+											query={q}
+											{matches}
+										/>
 									{:else}
 										{ch.name}
 									{/if}

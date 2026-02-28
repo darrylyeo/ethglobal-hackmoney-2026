@@ -133,16 +133,28 @@
 
 
 <main data-column="gap-4">
-	<h1>Users</h1>
-	<details data-card data-scroll-container="block" open>
+	<h1>
+		Users
+	</h1>
+	<details
+		data-card
+		data-scroll-container="block"
+		open
+	>
 		<summary>
-			<h3 class="section-heading">Users ({displayCount})</h3>
+			<h3 class="section-heading">
+				Users ({displayCount})
+			</h3>
 		</summary>
 
 		{#if allUsers.length === 0 && usersQuery.isLoading}
-			<p data-text="muted">Loading…</p>
+			<p data-text="muted">
+				Loading…
+			</p>
 		{:else if allUsers.length === 0}
-			<p data-text="muted">No users yet. Sign in with Farcaster or visit casts to load users.</p>
+			<p data-text="muted">
+				No users yet. Sign in with Farcaster or visit casts to load users.
+			</p>
 		{:else}
 			<div data-column="gap-4">
 				<RefinableList
@@ -193,7 +205,9 @@
 					placeholderKeys={new Set<string>()}
 				>
 					{#snippet Empty()}
-						<p data-text="muted">No users match filters.</p>
+						<p data-text="muted">
+							No users match filters.
+						</p>
 					{/snippet}
 
 					{#snippet Item({ key: _key, item: row, isPlaceholder, searchQuery: q, matches })}
@@ -215,7 +229,11 @@
 							>
 								{#snippet Title()}
 									{#if q != null && q !== ''}
-										<SearchableText text={label} query={q} {matches} />
+										<SearchableText
+											text={label}
+											query={q}
+											{matches}
+										/>
 									{:else}
 										{label}
 									{/if}

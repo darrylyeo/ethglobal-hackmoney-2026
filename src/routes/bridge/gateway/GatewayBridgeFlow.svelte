@@ -155,26 +155,48 @@
 </script>
 
 {#if recipient && fromNetwork && toNetwork}
-	<div data-preview data-column>
-		<strong>Transfer preview</strong>
+	<div
+		data-preview
+		data-column
+	>
+		<strong>
+			Transfer preview
+		</strong>
 		<dl class="bridge-summary">
-			<dt>From</dt>
+			<dt>
+				From
+			</dt>
 			<dd>
 				{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
 			</dd>
 
-			<dt>To</dt>
-			<dd>{toNetwork.name}</dd>
-			<dt>Recipient</dt>
-			<dd>{formatAddress(recipient)}</dd>
+			<dt>
+				To
+			</dt>
+			<dd>
+				{toNetwork.name}
+			</dd>
+			<dt>
+				Recipient
+			</dt>
+			<dd>
+				{formatAddress(recipient)}
+			</dd>
 		</dl>
 	</div>
 {/if}
 
-<div data-card data-column="gap-3">
-	<h3>Gateway</h3>
+<div
+	data-card
+	data-column="gap-3"
+>
+	<h3>
+		Gateway
+	</h3>
 	{#if balanceLoading}
-		<p data-text="muted">Loading unified balance…</p>
+		<p data-text="muted">
+			Loading unified balance…
+		</p>
 	{:else if balanceError}
 		<p data-error>{balanceError}</p>
 	{:else if unifiedBalance !== null}
@@ -185,7 +207,9 @@
 		</p>
 
 		{#if canInstantTransfer}
-			<p data-text="muted">Instant transfer: sign burn intent, then mint on destination.</p>
+			<p data-text="muted">
+				Instant transfer: sign burn intent, then mint on destination.
+			</p>
 		{:else if needsDeposit}
 			<p data-text="muted">
 				Deposit USDC to Gateway Wallet on
@@ -195,9 +219,13 @@
 			</p>
 		{/if}
 	{:else if selectedActor}
-		<p data-text="muted">Connect wallet to see unified balance.</p>
+		<p data-text="muted">
+			Connect wallet to see unified balance.
+		</p>
 	{:else}
-		<p data-text="muted">Connect a wallet to continue.</p>
+		<p data-text="muted">
+			Connect a wallet to continue.
+		</p>
 	{/if}
 
 	<div data-column>
@@ -236,16 +264,22 @@
 				</Dialog.Description>
 			{/if}
 
-			<div data-row class="dialog-actions">
+			<div
+				data-row
+				class="dialog-actions"
+			>
 				<Button.Root
 					type="button"
 					onclick={() => {
 						confirmOpen = false
 					}}>Cancel</Button.Root
 				>
-				<Button.Root type="button" onclick={onConfirmSubmit}
-					>Confirm</Button.Root
+				<Button.Root
+					type="button"
+					onclick={onConfirmSubmit}
 				>
+					Confirm
+				</Button.Root>
 			</div>
 		</Dialog.Content>
 	</Dialog.Portal>

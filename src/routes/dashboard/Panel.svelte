@@ -164,7 +164,11 @@
 		data-sticky
 		data-scroll-container="inline"
 	>
-		<div data-row="wrap start" data-row-item="flexible" class="dashboard-panel-title">
+		<div
+			data-row="wrap start"
+			data-row-item="flexible"
+			class="dashboard-panel-title"
+		>
 			<select
 				class="dashboard-panel-route"
 				aria-label="Panel route"
@@ -199,17 +203,54 @@
 			/> -->
 		</div>
 
-		<div data-row="wrap start" class="dashboard-panel-controls">
-			<button type="button" onclick={() => onSplit(panel.id, SplitDirection.Horizontal)} title="Split horizontal">
-				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">→</span>
+		<div
+			data-row="wrap start"
+			class="dashboard-panel-controls"
+		>
+			<button
+				type="button"
+				onclick={() => onSplit(panel.id, SplitDirection.Horizontal)}
+				title="Split horizontal"
+			>
+				<span class="dashboard-panel-btn-text">
+					Split 
+				</span>
+				<span
+					class="dashboard-panel-btn-icon"
+					aria-hidden="true"
+				>
+					→
+				</span>
 			</button>
 
-			<button type="button" onclick={() => onSplit(panel.id, SplitDirection.Vertical)} title="Split vertical">
-				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">↓</span>
+			<button
+				type="button"
+				onclick={() => onSplit(panel.id, SplitDirection.Vertical)}
+				title="Split vertical"
+			>
+				<span class="dashboard-panel-btn-text">
+					Split 
+				</span>
+				<span
+					class="dashboard-panel-btn-icon"
+					aria-hidden="true"
+				>
+					↓
+				</span>
 			</button>
 
-			<button type="button" onclick={() => onSwap(panel.id)} title="Swap">
-				<span class="dashboard-panel-btn-text">Swap </span><span class="dashboard-panel-btn-icon" aria-hidden="true">
+			<button
+				type="button"
+				onclick={() => onSwap(panel.id)}
+				title="Swap"
+			>
+				<span class="dashboard-panel-btn-text">
+					Swap 
+				</span>
+				<span
+					class="dashboard-panel-btn-icon"
+					aria-hidden="true"
+				>
 					{parent != null && indexInParent != null ?
 						indexInParent === 0 && parent.direction === SplitDirection.Horizontal ?
 							'⇄'
@@ -222,8 +263,20 @@
 				</span>
 			</button>
 
-			<button type="button" onclick={() => onRemove(panel.id)} title="Close">
-				<span class="dashboard-panel-btn-text">Close</span><span class="dashboard-panel-btn-icon" aria-hidden="true">×</span>
+			<button
+				type="button"
+				onclick={() => onRemove(panel.id)}
+				title="Close"
+			>
+				<span class="dashboard-panel-btn-text">
+					Close
+				</span>
+				<span
+					class="dashboard-panel-btn-icon"
+					aria-hidden="true"
+				>
+					×
+				</span>
 			</button>
 		</div>
 	</header>
@@ -254,7 +307,9 @@
 			data-column
 			class="dashboard-panel-history"
 		>
-			<span>History</span>
+			<span>
+				History
+			</span>
 			<ul>
 				{#each panel.hashHistory as hash, index (index)}
 					<li>{index + 1}. {hash}</li>

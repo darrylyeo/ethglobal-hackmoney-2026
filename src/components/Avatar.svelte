@@ -45,7 +45,10 @@
 
 	{#if subicon}
 		<span class="avatar-subicon">
-			<Icon {...subicon} size={subicon.size ?? '50%'} />
+			<Icon
+				{...subicon}
+				size={subicon.size ?? '50%'}
+			/>
 		</span>
 	{/if}
 </span>

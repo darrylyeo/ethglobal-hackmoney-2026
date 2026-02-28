@@ -148,38 +148,60 @@
 
 
 {#if recipient && fromNetwork && toNetwork}
-	<div data-preview data-column>
-		<strong>Transfer preview</strong>
+	<div
+		data-preview
+		data-column
+	>
+		<strong>
+			Transfer preview
+		</strong>
 		<dl class="bridge-summary">
-			<dt>Burn</dt>
+			<dt>
+				Burn
+			</dt>
 			<dd>
 				{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
 			</dd>
 
-			<dt>Receive</dt>
+			<dt>
+				Receive
+			</dt>
 			<dd>
 				~{formatSmallestToDecimal(expectedReceive, 6)} USDC on {toNetwork.name}
 			</dd>
 
 			{#if minOutput !== null}
-				<dt>Min received</dt>
+				<dt>
+					Min received
+				</dt>
 				<dd>{formatSmallestToDecimal(minOutput, 6)} USDC</dd>
 			{/if}
 
-			<dt>Recipient</dt>
+			<dt>
+				Recipient
+			</dt>
 			<dd>{formatAddress(recipient)}</dd>
 		</dl>
 	</div>
 {/if}
 
-<section data-card data-column>
-	<h3>CCTP Execution</h3>
+<section
+	data-card
+	data-column
+>
+	<h3>
+		CCTP Execution
+	</h3>
 	{#if !fastTransferSupported}
-		<p data-text="muted">Fast transfer is not supported for this source chain.</p>
+		<p data-text="muted">
+			Fast transfer is not supported for this source chain.
+		</p>
 	{/if}
 
 	{#if forwardingSupported && settings.forwardingEnabled}
-		<p data-text="muted">Forwarding service enabled.</p>
+		<p data-text="muted">
+			Forwarding service enabled.
+		</p>
 	{/if}
 
 	<CctpFees

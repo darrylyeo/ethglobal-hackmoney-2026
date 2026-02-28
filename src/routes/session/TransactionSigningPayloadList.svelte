@@ -22,7 +22,10 @@
 </script>
 
 
-<div class="proposed-tx-list" data-column="gap-2">
+<div
+	class="proposed-tx-list"
+	data-column="gap-2"
+>
 	<div
 		class="proposed-tx-scroll"
 		data-scroll-container="block"
@@ -43,7 +46,9 @@
 			{/snippet}
 
 			{#snippet Empty()}
-				<p data-text="muted">No transactions for this action.</p>
+				<p data-text="muted">
+					No transactions for this action.
+				</p>
 			{/snippet}
 		</List>
 	</div>

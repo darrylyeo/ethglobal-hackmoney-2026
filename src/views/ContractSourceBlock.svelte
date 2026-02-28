@@ -14,4 +14,8 @@
 </script>
 
 
-<Code {path} {content} maxHeight="20em" />
+<Code
+	{path}
+	{content}
+	maxHeight="20em"
+/>

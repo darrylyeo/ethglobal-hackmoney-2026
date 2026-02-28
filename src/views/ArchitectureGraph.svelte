@@ -689,10 +689,14 @@
 			data-column
 			aria-live="polite"
 		>
-			<h3>Details</h3>
+			<h3>
+				Details
+			</h3>
 			<p class="architecture-graph__selection">{selectionSummary}</p>
 			{#if hoveredItem}
-				<p class="architecture-graph__detail-title">Hover</p>
+				<p class="architecture-graph__detail-title">
+					Hover
+				</p>
 				<p>{hoveredItem.label}</p>
 				{#if hoveredItem.relation}
 					<p class="architecture-graph__detail-meta">
@@ -711,7 +715,9 @@
 					</dl>
 				{/if}
 			{:else if selectedItem}
-				<p class="architecture-graph__detail-title">Selected</p>
+				<p class="architecture-graph__detail-title">
+					Selected
+				</p>
 				<p>{selectedItem.label}</p>
 				{#if selectedItem.relation}
 					<p class="architecture-graph__detail-meta">
@@ -741,13 +747,17 @@
 
 	{#snippet Error(error, reset)}
 		<div data-card>
-			<h3>Architecture graph error</h3>
+			<h3>
+				Architecture graph error
+			</h3>
 			<p>{error instanceof Error ? error.message : String(error)}</p>
 
 			<button
 				type="button"
 				onclick={reset}
-			>Retry</button>
+			>
+				Retry
+			</button>
 		</div>
 	{/snippet}
 </svelte:boundary>

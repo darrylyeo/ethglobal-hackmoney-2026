@@ -1,4 +1,7 @@
-<script lang="ts" generics="_CoinType extends CoinInstance = CoinInstance">
+<script
+	lang="ts"
+	generics="_CoinType extends CoinInstance = CoinInstance"
+>
 	// Types/constants
 	import { IconShape } from '$/components/Icon.svelte'
 	import { CoinInstanceType, type CoinInstance } from '$/constants/coin-instances.ts'

@@ -41,5 +41,7 @@
 
 
 <main data-sticky-container>
-	<p>Redirecting to dashboard…</p>
+	<p>
+		Redirecting to dashboard…
+	</p>
 </main>

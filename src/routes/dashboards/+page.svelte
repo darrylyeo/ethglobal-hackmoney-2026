@@ -96,13 +96,25 @@
 	data-column
 >
 	<header data-row="wrap gap-4">
-		<div data-row="start" data-row-item="flexible">
-			<h1>Dashboards</h1>
+		<div
+			data-row="start"
+			data-row-item="flexible"
+		>
+			<h1>
+				Dashboards
+			</h1>
 		</div>
 
 		<div data-row>
-			<button type="button" onclick={onCreate}>New dashboard</button>
-			<a href={resolve(`/dashboard/${defaultId}`)}>Open default</a>
+			<button
+				type="button"
+				onclick={onCreate}
+			>
+				New dashboard
+			</button>
+			<a href={resolve(`/dashboard/${defaultId}`)}>
+				Open default
+			</a>
 		</div>
 	</header>
 
@@ -125,7 +137,9 @@
 							onkeydown={(e) => e.key === 'Escape' && (renameId = null)}
 							aria-label="Dashboard name"
 						/>
-						<button type="submit">Save</button>
+						<button type="submit">
+							Save
+						</button>
 
 						<button
 							type="button"
@@ -135,7 +149,10 @@
 						</button>
 					</form>
 				{:else}
-					<span class="dashboard-icon" aria-hidden="true">
+					<span
+						class="dashboard-icon"
+						aria-hidden="true"
+					>
 						{dashboard.icon ?? (dashboard.id === defaultId ? '★' : '📊')}
 					</span>
 
@@ -158,7 +175,9 @@
 						maxlength="4"
 					/>
 					{#if dashboard.id === defaultId}
-						<span aria-hidden="true">★ default</span>
+						<span aria-hidden="true">
+							★ default
+						</span>
 					{/if}
 
 					<button

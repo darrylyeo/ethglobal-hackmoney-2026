@@ -146,8 +146,13 @@
 
 <details>
 	<summary data-row="wrap">
-		<h3>Activity</h3>
-		<nav data-row="start" aria-label="Time period">
+		<h3>
+			Activity
+		</h3>
+		<nav
+			data-row="start"
+			aria-label="Time period"
+		>
 			{#each TIME_PERIODS as p (p.value)}
 				<a
 					class="period-link"
@@ -161,14 +166,21 @@
 	</summary>
 
 	{#if loading && eventsSet.size === 0}
-		<p class="activity-loading" data-activity-loading aria-live="polite">
+		<p
+			class="activity-loading"
+			data-activity-loading
+			aria-live="polite"
+		>
 			Loading transfers…
 		</p>
 	{/if}
 
 	{#if coin}
 		{#if graphRow?.row && !graphRow.row.isLoading && graphRow.row.error == null}
-			<div class="graph-viz" data-transfer-graph>
+			<div
+				class="graph-viz"
+				data-transfer-graph
+			>
 				<LiveTransfers
 					{coin}
 					graph={graphRow.row.graph}
@@ -178,21 +190,34 @@
 				/>
 			</div>
 		{:else if graphRow?.row?.error != null}
-			<p class="activity-loading" data-graph-error>
+			<p
+				class="activity-loading"
+				data-graph-error
+			>
 				Graph unavailable: {graphRow.row.error}
 			</p>
 		{/if}
 
 		<Boundary>
 			{#if errorMessage && !loading}
-				<div class="activity-error" data-activity-error>
-					<h2>Transfers unavailable</h2>
+				<div
+					class="activity-error"
+					data-activity-error
+				>
+					<h2>
+						Transfers unavailable
+					</h2>
 					<p>{errorMessage}</p>
 					<p>
 						RPC or network may be unreachable. Try another time period or retry.
 					</p>
 
-					<button type="button" onclick={onRetry}>Retry</button>
+					<button
+						type="button"
+						onclick={onRetry}
+					>
+						Retry
+					</button>
 				</div>
 			{:else}
 				<CoinTransfers
@@ -206,8 +231,13 @@
 			{/if}
 
 			{#snippet Failed(_error, retryFn)}
-				<div class="activity-error" data-activity-error>
-					<h2>Transfers unavailable</h2>
+				<div
+					class="activity-error"
+					data-activity-error
+				>
+					<h2>
+						Transfers unavailable
+					</h2>
 					<p>{(_error as Error).message}</p>
 					<p>
 						RPC or network may be unreachable. Try another time period or retry.

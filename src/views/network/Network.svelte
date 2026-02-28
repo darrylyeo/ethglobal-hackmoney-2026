@@ -1,4 +1,7 @@
-<script module lang="ts">
+<script
+	module
+	lang="ts"
+>
 	export enum NetworkLayout {
 		Summary = 'Summary',
 		Page = 'Page',
@@ -304,14 +307,23 @@
 	>
 		{#if helios?.supported}
 			<section>
-				<div data-row data-gap="2" data-wrap>
-					<label data-row data-gap="1">
+				<div
+					data-row
+					data-gap="2"
+					data-wrap
+				>
+					<label
+						data-row
+						data-gap="1"
+					>
 						<input
 							type="checkbox"
 							checked={helios.on}
 							onchange={() => helios.onToggle(!helios.on)}
 						/>
-						<span>Use Helios (browser)</span>
+						<span>
+							Use Helios (browser)
+						</span>
 					</label>
 
 					{#if helios.on && helios.statusLabel}
@@ -356,7 +368,10 @@
 		</div>
 
 		<section>
-			<ContractsList {networkId} detailsProps={{ 'data-card': '' }} />
+			<ContractsList
+				{networkId}
+				detailsProps={{ 'data-card': '' }}
+			/>
 		</section>
 	</EntityView>
 {/if}

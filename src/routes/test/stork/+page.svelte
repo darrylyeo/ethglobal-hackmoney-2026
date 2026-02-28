@@ -31,9 +31,17 @@
 	data-sticky-container
 >
 	<section data-scroll-item>
-		<h1>Stork API test</h1>
-		<section data-card data-column aria-labelledby="stork-heading">
-			<h2 id="stork-heading">REST (frontend → Stork directly)</h2>
+		<h1>
+			Stork API test
+		</h1>
+		<section
+			data-card
+			data-column
+			aria-labelledby="stork-heading"
+		>
+			<h2 id="stork-heading">
+				REST (frontend → Stork directly)
+			</h2>
 			<p>
 				{storkRestBaseUrl}/v1/prices/latest
 			</p>

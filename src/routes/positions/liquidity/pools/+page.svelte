@@ -47,13 +47,22 @@
 </svelte:head>
 
 
-<main data-column data-sticky-container>
-	<h1>Pools</h1>
-	<p data-text="muted">Uniswap V4 pools (from subgraph). Set PUBLIC_GRAPH_API_KEY for data.</p>
+<main
+	data-column
+	data-sticky-container
+>
+	<h1>
+		Pools
+	</h1>
+	<p data-text="muted">
+		Uniswap V4 pools (from subgraph). Set PUBLIC_GRAPH_API_KEY for data.
+	</p>
 
 	{#if supportedChainIds.length > 0}
 		<div data-row="gap-2 wrap">
-			<label for="chain-select">Chain</label>
+			<label for="chain-select">
+				Chain
+			</label>
 
 			<select
 				id="chain-select"
@@ -70,11 +79,20 @@
 	{/if}
 
 	{#if pools.length === 0}
-		<p>No pools for this chain. Ensure PUBLIC_GRAPH_API_KEY is set and the subgraph is indexed.</p>
-		<p><a href="/positions/liquidity">Back to Liquidity</a>.</p>
+		<p>
+			No pools for this chain. Ensure PUBLIC_GRAPH_API_KEY is set and the subgraph is indexed.
+		</p>
+		<p>
+			<a href="/positions/liquidity">
+				Back to Liquidity
+			</a>.
+		</p>
 	{:else}
 		<section class="pool-list">
-			<ul data-column data-list="unstyled">
+			<ul
+				data-column
+				data-list="unstyled"
+			>
 				{#each pools as pool (pool.chainId + ':' + pool.id)}
 					{@const net = networksByChainId[pool.chainId]}
 
@@ -86,7 +104,9 @@
 					>
 						<a href="/positions/liquidity/pool/{pool.chainId}/{pool.id}">{pairLabel}</a>
 						<span class="pool-chain">{net?.name ?? pool.chainId}</span>
-						<span class="pool-liquidity">Liquidity: {pool.liquidity.toString()}</span>
+						<span class="pool-liquidity">
+							Liquidity: {pool.liquidity.toString()}
+						</span>
 					</li>
 				{/each}
 			</ul>

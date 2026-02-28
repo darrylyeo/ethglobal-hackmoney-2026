@@ -1,4 +1,7 @@
-<script lang="ts" generics="Tab extends { id: string, label: string }">
+<script
+	lang="ts"
+	generics="Tab extends { id: string, label: string }"
+>
 	// Types/constants
 	import type { Snippet } from 'svelte'
 

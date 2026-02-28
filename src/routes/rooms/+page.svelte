@@ -51,7 +51,9 @@
 	data-sticky-container
 	data-column
 >
-	<h1>Rooms</h1>
+	<h1>
+		Rooms
+	</h1>
 
 	<div
 		data-scroll-item
@@ -61,7 +63,9 @@
 			data-row-item="flexible"
 			data-card
 		>
-			<h2>Create room</h2>
+			<h2>
+				Create room
+			</h2>
 
 			<button
 				type="button"
@@ -76,7 +80,9 @@
 			data-row-item="flexible"
 			data-card
 		>
-			<h2>Join room</h2>
+			<h2>
+				Join room
+			</h2>
 
 			<form
 				onsubmit={(e) => {
@@ -85,7 +91,9 @@
 				}}
 				data-row
 			>
-				<label for="room-code">Room code</label>
+				<label for="room-code">
+					Room code
+				</label>
 
 				<input
 					id="room-code"

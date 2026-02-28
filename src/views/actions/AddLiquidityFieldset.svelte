@@ -47,7 +47,9 @@
 {#if action.type === ActionType.AddLiquidity || action.type === ActionType.RemoveLiquidity || action.type === ActionType.CollectFees || action.type === ActionType.IncreaseLiquidity}
 	<div data-column>
 		<label data-column>
-			<span>Network</span>
+			<span>
+				Network
+			</span>
 
 			<NetworkInput
 				networks={filteredNetworks}
@@ -58,7 +60,9 @@
 
 		{#if asNonEmptyCoins(coins)}
 			<label data-column>
-				<span>Token 0</span>
+				<span>
+					Token 0
+				</span>
 
 				<CoinInput
 					coins={coins}
@@ -70,7 +74,9 @@
 			</label>
 
 			<label data-column>
-				<span>Token 1</span>
+				<span>
+					Token 1
+				</span>
 
 				<CoinInput
 					coins={coins}
@@ -82,7 +88,9 @@
 			</label>
 
 			<label data-column>
-				<span>Fee tier</span>
+				<span>
+					Fee tier
+				</span>
 
 				<Select
 					items={liquidityFeeTierPresets}
@@ -97,7 +105,9 @@
 			</label>
 
 			<label data-column>
-				<span>Amount 0</span>
+				<span>
+					Amount 0
+				</span>
 
 				<CoinAmountInput
 					coins={coins}
@@ -112,7 +122,9 @@
 			</label>
 
 			<label data-column>
-				<span>Amount 1</span>
+				<span>
+					Amount 1
+				</span>
 
 				<CoinAmountInput
 					coins={coins}
@@ -126,7 +138,9 @@
 				/>
 			</label>
 		{:else}
-			<p data-muted>No tokens for this network.</p>
+			<p data-muted>
+				No tokens for this network.
+			</p>
 		{/if}
 	</div>
 {/if}

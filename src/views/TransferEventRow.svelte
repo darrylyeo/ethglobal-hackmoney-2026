@@ -60,21 +60,35 @@
 	class="transfer-event-row"
 >
 	<dl data-row="wrap">
-		<dt>Tx</dt>
+		<dt>
+			Tx
+		</dt>
 		<dd>
 			<code>
 				{item.transactionHash.slice(0, 10)}…{item.transactionHash.slice(-8)}
 			</code>
 		</dd>
 
-		<dt>From</dt>
+		<dt>
+			From
+		</dt>
 		<dd bind:this={fromRef}><code>{item.fromAddress.slice(0, 10)}…</code></dd>
-		<dt>To</dt>
+		<dt>
+			To
+		</dt>
 		<dd bind:this={toRef}><code>{item.toAddress.slice(0, 10)}…</code></dd>
-		<dt>Amount</dt>
-		<dd>{formatAmount(item.amount)} {coin.symbol}</dd>
-		<dt>Time</dt>
-		<dd>{formatTime(item.timestamp)}</dd>
+		<dt>
+			Amount
+		</dt>
+		<dd>
+			{formatAmount(item.amount)} {coin.symbol}
+		</dd>
+		<dt>
+			Time
+		</dt>
+		<dd>
+			{formatTime(item.timestamp)}
+		</dd>
 	</dl>
 
 	{#if arrowRects}

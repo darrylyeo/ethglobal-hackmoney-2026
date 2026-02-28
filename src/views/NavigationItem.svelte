@@ -1,4 +1,7 @@
-<script module lang="ts">
+<script
+	module
+	lang="ts"
+>
 	// Types/constants
 	import type { Network$Id } from '$/data/Network.ts'
 
@@ -70,7 +73,10 @@
 </script>
 
 
-<search class="nav-items" data-column="gap-3">
+<search
+	class="nav-items"
+	data-column="gap-3"
+>
 	<input
 		type="search"
 		data-sticky
@@ -153,7 +159,10 @@
 						rel: 'noopener noreferrer',
 					}}
 				>
-					<span data-row="start" data-row-item="flexible">
+					<span
+						data-row="start"
+						data-row-item="flexible"
+					>
 						{#if node.address}
 							<Address
 								actorId={node.address.network ? { $network: node.address.network, address: node.address.address } : undefined}
@@ -164,20 +173,32 @@
 								showAvatar={true}
 							/>
 						{:else if node.icon}
-							<Icon {...navIconProps(node.icon)} size="1em" />
+							<Icon
+								{...navIconProps(node.icon)}
+								size="1em"
+							/>
 						{/if}
 
 						{#if !node.address}
-							<SearchableText text={node.title} query={searchQuery} />
+							<SearchableText
+								text={node.title}
+								query={searchQuery}
+							/>
 						{/if}
 					</span>
 
 					{#if node.tag || node.manualWatch}
 						<span data-row="start gap-1">
 							{#if node.tag}
-								<span data-tag={node.tag} data-row="start gap-1">
+								<span
+									data-tag={node.tag}
+									data-row="start gap-1"
+								>
 									{#if node.tagIcon}
-										<Icon {...navIconProps(node.tagIcon)} size="1em" />
+										<Icon
+										{...navIconProps(node.tagIcon)}
+										size="1em"
+									/>
 									{/if}
 
 									{node.tag}
@@ -185,14 +206,21 @@
 							{/if}
 
 							{#if node.manualWatch}
-								<Icon icon="★" aria-label="Pinned" size="1em" />
+								<Icon
+									icon="★"
+									aria-label="Pinned"
+									size="1em"
+								/>
 							{/if}
 						</span>
 					{/if}
 				</a>
 			{:else}
 				<span data-row="start">
-					<span data-row="start" data-row-item="flexible">
+					<span
+						data-row="start"
+						data-row-item="flexible"
+					>
 						{#if node.address}
 							<Address
 								actorId={node.address.network ? { $network: node.address.network, address: node.address.address } : undefined}
@@ -203,20 +231,32 @@
 								showAvatar={true}
 							/>
 						{:else if node.icon}
-							<Icon {...navIconProps(node.icon)} size="1em" />
+							<Icon
+								{...navIconProps(node.icon)}
+								size="1em"
+							/>
 						{/if}
 
 						{#if !node.address}
-							<SearchableText text={node.title} query={searchQuery} />
+							<SearchableText
+								text={node.title}
+								query={searchQuery}
+							/>
 						{/if}
 					</span>
 
 					{#if node.tag || node.manualWatch}
 						<span data-row="start gap-1">
 							{#if node.tag}
-								<span data-tag={node.tag} data-row="start gap-1">
+								<span
+									data-tag={node.tag}
+									data-row="start gap-1"
+								>
 									{#if node.tagIcon}
-										<Icon {...navIconProps(node.tagIcon)} size="1em" />
+										<Icon
+										{...navIconProps(node.tagIcon)}
+										size="1em"
+									/>
 									{/if}
 
 									{node.tag}
@@ -224,7 +264,11 @@
 							{/if}
 
 							{#if node.manualWatch}
-								<Icon icon="★" aria-label="Pinned" size="1em" />
+								<Icon
+									icon="★"
+									aria-label="Pinned"
+									size="1em"
+								/>
 							{/if}
 						</span>
 					{/if}

@@ -102,12 +102,20 @@
 
 <div data-column="gap-4">
 	<header data-row="wrap gap-4">
-		<div data-row="start" data-row-item="flexible">
-			<h2>Live transfers – {coin.symbol}</h2>
+		<div
+			data-row="start"
+			data-row-item="flexible"
+		>
+			<h2>
+				Live transfers – {coin.symbol}
+			</h2>
 		</div>
 
 		<div data-row>
-			<nav data-row="start" aria-label="Time period">
+			<nav
+				data-row="start"
+				aria-label="Time period"
+			>
 				{#each periods as p (p.value)}
 					<a
 						class="period-link"
@@ -121,12 +129,24 @@
 		</div>
 	</header>
 
-	<div class="viz-container" data-card>
+	<div
+		class="viz-container"
+		data-card
+	>
 		{#if browser}
-			<Canvas aria-label="Transfer graph" role="img">
-				<T.PerspectiveCamera makeDefault position={[0, 0, 20]} />
+			<Canvas
+				aria-label="Transfer graph"
+				role="img"
+			>
+				<T.PerspectiveCamera
+					makeDefault
+					position={[0, 0, 20]}
+				/>
 				<T.AmbientLight intensity={0.8} />
-				<T.DirectionalLight position={[10, 10, 10]} intensity={1} />
+				<T.DirectionalLight
+				position={[10, 10, 10]}
+				intensity={1}
+			/>
 
 				{#if graph.edges.length > 0}
 					<T.LineSegments
@@ -153,12 +173,16 @@
 				{/each}
 			</Canvas>
 		{:else}
-			<p class="transfers-loading">Loading visualization…</p>
+			<p class="transfers-loading">
+				Loading visualization…
+			</p>
 		{/if}
 	</div>
 
 	{#if graph.nodes.length === 0 && graph.edges.length === 0}
-		<p class="transfers-empty">No transfer data for this period.</p>
+		<p class="transfers-empty">
+			No transfer data for this period.
+		</p>
 	{:else}
 		<p class="transfers-summary">
 			{graph.nodes.length} actors, {graph.edges.length} flows

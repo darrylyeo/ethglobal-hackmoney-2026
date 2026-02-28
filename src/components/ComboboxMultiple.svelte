@@ -1,4 +1,7 @@
-<script lang="ts" generics="_Item">
+<script
+	lang="ts"
+	generics="_Item"
+>
 	// Types/constants
 	import type { Snippet } from 'svelte'
 	import { stringify } from 'devalue'
@@ -188,13 +191,19 @@
 	{#if children}
 		{@render children()}
 	{:else}
-		<div data-combobox-multi data-row="gap-1 wrap start">
+		<div
+			data-combobox-multi
+			data-row="gap-1 wrap start"
+		>
 			{#if Before}
 				{@render Before()}
 			{/if}
 
 			{#each selectedChips as chip (chip.id)}
-				<span data-badge="small" data-row="gap-1">
+				<span
+					data-badge="small"
+					data-row="gap-1"
+				>
 					{chip.label}
 					<button
 						type="button"

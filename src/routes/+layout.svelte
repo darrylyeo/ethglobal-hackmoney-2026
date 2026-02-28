@@ -126,7 +126,9 @@
 		<a
 			href="#main"
 			class="skip-link"
-		>Skip to main content</a>
+		>
+			Skip to main content
+		</a>
 
 		<Navigation
 			{navigationItems}

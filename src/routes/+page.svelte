@@ -169,8 +169,17 @@
 
 <main>
 	<article class="landing">
-	<header class="landing-hero" data-column="center gap-4">
-		<img src={mascot} alt="" class="landing-mascot" width="240" height="240" />
+	<header
+		class="landing-hero"
+		data-column="center gap-4"
+	>
+		<img
+			src={mascot}
+			alt=""
+			class="landing-mascot"
+			width="240"
+			height="240"
+		/>
 		<h1>{APP_NAME}</h1>
 		<p class="landing-tagline">
 			Local-first object-oriented GUI client for blockchain exploration, onchain
@@ -196,7 +205,12 @@
 							<span>{label}</span>
 						</a>
 					{:else}
-						<a data-link href={resolve(href)}>{label}</a>
+						<a
+							data-link
+							href={resolve(href)}
+						>
+							{label}
+						</a>
 					{/if}
 				{/each}
 			</div>
@@ -240,8 +254,13 @@
 		data-column="gap-4"
 		aria-label="Features"
 	>
-		<h2 class="landing-features-title">Features</h2>
-		<ul class="landing-features-list" data-grid="columns-autofit gap-3 column-min-18">
+		<h2 class="landing-features-title">
+			Features
+		</h2>
+		<ul
+			class="landing-features-list"
+			data-grid="columns-autofit gap-3 column-min-18"
+		>
 			{#each features as { title, summary, href }}
 				<li>
 					{#if href}
@@ -254,7 +273,10 @@
 							<p class="landing-features-summary">{summary}</p>
 						</a>
 					{:else}
-						<div data-card="padding-3" data-column>
+						<div
+							data-card="padding-3"
+							data-column
+						>
 							<strong>{title}</strong>
 							<p class="landing-features-summary">{summary}</p>
 						</div>
@@ -271,8 +293,13 @@
 		data-column="gap-4"
 		aria-label="About"
 	>
-		<header class="landing-about__header" data-column>
-			<h2>About</h2>
+		<header
+			class="landing-about__header"
+			data-column
+		>
+			<h2>
+				About
+			</h2>
 			<p>
 				{APP_NAME} is a SvelteKit app for bridging, swapping, and tracking USDC
 				across supported chains. It combines TanStack DB collections, Voltaire
@@ -282,7 +309,10 @@
 			</p>
 		</header>
 
-		<section class="landing-about__diagram" aria-label="Architecture diagram">
+		<section
+			class="landing-about__diagram"
+			aria-label="Architecture diagram"
+		>
 			<ArchitectureGraph height="72vh" />
 		</section>
 
@@ -292,68 +322,142 @@
 			data-column
 			aria-label="Diagram legend"
 		>
-			<h3>Legend</h3>
-			<div data-grid="columns-autofit column-min-12 gap-3" class="landing-about__legend-grid">
+			<h3>
+				Legend
+			</h3>
+			<div
+				data-grid="columns-autofit column-min-12 gap-3"
+				class="landing-about__legend-grid"
+			>
 				{#each legendItems as item (item.id)}
-					<div class="landing-about__legend-item" data-row="start">
+					<div
+						class="landing-about__legend-item"
+						data-row="start"
+					>
 						<span
 							class="landing-about__legend-swatch shape-rect"
 							data-row
 							style:background={item.color}
 						></span>
-						<span>{item.label}</span>
+						<span>
+							{item.label}
+						</span>
 					</div>
 				{/each}
 			</div>
 
-			<div data-grid="columns-autofit column-min-12 gap-3" class="landing-about__legend-grid">
-				<div class="landing-about__legend-item" data-row="start">
-					<span class="landing-about__legend-swatch shape-rect" data-row></span>
-					<span>Flow / service node</span>
+			<div
+				data-grid="columns-autofit column-min-12 gap-3"
+				class="landing-about__legend-grid"
+			>
+				<div
+					class="landing-about__legend-item"
+					data-row="start"
+				>
+					<span
+						class="landing-about__legend-swatch shape-rect"
+						data-row
+					></span>
+					<span>
+						Flow / service node
+					</span>
 				</div>
 
-				<div class="landing-about__legend-item" data-row="start">
-					<span class="landing-about__legend-swatch shape-circle" data-row></span>
-					<span>State or data node</span>
+				<div
+					class="landing-about__legend-item"
+					data-row="start"
+				>
+					<span
+						class="landing-about__legend-swatch shape-circle"
+						data-row
+					></span>
+					<span>
+						State or data node
+					</span>
 				</div>
 
-				<div class="landing-about__legend-item" data-row="start">
-					<span class="landing-about__legend-swatch shape-diamond" data-row></span>
-					<span>Wallet / channel node</span>
+				<div
+					class="landing-about__legend-item"
+					data-row="start"
+				>
+					<span
+						class="landing-about__legend-swatch shape-diamond"
+						data-row
+					></span>
+					<span>
+						Wallet / channel node
+					</span>
 				</div>
 
-				<div class="landing-about__legend-item" data-row="start">
-					<span class="landing-about__legend-swatch shape-image" data-row></span>
-					<span>Chain icon node</span>
+				<div
+					class="landing-about__legend-item"
+					data-row="start"
+				>
+					<span
+						class="landing-about__legend-swatch shape-image"
+						data-row
+					></span>
+					<span>
+						Chain icon node
+					</span>
 				</div>
 
-				<div class="landing-about__legend-item" data-row="start">
-					<span class="landing-about__legend-swatch shape-line" data-row></span>
-					<span>Directional flow</span>
+				<div
+					class="landing-about__legend-item"
+					data-row="start"
+				>
+					<span
+						class="landing-about__legend-swatch shape-line"
+						data-row
+					></span>
+					<span>
+						Directional flow
+					</span>
 				</div>
 
-				<div class="landing-about__legend-item" data-row="start">
-					<span class="landing-about__legend-swatch shape-dashed" data-row></span>
-					<span>Optional / enrichment path</span>
+				<div
+					class="landing-about__legend-item"
+					data-row="start"
+				>
+					<span
+						class="landing-about__legend-swatch shape-dashed"
+						data-row
+					></span>
+					<span>
+						Optional / enrichment path
+					</span>
 				</div>
 			</div>
 
-			<dl class="landing-about__legend-details" data-row="wrap gap-x-4 gap-y-1">
-				<dt>Edges</dt>
+			<dl
+				class="landing-about__legend-details"
+				data-row="wrap gap-x-4 gap-y-1"
+			>
+				<dt>
+					Edges
+				</dt>
 				<dd>
 					Arrows show action direction. Solid = sync, dashed = async or optional.
 					Thicker blue edges = critical execution paths.
 				</dd>
 
-				<dt>Networks</dt>
-				<dd>Mainnets use solid outlines; testnets use dashed outlines.</dd>
-				<dt>Interactions</dt>
+				<dt>
+					Networks
+				</dt>
+				<dd>
+					Mainnets use solid outlines; testnets use dashed outlines.
+				</dd>
+				<dt>
+					Interactions
+				</dt>
 				<dd>
 					Drag to pan; scroll or <kbd>+</kbd>/<kbd>−</kbd> to zoom; <kbd>0</kbd>
 					to fit; <kbd>Escape</kbd> to clear selection. Hover for details.
 				</dd>
 
-				<dt id="explain-results-fallback">Explain fallback</dt>
+				<dt id="explain-results-fallback">
+					Explain fallback
+				</dt>
 				<dd>
 					Optional LLM explanations use Chrome Prompt API when available; you can
 					set up a hosted fallback for other environments.

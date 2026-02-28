@@ -40,15 +40,25 @@
 		data-sticky="block"
 		data-row
 	>
-		<div data-row="start" data-row-item="flexible">
+		<div
+			data-row="start"
+			data-row-item="flexible"
+		>
 			<a
 				href="/"
 				aria-label="{APP_NAME} home"
 				data-row="start gap-0"
 			>
-				<span data-card="padding-2" data-row="gap-1">
-					<span class="title">Blockhead</span>
-					<span data-badge>Vision</span>
+				<span
+					data-card="padding-2"
+					data-row="gap-1"
+				>
+					<span class="title">
+						Blockhead
+					</span>
+					<span data-badge>
+						Vision
+					</span>
 				</span>
 			</a>
 		</div>
@@ -67,7 +77,9 @@
 					aria-label="Open menu"
 					_popovertarget="nav"
 				>
-					<a href="#main">☰</a>
+					<a href="#main">
+						☰
+					</a>
 				</button>
 			</li>
 
@@ -78,7 +90,9 @@
 					aria-label="Open menu"
 					_popovertarget="nav"
 				>
-					<span aria-hidden="true">☰</span>
+					<span aria-hidden="true">
+						☰
+					</span>
 				</button>
 			</li> -->
 		</menu>
@@ -94,7 +108,10 @@
 		/>
 	</div>
 
-	<footer data-sticky data-row="align-center">
+	<footer
+		data-sticky
+		data-row="align-center"
+	>
 		<ProfileSwitcher />
 		<NetworkEnvironmentInput />
 	</footer>

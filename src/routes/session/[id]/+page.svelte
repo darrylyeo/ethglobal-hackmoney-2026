@@ -149,22 +149,38 @@
 		/>
 	{:else if sessionQueryResolved && dbSession === null}
 		<section data-scroll-item>
-			<p data-text="muted">Session not found.</p>
-			<a href="/sessions">Back to sessions</a>
+			<p data-text="muted">
+				Session not found.
+			</p>
+			<a href="/sessions">
+				Back to sessions
+			</a>
 		</section>
 	{:else}
-		<section data-scroll-item data-column="gap-3">
+		<section
+			data-scroll-item
+			data-column="gap-3"
+		>
 			<header data-row="wrap gap-4">
-				<div data-row="start" data-row-item="flexible">
-					<h1>Session</h1>
+				<div
+					data-row="start"
+					data-row-item="flexible"
+				>
+					<h1>
+						Session
+					</h1>
 				</div>
 
 				<div data-row>
-					<span data-text="annotation">Session</span>
+					<span data-text="annotation">
+						Session
+					</span>
 				</div>
 			</header>
 
-			<p data-text="muted">Loading session…</p>
+			<p data-text="muted">
+				Loading session…
+			</p>
 		</section>
 	{/if}
 </main>

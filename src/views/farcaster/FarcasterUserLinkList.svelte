@@ -39,7 +39,10 @@
 </script>
 
 
-<Collapsible title={title} annotation={String(links.length)}>
+<Collapsible
+	title={title}
+	annotation={String(links.length)}
+>
 	<div data-column>
 		<RefinableList
 			items={links}
@@ -80,10 +83,14 @@
 						entity={user}
 						titleHref={`/farcaster/user/${fid}`}
 						label={label}
-					>
+						>
 						{#snippet Title()}
 							{#if q != null && q !== ''}
-								<SearchableText text={label} query={q} {matches} />
+								<SearchableText
+									text={label}
+									query={q}
+									{matches}
+								/>
 							{:else}
 								{label}
 							{/if}
@@ -93,7 +100,9 @@
 			{/snippet}
 
 			{#snippet Empty()}
-				<p data-text="muted">No links.</p>
+				<p data-text="muted">
+					No links.
+				</p>
 			{/snippet}
 		</RefinableList>
 	</div>

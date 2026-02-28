@@ -67,7 +67,9 @@
 	</header>
 
 	{#if assetIds.length === 0}
-		<p data-text="muted">No Stork assets selected.</p>
+		<p data-text="muted">
+			No Stork assets selected.
+		</p>
 	{:else}
 		<ul data-column>
 			{#each assetIds as assetId (assetId)}
@@ -89,7 +91,9 @@
 							)}
 						</small>
 					{:else}
-						<small data-text="muted">Waiting for price…</small>
+						<small data-text="muted">
+							Waiting for price…
+						</small>
 					{/if}
 				</li>
 			{/each}

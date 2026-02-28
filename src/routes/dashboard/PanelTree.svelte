@@ -159,7 +159,10 @@
 								Flip
 							</button>
 
-							<button type="button" onclick={() => onSwap(root.first.id)}>
+							<button
+								type="button"
+								onclick={() => onSwap(root.first.id)}
+							>
 								Swap
 							</button>
 						</div>

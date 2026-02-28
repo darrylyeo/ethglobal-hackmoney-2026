@@ -199,11 +199,17 @@
 
 
 <div data-row="wrap align-start">
-	<details data-row-item="flexible" data-card="radius-4" open>
+	<details
+		data-row-item="flexible"
+		data-card="radius-4"
+		open
+	>
 		<summary data-row="align-center wrap">
 			<div data-row>
 				<div data-row="align-center">
-					<h4>Watching addresses</h4>
+					<h4>
+						Watching addresses
+					</h4>
 
 					<span
 						data-badge="small"
@@ -242,7 +248,10 @@
 									/>
 								</span>
 
-								<Button.Root type="submit" disabled={!readOnlyAddress}>
+								<Button.Root
+									type="submit"
+									disabled={!readOnlyAddress}
+								>
 									Add
 								</Button.Root>
 							</div>
@@ -252,7 +261,10 @@
 			</div>
 		</summary>
 
-		<ul class="list" data-column>
+		<ul
+			class="list"
+			data-column
+		>
 			{#each readOnlyChips as { wallet, connection } (stringify(wallet.$id))}
 				<li>
 					<div
@@ -280,11 +292,17 @@
 		</ul>
 	</details>
 
-	<details data-row-item="flexible" data-card="radius-4" open>
+	<details
+		data-row-item="flexible"
+		data-card="radius-4"
+		open
+	>
 		<summary>
 			<div data-row>
 				<div data-row="align-center">
-					<h3 class="section-heading">Wallet Connections</h3>
+					<h3 class="section-heading">
+						Wallet Connections
+					</h3>
 
 					<span
 						data-badge="small"
@@ -308,7 +326,10 @@
 				>
 					{#snippet Item(item)}
 						{#if item.kind === 'wallet'}
-							<span data-row="align-center" data-wallet-provider-option>
+							<span
+								data-row="align-center"
+								data-wallet-provider-option
+							>
 								{#if item.wallet.icon}
 									<Icon src={item.wallet.icon} />
 								{/if}
@@ -334,7 +355,10 @@
 				{@const chainIcon = networksByChainId[chainId]?.icon}
 
 				<li>
-					<details data-card open>
+					<details
+						data-card
+						open
+					>
 						<summary data-status={status}>
 							<div data-row>
 								<div data-row>
@@ -357,14 +381,20 @@
 										<span>{wallet.name}</span>
 									</span>
 
-									<span class="meta" data-row="align-center">
+									<span
+										class="meta"
+										data-row="align-center"
+									>
 										{#if connection.activeActor}
 											<Address
 												actorId={{ $network: { chainId }, address: connection.activeActor }}
 												isLinked={false}
 											/>
 										{:else}
-											<span class="meta status" data-badge="small">
+											<span
+												class="meta status"
+												data-badge="small"
+											>
 												{status === 'connecting'
 													? 'Connecting…'
 													: status === 'error' && connection.error != null
@@ -377,7 +407,10 @@
 									</span>
 								</div>
 
-								<span class="disconnect" role="group">
+								<span
+									class="disconnect"
+									role="group"
+								>
 									<Button.Root
 										type="button"
 										onclick={(e) => {
@@ -391,14 +424,23 @@
 							</div>
 						</summary>
 
-						<div class="panel" data-column>
+						<div
+							class="panel"
+							data-column
+						>
 							{#if (connection.actors ?? []).length > 0}
-								<details class="nested" open>
+								<details
+									class="nested"
+									open
+								>
 									<summary>
 										Accounts ({connection.actors.length})
 									</summary>
 
-									<ul class="list" data-column>
+									<ul
+			class="list"
+			data-column
+		>
 										{#each connection.actors ?? [] as actor}
 											<li>
 												<button
@@ -411,7 +453,9 @@
 														isLinked={false}
 													/>
 													{#if connection.activeActor === actor}
-														<span aria-hidden="true"> ✓</span>
+														<span aria-hidden="true">
+															✓
+														</span>
 													{/if}
 												</button>
 											</li>
@@ -421,8 +465,13 @@
 							{/if}
 
 							{#if filteredNetworks.length > 0 && status === 'connected'}
-								<details class="nested" open>
-									<summary> Network </summary>
+								<details
+									class="nested"
+									open
+								>
+									<summary>
+										Network
+									</summary>
 									<div data-row="align-center wrap">
 										<span>{networkName ?? 'Unknown'}</span>
 

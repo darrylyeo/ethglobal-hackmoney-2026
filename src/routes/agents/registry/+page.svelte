@@ -126,17 +126,23 @@
 			target="_blank"
 			rel="noopener noreferrer"
 			data-link
-		>8004.org</a>,
+		>
+			8004.org
+		</a>,
 		<a
 			href="https://ai.ethereum.foundation"
 			target="_blank"
 			rel="noopener noreferrer"
 			data-link
-		>ai.ethereum.foundation</a>.
+		>
+			ai.ethereum.foundation
+		</a>.
 	</p>
 
 	{#if entriesQuery.isLoading && views.length === 0}
-		<p>Loading…</p>
+		<p>
+			Loading…
+		</p>
 	{:else if entriesQuery.isError}
 		<p>
 			Failed to load:
@@ -145,7 +151,9 @@
 	{:else}
 		<div data-row="gap-4 wrap">
 			<label data-row="align-center">
-				<span>Search</span>
+				<span>
+					Search
+				</span>
 
 				<input
 					type="search"
@@ -201,7 +209,11 @@
 								>
 									<strong>
 										{#if q != null && q !== ''}
-											<SearchableText text={name} query={q} {matches} />
+											<SearchableText
+												text={name}
+												query={q}
+												{matches}
+											/>
 										{:else}
 											{name}
 										{/if}

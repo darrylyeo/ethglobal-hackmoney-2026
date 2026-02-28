@@ -247,19 +247,33 @@
 			]}
 		>
 			{#snippet children()}
-				<div id={castAnchorId(cast.$id.fid, cast.$id.hash)} data-column="gap-4">
+				<div
+					id={castAnchorId(cast.$id.fid, cast.$id.hash)}
+					data-column="gap-4"
+				>
 				{#if showContext}
 					<p>
-						<a href={showContext.href} data-link>Show Context</a>
+						<a
+							href={showContext.href}
+							data-link
+						>
+							Show Context
+						</a>
 					</p>
 				{/if}
 
 				{#if isReply && rootCast}
 					<details open>
-						<summary>In thread</summary>
+						<summary>
+							In thread
+						</summary>
 						<div data-column>
 							<span id={castAnchorId(rootCast.$id.fid, rootCast.$id.hash)}>
-								<FarcasterCastView cast={rootCast} {userByFid} isCompact />
+								<FarcasterCastView
+								cast={rootCast}
+								{userByFid}
+								isCompact
+							/>
 							</span>
 
 							<Tree
@@ -271,7 +285,11 @@
 							>
 								{#snippet Content({ node })}
 									<span id={castAnchorId(node.$id.fid, node.$id.hash)}>
-										<FarcasterCastView cast={node} {userByFid} isCompact />
+										<FarcasterCastView
+										cast={node}
+										{userByFid}
+										isCompact
+									/>
 									</span>
 								{/snippet}
 							</Tree>
@@ -285,7 +303,10 @@
 						{#each cast.embeds as embed}
 							{#if embed.url}
 								<li>
-									<Media media={{ url: embed.url }} alt="" />
+									<Media
+										media={{ url: embed.url }}
+										alt=""
+									/>
 								</li>
 							{:else if embed.castId}
 								{@const quotedCast = allCasts.find(
@@ -309,7 +330,10 @@
 											]}
 										>
 											{#snippet children()}
-												<FarcasterCastView cast={quotedCast} userByFid={userByFid} />
+												<FarcasterCastView
+													cast={quotedCast}
+													userByFid={userByFid}
+												/>
 											{/snippet}
 										</EntityView>
 									{:else}
@@ -325,7 +349,9 @@
 
 				{#if replies.length > 0}
 					<details open>
-						<summary>Replies ({replies.length})</summary>
+						<summary>
+							Replies ({replies.length})
+						</summary>
 
 						<Tree
 							items={replies}
@@ -336,7 +362,11 @@
 						>
 							{#snippet Content({ node })}
 								<span id={castAnchorId(node.$id.fid, node.$id.hash)}>
-									<FarcasterCastView cast={node} userByFid={userByFid} isCompact />
+									<FarcasterCastView
+									cast={node}
+									userByFid={userByFid}
+									isCompact
+								/>
 								</span>
 							{/snippet}
 						</Tree>
@@ -354,8 +384,12 @@
 			{/snippet}
 		</EntityView>
 	{:else if castQuery.isLoading || isEnsureCastPending}
-		<p>Loading cast…</p>
+		<p>
+			Loading cast…
+		</p>
 	{:else}
-		<p>Cast not found</p>
+		<p>
+			Cast not found
+		</p>
 	{/if}
 </main>

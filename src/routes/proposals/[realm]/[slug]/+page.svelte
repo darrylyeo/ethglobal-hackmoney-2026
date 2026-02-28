@@ -141,7 +141,9 @@
 
 <main>
 	{#if !isValidRealm || !parsed}
-		<h1>Not found</h1>
+		<h1>
+			Not found
+		</h1>
 		<p>
 			Invalid proposal path: {realmParam || '(realm)'}/{slugParam || '(slug)'}. Use
 			<code>ethereum</code> or <code>chain-agnostic</code> and a slug like <code>eip-155</code>,
@@ -149,17 +151,23 @@
 		</p>
 
 		<p>
-			<a href={resolve('/proposals')}>Browse proposals</a>
+			<a href={resolve('/proposals')}>
+				Browse proposals
+			</a>
 		</p>
 	{:else if isLoading && !entry}
-		<p>Loading…</p>
+		<p>
+			Loading…
+		</p>
 	{:else if (realm === ProposalRealm.Ethereum ? proposalsQuery.isError : caipsQuery.isError) && !entry}
 		<p>
 			Failed to load:
 			{lastError ?? 'Unknown error'}
 		</p>
 	{:else if !entry}
-		<h1>Not found</h1>
+		<h1>
+			Not found
+		</h1>
 		<p>
 			{parsed.kind === 'caip'
 				? `CAIP-${parsed.number}`
@@ -169,7 +177,9 @@
 		</p>
 
 		<p>
-			<a href={resolve('/proposals')}>Browse proposals</a>
+			<a href={resolve('/proposals')}>
+				Browse proposals
+			</a>
 		</p>
 	{:else if proposalEntry}
 		<section data-scroll-item>
@@ -206,7 +216,9 @@
 				sourceLinks={[{ label: 'Official CAIP', href: caipEntry.url }]}
 			>
 				{#snippet Title()}
-					<strong>CAIP-{caipEntry.number}</strong>
+					<strong>
+						CAIP-{caipEntry.number}
+					</strong>
 					{caipEntry.title}
 				{/snippet}
 

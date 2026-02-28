@@ -70,7 +70,10 @@
 {#snippet SectionSummary({ title }: { title: string })}
 	<div class="section-summary">
 		<div data-row>
-			<h3 data-row-item="flexible" class="section-heading">
+			<h3
+				data-row-item="flexible"
+				class="section-heading"
+			>
 				{title}{#if singleAddress}
 					{' '}for <TruncatedValue
 						value={singleAddress}
@@ -118,7 +121,9 @@
 >
 	<Boundary>
 			{#if transactions.length === 0}
-				<p data-text="muted">No indexed transactions for this account.</p>
+				<p data-text="muted">
+					No indexed transactions for this account.
+				</p>
 			{:else}
 				<ul
 					data-columns="width-4 gap-2"
@@ -141,7 +146,10 @@
 								{fromNet?.name ?? tx.fromChainId} → {toNet?.name ?? tx.toChainId}
 							</span>
 
-							<span class="tx-amount" data-row-item="flexible">
+							<span
+								class="tx-amount"
+								data-row-item="flexible"
+							>
 								{formatSmallestToDecimal(tx.fromAmount, 6, 2)} →
 								{formatSmallestToDecimal(tx.toAmount, 6, 2)}
 							</span>

@@ -48,15 +48,28 @@
 </script>
 
 
-<div data-simulation-events data-column>
+<div
+	data-simulation-events
+	data-column
+>
 	<header data-row="align-center justify-between">
-		<h3>Events</h3>
+		<h3>
+			Events
+		</h3>
 		<div data-row="align-center">
-			<button type="button" onclick={() => (showRaw = !showRaw)}>
+			<button
+				type="button"
+				onclick={() => (showRaw = !showRaw)}
+			>
 				{showRaw ? 'Decoded' : 'Raw'}
 			</button>
 
-			<label for="events-contract" class="sr-only">Filter by contract</label>
+			<label
+				for="events-contract"
+				class="sr-only"
+			>
+				Filter by contract
+			</label>
 
 			<input
 				id="events-contract"
@@ -65,7 +78,12 @@
 				bind:value={contractFilter}
 				data-input
 			/>
-			<label for="events-selector" class="sr-only">Filter by selector</label>
+			<label
+				for="events-selector"
+				class="sr-only"
+			>
+				Filter by selector
+			</label>
 
 			<input
 				id="events-selector"
@@ -78,23 +96,34 @@
 	</header>
 
 	{#if filteredList.length === 0}
-		<p data-text="muted">No events.</p>
+		<p data-text="muted">
+			No events.
+		</p>
 	{:else}
-		<ul data-list="unstyled" data-column>
+		<ul
+			data-list="unstyled"
+			data-column
+		>
 			{#each filteredList as ev, i (showRaw ? ev.address + ev.data : ev.address + ev.topics.join('') + i)}
-				<li data-event data-card data-column>
+				<li
+					data-event
+					data-card
+					data-column
+				>
 					<div data-row="align-center">
 						<code>{formatAddress(ev.address)}</code>
 						{#if !showRaw && (ev as TevmSimulationDecodedEvent).signature}
-							<span data-text="muted"
-								>{(ev as TevmSimulationDecodedEvent).signature}</span
-							>
+						<span
+							data-text="muted"
+							>{(ev as TevmSimulationDecodedEvent).signature}</span>
 						{/if}
 					</div>
 
 					{#if ev.topics?.length}
 						<div data-column="gap-1">
-							<span data-text="muted">Topics</span>
+							<span data-text="muted">
+								Topics
+							</span>
 							{#each ev.topics as topic}
 								<code style="word-break: break-all;">{topic}</code>
 							{/each}
@@ -103,7 +132,9 @@
 
 					{#if ev.data}
 						<div data-column="gap-1">
-							<span data-text="muted">Data</span>
+							<span data-text="muted">
+								Data
+							</span>
 							<code style="word-break: break-all;">{ev.data}</code>
 						</div>
 					{/if}

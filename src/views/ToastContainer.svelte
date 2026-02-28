@@ -23,7 +23,10 @@
 	aria-live="polite"
 >
 	{#each toasts.toasts as toast (toast.id)}
-		<Toast {toast} onDismiss={() => toasts.dismiss(toast.id)} />
+		<Toast
+			{toast}
+			onDismiss={() => toasts.dismiss(toast.id)}
+		/>
 	{/each}
 </div>
 

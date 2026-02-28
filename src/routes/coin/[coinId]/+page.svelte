@@ -42,7 +42,9 @@
 
 <main>
 	{#if !route.coinId}
-		<h1>Not found</h1>
+		<h1>
+			Not found
+		</h1>
 		<p>
 			{route.param ?
 				`Unsupported coin: ${route.param}`

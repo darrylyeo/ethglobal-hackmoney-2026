@@ -38,7 +38,9 @@
 
 
 <main data-column>
-	<h1>Coins</h1>
+	<h1>
+		Coins
+	</h1>
 	<ul data-column>
 		{#each coinsWithInstance as { coinId, coin } (coinId)}
 			<li data-row="start align-center">

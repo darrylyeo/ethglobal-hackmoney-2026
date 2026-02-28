@@ -77,19 +77,31 @@
 
 {#if pendingChallenges.length > 0}
 	<section data-pending-signatures>
-		<h3>Pending signatures</h3>
+		<h3>
+			Pending signatures
+		</h3>
 		<ul>
 			{#each pendingChallenges as ch (ch.id)}
 				<li data-challenge>
 					<Address actorId={{ $network: { chainId: 1 }, address: ch.address }} />
-					<span>Requested by {ch.fromPeerId.slice(0, 8)}</span>
+					<span>
+						Requested by {ch.fromPeerId.slice(0, 8)}
+					</span>
 					{#if canSign}
-						<Button.Root type="button" onclick={() => signChallenge(ch)}>
+						<Button.Root
+							type="button"
+							onclick={() => signChallenge(ch)}
+							>
 							Sign
 						</Button.Root>
 					{:else}
-						<span data-unverifiable>Unverifiable (read-only wallet)</span>
-						<Button.Root type="button" onclick={() => markUnverifiable(ch.id)}>
+						<span data-unverifiable>
+							Unverifiable (read-only wallet)
+						</span>
+						<Button.Root
+							type="button"
+							onclick={() => markUnverifiable(ch.id)}
+							>
 							Mark unverifiable
 						</Button.Root>
 					{/if}

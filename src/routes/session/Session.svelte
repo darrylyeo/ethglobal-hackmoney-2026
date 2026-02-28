@@ -150,7 +150,9 @@
 		annotation="Session"
 	>
 		{#snippet Title()}
-			<span class="sr-only">Session</span>
+			<span class="sr-only">
+				Session
+			</span>
 
 			<input
 				type="text"
@@ -161,7 +163,10 @@
 			/>
 		{/snippet}
 
-		<details open data-card>
+		<details
+			open
+			data-card
+		>
 			<summary>
 				<header data-row="wrap">
 					<AccountsSelect
@@ -184,7 +189,10 @@
 		</details>
 	</EntityView>
 
-	<section data-scroll-item data-column="gap-4">
+	<section
+		data-scroll-item
+		data-column="gap-4"
+	>
 		<ActionsSequence
 			bind:actions={session.actions}
 			{connectedWallets}

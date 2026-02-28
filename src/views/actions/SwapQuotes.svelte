@@ -147,7 +147,10 @@
 					</span>
 
 					{#if itemForProvider.mismatchFlag}
-						<span data-muted title="Quote vs simulation mismatch">
+						<span
+							data-muted
+							title="Quote vs simulation mismatch"
+						>
 							⚠ {itemForProvider.mismatchBps != null ? `${itemForProvider.mismatchBps} bps` : ''}
 						</span>
 					{/if}
@@ -166,7 +169,10 @@
 							</span>
 
 							{#if item.mismatchFlag}
-								<span data-muted title="Quote vs simulation mismatch">
+								<span
+									data-muted
+									title="Quote vs simulation mismatch"
+								>
 									⚠ {item.mismatchBps != null ? `${item.mismatchBps} bps` : ''}
 								</span>
 							{/if}
@@ -177,7 +183,9 @@
 				{/each}
 			</ul>
 		{:else if requestKey}
-			<p data-muted>Quotes refresh every 10s.</p>
+			<p data-muted>
+				Quotes refresh every 10s.
+			</p>
 		{/if}
 	</div>
 {/if}

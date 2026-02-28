@@ -268,7 +268,10 @@
 						</header>
 
 						{#if resolution.options.length > 0}
-							<ol data-list="unstyled" data-column>
+							<ol
+								data-list="unstyled"
+								data-column
+							>
 								{#each resolution.options as option, i (i)}
 									<li>
 										<button
@@ -304,14 +307,20 @@
 							:
 								String(resolution.error)}</p>
 						{:else}
-							<p data-text="muted">No options available.</p>
+							<p data-text="muted">
+								No options available.
+							</p>
 						{/if}
 					{:else if sourcePayload && targetPayload}
 						<header data-row="gap-4">
-							<strong data-text="muted">No matching intent</strong>
+							<strong data-text="muted">
+								No matching intent
+							</strong>
 						</header>
 
-						<p data-text="muted">These entities can't be combined.</p>
+						<p data-text="muted">
+							These entities can't be combined.
+						</p>
 					{/if}
 				</div>
 			{/snippet}

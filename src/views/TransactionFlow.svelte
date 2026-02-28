@@ -474,7 +474,10 @@
 </script>
 
 
-<div data-column="gap-4" data-transaction-flow>
+<div
+	data-column="gap-4"
+	data-transaction-flow
+>
 	{#if Summary}
 		<div data-column>
 			{@render Summary()}
@@ -482,7 +485,9 @@
 	{/if}
 
 	{#if transactions.length === 0}
-		<p data-text="muted">No transactions available.</p>
+		<p data-text="muted">
+			No transactions available.
+		</p>
 	{:else}
 		{#each transactions as tx (tx.id)}
 			{@const txState = getTxState(tx.id)}
@@ -532,7 +537,10 @@
 				hasPendingExecution
 			)}
 
-			<section data-column data-transaction>
+			<section
+				data-column
+				data-transaction
+			>
 				<div data-row="align-center justify-between">
 					<h3>{tx.title}</h3>
 					{#if txState.execution.status !== 'idle'}
@@ -545,7 +553,10 @@
 				{/if}
 
 				{#if tx.simulate}
-					<div data-row="align-center" data-e2e-simulation-status={txState.simulation.status}>
+					<div
+						data-row="align-center"
+						data-e2e-simulation-status={txState.simulation.status}
+					>
 						<Button.Root
 							type="button"
 							onclick={() => simulateTransaction(tx)}
@@ -557,7 +568,9 @@
 						</Button.Root>
 
 						{#if txState.simulation.status === 'success'}
-							<span data-text="muted">Simulation ok</span>
+							<span data-text="muted">
+								Simulation ok
+							</span>
 						{:else if txState.simulation.status === 'failed'}
 							<span data-error>{txState.simulation.error}</span>
 						{/if}
@@ -577,9 +590,13 @@
 							</Button.Root>
 
 							{#if explainAvailability === LlmAvailability.Downloading && simulationExplain.status !== 'loading'}
-								<span data-text="muted">Model downloading…</span>
+								<span data-text="muted">
+									Model downloading…
+								</span>
 							{:else if explainAvailability === LlmAvailability.Unavailable}
-								<span data-text="muted">Explain unavailable.</span>
+								<span data-text="muted">
+									Explain unavailable.
+								</span>
 								<a href="/about#explain-results-fallback"
 									>Set up hosted fallback</a
 								>
@@ -610,7 +627,10 @@
 						{@const turn = getAgentChatTurn(simulationExplain.turnId)}
 
 						{#if turn?.assistantText}
-							<div data-card data-column>
+							<div
+								data-card
+								data-column
+							>
 								<p>{turn.assistantText}</p>
 								<small data-text="muted">
 									{turn.providerId ?? 'unknown'} ·
@@ -628,7 +648,10 @@
 				{/if}
 
 				{#if txState.execution.txHash}
-					<p data-text="muted" data-tx-hash={txState.execution.txHash}>
+					<p
+						data-text="muted"
+						data-tx-hash={txState.execution.txHash}
+					>
 						{txState.execution.txHash.slice(0, 8)}…
 					</p>
 				{/if}
@@ -647,9 +670,13 @@
 						</Button.Root>
 
 						{#if explainAvailability === LlmAvailability.Downloading && executionExplain.status !== 'loading'}
-							<span data-text="muted">Model downloading…</span>
+							<span data-text="muted">
+								Model downloading…
+							</span>
 						{:else if explainAvailability === LlmAvailability.Unavailable}
-							<span data-text="muted">Explain unavailable.</span>
+							<span data-text="muted">
+								Explain unavailable.
+							</span>
 							<a href="/about#explain-results-fallback"
 								>Set up hosted fallback</a
 							>
@@ -678,7 +705,10 @@
 					{@const turn = getAgentChatTurn(executionExplain.turnId)}
 
 					{#if turn?.assistantText}
-						<div data-card data-column>
+						<div
+							data-card
+							data-column
+						>
 							<p>{turn.assistantText}</p>
 							<small data-text="muted">
 								{turn.providerId ?? 'unknown'} ·
@@ -691,8 +721,13 @@
 				{/if}
 
 				{#if needsChainSwitch && walletProvider}
-					<div data-card data-row="align-center">
-						<span>Switch to {network?.name ?? `Chain ${tx.chainId}`}</span>
+					<div
+						data-card
+						data-row="align-center"
+					>
+						<span>
+							Switch to {network?.name ?? `Chain ${tx.chainId}`}
+						</span>
 						<Button.Root
 							type="button"
 							onclick={() => switchWalletChain(walletProvider, tx.chainId)}
@@ -702,7 +737,10 @@
 				{/if}
 
 				{#if confirmationRequired}
-					<div data-column data-confirmation>
+					<div
+						data-column
+						data-confirmation
+					>
 						{#if tx.Confirmation}
 							{@render tx.Confirmation(tx, txState)}
 						{/if}
@@ -731,7 +769,9 @@
 
 				<div data-row="align-center wrap">
 					{#if executionUnsupported}
-						<p data-text="muted">Execution not available for this mode.</p>
+						<p data-text="muted">
+							Execution not available for this mode.
+						</p>
 					{:else if !hasExecutionContext}
 						<p data-text="muted">
 							{E2E_TEVM_ENABLED
@@ -739,7 +779,9 @@
 								: 'Connect a wallet to continue.'}
 						</p>
 					{:else if executionContext?.mode === 'wallet' && !hasWalletSigner}
-						<p data-text="muted">Connect a signing-capable wallet to continue.</p>
+						<p data-text="muted">
+							Connect a signing-capable wallet to continue.
+						</p>
 					{/if}
 				</div>
 

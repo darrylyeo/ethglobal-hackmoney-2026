@@ -1,4 +1,7 @@
-<script lang="ts" generics="Item">
+<script
+	lang="ts"
+	generics="Item"
+>
 	// Types/constants
 	import type { Snippet } from 'svelte'
 

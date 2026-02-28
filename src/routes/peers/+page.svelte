@@ -88,9 +88,13 @@
 	data-sticky-container
 	data-column
 >
-	<h1>Peers</h1>
+	<h1>
+		Peers
+	</h1>
 
-	<p>Verified accounts (addresses you have verified in a room).</p>
+	<p>
+		Verified accounts (addresses you have verified in a room).
+	</p>
 
 	<ul
 		data-column
@@ -107,7 +111,9 @@
 				</a>
 
 				<span data-tag>{entry.isConnected ? 'Connected' : 'Disconnected'}</span>
-				<span data-tag>Verified</span>
+				<span data-tag>
+					Verified
+				</span>
 				{#if !entry.isConnected}
 					<button
 						type="button"

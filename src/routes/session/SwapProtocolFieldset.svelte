@@ -116,7 +116,9 @@
 					</button>
 
 					{#if swapProtocolIntent === SwapProtocolId.Auto}
-						<span>Aggregator</span>
+						<span>
+							Aggregator
+						</span>
 
 						<Select
 							items={protocolAggregatorIds}
@@ -129,7 +131,9 @@
 							ariaLabel="Aggregator"
 						/>
 						{#if strategiesForAggregator.length > 0}
-							<span>Strategy</span>
+							<span>
+								Strategy
+							</span>
 
 							<Select
 								items={strategiesForAggregator}
@@ -158,9 +162,19 @@
 						onclick={() => setSwapProtocolIntent(row.id)}
 					>
 						{#if row.def.icon.includes('/')}
-							<Icon class="protocol-icon" src={row.def.icon} size={20} alt="" />
+							<Icon
+								class="protocol-icon"
+								src={row.def.icon}
+								size={20}
+								alt=""
+							/>
 						{:else}
-							<Icon class="protocol-icon" icon={row.def.icon} size={20} alt="" />
+							<Icon
+								class="protocol-icon"
+								icon={row.def.icon}
+								size={20}
+								alt=""
+							/>
 						{/if}
 
 						<div data-column>

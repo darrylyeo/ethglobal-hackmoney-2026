@@ -238,7 +238,12 @@
 		>
 			{#snippet children()}
 				{#if user?.pfpUrl}
-					<img src={user.pfpUrl} alt="" width="64" height="64" />
+					<img
+						src={user.pfpUrl}
+						alt=""
+						width="64"
+						height="64"
+					/>
 				{/if}
 
 				<FarcasterCastsEntityList
@@ -256,7 +261,9 @@
 				/>
 				{#if mentions.length > 0 || mentionsNextToken}
 					<details>
-						<summary>Mentions ({mentions.length})</summary>
+						<summary>
+							Mentions ({mentions.length})
+						</summary>
 
 						<FarcasterCastsEntityList
 							title=""
@@ -304,6 +311,8 @@
 			{/snippet}
 		</EntityView>
 	{:else}
-		<p>User not found: {fidParam}</p>
+		<p>
+			User not found: {fidParam}
+		</p>
 	{/if}
 </main>

@@ -67,7 +67,9 @@
 {#if action.type === ActionType.Transfer}
 	<div data-column>
 	<label data-column>
-		<span>From</span>
+		<span>
+			From
+		</span>
 
 		<AddressInput
 			items={actorItems}
@@ -81,7 +83,9 @@
 	</label>
 
 	<label data-column>
-		<span>To</span>
+		<span>
+			To
+		</span>
 
 		<AddressInput
 			items={actorItems}
@@ -95,7 +99,9 @@
 	</label>
 
 	<label data-column>
-		<span>Network</span>
+		<span>
+			Network
+		</span>
 
 		<NetworkInput
 			networks={filteredNetworks}
@@ -106,7 +112,9 @@
 
 	{#if asNonEmptyCoins(coins) && tokenCoin}
 		<label data-column>
-			<span>Token</span>
+			<span>
+				Token
+			</span>
 
 			<CoinInput
 				coins={coins}
@@ -118,7 +126,9 @@
 		</label>
 
 		<label data-column>
-			<span>Amount</span>
+			<span>
+				Amount
+			</span>
 
 			<CoinAmountInput
 				coins={coins}
@@ -134,7 +144,9 @@
 		</label>
 	{:else}
 		<label data-column>
-			<span>Token address</span>
+			<span>
+				Token address
+			</span>
 
 			<PatternInput
 				patternTypes={[PatternType.EvmAddress]}
@@ -150,7 +162,9 @@
 		</label>
 
 		<label data-column>
-			<span>Amount</span>
+			<span>
+				Amount
+			</span>
 
 		<TokenAmountInput
 			coin={syntheticCoin}

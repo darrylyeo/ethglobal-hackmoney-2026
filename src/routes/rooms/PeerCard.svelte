@@ -228,12 +228,16 @@
 					{/each}
 				</ul>
 			{:else}
-				<p data-no-addresses>No addresses shared yet.</p>
+				<p data-no-addresses>
+					No addresses shared yet.
+				</p>
 			{/if}
 
 			{#if awaitingMySignature.length > 0}
 				<section data-awaiting-signature>
-					<h4>Awaiting your signature</h4>
+					<h4>
+						Awaiting your signature
+					</h4>
 					<ul>
 						{#each awaitingMySignature as ch (ch.id)}
 							<li data-challenge>
@@ -248,7 +252,9 @@
 										Sign to verify
 									</Button.Root>
 								{:else}
-									<span data-unverifiable>Unverifiable (read-only wallet)</span>
+									<span data-unverifiable>
+										Unverifiable (read-only wallet)
+									</span>
 									<Button.Root
 										type="button"
 										onclick={() => markUnverifiable(ch.id)}

@@ -367,14 +367,31 @@
 </svelte:head>
 
 
-<main data-column data-sticky-container>
-	<h1>Channels</h1>
-	<p data-text="muted">Yellow payment channels for all connected accounts.</p>
+<main
+	data-column
+	data-sticky-container
+>
+	<h1>
+		Channels
+	</h1>
+	<p data-text="muted">
+		Yellow payment channels for all connected accounts.
+	</p>
 
-		<section class="connection" data-row="gap-4" data-yellow-connection>
+		<section
+			class="connection"
+			data-row="gap-4"
+			data-yellow-connection
+		>
 			{#if isConnected}
-				<span data-yellow-status="connected">Connected</span>
-				<Button.Root type="button" onclick={onDisconnect} data-yellow-disconnect>
+				<span data-yellow-status="connected">
+					Connected
+				</span>
+				<Button.Root
+					type="button"
+					onclick={onDisconnect}
+					data-yellow-disconnect
+				>
 					Disconnect
 				</Button.Root>
 
@@ -387,35 +404,58 @@
 					{creatingChannel ? 'Creating…' : 'Create Channel'}
 				</Button.Root>
 			{:else}
-				<span data-yellow-status="disconnected">Disconnected</span>
+				<span data-yellow-status="disconnected">
+					Disconnected
+				</span>
 				<Button.Root
 					type="button"
-				disabled={connecting || !walletProvider || !connectedAddress}
-				onclick={onConnect}
-				data-yellow-connect
+					disabled={connecting || !walletProvider || !connectedAddress}
+					onclick={onConnect}
+					data-yellow-connect
 				>
 					{connecting ? 'Connecting…' : 'Connect to Yellow'}
 				</Button.Root>
 			{/if}
 
 			{#if connectError}
-				<span class="action-error" role="alert">{connectError}</span>
+				<span
+					class="action-error"
+					role="alert"
+				>{connectError}</span>
 			{/if}
 
 			{#if createError}
-				<span class="action-error" role="alert">{createError}</span>
+				<span
+					class="action-error"
+					role="alert"
+				>{createError}</span>
 			{/if}
 		</section>
 
-		<section class="summary" data-row="gap-4">
-			<p>Total: {totalChannels}</p>
-			<p>Active: {activeChannels}</p>
-			<p>With room: {roomChannelsCount}</p>
+		<section
+			class="summary"
+			data-row="gap-4"
+		>
+			<p>
+				Total: {totalChannels}
+			</p>
+			<p>
+				Active: {activeChannels}
+			</p>
+			<p>
+				With room: {roomChannelsCount}
+			</p>
 		</section>
 
-		<section class="filters" data-row="gap-4" data-wrap>
+		<section
+			class="filters"
+			data-row="gap-4"
+			data-wrap
+		>
 			<label data-row="gap-1">
-				<span>Status</span>
+				<span>
+					Status
+				</span>
 				<select bind:value={statusFilter}>
 					<option value="all">all</option>
 					<option value="initial">initial</option>
@@ -427,7 +467,9 @@
 			</label>
 
 			<label data-row="gap-1">
-				<span>Origin</span>
+				<span>
+					Origin
+				</span>
 				<select bind:value={originFilter}>
 					<option value="all">all</option>
 					<option value="room">room</option>
@@ -436,26 +478,46 @@
 			</label>
 
 			<label data-row="gap-1">
-				<input type="checkbox" bind:checked={myChannelsOnly} />
+				<input
+					type="checkbox"
+					bind:checked={myChannelsOnly}
+				/>
 				My channels only
 			</label>
 		</section>
 
 		{#if actionError}
-			<p class="action-error" role="alert">{actionError}</p>
+			<p
+				class="action-error"
+				role="alert"
+			>{actionError}</p>
 		{/if}
 
 		<section class="channel-list">
 			<table>
 				<thead>
 					<tr>
-						<th>Channel</th>
-						<th>Participants</th>
-						<th>My balance</th>
-						<th>Counterparty</th>
-						<th>Status</th>
-						<th>Room</th>
-						<th>Actions</th>
+						<th>
+							Channel
+						</th>
+						<th>
+							Participants
+						</th>
+						<th>
+							My balance
+						</th>
+						<th>
+							Counterparty
+						</th>
+						<th>
+							Status
+						</th>
+						<th>
+							Room
+						</th>
+						<th>
+							Actions
+						</th>
 					</tr>
 				</thead>
 
@@ -482,10 +544,16 @@
 							<td data-status>{ch.status}</td>
 							<td>
 								{#if ch.roomId}
-									<span data-badge class="room-badge" data-room
-										>{roomDisplay(ch.roomId)}</span
+									<span
+										data-badge
+										class="room-badge"
+										data-room
 									>
-									<a href="/rooms/{ch.roomId}/channels">View room</a>
+										{roomDisplay(ch.roomId)}
+									</span>
+									<a href="/rooms/{ch.roomId}/channels">
+										View room
+									</a>
 								{:else}
 									—
 								{/if}
@@ -533,13 +601,18 @@
 			</table>
 
 			{#if filteredChannels.length === 0}
-				<p>No channels match the filters.</p>
+				<p>
+					No channels match the filters.
+				</p>
 			{/if}
 		</section>
 	</main>
 
 	{#if transferChannel}
-		<TransferDialog channel={transferChannel} bind:isOpen={transferOpen} />
+		<TransferDialog
+			channel={transferChannel}
+			bind:isOpen={transferOpen}
+		/>
 	{/if}
 
 

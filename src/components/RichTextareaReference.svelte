@@ -120,7 +120,10 @@
 			/>
 		</div>
 	{:else if isEditable}
-		<span data-placeholder data-trigger={triggerCharacter}>{triggerCharacter}</span>
+		<span
+			data-placeholder
+			data-trigger={triggerCharacter}
+		>{triggerCharacter}</span>
 	{:else}
 		<span
 			contenteditable="false"

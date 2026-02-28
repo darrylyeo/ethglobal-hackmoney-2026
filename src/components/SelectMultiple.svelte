@@ -1,4 +1,7 @@
-<script lang="ts" generics="_Item">
+<script
+	lang="ts"
+	generics="_Item"
+>
 	// Types/constants
 	import type { Snippet } from 'svelte'
 	import { stringify } from 'devalue'
@@ -130,7 +133,10 @@
 	{#if children}
 		{@render children()}
 	{:else}
-		<Select.Trigger id={id ?? _id} aria-label={ariaLabel}>
+		<Select.Trigger
+			id={id ?? _id}
+			aria-label={ariaLabel}
+		>
 			<span data-row>
 				{#if Before}
 					{@render Before()}

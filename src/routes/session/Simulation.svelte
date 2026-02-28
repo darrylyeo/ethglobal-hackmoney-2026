@@ -60,9 +60,15 @@
 	{#if simulation.error && steps.length === 0}
 		<p data-error>{simulation.error}</p>
 	{:else if steps.length > 0}
-		<ol class="simulation-steps" data-column>
+		<ol
+			class="simulation-steps"
+			data-column
+		>
 			{#each steps as step, i}
-				<li data-row="align-center" class="simulation-step">
+				<li
+					data-row="align-center"
+					class="simulation-step"
+				>
 					<span
 						data-tag
 						data-variant={step.summaryStatus === TevmSimulationSummaryStatus.Success
@@ -72,10 +78,17 @@
 						{step.summaryStatus}
 					</span>
 
-					<span>Step {i + 1}</span>
-					<span data-text="muted">Gas: {step.gasTotals.used}</span>
+					<span>
+						Step {i + 1}
+					</span>
+					<span data-text="muted">
+						Gas: {step.gasTotals.used}
+					</span>
 					{#if step.revertReason}
-						<code class="revert-reason" title={step.revertReason}>
+						<code
+							class="revert-reason"
+							title={step.revertReason}
+						>
 							{step.revertReason.slice(0, 42)}{step.revertReason.length > 42
 								? '…'
 								: ''}
@@ -89,7 +102,9 @@
 			<p data-error>{simulation.error}</p>
 		{/if}
 	{:else if simulation.result != null}
-		<p data-text="muted">Result attached</p>
+		<p data-text="muted">
+			Result attached
+		</p>
 	{/if}
 </article>
 

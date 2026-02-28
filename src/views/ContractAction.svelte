@@ -248,12 +248,19 @@
 
 	<details>
 		<summary data-row="justify-between">
-			<h3>Smart Contract Interactions</h3>
+			<h3>
+				Smart Contract Interactions
+			</h3>
 		</summary>
 
 		<div data-column="gap-4">
-		<section data-card data-column>
-			<h4>Method</h4>
+		<section
+			data-card
+			data-column
+		>
+			<h4>
+				Method
+			</h4>
 
 			<Select
 				items={methodItems}
@@ -272,8 +279,13 @@
 		</section>
 
 		{#if selectedMethod}
-			<section data-card data-column>
-				<h4>Parameters</h4>
+			<section
+			data-card
+			data-column
+		>
+				<h4>
+					Parameters
+				</h4>
 				{#each (selectedMethod.inputs ?? []) as input, i}
 					{@const key = getInputKey(input.name ?? `param${i}`, i)}
 
@@ -310,7 +322,9 @@
 
 				{#if selectedMethod.stateMutability === 'payable'}
 					<label data-row>
-						<span>Value (wei)</span>
+						<span>
+							Value (wei)
+						</span>
 
 						<input
 							type="text"
@@ -321,8 +335,13 @@
 				{/if}
 			</section>
 
-			<section data-card data-column>
-				<h4>Execute</h4>
+			<section
+			data-card
+			data-column
+		>
+				<h4>
+					Execute
+				</h4>
 				<div data-row>
 					{#if isReadOnly}
 						<button
@@ -363,7 +382,9 @@
 
 			{#if queryResult != null}
 				<section data-card>
-					<h4>Result</h4>
+					<h4>
+						Result
+					</h4>
 					{#if Array.isArray(queryResult)}
 						{#each queryResult as val, i}
 							<output>{String(val)}</output>
@@ -376,7 +397,9 @@
 
 			{#if simulateResult}
 				<section data-card>
-					<h4>Simulation</h4>
+					<h4>
+						Simulation
+					</h4>
 
 					<p
 						data-tag={simulateResult.status === TevmSimulationSummaryStatus.Success ?

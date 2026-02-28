@@ -42,8 +42,12 @@
 
 <main data-column="gap-4">
 	{#if status === 'loading'}
-		<p>Loading cast…</p>
+		<p>
+			Loading cast…
+		</p>
 	{:else if status === 'error'}
-		<p>Cast not found</p>
+		<p>
+			Cast not found
+		</p>
 	{/if}
 </main>

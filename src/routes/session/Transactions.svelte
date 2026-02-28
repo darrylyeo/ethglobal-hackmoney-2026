@@ -39,9 +39,15 @@
 </script>
 
 
-<details data-card data-column open={items.size > 0}>
+<details
+	data-card
+	data-column
+	open={items.size > 0}
+>
 	<summary>
-		<h4>Submitted Transactions</h4>
+		<h4>
+			Submitted Transactions
+		</h4>
 	</summary>
 
 	<List
@@ -59,7 +65,9 @@
 		{/snippet}
 
 		{#snippet Empty()}
-			<p data-text="muted">No transactions.</p>
+			<p data-text="muted">
+				No transactions.
+			</p>
 		{/snippet}
 	</List>
 </details>

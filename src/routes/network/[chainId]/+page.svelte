@@ -63,8 +63,12 @@
 
 <main data-column>
 	{#if !route}
-		<h1>Network not found</h1>
-		<p>The network "{chainIdParam}" could not be resolved.</p>
+		<h1>
+			Network not found
+		</h1>
+		<p>
+			The network "{chainIdParam}" could not be resolved.
+		</p>
 	{:else}
 		<Network
 			{networkId}

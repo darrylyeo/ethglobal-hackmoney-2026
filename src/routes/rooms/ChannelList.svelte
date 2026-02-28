@@ -119,7 +119,9 @@
 
 
 <section class="channel-list">
-	<h3>Payment Channels</h3>
+	<h3>
+		Payment Channels
+	</h3>
 
 	{#each roomChannels as channel (channel.id)}
 		{@const counterparty = getCounterparty(channel)}
@@ -161,18 +163,26 @@
 	{/each}
 
 	{#if roomChannels.length === 0}
-		<p>No channels with room participants</p>
+		<p>
+			No channels with room participants
+		</p>
 	{/if}
 
 	{#if closeError}
-		<p class="channel-error" role="alert">
+		<p
+			class="channel-error"
+			role="alert"
+		>
 			{closeError}
 		</p>
 	{/if}
 </section>
 
 {#if transferChannel}
-	<TransferDialog channel={transferChannel} bind:isOpen={transferOpen} />
+	<TransferDialog
+		channel={transferChannel}
+		bind:isOpen={transferOpen}
+	/>
 {/if}
 
 

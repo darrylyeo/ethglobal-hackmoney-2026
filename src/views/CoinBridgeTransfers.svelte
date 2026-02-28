@@ -71,15 +71,23 @@
 		{#snippet Item({ key, item, isPlaceholder })}
 			<span id="bridge-transfer:{key}">
 				{#if isPlaceholder}
-					<code>Bridge transfer (loading…)</code>
+					<code>
+						Bridge transfer (loading…)
+					</code>
 				{:else}
-					<TransferEvent {item} {coin} symbol={coinId} />
+					<TransferEvent
+						{item}
+						{coin}
+						symbol={coinId}
+					/>
 				{/if}
 			</span>
 		{/snippet}
 
 		{#snippet Empty()}
-			<p data-text="muted">No bridge transfers in this period. CCTP and other bridge flows appear here when detected.</p>
+			<p data-text="muted">
+				No bridge transfers in this period. CCTP and other bridge flows appear here when detected.
+			</p>
 		{/snippet}
 	</List>
 </Collapsible>

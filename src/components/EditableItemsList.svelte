@@ -1,4 +1,7 @@
-<script module lang="ts">
+<script
+	module
+	lang="ts"
+>
 	export enum ItemsListOperation {
 		Add = 'Add',
 		Delete = 'Delete',
@@ -96,13 +99,28 @@
 
 {#snippet ItemActions(index: number)}
 	{#if canDuplicate || canDelete}
-		<div class="editable-item-actions" data-row="gap-1">
+		<div
+			class="editable-item-actions"
+			data-row="gap-1"
+		>
 			{#if canDuplicate}
-				<Button.Root type="button" onclick={() => duplicateItemAt(index)} aria-label="Duplicate">⧉</Button.Root>
+				<Button.Root
+					type="button"
+					onclick={() => duplicateItemAt(index)}
+					aria-label="Duplicate"
+				>
+					⧉
+				</Button.Root>
 			{/if}
 
 			{#if canDelete}
-				<Button.Root type="button" onclick={() => deleteItem(index)} aria-label="Delete">✕</Button.Root>
+				<Button.Root
+					type="button"
+					onclick={() => deleteItem(index)}
+					aria-label="Delete"
+				>
+					✕
+				</Button.Root>
 			{/if}
 		</div>
 	{/if}
@@ -116,9 +134,22 @@
 		{@attach reorder.list({ getArray: () => items, onDrop: onReorderDrop })}
 	>
 		{#each items as value, i (value)}
-			<div class="editable-item" data-row {@attach reorder.item(value, i)}>
-				<span class="drag-handle" {@attach reorder.handle()} aria-hidden="true">⠿</span>
-				<div class="editable-item-content" data-row-item="flexible">
+			<div
+				class="editable-item"
+				data-row
+				{@attach reorder.item(value, i)}
+			>
+				<span
+					class="drag-handle"
+					{@attach reorder.handle()}
+					aria-hidden="true"
+				>
+					⠿
+				</span>
+				<div
+					class="editable-item-content"
+					data-row-item="flexible"
+				>
 					{@render Item({ item: value, index: i })}
 				</div>
 
@@ -127,10 +158,20 @@
 		{/each}
 	</div>
 {:else}
-	<div class="editable-items-list" data-column class:many-items={manyItems}>
+	<div
+		class="editable-items-list"
+		data-column
+		class:many-items={manyItems}
+	>
 		{#each items as item, index (index)}
-			<div class="editable-item" data-row>
-				<div class="editable-item-content" data-row-item="flexible">
+			<div
+				class="editable-item"
+				data-row
+			>
+				<div
+					class="editable-item-content"
+					data-row-item="flexible"
+				>
 					{@render Item({ item, index })}
 				</div>
 

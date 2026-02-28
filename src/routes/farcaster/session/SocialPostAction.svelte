@@ -34,7 +34,10 @@
 </script>
 
 
-<div data-column="gap-3" data-card="padding-3">
+<div
+	data-column="gap-3"
+	data-card="padding-3"
+>
 	<div data-row="align-center">
 		<Select
 			items={socialPostActionTypes}
@@ -47,7 +50,9 @@
 	</div>
 
 	<div data-column>
-		<label for="post-text">Text</label>
+		<label for="post-text">
+			Text
+		</label>
 
 		<textarea
 			id="post-text"
@@ -64,7 +69,9 @@
 
 		<div data-row="wrap">
 			<div data-column="gap-1">
-				<label for="post-parent-fid">Parent FID</label>
+				<label for="post-parent-fid">
+					Parent FID
+				</label>
 
 				<input
 					id="post-parent-fid"
@@ -75,8 +82,13 @@
 				/>
 			</div>
 
-			<div data-column="gap-1" data-row-item="flexible">
-				<label for="post-parent-hash">Parent hash</label>
+			<div
+				data-column="gap-1"
+				data-row-item="flexible"
+			>
+				<label for="post-parent-hash">
+					Parent hash
+				</label>
 
 				<input
 					id="post-parent-hash"

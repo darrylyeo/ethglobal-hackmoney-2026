@@ -71,15 +71,23 @@
 		{#snippet Item({ key, item, isPlaceholder })}
 			<span id="swap:{key}">
 				{#if isPlaceholder}
-					<code>Swap (loading…)</code>
+					<code>
+						Swap (loading…)
+					</code>
 				{:else}
-					<TransferEvent {item} {coin} symbol={coinId} />
+					<TransferEvent
+						{item}
+						{coin}
+						symbol={coinId}
+					/>
 				{/if}
 			</span>
 		{/snippet}
 
 		{#snippet Empty()}
-			<p data-text="muted">No swaps in this period. DEX swap flows appear here when classification is available.</p>
+			<p data-text="muted">
+				No swaps in this period. DEX swap flows appear here when classification is available.
+			</p>
 		{/snippet}
 	</List>
 </Collapsible>

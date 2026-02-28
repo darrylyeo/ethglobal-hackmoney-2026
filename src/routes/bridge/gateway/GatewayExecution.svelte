@@ -117,7 +117,9 @@
 
 
 <div data-column>
-	<strong>Status</strong>
+	<strong>
+		Status
+	</strong>
 	<ol class="gateway-status">
 		{#if needsDeposit}
 			<li
@@ -144,7 +146,10 @@
 			Attestation
 		</li>
 
-		<li class="gateway-status-step" data-done={mintTxHash !== null}>
+		<li
+			class="gateway-status-step"
+			data-done={mintTxHash !== null}
+		>
 			Mint on destination {mintTxHash
 				? `(${mintTxHash.slice(0, 10)}…)`
 				: ''}

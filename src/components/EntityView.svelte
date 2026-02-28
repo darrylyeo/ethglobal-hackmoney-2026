@@ -126,7 +126,10 @@
 			{#snippet Summary({ title: _title, annotation: _annotation })}
 				<header data-row="wrap gap-4">
 					<div data-row="start">
-						<div data-row-item="flexible" data-column>
+						<div
+							data-row-item="flexible"
+							data-column
+						>
 							<div data-row="start">
 								{#snippet HeadingContent()}
 									<Heading>
@@ -205,7 +208,10 @@
 		</Collapsible>
 
 		{#if showFooter}
-			<footer class="entity-footer" data-column="gap-2">
+			<footer
+				class="entity-footer"
+				data-column="gap-2"
+			>
 				{#if (sources?.length ?? 0) > 0}
 					<p data-text="muted">
 						Data from: {sourcesFormatted}
@@ -213,7 +219,10 @@
 				{/if}
 
 				{#if (sourceLinks?.length ?? 0) > 0}
-					<nav aria-label="Source links" data-row="wrap gap-2">
+					<nav
+						aria-label="Source links"
+						data-row="wrap gap-2"
+					>
 						{#each sourceLinks as link}
 							<a
 								href={link.href}

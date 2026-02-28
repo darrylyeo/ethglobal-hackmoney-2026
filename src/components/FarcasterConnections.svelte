@@ -98,11 +98,17 @@
 
 
 <div data-row="wrap align-start gap-4">
-	<details data-row-item="flexible" data-card="radius-4" open>
+	<details
+		data-row-item="flexible"
+		data-card="radius-4"
+		open
+	>
 		<summary data-row="align-center wrap">
 			<div data-row>
 				<div data-row="align-center">
-					<h3 class="section-heading">Signed in</h3>
+					<h3 class="section-heading">
+						Signed in
+					</h3>
 
 					<span
 						data-badge="small"
@@ -120,7 +126,10 @@
 			</div>
 		</summary>
 
-		<ul class="list" data-column>
+		<ul
+			class="list"
+			data-column
+		>
 			{#each siwfConnections as conn (stringify(conn.$id))}
 				<li>
 					<FarcasterConnection
@@ -133,11 +142,17 @@
 		</ul>
 	</details>
 
-	<details data-row-item="flexible" data-card="radius-4" open>
+	<details
+		data-row-item="flexible"
+		data-card="radius-4"
+		open
+	>
 		<summary data-row="align-center wrap">
 			<div data-row>
 				<div data-row="align-center">
-					<h4>Watching</h4>
+					<h4>
+						Watching
+					</h4>
 
 					<span
 						data-badge="small"
@@ -188,7 +203,12 @@
 								</div>
 
 								{#if watchResolveError}
-									<p class="watch-error" role="alert">{watchResolveError}</p>
+									<p
+										class="watch-error"
+										role="alert"
+									>
+										{watchResolveError}
+									</p>
 								{/if}
 							</div>
 						</form>
@@ -197,7 +217,10 @@
 			</div>
 		</summary>
 
-		<ul class="list" data-column>
+		<ul
+			class="list"
+			data-column
+		>
 			{#each watchConnections as conn (stringify(conn.$id))}
 				<li>
 					<FarcasterConnection

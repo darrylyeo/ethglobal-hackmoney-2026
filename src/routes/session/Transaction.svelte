@@ -19,17 +19,29 @@
 </script>
 
 
-<article data-card data-column="gap-1 padding-2" data-transaction data-tx-hash={transaction.txHash}>
+<article
+	data-card
+	data-column="gap-1 padding-2"
+	data-transaction
+	data-tx-hash={transaction.txHash}
+>
 	<div data-row="align-center">
 		{#if txUrl}
-			<a href={txUrl} target="_blank" rel="noopener noreferrer" data-text="muted">
+			<a
+				href={txUrl}
+				target="_blank"
+				rel="noopener noreferrer"
+				data-text="muted"
+			>
 				{txShort}
 			</a>
 		{:else}
 			<span data-text="muted">{txShort}</span>
 		{/if}
 
-		<span data-text="muted">chain {transaction.chainId}</span>
+		<span data-text="muted">
+			chain {transaction.chainId}
+		</span>
 		<time datetime={new Date(transaction.createdAt).toISOString()}>
 			{new Date(transaction.createdAt).toLocaleString(undefined, {
 				dateStyle: 'short',

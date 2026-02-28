@@ -218,13 +218,17 @@
 		{/each}
 
 		{#if status.overall === BridgeOverallStatus.Completed}
-			<p class="success">Bridge complete!</p>
+			<p class="success">
+				Bridge complete!
+			</p>
 		{/if}
 	</div>
 {/if}
 
 {#if failed}
-	<p class="error">Transaction failed</p>
+	<p class="error">
+		Transaction failed
+	</p>
 {/if}
 
 

@@ -55,7 +55,9 @@
 
 	<div data-column>
 		<label data-column>
-			<span>Network</span>
+			<span>
+				Network
+			</span>
 
 			<NetworkInput
 				networks={filteredNetworks}
@@ -70,7 +72,9 @@
 		{#if asNonEmptyCoins(coins)}
 			<div data-column>
 				<label data-column>
-					<span>From</span>
+					<span>
+						From
+					</span>
 
 					<CoinAmountInput
 						coins={coins}
@@ -89,7 +93,9 @@
 
 			<div data-column>
 				<label data-column>
-					<span>To</span>
+					<span>
+						To
+					</span>
 
 					<CoinInput
 						coins={coins}
@@ -104,7 +110,9 @@
 
 			<div data-column>
 				<label data-column>
-					<span>Slippage</span>
+					<span>
+						Slippage
+					</span>
 
 					<Select
 						items={slippagePresets}
@@ -120,6 +128,8 @@
 				</label>
 			</div>
 		{:else}
-			<p data-muted>No tokens for this network.</p>
+			<p data-muted>
+				No tokens for this network.
+			</p>
 		{/if}
 	</div>

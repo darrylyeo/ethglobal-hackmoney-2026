@@ -47,8 +47,13 @@
 	data-sticky-container
 >
 	<header data-row="wrap gap-4">
-		<div data-row="start" data-row-item="flexible">
-			<h1>Agents</h1>
+		<div
+			data-row="start"
+			data-row-item="flexible"
+		>
+			<h1>
+				Agents
+			</h1>
 		</div>
 
 		<div data-row>
@@ -63,7 +68,9 @@
 	</header>
 
 	{#if trees.length === 0}
-		<p data-text="muted">No conversations yet.</p>
+		<p data-text="muted">
+			No conversations yet.
+		</p>
 	{:else}
 		{#each trees as tree (tree.$id.id)}
 			<div
@@ -81,7 +88,9 @@
 					</div>
 
 					{#if tree.pinned}
-						<span data-text="muted">Pinned</span>
+						<span data-text="muted">
+							Pinned
+						</span>
 					{/if}
 				</a>
 

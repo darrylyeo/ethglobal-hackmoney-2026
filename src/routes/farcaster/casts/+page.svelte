@@ -152,16 +152,28 @@
 
 
 <main data-column="gap-4">
-	<h1>Casts</h1>
-	<details data-card data-scroll-container="block" open>
+	<h1>
+		Casts
+	</h1>
+	<details
+		data-card
+		data-scroll-container="block"
+		open
+	>
 		<summary>
-			<h3 class="section-heading">Casts ({displayCount})</h3>
+			<h3 class="section-heading">
+				Casts ({displayCount})
+			</h3>
 		</summary>
 
 		{#if allCasts.length === 0 && castsQuery.isLoading}
-			<p data-text="muted">Loading casts…</p>
+			<p data-text="muted">
+				Loading casts…
+			</p>
 		{:else if allCasts.length === 0}
-			<p data-text="muted">No casts yet. Visit channels or users to load casts.</p>
+			<p data-text="muted">
+				No casts yet. Visit channels or users to load casts.
+			</p>
 		{:else}
 			<div data-column="gap-4">
 				<RefinableList
@@ -209,7 +221,9 @@
 					placeholderKeys={new Set<string>()}
 				>
 					{#snippet Empty()}
-						<p data-text="muted">No casts match filters.</p>
+						<p data-text="muted">
+							No casts match filters.
+						</p>
 					{/snippet}
 
 					{#snippet Item({ key: _key, item: row, isPlaceholder })}

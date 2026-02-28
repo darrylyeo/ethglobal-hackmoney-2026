@@ -49,11 +49,18 @@
 </p>
 
 {#if loading}
-	<p data-text="muted">Loading proposal content…</p>
+	<p data-text="muted">
+		Loading proposal content…
+	</p>
 {:else if loadError}
-	<p data-text="muted">Could not load content: {loadError.message}</p>
+	<p data-text="muted">
+		Could not load content: {loadError.message}
+	</p>
 {:else if body}
-	<div class="caip-body" data-proposal-content>
+	<div
+		class="caip-body"
+		data-proposal-content
+	>
 		<Markdown content={body} />
 	</div>
 {/if}

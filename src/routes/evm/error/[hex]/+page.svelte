@@ -64,7 +64,11 @@
 {#if !parsed}
 	<main data-card>
 		<Heading>Invalid error selector</Heading>
-		<p>Hex must be 4 bytes. <a href="/evm/errors">Back to EVM errors</a>.</p>
+		<p>
+			Hex must be 4 bytes. <a href="/evm/errors">
+				Back to EVM errors
+			</a>.
+		</p>
 	</main>
 {:else}
 	<main data-card>
@@ -82,9 +86,13 @@
 				{#if entry}
 					<EvmError {entry} />
 				{:else if entryQuery.isLoading}
-					<p>Loading signatures…</p>
+					<p>
+						Loading signatures…
+					</p>
 				{:else}
-					<p>No signatures found for this error selector.</p>
+					<p>
+						No signatures found for this error selector.
+					</p>
 				{/if}
 			{/snippet}
 		</EntityView>

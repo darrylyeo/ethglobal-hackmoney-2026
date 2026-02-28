@@ -65,10 +65,18 @@ import { entityKey } from '$/lib/entity-key.ts'
 			<Heading>Fork upgrades</Heading>
 			<p data-text="annotation">
 				Ethereum mainnet protocol upgrades and included EIPs.
-				<a href={resolve('/proposals')} data-link>Browse all proposals</a>.
+				<a
+					href={resolve('/proposals')}
+					data-link
+				>
+					Browse all proposals
+				</a>.
 			</p>
 
-			<nav data-row="wrap" aria-label="External resources">
+			<nav
+				data-row="wrap"
+				aria-label="External resources"
+			>
 				<a
 					href="https://ethereum.org/ethereum-forks/"
 					target="_blank"
@@ -98,7 +106,10 @@ import { entityKey } from '$/lib/entity-key.ts'
 			</nav>
 		</header>
 
-		<ul data-column="gap-4" role="list">
+		<ul
+			data-column="gap-4"
+			role="list"
+		>
 			{#each mainnetForksWithUpgrades as fork (fork.name.toLowerCase().replace(/\s+/g, '-'))}
 				<li>
 					<EntityView
@@ -113,7 +124,10 @@ import { entityKey } from '$/lib/entity-key.ts'
 						data-scroll-item="snap-block-start"
 					>
 						{#if forkLinkEntries(fork).length > 0}
-							<nav data-row="wrap" aria-label="Specs and docs">
+							<nav
+								data-row="wrap"
+								aria-label="Specs and docs"
+							>
 								{#each forkLinkEntries(fork) as { label, href }}
 									<a
 										href={href}
@@ -129,8 +143,15 @@ import { entityKey } from '$/lib/entity-key.ts'
 
 						{#if (fork.eipNumbers?.length ?? 0) > 0}
 							<section data-column>
-								<h3 class="sr-only">Included EIPs</h3>
-								<ul data-row="wrap" role="list">
+								<h3
+									class="sr-only"
+								>
+									Included EIPs
+								</h3>
+								<ul
+									data-row="wrap"
+									role="list"
+								>
 									{#each (fork.eipNumbers ?? []) as num (num)}
 										{@const proposalEntry = entriesByNumber.get(num)}
 
@@ -150,7 +171,9 @@ import { entityKey } from '$/lib/entity-key.ts'
 								</ul>
 							</section>
 						{:else}
-							<p data-text="muted">No EIPs listed for this fork.</p>
+							<p data-text="muted">
+								No EIPs listed for this fork.
+							</p>
 						{/if}
 					</EntityView>
 				</li>

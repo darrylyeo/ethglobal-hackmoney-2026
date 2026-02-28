@@ -55,18 +55,42 @@
 	<Heading>EVM selectors</Heading>
 	<p>
 		4-byte function selectors with resolved EVM function signatures from
-		<a href="https://4byte.sourcify.dev/" target="_blank" rel="noopener noreferrer">4byte.sourcify.dev</a>
+		<a
+			href="https://4byte.sourcify.dev/"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			4byte.sourcify.dev
+		</a>
 		and
-		<a href="https://www.4byte.directory/docs/" target="_blank" rel="noopener noreferrer">4byte.directory</a>.
-		<a href="/evm">EVM Signatures</a> · <a href="/calldata-decoder">Calldata decoder</a>.
+		<a
+			href="https://www.4byte.directory/docs/"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			4byte.directory
+		</a>.
+		<a href="/evm">
+			EVM Signatures
+		</a>
+		·
+		<a href="/calldata-decoder">
+			Calldata decoder
+		</a>.
 	</p>
 
 	{#if query.isLoading && rows.length === 0}
-		<p>Loading…</p>
+		<p>
+			Loading…
+		</p>
 	{:else if query.isError}
-		<p>Failed to load selectors.</p>
+		<p>
+			Failed to load selectors.
+		</p>
 	{:else}
-		<p>{displayCount} entries</p>
+		<p>
+			{displayCount} entries
+		</p>
 
 		<RefinableList
 			items={rows}
@@ -81,7 +105,13 @@
 			role="list"
 		>
 			{#snippet Empty()}
-				<p>No selectors in cache. Use the <a href="/calldata-decoder">calldata decoder</a> to look one up.</p>
+				<p>
+					No selectors in cache. Use the
+					<a href="/calldata-decoder">
+						calldata decoder
+					</a>
+					to look one up.
+				</p>
 			{/snippet}
 
 			{#snippet Item({ key: _k, item: entry, isPlaceholder, searchQuery: q, matches })}
@@ -99,7 +129,11 @@
 					>
 						{#snippet Title()}
 							{#if q != null && q !== ''}
-								<SearchableText text={label} query={q} {matches} />
+								<SearchableText
+									text={label}
+									query={q}
+									{matches}
+								/>
 							{:else}
 								{label}
 							{/if}

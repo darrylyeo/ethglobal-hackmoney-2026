@@ -90,7 +90,10 @@
 	{/snippet}
 
 	{#snippet Item(network, selected)}
-		<span data-row="start" data-selected={selected}>
+		<span
+			data-row="start"
+			data-selected={selected}
+		>
 			<span class="network-input-icon">
 				<NetworkIcon networkId={{ chainId: network.chainId }} />
 			</span>

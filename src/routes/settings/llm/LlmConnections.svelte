@@ -85,11 +85,16 @@
 
 
 <div data-column>
-	<details data-card open>
+	<details
+		data-card
+		open
+	>
 		<summary>
 			<div data-row="wrap">
 				<div data-row>
-					<h2>Connections</h2>
+					<h2>
+						Connections
+					</h2>
 
 					<span
 						data-badge="small"
@@ -119,12 +124,20 @@
 				{@const models = getModelsForConnection(conn)}
 
 				<li>
-					<details data-card open>
+					<details
+		data-card
+		open
+	>
 						<summary>
 							<div data-row="wrap">
-								<span data-row data-row-item="flexible">
+								<span
+									data-row
+									data-row-item="flexible"
+								>
 									<strong>{conn.label}</strong>
-									<span data-text="muted">({PROVIDER_LABELS[conn.provider] ?? conn.provider})</span>
+									<span data-text="muted">
+										({PROVIDER_LABELS[conn.provider] ?? conn.provider})
+									</span>
 								</span>
 
 								<Button.Root
@@ -139,7 +152,9 @@
 
 						<div data-column>
 							<div data-row>
-								<label for="llm-label-{conn.id}">Label</label>
+								<label for="llm-label-{conn.id}">
+									Label
+								</label>
 
 								<input
 									id="llm-label-{conn.id}"
@@ -151,7 +166,9 @@
 
 							{#if needsApiKey(conn.provider)}
 								<div data-row>
-									<label for="llm-apikey-{conn.id}">API key</label>
+									<label for="llm-apikey-{conn.id}">
+										API key
+									</label>
 
 									<input
 										id="llm-apikey-{conn.id}"
@@ -166,7 +183,9 @@
 
 							{#if needsEndpoint(conn.provider)}
 								<div data-row>
-									<label for="llm-endpoint-{conn.id}">Endpoint</label>
+									<label for="llm-endpoint-{conn.id}">
+										Endpoint
+									</label>
 
 									<input
 										id="llm-endpoint-{conn.id}"
@@ -181,7 +200,9 @@
 
 							{#if conn.provider === LlmConnectionProvider.Zen}
 								<div data-row>
-									<label for="llm-apikey-zen-{conn.id}">API key</label>
+									<label for="llm-apikey-zen-{conn.id}">
+										API key
+									</label>
 
 									<input
 										id="llm-apikey-zen-{conn.id}"
@@ -196,7 +217,9 @@
 
 							{#if models.length > 0}
 								<div data-row>
-									<label for="llm-model-{conn.id}">Default model</label>
+									<label for="llm-model-{conn.id}">
+										Default model
+									</label>
 
 									<select
 										id="llm-model-{conn.id}"

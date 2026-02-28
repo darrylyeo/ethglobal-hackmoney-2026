@@ -157,9 +157,13 @@
 
 
 <section data-shared-addresses>
-	<h3>Shared addresses</h3>
+	<h3>
+		Shared addresses
+	</h3>
 	{#if sharedVisibleToMe.length === 0}
-		<p>No shared addresses yet.</p>
+		<p>
+			No shared addresses yet.
+		</p>
 	{:else}
 		<ul>
 			{#each sharedVisibleToMe as s (s.id)}

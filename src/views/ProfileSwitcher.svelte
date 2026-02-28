@@ -129,11 +129,16 @@
 								/>
 								<span>{profile.name}</span>
 								{#if profile.id === activeProfile.id}
-									<span data-tag>Active</span>
+									<span data-tag>
+										Active
+									</span>
 								{/if}
 							</span>
 
-							<span class="profile-actions" data-row="gap-1">
+							<span
+								class="profile-actions"
+								data-row="gap-1"
+							>
 								<button
 									type="button"
 									aria-label="Rename {profile.name}"

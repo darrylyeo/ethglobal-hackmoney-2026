@@ -71,7 +71,9 @@
 	{/key}
 
 	{#snippet Pending()}
-		<p>Loading route data...</p>
+		<p>
+			Loading route data...
+		</p>
 	{/snippet}
 
 	{#snippet Failed(error, retry)}
@@ -79,6 +81,11 @@
 			error.message
 		:
 			String(error)}</p>
-		<button type="button" onclick={retry}>Retry</button>
+		<button
+			type="button"
+			onclick={retry}
+		>
+			Retry
+		</button>
 	{/snippet}
 </Boundary>

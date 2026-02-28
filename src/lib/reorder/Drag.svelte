@@ -1,4 +1,7 @@
-<script module lang="ts">
+<script
+	module
+	lang="ts"
+>
 	import type { ItemState } from './state.svelte.ts'
 	import type { AreaState } from './state.svelte.ts'
 	import type { Snippet } from 'svelte'
@@ -15,7 +18,10 @@
 </script>
 
 
-<script lang="ts" generics="T">
+<script
+	lang="ts"
+	generics="T"
+>
 	import { on } from 'svelte/events'
 	import { targeting } from './reactivity.svelte.ts'
 

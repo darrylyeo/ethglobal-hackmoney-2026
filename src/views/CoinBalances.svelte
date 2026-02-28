@@ -490,7 +490,10 @@
 			<div class="balances-summary">
 				<div data-row="gap-4">
 					<div data-row="gap-4">
-						<h3 data-row-item="flexible" class="section-heading">
+						<h3
+							data-row-item="flexible"
+							class="section-heading"
+						>
 							{title}{#if singleAddress}<TruncatedValue
 								value={singleAddress}
 								startLength={6}
@@ -609,7 +612,11 @@
 		>
 			<Boundary>
 				{#if balancesQuery.isLoading && balances.length === 0}
-					<div data-balances data-grid="columns-autofit column-min-8 gap-3" data-balances-skeleton>
+					<div
+						data-balances
+						data-grid="columns-autofit column-min-8 gap-3"
+						data-balances-skeleton
+					>
 						{#each skeletonRows as token, i (i)}
 							{@const coin = token
 								? {
@@ -636,21 +643,39 @@
 								data-column
 								data-display-type={displayType}
 							>
-								<Skeleton width="4em" height="0.75em" rounded="0.2em" />
+								<Skeleton
+									width="4em"
+									height="0.75em"
+									rounded="0.2em"
+								/>
 								<div data-row="start">
 									{#if coin}
-										<CoinName coin={coin} isDraggable={false} />
+										<CoinName
+											coin={coin}
+											isDraggable={false}
+										/>
 									{:else}
-										<Skeleton width="2.5em" height="1.25em" rounded="0.25em" />
+										<Skeleton
+											width="2.5em"
+											height="1.25em"
+											rounded="0.25em"
+										/>
 									{/if}
 
-									<Skeleton width="5em" height="1.25em" rounded="0.25em" />
+									<Skeleton
+										width="5em"
+										height="1.25em"
+										rounded="0.25em"
+									/>
 								</div>
 							</div>
 						{/each}
 					</div>
 				{:else}
-					<div data-balances data-grid="columns-autofit column-min-10 gap-3">
+					<div
+						data-balances
+						data-grid="columns-autofit column-min-10 gap-3"
+					>
 						{#each displayBalances as b (stringify(b.$id))}
 							{@const token = displayTokens.find(
 								(entry) =>
@@ -712,18 +737,32 @@
 									<dt data-row="start gap-1">
 										{network.name}
 										{#if actors.length > 1}
-											<span data-text="muted" class="balance-address">
+											<span
+												data-text="muted"
+												class="balance-address"
+											>
 												{b.$id.$actor.address.slice(0, 6)}…{b.$id.$actor.address.slice(-4)}
 											</span>
 										{/if}
 									</dt>
 
 									{#if b.isLoading}
-										<span class="balance-loading" data-row="start" aria-busy="true">
-											<Skeleton width="6em" height="1.25em" rounded="0.25em" />
+										<span
+											class="balance-loading"
+											data-row="start"
+											aria-busy="true"
+										>
+											<Skeleton
+												width="6em"
+												height="1.25em"
+												rounded="0.25em"
+											/>
 										</span>
 									{:else if b.error}
-										<span class="balance-error" data-balance-error>{b.error}</span>
+										<span
+									class="balance-error"
+									data-balance-error
+								>{b.error}</span>
 									{:else}
 										<CoinAmount
 											coin={coin}
@@ -744,7 +783,11 @@
 				{/if}
 
 				{#snippet Pending()}
-					<div data-balances data-grid="columns-autofit column-min-8 gap-3" data-balances-skeleton>
+					<div
+						data-balances
+						data-grid="columns-autofit column-min-8 gap-3"
+						data-balances-skeleton
+					>
 						{#each skeletonRows as token, i (i)}
 							{@const coin = token
 								? {
@@ -771,15 +814,30 @@
 								data-column
 								data-display-type={displayType}
 							>
-								<Skeleton width="4em" height="0.75em" rounded="0.2em" />
+								<Skeleton
+									width="4em"
+									height="0.75em"
+									rounded="0.2em"
+								/>
 								<div data-row="start">
 									{#if coin}
-										<CoinName coin={coin} isDraggable={false} />
+										<CoinName
+											coin={coin}
+											isDraggable={false}
+										/>
 									{:else}
-										<Skeleton width="2.5em" height="1.25em" rounded="0.25em" />
+										<Skeleton
+											width="2.5em"
+											height="1.25em"
+											rounded="0.25em"
+										/>
 									{/if}
 
-									<Skeleton width="5em" height="1.25em" rounded="0.25em" />
+									<Skeleton
+										width="5em"
+										height="1.25em"
+										rounded="0.25em"
+									/>
 								</div>
 							</div>
 						{/each}

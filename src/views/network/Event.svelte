@@ -70,10 +70,15 @@
 </script>
 
 
-<details data-card id="event:{logIndex}">
+<details
+	data-card
+	id="event:{logIndex}"
+>
 	<summary>
 		<div data-row="wrap align-center">
-			<code>#{logIndex}</code>
+			<code>
+				#{logIndex}
+			</code>
 			{#if decoded}
 				<code>{decoded.name}</code>
 			{:else if eventSignatures.length > 0}
@@ -87,7 +92,11 @@
 			{:else}
 				<Address actorId={{ $network: { chainId }, address: event.address as `0x${string}` }} />
 				{#if event.topics[0]}
-					<TruncatedValue value={event.topics[0]} startLength={10} endLength={4} />
+					<TruncatedValue
+						value={event.topics[0]}
+						startLength={10}
+						endLength={4}
+					/>
 				{/if}
 			{/if}
 		</div>
@@ -95,7 +104,9 @@
 
 	{#if decoded}
 		<dl>
-			<dt>Event</dt>
+			<dt>
+				Event
+			</dt>
 			<dd><code>{decoded.name}</code></dd>
 			{#each Object.entries(decoded.args) as [key, val]}
 				<dt>{key}</dt>
@@ -104,42 +115,72 @@
 		</dl>
 
 		<details>
-			<summary>Raw</summary>
+			<summary>
+				Raw
+			</summary>
 			<dl>
-				<dt>Log Index</dt>
+				<dt>
+					Log Index
+				</dt>
 				<dd>{logIndex}</dd>
-				<dt>Address</dt>
+				<dt>
+					Address
+				</dt>
 				<dd><Address actorId={{ $network: { chainId }, address: event.address as `0x${string}` }} /></dd>
 				{#each event.topics as topic, i}
-					<dt>Topic {i}</dt>
+					<dt>
+						Topic {i}
+					</dt>
 					<dd><TruncatedValue value={topic} /></dd>
 				{/each}
 
 				{#if event.data !== '0x'}
-					<dt>Data</dt>
+					<dt>
+						Data
+					</dt>
 					<dd>
-						<TruncatedValue value={event.data} startLength={10} endLength={8} />
-						<span>({Math.max(0, (event.data.length - 2) / 2)} bytes)</span>
+						<TruncatedValue
+							value={event.data}
+							startLength={10}
+							endLength={8}
+						/>
+						<span>
+							({Math.max(0, (event.data.length - 2) / 2)} bytes)
+						</span>
 					</dd>
 				{/if}
 			</dl>
 		</details>
 	{:else}
 		<dl>
-			<dt>Log Index</dt>
+			<dt>
+				Log Index
+			</dt>
 			<dd>{logIndex}</dd>
-			<dt>Address</dt>
+			<dt>
+				Address
+			</dt>
 			<dd><Address actorId={{ $network: { chainId }, address: event.address as `0x${string}` }} /></dd>
 			{#each event.topics as topic, i}
-				<dt>Topic {i}</dt>
+				<dt>
+					Topic {i}
+				</dt>
 				<dd><TruncatedValue value={topic} /></dd>
 			{/each}
 
 			{#if event.data !== '0x'}
-				<dt>Data</dt>
+				<dt>
+					Data
+				</dt>
 				<dd>
-					<TruncatedValue value={event.data} startLength={10} endLength={8} />
-					<span>({Math.max(0, (event.data.length - 2) / 2)} bytes)</span>
+					<TruncatedValue
+						value={event.data}
+						startLength={10}
+						endLength={8}
+					/>
+					<span>
+						({Math.max(0, (event.data.length - 2) / 2)} bytes)
+					</span>
 				</dd>
 			{/if}
 		</dl>

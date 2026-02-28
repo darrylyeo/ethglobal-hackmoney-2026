@@ -113,7 +113,11 @@
 
 <main data-column>
 	<section data-column>
-		<h1><a href={resolve('/networks')}>Networks</a></h1>
+		<h1>
+			<a href={resolve('/networks')}>
+				Networks
+			</a>
+		</h1>
 
 		<RefinableList
 			items={[...networks]}
@@ -132,7 +136,9 @@
 		>
 			{#snippet Item({ key, item: network, isPlaceholder })}
 				{#if isPlaceholder}
-					<span data-placeholder>…</span>
+					<span data-placeholder>
+						…
+					</span>
 				{:else if network}
 					<NetworkView
 						networkId={{ chainId: network.chainId }}
@@ -143,7 +149,9 @@
 			{/snippet}
 
 			{#snippet Empty()}
-				<p data-text="muted">No networks.</p>
+				<p data-text="muted">
+					No networks.
+				</p>
 			{/snippet}
 		</RefinableList>
 	</section>

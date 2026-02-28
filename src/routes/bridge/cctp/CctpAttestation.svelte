@@ -62,15 +62,21 @@
 
 
 <div data-column>
-	<strong>Attestation</strong>
+	<strong>
+		Attestation
+	</strong>
 	{#if status === 'idle'}
 		<small data-text="muted"
 			>After burn, attestation will be polled automatically.</small
 		>
 	{:else if status === 'pending'}
-		<small data-text="muted">Waiting for attestation… (404 treated as pending)</small>
+		<small data-text="muted">
+			Waiting for attestation… (404 treated as pending)
+		</small>
 	{:else if status === 'ready'}
-		<small data-text="muted">Attestation ready. You can submit mint.</small>
+		<small data-text="muted">
+			Attestation ready. You can submit mint.
+		</small>
 	{:else if error}
 		<small data-error>{error}</small>
 	{/if}

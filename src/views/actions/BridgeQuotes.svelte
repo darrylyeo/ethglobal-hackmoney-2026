@@ -87,7 +87,9 @@
 				{quoteRow.error ?? 'No transaction data. Fetch again.'}
 			</p>
 		{:else if requestKey && !fetching}
-			<p data-text="muted">Click "Fetch quote" for transaction details.</p>
+			<p data-text="muted">
+				Click "Fetch quote" for transaction details.
+			</p>
 		{/if}
 	</div>
 {/if}

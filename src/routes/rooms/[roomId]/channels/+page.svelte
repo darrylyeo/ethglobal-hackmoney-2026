@@ -110,7 +110,9 @@
 	data-column
 	data-sticky-container
 >
-	<h1>Channels – {roomDisplayName}</h1>
+	<h1>
+		Channels – {roomDisplayName}
+	</h1>
 
 	<p data-row="wrap align-center">
 		<span
@@ -121,9 +123,13 @@
 			{partyKitStatusLabel(roomState.connectionStatus)}
 		</span>
 
-		<a href={resolve(`/rooms/${roomId}`)}>Back to room</a>
+		<a href={resolve(`/rooms/${roomId}`)}>
+			Back to room
+		</a>
 		·
-		<a href="/positions/channels">Channels</a>
+		<a href="/positions/channels">
+			Channels
+		</a>
 	</p>
 
 	<section data-column="gap-6">

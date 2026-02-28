@@ -166,26 +166,35 @@
 
 
 <EntityView
-		entityType={EntityType.Transaction}
-		entity={tx ?? undefined}
-		titleHref={tx ? getTxPath(tx.$id.$network.chainId, tx.$id.txHash) : '#'}
-		{...(tx == null ? { idSerialized: 'transaction:loading' } : {})}
-		label={tx ? `Tx ${tx.$id.txHash.slice(0, 10)}…` : 'Loading…'}
-		layout={layout}
-		annotation="Transaction"
-		showWatchButton={false}
-		open={false}
-		ontoggle={onToggle}
-		detailsProps={layout === EntityLayout.ContentOnly ? {} : { 'data-card': '' }}
-	>
+	entityType={EntityType.Transaction}
+	entity={tx ?? undefined}
+	titleHref={tx ? getTxPath(tx.$id.$network.chainId, tx.$id.txHash) : '#'}
+	{...(tx == null ? { idSerialized: 'transaction:loading' } : {})}
+	label={tx ? `Tx ${tx.$id.txHash.slice(0, 10)}…` : 'Loading…'}
+	layout={layout}
+	annotation="Transaction"
+	showWatchButton={false}
+	open={false}
+	ontoggle={onToggle}
+	detailsProps={layout === EntityLayout.ContentOnly ? {} : { 'data-card': '' }}
+>
 	{#snippet Title()}
 		{#if tx}
 			<span data-row="inline">
-				<EvmTransactionId txHash={tx.$id.txHash} chainId={tx.$id.$network.chainId} isVertical />
-				<NetworkName networkId={tx.$id.$network} showIcon={false} />
+				<EvmTransactionId
+					txHash={tx.$id.txHash}
+					chainId={tx.$id.$network.chainId}
+					isVertical
+				/>
+				<NetworkName
+					networkId={tx.$id.$network}
+					showIcon={false}
+				/>
 			</span>
 		{:else}
-			<code>Loading…</code>
+			<code>
+				Loading…
+			</code>
 		{/if}
 	{/snippet}
 
@@ -194,7 +203,9 @@
 			{@const chainIdForTx = tx.$id.$network.chainId}
 
 			<dl>
-				<dt>Hash</dt>
+				<dt>
+					Hash
+				</dt>
 				<dd>
 					<a href={getTxPath(tx.$id.$network.chainId, tx.$id.txHash)}>
 						<TruncatedValue value={tx.$id.txHash} />
@@ -202,27 +213,39 @@
 				</dd>
 
 				{#if tx.status != null}
-					<dt>Status</dt>
+					<dt>
+						Status
+					</dt>
 					<dd>{tx.status === 1 ? 'Success' : 'Failed'}</dd>
 				{/if}
 
-				<dt>Block</dt>
+				<dt>
+					Block
+				</dt>
 				<dd>{tx.blockNumber}</dd>
 
 				{#if tx.type != null}
-					<dt>Type</dt>
+					<dt>
+						Type
+					</dt>
 					<dd>{TX_TYPE_LABELS[tx.type] ?? `Type ${tx.type}`}</dd>
 				{/if}
 
 				{#if tx.nonce != null}
-					<dt>Nonce</dt>
+					<dt>
+						Nonce
+					</dt>
 					<dd>{tx.nonce}</dd>
 				{/if}
 
-				<dt>From</dt>
+				<dt>
+					From
+				</dt>
 				<dd><Address actorId={{ $network: tx.$id.$network, address: tx.from as `0x${string}` }} /></dd>
 
-				<dt>To</dt>
+				<dt>
+					To
+				</dt>
 				<dd>
 					{#if tx.contractAddress}
 						<Address actorId={{ $network: tx.$id.$network, address: tx.contractAddress as `0x${string}` }} /> (contract created)
@@ -233,7 +256,9 @@
 					{/if}
 				</dd>
 
-				<dt>Value</dt>
+				<dt>
+					Value
+				</dt>
 				<dd>
 					{#if tx.value === '0x0' || tx.value === '0x'}
 						0 ETH
@@ -243,27 +268,37 @@
 				</dd>
 
 				{#if tx.gas != null}
-					<dt>Gas Limit</dt>
+					<dt>
+						Gas Limit
+					</dt>
 					<dd>{formatGas(tx.gas)}</dd>
 				{/if}
 
 				{#if tx.gasUsed != null}
-					<dt>Gas Used</dt>
+					<dt>
+						Gas Used
+					</dt>
 					<dd>{formatGas(tx.gasUsed)}</dd>
 				{/if}
 
 				{#if tx.gasPrice != null}
-					<dt>Gas Price</dt>
+					<dt>
+						Gas Price
+					</dt>
 					<dd>{formatGwei(tx.gasPrice)} Gwei</dd>
 				{/if}
 
 				{#if tx.effectiveGasPrice != null}
-					<dt>Effective Gas Price</dt>
+					<dt>
+						Effective Gas Price
+					</dt>
 					<dd>{formatGwei(tx.effectiveGasPrice)} Gwei</dd>
 				{/if}
 
 				{#if tx.input && tx.input !== '0x'}
-					<dt>Input Data</dt>
+					<dt>
+						Input Data
+					</dt>
 					<dd>
 						{#if functionSignatures.length > 0}
 							<code data-row="wrap gap-1">
@@ -272,11 +307,19 @@
 								{/each}
 							</code>
 
-							<span> · </span>
+							<span>
+								·
+							</span>
 						{/if}
 
-						<TruncatedValue value={tx.input} startLength={10} endLength={0} />
-						<span>({Math.max(0, (tx.input.length - 2) / 2)} bytes)</span>
+						<TruncatedValue
+							value={tx.input}
+							startLength={10}
+							endLength={0}
+						/>
+						<span>
+							({Math.max(0, (tx.input.length - 2) / 2)} bytes)
+						</span>
 					</dd>
 				{/if}
 			</dl>
@@ -302,15 +345,22 @@
 				scrollPosition="End"
 			>
 				{#snippet Empty()}
-					<p data-text="muted">No events.</p>
+					<p data-text="muted">
+						No events.
+					</p>
 				{/snippet}
 
 				{#snippet Item({ key, item, isPlaceholder })}
 					<span id="event:{key}">
 						{#if isPlaceholder}
-							<code>Event #{key} (loading…)</code>
+							<code>
+								Event #{key} (loading…)
+							</code>
 						{:else}
-							<EventView event={item} chainId={chainIdForTx} />
+							<EventView
+								event={item}
+								chainId={chainIdForTx}
+							/>
 						{/if}
 					</span>
 				{/snippet}
@@ -322,11 +372,18 @@
 			detailsProps={{ 'data-card': 'padding-2' }}
 		>
 			{#if trace}
-				<Trace {trace} chainId={chainIdForTx} />
+				<Trace
+					{trace}
+					chainId={chainIdForTx}
+				/>
 			{:else if traceRecord?.unavailable === true}
-				<p data-text="muted">Trace unavailable (RPC does not support debug_traceTransaction)</p>
+				<p data-text="muted">
+					Trace unavailable (RPC does not support debug_traceTransaction)
+				</p>
 			{:else}
-				<p data-text="muted">Open transaction to load trace…</p>
+				<p data-text="muted">
+					Open transaction to load trace…
+				</p>
 			{/if}
 		</Collapsible>
 	{/snippet}

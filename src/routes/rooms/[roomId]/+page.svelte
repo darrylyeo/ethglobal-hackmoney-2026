@@ -151,7 +151,10 @@
 		{/snippet}
 
 		{#snippet Title()}
-			<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
+			<span
+				class="room-place-emoji"
+				aria-hidden="true"
+			>{roomPlaceEmoji}</span>
 			{roomDisplayName}
 		{/snippet}
 
@@ -205,7 +208,9 @@
 				data-room-structure
 			>
 				<section data-me>
-					<h2>Me</h2>
+					<h2>
+						Me
+					</h2>
 					{#if roomState.peerId}
 						{@const me = {
 							id: `${roomId}:${roomState.peerId}`,
@@ -221,16 +226,22 @@
 							<Peer peer={me} />
 						</div>
 					{:else}
-						<p>Connecting…</p>
+						<p>
+							Connecting…
+						</p>
 					{/if}
 				</section>
 
 				<PendingSignatures {roomId} {provider} />
 
 				<section data-peers>
-					<h2>Peers</h2>
+					<h2>
+						Peers
+					</h2>
 					{#if others.length === 0}
-						<p>No other peers in this room.</p>
+						<p>
+							No other peers in this room.
+						</p>
 					{:else}
 						{@const connected = others.filter((p) => p.isConnected)}
 
@@ -248,7 +259,9 @@
 
 						{#if disconnected.length > 0}
 							<details data-disconnected-peers>
-								<summary>Disconnected ({disconnected.length})</summary>
+								<summary>
+									Disconnected ({disconnected.length})
+								</summary>
 								<ul data-peer-cards>
 									{#each disconnected as peer (peer.id)}
 										<li>

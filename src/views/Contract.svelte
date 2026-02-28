@@ -146,7 +146,10 @@
 	{#snippet Title()}
 		<span data-row="inline">
 			<code>{address}</code>
-			<NetworkName networkId={contractIdResolved?.$network} showIcon={false} />
+			<NetworkName
+				networkId={contractIdResolved?.$network}
+				showIcon={false}
+			/>
 		</span>
 	{/snippet}
 
@@ -158,9 +161,14 @@
 
 	{#if hasSourceFiles && sourceRow?.files}
 		<Boundary>
-			<details data-card ontoggle={onSourceToggle}>
+			<details
+				data-card
+				ontoggle={onSourceToggle}
+			>
 				<summary>
-					<h3>Verified Source</h3>
+					<h3>
+						Verified Source
+					</h3>
 					<span data-text="annotation">{DataSourceId.Sourcify}</span>
 				</summary>
 
@@ -189,8 +197,12 @@
 			/>
 		</Boundary>
 	{:else if isLoading}
-		<p data-text="muted">Checking verification…</p>
+		<p data-text="muted">
+			Checking verification…
+		</p>
 	{:else if showNotVerified}
-		<p data-text="muted">Contract not verified. No ABI available for interaction.</p>
+		<p data-text="muted">
+			Contract not verified. No ABI available for interaction.
+		</p>
 	{/if}
 </EntityView>

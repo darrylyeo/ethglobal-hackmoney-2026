@@ -43,7 +43,9 @@
 
 
 <section data-peer-list>
-	<h3>Peers</h3>
+	<h3>
+		Peers
+	</h3>
 	<ul>
 		{#each peers as peer (peer.id)}
 			<li

@@ -88,20 +88,30 @@
 
 
 <div data-column>
-	<strong>Fees</strong>
+	<strong>
+		Fees
+	</strong>
 	{#if feeLoading}
-		<small data-text="muted">Loading fees…</small>
+		<small data-text="muted">
+			Loading fees…
+		</small>
 	{:else if feeError}
 		<small data-error>{feeError}</small>
 	{:else if feeFastBps !== null || feeStandardBps !== null}
 		<dl class="fee-summary">
-			<dt>Fast</dt>
+			<dt>
+				Fast
+			</dt>
 			<dd>{feeFastBps ?? '—'} bps</dd>
-			<dt>Standard</dt>
+			<dt>
+				Standard
+			</dt>
 			<dd>{feeStandardBps ?? '—'} bps</dd>
 		</dl>
 	{:else}
-		<small data-text="muted">Select a valid chain pair to load fees.</small>
+		<small data-text="muted">
+			Select a valid chain pair to load fees.
+		</small>
 	{/if}
 </div>
 

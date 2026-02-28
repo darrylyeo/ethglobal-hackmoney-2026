@@ -172,8 +172,12 @@
 	{#if ensLoading}
 		<EntityViewSkeleton />
 	{:else if !account}
-		<h1>Invalid address</h1>
-		<p>The address in the URL could not be parsed.</p>
+		<h1>
+			Invalid address
+		</h1>
+		<p>
+			The address in the URL could not be parsed.
+		</p>
 	{:else}
 		<EntityView
 			entityType={EntityType.Actor}
@@ -227,7 +231,9 @@
 				{#if farcasterFid != null && farcasterFid > 0}
 					<Collapsible title="Farcaster">
 						<p>
-							<a href="/farcaster/user/{farcasterFid}">Farcaster profile @{farcasterFid}</a>
+							<a href="/farcaster/user/{farcasterFid}">
+								Farcaster profile @{farcasterFid}
+							</a>
 						</p>
 					</Collapsible>
 				{/if}

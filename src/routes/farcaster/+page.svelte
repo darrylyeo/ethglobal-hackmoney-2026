@@ -21,10 +21,21 @@
 </svelte:head>
 
 
-<main class="farcaster-page" data-column="gap-4">
-	<header data-row="gap-4 wrap" data-scroll-container="inline">
-		<h1>Farcaster</h1>
-		<SignInWithFarcaster domain={siwfDomain} siweUri={siwfUri} />
+<main
+	class="farcaster-page"
+	data-column="gap-4"
+>
+	<header
+		data-row="gap-4 wrap"
+		data-scroll-container="inline"
+	>
+		<h1>
+			Farcaster
+		</h1>
+		<SignInWithFarcaster
+			domain={siwfDomain}
+			siweUri={siwfUri}
+		/>
 	</header>
 
 	<FarcasterDashboard />

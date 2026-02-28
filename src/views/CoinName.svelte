@@ -1,4 +1,7 @@
-<script lang="ts" generics="_CoinType extends import('$/constants/coin-instances.ts').CoinInstanceType = import('$/constants/coin-instances.ts').CoinInstanceType">
+<script
+	lang="ts"
+	generics="_CoinType extends import('$/constants/coin-instances.ts').CoinInstanceType = import('$/constants/coin-instances.ts').CoinInstanceType"
+>
 	// Types/constants
 	import type { CoinInstance } from '$/constants/coin-instances.ts'
 	import { CoinInstanceType } from '$/constants/coin-instances.ts'
@@ -32,7 +35,10 @@
 	{@attach draggable({ text: stringify(coin), enabled: isDraggable })}
 	data-row="inline wrap gap-1"
 >
-	<span class="coin-name" data-row="inline gap-1">
+	<span
+		class="coin-name"
+		data-row="inline gap-1"
+	>
 		{#if coin.icon?.original?.url}
 			{@const chainId = coin.$id.$network.chainId}
 
@@ -59,7 +65,10 @@
 
 			{@const symbol = coin.symbol}
 
-			<NetworkIcon networkId={{ chainId }} alt={chainId.toString()} />
+			<NetworkIcon
+				networkId={{ chainId }}
+				alt={chainId.toString()}
+			/>
 		{/if}
 
 		{#if coin.name || coin.symbol}

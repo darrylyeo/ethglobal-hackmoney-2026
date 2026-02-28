@@ -73,7 +73,9 @@
 	aria-label="Hexadecimal dump"
 >
 	{#if lines.length === 0}
-		<span class="hex-empty">—</span>
+		<span class="hex-empty">
+			—
+		</span>
 	{:else}
 		{#if showOffset}
 			<span class="hex-col hex-col-offset">

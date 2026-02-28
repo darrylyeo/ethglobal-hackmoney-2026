@@ -224,27 +224,60 @@
 
 
 <main data-column="gap-4">
-	<h1>Proposals</h1>
+	<h1>
+		Proposals
+	</h1>
 	<p>
-		<a href="https://eips.ethereum.org/" target="_blank" rel="noopener noreferrer">
+		<a
+			href="https://eips.ethereum.org/"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
 			Official status page
 		</a>
 		— data from
-		<a href="https://github.com/ethereum/EIPs" target="_blank" rel="noopener noreferrer">ethereum/EIPs</a>
+		<a
+			href="https://github.com/ethereum/EIPs"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			ethereum/EIPs
+		</a>
 		and
-		<a href="https://github.com/ethereum/ercs" target="_blank" rel="noopener noreferrer">ethereum/ercs</a>
-		. <a href={resolve('/network/1/forks')}>Fork upgrades</a> (included EIPs per upgrade).
-		<a href="https://chainagnostic.org/CAIPs/" target="_blank" rel="noopener noreferrer">CAIPs</a> (chain-agnostic).
+		<a
+			href="https://github.com/ethereum/ercs"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			ethereum/ercs
+		</a>
+		. <a
+			href={resolve('/network/1/forks')}
+		>
+			Fork upgrades
+		</a> (included EIPs per upgrade).
+		<a
+			href="https://chainagnostic.org/CAIPs/"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			CAIPs
+		</a>
+		(chain-agnostic).
 	</p>
 
 	{#if proposalsQuery.isLoading && caipsQuery.isLoading && views.length === 0}
-		<p>Loading…</p>
+		<p>
+			Loading…
+		</p>
 	{:else if proposalsQuery.isError && caipsQuery.isError}
 		<p>
 			Failed to load proposals and CAIPs.
 		</p>
 	{:else}
-		<p>{displayCount} of {views.length} entries</p>
+		<p>
+			{displayCount} of {views.length} entries
+		</p>
 
 		<RefinableList
 			items={views}
@@ -262,7 +295,9 @@
 			role="list"
 		>
 			{#snippet Empty()}
-				<p data-text="muted">No proposals match.</p>
+				<p data-text="muted">
+					No proposals match.
+				</p>
 			{/snippet}
 
 			{#snippet Item({ key: _k, item, isPlaceholder, searchQuery, matches })}
@@ -301,7 +336,11 @@
 
 								{' '}
 								{#if searchQuery != null}
-									<SearchableText text={entry.title} query={searchQuery} {matches} />
+									<SearchableText
+										text={entry.title}
+										query={searchQuery}
+										{matches}
+									/>
 								{:else}
 									{entry.title}
 								{/if}
@@ -343,7 +382,11 @@
 
 								{' '}
 								{#if searchQuery != null}
-									<SearchableText text={entry.title} query={searchQuery} {matches} />
+									<SearchableText
+										text={entry.title}
+										query={searchQuery}
+										{matches}
+									/>
 								{:else}
 									{entry.title}
 								{/if}

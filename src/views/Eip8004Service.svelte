@@ -42,7 +42,9 @@
 
 	{#if service.contactEndpoint}
 		<p>
-			<strong>Contact:</strong>
+			<strong>
+				Contact:
+			</strong>
 
 			<a
 				href={service.contactEndpoint}
@@ -57,9 +59,14 @@
 
 	{#if hasCapabilities}
 		<dl data-definition-list="vertical">
-			<dt>Services</dt>
+			<dt>
+				Services
+			</dt>
 			<dd>
-				<ul role="list" data-column="gap-0.5">
+				<ul
+					role="list"
+					data-column="gap-0.5"
+				>
 					{#each service.services! as svc}
 						<li>
 							{svc.name ?? svc.type}
@@ -95,7 +102,10 @@
 	{/if}
 
 	<p>
-		<a href={serviceHref} data-link>
+		<a
+			href={serviceHref}
+			data-link
+		>
 			Use in chat
 		</a>
 		— reference as {serviceRef} in agent conversations.

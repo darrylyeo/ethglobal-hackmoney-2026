@@ -121,7 +121,10 @@
 {#snippet SectionSummary({ title }: { title: string })}
 	<div class="section-summary">
 		<div data-row>
-			<h3 data-row-item="flexible" class="section-heading">
+			<h3
+				data-row-item="flexible"
+				class="section-heading"
+			>
 				{title}{#if singleAddress}
 					{' '}for <TruncatedValue
 						value={singleAddress}
@@ -169,7 +172,9 @@
 >
 	<Boundary>
 			{#if sharedAddresses.length === 0}
-				<p data-text="muted">No room or peer connections for this account.</p>
+				<p data-text="muted">
+					No room or peer connections for this account.
+				</p>
 			{:else}
 				<ul
 					data-columns="width-4 gap-2"

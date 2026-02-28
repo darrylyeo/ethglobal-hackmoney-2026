@@ -55,18 +55,42 @@
 	<Heading>EVM errors</Heading>
 	<p>
 		4-byte error selectors with resolved EVM error signatures from
-		<a href="https://4byte.sourcify.dev/" target="_blank" rel="noopener noreferrer">4byte.sourcify.dev</a>
+		<a
+			href="https://4byte.sourcify.dev/"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			4byte.sourcify.dev
+		</a>
 		and
-		<a href="https://www.4byte.directory/docs/" target="_blank" rel="noopener noreferrer">4byte.directory</a>.
-		<a href="/evm">EVM Signatures</a> · <a href="/calldata-decoder">Calldata decoder</a>.
+		<a
+			href="https://www.4byte.directory/docs/"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			4byte.directory
+		</a>.
+		<a href="/evm">
+			EVM Signatures
+		</a>
+		·
+		<a href="/calldata-decoder">
+			Calldata decoder
+		</a>.
 	</p>
 
 	{#if query.isLoading && rows.length === 0}
-		<p>Loading…</p>
+		<p>
+			Loading…
+		</p>
 	{:else if query.isError}
-		<p>Failed to load errors.</p>
+		<p>
+			Failed to load errors.
+		</p>
 	{:else}
-		<p>{displayCount} entries</p>
+		<p>
+			{displayCount} entries
+		</p>
 
 		<RefinableList
 			items={rows}
@@ -81,7 +105,9 @@
 			role="list"
 		>
 			{#snippet Empty()}
-				<p>No error selectors in cache. Open an error selector detail by hex to look one up.</p>
+				<p>
+					No error selectors in cache. Open an error selector detail by hex to look one up.
+				</p>
 			{/snippet}
 
 			{#snippet Item({ key: _k, item: entry, isPlaceholder, searchQuery: q, matches })}
@@ -99,7 +125,11 @@
 					>
 						{#snippet Title()}
 							{#if q != null && q !== ''}
-								<SearchableText text={label} query={q} {matches} />
+								<SearchableText
+									text={label}
+									query={q}
+									{matches}
+								/>
 							{:else}
 								{label}
 							{/if}

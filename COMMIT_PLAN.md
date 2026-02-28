@@ -1,25 +1,15 @@
-# Commit plan: spec 041 formatting + lockfile
+# Commit plan
 
-## Phases (topological order)
+## ethglobal-hackmoney-2026
 
-1. **Spec doc** — Document the dangling `=` / `=>` rule so code changes are justified.
-2. **Code** — Apply spec 041 formatting across Svelte/TS (and calldata-decoder markup fix).
-3. **Lockfile** — deno.lock (dependency resolution only).
+**Single formatting pass:** one attribute/prop per line in Svelte markup (no logic or import changes).
 
-## Commits
+- **Commit 1** — `style: one attribute per line in Svelte markup`
+  - All modified .svelte files under `src/` (components, lib/reorder, routes, views) + `COMMIT_PLAN.md`
+  - Topological order: N/A (formatting-only; no dependencies)
 
-| # | SHA | Message | Files |
-|---|-----|---------|--------|
-| 1 | 85fe43af | specs: 041 add dangling =/=> acceptance criterion | specs/041-svelte-ts-formatting.md |
-| 2 | 99017536 | style: apply spec 041 Svelte/TS formatting | src/** (215 files) |
-| 3 | 75db0c26 | deno: lockfile | deno.lock |
+**Verify:** `deno task check` after commit.
 
-## Dependencies
+## blockhead.vision-portfolio
 
-- Spec first (documents the rule).
-- Code second (no dependency on lockfile for build).
-- Lockfile last.
-
-## Verification
-
-After each commit: `deno task check`.
+- No staged or modified tracked files. Untracked left uncommitted: `.claude/settings.local.json`, `_download_1inch_specs.ts`, `_generate_1inch_types.ts`.

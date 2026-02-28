@@ -44,7 +44,12 @@
 		<span>{cast.text.slice(0, 80)}{cast.text.length > 80
 			? '…'
 			: ''}</span>
-		<a href={castHref} data-text="annotation">View</a>
+		<a
+			href={castHref}
+			data-text="annotation"
+		>
+			View
+		</a>
 	</span>
 {:else}
 	<details
@@ -59,7 +64,12 @@
 			<span>{cast.text.slice(0, 80)}{cast.text.length > 80
 				? '…'
 				: ''}</span>
-			<a href={castHref} data-text="annotation">View</a>
+			<a
+				href={castHref}
+				data-text="annotation"
+			>
+				View
+			</a>
 		</summary>
 
 		<div data-column="gap-4">
@@ -72,7 +82,10 @@
 					{#each cast.embeds as embed}
 						{#if embed.url}
 							<li>
-								<Media media={{ url: embed.url }} alt="" />
+								<Media
+								media={{ url: embed.url }}
+								alt=""
+							/>
 							</li>
 						{:else if embed.castId}
 							<li>
@@ -89,14 +102,18 @@
 				<dl data-definition-list="horizontal">
 					{#if cast.likeCount != null && cast.likeCount > 0}
 						<div>
-							<dt>Likes</dt>
+							<dt>
+								Likes
+							</dt>
 							<dd>{cast.likeCount}</dd>
 						</div>
 					{/if}
 
 					{#if cast.recastCount != null && cast.recastCount > 0}
 						<div>
-							<dt>Recasts</dt>
+							<dt>
+								Recasts
+							</dt>
 							<dd>{cast.recastCount}</dd>
 						</div>
 					{/if}

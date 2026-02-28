@@ -42,14 +42,28 @@
 
 <main data-column="gap-4">
 	{#if !route}
-		<h1>Not found</h1>
-		<p>Network "{networkSlug}" could not be resolved.</p>
+		<h1>
+			Not found
+		</h1>
+		<p>
+			Network "{networkSlug}" could not be resolved.
+		</p>
 	{:else}
-		<h1>Contracts · <NetworkName {networkId} /></h1>
+		<h1>
+			Contracts · <NetworkName {networkId} />
+		</h1>
 		<p data-text="muted">
-			<a href={resolve(`/network/${chainId}`)} data-link>← {network.name}</a>
+			<a
+				href={resolve(`/network/${chainId}`)}
+				data-link
+			>
+				← {network.name}
+			</a>
 		</p>
 
-		<ContractsList {networkId} detailsProps={{ open: true }} />
+		<ContractsList
+			{networkId}
+			detailsProps={{ open: true }}
+		/>
 	{/if}
 </main>

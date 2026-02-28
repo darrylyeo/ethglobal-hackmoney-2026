@@ -139,11 +139,23 @@
 </script>
 
 
-<div class="live-transfers" data-column="gap-4">
+<div
+	class="live-transfers"
+	data-column="gap-4"
+>
 	{#if showHeader}
-		<header class="transfers-header" data-row="wrap gap-4">
-			<h2>Live transfers – {coin.symbol}</h2>
-			<nav class="period-selector" data-row aria-label="Time period">
+		<header
+			class="transfers-header"
+			data-row="wrap gap-4"
+		>
+			<h2>
+				Live transfers – {coin.symbol}
+			</h2>
+			<nav
+				class="period-selector"
+				data-row
+				aria-label="Time period"
+			>
 				{#each periods as p (p.value)}
 					<a
 						class="period-link"
@@ -157,12 +169,26 @@
 		</header>
 	{/if}
 
-	<div class="viz-container" data-card bind:clientWidth={vizWidth} bind:clientHeight={vizHeight}>
+	<div
+		class="viz-container"
+		data-card
+		bind:clientWidth={vizWidth}
+		bind:clientHeight={vizHeight}
+	>
 		{#if browser}
-			<Canvas aria-label="Transfer graph" role="img">
-				<T.PerspectiveCamera makeDefault position={[0, 0, 20]} />
+			<Canvas
+				aria-label="Transfer graph"
+				role="img"
+			>
+				<T.PerspectiveCamera
+					makeDefault
+					position={[0, 0, 20]}
+				/>
 				<T.AmbientLight intensity={0.8} />
-				<T.DirectionalLight position={[10, 10, 10]} intensity={1} />
+				<T.DirectionalLight
+					position={[10, 10, 10]}
+					intensity={1}
+				/>
 
 				{#if graph.edges.length > 0}
 					<T.LineSegments
@@ -189,11 +215,16 @@
 				{/each}
 			</Canvas>
 		{:else}
-			<p class="transfers-loading">Loading visualization…</p>
+			<p class="transfers-loading">
+				Loading visualization…
+			</p>
 		{/if}
 
 		{#if edgeArrowPaths.length > 0}
-			<svg class="edge-arrows-overlay" aria-hidden="true">
+			<svg
+				class="edge-arrows-overlay"
+				aria-hidden="true"
+			>
 				<defs>
 					<marker
 						id="transfer-arrow-head"
@@ -204,7 +235,10 @@
 						refY="6"
 						orient="auto"
 					>
-						<path d="M 0 0 L 12 6 L 0 12 z" fill="var(--color-accent, light-dark(#2563eb, #60a5fa))" />
+						<path
+							d="M 0 0 L 12 6 L 0 12 z"
+							fill="var(--color-accent, light-dark(#2563eb, #60a5fa))"
+						/>
 					</marker>
 				</defs>
 
@@ -225,7 +259,9 @@
 	</div>
 
 	{#if graph.nodes.length === 0 && graph.edges.length === 0}
-		<p class="transfers-empty">No transfer data for this period.</p>
+		<p class="transfers-empty">
+			No transfer data for this period.
+		</p>
 	{:else}
 		<p class="transfers-summary">
 			{graph.nodes.length} actors, {graph.edges.length} flows

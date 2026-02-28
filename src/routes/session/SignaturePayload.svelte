@@ -24,7 +24,11 @@
 </script>
 
 
-<article data-card data-signature-payload data-column="gap-2 padding-3">
+<article
+	data-card
+	data-signature-payload
+	data-column="gap-2 padding-3"
+>
 	<header data-row="align-center">
 		{#if payload.label}
 			<h4>{payload.label}</h4>
@@ -32,12 +36,19 @@
 	</header>
 
 	<dl>
-		<dt>Network</dt>
+		<dt>
+			Network
+		</dt>
 		<dd>
-			<NetworkName networkId={{ chainId: payload.chainId }} showChainId={true} />
+			<NetworkName
+				networkId={{ chainId: payload.chainId }}
+				showChainId={true}
+			/>
 		</dd>
 
-		<dt>From</dt>
+		<dt>
+			From
+		</dt>
 		<dd>
 			<Address
 				actorId={{ $network: { chainId: payload.chainId }, address: payload.from }}
@@ -46,7 +57,9 @@
 		</dd>
 
 		{#if payload.to != null}
-			<dt>To</dt>
+			<dt>
+				To
+			</dt>
 			<dd>
 				<Address
 					actorId={{ $network: { chainId: payload.chainId }, address: payload.to }}
@@ -55,15 +68,21 @@
 			</dd>
 		{/if}
 
-		<dt>Value</dt>
+		<dt>
+			Value
+		</dt>
 		<dd data-text="font-monospace">{valueFormatted}</dd>
-		<dt>Data</dt>
+		<dt>
+			Data
+		</dt>
 		<dd>
 			<Calldata data={payload.data} />
 		</dd>
 
 		{#if payload.gasLimit != null && payload.gasLimit !== ''}
-			<dt>Gas limit</dt>
+			<dt>
+				Gas limit
+			</dt>
 			<dd data-text="font-monospace">{payload.gasLimit}</dd>
 		{/if}
 	</dl>

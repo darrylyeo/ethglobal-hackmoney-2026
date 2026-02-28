@@ -136,15 +136,31 @@
 				/>
 			{/if}
 
-			<span>@{user.username ?? user.fid}</span>
-			<button type="button" onclick={signOut}>Sign out</button>
+			<span>
+				@{user.username ?? user.fid}
+			</span>
+			<button
+				type="button"
+				onclick={signOut}
+			>
+				Sign out
+			</button>
 		</div>
 	{:else}
 		{#if status === 'pending' && channelUrl}
 			<div data-column>
-				<p data-text="annotation">Scan with Warpcast or open link:</p>
-				<Qr value={channelUrl} size={200} />
-				<a href={channelUrl} target="_blank" rel="noopener noreferrer">
+				<p data-text="annotation">
+					Scan with Warpcast or open link:
+				</p>
+				<Qr
+					value={channelUrl}
+					size={200}
+				/>
+				<a
+					href={channelUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
 					Sign in with Farcaster
 				</a>
 			</div>

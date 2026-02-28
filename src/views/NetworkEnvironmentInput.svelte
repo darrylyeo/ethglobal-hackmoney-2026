@@ -28,7 +28,10 @@
 </script>
 
 
-<label data-row="align-center" aria-label="Network environment">
+<label
+	data-row="align-center"
+	aria-label="Network environment"
+>
 	<Select
 		items={networkEnvironmentItems}
 		bind:value={selected}

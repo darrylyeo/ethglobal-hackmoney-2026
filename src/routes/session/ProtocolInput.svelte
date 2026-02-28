@@ -34,7 +34,9 @@
 
 
 {#if options.length === 0}
-	<p data-text="muted">No protocol for this action</p>
+	<p data-text="muted">
+		No protocol for this action
+	</p>
 {:else}
 	<div data-column>
 		{#each rows as row (row.option.id)}
@@ -57,9 +59,19 @@
 					onclick={() => onSelect(row.option.id)}
 				>
 					{#if row.option.icon.includes('/')}
-						<Icon class="protocol-icon" src={row.option.icon} size={24} alt="" />
+						<Icon
+							class="protocol-icon"
+							src={row.option.icon}
+							size={24}
+							alt=""
+						/>
 					{:else}
-						<Icon class="protocol-icon" icon={row.option.icon} size={24} alt="" />
+						<Icon
+							class="protocol-icon"
+							icon={row.option.icon}
+							size={24}
+							alt=""
+						/>
 					{/if}
 
 					<div data-column="gap-1">

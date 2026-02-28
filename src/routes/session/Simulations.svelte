@@ -39,9 +39,14 @@
 </script>
 
 
-<details data-card data-column>
+<details
+	data-card
+	data-column
+>
 	<summary>
-		<h4>Simulations</h4>
+		<h4>
+			Simulations
+		</h4>
 	</summary>
 
 	<List
@@ -59,7 +64,9 @@
 	{/snippet}
 
 		{#snippet Empty()}
-			<p data-text="muted">No simulations.</p>
+			<p data-text="muted">
+				No simulations.
+			</p>
 		{/snippet}
 	</List>
 </details>

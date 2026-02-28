@@ -438,7 +438,11 @@
 </script>
 
 
-	<div aria-live="polite" aria-atomic="true" class="sr-only">
+	<div
+		aria-live="polite"
+		aria-atomic="true"
+		class="sr-only"
+	>
 		{#if executionStatus.overall === BridgeOverallStatus.InProgress}
 			{@const currentStep = (
 				executionStatus.steps.find((s) => s.state === 'pending') ??
@@ -454,7 +458,9 @@
 	</div>
 
 	{#if !selectedWallet}
-		<p data-text="muted">Connect a wallet to get routes</p>
+		<p data-text="muted">
+			Connect a wallet to get routes
+		</p>
 	{/if}
 
 	{#if routesRow?.error}
@@ -474,14 +480,22 @@
 			>
 			{#if routesRow.error.code === ErrorCode.NoRoutes}
 				<ul data-no-routes-guidance>
-					<li>Try a different amount (min ~1 USDC, max varies by route)</li>
-					<li>Try a different chain pair</li>
-					<li>Check if the bridge is operational</li>
+					<li>
+						Try a different amount (min ~1 USDC, max varies by route)
+					</li>
+					<li>
+						Try a different chain pair
+					</li>
+					<li>
+						Check if the bridge is operational
+					</li>
 				</ul>
 			{/if}
 
 			<div data-row>
-				<Button.Root onclick={onRefresh}>Retry</Button.Root>
+				<Button.Root onclick={onRefresh}>
+					Retry
+				</Button.Root>
 				<Button.Root
 					data-dismiss
 					onclick={() => {
@@ -511,7 +525,9 @@
 				</h3>
 
 				<label data-row="align-center">
-					<span>Sort</span>
+					<span>
+						Sort
+					</span>
 
 					<Select
 						id="route-sort"
@@ -535,7 +551,10 @@
 				{@const limits = extractRouteLimits(sortedRoutes)}
 
 				{#if limits.minAmount !== null || limits.maxAmount !== null}
-					<p data-route-limits data-text="muted">
+					<p
+						data-route-limits
+						data-text="muted"
+					>
 						{#if limits.minAmount !== null}
 							Min: {formatSmallestToDecimal(limits.minAmount, 6)} USDC
 						{/if}
@@ -551,7 +570,9 @@
 
 			<div data-column>
 				{#if routesRow?.isLoading && sortedRoutes.length === 0}
-					<p data-text="muted">Finding routes…</p>
+					<p data-text="muted">
+						Finding routes…
+					</p>
 					{#each [1, 2, 3] as _}
 						<div
 							class="route-card route-card-skeleton"
@@ -559,13 +580,32 @@
 							data-column
 						>
 							<div data-row="align-center justify-between">
-								<Skeleton width="6em" height="1.25em" rounded="0.25em" />
-								<Skeleton width="4em" height="1em" rounded="0.25em" />
+								<Skeleton
+									width="6em"
+									height="1.25em"
+									rounded="0.25em"
+								/>
+								<Skeleton
+									width="4em"
+									height="1em"
+									rounded="0.25em"
+								/>
 							</div>
 
-							<div data-row data-text="muted">
-								<Skeleton width="10em" height="1em" rounded="0.25em" />
-								<Skeleton width="3em" height="1em" rounded="0.25em" />
+							<div
+								data-row
+								data-text="muted"
+							>
+								<Skeleton
+									width="10em"
+									height="1em"
+									rounded="0.25em"
+								/>
+								<Skeleton
+									width="3em"
+									height="1em"
+									rounded="0.25em"
+								/>
 							</div>
 						</div>
 					{/each}
@@ -583,16 +623,23 @@
 						>
 							<div data-row="align-center justify-between">
 								<strong>{formatTokenAmount(r.toAmount, 6)} USDC</strong>
-								<span data-text="muted">${r.gasCostUsd.toFixed(2)} fees</span>
+								<span data-text="muted">
+									${r.gasCostUsd.toFixed(2)} fees
+								</span>
 							</div>
 
-							<div data-row data-text="muted">
+							<div
+								data-row
+								data-text="muted"
+							>
 								<span
 									>{[...new Set(r.steps.map((st) => st.toolName))].join(
 										' → ',
 									)}</span
 								>
-								<span>~{Math.ceil(r.estimatedDurationSeconds / 60)}m</span>
+								<span>
+									~{Math.ceil(r.estimatedDurationSeconds / 60)}m
+								</span>
 							</div>
 						</button>
 					{/each}
@@ -602,10 +649,18 @@
 	{/if}
 
 	{#if selectedRoute && fromNetwork && toNetwork}
-		<section data-card data-column>
+		<section
+			data-card
+			data-column
+		>
 			<div data-row="align-center justify-between">
-				<h3>Quote Details</h3>
-				<div data-row="align-center" data-text="muted">
+				<h3>
+					Quote Details
+				</h3>
+				<div
+					data-row="align-center"
+					data-text="muted"
+				>
 					{#if routesRow?.isLoading}
 						Refreshing…
 					{:else if quoteRemaining !== null}
@@ -656,20 +711,38 @@
 
 			{#snippet BridgeSummary()}
 				<dl class="summary">
-					<dt>You send</dt>
+					<dt>
+						You send
+					</dt>
 					<dd>
 						{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
 					</dd>
 
-					<dt>You receive</dt>
-					<dd>~{formatTokenAmount(output, 6)} USDC on {toNetwork.name}</dd>
-					<dt>Min received</dt>
-					<dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
-					<dt>Recipient</dt>
-					<dd>{formatAddress(recipient)}</dd>
+					<dt>
+						You receive
+					</dt>
+					<dd>
+						~{formatTokenAmount(output, 6)} USDC on {toNetwork.name}
+					</dd>
+					<dt>
+						Min received
+					</dt>
+					<dd>
+						{formatTokenAmount(minOutput, 6)} USDC
+					</dd>
+					<dt>
+						Recipient
+					</dt>
+					<dd>
+						{formatAddress(recipient)}
+					</dd>
 					{#if fees}
-						<dt>Est. fees</dt>
-						<dd>~${fees.totalUsd}</dd>
+						<dt>
+							Est. fees
+						</dt>
+						<dd>
+							~${fees.totalUsd}
+						</dd>
 					{/if}
 				</dl>
 			{/snippet}
@@ -705,50 +778,81 @@
 
 			{#snippet BridgeConfirmation(_tx: unknown, _state: unknown)}
 				<dl class="summary">
-					<dt>From</dt>
+					<dt>
+						From
+					</dt>
 					<dd>
 						{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
 					</dd>
 
-					<dt>To</dt>
+					<dt>
+						To
+					</dt>
 					<dd>
 						~{formatTokenAmount(selectedRoute.toAmount, 6)} USDC on {toNetwork.name}
 					</dd>
 
-					<dt>Min received</dt>
-					<dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
-					<dt>Recipient</dt>
+					<dt>
+						Min received
+					</dt>
+					<dd>
+						{formatTokenAmount(minOutput, 6)} USDC
+					</dd>
+					<dt>
+						Recipient
+					</dt>
 					<dd>
 						<span>{formatAddress(recipient)}</span>
 						{#if warnDifferentRecipient}
-							<span class="badge warning"> Different recipient </span>
+							<span
+								class="badge warning"
+							>
+								Different recipient
+							</span>
 						{/if}
 					</dd>
 
-					<dt>Protocol</dt>
+					<dt>
+						Protocol
+					</dt>
 					<dd>
 						{[...new Set(selectedRoute.steps.map((st) => st.toolName))].join(
 							' → ',
 						)}
 					</dd>
 
-					<dt>Est. time</dt>
+					<dt>
+						Est. time
+					</dt>
 					<dd>
 						~{Math.ceil(selectedRoute.estimatedDurationSeconds / 60)} min
 					</dd>
 
-					<dt>Slippage</dt>
-					<dd>{formatSlippagePercent(settings.slippage)}</dd>
+					<dt>
+						Slippage
+					</dt>
+					<dd>
+						{formatSlippagePercent(settings.slippage)}
+					</dd>
 					{#if fees}
-						<dt>Fees</dt>
-						<dd>~${fees.totalUsd}</dd>
+						<dt>
+							Fees
+						</dt>
+						<dd>
+							~${fees.totalUsd}
+						</dd>
 					{/if}
 				</dl>
 
 				{#if warnDifferentRecipient || warnHighSlippage || warnLargeAmount}
-					<div class="warnings" data-column>
+					<div
+						class="warnings"
+						data-column
+					>
 						{#if warnDifferentRecipient}
-							<p class="warning">Recipient is not your connected wallet.</p>
+							<p class="warning">
+								Recipient is not your connected wallet.
+							</p>
 						{/if}
 
 						{#if warnHighSlippage}
@@ -797,12 +901,23 @@
 	{/if}
 
 	{#if selectedActor}
-		<section data-card data-column>
-			<button class="heading" type="button"> Transaction history </button>
+		<section
+			data-card
+			data-column
+		>
+			<button
+				class="heading"
+				type="button"
+			>
+				Transaction history
+			</button>
 			{#if transactions.length > 0}
 				<div data-column>
 					{#each transactions as tx (stringify(tx.$id))}
-						<div class="tx-row" data-row="align-center">
+						<div
+							class="tx-row"
+							data-row="align-center"
+						>
 							<span data-text="muted"
 								>{formatRelativeTime(now - tx.$id.createdAt)}</span
 							>
@@ -842,7 +957,9 @@
 					{/each}
 				</div>
 			{:else}
-				<p data-text="muted">No transactions yet</p>
+				<p data-text="muted">
+					No transactions yet
+				</p>
 			{/if}
 		</section>
 	{/if}

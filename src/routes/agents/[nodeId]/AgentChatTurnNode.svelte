@@ -174,23 +174,36 @@
 		<a
 			href="#turn:{turn.$id}"
 			class="turn-card-reply"
-		><span class="sr-only">Reply</span></a>
+		>
+			<span class="sr-only">
+				Reply
+			</span>
+		</a>
 	{/if}
 
 	<div data-row="align-center justify-between">
-		<div data-column data-row-item="flexible">
-			<strong>User</strong>
+		<div
+			data-column
+			data-row-item="flexible"
+		>
+			<strong>
+				User
+			</strong>
 			<p>{turn.userPrompt}</p>
 		</div>
 
 		<button
 			type="button"
 			onclick={onDelete}
-		>Delete</button>
+		>
+			Delete
+		</button>
 	</div>
 
 	{#if turn.status === 'generating'}
-		<p data-text="muted">Generating…</p>
+		<p data-text="muted">
+			Generating…
+		</p>
 	{:else if turn.status === 'error'}
 		<div data-column>
 			<div data-row="align-center">
@@ -199,7 +212,9 @@
 				<button
 					type="button"
 					onclick={onRetry}
-				>Retry</button>
+				>
+					Retry
+				</button>
 			</div>
 
 			{#if turn.error?.includes('payment') || turn.error?.includes('402')}
@@ -209,13 +224,19 @@
 			{/if}
 		</div>
 	{:else if turn.status === 'cancelled'}
-		<p data-text="muted">Cancelled.</p>
+		<p data-text="muted">
+			Cancelled.
+		</p>
 	{:else if turn.assistantText || (turn.toolCalls?.length ?? 0) > 0}
 		<div data-column>
-			<strong>Assistant</strong>
+			<strong>
+				Assistant
+			</strong>
 			{#if turn.toolCalls && turn.toolCalls.length > 0}
 				<details data-card>
-					<summary>Tools ({turn.toolCalls.length})</summary>
+					<summary>
+						Tools ({turn.toolCalls.length})
+					</summary>
 					<ul data-column="gap-1">
 						{#each turn.toolCalls as tc (tc.id)}
 							<li>
@@ -224,7 +245,10 @@
 									{@const res = turn.toolResults.find((r) => r.toolCallId === tc.id)}
 
 									{#if res}
-										<pre data-text="muted" style="font-size: 0.85em; overflow: auto;">{typeof res.result === 'string' ? res.result : JSON.stringify(res.result, null, 2)}</pre>
+										<pre
+											data-text="muted"
+											style="font-size: 0.85em; overflow: auto;"
+										>{typeof res.result === 'string' ? res.result : JSON.stringify(res.result, null, 2)}</pre>
 									{/if}
 								{/if}
 							</li>

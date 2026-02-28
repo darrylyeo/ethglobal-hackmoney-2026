@@ -108,11 +108,16 @@
 				Inputs: {quote.preview.inputs.length}. Outputs: {quote.preview.outputs.length}.
 			</p>
 
-			<button type="button" disabled>
+			<button
+				type="button"
+				disabled
+			>
 				Confirm (placeholder)
 			</button>
 		{:else if canFetch && !fetching && !error}
-			<p data-text="muted">Click "Fetch quote" for order-server quote.</p>
+			<p data-text="muted">
+				Click "Fetch quote" for order-server quote.
+			</p>
 		{/if}
 	</div>
 {/if}

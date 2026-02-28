@@ -1,4 +1,7 @@
-<script lang="ts" generics="_Item">
+<script
+	lang="ts"
+	generics="_Item"
+>
 	// Types/constants
 	import type { Snippet } from 'svelte'
 
@@ -111,7 +114,10 @@
 	{:else}
 		{@const selectedId = value != null ? getItemId(value) : ''}
 
-		<Select.Trigger id={id ?? _id} aria-label={ariaLabel}>
+		<Select.Trigger
+			id={id ?? _id}
+			aria-label={ariaLabel}
+		>
 			<span data-row>
 				{#if Before}
 					{@render Before()}

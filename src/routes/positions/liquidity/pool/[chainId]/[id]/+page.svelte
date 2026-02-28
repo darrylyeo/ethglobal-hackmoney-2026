@@ -88,8 +88,14 @@
 
 {#if !valid}
 	<main data-card>
-		<h1>Invalid pool</h1>
-		<p>Chain ID and pool ID are required. <a href="/positions/liquidity/pools">Back to Pools</a>.</p>
+		<h1>
+			Invalid pool
+		</h1>
+		<p>
+			Chain ID and pool ID are required. <a href="/positions/liquidity/pools">
+				Back to Pools
+			</a>.
+		</p>
 	</main>
 {:else}
 	<main data-card>
@@ -108,10 +114,18 @@
 				{#if pool}
 					<UniswapPoolView pool={pool} />
 				{:else if poolQuery.isLoading}
-					<p>Loading pool…</p>
+					<p>
+						Loading pool…
+					</p>
 				{:else}
-					<p>Pool not found. It may not be indexed yet.</p>
-					<p><a href="/positions/liquidity/pools">Back to Pools</a>.</p>
+					<p>
+						Pool not found. It may not be indexed yet.
+					</p>
+					<p>
+						<a href="/positions/liquidity/pools">
+							Back to Pools
+						</a>.
+					</p>
 				{/if}
 			{/snippet}
 		</EntityView>

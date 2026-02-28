@@ -87,13 +87,17 @@
 	scrollPosition="Start"
 >
 	{#snippet Empty()}
-		<p data-text="muted">No blocks.</p>
+		<p data-text="muted">
+			No blocks.
+		</p>
 	{/snippet}
 
 	{#snippet Item({ key, item, isPlaceholder })}
 		<span id="block:{key}">
 			{#if isPlaceholder}
-				<code>Block #{key} (loading…)</code>
+				<code>
+					Block #{key} (loading…)
+				</code>
 			{:else}
 				{@const blockData = new Map<
 					BlockEntry | undefined,

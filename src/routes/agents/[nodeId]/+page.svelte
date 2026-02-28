@@ -179,7 +179,9 @@
 				label={tree.name ?? 'New conversation'}
 				annotation="Conversation"
 			>
-				<p data-text="muted">Start the conversation by typing a prompt.</p>
+				<p data-text="muted">
+					Start the conversation by typing a prompt.
+				</p>
 				<div data-row="align-center">
 					<ModelInput
 						connections={llmConnections}
@@ -207,7 +209,9 @@
 			label="New conversation"
 			annotation="Conversation"
 		>
-			<p data-text="muted">Start the conversation by typing a prompt.</p>
+			<p data-text="muted">
+				Start the conversation by typing a prompt.
+			</p>
 			<div data-row="align-center">
 				<ModelInput
 					connections={llmConnections}

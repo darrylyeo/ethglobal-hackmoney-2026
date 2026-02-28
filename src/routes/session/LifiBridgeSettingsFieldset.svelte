@@ -30,10 +30,17 @@
 </script>
 
 {#if action.type === ActionType.Bridge && p}
-	<div data-card data-column>
-		<h3>LI.FI settings</h3>
+	<div
+		data-card
+		data-column
+	>
+		<h3>
+			LI.FI settings
+		</h3>
 		<label data-column>
-			<span>Slippage</span>
+			<span>
+				Slippage
+			</span>
 
 			<Select
 				items={slippagePresets}
@@ -58,7 +65,9 @@
 		</label>
 
 		<label data-column>
-			<span>Custom %</span>
+			<span>
+				Custom %
+			</span>
 
 			<input
 				type="text"

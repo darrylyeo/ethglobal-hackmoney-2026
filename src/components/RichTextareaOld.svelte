@@ -1,4 +1,7 @@
-<script lang="ts" generics="Ref extends { displayLabel: string, trigger?: string }, Item extends { ref: Ref }">
+<script
+	lang="ts"
+	generics="Ref extends { displayLabel: string, trigger?: string }, Item extends { ref: Ref }"
+>
 	// Types/constants
 	import { tick } from 'svelte'
 

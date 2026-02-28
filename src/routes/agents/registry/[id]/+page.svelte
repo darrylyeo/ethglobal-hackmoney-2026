@@ -101,10 +101,16 @@
 
 <main>
 	{#if !parsedId}
-		<h1>Invalid service id</h1>
-		<p>Could not parse service id from "{idParam}".</p>
+		<h1>
+			Invalid service id
+		</h1>
+		<p>
+			Could not parse service id from "{idParam}".
+		</p>
 	{:else if loadError}
-		<h1>Error</h1>
+		<h1>
+			Error
+		</h1>
 		<p>{loadError}</p>
 	{:else if service}
 		<EntityView
@@ -119,6 +125,8 @@
 			</svelte:fragment>
 		</EntityView>
 	{:else}
-		<p>Loading…</p>
+		<p>
+			Loading…
+		</p>
 	{/if}
 </main>

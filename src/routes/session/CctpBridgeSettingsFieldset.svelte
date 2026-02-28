@@ -46,10 +46,17 @@
 
 {#if action.type === ActionType.Bridge && p}
 	<div data-column>
-		<div data-card data-column>
-			<h3>CCTP settings</h3>
+		<div
+			data-card
+			data-column
+		>
+			<h3>
+				CCTP settings
+			</h3>
 		<label data-column>
-			<span>Transfer speed</span>
+			<span>
+				Transfer speed
+			</span>
 
 			<Select
 				items={transferSpeedItems}

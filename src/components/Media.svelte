@@ -100,7 +100,12 @@
 		</figure>
 	{:else}
 		<figure class="media-figure">
-			<a href={url} target="_blank" rel="noopener noreferrer" data-text="annotation">
+			<a
+				href={url}
+				target="_blank"
+				rel="noopener noreferrer"
+				data-text="annotation"
+			>
 				{url}
 			</a>
 		</figure>

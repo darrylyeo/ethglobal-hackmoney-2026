@@ -1,4 +1,7 @@
-<script module lang="ts">
+<script
+	module
+	lang="ts"
+>
 	export type Sort<_Item, _SortId extends string = string> = {
 		id: _SortId
 		label: string
@@ -7,7 +10,10 @@
 </script>
 
 
-<script lang="ts" generics="_Item, _SortId extends string = string">
+<script
+	lang="ts"
+	generics="_Item, _SortId extends string = string"
+>
 	// Types/constants
 	import type { SvelteHTMLElements } from 'svelte/elements'
 
@@ -62,9 +68,19 @@
 
 
 {#if sortOptions.length > 1}
-	<div class="sorts" data-card="padding-5 radius-4" data-row="gap-6 wrap" {...restProps}>
-		<fieldset data-sort-group data-column="gap-1">
-			<legend>Sort</legend>
+	<div
+		class="sorts"
+		data-card="padding-5 radius-4"
+		data-row="gap-6 wrap"
+		{...restProps}
+	>
+		<fieldset
+			data-sort-group
+			data-column="gap-1"
+		>
+			<legend>
+				Sort
+			</legend>
 
 			<Select
 				items={sortOptions}

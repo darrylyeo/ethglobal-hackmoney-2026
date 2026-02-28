@@ -233,7 +233,9 @@
 
 
 <div data-column>
-	<strong>Status</strong>
+	<strong>
+		Status
+	</strong>
 	<ol class="cctp-status">
 		<li
 			class="cctp-status-step"

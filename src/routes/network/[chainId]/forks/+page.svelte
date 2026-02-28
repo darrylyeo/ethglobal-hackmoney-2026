@@ -76,18 +76,30 @@
 <main data-column>
 	{#if !route}
 		<Heading>Network not found</Heading>
-		<p>The network "{chainIdParam}" could not be resolved.</p>
+		<p>
+			The network "{chainIdParam}" could not be resolved.
+		</p>
 	{:else if !showForkList}
 		<header data-column>
 			<Heading>Fork upgrades</Heading>
 			<p data-text="annotation">
 				Fork schedule is not available for this network.
-				<a href={resolve(`/network/${ChainId.Ethereum}/forks`)} data-link>View Ethereum mainnet fork upgrades</a>.
+				<a
+					href={resolve(`/network/${ChainId.Ethereum}/forks`)}
+					data-link
+				>
+					View Ethereum mainnet fork upgrades
+				</a>.
 			</p>
 		</header>
 
 		<p>
-			<a href={resolve(`/network/${chainIdParam}`)} data-link>Back to {network?.name ?? 'network'}</a>
+			<a
+				href={resolve(`/network/${chainIdParam}`)}
+				data-link
+			>
+				Back to {network?.name ?? 'network'}
+			</a>
 		</p>
 	{:else}
 		<EntityView
@@ -117,12 +129,25 @@
 
 			{#snippet children()}
 				<p>
-					<a href={resolve(`/network/${chainIdParam}/contracts`)} data-link>Contracts</a>
-					<a href={resolve('/proposals')} data-link>Proposals (EIPs / ERCs)</a>
+					<a
+						href={resolve(`/network/${chainIdParam}/contracts`)}
+						data-link
+					>
+						Contracts
+					</a>
+					<a
+						href={resolve('/proposals')}
+						data-link
+					>
+						Proposals (EIPs / ERCs)
+					</a>
 				</p>
 
 				<ContractsList {networkId} />
-				<nav data-row="wrap" aria-label="External resources">
+				<nav
+					data-row="wrap"
+					aria-label="External resources"
+				>
 					<a
 						href="https://ethereum.org/ethereum-forks/"
 						target="_blank"

@@ -10,12 +10,16 @@
 <section>
 	<dl data-definition-list="vertical">
 		<div>
-			<dt>Hex (4-byte)</dt>
+			<dt>
+				Hex (4-byte)
+			</dt>
 			<dd><code>{entry.$id.hex}</code></dd>
 		</div>
 
 		<div>
-			<dt>Signatures</dt>
+			<dt>
+				Signatures
+			</dt>
 			<dd>
 				{#if entry.signatures.length > 0}
 					<ul role="list">

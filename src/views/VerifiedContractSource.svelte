@@ -71,9 +71,13 @@
 	}}
 >
 	{#if source?.isLoading && !hasFiles}
-		<p data-text="muted">Loading…</p>
+		<p data-text="muted">
+			Loading…
+		</p>
 	{:else if source?.notFound}
-		<p data-text="muted">Contract not verified on Sourcify</p>
+		<p data-text="muted">
+			Contract not verified on Sourcify
+		</p>
 	{:else if source?.error}
 		<p data-tag="failure">{source.error}</p>
 	{:else if hasFiles && source}

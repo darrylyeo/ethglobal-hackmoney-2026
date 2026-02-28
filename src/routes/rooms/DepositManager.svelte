@@ -100,14 +100,24 @@
 
 
 <section class="deposit-manager">
-	<h3>Custody Balance</h3>
+	<h3>
+		Custody Balance
+	</h3>
 
 	<dl>
-		<dt>Available</dt>
-		<dd>{formatSmallestToDecimal(availableBalance, 6)} USDC</dd>
+		<dt>
+			Available
+		</dt>
+		<dd>
+			{formatSmallestToDecimal(availableBalance, 6)} USDC
+		</dd>
 
-		<dt>Locked in channels</dt>
-		<dd>{formatSmallestToDecimal(lockedBalance, 6)} USDC</dd>
+		<dt>
+			Locked in channels
+		</dt>
+		<dd>
+			{formatSmallestToDecimal(lockedBalance, 6)} USDC
+		</dd>
 	</dl>
 
 	<form

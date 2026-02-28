@@ -5,6 +5,8 @@
 
 
 <main data-column>
-	<h1>Accounts</h1>
+	<h1>
+		Accounts
+	</h1>
 	<Accounts />
 </main>

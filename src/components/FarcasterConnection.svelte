@@ -25,7 +25,10 @@
 </script>
 
 
-<div data-card="padding-2 radius-3" data-row="align-center wrap">
+<div
+	data-card="padding-2 radius-3"
+	data-row="align-center wrap"
+>
 	<a
 		href="/farcaster/user/{connection.$id.fid}"
 		data-row="align-center"
@@ -44,7 +47,10 @@
 		<span>{label}</span>
 	</a>
 
-	<Button.Root type="button" onclick={onAction}>
+	<Button.Root
+		type="button"
+		onclick={onAction}
+	>
 		{actionLabel}
 	</Button.Root>
 </div>
