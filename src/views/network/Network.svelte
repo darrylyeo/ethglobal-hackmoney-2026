@@ -364,6 +364,13 @@
 
 <style>
 	.network-layers {
-		max-height: 80cqb;
+		> section {
+			> :global(details) {
+				&[data-scroll-container] {
+					--scrollContainer-sizeBlock: calc(80cqb - 6rem);
+					max-height: calc(80cqb - 6rem);
+				}
+			}
+		}
 	}
 </style>
