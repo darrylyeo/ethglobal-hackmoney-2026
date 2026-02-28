@@ -40,10 +40,10 @@
 			.trim()
 			.replace(/^0x/i, '')
 			.replace(/\s/g, '')
-			.replace(/[^0-9a-fA-F]/g, ''),
+			.replace(/[^0-9a-fA-F]/g, '')
 	)
 	const hexEven = $derived(
-		normalized.length % 2 === 0 ? normalized : normalized.slice(0, -1),
+		normalized.length % 2 === 0 ? normalized : normalized.slice(0, -1)
 	)
 	const valueOut = $derived(
 		hexEven ? `0x${hexEven.toLowerCase()}` : ''

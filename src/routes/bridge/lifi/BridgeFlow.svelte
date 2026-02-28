@@ -3,7 +3,7 @@
 	import type { ConnectedWallet } from '$/collections/WalletConnections.ts'
 	import type { BridgeRoute, BridgeRoutes$Id } from '$/data/BridgeRoute.ts'
 	import type { WithSource } from '$/constants/data-sources.ts'
-import type { Wallet } from '$/data/Wallet.ts'
+	import type { Wallet } from '$/data/Wallet.ts'
 	import {
 		BridgeOverallStatus,
 		createInitialStatus,
@@ -58,11 +58,12 @@ import type { Wallet } from '$/data/Wallet.ts'
 	import { E2E_TEVM_ENABLED } from '$/tests/tevm.ts'
 
 	const resolveNetwork = (chainId: number | null) =>
-		chainId !== null
-			? (Object.values(networksByChainId).find(
-					(entry) => entry?.chainId === chainId,
-				) ?? null)
-			: null
+		chainId !== null ?
+			(Object.values(networksByChainId).find(
+				(entry) => entry?.chainId === chainId,
+			) ?? null)
+		:
+			null
 	const resolveNetworkName = (chainId: number) =>
 		resolveNetwork(chainId)?.name ?? `Chain ${chainId}`
 	const isEip1193Wallet = (
@@ -137,13 +138,13 @@ import type { Wallet } from '$/data/Wallet.ts'
 
 	// (Derived)
 	const selectedWallet = $derived(
-		selectedWallets.find((w) => w.connection.selected) ?? null,
+		selectedWallets.find((w) => w.connection.selected) ?? null
 	)
 	const selectedEip1193Wallet = $derived(
-		isEip1193Wallet(selectedWallet) ? selectedWallet.wallet : null,
+		isEip1193Wallet(selectedWallet) ? selectedWallet.wallet : null
 	)
 	const selectedWalletProvider = $derived(
-		selectedEip1193Wallet ? selectedEip1193Wallet.provider : null,
+		selectedEip1193Wallet ? selectedEip1193Wallet.provider : null
 	)
 	const fromNetwork = $derived(
 		resolveNetwork(settings.fromChainId)
@@ -194,7 +195,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const validation = $derived(
-		validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT),
+		validateBridgeAmount(settings.amount, USDC_MIN_AMOUNT, USDC_MAX_AMOUNT)
 	)
 	const balances = $derived(
 		selectedActor
@@ -203,7 +204,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 					.filter(
 						(b) => b.$id.$actor.address === selectedActor,
 					)
-			: [],
+			: []
 	)
 	const sourceBalance = $derived(
 		fromNetwork && selectedActor
@@ -212,19 +213,20 @@ import type { Wallet } from '$/data/Wallet.ts'
 						b.$id.$actor.$network.chainId === fromNetwork.id &&
 						b.$id.$coin.address === getUsdcAddress(fromNetwork.id),
 				)?.balance ?? null)
-			: null,
+			: null
 	)
 	const exceedsBalance = $derived(
 		E2E_TEVM_ENABLED
 			? false
-			: sourceBalance !== null && settings.amount > sourceBalance,
+			: sourceBalance !== null && settings.amount > sourceBalance
 	)
 	const canSendAmount = $derived(
-		validation.isValid && !exceedsBalance && !invalidAmountInput,
+		validation.isValid && !exceedsBalance && !invalidAmountInput
 	)
 
-	const PLACEHOLDER_ADDRESS: `0x${string}` =
+	const PLACEHOLDER_ADDRESS: `0x${string}` = (
 		'0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
+	)
 	const quoteAddress = $derived(
 		selectedActor ?? PLACEHOLDER_ADDRESS
 	)
@@ -249,7 +251,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 						r.bridgeRoute.$id.fromAddress === quoteParams.fromAddress &&
 						r.bridgeRoute.$id.slippage === quoteParams.slippage,
 				)?.bridgeRoute ?? null)
-			: null,
+			: null
 	)
 	const routes = $derived<BridgeRoute[]>(routesRow?.routes ?? [])
 	const sortedRoutes = $derived(
@@ -261,12 +263,12 @@ import type { Wallet } from '$/data/Wallet.ts'
 			if (settings.sortBy === BridgeRouteSort.Speed)
 				return a.estimatedDurationSeconds - b.estimatedDurationSeconds
 			return 0
-		}),
+		})
 	)
 	const selectedRoute = $derived(
 		sortedRoutes.find((r) => r.id === selectedRouteId) ??
 			sortedRoutes[0] ??
-			null,
+			null
 	)
 
 	const approvalAddress = $derived.by(() => {
@@ -279,7 +281,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 			? false
 			: Boolean(
 					approvalAddress?.startsWith('0x') && approvalAddress.length === 42,
-				),
+				)
 	)
 	const currentAllowance = $derived(
 		selectedActor && fromNetwork && approvalAddress
@@ -291,7 +293,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 							getUsdcAddress(fromNetwork.id) &&
 						r.allowance.$id.$spender.address === approvalAddress,
 				)?.allowance.allowance ?? 0n)
-			: 0n,
+			: 0n
 	)
 	const approved = $derived(
 		currentAllowance >= settings.amount
@@ -317,12 +319,12 @@ import type { Wallet } from '$/data/Wallet.ts'
 					steps: selectedRoute.originalRoute.steps,
 					fromAmountUSD: selectedRoute.originalRoute.fromAmountUSD,
 				})
-			: null,
+			: null
 	)
 	const fromAmountUsd = $derived(
 		selectedRoute
 			? parseFloat(selectedRoute.originalRoute.fromAmountUSD ?? '0')
-			: 0,
+			: 0
 	)
 	const warnDifferentRecipient = $derived(
 		settings.useCustomRecipient
@@ -339,7 +341,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 			.filter(
 				(tx) => selectedActor != null && tx.$id.address === selectedActor,
 			)
-			.slice(0, 50),
+			.slice(0, 50)
 	)
 
 	$effect(() => {
@@ -415,10 +417,10 @@ import type { Wallet } from '$/data/Wallet.ts'
 	})
 	const QUOTE_TTL = 60_000
 	const quoteExpiry = $derived(
-		routesRow?.fetchedAt ? routesRow.fetchedAt + QUOTE_TTL : null,
+		routesRow?.fetchedAt ? routesRow.fetchedAt + QUOTE_TTL : null
 	)
 	const quoteRemaining = $derived(
-		quoteExpiry ? Math.max(0, Math.ceil((quoteExpiry - now) / 1000)) : null,
+		quoteExpiry ? Math.max(0, Math.ceil((quoteExpiry - now) / 1000)) : null
 	)
 	const quoteExpired = $derived(
 		quoteRemaining !== null && quoteRemaining <= 0
@@ -438,9 +440,10 @@ import type { Wallet } from '$/data/Wallet.ts'
 
 	<div aria-live="polite" aria-atomic="true" class="sr-only">
 		{#if executionStatus.overall === BridgeOverallStatus.InProgress}
-			{@const currentStep =
+			{@const currentStep = (
 				executionStatus.steps.find((s) => s.state === 'pending') ??
-				executionStatus.steps[executionStatus.steps.length - 1]}
+				executionStatus.steps[executionStatus.steps.length - 1]
+			)}
 			Transaction in progress. {currentStep?.step ?? 'Sending'}
 		{:else if executionStatus.overall === 'completed'}
 			Bridge complete. Tokens sent successfully.
@@ -476,6 +479,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 					<li>Check if the bridge is operational</li>
 				</ul>
 			{/if}
+
 			<div data-row>
 				<Button.Root onclick={onRefresh}>Retry</Button.Root>
 				<Button.Root
@@ -505,8 +509,10 @@ import type { Wallet } from '$/data/Wallet.ts'
 						? '(loading…)'
 						: `(${sortedRoutes.length})`}
 				</h3>
+
 				<label data-row="align-center">
 					<span>Sort</span>
+
 					<Select
 						id="route-sort"
 						items={sortOptions}
@@ -527,11 +533,13 @@ import type { Wallet } from '$/data/Wallet.ts'
 
 			{#if sortedRoutes.length > 0}
 				{@const limits = extractRouteLimits(sortedRoutes)}
+
 				{#if limits.minAmount !== null || limits.maxAmount !== null}
 					<p data-route-limits data-text="muted">
 						{#if limits.minAmount !== null}
 							Min: {formatSmallestToDecimal(limits.minAmount, 6)} USDC
 						{/if}
+
 						{#if limits.maxAmount !== null}
 							{#if limits.minAmount !== null}
 								·
@@ -540,6 +548,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 					</p>
 				{/if}
 			{/if}
+
 			<div data-column>
 				{#if routesRow?.isLoading && sortedRoutes.length === 0}
 					<p data-text="muted">Finding routes…</p>
@@ -553,6 +562,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 								<Skeleton width="6em" height="1.25em" rounded="0.25em" />
 								<Skeleton width="4em" height="1em" rounded="0.25em" />
 							</div>
+
 							<div data-row data-text="muted">
 								<Skeleton width="10em" height="1em" rounded="0.25em" />
 								<Skeleton width="3em" height="1em" rounded="0.25em" />
@@ -575,6 +585,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 								<strong>{formatTokenAmount(r.toAmount, 6)} USDC</strong>
 								<span data-text="muted">${r.gasCostUsd.toFixed(2)} fees</span>
 							</div>
+
 							<div data-row data-text="muted">
 								<span
 									>{[...new Set(r.steps.map((st) => st.toolName))].join(
@@ -600,6 +611,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 					{:else if quoteRemaining !== null}
 						{quoteExpired ? 'Expired' : `${quoteRemaining}s`}
 					{/if}
+
 					<Button.Root
 						onclick={onRefresh}
 						disabled={routesRow?.isLoading}
@@ -613,6 +625,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 				<Popover.Trigger data-row="gap-1">
 					Slippage: <strong>{formatSlippagePercent(settings.slippage)}</strong>
 				</Popover.Trigger>
+
 				<Popover.Content data-column>
 					<div data-row="gap-1">
 						{#each slippagePresets as preset (preset.id)}
@@ -629,6 +642,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 							</Button.Root>
 						{/each}
 					</div>
+
 					<input
 						placeholder="Custom %"
 						bind:value={slippageInput}
@@ -646,6 +660,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 					<dd>
 						{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
 					</dd>
+
 					<dt>You receive</dt>
 					<dd>~{formatTokenAmount(output, 6)} USDC on {toNetwork.name}</dd>
 					<dt>Min received</dt>
@@ -694,10 +709,12 @@ import type { Wallet } from '$/data/Wallet.ts'
 					<dd>
 						{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
 					</dd>
+
 					<dt>To</dt>
 					<dd>
 						~{formatTokenAmount(selectedRoute.toAmount, 6)} USDC on {toNetwork.name}
 					</dd>
+
 					<dt>Min received</dt>
 					<dd>{formatTokenAmount(minOutput, 6)} USDC</dd>
 					<dt>Recipient</dt>
@@ -707,16 +724,19 @@ import type { Wallet } from '$/data/Wallet.ts'
 							<span class="badge warning"> Different recipient </span>
 						{/if}
 					</dd>
+
 					<dt>Protocol</dt>
 					<dd>
 						{[...new Set(selectedRoute.steps.map((st) => st.toolName))].join(
 							' → ',
 						)}
 					</dd>
+
 					<dt>Est. time</dt>
 					<dd>
 						~{Math.ceil(selectedRoute.estimatedDurationSeconds / 60)} min
 					</dd>
+
 					<dt>Slippage</dt>
 					<dd>{formatSlippagePercent(settings.slippage)}</dd>
 					{#if fees}
@@ -724,16 +744,19 @@ import type { Wallet } from '$/data/Wallet.ts'
 						<dd>~${fees.totalUsd}</dd>
 					{/if}
 				</dl>
+
 				{#if warnDifferentRecipient || warnHighSlippage || warnLargeAmount}
 					<div class="warnings" data-column>
 						{#if warnDifferentRecipient}
 							<p class="warning">Recipient is not your connected wallet.</p>
 						{/if}
+
 						{#if warnHighSlippage}
 							<p class="warning">
 								High slippage ({formatSlippagePercent(settings.slippage)}).
 							</p>
 						{/if}
+
 						{#if warnLargeAmount}
 							<p class="warning">
 								Large amount (${fromAmountUsd.toLocaleString()} USD).
@@ -783,6 +806,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 							<span data-text="muted"
 								>{formatRelativeTime(now - tx.$id.createdAt)}</span
 							>
+
 							<span
 								>{resolveNetworkName(tx.fromChainId)} → {resolveNetworkName(
 									tx.toChainId,
@@ -791,6 +815,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 							<span data-tabular
 								>{formatSmallestToDecimal(tx.fromAmount, 6)} USDC</span
 							>
+
 							<span
 								class="tag tag-{tx.status}"
 								data-row="gap-1 align-center"
@@ -798,6 +823,7 @@ import type { Wallet } from '$/data/Wallet.ts'
 								{#if tx.status === 'pending'}<Spinner size="0.75em" />{/if}
 								{tx.status}
 							</span>
+
 							<a
 								href={resolve(getTxPath(tx.fromChainId, tx.$id.sourceTxHash))}
 								target="_blank"

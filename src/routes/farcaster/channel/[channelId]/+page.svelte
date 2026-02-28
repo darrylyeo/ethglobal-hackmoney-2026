@@ -48,7 +48,7 @@
 		channelsQuery.data?.[0]?.row
 	)
 	const channelUrl = $derived(
-		channel?.url ?? `https://warpcast.com/~/channel/${channelId}`,
+		channel?.url ?? `https://warpcast.com/~/channel/${channelId}`
 	)
 
 
@@ -66,19 +66,19 @@
 	const userByFid = $derived(
 		new Map(
 			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user]),
-		),
+		)
 	)
 	const castsByChannel = $derived(
-		(castsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>),
+		(castsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>)
 	)
 	const rootCasts = $derived(
-		castsByChannel.filter((c) => !c.parentFid || !c.parentHash),
+		castsByChannel.filter((c) => !c.parentFid || !c.parentHash)
 	)
 	const castsSet = $derived(
 		new Set(rootCasts)
 	)
 	const placeholderKeys = $derived(
-		new Set<string | [number, number]>(['loading']),
+		new Set<string | [number, number]>(['loading'])
 	)
 
 
@@ -137,8 +137,8 @@
 			titleHref="/farcaster/channel/{encodeURIComponent(channel.$id.id)}"
 			label={channel.name}
 			metadata={
-				channel.followerCount != null
-					? [{ term: 'Followers', detail: String(channel.followerCount) }]
+				channel.followerCount != null ?
+					[{ term: 'Followers', detail: String(channel.followerCount) }]
 					: undefined
 			}
 		>

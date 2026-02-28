@@ -27,19 +27,19 @@
 
 	// (Derived)
 	const swapParams = $derived(
-		params && flow === 'swap' ? (params as SwapParams) : null,
+		params && flow === 'swap' ? (params as SwapParams) : null
 	)
 	const bridgeParams = $derived(
-		params && flow === 'bridge' ? (params as BridgeParams) : null,
+		params && flow === 'bridge' ? (params as BridgeParams) : null
 	)
 	const canFetch = $derived(
 		!!fromAddress &&
 		(flow === 'swap'
 			? (swapParams?.amount ?? 0n) > 0n
-			: (bridgeParams?.amount ?? 0n) > 0n),
+			: (bridgeParams?.amount ?? 0n) > 0n)
 	)
 	const validUntilFormatted = $derived(
-		quote ? new Date(quote.validUntil * 1000).toISOString() : '',
+		quote ? new Date(quote.validUntil * 1000).toISOString() : ''
 	)
 
 	// Actions
@@ -62,10 +62,11 @@
 				quote = q
 				if (!q) error = 'No quote returned'
 			} else if (flow === 'bridge' && bridgeParams) {
-				const toAddr: `0x${string}` =
+				const toAddr: `0x${string}` = (
 					bridgeParams.useCustomRecipient && bridgeParams.customRecipient
 						? (bridgeParams.customRecipient as `0x${string}`)
 						: fromAddress
+				)
 				const q = await getIntentsBridgeQuote({
 					fromChainId: bridgeParams.fromChainId!,
 					toChainId: bridgeParams.toChainId!,
@@ -93,16 +94,20 @@
 		>
 			{fetching ? 'Fetching…' : 'Fetch quote'}
 		</button>
+
 		{#if error}
 			<p data-text="muted">{error}</p>
 		{/if}
+
 		{#if quote}
 			<p data-text="muted">
 				Quote ID: {quote.quoteId}. Valid until: {validUntilFormatted}
 			</p>
+
 			<p data-text="muted">
 				Inputs: {quote.preview.inputs.length}. Outputs: {quote.preview.outputs.length}.
 			</p>
+
 			<button type="button" disabled>
 				Confirm (placeholder)
 			</button>

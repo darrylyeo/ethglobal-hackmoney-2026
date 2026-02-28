@@ -37,6 +37,7 @@
 			</BitsTabs.Trigger>
 		{/each}
 	</BitsTabs.List>
+
 	{#each tabs as tab (tab.id)}
 		<BitsTabs.Content
 			value={tab.id}

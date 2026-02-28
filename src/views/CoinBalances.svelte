@@ -114,7 +114,7 @@
 		[() => normalizedBalanceTokens],
 	)
 	const filteredTokenListCoins = $derived(
-		(tokenListQuery.data ?? []).map(({ token }) => token),
+		(tokenListQuery.data ?? []).map(({ token }) => token)
 	)
 	const fallbackTokens = $derived(
 		balanceTokens
@@ -123,7 +123,7 @@
 					.get(token.chainId)
 					?.find((t) => t.$id.address === token.tokenAddress),
 			)
-			.flatMap((t) => (t ? [t] : [])),
+			.flatMap((t) => (t ? [t] : []))
 	)
 	const tokensToFetch = $derived(
 		normalizedBalanceTokens
@@ -132,7 +132,7 @@
 					.get(token.chainId)
 					?.find((t) => t.$id.address === token.tokenAddress),
 			)
-			.filter((t): t is Erc20Token => t != null),
+			.filter((t): t is Erc20Token => t != null)
 	)
 	const displayTokens = $derived(
 		(filteredTokenListCoins.length > 0
@@ -148,15 +148,15 @@
 				name: 'name' in token ? token.name : token.symbol,
 				logoURI: 'logoURI' in token ? token.logoURI : undefined,
 			}
-		}),
+		})
 	)
 	const skeletonTokens = $derived(
-		displayTokens.length > 0 ? displayTokens.slice(0, 6) : [],
+		displayTokens.length > 0 ? displayTokens.slice(0, 6) : []
 	)
 	const skeletonRows: (DisplayToken | null)[] = $derived(
 		skeletonTokens.length > 0
 			? skeletonTokens
-			: Array.from({ length: 6 }, () => null),
+			: Array.from({ length: 6 }, () => null)
 	)
 	const balanceTokenListCoins = $derived(
 		displayTokens.map((token) => ({
@@ -164,16 +164,16 @@
 			address: token.address,
 			symbol: token.symbol,
 			decimals: token.decimals,
-		})),
+		}))
 	)
 	const networkFilterOptions = $derived(
 		[...new Set(balanceTokenListCoins.map((t) => t.chainId))].map((chainId) => ({
 			chainId,
 			name: networksByChainId[chainId]?.name ?? `Chain ${chainId}`,
-		})),
+		}))
 	)
 	const symbolFilterOptions = $derived(
-		[...new Set(balanceTokenListCoins.map((t) => t.symbol))].sort(),
+		[...new Set(balanceTokenListCoins.map((t) => t.symbol))].sort()
 	)
 	const networkFilters = $derived(
 		networkFilterOptions.map(({ chainId, name }) => ({
@@ -182,17 +182,17 @@
 			filterFunction: (balance: BalanceFilterItem) => (
 				balance.$id.$actor.$network.chainId === chainId
 			),
-		})),
+		}))
 	)
 	const coinFilters = $derived(
 		symbolFilterOptions.map((symbol) => ({
 			id: symbol,
 			label: symbol,
 			filterFunction: (balance: BalanceFilterItem) => balance.symbol === symbol,
-		})),
+		}))
 	)
 	const accountsForFilters = $derived(
-		availableAccounts.length > 0 ? availableAccounts : (actorId ? [actorId.address] : []),
+		availableAccounts.length > 0 ? availableAccounts : (actorId ? [actorId.address] : [])
 	)
 	const accountFilters = $derived(
 		accountsForFilters.map((address) => ({
@@ -201,7 +201,7 @@
 			filterFunction: (balance: BalanceFilterItem) => (
 				balance.$id.$actor.address === address
 			),
-		})),
+		}))
 	)
 	const networkFilterIds = $derived(
 		new Set(networkFilters.map((f) => f.id))
@@ -216,29 +216,29 @@
 		[...activeFilters]
 			.filter((f) => networkFilterIds.has(f.id))
 			.map((f) => Number(f.id))
-			.filter((n) => !Number.isNaN(n)),
+			.filter((n) => !Number.isNaN(n))
 	)
 	const filterSymbols = $derived(
-		[...activeFilters].filter((f) => coinFilterIds.has(f.id)).map((f) => f.id),
+		[...activeFilters].filter((f) => coinFilterIds.has(f.id)).map((f) => f.id)
 	)
 	const filterAddresses = $derived(
 		[...activeFilters]
 			.filter((f) => accountFilterIds.has(f.id))
-			.map((f) => f.id as `0x${string}`),
+			.map((f) => f.id as `0x${string}`)
 	)
 	const actors = $derived(
 		filterAddresses.length > 0
 			? filterAddresses
 			: actorId
 				? [actorId.address]
-				: [],
+				: []
 	)
 	const balancesQuery = useLiveQuery(
 		(q) =>
 			q
 				.from({ balance: actorCoinsCollection })
 				.where(({ balance }) => {
-					const addrCondition =
+					const addrCondition = (
 						actors.length === 0
 							? and(
 									eq(balance.$id.$actor.address, '0x0000000000000000000000000000000000000000'),
@@ -249,7 +249,8 @@
 								: actors
 										.map((a) => eq(balance.$id.$actor.address, a))
 										.reduce((acc, cond) => or(acc, cond))
-					const tokenCondition =
+					)
+					const tokenCondition = (
 						displayTokens.length > 0
 							? displayTokens
 									.map((token) =>
@@ -263,18 +264,21 @@
 									eq(balance.$id.$actor.$network.chainId, -1),
 									eq(balance.$id.$actor.$network.chainId, 0),
 								)
-					const chainCondition =
+					)
+					const chainCondition = (
 						filterChainIdsNum.length > 0
 							? filterChainIdsNum
 									.map((c) => eq(balance.$id.$actor.$network.chainId, c))
 									.reduce((acc, cond) => or(acc, cond))
 							: null
-					const symbolCondition =
+					)
+					const symbolCondition = (
 						filterSymbols.length > 0
 							? filterSymbols
 									.map((s) => eq(balance.symbol, s))
 									.reduce((acc, cond) => or(acc, cond))
 							: null
+					)
 					return and(
 						addrCondition,
 						tokenCondition,
@@ -339,27 +343,27 @@
 						(balance.balance * priceRow.price) / 10n ** BigInt(balance.decimals)
 					)
 				}, 0n)
-			: null,
+			: null
 	)
 	const singleNetwork = $derived(
-		filterChainIdsNum.length === 1 ? filterChainIdsNum[0] : null,
+		filterChainIdsNum.length === 1 ? filterChainIdsNum[0] : null
 	)
 	const singleSymbol = $derived(
-		filterSymbols.length === 1 ? filterSymbols[0] : null,
+		filterSymbols.length === 1 ? filterSymbols[0] : null
 	)
 	const singleAddress = $derived(
-		filterAddresses.length === 1 ? filterAddresses[0] : null,
+		filterAddresses.length === 1 ? filterAddresses[0] : null
 	)
 	const hasAnyFilter = $derived(
 		filterChainIdsNum.length > 0 ||
 			filterSymbols.length > 0 ||
-			filterAddresses.length > 0,
+			filterAddresses.length > 0
 	)
 	const useDynamicTitle = $derived(
 		hasAnyFilter &&
 			filterChainIdsNum.length <= 1 &&
 			filterSymbols.length <= 1 &&
-			filterAddresses.length <= 1,
+			filterAddresses.length <= 1
 	)
 	const balanceSortOptions = $derived(
 		[
@@ -417,7 +421,7 @@
 					return va > vb ? 1 : va < vb ? -1 : 0
 				},
 			},
-		] as Sort<WithSource<ActorCoin>, ActorCoinSort>[],
+		] as Sort<WithSource<ActorCoin>, ActorCoinSort>[]
 	)
 	const hasSortOptions = $derived(
 		balanceSortOptions.length > 1
@@ -428,16 +432,18 @@
 	const balancesTitlePrefix = $derived(
 		useDynamicTitle
 			? (() => {
-					const symbolPart =
+					const symbolPart = (
 						singleSymbol !== null ? `${singleSymbol} Balances` : 'Balances'
-					const networkPart =
+					)
+					const networkPart = (
 						singleNetwork !== null
 							? ` on ${networksByChainId[singleNetwork]?.name ?? `Chain ${singleNetwork}`}`
 							: ''
+					)
 					const accountPart = singleAddress !== null ? ' for ' : ''
 					return symbolPart + networkPart + accountPart
 				})()
-			: 'Balances',
+			: 'Balances'
 	)
 
 
@@ -494,6 +500,7 @@
 						</h3>
 
 						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+
 						<div
 							class="balances-filters"
 							role="group"
@@ -533,6 +540,7 @@
 									ariaLabel="Filter by coin"
 								/>
 							{/snippet}
+
 							<Filters
 								items={balances}
 								filterGroups={[
@@ -588,6 +596,7 @@
 				</div>
 			</div>
 		{/snippet}
+
 		<Collapsible
 			title={balancesTitlePrefix}
 			Summary={BalancesSummary}
@@ -634,6 +643,7 @@
 									{:else}
 										<Skeleton width="2.5em" height="1.25em" rounded="0.25em" />
 									{/if}
+
 									<Skeleton width="5em" height="1.25em" rounded="0.25em" />
 								</div>
 							</div>
@@ -647,7 +657,9 @@
 									entry.chainId === b.$id.$coin.$network.chainId &&
 									entry.address === b.$id.$coin.address,
 							)}
+
 							{@const assetId = getStorkAssetIdForSymbol(b.symbol)}
+
 							{@const priceRow = assetId
 								? getBestStorkPrice(prices, assetId, b.$id.$actor.$network.chainId)
 								: null}
@@ -681,6 +693,7 @@
 										decimals: b.decimals,
 									}}
 							{@const network = networksByChainId[b.$id.$actor.$network.chainId]}
+
 							{#if network}
 								<div
 									class="balance-item"
@@ -704,6 +717,7 @@
 											</span>
 										{/if}
 									</dt>
+
 									{#if b.isLoading}
 										<span class="balance-loading" data-row="start" aria-busy="true">
 											<Skeleton width="6em" height="1.25em" rounded="0.25em" />
@@ -764,6 +778,7 @@
 									{:else}
 										<Skeleton width="2.5em" height="1.25em" rounded="0.25em" />
 									{/if}
+
 									<Skeleton width="5em" height="1.25em" rounded="0.25em" />
 								</div>
 							</div>

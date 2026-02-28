@@ -14,7 +14,7 @@
 	const txShort = $derived(
 		transaction.txHash.length > 14 ?
 			`${transaction.txHash.slice(0, 10)}…${transaction.txHash.slice(-8)}`
-		: transaction.txHash,
+		: transaction.txHash
 	)
 </script>
 
@@ -28,6 +28,7 @@
 		{:else}
 			<span data-text="muted">{txShort}</span>
 		{/if}
+
 		<span data-text="muted">chain {transaction.chainId}</span>
 		<time datetime={new Date(transaction.createdAt).toISOString()}>
 			{new Date(transaction.createdAt).toLocaleString(undefined, {

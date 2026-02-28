@@ -77,10 +77,10 @@
 		getCctpTokenMessenger(fromChainId, isTestnet)
 	)
 	const messageTransmitterDest = $derived(
-		getCctpMessageTransmitter(toChainId, isTestnet),
+		getCctpMessageTransmitter(toChainId, isTestnet)
 	)
 	const burnToken = $derived(
-		fromChainId !== null ? getUsdcAddress(fromChainId) : null,
+		fromChainId !== null ? getUsdcAddress(fromChainId) : null
 	)
 	const destinationDomain = $derived(
 		getCctpDomainId(toChainId)
@@ -90,9 +90,9 @@
 	)
 
 	const apiHost = $derived(
-		isTestnet
-			? 'https://iris-api-sandbox.circle.com'
-			: 'https://iris-api.circle.com',
+		isTestnet ?
+			'https://iris-api-sandbox.circle.com'
+			: 'https://iris-api.circle.com'
 	)
 
 
@@ -241,12 +241,14 @@
 		>
 			Burn on source chain {burnTxHash ? `(${burnTxHash.slice(0, 10)}…)` : ''}
 		</li>
+
 		<li
 			class="cctp-status-step"
 			class:done={attestationPayload !== null}
 		>
 			Attestation {attestationPayload ? 'ready' : 'pending…'}
 		</li>
+
 		<li
 			class="cctp-status-step"
 			class:done={mintTxHash !== null}
@@ -256,6 +258,7 @@
 				: ''}
 		</li>
 	</ol>
+
 	{#if error}
 		<small data-error>{error}</small>
 	{/if}

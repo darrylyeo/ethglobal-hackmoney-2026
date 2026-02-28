@@ -42,6 +42,7 @@
 			<span>{triggerLabel}</span>
 		{/if}
 	</Tooltip.Trigger>
+
 	{#if Content || content}
 		<Tooltip.Portal {...portalProps}>
 			<Tooltip.Content {...contentProps}>
@@ -50,6 +51,7 @@
 				{:else}
 					{content}
 				{/if}
+
 				<Tooltip.Arrow />
 			</Tooltip.Content>
 		</Tooltip.Portal>

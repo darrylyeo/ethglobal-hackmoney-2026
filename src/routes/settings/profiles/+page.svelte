@@ -21,22 +21,22 @@
 	// State
 	import { getNetworkEnvironment } from '$/state/network-environment.svelte.ts'
 	let activeProfile = $state(
-		getActiveProfile(),
+		getActiveProfile()
 	)
 	let editingEmoji = $state(
-		'',
+		''
 	)
 	let editingId = $state<string | undefined>(
 		undefined,
 	)
 	let editingName = $state(
-		'',
+		''
 	)
 	let importError = $state<string | null>(
 		null,
 	)
 	let profiles = $state(
-		listProfiles(),
+		listProfiles()
 	)
 
 
@@ -133,12 +133,14 @@
 						}}
 					>
 						<Avatar name={editingName} emoji={editingEmoji} size="2rem" />
+
 						<input
 							type="text"
 							bind:value={editingName}
 							placeholder="Name"
 							class="profile-edit-input"
 						/>
+
 						<input
 							type="text"
 							bind:value={editingEmoji}
@@ -148,6 +150,7 @@
 						/>
 						<span class="profile-actions">
 							<button type="submit">Save</button>
+
 							<button
 								type="button"
 								onclick={() => { editingId = undefined }}
@@ -165,6 +168,7 @@
 						<Avatar name={profile.name} emoji={profile.emoji} size="2rem" />
 						<span class="profile-info">
 							<span class="profile-name">{profile.name}</span>
+
 							<time
 								datetime={new Date(profile.createdAt).toISOString()}
 								class="profile-created"
@@ -172,10 +176,12 @@
 								{formatRelativeTime(Date.now() - profile.createdAt)}
 							</time>
 						</span>
+
 						{#if profile.id === activeProfile.id}
 							<span data-tag>Active</span>
 						{/if}
 					</button>
+
 					<span class="profile-actions">
 						<button
 							type="button"
@@ -184,6 +190,7 @@
 						>
 							&#x270E;
 						</button>
+
 						<button
 							type="button"
 							aria-label="Export {profile.name}"
@@ -191,6 +198,7 @@
 						>
 							&#x21E9;
 						</button>
+
 						{#if profiles.length > 1}
 							<button
 								type="button"
@@ -210,6 +218,7 @@
 		<button type="button" onclick={onCreate}>
 			+ New Profile
 		</button>
+
 		<button type="button" onclick={onImport}>
 			Import profile
 		</button>

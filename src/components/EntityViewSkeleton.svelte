@@ -14,6 +14,7 @@
 					</div>
 				</div>
 			</div>
+
 			<div data-row>
 				<Skeleton width="6ch" height="1em" rounded="0.25em" />
 			</div>
@@ -25,6 +26,7 @@
 			<div data-card data-row class="loading">
 				<Skeleton width="100%" height="4em" rounded="0.5em" />
 			</div>
+
 			<div data-card data-row class="loading">
 				<Skeleton width="100%" height="6em" rounded="0.5em" />
 			</div>

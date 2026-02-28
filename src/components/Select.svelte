@@ -55,7 +55,7 @@
 			id: getItemId(item),
 			label: getItemLabel(item),
 			disabled: getItemDisabled ? getItemDisabled(item) : false,
-		})),
+		}))
 	)
 	const normalizedGroups = $derived(
 		getItemGroupId ?
@@ -78,7 +78,7 @@
 				})),
 			}))
 		:
-			[],
+			[]
 	)
 
 
@@ -110,17 +110,20 @@
 		{@render children()}
 	{:else}
 		{@const selectedId = value != null ? getItemId(value) : ''}
+
 		<Select.Trigger id={id ?? _id} aria-label={ariaLabel}>
 			<span data-row>
 				{#if Before}
 					{@render Before()}
 				{/if}
+
 				<span>{normalizedItems.find((item) => item.id === selectedId)?.label ?? placeholder ?? ''}</span>
 				{#if After}
 					{@render After()}
 				{/if}
 			</span>
 		</Select.Trigger>
+
 		<Select.Portal>
 			<Select.Content>
 				<Select.Viewport>
@@ -143,6 +146,7 @@
 														{item.label}
 													{/if}
 												</span>
+
 												<span
 													class="select-item-check"
 													aria-hidden="true"
@@ -158,30 +162,31 @@
 						{/each}
 					{:else}
 						{#each normalizedItems as item (item.id)}
-									<Select.Item
-										value={item.id}
-										label={item.label}
-										disabled={item.disabled}
-									>
-										{#snippet children({ selected })}
-											<span data-row="start gap-1">
-												<span data-row-item="flexible">
-													{#if ItemSnippet}
-														{@render ItemSnippet(item.item, selected)}
-													{:else}
-														{item.label}
-													{/if}
-												</span>
-												<span
-													class="select-item-check"
-													aria-hidden="true"
-													data-selected={selected}
-												>
-													✓
-												</span>
-											</span>
-										{/snippet}
-									</Select.Item>
+							<Select.Item
+								value={item.id}
+								label={item.label}
+								disabled={item.disabled}
+							>
+								{#snippet children({ selected })}
+									<span data-row="start gap-1">
+										<span data-row-item="flexible">
+											{#if ItemSnippet}
+												{@render ItemSnippet(item.item, selected)}
+											{:else}
+												{item.label}
+											{/if}
+										</span>
+
+										<span
+											class="select-item-check"
+											aria-hidden="true"
+											data-selected={selected}
+										>
+											✓
+										</span>
+									</span>
+								{/snippet}
+							</Select.Item>
 						{/each}
 					{/if}
 				</Select.Viewport>

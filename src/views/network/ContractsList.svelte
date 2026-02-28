@@ -42,7 +42,7 @@
 		new Set(precompiles.map((p) => norm(p.address)))
 	)
 	const otherContracts = $derived(
-		contracts.filter((c) => !precompileAddrs.has(norm(c.$id.address))),
+		contracts.filter((c) => !precompileAddrs.has(norm(c.$id.address)))
 	)
 	type DisplayItem = { address: `0x${string}`; name: string | null; precompile: boolean }
 	const displayItems = $derived<DisplayItem[]>([

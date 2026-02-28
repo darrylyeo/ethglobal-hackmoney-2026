@@ -42,11 +42,13 @@
 			></span>
 		{/if}
 	</span>
+
 	<span data-peer-name>{name}</span>
 	{#if showStatus}
 		<span data-tag={peer.isConnected ? 'Connected' : 'Disconnected'}>
 			{peer.isConnected ? 'Connected' : 'Disconnected'}
 		</span>
+
 		{#if peer.isConnected && peer.connectedAt != null}
 			<small>
 				since <Timestamp

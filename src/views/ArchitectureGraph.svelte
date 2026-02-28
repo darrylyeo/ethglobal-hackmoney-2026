@@ -111,8 +111,8 @@
 				{ key: 'out', x: 1, y: 0.5 },
 			],
 			style:
-				node.shape === 'image' && node.icon
-					? { ...style, src: node.icon }
+				node.shape === 'image' && node.icon ?
+					{ ...style, src: node.icon }
 					: style,
 		}
 	}
@@ -122,8 +122,8 @@
 		theme: { text: string; bgSubtle: string },
 	) => {
 		const labelFill = theme.text || (prefersDark ? '#e2e8f0' : '#0f172a')
-		const labelBackgroundFill = prefersDark
-			? 'rgba(15, 23, 42, 0.9)'
+		const labelBackgroundFill = prefersDark ?
+			'rgba(15, 23, 42, 0.9)'
 			: 'rgba(255, 255, 255, 0.9)'
 		const isPrimary = edge.priority === 'primary'
 		return {
@@ -169,13 +169,13 @@
 		edges: EdgeData[]
 		combos: { id: string }[]
 	}) =>
-		selection.nodes.length > 0
-			? selection.nodes.map((node) => node.data?.label ?? node.id).join(', ')
-			: selection.edges.length > 0
-				? selection.edges.map((edge) => edge.data?.label ?? edge.id).join(', ')
-				: selection.combos.length > 0
-					? selection.combos.map((combo) => combo.id).join(', ')
-					: 'No selection'
+		selection.nodes.length > 0 ?
+			selection.nodes.map((node) => node.data?.label ?? node.id).join(', ')
+			: selection.edges.length > 0 ?
+				selection.edges.map((edge) => edge.data?.label ?? edge.id).join(', ')
+			: selection.combos.length > 0 ?
+				selection.combos.map((combo) => combo.id).join(', ')
+			: 'No selection'
 
 
 	// State
@@ -184,19 +184,19 @@
 		architectureGraphPromise.then((g) => (graph = g))
 	})
 	const nodeById = $derived(
-		graph
-			? new Map(graph.nodes.map((node) => [node.id, node]))
-			: new Map<string, ArchitectureNode>(),
+		graph ?
+			new Map(graph.nodes.map((node) => [node.id, node]))
+			: new Map<string, ArchitectureNode>()
 	)
 	const edgeById = $derived(
-		graph
-			? new Map(graph.edges.map((edge) => [edge.id, edge]))
-			: new Map<string, ArchitectureEdge>(),
+		graph ?
+			new Map(graph.edges.map((edge) => [edge.id, edge]))
+			: new Map<string, ArchitectureEdge>()
 	)
 	const comboById = $derived(
-		graph
-			? new Map(graph.combos.map((combo) => [combo.id, combo]))
-			: new Map<string, { id: string; label: string; color: string }>(),
+		graph ?
+			new Map(graph.combos.map((combo) => [combo.id, combo]))
+			: new Map<string, { id: string; label: string; color: string }>()
 	)
 
 
@@ -225,9 +225,9 @@
 
 	// (Derived)
 	const selectionAnnouncement = $derived(
-		selectedItem
-			? `Selected ${selectedItem.kind}: ${selectedItem.label}`
-			: 'Selection cleared',
+		selectedItem ?
+			`Selected ${selectedItem.kind}: ${selectedItem.label}`
+			: 'Selection cleared'
 	)
 </script>
 
@@ -239,6 +239,7 @@
 			style:height
 		>
 			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+
 			<div
 				class="architecture-graph__canvas"
 				role="application"
@@ -289,12 +290,14 @@
 				const comboAnchors = Array.from(comboAnchorIds.entries()).map(
 					([comboId, anchorId]) => {
 						const nodes = nodesByCombo.get(comboId) ?? []
-						const x =
+						const x = (
 							nodes.reduce((sum, node) => sum + node.x, 0) /
 							Math.max(nodes.length, 1)
-						const y =
+						)
+						const y = (
 							nodes.reduce((sum, node) => sum + node.y, 0) /
 							Math.max(nodes.length, 1)
+						)
 						return {
 							id: anchorId,
 							type: 'circle',
@@ -696,6 +699,7 @@
 						Relation: {hoveredItem.relation}
 					</p>
 				{/if}
+
 				{#if hoveredItem.details}
 					<dl>
 						{#each Object.entries(hoveredItem.details) as [key, value] (key)}
@@ -714,6 +718,7 @@
 						Relation: {selectedItem.relation}
 					</p>
 				{/if}
+
 				{#if selectedItem.details}
 					<dl>
 						{#each Object.entries(selectedItem.details) as [key, value] (key)}
@@ -731,12 +736,14 @@
 			{/if}
 		</aside>
 	</div>
+
 	{/if}
 
 	{#snippet Error(error, reset)}
 		<div data-card>
 			<h3>Architecture graph error</h3>
 			<p>{error instanceof Error ? error.message : String(error)}</p>
+
 			<button
 				type="button"
 				onclick={reset}

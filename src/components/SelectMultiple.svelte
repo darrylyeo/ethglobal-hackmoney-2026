@@ -63,7 +63,7 @@
 			id: getItemId(item),
 			label: getItemLabel(item),
 			disabled: getItemDisabled ? getItemDisabled(item) : false,
-		})),
+		}))
 	)
 	const normalizedGroups = $derived(
 		getItemGroupId
@@ -86,22 +86,23 @@
 							disabled: getItemDisabled ? getItemDisabled(item) : false,
 						})),
 					}))
-			: [],
+			: []
 	)
 	const triggerLabel = $derived(
-		(value ?? []).length === 0
-			? (placeholder ?? '')
-			: (value ?? [])
+		(value ?? []).length === 0 ?
+			(placeholder ?? '')
+		:
+			(value ?? [])
 					.map((entry) => getItemId(entry))
 					.map((id) => normalizedItems.find((item) => item.id === id)?.label ?? '')
-					.join(', '),
+					.join(', ')
 	)
 	const rootItems = $derived(
 		normalizedItems.map((item) => ({
 			value: item.id,
 			label: item.label,
 			disabled: item.disabled,
-		})),
+		}))
 	)
 
 
@@ -134,12 +135,14 @@
 				{#if Before}
 					{@render Before()}
 				{/if}
+
 				<span>{triggerLabel}</span>
 				{#if After}
 					{@render After()}
 				{/if}
 			</span>
 		</Select.Trigger>
+
 		<Select.Portal>
 			<Select.Content>
 				<Select.Viewport>
@@ -162,6 +165,7 @@
 												>
 													✓
 												</span>
+
 												{#if ItemSnippet}
 													{@render ItemSnippet(item.item, selected)}
 												{:else}
@@ -189,6 +193,7 @@
 										>
 											✓
 										</span>
+
 										{#if ItemSnippet}
 											{@render ItemSnippet(item.item, selected)}
 										{:else}
@@ -217,3 +222,4 @@
 		visibility: visible;
 	}
 </style>
+

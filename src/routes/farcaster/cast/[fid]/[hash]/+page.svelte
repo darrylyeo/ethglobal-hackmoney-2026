@@ -37,7 +37,7 @@
 	const hash = $derived(
 		hashParam?.startsWith('0x')
 			? (hashParam as `0x${string}`)
-			: (`0x${hashParam}` as `0x${string}`),
+			: (`0x${hashParam}` as `0x${string}`)
 	)
 
 
@@ -68,13 +68,13 @@
 		castQuery.data?.[0]?.row as WithSource<FarcasterCast> | undefined
 	)
 	const allCasts = $derived(
-		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>),
+		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>)
 	)
 	const replies = $derived(
 		allCasts.filter((c) =>
 			c.parentFid === fid
 			&& c.parentHash === hash,
-		),
+		)
 	)
 
 
@@ -111,12 +111,12 @@
 	const showContext = $derived(
 		cast
 			? getCastContextPath(cast)
-			: null,
+			: null
 	)
 	const userByFid = $derived(
 		new Map(
 			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user]),
-		),
+		)
 	)
 
 
@@ -234,11 +234,11 @@
 						{
 							term: 'Engagement',
 							detail: [
-								...(cast.likeCount != null && cast.likeCount > 0
-									? [`${cast.likeCount} like${cast.likeCount !== 1 ? 's' : ''}`]
+								...(cast.likeCount != null && cast.likeCount > 0 ?
+									[`${cast.likeCount} like${cast.likeCount !== 1 ? 's' : ''}`]
 									: []),
-								...(cast.recastCount != null && cast.recastCount > 0
-									? [`${cast.recastCount} recast${cast.recastCount !== 1 ? 's' : ''}`]
+								...(cast.recastCount != null && cast.recastCount > 0 ?
+									[`${cast.recastCount} recast${cast.recastCount !== 1 ? 's' : ''}`]
 									: []),
 							].join(', ') || '—',
 						},
@@ -253,6 +253,7 @@
 						<a href={showContext.href} data-link>Show Context</a>
 					</p>
 				{/if}
+
 				{#if isReply && rootCast}
 					<details open>
 						<summary>In thread</summary>
@@ -260,6 +261,7 @@
 							<span id={castAnchorId(rootCast.$id.fid, rootCast.$id.hash)}>
 								<FarcasterCastView cast={rootCast} {userByFid} isCompact />
 							</span>
+
 							<Tree
 								items={getChildren(rootCast)}
 								getKey={(n) => `${n.$id.fid}:${n.$id.hash}`}
@@ -276,6 +278,7 @@
 						</div>
 					</details>
 				{/if}
+
 				<p>{cast.text}</p>
 				{#if cast.embeds?.length}
 					<ul data-column>
@@ -290,6 +293,7 @@
 										c.$id.fid === embed.castId!.fid &&
 										c.$id.hash === embed.castId!.hash,
 								)}
+
 								<li>
 									{#if quotedCast}
 										<EntityView
@@ -318,9 +322,11 @@
 						{/each}
 					</ul>
 				{/if}
+
 				{#if replies.length > 0}
 					<details open>
 						<summary>Replies ({replies.length})</summary>
+
 						<Tree
 							items={replies}
 							getKey={(n) => `${n.$id.fid}:${n.$id.hash}`}
@@ -334,6 +340,7 @@
 								</span>
 							{/snippet}
 						</Tree>
+
 						<PaginationPlaceholder
 							hasMore={!!repliesNextToken}
 							onLoadMore={loadMoreReplies}
@@ -342,6 +349,7 @@
 						/>
 					</details>
 				{/if}
+
 				</div>
 			{/snippet}
 		</EntityView>

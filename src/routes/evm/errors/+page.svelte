@@ -67,6 +67,7 @@
 		<p>Failed to load errors.</p>
 	{:else}
 		<p>{displayCount} entries</p>
+
 		<RefinableList
 			items={rows}
 			filterGroups={[]}
@@ -86,6 +87,7 @@
 			{#snippet Item({ key: _k, item: entry, isPlaceholder, searchQuery: q, matches })}
 				{#if !isPlaceholder && entry != null}
 					{@const label = entry.signatures[0] ?? entry.$id.hex}
+
 					<EntityView
 						entityType={EntityType.EvmError}
 						entity={entry}

@@ -61,7 +61,7 @@
 
 	// (Derived)
 	const dbSession = $derived(
-		(sessionQuery.data?.[0]?.row as Session | undefined) ?? null,
+		(sessionQuery.data?.[0]?.row as Session | undefined) ?? null
 	)
 	const sessionQueryResolved = $derived(
 		sessionQuery.data !== undefined
@@ -69,12 +69,12 @@
 	const sessionActions = $derived(
 		(sessionActionsQuery.data ?? [])
 			.map(({ sessionAction: action }) => action)
-			.sort((a, b) => a.indexInSequence - b.indexInSequence),
+			.sort((a, b) => a.indexInSequence - b.indexInSequence)
 	)
 	const mergedActions = $derived(
 		sessionActions.length > 0
 			? sessionActions.map((r) => r.action)
-			: dbSession?.actions ?? [],
+			: dbSession?.actions ?? []
 	)
 	const sessionFromDb = $derived.by(() => {
 		if (!dbSession) return null
@@ -120,14 +120,12 @@
 	const pageTitle = $derived(
 		activeSession
 			? (activeSession.name ?? formatSessionPlaceholderName(activeSession.actions))
-			: 'Session',
+			: 'Session'
 	)
-	const pendingSessionCommand = $derived(
-		(() => {
-			const cmd = getSessionCommand()
-			return cmd && cmd.sessionId === sessionId ? cmd.command : null
-		})(),
-	)
+	const pendingSessionCommand = $derived.by(() => {
+		const cmd = getSessionCommand()
+		return cmd && cmd.sessionId === sessionId ? cmd.command : null
+	})
 
 
 	// Components
@@ -160,10 +158,12 @@
 				<div data-row="start" data-row-item="flexible">
 					<h1>Session</h1>
 				</div>
+
 				<div data-row>
 					<span data-text="annotation">Session</span>
 				</div>
 			</header>
+
 			<p data-text="muted">Loading session…</p>
 		</section>
 	{/if}

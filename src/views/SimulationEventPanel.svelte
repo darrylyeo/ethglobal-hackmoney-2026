@@ -38,7 +38,7 @@
 						ev.address.toLowerCase().includes(contractFilter.toLowerCase())) &&
 					(!selectorFilter ||
 						(ev.topics[0] ?? '').toLowerCase().includes(selectorFilter.toLowerCase())),
-			),
+			)
 	)
 
 
@@ -55,7 +55,9 @@
 			<button type="button" onclick={() => (showRaw = !showRaw)}>
 				{showRaw ? 'Decoded' : 'Raw'}
 			</button>
+
 			<label for="events-contract" class="sr-only">Filter by contract</label>
+
 			<input
 				id="events-contract"
 				type="text"
@@ -64,6 +66,7 @@
 				data-input
 			/>
 			<label for="events-selector" class="sr-only">Filter by selector</label>
+
 			<input
 				id="events-selector"
 				type="text"
@@ -73,6 +76,7 @@
 			/>
 		</div>
 	</header>
+
 	{#if filteredList.length === 0}
 		<p data-text="muted">No events.</p>
 	{:else}
@@ -87,6 +91,7 @@
 							>
 						{/if}
 					</div>
+
 					{#if ev.topics?.length}
 						<div data-column="gap-1">
 							<span data-text="muted">Topics</span>
@@ -95,6 +100,7 @@
 							{/each}
 						</div>
 					{/if}
+
 					{#if ev.data}
 						<div data-column="gap-1">
 							<span data-text="muted">Data</span>

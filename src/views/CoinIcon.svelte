@@ -49,8 +49,8 @@
 	{size}
 	shape={IconShape.Circle}
 	{backgroundColor}
-	subicon={subicon
-		? { ...subicon, shape: subicon.shape ?? IconShape.Circle }
+	subicon={subicon ?
+		{ ...subicon, shape: subicon.shape ?? IconShape.Circle }
 		: undefined}
 	class={className}
 />

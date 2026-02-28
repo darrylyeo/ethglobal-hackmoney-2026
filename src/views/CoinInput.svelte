@@ -34,18 +34,16 @@
 		`${coin.$id.$network.chainId}-${coin.type}-${
 			coin.type === CoinInstanceType.NativeCurrency ? 'native' : coin.$id.address
 		}`
-	const iconUrls = $derived(
-		(() => {
-			const ids = new Set([
-				...(value?.coinId != null ? [value.coinId] : []),
-				...coins.map((c) => c.coinId),
-			])
-			const ethIcon = coinById[CoinId.ETH]?.icon ?? ''
-			return Object.fromEntries(
-				[...ids].map((id) => [id, coinById[id]?.icon ?? ethIcon]),
-			)
-		})(),
-	)
+	const iconUrls = $derived.by(() => {
+		const ids = new Set([
+			...(value?.coinId != null ? [value.coinId] : []),
+			...coins.map((c) => c.coinId),
+		])
+		const ethIcon = coinById[CoinId.ETH]?.icon ?? ''
+		return Object.fromEntries(
+			[...ids].map((id) => [id, coinById[id]?.icon ?? ethIcon]),
+		)
+	})
 	const coinIconUrl = (coin: CoinInstance) =>
 		(coin.coinId != null ? iconUrls[coin.coinId] : undefined) ??
 		coin.icon?.original?.url ??
@@ -74,6 +72,7 @@
 	{#snippet Before()}
 		{#if value}
 			{@const iconUrl = coinIconUrl(value)}
+
 			{#if iconUrl}
 				<span class="coin-input-icon">
 					<CoinIcon
@@ -90,7 +89,9 @@
 
 	{#snippet Item(coin, selected)}
 		{@const iconUrl = coinIconUrl(coin)}
+
 		{@const symbol = coin.symbol}
+
 		<span data-row="start" class="coin-input-item" data-selected={selected}>
 			{#if iconUrl}
 				<span class="coin-input-icon">
@@ -103,10 +104,12 @@
 			{:else}
 				<span class="coin-input-placeholder" aria-hidden="true"></span>
 			{/if}
+
 			<span>{symbol}</span>
 			{#if coin.name}
 				<span data-text="muted">{coin.name}</span>
 			{/if}
+
 			{#if showNetworksAndProtocols}
 				<small data-text="muted">
 					{networksByChainId[coin.$id.$network.chainId]?.name ?? `Chain ${coin.$id.$network.chainId}`}

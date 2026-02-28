@@ -46,7 +46,7 @@
 			(connectionsQuery.data ?? []).map(
 				(r) => (r.row as { $id: { fid: number } }).$id.fid,
 			),
-		),
+		)
 	)
 	const connectedChannelUrls = $derived(
 		new Set(
@@ -54,17 +54,17 @@
 				.map(({ row: channel }) => channel as { $id: { fid: number }; parentUrl?: string })
 				.filter((c) => connectedFids.has(c.$id.fid) && c.parentUrl)
 				.map((c) => c.parentUrl as string),
-		),
+		)
 	)
 	const allChannels = $derived(
-		(channelsQuery.data ?? []).map(({ row: channel }) => channel) as WithSource<FarcasterChannel>[],
+		(channelsQuery.data ?? []).map(({ row: channel }) => channel) as WithSource<FarcasterChannel>[]
 	)
 	const nameFilters = $derived(
 		[...new Set(allChannels.map((c) => c.name))].sort().map((name) => ({
 			id: name,
 			label: name,
 			filterFunction: (ch: WithSource<FarcasterChannel>) => (ch.name === name),
-		})),
+		}))
 	)
 	const connectionFilters = $derived(
 		connectedFids.size > 0
@@ -76,7 +76,7 @@
 							!!(ch.url && connectedChannelUrls.has(ch.url)),
 					},
 				]
-			: [],
+			: []
 	)
 	const filterGroups = $derived([
 		...(nameFilters.length > 1
@@ -91,11 +91,11 @@
 			allChannels
 				.filter((c) => c.url && connectedChannelUrls.has(c.url))
 				.map((c) => c.name),
-		),
+		)
 	)
 
 	const remainderCount = $derived(
-		allChannels.length === INITIAL_CHANNELS_LIMIT ? channelsRemainderCount() : 0,
+		allChannels.length === INITIAL_CHANNELS_LIMIT ? channelsRemainderCount() : 0
 	)
 
 
@@ -124,6 +124,7 @@
 		<summary>
 			<h3 class="section-heading">Channels ({displayCount})</h3>
 		</summary>
+
 		{#if allChannels.length === 0 && channelsQuery.isLoading}
 			<p data-text="muted">Loading…</p>
 		{:else if allChannels.length === 0}
@@ -168,14 +169,15 @@
 					{#snippet Item({ key: _key, item: row, isPlaceholder, searchQuery: q, matches })}
 						{#if !isPlaceholder && row != null}
 							{@const ch = row}
+
 							<EntityView
 								entityType={EntityType.FarcasterChannel}
 								entity={ch}
 								titleHref="/farcaster/channel/{encodeURIComponent(ch.$id.id)}"
 								label={ch.name}
 								metadata={
-									ch.followerCount != null
-										? [{ term: 'Followers', detail: String(ch.followerCount) }]
+									ch.followerCount != null ?
+										[{ term: 'Followers', detail: String(ch.followerCount) }]
 										: undefined
 								}
 							>
@@ -190,6 +192,7 @@
 						{/if}
 					{/snippet}
 				</RefinableList>
+
 				<LoadMorePlaceholder
 					count={remainderCount}
 					onLoadMore={loadMoreChannels}

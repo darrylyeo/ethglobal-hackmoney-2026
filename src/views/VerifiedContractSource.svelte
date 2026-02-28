@@ -37,7 +37,7 @@
 		sourceQuery.data?.[0]?.row
 	)
 	const hasFiles = $derived(
-		source != null && Object.keys(source.files ?? {}).length > 0,
+		source != null && Object.keys(source.files ?? {}).length > 0
 	)
 
 
@@ -80,6 +80,7 @@
 		{#if source.metadata?.compiler}
 			<p data-text="muted">{source.metadata.compiler}</p>
 		{/if}
+
 		<div data-column>
 			{#each Object.entries(source.files ?? {}) as [path, content]}
 				<details>

@@ -28,13 +28,13 @@
 	const topic0 = $derived(
 		event.topics[0] && event.topics[0].length >= 66
 			? (`0x${event.topics[0].slice(2).toLowerCase().padStart(64, '0')}` as `0x${string}`)
-			: null,
+			: null
 	)
 
 
 	// Context
 	const normalizedTopic0 = $derived(
-		topic0 ? normalizeEvmTopic32(topic0) : null,
+		topic0 ? normalizeEvmTopic32(topic0) : null
 	)
 	const eventSigQuery = useLiveQuery(
 		(q) =>
@@ -54,7 +54,7 @@
 	const eventSignatures = $derived(
 		topic0
 			? (eventSigQuery.data?.[0]?.row?.signatures ?? [])
-			: [],
+			: []
 	)
 
 
@@ -82,6 +82,7 @@
 						<span>{sig}</span>
 					{/each}
 				</code>
+
 				<Address actorId={{ $network: { chainId }, address: event.address as `0x${string}` }} />
 			{:else}
 				<Address actorId={{ $network: { chainId }, address: event.address as `0x${string}` }} />
@@ -101,6 +102,7 @@
 				<dd>{String(val)}</dd>
 			{/each}
 		</dl>
+
 		<details>
 			<summary>Raw</summary>
 			<dl>
@@ -112,6 +114,7 @@
 					<dt>Topic {i}</dt>
 					<dd><TruncatedValue value={topic} /></dd>
 				{/each}
+
 				{#if event.data !== '0x'}
 					<dt>Data</dt>
 					<dd>
@@ -131,6 +134,7 @@
 				<dt>Topic {i}</dt>
 				<dd><TruncatedValue value={topic} /></dd>
 			{/each}
+
 			{#if event.data !== '0x'}
 				<dt>Data</dt>
 				<dd>

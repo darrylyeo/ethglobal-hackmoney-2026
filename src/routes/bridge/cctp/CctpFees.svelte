@@ -17,11 +17,11 @@
 		fastBps = $bindable(null as number | null),
 		standardBps = $bindable(null as number | null),
 	}: {
-		fromDomain: number | null,
-		toDomain: number | null,
-		apiHost: string,
-		fastBps?: number | null,
-		standardBps?: number | null,
+		fromDomain: number | null
+		toDomain: number | null
+		apiHost: string
+		fastBps?: number | null
+		standardBps?: number | null
 	} = $props()
 
 	// (Derived) filter by source; then pick row matching apiHost/fromDomain/toDomain
@@ -41,14 +41,15 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const feeRow = $derived(
-		fromDomain !== null && toDomain !== null
-			? ((feesQuery.data ?? []).find(
+		fromDomain !== null && toDomain !== null ?
+			((feesQuery.data ?? []).find(
 					(r) =>
 						r.row.$id.apiHost === apiHost &&
 						r.row.$id.fromDomain === fromDomain &&
 						r.row.$id.toDomain === toDomain,
 				)?.row ?? null)
-			: null,
+		:
+			null
 	)
 	const fees = $derived(
 		feeRow?.rows ?? null
@@ -60,10 +61,10 @@
 		feeRow?.error ?? null
 	)
 	const feeFastBps = $derived(
-		fees?.find((fee) => fee.finalityThreshold === 1000)?.minimumFee ?? null,
+		fees?.find((fee) => fee.finalityThreshold === 1000)?.minimumFee ?? null
 	)
 	const feeStandardBps = $derived(
-		fees?.find((fee) => fee.finalityThreshold === 2000)?.minimumFee ?? null,
+		fees?.find((fee) => fee.finalityThreshold === 2000)?.minimumFee ?? null
 	)
 
 

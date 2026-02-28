@@ -48,15 +48,18 @@
 	<div data-column>
 		<label data-column>
 			<span>Network</span>
+
 			<NetworkInput
 				networks={filteredNetworks}
 				bind:value={p.chainId}
 				ariaLabel="Network"
 			/>
 		</label>
+
 		{#if asNonEmptyCoins(coins)}
 			<label data-column>
 				<span>Token 0</span>
+
 				<CoinInput
 					coins={coins}
 					bind:value={() => token0Coin, (c) => {
@@ -65,8 +68,10 @@
 					ariaLabel="Token 0"
 				/>
 			</label>
+
 			<label data-column>
 				<span>Token 1</span>
+
 				<CoinInput
 					coins={coins}
 					bind:value={() => token1Coin, (c) => {
@@ -75,8 +80,10 @@
 					ariaLabel="Token 1"
 				/>
 			</label>
+
 			<label data-column>
 				<span>Fee tier</span>
+
 				<Select
 					items={liquidityFeeTierPresets}
 					bind:value={() => liquidityFeeTierPresets.find((x) => x.value === p.fee) ?? undefined, (preset) => {
@@ -88,8 +95,10 @@
 					ariaLabel="Fee tier"
 				/>
 			</label>
+
 			<label data-column>
 				<span>Amount 0</span>
+
 				<CoinAmountInput
 					coins={coins}
 					bind:coin={() => token0Coin ?? coins[0], (c) => {
@@ -101,8 +110,10 @@
 					ariaLabel="Amount 0"
 				/>
 			</label>
+
 			<label data-column>
 				<span>Amount 1</span>
+
 				<CoinAmountInput
 					coins={coins}
 					bind:coin={() => token1Coin ?? (coins[1] ?? coins[0]), (c) => {

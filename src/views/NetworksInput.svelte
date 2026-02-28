@@ -29,13 +29,13 @@
 			.filter((g) => g.networks.length > 0)
 			.flatMap((group) =>
 				group.networks.map((network) => ({ item: network, groupId: group.id, groupLabel: group.label })),
-			),
+			)
 	)
 	const items = $derived(
 		itemsWithGroup.map((x) => x.item)
 	)
 	const uniqueValue = $derived(
-		[...new Set((value ?? []).filter((id): id is string => id != null && id !== ''))],
+		[...new Set((value ?? []).filter((id): id is string => id != null && id !== ''))]
 	)
 
 
@@ -78,6 +78,7 @@
 			<span data-row="start">
 				{#each uniqueValue as chainIdStr (chainIdStr)}
 					{@const chainId = Number(chainIdStr)}
+
 					{#if !Number.isNaN(chainId)}
 						<span class="network-input-icon">
 							<NetworkIcon networkId={{ chainId }} />
@@ -93,6 +94,7 @@
 			<span class="network-input-icon">
 				<NetworkIcon networkId={{ chainId: network.chainId }} />
 			</span>
+
 			<span>{network.name}</span>
 		</span>
 	{/snippet}

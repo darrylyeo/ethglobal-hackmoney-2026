@@ -33,7 +33,7 @@
 		spenderAddress: `0x${string}`
 		amount: bigint
 		provider: EIP1193Provider
-		ownerAddress: `0x${string}`,
+		ownerAddress: `0x${string}`
 	} = $props()
 
 	// (Derived)
@@ -52,17 +52,18 @@
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 
 	const allowanceId = $derived(
-		toActorAllowance$Id(chainId, ownerAddress, tokenAddress, spenderAddress),
+		toActorAllowance$Id(chainId, ownerAddress, tokenAddress, spenderAddress)
 	)
 	const allowanceKey = $derived(
-		`${chainId}:${ownerAddress}:${tokenAddress}:${spenderAddress}`,
+		`${chainId}:${ownerAddress}:${tokenAddress}:${spenderAddress}`
 	)
 	const allowanceRow = $derived(
 		allowancesQuery.data?.find(
-			(r) =>
+			(r) => (
 				`${r.row.$id.$actorCoin.$actor.$network.chainId}:${r.row.$id.$actorCoin.$actor.address}:${r.row.$id.$actorCoin.$coin.address}:${r.row.$id.$spender.address}` ===
-				allowanceKey,
-		)?.row ?? null,
+				allowanceKey
+			),
+		)?.row ?? null
 	)
 
 	const isChecking = $derived(
@@ -75,7 +76,10 @@
 		allowanceRow?.error ?? null
 	)
 	const hasSufficientAllowance = $derived(
-		allowanceRow ? allowanceRow.allowance >= amount : false,
+		allowanceRow ?
+			allowanceRow.allowance >= amount
+		:
+			false
 	)
 
 
@@ -169,6 +173,7 @@
 				</Switch.Root>
 				Unlimited approval
 			</label>
+
 			<Button.Root onclick={onApprove}>Approve USDC</Button.Root>
 		</div>
 	{/if}

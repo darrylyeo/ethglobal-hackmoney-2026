@@ -12,7 +12,7 @@
 		`@Service:${service.$id.identityId}`
 	)
 	const serviceHref = $derived(
-		`/agents?ref=${encodeURIComponent(eip8004ServiceIdToString(service.$id))}`,
+		`/agents?ref=${encodeURIComponent(eip8004ServiceIdToString(service.$id))}`
 	)
 	const imageSrc = $derived(
 		service.image ? ipfsUriToHttp(service.image) : null
@@ -35,12 +35,15 @@
 			/>
 		</p>
 	{/if}
+
 	{#if service.description}
 		<p>{service.description}</p>
 	{/if}
+
 	{#if service.contactEndpoint}
 		<p>
 			<strong>Contact:</strong>
+
 			<a
 				href={service.contactEndpoint}
 				target="_blank"
@@ -51,6 +54,7 @@
 			</a>
 		</p>
 	{/if}
+
 	{#if hasCapabilities}
 		<dl data-definition-list="vertical">
 			<dt>Services</dt>
@@ -76,6 +80,7 @@
 			</dd>
 		</dl>
 	{/if}
+
 	{#if service.registrationUri}
 		<p>
 			<a
@@ -88,6 +93,7 @@
 			</a>
 		</p>
 	{/if}
+
 	<p>
 		<a href={serviceHref} data-link>
 			Use in chat

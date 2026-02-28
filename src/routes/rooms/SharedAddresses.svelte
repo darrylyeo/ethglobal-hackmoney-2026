@@ -85,13 +85,13 @@
 				(s.targetPeerIds === null ||
 					(roomState.peerId != null &&
 						s.targetPeerIds.includes(roomState.peerId))),
-		),
+		)
 	)
 	const peers = $derived(
 		(peersQuery.data ?? []).map(({ roomPeer: peer }) => peer)
 	)
 	const verifications = $derived(
-		(verificationsQuery.data ?? []).map(({ verification }) => verification),
+		(verificationsQuery.data ?? []).map(({ verification }) => verification)
 	)
 	const challenges = $derived(
 		(challengesQuery.data ?? []).map(({ siweChallenge: challenge }) => challenge)
@@ -164,12 +164,15 @@
 		<ul>
 			{#each sharedVisibleToMe as s (s.id)}
 				{@const myVerification = getMyVerification(s)}
+
 				{@const status = getStatus(s)}
+
 				<li
 					data-shared-address
 					data-verification-status={status}
 				>
 					<span data-peer-name>{getPeerName(s.peerId)}</span>
+
 					<Address
 						actorId={{ $network: { chainId: 1 }, address: s.address }}
 					/>
@@ -201,6 +204,7 @@
 									{formatDate(myVerification.verifiedAt)}
 								</time>
 							{/if}
+
 							{#if myVerification?.signature != null}
 								<span
 									title={myVerification.signature}
@@ -209,6 +213,7 @@
 									(signature)
 								</span>
 							{/if}
+
 							<Button.Root
 								type="button"
 								onclick={() => requestVerification(s.address)}

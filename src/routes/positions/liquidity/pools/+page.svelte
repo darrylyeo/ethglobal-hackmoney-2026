@@ -15,7 +15,7 @@
 	const supportedChainIds = $derived(
 		Object.keys(UNISWAP_V4_SUBGRAPH_ID)
 			.map(Number)
-			.filter((id) => !Number.isNaN(id)),
+			.filter((id) => !Number.isNaN(id))
 	)
 	const poolsQuery = useLiveQuery(
 		(q) =>
@@ -28,7 +28,7 @@
 	const pools = $derived(
 		(poolsQuery.data ?? [])
 			.map(({ row: pool }) => pool as UniswapPool)
-			.sort((a, b) => (Number(b.liquidity) - Number(a.liquidity))),
+			.sort((a, b) => (Number(b.liquidity) - Number(a.liquidity)))
 	)
 
 	// Actions
@@ -54,6 +54,7 @@
 	{#if supportedChainIds.length > 0}
 		<div data-row="gap-2 wrap">
 			<label for="chain-select">Chain</label>
+
 			<select
 				id="chain-select"
 				bind:value={selectedChainId}
@@ -61,6 +62,7 @@
 			>
 				{#each supportedChainIds as cid}
 					{@const net = networksByChainId[cid]}
+
 					<option value={cid}>{net?.name ?? cid}</option>
 				{/each}
 			</select>
@@ -75,7 +77,9 @@
 			<ul data-column data-list="unstyled">
 				{#each pools as pool (pool.chainId + ':' + pool.id)}
 					{@const net = networksByChainId[pool.chainId]}
+
 					{@const pairLabel = pool.token0Symbol && pool.token1Symbol ? `${pool.token0Symbol}–${pool.token1Symbol}` : pool.id.slice(0, 10) + '…'}
+
 					<li
 						data-card="padding-2 radius-4"
 						data-row="gap-3 align-center wrap"

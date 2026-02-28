@@ -48,10 +48,10 @@
 			? filterAddresses
 			: actorId
 				? [actorId.address]
-				: [],
+				: []
 	)
 	const walletsByRdns = $derived(
-		new Map((walletsQuery.data ?? []).map(({ row: wallet }) => [wallet.$id.rdns, wallet])),
+		new Map((walletsQuery.data ?? []).map(({ row: wallet }) => [wallet.$id.rdns, wallet]))
 	)
 	const connections = $derived(
 		actors.length === 0
@@ -62,7 +62,7 @@
 						c.actors.some((a) =>
 							actors.some((addr) => a === addr),
 						),
-					),
+					)
 	)
 	const singleAddress = $derived(
 		actors.length === 1 ? actors[0] : null
@@ -93,8 +93,10 @@
 				{/if}
 			</h3>
 		</div>
+
 		{#if availableAccounts.length > 0}
 			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+
 			<div
 				class="section-filters"
 				role="group"
@@ -136,10 +138,11 @@
 					class="connections-list"
 				>
 					{#each connections as conn (stringify(conn.$id))}
-						{@const wallet =
+						{@const wallet = (
 							conn.transport === WalletConnectionTransport.None
 								? null
-								: walletsByRdns.get(conn.$id.wallet$id.rdns)}
+								: walletsByRdns.get(conn.$id.wallet$id.rdns)
+						)}
 						<li
 							class="connection-item"
 							data-columns-item
@@ -152,6 +155,7 @@
 									? 'Watching'
 									: (wallet?.name ?? conn.$id.wallet$id.rdns)}
 							</span>
+
 							<span class="connection-status">{conn.status}</span>
 							{#if conn.selected}
 								<span class="connection-badge">Selected</span>

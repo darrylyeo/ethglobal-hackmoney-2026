@@ -24,7 +24,7 @@
 	const authorLabel = $derived(
 		author?.username
 			? `@${author.username}`
-			: `@${cast.$id.fid}`,
+			: `@${cast.$id.fid}`
 	)
 	const castHref = $derived(
 		`/farcaster/cast/${cast.$id.fid}/${cast.$id.hash}`
@@ -40,6 +40,7 @@
 		<span data-text="annotation">
 			{authorLabel} · {formatRelativeTime(Date.now() - cast.timestamp)}
 		</span>
+
 		<span>{cast.text.slice(0, 80)}{cast.text.length > 80
 			? '…'
 			: ''}</span>
@@ -54,6 +55,7 @@
 			<span data-text="annotation">
 				{authorLabel} · {formatRelativeTime(Date.now() - cast.timestamp)}
 			</span>
+
 			<span>{cast.text.slice(0, 80)}{cast.text.length > 80
 				? '…'
 				: ''}</span>
@@ -64,6 +66,7 @@
 			<a href={castHref}>
 				<p>{cast.text}</p>
 			</a>
+
 			{#if cast.embeds?.length}
 				<ul data-column>
 					{#each cast.embeds as embed}
@@ -81,6 +84,7 @@
 					{/each}
 				</ul>
 			{/if}
+
 			{#if cast.likeCount != null || cast.recastCount != null}
 				<dl data-definition-list="horizontal">
 					{#if cast.likeCount != null && cast.likeCount > 0}
@@ -89,6 +93,7 @@
 							<dd>{cast.likeCount}</dd>
 						</div>
 					{/if}
+
 					{#if cast.recastCount != null && cast.recastCount > 0}
 						<div>
 							<dt>Recasts</dt>

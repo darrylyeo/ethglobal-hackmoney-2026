@@ -81,7 +81,7 @@
 		refs.filter((r) => !isPlaceholder(r))
 	)
 	const computedPlaceholder = $derived(
-		placeholder ?? 'Type a message… Use @ to reference entities',
+		placeholder ?? 'Type a message… Use @ to reference entities'
 	)
 
 

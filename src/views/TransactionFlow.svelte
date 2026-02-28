@@ -16,13 +16,14 @@
 	import { E2E_TEVM_ENABLED } from '$/tests/tevm.ts'
 	import { E2E_TEVM_WALLET_ADDRESS } from '$/tests/tevmConfig.ts'
 
-	type ExecutionStatus =
+	type ExecutionStatus = (
 		| 'idle'
 		| 'signing'
 		| 'executing'
 		| 'confirming'
 		| 'completed'
 		| 'failed'
+	)
 	type SimulationStatus = 'idle' | 'running' | 'success' | 'failed'
 	type TransactionFlowExecutionUpdate = {
 		status: ExecutionStatus
@@ -123,16 +124,16 @@
 	} = $props()
 
 	// (Derived)
-	const walletProvider = $derived(
+	const walletProvider = $derived((
 		walletConnection &&
 			walletConnection.connection.transport ===
 				WalletConnectionTransport.Eip1193 &&
 			'provider' in walletConnection.wallet
 			? walletConnection.wallet.provider
-			: null,
-	)
+			: null
+	))
 	const walletAddress = $derived(
-		walletConnection?.connection.activeActor ?? null,
+		walletConnection?.connection.activeActor ?? null
 	)
 	const e2eProvider = $derived(
 		E2E_TEVM_ENABLED ? getE2eProvider() : null
@@ -248,8 +249,8 @@
 							: 'error',
 			summary:
 				details.summary ??
-				(error
-					? `${tx.title} ${kind} failed: ${error}`
+				(error ?
+					`${tx.title} ${kind} failed: ${error}`
 					: `${tx.title} ${kind} ${
 							kind === 'simulation' && state.simulation.status === 'success'
 								? 'completed'
@@ -463,7 +464,7 @@
 				tx.id,
 				txOverrides[tx.id] ?? createInitialState(),
 			]),
-		),
+		)
 	)
 
 	$effect(() => {
@@ -485,38 +486,51 @@
 	{:else}
 		{#each transactions as tx (tx.id)}
 			{@const txState = getTxState(tx.id)}
+
 			{@const simulationExplain = txState.explanations.simulation}
+
 			{@const executionExplain = txState.explanations.execution}
-			{@const network =
+
+			{@const network = (
 				Object.values(networksByChainId).find(
 					(entry) => entry?.id === tx.chainId,
-				) ?? null}
+				) ?? null
+			)}
 			{@const executionContext = resolveExecutionContext()}
+
 			{@const hasExecutionContext = Boolean(executionContext)}
+
 			{@const executionUnsupported = Boolean(
 				executionContext && !supportsExecutionMode(tx, executionContext.mode),
 			)}
+
 			{@const hasWalletSigner = Boolean(walletProvider && walletAddress)}
+
 			{@const needsChainSwitch = Boolean(
 				executionContext?.mode === 'wallet' &&
 				walletProvider &&
 				walletConnection?.connection.chainId !== null &&
 				walletConnection?.connection.chainId !== tx.chainId,
 			)}
+
 			{@const confirmationRequired = tx.requiresConfirmation}
+
 			{@const confirmationReady = !confirmationRequired || txState.confirmed}
-			{@const hasPendingExecution =
+
+			{@const hasPendingExecution = (
 				txState.execution.status === 'signing' ||
 				txState.execution.status === 'executing' ||
-				txState.execution.status === 'confirming'}
-			{@const executeDisabled =
+				txState.execution.status === 'confirming'
+			)}
+			{@const executeDisabled = (
 				!tx.execute ||
 				!tx.canExecute ||
 				!hasExecutionContext ||
 				executionUnsupported ||
 				needsChainSwitch ||
 				!confirmationReady ||
-				hasPendingExecution}
+				hasPendingExecution
+			)}
 
 			<section data-column data-transaction>
 				<div data-row="align-center justify-between">
@@ -541,12 +555,14 @@
 								? 'Simulating…'
 								: 'Simulate'}
 						</Button.Root>
+
 						{#if txState.simulation.status === 'success'}
 							<span data-text="muted">Simulation ok</span>
 						{:else if txState.simulation.status === 'failed'}
 							<span data-error>{txState.simulation.error}</span>
 						{/if}
 					</div>
+
 					{#if txState.simulation.status === 'success' || txState.simulation.status === 'failed'}
 						<div data-row="align-center wrap">
 							<Button.Root
@@ -559,6 +575,7 @@
 									? 'Explaining…'
 									: 'Explain results'}
 							</Button.Root>
+
 							{#if explainAvailability === LlmAvailability.Downloading && simulationExplain.status !== 'loading'}
 								<span data-text="muted">Model downloading…</span>
 							{:else if explainAvailability === LlmAvailability.Unavailable}
@@ -567,6 +584,7 @@
 									>Set up hosted fallback</a
 								>
 							{/if}
+
 							{#if simulationExplain.status === 'loading'}
 								<span data-text="muted">
 									{simulationExplain.progress !== null
@@ -575,6 +593,7 @@
 											)}%`
 										: 'Generating explanation…'}
 								</span>
+
 								<Button.Root
 									type="button"
 									onclick={() => cancelExplain(tx.id, 'simulation')}
@@ -589,6 +608,7 @@
 						</p>
 					{:else if simulationExplain.status === 'success'}
 						{@const turn = getAgentChatTurn(simulationExplain.turnId)}
+
 						{#if turn?.assistantText}
 							<div data-card data-column>
 								<p>{turn.assistantText}</p>
@@ -599,6 +619,7 @@
 							</div>
 						{/if}
 					{/if}
+
 					{/if}
 				{/if}
 
@@ -611,6 +632,7 @@
 						{txState.execution.txHash.slice(0, 8)}…
 					</p>
 				{/if}
+
 				{#if txState.execution.status === 'completed' || txState.execution.status === 'failed'}
 					<div data-row="align-center wrap">
 						<Button.Root
@@ -623,6 +645,7 @@
 								? 'Explaining…'
 								: 'Explain results'}
 						</Button.Root>
+
 						{#if explainAvailability === LlmAvailability.Downloading && executionExplain.status !== 'loading'}
 							<span data-text="muted">Model downloading…</span>
 						{:else if explainAvailability === LlmAvailability.Unavailable}
@@ -631,6 +654,7 @@
 								>Set up hosted fallback</a
 							>
 						{/if}
+
 						{#if executionExplain.status === 'loading'}
 							<span data-text="muted">
 								{executionExplain.progress !== null
@@ -639,6 +663,7 @@
 										)}%`
 									: 'Generating explanation…'}
 							</span>
+
 							<Button.Root
 								type="button"
 								onclick={() => cancelExplain(tx.id, 'execution')}
@@ -651,6 +676,7 @@
 					<p data-error>{executionExplain.error ?? 'Explanation failed.'}</p>
 				{:else if executionExplain.status === 'success'}
 					{@const turn = getAgentChatTurn(executionExplain.turnId)}
+
 					{#if turn?.assistantText}
 						<div data-card data-column>
 							<p>{turn.assistantText}</p>
@@ -661,6 +687,7 @@
 						</div>
 					{/if}
 				{/if}
+
 				{/if}
 
 				{#if needsChainSwitch && walletProvider}
@@ -679,6 +706,7 @@
 						{#if tx.Confirmation}
 							{@render tx.Confirmation(tx, txState)}
 						{/if}
+
 						<label data-row="align-center">
 							<Checkbox.Root
 								bind:checked={
@@ -694,6 +722,7 @@
 									{checked ? '✓' : '○'}
 								{/snippet}
 							</Checkbox.Root>
+
 							{tx.confirmationLabel ??
 								'I understand this transaction is irreversible'}
 						</label>

@@ -63,7 +63,7 @@
 	const displayRatio = $derived(
 		root.type === 'split' ?
 			(splitRatioOverrides[root.id] ?? root.ratio)
-		: 0.5,
+		: 0.5
 	)
 
 
@@ -143,6 +143,7 @@
 						></button>
 					{/snippet}
 				</Tooltip.Trigger>
+
 				<Tooltip.Portal>
 					<Tooltip.Content
 						side={root.direction === SplitDirection.Horizontal ? 'top' : 'left'}
@@ -157,10 +158,12 @@
 							>
 								Flip
 							</button>
+
 							<button type="button" onclick={() => onSwap(root.first.id)}>
 								Swap
 							</button>
 						</div>
+
 						<Tooltip.Arrow />
 					</Tooltip.Content>
 				</Tooltip.Portal>

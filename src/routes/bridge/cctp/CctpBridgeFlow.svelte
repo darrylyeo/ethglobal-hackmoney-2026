@@ -46,7 +46,7 @@
 		balanceTokens?: {
 			chainId: number
 			tokenAddress: `0x${string}`
-		}[],
+		}[]
 	} = $props()
 
 
@@ -65,20 +65,22 @@
 
 	// (Derived)
 	const selectedWallet = $derived(
-		selectedWallets.find((w) => w.connection.selected) ?? null,
+		selectedWallets.find((w) => w.connection.selected) ?? null
 	)
-	const walletProvider = $derived(
+	const walletProvider = $derived((
 		selectedWallet?.connection.transport ===
-			WalletConnectionTransport.Eip1193 && 'provider' in selectedWallet.wallet
-			? selectedWallet.wallet.provider
-			: null,
-	)
+			WalletConnectionTransport.Eip1193 && 'provider' in selectedWallet.wallet ?
+			selectedWallet.wallet.provider
+		:
+			null
+	))
 	const resolveNetwork = (chainId: number | null) =>
-		chainId !== null
-			? (Object.values(networksByChainId).find(
-					(entry) => entry?.chainId === chainId,
-				) ?? null)
-			: null
+		chainId !== null ?
+			(Object.values(networksByChainId).find(
+				(entry) => entry?.chainId === chainId,
+			) ?? null)
+		:
+			null
 	const fromNetwork = $derived(
 		resolveNetwork(settings.fromChainId)
 	)
@@ -96,32 +98,32 @@
 	)
 	const fastTransferSupported = $derived(
 		settings.fromChainId !== null &&
-			CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS.has(settings.fromChainId),
+			CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS.has(settings.fromChainId)
 	)
 	const effectiveTransferSpeed = $derived(
-		fastTransferSupported ? settings.transferSpeed : TransferSpeed.Standard,
+		fastTransferSupported ? settings.transferSpeed : TransferSpeed.Standard
 	)
 	const forwardingSupported = $derived(
 		settings.toChainId !== null &&
-			CCTP_FORWARDING_CHAIN_IDS.has(settings.toChainId),
+			CCTP_FORWARDING_CHAIN_IDS.has(settings.toChainId)
 	)
 	const minFinalityThreshold = $derived(
-		effectiveTransferSpeed === TransferSpeed.Fast ? 1000 : 2000,
+		effectiveTransferSpeed === TransferSpeed.Fast ? 1000 : 2000
 	)
 	const feeBps = $derived(
 		effectiveTransferSpeed === TransferSpeed.Fast
 			? (feeFastBps ?? feeStandardBps ?? 0)
-			: (feeStandardBps ?? feeFastBps ?? 0),
+			: (feeStandardBps ?? feeFastBps ?? 0)
 	)
 	const apiHost = $derived(
-		settings.isTestnet
-			? 'https://iris-api-sandbox.circle.com'
-			: 'https://iris-api.circle.com',
+		settings.isTestnet ?
+			'https://iris-api-sandbox.circle.com'
+			: 'https://iris-api.circle.com'
 	)
 	const expectedReceive = $derived(
 		feeBps > 0 && settings.amount > 0n
 			? settings.amount - (settings.amount * BigInt(feeBps)) / 10000n
-			: settings.amount,
+			: settings.amount
 	)
 
 
@@ -153,14 +155,17 @@
 			<dd>
 				{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
 			</dd>
+
 			<dt>Receive</dt>
 			<dd>
 				~{formatSmallestToDecimal(expectedReceive, 6)} USDC on {toNetwork.name}
 			</dd>
+
 			{#if minOutput !== null}
 				<dt>Min received</dt>
 				<dd>{formatSmallestToDecimal(minOutput, 6)} USDC</dd>
 			{/if}
+
 			<dt>Recipient</dt>
 			<dd>{formatAddress(recipient)}</dd>
 		</dl>
@@ -172,6 +177,7 @@
 	{#if !fastTransferSupported}
 		<p data-text="muted">Fast transfer is not supported for this source chain.</p>
 	{/if}
+
 	{#if forwardingSupported && settings.forwardingEnabled}
 		<p data-text="muted">Forwarding service enabled.</p>
 	{/if}
@@ -224,6 +230,7 @@
 					to {toNetwork.name}. Recipient: {formatAddress(recipient)}.
 				</Dialog.Description>
 			{/if}
+
 			<div
 				data-row
 				class="dialog-actions"

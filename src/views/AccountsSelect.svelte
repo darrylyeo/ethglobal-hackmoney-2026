@@ -49,14 +49,23 @@
 		connection: WalletConnectionEip1193 | WalletConnectionNone,
 		status: 'connected' | 'connecting' | 'error',
 	): WalletMenuEntry[] =>
-		status !== 'connected'
-			? [
-					{
-						type: 'item',
-						item: { kind: 'unlock', label: 'Unlock' },
-						id: `unlock-${wallet.$id.rdns}`,
-						onSelect: () => connect(stringify(wallet.$id)),
-					},
+		status !== 'connected' ?
+			[
+				{
+					type: 'item',
+					item: { kind: 'unlock', label: 'Unlock' },
+					id: `unlock-${wallet.$id.rdns}`,
+					onSelect: () => connect(stringify(wallet.$id)),
+				},
+				{
+					type: 'item',
+					item: { kind: 'disconnect', label: 'Remove' },
+					id: `disconnect-${wallet.$id.rdns}`,
+					onSelect: () => disconnectWallet(wallet.$id),
+				},
+			]
+			: connection.transport === WalletConnectionTransport.None ?
+				[
 					{
 						type: 'item',
 						item: { kind: 'disconnect', label: 'Remove' },
@@ -64,40 +73,31 @@
 						onSelect: () => disconnectWallet(wallet.$id),
 					},
 				]
-			: connection.transport === WalletConnectionTransport.None
-				? [
-						{
-							type: 'item',
-							item: { kind: 'disconnect', label: 'Remove' },
-							id: `disconnect-${wallet.$id.rdns}`,
-							onSelect: () => disconnectWallet(wallet.$id),
-						},
-					]
 				: [
-						...((connection.actors ?? []).length > 0
-							? [
-									...(connection.actors ?? []).map((actor) => ({
-										type: 'item',
-										item: { kind: 'actor', actor },
-										id: `actor-${actor}`,
-										onSelect: () => switchActiveActor(wallet.$id, actor),
-									})),
-									{ type: 'separator' },
-								]
+						...((connection.actors ?? []).length > 0 ?
+							[
+								...(connection.actors ?? []).map((actor) => ({
+									type: 'item',
+									item: { kind: 'actor', actor },
+									id: `actor-${actor}`,
+									onSelect: () => switchActiveActor(wallet.$id, actor),
+								})),
+								{ type: 'separator' },
+							]
 							: []),
-						...(filteredNetworks.length > 0
-							? [
-									...filteredNetworks.map((network) => ({
-										type: 'item',
-										item: { kind: 'network', network },
-										id: `network-${network.id}`,
-										onSelect: () =>
-											switchNetwork(connection, wallet, network.id).catch(
-												() => {},
-											),
-									})),
-									{ type: 'separator' },
-								]
+						...(filteredNetworks.length > 0 ?
+							[
+								...filteredNetworks.map((network) => ({
+									type: 'item',
+									item: { kind: 'network', network },
+									id: `network-${network.id}`,
+									onSelect: () =>
+										switchNetwork(connection, wallet, network.id).catch(
+											() => {},
+										),
+								})),
+								{ type: 'separator' },
+							]
 							: []),
 						{
 							type: 'item',
@@ -106,7 +106,7 @@
 							onSelect: () => disconnectWallet(wallet.$id),
 						},
 					]
-	type WalletMenuEntry =
+	type WalletMenuEntry = (
 		| {
 				type: string
 				item: WalletMenuItem
@@ -118,12 +118,13 @@
 				type: string
 				id?: string
 		  }
+	)
 	type WalletConnectItem = {
 		kind: string
 		label?: string
 		wallet?: WithSource<Wallet>
 	}
-	type WalletConnectEntry =
+	type WalletConnectEntry = (
 		| {
 				type: string
 				id?: string
@@ -135,6 +136,7 @@
 				type: string
 				id?: string
 		  }
+	)
 	import { upsertWallet, walletsCollection } from '$/collections/Wallets.ts'
 	import { networkEnvironmentState } from '$/state/network-environment.svelte.ts'
 	import { switchWalletChain } from '$/lib/wallet.ts'
@@ -164,13 +166,13 @@
 	const connections = $derived(
 		(connectionsQuery.data ?? [])
 			.map(({ walletConnection: connection }) => connection)
-			.filter((c) => c?.$id?.wallet$id?.rdns),
+			.filter((c) => c?.$id?.wallet$id?.rdns)
 	)
 
 	const wallets = $derived(
 		(walletsQuery.data ?? [])
 			.map(({ wallet }) => wallet)
-			.filter((w): w is WithSource<Wallet> => !!w?.$id?.rdns),
+			.filter((w): w is WithSource<Wallet> => !!w?.$id?.rdns)
 	)
 
 	$effect(() => {
@@ -200,16 +202,16 @@
 	)
 
 	const joinWallet = (c: WalletConnectionRow): ConnectedWallet | null =>
-		c.transport === WalletConnectionTransport.None
-			? {
-					wallet: {
-						$id: c.$id.wallet$id,
-						name: 'Read-only',
-						icon: '',
-						rdns: c.$id.wallet$id.rdns,
-					},
-					connection: c,
-				}
+		c.transport === WalletConnectionTransport.None ?
+			{
+				wallet: {
+					$id: c.$id.wallet$id,
+					name: 'Read-only',
+					icon: '',
+					rdns: c.$id.wallet$id.rdns,
+				},
+				connection: c,
+			}
 			: ((wallet) => (wallet ? { wallet, connection: c } : null))(
 					walletsByRdns.get(c.$id.wallet$id.rdns),
 				)
@@ -236,39 +238,39 @@
 	)
 
 	const connectedRdns = $derived(
-		new Set(connections.map((c) => c.$id.wallet$id.rdns)),
+		new Set(connections.map((c) => c.$id.wallet$id.rdns))
 	)
 
 	const availableWallets = $derived(
-		wallets.filter((w) => !connectedRdns.has(w.$id.rdns)),
+		wallets.filter((w) => !connectedRdns.has(w.$id.rdns))
 	)
 
 	const selectedConnection = $derived(
-		connectedWalletsDerived.find((w) => w.connection.selected) ?? null,
+		connectedWalletsDerived.find((w) => w.connection.selected) ?? null
 	)
 	const selectedRdns = $derived(
 		connectedWalletsDerived
 			.filter((w) => w.connection.selected)
-			.map((w) => w.wallet.$id.rdns),
+			.map((w) => w.wallet.$id.rdns)
 	)
 
 	const selectedActorDerived = $derived(
-		selectedConnection?.connection.activeActor ?? null,
+		selectedConnection?.connection.activeActor ?? null
 	)
 
 	const selectedChainIdDerived = $derived(
-		selectedConnection?.connection.chainId ?? null,
+		selectedConnection?.connection.chainId ?? null
 	)
 
 	const networkEnvironment = $derived(
-		networkEnvironmentState.current,
+		networkEnvironmentState.current
 	)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
-			networkEnvironment === NetworkEnvironment.Testnet
-				? n.type === NetworkType.Testnet
+			networkEnvironment === NetworkEnvironment.Testnet ?
+				n.type === NetworkType.Testnet
 				: n.type === NetworkType.Mainnet,
-		),
+		)
 	)
 
 	const walletChips = $derived<
@@ -284,12 +286,12 @@
 	const eip1193WalletChips = $derived(
 		walletChips.filter(
 			(chip) => chip.connection.transport === WalletConnectionTransport.Eip1193,
-		),
+		)
 	)
 	const readOnlyWalletChips = $derived(
 		walletChips.filter(
 			(chip) => chip.connection.transport === WalletConnectionTransport.None,
-		),
+		)
 	)
 
 	let readOnlyAddress = $state(
@@ -345,8 +347,8 @@
 		chainId: number,
 	) =>
 		connection.transport === WalletConnectionTransport.Eip1193 &&
-		'provider' in wallet
-			? switchWalletChain(wallet.provider, chainId)
+		'provider' in wallet ?
+			switchWalletChain(wallet.provider, chainId)
 			: Promise.resolve()
 	const connectReadOnlyAddress = () => {
 		if (connectReadOnly({ address: readOnlyAddress.trim() })) {
@@ -395,31 +397,37 @@
 					>
 						{#each eip1193WalletChips as { wallet, connection, status } (stringify(wallet.$id))}
 							{@const isConnected = status === 'connected'}
-							{@const isReadOnly =
-								connection.transport === WalletConnectionTransport.None}
-							{@const statusLabel =
-								status === 'connecting'
-									? connection.activeActor
-										? 'Reconnecting'
+
+							{@const isReadOnly = (
+								connection.transport === WalletConnectionTransport.None
+							)}
+							{@const statusLabel = (
+								status === 'connecting' ?
+									connection.activeActor ?
+										'Reconnecting'
 										: 'Connecting…'
-									: status === 'error'
-										? (connection.error ?? null)
-										: null}
+									: status === 'error' ?
+										(connection.error ?? null)
+										: null
+							)}
 							{@const chainId = connection.chainId}
-							{@const networkName = chainId
-								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
+
+							{@const networkName = chainId ?
+								(networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
-							{@const walletChipClass =
-								status === 'connecting'
-									? 'wallet-chip wallet-connecting'
-									: status === 'error'
-										? 'wallet-chip wallet-failed'
-										: 'wallet-chip'}
+							{@const walletChipClass = (
+								status === 'connecting' ?
+									'wallet-chip wallet-connecting'
+									: status === 'error' ?
+										'wallet-chip wallet-failed'
+										: 'wallet-chip'
+							)}
 							{@const walletMenuItems = getWalletMenuEntries(
 								wallet,
 								connection,
 								status,
 							)}
+
 							<ToggleGroup.Item
 								value={wallet.$id.rdns}
 								data-tag="wallet-type"
@@ -431,8 +439,8 @@
 									<NetworkIcon
 										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
-											wallet.icon
-												? { src: wallet.icon }
+											wallet.icon ?
+												{ src: wallet.icon }
 												: undefined
 										}
 										title={networkName ?? 'Unknown network'}
@@ -445,6 +453,7 @@
 													isLinked={false}
 												/>
 											</span>
+
 											{#if statusLabel}
 												<span class="wallet-status">{statusLabel}</span>
 											{/if}
@@ -452,6 +461,7 @@
 											<span class="wallet-status">{statusLabel ?? '—'}</span>
 										{/if}
 									</span>
+
 									<Dropdown
 										items={walletMenuItems}
 										triggerAriaLabel="Wallet menu"
@@ -507,31 +517,37 @@
 					>
 						{#each eip1193WalletChips as { wallet, connection, status } (stringify(wallet.$id))}
 							{@const isConnected = status === 'connected'}
-							{@const isReadOnly =
-								connection.transport === WalletConnectionTransport.None}
-							{@const statusLabel =
-								status === 'connecting'
-									? connection.activeActor
-										? 'Reconnecting'
+
+							{@const isReadOnly = (
+								connection.transport === WalletConnectionTransport.None
+							)}
+							{@const statusLabel = (
+								status === 'connecting' ?
+									connection.activeActor ?
+										'Reconnecting'
 										: 'Connecting…'
-									: status === 'error'
-										? (connection.error ?? null)
-										: null}
+									: status === 'error' ?
+										(connection.error ?? null)
+										: null
+							)}
 							{@const chainId = connection.chainId}
-							{@const networkName = chainId
-								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
+
+							{@const networkName = chainId ?
+								(networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
-							{@const walletChipClass =
-								status === 'connecting'
-									? 'wallet-chip wallet-connecting'
-									: status === 'error'
-										? 'wallet-chip wallet-failed'
-										: 'wallet-chip'}
+							{@const walletChipClass = (
+								status === 'connecting' ?
+									'wallet-chip wallet-connecting'
+									: status === 'error' ?
+										'wallet-chip wallet-failed'
+										: 'wallet-chip'
+							)}
 							{@const walletMenuItems = getWalletMenuEntries(
 								wallet,
 								connection,
 								status,
 							)}
+
 							<ToggleGroup.Item
 								value={wallet.$id.rdns}
 								data-tag="wallet-type"
@@ -543,8 +559,8 @@
 									<NetworkIcon
 										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
-											wallet.icon
-												? { src: wallet.icon }
+											wallet.icon ?
+												{ src: wallet.icon }
 												: undefined
 										}
 										title={networkName ?? 'Unknown network'}
@@ -557,6 +573,7 @@
 													isLinked={false}
 												/>
 											</span>
+
 											{#if statusLabel}
 												<span class="wallet-status">{statusLabel}</span>
 											{/if}
@@ -564,6 +581,7 @@
 											<span class="wallet-status">{statusLabel ?? '—'}</span>
 										{/if}
 									</span>
+
 									<Dropdown
 										items={walletMenuItems}
 										triggerAriaLabel="Wallet menu"
@@ -628,31 +646,37 @@
 					>
 						{#each readOnlyWalletChips as { wallet, connection, status } (stringify(wallet.$id))}
 							{@const isConnected = status === 'connected'}
-							{@const isReadOnly =
-								connection.transport === WalletConnectionTransport.None}
-							{@const statusLabel =
-								status === 'connecting'
-									? connection.activeActor
-										? 'Reconnecting'
+
+							{@const isReadOnly = (
+								connection.transport === WalletConnectionTransport.None
+							)}
+							{@const statusLabel = (
+								status === 'connecting' ?
+									connection.activeActor ?
+										'Reconnecting'
 										: 'Connecting…'
-									: status === 'error'
-										? (connection.error ?? null)
-										: null}
+									: status === 'error' ?
+										(connection.error ?? null)
+										: null
+							)}
 							{@const chainId = connection.chainId}
-							{@const networkName = chainId
-								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
+
+							{@const networkName = chainId ?
+								(networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
-							{@const walletChipClass =
-								status === 'connecting'
-									? 'wallet-chip wallet-connecting'
-									: status === 'error'
-										? 'wallet-chip wallet-failed'
-										: 'wallet-chip'}
+							{@const walletChipClass = (
+								status === 'connecting' ?
+									'wallet-chip wallet-connecting'
+									: status === 'error' ?
+										'wallet-chip wallet-failed'
+										: 'wallet-chip'
+							)}
 							{@const walletMenuItems = getWalletMenuEntries(
 								wallet,
 								connection,
 								status,
 							)}
+
 							<ToggleGroup.Item
 								value={wallet.$id.rdns}
 								data-tag="wallet-type"
@@ -664,8 +688,8 @@
 									<NetworkIcon
 										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
-											wallet.icon
-												? { src: wallet.icon }
+											wallet.icon ?
+												{ src: wallet.icon }
 												: undefined
 										}
 										title={networkName ?? 'Unknown network'}
@@ -678,6 +702,7 @@
 													isLinked={false}
 												/>
 											</span>
+
 											{#if statusLabel}
 												<span class="wallet-status">{statusLabel}</span>
 											{/if}
@@ -685,6 +710,7 @@
 											<span class="wallet-status">{statusLabel ?? '—'}</span>
 										{/if}
 									</span>
+
 									<Dropdown
 										items={walletMenuItems}
 										triggerAriaLabel="Wallet menu"
@@ -740,31 +766,37 @@
 					>
 						{#each readOnlyWalletChips as { wallet, connection, status } (stringify(wallet.$id))}
 							{@const isConnected = status === 'connected'}
-							{@const isReadOnly =
-								connection.transport === WalletConnectionTransport.None}
-							{@const statusLabel =
-								status === 'connecting'
-									? connection.activeActor
-										? 'Reconnecting'
+
+							{@const isReadOnly = (
+								connection.transport === WalletConnectionTransport.None
+							)}
+							{@const statusLabel = (
+								status === 'connecting' ?
+									connection.activeActor ?
+										'Reconnecting'
 										: 'Connecting…'
-									: status === 'error'
-										? (connection.error ?? null)
-										: null}
+									: status === 'error' ?
+										(connection.error ?? null)
+										: null
+							)}
 							{@const chainId = connection.chainId}
-							{@const networkName = chainId
-								? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
+
+							{@const networkName = chainId ?
+								(networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
 								: null}
-							{@const walletChipClass =
-								status === 'connecting'
-									? 'wallet-chip wallet-connecting'
-									: status === 'error'
-										? 'wallet-chip wallet-failed'
-										: 'wallet-chip'}
+							{@const walletChipClass = (
+								status === 'connecting' ?
+									'wallet-chip wallet-connecting'
+									: status === 'error' ?
+										'wallet-chip wallet-failed'
+										: 'wallet-chip'
+							)}
 							{@const walletMenuItems = getWalletMenuEntries(
 								wallet,
 								connection,
 								status,
 							)}
+
 							<ToggleGroup.Item
 								value={wallet.$id.rdns}
 								data-tag="wallet-type"
@@ -776,8 +808,8 @@
 									<NetworkIcon
 										networkId={{ chainId: chainId ?? selectedChainIdDerived ?? 1 }}
 										subicon={
-											wallet.icon
-												? { src: wallet.icon }
+											wallet.icon ?
+												{ src: wallet.icon }
 												: undefined
 										}
 										title={networkName ?? 'Unknown network'}
@@ -790,6 +822,7 @@
 													isLinked={false}
 												/>
 											</span>
+
 											{#if statusLabel}
 												<span class="wallet-status">{statusLabel}</span>
 											{/if}
@@ -797,6 +830,7 @@
 											<span class="wallet-status">{statusLabel ?? '—'}</span>
 										{/if}
 									</span>
+
 									<Dropdown
 										items={walletMenuItems}
 										triggerAriaLabel="Wallet menu"
@@ -879,6 +913,7 @@
 				{ type: 'separator', id: 'wallet-connect-sep' },
 			]
 		)}
+
 		<Dropdown
 			items={walletConnectItems}
 			triggerLabel={walletChips.length > 0 ? '+' : 'Connect Wallet'}
@@ -900,12 +935,14 @@
 						{#if item.wallet.icon}
 							<Icon src={item.wallet.icon} />
 						{/if}
+
 						<span>{item.wallet.name}</span>
 					</span>
 				{:else}
 					<span data-wallet-empty>{item.label}</span>
 				{/if}
 			{/snippet}
+
 			<form
 				class="account-watching"
 				data-column
@@ -914,6 +951,7 @@
 				<label class="account-watching-label" for="account-watching-address">
 					Watching address
 				</label>
+
 				<div class="account-watching-field" data-row>
 					<input
 						id="account-watching-address"

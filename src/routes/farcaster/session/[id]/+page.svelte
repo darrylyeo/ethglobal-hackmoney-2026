@@ -47,7 +47,7 @@
 
 	// (Derived)
 	const dbSession = $derived(
-		sessionQuery.data?.[0]?.socialPostSession as SocialPostSession | undefined ?? null,
+		sessionQuery.data?.[0]?.socialPostSession as SocialPostSession | undefined ?? null
 	)
 	const selectedSiwfConnection = $derived(
 		(connectionsQuery.data ?? [])
@@ -55,7 +55,7 @@
 			.find(
 				(c) =>
 					c.transport === FarcasterConnectionTransport.Siwf && c.selected,
-			) ?? null,
+			) ?? null
 	)
 	const sessionQueryResolved = $derived(
 		sessionQuery.data !== undefined
@@ -63,7 +63,7 @@
 	const pageTitle = $derived(
 		activeSession
 			? (activeSession.name ?? formatSocialPostSessionPlaceholderName(activeSession.actions))
-			: 'Social post',
+			: 'Social post'
 	)
 
 
@@ -113,6 +113,7 @@
 			<header data-row="wrap gap-4">
 				<h1>Social post</h1>
 			</header>
+
 			<p data-text="muted">Loading…</p>
 		</section>
 	{/if}

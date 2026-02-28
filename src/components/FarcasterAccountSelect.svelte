@@ -18,10 +18,10 @@
 				.map(({ farcasterConnection: connection }) => connection)
 				.filter((c) => c.transport === FarcasterConnectionTransport.Siwf)
 				.sort((a, b) => b.connectedAt - a.connectedAt)
-		),
+		)
 	)
 	const selectedConnection = $derived(
-		siwfConnections.find((c) => c.selected) ?? siwfConnections[0],
+		siwfConnections.find((c) => c.selected) ?? siwfConnections[0]
 	)
 
 

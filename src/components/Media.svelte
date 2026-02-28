@@ -19,8 +19,9 @@
 
 
 	// Functions
-	const isFullMedia = (m: Media | { url: string } | undefined): m is Media =>
+	const isFullMedia = (m: Media | { url: string } | undefined): m is Media => (
 		!!m && 'type' in m && 'original' in m
+	)
 	const inferTypeFromUrl = (u: string | undefined): MediaType => {
 		if (!u) return MediaType.Other
 		const path = u.split('?')[0].toLowerCase()
@@ -44,18 +45,18 @@
 							: size === 'thumbnail'
 								? media.thumbnail
 								: media.original
-			: undefined,
+			: undefined
 	)
 	const url = $derived(
 		format?.url
 		?? (media && 'url' in media
 			? media.url
-			: undefined),
+			: undefined)
 	)
 	const mediaType = $derived(
 		isFullMedia(media)
 			? media.type
-			: inferTypeFromUrl(url),
+			: inferTypeFromUrl(url)
 	)
 </script>
 

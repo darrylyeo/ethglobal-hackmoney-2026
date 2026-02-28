@@ -39,31 +39,29 @@
 
 	// (Derived)
 	const arrowData = $derived(
-		computeArrow(sourceRect, targetRect, { padStart: gap, padEnd: arrowHeadSize }),
+		computeArrow(sourceRect, targetRect, { padStart: gap, padEnd: arrowHeadSize })
 	)
 	const pathD = $derived(
-		arrowToPathD(arrowData),
+		arrowToPathD(arrowData)
 	)
 	const tooltipOffset = 16
 	const arcMid = $derived(
 		arrowMidPoint(arrowData)
 	)
 	const tooltipAnchor = $derived(
-		arrowTooltipAnchor(arrowData, tooltipOffset),
+		arrowTooltipAnchor(arrowData, tooltipOffset)
 	)
-	const tooltipSide = $derived(
-		(() => {
-			const dx = tooltipAnchor.x - arcMid.x
-			const dy = tooltipAnchor.y - arcMid.y
-			return Math.abs(dy) > Math.abs(dx)
-				? dy < 0
-					? 'bottom'
-					: 'top'
-				: dx > 0
-					? 'left'
-					: 'right'
-		})(),
-	)
+	const tooltipSide = $derived.by(() => {
+		const dx = tooltipAnchor.x - arcMid.x
+		const dy = tooltipAnchor.y - arcMid.y
+		return Math.abs(dy) > Math.abs(dx) ?
+			dy < 0 ?
+				'bottom'
+				: 'top'
+			: dx > 0 ?
+				'left'
+				: 'right'
+	})
 </script>
 
 
@@ -93,6 +91,7 @@
 				></div>
 			{/snippet}
 		</Tooltip.Trigger>
+
 		<Tooltip.Portal>
 			<Tooltip.Content
 				class={!isInteractive ? 'drag-arrow-tooltip-no-events' : undefined}

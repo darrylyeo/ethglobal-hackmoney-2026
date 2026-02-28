@@ -62,10 +62,12 @@
 				<div data-row="start" data-row-item="flexible">
 					<h1>Session</h1>
 				</div>
+
 				<div data-row>
 					<span data-text="annotation">Session</span>
 				</div>
 			</header>
+
 			<p data-text="muted">Loading session…</p>
 		</section>
 	{/if}

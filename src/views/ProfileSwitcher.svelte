@@ -25,16 +25,16 @@
 	// State
 	import { getNetworkEnvironment } from '$/state/network-environment.svelte.ts'
 	let activeProfile = $state(
-		getActiveProfile(),
+		getActiveProfile()
 	)
 	let editingId = $state<string | undefined>(
 		undefined,
 	)
 	let editingName = $state(
-		'',
+		''
 	)
 	let profiles = $state(
-		listProfiles(),
+		listProfiles()
 	)
 
 	// Actions
@@ -108,6 +108,7 @@
 					>
 						{#if editingId === profile.id}
 							<!-- svelte-ignore a11y_autofocus -->
+
 							<input
 								class="profile-edit-input"
 								bind:value={editingName}
@@ -140,6 +141,7 @@
 								>
 									&#x270E;
 								</button>
+
 								<button
 									type="button"
 									aria-label="Export {profile.name}"
@@ -147,6 +149,7 @@
 								>
 									&#x21E9;
 								</button>
+
 								{#if profiles.length > 1}
 									<button
 										type="button"

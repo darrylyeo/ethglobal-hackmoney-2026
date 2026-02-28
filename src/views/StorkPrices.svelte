@@ -72,6 +72,7 @@
 		<ul data-column>
 			{#each assetIds as assetId (assetId)}
 				{@const best = getBestStorkPrice(prices, assetId, chainId ?? null)}
+
 				<li
 					class="stork-price-row"
 					data-row="align-center justify-between"
@@ -81,6 +82,7 @@
 						<span data-tabular>
 							${formatSmallestToDecimal(best.price, 18, 6)}
 						</span>
+
 						<small data-text="muted">
 							{best.transport}{best.chainId ? ` · ${best.chainId}` : ''} · {formatRelativeTime(
 								Date.now() - best.updatedAt,

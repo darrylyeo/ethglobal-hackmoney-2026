@@ -17,9 +17,9 @@
 
 	// (Derived)
 	const p = $derived(
-		action.type === ActionType.Bridge
-			? (action.params as { useCustomRecipient: boolean; customRecipient: string; fromChainId?: number })
-			: null,
+		action.type === ActionType.Bridge ?
+			(action.params as { useCustomRecipient: boolean; customRecipient: string; fromChainId?: number })
+			: null
 	)
 	const actorItems = $derived(
 		actors.map((a) => ({ address: a }))
@@ -50,9 +50,11 @@
 			/>
 			Use custom recipient
 		</label>
+
 		{#if p.useCustomRecipient}
 			<label data-column>
 				<span>Recipient address</span>
+
 				<AddressInput
 					items={actorItems}
 					bind:value={() => (p.customRecipient && p.customRecipient.startsWith('0x') ? (p.customRecipient as `0x${string}`) : null), (v) => {

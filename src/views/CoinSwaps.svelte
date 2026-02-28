@@ -45,7 +45,7 @@
 	const eventsSet = $derived(
 		new Set(
 			(query.data ?? []).map(({ row: event }) => event as TransferEventRow),
-		) as Set<TransferEventRow>,
+		) as Set<TransferEventRow>
 	)
 
 

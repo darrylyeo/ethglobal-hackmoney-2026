@@ -78,7 +78,7 @@
 			? (verifiedQuery.data ?? [])
 					.map(({ sharedAddress }) => sharedAddress)
 					.filter((s) => s.address.toLowerCase() !== myAddress)
-			: [],
+			: []
 	)
 	const availableBalance = $derived(
 		myAddress && yellowState.chainId
@@ -89,7 +89,7 @@
 							d.address.toLowerCase() === myAddress &&
 							d.chainId === yellowState.chainId,
 					)?.availableBalance ?? 0n)
-			: 0n,
+			: 0n
 	)
 	const incoming = $derived(
 		myAddress
@@ -98,14 +98,14 @@
 					.filter(
 						(p) => p.to.toLowerCase() === myAddress && p.status === 'pending',
 					)
-			: [],
+			: []
 	)
 	const outgoing = $derived(
 		myAddress
 			? (requestsQuery.data ?? [])
 					.map(({ transferRequest }) => transferRequest)
 					.filter((p) => p.from.toLowerCase() === myAddress)
-			: [],
+			: []
 	)
 
 
@@ -213,12 +213,14 @@
 					requested {request.allocations[0]?.amount ?? '0'}
 					{request.allocations[0]?.asset ?? 'usdc'}
 				</span>
+
 				<Button.Root
 					type="button"
 					onclick={() => acceptRequest(request.id)}
 				>
 					Accept
 				</Button.Root>
+
 				<Button.Root
 					type="button"
 					onclick={() => rejectRequest(request.id)}
@@ -240,6 +242,7 @@
 					{request.allocations[0]?.amount ?? '0'}
 					{request.allocations[0]?.asset ?? 'usdc'} ({request.status})
 				</span>
+
 				{#if request.status === 'accepted'}
 					<Button.Root
 						type="button"

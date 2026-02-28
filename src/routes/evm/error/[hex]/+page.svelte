@@ -38,7 +38,7 @@
 		[() => parsed],
 	)
 	const entry = $derived(
-		entryQuery.data?.[0]?.row as EvmError | undefined,
+		entryQuery.data?.[0]?.row as EvmError | undefined
 	)
 	const label = $derived(
 		entry?.signatures[0] ?? (parsed ?? '')

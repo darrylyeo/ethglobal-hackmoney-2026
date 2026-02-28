@@ -19,7 +19,7 @@
 	const trees = $derived(
 		(treesQuery.data ?? [])
 			.map(({ row }) => row)
-			.sort((a, b) => b.updatedAt - a.updatedAt),
+			.sort((a, b) => b.updatedAt - a.updatedAt)
 	)
 
 
@@ -50,10 +50,12 @@
 		<div data-row="start" data-row-item="flexible">
 			<h1>Agents</h1>
 		</div>
+
 		<div data-row>
 			<Button.Root href="/agents/registry">
 				EIP-8004 services
 			</Button.Root>
+
 			<Button.Root href="/agents/new">
 				New conversation
 			</Button.Root>
@@ -77,10 +79,12 @@
 						<strong>{tree.name ?? 'Untitled'}</strong>
 						<small data-text="muted">{new Date(tree.updatedAt).toLocaleString()}</small>
 					</div>
+
 					{#if tree.pinned}
 						<span data-text="muted">Pinned</span>
 					{/if}
 				</a>
+
 				<span data-row>
 					<Button.Root
 						onclick={(e: MouseEvent) => {
@@ -91,6 +95,7 @@
 					>
 						{tree.pinned ? 'Unpin' : 'Pin'}
 					</Button.Root>
+
 					<Button.Root
 						onclick={(e: MouseEvent) => {
 							e.preventDefault()

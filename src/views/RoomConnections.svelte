@@ -64,22 +64,22 @@
 			? filterAddresses
 			: actorId
 				? [actorId.address]
-				: [],
+				: []
 	)
 	const verificationsList = $derived(
-		(verificationsQuery.data ?? []).map(({ row: verification }) => verification).filter(Boolean),
+		(verificationsQuery.data ?? []).map(({ row: verification }) => verification).filter(Boolean)
 	)
 	const sharedAddresses = $derived(
 		actors.length === 0
 			? []
 			: (sharedAddressesQuery.data ?? [])
 					.map(({ row }) => row)
-					.filter((item) => actors.some((a) => item.address === a)),
+					.filter((item) => actors.some((a) => item.address === a))
 	)
 	const roomsById = $derived(
 		new Map(
 			(roomsQuery.data ?? []).map(({ row: room }) => [room.$id.id, room]),
-		),
+		)
 	)
 	const peersByRoomAndPeer = $derived(
 		new Map(
@@ -87,7 +87,7 @@
 				`${peer.roomId}:${peer.peerId}`,
 				peer,
 			]),
-		),
+		)
 	)
 	const singleAddress = $derived(
 		actors.length === 1 ? actors[0] : null
@@ -132,8 +132,10 @@
 				{/if}
 			</h3>
 		</div>
+
 		{#if availableAccounts.length > 0}
 			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+
 			<div
 				class="section-filters"
 				role="group"
@@ -176,12 +178,15 @@
 				>
 					{#each sharedAddresses as s (s.id)}
 						{@const room = roomsById.get(s.roomId)}
+
 						{@const peer = peersByRoomAndPeer.get(`${s.roomId}:${s.peerId}`)}
+
 						{@const verificationStatus = getVerificationStatus(
 							s.roomId,
 							s.peerId,
 							s.address,
 						)}
+
 						<li
 							class="connection-item"
 							data-columns-item
@@ -195,9 +200,11 @@
 							>
 								{room?.name ?? s.roomId}
 							</a>
+
 							<span class="connection-status">
 								{peer?.displayName ?? s.peerId.slice(0, 8)}
 							</span>
+
 							{#if verificationStatus}
 								<span
 									class="connection-badge"

@@ -71,7 +71,8 @@
 	const resolution = $derived(
 		sourcePayload && targetPayload ?
 			resolveIntentForDrag(sourcePayload.entity, targetPayload.entity)
-		: null,
+		:
+			null
 	)
 
 	const isActive = $derived(
@@ -81,24 +82,29 @@
 		intentDragPreviewState.status === 'selected'
 	)
 	const effectiveTargetRect = $derived(
-		intentDragPreviewState.target?.rect ??
-		(pointerPosition ?
-			new DOMRect(pointerPosition.x - 0.5, pointerPosition.y - 0.5, 1, 1)
-		: null),
+		intentDragPreviewState.target?.rect
+			?? (
+				pointerPosition ?
+					new DOMRect(pointerPosition.x - 0.5, pointerPosition.y - 0.5, 1, 1)
+				:
+					null
+			)
 	)
 
 	const flowIconSrc = $derived(
 		!sourcePayload || !COIN_ENTITY_TYPES.has(sourcePayload.entity.type) ?
 			undefined
-		: (() => {
+		:
+			(() => {
 				const coinId = getCoinIdForCoinEntity(
 					sourcePayload.entity.type,
 					sourcePayload.entity.id as Record<string, unknown>,
 				)
 				return coinId != null ?
 					(coinById[coinId]?.icon ?? coinById[CoinId.ETH]?.icon)
-				:	undefined
-			})(),
+				:
+					undefined
+			})()
 	)
 
 	$effect(() => {
@@ -246,7 +252,8 @@
 					data-state={intentDragPreviewState.status}
 					data-interactive={isInteractive ?
 						'true'
-					: 'false'}
+					:
+						'false'}
 					bind:this={tooltipContentRef}
 				>
 					{#if resolution?.matched}
@@ -254,8 +261,9 @@
 							<strong>{resolution.intent.label}</strong>
 							<span data-text="muted">
 								{resolution.options.length} option{resolution.options.length === 1 ?
-									''
-								: 's'}
+								''
+							:
+								's'}
 							</span>
 						</header>
 
@@ -274,14 +282,17 @@
 											<span
 												data-intent-transition={intentDragPreviewState.selectedRouteId === String(i) ?
 												'route'
-											: undefined}
+											:
+												undefined}
 											>
 												{option.name}
 											</span>
+
 											<small data-text="muted">
 												{option.sessionTemplate.actions.length} {option.sessionTemplate.actions.length === 1 ?
 													'step'
-												: 'steps'}
+												:
+													'steps'}
 											</small>
 										</button>
 									</li>
@@ -290,7 +301,8 @@
 						{:else if resolution.error}
 							<p data-text="muted">{resolution.error instanceof Error ?
 								resolution.error.message
-							: String(resolution.error)}</p>
+							:
+								String(resolution.error)}</p>
 						{:else}
 							<p data-text="muted">No options available.</p>
 						{/if}
@@ -298,6 +310,7 @@
 						<header data-row="gap-4">
 							<strong data-text="muted">No matching intent</strong>
 						</header>
+
 						<p data-text="muted">These entities can't be combined.</p>
 					{/if}
 				</div>
@@ -311,10 +324,12 @@
 			interactive={isInteractive}
 			sourceColor={sourcePayload ?
 				getEntityColor(sourcePayload.entity)
-			: undefined}
+			:
+				undefined}
 			targetColor={targetPayload ?
 				getEntityColor(targetPayload.entity)
-			: undefined}
+			:
+				undefined}
 			{flowIconSrc}
 		/>
 	{/if}
@@ -326,7 +341,6 @@
 		min-width: 240px;
 		pointer-events: none;
 	}
-
 	.intent-drag-tooltip[data-interactive='true'] {
 		pointer-events: auto;
 	}

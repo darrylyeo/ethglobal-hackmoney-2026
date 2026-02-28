@@ -36,12 +36,12 @@ import { entityKey } from '$/lib/entity-key.ts'
 		blockNumParam !== ''
 		&& DECIMAL_ONLY.test(blockNumParam)
 		&& Number.isSafeInteger(blockNumParsed)
-		&& blockNumParsed >= 0,
+		&& blockNumParsed >= 0
 	)
 	const blockNum = $derived(
 		blockNumValid
 			? blockNumParsed
-			: 0,
+			: 0
 	)
 	const chainId = $derived(
 		route?.chainId ?? (0 as ChainId)
@@ -95,10 +95,10 @@ import { entityKey } from '$/lib/entity-key.ts'
 		blockQuery.data?.[0]?.row as BlockEntry | null
 	)
 	const blockId = $derived(
-		block?.$id ?? { $network: { chainId }, blockNumber: blockNum },
+		block?.$id ?? { $network: { chainId }, blockNumber: blockNum }
 	)
 	const latestBlockNumber = $derived(
-		Number(latestBlockQuery.data?.[0] ?? 0),
+		Number(latestBlockQuery.data?.[0] ?? 0)
 	)
 
 	$effect(() => {
@@ -159,6 +159,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 				<p>
 					<a href={resolve(`/network/${chainId}#${entityKey({ entityType: EntityType.Block, entityId: blockId })}`)} data-link>Show Context</a>
 				</p>
+
 				{#if block}
 					<Block
 						data={new Map([[block, new Set()]])}
@@ -166,6 +167,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 						layout={EntityLayout.ContentOnly}
 					/>
 				{/if}
+
 				<Network
 					{networkId}
 					placeholderBlockIds={new Set([

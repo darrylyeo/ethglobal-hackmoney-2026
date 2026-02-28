@@ -44,17 +44,17 @@
 	// (Derived)
 	const connectionsQuery = useFarcasterConnections()
 	const allConnections = $derived(
-		(connectionsQuery.data ?? []).map(({ farcasterConnection: connection }) => connection) as FarcasterConnectionRow[],
+		(connectionsQuery.data ?? []).map(({ farcasterConnection: connection }) => connection) as FarcasterConnectionRow[]
 	)
 	const siwfConnections = $derived(
 		allConnections
 			.filter((c): c is FarcasterConnectionSiwf => c.transport === FarcasterConnectionTransport.Siwf)
-			.sort((a, b) => b.connectedAt - a.connectedAt),
+			.sort((a, b) => b.connectedAt - a.connectedAt)
 	)
 	const watchConnections = $derived(
 		allConnections
 			.filter((c): c is FarcasterConnectionWatch => c.transport === FarcasterConnectionTransport.Watch)
-			.sort((a, b) => b.connectedAt - a.connectedAt),
+			.sort((a, b) => b.connectedAt - a.connectedAt)
 	)
 	const siwfDomain = $derived(
 		page.url.hostname || 'localhost'
@@ -103,6 +103,7 @@
 			<div data-row>
 				<div data-row="align-center">
 					<h3 class="section-heading">Signed in</h3>
+
 					<span
 						data-badge="small"
 						aria-label={`${siwfConnections.length} signed-in accounts`}
@@ -110,6 +111,7 @@
 						{siwfConnections.length}
 					</span>
 				</div>
+
 				<SignInWithFarcaster
 					domain={siwfDomain}
 					siweUri={siwfUri}
@@ -117,6 +119,7 @@
 				/>
 			</div>
 		</summary>
+
 		<ul class="list" data-column>
 			{#each siwfConnections as conn (stringify(conn.$id))}
 				<li>
@@ -135,6 +138,7 @@
 			<div data-row>
 				<div data-row="align-center">
 					<h4>Watching</h4>
+
 					<span
 						data-badge="small"
 						aria-label={`${watchConnections.length} watching accounts`}
@@ -142,6 +146,7 @@
 						{watchConnections.length}
 					</span>
 				</div>
+
 				<Dropdown
 					items={[]}
 					triggerLabel="+"
@@ -181,6 +186,7 @@
 										{watchResolving ? '…' : 'Add'}
 									</Button.Root>
 								</div>
+
 								{#if watchResolveError}
 									<p class="watch-error" role="alert">{watchResolveError}</p>
 								{/if}
@@ -190,6 +196,7 @@
 				</Dropdown>
 			</div>
 		</summary>
+
 		<ul class="list" data-column>
 			{#each watchConnections as conn (stringify(conn.$id))}
 				<li>

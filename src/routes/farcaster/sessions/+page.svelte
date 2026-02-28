@@ -34,10 +34,10 @@
 	const sessions = $derived(
 		(sessionsQuery.data ?? [])
 			.map(({ row: session }) => session)
-			.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)),
+			.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
 	)
 	const draftCount = $derived(
-		sessions.filter((s) => s.status === SocialPostSessionStatus.Draft).length,
+		sessions.filter((s) => s.status === SocialPostSessionStatus.Draft).length
 	)
 	let now = $state(
 		Date.now()
@@ -60,6 +60,7 @@
 			<div data-row="start" data-row-item="flexible">
 				<h1>Social posts</h1>
 			</div>
+
 			<div data-row>
 				<a href="/farcaster/session?template=CreatePost" data-button>New post</a>
 				{#if draftCount > 0}
@@ -77,6 +78,7 @@
 				{/if}
 			</div>
 		</header>
+
 		{#if sessions.length === 0}
 			<p data-text="muted">No social post sessions yet.</p>
 			<p data-text="muted">
@@ -97,12 +99,15 @@
 										{sessionTitle(session)}
 									</span>
 								</a>
+
 								<span data-row="align-center">
 									<span data-tag>{session.status}</span>
+
 									<WatchButton
 										entityType={EntityType.SocialPostSession}
 										entity={session}
 									/>
+
 									<button
 										type="button"
 										aria-label="Delete social post session"
@@ -112,6 +117,7 @@
 									</button>
 								</span>
 							</div>
+
 							<p data-text="muted">
 								{session.updatedAt != null
 									? `Updated ${formatRelativeTime(now - session.updatedAt)}`

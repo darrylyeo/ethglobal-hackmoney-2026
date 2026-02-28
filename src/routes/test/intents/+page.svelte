@@ -41,7 +41,7 @@
 	const resolution = $derived(
 		fromPayload && toPayload
 			? resolveIntentForDrag(fromPayload.entity, toPayload.entity)
-			: null,
+			: null
 	)
 
 
@@ -89,6 +89,7 @@
 							<code>{entity.name}: {entity.type}</code>
 						{/each}
 					</div>
+
 					<div data-row="wrap">
 						{#each intent.invocations as invocation}
 							<span data-text="muted">
@@ -119,6 +120,7 @@
 					<p data-text="muted">Drop an entity</p>
 				{/if}
 			</div>
+
 			<div
 				class="intent-slot"
 				data-card
@@ -145,6 +147,7 @@
 			<div data-column>
 			{#each actorCoins as row (stringify(row.$id))}
 				{@const intent = entityIntent(EntityType.ActorCoin, row.$id, 'intent-test')}
+
 				<div data-row="align-center">
 					<EntityId
 						className="intent-entity"
@@ -159,6 +162,7 @@
 							· {formatSmallestToDecimal(row.balance, row.decimals, 4)}
 						</span>
 					</EntityId>
+
 					{#if intent}
 						<button
 							type="button"
@@ -170,6 +174,7 @@
 						>
 							From
 						</button>
+
 						<button
 							type="button"
 							onclick={() =>
@@ -182,6 +187,7 @@
 						</button>
 					{/if}
 				</div>
+
 				{/each}
 			</div>
 		{/if}

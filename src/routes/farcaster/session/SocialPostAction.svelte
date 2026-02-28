@@ -13,7 +13,7 @@
 
 	// (Derived)
 	const activeDef = $derived(
-		socialPostActionTypes.find((d) => d.type === action.type),
+		socialPostActionTypes.find((d) => d.type === action.type)
 	)
 
 
@@ -48,6 +48,7 @@
 
 	<div data-column>
 		<label for="post-text">Text</label>
+
 		<textarea
 			id="post-text"
 			placeholder="What's on your mind?"
@@ -60,9 +61,11 @@
 
 	{#if action.type === SocialPostActionType.ReplyToPost}
 		{@const replyParams = action.params as { parentFid: number; parentHash: string }}
+
 		<div data-row="wrap">
 			<div data-column="gap-1">
 				<label for="post-parent-fid">Parent FID</label>
+
 				<input
 					id="post-parent-fid"
 					type="number"
@@ -71,8 +74,10 @@
 					aria-label="Parent post FID"
 				/>
 			</div>
+
 			<div data-column="gap-1" data-row-item="flexible">
 				<label for="post-parent-hash">Parent hash</label>
+
 				<input
 					id="post-parent-hash"
 					type="text"

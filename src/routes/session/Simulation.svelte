@@ -18,11 +18,11 @@
 		simulation.result != null
 		&& typeof simulation.result === 'object'
 		&& 'steps' in simulation.result
-		&& Array.isArray((simulation.result as { steps: unknown }).steps)
-			? (simulation.result as { steps: TevmSimulationResult[] }).steps
-			: (simulation.result as TevmSimulationResult | null) != null
-				? [simulation.result as TevmSimulationResult]
-				: [],
+		&& Array.isArray((simulation.result as { steps: unknown }).steps) ?
+			(simulation.result as { steps: TevmSimulationResult[] }).steps
+			: (simulation.result as TevmSimulationResult | null) != null ?
+				[simulation.result as TevmSimulationResult]
+				: []
 	)
 </script>
 
@@ -42,6 +42,7 @@
 		>
 			{simulation.status}
 		</span>
+
 		<time datetime={new Date(simulation.createdAt).toISOString()}>
 			{new Date(simulation.createdAt).toLocaleString(undefined, {
 				dateStyle: 'short',
@@ -49,11 +50,13 @@
 			})}
 		</time>
 	</div>
+
 	<p data-text="muted">
 		Params: {simulation.paramsHash.length > 12
 			? `${simulation.paramsHash.slice(0, 8)}…`
 			: simulation.paramsHash || '—'}
 	</p>
+
 	{#if simulation.error && steps.length === 0}
 		<p data-error>{simulation.error}</p>
 	{:else if steps.length > 0}
@@ -68,6 +71,7 @@
 					>
 						{step.summaryStatus}
 					</span>
+
 					<span>Step {i + 1}</span>
 					<span data-text="muted">Gas: {step.gasTotals.used}</span>
 					{#if step.revertReason}
@@ -80,6 +84,7 @@
 				</li>
 			{/each}
 		</ol>
+
 		{#if simulation.error}
 			<p data-error>{simulation.error}</p>
 		{/if}

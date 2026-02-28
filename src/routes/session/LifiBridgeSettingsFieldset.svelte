@@ -19,9 +19,9 @@
 
 	// (Derived)
 	const p = $derived(
-		action.type === ActionType.Bridge
-			? (action.params as { slippage: number })
-			: null,
+		action.type === ActionType.Bridge ?
+			(action.params as { slippage: number })
+			: null
 	)
 
 
@@ -34,6 +34,7 @@
 		<h3>LI.FI settings</h3>
 		<label data-column>
 			<span>Slippage</span>
+
 			<Select
 				items={slippagePresets}
 				getItemId={(x) => x.id}
@@ -55,8 +56,10 @@
 				ariaLabel="Slippage"
 			/>
 		</label>
+
 		<label data-column>
 			<span>Custom %</span>
+
 			<input
 				type="text"
 				data-text="font-monospace"

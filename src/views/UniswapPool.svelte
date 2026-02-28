@@ -14,7 +14,7 @@
 	const pairLabel = $derived(
 		pool.token0Symbol && pool.token1Symbol
 			? `${pool.token0Symbol}–${pool.token1Symbol}`
-			: `${pool.token0.slice(0, 6)}… / ${pool.token1.slice(0, 6)}…`,
+			: `${pool.token0.slice(0, 6)}… / ${pool.token1.slice(0, 6)}…`
 	)
 </script>
 
@@ -25,34 +25,41 @@
 			<dt>Network</dt>
 			<dd>{network?.name ?? pool.$id.chainId}</dd>
 		</div>
+
 		<div>
 			<dt>Token pair</dt>
 			<dd>{pairLabel}</dd>
 		</div>
+
 		<div>
 			<dt>Fee tier</dt>
 			<dd>{formatFeeTierPercent(pool.fee)}</dd>
 		</div>
+
 		<div>
 			<dt>Liquidity</dt>
 			<dd>{pool.liquidity.toString()}</dd>
 		</div>
+
 		<div>
 			<dt>Tick</dt>
 			<dd>{pool.tick}</dd>
 		</div>
+
 		{#if pool.totalValueLockedUSD != null}
 			<div>
 				<dt>TVL (USD)</dt>
 				<dd>{String(pool.totalValueLockedUSD)}</dd>
 			</div>
 		{/if}
+
 		{#if pool.volumeUSD != null}
 			<div>
 				<dt>Volume (USD)</dt>
 				<dd>{String(pool.volumeUSD)}</dd>
 			</div>
 		{/if}
+
 		<div>
 			<dt>Token0</dt>
 			<dd>
@@ -62,6 +69,7 @@
 				{/if}
 			</dd>
 		</div>
+
 		<div>
 			<dt>Token1</dt>
 			<dd>

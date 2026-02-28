@@ -75,22 +75,22 @@
 
 <span
 	{...rootProps}
-	class={`icon shape-${shape}${className
-		? ` ${className}`
+	class={`icon shape-${shape}${className ?
+		` ${className}`
 		: ''}`}
 	data-row
-	style={`--icon-size: ${typeof size === 'number'
-		? `${size}px`
-		: size}${backgroundColor != null
-		? `; --icon-bg: ${backgroundColor}`
+	style={`--icon-size: ${typeof size === 'number' ?
+		`${size}px`
+		: size}${backgroundColor != null ?
+		`; --icon-bg: ${backgroundColor}`
 		: ''}`}
 	aria-label={a11yLabel || undefined}
-	aria-hidden={a11yLabel
-		? undefined
+	aria-hidden={a11yLabel ?
+		undefined
 		: true}
 	title={title ?? (alt || undefined)}
-	role={a11yLabel
-		? 'img'
+	role={a11yLabel ?
+		'img'
 		: undefined}
 >
 	<span data-row class="icon-main">

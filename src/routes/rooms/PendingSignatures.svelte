@@ -41,7 +41,7 @@
 			.filter(
 				(ch: SiweChallengeRow) =>
 					ch.toPeerId === roomState.peerId && !ch.verified && !ch.signature,
-			),
+			)
 	)
 
 	const canSign = $derived(

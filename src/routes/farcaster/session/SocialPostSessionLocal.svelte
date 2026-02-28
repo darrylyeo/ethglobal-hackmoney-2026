@@ -42,7 +42,7 @@
 		((connectionsQuery.data ?? []) as { row: FarcasterConnectionSiwf }[])
 			.map(({ row }) => row)
 			.find((c) => c.transport === FarcasterConnectionTransport.Siwf && c.selected)
-		?? null,
+		?? null
 	)
 
 

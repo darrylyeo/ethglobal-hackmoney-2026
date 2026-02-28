@@ -43,7 +43,7 @@
 							d.chainId === yellowState.chainId &&
 							d.address.toLowerCase() === yellowState.address!.toLowerCase(),
 					)
-			: null,
+			: null
 	)
 	const availableBalance = $derived(
 		depositRow?.availableBalance ?? 0n
@@ -124,6 +124,7 @@
 			bind:value={depositAmount}
 			inputmode="decimal"
 		/>
+
 		<button
 			type="submit"
 			disabled={loading}
@@ -146,6 +147,7 @@
 			bind:value={withdrawAmount}
 			inputmode="decimal"
 		/>
+
 		<button
 			type="submit"
 			disabled={loading}

@@ -50,9 +50,9 @@
 		node: DashboardNode,
 		panelId: string,
 	): DashboardPanelNode | null =>
-		node.type === 'panel'
-			? node.id === panelId
-				? node
+		node.type === 'panel' ?
+			node.id === panelId ?
+				node
 				: null
 			: (getPanelById(node.first, panelId) ??
 				getPanelById(node.second, panelId))
@@ -62,14 +62,14 @@
 		apply: (target: DashboardNode) => DashboardNode | null,
 	): DashboardNode =>
 		apply(node) ??
-		(node.type === 'split'
-			? (() => {
-					const first: DashboardNode = updateNode(node.first, apply)
-					const second: DashboardNode = updateNode(node.second, apply)
-					return first === node.first && second === node.second
-						? node
-						: { ...node, first, second }
-				})()
+		(node.type === 'split' ?
+			(() => {
+				const first: DashboardNode = updateNode(node.first, apply)
+				const second: DashboardNode = updateNode(node.second, apply)
+				return first === node.first && second === node.second ?
+					node
+					: { ...node, first, second }
+			})()
 			: node)
 
 	const updatePanel = (
@@ -89,24 +89,24 @@
 		createHashHistory: () => string[] = () => [],
 	) =>
 		updateNode(root, (node) =>
-			node.type === 'panel' && node.id === panelId
-				? {
-						id: crypto.randomUUID(),
-						type: 'split',
-						direction,
-						ratio: 0.5,
-						first: node,
-						second: createPanelNode(createRoute(), createHashHistory()),
-					}
+			node.type === 'panel' && node.id === panelId ?
+				{
+					id: crypto.randomUUID(),
+					type: 'split',
+					direction,
+					ratio: 0.5,
+					first: node,
+					second: createPanelNode(createRoute(), createHashHistory()),
+				}
 				: null,
 		)
 
 	const swapWithSibling = (root: DashboardNode, panelId: string) =>
 		updateNode(root, (node) =>
-			node.type === 'split'
-				? (node.first.type === 'panel' && node.first.id === panelId) ||
-					(node.second.type === 'panel' && node.second.id === panelId)
-					? { ...node, first: node.second, second: node.first }
+			node.type === 'split' ?
+				(node.first.type === 'panel' && node.first.id === panelId) ||
+					(node.second.type === 'panel' && node.second.id === panelId) ?
+					{ ...node, first: node.second, second: node.first }
 					: null
 				: null,
 		)
@@ -118,32 +118,32 @@
 
 	const toggleSplitDirection = (root: DashboardNode, splitId: string) =>
 		updateNode(root, (node) =>
-			node.type === 'split' && node.id === splitId
-				? {
-						...node,
-						direction:
-							node.direction === SplitDirection.Horizontal
-							? SplitDirection.Vertical
+			node.type === 'split' && node.id === splitId ?
+				{
+					...node,
+					direction:
+						node.direction === SplitDirection.Horizontal ?
+							SplitDirection.Vertical
 							: SplitDirection.Horizontal,
-					}
+				}
 				: null,
 		)
 
 	const removePanel = (root: DashboardNode, panelId: string) => {
 		const removeResult = (node: DashboardNode): DashboardNode | null =>
-			node.type === 'panel'
-				? node.id === panelId
-					? null
+			node.type === 'panel' ?
+				node.id === panelId ?
+					null
 					: node
 				: (() => {
 						const first = removeResult(node.first)
 						const second = first ? removeResult(node.second) : null
-						return !first
-							? node.second
-							: !second
-								? node.first
-								: first === node.first && second === node.second
-									? node
+						return !first ?
+							node.second
+							: !second ?
+								node.first
+								: first === node.first && second === node.second ?
+									node
 									: { ...node, first, second }
 					})()
 		return removeResult(root)
@@ -153,8 +153,8 @@
 		node.type === 'panel' ? node.id : firstPanelId(node.first)
 
 	const listPanelIds = (node: DashboardNode): string[] =>
-		node.type === 'panel'
-			? [node.id]
+		node.type === 'panel' ?
+			[node.id]
 			: [...listPanelIds(node.first), ...listPanelIds(node.second)]
 
 
@@ -180,16 +180,16 @@
 		dashboardRowQuery.data?.[0]?.row
 	)
 	const root = $derived(
-		dashboardRow && 'root' in dashboardRow ? dashboardRow.root : undefined,
+		dashboardRow && 'root' in dashboardRow ? dashboardRow.root : undefined
 	)
 	const focusedPanelId = $derived(
 		dashboardRow && 'focusedPanelId' in dashboardRow
 			? dashboardRow.focusedPanelId
-			: '',
+			: ''
 	)
 
 	const focusedPanel = $derived(
-		root ? getPanelById(root, focusedPanelId) : null,
+		root ? getPanelById(root, focusedPanelId) : null
 	)
 	const panelIds = $derived(
 		root ? listPanelIds(root) : []
@@ -282,9 +282,9 @@
 		if (!root) return
 		setRoot(
 			updatePanel(root, panelId, (panel) =>
-				isSameRoute(panel.route, route)
-					? hash
-						? { ...panel, hashHistory: [...panel.hashHistory, hash] }
+				isSameRoute(panel.route, route) ?
+					hash ?
+						{ ...panel, hashHistory: [...panel.hashHistory, hash] }
 						: panel
 					: { ...panel, route, hashHistory: hash ? [hash] : [] },
 			),
@@ -345,9 +345,10 @@
 			panelId: focusedPanel.id,
 			route: buildRoutePath(focusedPanel.route),
 		}
-		const shouldReplace =
+		const shouldReplace = (
 			previousPanelId !== focusedPanel.id ||
 			!isPrefix(previousHashes, nextHashes)
+		)
 		const run = () => {
 			if (shouldReplace) {
 				replaceState(baseUrl, baseState)

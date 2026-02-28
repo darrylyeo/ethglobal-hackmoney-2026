@@ -49,16 +49,16 @@
 	)
 	type AbiFn = (typeof abi)[number] & { type: 'function' }
 	const functions = $derived(
-		abi.filter((x): x is AbiFn => x.type === 'function') as AbiFn[],
+		abi.filter((x): x is AbiFn => x.type === 'function') as AbiFn[]
 	)
 	const variables = $derived(
-		functions.filter((f) => isReadableWithoutInputs(f)),
+		functions.filter((f) => isReadableWithoutInputs(f))
 	)
 	const queries = $derived(
-		functions.filter((f) => isReadable(f) && !isReadableWithoutInputs(f)),
+		functions.filter((f) => isReadable(f) && !isReadableWithoutInputs(f))
 	)
 	const actions = $derived(
-		functions.filter((f) => isWritable(f)),
+		functions.filter((f) => isWritable(f))
 	)
 	const rpcUrl = $derived(
 		getEffectiveRpcUrl(chainId) ?? null
@@ -82,14 +82,14 @@
 	const selectedConnection = $derived(
 		(connectionsQuery.data ?? [])
 			.map(({ walletConnection }) => walletConnection)
-			.find((c) => c.selected),
+			.find((c) => c.selected)
 	)
 	const walletRow = $derived(
 		selectedConnection ?
 			(walletsQuery.data ?? []).map(({ wallet }) => wallet).find(
 				(w) => w.$id.rdns === selectedConnection.$id.wallet$id.rdns,
 			)
-		: null,
+		: null
 	)
 	const walletProvider = $derived(
 		fromProp ?
@@ -97,10 +97,10 @@
 		: (selectedConnection &&
 			walletRow &&
 			'provider' in walletRow &&
-			(walletRow.provider as EIP1193Provider)) ?? null,
+			(walletRow.provider as EIP1193Provider)) ?? null
 	)
 	const fromAddress = $derived(
-		fromProp ?? selectedConnection?.activeActor ?? selectedConnection?.actors[0] ?? null,
+		fromProp ?? selectedConnection?.activeActor ?? selectedConnection?.actors[0] ?? null
 	)
 
 
@@ -169,14 +169,16 @@
 				data,
 				value: payableValue > 0n ? `0x${payableValue.toString(16)}` : undefined,
 			})
-			const status =
+			const status = (
 				(result as { summaryStatus?: string }).summaryStatus ??
 				(result as { revertReason?: string }).revertReason
 					? TevmSimulationSummaryStatus.Failed
 					: TevmSimulationSummaryStatus.Success
-			const err =
+			)
+			const err = (
 				(result as { revertReason?: string }).revertReason ??
 				(result as { error?: string }).error
+			)
 			simulateResult = { status, ...(err && { error: err }) }
 		} catch (e) {
 			simulateResult = {
@@ -252,6 +254,7 @@
 		<div data-column="gap-4">
 		<section data-card data-column>
 			<h4>Method</h4>
+
 			<Select
 				items={methodItems}
 				bind:value={selectedMethod}
@@ -273,6 +276,7 @@
 				<h4>Parameters</h4>
 				{#each (selectedMethod.inputs ?? []) as input, i}
 					{@const key = getInputKey(input.name ?? `param${i}`, i)}
+
 					<label data-row>
 						<span>{input.name ?? `Param ${i + 1}`}</span>
 						{#if input.type === 'address'}
@@ -299,12 +303,15 @@
 								bind:value={() => inputValues[key] ?? '', (v) => (inputValues = { ...inputValues, [key]: v })}
 							/>
 						{/if}
+
 						<span data-text="muted">{input.type}</span>
 					</label>
 				{/each}
+
 				{#if selectedMethod.stateMutability === 'payable'}
 					<label data-row>
 						<span>Value (wei)</span>
+
 						<input
 							type="text"
 							placeholder="0"
@@ -324,6 +331,7 @@
 						>
 							{simulateInProgress ? 'Simulating…' : 'Simulate'}
 						</button>
+
 						<button
 							disabled={!getEncodedData() || !rpcUrl || queryInProgress}
 							onclick={runQuery}
@@ -337,6 +345,7 @@
 						>
 							{simulateInProgress ? 'Simulating…' : 'Simulate'}
 						</button>
+
 						<button
 							disabled={
 								!getEncodedData() ||
@@ -368,6 +377,7 @@
 			{#if simulateResult}
 				<section data-card>
 					<h4>Simulation</h4>
+
 					<p
 						data-tag={simulateResult.status === TevmSimulationSummaryStatus.Success ?
 							'success'
@@ -381,5 +391,6 @@
 				</section>
 			{/if}
 		{/if}
+
 		</div>
 	</details>

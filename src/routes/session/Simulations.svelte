@@ -29,7 +29,7 @@
 	const items = $derived(
 		new SvelteSet(
 			(simulationsQuery.data?.map(({ row: simulation }) => simulation) ?? []) as SessionActionTransactionSimulation[],
-		),
+		)
 	)
 
 

@@ -93,6 +93,25 @@
 	} = $props()
 
 
+	// Functions
+	function handleKeydown(e: KeyboardEvent) {
+		const input = searchInputRef
+		if (
+			!input ||
+			e.ctrlKey ||
+			e.metaKey ||
+			e.altKey ||
+			e.key.length !== 1 ||
+			!/^[a-zA-Z]$/.test(e.key) ||
+			input.contains(e.target as Node)
+		)
+			return
+		e.preventDefault()
+		input.focus()
+		searchQuery = searchQuery + e.key
+	}
+
+
 	// State
 	let filteredItems = $state<_Item[]>([])
 	let sortedItems = $state<_Item[]>([])
@@ -102,16 +121,24 @@
 
 	// (Derived)
 	const hasFilterGroups = $derived(
-		filterGroups.length > 0 && filterGroups.some((g) => g.filters.length > 1),
+		filterGroups.length > 0 && filterGroups.some((g) => g.filters.length > 1)
 	)
 	const hasSortOptions = $derived(
 		(sortOptions?.length ?? 0) > 1
 	)
 	const itemsToSort = $derived(
-		(filter ? (hasFilterGroups ? filteredItems : items).filter(filter) : (hasFilterGroups ? filteredItems : items)),
+		(
+			filter ?
+				(hasFilterGroups ? filteredItems : items).filter(filter)
+			:
+				(hasFilterGroups ? filteredItems : items)
+		)
 	)
 	const displayItems = $derived(
-		hasSortOptions ? sortedItems : itemsToSort
+		hasSortOptions ?
+			sortedItems
+		:
+			itemsToSort
 	)
 	const itemsSet = $derived(
 		new SvelteSet(displayItems)
@@ -134,8 +161,9 @@
 			defaultFilterIds.size > 0 &&
 			activeFilters.size === 0
 		) {
-			const matching = filterGroups.flatMap((g) =>
-				g.filters.filter((f) => defaultFilterIds.has(f.id as _FilterId)),
+			const matching = filterGroups.flatMap((g) => (
+				g.filters.filter((f) => defaultFilterIds.has(f.id as _FilterId))
+			)
 			)
 			if (matching.length > 0) {
 				activeFilters = new Set(matching)
@@ -145,8 +173,9 @@
 	})
 	$effect(() => {
 		if (defaultFilterIds.size > 0 && filterGroups.length > 0) {
-			const matching = filterGroups.flatMap((g) =>
-				g.filters.filter((f) => defaultFilterIds.has(f.id as _FilterId)),
+			const matching = filterGroups.flatMap((g) => (
+				g.filters.filter((f) => defaultFilterIds.has(f.id as _FilterId))
+			)
 			)
 			if (matching.length > 0) activeFilters = new Set(matching)
 		}
@@ -154,24 +183,6 @@
 	$effect(() => {
 		displayCount = displayItems.length
 	})
-
-	// Functions
-	function handleKeydown(e: KeyboardEvent) {
-		const input = searchInputRef
-		if (
-			!input ||
-			e.ctrlKey ||
-			e.metaKey ||
-			e.altKey ||
-			e.key.length !== 1 ||
-			!/^[a-zA-Z]$/.test(e.key) ||
-			input.contains(e.target as Node)
-		)
-			return
-		e.preventDefault()
-		input.focus()
-		searchQuery = searchQuery + e.key
-	}
 
 
 	// Components
@@ -207,6 +218,7 @@
 					/>
 				</label>
 			{/if}
+
 			{#if hasFilterGroups}
 				<Filters
 					items={items}
@@ -219,6 +231,7 @@
 					}}
 				/>
 			{/if}
+
 			{#if hasSortOptions}
 				<Sorts
 					items={itemsToSort}
@@ -229,6 +242,7 @@
 			{/if}
 		</div>
 	{/if}
+
 	<List
 		items={itemsSet}
 		{getKey}

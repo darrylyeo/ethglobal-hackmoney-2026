@@ -29,39 +29,39 @@
 
 	// (Derived)
 	const blocksSet = $derived(
-		new Set([...blocksMap.keys()].filter((b): b is BlockEntry => b != null)),
+		new Set([...blocksMap.keys()].filter((b): b is BlockEntry => b != null))
 	)
 	const hasFork = $derived(
 		chainId in forksByChainId
 	)
 	const getGroupKey = $derived(
-		hasFork
-			? (b: BlockEntry) =>
-					getExecutionEraAtBlock(
-						chainId,
-						b.$id.blockNumber,
-						b.timestamp,
-					)?.eraId ?? 'Unknown'
-			: undefined,
+		hasFork ?
+			(b: BlockEntry) =>
+				getExecutionEraAtBlock(
+					chainId,
+					b.$id.blockNumber,
+					b.timestamp,
+				)?.eraId ?? 'Unknown'
+			: undefined
 	)
 	const getGroupLabel = $derived(
 		hasFork ? (eraId: string) => eraId : undefined
 	)
 	const getGroupKeyForPlaceholder = $derived(
-		hasFork
-			? (key: number) =>
-					getExecutionEraAtBlock(chainId, key)?.eraId ?? 'Unknown'
-			: undefined,
+		hasFork ?
+			(key: number) =>
+				getExecutionEraAtBlock(chainId, key)?.eraId ?? 'Unknown'
+			: undefined
 	)
 	const total = $derived.by(() => {
 		const range = [...placeholderBlockIds].find((k): k is [number, number] =>
 			Array.isArray(k),
 		)
-		return range != null
-			? range[1] + 1
-			: placeholderBlockIds.size > 0
-				? 1
-				: 0
+		return range != null ?
+			range[1] + 1
+			: placeholderBlockIds.size > 0 ?
+				1
+			: 0
 	})
 
 
@@ -100,6 +100,7 @@
 					Set<ChainTransactionEntry>
 				>([[item, blocksMap.get(item) ?? new Set()]])}
 				{@const networkId = item.$id.$network}
+
 				<Block data={blockData} {networkId} />
 			{/if}
 		</span>

@@ -66,6 +66,7 @@
 				{item.transactionHash.slice(0, 10)}…{item.transactionHash.slice(-8)}
 			</code>
 		</dd>
+
 		<dt>From</dt>
 		<dd bind:this={fromRef}><code>{item.fromAddress.slice(0, 10)}…</code></dd>
 		<dt>To</dt>

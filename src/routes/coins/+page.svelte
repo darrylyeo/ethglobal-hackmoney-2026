@@ -21,7 +21,7 @@
 					coinInstanceByChainAndCoinId.get(`${ChainId.Ethereum}:${c.id}`)
 					?? erc20InstancesByCoinId.get(c.id)?.[0],
 			}))
-			.filter(({ coin }) => coin != null),
+			.filter(({ coin }) => coin != null)
 	)
 
 
@@ -51,6 +51,7 @@
 				>
 					<CoinName {coin} />
 				</EntityId>
+
 				<WatchButton
 					entityType={EntityType.Coin}
 					entity={coin}

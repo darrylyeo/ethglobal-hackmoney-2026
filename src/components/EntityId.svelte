@@ -37,7 +37,7 @@
 	const intent = $derived(
 		entityType && effectiveEntityId
 			? entityIntent(entityType, effectiveEntityId, source)
-			: undefined,
+			: undefined
 	)
 </script>
 

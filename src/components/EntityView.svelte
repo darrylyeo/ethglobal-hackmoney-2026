@@ -72,20 +72,21 @@
 	// (Derived)
 	const entityId = $derived(
 		entityIdProp
-		?? (entity as { $id?: EntityId } | undefined)?.$id
-		?? (
-			idSerialized !== ''
-			&& [EntityTypeEnum.Session, EntityTypeEnum.Room, EntityTypeEnum.AgentChatTree].includes(entityType)
-				? ({ id: idSerialized } as EntityId)
-				: undefined
-		),
+			?? (entity as { $id?: EntityId } | undefined)?.$id
+			?? (
+				idSerialized !== ''
+				&& [EntityTypeEnum.Session, EntityTypeEnum.Room, EntityTypeEnum.AgentChatTree].includes(entityType) ?
+					({ id: idSerialized } as EntityId)
+				:
+					undefined
+			)
 	)
 	const articleId = $derived(
-		`${entityType}:${entityId != null ? stringify(entityId) : idSerialized}`,
+		`${entityType}:${entityId != null ? stringify(entityId) : idSerialized}`
 	)
 	const showFooter = $derived(
 		layout !== EntityLayout.ContentOnly &&
-		((sources?.length ?? 0) > 0 || (sourceLinks?.length ?? 0) > 0),
+		((sources?.length ?? 0) > 0 || (sourceLinks?.length ?? 0) > 0)
 	)
 	const sourcesFormatted = $derived(
 		formatSourceList(sources ?? [])
@@ -97,6 +98,7 @@
 	import Heading from '$/components/Heading.svelte'
 	import WatchButton from '$/components/WatchButton.svelte'
 </script>
+
 
 {#if layout === EntityLayout.ContentOnly}
 	<div
@@ -137,9 +139,15 @@
 								{/snippet}
 
 							{#if titleHref !== false && !Title}
-									<a href={titleHref === true || titleHref === undefined ? `#${articleId}` : titleHref}>
+									<a href={(
+										titleHref === true || titleHref === undefined ?
+											`#${articleId}`
+										:
+											titleHref
+									)}>
 										{@render HeadingContent()}
 									</a>
+
 									{:else}
 									{@render HeadingContent()}
 									{/if}
@@ -164,6 +172,7 @@
 											{#if term}
 												<dt>{term}</dt>
 											{/if}
+
 											<dd>{detail}</dd>
 										</div>
 									{/each}
@@ -176,6 +185,7 @@
 						{#if BeforeAnnotation}
 							{@render BeforeAnnotation({ entity, entityType })}
 						{/if}
+
 						<span data-text="annotation">
 							{annotation
 								?? (entityTypes.find((e) => e.type === entityType)?.label ?? entityType)}
@@ -193,6 +203,7 @@
 				</div>
 			{/if}
 		</Collapsible>
+
 		{#if showFooter}
 			<footer class="entity-footer" data-column="gap-2">
 				{#if (sources?.length ?? 0) > 0}
@@ -200,6 +211,7 @@
 						Data from: {sourcesFormatted}
 					</p>
 				{/if}
+
 				{#if (sourceLinks?.length ?? 0) > 0}
 					<nav aria-label="Source links" data-row="wrap gap-2">
 						{#each sourceLinks as link}

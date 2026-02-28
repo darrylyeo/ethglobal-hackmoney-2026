@@ -26,6 +26,7 @@
 	} = $props()
 </script>
 
+
 {#if value.length <= startLength + endLength}
 	{value}
 {:else if format === TruncatedValueFormat.Abbr}
@@ -41,7 +42,9 @@
 	>
 		{#if value}
 			{@const start = value.slice(0, startLength)}
+
 			{@const middle = value.slice(startLength, -endLength || undefined)}
+
 			{@const end = value.slice(-endLength || undefined)}
 
 			<span>{start}</span><span class="middle"
@@ -57,14 +60,22 @@
 		role="button"
 		tabindex="0"
 		aria-label={value}
-		>{#if startLength}<span>{value.slice(0, startLength)}</span>{/if}<span
+		>
+		{#if startLength}
+			<span>{value.slice(0, startLength)}</span>
+		{/if}
+		<span
 			class="middle"
 			style:--l={value.length - startLength - endLength}
-			>{#each value.slice(startLength, -endLength || undefined) as char, i}<span
-					style:--i={i}>{char}</span
-				>{/each}</span
-		>{#if endLength}<span>{value.slice(-endLength)}</span>{/if}</span
-	>
+		>
+			{#each value.slice(startLength, -endLength || undefined) as char, i}
+				<span style:--i={i}>{char}</span>
+			{/each}
+		</span>
+		{#if endLength}
+			<span>{value.slice(-endLength)}</span>
+		{/if}
+	</span>
 {/if}
 
 

@@ -29,7 +29,7 @@
 	const items = $derived(
 		new SvelteSet(
 			(transactionsQuery.data?.map(({ transaction: tx }) => tx) ?? []) as SessionActionTransaction[],
-		),
+		)
 	)
 
 
@@ -43,6 +43,7 @@
 	<summary>
 		<h4>Submitted Transactions</h4>
 	</summary>
+
 	<List
 		items={items}
 		getKey={(item) => item.id}

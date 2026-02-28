@@ -26,12 +26,13 @@
 
 	// (Derived)
 	const modelItems = $derived(
-		connections.flatMap((conn) =>
+		connections.flatMap((conn) => (
 			getModelsForConnection(conn).map((model) => ({
 				value: `${conn.id}:${model.id}`,
 				label: `${conn.label} · ${model.label}`,
-			})),
+			}))
 		),
+		)
 	)
 	const options = $derived(
 		['', ...modelItems.map((item) => item.value)]
@@ -51,8 +52,9 @@
 	{disabled}
 	{id}
 	{ariaLabel}
-	getItemLabel={(item) =>
+	getItemLabel={(item) => (
 		item === ''
 			? 'Default'
-			: (modelItems.find((entry) => entry.value === item)?.label ?? item)}
+			: (modelItems.find((entry) => entry.value === item)?.label ?? item)
+	)}
 ></Select>

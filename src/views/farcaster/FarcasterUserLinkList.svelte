@@ -70,8 +70,11 @@
 			{#snippet Item({ key: _k, item: link, isPlaceholder, searchQuery: q, matches })}
 				{#if !isPlaceholder && link != null}
 					{@const fid = getFid(link)}
+
 					{@const user = userByFid.get(fid)}
+
 					{@const label = user?.username ? `@${user.username}` : `@${fid}`}
+
 					<EntityView
 						entityType={EntityType.FarcasterUser}
 						entity={user}

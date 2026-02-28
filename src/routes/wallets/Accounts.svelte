@@ -17,10 +17,11 @@
 	import { WalletConnectionTransport } from '$/data/WalletConnection.ts'
 	import { stringify } from 'devalue'
 
-	type WalletConnectItem =
+	type WalletConnectItem = (
 		| { kind: 'wallet'; wallet: WithSource<Wallet> }
 		| { kind: 'empty'; label: string }
-	type WalletConnectEntry =
+	)
+	type WalletConnectEntry = (
 		| {
 				type: string
 				id?: string
@@ -29,6 +30,7 @@
 				disabled?: boolean
 		  }
 		| { type: string; id?: string }
+	)
 
 	import {
 		connectReadOnly,
@@ -72,12 +74,12 @@
 	const connections = $derived(
 		(connectionsQuery.data ?? [])
 			.map(({ walletConnection: connection }) => connection)
-			.filter((c) => c?.$id?.wallet$id?.rdns),
+			.filter((c) => c?.$id?.wallet$id?.rdns)
 	)
 	const wallets = $derived(
 		(walletsQuery.data ?? [])
 			.map(({ wallet }) => wallet)
-			.filter((w): w is WithSource<Wallet> => !!w?.$id?.rdns),
+			.filter((w): w is WithSource<Wallet> => !!w?.$id?.rdns)
 	)
 	const walletsByRdns = $derived(
 		new Map(wallets.map((w) => [w.$id.rdns, w]))
@@ -118,26 +120,26 @@
 	const eip1193Chips = $derived(
 		walletChips.filter(
 			(chip) => chip.connection.transport === WalletConnectionTransport.Eip1193,
-		),
+		)
 	)
 	const readOnlyChips = $derived(
 		walletChips.filter(
 			(chip) => chip.connection.transport === WalletConnectionTransport.None,
-		),
+		)
 	)
 
 	const connectedRdns = $derived(
-		new Set(connections.map((c) => c.$id.wallet$id.rdns)),
+		new Set(connections.map((c) => c.$id.wallet$id.rdns))
 	)
 	const availableWallets = $derived(
-		wallets.filter((w) => !connectedRdns.has(w.$id.rdns)),
+		wallets.filter((w) => !connectedRdns.has(w.$id.rdns))
 	)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
 			networkEnvironmentState.current === NetworkEnvironment.Testnet
 				? n.type === NetworkType.Testnet
 				: n.type === NetworkType.Mainnet,
-		),
+		)
 	)
 
 
@@ -239,6 +241,7 @@
 										ariaLabel="Watching address"
 									/>
 								</span>
+
 								<Button.Root type="submit" disabled={!readOnlyAddress}>
 									Add
 								</Button.Root>
@@ -262,6 +265,7 @@
 								isLinked={false}
 							/>
 						{/if}
+
 						<span class="disconnect">
 							<Button.Root
 								type="button"
@@ -308,6 +312,7 @@
 								{#if item.wallet.icon}
 									<Icon src={item.wallet.icon} />
 								{/if}
+
 								<span>{item.wallet.name}</span>
 							</span>
 						{:else}
@@ -321,6 +326,7 @@
 		<ul data-list="unstyled">
 			{#each eip1193Chips as { wallet, connection, status } (stringify(wallet.$id))}
 				{@const chainId = connection.chainId ?? 1}
+
 				{@const networkName = connection.chainId
 					? (networksByChainId[connection.chainId]?.name ??
 						`Chain ${connection.chainId}`)
@@ -347,6 +353,7 @@
 												}
 											/>
 										{/if}
+
 										<span>{wallet.name}</span>
 									</span>
 
@@ -383,12 +390,14 @@
 								</span>
 							</div>
 						</summary>
+
 						<div class="panel" data-column>
 							{#if (connection.actors ?? []).length > 0}
 								<details class="nested" open>
 									<summary>
 										Accounts ({connection.actors.length})
 									</summary>
+
 									<ul class="list" data-column>
 										{#each connection.actors ?? [] as actor}
 											<li>
@@ -416,11 +425,12 @@
 									<summary> Network </summary>
 									<div data-row="align-center wrap">
 										<span>{networkName ?? 'Unknown'}</span>
+
 										<NetworkInput
 											networks={filteredNetworks}
 											bind:value={
 												() => connection.chainId,
-												(v) =>
+												(v) => (
 													typeof v === 'number' &&
 													connection.transport ===
 														WalletConnectionTransport.Eip1193 &&
@@ -430,6 +440,7 @@
 														wallet,
 														v,
 													).catch(() => {})
+												)
 											}
 											placeholder="Switch network"
 											ariaLabel="Switch network"

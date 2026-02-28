@@ -83,8 +83,8 @@
 				{ term: 'Chain ID', detail: String(chainId) },
 				{ term: 'CAIP-2', detail: `eip155:${chainId}` },
 				...(
-					route.network.nativeCurrency
-						? [{ term: 'Currency', detail: route.network.nativeCurrency.symbol }]
+					route.network.nativeCurrency ?
+						[{ term: 'Currency', detail: route.network.nativeCurrency.symbol }]
 						: []
 				),
 			]}
@@ -96,6 +96,7 @@
 			{#snippet AfterTitle({ entity })}
 				{#if entity && 'network' in entity && (entity as { network?: { type: string } }).network?.type}
 					{@const net = (entity as { network: { type: string } }).network}
+
 					<span data-tag={net.type}>{net.type}</span>
 				{/if}
 			{/snippet}

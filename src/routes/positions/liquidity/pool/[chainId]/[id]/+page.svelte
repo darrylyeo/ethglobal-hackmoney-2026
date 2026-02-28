@@ -23,7 +23,7 @@
 		parseInt(chainIdParam, 10)
 	)
 	const valid = $derived(
-		chainIdParam !== '' && !Number.isNaN(chainId) && idParam !== '',
+		chainIdParam !== '' && !Number.isNaN(chainId) && idParam !== ''
 	)
 
 	const poolQuery = useLiveQuery(
@@ -42,7 +42,7 @@
 		[() => chainId, () => idParam, () => valid],
 	)
 	const pool = $derived(
-		poolQuery.data?.[0]?.row as UniswapPool | undefined,
+		poolQuery.data?.[0]?.row as UniswapPool | undefined
 	)
 	const poolId = $derived(
 		pool?.$id ?? { chainId, id: idParam }
@@ -52,7 +52,7 @@
 			? `${pool.token0Symbol}–${pool.token1Symbol}`
 			: pool
 				? `Pool ${idParam.slice(0, 10)}…`
-				: idParam || 'Pool',
+				: idParam || 'Pool'
 	)
 
 	// Actions

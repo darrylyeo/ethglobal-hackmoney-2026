@@ -23,12 +23,12 @@
 	const selector = $derived(
 		(data?.length ?? 0) >= 10
 			? (data!.slice(0, 10) as `0x${string}`)
-			: null,
+			: null
 	)
 	const normalizedSelector = $derived(
 		selector
 			? normalizeEvmSelector4(selector)
-			: null,
+			: null
 	)
 	const sigQuery = useLiveQuery(
 		(q) =>
@@ -57,7 +57,7 @@
 						: desc.amount})`
 					: signatures.length > 0
 						? signatures[0]
-						: `raw (${desc.byteLength} bytes)`,
+						: `raw (${desc.byteLength} bytes)`
 	)
 
 

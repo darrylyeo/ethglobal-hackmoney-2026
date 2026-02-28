@@ -47,10 +47,10 @@
 	const sortedEdges = $derived(
 		[...graph.edges].sort(
 			(a, b) => Math.min(...a.timestamps) - Math.min(...b.timestamps),
-		),
+		)
 	)
 	const totalVolume = $derived(
-		graph.edges.reduce((s, e) => s + e.totalAmount, 0),
+		graph.edges.reduce((s, e) => s + e.totalAmount, 0)
 	)
 
 
@@ -105,6 +105,7 @@
 		<div data-row="start" data-row-item="flexible">
 			<h2>Live transfers – {coin.symbol}</h2>
 		</div>
+
 		<div data-row>
 			<nav data-row="start" aria-label="Time period">
 				{#each periods as p (p.value)}
@@ -138,6 +139,7 @@
 
 				{#each graph.nodes as node (node.address)}
 					{@const pos = nodePositionByAddress.get(node.address)}
+
 					{#if pos}
 						<T.Mesh position={[pos.x, pos.y, pos.z]}>
 							<T.SphereGeometry args={[0.15, 12, 12]} />

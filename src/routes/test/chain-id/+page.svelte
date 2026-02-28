@@ -40,12 +40,14 @@
 >
 	<section data-scroll-item>
 		<h1>Tests</h1>
+
 		<section
 			data-card
 			data-column="gap-4"
 			aria-labelledby="chainid-heading"
 		>
 			<h2 id="chainid-heading">Chain ID (Voltaire)</h2>
+
 			<form
 				aria-labelledby="chainid-heading"
 				onsubmit={(e) => {
@@ -55,10 +57,12 @@
 			>
 				<fieldset data-row>
 					<legend class="sr-only">RPC URL</legend>
+
 					<label
 						for="rpc-url"
 						class="sr-only"
 					>RPC URL</label>
+
 					<div
 						data-column
 						data-row-item="flexible"
@@ -70,6 +74,7 @@
 							placeholder="RPC URL (https://…)"
 						/>
 					</div>
+
 					<Button.Root
 						type="submit"
 						disabled={loading || !rpcUrl.trim()}
@@ -78,9 +83,11 @@
 					</Button.Root>
 				</fieldset>
 			</form>
+
 			{#if error}
 				<p role="alert">{error}</p>
 			{/if}
+
 			{#if chainIdResult !== null}
 				<p>
 					<output for="rpc-url">Chain ID: {formatInteger(chainIdResult)}</output>

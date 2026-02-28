@@ -36,14 +36,14 @@
 	let {
 		data = {},
 	}: {
-		data?: Record<string, unknown>,
+		data?: Record<string, unknown>
 	} = $props()
 
 	const embeddedInPanel = $derived(
 		data?.embeddedInPanel === true
 	)
 	const panelRouteLinks = $derived(
-		routeEntries.filter((entry) => !entry.path.startsWith('/dashboard')),
+		routeEntries.filter((entry) => !entry.path.startsWith('/dashboard'))
 	)
 
 	const createPanelNode = (
@@ -183,14 +183,14 @@
 				.from({ row: dashboardsCollection })
 				.where(({ row }) => eq(row.$id.id, '__default__'))
 				.select(({ row }) =>
-					'defaultDashboardId' in row
-						? { defaultDashboardId: row.defaultDashboardId }
+					'defaultDashboardId' in row ?
+						{ defaultDashboardId: row.defaultDashboardId }
 						: { defaultDashboardId: undefined as string | undefined },
 				),
 		[],
 	)
 	const defaultDashboardId = $derived(
-		defaultDashboardRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
+		defaultDashboardRowQuery.data?.[0]?.defaultDashboardId ?? 'default'
 	)
 	const dashboardId = $derived(
 		page.params.dashboardId ?? 'default'
@@ -218,17 +218,17 @@
 		dashboardRowQuery.data?.[0]?.row
 	)
 	const root = $derived(
-		dashboardRow && 'root' in dashboardRow ? dashboardRow.root : undefined,
+		dashboardRow && 'root' in dashboardRow ? dashboardRow.root : undefined
 	)
 	const focusedPanelId = $derived(
 		dashboardRow && 'focusedPanelId' in dashboardRow
 			? dashboardRow.focusedPanelId
-			: '',
+			: ''
 	)
 
 	// (Derived)
 	const focusedPanel = $derived(
-		root ? getPanelById(root, focusedPanelId) : null,
+		root ? getPanelById(root, focusedPanelId) : null
 	)
 	const panelIds = $derived(
 		root ? listPanelIds(root) : []
@@ -404,9 +404,10 @@
 			panelId: focusedPanel.id,
 			route: buildRoutePath(focusedPanel.route),
 		}
-		const shouldReplace =
+		const shouldReplace = (
 			previousPanelId !== focusedPanel.id ||
 			!isPrefix(previousHashes, nextHashes)
+		)
 		const run = () => {
 			if (shouldReplace) {
 				replaceState(baseUrl, baseState)
@@ -446,8 +447,9 @@
 				() => (hash ? [hash] : []),
 			)
 			const nextPanelIds = listPanelIds(nextRoot)
-			const newPanelId =
+			const newPanelId = (
 				nextPanelIds.find((id) => !previousPanelIds.includes(id)) ?? null
+			)
 			const updatedRoot = newPanelId
 				? updatePanel(nextRoot, newPanelId, (panel) => ({
 						...panel,

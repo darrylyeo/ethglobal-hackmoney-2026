@@ -41,9 +41,11 @@
 		<section data-card data-column>
 			{@render Params?.()}
 		</section>
+
 		<section data-card data-column>
 			{@render Protocol?.()}
 		</section>
+
 		<section data-card data-column>
 			{@render Preview?.()}
 		</section>

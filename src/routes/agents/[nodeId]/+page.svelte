@@ -5,7 +5,6 @@
 	import { entityKey } from '$/lib/entity-key.ts'
 
 
-	
 	// Context
 	import { page } from '$app/state'
 	import { resolve } from '$app/paths'
@@ -43,7 +42,7 @@
 	)
 
 	const resolvedTreeId = $derived(
-		treeByIdQuery.data?.[0]?.row?.$id.id ?? turnByIdQuery.data?.[0]?.row?.treeId ?? null,
+		treeByIdQuery.data?.[0]?.row?.$id.id ?? turnByIdQuery.data?.[0]?.row?.treeId ?? null
 	)
 
 	const treeQuery = useLiveQuery(
@@ -65,7 +64,7 @@
 	)
 
 	const tree = $derived(
-		(treeQuery.data?.[0]?.row as AgentChatTreeData | undefined) ?? null,
+		(treeQuery.data?.[0]?.row as AgentChatTreeData | undefined) ?? null
 	)
 
 	const turns = $derived(
@@ -78,18 +77,19 @@
 			.select(({ row }) => ({ row })),
 	)
 	const llmConnectionsRaw = $derived(
-		(llmConnectionsQuery.data ?? []).map(({ row: connection }) => connection).filter(Boolean),
+		(llmConnectionsQuery.data ?? []).map(({ row: connection }) => connection).filter(Boolean)
 	)
 	const hasZenConnection = $derived(
-		llmConnectionsRaw.some((c) => c.provider === 'zen'),
+		llmConnectionsRaw.some((c) => c.provider === 'zen')
 	)
 	const llmConnections = $derived(
-		hasZenConnection
-			? llmConnectionsRaw
-			: [
+		hasZenConnection ?
+			llmConnectionsRaw
+		:
+			[
 					...llmConnectionsRaw,
-					...(typeof PUBLIC_OPENCODE_API_KEY === 'string' && PUBLIC_OPENCODE_API_KEY.length > 0
-						? [
+					...(typeof PUBLIC_OPENCODE_API_KEY === 'string' && PUBLIC_OPENCODE_API_KEY.length > 0 ?
+						[
 								{
 									id: ZEN_DEFAULT_CONNECTION_ID,
 									provider: 'zen' as const,
@@ -99,8 +99,9 @@
 									$source: DataSourceId.Local,
 								},
 							]
-						: []),
-				],
+						:
+							[]),
+				]
 	)
 
 
@@ -187,6 +188,7 @@
 						ariaLabel="Model"
 					/>
 				</div>
+
 				<EntityRefInput
 					bind:value={promptValue}
 					onsubmit={(value, entityRefs) => {
@@ -214,6 +216,7 @@
 					ariaLabel="Model"
 				/>
 			</div>
+
 			<EntityRefInput
 				bind:value={promptValue}
 				onsubmit={(value, entityRefs) => {

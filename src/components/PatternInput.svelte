@@ -34,7 +34,7 @@
 					? patternsByType[patternTypes[0]].placeholder
 					: patternTypes
 							.map((t) => patternsByType[t].placeholder)
-							.join(' or ')),
+							.join(' or '))
 	)
 	const isControlled = $derived(
 		'value' in rootProps && rootProps.value !== undefined

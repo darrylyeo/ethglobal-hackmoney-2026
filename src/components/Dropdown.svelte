@@ -53,12 +53,13 @@
 		}[]
 	}
 
-	type DropdownDeclaredItem<Item> =
+	type DropdownDeclaredItem<Item> = (
 		| DropdownActionItem<Item>
 		| DropdownSeparator
 		| DropdownCheckboxItem
 		| DropdownCheckboxGroup
 		| DropdownRadioGroup
+	)
 
 	type DropdownItem<Item> = Item | DropdownDeclaredItem<Item>
 
@@ -68,7 +69,7 @@
 		items: readonly DropdownItem<Item>[]
 	}
 
-	type NormalizedItem<Item> =
+	type NormalizedItem<Item> = (
 		| {
 				kind: 'item'
 				id: string
@@ -120,6 +121,7 @@
 				label?: string
 				items: NormalizedItem<Item>[]
 		}
+	)
 
 
 	// Props
@@ -174,29 +176,32 @@
 
 
 	// Functions
-	const isRecord = (value: unknown): value is Record<string, unknown> =>
+	const isRecord = (value: unknown): value is Record<string, unknown> => (
 		typeof value === 'object' && value !== null
+	)
 	const isDeclaredItem = (
 		value: unknown,
-	): value is DropdownDeclaredItem<Item> =>
+	): value is DropdownDeclaredItem<Item> => (
 		isRecord(value) &&
-		((value.type === 'item' && 'item' in value) ||
-			value.type === 'separator' ||
-			value.type === 'checkbox' ||
-			value.type === 'checkbox-group' ||
-			value.type === 'radio-group')
-	const isGroup = (value: unknown): value is DropdownGroup<Item> =>
+			((value.type === 'item' && 'item' in value) ||
+				value.type === 'separator' ||
+				value.type === 'checkbox' ||
+				value.type === 'checkbox-group' ||
+				value.type === 'radio-group')
+	)
+	const isGroup = (value: unknown): value is DropdownGroup<Item> => (
 		isRecord(value) && Array.isArray(value.items) && !isDeclaredItem(value)
+	)
 
 	// (Derived)
 	const normalizedEntries: NormalizedItem<Item>[] = $derived(
-		items.map((entry, index) =>
+		items.map((entry, index) => (
 			isGroup(entry)
 				? {
 						kind: 'group',
 						id: entry.id ?? entry.label ?? `group-${index}`,
 						label: entry.label,
-						items: entry.items.map((item, itemIndex) =>
+						items: entry.items.map((item, itemIndex) => (
 							isDeclaredItem(item)
 								? item.type === 'item'
 									? {
@@ -257,7 +262,8 @@
 										label: getItemLabel(item),
 										disabled: getItemDisabled ? getItemDisabled(item) : false,
 										item,
-									},
+									}
+							),
 						),
 					}
 				: isDeclaredItem(entry)
@@ -318,14 +324,19 @@
 							label: getItemLabel(entry),
 							disabled: getItemDisabled ? getItemDisabled(entry) : false,
 							item: entry,
-						},
+						}
 		),
+		)
 	)
 
 
 	// Actions
-	const onItemSelectInternal = (item: Item, onSelect?: () => void) =>
-		onSelect ? onSelect() : onItemSelect?.(item)
+	const onItemSelectInternal = (item: Item, onSelect?: () => void) => (
+		onSelect ?
+				onSelect()
+			:
+				onItemSelect?.(item)
+	)
 
 
 	// Components
@@ -344,6 +355,7 @@
 			{triggerLabel}
 		{/if}
 	</DropdownMenu.Trigger>
+
 	<DropdownMenu.Portal>
 		<DropdownMenu.Content
 			{...contentProps}
@@ -361,14 +373,17 @@
 								{entry.label}
 							</DropdownMenu.Item>
 						{/if}
+
 						{#each entry.items as item (item.id)}
 							{#if item.kind === 'separator'}
 								<DropdownMenu.Separator />
 							{:else if item.kind === 'checkbox'}
 								{@const checkboxItem = item}
+
 								<DropdownMenu.CheckboxItem
-									bind:checked={() => checkboxItem.checked, (c) =>
-										checkboxItem.onCheckedChange?.(c)}
+									bind:checked={() => checkboxItem.checked, (c) => (
+										checkboxItem.onCheckedChange?.(c)
+									)}
 									disabled={checkboxItem.disabled}
 								>
 									{#if CheckboxItem}
@@ -390,10 +405,12 @@
 											{item.label}
 										</DropdownMenu.Item>
 									{/if}
+
 									{#each item.checkboxes as groupItem (groupItem.id)}
 										<DropdownMenu.CheckboxItem
-											bind:checked={() => groupItem.checked, (c) =>
-												groupItem.onCheckedChange?.(c)}
+											bind:checked={() => groupItem.checked, (c) => (
+												groupItem.onCheckedChange?.(c)
+											)}
 											disabled={groupItem.disabled}
 										>
 											{#if CheckboxItem}
@@ -419,6 +436,7 @@
 											{item.label}
 										</DropdownMenu.Item>
 									{/if}
+
 									{#each item.radios as groupItem (groupItem.id)}
 										<DropdownMenu.RadioItem
 											value={groupItem.value}
@@ -442,6 +460,7 @@
 														>
 															✓
 														</span>
+
 														{groupItem.label}
 													</span>
 												{/if}
@@ -451,10 +470,12 @@
 								</DropdownMenu.RadioGroup>
 							{:else if item.kind === 'item'}
 								{@const menuItem = item}
+
 								<DropdownMenu.Item
 									disabled={menuItem.disabled}
-									onSelect={() =>
-										onItemSelectInternal(menuItem.item, menuItem.onSelect)}
+									onSelect={() => (
+										onItemSelectInternal(menuItem.item, menuItem.onSelect)
+									)}
 								>
 									{#if Item}
 										{@render Item(menuItem.item)}
@@ -467,9 +488,11 @@
 					</DropdownMenu.Group>
 				{:else if entry.kind === 'checkbox'}
 					{@const checkboxItem = entry}
+
 					<DropdownMenu.CheckboxItem
-						bind:checked={() => checkboxItem.checked, (c) =>
-							checkboxItem.onCheckedChange?.(c)}
+						bind:checked={() => checkboxItem.checked, (c) => (
+							checkboxItem.onCheckedChange?.(c)
+						)}
 						disabled={checkboxItem.disabled}
 					>
 						{#if CheckboxItem}
@@ -491,10 +514,12 @@
 								{entry.label}
 							</DropdownMenu.Item>
 						{/if}
+
 						{#each entry.checkboxes as item (item.id)}
 							<DropdownMenu.CheckboxItem
-								bind:checked={() => item.checked, (c) =>
-									item.onCheckedChange?.(c)}
+								bind:checked={() => item.checked, (c) => (
+									item.onCheckedChange?.(c)
+								)}
 								disabled={item.disabled}
 							>
 								{#if CheckboxItem}
@@ -520,6 +545,7 @@
 								{entry.label}
 							</DropdownMenu.Item>
 						{/if}
+
 						{#each entry.radios as item (item.id)}
 							<DropdownMenu.RadioItem
 								value={item.value}
@@ -543,6 +569,7 @@
 											>
 												✓
 											</span>
+
 											{item.label}
 										</span>
 									{/if}
@@ -552,10 +579,12 @@
 					</DropdownMenu.RadioGroup>
 				{:else if entry.kind === 'item'}
 					{@const menuItem = entry}
+
 					<DropdownMenu.Item
 						disabled={menuItem.disabled}
-						onSelect={() =>
-							onItemSelectInternal(menuItem.item, menuItem.onSelect)}
+						onSelect={() => (
+							onItemSelectInternal(menuItem.item, menuItem.onSelect)
+						)}
 					>
 						{#if Item}
 							{@render Item(menuItem.item)}
@@ -565,6 +594,7 @@
 					</DropdownMenu.Item>
 				{/if}
 			{/each}
+
 			{#if children}
 				{@render children()}
 			{/if}
@@ -584,3 +614,4 @@
 		visibility: visible;
 	}
 </style>
+

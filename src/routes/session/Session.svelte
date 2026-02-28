@@ -48,14 +48,14 @@
 
 	// (Derived)
 	const isTestnet = $derived(
-		networkEnvironmentState.current === NetworkEnvironment.Testnet,
+		networkEnvironmentState.current === NetworkEnvironment.Testnet
 	)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
 			isTestnet
 				? n.type === NetworkType.Testnet
 				: n.type === NetworkType.Mainnet,
-		),
+		)
 	)
 	const defaultBalanceTokens = $derived(
 		filteredNetworks.flatMap((n) =>
@@ -63,7 +63,7 @@
 				chainId: t.$id.$network.chainId,
 				tokenAddress: t.$id.address,
 			})),
-		),
+		)
 	)
 	const balanceTokensToFetch = $derived(
 		balanceTokens.length > 0
@@ -71,18 +71,19 @@
 					const e = erc20TokenByNetwork
 						.get(t.chainId)
 						?.find(
-							(e) =>
+							(e) => (
 								e.$id.address.toLowerCase() ===
-								t.tokenAddress.toLowerCase(),
+								t.tokenAddress.toLowerCase()
+							),
 						)
 					return e ? [e] : []
 				})
 			: filteredNetworks.flatMap(
 					(n) => erc20TokenByNetwork.get(n.chainId) ?? [],
-				),
+				)
 	)
 	const effectiveBalanceTokens = $derived(
-		balanceTokens.length > 0 ? balanceTokens : defaultBalanceTokens,
+		balanceTokens.length > 0 ? balanceTokens : defaultBalanceTokens
 	)
 	const actorId = $derived(
 		selectedActor && selectedChainId != null
@@ -90,7 +91,7 @@
 				$network: { chainId: selectedChainId },
 				address: selectedActor,
 			} as import('$/data/Actor.ts').Actor$Id)
-			: null,
+			: null
 	)
 
 	$effect(() => {
@@ -150,6 +151,7 @@
 	>
 		{#snippet Title()}
 			<span class="sr-only">Session</span>
+
 			<input
 				type="text"
 				class="session-name-input"
@@ -158,6 +160,7 @@
 				aria-label="Session name"
 			/>
 		{/snippet}
+
 		<details open data-card>
 			<summary>
 				<header data-row="wrap">
@@ -168,6 +171,7 @@
 					/>
 				</header>
 			</summary>
+
 			<div data-column>
 				<CoinBalances
 					actorId={actorId}

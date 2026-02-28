@@ -24,7 +24,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 				const proposal = r.row as ProposalEntry
 				return [proposal.number, proposal]
 			}),
-		),
+		)
 	)
 
 	// Functions
@@ -67,6 +67,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 				Ethereum mainnet protocol upgrades and included EIPs.
 				<a href={resolve('/proposals')} data-link>Browse all proposals</a>.
 			</p>
+
 			<nav data-row="wrap" aria-label="External resources">
 				<a
 					href="https://ethereum.org/ethereum-forks/"
@@ -76,6 +77,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 				>
 					ethereum.org timeline
 				</a>
+
 				<a
 					href="https://github.com/ethereum/execution-specs/tree/master/network-upgrades/mainnet-upgrades"
 					target="_blank"
@@ -84,6 +86,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 				>
 					execution-specs
 				</a>
+
 				<a
 					href="https://forkcast.org"
 					target="_blank"
@@ -123,12 +126,14 @@ import { entityKey } from '$/lib/entity-key.ts'
 								{/each}
 							</nav>
 						{/if}
+
 						{#if (fork.eipNumbers?.length ?? 0) > 0}
 							<section data-column>
 								<h3 class="sr-only">Included EIPs</h3>
 								<ul data-row="wrap" role="list">
 									{#each (fork.eipNumbers ?? []) as num (num)}
 										{@const proposalEntry = entriesByNumber.get(num)}
+
 										<li>
 											<a
 												href={proposalEntry ? getProposalPath(ProposalRealm.Ethereum, proposalEntry) : resolve(`/proposals/${ProposalRealm.Ethereum}/eip-${num}`)}

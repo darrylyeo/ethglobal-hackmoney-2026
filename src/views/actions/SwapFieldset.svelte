@@ -28,20 +28,20 @@
 
 	// (Derived)
 	const params = $derived(
-		action?.params != null ? (action.params as ActionParams<ActionType.Swap>) : null,
+		action?.params != null ? (action.params as ActionParams<ActionType.Swap>) : null
 	)
 	const coins = $derived(
 		params ? chainCoins(params.chainId) : []
 	)
 	const tokenInCoin = $derived(
-		params && typeof params.tokenIn === 'string' && coins.length
-			? (coins.find((c) => c.address === params.tokenIn) ?? coins[0])
-			: null,
+		params && typeof params.tokenIn === 'string' && coins.length ?
+			(coins.find((c) => c.address === params.tokenIn) ?? coins[0])
+			: null
 	)
 	const tokenOutCoin = $derived(
-		params && typeof params.tokenOut === 'string' && coins.length
-			? (coins.find((c) => c.address === params.tokenOut) ?? (coins[1] ?? coins[0]))
-			: null,
+		params && typeof params.tokenOut === 'string' && coins.length ?
+			(coins.find((c) => c.address === params.tokenOut) ?? (coins[1] ?? coins[0]))
+			: null
 	)
 
 
@@ -56,6 +56,7 @@
 	<div data-column>
 		<label data-column>
 			<span>Network</span>
+
 			<NetworkInput
 				networks={filteredNetworks}
 				bind:value={() => params?.chainId ?? 0, (v) => {
@@ -65,10 +66,12 @@
 				ariaLabel="Network"
 			/>
 		</label>
+
 		{#if asNonEmptyCoins(coins)}
 			<div data-column>
 				<label data-column>
 					<span>From</span>
+
 					<CoinAmountInput
 						coins={coins}
 						bind:coin={() => tokenInCoin ?? coins[0], (c) => {
@@ -83,9 +86,11 @@
 					/>
 				</label>
 			</div>
+
 			<div data-column>
 				<label data-column>
 					<span>To</span>
+
 					<CoinInput
 						coins={coins}
 						bind:value={() => tokenOutCoin, (c) => {
@@ -96,9 +101,11 @@
 					/>
 				</label>
 			</div>
+
 			<div data-column>
 				<label data-column>
 					<span>Slippage</span>
+
 					<Select
 						items={slippagePresets}
 						bind:value={() => slippagePresets.find((x) => Math.abs(x.value - (params?.slippage ?? 0)) < 1e-9) ?? undefined, (preset) => {

@@ -88,8 +88,9 @@
 				return true
 		return false
 	}
-	const viewTransitionName = (key: _Key): string =>
+	const viewTransitionName = (key: _Key): string => (
 		'list-item-' + String(key).replace(/^\d/, '_$&').replace(/[^a-zA-Z0-9_-]/g, '_')
+	)
 
 	// (Derived)
 	const sortedItems = $derived(
@@ -100,8 +101,9 @@
 				-1
 			: sortValueA > sortValueB ?
 				1
-			: 0
-		}),
+			:
+				0
+		})
 	)
 	const searchQueryNormalized = $derived(
 		searchQuery.trim().toLowerCase()
@@ -126,8 +128,8 @@
 		sortedItems
 	)
 	const matchOrder = $derived(
-		hasSearch
-			? (() => {
+		hasSearch ?
+			(() => {
 					const score = (ms: SvelteSet<Match> | undefined) => {
 						if (!ms?.size) return { total: 0, spans: 0, minStart: Infinity, spread: Infinity }
 						const arr = [...ms]
@@ -148,10 +150,16 @@
 						if (sa.spans !== sb.spans) return sa.spans - sb.spans
 						if (sa.minStart !== sb.minStart) return sa.minStart - sb.minStart
 						if (sa.spread !== sb.spread) return sa.spread - sb.spread
-						return getSortValue(a) < getSortValue(b) ? -1 : getSortValue(a) > getSortValue(b) ? 1 : 0
+						return getSortValue(a) < getSortValue(b) ?
+								-1
+							: getSortValue(a) > getSortValue(b) ?
+								1
+							:
+								0
 					})
 				})()
-			: [],
+			:
+				[]
 	)
 
 	// State: order applied inside view transition so reorder animates
@@ -167,7 +175,8 @@
 	const groupEntries = $derived(
 		getGroupKey && getGroupLabel ?
 			[...Map.groupBy(itemsToShow, getGroupKey!).entries()]
-		: null,
+		:
+			null
 	)
 	const itemRows = $derived(
 		groupEntries ?
@@ -180,12 +189,13 @@
 					isPlaceholder: false as const,
 				})),
 			])
-		: itemsToShow.map((item) => ({
+		:
+			itemsToShow.map((item) => ({
 				type: 'item' as const,
 				key: getKey(item),
 				item,
 				isPlaceholder: false as const,
-			})),
+			}))
 	)
 	const placeholderRows = $derived(
 		visiblePlaceholderKeys
@@ -194,10 +204,10 @@
 				type: 'placeholder' as const,
 				key,
 				isPlaceholder: true as const,
-			})),
+			}))
 	)
 	const isEmpty = $derived(
-		itemRows.length === 0 && placeholderRows.length === 0,
+		itemRows.length === 0 && placeholderRows.length === 0
 	)
 	const allRows = $derived.by(() => {
 		if (
@@ -217,11 +227,12 @@
 				...groupEntries.map(([k]) => k),
 				...placeholderByGroup.keys(),
 			])
-			const maxBlockInGroup = (g: _GroupKey) =>
+			const maxBlockInGroup = (g: _GroupKey) => (
 				Math.max(
 					...(groupEntries.find(([k]) => k === g)?.[1]?.map((i) => -Number(getSortValue(i))) ?? []),
 					...(placeholderByGroup.get(g)?.map((k) => Number(k)) ?? []),
 				)
+			)
 			const groupOrder = [...groupKeys].sort(
 				(ga, gb) => maxBlockInGroup(gb) - maxBlockInGroup(ga),
 			)
@@ -278,7 +289,8 @@
 	>
 		{#each allRows.slice(0, 100) as item (item.type === 'group' ?
 			`group:${item.groupKey}`
-		: item.key)}
+		:
+			item.key)}
 			{#if item.type === 'group'}
 				<li data-list-item data-sticky data-scroll-item="snap-block-start">
 					{#if GroupHeader}
@@ -304,13 +316,16 @@
 						<code data-text="muted">
 							{(pagination?.loading ?? false) ?
 								'Loading…'
-							: (pagination?.label ?? 'Load more')}
+							:
+								(pagination?.label ?? 'Load more')}
 						</code>
 					{/if}
 				</li>
 			{:else}
 				{@const hasNoSearchMatches = hasSearch && (matchesForItem.get(item.item)?.size ?? 0) === 0}
+
 				{@const isHidden = getIsHidden ? getIsHidden(item.item) : false}
+
 				{@const visualOrder = hasSearch ? committedMatchOrder.indexOf(item.item) + 1 : undefined}
 
 				<li

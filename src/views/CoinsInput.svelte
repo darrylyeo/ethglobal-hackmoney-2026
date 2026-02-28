@@ -32,18 +32,18 @@
 	const items = $derived(
 		useDefaultGroups
 			? coinIdGroups.flatMap((g) => [...g.coinIds])
-			: [...(itemsProp ?? [])],
+			: [...(itemsProp ?? [])]
 	)
 	const getItemGroupId = $derived.by(() =>
-		useDefaultGroups
-			? (s: string) =>
-					coinIdGroups.find((g) => g.coinIds.includes(s as CoinId))?.id ?? ''
+		useDefaultGroups ?
+			(s: string) =>
+				coinIdGroups.find((g) => g.coinIds.includes(s as CoinId))?.id ?? ''
 			: undefined,
 	)
 	const getGroupLabel = $derived.by(() =>
-		useDefaultGroups
-			? (id: string) =>
-					coinIdGroupsById[id as CoinIdGroupId]?.label ?? id
+		useDefaultGroups ?
+			(id: string) =>
+				coinIdGroupsById[id as CoinIdGroupId]?.label ?? id
 			: undefined,
 	)
 

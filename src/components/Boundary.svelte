@@ -41,6 +41,7 @@
 
 	{#snippet failed(error, retry)}
 		{@const _ = (console.error(error), null)}
+
 		{#if Failed}
 			{@render Failed(error, retry)}
 		{:else}
@@ -51,6 +52,7 @@
 							{error instanceof Error ? error.name : 'Error'}
 						</h3>
 					</div>
+
 					<div data-row class="error-actions">
 						<button
 							type="button"
@@ -58,6 +60,7 @@
 						>
 							Copy
 						</button>
+
 						{#if retry}
 							<button type="button" onclick={retry}>Retry</button>
 						{/if}

@@ -48,7 +48,7 @@
 		dashboardsQuery.data ?? []
 	)
 	const defaultId = $derived(
-		defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
+		defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default'
 	)
 
 
@@ -99,6 +99,7 @@
 		<div data-row="start" data-row-item="flexible">
 			<h1>Dashboards</h1>
 		</div>
+
 		<div data-row>
 			<button type="button" onclick={onCreate}>New dashboard</button>
 			<a href={resolve(`/dashboard/${defaultId}`)}>Open default</a>
@@ -125,6 +126,7 @@
 							aria-label="Dashboard name"
 						/>
 						<button type="submit">Save</button>
+
 						<button
 							type="button"
 							onclick={() => (renameId = null)}
@@ -136,6 +138,7 @@
 					<span class="dashboard-icon" aria-hidden="true">
 						{dashboard.icon ?? (dashboard.id === defaultId ? '★' : '📊')}
 					</span>
+
 					<a
 						href={resolve(`/dashboard/${dashboard.id}`)}
 						class="dashboard-name-link"
@@ -144,6 +147,7 @@
 							'My Dashboard'
 						: 'Unnamed')}
 					</a>
+
 					<input
 						type="text"
 						class="dashboard-icon-input"
@@ -156,6 +160,7 @@
 					{#if dashboard.id === defaultId}
 						<span aria-hidden="true">★ default</span>
 					{/if}
+
 					<button
 						type="button"
 						class="dashboard-edit-name"
@@ -164,6 +169,7 @@
 					>
 						Edit name
 					</button>
+
 					{#if dashboard.id !== defaultId}
 						<button
 							type="button"
@@ -172,6 +178,7 @@
 							Set default
 						</button>
 					{/if}
+
 					<button
 						type="button"
 						disabled={dashboards.length <= 1}

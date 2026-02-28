@@ -44,6 +44,7 @@
 
 {#snippet ReorderGhost(item: Action, _state: ItemState<Action>)}
 	{@const index = actions.indexOf(item)}
+
 	<div class="editable-item" data-row>
 		<span class="drag-handle" aria-hidden="true">⠿</span>
 		<div class="editable-item-content" data-row-item="flexible">

@@ -31,12 +31,13 @@
 
 	// (Derived)
 	const children = $derived(
-		allTurns.filter((t) => t.parentId === turn.$id),
+		allTurns.filter((t) => t.parentId === turn.$id)
 	)
 
-	type TabItem =
+	type TabItem = (
 		| { id: string, label: string, type: 'child', child: AgentChatTurn }
 		| { id: string, label: string, type: 'reply' }
+	)
 
 	const tabItems = $derived.by((): TabItem[] => {
 		const items: TabItem[] = children.map((c, i) => ({
@@ -137,7 +138,7 @@
 	// (Derived)
 	const showPromptForm = $derived(
 		(turn.status === 'complete' || turn.status === 'error')
-			&& (isTarget || promptValue.trim() !== ''),
+			&& (isTarget || promptValue.trim() !== '')
 	)
 
 
@@ -181,6 +182,7 @@
 			<strong>User</strong>
 			<p>{turn.userPrompt}</p>
 		</div>
+
 		<button
 			type="button"
 			onclick={onDelete}
@@ -193,11 +195,13 @@
 		<div data-column>
 			<div data-row="align-center">
 				<p data-error>{turn.error ?? 'Generation failed.'}</p>
+
 				<button
 					type="button"
 					onclick={onRetry}
 				>Retry</button>
 			</div>
+
 			{#if turn.error?.includes('payment') || turn.error?.includes('402')}
 				<p data-text="muted">
 					Set <strong>Payment account</strong> for this conversation (above) to pay for agent requests, then retry.
@@ -218,6 +222,7 @@
 								<code>{tc.name}</code>
 								{#if turn.toolResults}
 									{@const res = turn.toolResults.find((r) => r.toolCallId === tc.id)}
+
 									{#if res}
 										<pre data-text="muted" style="font-size: 0.85em; overflow: auto;">{typeof res.result === 'string' ? res.result : JSON.stringify(res.result, null, 2)}</pre>
 									{/if}
@@ -227,9 +232,11 @@
 					</ul>
 				</details>
 			{/if}
+
 			{#if turn.assistantText}
 				<p>{turn.assistantText}</p>
 			{/if}
+
 			<small data-text="muted">
 				{turn.providerId ?? 'unknown'} · {new Date(turn.createdAt).toISOString()}
 			</small>
@@ -254,6 +261,7 @@
 								/>
 							</div>
 						{/if}
+
 						<EntityRefInput
 							bind:value={promptValue}
 							disabled={turn.status === 'error'}
@@ -304,6 +312,7 @@
 					/>
 				</div>
 			{/if}
+
 			<EntityRefInput
 				bind:value={promptValue}
 				disabled={turn.status === 'error'}

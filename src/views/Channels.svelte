@@ -33,7 +33,7 @@
 			? filterAddresses
 			: actorId
 				? [actorId.address]
-				: [],
+				: []
 	)
 	const channels = $derived(
 		actors.length === 0
@@ -47,7 +47,7 @@
 								channel.participant1 === a,
 						),
 					)
-					.sort((a, b) => b.updatedAt - a.updatedAt),
+					.sort((a, b) => b.updatedAt - a.updatedAt)
 	)
 	const singleAddress = $derived(
 		actors.length === 1 ? actors[0] : null
@@ -79,8 +79,10 @@
 				{/if}
 			</h3>
 		</div>
+
 		{#if availableAccounts.length > 0}
 			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+
 			<div
 				class="section-filters"
 				role="group"
@@ -125,10 +127,12 @@
 					{@const isParticipant0 = actors.some(
 						(a) => ch.participant0 === a,
 					)}
+
 					{@const participantAddr = isParticipant0
 						? ch.participant1
 						: ch.participant0}
 					{@const balance = isParticipant0 ? ch.balance0 : ch.balance1}
+
 					<li
 						data-columns-item
 						data-card

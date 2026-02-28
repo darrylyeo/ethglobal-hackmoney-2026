@@ -29,7 +29,7 @@
 
 	// Components
 	import NetworkName from '$/views/NetworkName.svelte'
-    import NetworkIcon from '$/views/NetworkIcon.svelte'
+	import NetworkIcon from '$/views/NetworkIcon.svelte'
 	import Select from '$/components/Select.svelte'
 	import SelectMultiple from '$/components/SelectMultiple.svelte'
 </script>
@@ -60,6 +60,7 @@
 	>
 		{#snippet Before()}
 			{@const selectedNetworks = multiple ? networks.filter((n) => (Array.isArray(value) ? value : []).includes(n.chainId)) : (typeof value === 'number' ? [networks.find((n) => n.chainId === value)].filter(Boolean) : []) as Network[]}
+
 			{#if selectedNetworks.length > 0}
 				<span data-row="start">
 					{#each selectedNetworks as network (network.chainId)}
@@ -81,11 +82,12 @@
 			(typeof value === 'number'
 				? networks.find((network) => network.chainId === value) ?? undefined
 				: undefined),
-			(nextValue: Network | undefined) =>
+			(nextValue: Network | undefined) => (
 				(value =
 					nextValue == null
 						? null
-						: (networks.find((network) => network.chainId === nextValue?.chainId)?.chainId ?? null))}
+						: (networks.find((network) => network.chainId === nextValue?.chainId)?.chainId ?? null))
+			)}
 		getItemId={(network) => String(network.chainId)}
 		getItemLabel={(network) => network.name}
 		{placeholder}
@@ -96,6 +98,7 @@
 	>
 		{#snippet Before()}
 			{@const selectedNetworks = multiple ? networks.filter((n) => (Array.isArray(value) ? value : []).includes(n.chainId)) : (typeof value === 'number' ? [networks.find((n) => n.chainId === value)].filter(Boolean) : []) as Network[]}
+
 			{#if selectedNetworks.length > 0}
 				<span data-row="start">
 					{#each selectedNetworks as network (network.chainId)}

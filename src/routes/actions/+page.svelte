@@ -14,6 +14,7 @@
 <main data-column="center gap-4">
 	<h1>Actions</h1>
 	<p data-text="muted">Choose an action to start a session.</p>
+
 	<nav
 		aria-label="Session actions"
 		data-grid="columns-autofit"

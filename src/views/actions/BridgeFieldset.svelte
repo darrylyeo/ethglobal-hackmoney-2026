@@ -43,7 +43,7 @@
 			c.type === CoinInstanceType.Erc20Token
 				? c.$id.address === p.tokenAddress
 				: p.tokenAddress === ZERO_ADDRESS,
-		) ?? bridgeCoins[0],
+		) ?? bridgeCoins[0]
 	)
 	const syntheticCoin = $derived({
 		type: CoinInstanceType.Erc20Token as const,
@@ -92,15 +92,18 @@
 	<div data-column>
 		<label data-column>
 			<span>From network</span>
+
 			<NetworkInput
 				networks={filteredNetworks}
 				bind:value={p.fromChainId}
 				ariaLabel="From network"
 			/>
 		</label>
+
 		{#if bridgeCoins.length >= 1}
 			<label data-column>
 				<span>Coin</span>
+
 				<CoinInput
 					coins={bridgeCoins as [CoinInstance, ...CoinInstance[]]}
 					bind:value={() => selectedCoin, (c) => {
@@ -122,14 +125,17 @@
 				/>
 			</label>
 		{/if}
+
 		<label data-column>
 			<span>To network</span>
+
 			<NetworkInput
 				networks={filteredNetworks}
 				bind:value={p.toChainId}
 				ariaLabel="To network"
 			/>
 		</label>
+
 		<label data-column>
 			<span>Amount</span>
 			{#if bridgeCoins.length >= 1}

@@ -11,9 +11,9 @@
 		averageTransactionsPerBlockByChainId,
 		DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK,
 	} from '$/constants/networks.ts'
-import { EntityType } from '$/data/$EntityType.ts'
-import { entityKey } from '$/lib/entity-key.ts'
-import {
+	import { EntityType } from '$/data/$EntityType.ts'
+	import { entityKey } from '$/lib/entity-key.ts'
+	import {
 		getExecutionEraAtBlock,
 		getForkSlugByEraName,
 	} from '$/lib/forks.ts'
@@ -42,52 +42,59 @@ import {
 		[...data.keys()][0]
 	)
 	const chainId = $derived(
-		networkIdProp?.chainId ?? block?.$id.$network.chainId ?? (0 as ChainId),
+		networkIdProp?.chainId ?? block?.$id.$network.chainId ?? (0 as ChainId)
 	)
 	const era = $derived(
-		block != null
-			? getExecutionEraAtBlock(
-					chainId,
-					block.$id.blockNumber,
-					block.timestamp,
-				)
-			: null,
+		block != null ?
+			getExecutionEraAtBlock(
+				chainId,
+				block.$id.blockNumber,
+				block.timestamp,
+			)
+		:
+			null
 	)
 	const forkSlug = $derived(
-		era ? getForkSlugByEraName(era.label) : null
+		era ?
+			getForkSlugByEraName(era.label)
+		:
+			null
 	)
 	const forkPageHref = $derived(
-		era && forkSlug
-			? getForksPagePath(chainId) + '#' + entityKey({
+		era && forkSlug ?
+			getForksPagePath(chainId) + '#' + entityKey({
 					entityType: EntityType.NetworkFork,
 					entityId: { chainId, forkId: forkSlug },
 				})
-			: '',
+		:
+			''
 	)
 	const transactionsSet = $derived(
-		[...data.values()][0] ?? new Set<ChainTransactionEntry>(),
+		[...data.values()][0] ?? new Set<ChainTransactionEntry>()
 	)
 	const count = $derived(
 		block?.transactionCount
 		?? (
 			averageTransactionsPerBlockByChainId[chainId]?.value
 			?? DEFAULT_AVERAGE_TRANSACTIONS_PER_BLOCK
-		),
+		)
 	)
 	const summaryMetadata = $derived(
 		block
 			? (() => {
-				const relative =
+				const relative = (
 					block.timestamp != null
 						? formatRelativeTime(Date.now() - block.timestamp)
 						: null
+				)
 				const txs = `${block.transactionCount ?? count} txs`
-				const gasPct =
+				const gasPct = (
 					block.gasUsed != null
 					&& block.gasLimit != null
 					&& block.gasLimit > 0n
 						? `${Number(block.gasUsed * 100n / block.gasLimit)}% gas`
 						: null
+				)
 				return [
 					{
 						term: '',
@@ -95,7 +102,7 @@ import {
 					},
 				]
 			})()
-			: [],
+			: []
 	)
 
 
@@ -167,12 +174,14 @@ import {
 							{:else}
 								{era.label}
 							{/if}
+
 							{#if era.startBlock != null && era.endBlock != null}
 								<span data-text="annotation"> (blocks {era.startBlock.toLocaleString()} – {era.endBlock.toLocaleString()})</span>
 							{/if}
 						</dd>
 					</div>
 				{/if}
+
 				<dt>Number</dt>
 				<dd><code>{block.number.toString()}</code></dd>
 
@@ -240,6 +249,7 @@ import {
 						<code>Transaction #{key} (loading…)</code>
 					{:else}
 						{@const networkId = { chainId }}
+
 						<Transaction
 							data={new Map([[item, { events: item.logs }]])}
 						/>

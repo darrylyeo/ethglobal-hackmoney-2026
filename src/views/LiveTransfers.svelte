@@ -50,10 +50,10 @@
 	const sortedEdges = $derived(
 		[...graph.edges].sort(
 			(a, b) => Math.min(...a.timestamps) - Math.min(...b.timestamps),
-		),
+		)
 	)
 	const totalVolume = $derived(
-		graph.edges.reduce((s, e) => s + e.totalAmount, 0),
+		graph.edges.reduce((s, e) => s + e.totalAmount, 0)
 	)
 
 	// State: stagger edges by timestamp over 2s
@@ -95,7 +95,7 @@
 					},
 				]
 			}),
-		),
+		)
 	)
 
 	const edgeArrowPaths = $derived(
@@ -109,7 +109,7 @@
 					const targetRect = { left: to.x - s, top: to.y - s, width: s * 2, height: s * 2 }
 					return [arrowToPathD(computeArrow(sourceRect, targetRect, { padStart: 4, padEnd: 8 }))]
 				})
-			: [],
+			: []
 	)
 
 	const visibleEdges = $derived(
@@ -175,6 +175,7 @@
 
 				{#each graph.nodes as node (node.address)}
 					{@const pos = nodePositionByAddress.get(node.address)}
+
 					{#if pos}
 						<T.Mesh position={[pos.x, pos.y, pos.z]}>
 							<T.SphereGeometry args={[0.15, 12, 12]} />
@@ -206,6 +207,7 @@
 						<path d="M 0 0 L 12 6 L 0 12 z" fill="var(--color-accent, light-dark(#2563eb, #60a5fa))" />
 					</marker>
 				</defs>
+
 				{#each edgeArrowPaths as d (d)}
 					<path
 						{d}

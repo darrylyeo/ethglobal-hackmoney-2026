@@ -27,7 +27,7 @@
 		bindValueIds: [() => _FilterId[], (values: _FilterId[]) => void]
 	}
 
-	type FilterGroupSelection<_FilterId extends string = string> =
+	type FilterGroupSelection<_FilterId extends string = string> = (
 		| {
 			exclusive: true
 			defaultFilter?: _FilterId
@@ -36,6 +36,7 @@
 			exclusive: false
 			defaultFilters?: _FilterId[]
 		}
+	)
 
 	type FilterGroupBase<_Item, _FilterId extends string = string> = {
 		id: string
@@ -44,7 +45,7 @@
 		filters: Filter<_Item, _FilterId>[]
 	}
 
-	export type FilterGroup<_Item, _FilterId extends string = string> =
+	export type FilterGroup<_Item, _FilterId extends string = string> = (
 		| (FilterGroupBase<_Item, _FilterId> &
 			FilterGroupSelection<_FilterId> & {
 				displayType: FilterDisplayType.Snippet
@@ -54,6 +55,7 @@
 			FilterGroupSelection<_FilterId> & {
 				displayType?: Exclude<FilterDisplayType, FilterDisplayType.Snippet>
 			})
+	)
 </script>
 
 
@@ -221,9 +223,13 @@
 			.filter(({ visibleFilters }) => visibleFilters.length > 1)
 	) as { group, visibleFilters } (group.id)}
 		{@const filters = new Set(visibleFilters)}
+
 		{@const filterById = new Map(visibleFilters.map((filter) => [filter.id, filter]))}
+
 		{@const getFilterId = (f: Filter<_Item, _FilterId>) => f.id}
+
 		{@const getFilterLabel = (f: Filter<_Item, _FilterId>) => f.label}
+
 		<fieldset data-filter-group={group.id} data-column="gap-1">
 			<legend>{group.label}</legend>
 
@@ -267,9 +273,11 @@
 										activeFilters.difference(filters).union(new Set([filter])),
 									).length
 							)}
+
 							{#if filter.icon}
 								<span class="icon" aria-hidden="true">{@html filter.icon}</span>
 							{/if}
+
 							<span class="label">{filter.label}</span>
 							<span class="count">
 								<span hidden>(</span>{count}<span hidden>)</span>
@@ -299,9 +307,11 @@
 										activeFilters.difference(filters).union(new Set([filter])),
 									).length
 							)}
+
 							{#if filter.icon}
 								<span class="icon" aria-hidden="true">{@html filter.icon}</span>
 							{/if}
+
 							<span class="label">{filter.label}</span>
 							<span class="count">
 								<span hidden>(</span>{count}<span hidden>)</span>
@@ -310,6 +320,7 @@
 					</Combobox>
 				{:else}
 					{@const activeFilter = [...activeFilters].find((filter) => filters.has(filter)) ?? undefined}
+
 					<div class="group" data-column="gap-1">
 						{#each visibleFilters as filter (filter.id)}
 							{@const count = (
@@ -320,6 +331,7 @@
 										activeFilters.difference(filters).union(new Set([filter])),
 									).length
 							)}
+
 							<label
 								data-filter={filter.id}
 								data-column="gap-3"
@@ -339,6 +351,7 @@
 								{#if filter.icon}
 									<span class="icon" aria-hidden="true">{@html filter.icon}</span>
 								{/if}
+
 								<span class="label">{filter.label}</span>
 								<span class="count">
 									<span hidden>(</span>{count}<span hidden>)</span>
@@ -373,9 +386,11 @@
 											activeFilters.union(new Set([filter])),
 									).length
 							)}
+
 							{#if filter.icon}
 								<span class="icon" aria-hidden="true">{@html filter.icon}</span>
 							{/if}
+
 							<span class="label">{filter.label}</span>
 							<span class="count">
 								<span hidden>(</span>{count}<span hidden>)</span>
@@ -408,9 +423,11 @@
 											activeFilters.union(new Set([filter])),
 									).length
 							)}
+
 							{#if filter.icon}
 								<span class="icon" aria-hidden="true">{@html filter.icon}</span>
 							{/if}
+
 							<span class="label">{filter.label}</span>
 							<span class="count">
 								<span hidden>(</span>{count}<span hidden>)</span>
@@ -421,6 +438,7 @@
 					<div class="group" data-column="gap-1">
 						{#each visibleFilters as filter (filter.id)}
 							{@const isChecked = activeFilters.has(filter)}
+
 							{@const count = (
 								(group.operation ?? FilterOperation.Intersection) === FilterOperation.Union ?
 									filterItems(new Set([filter])).length
@@ -432,6 +450,7 @@
 											activeFilters.union(new Set([filter])),
 									).length
 							)}
+
 							<label
 								data-filter={filter.id}
 								data-column="gap-3"
@@ -455,6 +474,7 @@
 								{#if filter.icon}
 									<span class="icon" aria-hidden="true">{@html filter.icon}</span>
 								{/if}
+
 								<span class="label">{filter.label}</span>
 								<span class="count">
 									<span hidden>(</span>{count}<span hidden>)</span>

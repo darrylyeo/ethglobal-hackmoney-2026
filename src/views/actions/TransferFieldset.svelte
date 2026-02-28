@@ -68,6 +68,7 @@
 	<div data-column>
 	<label data-column>
 		<span>From</span>
+
 		<AddressInput
 			items={actorItems}
 			bind:value={() => p.fromActor || null, (v) => {
@@ -78,8 +79,10 @@
 			ariaLabel="From address"
 		/>
 	</label>
+
 	<label data-column>
 		<span>To</span>
+
 		<AddressInput
 			items={actorItems}
 			bind:value={() => p.toActor || null, (v) => {
@@ -90,17 +93,21 @@
 			ariaLabel="To address"
 		/>
 	</label>
+
 	<label data-column>
 		<span>Network</span>
+
 		<NetworkInput
 			networks={filteredNetworks}
 			bind:value={p.chainId}
 			ariaLabel="Network"
 		/>
 	</label>
+
 	{#if asNonEmptyCoins(coins) && tokenCoin}
 		<label data-column>
 			<span>Token</span>
+
 			<CoinInput
 				coins={coins}
 				bind:value={() => tokenCoin, (c) => {
@@ -109,8 +116,10 @@
 				ariaLabel="Token"
 			/>
 		</label>
+
 		<label data-column>
 			<span>Amount</span>
+
 			<CoinAmountInput
 				coins={coins}
 				bind:coin={() => tokenCoin, (c) => {
@@ -126,6 +135,7 @@
 	{:else}
 		<label data-column>
 			<span>Token address</span>
+
 			<PatternInput
 				patternTypes={[PatternType.EvmAddress]}
 				value={p.tokenAddress}
@@ -138,8 +148,10 @@
 				ariaLabel="Token address"
 			/>
 		</label>
+
 		<label data-column>
 			<span>Amount</span>
+
 		<TokenAmountInput
 			coin={syntheticCoin}
 			min={0n}
@@ -150,5 +162,6 @@
 		/>
 		</label>
 	{/if}
+
 	</div>
 {/if}

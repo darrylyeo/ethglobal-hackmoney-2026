@@ -49,6 +49,7 @@
 		<p data-text="muted">
 			<a href={resolve(`/network/${chainId}`)} data-link>← {network.name}</a>
 		</p>
+
 		<ContractsList {networkId} detailsProps={{ open: true }} />
 	{/if}
 </main>

@@ -135,6 +135,7 @@
 					style="border-radius: 50%"
 				/>
 			{/if}
+
 			<span>@{user.username ?? user.fid}</span>
 			<button type="button" onclick={signOut}>Sign out</button>
 		</div>
@@ -156,6 +157,7 @@
 				{status === 'pending' ? 'Waiting for approval…' : 'Sign in with Farcaster'}
 			</button>
 		{/if}
+
 		{#if errorMessage}
 			<p data-text="muted">{errorMessage}</p>
 		{/if}

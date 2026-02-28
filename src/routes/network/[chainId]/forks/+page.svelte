@@ -36,7 +36,7 @@
 		chainId === ChainId.Ethereum
 	)
 	const showForkList = $derived(
-		isMainnet || (scheduleForks != null && scheduleForks.length > 0),
+		isMainnet || (scheduleForks != null && scheduleForks.length > 0)
 	)
 
 	const networkQuery = useLiveQuery(
@@ -49,14 +49,14 @@
 	)
 
 	const networkEntity = $derived(
-		network && route
-			? (networkQuery.data?.[0]?.row
-				? ({
+		network && route ?
+			(networkQuery.data?.[0]?.row ?
+				({
 					...networkQuery.data[0].row,
 					network: route.network,
 				} as Entity<EntityType.Network> & { network: typeof route.network })
 				: { ...network, $id: { chainId: network.chainId } })
-			: undefined,
+			: undefined
 	)
 
 	// Components
@@ -85,6 +85,7 @@
 				<a href={resolve(`/network/${ChainId.Ethereum}/forks`)} data-link>View Ethereum mainnet fork upgrades</a>.
 			</p>
 		</header>
+
 		<p>
 			<a href={resolve(`/network/${chainIdParam}`)} data-link>Back to {network?.name ?? 'network'}</a>
 		</p>
@@ -98,8 +99,8 @@
 				{ term: 'Chain ID', detail: String(chainId) },
 				{ term: 'CAIP-2', detail: `eip155:${chainId}` },
 				...(
-					network && 'nativeCurrency' in network && network.nativeCurrency
-						? [{ term: 'Currency', detail: network.nativeCurrency.symbol }]
+					network && 'nativeCurrency' in network && network.nativeCurrency ?
+						[{ term: 'Currency', detail: network.nativeCurrency.symbol }]
 						: []
 				),
 			]}
@@ -119,6 +120,7 @@
 					<a href={resolve(`/network/${chainIdParam}/contracts`)} data-link>Contracts</a>
 					<a href={resolve('/proposals')} data-link>Proposals (EIPs / ERCs)</a>
 				</p>
+
 				<ContractsList {networkId} />
 				<nav data-row="wrap" aria-label="External resources">
 					<a
@@ -129,6 +131,7 @@
 					>
 						ethereum.org timeline
 					</a>
+
 					<a
 						href="https://github.com/ethereum/execution-specs/tree/master/network-upgrades/mainnet-upgrades"
 						target="_blank"
@@ -137,6 +140,7 @@
 					>
 						execution-specs
 					</a>
+
 					<a
 						href="https://forkcast.org"
 						target="_blank"
@@ -146,6 +150,7 @@
 						Forkcast
 					</a>
 				</nav>
+
 				<NetworkForks
 					{networkId}
 					detailsProps={{ 'data-card': '' }}

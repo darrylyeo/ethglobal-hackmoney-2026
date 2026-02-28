@@ -19,13 +19,22 @@
 		page.params.id ?? ''
 	)
 	const parsedId = $derived(
-		idParam ? eip8004ServiceIdFromString(decodeURIComponent(idParam)) : null,
+		idParam ?
+			eip8004ServiceIdFromString(decodeURIComponent(idParam))
+		:
+			null
 	)
 	const key = $derived(
-		parsedId ? eip8004ServiceIdToString(parsedId) : null,
+		parsedId ?
+			eip8004ServiceIdToString(parsedId)
+		:
+			null
 	)
 	const serviceFromCollection = $derived(
-		key ? (eip8004ServicesCollection.state.get(key) as Eip8004Service | undefined) : undefined,
+		key ?
+			(eip8004ServicesCollection.state.get(key) as Eip8004Service | undefined)
+		:
+			undefined
 	)
 
 	// State
@@ -46,26 +55,34 @@
 				serviceOverride = s
 			})
 			.catch((e) => {
-				loadError = e instanceof Error ? e.message : String(e)
+				loadError = e instanceof Error ?
+					e.message
+				:
+					String(e)
 			})
 	})
 
 	const label = $derived(
-		service ? (service.name ?? service.$id.identityId) : idParam || 'Service',
+		service ?
+			(service.name ?? service.$id.identityId)
+		:
+			idParam || 'Service'
 	)
 	const metadata = $derived(
-		service
-			? [
+		service ?
+			[
 					{ term: 'Identity', detail: service.$id.identityId },
 					{
 						term: 'Chain',
 						detail: networksByChainId[service.$id.chainId]?.name ?? String(service.$id.chainId),
 					},
-					...(service.contactEndpoint
-						? [{ term: 'Contact', detail: service.contactEndpoint }]
-						: []),
+					...(service.contactEndpoint ?
+						[{ term: 'Contact', detail: service.contactEndpoint }]
+					:
+						[]),
 				]
-			: [],
+		:
+			[]
 	)
 
 	// Components

@@ -75,10 +75,10 @@
 			(s) =>
 				s.targetPeerIds === null
 				|| (roomState.peerId != null && s.targetPeerIds.includes(roomState.peerId)),
-		),
+		)
 	)
 	const verifications = $derived(
-		(verificationsQuery.data ?? []).map(({ verification }) => verification),
+		(verificationsQuery.data ?? []).map(({ verification }) => verification)
 	)
 	const awaitingMySignature = $derived(
 		(challengesQuery.data ?? [])
@@ -88,7 +88,7 @@
 					ch.toPeerId === peer.peerId &&
 					ch.fromPeerId === roomState.peerId &&
 					!ch.signature,
-			),
+			)
 	)
 	const canSign = $derived(
 		provider != null
@@ -166,6 +166,7 @@
 				showStatus={true}
 			/>
 		</div>
+
 		<div
 			data-row="flexible"
 			data-card
@@ -175,6 +176,7 @@
 				<ul data-peer-addresses>
 					{#each addressesVisibleToMe as s (s.id)}
 						{@const myVerification = getMyVerification(s.address)}
+
 						<li
 							data-shared-address
 							data-verification-status={myVerification?.status ?? null}
@@ -213,6 +215,7 @@
 											)}
 										</time>
 									{/if}
+
 									<Button.Root
 										type="button"
 										onclick={() => requestVerification(s.address)}
@@ -227,6 +230,7 @@
 			{:else}
 				<p data-no-addresses>No addresses shared yet.</p>
 			{/if}
+
 			{#if awaitingMySignature.length > 0}
 				<section data-awaiting-signature>
 					<h4>Awaiting your signature</h4>

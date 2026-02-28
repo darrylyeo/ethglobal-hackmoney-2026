@@ -112,13 +112,13 @@
 	])
 
 	const data = $derived(
-		dataOverride ?? blocksViewFrom(chainId, blocksQuery.data ?? []).networkData,
+		dataOverride ?? blocksViewFrom(chainId, blocksQuery.data ?? []).networkData
 	)
 	const networkFromData = $derived(
 		[...data.keys()][0]
 	)
 	const network = $derived(
-		networkOverride ?? networksByChainId[chainId] ?? networkFromData,
+		networkOverride ?? networksByChainId[chainId] ?? networkFromData
 	)
 	const blocksMap = $derived(
 		[...data.values()][0] ?? new Map()
@@ -140,17 +140,17 @@
 				rpcBlockNumberChainId === chainId &&
 				rpcBlockNumber > 0 ?
 				rpcBlockNumber
-			: 0),
+			: 0)
 	)
 	const currentBlockNumber = $derived(
-		currentBlockNumberOverride ?? effectiveBlockNumber,
+		currentBlockNumberOverride ?? effectiveBlockNumber
 	)
 	const placeholderBlockIds = $derived(
 		placeholderBlockIdsOverride ??
-			new Set<number | [number, number]>([[0, effectiveBlockNumber || 0]]),
+			new Set<number | [number, number]>([[0, effectiveBlockNumber || 0]])
 	)
 	const forksHref = $derived(
-		forksHrefOverride ?? resolve(getNetworkPath(chainId)) + '/forks',
+		forksHrefOverride ?? resolve(getNetworkPath(chainId)) + '/forks'
 	)
 
 	const heliosSupported = $derived(
@@ -170,7 +170,7 @@
 				? 'Helios ready'
 				: heliosSyncStatus === HeliosBrowserSyncStatus.Fallback
 					? 'Using fallback RPC'
-					: '',
+					: ''
 	)
 	const helios = $derived(
 		heliosSupported
@@ -181,7 +181,7 @@
 					onToggle: (enabled: boolean) =>
 						setHeliosBrowserEnabled(chainId, enabled),
 				}
-			: undefined,
+			: undefined
 	)
 
 	const BLOCK_POLL_MS = 12_000
@@ -254,7 +254,7 @@
 	const isConsensusLoading = $derived(
 		showConsensus &&
 			latestBlockQuery.data === undefined &&
-			(rpcBlockNumberChainId !== chainId || rpcBlockNumber === 0),
+			(rpcBlockNumberChainId !== chainId || rpcBlockNumber === 0)
 	)
 	const currentEpoch = $derived(
 		getCurrentEpoch(chainId, currentBlockNumber)
@@ -313,6 +313,7 @@
 						/>
 						<span>Use Helios (browser)</span>
 					</label>
+
 					{#if helios.on && helios.statusLabel}
 						<span data-text="annotation">{helios.statusLabel}</span>
 					{/if}

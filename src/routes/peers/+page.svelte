@@ -25,13 +25,13 @@
 		[],
 	)
 	const myPeerIdsSet = $derived(
-		new Set((myPeerIdsQuery.data ?? []).map(({ row: peer }) => peer.peerId)),
+		new Set((myPeerIdsQuery.data ?? []).map(({ row: peer }) => peer.peerId))
 	)
 	const verifiedByMeVerifications = $derived(
 		(verificationsQuery.data ?? []).filter(
 			(r) =>
 				myPeerIdsSet.has(r.row.verifierPeerId) && r.row.status === VerificationStatus.Verified,
-		),
+		)
 	)
 	const peerIdToRoomPeers = $derived(
 		(roomPeersQuery.data ?? []).reduce((acc, { row }) => {
@@ -39,7 +39,7 @@
 			list.push(row)
 			acc.set(row.peerId, list)
 			return acc
-		}, new Map<string, { displayName?: string; isConnected: boolean; peerId: string }[]>()),
+		}, new Map<string, { displayName?: string; isConnected: boolean; peerId: string }[]>())
 	)
 	const peersList = $derived(
 		verifiedByMeVerifications
@@ -53,7 +53,7 @@
 					displayName: roomPeer.displayName,
 					isConnected: peers.some((p) => p.isConnected),
 				}
-			}),
+			})
 	)
 	const peersByPeerId = $derived(
 		peersList.reduce((acc, p) => {
@@ -61,7 +61,7 @@
 			list.push(p)
 			acc.set(p.peerId, list)
 			return acc
-		}, new Map<string, { address: `0x${string}`; displayName?: string; isConnected: boolean }[]>()),
+		}, new Map<string, { address: `0x${string}`; displayName?: string; isConnected: boolean }[]>())
 	)
 
 
@@ -105,6 +105,7 @@
 					<span>{entry.displayName ?? formatAddress(entry.address)}</span>
 					<span data-text="muted">{formatAddress(entry.address)}</span>
 				</a>
+
 				<span data-tag>{entry.isConnected ? 'Connected' : 'Disconnected'}</span>
 				<span data-tag>Verified</span>
 				{#if !entry.isConnected}

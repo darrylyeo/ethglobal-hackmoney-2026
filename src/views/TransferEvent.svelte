@@ -23,7 +23,7 @@
 		coin.icon?.thumbnail?.url ??
 		coin.icon?.low?.url ??
 		(coin.coinId != null ? coinById[coin.coinId]?.icon : null) ??
-		coinById[CoinId.ETH]?.icon,
+		coinById[CoinId.ETH]?.icon
 	)
 
 

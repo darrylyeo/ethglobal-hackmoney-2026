@@ -51,7 +51,7 @@
 
 	// Context
 	const contractIdResolved = $derived(
-		contractIdProp ?? (chainId != null && address != null ? { $network: { chainId }, address } : null),
+		contractIdProp ?? (chainId != null && address != null ? { $network: { chainId }, address } : null)
 	)
 	const contractQuery = useLiveQuery(
 		(q) =>
@@ -87,13 +87,13 @@
 	const hasSourceFiles = $derived(
 		sourceRow != null
 		&& !sourceRow.notFound
-		&& Object.keys(sourceRow.files ?? {}).length > 0,
+		&& Object.keys(sourceRow.files ?? {}).length > 0
 	)
 	const hasAbi = $derived(
 		Array.isArray(abi) && abi.length > 0
 	)
 	const fetchSettled = $derived(
-		sourceRow != null && sourceRow.isLoading === false,
+		sourceRow != null && sourceRow.isLoading === false
 	)
 	const isLoading = $derived(
 		!fetchSettled && !hasAbi
@@ -163,9 +163,11 @@
 					<h3>Verified Source</h3>
 					<span data-text="annotation">{DataSourceId.Sourcify}</span>
 				</summary>
+
 				{#if sourceRow.metadata?.compiler}
 					<p data-text="muted">{sourceRow.metadata.compiler}</p>
 				{/if}
+
 				<div data-column>
 					{#each Object.entries(sourceRow.files) as [path, content]}
 						<details>

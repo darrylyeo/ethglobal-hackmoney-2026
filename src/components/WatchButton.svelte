@@ -26,20 +26,22 @@
 	)
 
 	// Context
-	const watchedQuery = useLiveQuery((q) =>
-		q.from({ row: watchedEntitiesCollection }).select(({ row }) => ({ row })),
+	const watchedQuery = useLiveQuery((q) => (
+		q.from({ row: watchedEntitiesCollection }).select(({ row }) => ({ row }))
+	),
 	)
 
 	// (Derived)
 	const isManuallyWatched = $derived(
 		effectiveEntityId != null
 		&& (watchedQuery.data ?? []).some(
-			(r) =>
+			(r) => (
 				entityKey({
 					entityType: r.row.entityType,
 					entityId: r.row.entityId,
-				}) === entityKey({ entityType, entityId: effectiveEntityId }),
-		),
+				}) === entityKey({ entityType, entityId: effectiveEntityId })
+			),
+		)
 	)
 
 

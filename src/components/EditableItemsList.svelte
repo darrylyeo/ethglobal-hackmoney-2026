@@ -100,6 +100,7 @@
 			{#if canDuplicate}
 				<Button.Root type="button" onclick={() => duplicateItemAt(index)} aria-label="Duplicate">⧉</Button.Root>
 			{/if}
+
 			{#if canDelete}
 				<Button.Root type="button" onclick={() => deleteItem(index)} aria-label="Delete">✕</Button.Root>
 			{/if}
@@ -120,6 +121,7 @@
 				<div class="editable-item-content" data-row-item="flexible">
 					{@render Item({ item: value, index: i })}
 				</div>
+
 				{@render ItemActions(i)}
 			</div>
 		{/each}
@@ -131,6 +133,7 @@
 				<div class="editable-item-content" data-row-item="flexible">
 					{@render Item({ item, index })}
 				</div>
+
 				{@render ItemActions(index)}
 			</div>
 		{/each}

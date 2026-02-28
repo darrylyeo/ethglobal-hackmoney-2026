@@ -88,7 +88,7 @@
 		(walletsQuery.data ?? []).map(({ row: wallet }) => wallet)
 	)
 	const connectedConnections = $derived(
-		connections.filter((c) => c.status === 'connected'),
+		connections.filter((c) => c.status === 'connected')
 	)
 	const myAddress = $derived(
 		yellowState.address?.toLowerCase() ?? null
@@ -97,17 +97,17 @@
 		new Set([
 			...connectedConnections.flatMap((c) => c.actors.map((a) => a.toLowerCase())),
 			...(myAddress ? [myAddress] : []),
-		]),
+		])
 	)
 	const selectedConnection = $derived(
-		connections.find((c) => c.selected) ?? null,
+		connections.find((c) => c.selected) ?? null
 	)
 	const selectedWallet = $derived(
 		selectedConnection
 			? wallets.find(
 					(w) => w.$id.rdns === selectedConnection.$id.wallet$id.rdns,
 				)
-			: null,
+			: null
 	)
 	const walletProvider = $derived(
 		selectedWallet && isEip1193Provider(selectedWallet.provider)
@@ -128,7 +128,7 @@
 			(ch) =>
 				allActorsLower.has(ch.participant0.toLowerCase()) ||
 				allActorsLower.has(ch.participant1.toLowerCase()),
-		),
+		)
 	)
 	const channelStatesByChannelId = $derived(
 		(statesQuery.data ?? []).reduce<Record<string, StateChannelStateRow>>(
@@ -139,21 +139,22 @@
 				return acc
 			},
 			{},
-		),
+		)
 	)
 	const roomsById = $derived(
-		new Map((roomsQuery.data ?? []).map(({ row: room }) => [room.$id.id, room])),
+		new Map((roomsQuery.data ?? []).map(({ row: room }) => [room.$id.id, room]))
 	)
 
 
 	// State
-	type StatusFilter =
+	type StatusFilter = (
 		| 'all'
 		| 'active'
 		| 'closing'
 		| 'dispute'
 		| 'final'
 		| 'initial'
+	)
 	type OriginFilter = 'all' | 'room' | 'external'
 	let statusFilter = $state<StatusFilter>('all')
 	let originFilter = $state<OriginFilter>('all')
@@ -178,22 +179,23 @@
 			if (originFilter === 'room' && !ch.roomId) return false
 			if (originFilter === 'external' && ch.roomId) return false
 			if (myChannelsOnly && myAddress) {
-				const isMine =
+				const isMine = (
 					ch.participant0.toLowerCase() === myAddress ||
 					ch.participant1.toLowerCase() === myAddress
+				)
 				if (!isMine) return false
 			}
 			return true
-		}),
+		})
 	)
 	const totalChannels = $derived(
 		channelsForConnectedAccounts.length
 	)
 	const activeChannels = $derived(
-		channelsForConnectedAccounts.filter((ch) => ch.status === 'active').length,
+		channelsForConnectedAccounts.filter((ch) => ch.status === 'active').length
 	)
 	const roomChannelsCount = $derived(
-		channelsForConnectedAccounts.filter((ch) => ch.roomId != null).length,
+		channelsForConnectedAccounts.filter((ch) => ch.roomId != null).length
 	)
 
 
@@ -375,6 +377,7 @@
 				<Button.Root type="button" onclick={onDisconnect} data-yellow-disconnect>
 					Disconnect
 				</Button.Root>
+
 				<Button.Root
 					type="button"
 					disabled={creatingChannel}
@@ -394,9 +397,11 @@
 					{connecting ? 'Connecting…' : 'Connect to Yellow'}
 				</Button.Root>
 			{/if}
+
 			{#if connectError}
 				<span class="action-error" role="alert">{connectError}</span>
 			{/if}
+
 			{#if createError}
 				<span class="action-error" role="alert">{createError}</span>
 			{/if}
@@ -420,6 +425,7 @@
 					<option value="final">final</option>
 				</select>
 			</label>
+
 			<label data-row="gap-1">
 				<span>Origin</span>
 				<select bind:value={originFilter}>
@@ -428,6 +434,7 @@
 					<option value="external">external</option>
 				</select>
 			</label>
+
 			<label data-row="gap-1">
 				<input type="checkbox" bind:checked={myChannelsOnly} />
 				My channels only
@@ -451,12 +458,17 @@
 						<th>Actions</th>
 					</tr>
 				</thead>
+
 				<tbody>
 					{#each filteredChannels as ch (ch.id)}
 						{@const counterparty = getCounterparty(ch)}
+
 						{@const myBal = getMyBalance(ch)}
+
 						{@const otherBal = getCounterpartyBalance(ch)}
+
 						{@const participant = isParticipant(ch)}
+
 						<tr data-status={ch.status}>
 							<td>{shortId(ch.id)}</td>
 							<td>
@@ -464,6 +476,7 @@
 								–
 								<Address actorId={{ $network: { chainId: ch.chainId }, address: ch.participant1 }} />
 							</td>
+
 							<td>{formatSmallestToDecimal(myBal, 6)} USDC</td>
 							<td>{formatSmallestToDecimal(otherBal, 6)} USDC</td>
 							<td data-status>{ch.status}</td>
@@ -477,6 +490,7 @@
 									—
 								{/if}
 							</td>
+
 							<td data-row="wrap gap-1">
 								{#if ch.status === 'active' && participant}
 									<Button.Root
@@ -489,6 +503,7 @@
 										Send
 									</Button.Root>
 								{/if}
+
 								{#if ch.status === 'active' && participant}
 									<Button.Root
 										type="button"
@@ -498,6 +513,7 @@
 										{closingChannelId === ch.id ? 'Closing…' : 'Close'}
 									</Button.Root>
 								{/if}
+
 								{#if (ch.status === 'active' || ch.status === 'closing') && participant}
 									<Button.Root
 										type="button"
@@ -515,6 +531,7 @@
 					{/each}
 				</tbody>
 			</table>
+
 			{#if filteredChannels.length === 0}
 				<p>No channels match the filters.</p>
 			{/if}

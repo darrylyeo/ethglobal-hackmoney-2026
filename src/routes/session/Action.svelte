@@ -113,25 +113,25 @@
 	const activeSpec = $derived(
 		(actionTypes as readonly ActionTypeDefinition[]).find(
 			(s) => s.type === action.type,
-		),
+		)
 	)
 	const protocolsForAction = $derived(
-		protocolActions.filter((pa) => pa.id.actionType === action.type),
+		protocolActions.filter((pa) => pa.id.actionType === action.type)
 	)
 	const validatedSwapParams = $derived(
 		action.type === ActionType.Swap
 			? getValidatedActionParams(ActionType.Swap, action.params)
-			: null,
+			: null
 	)
 	const validatedBridgeParams = $derived(
 		action.type === ActionType.Bridge
 			? getValidatedActionParams(ActionType.Bridge, action.params)
-			: null,
+			: null
 	)
 	const bridgeParams = $derived(
 		action.type === ActionType.Bridge
 			? (validatedBridgeParams ?? (action.params as BridgeParams))
-			: null,
+			: null
 	)
 	const protocolOptions = $derived(
 		action.type === ActionType.Bridge && bridgeParams
@@ -142,10 +142,10 @@
 			)
 			: (protocolsForAction
 				.map((pa) => protocolsById[pa.id.protocol])
-				.filter(Boolean) as import('$/constants/protocols.ts').Protocol[]),
+				.filter(Boolean) as import('$/constants/protocols.ts').Protocol[])
 	)
 	const swapParams = $derived(
-		action.type === ActionType.Swap ? (validatedSwapParams ?? (action.params as SwapParams)) : null,
+		action.type === ActionType.Swap ? (validatedSwapParams ?? (action.params as SwapParams)) : null
 	)
 	const swapProtocolIntent = $derived(
 		swapParams?.swapProtocolIntent ?? SwapProtocolId.Auto
@@ -167,14 +167,14 @@
 					if (protocolOptions.some((o) => o.id === sel))
 						return sel as ProtocolId
 					return (action.protocolAction?.protocol ?? null) as ProtocolId | null
-				})(),
+				})()
 	)
 	const swapShowsQuoteSection = $derived(
 		action.type === ActionType.Swap &&
 			(protocolAggregatorsById[swapAggregator]?.strategies.length ?? 0) > 0 &&
 			(swapProtocolIntent === SwapProtocolId.Auto ||
 				(swapIdToProtocol[swapProtocolIntent] != null &&
-					aggregatorBackedProtocols.includes(swapIdToProtocol[swapProtocolIntent]!))),
+					aggregatorBackedProtocols.includes(swapIdToProtocol[swapProtocolIntent]!)))
 	)
 	const paramsHash = $derived(
 		stringify(action.params)
@@ -182,14 +182,14 @@
 	const isCctpBridge = $derived(
 		action.type === ActionType.Bridge &&
 			(bridgeParams?.protocolIntent === BridgeProtocolId.Cctp ||
-				resolvedProtocol === ProtocolId.Cctp),
+				resolvedProtocol === ProtocolId.Cctp)
 	)
 	const filteredNetworks = $derived(
 		networks.filter((n) =>
 			isTestnet
 				? n.type === NetworkType.Testnet
 				: n.type === NetworkType.Mainnet,
-		),
+		)
 	)
 	const chainCoins = (chainId: number) =>
 		(erc20TokenByNetwork.get(chainId) ?? []) as CoinInstance[]
@@ -203,7 +203,7 @@
 	})
 
 	const swapParamsForRequest = $derived(
-		validatedSwapParams && selectedActor ? validatedSwapParams : null,
+		validatedSwapParams && selectedActor ? validatedSwapParams : null
 	)
 	const swapRequestKey = $derived.by(() => {
 		if (!validatedSwapParams || !selectedActor) return ''
@@ -223,7 +223,7 @@
 			swapProtocolIntent !== SwapProtocolId.Auto &&
 			resolvedProtocol
 			? (protocolToQuoteProvider[resolvedProtocol] ?? null)
-			: null,
+			: null
 	)
 	const swapQuotesQuery = useLiveQuery((q) =>
 		q
@@ -268,7 +268,7 @@
 		}
 	})
 	const bridgeQuoteRequestKey = $derived(
-		bridgeParamsForQuote ? getBridgeQuoteRequestKey(bridgeParamsForQuote) : '',
+		bridgeParamsForQuote ? getBridgeQuoteRequestKey(bridgeParamsForQuote) : ''
 	)
 	const bridgeQuotesQuery = useLiveQuery((q) =>
 		q
@@ -286,21 +286,21 @@
 			isTestnet,
 			swapQuoteTx,
 			lifiBridgeTxs,
-		}),
+		})
 	)
 	const selectedConnection = $derived(
-		connectedWallets.find((c) => c.connection.selected),
+		connectedWallets.find((c) => c.connection.selected)
 	)
 	const selectedConnectionSupportsSigning = $derived(
-		selectedConnection?.connection.transport === WalletConnectionTransport.Eip1193,
+		selectedConnection?.connection.transport === WalletConnectionTransport.Eip1193
 	)
 	const actors = $derived(
-		connectedWallets.flatMap((c) => c.connection.actors ?? []),
+		connectedWallets.flatMap((c) => c.connection.actors ?? [])
 	)
 	const walletProvider = $derived(
 		selectedConnectionSupportsSigning && selectedConnection && 'provider' in selectedConnection.wallet
 			? (selectedConnection.wallet.provider as EIP1193Provider)
-			: null,
+			: null
 	)
 
 
@@ -327,21 +327,22 @@
 				...action,
 				protocolSelection: undefined,
 				protocolAction: undefined,
-				...(action.type === ActionType.Bridge && action.params && 'protocolIntent' in action.params
-					? { params: { ...action.params, protocolIntent: null } }
+				...(action.type === ActionType.Bridge && action.params && 'protocolIntent' in action.params ?
+					{ params: { ...action.params, protocolIntent: null } }
 					: {}),
 			} as Action
 			return
 		}
 		const valid = protocolOptions.some((o) => o.id === value)
-		const bridgeIntent =
+		const bridgeIntent = (
 			action.type === ActionType.Bridge && valid ? protocolToBridgeId[value as ProtocolId] : undefined
+		)
 		action = {
 			...action,
 			protocolSelection: value,
 			protocolAction: valid ? { action: action.type, protocol: value } : undefined,
-			...(action.type === ActionType.Bridge && action.params && 'protocolIntent' in action.params
-				? { params: { ...action.params, protocolIntent: bridgeIntent ?? null } }
+			...(action.type === ActionType.Bridge && action.params && 'protocolIntent' in action.params ?
+				{ params: { ...action.params, protocolIntent: bridgeIntent ?? null } }
 				: {}),
 		} as Action
 	}
@@ -393,10 +394,11 @@
 			}))
 			const { result } = await runTevmSimulationFromClientBatch(payloads)
 			const steps = 'steps' in result ? result.steps : [result]
-			const status =
+			const status = (
 				steps.length > 0 && steps.every((s) => s.summaryStatus === TevmSimulationSummaryStatus.Success)
 					? SessionActionSimulationStatus.Success
 					: SessionActionSimulationStatus.Failed
+			)
 			const firstRevert = steps.find((s) => s.revertReason)?.revertReason
 			const simulation: SessionActionTransactionSimulation = {
 				id,
@@ -594,6 +596,7 @@
 							swapperAccount={selectedActor}
 						/>
 						{/if}
+
 						{#if swapProtocolIntent === SwapProtocolId.NearIntents}
 							<IntentsQuote
 								flow="swap"
@@ -608,6 +611,7 @@
 								fromAddress={selectedActor}
 							/>
 						{/if}
+
 						{#if bridgeParams?.protocolIntent === BridgeProtocolId.NearIntents || resolvedProtocol === ProtocolId.NearIntents}
 							<IntentsQuote
 								flow="bridge"
@@ -640,6 +644,7 @@
 						>
 							{simulateInProgress ? 'Simulating…' : 'Simulate'}
 						</button>
+
 						<button
 							type="submit"
 							name="action"
@@ -663,6 +668,7 @@
 				<div data-row-item="flexible">
 					<Simulations sessionId={sessionId} {indexInSequence} />
 				</div>
+
 				<div data-row-item="flexible">
 					<Transactions sessionId={sessionId} {indexInSequence} />
 				</div>
@@ -677,7 +683,9 @@
 					<Dialog.Title>Confirm CCTP transfer</Dialog.Title>
 					{#if bridgeParams && selectedActor && bridgeParams.fromChainId != null && bridgeParams.toChainId != null}
 						{@const fromNet = Object.values(networksByChainId).find((n) => n?.chainId === bridgeParams.fromChainId)}
+
 						{@const toNet = Object.values(networksByChainId).find((n) => n?.chainId === bridgeParams.toChainId)}
+
 						{#if fromNet && toNet}
 							<Dialog.Description>
 								Send {formatSmallestToDecimal(bridgeParams.amount ?? 0n, 6)} USDC from {fromNet.name}
@@ -685,6 +693,7 @@
 							</Dialog.Description>
 						{/if}
 					{/if}
+
 					<div data-row class="dialog-actions">
 						<Button.Root
 							type="button"

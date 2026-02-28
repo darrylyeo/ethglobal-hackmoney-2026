@@ -43,7 +43,7 @@
 	]
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const roomAddresses = $derived(
-		(sharedQuery.data ?? []).map(({ sharedAddress }) => sharedAddress.address.toLowerCase()),
+		(sharedQuery.data ?? []).map(({ sharedAddress }) => sharedAddress.address.toLowerCase())
 	)
 	const myAddress = $derived(
 		yellowState.address?.toLowerCase() ?? null
@@ -52,29 +52,31 @@
 		(channelsQuery.data ?? []).map(({ stateChannel: channel }) => channel)
 	)
 	const roomChannels = $derived(
-		myAddress
-			? allChannels.filter((ch) => {
-					const isMine =
-						ch.participant0.toLowerCase() === myAddress ||
-						ch.participant1.toLowerCase() === myAddress
-					const counterparty =
-						ch.participant0.toLowerCase() === myAddress
-							? ch.participant1.toLowerCase()
-							: ch.participant0.toLowerCase()
-					return isMine && roomAddresses.includes(counterparty)
-				})
-			: [],
+		myAddress ?
+			allChannels.filter((ch) => {
+				const isMine = (
+					ch.participant0.toLowerCase() === myAddress ||
+					ch.participant1.toLowerCase() === myAddress
+				)
+				const counterparty = (
+					ch.participant0.toLowerCase() === myAddress ?
+						ch.participant1.toLowerCase()
+						: ch.participant0.toLowerCase()
+				)
+				return isMine && roomAddresses.includes(counterparty)
+			})
+			: []
 	)
 
 
 	// Functions
 	const getCounterparty = (channel: StateChannelRow) =>
-		myAddress && channel.participant0.toLowerCase() === myAddress
-			? channel.participant1
+		myAddress && channel.participant0.toLowerCase() === myAddress ?
+			channel.participant1
 			: channel.participant0
 	const getMyBalance = (channel: StateChannelRow) =>
-		myAddress && channel.participant0.toLowerCase() === myAddress
-			? channel.balance0
+		myAddress && channel.participant0.toLowerCase() === myAddress ?
+			channel.balance0
 			: channel.balance1
 
 
@@ -121,7 +123,9 @@
 
 	{#each roomChannels as channel (channel.id)}
 		{@const counterparty = getCounterparty(channel)}
+
 		{@const myBalance = getMyBalance(channel)}
+
 		<div
 			data-row="wrap"
 			data-status={channel.status}
@@ -132,6 +136,7 @@
 			<span class="channel-balance">
 				{formatSmallestToDecimal(myBalance, 6)} USDC
 			</span>
+
 			<span data-status>{channel.status}</span>
 			{#if channel.status === 'active'}
 				<Button.Root
@@ -143,6 +148,7 @@
 				>
 					Send
 				</Button.Root>
+
 				<Button.Root
 					type="button"
 					disabled={closingChannelId === channel.id}

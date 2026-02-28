@@ -39,8 +39,8 @@
 		src?: string
 	} {
 		return (
-			icon.startsWith('data:') || icon.startsWith('/') || icon.startsWith('http')
-				? { src: icon }
+			icon.startsWith('data:') || icon.startsWith('/') || icon.startsWith('http') ?
+				{ src: icon }
 				: { icon }
 		)
 	}
@@ -79,9 +79,7 @@
 		{@attach (element) => {
 			const abortController = new AbortController()
 
-			let lastFocusedElement: HTMLElement | undefined = $state(
-		
-	)
+			let lastFocusedElement: HTMLElement | undefined = $state()
 
 			globalThis.addEventListener(
 				'keydown',
@@ -173,6 +171,7 @@
 							<SearchableText text={node.title} query={searchQuery} />
 						{/if}
 					</span>
+
 					{#if node.tag || node.manualWatch}
 						<span data-row="start gap-1">
 							{#if node.tag}
@@ -180,9 +179,11 @@
 									{#if node.tagIcon}
 										<Icon {...navIconProps(node.tagIcon)} size="1em" />
 									{/if}
+
 									{node.tag}
 								</span>
 							{/if}
+
 							{#if node.manualWatch}
 								<Icon icon="★" aria-label="Pinned" size="1em" />
 							{/if}
@@ -217,9 +218,11 @@
 									{#if node.tagIcon}
 										<Icon {...navIconProps(node.tagIcon)} size="1em" />
 									{/if}
+
 									{node.tag}
 								</span>
 							{/if}
+
 							{#if node.manualWatch}
 								<Icon icon="★" aria-label="Pinned" size="1em" />
 							{/if}

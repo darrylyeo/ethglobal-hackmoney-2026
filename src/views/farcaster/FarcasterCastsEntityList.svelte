@@ -51,7 +51,7 @@
 	{pagination}
 >
 	{#snippet Item({ key, item, isPlaceholder })}
-		{@const anchorId =
+		{@const anchorId = (
 			typeof key === 'string' &&
 			key !== 'loading'
 				? (() => {
@@ -62,7 +62,8 @@
 							? castAnchorId(fid, hash as `0x${string}`)
 							: undefined
 					})()
-				: undefined}
+				: undefined
+		)}
 		<span id={anchorId}>
 			{#if isPlaceholder}
 				<code>{placeholderText}</code>

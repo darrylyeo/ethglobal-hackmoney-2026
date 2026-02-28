@@ -64,8 +64,9 @@
 
 
 	// Functions
-	const camelToKebab = (s: string) =>
+	const camelToKebab = (s: string) => (
 		s.replace(/([A-Z])/g, (m) => `-${m.toLowerCase()}`)
+	)
 
 	function onKeydown(e: KeyboardEvent) {
 		if (e.key === 'ArrowLeft') {

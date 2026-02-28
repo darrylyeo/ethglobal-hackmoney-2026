@@ -18,7 +18,7 @@
 					toChainId: number | null
 					isTestnet: boolean
 				})
-			: null,
+			: null
 	)
 	const transferSpeedItems = $derived([
 		{ id: TransferSpeed.Fast, label: 'Fast' },
@@ -31,10 +31,10 @@
 		p ? getCctpDomainId(p.toChainId) : null
 	)
 	const apiHost = $derived(
-		p?.isTestnet ? 'https://iris-api-sandbox.circle.com' : 'https://iris-api.circle.com',
+		p?.isTestnet ? 'https://iris-api-sandbox.circle.com' : 'https://iris-api.circle.com'
 	)
 	const fastTransferSupported = $derived(
-		p?.fromChainId != null && CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS.has(p.fromChainId),
+		p?.fromChainId != null && CCTP_FAST_TRANSFER_SOURCE_CHAIN_IDS.has(p.fromChainId)
 	)
 
 
@@ -50,6 +50,7 @@
 			<h3>CCTP settings</h3>
 		<label data-column>
 			<span>Transfer speed</span>
+
 			<Select
 				items={transferSpeedItems}
 				bind:value={() => transferSpeedItems.find((x) => x.id === p.transferSpeed) ?? undefined, (item) => {
@@ -61,6 +62,7 @@
 				ariaLabel="Transfer speed"
 			/>
 		</label>
+
 		<label data-row="align-center">
 			<input
 				type="checkbox"
@@ -74,6 +76,7 @@
 			/>
 			Use Forwarding Service
 		</label>
+
 		</div>
 		<CctpFees {fromDomain} {toDomain} {apiHost} />
 		<CctpAllowance {fastTransferSupported} {apiHost} />

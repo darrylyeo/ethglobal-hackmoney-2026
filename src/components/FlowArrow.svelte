@@ -39,19 +39,19 @@
 
 	// (Derived)
 	const arrowData = $derived(
-		computeArrow(sourceRect, targetRect, { padStart: gap, padEnd: arrowHeadSize }),
+		computeArrow(sourceRect, targetRect, { padStart: gap, padEnd: arrowHeadSize })
 	)
 	const pathD = $derived(
-		arrowToPathD(arrowData),
+		arrowToPathD(arrowData)
 	)
 	const markerId = $derived(
-		`flow-arrow-head-${Math.round(arrowData[0])}-${Math.round(arrowData[1])}`,
+		`flow-arrow-head-${Math.round(arrowData[0])}-${Math.round(arrowData[1])}`
 	)
 	const flowDurationS = $derived(
-		Math.max(FLOW_MIN_DURATION_S, arrowPathLength(arrowData) / FLOW_SPEED_PX_S),
+		Math.max(FLOW_MIN_DURATION_S, arrowPathLength(arrowData) / FLOW_SPEED_PX_S)
 	)
 	const useGradient = $derived(
-		!!(sourceColor ?? targetColor),
+		!!(sourceColor ?? targetColor)
 	)
 	const gradientStart = $derived(
 		sourceColor ?? 'var(--color-accent)'
@@ -60,7 +60,7 @@
 		targetColor ?? 'var(--color-accent)'
 	)
 	const gradientId = $derived(
-		`flow-arrow-gradient-${Math.round(arrowData[0])}-${Math.round(arrowData[1])}-${Math.round(arrowData[4])}-${Math.round(arrowData[5])}`,
+		`flow-arrow-gradient-${Math.round(arrowData[0])}-${Math.round(arrowData[1])}-${Math.round(arrowData[4])}-${Math.round(arrowData[5])}`
 	)
 </script>
 
@@ -85,6 +85,7 @@
 				<stop offset="1" stop-color={gradientEnd} />
 			</linearGradient>
 		{/if}
+
 		<marker
 			id={markerId}
 			markerWidth="12"
@@ -100,6 +101,7 @@
 			/>
 		</marker>
 	</defs>
+
 	<path
 		class="flow-arrow-path"
 		d={pathD}

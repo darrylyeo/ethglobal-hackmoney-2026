@@ -32,7 +32,7 @@
 
 	// (Derived)
 	const connections = $derived(
-		(connectionsQuery.data ?? []).map(({ llmConnection: connection }) => connection).filter(Boolean) as WithSource<LlmConnection>[],
+		(connectionsQuery.data ?? []).map(({ llmConnection: connection }) => connection).filter(Boolean) as WithSource<LlmConnection>[]
 	)
 	const addItems = $derived(
 		(
@@ -53,7 +53,7 @@
 					label: `${PROVIDER_LABELS[provider] ?? provider} (new)`,
 				})
 			},
-		})),
+		}))
 	)
 
 
@@ -90,6 +90,7 @@
 			<div data-row="wrap">
 				<div data-row>
 					<h2>Connections</h2>
+
 					<span
 						data-badge="small"
 						aria-label="{connections.length} connections"
@@ -97,6 +98,7 @@
 						{connections.length}
 					</span>
 				</div>
+
 				<Dropdown
 					items={addItems}
 					triggerLabel="+"
@@ -115,6 +117,7 @@
 		<ul data-list="unstyled">
 			{#each connections as conn (conn.id)}
 				{@const models = getModelsForConnection(conn)}
+
 				<li>
 					<details data-card open>
 						<summary>
@@ -123,6 +126,7 @@
 									<strong>{conn.label}</strong>
 									<span data-text="muted">({PROVIDER_LABELS[conn.provider] ?? conn.provider})</span>
 								</span>
+
 								<Button.Root
 									type="button"
 									data-text="muted"
@@ -132,9 +136,11 @@
 								</Button.Root>
 							</div>
 						</summary>
+
 						<div data-column>
 							<div data-row>
 								<label for="llm-label-{conn.id}">Label</label>
+
 								<input
 									id="llm-label-{conn.id}"
 									type="text"
@@ -142,9 +148,11 @@
 									bind:value={() => conn.label, (v) => onLabelChange(conn.id, v)}
 								/>
 							</div>
+
 							{#if needsApiKey(conn.provider)}
 								<div data-row>
 									<label for="llm-apikey-{conn.id}">API key</label>
+
 									<input
 										id="llm-apikey-{conn.id}"
 										type="password"
@@ -155,9 +163,11 @@
 									/>
 								</div>
 							{/if}
+
 							{#if needsEndpoint(conn.provider)}
 								<div data-row>
 									<label for="llm-endpoint-{conn.id}">Endpoint</label>
+
 									<input
 										id="llm-endpoint-{conn.id}"
 										type="url"
@@ -168,9 +178,11 @@
 									/>
 								</div>
 							{/if}
+
 							{#if conn.provider === LlmConnectionProvider.Zen}
 								<div data-row>
 									<label for="llm-apikey-zen-{conn.id}">API key</label>
+
 									<input
 										id="llm-apikey-zen-{conn.id}"
 										type="password"
@@ -181,9 +193,11 @@
 									/>
 								</div>
 							{/if}
+
 							{#if models.length > 0}
 								<div data-row>
 									<label for="llm-model-{conn.id}">Default model</label>
+
 									<select
 										id="llm-model-{conn.id}"
 										bind:value={() => conn.defaultModelId ?? '', (v) =>

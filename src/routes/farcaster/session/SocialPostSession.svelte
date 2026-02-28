@@ -35,10 +35,10 @@
 
 	// (Derived)
 	const canDraft = $derived(
-		selectedSiwfConnection?.transport === FarcasterConnectionTransport.Siwf,
+		selectedSiwfConnection?.transport === FarcasterConnectionTransport.Siwf
 	)
 	const placeholderName = $derived(
-		formatSocialPostSessionPlaceholderName(session.actions),
+		formatSocialPostSessionPlaceholderName(session.actions)
 	)
 
 
@@ -79,6 +79,7 @@
 	>
 		{#snippet Title()}
 			<span class="sr-only">Social post</span>
+
 			<input
 				type="text"
 				class="session-name-input"
@@ -88,6 +89,7 @@
 				disabled={!canDraft}
 			/>
 		{/snippet}
+
 		<details open data-card>
 			<summary>
 				<header data-row="wrap">

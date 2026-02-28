@@ -42,9 +42,9 @@ import { entityKey } from '$/lib/entity-key.ts'
 		parseNetworkNameParam(networkSlug)
 	)
 	const txHash = $derived(
-		txHashParam && TX_HASH.test(txHashParam)
-			? normalizeTxHash(txHashParam as `0x${string}`)
-			: null,
+		txHashParam && TX_HASH.test(txHashParam) ?
+			normalizeTxHash(txHashParam as `0x${string}`)
+			: null
 	)
 	const chainId = $derived(
 		route?.chainId ?? (0 as ChainId)
@@ -132,13 +132,13 @@ import { entityKey } from '$/lib/entity-key.ts'
 		txQuery.data?.[0]?.row as ChainTransactionEntry | null
 	)
 	const txId = $derived(
-		tx?.$id ?? { $network: { chainId }, txHash: txHash ?? ('0x' as `0x${string}`) },
+		tx?.$id ?? { $network: { chainId }, txHash: txHash ?? ('0x' as `0x${string}`) }
 	)
 	const block = $derived(
 		blockQuery.data?.[0]?.row as BlockEntry | null
 	)
 	const latestBlockNumber = $derived(
-		Number(latestBlockQuery.data?.[0] ?? 0),
+		Number(latestBlockQuery.data?.[0] ?? 0)
 	)
 
 	$effect(() => {
@@ -199,22 +199,25 @@ import { entityKey } from '$/lib/entity-key.ts'
 
 			{#snippet children()}
 				{@const bn = blockNum || 0}
+
 				<p>
 					<a
 						href={resolve(
-							blockNum > 0
-								? `/network/${chainId}/block/${blockNum}#${entityKey({ entityType: EntityType.Transaction, entityId: txId })}`
+							blockNum > 0 ?
+								`/network/${chainId}/block/${blockNum}#${entityKey({ entityType: EntityType.Transaction, entityId: txId })}`
 								: `/network/${chainId}`,
 						)}
 						data-link
 					>Show Context</a>
 				</p>
+
 				{#if tx}
 					<Transaction
 						data={new Map([[tx, { events: tx.logs ?? [], trace: undefined }]])}
 						layout={EntityLayout.ContentOnly}
 					/>
 				{/if}
+
 				<Network
 					{networkId}
 					placeholderBlockIds={new Set([

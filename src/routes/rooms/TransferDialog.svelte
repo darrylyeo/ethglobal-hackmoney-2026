@@ -23,7 +23,7 @@
 		yellowState.address &&
 			channel.participant0.toLowerCase() === yellowState.address.toLowerCase()
 			? channel.balance0
-			: channel.balance1,
+			: channel.balance1
 	)
 
 
@@ -58,11 +58,12 @@
 
 			await sendTransfer({
 				clearnodeConnection: yellowState.clearnodeConnection,
-				destination:
+				destination: (
 					channel.participant0.toLowerCase() ===
 					yellowState.address.toLowerCase()
 						? channel.participant1
-						: channel.participant0,
+						: channel.participant0
+				),
 				allocations: [
 					{
 						asset: 'usdc',
@@ -126,6 +127,7 @@
 			>
 				Cancel
 			</Button.Root>
+
 			<Button.Root
 				type="button"
 				onclick={onSend}

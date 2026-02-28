@@ -56,16 +56,19 @@
 
 			// --- Helpers ---
 
-			const isRecord = (value: unknown): value is Record<string, unknown> =>
+			const isRecord = (value: unknown): value is Record<string, unknown> => (
 				typeof value === 'object' && value !== null
+			)
 
-			const getNumber = (value: unknown): number | null =>
+			const getNumber = (value: unknown): number | null => (
 				typeof value === 'number' ? value : null
+			)
 
-			const getCollectionLabel = (collection: string) =>
+			const getCollectionLabel = (collection: string) => (
 				entityTypes.find((e) => e.type === collection)?.labelPlural ?? collection
+			)
 
-			const getNodeType = (node: GraphModel['nodes'][number]) =>
+			const getNodeType = (node: GraphModel['nodes'][number]) => (
 				node.g6Type ??
 				(node.type === 'image' || node.image
 					? 'image'
@@ -76,21 +79,25 @@
 							: node.collection === EntityType.Transaction
 								? 'diamond'
 								: 'circle')
+			)
 
-			const getEdgeTypeFromRelation = (relation?: string) =>
+			const getEdgeTypeFromRelation = (relation?: string) => (
 				relation === 'connection'
 					? 'cubic'
 					: relation === 'allowance'
 						? 'quadratic'
 						: 'line'
+			)
 
-			const getEdgeType = (edge: GraphModel['edges'][number]) =>
+			const getEdgeType = (edge: GraphModel['edges'][number]) => (
 				typeof edge.type === 'string' && edge.type.includes('curved')
 					? 'cubic'
 					: getEdgeTypeFromRelation(edge.relation)
+			)
 
-			const getEdgeArrow = (edgeType?: string) =>
+			const getEdgeArrow = (edgeType?: string) => (
 				typeof edgeType === 'string' && edgeType.includes('Arrow')
+			)
 
 			const VALUE_RELATIONS = new Set([
 				'balance', 'coin', 'transaction', 'swap', 'yellow', 'transferRequest',
@@ -379,12 +386,13 @@
 			let sourceProxy: HTMLDivElement | null = null
 			let targetProxy: HTMLDivElement | null = null
 
-			const getEventTargetId = (event: unknown) =>
+			const getEventTargetId = (event: unknown) => (
 				isRecord(event) &&
 				isRecord(event.target) &&
 				typeof event.target.id === 'string'
 					? event.target.id
 					: null
+			)
 
 			const ensureProxy = (role: 'source' | 'target') => {
 				const current = role === 'source' ? sourceProxy : targetProxy
@@ -475,9 +483,9 @@
 					const kept = (() => {
 						try {
 							const raw = graph.getElementState(id)
-							return (Array.isArray(raw) ? raw : []).filter((s) =>
+							return (Array.isArray(raw) ? raw : []).filter((s) => (
 								s !== 'highlight' && s !== 'globalHighlight' && s !== 'selected' && s !== 'disabled'
-							)
+							))
 						} catch {
 							return [] as string[]
 						}
@@ -497,9 +505,9 @@
 					const kept = (() => {
 						try {
 							const raw = graph.getElementState(id)
-							return (Array.isArray(raw) ? raw : []).filter((s) =>
+							return (Array.isArray(raw) ? raw : []).filter((s) => (
 								s !== 'selected' && s !== 'disabled'
-							)
+							))
 						} catch {
 							return [] as string[]
 						}

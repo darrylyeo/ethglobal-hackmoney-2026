@@ -43,7 +43,7 @@
 			? filterAddresses
 			: actorId
 				? [actorId.address]
-				: [],
+				: []
 	)
 	const positions = $derived(
 		actors.length === 0
@@ -57,7 +57,7 @@
 						a.chainId !== b.chainId
 							? a.chainId - b.chainId
 							: a.id.localeCompare(b.id),
-					),
+					)
 	)
 	const singleAddress = $derived(
 		actors.length === 1 ? actors[0] : undefined
@@ -79,7 +79,7 @@
 							]),
 					),
 			).values(),
-		],
+		]
 	)
 
 
@@ -115,8 +115,10 @@
 				{/if}
 			</h3>
 		</div>
+
 		{#if availableAccounts.length > 0}
 			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+
 			<div
 				class="section-filters"
 				role="group"
@@ -159,6 +161,7 @@
 				>
 					{#each positions as pos (pos.chainId + ':' + pos.id)}
 						{@const net = networksByChainId[pos.chainId]}
+
 						<li
 							data-columns-item
 							data-card

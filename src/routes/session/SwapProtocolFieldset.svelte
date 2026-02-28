@@ -36,19 +36,19 @@
 					swapAggregator: string
 					swapStrategy: string
 			  })
-			: null,
+			: null
 	)
 	const swapProtocolIntent = $derived(
-		(p?.swapProtocolIntent as SwapProtocolId) ?? SwapProtocolId.Auto,
+		(p?.swapProtocolIntent as SwapProtocolId) ?? SwapProtocolId.Auto
 	)
 	const swapAggregator = $derived(
-		(p?.swapAggregator as ProtocolAggregatorId) ?? ProtocolAggregatorId.Spandex,
+		(p?.swapAggregator as ProtocolAggregatorId) ?? ProtocolAggregatorId.Spandex
 	)
 	const swapStrategy = $derived(
-		(p?.swapStrategy as ProtocolStrategy) ?? ProtocolStrategy.BestPrice,
+		(p?.swapStrategy as ProtocolStrategy) ?? ProtocolStrategy.BestPrice
 	)
 	const strategiesForAggregator = $derived(
-		protocolAggregatorsById[swapAggregator]?.strategies ?? [],
+		protocolAggregatorsById[swapAggregator]?.strategies ?? []
 	)
 
 	const protocolDef = (id: SwapProtocolId): Protocol | null =>
@@ -59,7 +59,7 @@
 			type: id === SwapProtocolId.Auto ? ('auto' as const) : ('protocol' as const),
 			id,
 			def: protocolDef(id),
-		})),
+		}))
 	)
 
 
@@ -73,8 +73,8 @@
 				swapProtocolIntent: value,
 			},
 			protocolAction:
-				value !== SwapProtocolId.Auto && swapIdToProtocol[value]
-					? { action: ActionType.Swap, protocol: swapIdToProtocol[value]! }
+				value !== SwapProtocolId.Auto && swapIdToProtocol[value] ?
+					{ action: ActionType.Swap, protocol: swapIdToProtocol[value]! }
 					: undefined,
 		} as Action
 	}
@@ -114,8 +114,10 @@
 					>
 						Auto
 					</button>
+
 					{#if swapProtocolIntent === SwapProtocolId.Auto}
 						<span>Aggregator</span>
+
 						<Select
 							items={protocolAggregatorIds}
 							getItemId={(a) => a}
@@ -128,6 +130,7 @@
 						/>
 						{#if strategiesForAggregator.length > 0}
 							<span>Strategy</span>
+
 							<Select
 								items={strategiesForAggregator}
 								getItemId={(s) => s}
@@ -159,6 +162,7 @@
 						{:else}
 							<Icon class="protocol-icon" icon={row.def.icon} size={20} alt="" />
 						{/if}
+
 						<div data-column>
 							<strong>{row.def.label}</strong>
 							<small data-text="muted">{row.def.detail}</small>

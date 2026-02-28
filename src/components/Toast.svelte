@@ -56,6 +56,7 @@
 		{#if toast.title}
 			<strong class="toast-title">{toast.title}</strong>
 		{/if}
+
 		<p class="toast-message">{toast.message}</p>
 		{#if toast.action}
 			<button type="button" class="toast-action" onclick={toast.action.onClick}>

@@ -35,8 +35,11 @@
 	<span class="coin-name" data-row="inline gap-1">
 		{#if coin.icon?.original?.url}
 			{@const chainId = coin.$id.$network.chainId}
+
 			{@const symbol = coin.symbol}
+
 			{@const network = networksByChainId[chainId]}
+
 			<CoinIcon
 				coin={coinById[coin.coinId]!}
 				src={coin.icon.original.url}
@@ -53,12 +56,15 @@
 			/>
 		{:else}
 			{@const chainId = coin.$id.$network.chainId}
+
 			{@const symbol = coin.symbol}
+
 			<NetworkIcon networkId={{ chainId }} alt={chainId.toString()} />
 		{/if}
 
 		{#if coin.name || coin.symbol}
 			{@const symbol = coin.symbol}
+
 			<abbr
 				class="coin"
 				title={coin.type === CoinInstanceType.NativeCurrency ?

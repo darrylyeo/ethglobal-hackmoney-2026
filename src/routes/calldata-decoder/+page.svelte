@@ -37,8 +37,14 @@
 		if (!value) return ''
 		const s = value.trim().replace(/^0x/i, '').replace(/\s/g, '')
 		if (!/^[0-9a-fA-F]*$/.test(s)) return ''
-		const even = s.length % 2 === 0 ? s : s.slice(0, -1)
-		return even ? `0x${even}` : ''
+		const even = s.length % 2 === 0 ?
+			s
+		:
+			s.slice(0, -1)
+		return even ?
+			`0x${even}`
+		:
+			''
 	}
 	let selectedSigIndex = $state(
 		0
@@ -49,20 +55,27 @@
 
 	// (Derived)
 	const hexWithPrefix = $derived(
-		inputRaw.startsWith('0x') ? inputRaw : inputRaw ? `0x${inputRaw}` : ''
+		inputRaw.startsWith('0x') ?
+			inputRaw
+		:
+			inputRaw ?
+				`0x${inputRaw}`
+			:
+				''
 	)
 	const hexNormalized = $derived(
 		hexWithPrefix.slice(2).toLowerCase()
 	)
 	const selector = $derived(
-		hexNormalized.length >= 8
-			? (`0x${hexNormalized.slice(0, 8).toLowerCase()}` as `0x${string}`)
-			: null,
+		hexNormalized.length >= 8 ?
+			(`0x${hexNormalized.slice(0, 8).toLowerCase()}` as `0x${string}`)
+		:
+			null
 	)
 	const topic = $derived(
 		hexNormalized.length >= 64
 			? (`0x${hexNormalized.slice(0, 64).toLowerCase()}` as `0x${string}`)
-			: null,
+			: null
 	)
 	const byteCount = $derived(
 		hexNormalized ? Math.floor(hexNormalized.length / 2) : 0
@@ -82,7 +95,7 @@
 		[() => normalizedSelector],
 	)
 	const selectorEntry = $derived(
-		functionSigQuery.data?.[0]?.row as EvmSelector | undefined,
+		functionSigQuery.data?.[0]?.row as EvmSelector | undefined
 	)
 	const functionSignatures = $derived(
 		selectorEntry?.signatures ?? []
@@ -102,7 +115,7 @@
 		[() => normalizedTopic],
 	)
 	const topicEntry = $derived(
-		eventSigQuery.data?.[0]?.row as EvmTopic | undefined,
+		eventSigQuery.data?.[0]?.row as EvmTopic | undefined
 	)
 	const eventSignatures = $derived(
 		topicEntry?.signatures ?? []
@@ -113,7 +126,7 @@
 			? functionSignatures[
 					Math.min(selectedSigIndex, functionSignatures.length - 1)
 				]
-			: null,
+			: null
 	)
 	const decodedCall = $derived(
 		hexWithPrefix && selector && signatureForDecode
@@ -121,7 +134,7 @@
 					signatureForDecode,
 					hexWithPrefix as `0x${string}`,
 				)
-			: null,
+			: null
 	)
 
 	const eventSignatureForDecode = $derived(
@@ -129,7 +142,7 @@
 			? eventSignatures[
 					Math.min(selectedEventSigIndex, eventSignatures.length - 1)
 				]
-			: null,
+			: null
 	)
 	const decodedEvent = $derived(
 		hexWithPrefix &&
@@ -139,7 +152,7 @@
 					eventSignatureForDecode,
 					hexWithPrefix as `0x${string}`,
 				)
-			: null,
+			: null
 	)
 
 	const TRUNCATE_PARAM_LENGTH = 28
@@ -199,7 +212,7 @@
 </svelte:head>
 
 
-<main data-card>
+<main>
 	<Heading>Calldata decoder</Heading>
 	<p>Paste transaction input or event data (hex) to resolve the function selector (4 bytes) and/or event topic (32 bytes) to human-readable signature(s). Use <code>?data=0x…</code> in the URL to open with hex pre-filled (shareable link).</p>
 
@@ -260,6 +273,7 @@
 												{/if}
 											</dd>
 										</div>
+
 										{#if decodedCall}
 											<div>
 												<dt>Arguments</dt>
@@ -273,6 +287,7 @@
 																		<Address address={param.value as `0x${string}`} format={AddressFormat.Full} />
 																	{:else}
 																		{@const str = formatDecodedParamValue(param.type, param.value)}
+
 																		{#if str.length > TRUNCATE_PARAM_LENGTH}
 																			<TruncatedValue value={str} startLength={10} endLength={8} />
 																		{:else}
@@ -292,6 +307,7 @@
 						</EntityView>
 					</li>
 				{/if}
+
 				{#if topic}
 					<li>
 						<EntityView
@@ -325,6 +341,7 @@
 												{/if}
 											</dd>
 										</div>
+
 										{#if decodedEvent}
 											<div>
 												<dt>Arguments</dt>
@@ -338,6 +355,7 @@
 																		<Address address={param.value as `0x${string}`} format={AddressFormat.Full} />
 																	{:else}
 																		{@const str = formatDecodedParamValue(param.type, param.value)}
+
 																		{#if str.length > TRUNCATE_PARAM_LENGTH}
 																			<TruncatedValue value={str} startLength={10} endLength={8} />
 																		{:else}
@@ -357,6 +375,7 @@
 						</EntityView>
 					</li>
 				{/if}
+
 				<li>
 					<dl data-definition-list="vertical">
 						<div>

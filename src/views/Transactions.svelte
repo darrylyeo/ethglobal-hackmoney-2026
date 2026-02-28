@@ -27,7 +27,7 @@
 			? filterAddresses
 			: actorId
 				? [actorId.address]
-				: [],
+				: []
 	)
 
 
@@ -50,10 +50,10 @@
 					.filter((tx) =>
 						actors.some((a) => tx.$id.address === a),
 					)
-					.sort((a, b) => b.$id.createdAt - a.$id.createdAt),
+					.sort((a, b) => b.$id.createdAt - a.$id.createdAt)
 	)
 	const singleAddress = $derived(
-		actors.length === 1 ? actors[0] : undefined,
+		actors.length === 1 ? actors[0] : undefined
 	)
 
 
@@ -81,8 +81,10 @@
 				{/if}
 			</h3>
 		</div>
+
 		{#if availableAccounts.length > 0}
 			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+
 			<div
 				class="section-filters"
 				role="group"
@@ -125,7 +127,9 @@
 				>
 					{#each transactions as tx (stringify(tx.$id))}
 						{@const fromNet = networksByChainId[tx.fromChainId]}
+
 						{@const toNet = networksByChainId[tx.toChainId]}
+
 						<li
 							class="tx-item"
 							data-columns-item
@@ -136,10 +140,12 @@
 							<span class="tx-chains">
 								{fromNet?.name ?? tx.fromChainId} → {toNet?.name ?? tx.toChainId}
 							</span>
+
 							<span class="tx-amount" data-row-item="flexible">
 								{formatSmallestToDecimal(tx.fromAmount, 6, 2)} →
 								{formatSmallestToDecimal(tx.toAmount, 6, 2)}
 							</span>
+
 							<span class="tx-status">{tx.status}</span>
 						</li>
 					{/each}

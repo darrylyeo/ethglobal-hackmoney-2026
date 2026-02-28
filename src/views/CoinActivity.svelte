@@ -32,7 +32,7 @@
 	const coin = $derived(
 		coinInstanceByChainAndCoinId.get(`${ChainId.Ethereum}:${coinId}`)
 			?? erc20InstancesByCoinId.get(coinId)?.[0]
-			?? null,
+			?? null
 	)
 
 
@@ -73,7 +73,7 @@
 	const graphRow = $derived(
 		(graphQuery.data ?? [])[0] as
 			| { row: import('$/collections/TransferGraphs.ts').TransferGraphRow }
-			| undefined,
+			| undefined
 	)
 	const allEvents = $derived(
 		eventsQuery.data ?? []
@@ -82,16 +82,16 @@
 		allEvents.filter(
 			(r): r is { row: TransferEventRowType } =>
 				((r.row as TransferEventRowType).$id.$network.chainId as number) !== -1,
-		),
+		)
 	)
 	const metaRow = $derived(
 		allEvents.find(
 			(r) =>
 				(r.row as TransferEventsMetaRow).$id?.$network?.chainId === -1,
-		)?.row as TransferEventsMetaRow | undefined,
+		)?.row as TransferEventsMetaRow | undefined
 	)
 	const eventsSet = $derived(
-		new Set(events.map(({ row: event }) => event)) as Set<TransferEventRowType>,
+		new Set(events.map(({ row: event }) => event)) as Set<TransferEventRowType>
 	)
 	const loading = $derived(
 		metaRow?.isLoading ?? true
@@ -102,7 +102,7 @@
 	const errorShort = $derived(
 		errorMessage?.includes('trace-id')
 			? 'Temporary internal error. Please retry.'
-			: errorMessage,
+			: errorMessage
 	)
 
 	let visiblePlaceholderKeys = $state<string[]>([])
@@ -165,6 +165,7 @@
 			Loading transfers…
 		</p>
 	{/if}
+
 	{#if coin}
 		{#if graphRow?.row && !graphRow.row.isLoading && graphRow.row.error == null}
 			<div class="graph-viz" data-transfer-graph>
@@ -181,6 +182,7 @@
 				Graph unavailable: {graphRow.row.error}
 			</p>
 		{/if}
+
 		<Boundary>
 			{#if errorMessage && !loading}
 				<div class="activity-error" data-activity-error>
@@ -189,6 +191,7 @@
 					<p>
 						RPC or network may be unreachable. Try another time period or retry.
 					</p>
+
 					<button type="button" onclick={onRetry}>Retry</button>
 				</div>
 			{:else}
@@ -201,6 +204,7 @@
 				<CoinBridgeTransfers {coinId} {period} {coin} />
 				<CoinSwaps {coinId} {period} {coin} />
 			{/if}
+
 			{#snippet Failed(_error, retryFn)}
 				<div class="activity-error" data-activity-error>
 					<h2>Transfers unavailable</h2>
@@ -208,6 +212,7 @@
 					<p>
 						RPC or network may be unreachable. Try another time period or retry.
 					</p>
+
 					<button
 						type="button"
 						onclick={() => {

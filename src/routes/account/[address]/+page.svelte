@@ -28,7 +28,7 @@
 		page.params.address ?? ''
 	)
 	const isEnsName = $derived(
-		normalizeIdentity(addrParam).kind === IdentityInputKind.EnsName,
+		normalizeIdentity(addrParam).kind === IdentityInputKind.EnsName
 	)
 	const parsed = $derived(
 		parseAccountAddressParam(addrParam)
@@ -77,7 +77,7 @@
 				chainId: link.chainId ?? ChainId.Ethereum,
 				interopAddress: link.interopAddress,
 			}
-			: null),
+			: null)
 	)
 	const addr = $derived(
 		account?.address ?? null
@@ -87,11 +87,11 @@
 			? {
 				$network: { chainId: (account.chainId ?? 1) as import('$/data/Network.ts').Network$Id['chainId'] },
 				address: account.address,
-				...(account.interopAddress != null
-					? { interopAddress: account.interopAddress }
+				...(account.interopAddress != null ?
+					{ interopAddress: account.interopAddress }
 					: {}),
 			}
-			: null,
+			: null
 	)
 	const contractId = $derived(
 		account
@@ -99,12 +99,12 @@
 				$network: { chainId: (account.chainId ?? 1) as import('$/data/Network.ts').Network$Id['chainId'] },
 				address: account.address,
 			}
-			: null,
+			: null
 	)
 	const ensLoading = $derived(
 		parsed == null
 		&& isEnsName
-		&& (!link || link.isLoading),
+		&& (!link || link.isLoading)
 	)
 
 
@@ -180,8 +180,8 @@
 			entityId={actorId!}
 			titleHref={resolve(`/account/${addrParam}`)}
 			label={formatAddress(account.address)}
-			metadata={account?.interopAddress
-				? [{ term: 'Interop', detail: account.interopAddress }]
+			metadata={account?.interopAddress ?
+				[{ term: 'Interop', detail: account.interopAddress }]
 				: []}
 			annotation="Account"
 		>
@@ -203,17 +203,21 @@
 						}))}
 					/>
 				</section>
+
 				<section>
 					<Transactions actorId={actorId ?? undefined} />
 				</section>
+
 				<section>
 					<LiquidityPositions actorId={actorId ?? undefined} />
 				</section>
+
 				<section>
 					{#if contractId}
 						<VerifiedContractSource contractId={contractId} />
 					{/if}
 				</section>
+
 				<section>
 					<AccountContracts actorId={actorId} />
 				</section>
@@ -227,12 +231,15 @@
 						</p>
 					</Collapsible>
 				{/if}
+
 				<section>
 					<WalletConnections actorId={actorId} />
 				</section>
+
 				<section>
 					<RoomConnections actorId={actorId} />
 				</section>
+
 				<section>
 					<Channels actorId={actorId} />
 				</section>

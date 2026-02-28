@@ -95,31 +95,31 @@
 	const userByFid = $derived(
 		new Map(
 			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user]),
-		),
+		)
 	)
 	const allCasts = $derived(
 		(castsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>)
 	)
 	const allCastsFromDb = $derived(
-		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>),
+		(allCastsQuery.data ?? []).map(({ row: cast }) => cast as WithSource<FarcasterCast>)
 	)
 	const links = $derived(
-		(linksQuery.data ?? []).map(({ row: link }) => link as { $id: { sourceFid: number; targetFid: number; linkType: string } }),
+		(linksQuery.data ?? []).map(({ row: link }) => link as { $id: { sourceFid: number; targetFid: number; linkType: string } })
 	)
 	const mentions = $derived(
-		allCastsFromDb.filter((c) => c.mentions?.includes(fid)),
+		allCastsFromDb.filter((c) => c.mentions?.includes(fid))
 	)
 	const followers = $derived(
-		links.filter((l) => l.$id.targetFid === fid),
+		links.filter((l) => l.$id.targetFid === fid)
 	)
 	const following = $derived(
-		links.filter((l) => l.$id.sourceFid === fid),
+		links.filter((l) => l.$id.sourceFid === fid)
 	)
 	const rootCasts = $derived(
 		allCasts.filter((c) =>
 			!c.parentFid
 			|| !c.parentHash,
-		),
+		)
 	)
 	const castsSet = $derived(
 		new Set(rootCasts)
@@ -127,7 +127,7 @@
 	const label = $derived(
 		user?.username
 			? `@${user.username}`
-			: user?.displayName ?? `User ${fid}`,
+			: user?.displayName ?? `User ${fid}`
 	)
 
 
@@ -224,13 +224,13 @@
 			label={label}
 			{...(user ? {} : { entityId: { fid } })}
 			metadata={
-				user?.bio || user?.verifiedAddress
-					? [
-						...(user?.bio
-							? [{ term: 'Bio', detail: user.bio }]
+				user?.bio || user?.verifiedAddress ?
+					[
+						...(user?.bio ?
+							[{ term: 'Bio', detail: user.bio }]
 							: []),
-						...(user?.verifiedAddress
-							? [{ term: 'Verified', detail: user.verifiedAddress }]
+						...(user?.verifiedAddress ?
+							[{ term: 'Verified', detail: user.verifiedAddress }]
 							: []),
 					]
 					: undefined
@@ -240,6 +240,7 @@
 				{#if user?.pfpUrl}
 					<img src={user.pfpUrl} alt="" width="64" height="64" />
 				{/if}
+
 				<FarcasterCastsEntityList
 					title="Casts"
 					items={castsSet}
@@ -256,6 +257,7 @@
 				{#if mentions.length > 0 || mentionsNextToken}
 					<details>
 						<summary>Mentions ({mentions.length})</summary>
+
 						<FarcasterCastsEntityList
 							title=""
 							items={new Set(mentions)}
@@ -273,6 +275,7 @@
 						/>
 					</details>
 				{/if}
+
 				{#if followers.length > 0 || followersNextToken}
 					<FarcasterUserLinkList
 						title="Followers"
@@ -285,6 +288,7 @@
 						loadMoreLabel="Load more followers"
 					/>
 				{/if}
+
 				{#if following.length > 0 || followingNextToken}
 					<FarcasterUserLinkList
 						title="Following"

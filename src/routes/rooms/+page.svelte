@@ -62,6 +62,7 @@
 			data-card
 		>
 			<h2>Create room</h2>
+
 			<button
 				type="button"
 				disabled={creating}
@@ -76,6 +77,7 @@
 			data-card
 		>
 			<h2>Join room</h2>
+
 			<form
 				onsubmit={(e) => {
 					e.preventDefault()
@@ -84,6 +86,7 @@
 				data-row
 			>
 				<label for="room-code">Room code</label>
+
 				<input
 					id="room-code"
 					type="text"
@@ -92,6 +95,7 @@
 					maxlength="80"
 					aria-label="Room code"
 				/>
+
 				<button
 					type="submit"
 					disabled={joining || !joinCode.trim()}

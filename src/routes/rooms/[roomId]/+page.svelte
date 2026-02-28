@@ -68,13 +68,13 @@
 	const others = $derived(
 		(peersQuery.data ?? [])
 			.map(({ row }) => row)
-			.filter((p) => p.peerId !== roomState.peerId),
+			.filter((p) => p.peerId !== roomState.peerId)
 	)
 	const selectedWallets = $derived(
-		connectedWallets.filter((w) => w.connection.selected),
+		connectedWallets.filter((w) => w.connection.selected)
 	)
 	const provider = $derived(
-		selectedWallets.find(isEip1193Wallet)?.wallet.provider ?? null,
+		selectedWallets.find(isEip1193Wallet)?.wallet.provider ?? null
 	)
 	const roomDisplayName = $derived(
 		roomIdToDisplayName(roomId)
@@ -83,14 +83,14 @@
 		roomIdToPlaceEmoji(roomId)
 	)
 	const connectionStatusLabel = $derived(
-		partyKitStatusLabel(roomState.connectionStatus),
+		partyKitStatusLabel(roomState.connectionStatus)
 	)
 	const roomShareUrl = $derived(
 		typeof globalThis !== 'undefined'
 		&& 'location' in globalThis
 		&& globalThis.location ?
 			`${globalThis.location.origin}${resolve(`/rooms/${roomId}`)}`
-		: resolve(`/rooms/${roomId}`),
+		: resolve(`/rooms/${roomId}`)
 	)
 
 
@@ -154,6 +154,7 @@
 			<span class="room-place-emoji" aria-hidden="true">{roomPlaceEmoji}</span>
 			{roomDisplayName}
 		{/snippet}
+
 		<nav data-row="align-center wrap">
 			<a
 				data-button
@@ -162,12 +163,14 @@
 			>
 				Room link
 			</a>
+
 			<a
 				data-button
 				href={resolve(`/rooms/${roomId}/channels`)}
 			>
 				Channels
 			</a>
+
 			<a
 				data-button
 				href={resolve('/rooms')}
@@ -176,7 +179,9 @@
 				Leave room
 			</a>
 		</nav>
+
 		<section data-scroll-item>
+
 		<details
 			open
 			data-card
@@ -228,7 +233,9 @@
 						<p>No other peers in this room.</p>
 					{:else}
 						{@const connected = others.filter((p) => p.isConnected)}
+
 						{@const disconnected = others.filter((p) => !p.isConnected)}
+
 						{#if connected.length > 0}
 							<ul data-peer-cards>
 								{#each connected as peer (peer.id)}
@@ -238,6 +245,7 @@
 								{/each}
 							</ul>
 						{/if}
+
 						{#if disconnected.length > 0}
 							<details data-disconnected-peers>
 								<summary>Disconnected ({disconnected.length})</summary>
@@ -255,6 +263,7 @@
 			</div>
 		</details>
 	</section>
+
 	</EntityView>
 </main>
 

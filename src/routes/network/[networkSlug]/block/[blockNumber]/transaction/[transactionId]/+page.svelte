@@ -49,17 +49,17 @@ import { entityKey } from '$/lib/entity-key.ts'
 		blockNumParam !== ''
 		&& DECIMAL_ONLY.test(blockNumParam)
 		&& Number.isSafeInteger(blockNumParsed)
-		&& blockNumParsed >= 0,
+		&& blockNumParsed >= 0
 	)
 	const blockNum = $derived(
 		blockNumValid
 			? blockNumParsed
-			: 0,
+			: 0
 	)
 	const txHash = $derived(
 		txHashParam && TX_HASH.test(txHashParam)
 			? normalizeTxHash(txHashParam as `0x${string}`)
-			: null,
+			: null
 	)
 	const chainId = $derived(
 		route?.chainId ?? (0 as ChainId)
@@ -74,7 +74,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 		network?.name ?? route?.network?.name ?? ''
 	)
 	const valid = $derived(
-		!!route && blockNumValid && txHash !== null,
+		!!route && blockNumValid && txHash !== null
 	)
 
 
@@ -135,10 +135,10 @@ import { entityKey } from '$/lib/entity-key.ts'
 		txQuery.data?.[0]?.row as ChainTransactionEntry | null
 	)
 	const txId = $derived(
-		tx?.$id ?? { $network: { chainId }, txHash: txHash ?? ('0x' as `0x${string}`) },
+		tx?.$id ?? { $network: { chainId }, txHash: txHash ?? ('0x' as `0x${string}`) }
 	)
 	const latestBlockNumber = $derived(
-		Number(latestBlockQuery.data?.[0] ?? 0),
+		Number(latestBlockQuery.data?.[0] ?? 0)
 	)
 
 
@@ -220,12 +220,14 @@ import { entityKey } from '$/lib/entity-key.ts'
 					data-link
 				>Show Context</a>
 			</p>
+
 			{#if tx}
 				<Transaction
 					data={new Map([[tx, { events: tx.logs ?? [], trace: undefined }]])}
 					layout={EntityLayout.ContentOnly}
 				/>
 			{/if}
+
 			<Network
 				{networkId}
 				placeholderBlockIds={new Set([
@@ -237,5 +239,6 @@ import { entityKey } from '$/lib/entity-key.ts'
 			/>
 		{/snippet}
 	</EntityView>
+
 	{/if}
 </main>

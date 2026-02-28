@@ -8,9 +8,11 @@
 			<li>
 				<a href="/test/networks-coins">Networks and coins</a>
 			</li>
+
 			<li>
 				<a href="/test/intents">Entity intents</a>
 			</li>
+
 			<li>
 				<a href="/test/layout-panes">Layout inline panes</a>
 			</li>

@@ -36,7 +36,7 @@
 	const selectedItem = $derived(
 		value ?
 			(items.find((i) => i.address === value) ?? ({ address: value } as Item))
-		:	null,
+		:	null
 	)
 
 
@@ -48,7 +48,7 @@
 
 	// State
 	let inputValue = $state(
-		'',
+		''
 	)
 
 

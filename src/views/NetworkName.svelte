@@ -24,7 +24,7 @@
 	const name = $derived(
 		chainId != null
 			? (networksByChainId[chainId]?.name ?? `Chain ${chainId}`)
-			: '',
+			: ''
 	)
 
 
@@ -42,6 +42,7 @@
 			/>
 		</span>
 	{/if}
+
 	<span class="label">{name}</span>
 	{#if showChainId && chainId != null}
 		<abbr class="chain-id" title="Chain ID">(Chain ID {chainId})</abbr>

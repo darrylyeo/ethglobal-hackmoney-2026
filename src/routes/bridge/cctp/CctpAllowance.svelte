@@ -17,8 +17,8 @@
 		fastTransferSupported,
 		apiHost,
 	}: {
-		fastTransferSupported: boolean,
-		apiHost: string,
+		fastTransferSupported: boolean
+		apiHost: string
 	} = $props()
 
 	// (Derived) filter by source; then pick row matching apiHost
@@ -39,23 +39,31 @@
 	registerLocalLiveQueryStack(() => liveQueryEntries)
 	const allowanceRow = $derived(
 		(allowanceQuery.data ?? []).find(({ row: allowance }) => allowance.$id.apiHost === apiHost)
-			?.row ?? null,
+			?.row ?? null
 	)
 	const allowance = $derived(
-		fastTransferSupported && allowanceRow
-			? allowanceRow.allowance !== null && allowanceRow.lastUpdated !== null
-				? {
-						value: allowanceRow.allowance,
-						lastUpdated: allowanceRow.lastUpdated,
-					}
-				: null
-			: null,
+		fastTransferSupported && allowanceRow ?
+			allowanceRow.allowance !== null && allowanceRow.lastUpdated !== null ?
+				{
+					value: allowanceRow.allowance,
+					lastUpdated: allowanceRow.lastUpdated,
+				}
+			:
+				null
+		:
+			null
 	)
 	const allowanceError = $derived(
-		fastTransferSupported ? (allowanceRow?.error ?? null) : null,
+		fastTransferSupported ?
+			(allowanceRow?.error ?? null)
+		:
+			null
 	)
 	const allowanceLoading = $derived(
-		fastTransferSupported ? (allowanceRow?.isLoading ?? false) : false,
+		fastTransferSupported ?
+			(allowanceRow?.isLoading ?? false)
+		:
+			false
 	)
 
 

@@ -62,15 +62,15 @@
 			(connectionsQuery.data ?? []).map((r) =>
 				String((r.row as { $id: { fid: number } }).$id.fid),
 			),
-		),
+		)
 	)
 	const allCasts = $derived(
-		(castsQuery.data ?? []).map(({ row: cast }) => cast) as WithSource<FarcasterCast>[],
+		(castsQuery.data ?? []).map(({ row: cast }) => cast) as WithSource<FarcasterCast>[]
 	)
 	const userByFid = $derived(
 		new Map(
 			(usersQuery.data ?? []).map(({ row: user }) => [user.$id.fid, user as WithSource<FarcasterUser>]),
-		),
+		)
 	)
 	const fidOptions = $derived(
 		[
@@ -80,24 +80,24 @@
 					userByFid.get(c.$id.fid)?.username ?? `@${c.$id.fid}`,
 				]),
 			).entries(),
-		].sort((a, b) => a[1].localeCompare(b[1])),
+		].sort((a, b) => a[1].localeCompare(b[1]))
 	)
 	const parentUrlOptions = $derived(
-		[...new Set(allCasts.map((c) => c.parentUrl).filter(Boolean))].sort() as string[],
+		[...new Set(allCasts.map((c) => c.parentUrl).filter(Boolean))].sort() as string[]
 	)
 	const fidFilters = $derived(
 		fidOptions.map(([fid, label]) => ({
 			id: String(fid),
 			label,
 			filterFunction: (cast: WithSource<FarcasterCast>) => (cast.$id.fid === fid),
-		})),
+		}))
 	)
 	const channelFilters = $derived(
 		parentUrlOptions.map((url) => ({
 			id: url,
 			label: url.replace(/^https?:\/\//, '').replace(/\/$/, ''),
 			filterFunction: (cast: WithSource<FarcasterCast>) => (cast.parentUrl === url),
-		})),
+		}))
 	)
 	const filterGroups = $derived([
 		...(fidFilters.length > 1 ?
@@ -157,6 +157,7 @@
 		<summary>
 			<h3 class="section-heading">Casts ({displayCount})</h3>
 		</summary>
+
 		{#if allCasts.length === 0 && castsQuery.isLoading}
 			<p data-text="muted">Loading casts…</p>
 		{:else if allCasts.length === 0}
@@ -214,6 +215,7 @@
 					{#snippet Item({ key: _key, item: row, isPlaceholder })}
 						{#if !isPlaceholder && row != null}
 							{@const cast = row}
+
 							<FarcasterCast {cast} {userByFid} />
 						{/if}
 					{/snippet}

@@ -4,10 +4,10 @@
 
 	// (Derived)
 	const siwfDomain = $derived(
-		page.url.hostname || 'localhost',
+		page.url.hostname || 'localhost'
 	)
 	const siwfUri = $derived(
-		`${page.url.origin}/farcaster`,
+		`${page.url.origin}/farcaster`
 	)
 
 	// Components
@@ -26,5 +26,6 @@
 		<h1>Farcaster</h1>
 		<SignInWithFarcaster domain={siwfDomain} siweUri={siwfUri} />
 	</header>
+
 	<FarcasterDashboard />
 </main>

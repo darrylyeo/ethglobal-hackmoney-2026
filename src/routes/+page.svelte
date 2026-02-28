@@ -117,12 +117,12 @@
 	)
 
 	// (Derived)
-	const defaultDashboardId = $derived(
-		(() => {
-			const dashboard = defaultRowQuery.data?.[0]?.row
-			return dashboard && 'defaultDashboardId' in dashboard ? dashboard.defaultDashboardId : undefined
-		})() ?? 'default',
-	)
+	const defaultDashboardId = $derived.by(() => {
+		const dashboard = defaultRowQuery.data?.[0]?.row
+		return (dashboard && 'defaultDashboardId' in dashboard
+			? dashboard.defaultDashboardId
+			: undefined) ?? 'default'
+	})
 
 
 	// Context
@@ -176,12 +176,14 @@
 			Local-first object-oriented GUI client for blockchain exploration, onchain
 			asset management and peer-to-peer DeFi interactions
 		</p>
+
 		<!-- <p class="landing-value" aria-hidden="true">
 			{#each valuePhrases as phrase, i (i)}
 				{#if i > 0}<span class="landing-value-sep" aria-hidden="true"> · </span>{/if}
 				{phrase}
 			{/each}
 		</p> -->
+
 		<!-- <nav aria-label="Primary actions" data-column="center gap-3">
 			<div data-grid="columns-autofit gap-2 column-min-6">
 				{#each heroCtas as { href, label, primary }}
@@ -309,33 +311,40 @@
 					<span class="landing-about__legend-swatch shape-rect" data-row></span>
 					<span>Flow / service node</span>
 				</div>
+
 				<div class="landing-about__legend-item" data-row="start">
 					<span class="landing-about__legend-swatch shape-circle" data-row></span>
 					<span>State or data node</span>
 				</div>
+
 				<div class="landing-about__legend-item" data-row="start">
 					<span class="landing-about__legend-swatch shape-diamond" data-row></span>
 					<span>Wallet / channel node</span>
 				</div>
+
 				<div class="landing-about__legend-item" data-row="start">
 					<span class="landing-about__legend-swatch shape-image" data-row></span>
 					<span>Chain icon node</span>
 				</div>
+
 				<div class="landing-about__legend-item" data-row="start">
 					<span class="landing-about__legend-swatch shape-line" data-row></span>
 					<span>Directional flow</span>
 				</div>
+
 				<div class="landing-about__legend-item" data-row="start">
 					<span class="landing-about__legend-swatch shape-dashed" data-row></span>
 					<span>Optional / enrichment path</span>
 				</div>
 			</div>
+
 			<dl class="landing-about__legend-details" data-row="wrap gap-x-4 gap-y-1">
 				<dt>Edges</dt>
 				<dd>
 					Arrows show action direction. Solid = sync, dashed = async or optional.
 					Thicker blue edges = critical execution paths.
 				</dd>
+
 				<dt>Networks</dt>
 				<dd>Mainnets use solid outlines; testnets use dashed outlines.</dd>
 				<dt>Interactions</dt>
@@ -343,6 +352,7 @@
 					Drag to pan; scroll or <kbd>+</kbd>/<kbd>−</kbd> to zoom; <kbd>0</kbd>
 					to fit; <kbd>Escape</kbd> to clear selection. Hover for details.
 				</dd>
+
 				<dt id="explain-results-fallback">Explain fallback</dt>
 				<dd>
 					Optional LLM explanations use Chrome Prompt API when available; you can
@@ -351,6 +361,7 @@
 			</dl>
 		</section>
 	</section>
+
 	</article>
 </main>
 

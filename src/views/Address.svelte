@@ -50,7 +50,7 @@
 		actorIdProp?.address ?? address ?? undefined
 	)
 	const normalizedAddress = $derived(
-		(addressResolved?.toLowerCase() ?? '') as `0x${string}`,
+		(addressResolved?.toLowerCase() ?? '') as `0x${string}`
 	)
 
 	// State
@@ -59,8 +59,8 @@
 			q
 				.from({ row: evmActorProfilesCollection })
 				.where(({ row }) =>
-					networkResolved != null
-						? and(
+					networkResolved != null ?
+						and(
 							eq(row.$id.$network.chainId, networkResolved.chainId),
 							eq(row.$id.address, normalizedAddress),
 						)
@@ -75,10 +75,10 @@
 
 	// (Derived)
 	const profile = $derived(
-		profileQuery.data?.[0]?.row,
+		profileQuery.data?.[0]?.row
 	)
 	const ensName = $derived(
-		ensNameProp ?? profile?.primaryName,
+		ensNameProp ?? profile?.primaryName
 	)
 
 	// Actions
@@ -98,31 +98,32 @@
 <EntityId
 	draggableText={addressResolved}
 	className="address-text"
-	entityType={networkResolved != null
-		? EntityType.Actor
+	entityType={networkResolved != null ?
+		EntityType.Actor
 		: undefined}
 	entityId={{ ...(networkResolved != null && { network: networkResolved }), address: addressResolved }}
-	link={isLinked
-		? resolve(`/account/${encodeURIComponent(addressResolved)}`)
+	link={isLinked ?
+		resolve(`/account/${encodeURIComponent(addressResolved)}`)
 		: undefined}
-	data-link={isLinked
-		? 'camouflaged'
+	data-link={isLinked ?
+		'camouflaged'
 		: undefined}
 	source="address"
-	data-text={isVertical
-		? 'vertical'
+	data-text={isVertical ?
+		'vertical'
 		: undefined}
 >
 	<span data-row="inline">
 		{#if showAvatar}
 			{@const net = networkResolved != null ? networksByChainId[networkResolved.chainId] : undefined}
+
 			<Icon
-				shape={!profile?.avatarUrl
-					? IconShape.Square
+				shape={!profile?.avatarUrl ?
+					IconShape.Square
 					: IconShape.Circle}
 				src={profile?.avatarUrl ?? blo(addressResolved)}
-				subicon={net?.icon
-					? {
+				subicon={net?.icon ?
+					{
 						src: net.icon,
 						shape: IconShape.Circle,
 						backgroundColor: net.color,
@@ -134,11 +135,11 @@
 		<span data-text="font-monospace">
 			<TruncatedValue
 				value={addressResolved}
-				startLength={format === AddressFormat.Full
-					? addressResolved.length
+				startLength={format === AddressFormat.Full ?
+					addressResolved.length
 					: 6}
-				endLength={format === AddressFormat.Full
-					? 0
+				endLength={format === AddressFormat.Full ?
+					0
 					: 4}
 			/>
 		</span>

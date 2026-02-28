@@ -16,7 +16,7 @@
 
 	// (Derived)
 	const label = $derived(
-		connection.username ? `@${connection.username}` : `@${connection.$id.fid}`,
+		connection.username ? `@${connection.username}` : `@${connection.$id.fid}`
 	)
 
 
@@ -40,8 +40,10 @@
 				style="border-radius: 50%"
 			/>
 		{/if}
+
 		<span>{label}</span>
 	</a>
+
 	<Button.Root type="button" onclick={onAction}>
 		{actionLabel}
 	</Button.Root>

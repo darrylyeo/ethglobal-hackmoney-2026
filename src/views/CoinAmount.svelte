@@ -46,8 +46,11 @@
 >
 	{#snippet CoinAmountBody()}
 		{@const chainId = coin.$id.$network.chainId}
+
 		{@const symbol = coin.symbol}
+
 		{@const network = networksByChainId[chainId]}
+
 		<span
 			class="coin-amount"
 			data-row="inline"
@@ -82,6 +85,7 @@
 			<span data-row="inline align-baseline gap-1">
 				{#if amount !== undefined}
 					{@const rawNum = coin.decimals ? Number(amount) / Math.pow(10, coin.decimals) : Number(amount)}
+
 					{@const balanceParts = new Intl.NumberFormat(undefined, {
 						minimumFractionDigits: 2,
 						maximumFractionDigits: 6,

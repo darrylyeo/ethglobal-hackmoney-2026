@@ -49,7 +49,9 @@
 			<code>Epoch {key} (loading…)</code>
 		{:else if item != null}
 			{@const epochEntity = { $id: { epoch: item } }}
+
 			{@const slotsDetail = `Slots ${(item * slotsPerEpoch).toLocaleString()}–${(item * slotsPerEpoch + slotsPerEpoch - 1).toLocaleString()}`}
+
 			<span id="epoch:{key}">
 				<EntityView
 					entityType={EntityType.ConsensusEpoch}

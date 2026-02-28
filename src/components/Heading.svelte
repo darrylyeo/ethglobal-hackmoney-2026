@@ -3,7 +3,7 @@
 	import { useHeadingLevel } from '$/svelte/heading-context.ts'
 
 	const level = $derived(
-		Math.min(6, Math.max(1, (useHeadingLevel() ?? 0) + 1)),
+		Math.min(6, Math.max(1, (useHeadingLevel() ?? 0) + 1))
 	)
 
 

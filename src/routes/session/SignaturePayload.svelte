@@ -30,11 +30,13 @@
 			<h4>{payload.label}</h4>
 		{/if}
 	</header>
+
 	<dl>
 		<dt>Network</dt>
 		<dd>
 			<NetworkName networkId={{ chainId: payload.chainId }} showChainId={true} />
 		</dd>
+
 		<dt>From</dt>
 		<dd>
 			<Address
@@ -42,6 +44,7 @@
 				showAvatar={false}
 			/>
 		</dd>
+
 		{#if payload.to != null}
 			<dt>To</dt>
 			<dd>
@@ -51,12 +54,14 @@
 				/>
 			</dd>
 		{/if}
+
 		<dt>Value</dt>
 		<dd data-text="font-monospace">{valueFormatted}</dd>
 		<dt>Data</dt>
 		<dd>
 			<Calldata data={payload.data} />
 		</dd>
+
 		{#if payload.gasLimit != null && payload.gasLimit !== ''}
 			<dt>Gas limit</dt>
 			<dd data-text="font-monospace">{payload.gasLimit}</dd>

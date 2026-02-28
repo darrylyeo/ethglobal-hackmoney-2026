@@ -44,7 +44,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 	const forksToShow = $derived(
 		chainId === ChainId.Ethereum
 			? mainnetForksWithUpgrades
-			: (scheduleForks ?? []),
+			: (scheduleForks ?? [])
 	)
 
 	const proposalsQuery = useLiveQuery((q) =>
@@ -58,7 +58,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 				const proposal = r.row as ProposalEntry
 				return [proposal.number, proposal]
 			}),
-		),
+		)
 	)
 
 
@@ -123,6 +123,7 @@ import { entityKey } from '$/lib/entity-key.ts'
 				<code>{key} (loading…)</code>
 			{:else if item}
 				{@const activation = formatActivationSchedule(item)}
+
 				<EntityView
 					entityType={EntityType.NetworkFork}
 					entity={item}
@@ -146,12 +147,14 @@ import { entityKey } from '$/lib/entity-key.ts'
 							{/each}
 						</nav>
 					{/if}
+
 					{#if (item.eipNumbers?.length ?? 0) > 0}
 						<section data-column>
 							<h3 class="sr-only">Included EIPs</h3>
 							<ul data-row="wrap" role="list">
 								{#each (item.eipNumbers ?? []) as num (num)}
 									{@const proposalEntry = entriesByNumber.get(num)}
+
 									<li>
 										<a
 											href={proposalEntry ? getProposalPath(ProposalRealm.Ethereum, proposalEntry) : resolve(`/proposals/${ProposalRealm.Ethereum}/eip-${num}`)}

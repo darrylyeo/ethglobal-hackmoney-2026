@@ -22,7 +22,7 @@
 	const date = $derived(
 		timestamp && typeof timestamp === 'number'
 			? new Date(timestamp)
-			: undefined,
+			: undefined
 	)
 	const isoString = $derived(
 		date?.toISOString()
@@ -43,7 +43,7 @@
 	const relativeTime = $derived(
 		timestamp && typeof timestamp === 'number'
 			? formatRelativeTime(now - timestamp)
-			: undefined,
+			: undefined
 	)
 
 	// Actions

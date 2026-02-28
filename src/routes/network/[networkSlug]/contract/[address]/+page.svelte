@@ -26,7 +26,7 @@
 			? normalizeAddress(
 				addrParam.startsWith('0x') ? addrParam : `0x${addrParam}`,
 			) ?? null
-			: null,
+			: null
 	)
 	const chainId = $derived(
 		route?.chainId ?? (0 as ChainId)

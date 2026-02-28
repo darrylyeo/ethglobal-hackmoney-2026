@@ -24,7 +24,7 @@
 	}: {
 		route: RoutePathInput
 		entry: RouteEntry | null
-		extraData?: Record<string, unknown>,
+		extraData?: Record<string, unknown>
 	} = $props()
 
 	// (Derived)
@@ -46,15 +46,17 @@
 			),
 		]).then(
 			([module, result]) => (
-				result.type === 'loaded' && result.status === 200
-					? { default: module.default, data: result.data }
-					: Promise.reject(
-							new Error(
-								result.type === 'redirect'
-									? `Redirected to ${result.location}`
-									: `Route responded with status ${result.status}`,
-							),
-						)
+				result.type === 'loaded' && result.status === 200 ?
+					{ default: module.default, data: result.data }
+				:
+					Promise.reject(
+						new Error(
+							result.type === 'redirect' ?
+								`Redirected to ${result.location}`
+							:
+								`Route responded with status ${result.status}`,
+						),
+					)
 			),
 		)
 	})
@@ -73,7 +75,10 @@
 	{/snippet}
 
 	{#snippet Failed(error, retry)}
-		<p>{error instanceof Error ? error.message : String(error)}</p>
+		<p>{error instanceof Error ?
+			error.message
+		:
+			String(error)}</p>
 		<button type="button" onclick={retry}>Retry</button>
 	{/snippet}
 </Boundary>

@@ -24,13 +24,13 @@
 	const inputSelector = $derived(
 		trace.input && trace.input.length >= 10
 			? (`0x${trace.input.slice(2, 10).toLowerCase().padStart(8, '0')}` as `0x${string}`)
-			: null,
+			: null
 	)
 
 
 	// Context
 	const normalizedSelector = $derived(
-		inputSelector ? normalizeEvmSelector4(inputSelector) : null,
+		inputSelector ? normalizeEvmSelector4(inputSelector) : null
 	)
 	const functionSigQuery = useLiveQuery(
 		(q) =>
@@ -68,10 +68,12 @@
 	{#if trace.type}
 		<code>{trace.type.toUpperCase()}</code>
 	{/if}
+
 	<span>#{trace.index}</span>
 	{#if trace.to}
 		<TruncatedValue value={trace.to} startLength={10} endLength={4} />
 	{/if}
+
 	{#if trace.error}
 		<span data-tag="failure">⚠ {trace.error}</span>
 	{/if}
@@ -112,8 +114,10 @@
 						<span>{sig}</span>
 					{/each}
 				</code>
+
 				<span> · </span>
 			{/if}
+
 			<TruncatedValue value={trace.input} startLength={10} endLength={0} />
 			<span>({Math.max(0, (trace.input.length - 2) / 2)} bytes)</span>
 		</dd>

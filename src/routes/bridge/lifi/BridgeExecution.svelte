@@ -152,8 +152,9 @@
 	})
 
 	$effect(() => {
-		isExecuting =
+		isExecuting = (
 			actionTx?.state === 'pending' || actionTx?.state === 'persisting'
+		)
 	})
 
 	const execute = async () => {
@@ -215,6 +216,7 @@
 				{/if}
 			</div>
 		{/each}
+
 		{#if status.overall === BridgeOverallStatus.Completed}
 			<p class="success">Bridge complete!</p>
 		{/if}

@@ -65,7 +65,7 @@
 			id: getItemId(item),
 			label: getItemLabel(item) ?? '',
 			disabled: getItemDisabled ? getItemDisabled(item) : false,
-		})),
+		}))
 	)
 	const normalizedGroups = $derived(
 		getItemGroupId
@@ -88,7 +88,7 @@
 							disabled: getItemDisabled ? getItemDisabled(item) : false,
 						})),
 					}))
-			: [],
+			: []
 	)
 
 
@@ -104,28 +104,30 @@
 	const filteredItems = $derived(
 		inputValue === ''
 			? normalizedItems
-			: normalizedItems.filter((item) =>
-					item.label.toLowerCase().includes(inputValue.toLowerCase()),
-				),
+			: normalizedItems.filter((item) => (
+					item.label.toLowerCase().includes(inputValue.toLowerCase())
+					),
+				)
 	)
 	const filteredGroups = $derived(
 		normalizedGroups.length > 0
 			? normalizedGroups
 					.map((group) => ({
 						...group,
-						items: group.items.filter((item) =>
-							item.label.toLowerCase().includes(inputValue.toLowerCase()),
+						items: group.items.filter((item) => (
+							item.label.toLowerCase().includes(inputValue.toLowerCase())
+							),
 						),
 					}))
 					.filter((group) => group.items.length > 0)
-			: [],
+			: []
 	)
 	const rootItems = $derived(
 		normalizedItems.map((item) => ({
 			value: item.id,
 			label: item.label,
 			disabled: item.disabled,
-		})),
+		}))
 	)
 	const selectedChips = $derived(
 		((value ?? []) as _Item[])
@@ -134,7 +136,7 @@
 				const n = normalizedItems.find((item) => item.id === id)
 				return n ? { id: n.id, label: n.label } : null
 			})
-			.filter(Boolean) as { id: string; label: string }[],
+			.filter(Boolean) as { id: string; label: string }[]
 	)
 
 
@@ -190,6 +192,7 @@
 			{#if Before}
 				{@render Before()}
 			{/if}
+
 			{#each selectedChips as chip (chip.id)}
 				<span data-badge="small" data-row="gap-1">
 					{chip.label}
@@ -207,6 +210,7 @@
 					</button>
 				</span>
 			{/each}
+
 			<Combobox.Input
 				id={id ?? _id}
 				data-combobox-multi-input
@@ -221,7 +225,13 @@
 				}}
 			>
 				{#snippet child({ props })}
-					{@const libOnInput = typeof props.oninput === 'function' ? props.oninput : undefined}
+					{@const libOnInput = (
+						typeof props.oninput === 'function' ?
+							props.oninput
+						:
+							undefined
+					)}
+
 					<input
 						{...props}
 						oninput={(e) => {
@@ -231,12 +241,14 @@
 					/>
 				{/snippet}
 			</Combobox.Input>
+
 			{#if After}
 				<Combobox.Trigger aria-label={ariaLabel ?? 'Open'}>
 					{@render After()}
 				</Combobox.Trigger>
 			{/if}
 		</div>
+
 		<Combobox.Portal>
 			<Combobox.Content>
 				<Combobox.Viewport>
@@ -258,10 +270,12 @@
 													{:else}
 														{item.label}
 													{/if}
+
 													{#if After}
 														{@render After()}
 													{/if}
 												</span>
+
 												<span
 													data-combobox-item-indicator
 													data-selected={selected || undefined}
@@ -288,10 +302,12 @@
 											{:else}
 												{item.label}
 											{/if}
+
 											{#if After}
 												{@render After()}
 											{/if}
 										</span>
+
 										<span
 											data-combobox-item-indicator
 											data-selected={selected || undefined}

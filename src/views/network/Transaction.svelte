@@ -39,7 +39,7 @@
 
 	// (Derived)
 	const entry = $derived(
-		[...data.values()][0] ?? { trace: undefined, events: [] },
+		[...data.values()][0] ?? { trace: undefined, events: [] }
 	)
 	const events = $derived(
 		entry.events ?? []
@@ -50,7 +50,7 @@
 	const inputSelector = $derived(
 		tx?.input && tx.input.length >= 10
 			? (`0x${tx.input.slice(2, 10).toLowerCase().padStart(8, '0')}` as `0x${string}`)
-			: null,
+			: null
 	)
 
 
@@ -74,7 +74,7 @@
 		[() => tx?.$id.$network.chainId ?? -1, () => tx?.$id.txHash ?? ''],
 	)
 	const normalizedSelector = $derived(
-		inputSelector ? normalizeEvmSelector4(inputSelector) : null,
+		inputSelector ? normalizeEvmSelector4(inputSelector) : null
 	)
 	const functionSigQuery = useLiveQuery(
 		(q) =>
@@ -100,7 +100,7 @@
 	const trace = $derived(
 		traceRecord && !traceRecord.unavailable
 			? traceRecord.trace
-			: entry.trace,
+			: entry.trace
 	)
 	const eventsSet = $derived(
 		new Set(events)
@@ -192,6 +192,7 @@
 	{#snippet children()}
 		{#if tx}
 			{@const chainIdForTx = tx.$id.$network.chainId}
+
 			<dl>
 				<dt>Hash</dt>
 				<dd>
@@ -270,8 +271,10 @@
 									<span>{sig}</span>
 								{/each}
 							</code>
+
 							<span> · </span>
 						{/if}
+
 						<TruncatedValue value={tx.input} startLength={10} endLength={0} />
 						<span>({Math.max(0, (tx.input.length - 2) / 2)} bytes)</span>
 					</dd>

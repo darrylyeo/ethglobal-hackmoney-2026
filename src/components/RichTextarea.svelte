@@ -37,7 +37,7 @@
 
 	// (Derived)
 	const defaultTrigger = $derived(
-		(Object.keys(triggerConfig)[0] as string) ?? '@',
+		(Object.keys(triggerConfig)[0] as string) ?? '@'
 	)
 
 
@@ -56,8 +56,9 @@
 			const placeholderEl = el.querySelector?.('[data-placeholder]') as HTMLElement | null
 			const chipEl = el.querySelector?.('[data-ref-chip]') as HTMLElement | null
 			if (el.dataset.placeholder !== undefined || placeholderEl) {
-				const trigger =
+				const trigger = (
 					(el.dataset.trigger ?? placeholderEl?.dataset.trigger ?? defaultTrigger) as string
+				)
 				outSegments.push(currentText)
 				currentText = ''
 				outRefs.push(getPlaceholderRef(trigger))
@@ -84,9 +85,10 @@
 		if (!anchor) return null
 		for (let i = 0; i < container.childNodes.length; i++) {
 			const child = container.childNodes[i]
-			const isInChild =
+			const isInChild = (
 				child === anchor
 				|| (child.nodeType === Node.ELEMENT_NODE && (child as Element).contains(anchor))
+			)
 			if (!isInChild) continue
 			if (child.nodeType === Node.TEXT_NODE)
 				return { segmentIndex: i >> 1, offset: anchorOffset }
@@ -159,7 +161,7 @@
 		const pos = getSegmentIndexAndOffset(editEl)
 		const { segments: nextSegments, refs: nextRefs } = parseContent(editEl)
 		if (nextSegments.length !== nextRefs.length + 1) return
-		const same =
+		const same = (
 			segments.length === nextSegments.length
 			&& refs.length === nextRefs.length
 			&& segments.every((s, i) => s === nextSegments[i])
@@ -168,6 +170,7 @@
 					JSON.stringify(serializeRef(r)) === JSON.stringify(serializeRef(nextRefs[i]))
 				),
 			)
+		)
 		if (same) return
 		segments = nextSegments
 		refs = nextRefs
@@ -186,13 +189,13 @@
 	}
 
 	export function focusEditableAt(segmentIndex: number, offset: number) {
-		tick().then(() =>
-			tick().then(() =>
+		tick().then(() => (
+			tick().then(() => (
 				requestAnimationFrame(() => {
 					if (editEl) setCaret(editEl, segmentIndex, offset)
-				}),
-			),
-		)
+				})
+			))
+		))
 	}
 
 	function closeComboboxAndFocusEditable() {
@@ -322,9 +325,13 @@
 		{segment}
 		{#if i < refs.length}
 			{@const ref = refs[i]}
+
 			{@const triggerChar = ref.trigger ?? defaultTrigger}
+
 			{@const getSuggestionsForRef = (q: string) => triggerConfig[triggerChar].getSuggestions(q)}
+
 			{@const isFocused = isPlaceholder(ref) && placeholderFocused}
+
 			<RichTextareaReference
 				ref={ref}
 				triggerCharacter={triggerChar}

@@ -69,19 +69,19 @@
 		(connectionsQuery.data ?? []).map(({ row: connection }) => connection)
 	)
 	const selectedConnection = $derived(
-		connections.find((c) => c.selected) ?? null,
+		connections.find((c) => c.selected) ?? null
 	)
 	const selectedWallet = $derived(
 		selectedConnection
 			? wallets.find(
 					(w) => w.$id.rdns === selectedConnection.$id.wallet$id.rdns,
 				)
-			: null,
+			: null
 	)
 	const provider = $derived(
 		selectedWallet && isEip1193Provider(selectedWallet.provider)
 			? selectedWallet.provider
-			: null,
+			: null
 	)
 
 	$effect(() => {
@@ -120,6 +120,7 @@
 		>
 			{partyKitStatusLabel(roomState.connectionStatus)}
 		</span>
+
 		<a href={resolve(`/rooms/${roomId}`)}>Back to room</a>
 		·
 		<a href="/positions/channels">Channels</a>

@@ -23,9 +23,9 @@
 
 	// (Derived)
 	const p = $derived(
-		action.type === ActionType.Bridge
-			? (action.params as { fromChainId: number | null; toChainId: number | null; protocolIntent: BridgeProtocolId | null })
-			: null,
+		action.type === ActionType.Bridge ?
+			(action.params as { fromChainId: number | null; toChainId: number | null; protocolIntent: BridgeProtocolId | null })
+			: null
 	)
 	const fromChainId = $derived(
 		p?.fromChainId ?? null
@@ -41,7 +41,7 @@
 		fromChainId !== null &&
 			toChainId !== null &&
 			isCctpSupportedChain(fromChainId) &&
-			isCctpSupportedChain(toChainId),
+			isCctpSupportedChain(toChainId)
 	)
 	const lifiPairSupported = $derived(
 		fromChainId !== null && toChainId !== null
@@ -50,7 +50,7 @@
 		fromChainId !== null &&
 			toChainId !== null &&
 			isGatewaySupportedChain(fromChainId, isTestnet) &&
-			isGatewaySupportedChain(toChainId, isTestnet),
+			isGatewaySupportedChain(toChainId, isTestnet)
 	)
 
 	const activeProtocol = $derived(
@@ -58,7 +58,7 @@
 			(action.protocolAction?.protocol != null
 				? (protocolToBridgeId[action.protocolAction.protocol as ProtocolId] ?? null)
 				: null) ??
-			(cctpPairSupported ? BridgeProtocolId.Cctp : gatewayPairSupported ? BridgeProtocolId.Gateway : lifiPairSupported ? BridgeProtocolId.Lifi : null)) as BridgeProtocolId | null,
+			(cctpPairSupported ? BridgeProtocolId.Cctp : gatewayPairSupported ? BridgeProtocolId.Gateway : lifiPairSupported ? BridgeProtocolId.Lifi : null)) as BridgeProtocolId | null
 	)
 
 

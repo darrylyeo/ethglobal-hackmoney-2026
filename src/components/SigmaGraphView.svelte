@@ -43,7 +43,7 @@
 		onNodeLeave?: (node: string) => void
 		onEdgeClick?: (edge: string) => void
 		onEdgeEnter?: (edge: string) => void
-		onEdgeLeave?: (edge: string) => void,
+		onEdgeLeave?: (edge: string) => void
 	} = $props()
 </script>
 
@@ -90,21 +90,31 @@
 					edgeMaxIndexAttribute: 'edgeCount',
 				})
 				g.forEachEdge((edge, attrs) => {
-					const type = typeof attrs.type === 'string' ? attrs.type : undefined
-					const edgeIndex =
-						typeof attrs.edgeIndex === 'number' ? attrs.edgeIndex : undefined
-					const edgeCount =
-						typeof attrs.edgeCount === 'number' ? attrs.edgeCount : undefined
-					const curvature =
-						typeof edgeIndex === 'number' && typeof edgeCount === 'number'
-							? (edgeCount === 1 ? 0 : (edgeIndex / (edgeCount - 1)) * 2 - 1) *
-								(1 - Math.exp(-0.1 * edgeCount))
-							: 0
+					const type = typeof attrs.type === 'string' ?
+						attrs.type
+					:
+						undefined
+					const edgeIndex = typeof attrs.edgeIndex === 'number' ?
+						attrs.edgeIndex
+					:
+						undefined
+					const edgeCount = typeof attrs.edgeCount === 'number' ?
+						attrs.edgeCount
+					:
+						undefined
+					const curvature = typeof edgeIndex === 'number' && typeof edgeCount === 'number' ?
+						(edgeCount === 1 ? 0 : (edgeIndex / (edgeCount - 1)) * 2 - 1) *
+							(1 - Math.exp(-0.1 * edgeCount))
+					:
+						0
 					g.mergeEdgeAttributes(edge, {
 						type:
 							type?.replace(
 								/^(?:curved|straight)/,
-								curvature !== 0 ? 'curved' : 'straight',
+								curvature !== 0 ?
+									'curved'
+								:
+									'straight',
 							) ?? 'curved',
 						curvature,
 					})

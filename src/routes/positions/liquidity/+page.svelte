@@ -34,7 +34,7 @@
 	const connectedConnections = $derived(
 		(connectionsQuery.data ?? [])
 			.map(({ row }) => row)
-			.filter((c) => c.status === 'connected'),
+			.filter((c) => c.status === 'connected')
 	)
 	const ownerChainPairs = $derived(
 		[
@@ -55,7 +55,7 @@
 						])
 				}),
 			).values(),
-		],
+		]
 	)
 	$effect(() => {
 		for (const { chainId, owner } of ownerChainPairs) {
@@ -63,13 +63,13 @@
 		}
 	})
 	const allActorsLower = $derived(
-		new Set(connectedConnections.flatMap((c) => c.actors.map((a) => a.toLowerCase()))),
+		new Set(connectedConnections.flatMap((c) => c.actors.map((a) => a.toLowerCase())))
 	)
 	const positions = $derived(
 		(positionsQuery.data ?? [])
 			.map(({ row }) => row)
 			.filter((position) => allActorsLower.has(position.owner.toLowerCase()))
-			.sort((a, b) => (a.chainId !== b.chainId ? a.chainId - b.chainId : a.id.localeCompare(b.id))),
+			.sort((a, b) => (a.chainId !== b.chainId ? a.chainId - b.chainId : a.id.localeCompare(b.id)))
 	)
 	// Components
 	import Address from '$/views/Address.svelte'
@@ -93,6 +93,7 @@
 			<ul data-column data-list="unstyled">
 				{#each positions as pos (pos.chainId + ':' + pos.id)}
 					{@const net = networksByChainId[pos.chainId]}
+
 					<li
 						data-card="padding-2 radius-4"
 						data-row="gap-3 align-center wrap"

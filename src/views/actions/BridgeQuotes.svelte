@@ -73,9 +73,11 @@
 		>
 			{fetching ? 'Fetching…' : 'Fetch quote'}
 		</button>
+
 		{#if error}
 			<p data-muted>{error}</p>
 		{/if}
+
 		{#if quoteRow?.success && quoteRow.transactionRequests.length > 0}
 			<p data-text="muted">
 				{quoteRow.transactionRequests.length} step(s) ready.

@@ -49,6 +49,7 @@
 		<h3>Trace</h3>
 		<div data-row="align-center">
 			<label for="trace-contract" class="sr-only">Filter by contract</label>
+
 			<input
 				id="trace-contract"
 				type="text"
@@ -57,6 +58,7 @@
 				data-input
 			/>
 			<label for="trace-selector" class="sr-only">Filter by selector</label>
+
 			<input
 				id="trace-selector"
 				type="text"
@@ -66,6 +68,7 @@
 			/>
 		</div>
 	</header>
+
 	{#if trace.length === 0}
 		<p data-text="muted">No trace entries.</p>
 	{:else if !hasVisible}
@@ -91,6 +94,7 @@
 							<span data-text="muted">selector</span>
 							<code>{node.selector}</code>
 						{/if}
+
 						<span data-text="muted">gas</span>
 						<code>{node.gasUsed}</code>
 						{#if node.value !== '0'}
@@ -98,6 +102,7 @@
 							<code>{node.value}</code>
 						{/if}
 					</div>
+
 					{#if node.revert}
 						<p data-error>{node.revert}</p>
 					{/if}

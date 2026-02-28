@@ -37,6 +37,7 @@
 			<p>
 				{storkRestBaseUrl}/v1/prices/latest
 			</p>
+
 			<button
 				type="button"
 				disabled={loading}
@@ -44,6 +45,7 @@
 			>
 				{loading ? 'Loading…' : 'Fetch prices'}
 			</button>
+
 			{#if result}
 				<pre
 					style="white-space: pre-wrap; word-break: break-all; max-height: 24em; overflow: auto;"

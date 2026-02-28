@@ -18,7 +18,7 @@
 
 	// (Derived)
 	const tokens = $derived(
-		(erc20InstancesByCoinId.get(coinId) ?? []) as Erc20Token[],
+		(erc20InstancesByCoinId.get(coinId) ?? []) as Erc20Token[]
 	)
 </script>
 
@@ -31,6 +31,7 @@
 		<ul data-column="gap-1">
 			{#each tokens as t (stringify(t.$id))}
 				{@const network = networksByChainId[t.$id.$network.chainId]}
+
 				<li>
 					<a
 					href={resolve(`/network/${t.$id.$network.chainId}/contract/${t.$id.address}`)}

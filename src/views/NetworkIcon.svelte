@@ -26,12 +26,10 @@
 	} = $props()
 
 	// (Derived)
-	const network = $derived(
-		(() => {
-			const c = networkIdProp?.chainId ?? chainIdProp
-			return c != null ? networksByChainId[c] : undefined
-		})(),
-	)
+	const network = $derived.by(() => {
+		const c = networkIdProp?.chainId ?? chainIdProp
+		return c != null ? networksByChainId[c] : undefined
+	})
 
 
 	// Components

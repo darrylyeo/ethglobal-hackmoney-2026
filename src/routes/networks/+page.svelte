@@ -69,7 +69,7 @@
 	]
 
 	const defaultFilterIds = $derived(
-		new Set<NetworkEnvironment>([networkEnvironmentState.current]),
+		new Set<NetworkEnvironment>([networkEnvironmentState.current])
 	)
 
 
@@ -114,6 +114,7 @@
 <main data-column>
 	<section data-column>
 		<h1><a href={resolve('/networks')}>Networks</a></h1>
+
 		<RefinableList
 			items={[...networks]}
 			{filterGroups}

@@ -21,14 +21,14 @@
 
 	// (Derived)
 	const rows = $derived(
-		options.map((option) => ({ type: 'protocol' as const, option })),
+		options.map((option) => ({ type: 'protocol' as const, option }))
 	)
 	const resolvedProtocol = $derived(
 		value === ''
 			? null
 			: options.find((o) => o.id === value)
 				? value
-				: activeProtocolId,
+				: activeProtocolId
 	)
 </script>
 
@@ -61,6 +61,7 @@
 					{:else}
 						<Icon class="protocol-icon" icon={row.option.icon} size={24} alt="" />
 					{/if}
+
 					<div data-column="gap-1">
 						<strong>{row.option.label}</strong>
 						<small data-text="muted">{row.option.detail}</small>

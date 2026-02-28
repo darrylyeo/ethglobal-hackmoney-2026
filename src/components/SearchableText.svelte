@@ -44,7 +44,7 @@
 		fuzzyMatch(text, query)
 	)
 	const html = $derived(
-		highlightRanges(escapeHtml(text), matchRanges),
+		highlightRanges(escapeHtml(text), matchRanges)
 	)
 
 	// State — ranges this instance added so we can remove then re-add (allows multiple SearchableText to share one Set)

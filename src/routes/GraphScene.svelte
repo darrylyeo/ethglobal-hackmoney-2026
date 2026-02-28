@@ -103,17 +103,17 @@
 			graphSceneState.current.visibleEntities.filter((s) =>
 				graphSceneEntityTypes.includes(s as (typeof graphSceneEntityTypes)[number]),
 			),
-		),
+		)
 	)
 	const hiddenEntitySources = $derived(
-		new Set(graphSceneState.current.hiddenEntitySources.filter(Boolean)),
+		new Set(graphSceneState.current.hiddenEntitySources.filter(Boolean))
 	)
 	const expandedCollections = $derived(
 		new Set(
 			(graphSceneState.current.expandedEntities ?? []).filter((s) =>
 				graphSceneEntityTypes.includes(s as (typeof graphSceneEntityTypes)[number]),
 			),
-		),
+		)
 	)
 	const graphFramework = $derived(
 		graphSceneState.current.graphFramework
@@ -355,10 +355,10 @@
 		(entitySourcesQuery.data ?? []).map(({ row: item }) => ({
 			entityType: item.entityType,
 			source: item.source,
-		})),
+		}))
 	)
 	const allSourceKeys = $derived(
-		entitySourceCombos.map((c) => comboKey(c.entityType, c.source)),
+		entitySourceCombos.map((c) => comboKey(c.entityType, c.source))
 	)
 	let sourceKeysInited = false
 	$effect(() => {
@@ -843,12 +843,12 @@
 				id: et,
 				label: collections[et].label,
 				color: collections[et].color,
-			})),
+			}))
 	)
 	const expandableEntityTypeItems = $derived(
 		legendEntityTypeItems.filter((x) =>
 			visibleEntitiesSelection.includes(x.id),
-		),
+		)
 	)
 
 	const edgeColors = {
@@ -974,7 +974,7 @@
 				t,
 				queryByEntityType[t]?.data?.length ?? 0,
 			]),
-		) as Record<EntityType, number>,
+		) as Record<EntityType, number>
 	)
 
 	// (Derived)
@@ -1081,18 +1081,19 @@
 					i,
 					connections.length,
 				)
-				const statusColor =
+				const statusColor = (
 					conn.status === 'connected'
 						? '#22c55e'
 						: conn.status === 'error'
 							? '#ef4444'
 							: '#f59e0b'
+				)
 				const chainName = conn.chainId ? getChainName(conn.chainId) : null
 				addNode({
 					id: connId,
 					label:
-						conn.status === 'connected'
-							? `${conn.actors.length} acct${conn.actors.length !== 1 ? 's' : ''}${chainName ? ` · ${chainName}` : ''}`
+						conn.status === 'connected' ?
+							`${conn.actors.length} acct${conn.actors.length !== 1 ? 's' : ''}${chainName ? ` · ${chainName}` : ''}`
 							: conn.status,
 					...pos,
 					size: collections[EntityType.WalletConnection].size,
@@ -1671,10 +1672,10 @@
 					g6Style: {
 						...collections[EntityType.SwapQuote].g6Style,
 						badge:
-							priceImpact !== null && priceImpact >= 0.02
-								? { text: 'HI' }
-								: priceImpact !== null && priceImpact >= 0.01
-									? { text: 'MED' }
+							priceImpact !== null && priceImpact >= 0.02 ?
+								{ text: 'HI' }
+								: priceImpact !== null && priceImpact >= 0.01 ?
+									{ text: 'MED' }
 									: undefined,
 						lineDash:
 							priceImpact !== null && priceImpact >= 0.02 ? [4, 2] : undefined,
@@ -1731,8 +1732,8 @@
 					g6Style: {
 						...collections[EntityType.UniswapPool].g6Style,
 						badge:
-							typeof pool.fee === 'number'
-								? { text: `${(pool.fee / 10000).toFixed(2)}%` }
+							typeof pool.fee === 'number' ?
+								{ text: `${(pool.fee / 10000).toFixed(2)}%` }
 								: undefined,
 					},
 					details: {
@@ -2432,8 +2433,8 @@
 					g6Type: collections[EntityType.Dashboard].g6Type,
 					g6Style: collections[EntityType.Dashboard].g6Style,
 					details:
-						'focusedPanelId' in panel
-							? { focusedPanelId: panel.focusedPanelId }
+						'focusedPanelId' in panel ?
+							{ focusedPanelId: panel.focusedPanelId }
 							: {},
 				})
 			})
@@ -2447,12 +2448,13 @@
 		const nodes: string[] = []
 		for (const entry of stack ?? []) {
 			for (const item of entry.query.data ?? []) {
-				const entity =
+				const entity = (
 					isRecord(item) && 'row' in item
 						? item.row
 						: isRecord(item) && Object.keys(item).length === 1
 							? Object.values(item)[0]
 							: null
+				)
 				if (!isRecord(entity)) continue
 				const rowId = '$id' in entity ? entity.$id : undefined
 				const rowIdRecord = isRecord(rowId) ? rowId : null
@@ -2463,18 +2465,19 @@
 						if (typeof rdns === 'string' && rdns) nodes.push(`wallet:${rdns}`)
 					} else if ('wallet$id' in rowIdRecord) {
 						const walletId = rowIdRecord.wallet$id
-						const rdns =
+						const rdns = (
 							isRecord(walletId) && typeof walletId.rdns === 'string'
 								? walletId.rdns
 								: ''
+						)
 						if (rdns) nodes.push(`connection:${rdns}`)
 					} else if ('network' in rowIdRecord && 'address' in rowIdRecord) {
 						const network = rowIdRecord.network
 						const address = rowIdRecord.address
 						if (typeof network === 'number' && typeof address === 'string') {
 							nodes.push(
-								'symbol' in entity && typeof entity.symbol === 'string'
-									? `erc20:${network}:${address}`
+								'symbol' in entity && typeof entity.symbol === 'string' ?
+									`erc20:${network}:${address}`
 									: `actor:${network}:${address}`,
 							)
 						}
@@ -2541,12 +2544,13 @@
 					nodes.push(`network:${rowId}`)
 				}
 
-				const rowIdString =
+				const rowIdString = (
 					typeof rowId === 'string'
 						? rowId
 						: 'id' in entity && typeof entity.id === 'string'
 							? entity.id
 							: null
+				)
 
 				if (!rowIdString) continue
 
@@ -2599,7 +2603,7 @@
 		new Set(globalHighlightedNodes)
 	)
 	const showGlobalHighlights = $derived(
-		globalQueryStack !== undefined || globalLiveQueryCtx.stack.length > 0,
+		globalQueryStack !== undefined || globalLiveQueryCtx.stack.length > 0
 	)
 
 	// (Derived)
@@ -2612,13 +2616,14 @@
 
 	const hexToRgb = (hex: string) => {
 		const normalized = hex.replace('#', '')
-		const full =
+		const full = (
 			normalized.length === 3
 				? normalized
 						.split('')
 						.map((c) => `${c}${c}`)
 						.join('')
 				: normalized
+		)
 		if (full.length !== 6) return null
 		const r = Number.parseInt(full.slice(0, 2), 16)
 		const g = Number.parseInt(full.slice(2, 4), 16)
@@ -2678,15 +2683,18 @@
 	): Partial<DisplayData> => {
 		const source = graphModel?.graph.source(edge)
 		const target = graphModel?.graph.target(edge)
-		const isLocalHighlighted =
+		const isLocalHighlighted = (
 			(source && highlightedSet.has(source)) ||
 			(target && highlightedSet.has(target))
-		const isGlobalHighlighted =
+		)
+		const isGlobalHighlighted = (
 			(source && globalHighlightedSet.has(source)) ||
 			(target && globalHighlightedSet.has(target))
+		)
 		const isSelected = selectedEdgeSet.has(edge)
-		const isHovered =
+		const isHovered = (
 			(source && hoveredNode === source) || (target && hoveredNode === target)
+		)
 		const color = typeof data.color === 'string' ? data.color : '#888888'
 		const size = typeof data.size === 'number' ? data.size : 1
 		return {
@@ -2713,7 +2721,7 @@
 	const hoveredNodeData = $derived(
 		hoveredNode && graphModel
 			? graphModel.graph.getNodeAttributes(hoveredNode)
-			: null,
+			: null
 	)
 	const hoveredNodeEntries = $derived.by(() => {
 		const details = hoveredNodeData?.details
@@ -2727,10 +2735,12 @@
 		if (count === 0) return 'Selection cleared'
 		const nodeCount = selectedNodes.length
 		const edgeCount = selectedEdges.length
-		const nodeLabel =
+		const nodeLabel = (
 			nodeCount > 0 ? `${nodeCount} node${nodeCount === 1 ? '' : 's'}` : ''
-		const edgeLabel =
+		)
+		const edgeLabel = (
 			edgeCount > 0 ? `${edgeCount} edge${edgeCount === 1 ? '' : 's'}` : ''
+		)
 		return `Selected ${nodeLabel}${nodeLabel && edgeLabel ? ' and ' : ''}${edgeLabel}`
 	})
 	type SelectionNodeItem = {
@@ -2749,12 +2759,13 @@
 	const selectionItems = $derived.by(
 		(): (SelectionNodeItem | SelectionEdgeItem)[] => {
 			if (!graphModel) return []
-			const items: (SelectionNodeItem | SelectionEdgeItem)[] =
+			const items: (SelectionNodeItem | SelectionEdgeItem)[] = (
 				selectedNodes.map((nodeId): SelectionNodeItem => {
 					const attrs = graphModel.graph.getNodeAttributes(nodeId)
 					const label = typeof attrs.label === 'string' ? attrs.label : nodeId
-					const collection =
+					const collection = (
 						typeof attrs.collection === 'string' ? attrs.collection : 'node'
+					)
 					const details = isRecord(attrs.details) ? attrs.details : null
 					let href: string | undefined
 					if (collection === EntityType.Network && details?.slug) {
@@ -2768,6 +2779,7 @@
 					}
 					return { id: nodeId, kind: 'node', label, collection, href }
 				})
+			)
 			for (const edgeId of selectedEdges) {
 				const edge = graphModel.edges.find((entry) => entry.id === edgeId)
 				items.push({
@@ -2787,7 +2799,7 @@
 			...graphQueries.map((q) => q.data?.length),
 			[...visibleCollections].join(','),
 			[...hiddenEntitySources].sort().join(','),
-		].join(':'),
+		].join(':')
 	)
 </script>
 
@@ -2802,6 +2814,7 @@
 		data-row="align-center"
 	>
 		<h4 data-row-item="flexible">Data Graph</h4>
+
 		<Select
 			class="graph-scene-framework"
 			items={graphFrameworkItems}
@@ -2826,6 +2839,7 @@
 						· {highlightedNodes.length} local
 					</span>
 				{/if}
+
 				{#if showGlobalHighlights && globalHighlightedSet.size > 0}
 					<span
 						class="graph-scene-highlight"
@@ -2885,9 +2899,11 @@
 							></span>
 							<strong>{hoveredNodeData.label}</strong>
 						</div>
+
 						<small class="graph-scene-collection">
 							{hoveredNodeData.collection}
 						</small>
+
 						{#if hoveredNodeEntries.length > 0}
 							<dl class="graph-scene-details">
 								{#each hoveredNodeEntries as [key, value] (key)}
@@ -2942,8 +2958,10 @@
 						</Combobox>
 					{/if}
 				</div>
+
 				<div data-column>
 					<label for="graph-scene-expanded">Expand scope (full collection)</label>
+
 					<Combobox
 						id="graph-scene-expanded"
 						type="multiple"
@@ -2968,9 +2986,11 @@
 						{/snippet}
 					</Combobox>
 				</div>
+
 				{#if entitySourceCombos.length > 0}
 					<div data-column>
 						<label for="graph-scene-sources">By source</label>
+
 						<Combobox
 							id="graph-scene-sources"
 							type="multiple"
@@ -2984,6 +3004,7 @@
 						/>
 					</div>
 				{/if}
+
 				{#if selectionItems.length > 0}
 					<div class="graph-scene-selection" data-column>
 						<h5>Selection</h5>

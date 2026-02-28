@@ -14,17 +14,15 @@
 	import { resolve } from '$app/paths'
 
 	// (Derived)
-	const route = $derived(
-		(() => {
-			const param = page.params.coinId ?? ''
-			const coinId = coinById[param as CoinId] ? (param as CoinId) : null
-			const coin = coinId
-				? (coinInstanceByChainAndCoinId.get(`${ChainId.Ethereum}:${coinId}`)
-					?? erc20InstancesByCoinId.get(coinId)?.[0])
-				: null
-			return { param, coinId, coin }
-		})(),
-	)
+	const route = $derived.by(() => {
+		const param = page.params.coinId ?? ''
+		const coinId = coinById[param as CoinId] ? (param as CoinId) : null
+		const coin = coinId ?
+			(coinInstanceByChainAndCoinId.get(`${ChainId.Ethereum}:${coinId}`)
+				?? erc20InstancesByCoinId.get(coinId)?.[0])
+			: null
+		return { param, coinId, coin }
+	})
 
 
 	// Components
@@ -64,7 +62,9 @@
 				{#snippet Title()}
 					<CoinName {coin} />
 				{/snippet}
+
 				<CoinContracts coinId={coin.coinId} />
+
 				<CoinActivity
 					coinId={route.coinId}
 					period={page.url.searchParams.get('period') ?? '1d'}

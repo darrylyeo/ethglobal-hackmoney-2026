@@ -13,6 +13,7 @@
 			<dt>Hex (32-byte)</dt>
 			<dd><code>{entry.$id.hex}</code></dd>
 		</div>
+
 		<div>
 			<dt>Signatures</dt>
 			<dd>

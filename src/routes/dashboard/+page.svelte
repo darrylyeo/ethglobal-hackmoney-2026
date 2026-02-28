@@ -28,7 +28,7 @@
 
 	// (Derived)
 	const defaultDashboardId = $derived(
-		defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default',
+		defaultRowQuery.data?.[0]?.defaultDashboardId ?? 'default'
 	)
 
 

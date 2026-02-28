@@ -29,12 +29,12 @@
 
 	// (Derived)
 	const rootTurn = $derived(
-		turns.find((t) => t.parentId === null),
+		turns.find((t) => t.parentId === null)
 	)
 	const treeModelValue = $derived(
-		tree.defaultConnectionId && tree.defaultModelId
-			? `${tree.defaultConnectionId}:${tree.defaultModelId}`
-			: '',
+		tree.defaultConnectionId && tree.defaultModelId ?
+			`${tree.defaultConnectionId}:${tree.defaultModelId}`
+			: ''
 	)
 
 	const walletConnectionsQuery = useLiveQuery(
@@ -46,12 +46,12 @@
 		[],
 	)
 	const eip1193Connections = $derived(
-		(walletConnectionsQuery.data ?? []).map(({ row: connection }) => connection).filter(Boolean),
+		(walletConnectionsQuery.data ?? []).map(({ row: connection }) => connection).filter(Boolean)
 	)
 	const paymentConnectionIdStr = $derived(
 		tree.paymentWalletConnection$id
 			? JSON.stringify(tree.paymentWalletConnection$id)
-			: '',
+			: ''
 	)
 
 
@@ -63,8 +63,9 @@
 		})
 	}
 	const updateTreeModel = (v: string) => {
-		const [connectionId, modelId] =
+		const [connectionId, modelId] = (
 			v && v.includes(':') ? v.split(':').map((s) => s?.trim() ?? null) : [null, null]
+		)
 		agentChatTreesCollection.update(tree.$id.id, (draft) => {
 			draft.defaultConnectionId = connectionId ?? undefined
 			draft.defaultModelId = modelId ?? undefined
@@ -106,6 +107,7 @@
 		<Button.Root href="/agents/new">
 			New conversation
 		</Button.Root>
+
 		<Button.Root onclick={togglePin}>
 			{tree.pinned ? 'Unpin' : 'Pin'}
 		</Button.Root>
@@ -114,6 +116,7 @@
 	{#if connections.length > 0}
 		<div data-row="align-center">
 			<label for="tree-model-{tree.$id.id}">Default model</label>
+
 			<ModelInput
 				id="tree-model-{tree.$id.id}"
 				connections={connections}
@@ -126,6 +129,7 @@
 
 	<div data-row="align-center">
 		<label for="tree-payment-{tree.$id.id}">Payment account</label>
+
 		<select
 			id="tree-payment-{tree.$id.id}"
 			aria-label="Wallet for agent payments (x402)"
@@ -142,7 +146,9 @@
 			<option value="">No payment wallet</option>
 			{#each eip1193Connections as conn (stringify(conn.$id))}
 				{@const connIdStr = JSON.stringify(conn.$id)}
+
 				{@const addr = conn.activeActor ?? conn.actors[0] ?? null}
+
 				<option value={connIdStr}>
 					{addr
 						? `${addr.slice(0, 6)}…${addr.slice(-4)}`

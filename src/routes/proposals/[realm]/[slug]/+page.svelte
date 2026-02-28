@@ -52,14 +52,14 @@
 			? (proposalsQuery.data ?? []).find(
 				(r) => (r.row as ProposalEntry).number === parsed.number,
 			)?.row as ProposalEntry | undefined
-			: undefined,
+			: undefined
 	)
 	const caipEntry = $derived(
 		parsed && realm === ProposalRealm.ChainAgnostic && parsed.kind === 'caip'
 			? (caipsQuery.data ?? []).find(
 				(r) => (r.row as CaipEntry).number === parsed.number,
 			)?.row as CaipEntry | undefined
-			: undefined,
+			: undefined
 	)
 
 	const entry = $derived(
@@ -69,45 +69,45 @@
 		entry ? proposalSlug(entry) : null
 	)
 	const shouldRedirect = $derived(
-		entry != null && canonicalSlug != null && slugParam !== canonicalSlug,
+		entry != null && canonicalSlug != null && slugParam !== canonicalSlug
 	)
 
 	const idSerialized = $derived(
 		String(entry?.number ?? parsed?.number ?? '')
 	)
 	const label = $derived(
-		entry
-			? 'type' in entry && entry.type !== undefined
-				? `${entry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-${entry.number} ${entry.title}`
+		entry ?
+			'type' in entry && entry.type !== undefined ?
+				`${entry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-${entry.number} ${entry.title}`
 				: `CAIP-${entry.number} ${entry.title}`
-			: idSerialized,
+			: idSerialized
 	)
 	const metadata = $derived(
-		entry
-			? 'category' in entry
-				? [
-						{ term: 'Status', detail: entry.status },
-						{ term: 'Category', detail: (entry as ProposalEntry).category },
-						{
-							term: 'Type',
-							detail: (entry as ProposalEntry).type === ProposalType.Erc ? 'ERC' : 'EIP',
-						},
-					]
+		entry ?
+			'category' in entry ?
+				[
+					{ term: 'Status', detail: entry.status },
+					{ term: 'Category', detail: (entry as ProposalEntry).category },
+					{
+						term: 'Type',
+						detail: (entry as ProposalEntry).type === ProposalType.Erc ? 'ERC' : 'EIP',
+					},
+				]
 				: [
-						{ term: 'Status', detail: (entry as CaipEntry).status },
-						{ term: 'Type', detail: (entry as CaipEntry).type },
-					]
+					{ term: 'Status', detail: (entry as CaipEntry).status },
+					{ term: 'Type', detail: (entry as CaipEntry).type },
+				]
 			: [],
 	) as { term: string; detail: string }[]
 
 	const isLoading = $derived(
 		(realm === ProposalRealm.Ethereum && proposalsQuery.isLoading) ||
-		(realm === ProposalRealm.ChainAgnostic && caipsQuery.isLoading),
+		(realm === ProposalRealm.ChainAgnostic && caipsQuery.isLoading)
 	)
 	const lastError = $derived(
-		realm === ProposalRealm.Ethereum
-			? (proposalsCollection.utils.lastError as unknown as { message?: string })?.message
-			: (caipsCollection.utils.lastError as unknown as { message?: string })?.message,
+		realm === ProposalRealm.Ethereum ?
+			(proposalsCollection.utils.lastError as unknown as { message?: string })?.message
+			: (caipsCollection.utils.lastError as unknown as { message?: string })?.message
 	)
 
 	// Components
@@ -125,13 +125,13 @@
 
 <svelte:head>
 	<title>
-		{proposalEntry
-			? `${proposalEntry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-${proposalEntry.number}: ${proposalEntry.title}`
-			: caipEntry
-				? `CAIP-${caipEntry.number}: ${caipEntry.title}`
-				: parsed
-					? parsed.kind === 'caip'
-						? `CAIP ${parsed.number}`
+		{proposalEntry ?
+			`${proposalEntry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-${proposalEntry.number}: ${proposalEntry.title}`
+			: caipEntry ?
+				`CAIP-${caipEntry.number}: ${caipEntry.title}`
+				: parsed ?
+					parsed.kind === 'caip' ?
+						`CAIP ${parsed.number}`
 						: `EIP/ERC ${parsed.number}`
 					: 'Proposal'}
 		– Proposals
@@ -147,6 +147,7 @@
 			<code>ethereum</code> or <code>chain-agnostic</code> and a slug like <code>eip-155</code>,
 			<code>erc-20</code>, or <code>caip-1</code>.
 		</p>
+
 		<p>
 			<a href={resolve('/proposals')}>Browse proposals</a>
 		</p>
@@ -166,6 +167,7 @@
 					? 'ERC'
 					: 'EIP'}-{parsed.number} not in index.
 		</p>
+
 		<p>
 			<a href={resolve('/proposals')}>Browse proposals</a>
 		</p>
@@ -186,6 +188,7 @@
 					<strong>{proposalEntry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-{proposalEntry.number}</strong>
 					{proposalEntry.title}
 				{/snippet}
+
 				<Proposal entry={proposalEntry} />
 			</EntityView>
 		</section>
@@ -206,6 +209,7 @@
 					<strong>CAIP-{caipEntry.number}</strong>
 					{caipEntry.title}
 				{/snippet}
+
 				<Caip entry={caipEntry} />
 			</EntityView>
 		</section>

@@ -20,7 +20,7 @@
 		parseInt(chainIdParam, 10)
 	)
 	const valid = $derived(
-		chainIdParam !== '' && !Number.isNaN(chainId) && idParam !== '',
+		chainIdParam !== '' && !Number.isNaN(chainId) && idParam !== ''
 	)
 
 	const positionQuery = useLiveQuery(
@@ -39,15 +39,15 @@
 		[() => chainId, () => idParam, () => valid],
 	)
 	const position = $derived(
-		positionQuery.data?.[0]?.row as UniswapPosition | undefined,
+		positionQuery.data?.[0]?.row as UniswapPosition | undefined
 	)
 	const positionId = $derived(
 		position?.$id ?? { chainId, id: idParam }
 	)
 	const label = $derived(
-		position
-			? `Position ${idParam.slice(0, 10)}${idParam.length > 10 ? '…' : ''}`
-			: idParam || 'Position',
+		position ?
+			`Position ${idParam.slice(0, 10)}${idParam.length > 10 ? '…' : ''}`
+			: idParam || 'Position'
 	)
 
 	// Components

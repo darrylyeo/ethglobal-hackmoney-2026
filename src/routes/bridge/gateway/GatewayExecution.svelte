@@ -129,24 +129,28 @@
 					: ''}
 			</li>
 		{/if}
+
 		<li
 			class="gateway-status-step"
 			data-done={step !== 'idle' && step !== 'deposit' && step !== 'sign'}
 		>
 			Sign burn intent
 		</li>
+
 		<li
 			class="gateway-status-step"
 			data-done={step === 'mint' || step === 'done'}
 		>
 			Attestation
 		</li>
+
 		<li class="gateway-status-step" data-done={mintTxHash !== null}>
 			Mint on destination {mintTxHash
 				? `(${mintTxHash.slice(0, 10)}…)`
 				: ''}
 		</li>
 	</ol>
+
 	{#if error}
 		<small data-error>{error}</small>
 	{/if}

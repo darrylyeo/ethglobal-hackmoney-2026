@@ -40,16 +40,16 @@
 		(connectionsQuery.data ?? []).map(({ farcasterConnection: connection }) => connection as {
 			$id: { fid: number }
 			username?: string
-		}),
+		})
 	)
 	const defaultFilterIds = $derived(
-		new Set(connections.map((r) => r.username ?? `fid:${r.$id.fid}`)),
+		new Set(connections.map((r) => r.username ?? `fid:${r.$id.fid}`))
 	)
 	const allLinks = $derived(
-		(linksQuery.data ?? []).map(({ link }) => link as { $id: { sourceFid: number; targetFid: number } }),
+		(linksQuery.data ?? []).map(({ link }) => link as { $id: { sourceFid: number; targetFid: number } })
 	)
 	const allUsers = $derived(
-		(usersQuery.data ?? []).map(({ farcasterUser: user }) => user) as WithSource<FarcasterUser>[],
+		(usersQuery.data ?? []).map(({ farcasterUser: user }) => user) as WithSource<FarcasterUser>[]
 	)
 	const usernameFilters = $derived(
 		[...new Set(allUsers.map((u) => u.username ?? `fid:${u.$id.fid}`).filter(Boolean))]
@@ -59,7 +59,7 @@
 				label: username.startsWith('fid:') ? username : `@${username}`,
 				filterFunction: (user: WithSource<FarcasterUser>) =>
 					(user.username ?? `fid:${user.$id.fid}`) === username,
-			})),
+			}))
 	)
 
 	const connectionFilters = $derived(
@@ -86,7 +86,7 @@
 						),
 				},
 			]
-		}),
+		})
 	)
 	const filterGroups = $derived([
 		...(usernameFilters.length > 1
@@ -138,6 +138,7 @@
 		<summary>
 			<h3 class="section-heading">Users ({displayCount})</h3>
 		</summary>
+
 		{#if allUsers.length === 0 && usersQuery.isLoading}
 			<p data-text="muted">Loading…</p>
 		{:else if allUsers.length === 0}
@@ -198,7 +199,9 @@
 					{#snippet Item({ key: _key, item: row, isPlaceholder, searchQuery: q, matches })}
 						{#if !isPlaceholder && row != null}
 							{@const user = row}
+
 							{@const label = user.username ? `@${user.username}` : `@${user.$id.fid}`}
+
 							<EntityView
 								entityType={EntityType.FarcasterUser}
 								entity={user}

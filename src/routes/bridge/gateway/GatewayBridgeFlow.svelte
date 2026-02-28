@@ -44,6 +44,7 @@
 	} = $props()
 
 
+
 	// State
 	let unifiedBalance = $state<bigint | null>(null)
 	let balanceError = $state<string | null>(null)
@@ -62,43 +63,45 @@
 
 	// (Derived)
 	const selectedWallet = $derived(
-		selectedWallets.find((w) => w.connection.selected) ?? null,
+		selectedWallets.find((w) => w.connection.selected) ?? null
 	)
-	const walletProvider = $derived(
+	const walletProvider = $derived((
 		selectedWallet?.connection.transport ===
-			WalletConnectionTransport.Eip1193 && 'provider' in selectedWallet.wallet
-			? selectedWallet.wallet.provider
-			: null,
-	)
+			WalletConnectionTransport.Eip1193 && 'provider' in selectedWallet.wallet ?
+			selectedWallet.wallet.provider
+		:
+			null
+	))
 	const fromNetwork = $derived(
-		settings.fromChainId !== null
-			? Object.values(networksByChainId).find(
-					(entry) => entry?.id === settings.fromChainId,
-				) ?? null
-			: null,
+		settings.fromChainId !== null ?
+			Object.values(networksByChainId).find(
+				(entry) => entry?.id === settings.fromChainId,
+			) ?? null
+		:
+			null
 	)
 	const toNetwork = $derived(
 		settings.toChainId !== null
 			? Object.values(networksByChainId).find(
 					(entry) => entry?.id === settings.toChainId,
 				) ?? null
-			: null,
+			: null
 	)
 	const walletAddress = $derived(
-		getGatewayWalletAddress(settings.fromChainId, settings.isTestnet),
+		getGatewayWalletAddress(settings.fromChainId, settings.isTestnet)
 	)
 	const canInstantTransfer = $derived(
-		unifiedBalance !== null && settings.amount > 0n && unifiedBalance >= settings.amount,
+		unifiedBalance !== null && settings.amount > 0n && unifiedBalance >= settings.amount
 	)
 	const needsDeposit = $derived(
-		unifiedBalance !== null && settings.amount > 0n && unifiedBalance < settings.amount,
+		unifiedBalance !== null && settings.amount > 0n && unifiedBalance < settings.amount
 	)
 	const gatewayPairReady = $derived(
 		settings.fromChainId !== null &&
 			settings.toChainId !== null &&
 			recipient !== null &&
 			selectedWallet !== null &&
-			settings.amount > 0n,
+			settings.amount > 0n
 	)
 
 	const onConfirmBridge = () => {
@@ -159,6 +162,7 @@
 			<dd>
 				{formatSmallestToDecimal(settings.amount, 6)} USDC on {fromNetwork.name}
 			</dd>
+
 			<dt>To</dt>
 			<dd>{toNetwork.name}</dd>
 			<dt>Recipient</dt>
@@ -179,6 +183,7 @@
 			{formatSmallestToDecimal(unifiedBalance, 6)}
 			USDC
 		</p>
+
 		{#if canInstantTransfer}
 			<p data-text="muted">Instant transfer: sign burn intent, then mint on destination.</p>
 		{:else if needsDeposit}
@@ -230,6 +235,7 @@
 					{needsDeposit ? ' Deposit will be executed first, then instant transfer.' : ''}
 				</Dialog.Description>
 			{/if}
+
 			<div data-row class="dialog-actions">
 				<Button.Root
 					type="button"

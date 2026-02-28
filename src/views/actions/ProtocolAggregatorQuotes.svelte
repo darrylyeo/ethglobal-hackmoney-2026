@@ -31,7 +31,7 @@
 
 	// (Derived)
 	const swapParams = $derived(
-		params && params.amount > 0n ? params : null,
+		params && params.amount > 0n ? params : null
 	)
 	const requestId = $derived.by((): ProtocolAggregatorQuoteRequestId | null => {
 		if (!swapParams || !swapperAccount || !swapParams.tokenIn || !swapParams.tokenOut) return null
@@ -56,7 +56,7 @@
 					},
 					requestId.swapperAccount,
 				)
-			: '',
+			: ''
 	)
 	const quotesQuery = useLiveQuery((q) =>
 		q
@@ -68,19 +68,19 @@
 			? quotesQuery.data
 					.filter(({ row: quote }) => quote.$id.requestId === requestKey)
 					.map(({ row: quote }) => quote)
-			: [],
+			: []
 	)
 	const itemForProvider = $derived(
 		provider && quoteRowsForRequest.length > 0
 			? quoteRowsForRequest.find((r) => r.provider === provider) ?? null
-			: null,
+			: null
 	)
 	const itemsForRequest = $derived(
 		!provider
 			? [...quoteRowsForRequest].sort((a, b) =>
 					(a.simulatedOutputAmount ?? 0n) > (b.simulatedOutputAmount ?? 0n) ? -1 : 1,
 				)
-			: [],
+			: []
 	)
 
 	// Actions
@@ -116,12 +116,14 @@
 		{#if error}
 			<p data-muted>{error}</p>
 		{/if}
+
 		{#if provider && itemForProvider}
 			<div data-row="center">
 				{#if itemForProvider.success}
 					<span>
 						{itemForProvider.simulatedOutputAmount?.toString() ?? '—'} out
 					</span>
+
 					{#if itemForProvider.mismatchFlag}
 						<span data-muted title="Quote vs simulation mismatch">
 							⚠ {itemForProvider.mismatchBps != null ? `${itemForProvider.mismatchBps} bps` : ''}
@@ -140,6 +142,7 @@
 							<span>
 								{item.simulatedOutputAmount?.toString() ?? '—'} out
 							</span>
+
 							{#if item.mismatchFlag}
 								<span data-muted title="Quote vs simulation mismatch">
 									⚠ {item.mismatchBps != null ? `${item.mismatchBps} bps` : ''}

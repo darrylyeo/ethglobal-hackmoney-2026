@@ -24,33 +24,33 @@
 		parent,
 		indexInParent,
 	}: {
-		panel: DashboardPanelNode,
-		isFocused: boolean,
-		excludeRoutePaths?: string[],
-		onFocus: (panelId: string) => void,
-		onSplit: (panelId: string, direction: SplitDirection) => void,
-		onRemove: (panelId: string) => void,
-		onSwap: (panelId: string) => void,
-		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void,
-		onAppendHash: (panelId: string, hash: string) => void,
-		onSetPanelHash: (panelId: string, hash: string, replace?: boolean) => void,
+		panel: DashboardPanelNode
+		isFocused: boolean
+		excludeRoutePaths?: string[]
+		onFocus: (panelId: string) => void
+		onSplit: (panelId: string, direction: SplitDirection) => void
+		onRemove: (panelId: string) => void
+		onSwap: (panelId: string) => void
+		onUpdateRoute: (panelId: string, route: DashboardPanelRoute) => void
+		onAppendHash: (panelId: string, hash: string) => void
+		onSetPanelHash: (panelId: string, hash: string, replace?: boolean) => void
 		onNavigate: (
 			panelId: string,
 			route: DashboardPanelRoute,
 			hash: string | null,
-		) => void,
+		) => void
 		onOpenInNewPanel: (
 			panelId: string,
 			route: DashboardPanelRoute,
 			hash: string | null,
-		) => void,
-		parent?: DashboardSplitNode,
-		indexInParent?: 0 | 1,
+		) => void
+		parent?: DashboardSplitNode
+		indexInParent?: 0 | 1
 	} = $props()
 
 	// (Derived)
 	const routeEntry = $derived(
-		routeEntriesForPanel.find((entry) => entry.path === panel.route.path) ?? null,
+		routeEntriesForPanel.find((entry) => entry.path === panel.route.path) ?? null
 	)
 	const paramKeys = $derived(
 		routeEntry?.paramKeys ?? []
@@ -64,7 +64,7 @@
 
 	// State
 	let hashInput = $state(
-		'',
+		''
 	)
 
 	// Actions
@@ -84,23 +84,27 @@
 		})
 
 	const commitHash = () =>
-		hashInput.trim().length === 0
-			? undefined
-			: (() => {
-					const raw = hashInput.trim()
-					const hash = raw.startsWith('#/')
-						? raw
-						: raw.startsWith('#')
-							? `#/${raw.slice(1)}`
-							: `#/${raw}`
-					onAppendHash(panel.id, hash)
-					hashInput = ''
-				})()
+		hashInput.trim().length === 0 ?
+			undefined
+		:
+			(() => {
+				const raw = hashInput.trim()
+				const hash = raw.startsWith('#/') ?
+					raw
+				:
+					raw.startsWith('#') ?
+						`#/${raw.slice(1)}`
+					:
+						`#/${raw}`
+				onAppendHash(panel.id, hash)
+				hashInput = ''
+			})()
 
 	const onPanelClick = (event: MouseEvent) =>
-		event.defaultPrevented || event.button !== 0
-			? undefined
-			: (() => {
+		event.defaultPrevented || event.button !== 0 ?
+			undefined
+		:
+			(() => {
 					const target = event.target
 					if (!(target instanceof Element)) return
 					const link = target.closest('a')
@@ -109,8 +113,10 @@
 					const navigation = toPanelNavigation(link.href, location.origin)
 					if (!navigation) return
 					event.preventDefault()
-					const action =
-						event.metaKey || event.ctrlKey ? onOpenInNewPanel : onNavigate
+					const action = event.metaKey || event.ctrlKey ?
+						onOpenInNewPanel
+					:
+						onNavigate
 					action(panel.id, navigation.route, navigation.hash)
 				})()
 
@@ -126,9 +132,10 @@
 	}
 
 	const ondrop = (event: DragEvent) => {
-		const raw =
+		const raw = (
 			event.dataTransfer?.getData('text/uri-list')?.trim().split(/\r?\n/)[0] ??
 			event.dataTransfer?.getData('text/plain')?.trim()
+		)
 		if (!raw) return
 		event.preventDefault()
 		const navigation = toPanelNavigation(raw, location.origin)
@@ -196,9 +203,11 @@
 			<button type="button" onclick={() => onSplit(panel.id, SplitDirection.Horizontal)} title="Split horizontal">
 				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">→</span>
 			</button>
+
 			<button type="button" onclick={() => onSplit(panel.id, SplitDirection.Vertical)} title="Split vertical">
 				<span class="dashboard-panel-btn-text">Split </span><span class="dashboard-panel-btn-icon" aria-hidden="true">↓</span>
 			</button>
+
 			<button type="button" onclick={() => onSwap(panel.id)} title="Swap">
 				<span class="dashboard-panel-btn-text">Swap </span><span class="dashboard-panel-btn-icon" aria-hidden="true">
 					{parent != null && indexInParent != null ?
@@ -212,6 +221,7 @@
 					: '⇄'}
 				</span>
 			</button>
+
 			<button type="button" onclick={() => onRemove(panel.id)} title="Close">
 				<span class="dashboard-panel-btn-text">Close</span><span class="dashboard-panel-btn-icon" aria-hidden="true">×</span>
 			</button>

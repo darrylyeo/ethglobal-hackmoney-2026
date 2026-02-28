@@ -16,7 +16,7 @@
 
 	// (Derived)
 	const tokensSet = $derived(
-		new Set((erc20InstancesByCoinId.get(coinId) ?? []) as Erc20Token[]),
+		new Set((erc20InstancesByCoinId.get(coinId) ?? []) as Erc20Token[])
 	)
 
 	function getKey(t: Erc20Token): string {
@@ -53,14 +53,15 @@
 				<code>Contract (loading…)</code>
 			{:else}
 				{@const network = networksByChainId[item.$id.$network.chainId]}
+
 				<Contract
 					contractId={item.$id}
 					idSerialized={`${item.$id.$network.chainId}:${item.$id.address}`}
 					href={resolve(`/network/${item.$id.$network.chainId}/contract/${item.$id.address}`)}
 					label={formatAddress(item.$id.address)}
 					metadata={
-						network
-							? [{ term: 'Network', detail: network.name }]
+						network ?
+							[{ term: 'Network', detail: network.name }]
 							: []
 					}
 				/>

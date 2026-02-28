@@ -28,7 +28,7 @@
 	const views = $derived(
 		(entriesQuery.data ?? [])
 			.map(({ row: service }) => service as Eip8004Service)
-			.filter(Boolean),
+			.filter(Boolean)
 	)
 	const chainIds = $derived(
 		[...new Set(views.map((e) => e.$id.chainId))].sort()
@@ -83,14 +83,15 @@
 		searchQuery.trim().toLowerCase()
 	)
 	const searchFiltered = $derived(
-		searchLower
-			? views.filter(
+		searchLower ?
+			views.filter(
 					(e) =>
 						(e.name ?? '').toLowerCase().includes(searchLower) ||
 						(e.description ?? '').toLowerCase().includes(searchLower) ||
 						e.$id.identityId.toLowerCase().includes(searchLower),
 				)
-			: views,
+		:
+			views
 	)
 	const getKey = (s: Eip8004Service) => eip8004ServiceIdToString(s.$id)
 
@@ -145,6 +146,7 @@
 		<div data-row="gap-4 wrap">
 			<label data-row="align-center">
 				<span>Search</span>
+
 				<input
 					type="search"
 					bind:value={searchQuery}
@@ -152,7 +154,9 @@
 				/>
 			</label>
 		</div>
+
 		<p>{displayCount} of {views.length} services</p>
+
 		<RefinableList
 			items={searchFiltered}
 			{filterGroups}
@@ -176,6 +180,7 @@
 				{#snippet Item({ key: _k, item: service, isPlaceholder, searchQuery: q, matches })}
 					{#if !isPlaceholder && service != null}
 						{@const name = service.name ?? service.$id.identityId}
+
 						<div data-row="align-center gap-2">
 							{#if service.image}
 								<img
@@ -186,6 +191,7 @@
 									style="border-radius: 50%; object-fit: cover;"
 								/>
 							{/if}
+
 							<span data-row="wrap align-center gap-1">
 								<a
 									href={resolve(
@@ -201,9 +207,11 @@
 										{/if}
 									</strong>
 								</a>
+
 								{#if service.name && service.$id.identityId !== service.name}
 									<span data-text="muted">{service.$id.identityId}</span>
 								{/if}
+
 								<span data-text="muted">
 									{networksByChainId[service.$id.chainId]?.name ?? service.$id.chainId}
 								</span>

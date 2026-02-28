@@ -32,7 +32,7 @@
 
 	// (Derived)
 	const effectiveSortId = $derived(
-		(activeSortId === '' ? (defaultSortId ?? sortOptions[0]?.id) : activeSortId) ?? '',
+		(activeSortId === '' ? (defaultSortId ?? sortOptions[0]?.id) : activeSortId) ?? ''
 	)
 	const sortById = $derived(
 		new Map(sortOptions.map((s) => [s.id, s]))
@@ -65,6 +65,7 @@
 	<div class="sorts" data-card="padding-5 radius-4" data-row="gap-6 wrap" {...restProps}>
 		<fieldset data-sort-group data-column="gap-1">
 			<legend>Sort</legend>
+
 			<Select
 				items={sortOptions}
 				bind:value={

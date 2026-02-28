@@ -94,19 +94,20 @@
 
 	// State
 	let isFocused = $state(
-		false,
+		false
 	)
 	let open = $state(
-		false,
+		false
 	)
 
 	// (Derived)
 	$effect(() => {
 		if (isFocused) return
 		const singleValue = value ?? undefined
-		const nextValue =
+		const nextValue = (
 			normalizedItems.find((item) => item.id === (singleValue ? getItemId(singleValue) : ''))?.label ??
 			(singleValue ? getItemLabel(singleValue) : '')
+		)
 		if (inputValue !== nextValue) inputValue = nextValue
 	})
 	const rootItems = $derived(
@@ -120,8 +121,9 @@
 		inputValue === '' ?
 			normalizedItems
 		:
-			normalizedItems.filter((item) =>
-				item.label.toLowerCase().includes(inputValue.toLowerCase()),
+			normalizedItems.filter((item) => (
+				item.label.toLowerCase().includes(inputValue.toLowerCase())
+				),
 			),
 	)
 	const filteredGroups = $derived(
@@ -129,8 +131,9 @@
 			normalizedGroups
 				.map((group) => ({
 					...group,
-					items: group.items.filter((item) =>
-						item.label.toLowerCase().includes(inputValue.toLowerCase()),
+					items: group.items.filter((item) => (
+						item.label.toLowerCase().includes(inputValue.toLowerCase())
+						),
 					),
 				}))
 				.filter((group) => group.items.length > 0)
@@ -182,6 +185,7 @@
 			{#if Before}
 				{@render Before()}
 			{/if}
+
 			<Combobox.Input
 				id={id ?? _id}
 				aria-label={ariaLabel}
@@ -210,6 +214,7 @@
 								(props.oninput as (e: Event) => void)(e)
 						},
 					}}
+
 					{#if Input}
 						{@render Input(mergedProps)}
 					{:else}
@@ -217,12 +222,14 @@
 					{/if}
 				{/snippet}
 			</Combobox.Input>
+
 			{#if After}
 				<Combobox.Trigger aria-label={ariaLabel ?? 'Open'}>
 					{@render After()}
 				</Combobox.Trigger>
 			{/if}
 		</div>
+
 		<Combobox.Portal>
 			<Combobox.Content>
 				<Combobox.Viewport>
@@ -242,15 +249,18 @@
 													{#if Before}
 														{@render Before()}
 													{/if}
+
 													{#if ItemSnippet}
 														{@render ItemSnippet(item.item, selected)}
 													{:else}
 														{item.label}
 													{/if}
+
 													{#if After}
 														{@render After()}
 													{/if}
 												</span>
+
 												<span
 													data-combobox-item-indicator
 													data-selected={selected || undefined}
@@ -275,15 +285,18 @@
 											{#if Before}
 												{@render Before()}
 											{/if}
+
 											{#if ItemSnippet}
 												{@render ItemSnippet(item.item, selected)}
 											{:else}
 												{item.label}
 											{/if}
+
 											{#if After}
 												{@render After()}
 											{/if}
 										</span>
+
 										<span
 											data-combobox-item-indicator
 											data-selected={selected || undefined}

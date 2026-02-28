@@ -24,8 +24,8 @@
 	}
 
 	const formatCreated = (created: string | undefined) =>
-		created
-			? new Date(created + 'Z').toLocaleDateString(undefined, { dateStyle: 'medium' })
+		created ?
+			new Date(created + 'Z').toLocaleDateString(undefined, { dateStyle: 'medium' })
 			: ''
 
 	type ProposalListItem = {
@@ -92,12 +92,12 @@
 	const proposalViews = $derived(
 		(proposalsQuery.data ?? []).map((r) =>
 			({ realm: ProposalRealm.Ethereum, entry: r.row as ProposalEntry }),
-		),
+		)
 	)
 	const caipViews = $derived(
 		(caipsQuery.data ?? []).map((r) =>
 			({ realm: ProposalRealm.ChainAgnostic, entry: r.row as CaipEntry }),
-		),
+		)
 	)
 	const views = $derived(
 		[...proposalViews, ...caipViews]
@@ -245,6 +245,7 @@
 		</p>
 	{:else}
 		<p>{displayCount} of {views.length} entries</p>
+
 		<RefinableList
 			items={views}
 			{filterGroups}
@@ -268,6 +269,7 @@
 				{#if !isPlaceholder && item != null}
 					{#if item.realm === ProposalRealm.Ethereum}
 						{@const entry = item.entry as ProposalEntry}
+
 						<EntityView
 							entityType={EntityType.Proposal}
 							entity={entry}
@@ -278,8 +280,8 @@
 							metadata={[
 								{ term: 'Status', detail: entry.status },
 								{ term: 'Category', detail: entry.category },
-								...(entry.created
-									? [{ term: 'Created', detail: formatCreated(entry.created) }]
+								...(entry.created ?
+									[{ term: 'Created', detail: formatCreated(entry.created) }]
 									: []),
 							]}
 							annotation={entry.type === ProposalType.Erc ? 'ERC' : 'EIP'}
@@ -296,6 +298,7 @@
 										{entry.type === ProposalType.Erc ? 'ERC' : 'EIP'}-{entry.number}
 									{/if}
 								</strong>
+
 								{' '}
 								{#if searchQuery != null}
 									<SearchableText text={entry.title} query={searchQuery} {matches} />
@@ -303,10 +306,12 @@
 									{entry.title}
 								{/if}
 							{/snippet}
+
 							<Proposal {entry} />
 						</EntityView>
 					{:else}
 						{@const entry = item.entry as CaipEntry}
+
 						<EntityView
 							entityType={EntityType.Caip}
 							entity={entry}
@@ -317,8 +322,8 @@
 							metadata={[
 								{ term: 'Status', detail: entry.status },
 								{ term: 'Type', detail: entry.type },
-								...(entry.created
-									? [{ term: 'Created', detail: formatCreated(entry.created) }]
+								...(entry.created ?
+									[{ term: 'Created', detail: formatCreated(entry.created) }]
 									: []),
 							]}
 							annotation="CAIP"
@@ -335,6 +340,7 @@
 										CAIP-{entry.number}
 									{/if}
 								</strong>
+
 								{' '}
 								{#if searchQuery != null}
 									<SearchableText text={entry.title} query={searchQuery} {matches} />
@@ -342,6 +348,7 @@
 									{entry.title}
 								{/if}
 							{/snippet}
+
 							<Caip {entry} />
 						</EntityView>
 					{/if}

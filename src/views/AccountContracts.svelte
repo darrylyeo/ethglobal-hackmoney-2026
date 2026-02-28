@@ -94,6 +94,7 @@
 		>
 			{discovering ? 'Discovering…' : 'Discover deployed contracts'}
 		</button>
+
 		{#if discoveryError}
 			<p data-tag="failure">{discoveryError}</p>
 		{/if}
