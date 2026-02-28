@@ -1,0 +1,74 @@
+---
+description: How to stage hunks when splitting into atomic commits (avoids broken interactive git add -p)
+globs:
+alwaysApply: true
+---
+
+# Atomic commit — staging hunks
+
+**Research:** Git has no built-in “stage hunk N” flag (e.g. no `git add -p 2`). The only built-in hunk staging is `git add -p`, which is interactive. Two ways to use it non-interactively:
+
+1. **Pipe responses into `git add -p`** — Git reads from stdin when stdin is a pipe. One response per hunk, e.g. `printf 'y\nn\ny\n' | git add -p -- path/to/file`. Works in scripts; can fail in Cursor’s agent terminal if the process has a TTY and the agent “types” instead of piping (input never reaches stdin).
+2. **`git add -e` with `GIT_EDITOR`** — A script can edit the patch file (delete unwanted hunks) and exit; Git applies the result. Possible but more involved.
+
+**In this environment** interactive `git add -p` (no pipe) often fails because the terminal input format doesn’t reach stdin. Prefer the options below.
+
+## Option A: Pipe into `git add -p` (built-in)
+
+If you know the exact y/n sequence for each hunk (1 = first hunk, 2 = second, …), run:
+
+```bash
+printf 'y\nn\ny\n' | git add -p -- path/to/file
+```
+
+Use one line per hunk (`y` = stage, `n` = skip). Only works when the shell runs this as one command so stdin is a pipe. If that hangs or doesn’t stage, use Option C or the script.
+
+## Option B: Stage whole files
+
+When each modified file belongs to a single logical commit, stage by file:
+
+```bash
+git add path/to/file
+```
+
+Group files into one commit when they form one logical change.
+
+## Option C: When you must stage only some hunks (patch or script)
+
+Use **`git apply --cached`** with a patch file (non-interactive).
+
+1. Get the unstaged diff for the file:
+   ```bash
+   git diff --no-color -- path/to/file
+   ```
+2. Build a patch that contains only the hunk(s) you want to stage:
+   - The patch must start with the usual header: `diff --git`, `index`, `--- a/...`, `+++ b/...`.
+   - Then include only the `@@ ... @@` hunk(s) you want (each hunk starts with `@@`).
+   - Save to a temp file, e.g. `_stage.patch`.
+3. Stage that patch:
+   ```bash
+   git apply --cached _stage.patch
+   ```
+4. Remove the temp patch file.
+
+**Example:** To stage only the second hunk of `src/foo.svelte`, run `git diff --no-color -- src/foo.svelte`. Copy the first 4 lines (header) and the second hunk (from the second `@@` to the next `@@` or end of diff) into `_stage.patch`, then `git apply --cached _stage.patch`.
+
+**Script:** From repo root, `./scripts/stage-hunk.sh <file> <index> [index ...]` stages hunks by 1-based index (e.g. `./scripts/stage-hunk.sh src/foo.svelte 2 4` stages 2nd and 4th hunk). Uses `git apply --cached` under the hood. Use when Option A (pipe) is not available or fails.
+
+---
+
+## git absorb (fold changes into existing commits)
+
+**When to use:** The user has uncommitted (or staged) changes that are **amendments** to recent commits (e.g. review feedback, small fixes) — not new logical changes to split into new commits. Use **git absorb** to assign each hunk to the commit that last touched those lines and create fixup commits.
+
+**Requires:** `git-absorb` installed (e.g. `brew install git-absorb`). Not part of core Git.
+
+**Workflow:**
+
+1. Stage the changes you want to absorb: `git add <files>` (or stage specific hunks with the options above).
+2. Run `git absorb` — it creates `fixup!` commits on HEAD, one per target commit.
+3. Fold them in: `git rebase -i --autosquash <base>` (e.g. `master`), or use `git absorb --and-rebase` to do step 2 and 3 in one go.
+
+**Options:** `--dry-run` to see what would happen; `--base <commit>` to consider commits back to that base (default is last ~10 commits). By design only **staged** changes are absorbed.
+
+**Recovery:** If the result is wrong, `git reset --soft PRE_ABSORB_HEAD` (or find the commit in `git reflog`) to restore state before absorb.
