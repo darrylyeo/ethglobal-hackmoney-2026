@@ -40,7 +40,6 @@
 
 
 <details
-	data-card
 	{open}
 	{...detailsProps}
 	data-scroll-container="block snap-block"
