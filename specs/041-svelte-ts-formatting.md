@@ -23,6 +23,11 @@ Ensure Svelte and TypeScript are formatted to match the repository preferences.
 - [x] A formatting pass inlines every single-use variable and type (const/let/type alias used only once) at the single use site; avoid inlining when it would harm readability.
 - [x] Multi-line expressions follow the repo style for line breaks,
   indentation, and trailing commas.
+- [x] **Dangling `=` or `=>`:** When a line ends with `=` (assignment) or `=>`
+  (arrow return) and the value/expression continues on the next line, wrap the
+  RHS in parentheses with the expression indented: `= (` or `=> (` on the
+  current line, expression on following line(s), closing `)` on its own line.
+  The tell is a dangling `=` or `=>` at end of line.
 
 ### Svelte formatting
 
