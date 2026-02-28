@@ -11,7 +11,7 @@ When committing:
 
 1. **Analyze** all current changes at **hunk level** (not just file level)
 2. **Plan** commits in topological order (dependencies first), with **hunks** assigned to commits
-3. **Execute** each commit by staging only the **relevant hunks** (use `git add -p` when a file spans multiple commits)
+3. **Execute** each commit by staging only the **relevant hunks** — do **not** use `git add -p` (interactive; fails in this environment). Use the pipe, `./scripts/stage-hunk.sh`, or `git apply --cached` per `.cursor/rules/atomic-commit-staging.mdc`
 4. **Verify** the build after **every** commit; if it fails, undo, split, and re-commit until the commit passes
 
 ---
@@ -34,7 +34,7 @@ For each **file**, identify **hunks** (`@@ -start,count +start,count @@`). Categ
 - **Dependency**: Must come before files/hunks that import or use it
 - **Atomic group**: Hunks (possibly across files) that must change together (e.g., prop renames)
 - **Deletion**: Must come after removing all usages
-- **Mixed file**: Assign specific hunks to specific commits; use `git add -p` when executing
+- **Mixed file**: Assign specific hunks to specific commits; use `./scripts/stage-hunk.sh` or pipe into `git add -p` when executing (see staging rule)
 
 ---
 
@@ -71,29 +71,27 @@ Analyze `git log` to match existing style. Common patterns:
 
 ## Phase 3: Execute Commits (hunk granularity)
 
-For each planned commit, stage **only the hunks** that belong to that commit:
+For each planned commit, stage **only the hunks** that belong to that commit. **Do not use bare `git add -p`** — use one of:
+
+- **Pipe:** `printf 'y\nn\ny\n' | git add -p -- path/to/file.ts` (one y/n per hunk)
+- **Whole file:** `git add -- path/to/file.ts` when the file belongs to this commit only
+- **By hunk index:** `./scripts/stage-hunk.sh path/to/file.ts 1 3`
+- **Deletions:** `git rm -- path/to/deleted.ts`
+
+See `.cursor/rules/atomic-commit-staging.mdc` for details. Then:
 
 ```bash
-# Prefer staging by hunk when a file spans multiple commits
-git add -p path/to/file.ts   # accept (y) or skip (n) each hunk
-
-# When the whole file belongs to this commit
-git add -- path/to/file.ts
-
-# For deletions
-git rm -- path/to/deleted.ts
-
 git commit -m "$(cat <<'EOF'
 Commit message here
 EOF
 )"
 ```
 
-If a file has hunks for commit A and hunks for commit B, **do not** stage the whole file for one commit. Use `git add -p` to stage only the hunks for the current commit.
+If a file has hunks for commit A and hunks for commit B, do not stage the whole file for one commit; use the pipe or `stage-hunk.sh` to stage only the hunks for the current commit.
 
 ### Handling Complex Diffs
 
-When a file has mixed changes and `git add -p` is impractical (e.g. many small hunks):
+When a file has mixed changes and the pipe or `stage-hunk.sh` is insufficient (e.g. many small hunks):
 
 1. Stash/backup current working tree state
 2. Checkout the file from HEAD
@@ -149,6 +147,7 @@ Honor when the user specifies:
 
 - **"ignore X"** — Skip certain changes, leave in working tree
 - **"commit later"** — Mark section as deferred
+- **"absorb"** or **"fold into existing"** — Use `git absorb` to turn changes into fixups for recent commits instead of new commits (stage → `git absorb` → `git rebase -i --autosquash` or `git absorb --and-rebase`)
 
 ---
 
